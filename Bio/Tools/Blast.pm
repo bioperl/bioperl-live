@@ -20,7 +20,9 @@
 package Bio::Tools::Blast;
 
 use Bio::Tools::SeqAnal;
-use Bio::Root::Global  qw(:std);
+use Bio::Root::Global     qw(:std);
+use Bio::Root::Utilities  qw(:obj); 
+
 require 5.002;
 use Carp;
 
@@ -31,10 +33,10 @@ use Carp;
 		 std => [qw($Blast)]);
 
 use strict;
-use vars qw($ID $VERSION $Blast @Blast_programs $Revision);
+use vars qw($ID $VERSION $Blast @Blast_programs $Revision $Newline);
 
 $ID = 'Bio::Tools::Blast';
-$VERSION  = 0.075; 
+$VERSION  = 0.080; 
 $Revision = '$Id$';  #'
 
 ## Static Blast object. 
@@ -45,14 +47,10 @@ $Blast->{'_name'} = "Static Blast object";
 @Blast_programs  = qw(blastp blastn blastx tblastn tblastx);
 
 use vars qw($RawData $HspString $HitCount $DEFAULT_MATRIX $DEFAULT_SIGNIF);
-$RawData             = ''; # Holds a single Blast report.
-$HspString           = ''; # Holds data for the alignment section of one hit.
 $DEFAULT_MATRIX      = 'BLOSUM62';
 $DEFAULT_SIGNIF      = 999;# Value used as significance cutoff if none supplied.
 $HitCount            = 0;  # Holds total number of hits (not just significant hits).
 my $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
-my $_no_gt           = 0;  # If alignment sections lack a '>'.
-my $_verbose         = 0;  # Extra progress output.
 
 ## POD Documentation:
 
@@ -94,7 +92,6 @@ Full parameters for parsing Blast reports.
 		-strict          => 0,
 		-stats           => 1,
 		-best            => 0,
-		-stream          => 0,
 		-share           => 0,
 		-exec_func       => \&process_blast,
 		-save_array      => \@blast_objs,  # not used if -exce_func defined.
@@ -368,7 +365,6 @@ Using the static $Blast object for parsing a STDIN stream of Blast reports:
     }
 
     $Blast->parse( -parse     => 1,
-		   -stream    => 1,  
 		   -signif    => '1e-10',
 		   -exec_func => \&process_blast,
 		   );
@@ -878,7 +874,7 @@ for use with "make test" during installation.
 
 =head1 VERSION
 
-Bio::Tools::Blast.pm, 0.075
+Bio::Tools::Blast.pm, 0.080
 
 
 =head1 FEEDBACK
@@ -1009,49 +1005,8 @@ for documentation purposes only.
 ##                          CONSTRUCTOR                                     ##
 ##############################################################################
 
-=head2 _initialize
-
- Usage     : $blastObj->_initialize( %named_parameters )
-           : Automatically called by Bio::Root::Object::new()
- Purpose   : Calls superclass constructor and initializes some key Blast data.
- Returns   : n/a
- Argument  : Named Parameters (PARAMETER TAGS CAN BE UPPER OR LOWER CASE).
-           : The Blast.pm constructor relies on the SeqAnal.pm constructor
-           : to handle the parameters it receives from new().
-           : These parameters consist of all parameters necessary for parsing
-           : and/or running a Blast report in addition to parameters
-           : required by SeqAnal.pm.
-           : Briefly, to parse a report include this parameter:
-           :       -PARSE => 1
-           : To run a report, include this parameter:
-           :       -RUN => \%run_params 
-           : To run + parse, supply both.
-           : Please see the SeqAnal::_initialize() method for details.
-
-See Also   : B<Bio::Tools::SeqAnal::_initialize()>, L<parse>(), L<run>(), L<Links to related modules>
-
-=cut
-
-#---------------
-sub _initialize {
-#---------------
-    my( $self, @param ) = @_;
-    
-    # When parsing a stream of Blast results, don't call superclass constructor.
-    if($Blast->{'_stream'}) {
-	eval {
-	    $self->_parse_stream_data(@param);
-	};
-	if($@) {
-	    push @{$Blast->{'_errs'}}, $@;
-	}
-
-    } else {
-	$RawData = '';
-	$self->SUPER::_initialize( @param );
-    }
-    $_verbose = $self->verbose() > 0;
-}
+## The Blast.pm object relies on the the superclass constructor:
+## Bio::Tools::SeqAnal::_initialize(). See that module for details.
 
 
 #-------------
@@ -1068,10 +1023,6 @@ sub destroy {
         #$self->{'_hits'}->remove_all;  ## When and if this member becomes a vector.
     }
 
-    # Not undef-ing to avoid unnecessary re-allocation.
-    $Blast->{'_rawData'} = '';
-    $RawData   = '';
-    $HspString = '';
     $self->SUPER::destroy;
 }
 
@@ -1287,12 +1238,14 @@ sub db_remote {
     $type ||= 'p';
 
     require Bio::Tools::Blast::Run::Webblast; 
+    use Bio::Tools::Blast::Run::Webblast qw(@Blast_dbp_remote
+					    @Blast_dbn_remote);
 
     my(@dbs);
     if( $type =~ /^p|amino/i) {
-	@dbs = @Bio::Tools::Blast::Run::Webblast::Blast_dbp_remote;
+	@dbs = @Blast_dbp_remote;
     } else {
-	@dbs = @Bio::Tools::Blast::Run::Webblast::Blast_dbn_remote;
+	@dbs = @Blast_dbn_remote;
     }
     @dbs;
 }
@@ -1323,12 +1276,14 @@ sub db_local {
     $type ||= 'p';
 
     require Bio::Tools::Blast::Run::LocalBlast; 
+    use Bio::Tools::Blast::Run::LocalBlast qw(@Blast_dbp_local
+					      @Blast_dbn_local);
 
     my(@dbs);
     if( $type =~ /^p|amino/i) {
-	@dbs = @Bio::Tools::Blast::Run::LocalBlast::Blast_dbp_local;
+	@dbs = @Blast_dbp_local;
     } else {
-	@dbs = @Bio::Tools::Blast::Run::LocalBlast::Blast_dbn_local;
+	@dbs = @Blast_dbn_local;
     }
     @dbs;
 }
@@ -1373,17 +1328,12 @@ sub db_local {
            :                          default = false).
 	   : -BEST        => boolean (only process the best hit of each report; 
            :                          default = false).
-	   : -GAPPED      => boolean (gapped can be provided if you know in advance
-           :                          that the reports were gapped. Otherwise, it will
-	   :			      be determined from the report; default = false).
            : -OVERLAP     => integer (the amount of overlap to permit between 
            :                          adjacent HSPs when tiling HSPs, 
            :                          Default = $MAX_HSP_OVERLAP (2))
            :
            : PARAMETERS USED WHEN PARSING MULTI-REPORT STREAMS:
            : --------------------------------------------------
-	   : -STREAM      => boolean (true when parsing a Blast stream containing 
-           :                          multiple reports. Default = false).
 	   : -SHARE       => boolean (set this to true if all reports in stream
 	   :			      share the same stats. Default = true)
            :                          Must be set to false when parsing both Blast1 and
@@ -1400,6 +1350,10 @@ sub db_local {
            : -SAVE_ARRAY  =>array_ref, (reference to an array for storing all
            :                            Blast objects as they are created. 
            :                            Experimental. Not recommended.)
+           : -SIGNIF_FMT  => boolean   String of 'exp' or 'parts'. Sets the format 
+           :                           for reporting P/Expect values. 'exp' reports 
+           :                           only the exponent portion. 'parts' reports 
+           :                           them as a 2 element list. See signif_fmt()..
            :
  Throws    : Exception if BLAST report contains a FATAL: error.
            : Propagates any exception thrown by read().
@@ -1421,7 +1375,7 @@ sub db_local {
            : prior to parsing. Parsing HTML-formatted reports is highly
            : error prone and is generally not recommended.
 
-See Also   : L<_parse>(), L<_parse_stream>(), L<_set_signif>(), L<overlap>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
+See Also   : L<_parse>(), L<_parse_stream>(), L<_set_signif>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
 
 =cut
 
@@ -1431,312 +1385,194 @@ sub parse {
 # $self might be the static $Blast object.
     my ($self, @param) = @_;
 
-    my($signif, $filt_func, $min_len, $check_all, $overlap, $stats, $gapped, 
-       $share, $stream, $strict, $best, $sig_fmt) = 
+    my($signif, $filt_func, $min_len, $check_all, $overlap, $stats, 
+       $share, $strict, $best, $signif_fmt) = 
 	$self->_rearrange([qw(SIGNIF FILT_FUNC MIN_LEN CHECK_ALL_HITS 
-			      OVERLAP STATS GAPPED SHARE STREAM STRICT 
-			      BEST SIGNIF_FMT)], @param);
+			      OVERLAP STATS SHARE STRICT 
+			      BEST EXPONENT )], @param);
+
+    ## Initialize the static Blast object with parameters that 
+    ## apply to all Blast objects within a parsing session.
+
+    ## Why have the {'_initialized'} ???
+#    if(not $Blast->{'_initialized'}) {
+      &_init_parse_params($share, $filt_func, $check_all,
+			  $signif, $min_len, $strict,
+			  $best, $signif_fmt, $stats
+			 );
+#    }
+
+    my $count = $self->_parse_blast_stream(@param);
+	
+#    print STDERR "\nDONE PARSING STREAM.\n";
+
+    if($Blast->{'_blast_errs'}) {
+      my @errs = @{$Blast->{'_blast_errs'}};
+      printf STDERR "\n*** %d BLAST REPORTS HAD FATAL ERRORS:\n", scalar(@errs);
+      foreach(@errs) { print STDERR "$_\n"; }
+      @{$Blast->{'_blast_errs'}} = ();
+    }
+
+    # Parsing session is over. Reset static variables.
+#    if($self->name eq 'Static Blast object') {
+#    $Blast->{'_initialized'} = 0;   }
+
+    return $count;
+}
+
+#----------------------
+sub _init_parse_params {
+#----------------------
+# "Static" method used by the $Blast object.
+    my ($share, $filt_func, $check_all, 
+	$signif, $min_len, $strict,
+	$best, $signif_fmt, $stats) = @_;
 
     ## Default is to share stats.
     $Blast->{'_share'}  = defined($share) ? $share : 1;
-    $Blast->{'_stream'} = $stream || 0;  
     $Blast->{'_filt_func'} = $filt_func || 0;  
     $Blast->{'_check_all'} = $check_all || 0; 
-    $Blast->{'_signif_fmt'} ||= $sig_fmt || ''; 
+    $Blast->{'_signif_fmt'} ||= $signif_fmt || ''; 
 
-    $self->_set_signif($signif, $min_len, $filt_func);
-    $self->strict($strict) if $strict;
-    $self->best($best) if $best;
+    &_set_signif($signif, $min_len, $filt_func);
+    $Blast->strict($strict) if defined $strict;  
+    $Blast->best($best) if $best;
+    $Blast->{'_blast_count'} = 0;
 
     ## If $stats is false, miscellaneous statistical and other parameters
     ## are NOT extracted from the Blast report (e.g., matrix name, filter used, etc.).
     ## This can speed processing when crunching tons of Blast reports.
     ## Default is to NOT get stats.
-    $self->{'_get_stats'} = defined($stats) ? $stats : 0;  
+    $Blast->{'_get_stats'} = defined($stats) ? $stats : 0;  
 
-    ## If we know in advance whether or not a gapped Blast was performed,
-    ## we don't need to parse this info from the report, which can be tricky.
-    $self->{'_gapped'} = $gapped || 0;  
+    # Clear any errors from previous parse.
+    undef $Blast->{'_blast_errs'};
 
-    my ($count);
-    if($Blast->{'_stream'}) {
-
-	$count = $self->_parse_stream(@param);
-	
-	## Need special way to handle exceptions within stream.
-	if($Blast->{'_errs'}) {
-	    my @errs = @{$Blast->{'_errs'}};
-	    printf STDERR "\n*** %d BLAST REPORTS HAD FATAL ERRORS:\n", scalar(@errs);
-	    foreach(@errs) { print STDERR "$_\n"; }
-	    @{$Blast->{'_errs'}} = ();
-	}
-	
-	$count -= 1;
-    } else {
-	$self->_parse(@param);
-	$count = 1;
-    }
-	
-    ## If report has been parsed, there is no need
-    ## to save the raw data. If it is needed again, it can be
-    ## re-read in from the file (unless STDIN was used...)
-    $RawData   = '';  
-    $HspString = '';
-
-    $count;
+#    $Blast->{'_initialized'} = 1;  # purpose?
 }
 
 
 
-=head2 _parse
+=head2 _set_signif
 
- Usage     : n/a; internal method used by parse()
-           : $blast_object->_parse( %named_parameters)
- Purpose   : For use when parsing a single Blast report, not a stream.
+ Usage     : n/a; called automatically by _init_parse_params()
+           : This is now a "static" method used only by $Blast.
+           : _set_signif($signif, $min_len, $filt_func); 
+ Purpose   : Sets significance criteria for the BLAST object.
+ Argument  : Obligatory three arguments:
+           : $signif = float or sci-notation number or undef
+           : $min_len = integer or undef
+           : $filt_func = function reference or undef
+ Throws    : Exception if significance values appear out of range or invalid.
+           : Sets default values (signif = 10; min_length = not set).
+           : Exception if $filt_func if defined and is not a func ref.
+ Comments  : The significance of a BLAST report can be based on
+           : the P (or Expect) value and/or the length of the query sequence.
+           : P (or Expect) values GREATER than '_significance' are not significant.
+           : Query sequence lengths LESS than '_min_length' are not significant.
+           :
+           : Hits can also be screened using arbitrary significance criteria 
+           : as discussed in the parse() method.
+           :
+           : If no $signif is defined, the '_significance' level is set to 
+           : $Bio::Tools::Blast::DEFAULT_SIGNIF (999).
 
-See Also   : L<_parse_stream>(), L<parse>()
-
-=cut
-
-#-----------
-sub _parse {
-#-----------
-    my ($self, @param) = @_;
-   
-    local($/) = "\n";
-    $RawData = $self->read(@param) unless $RawData;
-
-    $_verbose && printf "\nParsing file: %s\n", $self->file || 'STDIN';
-
-    if($RawData =~ /<HTML>|<A HREF/i) {
-	require Bio::Tools::Blast::HTML; 
-	import Bio::Tools::Blast::HTML qw(&strip_html); 
-	&strip_html(\$RawData);
-    }
-	
-    $self->_set_query();  # The name of the sequence will appear in error report.
-
-    $RawData =~ /WARNING: (.+?)\n\n/s and $self->warn("$1") if $self->strict;
-    $RawData =~ /FATAL: (.+?)\n\n/s and $self->throw("FATAL BLAST ERROR = $1"); 
-    $RawData =~ /No hits? found/i and $self->throw("No hits were found."); 
-
-    ## Test length first since the BLAST report may be screened based on length
-    ## of query sequence.
-    if(	$self->_set_length()) {
-
-	my $get_stats = $self->_get_stats;
-	$self->_set_program;
-	$self->_set_parameters($get_stats);  # Always must be called.
-	$self->_set_date if $get_stats;
-	$self->_set_hits();
-	$self->_test_significance();
-
-	$self->{'_numHits'}    = $HitCount;
-	$self->{'_numSigHits'} = scalar @{$self->{'_hits'}};
-    }
-}
-
-
-
-=head2 _parse_stream
-
- Usage     : n/a; for internal use by parse()
-           : $blast_object->_parse_stream( %named_parameters)
- Purpose   : For use when parsing an input stream containing multiple Blast reports.
- Comments  :
- 
- Blast report data is parsed into Blast objects as it is being read in. 
- This facilitates the processing of multiple reports from a STDIN stream.
- In some situations, you want data from all reports, but in others, 
- you may only want Blast reports with significant hits. This function
- attempts to provide for these needs.
- 
- This method is typically used by the static $Blast object to parse a
- set of related Blast reports which share the same parameters (significance 
- cutoff, matrix, filters, creation date, database searched, etc.). 
- To save computational and storage costs, these parameters need not be 
- parsed for all such related reports. They need only be parsed once, for 
- the first report, and stored in the static $Blast object, to which the 
- separate Blast objects have access.
- 
- One issue concerns what to do with the parsed data: save it or
- use it? Sometimes you need to process all Blast data as a group
- (eg., sorting). Other times, you can safely process each report
- as it gets parsed and then move on to the next. In this case,
- the Blast object for each report should be destroyed before moving
- on to the next (i.e., call $blast->destroy()). Otherwise, the
- Perl garbage collector will not clear the memory. This becomes a
- concern when crunching through thousands of reports. 
-
- WARNING:
-  USE OF THIS METHOD LEADS TO EXCESSIVE MEMORY USAGE WHEN PROCESSING
-  STREAMS CONTAINING LARGE NUMBERS OF BLAST REPORTS (N > 1000),
-  DESPITE CALLING destroy() ON THE BLAST OBJECTS PRODUCED FROM THE STREAM.
-  The source of this memory leak is being investigated. Until then,
-  file-by-file parsing should be used instead of stream parsing
-  when dealing with large numbers of Blast reports.
-  (Use the strategy of parse_multi.pl instead of parse_stream.pl
-   in the DEMO SCRIPTS section).
- 
-  NOTE: Changes made in the 0.061 release may have solved this memory
-        problem. This needs to be verified.
-
-See Also   : L<_get_parse_func>(), L<_parse_stream_data>(), L<DEMO SCRIPTS>
+See Also   : L<_test_significance>(), L<_confirm_significance>(), L<signif>(), L<min_length>(), L<_init_parse_params>(), parse>()
 
 =cut
 
-#------------------
-sub _parse_stream {
-#------------------
-    my ($self, @param) = @_;
-
-    # Obtain a function ref (closure) to be used while reading in the raw data.
-    my $funct = $self->_get_parse_func(@param);
-
-    $Blast->{'_blastCount'} = 0;
-
-    $self->read(-REC_SEP  =>"\nQuery= ", 
-		-FUNC     => $funct,
-		@param);
-
-    return $Blast->{'_blastCount'};
+#-----------------
+sub _set_signif {
+#-----------------
+    my( $sig, $len, $func ) = @_;
     
-}
+    if(defined $sig) {
+	$Blast->{'_confirm_significance'} = 1;
+	if( $sig =~ /[^\d.e-]/ or $sig <= 0) { 
+	    $Blast->throw("Invalid significance value: $sig", 
+			 "Must be greater than 0.");
+	} 
+	$Blast->{'_significance'} = $sig;
+    } else {
+	$Blast->{'_significance'}   = $DEFAULT_SIGNIF;
+	$Blast->{'_is_significant'} = 1;
+	$Blast->{'_check_all'}     = 1 if not $Blast->{'_filt_func'}; 
+    }
+
+    if(defined $len) {
+	if($len =~ /\D/ or $len <= 0) {
+	    $Blast->warn("Invalid minimum length value: $len", 
+			"Value must be an integer > 0. Value not set.");
+	} else {
+	    $Blast->{'_min_length'} = $len;
+	} 
+    }
+
+    if(defined $func) {
+	$Blast->{'_confirm_significance'} = 1;
+	if($func and not ref $func eq 'CODE') {
+	    $Blast->throw("Not a function reference: $func",
+			  "The -filt_func parameter must be function reference.");
+	  }
+      }
+  }
 
 
 
+=head2 _parse_blast_stream
 
-=head2 _parse_stream_data
+ Usage     : n/a. Internal method called by parse()
+ Purpose   : Obtains the function to be used during parsing and calls read().
+ Returns   : Integer (the number of blast reports read)
+ Argument  : Named parameters  (forwarded from parse())
+ Throws    : Propagates any exception thrown by _get_parse_blast_func() and read().
+ Comments  : 
+ Status    : NEW FUNCTION: to be used for the new parsing strategy.
 
- Usage     : n/a; internal method used by _parse_stream()
-           : $blast_object->_parse_stream_data()
- Purpose   : Parses a single Blast object within an input stream of Blast reports.
- Comments  : The object passed in to this method will be a new Blast object
-           : created by the _get_parse_func() closure.
-
-See Also   : L<_parse_stream>(), L<_get_parse_func>()
+See Also   : L<_get_parse_blast_func>(), B<Bio::Root::Object::read()>
 
 =cut
 
 #----------------------
-sub _parse_stream_data {
+sub _parse_blast_stream {
 #----------------------
-    my ($self) = @_;
+    my ($self, %param) = @_;
 
-    $_verbose && printf "\nParsing Blast report $Blast->{'_blastCount'} from stream data\n";
+    my $func = $self->_get_parse_blast_func(%param);
 
-    $RawData = $Blast->{'_rawData'};
-    if($RawData =~ /<HTML>|<A HREF/i) {
-	require Bio::Tools::Blast::HTML; 
-	import Bio::Tools::Blast::HTML qw(&strip_html); 
-	&strip_html(\$RawData);
-    }
-    $self->_set_query();  # The name of the sequence will appear in error report.
-    $RawData =~ /WARNING: (.+?)\n\n/s and $self->warn("$1") if $self->strict;
-    $RawData =~ /FATAL: (.+?)\n\n/s and $self->throw("FATAL BLAST ERROR = $1"); 
-    $RawData =~ /No hits? found/si and $self->throw("No hits were found."); 
-    
-#    print "\n=============================================\n";
-#    print "PARSING STREAM DATA: $Blast->{'_blastCount'}\n";
-#    printf "\nRawData (head  200):\n%s\n", substr($RawData, 0, 200);
-#    printf "\nRawData (tail -400):\n%s\n", substr($RawData, -400);
-#    print "\n=============================================\n\n";
-    
-    # PROBLEM: 
-    # If parameters are not to be shared between different reports in 
-    # the stream, we need a way to get the correct data (program and date)
-    # to each Blast object. This problem arises due to the way the stream
-    # is split ($/ = "\nQuery= ") which leaves the type of program 
-    # (BLASTP etc.) at the bottom of the previous record.
-    # Note that sharing is on by default, since it is more typical that 
-    # you will be crunching through a set of closely related reports.
-    # To not share, provide -SHARE => 0 to parse().
+    # Only setting the newline character once for efficiency.
+    $Newline ||= $Util->get_newline(-client => $self, %param);
 
-    my $get_stats = $self->_get_stats;
+#    print STDERR "\nNEWLINE = $Newline<----";
 
-    if($Blast->{'_blastCount'} == 1) {
-	# Info before the Query= line in first report.
-	# The first chunk will not have any BLAST data.
-	# We are always putting this in the BLAST object. 
-	$Blast->_set_program();
-	$Blast->_set_date() if $get_stats;
-	return;
-    }
+    $self->read(-REC_SEP  =>"$Newline>", 
+		-FUNC     => $func,
+		%param);
 
-    if($Blast->{'_blastCount'} == 2) {
-	# get stats only for the first dataset and store in BLAST object.
-	# Some of the stats may not be the same across different Blasts
-	# e.g., database, Karlin-ALtschul params. If you need these, then you
-	# set -SHARE => 0 in the parse() call.
-	$Blast->_set_parameters($get_stats); # Always must set params (esp. gapping) 
-	if($get_stats) {
-	    $Blast->_set_date() if not $Blast->SUPER::date();
-	}
-
-    } else {
-	## For all additional reports beyond the first, if '_share' is false,
-	## each Blast object will have its own stats.
-	## To accomplish this, we need to transfer the data from the end of the 
-	## previous report chunk which was stored in the BLAST object. (see below).
-	if( not $Blast->{'_share'}) {
-	    $self->_set_parameters($get_stats);
-	    if( $get_stats) {
-		$self->_set_program($Blast->SUPER::program, $Blast->SUPER::program_version);
-		$self->_set_date($Blast->SUPER::date);
-	    }
-#	    printf "\nPROGRAM: %s\nDATABASE: %s\n", $self->program, $self->database;
-	}
-    }
-    
-    if($self->_set_length()) {
-	$self->_set_hits();
-	$self->_test_significance();
-
-	$self->{'_numHits'}    = $HitCount;
-	$self->{'_numSigHits'} = scalar @{$self->{'_hits'}};
-    }
-
-    ## If we are not sharing stats, reset the program and date from the 
-    ## data of the current chunk which actually applies 
-    ## to the next chunk given the way we have segmented the reports
-    ## on "\nQuery= ".
-    if(not $Blast->{'_share'}) {
-#	print "\nRESETTING PROGRAM\n";
-	$Blast->_set_program();
-	$Blast->_set_date() if $get_stats;
-#	printf "  PROGRAM (Blast): %s\n",  $Blast->program;
-    }
-	
-    ## If report has been parsed, there is typically no need
-    ## to save the raw data. If it is needed again, it can be
-    ## re-read in from the file.
-
-    $RawData   = '';  
-    $HspString = '';
+    return $Blast->{'_blast_count'};
 }
 
 
 
-=head2 _get_parse_func
+=head2 _get_parse_blast_func
 
- Usage     : n/a; internal method used by _parse_stream()
+ Usage     : n/a; internal method used by _parse_blast_stream()
            : $func_ref = $blast_object->_get_parse_func()
  Purpose   : Generates a function ref to be used as a closure for parsing raw data
            : as it is being loaded by Bio::Root::Object::read()
  Returns   : Function reference (closure).
 
-See Also   : L<_parse_stream>()
+ Status    : NEW METHOD: to be used for the new parsing strategy.
+              Not completely tested, under development.
+              steve --- Sat Feb 13 01:42:39 1999
+
+See Also   : L<_parse_blast_stream>()
 
 =cut
 
-#-------------------
-sub _get_parse_func {
-#-------------------
-# POSSIBLE STRATEGY: 
-#   To save memory, the same Blast object can be re-used instead of
-#   creating a new one each time. This could solve the memory leak
-#   encountered when processing large Blast streams.
-   
+#--------------------------
+sub _get_parse_blast_func {
+#--------------------------
     my ($self, @param) = @_;
 
     my ($save_a, $exec_func) = 
@@ -1746,9 +1582,10 @@ sub _get_parse_func {
     my $count = 0;
     my $strict = $self->strict();
 
-    # Some validation:
+    # Some parameter validation:
     if($exec_func and not ref($exec_func) eq 'CODE') {
-	$self->throw("The -EXEC_FUNC parameter must be function reference.");
+	$self->throw("The -EXEC_FUNC parameter must be function reference.",
+		    "exec_func = $exec_func");
 
     } elsif($save_a and not ref($save_a) eq 'ARRAY') {
 	$self->throw("The -SAVE_ARRAY parameter must supply an array reference".
@@ -1760,48 +1597,467 @@ sub _get_parse_func {
 
      return sub {
 	my ($data) = @_;
-	## $data should contain a complete Blast report in one chunk. 
-	## (record separator = "\nQuery= ").
+	## $data should contain one of three possible fragment types
+        ## from a Blast report:
+        ##   1. Header with description section,
+        ##   2. An alignment section for a single hit, or
+        ##   3. An alignment section plus the footer section.
+	## (record separator = "Newline>").
 
-	$Blast->{'_rawData'} = $data;  
+#	print STDERR "\n(BLAST) DATA CHUNK: $data\n";
 
-	$count = $Blast->{'_blastCount'}++;	
+	my ($current_blast, $current_prog, $current_vers, $current_db);
+	my $prev_blast;
 
-	if($MONITOR && $count) {
-	    print STDERR ".", $count % 50 ? '' : "\n";
-	}
+	# Check for header section. Start a new Blast object and 
+	# parse the description section.
+        if ($data =~ /\sQuery\s?=/s) {
+	    $Blast->{'_blast_count'}++;
+	    print STDERR ".", $Blast->{'_blast_count'} % 50 ? '' : "\n" if $MONITOR;
 
-	# The parameters are not used by the new Blast object.
-	# It will obtain its mode and strict data from the
-	# static $Blast object. This may change.
-	my $blast = new Bio::Tools::Blast(-STRICT => $strict);
-	
-	## This will wipe out the first blast object, which is okay
-	## since it contains only the first header from which we've extracted 
-	## relevant info.
-	if($Blast->{'_blastCount'} > 1) {
-	    if($exec_func) {
-		&$exec_func($blast);  # ignoring any return value.
-		# Helps reduce memory leak when parsing streams:
-		if($Blast->{'_stream'}) {
-		    $blast->destroy;
-		    undef $blast;
-		}
-	    } else {
-		# We've already verified that if there is no exec_func
-		# then there must be a $save_array
-		push @$save_a, $blast;
+	    # If we're parsing a stream containing multiple reports,
+	    # all subsequent header sections will contain the last hit of
+	    # the previous report which needs to be parsed and added to this
+	    # report if signifcant. It also contains the run parameters
+	    # at the bottom of the Blast report.
+	    if($Blast->{'_blast_count'} > 1) {
+#	      print STDERR "\nMULTI-BLAST STREAM.\n";
+	      $Blast->{'_multi_stream'} = 1;
+
+	      if($data =~ /(.+?)$Newline(<\w+>)?(T?BLAST[NPX])\s+(.+?)$Newline(.+)/so) {
+		($current_prog, $current_vers, $data) = ($3, $4, $5);
+		# Final chunk containing last hit and last footer.
+		$Blast->{'_current_blast'}->_parse_alignment($1);
+		$prev_blast = $Blast->{'_current_blast'}; # finalized.
+	      }	else {
+		$Blast->throw("Can't determine program type from BLAST report.",
+			      "Checked for: @Blast_programs.");
+		# This has important implications for how to handle interval
+		# information for HSPs. TBLASTN uses nucleotides in query HSP
+		# but amino acids in the sbjct HSP sequence.
+	      }
+
+	      if($data =~ m/Database:\s+(.+?)$Newline/so ) {
+		$current_db = $1;
+	      } else {
+		$Blast->warn("Can't determine database type from BLAST report.");
+	      }
 	    }
-#	    print STDERR "\nNEW BLAST OBJECT: ${\$blast->name}\n";
+
+	    # Determine if we need to create a new Blast object 
+	    # or use the $self object for this method.
+
+	    if($Blast->{'_multi_stream'} or $self->name eq 'Static Blast object') {
+	      # Strict mode is not object-specific but may be someday.
+#	      print STDERR "\nCreating new Blast object.\n";
+	      $current_blast = new Bio::Tools::Blast(-STRICT => $strict);
+	    } else {
+	      $current_blast = $self;
+	    }
+	    $Blast->{'_current_blast'} = $current_blast;
+
+	    # If we're not sharing stats, set data on current blast  object.
+	    if(defined $current_prog and not $Blast->{'_share'}) {
+	      $current_blast->program($current_prog);
+	      $current_blast->program_version($current_vers);
+	      $current_blast->database($current_db);
+	    }
+
+#	    print STDERR "CURRENT BLAST = ", $current_blast->name, "\n";
+	    $current_blast->_parse_header($data);
+	    
+	    # At this point, we know if there are any significant hits.
+	    if($Blast->{'_confirm_significance'} and not $current_blast->is_signif) {
+	      $current_blast->throw("No significant BLAST hits for ${\$current_blast->name}");
+	    }
+
+	  } elsif(ref $Blast->{'_current_blast'}) {
+	    # Process an alignment section. 
+	    $current_blast = $Blast->{'_current_blast'};
+#	    print STDERR "\nCONTINUING PROCESSING ALN WITH ", $current_blast->name, "\n";
+	    $current_blast->_parse_alignment($data);
+	  }
+	
+	# If the current Blast object has been completely parsed
+	# (occurs with a single Blast stream), or if there is a previous 
+	# Blast object (occurs with a multi Blast stream), 
+	# exec a supplied function on it or store it in a supplied array.
+
+	if( defined $prev_blast or $current_blast->{'_found_params'}) {
+	  my $finished_blast = defined($prev_blast) ? $prev_blast : $current_blast;
+	  
+	  $finished_blast->report_errors();
+#	  print STDERR "\nNEW BLAST OBJECT: ${\$finished_blast->name}\n";
+
+	  if($exec_func) {
+#	    print STDERR "  RUNNING EXEC_FUNC...\n";
+	    &$exec_func($finished_blast);  # ignoring any return value.
+	    # Report processed, no longer need object.
+	    $finished_blast->destroy;
+	    undef $finished_blast;
+	  } elsif($save_a) {
+#	    print STDERR "  SAVING IN ARRAY...\n";
+	    # We've already verified that if there is no exec_func
+	    # then there must be a $save_array
+	    push @$save_a, $finished_blast;
+	  }
 	}
 	1;
+      }
+  }
+
+
+#-----------------
+sub report_errors {
+#-----------------
+  my $self = shift;
+
+  ref($self->{'_blast_errs'}) || (print STDERR "\nNO ERRORS\n", return );
+
+  my @errs = @{$self->{'_blast_errs'}};
+
+  ## Throw or warn about any errors encountered. 
+
+  if(scalar @errs) {
+    my ($str);
+    # When there are many errors, in most of the cases, they are
+    # caused by the same problem. Only need to see full data for
+    # the first one.
+    if(scalar @errs > 2) {
+      $str = "SHOWING FIRST EXCEPTION ONLY:\n$errs[0]";
+      $self->clear_err();  # clearing the existing set of errors (conserve memory).
+      # Not necessary, unless the -RECORD_ERR =>1
+      # constructor option was used for Blast object.
+    } else {
+      $str = join("\n",@errs);
     }
+    
+    if(not $self->{'_num_hits_significant'}) {
+      $self->throw(sprintf("Failed to parse data for %d potential hit(s).", scalar(@errs)),
+		   "\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
+		  );
+    } else {
+      $self->warn(sprintf("Some potential hits were not parsed (n=%d).", scalar(@errs)), 
+		  @errs > 2 ? "This may be due to a limiting B value (max alignment listings)." : "",
+		  "\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
+		 );
+    }
+  }
+}
+
+
+=head2 _parse_header
+
+ Usage     : n/a; called automatically by the _get_parse_blast_func().
+ Purpose   : Parses the header section of a BLAST report.
+ Argument  : String containing the header+description section of a BLAST report.
+ Throws    : Exception if description data cannot be parsed properly.
+             Exception if there are no significant hits.
+ Comments  : Description section contains a single line for each hit listing
+           : the seq id, description, score, Expect or P-value, etc.
+
+ Status    : NEW METHOD: under development. Incomplete.
+             steve --- Sat Feb 13 02:40:01 1999
+             Need to incorporate sections of code from _set_hits().
+
+See Also   : L<_get_parse_blast_func>()
+
+=cut
+
+#----------------------
+sub _parse_header {  
+#----------------------
+    my( $self, $data ) = @_;
+    
+#    print STDERR "\n$ID: PARSING HEADER\n"; #$data\n";
+    
+    $data =~ s/^\s+|\s+>?$//sg;
+
+    if($data =~ /<HTML>|<A HREF/i) {
+      $self->throw("Can't parse HTML-formatted BLAST reports.",
+#		    "Such reports can be parsed with a special parsing \n".
+#		    "script included in the examples/blast directory \n".
+#		    "of the Bioperl distribution."
+		  );
+      # This was the old strategy, can't do it with new strategy
+      # since we don't have the whole report in one chunk.
+      # This could be the basis for the "special parsing script".
+#	 require Bio::Tools::Blast::HTML; 
+#	 import Bio::Tools::Blast::HTML qw(&strip_html); 
+#	 &strip_html(\$data);
+    }
+	
+    $data =~ /WARNING: (.+?)$Newline$Newline/so and $self->warn("$1") if $self->strict;
+    $data =~ /FATAL: (.+?)$Newline$Newline/so and $self->throw("FATAL BLAST ERROR = $1"); 
+    $data =~ /No hits? found/i and $self->throw("No hits were found."); 
+
+    # If this is the first Blast, the program, version, and database info
+    # pertain to it. Otherwise, they are for the previous report and have
+    # already been parsed out.
+    # Data is stored in the static Blast object. Data for subsequent reports
+    # will be stored in separate objects if the -share parameter is not set.
+    # See _get_parse_blast_func().
+
+    if($Blast->{'_blast_count'} == 1) {
+      if($data =~ /(<\w+>)?(T?BLAST[NPX])\s+(.+?)$Newline/so) {
+	$Blast->program($2);
+	$Blast->program_version($3);
+      }	else {
+	$self->throw("Can't determine program type from BLAST report.",
+		     "Checked for: @Blast_programs.");
+	# This has important implications for how to handle interval
+	# information for HSPs. TBLASTN uses nucleotides in query HSP
+	# but amino acids in the sbjct HSP sequence.
+      }
+
+      if($data =~ m/Database:\s+(.+?)$Newline/so ) {
+	$Blast->database($1);
+      } else {
+	$self->warn("Can't determine database type from BLAST report.");
+      }
+    }
+
+    my ($header, $descriptions);
+
+    ## For efficiency reasons, we want to to avoid using $' and $`.
+    ## Therefore using single-line mode pattern matching.
+
+    if($data =~ /(.+?)\nSequences producing.+?\n(.+)/s ) {
+        ($header, $descriptions) = ($1, $2);
+    } else {
+      push @{$self->{'_blast_errs'}}, "Can't parse description data.";
+    }
+
+    $self->_set_query($header);  # The name of the sequence will appear in error report.
+#    print STDERR "\nQUERY = ", $Blast->{'_current_blast'}->query, "\n";
+
+    $self->_set_date($header) if $Blast->{'_get_stats'};
+    $self->_set_length($header);
+
+#    not $Blast->{'_confirm_significance'} and print STDERR "\nNOT PARSING DESCRIPTIONS.\n";
+
+    $Blast->{'_confirm_significance'} 
+        ? $self->_parse_descriptions($descriptions)
+	: ($self->{'_is_significant'} = 1);
+  }
+
+
+#-----------------------
+sub _parse_descriptions {
+#-----------------------
+# This is basically done. Ready for testing....
+  my ($self, $desc) = @_;
+
+#    print STDERR "\nPARSING DESCRIPTION DATA\n";
+
+    my @descriptions = split( $Newline, $desc);
+    my($line);
+
+    # NOW step through each line parsing out the P/Expect value
+    # All we really need to do is check the first one, if it doesn't
+    # meet the significance requirement, we can skip the report.
+    # BUT: we want to collect data for all hits anyway to get min/max signif.
+
+    $self->{'_highestSignif'} = 0;
+    $self->{'_lowestSignif'} = $DEFAULT_SIGNIF;
+    my $my_signif = $self->signif;
+    my $layout_set = $Blast->{'_layout'} || 0;
+    my $layout;
+    my $count = 0;
+    my $sig;
+
+    desc_loop:
+  foreach $line (@descriptions) {
+      
+      $count++;
+      last desc_loop if $line =~ / NONE |End of List/;
+      next desc_loop if $line =~ /^\s*$/;
+      next desc_loop if $line =~ /^\.\./;
+
+	## Checking the significance value (P- or Expect value) of the hit
+	## in the description line. 
+
+      # These regexps need testing on a variety of reports.
+      if ( $line =~ /\d+\s{1,2}[\de.-]+\s*$/) {
+	$layout = 2;
+      } elsif( $line =~ /\d+\s{1,2}[\de.-]+\s{1,}\d+\s*$/) {
+	$layout = 1;
+      } else {
+#	$self->throw("Can't determine report layout (Blast1 or 2).");
+	print STDERR "TROUBLE: _parse_signif() failed.\nLINE = $line\n";
+	next desc_loop;
+      }
+      not $layout_set and ($self->_layout($layout), $layout_set = 1);
+      
+      $sig = $self->_parse_signif( $line, $layout );
+      
+#      print STDERR "  Parsed signif ($layout) = $sig\n"; 
+
+      $self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'}) 
+                                    ? $sig : $self->{'_highestSignif'};
+
+      $self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'}) 
+                                    ? $sig : $self->{'_lowestSignif'};
+      # Significance value assessment.
+      $sig <= $my_signif and $self->{'_num_hits_significant'}++;
+
+      $self->{'_num_hits'}++;
+    }
+
+    $self->{'_is_significant'} = 1 if $self->{'_num_hits_significant'};
+
+#  print "\nDONE PARSING DESCRIPTIONS.";
 }
 
 
 
+=head2 _parse_alignment
 
-=head2 _set_parameters
+ Usage     : n/a; called automatically by the _get_parse_blast_func().
+ Purpose   : Parses a single alignment section of a BLAST report.
+ Argument  : String containing the alignment section.
+ Throws    : Exception if description data cannot be parsed properly.
+ Comments  : Alignment section contains all HSPs for a hit.
+
+ Status    : NEW METHOD: under development. Incomplete.
+             steve --- Sat Feb 13 02:40:01 1999
+             Need to incorporate sections of code from _set_hits().
+
+See Also   : L<_get_parse_blast_func>()
+
+=cut
+
+=head2 _set_hits  (FROM THE OLDER METHOD, MERGE ?
+
+ Usage     : n/a; called automatically during Blast report parsing.
+ Purpose   : Set significant hits for the BLAST report. Hits are encapsulated
+           : within Bio::Tools::Blast::Sbjct.pm objects.
+ Throws    : If all hits generated exceptions, raise exception
+           :   (a fatal event for the Blast object.)
+           : If some hits were okay but some were bad, generate a warning
+           :   (a few bad applies should not spoil the bunch).
+           :   This usually indicates a limiting B-value.
+           : When the parsing code fails, it is either all or nothing.
+ Comments  : Requires Bio::Tools::Blast::Sbjct.pm.
+           : Checks significance level (P or Expect value obtained from the
+           : "Description section" of the Blast report) of the hit before creating 
+           : new Bio::Sbjct object. 
+           : Optionally calls a filter function to screen the hit on arbitrary
+           : criteria. If the filter function returns true for a gicen hit,
+           : that hit will be skipped.
+           : If the Blast object was created with-check_all_hits set to true,
+           : all hits will be checked for significance and processed if necessary.
+           : If this field is false, the parsing will stop after the first
+           : non-significant hit. 
+           : See parse() for description of parameters.
+
+See Also   : L<parse>(), L<_set_descriptions>(), L<_parse_hsp_data>(), L<_parse_signif>(), B<Bio::Tools::Blast::Sbjct()>,L<Links to related modules>
+
+=cut
+
+#----------------------
+sub _parse_alignment {  
+#----------------------
+# This method needs to be somewhat sophisticated since it needs to 
+# detect if $data contains the footer of a Blast report.
+# This would indicate the last chunk of a single Blast stream
+# and we then need to parse the stats (if '_get_stats' is true) 
+# and set a {'_found_params'} = 1 member on the object.
+
+# Error handling: all exceptions that occur during hit 0bject construction
+# are saved until util the last alignment is parsed (see sub parse()).
+
+    my( $self, $data ) = @_;
+    
+#    printf STDERR "\nPARSING ALIGNMENT DATA for %s $self.\n", $self->name;
+
+#    print STDERR "  CURRENT HIT: $self->{'_current_hit'}\n";
+#    print STDERR "  NUM SIGNIF: $self->{'_num_hits_significant'}\n";
+
+    # If all of the significant hits have been parsed,
+    # return if we're not checking all or if we need to get 
+    # the Blast stats (parameters at footer of report).
+    if(defined $self->{'_current_hit'} and defined $self->{'_num_hits_significant'}) {
+      return if $self->{'_current_hit'} >= $self->{'_num_hits_significant'} and
+	not ($Blast->{'_check_all'} or $Blast->{'_get_stats'});
+    }
+
+    # Check for the presence of the Blast parameters (footer) section .
+    # But still need to get the alignment section...
+    $data = $self->_parse_parameters($data);
+
+#    print "RETURNED FROM _parse_parameters($self)\n";
+#    print "\n  --> FOUND PARAMS.\n" if $self->{'_found_params'};
+#    print "\n  --> DID NOT FIND PARAMS.\n" unless $self->{'_found_params'};
+
+    if(defined $self->{'_current_hit'} and defined $self->{'_num_hits_significant'}) {
+      return if $self->{'_current_hit'} >= $self->{'_num_hits_significant'} and
+	 $self->{'_found_params'} and not $Blast->{'_check_all'};
+    }
+
+#    print STDERR "\nRETURNED BY _parse_parameters():\n$data\n"; 
+
+    require Bio::Tools::Blast::Sbjct;
+
+    $data =~ s/^\s+|\s+>?$//sg;
+    $data =~ s/$Newline$Newline/$Newline/sog;  # remove blank lines.
+    my @data = split($Newline, $data);
+    push @data, 'end';
+
+#    print STDERR "\nALIGNMENT DATA:\n$data\n"; 
+
+    my $best       = $Blast->best;
+    my $prog       = $self->program;
+    my $check_all  = $Blast->{'_check_all'};
+    my $filt_func  = $Blast->{'_filt_func'} || 0;
+    my $signif_fmt = $Blast->{'_signif_fmt'};
+    my $err;
+
+    # Now construct the Sbjct objects from the alignment section
+
+#	debug(1);
+    
+    $self->{'_current_hit'}++;
+    
+    if( not $Blast->{'_confirm_significance'}) {
+       # Also nee to set high/low signif values.
+      $self->{'_num_hits'}++;
+    }
+
+
+    my $hit;  # Must be my'ed within hit_loop or failure in 
+    # _parse_hsp_data() will cause no hits to be saved.
+    eval {
+      $hit = new Bio::Tools::Blast::Sbjct (-DATA      =>\@data, 
+					   -PARENT    =>$self, 
+					   -NAME      =>$self->{'_current_hit'}, 
+					   -RANK      =>$self->{'_current_hit'}, 
+					   -RANK_BY   =>'order',
+					   -PROGRAM   =>$prog, 
+					   -SIGNIF_FMT=>$signif_fmt,
+					   -OVERLAP   =>$Blast->{'_overlap'} || $MAX_HSP_OVERLAP,
+					  );
+      #	    printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
+    };
+
+    if($@) {
+      # Throwing lots of errors can slow down the code substantially.
+      # Error handling code is not that efficient.
+      push @{$self->{'_blast_errs'}}, $@;
+      $hit->destroy if ref $hit;
+      undef $hit;
+    } else {
+      # Test significance using custom function (if supplied)
+      if($filt_func) {
+	not &$filt_func($hit) and do { $hit->destroy; undef $hit; };
+      }
+      push @{$self->{'_hits'}}, $hit;
+    }
+    
+  }
+
+
+=head2 _parse_parameters
 
  Usage     : n/a; internal function. called by parse(), set_parameters()
  Purpose   : Extracts statistical and other parameters from the BLAST report.
@@ -1815,43 +2071,78 @@ sub _get_parse_func {
            : parse() parameter is false. The reason is that the layout
            : of the report  and the presence of gapping must always be set.
            : The determination whether to set additional stats is made 
-           : by methods called by _set_parameters().
+           : by methods called by _parse_parameters().
 
 See Also   : L<parse>(), L<set_parameters>(), L<_set_database>(), L<_set_program>()
 
 =cut
 
 #---------------------
-sub _set_parameters {
+sub _parse_parameters {
 #---------------------
-    my ($self, $get_stats) = @_;
-    my ($prog);
-    $self->_set_database($get_stats);
+# Revamping. Needs to 
+# 1. figure out if we're supposed to get the stats,
+# 2. figure out if the stats are to be shared. some, not all can be shared 
+#    (eg., db info and matrix can be shared, karlin altschul params cannot.
+#    However, this method assumes they are all sharable.)
+# 3. return the block before the parameters section if the supplied data 
+#    contains a footer parameters section.
 
-    if( $RawData =~ /\nCPU time: (.*)/s) {
-	# NCBI-Blast2 format (v2.04).
-	$self->{'_layout'} = 2;
-	$self->_set_blast2_stats($1);
-    
-    } elsif( $RawData =~ /\nParameters:(.*)/s) {
-	# NCBI-Blast1 or WashU-Blast2 format.
-	$self->{'_layout'} = 1;
-	$self->_set_blast1_stats($1);
+    my ($self, $data) = @_;
+    my ($client, $last_align, $params);
 
-    } elsif( $RawData =~ /\n\s+Database:(.*)/s) {
-	# NCBI-Blast2 format (v2.05).
-	$self->{'_layout'} = 2;
-	$self->_set_blast2_stats($1);
+#    printf STDERR "\nPARSING PARAMETERS for %s $self.\n", $self->name;
 
-    } elsif($prog = $self->program_version()) {
-	if($prog =~ /^1|WashU/) {
-	    $self->{'_layout'} = 1;
-	} else {
-	    $self->{'_layout'} = 2;
-	}
-    } else {
-	$self->throw("Can't determine report layout (Blast1 or 2).");
+    # Should the parameters be shared?
+    # If so, set $self to the static $Blast object and return if already set.
+    # BUT... we need to extract the alignment from the parameter section, if any.
+    if ($Blast->{'_share'}) {
+      $client = $self;
+      $self = $Blast if $Blast->{'_share'};
     }
+
+    my $get_stats = $Blast->{'_get_stats'};
+
+    if( $data =~ /(.+?)${Newline}CPU time: (.*)/so) {
+	# NCBI-Blast2 format (v2.04).
+	($last_align, $params) = ($1, $2);
+	return $last_align if $client->{'_found_params'};
+	$self->_set_blast2_stats($params) if $get_stats;
+
+    } elsif( $data =~ /(.+?)${Newline}Parameters:(.*)/so) {
+	# NCBI-Blast1 or WashU-Blast2 format.
+	($last_align, $params) = ($1, $2);
+	return $last_align if $client->{'_found_params'};
+	$self->_set_blast1_stats($params) if $get_stats;
+
+    } elsif( $data =~ /(.+?)$Newline\s+Database:(.*)/so) {
+        # Gotta watch out for confusion with the Database: line in the header
+        # which will be present in the last hit using the new parsing strategy.
+
+	# NCBI-Blast2 format (v2.05).
+	($last_align, $params) = ($1, $2);
+	return $last_align if $client->{'_found_params'};
+	$self->_set_blast2_stats($params) if $get_stats;
+    }
+    
+    # If parameter section was found, set a boolean, 
+    # otherwise return original data.
+
+#    printf STDERR "\nCONTINUING PARSING PARAMETERS for %s $client.\n", $client->name;
+
+    if (defined($params)) {
+      $client->{'_found_params'} = 1;
+ #     print STDERR "\nPARAM SECTION FOUND ($client)\n";
+    } else {
+#      print STDERR "\nPARAM SECTION NOT FOUND ($client)\n";
+      return $data;
+    }
+#    defined($params) ? ($client->{'_found_params'} = 1) : return $data;
+
+    $self->_set_database($params) if $get_stats;
+
+    # The {'_gapped'} member should be set in the _set_blast?_stats() call.
+    # This is a last minute attempt to deduce it.
     
     if(!defined($self->{'_gapped'})) {
 	if($self->program_version() =~ /^1/) {
@@ -1861,57 +2152,23 @@ sub _set_parameters {
 		$self->warn("Can't determine if gapping was used. Assuming gapped.");
 	    }
 	    $self->{'_gapped'} = 1; 
-	    # Could have serious consequences for parsing of results,
-	    # so this may turn into a throw() call.
 	}
     }
+
+    return $last_align;
 }
-
-
-
-
-=head2 set_parameters
-
- Usage     : $blast_obj->set_parameters()
- Purpose   : Extracts statistical and other parameters from the BLAST report.
-           : Public interface for _set_parameters(). This provides a 
-           : way to set the parameters for a Blast report that 
-           : did not have them set when initially parsed.
-           : Requires the Blast object to access an associated file.
- Returns   : n/a
- Argument  : n/a
- Throws    : Exceptions propagated from _set_parameters().
- Status    : Experimental
- Comments  : Requires that the report be re-read, therefore, will not work
-           : if the report was read via STDIN.
-
-See Also   : L<_set_parameters>(), L<parse>()
-
-=cut
-
-#--------------------
-sub set_parameters {
-#--------------------
-    my $self = shift;
-
-    $self->read() unless $RawData;
-    $self->{'_get_stats'} = 1;
-    $self->_set_layout();
-    $self->_set_parameters(1);
-}    
-
 
 
 =head2 _set_blast2_stats
 
- Usage     : n/a; internal function called by _set_parameters()
+ Usage     : n/a; internal function called by _parse_parameters()
  Purpose   : Extracts statistical and other parameters from BLAST2 report.
            : Stats collected: database release, gapping,
            : posted date, matrix used, filter used, Karlin-Altschul parameters, 
            : E, S, T, X, W.
  Throws    : Exception if cannot get "Parameters" section of Blast report.
 
-See Also   : L<parse>(), L<_set_parameters>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<parse>(), L<_parse_parameters>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -1920,7 +2177,7 @@ sub _set_blast2_stats {
 #---------------------
     my ($self, $data) = (@_);
     
-    if($data =~ /\n\s*Gapped/s) {
+    if($data =~ /$Newline\s*Gapped/so) {
 	$self->{'_gapped'} = 1;
     } else {
  	$self->{'_gapped'} = 0;
@@ -1932,25 +2189,25 @@ sub _set_blast2_stats {
     # Blast2 Doesn't report what filter was used in the parameters section.
     # It just gives a warning that *some* filter was used in the header. 
     # You just have to know the defaults (currently: protein = SEG, nucl = DUST).
-    if($RawData =~ /\bfiltered\b/si) {
+    if($data =~ /\bfiltered\b/si) {
 	$self->{'_filter'} = 'DEFAULT FILTER';
     } else {
 	$self->{'_filter'} = 'NONE';
     }
 
-    if($data =~ /Gapped\n\s*Lambda +K +H\n +(.+?)\n/s) {
+    if($data =~ /Gapped$Newline\s*Lambda +K +H$Newline +(.+?)$Newline/so) {
 	my ($l, $k, $h) = split(/\s+/, $1);
 	$self->{'_lambda'} = $l || 'UNKNOWN';
 	$self->{'_k'} = $k || 'UNKNOWN';
 	$self->{'_h'} = $h || 'UNKNOWN';
-    } elsif($data =~ /Lambda +K +H\n +(.+?)\n/s) {
+    } elsif($data =~ /Lambda +K +H$Newline +(.+?)$Newline/so) {
 	my ($l, $k, $h) = split(/\s+/, $1);
 	$self->{'_lambda'} = $l || 'UNKNOWN';
 	$self->{'_k'} = $k || 'UNKNOWN';
 	$self->{'_h'} = $h || 'UNKNOWN';
     }
     
-    if($data =~ /\n\s*Matrix: (.+?)\n/s) {
+    if($data =~ /$Newline\s*Matrix: (.+?)$Newline/so) {
 	$self->{'_matrix'} = $1;
     } else {
 	$self->{'_matrix'} = $DEFAULT_MATRIX.'?'; 
@@ -1959,7 +2216,7 @@ sub _set_blast2_stats {
 	}
     }
 
-    if($data =~ /\n\s*Gap Penalties: Existence: +(\d+), +Extension: (\d+)\n/s) {
+    if($data =~ /$Newline\s*Gap Penalties: Existence: +(\d+), +Extension: (\d+)$Newline/so) {
 	$self->{'_gapCreation'} = $1;
 	$self->{'_gapExtension'} = $2;
     }
@@ -1967,26 +2224,25 @@ sub _set_blast2_stats {
 	$self->{'_expect'} = $1;
     }
 
-    if($data =~ /\n\s*T: (\d+)/) { $self->{'_word_size'} = $1; }
-    if($data =~ /\n\s*A: (\d+)/) { $self->{'_a'} = $1; }
-    if($data =~ /\n\s*S1: (\d+)/) { $self->{'_s'} = $1; }
-    if($data =~ /\n\s*S2: (\d+)/) { $self->{'_s'} .= ", $1"; }
-    if($data =~ /\n\s*X1: (\d+)/) { $self->{'_x1'} = $1; }
-    if($data =~ /\n\s*X2: (\d+)/) { $self->{'_x2'} = $1; }
+    if($data =~ /$Newline\s*T: (\d+)/o) { $self->{'_word_size'} = $1; }
+    if($data =~ /$Newline\s*A: (\d+)/o) { $self->{'_a'} = $1; }
+    if($data =~ /$Newline\s*S1: (\d+)/o) { $self->{'_s'} = $1; }
+    if($data =~ /$Newline\s*S2: (\d+)/o) { $self->{'_s'} .= ", $1"; }
+    if($data =~ /$Newline\s*X1: (\d+)/o) { $self->{'_x1'} = $1; }
+    if($data =~ /$Newline\s*X2: (\d+)/o) { $self->{'_x2'} = $1; }
 }
-
 
 
 =head2 _set_blast1_stats
 
- Usage     : n/a; internal function called by _set_parameters()
+ Usage     : n/a; internal function called by _parse_parameters()
  Purpose   : Extracts statistical and other parameters from BLAST 1.x style eports.
            : Handles NCBI Blast1 and WashU-Blast2 formats.
            : Stats collected: database release, gapping, 
            : posted date, matrix used, filter used, Karlin-Altschul parameters, 
            : E, S, T, X, W.
 
-See Also   : L<parse>(), L<_set_parameters>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<parse>(), L<_parse_parameters>(), L<_set_database>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2004,19 +2260,19 @@ sub _set_blast1_stats {
     # Other stats are not always essential.
     return unless $self->{'_get_stats'};
 
-    if($data =~ /filter=(.+?)\n/s) {
+    if($data =~ /filter=(.+?)$Newline/so) {
 	$self->{'_filter'} = $1;
-    } elsif($data =~ /filter\n +(.+?)\n/s) {
+    } elsif($data =~ /filter$Newline +(.+?)$Newline/so) {
 	$self->{'_filter'} = $1;
     } else {
 	$self->{'_filter'} = 'NONE';
     }
     
-    if($data =~ /\n\s*E=(\d+)\n/s) {  $self->{'_expect'} = $1; }
+    if($data =~ /$Newline\s*E=(\d+)$Newline/so) {  $self->{'_expect'} = $1; }
 
-    if($data =~ /\n\s*M=(\w+)\n/s) {  $self->{'_matrix'} = $1; }
+    if($data =~ /$Newline\s*M=(\w+)$Newline/so) {  $self->{'_matrix'} = $1; }
 
-    if($data =~ /\s*Frame  MatID Matrix name .+?\n +(.+?)\n/s) {
+    if($data =~ /\s*Frame  MatID Matrix name .+?$Newline +(.+?)$Newline/so) {
 	## WU-Blast2.
 	my ($fr, $mid, $mat, $lu, $ku, $hu, $lc, $kc, $hc) = split(/\s+/,$1);
 	$self->{'_matrix'} = $mat || 'UNKNOWN';
@@ -2024,7 +2280,7 @@ sub _set_blast1_stats {
 	$self->{'_k'} = $ku || 'UNKNOWN';
 	$self->{'_h'} = $hu || 'UNKNOWN';
 	
-    } elsif($data =~ /Lambda +K +H\n +(.+?)\n/s) {
+    } elsif($data =~ /Lambda +K +H$Newline +(.+?)$Newline/so) {
 	## NCBI-Blast1.
 	my ($l, $k, $h) = split(/\s+/, $1);
 	$self->{'_lambda'} = $l || 'UNKNOWN';
@@ -2032,7 +2288,7 @@ sub _set_blast1_stats {
 	$self->{'_h'} = $h || 'UNKNOWN';
     }
 
-    if($data =~ /E +S +W +T +X.+?\n +(.+?)\n/s) {
+    if($data =~ /E +S +W +T +X.+?$Newline +(.+?)$Newline/so) {
 	# WashU-Blast2
 	my ($fr, $mid, $len, $elen, $e, $s, $w, $t, $x, $e2, $s2) = split(/\s+/,$1);
 	$self->{'_expect'} ||= $e || 'UNKNOWN';
@@ -2041,7 +2297,7 @@ sub _set_blast1_stats {
 	$self->{'_t'} = $t || 'UNKNOWN';
 	$self->{'_x'} = $x || 'UNKNOWN';
     
-    } elsif($data =~ /E +S +T1 +T2 +X1 +X2 +W +Gap\n +(.+?)\n/s) {
+    } elsif($data =~ /E +S +T1 +T2 +X1 +X2 +W +Gap$Newline +(.+?)$Newline/so) {
 	## NCBI-Blast1.
 	my ($e, $s, $t1, $t2, $x1, $x2, $w, $gap) = split(/\s+/,$1);
 	$self->{'_expect'} ||= $e || 'UNKNOWN';
@@ -2081,8 +2337,8 @@ sub _set_gapping_wu {
 #--------------------
     my ($self, $data) = @_;
     
-    if($data =~ /gaps?\n/s) {
-	$self->{'_gapped'} = ($data =~ /nogaps?\n/s) ? 0 : 1;
+    if($data =~ /gaps?$Newline/so) {
+	$self->{'_gapped'} = ($data =~ /nogaps?$Newline/so) ? 0 : 1;
     } else {
 	$self->{'_gapped'} = 1;
     }
@@ -2091,13 +2347,13 @@ sub _set_gapping_wu {
 
 =head2 _set_date
 
- Usage     : n/a; internal function called by _set_parameters()
+ Usage     : n/a; internal function called by _parse_parameters()
  Purpose   : Determine the date on which the Blast analysis was performed.
  Comments  : Date information is not consistently added to Blast output.
            : Uses superclass method set_date() to set date from the file,
            : (if any).
 
-See Also   : L<_set_parameters>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
+See Also   : L<_parse_parameters>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to related modules>
 
 =cut
 
@@ -2105,162 +2361,28 @@ See Also   : L<_set_parameters>(), B<Bio::Tools::SeqAnal::set_date()>,L<Links to
 sub _set_date {
 #--------------
     my $self = shift;
-    my $date = shift;
+    my $data = shift;
 
-    if($date) {
-	return $self->set_date($date); 
-    }
     ### Network BLAST reports from NCBI are time stamped as follows:
     #Fri Apr 18 15:55:41 EDT 1997, Up 1 day, 19 mins, 1 user, load: 19.54, 19.13, 17.77    
-    if($RawData =~ /Start:\s+(.+?)\s+End:/s) {
+    if($data =~ /Start:\s+(.+?)\s+End:/s) {
 	## Calling superclass method to set the date.
 	## If we can't get date from the report, file date is obtained.
 	$self->set_date($1);
-    } elsif($RawData =~ /Date:\s+(.*?)\n/s) {
+    } elsif($data =~ /Date:\s+(.*?)$Newline/so) {
 	## E-mailed reports have a Date: field
 	$self->set_date($1);
-    } elsif( $RawData =~ /done\s+at (.+?)\n/s ) {
+    } elsif( $data =~ /done\s+at (.+?)$Newline/so ) {
 	$self->set_date($1);  
-    } elsif( $RawData =~ /\n([\w:, ]+), Up \d+/s ) {
+    } elsif( $data =~ /$Newline([\w:, ]+), Up \d+/so ) {
 	$self->set_date($1); 
     } else {
 	## Otherwise, let superclass attempt to get the file creation date.
-	$self->set_date();
+	$self->set_date() if $self->file;
     }
 }
 
 
-
-=head2 _set_signif
-
- Usage     : n/a; called automatically by parse()
-           : $blast_obj->($signif, $min_len, $filt_func); 
- Purpose   : Sets significance criteria for the BLAST object.
- Argument  : Obligatory three arguments:
-           : $signif = float or sci-notation number or undef
-           : $min_len = integer or undef
-           : $filt_func = function reference or undef
- Throws    : Exception if significance values appear out of range or invalid.
-           : Sets default values (signif = 10; min_length = not set).
-           : Exception if $filt_func if defined and is not a func ref.
- Comments  : The significance of a BLAST report can be based on
-           : the P (or Expect) value and/or the length of the query sequence.
-           : P (or Expect) values GREATER than '_significance' are not significant.
-           : Query sequence lengths LESS than '_min_length' are not significant.
-           :
-           : Hits can also be screened using arbitrary significance criteria 
-           : as discussed in the parse() method.
-           :
-           : If no $signif is defined, the '_significance' level is set to 
-           : $Bio::Tools::Blast::DEFAULT_SIGNIF (999).
-
-See Also   : L<_test_significance>(), L<_confirm_significance>(), L<signif>(), L<min_length>(), L<parse>()
-
-=cut
-
-#-----------------
-sub _set_signif {
-#-----------------
-    my( $self, $sig, $len, $func ) = @_;
-    
-    if(defined $sig) {
-	$self->{'_confirm_significance'} = 1;
-	if( $sig =~ /[^\d.e-]/ or $sig <= 0) { 
-	    $self->throw("Invalid significance value: $sig", 
-			 "Must be greater than 0.");
-	} 
-	$self->{'_significance'} = $sig;
-    } else {
-	$self->{'_significance'}   = $DEFAULT_SIGNIF;
-	$self->{'_is_significant'} = 1;
-	$Blast->{'_check_all'}     = 1 if not $Blast->{'_filt_func'}; 
-    }
-
-    if(defined $len) {
-	$self->{'_confirm_significance'} = 1;
-	if($len =~ /\D/ or $len <= 0) {
-	    $self->warn("Invalid minimum length value: $len", 
-			"Value must be an integer > 0. Value not set.");
-	} else {
-	    $self->{'_min_length'} = $len;
-	} 
-    }
-
-    if(defined $func) {
-	$self->{'_confirm_significance'} = 1;
-	if($func and not ref $func eq 'CODE') {
-	    $self->throw("Not a function reference: $func",
-			 "The -filt_func parameter must be function reference.");
-	}
-    }
-}
-
-
-
-=head2 _test_significance
-
- Usage     : n/a; called automatically during Blast report parsing.
- Purpose   : Determines if the BLAST report has any significant hits.
- Throws    : Exception if the BLAST report lacks any significant hits.
- Comments  : Strategy: Checks the '_hits' member to see if any significant hits 
-           : have been obtained.
-           : This method is called ONLY if the client has specified
-           : significance criteria AND the significance criteria have
-           : not been satisfied.
-           : Formerly, the client was expected to check for significance
-           : after creating the BLAST object. It is more efficient to
-           : throw an exception. That way the client is forced to notice it.
-
-See Also   : L<_set_signif>(), L<is_signif>(), L<signif>(), L<min_length>()
-
-=cut
-
-#-----------------------
-sub _test_significance {
-#-----------------------
-    my $self = shift;
-    
-    return $self->{'_is_significant'} = 1 if not $self->_confirm_significance;
-
-    return if defined $self->{'_is_significant'};
-    
-    if( scalar @{$self->{'_hits'}}) {
-	$self->{'_is_significant'} = 1;
-    } else {
-	$self->{'_is_significant'} = 0;  
-
-	if($self->strict) {
-	    $self->throw("No significant BLAST hits for ${\$self->name}");
-	}
-    }
-}
-
-
-
-
-=head2 _confirm_significance
-
- Usage     : n/a; internal method called by _test_significance
- Purpose   : Determine if significance criteria are in place.
- Comments  : Obtains info from the static $Blast object if it has not been set
-           : for the current object.
-
-See Also   : L<signif>(), L<min_length>()
-
-=cut
-
-#---------------------------
-sub _confirm_significance {
-#---------------------------
-    my $self = shift;  
-
-#    if(defined($self->{'_confirm_significance'})) {
-#	 return $self->{'_confirm_significance'};
-#    } else { 
-#	 return $Blast->{'_confirm_significance'};
-#    }
-    $self->{'_confirm_significance'} || $Blast->{'_confirm_significance'};
-}
 
 
 =head2 _set_length
@@ -2282,27 +2404,25 @@ See Also   : B<Bio::Tools::SeqAnal::length()>, L<Links to related modules>
 #---------------
 sub _set_length {
 #---------------
-    my $self = shift;
+    my ($self, $data) = @_;
 
     my ($length);
-    if( $RawData =~ m/\n\s+\(([\d|,]+) letters\)/s ) {
+    if( $data =~ m/$Newline\s+\(([\d|,]+) letters\)/so ) {
 	$length = $1;
 	$length =~ s/,//g;
-#	printf "Length = $length in BLAST for %s\n",$self->name; <STDIN>;
+#	printf "Length = $length in BLAST for %s$Newline",$self->name; <STDIN>;
     } else {
 	$self->throw("Can't determine sequence length from BLAST report.");
     }
 
     my($sig_len);
-    if( $sig_len = $self->min_length()) {
-	if($length < $sig_len) {
-	    $self->{'_is_significant'} = 0;
-	    if ($self->_confirm_significance) {
-		$self->throw("Query sequence too short for ${\$self->name} ($length)",
-			     "Significant length is $sig_len");
-	    }
-	}   
-    }
+    if(defined($Blast->{'_min_length'})) {
+      local $^W = 0;
+      if($length < $Blast->{'_min_len'}) {
+	$self->throw("Query sequence too short for ${\$self->name} ($length)",
+		     "Minimum  length is $Blast->{'_min_len'}");
+      }
+    }   
 
     $self->length($length);  # defined in superclass.
 }
@@ -2325,41 +2445,39 @@ See Also   : L<parse>(), B<Bio::Tools::SeqAnal::database()>,B<Bio::Tools::SeqAna
 #------------------
 sub _set_database {
 #------------------
-    my ($self, $get_stats) = @_;
+# This now only sets data base information extracted from the report footer.
+
+    my ($self, $data) = @_;
 
     my ($name, $date, $lets, $seqs);
 
     my $strict = $self->strict > 0;
 
-    if($RawData =~ m/Database:\s+(.+?)\n/s ) {
-	$name = $1;
-    } else {
-	$self->throw("Can't determine database type from BLAST report.");
+    # This is fail-safe since DB name usually gets set in _parse_header()
+    if($data =~ m/Database: +(.+?)$Newline/so ) {
+      $name = $1;
     }
 
-    # Always set the database.
-    $self->database($name);
-
-    return unless $get_stats;
-
-    if($RawData =~ m/Posted date: +(.+?)\n/s ) {
+    if($data =~ m/Posted date: +(.+?)$Newline/so ) {
 	$date = $1;
-    } elsif($RawData =~ m/Release date: +(.+?)\n/s ) {
+    } elsif($data =~ m/Release date: +(.+?)$Newline/so ) {
 	$date = $1;
     } elsif($strict) {
 	$self->warn("Can't determine database release date.");
     }
 
-    if($RawData =~ m/letters in database: +([\d,]+)\n/s ) {
+    if($data =~ m/letters in database: +([\d,]+)/si ||
+       $data =~ m/length of database: +([\d,]+)/si ) {
 	$lets = $1;
     } elsif($strict) {
-	$self->warn("Can't determine number of letters in database.");
+	$self->warn("Can't determine number of letters in database.\n$data\n");
     }
 
-    if($RawData =~ m/sequences in database: +([\d,]+)\n/s ) {
+    if($data =~ m/sequences in database: +([\d,]+)/si ||
+      $data =~ m/number of sequences: +([\d,]+)/si ) {
 	$seqs = $1;
     } elsif($strict) {
-	$self->warn("Can't determine number of sequences in database.");
+	$self->warn("Can't determine number of sequences in database.\n$data\n");
     }
 
     $self->_set_db_stats( -NAME    => $name,
@@ -2369,58 +2487,6 @@ sub _set_database {
 			  );
 }
 
-
-
-=head2 _set_program
-
- Usage     : n/a; called automatically during Blast file parsing.
- Purpose   : Sets the name of the BLAST program used (BLASTP, TBLASTN, etc.)
-           : Extracted from the raw BLAST report.
- Returns   : String, name of program
- Throws    : Exception if the program cannot be determined.
- Comments  : The program name is used by related objects (Bio::Tools::Blast::Sbjct.pm
-           : and HSP.pm) for program-specific parsing. Itis quite exxential
-           : for interpreting interval data within HSP.pm.
-
-See Also   : L<_set_parameters>(), B<Bio::Tools::SeqAnal::program>(), B<Bio::Tools::Blast::HSP::_set_seq()>,L<Links to related modules>
-
-=cut
-
-#-----------------
-sub _set_program {
-#-----------------
-    my $self = shift;
-    my @data = @_;
-
-    if(@data) {
-	$self->SUPER::program($data[0]);
-	$self->SUPER::program_version($data[1]);
-
-    } else {
-
-	my($prog, $vers);
-	if($RawData =~ /\n?(<\w+>)?(T?BLAST[NPX])\s+(.*?)\n/s) {
-	    $prog = $2;
-	    $vers = $3;
-	} elsif($Blast->{'_stream'} and not $Blast->{'_share'}) {
-	    # When not sharing report data during stream parsing,
-	    # the last report will lack program info. Don't worry.
-	    # See _parse_stream_data(), towards bottom.
-	    return;
-	} else {
-	    $prog = 'UNKNOWN'; 
-	    $vers = 'UNKNOWN';
-	    $self->throw("Can't determine program type from BLAST report.",
-			 "Checked for: @Blast_programs.");
-	    # This has important implications for how to handle interval
-	    # information for HSPs. TBLASTN uses nucleotides in query HSP
-	    # but amino acids in the sbjct HSP sequence.
-	}
-
-	$self->SUPER::program($prog);
-	$self->SUPER::program_version($vers);
-    }
-}
 
 
 =head2 _set_query
@@ -2439,9 +2505,9 @@ See Also   : B<Bio::Tools::SeqAnal::query_desc()>,L<Links to related modules>
 sub _set_query {
 #---------------
     my $self = shift;
+    my $data = shift;
     
-    if($RawData =~ m/\nQuery= *(.+?)\n/s or
-	($Blast->{'_stream'} and $RawData =~ m/^ *(.+?)\n/)) {
+    if($data =~ m/${Newline}Query= *(.+?)$Newline/so ) {
 	my $info = $1;
 	$info =~ s/TITLE //;
 	# Split the query line into two parts.
@@ -2453,279 +2519,9 @@ sub _set_query {
     } else {
 	$self->warn("Can't determine query sequence name from BLAST report.");
     }
-#    print STDERR "\n  NAME = ${\$self->name}\n";
+#    print STDERR "$Newline  NAME = ${\$self->name}$Newline";
 }
 
-
-
-=head2 _set_hits
-
- Usage     : n/a; called automatically during Blast report parsing.
- Purpose   : Set significant hits for the BLAST report. Hits are encapsulated
-           : within Bio::Tools::Blast::Sbjct.pm objects.
- Throws    : If all hits generated exceptions, raise exception
-           :   (a fatal event for the Blast object.)
-           : If some hits were okay but some were bad, generate a warning
-           :   (a few bad applies should not spoil the bunch).
-           :   This usually indicates a limiting B-value.
-           : When the parsing code fails, it is either all or nothing.
- Comments  : Requires Bio::Tools::Blast::Sbjct.pm.
-           : Checks significance level (P or Expect value obtained from the
-           : "Description section" of the Blast report) of the hit before creating 
-           : new Bio::Sbjct object. 
-           : Optionally calls a filter function to screen the hit on arbitrary
-           : criteria. If the filter function returns true for a gicen hit,
-           : that hit will be skipped.
-           : If the Blast object was created with-check_all_hits set to true,
-           : all hits will be checked for significance and processed if necessary.
-           : If this field is false, the parsing will stop after the first
-           : non-significant hit. 
-           : See parse() for description of parameters.
-
-See Also   : L<parse>(), L<_set_descriptions>(), L<_parse_hsp_data>(), L<_parse_signif>(), B<Bio::Tools::Blast::Sbjct()>,L<Links to related modules>
-
-=cut
-
-#---------------
-sub _set_hits {
-#---------------
-    my $self    = shift;
-    my (@hits, @summary, $count, $sig);
-    
-    require Bio::Tools::Blast::Sbjct; 
-
-    $self->_set_descriptions(\@summary);
-    
-    $HitCount = 0;
-    my $layout    = $self->_layout;
-    my $gapped    = $self->gapped;
-    my $best      = $self->best;
-    my $prog      = $self->program;
-    my $check_all = $Blast->{'_check_all'};
-    my $filt_func = $Blast->{'_filt_func'} || 0;
-    my $sig_fmt   = $Blast->{'_signif_fmt'};
-    my $confirm_significance = $self->_confirm_significance();
-
-    my($line, @errs, @bad_names);
-
-    $self->{'_highestSignif'} = 0;
-    $self->{'_lowestSignif'} = $DEFAULT_SIGNIF;
-    my $my_signif = $self->signif;
-
-    hit_loop:
-    foreach $line (@summary) {
-	my @hitData = ();
-	push @hitData, $line;
-	last hit_loop if not $line or $line =~ / NONE |End of List/;
-	next hit_loop if $line =~ /^\.\./;
-
-	## Checking the significance value (P- or Expect value) of the hit
-	## in the description line. 
-	$sig = _parse_signif( $line, $layout, $gapped );
-	$self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'}) 
-                                          ? $sig : $self->{'_highestSignif'};
-
-	$self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'}) 
-                                          ? $sig : $self->{'_lowestSignif'};
-	# Significance value assessment.
-	$sig > $my_signif and ($check_all ? next hit_loop : last hit_loop); 
-	
-	$HitCount++;  # total hits (signif and non-signif).
-
-#	debug(1);
-	my $hit;  # Must be my'ed within hit_loop or failure in 
-                  # _parse_hsp_data() will cause no hits to be saved.
-	eval {
-	    push @hitData, $self->_parse_hsp_data($line);
-
-	    $hit = new Bio::Tools::Blast::Sbjct (-DATA      =>\@hitData, 
-						 -PARENT    =>$self, 
-						 -NAME      =>$HitCount, 
-						 -RANK      =>$HitCount, 
-						 -RANK_BY   =>'order',
-						 -LAYOUT    =>$layout, 
-						 -GAPPED    =>$gapped, 
-						 -PROGRAM   =>$prog, 
-						 -SIGNIF_FMT=>$sig_fmt,
-						 -OVERLAP   =>$Blast->{'_overlap'} || $MAX_HSP_OVERLAP,
-						 );
-#	    printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
-	};
-	if($@) {
-	    # Throwing lots of errors can slow down the code substantially.
-	    # Error handling code is not that efficient.
-	    push @errs, $@;
-	    push @bad_names, "#$HitCount";
-	    $hit->destroy if ref $hit;
-	    undef $hit;
-	    next hit_loop;
-	} else {
-	    # Test significance using custom function (if supplied)
-	    if($filt_func) {
-		not &$filt_func($hit) and do{ $hit->destroy;
-					      $check_all 
-						  ? next hit_loop 
-						  : ($HitCount--, last hit_loop)
-						  };
-	    }
-	    push @hits, $hit;
-	}
-	last if $best;  # stop processing if we only need the best hit.
-
-    }  # end hit_loop
-
-    $DEBUG and print STDERR "\n";
-
-   $self->{'_hits'} = \@hits;
-    
-    ## Throw or warn about any errors encountered. 
-
-    if(@errs) {
-	my ($str);
-	# When there are many errors, in most of the cases, they are
-	# caused by the same problem. Only need to see full data for
-	# the first one.
-	if(@errs > 2) {
-	    $str = "SHOWING FIRST EXCEPTION ONLY:\n$errs[0]";
-	    $self->clear_err();  # clearing the existing set of errors.
-	                         # Not necessary, unless the -RECORD_ERR =>1
-	                         # constructor option was used for Blast object.
-	} else {
-	    $str = join("\n",@errs);
-	}
-
-	if(not @hits) {
-	    $self->throw(sprintf("Failed to create any Sbjct objects for %d potential hit(s).", scalar(@errs)),
-			 "\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
-			 );
-	} else {
-	    $self->warn(sprintf("Could not create Sbjct objects for %d Blast hit(s): %s", scalar(@errs), join(', ',@bad_names)), 
-			@errs > 2 ? "This may be due to a limiting B value (max alignment listings)." : "",
-			"\n\nTRAPPED EXCEPTION(S):\n$str\nEND TRAPPED EXCEPTION(S)\n"
-			);
-	}
-	@errs = ();
-    }
-}
-
-
-
-=head2 _set_descriptions
-
- Usage     : n/a; called automatically by _set_hits()
- Purpose   : Gets the complete description section of a BLAST report.
-           : Utility method for _set_hits()
- Argument  : Array reference to an empty array; will be filled with the descriptions section.
- Throws    : Exception if description data cannot be parsed properly.
- Comments  : Description section contains a single line for each hit listing
-           : the seq id, description, score, Expect or P-value, etc.
-
-See Also   : L<_set_hits>()
-
-=cut
-
-#----------------------
-sub _set_descriptions {  
-#----------------------
-    my( $self, $sum_aref ) = @_;
-    my $start = 0;
-    my $count = 0;
-    
-    $DEBUG and print STDERR "$ID: Setting description data\n";
-    
-    ## For efficiency reasons, we want to to avoid using $' and $`.
-    ## Therefore using single-line mode pattern matching.
-    ##
-    ## If the report was saved from a web browser page, there will
-    ## be no '>' at the start of each HSP alignment listing.
-    ## This has a bearing on further parsing code, hence the $_no_gt 
-    ## private variable. 
-
-    my ($descriptionString, $hspString);
-    if($RawData =~ /\n>/s ) {
-	$_no_gt = 0;
-	if($RawData =~ /\nSequences producing.+?\n(.+?)\n(>.+)/s ) {
-	    ($descriptionString, $hspString) = ($1, $2);
-	}
-    } elsif($RawData =~ /\nSequences producing.+?\n(.+?)\n\n(.+)/s ) {
-	$_no_gt = 1;
-	($descriptionString, $hspString) = ($1, $2);
-    } else {
-	$self->throw("Can't parse description data.");
-    }
-
-    $HspString = $hspString;
-    $HspString =~ s/\|/_/g;  # '|' characters cause regexp trouble later.
-
-    $descriptionString =~ s/^\s+|\s+$//sg;
-
-    @{$sum_aref} = split( "\n", $descriptionString);
-}
-
-
-
-
-=head2 _parse_hsp_data
-
- Usage     : n/a; called automatically by _set_hits()
- Purpose   : Extracts HSP data for single hit (Sbjct) from the body 
-           : of the raw report.  Utility method for _set_hits().
- Returns   : Array containing the HSP alignment section for a single hit.
- Argument  : String (description line for a Blast hit)
- Throws    : Exception if it cannot locate the HSP alignment section 
-           : for the hit.
- Status    : Static
-
-See Also   : L<_set_hits>()
-
-=cut
-
-#--------------------
-sub _parse_hsp_data { 
-#--------------------
-
-    my( $self, $sumLine ) = @_;
-    my $startHSPs = 0;
-    my @data      = ();
-    my @sumLineData = ();
-    my $lineCount = 0;
-    my( $separator, $hsps );
-    
-    local $_ = $sumLine;
-    @sumLineData = split();
-    
-    if($_no_gt) {
-	# HSP alignment chunks will not start with '>' if the report
-	# was saved from a web browser window.
-	$separator = "$sumLineData[0]";
-    } else {
-	$separator = ">[\\s]*$sumLineData[0]";
-#	$separator = ">$sumLineData[0]";
-    }
-    
-    $separator =~ s/\|/_/g; # "|" characters cause problems with the regexp
-
-    ## Using single-line mode pattern matching //s to avoid using $' and $`.
-    
-    if($HspString =~ /\n?$separator\b(.+?)(\n>|\nParameters:|\nCPU|\n\s+Database:)/s) {
-	$hsps = $1;
-    } elsif($HspString =~ /\n?$separator\b(.+?)(\n\n\n)/s) {
-	# Last ditch attempt to find the alignment chunk.
-	$hsps = $1;
-    } else {
-	$self->throw("Can't parse HSP data for $sumLineData[0].",
-		     "Missing HSP data or unrecognized format.");
-	## This error is typically caused by a limiting B value
-	## (the max number of HSP alignments to slow).
-    }
-
-    $hsps =~ s/^\s+|\s+$//sg;
-    $hsps =~ s/\n\n/\n/s;  # remove blank lines.
-    @data = split("\n", $hsps);
-    push @data, 'end';
-
-    return @data;
-}
 
 
 =head2 _parse_signif
@@ -2745,7 +2541,7 @@ sub _parse_hsp_data {
 #------------------
 sub _parse_signif {
 #------------------
-    my ($line, $layout, $gapped) = @_;
+    my ($self, $line, $layout, $gapped) = @_;
 
     local $_ = $line;
     my @linedat = split();
@@ -2780,11 +2576,12 @@ sub program {
     $self->SUPER::program || $Blast->SUPER::program; # get
 }
 
-sub date { 
+
+sub program_version { 
 ## Overridden method to incorporate the BLAST object.
     my $self = shift;  
-    return $self->SUPER::date(@_) if @_;       # set
-    $self->SUPER::date || $Blast->SUPER::date; # get
+    return $self->SUPER::program_version(@_) if @_;                  # set
+    $self->SUPER::program_version || $Blast->SUPER::program_version; # get
 }
 
 sub database { 
@@ -2794,20 +2591,41 @@ sub database {
     $self->SUPER::database || $Blast->SUPER::database; # get
 }
 
-
-sub program_version { 
+sub database_letters { 
 ## Overridden method to incorporate the BLAST object.
     my $self = shift;  
-    return $self->SUPER::program_version(@_) if @_;                  # set
-    $self->SUPER::program_version || $Blast->SUPER::program_version; # get
+    return $self->SUPER::database_letters(@_) if @_;           # set
+    $self->SUPER::database_letters || $Blast->SUPER::database_letters; # get
+}
+
+sub database_release { 
+## Overridden method to incorporate the BLAST object.
+    my $self = shift;  
+    return $self->SUPER::database_release(@_) if @_;           # set
+    $self->SUPER::database_release || $Blast->SUPER::database_release; # get
+}
+
+sub database_seqs { 
+## Overridden method to incorporate the BLAST object.
+    my $self = shift;  
+    return $self->SUPER::database_seqs(@_) if @_;           # set
+    $self->SUPER::database_seqs || $Blast->SUPER::database_seqs; # get
+}
+
+
+sub date { 
+## Overridden method to incorporate the BLAST object.
+    my $self = shift;  
+    return $self->SUPER::date(@_) if @_;       # set
+    $self->SUPER::date || $Blast->SUPER::date; # get
 }
 
 
 sub best { 
 ## Overridden method to incorporate the BLAST object.
     my $self = shift;  
-    return $self->SUPER::best(@_) if @_;       # set
-    $self->SUPER::best || $Blast->SUPER::best; # get
+    return $Blast->SUPER::best(@_) if @_;       # set
+    $Blast->SUPER::best; # get
 }
 
 
@@ -2881,9 +2699,9 @@ sub is_signif { my $self = shift; $self->{'_is_significant'}; }
 
 =cut
 
-#--------------
+#-------------
 sub signif_fmt { 
-#--------------
+#-------------
     my $self = shift; 
     if(@_) { $Blast->{'_signif_fmt'} = shift; }
     $Blast->{'_signif_fmt'} || '';
@@ -2948,7 +2766,7 @@ sub _get_stats {
 #---------------
     my $self = shift; 
     if(@_) { $self->{'_get_stats'} = shift; }
-    defined $self->{'_get_stats'} ? $self->{'_get_stats'} : $Blast->{'_get_stats'}; 
+    defined($self->{'_get_stats'}) ? $self->{'_get_stats'} : $Blast->{'_get_stats'}; 
 }
 
 
@@ -2971,7 +2789,14 @@ sub _get_stats {
 sub _layout { 
 #------------
     my $self = shift; 
-    if(@_) { $self->{'_layout'} = shift; }
+    if(@_) { 
+      # Optimization if we know all reports share the same stats.
+      if($Blast->{'_share'}) {
+	$Blast->{'_layout'} = shift;
+      } else {
+	$self->{'_layout'} = shift; 
+      }
+    }
     $self->{'_layout'} || $Blast->{'_layout'}; 
 }
 
@@ -3093,11 +2918,10 @@ sub num_hits {
     my( $self, $option) = @_;
     $option ||= '';
 
-    $option =~ /total/i and return $self->{'_numHits'} || 0;
+    $option =~ /total/i and return $self->{'_num_hits'} || 0;
 
     # Default: returning number of significant hits.
-    return 0 if not $self->{'_is_significant'};
-    return scalar(@{$self->{'_hits'}});
+    return $self->{'_num_hits_significant'} || 0;
 }
 
 
@@ -3160,7 +2984,7 @@ sub lowest_expect {
 	return $bestHit->expect();
     } else {
 	$self->throw("Can't get lowest expect value: no significant hits ",
-		     "The format of this report requires expect values to be extracted\n".
+		     "The format of this report requires expect values to be extracted$Newline".
 		     "from the hits themselves.");
     }
 }
@@ -3229,7 +3053,7 @@ sub highest_expect {
 	return $self->hit('worst')->expect;
     } else {
 	$self->throw("Can't get highest expect value: no significant hits ",
-		     "The format of this report requires expect values to be extracted\n".
+		     "The format of this report requires expect values to be extracted$Newline".
 		     "from the hits themselves.");
     }
 }
@@ -3629,7 +3453,7 @@ sub table {
     my ($self, $get_desc) = @_;
     my $str = '';
 
-    $get_desc = defined $get_desc ? $get_desc : 1;
+    $get_desc = defined($get_desc) ? $get_desc : 1;
 #    $str .= $self->_table_labels($get_desc) unless $self->{'_labels'};
 
     my $sigfmt = $self->signif_fmt();
@@ -3640,7 +3464,7 @@ sub table {
     foreach $hit($self->hits) {
 	foreach $hsp($hit->hsps) {
 	    # Note: range() returns a 2-element list.
-	    $str .= sprintf "%s\t%d\t%s\t%d\t%$sigprint\t%d\t%d\t%d\t%.2f\t%.2f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s\n", 
+	    $str .= sprintf "%s\t%d\t%s\t%d\t%$sigprint\t%d\t%d\t%d\t%.2f\t%.2f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\t%s\t%s$Newline", 
                    $self->name, $self->length, $hit->name, $hit->length, 
 	           $hit->expect($sigfmt), $hit->score, $hit->bits,
  	           $hit->num_hsps, $hsp->frac_identical, $hsp->frac_conserved, 
@@ -3651,7 +3475,7 @@ sub table {
 	           ($get_desc ? $hit->desc  : '');
 	}
     }
-    $str =~ s/\t\n/\n/gs;
+    $str =~ s/\t$Newline/$Newline/gs;
     $str;
 }
 
@@ -3674,21 +3498,21 @@ See Also   : L<table>()
 sub table_labels {
 #----------------
     my ($self, $get_desc) = @_;
-    $get_desc = defined $get_desc ? $get_desc : 1;
+    $get_desc = defined($get_desc) ? $get_desc : 1;
     my $descstr = $get_desc ? 'DESC' : '';
     my $descln = $get_desc ? '-----' : '';
 
-    my $str = sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+    my $str = sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s$Newline", 
                        'QUERY', 'Q_LEN', 'SBJCT', 'S_LEN', 'EXPCT', 'SCORE', 'BITS', 'HSPS', 
                        'IDEN', 'CONSV', 'Q_ALN', 'S_ALN', 'Q_GAP', 'S_GAP',
                        'Q_BEG', 'Q_END', 'S_BEG', 'S_END', 'Q_STR', 'S_STR', 'FRAM', $descstr;
-    $str .= sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+    $str .= sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s$Newline", 
                        '-----', '-----', '-----', '-----', '-----', '-----', '-----', '-----', 
                        '-----', '-----', '-----', '-----', '-----', '-----', 
                        '-----', '-----', '-----','-----', '-----', '-----','-----', $descln;
 
     $self->{'_labels'} = 1;    
-    $str =~ s/\t\n/\n/gs;
+    $str =~ s/\t$Newline/$Newline/gs;
     $str;
 }
 
@@ -3749,7 +3573,7 @@ sub table_tiled {
     my ($self, $get_desc) = @_;
     my $str = '';
 
-    $get_desc = defined $get_desc ? $get_desc : 1;
+    $get_desc = defined($get_desc) ? $get_desc : 1;
 
     my ($hit);
     my $sigfmt = $self->signif_fmt();
@@ -3757,7 +3581,7 @@ sub table_tiled {
     my $sigprint = $sigfmt eq 'exp' ? 'd' : '.1e';
 
     foreach $hit($self->hits) {
-	$str .= sprintf "%s\t%d\t%s\t%d\t%$sigprint\t%d\t%d\t%d\t%.2f\t%.2f\t%.2f\t%.2f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s\n", 
+	$str .= sprintf "%s\t%d\t%s\t%d\t%$sigprint\t%d\t%d\t%d\t%.2f\t%.2f\t%.2f\t%.2f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%s$Newline", 
 	               $self->name, $self->length, $hit->name, $hit->length, 
 	               $hit->expect($sigfmt), $hit->score, $hit->bits, 
 	               $hit->num_hsps, $hit->frac_identical, $hit->frac_conserved, 
@@ -3766,7 +3590,7 @@ sub table_tiled {
                        $hit->gaps, $hit->range('query'), $hit->range('sbjct'),
 	               $hit->ambiguous_aln, ($get_desc ? $hit->desc : '');
     }
-    $str =~ s/\t\n/\n/gs;
+    $str =~ s/\t$Newline/$Newline/gs;
     $str;
 }
 
@@ -3791,20 +3615,20 @@ sub table_labels_tiled {
     my $descstr = $get_desc ? 'DESC' : '';
     my $descln = $get_desc ? '-----' : '';
 
-    my $str = sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+    my $str = sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s$Newline", 
                        'QUERY', 'Q_LEN', 'SBJCT', 'S_LEN', 'EXPCT', 'SCORE', 'BITS',
                        'HSPS', 'FR_ID', 'FR_CN', 'FR_ALQ', 'FR_ALS', 'Q_ALN', 
                        'S_ALN', 'Q_GAP', 'S_GAP', 'Q_BEG', 'Q_END', 'S_BEG', 'S_END', 
                        'AMBIG', $descstr;
-    $str =~ s/\t\n/\n/;
-    $str .= sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+    $str =~ s/\t$Newline/$Newline/;
+    $str .= sprintf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s$Newline", 
                        '-----', '-----', '------', '-----', '-----','-----', '-----',
                        '-----', '-----', '-----', '-----', '-----', '-----',
                        '-----', '-----', '-----','-----','-----', '-----', 
                        '-----','-----', $descln;
 
     $self->{'_labels_tiled'} = 1;    
-    $str =~ s/\t\n/\n/gs;
+    $str =~ s/\t$Newline/$Newline/gs;
     $str;
 }
 
@@ -3863,11 +3687,11 @@ sub _display_homol {
 #-------------------
     my( $self, $OUT ) = @_;
     
-    print $OUT "\nBLAST HOMOLOGY DATA FOR: ${\$self->name()}\n";
-    print $OUT '-'x40,"\n";
+    print $OUT "${Newline}BLAST HOMOLOGY DATA FOR: ${\$self->name()}$Newline";
+    print $OUT '-'x40,"$Newline";
     
     foreach ( $self->homol_data()) {
-	print $OUT "$_\n";
+	print $OUT "$_$Newline";
     }
 }
 
@@ -3892,41 +3716,41 @@ sub _display_stats {
     my( $self, $OUT ) = @_;
     
     $self->SUPER::_display_stats($OUT);
-    printf( $OUT "%-15s: %s\n", "GAPPED", $self->gapped ? 'YES' : 'NO');
-    printf( $OUT "%-15s: %d\n", "TOTAL HITS", $self->num_hits('total'));
-    printf( $OUT "%-15s: %s\n", "CHECKED ALL", $Blast->{'_check_all'} ? 'YES' : 'NO');
-    printf( $OUT "%-15s: %s\n", "FILT FUNC", $Blast->{'_filt_func'} ? 'YES' : 'NO');
+    printf( $OUT "%-15s: %s$Newline", "GAPPED", $self->gapped ? 'YES' : 'NO');
+    printf( $OUT "%-15s: %d$Newline", "TOTAL HITS", $self->num_hits('total'));
+    printf( $OUT "%-15s: %s$Newline", "CHECKED ALL", $Blast->{'_check_all'} ? 'YES' : 'NO');
+    printf( $OUT "%-15s: %s$Newline", "FILT FUNC", $Blast->{'_filt_func'} ? 'YES' : 'NO');
     if($self->min_length) {
-	printf( $OUT "%-15s: Length >= %s\n", "MIN_LENGTH", $self->min_length);
+	printf( $OUT "%-15s: Length >= %s$Newline", "MIN_LENGTH", $self->min_length);
     }
 
     my $num_hits =  $self->num_hits;
     my $signif_str = ($self->_layout == 1) ? 'P' : 'EXPECT';
     if($num_hits) {
-	printf( $OUT "%-15s: %d\n", "SIGNIF HITS", $num_hits);
+	printf( $OUT "%-15s: %d$Newline", "SIGNIF HITS", $num_hits);
 	# Blast1: signif = P-value, Blast2: signif = Expect value.
 	
-	printf( $OUT "%-15s: %s ($signif_str-VALUE)\n", "SIGNIF CUTOFF", $self->signif);
-	printf( $OUT "%-15s: %s\n", "LOWEST $signif_str", $self->lowest_signif());
-	printf( $OUT "%-15s: %s\n", "HIGHEST $signif_str", $self->highest_signif());
+	printf( $OUT "%-15s: %s ($signif_str-VALUE)$Newline", "SIGNIF CUTOFF", $self->signif);
+	printf( $OUT "%-15s: %s$Newline", "LOWEST $signif_str", $self->lowest_signif());
+	printf( $OUT "%-15s: %s$Newline", "HIGHEST $signif_str", $self->highest_signif());
     }
-    printf( $OUT "%-15s: %s (OVERALL)\n", "HIGHEST $signif_str", $self->highest_signif('overall'));
+    printf( $OUT "%-15s: %s (OVERALL)$Newline", "HIGHEST $signif_str", $self->highest_signif('overall'));
     
 
     if($self->_get_stats) {
-	my $warn = ($Blast->{'_share'} and $Blast->{'_stream'}) ? '(SHARED STATS)' : '';
-	printf( $OUT "%-15s: %s\n", "MATRIX", $self->matrix() || 'UNKNOWN');
-	printf( $OUT "%-15s: %s\n", "FILTER", $self->filter() || 'UNKNOWN');
-	printf( $OUT "%-15s: %s\n", "EXPECT", $self->expect() || 'UNKNOWN');
-	printf( $OUT "%-15s: %.3f, %.3f, %.3f %s\n", "LAMBDA, K, H", $self->karlin_altschul(), $warn);
-	printf( $OUT "%-15s: %s\n", "WORD SIZE", $self->word_size() || 'UNKNOWN');
-	printf( $OUT "%-15s: %s %s\n", "S", $self->s() || 'UNKNOWN', $warn);
+	my $warn = ($Blast->{'_share'}) ? '(SHARED STATS)' : '';
+	printf( $OUT "%-15s: %s$Newline", "MATRIX", $self->matrix() || 'UNKNOWN');
+	printf( $OUT "%-15s: %s$Newline", "FILTER", $self->filter() || 'UNKNOWN');
+	printf( $OUT "%-15s: %s$Newline", "EXPECT", $self->expect() || 'UNKNOWN');
+	printf( $OUT "%-15s: %.3f, %.3f, %.3f %s$Newline", "LAMBDA, K, H", $self->karlin_altschul(), $warn);
+	printf( $OUT "%-15s: %s$Newline", "WORD SIZE", $self->word_size() || 'UNKNOWN');
+	printf( $OUT "%-15s: %s %s$Newline", "S", $self->s() || 'UNKNOWN', $warn);
 	if($self->gapped) {
-	    printf( $OUT "%-15s: %s\n", "GAP CREATION", $self->gap_creation() || 'UNKNOWN');
-	    printf( $OUT "%-15s: %s\n", "GAP EXTENSION", $self->gap_extension() || 'UNKNOWN');
+	    printf( $OUT "%-15s: %s$Newline", "GAP CREATION", $self->gap_creation() || 'UNKNOWN');
+	    printf( $OUT "%-15s: %s$Newline", "GAP EXTENSION", $self->gap_extension() || 'UNKNOWN');
 	}
     }
-    print $OUT "\n";
+    print $OUT "$Newline";
 }
 
 
@@ -3952,9 +3776,9 @@ sub _display_hits {
     
     ## You need a wide screen to see this properly.
     # Header.
-    print $OUT "\nBLAST HITS FOR: ${\$self->name()} length = ${\$self->length}\n";
-    print "(This table requires a wide display.)\n";
-    print $OUT '-'x80,"\n";
+    print $OUT "${Newline}BLAST HITS FOR: ${\$self->name()} length = ${\$self->length}$Newline";
+    print "(This table requires a wide display.)$Newline";
+    print $OUT '-'x80,"$Newline";
 
     print $self->table_labels_tiled(0);
     print $self->table_tiled(0);
@@ -3966,16 +3790,16 @@ sub _display_hits {
 	return 1;
     } else {
 	my ($reply);
-	print "\nDISPLAY FULL HSP DATA? (y/n): [n] ";
+	print "${Newline}DISPLAY FULL HSP DATA? (y/n): [n] ";
 	chomp( $reply = <STDIN> );
 	$reply =~ /^y.*/i;
 	
 	my $count = 0;
 	foreach ( @hits ) {
 	    $count++;
-	    print $OUT "\n\n",'-'x80,"\n";
+	    print $OUT "$Newline$Newline",'-'x80,"$Newline";
 	    print $OUT "HSP DATA FOR HIT #$count  (hit <RETURN>)";
-		print $OUT "\n",'-'x80;<STDIN>;
+		print $OUT "$Newline",'-'x80;<STDIN>;
 	    $param{-SHOW} = 'hsp';
 	    $_->display( %param );
 	}
@@ -4051,8 +3875,11 @@ sub to_html {
 
     $self->file($file) if $file;
 
+    # Only setting the newline character once for efficiency.
+    $Newline ||= $Util->get_newline(-client => $self, @param);
+
     $header_html ||= '';  
-    (ref($out_aref) eq 'ARRAY') ? push(@$out_aref, $header_html) : print "$header_html\n";
+    (ref($out_aref) eq 'ARRAY') ? push(@$out_aref, $header_html) : print "$header_html$Newline";
 
     require Bio::Tools::Blast::HTML; 
     import Bio::Tools::Blast::HTML qw(&get_html_func); 
@@ -4066,7 +3893,7 @@ sub to_html {
 
     eval {
 	if(!$header_html) {
-	    $out_aref ? push(@$out_aref, "<html><body>\n") : print "<html><body>\n";
+	    $out_aref ? push(@$out_aref, "<html><body>$Newline") : print "<html><body>$Newline";
 	}
 
 	if (ref ($in_aref) =~ /ARRAY/) {
@@ -4077,22 +3904,15 @@ sub to_html {
 	} else {
 	    # Otherwise, read it, processing as we go.
 	    
-	    if($RawData) {
-		# If already loaded, process it.
-		foreach(split("\n", $RawData)) {
-		    &$func("$_\n");
-		}
-	    } else {
-		$self->read(-FUNC => $func, @param);
-	    }
+  	    $self->read(-FUNC => $func, @param);
 	}    
-	$out_aref ? push(@$out_aref, "\n</pre></body></html>") : print "\n</pre></body></html>";
+	$out_aref ? push(@$out_aref, "$Newline</pre></body></html>") : print "$Newline</pre></body></html>";
     };
 
     if($@) {
 	# Check for trivial error (report already HTML formatted).
 	if($@ =~ /HTML formatted/) {
-	    print STDERR "\a\nBlast report appears to be HTML formatted already.\n\n";
+	    print STDERR "\a${Newline}Blast report appears to be HTML formatted already.$Newline$Newline";
 	} else {
 	    my $err = $@; 
 	    $self->throw($err);
@@ -4154,9 +3974,9 @@ all or some of the following fields:
 
  _hits            List of Sbjct.pm objects. 
 
- _numHits         Number of hits obtained from the BLAST report.
+ _num_hits        Number of hits obtained from the BLAST report.
 
- _numSigHits      Number of significant based on Significant data members.
+ _num_hits_significant Number of significant based on Significant data members.
 
  _highestSignif   Highest P or Expect value overall (not just what is stored in _hits).
 

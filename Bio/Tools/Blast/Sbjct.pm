@@ -31,13 +31,8 @@ $ID = 'Bio::Tools::Blast::Sbjct';
 $VERSION = 0.075;
 $Revision = '$Id$';  #'
 
-my $_layout     = '';
-my $_gapped     = 0;
 my $_prog       = '';
 my $_signif_fmt = '';
-#my $_residues  = 0;
-#my %SUMMARY_OFFSET_BLAST1 = ('frame'=>3, 'score'=>2, 'signif'=>1, 'n'=>0 );
-#my %SUMMARY_OFFSET_BLAST2 = ('score'=>1, 'signif'=>0 );
 
 ## POD Documentation:
 
@@ -62,8 +57,6 @@ for a description of constructor parameters.
 					 -RANK_BY =>'order',
 					 -MAKE    =>'query' (or 'sbjct'),
 					 -OVERLAP =>2,
-					 -LAYOUT  =>1, 
-					 -GAPPED  =>0, 
 					 -PROGRAM =>'TBLASTN'
 					 );
 
@@ -286,8 +279,6 @@ for documentation purposes only.
 	   :	 -RANK_BY    => 'order',
 	   :	 -OVERLAP    => integer (maximum overlap between adjacent
            :                    HSPs when tiling)
-	   :	 -LAYOUT     => 1 or 2 (layout of report)
-	   :	 -GAPPED     => boolean (true if gapped Blast.)
 	   :	 -PROGRAM    => string (type of Blast blastp, blastn, etc).
 
 See Also   : L<_set_id>(), L<_set_hsps>(), L<_tile_hsps>(), B<Bio::Root::Object.pm>::new, B<Bio::Tools::Blast.pm>::_set_hit_db
@@ -303,9 +294,7 @@ sub _initialize {
     my $make = $self->SUPER::_initialize( %param );
     
     # Set various class data.
-    $_gapped     = $param{-GAPPED} || 0;
     $_prog       = $param{-PROGRAM} || '';
-    $_layout     = $param{-LAYOUT}  || $self->throw("Unknown layout.");
     $_signif_fmt = $param{-SIGNIF_FMT};
 
     $self->{'_rank'} = $param{-RANK} || '';
@@ -370,7 +359,8 @@ sub rank {
            : Also extracts database id.
            : For sequences without database ids, database id is set to "-".
  Returns   : n/a
- Argument  : String containing description line of the hit from Blast report.
+ Argument  : String containing description line of the hit from Blast report
+           : or first line of an alignment section.
  Throws    : Warning if cannot locate sequence ID.
  Comments  : If more than one sequence identifier is present they are
            : combined as "SEQID1/SEQID2"
@@ -509,7 +499,7 @@ sub _set_hsps {
     $set_desc = 0;
 
     hit_loop:
-   foreach $line( @data[1..$#data] ) {
+   foreach $line( @data ) {
 
        if( $line =~ /^\s*Length = ([\d,]+)/ ) {
 	   $self->_set_desc(@desc);
@@ -536,7 +526,6 @@ sub _set_hsps {
 		my $hspObj = eval { new Bio::Tools::Blast::HSP(-DATA    =>\@hspData, 
 							       -PARENT  =>$self, 
 							       -NAME    =>$hspCount,
-							       -GAPPED  =>$_gapped,
 							       -PROGRAM =>$_prog,
 							       ); 
 				};
@@ -568,7 +557,6 @@ sub _set_hsps {
 	       my $hspObj = eval { new Bio::Tools::Blast::HSP(-DATA    =>\@hspData, 
 							      -PARENT  =>$self, 
 							      -NAME    =>$hspCount,
-							      -GAPPED  =>$_gapped,
 							      -PROGRAM =>$_prog,
 							      );
 			       };
