@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.6 2000-02-23 08:22:32 birney Exp $
+## $Id: bioperl.pod,v 1.7 2000-03-23 14:43:05 birney Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -236,7 +236,9 @@ core. Probably you will want to read alot of the documentation
 in the Bio::Root section and also talk to people on the 'guts'
 mailing list vsns-bcd-perl-guts@lists.uni-bielefeld.de
 
-biodesign.pod provides documentation
+biodesign.pod provides documentation on the conventions and ideas
+used in bioperl. It is definitely worth a ready if you are interested
+in contributing.
 
 =head1 CONVENTIONS
 
@@ -333,11 +335,6 @@ specific action items.
 'Meta' documentation is still spread around the different objects
 rather than in here
 
-=item Bio::SeqFeature and Bio::Entry 
-
-The Bio::Entry is the 'heavy weight' sequence object which is more
-like a representation of a Genbank or EMBL flat file complete with
-feature table. Ian Korf is working on these objects.
 
 =item Bio::Structure
 
@@ -346,17 +343,6 @@ A number of people have been talking about a Structure object
 for the current state-of-affairs in this area and to learn how
 to get involved.
 
-
-=item Bio::SearchDist
-
-A perl wrapper for Sean Eddy's Extreme Value and Gaussian fitting
-code (already provided in the bp_sw XS extension). Ewan Birney
-is working on this.
-
-=item Bio::Tools::dAlign 
-
-DNA alignments like pSW provided in a perl wrapper. Ewan Birney is
-working on this.
 
 
 =item Perl version support
@@ -393,18 +379,19 @@ Jon Orwant at The Perl Journal (http://www.tpj.com) gave us permission to reprin
 Lincoln Stein's great article on our website. He also worked with the Perl Institute 
 (http://www.perl.org) to arrange our perl.org DNS entry. 
 
-Hardware for bio.perl.org was donated by Genetics Institute (http://www.genetics.com)
+Hardware for bio.perl.org was donated by Compaq.
 
-Bandwith and internet connectivity (ISDN) donated by Chris Dagdigian until we 
-co-locate somewhere faster :) 
+
+Bandwith and internet connectivity (ISDN) donated by The Genetics
+Institute (http://www.genetics.com).
 
 
 =head1 COPYRIGHT
 
- Copyright (c) 1996-1998 Georg Fuellen, Richard Resnick, Steven E. Brenner,
- Chris Dagdigian, Steve A. Chervitz, Ewan Birney and others. All Rights Reserved.
- This module is free software; you can redistribute it and/or modify 
- it under the same terms as Perl itself.
+ Copyright (c) 1996-2000 Georg Fuellen, Richard Resnick, Steven E. Brenner,
+ Chris Dagdigian, Steve A. Chervitz, Ewan Birney, James Gilbert, Elia Stupka, 
+ and others. All Rights Reserved. This module is free software; 
+ you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
 
