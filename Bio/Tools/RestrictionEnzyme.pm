@@ -494,6 +494,10 @@ sub cuts_after {
            : cleavage site as in  'G^AATTC'.
  Argument  : n/a
  Throws    : n/a
+ Comments  : If you want a simple string representing the site without 
+             any '^', use the string() method.
+
+See Also   : L<string()|string>
 
 =cut
 
@@ -538,12 +542,13 @@ sub seq    {  my $self = shift; $self->{'_seq'}; }
  Title     : string
  Usage     : $re->string();
  Purpose   : Get a string representing the recognition sequence.
- Returns   : String
+ Returns   : String. Does NOT contain a  '^' representing the cut location
+             as returned by the site() method
  Argument  : n/a
  Throws    : n/a
- Comments  : Delegates to the Bio::PrimarySeq.pm-derived object.
+ Comments  : Delegates to the Bio::PrimarySeq-derived object.
 
-See Also   : L<seq()|seq>, L<revcom()|revcom>
+See Also   : L<seq()|seq>, L<site()|site>, L<revcom()|revcom>
 
 =cut
 
@@ -622,21 +627,10 @@ sub cut_seq {
 #    print STDERR "3' site: $site_3prime_seq\n5' site: $site_5prime_seq\n";
 
     my(@re_frags);
-    my $seq = $reSeq->seq;
-    if( $self->name ne 'N' ) {
-        $seq =~ s/N/\./g;
-        $seq =~ s/R/\[AG\]/g;
-        $seq =~ s/Y/\[CT\]/g;
-        $seq =~ s/S/\[GC\]/g;
-        $seq =~ s/W/\[AT\]/g;
-    }
+    my $seq = $self->_expanded_string;
+
     if(!$self->palindromic and $self->name ne 'N') {
-	my $revseq = $reSeq->revcom;
-	$revseq =~ s/N/\./g;
-	$revseq =~ s/R/\[AG\]/g;
-	$revseq =~ s/Y/\[CT\]/g;
-	$revseq =~ s/S/\[GC\]/g;
-	$revseq =~ s/W/\[AT\]/g;
+	my $revseq = $self->_expanded_string( $reSeq->revcom );
 	$seq .= '|'.$revseq;
     }
 #    printf "$ID: site seq: %s\n\n", $seq;
@@ -675,16 +669,9 @@ sub cut_locations {
 #-----------------
     my($self, $seqobj) = @_;
 
-    my $site = $self->string;
+    my $site = $self->_expanded_string;
     my $seq = $seqobj->seq;
     study($seq);
-    if( $self->name ne 'N' ) {
-        $site =~ s/N|X/\./g;
-        $site =~ s/R/\[AG\]/g;
-        $site =~ s/Y/\[CT\]/g;
-        $site =~ s/S/\[GC\]/g;
-        $site =~ s/W/\[AT\]/g;
-    }
     my @locations;
     while( $seq =~ /($site)/g ) {
         # $` is preceding string before pattern so length returns position
@@ -693,6 +680,30 @@ sub cut_locations {
     return \@locations;
 }    
 
+# Purpose : Expand nucleotide ambiguity codes to their representative letters
+# Argument: (optional) the string to be expanded. If not supplied, used
+#           the string returned by $self->string().
+# Returns : String
+sub _expanded_string {
+    my ($self, $str) = @_;
+    
+    $str ||= $self->string;
+
+    if( $self->name ne 'N' ) {
+        $str =~ s/N|X/\./g;
+        $str =~ s/R/\[AG\]/g;
+        $str =~ s/Y/\[CT\]/g;
+        $str =~ s/S/\[GC\]/g;
+        $str =~ s/W/\[AT\]/g;
+        $str =~ s/M/\[AC\]/g;
+        $str =~ s/K/\[TG\]/g;
+        $str =~ s/B/\[CGT\]/g;
+        $str =~ s/D/\[AGT\]/g;
+        $str =~ s/H/\[ACT\]/g;
+        $str =~ s/V/\[ACG\]/g;
+    }
+    return $str;
+}
 
 
 =head1 annotate_seq
@@ -715,14 +726,8 @@ sub annotate_seq {
 #-----------------
     my($self, $seqObj) = @_;
 
-    my $site = $self->string;
+    my $site = $self->_expanded_string;
     my $seq = $seqObj->seq;
-
-    $site =~ s/N|X/\./g unless $self->name eq 'N';
-    $site =~ s/R/\[AG\]/g;
-    $site =~ s/Y/\[CT\]/g;
-    $site =~ s/S/\[GC\]/g;
-    $site =~ s/W/\[AT\]/g;
 
     $seq =~ s|$site|<b>$site</b>|g;
     return $seq;
