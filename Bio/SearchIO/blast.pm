@@ -219,7 +219,8 @@ sub next_result{
        next if( /CPU time:/);
        next if( /^>\s*$/);
 
-       if( /^([T]?BLAST[NPX])\s*(.+)$/i ||
+       if( /^(T?BLAST[NPX])\s*(.+)$/i ||
+	   /^PSI(T?BLAST[NPX])\s*(.+)$/i ||
 	   /^(RPS-BLAST)\s*(.+)$/i ||
 	   /^(MEGABLAST)\s*(.+)$/i 
 	   ) {
