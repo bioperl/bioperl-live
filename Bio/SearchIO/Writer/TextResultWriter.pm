@@ -173,7 +173,7 @@ Sequences producing significant alignments:         Score       E
     my $hspstr = '';
     $result->rewind();
     while( my $hit = $result->next_hit ) {
-	next if( defined $hitfilter && ! &{$hitfilter} );
+	next if( defined $hitfilter && ! &{$hitfilter}($hit) );
 	my $nm = $hit->name();
 	my $id_parser = $self->id_parser;
 	print STDERR "no $nm for name (",$hit->description(), ")\n" unless $nm;
