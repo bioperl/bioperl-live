@@ -10,7 +10,6 @@ use Bio::SeqFeature::Generic;
 
 
 
-my @feats;
 sub new {
       my($class,@args) = @_;
 
@@ -21,25 +20,24 @@ sub new {
 }
 
 
-sub parse_results {
-        my ($self,$resfile) = @_;
-        my $filehandle;
-        
-        $filehandle = $resfile;
-        my %printsac;
-        my $line;
-        my @features;
-        # parse
-        my $sequenceId;
-        while (<$filehandle>) {
+sub next_result {
+      my ($self) = @_;
+     my %printsac;
+     my @features;
+     my $line;
+     my $sequenceId;
+     
+     while ($_=$self->_readline()) {
+      
+      
            $line = $_;
            chomp $line;
-           # Pattern match the Sn; field which should contain the SequenceId and Accession
 
            if ($line =~ s/^Sn;//) { # We have identified a Sn; line so there should be the following:
 
-              #ENSP00000003603 Gene:ENSG00000000003 Clone:AL035608 Contig:AL035608.00001 Chr:chrX basepair:97227305
               ($sequenceId) = $line =~ /^\s*(\w+)/;
+              $self->seqname($sequenceId);
+              next;
            }
          
               
@@ -47,43 +45,46 @@ sub parse_results {
                my  ($id) = $line =~ /^\s*(\w+)/;
                my ($ac) = $line =~ /(PR\w+)\s*$/;
                $printsac{$id} = $ac;
+               $self->print_sac(\%printsac);
+               next;
            }
- 
+             
+             
            if ($line =~ s/^3TB//) {
-               if ($line =~ s/^[HN]//) {
+              
+                  
+              
+              
+              if ($line =~ s/^[HN]//) {
                    my ($num,$temp,$tot) = "";
-                   # Grab these lines
-                   #   1433ZETA     1  of  6  88.19   1328    1.00e-16  ELTVEERNLLSVAYKNVIGARRASWRIITS  30   35   36   48
-                   # split line on space, hence strip off all leading spaces first.
+                   
                    $line =~ s/^\s+//;
 
-                   # Place all elements of list into an array
                    my @elements = split /\s+/, $line;
 
-                   # Name each of the elements in the array
                    my ($fingerprintName,$motifNumber,$temp,$tot,$percentageIdentity,$profileScore,$pvalue,$subsequence,$motifLength,$lowestMotifPosition,$matchPosition,$highestMotifPosition) = @elements;
     
                    my $start = $matchPosition;
                    my $end = $matchPosition + $motifLength - 1;
+                   my $print_sac = $self->print_sac;
+                   
+                   my %printsac =  %{$print_sac};
                    my $print =  $printsac{$fingerprintName};
-
+                   my $seqname=$self->seqname;
                    my $feat = "$print,$start,$end,$percentageIdentity,$profileScore,$pvalue";
-
-                   push (@features,$feat);
+                   my $new_feat =  $self->create_feature($feat,$seqname);
+                   return $new_feat;
                }
                if ($line =~ s/^F//) {
+                   return;  
+               }
+                   next;                                                                                                                               }
+            next;         
  
-                   foreach my $feats (@features) {
-                      $self->create_feature($feats,$sequenceId);
-                   }
-                   @features = ();
-                                                                                                                                                                                                                                                                                                     }
-                                                                                                                                                                                                                                                                                                 }
-                                                                                                                                                                                                                                                                                               }
+      }
 
 
-        close $filehandle;
-        return @feats;
+        
 }
 
 sub create_feature {
@@ -91,33 +92,46 @@ sub create_feature {
 
        my @f = split (/,/,$feat);
        # create feature object
-       my $feat1 = Bio::SeqFeature::Generic->new(-seqname     =>$sequenceId,
-                                                 -start       => $f[1],
-                                                 -end         => $f[2],
-                                                 -score       => $f[4],
-                                                 -source      => $feat->{source},
-                                                 -primary     => $feat->{primary},
-                                                 -logic_name  => $feat->{logic_name}, 
-                                                 -percent_id  => $f[3],
-                                                 -p_value     => $f[5]
-                                               );
-     
-     my $feat2 = Bio::SeqFeature::Generic->new(-start =>0,
-                                               -end => 0,
-                                               -seqname => $f[0]);
-     
-     my $feature =  Bio::SeqFeature::FeaturePair->new(-feature1 => $feat1,
-                                                 -feature2 => $feat2);
+        my $feature= Bio::SeqFeature::Generic->new(-seqname    =>$sequenceId,
+                                                   -start=>$f[1],
+                                                   -end  => $f[2],
+                                                   -score      => $f[4],
+                                                   -source     => "PRINTS",
+                                                   -primary    =>$f[0],
+                                                   -logic_name => "PRINTS",
+                                                   );
+        $feature->add_tag_value('evalue',$f[5]);
+        $feature->add_tag_value('percent_id',$f[3]);
+        
 
      
-     if ($feature) {
-         
-         push(@feats ,$feature);
-         
-       }
-
+    return  $feature; 
         
 }
+
+sub print_sac{
+    my($self,$printsac)=@_;
+ 
+   if(defined($printsac))
+   {
+       $self->{'print_sac'}=$printsac;
+   }
+    return $self->{'print_sac'};
+
+}
+
+sub seqname{
+    my($self,$seqname)=@_;
+
+    if(defined($seqname))
+    {
+        $self->{'seqname'}=$seqname;
+    }
+
+    return $self->{'seqname'};
+
+}
+
 1;
 
 
