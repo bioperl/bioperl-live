@@ -1,0 +1,33 @@
+# -*-Perl-*-
+## Bioperl Test Harness Script for Modules
+##
+# CVS Version
+# $Id$
+
+
+# Before `make install' is performed this script should be runnable with
+# `make test'. After `make install' it should work as `perl test.t'
+
+
+use Test;
+use strict;
+
+BEGIN { plan tests => 5 }
+use Bio::Seq;
+use Bio::SeqFeature::SimilarityPair;
+use Bio::Tools::Blast;
+use Bio::SeqIO;
+
+# test SimilarityPair
+
+my $seq = (new Bio::SeqIO('-format' => 'fasta',
+			  '-file' => 't/AAC12660.fa'))->next_seq();
+ok defined( $seq) && $seq->isa('Bio::SeqI');
+my $blast = new Bio::Tools::Blast('-file'=>'t/blast.report', '-parse'=>1);
+ok defined ($blast) && $blast->isa('Bio::Tools::Blast');
+my $hit = $blast->hit;
+ok defined ($hit) && $hit->isa('Bio::Tools::Blast::Sbjct'), 1, ' hit is ' . ref($hit);
+my $sim_pair = Bio::SeqFeature::SimilarityPair->from_searchResult($hit);
+ok defined($sim_pair) && $sim_pair->isa('Bio::SeqFeatureI');
+$seq->add_SeqFeature($sim_pair);
+ok $seq->all_SeqFeatures() == 1;
