@@ -1,8 +1,10 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
+# $Id: composite_LD.PLS,v 1.2 2003-08-14 19:24:17 jason Exp $
+
 =head1 NAME 
 
-composite_LD -i filename.prettybase.txt --sortbyld > 
+composite_LD -i filename.prettybase.txt --sortbyld > outfile
 
 =head1 SYNOPSIS
 
@@ -18,6 +20,7 @@ This a script which allows an easy way to calculate composite LD.
 -f or --format genotype format (prettybase or CSV)
 --sortbyld     To see data sorted by LD instead of just all the 
                site1/site2 pair LD values.
+-o or --out    output filename, otherwise will print to STDOUT
 
 =head2 AUTHOR Jason Stajich, Matthew Hahn
 
