@@ -23,7 +23,12 @@ use vars qw ($dir);
 ($Bio::Root::IO::FILESPECLOADED && File::Spec->can('cwd') && ($dir = File::Spec->cwd) ) ||
     ($dir = `pwd`) || ($dir = '.');
  
-END {  unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5); }
+END { foreach my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5 ) ) {
+	if( -e "$root" ) { unlink $root;}
+	if( -e "$root.pag") { unlink "$root.pag";}
+	if( -e "$root.dir") { unlink "$root.dir";}
+   }
+ }
 
 chomp( $dir );
 {
@@ -35,7 +40,7 @@ chomp( $dir );
     $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multi_1.fa"));
 }
 
-ok ( -e "Wibbl" );
+ok ( -e "Wibbl" || -e "Wibbl.pag" );
 
 {
     my %t_seq = (
@@ -78,14 +83,14 @@ ok ( -e "Wibbl" );
     my $ind = Bio::Index::SwissPfam->new(-filename=>'Wibbl2', 
 					 -write_flag=>1);
     $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","swisspfam.data"));
-    ok ( -e "Wibbl2" );
+    ok ( -e "Wibbl2" || -e "Wibbl2.pag" );
 }
 
 {
     my $ind = Bio::Index::EMBL->new(-filename=>'Wibbl3', 
 				    -write_flag=>1);
     $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","test.embl"));
-    ok ( -e "Wibbl3" );
+    ok ( -e "Wibbl3" || -e "Wibbl3.pag" );
     ok $ind->fetch('AL031232')->length, 4870;
 }
 
@@ -93,7 +98,7 @@ ok ( -e "Wibbl" );
     my $ind = Bio::Index::Swissprot->new(-filename=>'Wibbl4', 
 				    -write_flag=>1);
     $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.swiss"));
-    ok ( -e "Wibbl4" );
+    ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
     ok ($ind->fetch('P09651')->display_id(), 'ROA1_HUMAN');
 }
 
@@ -103,7 +108,7 @@ my $gb_ind;
 				       -write_flag=>1, 
 				       -verbose => 0);
     $gb_ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
-    ok ( -e "Wibbl5" );
+    ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
     ok ($gb_ind->fetch('AI129902')->length, 37);
 }
 
