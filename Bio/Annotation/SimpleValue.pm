@@ -12,15 +12,43 @@
 
 =head1 NAME
 
-Bio::Annotation::SimpleValue - DESCRIPTION of Object
+Bio::Annotation::SimpleValue - A simple scalar 
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    use Bio::Annotation::SimpleValue;
+    use Bio::Annotation::Collection;
+ 
+   my $col = new Bio::Annotation::Collection;
+
+   my $sv = new Bio::Annotation::SimpleValue(-value => 'someval');   
+
+   $col->add_Annotation('tagname', $sv);
+
 
 =head1 DESCRIPTION
 
 Scalar value annotation object 
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bioperl.org
+  http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR - bioperl
 
@@ -48,7 +76,27 @@ use Bio::AnnotationI;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root Bio::AnnotationI);
-# new() can be inherited from Bio::Root::Root
+
+=head2 new
+
+ Title   : new
+ Usage   : my $sv = new Bio::Annotation::SimpleValue;
+ Function: Instantiate a new SimpleValue object
+ Returns : Bio::Annotation::SimpleValue object
+ Args    : -value => $value to initialize the object data field [optional]
+
+=cut
+
+sub new{
+   my ($class,@args) = @_;
+
+   my $self = $class->SUPER::new(@args);
+
+   my ($value) = $self->_rearrange([qw(VALUE)], @args);
+   defined $value  && $self->value($value);
+   return $self;
+}
+
 
 =head2 AnnotationI implementing functions
 
@@ -57,11 +105,10 @@ use Bio::Root::Root;
 =head2 as_text
 
  Title   : as_text
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my $text = $obj->as_text
+ Function: return the string "Value: $v" where $v is the value 
+ Returns : string
+ Args    : none
 
 
 =cut
@@ -75,11 +122,11 @@ sub as_text{
 =head2 hash_tree
 
  Title   : hash_tree
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my $hashtree = $value->hash_tree
+ Function: For supporting the AnnotationI interface just returns the value
+           as a hashref with the key 'value' pointing to the value
+ Returns : hashrf
+ Args    : none
 
 
 =cut
@@ -99,8 +146,7 @@ sub hash_tree{
 
  Title   : value
  Usage   : $obj->value($newval)
- Function: 
- Example : 
+ Function: Get/Set the value for simplevalue
  Returns : value of value
  Args    : newvalue (optional)
 
@@ -109,11 +155,11 @@ sub hash_tree{
 
 sub value{
    my ($self,$value) = @_;
+   
    if( defined $value) {
       $self->{'value'} = $value;
     }
     return $self->{'value'};
-
 }
 
 1;
