@@ -85,6 +85,7 @@ use strict;
 
 use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
+use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::Root::IO);
 
