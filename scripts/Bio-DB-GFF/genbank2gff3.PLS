@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.4 2005-01-10 21:31:55 scain Exp $;
+#$Id: genbank2gff3.PLS,v 1.5 2005-01-17 19:48:57 cjm Exp $;
 
 =pod
 
@@ -33,6 +33,8 @@ bp_genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
         --nolump  -n  seperate file for each reference sequence
                       (default is to lump all records together into one 
                        output file for each input file)
+        --ethresh -e  error threshold for unflattener
+                      set this high (>2) to ignore all unflattener errors
         --help    -h  display this message
 
 
@@ -89,7 +91,7 @@ use Bio::SeqFeature::Tools::IDHandler;
 use Bio::Tools::GFF;
 use Getopt::Long;
 
-use vars qw/$split @filter $zip $outdir $help 
+use vars qw/$split @filter $zip $outdir $help $ethresh
             $file @files $dir $summary $nolump/;
 
 $| = 1;
@@ -101,6 +103,7 @@ GetOptions( 'd|dir:s'   => \$dir,
 	    'o|outdir:s'=> \$outdir,
 	    'x|filter:s'=> \@filter,
 	    'y|split'   => \$split,
+            "ethresh|e=s"=>\$ethresh,
             'n|nolump'  => \$nolump);
 
 my $lump = 1 unless $nolump || $split;
@@ -110,6 +113,7 @@ pod2usage(2) if $help;
 
 # initialize handlers
 my $unflattener = Bio::SeqFeature::Tools::Unflattener->new;
+$unflattener->error_threshold($ethresh) if $ethresh;
 my $tm  = Bio::SeqFeature::Tools::TypeMapper->new;
 my $idh = Bio::SeqFeature::Tools::IDHandler->new;
 
