@@ -288,50 +288,51 @@ sub check_for_new_state {
     my $newstate = undef;
 
     # End the run if there's no more input.
-    $newstate = $self->final_state unless $chunk;
-
+    if( ! $chunk ) {
+	return $self->final_state;
+    }
     $self->clear_state_change_cache;
     my $curr_state = $self->current_state;
 
     if( $chunk =~ /^(<.*>)?T?BLAST[NPX]/ ) {
-        $newstate = $state{header};
-        $self->state_change_cache( $chunk );
+	$newstate = $state{header};
+	$self->state_change_cache( $chunk );
     }
 
     elsif ($chunk =~ /^Sequences producing/ ) {
-      $newstate = $state{descr};
-      $self->state_change_cache( $chunk );
+	$newstate = $state{descr};
+	$self->state_change_cache( $chunk );
     }
 
     elsif ($chunk =~ /No hits found/i ) {
-        $newstate = $state{nohits};
-        $self->state_change_cache( $chunk );
+	$newstate = $state{nohits};
+	$self->state_change_cache( $chunk );
     }
 
     elsif ($chunk =~ /^\s*Searching/ ) {
-        $newstate = $state{iteration};
+	$newstate = $state{iteration};
     }
 
     elsif ($chunk =~ /^>(.*)/ ) {
-        $newstate = $state{align};
-        $self->state_change_cache( "$1\n" );
+	$newstate = $state{align};
+	$self->state_change_cache( "$1\n" );
     }
 
     elsif ($chunk =~ /^(CPU time|Parameters):/ ) {
-        $newstate = $state{footer};
-        $self->state_change_cache( $chunk );
+	$newstate = $state{footer};
+	$self->state_change_cache( $chunk );
     }
 
     # Necessary to distinguish "  Database:" lines that start a footer section
     # from those that are internal to a footer section.
     elsif ($chunk =~ /^\s+Database:/ && $curr_state ne $state{'footer'}) {
-        $newstate = $state{footer};
-        $self->state_change_cache( $chunk );
+	$newstate = $state{footer};
+	$self->state_change_cache( $chunk );
     }
 
     if( $curr_state ne $INITIAL_STATE and not $newstate  ) {
 #        print "Appending input cache with ($curr_state): $chunk\n";
-        $self->append_input_cache( $chunk );
+	$self->append_input_cache( $chunk );
     }
 
     return $newstate;
@@ -725,10 +726,12 @@ sub _set_query_length {
 sub _process_significance {
     my($self, $sig, $my_signif) = @_;
 
-    $self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'})
+    $self->{'_highestSignif'} = (defined $self->{'_highestSignif'} &&
+				 $sig > $self->{'_highestSignif'})
    	                        ? $sig : $self->{'_highestSignif'};
 
-    $self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'})
+    $self->{'_lowestSignif'} = (defined $self->{'_lowestSignif'} && 
+				$sig < $self->{'_lowestSignif'})
                                  ? $sig : $self->{'_lowestSignif'};
 
     # Significance value assessment.
@@ -895,10 +898,12 @@ sub _process_alignment {
     my $hit_signif = $hit->signif;
     
     if (not $self->{'_confirm_significance'} ) {
-      $self->{'_highestSignif'} = ($hit_signif > $self->{'_highestSignif'})
+      $self->{'_highestSignif'} = (defined $self->{'_highestSignif'} &&
+				   $hit_signif > $self->{'_highestSignif'})
 	? $hit_signif : $self->{'_highestSignif'};
       
-      $self->{'_lowestSignif'} = ($hit_signif < $self->{'_lowestSignif'})
+      $self->{'_lowestSignif'} = (defined $self->{'_lowestSignif'} &&
+				  $hit_signif < $self->{'_lowestSignif'})
 	? $hit_signif : $self->{'_lowestSignif'};
     }
 
