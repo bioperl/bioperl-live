@@ -85,7 +85,8 @@ sub new {
     defined $end    && $self->end($end);
     if( defined $self->start && defined $self->end &&
 	$self->start > $self->end ) {
-	$self->warn("When building a location start ($start) is expected to be less than end ($end) - it was not was not. Switching start and end and setting strand to -1");
+	$self->warn("When building a location start ($start) is expected to be less than end ($end), however it was not was not. Switching start and end and setting strand to -1");
+
 	$self->strand(-1);
 	my $e = $self->end;
 	my $s = $self->start;
@@ -179,7 +180,7 @@ sub strand {
 
 sub length {
    my ($self) = @_;
-   return $self->end() - $self->start() + 1;
+   return abs($self->end() - $self->start()) + 1;
 }
 
 =head2 min_start
