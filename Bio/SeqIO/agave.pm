@@ -400,7 +400,6 @@ sub _process_xrefs {
 	# One or more <db_id> or <xref> within <xrefs></xrefs>.  Check if to see if there's at least one.
 	if ($$line =~ /<db_id|xref\s?(.*?)\s?>/){
 
-
 		while ($$line =~ /<(db_id|xref)\s?(.*?)\s?>/){
 
 			if ($1 eq "db_id"){
@@ -529,6 +528,17 @@ sub _process_sequence_map {
 
 }
 # ==================================================================================
+=head2
+	
+	Title    : _process_annotations
+	Usage    : $self->_process_annotations
+	Function : Parse the data between the <annotations></annotations> tags.
+	Args     : Reference to scalar holding the line to be parsed.
+	Returns  : Data structure that holds the values that were parsed.
+	Note     : Method(s) that call(s) this method : _process_sequence_map
+		   Method(s) that this method calls   : _process_seq_feature
+
+=cut
 sub _process_annotations {
 
 	my ($self, $line) = @_;
@@ -538,64 +548,91 @@ sub _process_annotations {
 
 	$$line = $self->_readline;
 
-	my $count = 0;
+	my $count = 0;	# counter to keep track of number of iterations in the loop.
 
 	# One or more of these:
 	while ($$line =~ /<(seq_feature|gene|comp_result)\s?(.*?)\s?>/){
 
 		if ($$line =~ /<seq_feature\s?(.*?)\s?>/){
+
 			my $seq_feature = $self->_process_seq_feature($line, $1);
 			push @{$annotations->{'seq_feature'}}, $seq_feature;
+
 		} elsif ($$line =~ /<gene\s?(.*?)\s?>/){
 
+			# gene
+
 		} elsif ($$line =~ /<comp_result\s?(.*?)\s?>/){
+
+			# comp_result
 
 		}
 
 		++$count;
 
-	}
+	} # closes the while loop.
 
+	$self->throw("Error:  Missing <seq_feature> tag.  Got: $$line\n\n") if $count == 0;
 
-	die "Error.  Missing <seq_feature> or <gene> or <comp_result> tag.  Got: $$line" if $count == 0;
-
-	#	print Data::Dumper->Dump([$annotations]);
-
+	# Match closing tag:
 	if ($$line =~ /<\/annotations/){
+
 		$$line = $self->_readline; # get the next line to be _processed by the next sub.
 		return $annotations;
+
 	} else {
-		die "Error.  Missing </annotations>.  Got: $$line\n";
+		$self->throw("Error:  Missing </annotations> tag.  Got this: $$line\n\n");
 	}
+
 
 }
 # ==================================================================================
+=head2
+
+	Title    : _process_seq_feature
+	Usage    : $self->_process_seq_feature
+	Function : Parses the data between the <seq_feature></seq_feature> tag.
+	Args     : 2 scalars: 
+		   - Reference to scalar holding the line to be parsed.
+		   - Scalar holding the attributes for <seq_feature>.
+	Returns  : Data structure holding the values parsed.
+	Note     : Method(s) that call(s) this method: _process_annotations
+		   Method(s) that this method calls: _helper_store_attribute_list , _process_classification , _question_mark_tag , 
+		   _one_tag , _process_evidence , _process_qualifier , _process_seq_feature , _process_related_annot
+
+=cut
 sub _process_seq_feature {
 
 	my ($self, $line, $attribute_line) = @_;
 
         my $seq_feature;
         $self->_helper_store_attribute_list($attribute_line, \$seq_feature);
+
         $$line = $self->_readline;
 
 	# Zero or more <classification>
 	$self->_process_classification($line, \$seq_feature);
 
+
 	# Zero or one <note>
 	$self->_question_mark_tag($line, \$seq_feature, 'note');
+
 
 	# One <seq_location>
 	$self->_one_tag($line, \$seq_feature, 'seq_location');
 
+
 	# Zero or one <xrefs>
 	$self->_question_mark_tag($line, \$seq_feature, 'xrefs');
+
 
 	# Zero or one <evidence>
 	$self->_process_evidence($line, \$seq_feature);
 
+
 	# Zero or more <qualifier>
- 	# print "_process_qualifier: $$line\n";
 	$self->_process_qualifier($line, \$seq_feature);
+
 
 	# Zero or more <seq_feature>.  A <seq_feature> tag within a <seq_feature> tag?  Oh, well.  Whatever...
 	while ($$line =~ /<seq_feature\s?(.*?)\s?>/){
@@ -603,22 +640,41 @@ sub _process_seq_feature {
 		$$line = $self->_readline;
 	}
 
+
 	# Zero or more <related_annot>
 	while ($$line =~ /<related_annot\s?(.*?)\s?>/){
 		$self->_process_related_annot($line, $1);
 		$$line = $self->_readline;
 	}
 
+
+	# Match the closing tag:
 	if ($$line =~ /<\/seq_feature>/){
+
 		$$line = $self->_readline; # for the next sub...
 		return $seq_feature;
+
 	} else {
+
 		die "Error.  Missing </seq_feature> tag.  Got this: $$line\n";
+
 	}
 
-	# print Data::Dumper->Dump([$seq_feature]); exit;
 }
 # ==================================================================================
+=head2
+
+	Title: _process_qualifier
+	Usage: $self->_process_qualifier
+	Function: Parse the data between the <qualifier></qualifier> tags.
+	Args: 2 scalars:
+                   - reference to a scalar holding the value of the line to be parsed.
+                   - reference to a data structure to store the <xref> data.
+	Returns: Nothing.
+	Note: 
+
+
+=cut
 sub _process_qualifier {
 
 	my ($self, $line, $data_structure) = @_;
