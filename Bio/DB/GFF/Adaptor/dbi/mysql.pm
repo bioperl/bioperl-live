@@ -155,4 +155,152 @@ sub make_types_group_part {
   return 'ftype.ftypeid';
 }
 
+################################ loading and initialization ##################################
+# return list of tables that "belong" to us.
+sub tables {
+  qw(fdata fgroup ftype fdna)
+}
+
+sub schema {
+  return <<END;
+create table fdata (
+    fid	         int not null auto_increment,
+    fref         varchar(20)    not null,
+    fstart       int unsigned   not null,
+    fstop        int unsigned   not null,
+    ftypeid      int not null,
+    fscore        float,
+    fstrand       enum('+','-'),
+    fphase        enum('0','1','2'),
+    gid          int not null,
+    ftarget_start int unsigned,
+    ftarget_stop  int unsigned,
+    primary key(fid),
+    index(fref,fstart,fstop,ftypeid),
+    index(ftypeid),
+    index(gid)
+);
+
+create table fgroup (
+    gid	    int not null auto_increment,
+    gclass  varchar(20),
+    gname   varchar(100),
+    primary key(gid),
+    unique(gclass,gname)
+);
+
+create table ftype (
+    ftypeid      int not null auto_increment,
+    fmethod       varchar(30) not null,
+    fsource       varchar(30),
+    primary key(ftypeid),
+    index(fmethod),
+    index(fsource),
+    unique ftype (fmethod,fsource)
+);
+
+create table fdna (
+    fref          varchar(20) not null,
+    fdna          longblob not null,
+    primary key(fref)
+);
+END
+}
+
+sub load_gff {
+  my $self      = shift;
+
+  my $dbh = $self->features_db;
+  local $dbh->{PrintError} = 0;
+
+  # for the paranoid....
+  #  $dbh->do("LOCK TABLES fdata WRITE, ftype WRITE, fgroup WRITE");
+
+  my $lookup_type = $dbh->prepare('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
+  my $insert_type = $dbh->prepare('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
+
+  my $lookup_group = $dbh->prepare('SELECT gid FROM fgroup WHERE gclass=? AND gname=?');
+  my $insert_group = $dbh->prepare('INSERT INTO fgroup (gclass,gname) VALUES (?,?)');
+
+  my $insert_data  = $dbh->prepare(<<END);
+INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
+		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
+       VALUES(?,?,?,?,?,?,?,?,?,?)
+END
+;
+
+  # local caches of type and group ids
+  my (%types,%groups,$counter);
+
+  while (<>) {
+    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+    next if /^\#/;
+
+    my ($group_class,$group_name,@rest) = split_group($group);
+
+    # truncate the group name
+    $group_name = substr($group_name,0,100) if length $group_name > 100;
+
+    my $target_start = $rest[0];
+    my $target_stop  = $rest[1];
+    $group_class = 'Sequence' if $group_class eq 'Target';
+
+    # get the type ID
+    my $key = "\L$method$;$source\E";
+    unless ($types{$key}) {
+
+      if ( (my $result = $lookup_type->execute($method,$source)) > 0) {
+	$types{$key} = ($lookup_type->fetchrow_array)[0];
+      } else {
+	$insert_type->execute($method,$source)
+	  && ($types{$key} = $dbh->{mysql_insertid});
+      }
+    }
+
+    my $typeid = $types{$key};
+    unless ($typeid) {
+      warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
+      next;
+    }
+
+    # and the group ID
+    $key = "\L$group_class$;$group_name\E";
+    unless ($groups{$key}) {
+
+      if ((my $result = $lookup_group->execute($group_class,$group_name)) > 0) {
+	$groups{$key} = ($lookup_group->fetchrow_array)[0];
+      } else {
+	$insert_group->execute($group_class,$group_name)
+	  && ($groups{$key} = $dbh->{mysql_insertid});
+      }
+    }
+
+    my $groupid = $groups{$key};
+    unless ($groupid) {
+      warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
+      next;
+    }
+
+    my $result = $insert_data->execute($ref,$start,$stop,$typeid,
+				       $score,$strand,$phase,$groupid,
+				       $target_start,$target_stop);
+    unless ($result) {
+      warn $dbh->errstr,"\n";
+      next;
+    }
+
+    next unless $result;
+    if ( (++$counter % 1000) == 0) {
+      print STDERR "$counter records loaded...";
+      print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+    }
+  }
+
+  $_->finish foreach ($lookup_type,$insert_type,$lookup_group,$insert_group,$insert_data);
+
+#  $dbh->do('UNLOCK TABLES');
+
+  return $counter;
+}
+
 1;

@@ -22,27 +22,31 @@ use overload '""' => 'asString',
 #      -offset     => 0-based offset relative to sequence
 #      -length     => length of segment
 sub new {
-  my $class = shift;
-  my ($factory,$seq,$start,$stop,$refseq,$offset,$length) =
+  my $package = shift;
+  my ($factory,$name,$start,$stop,$refseq,$offset,$length,$class) =
     rearrange([
 	       'FACTORY',
-	       [qw(SEQ SEQUENCE SOURCESEQ)],
+	       [qw(NAME SEQ SEQUENCE SOURCESEQ)],
 	       [qw(START BEGIN)],
 	       [qw(STOP END)],
 	       [qw(REFSEQ REF)],
 	       [qw(OFFSET OFF)],
 	       [qw(LENGTH LEN)],
+	       'CLASS',
 	     ],@_);
 
-  $class = ref $class if ref $class;
+  $package = ref $package if ref $package;
 
   $factory or croak __PACKAGE__."->new(): provide a -factory argument";
 
   # partially fill in object
-  my $self = bless { factory => $factory },$class;
+  my $self = bless { factory => $factory },$package;
+
+  # if the class of the landmark is not specified then default to 'Sequence'
+  $class ||= 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
-  my($absref,$absstart,$absstop,$absstrand) = $factory->abscoords($seq) or return;
+  my($absref,$absstart,$absstop,$absstrand) = $factory->abscoords($class,$name) or return;
 
   # an explicit length overrides start and stop
   if (defined $offset) {
@@ -68,7 +72,7 @@ sub new {
     $start =  $absstop - ($start - 1);
     $stop  =  $absstop - ($stop - 1);
   }
-  @{$self}{qw(sourceseq start stop strand)} = ($absref,$start,$stop,$absstrand);
+  @{$self}{qw(sourceseq start stop strand class)} = ($absref,$start,$stop,$absstrand,$class);
 
   # but what about the reference sequence?
   if (defined $refseq) {
@@ -81,7 +85,7 @@ sub new {
     @{$self}{qw(ref refstart refstrand)} = ($refseq,$refstart,$refstrand);
   } else {
     $absstart = $absstop if $absstrand eq '-';
-    @{$self}{qw(ref refstart refstrand)} = ($seq,$absstart,$absstrand);
+    @{$self}{qw(ref refstart refstrand)} = ($name,$absstart,$absstrand);
   }
 
   return $self;
@@ -147,6 +151,19 @@ sub dna {
 # optionally modified by a list of types to filter on
 sub features {
   my $self = shift;
+  my @args = $self->_process_feature_args(@_);
+  return $self->factory->overlapping_features(@args);
+}
+
+# return all features completely contained within this segment
+sub contained_features {
+  my $self = shift;
+  my @args = $self->_process_feature_args(@_);
+  return $self->factory->contained_features(@args);
+}
+
+sub _process_feature_args {
+  my $self = shift;
   my ($ref,$start,$stop,$strand) = @{$self}{qw(sourceseq start stop strand)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
   my @args = (-ref=>$ref,-start=>$start,-stop=>$stop);
@@ -159,7 +176,7 @@ sub features {
     }
   }
   push @args,-parent=>$self;
-  return $self->factory->overlapping_features(@args);
+  @args;
 }
 
 # wrapper for lower-level types() call.

@@ -1,28 +1,224 @@
+=head1 NAME
+
+Bio::DB::GFF -- Storage and retrieval of sequence annotation data
+
+=head1 SYNOPSIS
+
+  use Bio::DB::GFF;
+
+  # Open the sequence database
+  my $db      = Bio::DB::GFF->new( -adaptor => 'dbi:mysql',
+                                   -dsn     => 'dbi:mysql:elegans42');
+
+  # fetch a 1 megabase segment of sequence starting at landmark "ZK909"
+  my $segment = $seqfactory->segment('ZK909', 1 => 1000000);
+
+  # pull out all transcript features
+  my @transcripts = $segment->features('transcript');
+
+  # for each transcript, total the length of the introns
+  my %totals;
+  for my $t (@transcripts) {
+    my @introns = $t->Intron;
+    $totals{$t->name} += $_->length foreach @introns;
+  }
+
+  # Sort the exons of the first transcript by position
+  my @exons = sort {$a->start <=> $b->start} $transcripts[0]->Exon;
+
+  # Get a region 1000 bp upstream of first exon
+  my $upstream = $exons[0]->segment(-1000,0);
+
+  # get its DNA
+  my $dna = $upstream->dna;
+
+  # and get all curated polymorphisms inside it
+  @polymorphisms = $upstream->contained_features('polymorphism:curated');
+
+  # get all feature types in the database
+  my @types = $db->types;
+
+  # last example: count all feature types in the segment
+  my %type_counts = $segment->types(-enumerate=>1);
+
+=head1 DESCRIPTION
+
+Bio::DB::GFF provides fast indexed access to a sequence annotation
+database.  It supports multiple types of database (ACeDB, relational),
+and multiple schemas through a system of adaptors.  It allows
+annotations to be aggregated together into hierarchical structures
+(genes, transcripts, exons, introns) using a system of aggregators.
+
+The following types of operation are supported by this module:
+
+  - retrieving a segment of sequence based on the ID of a landmark
+  - retrieving the DNA from that segment
+  - finding all annotations that overlap with the segment
+  - finding all annotations that are completely contained within the
+    segment
+  - retrieving all annotations of a particular type, either within a
+    segment, or globally
+  - conversion from absolute to relative coordinates and back again,
+    using any arbitrary landmark for the relative coordinates
+  - using a sequence segment to creatie new segments based on relative 
+    offsets
+
+The data model used by Bio::DB::GFF is compatible with the GFF flat
+file format (http://www.sanger.ac.uk/software/GFF).  The module can
+load a set of GFF files into the database, and serves objects that
+have methods corresponding to GFF fields.
+
+The objects returned by Bio::DB::GFF are compatible with the
+SeqFeatureI interface, allowing their use by the Bio::Graphics and
+Bio::DAS modules.
+
+=head2 GFF Fundamentals
+
+-mostly to come-
+
+The sequences used to establish the coordinate system for annotations
+can correspond to sequenced clones, clone fragments, contigs or
+super-contigs.  Thus, this module can be used throughout the lifecycle
+of a sequencing project.
+
+This module has no relationship to the GFF.pm module.
+
+=head2 Adaptors and Aggregators
+
+This module uses a system of adaptors and aggregators in order to make
+it adaptable to use with a variety of databases.  
+
+=over 4
+
+=item Adaptors
+
+The core of the module handles the user API, annotation coordinate
+arithmetic, and other common issues.  The details of fetching
+information from databases is handled by an adaptor, which is
+specified during Bio::DB::GFF construction.  The adaptor encapsulates
+database-specific information such as the schema, user authentication
+and access methods.
+
+Currently there are two adaptors: 'dbi:mysql' and 'dbi:mysqlopt'.  The 
+former is an interface to a simple Mysql schema.  The latter is an
+optimized version of dbi:mysql which uses a binning scheme to
+accelerate range queries and the Bio::DB::Fasta module for rapid
+retrieval of sequences.
+
+=item Aggregators
+
+The GFF format uses a "group" field to indicate aggregation properties
+of individual features.  For example, a set of exons and introns may
+share a common transcript group, and multiple transcripts may share
+the same gene group.  
+
+Aggregators are small modules that use the group information to
+rebuild the hierarchy.  When a Bio::DB::GFF object is created, you
+indicate that it use a set of one or more aggregators.  Each
+aggregator provides a new composite annotation type.  Before the
+database query is generated each aggregator is called to
+"disaggregate" its annotation type into list of component types
+contained in the database.  After the query is generated, each
+aggregator is called again in order to build composite annotations
+from the returned components.
+
+For example, during disaggregation, the standard "transcript"
+aggregator generates a list of component feature types including
+"intron", "exon", "CDS", and "3'UTR".  Later, it aggregates these
+features into a set of annotations of type "transcript".
+
+During aggregation, the list of aggregators is called in reverse
+order.  This allows aggregators to collaborate to create multi-level
+structures: the transcript aggregator assembles transcripts from
+introns and exons; the gene aggregator then assembles genes from sets
+of transcripts.
+
+Three aggregators are currently provided:
+
+      - transcript   assembles transcripts
+      - clone        assembles clones from Clone_end features
+      - alignment    assembles gapped alignments from similarity
+		     features
+
+The existing aggregators are easily customized.
+
+=back
+
+=head1 API
+
+The following is the API for Bio::DB::GFF.
+
+=cut
+
 package Bio::DB::GFF;
 
+use strict;
+
+use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
+use Bio::Root::RootI;
 
-our $VERSION = '0.25';
+use vars qw($VERSION @ISA);
+@ISA = qw(Bio::Root::RootI);
 
-use strict;
-use Carp 'croak';
-use Bio::DB::GFF::Util::Rearrange;
+$VERSION = '0.30';
+
 
 # features() is the pseudonym for overlapping_features()
 *features = \&overlapping_features;
 
+=head2 new
+
+ Title   : new
+ Usage   : my $db = new Bio::DB::GFF(@args);
+ Function: create a new Bio::DB::GFF object
+ Returns : new Bio::DB::GFF object
+ Args    : lists of adaptors and aggregators
+
+These are the arguments:
+
+ -adaptor      Name of the adaptor module to use.  If none
+               provided, defaults to "dbi:mysqlopt".
+
+ -aggregator   Array reference to a list of aggregators
+               to apply to the database.  If none provided,
+	       defaults to ['transcript','clone','alignment'].
+
+  <other>      Any other named argument pairs are passed to
+               the adaptor for processing.
+
+The adaptor argument must correspond to a module contained within the
+Bio::DB::GFF::Adaptor namespace.  For example, the
+Bio::DB::GFF::Adaptor::dbi::mysql adaptor is loaded by specifying
+'dbi:mysql'.  By Perl convention, the adaptors names are lower case
+because they are loaded at run time.
+
+The aggregator array may contain a list of aggregator names, or a list 
+of initialized aggregator objects.  For example, if you wish to change 
+the components aggregated by the transcript aggregator, you could
+pass it to the GFF constructor this way:
+
+  my $transcript = 
+     Bio::DB::Aggregator::transcript->new(-parts=>[qw(exon intron utr
+                                                      polyA spliced_leader)]);
+  my $db = Bio::DB::GFF->new(-aggregator=>[$transcript,'clone','alignment],
+                             -adaptor   => 'dbi:mysql',
+                              -dsn      => 'dbi:mysql:elegans42');
+
+=cut
+
 sub new {
-  my $class   = shift;
+  my $package   = shift;
   my ($adaptor,$aggregators,$args) = rearrange([
 						[qw(ADAPTOR FACTORY)],
 						[qw(AGGREGATOR AGGREGATORS)]
 						],@_);
 
   $adaptor    ||= 'dbi::mysqlopt';
-  $class = "Bio::DB::GFF::Adaptor::\L${adaptor}\E";
+  my $class = "Bio::DB::GFF::Adaptor::\L${adaptor}\E";
   eval "require $class";
-  croak "Unable to load $adaptor adaptor: $@" if $@;
+  $package->throw("Unable to load $adaptor adaptor: $@") if $@;
 
   my $self = $class->new($args);
 
@@ -40,6 +236,111 @@ sub new {
     $self->add_aggregator($a);
   }
   $self;
+}
+
+=head2 load
+
+ Title   : load
+ Usage   : $db->load($file|$directory|$filehandle);
+ Function: load GFF data into database
+ Returns : count of records loaded
+ Args    : a directory, a file, a list of files, 
+           or a filehandle
+
+This method takes a single overloaded argument, which can be any of:
+
+=over 4
+
+=item 1. a scalar corresponding to a GFF file on the system
+
+A pathname to a local GFF file.  Any files ending with the .gz, .Z, or
+.bz2 suffixes will be transparently decompressed with the appropriate
+command-line utility.
+
+=item 2. an array reference containing a list of GFF files on the
+system
+
+For example ['/home/gff/gff1.gz','/home/gff/gff2.gz']
+
+=item 3. path to a directory
+
+The indicated directory will be searched for all files ending in the
+suffixes .gz, .Z or .bz2.
+
+=item 4. a filehandle
+
+An open filehandle from which to read the GFF data.
+
+=item 5. a pipe expression
+
+A pipe expression will also work. For example, a GFF file on a remote
+web server can be loaded with an expression like this:
+
+  $db->load("lynx -dump -source http://stein.cshl.org/gff_test |");
+
+=back
+
+If successful, the method will return the number of GFF lines
+successfully loaded.
+
+=cut
+
+sub load {
+  my $self      = shift;
+  my $file_or_directory = shift || '.';
+
+  local @ARGV;  # to play tricks with reader
+
+  if (-d $file_or_directory) {
+    @ARGV = glob("$file_or_directory/*.{gff,gff.gz,gff.Z,gff,bz2}");
+  } elsif (my $fd = fileno($file_or_directory)) {
+    open SAVEIN,"<&STDIN";
+    open STDIN,"<&=$fd" or $self->throw("Can't dup STDIN");
+    @ARGV = '-';
+  } elsif (ref $file_or_directory) {
+    @ARGV = @$file_or_directory;
+  } else {
+    @ARGV = $file_or_directory;
+  }
+
+  return unless @ARGV;
+  foreach (@ARGV) {
+    if (/\.gz$/) {
+      $_ = "gunzip -c $_ |";
+    } elsif (/\.Z$/) {
+      $_ = "uncompress -c $_ |";
+    } elsif (/\.bz2$/) {
+      $_ = "bunzip2 -c $_ |";
+    }
+  }
+
+  my $result = $self->load_gff;
+
+  open STDIN,"<&SAVEIN";  # restore STDIN
+  return $result;
+}
+
+=head2 initialize
+
+ Title   : initialize
+ Usage   : $db->initialize($erase);
+ Function: initialize a GFF database
+ Returns : true if initialization successful
+ Args    : an optional flag indicating that existing
+           contents should be wiped clean
+
+This method can be used to initialize an empty database.  It will not
+overwrite existing data unless a true $erase flag is present.
+
+=cut
+
+sub initialize {
+    shift->throw('initialize(): must be implemented by an adaptor');
+}
+
+# load from <>
+sub load_gff {
+  shift->throw("load_gff(): must be implemented by an adaptor");
 }
 
 sub error {
@@ -71,7 +372,7 @@ sub add_aggregator {
   } else {
     my $class = "Bio::DB::GFF::Aggregator::\L${aggregator}\E";
     eval "require $class";
-    croak "Unable to load $aggregator aggregator: $@" if $@;
+    $self->throw("Unable to load $aggregator aggregator: $@") if $@;
     push @$list,$class->new();
   }
 }
@@ -245,7 +546,7 @@ sub {
 }
 END
   my $compiled_sub = eval $sub;
-  croak $@ if $@;
+  $self->throw($@) if $@;
   return $self->{match_subs}{$expr} = $compiled_sub;
 }
 
@@ -272,26 +573,49 @@ sub abscoords {
 sub get_dna {
   my $self = shift;
   my ($id,$start,$stop) = @_;
-  croak "get_dna() must be implemented by an adaptor";
+  $self->throw("get_dna() must be implemented by an adaptor");
 }
 
 sub get_features{
   my $self = shift;
   my ($isrange,$refseq,$start,$stop,$types,$callback) = @_;
-  croak "get_features() must be implemented by an adaptor";
+  $self->throw("get_features() must be implemented by an adaptor");
 }
 
 
 sub get_abscoords {
   my $self = shift;
   my ($class,$name) = @_;
-  croak "get_abscoords() must be implemented by an adaptor";
+  $self->throw("get_abscoords() must be implemented by an adaptor");
 }
 
 sub get_types {
   my $self = shift;
   my ($refseq,$start,$stop,$count) = @_;
-  croak "get_types() must be implemented by an adaptor";
+  $self->throw("get_types() must be implemented by an adaptor");
 }
 
 1;
+
+=head1 BUGS
+
+Not completely Bio::SeqFeatureI compliant yet.
+
+Schemas need some work.
+
+=head1 SEE ALSO
+
+L<bioperl>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.  
+
+Copyright (c) 2001 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.  See DISCLAIMER.txt for
+disclaimers of warranty.
+
+=cut
+

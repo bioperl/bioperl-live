@@ -16,13 +16,20 @@ use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 # Create a new Bio::DB::GFF::Adaptor::dbi object
 sub new {
   my $class = shift;
-  my ($features_db) = rearrange([ [qw(FEATUREDB DB DSN)] ],@_);
+  my ($features_db,$username,$auth) = rearrange([
+						 [qw(FEATUREDB DB DSN)],
+						 [qw(USERNAME USER)],
+						 [qw(PASSWORD PASS)]
+						],@_);
 
   $features_db  || croak __PACKAGE__."->new(): Provide a data source or DBI database";
 
   if (!ref($features_db)) {
     my $dsn = $features_db;
-    $features_db = DBI->connect($dsn) 
+    my @args;
+    push @args,$username if defined $username;
+    push @args,$auth     if defined $username && defined $auth;
+    $features_db = DBI->connect($dsn,@args)
       || croak __PACKAGE__."->new(): Failed to connect to $dsn: ",DBI->errstr;
   } else {
     $features_db->isa('DBI::db') or croak __PACKAGE__."->new(): $features_db is not a DBI handle";
@@ -306,6 +313,39 @@ sub dbi_quote {
   my $dbi = $self->features_db;
   $query =~ s/\?/$dbi->quote(shift @args)/eg;
   $query;
+}
+
+########################## loading and initialization  #####################
+
+# Create the schema from scratch.
+# You will need create privileges for this.
+sub initialize {
+  my $self = shift;
+  my $drop_all = shift;
+  $self->drop_all if $drop_all;
+
+  my $dbh = $self->features_db;
+  my @statements = split "\n\n",$self->schema;
+  foreach (@statements) {
+    s/;.*\Z//s;
+    return unless $dbh->do($_);
+  }
+  1;
+}
+
+# Drop all the GFF tables -- dangerous!
+sub drop_all {
+  my $self = shift;
+  my $dbh = $self->features_db;
+  local $dbh->{PrintError} = 0;
+  foreach ($self->tables) {
+    $dbh->do("drop table $_");
+  }
+}
+
+# return list of tables that "belong" to us.
+sub tables {
+  croak "tables(): must be implemented by subclass";
 }
 
 sub DESTROY {

@@ -8,11 +8,10 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK;
 
 sub bin {
-  my $self = shift;
   my ($start,$stop,$min) = @_;
   my $magnitude = int(1+log10(($stop - $start) || 1));
   my $tier = 10 ** $magnitude;
-  $tier = $min if $tier < $self->{minbin};
+  $tier = $min if $tier < $min;
   my $bin_start = int $start/$tier;
   my $bin_end   = int $stop/$tier;
   $tier *= 10 if $bin_start != $bin_end;

@@ -14,6 +14,7 @@ our $VERSION = '0.10';
 our $AUTOLOAD;
 
 *segments = \&sub_SeqFeature;
+*name     = \&group;
 
 sub new_feature {
   my $class   = shift;
@@ -60,7 +61,7 @@ sub phase  {
   $self->{phase} = shift if @_;
   $d;
 }
-sub group  { 
+sub group  {
   my $self = shift;
   my $d    = $self->{group};
   $self->{group} = shift if @_;

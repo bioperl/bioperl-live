@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.39 2001-06-15 22:00:56 dag Exp $
+## $Id: MANIFEST,v 1.40 2001-07-10 14:57:21 lstein Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -35,6 +35,24 @@ Bio/Annotation/Comment.pm
 Bio/Annotation/DBLink.pm
 Bio/Annotation/Reference.pm
 Bio/DB/Ace.pm
+Bio/DB/GFF.pm
+Bio/DB/GFF/Util/Rearrange.pm
+Bio/DB/GFF/Util/Binning.pm
+Bio/DB/GFF/Aggregator.pm
+Bio/DB/GFF/Homol.pm
+Bio/DB/GFF/RelSegment.pm
+Bio/DB/GFF/Segment.pm
+Bio/DB/GFF/Typename.pm
+Bio/DB/GFF/Featname.pm
+Bio/DB/GFF/Aggregator/clone.pm
+Bio/DB/GFF/Aggregator/transcript.pm
+Bio/DB/GFF/Aggregator/none.pm
+Bio/DB/GFF/Aggregator/alignment.pm
+Bio/DB/GFF/Feature.pm
+Bio/DB/GFF/Adaptor/dbi/mysqlopt.pm
+Bio/DB/GFF/Adaptor/dbi/mysql.pm
+Bio/DB/GFF/Adaptor/dbi.pm
+Bio/DB/GFF/Type.pm
 Bio/DB/EMBL.pm
 Bio/DB/Fasta.pm
 Bio/DB/GDB.pm
