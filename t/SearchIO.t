@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 649;
+    $NTESTS = 658;
     $LASTXMLTEST = 54;
     $error = 0;
 
@@ -595,9 +595,12 @@ ok($result->get_statistic('S2'), 17);
 
 ok($result->get_statistic('dbentries'), 1083200);
 
-@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359.1', '3e-18', 96],
-	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 96],
-	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.040', 42]);
+@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359.1', '3e-18', 96, 1, 60, 
+	     '1.0000'],
+	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 96, 1, 60, 
+	     '1.0000' ],
+	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.040', 42, 35, 55, 
+	     '0.3500']);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -607,7 +610,9 @@ while( my $hit = $result->next_hit ) {
     ok($hit->accession, shift @$d);
     ok($hit->significance, shift @$d );
     ok($hit->raw_score, shift @$d );
-
+    ok($hit->start, shift @$d);
+    ok($hit->end,shift @$d);    
+    ok(sprintf("%.4f",$hit->frac_aligned_query), shift @$d);
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
 	    ok($hsp->query->start, 1);
