@@ -120,5 +120,21 @@ sub end_fuzzy {
     $self->_abstractDeath();
 }
 
+=head2
+
+  Title   : range_fuzzy
+  Usage   : $status = $fuzzy->range_fuzzy();
+  Function: get/set if range is fuzzy (ie 10.20 )
+  Returns : true if range is fuzzy, false otherwise
+  Args    : optionaly allows the status to be set
+          : using $fuzzy->range_fuzzy($value)
+
+=cut
+
+sub range_fuzzy {
+    my ($self, $value) = @_;
+    $self->_abstractDeath();
+}
+
 1;
 

@@ -251,15 +251,15 @@ sub _parse_loc {
 	return 0;
     }
     my $location;
-    my ($startfuzzy, $endfuzzy);
-    if ( ($startfuzzy = ($start =~ s/^[\<\>\?]//)) || 
-	 ($endfuzzy = ($end =~ s/^[\<\>\?]//)) ||
-	 ($locstr =~ /\d+\.\d+/)) {
+    if ( (my $startfuzzy = ($start =~ s/^[\<\>\?]//)) || 
+	 (my $endfuzzy = ($end =~ s/^[\<\>\?]//)) ||
+	 (my $rangefuzzy = ($locstr =~ /\d+\.\d+/)) ) {
 	$location = new Bio::Location::Fuzzy(-strand=>$strand,
 					     -start=>$start, 
 					     -end  => $end, 
 					     -startfuzzy=>$startfuzzy,
-					     -endfuzzy  => $endfuzzy); 
+					     -endfuzzy  => $endfuzzy,
+					     -rangefuzzy => $rangefuzzy); 
     } else { 
 	$location = new Bio::Location::Simple(-start=>$start, 
 					      -end=>$end, 
@@ -380,14 +380,14 @@ sub _output_single_location {
     my ($pref,$postf,$delim) = ('','','..');
     
     if( $location->isa('Bio::Location::FuzzyLocationI') ) {
-	$delim = '.';
 	if( $location->start_fuzzy ) {
 	    $pref = "<";
-	    $delim = '..';
 	}
 	if( $location->end_fuzzy ) {
 	    $postf = ">";
-	    $delim = '..';
+	}
+	if( $location->range_fuzzy ) {
+	    $delim = '.';
 	}
     } elsif($location->length <= 1) {
 	$delim = '^';

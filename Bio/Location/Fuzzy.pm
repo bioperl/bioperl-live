@@ -74,14 +74,19 @@ use Bio::Location::Simple;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($startfuzzy, $endfuzzy) = $self->_rearrange([qw(STARTFUZZY ENDFUZZY)],
+    my ($startfuzzy, $endfuzzy,
+	$rangefuzzy) = $self->_rearrange([qw(STARTFUZZY
+					     ENDFUZZY 
+					     RANGEFUZZY)],
 						    @args);
-
+    
     $startfuzzy = 0 unless( defined($startfuzzy)); 
     $endfuzzy = 0 unless( defined($endfuzzy)); 
+    $rangefuzzy = 0 unless( defined($rangefuzzy)); 
 
     $self->start_fuzzy($startfuzzy);
     $self->end_fuzzy($endfuzzy);
+    $self->range_fuzzy($rangefuzzy);
 
     return $self;
 }
@@ -139,6 +144,25 @@ sub end_fuzzy {
 	$self->{'_endfuzzy'} = $value;
     }
     return $self->{'_endfuzzy'};
+}
+
+=head2
+
+  Title   : range_fuzzy
+  Usage   : $status = $fuzzy->range_fuzzy();
+  Function: get/set if range is fuzzy (ie 10.20 )
+  Returns : true if range is fuzzy, false otherwise
+  Args    : optionaly allows the status to be set
+          : using $fuzzy->range_fuzzy($value)
+
+=cut
+
+sub range_fuzzy {
+    my ($self, $value) = @_;
+    if( defined $value ) {
+	$self->{'_rangefuzzy'} = $value;
+    }
+    return $self->{'_rangefuzzy'};
 }
 
 1;
