@@ -282,12 +282,18 @@ sub is_single_sequence {
 
  Title   : strand
  Usage   : $obj->strand($newval)
- Function: Gets/sets the strand attribute of the location. Note that for
-           SplitLocations, setting the strand of the container (this object)
-           is a short-cut for setting the strand of all sublocations.
+ Function: For SplitLocations, setting the strand of the container
+           (this object) is a short-cut for setting the strand of all
+           sublocations.
+
+           In get-mode, checks if no sub-location is remote, and if
+           all have the same strand. If so, it returns that shared
+           strand value. Otherwise it returns undef.
+
  Example : 
- Returns : value of strand (a scalar)
- Args    : new value (a scalar, optional)
+ Returns : on get, value of strand if identical between sublocations 
+           (-1, 1, or undef)
+ Args    : new value (-1 or 1, optional)
 
 
 =cut
@@ -300,8 +306,26 @@ sub strand{
 	foreach my $loc ($self->sub_Location(0)) {
 	    $loc->strand($value) if ! $loc->is_remote();
 	}
+    } else {
+	my ($strand, $lstrand);
+	foreach my $loc ($self->sub_Location(0)) {
+	    # we give up upon any location that's remote or doesn't have
+	    # the strand specified, or has a differing one set than 
+	    # previously seen.
+	    # calling strand() is potentially expensive if the subloc is also
+	    # a split location, so we cache it
+	    $lstrand = $loc->strand();
+	    if((! $lstrand) ||
+	       ($strand && ($strand != $lstrand)) ||
+	       $loc->is_remote()) {
+		$strand = undef;
+		last;
+	    } elsif(! $strand) {
+		$strand = $lstrand;
+	    }
+	}
+	return $strand;
     }
-    return $self->{'strand'};
 }
 
 =head2 start
@@ -534,9 +558,12 @@ sub to_FTstring {
     my @strs;
     foreach my $loc ( $self->sub_Location() ) {	
 	my $str = $loc->to_FTstring();
-	if( defined $self->seq_id && 
-	    defined $loc->seq_id && 
-	    $loc->seq_id ne $self->seq_id ) {
+	# we only append the remote seq_id if it hasn't been done already
+	# by the sub-location (which it should if it knows it's remote)
+	# (and of course only if it's necessary)
+	if( (! $loc->is_remote) &&
+	    defined($self->seq_id) && defined($loc->seq_id) &&
+	    ($loc->seq_id ne $self->seq_id) ) {
 	    $str = sprintf("%s:%s", $loc->seq_id, $str);
 	} 
 	push @strs, $str;

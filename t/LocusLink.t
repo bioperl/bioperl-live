@@ -61,14 +61,14 @@ my @dblinks = $seqs[0]->annotation->get_Annotations('dblink');
 my %counts = map { ($_->database(),0) } @dblinks;
 foreach (@dblinks) { $counts{$_->database()}++; }
 
-ok ($counts{GenBank}, 11);
+ok ($counts{GenBank}, 12);
 ok ($counts{RefSeq}, 4);
 ok ($counts{UniGene}, 1);
 ok ($counts{Pfam}, 1);
 ok ($counts{STS}, 2);
 ok ($counts{MIM}, 1);
 ok ($counts{PUBMED}, 6);
-ok (scalar(@dblinks), 27);
+ok (scalar(@dblinks), 28);
 
 ok ($seqs[1]->desc, "v-abl Abelson murine leukemia viral oncogene homolog 2 (arg, Abelson-related gene)");
 ok ($seqs[1]->display_id, "ABL2");

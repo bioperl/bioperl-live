@@ -102,6 +102,7 @@ use Bio::Annotation::DBLink;
 use Bio::Annotation::Comment;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::OntologyTerm;
+use Bio::Annotation::Collection;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -233,7 +234,7 @@ my %alternate_map = (
 
 # for these field names, we only care about the first value X in value X|Y|Z
 my @ll_firstelements = qw(
-			  NM
+                          NM
 			  NP
 			  NG
 			  XG
@@ -246,6 +247,19 @@ my @ll_firstelements = qw(
 			  CONTIG
 			  GRIF
 			  );
+
+# these fields need to be flattened into a single string, using the given
+# join string
+my %flatten_tags = (
+		    ASSEMBLY            => '',
+		    ORGANISM            => '',
+		    OFFICIAL_SYMBOL     => '',
+		    OFFICIAL_GENE_NAME  => '',
+		    LOCUSID             => '',
+		    PMID                => '',
+		    PREFERRED_SYMBOL    => ', ',
+		    PREFERRED_GENE_NAME => ', '
+);
 
 # set the default search pattern for all the field names
 my %feature_pat_map = map { ($_ , "^$_: (.+)\n"); } @locuslink_keys;
@@ -265,7 +279,7 @@ sub _initialize {
       $feature_pat_map{$key}='^CDD: .+\|'.$key.'(\d+)';
   }
 
-  # special patterns for specific fieldsq
+  # special patterns for specific fields
   $feature_pat_map{MAP}      = '^MAP: (.+?)\|';
   $feature_pat_map{MAPHTML}  = '^MAP: .+\|(<.+>)\|';
   $feature_pat_map{GO}       = '^GO: .+\|.+\|\w+\|(GO:\d+)\|';
@@ -286,25 +300,19 @@ sub _initialize {
 sub search_pattern{
 #
 #########################
-        my $entry=$_[0];		#text to search
-        my $searchconfirm =$_[1];	#to make sure you got the right thing
-	my $searchpattern=$_[2];
-	my $searchtype=$_[3];
-        my @query;
-        @query=$entry=~/$searchpattern/gm;
-        if (!(@query) && ($searchconfirm ne "FALSE")){
-                print "No $searchtype found\n$entry\n";
-                return;
-        }elsif(!(@query)){
-		return;
-	}
+        my ($self,
+	    $entry,		#text to search
+	    $searchconfirm,	#to make sure you got the right thing
+	    $searchpattern,
+	    $searchtype) = @_;
+        my @query = $entry=~/$searchpattern/gm;
         if ($searchconfirm ne "FALSE"){
-		foreach (@query){
-		  if (!($_=~/$searchconfirm/)){
-		    print "error\n$entry\n$searchtype parse $_ does not match $searchconfirm\n";
-                    exit;
-		  }
-		}#endforeach
+	    $self->warn("No $searchtype found\n$entry\n") unless @query;
+	    foreach (@query){
+		if (!($_=~/$searchconfirm/)){
+		    $self->throw("error\n$entry\n$searchtype parse $_ does not match $searchconfirm\n");
+		}
+	    }#endforeach
         }#endsearchconfirm
         return(@query);
 }#endsub
@@ -414,79 +422,81 @@ sub next_seq{
 #
 ##############
 	my ($self, @args)=@_;
-	my (%record,@results,$search,$ref,$cddref);
-	my ($PRESENT,@keep);
-	# my $seq=Bio::Seq->new();
-	my $seq = $self->sequence_factory->create(-verbose =>$self->verbose());
-	my $ann = $seq->annotation();
-
+	my (@results,$search,$ref,$cddref);
 
 	# LOCUSLINK entries begin w/ >>
-	local $/=">>";
+	local $/="\n>>";
 
 	# slurp in a whole entry and return if no more entries
 	return unless my $entry = $self->_readline;
 
-	# if its the first entry you have to slurp it in again
-	if ($entry eq '>>'){ #first entry
-	  return unless $entry = $self->_readline;
+	# strip the leading '>>' is it's the first entry
+	if (index($entry,'>>') == 0) { #first entry
+	    $entry = substr($entry,2);
 	}
 
-	if (!($entry=~/LOCUSID/)){
-	    $self->throw("No LOCUSID in first line of record. ".
-			 "Not LocusLink in my book.");
-	}
-
-
-	# loop through list of features and get field values
-	# place into record hash as array refs
-	foreach my $key (keys %feature_pat_map){
+	# we aren't interested in obsoleted entries, so we need to loop
+	# and skip those until we've found the next not obsoleted
+	my %record = ();
+	while($entry && ($entry =~ /\w/)) {
+	    if (!($entry=~/LOCUSID/)){
+		$self->throw("No LOCUSID in first line of record. ".
+			     "Not LocusLink in my book.");
+	    }
+	    # see whether it's an obsoleted entry, and if so jump to the next
+	    # one entry right away
+	    if($entry =~ /^CURRENT_LOCUSID:/m) {
+		# read next entry and continue
+		$entry = $self->_readline;
+		%record = ();
+		next;
+	    }
+	    # loop through list of features and get field values
+	    # place into record hash as array refs
+	    foreach my $key (keys %feature_pat_map){
 		$search=$feature_pat_map{$key};
-		@results=search_pattern($entry,'FALSE',$search,$search);
-		if ($results[0]){
-			push @{$record{$key}},@results;
-		}else{
-			$record{$key}=0;
-		}
-	}#endfor
-
-#for the purposes of symgene, we don't care about old loci
-	if($record{CURRENT_LOCUSID}){
-	  #print "current locus\n";
-	  return($self->next_seq(@args));
+		@results=$self->search_pattern($entry,'FALSE',$search,$search);
+		$record{$key} = @results ? [@results] : undef;
+	    }#endfor
+	    # terminate loop as this one hasn't been obsoleted
+	    last;
 	}
 
+	# we have reached the end-of-file ...
+	return unless %record;
 
 	# special processing for CDD entries like pfam and smart
+	my ($PRESENT,@keep);
 	foreach my $key(keys %cddprefix){
-	  #print "check CDD $key\n";
-	  @keep=();
-	  $ref=$record{$key};
-	  foreach my $list($ref ? @$ref : ()){
-	    # replace AC with correct AC number
-	    push(@keep,$cddprefix{$key}.$list);	    
-	  }
-	  # replace CDD ref with correctly prefixed AC number
-	  delete $record{$key};
-	  push @{$record{$key}},@keep;
+	    #print "check CDD $key\n";
+	    if($record{$key}) {
+		@keep=();
+		foreach my $list (@{$record{$key}}) {
+		    # replace AC with correct AC number
+		    push(@keep,$cddprefix{$key}.$list);	    
+		}
+		# replace CDD ref with correctly prefixed AC number
+		$record{$key} = [@keep];
+	    }
        	}
 	# modify CDD references	@=();
-	$cddref=$record{CDD};
-	@keep=();
-	foreach ($cddref ? @$cddref : ()){
-	  $PRESENT='FALSE';
-	  foreach my $key(keys %cddprefix){
-	    if ($_=~/$key/){
-	      $PRESENT = 'TRUE';
-	      last;
+	if($record{CDD}) {
+	    @keep=();
+	    foreach my $cdd ($record{CDD}) {
+		$PRESENT = undef;
+		foreach my $key (keys %cddprefix) {
+		    if ($cdd=~/$key/){
+			$PRESENT = 1;
+			last;
+		    }
+		}
+		push(@keep,$cdd) if(! $PRESENT);
 	    }
-	  }
-	  if($PRESENT eq 'FALSE'){
-	    push(@keep,$_);
-	  }
+	    $record{CDD} = [@keep];
 	}
-	delete $record{CDD};
-	push @{$record{CDD}},@keep;
+
+	# create annotation collection - we'll need it now
+	my $ann = Bio::Annotation::Collection->new();
 
 	foreach my $field(keys %dbname_map){
 	    $ann=read_dblink($ann,$dbname_map{$field},$record{$field});
@@ -505,9 +515,6 @@ sub next_seq{
 
 	$ann=add_annotation_ref($ann,'URL',$record{LINK});
 	$ann=add_annotation_ref($ann,'URL',$record{DB_LINK});
-	$ann=read_reference($ann,'PUBMED',first_element($record{PMID}));
-	my @assembly=split(/,/,first_element($record{ASSEMBLY}));
-        $ann=read_dblink($ann,'GenBank',\@assembly);
 
 	# presently we can't store types of dblinks - hence make unique
 	make_unique($ann,'dblink');
@@ -524,34 +531,43 @@ sub next_seq{
 	    }
 	}
 
-	$seq->accession_number(first_element($record{LOCUSID}));
+	# flatten designated attributes into a scalar value
+	foreach my $field (keys %flatten_tags) {
+	    if($record{$field}) {
+		$record{$field} = join($flatten_tags{$field},
+				       @{$record{$field}});
+	    }
+	}
+
+	# annotation that expects the array flattened out
+	$ann=read_reference($ann,'PUBMED',$record{PMID});
+	if($record{ASSEMBLY}) {
+	    my @assembly=split(/,/,$record{ASSEMBLY});
+	    $ann=read_dblink($ann,'GenBank',\@assembly);
+	}
+
 	# replace fields w/ alternate if original does not exist
 	foreach my $fieldval (keys %alternate_map){
-	  if($record{$fieldval}){
-	    $record{$fieldval}=first_element($record{$fieldval});
-	  }elsif($record{$alternate_map{$fieldval}}){
-	    $record{$fieldval}=first_element($record{$alternate_map{$fieldval}});
-	  }else{
-	    #print "Can't find $fieldval\n$entry\n";
-	    $record{$fieldval}='None';
-	  }
+	    if((! $record{$fieldval}) && ($record{$alternate_map{$fieldval}})){
+		$record{$fieldval}=$record{$alternate_map{$fieldval}};
+	    }
 	}
-        $seq->desc($record{OFFICIAL_GENE_NAME});
-	$seq->display_id($record{OFFICIAL_SYMBOL});
-	$seq->species(read_species(first_element($record{ORGANISM})));
+
+	# create sequence object (i.e., let seq.factory create one)
+	my $seq = $self->sequence_factory->create(
+			     -verbose => $self->verbose(),
+			     -accession_number => $record{LOCUSID},
+			     -desc => $record{OFFICIAL_GENE_NAME},
+			     -display_id => $record{OFFICIAL_SYMBOL},
+			     -species => read_species($record{ORGANISM}),
+			     -annotation => $ann);
 
 	# dump out object contents
 	# show_obj([$seq]);
 
-	# set the sequence annotation
-	$seq->annotation($ann);
 	return($seq);
 }
-sub first_element{
-	my $ref=$_[0];
 
-	return($ref ? @$ref[0] : 0);
-}#endsub
 ################
 #
 sub show_obj{

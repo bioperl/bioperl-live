@@ -59,7 +59,7 @@ o Contact info
  Project website   : http://bioperl.org
  Project FTP server: bioperl.org (anonymous FTP ok)
 
- Bug reports       : http://bioperl.org/bioperl-bugs/
+ Bug reports       : http://bugzilla.bioperl.org/
                      bioperl-bugs@bioperl.org
 
  Please send us bugs, in particular about documentation which you

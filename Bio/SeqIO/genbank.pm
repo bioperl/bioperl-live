@@ -34,6 +34,23 @@ file databases.
 There is alot of flexibility here about how to dump things which I need
 to document fully.
 
+=head2 Mapping of record properties to object properties
+
+This section is supposed to document which sections and properties of
+a GenBank databank record end up where in the Bioperl object model. It
+is far from complete and presently focuses only on those mappings
+which may be non-obvious. $seq in the text refers to the
+Bio::Seq::RichSeqI implementing object returned by the parser for each
+record.
+
+=over 4
+
+=item GI number
+
+$seq->primary_id
+
+=back
+
 =head2 Optional functions
 
 =over 3
