@@ -289,6 +289,8 @@ sub next_seq {
        $buffer = $self->_readline;
    }
 
+    $seq->desc($desc);
+
    while( defined ($_ = $self->_readline) ) {
        /FT   \w/ && last;
    }
@@ -319,8 +321,7 @@ sub next_seq {
        $seqc .= $_;
    }
 
-   $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
-   $seq->primary_seq($pseq);
+   $seq->seq($seqc);
    return $seq;
 }
 

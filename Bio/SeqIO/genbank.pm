@@ -273,6 +273,7 @@ sub next_seq{
 	    # Get next line.
 	    $buffer = $self->_readline;
 	}
+    $seq->desc($desc);
 
     # need to read the first line of the feature table
     
@@ -307,8 +308,7 @@ sub next_seq{
 	$seqc .= $_;
     }
 
-    $pseq = Bio::PrimarySeq->new(-seq => $seqc , -id => $name, -desc => $desc);
-    $seq->primary_seq($pseq);
+    $seq->seq($seqc);
     return $seq;
 }
 
