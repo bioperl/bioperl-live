@@ -32,7 +32,7 @@ if( $error ==  1 ) {
     exit(0);
 }
 
-require Bio::Tools::BPlite;
+require Bio::SearchIO;
 require Bio::Index::Blast;
 require Bio::Root::IO;
 
@@ -51,13 +51,16 @@ $index->make_index(Bio::Root::IO->catfile(cwd,"t","data","multi_blast.bls"));
     (ok(-e "Wibbl"));
 
 foreach my $id ( qw(CATH_RAT PAPA_CARPA) ) {
-
     my $fh = $index->get_stream($id);
     ok($fh);
     ok( ! eof($fh) );
-    my $report = new Bio::Tools::BPlite(-fh => $fh);
-    ok($report->query, qr/$id/);
-    ok( $report->nextSbjct);
-    ok( $index->fetch_report($id)->query, qr/$id/);
+    my $report = new Bio::SearchIO(-noclose => 1,
+				   -format  => 'blast',
+				   -fh      => $fh);
+    my $result = $report->next_result;
+    ok($result->query_name, qr/$id/);
+    ok( $result->next_hit);
+    
+    ok( $index->fetch_report($id)->query_name, qr/$id/);
 }
 
