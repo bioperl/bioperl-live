@@ -2,6 +2,11 @@ $Id$
 Revision history for Bioperl core modules
 
 (fixes and improvements on main trunk not on 1.2 branch)
+   
+   o DB::Registry bugs fixed
+     - BerkeleyDB-indexed flat files can be used by the OBDA system
+     - Multiple seqdatabase.ini locations in OBDA_SEARCH_PATH are all
+       used by the OBDA system
 
    o New Bio::SearchIO formats
      - axt and psl:  UCSC formats.
