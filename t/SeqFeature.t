@@ -247,7 +247,7 @@ my $poly_A_site2 = new Bio::SeqFeature::Gene::Poly_A_site
 	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#1 used by CHCR EST clone PLACE1010202 (AK002178)",
      });
 
-my $fiveprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr5prime");
+my $fiveprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr");
 $fiveprimeUTR->location(new Bio::Location::Fuzzy(-start => "<1",
 						 -end   => 79));
 my $threeprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr3prime",
@@ -280,5 +280,5 @@ $geneseq->add_SeqFeature($gene);
 
 my ($t) = $gene->transcripts(); # get 1st transcript
 ok(defined $t); 
-ok($t->mrna->length, 1595);
+ok($t->mrna->length, 1516);
 ok($gene->utrs, 2);

@@ -3,6 +3,8 @@
 ## $Id$
 
 use strict;
+use vars qw($DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
     eval { require Test; };
     if( $@ ) { 
@@ -18,7 +20,7 @@ use Bio::Tools::Run::Phylo::Phylip::ProtDist;
 use Bio::Tools::Run::Phylo::Phylip::Neighbor;
 END {     
     for ( $Test::ntest..$NTESTS ) {
-	skip("Protpars not found. Skipping.",1);
+	skip("Neighbor not found. Skipping.",1);
     }
 }
 
@@ -66,7 +68,7 @@ my $inputfilename = Bio::Root::IO->catfile("t","data","neighbor.dist");
 my $tree;
 my $neighbor_present = $tree_factory->exists_neighbor();
 unless ($neighbor_present) {
-    warn("neighbor program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    warn("neighbor program not found. Skipping tests $Test::ntest to $NTESTS.\n") if( $DEBUG);    
     exit 0;
 }
 

@@ -3,6 +3,9 @@
 ## $Id$
 
 use strict;
+use vars qw($DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN {
     eval { require Test; };
     if( $@ ) { 
@@ -73,7 +76,7 @@ my $inputfilename = Bio::Root::IO->catfile("t","data","protpars.phy");
 my $matrix;
 my $protdist_present = $dist_factory->exists_protdist();
 unless ($protdist_present) {
-    warn("protdist program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    warn("protdist program not found. Skipping tests $Test::ntest to $NTESTS.\n") if($DEBUG);    
     exit 0;
 }
 
@@ -88,7 +91,7 @@ my  $align_factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 my $clustal_present = $align_factory->exists_clustal();
 
 unless ($clustal_present) {
-    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n") if($DEBUG);     
     exit 0;
 }
 

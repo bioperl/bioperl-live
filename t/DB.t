@@ -7,7 +7,8 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $error;
 
@@ -31,6 +32,12 @@ BEGIN {
 	    skip("IO::String not installed",1);
 	}
        $error = 1; 
+    }
+}
+
+END { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('unable to run all of the Biblio_biofetch tests',1);
     }
 }
 
@@ -68,7 +75,9 @@ eval {
     ok($seq->length, 1743);
 };
 if ($@) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@\nDo you have network access? Skipping all other tests";
+    if( $DEBUG ) { 
+	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@\nDo you have network access? Skipping all other tests";
+    }
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
@@ -84,7 +93,7 @@ eval {
 };
 
 if ($@) {
-    warn "Batch access test failed.\nError: $@\n";
+    if( $DEBUG ) { warn "Batch access test failed.\nError: $@\n"; }
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
     exit(0);
 }
@@ -104,7 +113,9 @@ eval {
 };
 
 if ($@) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n$@";
+    if( $DEBUG ) { 
+	warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n$@";
+    }
     foreach( $Test::ntest..$NUMTESTS ) { 
 	skip('could not connect with GenPept',1); 
     }
@@ -144,7 +155,9 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n$@";
+    if( $DEBUG ) { 
+	print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n$@";
+    }
     foreach ( $Test::ntest..$NUMTESTS) { 
 	skip('could not connect to swissprot',1);
     }
@@ -175,7 +188,9 @@ eval {
 };
 
 if ($@) {
-    warn "Warning: Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm!\n $@\n";
+    if( $DEBUG ) {
+	warn "Warning: Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm!\n $@\n";
+    }
     foreach ( $Test::ntest..$NUMTESTS ) { 
 	skip('could not connect to Genbank',1); 
     }

@@ -2,6 +2,9 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
+use vars qw($DEBUG );
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 use strict;
 BEGIN {
     eval { require Test; };
@@ -55,7 +58,9 @@ my $inputfilename = Bio::Root::IO->catfile("t","data","protpars.phy");
 my $tree;
 my $protpars_present = $tree_factory->exists_protpars();
 unless ($protpars_present) {
-    warn("protpars program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    if($DEBUG ){ 
+	warn("protpars program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    }
     exit 0;
 }
 
@@ -74,7 +79,7 @@ my  $align_factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 my $clustal_present = $align_factory->exists_clustal();
 
 unless ($clustal_present) {
-    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n");    
+    warn("Clustalw program not found. Skipping tests $Test::ntest to $NTESTS.\n") if( $DEBUG);    
     exit 0;
 }
 
@@ -85,4 +90,3 @@ $tree = $tree_factory->create_tree($aln);
 @nodes = sort { defined $a->id && defined $b->id && $a->id cmp $b->id } $tree->get_nodes();
 ok ($nodes[6]->id, 'CYS1_DICDI', 
     "failed creating tree by protpars");
-	

@@ -7,7 +7,9 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 use lib '.','./blib/lib';
 
 my $error;
@@ -35,14 +37,20 @@ BEGIN {
     }
 }
 
+END { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('unable to run all of the Biblio_biofetch tests',1);
+    }
+}
+
 if( $error ==  1 ) {
     exit(0);
 }
 
+
 require Bio::DB::BioFetch;
 
-my $testnum;
-my $verbose = 0;
+my $verbose = -1;
 
 ## End of black magic.
 ##
@@ -55,7 +63,7 @@ my ($db,$db2,$seq,$seqio);
 
 $seq = $seqio = undef;
 
-ok defined($db = new Bio::DB::BioFetch);
+ok defined($db = new Bio::DB::BioFetch(-verbose => $verbose));
 eval {
     # get a RefSeq entry
     ok $db->db('refseq');
@@ -86,11 +94,13 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
-
+    if( $DEBUG ) {
+	print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
+    }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	  skip('could not connect to embl',1);}
-
+	skip('No network access - could not connect to embl',1);
+    }
+    exit(0);
 }
 
 
@@ -108,8 +118,9 @@ eval {
 };
 
 if ($@) {
-    warn "Batch access test failed.\nError: $@\n";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+    if( $DEBUG ) { warn "Batch access test failed.\nError: $@\n"; }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access skipping fasta retrieval',1); }
+    exit(0);
 }
 
 $verbose = -1;
@@ -127,8 +138,11 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::BioFetch.pm!\n" . $@;
-
+    if( $DEBUG ) { 
+	print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::BioFetch.pm!\n" . $@;
+    }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to embl',1);}
+	skip('No network aceess - could not connect to embl',1);
+    }
+    exit(0);
 }

@@ -1,7 +1,8 @@
 # -*-Perl-*- for my emacs
 
 use strict;
-use vars qw($NUMTESTS);
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 BEGIN { 
     eval { require Test; };
@@ -15,14 +16,20 @@ BEGIN {
     eval { require 'IO/String.pm' };
     if( $@ ) {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
+	for( $Test::ntest..$NUMTESTS ) {
 	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
 	$error = 1; 
     }
 }
 
-my $actually_submit = 0;
+END {     
+    for ( $Test::ntest..$NUMTESTS ) {
+	skip("Unable to run RemoteBlast tests - probably no network connection.",1);
+    }
+}
+
+my $actually_submit = $DEBUG > 0;
 
 if( $error ==  1 ) {
     exit(0);
@@ -50,7 +57,7 @@ my $inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
 ok( -e $inputfilename);
 
 if( $actually_submit == 0 ) {
-    print STDERR "Skipping submitting remote BLAST to avoid Time-out\n";
+    print STDERR "Skipping submitting remote BLAST to avoid Time-out\n" if( $DEBUG );
     foreach( $Test::ntest..$NUMTESTS) { 
        skip('Skip to avoid timeout',1);
     }

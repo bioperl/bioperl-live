@@ -7,7 +7,8 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $error;
 
@@ -32,6 +33,11 @@ BEGIN {
        $error = 1; 
     }
 }
+END { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('unable to run all of the Biblio_biofetch tests',1);
+    }
+}
 
 if( $error ==  1 ) {
     exit(0);
@@ -39,7 +45,6 @@ if( $error ==  1 ) {
 
 require Bio::DB::EMBL;
 
-my $testnum;
 my $verbose = 0;
 
 ## End of black magic.
@@ -70,10 +75,13 @@ eval {
 };
 
 if ($@) {
-    warn "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n$@";
-    
+    if( $DEBUG ) {
+	warn "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n$@";
+    }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to embl',1);}
+	 skip('could not connect to embl',1);
+     }
+    exit(0);
 }
 
 $seq = $seqio = undef;
@@ -90,7 +98,9 @@ eval {
 };
 
 if ($@) {
-    warn "Batch access test failed.\nError: $@\n";
+    if( $DEBUG ) {
+	warn "Batch access test failed.\nError: $@\n";
+    }
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
 }
 

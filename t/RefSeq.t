@@ -7,8 +7,8 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
-
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 
 BEGIN { 
@@ -30,6 +30,12 @@ BEGIN {
 	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
        $error = 1; 
+    }
+}
+
+END {     
+    for ( $Test::ntest..$NUMTESTS ) {
+	skip("Unable to RefSeq test - probably no network connection.",1);
     }
 }
 
@@ -76,9 +82,10 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
-
-    foreach ( 1..4) { 
+    if( $DEBUG ) {
+	print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
+    }
+    foreach ( $Test::ntest..$NUMTESTS) { 
 	 skip('could not connect to embl',1);}
 }
 
@@ -96,9 +103,11 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
-
+    if( $DEBUG ) {
+	print STDERR "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!\n" . $@;
+    }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to embl',1);}
+	skip('could not connect to embl',1);
+    }
 }
 

@@ -8,7 +8,9 @@
 
 use strict;
 use vars qw($NUMTESTS $DEBUG);
-$DEBUG=0;
+use vars qw($NUMTESTS $DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 my $error;
 
 BEGIN { 
@@ -22,13 +24,15 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 13;
+    $NUMTESTS = 11;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
-	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
-	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
+	if( $DEBUG ) {
+	    print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n" if($DEBUG);
+	}
+	for( $Test::ntest..$NUMTESTS ) {
+	    skip("IO::String not installed. Skipping tests",1);
 	}
        $error = 1; 
     }
@@ -37,11 +41,13 @@ BEGIN {
 if( $error ==  1 ) {
     exit(0);
 }
-
+END{ 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('unable to run all of the Biblio_biofetch tests',1);
+    }
+}
 use Bio::Biblio;
-ok 1;
 use Bio::Biblio::IO;
-ok 1;
 
 ## End of black magic.
 ##
@@ -52,7 +58,7 @@ ok 1;
 my ($db,$ref,$refio);
 # get a single ref
 
-my $verbose = 0;
+my $verbose =  $DEBUG || 0;
 
 $ref = $refio = undef;
 
@@ -67,11 +73,13 @@ eval {
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Medline.pm!\n" . $@;
-
-foreach ( $Test::ntest..$NUMTESTS) { 
-	skip(1,'could not connect to Medline');}
-
+    if( $DEBUG  ) { 
+	print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::Medline.pm!\n" . $@;
+    }
+    foreach ( $Test::ntest..$NUMTESTS) { 
+	skip('No network access - could not connect to Medline',1);
+    }
+    exit(0);
 }
 
 $ref = $refio = undef;
@@ -94,6 +102,7 @@ if ($@) {
 	warn "Batch access test failed.Error: $@\n";
     }
     foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+    exit(0);
 }
 
 eval {

@@ -7,7 +7,8 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $BIODBTESTS);
+use vars qw($NUMTESTS $DEBUG $BIODBTESTS);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $error;
 
@@ -61,8 +62,10 @@ unless ( $error ) {
 	ok ($seq_object = get_sequence('swissprot',"ROA1_HUMAN"));
     };
     if ($@) {
-	warn "Warning: Couldn't connect to SWISS-PROT! Do you have network access?\n";
-        skip(1,1, 'no network access');
+	if($DEBUG) {
+	    warn "Warning: Couldn't connect to SWISS-PROT! Do you have network access?\n";
+        }
+	skip('no network access',1);
     }
 
     # embl
@@ -70,8 +73,10 @@ unless ( $error ) {
 	ok ($seq_object = get_sequence('embl',"BUM"));
     };
     if ($@) {
-	warn "Warning: Couldn't connect to EMBL! Do you have network access?\n";
-        skip(1,1, 'no network access');
+	if($DEBUG ) {
+	    warn "Warning: Couldn't connect to EMBL! Do you have network access?\n";
+	}
+        skip('no network access',1);
     }
 
     # genbank
@@ -79,8 +84,10 @@ unless ( $error ) {
 	ok ($seq_object = get_sequence('genbank',"AI129902"));
     };
     if ($@) {
-	warn "Warning: Couldn't connect to GenBank! Do you have network access?\n";
-        skip(1,1, 'no network access');
+	if($DEBUG) {
+	    warn "Warning: Couldn't connect to GenBank! Do you have network access?\n";
+	}
+        skip( 'no network access',1);
     }
 
     # refseq
@@ -88,13 +95,12 @@ unless ( $error ) {
 	ok ($seq_object = get_sequence('genbank',"NM_006732"));
     };
     if ($@) {
-	warn "Warning: Couldn't connect to RefSeq! Do you have network access?\n";
-        skip(1,1, 'no network access');
+	if( $DEBUG ) {
+	    warn "Warning: Couldn't connect to RefSeq! Do you have network access?\n";
+	}
+        skip('no network access',1);
     }
 }
-
-
-
 
 # will guess file format from extension
 $filename = 't/data/cysprot1.fa';
