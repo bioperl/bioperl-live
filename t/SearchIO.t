@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 62; 
+    plan tests => 119; 
 
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
@@ -116,8 +116,18 @@ ok($report->database_name, 'ecoli.aa');
 ok($report->database_size, 1358990);
 ok($report->program_name, 'BLASTP');
 ok($report->program_version, '2.1.3');
-ok($report->query_name, 'gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,homoserine dehydrogenase I [Escherichia coli]');
+ok($report->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
 ok($report->query_size, 820);
+ok($report->get_statistic('kappa')== 0.041);
+ok($report->get_statistic('lambda'), 0.267);
+ok($report->get_statistic('entropy') == 0.14);
+ok($report->get_statistic('dblength'), 1358990);
+ok($report->get_statistic('dbnum'), 4289);
+ok($report->get_statistic('hsplength'), 47);
+ok($report->get_statistic('effectivespace'), 894675611);
+ok($report->get_parameter('matrix'), 'BLOSUM62');
+ok($report->get_parameter('gapopen'), 11);
+ok($report->get_parameter('gapext'), 1);
 
 my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113'],
 	      [ 'gb|AAC76922.1|', 810, 'AAC76922'],
@@ -128,5 +138,69 @@ while( $subject = $report->next_subject ) {
     ok($subject->name, $d->[0]);
     ok($subject->length, $d->[1]);
     ok($subject->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $subject->next_hsp ) {
+	    ok($hsp->query->start, 1);
+	    ok($hsp->query->end, 820);
+	    ok($hsp->subject->start, 1);
+	    ok($hsp->subject->end, 820);
+	    ok($hsp->hsp_length, 820);
+	    ok($hsp->P == 0.0);
+	    ok($hsp->evalue == 0.0);
+	    ok($hsp->score, 4058);
+	    ok($hsp->bits,1567);	    
+	    ok($hsp->positive, 806);
+	    ok($hsp->query->frac_identical, 806);
+	    ok($hsp->subject->frac_identical, 806);
+	    ok($hsp->gaps, 0);	    
+	}
+    }
+    last if( $count++ > @valid );
+}
+
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.wublastn'));
+
+$report = $searchio->next_report;
+
+ok($report->database_name, 'ecoli.aa');
+ok($report->database_size, 1358990);
+ok($report->program_name, 'BLASTP');
+ok($report->program_version, '2.0MP-WashU');
+ok($report->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
+ok($report->query_size, 820);
+ok($report->get_statistic('kappa'), 0.136);
+ok($report->get_statistic('lambda'), 0.319);
+ok($report->get_statistic('entropy'), 0.384);
+ok($report->get_statistic('dblength'), 1358990);
+ok($report->get_statistic('dbnum'), 4289);
+ok($report->get_parameter('matrix'), 'BLOSUM62');
+
+@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113'],
+	   [ 'gb|AAC76922.1|', 810, 'AAC76922'],
+	   [ 'gb|AAC76994.1|', 449, 'AAC76994']);
+$count = 0;
+while( $subject = $report->next_subject ) {
+    my $d = shift @valid;
+    ok($subject->name, $d->[0]);
+    ok($subject->length, $d->[1]);
+    ok($subject->accession, $d->[2]);
+    if( $count == 0 ) {
+	while( my $hsp = $subject->next_hsp ) {
+	    ok($hsp->query->start, 1);
+	    ok($hsp->query->end, 820);
+	    ok($hsp->subject->start, 1);
+	    ok($hsp->subject->end, 820);
+	    ok($hsp->hsp_length, 820);
+	    ok($hsp->P == 0.0);
+	    ok($hsp->evalue == 0.0);
+	    ok($hsp->score, 4141);
+	    ok($hsp->bits,1462.8);	    
+	    ok($hsp->positive, 820);
+	    ok($hsp->query->frac_identical, 820);
+	    ok($hsp->subject->frac_identical, 820);
+	    ok($hsp->gaps, 0);	    
+	}
+    }
     last if( $count++ > @valid );
 }
