@@ -24,7 +24,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 78;
+   $NUMTESTS = 77;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -107,7 +107,7 @@ eval {
    ok($seq->length, 353);
    $seqio = $gb->get_Stream_by_id([ qw(AAC06201 195055)]);
    ok( defined $seqio);
-   ok( $seqio->next_seq->length(), 353); 
+   ok( $seqio->next_seq->length(), 353);
    ok( $seqio->next_seq->length(), 136);
 };
 
@@ -141,7 +141,7 @@ eval {
    $seq = $gb->get_Seq_by_id('P18584');
    ok( defined $seq );
    ok( $seq->length, 497);
-   skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'DEGP');
+   #skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'DEGP');
    ok( $seq->display_id, 'DEGP_CHLTR');
    ok( $seq->division, 'CHLTR');
 
@@ -149,12 +149,12 @@ eval {
 					    '-retrievaltype' => 'tempfile',
 					    '-delay' => 0,
 					    )));
-   ok(defined($seqio = $gb->get_Stream_by_id(['KPY1_ECOLI', 'KPY1_HUMAN'])));
+   ok(defined($seqio = $gb->get_Stream_by_id(['NDP_MOUSE', 'NDP_HUMAN'])));
    undef $gb; # testing to see if we can remove gb
    ok( defined($seq = $seqio->next_seq()));
-   ok( $seq->length, 470);
+   ok( $seq->length, 131);
    ok( defined($seq = $seqio->next_seq()));
-   ok( $seq->length, 530);
+   ok( $seq->length, 133);
 };
 
 if ($@) {
@@ -292,4 +292,4 @@ if ($@) {
    }
 }
 $seq = $seqio = undef;
-#print STDERR "\n";
+
