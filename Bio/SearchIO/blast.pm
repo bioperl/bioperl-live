@@ -21,13 +21,13 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
 
     use Bio::SearchIO;
     my $searchio = new Bio::SearchIO(-format => 'blast',
-				     -file   => 't/data/ecolitst.bls');
+                                     -file   => 't/data/ecolitst.bls');
     while( my $result = $searchio->next_result ) {
-	while( my $hit = $result->next_hit ) {
-	    while( my $hsp = $hit->next_hsp ) {
-		# ...
-	    }
-	}
+        while( my $hit = $result->next_hit ) {
+            while( my $hsp = $hit->next_hsp ) {
+                # ...
+            }
+        }
     }
 
 =head1 DESCRIPTION
@@ -64,7 +64,7 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Steve Chervitz sac@bioperl.org
 
 =head1 APPENDIX
 
@@ -79,121 +79,206 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::blast;
+
+use Bio::SearchIO::IteratedSearchResultEventBuilder;
+
 use strict;
-use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_BLAST_WRITER_CLASS);
+use vars qw(@ISA %MAPPING %MODEMAP 
+            $DEFAULT_BLAST_WRITER_CLASS 
+            $MAX_HSP_OVERLAP
+            $DEFAULT_SIGNIF
+            $DEFAULT_SCORE
+           );
+
 use Bio::SearchIO;
 
 @ISA = qw(Bio::SearchIO );
 
+# End users should not ever see these exceptions
+@Bio::SearchIO::InternalParserError::ISA = qw(Bio::Root::Exception);
+
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
-    %MODEMAP = ('BlastOutput' => 'result',
-		'Hit'         => 'hit',
-		'Hsp'         => 'hsp'
-		);
+    %MODEMAP = (
+                'BlastOutput'        => 'result',
+                'Iteration'          => 'iteration',
+                'Hit'                => 'hit',
+                'Hsp'                => 'hsp'
+                );
 
     # This should really be done more intelligently, like with
     # XSLT
 
     %MAPPING = 
-	( 
-	  'Hsp_bit-score'  => 'HSP-bits',
-	  'Hsp_score'      => 'HSP-score',
-	  'Hsp_evalue'     => 'HSP-evalue',
-	  'Hsp_pvalue'     => 'HSP-pvalue',
-	  'Hsp_query-from' => 'HSP-query_start',
-	  'Hsp_query-to'   => 'HSP-query_end',
-	  'Hsp_hit-from'   => 'HSP-hit_start',
-	  'Hsp_hit-to'     => 'HSP-hit_end',
-	  'Hsp_positive'   => 'HSP-conserved',
-	  'Hsp_identity'   => 'HSP-identical',
-	  'Hsp_gaps'       => 'HSP-hsp_gaps',
-	  'Hsp_hitgaps'    => 'HSP-hit_gaps',
-	  'Hsp_querygaps'  => 'HSP-query_gaps',
-	  'Hsp_qseq'       => 'HSP-query_seq',
-	  'Hsp_hseq'       => 'HSP-hit_seq',
-	  'Hsp_midline'    => 'HSP-homology_seq',
-	  'Hsp_align-len'  => 'HSP-hsp_length',
-	  'Hsp_query-frame'=> 'HSP-query_frame',
-	  'Hsp_hit-frame'  => 'HSP-hit_frame',
+        ( 
+          'Hsp_bit-score'  => 'HSP-bits',
+          'Hsp_score'      => 'HSP-score',
+          'Hsp_evalue'     => 'HSP-evalue',
+          'Hsp_pvalue'     => 'HSP-pvalue',
+          'Hsp_query-from' => 'HSP-query_start',
+          'Hsp_query-to'   => 'HSP-query_end',
+          'Hsp_hit-from'   => 'HSP-hit_start',
+          'Hsp_hit-to'     => 'HSP-hit_end',
+          'Hsp_positive'   => 'HSP-conserved',
+          'Hsp_identity'   => 'HSP-identical',
+          'Hsp_gaps'       => 'HSP-hsp_gaps',
+          'Hsp_hitgaps'    => 'HSP-hit_gaps',
+          'Hsp_querygaps'  => 'HSP-query_gaps',
+          'Hsp_qseq'       => 'HSP-query_seq',
+          'Hsp_hseq'       => 'HSP-hit_seq',
+          'Hsp_midline'    => 'HSP-homology_seq',
+          'Hsp_align-len'  => 'HSP-hsp_length',
+          'Hsp_query-frame'=> 'HSP-query_frame',
+          'Hsp_hit-frame'  => 'HSP-hit_frame',
 
-	  'Hit_id'        => 'HIT-name',
-	  'Hit_len'       => 'HIT-length',
-	  'Hit_accession' => 'HIT-accession',
-	  'Hit_def'       => 'HIT-description',
-	  'Hit_signif'    => 'HIT-significance',
-	  'Hit_score'     => 'HIT-score',
-	  'Iteration_iter-num'   => 'HIT-iteration',
+          'Hit_id'        => 'HIT-name',
+          'Hit_len'       => 'HIT-length',
+          'Hit_accession' => 'HIT-accession',
+          'Hit_def'       => 'HIT-description',
+          'Hit_signif'    => 'HIT-significance',
+          # For NCBI blast, the description line contains bits.
+          # For WU-blast, the  description line contains score.
+          'Hit_score'     => 'HIT-score',
+          'Hit_bits'      => 'HIT-bits',
 
-	  'BlastOutput_program'  => 'RESULT-algorithm_name',
-	  'BlastOutput_version'  => 'RESULT-algorithm_version',
-	  'BlastOutput_query-def'=> 'RESULT-query_name',
-	  'BlastOutput_query-len'=> 'RESULT-query_length',
-	  'BlastOutput_query-acc'=> 'RESULT-query_accession',
-	  'BlastOutput_querydesc'=> 'RESULT-query_description',
-	  'BlastOutput_db'       => 'RESULT-database_name',
-	  'BlastOutput_db-len'   => 'RESULT-database_entries',
-	  'BlastOutput_db-let'   => 'RESULT-database_letters',
+          'Iteration_iter-num' => 'ITERATION-number',
 
-	  'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
-	  'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
-	  'Parameters_include'   => { 'RESULT-parameters' => 'include'},
-	  'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
-	  'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
-	  'Parameters_gap-open'  =>   { 'RESULT-parameters' => 'gapopen'},
-	  'Parameters_gap-extend'=>   { 'RESULT-parameters' => 'gapext'},
-	  'Parameters_filter'    =>  {'RESULT-parameters' => 'filter'},
-	  'Parameters_allowgaps' =>   { 'RESULT-parameters' => 'allowgaps'},
+          'BlastOutput_program'  => 'RESULT-algorithm_name',
+          'BlastOutput_version'  => 'RESULT-algorithm_version',
+          'BlastOutput_query-def'=> 'RESULT-query_name',
+          'BlastOutput_query-len'=> 'RESULT-query_length',
+          'BlastOutput_query-acc'=> 'RESULT-query_accession',
+          'BlastOutput_querydesc'=> 'RESULT-query_description',
+          'BlastOutput_db'       => 'RESULT-database_name',
+          'BlastOutput_db-len'   => 'RESULT-database_entries',
+          'BlastOutput_db-let'   => 'RESULT-database_letters',
+          'BlastOutput_inclusion-threshold'   => 'RESULT-inclusion_threshold',
 
-	  'Statistics_db-len'    => {'RESULT-statistics' => 'dbentries'},
-	  'Statistics_db-let'    => { 'RESULT-statistics' => 'dbletters'},
-	  'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
-	  'Statistics_query-len'   => { 'RESULT-statistics' => 'querylength'},
-	  'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
-	  'Statistics_eff-spaceused' => { 'RESULT-statistics' => 'effectivespaceused'},
-	  'Statistics_eff-dblen' => { 'RESULT-statistics' => 'effectivedblength'},
-	  'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
-	  'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
-	  'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
-	  'Statistics_framewindow'=> { 'RESULT-statistics' => 'frameshiftwindow'},
-	  'Statistics_decay'=> { 'RESULT-statistics' => 'decayconst'},
+          'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
+          'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
+          'Parameters_include'   => { 'RESULT-parameters' => 'include'},
+          'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
+          'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
+          'Parameters_gap-open'  =>   { 'RESULT-parameters' => 'gapopen'},
+          'Parameters_gap-extend'=>   { 'RESULT-parameters' => 'gapext'},
+          'Parameters_filter'    =>  {'RESULT-parameters' => 'filter'},
+          'Parameters_allowgaps' =>   { 'RESULT-parameters' => 'allowgaps'},
 
-	  'Statistics_T'=> { 'RESULT-statistics' => 'T'},
-	  'Statistics_A'=> { 'RESULT-statistics' => 'A'},
-	  'Statistics_X1'=> { 'RESULT-statistics' => 'X1'},
-	  'Statistics_X2'=> { 'RESULT-statistics' => 'X2'},
-	  'Statistics_S1'=> { 'RESULT-statistics' => 'S1'},
-	  'Statistics_S2'=> { 'RESULT-statistics' => 'S2'},
+          'Statistics_db-len'    => {'RESULT-statistics' => 'dbentries'},
+          'Statistics_db-let'    => { 'RESULT-statistics' => 'dbletters'},
+          'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
+          'Statistics_query-len'   => { 'RESULT-statistics' => 'querylength'},
+          'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
+          'Statistics_eff-spaceused' => { 'RESULT-statistics' => 'effectivespaceused'},
+          'Statistics_eff-dblen' => { 'RESULT-statistics' => 'effectivedblength'},
+          'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
+          'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
+          'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
+          'Statistics_framewindow'=> { 'RESULT-statistics' => 'frameshiftwindow'},
+          'Statistics_decay'=> { 'RESULT-statistics' => 'decayconst'},
 
-	  # WU-BLAST stats
-	  'Statistics_DFA_states'=> { 'RESULT-statistics' => 'num_dfa_states'},
-	  'Statistics_DFA_size'=> { 'RESULT-statistics' => 'dfa_size'},
+          'Statistics_T'=> { 'RESULT-statistics' => 'T'},
+          'Statistics_A'=> { 'RESULT-statistics' => 'A'},
+          'Statistics_X1'=> { 'RESULT-statistics' => 'X1'},
+          'Statistics_X2'=> { 'RESULT-statistics' => 'X2'},
+          'Statistics_S1'=> { 'RESULT-statistics' => 'S1'},
+          'Statistics_S2'=> { 'RESULT-statistics' => 'S2'},
 
-	  'Statistics_search_cputime' => { 'RESULT-statistics' => 'search_cputime'},
-	  'Statistics_total_cputime' => { 'RESULT-statistics' => 'total_cputime'},
-	  'Statistics_search_actualtime' => { 'RESULT-statistics' => 'search_actualtime'},
-	  'Statistics_total_actualtime' => { 'RESULT-statistics' => 'total_actualtime'},
+          # WU-BLAST stats
+          'Statistics_DFA_states'=> { 'RESULT-statistics' => 'num_dfa_states'},
+          'Statistics_DFA_size'=> { 'RESULT-statistics' => 'dfa_size'},
 
-	  'Statistics_noprocessors' => { 'RESULT-statistics' => 'no_of_processors'},
-	  'Statistics_neighbortime' => { 'RESULT-statistics' => 'neighborhood_generate_time'},
-	  'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
-	  'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
-	  );
+          'Statistics_search_cputime' => { 'RESULT-statistics' => 'search_cputime'},
+          'Statistics_total_cputime' => { 'RESULT-statistics' => 'total_cputime'},
+          'Statistics_search_actualtime' => { 'RESULT-statistics' => 'search_actualtime'},
+          'Statistics_total_actualtime' => { 'RESULT-statistics' => 'total_actualtime'},
+
+          'Statistics_noprocessors' => { 'RESULT-statistics' => 'no_of_processors'},
+          'Statistics_neighbortime' => { 'RESULT-statistics' => 'neighborhood_generate_time'},
+          'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
+          'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
+          );
 
     $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+    $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
 }
-
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::blast();
+ Usage   : my $obj = new Bio::SearchIO::blast(%args);
  Function: Builds a new Bio::SearchIO::blast object 
  Returns : Bio::SearchIO::blast
- Args    : -fh/-file => filehandle/filename to BLAST file
+ Args    : Key-value pairs:
+           -fh/-file => filehandle/filename to BLAST file
            -format   => 'blast'
+           -inclusion_threshold => e-value threshold for inclusion in the
+                                   PSI-BLAST score matrix model (blastpgp)
+           -signif      => float or scientific notation number to be used
+                           as a P- or Expect value cutoff
+           -score       => integer or scientific notation number to be used
+                           as a blast score value cutoff
+           -bits        => integer or scientific notation number to be used
+                           as a bit score value cutoff
+           -hit_filter  => reference to a function to be used for
+                           filtering hits based on arbitrary criteria.
+                           All hits of each BLAST report must satisfy 
+                           this criteria to be retained. 
+                           If a hit fails this test, it is ignored.
+                           This function should take a
+                           Bio::Search::Hit::BlastHit.pm object as its first
+                           argument and return true
+                           if the hit should be retained.
+                           Sample filter function:
+                              -hit_filter => sub { $hit = shift;
+                                                   $hit->gaps == 0; },
+                           (Note: -filt_func is synonymous with -hit_filter)
+           -overlap     => integer. The amount of overlap to permit between
+                           adjacent HSPs when tiling HSPs. A reasonable value is 2.
+                           Default = $Bio::SearchIO::blast::MAX_HSP_OVERLAP.
+
+            The following criteria are not yet supported:
+            (these are probably best applied within this module rather than in the 
+             event handler since they would permit the parser to take some shortcuts.)
+
+           -check_all_hits => boolean. Check all hits for significance against
+                              significance criteria.  Default = false.
+                              If false, stops processing hits after the first
+                              non-significant hit or the first hit that fails
+                              the hit_filter call. This speeds parsing,
+                              taking advantage of the fact that the hits
+                              are processed in the order they appear in the report.
+           -min_query_len => integer to be used as a minimum for query sequence length.
+                             Reports with query sequences below this length will
+                             not be processed. Default = no minimum length.
+           -best        => boolean. Only process the best hit of each report;
+                           default = false.
 
 =cut
+
+sub _initialize {
+    my ($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
+
+    # Blast reports require a specialized version of the SREB due to the 
+    # possibility of iterations (PSI-BLAST). Forwarding all arguments to it.
+    # An issue here is that we want to set new default object factories if none are
+    # supplied.
+
+    my $handler = new Bio::SearchIO::IteratedSearchResultEventBuilder(@args);
+    $self->attach_EventHandler($handler);
+
+    # Optimization: caching the EventHandler since it's use a lot during the parse.
+    $self->{'_handler_cache'} = $handler;
+
+    my($min_qlen, $check_all, $overlap, $best ) =
+           $self->_rearrange([qw(MIN_LENGTH CHECK_ALL_HITS OVERLAP BEST )], @args);
+
+    defined $min_qlen && $self->min_query_length($min_qlen);
+    defined $best && $self->best_hit_only($best);
+    defined $check_all && $self->check_all_hits($check_all);
+}
+
 
 =head2 next_result
 
@@ -207,14 +292,18 @@ BEGIN {
 
 sub next_result{
    my ($self) = @_;
-   
+
    my $data = '';
-   my $seentop = 0;
+   my $flavor = '';
+   $self->{'_seentop'} = 0;
    my ($reporttype,$seenquery,$reportline);
+   my ($seeniteration,$found_again);
+   my $incl_threshold = $self->inclusion_threshold;
+
    $self->start_document();
-   my @hit_signifs;
-   
-   while( defined ($_ = $self->_readline )) {       
+   my (@hit_signifs);
+
+   while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
        next if( /CPU time:/);
        next if( /^>\s*$/);
@@ -223,132 +312,169 @@ sub next_result{
 	   /^(PSITBLASTN)\s+(.+)$/i ||
 	   /^(RPS-BLAST)\s*(.+)$/i ||
 	   /^(MEGABLAST)\s*(.+)$/i 
-	   ) {
-	   if( $seentop ) {	    
-	       $self->_pushback($_);
-	       $self->in_element('hsp') && 
-		   $self->end_element({ 'Name' => 'Hsp'});
-	       $self->in_element('hit') && 
-		   $self->end_element({ 'Name' => 'Hit'});
-	       $self->end_element({ 'Name' => 'BlastOutput'});
-	       return $self->end_document();
-	   }
-	   $self->start_element({ 'Name' => 'BlastOutput' } );
-	   $self->{'_result_count'}++;
-	   $seentop = 1;
-	   $reporttype = $1;
-	   $reportline = $_; # to fix the fact that RPS-BLAST output is wrong
-	   $self->element({ 'Name' => 'BlastOutput_program',
-			    'Data' => $reporttype});
-	   
-	   $self->element({ 'Name' => 'BlastOutput_version',
-			    'Data' => $2});
-       } elsif ( /^Query=\s*(.+)$/ ) {	   
-	   my $q = $1;
-	   my $size = 0;
-	   if( defined $seenquery ) {
-	       $self->_pushback($reportline);
-	       $self->_pushback($_);
-	       $self->end_element({'Name' => 'BlastOutput'});
-	       return $self->end_document();
-	   } else { 
-	       if( ! defined $reporttype ) {
-		   $self->start_element({'Name' => 'BlastOutput'});
-		   $seentop = 1;
-		   $self->{'_result_count'}++;
-	       }
-	   }
-	   $seenquery = $q;
-	   $_ = $self->_readline;
-	   while( defined ($_) && $_ !~ /^\s+$/ ) {	
-	       chomp;
-	       if( /\(([\d,]+)\s+letters.*\)/ ) {		   
-		   $size = $1;
-		   $size =~ s/,//g;
-		   last;
-	       } else { 
-		   $q .= " $_";
-		   $q =~ s/ +/ /g;
-		   $q =~ s/^ | $//g;
-	       }
+           ) {
+           if( $self->{'_seentop'} ) {
+               # This handles multi-result input streams
+               $self->_pushback($_);
+               $self->in_element('hsp') && 
+                   $self->end_element({ 'Name' => 'Hsp'});
+               $self->in_element('hit') && 
+                   $self->end_element({ 'Name' => 'Hit'});
+               $self->end_element({ 'Name' => 'Iteration'});
+               $self->end_element({ 'Name' => 'BlastOutput'});
+               return $self->end_document();
+           }
+           $self->_start_blastoutput;
+           $reporttype = $1;
+           $reportline = $_; # to fix the fact that RPS-BLAST output is wrong
+           $self->element({ 'Name' => 'BlastOutput_program',
+                            'Data' => $reporttype});
 
-	       $_ = $self->_readline;
-	   }
-	   chomp($q);
-	   my ($nm,$desc) = split(/\s+/,$q,2);	   
-	   $self->element({ 'Name' => 'BlastOutput_query-def',
-			    'Data' => $nm});
-	   $self->element({ 'Name' => 'BlastOutput_query-len', 
-			    'Data' => $size});
-	   defined $desc && $desc =~ s/\s+$//;
-	   $self->element({ 'Name' => 'BlastOutput_querydesc', 
-			    'Data' => $desc});
-	   
-	   if( my @pieces = split(/\|/,$nm) ) {
-	       my $acc = pop @pieces;
-	       $acc = pop @pieces if( ! defined $acc || $acc =~ /^\s+$/);
-	       $self->element({ 'Name' =>  'BlastOutput_query-acc',
-				'Data'  => $acc});
-	   }
-	   
+           $self->element({ 'Name' => 'BlastOutput_version',
+                            'Data' => $2});
+           $self->element({ 'Name' => 'BlastOutput_inclusion-threshold',
+                            'Data' => $incl_threshold});
+       } elsif ( /^Searching/ ) {
+           #print STDERR "blast.pm: Searching found...\n";
+
+           $self->in_element('hsp') && 
+               $self->end_element({ 'Name' => 'Hsp'});
+           $self->in_element('hit') && 
+               $self->end_element({ 'Name' => 'Hit'});
+
+           if( defined $seeniteration ) {
+               $self->end_element({'Name' => 'Iteration'});
+               $self->_start_iteration;
+           } else { 
+               $self->_start_iteration;
+           }
+           $seeniteration = 1;
+       } elsif ( /^Query=\s*(.+)$/ ) {
+           #print STDERR "blast.pm: Query= found...\n";
+           my $q = $1;
+           my $size = 0;
+           if( defined $seenquery ) { 
+              $self->_pushback($reportline);
+               $self->_pushback($_);
+               $self->end_element({'Name' => 'BlastOutput'});
+               return $self->end_document();
+           } else { 
+               if( ! defined $reporttype ) {
+                   $self->_start_blastoutput;
+               }
+           }
+           $seenquery = $q;
+           $_ = $self->_readline;
+           while( defined ($_) && $_ !~ /^\s+$/ ) {
+               chomp;
+               if( /\(([\d,]+)\s+letters.*\)/ ) {
+                   $size = $1;
+                   $size =~ s/,//g;
+                   last;
+               } else { 
+                   $q .= " $_";
+                   $q =~ s/ +/ /g;
+                   $q =~ s/^ | $//g;
+               }
+
+               $_ = $self->_readline;
+           }
+           chomp($q);
+           my ($nm,$desc) = split(/\s+/,$q,2);
+           $self->element({ 'Name' => 'BlastOutput_query-def',
+                            'Data' => $nm});
+           $self->element({ 'Name' => 'BlastOutput_query-len', 
+                            'Data' => $size});
+           defined $desc && $desc =~ s/\s+$//;
+           $self->element({ 'Name' => 'BlastOutput_querydesc', 
+                            'Data' => $desc});
+           
+           if( my @pieces = split(/\|/,$nm) ) {
+               my $acc = pop @pieces;
+               $acc = pop @pieces if( ! defined $acc || $acc =~ /^\s+$/);
+               $self->element({ 'Name' =>  'BlastOutput_query-acc',
+                                'Data'  => $acc});
+           }
+
        } elsif( /Sequences producing significant alignments:/ ) {
-	   # skip the next whitespace line
-	   $_ = $self->_readline();
-	   while( defined ($_ = $self->_readline() ) && 
-		  ! /^\s+$/ ) {
-	       if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
-		   push @hit_signifs, [ $2,$1 ];
-	       }
-	   }
+           $flavor = 'ncbi';
+           # The next line is not necessarily whitespace in psiblast reports.
+           # Also note that we must look for the end of this section by testing
+           # for a line with a leading >. Blank lines occur with this section
+           # for psiblast.
+
+           if (! $self->in_element('iteration')) {
+               $self->_start_iteration;
+           }
+
+         descline:
+           while( defined ($_ = $self->_readline() )) {
+               if( /(\d+)\s+([\d\.\-eE]+)\s*$/) {
+                   my ($score, $evalue) = ($1, $2);
+                   # Some data clean-up so e-value will appear numeric to perl
+                   $evalue = "1$evalue" if $evalue =~ /^e/;
+                   push @hit_signifs, [ $evalue, $score ];
+               } elsif( /^>/ ) {
+                   $self->_pushback($_);
+                   last descline;
+               }
+           }
        } elsif( /Sequences producing High-scoring Segment Pairs:/ ) {
-	   # skip the next line
-	   $_ = $self->_readline();
-	   
-	    while( defined ($_ = $self->_readline() ) && 
-		  ! /^\s+$/ ) {	
-	       my @line = split;
-	       pop @line; # throw away first number which is for 'N'col
-	       push @hit_signifs, [ pop @line, pop @line];
-	   }
+           # This block is for wu-blast, so we don't have to check for psi-blast stuff
+           # skip the next line
+           $_ = $self->_readline();
+           $flavor = 'wu';
+
+           if (! $self->in_element('iteration')) {
+               $self->_start_iteration;
+           }
+
+            while( defined ($_ = $self->_readline() ) && 
+                  ! /^\s+$/ ) {        
+                my @line = split;
+                pop @line; # throw away first number which is for 'N'col
+                push @hit_signifs, [ pop @line, pop @line];
+           }
        } elsif ( /^Database:\s*(.+)$/ ) {
-	   my $db = $1;
+           #print STDERR "blast.pm: Database: $1...\n";
+           my $db = $1;
 
-	   while( defined($_ = $self->_readline) ) {
-	       if( /^\s+([\d\,]+)\s+sequences\;\s+([\d,]+)\s+total\s+letters/){
-		   my ($s,$l) = ($1,$2);
-		   $s =~ s/,//g;
-		   $l =~ s/,//g;
-		   $self->element({'Name' => 'BlastOutput_db-len',
-				   'Data' => $s});	       
-		   $self->element({'Name' => 'BlastOutput_db-let',
-				   'Data' => $l});
-		   last;
-	       } else {
-		   chomp;
-		   $db .= $_;
-	       }
-	   }	       
-	   $self->element({'Name' => 'BlastOutput_db',
-			   'Data' => $db});
+           while( defined($_ = $self->_readline) ) {
+               if( /^\s+([\d\,]+)\s+sequences\;\s+([\d,]+)\s+total\s+letters/){
+                   my ($s,$l) = ($1,$2);
+                   $s =~ s/,//g;
+                   $l =~ s/,//g;
+                   $self->element({'Name' => 'BlastOutput_db-len',
+                                   'Data' => $s});
+                   $self->element({'Name' => 'BlastOutput_db-let',
+                                   'Data' => $l});
+                   last;
+               } else {
+                   chomp;
+                   $db .= $_;
+               }
+           }
+           $self->element({'Name' => 'BlastOutput_db',
+                           'Data' => $db});
        } elsif( /^>(\S+)\s*(.*)?/ ) {
-	   chomp;
+           chomp;
 
-	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
-	   $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
-	   
-	   $self->start_element({ 'Name' => 'Hit'});
-	   my $id = $1;	  
-	   my $restofline = $2;
-	   $self->element({ 'Name' => 'Hit_id',
-			    'Data' => $id});	   
-	   my ($acc, $version);
-	   if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
-	   ($acc, $version) = split /\./, $2; 
-	   } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
-	   ($acc, $version) = split /\./, $3;  
-	   } else {
-	   	#punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
-	   	#Database Name                     Identifier Syntax
+           $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
+           $self->in_element('hit') && $self->end_element({ 'Name' => 'Hit'});
+           
+           $self->start_element({ 'Name' => 'Hit'});
+           my $id = $1;          
+           my $restofline = $2;
+           $self->element({ 'Name' => 'Hit_id',
+                            'Data' => $id});           
+           my ($acc, $version);
+           if ($id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/) {
+           ($acc, $version) = split /\./, $2; 
+           } elsif ($id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/) {
+           ($acc, $version) = split /\./, $3;  
+           } else {
+                   #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+                   #Database Name                     Identifier Syntax
         #============================      ========================
         #GenBank                           gb|accession|locus
         #EMBL Data Library                 emb|accession|locus
@@ -359,300 +485,374 @@ sub next_result{
         #Brookhaven Protein Data Bank      pdb|entry|chain
         #Patents                           pat|country|number 
         #GenInfo Backbone Id               bbs|number 
-        #General database identifier	   gnl|database|identifier
+        #General database identifier           gnl|database|identifier
         #NCBI Reference Sequence           ref|accession|locus
         #Local Sequence identifier         lcl|identifier
-	   	$acc=$id;
-	   }
-	   $self->element({ 'Name' =>  'Hit_accession',
-			    'Data'  => $acc});	   
+                   $acc=$id;
+           }
+           $self->element({ 'Name' =>  'Hit_accession',
+                            'Data'  => $acc});           
 
-	   my $v = shift @hit_signifs;
-	   if( defined $v ) {
-	       $self->element({'Name' => 'Hit_signif',
-			       'Data' => $v->[0]});
-	       $self->element({'Name' => 'Hit_score',
-			       'Data' => $v->[1]});
-	   }
-	   while(defined($_ = $self->_readline()) ) {
-	       next if( /^\s+$/ );
-	       chomp;
-	       if(  /Length\s*=\s*([\d,]+)/ ) {
-		   my $l = $1;
-		   $l =~ s/\,//g;
-		   $self->element({ 'Name' => 'Hit_len',
-				    'Data' => $l });
-		   last;	       
-	       } else { 
-		   $restofline .= $_;
-	       }
-	   }
-	   $restofline =~ s/\s+/ /g;
-	   $self->element({ 'Name' => 'Hit_def',
-			    'Data' => $restofline});       
-      } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
-	   next;
+           my $v = shift @hit_signifs;
+           if( defined $v ) {
+               $self->element({'Name' => 'Hit_signif',
+                               'Data' => $v->[0]});
+               $self->element({'Name' => 'Hit_score',
+                               'Data' => $v->[1]});
+           }
+           while(defined($_ = $self->_readline()) ) {
+               next if( /^\s+$/ );
+               chomp;
+               if(  /Length\s*=\s*([\d,]+)/ ) {
+                   my $l = $1;
+                   $l =~ s/\,//g;
+                   $self->element({ 'Name' => 'Hit_len',
+                                    'Data' => $l });
+                   last;               
+               } else { 
+                   $restofline .= $_;
+               }
+           }
+           $restofline =~ s/\s+/ /g;
+           $self->element({ 'Name' => 'Hit_def',
+                            'Data' => $restofline});       
+       } elsif( /\s+(Plus|Minus) Strand HSPs:/i ) {
+           next;
        } elsif( ($self->in_element('hit') || 
-		 $self->in_element('hsp')) && # wublast
-	       m/Score\s*=\s*(\S+)\s*       # Bit score
-		\(([\d\.]+)\s*bits\),       # Raw score
-		\s*Expect\s*=\s*([^,\s]+),  # E-value
-		\s*(Sum)?\s*                # SUM
-		P(\(\d+\))?\s*=\s*([^,\s]+) # P-value
-		/ox 
-		  ) {
-	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
-	   $self->start_element({'Name' => 'Hsp'});
-       	   $self->element( { 'Name' => 'Hsp_score',
-			     'Data' => $1});
-	   $self->element( { 'Name' => 'Hsp_bit-score',
-			     'Data' => $2});
-	   $self->element( { 'Name' => 'Hsp_evalue',			     
-			     'Data' => $3});
-	   $self->element( {'Name'  => 'Hsp_pvalue',
-			    'Data'  =>$6});       
-       } elsif( ($self->in_element('hit') || 
-		 $self->in_element('hsp')) && # ncbi blast
-		m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-		(\((\d+)\))?,                 # Missing for BLAT pseudo-BLAST fmt 
-		\s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
-		/ox) {
-	   $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
-	   
-	   $self->start_element({'Name' => 'Hsp'});
-	   $self->element( { 'Name' => 'Hsp_score',
-			     'Data' => $3});
-	   $self->element( { 'Name' => 'Hsp_bit-score',
-			     'Data' => $1});
-	   $self->element( { 'Name' => 'Hsp_evalue',
-			     'Data' => $5});
-       } elsif( $self->in_element('hsp') &&
-		m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
-		(,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
-		(\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
-		/oxi 
-		) {
-	   $self->element( { 'Name' => 'Hsp_identity',
-			     'Data' => $1});
-	   $self->element( {'Name' => 'Hsp_align-len',
-			    'Data' => $2});
-	   if( defined $3 ) {
-	       $self->element( { 'Name' => 'Hsp_positive',
-				 'Data' => $4});
-	   } else { 
-	       $self->element( { 'Name' => 'Hsp_positive',
-				 'Data' => $1});
-	   }
-	   if( defined $6 ) { 	       
-	       $self->element( { 'Name' => 'Hsp_gaps',
-				 'Data' => $7});
-	   }
-	   
-	   $self->{'_Query'} = { 'begin' => 0, 'end' => 0};
-	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
+                 $self->in_element('hsp')) && # wublast
+               m/Score\s*=\s*(\S+)\s*       # Bit score
+                \(([\d\.]+)\s*bits\),       # Raw score
+                \s*Expect\s*=\s*([^,\s]+),  # E-value
+                \s*(Sum)?\s*                # SUM
+                P(\(\d+\))?\s*=\s*([^,\s]+) # P-value
+                /ox 
+                  ) {
+           $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
+           $self->start_element({'Name' => 'Hsp'});
+        #   print STDERR "Got wu HSP score=$1\n";
 
-	   if( /(Frame\s*=\s*.+)$/ ) {
-	       # handle wu-blast Frame listing on same line
-	       $self->_pushback($1);
-	   }	   
+           # Some data clean-up so e-value will appear numeric to perl
+           my ($score, $bits, $evalue, $pvalue) = ($1, $2, $3, $6);
+           $evalue = "1$evalue" if $evalue =~ /^e/;
+           $pvalue = "1$pvalue" if $pvalue =~ /^e/;
+
+                  $self->element( { 'Name' => 'Hsp_score',
+                             'Data' => $score});
+           $self->element( { 'Name' => 'Hsp_bit-score',
+                             'Data' => $bits});
+           $self->element( { 'Name' => 'Hsp_evalue',
+                             'Data' => $evalue});
+           $self->element( {'Name'  => 'Hsp_pvalue',
+                            'Data'  =>$pvalue});
+       } elsif( ($self->in_element('hit') || 
+                 $self->in_element('hsp')) && # ncbi blast
+                m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
+                (\((\d+)\))?,                 # Missing for BLAT pseudo-BLAST fmt 
+                \s*Expect(\(\d+\))?\s*=\s*(\S+) # E-value
+                /ox) {
+           $self->in_element('hsp') && $self->end_element({ 'Name' => 'Hsp'});
+           
+         #  print STDERR "Got ncbi HSP score=$3\n";
+
+           # Some data clean-up so e-value will appear numeric to perl
+           my ($score, $bits, $evalue) = ($3, $1, $5);
+           $evalue = "1$evalue" if $evalue =~ /^e/;
+
+           $self->start_element({'Name' => 'Hsp'});
+           $self->element( { 'Name' => 'Hsp_score',
+                             'Data' => $score});
+           $self->element( { 'Name' => 'Hsp_bit-score',
+                             'Data' => $bits});
+           $self->element( { 'Name' => 'Hsp_evalue',
+                             'Data' => $evalue});
        } elsif( $self->in_element('hsp') &&
-		/Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
-	   # consume this event ( we infer strand from start/end)
-	   next;
+                m/Identities\s*=\s*(\d+)\s*\/\s*(\d+)\s*[\d\%\(\)]+\s*
+                (,\s*Positives\s*=\s*(\d+)\/(\d+)\s*[\d\%\(\)]+\s*)? # pos only valid for Protein alignments
+                (\,\s*Gaps\s*=\s*(\d+)\/(\d+))? # Gaps
+                /oxi 
+                ) {
+           $self->element( { 'Name' => 'Hsp_identity',
+                             'Data' => $1});
+           $self->element( {'Name' => 'Hsp_align-len',
+                            'Data' => $2});
+           if( defined $3 ) {
+               $self->element( { 'Name' => 'Hsp_positive',
+                                 'Data' => $4});
+           } else { 
+               $self->element( { 'Name' => 'Hsp_positive',
+                                 'Data' => $1});
+           }
+           if( defined $6 ) {
+               $self->element( { 'Name' => 'Hsp_gaps',
+                                 'Data' => $7});
+           }
+           
+           $self->{'_Query'} = { 'begin' => 0, 'end' => 0};
+           $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
+
+           if( /(Frame\s*=\s*.+)$/ ) {
+               # handle wu-blast Frame listing on same line
+               $self->_pushback($1);
+           }           
        } elsif( $self->in_element('hsp') &&
-		/Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
-	   my ($one,$two)= ($1,$2);
-	   my ($queryframe,$hitframe);
-	   if( $reporttype eq 'TBLASTX' ) {
-	       ($queryframe,$hitframe) = ($one,$two);
-	       $hitframe =~ s/\/\s*//g;
-	   } elsif( $reporttype =~ /^(PSI)?TBLASTN/oi ) {
-	       ($hitframe,$queryframe) = ($one,0);	       
-	   } elsif( $reporttype eq 'BLASTX' ) {	       
-	       ($queryframe,$hitframe) = ($one,0);
-	   } 
-	   $self->element({'Name' => 'Hsp_query-frame',
-			   'Data' => $queryframe});
-	   	   
-	   $self->element({'Name' => 'Hsp_hit-frame',
-			   'Data' => $hitframe});
-       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || /^\s+Subset/ ||
-		 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
-	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
-	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
-	   next if /^\s+Subset/;
-	   my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
-	   my $last = '';
-	   # default is that gaps are allowed
-	   $self->element({'Name' => 'Parameters_allowgaps',
-			   'Data' => 'yes'});
-	   while( defined ($_ = $self->_readline ) ) {
+                /Strand\s*=\s*(Plus|Minus)\s*\/\s*(Plus|Minus)/i ) {
+           # consume this event ( we infer strand from start/end)
+           next;
+       } elsif( $self->in_element('hsp') &&
+                /Frame\s*=\s*([\+\-][1-3])\s*(\/\s*([\+\-][1-3]))?/ ){
+           my ($queryframe,$hitframe);
+           if( $reporttype eq 'TBLASTX' ) {
+               ($queryframe,$hitframe) = ($1,$2);
+               $hitframe =~ s/\/\s*//g;
+           } elsif( $reporttype eq 'TBLASTN' ) {
+               ($hitframe,$queryframe) = ($1,0);               
+           } elsif( $reporttype eq 'BLASTX' ) {               
+               ($queryframe,$hitframe) = ($1,0);
+           } 
+           $self->element({'Name' => 'Hsp_query-frame',
+                           'Data' => $queryframe});
+                      
+           $self->element({'Name' => 'Hsp_hit-frame',
+                           'Data' => $hitframe});
+       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || /^\s+Subset/ || /^\s*Lambda/ ||
+                 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/ )) ) {
+
+           # Note: Lambda check was necessary to parse t/data/ecoli_domains.rpsblast
+           #print STDERR "blast.pm: found parameters section \n";
+
+           $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
+           $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
+           $self->end_element({'Name' => 'Iteration'});
+
+           next if /^\s+Subset/;
+           my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
+           my $last = '';
+           # default is that gaps are allowed
+           $self->element({'Name' => 'Parameters_allowgaps',
+                           'Data' => 'yes'});
+           while( defined ($_ = $self->_readline ) ) {
 	       if( /^(PSI)?([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
-		   $self->_pushback($_);
-		   # let's handle this in the loop
-		   last;
-	       } elsif( /^Query=/ ) {	
-		   $self->_pushback($reportline);
-		   $self->_pushback($_);
-		   $self->end_element({ 'Name' => 'BlastOutput'});
-		   return $self->end_document();
-	       }
+                   $self->_pushback($_);
+                   # let's handle this in the loop
+                   last;
+               } elsif( /^Query=/ ) {        
+                   $self->_pushback($reportline);
+                   $self->_pushback($_);
+                   $self->end_element({ 'Name' => 'BlastOutput'});
+                   return $self->end_document();
+               }
 
-	       # here is where difference between wublast and ncbiblast
-	       # is better handled by different logic
-	       if( /Number of Sequences:\s+([\d\,]+)/i ||
-			/of sequences in database:\s+([\d,]+)/i) {
-		   my $c = $1;
-		   $c =~ s/\,//g;
-		   $self->element({'Name' => 'Statistics_db-len',
-				   'Data' => $c});
-	       } elsif ( /letters in database:\s+([\d,]+)/i) {	   
-		   my $s = $1;
-		   $s =~ s/,//g;
-		   $self->element({'Name' => 'Statistics_db-let',
-				   'Data' => $s});
-	       } elsif( $blast eq 'wublast' ) {
-		   if( /E=(\S+)/ ) {
-		       $self->element({'Name' => 'Parameters_expect',
-				       'Data' => $1});
-		   } elsif( /nogaps/ ) {
-		       $self->element({'Name' => 'Parameters_allowgaps',
-				       'Data' => 'no'});
-		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ){
-		       s/^\s+//;
+               # here is where difference between wublast and ncbiblast
+               # is better handled by different logic
+               if( /Number of Sequences:\s+([\d\,]+)/i ||
+                        /of sequences in database:\s+([\d,]+)/i) {
+                   my $c = $1;
+                   $c =~ s/\,//g;
+                   $self->element({'Name' => 'Statistics_db-len',
+                                   'Data' => $c});
+               } elsif ( /letters in database:\s+([\d,]+)/i) {           
+                   my $s = $1;
+                   $s =~ s/,//g;
+                   $self->element({'Name' => 'Statistics_db-let',
+                                   'Data' => $s});
+               } elsif( $blast eq 'wublast' ) {
+                   if( /E=(\S+)/ ) {
+                       $self->element({'Name' => 'Parameters_expect',
+                                       'Data' => $1});
+                   } elsif( /nogaps/ ) {
+                       $self->element({'Name' => 'Parameters_allowgaps',
+                                       'Data' => 'no'});
+                   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ){
+                       s/^\s+//;
                        #throw away first two slots
-		       my @vals = split;
-		       splice(@vals, 0,2);
-		       my ($matrix,$lambda,$kappa,$entropy) = @vals;
-		       $self->element({'Name' => 'Parameters_matrix',
-				       'Data' => $matrix});
-		       $self->element({'Name' => 'Statistics_lambda',
-				       'Data' => $lambda});
-		       $self->element({'Name' => 'Statistics_kappa',
-				       'Data' => $kappa});
-		       $self->element({'Name' => 'Statistics_entropy',
-				       'Data' => $entropy});
-		   } elsif( /(\S+\s+\S+)\s+DFA:\s+(\S+)\s+\((.+)\)/ ) {
-		       if( $1 eq 'states in') { 
-			   $self->element({'Name' => 'Statistics_DFA_states',
-					   'Data' => "$2 $3"});
-		       } elsif( $1 eq 'size of') {
-			   $self->element({'Name' => 'Statistics_DFA_size',
-					   'Data' => "$2 $3"});
-		       }
-		   } elsif( /^\s+Time to generate neighborhood:\s+(\S+\s+\S+\s+\S+)/ ) { 
-		       $self->element({'Name' => 'Statistics_neighbortime',
-				       'Data' => $1});
-		   } elsif( /processors\s+used:\s+(\d+)/ ) {
-		          $self->element({'Name' => 'Statistics_noprocessors',
-					   'Data' => $1});
-		   } elsif( /^\s+(\S+)\s+cpu\s+time:\s+(\S+\s+\S+\s+\S+)\s+Elapsed:\s+(\S+)/ ) {
-		       my $cputype = lc($1);
-		       $self->element({'Name' => "Statistics_$cputype\_cputime",
-				       'Data' => $2});
-		       $self->element({'Name' => "Statistics_$cputype\_actualtime",
-				       'Data' => $3});
-		   } elsif( /^\s+Start:/ ) {
-		       my ($junk,$start,$stime,$end,$etime) = split(/\s+(Start|End)\:\s+/,$_);
-		       chomp($stime);
-		       $self->element({'Name' => 'Statistics_starttime',
-				       'Data' => $stime});
-		       chomp($etime);
-		       $self->element({'Name' => 'Statistics_endtime',
-				       'Data' => $etime});
-		   }
-		   
-	       } elsif ( $blast eq 'ncbi' ) {
+                       my @vals = split;
+                       splice(@vals, 0,2);
+                       my ($matrix,$lambda,$kappa,$entropy) = @vals;
+                       $self->element({'Name' => 'Parameters_matrix',
+                                       'Data' => $matrix});
+                       $self->element({'Name' => 'Statistics_lambda',
+                                       'Data' => $lambda});
+                       $self->element({'Name' => 'Statistics_kappa',
+                                       'Data' => $kappa});
+                       $self->element({'Name' => 'Statistics_entropy',
+                                       'Data' => $entropy});
+                   } elsif( /(\S+\s+\S+)\s+DFA:\s+(\S+)\s+\((.+)\)/ ) {
+                       if( $1 eq 'states in') { 
+                           $self->element({'Name' => 'Statistics_DFA_states',
+                                           'Data' => "$2 $3"});
+                       } elsif( $1 eq 'size of') {
+                           $self->element({'Name' => 'Statistics_DFA_size',
+                                           'Data' => "$2 $3"});
+                       }
+                   } elsif( /^\s+Time to generate neighborhood:\s+(\S+\s+\S+\s+\S+)/ ) { 
+                       $self->element({'Name' => 'Statistics_neighbortime',
+                                       'Data' => $1});
+                   } elsif( /processors\s+used:\s+(\d+)/ ) {
+                          $self->element({'Name' => 'Statistics_noprocessors',
+                                           'Data' => $1});
+                   } elsif( /^\s+(\S+)\s+cpu\s+time:\s+(\S+\s+\S+\s+\S+)\s+Elapsed:\s+(\S+)/ ) {
+                       my $cputype = lc($1);
+                       $self->element({'Name' => "Statistics_$cputype\_cputime",
+                                       'Data' => $2});
+                       $self->element({'Name' => "Statistics_$cputype\_actualtime",
+                                       'Data' => $3});
+                   } elsif( /^\s+Start:/ ) {
+                       my ($junk,$start,$stime,$end,$etime) = split(/\s+(Start|End)\:\s+/,$_);
+                       chomp($stime);
+                       $self->element({'Name' => 'Statistics_starttime',
+                                       'Data' => $stime});
+                       chomp($etime);
+                       $self->element({'Name' => 'Statistics_endtime',
+                                       'Data' => $etime});
+                   }
+                   
+               } elsif ( $blast eq 'ncbi' ) {
 
-		   if( /^Matrix:\s+(\S+)/i ) {
-		       $self->element({'Name' => 'Parameters_matrix',
-				       'Data' => $1});		       
-		   } elsif( /Lambda/ ) {
-		       $_ = $self->_readline;
-		       s/^\s+//;
-		       my ($lambda, $kappa, $entropy) = split;
-		       $self->element({'Name' => 'Statistics_lambda',
-				       'Data' => $lambda});
-		       $self->element({'Name' => 'Statistics_kappa',
-				       'Data' => $kappa});
-		       $self->element({'Name' => 'Statistics_entropy',
-				       'Data' => $entropy});
-		   } elsif( /effective\s+search\s+space\s+used:\s+(\d+)/ ) {
-		       $self->element({'Name' => 'Statistics_eff-spaceused',
-				       'Data' => $1});		       
-		   } elsif( /effective\s+search\s+space:\s+(\d+)/ ) {
-		       $self->element({'Name' => 'Statistics_eff-space',
-				       'Data' => $1});
-		   } elsif( /Gap\s+Penalties:\s+Existence:\s+(\d+)\,\s+Extension:\s+(\d+)/) {
-		       $self->element({'Name' => 'Parameters_gap-open',
-				       'Data' => $1});
-		       $self->element({'Name' => 'Parameters_gap-extend',
-				       'Data' => $2});
-		   } elsif( /effective\s+HSP\s+length:\s+(\d+)/ ) {
-		        $self->element({'Name' => 'Statistics_hsp-len',
-					'Data' => $1});
-		   } elsif( /effective\s+length\s+of\s+query:\s+([\d\,]+)/ ) {
-		       my $c = $1;
-		       $c =~ s/\,//g;
-		        $self->element({'Name' => 'Statistics_query-len',
-					'Data' => $c});
-		   } elsif( /effective\s+length\s+of\s+database:\s+([\d\,]+)/){
-		       my $c = $1;
-		       $c =~ s/\,//g;
-		       $self->element({'Name' => 'Statistics_eff-dblen',
-				       'Data' => $c});
-		   } elsif( /^(T|A|X1|X2|S1|S2):\s+(\d+)/ ) {
-		       $self->element({'Name' => "Statistics_$1",
-				       'Data' => $2})
-		       } elsif( /frameshift\s+window\,\s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/ ) {
-			   $self->element({'Name'=> 'Statistics_framewindow',
-					   'Data' => $1});
-			   $self->element({'Name'=> 'Statistics_decay',
-					   'Data' => $2});
-		       }
-	       }
-	       $last = $_;
-	   }
+                   if( /^Matrix:\s+(\S+)/i ) {
+                       $self->element({'Name' => 'Parameters_matrix',
+                                       'Data' => $1});                       
+                   } elsif( /Lambda/ ) {
+                       $_ = $self->_readline;
+                       s/^\s+//;
+                       my ($lambda, $kappa, $entropy) = split;
+                       $self->element({'Name' => 'Statistics_lambda',
+                                       'Data' => $lambda});
+                       $self->element({'Name' => 'Statistics_kappa',
+                                       'Data' => $kappa});
+                       $self->element({'Name' => 'Statistics_entropy',
+                                       'Data' => $entropy});
+                   } elsif( /effective\s+search\s+space\s+used:\s+(\d+)/ ) {
+                       $self->element({'Name' => 'Statistics_eff-spaceused',
+                                       'Data' => $1});                       
+                   } elsif( /effective\s+search\s+space:\s+(\d+)/ ) {
+                       $self->element({'Name' => 'Statistics_eff-space',
+                                       'Data' => $1});
+                   } elsif( /Gap\s+Penalties:\s+Existence:\s+(\d+)\,\s+Extension:\s+(\d+)/) {
+                       $self->element({'Name' => 'Parameters_gap-open',
+                                       'Data' => $1});
+                       $self->element({'Name' => 'Parameters_gap-extend',
+                                       'Data' => $2});
+                   } elsif( /effective\s+HSP\s+length:\s+(\d+)/ ) {
+                        $self->element({'Name' => 'Statistics_hsp-len',
+                                        'Data' => $1});
+                   } elsif( /effective\s+length\s+of\s+query:\s+([\d\,]+)/ ) {
+                       my $c = $1;
+                       $c =~ s/\,//g;
+                        $self->element({'Name' => 'Statistics_query-len',
+                                        'Data' => $c});
+                   } elsif( /effective\s+length\s+of\s+database:\s+([\d\,]+)/){
+                       my $c = $1;
+                       $c =~ s/\,//g;
+                       $self->element({'Name' => 'Statistics_eff-dblen',
+                                       'Data' => $c});
+                   } elsif( /^(T|A|X1|X2|S1|S2):\s+(\d+)/ ) {
+                       $self->element({'Name' => "Statistics_$1",
+                                       'Data' => $2})
+                       } elsif( /frameshift\s+window\,\s+decay\s+const:\s+(\d+)\,\s+([\.\d]+)/ ) {
+                           $self->element({'Name'=> 'Statistics_framewindow',
+                                           'Data' => $1});
+                           $self->element({'Name'=> 'Statistics_decay',
+                                           'Data' => $2});
+                       }
+               }
+               $last = $_;
+           }
        } elsif( $self->in_element('hsp') ) {
            # let's read 3 lines at a time;
-	   my %data = ( 'Query' => '',
-			'Mid' => '',
-			'Hit' => '' );
-	   my $len;
-	   for( my $i = 0; 
-		defined($_) && $i < 3; 
-		$i++ ){	       
-	       chomp;
-	       if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
-		   $self->_pushback($_) if defined $_;
-		   $self->end_element({'Name' => 'Hsp'});
-		   last; 
-	       }
-	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
-		   $data{$2} = $4;
-		   $len = length($1);
-		   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
-		   $self->{"\_$2"}->{'end'} = $5;
-	       } else { 
-		   $self->throw("no data for midline $_") 
-		       unless (defined $_ && defined $len);
-		   $data{'Mid'} = substr($_,$len);
-	       }
-	       $_ = $self->_readline();	       
-	   }
-	   $self->characters({'Name' => 'Hsp_qseq',
-			      'Data' => $data{'Query'} });
-	   $self->characters({'Name' => 'Hsp_hseq',
-			      'Data' => $data{'Sbjct'}});
-	   $self->characters({'Name' => 'Hsp_midline',
-			      'Data' => $data{'Mid'} });
+           my %data = ( 'Query' => '',
+                        'Mid' => '',
+                        'Hit' => '' );
+           my $len;
+           for( my $i = 0; 
+                defined($_) && $i < 3; 
+                $i++ ){               
+               chomp;
+               if( ($i == 0 &&  /^\s+$/) ||  /^\s*Lambda/i ) { 
+                   $self->_pushback($_) if defined $_;
+                   $self->end_element({'Name' => 'Hsp'});
+                   last; 
+               }
+               if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
+                   $data{$2} = $4;
+                   $len = length($1);
+                   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
+                   $self->{"\_$2"}->{'end'} = $5;
+               } else { 
+                   $self->throw("no data for midline $_") 
+                       unless (defined $_ && defined $len);
+                   $data{'Mid'} = substr($_,$len);
+               }
+               $_ = $self->_readline();               
+           }
+           $self->characters({'Name' => 'Hsp_qseq',
+                              'Data' => $data{'Query'} });
+           $self->characters({'Name' => 'Hsp_hseq',
+                              'Data' => $data{'Sbjct'}});
+           $self->characters({'Name' => 'Hsp_midline',
+                              'Data' => $data{'Mid'} });
        } else { 
-	   $self->debug( "unrecognized line $_");
+           $self->debug( "unrecognized line $_");
        }
    } 
-   $self->end_element({'Name' => 'BlastOutput'}) unless ! $seentop;
+
+   #print STDERR "blast.pm: End of BlastOutput\n";
+
+   $self->end_element({'Name' => 'BlastOutput'}) unless ! $self->{'_seentop'};
    return $self->end_document();
 }
+
+# Private method for internal use only.
+sub _start_blastoutput {
+   my $self = shift;
+   $self->start_element({'Name' => 'BlastOutput'});
+   $self->{'_seentop'} = 1;
+   $self->{'_result_count'}++;
+   $self->{'_handler_rc'} = undef;
+}
+
+sub _start_iteration {
+   my $self = shift;
+   $self->start_element({'Name' => 'Iteration'});
+#   $self->{'_hit_info'} = undef;
+}
+
+=head2 _will_handle
+
+ Title   : _will_handle
+ Usage   : Private method. For internal use only.
+              if( $self->_will_handle($type) ) { ... }
+ Function: Provides an optimized way to check whether or not an element of a 
+           given type is to be handled.
+ Returns : Reference to EventHandler object if the element type is to be handled.
+           undef if the element type is not to be handled.
+ Args    : string containing type of element.
+
+Optimizations:
+  1. Using the cached pointer to the EventHandler to minimize repeated lookups.
+  2. Caching the will_handle status for each type that is encountered
+     so that it only need be checked by calling handler->will_handle($type) once.
+
+This does not lead to a major savings by itself (only 5-10%).
+In combination with other optimizations, or for large parse jobs, the
+savings good be significant.
+
+To test against the unoptimized version, remove the parentheses from
+around the third term in the ternary " ? : " operator and add two
+calls to $self->_eventHandler().
+
+=cut
+
+sub _will_handle {
+    my ($self,$type) = @_;
+    my $handler = $self->{'_handler_cache'};
+    my $will_handle = defined($self->{'_will_handle_cache'}->{$type})
+                             ? $self->{'_will_handle_cache'}->{$type}
+                             : ($self->{'_will_handle_cache'}->{$type} =
+                               $handler->will_handle($type));
+
+    return $will_handle ? $handler : undef;
+}
+
 
 =head2 start_element
 
@@ -662,31 +862,36 @@ sub next_result{
  Returns : none
  Args    : hashref with at least 2 keys 'Data' and 'Name'
 
-
 =cut
 
 sub start_element{
    my ($self,$data) = @_;
    # we currently don't care about attributes
-   my $nm = $data->{'Name'};    
+   my $nm = $data->{'Name'};
    my $type = $MODEMAP{$nm};
    if( $type ) {
-       if( $self->_eventHandler->will_handle($type) ) {
-	   my $func = sprintf("start_%s",lc $type);
-	   $self->_eventHandler->$func($data->{'Attributes'});
+       my $handler = $self->_will_handle($type);
+       if( $handler ) {
+           my $func = sprintf("start_%s",lc $type);
+           $self->{'_handler_rc'} = $handler->$func($data->{'Attributes'});
+       }
+       else {
+           $self->throw(-class=>'Bio::SearchIO::InternalParserError',
+                        -text=>"Can't handle elements of type '$type'.",
+                        -value=>$type);
        }
        unshift @{$self->{'_elements'}}, $type;
        if( $type eq 'result') {
-	   $self->{'_values'} = {};
-	   $self->{'_result'}= undef;
+           $self->{'_values'} = {};
+           $self->{'_result'}= undef;
        } else { 
-	   # cleanup some things
-	   if( defined $self->{'_values'} ) {
-	       foreach my $k ( grep { /^\U$type\-/ } 
-			       keys %{$self->{'_values'}} ) { 
-		   delete $self->{'_values'}->{$k};
-	       }
-	   }
+           # cleanup some things
+           if( defined $self->{'_values'} ) {
+               foreach my $k ( grep { /^\U$type\-/ } 
+                               keys %{$self->{'_values'}} ) { 
+                   delete $self->{'_values'}->{$k};
+               }
+           }
        }
    }
 }
@@ -709,50 +914,53 @@ sub end_element {
     my $rc;
     if($nm eq 'BlastOutput_program' &&
        $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
-	$self->{'_reporttype'} = uc $1; 	    
-    }   
+        $self->{'_reporttype'} = uc $1;
+    }
 
-    # Hsp are sort of weird, in that they end when another
+    # Hsps are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if( $nm eq 'Hsp' ) {
-	foreach ( qw(Hsp_qseq Hsp_midline Hsp_hseq) ) {
-	    $self->element({'Name' => $_,
-			    'Data' => $self->{'_last_hspdata'}->{$_}});
-	}
-	$self->{'_last_hspdata'} = {};
-	$self->element({'Name' => 'Hsp_query-from',
-			'Data' => $self->{'_Query'}->{'begin'}});
-	$self->element({'Name' => 'Hsp_query-to',
-			'Data' => $self->{'_Query'}->{'end'}});
-	
-	$self->element({'Name' => 'Hsp_hit-from',
-			'Data' => $self->{'_Sbjct'}->{'begin'}});
-	$self->element({'Name' => 'Hsp_hit-to',
-			'Data' => $self->{'_Sbjct'}->{'end'}});
+        foreach ( qw(Hsp_qseq Hsp_midline Hsp_hseq) ) {
+            $self->element({'Name' => $_,
+                            'Data' => $self->{'_last_hspdata'}->{$_}});
+        }
+        $self->{'_last_hspdata'} = {};
+        $self->element({'Name' => 'Hsp_query-from',
+                        'Data' => $self->{'_Query'}->{'begin'}});
+        $self->element({'Name' => 'Hsp_query-to',
+                        'Data' => $self->{'_Query'}->{'end'}});
+        
+        $self->element({'Name' => 'Hsp_hit-from',
+                        'Data' => $self->{'_Sbjct'}->{'begin'}});
+        $self->element({'Name' => 'Hsp_hit-to',
+                        'Data' => $self->{'_Sbjct'}->{'end'}});
+#    } elsif( $nm eq 'Iteration' ) {
+# Nothing special needs to be done here.
     }
     if( $type = $MODEMAP{$nm} ) {
-	if( $self->_eventHandler->will_handle($type) ) {
-	    my $func = sprintf("end_%s",lc $type);
-	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
-					      $self->{'_values'});	    
-	}
-	shift @{$self->{'_elements'}};
+        my $handler = $self->_will_handle($type);
+        if( $handler ) {
+            my $func = sprintf("end_%s",lc $type);
+            $rc = $handler->$func($self->{'_reporttype'},
+                                  $self->{'_values'});
+        }
+        shift @{$self->{'_elements'}};
 
-    } elsif( $MAPPING{$nm} ) { 	
-	
-	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
-	    # this is where we shove in the data from the 
-	    # hashref info about params or statistics
-	    my $key = (keys %{$MAPPING{$nm}})[0];	    	    
-	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
-	} else {
-	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
-	}
+    } elsif( $MAPPING{$nm} ) {         
+        
+        if ( ref($MAPPING{$nm}) =~ /hash/i ) {
+            # this is where we shove in the data from the 
+            # hashref info about params or statistics
+            my $key = (keys %{$MAPPING{$nm}})[0];
+            $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
+        } else {
+            $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+        }
     } else { 
-	$self->debug( "unknown nm $nm, ignoring\n");
+        $self->debug( "unknown nm $nm, ignoring\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
-				# end of an element
+                                # end of an element
     $self->{'_result'} = $rc if( defined $type && $type eq 'result' );
     return $rc;
 
@@ -762,7 +970,7 @@ sub end_element {
 
  Title   : element
  Usage   : $eventhandler->element({'Name' => $name, 'Data' => $str});
- Function: Convience method that calls start_element, characters, end_element
+ Function: Convenience method that calls start_element, characters, end_element
  Returns : none
  Args    : Hash ref with the keys 'Name' and 'Data'
 
@@ -771,7 +979,7 @@ sub end_element {
 
 sub element{
    my ($self,$data) = @_;
-   $self->start_element($data);       
+   $self->start_element($data);
    $self->characters($data);
    $self->end_element($data);
 }
@@ -808,17 +1016,18 @@ sub characters{
  Returns : boolean
  Args    : string element name 
 
+See Also: L<in_element()>
 
 =cut
 
 sub within_element{
    my ($self,$name) = @_;  
    return 0 if ( ! defined $name &&
-		 ! defined  $self->{'_elements'} ||
-		 scalar @{$self->{'_elements'}} == 0) ;
+                 ! defined  $self->{'_elements'} ||
+                 scalar @{$self->{'_elements'}} == 0) ;
    foreach (  @{$self->{'_elements'}} ) {
        if( $_ eq $name  ) {
-	   return 1;
+           return 1;
        } 
    }
    return 0;
@@ -830,11 +1039,12 @@ sub within_element{
  Title   : in_element
  Usage   : if( $eventgenerator->in_element($element) ) {}
  Function: Test if we are in a particular element
-           This is different than 'in' because within can be tested
-           for a whole block.
+           This is different than 'within_element' because within
+           can be tested for a whole block.
  Returns : boolean
  Args    : string element name 
 
+See Also: L<within_element()>
 
 =cut
 
@@ -876,6 +1086,7 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
+   #print STDERR "blast.pm: end_document\n";
    return $self->{'_result'};
 }
 
@@ -897,4 +1108,129 @@ sub result_count {
 
 sub report_count { shift->result_count }
 
+
+=head2 inclusion_threshold
+
+ Title   : inclusion_threshold
+ Usage   : my $incl_thresh = $isreb->inclusion_threshold;
+         : $isreb->inclusion_threshold(1e-5);
+ Function: Get/Set the e-value threshold for inclusion in the PSI-BLAST 
+           score matrix model (blastpgp) that was used for generating the reports
+           being parsed.
+ Returns : number (real) 
+           Default value: $Bio::SearchIO::IteratedSearchResultEventBuilder::DEFAULT_INCLUSION_THRESHOLD
+ Args    : number (real)  (e.g., 0.0001 or 1e-4 )
+
+=cut
+
+# Delegates to the event handler. 
+sub inclusion_threshold { shift->_eventHandler->inclusion_threshold(@_);
+}
+
+=head2 max_significance
+
+ Usage     : $obj->max_significance();
+ Purpose   : Set/Get the P or Expect value used as significance screening cutoff.
+             This is the value of the -signif parameter supplied to new().
+             Hits with P or E-value above this are skipped.
+ Returns   : Scientific notation number with this format: 1.0e-05.
+ Argument  : Scientific notation number or float (when setting)
+ Comments  : Screening of significant hits uses the data provided on the
+           : description line. For NCBI BLAST1 and WU-BLAST, this data 
+           : is P-value. for NCBI BLAST2 it is an Expect value.
+
+=cut
+
+sub max_significance { shift->{'_handler_cache'}->max_significance(@_) }
+
+=head2 signif
+
+Synonym for L<max_significance()|max_significance>
+
+=cut
+
+sub signif { shift->max_significance(@_) }
+
+=head2 min_score
+
+ Usage     : $obj->min_score();
+ Purpose   : Set/Get the Blast score used as screening cutoff.
+             This is the value of the -score parameter supplied to new().
+             Hits with scores below this are skipped.
+ Returns   : Integer or scientific notation number.
+ Argument  : Integer or scientific notation number (when setting)
+ Comments  : Screening of significant hits uses the data provided on the
+           : description line. 
+
+=cut
+
+sub min_score { shift->{'_handler_cache'}->max_significance(@_) }
+
+=head2 min_query_length
+
+ Usage     : $obj->min_query_length();
+ Purpose   : Gets the query sequence length used as screening criteria.
+             This is the value of the -min_query_len parameter supplied to new().
+             Hits with sequence length below this are skipped.
+ Returns   : Integer
+ Argument  : n/a
+
+=cut
+
+sub min_query_length {
+    my $self = shift;
+    if (@_) {
+        my $min_qlen = shift;
+        if($min_qlen =~ /\D/ or $min_qlen <= 0) {
+            $self->throw(-class =>'Bio::Root::BadParameter',
+                         -text=>"Invalid minimum query length value: $min_qlen\n".
+                                "Value must be an integer > 0. Value not set.",
+                         -value=>$min_qlen);
+        } 
+        $self->{'_confirm_qlength'} = 1;
+        $self->{'_min_query_length'} = $min_qlen;
+    }
+
+    return $self->{'_min_query_length'};
+}
+
+=head2 best_hit_only
+
+ Title     : best_hit_only
+ Usage     : print "only getting best hit.\n" if $obj->best_hit_only;
+ Purpose   : Set/Get the indicator for whether or not to process only 
+           : the best BlastHit.
+ Returns   : Boolean (1 | 0)
+ Argument  : Boolean (1 | 0) (when setting)
+
+=cut
+
+sub best_hit_only {
+    my $self = shift;
+    if(@_) { $self->{'_best'} = shift; }
+    $self->{'_best'};
+}
+
+=head2 check_all_hits
+
+ Title     : check_all_hits
+ Usage     : print "checking all hits.\n" if $obj->check_all_hits;
+ Purpose   : Set/Get the indicator for whether or not to process all hits.
+           : If false, the parser will stop processing hits after the
+           : the first non-significance hit or the first hit that fails 
+           : any hit filter.
+ Returns   : Boolean (1 | 0)
+ Argument  : Boolean (1 | 0) (when setting)
+
+=cut
+
+sub check_all_hits {
+    my $self = shift;
+    if(@_) { $self->{'_check_all'} = shift; }
+    $self->{'_check_all'};
+}
+
+
 1;
+
+
