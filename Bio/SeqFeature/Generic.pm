@@ -232,7 +232,7 @@ sub set_attributes {
     $seqid          && $self->seq_id($seqid);
     $tag            && do {
         foreach my $t ( keys %$tag ) {
-            $self->add_tag_value($t,$tag->{$t});
+            $self->add_tag_value($t, UNIVERSAL::isa($tag->{$t}, "ARRAY") ? @{$tag->{$t}} : $tag->{$t});
         }
     };
 }
