@@ -129,9 +129,8 @@ sub aa_to_dna_aln {
 	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
     }
     my $alnlen = $aln->length;
-    #print "HSP length is $alnlen\n";
     my $dnaalign = new Bio::SimpleAlign;
-    
+    $aln->map_chars('\.',$GAP);
     foreach my $seq ( $aln->each_seq ) {    
 	my $aa_seqstr = $seq->seq();
 	my $id = $seq->display_id;
@@ -142,9 +141,10 @@ sub aa_to_dna_aln {
 	my $dnalen = $dnaseqs->{$id}->length;
 	my $nt_seqstr;
 	my $j = 0;
+	
 	for( my $i = 0; $i < $alnlen; $i++ ) {
 	    my $char = substr($aa_seqstr,$i + $start_offset,1);	    
-	    if (( $char eq '-' ) || ( $char eq '.' ))  {
+	    if ( $char eq $GAP )  { 
 		$nt_seqstr .= $CODONGAP;
 	    } else { 
 		if( $j > $dnalen ) { 
