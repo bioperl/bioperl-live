@@ -1,6 +1,50 @@
 Revision history for Perl extension Bio::Tools::Blast.pm and related modules.
 
+0.09  Wed Mar 22 00:44:01 2000
+       - Handles Blast reports that don't contain description sections.
+       - Handles parsing of NCBI 2.0.9 Blast2 reports.
+       - Identifiers of hits are assumed to be the first
+         chunk of non-whitespace characters in the description line
+         Does not assume any semantics in the structure of the identifier.
+         (Blast::Sbjct::_set_id() formerly attempted to extract database 
+         name from the seq identifiers, but this was prone to breaking).
+       - Fixed bug in the parsing of reports that lack an hits
+         (incorporated code fix submitted by Michael B. Thornton
+          jitterbug PR#114, PR#173).
+       - New helper script retrieve_blast.pl added to examples/blast/
+         for retrieving Blast reports from NCBI after running
+         run_blast_remote.pl See docs in retrieve_blast.pl for details.
+       - Updated Webblast.pm with new URLs for the NCBI servers.
+       - Fixed bug (jitterbug PR#84) in the parsing of alignments that would 
+         cause occaisionally cause some significant hits to be missed
+         (incorporates code suggested by Peter van Heusden).
+       - Added support to Blast.pm for not parsing alignment data
+         using the new NO_ALIGNS parsing option. Also added -noaligns
+         command-line option to blast_config.pl (addresses jitterbug PR#93).
+       - Blast::hit() method doesn't blow up if there are no hits
+         (fixes jitterbug PR#129).
+       - Addressed jitterbug PR#96 by correcting docs. If the significance
+         is defined but of bad format, no default is set.
+       - HSP.pm properly handles bit scores expressed using floating point
+         and scientific notation (fixes jitterbug report PR#110).
+       - Fixed logic error in HSP.pm that would incorrectly throw an
+         exception when the number of identical residues was zero
+         (fixes jitterbug PR#164).
+       - HSP::strand() returns -1, 0, 1 instead of 'Minus', 'Plus', ''
+         to be in-line with with behavior of SeqFeature.
+
+Fixes within Bio::Root
+----------------------
+       - Fixed bug reported in PR#85. Bio::Root::Utilities::get_newline() 
+         returns "\n" by default.
+       - IOManager::read doesn't call alarm() if it isn't available
+         (fixes bug #PR98).
+       - Root::Object::_set_io() does not pass @_ to the IOManager constructor 
+         call (incorporates suggestion from Scot Harker, jitterbut PR#192). 
+
+
 0.085  Tue Jun 29 05:15:40 1999 (bioperl 0.05.1)
+(Note: the $VERSION variable was not changed to 0.085 in this release!)
        - Fixed bugs reported in PR#s: 30, 31, 41, 44, 45, 47, 48
        - Blast.pm no longer throws exceptions for hitless reports,
          even if a -signif criterion is specified.

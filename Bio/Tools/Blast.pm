@@ -13,7 +13,7 @@
 # To generate documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
-# Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ use strict;
 use vars qw($ID $VERSION $Blast @Blast_programs $Revision $Newline);
 
 $ID = 'Bio::Tools::Blast';
-$VERSION  = 0.080; 
+$VERSION  = 0.09; 
 $Revision = '$Id$';  #'
 
 ## Static Blast object. 
@@ -935,7 +935,7 @@ required.
 
 =head1 VERSION
 
-Bio::Tools::Blast.pm, 0.080
+Bio::Tools::Blast.pm, 0.09
 
 
 =head1 FEEDBACK
@@ -1434,18 +1434,22 @@ sub db_local {
            : or indirectly (by Bio::Tools::SeqAnal.pm) during constuction of an 
            : individual Blast object.
            :
-           : When processing single Blast reports, the _parse() method is used.
-           : To facilitate processing of sets of Blast reports, the _parse_stream()
-           : is used. When parsing streams, the parse() parameters are set once.
-           : To parse Blast report streams, supply a -STREAM => 1 parameter
-           : and provide a STDIN stream containing the reports. See above for
-           : additional special parameters that can be used when parsing streams.
-           :
            : HTML-formatted reports can be parsed as well. No special flag is required
            : since it is detected automatically. The presence of HTML-formatting 
            : will result in slower performace, however, since it must be removed
            : prior to parsing. Parsing HTML-formatted reports is highly
            : error prone and is generally not recommended.
+           :               
+           : If one has an HTML report, do NOT remove the HTML from it by using the
+           : "Save As" option of a web browser to save it as text. This renders the
+           : report unparsable.
+           : HTML-formatted reports can be parsed after running through the strip_html
+           : function of Blast::HTML.pm as in:
+           :    require Bio::Tools::Blast::HTML; 
+           :    Bio::Tools::Blast::HTML->import(&strip_html); 
+           :    &strip_html(\$data);  
+           :    # where data contains full contents of an HTML-formatted report.
+           : TODO: write a demo script that does this.
 
 See Also   : L<_init_parse_params>(), L<_parse_blast_stream>(), L<overlap>(), L<signif_fmt>(), B<Bio::Root::Object::read()>, B<Bio::Tools::Blast::HTML.pm::strip_html()>, L<Links to related modules>
 
@@ -1458,17 +1462,17 @@ sub parse {
     my ($self, @param) = @_;
 
     my($signif, $filt_func, $min_len, $check_all, $overlap, $stats, 
-       $share, $strict, $best, $signif_fmt) = 
+       $share, $strict, $best, $signif_fmt, $no_aligns) = 
 	$self->_rearrange([qw(SIGNIF FILT_FUNC MIN_LEN CHECK_ALL_HITS 
 			      OVERLAP STATS SHARE STRICT 
-			      BEST EXPONENT )], @param);
+			      BEST EXPONENT NO_ALIGNS )], @param);
 
     ## Initialize the static Blast object with parameters that 
     ## apply to all Blast objects within a parsing session.
 
     &_init_parse_params($share, $filt_func, $check_all,
 			$signif, $min_len, $strict,
-			$best, $signif_fmt, $stats
+			$best, $signif_fmt, $stats, $no_aligns
 		       );
 
     my $count = $self->_parse_blast_stream(@param);
@@ -1505,13 +1509,14 @@ sub _init_parse_params {
 #----------------------
     my ($share, $filt_func, $check_all, 
 	$signif, $min_len, $strict,
-	$best, $signif_fmt, $stats) = @_;
+	$best, $signif_fmt, $stats, $no_aligns) = @_;
 
     ## Default is to share stats.
     $Blast->{'_share'}  = defined($share) ? $share : 1;
     $Blast->{'_filt_func'} = $filt_func || 0;  
     $Blast->{'_check_all'} = $check_all || 0; 
     $Blast->{'_signif_fmt'} ||= $signif_fmt || ''; 
+    $Blast->{'_no_aligns'} = $no_aligns || 0; 
 
     &_set_signif($signif, $min_len, $filt_func);
     $Blast->strict($strict) if defined $strict;  
@@ -1540,8 +1545,11 @@ sub _init_parse_params {
            :   $signif = float or sci-notation number or undef
            :   $min_len = integer or undef
            :   $filt_func = function reference or undef
- Throws    : Exception if significance values appear out of range or invalid.
-           : Sets default values (signif = 10; min_length = not set).
+           :  
+           :   If $signif is undefined, a default value is set 
+           :   (see $DEFAULT_SIGNIF; min_length = not set).
+ Throws    : Exception if significance value is defined but appears
+           :   out of range or invalid.
            : Exception if $filt_func if defined and is not a func ref.
  Comments  : The significance of a BLAST report can be based on
            : the P (or Expect) value and/or the length of the query sequence.
@@ -1684,19 +1692,33 @@ sub _get_parse_blast_func {
 
 	my ($current_blast, $current_prog, $current_vers, $current_db);
 	my $prev_blast;
+        my $contains_translation = 0;
+
+
+### steve --- Wed Mar 15 02:48:07 2000
+### In the process of addressing bug PR#95. Tricky.
+### Using the $contains_translation to do so. Not complete
+### and possibly won't fix. We'll see.
 
 	# Check for header section. Start a new Blast object and 
 	# parse the description section.
+#        if ($data =~ /\sQuery\s?=/s || ($contains_translation && $data =~ /Database:/s)) {
         if ($data =~ /\sQuery\s?=/s) {
 	    $Blast->{'_blast_count'}++;
 	    print STDERR ".", $Blast->{'_blast_count'} % 50 ? '' : "\n" if $MONITOR;
+
+            if($data =~ /$Newline\s+Translating/so) {
+                print STDERR "\nCONTAINS TRANSLATION\n";
+                $contains_translation = 1;
+            }
 
 	    # If we're parsing a stream containing multiple reports,
 	    # all subsequent header sections will contain the last hit of
 	    # the previous report which needs to be parsed and added to that
 	    # report if signifcant. It also contains the run parameters
 	    # at the bottom of the Blast report.
-	    if($Blast->{'_blast_count'} > 1) {
+#	    if($Blast->{'_blast_count'} > 1 || $contains_translation) {
+            if($Blast->{'_blast_count'} > 1) {
 #	      print STDERR "\nMULTI-BLAST STREAM.\n";
 	      $Blast->{'_multi_stream'} = 1;
 
@@ -1705,6 +1727,9 @@ sub _get_parse_blast_func {
 		# Final chunk containing last hit and last footer.
 		$Blast->{'_current_blast'}->_parse_alignment($1);
 		$prev_blast = $Blast->{'_current_blast'}; # finalized.
+#              }	elsif($contains_translation) {
+#                  $data =~ /(T?BLAST[NPX])\s+(.+?)$Newline(.+)/so;
+#                  ($current_prog, $current_vers, $data) = ($1, $2, $3);
 	      }	else {
 		$Blast->throw("Can't determine program type from BLAST report.",
 			      "Checked for: @Blast_programs.");
@@ -1720,6 +1745,16 @@ sub _get_parse_blast_func {
 		#$Blast->warn("Can't determine database name from BLAST report.");
 	      }
 	    }
+
+            # Incyte_Fix:   Nasty Invisible Bug.
+            # Records in blast report are delimited by '>', but... when
+            #  there are no hits for a query, there won't be a '>'.  That
+            #  causes several blast reports to run together in the data
+            #  passed to this routine.  Need to get rid of non-hits in data
+            if ($data =~ /.+(No hits? found.+Sequences.+)/so) {
+                $data = $1;
+            }
+            # End Incyte_Fix
 
 	    # Determine if we need to create a new Blast object 
 	    # or use the $self object for this method.
@@ -1743,22 +1778,31 @@ sub _get_parse_blast_func {
 #	    print STDERR "CURRENT BLAST = ", $current_blast->name, "\n";
 	    $current_blast->_parse_header($data);
 	    
-	    # At this point, we know if there are any significant hits.
+	    # If there were any descriptions in the header,
+	    # we know if there are any significant hits.
 	    # No longer throwing exception if there were no significant hits
 	    # and a -signif parameter was specified. Doing so prevents the
 	    # construction of a Blast object, which could still be useful. 
-#	    if($Blast->{'_confirm_significance'} and not $current_blast->is_signif) {
+#	    if($current_blast->{'_has_descriptions'} and $Blast->{'_confirm_significance'} and not $current_blast->is_signif) {
 #	      $current_blast->throw("No significant BLAST hits for ${\$current_blast->name}");
 
 #	    }
 
 	} # Done parsing header/description section
 
-	elsif(ref $Blast->{'_current_blast'}) {
+### For use with $contains_translation - not right - breaks regular report parsing.
+# 	elsif(ref $Blast->{'_current_blast'} && $data !~ /\s*\w*\s*/s) {
+ 	elsif(ref $Blast->{'_current_blast'} ) {
 	    # Process an alignment section. 
 	    $current_blast = $Blast->{'_current_blast'};
 #	    print STDERR "\nCONTINUING PROCESSING ALN WITH ", $current_blast->name, "\n";
-	    $current_blast->_parse_alignment($data);
+#	    print STDERR "DATA: $data\n";
+            eval {
+                $current_blast->_parse_alignment($data);
+            };
+            if($@) {
+     #           push @{$self->{'_blast_errs'}}, $@;
+            }
 	}
 	
 	# If the current Blast object has been completely parsed
@@ -1922,8 +1966,12 @@ sub _parse_header {
 
     if($data =~ /(.+?)\nSequences producing.+?\n(.+)/s ) {
         ($header, $descriptions) = ($1, $2);
+	$self->{'_has_descriptions'} = 1;
     } else {
-      push @{$self->{'_blast_errs'}}, "Can't parse description data.";
+        $header = $data;
+	$self->{'_has_descriptions'} = 0;
+	# Blast reports can legally lack description section. No need to warn.
+	#push @{$self->{'_blast_errs'}}, "Can't parse description data.";
     }
 
     $self->_set_query($header);  # The name of the sequence will appear in error report.
@@ -1938,8 +1986,8 @@ sub _parse_header {
     $self->{'_highestSignif'} = 0;
     $self->{'_lowestSignif'} = $DEFAULT_SIGNIF;
 
-    if ($Blast->{'_confirm_significance'} ) {
-      $self->_parse_descriptions($descriptions);
+    if ($Blast->{'_confirm_significance'} || $Blast->{'_no_aligns'}) {
+      $self->_parse_descriptions($descriptions) if $descriptions;
     } else {
       $self->{'_is_significant'} = 1;
     }
@@ -1950,6 +1998,9 @@ sub _parse_header {
 sub _parse_descriptions {
 #-----------------------
   my ($self, $desc) = @_;
+
+    # NOTE: This method will not be called if the report lacks 
+    #       a description section.
 
 #    print STDERR "\nPARSING DESCRIPTION DATA\n";
 
@@ -1992,23 +2043,29 @@ sub _parse_descriptions {
       
 #      print STDERR "  Parsed signif ($layout) = $sig\n"; 
 
-      $self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'}) 
-                                    ? $sig : $self->{'_highestSignif'};
-
-      $self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'}) 
-                                    ? $sig : $self->{'_lowestSignif'};
-      # Significance value assessment.
-      $sig <= $my_signif and $self->{'_num_hits_significant'}++;
-      $self->{'_num_hits'}++;
       last desc_loop if ($sig > $my_signif and not $Blast->{'_check_all'});
+      $self->_process_significance($sig, $my_signif);
     }
-
-    $self->{'_is_significant'} = 1 if $self->{'_num_hits_significant'};
 
 #  printf "\n%d SIGNIFICANT HITS.\nDONE PARSING DESCRIPTIONS.\n", $self->{'_num_hits_significant'};
 }
 
 
+sub _process_significance {
+    my($self, $sig, $my_signif) = @_;
+
+    $self->{'_highestSignif'} = ($sig > $self->{'_highestSignif'}) 
+   	                        ? $sig : $self->{'_highestSignif'};
+
+    $self->{'_lowestSignif'} = ($sig < $self->{'_lowestSignif'}) 
+                                 ? $sig : $self->{'_lowestSignif'};
+
+    # Significance value assessment.
+    $sig <= $my_signif and $self->{'_num_hits_significant'}++;
+    $self->{'_num_hits'}++;
+
+    $self->{'_is_significant'} = 1 if $self->{'_num_hits_significant'};
+}
 
 =head2 _parse_alignment
 
@@ -2100,8 +2157,12 @@ sub _parse_alignment {
       $self->{'_num_hits'}++;
     }
 
-    my $hit;  # Must be my'ed within hit_loop or failure in 
-    # _parse_hsp_data() will cause no hits to be saved.
+    if($Blast->{'_no_aligns'}) {
+#        printf STDERR "\nNOT PARSING ALIGNMENT DATA\n";
+        return;
+    }
+
+    my $hit;  # Must be my'ed within hit_loop.
     eval {
       $hit = new Bio::Tools::Blast::Sbjct (-DATA      =>\@data, 
 					   -PARENT    =>$self, 
@@ -2112,13 +2173,17 @@ sub _parse_alignment {
 					   -SIGNIF_FMT=>$signif_fmt,
 					   -OVERLAP   =>$Blast->{'_overlap'} || $MAX_HSP_OVERLAP,
 					  );
-      #	    printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
+#      printf STDERR "NEW HIT: %s, SIGNIFICANCE = %g\n", $hit->name, $hit->expect;  <STDIN>;
+      # The BLAST report may have not had a description section.
+      if(not $self->{'_has_descriptions'}) {
+	  $self->_process_significance($hit->signif, $my_signif);
+      }
     };
 
     if($@) {
       # Throwing lots of errors can slow down the code substantially.
       # Error handling code is not that efficient.
-      print STDERR "\nERROR _parse_alignment: $@\n";
+      #print STDERR "\nERROR _parse_alignment: $@\n";
       push @{$self->{'_blast_errs'}}, $@;
       $hit->destroy if ref $hit;
       undef $hit;
@@ -2126,6 +2191,7 @@ sub _parse_alignment {
       # Collect overall signif data if we don't already have it,
       # (as occurs if no -signif parameter is supplied).
       my $hit_signif = $hit->signif;
+
       if (not $Blast->{'_confirm_significance'} ) {
 	$self->{'_highestSignif'} = ($hit_signif > $self->{'_highestSignif'}) 
                                     ? $hit_signif : $self->{'_highestSignif'};
@@ -2224,7 +2290,7 @@ sub _parse_footer {
         $self->_set_blast2_stats($params);
     
     } elsif( $data =~ /(.+?)$Newline\s*Searching/so) {
-	# trying to detect a Searcing at the end of a PSI-blast round.
+	# trying to detect a Searching at the end of a PSI-blast round.
         # Gotta watch out for confusion with the Searching line in the header
         # which will be present in the last hit of an internal Blast report 
         # in a multi-report, non-PSI-blast stream.
@@ -2942,14 +3008,21 @@ sub hits {
 #----------
     my $self = shift;
 
-    my $num = ref($self->{'_hits'}) ? scalar(@{$self->{'_hits'}}) : 0;
-    my @ary = ref($self->{'_hits'}) ? @{$self->{'_hits'}} : ();
-
-    return wantarray 
-        #  returning list containing all hits or empty list.
-	?  $self->{'_is_significant'} ? @ary : ()
-        #  returning number of hits or 0.
-        :  $self->{'_is_significant'} ? $num : 0;
+    if(wantarray) {
+        my @ary = ref($self->{'_hits'}) ? @{$self->{'_hits'}} : ();
+        return @ary;
+    } else {
+        return $self->num_hits();
+    }
+        
+#    my $num = ref($self->{'_hits'}) ? scalar(@{$self->{'_hits'}}) : 0;
+#    my @ary = ref($self->{'_hits'}) ? @{$self->{'_hits'}} : ();
+#
+#    return wantarray 
+#        #  returning list containing all hits or empty list.
+#        ?  $self->{'_is_significant'} ? @ary : ()
+#        #  returning number of hits or 0.
+#        :  $self->{'_is_significant'} ? $num : 0;
 }
 
 
@@ -2963,6 +3036,7 @@ sub hits {
            : $hitObj = $blast->hit('worst');
            : $hitObj = $blast->hit( $name );
  Returns   : Object reference for a Bio::Tools::Blast::Sbjct.pm object.
+           : undef if there are no hit (Sbjct) objects defined.
  Argument  : Class (or no argument).
            :   No argument (default) = highest scoring hit (same as 'best').
            :   'best' or 'first' = highest scoring hit.
@@ -2984,6 +3058,10 @@ sub hit {
     my( $self, $option) = @_;
     $option ||= 'best';
     
+    if($Blast->{'_no_aligns'} || ! ref($self->{'_hits'})) {
+        return undef;
+    }
+
     $self->{'_is_significant'} or 
 	$self->throw("There were no significant hits.",
 		     "Use num_hits(), hits(), is_signif() to check.");
@@ -3032,12 +3110,17 @@ sub num_hits {
     my( $self, $option) = @_;
     $option ||= '';
 
-    $option =~ /total/i and return $self->{'_num_hits'} || 0;
+   $option =~ /total/i and return $self->{'_num_hits'} || 0;
 
     # Default: returning number of significant hits.
 #    return $self->{'_num_hits_significant'} || 0;
-    return 0 if not ref $self->{'_hits'};
-    return scalar(@{$self->{'_hits'}});
+#    return 0 if not ref $self->{'_hits'};
+
+    if(ref $self->{'_hits'}) {
+        return scalar(@{$self->{'_hits'}});
+    } else {
+        return $self->{'_num_hits_significant'} || 0;
+    }
 }
 
 
@@ -3256,7 +3339,12 @@ sub highest_signif {
     $overall and return $self->{'_highestSignif'} || -1.0;
 
     if($self->{'_is_significant'}) {
-	return $self->hit('worst')->signif;
+        my $worst_hit = $self->hit('worst');
+        if(defined $worst_hit) {
+            return $worst_hit->signif;
+        } else {
+            return $self->{'_highestSignif'};
+        }
     }
 }
 
@@ -3840,14 +3928,14 @@ sub _display_stats {
 
     my $num_hits =  $self->num_hits;
     my $signif_str = ($self->_layout == 1) ? 'P' : 'EXPECT';
-    if($num_hits) {
-	printf( $OUT "%-15s: %d$Newline", "SIGNIF HITS", $num_hits);
-	# Blast1: signif = P-value, Blast2: signif = Expect value.
+
+    printf( $OUT "%-15s: %d$Newline", "SIGNIF HITS", $num_hits);
+    # Blast1: signif = P-value, Blast2: signif = Expect value.
 	
-	printf( $OUT "%-15s: %s ($signif_str-VALUE)$Newline", "SIGNIF CUTOFF", $self->signif);
-	printf( $OUT "%-15s: %s$Newline", "LOWEST $signif_str", $self->lowest_signif());
-	printf( $OUT "%-15s: %s$Newline", "HIGHEST $signif_str", $self->highest_signif());
-    }
+    printf( $OUT "%-15s: %s ($signif_str-VALUE)$Newline", "SIGNIF CUTOFF", $self->signif);
+    printf( $OUT "%-15s: %s$Newline", "LOWEST $signif_str", $self->lowest_signif());
+    printf( $OUT "%-15s: %s$Newline", "HIGHEST $signif_str", $self->highest_signif());
+
     printf( $OUT "%-15s: %s (OVERALL)$Newline", "HIGHEST $signif_str", $self->highest_signif('overall'));
     
 
