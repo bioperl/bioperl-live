@@ -10,7 +10,7 @@ Error.pm object.
 
 =head1 AUTHOR
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 =cut
 

@@ -45,7 +45,7 @@ or the web:
 
 =head1 AUTHOR 
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 

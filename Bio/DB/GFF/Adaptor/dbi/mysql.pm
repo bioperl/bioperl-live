@@ -901,7 +901,7 @@ END
  Args    : none
  Status  : protected
 
-This method returns a list of tag=>value pairs that contain default
+This method returns a list of tag=E<gt>value pairs that contain default
 meta information about the database.  It is invoked by initialize() to
 write out the default meta values.  The base class version returns an
 empty list.

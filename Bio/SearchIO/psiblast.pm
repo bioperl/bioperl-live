@@ -47,9 +47,8 @@ Bio::SearchIO::psiblast - Parser for traditional BLAST and PSI-BLAST reports
 
 This module parses BLAST and PSI-BLAST reports and acts as a factory for
 objects that encapsulate BLAST results:
-L<Bio::Search::Result::BlastResult|Bio::Search::Result::BlastResult>, 
-L<Bio::Search::Hit::BlastHit|Bio::Search::Hit::BlastHit>,
-L<Bio::Search::HSP::BlastHSP|Bio::Search::HSP::BlastHSP>.
+L<Bio::Search::Result::BlastResult>, L<Bio::Search::Hit::BlastHit>,
+L<Bio::Search::HSP::BlastHSP>.
 
 This module does not parse XML-formatted BLAST reports.
 See L<Bio::SearchIO::blastxml|Bio::SearchIO::blastxml> if you need to do that.
@@ -65,9 +64,8 @@ documentation in Bio::SearchIO.pm.
 In addition to BLAST1 and BLAST2 reports, this module can also handle
 PSI-BLAST reports. When accessing the set of Hits in a result, hits
 from different iterations are lumped together but can be distinguished by
-interrogating L<Bio::Search::Hit::BlastHit::iteration() | Bio::Search::Hit::BlastHit#iteration>
- and
-L<Bio::Search::Hit::BlastHit::found_again() | Bio::Search::Hit::BlastHit>.
+interrogating L<Bio::Search::Hit::BlastHit::iteration> and 
+L<Bio::Search::Hit::BlastHit::found_again>.
 
 If you want to collect hits only from a certain iteration during parsing,
 supply a function using the C<-HIT_FILTER> parameter.
@@ -81,10 +79,8 @@ distribution as well as the test script B<t/SearchIO.t>.
 =head1 SEE ALSO
 
 For more documentation about working with Blast result objects that are
-produced by this parser, see
-L<Bio::Search::Result::BlastResult|Bio::Search::Result::BlastResult>, 
-L<Bio::Search::Hit::BlastHit|Bio::Search::Hit::BlastHit>,
-L<Bio::Search::HSP::BlastHSP|Bio::Search::HSP::BlastHSP>.
+produced by this parser, see L<Bio::Search::Result::BlastResult>, 
+L<Bio::Search::Hit::BlastHit>, L<Bio::Search::HSP::BlastHSP>.
 
 =head1 FEEDBACK
 

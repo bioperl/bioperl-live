@@ -132,7 +132,7 @@ sufficient object-oriented systems able to deal with their own errors.
 This area should improve as the module, and Perl, evolve. 
 One possible modification might be to utilize Graham Barr's B<Error.pm>
 module or Torsten Ekedahl's B<Experimental::Exception.pm> module 
-(see L<the Other Exception Modules section|Other Exception Modules>).
+(see L<Other Exception Modules>).
 Technologies such as these may eventually be
 incorporated into future releases of Perl. The exception handling 
 used by B<Bio::Root::Object.pm> can be expected to change as Perl's 
@@ -316,7 +316,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR 
 
-Steve Chervitz <sac@bioperl.org>
+Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
@@ -332,7 +332,7 @@ Bio::Root::Object.pm, 0.041
 =item * Experiment with other Exception classes.
 
 Consider incorporating a more widely-used Error/Exception module 
-(see L<the Other Exception Modules section|Other Exception Modules>).
+(see L<Other Exception Modules>).
 
 =item * Think about integration with Data::Dumper.pm for persisting objects.
 
@@ -1154,7 +1154,7 @@ sub set_stats {
            : is generally more convenient.
  Status    : Experimental
 
-See also   : L<Bio::Root::Root::warn()|Bio::Root::Root>, L<Bio::Root::Root::throw()|Bio::Root::Root>, L<the STRICTNESS & VERBOSITY section | STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
+See also   : L<Bio::Root::Root::warn()|Bio::Root::Root>, L<Bio::Root::Root::throw()|Bio::Root::Root>, L<STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
 
 =cut
 
@@ -1186,7 +1186,7 @@ sub strict {
  Comments  : 
  Status    : Experimental
 
-See also   : L<strict()|strict>, L<the STRICTNESS & VERBOSITY section | STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
+See also   : L<strict()|strict>, L<STRICTNESS & VERBOSITY>, B<Bio::Root::Global::strictness()>
 
 =cut
 
@@ -1301,7 +1301,7 @@ sub _set_clone {
            : is generally more convenient.
  Status    : Experimental
 
-See Also   : L<strict()|strict>, L<the STRICTNESS & VERBOSITY section | STRICTNESS & VERBOSITY>, B<Bio::Root::Global::verbosity()>
+See Also   : L<strict()|strict>, L<STRICTNESS & VERBOSITY>, B<Bio::Root::Global::verbosity()>
 
 =cut
 

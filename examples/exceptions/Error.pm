@@ -727,10 +727,10 @@ None, but that does not mean there are not any.
 
 =head1 AUTHORS
 
-Graham Barr <gbarr@pobox.com>
+Graham Barr E<lt>gbarr@pobox.comE<gt>
 
 The code that inspired me to write this was originally written by
-Peter Seibel <peter@weblogic.com> and adapted by Jesse Glick
-<jglick@sig.bsh.com>.
+Peter Seibel E<lt>peter@weblogic.comE<gt> and adapted by Jesse Glick
+E<lt>jglick@sig.bsh.comE<gt>.
 
 =cut
