@@ -214,7 +214,8 @@ for documentation purposes only.
  Purpose   : Set/Get name of a file associated with an object.
  Example   : $object->file('/usr/home/me/data.txt');
  Returns   : String (full path name)
- Argument  : String (full path name) (argument only required for setting)
+ Argument  : String (full path name) OR a FileHandle or TypeGlob reference
+           : (argument only required for setting)
  Throws    : Exception if the file appears to be empty or non-existent
  Comments  : File can be text or binary.
 
@@ -228,7 +229,7 @@ sub file {
     my $self = shift; 
     if($_[0]) { 
 	my $file = $_[0];
-	if(not -s $file) {
+	if(not ref $file and not -s $file) {
 	    $self->throw("File is empty or non-existent: $file");
 	}	    
 	$self->{'_file'} = $file;
