@@ -366,7 +366,7 @@ sub write_annseq {
 	print $fh "ACCESSION   $temp_line\n";   
     } else {
 	if( $annseq->can('accession') ) {
-	    print "ACCESSION   ",$annseq->accession,"\n";
+	    print $fh "ACCESSION   ",$annseq->accession,"\n";
 	}
 	# otherwise - cannot print <sigh>
     } 
