@@ -129,6 +129,7 @@ sub add_sub_Location {
 	}
 	push @locs, $loc;
     }
+
     # insert in sorted order, somewhat inefficient
     $self->{'_sublocations'} = [ sort { return 1 unless defined $a->start;
 					return -1 unless defined $b->start;
@@ -140,6 +141,7 @@ sub add_sub_Location {
 					$a->min_end   <=> $b->min_end;
 				      } 
 				 (@locs, @{$self->{'_sublocations'}}) ];
+
     return scalar @{$self->{'_sublocations'}};
 }
 

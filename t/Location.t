@@ -71,7 +71,7 @@ $splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>1,
 my $f = new Bio::Location::Fuzzy('-start'=>"<50",
 				 '-end'=>61,
 				 '-strand'=>1);
-ok($f->start, undef);
+ok($f->start, 0);
 ok($f->min_start, 50);
 ok($f->max_start,undef);
 $splitlocation->add_sub_Location($f);

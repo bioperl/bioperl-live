@@ -26,8 +26,8 @@ BEGIN {
 	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
 	for( 1..$NUMTESTS ) {
 	    skip(1,"IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests");
-	    exit(0);
 	}
+	exit(0);
     }
 }
 
