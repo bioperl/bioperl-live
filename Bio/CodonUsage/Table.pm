@@ -33,11 +33,14 @@ at http://www.kazusa.or.jp/codon.
 	## or create your own from your own sequences 
  
 	## get a Bio::PrimarySeq compliant object ##
-	# $codonstats is a ref to a hash of codon name /count key /values.
+	# $codonstats is a ref to a hash of codon name /count key-value pairs.
 
 	my $codonstats = Bio::Tools::SeqUtils->codon_count($my_1ary_Seq_objct);
-	my $CUT = Bio::CodonUsage::Table->new(data =>$codonstats,
-										  species => 'Hsapiens_kinase'); 
+
+	### the '-data' field must be specified ##
+	### the '-species' and 'genetic_code' fields are optional
+	my $CUT = Bio::CodonUsage::Table->new(-data =>$codonstats,
+										  -species => 'Hsapiens_kinase'); 
 	
 	print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
 	print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
@@ -102,7 +105,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::CodonUsage::Table;
 use strict;
 use vars qw(@ISA %STRICTAA @AA);
-use lib '../../';
 use Bio::SeqUtils;
 use Bio::Tools::CodonTable;
 
@@ -118,7 +120,7 @@ BEGIN{
  Title   : new
  Usage   : my $cut = Bio::CodonUsage::Table->new(-data => $cut_hash_ref,
                                                  -species => 'H.sapiens_kinase'
-                                                 _genetic_code =>1);
+                                                 -genetic_code =>1);
  Returns : a reference to a new  Bio::CodonUsage::Table object
  Args    : none or a reference to a hash of codon counts. This constructor is
            designed to be compatible with the output of
@@ -150,7 +152,7 @@ sub new {
 				}
 		}
 		if (!$is_codon_hash && !$is_Aa_hash) {
-			$self->throw(" invalid key values in CUT hash -must be unique aa or nulceotide identifiers");
+			$self->throw(" invalid key values in CUT hash - must be unique aa or nucleotide identifiers");
 			}
 		elsif ($is_Aa_hash) {
 			$self->_init_from_aa($arg);
@@ -461,7 +463,7 @@ sub _init_from_cod {
 	my %aa_hash;
 	for my $codon(keys %$ref ) {
 		my $aa = $ct->translate($codon);
-		$aa_hash{$aa}{$codon}{'abs_count'} = $ref->{$codon};
+		$aa_hash{$aa}{$codon} = $ref->{$codon};
 		}
 	$self->_init_from_aa(\%aa_hash);
 }
