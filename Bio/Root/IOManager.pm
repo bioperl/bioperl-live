@@ -11,6 +11,8 @@
 # MODIFIED: 
 #   3 Feb 1999, sac:
 #      * Added timeout support to read().
+#      * Moved the FileHandle creation code out of read() and into 
+#        Bio::Root::Utilties since it's of more general use.
 #
 #    24 Nov 1998, sac:
 #      * Modified read(), compress(), and uncompress() to properly
@@ -648,12 +650,14 @@ sub fh {
  Example   : $data = $object->read(-FILE    =>'usr/people/me/data.txt',
 	   :			   -REC_SEP =>"\n:",
 	   :			   -FUNC    =>\&process_rec);
-           : $data = $object->read(-HANDLE  =>\*FILEHANDLE);
-           : $data = $object->read(-HANDLE  =>new FileHandle $file, 'r');
+           : $data = $object->read(-FILE  =>\*FILEHANDLE);
+           : $data = $object->read(-FILE  =>new FileHandle $file, 'r');
            :
  Argument  : Named parameters: (TAGS CAN BE UPPER OR LOWER CASE)
            :  (all optional)
-           :    -FILE    => string (full path to file) (optional)
+           :    -FILE    => string (full path to file) or a reference
+           :                to a FileHandle object or typeglob. This is an
+           :                optional parameter (if not defined, STDIN is used).
            :    -REC_SEP => record separator to be used
            :                when reading in raw data. If none is supplied,
            :                the default record separator is used ($/).
@@ -672,6 +676,8 @@ sub fh {
            :                read from a desired file before calling this
            :                method. If both -handle and -file are defined,
            :                -handle takes precedence.
+           :                (The -HANDLE parameter is no longer necessary
+           :                 since -FILE can now contain a FileHandle ref.)
            :    -WAIT    => integer (number of seconds to wait for input
            :                before timing out. Default = 3 seconds).
            :
@@ -682,10 +688,10 @@ sub fh {
            : string in scalar context or as a list in array context.
            : The data are not altered; blank lines are not removed. 
            :
- Throws    : Exception if reading from a file which cannot be opened.
-           : Exception if no input is read from source.
+ Throws    : Exception if no input is read from source.
            : Exception if no input is read within WAIT seconds.
            : Exception if FUNC is not a function reference.
+           : Propagates any exceptions thrown by create_filehandle()
            :
  Comments  : Gets the file name from the current file data member.
            : If no file has been defined, this method will attempt to
@@ -713,7 +719,7 @@ sub fh {
            : when using the -w switch. It can be ignored for now:
   "Close on unopened file <GEN0> at /tools/perl/5.003/lib/FileHandle.pm line 255."
 
-See Also   : L<file>()
+See Also   : L<file>(), L<create_filehandle>()
 
 =cut
 
@@ -721,15 +727,15 @@ See Also   : L<file>()
 sub read {
 #----------
     my($self, @param) = @_;
-    my($file, $rec_sep, $func_ref, $handle, $wait ) =
-	$self->_rearrange([qw(FILE REC_SEP FUNC HANDLE WAIT)], @param);
+    my( $rec_sep, $func_ref, $wait ) =
+	$self->_rearrange([qw( REC_SEP FUNC WAIT)], @param);
 
     my $fmt = (wantarray ? 'list' : 'string');
     $wait ||= 3;  # seconds to wait before timing out.
 
-    $file = $self->file($file);
+    my $FH = $Util->create_filehandle( -client => $self, @param);
 
-    # Set the record separator, if necessary.
+    # Set the record separator (if necessary) using dynamic scope.
     local $/ = $rec_sep if scalar $rec_sep;
 
     # Verify that we have a proper reference to a function.
@@ -742,48 +748,13 @@ sub read {
     $DEBUG && printf STDERR "$ID: read(): rec_sep = %s; func = %s\n",$/, ($func_ref?'defined':'none');
     
     my($data, $lines);
-    my $compress = 0;
-
-    local($^W) = 0;   # Prevent warning from FileHandle.pm (see Bugs)
-
-    my $fh = new FileHandle;
-
-    my ($handle_ref, $dont_close, $owner, $source);
-
-    if($handle_ref = ref($handle)) {
-	if($handle_ref eq 'FileHandle' or $handle_ref eq 'GLOB') {
-	    $fh = $handle;
-	} else {
-	    $self->throw("Can't read from $handle: Not a FileHandle or GLOB ref.");
-	}
-	$self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
-	$source = "FileHandle";
-
-    } elsif($file) {
-	# Uncompress file if neccesary.
-	if( -B $file ) {
-	    $owner = -o $file;
-	    $file = $self->uncompress_file(); $compress = 1; 
-	}
-	    
-	open ($fh, $file) || $self->throw("Can't access data file: $file",
-					  "Cause:$!");
-	$self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
-	$source = "File $file";
-
-    } else {
-	# Read from STDIN.
-	$fh = \*STDIN;
-	$dont_close = 1;
-	$self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
-	$source = "STDIN";
-    }
 
     $SIG{ALRM} = sub { die "Timed out!"; };
+ 
     eval {
-	alarm($wait);
+	 alarm($wait);
       READ_LOOP:
-	while(<$fh>) {
+	while(<$FH>) {
 	    # Default behavior: read all lines.
 	    # If &$func_ref returns false, exit this while loop.
 	    # Uncomment to skip lines with only white space or record separators
@@ -801,20 +772,20 @@ sub read {
 	alarm(0);
     };
     if($@ =~ /Timed out!/) {
-	$self->throw("Timed out while waiting for input from $source.");
+	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.");
     } elsif($@ =~ /\S/) {
-	my $err = $@;
-	$self->throw("Unexpected error during read: $err");
+         my $err = $@;
+	 $self->throw("Unexpected error during read: $err");
     }
 
-    close ($fh) unless $dont_close;
+    close ($FH) unless $self->{'_input_type'} eq 'STDIN';
     
     # If the file was compressed and the user is the owner of file,
     #   then leave the file in its original compressed state.
     # If the file was compressed and the user was NOT the owner of file,
     #   then removed the compressed file which is a tmp file.
 
-    $compress and ($owner ? $self->compress_file() : $self->delete_file());
+    $self->{'_compressed_file'} and ($self->{'_file_owner'} ? $self->compress_file() : $self->delete_file());
 
     if($data) {
 	$DEBUG && do{ 
@@ -823,8 +794,11 @@ sub read {
 	return ($fmt eq 'list') ? split("$/", $data) : $data;
 
     } elsif(not $func_ref) {
-	$self->throw("No data input.", "File: ".$file || 'STDIN');
+	$self->throw("No data input from $self->{'_input_type'}");
     }
+    delete $self->{'_input_type'};
+    delete $self->{'_file_owner'};
+    delete $self->{'_compressed_file'};
     undef;
 }
 
