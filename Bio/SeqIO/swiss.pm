@@ -345,17 +345,10 @@ sub write_seq {
 
    if ( !$seq->can('division') || ! defined ($div = $seq->division()) ) {
        $div = 'UNK';
-   }
-   else {
-       $div=$seq->division;
-   }
-   $mol = $seq->molecule;
-  
-   if(!$seq->can('molecule') || (!defined($mol))) {
+   } 
+      
+   if(! $seq->can('molecule') || ! defined ($mol = $seq->molecule) ) {
        $mol = 'XXX';
-   }
-   else {
-       $mol = $seq->molecule;
    }
    
    my $temp_line;
@@ -399,16 +392,20 @@ sub write_seq {
    }
 
    #Date lines
-   foreach my $dt ( $seq->get_dates() ) {
-       $self->_write_line_swissprot_regex("DT   ","DT   ",$dt,"\\s\+\|\$",80);
+   if( $seq->can('get_dates') ) {
+       foreach my $dt ( $seq->get_dates() ) {
+	   $self->_write_line_swissprot_regex("DT   ","DT   ",
+					      $dt,"\\s\+\|\$",80);
+       }
    }
 
    #Definition lines
    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
 
    #Gene name
-   if ($seq->annotation->can('gene_name') && $seq->annotation->gene_name) {
-       $self->_print("GN   ",$seq->annotation->gene_name,"\n");
+   if ($seq->annotation->can('each_gene_name') && 
+       (my @genes = $seq->annotation->each_gene_name) ) {
+       $self->_print("GN   ",join(' OR ', @genes),"\n");
    }
    
    # Organism lines
