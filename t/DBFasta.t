@@ -19,8 +19,9 @@ BEGIN {
     plan test => 11;
 }
 use Bio::DB::Fasta;
-
-my $db = Bio::DB::Fasta->new('./t/data/dbfa',-reindex=>1);
+use Bio::Root::IO;
+my $db = Bio::DB::Fasta->new(Bio::Root::IO->catfile(qw(. t data dbfa)),
+	                     -reindex=>1);
 ok($db);
 ok($db->length('CEESC13F') > 0);
 ok(length $db->seq('CEESC13F:1,10') == 10);
@@ -32,7 +33,7 @@ undef $db;
 undef $primary_seq;
 
 my (%h,$dna1,$dna2);
-ok(tie(%h,'Bio::DB::Fasta','./t/data/dbfa'));
+ok(tie(%h,'Bio::DB::Fasta',Bio::Root::IO->catfile(qw(. t data dbfa))));
 ok($h{'AW057146'});
 ok($dna1 = $h{'AW057146:1,10'});
 ok($dna2 = $h{'AW057146:10,1'});
@@ -42,5 +43,7 @@ $revcom =~ tr/gatcGATC/ctagCTAG/;
 ok($dna2 eq $revcom);
 
 END {
-  unlink "./t/data/dbfa/directory.index";
+  unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index));
+  unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index.dir));
+  unlink Bio::Root::IO->catfile(qw(t data dbfa directory.index.pag));
 }
