@@ -219,7 +219,7 @@ sub position {
 		$self->add_position($position);
 	}
 		# ::dumpValue($self);
-	return pop(@{$self->{'_positions'}});	
+	return $self->{'_positions'};	
 }
 
 

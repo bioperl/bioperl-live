@@ -54,6 +54,7 @@ my $o_usat = new Bio::Map::Microsatellite(-name=> "Chad marker",
 print("Adding that to the LinkageMap...\n");
 $map->add_element($o_usat);
 	# what should be printed if this is ok?
+dumpValue($map);
 
 # add more tests
 # see also t/microsatellite.t and t/linkageposition.t

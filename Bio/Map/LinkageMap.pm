@@ -247,6 +247,8 @@ sub name {
 sub add_element {
 	my ($self,$marker) = @_;
 	my $o_position = $marker->position()->position();
+		# print("add_element: \$o_position is $o_position\n");
+		# print("add_element: \$marker is $marker\n");
 	my @position = @$o_position;
 	my @positions_copy = @position;
 	
