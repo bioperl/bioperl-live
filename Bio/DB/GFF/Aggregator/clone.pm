@@ -65,7 +65,7 @@ sub aggregate {
   my (%clones,%types,@result);
   for my $feature (@$features) {
 
-    if ($matchsub->($feature)) {
+    if ($feature->group && $matchsub->($feature)) {
 
       if ($feature->method eq 'Sequence' && $feature->source eq 'Genomic_canonical') {
 	$clones{$feature->group}{canonical} = $feature;

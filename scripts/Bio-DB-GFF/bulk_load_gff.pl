@@ -13,9 +13,9 @@ use constant MYSQL => 'mysql';
 use constant FDATA      => 'fdata';
 use constant FTYPE      => 'ftype';
 use constant FGROUP     => 'fgroup';
-use constant FNOTE      => 'fnote';
 use constant FDNA       => 'fdna';
-use constant MIN_BIN    => 1000;
+use constant FATTRIBUTE => 'fattribute';
+use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
 
 package Bio::DB::GFF::Adaptor::faux;
 
@@ -102,7 +102,8 @@ foreach (@ARGV) {
 # drop everything that was there before
 my %FH;
 my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
-foreach (FDATA,FTYPE,FGROUP,FNOTE,FDNA) {
+my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
+foreach (@files) {
   $FH{$_} = IO::File->new("$tmpdir/$_",">") or die $_,": $!";
   $FH{$_}->autoflush;
 }
@@ -110,10 +111,12 @@ foreach (FDATA,FTYPE,FGROUP,FNOTE,FDNA) {
 my $FID     = 1;
 my $GID     = 1;
 my $FTYPEID = 1;
-my %GROUPID = ();
-my %FTYPEID = ();
-my %DONE    = ();
-my $FEATURES = 0;
+my $ATTRIBUTEID = 1;
+my %GROUPID     = ();
+my %FTYPEID     = ();
+my %ATTRIBUTEID = ();
+my %DONE        = ();
+my $FEATURES    = 0;
 
 my $count;
 while (<>) {
@@ -133,7 +136,7 @@ while (<>) {
   my @groups = split(/\s*;\s*/,$group);
   foreach (@groups) { s/$;/;/g }
 
-  my ($group_class,$group_name,$target_start,$target_stop,$notes) = Bio::DB::GFF->_split_group(@groups);
+  my ($group_class,$group_name,$target_start,$target_stop,$attributes) = Bio::DB::GFF->_split_group(@groups);
   $group_class  ||= '\N';
   $group_name   ||= '\N';
   $target_start ||= '\N';
@@ -149,7 +152,13 @@ while (<>) {
   $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
   $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"G$gid"}++;
   $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"T$ftypeid"}++;
-  $FH{ FNOTE()  }->print(    join("\t",$fid,$_),"\n"                                    ) foreach (@$notes);
+
+  foreach (@$attributes) {
+    my ($key,$value) = @$_;
+    my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
+    $FH{ FATTRIBUTE() }->print( join("\t",$attributeid,$key),"\n"                       ) unless $DONE{"A$attributeid"}++;
+    $FH{ FATTRIBUTE_TO_FEATURE() }->print( join("\t",$fid,$attributeid,$value),"\n");
+  }
 
   if ( $fid % 1000 == 0) {
     print STDERR "$fid features parsed...";
@@ -171,7 +180,7 @@ $_->close foreach values %FH;
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
 
 my $success = 1;
-foreach (FDATA,FGROUP,FTYPE,FNOTE,FDNA) {
+foreach (@files) {
   my $command =<<END;
 ${\MYSQL} $AUTH
 -e "lock tables $_ write; delete from $_; load data infile '$tmpdir/$_' replace into table $_; unlock tables"

@@ -312,7 +312,7 @@ sub aggregate {
   my $pseudo_method        = $self->get_method;
   my $require_whole_object = $self->require_whole_object;
   foreach (keys %aggregates) {
-    if ($require_whole_object) {
+    if ($require_whole_object && $self->components) {
       next unless $aggregates{$_}{base} && $aggregates{$_}{subparts};
     }
     my $base = $aggregates{$_}{base};

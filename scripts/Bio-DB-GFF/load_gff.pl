@@ -57,6 +57,14 @@ if ($CREATE) {
 } elsif ($UPGRADE) {
   warn qq(expect to see several "table already exists" messages\n);
   $db->initialize(0);
+  my $dbi = $db->dbh;  # get the raw database handle
+  my ($count) = $dbi->selectrow_array('SELECT COUNT(*) FROM FNOTE');
+  if (defined($count) && $count > 0) {
+    warn qq(fnote table detected.  Translating into fattribute table.  This may take a while.\n);
+    $dbi->do("INSERT INTO fattribute VALUES (1,'Note')") or die "failed: ",$dbi->errstr;
+    $dbi->do("INSERT INTO fattribute_to_feature (fid,fattribute_id,fattribute_value) SELECT fnote.fid,1,fnote FROM fnote") or die "failed: ",$dbi->errstr;
+    warn qq(Schema successfully upgraded.  You might want to drop the fnote table when you're sure everything's working.\n);
+  }
 }
 
 for my $file (@ARGV) {

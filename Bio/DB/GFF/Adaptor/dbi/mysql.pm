@@ -51,11 +51,11 @@ END
 ;
 
 use constant FULLTEXTSEARCH => <<END;
-SELECT distinct gclass,gname,fnote,MATCH(fnote) AGAINST (?) as score
-  FROM fgroup,fnote,fdata
+SELECT distinct gclass,gname,fattribute_value,MATCH(fattribute_value) AGAINST (?) as score
+  FROM fgroup,fattribute_to_feature,fdata
   WHERE fgroup.gid=fdata.gid
-    AND fdata.fid=fnote.fid
-    AND MATCH(fnote) AGAINST (?)
+    AND fdata.fid=fattribute_to_feature.fid
+    AND MATCH(fattribute_value) AGAINST (?)
 END
 ;
 

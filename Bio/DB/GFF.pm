@@ -889,26 +889,27 @@ objects.
 
 Aggregation is performed on features as usual.
 
-NOTE: At various times, this function was called fetch_group() and
-fetch_feature(), and these names are preserved for backward
+NOTE: At various times, this function was called fetch_group(),
+fetch_feature(), and segments.  These names are preserved for backward
 compatibility.
 
 =cut
 
 sub fetch_feature_by_name {
   my $self = shift;
-  my ($gclass,$gname);
+  my ($gclass,$gname,$automerge);
   if (@_ == 1) {
     $gclass = $self->default_class;
     $gname  = shift;
   } else  {
-    ($gclass,$gname) = rearrange(['CLASS','NAME'],@_);
+    ($gclass,$gname,$automerge) = rearrange(['CLASS','NAME','AUTOMERGE'],@_);
     $gclass ||= $self->default_class;
   }
+  $automerge = $self->automerge unless defined $automerge;
 
   # we need to refactor this... It's repeated code (see below)...
   my @aggregators;
-  if ($self->automerge) {
+  if ($automerge) {
     for my $a ($self->aggregators) {
       push @aggregators,$a if $a->disaggregate([],$self);
     }
@@ -928,32 +929,21 @@ sub fetch_feature_by_name {
 }
 
 # horrible indecision regarding proper names!
-*fetch_feature = *fetch_group = \&fetch_feature;
-*segments    = \&segment;
+*fetch_group   = *fetch_feature = \&fetch_feature_by_name;
+*segments      = \&segment;
 
-=head2 fetch_feature_by_name
+=head2 fetch_feature_by_attribute
 
- Title   : fetch_feature_by_name
- Usage   : $db->fetch_feature_by_name($class => $name)
- Function: fetch segments by feature (group) name
+ Title   : fetch_feature_by_attribute
+ Usage   : $db->fetch_feature_by_attribute(attribute1=>value1,attribute2=>value2)
+ Function: fetch segments by combinations of attribute values
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : the class and name of the desired feature
  Status  : public
 
-This method can be used to fetch a named feature from the database.
-GFF annotations are named using the group class and name fields, so
-for features that belong to a group of size one, this method can be
-used to retrieve that group (and is equivalent to the segment()
-method).
-
-This method may return zero, one, or several Bio::DB::GFF::Feature
-objects.
-
-Aggregation is performed on features as usual.
-
-NOTE: At various times, this function was called fetch_group() and
-fetch_feature(), and these names are preserved for backward
-compatibility.
+This method can be used to fetch a set of features from the database.
+Attributes are a list of name=>value pairs.  They will be logically
+ANDED together.
 
 =cut
 
@@ -2506,7 +2496,7 @@ sub make_match_sub {
     my ($method,$source) = @$type;
     $method ||= '.*';
 #    $source  = $source ? ":$source" : ":?.*";
-    $source  = $source ? ":$source" : ":.*";
+    $source  = $source ? ":$source" : "(?::.+)?";
     push @expr,"${method}${source}";
   }
   my $expr = join '|',@expr;
