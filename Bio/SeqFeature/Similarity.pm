@@ -190,7 +190,13 @@ sub seqlength {
 sub seqdesc {
     my ($self, $value) = @_;
 
-    return $self->annotation()->description();
+    if( defined $value ) { 
+	my $v = Bio::Annotation::SimpleValue->new();
+	$v->value($value);
+	$self->annotation->add_Annotation('description',$v);
+    }
+    my ($v) = $self->annotation()->get_Annotations('description');
+    return $v ? $v->value : undef;
 }
 
 #
