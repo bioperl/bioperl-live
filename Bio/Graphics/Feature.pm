@@ -1,10 +1,11 @@
 package Bio::Graphics::Feature;
 use strict;
 use Bio::SeqFeatureI;
+use Bio::LocationI;
 
 use vars '$VERSION','@ISA';
 $VERSION = '1.31';
-@ISA  = 'Bio::SeqFeatureI';
+@ISA  = qw(Bio::SeqFeatureI Bio::LocationI);
 
 *stop        = \&end;
 *info        = \&name;
@@ -88,26 +89,6 @@ sub add_segment {
   }
 }
 
-sub location {
-  my $self = shift;
-
-  require Bio::Location::Split;
-  my @segments = $self->segments;
-  if (@segments) {
-    my $split = Bio::Location::Split->new;
-    foreach (@segments) {
-      $split->add_sub_Location(Bio::Location::Simple->new(-start  => $_->start,
-							  -end    => $_->end,
-							  -strand => $_->strand
-							 ));
-    }
-    return $split;
-  }
-  return Bio::Location::Simple->new(-start  => $self->start,
-				    -end    => $self->end,
-				    -strand => $self->strand);
-}
-
 sub segments {
   my $self = shift;
   my $s = $self->{segments} or return wantarray ? () : 0;
@@ -121,6 +102,7 @@ sub score    {
 }
 sub primary_tag     { shift->{type}        }
 sub name            { shift->{name}        }
+sub seq_id          { shift->ref()         }
 sub ref {
   my $self = shift;
   my $d = $self->{ref};
@@ -165,6 +147,51 @@ sub high {
   my $self = shift;
   return $self->start > $self->end ? $self->start : $self->end;
 }
+
+=head2 location
+
+ Title   : location
+ Usage   : my $location = $seqfeature->location()
+ Function: returns a location object suitable for identifying location 
+	   of feature on sequence or parent feature  
+ Returns : Bio::LocationI object
+ Args    : none
+
+=cut
+
+sub location {
+   my $self = shift;
+   require Bio::Location::Split unless Bio::Location::Split->can('new');
+   my $location;
+   if (my @segments = $self->segments) {
+       $location = Bio::Location::Split->new();
+       foreach (@segments) {
+          $location->add_sub_Location($_);
+       }
+   } else {
+       $location = $self;
+   }
+   $location;
+}
+
+sub coordinate_policy {
+   require Bio::Location::WidestCoordPolicy unless Bio::Location::WidestCoordPolicy->can('new');
+   return Bio::Location::WidestCoordPolicy->new();
+}
+
+sub min_start { shift->low }
+sub max_start { shift->low }
+sub min_end   { shift->high }
+sub max_end   { shift->high}
+sub start_pos_type { 'EXACT' }
+sub end_pos_type   { 'EXACT' }
+sub to_FTstring {
+  my $self = shift;
+  my $low  = $self->min_start;
+  my $high = $self->max_end;
+  return "$low..$high";
+}
+
 
 sub db { return }
 

@@ -505,6 +505,21 @@ An alias for refseq()
 
 sub ref { shift->refseq(@_) }
 
+=head2 seq_id
+
+ Title   : seq_id
+ Usage   : $ref = $s->seq_id
+ Function: get the reference sequence in a LocationI-compatible way
+ Returns : a string
+ Args    : none
+ Status  : Public
+
+An alias for refseq() but only allows reading.
+
+=cut
+
+sub seq_id { shift->ref }
+
 =head2 truncated
 
  Title   : truncated
