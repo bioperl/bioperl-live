@@ -141,11 +141,14 @@ sub from_align {
 	   (-in  => $match1,
 	    -out => $match2
 	    );
-       if(! $pair->test ) {
-	   $self->warn("pair align did not pass test:\n",
-		       "\tm1=",$match1->to_FTstring(), " len=",$match1->length, 
-		       " m2=", $match2->to_FTstring()," len=",$match2->length,"\n");
-       }
+       if( ! $pair->test ) {
+	   $self->warn(join("",
+			    "pair align did not pass test ($start..$end):\n",
+			    "\tm1=",$match1->to_FTstring(), " len=",
+			    $match1->length, 
+			    " m2=", $match2->to_FTstring()," len=", 
+			    $match2->length,"\n"));
+		   }
        $collection->add_mapper($pair);
    }
    return ($collection->each_mapper)[0] if $collection->mapper_count == 1;
