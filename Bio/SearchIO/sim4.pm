@@ -34,6 +34,8 @@ Bio::SearchIO::sim4 - parser for Sim4 alignments
 This is a driver for the SearchIO system for parsing Sim4.
 http://globin.cse.psu.edu/html/docs/sim4.html
 
+Cannot parse LAV or 'exon file' formats (A=2 or A=5)
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -170,7 +172,7 @@ sub next_result {
 
         # Make sure sim4 output format is not 2 or 5
         if (!$seentop) {
-	    if ( /^#:lav/ ) { $format = 2; }
+	    if ( /^\#:lav/ ) { $format = 2; }
             elsif ( /^<|>/ ) { $format = 5; }
             $self->throw("Bio::SearchIO::sim4 module cannot parse 'type $format' outputs.") if $format;
 	}
