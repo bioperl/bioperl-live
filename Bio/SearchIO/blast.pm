@@ -1,4 +1,5 @@
 # $Id$
+
 #
 # BioPerl module for Bio::SearchIO::blast
 #
@@ -511,9 +512,10 @@ sub next_result{
            $self->element({ 'Name' => 'BlastOutput_querydesc', 
                             'Data' => $desc});
            my ($acc,$version) = &_get_accession_version($nm);
-	   $version ||= '';
+	   $version = defined($version) ? ".$version" : "";
+           $acc = '' unless defined($acc);
 	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
-			    'Data'  => "$acc.$version"});
+			    'Data'  => "$acc$version"});
        } elsif( /Sequences producing significant alignments:/ ) {
 #           $self->debug("blast.pm: Processing NCBI-BLAST descripitons\n");
            $flavor = 'ncbi';
@@ -581,10 +583,9 @@ sub next_result{
            my $db = $1;
 
            while( defined($_ = $self->_readline) ) {
-	       
-               if( /^\s+(\-?[\d\,]+|\S+)\s+sequences\;\s+
-                     (\-?[\d,]+|\S+)\s+     # the N is for problems on OSX and NCBI blast
-                     total\s+letters/ox ){
+               if( /^\s+(\-?[\d\,]+|\S+)\s+sequences\;
+                   \s+(\-?[\d,]+|\S+)\s+ # Deal with NCBI 2.2.8 OSX problems
+                   total\s+letters/ox){
                    my ($s,$l) = ($1,$2);
                    $s =~ s/,//g;
                    $l =~ s/,//g;
