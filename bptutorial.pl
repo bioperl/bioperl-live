@@ -1114,8 +1114,7 @@ the initial sequence unless it is explicitly passed to constructor as
 a second argument as in:
 
   use Bio::Tools::BPbl2seq;
-  open FH, "t/bl2seq.out";
-  $report = Bio::Tools::BPbl2seq->new(\*FH, "ALEU_HORVU");
+  $report = Bio::Tools::BPbl2seq->new(-file => "t/bl2seq.out", -queryname => "ALEU_HORVU");
   $matches = $report->match;
 
 =head2 III.4.5 Parsing HMM reports (HMMER::Results)
@@ -2548,9 +2547,8 @@ $bplite_parsing = sub {
 
     ($file1, $file2, $file3) = ($bp_parse_file1, 
 				$bp_parse_file2 ,$bp_parse_file3 );
-    open FH, $file1;
     #open FH, "t/blast.report";
-    $report = Bio::Tools::BPlite->new('-fh'=>\*FH);
+    $report = Bio::Tools::BPlite->new('-file'=>$file1);
     $sbjct = $report->nextSbjct;
 
     print " Hit name is ", $sbjct->name, " \n";	
@@ -2558,11 +2556,8 @@ $bplite_parsing = sub {
 	$hsp->score;
     }
 
-    close FH;
-
     use Bio::Tools::BPpsilite;
-    open FH, $file2;
-    $report2 = Bio::Tools::BPpsilite->new('-fh'=>\*FH);
+    $report2 = Bio::Tools::BPpsilite->new('-file'=>$file2);
     $total_iterations = $report2->number_of_iterations;
     $last_iteration = $report2->round($total_iterations);
 
@@ -2571,15 +2566,13 @@ $bplite_parsing = sub {
 	$sbjct =  $last_iteration->nextSbjct;
 	$sbjct && print " PSIBLAST Hit is ", $sbjct->name, " \n";	
     }
-    close  FH;
     
     #
     use Bio::Tools::BPbl2seq;
-    open FH, $file3;
-    $report3 = Bio::Tools::BPbl2seq->new(\*FH, "ALEU_HORVU");
+    $report3 = Bio::Tools::BPbl2seq->new('-file'  => $file3, 
+					 '-queryname' => "ALEU_HORVU");
     $matches = $report3->match;
     print " Number of Blast2seq matches is $matches \n";	
-    close  FH;
     #
 
     return 1;
