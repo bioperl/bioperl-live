@@ -774,6 +774,10 @@ sub _default_partonomy{
             CDS => 'mRNA',
 	    exon => 'mRNA',
 	    intron => 'mRNA',
+
+            pseudoexon => 'pseudogene',
+            pseudointron => 'pseudogene',
+            pseudotranscript => 'pseudogene',
            };
 }
 
@@ -1257,6 +1261,28 @@ sub unflatten_seq{
 
    # -
 
+   # PSEUDOGENES, PSEUDOEXONS AND PSEUDOINTRONS
+   # these are indicated with the /pseudo tag
+   # these are mapped to a different type; they should NOT
+   # be treated as normal genes
+   foreach my $sf (@all_seq_features) {
+       if ($sf->has_tag('pseudo')) {
+           my $type = $sf->primary_tag;
+           # SO type is typically the same as the normal
+           # type but preceeded by "pseudo"
+           if ($type eq 'misc_RNA') {
+               $sf->primary_tag("pseudotranscript");
+           }
+           else {
+               $sf->primary_tag("pseudo$type");
+           }
+       }
+   }
+   # now some of the post-processing that follows which applies to
+   # genes will NOT be applied to pseudogenes; this is deliberate
+   # for example, gene models are normalised to be gene-transcript-exon
+   # for pseudogenes we leave them as pseudogene-pseudoexon
+
    # --- MAGIC ---
    my $need_to_infer_exons = 0;
    my $need_to_infer_mRNAs = 0;
@@ -1361,16 +1387,18 @@ sub unflatten_seq{
    # --------- FINISHED GROUPING -------------
    # >>>>>>>>>                   <<<<<<<<<<<<<
 
+
+   # TYPE CONTAINMENT HIERARCHY (aka partonomy)
    # set the containment hierarchy if desired
    # see docs for structure_type() method
    if ($structure_type) {
        if ($structure_type == 1) {
 	   $self->partonomy(
-					{CDS => 'gene',
-					 exon => 'CDS',
-					 intron => 'CDS',
-					}
-				       );
+                            {CDS => 'gene',
+                             exon => 'CDS',
+                             intron => 'CDS',
+                            }
+                           );
        }
        else {
 	   $self->throw("structure_type $structure_type is currently unknown");
@@ -1387,7 +1415,6 @@ sub unflatten_seq{
    }
 
    if ($use_magic) {
-       my @roots = $self->_get_partonomy_roots;
        # point all feature types without a container type to the root type.
        #
        # for example, if we have an unanticipated feature_type, say
@@ -1399,9 +1426,8 @@ sub unflatten_seq{
 		   my $type = $sf->primary_tag;
 		   next if $type eq 'gene';
 		   my $container_type = $self->get_container_type($type);
-		   my $root = $roots[0];
 		   if (!$container_type) {
-		       $self->partonomy->{$type} = $root;
+		       $self->partonomy->{$type} = 'gene';
 		   }
 	       }
 	   }
@@ -1440,6 +1466,8 @@ sub unflatten_seq{
    # >>>>>>>>>                       <<<<<<<<<<<<<
 
    # lets see if there are any post-unflattening tasks we need to do
+
+   
 
    # INFERRING mRNAs
    if ($need_to_infer_mRNAs) {
@@ -2013,9 +2041,6 @@ sub unflatten_group{
            #       }
        }
    }
-
-   # CONDITION:
-   # The graph %container 
 
    # DEBUGGING CODE
    if ($self->verbose && scalar(keys %unresolved)) {
