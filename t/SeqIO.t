@@ -23,8 +23,8 @@ use Bio::Annotation::Collection;
 
 ok(1);
 
-my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
-$verbosity = 2 if $DEBUG;
+# Set to -1 for release version, so warnings aren't printed
+my $verbosity = $DEBUG ? 1 : -1;
 
 #
 # Basic read and/or write tests
@@ -412,7 +412,7 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 				      -accession_number => 'myaccession');
 
 my $embl = new Bio::SeqIO(-format => 'embl',
-			  -verbose => $verbosity -1,
+			  -verbose => $verbosity,
 			  -file => ">primaryseq.embl");
 
 ok($embl->write_seq($primaryseq));
@@ -565,7 +565,8 @@ unlink($testfile);
 
 # bug #1487
 
-$str = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+$str = new Bio::SeqIO(-verbose => $verbosity,
+		      -file    => Bio::Root::IO->catfile
 		      (qw(t data D12555.gbk)));
 eval { 
     $seq = $str->next_seq;    

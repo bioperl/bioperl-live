@@ -103,14 +103,6 @@ use Bio::Location::Fuzzy;
 
 =cut
 
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-
-  return $self;
-}
-
 =head2 from_string
 
  Title   : from_string
@@ -152,7 +144,8 @@ sub from_string{
 	    #
 	    # Note: The following code will /not/ work with nested
 	    # joins (you want to have grammar-based parsing for that).
-	    $loc = Bio::Location::Split->new(-splittype => $op);
+	    $loc = Bio::Location::Split->new(-verbose   => $self->verbose,
+					     -splittype => $op);
 	    foreach my $substr (split(/,/, $oparg)) {
 		$loc->add_sub_Location($self->from_string($substr, 1));
 	    }
@@ -222,8 +215,9 @@ sub _parse_location {
     } 
 
     # instantiate location and initialize
-    $loc = $locclass->new(-start => $start, -end  => $end, -strand => 1,
-			  -location_type => $loctype);
+    $loc = $locclass->new(-verbose => $self->verbose,
+			  -start => $start, -end  => $end, 
+			  -strand => 1, -location_type => $loctype);
     # set remote ID if remote location
     if($seqid) {
 	$loc->is_remote(1);
