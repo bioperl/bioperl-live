@@ -960,16 +960,15 @@ sub _setparams {
 	$param_string .= " $attr  $value ";
     }
 
-  if($executable eq 'wublast'){
-    foreach my $attr(@WUBLAST_SWITCH){
-        my $value = $self->$attr();
-        next unless (defined $value);
-        my $attr_key = ' -'.(lc $attr);
-        $param_string .=$attr_key;
+    if ($self->quiet()) { $param_string .= '  2>/dev/null';}
+    if($executable eq 'wublast'){
+	foreach my $attr(@WUBLAST_SWITCH){
+	    my $value = $self->$attr();
+	    next unless (defined $value);
+	    my $attr_key = ' -'.(lc $attr);
+	    $param_string .=$attr_key;
+	}
     }
-  }
-# if ($self->quiet()) { $param_string .= '  >/dev/null';}
-
     return $param_string;
 }
 
