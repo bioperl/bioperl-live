@@ -281,9 +281,7 @@ sub homology_string{
 =cut
 
 sub length{
-   my ($self, $type) = @_;
-   $self->throw_not_implemented;
-
+    shift->throw_not_implemented();
 }
 
 =head2 percent_identity
@@ -399,5 +397,34 @@ These methods come from Bio::SeqFeature::SimilarityPair
 
 =cut
 
+# override 
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $hsp->strand('query')
+ Function: Retrieves the strand for the HSP component requested
+ Returns : +1 or -1 (0 if unknown)
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
+           'query' to retrieve the query strand (default)
+      
+
+=cut
+
+sub strand {
+    my $self = shift;
+    my $val = shift;
+    $val = 'query' unless defined $val;
+    $val =~ s/^\s+//;
+
+    if( $val =~ /^q/i ) { 
+	return $self->query->strand(shift);
+    } elsif( $val =~ /^(h|s)/i ) {
+	return $self->hit->strand(shift);
+    } else { 
+	$self->warn("unrecognized component $val requested\n");
+    }
+    return 0;
+}
 
 1;
