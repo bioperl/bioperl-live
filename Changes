@@ -21,7 +21,7 @@ of the bug are at http://bugzilla.bioperl.org/.
     o Bio::SearchIO
       - Fixed bugs in BLAST parsing which couldn't parse NCBI
         gapped blast properly (was losing hit significance values due to
-        the extra unexpeted column).
+        the extra unexpeted column).    
       - Parsing of blastcl3 (netblast from NCBI) now can handle case of
         integer overflow (# of letters in nt seq dbs is > MAX_INT)
         although doesn't try to correct it - will get the negative
@@ -33,9 +33,11 @@ of the bug are at http://bugzilla.bioperl.org/.
         regular expression to match the line was missing the possibility of
         an extra space.  This is rare, which is why we probably did not 
         catch it before.
-     o Fix small error which made Bio::Graphics tests fail on certain
-       platforms (these could be safely ignored, but the testfiles just
-       needed  to be updated to handle it).
+      - BLAST parsing picks up more of the statistics/parameter fields
+        at the bottom of reports.  Still not fully complete.
+      - SearchIO::Writer::HTMLResultWriter and TextResultWriter
+        were fixed to include many improvements and added flexiblity
+        in outputting the files.  Bug #1495 was also fixed in the process.
      o Bio::DB::GFF
       - Update for GFF3 compatibility.
       - Added scripts for importing from UCSC and GenBank.
