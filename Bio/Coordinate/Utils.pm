@@ -164,10 +164,10 @@ sub from_align {
 
 }
 
-=head2 from_align
+=head2 from_seq_to_alignmentpos
 
- Title   : from_align
- Usage   : $mapper = Bio::Coordinate::Utils->from_align($aln, 1);
+ Title   : from_seq_to_alignmentpos
+ Usage   : $mapper = Bio::Coordinate::Utils->from_seq_to_alignmentpos($aln, 1);
  Function:
            Create a mapper out of an alignment.
            The mapper will map the position of a sequence into that position
