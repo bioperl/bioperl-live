@@ -308,14 +308,18 @@ sub from_SeqFeature {
 
     my $fth = Bio::SeqIO::FTHelper->new();
     my $key = $sf->primary_tag();
-
     my $locstr = $sf->location->to_FTstring;
+    print STDERR "Got $locstr for this feature\n";
+    
+    # ES 25/06/01 Commented out this code, Jason to double check
+    #The location FT string for all simple subseqfeatures is already 
+    #in the Split location FT string
 
     # going into sub features
-    foreach my $sub ( $sf->sub_SeqFeature() ) {
-	my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
-	push(@ret, @subfth);    
-    }
+    #foreach my $sub ( $sf->sub_SeqFeature() ) {
+	#my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
+	#push(@ret, @subfth);    
+    #}
 
     $fth->loc($locstr);
     $fth->key($key);
@@ -339,7 +343,6 @@ sub from_SeqFeature {
 	    push(@{$fth->field->{$tag}},$val);
 	}
     }
-
     push(@ret, $fth);
 
     unless (@ret) {
