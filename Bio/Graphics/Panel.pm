@@ -1002,13 +1002,13 @@ Bio::Graphics::Panel - Generate GD images of Bio::Seq objects
  				      -pad_left  => 10,
  				      -pad_right => 10,
  				      );
- $panel->add_track($seq,
- 		  -glyph => 'arrow',
+ $panel->add_track( arrow => Bio::SeqFeature::Generic->new(-start=>1,
+                                                           -end=>$seq->length),
  		  -bump => 0,
  		  -double=>1,
  		  -tick => 2);
-
- $panel->add_track($seq,
+ $panel->add_track(generic => Bio::SeqFeature::Generic->new(-start=>1,
+							  -end=>$seq->length),
  		  -glyph  => 'generic',
  		  -bgcolor => 'blue',
  		  -label  => 1,
