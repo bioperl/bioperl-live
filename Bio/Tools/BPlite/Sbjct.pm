@@ -29,7 +29,7 @@ Bio::Tools::BPlite::Sbjct - A Blast Subject (database search Hit)
  use Bio::Tools::BPlite
  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
  while(my $sbjct = $report->nextSbjct) {
-     $sbjct->name;    # access to the subject name
+     $sbjct->name;    # access to the hit name
      "$sbjct";        # overloaded to return name
      $sbjct->nextHSP; # gets the next HSP from the sbjct
      while(my $hsp = $sbjct->nextHSP) {
@@ -44,7 +44,7 @@ BPlite BLAST parsing objects.
 The original BPlite.pm module has been written by Ian Korf!
 See http://sapiens.wustl.edu/~ikorf
 
-The Sbjct object encapsulates a Subject Hit in a Blast database
+The Sbjct object encapsulates a Hit in a Blast database
 search.  The Subjects are the "Hits" for a particular query.  A
 Subject may be made up of multiple High Scoring Pairs (HSP) which are
 accessed through the nextHSP method.
@@ -134,7 +134,7 @@ sub name {shift->{'NAME'}}
 
  Title    : report_type
  Usage    : $type = $sbjct->report_type()
- Function : Returns the type of report from which this subject was obtained.
+ Function : Returns the type of report from which this hit was obtained.
             This usually pertains only to BLAST and friends reports, for which
             the report type denotes what type of sequence was aligned against
             what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated dna-prt, 

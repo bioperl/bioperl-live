@@ -35,10 +35,10 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 	    $hsp->homologySeq;
 	    $hsp->query->start;
 	    $hsp->query->end;
-	    $hsp->subject->start;
-	    $hsp->subject->end;
-	    $hsp->subject->seqname;
-	    $hsp->subject->overlaps($exon);
+	    $hsp->hit->start;
+	    $hsp->hit->end;
+	    $hsp->hit->seqname;
+	    $hsp->hit->overlaps($exon);
 	}
     }
 
@@ -119,10 +119,10 @@ contain the alignment sequences from the blast report.
  $hsp->query->start;
  $hsp->query->end;
  $hsp->query->seqname;
- $hsp->subject->primary_tag; # "similarity"
- $hsp->subject->source_tag;  # "BLAST"
- $hsp->subject->start;
- $hsp->subject->end;
+ $hsp->hit->primary_tag; # "similarity"
+ $hsp->hit->source_tag;  # "BLAST"
+ $hsp->hit->start;
+ $hsp->hit->end;
  ...
 
 So a very simple look into a BLAST report might look like this.

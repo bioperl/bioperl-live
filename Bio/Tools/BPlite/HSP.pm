@@ -43,10 +43,10 @@ Bio::Tools::BPlite::HSP - Blast report High Scoring Pair (HSP)
 	    $hsp->homologySeq;
 	    $hsp->query->start;
 	    $hsp->query->end;
-	    $hsp->subject->start;
-	    $hsp->subject->end;
-	    $hsp->subject->seqname;
-	    $hsp->subject->overlaps($exon);
+	    $hsp->hit->start;
+	    $hsp->hit->end;
+	    $hsp->hit->seqname;
+	    $hsp->hit->overlaps($exon);
 	}
     }
 
@@ -63,7 +63,7 @@ Bio::Tools::BPlite::HSP - Blast report High Scoring Pair (HSP)
 =head1 DESCRIPTION
 
 This object handles the High Scoring Pair data for a Blast report.
-This is where the percent identity, query and subject sequence length,
+This is where the percent identity, query and hit sequence length,
 P value, etc are stored and where most of the necessary information is located when building logic around parsing a Blast report.
 
 See L<Bio::Tools::BPlite> for more detailed information on the entire
@@ -95,7 +95,7 @@ Email: schattner@alum.mit.edu
 
 =head1 CONTRIBUTORS
 
-Jason Stajich, jason@cgt.mc.duke.edu
+Jason Stajich, jason@bioperl.org
 
 =head1 APPENDIX
 
@@ -125,7 +125,7 @@ sub new {
     my ($class, @args) = @_;
 
     # workaround to make sure frame is not set before strand is
-    # interpreted from query/subject info 
+    # interpreted from query/hit info 
     # this workaround removes the key from the hash
     # so the superclass does not try and work with it
     # we'll take care of setting it in this module later on
@@ -193,32 +193,32 @@ sub new {
 		      (-start=>$qe, -end=>$qb, -strand=>$strand,
 		       -source=>"BLAST" ) ) }
 
-    # store the aligned subject as sequence feature
-    if ($se > $sb) {		# normal subject
+    # store the aligned hit as sequence feature
+    if ($se > $sb) {		# normal hit
 	if ($sbjctfactor) { $strand = 1; } else { $strand = undef; }
-	$self->subject( Bio::SeqFeature::Similarity->new
+	$self->hit( Bio::SeqFeature::Similarity->new
 			(-start=>$sb, -end=>$se, -strand=>$strand,
 			 -source=>"BLAST" ) ) }
-    else { # reverse subject: start bigger than end
+    else { # reverse hit: start bigger than end
 	if ($sbjctfactor) { $strand = -1; } else { $strand = undef; }
-	$self->subject( Bio::SeqFeature::Similarity->new
+	$self->hit( Bio::SeqFeature::Similarity->new
 			(-start=>$se, -end=>$sb, -strand=>$strand,
 			 -source=>"BLAST" ) ) }
     
     # name the sequences
-    $self->query->seqname($qname); # query
-    $self->subject->seqname($sname); # subject
+    $self->query->seqname($qname); # query name
+    $self->hit->seqname($sname);   # hit name
 
     # set lengths
-    $self->query->seqlength($qlength); # query
-    $self->subject->seqlength($slength); # subject
+    $self->query->seqlength($qlength); # query length
+    $self->hit->seqlength($slength);   # hit length
 
     # set object vars
     $self->score($score);
     $self->bits($bits);
     $self->significance($p);
     $self->query->frac_identical($match);
-    $self->subject->frac_identical($match);
+    $self->hit->frac_identical($match);
     $self->{'HSPLENGTH'} = $hsplength;
     $self->{'PERCENT'} = int((1000 * $match)/$hsplength)/10;
     $self->{'POSITIVE'} = $positive;
@@ -241,7 +241,7 @@ sub _overload {
 
  Title    : report_type
  Usage    : $type = $sbjct->report_type()
- Function : Returns the type of report from which this subject was obtained.
+ Function : Returns the type of report from which this hit was obtained.
             This usually pertains only to BLAST and friends reports, for which
             the report type denotes what type of sequence was aligned against
             what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated dna-prt, 
@@ -444,13 +444,13 @@ sub frame {
 	  if( $sframe == 0 ) {
 	    $sframe = undef;
 	  } elsif( $sframe !~ /^([+-])?([1-3])/ ) {	    
-	    $self->warn("Specifying an invalid subject frame ($sframe)");
+	    $self->warn("Specifying an invalid hit frame ($sframe)");
 	    $sframe = undef;
 	  } else { 
-	      if( ($1 eq '-' && $self->subject->strand >= 0) || 
-		  ($1 eq '+' && $self->subject->strand <= 0) ) 
+	      if( ($1 eq '-' && $self->hit->strand >= 0) || 
+		  ($1 eq '+' && $self->hit->strand <= 0) ) 
 	      {
-		  $self->warn("Subject frame ($sframe) did not match strand of subject (". $self->subject->strand() . ")");
+		  $self->warn("Hit frame ($sframe) did not match strand of hit (". $self->hit->strand() . ")");
 	      }
 	      
 	      # Set frame to GFF [0-2]
