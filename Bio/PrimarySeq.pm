@@ -188,10 +188,10 @@ sub new {
 			      )],
 			  @args);
     if( defined $id && defined $given_id ) {
-	if( $id ne $given_id ) {
-	    $self->throw("Provided both id and display_id constructor ".
-			 "functions. [$id] [$given_id]");	
-	}
+		 if( $id ne $given_id ) {
+			 $self->throw("Provided both id and display_id constructor ".
+							  "functions. [$id] [$given_id]");
+		 }
     }
     if( defined $given_id ) { $id = $given_id; }
 
@@ -202,20 +202,20 @@ sub new {
     # if alphabet is provided we set it first, so that it won't be guessed
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
-    
+
     # if there is an alphabet, and direct is passed in, assumme the alphabet
     # and sequence is ok 
 
     if( $direct && $ref_to_seq) {
-	$self->{'seq'} = $$ref_to_seq;
-	if( ! $alphabet ) {
-	    $self->_guess_alphabet();
-	} # else it has been set already above
+		 $self->{'seq'} = $$ref_to_seq;
+		 if( ! $alphabet ) {
+			 $self->_guess_alphabet();
+		 } # else it has been set already above
     } else {
-#	print STDERR "DEBUG: setting sequence to [$seq]\n";
-	# note: the sequence string may be empty
-	$self->seq($seq) if defined($seq);
-    }
+		 #	print STDERR "DEBUG: setting sequence to [$seq]\n";
+		 # note: the sequence string may be empty
+		 $self->seq($seq) if defined($seq);
+	 }
 
     $id          && $self->display_id($id);
     $acc         && $self->accession_number($acc);
@@ -227,7 +227,7 @@ sub new {
     $auth        && $self->authority($auth);
     defined($v)  && $self->version($v);
     defined($oid) && $self->object_id($oid);
-    
+
     return $self;
 }
 
@@ -263,32 +263,31 @@ sub seq {
 
    my ($value,$alphabet) = @args;
 
-
    if(@args) {
-       if(defined($value) && (! $obj->validate_seq($value))) {
-	   $obj->throw("Attempting to set the sequence to [$value] ".
-		       "which does not look healthy");
-       }
+		if(defined($value) && (! $obj->validate_seq($value))) {
+			$obj->throw("Attempting to set the sequence to [$value] ".
+							"which does not look healthy");
+		}
        # if a sequence was already set we make sure that we re-adjust the
        # alphabet, otherwise we skip guessing if alphabet is already set
        # note: if the new seq is empty or undef, we don't consider that a
        # change (we wouldn't have anything to guess on anyway)
-       my $is_changed_seq =
-	   exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
-       $obj->{'seq'} = $value;
+		my $is_changed_seq =
+		  exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
+		$obj->{'seq'} = $value;
        # new alphabet overridden by arguments?
-       if($alphabet) {
+		if($alphabet) {
 	   # yes, set it no matter what
-	   $obj->alphabet($alphabet);
-       } elsif( # if we changed a previous sequence to a new one
-		$is_changed_seq ||
-		# or if there is no alphabet yet at all
-		(! defined($obj->alphabet()))) {
-	   # we need to guess the (possibly new) alphabet
-	   $obj->_guess_alphabet();
-       } # else (seq not changed and alphabet was defined) do nothing
-       # if the seq is changed, make sure we unset a possibly set length
-       $obj->length(undef) if $is_changed_seq || $obj->{'seq'};
+			$obj->alphabet($alphabet);
+		} elsif( # if we changed a previous sequence to a new one
+				  $is_changed_seq ||
+				  # or if there is no alphabet yet at all
+				  (! defined($obj->alphabet()))) {
+			# we need to guess the (possibly new) alphabet
+			$obj->_guess_alphabet();
+		} # else (seq not changed and alphabet was defined) do nothing
+		# if the seq is changed, make sure we unset a possibly set length
+		$obj->length(undef) if $is_changed_seq || $obj->{'seq'};
    }
    return $obj->{'seq'};
 }
@@ -316,15 +315,15 @@ sub seq {
 =cut
 
 sub validate_seq {
-    my ($self,$seqstr) = @_;
-    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-    return 0 unless( defined $seqstr); 
-    if((CORE::length($seqstr) > 0) && ($seqstr !~ /^([A-Za-z\-\.\*\?]+)$/)) {
-	$self->warn("seq doesn't validate, mismatch is " .
-		   ($seqstr =~ /([^A-Za-z\-\.\*\?]+)/g));
-	return 0;
-    }
-    return 1;
+	my ($self,$seqstr) = @_;
+	if( ! defined $seqstr ){ $seqstr = $self->seq(); }
+	return 0 unless( defined $seqstr); 
+	if((CORE::length($seqstr) > 0) && ($seqstr !~ /^([A-Za-z\-\.\*\?]+)$/)) {
+		$self->warn("seq doesn't validate, mismatch is " .
+						($seqstr =~ /([^A-Za-z\-\.\*\?]+)/g));
+		return 0;
+	}
+	return 1;
 }
 
 =head2 subseq
@@ -413,16 +412,16 @@ sub subseq {
 sub length {
     my $self = shift;
     my $len = CORE::length($self->seq() || '');
-    
+
     if(@_) {
-	my $val = shift;
-	if(defined($val) && $len && ($len != $val)) {
-	    $self->throw("You're trying to lie about the length: ".
-			 "is $len but you say ".$val);
-	}
-	$self->{'_seq_length'} = $val;
+		 my $val = shift;
+		 if(defined($val) && $len && ($len != $val)) {
+			 $self->throw("You're trying to lie about the length: ".
+							  "is $len but you say ".$val);
+		 }
+		 $self->{'_seq_length'} = $val;
     } elsif(defined($self->{'_seq_length'})) {
-	return $self->{'_seq_length'};
+		 return $self->{'_seq_length'};
     }
     return $len;
 }
@@ -457,9 +456,8 @@ sub display_id {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'display_id'} = $value;
-    }
-    return $obj->{'display_id'};
-
+	}
+	return $obj->{'display_id'};
 }
 
 =head2 accession_number
@@ -490,10 +488,10 @@ sub accession_number {
     my( $obj, $acc ) = @_;
 
     if (defined $acc) {
-        $obj->{'accession_number'} = $acc;
+		 $obj->{'accession_number'} = $acc;
     } else {
-        $acc = $obj->{'accession_number'};
-        $acc = 'unknown' unless defined $acc;
+		 $acc = $obj->{'accession_number'};
+		 $acc = 'unknown' unless defined $acc;
     }
     return $acc;
 }
@@ -519,10 +517,10 @@ sub primary_id {
     my $obj = shift;
 
     if(@_) {
-	$obj->{'primary_id'} = shift;
+		 $obj->{'primary_id'} = shift;
     }
     if( ! defined($obj->{'primary_id'}) ) {
-	return "$obj";
+		 return "$obj";
     }
     return $obj->{'primary_id'};
 }
@@ -549,13 +547,13 @@ sub primary_id {
 sub alphabet {
     my ($obj,$value) = @_;
     if (defined $value) {
-	$value = lc $value;
-	unless ( $valid_type{$value} ) {
-	    $obj->throw("Alphabet '$value' is not a valid alphabet (".
-			join(',', map "'$_'", sort keys %valid_type) .
-			") lowercase");
-	}
-	$obj->{'alphabet'} = $value;
+		 $value = lc $value;
+		 unless ( $valid_type{$value} ) {
+			 $obj->throw("Alphabet '$value' is not a valid alphabet (".
+							 join(',', map "'$_'", sort keys %valid_type) .
+							 ") lowercase");
+		 }
+		 $obj->{'alphabet'} = $value;
     }
     return $obj->{'alphabet'};
 }
@@ -599,7 +597,6 @@ sub can_call_new {
    my ($self) = @_;
 
    return 1;
-
 }
 
 =head2 id
@@ -673,7 +670,7 @@ sub object_id {
 sub version{
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'_version'} = $value;
+		 $self->{'_version'} = $value;
     }
     return $self->{'_version'};
 }
@@ -694,7 +691,7 @@ sub version{
 sub authority {
     my ($obj,$value) = @_;
     if( defined $value) {
-	$obj->{'authority'} = $value;
+		 $obj->{'authority'} = $value;
     }
     return $obj->{'authority'};
 }
@@ -715,7 +712,7 @@ sub authority {
 sub namespace{
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'namespace'} = $value;
+		 $self->{'namespace'} = $value;
     }
     return $self->{'namespace'} || "";
 }
@@ -830,19 +827,23 @@ These are internal methods to PrimarySeq
 
 sub _guess_alphabet {
    my ($self) = @_;
-   my ($str,$str2,$total,$atgc,$u,$type);
+   my $type;
 
-   $str = $self->seq();
-   $str =~ s/[-.?]//g;
+   my $str = $self->seq();
+	# Remove char's that clearly denote ambiguity
+   $str =~ s/[-.?x]//gi;
 
-   $total = CORE::length($str);
+   my $total = CORE::length($str);
    if( $total == 0 ) {
-       $self->throw("Got a sequence with no letters in - ".
+       $self->throw("Got a sequence with no letters in it ".
 		    "cannot guess alphabet [$str]");
    }
 
-   $u = ($str =~ tr/Uu//);
-   $atgc = ($str =~ tr/ATGCNatgcn//);
+   my $u = ($str =~ tr/Uu//);
+	# The assumption here is that most of sequences comprised of mainly
+   # ATGC, with some N, will be 'dna' despite the fact that N could
+	# also be Asparagine
+   my $atgc = ($str =~ tr/ATGCNatgcn//);
 
    if( ($atgc / $total) > 0.85 ) {
        $type = 'dna';
