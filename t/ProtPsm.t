@@ -16,7 +16,7 @@ BEGIN {
    }
    use Test;
 
-   plan tests => 1;
+   plan tests => 5;
 }
 
 use Bio::Matrix::PSM::ProtPsm;
@@ -26,7 +26,7 @@ ok 2;
 
 # Test psiblast reading functionality.
 my $psmIO =  new Bio::Matrix::PSM::IO(-format => 'psiblast', 
-				      -file   => Bio::Root::IO->catfile(qw(t data atp1.matrix)));
+			      -file   => Bio::Root::IO->catfile(qw(t data atp1.matrix)));
 ok $psmIO;
 
 my $psm = $psmIO->next_psm;
@@ -36,12 +36,14 @@ ok $psm;
 my $IUPAC = 'MEMSINPSEISSIIKEQIENYDTKAEVSEVGTVLSVGDGIARVYGLDNVMAGEMVEFPSGVKGMALNLEEDNVGVVLLGDDTGIKEGDLVKRTGKIVEVPVGEALLGRVVDPLGNPIDAKGPIKTDERRPVEVKAPGIIPRKSVHEPLQTGLKAIDSLVPIGRGQRELIIGDRQTGKTAIAIDTIINQKRINDESTDEGKKVYCIYVAIGQKRSTVAQVVQTLREAGALEYTIIVAATAAAPAPAQYLSAYAGCAIGEAFADNGAAACIIHDDLSRQAVAYAIISLLLRRPPGREAYPGDVFYLHSRLLERAAKLSDELGGGSLTALPIIETQAGDVSAYIPTNVISITDGQIFLETDLFNSGIRPAINVGLSVSRVGSAAQIKAMKKVAGSLKLELAQYRELAAFAQFGSDLDAATQAQLNRGARLTELLKQPQYSPLPVEEQVVILYAGVNGYLDDIPVEDIRDFEKELLEYLKSNHPEILESIRTGKLSDEIEKALKEAIKEFV';
 ok $psm->IUPAC, $IUPAC;
 
-##Lets try to compress and uncompress the log odds and the frequencies, see if there is no
-##considerable loss of data.
+## Lets try to compress and uncompress the log odds and the
+## frequencies, see if there is no considerable loss of data.
+
 #my $fA=$psm->get_compressed_freq('A');
 #my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
 #my @A=$psm->get_array('A');
 #my ($var,$max) = (0,0);
+
 #for (my $i = 0; $i<@check;$i++) {
 #  my $diff=abs(abs($check[$i])-abs($A[$i]));
 #  $var += $diff;
@@ -68,7 +70,6 @@ ok $psm->IUPAC, $IUPAC;
 #my $psm2=$psm;
 #$psm2->matrix($matrix);
 #ok $psm,$psm2;
-
 
 #ok $IUPAC,'CAGAAAAATWVAATYCCCACCHCCC';
 #ok $IUPAC,$psm2->IUPAC;
