@@ -52,7 +52,7 @@ The Bio{Perl,Java,Python,Ruby} registry-handling code will initialize
 itself from the registry file located in the home directory first,
 followed by the system-wide default in /etc.
 
-If no local registry file cannot be found, the registry-handling code
+If a local registry file cannot be found, the registry-handling code
 will take its configuration from the file located at this URL:
 
    http://www.open-bio.org/registry/seqdatabase.ini
@@ -106,7 +106,7 @@ example:
 The first line is the registry format version number in the format
 VERSION=X.XX.  The current version is 1.00.
 
-The file remainder is a simple stanza format which goes:
+The rest of the file is composed of simple stanzas, formatted as:
 
   [database-name]
   tag=value
@@ -148,7 +148,8 @@ restrictions on the use of these databases, this is recommended only
 for lightweight applications.
 
 "biosql" fetches sequences from BioSQL databases.  To use this module
-you will need to install the bioperl-db distribution.
+you will need to have an instantiated relational database conforming
+to the BioSQL schema, and install the bioperl-db distribution.
 
 The Location Tag
 ----------------
@@ -156,7 +157,7 @@ The Location Tag
 The location tag tells the bioperl sequence fetching code where the
 database is located.  Its interpretation depends on the protocol
 chosen.  For example, it might be a directory on the local file
-system, or a remote URL.
+system, or a remote URL.  See below for protocol-specific details.
 
 Other Tags
 ----------
@@ -207,7 +208,6 @@ documentation on how to do this:
 
 ============================================================================
 
-
 WRITING CODE TO USE THE REGISTRY
 
 Once you've set up the OBDA registry file, accessing sequence data
@@ -234,9 +234,9 @@ appropriate manual page), which has just three methods:
 
    $db->get_Seq_by_id($id);
    $db->get_Seq_by_acc($acc);
-   $db->get_Seq_by_version($version);
+   $db->get_Seq_by_version($versioned_acc);
 
-These methods return Bio::SeqI objects by serching for their primary
+These methods return Bio::SeqI objects by searching for their primary
 IDs, accession numbers and accession.version numbers respectively.
 The returned objects have all the methods defined by Bio::SeqI (see
 the appropriate manual page).  In line 5, we call the sequence
@@ -279,6 +279,9 @@ abbreviated to one letter format:
 ChangeLog
 
 $Log$
+Revision 1.5  2003/03/01 19:21:48  peter
+documentation updates
+
 Revision 1.4  2003/02/20 22:41:25  heikki
 added explanation for biogetseq
 
