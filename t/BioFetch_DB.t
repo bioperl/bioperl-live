@@ -26,8 +26,8 @@ BEGIN {
     $NUMTESTS = 26;
     plan tests => $NUMTESTS;
 
-    unless( eval "use IO::String; 1;" ) {
-      warn $@;
+    unless( eval "require IO::String; 1;" ) {
+#      warn $@;
       print STDERR "IO::String not installed. This means that Bio::DB::BioFetch module is not usable. Skipping tests.\n";
       for( 1..$NUMTESTS ) {
 	skip(1,"IO::String not installed. This means that Bio::DB::BioFetch module is not usable. Skipping tests.\n");
