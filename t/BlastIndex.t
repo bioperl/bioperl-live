@@ -37,7 +37,7 @@ require Bio::Index::Blast;
 require Bio::Root::IO;
 
 use Cwd;
-END {  unlink qw( Wibbl ); }
+END {  unlink qw( Wibbl Wibbl.pag Wibbl.dir ); }
 
 ok(1);
 
@@ -46,7 +46,9 @@ my $index = new Bio::Index::Blast(-filename => 'Wibbl',
 ok($index);
 
 $index->make_index(Bio::Root::IO->catfile(cwd,"t","data","multi_blast.bls"));
-ok(-e "Wibbl");
+($index->dbm_package eq 'SDBM_File') ? 
+    (ok(-e "Wibbl.pag" && -e "Wibbl.dir")) :
+    (ok(-e "Wibbl"));
 
 foreach my $id ( qw(CATH_RAT PAPA_CARPA) ) {
 
