@@ -51,6 +51,8 @@ sub new    {
   bless [@_],$pack;  # class,name
 }
 
+sub _cleanup_methods { return; }
+
 =head2 id
 
  Title   : id

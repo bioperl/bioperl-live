@@ -92,11 +92,11 @@ package Bio::Tools::AnalysisResult;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::SeqAnalysisParserI;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
 sub new {
     my ($class, @args) = @_;

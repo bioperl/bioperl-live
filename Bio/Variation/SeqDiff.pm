@@ -95,11 +95,11 @@ my $VERSION=1.0;
 
 use strict;
 use vars qw($VERSION @ISA);
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tools::CodonTable;
 use Bio::PrimarySeq;
 
-@ISA = qw( Bio::Root::RootI );
+@ISA = qw( Bio::Root::Root );
 
 
 =head2 new

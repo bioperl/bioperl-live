@@ -66,10 +66,10 @@ package Bio::Location::NarrowestCoordPolicy;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Location::CoordinatePolicyI;
 
-@ISA = qw(Bio::Root::RootI Bio::Location::CoordinatePolicyI);
+@ISA = qw(Bio::Root::Root Bio::Location::CoordinatePolicyI);
 
 sub new { 
     my ($class, @args) = @_;

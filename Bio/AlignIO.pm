@@ -262,13 +262,13 @@ package Bio::AlignIO;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Seq;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
 use Symbol();
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 =head2 new
 

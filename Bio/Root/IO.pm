@@ -97,9 +97,9 @@ use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
 use strict;
 
 use Symbol;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 my $TEMPCOUNTER;
 

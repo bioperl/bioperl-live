@@ -15,7 +15,7 @@
 
 Bio::Seq::LargePrimarySeq - PrimarySeq object that stores sequence as
 files in the tempdir (as found by File::Temp) or the default method in
-Bio::Root::RootI
+Bio::Root::Root
 
 =head1 SYNOPSIS
 

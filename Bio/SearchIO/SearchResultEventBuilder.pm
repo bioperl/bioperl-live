@@ -67,14 +67,14 @@ package Bio::SearchIO::SearchResultEventBuilder;
 use vars qw(@ISA %KNOWNEVENTS);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::SearchIO::EventHandlerI;
 use Bio::Search::Report;
 use Bio::Search::Subject;
 use Bio::Search::HSP;
 
 
-@ISA = qw(Bio::Root::RootI Bio::SearchIO::EventHandlerI);
+@ISA = qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
 
 =head2 new
 

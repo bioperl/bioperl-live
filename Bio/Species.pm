@@ -67,10 +67,10 @@ use strict;
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 sub new {
   my($class,@args) = @_;

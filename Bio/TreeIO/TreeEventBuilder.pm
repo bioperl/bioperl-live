@@ -68,12 +68,12 @@ package Bio::TreeIO::TreeEventBuilder;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Event::EventHandlerI;
 use Bio::Tree::Tree;
 use Bio::Tree::Node;
 
-@ISA = qw(Bio::Root::RootI Bio::Event::EventHandlerI);
+@ISA = qw(Bio::Root::Root Bio::Event::EventHandlerI);
 
 =head2 new
 

@@ -38,16 +38,17 @@ Bio::Root::RootI - Abstract interface to root object code
 
 =head1 DESCRIPTION
 
-This is just a set of methods which do not assumme B<anything> about the object
+This is just a set of methods which do not assume B<anything> about the object
 they are on. The methods provide the ability to throw exceptions with nice
 stack traces.
 
-This is what should be inherieted by all bioperl compliant interfaces, even
+This is what should be inherited by all bioperl compliant interfaces, even
 if they are exotic XS/CORBA/Other perl systems.
 
 =head1 CONTACT
 
-Functions originally from Steve Chervitz. Refactored by Ewan Birney.
+Functions originally from Steve Chervitz. Refactored by Ewan
+Birney. Re-refactored by Lincoln Stein.
 
 =head1 APPENDIX
 
@@ -60,8 +61,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Root::RootI;
 
-use vars qw(@ISA $DEBUG $ID $Revision $VERSION $VERBOSITY);
+use vars qw($DEBUG $ID $Revision $VERSION $VERBOSITY);
 use strict;
+use Carp 'confess';
 #use Bio::Root::Err; # we don't use that any longer, right?
 
 BEGIN { 
@@ -75,7 +77,7 @@ BEGIN {
 
 =head2 new
 
- Purpose   : generic intantiation function can be overridden if 
+ Purpose   : generic instantiation function can be overridden if 
              special needs of a module cannot be done in _initialize
 
 =cut
@@ -83,12 +85,11 @@ BEGIN {
 sub new {
     local($^W) = 0;
     my ($caller, @args) = @_;
-    
-    my $class = ref($caller) || $caller; #copied from Conway, OOPerl
-    my $self = bless({}, $class);
+
+    my $self = $caller->_create_object(@args);
 
     my %param = @args;
-    my($verbose) =  ( $param{'-VERBOSE'} || $param{'-verbose'} );
+    my $verbose =  $param{'-VERBOSE'} || $param{'-verbose'};
 
     ## See "Comments" above regarding use of _rearrange().
     $self->verbose($verbose);
@@ -102,6 +103,29 @@ sub _initialize {
     return 1;
 }
 
+=head2 _create_object()
+
+ Title   : _create_object()
+ Usage   : $obj->create_object(@args)
+ Function: Abstract method which actually creates the blessed object reference
+ Returns : Blessed object (hashref, arrayref, scalarref)
+ Args    : Implementation-specific
+
+=cut
+
+sub _create_object {
+  my $class = shift;
+  my @args = @_;
+  $class->_abstractDeath();
+}
+
+# Copied from Bio::SeqI.  Shouldn't Bio::SeqI inherit from Bio::RootI?
+sub _abstractDeath {
+  my $self = shift;
+  my $package = ref $self;
+  my $caller = (caller)[1];
+  confess "Abstract method '$caller' defined in interface Bio::SeqI not implemented by pacakge $package. Not your fault - author of $package should be blamed!";
+}
 
 =head2 throw
 
@@ -220,12 +244,7 @@ sub deprecated{
 
 sub verbose{
    my ($self,$value) = @_;
-
-   if(ref($self) && (defined $value || ! defined $self->{'_rootI_verbose'}) ) {
-       $value = 0 unless defined $value;
-       $self->{'_rootI_verbose'} = $value;
-   }
-   return (ref($self) ? $self->{'_rootI_verbose'} : $VERBOSITY);
+   $self->_abstractDeath;
 }
 
 =head2 stack_trace_dump
@@ -417,30 +436,56 @@ sub _rearrange {
            and sometimes essential in the case of multiple inheritance for
            classes coming second in the sequence of inheritance.
  Returns : 
- Args    : a reference to a method
+ Args    : a code reference
 
+The code reference will be invoked with the object as the first
+argument, as per a method.  You may register an unlimited number of
+cleanup methods.
 
 =cut
 
 sub _register_for_cleanup {
-    my ($self,$method) = @_;
-    if($method) {
-	if(! exists($self->{'_cleanup_methods'})) {
-	    $self->{'_cleanup_methods'} = [];
-	}
-	push(@{$self->{'_cleanup_methods'}},$method);
-    }
+  my ($self,$method) = @_;
+  $self->_abstractDeath;
+}
+
+=head2 _unregister_for_cleanup
+
+ Title   : _unregister_for_cleanup
+ Usage   : -- internal --
+ Function: Remove a method that has previously been registered to be called
+           at DESTROY time.  If called with a methoda method to be called at DESTROY time.
+           Has no effect if the code reference has not previously been registered.
+ Returns : nothing
+ Args    : a code reference
+
+=cut
+
+sub _unregister_for_cleanup {
+  my ($self,$method) = @_;
+  $self->_abstractDeath;
+}
+
+=head2 _cleanup_methods
+
+ Title   : _cleanup_methods
+ Usage   : -- internal --
+ Function: Return current list of registered cleanup methods.
+ Returns : list of coderefs
+ Args    : none
+
+=cut
+
+sub _cleanup_methods {
+  my $self = shift;
+  $self->_abstractDeath;
 }
 
 sub DESTROY {
     my ($self) = shift;
-
-    if(ref($self) && $self->isa('HASH') &&
-       exists($self->{'_cleanup_methods'}) &&
-       ref($self->{'_cleanup_methods'}) =~ /array/i ) {
-	foreach my $method (@{$self->{'_cleanup_methods'}}) {
-	    &$method($self);
-	}
+    my @cleanup_methods = $self->_cleanup_methods or return;
+    for my $method (@cleanup_methods) {
+      $method->($self);
     }
 }
 

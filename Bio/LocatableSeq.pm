@@ -88,7 +88,7 @@ use Bio::Location::Fuzzy;
 
 @ISA = qw(Bio::PrimarySeq Bio::RangeI);
 
-# new() is inherited from Bio::Root::RootI
+# new() is inherited from Bio::Root::Root
 
 sub new {
     my ($class, @args) = @_;

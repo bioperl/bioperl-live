@@ -61,11 +61,11 @@ package Bio::Structure::Entry;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::StructureI;
 use Bio::Structure::Model;
 use Bio::Structure::Chain;
-@ISA = qw(Bio::Root::RootI Bio::StructureI);
+@ISA = qw(Bio::Root::Root Bio::StructureI);
 
 
 =head2 new()

@@ -102,9 +102,9 @@ use strict;
 
 # Object preamble - inheritance
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw( Bio::Root::RootI );
+@ISA = qw( Bio::Root::Root );
 
 sub new {
     my($class,@args) = @_;

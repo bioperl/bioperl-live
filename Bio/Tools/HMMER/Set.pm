@@ -70,10 +70,10 @@ package Bio::Tools::HMMER::Set;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tools::HMMER::Domain;
 
-@ISA = qw( Bio::Root::RootI );
+@ISA = qw( Bio::Root::Root );
 
 sub new {
     my($class,@args) = @_;

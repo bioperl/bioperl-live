@@ -49,11 +49,11 @@ methods. Internal methods are usually preceded with a _
 #
 
 package Bio::SeqIO::game::idHandler;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 use vars qw{ $AUTOLOAD @ISA };
 use strict;
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);

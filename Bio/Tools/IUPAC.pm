@@ -133,8 +133,8 @@ package Bio::Tools::IUPAC;
 use strict;
 use vars qw(@ISA $AUTOLOAD);
 
-use Bio::Root::RootI;
-@ISA = qw(Bio::Root::RootI);
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 
 =head2 new
 

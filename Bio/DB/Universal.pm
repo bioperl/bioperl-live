@@ -101,9 +101,9 @@ package Bio::DB::Universal;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::DB::RandomAccessI;
 
 use Bio::DB::GenBank;
@@ -111,8 +111,8 @@ use Bio::DB::SwissProt;
 use Bio::DB::EMBL;
 
 
-@ISA = qw(Bio::DB::RandomAccessI Bio::Root::RootI);
-# new() can be inherited from Bio::Root::RootI
+@ISA = qw(Bio::DB::RandomAccessI Bio::Root::Root);
+# new() can be inherited from Bio::Root::Root
 
 sub new {
     my ($class) = @_;

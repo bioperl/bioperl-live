@@ -74,14 +74,14 @@ package Bio::SearchIO;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::SearchIO::EventGeneratorI;
 use Bio::SearchIO::SearchResultEventBuilder;
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO Bio::SearchIO::EventGeneratorI);
+@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::SearchIO::EventGeneratorI);
 
 =head2 new
 

@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.50 2001-11-05 13:19:02 lstein Exp $
+## $Id: MANIFEST,v 1.51 2001-11-20 02:09:28 lstein Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -118,6 +118,7 @@ Bio/Root/Global.pm
 Bio/Root/IO.pm
 Bio/Root/IOManager.pm
 Bio/Root/Object.pm
+Bio/Root/Root.pm
 Bio/Root/RootI.pm
 Bio/Root/Utilities.pm
 Bio/Root/Vector.pm

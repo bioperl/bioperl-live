@@ -388,10 +388,10 @@ use AnyDBM_File;
 use Fcntl;
 use File::Basename qw(basename dirname);
 use Bio::DB::SeqI;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use vars qw($VERSION @ISA);
 
-@ISA = qw(Bio::DB::SeqI Bio::Root::RootI);
+@ISA = qw(Bio::DB::SeqI Bio::Root::Root);
 
 $VERSION = '1.03';
 
@@ -932,8 +932,8 @@ use overload '""' => 'display_id';
 use vars '@ISA';
 eval {
   require Bio::PrimarySeqI;
-  require Bio::Root::RootI;
-} && (@ISA = ('Bio::PrimarySeqI','Bio::Root::RootI'));
+  require Bio::Root::Root;
+} && (@ISA = ('Bio::PrimarySeqI','Bio::Root::Root'));
 
 sub new {
   my $class = shift;

@@ -57,9 +57,9 @@ package Bio::Structure::Atom;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Structure::Residue;
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 
 =head2 new()

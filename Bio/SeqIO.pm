@@ -281,12 +281,12 @@ package Bio::SeqIO;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::PrimarySeq;
 use Symbol();
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

@@ -71,7 +71,7 @@ package Bio::TreeIO::newick;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
 use Bio::TreeIO;
 use Bio::Event::EventGeneratorI;

@@ -57,8 +57,8 @@ use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
-use Bio::Root::RootI;
-@ISA = qw(Bio::Root::RootI);
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 
 # new() is inherited from Bio::Root::Object
 

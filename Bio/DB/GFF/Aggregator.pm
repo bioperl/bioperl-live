@@ -145,7 +145,7 @@ use Bio::DB::GFF::Feature;
 use vars qw($VERSION @ISA);
 
 $VERSION = '1.00';
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 my $ALWAYS_TRUE   = sub { 1 };
 

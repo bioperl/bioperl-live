@@ -70,11 +70,11 @@ package Bio::Search::Report;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Search::ReportI;
 use Bio::Search::Subject;
 
-@ISA = qw(Bio::Root::RootI Bio::Search::ReportI );
+@ISA = qw(Bio::Root::Root Bio::Search::ReportI );
 
 =head2 new
 

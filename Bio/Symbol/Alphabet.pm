@@ -80,12 +80,12 @@ package Bio::Symbol::Alphabet;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Symbol::AlphabetI;
 
-@ISA = qw(Bio::Root::RootI 
+@ISA = qw(Bio::Root::Root 
 	Bio::Symbol::AlphabetI );
 
 =head2 new

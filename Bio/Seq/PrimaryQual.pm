@@ -55,9 +55,9 @@ package Bio::Seq::PrimaryQual;
 use vars qw(@ISA %valid_type);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Seq::QualI;
-@ISA = qw(Bio::Root::RootI Bio::Seq::QualI);
+@ISA = qw(Bio::Root::Root Bio::Seq::QualI);
 
 
 =head2 new()

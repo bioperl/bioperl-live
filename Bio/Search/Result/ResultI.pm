@@ -69,9 +69,9 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 
 =head2 get_query_id

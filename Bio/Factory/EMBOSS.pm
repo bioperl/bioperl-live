@@ -71,10 +71,10 @@ package Bio::Factory::EMBOSS;
 use vars qw(@ISA $EMBOSSVERSION);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tools::Run::EMBOSSApplication;
 use Bio::Factory::ApplicationFactoryI;
-@ISA = qw(Bio::Root::RootI Bio::Factory::ApplicationFactoryI );
+@ISA = qw(Bio::Root::Root Bio::Factory::ApplicationFactoryI );
 
 $EMBOSSVERSION = "2.0.0";
 

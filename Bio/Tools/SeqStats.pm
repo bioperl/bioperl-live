@@ -162,8 +162,8 @@ use strict;
 use vars qw(@ISA %Alphabets %Alphabets_strict $amino_weights 
 	    $rna_weights $dna_weights %Weights );
 use Bio::Seq;
-use Bio::Root::RootI;
-@ISA = qw(Bio::Root::RootI);
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 
 BEGIN { 
     %Alphabets =   (

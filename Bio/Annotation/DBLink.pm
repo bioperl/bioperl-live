@@ -53,10 +53,10 @@ package Bio::Annotation::DBLink;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::AnnotationI;
 
-@ISA = qw(Bio::AnnotationI Bio::Root::RootI);
+@ISA = qw(Bio::AnnotationI Bio::Root::Root);
 
 
 sub new {

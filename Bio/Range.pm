@@ -79,11 +79,11 @@ use strict;
 use Carp;
 use integer;
 use Bio::RangeI;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::RootI Bio::RangeI);
+@ISA = qw(Bio::Root::Root Bio::RangeI);
 
 =head1 Constructors
 

@@ -87,14 +87,14 @@ use vars qw(@ISA);
 use Carp;
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
 use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI);
+@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI);
 
 sub new {
   my($class,@args) = @_;

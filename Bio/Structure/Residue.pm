@@ -57,10 +57,10 @@ package Bio::Structure::Residue;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Structure::Chain;
 use Bio::Structure::Atom;
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 
 =head2 new()

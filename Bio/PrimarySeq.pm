@@ -157,10 +157,10 @@ package Bio::PrimarySeq;
 use vars qw(@ISA %valid_type);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::PrimarySeqI;
 
-@ISA = qw(Bio::Root::RootI Bio::PrimarySeqI);
+@ISA = qw(Bio::Root::Root Bio::PrimarySeqI);
 
 #
 # setup the allowed values for alphabet()

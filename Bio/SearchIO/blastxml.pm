@@ -66,9 +66,9 @@ use vars qw(@ISA $DTD %MAPPING %MODEMAP);
 use strict;
 
 $DTD = 'ftp://ftp.ncbi.nlm.nih.gov/blast/documents/NCBI_BlastOutput.dtd';
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::SearchIO::EventGeneratorI;
 use Bio::SearchIO;
 use XML::Parser::PerlSAX;

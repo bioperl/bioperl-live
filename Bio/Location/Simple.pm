@@ -66,11 +66,11 @@ package Bio::Location::Simple;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::LocationI;
 
 
-@ISA = qw(Bio::Root::RootI Bio::LocationI);
+@ISA = qw(Bio::Root::Root Bio::LocationI);
 
 sub new { 
     my ($class, @args) = @_;

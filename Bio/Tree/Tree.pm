@@ -72,12 +72,12 @@ package Bio::Tree::Tree;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tree::TreeI;
 
-@ISA = qw(Bio::Tree::TreeI Bio::Root::RootI );
+@ISA = qw(Bio::Tree::TreeI Bio::Root::Root );
 
 =head2 new
 

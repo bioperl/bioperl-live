@@ -97,12 +97,12 @@ package Bio::Variation::VariantI;
 $VERSION=1.0;
 use vars qw(@ISA);
 use strict;
-use  Bio::Root::RootI;
+use  Bio::Root::Root;
 use  Bio::DBLinkContainerI;
 # Object preamble - inheritance
 
 use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::RootI Bio::SeqFeature::Generic Bio::DBLinkContainerI );
+@ISA = qw(Bio::Root::Root Bio::SeqFeature::Generic Bio::DBLinkContainerI );
 
 =head2 id
 

@@ -82,12 +82,12 @@ package Bio::Tools::EPCR;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::SeqAnalysisParserI;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqAnalysisParserI Bio::Root::IO Bio::Root::RootI);
+@ISA = qw(Bio::SeqAnalysisParserI Bio::Root::IO Bio::Root::Root);
 
 =head2 new
 

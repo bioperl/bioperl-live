@@ -91,7 +91,7 @@ package Bio::SeqFeature::Computation;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::SeqFeature::Generic;
 
 @ISA = qw(Bio::SeqFeature::Generic);

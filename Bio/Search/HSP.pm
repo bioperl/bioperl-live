@@ -67,13 +67,13 @@ package Bio::Search::HSP;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Search::HSPI;
 use Bio::SeqFeature::Similarity;
 
-@ISA = qw(Bio::Root::RootI Bio::Search::HSPI);
+@ISA = qw(Bio::Root::Root Bio::Search::HSPI);
 
 =head2 new
 

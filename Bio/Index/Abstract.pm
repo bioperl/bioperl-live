@@ -80,11 +80,11 @@ use vars qw( $TYPE_AND_VERSION_KEY
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Symbol();
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 # Generate accessor methods for simple object fields
 BEGIN {

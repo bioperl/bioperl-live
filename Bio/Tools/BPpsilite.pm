@@ -143,11 +143,11 @@ use strict;
 use vars qw(@ISA);
 use Bio::Tools::BPlite::Iteration; #
 use Bio::Tools::BPlite::Sbjct; #   Debug code
-use Bio::Root::RootI; # root interface to inherit from
+use Bio::Root::Root; # root interface to inherit from
 use Bio::Root::IO;
 use Bio::Tools::BPlite; 
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 sub new {
   my ($class, @args) = @_; 

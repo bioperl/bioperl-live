@@ -102,7 +102,7 @@ package Bio::SearchDist;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 BEGIN {
     eval {
@@ -116,7 +116,7 @@ print $@;
 }
 
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 sub new {
   my($class,@args) = @_;

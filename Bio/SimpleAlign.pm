@@ -137,7 +137,7 @@ package Bio::SimpleAlign;
 use vars qw(@ISA %CONSERVATION_GROUPS);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::LocatableSeq;         # uses Seq's as list
 
 BEGIN { 
@@ -171,7 +171,7 @@ BEGIN {
 				);
     
 }
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 sub new {
   my($class,@args) = @_;

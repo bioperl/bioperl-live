@@ -72,9 +72,9 @@ use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
 use Bio::Location::Split;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;

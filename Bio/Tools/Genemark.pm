@@ -101,7 +101,7 @@ use vars qw(@ISA);
 use strict;
 use Symbol;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;

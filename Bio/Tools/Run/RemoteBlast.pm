@@ -71,7 +71,7 @@ use vars qw($AUTOLOAD @ISA %BLAST_PARAMS $URLBASE %HEADER %RETRIEVALHEADER
 	    $RIDLINE);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::SeqIO;
 use IO::String;
@@ -111,7 +111,7 @@ BEGIN {
 
 }
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 sub new {
     my ($caller, @args) = @_;

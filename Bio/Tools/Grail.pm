@@ -88,13 +88,13 @@ package Bio::Tools::Grail;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 use Symbol;
 
-@ISA = qw(Bio::Root::IO Bio::Root::RootI);
+@ISA = qw(Bio::Root::IO Bio::Root::Root);
 
 sub new {
   my($class,@args) = @_;

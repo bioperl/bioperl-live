@@ -122,7 +122,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use File::Basename;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tools::AnalysisResult;
 use Bio::Tools::Sim4::Exon;
 

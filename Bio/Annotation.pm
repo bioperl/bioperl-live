@@ -116,7 +116,7 @@ package Bio::Annotation;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 # we don't really need these object but we should 
 # declare them here to prevent tears later.
@@ -125,7 +125,7 @@ use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Comment;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 =head2 new
 

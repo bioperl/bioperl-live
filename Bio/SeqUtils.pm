@@ -94,7 +94,7 @@ use strict;
 use Carp;
 use Bio::Tools::CodonTable;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 # new inherited from RootI
 
 {

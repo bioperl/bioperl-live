@@ -362,10 +362,10 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Aggregator;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 $VERSION = '0.50';
 my %valid_range_types = (overlaps     => 1,
@@ -2142,7 +2142,7 @@ sub _split_group {
 
 package Bio::DB::GFF::ID_Iterator;
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 sub new {
   my $class        = shift;

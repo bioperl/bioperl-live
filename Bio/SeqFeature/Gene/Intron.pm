@@ -67,7 +67,7 @@ package Bio::SeqFeature::Gene::Intron;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
 use Bio::SeqFeature::Gene::NC_Feature;
 

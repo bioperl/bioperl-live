@@ -318,10 +318,10 @@ use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SimpleAlign;
 use Bio::AlignIO;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 # You will need to enable Clustalw to find the clustalw program. This
 # can be done in (at least) two ways:

@@ -21,7 +21,7 @@ use strict;
 
 require 5.002;
 use Bio::Root::Global qw(:devel $AUTHORITY $CGI);
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 use Exporter ();
 
@@ -34,7 +34,7 @@ use vars qw(@EXPORT_OK %EXPORT_TAGS);
 
 use vars qw($ID $VERSION %Objects_created $Revision @ISA);
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Root::Root);
 
 
 # %Objects_created can be used for tracking all objects created.
@@ -53,7 +53,7 @@ Bio::Root::Object - A core Perl 5 object.
 =head1 SYNOPSIS
 
 B<Use of this module is deprecated. Wherever possible try to switch to
-Bio::Root::RootI as the root of your inheritance tree. Using this module as
+Bio::Root::Root as the root of your inheritance tree. Using this module as
 your root of inheritance will trigger a warning at object instantiation.
 This module is no longer being maintained and will eventually disappear.>
 
@@ -536,7 +536,7 @@ sub _initialize {
     if(! grep { ref($self) =~ /$_/; } @inheriting_modules) {
 	$self->warn("Class " . ref($self) .
 		    " inherits from Bio::Root::Object, which is deprecated. ".
-		    "Try changing your inheritance to Bio::Root::RootI.");
+		    "Try changing your inheritance to Bio::Root::Root.");
     }
     my($name, $parent, $make, $strict, $verbose, $obj, $record_err) = (
 	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}), 

@@ -11,8 +11,8 @@
 
 package Bio::Tools::SeqPattern;
 
-use Bio::Root::RootI;
-@ISA = qw(Bio::Root::RootI);
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 use strict;
 use vars qw ($ID $VERSION);
 $ID  = 'Bio::Tools::SeqPattern';
@@ -253,7 +253,7 @@ modify it under the same terms as Perl itself.
  Comments  : The process of creating a new SeqPattern.pm object
            : ensures that the pattern string is untained.
 
-See Also   : L<_untaint_pat>(), B<Bio::Root::RootI::new()>, 
+See Also   : L<_untaint_pat>(), B<Bio::Root::Root::new()>, 
              B<Bio::Seq::_initialize()>
 
 =cut

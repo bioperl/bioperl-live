@@ -76,7 +76,7 @@ package Bio::Location::Split;
 use vars qw(@ISA @CORBALOCATIONOPERATOR);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Location::SplitLocationI;
 use Bio::Location::Simple;
 

@@ -144,7 +144,7 @@ $DEFAULTFORMAT = 'swissprot';
 	   );
 
 # new modules should be a little more lightweight and
-# should use Bio::Root::RootI
+# should use Bio::Root::Root
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);

@@ -116,14 +116,14 @@ package Bio::SeqFeature::Generic;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::SeqFeatureI;
 use Bio::Annotation;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqFeatureI);
+@ISA = qw(Bio::Root::Root Bio::SeqFeatureI);
 
 sub new {
     my ( $caller, @args) = @_;   
@@ -762,7 +762,7 @@ sub slurp_gff_file {
        die "Must have a filehandle";
    }
 
-   Bio::Root::RootI->warn("deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.");
+   Bio::Root::Root->warn("deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.");
   
    while(<$f>) {
 

@@ -22,12 +22,12 @@
 package Bio::Tools::RestrictionEnzyme;
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Exporter;
 
 use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID $VERSION @RE_available $Revision);
 
-@ISA         = qw(Bio::Root::RootI Exporter);
+@ISA         = qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw(@RE_available);
 %EXPORT_TAGS = ( std => [qw(@RE_available)] );
 

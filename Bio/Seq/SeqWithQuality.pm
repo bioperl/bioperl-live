@@ -95,11 +95,11 @@ package Bio::Seq::SeqWithQuality;
 use vars qw(@ISA);
 
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Seq::QualI;
 use Bio::PrimarySeqI;
 
-@ISA = qw(Bio::Root::RootI Bio::PrimarySeqI Bio::Seq::QualI);
+@ISA = qw(Bio::Root::Root Bio::PrimarySeqI Bio::Seq::QualI);
 
 =head2 new()
 

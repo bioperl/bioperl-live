@@ -69,7 +69,7 @@ use vars qw(@ISA);
 use strict;
 use Carp;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
 use Bio::SeqI;
 

@@ -44,15 +44,15 @@ package Bio::Annotation::Collection;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
 use Bio::AnnotationCollectionI;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Annotation::TypeManager;
 use Bio::Annotation::SimpleValue;
 
 
-@ISA = qw(Bio::Root::RootI Bio::AnnotationCollectionI);
+@ISA = qw(Bio::Root::Root Bio::AnnotationCollectionI);
 
 
 =head2 new

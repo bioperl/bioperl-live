@@ -242,7 +242,7 @@ package Bio::Tools::Run::StandAloneBlast;
 use vars qw($AUTOLOAD @ISA @BLASTALL_PARAMS @BLASTPGP_PARAMS 
 	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD $DATADIR $BLASTDIR);
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::Seq;
 use Bio::SeqIO;
@@ -287,7 +287,7 @@ BEGIN {
 	 ($BLASTDIR ? Bio::Root::IO->catfile($BLASTDIR,'data') : '');
 }
 
-@ISA = qw(Bio::Root::RootI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 =head1 BLAST parameters
 

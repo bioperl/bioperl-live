@@ -65,10 +65,10 @@ use Bio::DB::GFF::Featname;
 use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
 use Bio::SeqFeatureI;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
 use vars qw($VERSION @ISA $AUTOLOAD);
-@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::RootI);
+@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::Root);
 
 $VERSION = '0.30';
 #' 

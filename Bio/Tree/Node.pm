@@ -76,10 +76,10 @@ package Bio::Tree::Node;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tree::NodeI;
 
-@ISA = qw(Bio::Tree::NodeI Bio::Root::RootI);
+@ISA = qw(Bio::Tree::NodeI Bio::Root::Root);
 
 =head2 new
 

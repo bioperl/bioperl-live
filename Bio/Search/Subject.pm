@@ -67,12 +67,12 @@ package Bio::Search::Subject;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
+# Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Search::SubjectI;
 
-@ISA = qw(Bio::Root::RootI Bio::Search::SubjectI );
+@ISA = qw(Bio::Root::Root Bio::Search::SubjectI );
 
 =head2 new
 

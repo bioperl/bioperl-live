@@ -97,7 +97,7 @@ use Bio::Tools::CodonTable;
 use Bio::Variation::RNAChange;
 use Bio::Variation::Allele;
 
-@ISA = qw( Bio::Root::RootI);
+@ISA = qw( Bio::Root::Root);
 
 sub new {
     my($class,@args) = @_;

@@ -99,12 +99,12 @@ use Bio::SeqI;
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 
 $VERSION = '0.9';
-@ISA = qw(Bio::Root::RootI Bio::SeqI);
+@ISA = qw(Bio::Root::Root Bio::SeqI);
 
 =head2 new
 

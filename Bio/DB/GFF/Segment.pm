@@ -22,11 +22,11 @@ module.
 package Bio::DB::GFF::Segment;
 
 use strict;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::RangeI;
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::Root::RootI Bio::RangeI);
+@ISA = qw(Bio::Root::Root Bio::RangeI);
 $VERSION = '0.30';
 
 use overload 
@@ -67,7 +67,7 @@ There are five positional arguments:
 sub new {
   my $class = shift;
   my ($factory,$segclass,$segname,$start,$stop) = @_;
-  $segclass = $segname->class if $segname->can('class');
+  $segclass = $segname->class if ref($segname) && $segname->can('class');
   $segclass ||= 'Sequence';
 
   $factory or $class->throw("->new(): provide a factory argument");

@@ -164,9 +164,9 @@ package Bio::Tools::CodonTable;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::RootI
-use Bio::Root::RootI;
-@ISA = qw(Bio::Root::RootI);
+# Object preamble - inherits from Bio::Root::Root
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 
 # first set internal values for all translation tables
 

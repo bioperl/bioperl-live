@@ -181,13 +181,13 @@ package Bio::Tools::BPlite;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
 use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::RootI Bio::SeqAnalysisParserI Bio::Root::IO);
+@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
 # new comes from a RootI now
 

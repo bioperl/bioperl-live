@@ -79,12 +79,12 @@ package Bio::Index::Blast;
 use vars qw(@ISA $VERSION);
 use strict;
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Index::Abstract;
 use Bio::Tools::BPlite;
 use IO::String;
 
-@ISA = qw(Bio::Index::Abstract Bio::Root::RootI );
+@ISA = qw(Bio::Index::Abstract Bio::Root::Root );
 
 BEGIN { 
     $VERSION = 0.1;
