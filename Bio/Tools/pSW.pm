@@ -168,16 +168,19 @@ sub new {
 
   # I'm pretty sure I am not doing this right... ho hum...
   # This was not roght ($gap and $ext could not be 0) It is fixed now /AE
-  if(  $gap =~ /^\d+$/ ) {
-      $self->gap($gap);
-  } else {
-      $self->throw("Gap penalty must be a number, not [$gap]");
+  if(  defined $gap ) {
+      if( $gap =~ /^\d+$/ ) {
+	  $self->gap($gap);
+      } else {
+	  $self->throw("Gap penalty must be a number, not [$gap]");
+      }
   }
-
-  if( $ext =~ /^\d+$/ )  {
-      $self->ext($ext);
-  } else {
-      $self->throw("Extension penalty must be a number, not [$ext]");
+  if( defined $ext ) {
+      if( $ext =~ /^\d+$/ )  {
+	  $self->ext($ext);
+      } else {
+	  $self->throw("Extension penalty must be a number, not [$ext]");
+      }
   }
  
   return $self; 
