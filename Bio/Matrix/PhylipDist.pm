@@ -115,11 +115,13 @@ sub new {
     my $self = $class->SUPER::new(@args);
     my ($matrix,$values, $names,
 	$program,$matname,
-	$matid) = $self->_rearrange([qw(MATRIX VALUES 
-					NAMES PROGRAM
+	$matid) = $self->_rearrange([qw(MATRIX 
+					VALUES 
+					NAMES 
+					PROGRAM
 					MATRIX_NAME
 					MATRIX_ID
-					  )],@args);
+					)],@args);
     
     ($matrix && $values && $names) || 
 	$self->throw("Need matrix, values, and names fields all provided!");
@@ -254,13 +256,17 @@ sub print_matrix {
     if( length($name) >= 15 ) { $newname .= " " }
     $str.=$newname;
     my $count = 0;
-    foreach my $n (@names){
+    foreach my $n (@names) {
       my ($i,$j) = @{$matrix{$name}{$n}};
       if($count < $#names){
-        $str.= $values[$i][$j]. "  ";
+        $str .= $values[$i][$j]. "  ";
       }
       else {
-        $str.= $values[$i][$j];
+	  if( ! defined $values[$i][$j] ) { 
+	      $self->debug("no value for $i,$j cell\n");
+	  } else { 
+	      $str .= $values[$i][$j];
+	  }
       }
       $count++;
     }
