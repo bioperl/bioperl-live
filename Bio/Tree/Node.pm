@@ -110,7 +110,7 @@ sub new {
 						 DESCRIPTION
 						 )],
 					     @args);
-#  $self->{'_desc'} = {};
+  $self->{'_desc'} = {};
   if( $d && $desc ) { 
       $self->warn("can only accept -desc or -description, not both, accepting -description");
       $desc = $d;
@@ -223,7 +223,19 @@ sub remove_Descendent{
        if( $self->{'_desc'}->{$n->internal_id} ) {
 	   $n->ancestor(undef);
 	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
-	   delete $self->{'_desc'}->{$n->internal_id};	   
+	   delete $self->{'_desc'}->{$n->internal_id};
+	   my $a1 = $self->ancestor;
+	   # remove unecessary nodes if we have removed the part which branches.
+	   if( $a1 ) {
+	       my $bl = $self->branch_length || 0;
+	       my @d = $self->each_Descendent;
+	       if (scalar @d == 1) {
+		   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
+		   $a1->add_Descendent($d[0]);
+	       }
+	       $a1->remove_Descendent($self);
+	   }
+       
        } else { 
 	   if( $self->verbose ) {
 	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
@@ -241,7 +253,7 @@ sub remove_Descendent{
  Usage   : $node->remove_All_Descendents()
  Function: Cleanup the node's reference to descendents and reset
            their ancestor pointers to undef, if you don't have a reference
-           to these objects after this call they will be cleanedup - so
+           to these objects after this call they will be cleaned up - so
            a get_nodes from the Tree object would be a safe thing to do first
  Returns : nothing
  Args    : none
