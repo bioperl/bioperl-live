@@ -140,7 +140,7 @@ sub write_seq {
    foreach my $seq (@seq) {
        $self->throw("Must provide a valid Bio::PrimarySeqI object") 
 	   unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
-     $self->_print($_->seq, "\n") or return;
+     $self->_print($seq->seq, "\n") or return;
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
