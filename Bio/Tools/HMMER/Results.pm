@@ -399,7 +399,6 @@ sub write_ascii_out {
 	    
 }
 
-
 =head2 write_GDF_bits
 
  Title   : write_GDF_bits
@@ -664,31 +663,33 @@ sub _parse_hmmpfam {
     my $count = 0;
 
     while(<$file>) {
-	if( /^Query:\s+(\S+)/ ) {
-
-	    $seqname = $1;
+	if( /^Query(\s+sequence)?:\s+(\S+)/ ) {
+	    
+	    $seqname = $2;
+	    
 	    $seq     = Bio::Tools::HMMER::Set->new();
 
 	    $seq ->name($seqname);
 	    $self->add_Set($seq);
-
 	    %hash = ();
 	    
 	    while(<$file>){
 		/^Parsed for domains/ && last;
-
+		
 		# This is to parse out the accession numbers in old Pfam format.
 		# now not support due to changes in HMMER.
 
 		if( (($id,$acc, $sc, $ev, $nd) = /^\s*(\S+)\s+([A-Za-z]+\d+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/)) {
-		    $hash{$id} = $sc; # we need this for the sequence score of hte domains below!
+		    $hash{$id} = $sc; # we need this for the sequence 
+		                      # core of the domains below!
 		    $acc {$id} = $acc;
 
-		# this is the more common parsing routine
-
-		} elsif ( (($id,$sc, $ev, $nd) = /^\s*(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/) ) {
-
-		    $hash{$id} = $sc; # we need this for the sequence score of hte domains below!
+		    # this is the more common parsing routine
+		} elsif ( (($id,$sc, $ev, $nd) = 
+			   /^\s*(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/) ) {
+		    
+		    $hash{$id} = $sc; # we need this for the 
+		                      # sequence score of hte domains below!
 
 		}
 	    }
@@ -702,8 +703,8 @@ sub _parse_hmmpfam {
 		#-------- ------- ----- -----    ----- -----      -----  -------
 		#PF00621    1/1     198   372 ..     1   207 []   281.6    1e-80
 
-		if( (($id, $sqfrom, $sqto, $hmmf,$hmmt,$sc, $ev) = /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
-		    
+		if( (($id, $sqfrom, $sqto, $hmmf,$hmmt,$sc, $ev) = 
+		     /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
 		    $unit = Bio::Tools::HMMER::Domain->new();
 		    $unit->seqname  ($seqname);
 		    $unit->hmmname  ($id);
@@ -729,19 +730,18 @@ sub _parse_hmmpfam {
 		}
 	    }
 	    if( /^\/\// ) { next; }
-
+	    
 	    $_ = <$file>;
-
-
 	    # parses alignment lines. Icky as we have to break on the same line
 	    # that we need to read to place the alignment lines with the unit.
 
 	    while(1) {
-		/^\/\// && last;
+		(!defined $_ || /^\/\//) && last;
 
 		# matches:
 		# PF00621: domain 1 of 1, from 198 to 372
 		if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/ ) {
+		    
 		    $name = $1;
 		    $from = $2;
 		    $to   = $3;
@@ -762,7 +762,6 @@ sub _parse_hmmpfam {
 		} else {
 		    $_ = <$file>;
 		}
-		    
 	    }
 
 	    # back to main 'Query:' loop
