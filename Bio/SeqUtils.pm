@@ -275,7 +275,9 @@ sub translate_6frames {
 
  Title   : valid_aa
  Usage   : my @aa = $table->valid_aa
- Function: Retrieves a list of the valid amino acid codes
+ Function: Retrieves a list of the valid amino acid codes.
+           The list is ordered so that first 21 codes are for unique 
+           amino acids. The rest are ['B', 'Z', 'X', '*'].
  Returns : array of all the valid amino acid codes
  Args    : [optional] $code => [0 -> return list of 1 letter aa codes,
 				1 -> return list of 3 letter aa codes,
@@ -291,15 +293,15 @@ sub valid_aa{
        foreach my $c ( sort values %ONECODE ) {
 	   push @codes, $c unless ( $c =~ /[BZX\*]/ );
        }
-       push @codes, qw(B Z X); # so they are in correct order ?
+       push @codes, qw(B Z X *); # so they are in correct order ?
        return @codes;
-  } 
+  }
    elsif( $code == 1 ) { 
        my @codes;
        foreach my $c ( sort keys %ONECODE ) {
 	   push @codes, $c unless ( $c =~ /(Asx|Glx|Xaa|Ter)/ );
        }
-       push @codes, ('Asx', 'Glx', '?' );
+       push @codes, ('Asx', 'Glx', 'Xaa', 'Ter' );
        return @codes;
    }
    elsif( $code == 2 ) { 
