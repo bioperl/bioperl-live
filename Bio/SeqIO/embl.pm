@@ -205,10 +205,11 @@ sub next_seq {
        }
 
        #accession number
-       if( /^AC\s+(\S+);?/ ) {
-	   $acc = $1;
-	   $acc =~ s/\;//;
-	   $seq->accession_number($acc);
+       if( /^AC\s+(.*)?/ ) {
+	   my @accs = split(/[; ]+/, $1); # allow space in addition
+	   $seq->accession_number(shift(@accs))
+	       if($seq->accession_number eq  "unknown");
+	   $seq->add_secondary_accession($_) foreach @accs;
        }
        
        #version number
@@ -382,8 +383,8 @@ sub write_seq {
         } elsif( $seq->isa('Bio::Seq::RichSeqI') && 
 		 defined($seq->accession_number) ) {
             $acc = $seq->accession_number;
-        }
-
+	    $acc = join(";", $acc, $seq->get_secondary_accessions);
+	}
         if (defined $acc) {
             $self->_print("AC   $acc;\n",
 			  "XX\n");
