@@ -44,7 +44,7 @@ email or the web:
 
 =head1 AUTHOR - David Block
 
-Email dblock@gene.pbi.nrc.ca
+Email dblock@gnf.org
 
 Describe contact details here
 
@@ -80,9 +80,9 @@ sub new {
 
 
 =head2 is_coding
-
+    
  Title   : is_coding
-  Usage   : if ($feature->is_coding()) {
+ Usage   : if ($feature->is_coding()) {
                      #do something
             }
  Function: Whether or not the feature codes for amino acid.
