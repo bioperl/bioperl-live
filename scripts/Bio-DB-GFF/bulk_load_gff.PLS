@@ -305,8 +305,8 @@ while (<>) {
   }
   next unless defined $ref;
   $FEATURES++;
-
-  warn "Feature $group is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $stop-$start+1 > $MAX_BIN;
+  my $size = $stop-$start+1;
+  warn "Feature $group ($size) is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $size > $MAX_BIN;
 
   $source = '\N' unless defined $source;
   $score  = '\N' if $score  eq '.';
