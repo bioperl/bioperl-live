@@ -4,21 +4,9 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-#-----------------------------------------------------------------------
-## perl test harness expects the following output syntax only!
-## 1..3
-## ok 1  [not ok 1 (if test fails)]
-## 2..3
-## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
-##
-## etc. etc. etc. (continue on for each tested function in the .t file)
-#-----------------------------------------------------------------------
-
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..14\n"; 
+BEGIN { $| = 1; print "1..8\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -42,7 +30,37 @@ sub test ($$;$) {
 $protein = 'VXCAAEFDFMEKETPLRYTKTLLLPVVLVVFVAIVRKIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYTALGILIMRLKLFLTPYMCVMASLICSRQLFGWLFCKVHPGAIVFVILAAMSIQGSANLQTQWKSTASLALET';
 
 # Build object
-test 2, $seq = new Bio::Tools::Sigcleave(-ID   =>'test_sigcleave_seq',
-                                         -TYPE =>'amino',
-			                 -SEQ  =>$protein); 
+test 2, $sigcleave_object = new Bio::Tools::Sigcleave(-ID   =>'test_sigcleave_seq',
+                                                      -TYPE =>'amino',
+			                              -SEQ  =>$protein); 
+# Test raw result accessor
+test 3, %results = $sigcleave_object->signals, "unable to get raw sigcleave results";
+
+# Test formatted output method
+test 4, $formatted_output = $sigcleave_object->pretty_print, "unable to pretty print sigcleave results";
+
+##
+## More tests
+##
+
+$sigcleave_object = new Bio::Tools::Sigcleave(-ID   =>'test_sigcleave_seq',
+                                              -TYPE =>'amino',
+		                              -SEQ  =>$protein); 
+my %results = $sigcleave_object->signals;
+
+unless($results{111}) { print "not ok 5   expected to see a sigcleave score at position 111\n";
+ } else { print "ok 5\n"; }
+
+unless($results{130}) { print "not ok 6   expected to see a sigcleave score at position 130\n";
+ } else { print "ok 6\n"; }
+
+unless($results{111} == 3.7) { print "not ok 7   expected sigcleave score of 3.7 at position 111\n";
+ } else { print "ok 7\n"; }
+
+unless($results{130} == 4.9) { print "not ok 8   expected sigcleave score of 4.9 at position 130\n";
+ } else { print "ok 8\n"; }
+
+
+
+
 
