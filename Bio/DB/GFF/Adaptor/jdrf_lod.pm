@@ -444,6 +444,8 @@ sub get_features {
 sub _do_callback {
   my $self = shift;
   my ( $callback, $mrk_name, $chr, $str_id, $method, $markers ) = @_;
+  ## TODO: REMOVE
+  #warn "This next one has a score of ".$markers->{ $mrk_name }{ 'score' }.".";
   $callback->( # 13 arguments..
     $chr,                             # $refseq      The reference sequence
     $markers->{ $mrk_name }{ 'start' }, # $start       feature start
@@ -461,7 +463,7 @@ sub _do_callback {
     'lod:$str_id',                    # $group_id    The group id..
     ## Tags and their values
     'fuzzy' => $markers->{ $mrk_name }{ 'fuzzy' },
-    'link'  => 'http://jdrfdev.systemsbiology.net/cgi-bin/jdrf_publication.cgi?str_id=$str_id'
+    'link'  => "http://jdrfdev.systemsbiology.net/cgi-bin/jdrf_publication.cgi?str_id=$str_id"
   );
 } # _do_callback(..)
 

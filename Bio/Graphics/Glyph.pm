@@ -282,10 +282,6 @@ sub bounds {
 
 sub box {
   my $self = shift;
-  ## TODO: REMOVE
-  #if( $self->level != -1 ) {
-  #  warn "For glyph with feature ".$self->feature().", box() is returning ( ".$self->left.', '.$self->top.', '.$self->right.', '.$self->bottom." )";
-  #}
   return ($self->left,$self->top,$self->right,$self->bottom);
 }
 

@@ -340,8 +340,11 @@ sub make_glyph {
 
     # this is removing glyphs that are not onscreen at all.
     # But never remove tracks!
-    push @result,$glyph if ( $type eq 'track' || $self->{flyweight} )
-	|| ($glyph->{left} + $glyph->{width} > $leftmost && $glyph->{left} < $rightmost);
+    ## TODO: Figure out how to turn on allowing offscreen features in
+    ## a per-track way..  For now we use the HACK of testing if the
+    ## track type is 'lod'..
+    push @result,$glyph if ( $type eq 'track' ) || ( $type eq 'lod' ) || $self->{flyweight} 
+      || ( ( ($glyph->{left} + $glyph->{width} ) > $leftmost ) && ( $glyph->{left} < $rightmost) );
 
   }
   return wantarray ? @result : $result[0];

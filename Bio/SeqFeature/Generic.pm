@@ -695,6 +695,19 @@ sub source_tag {
   return $self->{'_gsf_source_tag'};
 }
 
+sub make_link {
+  return shift->link( @_ );
+}
+
+sub link {
+  my $self = shift;
+  my $d = $self->{ '_gsf_tag_hash' }->{'link'};
+  $self->{ '_gsf_tag_hash' }->{'link'} = [ shift ] if @_;
+  return $d->[ 0 ] if ref( $d );
+  return $d if $d;
+  return;
+}
+
 =head2 has_tag
 
  Title   : has_tag
