@@ -4,17 +4,17 @@ This is the README file for the Bioperl central distribution.
 
 o Version
 
- This is Bioperl version 1.3 from CVS HEAD
+ This is Bioperl version 1.4 from CVS HEAD
 
 o Getting Started
  
  Thanks for downloading this distribution!
 
- For tutorials see Bioperl's bptutorial.pl (in this directory) or 
- howto documents in docs/howto or the online Bioperl tutorial
+ For tutorials see Bioperl's bptutorial.pl in this directory or 
+ HOWTO documents in docs/howto or the online Bioperl tutorial
  at http://www.pasteur.fr/recherche/unites/sis/formation/bioperl. For
  information on databases and Bioperl see biodatabases.pod. To look at
- example code browse the scripts/ directories, and look at
+ example code browse the scripts/ and examples/ directories, and look at
  bioscripts.pod for a descriptions of all these scripts. The bioperl.pod file
  also gives a overview of the history and purpose of Bioperl. The FAQ
  may also be useful if you have a particular question.
@@ -243,16 +243,16 @@ o A simple module summary
  - Coordinate is a system for mapping between different coordinate
    systems such as DNA to protein or between assemblies.
  - Index is for locally indexed flatfiles with BerkeleyDB
- - Tools contains many misc parsers and function for different
+ - Tools contains many miscellaneous parsers and function for different
    bioinformatics needs
    o Gene prediction parser (Genscan, MZEF, Grail, Genemark)
    o Annotation format (GFF)
-   o simulate RE cutting with RestrictionEnzyme
+   o simulate restriction enzyme cutting with RestrictionEnzyme
    o Enumerate codon tables and valid sequences symbols (CodonTable, IUPAC)
    o Phylogenetic program parsing (PAML, Molphy, Phylip)
  - Map genetic and physical map representations
- - Graphics render a sequence with its features in the standard
-   'tracks'gram.
+ - Graphics render a sequence with its features or a sequence analysis
+   result.
  - Structure - parse and represent protein structure data
  - TreeIO is for reading and writing Tree formats
  - Tree is the namespace for all the associated Tree objects
