@@ -157,7 +157,7 @@ sub next_aln {
 	next if s/\[[^\]]+\]//g; # remove comments
 	if( s/\[[^\]]+$// ) {
 	    $incomment = 1;
-	    next unless length($_); # skip the line if it is now empty
+	    next if /^\s*$/; # skip line if it is now empty or contains only whitespace
 	} elsif($incomment) {
 	    if( s/^[^\]]*\]// ) {
 		$incomment = 0;
@@ -206,9 +206,8 @@ sub next_aln {
 	while ($entry = $self->_readline) {
 	    local ($_) =  $entry;
 	    if( s/\[[^\]]+\]//g ) { #]  remove comments
-		next unless length($_);
+		next if /^\s*$/; # skip line if it is now empty or contains only whitespace
             }
-
 	    if ($interleave) {
 		/^\s+$/ and last;
 	    } else {
@@ -232,11 +231,11 @@ seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $
 
     # interleaved sections
     $count = 0;
-    if ( $interleave || (@names > 0) ) {	# NSH - only read next section if we are using interleaved or there was a taxa block
+    if ( $interleave ) {	# only read next section if file is interleaved
 	while( $entry = $self->_readline) {
 	    local ($_) =  $entry;
-	    if( s/\[[^\]]+\]//g ) { #]  remove comments	    
-		next unless length($_);
+	    if( s/\[[^\]]+\]//g ) { #]  remove comments
+		next if /^\s*$/; # skip line if it is now empty or contains only whitespace
 	    }
 	    last if /^\s*;/;
 	    $count = 0, next if $entry =~ /^\s*$/;
@@ -247,7 +246,7 @@ seqcount [$count] > predeclared [$seqcount] in the first section") if $count > $
 		$hash{$count} .= $str;
 	    };
 	    $self->throw("Not a valid interleaved NEXUS file!
-    seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
+    		seqcount [$count] > predeclared [$seqcount] ") if $count > $seqcount;
     
 	}
     }
@@ -356,10 +355,10 @@ sub write_aln {
 	$self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
 			       $aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
 
-	my $indent = $aln->maxdisplayname_length + 2;			# NSH - account for additional single quotes
+	my $indent = $aln->maxdisplayname_length + 2;			# account for single quotes round names
 	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
-	    $name = "\'" . $aln->displayname($seq->get_nse()) . "\'";	# NSH - put name in single quotes incase it contains any of the following chars: ()[]{}/\,;:=*'"`+-<> that are not allowed in PAUP* and possible other software
+	    $name = "\'" . $aln->displayname($seq->get_nse()) . "\'";	# put name in single quotes incase it contains any of the following chars: ()[]{}/\,;:=*'"`+-<> that are not allowed in PAUP* and possible other software
 	    $name = sprintf("%-${indent}s", $name);
 	    $hash{$name} = $seq->seq();
 	    push(@arr,$name);
