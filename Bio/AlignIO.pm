@@ -49,7 +49,7 @@ or
 Bio::AlignIO is a handler module for the formats in the AlignIO set
 (eg, Bio::AlignIO::fasta). It is the officially sanctioned way of
 getting at the alignment objects, which most people should use. The
-resulting alignment is a L<Bio::SimpleAlign> object.
+resulting alignment is a L<Bio::Align::AlignI> compliant object.
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read
@@ -397,7 +397,7 @@ END
  Title   : next_aln
  Usage   : $aln = stream->next_aln
  Function: reads the next $aln object from the stream
- Returns : a Bio::SimpleAlign object
+ Returns : a Bio::Align::AlignI compliant object
  Args    : 
 
 =cut
@@ -442,6 +442,7 @@ sub _guess_format {
    return 'selex'   if /\.(selex|slx|selx|slex|sx)$/i;
    return 'phylip'  if /\.(phylip|phlp|phyl|phy|phy|ph)$/i;
    return 'nexus'   if /\.(nexus|nex)$/i;
+   return 'mega'    if( /\.(meg|mega)$/i );
 }
 
 sub DESTROY {
