@@ -411,7 +411,7 @@ sub evalue { shift->significance(@_) }
 sub significance {
     my $self = shift;
     my $signif = $self->query->significance(@_);
-    return $signif || $self->pvalue(@_);
+    return (defined $signif && $signif ne '') ? $signif : $self->pvalue(@_);
 }
 
 
