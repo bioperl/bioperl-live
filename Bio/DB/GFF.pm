@@ -1807,7 +1807,7 @@ sub get_types {
   $strand                Feature strand
   $phase                 Feature phase
   $group_class           Class of feature group
-  $group_name            Name of feature group         
+  $group_name            Name of feature group
   $tstart                For homologies, start of hit on target
   $tstop                 Stop of hit on target
 

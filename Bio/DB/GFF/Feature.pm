@@ -126,6 +126,7 @@ sub new_from_parent {
 		     ref       => $parent->{ref},
 		     refstart  => $parent->{refstart},
 		     refstrand => $parent->{refstrand},
+		     absolute => $parent->{absolute},
 		     start  => $start,
 		     stop   => $stop,
 		     type   => Bio::DB::GFF::Typename->new($method,$source),
@@ -167,7 +168,7 @@ The 11 arguments are positional:
                       sequence, which has its own strandedness!)
   $phase        this feature\'s phase
   $group        this feature\'s group
-  $db_id        this feature\'s internal database ID                    
+  $db_id        this feature\'s internal database ID
 
 =cut
 
