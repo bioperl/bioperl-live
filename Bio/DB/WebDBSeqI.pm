@@ -724,19 +724,22 @@ sub _stream_request {
   my $child = open (FETCH,"-|");
   $self->throw("Couldn't fork: $!") unless defined $child;
 
+  my $is_fasta = $self->request_format eq 'fasta';
+
   if ($child) { # in parent
-    local ($/) = "//\n";  # assume genbank/swiss format
+    local ($/) =  $is_fasta ? ">" : "//\n";  # assume genbank/swiss format
     $| = 1;
     my $records = 0;
     while (my $record = <FETCH>) {
+      chomp;
+      next unless $record;
       $records++;
       $self->postprocess_data('type'     => 'string',
 			      'location' => \$record);
-      print STDOUT $record;
+      print STDOUT $is_fasta ? ">$record" : "$record//\n";
     }
     $/ = "\n"; # reset to be safe;
-    close(FETCH);
-    close STDOUT;
+    close FETCH;
     return $records;
   }
   else {
