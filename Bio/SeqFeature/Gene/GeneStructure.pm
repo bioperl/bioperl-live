@@ -17,11 +17,15 @@ Bio::SeqFeature::Gene::GeneStructure - A feature representing an arbitrarily
 
 =head1 SYNOPSIS
 
+See documentation of methods.
 
 =head1 DESCRIPTION
 
-A feature representing a gene structure.
-
+A feature representing a gene structure. As of now, a gene structure
+really is only a collection of transcripts. See
+Bio::SeqFeature::Gene::TranscriptI (interface) and
+Bio::SeqFeature::Gene::Transcript (implementation) for the features of
+such objects.
 
 =head1 FEEDBACK
 
@@ -46,7 +50,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net or hilmar.lapp@pharma.novartis.com
+Email hlapp@gmx.net
 
 Describe contact details here
 
@@ -185,6 +189,8 @@ sub promoters {
            A special and virtual type is 'coding', which refers to all types
            except utr.
 
+           This method basically merges the exons returned by transcripts.
+
  Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects.
  Args    : An optional string specifying the type of exon.
 
@@ -212,6 +218,8 @@ sub exons {
            that is, it simply treats all regions between exons as introns.
            It assumes that the exons in the transcripts do not overlap.
 
+           This method basically merges the introns returned by transcripts.
+
  Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    : 
 
@@ -234,6 +242,10 @@ sub introns {
  Title   : poly_A_sites()
  Usage   : @polyAsites = $gene->poly_A_sites();
  Function: Get the poly-adenylation sites of this gene structure.
+
+           This method basically merges the poly-adenylation sites returned by
+           transcripts.
+
  Returns : An array of Bio::SeqFeatureI implementing objects.
  Args    : 
 
@@ -263,6 +275,8 @@ sub poly_A_sites {
            You may provide an argument specifying the type of UTR. Currently
            the following types are recognized: 5prime 3prime for UTR on the
            5' and 3' end of the CDS, respectively.
+
+           This method basically merges the UTRs returned by transcripts.
 
  Returns : An array of Bio::SeqFeature::Gene::ExonI implementing objects
            representing the UTR regions or sites.
@@ -324,7 +338,7 @@ sub sub_SeqFeature {
  Example :
  Returns : none
  Args    : Optionally, an argument evaluating to TRUE will suppress flushing
-           of all added subfeatures (exons etc.).
+           of all gene structure-specific subfeatures (transcripts).
 
 
 =cut
