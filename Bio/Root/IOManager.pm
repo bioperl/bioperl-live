@@ -719,12 +719,24 @@ sub read {
 
     $DEBUG && printf STDERR "$ID: read(): rec_sep = %s; func = %s\n",$/, ($func_ref?'defined':'none');
     
-    my($data, $lines);
+    my($data, $lines, $alarm_available);
+
+    $alarm_available = 1;
+
+    eval {
+        alarm(0);
+    };
+    if($@) {
+        # alarm() not available (ActiveState perl for win32 doesn't have it.
+        # See jitterbug PR#98)
+        $alarm_available = 0;
+    }
 
     $SIG{ALRM} = sub { die "Timed out!"; };
  
     eval {
-	 alarm($wait);
+        $alarm_available and alarm($wait);
+        
       READ_LOOP:
 	while(<$FH>) {
 	    # Default behavior: read all lines.
@@ -733,7 +745,7 @@ sub read {
 #	    next if m@^(\s*|$/*)$@; 
 	    
 	    $lines++;
-	    alarm(0);  # Deactivate the alarm as soon as we start reading.
+            $alarm_available and alarm(0);  # Deactivate the alarm as soon as we start reading.
 	    my($result);
 	    if($func_ref) {
 		# Need to reset $/ for any called function.
@@ -748,8 +760,8 @@ sub read {
 	 $self->throw("Timed out while waiting for input from $self->{'_input_type'}.", "Timeout period = $wait seconds.\nFor a longer time out period, supply a -wait => <seconds> parameter\n".
 		     "or edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
     } elsif($@ =~ /\S/) {
-         my $err = $@;
-	 $self->throw("Unexpected error during read: $err");
+        my $err = $@;
+        $self->throw("Unexpected error during read: $err");
     }
 
     close ($FH) unless $self->{'_input_type'} eq 'STDIN';

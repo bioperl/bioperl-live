@@ -43,10 +43,10 @@ use POSIX;
 		 std => [qw($Util)],);
 
 use strict;  
-use vars qw($ID $VERSION $Util $GNU_PATH);
+use vars qw($ID $VERSION $Util $GNU_PATH $DEFAULT_NEWLINE);
 
 $ID        = 'Bio::Root::Utilities';
-$VERSION   = 0.042;
+$VERSION   = 0.05;
 
 # $GNU_PATH points to the directory containing the gzip and gunzip 
 # executables. It may be required for executing gzip/gunzip 
@@ -55,6 +55,8 @@ $VERSION   = 0.042;
 # uncompress() functions are generating exceptions.
 $GNU_PATH  = ''; 
 #$GNU_PATH  = '/tools/gnu/bin/'; 
+
+$DEFAULT_NEWLINE = "\012";  # \n  (used if get_newline() fails for some reason)
 
 ## Static UTIL object.
 $Util = {};
@@ -242,7 +244,7 @@ See Also   : L<file_date>(), L<month2num>()
 
 =cut
 
-#---------------
+#---------------'
 sub date_format {
 #---------------
     my $self   = shift;
@@ -330,7 +332,9 @@ sub date_format {
 
 =cut
 
+#--------------'
 sub month2num {
+#--------------
 
     my ($self, $str) = @_;
 
@@ -587,7 +591,7 @@ sub file_date {
 
 =cut
 
-#------------	
+#------------`
 sub untaint {
 #------------	
     my($self,$value,$relax) = @_;
@@ -909,7 +913,7 @@ sub get_newline {
     
     delete $client->{'_input_type'};
 
-    return $NEWLINE;
+    return $NEWLINE || $DEFAULT_NEWLINE;
   }
 
 

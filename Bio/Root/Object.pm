@@ -1888,7 +1888,9 @@ sub _set_io {
     
     require Bio::Root::IOManager;
 
-    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self, @_);
+# See PR#192. Test this
+#    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self, @_);
+    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self);
 }
 
 
