@@ -217,6 +217,9 @@ BEGIN {
                 For 'soap' access it is a URL of a WebService.
                 Default is http://industry.ebi.ac.uk/soap/openBQS
 
+             -data_source synonym for -access # NG 03-06-09
+               Only works for 'ncbi_eutils'
+
            Other arguments can be given here but they are
            recognized by the lower-level module
            (e.g. see Bio::DB::Biblio::soap).
@@ -278,10 +281,20 @@ sub new {
     } else { 
 	my %param = @args;
 	@param { map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $access =
-	    $param {'-access'} || 
+	
+	# NG 03-06-15. Changed to handle ncbi_eutils parameter combinations
+	my $access;
+	$access= 'ncbi_eutils' if
+	  (lc $param {'-access'} eq 'ncbi_eutils' || lc $param {'-format'} eq 'ncbi_eutils') && 
+	    !($param {'-file'} || $param {'-filehandle'});
+	$access or $access='ncbi_eutils_file' if 
+	  lc $param {'-format'} eq 'ncbi_eutils' && ($param {'-file'} || $param {'-filehandle'});
+	$access or $access='alzforum_file' if 
+	  lc $param {'-format'} eq 'alzforum' && ($param {'-file'} || $param {'-filehandle'});
+	$access or $access =
+	  $param {'-access'} || 
 	    $class->_guess_access ( $param {'-location'} ) ||
-	    'soap';
+	      'soap';
 	$access = "\L$access";	# normalize capitalization to lower case
 
 	# load module with the real implementation - as defined in $access
@@ -292,6 +305,27 @@ sub new {
 	return "Bio::DB::Biblio::$access"->new (@args);
     }
 }
+
+# NG 03-06-15
+# Code adapted from Bio::Biblio::IO::medlinexml by Martin Senger
+sub newFh {
+  my $class = shift;
+  my $self = $class->new(@_);
+  $self->throw("Sorry, newFh only defined for ncbi_eutils or alzforum access module") unless $self->isa('Bio::DB::Biblio::ncbi_eutils') || $self->isa('Bio::DB::Biblio::alzforum');
+  return $self->fh;
+}
+#sub fh {
+#  my $self = shift;
+#  my $class = ref($self) || $self;
+#  my $s = Symbol::gensym;
+#  tie $$s,$class,$self;
+#  return $s;
+#}
+#sub TIEHANDLE {
+#  my ($class,$val) = @_;
+#  return bless {'biblio' => $val}, $class;
+#}
+#sub READLINE {$_[0]->throw("Not implemented");}
 
 # -----------------------------------------------------------------------------
 
