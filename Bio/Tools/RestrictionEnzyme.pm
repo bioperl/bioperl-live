@@ -773,6 +773,81 @@ sub available_list {
     @names;
 }
 
+=head1 cuts_seq_at
+
+ Title     : cuts_seq_at
+ Usage     : $re->cuts_seq_at(<sequence object>);
+ Purpose   : Conceptually cut or "digest" a DNA sequence with the given enzyme.
+           : and return information about the positions at which the cuts 
+           : occur.
+ Example   : @positions = $re->cuts_seq_at(<sequence object>); 
+ Returns   : An array of integers.  Each integer describes the
+           : position at which the restriction enzyme would cut.
+ Argument  : Reference to a Bio::Seq.pm-derived object.
+ Throws    : Exception if argument is not an object.
+           : (Does not yet verify that it is derived from Bio::Seq.pm.)
+ Comments  : I *think* that this is right for non-palindromic enzymes
+           : like TspRI, but I wouldn't bet a lot of beer on it.  
+
+=cut
+
+#-------------
+sub cuts_seq_at {
+#-------------
+    my( $self, $seqObj) = @_;
+
+    # Could check that $seqObj is derived from Seq (Perl 5.004).
+    ref $seqObj || $self->throw( "Can't cut sequence. Missing or invalid object",
+				 "seqObj: $seqObj");
+    
+#    print "$ID: locating cut sites in sequence.\n";
+
+    my $cuts_after = $self->{'_cuts_after'};
+    my $reString = $self->seq()->seq;
+    my $revReString = $self->seq->revcom->seq;
+    my $forwardFudgeFactor = length($reString) - $cuts_after;
+    my $reverseFudgeFactor = $cuts_after;
+    my $seqString;
+    my @positions;
+    my $position;
+
+    # translate the ambiguity codes into perl regular expression patterns.
+    $reString =~ s/N/\./g;
+    $reString =~ s/R/\[AG\]/g;
+    $reString =~ s/Y/\[CT\]/g;
+    $reString =~ s/S/\[GC\]/g;
+    $reString =~ s/W/\[AT\]/g;
+
+    # build up the array of positions where the restriction enzyme's pattern
+    # matches.  These are the positions of the last base before the cut.
+    $seqString = $seqObj->seq;
+    while ($seqString =~ m/$reString/gc) {
+      $position = pos $seqString;
+      push @positions, $position - $forwardFudgeFactor;
+    }
+
+    # check for cuts on the other strand by non-palindromic enzymes.
+    # e.g. TspRI
+    if(!$self->palindromic) {
+      $revReString =~ s/N/\./g;
+      $revReString =~ s/R/\[AG\]/g;
+      $revReString =~ s/Y/\[CT\]/g;
+      $revReString =~ s/S/\[GC\]/g;
+      $revReString =~ s/W/\[AT\]/g;
+      
+      $seqString = $seqObj->seq;
+      while ($seqString =~ m/$revReString/gc) {
+ 	$position = pos $seqString;
+ 	push @positions, $position - $reverseFudgeFactor;
+      }
+    }
+    
+    my(@tempArray) = sort {$a<=>$b} @positions;
+    @positions = @tempArray;
+    return(@positions);
+}
+
+
 1;
 __END__
 	

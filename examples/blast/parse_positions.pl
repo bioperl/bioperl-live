@@ -87,7 +87,8 @@ QQ_EG_QQ
 &set_blast_params();
 
 my $file = $opt_in || $ARGV[0];
-my (@qidentical, @qidentical, @sconserved, @qconserved);
+my (@qidentical, @sconserved, @qconserved);  
+# my (@qidentical, @qidentical, @sconserved, @qconserved);   #ps 3/24/00
 
 # Load the file into the Blast parameters.
 $blastParam{-file} = $file || '';

@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..14\n"; 
+BEGIN { $| = 1; print "1..24\n"; 
 	use vars qw($loaded); }
 END {print "not ok 1\n" unless $loaded;}
 
@@ -69,6 +69,27 @@ test 12, $l1 + $l2 == $seq->length, "sum of frag lengths != length of original s
 test 13, @sixcutters = $re->available_list(6), "can't get list of 6-cutters";
 test 14, $re->is_available('HindIII');
 
+test 15, @positions = $re->cuts_seq_at($seq);
+test 16, scalar(@positions) == 1;
+test 17, $positions[0] == 27;
+
+# TspRI cuts at the pattern: CASTGNN, after the second N.
+# forward strand cuts (after the bar)
+#                   |                                               |
+$dna = "ACGTGGCAGTGATGGCGGGAATTCGCCATGGCGACCCTGGAAAAGCTGATGATTCAGTGAAAACTG";
+#          |                                               |
+# reverse strand cuts (after the bar)
+# Build sequence and restriction enzyme objects.
+
+$seq = new Bio::Seq(-ID  =>'test_seq', -SEQ =>$dna); 
+	
+test 18, $re  = new Bio::Tools::RestrictionEnzyme(-NAME=>'TspRI');
+test 19, @positions = $re->cuts_seq_at($seq);
+test 20, scalar(@positions) == 4;
+test 21, $positions[0] == 4;	# this one's on the reverse strand.
+test 22, $positions[1] == 13;	# this one's on the forward strand.
+test 23, $positions[2] == 52;	# this one's on the reverse strand.
+test 24, $positions[3] == 61;	# this one's on the forward strand.
 
 
 
