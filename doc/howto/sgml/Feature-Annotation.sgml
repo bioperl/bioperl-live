@@ -351,22 +351,71 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
       Many people wouldn't write code in the rather deliberate style
-      I've used above. The following is a more compact bit of code
-      that gets all the features with a primary tag of 'gene',
+      I've used above. The following is more compact code
+      that gets all the features with a primary tag of 'CDS',
       starting with a Genbank file:
       <programlisting>
-	my @gene_features = grep { $_->primary_tag eq 'gene' }
+	my @cds_features = grep { $_->primary_tag eq 'CDS' }
 	Bio::SeqIO->new(-file => $gb_file)->next_seq->get_SeqFeatures;
       </programlisting>
-      So...
+      With this array of SeqFeatures you could do all sorts of
+      useful things, such as find all the values for
+      the 'gene' tags and their corresponding spliced nucleotide
+      sequences and store them in a hash:
       <programlisting>
-	$gene_features[0]->spliced_seq->seq;
+	my %gene_sequences = map {$_->get_tag_values('gene'),
+	                          $_->spliced_seq->seq } @cds_features;
       </programlisting>
-      Would give you the spliced nucleotide sequence, of course. 
+      Because you're asking for a specific primary tag and tag, 'CDS'
+      and 'gene' respectively, this would only work when there are 
+      features that looked something like this:
+      <programlisting>
+     CDS             735..1829
+                     /gene="MG001"
+                     /codon_start=1
+                     /product="DNA polymerase III, subunit beta (dnaN)"
+                     /protein_id="AAC71217.1"
+                     /translation="MNNVIISNNKIKPHHSYFLIEAKEKEINFYANNEYFSVKCNLNK
+                     NIDILEQGSLIVKGKIFNDLINGIKEEIITIQEKDQTLLVKTKKTSINLNTINVNEFP
+                     RIRFNEKNDLSEFNQFKINYSLLVKGIKKIFHSVSNNREISSKFNGVNFNGSNGKEIF
+                     LEASDTYKLSVFEIKQETEPFDFILESNLLSFINSFNPEEDKSIVFYYRKDNKDSFST
+                     EMLISMDNFMISYTSVNEKFPEVNYFFEFEPETKIVVQKNELKDALQRIQTLAQNERT
+                     FLCDMQINSSELKIRAIVNNIGNSLEEISCLKFEGYKLNISFNPSSLLDHIESFESNE
+                     INFDFQGNSKYFLITSKSEPELKQILVPSR"
+      </programlisting>
     </para>
     <para>
+      One last note on Genbank features. The Bioperl parsers for Genbank and EMBL are
+      built to respect the specification for the feature tables agreed
+      upon by Genbank, EMBL, and DDBJ (see <ulink 
+	url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/">Feature
+      Table Definition</ulink> for the details). Check this page if
+      you're interested in a complete listing and description of all the 
+      Genbank, EMBL, and DDBJ feature tags.
+    </para>
+    <para>
+      Despite this specification some non-standard feature descriptors 
+      have crept into Genbank, like "bond". When the Bioperl Genbank 
+      parser encounters a non-standard
+      feature like this it's going to throw a fatal exception. The 
+      work-around is to use eval{} so you don't die, something like:
+      <programlisting>
+	use Bio::SeqIO;
+	my $seq_object;
+	my $seqio_object = Bio::SeqIO->new(-file   => $gb_file,
+                                           -format => "genbank");
+	eval { $seq_object = $seqio_object->next_seq; };
+	# if there's an error
+	print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
+      </programlisting>
+    </para>  
+  </section>
+ 
+  <section id="other_objects">
+    <title>Other objects</title>
+    <para>
       As an aside I should mention that certain data
-      associated with the sequence in a Genbank file is accessible both 
+      associated in a Genbank file is accessible both 
       as a feature and through a specialized object. Taxonomic 
       information on a sequence, below, can be accessed 
       through a Species object as well as a value to the "organism"
@@ -515,31 +564,6 @@ start: 1
 	# as well as title(), location(), medline(), start(), and end()
       </programlisting>
     </para>
-    <para>
-      One last note on Genbank. The parsers for Genbank and EMBL are
-      built to respect the specification for the feature tables agreed
-      upon by Genbank, EMBL, and DDBJ (see <ulink 
-	url="http://www.ncbi.nlm.nih.gov/projects/collab/FT/">Feature
-      Table Definition</ulink> for the details). Check this page if
-      you're interested in a complete listing and description of all the 
-      Genbank, EMBL, and DDBJ feature tags.
-    </para>
-    <para>
-      Despite this specification some non-standard feature descriptors 
-      have crept into Genbank, like "bond". When the Bioperl Genbank 
-      parser encounters a non-standard
-      feature like this it's going to throw a fatal exception. The 
-      work-around is to use eval{} so you don't die, something like:
-      <programlisting>
-	use Bio::SeqIO;
-	my $seq_object;
-	my $seqio_object = Bio::SeqIO->new(-file   => $gb_file,
-                                           -format => "genbank");
-	eval { $seq_object = $seqio_object->next_seq; };
-	# if there's an error
-	print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
-      </programlisting>
-    </para>  
   </section>
 
   <section id="direct">
@@ -650,7 +674,7 @@ start: 1
       <programlisting>
 	# first we want a Sequence object
 	my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtggg");
-	# attach the sequence
+	# associate the sequence and the feature
 	$feat->attach_seq($seq_obj);
       </programlisting>
       Once you have a feature you can add annotations to it using an
@@ -661,37 +685,28 @@ start: 1
 	$db_link->primary_id('2367');
 	$feat->annotation->add_Annotation('dblink',$db_link);
     </programlisting>
+      Note that the first argument to
+      <function>add_Annotation()</function>
+      is the tag name, 'dblink'.
     </para>
   </section>
+<para>
+    What if you wanted to add an Annotation directly to a sequence?
+    This is an operation similar to the one above. Assume you already have
+    a sequence object, you'll create the Annotation object and simply
+    add the object to the sequence object: 
+    <programlisting>
+      # first create an Ontology annotation
+      my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
+                                                      -tagname => 'Gene Name');
+      $seq_object->annotation->add_Annotation($annterm);
+    </programlisting>
+    This is an interesting example because the OntologyTerm object was
+    created with a tag name, so you don't need to specify it when you use the 
+    <function>add_Annotation()</function> method.
+  </para>
 
 <!--
-   # this also implements a tag/value pair, where tag _and_ value are treated
-   # as ontology terms
-   my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
-                                                   -tagname => 'Gene Name');
-   # ontology terms can be added directly - they implicitly have a tag
-   $coll->add_Annotation($annterm);
-
-If you're making lots of Annotation perhaps you want a Factory:
-
- Title   : new
- Usage   : my $obj = new Bio::Annotation::AnnotationFactory();
- Function: Builds a new Bio::Annotation::AnnotationFactory object
- Returns : Bio::Annotation::AnnotationFactory
- Args    : -type => string, name of a L<Bio::AnnotationI> derived class.
-                    The default is L<Bio::Ontology::Term>.
-
-    use Bio::Annotation::AnnotationFactory;
-    #
-    my $factory = new Bio::Annotation::AnnotationFactory(
-  -type => 'Bio::Annotation::SimpleValue');
-    my $ann = $factory->create_object(-value => 'peroxisome',
-                                      -tagname => 'cellular component');
-
--->
-
-
-
   <section id="feature_variations">
     <!--  -->
     <title>The different SeqFeature objects</title>
@@ -699,29 +714,40 @@ If you're making lots of Annotation perhaps you want a Factory:
       
     </para>
   </section>
+-->
 
   <section id="annotation_variations">
-    <!--  
-    Annotation Collections are a way of storing a series of "interesting
-    facts" about something. We call an "interesting fact" in Bioperl an
-    Annotation (this differs from a Sequence Feature, which is called
-    a Sequence Feature and may or may not have an Annotation Collection).
-    
-    Tag            Object
-    
-    comment        Bio::Annotation::Comment
-    dblink         Bio::Annotation::DBLink
-    description    Bio::Annotation::SimpleValue
-    gene_name      Bio::Annotation::SimpleValue
-    ontology_term  Bio::Annotation::OntologyTerm
-    reference      Bio::Annotation::Reference
-    -->
     <title>The different Annotation objects</title>
     <para>
-      <!-- make table -->
+      There are a number of specialized Annotation objects, each
+      designed to accomodate a particular type of data. Here is a
+      table showing the existing types.
+    </para>
+    <table>
+      <title>The different Annotation objects</title>
+      <tgroup cols="2">
+	<thead>
+	  <row><entry>Description</entry><entry>Object</entry></row>  
+	</thead>
+	<tbody>
+	  <row><entry>comment</entry><entry>Bio::Annotation::Comment</entry></row>
+	  <row><entry>database identifier</entry><entry>Bio::Annotation::DBLink</entry></row>
+	  <row><entry>simple fact</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+	  <row><entry>generic value</entry><entry>Bio::Annotation::SimpleValue</entry></row>
+	  <row><entry>ontology term</entry><entry>Bio::Annotation::OntologyTerm</entry></row>
+	  <row><entry>reference</entry><entry>Bio::Annotation::Reference</entry></row>
+ 	</tbody>
+      </tgroup>
+    </table>
+    <para>
+      The best way to find out more about a particular Annotation is
+      in the module's own documentation. You can access the complete
+      module documentation online at 
+      <ulink url="http://doc.bioperl.org/">http://doc.bioperl.org/</ulink>.
     </para>
   </section>
 
+<!--
   <section id="unflattener">
     <!--  -->
     <title>Unflattener</title>
@@ -729,6 +755,7 @@ If you're making lots of Annotation perhaps you want a Factory:
       
     </para>
   </section>
+-->
 
   <section id="in_addition">
     <!--  -->
@@ -742,6 +769,10 @@ If you're making lots of Annotation perhaps you want a Factory:
       or comments that aren't addressed therein then write the 
       Bioperl community at bioperl-l@bioperl.org.
     </para>
+  </section>
+  <section id="acknowledgements">
+    <title>Acknowledgements</title>
+    Thanks to Steven Lembark for comments and neat code discussions.
   </section>
 </article>
 
