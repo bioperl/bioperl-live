@@ -689,7 +689,8 @@ $self->debug("seqres : $seqres_string\n");
 	my @l = unpack("A62" x (length($seqres_string)/62), $seqres_string);
 	for my $line (@l) {
 		# get out chain_id and sequence
-		my ($chid, $seq) = unpack("x3 A1 x7 A51", $line);
+		# we use a1, as A1 strips all spaces :(
+		my ($chid, $seq) = unpack("x3 a1 x7 A51", $line);
 		if ($chid eq " ") {
 			$chid = "default";
 		}
