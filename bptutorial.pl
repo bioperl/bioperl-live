@@ -719,9 +719,9 @@ follows:
   # this returns a Seq object :
   $seq1 = $gb->get_Seq_by_id('MUSIGHBA1');
   # this returns a Seq object :
-  $seq2 = $gb->get_Seq_by_acc('AF303112'))
+  $seq2 = $gb->get_Seq_by_acc('AF303112');
   # this returns a SeqIO object :
-  $seqio = $gb->get_Stream_by_id("J00522","AF303112","2981014");
+  $seqio = $gb->get_Stream_by_id(["J00522","AF303112","2981014"]);
 
 See section L<"III.2.1"> for information on using this SeqIO object.
 
@@ -1087,7 +1087,7 @@ translations in the other two forward frames, we would write:
 
 The fourth argument to "translate" makes it possible to use
 alternative genetic codes. There are currently 16 codon tables
-defined, including tables for 'Verterbate Mitochondrial', 'Bacterial',
+defined, including tables for 'Vertebrate Mitochondrial', 'Bacterial',
 'Alternative Yeast Nuclear' and 'Ciliate, Dasycladacean and Hexamita
 Nuclear' translation. These tables are located in the object
 Bio::Tools::CodonTable which is used by the translate method. For
