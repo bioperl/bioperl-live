@@ -197,15 +197,8 @@ sub next_prediction {
     # if the prediction section hasn't been parsed yet, we do this now
     $self->_parse_predictions() unless $self->_predictions_parsed();
 
-    # get next gene structure
-    $gene = $self->_prediction();
-
-    if($gene) {
-	# there is no predicted peptide or CDS sequence which could be filled
-	# in here
-    }
-
-    return $gene;
+    # return the next gene structure (transcript)
+    return $self->_prediction();
 }
 
 =head2 _parse_predictions
@@ -269,6 +262,7 @@ sub _parse_predictions {
 	    my $frm = index($flds[4], "1");
 	    $predobj->frame(($frm < 0) ? undef : $frm);
 	    $predobj->primary_tag($exon_tag);
+	    $predobj->is_coding(1);
 	    # add to gene structure (should be done only when start and end
 	    # are set, in order to allow for proper expansion of the range)
 	    $gene->add_exon($predobj);		

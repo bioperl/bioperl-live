@@ -24,8 +24,9 @@ Bio::Tools::Genscan - Results of one Genscan run
    # note: this class is-a Bio::Tools::AnalysisResult which implements
    # Bio::SeqAnalysisParserI, i.e., $genscan->next_feature() is the same
    while($gene = $genscan->next_prediction()) {
-       # $gene is an instance of Bio::Tools::Prediction::Gene
-       
+       # $gene is an instance of Bio::Tools::Prediction::Gene, which inherits
+       # off Bio::SeqFeature::Gene::Transcript.
+       #
        # $gene->exons() returns an array of 
        # Bio::Tools::Prediction::Exon objects
        # all exons:
@@ -37,9 +38,8 @@ Bio::Tools::Genscan - Results of one Genscan run
        @intrl_exons = $gene->exons('Internal');
        # terminal exons only
        @term_exons = $gene->exons('Terminal');
-       # singleton exons only -- should be same as $gene->exons() because
-       # there are no other exons supposed to exist in this structure
-       @single_exons = $gene->exons('Single');
+       # singleton exons: 
+       ($single_exon) = $gene->exons();
    }
 
    # essential if you gave a filename at initialization (otherwise the file
@@ -49,7 +49,8 @@ Bio::Tools::Genscan - Results of one Genscan run
 =head1 DESCRIPTION
 
 The Genscan module provides a parser for Genscan gene structure prediction
-output.
+output. It parses one gene prediction into a Bio::SeqFeature::Gene::Transcript-
+derived object.
 
 This module also implements the Bio::SeqAnalysisParserI interface, and thus
 can be used wherever such an object fits. See L<Bio::SeqAnalysisParserI>.
@@ -217,13 +218,6 @@ sub next_prediction {
 	    # CDS prediction, too?
 	    if($self->_has_cds()) {
 		($id, $seq) = $self->_read_fasta_seq();
-		# record the number of prepended Ns as an indication of the
-		# initial offset
-		my $frm_adjust = "";
-		if($seq =~ /^(n+)/) {
-		    $frm_adjust = $1;
-		}
-		$gene->frame(length($frm_adjust));
 		$seqobj = Bio::PrimarySeq->new('-seq' => $seq,
 					       '-display_id' => $id,
 					       '-moltype' => "dna");
@@ -248,10 +242,10 @@ sub next_prediction {
 
 sub _parse_predictions {
     my ($self) = @_;
-    my %exontags = ('Init' => 'InitialExon',
-		    'Intr' => 'InternalExon',
-		    'Term' => 'TerminalExon',
-		    'Sngl' => 'SingleExon');
+    my %exontags = ('Init' => 'Initial',
+		    'Intr' => 'Internal',
+		    'Term' => 'Terminal',
+		    'Sngl' => '');
     my $gene;
     my $seqname;
 
@@ -297,7 +291,8 @@ sub _parse_predictions {
 		$predobj->end_signal_score($flds[9]);
 		$predobj->coding_signal_score($flds[10]);
 		$predobj->significance($flds[11]);
-		$predobj->primary_tag($exontags{$flds[1]});
+		$predobj->primary_tag($exontags{$flds[1]} . 'Exon');
+		$predobj->is_coding(1);
 		# Figure out the frame of this exon. This is NOT the frame
 		# given by Genscan, which is the absolute frame of the base
 		# starting the first predicted complete codon. By comparing
@@ -327,10 +322,10 @@ sub _parse_predictions {
 		# number of bases the first codon is missing).
 		$predobj->frame(3 - $cod_offset);
 		# then add to gene structure object
-		$gene->add_exon($predobj);		
+		$gene->add_exon($predobj, $exontags{$flds[1]});		
 	    } elsif($flds[1] eq 'PlyA') {
 		$predobj->primary_tag("PolyAsite");
-		$gene->add_poly_A_site($predobj);
+		$gene->poly_A_site($predobj);
 	    } elsif($flds[1] eq 'Prom') {
 		$predobj->primary_tag("Promoter");
 		$gene->add_promoter($predobj);
