@@ -3,6 +3,13 @@ Revision history for Bioperl core modules
 
 1.0.2 Bug fix release
 
+    o Note: The modules Bio::DB::GenBank and Bio::DB::GenPept provided
+      in this release will not work after December 2002 when NCBI
+      shuts off the old Entrez cgi scripts.  We have already fixed
+      on our main development branch and the functionality will be
+      available in the next stable bioperl release (1.2) slated for
+      Fall 2002.
+ 
     o Numerous parsing bugs in Bio::SearchIO::fasta found through 
       testset by Robin Emig.  These were fixed as was the get_aln
       method in Bio::Search::HSP::GenericHSP to handle the extra 
@@ -25,6 +32,15 @@ Revision history for Bioperl core modules
     o Bio::Tree::Tree get_nodes implementation improvement thanks
       to Howard Ross notice performance problem when writing out 
       unbalanced trees.
+
+    o Bio::Location::Fuzzy::new named parameter -loc_type became
+      -location_type, Bio::Location::Simple::new named parameter
+      -seqid becamse -seq_id.
+   
+    o Fixed major Bio::AlignIO::emboss parsing bug on needle output,
+      was mis-detecting that gaps should be placed at the beginning of
+      the alignment when the best alignment starts internally in the
+      sequence.
 
 1.0.1 Bug fix release
 	
