@@ -454,9 +454,14 @@ sub reroot {
 	$self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
 	return 0;
     }
+
     if( $new_root->is_Leaf() ) {
-	$self->warn("Asking to root with a leaf, will use the leaf's ancestor");
-	$new_root = $new_root->ancestor;
+	my $node = Bio::Tree::Node->new();
+	my $anc = $new_root->ancestor;
+	$anc->add_Descendent($node);
+	$anc->remove_Descendent($new_root);
+	$node->add_Descendent($new_root);
+	$new_root = $node;
     }
 
     my $old_root = $self->get_root_node;
@@ -471,7 +476,8 @@ sub reroot {
 	push @path, $node;
 	$node = $node->ancestor;
     }
-
+    
+    # reverse the ancestor & children pointers
     my @path_from_oldroot = reverse @path;
     for (my $i = 0; $i < @path_from_oldroot - 1; $i++) {
 	my $current = $path_from_oldroot[$i];
@@ -479,9 +485,18 @@ sub reroot {
 	$current->remove_Descendent($next);
 	$current->branch_length($next->branch_length);
 	$next->add_Descendent($current);
-	
+    }
+    # root node can be an artifical node which needs to be removed here
+    # when we are re-rooting.  We can only get its ancestor
+    # after we've reversed the path
+    my $anc = $old_root->ancestor;
+    my @d = $old_root->each_Descendent;
+    if( @d == 1 ) {
+    	$anc->add_Descendent(shift @d);
+	$anc->remove_Descendent($old_root);
     }
     $new_root->branch_length(undef);
+    $old_root = undef;
     $self->set_root_node($new_root);
 
     return 1;
