@@ -30,8 +30,11 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns stream
 	while( <$seq> ) {
-	    /^>/ && last;
-	    print;
+	    if(/^>/) {
+	    	print;
+		last;
+	    }
+	}
     }
 
 
