@@ -1281,9 +1281,9 @@ sub _subfeat2featrelhash {
 	#subj-obj relationship type
 	undef(my $reltypename);
 	if ($sftype eq 'protein') {
-		$reltypename = 'producedby';
+		$reltypename = 'produced_by';
 	} else {
-		$reltypename = 'partof';
+		$reltypename = 'part_of';
 	}
 
 	my %fr = (

@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: unflatten_seq.PLS,v 1.1 2004-03-06 02:02:28 cjm Exp $
+# $Id: unflatten_seq.PLS,v 1.2 2004-03-13 01:30:02 cjm Exp $
 # Author Chris Mungall <cjm@bioperl.org>
 
 =head1 NAME
@@ -10,7 +10,7 @@ a nested SeqFeature hierarchy
 
 =head1 SYNOPSIS
 
-  unflatten_seq.PLS ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
+  unflatten_seq.PLS -gff ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
 
   unflatten_seq.PLS --detail ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
 
@@ -98,6 +98,11 @@ output format (defaults to asciitree)
 should really be a format that is nested SeqFeature aware; I think
 this is only asciitree, chadoxml and gff3
 
+=item -gff
+
+with export to GFF3 format (pre-3 GFFs make no sense with unflattened
+sequences, as they have no set way of representing feature graphs)
+
 =item -o|output FILE
 
 outfile defaults to STDOUT
@@ -162,6 +167,7 @@ email or the web:
 use Bio::SeqIO;
 use Bio::SeqFeature::Tools::Unflattener;
 use Bio::SeqFeature::Tools::TypeMapper;
+use Bio::SeqFeature::Tools::IDHandler;
 use Bio::Tools::GFF;
 
 use Getopt::Long;
@@ -211,6 +217,7 @@ $unflattener->verbose($verbosity);
 $unflattener->error_threshold($ethresh);
 
 my $tm = Bio::SeqFeature::Tools::TypeMapper->new;
+my $idhandler = Bio::SeqFeature::Tools::IDHandler->new;
 
 while( my $seq = $in->next_seq ) {    
     $unflattener->unflatten_seq(-seq=>$seq,
@@ -226,7 +233,7 @@ while( my $seq = $in->next_seq ) {
     }
     if ($gff) {
         my $gffio = Bio::Tools::GFF->new(@out_opt, -noparse=>1, -gff_version => 3);
-        $seq->set_ParentIDs_from_hierarchy();
+        $idhandler->set_ParentIDs_from_hierarchy($seq);
         foreach my $feature ($seq->get_all_SeqFeatures) {
             $gffio->write_feature($feature);
         }

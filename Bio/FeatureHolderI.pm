@@ -192,115 +192,18 @@ sub _add_flattened_SeqFeatures {
 
 }
 
-=head2 set_ParentIDs_from_hierarchy()
-
- Title   : set_ParentIDs_from_hierarchy()
- Usage   : $seq->set_ParentIDs_from_hierarchy()
- Function: populates tags Parent and ID via holder hierarchy
- Example :
- Returns : 
- Args    :
-
-This is mainly for GFF3 export
-
-GFF3 uses the tags ID and Parent to represent the feature containment
-hierarchy; it does NOT use the feature holder tree
-
-This method sets Parent (and ID for any parents not set) based on
-feature holder/containement hierarchy, ready for GFF3 output
-
-=cut
-
-# method author: cjm@fruitfly.org
 sub set_ParentIDs_from_hierarchy(){
-   my ($self) = @_;
-
-   # we will traverse the tree of contained seqfeatures
-   # (a seqfeature is itself a holder)
-
-   # start with the top-level features
-   my @sfs = $self->get_SeqFeatures;
-
-   # clear existing parent tags
-   # (we assume this is the desired behaviour)
-   my @all_sfs = $self->get_all_SeqFeatures;
-   foreach (@all_sfs) {
-       if ($_->has_tag('Parent')) {
-           $_->remove_tag('Parent');
-       }
-   }
-   
-
-   # iterate until entire tree traversed
-   while (@sfs) {
-       my $sf = shift @sfs;
-       my @subsfs = $sf->get_SeqFeatures;
-
-       # see if the ID tag 
-       my $id = $sf->primary_id;
-       if (!$id) {
-           # the skolem function feature(seq,start,end,type)
-           # is presumed to uniquely identify this feature, and
-           # to also be persistent
-           $id = $sf->generate_unique_persistent_id;
-       }
-       foreach my $subsf (@subsfs) {
-           $subsf->add_tag_value('Parent', $id);
-       }
-       
-       # push children on to end of stack (breadth first search)
-       push(@sfs, @subsfs);
-   }
-   return;
+    # DEPRECATED - us IDHandler
+    my $self = shift;
+    require "Bio/SeqFeature/Tools/IDHandler.pm";
+    Bio::SeqFeature::Tools::IDHandler->new->set_ParentIDs_from_hierarchy($self);
 }
 
-=head2 create_hierarchy_from_ParentIDs
-
- Title   : create_hierarchy_from_ParentIDs
- Usage   :
- Function:
- Example :
- Returns : list of top SeqFeatures
- Args    :
-
-inverse of set_ParentIDs_from_hierarchy
-
-
-
-=cut
-
-sub create_hierarchy_from_ParentIDs{
-   my ($self,@args) = @_;
-
-   my @sfs = $self->get_all_SeqFeatures;
-   my %sf_by_ID = ();
-   foreach (@sfs) {
-       my $id = $_->primary_id;
-       next unless $id;
-       if ($sf_by_ID{$id}) {
-           $self->throw("DUPLICATE ID: $id");
-       }
-       $sf_by_ID{$id} = $_;
-       $_->remove_SeqFeatures; # clear existing hierarchy (assume this is desired)
-   }
-   if (!%sf_by_ID) {
-       # warn??
-       # this is actually expected behaviour for some kinds of data;
-       # eg lists of STSs - no containment hierarchy
-       return;
-   }
-
-   my @topsfs = 
-     grep {
-         my @parents = $_->get_tagset_values('Parent');
-         foreach my $parent (@parents) {
-             $parent->add_SeqFeature($_);
-         }
-         !@parents;
-     } @sfs;
-   $self->remove_SeqFeatures;
-   $self->add_SeqFeature($_) foreach @topsfs;
-   return @topsfs;
+sub create_hierarchy_from_ParentIDs(){
+    # DEPRECATED - us IDHandler
+    my $self = shift;
+    require "Bio/SeqFeature/Tools/IDHandler.pm";
+    Bio::SeqFeature::Tools::IDHandler->new->create_hierarchy_from_ParentIDs($self);
 }
 
 

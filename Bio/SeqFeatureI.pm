@@ -685,52 +685,13 @@ sub primary_id{
     return $id;
 }
 
-=head2 generate_unique_persistent_id
-
- Title   : generate_unique_persistent_id
- Usage   :
- Function: generates a unique and persistent identifier for this
- Example :
- Returns : value of primary_id (a scalar)
- Args    :
-
-Will generate an ID, B<and> set primary_id() (see above)
-
-The ID is a string generated from 
-
-  seq_id
-  primary_tag
-  start
-  end
-
-There are three underlying assumptions: that all the above accessors
-are set; that seq_id is a persistent and unique identifier for the
-sequence containing this feature; and that 
-
-  (seq_id, primary_tag, start, end) 
-
-is a "unique constraint" over features
-
-The ID is persistent, so long as none of these values change - if they
-do, it is considered a seperate entity
-
-=cut
-
-# method author: cjm@fruitfly.org
-sub generate_unique_persistent_id{
-   my ($self,@args) = @_;
-
-   my $seq_id = $self->seq_id || $self->throw("seq_id must be set");
-   #my $seq_id = $self->seq_id || 'unknown_seq';
-   my $source = $self->source_tag || $self->throw("source tag must be set");
-   #my $source = $self->source_tag || 'unknown_source';
-   my $start = $self->start || $self->throw("start must be set");
-   my $end = $self->end || $self->throw("end must be set");
-   my $type = $self->primary_tag || $self->throw("primary_tag must be set");
-
-   my $id = "$type:$source:$seq_id:$start:$end";
-   $self->primary_id($id);
-   return $id;
+sub generate_unique_persistent_id {
+    # DEPRECATED - us IDHandler
+    my $self = shift;
+    require "Bio/SeqFeature/Tools/IDHandler.pm";
+    Bio::SeqFeature::Tools::IDHandler->new->generate_unique_persistent_id($self);
 }
+
+
 
 1;
