@@ -192,14 +192,16 @@ sub nextHSP {
   $scoreline .= $nextline;
   my ($score, $bits);
   if ($scoreline =~ /\d bits\)/) {
-    ($score, $bits) = $scoreline =~
-      /Score = (\d+) \((\S+) bits\)/; # WU-BLAST
+      ($score, $bits) = ( $scoreline =~
+			  /Score = (\d+) \((\S+) bits\)/); # WU-BLAST
+  } else {
+      ($bits, $score) = ( $scoreline =~
+			  /Score =\s+(\S+) bits \((\d+)/); # NCBI-BLAST
   }
-  else {
-    ($bits, $score) = $scoreline =~
-      /Score =\s+(\S+) bits \((\d+)/; # NCBI-BLAST
+  unless( defined $bits && defined $score ) { 
+      $self->warn("Weird scoreline ($scoreline) bailing\n");
+      return undef;
   }
-  
   my ($match, $hsplength) = ($scoreline =~ /Identities = (\d+)\/(\d+)/);
   my ($positive) = ($scoreline =~ /Positives = (\d+)/);
   my ($gaps) = ($scoreline =~ /Gaps = (\d+)/);
@@ -223,16 +225,17 @@ sub nextHSP {
   # get alignment lines #
   #######################
   my (@hspline);
+  local $_;
   while( defined($_ = $self->_readline()) ) {
-      if ($_ =~ /^WARNING:|^NOTE:/) {
+      if (/^WARNING:|^NOTE:/) {
 	  while(defined($_ = $self->_readline())) {last if $_ !~ /\S/}
       }
-      elsif ($_ !~ /\S/)            {next}
-      elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
-      elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
-      elsif ($_ =~ /^\s*Score/)     {$self->_pushback($_); last}
+      elsif ( ! /\S/o)         {next}
+      elsif (/Strand HSP/o)    {next} # WU-BLAST non-data
+      elsif (/^\s*Strand/o)    {next} # NCBI-BLAST non-data
+      elsif (/^\s*Score/o)     {$self->_pushback($_); last}
 
-      elsif ($_ =~ /^>|^Histogram|^Searching|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda|^\s+Subset/)   
+      elsif (/^>|^Histogram|^Searching|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda|^\s+Subset/o)   
       {    
 	  #ps 5/28/01	
 	  # elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {
@@ -240,8 +243,11 @@ sub nextHSP {
 
 	  $self->{'HSP_ALL_PARSED'} = 1;
 	  last;
-      }
-      elsif( $_ =~ /^\s*Frame/ ) {
+      } elsif( /^BLAST/ ) {
+	  $self->_pushback($_);
+	  $self->{'HSP_ALL_PARSED'} = 1;
+	  last;
+      } elsif( $_ =~ /^\s*Frame/ ) {
 	  if ($self->report_type() eq 'TBLASTX') {
 	      ($qframe, $sframe) = $_ =~ /Frame = ([\+-]\d)\s+\/\s+([\+-]\d)/;
 	  } elsif ($self->report_type() eq 'TBLASTN') {
@@ -269,13 +275,13 @@ sub nextHSP {
   
   for(my $i=0;$i<@hspline;$i+=3) {
     # warn $hspline[$i], $hspline[$i+2];
-    $hspline[$i]   =~ /^(?:Query|Trans):\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
+    $hspline[$i]   =~ /^(?:Query|Trans):\s+(\d+)\s*([\D\S]+)\s+(\d+)/o;
     $ql = $2; $qb = $1 unless $qb; $qe = $3;
     
     my $offset = index($hspline[$i], $ql);
     $as = substr($hspline[$i+1], $offset, CORE::length($ql));
     
-    $hspline[$i+2] =~ /^Sbjct:\s+(\d+)\s*([\D\S]+)\s+(\d+)/;
+    $hspline[$i+2] =~ /^Sbjct:\s+(\d+)\s*([\D\S]+)\s+(\d+)/o;
     $sl = $2; $sb = $1 unless $sb; $se = $3;
 
     push @QL, $ql; push @SL, $sl; push @AS, $as;
@@ -291,7 +297,7 @@ sub nextHSP {
 # {'PARENT'}->qlength will not be available.
   my ($qname, $qlength) = ('unknown','unknown');
   if ($self->{'PARENT'}->can('query')) {
-	$qname = $self->{'PARENT'}->query;
+	$qname   = $self->{'PARENT'}->query;
 	$qlength = $self->{'PARENT'}->qlength;
   }	
   
@@ -312,10 +318,10 @@ sub nextHSP {
        '-sbjctSeq'   => $sl,
        '-homologySeq'=> $as, 
        '-queryName'  => $qname,
-#					'-queryName'=>$self->{'PARENT'}->query,
+#			'-queryName'=>$self->{'PARENT'}->query,
        '-sbjctName'  => $self->{'NAME'},
        '-queryLength'=> $qlength,
-#					'-queryLength'=>$self->{'PARENT'}->qlength,
+#		       	'-queryLength'=>$self->{'PARENT'}->qlength,
        '-sbjctLength'=> $self->{'LENGTH'},
        '-queryFrame' => $qframe,
        '-sbjctFrame' => $sframe,
