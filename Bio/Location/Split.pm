@@ -494,13 +494,13 @@ sub to_FTstring {
 	} 
 	push @strs, $str;
     }    
-       
+
     my $str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
 # for bug #1074 -- still investigating if this is ever needed
 # --jason
-#    if( $self->strand == -1 ) {
-#	$str = sprintf("complement(%s)",$str);
-#    }
+    if( $self->strand == -1 ) {
+	$str = sprintf("complement(%s)",$str);
+    }
     return $str;
 }
 
