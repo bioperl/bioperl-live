@@ -176,7 +176,6 @@ sub draw_protein {
   my $flip   = $self->{flip};
   my $left   = $self->panel->left;
   my $right  = $self->panel->right;
-  my $left   = $self->panel->left;
 
   my @residues = split '',$$protein;
   for (my $i=0;$i<@residues;$i++) {
