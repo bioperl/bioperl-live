@@ -74,10 +74,6 @@ Bulk-load a PostgreSQL Bio::DB::GFF database from GFF files.
 
 Transforms Gadfly GFF files into correct format.
 
-=head2 scripts/Bio-DB-GFF/process_ncbi_human.PLS
-
-Trnasforms NCBI's chromosome annotations into correct format.
-
 =head2 scripts/Bio-DB-GFF/process_sgd.PLS
 
 Transform SGD format annotations into GFF format.
