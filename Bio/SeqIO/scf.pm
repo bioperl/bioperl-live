@@ -135,7 +135,7 @@ sub next_seq {
           # the rest of the the information is different between the
     $creator->{header} = $self->_get_header($buffer);
     if ($creator->{header}->{'version'} lt "3.00") {
-         warn("scf.pm is working with a version 2 scf.\n");
+         $self->debug("scf.pm is working with a version 2 scf.\n");
 	          # first gather the trace information
 	    $length = $creator->{header}->{'samples'}*
                $creator->{header}->{sample_size}*4;
@@ -159,7 +159,7 @@ sub next_seq {
            $creator->{accuracies}) = $self->_parse_v2_bases($buffer);
           
     } else {
-         warn("scf.pm is working with a version 3+ scf.\n");
+         $self->debug("scf.pm is working with a version 3+ scf.\n");
 	    my $transformed_read;
          my $current_read_position = $creator->{header}->{sample_offset};
 	    $length = $creator->{header}->{'samples'}*
