@@ -19,7 +19,7 @@ use strict;
 
 use Bio::Root::Global  qw(:devel $CGI);
 use Bio::Root::Vector  ();
-use Bio::Root::Object  qw(:std);
+use Bio::Root::Object;#  qw(:std);
 use Exporter           ();
 
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
