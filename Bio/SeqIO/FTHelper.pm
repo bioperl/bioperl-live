@@ -128,7 +128,7 @@ sub _generic_seqfeature {
 	$sf->primary_tag($fth->key);
 	$sf->source_tag($source);
 	my $splitlocation = new Bio::Location::Split(-strand=>$strand, 
-						     -seqid => $seqid,
+						     -seq_id => $seqid,
 						     -splittype => $combotype);
 	# we need to make sub features
 	my $loc = $fth->loc;
@@ -313,7 +313,7 @@ sub _parse_loc {
     }
     
     my $type = 'Bio::Location::Simple';
-    my @args = ('-start'=>$start, '-end' => $end,
+    my @args = ('-start'=> $start, '-end' => $end,
 		'-strand' => $strand);
     if ( $start =~ /[\>\<\?]/ || 
 	 $end    =~ /[\>\<\?]/ || 
