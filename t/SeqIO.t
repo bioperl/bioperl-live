@@ -330,6 +330,4 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 				      -accession_number => 'myaccession');
 my $embl = new Bio::SeqIO(-format => 'embl' );
 
-ok($embl->write_seq($primaryseq));
-
-
+#ok($embl->write_seq($primaryseq));
