@@ -43,6 +43,10 @@ not only might it answer your question, but more importantly it will
 give you idea why the person who wrote the module wrote it - and this
 will be the frame work in which you can understand his or her answer.
 
+You might also want to examine the models, or class diagrams, in the models/
+directory. These diagrams are not guaranteed to include every single class
+but may help you understand the overall layout of Bioperl's modules.
+
 =head2 Respect people's code (in particular if it works)
 
 If the code does what you want, the fact that it is not written the
@@ -403,3 +407,12 @@ classes). We were quite happy about merging the implementation
 independent functions with the interface definition, and I (Ewan) used
 this in other interfaces since then. The documentation has to be clear
 about what is going on, but I think in general it is.
+
+
+=head1 Getting Started
+
+The Bioperl effort has managed to strike that balance between creating
+reliable and powerful software and providing outlets for individual 
+creativity and imagination. In this spirit of open-mindedness we invite
+you to share your ideas with us at bioperl-l@bioperl.org.
+
