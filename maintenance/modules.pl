@@ -15,6 +15,70 @@ B<modules.pl> [B<-V|--verbose>] [B<-c|--count>] | [B<-l|--list>] |
 This script counts, lists and provides other information about bioperl
 modules. It is mainly meant to be run by bioperl maintainers.
 
+The default action is to count modlues in the bioperl core
+distribution. Based on the class name it tries to classify them into
+categories. The following is a tentative glossary of terms used.
+
+
+=over 4
+
+=item Base
+
+Synonyms: Generic class, parameterized class, generic module.
+
+A class that you don't instantiate in your scripts, but that it's a
+template for other classes.
+
+Examples: Bio::Tools::Run::WrapperBase - a base object for wrappers
+around executables. Bio::Tools::Analysis::SimpleAnalysisBase - an
+abstract superclass for SimpleAnalysis implementations
+
+This are counted with C</:Base/ | /Base$/>; They have "Base" in the
+beginning or end of the name.
+
+=item Interface
+
+Synonyms: protocol, feature set.
+
+Class that defines a set of features that are common to a group of
+classes.
+
+Example: Bio::Tree::NodeI - interface describing a Tree Node.
+
+This are counted with C</[^A-Z]I$/>; They have "I" at the end of the
+name.
+
+=item Component
+
+A class that implements a small subset of their superclass. They are in
+a directory with an identical name of the superclass. There are plenty
+of them. You need only a small number of methods to be overridden.
+
+Example: Bio::SeqIO::fasta.
+
+This is counted with C</.*:[a-z]/>; Classes are inside their base directory
+and all in lowercase.
+
+=item Instance
+
+The rest of them. It is sometimes helpful to divide them into two
+types:
+
+=over 2
+
+=item Algorithmic classes
+
+Example: Bio::AlignIO - Handler for AlignIO formats
+
+=item Storage classes
+
+Example: Bio::SimpleAlign - Multiple alignments held as a set of
+sequences
+
+=back
+
+=back
+
 =cut
 
 #
@@ -449,9 +513,13 @@ email or the web:
   bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Heikki Lehvaslaiho
+=head1 AUTHOR
 
-Email heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki@ebi.ac.uk
+
+=head1 Contributors
+
+Albert Vilella, avilella@ebi.ac.uk
 
 =cut
 
