@@ -118,21 +118,21 @@ use vars qw(@ISA);
 use strict;
 no strict ( 'refs');
 
-use Bio::Tools::AlignFactory;
-use Bio::SimpleAlign;
-
-
-@ISA = qw(Bio::Tools::AlignFactory);
-
 BEGIN {
     eval {
 	require Bio::Ext::Align;
     };
     if ( $@ ) {
-	print STDERR ("\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n Please read the install the bioperl-ext package\n\n");
+	die("\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n Please read the install the bioperl-ext package\n\n");
 	exit(1);
     }
 }
+
+use Bio::Tools::AlignFactory;
+use Bio::SimpleAlign;
+
+
+@ISA = qw(Bio::Tools::AlignFactory);
 
 
 # new() is inherited from Bio::Root::Object
