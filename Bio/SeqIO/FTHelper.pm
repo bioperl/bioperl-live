@@ -135,10 +135,12 @@ sub _generic_seqfeature {
 	$loc->seq_id($seqid); # propagates if it is a split location
     }
 
+
     # set attributes of feature
     $sf->location($loc);
     $sf->primary_tag($fth->key);
     $sf->source_tag($source);
+    $sf->seq_id($seqid);
     foreach my $key ( keys %{$fth->field} ){
 	foreach my $value ( @{$fth->field->{$key}} ) {
 	    $sf->add_tag_value($key,$value);
