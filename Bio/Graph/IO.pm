@@ -168,7 +168,7 @@ my ($self, $format) = @_;
     print STDERR <<END
 $self:$format cannot be found
 Exception $@
-For more information about the Network system please see the NetworkIO docs.
+For more information about the Bio::Graph::IO system please see the Bio:Graph::IO docs.
 END
   ;
   }

@@ -138,7 +138,7 @@ containing all possible database identifiers but no sequence, as
 parsed from the interaction files. However, a node represented by a
 Bio::PrimarySeq object should work fine too.
 
-Edges are represented by Bio::Graph::ProteinEdge objects. IN order to
+Edges are represented by Bio::Graph::Edge objects. In order to
 work with SimpleGraph these objects must be array references, with the
 first 2 elements being references to the 2 nodes. More data can be
 added in $e[2]. etc. Edges should  be
@@ -146,6 +146,18 @@ Bio::Graph::Edge objects, which are Bio::IdentifiableI implementing objects.
 . At present edges only have an identifier and a
 weight() method, to hold confidence data, but subclasses of this could
 hold all the interaction data held in an XML document.
+
+So, a graph has the following data:
+
+1. A hash of nodes, where keys are the text representation of a nodes memory address
+    and values are the sequence object references.
+2. A hash of neighbors, where keys are the text representation of a nodes memory address
+    and a value is a reference to a list of neighboring node references
+3. A hash of edges, where a key is a text representation of the 2 nodes.
+       e.g., "address1,address2" a as a string, and values are Bio::Graph::Edge objects
+4. Look up hash ('_id_map') for finding a node by any of its ids. 
+5. Look up hash for edges ('_edge_id_map') for retrieving an edge object  from its identifier
+     
 
 =head1  REQUIREMENTS
 
@@ -157,7 +169,7 @@ XML data you will need XML::Twig available from CPAN too.
 
 L<Bio::Graph::SimpleGraph>, 
 L<Bio::Graph::IO>,
-L<Bio::Graph::ProteinEdgeI>
+L<Bio::Graph::Edge>
 
 L<Bio::DB::CUTG>
 
@@ -387,7 +399,7 @@ sub union {
 
  name     : edge_count
  purpose  : returns number of unique interactions, excluding redundancies/duplicates
- arguments: A Bio::Graph::SimpleGraph object
+ arguments: void
  returns  : An integer
  usage    : my $count  = $graph->edge_count;
 
@@ -399,6 +411,17 @@ sub edge_count {
     return scalar keys %{$self->_edges};
 
 }	
+
+=head2      node_count
+
+ name     : node_count
+ purpose  : returns number of nodes.
+ arguments: void
+ returns  : An integer
+ usage    : my $count  = $graph->node_count;
+
+=cut
+
 sub node_count {
 
     my $self = shift;
@@ -471,6 +494,7 @@ sub _get_ids {
                  (same interaction, same edge id). 
 
 =cut
+
  
  
 sub add_edge {
@@ -503,6 +527,9 @@ sub add_edge {
       $edges->{$m,$n} = $edge;
       push(@{$neighbors->{$m}},$n);
       push(@{$neighbors->{$n}},$m);
+
+      ## create look up hash for edge ##
+	  $self->{'_edge_id_map'}{$edge->object_id()} = $edge;
     } else {
 		## is it a redundant edge, ie with same edge id?
 		my $curr_edge = $edges->{$m,$n};
@@ -555,6 +582,31 @@ sub add_dup_edge {
 	}
 }
 
+=head2       edge_by_id
+
+ name        : edge_by_id
+ purpose     : retrieve data about an edge from its id
+ arguments   :  a text identifier
+ returns     : a Bio::Graph::Edge object or undef
+ usage       : my $edge = $gr->edge_by_id('1000E');
+
+=cut
+
+sub edge_by_id {
+
+ my ($self, $id) = @_;
+ if (!$id) {
+	$self->warn ("Need a text identifier");
+   	return;
+	}
+ if (ref($id)) {
+    $self->throw(" I need a text identifier, not a [" . ref($id) . "].");
+    }
+  if (defined($self->{'_edge_id_map'}{$id})) {
+     return $self->{'_edge_id_map'}{$id};
+       }else {return undef;}
+
+}
 
 
 =head2      remove_dup_edges 
@@ -761,6 +813,9 @@ sub remove_nodes {
 			##access via internal hash rather than by object. 
 			if ($edges->{$k}->[0] eq $node ||
 			   		$edges->{$k}->[1] eq $node){
+                ## delete edge from look up hash
+                my $edge_id = $edges->{$k}->object_id()
+                delete $self->{'_edge_id_map'}{$edge_id};
 				delete($edges->{$k});
 			}
 		}

@@ -39,7 +39,7 @@ sub _initialize  {
 
  name       : next_network
  purpose    : to construct a protein interaction graph from xml data
- usage      : my $gr = $netowkio->next_network();
+ usage      : my $gr = $io->next_network();
  arguments  : void
  returns    : A Bio::Graph::ProteinGraph object
 
@@ -118,7 +118,7 @@ sub _proteinInteractor {
 						-species          => $species{$taxid},
 						-annotation       => $ac);
 	
-	## now fill hash with keys = ids and vals = node refs to have lookip
+	## now fill hash with keys = ids and vals = node refs to have lookup
 	## hash for nodes by any id.	
 	$g->{'_id_map'}{$ids{'psixml'}}          = $node;
 	if (defined($node->primary_id)) {
@@ -127,6 +127,7 @@ sub _proteinInteractor {
 	if (defined($node->accession_number)) {
 		$g->{'_id_map'}{$node->accession_number} = $node;
 		}
+
 	## cycle thru annotations
 	 $ac = $node->annotation();
 	for my $an ($ac->get_Annotations('dblink')) {

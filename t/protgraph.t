@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $NUMTESTS  = 50;
+    $NUMTESTS  = 52;
     plan tests => $NUMTESTS;
     eval {	require Class::AutoClass;	
          	require Clone;
@@ -128,6 +128,11 @@ ok scalar @n1,1;
 ##check no undefs left after node removal ##
 
 ok map {$_->object_id}$g2->edges;
+
+## get an edge by its id
+
+ok my $edge = $g2->edge_by_id('4368E');
+ok $edge->object_id, '4368E';
 
 ## count all edges
 my $count = 0;
