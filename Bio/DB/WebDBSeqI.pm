@@ -29,7 +29,7 @@ Provides core set of functionality for connecting to a web based
 database for retriving sequences.
 
 Users wishing to add another Web Based Sequence Dabatase will need to
-extends this class (see Bio::DB::SwissProt of Bio::DB::NCBIHelper for
+extend this class (see Bio::DB::SwissProt or Bio::DB::NCBIHelper for
 examples) and implement the get_request method which returns a
 HTTP::Request for the specified uids (accessions, ids, etc depending
 on what query types the database accepts).
@@ -47,7 +47,6 @@ of the Bioperl mailing lists. Your participation
 is much appreciated.
 
   bioperl-l@bioperl.org              - General discussion
-  bioperl-guts-l@bioperl.org         - Technically-oriented discussion
   http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
@@ -111,6 +110,7 @@ sub _initialize {
     # even though this will be immedietly overwritten by most sub classes
     $format = $self->default_format unless ( defined $format && 
 					     $format ne '' );
+
     $self->request_format($format);
     my $ua = new LWP::UserAgent;
     $ua->agent(ref($self) ."/$MODVERSION");
@@ -135,7 +135,7 @@ sub _initialize {
 
 sub get_Seq_by_id {
     my ($self,$seqid) = @_;
-    my $seqio = $self->get_seq_stream( uids => $seqid, -mode=>'single' );
+    my $seqio = $self->get_Stream_by_id([$seqid]);
     $self->throw("id does not exist") if( !defined $seqio ) ;
     return $seqio->next_seq();
 }
@@ -153,12 +153,12 @@ sub get_Seq_by_id {
 
 sub get_Seq_by_acc {
    my ($self,$seqid) = @_;
-   my $seqio = $self->get_seq_stream( uids => $seqid );
+   my $seqio = $self->get_Stream_by_acc([$seqid]);
    $self->throw("acc does not exist") if( !defined $seqio );
    return $seqio->next_seq();
 }
 
-# implementing class must defined these
+# implementing class must define these
 
 =head2 get_request
 
@@ -192,13 +192,13 @@ sub get_request {
 
 sub get_Stream_by_id {
     my ($self, $ids) = @_;        
-    return $self->get_seq_stream(-uids => $ids, -mode=>'single');
+    return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
 }
 
 =head2 get_Stream_by_acc
 
   Title   : get_Stream_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc($acc);
+  Usage   : $seq = $db->get_Seq_by_acc([$acc1, $acc2]);
   Function: Gets a series of Seq objects by accession numbers
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession numbers for
@@ -209,7 +209,7 @@ sub get_Stream_by_id {
 
 sub get_Stream_by_acc {
     my ($self, $ids ) = @_;
-    return $self->get_seq_stream(-uids => $ids, -mode=>'single');
+    return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
 }
 
 =head2 default_format
@@ -229,10 +229,13 @@ sub default_format {
 =head2 request_format
 
  Title   : request_format
- Usage   : my $format = $self->request_format;
-           $self->request_format($format);
- Function: Get/Set sequence format retrieval
- Returns : string representing format
+ Usage   : my ($req_format, $ioformat) = $self->request_format;
+           $self->request_format("genbank");
+           $self->request_format("fasta");
+ Function: Get/Set sequence format retrieval. The get-form will normally not
+           be used outside of this and derived modules.
+ Returns : Array of two strings, the first representing the format for
+           retrieval, and the second specifying the corresponding SeqIO format.
  Args    : $format = sequence format
 
 =cut
