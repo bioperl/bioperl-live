@@ -38,7 +38,8 @@ t/HTML.t
 t/Seq.t                
 t/WWW.t
 t/Fasta.t              
-t/RestrictionEnzyme.t  
+t/RestrictionEnzyme.t
+t/Sigcleave.t  
 t/SeqAnal.t
 t/HSP.t                
 t/Sbjct.t              
