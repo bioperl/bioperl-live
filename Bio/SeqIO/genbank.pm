@@ -152,21 +152,26 @@ sub next_seq {
     # you won't know which entry caused an error
     $seq->display_id($name);
     # the moltype of the entry
-    if ($2 eq 'aa') {
+    if($2 eq 'bp') {
+	$seq->moltype('dna');
+    } else {
+	# $2 eq 'aa'
 	$seq->moltype('protein');
     }
-    elsif(defined($3) && $3 =~ 'RNA') {
-	$seq->moltype('rna');
-    } else {
-	$seq->moltype('dna');
-    }
     # for aa there is usually no 'molecule' (mRNA etc)
-    if ((defined($2) && $2 eq 'bp') || defined($5)) {
-	$seq->molecule($3);
-	$seq->division($4);
-	$date = $5;
+    if (($2 eq 'bp') || defined($5)) {
+	if ($4 eq 'circular') {
+	    $seq->molecule($3);
+	    $seq->is_circular($4);
+	    $seq->division($5);
+	    ($date) = $line =~ /.*(\d\d-\w\w\w-\d\d\d\d)/;
+	} else {
+	    $seq->molecule($3);
+	    $seq->division($4);
+	    $date = $5;
+	}
     } else {
-	$seq->molecule('PRT') if(defined($2) && $2 eq 'aa');
+	$seq->molecule('PRT') if($2 eq 'aa');
 	$seq->division($3);
 	$date = $4;
     }
@@ -323,13 +328,16 @@ sub write_seq {
     } 
     if( !defined $div || ! $div ) { $div = 'UNK'; }
 
-    if( !$seq->can('moltype') || ! defined ($mol = $seq->moltype()) ) {
+    if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
 	$mol = 'DNA';
     }
     else {
-	$mol = $seq->moltype;
+	$mol = $seq->molecule;
     }
     
+    my $circular = '';
+    $circular = 'circular' if $seq->is_circular;
+
     local($^W) = 0;   # supressing warnings about uninitialized fields.
     
     my $temp_line;
@@ -340,10 +348,10 @@ sub write_seq {
 	if( $seq->can('get_dates') ) { 	    
 	    ($date) = $seq->get_dates();
 	}
-	$temp_line = sprintf ("%-12s%-10s%7s %s%4s%-5s%-11s%-3s%7s%-s", 
+	$temp_line = sprintf ("%-12s%-10s%7s %s%4s%-6s%-10s%-3s%7s%-s", 
 			      'LOCUS', $seq->id(),$len,
 			      ($mol eq 'protein') ? ('aa','', '') : 
-			      ('bp', '',$mol),'',
+			      ('bp', '',$mol),$circular,
 			      $div,'',$date);
     } 
     
