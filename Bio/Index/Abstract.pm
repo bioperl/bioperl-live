@@ -595,6 +595,7 @@ sub add_record {
 
         $self->db->{$id} = $self->pack_record( @rec );
     }
+    return 1;
 }
 
 
