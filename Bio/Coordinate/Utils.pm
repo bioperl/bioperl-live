@@ -110,7 +110,7 @@ sub from_align {
 
    # default reference sequence to the first sequence
    $ref ||= 1;
-
+   
    my $collection = Bio::Coordinate::Collection->new(-return_match=>1);
 
    # this works only for pairs, so split the MSA
@@ -118,36 +118,35 @@ sub from_align {
    #foreach remaining seq in aln, do:
 
    my $cs = $aln->gap_line;
+   my $seq1 = $aln->get_seq_by_pos(1);
+   my $seq2 = $aln->get_seq_by_pos(2);   
+   
    while ( $cs =~ /([^-]+)/g) {
 
        # alignment coordinates
        my $start = pos($cs) - length($1) + 1;
-       my $end = $start+length($1)-1;
-
-       my $seq1 = $aln->get_seq_by_pos(1);
-       my $seq2 = $aln->get_seq_by_pos(2);
+       my $end   = $start + length($1)-1;
 
        my $match1 = Bio::Location::Simple->new
 	   (-seq_id => $seq1->id,
-	    -start => $seq1->location_from_column($start)->start,
-	    -end => $seq1->location_from_column($end)->start,
+	    -start  => $seq1->location_from_column($start)->start,
+	    -end    => $seq1->location_from_column($end)->start,
 	    -strand => $seq1->strand );
 
        my $match2 = Bio::Location::Simple->new
 	   (-seq_id => $seq2->id,
-	    -start => $seq2->location_from_column($start)->start,
-	    -end => $seq2->location_from_column($end)->start,
+	    -start  => $seq2->location_from_column($start)->start,
+	    -end    => $seq2->location_from_column($end)->start,
 	    -strand => $seq2->strand );
-
-       my $pair = Bio::Coordinate::Pair->
-	   new(-in => $match1,
-	       -out => $match2
-	      );
-
+       
+       my $pair = Bio::Coordinate::Pair->new
+	   (-in  => $match1,
+	    -out => $match2
+	    );
        $collection->add_mapper($pair);
    }
 
-   return @{$collection->each_mapper}[0] if $collection->each_mapper == 1;
+   return ($collection->each_mapper)[0] if $collection->mapper_count == 1;
    return $collection;
 
 }
