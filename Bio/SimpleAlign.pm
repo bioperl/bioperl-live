@@ -15,7 +15,7 @@
 
 =head1 NAME
 
-SimpleAlign - Multiple alignments held as a set of sequences
+Bio::SimpleAlign - Multiple alignments held as a set of sequences
 
 =head1 SYNOPSIS
 

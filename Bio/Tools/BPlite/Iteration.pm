@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-Bio::Tools:: BPlite::Iteration - object for parsing single iteration
+Bio::Tools::BPlite::Iteration - object for parsing single iteration
 of a PSIBLAST report
 
 =head1 SYNOPSIS

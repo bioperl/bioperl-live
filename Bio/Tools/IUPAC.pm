@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-IUPAC - Generates unique Seq objects from an ambiguous Seq object
+Bio::Tools::IUPAC - Generates unique Seq objects from an ambiguous Seq object
 
 =head1 SYNOPSIS
 
