@@ -114,7 +114,7 @@ sub new {
 					     @args);
   $self->_register_for_cleanup(\&node_cleanup);
   $self->{'_desc'} = {}; # for descendents
-  if( $d && $desc ) { 
+  if( defined $d && defined $desc ) { 
       $self->warn("can only accept -desc or -description, not both, accepting -description");
       $desc = $d;
   } elsif( defined $d && ! defined $desc ) {

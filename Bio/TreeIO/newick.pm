@@ -121,7 +121,7 @@ sub next_tree{
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );
        } elsif($ch eq ')' ) {
-	   if( length $chars ) {
+	   if( length($chars) ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
@@ -152,7 +152,7 @@ sub next_tree{
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
        } elsif ( $ch eq ',' ) {
-	   if( $chars ) {
+	   if( length($chars) ) {
 	       if( $lastevent eq ':' ) {
 		   $self->_eventHandler->start_element( { 'Name' => 'branch_length'});
 		   $self->_eventHandler->characters($chars);
@@ -242,7 +242,7 @@ sub _write_tree_Helper {
 	} elsif( defined ($b = $node->id) ) {
 	    $data[-1] .= $b;
 	}
-	$data[-1] .= ":". $node->branch_length if( $node->branch_length);
+	$data[-1] .= ":". $node->branch_length if( defined $node->branch_length);
 	
     } else {
 	if( defined $node->id || defined $node->branch_length ) { 
