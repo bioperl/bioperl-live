@@ -329,7 +329,7 @@ sub get_feature_by_id {
 
  Title   : get_feature_by_attribute
  Usage   : $db->get_feature_by_attribute(attribute1=>value1,attribute2=>value2)
- Function: fetch segments by combinations of attribute values
+ Function: fetch features by combinations of attribute values
  Returns : a list of Bio::SeqFeatureI objects
  Args    : the class and name of the desired feature
  Status  : public
