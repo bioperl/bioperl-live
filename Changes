@@ -1,6 +1,38 @@
 $Id$
 Revision history for Bioperl core modules
 
+0.7.2 Bug fix release
+
+    o documentation fix 
+
+    o corrected MANIFEST file from 0.7.1 release
+   
+    o Bug fix in Bio::SeqIO::FTHelper to properly handle
+      split locations
+
+0.7.1 Bug fix release 
+
+    o Better parsing of genbank/EMBL files especially fixing bugs
+      related to Feature table parsing and locations on remote
+      sequences.  Additionally, species name parsing was better.
+
+    o Bio::SeqIO::genbank can parse now NCBI produced genbank database
+      which include a number of header lines.
+
+    o More strict genbank and EMBL format writing (corrected number of
+      spaces where appropriate).
+
+    o Bio::Tools::BPlite can better parse BLASTX reports - see BUGS
+      for related BPlite BUGS that are unresolved in this release.
+  
+    o Bio::DB::GenBank, Bio::DB::GenPept have less problems
+      downloading sequences from NCBI via HTTP.  Bio::DB::SwissProt can
+      use expasy mirrors or EBI dbfetch cgi-script.
+
+    o A moderate number of documentation improvements were made as
+      well to provide a better code synopsis in each module.
+
+
 0.7  Large number of changes, including refactoring of the
      Object system, new parsers, new functionality and
      all round better system. Highlights are:
