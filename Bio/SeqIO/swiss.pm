@@ -210,17 +210,6 @@ sub next_seq {
        elsif(/^GN\s+(.*)/) {
 	   $genename .= " " if $genename;
 	   $genename .= $1;
-	   # has GN terminated yet?
-	   if($genename =~ s/[\. ]+$//) {
-	       my $gn = Bio::Annotation::StructuredValue->new();
-	       foreach my $gene (split(/ AND /, $genename)) {
-		   $gene =~ s/^\(//;
-		   $gene =~ s/\)$//;
-		   $gn->add_value([-1,-1], split(/ OR /, $gene));
-               }
-	       $annotation->add_Annotation('gene_name',$gn,
-					   "Bio::Annotation::SimpleValue");
-           }
        }
        #accession number(s)
        elsif( /^AC\s+(.+)/) {
@@ -297,6 +286,33 @@ sub next_seq {
 	   defined $kw[-1] && $kw[-1] =~ s/\.$//;
 	   push @{$params{'-keywords'}}, @kw;   
        }
+   }
+   # process and parse the gene name line if there was one (note: we
+   # can't do this above b/c GN may be multi-line and we can't
+   # unequivocally determine whether we've seen the last GN line in
+   # the new format)
+   if ($genename && ($genename =~ s/[\.; ]+$//)) {
+       my $gn = Bio::Annotation::StructuredValue->new();
+       if ($genename =~ /Name=/) {
+           # new format (e.g., Name=RCHY1; Synonyms=ZNF363, CHIMP)
+           my $j = 0;
+           foreach my $genes (split(/; and /, $genename)) {
+               foreach my $names (split(/;\s+/, $genes)) {
+                   $names =~ s/^\s*([A-Za-z]+)=//;
+                   $gn->add_value([$j,-1], split(/, /, $names));
+               }
+               $j++;
+           }
+       } else {
+           # old format
+           foreach my $gene (split(/ AND /, $genename)) {
+               $gene =~ s/^\(//;
+               $gene =~ s/\)$//;
+               $gn->add_value([-1,-1], split(/ OR /, $gene));
+           }
+       }
+       $annotation->add_Annotation('gene_name', $gn,
+                                   "Bio::Annotation::SimpleValue");
    }
    
    FEATURE_TABLE :

@@ -11,7 +11,7 @@ BEGIN {
 use lib 't';
     }
     use Test;
-    $TESTCOUNT = 244;
+    $TESTCOUNT = 258;
     plan tests => $TESTCOUNT;
 }
 
@@ -201,8 +201,7 @@ $as = $ast->next_seq();
 
 ok defined $as->seq;
 ok($as->id, 'ROA1_HUMAN', "id is ".$as->id);
-#ok($as->primary_id, 'ROA1');
-skip($as->primary_id =~ /^Bio::Seq::/, $as->primary_id, 'ROA1');
+ok($as->primary_id =~ /^Bio::Seq::/);
 ok($as->length, 371);
 ok($as->alphabet, 'protein');
 ok($as->division, 'HUMAN');
@@ -363,7 +362,7 @@ my $seqio = Bio::SeqIO->new( '-format' => 'swiss' ,
 ok(defined( $seq = $seqio->next_seq));
 
 # more tests to verify we are actually parsing correctly
-skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'MA32');
+ok($seq->primary_id =~ /^Bio::Seq/);
 ok($seq->display_id, 'MA32_HUMAN');
 ok($seq->length, 282);
 ok($seq->division, 'HUMAN');
@@ -383,7 +382,7 @@ ok $ann->value(-joins => [" AND "," OR "]), "GC1QBP OR HABP1 OR SF2P32 OR C1QBP"
 # test for feature locations like ?..N
 ok(defined( $seq = $seqio->next_seq));
 
-skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'ACON');
+ok($seq->primary_id =~ /^Bio::Seq/);
 ok($seq->display_id, 'ACON_CAEEL');
 ok($seq->length, 788);
 ok($seq->division, 'CAEEL');
@@ -420,11 +419,29 @@ ok ($seq = $seqio->next_seq());
 
 ($ann) = $seq->annotation->get_Annotations("gene_name");
 @genenames = qw(CALM1 CAM1 CALM CAM CALM2 CAM2 CAMB CALM3 CAM3 CAMC);
-foreach my $gn ( $ann->get_all_values() ) {
-    ok ($gn, shift(@genenames));
+my $flatnames = "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR CAM3 OR CAMC)";
+
+my @names = @genenames; # copy array
+my @ann_names = $ann->get_all_values();
+
+ok (scalar(@ann_names), scalar(@names));
+foreach my $gn (@ann_names) {
+    ok ($gn, shift(@names));
 }
-ok $ann->value(-joins => [" AND "," OR "]),
-    "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND (CALM3 OR CAM3 OR CAMC)";
+ok ($ann->value(-joins => [" AND "," OR "]), $flatnames);
+
+# same entry as before, but with the new gene names format
+$seqio = Bio::SeqIO->new('-format' => 'swiss' ,
+                         -file => Bio::Root::IO->catfile("t","data","calm.swiss"));
+ok (defined( $seq = $seqio->next_seq));
+($ann) = $seq->annotation->get_Annotations("gene_name");
+my @ann_names2 = $ann->get_all_values();
+@names = @genenames; # copy array
+ok (scalar(@ann_names2), scalar(@names));
+foreach my $gn (@ann_names2) {
+    ok ($gn, shift(@names));
+}
+ok ($ann->value(-joins => [" AND "," OR "]), $flatnames);
 
 # test dos Linefeeds in gcg parser
 $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","test_badlf.gcg"),
