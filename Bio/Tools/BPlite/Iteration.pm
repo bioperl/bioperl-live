@@ -1,4 +1,4 @@
-#
+# $Id$
 # Bioperl module Bio::Tools::BPlite::Iteration
 #	based closely on the Bio::Tools::BPlite modules
 #	Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
@@ -13,31 +13,33 @@
 
 =head1 NAME
 
-Bio::Tools:: BPlite::Iteration - object for parsing single iteration of a PSIBLAST report
+Bio::Tools:: BPlite::Iteration - object for parsing single iteration
+of a PSIBLAST report
 
 =head1 SYNOPSIS
 
-use Bio::Tools:: BPpsilite;
-open FH, "t/psiblastreport.out";
-$report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+   use Bio::Tools:: BPpsilite;
 
-# determine number of iterations executed by psiblast
-$total_iterations = $report->number_of_iterations;
-$last_iteration = $report->round($total_iterations);
+   open FH, "t/psiblastreport.out";
+   $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 
-# Process only hits found in last iteration ...
- $oldhitarray_ref = $last_iteration->oldhits;
- HIT: while($sbjct = $last_iteration->nextSbjct) {
-	$id = $sbjct->name;
-	$is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
-	if ($is_old ){next HIT;}
-#  do something with new hit...
- }
+   # determine number of iterations executed by psiblast
+   $total_iterations = $report->number_of_iterations;
+   $last_iteration = $report->round($total_iterations);
 
+   # Process only hits found in last iteration ...
+   $oldhitarray_ref = $last_iteration->oldhits;
+   HIT: while($sbjct = $last_iteration->nextSbjct) {
+       $id = $sbjct->name;
+       $is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
+       if ($is_old ){next HIT;}
+   #  do something with new hit...
+   }
 
 =head1 DESCRIPTION
 
-See the documentation for BPpsilite.pm for a description of the Iteration.pm module.
+See the documentation for BPpsilite.pm for a description of the
+Iteration.pm module.
 
 =head1 AUTHORS - Peter Schattner
 Email: schattner@alum.mit.edu
@@ -53,20 +55,28 @@ BPlite.pm is copyright (C) 1999 by Ian Korf.
 
 =head1 DISCLAIMER
 This software is provided "as is" without warranty of any kind.
+
 =cut
+
 package Bio::Tools::BPlite::Iteration;
 
 use strict;
 use vars qw(@ISA);
-use Bio::Root::Object; # root object to inherit from
+use Bio::Root::RootI; # root object to inherit from
 use Bio::Tools::BPlite; #
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
   ($self->{FH},$self->{PARENT},$self->{ROUND}) =
       $self->_rearrange([qw(FH
@@ -116,8 +126,9 @@ sub qlength  {shift->{LENGTH}}
 
  Title    :  newhits
  Usage    : $newhits = $obj->newhits();
- Returns  : reference to an array listing all the hits from the current iteration
-		which were not identified in the previous iteration
+ Returns  : reference to an array listing all the hits 
+            from the current iteration which were not identified 
+            in the previous iteration
  Args     : none
 
 =cut
@@ -128,8 +139,9 @@ sub  newhits  {shift->{NEWHITS}}
 
  Title    :  oldhits
  Usage    : $oldhits = $obj->oldhits();
- Returns  : reference to an array listing all the hits from the current iteration
-		which were identified and above threshold in the previous iteration
+ Returns  : reference to an array listing all the hits from 
+            the current iteration which were identified and 
+            above threshold in the previous iteration
  Args     : none
 
 =cut

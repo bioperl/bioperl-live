@@ -1,3 +1,4 @@
+# $Id$
 ###############################################################################
 # Bio::Tools::BPlite::Sbjct
 ###############################################################################
@@ -17,19 +18,27 @@ use Bio::Tools::BPlite::HSP; # we want to use HSP
 #use overload '""' => 'name';
 use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
+
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 sub _initialize {
   my ($self, @args) = @_; 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
   
-  ($self->{NAME},$self->{LENGTH},$self->{FH},$self->{LASTLINE},$self->{PARENT}) =
-      $self->_rearrange([qw(NAME
-			    LENGTH
-			    FH
-			    LASTLINE
-			    PARENT
-			    )],@args);
+  ($self->{NAME},$self->{LENGTH},$self->{FH},
+   $self->{LASTLINE},$self->{PARENT}) =
+       $self->_rearrange([qw(NAME
+			     LENGTH
+			     FH
+			     LASTLINE
+			     PARENT
+			     )],@args);
   
   $self->{HSP_ALL_PARSED} = 0;
     
@@ -177,3 +186,5 @@ sub nextHSP {
 					-sbjctLength=>$self->{LENGTH});
   return $hsp;
 }
+
+1;

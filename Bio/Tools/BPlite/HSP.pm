@@ -23,13 +23,18 @@ use Bio::SeqFeature::Similarity;
 
 @ISA = qw(Bio::SeqFeature::SimilarityPair);
 
-# new() is inherited from Bio::Root::Object
+sub new {
+    my ($class, @args) = @_;
+    my $self = bless {}, $class;
+    $self->_initialize(@args);
+    return $self;
+}
 
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
   my($self,@args) = @_;
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
   my ($score,$bits,$match,$positive,$p,$qb,$qe,$sb,$se,$qs,
       $ss,$hs,$qname,$sname,$qlength,$slength) = 
