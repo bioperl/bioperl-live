@@ -1,11 +1,14 @@
 #!/usr/bin/perl -w
 
-use lib '.','../..','./blib/lib','../../blib/lib';
+use lib '.','../..','./blib/lib','../../blib/lib','../..';
 use strict;
-
 use Bio::Graphics::Panel;
 use Bio::Graphics::Feature;
-use GD 'gdMediumBoldFont';
+
+chomp (my $PKG = shift);
+$PKG or die "\nUsage: lots_of_glyphs IMAGE_CLASS
+\t- where IMAGE_CLASS is one of GD or GD::SVG
+\t- GD generate png output; GD::SVG generates SVG.\n";
 
 my $ftr = 'Bio::Graphics::Feature';
 
@@ -76,6 +79,7 @@ my $panel = Bio::Graphics::Panel->new(
 				      -pad_left => 20,
 				      -pad_right=> 20,
 				      -key_style => 'between',
+         		 	      -image_class=> 'GD::SVG',
 				     );
 my @colors = $panel->color_names();
 
@@ -90,7 +94,7 @@ $t->configure(-bump=>1);
 $panel->add_track($segment,
 		  -glyph => 'arrow',
 		  -label => sub {scalar localtime},
-		  -labelfont => gdMediumBoldFont,
+#		  -labelfont => 'gdMediumBoldFont',
 		  -double => 1,
 		  -bump => 0,
 		  -height => 10,
@@ -134,5 +138,5 @@ my $red   = $panel->translate_color('red');
 for my $box (@boxes) {
   my ($feature,@points) = @$box;
 }
-print $gd->png;
-
+my $type = ($PKG eq 'GD') ? 'png' : 'svg';
+print $gd->$type;

@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
-use lib '.','..','./blib/lib','../blib/lib';
+use lib '.','..','./blib/lib','../blib/lib','../..';
 use strict;
 
 use Bio::Graphics::Panel;
@@ -8,18 +8,23 @@ use Bio::Graphics::Feature;
 
 my $ftr = 'Bio::Graphics::Feature';
 
+chomp (my $CLASS = shift);
+$CLASS or die "\nUsage: lots_of_glyphs IMAGE_CLASS
+\t- where IMAGE_CLASS is one of GD or GD::SVG
+\t- GD generate png output; GD::SVG generates SVG.\n";
+
 my $segment = $ftr->new(-start=>-100,-end=>1000,-name=>'ZK154',-type=>'clone');
 my $zk154_1 = $ftr->new(-start=>-50,-end=>800,-name=>'ZK154.1',-type=>'gene');
 my $zk154_2 = $ftr->new(-start=>380,-end=>500,-name=>'ZK154.2',-type=>'gene');
 my $zk154_3 = $ftr->new(-start=>900,-end=>1200,-name=>'ZK154.3',-type=>'gene');
 
 my $zed_27 = $ftr->new(-segments=>[[400,500],[550,600],[800,950]],
-		   -name=>'zed-27',
-		   -subtype=>'exon',-type=>'gene');
+		       -name=>'zed-27',
+		       -subtype=>'exon',-type=>'gene');
 my $abc3 = $ftr->new(-segments=>[[100,200],[350,400],[500,550]],
-		    -name=>'abc53',
+		     -name=>'abc53',
 		     -strand => -1,
-		    -subtype=>'exon',-type=>'gene');
+		     -subtype=>'exon',-type=>'gene');
 my $xyz4 = $ftr->new(-segments=>[[40,80],[100,120],[200,280],[300,320]],
 		     -name=>'xyz4',
 		     -subtype=>'predicted',-type=>'alignment');
@@ -51,7 +56,7 @@ my $predicted_exon2 = $ftr->new(-start=>60,-stop=>100,
 
 my $confirmed_exon3 = $ftr->new(-start=>150,-stop=>190,
 				-type=>'exon',-source=>'confirmed',
-			       -name=>'abc123');
+				-name=>'abc123');
 my $partial_gene = $ftr->new(-segments=>[$confirmed_exon1,$predicted_exon1,$predicted_exon2,$confirmed_exon3],
 			     -name => 'partial gene',
 			     -type => 'transcript',
@@ -80,6 +85,7 @@ my $panel = Bio::Graphics::Panel->new(
 #				      -bgcolor => 'teal',
 #				      -key_style => 'between',
 				      -key_style => 'bottom',
+				      -image_class => $CLASS,
 				     );
 my @colors = $panel->color_names();
 
@@ -100,7 +106,7 @@ $panel->add_track($segment,
 		  -height => 10,
 		  -arrowstyle=>'regular',
 		  -linewidth=>1,
-#		  -tkcolor => $colors[rand @colors],
+		  #		  -tkcolor => $colors[rand @colors],
 		  -tick => 2,
 		 );
 $panel->unshift_track(generic => [$segment,$zk154_1,$zk154_2,$zk154_3,[$xyz4,$zed_27]],
@@ -119,7 +125,7 @@ $panel->unshift_track(generic => [$segment,$zk154_1,$zk154_2,$zk154_3,[$xyz4,$ze
 		      -linewidth=>2,
 		      #		  -tkcolor => $colors[rand @colors],
 		      -key => 'Signs',
-		 );
+		     );
 
 my $track = $panel->add_track(-glyph=> sub { shift->primary_tag eq 'gene' ? 'transcript2': 'generic'},
 			      -label   => sub { $_[-1]->level == 0 } ,
@@ -183,8 +189,6 @@ $panel->add_track(diamond => [$segment,$zk154_1,$zk154_2,$zk154_3,$xyz4,$zed_27]
 		  -label   => 1,
 		  -key     => 'pointy thing');
 
-#print $panel->png;
-
 my $gd    = $panel->gd;
 my @boxes = $panel->boxes;
 my $red   = $panel->translate_color('red');
@@ -194,5 +198,6 @@ for my $box (@boxes) {
 }
 #$gd->filledRectangle(0,0,20,200,1);
 #$gd->filledRectangle(600-20,0,600,200,1);
-print $gd->png;
+my $type = ($CLASS eq 'GD') ? 'png' : 'svg';
+print $gd->$type;
 
