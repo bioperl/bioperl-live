@@ -30,7 +30,7 @@ Bio::Location::Simple - Implementation of a Simple Location on a Sequence
 This is an implementation of Bio::LocationI to manage exact location
 information on a Sequence: '22' or '12..15' or '16^17'.
 
-You can test the type of the location using lenght() function () or
+You can test the type of the location using length() function () or
 directly location_type() which can one of two values: 'EXACT' or
 'IN-BETWEEN'.
 
@@ -153,7 +153,7 @@ sub end {
   Title   : strand
   Usage   : $strand = $loc->strand();
   Function: get/set the strand of this range
-  Returns : the strandidness (-1, 0, +1)
+  Returns : the strandedness (-1, 0, +1)
   Args    : optionaly allows the strand to be set
           : using $loc->strand($strand)
 
