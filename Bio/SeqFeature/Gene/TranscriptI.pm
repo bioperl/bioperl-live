@@ -232,9 +232,13 @@ sub protein {
 =cut
 
 sub parent{
-   my ($self,$value) = @_;
-   if( defined $value) {
-       if ($value->isa("Bio::SeqFeature::Gene::GeneStructureI")) {
+   my $self = shift;
+   if( @_ ) {
+       my $value = shift;
+       # I really mean ! defined $value - 
+       # we will allow re-setting the parent to undef 
+       if (! defined $value || 
+	   $value->isa("Bio::SeqFeature::Gene::GeneStructureI")) {
 	   $self->{'parent'} = $value;
        } else {
 	   $self->throw("$value must be a Bio::SeqFeature::Gene::GeneStructureI")
