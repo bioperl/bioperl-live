@@ -264,7 +264,7 @@ sub to_string {
 	    $result->rewind(); # insure we're at the beginning
 	foreach my $hit($result->hits) {	    
 	    next if( defined $hitfilter && ! &{$hitfilter}($hit));
-	    my @row_data  = &{$func_ref}($result, $hit);
+	    my @row_data  = map { defined $_ ? $_ : 0 } &{$func_ref}($result, $hit);
 	    $str .= sprintf "$printf_fmt\n", @row_data;
 	}
     }
