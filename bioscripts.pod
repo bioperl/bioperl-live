@@ -48,6 +48,10 @@ This script loads a mySQL Bio::DB::GFF database with the features
 contained in a list of GFF files. This script will work with all
 database adaptors supported by Bio::DB::GFF (mySQL, Oracle, Postgres).
 
+=head2 scripts/Bio-DB-GFF/pg_bulk_load_gff.PLS
+
+Bulk-load a PostgreSQL Bio::DB::GFF database from GFF files.
+
 =head2 scripts/Bio-DB-GFF/process_gadfly.PLS
 
 Transforms Gadfly GFF files into correct format.
