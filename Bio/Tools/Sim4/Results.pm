@@ -3,8 +3,9 @@
 # BioPerl module for Bio::Tools::Sim4::Results
 #
 # Cared for by Ewan Birney <birney@sanger.ac.uk>
+#          and Hilmar Lapp <hlapp@gmx.net>
 #
-# Copyright Ewan Birney
+# Copyright Ewan Birney and Hilmar Lapp
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -16,24 +17,35 @@ Bio::Tools::Sim4::Results - Results of one Sim4 run
 
 =head1 SYNOPSIS
 
+   # to preset the order of EST and genomic file as given on the sim4 
+   # command line:
+   $sim4 = Bio::Tools::Sim4::Results->new(-file => 'result.sim4',
+                                          -estisfirst => 1);
+   # to let the order be determined automatically (by length comparison):
    $sim4 = Bio::Tools::Sim4->new( -file => 'sim4.results' );
+   # filehandle:
    $sim4 = Bio::Tools::Sim4->new( -fh   => \*INPUT );
-   
-   # parse the results.
 
-   foreach $exonset ( $sim4->each_ExonSet() ) {
-      # $exonset is-a SeqFeature::Generic with Bio::Tools::Sim4::Exons as sub features
-      print "Delimited on sequence from ", $exonset->start(), " to ", $exonset->end() "\n";
-      foreach $exon ( $exonset->each_Exon() ) {
-	  # $exon is-a SeqFeature::Generic 
-	  print "Exon from ", $exon->start, " to ", $exon->end, "\n";
-          
-          # you can get out what it matched using the homol_SeqFeature attribute
-          $homol = $exon->homol_SeqFeature;
-          print "Matched to sequence", $homol->seqname, " at ", $homol->start, " to ", $homol->end, "\n";
+   # parse the results
+   while($exonset = $sim4->next_exonset()) {
+       # $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Sim4::Exons
+       # as sub features
+       print "Delimited on sequence ", $exonset->seqname(), 
+             "from ", $exonset->start(), " to ", $exonset->end() "\n";
+       foreach $exon ( $exonset->sub_SeqFeature() ) {
+	  # $exon is-a Bio::SeqFeature::FeaturePair
+	  print "Exon from ", $exon->start, " to ", $exon->end, 
+                " on strand ", $exon->strand(), "\n";
+          # you can get out what it matched using the est_hit attribute
+          $homol = $exon->est_hit();
+          print "Matched to sequence", $homol->seqname, 
+                " at ", $homol->start," to ", $homol->end, "\n";
       }
    }
 
+   # essential if you gave a filename at initialization (otherwise the file
+   # stays open)
+   $sim4->close();
 
 =head1 DESCRIPTION
 
@@ -41,20 +53,30 @@ The sim4 module provides a parser and results object for sim4 output. The
 sim4 results are specialised types of SeqFeatures, meaning you can add them
 to AnnSeq objects fine, and manipulate them in the "normal" seqfeature manner.
 
-The sim4 Exon objects are Bio::SeqFeature::Homol inherited objects. The 
-$h = $exon->homol_SeqFeature() is the seqfeature on the matching object, in
-which the start/end points are where the hit lies.
+The sim4 Exon objects are Bio::SeqFeature::FeaturePair inherited objects. The 
+$esthit = $exon->est_hit() is the alignment as a feature on the matching 
+object (normally, an EST), in which the start/end points are where the hit
+lies.
 
 To make this module work sensibly you need to run
 
-  sim4 genomic.fasta est.database.fasta
+     sim4 genomic.fasta est.database.fasta
+or
+     sim4 est.fasta genomic.database.fasta
 
-one fiddle here is that there are only two real possibilities to the matching
+To get the sequence identifiers recorded for the first sequence, too, use
+A=4 as output option for sim4.
+
+One fiddle here is that there are only two real possibilities to the matching
 criteria: either one sequence needs reversing or not. Because of this, it
 is impossible to tell whether the match is in the forward or reverse strand
-of the genomic dna. The exon objects have their strand attribute set to 0.
-However, the homol objects have their strand attribute set to 1 or -1, depending
-on whether it needs reverse complementing for this to work.
+of the genomic DNA. We solve this here by assuming that the genomic DNA is
+always forward. As a consequence, the strand attribute of the matching EST is
+unknown, and the strand attribute of the genomic DNA (i.e., the Exon object)
+will reflect the direction of the hit.
+
+See the documentation of parse_next_alignment() for abilities of the parser
+to deal with the different output format options of sim4.
 
 =head1 FEEDBACK
 
@@ -64,8 +86,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  vsns-bcd-perl@lists.uni-bielefeld.de          - General discussion
-  vsns-bcd-perl-guts@lists.uni-bielefeld.de     - Technically-oriented discussion
+  bioperl-l@bioperl.org          - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
 =head2 Reporting Bugs
@@ -77,9 +98,10 @@ or the web:
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Hilmar Lapp
 
 Email birney@sanger.ac.uk
+      hlapp@gmx.net (or hilmar.lapp@pharma.novartis.com)
 
 Describe contact details here
 
@@ -100,7 +122,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object
 
 use Bio::Root::Object;
-use Bio::Tools::Sim4::ExonSet;
+#use Bio::Tools::Sim4::ExonSet;
 use Bio::Tools::Sim4::Exon;
 
 @ISA = qw(Bio::Root::Object);
@@ -113,184 +135,339 @@ sub _initialize {
 
   my $make = $self->SUPER::_initialize(@args);
 
-  my($fh,$file) =
+  my($fh,$file,$est_is_first) =
       $self->_rearrange([qw(FH
 			    FILE
+			    ESTFIRST
 			    )],
 			@args);
 
-  $self->{'exon_set_array'} = [];
+  $self->{'readbuffer'} = "";
+  $self->{'_est_is_first'} = $est_is_first if(defined($est_is_first));
 
   if( defined $fh && defined $file ) {
       $self->throw("You have defined both a filehandle and file to read from. Not good news!");
   }
+  if((defined $file) && ($file ne '')) {
+      $fh = Symbol::gensym();
+      open ($fh,$file)
+	  || $self->throw("Could not open $file for Fasta stream reading $!");
+  }
+  if((! defined($fh)) && ($file eq "")) {
+      $fh = \*STDIN;
+  }
+  $self->_filehandle($fh) if defined $fh;
 
-  $fh && $self->_parse_fh($fh);
-
-  $file && $self->_parse_file($file);
-
-# set stuff in self from @args
+  # set stuff in self from @args
   return $make; # success - we hope!
 }
 
 
+=head2 close
 
-=head2 each_ExonSet
+ Title   : close
+ Usage   : $sim4_result->close()
+ Function: Closes the file handle associated with this result file
+ Example :
+ Returns :
+ Args    :
 
- Title   : each_ExonSet
- Usage   :
+=cut
+
+sub close {
+   my ($self, @args) = @_;
+
+   $self->{'_filehandle'} = undef;
+}
+
+=head2 _pushback
+
+ Title   : _pushback
+ Usage   : $obj->_pushback($newvalue)
+ Function: puts a line previously read with _readline back into a buffer
+ Example :
+ Returns :
+ Args    : newvalue
+
+=cut
+
+sub _pushback {
+  my ($obj, $value) = @_;
+  $obj->{'readbuffer'} .= $value;
+}
+
+
+=head2 _filehandle
+
+ Title   : _filehandle
+ Usage   : $obj->_filehandle($newval)
  Function:
  Example :
- Returns : 
+ Returns : value of _filehandle
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _filehandle {
+    my ($obj, $value) = @_;
+    if(defined $value) {
+	$obj->{'_filehandle'} = $value;
+    }
+    return $obj->{'_filehandle'};
+}
+
+
+=head2 _readline
+
+ Title   : _readline
+ Usage   : $obj->_readline
+ Function:
+ Example :
+ Returns : reads a line of input
+
+=cut
+
+sub _readline {
+  my $self = shift;
+  my $fh = $self->_filehandle();
+  my $line;
+
+  # if the buffer been filled by _pushback then return the buffer
+  # contents, rather than read from the filehandle
+  if ( defined $self->{'readbuffer'} ) {
+      $line = $self->{'readbuffer'};
+      undef $self->{'readbuffer'};
+  } else {
+      $line = defined($fh) ? <$fh> : <>;
+  }
+  return $line;
+}
+
+sub DESTROY {
+    my $self = shift;
+
+    $self->close();
+}
+
+=head2 parse_next_alignment
+
+ Title   : parse_next_alignment
+ Usage   : @exons = $sim4_result->parse_next_alignment;
+           foreach $exon (@exons) {
+               # do something
+           }
+ Function: Parses the next alignment of the Sim4 result file and returns the
+           found exons as an array of Bio::Tools::Sim4::Exon objects. Call
+           this method repeatedly until an empty array is returned to get the
+           results for all alignments.
+
+           The $exon->seqname() attribute will be set for both sequences
+           if A=4 was used in the sim4 run, and otherwise for the second
+           sequence only. In addition, filename and length will be recorded
+           for both features ($exon inherits off Bio::SeqFeature::FeaturePair)
+           as tags 'filename' and 'seqlength'.
+
+           Note that this method is capable of dealing with outputs generated
+           with format 0,1,3, and 4 (via the A=n option to sim4). It
+           automatically determines which of the two sequences has been 
+           reversed, and adjusts the coordinates for that sequence. It will
+           also detect whether the EST sequence(s) were given as first or as
+           second file to sim4, unless this has been specified at creation
+           of the object.
+
+ Example :
+ Returns : An array of Bio::Tools::Sim4::Exon objects
  Args    :
 
 
 =cut
 
-sub each_ExonSet{
+sub parse_next_alignment {
    my ($self) = @_;
+   my $fh = $self->_filehandle();
+   my @exons = ();
+   my %seq1props = ();
+   my %seq2props = ();
+   # we refer to the properties of each seq by reference
+   my ($estseq, $genomseq, $to_reverse);
+   my $started = 0;
+   my $hit_direction = 1;
+   my $output_fmt = 3; # same as 0 and 1 (we cannot deal with A=2 produced
+                       # output yet)
 
-   return @{$self->{'exon_set_array'}};
-}
+   while(defined($_ = $self->_readline())) {
+       #chomp();
 
-=head2 add_ExonSet
-
- Title   : add_ExonSet
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub add_ExonSet{
-   my ($self,$es) = @_;
-
-   $es->isa('Bio::Tools::Sim4::ExonSet') || $self->throw("Attempting to add non ExonSet to Sim4 results. Yuk!");
-   
-   push(@{$self->{'exon_set_array'}},$es);
-}
-
-=head2 _parse_file
-
- Title   : _parse_file
- Usage   : 
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub _parse_file{
-   my ($self,$file) = @_;
-
-   open(FH,$file) || $self->throw("Could not open [$file] as a filehandle!");
-
-   $self->_parse_fh(\*FH);
-
-   close(FH) || $self->throw("Could not close [$file] as filehandle. Probably a pipe close, in which case sim4 might not be correctly set up on your system. Try 'which sim4' and check it works");
-}
-
-
-=head2 _parse_fh
-
- Title   : _parse_fh
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub _parse_fh{
-   my ($self,$fh) = @_;
-
-   while( <$fh> ) {
-       chomp;
+       #
        # bascially, each sim4 'hit' starts with seq1...
-
+       #
        /^seq1/ && do {
-	   # main parsing code of one hit
+	   if($started) {
+	       $self->_pushback($_);
+	       last;
+	   }
+	   $started = 1;
 
-	   my $es = Bio::Tools::Sim4::ExonSet->new();
-	   $self->add_ExonSet($es);
-
-	   /^seq1\s+=\s+(\S+)\,\s+(\d+)/ || $self->throw("Sim4 parsing error on seq1 [$_] line. Sorry!");
-	   my $filename1 = $1;
-	   my $length1 = $2;
-
-	   # get the next line
-	   $_ = <$fh>; 
-
-	   # the second hit has also the database name in the >name syntex (in brackets).
-	   /^seq2\s+=\s+(\S+)\s+\(>?(\S+)\s*\)\,\s+(\d+)/ || $self->throw("Sim4 parsing error on seq2 [$_] line. Sorry!");
-	   my $filename2 = $1;
-	   my $name2 = $2;
-	   my $length2 = $3;
+	   # filename and length of seq 1
+	   /^seq1\s+=\s+(\S+)\,\s+(\d+)/ ||
+	       $self->throw("Sim4 parsing error on seq1 [$_] line. Sorry!");
+	   $seq1props{'filename'} = $1;
+	   $seq1props{'length'} = $2;
+	   next;
+       };
+       /^seq2/ && do {
+	   # the second hit has also the database name in the >name syntax 
+	   # (in brackets).
+	   /^seq2\s+=\s+(\S+)\s+\(>?(\S+)\s*\)\,\s+(\d+)/ ||
+	       $self->throw("Sim4 parsing error on seq2 [$_] line. Sorry!");
+	   $seq2props{'filename'} = $1;
+	   $seq2props{'seqname'} = $2;
+	   $seq2props{'length'} = $3;
+	   next;
+       };
+       if(/^>(\S+)\s*(.*)$/) {
+	   # output option was A=4, which not only gives the complete
+	   # description lines, but also causes the longer sequence to be
+	   # reversed if the second file contained one (genomic) sequence
+	   $seq1props{'seqname'} = $1;
+	   $seq1props{'description'} = $2 if $2;
+	   $output_fmt = 4;
+	   # we handle seq1 and seq2 both here
+	   if(defined($_ = $self->_readline()) && (/^>(\S+)\s*(.*)$/)) {
+	       $seq2props{'seqname'} = $1; # redundant, since already set above
+	       $seq2props{'description'} = $2 if $2;
+	   }
+	   next;
+       }
+       /^\(complement\)/ && do {
+	   $hit_direction = -1;
+	   next;
+       };
+       # this matches
+       # start-end (start-end) pctid%
+       if(/(\d+)-(\d+)\s+\((\d+)-(\d+)\)\s+(\d+)%/) {
+ 	   $seq1props{'start'} = $1;
+ 	   $seq1props{'end'} = $2;
+ 	   $seq2props{'start'} = $3;
+ 	   $seq2props{'end'} = $4;
+	   my $pctid   = $5;
 	   
-	   # get the next line
-
-	   $_ = <$fh>;
-	   
-	   # major loop over start/end points.
-
-	   my $hit_direction = 1;
-
-	   while ( <$fh> ) {
-	       chomp;
-	       /^\(complement\)/ && do { $hit_direction = -1; next; };
-
-	       # print STDERR "Major loop with $_\n";
-	       # this matches
-	       # start-end (start-end) perc%
-	       /(\d+)-(\d+)\s+\((\d+)-(\d+)\)\s+(\d+)%/ && do {
-		   my $f1start = $1;
-		   my $f1end   = $2;
-		   my $f2start = $3;
-		   my $f2end   = $4;
-		   my $perc = $5;
-		   
-		   my $homol;
-		   if( $hit_direction == 1 ) {
-		       $homol = Bio::SeqFeature::Generic->new(
-								 -start => $f2start,
-								 -end   => $f2end,
-								 -strand => $hit_direction,
-								 );
+	   if(! defined($estseq)) {
+	       # for the first time here: need to set the references referring
+	       # to seq1 and seq2 
+	       if(! exists($self->{'_est_is_first'})) {
+		   # detect which one is the EST by looking at the lengths,
+		   # and assume that this holds throughout the entire result
+		   # file (i.e., when this method is called for the next
+		   # alignment, this will not be checked again)
+		   if($seq1props{'length'} > $seq2props{'length'}) {
+		       $self->{'_est_is_first'} = 0;
 		   } else {
-		       $homol = Bio::SeqFeature::Generic->new(
-								 -end => $length2 - $f2start,
-								 -start => $length2 - $f2end +1,
-								 -strand => $hit_direction,
-								 );
+		       $self->{'_est_is_first'} = 1;
 		   }
-							    
-
-		   my $exon = Bio::Tools::Sim4::Exon->new();
-		   $exon->start($f1start);
-		   $exon->end($f1end);
-		   $exon->percentage_id($5);
-		   $exon->score($5);
-		   $exon->homol_SeqFeature($homol);
-		   $es->add_Exon($exon);
-	       };
-	       if( ! /\-\>/ && ! /\<\-/ && ! /\=\=/) {
-		   last;
+	       }
+	       if($self->{'_est_is_first'}) {
+		   $estseq = \%seq1props;
+		   $genomseq = \%seq2props;
+		   # if the EST is given first, A=4 selects the genomic
+		   # seq for being reversed (reversing the EST is default)
+		   $to_reverse = ($output_fmt == 4) ? $genomseq : $estseq;
+	       } else {
+		   $estseq = \%seq2props;
+		   $genomseq = \%seq1props;
+		   # if the EST is the second, A=4 does not change the
+		   # seq being reversed (always the EST is reversed)
+		   $to_reverse = $estseq;
 	       }
 	   }
+	   if($hit_direction == -1) {
+	       # we have to reverse the coordinates of one of both seqs
+	       my $tmp = $to_reverse->{'start'};
+	       $to_reverse->{'start'} =
+		   $to_reverse->{'length'} - $to_reverse->{'end'} + 1;
+	       $to_reverse->{'end'} = $to_reverse->{'length'} - $tmp + 1;
+	   }
+	   # create and initialize the exon object
+	   my $exon = Bio::Tools::Sim4::Exon->new(
+					    '-start' => $genomseq->{'start'},
+					    '-end'   => $genomseq->{'end'},
+					    '-strand' => $hit_direction);
+	   if(exists($genomseq->{'seqname'})) {
+	       $exon->seqname($genomseq->{'seqname'});
+	   }
+	   $exon->feature1()->add_tag_value('filename',
+					    $genomseq->{'filename'});
+	   $exon->feature1()->add_tag_value('seqlength',
+					    $genomseq->{'length'});
+	   $exon->percentage_id($pctid);
+	   # create and initialize the feature wrapping the 'hit' (the EST)
+	   my $fea2 = Bio::SeqFeature::Generic->new(
+                                            '-start' => $estseq->{'start'},
+					    '-end'   => $estseq->{'end'},
+					    '-strand' => 0,
+					    '-source' => "Sim4",
+					    '-primary' => "aligning_EST",
+					    '-score' => $pctid);
+	   if(exists($estseq->{'seqname'})) {
+	       $fea2->seqname($estseq->{'seqname'});
+	   }
+	   $fea2->add_tag_value('filename', $estseq->{'filename'});
+	   $fea2->add_tag_value('seqlength', $estseq->{'length'});
+	   $exon->feature2($fea2);
+	   push(@exons, $exon);
 	   next; # back to while loop
-       }; # end of do on seq line
-
-       # if a blank line, move on, otherwise issue a warning/
-
-       /^\s*$/ || do { chomp; $self->warn("Could not understand non blank line [$_] in sim4 output. Skipping"); };
+       }
    }
+   return @exons;
+}
+
+=head2 next_exonset
+
+ Title   : next_exonset
+ Usage   : $exonset = $sim4_result->parse_next_exonset;
+           print "Exons start at ", $exonset->start(), 
+                 "and end at ", $exonset->end(), "\n";
+           foreach $exon ($exonset->sub_SeqFeature()) {
+               # do something
+           }
+ Function: Parses the next alignment of the Sim4 result file and returns the
+           set of exons as a container of features. The container is itself
+           a Bio::SeqFeature::Generic object, with the Bio::Tools::Sim4::Exon
+           objects as sub features. Start, end, and strand of the container
+           will represent the total region covered by the exons of this set.
+
+           See the documentation of parse_next_alignment() for further
+           reference about parsing and how the information is stored.
+
+ Example : 
+ Returns : An Bio::SeqFeature::Generic object holding Bio::Tools::Sim4::Exon
+           objects as sub features.
+ Args    :
+
+=cut
+
+sub next_exonset {
+    my $self = shift;
+    my $exonset;
+
+    # get the next array of exons
+    my @exons = $self->parse_next_alignment();
+    return if($#exons < 0);
+    # create the container of exons as a feature object itself, with the
+    # data of the first exon for initialization
+    $exonset = Bio::SeqFeature::Generic->new('-start' => $exons[0]->start(),
+					     '-end' => $exons[0]->end(),
+					     '-strand' => $exons[0]->strand(),
+					     '-primary' => "ExonSet",
+					     '-source' => "Sim4");
+    $exonset->seqname($exons[0]->seqname());
+    # now add all exons as sub features, with enabling EXPANsion of the region
+    # covered in total
+    foreach my $exon (@exons) {
+	$exonset->add_sub_SeqFeature($exon, 'EXPAND');
+    }
+    return $exonset;
 }
 
 1;
