@@ -191,7 +191,10 @@ package Bio::DB::Flat::BinarySearch;
 use strict;
 use vars qw(@ISA);
 
-use FileHandle;
+use Fcntl qw(SEEK_END SEEK_CUR);
+# rather than using tell which might be buffered
+sub systell{ sysseek($_[0], 0, SEEK_CUR) }
+sub syseof{ sysseek($_[0], 0, SEEK_END) }
 
 use Bio::DB::RandomAccessI;
 use Bio::Root::RootI;
@@ -380,15 +383,14 @@ sub get_stream_by_id {
 	}
     }
     my $indexfh = $self->primary_index_filehandle;
-    sysseek ($indexfh,0,2);
+    syseof ($indexfh);
 
-    my $filesize = (tell $indexfh);
-
+    my $filesize = systell($indexfh);
+    
     $self->throw("file was not parsed properly, record size is empty") 
 	unless $self->record_size;
-
-    my $end = ($filesize - $self->{_start_pos}) / $self->record_size;
-
+    
+    my $end = ($filesize - $self->{'_start_pos'}) / $self->record_size;
     my ($newid,$rest,$fhpos) = $self->find_entry($indexfh,0,$end,$id,$self->record_size);
 
     
@@ -463,17 +465,16 @@ sub get_Seq_by_secondary {
 
     my $fh = $self->open_secondary_index($name);
 
-    sysseek ($fh,0,2);
+    syseof ($fh);
 
-    my $filesize = (tell $fh);
+    my $filesize = systell($fh);
 
-    my $recsize = $self->{_secondary_record_size}{$name};
+    my $recsize = $self->{'_secondary_record_size'}{$name};
 #    print "Name " . $recsize . "\n";
 
-    my $end = ($filesize-$self->{_start_pos})/$recsize;
+    my $end = ($filesize - $self->{'_start_pos'})/$recsize;
 
 #    print "End $end $filesize\n";
-
     my ($newid,$primary_id,$pos) = $self->find_entry($fh,0,$end,$id,$recsize);
 
     sysseek($fh,$pos,0);
@@ -548,7 +549,7 @@ sub read_header {
 
     sysread($fh,$record_width,HEADER_SIZE);
 
-    $self->{_start_pos} = HEADER_SIZE;
+    $self->{'_start_pos'} = HEADER_SIZE;
     $record_width =~ s/ //g;
     $record_width = $record_width * 1;
 
@@ -594,13 +595,13 @@ sub get_all_primary_ids {
   my $self = shift;
 
   my $fh = $self->primary_index_filehandle;
-  sysseek ($fh,0,2);
-  my $filesize = (tell $fh);
+  syseof($fh);
+  my $filesize = systell($fh);
   my $recsize  = $self->record_size;
   my $end = $filesize;
 
   my @ids;
-  for (my $pos=$self->{_start_pos}; $pos < $end; $pos += $recsize) {
+  for (my $pos=$self->{'_start_pos'}; $pos < $end; $pos += $recsize) {
     my $record = $self->read_record($fh,$pos,$recsize);
     my ($entryid)  = split(/\t/,$record);
     push @ids,$entryid;
@@ -622,10 +623,10 @@ sub get_all_primary_ids {
 
 sub find_entry {
     my ($self,$fh,$start,$end,$id,$recsize) = @_;
-
-    my $mid = int(($end+1+$start)/2);
-    my $pos = ($mid-1)*$recsize + $self->{_start_pos};
-
+    
+    my $mid = int( ($end+1+$start) / 2);
+    my $pos = ($mid-1)*$recsize + $self->{'_start_pos'};
+    
     my ($record) = $self->read_record($fh,$pos,$recsize);
     my ($entryid,$rest)  = split(/\t/,$record,2);
     $rest =~ s/\s+$//;
@@ -633,7 +634,6 @@ sub find_entry {
 #    print "Mid $recsize $mid $pos:$entryid:$rest:$record\n";
 #    print "Entry :$id:$entryid:$rest\n";
 
-    
     my ($first,$second) = $id le $entryid ? ($id,$entryid) : ($entryid,$id);
 
     if ($id eq $entryid) {
@@ -778,24 +778,23 @@ sub _index_file {
 	if ($done == 0) {
 	  $id = $new_primary_entry;
 	  $self->{alphabet} ||= $self->guess_alphabet($_);
-		
-	  my $tmplen = tell($fh) - length($_);
+	  
+	  my $tmplen = (tell $fh) - length($_);
 
 	  $length = $tmplen  - $pos;
 		
-	  if (!defined($id)) {
+	  unless( defined($id)) {
 	    $self->throw("No id defined for sequence");
 	  }
-	  if (!defined($fileid)) {
+	  unless( defined($fileid)) {
 	    $self->throw("No fileid defined for file $file");
 	  }
-	  if (!defined($pos)) {
+	  unless( defined($pos)) {
 	    $self->throw("No position defined for " . $id . "\n");
 	  }
-	  if (!defined($length)) {
+	  unless( defined($length)) {
 	    $self->throw("No length defined for " . $id . "\n");
 	  }
-		
 	  $self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
 
 	  $pos   = $tmplen;
@@ -829,7 +828,7 @@ sub _index_file {
     # Remember to add in the last one
 
     $id = $new_primary_entry;
-    my $tmplen = tell($fh) - length($last_one);
+    my $tmplen = (tell $fh) - length($last_one);
 
     $length = $tmplen  - $pos;
     
@@ -992,8 +991,8 @@ sub new_secondary_filehandle {
 
     my $secindex = Bio::Root::IO->catfile($indexdir,"id_$name.index");
 
-    my $fh = new FileHandle(">$secindex");
-
+    my $fh;
+    open($fh,">$secindex") || $self->throw($!);
     return $fh;
 }
 
@@ -1021,7 +1020,8 @@ sub open_secondary_index {
 	    $self->throw("Index is not present for namespace [$name]\n");
 	}
 
-        my $newfh  = new FileHandle("<$secindex");
+        my $newfh;
+	open($newfh,"<$secindex") || $self->throw($!);
 	my $reclen = $self->read_header($newfh);
 
 	$self->{_secondary_filehandle} {$name} = $newfh;
@@ -1053,10 +1053,10 @@ sub _add_id_position {
   if (!defined($pos)) {
     $self->throw("No position defined. Can't add id position");
   }
-  if (!defined($fileid)) {
+  if ( ! defined($fileid)) {
     $self->throw("No fileid defined. Can't add id position");
   }
-  if (!defined($length) || $length <= 0) {
+  if (! defined($length) || $length <= 0) {
     $self->throw("No length defined or <= 0 [$length]. Can't add id position");
   }
 
@@ -1082,7 +1082,7 @@ sub _add_id_position {
     if !exists $self->{_maxposlength} or length($pos) >= $self->{_maxposlength};
 
   $self->{_maxlengthlength} = length($length)
-    if !exists $self->{_maxlengthlength} or length($length) >= $self->{_maxlengthlength};
+      if !exists $self->{_maxlengthlength} or length($length) >= $self->{_maxlengthlength};
 
 }
 
@@ -1119,7 +1119,8 @@ sub make_config_file {
 
 	print CON "fileid_$count\t$file\t$size\n";
 
-	my $fh = new FileHandle("<$file");
+	my $fh;
+	open($fh,"<$file") || $self->throw($!);
 	$self->{_fileid}{$count}   = $fh;
 	$self->{_file}  {$count}   = $file;
 	$self->{_dbfile}{$file}    = $count;
@@ -1157,7 +1158,6 @@ sub make_config_file {
 	my $alpha    = $alphabet ? "/$alphabet" : '';
 	print CON "format\t" . "URN:LSID:open-bio.org:$format$alpha\n";
     }
-
     close(CON);
 }
 
@@ -1212,7 +1212,8 @@ sub read_config_file {
 		$self->throw("Flatfile size for $filename differs from what the index thinks it is. Real size [" . (-s $filename) . "] Index thinks it is [" . $filesize  . "]");
 	    }
 		
-	    my $fh = new FileHandle("<$filename");
+	    my $fh;
+	    open($fh,"<$filename") || $self->throw($!);
 
 	    $self->{_fileid}{$fileid}   = $fh;
 	    $self->{_file}  {$fileid}   = $filename;
@@ -1347,10 +1348,10 @@ sub primary_index_file {
 sub primary_index_filehandle {
     my ($self) = @_;
 
-    if (!defined ($self->{_primary_index_handle})) {
-	$self->{_primary_index_handle} = new FileHandle("<" . $self->primary_index_file);
+    unless (defined ($self->{'_primary_index_handle'})) {
+	open($self->{'_primary_index_handle'}, "<" . $self->primary_index_file) || self->throw($@);
     }
-    return $self->{_primary_index_handle};
+    return $self->{'_primary_index_handle'};
 }
 
 =head2 format
