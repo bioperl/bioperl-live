@@ -220,7 +220,7 @@ sub primary_namespace {
 sub secondary_namespaces {
   my $self = shift;
   my $d    = $self->{flat_secondary_namespaces};
-  $self->{flat_secondary_namespaces} = (ref($_[0]) eq 'ARRAY' ? shift : \@_) if @_;
+  $self->{flat_secondary_namespaces} = (ref($_[0]) eq 'ARRAY' ? shift : [@_]) if @_;
   return unless $d;
   $d = [$d] if $d && ref($d) ne 'ARRAY';  # just paranoia
   return wantarray ? @$d : $d;

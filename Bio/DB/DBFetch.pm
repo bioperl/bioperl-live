@@ -136,10 +136,23 @@ sub get_request {
 
 =cut
 
-# don't need to do anything
-
+# remove occasional blank lines at top of web output
 sub postprocess_data {
-    my ($self, %args) = @_;
+  my ($self, %args) = @_;
+  if ($args{type} eq 'string') {
+    ${$args{location}} =~ s/^\s+//;  # get rid of leading whitespace
+  }
+  elsif ($args{type} eq 'file') {
+    open F,$args{location} or $self->throw("Cannot open $args{location}: $!");
+    my @data = <F>;
+    for (@data) {
+      last unless /^\s+$/;
+      shift @data;
+    }
+    open F,">$args{location}" or $self->throw("Cannot write to $args{location}: $!");
+    print F @data;
+    close F;
+  }
 }
 
 =head2 default_format
