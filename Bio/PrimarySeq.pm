@@ -281,8 +281,8 @@ sub seq {
            account. Allowed are all letters (A-Z) and '-','.', '*' and '?'.
 
  Example :
- Returns : TRUE if the supplied sequence string is valid for the object, and
-           FALSE otherwise.
+ Returns : 1 if the supplied sequence string is valid for the object, and
+           0 otherwise.
  Args    : The sequence string to be validated.
 
 
