@@ -138,7 +138,7 @@
 
 	<para>
 	  The final step is to run the bioflat_index.PLS script.  This
-	  script is located in the BioPerl distribution, under scripts/db.
+	  script is located in the BioPerl distribution, under scripts/DB.
 	  For convenience, you are offered the option to copy it to
 	  /usr/bin or another system-wide directory on 'make install' (and
 	  its name will be changed to bioflat_index.pl).
