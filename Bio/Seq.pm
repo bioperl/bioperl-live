@@ -21,8 +21,8 @@ Bio::Seq - Sequence object, with features
 
     # features must implement Bio::SeqFeatureI
 
-    @features = $seqobj->top_SeqFeatures(); # just top level
-    @features = $seqobj->all_SeqFeatures(); # descend into sub features
+    @features = $seqobj->get_SeqFeatures(); # just top level
+    @features = $seqobj->get_all_SeqFeatures(); # descend into sub features
 
     $seq      = $seqobj->seq(); # actual sequence as a string
     $seqstr   = $seqobj->subseq(10,50);
@@ -88,7 +88,7 @@ exons it finds as sequence features in Genbank Flat File format.
             $seqout->write_seq($rev);
       }
 
-      foreach $feat ( $seqobj->top_SeqFeatures() ) {
+      foreach $feat ( $seqobj->get_SeqFeatures() ) {
            if( $feat->primary_tag eq 'exon' ) {
               print STDOUT "Location ",$feat->start,":",
                     $feat->end," GFF[",$feat->gff_string,"]\n";
@@ -181,7 +181,7 @@ Features have start and end attributes and can be outputted
 in Genbank Flat File format, GFF, a standarized format for sequence
 features.
 
-  foreach $feat ( $seqobj->top_SeqFeatures() ) {
+  foreach $feat ( $seqobj->get_SeqFeatures() ) {
       if( $feat->primary_tag eq 'exon' ) {
           print STDOUT "Location ",$feat->start,":",
              $feat->end," GFF[",$feat->gff_string,"]\n";
@@ -257,9 +257,9 @@ a gene is an example of a feature, or a domain within a protein.
 
   # the following methods return an array of SeqFeatureI objects:
 
-  $seqobj->top_SeqFeatures # The 'top level' sequence features
-  $seqobj->all_SeqFeatures # All sequence features, including sub-seq
-                           # features, such as features in an exon
+  $seqobj->get_SeqFeatures # The 'top level' sequence features
+  $seqobj->get_all_SeqFeatures # All sequence features, including sub-seq
+                               # features, such as features in an exon
 
   # to find out the number of features use:
 
@@ -345,6 +345,8 @@ Note that this includes implementing Bio::PrimarySeqI.
 
 =item Bio::AnnotatableI
 
+=item Bio::FeatureHolderI
+
 =back
 
 =head1 FEEDBACK
@@ -402,10 +404,12 @@ use Bio::PrimarySeq;
 use Bio::IdentifiableI;
 use Bio::DescribableI;
 use Bio::AnnotatableI;
+use Bio::FeatureHolderI;
 
 $VERSION = '1.1';
 @ISA = qw(Bio::Root::Root Bio::SeqI
-	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI);
+	  Bio::IdentifiableI Bio::DescribableI
+	  Bio::AnnotatableI Bio::FeatureHolderI);
 
 =head2 new
 
@@ -551,6 +555,8 @@ sub length {
 }
 
 =head1 Methods from the Bio::PrimarySeqI interface
+
+=cut
 
 =head2 subseq
 
@@ -736,6 +742,8 @@ sub alphabet {
 
 =head1 Methods for Bio::IdentifiableI compliance
 
+=cut
+
 =head2 object_id
 
  Title   : object_id
@@ -807,6 +815,8 @@ sub namespace{
 
 =head1 Methods for Bio::DescribableI compliance
 
+=cut
+
 =head2 display_name
 
  Title   : display_name
@@ -844,6 +854,176 @@ sub display_name {
 
 sub description {
     return shift->desc(@_);
+}
+
+=head1 Methods for implementing Bio::AnnotatableI
+
+=cut
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
+ Function: Gets or sets the annotation
+ Returns : L<Bio::AnnotationCollectionI> object
+ Args    : None or L<Bio::AnnotationCollectionI> object
+
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->throw("object of class ".ref($value)." does not implement ".
+		    "Bio::AnnotationCollectionI. Too bad.")
+	    unless $value->isa("Bio::AnnotationCollectionI");
+	$obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+	$obj->{'_annotation'} = new Bio::Annotation::Collection;
+    }
+    return $obj->{'_annotation'};
+}
+
+=head1 Methods to implement Bio::FeatureHolderI
+
+This includes methods for retrieving, adding, and removing features.
+
+=cut
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeatures
+ Usage   :
+ Function: Get the feature objects held by this feature holder.
+
+           Features which are not top-level are subfeatures of one or
+           more of the returned feature objects, which means that you
+           must traverse the subfeature arrays of each top-level
+           feature object in order to traverse all features associated
+           with this sequence.
+
+           Use get_all_SeqFeatures() if you want the feature tree
+           flattened into one single array.
+
+ Example :
+ Returns : an array of Bio::SeqFeatureI implementing objects
+ Args    : none
+
+At some day we may want to expand this method to allow for a feature
+filter to be passed in.
+
+=cut
+
+sub get_SeqFeatures{
+   my $self = shift;
+
+   if( !defined $self->{'_as_feat'} ) {
+       $self->{'_as_feat'} = [];
+   }
+
+   return @{$self->{'_as_feat'}};
+}
+
+=head2 get_all_SeqFeatures
+
+ Title   : get_all_SeqFeatures
+ Usage   : @feat_ary = $seq->get_all_SeqFeatures();
+ Function: Returns the tree of feature objects attached to this
+           sequence object flattened into one single array. Top-level
+           features will still contain their subfeature-arrays, which
+           means that you will encounter subfeatures twice if you
+           traverse the subfeature tree of the returned objects.
+
+           Use get_SeqFeatures() if you want the array to contain only
+           the top-level features.
+
+ Returns : An array of Bio::SeqFeatureI implementing objects.
+ Args    : None
+
+
+=cut
+
+# this implementation is inherited from FeatureHolderI
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Returns : integer representing the number of SeqFeatures
+ Args    : None
+
+
+=cut
+
+sub feature_count {
+    my ($self) = @_;
+
+    if (defined($self->{'_as_feat'})) {
+	return ($#{$self->{'_as_feat'}} + 1);
+    } else {
+	return 0;
+    }
+}
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $seq->add_SeqFeature($feat);
+           $seq->add_SeqFeature(@feat);
+ Function: Adds the given feature object (or each of an array of feature
+           objects to the feature array of this
+           sequence. The object passed is required to implement the
+           Bio::SeqFeatureI interface.
+ Returns : 1 on success
+ Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
+
+
+=cut
+
+sub add_SeqFeature {
+   my ($self,@feat) = @_;
+
+   $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
+
+   foreach my $feat ( @feat ) {
+       if( !$feat->isa("Bio::SeqFeatureI") ) {
+	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
+       }
+
+       # make sure we attach ourselves to the feature if the feature wants it
+       my $aseq = $self->primary_seq;
+       $feat->attach_seq($aseq) if $aseq;
+
+       push(@{$self->{'_as_feat'}},$feat);
+   }
+   return 1;
+}
+
+=head2 remove_SeqFeatures
+
+ Title   : remove_SeqFeatures
+ Usage   : $seq->remove_SeqFeatures();
+ Function: Flushes all attached SeqFeatureI objects.
+
+           To remove individual feature objects, delete those from the returned
+           array and re-add the rest.
+ Example :
+ Returns : The array of Bio::SeqFeatureI objects removed from this seq.
+ Args    : None
+
+
+=cut
+
+sub remove_SeqFeatures {
+    my $self = shift;
+    
+    return () unless $self->{'_as_feat'};
+    my @feats = @{$self->{'_as_feat'}};
+    $self->{'_as_feat'} = [];
+    return @feats;
 }
 
 =head1 Methods provided in the Bio::PrimarySeqI interface
@@ -945,7 +1125,7 @@ sub primary_seq {
        # descend down over all seqfeature objects, seeing whether they
        # want an attached seq.
 
-       foreach my $sf ( $obj->top_SeqFeatures() ) {
+       foreach my $sf ( $obj->get_SeqFeatures() ) {
 	   $sf->attach_seq($value);
        }
 
@@ -953,159 +1133,6 @@ sub primary_seq {
    return $obj->{'primary_seq'};
 
 }
-
-
-=head2 add_SeqFeature
-
- Title   : add_SeqFeature
- Usage   : $seq->add_SeqFeature($feat);
-           $seq->add_SeqFeature(@feat);
- Function: Adds the given feature object (or each of an array of feature
-           objects to the feature array of this
-           sequence. The object passed is required to implement the
-           Bio::SeqFeatureI interface.
- Returns : 1 on success
- Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
-
-
-=cut
-
-sub add_SeqFeature {
-   my ($self,@feat) = @_;
-
-   $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
-
-   foreach my $feat ( @feat ) {
-       if( !$feat->isa("Bio::SeqFeatureI") ) {
-	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
-       }
-
-       # make sure we attach ourselves to the feature if the feature wants it
-       my $aseq = $self->primary_seq;
-       $feat->attach_seq($aseq) if $aseq;
-
-       push(@{$self->{'_as_feat'}},$feat);
-   }
-   return 1;
-}
-
-=head2 flush_SeqFeatures
-
- Title   : flush_SeqFeatures
- Usage   : $seq->flush_SeqFeatures();
- Function: Flushes all attached SeqFeatureI objects.
-
-           To remove individual feature objects, delete those from the returned
-           array and re-add the rest.
- Example :
- Returns : The array of Bio::SeqFeatureI objects flushed from this seq.
- Args    : None
-
-
-=cut
-
-sub flush_SeqFeatures {
-    my $self = shift;
-    
-    return () unless $self->{'_as_feat'};
-    my @feats = @{$self->{'_as_feat'}};
-    $self->{'_as_feat'} = [];
-    return @feats;
-}
-
-=head2 top_SeqFeatures
-
- Title   : top_SeqFeatures
- Usage   : @feat_ary = $seq->top_SeqFeatures();
- Function: Returns the array of top-level features for this sequence object.
-
-           Features which are not top-level are subfeatures of one or
-           more of the returned feature objects, which means that you
-           must traverse the subfeature arrays of each top-level
-           feature object in order to traverse all features associated
-           with this sequence.
-
-           Use all_SeqFeatures() if you want the feature tree
-           flattened into one single array.
-
- Example :
- Returns : An array of Bio::SeqFeatureI implementing objects.
- Args    : None
-
-
-=cut
-
-sub top_SeqFeatures {
-   my ($self) = @_;
-
-   if( !defined $self->{'_as_feat'} ) {
-       $self->{'_as_feat'} = [];
-   }
-
-   return @{$self->{'_as_feat'}};
-}
-
-=head2 all_SeqFeatures
-
- Title   : all_SeqFeatures
- Usage   : @feat_ary = $seq->all_SeqFeatures();
- Function: Returns the tree of feature objects attached to this sequence
-           object flattened into one single array. Top-level features will
-           still contain their subfeature-arrays, which means that you
-           will encounter subfeatures twice if you traverse the subfeature
-           tree of the returned objects.
-
-           Use top_SeqFeatures() if you want the array to contain only the
-           top-level features.
- Returns : An array of Bio::SeqFeatureI implementing objects.
- Args    : None
-
-
-=cut
-
-sub all_SeqFeatures {
-   my ($self) = @_;
-   my (@array);
-
-   foreach my $feat ( $self->top_SeqFeatures() ){
-       push(@array,$feat);
-       &_retrieve_subSeqFeature(\@array,$feat);
-   }
-
-   return @array;
-}
-
-=head2 feature_count
-
- Title   : feature_count
- Usage   : $seq->feature_count()
- Function: Return the number of SeqFeatures attached to a sequence
- Returns : integer representing the number of SeqFeatures
- Args    : None
-
-
-=cut
-
-sub feature_count {
-    my ($self) = @_;
-
-    if (defined($self->{'_as_feat'})) {
-	return ($#{$self->{'_as_feat'}} + 1);
-    } else {
-	return 0;
-    }
-}
-
-sub _retrieve_subSeqFeature {
-    my ($arrayref,$feat) = @_;
-
-    foreach my $sub ( $feat->sub_SeqFeature() ) {
-	push(@$arrayref,$sub);
-	&_retrieve_subSeqFeature($arrayref,$sub);
-    }
-
-}
-
 
 =head2 species
 
@@ -1128,32 +1155,9 @@ sub species {
     }
 }
 
-
-=head2 annotation
-
- Title   : annotation
- Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
- Function: Gets or sets the annotation
- Returns : L<Bio::AnnotationCollectionI> object
- Args    : None or L<Bio::AnnotationCollectionI> object
-
-See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
-for more information
+=head1 Internal methods
 
 =cut
-
-sub annotation {
-    my ($obj,$value) = @_;
-    if( defined $value ) {
-	$obj->throw("object of class ".ref($value)." does not implement ".
-		    "Bio::AnnotationCollectionI. Too bad.")
-	    unless $value->isa("Bio::AnnotationCollectionI");
-	$obj->{'_annotation'} = $value;
-    } elsif( ! defined $obj->{'_annotation'}) {
-	$obj->{'_annotation'} = new Bio::Annotation::Collection;
-    }
-    return $obj->{'_annotation'};
-}
 
 # keep AUTOLOAD happy
 sub DESTROY { }
@@ -1164,13 +1168,15 @@ sub DESTROY { }
 
 # in all other modules we use the object in the singular --
 # lack of consistency sucks
-sub flush_SeqFeature {
-    return shift->flush_SeqFeatures(@_);
-}
+*flush_SeqFeature = \&remove_SeqFeatures;
+*flush_SeqFeatures = \&remove_SeqFeatures;
 
-# also, in some modules we use remove_XXXX -- lack of consistency really sucks
-sub remove_SeqFeatures {
-    return shift->flush_SeqFeatures(@_);
+# this is now get_SeqFeatures() (from FeatureHolderI)
+*top_SeqFeatures = \&get_SeqFeatures;
+
+# this is now get_all_SeqFeatures() in FeatureHolderI
+sub all_SeqFeatures{
+    return shift->get_all_SeqFeatures(@_);
 }
 
 sub accession {

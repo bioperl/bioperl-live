@@ -24,8 +24,8 @@ Bio::SeqI - Abstract Interface of Sequence (with features)
 
     # features must implement Bio::SeqFeatureI
 
-    @features = $seqobj->top_SeqFeatures(); # just top level
-    @features = $seqobj->all_SeqFeatures(); # descend into sub features
+    @features = $seqobj->get_SeqFeatures(); # just top level
+    @features = $seqobj->get_all_SeqFeatures(); # descend into sub features
 
     $seq      = $seqobj->seq(); # actual sequence as a string
     $seqstr   = $seqobj->subseq(10,50);    
@@ -90,45 +90,50 @@ use strict;
 use vars qw(@ISA);
 use Bio::PrimarySeqI;
 use Bio::AnnotatableI;
+use Bio::FeatureHolderI;
 
 # Object preamble - inheriets from Bio::PrimarySeqI
 
-@ISA = qw(Bio::PrimarySeqI Bio::AnnotatableI);
+@ISA = qw(Bio::PrimarySeqI Bio::AnnotatableI Bio::FeatureHolderI);
 
-=head2 top_SeqFeatures
+=head2 get_SeqFeatures
 
- Title   : top_SeqFeatures
- Usage   : my @feats = $seq->top_SeqFeatures();
+ Title   : get_SeqFeatures
+ Usage   : my @feats = $seq->get_SeqFeatures();
  Function: retrieve just the toplevel sequence features attached to this seq
  Returns : array of Bio::SeqFeatureI objects
  Args    : none
 
-See L<Bio::SeqFeatureI> for more information
+This method comes through extension of Bio::FeatureHolderI. See
+L<Bio::FeatureHolderI> and L<Bio::SeqFeatureI> for more information.
 
 =cut
 
-sub top_SeqFeatures{
-   my ($self) = @_;
-   $self->throw_not_implemented;
-}
+=head2 get_all_SeqFeatures
 
-
-=head2 all_SeqFeatures
-
- Title   : all_SeqFeatures
- Usage   : @features = $annseq->all_SeqFeatures()
+ Title   : get_all_SeqFeatures
+ Usage   : @features = $annseq->get_all_SeqFeatures()
  Function: returns all SeqFeatures, included sub SeqFeatures
  Returns : an array of Bio::SeqFeatureI objects
  Args    : none
 
-See L<Bio::SeqFeatureI> for more information
+This method comes through extension of Bio::FeatureHolderI. See
+L<Bio::FeatureHolderI> and L<Bio::SeqFeatureI> for more information.
 
 =cut
 
-sub all_SeqFeatures{
-   my ($self) = @_;
-   $self->throw_not_implemented();
-}
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Returns : integer representing the number of SeqFeatures
+ Args    : none
+
+This method comes through extension of Bio::FeatureHolderI. See
+L<Bio::FeatureHolderI> for more information.
+
+=cut
 
 =head2 seq
 
@@ -163,7 +168,7 @@ sub write_GFF{
 
    $fh || do { $fh = \*STDOUT; };
 
-   foreach my $sf ( $self->all_SeqFeatures() ) {
+   foreach my $sf ( $self->get_all_SeqFeatures() ) {
        print $fh $sf->gff_string, "\n";
    }
 
@@ -177,27 +182,10 @@ sub write_GFF{
  Returns : Bio::AnnotationCollectionI or none;
 
 See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
-for more information. This method comes through inheritance from
+for more information. This method comes through extension from
 L<Bio::AnnotatableI>.
 
 =cut
-
-
-=head2 feature_count
-
- Title   : feature_count
- Usage   : $seq->feature_count()
- Function: Return the number of SeqFeatures attached to a sequence
- Returns : integer representing the number of SeqFeatures
- Args    : none
-
-
-=cut
-
-sub feature_count {
-    my ($obj) = @_;
-    $obj->throw_not_implemented();
-}
 
 =head2 species
 

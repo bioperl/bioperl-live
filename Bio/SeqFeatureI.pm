@@ -35,7 +35,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
             }
 	    print "new feature\n" if $feat->has_tag('new');
 	    # features can have sub features
-	    my @subfeat = $feat->sub_SeqFeature();
+	    my @subfeat = $feat->get_SeqFeatures();
 	}
 
 =head1 DESCRIPTION
@@ -92,10 +92,10 @@ New method interfaces.
 
 =cut
 
-=head2 sub_SeqFeature
+=head2 get_SeqFeatures
 
- Title   : sub_SeqFeature
- Usage   : @feats = $feat->sub_SeqFeature();
+ Title   : get_SeqFeatures
+ Usage   : @feats = $feat->get_SeqFeatures();
  Function: Returns an array of sub Sequence Features
  Returns : An array
  Args    : none
@@ -103,7 +103,7 @@ New method interfaces.
 
 =cut
 
-sub sub_SeqFeature{
+sub get_SeqFeatures{
    my ($self,@args) = @_;
 
    $self->throw_not_implemented();

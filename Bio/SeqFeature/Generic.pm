@@ -78,6 +78,10 @@ Note that this includes implementing Bio::RangeI.
 
 =item Bio::AnnotatableI
 
+=item Bio::FeatureHolderI
+
+Features held by a feature are essentially sub-features.
+
 =back
 
 =head1 FEEDBACK
@@ -130,12 +134,14 @@ use strict;
 use Bio::Root::Root;
 use Bio::SeqFeatureI;
 use Bio::AnnotatableI;
+use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI);
+@ISA = qw(Bio::Root::Root Bio::SeqFeatureI 
+          Bio::AnnotatableI Bio::FeatureHolderI);
 
 sub new {
     my ( $caller, @args) = @_;   
@@ -393,92 +399,6 @@ sub frame {
        $self->{'_gsf_frame'} = $value;
   }
   return $self->{'_gsf_frame'};
-}
-
-=head2 sub_SeqFeature
-
- Title   : sub_SeqFeature
- Usage   : @feats = $feat->sub_SeqFeature();
- Function: Returns an array of sub Sequence Features
- Returns : An array
- Args    : none
-
-
-=cut
-
-sub sub_SeqFeature {
-    my ($self) = @_;
-
-    if ($self->{'_gsf_sub_array'}) {
-        return @{$self->{'_gsf_sub_array'}};
-    } else {
-        return;
-    }
-}
-
-=head2 add_sub_SeqFeature
-
- Title   : add_sub_SeqFeature
- Usage   : $feat->add_sub_SeqFeature($subfeat);
-           $feat->add_sub_SeqFeature($subfeat,'EXPAND')
- Function: adds a SeqFeature into the subSeqFeature array.
-           with no 'EXPAND' qualifer, subfeat will be tested
-           as to whether it lies inside the parent, and throw
-           an exception if not.
-
-           If EXPAND is used, the parent's start/end/strand will
-           be adjusted so that it grows to accommodate the new
-           subFeature
- Returns : nothing
- Args    : An object which has the SeqFeatureI interface
-
-
-=cut
-
-#'
-sub add_sub_SeqFeature{
-    my ($self,$feat,$expand) = @_;
-
-    if ( !$feat->isa('Bio::SeqFeatureI') ) {
-        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
-    }
-
-    if($expand && ($expand eq 'EXPAND')) {
-        $self->_expand_region($feat);
-    } else {
-        if ( !$self->contains($feat) ) {
-	    $self->throw("$feat is not contained within parent feature, and expansion is not valid");
-        }
-    }
-
-    $self->{'_gsf_sub_array'} = [] unless exists($self->{'_gsf_sub_array'});
-    push(@{$self->{'_gsf_sub_array'}},$feat);
-
-}
-
-=head2 flush_sub_SeqFeature
-
- Title   : flush_sub_SeqFeature
- Usage   : $sf->flush_sub_SeqFeature
- Function: Removes all sub SeqFeature
-
-           If you want to remove only a subset, remove that subset from the
-           returned array, and add back the rest.
-
- Example :
- Returns : The array of Bio::SeqFeatureI implementing sub-features that was
-           deleted from this feature.
- Args    : none
-
-
-=cut
-
-sub flush_sub_SeqFeatures {
-   my ($self) = @_;
-
-   my @subfeats = @{$self->{'_gsf_sub_array'}};
-   $self->{'_gsf_sub_array'} = []; # zap the array implicitly.
-   return @subfeats;
 }
 
 =head2 primary_tag
@@ -767,6 +687,9 @@ sub display_name{
     return $self->{'display_name'};
 }
 
+=head1 Methods for implementing Bio::AnnotatableI
+
+=cut
 
 =head2 annotation
 
@@ -793,6 +716,104 @@ sub annotation {
     }
     return $obj->{'annotation'};
 }
+
+=head1 Methods to implement Bio::FeatureHolderI
+
+This includes methods for retrieving, adding, and removing
+features. Since this is already a feature, features held by this
+feature holder are essentially sub-features.
+
+=cut
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeatures
+ Usage   : @feats = $feat->get_SeqFeatures();
+ Function: Returns an array of sub Sequence Features
+ Returns : An array
+ Args    : none
+
+
+=cut
+
+sub get_SeqFeatures {
+    my ($self) = @_;
+
+    if ($self->{'_gsf_sub_array'}) {
+        return @{$self->{'_gsf_sub_array'}};
+    } else {
+        return;
+    }
+}
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $feat->add_SeqFeature($subfeat);
+           $feat->add_SeqFeature($subfeat,'EXPAND')
+ Function: adds a SeqFeature into the subSeqFeature array.
+           with no 'EXPAND' qualifer, subfeat will be tested
+           as to whether it lies inside the parent, and throw
+           an exception if not.
+
+           If EXPAND is used, the parent's start/end/strand will
+           be adjusted so that it grows to accommodate the new
+           subFeature
+ Returns : nothing
+ Args    : An object which has the SeqFeatureI interface
+
+
+=cut
+
+#'
+sub add_SeqFeature{
+    my ($self,$feat,$expand) = @_;
+
+    if ( !$feat->isa('Bio::SeqFeatureI') ) {
+        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
+    }
+
+    if($expand && ($expand eq 'EXPAND')) {
+        $self->_expand_region($feat);
+    } else {
+        if ( !$self->contains($feat) ) {
+	    $self->throw("$feat is not contained within parent feature, and expansion is not valid");
+        }
+    }
+
+    $self->{'_gsf_sub_array'} = [] unless exists($self->{'_gsf_sub_array'});
+    push(@{$self->{'_gsf_sub_array'}},$feat);
+
+}
+
+=head2 remove_SeqFeatures
+
+ Title   : remove_SeqFeatures
+ Usage   : $sf->remove_SeqFeatures
+ Function: Removes all sub SeqFeatures
+
+           If you want to remove only a subset, remove that subset from the
+           returned array, and add back the rest.
+
+ Example :
+ Returns : The array of Bio::SeqFeatureI implementing sub-features that was
+           deleted from this feature.
+ Args    : none
+
+
+=cut
+
+sub remove_SeqFeatures {
+   my ($self) = @_;
+
+   my @subfeats = @{$self->{'_gsf_sub_array'}};
+   $self->{'_gsf_sub_array'} = []; # zap the array implicitly.
+   return @subfeats;
+}
+
+=head1 GFF-related methods
+
+=cut
 
 =head2 gff_format
 
@@ -1003,8 +1024,14 @@ sub display_id {
 # this is towards consistent naming
 sub each_tag_value { return shift->get_tag_values(@_); }
 sub all_tags { return shift->get_all_tags(@_); }
-# lack of consistency sucks!
-sub flush_sub_SeqFeature { return shift->flush_sub_SeqFeatures(@_); }
+
+# we revamped the feature containing property to implementing
+# Bio::FeatureHolderI
+*sub_SeqFeature = \&get_SeqFeatures;
+*add_sub_SeqFeature = \&add_SeqFeature;
+*flush_sub_SeqFeatures = \&remove_SeqFeatures;
+# this one is because of inconsistent naming ...
+*flush_sub_SeqFeature = \&remove_SeqFeatures;
 
 
 1;
