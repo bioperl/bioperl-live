@@ -285,7 +285,6 @@ sub DESTROY {
 
 sub parse_next_alignment {
    my ($self) = @_;
-   my $fh = $self->_filehandle();
    my @exons = ();
    my %seq1props = ();
    my %seq2props = ();
