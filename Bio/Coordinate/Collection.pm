@@ -152,7 +152,7 @@ sub add_mapper {
 
   # test pair range lengths
   $self->warn("Coodinates in pair [". $value . ":" .
-	      $value->in->seq_id . "/". $value->in->seq_id .
+	      $value->in->seq_id . "/". $value->out->seq_id .
 	      "] are not right.")
 		  unless $value->test;
 
