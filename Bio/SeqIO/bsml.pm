@@ -590,12 +590,17 @@ sub to_bsml {
 	my $seqDesc = [];
 	push @{$seqDesc}, ["comment" , "This file generated to BSML 2.2 standards - joins will be collapsed to a single feature enclosing all members of the join"];
 	push @{$seqDesc}, ["description" , eval{$bioSeq->desc}];
-	push @{$seqDesc}, ["keyword" , eval{$bioSeq->keywords}];
+	foreach my $kwd ( eval{@{$bioSeq->keywords || []}} ) {
+	    push @{$seqDesc}, ["keyword" , $kwd];
+	}
 	push @{$seqDesc}, ["version" , eval{$bioSeq->seq_version}];
 	push @{$seqDesc}, ["division" , eval{$bioSeq->division}];
 	push @{$seqDesc}, ["pid" , eval{$bioSeq->pid}];
 #	push @{$seqDesc}, ["bio_object" , ref($bioSeq)];
-	push @{$seqDesc}, ["primary_id" , eval{$bioSeq->primary_id}];
+	my $pid = eval{$bioSeq->primary_id} || '';
+	if( $pid ne $bioSeq ) {  
+	    push @{$seqDesc}, ["primary_id" , eval{$bioSeq->primary_id}];
+	}
 	foreach my $dt (eval{$bioSeq->get_dates()} ) {
 	    push @{$seqDesc}, ["date" , $dt];
 	}
@@ -630,7 +635,8 @@ sub to_bsml {
 
 
 	foreach my $a (keys %attr) {
-	    $xmlSeq->setAttribute($a, $attr{$a}) if ($attr{$a} ne "");
+	    $xmlSeq->setAttribute($a, $attr{$a}) if (defined $attr{$a} &&
+						     $attr{$a} ne "");
 	}
 	# Orphaned Attributes:
 	$xmlSeq->setAttribute('topology', 'circular') 
@@ -687,7 +693,8 @@ sub to_bsml {
 #>>>>	# Perhaps it is better to loop through top_Seqfeatures?...
 #>>>>	# ...however, BSML does not have a hierarchy for Features
 	
-	if ($args->{SKIPFEAT} eq 'all') {
+	if (defined $args->{SKIPFEAT} &&
+	    $args->{SKIPFEAT} eq 'all') {
 	    $args->{SKIPFEAT} = { all => 1};
 	}
 	foreach my $class (keys %{$args->{SKIPFEAT}}) {
@@ -720,7 +727,8 @@ sub to_bsml {
 		$self->_parse_location($xml, $xmlFeat, $bioFeat);
 
 		# loop through the tags, add them as <Qualifiers>
-		next if ($args->{SKIPTAGS} =~ /all/i);
+		next if (defined $args->{SKIPTAGS} &&
+			 $args->{SKIPTAGS} =~ /all/i);
 		# Tags can consume a lot of CPU cycles, and can often be
 		# rather non-informative, so -skiptags can allow total or
 		# selective omission of tags.
@@ -773,7 +781,8 @@ sub to_bsml {
 	}
     }
 
-    if ($args->{RETURN} =~ /seq/i) {
+    if (defined $args->{RETURN} && 
+	$args->{RETURN} =~ /seq/i) {
 	return \@xmlSequences;
     } else {
 	return $xml;
