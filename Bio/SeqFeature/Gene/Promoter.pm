@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::Promoter - DESCRIPTION of Object
+Bio::SeqFeature::Gene::Promoter - Describes a promotor      
 
 =head1 SYNOPSIS
 
@@ -79,5 +79,6 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
 }
+
 
 1;
