@@ -37,10 +37,13 @@ my @seq;
 while(my $seq = $sio->next_seq){
   push @seq, $seq;
 }
-my $picto = Bio::Graphics::Pictogram->new(-width=>"800",-fontsize=>"80",-plot_bits=>1,-color=>{'A'=>'red',
-                                                                                   'G'=>'blue',
-                                                                                   'C'=>'green',
-                                                                                   'T'=>'magenta'});
+my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
+                                          -fontsize=>"80",
+                                          -plot_bits=>1,
+                                          -color=>{'A'=>'red',
+                                                   'G'=>'blue',
+                                                   'C'=>'green',
+                                                   'T'=>'magenta'});
 ok $picto->isa("Bio::Graphics::Pictogram");
 
 my $svg = $picto->make_svg(\@seq);
