@@ -120,7 +120,7 @@ sub test_simple_error {
 
     print "Test #3: Throwing a Error::Simple object\n\n";
 
-    print "This should fail to find object method 'new' via package 'Error::Simple'\n";
+    print "This should fail to find object method 'throw' via package 'Error::Simple'\n";
     print "because Error.pm is not available.\n\n";
 
     throw Error::Simple( "A simple error", 42 );
