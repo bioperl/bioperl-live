@@ -73,8 +73,8 @@ use vars qw(@ISA $MODVERSION $DEFAULTFORMAT $DEFAULTLOCATION
 $MODVERSION = '0.1';
 use HTTP::Request::Common;
 use Bio::DB::WebDBSeqI;
-
-@ISA = qw(Bio::DB::WebDBSeqI);
+use Bio::Root::Root;
+@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
 # the new way to make modules a little more lightweight
 

@@ -93,7 +93,8 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 use vars qw(@ISA $VERSION %FORMATMAP );
-@ISA = 'Bio::DB::WebDBSeqI';
+use Bio::Root::Root;
+@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 $VERSION = '1.0';
 
 # warning: names used here must map into Bio::SeqIO::* space
