@@ -1,5 +1,13 @@
 Revision history for Bioperl core modules
 
+0.05.1 
+
+        - Fixed the Parse mechanism in Seq.pm to use readseq.
+	  Follow the instructions in README for how to install
+	  it (basically, you have to edit Parse.pm).
+        - Improved documentation of Seq.pm, indicating where 
+          objects are returned and where strings are returned.
+
 0.05  Sun Apr 25 01:14:11 1999
         - Bio::Tools::Blast modules have less memory problems
           and faster parsing. Webblast uses LWP and supports
