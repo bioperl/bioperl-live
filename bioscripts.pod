@@ -452,7 +452,7 @@ protein by parsing a PDB file. See L<Bio::Structure::IO> for more information.
 CGI script to fetch a sequence from Genbank and extract a subsequence
 using DB::GenBank. See L<Bio::DB::GenBank>.
 
-=head2 examples/tk/gsequence
+=head2 examples/tk/gsequence.pl
 
 Create a Protein Sequence Control Panel GUI with Gtk.
 
