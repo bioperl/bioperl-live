@@ -6,7 +6,7 @@
 #       and Lincoln Stein  <lstein@cshl.org>
 #       and Kris Boulez	   <kris.boulez@algonomics.com>
 #
-# Copyright 2001 Kris Boulez
+# Copyright 2001, 2002 Kris Boulez
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -24,26 +24,91 @@ Bio::Structure::IO - Handler for Structure Formats
 
 =head1 SYNOPSIS
 
-Synopsis to be rewritten. Ideas can be get from the Bio::SeqIO page
+    use Bio::Structure::IO;
+
+    $in  = Bio::Structure::IO->new(-file => "inputfilename" , '-format' => 'pdb');
+    $out = Bio::Structure::IO->new(-file => ">outputfilename" , '-format' => 'pdb');
+    # note: we quote -format to keep older perl's from complaining.
+
+    while ( my $struc = $in->next_structure() ) {
+	$out->write_structure($struc);
+    }
+
+now, to actually get at the structure object, use the standard Bio::Structure
+methods (look at L<Bio::Structure> if you don't know what they are)
+
+    use Bio::Structure::IO;
+
+    $in  = Bio::Structure::IO->new(-file => "inputfilename" , '-format' => 'pdb');
+
+    while ( my $struc = $in->next_structure() ) {
+       print "Structure ",$struc->id," number of models: ",scalar $struc->model,"\n";
+    }
+
+
 
 =head1 DESCRIPTION
 
-Description to be rewritten. Ideas can be get from the Bio::SeqIO page
+[ The following description is a copy-paste from the Bio::SeqIO description. 
+  This is not surprising as the code is also mostly a copy. ]
+
+Bio::Structure::IO is a handler module for the formats in the Structure::IO set 
+(eg, Bio::Structure::IO::pdb). It is the officially sanctioned way of getting at
+the format objects, which most people should use.
+
+The Bio::Structure::IO system can be thought of like biological file handles.
+They are attached to filehandles with smart formatting rules (eg, PDB format) 
+and can either read or write structure objects (Bio::Structure objects, or
+more correctly, Bio::Structure::StructureI implementing objects, of which 
+Bio::Structure is one such object). If you want to know what to do with a 
+Bio::Structure object, read L<Bio::Structure>
+
+The idea is that you request a stream object for a particular format.
+All the stream objects have a notion of an internal file that is read
+from or written to. A particular Structure::IO object instance is configured
+for either input or output. A specific example of a stream object is
+the Bio::Structure::IO::pdb object.
+
+Each stream object has functions
+
+   $stream->next_structure();
+
+and
+
+   $stream->write_structure($struc);
+
+also
+
+   $stream->type() # returns 'INPUT' or 'OUTPUT'
+
+As an added bonus, you can recover a filehandle that is tied to the
+Structure::IOIO object, allowing you to use the standard E<lt>E<gt> and print operations
+to read and write structure::IOuence objects:
+
+    use Bio::Structure::IO;
+
+    $stream = Bio::Structure::IO->newFh(-format => 'pdb'); # read from standard input
+
+    while ( $structure = <$stream> ) {
+	# do something with $structure
+    }
+
+and
+
+    print $stream $structure; # when stream is in output mode
+
 
 =head1 CONSTRUCTORS
 
-Needs to be updated, replace in the following Bio::SeqIO by 
-Bio::Structure::IO and the default format is pdb.
+=head2 Bio::Structure::IO-E<gt>new()
 
-=head2 Bio::SeqIO-E<gt>new()
+   $stream = Bio::Structure::IO->new(-file => 'filename',   -format=>$format);
+   $stream = Bio::Structure::IO->new(-fh   => \*FILEHANDLE, -format=>$format);
+   $stream = Bio::Structure::IO->new(-format => $format);
 
-   $seqIO = Bio::SeqIO->new(-file => 'filename',   -format=>$format);
-   $seqIO = Bio::SeqIO->new(-fh   => \*FILEHANDLE, -format=>$format);
-   $seqIO = Bio::SeqIO->new(-format => $format);
-
-The new() class method constructs a new Bio::SeqIO object.  The
-returned object can be used to retrieve or print BioSeq objects. new()
-accepts the following parameters:
+The new() class method constructs a new Bio::Structure::IO object. The
+returned object can be used to retrieve or print Bio::Structure objects.
+new() accepts the following parameters:
 
 =over 4
 
@@ -64,7 +129,7 @@ conventions apply:
 You may provide new() with a previously-opened filehandle.  For
 example, to read from STDIN:
 
-   $seqIO = Bio::SeqIO->new(-fh => \*STDIN);
+   $strucIO = Bio::Structure::IO->new(-fh => \*STDIN);
 
 Note that you must pass filehandles as references to globs.
 
@@ -76,6 +141,8 @@ A string filehandle is handy if you want to modify the output in the
 memory, before printing it out. The following program reads in EMBL
 formatted entries from a file and prints them out in fasta format with
 some HTML tags:
+[ not relevant for Bio::Structure::IO as only one format is supported
+  at the moment ]
 
   use Bio::SeqIO;
   use IO::String;
@@ -104,24 +171,24 @@ If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename.  If this is unsuccessful,
 PDB format is assumed.
 
-The format name is case insensitive.  'FASTA', 'Fasta' and 'fasta' are
+The format name is case insensitive.  'PDB', 'Pdb' and 'pdb' are
 all supported.
 
 =back
 
-=head2 Bio::SeqIO-E<gt>newFh()
+=head2 Bio::Structure::IO-E<gt>newFh()
 
-   $fh = Bio::SeqIO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
-   $fh = Bio::SeqIO->newFh(-format => $format);
+   $fh = Bio::Structure::IO->newFh(-fh   => \*FILEHANDLE, -format=>$format);
+   $fh = Bio::Structure::IO->newFh(-format => $format);
    # etc.
 
 This constructor behaves like new(), but returns a tied filehandle
-rather than a Bio::SeqIO object.  You can read sequences from this
+rather than a Bio::Structure::IO object.  You can read structures from this
 object using the familiar E<lt>E<gt> operator, and write to it using
 print().  The usual array and $_ semantics work.  For example, you can
-read all sequence objects into an array like this:
+read all structure objects into an array like this:
 
-  @sequences = <$fh>;
+  @structures = <$fh>;
 
 Other operations, such as read(), sysread(), write(), close(), and printf() 
 are not supported.
@@ -130,13 +197,13 @@ are not supported.
 
 See below for more detailed summaries.  The main methods are:
 
-=head2 $sequence = $seqIO-E<gt>next_seq()
+=head2 $structure = $structIO-E<gt>next_structure()
 
-Fetch the next sequence from the stream.
+Fetch the next structure from the stream.
 
-=head2 $seqIO-E<gt>write_seq($sequence [,$another_sequence,...])
+=head2 $structIO-E<gt>write_structure($struc [,$another_struc,...])
 
-Write the specified sequence(s) to the stream.
+Write the specified structure(s) to the stream.
 
 =head2 TIEHANDLE(), READLINE(), PRINT()
 
@@ -193,9 +260,9 @@ use Symbol();
 =head2 new
 
  Title   : new
- Usage   : $stream = Bio::SeqIO->new(-file => $filename, -format => 'Format')
- Function: Returns a new seqstream
- Returns : A Bio::SeqIO::Handler initialised with the appropriate format
+ Usage   : $stream = Bio::Structure::IO->new(-file => $filename, -format => 'Format')
+ Function: Returns a new structIOstream
+ Returns : A Bio::Structure::IO handler initialised with the appropriate format
  Args    : -file => $filename
            -format => format
            -fh => filehandle to attach to
@@ -232,12 +299,12 @@ sub new {
 =head2 newFh
 
  Title   : newFh
- Usage   : $fh = Bio::SeqIO->newFh(-file=>$filename,-format=>'Format')
+ Usage   : $fh = Bio::Structure::IO->newFh(-file=>$filename,-format=>'Format')
  Function: does a new() followed by an fh()
- Example : $fh = Bio::SeqIO->newFh(-file=>$filename,-format=>'Format')
-           $sequence = <$fh>;   # read a sequence object
-           print $fh $sequence; # write a sequence object
- Returns : filehandle tied to the Bio::SeqIO::Fh class
+ Example : $fh = Bio::Structure::IO->newFh(-file=>$filename,-format=>'Format')
+           $structure = <$fh>;   # read a structure object
+           print $fh $structure; # write a structure object
+ Returns : filehandle tied to the Bio::Structure::IO::Fh class
  Args    :
 
 =cut
@@ -254,9 +321,9 @@ sub newFh {
  Usage   : $obj->fh
  Function:
  Example : $fh = $obj->fh;      # make a tied filehandle
-           $sequence = <$fh>;   # read a sequence object
-           print $fh $sequence; # write a sequence object
- Returns : filehandle tied to the Bio::SeqIO::Fh class
+           $structure = <$fh>;   # read a structure object
+           print $fh $structure; # write a structure object
+ Returns : filehandle tied to the Bio::Structure::IO::Fh class
  Args    :
 
 =cut
