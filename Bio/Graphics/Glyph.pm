@@ -263,11 +263,13 @@ sub boxes {
   for my $part ($self->parts) {
     if (eval{$part->feature->primary_tag} eq 'group' or
 	($part->level == 0 && $self->option('box_subparts'))) {
-      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top);
+      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$self);
     } else {
       my ($x1,$y1,$x2,$y2) = $part->box;
-      push @result,[$part->feature,$x1,$top+$self->top+$self->pad_top+$y1,
-		                   $x2,$top+$self->top+$self->pad_top+$y2];
+      push @result,[$part->feature,
+		    $x1,$top+$self->top+$self->pad_top+$y1,
+		    $x2,$top+$self->top+$self->pad_top+$y2,
+		    $self];
     }
   }
   return wantarray ? @result : \@result;

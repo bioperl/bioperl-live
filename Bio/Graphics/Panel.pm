@@ -1529,13 +1529,14 @@ array ref.  In an list context, the method returns the array directly.
 
 Each member of the list is an anonymous array of the following format:
 
-  [ $feature, $x1, $y1, $x2, $y2 ]
+  [ $feature, $x1, $y1, $x2, $y2, $track ]
 
 The first element is the feature object; either an
 Ace::Sequence::Feature, a Das::Segment::Feature, or another Bioperl
 Bio::SeqFeatureI object.  The coordinates are the topleft and
 bottomright corners of the glyph, including any space allocated for
-labels.
+labels. The track is the Bio::Graphics::Glyph object corresponding
+to the track that the feature is rendered inside.
 
 =item $position = $panel-E<gt>track_position($track)
 
