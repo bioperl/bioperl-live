@@ -207,7 +207,6 @@ sub _initialize {
 
 sub seq{
    my ($obj,$value) = @_;
-   print STDERR "Got value $value\n";
    if( defined $value) {
        if( $value !~ /^[A-Za-z\-\.]+$/ ) {
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
@@ -215,10 +214,7 @@ sub seq{
        $obj->{'seq'} = $value;
     }
    my $v = $obj->{'seq'};
-   print STDERR "Going to return $v\n";
-
-    return $obj->{'seq'};
-
+   return $obj->{'seq'};
 }
 
 =head2 subseq
@@ -320,7 +316,7 @@ sub accession_number {
            their own object ids in a way the implementaiton can control
            clients can expect one id to map to one object.
 
-           For sequences with no accession number, this method should return
+           For sequences with no natural primary id, this method should return
            a stringified memory location.
  Returns : A string
  Args    : A string (optional, for setting)

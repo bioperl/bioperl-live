@@ -520,7 +520,7 @@ sub  id {
 sub  length {
    my ($self)= @_;
 
-   return CORE::length($self->get_seq());
+   return CORE::length($self->seq());
 }
 
 =head1 Methods for Backward Compatibility
@@ -550,7 +550,11 @@ sub str{
    my ($p,$f,$l) = caller;
    $self->warn("$f:$l Seq::str - deprecated method. You should use \$obj->seq in preference");
 
-   return $self->seq($start,$end);
+   if( defined $end ) {
+       return $self->subseq($start,$end);
+   } else {
+       return $self->seq();
+   }
 }
 
 =head2 ary
@@ -572,7 +576,13 @@ sub ary{
    my ($p,$f,$l) = caller;
    $self->warn("$f:$l Seq::ary - deprecated method. You should use \$obj->seq in preference, followed by your split to an array");
 
-   my $str = $self->seq($start,$end);
+   my $str;
+   if( defined $end ) {
+       $str = $self->subseq($start,$end);
+   } else {
+      $str = $self->seq();
+   }
+
    return split(//,$str);
 }
 
@@ -622,6 +632,26 @@ sub type{
    $t eq "rna" && return "RNA";
    $t eq "protein" && return "PROTEIN";
    return "UNKNOWN";
+}
+
+=head2 seq_len
+
+ Title   : seq_len
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub seq_len {
+    my $self = shift;
+   # we assumme anyone using this is using vanilla bioperl object
+    my ($p,$f,$l) = caller;
+    $self->warn("$f:$l Seq::seq_len - deprecated method. You should use \$obj->seq_len in preference");
+    return $self->length();
 }
 
 =head1 Private functions
