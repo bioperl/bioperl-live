@@ -314,13 +314,20 @@ sub next_result {
             # Current alignment block does not contain HSPs boundary
             # We only need to adjust details of the current HSP
             else {
-                $self->{'_currentHSP'}{'Hsp_query-from'} ||= $alignment{Query}{start} - length($self->{'_currentHSP'}{'Hsp_qseq'});
-                $self->{'_currentHSP'}{'Hsp_hit-from'} ||= $alignment{Sbjct}{start} - length($self->{'_currentHSP'}{'Hsp_hseq'});
+                $self->{'_currentHSP'}{'Hsp_query-from'} ||= 
+		    $alignment{Query}{start} - 
+		    length($self->{'_currentHSP'}{'Hsp_qseq'} || '');
+                $self->{'_currentHSP'}{'Hsp_hit-from'} ||= 
+		    $alignment{Sbjct}{start} - 
+		    length($self->{'_currentHSP'}{'Hsp_hseq'} || '');
                 $self->{'_currentHSP'}{'Hsp_querygaps'} +=
-                    ($self->{'_currentHSP'}{'Hsp_qseq'} .= $alignment{Query}{string}) =~ s/ /-/g;
+                    ($self->{'_currentHSP'}{'Hsp_qseq'} .= 
+		     $alignment{Query}{string}) =~ s/ /-/g;
                 $self->{'_currentHSP'}{'Hsp_hitgaps'} +=
-                    ($self->{'_currentHSP'}{'Hsp_hseq'} .= $alignment{Sbjct}{string}) =~ s/ /-/g;
-                ($self->{'_currentHSP'}{'Hsp_midline'} .= $alignment{Mid}{string}) =~ s/-/ /g;
+                    ($self->{'_currentHSP'}{'Hsp_hseq'} .= 
+		     $alignment{Sbjct}{string}) =~ s/ /-/g;
+                ($self->{'_currentHSP'}{'Hsp_midline'} .= 
+		 $alignment{Mid}{string}) =~ s/-/ /g;
 	    }
 	}
     }
