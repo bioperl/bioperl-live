@@ -173,7 +173,7 @@ sub next_seq{
 sub write_seq {
    my ($self,$seq) = @_;
    my $fh = $self->_filehandle();
-
+   my $i;
    my $str = $seq->seq;
    for ($i = 60; $i < length($str); $i += 60+1) {
        # this is not ideal.

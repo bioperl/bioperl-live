@@ -133,27 +133,23 @@ sub next_seq{
    }
 
    $line = <$fh>;
-
-   $self->throw("No written yet. Bugger!");
-
+   $line =~ /^ID\s+(\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $name = $1;
-   $desc = $2;
 
    while( <$fh> ) {
+       /^DE\s+(\S.*\S)/ && do { $desc = $1;};
+       /^SQ/ && last;
+   }
+
+   while( <$fh> ) {
+       /^\/\// && last;
        $_ = uc($_);
        s/\W//g;
        $seqc .= $_;
        $fh->eof && last;
-       $c = $fh->getc();
-
-       if( $c eq '>' ) {
-	   last;
-       } else {
-	   $seqc .= $c;
-       }
    }
 
-   $seq = Bio::Seq->new(-seq => $seqc , -id => $name);
+   $seq = Bio::Seq->new(-seq => $seqc , -id => $name, -desc => $desc);
    
    return $seq;
 
@@ -173,17 +169,18 @@ sub next_seq{
 sub write_seq {
    my ($self,$seq) = @_;
    my $fh = $self->_filehandle();
-
+   my $i;
    my $str = $seq->seq;
 
-   $self->throw("Not written yet - bugger");
-
-   for ($i = 60; $i < length($str); $i += 60+1) {
-       # this is not ideal.
-       substr($str,$i,0) = "\n";
+   print $fh "ID   ", $seq->id(), "\nDE    ", $seq->desc(), "\nCC   \nCC   Written by Bioperl SeqIO module.\nCC   Only the information in the Sequence object is written in this file\nCC   \nSQ   \n";
+   print $fh "    ";
+   for ($i = 10; $i < length($str); $i += 10) {
+       print $fh substr($str,$i,10), " ";
+       if( $i%50 == 0 ) {
+	   print $fh "\n    ";
+       }
    }
-   
-   print $fh ">", $seq->id(), " ", $seq->desc(), "\n", $str, "\n";
+   print $fh "\n//\n";
    return 1;
 }
 

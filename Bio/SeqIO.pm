@@ -141,6 +141,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqIO;
+use Exporter;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 

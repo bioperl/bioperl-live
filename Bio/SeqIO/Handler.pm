@@ -110,8 +110,8 @@ sub READLINE {
     return $obj->next_seq();
 }
 
-sub WRITE {
-    my ($self,@args) = shift;
+sub PRINT {
+    my ($self,@args) = @_;
     my $obj = $self->_streamobj;
     my ($seq,$count);
     
@@ -127,11 +127,11 @@ sub WRITE {
     return $count;
 }
 
-sub PRINT {
+sub WRITE {
     my ($self,@args) = @_;
     
-    $self->warn("Using a print mechanism on Bio::SeqIO::Handler. Should use write HANDLE $seq, not print. Forwarding onto write now");
-    $self->WRITE(@args);
+    $self->warn("Using a write mechanism on Bio::SeqIO::Handler. Should use print HANDLE \$seq, not write. Forwarding onto print now");
+    $self->PRINT(@args);
 }
 
 sub PRINTF {
