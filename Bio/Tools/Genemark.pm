@@ -106,8 +106,6 @@ use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
-my $log = 0;
-
 @ISA = qw(Bio::Tools::AnalysisResult);
 
 sub _initialize_state {
@@ -240,17 +238,20 @@ sub _parse_predictions {
 		 
 	    # define info depending on it being eu- or prokaryot
 	    my ($start, $end, $orientation, $prediction_source);
-	    	
-	    if ($self->analysis_method_version() =~ /PROKARYOTIC/i) {
+
+	    if ($self->analysis_method() =~ /PROKARYOTIC/i) {
 	        $prediction_source = "Genemark.hmm.pro";
 	       	$orientation = ($flds[1] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(2,3)];
+		  print "$start $end $orientation \n";
+
 	    } else {		   
 	        $prediction_source = "Genemark.hmm.eu";
 	       	$orientation = ($flds[2] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(4,5)];
 	    }
 
+	  
 	    if(! defined($gene)) {
 		$gene = Bio::Tools::Prediction::Gene->new(
                                        '-primary' => "GenePrediction$prednr",
@@ -267,9 +268,10 @@ sub _parse_predictions {
 
     	    $predobj->is_coding(1);
 		
-	    #frame calculation is to be implemented...
+	    # frame calculation as in the genscan module
+	    # is to be implemented...
 	    
-	    #Add the exon to the gene
+	    # Add the exon to the gene
 	    $gene->add_exon($predobj, $exontags{$flds[1]});
 
 	    # and, if it is a prokaryot, the gene will have only one exon, 
@@ -284,22 +286,53 @@ sub _parse_predictions {
 
 	if(/^\s*$/ && defined($gene)) {
 	    # current gene is completed (emtpy line)
+	    # this does not apply to prokaryots, but since they allways
+	    # contain only one line in the prediction, the gene object
+	    # is close right away, and so it will never be open when
+	    # getting here. 
 	    $gene->seqname($seqname);
 	    $self->_add_prediction($gene);
 	    $gene = undef;
 	    next;
 	}
-	if(/^(Genemark\.hmm)\s+(.*)$/i) {
+
+	if(/^(Genemark\.hmm\s*[PROKARYOTIC]*)\s+\(Version (.*)\)$/i) {
 	    $self->analysis_method($1);
 	    my $gm_version = $2;
-	    print "prog: $1 \nversion: $2 \n" if ($log);
-	    $gm_version =~ s/\(\)//;   #get rid of the brackets
+  	    print "prog: $1 \nversion: $2 \n";	  
 	    $self->analysis_method_version($gm_version);
 	    next;
 	}
-	if(/^Sequence [file]* name:\s+(.+)$/i) {
-	    print "seqname $1\n" if ($log);
+
+       #Matrix file for eukaryot version
+       if (/^Matrices file:\s+(\S*)/i)  {
+	    $self->analysis_query($1);
+	    # since the line after the matrix file is always the date
+	    # (in the output file's I have seen!) extract and store this 
+	    # here
+	     if (defined(my $_date = $self->_readline())) {
+	         chomp ($_date);
+	     	 $self->analysis_date($_date);
+	     }
+	}			   
+	
+        #Matrix file for prokaryot version
+       if (/^Model file name:\s+(\S+)/) {
+	    $self->analysis_query($1);
+	    # since the line after the matrix file is always the date
+	    # (in the output file's I have seen!) extract and store this 
+	    # here
+	    my $_date = $self->_readline() ;
+	    if (defined($_date = $self->_readline())) {
+	         chomp ($_date);
+	     	 $self->analysis_date($_date);
+	     }
+	}
+
+
+	if(/^Sequence[ file]* name:\s+(.+)\s*$/i) {
 	    $seqname = $1;
+	    $self->analysis_subject($seqname);
 	    next;
 	}
 
@@ -452,3 +485,4 @@ sub _read_fasta_seq {
 }
 
 1;
+
