@@ -328,6 +328,7 @@ reference sequence to a sequence that isn't contained in the database,
 or one that has a different source sequence from the segment.
 
 =cut
+#'
 
 sub refseq {
   my $self = shift;
@@ -347,15 +348,15 @@ sub refseq {
     # support for Featname objects
     $newclass = $newref->class if ref($newref) && $newref->can('class');
 
-    $self->throw("Cannot define a segment's reference sequence in terms of itself!")
-      if ref($newref) and overload::StrVal($newref) eq overload::StrVal($self);
+    # $self->throw("Cannot define a segment's reference sequence in terms of itself!")
+    # if ref($newref) and overload::StrVal($newref) eq overload::StrVal($self);
 
     my ($refsource,undef,$refstart,$refstop,$refstrand);
     if ($newref->isa('Bio::DB::GFF::RelSegment')) {
-      ($refsource,undef,$refstart,$refstop,$refstrand) = 
+      ($refsource,undef,$refstart,$refstop,$refstrand) =
 	($newref->sourceseq,undef,$newref->abs_start,$newref->abs_stop,$newref->abs_strand >= 0 ? '+' : '-');
     } else {
-      ($refsource,undef,$refstart,$refstop,$refstrand) = 
+      ($refsource,undef,$refstart,$refstop,$refstrand) =
 	$self->factory->abscoords($newref,$newclass);
     }
     $self->throw("can't set reference sequence: $newref and $self are on different sequence segments")

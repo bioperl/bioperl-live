@@ -486,7 +486,7 @@ sub _cleanup_methods {
 }
 
 sub DESTROY {
-    my ($self) = shift;
+    my $self = shift;
     my @cleanup_methods = $self->_cleanup_methods or return;
     for my $method (@cleanup_methods) {
       $method->($self);

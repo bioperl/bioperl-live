@@ -956,7 +956,19 @@ sub features_in_range {
 	       join(',',keys %valid_range_types).
 	       "}\n")
     unless $valid_range_types{lc $range_type};
-  $self->_features(lc $range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator);
+  $self->_features({
+		    rangetype => lc $range_type,
+		    refseq    => $refseq,
+		    refclass  => $class,
+		    start     => $start,
+		    stop      => $stop,
+		    types     => $types },
+		   {
+		    sparse    => $sparse,
+		    automerge => $automerge,
+		    iterator  => $iterator
+		   },
+		   $parent);
 }
 
 =head2 overlapping_features
@@ -1110,7 +1122,15 @@ sub features {
 
   # for whole database retrievals, we probably don't want to automerge!
   $automerge = $self->automerge unless defined $automerge;
-  $self->_features('contains',undef,undef,undef,undef,$types,undef,$sparse,$automerge,$iterator);
+  $self->_features({
+		    rangetype => 'contains',
+		    types     => $types,
+		   },
+		   { sparse    => $sparse,
+		    automerge => $automerge,
+		    iterator  =>$iterator
+		   }
+		   );
 }
 
 =head2 segments
@@ -1506,7 +1526,7 @@ It must be implemented by a subclass.
 =cut
 
 sub setup_load {
-  shift->throw("setup_load(): must be implemented by an adaptor");
+  # default, do nothing
 }
 
 =head2 finish_load
@@ -1524,7 +1544,7 @@ cleanup after loading a set of GFF records.
 =cut
 
 sub finish_load {
-  shift->throw("finish_load(): must be implemented by an adaptor");
+  # default, do nothing
 }
 
 =head2 load_gff_line
@@ -1604,41 +1624,52 @@ sub get_dna {
 =head2 get_features
 
  Title   : get_features
- Usage   : $db->get_features($isrange,$refseq,$class,$start,$stop,$types,$callback)
+ Usage   : $db->get_features($search,$options,$callback)
  Function: get list of features for a region
  Returns : count of number of features retrieved
  Args    : see below
  Status  : protected
 
-Arguments are as follows:
+The first argument is a hash reference containing search criteria for
+retrieving features.  It contains the following keys:
 
-   $rangetype One of "overlaps", "contains" or "contained_in".  Indicates
+   rangetype One of "overlaps", "contains" or "contained_in".  Indicates
               the type of range query requested.
 
-   $refseq    ID of the landmark that establishes the absolute 
+   refseq    ID of the landmark that establishes the absolute 
               coordinate system.
 
-   $class     Class of this landmark.  Can be ignored by implementations
+   refclass  Class of this landmark.  Can be ignored by implementations
               that don't recognize such distinctions.
 
-   $start,$stop  Start and stop of the range, inclusive.
+   start     Start of the range, inclusive.
 
-   $types     Array reference containing the list of annotation types
+   stop      Stop of the range, inclusive.
+
+   types     Array reference containing the list of annotation types
               to fetch from the database.  Each annotation type is an
               array reference consisting of [source,method].
 
-   $callback  A code reference.  As the passed features are retrieved
-              they are passed to this callback routine for processing.
+The second argument is a hash reference containing certain options
+that affect the way information is retrieved:
 
-   $automerge A flag.  If present, overrides the value returned by
-              the automerge() method.
+   sort_by_group
+             A flag.  If true, means that the returned features should be
+             sorted by the group that they're in.
+
+   sparse    A flag.  If true, means that the expected density of the 
+             features is such that it will be more efficient to search
+             by type rather than by range.
+
+The third argument, the $callback, is a code reference to which
+retrieved features are passed.  It is described in more detail below.
 
 This routine is responsible for getting arrays of GFF data out of the
 database and passing them to the callback subroutine.  The callback
 does the work of constructing a Bio::DB::GFF::Feature object out of
-that data.  The callback expects a list of 11 fields:
+that data.  The callback expects a list of 13 fields:
 
-  $srcseq      source sequence
+  $refseq      The reference sequence
   $start       feature start
   $stop        feature stop
   $source      feature source
@@ -1650,16 +1681,23 @@ that data.  The callback expects a list of 11 fields:
   $groupname   group ID (may be undef)
   $tstart      target start for similarity hits (may be undef)
   $tstop       target stop for similarity hits (may be undef)
+  $feature_id  A unique feature ID (may be undef)
 
 These fields are in the same order as the raw GFF file, with the
-exception that the group column has been parsed into class and name
-fields.
+exception that the group column has been parsed into group class and
+group name fields.
+
+The feature ID, if provided, is a unique identifier of the feature
+line.  The module does not depend on this ID in any way, but it is
+available via Bio::DB::GFF-E<gt>id() if wanted.  In the dbi::mysql and
+dbi::mysqlopt adaptor, the ID is a unique row ID.  In the acedb
+adaptor it is not used.
 
 =cut
 
 sub get_features{
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$callback,$automerge) = @_;
+  my ($search,$options,$callback) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
 }
 
@@ -1976,71 +2014,83 @@ guaranteed to remain the same.
 =head2 _features
 
  Title   : _features
- Usage   : $db->_features(@args)
+ Usage   : $db->_features($search,$options,$parent)
  Function: internal method
  Returns : a list of Bio::DB::GFF::Feature objects
  Args    : see below
  Status  : internal
 
 This is an internal method that is called by overlapping_features(),
-contained_features() and features() to do the actual work.  It takes
-nine positional arguments:
+contained_features() and features() to create features based on a
+parent segment's coordinate system.  It takes three arguments, a
+search options hashref, an options hashref, and a parent segment.
 
-  $rangetype     One of "overlaps", "contains" or "contained_in".  Indicates
-                 the type of range query requested.
-  $refseq        reference sequence ID
-  $class	 reference sequence class
-  $start	 start of range
-  $stop		 stop of range
-  $types	 list of types
-  $parent	 parent sequence, for relative coordinates
-  $sparse	 turn on optimizations for a rare feature
-  $automerge	 if true, invoke aggregators to merge features
-  $iterator	 if true, return an iterator
+The search hashref contains the following keys:
+
+  rangetype     One of "overlaps", "contains" or "contained_in".  Indicates
+                the type of range query requested.
+  refseq        reference sequence ID
+  refclass      reference sequence class
+  start	        start of range
+  stop		stop of range
+  types	        arrayref containing list of types in "method:source" form
+
+The options hashref contains zero or more of the following keys:
+
+  sparse	turn on optimizations for a rare feature
+  automerge	if true, invoke aggregators to merge features
+  iterator	if true, return an iterator
+
+The $parent argument is a scalar object containing a
+Bio::DB::GFF::RelSegment object or descendent.
 
 =cut
 
+#'
+
 sub _features {
   my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator) = @_;
+  my ($search,$options,$parent) = @_;
 
-  ($start,$stop) = ($stop,$start) if defined($start) && $start > $stop;
+  (@{$search}{qw(start stop)}) = (@{$search}{qw(stop start)})
+    if defined($search->{start}) && $search->{start} > $search->{stop};
 
-  $types = $self->parse_types($types);  # parse out list of types
+  my $types = $self->parse_types($search->{types});  # parse out list of types
   my @aggregated_types = @$types;         # keep a copy
 
   # allow the aggregators to operate on the original
   my ($match,@aggregators);
-  if ($automerge) {
+  if ($options->{automerge}) {
     $match = $self->make_match_sub($types);
     for my $a ($self->aggregators) {
-      $a = $a->clone if $iterator;
+      $a = $a->clone if $options->{iterator};
       unshift @aggregators,$a
 	if $a->disaggregate(\@aggregated_types,$self);
     }
   }
 
-  if ($iterator) {
+  if ($options->{iterator}) {
     my @accumulated_features;
-    my $callback = $automerge ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,\@aggregators,@_) }
-                              : sub { [$self->make_feature($parent,undef,@_)] };
-    return $self->get_features_iterator($range_type,
-					$refseq,$class,
-					$start,$stop,
-					\@aggregated_types,
-					$sparse,
-					$callback,
-					$automerge);
+    my $callback = $options->{automerge} ? sub { $self->make_aggregated_feature($match,\@accumulated_features,$parent,\@aggregators,@_) }
+                                         : sub { [$self->make_feature($parent,undef,@_)] };
+    return $self->get_features_iterator({ %$search, 
+					  types => \@aggregated_types  },
+					{ %$options,
+					 sort_by_group => $options->{automerge}  },
+					$callback
+				       );
   }
 
   my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
   my $features = [];
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
-  $self->get_features($range_type,$refseq,$class,
-		      $start,$stop,\@aggregated_types,$sparse,$callback,0);
+  $self->get_features({ %$search, 
+			types  => \@aggregated_types },
+		      $options,
+		      $callback);
 
-  if ($automerge) {
+  if ($options->{automerge}) {
     warn "aggregating...\n" if $self->debug;
     foreach my $a (@aggregators) {  # last aggregator gets first shot
       $a->aggregate($features,$self) or next;
@@ -2057,7 +2107,7 @@ sub _features {
 =head2 get_features_iterator
 
  Title   : get_features_iterator
- Usage   : $db->get_features_iterator(@args)
+ Usage   : $db->get_features_iterator($search,$options,$callback)
  Function: get an iterator on a features query
  Returns : a Bio::SeqIO object
  Args    : as per get_features()
@@ -2076,7 +2126,7 @@ constructor for the iterator, along with the callback.
 
 sub get_features_iterator {
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$callback) = @_;
+  my ($search,$options,$callback) = @_;
   $self->throw('feature iteration is not implemented in this adaptor');
 }
 

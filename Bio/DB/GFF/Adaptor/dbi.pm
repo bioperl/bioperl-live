@@ -189,7 +189,7 @@ sub get_abscoords {
 =head2 get_features
 
  Title   : get_features
- Usage   : $db->get_features(@args)
+ Usage   : $db->get_features($search,$options,$callback)
  Function: retrieve features from the database
  Returns : number of features retrieved
  Args    : see below
@@ -200,59 +200,9 @@ the database.  It is responsible for retrieving features that satisfy
 range and feature type criteria, and passing the GFF fields to a
 callback subroutine.
 
-The eight arguments are as follows:
-
-  $rangetype  One of "overlaps", "contains" or "contains_in".  Indicates
-              the type of range query requested.
-
-  $refseq     The reference sequence for this range.  This may be undef if no
-              range restriction is desired.
-
-  $refclass   The class of the reference sequence.  This can be ignored by
-              database that do not recognize different types of reference
-              sequence.
-
-  $start      Start of range.  May be undef.
-
-  $stop       Stop of range.  May be undef.
-
-  $types      An array reference containing a list of [method,source] pairs.  If
-              passed, only features that match method and/or source are requested.
-              May be empty or undef.
-
-  $callback   A code reference.  As features are retrieved, they are
-              passed to this callback.
-
-  $order_by_group  A flag, which, if true will force the query to return feature
-              rows ordered by the group to which they belong.
-
-
-The callback expects thirteen arguments, which can be parsed directly out of GFF files:
-
-  $refseq       The reference sequence
-  $start        Start position
-  $stop         Stop position
-  $source       Feature source
-  $method       Feature method
-  $score        Feature score
-  $strand       Feature strand
-  $phase        Feature phase
-  $group_class  Group class (may be undef)
-  $group_name   Group name  (may be undef)
-  $target_start Start of homology hit (target coordinates; may be undef)
-  $target_stop  Stop of homology hit (target coordinates; may be undef)
-  $feature_id   Unique feature ID (may be undef)
-
-The group class, group name, target start, and target stop are all
-variants of the GFF "group" field, and are optional. The target start
-and stop fields are used by similarity match lines, and indicate the
-coordinates of the match in the target sequence.
-
-The feature ID, if provided, is a unique identifier of the feature
-line.  The module does not depend on this ID in any way, but it is
-available via Bio::DB::GFF-E<gt>id() if wanted.  In the dbi::mysql and
-dbi::mysqlopt adaptor, the ID is a unique row ID.  In the acedb
-adaptor it is not used.
+See the manual page for Bio::DB::GFF for the interpretation of the
+arguments and how the information retrieved by get_features is passed
+to the callback for processing.
 
 Internally, get_features() is a front end for range_query().  The
 latter method constructs the query and executes it.  get_features()
@@ -265,10 +215,18 @@ callback.
 # all features.  Passes features through callback.
 sub get_features {
   my $self = shift;
-  my ($range_type,$refseq,$class,$start,$stop,$types,$sparse,$callback,$order_by_group) = @_;
+  my ($search,$options,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
 
-  my $sth = $self->range_query($range_type,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group) or return;
+  my $sth = $self->range_query(@{$search}{qw(rangetype
+					      refseq
+					      refclass
+					      start
+					      stop
+					      types) },
+			       @{$options}{qw(
+					      sparse
+					      sort_by_group)}) or return;
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -282,7 +240,7 @@ sub get_features {
 =head2 get_feature_by_name
 
  Title   : get_feature_by_name
- Usage   : $db->get_features($name,$class,$callback)
+ Usage   : $db->get_features_by_name($name,$class,$callback)
  Function: get a list of features by name and class
  Returns : count of number of features retrieved
  Args    : name of feature, class of feature, and a callback
@@ -612,7 +570,7 @@ sub exact_match {
 =head2 get_features_iterator
 
  Title   : get_features_iterator
- Usage   : $iterator = $db->get_features_iterator(@args)
+ Usage   : $iterator = $db->get_features_iterator($search,$options,$callback)
  Function: create an iterator on a features() query
  Returns : A Bio::DB::GFF::Adaptor::dbi::iterator object
  Args    : see get_features()
@@ -626,9 +584,17 @@ L<Bio::DB::GFF::Adaptor::dbi::iterator>.
 
 sub get_features_iterator {
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$callback,$automerge) = @_;
+  my ($search,$options,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
-  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$sparse,$automerge) or return;
+  my $sth = $self->range_query(@{$search}{qw(rangetype
+					     refseq
+					     refclass
+					     start
+					     stop
+					     types)},
+			       @{$options}{qw(
+					      sparse
+					      sort_by_group)}) or return;
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
