@@ -176,7 +176,7 @@ sub throw{
 
    my $std = $self->stack_trace_dump();
 
-   my $out = "-------------------- EXCEPTION --------------------\n".
+   my $out = "\n-------------------- EXCEPTION --------------------\n".
        "MSG: ".$string."\n".$std."-------------------------------------------\n";
    die $out;
 
@@ -208,7 +208,7 @@ sub warn{
     } elsif( $verbose == -1 ) {
 	return;
     } elsif( $verbose == 1 ) {
-	my $out = "-------------------- WARNING ---------------------\n".
+	my $out = "\n-------------------- WARNING ---------------------\n".
 		"MSG: ".$string."\n";
 	$out .= $self->stack_trace_dump;
 	
@@ -216,7 +216,7 @@ sub warn{
 	return;
     }    
 
-    my $out = "-------------------- WARNING ---------------------\n".
+    my $out = "\n-------------------- WARNING ---------------------\n".
        "MSG: ".$string."\n".
 	   "---------------------------------------------------\n";
     print STDERR $out;
@@ -420,8 +420,10 @@ sub _rearrange {
     # they are named or simply listed. If they are listed, we
     # can just return them. 
 
-    return @param unless (defined($param[0]) && $param[0]=~/^-/); 
-    
+    # The mod test fixes bug where a single string parameter beginning with '-' gets lost.
+    # This tends to happen in error messages such as: $obj->throw("-id not defined")
+    return @param unless (defined($param[0]) && $param[0]=~/^-/ && ($#param+1) % 2 == 0);
+
     # Tester
 #    print "\n_rearrange() named parameters:\n";
 #    my $i; for ($i=0;$i<@param;$i+=2) { printf "%20s => %s\n", $param[$i],$param[$i+1]; }; <STDIN>;
