@@ -228,7 +228,86 @@
       Result, Hit, and HSP objects when the report shown above is used as
       input. Note that many of the methods shown can be used to either
       get or set values, but we're just showing what they get.
-    </p><div class="table"><a id="d3e84"/><table summary="SearchIO Methods" border="1"><colgroup><col/><col/><col/><col/></colgroup><thead><tr><th>Object</th><th>Method</th><th>Example</th><th>Description</th></tr></thead><tbody><tr><td>Result</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Result</td><td>algorithm_version</td><td>2.2.4 [Aug-26-2002]</td><td>algorithm version</td></tr><tr><td>Result</td><td>query_name</td><td>gi|20521485|dbj|AP004641.2</td><td>query name</td></tr><tr><td>Result</td><td>query_accession</td><td>AP004641.2</td><td>query accession</td></tr><tr><td>Result</td><td>query_length</td><td>3059</td><td>query length</td></tr><tr><td>Result</td><td>query_description</td><td>Oryza sativa ... 977CE9AF checksum.</td><td>query description</td></tr><tr><td>Result</td><td>database_name</td><td>test.fa </td><td>database name</td></tr><tr><td>Result</td><td>database_letters</td><td>1291</td><td>number of residues in database</td></tr><tr><td>Result</td><td>database_entries</td><td>5</td><td>number of database entries</td></tr><tr><td>Result</td><td>available_statistics</td><td>effectivespaceused ... dbletters</td><td>statistics used</td></tr><tr><td>Result</td><td>available_parameters</td><td>gapext matrix allowgaps gapopen</td><td>parameters used</td></tr><tr><td>Result</td><td>num_hits</td><td>1</td><td>number of hits</td></tr><tr><td>Result</td><td>hits</td><td> </td><td>Search::Hit::GenericHit object</td></tr><tr><td>Hit</td><td>name</td><td>gb|443893|124775</td><td>hit name</td></tr><tr><td>Hit</td><td>accession</td><td>443893</td><td>accession</td></tr><tr><td>Hit</td><td>description</td><td>LaForas sequence</td><td>hit description</td></tr><tr><td>Hit</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Hit</td><td>raw_score</td><td>92</td><td>hit raw score</td></tr><tr><td>Hit</td><td>significance</td><td>2e-022</td><td>hit significance</td></tr><tr><td>Hit</td><td>bits</td><td>92.0</td><td>hit bits</td></tr><tr><td>Hit</td><td>hsps</td><td> </td><td>Search::HSP::GenericHSP object</td></tr><tr><td>Hit</td><td>num_hsps</td><td>1</td><td>number of HSPs in hit</td></tr><tr><td>Hit</td><td>locus</td><td>124775</td><td>locus name</td></tr><tr><td>Hit</td><td>accession_number</td><td>443893</td><td>accession number</td></tr><tr><td>HSP</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>HSP</td><td>evalue</td><td>2e-022</td><td>e-value</td></tr><tr><td>HSP</td><td>frac_identical</td><td>0.884615384615385</td><td>Fraction identical</td></tr><tr><td>HSP</td><td>frac_conserved</td><td>0.923076923076923</td><td>desc</td></tr><tr><td>HSP</td><td>gaps</td><td>2</td><td>number of gaps</td></tr><tr><td>HSP</td><td>query_string</td><td>DMGRCSSG ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>hit_string</td><td>DIVQNSS ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>homology_string</td><td>D+ + SSGCN ...</td><td>string from alignment</td></tr><tr><td>HSP</td><td>length('total')</td><td>52</td><td>length of HSP</td></tr><tr><td>HSP</td><td>length('hit')</td><td>50</td><td>length of hit minus gaps</td></tr><tr><td>HSP</td><td>length('query')</td><td>156</td><td>length of query minus gaps</td></tr><tr><td>HSP</td><td>hsp_length</td><td>52</td><td>desc</td></tr><tr><td>HSP</td><td>frame</td><td>0</td><td>frame, GFF convention</td></tr><tr><td>HSP</td><td>num_conserved</td><td>48</td><td>number of conserved residues</td></tr><tr><td>HSP</td><td>num_identical</td><td>46</td><td>number of identical residues</td></tr><tr><td>HSP</td><td>rank</td><td>1</td><td>rank of HSP</td></tr><tr><td>HSP</td><td>seq_inds('query','identical')</td><td>(966,971,972,973,974,975 ...)</td><td>identical positions as array</td></tr><tr><td>HSP</td><td>seq_inds('query','conserved')</td><td>(967,969)</td><td>conserved positions as array</td></tr><tr><td>HSP</td><td>seq_inds('hit','identical')</td><td>(197,202,203,204,205 ...)</td><td>identical positions as array</td></tr><tr><td>HSP</td><td>seq_inds('hit','conserved')</td><td>(198,200)</td><td>conserved positions as array</td></tr><tr><td>HSP</td><td>score</td><td>227</td><td>score</td></tr><tr><td>HSP</td><td>bits</td><td>92.0</td><td>bits</td></tr><tr><td>HSP</td><td>range('query')</td><td>(2896,3051)</td><td>start and end as array</td></tr><tr><td>HSP</td><td>range('hit')</td><td>(197,246)</td><td>start and end as array</td></tr><tr><td>HSP</td><td>percent_identity</td><td>88.4615384615385</td><td>% identical</td></tr><tr><td>HSP</td><td>strand</td><td>1</td><td>strand of the query</td></tr><tr><td>HSP</td><td>start('query')</td><td>2896</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('query')</td><td>3051</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>start('hit')</td><td>197</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('hit')</td><td>246</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>matches('hit')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>matches('query')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>alignment</td><td> </td><td>Bio::SimpleAlign object</td></tr></tbody></table><p class="title"><b>Table 1. SearchIO Methods</b></p></div><p>
+    </p><div class="table"><a id="d3e84"/><table summary="SearchIO
+      Methods"
+      border="1"><colgroup><col/><col/><col/><col/></colgroup><thead><tr><th>Object</th><th>Method</th><th>Example</th><th>Description</th></tr></thead><tbody><tr><td>Result</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Result</td><td>algorithm_version</td><td>2.2.4
+      [Aug-26-2002]</td><td>algorithm
+      version</td></tr><tr><td>Result</td><td>query_name</td><td>gi|20521485|dbj|AP004641.2</td><td>query
+      name</td></tr><tr><td>Result</td><td>query_accession</td><td>AP004641.2</td><td>query
+      accession</td></tr><tr><td>Result</td><td>query_length</td><td>3059</td><td>query
+      length</td></tr><tr><td>Result</td><td>query_description</td><td>Oryza
+      sativa ... 977CE9AF checksum.</td><td>query
+      description</td></tr><tr><td>Result</td><td>database_name</td><td>test.fa
+      </td><td>database
+      name</td></tr><tr><td>Result</td><td>database_letters</td><td>1291</td><td>number
+      of residues in
+      database</td></tr><tr><td>Result</td><td>database_entries</td><td>5</td><td>number
+      of database
+      entries</td></tr><tr><td>Result</td><td>available_statistics</td><td>effectivespaceused
+      ... dbletters</td><td>statistics
+      used</td></tr><tr><td>Result</td><td>available_parameters</td><td>gapext
+      matrix allowgaps gapopen</td><td>parameters
+      used</td></tr><tr><td>Result</td><td>num_hits</td><td>1</td><td>number
+      of
+      hits</td></tr><tr><td>Result</td><td>hits</td><td> </td><td>Search::Hit::GenericHit
+      object</td></tr><tr><td>Hit</td><td>name</td><td>gb|443893|124775</td><td>hit
+      name</td></tr><tr><td>Hit</td><td>accession</td><td>443893</td><td>accession</td></tr><tr><td>Hit</td><td>description</td><td>LaForas
+      sequence</td><td>hit
+      description</td></tr><tr><td>Hit</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>Hit</td><td>raw_score</td><td>92</td><td>hit
+      raw
+      score</td></tr><tr><td>Hit</td><td>significance</td><td>2e-022</td><td>hit
+      significance</td></tr><tr><td>Hit</td><td>bits</td><td>92.0</td><td>hit
+      bits</td></tr><tr><td>Hit</td><td>hsps</td><td> </td><td>Search::HSP::GenericHSP
+      object</td></tr><tr><td>Hit</td><td>num_hsps</td><td>1</td><td>number
+      of HSPs in
+      hit</td></tr><tr><td>Hit</td><td>locus</td><td>124775</td><td>locus
+      name</td></tr><tr><td>Hit</td><td>accession_number</td><td>443893</td><td>accession
+      number</td></tr><tr><td>HSP</td><td>algorithm</td><td>BLASTX</td><td>algorithm</td></tr><tr><td>HSP</td><td>evalue</td><td>2e-022</td><td>e-value</td></tr><tr><td>HSP</td><td>frac_identical</td><td>0.884615384615385</td><td>Fraction
+      identical</td></tr><tr><td>HSP</td><td>frac_conserved</td><td>0.923076923076923</td><td>desc</td></tr><tr><td>HSP</td><td>gaps</td><td>2</td><td>number
+      of
+      gaps</td></tr><tr><td>HSP</td><td>query_string</td><td>DMGRCSSG
+      ...</td><td>string from
+      alignment</td></tr><tr><td>HSP</td><td>hit_string</td><td>DIVQNSS
+      ...</td><td>string from
+      alignment</td></tr><tr><td>HSP</td><td>homology_string</td><td>D+
+      + SSGCN ...</td><td>string from
+      alignment</td></tr><tr><td>HSP</td><td>length('total')</td><td>52</td><td>length
+      of
+      HSP</td></tr><tr><td>HSP</td><td>length('hit')</td><td>50</td><td>length
+      of hit minus
+      gaps</td></tr><tr><td>HSP</td><td>length('query')</td><td>156</td><td>length
+      of query minus
+      gaps</td></tr><tr><td>HSP</td><td>hsp_length</td><td>52</td><td>desc</td></tr><tr><td>HSP</td><td>frame</td><td>0</td><td>frame,
+      GFF
+      convention</td></tr><tr><td>HSP</td><td>num_conserved</td><td>48</td><td>number
+      of conserved
+      residues</td></tr><tr><td>HSP</td><td>num_identical</td><td>46</td><td>number
+      of identical
+      residues</td></tr><tr><td>HSP</td><td>rank</td><td>1</td><td>rank
+      of
+      HSP</td></tr><tr><td>HSP</td><td>seq_inds('query','identical')</td><td>(966,971,972,973,974,975
+      ...)</td><td>identical positions as
+      array</td></tr><tr><td>HSP</td><td>seq_inds('query','conserved')</td><td>(967,969)</td><td>conserved
+      positions as
+      array</td></tr><tr><td>HSP</td><td>seq_inds('hit','identical')</td><td>(197,202,203,204,205
+      ...)</td><td>identical positions as
+      array</td></tr><tr><td>HSP</td><td>seq_inds('hit','conserved')</td><td>(198,200)</td><td>conserved
+      positions as
+      array</td></tr><tr><td>HSP</td><td>score</td><td>227</td><td>score</td></tr><tr><td>HSP</td><td>bits</td><td>92.0</td><td>bits</td></tr><tr><td>HSP</td><td>range('query')</td><td>(2896,3051)</td><td>start
+      and end as
+      array</td></tr><tr><td>HSP</td><td>range('hit')</td><td>(197,246)</td><td>start
+      and end as
+      array</td></tr><tr><td>HSP</td><td>percent_identity</td><td>88.4615384615385</td><td>%
+      identical</td></tr>
+<tr><td>HSP</td><td>strand('hit')</td><td>1</td><td>strand of the
+      hit</td></tr>
+<tr><td>HSP</td><td>strand('query')</td><td>1</td><td>strand of the
+      query</td></tr>
+<tr><td>HSP</td><td>start('query')</td><td>2896</td><td>start position
+      from alignment</td>
+</tr><tr><td>HSP</td><td>end('query')</td><td>3051</td><td>end
+      position from alignment</td></tr>
+<tr><td>HSP</td><td>start('hit')</td><td>197</td><td>start position from alignment</td></tr><tr><td>HSP</td><td>end('hit')</td><td>246</td><td>end position from alignment</td></tr><tr><td>HSP</td><td>matches('hit')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>matches('query')</td><td>(46,48)</td><td>number of identical and conserved as array</td></tr><tr><td>HSP</td><td>alignment</td><td> </td><td>Bio::SimpleAlign object</td></tr></tbody></table><p class="title"><b>Table 1. SearchIO Methods</b></p></div><p>
       Table 1 shows that a method can return a string, an array, an array
       or a string, or an object. When an object is returned some
       additional code will probably be needed to get the data of

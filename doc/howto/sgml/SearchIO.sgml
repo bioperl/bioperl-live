@@ -623,7 +623,13 @@
 	  </row>
 	  <row>
 	    <entry>HSP</entry>
-	    <entry>strand</entry>
+	    <entry>strand('hit')</entry>
+	    <entry>1</entry>
+	    <entry>strand of the hit</entry>
+	  </row>
+	  <row>
+	    <entry>HSP</entry>
+	    <entry>strand('query')</entry>
 	    <entry>1</entry>
 	    <entry>strand of the query</entry>
 	  </row>
