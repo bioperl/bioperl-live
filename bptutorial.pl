@@ -2907,8 +2907,9 @@ $restriction_and_sigcleave = sub {
 $run_standaloneblast = sub {
     eval {require Bio::Tools::Run::StandAloneBlast; };
     if ( $@ ) {
-      print STDERR "Cannot load Bio::Tools::Run::StandAloneBlast\n";
-      print STDERR "Skipping local blast example:\n$@\n";
+      print STDERR "Cannot find Bio::Tools::Run::StandAloneBlast\n";
+      print STDERR "You will need the bioperl-run library to run StandAlnoeBlast\n";
+      print STDERR "Skipping local blast example:\n";
       return 0;
     }
     print "\nBeginning run_standaloneblast example... \n";
@@ -2950,8 +2951,8 @@ $run_remoteblast = sub {
     eval { require Bio::Tools::Run::RemoteBlast; };
 
     if ( $@ ) {
-      print STDERR "Cannot load Bio::Tools::Run::RemoteBlast\n";
-      print STDERR "Skipping run_remoteblast example:\n$@\n";
+      print STDERR "Cannot find Bio::Tools::Run::RemoteBlast\n";
+      print STDERR "Skipping run_remoteblast example:\n";
     } else {
       my (@params, $remote_blast_object, $blast_file, $r, $rc,
          $database);
@@ -3115,40 +3116,55 @@ $hmmer_parsing = sub {
 
 $run_clustalw_tcoffee = sub {
 
-    use Bio::Tools::Run::Alignment::TCoffee;
-    use Bio::Tools::Run::Alignment::Clustalw;
+#    use Bio::Tools::Run::Alignment::TCoffee;
+#    use Bio::Tools::Run::Alignment::Clustalw;
     my (@params, $factory, $ktuple, $aln, $seq_array_ref, $strout);
     my (@seq_array, $seq, $str, $infile);
 
     $infile = $unaligned_amino_file;
 
-    # III.6.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
+    # Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
     print "\nBeginning run_clustalw example... \n";
 
-    # put unaligned sequences in a Bio::Seq array
-    $str = Bio::SeqIO->new('-file'=> $infile,
-                           '-format' => 'Fasta');
-    @seq_array =();
-    while ($seq = $str->next_seq() ) { push (@seq_array, $seq) ;}
-    $seq_array_ref = \@seq_array;
-    # where @seq_array is an array of Bio::Seq objects
-
-    my $clustal_present =
-      Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
-    if ($clustal_present) {
-        @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
-        $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
-        $ktuple = 3;
-        $factory->ktuple($ktuple);  # change the parameter before executing
-        $aln = $factory->align($seq_array_ref);
-        $strout = Bio::AlignIO->newFh('-format' => 'msf');
-        print "Output of clustalw alignment... \n";
-        print $strout $aln;
+    eval {require Bio::Tools::Run::Alignment::Clustalw; };
+    if ( $@ ) { 
+	print STDERR "Cannot find Bio::Tools::Run::Alignment::Clustalw\n";
+        print STDERR "You will need the bioperl-run library to run clustalw with bioperl\n";
+	print STDERR "Skipping local clustalw demo:\n";
     } else {
-        warn "Clustalw program not found. Skipping run_clustalw example....\n";
+
+	# put unaligned sequences in a Bio::Seq array
+	$str = Bio::SeqIO->new('-file'=> $infile,
+			       '-format' => 'Fasta');
+	@seq_array =();
+	while ($seq = $str->next_seq() ) { push (@seq_array, $seq) ;}
+	$seq_array_ref = \@seq_array;
+	# where @seq_array is an array of Bio::Seq objects
+
+	my $clustal_present =
+	  Bio::Tools::Run::Alignment::Clustalw->exists_clustal();
+	if ($clustal_present) {
+	    @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 'quiet' => 1);
+	    $factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
+	    $ktuple = 3;
+	    $factory->ktuple($ktuple);  # change the parameter before executing
+	    $aln = $factory->align($seq_array_ref);
+	    $strout = Bio::AlignIO->newFh('-format' => 'msf');
+	    print "Output of clustalw alignment... \n";
+	    print $strout $aln;
+	} else {
+	    warn "Clustalw program not found. Skipping run_clustalw example....\n";
+	}
     }
     print "\nBeginning run_tcoffee example... \n";
 
+    eval {require Bio::Tools::Run::Alignment::TCoffee; };
+    if ( $@ ) { 
+	print STDERR "Cannot find Bio::Tools::Run::Alignment::TCoffee\n";
+        print STDERR "You will need the bioperl-run library to run TCoffee with bioperl\n"; 
+        print STDERR "Skipping local TCoffee demo:\n";
+	return 0;
+    }
     my $tcoffee_present =
       Bio::Tools::Run::Alignment::TCoffee->exists_tcoffee();
     if ($tcoffee_present) {
@@ -3230,7 +3246,7 @@ $run_psw_bl2seq = sub {
     if( $@ ) {
         print STDERR "\nThe C-compiled engine for Smith Waterman alignments (Bio::Ext::Align) has not been installed.\n";
         print STDERR "Please read the install the bioperl-ext package\n";
-	print STDERR "Skipping Smith-Waterman demo:\n$@\n";
+	print STDERR "Skipping Smith-Waterman demo:\n";
     } else {
 
 	# Aligning 2 sequences with Smith-Waterman (pSW)
@@ -3261,8 +3277,9 @@ $run_psw_bl2seq = sub {
 
     eval { require Bio::Tools::Run::StandAloneBlast; };
     if ( $@ ){
-	print STDERR "Cannot load Bio::Tools::Run::StandAloneBlast module\n";
-	print STDERR "Skipping bl2seq demo:\n$@\n";
+	print STDERR "Cannot find Bio::Tools::Run::StandAloneBlast module\n";
+	print STDERR "You will need the bioperl-run library to run bl2seq\n";
+	print STDERR "Skipping bl2seq demo:\n";
 	return 0;
     }
 
@@ -3479,8 +3496,8 @@ $run_struct = sub {
          require Bio::Structure::IO;
        };
   if ( $@ ){
-    print STDERR "Cannot load Bio::Structure modules\n";
-    print STDERR "Cannot run run_struct:\n$@\n";
+    print STDERR "Cannot find Bio::Structure modules\n";
+    print STDERR "Cannot run run_struct:\n";
     return 0;
   } else {
     print "\nBeginning Structure object example... \n";
@@ -3672,7 +3689,7 @@ $demo_xml = sub {
                            '-format' => 'game'); };
     if ( $@ ){
       print STDERR "Cannot run demo_xml\n";
-      print STDERR "Problem parsing GAME format:\n$@\n";
+      print STDERR "Problem parsing GAME format:\n";
       return 0;
     } else {
       $seqobj = $str->next_seq();
