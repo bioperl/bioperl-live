@@ -91,10 +91,8 @@ use strict;
 use Bio::DB::RandomAccessI;
 use Bio::Seq;
 
-BEGIN { 
-  eval {
-    require Ace;
-  };
+BEGIN {
+  eval "require Ace;";
   if( $@) {
     print STDERR "You have not installed Ace.pm.\n Read the docs in Bio::DB::Ace for more information about how to do this.\n It is very easy\n\nError message $@";
   }
