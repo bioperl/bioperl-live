@@ -11,7 +11,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 13; 
+    $NUMTESTS = 14; 
     plan tests => $NUMTESTS; 
 }
 
@@ -58,9 +58,7 @@ unless ($coffee_present) {
 	exit(0);
 }
 $aln = $factory->align($inputfilename);
-
-ok ($aln->{order}->{'0'}, 'CYS1_DICDI/1-343', 
-    "failed tcoffee alignment using input file");
+ok $aln->no_sequences, 7;
 
 my $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","cysprot.fa"), 
 			  '-format' => 'Fasta');
@@ -73,33 +71,25 @@ while ( my $seq = $str->next_seq() ) {
 my $seq_array_ref = \@seq_array;
 
 $aln = $factory->align($seq_array_ref);
-	
-ok($aln->{order}->{'0'}, 'CYS1_DICDI/1-343', 
-   "failed tcoffee alignment using BioSeq array ");
-
+ok $aln->no_sequences, 7;
 
 	
 my $profile1 = Bio::Root::IO->catfile("t","data","cysprot1a.msf");
 my $profile2 = Bio::Root::IO->catfile("t","data","cysprot1b.msf");
 $aln = $factory->profile_align($profile1,$profile2);
-#use Data::Dumper;
-#print Dumper($aln);
-ok( $aln->{order}->{'1'}, 'CATL_HUMAN/1-333', 
-    " failed tcoffee profile alignment using input file ". 
-    $aln->{order}->{'1'} );
+ok $aln->no_sequences, 7;
 
 
 my $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
 my $aln1 = $str1->next_aln();
+ok $aln1->no_sequences, 3;
+
 my $str2 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1b.msf"));
 my $aln2 = $str2->next_aln();
+ok $aln2->no_sequences, 4;
 
 $aln = $factory->profile_align($aln1,$aln2);
-#use Data::Dumper;
-#print Dumper($aln);
-ok ( $aln->{order}->{'1'}, 'CATL_HUMAN/1-333', 
-     "failed tcoffee profile alignment using SimpleAlign input ". 
-     $aln->{order}->{'1'});
+ok $aln->no_sequences, 7;
 
 
 $str1 = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","cysprot1a.msf"));
@@ -112,15 +102,3 @@ ok int($aln->percentage_identity), 41 ;
 $aln = $factory->profile_align($aln1,$seq);
 ok $aln->no_sequences, 4;
 ok int($aln->percentage_identity), 47 ;
-
-ok( $aln->{order}->{'1'}, 'CATH_RAT/1-333', 
-    "failed adding new sequence to alignment ". $aln->{order}->{'1'});
-
-
-#use Data::Dumper;
-#print Dumper($aln);
-
-#my $strout = Bio::AlignIO->new( '-format' => 'fasta');
-#$strout->write_aln($aln);
-
-
