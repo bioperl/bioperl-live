@@ -1,12 +1,12 @@
 # $Id$
 #
 # BioPerl module for Bio::AlignIO::clustalw
-
+#
 #	based on the Bio::SeqIO modules
 #       by Ewan Birney <birney@sanger.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
-#       and the SimpleAlign.pm module of Ewan Birney
+#       and the Bio::SimpleAlign module of Ewan Birney
 #
 # Copyright Peter Schattner
 #
@@ -124,7 +124,8 @@ sub next_aln {
 	$self->warn("trying to parse a file which does not start with a CLUSTAL header");
     }
     my %alignments;
-    my $aln =  Bio::SimpleAlign->new(-source => 'clustalw');
+    my $aln =  Bio::SimpleAlign->new(-source  => 'clustalw',
+				     -verbose => $self->verbose);
     my $order = 0;
     my %order;
     $self->{_lastline} = '';
