@@ -316,8 +316,8 @@ sub union {
 					my $dup_edge = edge->new(
 										-weight=> $other_edge->weight(),
 										-id    => $other_edge->object_id(),
-										-nodes=>[$self->nodes_by_id($common),
-								   				 $self->nodes_by_id($int_match[0])
+										-nodes =>[$self->nodes_by_id($common),
+								   				  $self->nodes_by_id($int_match[0])
 												]);
 					$self->add_dup_edge($dup_edge);
 
@@ -444,7 +444,11 @@ sub add_edge {
 =head2      add_dup_edge
 
  name       : add_dup_edge
- purpose    : to flag an interaction as a duplicate, take advantage of edge ids
+ purpose    : to flag an interaction as a duplicate, take advantage of edge ids.
+               The idea is that interactions from 2 sources with different interaction
+               ids can be used to provide more evidence for a ninteraction being true,
+               while preventing redundancy of the same interaction being present 
+               more than once in the same dataset. 
  returns    : 1 on successful addition, 0 on there being an existing duplicate. 
  usage      : $gr->add_dup_edge(edge->new (-nodes => [$n1, $n2],
                                            -score => $score
@@ -583,7 +587,7 @@ sub remove_nodes {
 			my @new_others = ();
 			##look for node in neighbor's neighbors
 			@new_others    = grep{$node ne $_} @otherns;
-			@{$ns->{$n}}   = @new_others;
+			$ns->{$n}   = \@new_others;
 		}
 
 		##3. Delete node from neighbour hash
@@ -599,8 +603,11 @@ sub remove_nodes {
 		}
 
 		##5. Now remove node itself;
+		delete $nodes->{$node}{'_node_id'};
 		delete $nodes->{$node};
 
+		##6. now remove aliases from look up hash so it can no longer be accessed.
+		
 	}
 	return 1;
 }
@@ -708,6 +715,7 @@ sub articulation_points {
 		
    }#next node
  }#next sg
+
 return  values %rts; ## hash of key value
 }
 
