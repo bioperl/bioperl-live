@@ -1,6 +1,5 @@
 # -*-Perl-*- mode (to keep my emacs happy)
 # $Id$
-
 # test for Bio::Tools::GuessSeqFormat
 # written by Heikki Lehvaslaiho
 
@@ -14,16 +13,15 @@ BEGIN {
       use lib 't','..';
    }
    use Test;
-   $NUMTESTS = 45;
-   plan tests => $NUMTESTS;
    $error = 0;
    # SeqIO::game needs XML::Writer
    eval {require XML::Writer};
    if ($@) {
       print STDERR "XML::Writer not found, skipping game test\n";
-      $NUMTESTS = 44;
       $error = 1;
    }
+   $error == 0 ? $NUMTESTS = 45 : $NUMTESTS = 44;
+   plan tests => $NUMTESTS;
 }
 
 my @seqformats = qw{ ace embl fasta gcg genbank mase
