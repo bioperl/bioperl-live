@@ -133,7 +133,7 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
     $self->_eventHandler->register_factory('result', Bio::Search::Result::ResultFactory->new(-type => 'Bio::Search::Result::WABAResult'));
 
-    $self->_eventHandler->register_factory('hsp', Bio::Search::Result::ResultFactory->new(-type => 'Bio::Search::HSP::WABAHSP'));
+    $self->_eventHandler->register_factory('hsp', Bio::Search::HSP::HSPFactory->new(-type => 'Bio::Search::HSP::WABAHSP'));
 }
 
 
