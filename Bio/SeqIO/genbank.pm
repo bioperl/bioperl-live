@@ -321,11 +321,11 @@ sub write_seq {
     } 
     if( !defined $div || ! $div ) { $div = 'UNK'; }
 
-    if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
+    if( !$seq->can('moltype') || ! defined ($mol = $seq->moltype()) ) {
 	$mol = 'DNA';
     }
     else {
-	$mol = $seq->molecule;
+	$mol = $seq->moltype;
     }
     
     local($^W) = 0;   # supressing warnings about uninitialized fields.
@@ -338,8 +338,10 @@ sub write_seq {
 	if( $seq->can('get_dates') ) { 	    
 	    ($date) = $seq->get_dates();
 	}
-	$temp_line = sprintf ("%-12s%-10s%7s bp%4s%-5s%-11s%-3s%7s%-s", 
-			      'LOCUS', $seq->id(),$len,'',$mol,'',
+	$temp_line = sprintf ("%-12s%-10s%7s %s%4s%-5s%-11s%-3s%7s%-s", 
+			      'LOCUS', $seq->id(),$len,
+			      ($mol eq 'protein') ? ('aa','', '') : 
+			      ('bp', '',$mol),'',
 			      $div,'',$date);
     } 
     
@@ -498,19 +500,22 @@ sub write_seq {
     $str =~ tr/A-Z/a-z/;
 
 # Count each nucleotide
-    my $alen = $str =~ tr/a/a/;
-    my $clen = $str =~ tr/c/c/;
-    my $glen = $str =~ tr/g/g/;
-    my $tlen = $str =~ tr/t/t/;
+    unless(  $mol eq 'protein' ) {
+	my $alen = $str =~ tr/a/a/;
+	my $clen = $str =~ tr/c/c/;
+	my $glen = $str =~ tr/g/g/;
+	my $tlen = $str =~ tr/t/t/;
+	
+	my $olen = $len - ($alen + $tlen + $clen + $glen);
+	if( $olen < 0 ) {
+	    $self->warn("Weird. More atgc than bases. Problem!");
+	}
     
-    my $olen = $len - ($alen + $tlen + $clen + $glen);
-    if( $olen < 0 ) {
-	$self->warn("Weird. More atgc than bases. Problem!");
+	my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
+				 $alen,$clen,$glen,$tlen,
+				 ( $olen > 0 ) ? sprintf("%6s others",$olen) : '');
+	$self->_print($base_count); 
     }
-    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
-			     $alen,$clen,$glen,$tlen,
-			     ( $olen > 0 ) ? sprintf("%6s others",$olen) : '');
-    $self->_print($base_count); 
     $self->_print(sprintf("ORIGIN%6s\n",''));
     my $di;
     
