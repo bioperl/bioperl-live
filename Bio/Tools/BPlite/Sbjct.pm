@@ -231,7 +231,7 @@ sub nextHSP {
       elsif ($_ =~ /^\s*Strand/)    {next} # NCBI-BLAST non-data
       elsif ($_ =~ /^\s*Score/)     {$self->_pushback($_); last}
 
-      elsif ($_ =~ /^>|^Searching|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   
+      elsif ($_ =~ /^>|^Histogram|^Searching|^Parameters|^\s+Database:|^CPU\stime|^\s*Lambda/)   
       {    
 	  #ps 5/28/01	
 	  # elsif ($_ =~ /^>|^Parameters|^\s+Database:|^CPU\stime/)   {

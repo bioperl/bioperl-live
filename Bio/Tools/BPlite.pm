@@ -328,7 +328,7 @@ sub nextSbjct {
     if    ($_ !~ /\w/)            {next}
     elsif ($_ =~ /Strand HSP/)    {next} # WU-BLAST non-data
     elsif ($_ =~ /^\s{0,2}Score/) {$self->_pushback($_); last}
-    elsif ($_ =~ /^Searching|^Parameters|^\s+Database:|^\s+Posted date:/) {
+    elsif ($_ =~ /^Histogram|^Searching|^Parameters|^\s+Database:|^\s+Posted date:/) {
 	$self->_pushback($_); 
 	last;
     }
@@ -432,7 +432,7 @@ sub _fastForward {
     my ($self) = @_;
     return 0 if $self->{'REPORT_DONE'}; # empty report
     while(defined( $_ = $self->_readline() ) ) {
-	if ($_ =~ /^Searching|^Parameters|^\s+Database:|^\s+Posted date:/) {
+	if ($_ =~ /^Histogram|^Searching|^Parameters|^\s+Database:|^\s+Posted date:/) {
 	    return 0;
 	} elsif( $_ =~ /^>/ ) {
 	    $self->_pushback($_);	
