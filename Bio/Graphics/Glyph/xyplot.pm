@@ -22,6 +22,11 @@ sub point_radius {
 
 sub pad_top { 0 }
 
+sub default_scale
+{
+  return 'right';  
+}
+
 sub draw {
   my $self = shift;
   my ($gd,$dx,$dy) = @_;
@@ -33,16 +38,19 @@ sub draw {
 
   my ($min_score,$max_score) = $self->minmax(\@parts);
 
+  my $side = $self->_determine_side();
+
   # if a scale is called for, then we adjust the max and min to be even
   # multiples of a power of 10.
-  if ($self->option('scale')) {
+  if ($side) {
     $max_score = max10($max_score);
     $min_score = min10($min_score);
   }
-
+  
   my $height = $self->option('height');
   my $scale  = $max_score > $min_score ? $height/($max_score-$min_score)
                                        : 1;
+									   
   my $x = $dx;
   my $y = $dy + $self->top + $self->pad_top;
 
@@ -71,16 +79,22 @@ sub draw {
 sub log10 { log(shift)/log(10) }
 sub max10 {
   my $a = shift;
-  $a = 1 if $a <= 0;
-  my $l=int(log10($a)); 
+  return 0 if $a==0;
+  return -min10(-$a) if $a<0;
+  return max10($a*10)/10 if $a < 1;
+  
+  my $l=int(log10($a));
   $l = 10**$l; 
-  my $r = $a/$l; 
+  my $r = $a/$l;
   return $r*$l if int($r) == $r;
   return $l*int(($a+$l)/$l);
 }
 sub min10 {
   my $a = shift;
-  $a = 1 if $a <= 0;
+  return 0 if $a==0;
+  return -max10(-$a) if $a<0;
+  return min10($a*10)/10 if $a < 1;
+  
   my $l=int(log10($a));
   $l = 10**$l; 
   my $r = $a/$l; 
@@ -190,23 +204,33 @@ sub _draw_points {
   }
 }
 
+sub _determine_side
+{
+  my $self = shift;
+  my $side = $self->option('scale');
+  return undef if $side eq 'none';
+  $side   ||= $self->default_scale();
+  return $side;  
+}
+
 sub _draw_scale {
   my $self = shift;
   my ($gd,$scale,$min,$max,$dx,$dy) = @_;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($dx,$dy);
 
-  my $side = $self->option('scale');
-  return if $side eq 'none';
-  $side   ||= 'right';
+  my $side = $self->_determine_side();
 
   my $fg    = $self->fgcolor;
   my $half  = ($y1+$y2)/2;
   my $font  = $self->font('gdTinyFont');
-
+  
   $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
   $gd->line($x2,$y1,$x2,$y2,$fg) if $side eq 'right' || $side eq 'both';
+  
+  my $midmark = ($max+$min)/2;
+  $midmark = int($midmark+0.5) if (abs($midmark) > 10);
 
-  for ([$y1,$max],[$half,int(($max-$min)/2+0.5)]) {
+  for ([$y1,$max],[$half,($max+$min)/2]) {
     $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
     if ($side eq 'left' or $side eq 'both') {

@@ -3410,6 +3410,10 @@ sub _split_gff3_group {
     }
   }
 
+  # set null gclass to empty string to preserve compatibility with
+  # programs that expect a defined gclass if no gname
+  $gclass ||= '' if defined $gname;
+
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 
