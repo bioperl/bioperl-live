@@ -14,6 +14,7 @@ Revision history for Bioperl core modules
         - examples/seq/seqtools.pl no longer always warns about using 
           -prot or -nucl command-line arguments; only when using the 
           -debug argument.
+        - Bug fixes in the Bio::SimpleAlign and Bio::Tools::pSW
 
 0.04.2  Wed Dec 30 02:27:36 1998
         - Bug fixes in Bio::Tools::Blast modules, version 0.073
