@@ -24,31 +24,36 @@ ok defined $parser;			#2
 my $report;
 my $t;
 ok $report = $parser->nextSbjct;	#3
-ok !ref $report->ID;			#4
-ok !ref $report->AC;			#5
-ok @_ = $report->AC;		#6
-ok !ref $report->DT;			#7
-ok !ref $report->DE;			#8
-ok @_ = $report->DE;		#9
-ok !ref $report->GN;			#10
-ok @_ = $report->GN;		#11
-ok !ref $report->OS;			#12
-ok @_ = $report->OG;		#13
-ok !ref $report->OG;			#14
-ok @_ = $report->OC;		#15
-ok !ref $report->OC;			#16
-ok @_ = $report->OX;		#17
-ok !ref $report->OX;			#18
-ok @_ = $report->KW;		#19
-ok !ref $report->KW;			#20
-ok !ref $report->SS;			#21
-ok @_ = $report->FT;		#22
-ok !ref $report->FT;			#23
-ok @_ = $report->SQ;		#24
-ok !ref $report->SQ;			#25
-ok @_ = $report->DR;		#26
-ok !ref $report->DR;			#27
-ok @_ = $report->RR;		#28
-ok !ref $report->RR;			#29
-ok @_ = $report->CC;		#30
-ok !ref $report->CC;			#31
+ok $report->ID;			#4
+ok $report->AC;			#5
+ok $report->AC;		#6
+ok $report->DT;			#7
+ok $report->DE;			#8
+ok $report->DE;		#9
+ok $report->GN;			#10
+ok $report->GN;		#11
+ok $report->OS;			#12
+ok $report->OG;		#13
+ok $report->OG;			#14
+ok $report->OC;		#15
+ok $report->OC;			#16
+ok $report->OX;		#17
+ok $report->OX;			#18
+ok $report->KW;		#19
+ok $report->KW;			#20
+ok $report->SS;			#21
+ok $report->FT;		#22
+ok $report->FT;			#23
+ok $report->SQ;		#24
+ok $report->SQ;			#25
+ok $report->DR;		#26
+ok $report->DR;			#27
+ok $report->RR;		#28
+ok $report->RR;			#29
+ok $report->CC;		#30
+ok $report->CC;			#31
+
+
+
+
+

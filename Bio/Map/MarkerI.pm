@@ -197,7 +197,7 @@ sub get_position_object {
 
 =cut
 
-sub in_map{
+sub tuple {
    my ($self,@args) = @_;
    $self->throw_not_implemented();
 }

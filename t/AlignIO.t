@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 36;
+    plan tests => 42;
 }
 
 use Bio::SimpleAlign;
