@@ -20,7 +20,7 @@ Bio::SearchIO::fasta - A SearchIO parser for FASTA results
    use Bio::SearchIO;
    my $searchio = new Bio::SearchIO(-format => 'fasta',
 				    -file   => 'report.FASTA');
-   while( my $report = $searchio->next_report ) {
+   while( my $result = $searchio->next_result ) {
 	# ....
    }
 
@@ -80,8 +80,8 @@ use POSIX;
 
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
-    %MODEMAP = ('FastaOutput' => 'report',
-		'Hit'         => 'subject',
+    %MODEMAP = ('FastaOutput' => 'result',
+		'Hit'         => 'hit',
 		'Hsp'         => 'hsp'
 		);
 
@@ -95,22 +95,24 @@ BEGIN {
 		 'Hsp_evalue'    => 'evalue',
 		 'Hsp_query-from'=> 'querystart',
 		 'Hsp_query-to'  => 'queryend',
-		 'Hsp_hit-from'  => 'subjectstart',
-		 'Hsp_hit-to'    => 'subjectend',
-		 'Hsp_positive'  => 'positive',
-		 'Hsp_identity'  => 'match',
+		 'Hsp_hit-from'  => 'hitstart',
+		 'Hsp_hit-to'    => 'hitend',
+		 'Hsp_positive'  => 'conserved',
+		 'Hsp_identity'  => 'identical',
 		 'Hsp_gaps'      => 'gaps',
+		 'Hsp_hitgaps'   => 'hitgaps',
+		 'Hsp_querygaps' => 'querygaps',
 		 'Hsp_qseq'      => 'queryseq',
-		 'Hsp_hseq'      => 'subjectseq',
+		 'Hsp_hseq'      => 'hitseq',
 		 'Hsp_midline'   => 'homolseq',
 		 'Hsp_align-len' => 'hsplen',
 		 'Hsp_query-frame'=> 'queryframe',
-		 'Hsp_hit-frame'  => 'subjectframe',
+		 'Hsp_hit-frame'  => 'hitframe',
 
-		 'Hit_id'        => 'subjectname',
-		 'Hit_len'       => 'subjectlen',
-		 'Hit_accession' => 'subjectacc',
-		 'Hit_def'       => 'subjectdesc',
+		 'Hit_id'        => 'hitname',
+		 'Hit_len'       => 'hitlen',
+		 'Hit_accession' => 'hitacc',
+		 'Hit_def'       => 'hitdesc',
 		 
 		 'FastaOutput_program'  => 'programname',
 		 'FastaOutput_version'  => 'programver',
@@ -160,17 +162,17 @@ sub new {
   
 }
 
-=head2 next_report
+=head2 next_result
 
- Title   : next_report
- Usage   : my $subject = $searchio->next_report;
- Function: Returns the next Report from a search
- Returns : Bio::Search::ReportI object
+ Title   : next_result
+ Usage   : my $hit = $searchio->next_result;
+ Function: Returns the next Result from a search
+ Returns : Bio::Search::Result::ResultI object
  Args    : none
 
 =cut
 
-sub next_report{
+sub next_result{
    my ($self) = @_;
    
    my $data = '';
@@ -246,7 +248,7 @@ sub next_report{
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
 	   }
-	   if( $self->in_element('subject') ) {
+	   if( $self->in_element('hit') ) {
 	       $self->end_element({ 'Name' => 'Hit'});
 	   }
 	   
@@ -288,8 +290,8 @@ sub next_report{
 			       'Data' => $gaps});
 	       $self->element({'Name' => 'Hsp_identity',
 			       'Data' => $ident});
-#	       $self->element({'Name' => 'Hsp_positive',
-#			       'Data' => $ident});
+	       $self->element({'Name' => 'Hsp_positive',
+			       'Data' => $ident});
 	       $self->element({'Name' => 'Hsp_align-len',
 			       'Data' => $len});
 	       
@@ -308,7 +310,7 @@ sub next_report{
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({'Name' => 'Hsp'});
 	   } 
-	   if( $self->in_element('subject') ) {
+	   if( $self->in_element('hit') ) {
 	       $self->end_element({'Name' => 'Hit'});
 	   }
 	   
@@ -386,7 +388,7 @@ sub start_element{
     }
     if($nm eq 'FastaOutput') {
 	$self->{'_values'} = {};
-	$self->{'_report'}= undef;
+	$self->{'_result'}= undef;
 	$self->{'_mode'} = '';
     }
 
@@ -438,7 +440,7 @@ sub end_element {
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
 				# end of an element
-    $self->{'_report'} = $rc if( $nm eq 'FastaOutput' );
+    $self->{'_result'} = $rc if( $nm eq 'FastaOutput' );
     return $rc;
 
 }
@@ -541,7 +543,7 @@ sub start_document{
     my ($self) = @_;
     $self->{'_lasttype'} = '';
     $self->{'_values'} = {};
-    $self->{'_report'}= undef;
+    $self->{'_result'}= undef;
     $self->{'_mode'} = '';
     $self->{'_elements'} = [];
 }
@@ -560,7 +562,7 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
-   return $self->{'_report'};
+   return $self->{'_result'};
 }
 
 1;

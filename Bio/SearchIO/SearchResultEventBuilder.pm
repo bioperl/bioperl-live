@@ -71,9 +71,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::SearchIO::EventHandlerI;
-use Bio::Search::Report;
-use Bio::Search::Subject;
-use Bio::Search::HSP;
+use Bio::Search::Result::GenericResult;
+use Bio::Search::Hit::GenericHit;
+use Bio::Search::HSP::GenericHSP;
 
 
 @ISA = qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
@@ -109,65 +109,70 @@ sub new {
 
 sub will_handle{
    my ($self,$type) = @_;
-   return ( $type eq 'hsp' || $type eq 'subject' || $type eq 'report' );
+   # these are the events we recognize
+   return ( $type eq 'hsp' || $type eq 'hit' || $type eq 'result' );
 }
 
 =head2 SAX methods
 
 =cut
 
-=head2 start_report
+=head2 start_result
 
- Title   : start_report
- Usage   : $handler->start_report($reporttype)
- Function: Begins a report event cycle
+ Title   : start_result
+ Usage   : $handler->start_result($resulttype)
+ Function: Begins a result event cycle
  Returns : none 
  Args    : Type of Report
 
 =cut
 
-sub start_report {
+sub start_result {
    my ($self,$type) = @_;
-   $self->{'_reporttype'} = $type;
-   $self->{'_subjects'} = [];
-   
+   $self->{'_resulttype'} = $type;
+   $self->{'_subjects'} = [];   
    return;
 }
 
-=head2 end_report
+=head2 end_result
 
- Title   : end_report
- Usage   : my @reports = $parser->end_report
- Function: Finishes a report handler cycle
- Returns : A Bio::Search::ReportI
+ Title   : end_result
+ Usage   : my @results = $parser->end_result
+ Function: Finishes a result handler cycle
+ Returns : A Bio::Search::Result::ResultI
  Args    : none
 
 =cut
 
-sub end_report {
+sub end_result {
     my ($self,$type,$data) = @_;
 
-    my $report = new Bio::Search::Report
-	('-db_name'     => $data->{'dbname'},
-	 '-db_size'     => $data->{'dbsize'},
-	 '-query_name'  => $data->{'queryname'},
-	 '-query_size'  => $data->{'querylen'},
-	 '-program_name'=> $data->{'programname'},
-	 '-program_version'=> $data->{'programver'},
-	 '-report_type' => $type,
-	 '-parameters'  => $data->{'param'},
-	 '-statistics'  => $data->{'stat'},
-	 '-subjects'    => $self->{'_subjects'});
+    my $result = new Bio::Search::Result::GenericResult
+	('-database_name'           => $data->{'dbname'},
+	 '-database_letters'        => $data->{'dblets'},
+	 '-database_entries'        => $data->{'dbsize'},
+	 '-query_name'              => $data->{'queryname'},
+	 '-query_length'            => $data->{'querylen'},
+	 '-query_accession'         => $data->{'queryacc'},
+	 '-query_description'       => $data->{'querydesc'},
+	 
+#	 '-program_name'            => $data->{'programname'},
+#	 '-program_version'         => $data->{'programver'},
+	 '-algorithm'              => $type,
+	 '-algorithm_version'      => $data->{'programver'},	 
+	 '-parameters'        => $data->{'param'},
+	 '-statistics'        => $data->{'stat'},
+	 '-hits'              => $self->{'_hits'});
 
-    $self->{'_subjects'} = [];
-    return $report;
+    $self->{'_hits'} = [];
+    return $result;
 }
 
 =head2 start_hsp
 
  Title   : start_hsp
  Usage   : $handler->start_hsp($name,$data)
- Function: Processes a HSP
+ Function: Begins processing a HSP event
  Returns : none
  Args    : type of element 
            associated data (hashref)
@@ -176,79 +181,89 @@ sub end_report {
 
 sub start_hsp {
     my ($self,@args) = @_;
-   return;
+    return;
 }
 
 =head2 end_hsp
 
  Title   : end_hsp
  Usage   :
- Function:
- Example :
+ Function: Finish processing a HSP event
  Returns : 
  Args    :
 
 
 =cut
 
-sub end_hsp{
-   my ($self,$type,$data) = @_;
-   if( defined $data->{'queryframe'} && # this is here to protect from undefs
-       (( $data->{'queryframe'} < 0 && 
-	  $data->{'querystart'} < $data->{'queryend'} ) ||       
-	$data->{'queryframe'} > 0 && 
-	( $data->{'querystart'} > $data->{'queryend'} ) ) 
-       )
-   { 
-       # swap
-       ($data->{'querystart'},
-	$data->{'queryend'}) = ($data->{'queryend'},
-				$data->{'querystart'});
-   } 
-   if( defined $data->{'subjectframe'} && # this is here to protect from undefs
-       ((defined $data->{'subjectframe'} && $data->{'subjectframe'} < 0 && 
-	  $data->{'subjectstart'} < $data->{'subjectend'} ) ||       
-	 defined $data->{'subjectframe'} && $data->{'subjectframe'} > 0 && 
-	 ( $data->{'subjectstart'} > $data->{'subjectend'} ) )
-       ) 
-   { 
-       # swap
-       ($data->{'subjectstart'},
-	$data->{'subjectend'}) = ($data->{'subjectend'},
-				  $data->{'subjectstart'});
-   }
+sub end_hsp {
+    my ($self,$type,$data) = @_;
+    
+    # this code is to deal with the fact that Blast XML data
+    # always has start < end and one has to infer strandedness
+    # from the frame which is a problem for the Search::HSP object
+    # which expect to be able to infer strand from the order of 
+    # of the begin/end of the query and hit coordinates
 
-   my $hsp = new Bio::Search::HSP
-       (
-	'-report_type'   => $type,
-	'-score'         => $data->{'score'},
-	'-bits'          => $data->{'bits'},
-	'-match'         => $data->{'match'},
-	'-hsp_length'    => $data->{'hsplen'},
-	'-positive'      => $data->{'positive'},
-	'-gaps'          => $data->{'gaps'},
-	'-evalue'        => $data->{'evalue'},
-	'-query_begin'   => $data->{'querystart'},
-	'-query_end'     => $data->{'queryend'},
-	'-subject_begin' => $data->{'subjectstart'},
-	'-subject_end'   => $data->{'subjectend'},
-	'-query_seq'     => $data->{'queryseq'},
-	'-subject_seq'   => $data->{'subjectseq'},
-	'-homology_seq'  => $data->{'homolseq'},
-	'-query_length'  => $data->{'querylen'},
-	'-subject_length'=> $data->{'subjectlen'},
-	'-query_name'    => $data->{'queryname'},
-	'-subject_name'  => $data->{'subjectname'},
-	'-query_frame'   => $data->{'queryframe'},
-	'-subject_frame' => $data->{'subjectframe'},
-	);
-   push @{$self->{'_hsps'}}, $hsp;
-   return;
+    if( defined $data->{'queryframe'} && # this is here to protect from undefs
+	(( $data->{'queryframe'} < 0 && 
+	   $data->{'querystart'} < $data->{'queryend'} ) ||       
+	 $data->{'queryframe'} > 0 && 
+	 ( $data->{'querystart'} > $data->{'queryend'} ) ) 
+	)
+    { 
+	# swap
+	($data->{'querystart'},
+	 $data->{'queryend'}) = ($data->{'queryend'},
+				 $data->{'querystart'});
+    } 
+    if( defined $data->{'hitframe'} && # this is here to protect from undefs
+	((defined $data->{'hitframe'} && $data->{'hitframe'} < 0 && 
+	  $data->{'hitstart'} < $data->{'hitend'} ) ||       
+	 defined $data->{'hitframe'} && $data->{'hitframe'} > 0 && 
+	 ( $data->{'hitstart'} > $data->{'hitend'} ) )
+	) 
+    { 
+	# swap
+	($data->{'hitstart'},
+	 $data->{'hitend'}) = ($data->{'hitend'},
+			       $data->{'hitstart'});
+    }
+    $data->{'queryframe'} ||= 0;
+    $data->{'hitframe'} ||= 0;
+    
+    my $hsp = new Bio::Search::HSP::GenericHSP
+	(
+	 '-algorithm'     => $type,
+	 '-score'         => $data->{'score'},
+	 '-bits'          => $data->{'bits'},
+	 '-identical'     => $data->{'identical'},
+	 '-hsp_length'    => $data->{'hsplen'},
+	 '-conserved'     => $data->{'conserved'},
+	 '-hsp_gaps'      => $data->{'gaps'},
+	 '-hit_gaps'      => $data->{'hitgaps'},
+	 '-query_gaps'    => $data->{'querygaps'},
+	 '-evalue'        => $data->{'evalue'},
+	 '-query_start'   => $data->{'querystart'},
+	 '-query_end'     => $data->{'queryend'},
+	 '-hit_start'     => $data->{'hitstart'},
+	 '-hit_end'       => $data->{'hitend'},
+	 '-query_seq'     => $data->{'queryseq'},
+	 '-hit_seq'       => $data->{'hitseq'},
+	 '-homology_seq'  => $data->{'homolseq'},
+	 '-query_length'  => $data->{'querylen'},
+	 '-hit_length'    => $data->{'hitlen'},
+	 '-query_name'    => $data->{'queryname'},
+	 '-hit_name'      => $data->{'hitname'},
+	 '-query_frame'   => $data->{'queryframe'},
+	 '-hit_frame'     => $data->{'hitframe'},
+	 );
+    push @{$self->{'_hsps'}}, $hsp;
+    return;
 }
 
-=head2 start_subject
+=head2 start_hit
 
- Title   : start_subject
+ Title   : start_hit
  Usage   :
  Function:
  Example :
@@ -258,15 +273,15 @@ sub end_hsp{
 
 =cut
 
-sub start_subject{
+sub start_hit{
     my ($self,$type) = @_;
     $self->{'_hsps'} = [];    
     return;
 }
 
-=head2 end_subject
+=head2 end_hit
 
- Title   : end_subject
+ Title   : end_hit
  Usage   :
  Function:
  Example :
@@ -276,16 +291,16 @@ sub start_subject{
 
 =cut
 
-sub end_subject{
+sub end_hit{
    my ($self,$type,$data) = @_;
-    my $subject = new Bio::Search::Subject
-	( '-report_type' => $type,
-	  '-name'        => $data->{'subjectname'}, 
-	  '-length'      => $data->{'subjectlen'},
-	  '-accession'   => $data->{'subjectacc'},
-	  '-desc'        => $data->{'subjectdesc'},
+    my $hit = new Bio::Search::Hit::GenericHit
+	( '-algorithm' => $type,
+	  '-name'        => $data->{'hitname'}, 
+	  '-length'      => $data->{'hitlen'},
+	  '-accession'   => $data->{'hitacc'},
+	  '-description' => $data->{'hitdesc'},
 	  '-hsps'        => $self->{'_hsps'});
-   push @{$self->{'_subjects'}}, $subject;
+   push @{$self->{'_hits'}}, $hit;
    $self->{'_hsps'} = [];
    return;
 }

@@ -22,7 +22,7 @@ Bio::SearchIO::blast - Event generator for event based parsing of blast reports
     use Bio::SearchIO;
     my $searchio = new Bio::SearchIO(-format => 'blast',
 				     -file   => 'file1.bls');
-    while( my $report = $searchio->next_report ) {
+    while( my $result = $searchio->next_result ) {
 
     }
 
@@ -82,8 +82,8 @@ use Bio::SearchIO;
 
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
-    %MODEMAP = ('BlastOutput' => 'report',
-		'Hit'         => 'subject',
+    %MODEMAP = ('BlastOutput' => 'result',
+		'Hit'         => 'hit',
 		'Hsp'         => 'hsp'
 		);
 
@@ -91,27 +91,29 @@ BEGIN {
     # XSLT
 
     %MAPPING = ( 
-		 'Hsp_bit-score' => 'bits',
-		 'Hsp_score'     => 'score',
-		 'Hsp_evalue'    => 'evalue',
-		 'Hsp_query-from'=> 'querystart',
-		 'Hsp_query-to'  => 'queryend',
-		 'Hsp_hit-from'  => 'subjectstart',
-		 'Hsp_hit-to'    => 'subjectend',
-		 'Hsp_positive'  => 'positive',
-		 'Hsp_identity'  => 'match',
+		 'Hsp_bit-score'  => 'bits',
+		 'Hsp_score'      => 'score',
+		 'Hsp_evalue'     => 'evalue',
+		 'Hsp_query-from' => 'querystart',
+		 'Hsp_query-to'   => 'queryend',
+		 'Hsp_hit-from'   => 'hitstart',
+		 'Hsp_hit-to'     => 'hitend',
+		 'Hsp_positive'   => 'conserved',
+		 'Hsp_identity'   => 'identical',
 		 'Hsp_gaps'      => 'gaps',
-		 'Hsp_qseq'      => 'queryseq',
-		 'Hsp_hseq'      => 'subjectseq',
-		 'Hsp_midline'   => 'homolseq',
-		 'Hsp_align-len' => 'hsplen',
+		 'Hsp_hitgaps'   => 'hitgaps',
+		 'Hsp_querygaps' => 'querygaps',
+		 'Hsp_qseq'       => 'queryseq',
+		 'Hsp_hseq'       => 'hitseq',
+		 'Hsp_midline'    => 'homolseq',
+		 'Hsp_align-len'  => 'hsplen',
 		 'Hsp_query-frame'=> 'queryframe',
-		 'Hsp_hit-frame'  => 'subjectframe',
+		 'Hsp_hit-frame'  => 'hitframe',
 
-		 'Hit_id'        => 'subjectname',
-		 'Hit_len'       => 'subjectlen',
-		 'Hit_accession' => 'subjectacc',
-		 'Hit_def'       => 'subjectdesc',
+		 'Hit_id'        => 'hitname',
+		 'Hit_len'       => 'hitlen',
+		 'Hit_accession' => 'hitacc',
+		 'Hit_def'       => 'hitdesc',
 		 
 		 'BlastOutput_program'  => 'programname',
 		 'BlastOutput_version'  => 'programver',
@@ -156,17 +158,17 @@ sub new {
 }
 
 
-=head2 next_report
+=head2 next_result
 
- Title   : next_report
- Usage   : my $subject = $searchio->next_report;
- Function: Returns the next Report from a search
- Returns : Bio::Search::ReportI object
+ Title   : next_result
+ Usage   : my $hit = $searchio->next_result;
+ Function: Returns the next Result from a search
+ Returns : Bio::Search::Result::ResultI object
  Args    : none
 
 =cut
 
-sub next_report{
+sub next_result{
    my ($self) = @_;
    
    my $data = '';
@@ -222,7 +224,7 @@ sub next_report{
 	   if( $self->in_element('hsp') ) {
 	       $self->end_element({ 'Name' => 'Hsp'});
 	   }
-	   if( $self->in_element('subject') ) {
+	   if( $self->in_element('hit') ) {
 	       $self->end_element({ 'Name' => 'Hit'});
 	   }
 	   $self->start_element({ 'Name' => 'Hit'});
@@ -236,7 +238,7 @@ sub next_report{
 			    'Data'  => $acc});	   
 	   $self->element({ 'Name' => 'Hit_def',
 			    'Data' => $2});	   
-       } elsif( $self->_mode eq 'subject' && /Length\s*=\s*(\d+)/ ) {
+       } elsif( $self->_mode eq 'hit' && /Length\s*=\s*(\d+)/ ) {
 	   $self->element({ 'Name' => 'Hit_len',
 			    'Data' => $1 });
        } elsif( /Score = (\d+) \((\S+) bits\), Expect = ([^,\s]+),/ ) {
@@ -273,6 +275,9 @@ sub next_report{
 	   if( defined $6 ) { 
 	       $self->element( { 'Name' => 'Hsp_gaps',
 				 'Data' => $6});	   
+	   } else { 
+	       $self->element( { 'Name' => 'Hsp_gaps',
+				 'Data' => 0});
 	   }
 	   $self->{'_Query'} = {'begin' => 0, 'end' => 0};
 	   $self->{'_Sbjct'} = { 'begin' => 0, 'end' => 0};
