@@ -182,7 +182,7 @@ sub next_seq{
     }
     
     $line =~ /^LOCUS\s+\S+/ || $self->throw("GenBank stream with no LOCUS. Not GenBank in my book. Got $line");
-    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)/;
+    $line =~ /^LOCUS\s+(\S+)\s+\S+\s+bp\s+(\S+)\s+(\S+)\s+(\S+)?/;
 
     $name = $1;
     # this is important to have the id for display in e.g. FTHelper, otherwise
@@ -202,7 +202,6 @@ sub next_seq{
     if ($date) {
 	$seq->add_date($date);
     }
-
     my $buffer = $line;
         
     BEFORE_FEATURE_TABLE :
