@@ -2,6 +2,7 @@
 use strict;
 package Bio::Graph::ProteinGraph;
 use Bio::Graph::SimpleGraph;
+use Bio::Graph::Edge;
 use Clone qw(clone);
 use vars  qw(@ISA);
 our @ISA = qw(Bio::Graph::SimpleGraph);
@@ -18,7 +19,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
     ## remove duplicate interactions from within a dataset
 
-        $graph->remove_dup_edges();
+    $graph->remove_dup_edges();
 
     ## get a node (represented by a sequence object) from the graph.
     my $seqobj = $gr->nodes_by_id('P12345');
@@ -100,7 +101,17 @@ identify the nodes.
 At present it is fairly 'lightweight' in that it represents nodes and
 edges but does not contain all the data about experiment ids etc found
 in the Protein Standards Initiative schema. Hopefully that will be
-available soon.
+available soon
+
+A dataset may contain duplicate or redundant interactions. 
+Duplicate interactions are interactions that occur twice in the datset but with a different
+interaction ID, perhaps from a different experiment. The dup_edges method will retrieve these.
+
+Redundant interaction are interactions that occur twice or more in a datset wit the same interaction
+id. These are more likely to be due to database errors. 
+These methods are useful when merging 2 datasets using the union() method. Interactions
+present in both datasets, with different IDs, will be duplicate edges. 
+
 
 For developers:
 
@@ -112,9 +123,9 @@ Bio::PrimarySeq object should work fine too.
 Edges are represented by Bio::Graph::ProteinEdge objects. IN order to
 work with SimpleGraph these objects must be array references, with the
 first 2 elements being references to the 2 nodes. More data can be
-added in $e[2]. etc. Edges should implement the
-Bio::Graph::ProteinEdgeI interface which basically just demands an
-object_id() method. At present edges only have an identifier and a
+added in $e[2]. etc. Edges should  be
+Bio::Graph::Edge objects, which are Bio::IdentifiableI implementing objects.
+. At present edges only have an identifier and a
 weight() method, to hold confidence data, but subclasses of this could
 hold all the interaction data held in an XML document.
 
@@ -208,7 +219,6 @@ sub nodes_by_id {
 
 	my $self  = shift;
 	my @nodes  = $self->_ids(@_);
-	#my @nodes = $self->nodes(@refs);
 	wantarray? @nodes: $nodes[0];
 
 }
@@ -278,7 +288,7 @@ sub union {
 
 	## for each node see if Ids are in common between the 2 graphs
 	## just get1 common id per sequence
-	for my $id (keys %{$self->{'_id_map'}}) {
+	for my $id (sort keys %{$self->{'_id_map'}}) {
 		if (exists($other->{'_id_map'}{$id}) &&
 			!exists($detected_common_nodes{$self->{'_id_map'}{$id}})) {
 			push @common_nodes, $id;
@@ -301,62 +311,45 @@ sub union {
 			my %other_n_ids = $self->_get_ids($other_n); # get ids of single other neighbor
 
             ## case (1) in description
-			## do any ids exist in any self neighbors?
-			#if yes,  @int_match is defined, is not a new interaction##
-			my @int_match = grep{exists($self_n_ids{$_}) } keys %other_n_ids;
-			my $is_in_self = 0;
+			## do any ids in other graph exist in self ?
+			#if yes,  @int_match is defined, interaction does not invlove a new node
+			my @int_match = grep{exists($self->{'_id_map'}{$_}) } keys %other_n_ids;
 			if (@int_match){
 				my $i = 0;
-				my $dup_edge;
-				while (!$dup_edge && $i <= $#int_match){
+				my $edge;
+
+				## we cycle through until we have an edge defined, this deals with 
+                ## multiple id matches
+				while (!$edge && $i <= $#int_match){
+
+                    ## get edge from other graph
 					my $other_edge = $other->edge(
 									[$other->nodes_by_id($common),
 										$other->nodes_by_id($other_n->object_id)]
 										);
-					my $dup_edge = edge->new(
+ 
+                    ## copy it
+					my $edge = Bio::Graph::Edge->new(
 										-weight=> $other_edge->weight(),
 										-id    => $other_edge->object_id(),
 										-nodes =>[$self->nodes_by_id($common),
-								   				  $self->nodes_by_id($int_match[0])
+								   				  $self->nodes_by_id($int_match[$i])
 												]);
-					$self->add_dup_edge($dup_edge);
+                    ## add it to self graph.
+                    ##add_edge() works out if the edge is a new,  duplicate or a redundant edge.
+					$self->add_edge($edge);
 
 					$i++;
 				}
 				
-				eval{
-					$self->add_dup_edge($dup_edge);
-					};
-				next if $@;
-				$is_in_self = 1;
-				}
-			## this is a new interaction. Does interactor alresay 
-			## now, is this new neighbour already in self, but not connected?
-			## if it is, clonig not needed, just connect nodes in self using edge
-			## attributes of other graph.
-			else {
-				my @existing_node = grep{exists($self->{'_id_map'}{$_} )  }keys %other_n_ids;
-				
-				if (@existing_node) {
-					my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
-												  $other->nodes_by_id($common));
-					$self->add_edge(edge->new(
-										-weight=> $other_edge->weight(),
-										-id    => $other_edge->object_id(),
-										-nodes=>[$self->nodes_by_id($common),
-								   				 $self->nodes_by_id($existing_node[0])
-												]),
-									);
-					$is_in_self = 1;
-					}
-				}
+			} #end if
 			## but if other neighbour is entirely new, clone it and make connection.
-			if (!$is_in_self) {
+			else  {
 				my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
 											  $other->nodes_by_id($common));
 
 				my $new = clone($other_n);
-				$self->add_edge(edge->new(
+				$self->add_edge(Bio::Graph::Edge->new(
 									-weight => $other_edge->weight(),
 									-id     => $other_edge->object_id(),
 								    -nodes  =>[$new, $self->nodes_by_id($common)],
@@ -366,23 +359,45 @@ sub union {
 				## add new ids to self graph look up table
 				map {$self->{'_id_map'}{$_} = $new} keys %other_n_ids;
 	
-				}
+				}#end if
 			
-			}
-	}
+			}#next neighbor
+	}#next node
 }
-	
-=head2      _get_ids
 
- name     : _get_ids
- purpose  : gets all ids for a node, assuming its Bio::Seq object
- arguments: A Bio::PrimarySeqI object
- returns  : A hash: Keys are sequence ids, values are undef
- usage    : my %ids = _get_ids($seqobj);
+=head2      edge_count
+
+ name     : edge_count
+ purpose  : returns number of unique interactions, excluding redundancies/duplicates
+ arguments: A Bio::Graph::SimpleGraph object
+ returns  : An integer
+ usage    : my $count  = $graph->edge_count;
 
 =cut
 
-sub _get_ids {
+sub edge_count {
+
+    my $self = shift;
+    return scalar keys %{$self->_edges};
+
+}	
+sub node_count {
+
+    my $self = shift;
+    return scalar keys %{$self->_nodes};
+
+}	
+=head2      _get_ids_by_db
+
+ name     : _get_ids_by_db
+ purpose  : gets all ids for a node, assuming its Bio::Seq object
+ arguments: A Bio::PrimarySeqI object
+ returns  : A hash: Keys are sequence ids, values are undef
+ usage    : my %ids = _get_ids_by_db($seqobj);
+
+=cut
+
+sub _get_ids_by_db {
 	my %ids;
 	my $dummy_self = shift;
 	while (my $n = shift @_ ){  #ref to node, assume is a Bio::Seq
@@ -403,6 +418,43 @@ sub _get_ids {
 	return %ids;
 }
 
+sub _get_ids {
+
+	my %ids;
+	my $dummy_self = shift;
+	while (my $n = shift @_ ){  #ref to node, assume is a Bio::Seq
+		if (!$n->isa('Bio::PrimarySeqI')) {
+			$n->throw("I need a Bio::Seq object, not a [" .ref($n) ."]");
+		}
+		#get ids
+		map{$ids{$_} = undef}($n->accession_number, $n->primary_id);
+
+		##if BioSeq getdbxref ids as well.
+		if ($n->can('annotation')) {
+			my $ac = $n->annotation();	
+			for my $an($ac->get_Annotations('dblink')) {
+				$ids{$an->primary_id()} = undef;
+			}
+		}
+	}
+	return %ids;
+
+}
+=head2        add_edge
+
+ name        : add_edge
+ purpose     : adds an interaction to a graph.
+ usage       : $gr->add_edge($edge)
+ arguments   : a Bio::Graph::Edge object, or a reference to a 2 element list. 
+ returns     : void
+ description : This is the method to use to add an interaction to a graph. It contains
+                 the logic used to determine if a graph is a new edge, a duplicate (
+                 an existing interaction with a different edge id) or a redundant edge
+                 (same interaction, same edge id). 
+
+=cut
+ 
+ 
 sub add_edge {
 
   my $self      = shift;
@@ -427,16 +479,24 @@ sub add_edge {
     last unless defined $m && defined $n;
     ($m,$n) = ($n,$m) if "$n" lt "$m";
 
-    unless ($edges->{$m,$n}) {
+    if (!exists($edges->{$m,$n})) {
       $self->add_node($m,$n);
       ($m,$n)         = $self->nodes($m,$n);
       $edges->{$m,$n} = $edge;
       push(@{$neighbors->{$m}},$n);
       push(@{$neighbors->{$n}},$m);
     } else {
-     $self->add_dup_edge($edge); 
+		## is it a redundant edge, ie with same edge id?
+		my $curr_edge = $edges->{$m,$n};
+		if($curr_edge->object_id() eq $edge->object_id()) {
+			$self->redundant_edge($edge);
+			}
+		## else it is a duplicate i.e., same nodes but different edge id
+		else {
+   			  $self->add_dup_edge($edge); 
+			}
+		}
     }
-  }
   $self->_is_connected(undef);	# clear cached value
 
 }
@@ -446,7 +506,7 @@ sub add_edge {
  name       : add_dup_edge
  purpose    : to flag an interaction as a duplicate, take advantage of edge ids.
                The idea is that interactions from 2 sources with different interaction
-               ids can be used to provide more evidence for a ninteraction being true,
+               ids can be used to provide more evidence for a interaction being true,
                while preventing redundancy of the same interaction being present 
                more than once in the same dataset. 
  returns    : 1 on successful addition, 0 on there being an existing duplicate. 
@@ -462,29 +522,29 @@ sub add_edge {
 sub add_dup_edge {
 
 	## get the 2 nodes
-	my ($self, $edge) = @_;
+	my ($self, $newedge) = @_;
 	## prelimaries
-	my $newedge_id   = $edge->object_id();
+	my $newedge_id   = $newedge->object_id();
 
 	## now we have node objects, an edge id.
 	## is edge id new?
 	my $dup_edges = $self->_dup_edges();
 	if(!grep{$_->object_id eq $newedge_id } @$dup_edges) {
-		push @$dup_edges, $edge;
-		return 1;
+		push @$dup_edges, $newedge;
 		}
 	else {
-		$self->warn("2nd duplicate edge - $newedge_id");
-		return 0;
+		$self->redundant_edge($newedge);
 	}
 }
+
+
 
 =head2      remove_dup_edges 
 
  name        : remove_dup_edges
  purpose     : removes duplicate edges from graph
  arguments   : none         - removes all duplicate edges
-               edge id list - removes spwcified edges
+               edge id list - removes specified edges
  returns     : void
  usage       :    $gr->remove_dup_edges()
                or $gr->remove_dup_edges($edgeid1, $edgeid2);
@@ -495,7 +555,7 @@ sub  remove_dup_edges{
   my ($self, @args) = @_;
   my $dups = $self->_dup_edges(); 
 	if (!@args) {
-  		@$dups   = ();
+  		$dups   = [];
 		}
 	else {
 		while (my $node = shift @args) {
@@ -505,12 +565,94 @@ sub  remove_dup_edges{
 					push @new_dups, $dup;
 				}
 			}
-			@$dups = @new_dups;
+			$dups = \@new_dups;
 		}
 	}
 	return 1;
 
 }
+
+# with arg adds it to list, else returns list as reference. 
+
+
+=head2         redundant_edge
+
+ name        : redundant_edge
+ purpose     : adds/retrieves redundant edges to graph
+ usage       : $gr->redundant_edge($edge)
+ arguments   : none (getter) or a Biuo::Graph::Edge object (setter). 
+ description : redundant edges are edges in a graph that have the same edge id,
+                 ie. are 2 identical interactions. 
+
+=cut
+
+sub redundant_edge {
+
+my ($self, $edge) =@_;
+	if ($edge) {
+		if (!$edge->isa('Bio::Graph::Edge')) {
+		$self->throw ("I need a Bio::Graph::Edge object , not a [". ref($edge). "] object.");
+		}
+		if (!exists($self->{'_redundant_edges'})) {
+			$self->{'_redundant_edges'} = [];
+			}
+		##add edge to list if not already listed
+		if (!grep{$_->object_id eq $edge->object_id} @{$self->{'_redundant_edges'}}){
+			push @{$self->{'_redundant_edges'}}, $edge;
+		}
+		}
+	else {
+		if (exists ($self->{'_redundant_edges'})){
+			return @{$self->{'_redundant_edges'}};
+			}else{
+
+			}
+	
+
+		}
+
+}
+#alias for redundant edge
+sub redundant_edges {
+	my $self = shift;
+	return $self->redundant_edge(shift);
+}
+
+=head2      remove_redundant_edges 
+
+ name        : remove_redundant_edges
+ purpose     : removes redundant_edges  from graph, used by remove_node(),
+                  may bebetter as an internal method??
+ arguments   : none         - removes all redundant edges
+               edge id list - removes specified edges
+ returns     : void
+ usage       :    $gr->remove_redundant_edges()
+               or $gr->remove_redundant_edges($edgeid1, $edgeid2);
+
+=cut
+
+sub remove_redundant_edges {
+my ($self, @args) = @_;
+  my @dups = $self->redundant_edge(); 
+	## if no args remove all 
+	if (!@args) {
+		$self->{'_redundant_edges'} = [];
+		}
+	else {
+		while (my $node = shift @args) {
+			my @new_dups;
+			for my $dup (@dups) {
+				if (!grep{$node eq $_} $dup->nodes) {
+					push @new_dups, $dup;
+				}
+			}
+			$self->{'_redundant_edges'} = \@new_dups;
+		}
+	}
+	return 1;
+
+}
+
 
 =head2      clustering_coefficient
 
@@ -534,9 +676,11 @@ sub clustering_coefficient {
 	my @n = $self->neighbors($n);
 	my $n_count = scalar @n;
 	my $c = 0;
+
+	## calculate cc if we can
 	if ($n_count >= 2){
 		for (my $i = 0; $i <= $#n; $i++ ) {
-			for (my $j = 1; $j <= $#n; $j++) {
+			for (my $j = $i+1; $j <= $#n; $j++) {
 				if ($self->has_edge($n[$i], $n[$j])){
 					$c++;
 				}
@@ -577,8 +721,9 @@ sub remove_nodes {
 		$self->throw("[$val] is an incorrect parameter, not present in the graph")
 				unless defined($node);
 
-		##1. remove dup edges containing the node ##
+		##1. remove dup edges and redundant edges containing the node ##
 		$self->remove_dup_edges($node);
+		$self->remove_redundant_edges($node);
 
 		##2. remove node from interactor's neighbours
 		my @ns = $self->neighbors($node);
@@ -607,6 +752,7 @@ sub remove_nodes {
 		delete $nodes->{$node};
 
 		##6. now remove aliases from look up hash so it can no longer be accessed.
+			## is this wise? or shall we keep the sequence object available??
 		
 	}
 	return 1;
@@ -626,7 +772,7 @@ sub unconnected_nodes {
  my $self = shift;
  my $neighbours = $self->_neighbors;
  my $nodes      = $self->_nodes;
- my $uc_nodes = [];
+ my $uc_nodes   = [];
  for my $n (keys %$neighbours) {
 	if (@{$neighbours->{$n}} == 0){ 
 		push @$uc_nodes, $nodes->{$n};
@@ -647,7 +793,7 @@ sub unconnected_nodes {
                    $e->[1]->accession_number ."\n";
              }
  arguments : none
- returns   : a Hash reference where values are edge array refernces.
+ returns   : a list references to nodes that will fragment the graph if deleted. 
  description : This is a "slow but sure" method that works with graphs
                up to a few hundred nodes reasonably fast. 
 
@@ -716,7 +862,7 @@ sub articulation_points {
    }#next node
  }#next sg
 
-return  values %rts; ## hash of key value
+return  values %rts; ## 
 }
 
 
