@@ -148,7 +148,7 @@ sub analysis_method {
                # do something
            }
 
- Function: Parses the next alignment of the est2genome result file and 
+ Function: Parses the next alignments of the est2genome result file and 
            returns the found exons as an array of 
            Bio::SeqFeature::SimilarityPair objects. Call
            this method repeatedly until an empty array is returned to get the
@@ -165,7 +165,7 @@ sub analysis_method {
 
 =cut
 
-sub parse_next_alignment {
+sub parse_next_gene {
    my ($self) = @_;
    my $seensegment = 0;
    my @features = ();

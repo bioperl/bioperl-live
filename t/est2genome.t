@@ -27,7 +27,7 @@ my $parser = new Bio::Tools::Est2Genome(-file   => Bio::Root::IO->catfile
 					('t','data', 'hs_est.est2genome'));
 
 ok($parser);
-my $feature_set = $parser->parse_next_alignment;
+my $feature_set = $parser->parse_next_gene;
 ok(ref($feature_set), qr/ARRAY/i );
 
 ok(scalar @$feature_set, 7);
