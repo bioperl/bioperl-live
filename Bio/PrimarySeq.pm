@@ -276,7 +276,7 @@ sub subseq {
 
    $start--;
 
-   return substr $self->{'seq'}, $start, ($end-$start);
+   return substr $self->seq(), $start, ($end-$start);
 
 }
 
@@ -292,9 +292,10 @@ sub subseq {
 =cut
 
 sub length {
-   my ($self)= @_;   
-   return 0 if ( !defined $self->{'seq'} );
-   return CORE::length($self->{'seq'});
+   my ($self)= @_;
+   my $seq = $self->seq();
+   return 0 if ( !defined $seq );
+   return CORE::length($seq);
 }
 
 =head2 display_id
@@ -552,7 +553,7 @@ sub _guess_type {
    my ($self) = @_;
    my ($str,$str2,$total,$atgc,$u,$type);
 
-   $str = $self->{'seq'};
+   $str = $self->seq();
    $str =~ s/\-\.//g;
 
    $total = CORE::length($str);
