@@ -428,10 +428,10 @@ sub source_tag {
 
  Title   : has_tag
  Usage   : $value = $self->has_tag('some_tag')
- Function: Returns the value of the tag (undef if
-           none)
- Returns :
- Args    :
+ Function: Tests wether a feature contaings a tag
+ Returns : TRUE if the SeqFeature has the tag,
+           and FALSE otherwise.
+ Args    : The name of a tag
 
 
 =cut
@@ -446,7 +446,7 @@ sub has_tag {
 
  Title   : add_tag_value
  Usage   : $self->add_tag_value('note',"this is a note");
- Returns : nothing
+ Returns : TRUE on success
  Args    : tag (string) and value (any scalar)
 
 
@@ -466,11 +466,11 @@ sub add_tag_value {
 =head2 each_tag_value
 
  Title   : each_tag_value
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
+ Usage   : @values = $gsf->each_tag_value('note');
+ Function: Returns a list of all the values stored
+           under a particular tag.
+ Returns : A list of scalars
+ Args    : The name of the tag
 
 
 =cut
@@ -489,8 +489,8 @@ sub each_tag_value {
 
  Title   : all_tags
  Usage   : @tags = $feat->all_tags()
- Function: gives all tags for this feature
- Returns : an array of strings
+ Function: Get a list of all the tags in a feature
+ Returns : An array of tag names
  Args    : none
 
 
