@@ -1,5 +1,5 @@
-package Bio::Matrix::PSM::PsmHeaderI;
 #---------------------------------------------------------
+# $Id$
 
 =head1 NAME
 
@@ -7,35 +7,38 @@ Bio::Matrix::PSM::PsmHeaderI
 
 =head1 SYNOPSIS
 
-#Obtain an Bio::Matrix::PSM::IO object:
-my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'mast');
+ use Bio::Matrix::PSM::IO;
+ #Obtain an Bio::Matrix::PSM::IO object:
+ my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'mast');
 
-#Get some general data about the file you are parsing:
-my $release=$psmIO->release;
-my $version=$psmIO->version;
+ #Get some general data about the file you are parsing:
+ my $release=$psmIO->release;
+ my $version=$psmIO->version;
 
-print "This analysis was performed using MAST version $version, release $release\n";
+ print "This analysis was performed using MAST version $version, release $release\n";
 
-#Now let's see what are the consensus sequences of the motifs fed as an input:
-my %seq=$psmIO->seq;
+ #Now let's see what are the consensus sequences of the motifs fed as an input:
+ my %seq=$psmIO->seq;
 
-#let's cycle through all consensus sequences now:
+ #let's cycle through all consensus sequences now:
 
-foreach my $id ($psmIO->hid) {
-  print "Motif $id is \t",$seq{$id},"\n";
-}
+ foreach my $id ($psmIO->hid) {
+   print "Motif $id is \t",$seq{$id},"\n";
+ }
 
-#Finally look at the stuff we do not parse:
-my @inputfile=grep(/datafile/i,$psmIO->unstructured);
+  #Finally look at the stuff we do not parse:
+  my @inputfile=grep(/datafile/i,$psmIO->unstructured);
 
 =head1 DESCRIPTION
 
-Generally you should not use this object directly, you can access the information
-through a PSM driver (See Bio::Matrix::PSM::IO). It is handling the  header data
-from a PSM file which may be very different. This means that some of the methods will
-return undef naturally, because this information is not present in the file which is
-parsed. Some important data might be left over in the unstructured part, and you might
-have to parse it yourself. I will try to 'structure' this header more in the near future.
+Generally you should not use this object directly, you can access the
+information through a PSM driver (See Bio::Matrix::PSM::IO). It is
+handling the header data from a PSM file which may be very
+different. This means that some of the methods will return undef
+naturally, because this information is not present in the file which
+is parsed. Some important data might be left over in the unstructured
+part, and you might have to parse it yourself. I will try to
+'structure' this header more in the near future.
 
 
 =head1 FEEDBACK
@@ -69,7 +72,7 @@ Email skirov@utk.edu
 
 
 # Let the code begin...
-
+package Bio::Matrix::PSM::PsmHeaderI;
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
@@ -78,16 +81,22 @@ use vars qw(@ISA);
 @ISA=qw(Bio::Matrix::PSM::Psm Bio::Root::Root);
 
 #Accessor methods, based on the driver
-@Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release seq hid length instances unstructured);
-@Bio::Matrix::PSM::PsmHeader::MEMEHEADER=qw(html version release hid weight length unstructured);
+@Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release 
+					    seq hid length instances 
+					    unstructured);
+@Bio::Matrix::PSM::PsmHeader::MEMEHEADER=qw(html version release hid 
+					    weight length unstructured);
 @Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER=qw(unstructured version release);
-@Bio::Matrix::PSM::PsmHeader::ALLHEADER=qw(header release type version html release weight length hid seq instances unstructured);
+@Bio::Matrix::PSM::PsmHeader::ALLHEADER=qw(header release type version html 
+					   release weight length hid 
+					   seq instances unstructured);
 
 =head2 new
 
  Title   : new
- Usage   : my $header= new Bio::Matrix::PSM::PsmHeader( -seq=>\%seq, -mid=>\%mid, -width=>\%width,
-                                                        -instances=>\%instances, -header=>\@header, -type=>'mast');
+ Usage   : my $header= new Bio::Matrix::PSM::PsmHeader
+            ( -seq=>\%seq, -mid=>\%mid, -width=>\%width,
+              -instances=>\%instances, -header=>\@header, -type=>'mast');
  Function: Creates a new Bio::Matrix::PSM::PsmHeader object
  Throws  :
  Example :
@@ -97,17 +106,14 @@ use vars qw(@ISA);
 
 =cut
 
-sub new {
-     my $self = shift;
-    $self->throw_not_implemented();
-}
-
 =head2 seq
 
  Title   : seq
  Usage   : my %seq= $header->seq();
- Function: Returns the sequence data as a hash, indexed by a sequence ID (motif id or accession number)
-           In case the input data is a motif it would return the consenus seq for each of them (mast).
+ Function: Returns the sequence data as a hash, indexed by a 
+           sequence ID (motif id or accession number)
+           In case the input data is a motif it would return the 
+           consenus seq for each of them (mast).
  Throws  :
  Example :
  Returns :  hash
@@ -265,7 +271,7 @@ sub revision {
 
 =cut
 
-sub revision {
+sub _check {
      my $self = shift;
     $self->throw_not_implemented();
 }

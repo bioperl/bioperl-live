@@ -1,51 +1,58 @@
-package Bio::Matrix::PSM::PsmI;
+# $Id$
 #---------------------------------------------------------
 #ISA SiteMatrix, HAS InstanceSite
 =head1 NAME
 
-Bio::Matrix::PSM::PsmI
+Bio::Matrix::PSM::PsmI - abstract interface to handler of site matricies
 
 =head1 SYNOPSIS
 
-use Bio::Matrix::PSM::IO;
+  use Bio::Matrix::PSM::IO;
 
-#To get a Psm object from a file use the Psm parser:
-my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', -file=>$file);
+  # To get a Psm object from a file use the Psm parser:
+  my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', -file=>$file);
 
-#Now go through all entities in the file with next_psm, which returns a Psm object
-#see Bio::Matrix::PSM::IO for detailed documentation (matrix predictions or matrix
-#sequence matches or both):
-while (my $psm=$psmIO->next_psm) {
- my %psm_header=$psm->header;
- my $ic=$psm_header{IC};
- my $sites=$psm_header{sites};
- my $width=$psm_header{width};
- my $score=$psm_header{e_val};
- my $IUPAC=$psm->IUPAC;
- my $instances=$psm->instances;
-  foreach my $instance (@{$instances}) {
-    my $id=$instance->primary_id;
-    #Do something with the id
-  }
-}
+  # Now go through all entities in the file with next_psm, which
+  # returns a Psm object see Bio::Matrix::PSM::IO for detailed
+  # documentation (matrix predictions or matrix sequence matches or
+  # both):
 
-#or create from memmory:
-my $psm= new Bio::Matrix::PSM::Psm( -pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,-id=>$id,
-                                    -instances=>$instances, -e_val=>$e_val,
-                                    -IC=>$ic, -width=>$width, -sites=>$sites)
-#where pA through pG are the respective frequencies of the matrix (see also
-#Bio::Matrix::PSM::SiteMatrix), and everything else is self-explenatory, except for
-#-instances (reference to an array of Bio::Matrix::PSM::InstanceSite objects)
-#which is documented bellow.
+  while (my $psm=$psmIO->next_psm) {
+   my %psm_header=$psm->header;
+   my $ic=$psm_header{IC};
+   my $sites=$psm_header{sites};
+   my $width=$psm_header{width};
+   my $score=$psm_header{e_val};
+   my $IUPAC=$psm->IUPAC;
+   my $instances=$psm->instances;
+   foreach my $instance (@{$instances}) {
+     my $id=$instance->primary_id;
+     #Do something with the id
+    }
+   }
+
+  # or create from memmory:
+  my $psm= new Bio::Matrix::PSM::Psm( -pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,
+                                      -id=>$id,
+                                      -instances=>$instances, -e_val=>$e_val,
+                                      -IC=>$ic, -width=>$width, -sites=>$sites)
+
+  # where pA through pG are the respective frequencies of the matrix (see also
+  # Bio::Matrix::PSM::SiteMatrix), and everything else is self-explenatory, 
+  # except for
+  #-instances (reference to an array of Bio::Matrix::PSM::InstanceSite objects)
+  # which is documented bellow.
 
 =head1 DESCRIPTION
 
-Bio::PSM::Psm - Psm object, supposed to handle a combination of site matrices and/or
-their corresponding sequence matches (instances). This object inherits from Bio::Matrix::PSM::SiteMatrix,
-so you can use the respective methods. It may hold also an array of Bio::Matrix::PSM::InstanceSite
-object, but you will have to retrieve these through Bio::Matrix::PSM::Psm->instances
-method (see below). To some extent this is an expanded SiteMatrix object,
-holding data from analysis that also deal with sequence matches of a particular matrix.
+Supposed to handle a combination of site
+matrices and/or their corresponding sequence matches (instances). This
+object inherits from Bio::Matrix::PSM::SiteMatrix, so you can use the
+respective methods. It may hold also an array of
+Bio::Matrix::PSM::InstanceSite object, but you will have to retrieve
+these through Bio::Matrix::PSM::Psm->instances method (see below). To
+some extent this is an expanded SiteMatrix object, holding data from
+analysis that also deal with sequence matches of a particular matrix.
 
 =head1 FEEDBACK
 
@@ -80,46 +87,51 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 
-SiteMatrix, meme, transfac, InstanceSite
+L<Bio::Matrix::PSM::SiteMatrix>, L<Bio::Matrix::PSM::IO::meme>, 
+L<Bio::Matrix::PSM::IO::transfac>, L<Bio::Matrix::PSM::InstanceSite>
 
 
 =head2 DESIGN ISSUES
-This design is a bit of a compromise, so it might be a temporary solution
-I am mixing PSM with PSM sequence matches
-Though they are very closely related, I am not satisfied by the way this is
-implemented here.
-Heikki suggested different objects when one has something like meme
-But does this mean we have to write a different objects for mast, meme, transfac,
-theiresias, etc.?
-To me the best way is to return SiteMatrix object + arrray of InstanceSite objects
-and then mast will return undef for SiteMatrix and transfac will return undef for
-InstanceSite. Probably I cannot see some other design issues that might arise from
-such approach, but it seems more straightforward.
-Hilmar does not like this beacause it is an exception from the general BioPerl rules
-Should I leave this as an option?
-Also the header rightfully belongs the driver object, and could be retrieved as hashes.
-I do not think it can be done any other way, unless we want to create even one more
-object with very unclear content.
+
+This design is a bit of a compromise, so it might be a temporary
+solution I am mixing PSM with PSM sequence matches Though they are
+very closely related, I am not satisfied by the way this is
+implemented here.  Heikki suggested different objects when one has
+something like meme But does this mean we have to write a different
+objects for mast, meme, transfac, theiresias, etc.?  To me the best
+way is to return SiteMatrix object + arrray of InstanceSite objects
+and then mast will return undef for SiteMatrix and transfac will
+return undef for InstanceSite. Probably I cannot see some other design
+issues that might arise from such approach, but it seems more
+straightforward.  Hilmar does not like this beacause it is an
+exception from the general BioPerl rules Should I leave this as an
+option?  Also the header rightfully belongs the driver object, and
+could be retrieved as hashes.  I do not think it can be done any other
+way, unless we want to create even one more object with very unclear
+content.
+
 =cut
 
 
 # Let the code begin...
+package Bio::Matrix::PSM::PsmI;
+use Bio::Root::Root;
+use Bio::Root::IO;
+use Bio::Matrix::PSM::SiteMatrix;
+use Bio::Matrix::PSM::InstanceSite;
+use vars qw(@ISA);
+use strict;
+@ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Root::Root);
 
- use Bio::Root::Root;
- use Bio::Root::IO;
- use Bio::Matrix::PSM::SiteMatrix;
- use Bio::Matrix::PSM::InstanceSite;
- use vars qw(@ISA);
- use strict;
- @ISA=qw(Bio::Matrix::PSM::SiteMatrix Bio::Root::Root);
- @Bio::Matrix::PSM::Psm::HEADER=qw(e_val sites IC width);
- 
 =head2 new
 
  Title   : new
- Usage   : my $psm= new Bio::Matrix::PSM::Psm( -pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,-id=>$id,
-                                                -instances=>$instances, -e_val=>$e_val,
-                                                -IC=>$ic, -width=>$width, -sites=>$sites)
+ Usage   : my $psm= new Bio::Matrix::PSM::Psm( -pA=>\@pA,-pC=>\@pC,-pG=>\@pG,
+					       -pT=>\@pT,-id=>$id,
+					       -instances=>$instances, 
+					       -e_val=>$e_val,
+					       -IC=>$ic, -width=>$width, 
+					       -sites=>$sites)
  Function: Creates a new Bio::Matrix::PSM::Psm object
  Throws  :
  Example :
@@ -149,7 +161,7 @@ sub new {
 =cut
 
 sub instances {
-     my $self = shift;
+    my $self = shift;
     $self->throw_not_implemented();
 }
 
@@ -166,8 +178,8 @@ sub instances {
 
 =cut
 
-sub instances {
-     my $self = shift;
+sub matrix {
+    my $self = shift;
     $self->throw_not_implemented();
 }
 
@@ -176,11 +188,12 @@ sub instances {
  Title   : header
  Usage   :  my %header=$psm->header;
             my $ic=$psm->header('IC');
- Function: Gets the general information, common for most files, dealing with PSM
-            such as information content (IC), score (e-value, etc.),
-            number of sites (sites) and width. This list may expand. The current
-            list should be in @Bio::Matrix::PSM::Psm::HEADER. Returns undef if an
-            argument is supplied that is not in @Bio::Matrix::PSM::meme::HEADER.
+ Function: Gets the general information, common for most files, dealing
+           with PSM such as information content (IC), score (e-value,
+           etc.), number of sites (sites) and width. This list may
+           expand. The current list should be in
+           @Bio::Matrix::PSM::Psm::HEADER. Returns undef if an argument
+           is supplied that is not in @Bio::Matrix::PSM::meme::HEADER.
  Throws  :
  Example :
  Returns :  hash or string
@@ -189,7 +202,7 @@ sub instances {
 =cut
 
 sub header {
-     my $self = shift;
+    my $self = shift;
     $self->throw_not_implemented();
  }
 

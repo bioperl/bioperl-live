@@ -1,5 +1,5 @@
-package Bio::Matrix::PSM::IO;
 #---------------------------------------------------------
+# $Id$
 
 =head1 NAME
 
@@ -7,54 +7,58 @@ Bio::Matrix::PSM::IO - PSM parser
 
 =head1 SYNOPSIS
 
-use Bio::Matrix::PSM::IO;
+  use Bio::Matrix::PSM::IO;
 
-my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
+  my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
 
-my $release=$psmIO->release; #Using Bio::Matrix::PSM::PsmHeader methods
+  my $release=$psmIO->release; #Using Bio::Matrix::PSM::PsmHeader methods
 
-my $release=$psmIO->release;
+  my $release=$psmIO->release;
 
-while (my $psm=$psmIO->next_psm) {
- my %psm_header=$psm->header;
- my $ic=$psm_header{IC};
- my $sites=$psm_header{sites};
- my $width=$psm_header{width};
- my $score=$psm_header{e_val};
- my $IUPAC=$psm->IUPAC;
-}
+  while (my $psm=$psmIO->next_psm) {
+   my %psm_header=$psm->header;
+   my $ic=$psm_header{IC};
+   my $sites=$psm_header{sites};
+   my $width=$psm_header{width};
+   my $score=$psm_header{e_val};
+   my $IUPAC=$psm->IUPAC;
+  }
 
-my $instances=$psm->instances;
-foreach my $instance (@{$instances}) {
-  my $id=$instance->primary_id;
-}
+  my $instances=$psm->instances;
+  foreach my $instance (@{$instances}) {
+    my $id=$instance->primary_id;
+  }
 
 
 =head1 DESCRIPTION
 
-This module allows you to read DNA position scoring matrices and/or their respective
-sequence matches from a file.
+This module allows you to read DNA position scoring matrices and/or
+their respective sequence matches from a file.
 
-There are two header methods, one belonging to Bio::Matrix::PSM::IO::driver and the other to
-Bio::Matrix::PSM::Psm. They provide general information about the file (driver) and for the
-current PSM result (Psm) respectively. Psm header method always returns the same thing, but
-some values in the hash might be empty, depending on the file you are parsing. You will get
+There are two header methods, one belonging to
+Bio::Matrix::PSM::IO::driver and the other to
+Bio::Matrix::PSM::Psm. They provide general information about the file
+(driver) and for the current PSM result (Psm) respectively. Psm header
+method always returns the same thing, but some values in the hash
+might be empty, depending on the file you are parsing. You will get
 undef in this case (no exceptions are thrown).
 
-Please note that the file header data (commenatries, version, input data, configuration, etc.)
-might be obtained through Bio::Matrix::PSM::PsmHeader methods. Some methods are driver
-specific (meme, transfac, etc.):
-meme: weight
-mast: seq, instances
+Please note that the file header data (commenatries, version, input
+data, configuration, etc.)  might be obtained through
+Bio::Matrix::PSM::PsmHeader methods. Some methods are driver specific
+(meme, transfac, etc.): meme: weight mast: seq, instances
 
-If called when you parse a different file type you will get undef. For example:
+If called when you parse a different file type you will get undef. For
+example:
 
 my $psmIO= new Bio::Matrix::PSM::IO(file=>$file, format=>'transfac');
 my %seq=$psmIO->seq;
 
-will return an empty hash. To see all methods and how to use them go to Bio::Matrix::PSM::PsmHeaderI.
+will return an empty hash. To see all methods and how to use them go
+to Bio::Matrix::PSM::PsmHeaderI.
 
-See also Bio::Matrix::PSM::PsmI for details on using and manipulating the parsed data.
+See also Bio::Matrix::PSM::PsmI for details on using and manipulating
+the parsed data.
 
 =head1 FEEDBACK
 
@@ -89,52 +93,55 @@ Bio::Matrix::PSM::PsmI, Bio::Matrix::PSM::PsmHeaderI
 
 
 # Let the code begin...
+package Bio::Matrix::PSM::IO;
+use Bio::Root::Root;
+use Bio::Root::IO;
+use vars qw(@ISA);
+use strict;
 
- use Bio::Root::Root;
- use Bio::Root::IO;
- use vars qw(@ISA);
- use strict;
- @ISA=qw( Bio::Root::IO);
- @Bio::Matrix::PSM::IO::PSMFORMATS=qw(meme transfac mast);
+@ISA=qw( Bio::Root::IO);
+
+@Bio::Matrix::PSM::IO::PSMFORMATS=qw(meme transfac mast);
 
 =head2 new
 
  Title   : new
- Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', -file=>$file);
+ Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
+						 -file=>$file);
  Function: Associates a file with the appropriate parser
- Throws  : Throws if the file passed is in HTML format or if some criteria for the file
-            format are not met. See Bio::PSM::meme and Bio::PSM::transfac for more details.
+ Throws  : Throws if the file passed is in HTML format or 
+           if some criteria for the file
+           format are not met. See L<Bio::Matrix::PSM::IO::meme> and 
+           L<Bio::Matrix::PSM::IO::transfac> for more details.
  Example :
  Returns : psm object, associated with a file with matrix file
  Args    : hash
- return  : "Bio::Matrix::PSM::$format"->new(@args);
+
 =cut
 
-
-
 sub new {
-  my($caller,@args) = @_;
-  my $class = ref($caller) || $caller;
-  my $self;
+    my($caller,@args) = @_;
+    my $class = ref($caller) || $caller;
+    my $self;
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::Matrix::PSM::IO(\S+)/ ) {
-	 $self = $class->SUPER::new(@args);
-	 $self->_initialize(@args);
+	$self = $class->SUPER::new(@args);
+	$self->_initialize(@args);
 	return $self;
     } else {
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{'-file'} || $ARGV[0] ) ||
-     'scoring';
-  $self->throw("$format format unrecognized or an argument error occured\n.") if (!grep(/$format/,@Bio::Matrix::PSM::IO::PSMFORMATS));
-	$format = "\L$format";	# normalize capitalization to lower case
+	    'scoring';
+	$self->throw("$format format unrecognized or an argument error occured\n.") if (!grep(/$format/,@Bio::Matrix::PSM::IO::PSMFORMATS));
+	$format = "\L$format"; # normalize capitalization to lower case
 
 	# normalize capitalization
 	return undef unless( $class->_load_format_module($format) );
 	return "Bio::Matrix::PSM::IO::$format"->new(@args);
- }
+    }
 }
 
 =head2 fh
@@ -150,11 +157,11 @@ sub new {
 =cut
 
 sub fh {
-  my $self = shift;
-  my $class = ref($self) || $self;
-  my $s = Symbol::gensym;
-  tie $$s,$class,$self;
-  return $s;
+    my $self = shift;
+    my $class = ref($self) || $self;
+    my $s = Symbol::gensym;
+    tie $$s,$class,$self;
+    return $s;
 }
 
 
@@ -198,11 +205,11 @@ END
 =cut
 
 sub _guess_format {
-   my $class = shift;
-   return unless $_ = shift;
-   return 'meme'   if /.meme$|meme.html$/i;
-   return 'transfac'   if /\.dat$/i;
-   return 'mast'   if /^mast\.|\.mast.html$|.mast$/i;
+    my $class = shift;
+    return unless $_ = shift;
+    return 'meme'   if /.meme$|meme.html$/i;
+    return 'transfac'   if /\.dat$/i;
+    return 'mast'   if /^mast\.|\.mast.html$|.mast$/i;
 }
 
 =head2 next_psm
@@ -219,8 +226,8 @@ sub _guess_format {
 =cut
 
 sub next_psm {
-  my $self = shift;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 =head2 _parseMatrix
@@ -236,8 +243,8 @@ sub next_psm {
 =cut
 
 sub _parseMatrix {
- my $self = shift;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 =head2 _parseInstance
@@ -253,8 +260,8 @@ sub _parseMatrix {
 =cut
 
 sub _parseInstance {
-  my $self = shift;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 =head2 _parse_coordinates
@@ -270,8 +277,8 @@ sub _parseInstance {
 =cut
 
 sub _parse_coordinates {
-  my $self = shift;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 =head2 header
@@ -287,9 +294,9 @@ sub _parse_coordinates {
 =cut
 
 sub header {
-  my $self = shift;
-   $self->throw_not_implemented();
- }
+    my $self = shift;
+    $self->throw_not_implemented();
+}
 
 =head2 _make_matrix
 
@@ -305,7 +312,7 @@ sub header {
 
 sub _make_matrix {
     my $self = shift;
-   $self->throw_not_implemented();
+    $self->throw_not_implemented();
 }
 
 

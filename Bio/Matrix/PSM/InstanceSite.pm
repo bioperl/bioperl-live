@@ -1,29 +1,38 @@
-package Bio::Matrix::PSM::InstanceSite;
+# $Id$
+
 =head1 NAME
 
-Bio::Matrix::PSM::InstanceSite
+Bio::Matrix::PSM::InstanceSite - A PSM site occurance
 
 =head1 SYNOPSIS
 
-use Bio::Matrix::PSM::InstanceSite;
-#You can get an InstanceSite object either from a file:
-  my ($instances,$matrix)=$SomePSMFile->parse_next;
-#or from memory
-  my %params=(seq=>'TATAAT',id=>"TATAbox1", accession='ENSG00000122304', mid=>'TB1',
-              desc=>'TATA box, experimentally verified in PRM1 gene',relpos=>-35);
+ use Bio::Matrix::PSM::InstanceSite;
+
+  #You can get an InstanceSite object either from a file:
+   my ($instances,$matrix)=$SomePSMFile->parse_next;
+
+  #or from memory
+
+  my %params=(seq=>'TATAAT',
+    id=>"TATAbox1", accession='ENSG00000122304', mid=>'TB1',
+    desc=>'TATA box, experimentally verified in PRM1 gene',
+    relpos=>-35);
 
 =head1 DESCRIPTION
 
-Abstract interface to PSM site occurrence (PSM sequence match). InstanceSite objects
-may be used to describe a PSM (See Bio::Matrix::PSM::SiteMatrix) sequence matches.
-The usual characteristic of such a match is sequence coordinates, score, sequence and
-sequence (gene) identifier- accession number or other id. This object inherits from
-Bio::LocatableSeq (which defines the real sequence) and might hold a SiteMatrix object,
-used to detect the CRE (cis-regulatory element), or created from this CRE.
-While the documentation states that the motif id and gene id (accession) combination
-should be unique, this is not entirely true- there might be more than one occurrence
-of the same cis-regulatory element in the upstream region of the same gene.
-Therefore relpos would be the third element to create a really unique combination.
+Abstract interface to PSM site occurrence (PSM sequence
+match). InstanceSite objects may be used to describe a PSM (See
+Bio::Matrix::PSM::SiteMatrix) sequence matches.  The usual
+characteristic of such a match is sequence coordinates, score,
+sequence and sequence (gene) identifier- accession number or other
+id. This object inherits from Bio::LocatableSeq (which defines the
+real sequence) and might hold a SiteMatrix object, used to detect the
+CRE (cis-regulatory element), or created from this CRE.  While the
+documentation states that the motif id and gene id (accession)
+combination should be unique, this is not entirely true- there might
+be more than one occurrence of the same cis-regulatory element in the
+upstream region of the same gene.  Therefore relpos would be the third
+element to create a really unique combination.
 
 =head1 FEEDBACK
 
@@ -61,6 +70,7 @@ Email skirov@utk.edu
 
 
 # Let the code begin...
+package Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::SiteMatrix;
 use Bio::Root::Root;
 use Bio::Matrix::PSM::InstanceSiteI;
@@ -73,9 +83,11 @@ use strict;
 =head2 new
 
  Title   : new
- Usage   : my $isntance=new Bio::Matrix::PSM::InstanceSite (-seq=>'TATAAT', -id=>"TATAbox1",
+ Usage   : my $isntance=new Bio::Matrix::PSM::InstanceSite 
+                         (-seq=>'TATAAT', -id=>"TATAbox1",
                           -accession_number='ENSG00000122304', -mid=>'TB1',
-                          -desc=>'TATA box, experimentally verified in PRM1 gene',-relpos=>-35)
+                          -desc=>'TATA box, experimentally verified in PRM1 gene',
+			  -relpos=>-35)
  Function: Creates an InstanceSite object from memory.
  Throws  :
  Example :
@@ -86,29 +98,31 @@ use strict;
 =cut
 
 sub new {
-	(my $class, my @args)=@_;
-	my %args=@args; #Too many things to rearrange, and I am creating >1K such objects routinely, so this is a performance issue
-	my $end=$args{-start}+length($args{-seq});
-	if (!defined($args{-strand})) {
-		$args{-strand}=1;
-		@args=%args;
-	}
-my $self = $class->SUPER::new(@args,'-end',$end);
-while( @args ) {
+    my ($class, @args) = @_;
+    my %args = @args; #Too many things to rearrange, and I am creating >1K such objects routinely, so this is a performance issue    
+    $args{'-start'} ||= 1;
+    my $end = $args{'-start'} + length($args{-seq});
+    if (!defined($args{-strand})) {
+	$args{-strand}=1;
+	@args=%args;
+    }
+    my $self = $class->SUPER::new(@args,'-end',$end);
+    
+    while( @args ) {
 	(my $key = shift @args) =~ s/-//gi; #deletes all dashes (only dashes)!
 	$args{$key} = shift @args;
-}
+    }
 #should throw exception if seq is null, for now just warn
-if (($args{seq} eq '') || (!defined($args{seq}))) {
+    if (($args{seq} eq '') || (!defined($args{seq}))) {
 	$args{seq}="AGCT";
 	warn "No sequence?!\n";
-}
-$self->{mid}=$args{mid};
-$self->seq($args{seq});
-$self->desc($args{desc});
-$self->{score}=$args{score};
-$self->{relpos}=$args{relpos};
-return $self;
+    }
+    $self->{mid}=$args{mid};
+    $self->seq($args{seq});
+    $self->desc($args{desc});
+    $self->{score}=$args{score};
+    $self->{relpos}=$args{relpos};
+    return $self;
 }
 
 

@@ -1,5 +1,4 @@
-package Bio::Matrix::PSM::PsmHeader;
-#---------------------------------------------------------
+# $Id$
 
 =head1 NAME
 
@@ -11,17 +10,16 @@ See Bio::Matrix::PSM::IO for detailed documentation on how to use PSM parsers
 
 =head1 DESCRIPTION
 
-Parser for mast. This driver unlike meme or transfac for example is dedicated more
-to PSM sequence matches
+Parser for mast. This driver unlike meme or transfac for example is
+dedicated more to PSM sequence matches
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
@@ -29,10 +27,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -45,6 +41,7 @@ Email skirov@utk.edu
 
 
 # Let the code begin...
+package Bio::Matrix::PSM::PsmHeader;
 
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::Psm;
@@ -56,16 +53,23 @@ use vars qw(@ISA);
 @ISA=qw( Bio::Root::Root Bio::Matrix::PSM::PsmHeaderI);
 
 #These define what structures within the
-@Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release seq hid length instances unstructured);
+@Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release seq hid 
+					    length instances unstructured);
 @Bio::Matrix::PSM::PsmHeader::MEMEHEADER=qw(html version release hid weight length unstructured);
 @Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER=qw(unstructured version release);
-@Bio::Matrix::PSM::PsmHeader::ALLHEADER=qw(header release type version html release weight length id seq instances unstructured);
+@Bio::Matrix::PSM::PsmHeader::ALLHEADER=qw(header release type version html 
+					   release weight length id 
+					   seq instances unstructured);
 
 =head2 new
 
  Title   : new
- Usage   : my $header= new Bio::Matrix::PSM::PsmHeader( -seq=>\%seq, -mid=>\%mid, -width=>\%width,
-                                                        -instances=>\%instances, -header=>\@header, -type=>'mast');
+ Usage   : my $header= new Bio::Matrix::PSM::PsmHeader(-seq=>\%seq, 
+						       -mid=>\%mid, 
+						       -width=>\%width,
+                                                       -instances=>\%instances,
+						       -header=>\@header,
+						       -type=>'mast');
  Function: Creates a new Bio::Matrix::PSM::PsmHeader object
  Throws  :
  Example :
@@ -76,35 +80,35 @@ use vars qw(@ISA);
 =cut
 
 sub new {
-     my ($class,@args)=@_;
-     my $self = $class->SUPER::new(@args);
-     return $self;
+    my ($class,@args)=@_;
+    my $self = $class->SUPER::new(@args);
+    return $self;
 }
 
 #parse version/release info here from the unstructured array
 sub _initialize {
-	my $self = shift;
-	my $type=ref($self);
-	$type=~s/\w+:://g;
-	$self->{_type}=$type;
-	my $dat=join(" ",grep(/version|release/i,@{$self->{unstructured}}));
-	if ($dat && ($dat=~/version\b/i)) {
-		$self->{version}=substr($dat,$+[0]+1);
-		$self->{version}=~s/\s.+[^\d\.\:\/]//g;
-		$self->{version}=~s/^\D//;
-	}
-if ($dat && ($dat=~/release\b/i)) {
+    my $self = shift;
+    my $type=ref($self);
+    $type=~s/\w+:://g;
+    $self->{_type} = $type;
+    my $dat=join(" ",grep(/version|release/i,@{$self->{unstructured}}));
+    if ($dat && ($dat=~/version\b/i)) {
+	$self->{version}=substr($dat,$+[0]+1);
+	$self->{version}=~s/\s.+[^\d\.\:\/]//g;
+	$self->{version}=~s/^\D//;
+    }
+    if ($dat && ($dat=~/release\b/i)) {
 	my $rel=substr($dat,$+[0]+1);
 	$rel=~s/[^\d\.\:\/\-]//g;
 	$rel=~s/^\D//;
-	if ($rel=~/\d\d:\d\d:\d\d/) {   #Reformat if time is available too
-		my $time=substr($rel,$-[0]+1);
-		my $dat= substr($rel,0,$-[0]);
-		$self->{release}="$dat $time";
+	if ($rel=~/\d\d:\d\d:\d\d/) { #Reformat if time is available too
+	    my $time=substr($rel,$-[0]+1);
+	    my $dat= substr($rel,0,$-[0]);
+	    $self->{release}="$dat $time";
 	}
 	else {  $self->{release}=$rel; }
-}
-return $self;
+    }
+    return $self;
 }
 
 =head2 seq
@@ -122,8 +126,8 @@ return $self;
 =cut
 
 sub seq {
-     my $self = shift;
-     return undef unless ($self->_check('seq'));
+    my $self = shift;
+    return () unless ($self->_check('seq'));
     return %{$self->{seq}};
 }
 
@@ -141,8 +145,8 @@ sub seq {
 =cut
 
 sub hid {
-     my $self = shift;
-     return undef unless ($self->_check('hid'));
+    my $self = shift;
+    return undef unless ($self->_check('hid'));
     my @header=@{$self->{hid}};
     return @header;
 }
@@ -186,10 +190,10 @@ sub instances {
     return %{$self->{instances}};
 }
 
-=head2 weights
+=head2 weight
 
- Title   : weights
- Usage   : my %weights= $header->weights();
+ Title   : weight
+ Usage   : my %weights= $header->weight();
  Function: Returns the weights of the input sequence as a hash, indexed
            by a sequence ID
  Throws  :
@@ -199,10 +203,10 @@ sub instances {
 
 
 =cut
-
+    
 sub weight {
-     my $self = shift;
-     return undef unless ($self->_check('weight'));
+    my $self = shift;
+    return () unless ($self->_check('weight'));
     return %{$self->{weight}};
 }
 
@@ -222,7 +226,7 @@ sub weight {
 =cut
 
 sub unstructured {
-     my $self = shift;
+    my $self = shift;
     return @{$self->{unstructured}};
 }
 
@@ -240,7 +244,7 @@ sub unstructured {
 =cut
 
 sub version {
-     my $self = shift;
+    my $self = shift;
     return $self->{version};
 }
 
@@ -258,7 +262,7 @@ sub version {
 =cut
 
 sub release {
-     my $self = shift;
+    my $self = shift;
     return $self->{release};
 }
 
@@ -277,13 +281,13 @@ sub release {
 
 sub _check {
     my ($self,$method) = @_;
-    my $type=$self->{_type};
-    TYPE: {
+    my $type= $self->{'_type'};
+  TYPE: {
       if ($type eq 'meme') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::MEMEHEADER)); last TYPE; }
       if ($type eq 'mast') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::MASTHEADER)); last TYPE; }
       if ($type eq 'transfac') { return undef unless (grep(/$method/,@Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER)); last TYPE; }
-    }
-return 1;
+  }
+    return 1;
 }
 
 1;

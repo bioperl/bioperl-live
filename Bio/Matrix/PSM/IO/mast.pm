@@ -1,5 +1,5 @@
-package Bio::Matrix::PSM::IO::mast;
 #---------------------------------------------------------
+# $Id$
 
 =head1 NAME
 
@@ -11,8 +11,8 @@ See Bio::Matrix::PSM::IO for detailed documentation on how to use PSM parsers
 
 =head1 DESCRIPTION
 
-Parser for mast. This driver unlike meme or transfac for example is dedicated more
-to PSM sequence matches, than to PSM themselves.
+Parser for mast. This driver unlike meme or transfac for example is
+dedicated more to PSM sequence matches, than to PSM themselves.
 
 =head1 FEEDBACK
 
@@ -45,7 +45,7 @@ Email skirov@utk.edu
 
 
 # Let the code begin...
-
+package Bio::Matrix::PSM::IO::mast;
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
@@ -53,16 +53,18 @@ use Bio::Matrix::PSM::PsmHeader;
 use Bio::Root::Root;
 use strict;
 use vars qw(@ISA);
-@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Root::Root Bio::Matrix::PSM::IO);
 
+@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Root::Root Bio::Matrix::PSM::IO);
 
 =head2 new
 
  Title   : new
- Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', -file=>$file);
+ Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
+						 -file=>$file);
  Function: Associates a file with the appropriate parser
- Throws  : Throws if the file passed is in HTML format or if some criteria for the file
-            format are not met.
+ Throws  : Throws if the file passed is in HTML format or if 
+           some criteria for the file
+           format are not met.
  Example :
  Returns : psm object, associated with a file with matrix file
  Args    : hash
@@ -72,73 +74,74 @@ use vars qw(@ISA);
 
 
 sub new {
-	my($class, @args)=@_;
-	my $self = $class->SUPER::new(@args);
-	my ($file)=$self->_rearrange(['file'], @args);
- my (%instances,@header);
- $self->{_end}=0;
- $self->_initialize_io("<$file") || warn "Did you intend to use STDIN?"; #Read only for now
-my ($occur,$instances,%index);
-undef $self->{hid};
-while (my $buf=$self->_readline) {
-  chomp($buf);
-  if ($buf=~m/MOTIF WIDTH BEST POSSIBLE MATCH/) {
-   $self->_readline;
-    while (my $buf=$self->_readline) {
-      last if ($buf!~/\w/);
-      $buf=~s/\t+//g;
-      $buf=~s/^\s+//g;
-      my ($id,$width,$seq)=split(/\s+/,$buf);
-      push @{$self->{hid}},$id;
-      $self->{length}->{$id}=$width;
-      $self->{seq}->{$id}=$seq;
+    my($class, @args)=@_;
+    my $self = $class->SUPER::new(@args);
+    my (%instances,@header);
+    $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
+    $self->{_end}=0;
+    undef $self->{hid};
+    my $buf;
+    # this should probably be moved to its own function
+    while ( defined($buf=$self->_readline)) {
+	chomp($buf);
+	if ($buf=~m/MOTIF WIDTH BEST POSSIBLE MATCH/) {
+	    $self->_readline;
+	    while (defined($buf=$self->_readline)) {
+		last if ($buf!~/\w/);
+		$buf=~s/\t+//g;
+		$buf=~s/^\s+//g;
+		my ($id,$width,$seq)=split(/\s+/,$buf);
+		push @{$self->{hid}},$id;
+		$self->{length}->{$id}=$width;
+		$self->{seq}->{$id}=$seq;
+	    }
+	    next;
+	}
+	if ($buf=~m/section i:/i) {
+	    $self->_readline;
+	    $self->_readline;
+	    $self->_readline;
+	    %instances=_get_genes($self);
+	    $self->{instances}=\%instances;
+	    next;
+	}
+	if ($buf=~m/section ii:/i) {
+	    $self->_readline;
+	    $self->_readline;
+	    $self->_readline;
+	    last;
+	}
+	$buf=~s/[\t+\s+]/ /g;
+	push @header,$buf unless (($buf=~/\*{10,}/)||($buf!~/\w/));
     }
-    next;
-  }
-   if ($buf=~m/section i:/i) {
-    $self->_readline;
-    $self->_readline;
-    $self->_readline;
-    %instances=_get_genes($self);
-    $self->{instances}=\%instances;
-    next;
-   }
-   if ($buf=~m/section ii:/i) {
-    $self->_readline;
-    $self->_readline;
-    $self->_readline;
-    last;
-   }
-  $buf=~s/[\t+\s+]/ /g;
-  push @header,$buf unless (($buf=~/\*{10,}/)||($buf!~/\w/));
-}
-$self->throw('Could not read Section I, probably wrong format, make sure it is not HTML, giving up...') if !(%instances);
-warn "This file might be an unreadable version, proceed with caution!\n" if (!grep(/ MAST version 3/,@header));
-$self->{unstructured}=\@header;
-$self->_initialize;
-return $self;
+    $self->throw('Could not read Section I, probably wrong format, make sure it is not HTML, giving up...') if !(%instances);
+    $self->warn( "This file might be an unreadable version, proceed with caution!\n") if (!grep(/\s+MAST\s+version\s+3/,@header));
+
+    $self->{unstructured} = \@header;
+    $self->_initialize;
+    return $self;
 }
 
 
 #Get the file header and put store it as a hash, which later we'll use to create
 #the header for each Psm. See Bio::Matrix::PSM::PsmI for header function.
 sub _get_genes {
-my $self=shift;
-my %llid;
-my $ok=0;
-my $i=0;
-my %instances;
- while (my $line=$self->_readline) {
-  last if ($line=~/^\D{10,}/);
-  chomp($line);
-  $i++;
-  next if ($line eq '');
-  $line=~s/\s+/,/g;
-  my ($id,$key,$eval,$len)=split(/,/,$line);
-  $instances{$id}=new Bio::Matrix::PSM::InstanceSite ( -id=>$id,
-                          -desc=>$key,-score=>$eval, -width=>$len,-seq=>'ACGT');
- }
- return %instances;
+    my $self=shift;
+    my %llid;
+    my $ok=0;
+    my $i=0;
+    my %instances;
+    while (my $line=$self->_readline) {
+	last if ($line=~/^\D{10,}/);
+	chomp($line);
+	$i++;
+	next if ($line eq '');
+	$line=~s/\s+/,/g;
+	my ($id,$key,$eval,$len)=split(/,/,$line);
+	$instances{$id}=new Bio::Matrix::PSM::InstanceSite ( -id=>$id,
+							     -desc=>$key,-score=>$eval, -width=>$len,-seq=>'ACGT');
+    }
+    return %instances;
 }
 
 
@@ -157,50 +160,59 @@ my %instances;
 
 
 sub next_psm {
-my $self=shift;
-return undef if ($self->{_end}==1);
-my (@lmotifsm,%index,$eval,$scheme,$sid);
-my $i=0;
-my %index=%{$self->{length}};
-my (@instances,%instances);
-my $line=$self->_readline;
-$line=~s/[\t\n]//;
-       if ($line =~ /\*{10,}/) {   #Endo of Section II if we do only section II
+    my $self=shift;
+    return undef if ($self->{_end}==1);
+    my (@lmotifsm,%index,$eval,$scheme,$sid);
+    my $i=0;
+    %index= %{$self->{length}};
+    my (@instances,%instances);
+    my $line=$self->_readline;
+    $line=~s/[\t\n]//;
+    if ($line =~ /\*{10,}/) { #Endo of Section II if we do only section II
         $self->{_end}=1;
         return undef;
-       }
-do {
-    if ($line!~/^\s/) {
-      ($sid,$eval,$scheme)=split(/\s+/,$line,3);
     }
-    else
-    { $scheme .=$line; }
-    $line=$self->_readline;
-    $line=~s/[\t\n]//;
-} until ($line!~/^\s/);
+    do {
+	if ($line!~/^\s/) {
+	    ($sid,$eval,$scheme)=split(/\s+/,$line,3);
+	}
+	else
+	{ $scheme .=$line; }
+	$line=$self->_readline;
+	$line=~s/[\t\n]//;
+    } until ($line!~/^\s/);
     my $pos=0;
     $scheme=~s/\s+//g;
     $scheme=~s/\n//g;
-      my @motifs=split(/_/,$scheme);
-      $i++;
-      while (@motifs) {
-       my $next=shift(@motifs);
-       if (!($next=~/\D/)) {
-        last if (!@motifs);
-        $pos+=$next;
-        next;
-       }
+    my @motifs=split(/_/,$scheme);
+    $i++;
+    while (@motifs) {
+	my $next=shift(@motifs);
+	if (!($next=~/\D/)) {
+	    last if (!@motifs);
+	    $pos+=$next;
+	    next;
+	}
         my $id=$next;
-       my $score= $id=~m/\[/ ? 'strong' : 'weak' ;
-       $id=~s/\D+//g;
-       my $instance=new Bio::Matrix::PSM::InstanceSite ( -id=>"$id\@$sid", -mid=>$id, -accession=>$sid,
-              -desc=>"Motif $id occurrance in $sid",-score=>$score, -width=>$index{$id},-seq=>'ACGT', -start=>$pos);
-       push @instances,$instance;
-       $pos+=$index{$id};
-      }
-  my $psm=new Bio::Matrix::PSM::Psm (-instances=>\@instances, -e_val=>$eval, -id=>$sid);
-  $self->_pushback($line);
-  return $psm;
+	my $score= $id=~m/\[/ ? 'strong' : 'weak' ;
+	$id=~s/\D+//g;
+	my $instance=new Bio::Matrix::PSM::InstanceSite 
+	    ( -id=>"$id\@$sid", 
+	      -mid=>$id, 
+	      -accession=>$sid,
+	      -desc=>"Motif $id occurrance in $sid",
+	      -score=>$score, 
+	      -width=>$index{$id},
+	      -seq=>'ACGT', 
+	      -start=>$pos);
+	push @instances,$instance;
+	$pos+=$index{$id};
+    }
+    my $psm= new Bio::Matrix::PSM::Psm (-instances=> \@instances, 
+					-e_val    => $eval, 
+					-id       => $sid);
+    $self->_pushback($line);
+    return $psm;
 }
 
 

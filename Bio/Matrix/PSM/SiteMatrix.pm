@@ -1,31 +1,37 @@
-package Bio::Matrix::PSM::SiteMatrix;
-
+# $Id$
 #---------------------------------------------------------
 
 =head1 NAME
 
-Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a position scoring matrix (or position weight matrix)
+Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a
+position scoring matrix (or position weight matrix)
 
 =head1 SYNOPSIS
-  use Bio::Matrix::PSM::SiteMatrix;
-  #Create from memory by supplying probability matrix hash
-  #both as strings or arrays
 
-  my ($a,$c,$g,$t,$score,$ic, $mid)=@_; #where $a,$c,$g and $t are either arrayref or string
+  use Bio::Matrix::PSM::SiteMatrix;
+  # Create from memory by supplying probability matrix hash
+  # both as strings or arrays
+  # where $a,$c,$g and $t are either arrayref or string
+  my ($a,$c,$g,$t,$score,$ic, $mid)=@_; 
   #or
-  my ($a,$c,$g,$t,$score,$ic,$mid)=('05a011','110550','400001','100104',0.001,19.2,'CRE1');
+  my ($a,$c,$g,$t,$score,$ic,$mid)=('05a011','110550','400001',
+                                    '100104',0.001,19.2,'CRE1');
   #Where a stands for all (this frequency=1), see explanation bellow
-  my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,-IC=>$ic,-e_val=>$score, -id=>$mid);
+  my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
+             -IC=>$ic,-e_val=>$score, -id=>$mid);
   my $site=new Bio::Matrix::PSM::SiteMatrix(%param);
   #Or get it from a file:
   use Bio::Matrix::PSM::IO;
   my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
   while (my $psm=$psmIO->next_psm) {
-    #Now we have a Bio::Matrix::PSM::Psm object, see Bio::Matrix::PSM::PsmI for details
-    my $matrix=$psm->matrix;  #This is a Bio::Matrix::PSM::SiteMatrix object now
+    #Now we have a Bio::Matrix::PSM::Psm object, 
+    # see Bio::Matrix::PSM::PsmI for details
+    #This is a Bio::Matrix::PSM::SiteMatrix object now
+    my $matrix=$psm->matrix;  
   }
 
-  #Get a simple consensus, where alphabet is {A,C,G,T,N}, choosing the highest probability or N if prob is too low
+  # Get a simple consensus, where alphabet is {A,C,G,T,N}, 
+  # choosing the highest probability or N if prob is too low
   my $consensus=$site->consensus;
 
  #Getting/using regular expression
@@ -36,26 +42,31 @@ Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a position scor
 
 =head1 DESCRIPTION
 
-  SiteMatrix is designed to provide some basic methods when working with position
-  scoring (weight) matrices, such as transcription factor binding sites for example.
-  A DNA PSM consists of four vectors with frequencies {A,C,G,T). This is
-  the minimum information you should provide to construct a PSM object. The vectors can be provided
-  as strings with frequencies where the frequency is {0..a} and a=1. This is the way MEME
-  compressed representation of a matrix and it is quite useful when working with relational DB.
-  If arrays are provided as an input (references to arrays actually) they can be any number, real or
-  integer (frequency or count).
+SiteMatrix is designed to provide some basic methods when working with
+position scoring (weight) matrices, such as transcription factor
+binding sites for example.  A DNA PSM consists of four vectors with
+frequencies {A,C,G,T). This is the minimum information you should
+provide to construct a PSM object. The vectors can be provided as
+strings with frequencies where the frequency is {0..a} and a=1. This
+is the way MEME compressed representation of a matrix and it is quite
+useful when working with relational DB.  If arrays are provided as an
+input (references to arrays actually) they can be any number, real or
+integer (frequency or count).
 
-  When creating the object the constructor will check for positions that equal 0.
-  If such is found it will increase the count for all positions by one and recalculate the frequency.
-  Potential bug- if you are using frequencies and one of the positions is 0 it will change significantly.
-  However, you should never have frequency that equals 0.
+When creating the object the constructor will check for positions that
+equal 0.  If such is found it will increase the count for all
+positions by one and recalculate the frequency.  Potential bug- if you
+are using frequencies and one of the positions is 0 it will change
+significantly.  However, you should never have frequency that equals
+0.
 
-  Throws an exception if:
-  You mix as an input array and string (for example A matrix is given as array, C - as string).
-  The position vector is (0,0,0,0).
-  One of the probability vectors is shorter than the rest.
+Throws an exception if: You mix as an input array and string (for
+example A matrix is given as array, C - as string).  The position
+vector is (0,0,0,0).  One of the probability vectors is shorter than
+the rest.
 
-  Summary of the methods I use most frequently (details bellow):
+Summary of the methods I use most frequently (details bellow):
+
   iupac- return IUPAC compliant consensus as a string
   score- Returns the score as a real number
   IC- information content. Returns a real number
@@ -100,21 +111,26 @@ Email skirov@utk.edu
 
 
 # Let the code begin...
- use Bio::Matrix::PSM::SiteMatrixI;
- use Bio::Root::Root;
- use vars qw(@ISA);
- use strict;
- @ISA=qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
+package Bio::Matrix::PSM::SiteMatrix;
+use Bio::Matrix::PSM::SiteMatrixI;
+use Bio::Root::Root;
+use vars qw(@ISA);
+use strict;
 
+@ISA=qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
 
 =head2 new
 
  Title   : new
- Usage   : my $site=new Bio::Matrix::PSM::SiteMatrix(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
-                                                        -IC=>$ic,-e_val=>$score, -id=>$mid);
+ Usage   : my $site=new Bio::Matrix::PSM::SiteMatrix(-pA=>$a,-pC=>$c,
+						     -pG=>$g,-pT=>$t,
+						     -IC=>$ic,
+						     -e_val=>$score, 
+						     -id=>$mid);
  Function:  Creates a new Bio::Matrix::PSM::SiteMatrix object from memory
- Throws  :  If inconsistent data for all vectors (A,C,G and T) is provided, if you
-            mix input types (string vs array) or if a position freq is 0.
+ Throws : If inconsistent data for all vectors (A,C,G and T) is
+          provided, if you mix input types (string vs array) or if a
+          position freq is 0.
  Example :
  Returns :  Bio::Matrix::PSM::SiteMatrix object
  Args    :  hash
@@ -123,25 +139,28 @@ Email skirov@utk.edu
 =cut
 
 sub new {
-	(my $class, my @args)=@_;
-	my $self = $class->SUPER::new(@args);
-	my $consensus;
-	#Too many things to rearrange, and I am creating simultanuously >500 such objects routinely, so this becomes performance issue
-	my %input;
-	while( @args ) {
-		(my $key = shift @args) =~ s/-//gi; #deletes all dashes (only dashes)!
-		$input{$key} = shift @args;
-	}
-$self->{_position}   = 0;
-$self->{IC}=$input{IC};
-$self->{e_val}=$input{e_val};
-$self->{sites}=$input{sites};
-$self->{width}=$input{width};
-$self->{accession_number}=$input{accession_number};
-$self->{_correction}    =  defined($input{correction}) ?  $input{correction}:1 ; #Correction might be unwanted- supply your own
-$self->{id}= defined($input{id}) ? $input{id} : 'null'; #No id provided, null for the sake of rel db
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my $consensus;
+    #Too many things to rearrange, and I am creating simultanuously >500 
+    # such objects routinely, so this becomes performance issue
+    my %input;
+    while( @args ) {
+	(my $key = shift @args) =~ s/-//gi; #deletes all dashes (only dashes)!
+	$input{$key} = shift @args;
+    }
+    $self->{_position}   = 0;
+    $self->{IC}     = $input{IC};
+    $self->{e_val}  = $input{e_val};
+    $self->{sites}  = $input{sites};
+    $self->{width}  = $input{width};
+    $self->{accession_number}=$input{accession_number};
+    $self->{_correction}   =  defined($input{correction}) ? 
+	$input{correction} : 1 ; # Correction might be unwanted- supply your own
+    # No id provided, null for the sake of rel db
+    $self->{id}= defined($input{id}) ? $input{id} : 'null'; 
 #Check for input type- no mixing alllowed, throw ex
-if (ref($input{pA}) eq "ARRAY") {
+    if (ref($input{pA}) =~ /ARRAY/i ) {
 	$self->throw("Mixing matrix data types not allowed: C is not reference") unless(ref($input{pC}));
 	$self->throw("Mixing matrix data types not allowed: G is not reference") unless (ref($input{pG}));
 	$self->throw("Mixing matrix data types not allowed: T is not reference") unless (ref($input{pT}));
@@ -149,8 +168,8 @@ if (ref($input{pA}) eq "ARRAY") {
 	$self->{probC}   = $input{pC};
 	$self->{probG}   = $input{pG};
 	$self->{probT}   = $input{pT};
-}
-else {
+    }
+    else {
 	$self->throw("Mixing matrix data types not allowed: C is reference") if (ref($input{pC}));
 	$self->throw("Mixing matrix data types not allowed: G is reference") if (ref($input{pG}));
 	$self->throw("Mixing matrix data types not allowed: T is reference") if (ref($input{pT}));
@@ -159,33 +178,36 @@ else {
 	$self->{probG}   = [split(//,$input{pG})];
 	$self->{probT}   = [split(//,$input{pT})];
 	for (my $i=0; $i<@{$self->{probA}}+1; $i++) {
-		${$self->{probA}}[$i]='10' if ( ${$self->{probA}}[$i] eq 'a');
-		${$self->{probC}}[$i]='10' if ( ${$self->{probC}}[$i] eq 'a');
-		${$self->{probG}}[$i]='10' if ( ${$self->{probG}}[$i] eq 'a');
-		${$self->{probT}}[$i]='10' if ( ${$self->{probT}}[$i] eq 'a');
+	    ${$self->{probA}}[$i]='10' if ( ${$self->{probA}}[$i] eq 'a');
+	    ${$self->{probC}}[$i]='10' if ( ${$self->{probC}}[$i] eq 'a');
+	    ${$self->{probG}}[$i]='10' if ( ${$self->{probG}}[$i] eq 'a');
+	    ${$self->{probT}}[$i]='10' if ( ${$self->{probT}}[$i] eq 'a');
 	}
 #If this is MEME like output(probabilities, rather than count) here is the place for a check
-}
+    }
 #Check for position with 0 for all bases, throw exception if so
 #Correct 0 positions- inc by 1
-for (my $i=0;$i<$#{$self->{probA}}+1;$i++) {
+    for (my $i=0;$i<$#{$self->{probA}}+1;$i++) {
 	$self->throw("Position meaningless-all frequencies are 0") if ((${$self->{probA}}[$i]+${$self->{probC}}[$i]+${$self->{probG}}[$i]+${$self->{probT}}[$i])==0);
-	$self->{_corrected}=((${$self->{probA}}[$i]==0) || (${$self->{probG}}[$i]==0) || (${$self->{probC}}[$i]==0) || (${$self->{probT}}[$i]==0));
+	$self->{_corrected}= ((${$self->{probA}}[$i]==0) || 
+			      (${$self->{probG}}[$i]==0) || 
+			      (${$self->{probC}}[$i]==0) || 
+			      (${$self->{probT}}[$i]==0));
 	if ($self->{_corrected}) {
-		${$self->{probA}}[$i]+=$self->{correction};
-		${$self->{probC}}[$i]+=$self->{correction};
-		${$self->{probG}}[$i]+=$self->{correction};
-		${$self->{probT}}[$i]+=$self->{correction};
+	    ${$self->{probA}}[$i] += $self->{_correction};
+	    ${$self->{probC}}[$i] += $self->{_correction};
+	    ${$self->{probG}}[$i] += $self->{_correction};
+	    ${$self->{probT}}[$i] += $self->{_correction};
 	}
 	my $div= ${$self->{probA}}[$i]+ ${$self->{probC}}[$i]+ ${$self->{probG}}[$i]+ ${$self->{probT}}[$i];
 	${$self->{probA}}[$i]=${$self->{probA}}[$i]/$div;
 	${$self->{probC}}[$i]=${$self->{probC}}[$i]/$div;
 	${$self->{probG}}[$i]=${$self->{probG}}[$i]/$div;
 	${$self->{probT}}[$i]=${$self->{probT}}[$i]/$div;
-}
+    }
 #Make consensus, throw if any one of the vectors is shorter
-$self=_calculate_consensus($self);
-return $self;
+    $self=_calculate_consensus($self);
+    return $self;
 }
 
 =head2 _calculate_consensus
@@ -201,17 +223,17 @@ return $self;
 =cut
 
 sub _calculate_consensus {
-	my $self=shift;
-	my ($lc,$lt,$lg)=($#{$self->{probC}},$#{$self->{probT}},$#{$self->{probG}});
-	my $len=$#{$self->{probA}};
-	$self->throw("Probability matrix is damaged for C: $len vs $lc") if ($len != $lc);
-	$self->throw("Probability matrix is damaged for T: $len vs $lt") if ($len != $lt);
-	$self->throw("Probability matrix is damaged for G: $len vs $lg") if ($len != $lg);
-	for (my $i=0; $i<$len+1; $i++) {
-		(${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i]);
-		(${$self->{seq}}[$i],${$self->{seqp}}[$i])=_to_cons(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i]);
-	}
-return $self;
+    my $self=shift;
+    my ($lc,$lt,$lg)=($#{$self->{probC}},$#{$self->{probT}},$#{$self->{probG}});
+    my $len=$#{$self->{probA}};
+    $self->throw("Probability matrix is damaged for C: $len vs $lc") if ($len != $lc);
+    $self->throw("Probability matrix is damaged for T: $len vs $lt") if ($len != $lt);
+    $self->throw("Probability matrix is damaged for G: $len vs $lg") if ($len != $lg);
+    for (my $i=0; $i<$len+1; $i++) {
+	(${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i]);
+	(${$self->{seq}}[$i],${$self->{seqp}}[$i])=_to_cons(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i]);
+    }
+    return $self;
 }
 
 =head2 next_pos
@@ -230,23 +252,23 @@ return $self;
 =cut
 
 sub next_pos {
-	my $self = shift;
-	die "instance method called on class" unless ref $self;
-	my $len=@{$self->{seq}};
-	my $pos=$self->{_position};
-	# End reached?
-	if ($self->{_position}<$len) {
-		my $pA=${$self->{probA}}[$pos];
-		my $pC=${$self->{probC}}[$pos];
-		my $pG=${$self->{probG}}[$pos];
-		my $pT=${$self->{probT}}[$pos];
-		my $base=${$self->{seq}}[$pos];
-		my $prob=${$self->{seqp}}[$pos];
-		$self->{_position}++;
-		my %seq=(pA=>$pA,pT=>$pT,pC=>$pC,pG=>$pG, base=>$base,rel=>$pos, prob=>$prob);
-		return %seq;
-	}
-else {$self->{_position}=0; return undef;}
+    my $self = shift;
+    die "instance method called on class" unless ref $self;
+    my $len=@{$self->{seq}};
+    my $pos=$self->{_position};
+    # End reached?
+    if ($self->{_position}<$len) {
+	my $pA=${$self->{probA}}[$pos];
+	my $pC=${$self->{probC}}[$pos];
+	my $pG=${$self->{probG}}[$pos];
+	my $pT=${$self->{probT}}[$pos];
+	my $base=${$self->{seq}}[$pos];
+	my $prob=${$self->{seqp}}[$pos];
+	$self->{_position}++;
+	my %seq=(pA=>$pA,pT=>$pT,pC=>$pC,pG=>$pG, base=>$base,rel=>$pos, prob=>$prob);
+	return %seq;
+    }
+    else {$self->{_position}=0; return undef;}
 }
 
 
