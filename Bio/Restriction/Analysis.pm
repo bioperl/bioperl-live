@@ -196,7 +196,7 @@ use vars qw (@ISA);
 	     $re_anal->new(-seq=$seqobj, 
                  -enzymes=>Restriction::EnzymeCollection object)
 	     -seq requires a Bio::PrimarySeq object
-	     -enzyme_collection is optional.
+	     -enzymes is optional.
               If ommitted it will use the default set of enzymes
 
 This is the place to start. Pass in a sequence, and you will be able
@@ -367,7 +367,8 @@ sub fragments {
     $self->cut unless $self->{'_cut'};
     $self->throw('no enzyme selected to get fragments for')
         unless $enz;
-    return @{$self->{'_fragments'}->{$enz}};
+    return @{$self->{'_fragments'}->{$enz}} if defined $self->{'_fragments'}->{$enz};
+    return ();
 }
 
 =head2 sizes
