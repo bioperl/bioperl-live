@@ -47,12 +47,12 @@ Bio::Tools::Analysis::Protein::Scansite - a wrapper around the Scansite server
 =head1 DESCRIPTION
 
 This class is wrapper around the Scansite 2.0 server which produces
-predictions for serine, threonine and tyrosine
-phosphorylation sites in eukaryotic proteins. At present this is a basic
-wrapper for the "Scan protein by input sequence" functionality, which 
-takes a sequence and searches for motifs. Optionally you can select
-the search strincency as well. At present searches for specific 
-phosphorylation sites isn't supported, all predicted sites are returned. 
+predictions for serine, threonine and tyrosine phosphorylation sites
+in eukaryotic proteins. At present this is a basic wrapper for the
+"Scan protein by input sequence" functionality, which takes a sequence
+and searches for motifs. Optionally you can select the search
+strincency as well. At present searches for specific phosphorylation
+sites isn't supported, all predicted sites are returned.
 
 See L<http://www.scansite.mit.edu/>.
 
@@ -152,9 +152,9 @@ my $URL = 'http://scansite.mit.edu/cgi-bin/motifscan_seq';
          ''                 => 'bulk',  # same as undef
          'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
          'raw'              => 'Array of {motif=>, percentile=>, position=>,
-										  protein=>, score=>, site=>, zscore=>
+					  protein=>, score=>, site=>, zscore=>
                                           sequence=>
-											}',
+	     				 }',
         };
 
 
@@ -269,7 +269,7 @@ sub stringency {
 sub protein_id {
 	my $self = shift;
 	return defined ($self->seq())? $self->seq->display_id()
-								 : $self->input_spec->[1]{'default'};
+				     : $self->input_spec->[1]{'default'};
 }
 
 sub _init 
@@ -339,11 +339,9 @@ sub _run {
 	
 	## is successssful if there are results or if there are no results and
 	## this beacuse there are no matches, not because of parsing errors etc.
-    $self->status('COMPLETED') if $text ne ''       && 
-								(scalar @results > 0 ||	
-								(scalar @results == 0 && $text =~/No sites found/));
-								 
-
+    $self->status('COMPLETED') if $text ne ''       &&
+	(scalar @results > 0 ||	
+	(scalar @results == 0 && $text =~/No sites found/));
 }
 
 sub _make_header {
@@ -367,9 +365,10 @@ sub _add_data {
 			$outstr .= $hit->{$k};
 			$outstr .= ' 'x(12 - length($hit->{$k}));
 			}
-		$outstr .= "$hit->{'sequence'}\n";
+		$outstr .= $hit->{'sequence'}. "\n" if $hit->{'sequence'};
 	}
-	return $outstr;
+	return $outstr;y
+
 
 }
 	
