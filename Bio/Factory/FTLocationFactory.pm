@@ -26,7 +26,7 @@
 
 =head1 NAME
 
-Bio::Factory::FTLocationFactory - DESCRIPTION of Object
+Bio::Factory::FTLocationFactory - A FeatureTable Location Parser
 
 =head1 SYNOPSIS
 
@@ -212,7 +212,8 @@ sub _parse_location {
 	    $end = $3;
 	    $loctype = $2;
 	    $locclass = "Bio::Location::Fuzzy"
-		unless (($end-1) == $start) && ($loctype eq "^");
+		unless (abs($end - $start) <= 1) && ($loctype eq "^");
+	    
 	} else {
 	    $end = $start;
 	}

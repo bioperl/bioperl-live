@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 182;
+    $TESTCOUNT = 183;
     plan tests => $TESTCOUNT;
 }
 
@@ -494,3 +494,13 @@ ok ($reference->pubmed, '11479594');
 ok ($reference->medline, '21372465');
 
 unlink($testfile);
+
+# bug #1487
+
+$str = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+		      (qw(t data D12555.gbk)));
+eval { 
+    $seq = $str->next_seq;    
+};
+
+ok(! $@ );

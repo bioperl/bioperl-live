@@ -1,0 +1,47 @@
+LOCUS       MUSBC05                  105 bp    DNA     linear   ROD 12-APR-2002
+DEFINITION  Mus spretus gene for beta-casein, 3'UTR.
+ACCESSION   D12555
+VERSION     D12555.1  GI:303649
+KEYWORDS    .
+SOURCE      Mus spretus (western wild mouse)
+  ORGANISM  Mus spretus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Rodentia; Sciurognathi; Muridae; Murinae; Mus.
+REFERENCE   1  (bases 1 to 105)
+  AUTHORS   Takahashi,N. and Ko,M.S.
+  TITLE     The short 3'-end region of complementary DNAs as PCR-based
+            polymorphic markers for an expression map of the mouse genome
+  JOURNAL   Genomics 16 (1), 161-168 (1993)
+  MEDLINE   93252372
+   PUBMED   8486351
+COMMENT     Submitted (06-JUL-1993) to DDBJ by:
+            Minoru S.H. Ko
+            ERATO Research Development Corporation of Japan
+            (JRDC)
+            5-9-6 Tohkohdai, Tsukuba
+            Ibaraki 300-26
+            Japan
+            Phone:  0298-47-5531
+            Fax:    0298-47-5421.
+FEATURES             Location/Qualifiers
+     source          1..105
+                     /organism="Mus spretus"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:10096"
+     3'UTR           <1..>105
+                     /note="beta-casein
+                     genomic DNA sequence corresponding to a part of the 3'UTR
+                     of beta-caseine gene, MMBCASE (bases 7015 - 7121)"
+     variation       69^70
+                     /note="A in MMBCASE"
+                     /replace="a"
+     variation       103^102
+                     /note="T in MMBCASE
+                     deleted in CAST/Ei (M. m. castaneus)"
+                     /replace="t"
+BASE COUNT       37 a      7 c     17 g     44 t
+ORIGIN      
+        1 agttatatta caggaatttt ataagtgttc aatatggagt tgaaaatgca agtcaataat
+       61 gtatacaaat agtttgtgaa aaattggatt ttctattttt ttctt
+//
+
