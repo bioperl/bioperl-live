@@ -867,10 +867,10 @@ sub filled_oval {
   my $linewidth = $self->linewidth;
 
   $fg = $self->set_pen($linewidth) if $linewidth > 1;
-  $gd->arc($cx,$cy,$x2-$x1,$y2-$y1,0,360,$fg);
+  $gd->filledEllipse($cx,$cy,$x2-$x1,$y2-$y1,$bg);
 
-  # and fill it
-  $gd->fill($cx,$cy,$bg);
+  # Draw the edge around the ellipse
+  $gd->ellipse($cx,$cy,$x2-$x1,$y2-$y1,$fg);
 }
 
 sub oval {
@@ -884,7 +884,7 @@ sub oval {
   my $linewidth = $self->linewidth;
 
   $fg = $self->set_pen($linewidth) if $linewidth > 1;
-  $gd->arc($cx,$cy,$x2-$x1,$y2-$y1,0,360,$fg);
+  $gd->ellipse($cx,$cy,$x2-$x1,$y2-$y1,$fg);
 }
 
 sub filled_arrow {
