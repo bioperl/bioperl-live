@@ -1,0 +1,238 @@
+GENSCAN 1.0	Date run:  1-Aug-100	Time: 16:43:38
+
+Sequence HSBA536C5 : 168628 bp : 49.21% C+G : Isochore 2 (43 - 51 C+G%)
+
+Parameter matrix: HumanIso.smat
+
+Predicted genes/exons:
+
+Gn.Ex Type S .Begin ...End .Len Fr Ph I/Ac Do/T CodRg P.... Tscr..
+----- ---- - ------ ------ ---- -- -- ---- ---- ----- ----- ------
+
+ 2.04 PlyA -   7901   7896    6                               1.05
+ 2.03 Term -  10642  10463  180  1  0   28   43   120 0.957  -0.89
+ 2.02 Intr -  11044  10815  230  2  2   84   44   310 0.981  23.79
+ 2.01 Init -  14499  13650  850  0  1  126   53  2079 0.818 202.23
+ 2.00 Prom -  16112  16073   40                              -5.56
+
+ 3.00 Prom +  18327  18366   40                              -5.06
+ 3.01 Init +  18680  18726   47  1  2   84  105    30 0.585   4.46
+ 3.02 Intr +  23250  23284   35  0  2  151   69    35 0.533   5.77
+ 3.03 Term +  26615  26664   50  0  2  108   43    36 0.267  -1.43
+ 3.04 PlyA +  27305  27310    6                               1.05
+
+ 8.32 PlyA - 114694 114689    6                               1.05
+ 8.31 Term - 117609 117581   29  1  2  139   37    35 0.986   1.74
+ 8.30 Intr - 118004 117913   92  1  2  126   77   101 0.988  12.44
+ 8.29 Intr - 121211 121110  102  1  0   85   89    95 0.997   8.59
+ 8.28 Intr - 121457 121327  131  2  2  130   51   125 0.999  12.49
+ 8.27 Intr - 125623 125478  146  2  2  108   92   121 0.958  14.50
+ 8.26 Intr - 126663 126540  124  0  1  113   58   151 0.981  14.76
+ 8.25 Intr - 127050 126896  155  1  2   72   91   196 0.685  18.09
+ 8.24 Intr - 128563 128395  169  1  1   91   72   343 0.999  32.52
+ 8.23 Intr - 129031 128881  151  0  1   68   95   202 0.996  19.06
+ 8.22 Intr - 129561 129425  137  0  2  113   94   171 0.999  19.57
+ 8.21 Intr - 131557 131385  173  2  2  121   94    69 0.957  10.46
+ 8.20 Intr - 131891 131702  190  2  1  126   66   153 0.780  16.06
+ 8.19 Intr - 135872 135738  135  2  0   37   92   171 0.802  13.16
+ 8.18 Intr - 136182 136073  110  1  2  139   33   122 0.867  11.80
+ 8.17 Intr - 136622 136424  199  2  1   96   22   400 0.999  33.12
+ 8.16 Intr - 138994 138726  269  2  2   89   74   152 0.257  11.15
+ 8.15 Intr - 143743 143626  118  1  1  100   63   113 0.289  10.04
+ 8.14 Intr - 144150 144016  135  0  0   43  100   129 0.999  10.36
+ 8.13 Intr - 147107 146994  114  2  0  102   91   154 0.995  17.74
+ 8.12 Intr - 148107 147904  204  0  0  104   92    97 0.839  11.10
+ 8.11 Intr - 149987 149928   60  2  0  114  113    90 0.999  13.03
+ 8.10 Intr - 151157 150965  193  1  1   75   77   125 0.355   9.59
+ 8.09 Intr - 161359 161278   82  2  1  105   95    51 0.520   6.20
+ 8.08 Intr - 163259 163168   92  1  2  117   91   174 0.980  20.24
+ 8.07 Intr - 163512 163411  102  2  0  141   89    85 0.999  13.19
+ 8.06 Intr - 166251 166121  131  0  2  113   81   212 0.999  22.49
+ 8.05 Intr - 166582 166437  146  2  2  111   92   215 0.999  24.20
+ 8.04 Intr - 166905 166782  124  0  1  107   70   221 0.999  22.36
+ 8.03 Intr - 167313 167159  155  1  2  116   89   268 0.999  29.49
+ 8.02 Intr - 167718 167550  169  0  1   96   72   360 0.999  34.72
+ 8.01 Intr - 168007 167857  151  0  1   75   99   227 0.984  22.66
+
+Predicted peptide sequence(s):
+
+Predicted coding sequence(s):
+
+
+>HSBA536C5|GENSCAN_predicted_peptide_2|419_aa
+MAQENAAFSPGQEEPPRRRGRQRYVEKDGRCNVQQGNVRETYRYLTDLFTTLVDLQWRLS
+LLFFVLAYALTWLFFGAIWWLIAYGRGDLEHLEDTAWTPCVNNLNGFVAAFLFSIETETT
+IGYGHRVITDQCPEGIVLLLLQAILGSMVNAFMVGCMFVKISQPNKRAATLVFSSHAVVS
+LRDGRLCLMFRVGDLRSSHIVEASIRAKLIRSRQTLEGEFIPLHQTDLSVGFDTGDDRLF
+LVSPLVISHEIDAASPFWEASRRALERDDFEIVVILEGMVEATGMTCQARSSYLVDEGLW
+GHRFTSVLTLEDGFYEVDYASFHETFEVPTPSCSARELAEAAARLDAHLYWSIPSRLDEK
+RVSPRCDQLPPDPCGRPGARHRYMGNCISEVVEEEEEEEGKAPGNVLKLESPRPPEPQV
+
+>HSBA536C5|GENSCAN_predicted_CDS_2|1260_bp
+atggcgcaggagaacgcggccttctcgcccgggcaggaggagccgccgcggcgccgcggc
+cgccagcgctacgtggagaaggatggccggtgcaacgtgcagcagggcaacgtgcgcgag
+acataccgctacctgacggacctgttcaccacgctggtggacctgcagtggcgcctcagc
+ctgttgttcttcgtcctggcctacgcgctcacctggctcttcttcggcgccatctggtgg
+ctgatcgcctacggccgcggcgacctggagcacctggaggacaccgcgtggacgccgtgc
+gtcaacaacctcaacggcttcgtggccgccttcctcttctccatcgagaccgagaccacc
+atcggctacgggcaccgcgtcatcaccgaccagtgccccgagggcatcgtgctgctgctg
+ctgcaggccatcctgggctccatggtgaacgccttcatggtgggctgcatgttcgtcaag
+atctcgcagcccaacaagcgcgcagccacgctcgtcttctcctcgcacgccgtggtgtcg
+ctgcgcgacgggcgcctctgcctcatgttccgcgtgggcgacttgcgctcctcacacata
+gtggaggcctccatccgcgccaagctcatccgctcgcgccagacgctggagggcgagttc
+atcccgctgcaccagaccgacctcagcgtgggcttcgacacgggagacgaccgcctcttc
+ctcgtctcgccgctggttatcagccacgagatcgacgccgccagccccttctgggaggcg
+tcgcgccgtgccctcgagagggacgacttcgagatcgtcgttatcctcgagggcatggtg
+gaagccacgggaatgacatgccaagctcggagctcctacctggtagacgaggggctgtgg
+ggccaccgcttcacgtcagtgctgactctggaggacggcttctacgaagtggactatgcc
+agctttcacgagacttttgaggtgcccacaccttcgtgcagtgctcgagagctggcagag
+gctgccgcccgccttgatgcccatctctactggtccatccccagccggctggatgagaag
+agagtgagtccaaggtgtgaccagcttcctccagacccctgtggcagaccgggggccaga
+cacagatacatggggaactgcatatcggaggtggtggaggaggaggaggaggaggaaggc
+aaagcccctggaaatgtgctaaagttggaaagtccccgtcccccagaacctcaagtctag
+
+>HSBA536C5|GENSCAN_predicted_peptide_3|43_aa
+MNTAAINIHRQIFMWTSSVVKTSFTVTFSSPGVIPPRLPYARE
+
+>HSBA536C5|GENSCAN_predicted_CDS_3|132_bp
+atgaatacagctgctataaacatccatcggcagattttcatgtggacgtcttctgtggtg
+aagacctccttcactgtgaccttctcctcaccaggtgtgatcccccccaggctcccctat
+gcccgtgaatga
+
+>HSBA536C5|GENSCAN_predicted_peptide_8|1429_aa
+XEAKACVVHGSDLKDMTSEQLDEILKNHTEIVFARTSPQQKLIIVEGCQRQGAIVAVTGD
+GVNDSPALKKADIGIAMGISGSDVSKQAADMILLDDNFASIVTGVEEGRLIFDNLKKSIA
+YTLTSNIPEITPFLLFIIANIPLPLGTVTILCIDLGTDMVPAISLAYEAAESDIMKRQPR
+NSQTDKLVNERLISMAYGQIGMIQALGGFFTYFVILAENGFLPSRLLGIRLDWDDRTMND
+LEDSYGQEWTYEQRKVVEFTCHTAFFASIVVVQWADLIICKTRRNSVFQQGMKNKILIFG
+LLEETALAAFLSYCPGMGVALRMYPLKVTWWFCAFPYSLLIFIYDEVRKLILRRYPGDLA
+ITKGSSGECKSLRLEKVDLSPSRGCFLPTVELGQLFLGIAMGLWGKKGTVAPHDQSPRRR
+PKKGLIKKKMVKREKQKRNMEELKKEVVMDDHKLTLEELSTKYSVDLTKGHSHQRAKEIL
+TRGGPNTVTPPPTTPEWVKFCKQLFGGFSLLLWTGAILCFVAYSIQIYFNEEPTKDNLYL
+SIVLSVVVIVTGCFSYYQEAKSSKIMESFKNMVPQQALVIRGGEKMQINVQEVVLGDLVE
+IKGGDRVPADLRLISAQGCKVDNSSLTGESEPQSRSPDFTHENPLETRNICFFSTNCVEG
+TARGIVIATGDSTVMGRIASLTSGLAVGQTPIAAEIEHFIHLITVVAVFLGVTFFALSLL
+LGYGWLEAIIFLIGIIVANVPEGLLATVTVCLTLTAKRMARKNCLVKNLEAVETLGSTST
+ICSDKTGTLTQNRMTVAHMWFDMTVYEADTTEEQTGKTFTKSSDTWFMLARIAGLCNRAD
+FKANQEILPIAKRATTGDASESALLKFIEQSYSSVAEMREKNPKVAEIPFNSTNKYQMSI
+HLREDSSQTHVLMMKGAPERILEFCSTFLLNGQEYSMNDEMKEAFQNAYLELGGLGERVL
+GFCFLNLPSSFSKGFPFNTDEINFPMDNLCFVGLISMIDPPRAAVPDAVSKCRSAGIKVI
+MVTGDHPITAKAIAKGVGIISEGTETAEEVAARLKIPISKVDASAAKAIVVHGAELKDIQ
+SKQLDQILQNHPEIVFARTSPQQKLIIVEGCQRLGAVVAVTGDGVNDSPALKKADIGIAM
+GISGSDVSKQAADMILLDDNFASIVTGVEEGRLIFDNLKKSIMYTLTSNIPEITPFLMFI
+ILGIPLPLGTITILCIDLGTDMVPAISLAYESAESDIMKRLPRNPKTDNLVNHRLIGMAY
+GQIGMIQALAGFFTYFVILAENGFRPVDLLGIRLHWEDKYLNDLEDSYGQQWTYEQRKVV
+EFTCQTAFFVTIVVVQWADLIISKTRRNSLFQQGMRNKVLIFGILEETLLAAFLSYTPGM
+DVALRMYPLKITWWLCAIPYSILIFVYDEIRKLLIRQHPDGWVERETYY
+
+>HSBA536C5|GENSCAN_predicted_CDS_8|4290_bp
+nnagaagccaaggcatgcgtggtgcacggctctgacctgaaggacatgacatcggagcag
+ctcgatgagatcctcaagaaccacacagagatcgtctttgctcgaacgtctccccagcag
+aagctcatcattgtggagggatgtcagaggcagggagccattgtggccgtgacgggtgac
+ggggtgaacgactcccctgcattgaagaaggctgacattggcattgccatgggcatctct
+ggctctgacgtctctaagcaggcagccgacatgatcctgctggatgacaactttgcctcc
+atcgtcacgggggtggaggagggccgcctgatctttgacaacttgaagaaatccatcgcc
+tacaccctgaccagcaacatccccgagatcacccccttcctgctgttcatcattgccaac
+atccccctacctctgggcactgtgaccatcctttgcattgacctgggcacagatatggtc
+cctgccatctccttggcctatgaggcagctgagagtgatatcatgaagcggcagccacga
+aactcccagacggacaagctggtgaatgagaggctcatcagcatggcctacggacagatc
+gggatgatccaggcactgggtggcttcttcacctactttgtgatcctggcagagaacggt
+ttcctgccatcacggctactgggaatccgcctcgactgggatgaccggaccatgaatgat
+ctggaggacagctatggacaggagtggacctatgagcagcggaaggtggtggagttcacg
+tgccacacggcattctttgccagcatcgtggtggtgcagtgggctgacctcatcatctgc
+aagacccgccgcaactcagtcttccagcagggcatgaagaacaagatcctgatttttggg
+ctcctggaggagacggcgttggctgcctttctctcttactgcccaggcatgggtgtagcc
+ctccgcatgtacccgctcaaagtcacctggtggttctgcgccttcccctacagcctcctc
+atcttcatctatgatgaggtccgaaagctcatcctgcggcggtatcctggtgaccttgca
+atcacaaaaggttcttctggtgagtgcaagagcctgagactggaaaaggtggacttgtct
+cccagtcgaggctgctttcttcccacagttgagctcgggcagctctttctggggatagct
+atggggctttgggggaagaaagggacagtggctccccatgaccagagtccaagacgaaga
+cctaaaaaagggcttatcaagaaaaaaatggtgaagagggaaaaacagaagcgcaatatg
+gaggaactgaagaaggaagtggtcatggatgatcacaaattaaccttggaagagctgagc
+accaagtactccgtggacctgacaaagggccatagccaccaaagggcaaaggaaatcctg
+actcgaggtggacccaatactgttaccccaccccccaccactccagaatgggtcaaattc
+tgtaagcaactgttcggaggcttctccctcctactatggactggggccattctctgcttt
+gtggcctacagcatccagatatatttcaatgaggagcctaccaaagacaacctctacctg
+agcatcgtactgtccgtcgtggtcatcgtcactggctgcttctcctattatcaggaggcc
+aagagctccaagatcatggagtcttttaagaacatggtgcctcagcaagctctggtaatt
+cgaggaggagagaagatgcaaattaatgtacaagaggtggtgttgggagacctggtggaa
+atcaagggtggagaccgagtccctgctgacctccggcttatctctgcacaaggatgtaag
+gtggacaactcatccttgactggggagtcagaaccccagagccgctcccctgacttcacc
+catgagaaccctctggagacccgaaacatctgcttcttttccaccaactgtgtggaagga
+accgcccggggtattgtgattgctacgggagactccacagtgatgggcagaattgcctcc
+ctgacgtcaggcctggcggttggccagacacctatcgctgctgagatcgaacacttcatc
+catctgatcactgtggtggccgtcttccttggtgtcactttttttgcgctctcacttctc
+ttgggctatggttggctggaggctatcatttttctcattggcatcattgtggccaatgtg
+cctgaggggctgttggccacagtcactgtgtgcctgaccctcacagccaagcgcatggcg
+cggaagaactgcctggtgaagaacctggaggcggtggagacgctgggctccacgtccacc
+atctgctcagacaagacgggcaccctcacccagaaccgcatgaccgtcgcccacatgtgg
+tttgatatgaccgtgtatgaggccgacaccactgaagaacagactggaaaaacatttacc
+aagagctctgatacctggtttatgctggcccgaatcgctggcctctgcaaccgggctgac
+tttaaggctaatcaggagatcctgcccattgctaagagggccacaacaggtgatgcttcc
+gagtcagccctcctcaagttcatcgagcagtcttacagctctgtggcggagatgagagag
+aaaaaccccaaggtggcagagattccctttaattctaccaacaagtaccagatgtccatc
+caccttcgggaggacagctcccagacccacgtactgatgatgaagggtgctccggagagg
+atcttggagttttgttctacctttcttctgaatgggcaggagtactcaatgaacgatgaa
+atgaaggaagccttccaaaatgcctacttagaactgggaggtctgggggaacgtgtgcta
+ggcttctgcttcttgaatctgcctagcagcttctccaagggattcccatttaatacagat
+gaaataaatttccccatggacaacctttgttttgtgggcctcatatccatgattgaccct
+ccccgagctgcagtgcctgatgctgtgagcaagtgtcgcagtgcaggaattaaggtgatc
+atggtaacaggagatcatcccattacagctaaggccattgccaagggtgtgggcatcatc
+tcagaaggcactgagacggcagaggaagtcgctgcccggcttaagatccctatcagcaag
+gtcgatgccagtgctgccaaagccattgtggtgcatggtgcagaactgaaggacatacag
+tccaagcagcttgatcagatcctccagaaccaccctgagatcgtgtttgctcggacctcc
+cctcagcagaagctcatcattgtcgagggatgtcagaggctgggagccgttgtggccgtg
+acaggtgacggggtgaacgactcccctgcgctgaagaaggctgacattggcattgccatg
+ggcatctctggctctgacgtctctaagcaggcagccgacatgatcctgctggatgacaac
+tttgcctccatcgtcacgggggtggaggagggccgcctgatctttgacaacctgaagaaa
+tccatcatgtacaccctgaccagcaacatccccgagatcacgcccttcctgatgttcatc
+atcctcggtatacccctgcctctgggaaccataaccatcctctgcattgatctcggcact
+gacatggtccctgccatctccttggcttatgagtcagctgaaagcgacatcatgaagagg
+cttccaaggaacccaaagacggataatctggtgaaccaccgtctcattggcatggcctat
+ggacagattgggatgatccaggctctggctggattctttacctactttgtaatcctggct
+gagaatggttttaggcctgttgatctgctgggcatccgcctccactgggaagataaatac
+ttgaatgacctggaggacagctacggacagcagtggacctatgagcaacgaaaagttgtg
+gagttcacatgccaaacggccttttttgtcaccatcgtggttgtgcagtgggcggatctc
+atcatctccaagactcgccgcaactcacttttccagcagggcatgagaaacaaagtctta
+atatttgggatcctggaggagacactcttggctgcatttctgtcctacactccaggcatg
+gacgtggccctgcgaatgtacccactcaagataacctggtggctctgtgccattccctac
+agtattctcatcttcgtctatgatgaaatcagaaaactcctcatccgtcagcacccggat
+ggctgggtggaaagggagacgtactactaa
+
+
+Explanation
+
+Gn.Ex : gene number, exon number (for reference)
+Type  : Init = Initial exon
+        Intr = Internal exon
+        Term = Terminal exon
+        Sngl = Single-exon gene
+        Prom = Promoter
+        PlyA = poly-A signal
+S     : DNA strand (+ = input strand; - = opposite strand)
+Begin : beginning of exon or signal (numbered on input strand)
+End   : end point of exon or signal (numbered on input strand)
+Len   : length of exon or signal (bp)
+Fr    : reading frame (a codon ending at x is in frame f = x mod 3)
+Ph    : net phase of exon (length mod 3)
+I/Ac  : initiation signal or acceptor splice site score (x 10)
+Do/T  : donor splice site or termination signal score (x 10)
+CodRg : coding region score (x 10)
+P     : probability of exon (sum over all parses containing exon)
+Tscr  : exon score (depends on length, I/Ac, Do/T and CodRg scores)
+
+Comments
+
+The SCORE of a predicted feature (e.g., exon or splice site) is a
+log-odds measure of the quality of the feature based on local sequence
+properties. Thus, for example, a predicted donor splice site with
+score > 100 is excellent; 50-100 is acceptable; 0-50 is weak; and
+below 0 is poor (probably not a real donor site).
+
+The PROBABILITY of a predicted exon is the estimated probability under
+GENSCAN's model of genomic sequence structure that the exon is correct.
+This probability depends in general on global as well as local sequence
+properties.  This information can be used to assess the reliability of the
+predicted exon, e.g., it would be better to design PCR primers based on
+a predicted exon with probability > 0.95 than one with lower probability.
+
