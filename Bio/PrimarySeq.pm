@@ -23,7 +23,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   use Bio::DB::GenBank;
 
   #make from memory
-  $seqobj = Bio::PrimaySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
+  $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
 			    -id  => 'GeneFragment-12',
 			    -accession => 'X78121',
 			    -moltype => 'dna'
