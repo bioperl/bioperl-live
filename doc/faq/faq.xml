@@ -284,7 +284,7 @@ $hsp-&gt;query-&gt;frame();
    <section>
    <section_name>Running external programs</section_name>
      <q id="1">
-     <question>Hey, I want to run blast or clusatlw within Bioper, I
+     <question>Hey, I want to run blast or clusatlw within Bioperl, I
       used Bio::Tools::Run::StandAloneBlast before - where did it go?</question>
       <answer>The Bio::Tools::Run directory was moved to a new package to help make the size of the core code smaller and separate out the more specialized nature of application running from the rest of Bioperl.  You can get these modules by installing the bioperl-run package.  This is either available from CVS under the same name or available in the http://bioperl.org/DIST directory and on CPAN.  This changeover began in the bioperl 1.1 developer release.
      </answer>
