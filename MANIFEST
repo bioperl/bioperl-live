@@ -1,3 +1,6 @@
+# Bioperl Manifest List
+# $Id: MANIFEST,v 1.8 1999-02-21 21:36:33 dag Exp $
+#
 MANIFEST
 Makefile.PL
 README
@@ -51,7 +54,7 @@ t/HSP.t
 t/Sbjct.t              
 t/SimpleAlign.t
 t/SeqIO.t
-t/test.fast
+t/test.fasta
 t/test.raw
 t/test.gcg
 examples/restriction.pl
