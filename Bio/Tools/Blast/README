@@ -1,3 +1,11 @@
+
+NOTE NOTE NOTE NOTE
+
+This modules are no longer supported.  Use the Bio::SearchIO system for 
+your BLAST parsing.
+
+
+
 README for the Perl extension Bio::Tools::Blast and related modules
 in the Bio/Tools/Blast/ directory of the bioperl distribution.
 
