@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.2 2004-12-07 13:03:48 heikki Exp $;
+#$Id: genbank2gff3.PLS,v 1.3 2005-01-10 19:03:52 scain Exp $;
 
 =pod
 
@@ -324,10 +324,10 @@ sub gff_header {
     my ($name, $end) = @_;
     
     return <<END;
-
 ##gff-version 3
 ##sequence-region $name 1 $end
 ##source bp_genbank2gff3.pl
+$name\tGenBank\tregion\t1\t$end\t.\t.\t.\tID=$name
 END
 }
 

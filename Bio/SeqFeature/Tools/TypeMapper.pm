@@ -233,6 +233,8 @@ sub map_types_to_SO{
 
 		     "5'UTR"=>'five_prime_UTR',
 		     "3'UTR"=>'three_prime_UTR',
+
+                     Protein=>'protein',
 		     
 		    }));
    return $self->map_types(@args);
