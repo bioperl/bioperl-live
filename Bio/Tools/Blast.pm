@@ -2050,9 +2050,10 @@ sub _parse_alignment {
     #       The $Blast object will not have this member.
 
     # If all of the significant hits have been parsed,
-    # return if we're not checking all or if we need to get 
+    # return if we're not checking all or if we don't need to get 
     # the Blast stats (parameters at footer of report).
-    if(defined $self->{'_current_hit'} and defined $self->{'_num_hits_significant'}) {
+    if(defined $self->{'_current_hit'} and 
+      defined $self->{'_num_hits_significant'}) {
       return if $self->{'_current_hit'} >= $self->{'_num_hits_significant'} and
 	not ($Blast->{'_check_all'} or $Blast->{'_get_stats'});
     }
@@ -2060,6 +2061,12 @@ sub _parse_alignment {
     # Check for the presence of the Blast footer section.
     # _parse_footer returns the alignment section.
     $data = $self->_parse_footer($data);
+
+    # Return if we're only interested in the best hit.
+    # This has to occur after checking for the parameters section 
+    # in the footer (since we may still be interested in them).
+    return if $Blast->best and ( defined $self->{'_current_hit'} and $self->{'_current_hit'} >=1);
+
 
 #    print "RETURNED FROM _parse_footer (", $self->to_string, ")";
 #    print "\n  --> FOUND PARAMS.\n" if $self->{'_found_params'};
@@ -2074,7 +2081,6 @@ sub _parse_alignment {
 
 #    print STDERR "\nALIGNMENT DATA:\n$data\n"; 
 
-    my $best       = $Blast->best;
     my $prog       = $self->program;
     my $check_all  = $Blast->{'_check_all'};
     my $filt_func  = $Blast->{'_filt_func'} || 0;
@@ -2149,7 +2155,7 @@ sub _parse_alignment {
  Purpose   : Extracts statistical and other parameters from the BLAST report.
            : Sets various key elements such as the program and version,
            : gapping, and the layout for the report (blast1 or blast2).
- Argument  : Boolean (get_stats indicator)
+ Argument  : Data to be parsed.
  Returns   : String containing an alignment section for processing by
            : _parse_alignment().
  Throws    : Exception if cannot find the parameters section of report.
@@ -3850,7 +3856,7 @@ sub _display_stats {
 	printf( $OUT "%-15s: %s$Newline", "MATRIX", $self->matrix() || 'UNKNOWN');
 	printf( $OUT "%-15s: %s$Newline", "FILTER", $self->filter() || 'UNKNOWN');
 	printf( $OUT "%-15s: %s$Newline", "EXPECT", $self->expect() || 'UNKNOWN');
-	printf( $OUT "%-15s: %.3f, %.3f, %.3f %s$Newline", "LAMBDA, K, H", $self->karlin_altschul(), $warn);
+	printf( $OUT "%-15s: %s, %s, %s %s$Newline", "LAMBDA, K, H", $self->karlin_altschul(), $warn);
 	printf( $OUT "%-15s: %s$Newline", "WORD SIZE", $self->word_size() || 'UNKNOWN');
 	printf( $OUT "%-15s: %s %s$Newline", "S", $self->s() || 'UNKNOWN', $warn);
 	if($self->gapped) {
