@@ -128,9 +128,11 @@
          </answer>
       </q>
       <q id="3">
-         <question>How can I get NT_ or NM_ accessions from NCBI (Reference Sequences)?</question>
+         <question>How can I get NT_ or NM_ or NP_ accessions from NCBI
+(Reference Sequences)?</question>
          <answer>
-            <p>Use Bio::DB::RefSeq not Bio::DB::GenBank when you are retrieving the NM_ accessions. This is still an area of active development because the data providers have not provided the best interface for us to query.  EBI has provided a mirror with their dbfetch system which is accessible through the Bio::DB::RefSeq object however, there are cases where NT_ accessions will not be retrievable.</p>
+            <p>Use Bio::DB::RefSeq not Bio::DB::GenBank or
+Bio::DB::GenPept when you are retrieving these accessions. This is still an area of active development because the data providers have not provided the best interface for us to query.  EBI has provided a mirror with their dbfetch system which is accessible through the Bio::DB::RefSeq object however, there are cases where NT_ accessions will not be retrievable.</p>
          </answer>
       </q>
       <q id="4">

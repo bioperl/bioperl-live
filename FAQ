@@ -40,8 +40,8 @@ Contents
 
    Q2.1: How do I parse a sequence file?
    Q2.2: I can't get sequences with Bio::DB::GenBank any more, why not?
-   Q2.3: How can I get NT_ or NM_ accessions from NCBI (Reference
-	 Sequences)?
+   Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
+	 (Reference Sequences)?
    Q2.4: How can I use SeqIO to parse sequence data from a string?
 
 3. Report parsing
@@ -277,16 +277,16 @@ Contents
 	 contains this fix as does the 1.0 release.
 
 
-   Q2.3: How can I get NT_ or NM_ accessions from NCBI (Reference
-	 Sequences)?
+   Q2.3: How can I get NT_ or NM_ or NP_ accessions from NCBI
+	 (Reference Sequences)?
 
-      A: Use Bio::DB::RefSeq not Bio::DB::GenBank when you are retrieving
-	 the NM_ accessions. This is still an area of active development
-	 because the data providers have not provided the best interface
-	 for us to query.  EBI has provided a mirror with their dbfetch
-	 system which is accessible through the Bio::DB::RefSeq object
-	 however, there are cases where NT_ accessions will not be
-	 retrievable.
+      A: Use Bio::DB::RefSeq not Bio::DB::GenBank or
+	 Bio::DB::GenPept when you are retrieving these accessions. This is
+	 still an area of active development because the data providers
+	 have not provided the best interface for us to query.	EBI has
+	 provided a mirror with their dbfetch system which is accessible
+	 through the Bio::DB::RefSeq object however, there are cases where
+	 NT_ accessions will not be retrievable.
 
 
    Q2.4: How can I use SeqIO to parse sequence data from a string?
