@@ -22,7 +22,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 15;
+    $NUMTESTS = 6;
     plan tests => $NUMTESTS;
     eval { require 'IO/String.pm' };
     if( $@ ) {
@@ -38,7 +38,7 @@ if( $error ==  1 ) {
     exit(0);
 }
 
-require Bio::DB::EMBL;
+require Bio::DB::RefSeq;
 
 my $testnum;
 my $verbose = 0;
@@ -55,45 +55,19 @@ my ($db,$seq,$seqio);
 $seq = $seqio = undef;
 
 eval { 
-    ok defined($db = new Bio::DB::EMBL(-verbose=>$verbose)); 
-    ok(defined($seq = $db->get_Seq_by_acc('J00522')));
-    ok( $seq->length, 408); 
+    ok defined($db = new Bio::DB::RefSeq(-verbose=>$verbose)); 
+    ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
+    ok( $seq->length, 3775);
     ok defined ($db->request_format('fasta'));
-    ok(defined($seq = $db->get_Seq_by_acc('J02231')));
-    ok $seq->id, 'embl:BUM';
-    ok( $seq->length, 200); 
-    ok( defined($db = new Bio::DB::EMBL(-verbose=>$verbose, 
-					-retrievaltype => 'tempfile')));
-    ok(defined($seqio = $db->get_Stream_by_id(['BUM'])));
-    undef $db; # testing to see if we can remove gb
-    ok( defined($seq = $seqio->next_seq()));
-    ok( $seq->length, 200);
+    ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
+    ok( $seq->length, 3775); 
 };
 
 if ($@) {
-    print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
+    print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::RefSeq.pm!\n" . $@;
 
     foreach ( $Test::ntest..$NUMTESTS) { 
 	 skip(1,1,1,'could not connect to embl');}
 
 }
-exit;
-$seq = $seqio = undef;
-
-eval {
-    $db = new Bio::DB::EMBL(-verbose => $verbose,
-			    -retrievaltype => 'tempfile',
-			    -format => 'fasta'
-			    ); 
-    ok( defined($seqio = $db->get_Stream_by_batch(['J00522 AF303112 J02231'])));
-    ok($seqio->next_seq->length, 408);
-    ok($seqio->next_seq->length, 1611);
-    ok($seqio->next_seq->length, 200);
-};
-
-if ($@) {
-    warn "Batch access test failed.\nError: $@\n";
-    foreach ( $Test::ntest..$NUMTESTS ) { skip(1,1,'no network access'); }
-}
-
 

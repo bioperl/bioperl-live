@@ -13,46 +13,47 @@
 
 =head1 NAME
 
-Bio::DB::EMBL - Database object interface for EMBL entry retrieval
+Bio::DB::RefSeq - Database object interface for RefSeq retrieval
 
 =head1 SYNOPSIS
 
-  use Bio::DB::EMBL;
+  use Bio::DB::R;
 
-  $embl = new Bio::DB::EMBL;
+  $db = new Bio::DB::RefSeq;
 
-  # remember that EMBL_ID does not equal GenBank_ID!
-  $seq = $embl->get_Seq_by_id('BUM'); # EMBL ID
- 	print "cloneid is ", $seq->id, "\n";
+  # most of the time RefSeq_ID eq RefSeq acc
+  $seq = $db->get_Seq_by_id('NM_006732'); # RefSeq ID
+ 	print "accession is ", $seq->accession_number, "\n";
 
   # or changeing to accession number and Fasta format ...
-  $embl->request_format('fasta');
-  $seq = $embl->get_Seq_by_acc('J02231'); # EMBL ACC
- 	print "cloneid is ", $seq->id, "\n";
+  $db->request_format('fasta');
+  $seq = $db->get_Seq_by_acc('NM_006732'); # RefSeq ACC
+ 	print "seq is ", $seq->seq, "\n";
 
   # especially when using versions, you better be prepared
   # in not getting what what want
   eval {
-      $seq = $embl->get_Seq_by_version('J02231.1'); # EMBL VERSION
+      $seq = $db->get_Seq_by_version('NM_006732.1'); # RefSeq VERSION
   }
-  print "cloneid is ", $seq->id, "\n" unless $@;
+  print "accesion is ", $seq->accession_number, "\n" unless $@;
 
   # or ... best when downloading very large files, prevents
   # keeping all of the file in memory
 
   # also don't want features, just sequence so let's save bandwith
   # and request Fasta sequence
-  $embl = new Bio::DB::EMBL(-retrievaltype => 'tempfile' ,
+  $db = new Bio::DB::RefSeq(-retrievaltype => 'tempfile' ,
  			       -format => 'fasta');
-   my $seqio = $embl->get_Stream_by_batch(['AC013798', 'AC021953'] );
-  while( my $clone =  $seqio->next_seq ) {
- 	print "cloneid is ", $clone->id, "\n";
+   my $seqio = $embl->get_Stream_by_batch(['NM_006732', 'NM_005252'] );
+  while( my $seq  =  $seqio->next_seq ) {
+ 	print "seqid is ", $clone->id, "\n";
   }
 
 =head1 DESCRIPTION
 
+
 Allows the dynamic retrieval of sequence objects L<Bio::Seq> from the
-EMBL database using the dbfetch script at EBI:
+RefSeq database using the dbfetch script at EBI:
 L<http:E<sol>E<sol>www.ebi.ac.ukE<sol>cgi-binE<sol>dbfetch>.
 
 In order to make changes transparent we have host type (currently only
@@ -61,6 +62,11 @@ additions of more servers in different geographical locations.
 
 The functionality of this module is inherited from L<Bio::DB::DBFetch>
 which implements L<Bio::DB::WebDBSeqI>.
+
+This module retrieves entries from EBI although it
+retrives database entries produced at NCBI. When read into bioperl
+objects, the parser for GenBank format it used. RefSeq is a
+NONSTANDARD GenBank file so be ready for surprises.
 
 =head1 FEEDBACK
 
@@ -95,11 +101,11 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::DB::EMBL;
+package Bio::DB::RefSeq;
 use strict;
-use vars qw(@ISA $MODVERSION %HOSTS  %FORMATMAP  $DEFAULTFORMAT);
+use vars qw(@ISA $MODVERSION %HOSTS  %FORMATMAP $DEFAULTFORMAT);
 
-$MODVERSION = '0.2';
+$MODVERSION = '0.1';
 use Bio::DB::DBFetch;
 
 @ISA = qw(Bio::DB::DBFetch);
@@ -108,16 +114,16 @@ BEGIN {
     # you can add your own here theoretically.
     %HOSTS = (
 	       'dbfetch' => {
-		   baseurl => 'http://%s/cgi-bin/dbfetch?db=embl&style=raw',
+		   baseurl => 'http://%s/cgi-bin/dbfetch?db=refseq&style=raw',
 		   hosts   => {
 		       'ebi'  => 'www.ebi.ac.uk'
 		       }
 	       }
 	      );
-    %FORMATMAP = ( 'embl' => 'embl',
+    %FORMATMAP = ( 'genbank' => 'genbank',
 		   'fasta' => 'fasta'
 		   );
-    $DEFAULTFORMAT = 'embl';
+    $DEFAULTFORMAT = 'genbank';
 }
 
 sub new {
@@ -133,6 +139,5 @@ sub new {
 
     return $self;
 }
-
 
 1;
