@@ -379,10 +379,11 @@ sub _set_db_stats {
 #-------------------
     my ($self, %param) = @_;
 
-    $self->{'_db'}        = $param{-NAME}    || '';
-    $self->{'_dbRelease'} = $param{-RELEASE} || '';
-    ($self->{'_dbLetters'} = $param{-LETTERS} || 0)  =~ s/,//g;
-    ($self->{'_dbSeqs'}    = $param{-SEQS}    || 0) =~ s/,//g;
+    $self->{'_db'}        ||= $param{-NAME}    || '';
+    $self->{'_dbRelease'}   = $param{-RELEASE} || '';
+    ($self->{'_dbLetters'}  = $param{-LETTERS} || 0)  =~ s/,//g;
+    ($self->{'_dbSeqs'}     = $param{-SEQS}    || 0) =~ s/,//g;
+    
 }
 
 

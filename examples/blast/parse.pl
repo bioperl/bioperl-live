@@ -97,7 +97,7 @@ if(@ARGV) {
     # created by create_blast() since we can always access it via
     # the global $blastObj defined in blast_config.pl.
     # However, doing so makes things more obvious.
-    $MONITOR && print STDERR "\nReading Blast report from file(s).\n";
+    $MONITOR && print STDERR "\nParsing Blast report file(s).\n";
     $count = 0;
     while($_ = shift) {
 	# Load the file into the Blast parameters.
@@ -124,13 +124,14 @@ if(@ARGV) {
 } else {
     # Building object from STDIN. Expecting only one Blast report.
     # To parse a stream of Blast reports, use parse_stream.pl.
-    print STDERR "\nReading Blast report from STDIN.\n";
-    $blast_obj = &create_blast;
-    $opt_table ? &print_table($blast_obj) : &show_results($blast_obj);
-
-    # Uncomment this line for an different way to display hit data.
-    #$opt_table ? &print_table($blast_obj) : &display_hit_info($blast_obj);
-
+    print STDERR "\nParsing Blast stream from STDIN.\n";
+    $opt_table 
+      # Process each Blast as you go.
+      ? $blastParam{-exec_func} = \&print_table
+          # Alternatively, try this:
+          #? $blastParam{-exec_func} = \&display_hit_info();
+      # Save all the Blast objects.
+      :$blastParam{-save_array} = \@objects;  
 }
 
 if(@errs) {

@@ -118,8 +118,8 @@ QQ_EG_QQ
 # Define parameters necessary for stream parsing
 $blastParam{-stream}    = 1;
 # Uncomment one of the two following lines:
-$blastParam{-exec_func} = \&print_table;
-#$blastParam{-save_array}  = \@objects;     # if you need to save all the objects.
+$blastParam{-exec_func} = \&print_table; # Process each Blast as you go.
+#$blastParam{-save_array}  = \@objects;  # Save all the Blast objects.
 
 &print_blast_params() if $MONITOR;
 
