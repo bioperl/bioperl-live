@@ -21,6 +21,7 @@ Bio::Search::Iteration::GenericIteration - A generic implementation of the Bio::
     use Bio::Search::Iteration::GenericIteration;
     my $it = new Bio::Search::GenericIteration(
                               -number => 1,
+                              -converged => 0,
                               -newhits_unclassified => [@newhits_unclass],
                               -newhits_below => [@newhits_below_threshold],
                               -newhits_not_below => [@newhits_not_below_threshold],
@@ -109,6 +110,7 @@ use Bio::Search::Iteration::IterationI;
  Function: Builds a new Bio::Search::Iteration object 
  Returns : Bio::Search::Iteration::GenericIteration object
  Args    : -number => integer for the number of this iteration (required)
+           -converged => boolean value whether or not the iteration converged
            -newhits_unclassified => array reference to hits that were not found
                        in a previous iteration for the iteration and have not been 
                        classified with regard to the inclusion threshold
@@ -137,7 +139,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($number, $newhits_unclassified, $newhits_below, $newhits_not_below,
-      $oldhits_below, $oldhits_newly_below, $oldhits_not_below) =
+      $oldhits_below, $oldhits_newly_below, $oldhits_not_below, $converged) =
       $self->_rearrange([qw(NUMBER
                             NEWHITS_UNCLASSIFIED
                             NEWHITS_BELOW
@@ -145,6 +147,7 @@ sub new {
                             OLDHITS_BELOW
                             OLDHITS_NEWLY_BELOW
                             OLDHITS_NOT_BELOW
+                            CONVERGED
                            )], @args);
 
   if( ! defined $number ) { 
@@ -153,6 +156,8 @@ sub new {
   } else { 
       $self->number($number);
   }
+
+  defined $converged && $self->converged($converged);
 
   # TODO: Performance optimization test calling add_hit() vs. simple assignment:
   #       push @{$self->{'_hits_new'}}, @{$newhits};
@@ -231,7 +236,7 @@ sub new {
 
 =head2 number
 
-See documentation in InterfaceI.
+See documentation in Bio::Search::Iteration::IterationI.
 
 =cut
 
@@ -241,6 +246,22 @@ sub number {
     if( defined $value || ! defined $previous ) {
         $value = $previous = '' unless defined $value;
         $self->{'_number'} = $value;
+    } 
+    return $previous;
+}
+
+=head2 converged
+
+See documentation in Bio::Search::Iteration::IterationI.
+
+=cut
+
+sub converged {
+    my ($self,$value) = @_;
+    my $previous = $self->{'_converged'};
+    if( defined $value || ! defined $previous ) {
+        $value = $previous = '' unless defined $value;
+        $self->{'_converged'} = $value;
     } 
     return $previous;
 }
