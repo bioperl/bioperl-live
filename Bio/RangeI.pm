@@ -212,7 +212,8 @@ sub overlaps {
     
     $self->throw("start is undefined") unless defined $self->start;
     $self->throw("end is undefined") unless defined $self->end;
-    $other->throw("not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+    $self->throw("not a Bio::RangeI object") unless defined $other && 
+	$other->isa('Bio::RangeI');
     $other->throw("start is undefined") unless defined $other->start;
     $other->throw("end is undefined") unless defined $other->end;
     
