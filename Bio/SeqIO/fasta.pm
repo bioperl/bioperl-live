@@ -103,7 +103,9 @@ sub next_seq{
 
   my ($top,@lines) = split "\n",$next_line;
   my ($id,$fulldesc) = $top =~ /^(\S+)\s*(.*)/;
-  return Bio::Seq->new(-seq => (join '',@lines),
+  my $sequence = join '',@lines;
+  $sequence =~ tr/a-z/A-Z/;
+  return Bio::Seq->new(-seq => $sequence,
 		       -id => $id,
 		       -desc => $fulldesc,
 		      );
@@ -125,6 +127,7 @@ sub write_seq {
    for my $seq (@seq) {
      my $i;
      my $str = $seq->seq;
+     $str =~ tr/a-z/A-Z/;
      $str=~ s/(.{1,60})/$1\n/g;
      $self->_print (">", $seq->id(), " ", $seq->desc(),"\n",$str) or return;
    }
