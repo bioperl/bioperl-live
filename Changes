@@ -1,6 +1,15 @@
 $Id$
 Revision history for Bioperl core modules
 
+0.7.2 Bug fix release
+
+    o documentation fix 
+
+    o corrected MANIFEST file from 0.7.1 release
+   
+    o Bug fix in Bio::SeqIO::FTHelper to properly handle
+      split locations
+
 0.7.1 Bug fix release 
 
     o Better parsing of genbank/EMBL files especially fixing bugs

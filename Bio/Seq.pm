@@ -103,7 +103,7 @@ use Bio::Root::RootI;
 use Bio::Annotation;
 use Bio::PrimarySeq;
 
-$VERSION = '0.7.1';
+$VERSION = '0.7.2';
 @ISA = qw(Bio::Root::RootI Bio::SeqI);
 
 =head2 new

@@ -1,7 +1,13 @@
-# $Id: BUGS,v 1.1.2.3 2001-06-25 18:36:18 jason Exp $
+# $Id: BUGS,v 1.1.2.4 2001-07-02 17:21:56 jason Exp $
 Known Bugs 
 
 
+Bioperl 0.7.2
+=============
+
+This is a maintence release replacing 0.7.1.  Same bugs as 0.7.1
+apply.
+ 
 Bioperl 0.7.1
 =============
  * Bio::Tools::BPlite does not parse and set frame properly for
