@@ -356,6 +356,8 @@ See Also   : L<expect()|expect>
 sub p { my $self = shift; $self->{'_p'}; }
 #-----
 
+# alias
+sub pvalue { shift->p(@_); }
 
 =head2 length
 

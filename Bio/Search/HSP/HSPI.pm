@@ -127,10 +127,10 @@ sub algorithm{
    $self->throw_not_implemented;
 }
 
-=head2 p
+=head2 pvalue
 
- Title   : p
- Usage   : my $pvalue = $hsp->p();
+ Title   : pvalue
+ Usage   : my $pvalue = $hsp->pvalue();
  Function: Returns the P-value for this HSP or undef 
  Returns : float or exponential (2e-10)
            P-value is not defined with NCBI Blast2 reports.
@@ -138,7 +138,7 @@ sub algorithm{
 
 =cut
 
-sub p {
+sub pvalue {
    my ($self) = @_;
    $self->throw_not_implemented;
 }
