@@ -47,7 +47,7 @@ END {
 }
 use Bio::TreeIO;
 use Bio::Root::IO;
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 ok(1);
 
 my $treeio = new Bio::TreeIO(-verbose => $verbose,
@@ -118,7 +118,7 @@ $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -file    => Bio::Root::IO->catfile('t','data','hs_fugu.newick'));
 $tree = $treeio->next_tree();
 @nodes = $tree->get_nodes();
-ok(@nodes, 4);
+ok(@nodes, 5);
 # no relable order for the bottom nodes because they have no branchlen
 my @vals = qw(SINFRUP0000006110);
 my $saw = 0;
@@ -133,4 +133,59 @@ if( $verbose ) {
     foreach my $node ( @nodes ) {
 	print "\t", $node->id, "\n";
     }
+}
+
+$treeio = new Bio::TreeIO(-format => 'newick', 
+			  -file => Bio::Root::IO->catfile('t','data','tree8rooted.newick'));
+my $treeout = new Bio::TreeIO(-format => 'tabtree');
+my $treeout2 = new Bio::TreeIO(-format => 'newick');
+
+$tree = $treeio->next_tree;
+
+if( $verbose > 0  ) {
+    $treeout->write_tree($tree);
+    $treeout2->write_tree($tree);
+}
+@nodes = $tree->get_nodes;
+
+my( $i, $c, $g);
+
+for ($i = 0; $i <= $#nodes; $i++) {
+    next unless defined $nodes[$i]->id;
+    if ($nodes[$i]->id eq 'C') {
+	$c = $i;
+    }
+    if ($nodes[$i]->id eq 'G') {
+	$g = $i;
+    }
+}
+$nodes[$c]->ancestor;
+$nodes[$g]->ancestor;
+my $cancestor = $nodes[$c]->ancestor;
+my $gancestor = $nodes[$g]->ancestor;
+$cancestor->id('C-ancestor');
+$gancestor->id('G-ancestor');
+
+$cancestor->remove_Descendent($nodes[$c]);
+$gancestor->remove_Descendent($nodes[$g]);
+$cancestor->add_Descendent($nodes[$g],1);
+$gancestor->add_Descendent($nodes[$c],1);
+$tree->set_root_node($nodes[0]);
+
+@nodes = $tree->get_nodes();
+
+for ($i = 0; $i <= $#nodes; $i++) {
+    next unless defined $nodes[$i]->id;
+    if ($nodes[$i]->id eq 'C') {
+	ok($nodes[$i]->ancestor->id, 'G-ancestor');
+	$c = $i;
+    }
+    if ($nodes[$i]->id eq 'G') {
+	$g = $i;
+	ok($nodes[$i]->ancestor->id, 'C-ancestor');
+    }
+}
+
+if( $verbose > 0  ) {
+    $treeout2->write_tree($tree);
 }
