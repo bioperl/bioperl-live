@@ -2041,6 +2041,7 @@ sub unflatten_group{
    #
    # we do this using the scores in %unresolved, with the
    # find_best_matches() algorithm
+   my $unresolved_problem_reported = 0;
    if (%unresolved) {
        my $new_pairs =
 	 $self->find_best_matches(\%unresolved, []);
@@ -2049,6 +2050,7 @@ sub unflatten_group{
 	   $self->problem(2,
 			  "Could not resolve hierarchy for $g");
            $new_pairs = [];
+           $unresolved_problem_reported = 1;
        }
        foreach my $pair (@$new_pairs) {
 	   if ($self->verbose) {
@@ -2061,7 +2063,8 @@ sub unflatten_group{
 
    # CONDITION: containment hierarchy resolved
    if (%unresolved) {
-       $self->throw("UNRESOLVED: %unresolved");
+       $self->throw("UNRESOLVED: %unresolved")
+         unless $unresolved_problem_reported;
    }
 
    # make nested SeqFeature hierarchy from @containment_pairs
