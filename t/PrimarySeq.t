@@ -32,6 +32,8 @@ ok $seq->accession_number(), 'X677667';
 ok $seq->seq(), 'TTGGTGGCGTCAACT';
 ok $seq->display_id(), 'new-id';
 ok $seq->moltype(), 'dna';
+ok $seq->is_circular(), undef;
+ok $seq->is_circular(1);
 
 my $trunc = $seq->trunc(1,4);
 ok defined $trunc;
