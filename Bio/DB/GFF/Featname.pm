@@ -1,7 +1,9 @@
 package Bio::DB::GFF::Featname;
 use strict;
 
-use overload '""' => 'asString';
+use overload 
+  '""' => 'asString',
+  fallback => 1;
 
 sub new    { bless {class=>$_[1],name=>$_[2]},$_[0] }
 sub id     {

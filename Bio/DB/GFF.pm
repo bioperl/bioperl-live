@@ -11,7 +11,7 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
                                    -dsn     => 'dbi:mysql:elegans42');
 
   # fetch a 1 megabase segment of sequence starting at landmark "ZK909"
-  my $segment = $seqfactory->segment('ZK909', 1 => 1000000);
+  my $segment = $db->segment('ZK909', 1 => 1000000);
 
   # pull out all transcript features
   my @transcripts = $segment->features('transcript');
@@ -52,12 +52,10 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
 =head1 DESCRIPTION
 
 Bio::DB::GFF provides fast indexed access to a sequence annotation
-database.  It supports multiple types of database (ACeDB, relational),
-and multiple schemas through a system of adaptors.  It allows
-annotations to be aggregated together into hierarchical structures
-(genes, transcripts, exons, introns) using a system of aggregators.
+database.  It supports multiple database types (ACeDB, relational),
+and multiple schemas through a system of adaptors and aggregators.
 
-The following types of operation are supported by this module:
+The following operations are supported by this module:
 
   - retrieving a segment of sequence based on the ID of a landmark
   - retrieving the DNA from that segment
@@ -82,19 +80,82 @@ Bio::DAS modules.
 
 =head2 GFF Fundamentals
 
--mostly to come-
+The GFF format is a flat tab-delimited file, each line of which
+corresponds to an annotation, or feature.  Each annotation has the
+following attributes:
+
+=over 4
+
+=item reference sequence
+
+This is the ID of the sequence that is used to establish the
+coordinate system of the annotation.
+
+=item start position
+
+The start of the annotation relative to the reference sequence.  
+
+=item stop position
+
+The stop of the annotation relative to the reference sequence.  Start
+is always less than or equal to stop.
+
+=item method
+
+The annotation method.  This field describes the general nature of the
+annotation, such as "tRNA".
+
+=item source
+
+The source of the annotation.  This field describes how the annotation
+was derived, such as "tRNAScanSE-1.2".  Together the method and source
+describe the annotation type.
+
+=item strand
+
+For those annotations which are strand-specific, this field is the
+strand on which the annotation resides.
+
+=item phase
+
+For annotations that are linked to proteins, this field describes the
+phase of the annotation on the codons.
+
+=item score
+
+For annotations that are associated with a numeric score (for example,
+a sequence similarity), this field describes the score.
+
+=item group
+
+GFF provides a simple way of generating annotation hierarchies ("is
+composed of" relationships) by providing a group field.  The group
+field contains the class and ID of an annotation which is the logical
+parent of the current one.
+
+The group field is also used to store information about the target of
+sequence similarity hits, and miscellaneous notes.
+
+=back
 
 The sequences used to establish the coordinate system for annotations
 can correspond to sequenced clones, clone fragments, contigs or
 super-contigs.  Thus, this module can be used throughout the lifecycle
 of a sequencing project.
 
+In addition to a group ID, the GFF format allows annotations to have a
+group class.  For example, in the ACeDB representation, RNA
+interference experiments have a class of "RNAi" and an ID that is
+unique among the RNAi experiments.  Since not all databases support
+this notion, the class is optional in all calls to this module, and
+defaults to "Sequence" when not provided.
+
 This module has no relationship to the GFF.pm module.
 
 =head2 Adaptors and Aggregators
 
 This module uses a system of adaptors and aggregators in order to make
-it adaptable to use with a variety of databases.  
+it adaptable to use with a variety of databases.
 
 =over 4
 
@@ -458,6 +519,245 @@ sub segment {
                        : Bio::DB::GFF::RelSegment->new($self,@_);
 }
 
+=head2 types
+
+ Title   : types
+ Usage   : $db->types(@args)
+ Function: return list of feature types in range or database
+ Returns : a list of Bio::DB::GFF::Typename objects
+ Args    : see below
+ Status  : public
+
+This routine returns a list of feature types known to the database.
+The list can be database-wide or restricted to a region.  It is also
+possible to find out how many times each feature occurs.
+
+For range queries, it is usually more convenient to create a
+Bio::DB::GFF::Segment object, and then invoke it's types() method.
+
+Arguments are as follows:
+
+  -ref        ID of reference sequence
+  -class      class of reference sequence
+  -start      start of segment
+  -stop       stop of segment
+  -enumerate  if true, count the features
+
+The returned value will be a list of Bio::DB::GFF::Typename objects,
+which if evaluated in a string context will return the feature type in 
+"method:source" format.  This object class also has method() and
+source() methods for retrieving the like-named fields.
+
+If -enumerate is true, then the function returns a hash (not a hash
+reference) in which the keys are type names in "method:source" format
+and the values are the number of times each feature appears in the
+database or segment.
+
+The argument -end is a synonum for -stop, and -count is a synonym for
+-enumerate.
+
+=cut
+
+sub types {
+  my $self = shift;
+  my ($refseq,$start,$stop,$enumerate) = rearrange ([
+						     [qw(REF REFSEQ)],
+						     qw(START),
+						     [qw(STOP END)],
+						     [qw(ENUMERATE COUNT)],
+						     ],@_);
+  $self->get_types($refseq,$start,$stop,$enumerate);
+}
+
+=head2 dna
+
+ Title   : dna
+ Usage   : $db->dna($id,$class,$start,$stop)
+ Function: return the raw DNA string for a segment
+ Returns : a raw DNA string
+ Args    : id of the sequence, its class, start and stop positions
+ Status  : public
+
+This method is invoked by Bio::DB::GFF::Segment to fetch the raw DNA
+sequence.
+
+NOTE: you will probably prefer to create a Segment and then invoke its
+dna() method.
+
+=cut
+
+# call to return the DNA string for the indicated region
+# real work is done by get_dna()
+sub dna {
+  my $self = shift;
+  my ($id,$class,$start,$stop) = rearrange([
+					    [qw(NAME ID REF REFSEQ)],
+					    'CLASS',
+					    qw(START),
+					    [qw(STOP END)],
+					   ],@_);
+  return unless defined $start && defined $stop;
+  $self->get_dna($id,$class,$start,$stop);
+}
+
+=head2 overlapping_features
+
+ Title   : overlapping_features
+ Usage   : $db->overlapping_features(@args)
+ Function: get features that overlap the indicated range
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see below
+ Status  : public
+
+This method is invoked by Bio::DB::GFF::Segment->features() to find
+the list of features that overlap a given range.  It is generally
+preferable to create the Segment first, and then fetch the features.
+
+This method takes set of named arguments:
+
+  -refseq    ID of the reference sequence
+  -class     Class of the reference sequence
+  -start     Start of the desired range in refseq coordinates
+  -stop      Stop of the desired range in refseq coordinates
+  -types     List of feature types to return.  Argument is an array
+	     reference containing strings of the format "method:source"
+  -parent    A parent Bio::DB::GFF::Segment object, used to create
+	     relative coordinates in the generated features.
+  -merge     Whether to apply aggregators to the generated features.
+  -iterator  Whether to return an iterator across the features.
+
+If -iterator is true, then the method returns a single scalar value
+consisting of a Bio::SeqIO object.  You can call next_seq() repeatedly
+on this object to fetch each of the features in turn.  If iterator is
+false or absent, then all the features are returned as a list.
+
+Currently aggregation is disabled when iterating over a series of
+features.
+
+Types are indicated using the nomenclature "method:source".  Either of
+these fields can be omitted, in which case a wildcard is used for the
+missing field.  Type names without the colon (e.g. "exon") are
+interpreted as the method name and a source wild card.  Regular
+expressions are allowed in either field, as in: "similarity:BLAST.*".
+
+=cut
+
+# call to return the features that overlap the named region
+# real work is done by get_features
+sub overlapping_features {
+  my $self = shift;
+  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) =
+    rearrange([
+	       [qw(REF REFSEQ)],
+	       qw(CLASS),
+	       qw(START),
+	       [qw(STOP END)],
+	       [qw(TYPE TYPES)],
+	       qw(PARENT),
+	       [qw(MERGE AUTOMERGE)],
+	       'ITERATOR'
+	      ],@_);
+
+  # return unless defined $start && defined $stop;
+  $automerge = 1 unless defined $automerge;
+  $self->_features(0,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+}
+
+
+=head2 contained_features
+
+ Title   : contained_features
+ Usage   : $db->contained_features(@args)
+ Function: get features that are contained within the indicated range
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see overlapping_features()
+ Status  : public
+
+This call is similar to overlapping_features(), except that it only
+retrieves features whose end points are completely contained within
+the specified range.
+
+Generally you will want to fetch a Bio::DB::GFF::Segment object and
+call its contained_features() method rather than call this directly.
+
+=cut
+
+# The same, except that it only returns features that are completely contained within the
+# range (much faster usually)
+sub contained_features {
+  my $self = shift;
+  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = 
+    rearrange([
+	       [qw(REF REFSEQ)],
+	       qw(CLASS),
+	       qw(START),
+	       [qw(STOP END)],
+	       [qw(TYPE TYPES)],
+	       qw(PARENT),
+	       [qw(MERGE AUTOMERGE)],
+	       'ITERATOR'
+	      ],@_);
+
+  # return unless defined $start && defined $stop;
+  $automerge = 1 unless defined $automerge;
+  $self->_features(1,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
+}
+
+=head2 features
+
+ Title   : features
+ Usage   : $db->features(@args)
+ Function: get all features, possibly filtered by type
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see below
+ Status  : public
+
+This routine will retrieve features in the database regardless of
+position.  It can be used to return all features, or a subset based on
+their method and source.
+
+Arguments are as follows:
+
+  -types     List of feature types to return.  Argument is an array
+	     reference containing strings of the format "method:source"
+  -merge     Whether to apply aggregators to the generated features.
+  -iterator  Whether to return an iterator across the features.
+
+If -iterator is true, then the method returns a single scalar value
+consisting of a Bio::SeqIO object.  You can call next_seq() repeatedly
+on this object to fetch each of the features in turn.  If iterator is
+false or absent, then all the features are returned as a list.
+
+Currently aggregation is disabled when iterating over a series of
+features.
+
+Types are indicated using the nomenclature "method:source".  Either of
+these fields can be omitted, in which case a wildcard is used for the
+missing field.  Type names without the colon (e.g. "exon") are
+interpreted as the method name and a source wild card.  Regular
+expressions are allowed in either field, as in: "similarity:BLAST.*".
+
+=cut
+
+# The same, except that it fetches all features of a particular type regardless
+# of position
+sub features {
+  my $self = shift;
+  my ($types,$automerge,$iterator);
+  if ($_[0] =~ /^-/) {
+    ($types,$automerge,$iterator) = rearrange([
+					       [qw(TYPE TYPES)],
+					       [qw(MERGE AUTOMERGE)],
+					       'ITERATOR'
+					      ],@_);
+  } else {
+    $types = \@_;
+  }
+
+  $automerge = 1 unless defined $automerge;
+  $self->_features(1,undef,undef,undef,undef,$types,undef,$automerge,$iterator);
+}
+
 =head2 add_aggregator
 
  Title   : add_aggregator
@@ -486,7 +786,6 @@ sub add_aggregator {
   }
 }
 
-
 =head2 aggregators
 
  Title   : aggregators
@@ -505,6 +804,32 @@ sub aggregators {
   my $self = shift;
   return unless $self->{aggregators};
   return @{$self->{aggregators}};
+}
+
+=head2 abscoords
+
+ Title   : abscoords
+ Usage   : $db->abscoords($name,$class)
+ Function: finds position of a landmark in reference coordinates
+ Returns : ($ref,$class,$start,$stop,$strand)
+ Args    : name and class of landmark
+ Status  : public
+
+This method is called by Bio::DB::GFF::RelSegment to obtain the
+absolute coordinates of a sequence landmark.  The arguments are the
+name and class of the landmark.  If successful, abscoords() returns
+the ID of the reference sequence, its class, its start and stop
+positions, and the orientation of the reference sequence's coordinate
+system ("+" for forward strand, "-" for reverse strand).
+
+=cut
+
+# given a sequence class and name, return its coordinates in format (reference,start,stop,strand)
+sub abscoords {
+  my $self = shift;
+  my ($name,$class) = @_;
+  $class ||= 'Sequence';
+  $self->get_abscoords($name,$class);
 }
 
 =head1 Protected API
@@ -553,7 +878,95 @@ field, which are legion.
 
 # load from <>
 sub load_gff {
-  shift->throw("load_gff(): must be implemented by an adaptor");
+  my $self = shift;
+  $self->setup_load();
+
+  while (<>) {
+    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
+    next if /^\#/;
+
+    # handle group parsing
+    $group =~ s/(\"[^\"]*);([^\"]*\")/$1$;$2/g;  # protect embedded semicolons in the group
+    my @groups = split(/\s*;\s*/,$group);
+    foreach (@groups) { s/$;/;/g }
+
+    my ($gclass,$gname,$tstart,$tstop,$notes) = $self->_split_group(@groups);
+
+    # call subclass to do the dirty work
+    $self->load_gff_line($ref,$source,$method,$start,$stop,
+			 $score,$strand,$phase,
+			 $gclass,$gname,$tstart,$tstop,$notes);
+  }
+
+  $self->finish_load();
+}
+
+=head2 setup_load
+
+ Title   : setup_load
+ Usage   : $db->setup_load
+ Function: called before load_gff_line()
+ Returns : void
+ Args    : none
+ Status  : protected
+
+This method gives subclasses a chance to do any schema-specific
+initialization prior to loading a set of GFF records.
+
+=cut
+
+sub setup_load {
+  shift->throw("setup_load(): must be implemented by an adaptor");
+}
+
+=head2 finish_load
+
+ Title   : finish_load
+ Usage   : $db->finish_load
+ Function: called after load_gff_line()
+ Returns : number of records loaded
+ Args    : none
+ Status  : protected
+
+This method gives subclasses a chance to do any schema-specific
+cleanup after loading a set of GFF records.
+
+=cut
+
+sub finish_load {
+  shift->throw("finish_load(): must be implemented by an adaptor");
+}
+
+=head2 load_gff_line
+
+ Title   : load_gff_line
+ Usage   : $db->load_gff_line(@args)
+ Function: called to load one parsed line of GFF
+ Returns : true if successfully inserted
+ Args    : see below
+ Status  : protected
+
+This method is called once per line of the GFF and passed a series of
+parsed data items.  The items are:
+
+ $ref          reference sequence
+ $source       annotation source
+ $method       annotation method
+ $start        annotation start
+ $stop         annotation stop
+ $score        annotation score (may be undef)
+ $strand       annotation strand (may be undef)
+ $phase        annotation phase (may be undef)
+ $group_class  class of annotation's group (may be undef)
+ $group_name   ID of annotation's group (may be undef)
+ $target_start start of target of a similarity hit
+ $target_stop  stop of target of a similarity hit
+ $notes        array reference of text items to be attached
+
+=cut
+
+sub load_gff_line {
+  shift->throw("load_gff_line(): must be implemented by an adaptor");
 }
 
 
@@ -647,7 +1060,8 @@ that data.  The callback expects a list of 11 fields:
   $tstop       target stop for similarity hits (may be undef)
 
 These fields are in the same order as the raw GFF file, with the
-exception that some parsing has been performed on the group field
+exception that the group column has been parsed into class and name
+fields.
 
 =cut
 
@@ -658,18 +1072,110 @@ sub get_features{
 }
 
 
+=head2 get_abscoords
+
+ Title   : get_abscoords
+ Usage   : $db->get_abscoords($name,$class)
+ Function: get the absolute coordinates of sequence with name & class
+ Returns : ($absref,$absstart,$absstop,$absstrand)
+ Args    : name and class of the landmark
+ Status  : protected
+
+Given the name and class of a genomic landmark, this function returns
+a four-element array consisting of:
+
+  $absref      the ID of the reference sequence that contains this landmark
+  $absstart    the position at which the landmark starts
+  $absstop     the position at which the landmark stops
+  $absstrand   the strand of the landmark, relative to the reference sequence
+
+=cut
+
 sub get_abscoords {
   my $self = shift;
   my ($name,$class) = @_;
   $self->throw("get_abscoords() must be implemented by an adaptor");
 }
 
+=head2 get_types
+
+ Title   : get_types
+ Usage   : $db->get_types($absref,$start,$stop,$count)
+ Function: get list of all feature types on the indicated segment
+ Returns : list or hash of Bio::DB::GFF::Typename objects
+ Args    : see below
+ Status  : protected
+
+Arguments are:
+
+  $absref      the ID of the reference sequence
+  $class       the class of the reference sequence
+  $start       the position to start counting
+  $stop        the position to end counting
+  $count       a boolean indicating whether to count the number
+	       of occurrences of each feature type
+
+If $count is true, then a hash is returned.  The keys of the hash are
+feature type names in the format "method:source" and the values are
+the number of times a feature of this type overlaps the indicated
+segment.  Otherwise, the call returns a set of Bio::DB::GFF::Typename
+objects.  If $start or $stop are undef, then all features on the
+indicated segment are enumerated.  If $absref is undef, then the call
+returns all feature types in the database.
+
+=cut
+
 sub get_types {
   my $self = shift;
-  my ($refseq,$start,$stop,$count) = @_;
+  my ($refseq,$class,$start,$stop,$count) = @_;
   $self->throw("get_types() must be implemented by an adaptor");
 }
 
+
+=head2 make_feature
+
+ Title   : make_feature
+ Usage   : $db->make_feature(@args)
+ Function: Create a Bio::DB::GFF::Feature object from string data
+ Returns : a Bio::DB::GFF::Feature object
+ Args    : see below
+ Status  : internal
+
+ This takes 14 arguments (really!):
+
+  $parent                A Bio::DB::GFF::RelSegment object
+  $group_hash            A hashref containing unique list of GFF groups
+  $absref                The reference sequence for this feature
+  $start                 Start of feature
+  $stop                  Stop of feature
+  $source                Feature source field
+  $method                Feature method field
+  $score                 Feature score field
+  $strand                Feature strand
+  $phase                 Feature phase
+  $group_class           Class of feature group
+  $group_name            Name of feature group         
+  $tstart                For homologies, start of hit on target
+  $tstop                 Stop of hit on target
+
+The $parent argument, if present, is used to establish relative
+coordinates in the resulting Bio::DB::Feature object.  This allows one
+feature to generate a list of other features that are relative to its
+coordinate system (for example, finding the coordinates of the second
+exon relative to the coordinates of the first).
+
+The $group_hash allows the group_class/group_name strings to be turned
+into rich database objects via the make_obect() method (see above).
+Because these objects may be expensive to create, $group_hash is used
+to uniquefy them.  The index of this hash is the composite key
+{$group_class,$group_name,$tstart,$tstop}.  Values are whatever object
+is returned by the make_object() method.
+
+The remainder of the fields are taken from the GFF line, with the
+exception that "Target" features, which contain information about the
+target of a homology search, are parsed into their components.
+
+=cut
 
 # This call is responsible for turning a line of GFF into a
 # feature object.
@@ -685,7 +1191,7 @@ sub make_feature {
       $source,$method,
       $score,$strand,$phase,
       $group_class,$group_name,
-      $tstart,$tstop) = @_;
+      $tstart,$tstop,$db_id) = @_;
 
   my $group;  # undefined
   if (defined $group_class && defined $group_name) {
@@ -699,108 +1205,156 @@ sub make_feature {
     return Bio::DB::GFF::Feature->new_from_parent($parent,$start,$stop,
 						  $method,$source,
 						  $score,$strand,$phase,
-						  $group);
+						  $group,$db_id);
   } else {
     return Bio::DB::GFF::Feature->new($self,$srcseq,
 				      $start,$stop,
 				      $method,$source,
 				      $score,$strand,$phase,
-				      $group);
+				      $group,$db_id);
   }
 }
 
-# call to return the DNA string for the indicated region
-# real work is done by get_dna()
-sub dna {
-  my $self = shift;
-  my ($id,$class,$start,$stop) = rearrange([
-					    [qw(NAME ID REF REFSEQ)],
-					    'CLASS',
-					    qw(START),
-					    [qw(STOP END)],
-					   ],@_);
-  return unless defined $start && defined $stop;
-  $self->get_dna($id,$class,$start,$stop);
+=head2 parse_types
+
+ Title   : parse_types
+ Usage   : $db->parse_types(@args)
+ Function: parses list of types
+ Returns : an array ref containing ['method','source'] pairs
+ Args    : a list of types in 'method:source' form
+ Status  : internal
+
+This method takes an array of type names in the format "method:source"
+and returns an array reference of ['method','source'] pairs.  It will
+also accept a single argument consisting of an array reference with
+the list of type names.
+
+=cut
+
+# turn feature types in the format "method:source" into a list of [method,source] refs
+sub parse_types {
+  my $self  = shift;
+  return [] if !@_ or !defined($_[0]);
+
+  my @types = ref($_[0]) ? @{$_[0]} : @_;
+  my @type_list = map { [split(':',$_,2)] } @types;
+  return \@type_list;
 }
 
-# call to return the features that overlap the named region
-# real work is done by get_features
-sub overlapping_features {
+=head2 make_match_sub
+
+ Title   : make_match_sub
+ Usage   : $db->make_match_sub($types)
+ Function: creates a subroutine used for filtering features
+ Returns : a code reference
+ Args    : a list of parsed type names
+ Status  : protected
+
+This method is used internally to generate a code subroutine that will
+accept or reject a feature based on its method and source.  It takes
+an array of parsed type names in the format returned by parse_types(),
+and generates an anonymous subroutine.  The subroutine takes a single
+Bio::DB::GFF::Feature object and returns true if the feature matches
+one of the desired feature types, and false otherwise.
+
+=cut
+
+# a subroutine that matches features indicated by list of types
+sub make_match_sub {
   my $self = shift;
-  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) =
-    rearrange([
-	       [qw(REF REFSEQ)],
-	       qw(CLASS),
-	       qw(START),
-	       [qw(STOP END)],
-	       [qw(TYPE TYPES)],
-	       qw(PARENT),
-	       [qw(MERGE AUTOMERGE)],
-	       'ITERATOR'
-	      ],@_);
+  my $types = shift;
 
-  # return unless defined $start && defined $stop;
-  $automerge = 1 unless defined $automerge;
-  $self->_features(0,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
-}
+  return sub { 1 } unless ref $types && @$types;
 
-
-# The same, except that it only returns features that are completely contained within the
-# range (much faster usually)
-sub contained_features {
-  my $self = shift;
-  my ($refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = 
-    rearrange([
-	       [qw(REF REFSEQ)],
-	       qw(CLASS),
-	       qw(START),
-	       [qw(STOP END)],
-	       [qw(TYPE TYPES)],
-	       qw(PARENT),
-	       [qw(MERGE AUTOMERGE)],
-	       'ITERATOR'
-	      ],@_);
-
-  # return unless defined $start && defined $stop;
-  $automerge = 1 unless defined $automerge;
-  $self->_features(1,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator);
-}
-
-# The same, except that it fetches all features of a particular type regardless
-# of position
-sub features {
-  my $self = shift;
-  my ($types,$automerge,$iterator);
-  if ($_[0] =~ /^-/) {
-    ($types,$automerge,$iterator) = rearrange([
-					       [qw(TYPE TYPES)],
-					       [qw(MERGE AUTOMERGE)],
-					       'ITERATOR'
-					      ],@_);
-  } else {
-    $types = \@_;
+  my @expr;
+  for my $type (@$types) {
+    my ($method,$source) = @$type;
+    $method ||= '.*';
+    $source ||= '.*';
+    push @expr,"$method:$source";
   }
+  my $expr = join '|',@expr;
+  return $self->{match_subs}{$expr} if $self->{match_subs}{$expr};
 
-  $automerge = 1 unless defined $automerge;
-  $self->_features(1,undef,undef,undef,undef,$types,undef,$automerge,$iterator);
+  my $sub =<<END;
+sub {
+  my \$feature = shift;
+  return \$feature->type =~ /^$expr\$/i;
+}
+END
+  my $compiled_sub = eval $sub;
+  $self->throw($@) if $@;
+  return $self->{match_subs}{$expr} = $compiled_sub;
 }
 
-sub types {
+=head2 make_object
+
+ Title   : make_object
+ Usage   : $db->make_object($name,$class,$start,$stop)
+ Function: creates a feature object
+ Returns : a feature object
+ Args    : see below
+ Status  : protected
+
+This method is called to make an object from the GFF "group" field.
+By default, all Target groups are turned into Bio::DB::GFF::Homol
+objects, and everything else becomes a Bio::DB::GFF::Featname.
+However, adaptors are free to override this method to generate more
+interesting objects, such as true BioPerl objects, or Acedb objects.
+
+Arguments are:
+
+  $name      database ID for object
+  $class     class of object
+  $start     for similarities, start of match inside object
+  $stop      for similarities, stop of match inside object
+
+=cut
+
+# abstract call to turn a feature into an object, given its class and name
+sub make_object {
   my $self = shift;
-  my ($refseq,$start,$stop,$enumerate) = rearrange ([
-						     [qw(REF REFSEQ)],
-						     qw(START),
-						     [qw(STOP END)],
-						     [qw(ENUMERATE COUNT)],
-						     ],@_);
-  $self->get_types($refseq,$start,$stop,$enumerate);
+  my ($name,$class,$start,$stop) = @_;
+  return Bio::DB::GFF::Homol->new($self,$name,$class,$start,$stop) if defined $start and length $start;
+  return Bio::DB::GFF::Featname->new($class,$name);
 }
+
+=head1 Internal Methods
+
+The following methods are internal to Bio::DB::GFF and are not
+guaranteed to remain the same.
+
+=head2 _features
+
+ Title   : _features
+ Usage   : $db->_features(@args)
+ Function: internal method
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see below
+ Status  : internal
+
+This is an internal method that is called by overlapping_features(),
+contained_features() and features() to do the actual work.  It takes
+nine positional arguments:
+
+  $range_query	 if true, this is a request for contained features, 
+		 otherwise for overlapping features.
+  $refseq        reference sequence ID
+  $class	 reference sequence class
+  $start	 start of range
+  $stop		 stop of range
+  $types	 list of types
+  $parent	 parent sequence, for relative coordinates
+  $automerge	 if true, invoke aggregators to merge features
+  $iterator	 if true, return an iterator
+
+=cut
 
 sub _features {
   my $self = shift;
   my ($range_query,$refseq,$class,$start,$stop,$types,$parent,$automerge,$iterator) = @_;
 
-  ($start,$stop) = ($stop,$start) if $start > $stop;
+  ($start,$stop) = ($stop,$start) if defined($start) && $start > $stop;
 
   $types = $self->parse_types($types);  # parse out list of types
   my $aggregated_types = $types;         # keep a copy
@@ -841,58 +1395,60 @@ sub _features {
   return grep { $match->($_) } @$features;
 }
 
-# turn feature types in the format "method:source" into a list of [method,source] refs
-sub parse_types {
-  my $self  = shift;
-  return [] if !@_ or !defined($_[0]);
+=head2 _split_group
 
-  my @types = ref($_[0]) ? @{$_[0]} : @_;
-  my @type_list = map { [split(':',$_,2)] } @types;
-  return \@type_list;
-}
+ Title   : _split_group
+ Usage   : $db->_split_group(@groups)
+ Function: parse GFF group field
+ Returns : ($gclass,$gname,$tstart,$tstop,$notes)
+ Args    : a list of group fields from a GFF line
+ Status  : internal
 
-# a subroutine that matches features indicated by list of types
-sub make_match_sub {
+This is an internal method that is called by load_gff_line to parse
+out the contents of one or more group fields.  It returns the class of
+the group, its name, the start and stop of the target, if any, and an
+array reference containing any notes that were stuck into the group
+field.
+
+=cut
+
+sub _split_group {
   my $self = shift;
-  my $types = shift;
+  my @groups = @_;
 
-  return sub { 1 } unless ref $types && @$types;
+  my ($gclass,$gname,$tstart,$tstop,@notes);
 
-  my @expr;
-  for my $type (@$types) {
-    my ($method,$source) = @$type;
-    $method ||= '.*';
-    $source ||= '.*';
-    push @expr,"$method:$source";
+  for (@groups) {
+
+    my ($tag,$value) = /(\S+)(?:\s+\"([^\"]+)\")?/;
+    $value =~ s/\\t/\t/g;
+    $value =~ s/\\r/\r/g;
+
+    # if the tag is "Note", then we add this to the
+    # notes array
+   if ($tag eq 'Note') {  # just a note, not a group!
+     push @notes,$value;
+   }
+
+    # if the tag eq 'Target' then the class name is embedded in the ID
+    # (the GFF format is obviously screwed up here)
+    elsif ($tag eq 'Target' && /\"([^:\"]+):([^\"]+)\"/) {
+      ($gclass,$gname) = ($1,$2);
+      ($tstart,$tstop) = /(\d+) (\d+)/;
+    }
+
+    elsif (!$value) {
+      push @notes,$tag;  # e.g. "Confirmed_by_EST"
+    }
+
+    # otherwise, the tag and value correspond to the
+    # group class and name
+    else {
+      ($gclass,$gname) = ($tag,$value);
+    }
   }
-  my $expr = join '|',@expr;
-  return $self->{match_subs}{$expr} if $self->{match_subs}{$expr};
 
-  my $sub =<<END;
-sub {
-  my \$feature = shift;
-  return \$feature->type =~ /^$expr\$/i;
-}
-END
-  my $compiled_sub = eval $sub;
-  $self->throw($@) if $@;
-  return $self->{match_subs}{$expr} = $compiled_sub;
-}
-
-# abstract call to turn a feature into an object, given its class and name
-sub make_object {
-  my $self = shift;
-  my ($class,$name,$start,$stop) = @_;
-  return Bio::DB::GFF::Homol->new($self,$name,$class,$start,$stop) if defined $start and length $start;
-  return Bio::DB::GFF::Featname->new($class,$name);
-}
-
-# given a sequence class and name, return its coordinates in format (reference,start,stop,strand)
-sub abscoords {
-  my $self = shift;
-  my ($name,$class) = @_;
-  $class ||= 'Sequence';
-  $self->get_abscoords($name,$class);
+  return ($gclass,$gname,$tstart,$tstop,\@notes);
 }
 
 1;

@@ -132,7 +132,7 @@ sub make_object {
     return Ace::Sequence::Homol->new($class,$name,$db,$start,$stop) if defined $start;
 
     # General case:
-    my $obj = $class->new($class=>$name,$self->db);
+    my $obj = $class->new($class=>$name,$self->acedb);
 
     return $obj if defined $obj;
 
@@ -140,7 +140,7 @@ sub make_object {
     return $class->new(Text=>$name);
   }
 
-  return $self->SUPER::make_object($class,$name,$start,$stop);
+  return $self->SUPER::make_object($name,$class,$start,$stop);
 }
 
 sub bin_query {
@@ -165,21 +165,14 @@ sub bin_query {
 
 ########################## loading and initialization  #####################
 
-sub load_gff {
+# exactly like mysql.pm setup_load except that it inserts the bin field
+sub setup_load {
   my $self      = shift;
 
+  $self->SUPER::setup_load;
   my $dbh = $self->features_db;
-  local $dbh->{PrintError} = 0;
 
-  # for the paranoid....
-  #  $dbh->do("LOCK TABLES fdata WRITE, ftype WRITE, fgroup WRITE");
-
-  my $lookup_type = $dbh->prepare('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
-  my $insert_type = $dbh->prepare('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
-
-  my $lookup_group = $dbh->prepare('SELECT gid FROM fgroup WHERE gclass=? AND gname=?');
-  my $insert_group = $dbh->prepare('INSERT INTO fgroup (gclass,gname) VALUES (?,?)');
-
+  my $insert_note  = $dbh->prepare('INSERT INTO fnote (fid,fnote) VALUES (?,?)');
   my $insert_data  = $dbh->prepare(<<END);
 INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
 		   fstrand,fphase,gid,ftarget_start,ftarget_stop)
@@ -187,114 +180,109 @@ INSERT INTO fdata (fref,fstart,fstop,fbin,ftypeid,fscore,
 END
 ;
 
-  # local caches of type and group ids
-  my (%types,%groups,$counter);
-
-  while (<>) {
-    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
-    next if /^\#/;
-
-    my ($group_class,$group_name,@rest) = split_group($group);
-
-    # truncate the group name
-    $group_name = substr($group_name,0,100) if length $group_name > 100;
-
-    my $target_start = $rest[0];
-    my $target_stop  = $rest[1];
-    $group_class = 'Sequence' if $group_class eq 'Target';
-
-    # get the type ID
-    my $key = "\L$method$;$source\E";
-    unless ($types{$key}) {
-
-      if ( (my $result = $lookup_type->execute($method,$source)) > 0) {
-	$types{$key} = ($lookup_type->fetchrow_array)[0];
-      } else {
-	$insert_type->execute($method,$source)
-	  && ($types{$key} = $dbh->{mysql_insertid});
-      }
-    }
-
-    my $typeid = $types{$key};
-    unless ($typeid) {
-      warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
-      next;
-    }
-
-    # and the group ID
-    $key = "\L$group_class$;$group_name\E";
-    unless ($groups{$key}) {
-
-      if ((my $result = $lookup_group->execute($group_class,$group_name)) > 0) {
-	$groups{$key} = ($lookup_group->fetchrow_array)[0];
-      } else {
-	$insert_group->execute($group_class,$group_name)
-	  && ($groups{$key} = $dbh->{mysql_insertid});
-      }
-    }
-
-    my $groupid = $groups{$key};
-    unless ($groupid) {
-      warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
-      next;
-    }
-
-    my $bin =  bin($start,$stop,$self->{minbin});
-
-    my $result = $insert_data->execute($ref,$start,$stop,$bin,$typeid,
-				       $score,$strand,$phase,$groupid,
-				       $target_start,$target_stop);
-    unless ($result) {
-      warn $dbh->errstr,"\n";
-      next;
-    }
-
-    next unless $result;
-    if ( (++$counter % 1000) == 0) {
-      print STDERR "$counter records loaded...";
-      print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
-    }
-  }
-
-  $_->finish foreach ($lookup_type,$insert_type,$lookup_group,$insert_group,$insert_data);
-
-#  $dbh->do('UNLOCK TABLES');
-
-  return $counter;
+  $self->{load_stuff}{insert_data}  = $insert_data;
+  $self->{load_stuff}{insert_note}  = $insert_note;
 }
 
-sub split_group {
-  local $_ = shift;
-  my ($tag,$value) = /(\S+)\s+\"([^\"]+)\"/;
-  $value =~ s/\\t/\t/g;
-  $value =~ s/\\r/\r/g;
-  my $class = $tag;
-  if ($value =~ /^(\S+):(\S.*)$/) {
-    $class = $1;
-    $value = $2;
+sub load_gff_line {
+  my $self      = shift;
+  my ($ref,$source,$method,$start,$stop,
+      $score,$strand,$phase,
+      $group_class,$group_name,$target_start,$target_stop,
+      $notes) = @_;
+
+  my $s    = $self->{load_stuff};
+  my $dbh  = $self->features_db;
+  local $dbh->{PrintError} = 0;
+
+  # get the type ID
+  my $key = "\L$method$;$source\E";
+  unless ($s->{types}{$key}) {
+
+    if ( (my $result = $s->{lookup_type}->execute($method,$source)) > 0) {
+      $s->{types}{$key} = ($s->{lookup_type}->fetchrow_array)[0];
+    } else {
+      $s->{insert_type}->execute($method,$source)
+	&& ($s->{types}{$key} = $dbh->{mysql_insertid});
+    }
   }
-  return ($class,$value) unless $tag eq 'Target';
-  $value =~ s/^\"//;
-  $value =~ s/\"$//;
-  my($start,$end) = /(\d+) (\d+)/;
-  return ($class,$value,$start,$end);
+
+  my $typeid = $s->{types}{$key};
+  unless ($typeid) {
+    warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
+    next;
+  }
+
+  my $group_id;   # undef to start with
+
+  # and the group ID
+  $key = "\L$group_class$;$group_name\E";
+  unless ($s->{groups}{$key}) {
+
+    if ((my $result = $s->{lookup_group}->execute($group_class,$group_name)) > 0) {
+      $s->{groups}{$key} = ($s->{lookup_group}->fetchrow_array)[0];
+    } else {
+      $s->{insert_group}->execute($group_class,$group_name)
+	&& ($s->{groups}{$key} = $dbh->{mysql_insertid});
+    }
+  }
+
+  unless ($group_id = $s->{groups}{$key}) {
+    warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
+    next;
+  }
+
+  my $bin =  bin($start,$stop,$self->{minbin});
+
+  my $result = $s->{insert_data}->execute($ref,$start,$stop,$bin,$typeid,
+					  $score,$strand,$phase,$group_id,
+					  $target_start,$target_stop);
+  unless ($result) {
+    warn $dbh->errstr,"\n";
+    next;
+  }
+
+  # add notes
+  my $fid = $dbh->{mysql_insertid};
+  foreach (@$notes) {
+    $s->{insert_note}->execute($fid,$_);
+  }
+
+  return unless $result;
+
+  if ( (++$s->{counter} % 1000) == 0) {
+    print STDERR "$s->{counter} records loaded...";
+    print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+  }
+
+  1;
+}
+
+sub finish_load {
+  my $self = shift;
+  $self->{load_stuff}{insert_note}->finish;
+  $self->SUPER::finish_load;
+}
+
+sub tables {
+  qw(fdata fgroup ftype fdna fnote)
 }
 
 sub schema {
   return <<END;
 create table fdata (
-    fid	         int not null auto_increment,
-    fref         varchar(20)    not null,
-    fstart       int unsigned   not null,
-    fstop        int unsigned   not null,
-    fbin         decimal(20,6)  not null,
-    ftypeid      int not null,
-    fscore        float,
-    fstrand       enum('+','-'),
-    fphase        enum('0','1','2'),
-    gid          int not null,
-    ftarget_start int unsigned,
-    ftarget_stop  int unsigned,
+    fid	                int not null auto_increment,
+    fref                varchar(20)    not null,
+    fstart              int unsigned   not null,
+    fstop               int unsigned   not null,
+    fbin                double(20,6)  not null,
+    ftypeid             int not null,
+    fscore              float,
+    fstrand             enum('+','-'),
+    fphase              enum('0','1','2'),
+    gid                 int not null,
+    ftarget_start       int unsigned,
+    ftarget_stop        int unsigned,
     primary key(fid),
     index(fref,fbin,fstart,fstop,ftypeid),
     index(ftypeid),
@@ -307,6 +295,12 @@ create table fgroup (
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
+);
+
+create table fnote (
+    fid      int not null,
+    fnote    text,
+    index(fid)
 );
 
 create table ftype (

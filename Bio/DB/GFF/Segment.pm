@@ -52,27 +52,22 @@ sub clone {
 sub subseq {
   my $self = shift;
   my ($newstart,$newstop) = @_;
-  my ($refseq,$start,$stop,$class) = ($self->refseq,
-				      $self->start,$self->stop,
+  my ($refseq,$start,$stop,$class) = ($self->{sourceseq},
+				      $self->{start},$self->{stop},
 				      $self->class);
 
-  # We deliberately force subseq to return objects of type DNA.
+  # We deliberately force subseq to return objects of type RelSegment
   # Otherwise, when we get a subsequence from a Feature object,
   # its method and source go along for the ride, which is incorrect.
-  return $start <= $stop ? $self->new($self->factory,
-				      $refseq,
-				      $start + $newstart - 1,
-				      $start + $newstop  - 1,
-				      undef,
-				      $class,
-				     )
-                         : $self->new($self->factory,
-				      $refseq,
-				      $start - ($newstart - 1),
-				      $start - ($newstop  - 1),
-				      undef,
-				      $class,
-				     );
+  my $new = $self->new_from_segment($self);
+  if ($start <= $stop) {
+    @{$new}{qw(start stop)} = ($start + $newstart - 1, $start + $newstop  - 1);
+  } else {
+    @{$new}{qw(start stop)} = ($start - ($newstart - 1), $start - ($newstop  - 1)),
+
+  }
+
+  $new;
 }
 
 sub asString {

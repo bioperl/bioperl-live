@@ -11,6 +11,7 @@ use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 use constant GETSEQCOORDS =><<END;
 SELECT fref,
+       'Sequence',
        min(fstart),
        max(fstop),
        fstrand
@@ -37,7 +38,7 @@ sub make_abscoord_query {
 sub make_features_select_part {
   my $self = shift;
   return <<END;
-fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop
+fref,fstart,fstop,fsource,fmethod,fscore,fstrand,fphase,gclass,gname,ftarget_start,ftarget_stop,fid
 END
 }
 
@@ -210,11 +211,10 @@ create table fdna (
 END
 }
 
-sub load_gff {
+sub setup_load {
   my $self      = shift;
 
   my $dbh = $self->features_db;
-  local $dbh->{PrintError} = 0;
 
   # for the paranoid....
   #  $dbh->do("LOCK TABLES fdata WRITE, ftype WRITE, fgroup WRITE");
@@ -232,77 +232,90 @@ INSERT INTO fdata (fref,fstart,fstop,ftypeid,fscore,
 END
 ;
 
-  # local caches of type and group ids
-  my (%types,%groups,$counter);
+  $self->{load_stuff}{lookup_type}  = $lookup_type;
+  $self->{load_stuff}{insert_type}  = $insert_type;
+  $self->{load_stuff}{lookup_group} = $lookup_group;
+  $self->{load_stuff}{insert_group} = $insert_group;
+  $self->{load_stuff}{insert_data}  = $insert_data;
+  $self->{load_stuff}{types}  = {};
+  $self->{load_stuff}{groups} = {};
+  $self->{load_stuff}{counter} = 0;
+}
 
-  while (<>) {
-    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
-    next if /^\#/;
+sub load_gff_line {
+  my $self = shift;
+  my ($ref,$source,$method,$start,$stop,
+      $score,$strand,$phase,
+      $group_class,$group_name,$target_start,$target_stop,
+      $notes) = @_;
 
-    my ($group_class,$group_name,@rest) = split_group($group);
+  my $s    = $self->{load_stuff};
+  my $dbh  = $self->features_db;
+  local $dbh->{PrintError} = 0;
 
-    # truncate the group name
-    $group_name = substr($group_name,0,100) if length $group_name > 100;
+  # get the type ID
+  my $key = "\L$method$;$source\E";
+  unless ($s->{types}{$key}) {
 
-    my $target_start = $rest[0];
-    my $target_stop  = $rest[1];
-    $group_class = 'Sequence' if $group_class eq 'Target';
-
-    # get the type ID
-    my $key = "\L$method$;$source\E";
-    unless ($types{$key}) {
-
-      if ( (my $result = $lookup_type->execute($method,$source)) > 0) {
-	$types{$key} = ($lookup_type->fetchrow_array)[0];
-      } else {
-	$insert_type->execute($method,$source)
-	  && ($types{$key} = $dbh->{mysql_insertid});
-      }
-    }
-
-    my $typeid = $types{$key};
-    unless ($typeid) {
-      warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
-      next;
-    }
-
-    # and the group ID
-    $key = "\L$group_class$;$group_name\E";
-    unless ($groups{$key}) {
-
-      if ((my $result = $lookup_group->execute($group_class,$group_name)) > 0) {
-	$groups{$key} = ($lookup_group->fetchrow_array)[0];
-      } else {
-	$insert_group->execute($group_class,$group_name)
-	  && ($groups{$key} = $dbh->{mysql_insertid});
-      }
-    }
-
-    my $groupid = $groups{$key};
-    unless ($groupid) {
-      warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
-      next;
-    }
-
-    my $result = $insert_data->execute($ref,$start,$stop,$typeid,
-				       $score,$strand,$phase,$groupid,
-				       $target_start,$target_stop);
-    unless ($result) {
-      warn $dbh->errstr,"\n";
-      next;
-    }
-
-    next unless $result;
-    if ( (++$counter % 1000) == 0) {
-      print STDERR "$counter records loaded...";
-      print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+    if ( (my $result = $s->{lookup_type}->execute($method,$source)) > 0) {
+      $s->{types}{$key} = ($s->{lookup_type}->fetchrow_array)[0];
+    } else {
+      $s->{insert_type}->execute($method,$source)
+	&& ($s->{types}{$key} = $dbh->{mysql_insertid});
     }
   }
 
-  $_->finish foreach ($lookup_type,$insert_type,$lookup_group,$insert_group,$insert_data);
+  my $typeid = $s->{types}{$key};
+  unless ($typeid) {
+    warn "No typeid for $method:$source; ",$dbh->errstr," Record skipped.\n";
+    next;
+  }
 
+  # and the group ID
+  $key = "\L$group_class$;$group_name\E";
+  unless ($s->{groups}{$key}) {
+
+    if ((my $result = $s->{lookup_group}->execute($group_class,$group_name)) > 0) {
+      $s->{groups}{$key} = ($s->{lookup_group}->fetchrow_array)[0];
+    } else {
+      $s->{insert_group}->execute($group_class,$group_name)
+	&& ($s->{groups}{$key} = $dbh->{mysql_insertid});
+    }
+  }
+
+  my $groupid = $s->{groups}{$key};
+  unless ($groupid) {
+    warn "No groupid for $group_class:$group_name; ",$dbh->errstr," Record skipped.\n";
+    next;
+  }
+
+  my $result = $s->{insert_data}->execute($ref,$start,$stop,$typeid,
+					  $score,$strand,$phase,$groupid,
+					  $target_start,$target_stop);
+  unless ($result) {
+    warn $dbh->errstr,"\n";
+    next;
+  }
+
+  return unless $result;
+
+  if ( (++$s->{counter} % 1000) == 0) {
+    print STDERR "$s->{counter} records loaded...";
+    print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+  }
+
+  1;
+}
+
+sub finish_load {
+  my $self = shift;
 #  $dbh->do('UNLOCK TABLES');
 
+  $self->{load_stuff}{$_}->finish
+    foreach qw(lookup_type insert_type lookup_group insert_group insert_data);
+
+  my $counter = $self->{load_stuff}{counter};
+  delete $self->{load_stuff};
   return $counter;
 }
 

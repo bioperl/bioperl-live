@@ -8,7 +8,7 @@ use Bio::DB::GFF::Segment;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.20';
+$VERSION = '0.25';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) } ;
@@ -48,7 +48,7 @@ sub new {
   $class ||= 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
-  my($absref,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class)
+  my($absref,$absclass,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class)
     or return;
 
   # an explicit length overrides start and stop
@@ -64,7 +64,7 @@ sub new {
   }
 
   # this allows a SQL optimization way down deep
-  $self->{whole}++ unless defined $start and defined $stop;
+  $self->{whole}++ if $absref eq $name and !defined($start) and !defined($stop);
 
   $start = 1                    unless defined $start;
   $stop  = $absstop-$absstart+1 unless defined $stop;
@@ -79,7 +79,7 @@ sub new {
     $stop  =  $absstop - ($stop - 1);
   }
   @{$self}{qw(sourceseq start stop strand class)}
-    = ($absref,$start,$stop,$absstrand,$class);
+    = ($absref,$start,$stop,$absstrand,$absclass);
 
   # but what about the reference sequence?
   if (defined $refseq) {
@@ -99,6 +99,16 @@ sub new {
   return $self;
 }
 
+sub new_from_segment {
+  my $package   = shift;
+  $package      = ref $package if ref $package;
+  my $segment   = shift;
+  my $new = {};
+  @{$new}{qw(factory sourceseq start stop strand class ref refstart refstrand)}
+    = @{$segment}{qw(factory sourceseq start stop strand class ref refstart refstrand)};
+  return bless $new,$package;
+}
+
 # read-only accessors
 sub factory { shift->{factory} }
 
@@ -112,13 +122,14 @@ sub stop {
   $self->abs2rel($self->{stop});
 }
 
-sub abstart { shift->{start} }
-sub abstop  { shift->{stop}  }
-sub absstrand { shift->{refstrand} }
+sub abs_ref    { shift->{sourceseq}   }
+sub abs_start  { shift->{start} }
+sub abs_stop   { shift->{stop}  }
+sub abs_strand { shift->{refstrand} }
 
 sub length {
   my $self = shift;
-  abs($self->abstop - $self->abstart) + 1;
+  abs($self->abs_stop - $self->abs_start) + 1;
 }
 
 sub refseq {
@@ -128,7 +139,7 @@ sub refseq {
     my $newref   = shift;
     my $newclass = shift || 'Sequence';
     my ($refref,$refstart,$refstop,$refstrand)
-      = $newref->isa('Bio::DB::GFF::RelSegment') ? ($newref->refseq,$newref->absstart,$newref->abstop,$newref->abstrand)
+      = $newref->isa('Bio::DB::GFF::RelSegment') ? ($newref->refseq,$newref->abs_start,$newref->abs_stop,$newref->abstrand)
                                                  : $self->factory->abscoords($newref,$newclass);
     $self->throw("can't set reference sequence: $newref and $self are on different sequence segments")
       unless $refref eq $self->{sourceseq};
@@ -203,9 +214,10 @@ sub _process_feature_args {
 # wrapper for lower-level types() call.
 sub types {
   my $self = shift;
-  my ($ref,$start,$stop,$strand) = @{$self}{qw(sourceseq start stop strand)};
+  my ($ref,$class,$start,$stop,$strand) = @{$self}{qw(sourceseq class start stop strand)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
   $self->factory->types(-ref  => $ref,
+			-class => $class,
 			-start=> $start,
 			-stop => $stop,
 			@_);
@@ -255,7 +267,7 @@ sub error {
 sub subseq {
   my $self = shift;
   my $obj  = $self->SUPER::subseq(@_);
-  bless $obj,__PACKAGE__;    # always bless into the generic segment package
+  bless $obj,__PACKAGE__;    # always bless into the generic RelSegment package
 }
 
 sub make_feature {

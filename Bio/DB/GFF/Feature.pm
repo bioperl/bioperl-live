@@ -20,26 +20,30 @@ $VERSION = '0.20';
 # this is called for a feature that is attached to a parent sequence,
 # in which case it inherits its coordinate reference system and strandedness
 sub new_from_parent {
-  my $class   = shift;
+  my $package   = shift;
   my ($parent,
       $start,$stop,
       $method,$source,$score,
       $fstrand,$phase,
-      $group) = @_;
+      $group,$db_id) = @_;
 
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
+  my $class = $group ? $group->class : $parent->class;
 
-  return bless {
-		%$parent,
-		start  => $start,
-		stop   => $stop,
-		type   => Bio::DB::GFF::Typename->new($method,$source),
-		fstrand => $fstrand,
-		score  => $score,
-		phase  => $phase,
-		group  => $group,
-		whole  => 0,
-	       },$class;
+  my $self =  bless {
+		     %$parent,
+		     start  => $start,
+		     stop   => $stop,
+		     type   => Bio::DB::GFF::Typename->new($method,$source),
+		     fstrand => $fstrand,
+		     score  => $score,
+		     phase  => $phase,
+		     group  => $group,
+		     db_id  => $db_id,
+		     class  => $class,
+		    },$package;
+  delete $self->{whole};  # a feature is never whole (sorry)
+  $self;
 }
 
 # This is called when creating a feature from scratch.  It does not have
@@ -52,20 +56,21 @@ sub new {
       $method,$source,
       $score,$fstrand,$phase,
       $group,
-      $class) = @_;
+      $db_id
+     ) = @_;
 
   my $self = bless { },$package;
   ($start,$stop) = ($stop,$start) if defined($fstrand) and $fstrand eq '-';
 
-  $class ||= 'Sequence';
+  my $class = $group ? $group->class : 'Sequence';
 
   @{$self}{qw(factory sourceseq start stop strand class)} =
     ($factory,$srcseq,$start,$stop,$fstrand,$class);
 
   @{$self}{qw(ref refstart refstrand)} = ($srcseq,1,$fstrand);
 
-  @{$self}{qw(type fstrand score phase group)} =
-    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group);
+  @{$self}{qw(type fstrand score phase group db_id)} =
+    (Bio::DB::GFF::Typename->new($method,$source),$fstrand,$score,$phase,$group,$db_id);
 
   $self;
 }
@@ -88,7 +93,7 @@ sub score  {
   $self->{score} = shift if @_;
   $d;
 }
-sub phase  { 
+sub phase  {
   my $self = shift;
   my $d    = $self->{phase};
   $self->{phase} = shift if @_;
@@ -102,6 +107,8 @@ sub group  {
 }
 sub info   { shift->group(@_) }
 sub target { shift->group(@_) }
+
+sub id     { shift->{db_id}   }
 
 sub clone {
   my $self = shift;

@@ -141,7 +141,7 @@ sub get_features_iterator {
 
 sub get_types {
   my $self = shift;
-  my ($srcseq,$start,$stop,$want_count) = @_;
+  my ($srcseq,$src_class,$start,$stop,$want_count) = @_;
   my $straight      = $self->do_straight_join($srcseq,$start,$stop,[]) ? 'straight_join' : '';
   my ($select,@args1) = $self->make_types_select_part($srcseq,$start,$stop,$want_count);
   my ($from,@args2)   = $self->make_types_from_part($srcseq,$start,$stop,$want_count);
@@ -365,6 +365,11 @@ sub DESTROY {
 }
 
 package Bio::DB::GFF::Adaptor::dbi::iterator;
+use Bio::SeqIO;
+use vars '@ISA';
+@ISA = 'Bio::SeqIO';
+
+*next_seq = \&next_feature;
 
 sub new {
   my $class = shift;
