@@ -54,7 +54,7 @@ use Bio::Annotation::DBLink;
 sub _initialize {
   my($self,@args) = @_;
 
-  my $make = $self->SUPER::_initialize;
+  my $make = $self->SUPER::_initialize(@args);
 
 # set stuff in self from @args
  return $make; # success - we hope!
