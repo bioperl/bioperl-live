@@ -377,7 +377,7 @@ sub sysname {
 	#push @alleles, $self->allele_mut if $self->allele_mut;
 	foreach my $allele (@alleles) {
 	    $self->allele_mut($allele);
-	    $sysname .= $sep if $self->label =~ /point/;
+	    $sysname .= $sep if $self->label =~ /point/ or $self->label =~ /complex/;
 	    $sysname .=  uc $self->allele_mut->seq if $self->allele_mut->seq;
 	}
 	$self->{'sysname'} = $sysname;
