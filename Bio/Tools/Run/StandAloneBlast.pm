@@ -145,13 +145,12 @@ For blastall and non-psiblast blastpgp runs, report object is either a
 BPlite.pm or Bio::SearchIO object, selected by the user with the
 parameter _READMETHOD.  (The leading underscore is needed to
 distinguish this option from options which are passed to the BLAST
-executable.) The default parser is Bio::SearchIO::blast.  For
-(multiple iteration) psiblast and bl2seq runs the report is
-automatically parsed by the BPpsilite.pm and BPbl2seq.pm parsers
-respectively, since neither Blast.pm nor BPlite can parse these
-reports. In any case, the "raw" blast report is also available. The
-filename is set by the in the 'outfile' parameter and has the default
-value of "blastreport.out".
+executable.) The default parser is Bio::SearchIO::blast.  If BPlite
+method is selected, Bio::Tools::BPlite objects will be returned for
+standard blast and Bio::Tools::BPpsilite for a multiple-iteration
+blasts, and a Bio::Tools::BPbl2seq for bl2seq.  In any case, the "raw"
+blast report is also available. The filename is set by the in the
+'outfile' parameter and has the default value of "blastreport.out".
 
 For psiblast execution in BLAST's "jumpstart" mode, the program must
 be passed (in addition to the query sequence itself) an alignment
