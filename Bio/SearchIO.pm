@@ -26,6 +26,7 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches (Blast,FASTA,...)
 	    # process the Bio::Search::HSPI object
 	}
     }
+
 =head1 DESCRIPTION
 
 This is a driver for instantiating a parser for report files from
@@ -97,6 +98,9 @@ use Symbol();
            -result_factory => Object implementing Bio::Factory::ResultFactoryI
            -hit_factory    => Object implementing Bio::Factory::HitFactoryI
            -writer         => Object implementing Bio::SearchIO::SearchWriterI
+
+See L<Bio::Factory::ResultFactoryI>, L<Bio::Factory::HitFactoryI>,
+L<Bio::SearchIO::SearchWriterI>
 
 =cut
 
@@ -175,6 +179,8 @@ sub fh {
  Returns : none
  Args    : Bio::SearchIO::EventHandlerI
 
+See L<Bio::SearchIO::EventHandlerI>
+
 =cut
 
 sub attach_EventHandler{
@@ -195,6 +201,7 @@ sub attach_EventHandler{
  Returns : Bio::SearchIO::EventHandlerI
  Args    : none
 
+See L<Bio::SearchIO::EventHandlerI>
 
 =cut
 
@@ -255,6 +262,8 @@ sub _initialize {
  Returns : A Bio::Search::Result::ResultI object
  Args    : n/a
 
+See L<Bio::Root::RootI>
+
 =cut
 
 sub next_result {
@@ -273,6 +282,8 @@ sub next_result {
  Args    : Bio::Search:Result::ResultI object,
          : plus any other arguments for the Writer
  Throws  : Bio::Root::Exception if a Writer has not been set.
+
+See L<Bio::Root::Exception>
 
 =cut
 
@@ -325,6 +336,8 @@ sub writer {
            is passed in.
  Comments: A SearchIO implementation should provide a default hit factory.
 
+See L<Bio::Factory::HitFactoryI>
+
 =cut
 
 sub hit_factory {
@@ -343,12 +356,15 @@ sub hit_factory {
  Title   : result_factory
  Usage   : $result_factory = $stream->result_factory;  (get)
          : $stream->result_factory( $factory );        (set)
- Function: Sets/Gets a factory object to create result objects for this SearchIO.
+ Function: Sets/Gets a factory object to create result objects for this
+           SearchIO.
  Returns : Bio::Factory::ResultFactoryI object 
  Args    : Bio::Factory::ResultFactoryI object (when setting)
  Throws  : Bio::Root::Exception if a non-Bio::Factory::ResultFactoryI object
            is passed in.
  Comments: A SearchIO implementation should provide a default result factory.
+
+See L<Bio::Factory::ResultFactoryI>
 
 =cut
 
@@ -373,8 +389,10 @@ sub result_factory {
  Returns : A string containing the name of a class that implements 
            the Bio::Search::Hit::HitI interface.
  Args    : none
- Comments: Bio::SearchIO does not implement this method. It throws a NotImplemented
-           exception
+ Comments: Bio::SearchIO does not implement this method. It throws a
+           NotImplemented exception
+
+See L<Bio::Search::Hit::HitI>
 
 =cut
 
@@ -466,4 +484,5 @@ sub PRINT {
 }
 
 1;
+
 __END__
