@@ -38,7 +38,7 @@ or
     $out = Bio::SeqIO->newFh('-format' => 'EMBL');
 
     # World's shortest Fasta<->EMBL format converter:
-    print $output $_ while <$in>;
+    print $out $_ while <$in>;
 
 =head1 DESCRIPTION
 
