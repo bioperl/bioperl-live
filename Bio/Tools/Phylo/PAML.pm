@@ -649,7 +649,7 @@ sub _parse_distmat {
 sub _parse_PairwiseCodon {
     my ($self) = @_;
     my @result;
-    my ($a,$b,$log,$model);
+    my ($a,$b,$log,$model,$t,$kappa,$omega);
     while( defined( $_ = $self->_readline) ) {
 	if( /^pairwise comparison, codon frequencies\:\s*(\S+)\./) {
 	    $model = $1;
@@ -657,6 +657,10 @@ sub _parse_PairwiseCodon {
 	    ($a,$b) = ($1,$3);
 	} elsif( /^lnL\s+\=\s*(\-?\d+(\.\d+)?)/ ) {
 	    $log = $1;
+	    if( defined( $_ = $self->_readline) ) {
+		s/^\s+//;
+		($t,$kappa,$omega) = split;
+	    }
 	} elsif( m/^t\=\s*(\d+(\.\d+)?)\s+
 		 S\=\s*(\d+(\.\d+)?)\s+
 		 N\=\s*(\d+(\.\d+)?)\s+
@@ -665,10 +669,11 @@ sub _parse_PairwiseCodon {
 		 dS\=\s*(\d+(\.\d+)?)/ox ) {
 	    $result[$b-1]->[$a-1] = { 
 		'lnL' => $log,
-		't' => $1,
+		't' => $t,
 		'S' => $3,
 		'N' => $5,
-		'omega' => $7,
+		'kappa' => $kappa,
+		'omega' => $omega,
 		'dN' => $9,
 		'dS' => $11 };
 	} elsif( /^\s+$/ ) { 
