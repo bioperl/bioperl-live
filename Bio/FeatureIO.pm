@@ -45,10 +45,11 @@ FIXME
 
 =head1 SUPPORTED FORMATS
 
-name                      module
---------------------------------
-GFF (version 3 only)      gff.pm
-BED                       bed.pm
+ name                      module
+ --------------------------------
+ BED                       bed.pm
+ GFF                       gff.pm
+ GTF                       gtf.pm
 
 #Bio::SeqIO is a handler module for the formats in the SeqIO set (eg,
 #Bio::SeqIO::fasta). It is the officially sanctioned way of getting at

@@ -150,7 +150,7 @@ sub _write_feature_25 {
   }
 
   foreach my $subfeat ($feature->get_SeqFeatures){
-    $self->write_feature_25($subfeat,$group);
+    $self->_write_feature_25($subfeat,$group);
   }
 }
 
@@ -189,7 +189,7 @@ sub _write_feature_3 {
   $self->_print($outstring);
 
   foreach my $subfeat ($feature->get_SeqFeatures){
-    $self->write_feature_3($subfeat);
+    $self->_write_feature_3($subfeat);
   }
 }
 
