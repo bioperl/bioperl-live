@@ -211,14 +211,13 @@ sub _parse_genes {
     my ($self) = @_;
     my @genes;
     local ($/) = "//";
-    my $score;
-    my $prot_id;
-    my $target_id;
+    my ($score,$prot_id,$target_id,$junk);
+
     while ( defined($_ = $self->_readline) ) {
       	$self->debug( $_ ) if( $self->verbose > 0);
         ($score) = $_=~ m/Score\s+(\d+[\.][\d]+)/;
         $self->_score($score) unless defined $self->_score;
-        ($prot_id) = $_=~ m/Query protein|model:\s+(\S+)/;
+        ($junk,$prot_id) = $_=~ m/Query (protein|model):\s+(\S+)/;
         $self->_prot_id($prot_id) unless defined $self->_prot_id;
         ($target_id) = $_=~  m/Target Sequence\s+(\S+)/;	
         $self->_target_id($target_id) unless defined $self->_target_id;
