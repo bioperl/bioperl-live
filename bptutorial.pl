@@ -232,7 +232,8 @@ in the way that you expect.  The free graphical debugger ptkdb
 State, from http://www.activestate.com, offers a commercial graphical
 debugger for windows systems.  The standard perl distribution also
 contains a powerful interactive debugger - though with a more cumbersome
-(command line) interface. The Perl tool Data::Dumper used with the syntax:
+command-line interface. The Perl tool Data::Dumper used with the
+syntax:
 
   use Data::Dumper;
   printer Dumper($seq);
@@ -315,13 +316,14 @@ Bundle::BioPerl, eg
   $>perl -MCPAN -e shell
   cpan>install Bundle::BioPerl
   <installation details....>
-  cpan>install B/BI/BIRNEY/bioperl-1.0.tar.gz
+  cpan>install B/BI/BIRNEY/bioperl-1.0.1.tar.gz
   <installation details....>
   cpan>quit
 
-The disadvantage of this approach is that if there's a problem
-installing any individual module it may be a bit more difficult to
-address.
+Be advised that version numbers change regularly, so the number used
+above may not apply. The disadvantage of this approach is that if
+there's a problem installing any individual module it may be a bit
+more difficult to address.
 
 =back
 
@@ -444,7 +446,7 @@ object which is part of a multiple sequence alignment.  It has "start" and
 been extracted.  It also may have "gap" symbols corresponding to the
 alignment to which it belongs.  It is used by the alignment
 object SimpleAlign and other modules that use SimpleAlign objects
-(eg AlignIO.pm, pSW.pm).  In general you don\'t have to
+(eg AlignIO.pm, pSW.pm).  In general you don't have to
 worry about creating LocatableSeq objects because they will be made for
 you automatically when you create an alignment (using pSW, Clustalw,
 Tcoffee or bl2seq) or when you input an alignment data file using AlignIO.
@@ -749,12 +751,27 @@ Data files storing multiple sequence alignments also appear in varied
 formats.  AlignIO is the bioperl object for data conversion of
 alignment files. AlignIO is patterned on the SeqIO object and shares
 most of SeqIO's features.  AlignIO currently supports input in the
-following formats: fasta, mase, stockholm, prodom, selex, bl2seq, clustalw,
-msf/gcg, water (from EMBOSS, see L<"III.3.6">), needle (from EMBOSS, see
-L<"III.3.6">), and phylip (interleaved). AlignIO supports output in
-these formats: fasta, mase, selex, clustalw, msf/gcg, and phylip 
-(interleaved).  One significant difference between AlignIO and SeqIO is
-that AlignIO handles IO for only a single alignment at a time but
+following formats:
+
+   fasta
+   mase (Seaview)
+   stockholm
+   prodom
+   selex (HMMER))
+   bl2seq
+   clustalw (.aln)
+   msf (GCG)
+   water (needle and water from EMBOSS, see L<"III.3.6">)
+   phylip (interleaved)
+   stockholm
+   nexus
+   mega
+   meme
+   psi (PSI-BLAST)
+
+AlignIO supports output in these formats: fasta, mase, selex, clustalw, msf/gcg,
+and phylip (interleaved).  One significant difference between AlignIO and SeqIO
+is that AlignIO handles IO for only a single alignment at a time but
 SeqIO.pm handles IO for multiple sequences in a single stream. Syntax
 for AlignIO is almost identical to that of SeqIO:
 
@@ -1118,7 +1135,7 @@ no Seq or SeqIO objects are created:
   $seq_id  = $seq_object->display_id;
   $seq_as_string = $seq_object->seq();
 
-For more details see L<Bio::Perl>
+For more details see L<Bio::Perl>.
 
 =head2 III.4 Searching for "similar" sequences
 
@@ -1361,7 +1378,7 @@ BLAST bl2seq is a program for comparing and aligning two sequences
 using BLAST.  Although the report format is similar to that of a
 conventional BLAST, there are a few differences.  Consequently, the
 standard bioperl parsers Blast.pm and BPlite are unable to read bl2seq
-reports directly. From the user\'s perspective, one difference
+reports directly. From the user's perspective, one difference
 between bl2seq and other blast reports is that the bl2seq report does
 not print out the name of the first of the two aligned sequences.
 Consequently, BPbl2seq has no way of identifying the name of one of
@@ -1520,9 +1537,11 @@ Bio::AlignIO (see section below, L<"III.5.2">).
 =head2    III.5.1 Aligning 2 sequences with Smith-Waterman (pSW)
 
 The Smith-Waterman (SW) algorithm is the standard method for producing
-an optimal alignment of two sequences.  Bioperl supports the
-computation of SW alignments via the pSW object. The SW
-algorithm itself is implemented in C and incorporated into bioperl using
+an optimal local alignment of two sequences.  Bioperl supports the
+computation of SW alignments via the pSW object. Note that pSW only
+supports the alignment of protein sequences, not nucleotide.
+
+The SW algorithm itself is implemented in C and incorporated into bioperl using
 an XS extension. This has significant efficiency advantages but means that
 pSW will B<not> work unless you have compiled the bioperl-ext
 package.  If you have compiled the bioperl-ext package, usage is
@@ -1542,7 +1561,10 @@ can be added by the user.  For additional information on accessing the
 SW algorithm via pSW see the script psw.pl in the examples/ directory and
 the documentation in L<Bio::Tools::pSW>.
 
-An alterative way to get Smith-Waterman alignments can come from the EMBOSS program 'water'.  This can produce an output file that bioperl can read in with the AlignIO system
+An alternative way to get Smith-Waterman alignments can come from the EMBOSS
+program 'water' (see Section L<"IV.3"> for more information on the EMBOSS
+package).  This can produce an output file that bioperl can read in with
+the AlignIO system
 
   use Bio::AlignIO;
   my $in = new Bio::AlignIO(-format => 'emboss', -file => 'filename');
@@ -1582,7 +1604,7 @@ L<Bio::Tools::Run::Alignment::Clustalw> and
 L<Bio::Tools::Run::Alignment::TCoffee> for information on downloading
 and installing these programs.
 
-From the user\'s perspective, the bioperl syntax for calling
+From the user's perspective, the bioperl syntax for calling
 Clustalw.pm or TCoffee.pm is almost identical.  The only differences
 are the names of the modules themselves appearing in the initial "use"
 and constructor statements and the names of the some of the individual
@@ -1826,8 +1848,8 @@ Sample usage might be:
 
     @secondary   = $richseq->get_secondary_accessions;
     $division    = $richseq->division;
-    @dates       = $richseq->get_dates; 
-    $seq_version = $richseq->seq_version;  
+    @dates       = $richseq->get_dates;
+    $seq_version = $richseq->seq_version;
 
 See L<Bio::Seq::RichSeqI> for more details.
 
@@ -1879,10 +1901,10 @@ object internally as a "double linked chain." Each element of the
 chain is connected to other two elements (the PREVious and the NEXT
 one). There is no absolute position (like in an array), hence if
 positions are important, they need to be computed (methods are
-provided). Otherwise it\'s easy to keep track of the elements with
+provided). Otherwise it's easy to keep track of the elements with
 their "LABELs". There is one LABEL (think of it as a pointer) to each
-ELEMENT. The labels won\'t change after insertions or deletions of the
-chain. So it\'s always possible to retrieve an element even if the
+ELEMENT. The labels won't change after insertions or deletions of the
+chain. So it's always possible to retrieve an element even if the
 chain has been modified by successive insertions or deletions.
 
 Although the implementation of the LiveSeq object is novel, its
@@ -1949,7 +1971,7 @@ Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
 
 =for html <A NAME ="iii.7.4"></A>
 
-=head2 III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
+=head2 III.7.4 Incorporating quality data in sequence annotation (SeqWithQuality)
 
 SeqWithQuality objects are used to describe sequences with very
 specific annotations - that is, data quality annotaions.  Data quality
@@ -2232,7 +2254,9 @@ currently implementing a CORBA interface for bioperl.  With biocorba,
 objects written within bioperl will be able to communicate with
 objects written in biopython and biojava (see the next subsection).
 For more information, see the biocorba project website at
-http://biocorba.org/.  The Bioperl BioCORBA server and client bindings are available in the bioperl-corba-server and bioperl-corba-client bioperl CVS repositories respecitively. (see http://cvs.bioperl.org for more information). 
+http://biocorba.org/.  The Bioperl BioCORBA server and client bindings are
+available in the bioperl-corba-server and bioperl-corba-client bioperl CVS 
+repositories respecitively. (see http://cvs.bioperl.org for more information).
 
 =head2 IV.2 Biopython and biojava
 
@@ -2250,6 +2274,9 @@ from within bioperl will become more important.  For more information,
 go to the biojava http://biojava.org/ and biopython http://biopython.org/
 websites.
 
+
+=for html <A NAME ="iv.3"></A>
+
 =head2 IV.3 EMBOSS
 
 EMBOSS is another open source project with similar goals
@@ -2257,15 +2284,10 @@ to bioperl.  However EMBOSS code is implemented in C and has been
 designed for standalone execution on the Unix command line, rather
 than for incorporation into a user script or program.  EMBOSS includes
 a wide array of useful bioinformatics functions similar to those of
-the GCG package after which it was designed.  A bioperl interface
-to the EMBOSS functions has been partially completed.  When this
-interface is complete, it will be possible to access EMBOSS functions
-as though they were bioperl objects (in a manner similar to how the
-StandAloneBlast bioperl module enables access to performing Blast
-searches within bioperl). For more information on EMBOSS, refer
-to http://www.hgmp.mrc.ac.uk/Software/EMBOSS/.  The principal bioperl
-interface object to EMBOSS is described in
-L<Bio::Tools::Run::EMBOSSApplication>.
+the GCG package after which it was designed.  For more information on EMBOSS
+refer to http://www.hgmp.mrc.ac.uk/Software/EMBOSS/.  The principal bioperl
+interface object to EMBOSS is described in L<Bio::Tools::Run::EMBOSSApplication>
+(and see section L<"III.3.6">).
 
 =head2 IV.4  Ensembl and bioperl-db
 
