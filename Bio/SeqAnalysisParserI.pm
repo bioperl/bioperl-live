@@ -97,7 +97,7 @@ use Carp;
 =cut
 
 sub next_feature {
-    my ($self);
+    my ($self) = shift;
     $self->throw_not_implemented();
 }
 
