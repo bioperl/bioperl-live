@@ -20,6 +20,7 @@ Bio::DB::GenBank - Database object interface to GenBank
 
 =head1 SYNOPSIS
 
+    use Bio::DB::GenBank;
     $gb = new Bio::DB::GenBank;
 
     $seq = $gb->get_Seq_by_id('MUSIGHBA1'); # Unique ID
@@ -37,7 +38,8 @@ Bio::DB::GenBank - Database object interface to GenBank
 			       -format => 'Fasta');
     my $seqio = $gb->get_Stream_by_acc(['AC013798', 'AC021953'] );
     while( my $clone =  $seqio->next_seq ) {
-      print "cloneid is ", $clone->
+      print "cloneid is ", $clone->display_id, " ", 
+             $clone->accession_number, "\n";
     }
 
 =head1 DESCRIPTION
