@@ -382,12 +382,14 @@ sub parse_line {
 
   s/\r//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
 
-  return if /^[\#]/;
+  return if /^\s*[\#]/;
 
   if (/^\s+(.+)/ && $self->{current_tag}) { # continuation line
       my $value = $1;
       my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
       $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
+      # respect newlines in code subs
+      $self->{config}{$cc}{$self->{current_tag}} .= "\n" if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*{/;
       return;
   }
 
@@ -660,7 +662,7 @@ sub code_setting {
   my $setting = $self->_setting($section=>$option);
   return unless defined $setting;
   return $setting if ref($setting) eq 'CODE';
-  return $setting unless $setting =~ /^sub\s+\{/;
+  return $setting unless $setting =~ /^sub\s*\{/;
   my $coderef = eval $setting;
   warn $@ if $@;
   $self->set($section,$option,$coderef);
