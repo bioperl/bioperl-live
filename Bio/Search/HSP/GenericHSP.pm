@@ -203,7 +203,7 @@ sub new {
     } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
 	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
 	     $algo eq 'BLASTN' || 
-	     $algo eq 'FASTN' || $algo eq 'WABA')  {
+	     $algo eq 'FASTN' || $algo eq 'WABA' || $algo eq 'EXONERATE')  {
 	$hitfactor = 1;
 	$queryfactor = 1;
     } elsif( $algo eq 'RPSBLAST' ) {
@@ -212,7 +212,7 @@ sub new {
     }
     # Store the aligned query as sequence feature
     my $strand;
-    unless(  $qe && $qs ) { $self->throw("Did not specify a Query End or Query Begin @args"); }
+    unless(  $qe && $qs ) { $self->throw("Did not specify a Query End or Query Begin @args ($qs,$qe)"); }
     unless( $he && $hs ) { $self->throw("Did not specify a Hit End or Hit Begin"); }
     if ($qe > $qs) {  # normal query: start < end
 	if ($queryfactor) { $strand = 1; } else { $strand = undef; }	
@@ -277,7 +277,7 @@ sub new {
 	$identical = 0;
     } 
     if( ! defined $conserved ) {
-	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") if( $algo !~ /(FAST|BLAST)N/i);
+	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") if( $algo !~ /(FAST|BLAST)N|Exonerate/i);
 	$conserved = $identical;
     } 
     # protect for divide by zero if user does not specify 

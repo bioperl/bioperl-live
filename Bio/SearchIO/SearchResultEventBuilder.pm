@@ -250,13 +250,15 @@ sub end_hsp {
     $data->{'HSP-hit_length'}   ||= length $data->{'HSP-hit_seq'};
     $data->{'HSP-hsp_length'}   ||= length $data->{'HSP-homology_seq'};
     
-    my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } grep { /^HSP/ } keys %{$data};
+    my %args = map { my $v = $data->{$_}; s/HSP//; ($_ => $v) } 
+               grep { /^HSP/ } keys %{$data};
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     # copy this over from result
     $args{'-query_name'} = $data->{'RESULT-query_name'};
     $args{'-hit_name'} = $data->{'HIT-name'};
     my ($rank) = scalar @{$self->{'_hsps'}} + 1;
     $args{'-rank'} = $rank;
+
     my $hsp = $self->factory('hsp')->create(%args);
     push @{$self->{'_hsps'}}, $hsp;
     return $hsp;

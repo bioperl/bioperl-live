@@ -211,7 +211,7 @@ sub next_result{
 		$self->element({'Name' => 'WABAOutput_db',
 				'Data' => $hitdb});
 		
-		# slight duplication here -- keep these in SYNC
+		# slight duplication here -- keep these N'SYNC ;-)
 		$self->start_element({'Name' => 'Hit'});
 		$self->element({'Name' => 'Hit_id',
 				'Data' => $hacc});
@@ -511,5 +511,7 @@ sub result_count {
     my $self = shift;
     return $self->{'_result_count'};
 }
+
+sub report_count { shift->result_count }
 
 1;
