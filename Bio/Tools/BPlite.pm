@@ -47,9 +47,8 @@ Bio::Tools::BPlite - Lightweight BLAST parser
  # but that is valid for an empty blast report.
  # Returns -1 for EOF.
 
- last if ($report->_parseHeader == -1));
-
- redo
+ last if ($report->_parseHeader == -1);
+ redo;
 
  }
 
