@@ -242,7 +242,6 @@ sub add_seq {
 
     if( $self->{'_seq'}->{$name} ) {
 	$self->warn("Replacing one sequence [$name]\n");
-
     }
     else {
 	#print STDERR "Assigning $name to $order\n";
@@ -1440,7 +1439,7 @@ sub percentage_identity{
        }
        $divisor += $subdivisor * ($subdivisor - 1);
    }
-   return ($total / $divisor )*100.0;
+   return $divisor > 0 ? ($total / $divisor )*100.0 : 0;
 }
 
 =head1 Alignment positions
