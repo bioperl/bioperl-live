@@ -327,41 +327,6 @@ sub next_feature{
 sub algorithm { shift->analysis_method( @_ ); }
 sub algorithm_version { shift->analysis_method_version( @_ ); }
 
-=head2 database_entries
-
- Title   : database_entries
- Usage   : $num_entries = $result->database_entries()
- Function: Used to obtain the number of entries contained in the database.
- Returns : a scalar integer representing the number of entities in the database
-           or undef if the information was not available.
- Args    : [optional] new integer for the number of sequence entries in the db
-
-
-=cut
-
-sub database_entries {
-    return $_[0]->analysis_subject->entries() || 0;
-}
-
-
-=head2 database_letters
-
- Title   : database_letters
- Usage   : $size = $result->database_letters()
- Function: Used to obtain the size of database that was searched against.
- Returns : a scalar integer (units specific to algorithm, but probably the
-           total number of residues in the database, if available) or undef if
-           the information was not available to the Processor object.
- Args    : [optional] new scalar integer for number of letters in db 
-
-
-=cut
-
-sub database_letters {
-    return $_[0]->analysis_subject->letters() || 0;
-}
-
-
 =head2 available_parameters
 
  Title   : available_parameters
@@ -460,6 +425,18 @@ sub database_name {
     return $dbname;
 }
 
+=head2 database_entries
+
+ Title   : database_entries
+ Usage   : $num_entries = $result->database_entries()
+ Function: Used to obtain the number of entries contained in the database.
+ Returns : a scalar integer representing the number of entities in the database
+           or undef if the information was not available.
+ Args    : [optional] new integer for the number of sequence entries in the db
+
+
+=cut
+
 #---------------
 sub database_entries {
 #---------------
@@ -470,6 +447,20 @@ sub database_entries {
     } 
     return $dbentries;
 }
+
+
+=head2 database_letters
+
+ Title   : database_letters
+ Usage   : $size = $result->database_letters()
+ Function: Used to obtain the size of database that was searched against.
+ Returns : a scalar integer (units specific to algorithm, but probably the
+           total number of residues in the database, if available) or undef if
+           the information was not available to the Processor object.
+ Args    : [optional] new scalar integer for number of letters in db 
+
+
+=cut
 
 #---------------
 sub database_letters {
