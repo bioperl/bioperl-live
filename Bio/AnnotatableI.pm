@@ -82,7 +82,7 @@ use Bio::Root::RootI;
 
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
-use Bio::Annotation::OntologyTerm;
+#use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::Reference;
 use Bio::Annotation::SimpleValue;
 
@@ -154,7 +154,6 @@ are built on top of the methods (see above L</ACCESSOR METHODS>).
 
 sub has_tag {
   my ($self,$tag) = @_;
-
   #uncomment in 1.6
   #$self->deprecated('has_tag() is deprecated.  use get_Annotations()');
 
