@@ -1789,7 +1789,8 @@ sub _guess_patterns {
 
   if ($format =~ /fasta/i) {
     return ('ACC',
-	    "^>(\\S+)",
+	    '^>(\S+)',
+	    '^>(\S+)',
 	   );
   }
 
