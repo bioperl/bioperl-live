@@ -16,9 +16,27 @@ Bio::Align::AlignI - An interface for describing sequence alignments.
 
 =head1 SYNOPSIS
 
-# get a Bio::Align::AlignI somehow - typically using Bio::AlignIO system
+  # get a Bio::Align::AlignI somehow - typically using Bio::AlignIO system
 
-    print "aln is ", $aln->length, "\n";
+  # some descriptors
+  print $aln->length, "\n";
+  print $aln->no_residues, "\n";
+  print $aln->is_flush, "\n";
+  print $aln->no_sequences, "\n";
+  print $aln->percentage_identity, "\n";
+  print $aln->consensus_string(50), "\n";
+
+  # find the position in the alignment for a sequence location
+  $pos = $aln->column_from_residue_number('1433_LYCES', 14); # = 6;
+
+  # extract sequences and check values for the alignment column $pos
+  foreach $seq ($aln->each_seq) {
+      $res = $seq->subseq($pos, $pos);
+      $count{$res}++;
+  }
+  foreach $res (keys %count) {
+      printf "Res: %s  Count: %2d\n", $res, $count{$res};
+  }
 
 
 =head1 DESCRIPTION
@@ -629,13 +647,14 @@ sub no_sequences {
     $self->throw_not_implemented();
 }
 
+
 =head2 percentage_identity
 
  Title   : percentage_identity
  Usage   : $id = $align->percentage_identity
- Function: The function uses a fast method to calculate the average 
-           percentage identity of the alignment
- Returns : The average percentage identity of the alignment
+ Function: The function calculates the percentage identity of the alignment
+ Returns : The percentage identity of the alignment (as defined by the 
+						     implementation)
  Argument: None
 
 =cut
@@ -643,6 +662,39 @@ sub no_sequences {
 sub percentage_identity{
     my ($self) = @_;
     $self->throw_not_implemeneted();
+}
+
+=head2 overall_percentage_identity
+
+ Title   : percentage_identity
+ Usage   : $id = $align->percentage_identity
+ Function: The function calculates the percentage identity of 
+           the conserved columns
+ Returns : The percentage identity of the conserved columns
+ Args    : None
+
+=cut
+
+sub overall_percentage_identity{
+    my ($self) = @_;
+    $self->throw_not_implemented();
+}
+
+
+=head2 average_percentage_identity
+
+ Title   : average_percentage_identity
+ Usage   : $id = $align->average_percentage_identity
+ Function: The function uses a fast method to calculate the average 
+           percentage identity of the alignment
+ Returns : The average percentage identity of the alignment
+ Args    : None
+
+=cut
+
+sub average_percentage_identity{
+    my ($self) = @_;
+    $self->throw_not_implemented();
 }
 
 =head1 Alignment positions
