@@ -54,6 +54,13 @@ platforms. At present, File::Spec and File::Temp are attempted. This
 module defines $PATHSEP, $TEMPDIR, and $ROOTDIR, which will always be set, 
 and $OPENFLAGS, which will be set if either of File::Spec or File::Temp fails.
 
+The -noclose boolean (accessed via the noclose method) prevents a
+filehandle from being closed when the IO object is cleaned up.  This
+is special behavior when a object like a parser might share a
+filehandle with an object like an indexer where it is not proper to
+close the filehandle as it will continue to be reused until the end of the
+stream is reached.  In general you won't want to play with this flag.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -217,8 +224,9 @@ sub new {
               -file     name of file to open
               -input    name of file, or GLOB, or IO::Handle object
               -fh       file handle (mutually exclusive with -file)
-
- Example :
+              -flush    boolean flag to autoflush after each write
+              -noclose  boolean flag, when set to true will not close a
+                        filehandle (must explictly call close($io->_fh)
  Returns : TRUE
  Args    : named parameters
 
@@ -230,13 +238,14 @@ sub _initialize_io {
 
     $self->_register_for_cleanup(\&_io_cleanup);
 
-    my ($input, $file, $fh, $flush) = $self->_rearrange([qw(INPUT 
+    my ($input, $noclose, $file, $fh, $flush) = $self->_rearrange([qw(INPUT 
+							    NOCLOSE
 							    FILE FH 
 							    FLUSH)], @args);
     
     delete $self->{'_readbuffer'};
     delete $self->{'_filehandle'};
-
+    $self->noclose( $noclose) if defined $noclose;
     # determine whether the input is a file(name) or a stream
     if($input) {
 	if(ref(\$input) eq "SCALAR") {
@@ -394,7 +403,7 @@ sub file {
 
 sub _print {
     my $self = shift;
-    my $fh = $self->_fh || \*STDOUT;
+    my $fh = $self->_fh() || \*STDOUT;
     print $fh @_;
 }
 
@@ -423,7 +432,6 @@ sub _print {
 sub _readline {
     my $self = shift;
     my %param =@_;
-    
     my $fh = $self->_fh || \*ARGV;
     my $line;
 
@@ -461,15 +469,26 @@ sub _pushback {
  Title   : close
  Usage   : $io->close()
  Function: Closes the file handle associated with this IO instance.
- Example :
- Returns :
- Args    :
+           Will not close the FH if  -noclose is specified
+ Returns : none
+ Args    : none
 
 =cut
 
 sub close {
    my ($self) = @_;
-
+   return if $self->noclose; # don't close if we explictly asked not to
+   if( defined $self->{'_filehandle'} ) {
+       $self->flush;
+       return if( \*STDOUT == $self->_fh ||
+		  \*STDERR == $self->_fh ||
+		  \*STDIN == $self->_fh
+		  ); # don't close STDOUT fh
+       if( ! ref($self->{'_filehandle'}) ||
+	   ! $self->{'_filehandle'}->isa('IO::String') ) {
+	   close($self->{'_filehandle'});
+       }
+   }
    $self->{'_filehandle'} = undef;
    delete $self->{'_readbuffer'};
 }
@@ -480,9 +499,8 @@ sub close {
  Title   : flush
  Usage   : $io->flush()
  Function: Flushes the filehandle
- Example :
- Returns :
- Args    :
+ Returns : none
+ Args    : none
 
 =cut
 
@@ -502,17 +520,37 @@ sub flush {
   }
 }
   
+=head2 noclose
 
+ Title   : noclose
+ Usage   : $obj->noclose($newval)
+ Function: Get/Set the NOCLOSE flag - setting this to true will
+           prevent a filehandle from being closed
+           when an object is cleaned up or explicitly closed
+           This is a bit of hack 
+ Returns : value of noclose (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub noclose{
+    my $self = shift;
+
+    return $self->{'_noclose'} = shift if @_;
+    return $self->{'_noclose'};
+}
 
 sub _io_cleanup {
     my ($self) = @_;
 
     $self->close();
+    my $v = $self->verbose;
 
     # we are planning to cleanup temp files no matter what    
     if( exists($self->{'_rootio_tempfiles'}) &&
 	ref($self->{'_rootio_tempfiles'}) =~ /array/i) { 
-	if( $self->verbose > 0 ) {
+	if( $v > 0 ) {
 	    print STDERR "going to remove files ", 
 	    join(",",  @{$self->{'_rootio_tempfiles'}}), "\n";
 	}
@@ -523,7 +561,7 @@ sub _io_cleanup {
 	exists($self->{'_rootio_tempdirs'}) &&
 	ref($self->{'_rootio_tempdirs'}) =~ /array/i) {	
 
-	if( $self->verbose > 0 ) {
+	if( $v > 0 ) {
 	    print STDERR "going to remove dirs ", 
 	    join(",",  @{$self->{'_rootio_tempdirs'}}), "\n";
 	}

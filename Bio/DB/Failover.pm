@@ -144,7 +144,7 @@ sub get_Seq_by_acc {
     foreach my $db ( @{$self->{'_database'}} ) {
 	my $seq;
 	eval {
-	    $seq = $db->get_Seq_by_acc($db);
+	    $seq = $db->get_Seq_by_acc($id);
 	};
 	if( defined $seq ) {
 	    return $seq;

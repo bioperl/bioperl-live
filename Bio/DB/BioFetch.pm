@@ -102,23 +102,42 @@ use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
 
 BEGIN {
 
-    %FORMATMAP = ( 
-		   'embl' => {
-		       default => 'embl', # default BioFetch format/SeqIOmodule pair
-		       embl => 'embl',    # alternative BioFetch format/module pair 
-		       fasta => 'fasta'   # alternative BioFetch format/module pair 
-		       },
-		   'swall' => {
-		       default => 'swiss',
-		       swissprot => 'swiss',
-		       fasta => 'fasta'
-		       },
-		   'refseq' => {
-		       default => 'genbank',
-		       genbank => 'genbank',
-		       fasta => 'fasta'
-		       }
-		   );
+  %FORMATMAP = (
+		'embl' => {
+			   default => 'embl', # default BioFetch format/SeqIOmodule pair
+			   embl => 'embl',    # alternative BioFetch format/module pair 
+			   fasta => 'fasta',   # alternative BioFetch format/module pair 
+			   namespace => 'embl',
+			  },
+		'swissprot' => {
+				default => 'swiss',
+				swissprot => 'swiss',
+				fasta => 'fasta',
+				namespace => 'swall',
+			       },
+		'refseq' => {
+			     default => 'genbank',
+			     genbank => 'genbank',
+			     fasta => 'fasta',
+			     namespace => 'RefSeq',
+			    },
+		'swall' => {
+			    default => 'swiss',
+			    swissprot => 'swiss',
+			    fasta => 'fasta',
+			    namespace => 'swall',
+			   },
+		'genbank' => {
+			      default => 'genbank',
+			      genbank => 'genbank',
+			      namespace => 'genbank',
+			     },
+		'genpep' => {
+			     default => 'genbank',
+			     genbank => 'genbank',
+			     namespace => 'genpep',
+			    },
+	       );
 }
 
 =head2 new
@@ -139,8 +158,9 @@ defaults.
 
   -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/cgi-bin/dbfetch
   -retrievaltype "tempfile" or "io_string"        io_string
-  -format        "embl" or "fasta" or "swissprot" embl
-  -db            "embl", "genbank" or "swall"     embl
+  -format        "embl", "fasta", "swissprot",    embl
+                  or "genbank"
+  -db            "embl", "genbank" or "swissprot" embl
 
 =cut
 
@@ -173,10 +193,10 @@ sub new_from_registry {
     my $self = $class->SUPER::new(
 				  -BASEADDRESS=>$config{'location'}
 				  );
-    $self->db($config{'biodbname'});
+    $self->db($config{'dbname'}) if $config{dbname};
     return $self;
 }
-    
+
 # from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
@@ -289,6 +309,8 @@ sub get_request {
     my ($uids, $format) = $self->_rearrange([qw(UIDS FORMAT)],
 					    @qualifiers);
     my $db     = $self->db;
+    my $namespace = $self->_namespace;
+
     $self->throw("Must specify a value for UIDs to fetch")
 	unless defined $uids;
     my $tmp;
@@ -298,10 +320,10 @@ sub get_request {
     ($format, $tmp) = $self->request_format($format);
 
     my $base = $self->url_base_address;
-    my $uid = join('+',ref $uids ? @$uids : $uids);
+    my $uid = join('+', ref $uids ? @$uids : $uids);
     $self->debug("\n$base$format_string&id=$uid\n");
     return POST($base,
-		[ db     => $db,
+		[ db     => $namespace,
 		  id     => join('+',ref $uids ? @$uids : $uids),
 		  format => $format,
 		  style  => 'raw'
@@ -355,6 +377,12 @@ sub db {
       $self->{_db} = $db;
   }
   return $self->{_db} || $self->default_db ;
+}
+
+sub _namespace {
+  my $self = shift;
+  my $db = $self->db;
+  return $FORMATMAP{$db}{namespace} or $db;
 }
 
 =head2 postprocess_data
@@ -415,9 +443,10 @@ sub postprocess_data {
 sub request_format {
     my ($self, $value) = @_;
     if ( defined $value ) { 
-	my $db = $self->db; 
+	my $db = $self->db;
+	my $namespace = $self->_namespace;
 	my $format = lc $value;
-	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($db)\n" 
+	print "format:", $format, " module:", $FORMATMAP{$db}->{$format}, " ($namespace)\n" 
 	    if $self->verbose > 0; 
 	$self->throw("Invalid format [$format], must be one of [".
 		     join(' ',keys %{$FORMATMAP{$db}}). "]")

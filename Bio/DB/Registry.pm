@@ -26,6 +26,15 @@ This module provides access to the Open Bio Database Access scheme,
 which provides a cross language and cross platform specification of how
 to get to databases.
 
+If the user or system administrator has not installed the default init 
+file, seqdatabase.ini, in /etc/bioinformatics or ${HOME}/.bioinformatics 
+then creating the first Registry object copies the default settings from 
+the net. The Registry object will attempt to store these settings in
+${HOME}/.bioinformatics/seqdatabase.ini.
+
+Users can specify one or more custom locations for the init file by 
+setting $OBDA_SEARCH_PATH to those directories, where multiple 
+directories should be separated by ';'.
 
 =head1 CONTACT
 
@@ -52,7 +61,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA);
+use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH);
 use strict;
 
 use Bio::Root::Root;
@@ -60,12 +69,19 @@ use Bio::Root::Root;
 use Bio::DB::Failover;
 use Bio::Root::HTTPget;
 
+BEGIN {
+    $OBDA_SPEC_VERSION = 1.0;
+    if (defined $ENV{OBDA_SEARCH_PATH}) {
+        $OBDA_SEARCH_PATH = $ENV{OBDA_SEARCH_PATH} || '';
+
+    }
+}
+
 my %implement = (
-		 'biocorba'      => 'Bio::CorbaClient::SeqDB',
-		 'index-berkeleydb' => 'Bio::DB::Flat',
-                 'index-flat'       => 'Bio::DB::Flat::OBDAIndex',
-		 'biosql' => 'Bio::DB::SQL::BioDatabaseAdaptor',
-		 'biofetch' => 'Bio::DB::BioFetch'
+		 'biocorba'         => 'Bio::CorbaClient::SeqDB',
+		 'flat'             => 'Bio::DB::Flat',
+		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
+		 'biofetch'         => 'Bio::DB::BioFetch'
 		 );
 
 my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
@@ -74,7 +90,7 @@ my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
 sub new {
     my ($class,@args) = shift;
     my $self = $class->SUPER::new(@args);
-    
+
     # open files in order
     $self->{'_dbs'} = {};
     $self->_load_registry();
@@ -87,75 +103,103 @@ sub _load_registry {
 
     my $home = (getpwuid($>))[7];
     my $f;
-    if( -e "$home/.bioinformatics/seqdatabase.ini" ) {
+
+    if ( $OBDA_SEARCH_PATH ) {
+        foreach ( split /;/,$OBDA_SEARCH_PATH ) {
+            next unless -e $_;
+            open(F,"$OBDA_SEARCH_PATH/seqdatabase.ini");
+            $f = \*F;
+            last;
+        }
+    }
+    elsif( -e "$home/.bioinformatics/seqdatabase.ini" ) {
 	open(F,"$home/.bioinformatics/seqdatabase.ini");
 	$f = \*F;
     } elsif ( -e "/etc/bioinformatics/seqdatabase.ini" ) {
-	open(F,"$home/.bioinformatics/seqdatabase.ini");
+	open(F,"/etc/bioinformatics/seqdatabase.ini");
 	$f = \*F;
     } else {
 	# waiting for information
-	$self->warn("No conf file found in ~/.bioinformatics/ \nor in /etc/.bioinformatics/ using web to get database registry from \n$fallbackRegistryURL\n");
+	$self->warn("No seqdatabase.ini file found in ~/.bioinformatics/ \nor in /etc/bioinformatics/.\nor in directory specified by $OBDA_SEARCH_PATH".
+                    "Using web to get database registry from \n$fallbackRegistryURL");
 
 	# Last gasp. Try to use HTTPget module to retrieve the registry from
         # the web...
 
 	$f = Bio::Root::HTTPget::getFH($fallbackRegistryURL);
 
+        # store the default registry file
+        mkdir "$home/.bioinformatics" unless -e "$home/.bioinformatics";
+	open(F,">$home/.bioinformatics/seqdatabase.ini");
+        print F while (<$f>);
+        close F;
+
+	$self->warn("Stored the default registry configuration into:\n".
+                    "  $home/.bioinformatics/seqdatabase.ini");
+
+	open(F,"$home/.bioinformatics/seqdatabase.ini");
+	$f = \*F;
+
     }
 
     while( <$f> ) {
-	if( /^#/ ) {
-	    next;
-	}
+	/^VERSION=([\d\.]+)/;
+        $self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION")
+            if $1 > $OBDA_SPEC_VERSION or !$1;
+        last;
+    }
+
+    while( <$f> ) {
+      if( /^#/ ) {
+	  next;
+       }
 	if( /^\s/ ) {
-	    next;
+	  next;
 	}
 
-	if( /\[(\w+)\]/ )  {
-	    my $db;
-	    $db = $1;
-	    my $hash = {};
-	    while( <$f> ) {
-		chomp();
-		/^#/ && next;
-		/^$/ && last;
-		my ($tag,$value) = split('=',$_);
-		$value =~ s/\s//g;
-		$tag =~ s/\s//g;
-		$hash->{$tag} = $value;
-	    }
-	    
-	    if( !exists $self->{'_dbs'}->{$db} ) {
-		my $failover = Bio::DB::Failover->new();
-		$self->{'_dbs'}->{$db}=$failover;
-	    }
-	    my $class;
-	    if (defined $implement{$hash->{'protocol'}}) {
-		$class = $implement{$hash->{'protocol'}};
-	    }
-	    else {
-		$self->warn("Registry does not support protocol ".$hash->{'protocol'});
-		next;
-	    }
-	    eval "require $class";
-	    
-	    if ($@) {
-		$self->verbose && $self->warn("Couldn't load $class");
-		next;
-	    }
-	    
-	    else {
-		eval {
-		    my $randi = $class->new_from_registry(%$hash);
-		    $self->{'_dbs'}->{$db}->add_database($randi); };
-		if ($@) {
-		    $self->verbose && $self->warn("Couldn't call new_from_registry on [$class]\n$@");
-		}
-	    }
-	    next; # back to main loop
+      if( /\[(\w+)\]/ )  {
+	my $db = $1;
+	my $hash = {};
+	while( <$f> ) {
+	  chomp();
+	  /^#/ && next;
+	    /^$/ && last;
+	  my ($tag,$value) = split('=',$_);
+	  $value =~ s/\s//g;
+	  $tag =~ s/\s//g;
+	  $hash->{"\L$tag"} = lc $value;
 	}
-	$self->warn("Uninterpretable line in registry, $_");
+
+	if( !exists $self->{'_dbs'}->{$db} ) {
+	  my $failover = Bio::DB::Failover->new();
+	  $self->{'_dbs'}->{$db}=$failover;
+	}
+	my $class;
+	if (defined $implement{$hash->{'protocol'}}) {
+	  $class = $implement{$hash->{'protocol'}};
+	}
+	else {
+	  $self->warn("Registry does not support protocol ".$hash->{'protocol'});
+	  next;
+	}
+	eval "require $class";
+
+	if ($@) {
+	  $self->verbose && $self->warn("Couldn't load $class");
+	  next;
+	}
+
+	else {
+	  eval {
+	    my $randi = $class->new_from_registry(%$hash);
+	    $self->{'_dbs'}->{$db}->add_database($randi); };
+	  if ($@) {
+	    $self->warn("Couldn't call new_from_registry on [$class]\n$@");
+	  }
+	}
+	next; # back to main loop
+      }
+      $self->warn("Uninterpretable line in registry, $_");
     }
 }
 
@@ -172,6 +216,7 @@ sub _load_registry {
 sub get_database {
     my ($self,$dbname) = @_;
 
+    $dbname = lc $dbname;
     if( !defined $dbname ) {
 	$self->warn("must get_database with a database name");
 	return undef;
@@ -198,7 +243,7 @@ sub services{
     my ($self) = @_;
     return () unless ( defined $self->{'_dbs'} &&
 		       ref( $self->{'_dbs'} ) =~ /HASH/i);
-    return keys %{$self->{'_dbs'}}; 
+    return keys %{$self->{'_dbs'}};
 }
 
 
