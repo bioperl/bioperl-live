@@ -1355,11 +1355,13 @@ sub is_flush {
 	    next;
 	}
 	
-	$temp = CORE::length($seq->seq());
-
+	$temp = CORE::length($seq->seq());	
 	if( $temp != $length ) {
-	    $self->warn("expecting $length not $temp from ".$seq->display_id) if ($report);
-	    print $seq->seq(), "\n";
+	    $self->warn("expecting $length not $temp from ".
+			$seq->display_id) if( $report );
+	    $self->debug("expecting $length not $temp from ".
+			 $seq->display_id);
+	    $self->debug($seq->seq(). "\n");
 	    return 0;
 	}
     }
@@ -1496,11 +1498,11 @@ sub no_sequences {
 
 sub percentage_identity{
    my ($self,@args) = @_;
-
+   
    my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
 
-   my ($len, $total, $subtotal, $divisor, $subdivisor, @seqs, @countHashes);
+   my ($len, $total, @seqs, @countHashes);
 
    if (! $self->is_flush()) {
        $self->throw("All sequences in the alignment must be the same length");
@@ -1508,7 +1510,7 @@ sub percentage_identity{
 
    @seqs = $self->each_seq();
    $len = $self->length();
-
+   
    # load the each hash with correct keys for existence checks
    for( my $index=0; $index < $len; $index++) {
        foreach my $letter (@alphabet) {
@@ -1526,17 +1528,15 @@ sub percentage_identity{
    }
 
    $total = 0;
-   $divisor = 0;
    for(my $column =0; $column < $len; $column++) {
        my %hash = %{$countHashes[$column]};
-       $subdivisor = 0;
-       foreach my $res (keys %hash) {
-	   $total += $hash{$res}*($hash{$res} - 1);
-	   $subdivisor += $hash{$res};
+       foreach ( values %hash ) {
+	   next if( $_ == 0 );
+	   $total++ if( $_ == scalar @seqs );
+	   last;
        }
-       $divisor += $subdivisor * ($subdivisor - 1);
    }
-   return $divisor > 0 ? ($total / $divisor )*100.0 : 0;
+   return ($total / $len ) * 100.0;
 }
 
 =head1 Alignment positions
