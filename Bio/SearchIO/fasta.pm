@@ -695,7 +695,7 @@ sub next_result{
 		       $self->{'_reporttype'} = 'FASTP' ;
 		   }
 	       }
-	       my ($name,$junk,$descr) = ($querydef =~ m/^(\S+)(\s+(.*))?\s*$/o);
+	       my ($name,$descr) = ($querydef =~ m/^(\S+)(?:\s+(.*))?\s*$/o);
 	       $self->element({'Name' => 'FastaOutput_query-def',
 			       'Data' => $name});
 	       $self->element({'Name' => 'FastaOutput_querydesc',
