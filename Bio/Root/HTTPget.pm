@@ -18,31 +18,32 @@ LWP:: is unavailable
 
 =head1 SYNOPSIS
 
- Use Bio::Root::HTTPget;
+ use Bio::Root::HTTPget;
+ my $web = new Bio::Root::HTTPget;
 
- my $response = get('http://localhost');
- $response    = get('http://localhost/images');
+ my $response = $web->get('http://localhost');
+ $response    = $web->get('http://localhost/images');
 
- $response    = eval { get('http://fred:secret@localhost/ladies_only/') 
+ $response    = eval { $web->get('http://fred:secret@localhost/ladies_only/')
                      } or warn $@;
 
- $response    = eval { get('http://jeff:secret@localhost/ladies_only/')  
+ $response    = eval { $web->get('http://jeff:secret@localhost/ladies_only/')
                      } or warn $@;
 
- $response    = get('http://localhost/images/navauthors.gif');
- $response    = get(-url=>'http://www.google.com',
+ $response    = $web->get('http://localhost/images/navauthors.gif');
+ $response    = $web->get(-url=>'http://www.google.com',
  		    -proxy=>'http://www.modperl.com');
 
 =head1 DESCRIPTION
 
-This is basically an last-chance module for doing network HTTP get requests in
-situations where more advanced external CPAN modules such as LWP:: are not
-installed. 
+This is basically an last-chance module for doing network HTTP get
+requests in situations where more advanced external CPAN modules such
+as LWP:: are not installed.
 
-The particular reason this module was developed was so that the Open Bio
-Database Access code can fallback to fetching the default registry files
-from http://open-bio.org/registry/ without having to depend on
-external dependencies like Bundle::LWP for network HTTP access. 
+The particular reason this module was developed was so that the Open
+Bio Database Access code can fallback to fetching the default registry
+files from http://open-bio.org/registry/ without having to depend on
+external dependencies like Bundle::LWP for network HTTP access.
 
 The core of this module was written by Lincoln Stein. It can handle proxies
 and HTTP-based proxy authentication.
@@ -154,14 +155,16 @@ sub get {
 
     my %headers = map {/^(\S+): (.+)/} @other_lines;
     if ($stat_code == 302 || $stat_code == 301) { # redirect
-	my $location = $headers{Location} or __PACKAGE__->throw("invalid redirect: no Location header");
+	my $location = $headers{Location} or 
+            __PACKAGE__->throw("invalid redirect: no Location header");
 	return get($location,$proxy,$timeout); # recursive call
     }
 
     elsif ($stat_code == 401) { # auth required
 	my $auth_required = $headers{'WWW-Authenticate'};
 	$auth_required =~ /^Basic realm="([^\"]+)"/
-	    or __PACKAGE__->throw("server requires unknown type of authentication: $auth_required");
+	    or __PACKAGE__->throw("server requires unknown type of".
+                                  " authentication: $auth_required");
 	__PACKAGE__->throw("request failed: $status_line, realm = $1");
     }
 
@@ -228,14 +231,16 @@ sub getFH {
 
   my %headers = map {/^(\S+): (.+)/} @other_lines;
   if ($stat_code == 302 || $stat_code == 301) {  # redirect
-    my $location = $headers{Location} or __PACKAGE__->throw("invalid redirect: no Location header");
+    my $location = $headers{Location} or 
+        __PACKAGE__->throw("invalid redirect: no Location header");
     return get($location,$proxy,$timeout);  # recursive call
   }
 
   elsif ($stat_code == 401) { # auth required
     my $auth_required = $headers{'WWW-Authenticate'};
     $auth_required =~ /^Basic realm="([^\"]+)"/
-      or __PACKAGE__->throw("server requires unknown type of authentication: $auth_required");
+      or __PACKAGE__->throw("server requires unknown type of ".
+                            "authentication: $auth_required");
     __PACKAGE__->throw("request failed: $status_line, realm = $1");
   }
 
