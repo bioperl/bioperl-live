@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.2 2003-04-18 17:49:42 bosborne Exp $
+# $Id: search2gff.PLS,v 1.3 2003-04-22 20:23:21 jason Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -44,7 +44,7 @@ use Bio::Tools::GFF;
 use Getopt::Long;
 use Bio::SearchIO;
 
-my ($output,$input,$format,$type,$help);
+my ($output,$input,$format,$type,$help,$cutoff);
 $format = 'blast'; # by default
 $type   = 'query';
 GetOptions(
@@ -52,6 +52,7 @@ GetOptions(
 	   'o|output:s' => \$output,
 	   'f|format:s' => \$format,
 	   't|type:s'   => \$type,
+	   'c|cutoff:s' => \$cutoff,
 	   'h|help'     => sub{ exec('perldoc',$0);
 				exit(0)
 				},
@@ -72,6 +73,7 @@ if( defined $output ) {
 }
 while( my $result = $parser->next_result ) {
     while( my $hit = $result->next_hit ) {
+	next if( defined $cutoff && $hit->significance > $cutoff);
 	while( my $hsp = $hit->next_hsp ) {
 	    my $feature;
 	    if( $type eq 'query' ) {
@@ -104,5 +106,4 @@ while( my $result = $parser->next_result ) {
 	    $out->write_feature($feature);
 	}
     }
-    last;
 }
