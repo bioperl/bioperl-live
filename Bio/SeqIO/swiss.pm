@@ -490,8 +490,16 @@ sub write_seq {
 					    "\\s\+\|\$",80); 
        }
        if ($ref->medline) {
+	 # new RX format in swissprot LP 09/17/00
+	 if ($ref->pubmed) {
+	 $self->_write_line_swissprot_regex("RX   ","RX   ",
+					    "MEDLINE=".$ref->medline.
+					    "; PubMed=".$ref->pubmed.";",
+					    "\\s\+\|\$",80);
+	 } else {
 	 $self->_write_line_swissprot_regex("RX   MEDLINE; ","RX   MEDLINE; ",
 					    $ref->medline.".","\\s\+\|\$",80);
+	 }
        }
        $self->_write_line_swissprot_regex("RA   ","RA   ",$ref->authors,"\\s\+\|\$",80);       
        $self->_write_line_swissprot_regex("RT   ","RT   ",$ref->title,"\\s\+\|\$",80);       
@@ -708,7 +716,7 @@ sub _print_swissprot_FTHelper {
 sub _read_swissprot_References{
    my ($self,$buffer) = @_;
    my (@refs);
-   my ($b1, $b2, $rp, $title, $loc, $au, $med, $com);
+   my ($b1, $b2, $rp, $title, $loc, $au, $med, $com, $pubmed);
    
    if ($$buffer !~ /^RP/) {
        $$buffer = $self->_readline;
@@ -731,6 +739,7 @@ sub _read_swissprot_References{
        #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
        /^[^R]/ && last; # may be the safest exit point HL 05/11/2000
        /^RX   MEDLINE;\s+(\d+)/ && do {$med=$1};
+       /^RX   MEDLINE=(\d+);\s+PubMed=(\d+);/ && do {$med=$1;$pubmed=$2};
        /^RA   (.*)/ && do { $au .= $au ? " $1" : $1;   next;};
        /^RT   (.*)/ && do { $title .= $title ? " $1" : $1; next;};
        /^RL   (.*)/ && do { $loc .= $loc ? " $1" : $1; next;};
@@ -749,6 +758,7 @@ sub _read_swissprot_References{
    $ref->title($title);
    $ref->location($loc);
    $ref->medline($med);
+   $ref->pubmed($pubmed) if (defined $pubmed);
    $ref->comment($com);
    $ref->rp($rp);
 
