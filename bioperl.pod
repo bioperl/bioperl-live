@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.21 2002-02-22 15:14:59 bosborne Exp $
+## $Id: bioperl.pod,v 1.22 2002-02-27 18:51:38 bosborne Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -208,6 +208,9 @@ or SwissProt over the network using Bio::DB*
 
 I<scripts/gff2ps.pl> - takes an input file in GFF format and draws its genes
 and features as Postscript using Tools::GFF. See L<Bio::Tools::GFF>
+
+I<scripts/rfetch.pl> - a script that uses Bio::DB::Registry to retrieve
+sequences from EMBL, reformat them, and print them. See L<Bio::DB::Registry>
 
 I<scripts/make_mrna_protein.pl> - translate a cDNA or ORF to protein using
 Bio::Seq's translate() method
