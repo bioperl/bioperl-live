@@ -2846,7 +2846,7 @@ $restriction_and_sigcleave = sub {
     @sixcutters = $re->available_list(6);
 
     print "The following 6-cutters are available\n";
-    print (join " ",@sixcutters),"\n";
+    print join(" ",@sixcutters),"\n";
 
     $re1  = new Bio::Tools::RestrictionEnzyme('-name'=>'EcoRI');
     @fragments1 =  $re1->cut_seq($seqobj);
@@ -2881,10 +2881,10 @@ $restriction_and_sigcleave = sub {
     # Note that Sigcleave is passed a raw sequence
     # rather than a sequence object when it is created.
     $sigcleave_object = new Bio::Tools::Sigcleave
-        ('-id' =>'test_sigcleave_seq',
-         '-type' =>'amino',
+        ('-id' => 'test_sigcleave_seq',
+         '-type' => 'amino',
          '-threshold' => 3.0,
-         '-seq' =>$protein);
+         '-seq' => $protein);
 
     %raw_results      = $sigcleave_object->signals;
     $formatted_output = $sigcleave_object->pretty_print;
@@ -2942,39 +2942,49 @@ $run_standaloneblast = sub {
 #
 
 $run_remoteblast = sub {
-    use Bio::Tools::Run::RemoteBlast;
     print "\nBeginning run_remoteblast example... \n";
+    eval { require Bio::Tools::Run::RemoteBlast; };
 
+    if ( $@ ){
+      print STDERR "Cannot load Bio::Tools::Run::RemoteBlast\n";
+      print STDERR "Cannot run run_remoteblast example:\n$@\n";
+    } else {
+      my (@params, $remote_blast_object, $blast_file, $r, $rc,
+         $database);
 
-    my (@params, $remote_blast_object, $blast_file, $r, $rc, $database);
-
-    $database =  'ecoli';
-    @params = ('-prog' => 'blastp', '-data' => $database, '-expect' => '1e-10');
-    $remote_blast_object = Bio::Tools::Run::RemoteBlast->new(@params);
-    $blast_file = Bio::Root::IO->catfile("t","data","ecolitst.fa");
-    $r = $remote_blast_object->submit_blast( $blast_file);
-    while ( my @rids = $remote_blast_object->each_rid ) {
-      foreach my $rid ( @rids ) {
-        $rc = $remote_blast_object->retrieve_blast($rid);
-        if( !ref($rc) ) {    # $rc not a reference => either error or job not yet finished
+      $database =  'ecoli';
+      @params = ('-prog'   => 'blastp', 
+                 '-data'   => $database,
+                 '-expect' => '1e-10');
+      $remote_blast_object = Bio::Tools::Run::RemoteBlast->new(@params);
+      $blast_file = Bio::Root::IO->catfile("t","data","ecolitst.fa");
+      $r = $remote_blast_object->submit_blast( $blast_file);
+      while ( my @rids = $remote_blast_object->each_rid ) {
+        foreach my $rid ( @rids ) {
+          $rc = $remote_blast_object->retrieve_blast($rid);
+          if( !ref($rc) ) {   # $rc not a reference => either error 
+                              # or job not yet finished
             if( $rc < 0 ) {
-                 $remote_blast_object->remove_rid($rid);
-                 print "Error return code for BlastID code $rid ... \n";
-                 }
+              $remote_blast_object->remove_rid($rid);
+              print "Error return code for BlastID code $rid ... \n";
+            }
             sleep 5;
-        } else {
+          } else {
             $remote_blast_object->remove_rid($rid);
             my $count = 0;
             while( my $sbjct = $rc->nextSbjct ) {
-                $count++;
-                print "sbjct name is ", $sbjct->name, "\n";
-                while( my $hsp = $sbjct->nextHSP ) {print "score is ", $hsp->score, "\n"; }
+              $count++;
+              print "sbjct name is ", $sbjct->name, "\n";
+              while( my $hsp = $sbjct->nextHSP ) {
+                print "score is ", $hsp->score, "\n"; }
             }
+          }
         }
       }
     }
-    return 1;
+  return 1;
 } ;
+
 
 #################################################
 #  searchio_parsing ():
@@ -2991,12 +3001,10 @@ use lib '.';
 use Bio::SearchIO;
 use Bio::Root::IO;
 
-
-    print "\nBeginning searchio-parser example... \n";
-
+print "\nBeginning searchio-parser example... \n";
 
 $searchio = new Bio::SearchIO ('-format' => 'blast',
-				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
+  '-file' => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
 $result = $searchio->next_result;
 
@@ -3523,27 +3531,28 @@ $liveseqs = sub {
 #
 
 $run_struct = sub {
+  use Bio::Root::IO;
+  eval { require Bio::Structure::Entry;
+         require Bio::Structure::IO;
+       };
+  if ( $@ ){
+    print STDERR "Cannot load Bio::Structure modules\n";
+    print STDERR "Cannot run run_struct:\n$@\n";
+  } else {
+    print "\nBeginning Structure object example... \n";
 
-use Bio::Structure::Entry;
-use Bio::Structure::IO;
-use Bio::Root::IO;
-
- print "\nBeginning Structure object example... \n";
-
-# testing PDB format
-
-my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); # BPTI
-my $structio = Bio::Structure::IO->new(-file => $pdb_file, -format => 'PDB');
-my $struc = $structio->next_structure;
-
-my ($chain) = $struc->chain;
-print " The current chain is ",  $chain->id ," \n";
-
-my $pseq = $struc->seqres;
-print " The first 20 residues of the sequence corresponding to this structure are ", 
-            $pseq->subseq(1,20) ," \n";
-
-return 1;
+    # testing PDB format
+    my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); 
+    my $structio = Bio::Structure::IO->new(-file  => $pdb_file,
+                                           -format=> 'PDB');
+    my $struc = $structio->next_structure;
+    my ($chain) = $struc->chain;
+    print " The current chain is ",  $chain->id ," \n";
+    my $pseq = $struc->seqres;
+    print " The first 20 residues of the sequence corresponding " .
+    "to this structure are " . $pseq->subseq(1,20) . " \n";
+    return 1;
+  }
 } ;
 
 
@@ -3717,29 +3726,38 @@ $demo_xml = sub {
     # III.8.4 Sequence XML representations
     # - generation and parsing (SeqIO::game)
 
-    $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","test.game") ,
-                           '-format' => 'game');
-    $seqobj = $str->next_seq();
-    # $seq = $str->next_primary_seq();
-    # $id = $seq->id;
+    eval { $str = Bio::SeqIO->new('-file'=>
+           Bio::Root::IO->catfile("t","data","test.game"),
+                           '-format' => 'game'); };
+    if ( $@ ){
+      print STDERR "Cannot run demo_xml\n";
+      print STDERR "Problem parsing GAME format:\n$@\n";
+    } else {
+      $seqobj = $str->next_seq();
+      # $seq = $str->next_primary_seq();
+      # $id = $seq->id;
 
-    print "Seq object display id is ", $seqobj->display_id(),
-    "\n"; # the human read-able id of the sequence
-    print "The sequence description is: \n";
-    print "   ", $seqobj->desc(), " \n";
-    print "Acc num is ", $seqobj->accession_number(),
-    " \n"; # when there, the accession number
-    print "Moltype is ", $seqobj->alphabet(),
-    " \n";    # one of 'dna','rna','protein'
+      print "Seq object display id is ", $seqobj->display_id(),
+      "\n"; # the human read-able id of the sequence
+      print "The sequence description is: \n";
+      print "   ", $seqobj->desc(), " \n";
+      print "Acc num is ", $seqobj->accession_number(),
+      " \n"; # when there, the accession number
+      print "Moltype is ", $seqobj->alphabet(),
+      " \n";    # one of 'dna','rna','protein'
 
-    @feats = $seqobj->all_SeqFeatures();
-    $first_primary_tag = $feats[0]->primary_tag;
-    print " Total number of sequence features is: ", scalar @feats, " \n";
-    print " The primary tag of the first feature is: $first_primary_tag  \n";
-    print " The first feature begins at location ", $feats[0]->start, " \n";
-    print "  and ends at location ", $feats[0]->end, " \n";
+      @feats = $seqobj->all_SeqFeatures();
+      $first_primary_tag = $feats[0]->primary_tag;
+      print " Total number of sequence features is: ", scalar @feats, "
+\n";
+      print " The primary tag of the first feature is:
+$first_primary_tag \n";
+      print " The first feature begins at location ", $feats[0]->start,
+" \n";
+      print "  and ends at location ", $feats[0]->end, " \n";
 
-    return 1;
+      return 1;
+   }
 } ;
 
 
