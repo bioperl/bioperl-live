@@ -23,7 +23,7 @@ Bio::Tools::Run::WrapperBase - A Base object for wrappers around executables
     my $exe    = $obj->executable();
     $obj->save_tempfiles($booleanflag)
     my $outfile= $obj->outfile_name();
-    my $outfile= $obj->tempdir(); # get a temporary dir for executing
+    my $tempdir= $obj->tempdir(); # get a temporary dir for executing
     my $io     = $obj->io;  # Bio::Root::IO object
     my $cleanup= $obj->cleanup(); # remove tempfiles
    
