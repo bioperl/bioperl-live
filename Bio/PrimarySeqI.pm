@@ -430,7 +430,7 @@ sub trunc{
        $start->isa('Bio::LocationI') ) {
        $str = $self->subseq($start); # start is a location actually
    } elsif( !$end ) {
-       $self->throw("trunc start,end");
+       $self->throw("trunc start,end -- there was no end for $start");
    } elsif( $end < $start ) {
        my $msg = "start [$start] is greater than end [$end. \n".
 	   "If you want to truncated and reverse complement, \n".
