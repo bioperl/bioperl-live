@@ -112,13 +112,13 @@ BEGIN{
 
  Title   : new
  Usage   : not instantiated directly, made by Bio::DB::CUTG.pm 
+           or by Bio::CodonUsage::IO.pm
  Returns : a reference to a new  Bio::CodonUsage::Table object
  Args    : none
 
 =cut
 
 sub new {
-	##decide whether to initialize with species or with file name
 	my ($class, @args) = @_;
 	my $self= $class->SUPER::new(@args);
 	return $self;
@@ -265,9 +265,7 @@ sub get_coding_gc {
  Usage   : my $count = $cdtable->set_coding_gc(-1=>55.78);
  Purpose : To set the percentage GC composition for the organism at
            codon positions 1,2 or 3, or an average for all coding sequence
-           ('all'). This is needed if the codon table is constructed from a 
-           file rather than from the web database since the file containing the 
-           codon usage table may not hold this data.
+           ('all').  
  Returns : void
  Args    : a hash where the key must be 1,2,3 or 'all' and the value the %age GC
            at that codon position..
@@ -310,17 +308,25 @@ sub species {
  Title     : genetic_code
  Usage     : my $sp = $cut->genetic_code();
  Purpose   : Get/setter for genetic_code name of codon table
- Returns   : Void or genetic_code id
- Args      : None or genetic_code id
+ Returns   : Void or genetic_code id, 1 by default
+ Args      : None or genetic_code id, 1 by default if invalid argument.
 
 =cut
 
 sub genetic_code {
 	my $self = shift;
 	if (@_ ){
-		$self->{'_genetic_code'} = shift;
+		my $val = shift;
+		if ($val < 0 || $val >16 || $val =~ /[^\d]/ 
+				|| $val ==7 || $val ==8) {
+			$self->warn ("invalid genetic code - must be 1-16 but not 7 or 8,setting to default [1]");
+			$self->{'_genetic_code'} = 1;
+			}
+		else {
+			$self->{'_genetic_code'} = shift;
+			}
 		}
-	return $self->{'_genetic_code'};
+	return $self->{'_genetic_code'} || 1;
 }
 
 =head2 cds_count
@@ -393,8 +399,6 @@ sub _check_codon {
 		$self->warn(" impossible codon - must be 3 letters and just containing ATCG");
 		return 0;
 	}
-	else {
-		return 1;
-		}
+	else {return 1;}
 }
 return 1;
