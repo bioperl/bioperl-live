@@ -353,8 +353,9 @@ sub to_FTstring {
     # I'm lazy, lets do this in a loop since behaviour will be the same for 
     # start and end
     foreach my $point ( qw(start end) ) {
-	if( $vals{$point} ne 'EXACT' ) {
-	    if( (!defined $vals{"min_$point"} || 
+	if( $vals{"$point\_code"} ne 'EXACT' ) {
+	    
+	    if( (!defined $vals{"min_$point"} ||
 		 !defined $vals{"max_$point"})
 		&& ( $vals{"$point\_code"} eq 'WITHIN' || 
 		     $vals{"$point\_code"} eq 'BETWEEN')

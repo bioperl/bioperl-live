@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 34; 
+    plan tests => 40; 
 }
 
 use Bio::Location::Simple;
@@ -79,7 +79,6 @@ ok($fuzzy->loc_type, 'EXACT');
 ok($fuzzy->start_pos_type, 'BEFORE');
 ok($fuzzy->end_pos_type, 'EXACT');
 
-
 # split location tests
 my $splitlocation = new Bio::Location::Split;
 my $f = new Bio::Location::Simple('-start'=>13,
@@ -121,3 +120,14 @@ ok($splitlocation->end, 90);
 ok($splitlocation->start, 13);
 ok($splitlocation->sub_Location(),5);
 
+ok($fuzzy->to_FTstring(), '<10..20');
+$fuzzy->strand(-1);
+ok($fuzzy->to_FTstring(), 'complement(<10..20)');
+ok($simple->to_FTstring(), '10..20');
+$simple->strand(-1);
+ok($simple->to_FTstring(), 'complement(10..20)');
+ok( $splitlocation->to_FTstring(), 'join(13..30,18..22,19..20,30..90,<50..61)');
+$f = new Bio::Location::Fuzzy(-start => '45.60',
+			      -end   => '75^80');
+
+ok($f->to_FTstring(), '45.60..75^80');
