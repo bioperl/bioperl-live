@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bio::DB::GFF::Aggregator::processed_transcript -- Sequence Ontology Transcript
+Bio::DB::GFF::Aggregator::coding -- The Coding Region Aggregator
 
 =head1 SYNOPSIS
 
@@ -9,28 +9,26 @@ Bio::DB::GFF::Aggregator::processed_transcript -- Sequence Ontology Transcript
   # Open the sequence database
   my $db      = Bio::DB::GFF->new( -adaptor => 'dbi:mysql',
                                    -dsn     => 'dbi:mysql:elegans42',
-				   -aggregator => ['processed_transcript'],
+				   -aggregator => ['coding'],
 				 );
 
  ------------------------------------------------------------------------
- Aggregator method: processed_transcript
+ Aggregator method: coding
  Main method:       mRNA
- Sub methods:       CDS 5'-UTR 3'-UTR transcription_start_site polyA_site
+ Sub methods:       CDS
  ------------------------------------------------------------------------
 
 =head1 DESCRIPTION
 
-Bio::DB::GFF::Aggregator::so_gene is one of the default aggregators,
-and was written to be compatible with the Sequence Ontology canonical
-gene.  It aggregates raw "CDS", "5'-UTR", "3'-UTR",
-"transcription_start_site" and "polyA_site" features into "gene"
-features.  The UTRs may also be named "untranslated_region,"
-"five_prime_untranslated_region," or
-"three_prime_untranslated_region."
+Bio::DB::GFF::Aggregator::coding aggregates "CDS" features into a
+feature called "coding" and was written to be compatible with the
+Sequence Ontology canonical gene.  The CDS features are expected to
+belong to a parent of type "mRNA," but the aggregator will work even
+if this isn't the case.
 
 =cut
 
-package Bio::DB::GFF::Aggregator::processed_transcript;
+package Bio::DB::GFF::Aggregator::coding;
 
 use strict;
 use Bio::DB::GFF::Aggregator;
@@ -49,23 +47,21 @@ use vars qw(@ISA);
 
 =cut
 
-sub method { 'processed_transcript' }
+sub method { 'coding' }
 
 =head2 part_names
 
  Title   : part_names
  Usage   : $aggregator->part_names
  Function: return the methods for the sub-parts
- Returns : the list CDS 5'-UTR 3'-UTR transcription_start_site polyA_site
+ Returns : the list (CDS cds)
  Args    : none
  Status  : Public
 
 =cut
 
 sub part_names {
-  return qw(CDS 5'-UTR 3'-UTR transcription_start_site 
-	    polyA_site UTR five_prime_untranslated_region
-	    three_prime_untranslated_region);
+  return qw(CDS cds);
 }
 
 =head2 main_name

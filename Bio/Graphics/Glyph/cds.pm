@@ -8,12 +8,26 @@ use Bio::Graphics::Glyph::translation;
 use vars '@ISA';
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 
+my %default_colors = qw(
+			frame0f  cadetblue
+			frame1f  blue
+			frame2f  darkblue
+			frame0r  darkred
+			frame1r  red
+			frame2r crimson
+		       );
+
 sub connector   { 0 };
 sub description {
   my $self = shift;
   return if $self->level;
   return $self->SUPER::description;
 };
+
+sub default_color {
+  my ($self,$key) = @_;
+  return $self->factory->translate_color($default_colors{$key});
+}
 
 sub sixframe {
   my $self = shift;
@@ -63,34 +77,37 @@ sub draw {
 					   -$phase);
     my $suffix = $strand < 0 ? 'r' : 'f';
     my $key = "frame$frame$suffix";
-    $self->{cds_frame2color}{$key} ||= $self->color($key) || $fill;
+    $self->{cds_frame2color}{$key} ||= $self->color($key) || $self->default_color($key) || $fill;
     $part->{cds_partcolor} = $self->{cds_frame2color}{$key};
     $part->{cds_frame}     = $frame;
     $part->{cds_offset}    = $offset;
 
-    # do in silico splicing in order to find the codon that
-    # arises from the splice
-    my $protein = $part->feature->translate(undef,undef,$phase)->seq;
-    $part->{cds_translation}  = $protein;
+    if ($fits && $part->feature->seq) {
 
-  BLOCK: {
-      length $protein >= $feature->length/3           and last BLOCK;
-      ($feature->length - $phase) % 3 == 0            and last BLOCK;
+      # do in silico splicing in order to find the codon that
+      # arises from the splice
+      my $protein = $part->feature->translate(undef,undef,$phase)->seq;
+      $part->{cds_translation}  = $protein;
 
-      my $next_part    = $parts[$i+1]
-	or do {
-	  $part->{cds_splice_residue} = '?';
-	  last BLOCK; };
-
-      my $next_feature = $next_part->feature         or  last BLOCK;
-      my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
-      my $splice_codon = '';
-      my $left_of_splice  = substr($feature->seq,-$next_phase,$next_phase);
-      my $right_of_splice = substr($next_feature->seq,0,3-$next_phase);
-      $splice_codon = $left_of_splice . $right_of_splice;
-      length $splice_codon == 3                      or last BLOCK;
-      my $amino_acid = $translate_table->translate($splice_codon);
-      $part->{cds_splice_residue} = $amino_acid;
+    BLOCK: {
+	length $protein >= $feature->length/3           and last BLOCK;
+	($feature->length - $phase) % 3 == 0            and last BLOCK;
+	
+	my $next_part    = $parts[$i+1]
+	  or do {
+	    $part->{cds_splice_residue} = '?';
+	    last BLOCK; };
+	
+	my $next_feature = $next_part->feature         or  last BLOCK;
+	my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
+	my $splice_codon = '';
+	my $left_of_splice  = substr($feature->seq,-$next_phase,$next_phase);
+	my $right_of_splice = substr($next_feature->seq,0,3-$next_phase);
+	$splice_codon = $left_of_splice . $right_of_splice;
+	length $splice_codon == 3                      or last BLOCK;
+	my $amino_acid = $translate_table->translate($splice_codon);
+	$part->{cds_splice_residue} = $amino_acid;
+      }
     }
   }
 
