@@ -603,7 +603,7 @@ sub print_table {
 		       print $bo->table($opt_desc); last SWITCH;};
 	    /2/ && do{ print $bo->table_labels_tiled($opt_desc) if not $_printed_labels; 
 		       print $bo->table_tiled($opt_desc); last SWITCH;};
-	    /3/ && do{ print $_table_custom($bo); last SWITCH;};
+	    /3/ && do{ print _table_custom($bo); last SWITCH;};
 	}
     } else {
 	push @nohits, $bo->name.", File: ".($bo->file || '<STDIN>');
