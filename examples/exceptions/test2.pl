@@ -29,7 +29,7 @@ use Error qw(:try);
 my $foo = Bio::Root::Root->new();
 
 try {
-    print "Throwing Error within try block via call to Bio::Root::Root::throw()\n";
+    print "[1] Throwing Error within try block via call to Bio::Root::Root::throw()\n";
     $foo->throw( -class => 'Bio::Root::Exception',
                  -text  => "Oopsie!",
                  -value => "123" 
@@ -38,13 +38,13 @@ try {
 
 catch Bio::Root::Exception with {
     my $err = shift;
-    print "Caught Bio::Root::Exception:\n$err";
+    print "[1] Caught Bio::Root::Exception:\n$err";
 
 }
 
 otherwise {
     my $err = shift;
-    print "Caught other Error: ", ref($err), "\n$err";
+    print "[1] Caught other Error: ", ref($err), "\n$err";
 };
 
 
@@ -55,14 +55,18 @@ eval {
     # This example demonstrates that Bio::Root::Root->throw() 
     # won't use Error.pm when called with a string.
 
-    print "Throwing error within an eval{} and passing a string to Bio::Root::Root::throw()\n";
+    print "[2] Throwing error within an eval{} and passing a string to Bio::Root::Root::throw()\n";
     $foo->throw("Error message string.");
 
 };
 
 if($@) {
-    print "Caught eval{}-based exception: ", ref($@), "\n$@";
+    print "[2] Caught eval{}-based exception: ", ref($@), "\n$@";
 }
+else {
+    print "[2] Nothing to catch.\n";
+}
+
 
 
 print "\n";
@@ -73,10 +77,10 @@ eval {
     # an eval{} doesn't lead to anything getting added to $@,
     # so don't do this. Use die() or croak() instead.
 
-    print "Attempting to throw Error directly within an eval{} block\n";
+    print "[3] Attempting to throw Error directly within an eval{} block\n";
 
     if( $ENV{OSTYPE} =~ /cygwin/ ) {
-        die "This causes a segmentation fault with cygwin perl! Skipping.\n";
+        die "[3] This causes a segmentation fault with cygwin perl! Skipping.\n";
     }
 
     throw Error::Simple ("A simple error.");
@@ -84,10 +88,10 @@ eval {
 };
 
 if($@) {
-    print "Caught eval{}-based exception: ", ref($@), "\n$@\n";
+    print "[3] Caught eval{}-based exception: ", ref($@), "\n$@\n";
 }
 else {
-    print "Nothing to catch.\n";
+    print "[3] Nothing to catch.\n";
 }
 
 
@@ -99,7 +103,7 @@ eval {
     # (i.e., by calling a method which then calls Error::throw),
     # $@ is defined and it consists of a reference to the Error.pm object.
 
-    print "Attempting to throw Error indirectly within an eval{} block \nvia Bio::Root::Root::throw()\n";
+    print "[4] Attempting to throw Error indirectly within an eval{} block \nvia Bio::Root::Root::throw()\n";
 
     $foo->throw( -class => 'Bio::Root::Exception',
                  -text  => "Oopsie!",
@@ -109,10 +113,10 @@ eval {
 };
 
 if($@) {
-    print "Caught eval{}-based exception: ", ref($@), "\n$@";
+    print "[4] Caught eval{}-based exception: ", ref($@), "\n$@";
 }
 else {
-    print "Nothing to catch.\n";
+    print "[4] Nothing to catch.\n";
 }
 
 print "Done.\n";
