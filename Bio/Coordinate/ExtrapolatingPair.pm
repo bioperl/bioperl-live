@@ -72,7 +72,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
 use Bio::LocationI;
-use Bio::Coordinate::Result;
+#use Bio::Coordinate::Result;
 use Bio::Coordinate::Result::Match;
 use Bio::Coordinate::Pair;
 
@@ -140,7 +140,7 @@ sub map {
    $self->throw("Output coordinate system not set")
        unless $self->out;
 
-   my $result = new Bio::Coordinate::Result;
+#   my $result = new Bio::Coordinate::Result;
 
    my ($offset, $start, $end);
    if ($self->strand == -1) {
@@ -151,9 +151,6 @@ sub map {
        $start = $value->start - $offset;
        $end = $value->end - $offset;
    }
-
-#   $start-- if $start < 1;
-#   $end-- if $end < 1;
 
    # strict prevents matches outside stated range
    if ($self->strict) {
@@ -172,8 +169,8 @@ sub map {
 	  );
    $match->strand($match->strand * $value->strand) if $value->strand;
    bless $match, 'Bio::Coordinate::Result::Match';
-   $result->add_location($match);
-   return $result;
+#   $result->add_Location($match);
+   return $match;
 }
 
 1;

@@ -113,17 +113,19 @@ sub new {
 
     $self->{'_mappers'} = [];
 
-    my($in, $out, $strict, $mappers) =
+    my($in, $out, $strict, $mappers, $return_match) =
 	$self->_rearrange([qw(IN
                               OUT
                               STRICT
                               MAPPERS
+                              RETURN_MATCH
 			     )],
 			 @args);
 
     $in  && $self->in($in);
     $out  && $self->out($out);
     $mappers && $self->mappers($mappers);
+    $return_match && $self->return_match('return_match');
     return $self; # success - we hope!
 }
 
@@ -268,7 +270,7 @@ sub map {
 
    $self->sort unless $self->_is_sorted;
 
-   my $result = new Bio::Coordinate::Result;
+   my $result = Bio::Coordinate::Result->new(-is_remote=>1);
 
 IDMATCH: {
 
@@ -291,8 +293,19 @@ IDMATCH: {
 	   $result->add_result($subres);
        }
    }
-
-   unless ($result->each_location) {
+   if ( $self->return_match ) {
+       return undef unless $result->match;
+       if ( $result->each_match > 1 ) {
+	   my @matches = $result->each_match;
+	   return Bio::Location::Simple->new
+	       (-seq_id => $matches[0]->seq_id,
+		-start => $matches[0]->start,
+		-end => $matches[-1]->end,
+		-strand=>$matches[0]->strand );
+       }
+   }
+#   $result->seq_id($result->match->seq_id) if $result->match;
+   unless ($result->each_Location) {
        #build one gap;
        my $gap = Bio::Location::Simple->new(-start => $value->start,
 					    -end => $value->end,
@@ -301,7 +314,8 @@ IDMATCH: {
 					   );
        $gap->seq_id($value->seq_id) if defined $value->seq_id;
        bless $gap, 'Bio::Coordinate::Result::Gap';
-       $result->add_location($gap);
+#       $result->seq_id($value->seq_id) if defined $value->seq_id;
+       $result->add_sub_Location($gap);
    }
    return $result;
 }

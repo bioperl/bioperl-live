@@ -16,7 +16,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 79;
+    plan tests => 77;
 }
 
 use Bio::Location::Simple;
@@ -66,10 +66,11 @@ $pos = Bio::Location::Simple->new
     (-start => 25, -end => 25, -strand=> -1 );
 $res = $pair->map($pos);
 
-ok $res->match->start, 5;
-ok $res->match->end, 5;
-ok $res->match->strand, -1;
-ok $res->match->seq_id, 'peptide';
+ok $res->isa('Bio::Location::Simple');
+ok $res->start, 5;
+ok $res->end, 5;
+ok $res->strand, -1;
+ok $res->seq_id, 'peptide';
 
 
 # match outside = undef
@@ -77,10 +78,6 @@ $pos = Bio::Location::Simple->new (-start => 5, -end => 5 );
 $res = $pair->map($pos);
 
 ok $res, undef;
-#ok $res->match->strand, 1; # no guessing of strand
-#ok $res->match->start, -16;
-#ok $res->match->length, $pos->length;
-#ok $res->match->seq_id, 'peptide';
 
 #
 # partial match = match
@@ -90,10 +87,10 @@ $pos2 = Bio::Location::Simple->new
 
 ok $res = $pair->map($pos2);
 
-ok $res->match->start, 0;
-ok $res->match->end, 2;
-ok $res->match->seq_id, 'peptide';
-ok $res->match->strand, -1;
+ok $res->start, 0;
+ok $res->end, 2;
+ok $res->seq_id, 'peptide';
+ok $res->strand, -1;
 
 
 #
@@ -101,16 +98,16 @@ ok $res->match->strand, -1;
 #
 $pos2 = Bio::Location::Simple->new (-start => 40, -end => 41, -strand=> 1 );
 ok $res = $pair->map($pos2);
-ok $res->match->start, 20;
-ok $res->match->end, 20;
+ok $res->start, 20;
+ok $res->end, 20;
 
 #
 #enveloping
 #
 $pos2 = Bio::Location::Simple->new (-start => 19, -end => 41, -strand=> 1 );
 ok $res = $pair->map($pos2);
-ok $res->match->start, 1;
-ok $res->match->end, 20;
+ok $res->start, 1;
+ok $res->end, 20;
 
 #
 # testing the changing the strand
@@ -134,17 +131,17 @@ $pos = Bio::Location::Simple->new
     (-start => 38, -end => 40, -strand=> 1 );
 $res = $pair->map($pos);
 #print Dumper $res;
-ok $res->match->start, 1;
-ok $res->match->end, 3;
-ok $res->match->strand, -1;
+ok $res->start, 1;
+ok $res->end, 3;
+ok $res->strand, -1;
 
 $pos = Bio::Location::Simple->new 
     (-start => 1, -end => 3, -strand=> 1 );
 $res = $pair->map($pos);
 #print Dumper $res;
-ok $res->match->start, 38;
-ok $res->match->end, 40;
-ok $res->match->strand, -1;
+ok $res->start, 38;
+ok $res->end, 40;
+ok $res->strand, -1;
 
 
 #
@@ -265,11 +262,12 @@ ok $m->exons(@cexons), 3;
 #$m->to_string;
 #print Dumper $m;
 #$m->verbose(2);
-
+#exit;
 $m->out('exon');
 $pos = Bio::Location::Simple->new
     (-start => 6, -end => 7, -strand=> 1 );
 $res = $m->map($pos);
+#print Dumper $res;
 ok $res->start, 2;
 ok $res->end, 3;
 #print Dumper $res;
@@ -279,9 +277,9 @@ $m->out('negative_intron');
 $pos = Bio::Location::Simple->new 
     (-start => 12, -end => 14, -strand=> 1 );
 $res = $m->map($pos);
-skip 'negative_intron', $res->start, -3;
-skip 'negative_intron', $res->end, -1;
-skip $res->seq_id, 'intron1';
+#skip 'negative_intron', $res->start, -3;
+#skip 'negative_intron', $res->end, -1;
+#skip $res->seq_id, 'intron1';
 #exit;
 
 # cds
@@ -304,6 +302,7 @@ $res = $m->map($pos);
 ok $res->start, 1;
 ok $res->end, 10;
 #$m->to_string;
+
 
 ok $m->cds(3); # recalculating exons
 #$m->to_string;
@@ -394,31 +393,34 @@ my ($cdsr, @exons) = read_gene_data(@gene1_dump);
 
 ok my $g1 = new Bio::Coordinate::GeneMapper(-in=>'chr', -out=>'gene');
 $g1->cds($cdsr);
-
-
+#print Dumper $g1->map($cdsr);
+#print Dumper $cdsr;
 
 #$g1->to_string;
 #print Dumper $g1;
 #$pos = Bio::Location::Simple->new
-#    (-start => 34576888, -end => 34576888, -strand=> 1 );
+#    (-start => 34576888, -end => 34579355, -strand=> 1 );
 $res = $g1->map($cdsr);
 ok $res->start, 1;
 ok $res->end, 2468;
 
+#print Dumper $g1->{'_mappers'}->{'1-2'};
 $g1->exons(@exons);
+#print Dumper $g1->map($cdsr);
 #$g1->to_string;
 $g1->in('gene');
 $g1->out('cds');
 #$res = $g1->map($cdsr);
 $res = $g1->map($res);
 ok $res->start, 1;
-ok $res->end, 1727;
+ok $res->end, 1173;
 #print Dumper $res;
 #print Dumper $g1;
 #$g1->to_string;
+#print Dumper $g1->{'_mappers'}->{'1-2'};
 
 #map_snps($g1, @snp_dump);
-
+#exit;
 
 #gene 2 in reverse strand
 #print "+++++++++++++++++++++++++\n";
@@ -432,6 +434,7 @@ $res = $g2->map($pos);
 ok $res->start, 1;
 ok $res->end, 3;
 ok $res->strand, -1;
+#print Dumper \@exons;
 
 $g2->exons(@exons);
 #print Dumper $g2;
@@ -455,7 +458,7 @@ $g2->exons(@exons);
 #  strict mapping mode
 #  test swapping
 #  extrapolating pair code into Bio::Coordinate::Pair
-
+#  split gene->inex mappings into start end... just athought
 
 
 
@@ -488,16 +491,19 @@ sub read_gene_data {
 	$cds_start = $exon_cstart if !$cds_start and $exon_cstart;
 	$cds_end = $exon_cend if $exon_cend;
 
+
+	if ($exon_start > $exon_end) {
+	    ($exon_start, $exon_end) = ($exon_end, $exon_start);
+	}
+
 	my $exon = Bio::Location::Simple->new
-	    (-seq_id => 'gene', -start => $exon_start, 
-	     -end => $exon_end, -strand=>$strand );
+	    (-seq_id => 'gene', -start => $exon_start,
+	     -end => $exon_end, -strand=>$strand, -verbose=>2);
 	push @exons, $exon;
     }
 
     if ($cds_start > $cds_end) {
-	my $tmp = $cds_start;
-	$cds_start = $cds_end;
-        $cds_end = $tmp;
+	($cds_start, $cds_end) = ($cds_end, $cds_start);
     }
 
     my $cdsr = Bio::Location::Simple->new (-start => $cds_start,

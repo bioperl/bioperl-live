@@ -168,5 +168,26 @@ sub map {
 
 }
 
+=head2 return_match
+
+ Title   : return_match
+ Usage   : $obj->return_match(1);
+ Function: A flag to turn on the simplified mode of
+           returning only one joined Match object or undef
+ Example :
+ Returns : boolean
+ Args    : boolean (optional)
+
+=cut
+
+sub return_match {
+   my ($self,$value) = @_;
+   if( defined $value) {
+       $value ? ( $self->{'_return_match'} = 1 ) :
+                ( $self->{'_return_match'} = 0 );
+   }
+   return $self->{'_return_match'} || 0 ;
+}
+
 1;
 

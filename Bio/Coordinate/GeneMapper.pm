@@ -52,8 +52,8 @@ between them:
                            cds  (transcript start and end)
                             ^
         negative_introns    | \
-                    ^       |  \
-`                    \      |   \
+                    ^       |  \  transcript 
+                     \      |   \
         inex  =  introns  exons  \
                        ^    ^    /
                         \   |   /
@@ -67,7 +67,7 @@ between them:
 
 
 This structure is kept in global variable $DAG which is a
-representation of a Diracted Acyclic Graph. The path calculations
+representation of a Directed Acyclic Graph. The path calculations
 traversing this graph are done in a helper class. See
 L<Bio::Coordinate::Graph>.
 
@@ -138,25 +138,27 @@ use Bio::Coordinate::ExtrapolatingPair;
 # first set internal values for all translation tables
 
 %COORDINATE_SYSTEMS = (
-		       peptide          => 9,
-		       propeptide       => 8,
-		       frame            => 7,
-		       cds              => 6,
-		       negative_intron  => 5,
-		       intron           => 4,
-		       exon             => 3,
+		       peptide          => 10,
+		       propeptide       => 9,
+		       frame            => 8,
+		       cds              => 7,
+		       negative_intron  => 6,
+		       intron           => 5,
+		       exon             => 4,
+		       inex             => 3,
 		       gene             => 2,
 		       chr              => 1
 		      );
 
 %COORDINATE_INTS = (
-		    9 => 'peptide',
-		    8 => 'propeptide',
-		    7 => 'frame',
-		    6 => 'cds',
-		    5 => 'negative_intron',
-		    4 => 'intron',
-		    3 => 'exon',
+		    10 => 'peptide',
+		    9 => 'propeptide',
+		    8 => 'frame',
+		    7 => 'cds',
+		    6 => 'negative_intron',
+		    5 => 'intron',
+		    4 => 'exon',
+		    3 => 'inex',
 		    2 => 'gene',
 		    1 => 'chr'
 		   );
@@ -165,14 +167,15 @@ $TRANSLATION =  $COORDINATE_SYSTEMS{'cds'}. "-".
     $COORDINATE_SYSTEMS{'propeptide'};
 
 $DAG = {
-	9  => [],
-	8  => [9],
-	7  => [],
-	6  => [7, 8],
-	5  => [],
-	4  => [5],
-	3  => [6],
-	2  => [3, 4, 6],
+	10 => [],
+	9  => [10],
+	8  => [],
+	7  => [8, 9],
+	6  => [],
+	5  => [6],
+	4  => [7],
+	3  => [],
+	2  => [4, 5, 7],
 	1  => [2]
        };
 
@@ -189,7 +192,7 @@ sub new {
     $graph->hash_of_arrays($DAG);
     $self->graph($graph);
 
-    my($in, $out, $peptide_offset, $transcript, $exons, 
+    my($in, $out, $peptide_offset, $transcript, $exons,
        $cds, $nozero, $strict) =
 	$self->_rearrange([qw(IN
                               OUT
@@ -433,8 +436,8 @@ sub peptide_length {
 
  Title   : transcript
  Usage   : $obj->transcript(20);
- Function: Set and read the offset of CDS from the start of transcipt
-
+ Function: Set and read the start and end of the  transcipt
+           in chromosamal or entry coordinates
 
  Returns : set value or 0
  Args    : new value (optional)
@@ -444,13 +447,16 @@ sub peptide_length {
 sub transcript {
    my ($self,$value) = @_;
    if( defined $value) {
-       $self->throw("I need an integer, not [$value]")
-	   unless $value =~ /^[+-]?\d+$/;
+       if ($value =~ /^[+-]?\d+$/ ) {
+	   my $loc = Bio::Location::Simple->new(-start=>$value);
+	   $self->{'_cds'} = $loc;
+       }
+       elsif (ref $value &&  $value->isa('Bio::LocationI') ) {
+	   $self->{'_cds'} = $value;
+       } else {
+	   $self->throw("I need an integer or Bio::LocationI, not [$value]")
+       }
        $self->{'_transcript'} = $value;
-
-       my $a = $self->_create_pair('cds', 'cds', 0, $value );
-       my $mapper =  $COORDINATE_SYSTEMS{'cds'}. "-". $COORDINATE_SYSTEMS{'cds'};
-       $self->{'_mappers'}->{$mapper} = $a;
    }
    return $self->{'_transcript'} || 0;
 }
@@ -470,18 +476,28 @@ sub transcript {
 
 sub exons {
    my ($self,@value) = @_;
-   my $mapper =  $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'cds'};
-   my $intron_exon_mapper =
+   my $cds_mapper =  $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'cds'};
+   my $inex_mapper =
+       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'inex'};
+   my $exon_mapper =
        $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'exon'};
+   my $intron_mapper =
+       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'intron'};
    my $negative_intron_mapper =
-       $COORDINATE_SYSTEMS{'gene'}. "-". $COORDINATE_SYSTEMS{'negative_intron'};
+       $COORDINATE_SYSTEMS{'intron'}. "-". $COORDINATE_SYSTEMS{'negative_intron'};
+   my $exon_cds_mapper =  $COORDINATE_SYSTEMS{'exon'}. "-". $COORDINATE_SYSTEMS{'cds'};
 
    if(@value) {
-       $self->throw("I need an array , not [@value]")
-	   unless ref \@value eq 'ARRAY';
-       $self->throw("I need an  reference to an array of Bio::LocationIs, not to [".
-		    $value[0]. "]")
-	   unless ref $value[0] and $value[0]->isa('Bio::LocationI');
+
+       if ($value[0]->isa('Bio::SeqFeatureI') and $value[0]->location->isa('Bio::Location::SplitLocationI')) {
+	   @value = $value[0]->location->each_Location;
+       } else {
+	   $self->throw("I need an array , not [@value]")
+	       unless ref \@value eq 'ARRAY';
+	   $self->throw("I need n reference to an array of Bio::LocationIs, not to [".
+			$value[0]. "]")
+	       unless ref $value[0] and $value[0]->isa('Bio::LocationI');
+       }
 
        # sort the input array
        if (defined $value[0]->strand && $value[0]->strand == - 1) {  #reverse strand
@@ -498,21 +514,34 @@ sub exons {
 
        $self->{'_chr_exons'} = \@value;
 
+       # store the chromosomal transcript coordinates
+       # take them to be start of first exon and end of last exon
+#       $self->transcript(Bio::Location::Simple->new
+#			 (-start => $value[0]->start,
+#			  -end => $value[-1]->end
+#			 ));
+#s strand!
 
        # transform exons from chromosome to gene coordinates
-       my $tmp_in = $self->in;
-       my $tmp_out = $self->out;
+       my $tmp_in = $self->{'_in'};
+       my $tmp_out = $self->{'_out'};
+       my $tmp_verb = $self->verbose;
+       $self->verbose(0);
 
        $self->in('chr');
        $self->out('gene');
        my @exons = map {$self->map($_)} @value;
 
-       $self->in($tmp_in);
-       $self->out($tmp_out);
+       $self->{'_in'} = ($tmp_in);
+       $self->{'_out'} = ($tmp_out);
+       $self->verbose($tmp_verb);
        #
 
-       my $map = Bio::Coordinate::Collection->new;
+       my $cds_map = Bio::Coordinate::Collection->new;
+       my $inex_map = Bio::Coordinate::Collection->new;
        my $exon_map = Bio::Coordinate::Collection->new;
+       my $exon_cds_map = Bio::Coordinate::Collection->new;
+       my $intron_map = Bio::Coordinate::Collection->new;
        my $negative_intron_map = Bio::Coordinate::Collection->new;
 
        my $tr_end = 0;
@@ -528,33 +557,24 @@ sub exons {
 	   # gene -> cds
 	   #
 
-	   unless (defined $tr_end) {
-	       $tr_end = $exon->start - 1 ;
-	   }
-	   #print "--------------------------------->$tr_end\n";
 	   my $match1 = Bio::Location::Simple->new
 	       (-seq_id =>'gene' ,
 		-start => $exon->start,
 		-end => $exon->end, -strand=>1 );
 	   my $match2 = Bio::Location::Simple->new
 	       (-seq_id => 'cds',
-		-start => $exon->start - $tr_end ,
-		-end => $exon->end -  $tr_end,
+		-start => $tr_end + 1,
+		-end => $tr_end + $exon->end - $exon->start +1,
 		-strand=>$exon->strand );
 
 	   my $pair = Bio::Coordinate::Pair->new(-in => $match1,
 						 -out => $match2,
 						);
-	   $map->add_mapper($pair);
+	   $cds_map->add_mapper($pair);
 
 	   if ($exon->start <= 1 and $exon->end >= 1) {
-	       $coffset = $tr_end ;
+	       $coffset = $tr_end - $exon->start + 1;
 	   }
-
-#	   if ($exon->start <= 1) {
-#	       $coffset += $exon->start - $prev_exon_end;
-#	   }
-
 	   $tr_end = $tr_end  + $exon->end - $exon->start + 1;
 
 	   #
@@ -573,7 +593,7 @@ sub exons {
 		    -end => $exon->start - 1 - $prev_exon_end,
 		    -strand=>$exon->strand );
 
-	       # negetive intron coordinates
+	       # negative intron coordinates
 	       my $match6 = Bio::Location::Simple->new
 		   (-seq_id => 'intron'. ($exon_counter -1),
 		    -start => -1 * ($exon->start - 2 - $prev_exon_end),
@@ -583,11 +603,12 @@ sub exons {
 	       my $pair = Bio::Coordinate::Pair->new(-in => $match3,
 						     -out => $match4
 						    );
-	       my $neg_pair = Bio::Coordinate::Pair->new(-in => $match3,
+	       my $neg_pair = Bio::Coordinate::Pair->new(-in => $match4,
 							 -out => $match6
 							);
 
-	       $exon_map->add_mapper($pair);
+	       $inex_map->add_mapper($pair);
+	       $intron_map->add_mapper($pair);
 	       $negative_intron_map->add_mapper($neg_pair);
 
 	   }
@@ -607,22 +628,31 @@ sub exons {
 	   my $pair2 = Bio::Coordinate::Pair->new(-in => $match1,
 						  -out => $match5
 						 );
+	   my $pair3 = Bio::Coordinate::Pair->new(-in => $match5,
+						  -out => $match2
+						 );
+	   $inex_map->add_mapper($pair2);
 	   $exon_map->add_mapper($pair2);
+	   $exon_cds_map->add_mapper($pair3);
 
        }
 
-       #$coffset = $tr_offset unless $coffset;
        # move coordinate start if exons have negative values
-       if ($coffset) {
-	   foreach my $m ($map->each_mapper) {
-	       $m->out->start($m->out->start + $coffset);
-	       $m->out->end($m->out->end + $coffset);
+       if ($coffset) {##use Data::Dumper; print Dumper $cds_map;
+	   foreach my $m ($cds_map->each_mapper) {
+#	       print $m->in->start, " : ", $m->out->start, "      $coffset\n";
+#	       print $m->in->end, " : ", $m->out->end, "\n";
+	       $m->out->start($m->out->start - $coffset);
+	       $m->out->end($m->out->end - $coffset);
 	   }
 
        }
 
-       $self->{'_mappers'}->{$mapper} = $map;
-       $self->{'_mappers'}->{$intron_exon_mapper} = $exon_map;
+       $self->{'_mappers'}->{$cds_mapper} = $cds_map;
+       $self->{'_mappers'}->{$exon_cds_mapper} = $exon_cds_map;
+       $self->{'_mappers'}->{$inex_mapper} = $inex_map;
+       $self->{'_mappers'}->{$exon_mapper} = $exon_map;
+       $self->{'_mappers'}->{$intron_mapper} = $intron_map;
        $self->{'_mappers'}->{$negative_intron_mapper} = $negative_intron_map;
    }
    return  @{$self->{'_chr_exons'}}  || 0;
@@ -637,7 +667,8 @@ sub exons {
 
            Simple input can be an integer which gives the start of the
            coding region in genomic coordinate. If you want to provide
-           the end of the coding region or indicate the use of the
+           the end of the coding r
+egion or indicate the use of the
            opposite strand, you have to pass a Bio::Location::Simple
            object to this method.
 
@@ -649,16 +680,14 @@ sub exons {
 sub cds {
    my ($self,$value) = @_;
    if( defined $value) {
-       my ($start, $end);
-
        if ($value =~ /^[+-]?\d+$/ ) {
 	   my $loc = Bio::Location::Simple->new(-start=>$value);
 	   $self->{'_cds'} = $loc;
        }
-       elsif (ref $value &&  $value->isa('Bio::LocationI') ) {
+       elsif (ref $value &&  $value->isa('Bio::RangeI') ) {
 	   $self->{'_cds'} = $value;
        } else {
-	   $self->throw("I need an integer or Bio::LocationI, not [$value]")
+	   $self->throw("I need an integer or Bio::RangeI, not [$value]")
        }
        # strand !!
        my $len;
@@ -700,11 +729,11 @@ sub map {
    my ($self,$value) = @_;
    my ($res);
 
-   $self->throw("Need to pass me a Bio::Location::Simple")
+   $self->throw("Need to pass me a Bio::Location::Simple or Bio::SeqFeatureI")
        unless defined $value;
    $self->throw("Need to pass me a Bio::Location::Simple, not [".
 		ref($value). "]")
-       unless defined $value->isa('Bio::Location::Simple');
+       unless $value->isa('Bio::Location::Simple') or $value->isa('Bio::SeqFeatureI');
    $self->throw("Input coordinate system not set")
        unless $self->{'_in'};
    $self->throw("Output coordinate system not set")
@@ -715,6 +744,7 @@ sub map {
 
    $self->_check_direction();
 
+   $value = $value->location if $value->isa('Bio::SeqFeatureI');
    print STDERR "=== Start location: ". $value->start. ",".
        $value->end. " (". $value->strand. ")\n" if $self->verbose > 0;
 
@@ -753,21 +783,34 @@ sub map {
 	   print STDERR "-   $mapper\n" if $self->verbose > 0;
        } else {
 	   # generic mapping
-	   my $res = $self->{'_mappers'}->{$mapper}->map($value);
+	   $value = $self->{'_mappers'}->{$mapper}->map($value);
 	   print STDERR "+  $mapper (", $self->direction, ")\n"
 	       if $self->verbose > 0;
 
-	   my @matches = $res->each_match;
-	   if (@matches > 1) {
-	       $self->throw('Multiple matches in different coordinate systems not handled')
-		   if $matches[0]->seq_id ne $matches[-1]->seq_id;
-	       $value = $res->match;
-	       $value->start($matches[0]->start);
+#	   my @matches = $res->each_match;
+#	   if (@matches > 1) {
+#	       $self->throw('Multiple matches in different coordinate systems not handled')
+#		   if $matches[0]->seq_id ne $matches[-1]->seq_id;
+#	       $value = $res->match;
+#	       $value->start($matches[0]->start);
+#
+#	   } else {
+#	       $value = $res->match if defined $res;
+#	   }
+       }
 
-	   } else {
-	       $value = $res->match;
+       if ( $value->isa('Bio::Location::SplitLocationI')) {
+	   return undef unless $value->match;
+	   if ( $value->each_match > 1 ) {
+	       my @matches = $value->each_match;
+	       $value = Bio::Location::Simple->new
+		   (-seq_id => $matches[0]->seq_id,
+		    -start => $matches[0]->start,
+		    -end => $matches[-1]->end,
+		    -strand=>$matches[0]->strand );
 	   }
        }
+       #use Data::Dumper; print Dumper $value;#   print ref($value), "\n";
    }
 
    # if nozero coordinate system is asked to be used in the output values
@@ -860,7 +903,7 @@ sub to_string {
        }
        elsif ($mapper eq '2-3') {
 		   next unless $self->{'_mappers'}->{$mapper};
-	   	   printf "%10s%-12s\n", "", '"splice"';
+#	   	   printf "%10s%-12s\n", "", '"splice"';
 
 		   my $i = 1;
 		   my $ex = 1;
@@ -874,10 +917,37 @@ sub to_string {
 		       $ex++ if $inex eq 'exon';
 		   }
 
-		   printf "\n%12s -> %-12s (%s)\n", $in, 'cds', '25';
+		   printf "\n%12s -> %-12s (%s)\n", 'intron', 'negative intron', '5-6';
 	   	   printf "%10s%-12s\n", "", '"splice"';
 		   $i = 1;
-		   foreach my $pair ( $self->{'_mappers'}->{'25'}->each_mapper ) {
+		   foreach my $pair ( $self->{'_mappers'}->{'5-6'}->each_mapper ) {
+		       printf "%8s :%8s -> %-12s\n", "intron$i", $pair->in->start, $pair->out->start ;
+		       printf "%8s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+		       $i++;
+		   }
+
+		   printf "\n%12s -> %-12s (%s)\n", $in, 'cds', '2-7';
+	   	   printf "%10s%-12s\n", "", '"splice"';
+		   $i = 1;
+		   foreach my $pair ( $self->{'_mappers'}->{'2-7'}->each_mapper ) {
+		       printf "%2s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
+		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+		       $i++;
+		   }
+
+		   printf "\n%12s -> %-12s (%s)\n", $in, 'exon', '2-4';
+	   	   printf "%10s%-12s\n", "", '"splice"';
+		   $i = 1;
+		   foreach my $pair ( $self->{'_mappers'}->{'2-4'}->each_mapper ) {
+		       printf "%2s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
+		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
+		       $i++;
+		   }
+
+		   printf "\n%12s -> %-12s (%s)\n", $in, 'intron', '2-5';
+	   	   printf "%10s%-12s\n", "", '"splice"';
+		   $i = 1;
+		   foreach my $pair ( $self->{'_mappers'}->{'2-5'}->each_mapper ) {
 		       printf "%2s :%8s -> %-12s\n", $i, $pair->in->start, $pair->out->start ;
 		       printf "%2s :%8s -> %-12s\n", '', $pair->in->end, $pair->out->end ;
 		       $i++;
@@ -896,16 +966,16 @@ sub to_string {
 
 	   }
 	   elsif ($mapper eq '3-4') {
-	       printf "%16s%s: %s\n", ' ', "transcript (transcipt offset)", $self->transcript;
+#	       printf "%16s%s: %s\n", ' ', "transcript (transcipt offset)", $self->transcript;
 	   }
-	   elsif ($mapper eq '5-6') {
+	   elsif ($mapper eq '9-10') {
 	       printf "%16s%s: %s\n", ' ', "peptide offset", $self->peptide_offset;
 	   }
 
 
-	   printf "%12s -> %-12s\n",
-	       $self->{'_mappers'}->{$mapper}->{'_in'}->start, 
-		   $self->{'_mappers'}->{$mapper}->{'_out'}->start;
+#	   printf "%12s -> %-12s\n",
+#	       $self->{'_mappers'}->{$mapper}->{'_in'}->start, 
+#		   $self->{'_mappers'}->{$mapper}->{'_out'}->start;
        }
    } continue {
        $counter++;

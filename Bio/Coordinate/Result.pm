@@ -77,20 +77,10 @@ package Bio::Coordinate::Result;
 use vars qw(@ISA );
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-use Bio::Root::Root;
+use Bio::Location::Split;
 
-@ISA = qw(Bio::Root::Root);
+@ISA = qw(Bio::Location::Split);
 
-
-sub new {
-    my($class,@args) = @_;
-    my $self = $class->SUPER::new(@args);
-
-    $self->{ '_locations' } = [];
-
-    return $self; # success - we hope!
-}
 
 =head2 add_location
 
@@ -98,7 +88,7 @@ sub new {
  Usage   : $obj->add_location($variant)
  Function: 
 
-           Pushes one Bio::Variation::Location into the list of variants.
+           Pushes one Bio::LocationI into the list of variants.
 
  Example : 
  Returns : 1 when succeeds
@@ -106,7 +96,7 @@ sub new {
 
 =cut
 
-sub add_location {
+sub add_sub_Location {
   my ($self,$value) = @_;
   $self->throw("Is not a Bio::LocationI but [$value]")
       unless $value->isa('Bio::LocationI');
@@ -117,7 +107,7 @@ sub add_location {
   $self->{'_gap'} = $value
       if $value->isa('Bio::Coordinate::Result::Gap');
 
-  push(@{$self->{'_locations'}},$value);
+  $self->SUPER::add_sub_Location($value);
 
 }
 
@@ -134,35 +124,46 @@ sub add_location {
 
 sub add_result {
   my ($self,$value) = @_;
+
   $self->throw("Is not a Bio::Coordinate::Result but [$value]")
       unless $value->isa('Bio::Coordinate::Result');
 
-  push @{$self->{'_locations'}}, $value->each_location;
+  map {  $self->add_sub_Location($_);} $value->each_Location;
 
 }
 
+=head2 seq_id
 
-=head2 each_location
+  Title   : seq_id
+  Usage   : my $seqid = $location->seq_id();
+  Function: Get/Set seq_id that location refers to
 
- Title   : each_location
- Usage   : $obj->each_location();
- Function: 
+            We override this here in order to propagate to all sublocations
+            which are not remote (provided this root is not remote either)
 
-            Returns a list of Bio::LocationI objects.
+  Returns : seq_id
+  Args    : [optional] seq_id value to set
 
- Example : 
- Returns : list of Locations
- Args    : none
 
 =cut
 
-sub each_location{
-   my ($self,@args) = @_;
-
-   return @{$self->{'_locations'}};
+sub seq_id {
+    my ($self, $seqid) = @_;
+#
+#    if(! $self->is_remote()) {
+#	foreach my $subloc ($self->sub_Location(0)) {
+#	    $subloc->seq_id($seqid) if ! $subloc->is_remote();
+#	}
+#    }
+#    return $self->SUPER::seq_id($seqid);
 }
 
 
+=head2 Convenience methods
+
+These methods are shortcuts to Match and Gap locations.
+
+=cut
 
 =head2 each_gap
 
@@ -182,7 +183,7 @@ sub each_gap{
 
 
    my @gaps;
-   foreach my $gap ($self->each_location) {
+   foreach my $gap ($self->each_Location) {
        push @gaps, $gap if $gap->isa('Bio::Coordinate::Result::Gap');
    }
    return @gaps;
@@ -207,7 +208,7 @@ sub each_match {
    my ($self) = @_;
 
    my @matches;
-   foreach my $match ($self->each_location) {
+   foreach my $match ($self->each_Location) {
        push @matches, $match if $match->isa('Bio::Coordinate::Result::Match');
    }
    return @matches;
