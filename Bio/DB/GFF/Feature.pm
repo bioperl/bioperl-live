@@ -929,12 +929,13 @@ sub adjust_bounds {
 	# fix up our bounds to hold largest subfeature
 	my($start,$stop,$strand) = $feat->adjust_bounds;
 	$self->{fstrand} = $strand unless defined $self->{fstrand};
-	if ($start <= $stop) {
-	  $self->{start} = $start if !defined($self->{start}) || $start < $self->{start};
-	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  > $self->{stop};
+	my ($low,$high) = $start < $stop ? ($start,$stop) : ($stop,$start);
+	if ($self->{fstrand} ne '-') {
+	  $self->{start} = $low   if !defined($self->{start}) || $low < $self->{start};
+	  $self->{stop}  = $high  if !defined($self->{stop})  || $high  > $self->{stop};
 	} else {
-	  $self->{start} = $start if !defined($self->{start}) || $start > $self->{start};
-	  $self->{stop}  = $stop  if !defined($self->{stop})  || $stop  < $self->{stop};
+	  $self->{start} = $high  if !defined($self->{start}) || $high > $self->{start};
+	  $self->{stop}  = $low   if !defined($self->{stop})  || $low  < $self->{stop};
 	}
 
 	# fix up endpoints of targets too (for homologies only)
