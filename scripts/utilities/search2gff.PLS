@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
-# $Id: search2gff.PLS,v 1.1 2003-04-18 14:56:35 jason Exp $
+# $Id: search2gff.PLS,v 1.2 2003-04-18 17:49:42 bosborne Exp $
 
 # Author:      Jason Stajich <jason@bioperl.org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
 #
 =head1 NAME
 
-search2tribe - Turn SearchIO parseable reports(s) into a GFF report
+search2gff - Turn SearchIO parseable reports(s) into a GFF report
 
 =head1 SYNOPSIS
 
