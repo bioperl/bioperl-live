@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 22;
+    plan tests => 32;
 }
 
 use Bio::Tools::Genscan;
@@ -89,16 +89,24 @@ ok($gene->exons, 23);
 
 # Genemark testing:
 my $genemark = Bio::Tools::Genemark->new('-file' => 't/genemark.out');
-ok $genemark;
 
 my $gmgene = $genemark->next_prediction();
-ok $gmgene;
+ok $gmgene->seqname(), "Hvrn.contig8";
+ok $genemark->analysis_date(), "Thu Mar 22 10:25:00 2001";
 
-my @gmexons = $gmgene->exons();
-ok @gmexons;
+my $i = 0;
+my @num_exons = (1,5,2,1,9,5,3,2,3,2,1,2,7);
+while($gmgene = $genemark->next_prediction()) {
+    $i++;
+    my @gmexons = $gmgene->exons();
+    ok scalar(@gmexons), $num_exons[$i];
 
-my $gmstart = $gmexons[0]->start();
-ok $gmstart;
+    if($i == 5) {
+	my $gmstart = $gmexons[0]->start();
+	ok $gmstart, 23000;
 
-my $gmend = $gmexons[0]->end();
-ok $gmend;
+	my $gmend = $gmexons[0]->end();
+	ok $gmend, 23061;
+    }
+}
+
