@@ -1,5 +1,6 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.25 2004-10-02 15:11:04 smckay Exp $
+# $Id: bulk_load_gff.PLS,v 1.26 2005-03-09 19:06:42 faga Exp $
+
 
 use strict;
 # use lib './blib/lib';
@@ -8,8 +9,6 @@ use IO::File;
 use Getopt::Long;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Binning 'bin';
-use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
-
 use constant MYSQL => 'mysql';
 
 use constant FDATA      => 'fdata';
@@ -82,13 +81,15 @@ maximum number of command-line arguments, use the
 Command-line options can be abbreviated to single-letter options.
 e.g. -d instead of --database.
 
-   --database <dsn>      Mysql database name (default dbi:mysql:test)
+   --database <dsn>      Database name (default dbi:mysql:test)
+   --adaptor             Adaptor name (default mysql)
    --create              Reinitialize/create data tables without asking
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
    --long_list           Directory containing a very large number of 
                          GFF and/or FASTA files
    --password            Password to use for authentication
+   --maxbin              Set the value of the maximum bin size
    --local               Flag to indicate that the data source is local
    --maxfeature          Set the value of the maximum feature size
    --group               A list of one or more tag names (comma or space separated)
@@ -110,7 +111,7 @@ disclaimers of warranty.
 
 =cut
 
-package Bio::DB::GFF::Adaptor::faux;
+package Bio::DB::GFF::Adaptor::fauxmysql;
 
 use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 use vars '@ISA';
@@ -120,6 +121,57 @@ sub insert_sequence {
   my $self = shift;
   my ($id,$offset,$seq) = @_;
   print join("\t",$id,$offset,$seq),"\n";
+};
+
+package Bio::DB::GFF::Adaptor::fauxmysqlcmap;
+
+use Bio::DB::GFF::Adaptor::dbi::mysqlcmap;
+use vars '@ISA';
+@ISA = 'Bio::DB::GFF::Adaptor::dbi::mysqlcmap';
+
+sub insert_sequence {
+  my $self = shift;
+  my ($id,$offset,$seq) = @_;
+  print join("\t",$id,$offset,$seq),"\n";
+};
+
+package Bio::DB::GFF::Adaptor::fauxpg;
+
+use Bio::DB::GFF::Adaptor::dbi::pg;
+use vars '@ISA';
+@ISA = 'Bio::DB::GFF::Adaptor::dbi::pg';
+
+#these two subs are to separate the table creation from the
+#index creation
+sub do_initialize {
+  my $self = shift;
+  my $erase = shift;
+  $self->drop_all if $erase;
+                                                                                
+  my $dbh = $self->features_db;
+  my $schema = $self->schema;
+  foreach my $table_name ($self->tables) {
+    my $create_table_stmt = $schema->{$table_name}{table} ;
+    $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
+  #  $self->create_other_schema_objects(\%{$schema->{$table_name}});
+  }
+  1;
+}
+
+sub _create_indexes_etc {
+  my $self = shift;
+
+  my $dbh = $self->features_db;
+  my $schema = $self->schema;
+  foreach my $table_name ($self->tables) {
+    $self->create_other_schema_objects(\%{$schema->{$table_name}});
+  }
+}
+
+sub insert_sequence {
+  my $self = shift;
+  my ($id,$offset,$seq) = @_;
+  print "$id\t$offset\t$seq\n";
 }
 
 package main;
@@ -132,20 +184,27 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST);
+my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST);
 
 GetOptions ('database:s'    => \$DSN,
+        'adaptor:s'     => \$ADAPTOR,
 	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
-            'local'         => \$LOCAL,
-            'maxbin|maxfeature:s'    => \$MAX_BIN,
+        'local'         => \$LOCAL,
+        'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'       => \$GROUP_TAG,
 	    'long_list:s'   => \$LONG_LIST
 	   ) or (system('pod2text', $0), exit -1);
 
-$DSN ||= 'dbi:mysql:test';
+# If called as pg_bulk_load_gff.pl behave as that did.
+if ($0 =~/pg_bulk_load_gff.pl/){
+    $ADAPTOR ||= 'pg';
+    $DSN     ||= 'test';
+}
+$DSN     ||= 'dbi:mysql:test';
+
 
 if ($bWINDOWS && not $FORCE) {
   die "Note that Windows users must use the --create option.\n";
@@ -161,26 +220,57 @@ unless ($FORCE) {
   close TTY;
 }
 
-my (@auth,$AUTH);
-if (defined $USER) {
-  push @auth,(-user=>$USER);
-  $AUTH .= " -u$USER";
-}
-if (defined $PASSWORD) {
-  push @auth,(-pass=>$PASSWORD);
-  $AUTH .= " -p$PASSWORD";
-}
-
 $DSN=~s/database=//i;
 $DSN=~s/;host=/:/i; #cater for dsn in the form of "dbi:mysql:database=$dbname;host=$host"
 
+
 my($DBI,$DBD,$DBNAME,$HOST)=split /:/,$DSN;
+$DBNAME=$DSN unless $DSN=~/:/;
+$ADAPTOR ||= $DBD; 
+$ADAPTOR ||= 'mysql';
+
+my ($use_mysql,$use_mysqlcmap,$use_pg) = (0,0,0);
+if ( $ADAPTOR eq 'mysqlcmap' ) {
+  $use_mysqlcmap = 1;
+}
+elsif ( $ADAPTOR =~ /^mysql/ ) {
+  $use_mysql = 1;
+}
+elsif ( $ADAPTOR eq "pg" ) {
+  $use_pg = 1;
+}
+else{
+    die "$ADAPTOR is not an acceptable database adaptor.";
+}
+
+
+my (@auth,$AUTH);
+if (defined $USER) {
+  push @auth,(-user=>$USER);
+  if ( $use_mysql or $use_mysqlcmap ) {
+    $AUTH .= " -u$USER";
+  }
+  elsif ( $use_pg ) {
+    $AUTH .= " -U $USER ";
+  }
+}
+if (defined $PASSWORD) {
+  push @auth,(-pass=>$PASSWORD);
+  if ( $use_mysql or $use_mysqlcmap ) {
+    $AUTH .= " -p$PASSWORD";
+  }
+  elsif ( $use_pg ) {
+    $AUTH .= " -W $PASSWORD ";
+  }
+}
+
 if (defined $HOST) {
   $AUTH .= " -h$HOST";  
 }
-$DBNAME=$DSN unless $DSN=~/:/;
 if (defined $DBNAME) {
-  $AUTH .= " -D$DBNAME";
+  if ( $use_mysql or $use_mysqlcmap ) {
+    $AUTH .= " -D$DBNAME ";
+  }
 }
 if (defined $LOCAL) {
   $LOCAL='local';
@@ -189,8 +279,18 @@ if (defined $LOCAL) {
   $LOCAL='';
 }
 
+my $faux_adaptor;
+if ( $use_mysqlcmap ) {
+  $faux_adaptor = "fauxmysqlcmap";
+}
+elsif ( $use_mysql ) {
+  $faux_adaptor = "fauxmysql";
+}
+elsif ( $use_pg ) {
+  $faux_adaptor = "fauxpg";
+}
 
-my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
+my $db = Bio::DB::GFF->new(-adaptor=>$faux_adaptor,-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
@@ -221,7 +321,7 @@ foreach (@ARGV) {
 
 my (@gff,@fasta);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)/i) {
+  if (/\.(fa|fasta|dna|seq|fast)$/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;
@@ -240,6 +340,13 @@ foreach (@files) {
   $FH{$_}->autoflush;
 }
 
+if ( $use_pg ) {
+$FH{FDATA()                }->print("COPY fdata (fid, fref, fstart, fstop, fbin, ftypeid, fscore, fstrand, fphase, gid, ftarget_start, ftarget_stop) FROM stdin;\n");
+$FH{FTYPE()                }->print("COPY ftype (ftypeid, fmethod, fsource) FROM stdin;\n");
+$FH{FGROUP()               }->print("COPY fgroup (gid, gclass, gname) FROM stdin;\n");
+$FH{FATTRIBUTE()           }->print("COPY fattribute (fattribute_id, fattribute_name) FROM stdin;\n");
+$FH{FATTRIBUTE_TO_FEATURE()}->print("COPY fattribute_to_feature (fid, fattribute_id, fattribute_value) FROM stdin;\n");
+}
 my $FID     = 1;
 my $GID     = 1;
 my $FTYPEID = 1;
@@ -264,6 +371,30 @@ if (!@ARGV) {
     $FH{NULL} = IO::File->new(">$tmpdir/null");
     push @ARGV, "$tmpdir/null";
 }
+
+my ($cmap_db);
+if ($use_mysqlcmap){
+    my $options = {
+            AutoCommit       => 1,
+            FetchHashKeyName => 'NAME_lc',
+            LongReadLen      => 3000,
+            LongTruncOk      => 1,
+            RaiseError       => 1,
+        };
+
+    $cmap_db = DBI->connect( $DSN, $USER, $PASSWORD, $options );
+}
+# Only load CMap::Utils if using cmap
+unless (!$use_mysqlcmap or
+    eval {
+        require Bio::GMOD::CMap::Utils;
+        Bio::GMOD::CMap::Utils->import('next_number');
+        1;
+    } 
+) {
+    print STDERR "Error loading Bio::GMOD::CMap::Utils\n";
+}
+
 
 while (<>) {
   chomp;
@@ -293,7 +424,6 @@ while (<>) {
     $gff3++;
     next;
   }
-
   elsif (/^\#\#\s*group-tags\s+(.+)/) {
     $db->preferred_groups(split(/\s+/,$1));
     next;
@@ -311,7 +441,10 @@ while (<>) {
   else {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   }
-  next unless defined $ref;
+  if ( not defined( $ref ) or length ($ref) == 0) {
+    warn "\$ref is null.  source = $source, method = $method, group = $group\n";
+    next;
+  }
   $FEATURES++;
   my $size = $stop-$start+1;
   warn "Feature $group ($size) is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $size > $MAX_BIN;
@@ -335,7 +468,22 @@ while (<>) {
 
   my $bin = bin($start,$stop,$db->min_bin);
   $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
-  $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"G$gid"}++;
+  if ($use_mysqlcmap){
+    my $feature_id    = next_number(
+      db         => $cmap_db,
+      table_name => 'cmap_feature',
+      id_field   => 'feature_id',
+    )
+    or die 'No feature id';
+    my $direction = $strand eq '-' ? -1:1;
+    $FH{ FGROUP() }->print(    
+      join("\t",$feature_id,$feature_id,'NULL',0, $group_name,0,0,'NULL',1,$direction, $group_class,)
+      ,"\n"
+    ) unless $DONE{"G$gid"}++;
+  }
+  else {
+    $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"G$gid"}++;
+  }
   $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"T$ftypeid"}++;
 
   foreach (@$attributes) {
@@ -357,30 +505,69 @@ while (<>) {
 
 for my $file (@fasta) {
   warn "Preparing DNA file $file....\n";
+  if ($use_pg){
+    $FH{FDNA() }->print("COPY fdna (fref, foffset, fdna) FROM stdin;\n");
+  }
   my $old = select($FH{FDNA()});
   $db->load_fasta($file);
+  if ($use_pg){
+    $FH{FDNA() }->print("\\.\n\n");
+  }
   warn "done...\n";
   select $old;
 }
+if ($use_pg) { 
+$FH{FDATA()                }->print("\\.\n\n");
+$FH{FTYPE()                }->print("\\.\n\n");
+$FH{FGROUP()               }->print("\\.\n\n");
+$FH{FATTRIBUTE()           }->print("\\.\n\n");
+$FH{FATTRIBUTE_TO_FEATURE()}->print("\\.\n\n");
+}
+
 
 $_->close foreach values %FH;
-
 printf STDERR "Total parse time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
 warn "Loading feature data.  You may see duplicate key warnings here...\n";
 
+if ($use_pg){
+warn "Loading feature data.  You may see Postgres comments...\n";
+
+foreach (@files) {
+  my $file = "$tmpdir/$_.$$";
+
+  $AUTH ? system("psql $AUTH -f $file $DSN")
+        : system('psql','-f', $file, $DSN);
+
+  unlink $file;
+}
+
+warn "Updating sequences ...\n";
+$db->update_sequences();
+
+warn "Creating indexes ...\n";
+$db->_create_indexes_etc();
+
+warn "done...\n";
+
+}
+elsif( $use_mysql or $use_mysqlcmap ) {
 $start = time();
 
 my $success = 1;
 my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
 foreach (@files) {
-  my $command =<<END;
-${\MYSQL} $AUTH
--e "lock tables $_ write; delete from $_; load data $LOCAL infile '$tmpdir/$_.$$' replace into table $_  $TERMINATEDBY; unlock tables"
-END
-;
+  my $command = qq[
+    ${\MYSQL} $AUTH -e "lock tables ]
+    . function_to_table($_,$ADAPTOR)
+    . qq[ write; delete from ]
+    . function_to_table($_,$ADAPTOR)
+    . qq[; load data $LOCAL infile '$tmpdir/$_.$$' replace into table ]
+    . function_to_table($_,$ADAPTOR)
+    . qq[  $TERMINATEDBY; unlock tables"
+];
   $command =~ s/\n/ /g;
   $success &&= system($command) == 0;
-  unlink "$tmpdir/$_.$$";
+  #unlink "$tmpdir/$_.$$";
 }
 printf STDERR "Total load time %5.2fs\n",(time() - $start) if $timer;
 warn "done...\n";
@@ -391,6 +578,33 @@ if ($success) {
 } else {
   print "FAILURE: Please see standard error for details\n";
   exit -1;
+}
+}
+
+sub function_to_table {
+    my $function = shift;
+    my $adaptor  = shift;
+
+    if ($function eq 'fdata'){
+        return 'fdata';
+    }
+    elsif ($function eq 'ftype'){
+        return 'ftype';
+    }
+    elsif ($function eq 'fgroup'){
+        return 'cmap_feature' if ($adaptor eq 'mysqlcmap');
+        return 'fgroup';
+    }
+    elsif ($function eq 'fdna'){
+        return 'fdna';
+    }
+    elsif ($function eq 'fattribute'){
+        return 'fattribute';
+    }
+    elsif ($function eq 'fattribute_to_feature'){
+        return 'fattribute_to_feature';
+    }
+    return '';
 }
 
 __END__
