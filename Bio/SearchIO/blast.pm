@@ -642,17 +642,19 @@ sub next_result{
 		   } elsif( /effective\s+length\s+of\s+query:\s+([\d\,]+)/ ) {
 		       my $c = $1;
 		       $c =~ s/\,//g;
-		        $self->element({'Name' => 'Statistics_query-len',
-					'Data' => $c});
+		       $self->element({'Name' => 'Statistics_query-len',
+				       'Data' => $c});
 		   } elsif( m/effective\s+length\s+of\s+database:\s+
 			    ([\d\,]+)/ox){
 		       my $c = $1;
 		       $c =~ s/\,//g;
 		       $self->element({'Name' => 'Statistics_eff-dblen',
 				       'Data' => $c});
-		   } elsif( m/^(T|A|X1|X2|S1|S2):\s+(\d+)/ox ) {
+		   } elsif( m/^(T|A|X1|X2|S1|S2):\s+(.+)/ox ) {
+		       my $v = $2;
+		       chomp($v);
 		       $self->element({'Name' => "Statistics_$1",
-				       'Data' => $2});
+                                       'Data' => $v});
 		   } elsif( m/frameshift\s+window\,\s+decay\s+const:\s+
 			    (\d+)\,\s+([\.\d]+)/ox ) {
 		       $self->element({'Name'=> 'Statistics_framewindow',
