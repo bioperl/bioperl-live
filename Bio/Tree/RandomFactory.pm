@@ -78,11 +78,11 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Factory::TreeFactoryI;
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::TreeIO::TreeEventBuilder;
 use Bio::Tree::AlleleNode;
 
-@ISA = qw(Bio::Root::RootI Bio::Factory::TreeFactoryI );
+@ISA = qw(Bio::Root::Root Bio::Factory::TreeFactoryI );
 
 =head2 new
 
@@ -148,18 +148,26 @@ sub next_tree{
    my $i;
    # adopted from Hudson, 19??
    my @nodes;
-   for($i=0;$i< 2*$size;$i++ ) { 
-       push @nodes, new Bio::Tree::AlleleNode(-id => "node$i");
+   my $start = 2 * $size; 
+   my $bl = 0;
+   my @list;
+   for($i=0;$i<$start; $i++) { 
+       $nodes[$i] = new Bio::Tree::AlleleNode(-id => "node$i");
+       $list[$i] = $nodes[$i];
+   }
+
+   for($i=$start;$i > 1;$i-- ) {
+       $bl += -2.0 * log ( 1.0000 - rand()) / ( $i * ($i - 1) );
+       $nodes[2*$size - $i]->branch_length(sprintf("%.5f",$bl));       
    }
    for( $i= $size; $i > 1; $i--) {
        my $pick = $self->random($i);
        my $node1 = $nodes[$pick];
-       $nodes[2*$size - $i]->set_Left_Descendent($node1);
+       $nodes[2*$size - $i]->add_Descendent($node1);
        $nodes[$pick] = $nodes[$i-1];
-       $pick = $self->random($i-1);
-       
+       $pick = $self->random($i-1);       
        my $node2 = $nodes[$pick];
-       $nodes[2*$size - $i]->set_Right_Descendent($node2);       
+       $nodes[2*$size - $i]->add_Descendent($node2);       
        $nodes[$pick] = $nodes[2*$size - $i];
    }
    my $tree = new Bio::Tree::Tree(-root => $nodes[0]);
@@ -287,8 +295,8 @@ sub _eventHandler{
 
 sub random{
    my ($self,$max) = @_;
-   $max = 1 unless defined $max || $max < 0;
-   return int( rand($max));
+   $max = 2 unless defined $max || $max < 0;
+   return int ( $max * rand());
 }
 
 1;
