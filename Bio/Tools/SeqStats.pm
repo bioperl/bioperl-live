@@ -1,6 +1,6 @@
 
 #
-# BioPerl module for Bio::SeqStats
+# BioPerl module for Bio::Tools::SeqStats
 #
 # Cared for by
 #
@@ -12,14 +12,15 @@
 
 =head1 NAME
 
-Bio::SeqStats - Object holding statistics for one particular sequence
+Bio::Tools::SeqStats - Object holding statistics for one particular sequence
 
 =head1 SYNOPSIS
 
     # build a primary nucleic acid or protein sequence object somehow
     # then build a statistics object from the sequence object
+
 	$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', -moltype = 'dna', -id = 'test');
-	$seq_stats  =  Bio::SeqStats->new($seqobj);
+	$seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
 
 
     # obtain a hash of counts of each type of monomer (ie amino or nucleic acid)
@@ -28,7 +29,7 @@ Bio::SeqStats - Object holding statistics for one particular sequence
 	    print "Number of bases of type ",$base "= ",%$hash_ref{$base}"\n";
 	}
     # or obtain the count directly without creating a new statistics object
-	$hash_ref = Bio::SeqStats->count_monomers($seqobj);
+	$hash_ref = Bio::Tools::SeqStats->count_monomers($seqobj);
 	foreach $base ( sort keys $$hash_ref) {
 	    print "Number of bases of type ",$base "= ",%$hash_ref{$base}"\n";
 	}
@@ -37,7 +38,7 @@ Bio::SeqStats - Object holding statistics for one particular sequence
     # obtain hash of counts of each type of codon in a nucleic acid sequence
 	$hash_ref = $seq_stats-> count_codons();  # for nucleic acid sequence
     #  or
-	$hash_ref = Bio::SeqStats->count_codons($seqobj);
+	$hash_ref = Bio::Tools::SeqStats->count_codons($seqobj);
 
 
     # Obtain the molecular weight of a sequence. Since the sequence may contain
@@ -46,26 +47,33 @@ Bio::SeqStats - Object holding statistics for one particular sequence
     # (LUB) of the molecular weight
 	$weight = $seq_stats->get_mol_wt();
     #  or
-	$weight = Bio::SeqStats->get_mol_wt($seqobj);
+	$weight = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 	print "Molecular weight of sequence ", $seqobj->id(), " is greater than ", $$weight[0], " and less than " , $$weight[1], "\n";
 
 
 
 =head1 DESCRIPTION
 
-Bio:SeqStats is a lightweight object for the calculation of simple statistical and numerical properties
-of a sequence. By "lightweight" I mean that only "primary" sequences are handled by the object.
-The calling script needs to create the appropriate primary sequence to be passed to SeqStats if
-statistics on a sequence feature are required.  Similarly if a codon count is desired for a
-frame-shifted sequence and/or a negative strand sequence, the calling script needs to create
-that sequence and pass it to the SeqStats object.
+Bio::Tools::SeqStats is a lightweight object for the calculation of
+simple statistical and numerical properties of a sequence. By
+"lightweight" I mean that only "primary" sequences are handled by the
+object.  The calling script needs to create the appropriate primary
+sequence to be passed to SeqStats if statistics on a sequence feature
+are required.  Similarly if a codon count is desired for a
+frame-shifted sequence and/or a negative strand sequence, the calling
+script needs to create that sequence and pass it to the SeqStats
+object.
 
-SeqStats can be called in two distinct manners.  If only a single computation is required on a
-given sequence object, the method can be called easily using the SeqStats object directly:
+SeqStats can be called in two distinct manners.  If only a single
+computation is required on a given sequence object, the method can be
+called easily using the SeqStats object directly:
+
 	$weight = Bio::SeqStats->get_mol_wt($seqobj);
 
-Alternately, if several computations will be required on a given sequence object,
-an "instance" statistics object can be constructed and used for the method calls:
+Alternately, if several computations will be required on a given
+sequence object, an "instance" statistics object can be constructed
+and used for the method calls:
+
 	$seq_stats  =  Bio::SeqStats->new($seqobj);
 	$monomers = $seq_stats->count_monomers();
 	$codons = $seq_stats->count_codons();
@@ -86,6 +94,7 @@ and issuing a warning to that effect.
 
 =head1 DEVELOPERS NOTES
 
+Ewan moved it from Bio::SeqStats to Bio::Tools::SeqStats
 
 =head1 STILL TO WRITE
 
@@ -124,7 +133,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 
-package Bio::SeqStats;
+package Bio::Tools::SeqStats;
 use vars qw(@ISA);
 use strict;
 
