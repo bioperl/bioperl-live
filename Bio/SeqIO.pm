@@ -393,14 +393,8 @@ END
  Title   : next_seq
  Usage   : $seq = stream->next_seq
  Function: reads the next $seq object from the stream
-<<<<<<< SeqIO.pm
- Returns : the Bio::Seq sequence object
- Args    :
-=======
  Returns : a Bio::Seq sequence object
- Args    : 
->>>>>>> 1.15
-
+ Args    :
 =cut
 
 sub next_seq {
