@@ -809,11 +809,11 @@ sub catfile {
 sub rmtree {
     my($self,$roots, $verbose, $safe) = @_;
     if( $FILEPATHLOADED ) { 
-	return File::Path::rmtree ($roots, $verbose, $safe); 
-    }				
-    
+	return File::Path::rmtree ($roots, $verbose, $safe);
+    }
+
     my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
-		       || $^O eq 'amigaos');
+		       || $^O eq 'amigaos' || $^O eq 'cygwin');
     my $Is_VMS = $^O eq 'VMS';
 
     my(@files);
