@@ -565,7 +565,12 @@ sub next_result{
 		   $self->element({'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} }) if exists $h->{'%_gid'};
 		   $self->element({'Name' => 'Hsp_identity', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
 		       if (exists $h->{'%_id'} && exists $h->{alen});
-		   $self->element({'Name' => 'Hsp_positive', 'Data' => 100 * $h->{'%_id'} }) if exists $h->{'%_id'};
+		   if( exists $h->{'%_gid'} ) { 
+		       $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_gid'} * $h->{alen})}) if exists $h->{'%_gid'} && exists $h->{alen};
+		   } else { 
+		       $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+			   if (exists $h->{'%_id'} && exists $h->{alen});
+		   }
 		   $self->element({'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }) if exists $h->{alen};
 		   $self->element({'Name' => 'Hsp_query-from', 'Data' => $h->{an0} }) if exists $h->{an0};
 		   $self->element({'Name' => 'Hsp_query-to', 'Data' => $h->{ax0} }) if exists $h->{ax0};
@@ -643,7 +648,12 @@ sub next_result{
 		       $self->element({'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} }) if exists $h->{'%_gid'};
 		       $self->element({'Name' => 'Hsp_identity', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
 			   if (exists $h->{'%_id'} && exists $h->{alen});
-		       $self->element({'Name' => 'Hsp_positive', 'Data' => $h->{'%_id'} }) if exists $h->{'%_id'};
+		       if( exists $h->{'%_gid'} ) { 
+			   $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_gid'} * $h->{alen})}) if exists $h->{'%_gid'} && exists $h->{alen};
+		       } else { 
+			   $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+			   if (exists $h->{'%_id'} && exists $h->{alen});
+		       }
 		       $self->element({'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }) if exists $h->{alen};
 		       $self->element({'Name' => 'Hsp_query-from', 'Data' => $h->{an0} }) if exists $h->{an0};
 		       $self->element({'Name' => 'Hsp_query-to', 'Data' => $h->{ax0} }) if exists $h->{ax0};
