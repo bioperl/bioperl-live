@@ -223,33 +223,59 @@ sub _parse_loc {
     my $fwd = ($sf->strand() > -1) ? "5" : "3";
 
     #print "Processing $loc\n";
-    if($loc =~ /^\s*(\w+[A-Za-z])?\(?([\<\?\d]\d*)[ \W]{1,3}([\<\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+
+    # Two numbers separated by anything of '.', '^', and spaces (SRS puts a
+    # space between the two dots), optionally surrounded by parentheses and a
+    # qualifier. The qualifier is recorded as value of the pseudotag
+    # _feature_type.
+    # The numbers may optionally be preceded by '<' (first) or '>' second), or
+    # replaced by '?' (sometimes in SwissProt), in which case you'll find a
+    # tag called '_part_feature' with the value of which end is missing.
+    # After the numbers there may be text, separated from the numbers by any
+    # of [,;" ], which will be recorded as the value of the tag with the same
+    # as the qualifier, or "note" if there is no qualifier.
+    # Examples: 10..70
+    #           10^11     # you'll find a '_zero_width_feature' tag
+    #           <10..>70
+    #           ?..70
+    #           10. .70   # I've seen SRS doing such a thing
+    #           replace(10..12, "ACT")
+    #           ^^^^^^^ ^^  ^^   ^^^
+    #         qualifier from/to  note
+    #
+    # Fuzzy locations like 200.202 or (200.202)..220 are neither covered
+    # correctly by this method nor by the Feature object itself. So, it should
+    # *not* be passed to this method.
+    #
+    # HL 05/16/2000
+    if($loc =~ /^\s*(\w+[A-Za-z])?\(?([\<\?\d]\d*)[.\^\s]{1,3}([\>\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 	#print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
 	$fea_type = $1 if $1;
 	$start = $2;
 	$end   = $3;
 	$tagval = $4 if $4;
-    } elsif($loc =~ /^\s*(\w+[A-Za-z])?\(?([<>\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    } 
+    # like before, but only one number
+    elsif($loc =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 	#print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";
 	$fea_type = $1 if $1;
 	$start = $end = $2;
 	$tagval = $3 if $3;
     } else {
-	print "didn't match\n";
+	#print "didn't match\n";
 	return 0;
     }
-    if ( $start =~ /[\<\?]*(\d*)[\<\?]*/ ) {
-	$start = $1;
+    if ( $start =~ s/^[\<\>\?]// ) {
+	#print "partial feature 5' (loc=$loc; start=$start)\n";
 	$sf->add_tag_value('_part_feature', $fwd . '_prime_missing');
     }
-    if ( $end =~ /[\<\?]*(\d*)[\<\?]*/ ) {
-	$end = $1;
+    if ( $end =~ s/^[\<\>\?]// ) {
+	#print "partial feature 3' (loc=$loc; end=$end)\n";
 	$sf->add_tag_value('_part_feature',
 			    $compl_of{$fwd} . '_prime_missing');
     }
-    #print "$loc: start = $start, end = $end\n";
     $sf->start($start) if(length($start) > 0);
-    $sf->end($end) if(length($end)) > 0;
+    $sf->end($end) if(length($end) > 0);
     if(defined($fea_type) && ($fea_type ne "complement")) {
 	#print "featype: $fea_type\n";
 	$sf->add_tag_value('_feature_type', $fea_type);
