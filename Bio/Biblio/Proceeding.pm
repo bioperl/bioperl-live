@@ -65,9 +65,9 @@ package Bio::Biblio::Proceeding;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::RefI;
+use Bio::Biblio::Ref;
 
-@ISA = qw( Bio::Biblio::RefI);
+@ISA = qw( Bio::Biblio::Ref);
 
 #
 # a closure with a list of allowed attribute names (these names

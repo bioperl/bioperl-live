@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::RefI
+# BioPerl module for Bio::Biblio::Journal
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,25 +9,15 @@
 
 =head1 NAME
 
-Bio::Biblio::RefI - Representation of a bibliographic reference
+Bio::Biblio::Journal - Representation of a journal
 
 =head1 SYNOPSIS
 
-  # to be written
+#
 
 =head1 DESCRIPTION
 
-Super class and interface class for bibliographic references. The
-central class of the Bio::Biblio name space.
-
-The class names and attributes comes from the Martin Senger's java implementation
-of Biblio objects - the I<OpenBQS> project pages are at
-http://industry.ebi.ac.uk/openBQS/.
-
-See Martin's the UML diagram at 
-http://industry.ebi.ac.uk/openBQS/images/bibobjects_java.jpg
-for an overview.
-
+#
 
 =head1 FEEDBACK
 
@@ -65,18 +55,12 @@ it under the same terms as Perl itself.
 
 This software is provided "as is" without warranty of any kind.
 
-=head1 APPENDIX
-
-The rest of the documentation details each of the object
-methods. Internal methods are preceded with a _
-
 =cut
 
 
 # Let the code begin...
 
-
-package Bio::Biblio::RefI;
+package Bio::Biblio::Journal;
 use strict;
 use vars qw(@ISA $AUTOLOAD);
 
@@ -93,38 +77,19 @@ use Bio::Biblio::BiblioBase;
 {
     my %_allowed =
 	(
-	 _chemicals => 'ARRAY',
-	 _citation_owner => undef,
-	 _comment_ins => 'ARRAY',
-	 _comment_ons => 'ARRAY',
-	 _contributors => 'ARRAY',
-	 _data_revised => undef,
-	 _date_completed => undef,
-	 _date_created => undef,
-	 _erratum_fors => 'ARRAY',
-	 _erratum_ins => 'ARRAY',
-	 _general_notes => 'ARRAY',
-	 _identifier => undef,
-	 _keywords => 'HASH',
-	 _last_modified_date => undef,
-	 _medline_id => undef,
-	 _mesh_headings => 'ARRAY',
-	 _number_of_references => undef,
-	 _original_report_ins => 'ARRAY',
-	 _other_ids => 'ARRAY',
-	 _pmid => undef,
-	 _repository_subset => undef,
-	 _republished_froms => 'ARRAY',
-	 _republished_ins => 'ARRAY',
-	 _retraction_ins => 'ARRAY',
-	 _retraction_ofs => 'ARRAY',
-	 _status => undef,
-	 _subject_headings => 'HASH',
-	 _subject_headings_source => undef,
-	 _summary_for_patients_ins => 'ARRAY',
-	 _type => undef,
-	 _update_ins => 'ARRAY',
-	 _update_ofs => 'ARRAY',
+	 _abbreviation => undef,
+	 _coden => undef,
+	 _country => undef,
+	 _issn => undef,
+	 _issue => undef,
+	 _medline_code => undef,
+	 _medline_date => undef,
+	 _medline_ta => undef,
+	 _name => undef,
+	 _nlm_unique_id => undef,
+	 _pub_date => undef,
+	 _season => undef,
+	 _volume => undef,
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class
@@ -139,5 +104,6 @@ use Bio::Biblio::BiblioBase;
 	$_allowed{$attr};
     }
 }
+
 1;
 __END__

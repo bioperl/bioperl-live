@@ -65,9 +65,9 @@ package Bio::Biblio::Organisation;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::ProviderI;
+use Bio::Biblio::Provider;
 
-@ISA = qw( Bio::Biblio::ProviderI);
+@ISA = qw( Bio::Biblio::Provider);
 
 #
 # a closure with a list of allowed attribute names (these names

@@ -71,9 +71,9 @@ use strict;
 use vars qw(@ISA $VERSION $Revision);
 
 use Bio::Root::Root;
-use Bio::Biblio::JournalI;
+use Bio::Biblio::Journal;
 use Bio::Biblio::Book;
-use Bio::Biblio::ProviderI;
+use Bio::Biblio::Provider;
 use Bio::Biblio::Person;
 use Bio::Biblio::Organisation;
 
@@ -139,7 +139,7 @@ sub convert {
        }
 
    }
-   $result = $self->_new_instance ('Bio::Biblio::RefI') unless defined $result;
+   $result = $self->_new_instance ('Bio::Biblio::Ref') unless defined $result;
 
    #
    # now do the attributes which are the same for all resource types
@@ -337,7 +337,7 @@ sub _convert_journal_article {
 
     # create and populate a Journal object (where this article belongs to)
     my $from_journal = $$article{'journal'};
-    my $journal = new Bio::Biblio::JournalI;
+    my $journal = new Bio::Biblio::Journal;
     $journal->name ($$from_journal{'title'}) if defined $$from_journal{'title'};
     $journal->issn ($$from_journal{'iSSN'}) if defined $$from_journal{'iSSN'};
     $journal->abbreviation ($$from_journal{'iSOAbbreviation'}) if defined $$from_journal{'iSOAbbreviation'};
@@ -520,7 +520,7 @@ sub _convert_providers {
 	} elsif (defined $$provider{'collectiveName'}) {
 	    push (@results, new Bio::Biblio::Organisation (-name => $$provider{'collectiveName'}));
 	} else {
-            new Bio::Biblio::ProviderI;
+            new Bio::Biblio::Provider;
 	}
     }
     return undef unless @results;

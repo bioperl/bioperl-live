@@ -78,7 +78,7 @@ use Bio::Biblio::Article;
 {
     my %_allowed =
 	(
-	 _journal => 'Bio::Biblio::JournalI',
+	 _journal => 'Bio::Biblio::Journal',
 	 );
 
     # return 1 if $attr is allowed to be set/get in this class

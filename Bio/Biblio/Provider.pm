@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Biblio::ProviderI
+# BioPerl module for Bio::Biblio::Provider
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Biblio::ProviderI - Representation of a general provider
+Bio::Biblio::Provider - Representation of a general provider
 
 =head1 SYNOPSIS
 
@@ -61,7 +61,7 @@ This software is provided "as is" without warranty of any kind.
 # Let the code begin...
 
 
-package Bio::Biblio::ProviderI;
+package Bio::Biblio::Provider;
 use strict;
 use vars qw(@ISA $AUTOLOAD);
 
