@@ -245,7 +245,15 @@ sub next_result{
                    last if( /^\s+$/);
                    next if( /^(Model|Sequence)\s+Domain/o || /^\-\-\-/o );
                    chomp;
-                   if( my ($n,$domainnum,$domainct, @vals) = (/(\S+)\s+(\d+)\/(\d+)\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/o) ) {
+                   if( my ($n,$domainnum,$domainct, @vals) = 
+		       (m!^(\S+)\s+      # host name
+			(\d+)/(\d+)\s+   # num/num (ie 1 of 2) 
+			(\d+)\s+(\d+).+? # sequence start and end
+			(\d+)\s+(\d+)\s+ # hmm start and end
+			\S+\s+           # []
+			(\S+)\s+         # score
+			(\S+)            # evalue
+			\s*$!ox ) ) {
                        # array lookup so that we can get rid of things 
                        # when they've been processed
                        my $info = $hitinfo[$hitinfo{$n}];
@@ -428,6 +436,7 @@ sub next_result{
            }
        } elsif( defined $self->{'_reporttype'} &&
                 $self->{'_reporttype'} eq 'HMMPFAM' ) {
+	   # process HMMPFAM results here
            if( /^Scores for sequence family/o ) {
                while( defined($_ = $self->_readline) ) {
                    last if( /^\s+$/);
@@ -448,10 +457,30 @@ sub next_result{
                    last if( /^\s+$/);
                    next if( /^Model\s+Domain/o || /^\-\-\-/o );
                    chomp;
-                   if( my @vals = (/(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/o) ) {
-                       push @hspinfo, [ @vals ];
+                   if( my ($n,$domainnum,$domainct,@vals) = 
+			   (m!^(\S+)\s+         # domain name
+			    \s+(\d+)/(\d+)\s+   # domain num out of num
+			    (\d+)\s+(\d+).+?    # seq start, end
+			    (\d+)\s+(\d+)\s+    # hmm start, end
+			    \S+\s+              # []
+			    (\S+)\s+            # score       
+			    (\S+)               # evalue
+			    \s*$!ox ) ) {
+		       my $hindex = $hitinfo{$n};
+		       if( ! defined $hindex ) {
+			   push @hitinfo, [ $n, '',$vals[5],$vals[6],
+					    $domainct];
+			   $hitinfo{$n} = $#hitinfo;
+			   $hindex = $#hitinfo;
+		       }
+		       my $info = $hitinfo[$hindex];
+                       if( ! defined $info ) { 
+                           $self->warn("incomplete Domain information, can't find $n hitinfo says $hitinfo{$n}"); 
+                           next;
+                       }
+                       push @hspinfo, [ $n, @vals];
                    }
-               }
+	       }
            } elsif( /^Alignments of top/o  ) {
                my ($prelength,$lastdomain,$count,$width);
                $count = 0;
@@ -472,21 +501,26 @@ sub next_result{
                        last;
                    }
                    chomp;
-                   if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
+                   if( m/(\S+):.*from\s+(\d+)\s+to\s+(\d+)/o ) {
                        my ($name,$from,$to) = ($1,$2,$3);
+		       
                        if( ! defined $lastdomain || $lastdomain ne $name ) {
-                           
                            if( $self->within_element('hit') ) {
                                if( $self->in_element('hsp') ) {
                                    $self->end_element({'Name' => 'Hsp'});
                                }
                                $self->end_element({'Name' => 'Hit'});
                            }
-                           $self->start_element({'Name' => 'Hit'});
                            my $info = [@{$hitinfo[$hitinfo{$name}]}];
-                           if( $info->[0] ne $name ) { 
-                               $self->throw("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name)"); 
+                           if( ! defined $info || 
+			       $info->[0] ne $name ) { 
+                               $self->warn("Somehow the Model table order does not match the order in the domains (got ".$info->[0].", expected $name). We're back loading this from the alignment information instead"); 
+			       $info = [$name, '', 
+			       	      /score\s+([^,\s]+),\s+E\s+=\s+(\S+)/ox];
+			       push @hitinfo, $info;
+			       $hitinfo{$name} = $#hitinfo;
                            }
+                           $self->start_element({'Name' => 'Hit'});
 
                            $self->element({'Name' => 'Hit_id',
                                            'Data' => shift @{$info}});
