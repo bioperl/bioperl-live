@@ -34,7 +34,8 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
     # then interchangeably
 
     # choose a different server to query
-    $sp = new Bio::DB::SwissProt('-hostlocation' => 'canada');
+    $sp = new Bio::DB::SwissProt('-servertype' => 'expasy',
+				 '-hostlocation' => 'us');
 
     $seq = $sp->get_Seq_by_id('BOLA_HAEIN'); # SwissProtID
 
@@ -124,6 +125,7 @@ $DEFAULTFORMAT = 'swissprot';
 		   'taiwan' => 'tw.expasy.org',
 		   'australia' => 'au.expasy.org',
 		   'korea'  => 'kr.expasy.org',
+		   'us'     => 'us.expasy.org',
 	       },
 	       # ick, CGI variables
 	       'jointype' => ' ',
