@@ -14,6 +14,11 @@ See Bio::Matrix::PSM::IO for detailed documentation on how to use PSM parsers
 Parser for mast. This driver unlike meme or transfac for example is
 dedicated more to PSM sequence matches, than to PSM themselves.
 
+=head1 TO DO
+
+Section III should be parsed too, otherwise no real sequence is
+available, so we supply 'NNNNN....' as a seq which is not right.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -24,13 +29,13 @@ and other Bioperl modules. Send your comments and suggestions preferably
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -41,11 +46,10 @@ Email skirov@utk.edu
 
 =head1 APPENDIX
 
-=head1 TO DO
-Section III should be parsed too, otherwise no real sequence is available, so we
-supply 'NNNNN....' as a seq which is not right.
-=cut
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
+=cut
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::mast;
