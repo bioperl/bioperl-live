@@ -64,7 +64,7 @@ some extra piece of information, you can use the tag system to easily
 store and then retrieve information.
 
 The tag system can be written in/out of GFF format, and also into EMBL
-format via AnnSeqIO::EMBL.
+format via the SeqIO system
 
 =head1 FEEDBACK
 

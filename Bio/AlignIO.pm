@@ -403,7 +403,7 @@ END
  Title   : next_aln
  Usage   : $aln = stream->next_aln
  Function: reads the next $aln object from the stream
- Returns : a Bio::Seq sequence object
+ Returns : a Bio::SimpleAlign object
  Args    : 
 
 =cut
