@@ -1448,7 +1448,7 @@ sub num_hsps {
  Usage     : $sbjct_object->length();
  Purpose   : Get the total length of the hit sequence.
  Example   : $len    = $sbjct_object->length();
- Returns   : Integer 
+ Returns   : Integer 
  Argument  : n/a
  Throws    : n/a
  Comments  : Developer note: when using the built-in length function within

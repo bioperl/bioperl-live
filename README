@@ -17,6 +17,13 @@ o About Bioperl
  developers of Perl-based software for life 
  science research. 
 
+ This is the main distribution. The following external modules
+ are needed for some aspects of bioperl
+
+ bioperl-ext - available from ftp://bio.perl.org/pub/DIST
+ LWP         - available from CPAN
+ Aceperl     - available from http://stein.cshl.org/AcePerl
+
 
 o Contact info
 
@@ -120,6 +127,10 @@ location. See below for details.
 INSTALLING THE COMPILED EXTENSIONS
 
 You need the bioperl-ext package for the compiled extensions.
+
+ bioperl-ext - available from ftp://bio.perl.org/pub/DIST
+
+
 
 This Installation works out-of-the box for all platforms except *BSD
 and Solaris boxes. For notes on this, read on. For other platforms,

@@ -1,5 +1,55 @@
 Revision history for Bioperl core modules
 
+0.6.1  Sun April 2 2000
+
+   o Sequences can have Sequence Features attached to them
+        - The sequence features can be read from or written to
+          EMBL and GenBank style flat files
+
+   o Objects for Annotation, including References (but not
+     full medline abstracts), Database links and Comments are
+     provided
+
+   o A Species object to represent nodes on a taxonomy tree
+     is provided
+
+   o The ability to parse HMMER and Sim4 output has been added
+
+   o The Blast parsing has been improved, with better PSI-BLAST
+     support and better overall behaviour.
+
+   o Flat file indexed databases provide both random access 
+     and sequential access to their component sequences.
+
+   o A CodonTable object has been written with all known 
+     CodonTables accessible.
+
+   o A number of new lightweight analysis tools have been
+     added, such as molecular weight determination.
+
+    The 0.6 release also has improved software engineering
+  
+   o The sequence objects have been rewritten, providing more
+     maintainable and easier to implement objects. These
+     objects are backwardly compatible with the 0.05.1 objects
+
+   o Many objects are defined in terms of interfaces and then  
+     a Perl implementation has been provided. The interfaces
+     are found in the 'I' files (module names ending in 'I').
+
+     This means that it is possible to wrap C/CORBA/SQL access
+     as true "bioperl" objects, compatible with the rest of
+     bioperl.
+
+   o The SeqIO system has been overhauled to provide better
+     processing and perl-like automatic interpretation of <>
+     over arguments.
+
+   o Many more tests have been added (a total of 172 automatic
+     tests are now run before release).
+
+
+
 0.05.1 Tue Jun 29 05:30:44 1999
         - Central distribution now requires Perl 5.004. This was
           done to get around 5.003-based problems in Bio/Index/* 
