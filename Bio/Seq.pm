@@ -737,15 +737,15 @@ sub desc {
 =cut
 
 sub primary_id {
-   my ($obj,$value) = @_;
+    my $obj = shift;
 
-   if( defined $value) {
-      $obj->{'primary_id'} = $value;
+    if(@_) {
+	$obj->{'primary_id'} = shift;
     }
-   if( ! exists $obj->{'primary_id'} ) {
-       return "$obj";
-   }
-   return $obj->{'primary_id'};
+    if( ! defined($obj->{'primary_id'}) ) {
+	return "$obj";
+    }
+    return $obj->{'primary_id'};
 }
 
 =head2 can_call_new

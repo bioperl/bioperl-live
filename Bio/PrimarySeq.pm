@@ -516,15 +516,15 @@ sub accession_number {
 =cut
 
 sub primary_id {
-   my ($obj,$value) = @_;
-   if( defined $value) {
-      $obj->{'primary_id'} = $value;
-    }
-   if( ! exists $obj->{'primary_id'} ) {
-       return "$obj";
-   }
-   return $obj->{'primary_id'};
+    my $obj = shift;
 
+    if(@_) {
+	$obj->{'primary_id'} = shift;
+    }
+    if( ! defined($obj->{'primary_id'}) ) {
+	return "$obj";
+    }
+    return $obj->{'primary_id'};
 }
 
 
