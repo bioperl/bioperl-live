@@ -20,11 +20,21 @@ o System requirements
    this process even easier.  Simply install the bundle in your CPAN
    shell and all necessary modules will be installed.
 
- - Bioperl on ActiveState for Windows - An ActiveState PPM distribution is
-   available for bioperl.  Issue the following command in your PPM
-   shell to install the Bioperl PPD.
-   PPM> set repository Bioperl http://bioperl.org/DIST/
-   PPM> install bioperl
+ - Bioperl on ActiveState for Windows - An ActiveState PPM distribution
+   is available for bioperl.  Issue the following commands in your PPM
+   shell to install Bioperl.
+
+   PPM>repository add Bioperl http://bioperl.org/DIST/
+
+   Get the number of the Bioperl repository:
+
+   PPM>repository
+
+   Set the Bioperl repository, find Bioperl, install Bioperl:
+
+   PPM>repository set <number>
+   PPM>search *
+   PPM>install <bioperl package>
 
  - Additional information using Bioperl with MacOS can be 
    found at http://bioperl.org/Core/mac-bioperl.html
@@ -280,7 +290,7 @@ example:
 
 >perl -e shell -MCPAN
 cpan>install Bundle::BioPerl
-<<<installation details>>>
+<...installation details...>
 cpan>quit
 
 
@@ -345,6 +355,7 @@ DBD::mysql               Mysql driver
 
 GD			 GD graphical drawing library
 			 Bio::Graphics
+                         Requires GD library from www.boutell.com/gd
 
 srsperl.pm		 Sequence Retrieval System (SRS) 
 			 alternative way of retrieving 
