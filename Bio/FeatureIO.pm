@@ -41,15 +41,16 @@ Bio::FeatureIO - Handler for FeatureIO
 
 =head1 DESCRIPTION
 
-
+An I/O iterator subsystem for genomic sequence features.
 
 =head1 SUPPORTED FORMATS
 
- name                      module
- --------------------------------
- BED                       bed.pm
- GFF                       gff.pm
- GTF                       gtf.pm
+ name                         module
+ -----------------------------------
+ BED                          bed.pm
+ GFF                          gff.pm
+ GTF                          gtf.pm
+ InterPro (IPRScan 4.0)  interpro.pm
 
   #Bio::SeqIO is a handler module for the formats in the SeqIO set (eg,
   #Bio::SeqIO::fasta). It is the officially sanctioned way of getting at
@@ -245,7 +246,7 @@ use Symbol();
 
  Title   : new
  Usage   : $stream = Bio::FeatureIO->new(-file => $filename, -format => 'Format')
- Function: Returns a new seqstream
+ Function: Returns a new feature stream
  Returns : A Bio::FeatureIO stream initialised with the appropriate format
  Args    : Named parameters:
              -file => $filename
@@ -297,7 +298,7 @@ sub new {
  Function: does a new() followed by an fh()
  Example : $fh = Bio::FeatureIO->newFh(-file=>$filename,-format=>'Format')
            $feature = <$fh>;   # read a feature object
-           print $fh $sequence; # write a feature object
+           print $fh $feature; # write a feature object
  Returns : filehandle tied to the Bio::FeatureIO::Fh class
  Args    :
 
@@ -317,8 +318,8 @@ sub newFh {
  Usage   : $obj->fh
  Function:
  Example : $fh = $obj->fh;      # make a tied filehandle
-           $sequence = <$fh>;   # read a sequence object
-           print $fh $sequence; # write a sequence object
+           $feature = <$fh>;   # read a feature object
+           print $fh $feature; # write a feature object
  Returns : filehandle tied to Bio::FeatureIO class
  Args    : none
 
@@ -410,7 +411,7 @@ sub _load_format_module {
     my $class = ref($self) || $self;
     my $module = $class."::$format";#"Bio::Feature::" . $format;
     my $ok;
-
+warn $module;
     eval {
 	$ok = $self->_load_module($module);
     };
