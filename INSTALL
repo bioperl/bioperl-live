@@ -73,7 +73,9 @@ o System requirements
    variables set.  If you do not have a local copy of the specific
    executeable you do not need to set these variables.  Additionally
    the modules will attempt to locate the specific applications in
-   your runtime PATH variable.  
+   your runtime PATH variable. You may also need to set an environment
+   variable to tell BioPerl about your network configuration if your
+   site uses a firewall.
 
    Setting environment variables on unix means adding a line like the
    following to your shell initialization:
@@ -101,6 +103,12 @@ o System requirements
    o TCOFFEEDIR - points to the directory where the t_coffee
                   executable is located.
 		 
+   o HTTP_PROXY - If you access the internet via a proxy server then you 
+                  can tell the Bioperl modules which require network access
+                  about this by using the HTTP_PROXY environment variable.  
+                  The value set includes the proxy address and the port 
+                  used (eg http://wwwcache.example.com:8080).
+
 
  * Note that most modules will work with earlier versions of Perl. 
    The only ones that will not are Bio::SimpleAlign.pm and 
