@@ -111,7 +111,10 @@ sub new {
 sub as_text{
    my ($self) = @_;
 
-   return "Direct database link to ".$self->primary_id." in database ".$self->database;
+   return "Direct database link to ".$self->primary_id
+       .($self->version ? ".".$self->version : "")
+       .($self->optional_id ? " (".$self->optional_id.")" : "")
+       ." in database ".$self->database;
 }
 
 =head2 hash_tree
