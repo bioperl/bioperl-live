@@ -601,10 +601,11 @@ sub start_element{
 	   $self->_eventHandler->$func($data->{'Attributes'});
        }						 
        unshift @{$self->{'_elements'}}, $type;
-   }
-   if($type eq 'result') {
-       $self->{'_values'} = {};
-       $self->{'_result'}= undef;
+
+       if($type eq 'result') {
+	   $self->{'_values'} = {};
+	   $self->{'_result'}= undef;
+       }
    }
 
 }
