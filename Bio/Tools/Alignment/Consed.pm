@@ -233,7 +233,9 @@ sub count_sequences_with_grep {
     opendir(SINGLETS,$self->{'path'});
     foreach my $f ( readdir(SINGLETS) ) {
 	next unless ($f =~ /\.singlets$/); 
-	open(FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
+	open(FILE, $self->catfile($self->{'path'},$f)) or 
+	    do{ $self->warn("cannot open file ".
+			    $self->catfile($self->{'path'},$f)); next };
 	while(<FILE>) { $counter++ if(/^>/) }
 	close FILE;
     }
