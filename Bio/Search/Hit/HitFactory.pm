@@ -116,7 +116,7 @@ sub new {
 sub create{
    my ($self,@args) = @_;
    my $type = $self->type;
-   eval "require $type";
+   eval { $self->_load_module($type) };   
    if( $@ ) { $self->throw("Unable to load module $type"); }
    return $type->new(@args);
 }
@@ -136,8 +136,11 @@ sub create{
 sub type{
     my ($self,$type) = @_;
    if( defined $type ) { 
-       eval { require $type };
-       if( $@ ){ $self->warn("Cannot find module $type, unable to set type"); } 
+       # redundancy with the create method which also calls _load_module
+       # I know - but this is not a highly called object so I am going 
+       # to leave it in
+       eval {$self->_load_module($type) };
+       if( $@ ){ $self->warn("Cannot find module $type, unable to set type"); }
        else { $self->{'_type'} = $type; }
    } 
     return $self->{'_type'} || $DEFAULT_TYPE;
