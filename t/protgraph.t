@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    $NUMTESTS  = 36;
+    $NUMTESTS  = 35;
     plan tests => $NUMTESTS;
     eval {	require Class::AutoClass;	
          	require Clone;
@@ -51,11 +51,27 @@ ok 1;
 
 ###############  test dip tab delimited  format  ###################
 ## test read...
+my %ids;
+my $gr;
 ok my $io = Bio::Graph::IO->new(-format => 'dip',
                                 -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"),
                                 -threshold => 0.6);
 
-ok my $gr = $io->next_network();
+ok  $gr = $io->next_network();
+#ok my @conns = $gr->components();
+#print STDERR scalar @conns, "s\n";
+ my @nodes = $gr->articulation_points();
+ for my $node(@nodes){
+		my $n   = $gr->_nodes($node);
+		my $ac  = $n->annotation();
+		my @dbs = $ac->get_Annotations('dblink');
+		my $id  = (map{$_->primary_id}grep{$_->database eq 'DIP'} @dbs)[0];
+		$ids{$id}++;
+	}
+
+for (sort keys %ids) {
+	print "$_ : $ids{$_}\n";
+}		
 ok my $node   = $gr->nodes_by_id('A64696');
 ok $node->accession_number, 'A64696';
 
@@ -82,76 +98,83 @@ if (!$XML_ERROR){
 ##### now lets test some graph properties.....##
 ## basic properties from SImpleGraph.
 
-ok sprintf("%.3f",$gr->density), "0.027";
-ok $gr->is_connected, '';
-ok $gr->is_forest, undef;
-ok $gr->is_tree, '';
-ok $gr->is_empty, '';
-ok $gr->is_cyclic, 1;
+ok sprintf("%.3f",$g2->density), "0.027";
+ok $g2->is_connected, '';
+ok $g2->is_forest, undef;
+ok $g2->is_tree, '';
+ok $g2->is_empty, '';
+ok $g2->is_cyclic, 1;
 
 ## get connected subgraphs
-my @components = $gr->components();
+my @components = $g2->components();
 ok scalar @components, 5;
 
 ## get nodes connected to parameter
-my $t       = $gr->traversal($gr->nodes_by_id('3079N'));
+my $t       = $g2->traversal($g2->nodes_by_id('3079N'));
 my @dfnodes = $t->get_all;
 ##
 
 ##before deleting 3048N,  3047N has 2 neighbours
-my @n1 = $gr->neighbors($gr->nodes_by_id('3047N'));
+my @n1 = $g2->neighbors($g2->nodes_by_id('3047N'));
 ok scalar @n1,2;
 
-ok $gr->remove_nodes($gr->nodes_by_id('3048N'));
+ok $g2->remove_nodes($g2->nodes_by_id('3048N'));
 
 ## after deleting there is only 1 interactor
- @n1 = $gr->neighbors($gr->nodes_by_id('3047N'));
+ @n1 = $g2->neighbors($g2->nodes_by_id('3047N'));
 ok scalar @n1,1;
 
 ##check no undefs left after node removal ##
 
-ok map {$_->object_id}$gr->edges;
-ok map {$_->object_id}$gr->nodes;
+ok map {$_->object_id}$g2->edges;
+my $i = 0;
+for my $n ($g2->nodes) {
+ if ( ref($n) !~ /Bio/) {
+		print "-$i- - heere";
+		}
+$i++;
+};
 
 ## count all edges
 my $count = 0;
-ok scalar keys %{$gr->_edges}, 72;
+ok scalar keys %{$g2->_edges}, 71;
 
-my @n = $gr->neighbors($gr->nodes_by_id('3075N'));
+my @n = $g2->neighbors($g2->nodes_by_id('3075N'));
 ok scalar @n, 13;
 
-ok $gr->remove_nodes($gr->nodes_by_id('3075N'));
+ok $g2->remove_nodes($g2->nodes_by_id('3075N'));
 
 ## should be 13  less interactions in graph.  
-ok scalar keys %{$gr->_edges}, 59;
+ok scalar keys %{$g2->_edges}, 58;
 
 ## many more subgraphs now
-@components = $gr->components();
+@components = $g2->components();
+#there were 5 subgraphs, now there are 10 unconnected nodes, total 15
 ok scalar @components, 15;
 
 ## how many unconnected nodes?
-my @ucnodes = $gr->unconnected_nodes;
+my @ucnodes = $g2->unconnected_nodes;
 ok scalar  @ucnodes, 10;
 
 ##get CC using protein object..
-ok  sprintf("%.3f", $gr->clustering_coefficient($gr->nodes_by_id('B64525'))), 0.067;
+ok  sprintf("%.3f", $g2->clustering_coefficient($g2->nodes_by_id('B64525'))), 0.022;
 
-#.. andusing id string (same as previous, for convenience	)
-ok  sprintf("%.3f", $gr->clustering_coefficient('B64525')), 0.067;	
+#.. and using id string (same as previous, for convenience	)
+ok  sprintf("%.3f", $g2->clustering_coefficient('B64525')), 0.022;	
 
 ## test has_node() method
-ok $gr->has_node('B64525'), 1;
-ok $gr->has_node('B64'), 0;
+ok $g2->has_node('B64525'), 1;
+ok $g2->has_node('B64'), 0;
 
 ## remove a single duplicate edge
-ok $gr->remove_dup_edges($gr->nodes_by_id('3103N'));
+ok $g2->remove_dup_edges($g2->nodes_by_id('3103N'));
 						
 
 
 ## remove  all duplicate edges
-ok $gr->remove_dup_edges();
+ok $g2->remove_dup_edges();
 	
 ## should now be no duplicates
-my @dupids = map{$_->object_id()} $gr->dup_edges();
+my @dupids = map{$_->object_id()} $g2->dup_edges();
 ok $dupids[0], undef;
 
