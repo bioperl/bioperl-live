@@ -14,6 +14,31 @@ BEGIN{
 	$FAC = Bio::Seq::SeqFactory->new(-type=>'Bio::Seq::RichSeq');
 }
 
+=head1    NAME
+
+Bio::Graph::IO::dip - class for parsing interaction data in dip format
+
+=head1    SYNOPSIS
+
+Do not use this module directly, use Bio::Graph::IO.pm instead
+E.g.,
+my $graph_io = Bio::Graph::IO->new(-format=>'dip', -file =>'data.dip');
+
+=head1    METHODS
+
+The naming system is analagous to the SeqIO system, although usually
+next_network() will be called only once per file. 
+
+=head2        next_network
+
+name        : next_network
+purpose     : parses a graph file and returns a Bio::Graph::ProteinGraph object
+usage       : my $g = $graph_io->next_network();
+arguments   : none
+returns     : a a Bio::Graph::ProteinGraph object
+
+=cut 
+
 sub next_network {
 
 	my $self = shift;
