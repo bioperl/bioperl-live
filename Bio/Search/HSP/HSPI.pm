@@ -129,6 +129,39 @@ sub algorithm{
    $self->throw_not_implemented;
 }
 
+
+=head2 score
+
+ Title   : score
+ Usage   : my $score = $hsp->score();
+ Function: Returns the score for this HSP or undef 
+ Returns : numeric           
+ Args    : none
+
+=cut
+
+sub score {
+   my ($self) = @_;
+   $self->throw_not_implemented;
+}
+
+
+=head2 bits
+
+ Title   : bits
+ Usage   : my $bits = $hsp->bits();
+ Function: Returns the bit value for this HSP or undef 
+ Returns : numeric
+ Args    : none
+
+=cut
+
+sub bits {
+   my ($self) = @_;
+   $self->throw_not_implemented;
+}
+
+
 =head2 p
 
  Title   : p
@@ -288,5 +321,20 @@ sub length{
 
 }
 
+=head2 percent_identity
+
+ Title   : percent_identity
+ Usage   : my $percentid = $hsp->percent_identity()
+ Function: Returns the calculated percent identity for an HSP
+ Returns : floating point between 0 and 100 
+ Args    : none
+
+
+=cut
+
+sub percent_identity{
+   my ($self) = @_;
+   return $self->frac_identical('hsp') * 100;   
+}
 
 1;
