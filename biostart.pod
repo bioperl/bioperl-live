@@ -35,7 +35,7 @@ Bioperl - Getting Started
 =head1 DESCRIPTION
 
 Bioperl is a set of Perl modules that represent useful biological
-objects. Some of the key objects include: Sequences, features on
+objects. Some of the key objects represent: Sequences, features on
 sequences, databases of sequences, flat file representations of
 sequences and similarity search results. 
 
@@ -44,10 +44,10 @@ useable programs in the distribution (this is not actually true.
 In the scripts directory there are a few useful programs. But not
 a great deal...). B<You> have to write the programs which use bioperl.
 
-It is very easy to write programs using the bioperl modules, as alot
+It is very easy to write programs using the bioperl modules, as a lot
 of the complex processing happens in the modules and not in the part
 of the program which you have to write. The idea is that you can
-connet up a number of the modules to do useful things. The synopsis
+connect up a number of the modules to do useful things. The synopsis
 above gives a simple script which uses bioperl. Stepping through this
 script, the lines mean the following things:
 
@@ -72,9 +72,9 @@ and one for outputting sequences. Using the
 syntax is common in bioperl. The file argument is like an argument
 to open() (notice that in the seqout case there is a greater-than
 sign, indicating opening the file for writing). You can also pass in
-filehandles or FileHandle objects by using the -fh argument, see SeqIO
-documentation for details. Many formarts in bioperl are handled,
-including Fasta, EMBL. GenBank, Swissprot (swiss), PIR and GCG.
+filehandles or FileHandle objects by using the -fh argument, see L<Bio::SeqIO>
+documentation for details. Many formats in bioperl are handled,
+including Fasta, EMBL, GenBank, Swissprot (swiss), PIR, and GCG.
 
   $seqin = Bio::SeqIO->new( '-format' => 'EMBL' , -file => 'myfile.dat');
   $seqout= Bio::SeqIO->new( '-format' => 'Fasta', -file => '>output.fa');
@@ -144,9 +144,11 @@ in GFF format, a standarised format for sequence features
 
 =head1 Short Description of Objects.
 
-Here is a very quick overview of the objects in bioperl
+Here is a very quick overview of some of the central objects in 
+bioperl. Also see L<bptutorial.pl>
 
-Bio::Seq - sequence object
+
+L<Bio::Seq> - sequence object
 
 
    # the following methods return strings
@@ -158,13 +160,18 @@ Bio::Seq - sequence object
    $seqobj->moltype();    # one of 'dna','rna','protein'
    $seqobj->primary_id(); # a unique id for this sequence irregardless
                           # of its display_id or accession number
+   $seqobj->seq_version() # when there, the version
+   $seqobj->desc();       # when there, the Definition line
+   $seqobj->keywords();     # when there, the Keywords line
+
 
    # the following methods return an array of 
-   # Bio::SeqFeature objects
+   # L<Bio::SeqFeature> objects
 
    $seqobj->top_SeqFeatures # The 'top level' sequence features
    $seqobj->all_SeqFeatures # All sequence features, including sub
                             # seq features
+
 
    # the following methods returns new sequence objects, but
    # do not transfer features across
@@ -173,7 +180,19 @@ Bio::Seq - sequence object
    $seqobj->revcom       # reverse complements sequence
    $seqobj->translate    # translation of the sequence
 
-Bio::SeqFeature objects:
+
+   # the following method returns a L<Bio::Species> object
+
+   $seqobj->species();
+
+
+   # the following method returns a L<Bio::Annotation> object
+   # which in turn allows access to L<Bio::Annotation::Reference>
+   # and L<Bio::Annotation::Comment> objects
+
+   $seqobj->annotation();
+
+L<Bio::SeqFeature> objects:
 
    # attributes which return numbers
 
@@ -189,7 +208,7 @@ Bio::SeqFeature objects:
                          # or 'BLAST'
 
    # attributes which return sequences (these are the more restrictive
-   # Bio::PrimarySeq objects, not Bio::Seq objects. The main difference
+   # L<Bio::PrimarySeq> objects, not L<Bio::Seq> objects. The main difference
    # is that these objects do not themselves contain sequence features)
 
    $feat->seq            # the sequence between start,end on the
@@ -210,11 +229,14 @@ Bio::SeqFeature objects:
 
 =head1 BLAST
 
-...stuff on running BLAST and parsing results...
+Please see L<bptutorial.pl>.
 
 
 =head1 Database Access
 
+Please see L<bptutorial.pl>, L<Bio::DB::GenBank>, L<Bio::DB::GenPept>,
+L<Bio::DB::SwissProt>, L<Bio::DB::GDB>, and L<Bio::DB::Ace>.
+   
 
 Feel free to add to this document.
 
