@@ -342,8 +342,8 @@ while( $hit = $result->next_hit ) {
 	    ok($hsp->score, 67);
 	    ok($hsp->bits,33.6);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 42.31);
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.1410');
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.1410');
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.4231');
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.4231');
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 1);
 	    ok($hsp->gaps, 0);	    
@@ -599,7 +599,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score, 2877.6);
 	    ok($hsp->bits,'547.0');
 	    ok(sprintf("%.2f",$hsp->percent_identity), 51.67);
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1748);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.5244);
 	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5728);
 	    ok($hsp->query->frame(), 0);
 	    ok($hsp->hit->frame(), 0);
@@ -733,6 +733,12 @@ while( my $hit = $result->next_hit ) {
     ok($hit->accession, shift @$d);
     ok(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
     ok($hit->raw_score, shift @$d );
+    ok(sprintf("%.4f",$hit->frac_identical('query')), '0.3640');
+    ok(sprintf("%.4f",$hit->frac_identical('hit')), '0.3660');
+    ok(sprintf("%.4f",$hit->frac_conserved('query')), '0.5370');
+    ok(sprintf("%.4f",$hit->frac_conserved('hit')), '0.5400');
+    ok(sprintf("%.4f",$hit->frac_aligned_query), '0.6200');
+    ok(sprintf("%.4f",$hit->frac_aligned_hit), '0.7100');
 
     if( $count == 0 ) {
 	while( my $hsp = $hit->next_hsp ) {
@@ -748,9 +754,15 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score,671);
 	    ok($hsp->bits,265.8);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 35.87);
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1213);	    
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.3656);
+
+            ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.3639);
+            ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.3656);
+            ok(sprintf("%.4f",$hsp->frac_conserved('query')), 0.5373);
+            ok(sprintf("%.2f",$hsp->frac_conserved('hit')), 0.54);
+
+	    ok(sprintf("%.4f",$hsp->frac_identical('hsp')), 0.3587);
 	    ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), 0.5297);
+
 	    ok($hsp->query->frame(), 2);
 	    ok($hsp->hit->frame(), 0);
 	    ok($hsp->gaps('query'), 6);
@@ -812,7 +824,7 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score,671);
 	    ok($hsp->bits,265.8);
 	    ok(sprintf("%.2f",$hsp->percent_identity), 35.87);
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.1219);	    
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.3656);	    
 	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.3639);
 	    ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), 0.5297);
 	    ok($hsp->query->frame(), 0);
@@ -881,8 +893,8 @@ while( my $hit = $result->next_hit ) {
 		ok($hsp->score,85);
 		ok($hsp->bits,41.8);
 		ok(sprintf("%.2f",$hsp->percent_identity), '32.20');
-		ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.1073);
-		ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.1073);
+		ok(sprintf("%.3f",$hsp->frac_identical('hit')), 0.322);
+		ok(sprintf("%.3f",$hsp->frac_identical('query')), 0.322);
 		ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), 0.4746);
 		ok($hsp->query->frame(), 2);
 		ok($hsp->hit->frame(), 1);
@@ -908,8 +920,8 @@ while( my $hit = $result->next_hit ) {
 	    ok($hsp->score,59);
 	    ok($hsp->bits,29.9);
 	    ok(sprintf("%.2f",$hsp->percent_identity), '37.50');
-	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.1250');
-	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.1250');
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), '0.3750');
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), '0.3750');
 	    ok(sprintf("%.4f",$hsp->frac_conserved('hsp')), '0.4750');
 	    ok($hsp->query->frame(), 2);
 	    ok($hsp->hit->frame(), 2);
