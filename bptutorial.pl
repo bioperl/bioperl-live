@@ -328,9 +328,9 @@ ftp://ftp-igbmc.u-strasbg.fr/pub/ClustalW/
 for tcoffee alignments-
 http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.html
 
-for local blast searching- ftp://ftp.ncbi.nlm.nih.gov/blast/server/current_release/
+for local blast searching- ftp://ftp.ncbi.nih.gov/blast/executables/release/
 
-for EMBOSS applications - http://www.hgmp.mrc.ac.uk/Software/EMBOSS/download.html
+for EMBOSS applications - http://www.emboss.org
 
 =for html <A NAME ="i.3"></A>
 
