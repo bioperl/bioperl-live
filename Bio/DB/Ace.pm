@@ -82,23 +82,26 @@ The rest of the documentation details each of the object methods. Internal metho
 
 # Let the code begin...
 
-package Bio::DB::GenBank;
+package Bio::DB::Ace;
 use vars qw($AUTOLOAD @ISA @EXPORT_OK);
 use strict;
 
 # Object preamble - inherits from Bio::DB::Abstract
 
 use Bio::DB::BioSeqI;
+use Bio::Seq;
 
 BEGIN { 
-  require Ace;
+  eval {
+    require Ace;
+  };
   if( $@) {
-    print STDERR "You have not installed Ace.pm.\n Read the docs in Bio::DB::Ace for more information about how to do this.\n It is very easy";
+    print STDERR "You have not installed Ace.pm.\n Read the docs in Bio::DB::Ace for more information about how to do this.\n It is very easy\n\nError message $@";
   }
 }
 
 
-@ISA = qw(Bio::DB::BioSeqI Exporter);
+@ISA = qw(Bio::DB::BioSeqI Bio::Root::Object Exporter);
 @EXPORT_OK = qw();
 
 # new() is inherited from Bio::DB::Abstract
@@ -143,14 +146,19 @@ sub get_Seq_by_id {
   my $self = shift;
   my $id = shift or $self->throw("Must supply an identifier!\n");
   my $ace = $self->_aceobj();
-  my $seq;
+  my ($seq,$dna,$out);
 
-  ($seq) = $ace->fetch( 'Sequence' , $id);
+  $seq = $ace->fetch( 'Sequence' , $id);
 
   # get out the sequence somehow!
 
+  $dna = $seq->asDNA();
   
-  $self->throw("Module not finished yet - don't know how to get the sequence out!");
+  $dna =~ s/^>.*\n//;
+  $dna =~ s/\n//g;
+
+  $out = Bio::Seq->new( -id => $id, -type => 'Dna', -seq => $dna, -name => "Sequence from Bio::DB::Ace $id");
+  return $out;
 
 }
 
@@ -192,3 +200,5 @@ sub _aceobj {
 
   return $self->{'_aceobj'};
 }
+
+1;
