@@ -1,5 +1,5 @@
 #
-# BioPerl module for Bio::SeqIO::fasta
+ # BioPerl module for Bio::SeqIO::fasta
 #
 # Cared for by Brad Marshall <bradmars@yahoo.com>
 #         
@@ -91,32 +91,27 @@ use Bio::Seq;
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
+
+#----------
 sub new {
-    my ($class, @args) = @_;
-    my $self = bless { }, $class;
-    $self->_initialize(@args);
-    return $self;
+#----------
+    my($class, @param) = @_;
+    my $self = {};
+    bless $self, ref($class) || $class;
+    $self->_initialize(@param);
+    $self;
 }
+
 
 sub _initialize {
   my($self,@args) = @_;
   my $xmlfile ="";
-
+  
   $self->{counter} = 0;
   $self->{id_counter} = 1;
   
-  ($self->{file}) = $self->_rearrange( [qw(FILE)] , @args);
-
-  eval {
-    my $handler = Bio::SeqIO::idHandler->new();
-    my $options = {Handler=>$handler};
-    my $parser = XML::Parser::PerlSAX->new($options);
-    $self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
-  };
-  if ($@) {
-    $self->throw("There was an error parsing the xml document ".$self->{file}.".  It may not be well-formed.");
-    exit(0);
-  }
+  $self->{file}=@args[1];
+  
   return unless my $make = $self->SUPER::_initialize(@args);
 }
 
@@ -131,27 +126,41 @@ sub _initialize {
 =cut
 
 sub next_seq {
-    my $self = shift;
+  my $self = shift; 
 
-    my $seq = shift(@{$self->{seqs}});
-    if ($seq) {
-	my $handler = Bio::SeqIO::seqHandler->new($seq);
+  unless (defined @{$self->{seqs}}) {
+
+      eval {
+	my $handler = Bio::SeqIO::idHandler->new();
 	my $options = {Handler=>$handler};
 	my $parser = XML::Parser::PerlSAX->new($options);
-	my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
+	$self->{seqs} = $parser->parse(Source => { SystemId => $self->{file} });
+      };
+      if ($@) {
+	$self->warn("There was an error parsing the xml document $self->{file}.  It may not be well-formed or
+	empty.");
+	return 0;
+      }
+  }
+  my $seq = shift(@{$self->{seqs}});
+  if ($seq) {
+    my $handler = Bio::SeqIO::seqHandler->new($seq);
+    my $options = {Handler=>$handler};
+    my $parser = XML::Parser::PerlSAX->new($options);
+    my $pseq = $parser->parse(Source => { SystemId => $self->{file} });
 
-	my $handler = Bio::SeqIO::featureHandler->new($pseq->length(), $pseq->moltype());
-	my $options = {Handler=>$handler};
+    my $handler = Bio::SeqIO::featureHandler->new($pseq->length(), $pseq->moltype());
+    my $options = {Handler=>$handler};
 
-	my $parser = XML::Parser::PerlSAX->new($options);
-	my $features = $parser->parse(Source => { SystemId => $self->{file} });
-	my $seq = Bio::Seq->new();
-	foreach my $feature (@{$features}) {
-	    $seq->add_SeqFeature($feature);
-	}
-	$seq->primary_seq($pseq);
-	return $seq;
+    my $parser = XML::Parser::PerlSAX->new($options);
+    my $features = $parser->parse(Source => { SystemId => $self->{file} });
+    my $seq = Bio::Seq->new();
+    foreach my $feature (@{$features}) {
+      $seq->add_SeqFeature($feature);
     }
+    $seq->primary_seq($pseq);
+    return $seq;
+  }
 }
 
 =head2 next_primary_seq
@@ -199,7 +208,8 @@ sub write_seq {
   my $bxlink = "http://www.bioxml.org/dtds/link/v0_1";
   my $bxseq = "http://www.bioxml.org/dtds/seq/v0_1";
   
-  my $writer = new XML::Writer(NAMESPACES => 1,
+  my $writer = new XML::Writer(FILENAME => $self->{file},
+  		               NAMESPACES => 1,
 			       DATA_MODE => 1,
 			       DATA_INDENT => 4,
 			       PREFIX_MAP => {$bxfeat => 'bx-feature',
@@ -216,8 +226,8 @@ sub write_seq {
   
   $writer ->startTag([$bxgame, 'game']);
   foreach my $seq (@seqs) {
-    $writer ->startTag([$bxseq, 'seq'], 
-		       [$bxseq, 'id'] => $seq->display_id,
+     $writer ->startTag([$bxseq, 'seq'], 
+      		       [$bxseq, 'id'] => $seq->display_id,
 		       [$bxseq, 'length'] => $seq->length,
 		       [$bxseq, 'type'] => $seq->moltype);
     if ($seq->length > 0) {
@@ -287,7 +297,8 @@ sub write_seq {
 }
 
 sub __draw_feature {
-  my ($self, $writer, $feature, $seq) = @_;
+  my ($self, $writer, $feature, $seq, $parent) = @_;
+  my ($subfeature, $subset, @subfeatures, $score, $score_val, $score_no);
   my $bxfeat = "http://www.bioxml.org/dtds/feature/v0_1";
 
   if (!$feature->has_tag('id')) {
@@ -295,13 +306,37 @@ sub __draw_feature {
     $feature->add_tag_value('id', $self->{id_counter});
     $self->{id_counter}++;
   }
+
   my @id = $feature->each_tag_value('id');
-  $writer->startTag([$bxfeat, 'feature'],
-		    [$bxfeat, 'id'] => @id[0]
-		   );
+  if ($parent == "") {
+	  $writer->startTag([$bxfeat, 'feature'],
+			    [$bxfeat, 'id'] => $id[0]
+			   );
+  } else {
+	  $writer->startTag([$bxfeat, 'feature'],
+			    [$bxfeat, 'id'] => $id[0],
+			    [$bxfeat, 'parent'] => $parent
+			   );
+  }
+
   $writer->startTag([$bxfeat, 'type']);
   $writer->characters($feature->primary_tag());
   $writer->endTag([$bxfeat, 'type']);
+
+  foreach $score ($feature->all_tags()) {
+    next if ($score eq 'id');
+    $writer->startTag([$bxfeat, 'score'],
+                      [$bxfeat, 'type'] => $score 
+                     );
+    $score_no = 0;
+    foreach $score_val ($feature->each_tag_value($score)) {
+       $writer->characters(' ') if ($score_no > 0);
+       $writer->characters($score_val);
+       $score_no++;
+    }
+    $writer->endTag([$bxfeat, 'score']);
+  }
+
   $writer->startTag([$bxfeat, 'seq_relationship'],
 		    [$bxfeat, 'seq'] => $seq->display_id,
 		    [$bxfeat, 'type'] => 'query'
@@ -317,6 +352,18 @@ sub __draw_feature {
   $writer->endTag([$bxfeat, 'span']);
   $writer->endTag([$bxfeat, 'seq_relationship']);
   $writer->endTag([$bxfeat, 'feature']);
+
+  #proces subseqfeature's, exons, introns, promotors, whatever...
+
+  foreach $subset (('exons', 'promoters','poly_A_sites','utrs','introns','sub_SeqFeature')) {
+    #determine if it exists
+    if (@subfeatures = eval ( '$feature->' . $subset . '()' )) {
+      foreach $subfeature (@subfeatures) {
+         $self->__draw_feature ($writer, $subfeature, $seq, $id[0]);
+      }        
+    }
+  }
 }
 
 1;
+
