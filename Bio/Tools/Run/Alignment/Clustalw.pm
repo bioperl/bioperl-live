@@ -416,8 +416,10 @@ sub AUTOLOAD {
 
 sub exists_clustal {
     my $self = shift;
-
-    return Bio::Root::IO->exists_exe($self->program);
+    if( my $f = Bio::Root::IO->exists_exe($PROGRAM) ) {
+	$PROGRAM = $f if( -e $f );
+	return 1;
+    }
 }
 
 =head2 program
