@@ -29,6 +29,7 @@ END {
 use Bio::Root::IO;
 print("Checking to see if Bio::SeqIO can be used.\n") if($DEBUG);
 use Bio::SeqIO;
+use Bio::Seq::SeqWithQuality;
 ok(1);
 
 
