@@ -362,7 +362,8 @@ sub _initialize {
 
  Title   : next_structure
  Usage   : $structure = stream->next_structure
- Function: Reads the next structure object from the stream and returns it.
+ Function: Reads the next structure object from the stream and returns a
+           Bio::Structure::Entry object.
 
            Certain driver modules may encounter entries in the stream that
            are either misformatted or that use syntax not yet understood
@@ -374,7 +375,7 @@ sub _initialize {
            catching the exception. Note that you can always turn recoverable
            errors into exceptions by calling $stream->verbose(2) (see
            Bio::RootI POD page).
- Returns : a Bio::Structure structure object
+ Returns : a Bio::Structure::Entry object
  Args    : none
 
 =cut
