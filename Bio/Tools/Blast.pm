@@ -1070,6 +1070,13 @@ documentation purposes only.
 ##                          CONSTRUCTOR                                     ##
 ##############################################################################
 
+
+sub new { 
+	my ($class,@args) = @_;
+	$class->warn("Bio::Tools::BLAST is deprecated, use Bio::SearchIO system or Bio::Tools::BPlite");
+return	$class->SUPER::new(@args);
+ }
+
 ## The Blast.pm object relies on the the superclass constructor:
 ## Bio::Tools::SeqAnal::_initialize(). See that module for details.
 
