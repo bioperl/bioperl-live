@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.9 2001-01-31 16:50:31 paulc Exp $
+## $Id: bioperl.pod,v 1.10 2001-02-23 15:49:09 birney Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -27,8 +27,11 @@ the objects provide a coordinated framework to do computational
 biology.
 
 If you are new to bioperl, reading biostart.pod will get you aquainted
-with writing scripts and the main players for the objects.
+with writing scripts and the main players for the objects. 
 
+We now also have a cookbook tutorial in bptutorial.pl which has
+embedded documentation. Start there if learning-by-example suites you
+most
 
 Bioperl development is focused on the objects themselves, and less on the 
 scripts (programs) that put these objects together. There are some example
@@ -59,6 +62,9 @@ go perldoc bioback.pod directly).
 
 =head1 GETTING STARTED
 
+The best place to start is by reading and running the cookbook script,
+bptutorial.pl
+
 The directory scripts/ have fully working, industrial strength scripts
 for use with bioperl. These are documented (perldoc <scriptname> will
 work). This area only started in the 0.05 distribution, and so not
@@ -88,103 +94,6 @@ I<examples/blast/> - example code for using the Bio::Tools::Blast.pm module.
 I<examples/seq/> - example code for working with multiple sequence files.
 
 I<examples/root_object/> - example code for using Bio::Root::Object.pm.
-
-
-=head1 OBJECTS
-
-
-=head2 Sequence objects
-
-I<Bio::Seq> Sequence object
-
-This module is the generic sequence object which lies at
-the core of the bioperl project. It stores DNA, RNA, or
-amino acid sequence information and brief annotation. It has
-associated methods to perform various manipulations of
-sequences and support for a reading and writing sequence
-data in a variety of file formats.
-
-Seq.pm has its own detailed documentation.
-
-=head2 Blast objects
-
-I<Bio::Tools::Blast>
-
-The Bio::Tools::Blast.pm module encapsulates data and
-methods for running, parsing, and analyzing pre-existing
-BLAST reports. 
-
-Blast.pm and all associated helper modules all have
-their own detailed documentation.
-
-FEATURES:
-
-       o Supports NCBI Blast1.x, Blast2.x, and WashU-Blast2.x,
-         gapped and ungapped. Can parse HTML-formatted as well 
-         as non-HTML-formatted reports.
-
-       o Launch new Blast analyses remotely or locally.
-         Blast objects can be constructed directly from the
-         results of the run.  (Support for local Blasts 
-         is not yet complete.)
-
-       o Construct Blast objects from pre-existing files or from
-         a new run.
-         Build a Blast object from a single file or build
-         multiple Blast objects from an input stream containing
-         multiple reports. 
-
-       o Add hypertext links from a BLAST report.
-
-       o Generate sequence and sequence alignment objects from
-         HSP sequences.
-
-
-=head2 Restriction Enzyme objects
-
-I<Bio::Tools::RestrictionEnzyme>
-
-The Bio::Tools::RestrictionEnzyme.pm module encapsulates
-generic data and methods for using restriction
-endonucleases for in silico restriction analysis of DNA
-sequences.
-
-RestrictionEnzyme.pm has its own detailed documentation.
-
-=head2 Protein Smith-Waterman alignment objects
-
-I<Bio::Tools::pSW>
-
-This module allows the production of Smith Waterman alignments. 
-I<Warning> it requires a compiled-C extension (bp_sw) which is
-provided in the distribution. The Bio::Tools::pSW object is 
-an object factory which builds Bio::SimpleAlign objects from
-two protein sequences objects (Bio::Seq).
-
-DNA alignments will be added soon.
-
-=head2 SimpleAlign objects
-
-I<Bio::SimpleAlign>
-
-Bio::SimpleAlign encapsulates multiple alignments as simple blocks of
-immutable sequences. This modules provides principly I/O of multiple
-alignments and some easy ways to iterate over an alignment
-
-It is not capable of complex join or editing functions, which is
-better provided by Georg Fuellen's UnivAln module. Nor does it
-I<make> alignments, which must be done by external programs or, for
-pairwise alignments, the Bio::Tools::pSW module
-
-=head2 Other Modules
-
-(** to be completed **)
-
-=head2 Using the Bio::Root modules with your own perl5 classes
-
-The example directory in the bioperl distribution I<examples/root_object/> 
-contains code and scripts that show how the Bio::Root modules can be used 
-as a foundation for robust and fault tolerant perl5 classes.
 
 =head1 GETTING INVOLVED
 
@@ -319,42 +228,6 @@ are also acceptable in a biosequence:
 
 
 
-=head1 TODO
-
-There are many many aspects of bioperl that are being worked on or
-should be worked on. Below lists a non exhaustive set: it is very likely
-by the time you read this document that some of these things have been
-done already, so check out http://bio.perl.org for more details.
-Some modules have their own TODO section, which will contain module-
-specific action items.
-
-=over
-
-=item Documentation clean-up
-
-'Meta' documentation is still spread around the different objects
-rather than in here
-
-
-=item Bio::Structure
-
-A number of people have been talking about a Structure object
-(probably an object heirarchy). See http://bio.perl.org/Projects/Structure
-for the current state-of-affairs in this area and to learn how
-to get involved.
-
-
-
-=item Perl version support
-
-All modules included in the intial Bioperl distribution support 5.003 and
-higher. At some point we will begin adding features and modules that require
-later versions of perl. Individual modules perhaps should explicitly impose 
-their own perl version requirements. Consider this issue open for discussion
-on the bioperl-l@bioperl.org mailing list.
-
-=back
-
 =head1 ACKNOWLEDGEMENTS
 
 Bioperl owes its early organizational support to its association with
@@ -366,17 +239,31 @@ behind bioperl. Steve Brenner, who was an early adopter of Perl for
 bioinformatics provided some of the early work on bioperl.
 
 Bioperl was then taken up by people developing code at the large
-genome centres. In particular at Stanford, Steve Chervitz (the current
-bioperl coordinator), at the Genome Sequencing Centre (St Louis) Ian
-Korf and at the Sanger Centre (Cambridge UK) Ewan Birney.  All of the
-C code XS extensions were provided by Ewan Birney. Bioperl is used in
-anger at these sites, indicating that is both useful and that it
-works.
+genome centres. In particular at Stanford, Steve Chervitz at the
+Genome Sequencing Centre (St Louis) Ian Korf and at the Sanger Centre
+(Cambridge UK) Ewan Birney.  All of the C code XS extensions were
+provided by Ewan Birney. Bioperl is used in anger at these sites,
+indicating that is both useful and that it works.
+
+Jason Staijch and Hilmar Lapp joined bioperl for the drive towards a
+0.7 release over 2000 and the first part of 2001, which includes a
+revised feature location model, richer feature objects (in particular
+genes) and more and better tools. Peter Schatner and Lorenz Pollak
+contributed serious chunks of code, being the AlignIO and bptutorial
+scripts and the BPLite port to bioperl respectively. At this time
+Bioperl was being used in absolute earnest by the Ensembl group which
+shook out a number of problems in the code base. Additional
+compatibility with the Sequence Workbench (bioperl-gui) (Mark
+Wilkinson and David Block) and Biocorba (Jason Staijch, Brad Chapman
+and Alan Robinson) and finally Game-XML (Brad Marshall) provided more
+interoperability.
 
 
-Jon Orwant at The Perl Journal (http://www.tpj.com) gave us permission to reprint 
-Lincoln Stein's great article on our website. He also worked with the Perl Institute 
-(http://www.perl.org) to arrange our perl.org DNS entry. 
+
+Jon Orwant at The Perl Journal (http://www.tpj.com) gave us permission
+to reprint Lincoln Stein's great article on our website. He also
+worked with the Perl Institute (http://www.perl.org) to arrange our
+perl.org DNS entry.
 
 Hardware for bio.perl.org was donated by Compaq.
 
@@ -387,10 +274,11 @@ Institute Inc. (http://www.genetics.com).
 
 =head1 COPYRIGHT
 
- Copyright (c) 1996-2000 Georg Fuellen, Richard Resnick, Steven E. Brenner,
- Chris Dagdigian, Steve A. Chervitz, Ewan Birney, James Gilbert, Elia Stupka, 
- and others. All Rights Reserved. This module is free software; 
- you can redistribute it and/or modify it under the same terms as Perl itself.
+ Copyright (c) 1996-2000 Georg Fuellen, Richard Resnick, Steven
+ E. Brenner, Chris Dagdigian, Steve A. Chervitz, Ewan Birney, James
+ Gilbert, Elia Stupka, Hilmar Lapp, Jason Staijch and others. All
+ Rights Reserved. This module is free software; you can redistribute
+ it and/or modify it under the same terms as Perl itself.
 
 =cut
 
