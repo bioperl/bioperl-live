@@ -110,7 +110,7 @@ use Data::Dumper;
 
 #use overload '""' => \&to_string;
 
-@ISA = qw( Bio::LocatableSeq Bio::Seq::MetaI );
+@ISA = qw( Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI );
 
 
 BEGIN {
@@ -136,15 +136,47 @@ BEGIN {
 =cut
 
 
-sub new {
-    my ($class, @args) = @_;
 
-    my $self = $class->SUPER::new(@args);
+
+BEGIN {
+
+    $DEFAULT_NAME = 'DEFAULT';
+    $GAP = '-';
+    $META_GAP = 0;
+}
+
+=head2 new
+
+ Title   : new
+ Usage   : $metaseq = Bio::Seq::Meta->new
+	        ( -meta => 'aaaaaaaabbbbbbbb',
+                  -seq =>  'TKLMILVSHIVILSRM'
+	          -id  => 'human_id',
+	          -accession_number => 'S000012',
+	        );
+ Function: Constructor for Bio::Seq::Meta class, meta data being in a
+           string. Note that you can provide an empty quality string.
+ Returns : a new Bio::Seq::Meta object
+
+=cut
+
+sub new {
+    my ($class, %args) = @_;
+	#defined inheritance according to stated baseclass,
+	#if undefined then will be PrimarySeq
+	if (defined($args{'-baseclass'})) {
+		@ISA = ($args{'-baseclass'},"Bio::Seq::MetaI");
+		}
+	else {
+		@ISA = qw( Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI );
+		}
+
+    my $self = $class->SUPER::new(%args);
 
     my($meta) =
         $self->_rearrange([qw(META
                               )],
-                          @args);
+                          %args);
 
     $self->{'_meta'}->{$DEFAULT_NAME} = undef;
 
