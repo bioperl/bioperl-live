@@ -124,6 +124,9 @@ sub new{
   $is_a_rel = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
   $contains_rel = Bio::Ontology::RelationshipType->get_instance( "CONTAINS" );
   $found_in_rel = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );
+  $is_a_rel->ontology($self->ontology());
+  $contains_rel->ontology($self->ontology());
+  $found_in_rel->ontology($self->ontology());
   $self->_cite_skip(0);
   $self->secondary_accessions_map( {} );
 
@@ -385,7 +388,7 @@ sub _create_relationship{
   my $rel = Bio::Ontology::Relationship->new( -predicate_term => $rel_type_term );
 	
   if (!defined $term_temp) {
-    $term_temp = $ont->engine->add_term( $fact->create_object( -InterPro_id => $ref_id ) );
+    $term_temp = $ont->engine->add_term( $fact->create_object( -InterPro_id => $ref_id , -name=>$ref_id, -ontology=>$ont) );
     $ont->engine->mark_uninstantiated($term_temp);
   }
   my $rel_type_name = $self->_top($self->_names);
@@ -422,6 +425,10 @@ sub start_element {
   my $fact = $self->term_factory();
 
   if ($element->{Name} eq 'interprodb') {
+    $ont->add_term($fact->create_object(-identifier => "Active_site",
+					-name => "Active Site") );
+    $ont->add_term($fact->create_object(-identifier => "Binding_site",
+					-name => "Binding Site") );
     $ont->add_term($fact->create_object(-identifier => "Family",
 					-name => "Family") );
     $ont->add_term($fact->create_object(-identifier => "Domain",
@@ -430,14 +437,6 @@ sub start_element {
 					-name => "Repeat") );
     $ont->add_term($fact->create_object(-identifier => "PTM",
 				 -name => "post-translational modification"));
-    $ont->add_term($fact->create_object(
-        -identifier => "Active_site",
-        -name => 'Active_site'
-    ));
-    $ont->add_term($fact->create_object(
-        -identifier => "Binding_site",
-        -name => 'Binding_site'
-    ));
   } elsif ($element->{Name} eq 'interpro') {
     my %record_args = %{$element->{Attributes}};
     my $id = $record_args{"id"};
@@ -445,7 +444,7 @@ sub start_element {
 
     $self->_term(
 		 (!defined $term_temp)
-		 ? $ont->add_term( $fact->create_object(-InterPro_id => $id) )
+		 ? $ont->add_term( $fact->create_object(-InterPro_id => $id, -name=>$id) )
 		 : $term_temp
 		);
 

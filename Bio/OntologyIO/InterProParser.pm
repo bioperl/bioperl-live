@@ -128,6 +128,7 @@ sub _initialize{
 			                             -ontology_name => $name);
 
     if(! $eng) {
+	$eng_type = 'simple' unless $eng_type;
 	if(lc($eng_type) eq 'simple') {
 	    $eng = Bio::Ontology::SimpleOntologyEngine->new();
 	} else {
@@ -168,8 +169,18 @@ sub _initialize{
 sub parse{
    my $self = shift;
 
-   my $ret = $self->{_parser}->parse( Source => {
-       SystemId => $self->file() } );
+   my $ret;
+   if ($self->file()) {
+         $ret = $self->{_parser}->parse( Source => {
+	                SystemId => $self->file() } );
+   } elsif ($self->_fh()) {
+        $ret = $self->{_parser}->parse( Source => {
+                ByteStream => $self->_fh() } );
+   } else {
+        $ret = undef;
+        $self->throw("Only filenames and filehandles are understood here.\n");
+   }
+
    $self->_is_parsed(1);
    return $ret;
 }

@@ -266,7 +266,7 @@ sub name {
 sub definition {
     my $self = shift;
 
-    return $self->{'definition'} = shift if @_;
+    return $self->{'definition'} = substr(shift,0,2000) if @_;
     return $self->{'definition'};
 } # definition
 

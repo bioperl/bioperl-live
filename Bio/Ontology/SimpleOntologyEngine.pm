@@ -480,33 +480,37 @@ sub get_relationships{
 	# if a term is supplied, add a relationship for the parent to the term
 	# except if the parent is the term itself (we added that one before)
 	if($term && ($parent_id ne $term->identifier())) {
-	    my $parent_term = $self->get_term_by_identifier($parent_id);
-	    push(@rels,
-		 $relfact->create_object(-object_term    => $parent_term,
-					 -subject_term   => $term,
-					 -predicate_term =>
-					    $parent_entry->{$term->identifier},
-					 -ontology       => $term->ontology()
-					 )
-		 );
+	    my @parent_terms = $self->get_term_by_identifier($parent_id);
+	    foreach my $parent_term (@parent_terms) {
+	    	push(@rels,
+			 $relfact->create_object(-object_term    => $parent_term,
+						 -subject_term   => $term,
+						 -predicate_term =>
+						    $parent_entry->{$term->identifier},
+						 -ontology       => $term->ontology()
+						 )
+		 	);
+ 	     }
 		 
 	} else {
 	    # otherwise, i.e., no term supplied, or the parent equals the
 	    # supplied term
-	    my $parent_term = $term ?
-		$term : $self->get_term_by_identifier($parent_id);
+	    my @parent_terms = $term ?
+		($term) : $self->get_term_by_identifier($parent_id);
 	    foreach my $child_id (keys %$parent_entry) {
 		my $rel_info = $parent_entry->{$child_id};
 
-		push(@rels,
-		     $relfact->create_object(-object_term    => $parent_term,
-					     -subject_term   =>
-					         $self->get_term_by_identifier(
+		foreach my $parent_term (@parent_terms) {
+			push(@rels,
+		     	$relfact->create_object(-object_term    => $parent_term,
+					     	-subject_term   =>
+					         	$self->get_term_by_identifier(
 							            $child_id),
-					     -predicate_term => $rel_info,
-					     -ontology =>$parent_term->ontology
-					     )
-		     );
+					     	-predicate_term => $rel_info,
+					     	-ontology =>$parent_term->ontology
+					     	)
+		     	);
+		}
 	    }
 	}
     }
