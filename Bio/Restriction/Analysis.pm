@@ -862,10 +862,11 @@ sub _enzyme_sites {
     my $site=$enz->cut;
     # split it into the two fragments for the sequence before and after.
     $site=0 unless defined $site;
-    # shouldn't happen, but what if the cut site is outside of the sequence
-    if ($site < 0 || $site > length($enz->string)) {
-       $self->throw("This is (probably) not your fault.\nGot a cut site of $site and a sequence of ".$enz->string);
-    }
+    # The following should not be an exception, both Type I and Type III
+	 # enzymes cut outside of their recognition sequences
+    #if ($site < 0 || $site > length($enz->string)) {
+    #   $self->throw("This is (probably) not your fault.\nGot a cut site of $site and a     # sequence of ".$enz->string);
+    # }
 
     # the default values just stop an error from an undefined
     # string. But they don't affect the split.
