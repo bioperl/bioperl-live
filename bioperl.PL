@@ -27,7 +27,7 @@ been split up into the following sections:
 
 =head2 Tutorials
 
-	bptutorial	Bioperl tutorial for beginners
+	bptutorial.pl	Bioperl tutorial for beginners
 
 =head2 References for Individual Modules
 
