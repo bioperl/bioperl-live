@@ -75,6 +75,7 @@ use Bio::Tools::Phylo::Molphy::Result;
 use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::TreeIO;
+use IO::String;
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO );
 
