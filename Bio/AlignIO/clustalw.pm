@@ -82,6 +82,9 @@ sub next_aln {
     }
     my %alignments;
     my $aln =  Bio::SimpleAlign->new();
+    my $order = 0;
+    my %order;
+
     while( defined ($_ = $self->_readline) ) {
 	next if ( /^\s+$/ );	
 
@@ -92,10 +95,15 @@ sub next_aln {
 	} elsif( /^(\S+)\s+([A-Z\-]+)\s*$/ ) {
 	    ($seqname,$aln_line) = ($1,$2);
 	} else { next }
+
+	if( !exists $order{$seqname} ) {
+	    $order{$seqname} = $order++;
+	}
+
 	$alignments{$seqname} .= $aln_line;  
     }
     my ($sname,$start,$end);
-    foreach my $name ( keys %alignments ) {
+    foreach my $name ( sort { $order{$a} <=> $order{$b} } keys %alignments ) {
 	if( $name =~ /(\S+):(\d+)-(\d+)/ ) {
 	    ($sname,$start,$end) = ($1,$2,$3);	    
 	} else {

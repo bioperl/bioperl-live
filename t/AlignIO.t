@@ -81,7 +81,7 @@ undef $strout;
 $str = Bio::AlignIO->new('-file'=> 't/testaln.clustal', 
 			 '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
-ok $aln->{order}->{'0'}, 'Q40065-1-32', "  failed clustalw (.aln) output test - was " . $aln->{order}->{'0'};
+ok $aln->{order}->{'0'}, 'P04777-1-33', "  failed clustalw (.aln) output test - was " . $aln->{order}->{'0'};
 
 # Testing filehandle manipulations
 

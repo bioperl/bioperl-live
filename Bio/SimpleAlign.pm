@@ -182,6 +182,8 @@ sub addSeq {
 
     }
     else {
+	#print STDERR "Assigning $name to $order\n";
+
 	$self->{'order'}->{$order} = $name;
 
 	if (not exists( $self->{'start_end_lists'}->{$id})) {
