@@ -293,12 +293,14 @@ sub add_Mutations{
 
        # We're using an infinite sites model so every new
        # mutation is a new site
-       $nodes[$branch]->add_Genotype("Mutation$j",1);
+       my $g = new Bio::PopGen::Genotype(-marker_name  => "Mutation$j",
+					 -alleles => [1]);
+       $nodes[$branch]->add_Genotype($g);
        push @mutations, "Mutation$j";
        # Let's add this mutation to all the children (push it down
        # the branches to the tips)
        foreach my $child ( $nodes[$branch]->get_all_Descendents ) {
-	   $child->add_Genotype("Mutation$j",1);
+	   $child->add_Genotype($g);
        }
    }
    # Insure that everyone who doesn't have the mutation
@@ -306,7 +308,9 @@ sub add_Mutations{
    foreach my $node ( @nodes ) {
        foreach my $m ( @mutations ) {
 	   if( ! $node->has_Marker($m) ) {
-	       $node->add_Genotype($m,0);
+	       my $emptyg = new Bio::PopGen::Genotype(-marker_name => $m,
+						      -alleles     => [0]);
+	       $node->add_Genotype($emptyg);
 	   }
        }
    }
