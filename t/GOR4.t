@@ -50,7 +50,7 @@ exit 0 if $ERROR ==  1;
 
 use Data::Dumper;
 
-use Bio::PrimarySeq;
+use Bio::Seq;
 require Bio::Tools::Analysis::Protein::GOR4;
 
 ok 1;
@@ -62,10 +62,10 @@ ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
 
-my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
 						-display_id => 'test2',
 						);
-ok $tool = Bio::Tools::Analysis::Protein::GOR4->new( -seq=>$seq,
+ok $tool = Bio::Tools::Analysis::Protein::GOR4->new( -seq=>$seq->primary_seq,
 													 );
 ok $tool->run ();
 ok my $raw = $tool->result('');
