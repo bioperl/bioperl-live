@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 62;
+    plan tests => 65;
 }
 
 use Bio::SimpleAlign;
@@ -33,10 +33,15 @@ END {
 }
 my ($str,$aln,$strout,$status);
 
-# STOCKHOLM
-$str = Bio::AlignIO->new('-file' => Bio::Root::IO->catfile("t","data","testaln.stockholm"),
-			   '-format' => 'stockholm');
+# STOCKHOLM (multiple concatenated files, as Pfam flatfile)
+ok $str  = new Bio::AlignIO (
+    '-file'	=> Bio::Root::IO->catfile("t","data","testaln.stockholm"),
+    '-format'	=> 'stockholm');
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246';
+$aln = $str->next_aln();
+ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246';
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246';
 

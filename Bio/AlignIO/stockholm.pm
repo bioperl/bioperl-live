@@ -33,8 +33,8 @@ stockholm flat file databases.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
@@ -43,6 +43,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email: schattner@alum.mit.edu
 
+=head1 CONTRIBUTORS
+
+Andreas Kahari, ak@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -88,7 +91,7 @@ sub next_aln {
     while( defined($entry = $self->_readline) ) {
         $entry !~ /\w+/ && next;
 
-	if ($entry =~ /^\#\s*STOCKHOLM\s+/) {
+	if ($entry =~ /^#\s*STOCKHOLM\s+/) {
 	    last;
 	}
 	else {
@@ -99,12 +102,27 @@ sub next_aln {
 #    Next section is same as for selex format
 #
     while( defined($entry = $self->_readline) ) {
-        $entry =~ /^\#=GS\s+(\S+)\s+AC\s+(\S+)/ && do {
+	# Double slash (//) signals end of file.  The flat Pfam-A data from
+	# ftp://ftp.sanger.ac.uk/pub/databases/Pfam/Pfam-A.full.gz consists
+	# of several concatenated Stockholm-formatted files.  The following
+	# line makes it possible to parse it without this module trying to
+	# read the whole file into memory.  Andreas Kähäri 10/3/2003.
+	last if $entry =~ /^\/\//;
+
+	# Extra bonus:  Get the name of the alignment.
+	# Andreas Kähäri 10/3/2003.
+	if ($entry =~ /^#=GF\s+AC\s+(\S+)/) {
+	    $aln->id($1);
+	    next;
+	}
+
+	$entry =~ /^#=GS\s+(\S+)\s+AC\s+(\S+)/ && do {
 	    $accession{ $1 } = $2;
 	    next;
 	};
-	$entry =~ /^([A-Za-z\.\-]+)$/ && ( $align{$name} .= $1 ) && next; 
-	$entry !~ /^([^\#]\S+)\s+([A-Za-z\.\-]+)\s*/ && next;
+	$entry =~ /^([A-Za-z.-]+)$/ && ( $align{$name} .= $1 ) && next; 
+	$entry !~ /^([^#]\S+)\s+([A-Za-z.-]+)\s*/ && next;
+
 	
 	$name = $1;
 	$seq = $2;
