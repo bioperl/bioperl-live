@@ -526,8 +526,8 @@ sub _to_cons {
 	my $c=$C*10/$all;
 	my $t=$T*10/$all;
  #Check for user supplied threshold
-  return 'N',10 if (($a<$thresh) &&  ($c<$thresh) &&  ($g<$thresh) && ($t<$thresh));
   $thresh=5 unless ($thresh);  #default threshold
+  return 'N',10 if (($a<$thresh) &&  ($c<$thresh) &&  ($g<$thresh) && ($t<$thresh));
 	return 'A',$a if ($a>$thresh);
 	return 'G',$g if ($g>$thresh);
 	return 'C',$c if ($c>$thresh);
