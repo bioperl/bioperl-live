@@ -1,5 +1,5 @@
 This is the README file for the Bioperl central distribution,
-version 0.06
+version 0.06.2
 
 # $Id$
 
@@ -13,7 +13,7 @@ o About Bioperl
  domain Perl tools for computational molecular
  biology. 
 
- Our website http://bio.perl.org provides an online 
+ Our website http://bioperl.org provides an online 
  resource for modules, scripts, and web links for 
  developers of Perl-based software for life 
  science research. 
@@ -31,13 +31,13 @@ o About Bioperl
 
 o Contact info
 
- Bioperl developers: vsns-bcd-perl-guts@lists.uni-bielefeld.de
+ Bioperl developers: bioperl-guts-l@bioperl.org
 
- Project website   : http://bio.perl.org
- Project FTP server: bio.perl.org (anonymous FTP ok)
+ Project website   : http://bioperl.org
+ Project FTP server: bioperl.org (anonymous FTP ok)
 
- Bug reports       : http://bio.perl.org/bioperl-bugs/
-                     bioperl-bugs@bio.perl.org
+ Bug reports       : http://bioperl.org/bioperl-bugs/
+                     bioperl-bugs@bioperl.org
 
  Please send us bugs, in particular about documentation which you 
  think is unclear or problems in installation. We are also very
@@ -50,6 +50,9 @@ o System requirements
   - ANSI C or Gnu C compiler for XS extensions
   - LWP (libwww-perl) modules for running network BLAST analyses
     (available from CPAN http://www.perl.com/CPAN/).
+
+  - Some external perl modules that are listed at
+    http://bioperl.org/Core/external.shtml
 
   * Note that most modules will work with earlier versions of perl. 
     The only ones that will not are Bio::SimpleAlign.pm and 
@@ -275,6 +278,7 @@ Example:
    use Bio::Seq;
 
    <...insert whizzy perl code here...>
+
 
 
 
