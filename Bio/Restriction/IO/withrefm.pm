@@ -124,10 +124,10 @@ sub read {
         # Minimal information
         #
         my ($name) = $entry =~ /^(\S+)/;
-        my ($site) = $entry =~ /<3>([^\n]+)/;
+        my ($site) = $entry =~ /\<3\>([^\n]+)/;
 
 
-        if ($site eq ''  or $site eq '?') {
+        if ( ! defined $site || $site eq '' or $site eq '?') {
             $self->warn("$name: no site. Skipping") if $self->verbose > 1;
             next;
         }
