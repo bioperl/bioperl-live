@@ -30,7 +30,6 @@
 	     'GD'                       => '1.3/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
 	     'Text::Shellwords'           => '0.0/Graphical Drawing Toolkit/Rendering Sequences and Features/Bio::Graphics',
 	     'Storable'                 => '0.0/Persistent object storage and retrieval/Storing sequence objects in local file cache/Bio::DB::FileCache',
-
 # rare function let's not scare people
 # 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
 	     );
@@ -254,10 +253,11 @@ WriteMakefile(
                       DIST_DEFAULT => 'all tardist',
                    },
     ($] ge '5.005')  ? (
-	'AUTHOR' => 'Bioperl Team (bioperl-l@bioperl.org)',
-	'ABSTRACT' => 'Bioinformatics Toolkit',
-	) : (),
-     'realclean'  => {  FILES        => join(' ',@BACKUP_FILES) }
+     'AUTHOR'   => 'Bioperl Team (bioperl-l@bioperl.org)',
+     'ABSTRACT' => 'Bioinformatics Toolkit',
+    ) : (),
+    'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
+    DIR         => [  ], # directories with other Makefile.PL's in them
 );
 
 
