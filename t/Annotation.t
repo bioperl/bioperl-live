@@ -18,7 +18,7 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..7\n"; }
+BEGIN { $| = 1; print "1..10\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::Annotation;
@@ -53,7 +53,7 @@ if( $link1->primary_id() eq 'TSC0000030') {
     print "not ok 4\n";
 }
 
-my $a = Bio::Annotation->new ();
+my $a = Bio::Annotation->new ( '-description'  => 'something');
 print  "ok 5\n";
 
 
@@ -66,4 +66,32 @@ foreach $link ( $a->each_DBLink ) {
 }
 print  "ok 7\n";
 
+
+if( $a->description ne 'something' ) {
+    print "not ok 8\n";
+} else {
+    print "ok 8\n";
+}
+
+
+$comment = Bio::Annotation::Comment->new( '-text' => 'sometext');
+
+if( $comment->text ne 'sometext' ) {
+    print "not ok 9\n";
+} else {
+    print "ok 9\n";
+}
+
+
+$ref = Bio::Annotation::Reference->new( '-authors' => 'author line',
+					'-title'   => 'title line',
+					'-location' => 'location line');
+
+if( $ref->authors ne 'author line' || 
+    $ref->title   ne 'title line' ||
+    $ref->location ne 'location line' ) {
+    print "not ok 10\n";
+} else {
+    print "ok 10\n";
+}
 

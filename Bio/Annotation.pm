@@ -109,9 +109,7 @@ package Bio::Annotation;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
 # we don't really need these object but we should do.
 # declare them here to prevent tears later.
@@ -120,23 +118,40 @@ use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Comment;
 
-@ISA = qw(Bio::Root::Object);
+@ISA = qw(Bio::Root::RootI);
 
-# new() is inherited from Bio::Root::Object
+=head2 new
 
-# _initialize is where the heavy stuff will happen when new is called
+ Title   : new
+ Usage   : $annotation = Bio::Annotation->new( '-description' => 'a description line');
+ Function: Makes a new Annotation object. The main thing 
+           you will want to do with this is add comment objects and
+           dblink objects, with calls like
+   
+            $annotation->add_Comment($comment);
+            $annotation->add_DBLink($dblink);
 
-sub _initialize {
-  my($self, %params) = @_;
+ Example :
+ Returns : a new Bio::Annotation Object
+ Args    : hash, potentially with one field, -description
+
+
+=cut
+
+
+sub new {
+  my($class,%params) = @_;
+
   my( $text ) = ( $params{'-DESCRIPTION'}||$params{'-description'} );
 
-  my $make = $self->SUPER::_initialize;
+  my $self = {};
+  bless $self,$class;
 
   $self->{ 'description' } = $text;
   $self->{ 'refs' } = [];
   $self->{ 'comment' } = [];
   $self->{ 'link' } = [];
-  return $make; # success - we hope!
+  return $self; # success - we hope!
 }
 
 
@@ -357,6 +372,8 @@ sub each_DBLink{
 
 
 1;
+
+
 
 
 

@@ -12,15 +12,20 @@
 
 =head1 NAME
 
-Bio::Annotation::Comment - DESCRIPTION of Object
+Bio::Annotation::Comment - A comment object, holding text
 
 =head1 SYNOPSIS
 
-Give standard usage here
+
+    $comment = Bio::Annotation::Comment->new();
+    $comment->text("This is the text of this comment");
+    $annotation->add_Comment($comment);
+
 
 =head1 DESCRIPTION
 
-Describe the object here
+A holder for comments in annotations, just plain text. This is a very simple
+object, and justifably so.
 
 =head1 CONTACT
 
@@ -28,7 +33,8 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -40,31 +46,45 @@ package Bio::Annotation::Comment;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
-
-use Bio::Root::Object;
+use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::Object);
-# new() is inherited from Bio::Root::Object
+@ISA = qw(Bio::Root::RootI);
 
-# _initialize is where the heavy stuff will happen when new is called
+=head2 new
 
-sub _initialize {
-  my($self,@args) = @_;
+ Title   : new
+ Usage   : $comment = Bio::Annotation::Comment->new( '-text' => 'some text for this comment');
+ Function: This returns a new comment object, optionally with
+           text filed
+ Example :
+ Returns : a Bio::Annotation::Comment object
+ Args    : a hash with -text optionally set
 
-  my $make = $self->SUPER::_initialize;
 
-  $self->{'flat'} = [];
-# set stuff in self from @args
- return $make; # success - we hope!
+=cut
+
+
+sub new {
+  my($class,@args) = @_;
+
+  my $self = {};
+  bless $self,$class;
+  my ($text) = $self->_rearrange([qw( TEXT )], @args);
+  if( defined $text ) {
+      $self->text($text);
+  }
+
+  return $self; # success - we hope!
 }
 
 =head2 text
 
  Title   : text
- Usage   : $self->text($newval)
- Function: 
+ Usage   : $value = $self->text($newval)
+ Function: get/set for the text field. A comment object
+           just holds a single string which is accessible through
+           this method
  Example : 
  Returns : value of text
  Args    : newvalue (optional)

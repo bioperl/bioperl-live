@@ -20,8 +20,18 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..4\n"; 
-	use vars qw($loaded); }
+BEGIN { 
+    eval { require 'IO/String.pm';
+       };
+    if( $@ ) {
+	print STDERR "IO::String not loaded. This means DB test cannot be executed. Skipping\n";
+	print "1..1\n";
+	print "ok 1\n";
+	exit(0);
+    } 
+
+    $| = 1; print "1..4\n"; 
+    use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 

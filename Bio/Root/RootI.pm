@@ -132,13 +132,8 @@ sub throw {
 #----------
     my($self,@param) = @_;
 
-    my $verbosity;
+    my $verbosity = 0;
 
-    if( $self->can('verbose') ) {
-	$verbosity = $self->verbose;
-    } else {
-	$verbosity = 0;
-    }
 
     if($verbosity < 0) {
 	# Low verbosity: no stack trace.

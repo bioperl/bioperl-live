@@ -19,8 +19,19 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..8\n";
-	use vars qw($loaded); }
+BEGIN { 
+    eval { require 'XML/Parser/PerlSAX.pm';
+       };
+    if( $@ ) {
+	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
+	print "1..1\n";
+	print "ok 1\n";
+	exit(0);
+    } 
+
+
+    $| = 1; print "1..8\n";
+    use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
 

@@ -12,16 +12,30 @@
 
 =head1 NAME
 
-Bio::Annotation::Reference - DESCRIPTION of Object
+Bio::Annotation::Reference - Specialised DBLink object for Literature References
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    $reg = Bio::Annotation::Reference->new( -title => 'title line',
+					    -location => 'location line',
+					    -authors => 'author line',
+					    -medline => 998122 );
 
 =head1 DESCRIPTION
 
-Object which presents a literature reference. This is considered
-to be a specialised form of database link
+Object which presents a literature reference. This is considered to be
+a specialised form of database link. The additional methods provided
+are all set/get methods to store strings commonly associated with
+references, in particular title, location (ie, journal page) and
+authors line.
+
+There is no attempt to do anything more than store these things as
+strings for processing elsewhere. This is mainly because parsing these
+things suck and generally are specific to the specific format one is
+using. To provide an easy route to go format --> object --> format
+without losing data, we keep them as strings. Feel free to post the
+list for a better solution, but in general this gets very messy very
+fast...
 
 =head1 CONTACT
 
@@ -41,24 +55,59 @@ package Bio::Annotation::Reference;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Annotation::DBLink;
 
 
 @ISA = qw(Bio::Annotation::DBLink);
-# new() is inherited from Bio::Root::Object
 
-# _initialize is where the heavy stuff will happen when new is called
+=head2 new
 
-sub _initialize {
-  my($self,@args) = @_;
+ Title   : new
+ Usage   : $ref = Bio::Annotation::Reference->new( -title => 'title line',
+						   -authors => 'author line',
+						   -location => 'location line',
+						   -medline => 9988812);
+ Function:
+ Example :
+ Returns : a new Bio::Annotation::Reference object
+ Args    : a hash with optional title, authors, location, medline, start and end
+           attributes
 
-  my $make = $self->SUPER::_initialize(@args);
 
-# set stuff in self from @args
- return $make; # success - we hope!
+=cut
+
+sub new{
+   my ($class,@args) = @_;
+
+   # make myself from super class with explicit call. Not pretty. 
+   # but that's perl.
+
+   my $self = Bio::Annotation::DBLink->new(@args);
+   
+   # rebless into my own class.
+
+   bless $self,$class;
+
+   my ($start,$end,$authors,$location,$title,$medline) = $self->_rearrange(
+									   [qw(START
+									       END
+									       AUTHORS
+									       LOCATION
+									       TITLE
+									       MEDLINE
+									       )],@args);
+
+   defined $start && $self->start($start);
+   defined $end && $self->end($end);
+   defined $authors && $self->authors($authors);
+   defined $location && $self->location($location);
+   defined $title    && $self->title($title);
+   defined $medline  && $self->medline($medline);
+
+   return $self;
 }
+
 
 =head2 start
 
@@ -283,3 +332,5 @@ sub optional_id{
 
 
 1;
+
+
