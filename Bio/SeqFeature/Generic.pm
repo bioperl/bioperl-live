@@ -153,16 +153,16 @@ sub new {
 	$self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
 	$self->_from_gff_stream($gff1_string);
     };
-    $primary     && $self->primary_tag($primary);
-    $source      && $self->source_tag($source);
-    $start       && $self->start($start);
-    $end         && $self->end($end);
-    $strand      && $self->strand($strand);
-    $frame       && $self->frame($frame);
-    $score       && $self->score($score);
-    $seqname     && $self->seqname($seqname);
-    $annot       && $self->annotation($annot);
-    $tag         && do {
+    $primary         && $self->primary_tag($primary);
+    $source          && $self->source_tag($source);
+    defined $start   && $self->start($start);
+    defined $end     && $self->end($end);
+    defined $strand  && $self->strand($strand);
+    defined $frame   && $self->frame($frame);
+    $score           && $self->score($score);
+    $seqname         && $self->seqname($seqname);
+    $annot           && $self->annotation($annot);
+    $tag             && do {
 	foreach my $t ( keys %$tag ) {
 	    $self->add_tag_value($t,$tag->{$t});
 	}

@@ -80,9 +80,9 @@ sub new {
 							    END 
 							    STRAND
 							    SEQID)],@args);
-    $start && $self->start($start);
-    $end && $self->end($end);
-    $strand && $self->strand($strand);
+    defined $start  && $self->start($start);
+    defined $end    && $self->end($end);
+    defined $strand && $self->strand($strand);
     $seqid && $self->seq_id($seqid);
     return $self;
 }
