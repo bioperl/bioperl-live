@@ -91,10 +91,23 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE NODETYPE)], @args);
-  $self->treetype($treetype || 'Bio::Tree::Tree');
-  $self->nodetype($nodetype || 'Bio::Tree::Node');
-  
+  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE
+						    NODETYPE)], @args);
+  $treetype ||= 'Bio::Tree::Tree';
+  $nodetype ||= 'Bio::Tree::Node';
+
+  eval { 
+      $self->_load_module($treetype);
+      $self->_load_module($nodetype);
+  };
+
+  if( $@ ) {
+      $self->throw("Could not load module $treetype or $nodetype. \n$@\n")
+  }
+  $self->treetype($treetype);
+  $self->nodetype($nodetype);
+  $self->{'_treelevel'} = 0;
+
   return $self;
 }
 
@@ -171,7 +184,8 @@ sub start_document {
 
 sub end_document {
     my ($self) = @_; 
-    my $root = $self->nodetype->new;
+    my $vb = $self->verbose;
+    my $root = $self->nodetype->new(-verbose => $vb);
     # aggregate the nodes into trees basically ad-hoc.
     while ( @{$self->{'_currentnodes'}} ) {	
 	my ($node) = ( shift @{$self->{'_currentnodes'}});
@@ -184,7 +198,8 @@ sub end_document {
 	    $self->debug("node is ". $node->to_string(). "\n");
 	}
     }
-    my $tree = $self->treetype->new(-root => $root);
+    my $tree = $self->treetype->new(-root    => $root,
+				    -verbose => $vb);
     return $tree;       
 }
 
@@ -212,7 +227,7 @@ sub start_element{
    if( $data->{'Name'} eq 'node' ) {
        push @{$self->{'_currentitems'}}, \%data; 
    } elsif ( $data->{Name} eq 'tree' ) {
-       $self->{_treelevel}++;
+       $self->{'_treelevel'}++;
    }
 }
 
@@ -235,22 +250,24 @@ sub end_element{
        my $tnode;
        my $node = pop @{$self->{'_currentitems'}};	   
 
-       $tnode = $self->nodetype->new( %{$node});
-       unless ( $node->{'-id'} ) { 
-	   for ( splice( @{$self->{_currentnodes}}, -$self->{_nodect}->[$self->{_treelevel} + 1]) ) {
+       $tnode = $self->nodetype->new(-verbose => $self->verbose,
+				     %{$node});
+       unless ( $node->{'-leaf'} ) { 
+	   for ( splice( @{$self->{'_currentnodes'}}, 
+ 			 - $self->{'_nodect'}->[$self->{'_treelevel'}+1])) {
+	       
 	       $self->debug("adding desc: " . $_->to_string . "\n");
 	       $tnode->add_Descendent($_);
 	   }
 	   $self->{_nodect}->[$self->{_treelevel}+1] = 0;
        }
        push @{$self->{'_currentnodes'}}, $tnode;
-       $self->{_nodect}->[$self->{_treelevel}]++;
+       $self->{_nodect}->[$self->{'_treelevel'}]++;
        $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}} . ", treelevel: $self->{_treelevel}, nodect: $self->{_nodect}->[$self->{_treelevel}]\n");
    } elsif(  $data->{'Name'} eq 'tree' ) { 
        $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
-       $self->{_treelevel}--;
+       $self->{'_treelevel'}--;
    }
-
    $self->{'_lastitem'}->{ $data->{'Name'} }--; 
    
    pop @{$self->{'_lastitem'}->{'current'}};
@@ -323,6 +340,8 @@ sub characters{
        } elsif ( $self->in_element('tag_value') ) {
 	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;
 	   delete $hash->{'-NHXtagname'};
+       } elsif( $self->in_element('leaf') ) {
+	   $hash->{'-leaf'} = $ch;
        }
        push @{$self->{'_currentitems'}}, $hash;
    }

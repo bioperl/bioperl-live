@@ -96,7 +96,10 @@ sub next_tree{
    my ($self) = @_;
    local $/ = ";\n";
    return unless $_ = $self->_readline;
-   s/\s+//g;
+#   s/\s+//g;
+   my $despace = sub {my $dirty = shift; $dirty =~ s/\s+//gs; return $dirty};
+   my $dequote = sub {my $dirty = shift; $dirty =~ s/^"?\s*(.+?)\s*"?$/$1/; return $dirty};
+   s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
    $self->debug("entry is $_\n");
 #   my $empty = chr(20);
  
