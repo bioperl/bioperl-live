@@ -89,11 +89,12 @@ sub keyglyph {
 # component draws a shaded box
 sub bgcolor { 
   my $self = shift;
-  return $self->{partcolor} || $self->SUPER::bgcolor;
+  return defined $self->{partcolor} ? $self->{partcolor} : $self->SUPER::bgcolor;
 }
-sub fgcolor { 
+sub fgcolor {
   my $self = shift;
-  return $self->{partcolor} || $self->SUPER::fgcolor;
+  return $self->SUPER::fgcolor unless $self->option('vary_fg');
+  return defined $self->{partcolor} ? $self->{partcolor} : $self->SUPER::fgcolor;
 }
 
 1;
@@ -148,17 +149,22 @@ L<Bio::Graphics::Glyph> for a full explanation.
 In addition, the alignment glyph recognizes the following
 glyph-specific options:
 
-  Option      Description                  Default
-  ------      -----------                  -------
+  Option      Description                   Default
+  ------      -----------                   -------
 
-  -max_score  Maximum value of the	   Calculated
+  -max_score  Maximum value of the	    Calculated
               feature's "score" attribute
 
-  -min_score  Minimum value of the         Calculated
+  -min_score  Minimum value of the          Calculated
               feature's "score" attribute
+
+  -vary_fg    Vary the foreground color as  0 (false)
+              well as the background
 
 If max_score and min_score are not specified, then the glyph will
-calculate the local maximum and minimum scores at run time.
+calculate the local maximum and minimum scores at run time.  Since
+many scoring functions are exponential you may wish to take the log of
+your scores before passing them to this glyph.
 
 
 =head1 BUGS

@@ -339,6 +339,7 @@ sub t2 {
 
   $panel->add_track(graded_segments => $partial_gene,
 		    -bgcolor =>'blue',
+		    -vary_fg => 1,
 		    -label   => 1,
 		    -key     => 'Scored thing');
 

@@ -223,7 +223,7 @@ sub set_attributes {
     defined $strand && $self->strand($strand);
     defined $frame  && $self->frame($frame);
     defined $display_name   && $self->display_name($display_name);
-    $score          && $self->score($score);
+    defined $score          && $self->score($score);
     $annot          && $self->annotation($annot);
     if($seqname) {
         $self->warn("-seqname is deprecated. Please use -seq_id instead.");
