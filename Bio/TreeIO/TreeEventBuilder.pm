@@ -91,9 +91,21 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE NODETYPE)], @args);
-  $self->treetype($treetype || 'Bio::Tree::Tree');
-  $self->nodetype($nodetype || 'Bio::Tree::Node');
+  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE 
+						    NODETYPE)], @args);
+  $treetype ||= 'Bio::Tree::Tree';
+  $nodetype ||= 'Bio::Tree::Node';
+  
+  eval { 
+      $self->_load_module($treetype);
+      $self->_load_module($nodetype);
+  };
+
+  if( $@ ) {
+      $self->throw("Could not load module $treetype or $nodetype. \n$@\n")
+  }
+  $self->treetype($treetype);
+  $self->nodetype($nodetype);
   
   return $self;
 }
