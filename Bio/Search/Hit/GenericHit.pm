@@ -148,7 +148,7 @@ sub new {
   defined $rank   && $self->rank($rank);
 
   $self->{'_iterator'} = 0;
-  $self->{'_hsps'} = [];
+  #$self->{'_hsps'} = [];
   if( defined $hsps  ) {
       if( ref($hsps) !~ /array/i ) {
           $self->warn("Did not specify a valid array ref for the param HSPS ($hsps)");
@@ -404,9 +404,11 @@ sub bits {
 =cut
 
 sub next_hsp {
-    my ($self) = @_;
+    my $self = shift;
     $self->{'_iterator'} = 0 unless defined $self->{'_iterator'};
-    return undef if $self->{'_iterator'} > scalar @{$self->{'_hsps'}};
+    return undef unless
+        defined($self->{'_hsps'}) 
+        && $self->{'_iterator'} <= scalar @{$self->{'_hsps'}};
     return $self->{'_hsps'}->[$self->{'_iterator'}++];    
 }
 

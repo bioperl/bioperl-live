@@ -512,9 +512,10 @@ sub next_result{
            $self->element({ 'Name' => 'BlastOutput_querydesc', 
                             'Data' => $desc});
            my ($acc,$version) = &_get_accession_version($nm);
-	   $version ||= '';
+	   $version = defined($version) ? ".$version" : "";
+           $acc = '' unless defined($acc);
 	   $self->element({ 'Name' =>  'BlastOutput_query-acc',
-			    'Data'  => "$acc.$version"});
+			    'Data'  => "$acc$version"});
        } elsif( /Sequences producing significant alignments:/ ) {
 #           $self->debug("blast.pm: Processing NCBI-BLAST descripitons\n");
            $flavor = 'ncbi';
