@@ -104,7 +104,6 @@ my $seq = $str2->next_seq();
 
 ok $aln1->no_sequences, 3;
 ok( int($aln1->average_percentage_identity), 39);
-$factory->verbose(1);
 $aln = $factory->profile_align($aln1,$seq);
 ok( $aln->no_sequences, 4);
 if( $version <= 1.22 ) {
