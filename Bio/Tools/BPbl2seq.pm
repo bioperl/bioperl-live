@@ -71,8 +71,8 @@ programs the two sequences being compared are referred to in bl2seq as
 simply comparing 2 sequences as opposed to querying a database.)
 
 In addition, since there will only be (at most) one "subject" (hit) in a
-bl2seq report, one should use the method $report->next_feature,
-rather than $report->nextSbjct->nextHSP to obtain the next high scoring pair.
+bl2seq report, one should use the method $report-E<gt>next_feature,
+rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high scoring pair.
 
 One should note that the previous (0.7) version of BPbl2seq used slightly
 different syntax. That version had a bug and consequently the old syntax
@@ -111,6 +111,7 @@ Lorenz Pollak (lorenz@ist.org, bioperl port)
 
 =cut
 
+#'
 
 package Bio::Tools::BPbl2seq;
 
@@ -303,6 +304,7 @@ sub sbjctLength {
  Title    : P
  Usage    :
  Function : Syntax no longer supported, error message only
+
 =cut
 
 sub P     {
@@ -315,6 +317,7 @@ sub P     {
  Title    : percent
  Usage    : $hsp->percent();
  Function : Syntax no longer supported, error message only
+
 =cut
 
 sub percent  {
@@ -353,6 +356,7 @@ sub positive  {
  Title    : querySeq
  Usage    : $hsp->querySeq();
  Function : Syntax no longer supported, error message only
+
 =cut
 
 sub querySeq  {

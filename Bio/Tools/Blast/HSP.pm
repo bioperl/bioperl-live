@@ -48,7 +48,7 @@ You should not need to use this package directly. See L<_initialize>()
 for a description of constructor parameters.
 
     require Bio::Tools::Blast::HSP;
- 
+
     $hspObj = eval{ new Bio::Tools::Blast::HSP(-DATA    =>\@hspData, 
 					       -PARENT  =>$sbjct_object, 
 					       -NAME    =>$hspCount,

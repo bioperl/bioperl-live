@@ -65,7 +65,7 @@ Entries may have any line length, and different line lengths are
 allowed in the same file.  However, within a sequence entry, all lines
 must be the same length except for the last.
 
-The module uses /^>(\S+)/ to extract each sequence\'s primary ID from
+The module uses /^E<gt>(\S+)/ to extract each sequence\'s primary ID from
 the Fasta header.  During indexing, you may pass a callback routine to
 modify this primary ID.  For example, you may wish to extract a
 portion of the gi|gb|abc|xyz nonsense that GenBank Fasta files use.
@@ -76,7 +76,7 @@ genomes, and has been tested with sequence segments as large as 20
 megabases.  Indexing the C. elegans genome (100 megabases of genomic
 sequence plus 100,000 ESTs) takes ~5 minutes on my 300 MHz pentium
 laptop. On the same system, average access time for any 200-mer within
-the C. elegans genome was <0.02s.
+the C. elegans genome was E<lt>0.02s.
 
 =head1 DATABASE CREATION AND INDEXING
 
@@ -88,7 +88,7 @@ tied hash interface.
 
 =over 4
 
-=item $db = Bio::DB::Fasta->new($fasta_path [,@options])
+=item $db = Bio::DB::Fasta-E<gt>new($fasta_path [,@options])
 
 Create a new Bio::DB::Fasta object from the Fasta file or files
 indicated by $fasta_path.  Indexing will be performed automatically if
@@ -97,7 +97,7 @@ object.  Otherwise it will return undef.
 
 $fasta_path may be an individual Fasta file, or may refer to a
 directory containing one or more of such files.  Following the path,
-you may pass a series of name=>value options.  Valid options are:
+you may pass a series of name=E<gt>value options.  Valid options are:
 
  Option Name   Description               Default
  -----------   -----------               -------
@@ -130,10 +130,10 @@ arguments every time you open the index!
 
 -reindex can be used to force the index to be recreated from scratch.
 
-=item $fh = Bio::DB::Fasta->newFh($fasta_path [,@options])
+=item $fh = Bio::DB::Fasta-E<gt>newFh($fasta_path [,@options])
 
 Create a tied filehandle opened on a Bio::DB::Fasta object.  Reading
-from this filehandle with <> will return a stream of sequence objects,
+from this filehandle with E<lt>E<gt> will return a stream of sequence objects,
 Bio::SeqIO style.
 
 =back
@@ -149,11 +149,11 @@ take a scalar argument and return a scalar result, like this:
   }
 
 As per the Fasta specification, the sequence ID consists of one or
-more non-whitespace characters following the initial >.  For example:
+more non-whitespace characters following the initial E<gt>.  For example:
 
  >A12345.3 Predicted C. elegans protein
 
-During indexing, the module will use the regular expression /^>(\S+)/
+During indexing, the module will use the regular expression /^E<gt>(\S+)/
 to extract "A12345.3" for use as the ID.  If a -makeid callback is
 provided, the extracted ID will be passed to the subroutine.  This
 gives you a chance to extract preferred accession numbers from
@@ -167,7 +167,7 @@ The following object methods are provided.
 
 =over 4
 
-=item $raw_seq = $db->seq($id [,$start, $stop])
+=item $raw_seq = $db-E<gt>seq($id [,$start, $stop])
 
 Return the raw sequence (a string) given an ID and optionally a start
 and stop position in the sequence.  In the case of DNA sequence, if
@@ -179,44 +179,44 @@ ID:
 
    $db->seq("$id:$start,$stop")
 
-=item $length = $db->length($id)
+=item $length = $db-E<gt>length($id)
 
 Return the length of the indicated sequence.
 
-=item $header = $db->header($id)
+=item $header = $db-E<gt>header($id)
 
-Return the header line for the ID, including the initial ">".
+Return the header line for the ID, including the initial "E<gt>".
 
-=item $type  = $db->moltype($id)
+=item $type  = $db-E<gt>moltype($id)
 
 Return the molecular type of the indicated sequence.  One of "dna",
 "rna" or "protein".
 
-=item $filename  = $db->file($id)
+=item $filename  = $db-E<gt>file($id)
 
 Return the name of the file in which the indicated sequence can be
 found.
 
-=item $offset    = $db->offset($id)
+=item $offset    = $db-E<gt>offset($id)
 
 Return the offset of the indicated sequence from the beginning of the
 file in which it is located.  The offset points to the beginning of
 the sequence, not the beginning of the header line.
 
-=item $header_length = $db->headerlen($id)
+=item $header_length = $db-E<gt>headerlen($id)
 
 Return the length of the header line for the indicated sequence.
 
-=item $header_offset = $db->header_offset($id)
+=item $header_offset = $db-E<gt>header_offset($id)
 
 Return the offset of the header line for the indicated sequence from
 the beginning of the file in which it is located.
 
-=item $index_name  = $db->index_name
+=item $index_name  = $db-E<gt>index_name
 
 Return the path to the index file.
 
-=item $path = $db->path
+=item $path = $db-E<gt>path
 
 Return the path to the Fasta file(s).
 
@@ -226,23 +226,23 @@ For BioPerl-style access, the following methods are provided:
 
 =over 4
 
-=item $seq = $db->get_Seq_by_id($id)
+=item $seq = $db-E<gt>get_Seq_by_id($id)
 
 Return a Bio::PrimarySeq::Fasta object, which obeys the
 Bio::PrimarySeqI conventions.  For example, to recover the raw DNA or
-protein sequence, call $seq->seq().
+protein sequence, call $seq-E<gt>seq().
 
 Note that get_Seq_by_id() does not bring the entire sequence into
 memory until requested.  Internally, the returned object uses the
 accessor to generate subsequences as needed.
 
-=item $seq = $db->get_Seq_by_acc($id)
+=item $seq = $db-E<gt>get_Seq_by_acc($id)
 
-=item $seq = $db->get_Seq_by_primary_id($id)
+=item $seq = $db-E<gt>get_Seq_by_primary_id($id)
 
 These methods all do the same thing as get_Seq_by_id().
 
-=item $stream = $db->get_PrimarySeq_stream()
+=item $stream = $db-E<gt>get_PrimarySeq_stream()
 
 Return a Bio::DB::Fasta::Stream object, which supports a single method
 next_seq(). Each call to next_seq() returns a new
@@ -269,7 +269,7 @@ The tied hash interface is very straightforward
 
 Tie %db to Bio::DB::Fasta using the indicated path to the Fasta files.
 The optional @args list is the same set of named argument/value pairs
-used by Bio::DB::Fasta->new().
+used by Bio::DB::Fasta-E<gt>new().
 
 If successful, tie() will return the tied object.  Otherwise it will
 return undef.
@@ -290,7 +290,7 @@ is the first 1000 bp of the sequence with the ID "CHROMOSOME_I":
 (The regular expression used to parse this format allows sequence IDs
 to contain colons.)
 
-When selecting subsequences, if $start > stop, then the reverse
+When selecting subsequences, if $start E<gt> stop, then the reverse
 complement will be returned for DNA sequences.
 
 The keys() and values() functions will return the sequence IDs and
@@ -316,11 +316,11 @@ hash methods directly.
 
 =over 4
 
-=item $id = $db->FIRSTKEY
+=item $id = $db-E<gt>FIRSTKEY
 
 Return the first ID in the database.
 
-=item $id = $db->NEXTKEY($id)
+=item $id = $db-E<gt>NEXTKEY($id)
 
 Given an ID, return the next ID in sequence.
 
@@ -336,7 +336,7 @@ object-oriented interface:
 
 =head2 Creating a Tied Filehandle
 
-The Bio::DB::Fasta->newFh() method creates a tied filehandle from
+The Bio::DB::Fasta-E<gt>newFh() method creates a tied filehandle from
 which you can read Bio::PrimarySeq::Fasta sequence objects
 sequentially.  The following bit of code will iterate sequentially
 over all sequences in the database:
@@ -358,7 +358,7 @@ garbage results if accessed.
 
 Currently, the only way to accomodate deletions is to rebuild the
 entire index, either by deleting it manually, or by passing
--reindex=>1 to new() when initializing the module.
+-reindex=E<gt>1 to new() when initializing the module.
 
 =head1 SEE ALSO
 
@@ -366,7 +366,7 @@ L<bioperl>
 
 =head1 AUTHOR
 
-Lincoln Stein <lstein@cshl.org>.  
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.  
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory.
 

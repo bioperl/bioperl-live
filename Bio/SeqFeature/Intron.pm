@@ -1,22 +1,12 @@
-=head1 Bio::SeqFeature::Intron
+#
+# $Id$
+#
 
-=head2 AUTHORS
+=head1 NAME
 
-Mark Wilkinson (mwilkinson@gene.pbi.nrc.ca)
-Plant Biotechnology Institute, National Research Council of Canada.
-Copyright (c) National Research Council of Canada, April, 2001.
+Bio::SeqFeature::Intron
 
-=head2 DISCLAIMER
-
-Anyone who intends to use and uses this software and code acknowledges and
-agrees to the following: The National Research Council of Canada (herein "NRC")
-disclaims any warranties, expressed, implied, or statutory, of any kind or
-nature with respect to the software, including without limitation any warranty
-or merchantability or fitness for a particular purpose.  NRC shall not be liable
-in any event for any damages, whether direct or indirect,
-consequential or incidental, arising from the use of the software.
-
-=head2 SYNOPSIS
+=head1 SYNOPSIS
 
   use Bio::SeqFeature::Intron;
   my $Exon = Bio::SeqFeature::Intron->new( # takes same args as SeqFeature::Generic
@@ -27,24 +17,40 @@ consequential or incidental, arising from the use of the software.
       -strand => '1',
       -source => 'cDNA_alignment',
       -score => '100',
-      type => 'variably_spliced');   # Descr. of the Intron type; *not* Cont.Vocab.
+      -type => 'variably_spliced');   # Descr. of the Intron type; *not* Cont.Vocab.
 
 
-=head2 DESCRIPTION and ACKNOWLEDGEMENTS
+=head1 DESCRIPTION and ACKNOWLEDGEMENTS
 
 Creates Intron type sequence features.  These are essentially SeaFeature::Generic
 features, but report themselves as "Bio::SeqFeature::Intron" when you query them
-with a $Feature->isa.
+with a $Feature-E<gt>isa.
 
-=head2 CONTACT
+=head1 AUTHORS
+
+Mark Wilkinson (mwilkinson@gene.pbi.nrc.ca)
+Plant Biotechnology Institute, National Research Council of Canada.
+Copyright (c) National Research Council of Canada, April, 2001.
+
+=head1 DISCLAIMER
+
+Anyone who intends to use and uses this software and code acknowledges and
+agrees to the following: The National Research Council of Canada (herein "NRC")
+disclaims any warranties, expressed, implied, or statutory, of any kind or
+nature with respect to the software, including without limitation any warranty
+or merchantability or fitness for a particular purpose.  NRC shall not be liable
+in any event for any damages, whether direct or indirect,
+consequential or incidental, arising from the use of the software.
+
+=head1 CONTACT
 
 Mark Wilkinson (mwilkinson@gene.pbi.nrc.ca)
 
-=head2 METHODS
+=head1 METHODS
 
 identical to SeqFeature::Generic except for:
 
-=head3 type
+=head2 type
 
   Usage:  $Intron->type($type);
   Args:   optional string indicating new type

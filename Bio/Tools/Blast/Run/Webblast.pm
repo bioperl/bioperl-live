@@ -452,7 +452,7 @@ for documentation purposes only.
         nr, month, swissprot, dbest, dbsts, 
         est_mouse, est_human, est_others, pdb, vector, kabat,
         mito, alu, epd, yeast, ecoli, gss, htgs.
- 
+
     These are exported by this module in the @Blast_dbp_remote
     and @Blast_dbn_remote arrays.
   -------------------------------------------------------------
@@ -465,7 +465,7 @@ for documentation purposes only.
         (11) Bacterial                  (12) Alternative Yeast Nuclear
         (13) Ascidian Mitochondrial     (14) Flatworm Mitochondrial
         (15) Blepharisma Macronuclear
- 
+
   -------------------------------------------------------------
   Available values for organism (Blast2):
 
@@ -1733,17 +1733,17 @@ BLOSUM45	 19	 1
 BLOSUM45	 18	 1  
 BLOSUM45	 17	 1  
 BLOSUM45	 16	 1  
- 
+
 OTHER_ADVANCED
 [default value]:""
- 
+
 EMAIL
 [default value]:''
 IS_SET
 
 PATH
 [default value]:""
- 
+
 HTML
 [default value]:''
 IS_SET
@@ -1841,7 +1841,7 @@ BLOSUM45	 19	 1
 BLOSUM45	 18	 1
 BLOSUM45	 17	 1
 BLOSUM45	 16	 1
- 
+
 OTHER_ADVANCED
 [default value]:""
 

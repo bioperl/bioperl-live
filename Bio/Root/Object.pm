@@ -848,7 +848,7 @@ sub parent {
  Usage     : $object->src_obj([object | 'null']);
            : THIS METHOD IS NOW DEPRECATED. USE parent() INSTEAD.
  Purpose   : Set/Get the current object's source object (parent).
- 
+
 =cut
 
 #------------'
@@ -1496,7 +1496,7 @@ sub _display_stats {
            : Note that the read() method uses a different strategy than
            : the display() method. 
            : IO issues are considered experimental.
- 
+
 See also   : L<display>(), B<Bio::Root::IOManager::read()>
 
 =cut

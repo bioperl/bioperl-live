@@ -23,7 +23,7 @@ Bio::Tools::Grail - Results of one Grail run
    # parse the results
    while($gene = $grail->next_prediction()) {
        # $gene is an instance of Bio::Tools::Prediction::Gene
-       
+
        # $gene->exons() returns an array of 
        # Bio::Tools::Prediction::Exon objects
        # all exons:

@@ -46,7 +46,7 @@ You should not need to use this package directly. See L<_initialize>()
 for a description of constructor parameters.
 
     require Bio::Tools::Blast::Sbjct;
- 
+
     $hit = new Bio::Tools::Blast::Sbjct (-DATA    =>\@hitData, 
 					 -PARENT  =>$self, 
 					 -NAME    =>5,
@@ -112,10 +112,10 @@ The results of the HSP tiling is reported with the following ambiguity codes:
 
    'q' = Query sequence contains multiple sub-sequences matching
          a single region in the sbjct sequence. 
- 
+
    's' = Sbjct sequence contains multiple sub-sequences matching
          a single region in the query sequence. 
- 
+
    'qs' = Both query and sbjct sequences contain more than one
           sub-sequence with similarity to the other sequence.
 
@@ -994,7 +994,7 @@ sub overlap {
  Returns   : Integer
  Argument  : n/a
  Throws    : n/a
- 
+
 See Also   : L<bits>()
 
 =cut

@@ -38,8 +38,8 @@ of a PSIBLAST report
        if ($is_old ){next HIT;}
    #  do something with new hit...
    }
-=head2 ALIGNMENTS
 
+=head2 ALIGNMENTS
 
   # This assumed that you have $db pointing to a database, $out to an output file
   # $slxdir to a directory and $psiout    
@@ -57,25 +57,27 @@ of a PSIBLAST report
     my $slx = Bio::AlignIO->new('-format' => 'selex','-file' => ">".$slxfile );
     $slx->write_aln($align);
 
-
 =head1 DESCRIPTION
 
 See the documentation for BPpsilite.pm for a description of the
 Iteration.pm module.
 
 =head1 AUTHORS - Peter Schattner
+
 Email: schattner@alum.mit.edu
+
+=head1 ACKNOWLEDGEMENTS
 
 Based on work of:
 Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf), 
 Lorenz Pollak (lorenz@ist.org, bioperl port)
 
-=head1 ACKNOWLEDGEMENTS
-
 =head1 COPYRIGHT
+
 BPlite.pm is copyright (C) 1999 by Ian Korf. 
 
 =head1 DISCLAIMER
+
 This software is provided "as is" without warranty of any kind.
 
 =cut
@@ -176,12 +178,13 @@ sub  oldhits  {shift->{'OLDHITS'}}
 #Example  : while ( my $sbjct = $obj->nextSbjct ) {}
  Returns  : next Sbjct object or undef if finished
  Args     :
+
 =cut
 
 sub nextSbjct {
   my ($self) = @_;
   $self->_fastForward or return undef;
-  
+ 
   #######################
   # get all sbjct lines #
   #######################
@@ -235,8 +238,8 @@ sub nextSbjct {
  Returns  : SimpleAlign object or undef if not found.
  BUG      : Only works if psiblast has been run with m 6 flag
  Args     :
-=cut
 
+=cut
 
 sub Align {
   use Bio::SimpleAlign;

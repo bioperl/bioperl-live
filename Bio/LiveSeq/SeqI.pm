@@ -797,7 +797,7 @@ sub strand {
  Usage   : if( $obj->moltype eq 'dna' ) { /Do Something/ }
  Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
- 
+
  Returns : a string either 'dna','rna','protein'.
  Args    : none
  Note    : "circular dna" is set as dna

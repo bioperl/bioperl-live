@@ -1107,8 +1107,8 @@ a second argument as in:
   $answer=$hsp->score;
 
 In addition, since there will only be (at most) one "subject" (hit) in a
-bl2seq report one should use the method $report->next_feature,
-rather than $report->nextSbjct->nextHSP to obtain the next high scoring pair.
+bl2seq report one should use the method $report-E<gt>next_feature,
+rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high scoring pair.
 
 =head2 III.4.5 Parsing HMM reports (HMMER::Results)
 

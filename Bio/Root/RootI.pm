@@ -76,7 +76,7 @@ BEGIN {
 
  Purpose   : generic intantiation function can be overridden if 
              special needs of a module cannot be done in _initialize
- 
+
 =cut
 
 sub new {
@@ -139,7 +139,6 @@ sub throw{
  Returns : 
  Args    :
 
- 
 =cut
 
 sub warn{

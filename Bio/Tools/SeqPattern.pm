@@ -74,7 +74,7 @@ tasks with sequence patterns such as:
   -- Untainting yet preserving special characters in the pattern
 
 Other features to look for in the future:
- 
+
   -- Full pattern syntax checking
   -- Conversion between expanded and ondensed forms of the pattern
 
@@ -84,13 +84,13 @@ A key motivation for Bio::Tools::SeqPattern.pm is to have a way to
 generate a reverse complement of a nucleotide sequence pattern.
 This makes possible simultaneous pattern matching on both sense and 
 anti-sense strands of a query sequence. 
- 
+
 In principle, one could do such a search more inefficiently by testing 
 ainst both sense and anti-sense versions of a sequence. 
 It is entirely equivalent to test a regexp containing both sense and 
 anti-sense versions of the *pattern* against one copy of the sequence.
 The latter approach is much more efficient since:
- 
+
    1) You need only one copy of the sequence.
    2) Only one regexp is executed.
    3) Regexp patterns are typically much smaller than sequences.
