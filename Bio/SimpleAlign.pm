@@ -300,10 +300,12 @@ sub consensus_string {
  Usage     : $consensus_residue = $ali->consensus_aa($residue_number, $threshold_percent)
  Function  : Makes a consensus
  Returns   :
- Argument  : Optional treshold ranging from 0 to 100.  If consensus residue appears in
-		fewer than threshold % of the sequences at the specified location
-		consensus_string will return a "?"  rather than the consensus
-		letter. (Default value = 0%)
+ Argument  : 
+ Argument  : Optional treshold ranging from 0 to 100.
+             The consensus residue has to appear at least threshold %
+             of the sequences at a given location, otherwise a '?'
+             character will be placed at that location.
+             (Default value = 0%)
 
 =cut
 
@@ -327,7 +329,7 @@ sub consensus_aa {
 
     foreach $key ( keys %hash ) {
 	# print "Now at $key $hash{$key}\n";
-	if( $hash{$key} > $count && $hash{$key} > $threshold) {
+	if( $hash{$key} > $count && $hash{$key} >= $threshold) {
 	    $letter = $key;
 	    $count = $hash{$key};
 	}
