@@ -190,7 +190,6 @@ if( $verbose > 0  ) {
 }
 
 $treeio = new Bio::TreeIO(-verbose => $verbose,
-			  -format => 'nhx',
 			  -file   => Bio::Root::IO->catfile('t','data', 
 							    'test.nhx'));
 

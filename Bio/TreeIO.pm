@@ -248,6 +248,7 @@ sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
    return 'newick'   if /\.(dnd|newick|nh)$/i;
+   return 'nhx'   if /\.(nhx)$/i;
    return 'phyloxml' if /\.(xml)$/i;
 }
 
