@@ -558,6 +558,9 @@ sub write_seq {
 	}
     }
     $writer->endTag([$bxgame, 'game']);
+
+    $self->_fh->flush if $self->{_flush_on_write};
+    return 1;
 }
 
 

@@ -215,6 +215,8 @@ sub write_seq {
 	$out[$i] .= "\n";
 	return unless $self->_print(@out);
     }
+
+    $self->_fh->flush if $self->{_flush_on_write};
     return 1;
 }
 

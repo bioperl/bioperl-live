@@ -197,6 +197,8 @@ sub write_seq {
      
      $self->_print (">",$top,"\n",$str) or return;
    }
+
+   $self->_fh->flush if $self->{_flush_on_write};
    return 1;
 }
 

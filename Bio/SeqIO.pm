@@ -217,6 +217,23 @@ of the external Staden "io_lib" package, as well as the
 Bio::SeqIO::staden::read package available from the bioperl-ext
 repository.
 
+=item -flush
+
+By default, all files (or filehandles) opened for writing sequences
+will be flushed after each write_seq() (making the file immediately
+usable).  If you don't need this facility and would like to marginally
+improve the efficiency of writing multiple sequences to the same file
+(or filehandle), pass the -flush option '0' or any other value that
+evaluates as defined but false:
+
+  my $gb = new Bio::SeqIO -file   => "<gball.gbk",
+                          -format => "gb";
+  my $fa = new Bio::SeqIO -file   => ">gball.fa",
+                          -format => "fasta",
+                          -flush  => 0; # go as fast as we can!
+  while($seq = $gb->next_seq) { $fa->write_seq($seq) }
+
+
 =back
 
 =head2 Bio::SeqIO-E<gt>newFh()
@@ -393,8 +410,16 @@ sub fh {
 
 sub _initialize {
     my($self, @args) = @_;
-    my ($seqfact) = $self->_rearrange([qw(SEQFACTORY)], @args);
+    my ($seqfact, $flush) = $self->_rearrange([qw(SEQFACTORY FLUSH)], @args);
+
     $seqfact && $self->sequence_factory($seqfact);
+
+    if (defined $flush) {
+	$self->{_flush_on_write} = $flush;
+    } else {
+	$self->{_flush_on_write} = 1;
+    }
+
     # initialize the IO part
     $self->_initialize_io(@args);
 }

@@ -686,6 +686,11 @@ sub write_seq {
 	$self->_print ($self->{'binaries'}->{'v3_reserved'}) or print("Couldn't write reserved\n");
 	$self->_print ($self->{'binaries'}->{'comments'}) or print ("Couldn't write comments\n");
     }
+
+    # kinda unnecessary, given the close() below, but maybe that'll go
+    # away someday.
+    $self->_fh->flush if $self->{_flush_on_write};
+
     $self->close();
 }
 

@@ -633,6 +633,8 @@ sub write_seq {
     }
 
     $self->_print( "//\n");
+
+    $self->_fh->flush if $self->{_flush_on_write};
     return 1;
 }
 

@@ -236,6 +236,9 @@ sub write_seq {
 		       $swq->qualat($curr)."\n");
     }
     $self->_print ("END_DNA\n\nEND_SEQUENCE\n");
+
+    $self->_fh->flush if $self->{_flush_on_write};
+    return 1;
 }
 
 1;

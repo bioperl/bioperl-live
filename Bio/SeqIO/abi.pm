@@ -134,6 +134,7 @@ sub write_seq {
 	$self->write_trace($fh, $seq, 'abi');
     }
 
+    $fh->flush if $self->{_flush_on_write};
     return 1;
 }
 

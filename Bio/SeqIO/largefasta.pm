@@ -161,6 +161,8 @@ sub write_seq {
 	 $start += $FASTALINELEN;
      }
    }
+
+   $self->_fh->flush if $self->{_flush_on_write};
    return 1;
 }
 

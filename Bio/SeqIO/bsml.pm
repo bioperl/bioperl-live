@@ -823,6 +823,8 @@ sub write_seq {
 	if ($args->{PRINTMIME});
     $self->_print( $out );
     # Return the DOM tree in case the user wants to do something with it
+
+    $self->_fh->flush if $self->{_flush_on_write};
     return $xml;
 }
 

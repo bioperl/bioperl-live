@@ -225,6 +225,8 @@ sub write_seq {
 	my @slice = @{$source->subqual($count,$max)};
 	$self->_print (join(' ',@slice), " \n");
     }
+
+    $self->_fh->flush if $self->{_flush_on_write};
     return 1;
 }
 

@@ -97,6 +97,7 @@ use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
 use strict;
 
 use Symbol;
+use IO::Handle;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
