@@ -456,8 +456,10 @@ sub reroot {
     }
 
     if( $new_root->is_Leaf() ) {
-	my $node = Bio::Tree::Node->new();
 	my $anc = $new_root->ancestor;
+	my $blen = $new_root->branch_length() /2;
+	my $node = Bio::Tree::Node->new(-branch_length => $blen);
+	$new_root->branch_length($blen);
 	$anc->add_Descendent($node);
 	$anc->remove_Descendent($new_root);
 	$node->add_Descendent($new_root);
