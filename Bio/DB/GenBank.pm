@@ -49,6 +49,12 @@ WARNING: Please do NOT spam the Entrez web server with multiple requests.
 NCBI offers Batch Entrez for this purpose.  Batch Entrez support will likely
 be supported in a future version of DB::GenBank.
 
+Note that when querying for GenBank accessions starting with 'NT_' you
+will need to call $gb->request_format('fasta') beforehand, because in
+GenBank format (the default) the sequence part will be left out (the
+reason is that NT contigs are rather annotation with references to
+clones).
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
