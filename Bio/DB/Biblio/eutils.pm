@@ -208,7 +208,7 @@ sub get_by_id {
 =cut
 
 sub reset_retrieval {
-  shift->cursor(1);
+  shift->cursor(0);
   return 1;
 }
 
@@ -228,7 +228,7 @@ sub get_next {
 
   return undef if $self->cursor > $self->count;
 
-  my $xml = $self->get_by_id( @{ $self->ids }[$self->cursor - 1] );
+  my $xml = $self->get_by_id( @{ $self->ids }[$self->cursor] );
   $self->cursor( $self->cursor + 1 );
 
   return $xml;
@@ -295,10 +295,9 @@ sub find {
 
   $query = uri_escape($query);
 
-  my $xml = get($ESEARCH.
-                '?usehistory=y&db=PubMed&retmax='.$MAX_RECORDS.
-                '&term='.$query
-               ) or $self->throw("couldn't retrieve results from $ESEARCH");
+  my $url = $ESEARCH."?usehistory=y&db=PubMed&retmax=$MAX_RECORDS&term=$query";
+
+  my $xml = get($url) or $self->throw("couldn't retrieve results from $ESEARCH: $!");
 
   $self->twig->parse($xml);
 
@@ -324,7 +323,7 @@ sub find {
   $self->collection_id($webenv);
 
   #initialize/reset cursor
-  $self->cursor(1);
+  $self->cursor(0);
 
   return $self;
 }
@@ -491,8 +490,9 @@ sub get_all_entries {
 
 sub cursor {
   my $self = shift;
+  my $arg  = shift;
 
-  return $self->{'cursor'} = shift if @_;
+  return $self->{'cursor'} = $arg if defined($arg);
   return $self->{'cursor'};
 }
 
