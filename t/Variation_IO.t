@@ -103,10 +103,9 @@ sub io {
     }
 
     ok $after;# "Error in reading in again the output file [$o_file]";
-
     ok $before, $after, "test output file differs from input";
     print STDERR `diff $t_file $o_file` if $before ne $after;
-    unlink($o_file); 
+    #unlink($o_file); 
 }
 
 
@@ -114,7 +113,7 @@ sub io {
 io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
      Bio::Root::IO->catfile("t","data","mutations.out.dat")); #1..5
 io  (Bio::Root::IO->catfile("t","data","polymorphism.dat"), 
-   Bio::Root::IO->catfile("t","data","polymorphism.out.dat")); #6..10
+     Bio::Root::IO->catfile("t","data","polymorphism.out.dat")); #6..10
 
 
 eval {
@@ -133,7 +132,7 @@ if( $@ ) {
 }
 
 eval {
-    if( $XML::Writer::VERSION >= 0.500 ) { 
+    if( $XML::Writer::VERSION >= 0.5 ) { 
 	io  (Bio::Root::IO->catfile("t","data","mutations.xml"), 
 	     Bio::Root::IO->catfile("t","data","mutations.out.xml")); #10..12
     } else { 
@@ -143,14 +142,24 @@ eval {
 };
 
 eval {
-    io  (Bio::Root::IO->catfile("t","data","polymorphism.xml"), 
-	Bio::Root::IO->catfile("t","data","polymorphism.out.xml")); #13..14
+    if( $XML::Writer::VERSION >= 0.5 ) { 
+	io  (Bio::Root::IO->catfile("t","data","polymorphism.xml"), 
+	     Bio::Root::IO->catfile("t","data","polymorphism.out.xml")); #13..14
+    } else { 
+	io  (Bio::Root::IO->catfile("t","data","polymorphism.old.dat"), 
+	     Bio::Root::IO->catfile("t","data","polymorphism.out.xml")); #13..14
+
+    }
 };
 
 
 eval { 
-	 io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
-	    Bio::Root::IO->catfile("t","data","mutations.out.xml")); #15..25
+    if( $XML::Writer::VERSION >= 0.5 ) { 
+	io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
+	     Bio::Root::IO->catfile("t","data","mutations.out.xml")); #15..25
+    } else { 
+	io  (Bio::Root::IO->catfile("t","data","mutations.dat"), 
+	     Bio::Root::IO->catfile("t","data","mutations.old.out.xml")); #15..25
+    }
 };
-
 
