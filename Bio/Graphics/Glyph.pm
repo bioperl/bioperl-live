@@ -1409,6 +1409,10 @@ glyph pages for more options.
 
   -hilite       Highlight color                undef (no color)
 
+  -link, -title, -target
+               These options are used when creating imagemaps
+               for display on the web.  See L<Bio::Graphics::Panel/"Creating Imagemaps">.
+
 For glyphs that consist of multiple segments, the B<-connector> option
 controls what's drawn between the segments.  The default is undef (no
 connector).  Options include:

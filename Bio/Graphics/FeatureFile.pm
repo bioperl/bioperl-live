@@ -53,7 +53,7 @@ FeatureFile object has been initialized, you can interrogate it for
 its consistuent features and their settings, or render the entire file
 onto a Bio::Graphics::Panel.
 
-This moduel is a precursor of Jason Stajich's
+This module is a precursor of Jason Stajich's
 Bio::Annotation::Collection class, and fulfills a similar function of
 storing a collection of sequence features.  However, it also stores
 rendering information about the features, and does not currently
@@ -1158,7 +1158,7 @@ sub feature2label {
 
 =over 4
 
-=item $link = $features-E<gt>make_link($feature)
+=item $link = $features-E<gt>link_pattern($linkrule,$feature,$panel)
 
 Given a feature, tries to generate a URL to link out from it.  This
 uses the 'link' option, if one is present.  This method is a
@@ -1168,42 +1168,14 @@ convenience for the generic genome browser.
 
 =cut
 
-sub make_link {
-  my $self     = shift;
-  my $feature  = shift;
-  for my $label ($self->feature2label($feature)) {
-    my $link     = $self->setting($label,'link');
-    $link        = $self->setting(general=>'link') unless defined $link;
-    next unless $link;
-    return $self->link_pattern($link,$feature);
-  }
-  return;
-}
-
 sub link_pattern {
-  my $self = shift;
-  my ($pattern,$feature,$panel) = @_;
-  require CGI unless defined &CGI::escape;
-  my $n;
-  $pattern =~ s/\$(\w+)/
-    CGI::escape(
-    $1 eq 'ref'              ? ($n = $feature->location->seq_id) && "$n"
-      : $1 eq 'name'         ? ($n = $feature->display_name) && "$n"  # workaround broken CGI.pm
-      : $1 eq 'class'        ? eval {$feature->class}  || ''
-      : $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag
-      : $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag
-      : $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag
-      : $1 eq 'start'        ? $feature->start
-      : $1 eq 'end'          ? $feature->end
-      : $1 eq 'stop'         ? $feature->end
-      : $1 eq 'segstart'     ? $panel->start
-      : $1 eq 'segend'       ? $panel->end
-      : $1 eq 'description'  ? eval {join '',$feature->notes} || ''
-      : $1 eq 'id'           ? $feature->feature_id
-      : $1
-	       )
-       /exg;
-  return $pattern;
+  my $self     = shift;
+  my ($linkrule,$feature,$panel) = @_;
+  for my $label ($self->feature2label($feature)) {
+    my $linkrule     = $self->setting($label,'link');
+    $linkrule        = $self->setting(general=>'link') unless defined $linkrule;
+    return $panel->make_link($linkrule,$feature);
+  }
 }
 
 # given a feature type, return its label(s)
