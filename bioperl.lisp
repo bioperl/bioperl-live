@@ -17,7 +17,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.15 2001-10-29 21:58:11 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.16 2001-11-23 22:36:13 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -34,9 +34,9 @@
   (insert "\npackage " perl-object-name ";\n")
   (insert "use vars qw(@ISA);\n")
   (insert "use strict;\n")
-  (insert "\n# Object preamble - inherits from Bio::Root::RootI\n")
-  (insert "\nuse Bio::Root::RootI;\n\n")
-  (insert "\n@ISA = qw(Bio::Root::RootI );\n\n")
+  (insert "\n# Object preamble - inherits from Bio::Root::Root\n")
+  (insert "\nuse Bio::Root::Root;\n\n")
+  (insert "\n@ISA = qw(Bio::Root::Root );\n\n")
   (insert "=head2 new\n\n Title   : new\n Usage   : my $obj = new "
 	  perl-object-name "();\n Function: Builds a new "
 	  perl-object-name " object \n Returns : "
@@ -49,7 +49,7 @@
 						 caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.15 2001-10-29 21:58:11 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.16 2001-11-23 22:36:13 jason Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Interface\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
