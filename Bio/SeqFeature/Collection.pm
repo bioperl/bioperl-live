@@ -220,9 +220,8 @@ sub add_features{
 	   next;
        }
        my $bin = bin($f->start,$f->end,$self->min_bin);
-
        my $serialized = freeze($f);
-       $self->{'_btreehash'}->{$bin} = $serialized;
+       $self->{'_btree'}->put($bin,$serialized);
        $self->debug( "$bin for ". $f->location->to_FTstring(). " matches ".$#{$self->{'_features'}}. "\n");
        $count++;
    }
@@ -388,10 +387,12 @@ sub remove_features{
 sub get_all_features{
    my ($self) = @_;
    my @features;
-   for ( keys %{$self->{'_btreehash'}} ) {
-       my $v = $self->{'_btreehash'}->{$_};
-       next unless defined  $v;
-       push @features, thaw($v);
+   my ($key,$value);
+   for (my $status = $self->{'_btree'}->seq($key, $value, R_FIRST) ;
+	$status == 0 ;
+	$status = $self->{'_btree'}->seq($key, $value, R_NEXT) )
+   {   next unless defined $value;
+       push @features, thaw($value);
    }
    if( scalar @features !=  $self->feature_count() ) {
        $self->warn("feature count does not match actual count\n");
