@@ -213,7 +213,6 @@ sub parse_next_alignment {
    
    while(defined($_ = $self->_readline())) {
        #chomp();
-
        #
        # bascially, each sim4 'hit' starts with seq1...
        #
@@ -386,7 +385,10 @@ sub next_exonset {
 
     # get the next array of exons
     my @exons = $self->parse_next_alignment();
-    return if($#exons < 0);
+    unless( @exons ) {
+	return if eof($self->_fh);
+	return $self->next_exonset;
+    } 
     # create the container of exons as a feature object itself, with the
     # data of the first exon for initialization
     $exonset = Bio::SeqFeature::Generic->new('-start' => $exons[0]->start(),
