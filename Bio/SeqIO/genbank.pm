@@ -595,7 +595,8 @@ sub _read_GenBank_References{
        if (/^  TITLE\s+(.*)/)  { 
 	   $title .= $1;
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/ && do { $title .= $1;$title .= " ";next;};
+	       /^\s{3,}(.*)/ && do { $title .= " " . $1;
+				     next;};
 	       last;
 	   }
 	   $ref->title($title);
