@@ -65,7 +65,8 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
+use Bio::Root::Interface;
+@ISA = qw(Bio::Root::Root Bio::Root::Interface);
 
 
 sub new {
@@ -75,6 +76,23 @@ sub new {
   # set up defaults
   
   return $self;
+}
+
+
+
+=head2  version
+
+ Title   : version
+ Usage   : exit if $prog->version() < 1.8
+ Function: Determine the version number of the program
+ Example :
+ Returns : float or undef
+ Args    : none
+
+=cut
+
+sub version {
+    shift->throw_not_implemented();
 }
 
 1;
