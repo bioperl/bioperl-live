@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 151;
+	plan tests => 152;
 }
 
 use Bio::SimpleAlign;
