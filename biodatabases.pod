@@ -45,7 +45,7 @@ entire database, nor does it provide any complex querying ability. For
 these advanced features see L<USING BIOPERL WITH A RELATIONAL DATABASE (bioperl-db)>.
 
 Bio::DB::BioSeqI is the abstract interface for the databases (hence
-the I).  Bio::DB::GenBank and Bio::DB::GenPept are concrete
+the I). Bio::DB::GenBank and Bio::DB::GenPept are concrete
 implementations for network access to the GenBank and GenPept
 databases at NCBI, and others, using HTTP as a protocol. See
 L<Bio::DB::GenBank>, L<Bio::DB::GenPept>, and L<REMOTE SEQUENCE RETRIEVAL (Bio::DB::*)> for more information.
@@ -201,17 +201,21 @@ See L<Bio::DB::SQL::SeqAdaptor>, L<Bio::DB::SQL::QueryConstraint>,
 L<Bio::DB::SQL::CommentAdaptor>, and L<Bio::DB::SQL::BioQuery> for
 more examples.
 
+With bioperl-db and BioSQL installed you will also be able to load 
+sequence data, GO Ontology data, and NCBI taxonomic data into your own
+RDB.
+
 
 =head1 BIOPERL AND BIOSQL
 
-BioSQL is joint project of the OpenBio efforts, bioperl, biopython,
-biojava, and bioruby. This project has created a single relational 
+BioSQL is joint project of the OpenBio efforts: bioperl, biopython,
+biojava, and bioruby. BioSQL creates a single relational 
 schema that's accessible using any of these packages. To use BioSQL
 with Perl you'll need Bioperl, version 1.2 or later, bioperl-db from 
 www.bioperl.org, and BioSQL. The BioSQL package can be obtained at 
-www.open-bio.org. BioSQL currently supports 3 different database 
-servers: Mysql, Postgres, and Oracle. Consult the bioperl-db and 
-BioSQL packages for more details on installing and using BioSQL.
+www.open-bio.org. BioSQL currently supports the Mysql, Postgres, and 
+Oracle database servers. Consult the BioSQL package for more details 
+on installing and using BioSQL.
 
 
 =head1 BIO::DB::GFF: INDEXING AND RETRIEVAL OF SEQUENCE FEATURE DATA
@@ -227,4 +231,3 @@ sequences and extract subsequences rapidly.
 
 See L<Bio::DB::GFF>, L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Feature>, and L<Bio::DB::GFF::Adaptor::dbi>.
-
