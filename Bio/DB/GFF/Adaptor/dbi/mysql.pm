@@ -552,7 +552,7 @@ table=> q{
 create table fgroup (
     gid	    int not null  auto_increment,
     gclass  varchar(100),
-    gname   varchar(100),
+    gname   varchar(100) binary,
     primary key(gid),
     unique(gclass,gname)
 ) type=MyISAM
