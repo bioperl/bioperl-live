@@ -17,7 +17,7 @@ and manipulating alignment objects
 
 =head1 SYNOPSIS
 
-  use Bio::Align::Utilities qw(aa_to_dna_aln);
+  use Bio::Align::Utilities qw(:all);
   # %dnaseqs is a hash of CDS sequences (spliced)
 
 
@@ -26,7 +26,11 @@ and manipulating alignment objects
   # The CoDing Sequence that is passed in should still be the full 
   # length CDS as the nt alignment will be generated.
   #
-  my $dna_aln = aa_to_dna_aln($aa_aln,\%dnaseqs);
+  my $dna_aln = &aa_to_dna_aln($aa_aln,\%dnaseqs);
+
+  
+  # generate bootstraps
+  my $replicates = &bootstrap_replicates($aln,$count);
 
 
 =head1 DESCRIPTION

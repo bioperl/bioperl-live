@@ -225,7 +225,8 @@ provided later.
 
 Much of the DNA distance code is based on implementations in EMBOSS
 (Rice et al, www.emboss.org) [distmat.c] and PHYLIP (J. Felsenstein et
-al) [dnadist.c].  Insight also gained from Eddy, Durbin, 
+al) [dnadist.c].  Insight also gained from Eddy, Durbin, Krogh, &
+Mitchison.
 
 =head1 REFERENCES
 
