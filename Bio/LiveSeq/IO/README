@@ -19,8 +19,9 @@ Bio::LiveSeq::IO::BioPerl
 
 Bio::LiveSeq::IO::SRS
 
-	retrieves sequences from a local installation of SRS. SRS is
-	short for Sequence Retrieval System, a comprehensive program
-	suite for indexing and serving biological databases. SRS is a
-	product of Lion BioSciences (http://www.lionbio.co.uk/). The
-        license for academic users is free.
+	retrieves sequences from a local installation of SRS. It needs
+        srsperl.pm which is part of SRS. SRS is short for Sequence
+        Retrieval System, a comprehensive program suite for indexing
+        and serving biological databases. SRS is a product of Lion
+        BioSciences (http://www.lionbio.co.uk/). The license for
+        academic users is free.
