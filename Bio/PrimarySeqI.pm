@@ -474,7 +474,6 @@ sub trunc{
    return $out;
 }
 
-
 =head2 translate
 
  Title   : translate
@@ -501,13 +500,17 @@ sub trunc{
            frame (optional) valid values 0, 1, 2, defaults to 0
            codon table id (optional) defaults to 1
            complete coding sequence expected, defaults to 0 (false)
-           boolean, throw exception if not complete CDS (true) or defaults to warning (false)
+           boolean, throw exception if not complete CDS (true) or defaults to
+warning (false)
+           coding sequence expected to be complete at 5', defaults to false
+           coding sequence expected to be complete at 3', defaults to false
 
 =cut
 
 sub translate {
     my($self) = shift;
-    my($stop, $unknown, $frame, $tableid, $fullCDS, $throw) = @_;
+    my($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $complete5,
+$complete3) = @_;
     my($i, $len, $output) = (0,0,'');
     my($codon)   = "";
     my $aa;
@@ -543,32 +546,48 @@ sub translate {
     # Use user-input stop/unknown
     $output =~ s/\*/$stop/g;
     $output =~ s/X/$unknown/g;
-	
-    # only if we are expecting to translate a complete coding region
-    if ($fullCDS) {
-	my $id = $self->display_id;
+
+    # $complete5 and $complete3 indicate completeness of
+    # the coding sequence at the 5' and 3' ends. Complete
+    # if true, default to false. These are in addition to
+    # $fullCDS, for backwards compatibility
+    defined($complete5) or ($complete5 = $fullCDS ? 1 : 0);
+    defined($complete3) or ($complete3 = $fullCDS ? 1 : 0);
+
+    my $id = $self->display_id;
+
+    # only if we are expecting to be complete at the 5' end
+    if($complete5) {
+	# if the initiator codon is not ATG, the amino acid needs to changed into M
+	if(substr($output,0,1) ne 'M') {
+	    if($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
+		$output = 'M' . substr($output, 1);
+	    }
+	    elsif($throw) {
+		$self->throw("Seq [$id]: Not using a valid initiator codon!");
+	    } else {
+		$self->warn("Seq [$id]: Not using a valid initiator codon!");
+	    }
+	}
+    }
+
+    # only if we are expecting to be complete at the 3' end
+    if($complete3) {
 	#remove the stop character
-	if( substr($output,-1,1) eq $stop ) {
+	if(substr($output, -1, 1) eq $stop) {
 	    chop $output;
 	} else {
 	    $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
 	    $self->warn("Seq [$id]: Not using a valid terminator codon!");
 	}
+    }
+
+    # only if we are expecting to translate a complete coding region
+    if($complete5 and $complete3) {
 	# test if there are terminator characters inside the protein sequence!
-	if ($output =~ /\*/) {
+	if($output =~ /\*/) {
 	    $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
 	    $self->warn("Seq [$id]: Terminator codon inside CDS!");
-	}
-	# if the initiator codon is not ATG, the amino acid needs to changed into M
-	if ( substr($output,0,1) ne 'M' ) {
-	    if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
-		$output = 'M'. substr($output,1);
-	    }
-	    elsif ($throw) {
-		$self->warn("Seq [$id]: Not using a valid initiator codon!");
-	    } else {
-		$self->throw("Seq [$id]: Not using a valid initiator codon!");
-	    }
 	}
     }
 
