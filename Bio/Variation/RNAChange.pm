@@ -37,7 +37,7 @@ Bio::Variation::RNAChange - Sequence change class for RNA level
 
    print "The codon change is ", $rnachange->codon_ori, 
        ">", $rnachange->codon_mut, "\n"; 
-   
+
    # add it to a SeqDiff container object
    $seqdiff->add_Variant($rnachange);
 
@@ -55,9 +55,9 @@ You are normally expected to create a corresponding
 L<Bio::Variation::DNAMutation> object even if mutation is defined at
 RNA level. The numbering follows then cDNA numbering.  Link the
 DNAMutation object to the RNAChange object using the method
-->DNAMutation. If the variation described by a RNAChange object is
+DNAMutation(). If the variation described by a RNAChange object is
 translated, link the corresponding L<Bio::Variation::AAChange> object
-to it using method ->AAChange.
+to it using method AAChange().
 
 
 =head1 FEEDBACK

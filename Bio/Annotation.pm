@@ -49,7 +49,6 @@ Bio::Annotation - A generic object for annotations
 
     $ann->description("Description text");
     print "Annotation description is ", $ann->description, "\n";
-   
 
 =head1 DESCRIPTION
 
@@ -130,7 +129,7 @@ use Bio::Annotation::Comment;
  Function: Makes a new Annotation object. The main thing 
            you will want to do with this is add comment objects and
            dblink objects, with calls like
-   
+
             $annotation->add_Comment($comment);
             $annotation->add_DBLink($dblink);
 

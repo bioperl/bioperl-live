@@ -13,8 +13,7 @@
 
 =head1 NAME
 
-  Bio::Variation::SeqDiff - Container class for mutation/variant
-  descriptions
+Bio::Variation::SeqDiff - Container class for mutation/variant descriptions
 
 =head1 SYNOPSIS
 

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::Variation::AAReverseMutate - point mutation and codon
+Bio::Variation::AAReverseMutate - point mutation and codon
   information from single amino acid changes
 
 =head1 SYNOPSIS

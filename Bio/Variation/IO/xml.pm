@@ -25,8 +25,7 @@ file databases.
 
 The XML format, although consistent, is still evolving. The DTD is not
 yet available. There is also a formatting problem: The module is not
-able to write root tags around entries
-(<variation>entries</variation>).
+able to write root tags around entries.
 
 =head1 REQUIREMENTS
 

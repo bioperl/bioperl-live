@@ -24,7 +24,7 @@ Bio::Variation::AAChange - Sequence change class for polypeptides
  	'-isMutation'    => 1,
  	'-mut_number'    => $mut_number             
  	);
-   
+
    my $a1 = Bio::Variation::Allele->new;
    $a1->seq($ori) if $ori;
    $aamut->allele_ori($a1);
@@ -34,15 +34,13 @@ Bio::Variation::AAChange - Sequence change class for polypeptides
    $aachange->allele_mut($a2);
  
    print  "\n"; 
-   
+
    # add it to a SeqDiff container object
    $seqdiff->add_Variant($rnachange);
 
    # and create links to and from RNA level variant objects
    $aamut->RNAChange($rnachange);
    $rnachange->AAChange($rnachange);
-
-
 
 =head1 DESCRIPTION
 
@@ -52,7 +50,7 @@ superclass L<Bio::Variation::VariantI>.
 
 If the variation described by a AAChange object has a known
 L<Bio::Variation::RNAAChange> object, create the link with method
-->AAChange.
+AAChange().
 
 =head1 FEEDBACK
 

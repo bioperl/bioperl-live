@@ -26,7 +26,6 @@ Bio::DBLinkContainerI - Abstract interface for any object wanting to use
                         }
                 }
         }
-             
 
 =head1 DESCRIPTION
 

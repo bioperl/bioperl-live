@@ -14,7 +14,6 @@
 
 Bio::Variation::Allele - Sequence object with allele-specific attributes
 
-
 =head1 SYNOPSIS
 
   $allele1 = Bio::Variation::Allele->new ( -seq => 'A',
@@ -22,7 +21,6 @@ Bio::Variation::Allele - Sequence object with allele-specific attributes
                                            -moltype => 'dna',
                                            -is_reference => 1
                                          );
-  
 
 =head1 DESCRIPTION
 
@@ -38,8 +36,7 @@ null alleles; Allele objects that have zero length sequence string.
 
 In addition describing the allele by its sequence , it possible to
 give describe repeat structure within the sequence. This done using
-methods ->repeat_unit (e.g. 'ca') and ->repeat_count (e.g. 7).
-
+methods repeat_unit (e.g. 'ca') and repeat_count (e.g. 7).
 
 =head1 FEEDBACK
 

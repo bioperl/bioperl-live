@@ -47,7 +47,7 @@ superclass L<Bio::Variation::VariantI>.
 
 If the variation described by a DNAMutation object is transcibed, link
 the corresponding L<Bio::Variation::RNAChange> object to it using
-method ->RNAChange.
+method RNAChange().
 
 =head1 FEEDBACK
 
