@@ -285,7 +285,7 @@ ok(!$inconsistency);
 my $transcript1 = $db->segment($features[0]);
 $transcript1->ref($features[0]);
 my @overlap     = sort {$a->start <=> $b->start } $transcript1->features;
-ok(scalar(@overlap),11);
+ok(scalar(@overlap),5);
 ok($overlap[0]->start,-999);
 
 $transcript1 = $db->segment('Transcript' => 'trans-1');

@@ -2546,7 +2546,8 @@ sub features_in_range {
 	       'ITERATOR'
 	      ],@_);
   $other ||= {};
-  $automerge = $types && $self->automerge unless defined $automerge;
+  # $automerge = $types && $self->automerge unless defined $automerge;
+  $automerge = $self->automerge unless defined $automerge;
   $self->throw("range type must be one of {".
 	       join(',',keys %valid_range_types).
 	       "}\n")
