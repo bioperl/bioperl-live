@@ -74,12 +74,8 @@ Mark Fiers <m.w.e.j.fiers@plant.wag-ur.nl>
 This class has been written with an eye out of inheritence. The fields
 the actual object hash are:
 
-   _gsf_tag_hash  = reference to a hash for the tags
    _gsf_sub_hash  = reference to an hash containing sets of sub arrays
    _gsf_score_hash= reference to a hash for the score values
-   _gsf_start     = scalar of the start point
-   _gsf_end       = scalar of the end point
-   _gsf_strand    = scalar of the strand
 
 =head1 APPENDIX
 
@@ -101,77 +97,43 @@ use Bio::SeqFeature::Generic;
 						     
 sub new {
     my ( $class, @args) = @_;
-    my $self = bless {}, ref($class) || $class;
-    $self->_initialize(@args);
+    my $self = $class->SUPER::new(@args);
+
+    #_gsf_sub_hash is a hash of hashes:
+    %{$self->{'gsf_sub_hash'}} = ();
+    $self->{'_gsf_score_hash'} = {};
+
+    my ( $computation_id, $score,
+	$program_name, $program_date, $program_version,
+	$database_name, $database_date, $database_version) =
+	    $self->_rearrange([qw(COMPUTATION_ID
+				  SCORE
+				  PROGRAM_NAME
+				  PROGRAM_DATE
+				  PROGRAM_VERSION
+				  DATABASE_NAME
+				  DATABASE_DATE
+				  DATABASE_VERSION
+				  )],@args);
+
+    $program_name	    && $self->program_name($program_name);
+    $program_date	    && $self->program_date($program_date);
+    $program_version  && $self->program_version($program_version);
+    $database_name    && $self->database_name($database_name);
+    $database_date    && $self->database_date($database_date);
+    $database_version && $self->database_version($database_version);
+    $computation_id   && $self->computation_id($computation_id);
+    $score            && do {
+	if (ref($score)) {
+	    foreach my $t ( keys %$score ) {
+		$self->add_score_value($t,$score->{$t});
+	    }
+	} else { 	     
+	    $self->score($score); 	
+	}
+
+    };
     return $self;
-}
-
-sub _initialize {
-  my ($self, @args) = @_;
-  my $make = $self->SUPER::_initialize(@args);
-
-  $self->{'_gsf_tag_hash'} = {};
-  $self->{'_gsf_sub_hash'} = {};     
-  #_gsf_sub_hash is a hash of hashes:
-  %{$self->{'gsf_sub_hash'}} = ();
-  $self->{'_gsf_score_hash'} = {};
-  $self->{'_parse_h'} = {};
-
-  my ($start, $end, $strand, $primary, $source, $frame, $computation_id, 
-      $score, $tag, $program_name, $program_date, $program_version,
-      $database_name, $database_date, $database_version,
-      $gff_string, $gff2_string) =
-	  $self->_rearrange([qw(START
-				END
-				STRAND
-				PRIMARY
-				SOURCE
-				FRAME
-				COMPUTATION_ID
-				SCORE
-				TAG
-				PROGRAM_NAME
-				PROGRAM_DATE
-				PROGRAM_VERSION
-				DATABASE_NAME
-				DATABASE_DATE
-				DATABASE_VERSION
-				GFF_STRING
-				GFF2_STRING
-				)],@args);
-
-  $gff2_string      && $self->_from_gff2_string($gff2_string);
-  $gff_string       && $self->_from_gff_string($gff_string);
-  $program_name	    && $self->program_name($program_name);
-  $program_date	    && $self->program_date($program_date);
-  $program_version  && $self->program_version($program_version);
-  $database_name    && $self->database_name($database_name);
-  $database_date    && $self->database_date($database_date);
-  $database_version && $self->database_version($database_version);
-  $computation_id   && $self->computation_id($computation_id);
-  $start            && $self->start($start);
-  $end              && $self->end($end);
-  $strand           && $self->strand($strand);
-  $primary          && $self->primary_tag($primary);
-  $source           && $self->source_tag($source);
-  $frame            && $self->frame($frame);
-  $score            && do {
-      if (ref($score)) {
-          foreach my $t ( keys %$score ) {
-	     $self->add_score_value($t,$score->{$t});
-	  }
-      } else { 	     
-          $self->score($score); 	
-      }
-
-  };
-  $tag              && do {
-      foreach my $t ( keys %$tag ) {
-	  $self->add_tag_value($t,$tag->{$t});
-      }
-  };
-
-  return $make; # success - we hope!
 }  
 
 =head2 has_score
