@@ -300,7 +300,10 @@ sub next_result{
 					   'Data' => shift @{$info}});
 			   $self->element({'Name' => 'Hit_score',
 					   'Data' => shift @{$info}});
-		       }
+		       } 
+		       $self->end_element({'Name' => 'Hsp'})
+			   if $self->in_element('hsp');
+		       
 		       $self->start_element({'Name' => 'Hsp'});
 		       $self->element({'Name' => 'Hsp_identity',
 				       'Data' => 0});
@@ -314,7 +317,6 @@ sub next_result{
 		       if( $domaincounter{$name} == $domaintotal) {
 			   $hitinfo[$hitinfo{$name}] = undef;
 		       }
-
 		       $self->element({'Name' => 'Hsp_hit-from',
 				       'Data' => shift @$HSPinfo});
 		       $self->element({'Name' => 'Hsp_hit-to',
