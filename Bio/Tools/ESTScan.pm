@@ -21,10 +21,12 @@ Bio::Tools::ESTScan - Results of one ESTScan run
    $estscan = Bio::Tools::ESTScan->new( -fh  => \*INPUT );
 
    # parse the results
-   while($orf = $estscan->next_prediction()) {
-       # $orf is an instance of Bio::Tools::Prediction::Exon and thus
-       # implements SeqFeatureI
-       
+   while($gene = $estscan->next_prediction()) {
+       # $gene is an instance of Bio::Tools::Prediction::Gene
+       foreach my $orf ($gene->exons()) {
+	   # $orf is an instance of Bio::Tools::Prediction::Exon
+	   $cds_str = $orf->predicted_cds();
+       }
    }
 
    # essential if you gave a filename at initialization (otherwise the file
@@ -169,7 +171,7 @@ sub next_feature {
 
 sub next_prediction {
     my ($self) = @_;
-    my ($gene, $seq, $predobj);
+    my ($gene, $seq, $cds, $predobj);
     my $numins = 0;
 
     # predictions are in the format of FASTA sequences and can be parsed one
@@ -208,7 +210,14 @@ sub next_prediction {
 	# add to gene structure object
 	$gene->add_exon($predobj);
 	# add predicted CDS
-	$gene->predicted_cds($seq);
+	$cds = $seq->seq();
+	$cds =~ s/[a-z]//g; # remove the deletions, but keep the insertions
+	$cds = Bio::PrimarySeq->new('-seq' => $cds,
+				    '-display_id' => $seq->display_id(),
+				    '-desc' => $seq->desc(),
+				    '-moltype' => "dna");
+	$gene->predicted_cds($cds);
+	$predobj->predicted_cds($cds);
 	if($gene->strand() == -1) {
 	    $self->warn("reverse strand ORF, but unable to reverse coordinates!");
 	}
@@ -243,7 +252,7 @@ sub next_prediction {
 		$start += $predobj->end() + $numins;
 	    }
 	    # for the end coordinate, we need to subtract the insertions
-	    my $cds = $exonseq;
+	    $cds = $exonseq;
 	    $cds =~ s/[X]//g;
 	    my $end = $start + CORE::length($cds) - 1;
 	    # construct next exon object
@@ -263,9 +272,6 @@ sub next_prediction {
 					'-display_id' => $seq->display_id(),
 					'-desc' => $seq->desc(),
 					'-moltype' => "dna");
-	    # in case of a reverse strand prediction, we reversed the sequence
-	    # initially, so reverse the predicted CDS back
-	    $cds = $cds->revcom() if($gene->strand() == -1);
 	    # only store the first one in the overall prediction
 	    $gene->predicted_cds($cds) unless $gene->predicted_cds();
 	    $predobj->predicted_cds($cds);
@@ -274,12 +280,15 @@ sub next_prediction {
 	    my $fea = undef;
 	    while($exonseq =~ /([a-zX])/g) {
 		my $indel = $1;
-		# start and end: look after previous feature (because of the
-		# 1-based indexing of start() as opposed to 0-based indexing
-		# of index(), we don't need to add 1 in order to be ahead of
-		# the previous match)
-		$start = ($fea) ?
-		    $fea->start()+$numins : $predobj->start()+$numins;
+		# start and end: start looking at the position after the
+		# previous feature
+		if($fea) {
+		    $start = $fea->start()+$numins;
+		    $start -= 1 if($fea->primary_tag() eq 'insertion');
+		} else {
+		    $start = $predobj->start()+$numins-1;
+		}
+		#print "# numins = $numins, indel = $indel, start = $start\n";
 		$start = index($seq->seq(), $indel, $start) + 1 - $numins;
 		$fea = Bio::SeqFeature::Generic->new('-start' => $start,
 						     '-end' => $start);
