@@ -89,7 +89,7 @@ use Bio::Map::OrderedPosition;
  	   -positions => positions on a map
 =cut
 
-=head2 Bio::Map::OrderedPosition methods
+=head2 Bio::Map::PositionI methods
 
 =cut
 
@@ -102,100 +102,6 @@ use Bio::Map::OrderedPosition;
  Returns :
  Args    : If $new_position is provided, the current position of this Position
            will be set to $new_position.
-
-=cut
-
-=head2 Bio::Map::Position functions
-
-=cut
-
-=head2 known_maps
-
- Title   : known_maps
- Usage   : my @maps = $position->known_maps
- Function: Returns the list of maps that this position has values for
- Returns : list of Bio::Map::MapI unique ids
- Args    : none
-
-=head2 in_map
-
- Title   : in_map
- Usage   : if ( $position->in_map($map) ) {}
- Function: Tests if a position has values in a specific map
- Returns : boolean
- Args    : a map unique id OR Bio::Map::MapI
-
-=head2 each_position_value
-
- Title   : positions
- Usage   : my @positions = $position->each_position_value($map);
- Function: Retrieve a list of positions coded as strings or ints
- Returns : Array of position values for a Map
- Args    : Bio::Map::MapI object to get positions for
-
-=cut
-
-sub each_position_value {
-    my ($self, @args) = @_;
-    my @v = $self->SUPER::each_position_value(@args);
-    if ( ! @v ) {
-	return ('0.0');
-    }
-    return @v;
-}
-
-=head2 add_position_value
-
- Title   : add_position_value
- Usage   : $position->add_position_value($map,'100');
- Function: Add a numeric or string position to the PositionI container
-           and assoiciate it with a Bio::Map::MapI
- Returns : none
- Args    : $map - Bio::Map::MapI
-           String or Numeric coding for a position on a map
-
-=head2 purge_position_values
-
-
- Title   : purge_position_values
- Usage   : $position->purge_position_values
- Function: Remove all the position values stored for a position
- Returns : none
- Args    : [optional] only purge values for a given map
-
-=head2 equals
-
- Title   : equals
- Usage   : if( $mappable->equals($mapable2)) ...
- Function: Test if a position is equal to another position.
- Returns : boolean
- Args    : Bio::Map::PositionI
-
-=cut
-
-# admittedly these are really the best comparisons in the world
-# but it is a first pass we'll need to refine the algorithm or not
-# provide general comparisions and require these to be implemented
-# by objects closer to the specific type of data
-
-=head2 less_than
-
- Title   : less_than
- Usage   : if( $mappable->less_than($m2) ) ...
- Function: Tests if a position is less than another position
-           It is assumed that 2 positions are in the same map.
- Returns : boolean
- Args    : Bio::Map::PositionI
-
-
-=head2 greater_than
-
- Title   : greater_than
- Usage   : if( $mappable->greater_than($m2) ) ...
- Function: Tests if position is greater than another position.
-           It is assumed that 2 positions are in the same map.
- Returns : boolean
- Args    : Bio::Map::PositionI
 
 =cut
 

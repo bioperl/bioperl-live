@@ -146,7 +146,7 @@ sub length {
 =cut
 
 #'
-sub add_element {
+sub _add_element {
     my ($self,$marker) = @_;
 
     my $o_position = $marker->position();

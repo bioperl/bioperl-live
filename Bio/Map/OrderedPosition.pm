@@ -98,19 +98,27 @@ use Bio::Map::Position;
  Usage   : my $obj = new Bio::Map::OrderedPosition();
  Function: Builds a new Bio::Map::OrderedPosition object 
  Returns : Bio::Map::OrderedPosition
- Args    : -order - The order of this position, [assumed to only be 
-                    applicable to all maps for now]
+ Args    : -order - The order of this position
 
 =cut
 
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    $self->{'_order'} = [];
-    
-    my ($order) = $self->_rearrange([qw(ORDER)], @args);
+#    $self->{'_order'} = [];
+  
+    my ($map, $marker, $value, $order) = 
+	$self->_rearrange([qw( MAP 
+			       MARKER 
+			       VALUE
+			       ORDER
+			       )], @args);
+#    print join ("|-|", ($map, $marker, $value, $order)), "\n";
+    $map     && $self->map($map);
+    $marker  && $self->marker($marker);
+    $value   && $self->value($value);
+    $order   && $self->order($order);
 
-    defined $order && $self->order($order);
     return $self;
 }
 
@@ -129,7 +137,7 @@ sub new {
 sub order {
     my ($self,$order) = @_;
     if ($order) {
-	# no point in keeing the old ones
+	# no point in keeping the old ones
 	$self->{'_order'} = $order;
     }
     return $self->{'_order'};

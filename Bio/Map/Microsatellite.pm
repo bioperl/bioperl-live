@@ -117,15 +117,19 @@ use Bio::Map::Marker;
 sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($sequence, 
-	$motif,$repeats,
-	$start) = $self->_rearrange([qw(SEQUENCE 
-					MOTIF 
-					REPEATS 
-					REPEAT_START_POSITION)], @args);
+    my ($map, $position, $sequence, $motif, $repeats, $start) = 
+	$self->_rearrange([qw(MAP
+			      POSITION
+			      SEQUENCE 
+			      MOTIF 
+			      REPEATS 
+			      REPEAT_START_POSITION
+			      )], @args);
     if( ! $self->name ) { 
 	$self->name('Unnamed microsatellite');
     }
+    $map && $self->map($map);
+    $position && $self->position($position);
     $sequence && $self->sequence($sequence);
     $self->motif(defined $motif ? $motif : 'Unknown motif'); 
     $repeats && $self->repeats($repeats);
@@ -278,18 +282,18 @@ sub repeat_start_position {
 
 #'
 sub repeat_end_position {
-	my ($self,$caller) = @_;
-	if( defined $caller ) { 
-	    if ($caller eq "set") {
-		$self->{'_repeat_end_position'} = $self->{'_repeat_start_position'} + (length($self->motif()) * $self->repeats());
-	    }
-	    elsif ($caller) {
-		$self->{'_repeat_end_position'} = $caller;
-	    }
+    my ($self,$caller) = @_;
+    if( defined $caller ) { 
+	if ($caller eq "set") {
+	    $self->{'_repeat_end_position'} = 
+		$self->{'_repeat_start_position'} + 
+		    (length($self->motif()) * $self->repeats());
 	}
-	return $self->{'_repeat_end_position'};
-
-
+	elsif ($caller) {
+	    $self->{'_repeat_end_position'} = $caller;
+	}
+    }
+    return $self->{'_repeat_end_position'};
 }
 
 =head2 equals
@@ -304,7 +308,8 @@ sub repeat_end_position {
 
 sub equals {
 	my ($self,@args) = @_;
-	$self->warn("equals is not yet implemented in ".ref($self)." yet. Check back real soon!");
+	$self->warn("equals is not yet implemented in ".
+		    ref($self)." yet. Check back real soon!");
 }
 
 =head2 less_than
@@ -319,7 +324,8 @@ sub equals {
 
 sub less_than {
 	my ($self,@args) = @_;
-	$self->warn("less_then is not yet implemented in ".ref($self)." yet. Check back real soon!");
+	$self->warn("less_then is not yet implemented in ".
+		    ref($self)." yet. Check back real soon!");
 }
 
 =head2 greater_than
@@ -334,7 +340,8 @@ sub less_than {
 
 sub greater_than {
 	my ($self,@args) = @_;
-	$self->warn("greater_then is not yet implemented in ".ref($self)." yet. Check back real soon!");
+	$self->warn("greater_then is not yet implemented in ".
+		    ref($self)." yet. Check back real soon!");
 }
 
 =head2 get_leading_flank()

@@ -78,9 +78,9 @@ use Bio::Map::MappableI;
  Title   : name($new_name)
  Usage   : my $name = $o_usat->name($new_name) _or_
 	   my $name = $o_usat->name()
- Function: Get/Set the name for this Microsatellite
- Returns : A scalar representing the current name of this Microsatellite
- Args    : If provided, the current name of this Microsatellite
+ Function: Get/Set the name for this Marker
+ Returns : A scalar representing the current name of this Marker
+ Args    : If provided, the current name of this Marker
 	   will be set to $new_name.
 
 =cut
@@ -90,17 +90,146 @@ sub name {
     $self->_abstractDeath('name');
 }
 
+=head2 position
+
+ Title   : position
+ Usage   : my position_string = $position->position('mapname');
+ Function: Get/Set method for single value positions. 
+           Gives a simplified interface when only one map and 
+           one position per marker is used.
+ Returns : a position value
+ Args    : optional:
+           Map - Reference to Bio::Map::MapI 
+           String or Numeric coding for a position on a map
+
+=cut
+
+sub position{
+   my ($self,$map, $value) = @_;
+   $self->_abstractDeath('add_position');
+}
+
+=head2 add_position
+
+ Title   : add_position
+ Usage   : $position->add_position($map,'100')
+ Function: Add a numeric or string position to the PositionI container
+ Returns : none
+ Args    : Map - Reference to Bio::Map::MapI 
+           String or Numeric coding for a position on a map
+
+=cut
+
+sub add_position{
+   my ($self,$map,$value) = @_;
+   $self->_abstractDeath('add_position');
+}
+
+
+=head2 each_position
+
+ Title   : positions
+ Usage   : my @positions = $position->each_position_value('mapname');
+ Function: Retrieve a list of positions coded as strings or ints 
+ Returns : Array of position values 
+ Args    : none
+
+=cut
+
+sub each_position {
+   my ($self,$mapname) = @_;
+   $self->_abstractDeath('add_position_value');
+}
+
+=head2 purge_positions
+
+ Title   : purge_positions
+ Usage   : $position->purge_positions
+ Function: Remove all the position values stored for a Marker
+ Returns : none
+ Args    : [optional] only purge values for a given map
+
+=cut
+
+sub purge_position_values{
+   my ($self, $map) = @_;
+   $self->_abstractDeath('purge_position_values');
+}
+
+=head2 known_maps
+
+ Title   : known_maps
+ Usage   : my @maps = $marker->known_maps
+ Function: Returns the list of maps that this position has values for
+ Returns : list of Bio::Map::MapI unique ids
+ Args    : none
+
+=cut
+
+sub known_maps{
+   my ($self) = @_;
+   $self->_abstractDeath('known_maps');
+}
+
+=head2 in_map
+
+ Title   : in_map
+ Usage   : if ( $position->in_map($map) ) {}
+ Function: Tests if a position has values in a specific map
+ Returns : boolean
+ Args    : a map unique id OR Bio::Map::MapI
+
+
+=cut
+
+sub in_map{
+   my ($self,@args) = @_;
+   $self->_abstractDeath('in_map');
+}
+
+#====================================================================
+
+
+=head2 get_position_object
+
+ Title   : get_position_class
+ Usage   : my $pos = $marker->get_position_object();
+ Function: To get an object of the default Position class
+           for this Marker. Subclasses should redefine this method.
+           The Position needs to be L<Bio::Map::PositionI>.
+ Returns : L<Bio::Map::PositionI>
+ Args    : none
+
+=cut
+
+sub get_position_object {
+    my ($self) = @_;
+    $self->_abstractDeath('get_position_object');
+}
+
+
 =head2 Bio::Map::MappableI methods
 
 =cut
 
 =head2 map_position
 
- Title   : position
+ Title   : map_position
  Usage   : my $position = $mappable->map_position(); 
  Function: Get/Set the Bio::Map::PositionI for a mappable element
  Returns : Bio::Map::PositionI
  Args    : (optional) Bio::Map::PositionI
+
+=head2 tuple
+
+ Title   : tuple
+ Usage   : ($me, $you) = $self->_tuple($compare)
+ Function: Utility method to extract numbers and test for missing values.
+           Makes writing subsequent tests easier.
+ Returns : a tuple of values or ranges
+ Args    : Bio::Map::MappableI or Bio::Map::PositionI
+
+=cut
 
 =head2 equals
 

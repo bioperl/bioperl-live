@@ -12,19 +12,21 @@
 
 =head1 NAME
 
-Bio::Map::PositionI - Abstracts the notion of an element having
-  multiple positions for a marker within a Map
+Bio::Map::PositionI - Abstracts the notion of a position  having
+  a value in the context of a marker and a Map
 
 =head1 SYNOPSIS
 
-    # get a Bio::Map::PositionI object somehow
-    print "The marker maps to the following positions: ", 
-    join(",", $position->each_position_value), "\n";
+    # do not use directly
 
 =head1 DESCRIPTION
 
-This object handles the concept that a mappable object (e.g. Marker)
-may have multiple positions in a map (e.g. restriction enzymes).  
+This object stores one of the postions a that a mappable object
+(e.g. Marker) may have in a map (e.g. restriction enzymes or a SNP
+mapped to several chromosomes).
+
+The method numeric() returns the position in a form that can be
+compared between other positions of the same type.
 
 =head1 FEEDBACK
 
@@ -76,129 +78,67 @@ use Carp;
 
 @ISA = qw(Bio::Root::RootI);
 
-=head2 each_position_value
 
- Title   : positions
- Usage   : my @positions = $position->each_position_value('mapname');
- Function: Retrieve a list of positions coded as strings or ints 
- Returns : Array of position values 
+=head2 map
+
+ Title   : map
+ Usage   : my $id = map->$map;
+ Function: Get/Set the map the position is in.
+ Returns : L<Bio::Map::MapI>
+ Args    : [optional] new L<Bio::Map::MapI>
+
+=cut
+
+sub map {
+   my ($self, $value) = @_;
+   $self->_abstractDeath('map');
+}
+
+=head2 marker
+
+ Title   : marker
+ Usage   : my $id = marker->$marker;
+ Function: Get/Set the marker the position is in.
+ Returns : L<Bio::Map::MarkerI>
+ Args    : [optional] new L<Bio::Map::MarkerI>
+
+=cut
+
+sub marker {
+   my ($self, $value) = @_;
+   $self->_abstractDeath('marker');
+}
+
+
+=head2 value
+
+ Title   : value
+ Usage   : my $pos = $position->value;
+ Function: Get/Set the value for this position
+ Returns : scalar, value
+ Args    : [optional] new value to set
+
+=cut
+
+sub value {
+   my ($self, $value) = @_;
+   $self->_abstractDeath('value');
+}
+
+=head2 numeric
+
+ Title   : numeric
+ Usage   : my $num = $position->numeric;
+ Function: Read-only method that is guarantied to return 
+           representation for this position that can be compared with others
+ Returns : numeric (int, real or range)
  Args    : none
 
 =cut
 
-sub each_position_value{
-   my ($self,$mapname) = @_;
-   $self->_abstractDeath('each_position_value');
-}
-
-=head2 add_position_value
-
- Title   : add_position_value
- Usage   : $position->add_position_value($map,'100')
- Function: Add a numeric or string position to the PositionI container
- Returns : none
- Args    : Map - Reference to Bio::Map::MapI 
-           String or Numeric coding for a position on a map
-
-=cut
-
-sub add_position_value{
-   my ($self,$map,$value) = @_;
-   $self->_abstractDeath('add_position_value');
-}
-
-=head2 purge_position_values
-
- Title   : purge_position_values
- Usage   : $position->purge_position_values
- Function: Remove all the position values stored for a position
- Returns : none
- Args    : [optional] only purge values for a given map
-
-=cut
-
-sub purge_position_values{
+sub numeric {
    my ($self) = @_;
-   $self->_abstractDeath('purge_position_values');
-}
-
-=head2 known_maps
-
- Title   : known_maps
- Usage   : my @maps = $position->known_maps
- Function: Returns the list of maps that this position has values for
- Returns : list of Bio::Map::MapI unique ids
- Args    : none
-
-=cut
-
-sub known_maps{
-   my ($self) = @_;
-   $self->_abstractDeath('known_maps');
-}
-
-=head2 in_map
-
- Title   : in_map
- Usage   : if ( $position->in_map($map) ) {}
- Function: Tests if a position has values in a specific map
- Returns : boolean
- Args    : a map unique id OR Bio::Map::MapI
-
-
-=cut
-
-sub in_map{
-   my ($self,@args) = @_;
-   $self->_abstractDeath('in_map');
-}
-
-=head2 equals
-
- Title   : equals
- Usage   : if( $mappable->equals($mapable2)) ...
- Function: Test if a position is equal to another position.
-           It is assumed that 2 positions are in the same map.
- Returns : boolean
- Args    : Bio::Map::PositionI
-
-=cut
-
-sub equals{
-   my ($self,$compare) = @_;
-   $self->_abstractDeath('less_than');
-}
-
-=head2 less_than
-
- Title   : less_than
- Usage   : if( $mappable->less_than($m2) ) ...
- Function: Tests if a position is less than another position
-           It is assumed that 2 positions are in the same map.
- Returns : boolean
- Args    : Bio::Map::PositionI
-
-=cut
-
-sub less_than{
-   my ($self,$compare) = @_;
-   $self->_abstractDeath('less_than');
-}
-
-=head2 greater_than
-
- Title   : greater_than
- Usage   : if( $mappable->greater_than($m2) ) ...
- Function: Tests if position is greater than another position.
-           It is assumed that 2 positions are in the same map.
- Returns : boolean
- Args    : Bio::Map::PositionI
-
-=cut
-
-sub greater_than{
-   my ($self,$compare) = @_;
-   $self->_abstractDeath('greater_than');
+   $self->_abstractDeath('numeric');
 }
 
 1;

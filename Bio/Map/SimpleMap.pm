@@ -31,6 +31,9 @@ This is the basic implementation of a Bio::Map::MapI.  It handles the
 essential storage of name, species, type, and units as well as in
 memory representation of the elements of a map.
 
+Subclasses might need to redefine or hardcode type(), length() and
+units().
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -216,13 +219,14 @@ sub name {
 
 =cut
 
-sub length{
-   my ($self,@args) = @_;
-   if( defined $self->{'_lastelement'} ) {
-       my @p = $self->{'_lastlement'}->position->each_position;
-       return pop @p; # let's just get the last position for the last element
-                      # for now
-   } else { return 0; }
+sub length {
+   my ($self) = @_;
+   my ($len ) = 0;
+
+   foreach my $marker ($self->each_element) {
+       $len = $marker->position->numeric if  $marker->postion->numeric > $len;
+   }
+   return $len;
 }
 
 
@@ -244,6 +248,7 @@ sub unique_id {
    return $self->{'_uid'};
 }
 
+
 =head2 add_element
 
  Title   : add_element
@@ -258,11 +263,13 @@ sub add_element{
     my ($self,$mapelement) = @_;
     return unless ( defined $mapelement);
 
+    $self->throw("This is not a Bio::Map::MarkerI object but a [$self]")
+	unless $mapelement->isa('Bio::Map::MarkerI');
+
+    $mapelement->map($self);	# tell the marker its default map
+
     push @{$self->{'_elements'}}, $mapelement;
-    if( !defined $self->{'_lastelement'} ||
-	$mapelement->greater_than($self->{'_lastelement'}) ) {
-	$self->{'_lastelement'} = $mapelement;
-    }
+
 }
 
 =head2 each_element
