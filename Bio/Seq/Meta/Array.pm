@@ -17,29 +17,30 @@ residue-based meta information
 
 =head1 SYNOPSIS
 
-  # get a Bio::Seq::MetaI compliant object somehow
-  # e.g. use an existing sequence object
-  my $seq = Bio::LocatableSeq(-id=>'test',
-                              -seq=>'ACTGCTAGCT',
-                              -start=>2434,
-                              -start=>2443,
-                              -strand=>1,
-                              -varbose=>1, # to see warnings
-                             );
+  use Bio::LocatableSeq;
+  use Bio::Seq::Meta::Array;
+
+  my $seq = Bio::LocatableSeq->new(-id=>'test',
+                                   -seq=>'ACTGCTAGCT',
+                                   -start=>2434,
+                                   -start=>2443,
+                                   -strand=>1,
+                                   -varbose=>1, # to see warnings
+                                  );
   bless $seq, Bio::Seq::Meta::Array;
   # the existing sequence object can be a Bio::PrimarySeq, too
 
   # to test this is a meta seq object
-  $obj->isa("Bio::Seq::MetaI")
-     || $obj->throw("$obj is not a Bio::Seq::MetaI");
+  $seq->isa("Bio::Seq::Meta::Array")
+      || $seq->throw("$seq is not a Bio::Seq::Meta::Array");
+
+  $seq->meta('1 2 3 4 5 6 7 8 9 10');
 
   # accessors
-
-  $arrayref   = $obj->meta();
-  $string     = $obj->meta_text();
-  $substring  = $obj->submeta_text(2,5);
-  $unique_key = $obj->accession_number();
-
+  $arrayref   = $seq->meta();
+  $string     = $seq->meta_text();
+  $substring  = $seq->submeta_text(2,5);
+  $unique_key = $seq->accession_number();
 
 =head1 DESCRIPTION
 

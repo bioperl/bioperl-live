@@ -17,28 +17,31 @@ residue-based meta information
 
 =head1 SYNOPSIS
 
-  # get a Bio::Seq::MetaI compliant object somehow
-  # e.g. use an existing sequence object
-  my $seq = Bio::LocatableSeq(-id=>'test',
-                              -seq=>'ACTGCTAGCT',
-                              -start=>2434,
-                              -start=>2443,
-                              -strand=>1,
-                              -varbose=>1, # to see warnings
-                             );
+  use Bio::LocatableSeq;
+  use Bio::Seq::Meta;
+
+  my $seq = Bio::LocatableSeq->new(-id=>'test',
+                                   -seq=>'ACTGCTAGCT',
+                                   -start=>2434,
+                                   -start=>2443,
+                                   -strand=>1,
+                                   -varbose=>1, # to see warnings
+                                  );
+
   bless $seq, Bio::Seq::Meta;
   # the existing sequence object can be a Bio::PrimarySeq, too
 
   # to test this is a meta seq object
-  $obj->isa("Bio::Seq::MetaI")
-     || $obj->throw("$obj is not a Bio::Seq::MetaI");
+  $seq->isa("Bio::Seq::Meta")
+      || $seq->throw("$seq is not a Bio::Seq::Meta");
+
+  $seq->meta('1234567890');
 
   # accessors
 
-  $string     = $obj->meta();
-  $substring  = $obj->submeta(2,5);
-  $unique_key = $obj->accession_number();
-
+  $string     = $seq->meta_text();
+  $substring  = $seq->submeta_text(2,5);
+  $unique_key = $seq->accession_number();
 
   # storing output from Bio::Tools::OddCodes as meta data
   my $protcodes = Bio::Tools::OddCodes->new(-seq => $seq);
