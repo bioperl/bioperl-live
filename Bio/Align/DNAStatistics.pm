@@ -1100,9 +1100,11 @@ sub calc_KaKs_pair {
 	if @_!= 4;
     $self->throw ("This calculation needs a Bio::Align::AlignI compatible object, not a [ " . ref($aln) . " ]object") unless $aln->isa('Bio::Align::AlignI');
     my @seqs = (
-		{id => $seq1_id, seq =>($aln->each_seq_with_id($seq1_id))[0]->seq},
-		{id => $seq2_id, seq =>($aln->each_seq_with_id($seq2_id))[0]->seq}
-		) ;
+		#{id => $seq1_id, seq =>($aln->each_seq_with_id($seq1_id))[0]->seq},
+		#{id => $seq2_id, seq =>($aln->each_seq_with_id($seq2_id))[0]->seq}
+		{id => $seq1_id, seq => uc(($aln->each_seq_with_id($seq1_id))[0]->seq)},
+                {id => $seq2_id, seq => uc(($aln->each_seq_with_id($seq2_id))[0]->seq)}
+	       ) ;
     if (length($seqs[0]{'seq'}) != length($seqs[1]{'seq'})) {
 	$self->throw(" aligned sequences must be of equal length!");
     }
@@ -1275,7 +1277,9 @@ sub _get_av_ds_dn {
 		my $d_nc_var =  jk_var($nc_prop, length ($seqarray[$i]{'seq'}) - $gap_cnt);
 		#now calculate z_value
 		#print "d_syn_var is  $d_syn_var,and d_nc_var is $d_nc_var\n";
-		my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
+		#my $z = ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var);
+		my $z = ($d_syn_var + $d_nc_var) ? 
+		  ($d_nc - $d_syn) / sqrt($d_syn_var + $d_nc_var) : 0;
 		#	print "z is $z\n";
 		push @$result , {S => $av_s_site, N=>$av_ns_syn_site,
 				 S_d => $syn_count, N_d =>$non_syn_count,
