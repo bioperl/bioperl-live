@@ -333,6 +333,7 @@ This is for compatibility with BioPerl's separation of SeqI
 from PrimarySeqI.  It just returns itself.
 
 =cut
+#'
 
 sub primary_seq { shift }
 
@@ -815,6 +816,20 @@ sub annotation {
     }
     return $obj->{'annotation'};
 
+}
+
+=head2 is_circular
+
+ Title   : is_circular
+ Usage   : if( $obj->is_circular) { /Do Something/ }
+ Function: Returns true if the molecule is circular
+ Returns : Boolean value
+ Args    : none
+
+=cut
+
+sub is_circular{
+    return 0;
 }
 
 
