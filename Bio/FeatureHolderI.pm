@@ -91,9 +91,8 @@ use Bio::Root::RootI;
 
 @ISA = qw( Bio::Root::RootI );
 
-=head2 get_SeqFeatures
+=head2 get_SeqFeatures()
 
- Title   : get_SeqFeatures
  Usage   :
  Function: Get the feature objects held by this feature holder.
  Example :
@@ -105,8 +104,38 @@ filter to be passed in.
 
 =cut
 
-sub get_SeqFeatures{
-    shift->throw_not_implemented();
+sub get_SeqFeatures {
+  shift->throw_not_implemented();
+}
+
+=head2 add_SeqFeature()
+
+ Usage   :
+ Function: add a Bio::SeqFeatureI object to this holder.
+ Example :
+ Returns : an array of Bio::SeqFeatureI implementing objects
+ Args    : a Bio::SeqFeatureI object
+
+=cut
+
+sub add_SeqFeature {
+  shift->throw_not_implemented();
+}
+
+
+=head2 remove_SeqFeatures()
+
+ Usage   : $obj->remove_SeqFeatures
+ Function: Removes all sub SeqFeatures.  If you want to remove only a subset,
+           remove that subset from the returned array, and add back the rest.
+ Returns : The array of Bio::SeqFeatureI implementing sub-features that was
+           deleted from this feature.
+ Args    : none
+
+=cut
+
+sub remove_SeqFeatures {
+  shift->throw_not_implemented();
 }
 
 =head2 feature_count
@@ -202,14 +231,14 @@ sub _add_flattened_SeqFeatures {
 }
 
 sub set_ParentIDs_from_hierarchy(){
-    # DEPRECATED - us IDHandler
+    # DEPRECATED - use IDHandler
     my $self = shift;
     require "Bio/SeqFeature/Tools/IDHandler.pm";
     Bio::SeqFeature::Tools::IDHandler->new->set_ParentIDs_from_hierarchy($self);
 }
 
 sub create_hierarchy_from_ParentIDs(){
-    # DEPRECATED - us IDHandler
+    # DEPRECATED - use IDHandler
     my $self = shift;
     require "Bio/SeqFeature/Tools/IDHandler.pm";
     Bio::SeqFeature::Tools::IDHandler->new->create_hierarchy_from_ParentIDs($self);
