@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.16 2004-10-02 05:12:09 smckay Exp $
+# $Id: fast_load_gff.PLS,v 1.17 2004-10-02 15:11:04 smckay Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -17,8 +17,6 @@ use constant FGROUP     => 'fgroup';
 use constant FDNA       => 'fdna';
 use constant FATTRIBUTE => 'fattribute';
 use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
-
-$! = 1;
 
 my $DO_FAST = eval "use POSIX 'WNOHANG'; 1;";
 
@@ -67,16 +65,16 @@ If your MySQL is version 3.22.6 and was compiled using the "load local
 file" option, then you may be able to load remote databases with local
 data using the --local option.
 
-About maxbin: the default value is 100,000,000 bases.  If you have
+About maxfeature: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
 value of maxbin should be increased to 1,000,000,000.
-
-The adaptor used is dbi::mysqlopt.  There is currently no way to
-change this.
 
 If the list of GFF or fasta files exceeds the kernel limit for the
 maximum number of command-line arguments, use the
 --long_list /path/to/files option.
+
+The adaptor used is dbi::mysqlopt.  There is currently no way to
+change this.
 
 =head1 COMMAND-LINE OPTIONS
 
@@ -88,10 +86,10 @@ e.g. -d instead of --database.
    --local               Try to load a remote database using local data.
    --user                Username to log in as
    --fasta               File or directory containing fasta files to load
+   --password            Password to use for authentication
    --long_list           Directory containing a very large number of
                          GFF and/or FASTA files
-   --password            Password to use for authentication
-   --maxbin              Set the value of the maximum bin size
+   --maxfeature          Set the value of the maximum feature size (default 100Mb)
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
 
@@ -124,7 +122,7 @@ sub insert_sequence {
 }
 
 package main;
-$! = 1;
+
 eval "use Time::HiRes"; undef $@;
 my $timer = defined &Time::HiRes::time;
 
@@ -148,8 +146,8 @@ GetOptions ('database:s'    => \$DSN,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
 	    'group:s'       => \$GROUP_TAG,
-            'maxbin:s'      => \$MAX_BIN,
-	    'long_list:s'   => \$LONG_LIST
+	    'long_list:s'   => \$LONG_LIST,
+            'maxbin|maxfeature:s'    => \$MAX_BIN,
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
@@ -172,13 +170,15 @@ if ($CREATE) {
   $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 }
 
+$MAX_BIN ||= $db->meta('max_bin') || 100_000_000;
+
 # deal with really long lists of files
 if ($LONG_LIST) {
   -d $LONG_LIST or die "The --long_list argument must be a directory\n";
   opendir GFFDIR,$LONG_LIST or die "Could not open $LONG_LIST for reading: $!";
   @ARGV = map { "$LONG_LIST\/$_" } readdir GFFDIR;
   closedir GFFDIR;
-
+  
   if (defined $FASTA && -d $FASTA) {
     opendir FASTA,$FASTA or die "Could not open $FASTA for reading: $!";
     push @ARGV, map { "$FASTA\/$_" } readdir FASTA;
@@ -193,13 +193,12 @@ foreach (@ARGV) {
 }
 my(@fasta,@gff);
 foreach (@ARGV) {
-  if (/\.(fa|fasta|dna|seq|fast)$/i) {
+  if (/\.(fa|fasta|dna|seq|fast)/i) {
     push @fasta,$_;
   } else {
     push @gff,$_;
   }
 }
-
 @ARGV = @gff;
 push @fasta,$FASTA if defined $FASTA;
 
@@ -264,8 +263,8 @@ $beginning = $start = $last;
 
 # avoid hanging on standalone --fasta load
 if (!@ARGV) {
-  $FH{NULL} = IO::File->new(">$tmpdir/null");
-  push @ARGV, "$tmpdir/null";
+    $FH{NULL} = IO::File->new(">$tmpdir/null");
+    push @ARGV, "$tmpdir/null";
 }
 
 while (<>) {
@@ -274,21 +273,26 @@ while (<>) {
 
   # close sequence filehandle if required
   if ( /^\#|\s+|^$|^>/ && defined $FH{FASTA}) {
-    $FH{FASTA}->close;
-    delete $FH{FASTA};
+      $FH{FASTA}->close;
+      delete $FH{FASTA};
   }
 
   # print to fasta file if the handle is open
   if ( defined $FH{FASTA} ) {
-    $FH{FASTA}->print("$_\n");
-    next;
+      $FH{FASTA}->print("$_\n");
+      next;
   }
 
   elsif (/^>(\S+)/) {  # uh oh, sequence coming
-    $FH{FASTA} = IO::File->new(">$tmpdir/$1\.fa") or die "FASTA: $!\n";
-    $FH{FASTA}->print("$_\n");
-    push @fasta, "$tmpdir/$1\.fa";
-    print STDERR "Processing embedded sequence $1\n";
+      $FH{FASTA} = IO::File->new(">$tmpdir/$1\.fa") or die "FASTA: $!\n";
+      $FH{FASTA}->print("$_\n");
+      push @fasta, "$tmpdir/$1\.fa";
+      print STDERR "Processing embedded sequence $1\n";
+      next;
+  }
+
+  elsif (/^\#\#\s*group-tags\s+(.+)/) {
+    $db->preferred_groups(split(/\s+/,$1));
     next;
   }
 
@@ -297,25 +301,22 @@ while (<>) {
     next;
   }
 
-  elsif (/^\#\#\s*group-tags\s+(.+)/) {
-    $db->preferred_groups(split(/\s+/,$1));
-    next;
-  }
-
   elsif (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
-    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) =
+    ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = 
       ($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
   }
 
   elsif (/^\#/) {
-      next;
+    next;
   }
-  
+
   else {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
   }
   next unless defined $ref;
   $FEATURES++;
+
+  warn "Feature $group is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $stop-$start+1 > $MAX_BIN;
 
   $source = '\N' unless defined $source;
   $score  = '\N' if $score  eq '.';
@@ -359,15 +360,15 @@ printf STDERR "Feature load time %5.2fs\n",(Time::HiRes::time() - $start) if $ti
 $start = time();
 
 for my $fasta (@fasta) {
-  print STDERR "Loading fasta ",(-d $fasta?"directory":"file"), " $fasta\n";
+  warn "Loading fasta ",(-d $fasta?"directory":"file"), " $fasta\n";
   my $old = select($FH{FDNA()});
   my $loaded = $db->load_fasta($fasta);
-  print STDERR "$fasta: $loaded records loaded\n";
+  warn "$fasta: $loaded records loaded\n";
   select $old;
 }
 
-  printf STDERR "Fasta load time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
-  $start = time();
+printf STDERR "Fasta load time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
+$start = time();
 
 my $success = 1;
 $_->close foreach values %FH;
