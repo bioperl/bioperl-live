@@ -5,6 +5,7 @@
 # PURPOSE : To demonstrate parsing features of the Bio::Tools::Blast.pm module.
 # AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
 # CREATED : 3 Feb 1998
+# REVISION: $Id$
 # WEBSITE : http://bio.perl.org/Projects/Blast/
 # USAGE   : parse_blast.pl -h
 # EXAMPLES: parse_blast.pl -eg
@@ -49,7 +50,7 @@ use vars qw($ID $VERSION $DESC $MONITOR %blastParam @objects
 	    $opt_in $opt_table $opt_compress $opt_filt_func);
 
 $ID      = 'parse_blast.pl';
-$VERSION = 0.04;
+$VERSION = 0.05;
 $DESC    = "Demonstrates parsing Blast reports using Bio::Tools::Blast.pm";
 
 @errs = ();
@@ -79,6 +80,7 @@ sub examples {
   ./$ID out/blastp.2.gz -signif 1e-15 -table 2
   ./$ID out/blastp.2.wu -check_all -filt_func '\$hit->gaps == 0' -table 2
   ./$ID out/blastp.205.gz -signif 1e-1 -nostats
+  ./$ID out/blastp.2.gz -noaligns -signif 1e-5
   ./$ID -signif 1e-5 -table 1 < out/tblastn.2 > parsed.out
   ./$ID out/blastx.2.email.gz -table 1 -signif 1e-4  
   ./$ID out/blastn.2* -table 1 -best -nostats > parsed.out2
@@ -121,6 +123,7 @@ my ($blast_obj);
 
 if(@ARGV) {
     # Building object(s) from files specified on command line.
+    # Each file should contain one report.
     # Note that we don't really need to capture the $blast_object 
     # created by create_blast() since we can always access it via
     # the global $blastObj defined in blast_config.pl.
@@ -150,8 +153,8 @@ if(@ARGV) {
 	print STDERR ".", $count % 50 ? '' : "\n";
     }
 } else {
-    # Building object from STDIN. Expecting only one Blast report.
-    # To parse a stream of Blast reports, use parse_stream.pl.
+    # @ARGV is empty. Build Blast objects from STDIN stream. 
+    # May contain one or more reports.
     print STDERR "\nParsing Blast stream from STDIN.\n";
     if($opt_table) {
       # Process each Blast as you go.

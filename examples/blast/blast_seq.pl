@@ -5,6 +5,7 @@
 # PURPOSE  : To submit a set of sequence for Blast analysis and parse the results.
 # AUTHOR   : Steve A. Chervitz
 # CREATED  : 15 May 1998
+# REVISION : $Id$
 # WEBSITE  : http://bio.perl.org/Projects/Blast/
 # USAGE    : blast_seq.pl -h
 # EXAMPLES : blast_seq.pl -eg
