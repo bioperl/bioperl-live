@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-# BioPerl module for Bio::Index::BDB
+# BioPerl module for Bio::DB::Flat::BDB
 #
 # Cared for by Lincoln Stein <lstein@cshl.org>
 #
@@ -69,49 +69,19 @@ use DB_File;
 use IO::File;
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use File::Spec;
+use Bio::DB::Flat;
 use Bio::SeqIO;
 use Bio::DB::RandomAccessI;
 use Bio::Root::Root;
 use Bio::Root::IO;
 use vars '@ISA';
 
-@ISA = qw(Bio::Root::Root Bio::DB::RandomAccessI);
+@ISA = qw(Bio::DB::Flat);
 
-use constant CONFIG_FILE_NAME => 'config.dat';
-
-=head2 new
-
- Title   : new
- Usage   : my $db = new Bio::Index::BDB->new(
-                     -directory  => $root_directory,
-		     -write_flag => 0,
-                     -verbose    => 0,
-		     -out        => 'outputfile',
-                     -format     => 'genbank');
- Function: create a new Bio::Index::BDB object
- Returns : new Bio::Index::BDB object
- Args    : -directory    Root directory containing "config.dat"
-           -write_flag   If true, allows reindexing.
-           -verbose      Verbose messages
-           -maxopen      Maximum size of		 32
-                         filehandle cache.
- Status  : Public
-
-=cut
-
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
-  @{$self}{qw(bdb_directory bdb_write_flag bdb_verbose bdb_maxopen bdb_outfile bdb_format)} =
-      @_ == 1 ? (shift,0,0)
-              : $self->_rearrange([qw(DIRECTORY WRITE_FLAG VERBOSE MAXOPEN OUT FORMAT)],@_);
-  # we delay processing the configuration file since we might want to create it.
-  $self->{bdb_maxopen} ||= 32;
-  $self->primary_namespace($self->default_primary_namespace);
-  $self->secondary_namespaces($self->default_secondary_namespaces);
-  $self->file_format($self->default_file_format) unless defined $self->{bdb_format};
-  $self->_read_config() if -e $self->_config_path;
-  $self;
+sub _initialize {
+  my $self = shift;
+  my ($max_open) = $self->_rearrange(['MAXOPEN'],@_);
+  $self->{bdb_maxopen} = $max_open || 32;
 }
 
 # return a filehandle seeked to the appropriate place
@@ -133,7 +103,7 @@ sub fetch_raw {
   my ($self,$id,$namespace) = @_;
 
   # secondary lookup
-  if (defined $namespace && $namespace ne $self->primary_namespace) { 
+  if (defined $namespace && $namespace ne $self->primary_namespace) {
     my @hits = $self->_lookup_secondary($namespace,$id);
     $self->throw("Multiple records correspond to $namespace=>$id but function called in a scalar context")
       unless wantarray;
@@ -151,9 +121,10 @@ sub get_Seq_by_id {
   my $self = shift;
   my $id   = shift;
   my $fh   = eval {$self->_get_stream($id)} or return;
-  my $seqio = Bio::SeqIO->new( -Format => $self->file_format,
-			       -fh     => $fh);
-  $seqio->next_seq;
+  my $seqio =
+    $self->{bdb_cached_parsers}{fileno $fh} ||= Bio::SeqIO->new( -Format => $self->file_format,
+								 -fh     => $fh);
+  return $seqio->next_seq;
 }
 
 =head2 fetch
@@ -196,7 +167,7 @@ sub get_Seq_by_acc {
 
 sub get_PrimarySeq_stream {
   my $self = shift;
-  my @files  = $self->_files || 0;
+  my @files  = $self->files || 0;
   my $out = Bio::SeqIO::MultiFile->new( -format => $self->file_format ,
 					-files  => \@files);
   return $out;
@@ -271,14 +242,6 @@ sub _index_file {
   1;
 }
 
-# return the file format
-sub file_format {
-  my $self = shift;
-  my $d    = $self->{bdb_format};
-  $self->{bdb_format} = shift if @_;
-  $d;
-}
-
 =head2 To Be Implemented in Subclasses
 
 The following methods MUST be implemented by subclasses.
@@ -321,7 +284,7 @@ sub default_primary_namespace {
 }
 
 sub default_secondary_namespaces {
-  return ();
+  return;
 }
 
 sub _read_record {
@@ -333,32 +296,6 @@ sub _read_record {
   my $record;
   read($fh,$record,$length) or $self->throw("can't read $filepath: $!");
   $record
-}
-
-# accessors
-sub directory {
-  my $self = shift;
-  my $d = $self->{bdb_directory};
-  $self->{bdb_directory} = shift if @_;
-  $d;
-}
-sub write_flag {
-  my $self = shift;
-  my $d = $self->{bdb_write_flag};
-  $self->{bdb_write_flag} = shift if @_;
-  $d;
-}
-sub verbose {
-  my $self = shift;
-  my $d = $self->{bdb_verbose};
-  $self->{bdb_verbose} = shift if @_;
-  $d;
-}
-sub out_file {
-  my $self = shift;
-  my $d = $self->{bdb_outfile};
-  $self->{bdb_outfile} = shift if @_;
-  $d;
 }
 
 # return a list in the form ($filepath,$offset,$length)
@@ -488,133 +425,6 @@ sub pack_secondary {
   return join "\t",@secondaries;
 }
 
-# read the configuration file
-sub _read_config {
-  my $self = shift;
-  my $path = $self->_config_path;
-  open (F,$path) or $self->throw("open error on $path: $!");
-  my %config;
-  while (<F>) {
-    chomp;
-    my ($tag,@values) = split "\t";
-    $config{$tag} = \@values;
-  }
-  close F or $self->throw("close error on $path: $!");
-
-  $config{index}[0] eq 'BerkeleyDB/1'
-    or $self->throw("invalid configuration file $path: no index line");
-
-  # set up primary namespace
-  my $primary_namespace = $config{primary_namespace}[0]
-    or $self->throw("invalid configuration file $path: no primary namespace defined");
-  $self->primary_namespace($primary_namespace);
-
-  # set up secondary namespaces (may be empty)
-  $self->secondary_namespaces($config{secondary_namespaces});
-
-  # get file paths and their normalization information
-  my @normalized_files = grep {$_ ne ''} map {/^fileid_(\S+)/ && $1} keys %config;
-  for my $nf (@normalized_files) {
-    my ($file_path,$file_length) = @{$config{"fileid_${nf}"}};
-    $self->add_flat_file($file_path,$file_length,$nf);
-  }
-  1;
-}
-
-sub add_flat_file {
-  my $self = shift;
-  my ($file_path,$file_length,$nf) = @_;
-
-  # check that file_path is absolute
-  File::Spec->file_name_is_absolute($file_path)
-      or $self->throw("the flat file path $file_path must be absolute");
-
-  -r $file_path or $self->throw("flat file $file_path cannot be read: $!");
-
-  my $current_size = -s _;
-  if (defined $file_length) {
-    $current_size == $file_length
-      or $self->throw("flat file $file_path has changed size.  Was $file_length bytes; now $current_size");
-  } else {
-    $file_length = $current_size;
-  }
-
-  unless (defined $nf) {
-    $self->{bdb__file_index} = 0 unless exists $self->{bdb__file_index};
-    $nf = $self->{bdb__file_index}++;
-  }
-  $self->{bdb__flat_file_path}{$nf}      = $file_path;
-  $self->{bdb__flat_file_no}{$file_path} = $nf;
-  $self->{bdb__flat_file_length}{$nf}    = $file_length;
-  $nf;
-}
-
-sub _path2fileno {
-  my $self = shift;
-  my $path = shift;
-  return $self->add_flat_file($path)
-    unless exists $self->{bdb__flat_file_no}{$path};
-  $self->{bdb__flat_file_no}{$path};
-}
-
-sub _fileno2path {
-  my $self = shift;
-  my $fileno = shift;
-  $self->{bdb__flat_file_path}{$fileno};
-}
-
-sub _files {
-  my $self = shift;
-  my $paths = $self->{bdb__flat_file_no};
-  return keys %$paths;
-}
-
-sub write_config {
-  my $self = shift;
-  $self->write_flag or $self->throw("cannot write configuration file because write_flag is not set");
-  my $path = $self->_config_path;
-
-  open (F,">$path") or $self->throw("open error on $path: $!");
-
-  print F "index\tBerkeleyDB/1\n";
-  $self->{bdb__flat_file_path} or $self->throw("cannot write config file because no flat files defined");
-  for my $nf (keys %{$self->{bdb__flat_file_path}}) {
-    my $path = $self->{bdb__flat_file_path}{$nf};
-    my $size = $self->{bdb__flat_file_length}{$nf};
-    print F join("\t","fileid_$nf",$path,$size),"\n";
-  }
-
-  # write primary namespace
-  my $primary_ns = $self->primary_namespace
-    or $self->throw('cannot write config file because no primary namespace defined');
-
-  print F join("\t",'primary_namespace',$primary_ns),"\n";
-
-  # write secondary namespaces
-  my @secondary = $self->secondary_namespaces;
-  print F join("\t",'secondary_namespaces',@secondary),"\n";
-
-  close F or $self->throw("close error on $path: $!");
-}
-
-sub primary_namespace {
-  my $self = shift;
-  my $d    = $self->{bdb_primary_namespace};
-  $self->{bdb_primary_namespace} = shift if @_;
-  $d;
-}
-
-# get/set secondary namespace(s)
-# pass an array ref.
-# get an array ref in scalar context, list in list context.
-sub secondary_namespaces {
-  my $self = shift;
-  my $d    = $self->{bdb_secondary_namespaces};
-  $self->{bdb_secondary_namespaces} = (ref($_[0]) eq 'ARRAY' ? shift : \@_) if @_;
-  $d = [$d] unless ref($d) eq 'ARRAY';  # just paranoia
-  return wantarray ? @$d : $d;
-}
-
 sub primary_db {
   my $self = shift;
   # lazy opening
@@ -661,19 +471,6 @@ sub _secondary_db_name {
   my $sns   = shift;
   return "id_$sns";
 }
-
-sub _config_path {
-  my $self = shift;
-  $self->_catfile($self->_config_name);
-}
-
-sub _catfile {
-  my $self = shift;
-  my $component = shift;
-  Bio::Root::IO->catfile($self->directory,$component);
-}
-
-sub _config_name { CONFIG_FILE_NAME }
 
 sub _fhcache {
   my $self  = shift;

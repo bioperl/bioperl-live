@@ -1,4 +1,4 @@
-package Bio::DB::Flat::BDB::EMBL;
+package Bio::DB::Flat::BDB::embl;
 
 use strict;
 use Bio::DB::Flat::BDB;

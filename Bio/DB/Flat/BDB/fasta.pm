@@ -1,4 +1,4 @@
-package Bio::DB::Flat::BDB::Fasta;
+package Bio::DB::Flat::BDB::fasta;
 
 use strict;
 use Bio::DB::Flat::BDB;
@@ -27,6 +27,5 @@ sub parse_one_record {
 }
 
 sub default_file_format { "fasta" }
-
 
 1;
