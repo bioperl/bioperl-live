@@ -87,6 +87,8 @@ use strict;
 
 use Bio::Align::DNAStatistics;
 use Bio::Root::Root;
+use Bio::PopGen::Population;
+use Bio::PopGen::Individual;
 
 @ISA = qw(Bio::Root::Root );
 
