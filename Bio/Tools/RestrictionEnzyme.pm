@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Tools::RestrictionEnzyme - Bioperl object for a restriction endonuclease (cuts DNA at specific locations)
+Bio::Tools::RestrictionEnzyme - Bioperl object for a restriction endonuclease
+(cuts DNA at specific locations)
 
 =head1 SYNOPSIS
 
@@ -59,14 +60,15 @@ analysis of DNA sequences.
 
 =head2 Considerations
 
-This module is a precursor for a more full featured version that may do such things as
-download data from online databases such as REBase http://www.neb.com/rebase/.
+This module is a precursor for a more full featured version that may do such
+things as download data from online databases such as REBase http://www.neb.com/rebase/.
 Thus, there is currently no functionality for obtaining data about commercial
 availability for a restriction enzyme.
 
-At some point in the future, it may make sense to derive RestrictionEnzymes from
-a class such as Bio::Enzyme or Bio::Prot::Protein (neither of which now exist) 
-so that more data about the enzyme and related information can be easily obtained.
+At some point in the future, it may make sense to derive RestrictionEnzymes
+from a class such as Bio::Enzyme or Bio::Prot::Protein (neither of which now
+exist) so that more data about the enzyme and related information can be 
+easily obtained.
 
 This module is currently in use at 
 
@@ -77,7 +79,8 @@ This module is currently in use at
 
 To digest a sequence on runs of N's in the sequence. Here's what you can do:
 
-    $re_n  = new Bio::Tools::RestrictionEnzyme(-name=>'N--NNNNN', -make=>'custom');
+    $re_n  = new Bio::Tools::RestrictionEnzyme(-name=>'N--NNNNN',
+                                               -make=>'custom');
 
 Specify the number of N's you want to match in the -name parameter. 
 So the above example will recognize and cut at runs of 5 Ns.
@@ -85,9 +88,10 @@ So the above example will recognize and cut at runs of 5 Ns.
 
      -name => 'N--NNNNNNNNNN'
 
-Note that you must use a specific number of N's, you cannot use a regexp to digest at N+ for example,
- because the actual number of N's at each site are not recorded when the sequence is analyzed. 
-So cut_locations( ) wouldn't be correct. 
+Note that you must use a specific number of N's, you cannot use a regexp to
+digest at N+ for example, because the actual number of N's at each site are
+not recorded when the sequence is analyzed. So cut_locations( ) wouldn't be 
+correct. 
 
 =head1 EXAMPLES
 
@@ -95,24 +99,24 @@ See the script examples/restriction.pl in the Bioperl distribution.
 
 =head1 DEPENDENCIES 
 
-Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from B<Bio::Root::Root>
-and uses by delegation B<Bio::PrimarySeq>.
+Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from 
+B<Bio::Root::Root> and uses by delegation B<Bio::PrimarySeq>.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists 
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other Bioperl
+modules. Send your comments and suggestions preferably to one of the Bioperl
+mailing lists. Your participation is much appreciated.
 
    bioperl-l@bioperl.org             - General discussion
    http://bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs
+and their resolution. Bug reports can be submitted via email or the web:
 
     bioperl-bugs@bio.perl.org                   
     http://bio.perl.org/bioperl-bugs/           
@@ -173,7 +177,8 @@ $Revision = '$Id$';  #'
 
 # Generated from REBASE version 802 (strider format), dated Jan 29 98
 # by rebase2perl.pl (JA Feb 98). Merged with previous list by Ewan, Nov 1998
-# Syntax: RE-name => 'SITE CUTS-AT' where SITE and CUTS-AT are separated by a space.
+# Syntax: RE-name => 'SITE CUTS-AT' where SITE and CUTS-AT are separated 
+# by a space.
 
 my %RE = (
           'AatII'   => 'GACGTC 5',
@@ -329,7 +334,80 @@ my %RE = (
           'XhoII'   => 'RGATCY 1',
           'XmaIII'  => 'CGGCCG 1',
           'XmnI'    => 'GAANNNNTTC 5',
-         );
+	  'Acc65I'  => 'GGTACC 1',
+	  'AceII'   => 'GCTAGC 5',
+	  'Asp718I' => 'GGTACC 1',
+	  'BbeI' 	=> 'GGCGCC 5',
+	  'BfrBI'	=> 'ATGCAT 3',
+	  'Bme1580I'	=> 'GKGCMC 5',
+	  'BseBI'	=> 'CCWGG 2',
+	  'BseSI'	=> 'GKGCMC 5',
+	  'BsiLI'	=> 'CCWGG 2',
+	  'Bsp120I'	=> 'GGGCCC 1',
+	  'BssKI'	=> 'CCNGG 0',
+	  'BssNAI'	=> 'GTATAC 3',
+	  'Bst1107I'	=> 'GTATAC 3',
+	  'BstAPI'	=> 'GCANNNNNTGC 7',
+	  'BstKTI'	=> 'GATC 3',
+	  'BstNI'	=> 'CCWGG 2',
+	  'BstOI'	=> 'CCWGG 2',
+	  'BstSCI'	=> 'CCNGG 0',
+	  'Bst2UI'	=> 'CCWGG 2',
+	  'BstZ17I'	=> 'GTATAC 3',
+	  'BthCI'	=> 'GCNGC 4',
+	  'Cfr9I'	=> 'CCCGGG 1',
+	  'ChaI'	=> 'GATC 4',
+	  'Csp6I'	=> 'GTAC 1',
+	  'CviAII'	=> 'CATG 1',
+	  'Ecl136II'	=> 'GAGCTC 3',
+	  'EcoHI'	=> 'CCSGG 0',
+	  'EcoICRI'	=> 'GAGCTC 3',
+	  'EcoT22I'	=> 'ATGCAT 5',
+	  'EgeI'		=> 'GGCGCC 3',
+	  'EheI'		=> 'GGCGCC 3',
+	  'EsaBC3I'	=> 'TCGA 2',
+	  'FatI'		=> 'CATG 0',
+	  'FmuI'		=> 'GGNCC 4',
+	  'FspAI'	=> 'RTGCGCAY 4',
+	  'Hin6I'	=> 'GCGC 1',
+	  'HinP1I'	=> 'GCGC 1',
+	  'Hpy8I'	=> 'GTNNAC 3',
+	  'Hpy99I'	=> 'CGWCG 5',
+	  'Hpy178III'	=> 'TCNNGA 2',
+	  'Hpy188I'	=> 'TCNGA 3',
+	  'Hpy188III'	=> 'TCNNGA 2',
+	  'HpyCH4I'	=> 'CATG 3',
+	  'HspAI'	=> 'GCGC 1',
+	  'KasI'		=> 'GGCGCC 1',
+	  'LpnI'		=> 'RGCGCY 3',
+	  'Mph1103I'	=> 'ATGCAT 5',
+	  'MroNI'	=> 'GCCGGC 1',
+	  'MvaI'		=> 'CCWGG 2',
+	  'NgoAIV'	=> 'GCCGGC 1',
+	  'NgoMIV'	=> 'GCCGGC 1',
+	  'Nli3877I'	=> 'CYCGRG 5',
+	  'NsiI'		=> 'ATGCAT 5',
+	  'OliI'		=> 'CACNNNNGTG 5',
+	  'Ppu10I'	=> 'ATGCAT 1',
+	  'PsiI'		=> 'TTATAA 3',
+	  'Psp03I'	=> 'GGWCC 4',
+	  'PspAI'	=> 'CCCGGG 1',
+	  'PspOMI'	=> 'GGGCCC 1',
+	  'PssI'		=> 'RGGNCCY 5',
+	  'SciI'		=> 'CTCGAG 3',
+	  'SelI'		=> 'CGCG 0',
+	  'SfoI'		=> 'GGCGCC 3',
+	  'Sse232I'	=> 'CGCCGGCG 2',
+	  'TaiI'		=> 'ACGT 4',
+	  'TauI'		=> 'GCSGC 4',
+	  'TscI'		=> 'ACGT 4',
+	  'UnbI'		=> 'GGNCC 0',
+	  'VpaK11AI'	=> 'GGWCC 0',
+	  'XmaI'		=> 'CCCGGG 1',
+	  'XmaCI'	=> 'CCCGGG 1',
+	  'ZraI'		=> 'GACGTC 3',
+	  'Zsp2I'	=> 'ATGCAT 5',
+);
 
 @RE_available = sort keys %RE;
 
