@@ -240,19 +240,50 @@ sub seq {
    my ($obj,$value) = @_;
 
    if( defined $value) {
-       if((CORE::length($value) > 0) &&
-	  ($value !~ /^[A-Za-z\-\.\*]+$/)) {
+       if(! $obj->validate_seq($value)) {
 	   $obj->throw("Attempting to set the sequence to [$value] which does not look healthy");
        }
        # if a sequence was already set we make sure that we re-adjust the
        # mol.type, otherwise we skip guessing if mol.type is already set
        my $is_changed_seq = exists($obj->{'seq'});
        $obj->{'seq'} = $value;
-       if($is_changed_seq || (! defined($obj->moltype()))) {
-	   $obj->_guess_type() if $value ne ''; # do not try to guess type is seq length is 0!
+       if(($is_changed_seq && (CORE::length($value) > 0)) ||
+	  (! defined($obj->moltype()))) {
+	   $obj->_guess_type();
        }
     }
    return $obj->{'seq'};
+}
+
+=head2 validate_seq
+
+ Title   : validate_seq
+ Usage   : if(! $seq->validate_seq($seq_str) ) {
+                print "sequence $seq_str is not valid for an object of type ",
+		      ref($seq), "\n";
+	   }
+ Function: Validates a given sequence string. A validating sequence string
+           must be accepted by seq(). A string that does not validate will
+           lead to an exception if passed to seq().
+
+           The implementation provided here does not take moltype() into
+           account. Allowed are all letters (A-Z) and '-','.', and '*'.
+
+ Example :
+ Returns : TRUE if the supplied sequence string is valid for the object, and
+           FALSE otherwise.
+ Args    : The sequence string to be validated.
+
+
+=cut
+
+sub validate_seq {
+   my ($self,$seqstr) = @_;
+
+   if((CORE::length($seqstr) > 0) && ($seqstr !~ /^[A-Za-z\-\.\*]+$/)) {
+       return 0;
+   }
+   return 1;
 }
 
 =head2 subseq
