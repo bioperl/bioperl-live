@@ -118,7 +118,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::SeqFeatureI;
-use Bio::Annotation;
+use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
@@ -742,7 +742,7 @@ sub display_id {shift->seqname}
  Usage   : $obj->annotation($annot_obj)
  Function: 
  Example : 
- Returns : A Bio::Annotation object
+ Returns : A Bio::AnnotationCollectionI object
  Args    : newvalue (optional)
 
 
@@ -754,7 +754,7 @@ sub annotation {
     # we are smart if someone references the object and there hasn't been
     # one set yet
     if(defined $value || ! defined $obj->{'annotation'} ) {
-	$value = new Bio::Annotation unless ( defined $value );
+	$value = new Bio::Annotation::Collection unless ( defined $value );
 	$obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};
