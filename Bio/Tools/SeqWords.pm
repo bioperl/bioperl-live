@@ -1,3 +1,4 @@
+# $Id$
 
 #---------------------------------------------------------------------------
 # PACKAGE    : SeqWords.pm
@@ -22,45 +23,45 @@ Bio::Tools::SeqWords - Object holding n-mer statistics for one sequence
 
 =head1 SYNOPSIS
 
-Take a sequence object from eg, an inputstream, and creates an object 
+Take a sequence object from eg, an inputstream, and creates an object
 for the purposes of holding n-mer word statistics about that sequence.
-The sequence can be nucleic acid or protein, but the module is probably
-most relevant for DNA.  The words are counted in a non-overlapping manner,
-ie. in the style of a codon table, but with any word length.
-For overlapping word counts, a sequence can be 'shifted' to remove the first
-character and then the count repeated.  For counts on opposite strand
-(DNA/RNA),
-a reverse complement method should be performed, and then the count
-repeated.
+The sequence can be nucleic acid or protein, but the module is
+probably most relevant for DNA.  The words are counted in a
+non-overlapping manner, ie. in the style of a codon table, but with
+any word length.  For overlapping word counts, a sequence can be
+'shifted' to remove the first character and then the count repeated.
+For counts on opposite strand (DNA/RNA), a reverse complement method
+should be performed, and then the count repeated.
 
 Creating the SeqWords object, eg:
 
-	my $inputstream = Bio::SeqIO->new( -file => "seqfile", -format =>
-'Fasta');
-	my $seqobj = $inputstream->next_seq();
-	my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
+  my $inputstream = Bio::SeqIO->new( -file => "seqfile", 
+	                             -format => 'Fasta');
+  my $seqobj = $inputstream->next_seq();
+  my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 or:
 
-	my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]', 
-                                          -alphabet = 'dna', -id = 'test');
-	my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
+  my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]', 
+                                    -alphabet => 'dna', 
+                                    -id => 'test');
+  my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
 
 obtain a hash of word counts, eg:
 
-	my $hash_ref = $seq_stats->count_words($word_length);
+  my $hash_ref = $seq_stats->count_words($word_length);
 
 display hash table, eg:
 
-	my %hash = %$hash_ref;
-	foreach my $key(sort keys %hash)
-	{
-		print "\n$key\t$hash{$key}";
-	}
+  my %hash = %$hash_ref;
+  foreach my $key(sort keys %hash)
+  {
+    print "\n$key\t$hash{$key}";
+  }
 
 or	
 
-	my $hash_ref = Bio::SeqWords->count_words($seqobj,$word_length);
+  my $hash_ref = Bio::SeqWords->count_words($seqobj,$word_length);
 
 
 =head1 DESCRIPTION
@@ -91,7 +92,7 @@ to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  http://bio.perl.org/MailList.html     - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -159,11 +160,10 @@ sub new {
 	 : will give the hash
 	 : ACCG 1, TCCG 1
  Returns : Reference to a hash in which keys are words (any length) of the
-alphabet
-         : used and values are number of occurrences of the word in the
-sequence.
+         : alphabet used and values are number of occurrences of the word 
+         : in the sequence.
  Args    : Word length as scalar and, reference to sequence object if
-required
+         : required
 
   Throws an exception word length is not a positive integer
   or if word length is longer than the sequence.
@@ -188,11 +188,13 @@ sub count_words
 
 	if($word_length eq "" || $word_length =~ /[a-z]/i)
 	{
-		$self->throw("SeqWords cannot accept non-numeric characters or a null value in the \$word_length variable\n");
+	    $self->throw("SeqWords cannot accept non-numeric characters".
+                         " or a null value in the \$word_length variable\n");
 	}
 	elsif ($word_length <1 || ($word_length - int($word_length)) >0)
 	{
-		$self->throw("SeqWords requires the word length to be a positive integer\n");
+	    $self->throw("SeqWords requires the word length to be a ".
+                         "positive integer\n");
     	}
 	
 	if(! defined($seqobj)) {
@@ -202,7 +204,8 @@ sub count_words
 
 	if($word_length > length($seqstring))
 	{
-	    $self->throw("die in count words, \$word_length is bigger than sequence length\n");
+	    $self->throw("die in count words, \$word_length is bigger ".
+                         "than sequence length\n");
 	}
 	
 	my %codon = ();
