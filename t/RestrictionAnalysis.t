@@ -15,7 +15,7 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
-    $NUMTESTS = 107;
+    $NUMTESTS = 111;
     $error  = 0;
 
     plan tests => $NUMTESTS;
@@ -48,7 +48,7 @@ ok $re=new Bio::Restriction::Enzyme(-enzyme=>'EcoRI', -site=>'G^AATTC');
 ok $re->isa('Bio::Restriction::EnzymeI');
 ok $re->cut, 1;
 ok ! $re->cut(0);
-ok $re->complementary_cut, 0;
+ok $re->complementary_cut, 6;
 $re->cut(1);
 
 ok $re->complementary_cut,5;
@@ -65,6 +65,13 @@ ok $re->overhang_seq, 'AATT';
 ok $re->is_ambiguous, 0;
 
 ok $re->compatible_ends($re);
+
+# tests for cut position 0
+ok $re=new Bio::Restriction::Enzyme(-enzyme=>'MboI', -site=>'^GATC');
+ok $re->site,'^GATC';
+ok $re->cut, 0;
+ok $re->complementary_cut, 4;
+
 
 ok $re->isoschizomers('BamHI', 'AvaI'); # not really true :)
 ok my @isos=$re->isoschizomers, 2;
@@ -103,8 +110,7 @@ ok ! $re->is_prototype(0);
 ok $re->prototype_name('XxxI'), 'XxxI';
 ok $re->prototype_name, 'XxxI';
 
-
-ok $re->cutter, 6;
+ok $re->cutter, 4;
 $re->seq->seq('RCATGY');
 ok $re->cutter, 5;
 
