@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
-# $Id: composite_LD.PLS,v 1.4 2003-08-18 15:50:16 jason Exp $
+# $Id: composite_LD.PLS,v 1.5 2003-08-18 15:52:37 jason Exp $
 
 =head1 NAME 
 
@@ -17,13 +17,19 @@ This a script which allows an easy way to calculate composite LD.
 =head2 OPTIONS
 
 -i or --in     filename
+
 -f or --format genotype format (prettybase or CSV)
+
 --sortbyld     To see data sorted by LD instead of just all the 
                site1/site2 pair LD values.
+
 -o or --out    output filename, otherwise will print to STDOUT
+
 --noconvert    (applicable for prettybase format file only)
                if specified will NOT attempt to convert indel
                states to 'I' and delete states ('-') to 'D'.
+
+-h or --help   see this documentation
 
 =head2 AUTHOR Jason Stajich, Matthew Hahn
 
@@ -52,6 +58,8 @@ GetOptions(
 	   'sortbyld'     => \$sortbyld,
 	   'noconvert'    => \$noconvert,
 	   'v|verbose'    => \$verbose,
+	   'h|help'       => sub { system('perldoc', $0);
+				   exit; }, 
 	   );
 
 if( ! $file ) { 
