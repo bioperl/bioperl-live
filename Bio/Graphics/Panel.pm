@@ -3,7 +3,6 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
-use Carp 'cluck';
 use GD;
 use vars '$VERSION';
 

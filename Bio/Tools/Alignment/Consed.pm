@@ -100,7 +100,6 @@ package Bio::Tools::Alignment::Consed;
 
 use strict;
 use vars qw($VERSION @ISA $Contigs %DEFAULTS);
-use Carp;
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;

@@ -2975,7 +2975,7 @@ sub _split_group {
 
 package Bio::DB::GFF::ID_Iterator;
 use strict;
-use Carp 'croak';
+
 use Bio::Root::Root;
 use vars '@ISA';
 @ISA = 'Bio::Root::Root';

@@ -81,11 +81,6 @@ use strict;
 
 use Bio::RangeI;
 
-use Carp;
-use Dumpvalue qw(dumpValue);
-
-my $dumper = new Dumpvalue();
-
 @ISA = qw(Bio::Seq);
 
 

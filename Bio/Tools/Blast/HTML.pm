@@ -28,7 +28,6 @@ use strict;
 use Exporter;
 
 use Bio::Tools::WWW  qw(:obj); 
-use Carp;
 
 use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
              $ID %DbUrl %SGDUrl $Revision
