@@ -274,7 +274,7 @@ sub all_tags{
 
 sub gff_string{
    my ($feat) = @_;
-   my ($str,$score,$frame,$name);
+   my ($str,$score,$frame,$name,$strand);
 
    if( $feat->can('score') ) {
        $score = $feat->score();
@@ -286,13 +286,13 @@ sub gff_string{
    }
    $frame = '.' unless defined $frame;
 
-   my $strand;
-   if( $feat->strand == 1 ) {
+   $strand = $feat->strand();
+   if(! $strand) {
+       $strand = ".";
+   } elsif( $strand == 1 ) {
        $strand = '+';
    } elsif ( $feat->strand == -1 ) {
        $strand = '-';
-   } else {
-       $strand = '.';
    }
    
    if( $feat->can('seqname') ) {
