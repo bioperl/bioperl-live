@@ -1,0 +1,3870 @@
+BLASTN 2.0.11 [Jan-20-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= U51677
+         (2575 letters)
+
+Database: embl.fas
+           442,729 sequences; 675,252,082 total letters
+
+Searching...................................................done
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+U51677 Human non-histone chromatin protein HMG1 (HMG1) gene, co...  4129  0.0
+L38477 Mus musculus (clone Clebp-1) high mobility group 1 prote...   353  7e-95
+X80457 M.musculus HMG1 gene                                          353  7e-95
+U00431 Mus musculus HMG-1 mRNA, complete cds.                        353  7e-95
+L08048 Human non-histone chromosomal protein (HMG-1) retropseud...   349  1e-93
+X12597 Human mRNA for high mobility group-1 protein (HMG-1).         349  1e-93
+M64986 Rat amphoterin mRNA, complete cds.                            345  2e-92
+Z11997 M.musculus mRNA for non-histone chromosomal high-mobilit...   345  2e-92
+D63874 Human mRNA for HMG-1, complete cds.                           345  2e-92
+Z95115 Human DNA sequence from BAC 445C9 on chromosome 22q12.1.      337  4e-90
+X12796 Bovine mRNA for high mobility group 1 (HMG1) protein          335  2e-89
+M26110 Bovine high-mobility-group protein (HMG-1) mRNA, 3' end.      327  4e-87
+AF009343 Mus musculus HMG-like protein (Trf) mRNA, complete cds.     305  2e-80
+M21683;M21684 Pig nonhistone protein HMG1 mRNA, complete cds.        303  6e-80
+L13805 Homo sapiens (clone 06) high mobility group 1 protein mRNA    260  8e-67
+D14718 Human chromosomal protein HMG1 related gene.                  252  2e-64
+Y00365 Chinese hamster HMG-1 gene for high mobility group prote...   246  1e-62
+M63852 Rat high mobility group 1 protein synthetic gene, comple...   226  1e-56
+Y00463 Rat mRNA for high mobility group protein HMG1                 226  1e-56
+X80466 M.musculus HMG1-R-227 gene                                    210  7e-52
+X80462 M.musculus HMG1-R-154 gene                                    184  4e-44
+X80461 M.musculus HMG1-R-145 gene                                    147  8e-33
+X80459 M.musculus HMG1-R-177 gene                                    133  1e-28
+X80467 M.musculus HMG1-R-87 gene                                     133  1e-28
+X80465 M.musculus HMG1-R-168 gene                                    133  1e-28
+X80463 M.musculus HMG1-R-159 gene                                    131  5e-28
+L32859 Rainbow trout HMG-1 gene exons 2-5, complete cds.             127  8e-27
+X80460 M.musculus HMG1-R-135 gene                                    127  8e-27
+X80464 M.musculus HMG1-R-161 gene                                    125  3e-26
+X02666 Trout mRNA for high mobility group protein HMG-T              117  7e-24
+U21933 Xenopus laevis high mobility group protein-1 (HMG-1) mRN...   107  7e-21
+I14731 Sequence 10 from patent US 5451670.                            92  4e-16
+X63463 G.gallus HMG2a mRNA                                            90  2e-15
+Z29356 Gallus domesticus of h71t7 gene encoding G.domesticus ex...    82  4e-13
+D84418 Rat mRNA for chromosomal protein HMG2, complete cds.           78  6e-12
+Z46757 M.musculus mRNA for high mobility group 2 protein.             78  6e-12
+U31513 Ambystoma mexicanum high mobility group protein-2 (HMG-2...    76  3e-11
+D14314 Chicken mRNA for HMG-1, complete cds.                          70  2e-09
+Z17240 Homo sapiens for mRNA encoding HMG2B.                          70  2e-09
+M83665 Human high mobility group 2 protein (HMG-2) gene, comple...    70  2e-09
+X62534 H.sapiens HMG-2 mRNA                                           70  2e-09
+X98857 L.fluviatilis mRNA for HMG protein                             68  6e-09
+X67668 M.musculus mRNA for high mobility group 2 protein              62  4e-07
+J02895 Pig non-histone chromosomal protein (HMG2) mRNA, complet...    62  4e-07
+D30765 Xenopus laevis mRNA for HMG-X protein, complete cds.           60  2e-06
+L32954 Rainbow trout HMG-T2 gene exons 1-4, complete cds.             54  9e-05
+M83235 Gallus gallus non-histone chromosomal protein (HMG2) mRN...    52  4e-04
+AF003626 Homo sapiens cosmids IM0525, LC1233, Qc3C1, LB1439, Qc...    50  0.001
+M80574 Gallus domesticus high-mobility group-2 protein (HMG-2) ...    46  0.023
+X80869 P.citri gene for cytochrome oxidase subunit I                  46  0.023
+AF022465 Mus musculus high mobility group protein homolog HMG4 ...    44  0.090
+AC002510 Arabidopsis thaliana chromosome II BAC T32G6 genomic s...    44  0.090
+AB009838 Loligo bleekeri mitochondrial DNA, complete sequence.        44  0.090
+Y10043 Homo sapiens mRNA for high mobility group protein HMG2a        44  0.090
+AC004008 Human PAC clone DJ0899B21 from 7p15-p21, complete sequ...    42  0.36
+AE001182;AE000783 Borrelia burgdorferi (section 68 of 70) of th...    40  1.4
+AE000963;AE000782 Archaeoglobus fulgidus section 144 of 172 of ...    40  1.4
+U60491 Nicotiana tabacum actin (Tob66) gene, partial cds.             40  1.4
+AB001684 Chlorella vulgaris C-27 chloroplast DNA, complete sequ...    40  1.4
+Z50742 Caenorhabditis elegans cosmid K09A11                           40  1.4
+X64643 H.sapiens c6.1A mRNA                                           40  1.4
+Z83838 Human DNA sequence from PAC 127B20 on chromosome 22q11.2...    40  1.4
+L77118 Methanococcus jannaschii large extra-chromosomal element...    38  5.5
+L08814 Rat CIIDBP (homologous to human SSRP-1 and mouse T160 ge...    38  5.5
+M18222;J03590 Mouse CD3-delta (T3-delta) gene, 5' end; and CD3-...    38  5.5
+X95600 M.musculus mRNA for cadherin-8                                 38  5.5
+AB010437 Rattus rattus rCdh8-a1 mRNA for cadherin-8, complete cds.    38  5.5
+AB010436 Rattus rattus rCdh8 mRNA for cadherin-8, complete cds.       38  5.5
+AL021633 Arabidopsis thaliana DNA chromosome 4, BAC clone F8F16...    38  5.5
+I55098 Sequence 53 from patent US 5646250.                            38  5.5
+I55093 Sequence 43 from patent US 5646250.                            38  5.5
+I55092 Sequence 41 from patent US 5646250.                            38  5.5
+I46829 Sequence 47 from patent US 5639634.                            38  5.5
+I34431 Sequence 53 from patent US 5597725.                            38  5.5
+I34426 Sequence 43 from patent US 5597725.                            38  5.5
+I34425 Sequence 41 from patent US 5597725.                            38  5.5
+Z47547 C.crispus complete mitochondrial genome.                       38  5.5
+Z46224 C.crispus Mitochondrion gene for large subunit ribosomal...    38  5.5
+U84139 Bos taurus structure-specific recognition protein 1 (SSR...    38  5.5
+AL010134 Plasmodium falciparum DNA *** SEQUENCING IN PROGRESS *...    38  5.5
+Z99281 Caenorhabditis elegans cosmid Y57G11C                          38  5.5
+Z35597 Caenorhabditis elegans cosmid C36E8                            38  5.5
+AF003386 Caenorhabditis elegans cosmid F59E12.                        38  5.5
+Z30950 C.crispus mitochondrial gene for small subunit ribosomal...    38  5.5
+AF026208 Caenorhabditis elegans cosmid F52D1.                         38  5.5
+Z69712 Human DNA sequence from cosmid N12G10, on chromosome 22q...    38  5.5
+Z84495 Human DNA sequence from cosmid LUCA8                           38  5.5
+L81635 Homo sapiens (subclone 2_c11 from P1 H33) DNA sequence, ...    38  5.5
+Z68754 Human DNA sequence from cosmid cE78H10, on chromosome 22...    38  5.5
+L34060 Homo sapiens cadherin-8 mRNA, complete cds.                    38  5.5
+AC002378 Human PAC clone DJ438O4 from 22q12.1-qter, complete se...    38  5.5
+AC002124 Human BAC clone RG180O01 from 7p15-p21, complete seque...    38  5.5
+Z93931 Human DNA sequence from PAC 438G17 on chromosome 6q22. C...    38  5.5
+AL008907 H.sapiens STS from genomic clone 404F18.                     38  5.5
+AC004130 Homo sapiens BAC clone RG293F17 from 7p15-p21, complet...    38  5.5
+AC004000 Human PAC clone DJ404F18 from Xq23, complete sequence.       38  5.5
+AC003683 Homo sapiens Xp22 PAC RPCI1-147H15 (Research Park PAC ...    38  5.5
+AC003013 Human PAC clone DJ0205E24 from Xq23, complete sequence.      38  5.5
+AC002556 Human Chromosome 11 pac pDJ9j14, complete sequence.          38  5.5
+
+>U51677 Human non-histone chromatin protein HMG1 (HMG1) gene, complete
+            cds.
+            Length = 2575
+            
+ Score = 4129 bits (2083), Expect = 0.0
+ Identities = 2167/2209 (98%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 1    atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1    atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+
+                                                                        
+Query: 61   caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 61   caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+
+                                                                        
+Query: 121  ttttctaagaagtgctcagagaggtggaaggtaagagggcttaaaacatgctaacaaggt 180
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 121  ttttctaagaagtgctcagagaggtggaaggtaagagggcttaaaacatgctaacaaggt 180
+
+                                                                        
+Query: 181  aattaaaagacagtttccaattgaggatgcnnnnnnnngcctagttggcattctcgtagt 240
+            ||||||||||||||||||||||||||||||        ||||||||||||||||||||||
+Sbjct: 181  aattaaaagacagtttccaattgaggatgcaaaaaaaagcctagttggcattctcgtagt 240
+
+                                                                        
+Query: 241  gggacgctattacatagcaaaagacattggttttgaggataatttacttaaatgttacaa 300
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 241  gggacgctattacatagcaaaagacattggttttgaggataatttacttaaatgttacaa 300
+
+                                                                        
+Query: 301  cttaaacttacaaattaattattttgtagaccatgtctgctaaagagaaaggaaaatttg 360
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 301  cttaaacttacaaattaattattttgtagaccatgtctgctaaagagaaaggaaaatttg 360
+
+                                                                        
+Query: 361  aagatatggcaaaagcggacaaggcccgttatgaaagagaaatgaaaacctatatccctc 420
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 361  aagatatggcaaaagcggacaaggcccgttatgaaagagaaatgaaaacctatatccctc 420
+
+                                                                        
+Query: 421  ccaaaggggagacaaaaaagaagttcaaggatcccaatgcacccaagaggcctccgtgag 480
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 421  ccaaaggggagacaaaaaagaagttcaaggatcccaatgcacccaagaggcctccgtgag 480
+
+                                                                        
+Query: 481  tatcttgcctgtttttacttcccagacacgttttacagtagaatctgagagaaatttagc 540
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 481  tatcttgcctgtttttacttcccagacacgttttacagtagaatctgagagaaatttagc 540
+
+                                                                        
+Query: 541  aagctactttgtcagtttagagtgtaaatgtacaatcaaagtttcttagctaatacttgt 600
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 541  aagctactttgtcagtttagagtgtaaatgtacaatcaaagtttcttagctaatacttgt 600
+
+                                                                        
+Query: 601  tcatattggttatatttaaatagtataaaattcctgttgggtgggagtgttcccagagca 660
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 601  tcatattggttatatttaaatagtataaaattcctgttgggtgggagtgttcccagagca 660
+
+                                                                        
+Query: 661  tttgaattagacatttggtctcctttgcccagtgtatctccttttgatctttttatttct 720
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 661  tttgaattagacatttggtctcctttgcccagtgtatctccttttgatctttttatttct 720
+
+                                                                        
+Query: 721  tgaaaaatactatccctttgaaatagtgtaattgtagaatgttcatctagggttctagct 780
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 721  tgaaaaatactatccctttgaaatagtgtaattgtagaatgttcatctagggttctagct 780
+
+                                                                        
+Query: 781  agtataaattaaatagttgtaaattaagctttggttgtgaaggatatttagtatattata 840
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 781  agtataaattaaatagttgtaaattaagctttggttgtgaaggatatttagtatattata 840
+
+                                                                        
+Query: 841  gtatttgcaccctgtccaatgcatcacagaaattcacaggcagctttaaatagcaatgca 900
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 841  gtatttgcaccctgtccaatgcatcacagaaattcacaggcagctttaaatagcaatgca 900
+
+                                                                        
+Query: 901  gtgtacacctgatagtatttgtttttgtgatctgttaacttaaaatcctaaaattaannn 960
+            |||||||||||||||||||||||||||||||||||||||||||||||||||||||||   
+Sbjct: 901  gtgtacacctgatagtatttgtttttgtgatctgttaacttaaaatcctaaaattaattt 960
+
+                                                                        
+Query: 961  nnnnnnnagttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggaga 1020
+                   |||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 961  tttttttagttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggaga 1020
+
+                                                                        
+Query: 1021 acatcctggcctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacac 1080
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1021 acatcctggcctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacac 1080
+
+                                                                        
+Query: 1081 tgctgcagatgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacga 1140
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1081 tgctgcagatgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacga 1140
+
+                                                                        
+Query: 1141 aaaggtaagaagtgtgggtttgcttggtaaaatgatgacaagtacgccagatgtatgatt 1200
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1141 aaaggtaagaagtgtgggtttgcttggtaaaatgatgacaagtacgccagatgtatgatt 1200
+
+                                                                        
+Query: 1201 gtacttagtttgaggtgtaataagtttttagggtaacagctacattaagtatggtgttga 1260
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1201 gtacttagtttgaggtgtaataagtttttagggtaacagctacattaagtatggtgttga 1260
+
+                                                                        
+Query: 1261 tataagtcctcatccttcaaagaatgcagaggaccaaataaattagggnnnnnnngacta 1320
+            ||||||||||||||||||||||||||||||||||||||||||||||||       |||||
+Sbjct: 1261 tataagtcctcatccttcaaagaatgcagaggaccaaataaattagggtttttttgacta 1320
+
+                                                                        
+Query: 1321 aaatgtaatcagactcagacaaaggctgtgtacatttatgttggttttgttattccccag 1380
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1321 aaatgtaatcagactcagacaaaggctgtgtacatttatgttggttttgttattccccag 1380
+
+                                                                        
+Query: 1381 tatcttgaagttcatgaaaatgttggtagtcacttcaagtcaaaaatgagcattttcaaa 1440
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1381 tatcttgaagttcatgaaaatgttggtagtcacttcaagtcaaaaatgagcattttcaaa 1440
+
+                                                                        
+Query: 1441 tggcttggcatacagtacaaaaacaggctagacaaagtaatataggctatatttttctta 1500
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1441 tggcttggcatacagtacaaaaacaggctagacaaagtaatataggctatatttttctta 1500
+
+                                                                        
+Query: 1501 gtcatatcctgaaacatttatgttcttttcctttagatactcaaaaaaccacagcatcac 1560
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1501 gtcatatcctgaaacatttatgttcttttcctttagatactcaaaaaaccacagcatcac 1560
+
+                                                                        
+Query: 1561 taagttaaattacaagtctgctgctctgtccagtaaattaataagattaaggaaatctat 1620
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1561 taagttaaattacaagtctgctgctctgtccagtaaattaataagattaaggaaatctat 1620
+
+                                                                        
+Query: 1621 aactcttatagttcagtaaattgaaatattaaatacttaattttcagctttagtcattct 1680
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1621 aactcttatagttcagtaaattgaaatattaaatacttaattttcagctttagtcattct 1680
+
+                                                                        
+Query: 1681 gaaaagtgtttatttctagatgtttcttaacctaattgcatgtttattgacaaattaccn 1740
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+Sbjct: 1681 gaaaagtgtttatttctagatgtttcttaacctaattgcatgtttattgacaaattacct 1740
+
+                                                                        
+Query: 1741 nnnnnnnnnaagaccacatttcctactaaggattaaggtctgacagtgtaaacctgtaga 1800
+                     |||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1741 tttttttttaagaccacatttcctactaaggattaaggtctgacagtgtaaacctgtaga 1800
+
+                                                                        
+Query: 1801 gtgcttttttgcattcagaaggtggcagtgtctaccctttaatcaaagtctctacattct 1860
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1801 gtgcttttttgcattcagaaggtggcagtgtctaccctttaatcaaagtctctacattct 1860
+
+                                                                        
+Query: 1861 ggttttaatagagttaggatctggtagataattgcacctcaatgaggcataactttgcaa 1920
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1861 ggttttaatagagttaggatctggtagataattgcacctcaatgaggcataactttgcaa 1920
+
+                                                                        
+Query: 1921 atattagactatgccatttcatgagttatagattgttataatgatcttgtatttttatgt 1980
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1921 atattagactatgccatttcatgagttatagattgttataatgatcttgtatttttatgt 1980
+
+                                                                        
+Query: 1981 tcatttattgaagttctagttatttctggagttgctgtggatctacagatacgtgatatt 2040
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1981 tcatttattgaagttctagttatttctggagttgctgtggatctacagatacgtgatatt 2040
+
+                                                                        
+Query: 2041 ttggtataactagaatcttgatttctttcataaagttctgccatgttctatttctttcct 2100
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 2041 ttggtataactagaatcttgatttctttcataaagttctgccatgttctatttctttcct 2100
+
+                                                                        
+Query: 2101 taatcnnnnnnncttccctactgttttatcctccctttgctttggaaggatattgctgca 2160
+            |||||       ||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 2101 taatctttttttcttccctactgttttatcctccctttgctttggaaggatattgctgca 2160
+
+                                                             
+Query: 2161 tatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtcaagg 2209
+            |||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 2161 tatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtcaagg 2209
+
+
+ Score =  361 bits (182), Expect = 3e-97
+ Identities = 210/224 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 2411
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 2471
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            ||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+
+
+>L38477 Mus musculus (clone Clebp-1) high mobility group 1 protein
+            (HMG-1)
+            Length = 1225
+            
+ Score =  353 bits (178), Expect = 7e-95
+ Identities = 209/224 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 746  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 805
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 806  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 865
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 866  aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 925
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||| |||||||||||||||||||||||||
+Sbjct: 926  aaccttgcctggtacagtctgggggttgtaaattggcatggaaa 969
+
+
+ Score =  234 bits (118), Expect = 5e-59
+ Identities = 142/150 (94%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 74  atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 133
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 134 caaacttgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 193
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||||||||||||||||||||||
+Sbjct: 194 ttctccaagaagtgctcagagaggtggaag 223
+
+
+ Score =  214 bits (108), Expect = 4e-53
+ Identities = 138/148 (93%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 222 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 281
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 282 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 341
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||||||||||||||||||
+Sbjct: 342 aggaccccaatgcacccaagaggcctcc 369
+
+
+ Score =  186 bits (94), Expect = 1e-44
+ Identities = 145/162 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||| ||||||||||| || ||||||||
+Sbjct: 370  ttcggccttcttcttgttctgttctgagtaccgccccaaaatcaaaggcgagcatcctgg 429
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | ||||||||||||||||| |||||||| |||||||||||||| |||||||| |||||
+Sbjct: 430  cttatccattggtgatgttgcaaagaaactaggagagatgtggaacaacactgcagcaga 489
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| ||||| ||||| ||||| |||||||||||
+Sbjct: 490  tgacaagcagccctatgagaagaaagctgccaagctgaagga 531
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 541  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 600
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 601  caagg 605
+
+
+>X80457 M.musculus HMG1 gene
+            Length = 2547
+            
+ Score =  353 bits (178), Expect = 7e-95
+ Identities = 209/224 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 2202 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 2261
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 2262 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 2321
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 2322 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2381
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||| |||||||||||||||||||||||||
+Sbjct: 2382 aaccttgcctggtacagtctgggggttgtaaattggcatggaaa 2425
+
+
+ Score =  266 bits (134), Expect = 1e-68
+ Identities = 155/162 (95%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 173 atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 232
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 233 caaacttgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 292
+
+                                                     
+Query: 121 ttttctaagaagtgctcagagaggtggaaggtaagagggctt 162
+           ||||| ||||||||||||||||||||||||||||||||||||
+Sbjct: 293 ttttccaagaagtgctcagagaggtggaaggtaagagggctt 334
+
+
+ Score =  232 bits (117), Expect = 2e-58
+ Identities = 147/157 (93%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 327 tagaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggcc 386
+           |||||||||||||||||||| || || |||||||||||||||||||| || |||||||| 
+Sbjct: 467 tagaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggct 526
+
+                                                                       
+Query: 387 cgttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttc 446
+           |||||||||||||||||||||||||| ||||| |||||||||||||| ||||||||||||
+Sbjct: 527 cgttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttc 586
+
+                                                
+Query: 447 aaggatcccaatgcacccaagaggcctccgtgagtat 483
+           ||||| |||||||||||||||||||||||||||||||
+Sbjct: 587 aaggaccccaatgcacccaagaggcctccgtgagtat 623
+
+
+ Score =  194 bits (98), Expect = 4e-47
+ Identities = 161/182 (88%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 968  agttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcct 1027
+            ||||||||||||||| | ||||| |||||||| ||||| ||||||||||| || ||||||
+Sbjct: 1007 agttcggccttcttcttgttctgttctgagtaccgccccaaaatcaaaggcgagcatcct 1066
+
+                                                                        
+Query: 1028 ggcctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgca 1087
+            ||| | ||||||||||||||||| |||||||| |||||||||||||| |||||||| |||
+Sbjct: 1067 ggcttatccattggtgatgttgcaaagaaactaggagagatgtggaacaacactgcagca 1126
+
+                                                                        
+Query: 1088 gatgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaaggta 1147
+            |||||||||||||| ||||| ||||| ||||| ||||||||||| || || || ||||||
+Sbjct: 1127 gatgacaagcagccctatgagaagaaagctgccaagctgaaggagaagtatgagaaggta 1186
+
+              
+Query: 1148 ag 1149
+            ||
+Sbjct: 1187 ag 1188
+
+
+ Score = 81.8 bits (41), Expect = 4e-13
+ Identities = 62/69 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2141 tttggaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggag 2200
+            ||||||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| |
+Sbjct: 1992 tttggaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaaggggg 2051
+
+                     
+Query: 2201 ttgtcaagg 2209
+            | |||||||
+Sbjct: 2052 tggtcaagg 2060
+
+
+ Score = 56.0 bits (28), Expect = 2e-05
+ Identities = 73/87 (83%), Gaps = 2/87 (2%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 1869 tagagttaggatctggtagataattgcacctcaatgaggcataactttgcaaatattaga 1928
+            |||| ||||||| ||||| |||||||||| ||| |||||||||||    |||||||||| 
+Sbjct: 1777 tagaattaggatgtggtatataattgcacttcagtgaggcataacaacacaaatattag- 1835
+
+                                       
+Query: 1929 ctatgccatttcatgagttatagattg 1955
+             | || ||||||||||||| |||||||
+Sbjct: 1836 -tctgacatttcatgagttgtagattg 1861
+
+
+ Score = 46.1 bits (23), Expect = 0.023
+ Identities = 35/39 (89%)
+ Strand = Plus / Plus
+
+                                                   
+Query: 1791 aacctgtagagtgcttttttgcattcagaaggtggcagt 1829
+            |||||||||| |||| |||||  ||||||||||||||||
+Sbjct: 1699 aacctgtagaatgctgttttgtgttcagaaggtggcagt 1737
+
+
+>U00431 Mus musculus HMG-1 mRNA, complete cds.
+            Length = 1308
+            
+ Score =  353 bits (178), Expect = 7e-95
+ Identities = 209/224 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 818  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 877
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 878  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 937
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 938  aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 997
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||| |||||||||||||||||||||||||
+Sbjct: 998  aaccttgcctggtacagtctgggggttgtaaattggcatggaaa 1041
+
+
+ Score =  234 bits (118), Expect = 5e-59
+ Identities = 142/150 (94%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 146 atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 205
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 206 caaacttgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 265
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||||||||||||||||||||||
+Sbjct: 266 ttctccaagaagtgctcagagaggtggaag 295
+
+
+ Score =  214 bits (108), Expect = 4e-53
+ Identities = 138/148 (93%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 294 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 353
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 354 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 413
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||||||||||||||||||
+Sbjct: 414 aggaccccaatgcacccaagaggcctcc 441
+
+
+ Score =  186 bits (94), Expect = 1e-44
+ Identities = 145/162 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||| ||||||||||| || ||||||||
+Sbjct: 442  ttcggccttcttcttgttctgttctgagtaccgccccaaaatcaaaggcgagcatcctgg 501
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | ||||||||||||||||| |||||||| |||||||||||||| |||||||| |||||
+Sbjct: 502  cttatccattggtgatgttgcaaagaaactaggagagatgtggaacaacactgcagcaga 561
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| ||||| ||||| ||||| |||||||||||
+Sbjct: 562  tgacaagcagccctatgagaagaaagctgccaagctgaagga 603
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 613  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 672
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 673  caagg 677
+
+
+>L08048 Human non-histone chromosomal protein (HMG-1) retropseudogene.
+            Length = 1814
+            
+ Score =  349 bits (176), Expect = 1e-93
+ Identities = 176/176 (100%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 954  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1013
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1014 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1073
+
+                                                                    
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1074 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1129
+
+
+ Score =  337 bits (170), Expect = 4e-90
+ Identities = 207/224 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            ||||||||||||||||||||||||||||||||||| |||||| ||||||||       ||
+Sbjct: 1333 cttgtctataaagcatttaacccccctgtacacaattcactctttttaaagaaaaaaatt 1392
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 1393 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 1452
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1453 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 1512
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            ||| ||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1513 aactttgcctggtacagtatgggggttgtaaattggcatggaaa 1556
+
+
+ Score =  289 bits (146), Expect = 9e-76
+ Identities = 149/150 (99%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           |||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||
+Sbjct: 658 atgggcaaaggagatcctaagaagccgacaggcaaaatgtcatcatatgcattttttgtg 717
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 718 caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 777
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||||||||||||||||||||||||||||
+Sbjct: 778 ttttctaagaagtgctcagagaggtggaag 807
+
+
+ Score =  278 bits (140), Expect = 3e-72
+ Identities = 143/144 (99%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           |||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||
+Sbjct: 806 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaggcggacaaggccc 865
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 866 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 925
+
+                                   
+Query: 448 aggatcccaatgcacccaagaggc 471
+           ||||||||||||||||||||||||
+Sbjct: 926 aggatcccaatgcacccaagaggc 949
+
+
+ Score =  119 bits (60), Expect = 2e-24
+ Identities = 63/64 (98%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            |||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 1126 aaggatatagctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 1185
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 1186 aagg 1189
+
+
+>X12597 Human mRNA for high mobility group-1 protein (HMG-1).
+            Length = 1009
+            
+ Score =  349 bits (176), Expect = 1e-93
+ Identities = 176/176 (100%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 349  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 408
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 409  cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 468
+
+                                                                    
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 469  tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 524
+
+
+ Score =  347 bits (175), Expect = 4e-93
+ Identities = 210/225 (93%), Gaps = 1/225 (0%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactcc-ttttaaagnnnnnnnt 2410
+            ||||||||||||||||||||||||||||||||||||||||||| ||||||||       |
+Sbjct: 727  cttgtctataaagcatttaacccccctgtacacaactcactcccttttaaagaaaaaaat 786
+
+                                                                        
+Query: 2411 tgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagt 2470
+            ||||||||||||||||||||||||||||||||||||||||||||||       |||||||
+Sbjct: 787  tgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagt 846
+
+                                                                        
+Query: 2471 taacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccac 2530
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 847  taacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccac 906
+
+                                                         
+Query: 2531 taaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 907  taaccttgcctggtacagtatgggggttgtaaattggcatggaaa 951
+
+
+ Score =  297 bits (150), Expect = 4e-78
+ Identities = 150/150 (100%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 53  atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 112
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 113 caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 172
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||||||||||||||||||||||||||||
+Sbjct: 173 ttttctaagaagtgctcagagaggtggaag 202
+
+
+ Score =  293 bits (148), Expect = 6e-77
+ Identities = 148/148 (100%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 201 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 260
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 261 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 320
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           ||||||||||||||||||||||||||||
+Sbjct: 321 aggatcccaatgcacccaagaggcctcc 348
+
+
+ Score =  119 bits (60), Expect = 2e-24
+ Identities = 63/64 (98%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            |||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 521  aaggatatagctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 580
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 581  aagg 584
+
+
+>M64986 Rat amphoterin mRNA, complete cds.
+            Length = 1225
+            
+ Score =  345 bits (174), Expect = 2e-92
+ Identities = 208/224 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 796  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 855
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 856  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 915
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||
+Sbjct: 916  aacacactaccgaatgtgtctttagctagccctgtcctggtggtattttcaatagccact 975
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||| |||||||||||||||||||||||||
+Sbjct: 976  aaccttgcctggtacagtctgggggttgtaaattggcatggaaa 1019
+
+
+ Score =  226 bits (114), Expect = 1e-56
+ Identities = 141/150 (94%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 123 atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 182
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||| || ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 183 caaacctgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 242
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||||||||||||||||||||||
+Sbjct: 243 ttctccaagaagtgctcagagaggtggaag 272
+
+
+ Score =  210 bits (106), Expect = 7e-52
+ Identities = 148/162 (91%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||||||||||||||| || ||||||||
+Sbjct: 419  ttcggccttcttcttgttctgttctgagtaccgcccaaaaatcaaaggcgagcatcctgg 478
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | |||||||||||||||||||||||||| |||||||||||||| ||||||||||| ||
+Sbjct: 479  cttatccattggtgatgttgcgaagaaactaggagagatgtggaacaacactgctgcgga 538
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| |||||||||||||| || |||||||||||
+Sbjct: 539  tgacaagcagccctatgaaaagaaggccgccaagctgaagga 580
+
+
+ Score =  206 bits (104), Expect = 1e-50
+ Identities = 137/148 (92%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 271 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 330
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 331 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 390
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||| ||||||||||||||
+Sbjct: 391 aggaccccaatgcccccaagaggcctcc 418
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 590  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 649
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 650  caagg 654
+
+
+>Z11997 M.musculus mRNA for non-histone chromosomal high-mobility
+            group 1
+            Length = 2231
+            
+ Score =  345 bits (174), Expect = 2e-92
+ Identities = 208/224 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 746  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 805
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       | ||||||
+Sbjct: 806  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttggatagtt 865
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 866  aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 925
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||| |||||||||||||||||||||||||
+Sbjct: 926  aaccttgcctggtacagtctgggggttgtaaattggcatggaaa 969
+
+
+ Score =  242 bits (122), Expect = 2e-61
+ Identities = 143/150 (95%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 73  atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 132
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 133 caaacttgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 192
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||| ||||||||||||||||||||||||
+Sbjct: 193 ttttccaagaagtgctcagagaggtggaag 222
+
+
+ Score =  214 bits (108), Expect = 4e-53
+ Identities = 138/148 (93%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 221 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 280
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 281 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 340
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||||||||||||||||||
+Sbjct: 341 aggaccccaatgcacccaagaggcctcc 368
+
+
+ Score =  186 bits (94), Expect = 1e-44
+ Identities = 145/162 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||| ||||||||||| || ||||||||
+Sbjct: 369  ttcggccttcttcttgttctgttctgagtaccgccccaaaatcaaaggcgagcatcctgg 428
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | ||||||||||||||||| |||||||| |||||||||||||| |||||||| |||||
+Sbjct: 429  cttatccattggtgatgttgcaaagaaactaggagagatgtggaacaacactgcagcaga 488
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| ||||| ||||| ||||| |||||||||||
+Sbjct: 489  tgacaagcagccctatgagaagaaagctgccaagctgaagga 530
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 540  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 599
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 600  caagg 604
+
+
+>D63874 Human mRNA for HMG-1, complete cds.
+            Length = 1194
+            
+ Score =  345 bits (174), Expect = 2e-92
+ Identities = 208/224 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 751  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 810
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 811  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 870
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+            |||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||
+Sbjct: 871  aacacactaccgaatgtgtctttagatagccctgtcctggtggtatcttcaatagccact 930
+
+                                                        
+Query: 2532 aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||| |||||||||||||||||||||||||||||||||||||||
+Sbjct: 931  aaccctgcctggtacagtatgggggttgtaaattggcatggaaa 974
+
+
+ Score =  333 bits (168), Expect = 7e-89
+ Identities = 174/176 (98%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 373  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 432
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 433  cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 492
+
+                                                                    
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            |||||||||||||||||||||||||||||  |||||||||||||||||||||||||
+Sbjct: 493  tgacaagcagccttatgaaaagaaggctgaaaagctgaaggaaaaatacgaaaagg 548
+
+
+ Score =  293 bits (148), Expect = 6e-77
+ Identities = 148/148 (100%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 225 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 284
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 285 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 344
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           ||||||||||||||||||||||||||||
+Sbjct: 345 aggatcccaatgcacccaagaggcctcc 372
+
+
+ Score =  281 bits (142), Expect = 2e-73
+ Identities = 148/150 (98%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           |||||||||||||||||||||||||||||| | |||||||||||||||||||||||||||
+Sbjct: 77  atgggcaaaggagatcctaagaagccgagacggaaaatgtcatcatatgcattttttgtg 136
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 137 caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 196
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||||||||||||||||||||||||||||
+Sbjct: 197 ttttctaagaagtgctcagagaggtggaag 226
+
+
+ Score =  127 bits (64), Expect = 8e-27
+ Identities = 64/64 (100%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 545  aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 604
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 605  aagg 608
+
+
+>Z95115 Human DNA sequence from BAC 445C9 on chromosome 22q12.1.
+             Length = 131398
+             
+ Score =  337 bits (170), Expect = 4e-90
+ Identities = 207/224 (92%)
+ Strand = Plus / Plus
+
+                                                                         
+Query: 2352  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+             |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 58656 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 58715
+
+                                                                         
+Query: 2412  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+             |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 58716 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 58775
+
+                                                                         
+Query: 2472  aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccact 2531
+             ||||||||||||||||||||||||||||||||||||||| ||||||||||||||||| ||
+Sbjct: 58776 aacacactaccgaatgtgtctttagatagccctgtcctgatggtattttcaatagccgct 58835
+
+                                                         
+Query: 2532  aaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+             ||||||||||||||||||||||||| ||||||||||||||||||
+Sbjct: 58836 aaccttgcctggtacagtatgggggctgtaaattggcatggaaa 58879
+
+
+ Score =  325 bits (164), Expect = 2e-86
+ Identities = 173/176 (98%)
+ Strand = Plus / Plus
+
+                                                                         
+Query: 970   ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+             ||||||||||||||| |||||||||| |||||||||||||||||||||||||||||||||
+Sbjct: 58290 ttcggccttcttcctgttctgctctgcgtatcgcccaaaaatcaaaggagaacatcctgg 58349
+
+                                                                         
+Query: 1030  cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+             |||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||
+Sbjct: 58350 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgccgcaga 58409
+
+                                                                     
+Query: 1090  tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+             ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 58410 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 58465
+
+
+ Score =  254 bits (128), Expect = 5e-65
+ Identities = 143/148 (96%)
+ Strand = Plus / Plus
+
+                                                                         
+Query: 328   agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+             |||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||
+Sbjct: 58142 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaggcggacaaggccc 58201
+
+                                                                         
+Query: 388   gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+              ||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 58202 attacgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 58261
+
+                                         
+Query: 448   aggatcccaatgcacccaagaggcctcc 475
+             ||||||| ||||||||||||||| ||||
+Sbjct: 58262 aggatccgaatgcacccaagaggactcc 58289
+
+
+ Score =  250 bits (126), Expect = 8e-64
+ Identities = 141/146 (96%)
+ Strand = Plus / Plus
+
+                                                                         
+Query: 5     gcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgcaaa 64
+             ||||||||||||||||||||| ||||||||||||||||||| |||||||||||| |||||
+Sbjct: 57998 gcaaaggagatcctaagaagctgagaggcaaaatgtcatcacatgcattttttgggcaaa 58057
+
+                                                                         
+Query: 65    cttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagtttt 124
+             |||||||||||| |||||||||||||||||||||||||||||||||| ||||||||||||
+Sbjct: 58058 cttgtcgggaggcgcataagaagaagcacccagatgcttcagtcaacctctcagagtttt 58117
+
+                                       
+Query: 125   ctaagaagtgctcagagaggtggaag 150
+             ||||||||||||||||||||||||||
+Sbjct: 58118 ctaagaagtgctcagagaggtggaag 58143
+
+
+ Score =  127 bits (64), Expect = 8e-27
+ Identities = 64/64 (100%)
+ Strand = Plus / Plus
+
+                                                                         
+Query: 2146  aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+             ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 58462 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 58521
+
+                 
+Query: 2206  aagg 2209
+             ||||
+Sbjct: 58522 aagg 58525
+
+
+>X12796 Bovine mRNA for high mobility group 1 (HMG1) protein
+            Length = 1236
+            
+ Score =  335 bits (169), Expect = 2e-89
+ Identities = 209/226 (92%), Gaps = 2/226 (0%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnn-- 2409
+            |||||||||||||||||||||||||||||||||| ||||||||||||||||         
+Sbjct: 794  cttgtctataaagcatttaacccccctgtacacacctcactccttttaaagaaaaaaaaa 853
+
+                                                                        
+Query: 2410 ttgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatag 2469
+            |||||||||||||||||||||||||||||||||||||||||||||||       ||||||
+Sbjct: 854  ttgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatag 913
+
+                                                                        
+Query: 2470 ttaacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagcca 2529
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 914  ttaacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagcca 973
+
+                                                          
+Query: 2530 ctaaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            ||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 974  ctaaccttgcctggtacagtatgggggttgtaaattggcatggaaa 1019
+
+
+ Score =  258 bits (130), Expect = 3e-66
+ Identities = 145/150 (96%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||
+Sbjct: 119 atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattctttgtg 178
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 179 caaacttgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 238
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||||||||||||||||||||||||||||
+Sbjct: 239 ttttctaagaagtgctcagagaggtggaag 268
+
+
+ Score =  238 bits (120), Expect = 3e-60
+ Identities = 141/148 (95%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||||||||||||||||||||| |||||||| |||||||||||||
+Sbjct: 267 agaccatgtctgctaaagagaaaggaaaatttgaagacatggcaaaggcggacaaggccc 326
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           |||||||||||||||||||||| ||||| ||||| |||||||| ||||||||||||||||
+Sbjct: 327 gttatgaaagagaaatgaaaacttatattcctcctaaaggggaaacaaaaaagaagttca 386
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||||||||||||||| |||||||||||
+Sbjct: 387 aggatcccaatgcacctaagaggcctcc 414
+
+
+ Score =  230 bits (116), Expect = 7e-58
+ Identities = 161/176 (91%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||| ||| | || || ||||||||||| |||||||||||||| |||||||||||
+Sbjct: 415  ttcggcctttttcttgttttgttctgagtatcgtccaaaaatcaaaggcgaacatcctgg 474
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            |||||| |||||||||||||| ||||||||||||||||||||||||||||||||||| ||
+Sbjct: 475  cctgtctattggtgatgttgcaaagaaactgggagagatgtggaataacactgctgcgga 534
+
+                                                                    
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            ||| |||||||||||||| ||||||||||| |||||||||||||| || |||||||
+Sbjct: 535  tgataagcagccttatgagaagaaggctgctaagctgaaggaaaagtatgaaaagg 590
+
+
+ Score = 95.6 bits (48), Expect = 3e-17
+ Identities = 60/64 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            ||||||||||| ||||| ||||||||||| || |||||||||||||||||||||||||||
+Sbjct: 587  aaggatattgccgcataccgagctaaagggaaacctgatgcagcaaaaaagggagttgtc 646
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 647  aagg 650
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 2323 taagttggttctagcgcag 2341
+            |||||||||||||||||||
+Sbjct: 764  taagttggttctagcgcag 782
+
+
+>M26110 Bovine high-mobility-group protein (HMG-1) mRNA, 3' end.
+            Length = 791
+            
+ Score =  327 bits (165), Expect = 4e-87
+ Identities = 208/226 (92%), Gaps = 2/226 (0%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnn-- 2409
+            |||||||||||||||||||||||||||||||||||||||||||||||||||         
+Sbjct: 340  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaaaa 399
+
+                                                                        
+Query: 2410 ttgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatag 2469
+            || ||||||||||||||||||||||||||||||||||||||||||||       ||||||
+Sbjct: 400  ttaaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatag 459
+
+                                                                        
+Query: 2470 ttaacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagcca 2529
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 460  ttaacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagcca 519
+
+                                                          
+Query: 2530 ctaaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||| |||||||||||||||||||||||||||||||||||||||
+Sbjct: 520  ctaaccctgcctggtacagtatgggggttgtaaattggcatggaaa 565
+
+
+ Score =  163 bits (82), Expect = 1e-37
+ Identities = 106/114 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 1032 tgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcagatg 1091
+            |||| |||||||||||||| ||||||||||||||||||||||||||||||||||| ||||
+Sbjct: 14   tgtctattggtgatgttgcaaagaaactgggagagatgtggaataacactgctgcggatg 73
+
+                                                                  
+Query: 1092 acaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            | |||||||||||||| ||||||||||| |||||||||||||| || |||||||
+Sbjct: 74   ataagcagccttatgagaagaaggctgctaagctgaaggaaaagtatgaaaagg 127
+
+
+ Score = 95.6 bits (48), Expect = 3e-17
+ Identities = 60/64 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            ||||||||||| ||||| ||||| ||||| ||||||||||||||||||||||||||||||
+Sbjct: 124  aaggatattgccgcataccgagccaaagggaagcctgatgcagcaaaaaagggagttgtc 183
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 184  aagg 187
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 2323 taagttggttctagcgcag 2341
+            |||||||||||||||||||
+Sbjct: 301  taagttggttctagcgcag 319
+
+
+>AF009343 Mus musculus HMG-like protein (Trf) mRNA, complete cds.
+            Length = 1328
+            
+ Score =  305 bits (154), Expect = 2e-80
+ Identities = 197/216 (91%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2360 taaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnnttgaaatgta 2419
+            ||||||||||||||||||| | |||  ||||||||||||||||       ||||||||||
+Sbjct: 814  taaagcatttaacccccctcttcacttctcactccttttaaagaaaaaaattgaaatgta 873
+
+                                                                        
+Query: 2420 aggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagttaacacact 2479
+            |||||||||||||||||||||||||||||||||||||       ||||||||||||||||
+Sbjct: 874  aggctgtgtaagatttgtttttaaactgtacagtgtctttttctgtatagttaacacact 933
+
+                                                                        
+Query: 2480 accgaatgtgtctttagatagccctgtcctggtggtattttcaatagccactaaccttgc 2539
+            ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 934  accgaatgtgtctttagatagccctgtcctggtggtattttcaatagccactaaccttgc 993
+
+                                                
+Query: 2540 ctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||| |||||||||||||||||||||||||
+Sbjct: 994  ctggtacagtctgggggttgtaaattggcatggaaa 1029
+
+
+ Score =  220 bits (111), Expect = 7e-55
+ Identities = 141/150 (94%), Gaps = 2/150 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||  ||||||||| ||||||||||| ||||||
+Sbjct: 137 atgggcaaaggagatcctaagaagccgaga--caaaatgtcctcatatgcattctttgtg 194
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 195 caaacttgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 254
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||| ||||||||||||||||||||||||
+Sbjct: 255 ttttccaagaagtgctcagagaggtggaag 284
+
+
+ Score =  176 bits (89), Expect = 9e-42
+ Identities = 134/148 (90%), Gaps = 2/148 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 283 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 342
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           |||||| |||||||||||||||||| | ||| ||||||  |||||| |||||||||||||
+Sbjct: 343 gttatggaagagaaatgaaaacctacaccccccccaaa--ggagaccaaaaagaagttca 400
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||||||||||||||||||
+Sbjct: 401 aggaccccaatgcacccaagaggcctcc 428
+
+
+ Score =  170 bits (86), Expect = 6e-40
+ Identities = 143/162 (88%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||| ||||||||||| || |||||| |
+Sbjct: 429  ttcggccttcttcttgttctgttctgagtaccgccccaaaatcaaaggcgagcatcctcg 488
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | |||||||||||| |||| |||||||| |||||||||||||| |||||||| |||||
+Sbjct: 489  cttatccattggtgatcttgcaaagaaactaggagagatgtggaacaacactgcagcaga 548
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| ||||| ||||| ||||| |||||||||||
+Sbjct: 549  tgacaagcagccctatgagaagaaagctgccaagctgaagga 590
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 600  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 659
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 660  caagg 664
+
+
+>M21683;M21684 Pig nonhistone protein HMG1 mRNA, complete cds.
+            Length = 2192
+            
+ Score =  303 bits (153), Expect = 6e-80
+ Identities = 209/227 (92%), Gaps = 4/227 (1%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccc-tgtacacaactcactccttttaaagnnnnnnn- 2409
+            |||||||||||||||||||||||||| |||||||||||||||||||||||||        
+Sbjct: 682  cttgtctataaagcatttaaccccccctgtacacaactcactccttttaaagaaaaaaaa 741
+
+                                                                        
+Query: 2410 ttgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnn-gtata 2468
+            |||||||||||||||||||||||||||||||||||||||||||||||        |||||
+Sbjct: 742  ttgaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcttttttttgtata 801
+
+                                                                        
+Query: 2469 gttaacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagcc 2528
+            ||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||
+Sbjct: 802  gttaacacactaccgaatgtg-ctttagatagccctgtcctggtggtattttcaatagcc 860
+
+                                                           
+Query: 2529 actaaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 861  actaaccttgcctggtacagtatgggggttgtaaattggcatggaaa 907
+
+
+ Score =  274 bits (138), Expect = 5e-71
+ Identities = 147/150 (98%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||
+Sbjct: 9   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattctttgtg 68
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           |||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 69  caaacttgccgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 128
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           |||||||||||||||||||| |||||||||
+Sbjct: 129 ttttctaagaagtgctcagaaaggtggaag 158
+
+
+ Score =  246 bits (124), Expect = 1e-62
+ Identities = 142/148 (95%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||||||||||||||||||||| |||||||| |||||||||||||
+Sbjct: 157 agaccatgtctgctaaagagaaaggaaaatttgaagacatggcaaaggcggacaaggccc 216
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           |||||||||||||||||||||| || || ||||| |||||||||||||||||||||||||
+Sbjct: 217 gttatgaaagagaaatgaaaacttacatacctcctaaaggggagacaaaaaagaagttca 276
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           ||||||||||||||||||||||||||||
+Sbjct: 277 aggatcccaatgcacccaagaggcctcc 304
+
+
+ Score =  238 bits (120), Expect = 3e-60
+ Identities = 162/176 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||| ||| | || || ||||||||||| ||||||||||||||||| ||||||||
+Sbjct: 305  ttcggcctttttcttgttttgttctgagtatcgtccaaaaatcaaaggagagcatcctgg 364
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            ||| ||||||||||||||||| ||||||||||||||||||||||||||||| ||||||||
+Sbjct: 365  cctatccattggtgatgttgcaaagaaactgggagagatgtggaataacaccgctgcaga 424
+
+                                                                    
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            ||||||||| |||||||||||||||||||| ||||||||||| || ||||||||||
+Sbjct: 425  tgacaagcacccttatgaaaagaaggctgctaagctgaaggagaagtacgaaaagg 480
+
+
+ Score =  103 bits (52), Expect = 1e-19
+ Identities = 61/64 (95%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            ||||||||||||||||| ||||||||||| |||||||||||||||||||||||||| |||
+Sbjct: 477  aaggatattgctgcataccgagctaaagggaagcctgatgcagcaaaaaagggagtcgtc 536
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 537  aagg 540
+
+
+>L13805 Homo sapiens (clone 06) high mobility group 1 protein mRNA
+            Length = 273
+            
+ Score =  260 bits (131), Expect = 8e-67
+ Identities = 166/181 (91%), Gaps = 1/181 (0%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 85   cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 144
+
+                                                                        
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagtt 2471
+            |||||||||||||||||||||||||||||||||||||||||||||       ||||||||
+Sbjct: 145  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtctttttttgtatagtt 204
+
+                                                                        
+Query: 2472 aacacactaccgaatgtgtctttagatagccctgtcctggtggtatttt-caatagccac 2530
+            ||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||
+Sbjct: 205  aacacactaccgaatgtgtctttagatagccctgtcctggtggtattttgcaatagccac 264
+
+             
+Query: 2531 t 2531
+            |
+Sbjct: 265  t 265
+
+
+>D14718 Human chromosomal protein HMG1 related gene.
+            Length = 2140
+            
+ Score =  252 bits (127), Expect = 2e-64
+ Identities = 194/221 (87%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2355 gtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnnttgaa 2414
+            ||||||||||||||||||||  |||| ||||| |||||||||||||||       | |||
+Sbjct: 1582 gtctataaagcatttaaccctactgttcacaagtcactccttttaaagaaaaaaatggaa 1641
+
+                                                                        
+Query: 2415 atgtaaggctgtgtaagatttgtttttaaactgtacagtgtcnnnnnnngtatagttaac 2474
+            ||||||| ||||||| ||||||||||||||||||||||||||        || |||||||
+Sbjct: 1642 atgtaagtctgtgtaggatttgtttttaaactgtacagtgtctttttttataaagttaac 1701
+
+                                                                        
+Query: 2475 acactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagccactaac 2534
+            |||||||||||||||||||||||||||||| |||||||||| ||||||||||||||||||
+Sbjct: 1702 acactaccgaatgtgtctttagatagccctctcctggtggtgttttcaatagccactaac 1761
+
+                                                     
+Query: 2535 cttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||||| ||||||| ||||||||||||||||||||||
+Sbjct: 1762 cttgcctggtgcagtatgcgggttgtaaattggcatggaaa 1802
+
+
+ Score =  244 bits (123), Expect = 5e-62
+ Identities = 141/147 (95%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 4    ggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgcaa 63
+            |||||||||||| |||||||||| ||||||||||||||||||||||||||||||||||||
+Sbjct: 922  ggcaaaggagattctaagaagccaagaggcaaaatgtcatcatatgcattttttgtgcaa 981
+
+                                                                        
+Query: 64   acttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttt 123
+            ||||||||||| |||||||||||| |||||||||||||||||||||||||||||||||||
+Sbjct: 982  acttgtcgggaagagcataagaagcagcacccagatgcttcagtcaacttctcagagttt 1041
+
+                                       
+Query: 124  tctaagaagtgctcagagaggtggaag 150
+            ||||||||  |||||||||||||||||
+Sbjct: 1042 tctaagaaaggctcagagaggtggaag 1068
+
+
+ Score =  230 bits (116), Expect = 7e-58
+ Identities = 141/148 (95%), Gaps = 1/148 (0%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 328  agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+            |||||||||||||||||||||||||| ||||||||||||||||||| | | |||||||||
+Sbjct: 1067 agaccatgtctgctaaagagaaaggacaatttgaagatatggcaaaggtg-acaaggccc 1125
+
+                                                                        
+Query: 388  gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+             ||||||||||||| |||||||||| ||||||||||||||||||||||||||||||||||
+Sbjct: 1126 attatgaaagagaagtgaaaacctaaatccctcccaaaggggagacaaaaaagaagttca 1185
+
+                                        
+Query: 448  aggatcccaatgcacccaagaggcctcc 475
+            ||||||||||||||||||||||||||||
+Sbjct: 1186 aggatcccaatgcacccaagaggcctcc 1213
+
+
+ Score =  222 bits (112), Expect = 2e-55
+ Identities = 157/172 (91%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||| ||||| |||||||||||||||| ||||||||| ||||||||||| | |||||||
+Sbjct: 1218 gcctttttcctgttctgctctgagtatcacccaaaaattaaaggagaacaacttggcctg 1277
+
+                                                                        
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcagatgac 1093
+             ||||| ||||||| | ||||||||||||||||||||||||||||||||||||||| |||
+Sbjct: 1278 cccattagtgatgtcgtgaagaaactgggagagatgtggaataacactgctgcagaagac 1337
+
+                                                                
+Query: 1094 aagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            |||||||||| ||||||||||||||| ||||| |||||||||||| ||||||
+Sbjct: 1338 aagcagccttgtgaaaagaaggctgcaaagctaaaggaaaaatacaaaaagg 1389
+
+
+ Score = 95.6 bits (48), Expect = 3e-17
+ Identities = 60/64 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgtc 2205
+            |||||||||||||||||| |||||||||| |||||||||||||||||||||||| || ||
+Sbjct: 1386 aaggatattgctgcatattgagctaaagggaagcctgatgcagcaaaaaagggatttatc 1445
+
+                
+Query: 2206 aagg 2209
+            ||||
+Sbjct: 1446 aagg 1449
+
+
+>Y00365 Chinese hamster HMG-1 gene for high mobility group protein 1
+            Length = 2058
+            
+ Score =  246 bits (124), Expect = 1e-62
+ Identities = 163/176 (92%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| ||||||||||||||||||||||||||||||||||| ||
+Sbjct: 192  ttcggccttcttcttgttctgttctgagtatcgcccaaaaatcaaaggagaacatccagg 251
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+             |||||||||||||||||||| ||||||||||||||||||||||| ||||||||||||||
+Sbjct: 252  gctgtccattggtgatgttgcaaagaaactgggagagatgtggaacaacactgctgcaga 311
+
+                                                                    
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            |||||||||||| ||||||||||||||||| || |||||||| || || |||||||
+Sbjct: 312  tgacaagcagccctatgaaaagaaggctgctaaactgaaggagaagtatgaaaagg 367
+
+
+ Score =  198 bits (100), Expect = 3e-48
+ Identities = 136/148 (91%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || ||||||||||| || |||||||| || ||||| || |
+Sbjct: 44  agaccatgtctgctaaagaaaagggaaaatttgaggacatggcaaaggctgacaaagctc 103
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 104 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 163
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||||||||||||||||||
+Sbjct: 164 aggaccccaatgcacccaagaggcctcc 191
+
+
+ Score =  117 bits (59), Expect = 7e-24
+ Identities = 89/99 (89%), Gaps = 3/99 (3%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2360 taaagcatttaacccccctgtacacaactcactccttttaaag--nnnnnnnttgaaatg 2417
+            |||||||||||||||||||||||||||||||||||||||||||         ||||| ||
+Sbjct: 599  taaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaaaattgaa-tg 657
+
+                                                   
+Query: 2418 taaggctgtgtaagatttgtttttaaactgtacagtgtc 2456
+            |||||||||||||||||||||||||||||||||||||||
+Sbjct: 658  taaggctgtgtaagatttgtttttaaactgtacagtgtc 696
+
+
+ Score =  117 bits (59), Expect = 7e-24
+ Identities = 98/107 (91%), Gaps = 3/107 (2%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2469 gttaacacactaccgaatgtgtctttagatagccctgtcctggtggtattttcaatagcc 2528
+            |||||||||||||||| ||||||||  ||| | |||||||||||||||||||||||  ||
+Sbjct: 709  gttaacacactaccga-tgtgtcttg-gatggtcctgtcctggtggtattttcaatgacc 766
+
+                                                           
+Query: 2529 actaaccttgcctggtacagtatgggggttgtaaattggcatggaaa 2575
+            |||||||| |||||||||||| |||||||||||||||||||||||||
+Sbjct: 767  actaacct-gcctggtacagtctgggggttgtaaattggcatggaaa 812
+
+
+ Score = 65.9 bits (33), Expect = 2e-08
+ Identities = 42/45 (93%)
+ Strand = Plus / Plus
+
+                                                        
+Query: 106 gtcaacttctcagagttttctaagaagtgctcagagaggtggaag 150
+           ||||||||||||||||| || |||||||||||||| |||||||||
+Sbjct: 1   gtcaacttctcagagttctcgaagaagtgctcagaaaggtggaag 45
+
+
+ Score = 58.0 bits (29), Expect = 6e-06
+ Identities = 47/53 (88%)
+ Strand = Plus / Plus
+
+                                                                 
+Query: 2146 aaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaaggg 2198
+            |||||||||||||| ||  ||||||||||||| || |||||||| ||||||||
+Sbjct: 364  aaggatattgctgcttacagagctaaaggaaaacccgatgcagcgaaaaaggg 416
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 2323 taagttggttctagcgcag 2341
+            |||||||||||||||||||
+Sbjct: 541  taagttggttctagcgcag 559
+
+
+>M63852 Rat high mobility group 1 protein synthetic gene, complete
+           cds.
+           Length = 924
+           
+ Score =  226 bits (114), Expect = 1e-56
+ Identities = 141/150 (94%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 89  atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 148
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||| || ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 149 caaacctgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 208
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||||||||||||||||||||||
+Sbjct: 209 ttctccaagaagtgctcagagaggtggaag 238
+
+
+ Score =  206 bits (104), Expect = 1e-50
+ Identities = 137/148 (92%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 237 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 296
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 297 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 356
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||| ||||||||||||||
+Sbjct: 357 aggaccccaatgcccccaagaggcctcc 384
+
+
+ Score =  202 bits (102), Expect = 2e-49
+ Identities = 147/162 (90%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||||||||||||||| || ||||||||
+Sbjct: 385  ttcggccttcttcttgttctgttctgagtaccgcccaaaaatcaaaggcgagcatcctgg 444
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | |||||||||||||||||||||||| | |||||||||||||| ||||||||||| ||
+Sbjct: 445  cttatccattggtgatgttgcgaagaaattaggagagatgtggaacaacactgctgcgga 504
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| |||||||||||||| || |||||||||||
+Sbjct: 505  tgacaagcagccctatgaaaagaaggccgccaagctgaagga 546
+
+
+ Score =  167 bits (84), Expect = 9e-39
+ Identities = 98/105 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 762  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 821
+
+                                                         
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtc 2456
+            |||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 822  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtc 866
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 556  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 615
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 616  caagg 620
+
+
+>Y00463 Rat mRNA for high mobility group protein HMG1
+           Length = 825
+           
+ Score =  226 bits (114), Expect = 1e-56
+ Identities = 141/150 (94%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||||| ||||||
+Sbjct: 28  atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtg 87
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||| || ||||||||||| |||||||||||||| |||||||| |||||||||||||||
+Sbjct: 88  caaacctgccgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcagag 147
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||||||||||||||||||||||
+Sbjct: 148 ttctccaagaagtgctcagagaggtggaag 177
+
+
+ Score =  206 bits (104), Expect = 1e-50
+ Identities = 137/148 (92%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||||||||| || || |||||||||||||||||||| || |||||||| |
+Sbjct: 176 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaaggctgacaaggctc 235
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           ||||||||||||||||||||||||| ||||| |||||||||||||| |||||||||||||
+Sbjct: 236 gttatgaaagagaaatgaaaacctacatcccccccaaaggggagaccaaaaagaagttca 295
+
+                                       
+Query: 448 aggatcccaatgcacccaagaggcctcc 475
+           |||| |||||||| ||||||||||||||
+Sbjct: 296 aggaccccaatgcccccaagaggcctcc 323
+
+
+ Score =  202 bits (102), Expect = 2e-49
+ Identities = 147/162 (90%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 970  ttcggccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctgg 1029
+            ||||||||||||| | ||||| |||||||| ||||||||||||||||| || ||||||||
+Sbjct: 324  ttcggccttcttcttgttctgttctgagtaccgcccaaaaatcaaaggcgagcatcctgg 383
+
+                                                                        
+Query: 1030 cctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgcaga 1089
+            | | |||||||||||||||||||||||| | |||||||||||||| ||||||||||| ||
+Sbjct: 384  cttatccattggtgatgttgcgaagaaattaggagagatgtggaacaacactgctgcgga 443
+
+                                                      
+Query: 1090 tgacaagcagccttatgaaaagaaggctgcgaagctgaagga 1131
+            |||||||||||| |||||||||||||| || |||||||||||
+Sbjct: 444  tgacaagcagccctatgaaaagaaggccgccaagctgaagga 485
+
+
+ Score =  167 bits (84), Expect = 9e-39
+ Identities = 98/105 (93%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagnnnnnnntt 2411
+            |||||||||||||||||||||||||||||||||||||||||||||||||||       ||
+Sbjct: 701  cttgtctataaagcatttaacccccctgtacacaactcactccttttaaagaaaaaaatt 760
+
+                                                         
+Query: 2412 gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtc 2456
+            |||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 761  gaaatgtaaggctgtgtaagatttgtttttaaactgtacagtgtc 805
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 58/65 (89%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2145 gaaggatattgctgcatatcgagctaaaggaaagcctgatgcagcaaaaaagggagttgt 2204
+            ||||||||||||||| ||  ||||||||||||| ||||||||||| |||||||| || ||
+Sbjct: 495  gaaggatattgctgcctacagagctaaaggaaaacctgatgcagcgaaaaagggggtggt 554
+
+                 
+Query: 2205 caagg 2209
+            |||||
+Sbjct: 555  caagg 559
+
+
+>X80466 M.musculus HMG1-R-227 gene
+           Length = 184
+           
+ Score =  210 bits (106), Expect = 7e-52
+ Identities = 130/138 (94%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 13  gatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgcaaacttgtcgg 72
+           ||||||||||||||||||||||||||||| ||||||||||| |||||||||||||| |||
+Sbjct: 1   gatcctaagaagccgagaggcaaaatgtcctcatatgcattctttgtgcaaacttgccgg 60
+
+                                                                       
+Query: 73  gaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaagaag 132
+           |||||||| |||||||||||||| |||||||| ||||||||||||||||| || ||||||
+Sbjct: 61  gaggagcacaagaagaagcacccggatgcttctgtcaacttctcagagttctccaagaag 120
+
+                             
+Query: 133 tgctcagagaggtggaag 150
+           ||||||||||||||||||
+Sbjct: 121 tgctcagagaggtggaag 138
+
+
+ Score = 67.9 bits (34), Expect = 6e-09
+ Identities = 43/46 (93%)
+ Strand = Plus / Plus
+
+                                                         
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaa 373
+           ||||||||||||||||||| || || ||||||||||||||||||||
+Sbjct: 137 agaccatgtctgctaaagaaaaggggaaatttgaagatatggcaaa 182
+
+
+>X80462 M.musculus HMG1-R-154 gene
+           Length = 190
+           
+ Score =  184 bits (93), Expect = 4e-44
+ Identities = 135/149 (90%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||||||||||||||||||||||||||||||||| ||||||||  | ||||||
+Sbjct: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcctcatatgcgctctttgtg 60
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+            |||| ||  |||||||||| |||||||||||||| |||||||| ||||||||||||| |
+Sbjct: 61  aaaacctgctgggaggagcacaagaagaagcacccggatgcttctgtcaacttctcaggg 120
+
+                                        
+Query: 121 ttttctaagaagtgctcagagaggtggaa 149
+           || || |||||||||||||||||||||||
+Sbjct: 121 ttctccaagaagtgctcagagaggtggaa 149
+
+
+ Score = 48.1 bits (24), Expect = 0.006
+ Identities = 36/40 (90%)
+ Strand = Plus / Plus
+
+                                                   
+Query: 330 accatgtctgctaaagagaaaggaaaatttgaagatatgg 369
+           ||||||||||||||||| || || |||||||||| |||||
+Sbjct: 151 accatgtctgctaaagaaaaggggaaatttgaaggtatgg 190
+
+
+>X80461 M.musculus HMG1-R-145 gene
+           Length = 196
+           
+ Score =  147 bits (74), Expect = 8e-33
+ Identities = 126/142 (88%), Gaps = 1/142 (0%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 9   aggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgcaaacttg 68
+           |||||||||||||||||| ||||||| |||||| | ||||||||| ||||||||||| ||
+Sbjct: 9   aggagatcctaagaagccaagaggcacaatgtccttatatgcattctttgtgcaaacctg 68
+
+                                                                       
+Query: 69  tcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaa 128
+            ||||||||||| | || ||  |||||||||||||| ||||||||||||||| | || ||
+Sbjct: 69  ccgggaggagcacagga-gagacacccagatgcttctgtcaacttctcagagctctccaa 127
+
+                                 
+Query: 129 gaagtgctcagagaggtggaag 150
+           ||||||||||||||||||||||
+Sbjct: 128 gaagtgctcagagaggtggaag 149
+
+
+ Score = 58.0 bits (29), Expect = 6e-06
+ Identities = 38/41 (92%)
+ Strand = Plus / Plus
+
+                                                    
+Query: 332 catgtctgctaaagagaaaggaaaatttgaagatatggcaa 372
+           ||||||||||||||| || || |||||||||||||||||||
+Sbjct: 151 catgtctgctaaagaaaaggggaaatttgaagatatggcaa 191
+
+
+>X80459 M.musculus HMG1-R-177 gene
+           Length = 173
+           
+ Score =  133 bits (67), Expect = 1e-28
+ Identities = 127/146 (86%), Gaps = 2/146 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 2   tgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgc 61
+           ||||||||  |||||||||||||| ||||||||||||||| ||||||||||| ||| |||
+Sbjct: 2   tgggcaaaaaagatcctaagaagctgagaggcaaaatgtcctcatatgcattctttttgc 61
+
+                                                                       
+Query: 62  aaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagt 121
+           |||| | | ||| | |||| |||||||||||||  |||||||   ||||||| |||||||
+Sbjct: 62  aaaccttttgggtgtagcacaagaagaagcacctggatgctt--ttcaacttttcagagt 119
+
+                                     
+Query: 122 tttctaagaagtgctcagagaggtgg 147
+           | ||||||||||||||||||||||||
+Sbjct: 120 tctctaagaagtgctcagagaggtgg 145
+
+
+>X80467 M.musculus HMG1-R-87 gene
+           Length = 190
+           
+ Score =  133 bits (67), Expect = 1e-28
+ Identities = 127/146 (86%), Gaps = 2/146 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 2   tgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgc 61
+           ||||||||  |||||||||||||| ||||||||||||||| ||||||||||| ||| |||
+Sbjct: 2   tgggcaaaaaagatcctaagaagctgagaggcaaaatgtcctcatatgcattctttttgc 61
+
+                                                                       
+Query: 62  aaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagt 121
+           |||| | | ||| | |||| |||||||||||||  |||||||   ||||||| |||||||
+Sbjct: 62  aaaccttttgggtgtagcacaagaagaagcacctggatgctt--ttcaacttttcagagt 119
+
+                                     
+Query: 122 tttctaagaagtgctcagagaggtgg 147
+           | ||||||||||||||||||||||||
+Sbjct: 120 tctctaagaagtgctcagagaggtgg 145
+
+
+ Score = 52.0 bits (26), Expect = 4e-04
+ Identities = 38/42 (90%)
+ Strand = Plus / Plus
+
+                                                     
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatgg 369
+           |||||||| |||||||||| || || ||||||||||||||||
+Sbjct: 147 agaccatgactgctaaagaaaaggggaaatttgaagatatgg 188
+
+
+>X80465 M.musculus HMG1-R-168 gene
+           Length = 181
+           
+ Score =  133 bits (67), Expect = 1e-28
+ Identities = 131/151 (86%), Gaps = 1/151 (0%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatc-atatgcattttttgt 59
+           ||||||||||||||||||||||||| |||| |||||||||| |  ||||||||| ||| |
+Sbjct: 1   atgggcaaaggagatcctaagaagctgagacgcaaaatgtcctgtatatgcattctttat 60
+
+                                                                       
+Query: 60  gcaaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcaga 119
+           |||||| || | ||||||||| ||||  ||| |||  |||||||| ||||||||||||||
+Sbjct: 61  gcaaacctgccaggaggagcacaagacaaagtacctggatgcttctgtcaacttctcaga 120
+
+                                          
+Query: 120 gttttctaagaagtgctcagagaggtggaag 150
+           ||| || |||||||| |||||||||||||||
+Sbjct: 121 gttctccaagaagtgttcagagaggtggaag 151
+
+
+ Score = 48.1 bits (24), Expect = 0.006
+ Identities = 30/32 (93%)
+ Strand = Plus / Plus
+
+                                           
+Query: 328 agaccatgtctgctaaagagaaaggaaaattt 359
+           ||||||||||||||||||| ||||| ||||||
+Sbjct: 150 agaccatgtctgctaaagaaaaagggaaattt 181
+
+
+>X80463 M.musculus HMG1-R-159 gene
+           Length = 192
+           
+ Score =  131 bits (66), Expect = 5e-28
+ Identities = 127/146 (86%), Gaps = 1/146 (0%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 2   tgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgc 61
+           ||||||||  |||||||||||||| ||||||||||||||| ||||||||||| ||| |||
+Sbjct: 2   tgggcaaaaaagatcctaagaagctgagaggcaaaatgtcctcatatgcattctttttgc 61
+
+                                                                       
+Query: 62  aaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagt 121
+           |||| | | ||| | |||| |||||||||||||  ||||||||  ||||||| |||||||
+Sbjct: 62  aaaccttttgggtgtagcacaagaagaagcacctggatgcttc-ttcaacttttcagagt 120
+
+                                     
+Query: 122 tttctaagaagtgctcagagaggtgg 147
+           | |||| |||||||||||||||||||
+Sbjct: 121 tctctatgaagtgctcagagaggtgg 146
+
+
+ Score = 52.0 bits (26), Expect = 4e-04
+ Identities = 38/42 (90%)
+ Strand = Plus / Plus
+
+                                                     
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatgg 369
+           |||||||| |||||||||| || || ||||||||||||||||
+Sbjct: 148 agaccatgactgctaaagaaaaggggaaatttgaagatatgg 189
+
+
+>L32859 Rainbow trout HMG-1 gene exons 2-5, complete cds.
+            Length = 3882
+            
+ Score =  127 bits (64), Expect = 8e-27
+ Identities = 124/144 (86%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 12   agatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgcaaacttgtcg 71
+            |||||| | ||||||||| ||||| ||||| || ||||| |  ||||| || || |||||
+Sbjct: 1285 agatccaaggaagccgaggggcaagatgtcctcctatgcctactttgtccagacctgtcg 1344
+
+                                                                        
+Query: 72   ggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaagaa 131
+            ||||||||| |||||||| |||||||| ||||| ||||||||||||||||| || |||||
+Sbjct: 1345 ggaggagcacaagaagaaacacccagaagcttccgtcaacttctcagagttctccaagaa 1404
+
+                                    
+Query: 132  gtgctcagagaggtggaaggtaag 155
+            |||||| ||||| |||||||||||
+Sbjct: 1405 gtgctctgagagatggaaggtaag 1428
+
+
+ Score = 50.1 bits (25), Expect = 0.001
+ Identities = 97/121 (80%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 1028 ggcctgtccattggtgatgttgcgaagaaactgggagagatgtggaataacactgctgca 1087
+            |||||||| || |||||||| || ||||| |||||||||| |||||| |||    | || 
+Sbjct: 2358 ggcctgtctatcggtgatgtggccaagaagctgggagagaagtggaacaacctaacagcg 2417
+
+                                                                        
+Query: 1088 gatgacaagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaaggta 1147
+            || ||||||   || ||||| ||||||||| | ||||||||||| || ||||| ||||||
+Sbjct: 2418 gaggacaaggtaccctatgagaagaaggcttccaagctgaaggagaagtacgagaaggta 2477
+
+             
+Query: 1148 a 1148
+            |
+Sbjct: 2478 a 2478
+
+
+ Score = 46.1 bits (23), Expect = 0.023
+ Identities = 122/155 (78%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 328  agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+            ||||||||||||| || ||||| || || ||||| ||| |||| |||  ||||||||  |
+Sbjct: 1845 agaccatgtctgccaaggagaaggggaagtttgaggatctggccaaactggacaaggtgc 1904
+
+                                                                        
+Query: 388  gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+            | ||||| || || ||||  | ||| || |||||||| || ||||  || |||| |||||
+Sbjct: 1905 gatatgagagggagatgaggagctacattcctcccaagggagagaagaagaagaggttca 1964
+
+                                               
+Query: 448  aggatcccaatgcacccaagaggcctccgtgagta 482
+            |||| ||||| || |||||||| ||  ||||||||
+Sbjct: 1965 aggaccccaacgcccccaagagaccatcgtgagta 1999
+
+
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 25/26 (96%)
+ Strand = Plus / Plus
+
+                                      
+Query: 2352 cttgtctataaagcatttaacccccc 2377
+            ||||| ||||||||||||||||||||
+Sbjct: 3186 cttgtttataaagcatttaacccccc 3211
+
+
+>X80460 M.musculus HMG1-R-135 gene
+           Length = 190
+           
+ Score =  127 bits (64), Expect = 8e-27
+ Identities = 126/144 (87%), Gaps = 2/144 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 2   tgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgc 61
+           ||||||||  |||||||||||||| ||||||||||||||| ||||||||||| ||| |||
+Sbjct: 2   tgggcaaaaaagatcctaagaagctgagaggcaaaatgtcctcatatgcattctttttgc 61
+
+                                                                       
+Query: 62  aaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagt 121
+           |||| |   ||| | |||| |||||||||||||| ||||||||  ||||||| |||||||
+Sbjct: 62  aaaccttctgggtgtagcacaagaagaagcacccggatgcttc-ttcaactt-tcagagt 119
+
+                                   
+Query: 122 tttctaagaagtgctcagagaggt 145
+           | ||||||||||||||||||||||
+Sbjct: 120 tctctaagaagtgctcagagaggt 143
+
+
+ Score = 52.0 bits (26), Expect = 4e-04
+ Identities = 38/42 (90%)
+ Strand = Plus / Plus
+
+                                                     
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatgg 369
+           |||||||| |||||||||| || || ||||||||||||||||
+Sbjct: 147 agaccatgactgctaaagaaaaggggaaatttgaagatatgg 188
+
+
+>X80464 M.musculus HMG1-R-161 gene
+           Length = 195
+           
+ Score =  125 bits (63), Expect = 3e-26
+ Identities = 128/147 (87%), Gaps = 2/147 (1%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 2   tgggcaaaggagatcctaagaagcc-gagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||  ||||||||||||| | ||||||||||||||| ||||||||||| ||| ||
+Sbjct: 2   tgggcaaaaaagatcctaagaaggctgagaggcaaaatgtcctcatatgcattctttttg 61
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||| | | ||| | |||| |||||||||||||  ||||||||  ||||||| ||||||
+Sbjct: 62  caaaccttttgggtgtagcacaagaagaagcacctggatgcttc-ttcaacttttcagag 120
+
+                                      
+Query: 121 ttttctaagaagtgctcagagaggtgg 147
+           || ||||||||||||||||||||||||
+Sbjct: 121 ttctctaagaagtgctcagagaggtgg 147
+
+
+ Score = 52.0 bits (26), Expect = 4e-04
+ Identities = 38/42 (90%)
+ Strand = Plus / Plus
+
+                                                     
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatgg 369
+           |||||||| |||||||||| || || ||||||||||||||||
+Sbjct: 149 agaccatgactgctaaagaaaaggggaaatttgaagatatgg 190
+
+
+>X02666 Trout mRNA for high mobility group protein HMG-T
+           Length = 716
+           
+ Score =  117 bits (59), Expect = 7e-24
+ Identities = 119/139 (85%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 12  agatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtgcaaacttgtcg 71
+           |||||| | ||||||||| ||||| ||||| || ||||| |  ||||| || ||| ||||
+Sbjct: 9   agatccaaggaagccgaggggcaagatgtcctcctatgcctactttgtccagactcgtcg 68
+
+                                                                       
+Query: 72  ggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaagaa 131
+           ||||||||| |||||||| |||||||| ||||| ||||||||||||||||| || |||||
+Sbjct: 69  ggaggagcacaagaagaaacacccagaagcttccgtcaacttctcagagttctccaagaa 128
+
+                              
+Query: 132 gtgctcagagaggtggaag 150
+           |||||| ||||| ||||||
+Sbjct: 129 gtgctctgagagatggaag 147
+
+
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 112/142 (78%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaagcggacaaggccc 387
+           ||||||||||||| || ||||| || || ||||| ||| |||| |||  ||||||||  |
+Sbjct: 146 agaccatgtctgccaaggagaaggggaagtttgaggatctggccaaactggacaaggtgc 205
+
+                                                                       
+Query: 388 gttatgaaagagaaatgaaaacctatatccctcccaaaggggagacaaaaaagaagttca 447
+           | ||||| || || ||||  | ||| || |||||||| || ||||  || |||| |||||
+Sbjct: 206 gatatgagagggagatgaggagctacattcctcccaagggagagaagaagaagaggttca 265
+
+                                 
+Query: 448 aggatcccaatgcacccaagag 469
+           |||| ||||| || ||||||||
+Sbjct: 266 aggaccccaacgcccccaagag 287
+
+
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 25/26 (96%)
+ Strand = Plus / Plus
+
+                                      
+Query: 2352 cttgtctataaagcatttaacccccc 2377
+            ||||| ||||||||||||||||||||
+Sbjct: 648  cttgtttataaagcatttaacccccc 673
+
+
+>U21933 Xenopus laevis high mobility group protein-1 (HMG-1) mRNA,
+           complete
+           Length = 1552
+           
+ Score =  107 bits (54), Expect = 7e-21
+ Identities = 126/150 (84%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||| ||||| |||||||||||||| ||||| |||||||| |||||||| |  ||||||
+Sbjct: 57  atgggtaaaggtgatcctaagaagccaagaggaaaaatgtcctcatatgcttactttgtg 116
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           ||||| ||  | || ||||| ||||| |||||||| ||||| || || || ||  |||||
+Sbjct: 117 caaacatgcagagaagagcacaagaaaaagcaccctgatgcctctgtaaattttgcagag 176
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||||||||| |||||||| |||||||||
+Sbjct: 177 ttttctaagaaatgctcagaaaggtggaag 206
+
+
+ Score = 89.7 bits (45), Expect = 2e-15
+ Identities = 45/45 (100%)
+ Strand = Plus / Plus
+
+                                                         
+Query: 2353 ttgtctataaagcatttaacccccctgtacacaactcactccttt 2397
+            |||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 705  ttgtctataaagcatttaacccccctgtacacaactcactccttt 749
+
+
+ Score = 89.7 bits (45), Expect = 2e-15
+ Identities = 96/113 (84%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 357 tttgaagatatggcaaaagcggacaaggcccgttatgaaagagaaatgaaaacctatatc 416
+           |||||||||||||||||||| ||||| |  || ||||| || ||||||||||  ||||| 
+Sbjct: 231 tttgaagatatggcaaaagccgacaaagttcgctatgagagggaaatgaaaagttatatt 290
+
+                                                                
+Query: 417 cctcccaaaggggagacaaaaaagaagttcaaggatcccaatgcacccaagag 469
+           || |||||||| || |||||||||| ||||||||| || |||||||| |||||
+Sbjct: 291 ccacccaaaggagaaacaaaaaagaggttcaaggaccctaatgcaccaaagag 343
+
+
+ Score = 87.7 bits (44), Expect = 7e-15
+ Identities = 82/92 (89%), Gaps = 2/92 (2%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 1055 aaactgggagagatgtggaataacactgctgcagatgacaagcagccttatgaaaagaag 1114
+            |||||||||||||||||||||||||||||| |||||||||| | ||| |||| || ||||
+Sbjct: 435  aaactgggagagatgtggaataacactgctacagatgacaaactgccctatg-aacgaag 493
+
+                                            
+Query: 1115 -gctgcgaagctgaaggaaaaatacgaaaagg 1145
+             ||||| ||||||||||| ||||| |||||||
+Sbjct: 494  agctgccaagctgaaggagaaatatgaaaagg 525
+
+
+ Score = 73.8 bits (37), Expect = 1e-10
+ Identities = 94/111 (84%), Gaps = 4/111 (3%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 2464 gtatagttaacacactaccgaatgtgtctttagatagccctgtc--ctggtggtattttc 2521
+            ||||||||||||||||||||||||||||  ||| ||| ||||||   | ||||| || | 
+Sbjct: 851  gtatagttaacacactaccgaatgtgtc--tagctagtcctgtcttatagtggttttgtt 908
+
+                                                               
+Query: 2522 aatagccactaaccttgcctggtacagtatgggggttgtaaattggcatgg 2572
+            ||| ||||||||||||||||  |||||||  ||||||||||| ||||||||
+Sbjct: 909  aattgccactaaccttgcctcttacagtaaaggggttgtaaactggcatgg 959
+
+
+ Score = 42.1 bits (21), Expect = 0.36
+ Identities = 37/41 (90%), Gaps = 1/41 (2%)
+ Strand = Plus / Plus
+
+                                                     
+Query: 2413 aaatgtaaggctgtgtaagatttgtttttaaactgtacagt 2453
+            |||| ||| ||||||||||||||| |||| |||||||||||
+Sbjct: 763  aaatataatgctgtgtaagatttgatttt-aactgtacagt 802
+
+
+>I14731 Sequence 10 from patent US 5451670.
+            Length = 2188
+            
+ Score = 91.7 bits (46), Expect = 4e-16
+ Identities = 46/46 (100%)
+ Strand = Plus / Minus
+
+                                                          
+Query: 2352 cttgtctataaagcatttaacccccctgtacacaactcactccttt 2397
+            ||||||||||||||||||||||||||||||||||||||||||||||
+Sbjct: 46   cttgtctataaagcatttaacccccctgtacacaactcactccttt 1
+
+
+>X63463 G.gallus HMG2a mRNA
+           Length = 1073
+           
+ Score = 89.7 bits (45), Expect = 2e-15
+ Identities = 90/105 (85%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 46  tatgcattttttgtgcaaacttgtcgggaggagcataagaagaagcacccagatgcttca 105
+           ||||| || |||||||| || || || |||||||| ||||||||| ||||||| | | | 
+Sbjct: 106 tatgccttctttgtgcagacgtgccgtgaggagcacaagaagaagaacccagaggttcct 165
+
+                                                        
+Query: 106 gtcaacttctcagagttttctaagaagtgctcagagaggtggaag 150
+           ||||||||  ||||||| |||||||||||||||||||||||||||
+Sbjct: 166 gtcaactttgcagagttctctaagaagtgctcagagaggtggaag 210
+
+
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 44/52 (84%)
+ Strand = Plus / Plus
+
+                                                                
+Query: 1094 aagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            |||||||| ||| | || |||||||| ||||||||||| || ||||| ||||
+Sbjct: 475  aagcagccctataacaataaggctgctaagctgaaggagaagtacgagaagg 526
+
+
+>Z29356 Gallus domesticus of h71t7 gene encoding G.domesticus
+           expressed sequence
+           Length = 237
+           
+ Score = 81.8 bits (41), Expect = 4e-13
+ Identities = 74/85 (87%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||||||||| ||||| |||||||||||||| |||||||| ||||| || || ||||||
+Sbjct: 153 atgggcaaaggtgatcccaagaagccgagaggtaaaatgtcttcatacgccttctttgtg 212
+
+                                    
+Query: 61  caaacttgtcgggaggagcataaga 85
+           ||||| || ||| ||||||| ||||
+Sbjct: 213 caaacctgccggcaggagcacaaga 237
+
+
+>D84418 Rat mRNA for chromosomal protein HMG2, complete cds.
+            Length = 1072
+            
+ Score = 77.8 bits (39), Expect = 6e-12
+ Identities = 84/99 (84%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||||||| || ||||||||  |||||||||| |||||| | ||||| || ||||||
+Sbjct: 375  gccttcttcctgttttgctctgaacatcgcccaaagatcaaaagtgaacaccccggcctg 434
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            || ||||| |||  ||| ||||||||||| |||||||||
+Sbjct: 435  tctattggagatactgcaaagaaactgggggagatgtgg 473
+
+
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 118/150 (78%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           |||||||| || || || || |||||| | ||||| ||||| || || || || || |||
+Sbjct: 75  atgggcaagggggaccccaacaagccgcggggcaagatgtcctcgtacgccttcttcgtg 134
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           || || || ||||||||||| ||||||||||| || ||  | || ||||||||| | |||
+Sbjct: 135 cagacctgccgggaggagcacaagaagaagcatcccgactcgtcggtcaacttcgccgag 194
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||| || || ||||| ||||||
+Sbjct: 195 ttctcgaagaaatgttcggagagatggaag 224
+
+
+>Z46757 M.musculus mRNA for high mobility group 2 protein.
+            Length = 870
+            
+ Score = 77.8 bits (39), Expect = 6e-12
+ Identities = 84/99 (84%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||||||| || ||||||||  |||||||||| ||||||   ||||| || ||||||
+Sbjct: 397  gccttcttcctgttttgctctgaaaatcgcccaaagatcaaaattgaacacccaggcctg 456
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            || ||||| |||  ||||||||||||||| |||||||||
+Sbjct: 457  tctattggagatactgcgaagaaactgggtgagatgtgg 495
+
+
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 118/150 (78%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           |||||||| || || || || |||||| | ||||||||||| || || || || || |||
+Sbjct: 97  atgggcaagggtgaccccaacaagccgcggggcaaaatgtcctcgtacgccttcttcgtg 156
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           || || || || |||||||| ||||||||||| || ||  | || || |||||| | |||
+Sbjct: 157 cagacctgccgcgaggagcacaagaagaagcatcccgactcgtcggtgaacttcgccgag 216
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||| ||||| ||||| ||||||
+Sbjct: 217 ttctccaagaaatgctccgagagatggaag 246
+
+
+>U31513 Ambystoma mexicanum high mobility group protein-2 (HMG-2)
+           mRNA,
+           Length = 1048
+           
+ Score = 75.8 bits (38), Expect = 3e-11
+ Identities = 122/150 (81%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||| ||||||||||| || |||||  | ||||| ||||| || || || |  ||||||
+Sbjct: 19  atgggtaaaggagatccgaacaagccccggggcaagatgtcgtcctacgcctactttgtg 78
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           || || || |||||||||||||||||||||||||| || || || || |||||| | |||
+Sbjct: 79  cagacgtgccgggaggagcataagaagaagcacccggacgcctccgtaaacttcgccgag 138
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || ||||| |||||||| ||  ||||||||
+Sbjct: 139 ttctctaaaaagtgctccgaacggtggaag 168
+
+
+ Score = 46.1 bits (23), Expect = 0.023
+ Identities = 23/23 (100%)
+ Strand = Plus / Plus
+
+                                  
+Query: 447 aaggatcccaatgcacccaagag 469
+           |||||||||||||||||||||||
+Sbjct: 289 aaggatcccaatgcacccaagag 311
+
+
+>D14314 Chicken mRNA for HMG-1, complete cds.
+           Length = 740
+           
+ Score = 69.9 bits (35), Expect = 2e-09
+ Identities = 88/105 (83%), Gaps = 3/105 (2%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 46  tatgcattttttgtgcaaacttgtcgggaggagcataagaagaagcacccagatgcttca 105
+           ||||| || |||||||| || || || |||||||| ||||||||   |||||| | | | 
+Sbjct: 66  tatgccttctttgtgcagacgtgccgtgaggagcacaagaagaa---cccagaggttcct 122
+
+                                                        
+Query: 106 gtcaacttctcagagttttctaagaagtgctcagagaggtggaag 150
+           ||||||||  ||||||| |||||||||||||||||||||||||||
+Sbjct: 123 gtcaactttgcagagttctctaagaagtgctcagagaggtggaag 167
+
+
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 44/52 (84%)
+ Strand = Plus / Plus
+
+                                                                
+Query: 1094 aagcagccttatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            |||||||| ||| | || |||||||| ||||||||||| || ||||| ||||
+Sbjct: 432  aagcagccctataacaataaggctgctaagctgaaggagaagtacgagaagg 483
+
+
+>Z17240 Homo sapiens for mRNA encoding HMG2B.
+            Length = 1066
+            
+ Score = 69.9 bits (35), Expect = 2e-09
+ Identities = 83/99 (83%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||||||| || ||||||||  |||||||||| |||||| | ||||| |||||||| 
+Sbjct: 232  gccttcttcctgttttgctctgaacatcgcccaaagatcaaaagtgaacaccctggccta 291
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            |||||||| |||  ||| |||||| |||| || ||||||
+Sbjct: 292  tccattggggatactgcaaagaaattgggtgaaatgtgg 330
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 40/47 (85%)
+ Strand = Plus / Plus
+
+                                                          
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaa 374
+           ||||||||||||| || |||||    || ||||||||||||||||||
+Sbjct: 80  agaccatgtctgcaaaggagaagtcgaagtttgaagatatggcaaaa 126
+
+
+>M83665 Human high mobility group 2 protein (HMG-2) gene, complete
+            cds.
+            Length = 4341
+            
+ Score = 69.9 bits (35), Expect = 2e-09
+ Identities = 83/99 (83%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||||||| || ||||||||  |||||||||| |||||| | ||||| |||||||| 
+Sbjct: 2327 gccttcttcctgttttgctctgaacatcgcccaaagatcaaaagtgaacaccctggccta 2386
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            |||||||| |||  ||| |||||| |||| || ||||||
+Sbjct: 2387 tccattggggatactgcaaagaaattgggtgaaatgtgg 2425
+
+
+ Score = 56.0 bits (28), Expect = 2e-05
+ Identities = 121/152 (79%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 1    atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+            ||||| |||||||| || || |||||| | ||||||||||| || || || || || |||
+Sbjct: 1669 atgggtaaaggagaccccaacaagccgcggggcaaaatgtcctcgtacgccttcttcgtg 1728
+
+                                                                        
+Query: 61   caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+            || || || ||||| ||||| |||||||| ||||| ||  |||| ||||| ||| | || 
+Sbjct: 1729 cagacctgccgggaagagcacaagaagaaacacccggactcttccgtcaatttcgcggaa 1788
+
+                                            
+Query: 121  ttttctaagaagtgctcagagaggtggaaggt 152
+            || || |||||||| || ||||| ||||||||
+Sbjct: 1789 ttctccaagaagtgttcggagagatggaaggt 1820
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 2147 aggatattgctgcatatcg 2165
+            |||||||||||||||||||
+Sbjct: 3078 aggatattgctgcatatcg 3096
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 40/47 (85%)
+ Strand = Plus / Plus
+
+                                                           
+Query: 328  agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaa 374
+            ||||||||||||| || |||||    || ||||||||||||||||||
+Sbjct: 2102 agaccatgtctgcaaaggagaagtcgaagtttgaagatatggcaaaa 2148
+
+
+>X62534 H.sapiens HMG-2 mRNA
+            Length = 1301
+            
+ Score = 69.9 bits (35), Expect = 2e-09
+ Identities = 83/99 (83%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||||||| || ||||||||  |||||||||| |||||| | ||||| |||||||| 
+Sbjct: 515  gccttcttcctgttttgctctgaacatcgcccaaagatcaaaagtgaacaccctggccta 574
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            |||||||| |||  ||| |||||| |||| || ||||||
+Sbjct: 575  tccattggggatactgcaaagaaattgggtgaaatgtgg 613
+
+
+ Score = 52.0 bits (26), Expect = 4e-04
+ Identities = 119/150 (79%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||| |||||||| || || |||||| | ||||||||||| || || || || || |||
+Sbjct: 215 atgggtaaaggagaccccaacaagccgcggggcaaaatgtcctcgtacgccttcttcgtg 274
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           || || || ||||| ||||| |||||||| ||||| ||  |||| ||||| ||| | || 
+Sbjct: 275 cagacctgccgggaagagcacaagaagaaacacccggactcttccgtcaatttcgcggaa 334
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || |||||||| || ||||| ||||||
+Sbjct: 335 ttctccaagaagtgttcggagagatggaag 364
+
+
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 20/20 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 2146 aaggatattgctgcatatcg 2165
+            ||||||||||||||||||||
+Sbjct: 683  aaggatattgctgcatatcg 702
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 40/47 (85%)
+ Strand = Plus / Plus
+
+                                                          
+Query: 328 agaccatgtctgctaaagagaaaggaaaatttgaagatatggcaaaa 374
+           ||||||||||||| || |||||    || ||||||||||||||||||
+Sbjct: 363 agaccatgtctgcaaaggagaagtcgaagtttgaagatatggcaaaa 409
+
+
+>X98857 L.fluviatilis mRNA for HMG protein
+           Length = 1650
+           
+ Score = 67.9 bits (34), Expect = 6e-09
+ Identities = 121/150 (80%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           ||||| || |||||||| |||||||| |  ||||| ||||| ||||| || |  || |||
+Sbjct: 73  atgggtaagggagatccgaagaagcccaagggcaagatgtcgtcatacgcctacttcgtg 132
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           || || || || |||||||| ||||||||| ||||||| || || ||||||||  | |||
+Sbjct: 133 cagacgtgccgcgaggagcacaagaagaagaacccagaggcgtcggtcaactttgccgag 192
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||||||||| ||| ||||||||
+Sbjct: 193 ttctccaagaagtgctccgagcggtggaag 222
+
+
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 26/28 (92%)
+ Strand = Plus / Plus
+
+                                        
+Query: 1047 ttgcgaagaaactgggagagatgtggaa 1074
+            |||| ||||||||||| |||||||||||
+Sbjct: 449  ttgccaagaaactgggtgagatgtggaa 476
+
+
+>X67668 M.musculus mRNA for high mobility group 2 protein
+            Length = 847
+            
+ Score = 61.9 bits (31), Expect = 4e-07
+ Identities = 82/99 (82%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||| ||| || ||||||||  |||||||||| ||||||   ||| | || ||||||
+Sbjct: 436  gccttctgcctgttttgctctgaaaatcgcccaaagatcaaaattgaatacccgggcctg 495
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            || ||||| |||  ||||||||||||||| |||||||||
+Sbjct: 496  tctattggagatactgcgaagaaactgggtgagatgtgg 534
+
+
+ Score = 60.0 bits (30), Expect = 2e-06
+ Identities = 54/62 (87%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 31  ggcaaaatgtcatcatatgcattttttgtgcaaacttgtcgggaggagcataagaagaag 90
+           ||||||||||| || || || ||||||||||| || || ||||||||||| |||||||||
+Sbjct: 166 ggcaaaatgtcctcttacgccttttttgtgcagacctgccgggaggagcacaagaagaag 225
+
+             
+Query: 91  ca 92
+           ||
+Sbjct: 226 ca 227
+
+
+>J02895 Pig non-histone chromosomal protein (HMG2) mRNA, complete cds.
+            Length = 1153
+            
+ Score = 61.9 bits (31), Expect = 4e-07
+ Identities = 82/99 (82%)
+ Strand = Plus / Plus
+
+                                                                        
+Query: 974  gccttcttcctcttctgctctgagtatcgcccaaaaatcaaaggagaacatcctggcctg 1033
+            ||||||||||| || ||||||||  |||||||||| |||||| | ||||| |||||| | 
+Sbjct: 444  gccttcttcctgttttgctctgaacatcgcccaaagatcaaaagtgaacaccctggctta 503
+
+                                                   
+Query: 1034 tccattggtgatgttgcgaagaaactgggagagatgtgg 1072
+            |||||||| |||  ||| |||||| |||| || ||||||
+Sbjct: 504  tccattggggatactgcaaagaaattgggtgaaatgtgg 542
+
+
+ Score = 58.0 bits (29), Expect = 6e-06
+ Identities = 68/81 (83%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 70  cgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaag 129
+           ||||||||||| |||||||| ||||| ||| | || ||||||||| | ||||| || |||
+Sbjct: 213 cgggaggagcacaagaagaaacaccccgattcctcggtcaacttcgccgagttctccaag 272
+
+                                
+Query: 130 aagtgctcagagaggtggaag 150
+           |||||||| ||| | ||||||
+Sbjct: 273 aagtgctccgagcgatggaag 293
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 37/43 (86%)
+ Strand = Plus / Plus
+
+                                                       
+Query: 1103 tatgaaaagaaggctgcgaagctgaaggaaaaatacgaaaagg 1145
+            |||||| |||| || || ||||| ||||||||||| |||||||
+Sbjct: 573  tatgaacagaaagcagctaagctaaaggaaaaatatgaaaagg 615
+
+
+>D30765 Xenopus laevis mRNA for HMG-X protein, complete cds.
+           Length = 1081
+           
+ Score = 60.0 bits (30), Expect = 2e-06
+ Identities = 120/150 (80%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 1   atgggcaaaggagatcctaagaagccgagaggcaaaatgtcatcatatgcattttttgtg 60
+           |||||||| ||||||||||| |||||  | || || ||||| || || || | ||| |||
+Sbjct: 105 atgggcaagggagatcctaacaagcctcgggggaagatgtcctcctacgcctatttcgtg 164
+
+                                                                       
+Query: 61  caaacttgtcgggaggagcataagaagaagcacccagatgcttcagtcaacttctcagag 120
+           || || ||  |||||||||| |||||||||||||| ||  | || ||||||||||| || 
+Sbjct: 165 cagacctgcagggaggagcacaagaagaagcacccggacacctccgtcaacttctccgac 224
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           || || ||||| ||||| ||||| ||||||
+Sbjct: 225 ttctccaagaaatgctccgagagatggaag 254
+
+
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 31/35 (88%)
+ Strand = Plus / Plus
+
+                                              
+Query: 402 atgaaaacctatatccctcccaaaggggagacaaa 436
+           ||||| ||||||||||| || ||||| ||||||||
+Sbjct: 327 atgaagacctatatcccaccaaaaggagagacaaa 361
+
+
+>L32954 Rainbow trout HMG-T2 gene exons 1-4, complete cds.
+           Length = 1368
+           
+ Score = 54.0 bits (27), Expect = 9e-05
+ Identities = 48/55 (87%)
+ Strand = Plus / Plus
+
+                                                                  
+Query: 101 cttcagtcaacttctcagagttttctaagaagtgctcagagaggtggaaggtaag 155
+           ||||||| ||||| || ||||| || ||||| |||||||||||||||| ||||||
+Sbjct: 130 cttcagtgaacttttccgagttctcaaagaaatgctcagagaggtggagggtaag 184
+
+
+>M83235 Gallus gallus non-histone chromosomal protein (HMG2) mRNA,
+           complete
+           Length = 1083
+           
+ Score = 52.0 bits (26), Expect = 4e-04
+ Identities = 65/78 (83%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 73  gaggagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaagaag 132
+           |||||||| |||||||||||||| ||  | |||||||||||| | ||||| ||   ||||
+Sbjct: 155 gaggagcacaagaagaagcacccggactcgtcagtcaacttcgccgagttctcgcggaag 214
+
+                             
+Query: 133 tgctcagagaggtggaag 150
+           ||||| ||| ||||||||
+Sbjct: 215 tgctcggagcggtggaag 232
+
+
+>AF003626 Homo sapiens cosmids IM0525, LC1233, Qc3C1, LB1439, Qc12C11
+             and
+             Length = 86769
+             
+ Score = 50.1 bits (25), Expect = 0.001
+ Identities = 31/33 (93%)
+ Strand = Plus / Plus
+
+                                              
+Query: 121   ttttctaagaagtgctcagagaggtggaaggta 153
+             ||||| ||||||||||| |||||||||||||||
+Sbjct: 66881 ttttccaagaagtgctctgagaggtggaaggta 66913
+
+
+>M80574 Gallus domesticus high-mobility group-2 protein (HMG-2)
+           mRNA,
+           Length = 995
+           
+ Score = 46.1 bits (23), Expect = 0.023
+ Identities = 62/75 (82%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 76  gagcataagaagaagcacccagatgcttcagtcaacttctcagagttttctaagaagtgc 135
+           ||||| |||||||||||||| ||  | |||||||||||| | ||||| ||   |||||||
+Sbjct: 175 gagcacaagaagaagcacccggactcgtcagtcaacttcgccgagttctcgcggaagtgc 234
+
+                          
+Query: 136 tcagagaggtggaag 150
+           || ||| ||||||||
+Sbjct: 235 tcggagcggtggaag 249
+
+
+>X80869 P.citri gene for cytochrome oxidase subunit I
+            Length = 366
+            
+ Score = 46.1 bits (23), Expect = 0.023
+ Identities = 26/27 (96%)
+ Strand = Plus / Minus
+
+                                       
+Query: 1627 tatagttcagtaaattgaaatattaaa 1653
+            ||||| |||||||||||||||||||||
+Sbjct: 276  tatagatcagtaaattgaaatattaaa 250
+
+
+>AF022465 Mus musculus high mobility group protein homolog HMG4 (Hmg4)
+            mRNA,
+            Length = 1502
+            
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 46/54 (85%)
+ Strand = Plus / Plus
+
+                                                                  
+Query: 1025 cctggcctgtccattggtgatgttgcgaagaaactgggagagatgtggaataac 1078
+            |||||| | |||||||| ||||| || || || ||||| |||||||||||||||
+Sbjct: 373  cctggcatctccattggagatgtggcaaaaaagctgggtgagatgtggaataac 426
+
+
+ Score = 42.1 bits (21), Expect = 0.36
+ Identities = 84/105 (80%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 46  tatgcattttttgtgcaaacttgtcgggaggagcataagaagaagcacccagatgcttca 105
+           ||||| || |||||||| || ||  |||| || |||||||||||  ||||||| | | | 
+Sbjct: 73  tatgccttctttgtgcagacatgcagggaagaacataagaagaaaaacccagaggttccc 132
+
+                                                        
+Query: 106 gtcaacttctcagagttttctaagaagtgctcagagaggtggaag 150
+           ||||| ||  | ||||| || ||||||||||| ||||||||||||
+Sbjct: 133 gtcaattttgctgagttctccaagaagtgctcggagaggtggaag 177
+
+
+>AC002510 Arabidopsis thaliana chromosome II BAC T32G6 genomic sequence,
+             Length = 91979
+             
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 25/26 (96%)
+ Strand = Plus / Plus
+
+                                       
+Query: 299   aacttaaacttacaaattaattattt 324
+             ||||||||||||||| ||||||||||
+Sbjct: 75922 aacttaaacttacaagttaattattt 75947
+
+
+>AB009838 Loligo bleekeri mitochondrial DNA, complete sequence.
+            Length = 8148
+            
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 22/22 (100%)
+ Strand = Plus / Minus
+
+                                  
+Query: 610  ttatatttaaatagtataaaat 631
+            ||||||||||||||||||||||
+Sbjct: 6884 ttatatttaaatagtataaaat 6863
+
+
+>Y10043 Homo sapiens mRNA for high mobility group protein HMG2a
+           Length = 1633
+           
+ Score = 44.1 bits (22), Expect = 0.090
+ Identities = 28/30 (93%)
+ Strand = Plus / Plus
+
+                                         
+Query: 121 ttttctaagaagtgctcagagaggtggaag 150
+           ||||| ||||||||||| ||||||||||||
+Sbjct: 207 ttttccaagaagtgctctgagaggtggaag 236
+
+
+>AC004008 Human PAC clone DJ0899B21 from 7p15-p21, complete sequence.
+             Length = 90389
+             
+ Score = 42.1 bits (21), Expect = 0.36
+ Identities = 24/25 (96%)
+ Strand = Plus / Plus
+
+                                      
+Query: 703   tttgatctttttatttcttgaaaaa 727
+             |||||| ||||||||||||||||||
+Sbjct: 74760 tttgatttttttatttcttgaaaaa 74784
+
+
+>AE001182;AE000783 Borrelia burgdorferi (section 68 of 70) of the
+            complete genome.
+            Length = 11228
+            
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 20/20 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 1861 ggttttaatagagttaggat 1880
+            ||||||||||||||||||||
+Sbjct: 2644 ggttttaatagagttaggat 2663
+
+
+>AE000963;AE000782 Archaeoglobus fulgidus section 144 of 172 of the
+            complete genome.
+            Length = 22014
+            
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 20/20 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 129  gaagtgctcagagaggtgga 148
+            ||||||||||||||||||||
+Sbjct: 4060 gaagtgctcagagaggtgga 4079
+
+
+>U60491 Nicotiana tabacum actin (Tob66) gene, partial cds.
+           Length = 1677
+           
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 20/20 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 346 agaaaggaaaatttgaagat 365
+           ||||||||||||||||||||
+Sbjct: 934 agaaaggaaaatttgaagat 915
+
+
+>AB001684 Chlorella vulgaris C-27 chloroplast DNA, complete sequence.
+              Length = 150613
+              
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 26/28 (92%)
+ Strand = Plus / Minus
+
+                                          
+Query: 700    ccttttgatctttttatttcttgaaaaa 727
+              ||||||||||||||| ||| ||||||||
+Sbjct: 142202 ccttttgatcttttttttttttgaaaaa 142175
+
+
+>Z50742 Caenorhabditis elegans cosmid K09A11
+            Length = 20856
+            
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 20/20 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 1422 aaaaatgagcattttcaaat 1441
+            ||||||||||||||||||||
+Sbjct: 3011 aaaaatgagcattttcaaat 2992
+
+
+>X64643 H.sapiens c6.1A mRNA
+            Length = 2407
+            
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 20/20 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 396  agagaaatgaaaacctatat 415
+            ||||||||||||||||||||
+Sbjct: 2198 agagaaatgaaaacctatat 2217
+
+
+>Z83838 Human DNA sequence from PAC 127B20 on chromosome 22q11.2-qter,
+              Length = 135258
+              
+ Score = 40.1 bits (20), Expect = 1.4
+ Identities = 23/24 (95%)
+ Strand = Plus / Plus
+
+                                      
+Query: 395    aagagaaatgaaaacctatatccc 418
+              ||||||||||||||||| ||||||
+Sbjct: 123039 aagagaaatgaaaacctgtatccc 123062
+
+
+>L77118 Methanococcus jannaschii large extra-chromosomal element,
+            complete
+            Length = 58407
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Plus
+
+                                   
+Query: 1513 aacatttatgttcttttccttta 1535
+            |||||||||||| ||||||||||
+Sbjct: 5014 aacatttatgttgttttccttta 5036
+
+
+>L08814 Rat CIIDBP (homologous to human SSRP-1 and mouse T160 genes)
+            mRNA,
+            Length = 2082
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 25/27 (92%)
+ Strand = Plus / Plus
+
+                                       
+Query: 447  aaggatcccaatgcacccaagaggcct 473
+            |||||||| ||||| ||||||||||||
+Sbjct: 1180 aaggatccaaatgcccccaagaggcct 1206
+
+
+>M18222;J03590 Mouse CD3-delta (T3-delta) gene, 5' end; and
+           CD3-gamma (T3-gamma)
+           Length = 1726
+           
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Minus
+
+                                  
+Query: 857 caatgcatcacagaaattcacag 879
+           |||||||| ||||||||||||||
+Sbjct: 990 caatgcataacagaaattcacag 968
+
+
+>X95600 M.musculus mRNA for cadherin-8
+            Length = 2812
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1422 cttgaagttcatgaaaatg 1440
+
+
+>AB010437 Rattus rattus rCdh8-a1 mRNA for cadherin-8, complete cds.
+            Length = 3015
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1725 cttgaagttcatgaaaatg 1743
+
+
+>AB010436 Rattus rattus rCdh8 mRNA for cadherin-8, complete cds.
+            Length = 3126
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1725 cttgaagttcatgaaaatg 1743
+
+
+>AL021633 Arabidopsis thaliana DNA chromosome 4, BAC clone F8F16 (ESSAII
+             project)
+             Length = 93037
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 1659  aattttcagctttagtcat 1677
+             |||||||||||||||||||
+Sbjct: 29677 aattttcagctttagtcat 29659
+
+
+>I55098 Sequence 53 from patent US 5646250.
+            Length = 2550
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1177 cttgaagttcatgaaaatg 1195
+
+
+>I55093 Sequence 43 from patent US 5646250.
+            Length = 3043
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1733 cttgaagttcatgaaaatg 1751
+
+
+>I55092 Sequence 41 from patent US 5646250.
+            Length = 3136
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1733 cttgaagttcatgaaaatg 1751
+
+
+>I46829 Sequence 47 from patent US 5639634.
+            Length = 2550
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1177 cttgaagttcatgaaaatg 1195
+
+
+>I34431 Sequence 53 from patent US 5597725.
+            Length = 2550
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1177 cttgaagttcatgaaaatg 1195
+
+
+>I34426 Sequence 43 from patent US 5597725.
+            Length = 3043
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1733 cttgaagttcatgaaaatg 1751
+
+
+>I34425 Sequence 41 from patent US 5597725.
+            Length = 3136
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1733 cttgaagttcatgaaaatg 1751
+
+
+>Z47547 C.crispus complete mitochondrial genome.
+            Length = 25836
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Plus
+
+                                   
+Query: 707  atctttttatttcttgaaaaata 729
+            |||||||||||| ||||||||||
+Sbjct: 4779 atctttttattttttgaaaaata 4801
+
+
+>Z46224 C.crispus Mitochondrion gene for large subunit ribosomal RNA
+            Length = 2583
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Plus
+
+                                   
+Query: 707  atctttttatttcttgaaaaata 729
+            |||||||||||| ||||||||||
+Sbjct: 1091 atctttttattttttgaaaaata 1113
+
+
+>U84139 Bos taurus structure-specific recognition protein 1 (SSRP1)
+           mRNA,
+           Length = 1834
+           
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 25/27 (92%)
+ Strand = Plus / Plus
+
+                                      
+Query: 446 caaggatcccaatgcacccaagaggcc 472
+           |||||| |||||||| |||||||||||
+Sbjct: 876 caaggaccccaatgcccccaagaggcc 902
+
+
+>AL010134 Plasmodium falciparum DNA *** SEQUENCING IN PROGRESS *** from
+             contig
+             Length = 57824
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Minus
+
+                                    
+Query: 1512  aaacatttatgttcttttccttt 1534
+             |||||||| ||||||||||||||
+Sbjct: 41809 aaacatttctgttcttttccttt 41787
+
+
+>Z99281 Caenorhabditis elegans cosmid Y57G11C
+             Length = 313573
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 279   ataatttacttaaatgtta 297
+             |||||||||||||||||||
+Sbjct: 64328 ataatttacttaaatgtta 64310
+
+
+>Z35597 Caenorhabditis elegans cosmid C36E8
+             Length = 31808
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Minus
+
+                                    
+Query: 1423  aaaatgagcattttcaaatggct 1445
+             |||||||||||||| ||||||||
+Sbjct: 15395 aaaatgagcattttgaaatggct 15373
+
+
+>AF003386 Caenorhabditis elegans cosmid F59E12.
+             Length = 42430
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 308   ttacaaattaattattttg 326
+             |||||||||||||||||||
+Sbjct: 30744 ttacaaattaattattttg 30762
+
+
+>Z30950 C.crispus mitochondrial gene for small subunit ribosomal RNA,
+            NADH-
+            Length = 3235
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Plus
+
+                                   
+Query: 707  atctttttatttcttgaaaaata 729
+            |||||||||||| ||||||||||
+Sbjct: 2864 atctttttattttttgaaaaata 2886
+
+
+>AF026208 Caenorhabditis elegans cosmid F52D1.
+             Length = 29138
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 711   ttttatttcttgaaaaata 729
+             |||||||||||||||||||
+Sbjct: 17793 ttttatttcttgaaaaata 17775
+
+
+>Z69712 Human DNA sequence from cosmid N12G10, on chromosome
+             22q11.2-qter.
+             Length = 45353
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 614   atttaaatagtataaaatt 632
+             |||||||||||||||||||
+Sbjct: 44395 atttaaatagtataaaatt 44413
+
+
+>Z84495 Human DNA sequence from cosmid LUCA8
+            Length = 28031
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 975  ccttcttcctcttctgctc 993
+            |||||||||||||||||||
+Sbjct: 2973 ccttcttcctcttctgctc 2955
+
+
+>L81635 Homo sapiens (subclone 2_c11 from P1 H33) DNA sequence,
+            complete
+            Length = 4078
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 22/23 (95%)
+ Strand = Plus / Plus
+
+                                   
+Query: 395  aagagaaatgaaaacctatatcc 417
+            ||||||||||||||| |||||||
+Sbjct: 1988 aagagaaatgaaaacatatatcc 2010
+
+
+>Z68754 Human DNA sequence from cosmid cE78H10, on chromosome
+             22q11.2-qter.
+             Length = 24888
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 614   atttaaatagtataaaatt 632
+             |||||||||||||||||||
+Sbjct: 19682 atttaaatagtataaaatt 19700
+
+
+>L34060 Homo sapiens cadherin-8 mRNA, complete cds.
+            Length = 2545
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                               
+Query: 1384 cttgaagttcatgaaaatg 1402
+            |||||||||||||||||||
+Sbjct: 1177 cttgaagttcatgaaaatg 1195
+
+
+>AC002378 Human PAC clone DJ438O4 from 22q12.1-qter, complete
+            sequence.
+            Length = 77516
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 1422 aaaaatgagcattttcaaa 1440
+            |||||||||||||||||||
+Sbjct: 1772 aaaaatgagcattttcaaa 1754
+
+
+>AC002124 Human BAC clone RG180O01 from 7p15-p21, complete sequence.
+             Length = 100923
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 302   ttaaacttacaaattaatt 320
+             |||||||||||||||||||
+Sbjct: 91664 ttaaacttacaaattaatt 91682
+
+
+>Z93931 Human DNA sequence from PAC 438G17 on chromosome 6q22. Contains
+             Length = 148198
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 31/35 (88%)
+ Strand = Plus / Minus
+
+                                                
+Query: 116   cagagttttctaagaagtgctcagagaggtggaag 150
+             |||| ||||| ||||| ||||| ||||||||||||
+Sbjct: 95695 cagaattttccaagaattgctctgagaggtggaag 95661
+
+
+>AL008907 H.sapiens STS from genomic clone 404F18.
+            Length = 348
+            
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                               
+Query: 1097 cagccttatgaaaagaagg 1115
+            |||||||||||||||||||
+Sbjct: 95   cagccttatgaaaagaagg 77
+
+
+>AC004130 Homo sapiens BAC clone RG293F17 from 7p15-p21, complete
+             sequence.
+             Length = 116215
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 2128  atcctccctttgctttgga 2146
+             |||||||||||||||||||
+Sbjct: 10116 atcctccctttgctttgga 10098
+
+
+>AC004000 Human PAC clone DJ404F18 from Xq23, complete sequence.
+              Length = 128117
+              
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                                 
+Query: 1097   cagccttatgaaaagaagg 1115
+              |||||||||||||||||||
+Sbjct: 128007 cagccttatgaaaagaagg 128025
+
+
+>AC003683 Homo sapiens Xp22 PAC RPCI1-147H15 (Research Park PAC library)
+              Length = 127683
+              
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                                 
+Query: 357    tttgaagatatggcaaaag 375
+              |||||||||||||||||||
+Sbjct: 118606 tttgaagatatggcaaaag 118588
+
+
+>AC003013 Human PAC clone DJ0205E24 from Xq23, complete sequence.
+             Length = 173452
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Minus
+
+                                
+Query: 395   aagagaaatgaaaacctat 413
+             |||||||||||||||||||
+Sbjct: 88016 aagagaaatgaaaacctat 87998
+
+
+>AC002556 Human Chromosome 11 pac pDJ9j14, complete sequence.
+             Length = 123234
+             
+ Score = 38.2 bits (19), Expect = 5.5
+ Identities = 19/19 (100%)
+ Strand = Plus / Plus
+
+                                
+Query: 395   aagagaaatgaaaacctat 413
+             |||||||||||||||||||
+Sbjct: 21414 aagagaaatgaaaacctat 21432
+
+
+  Database: embl.fas
+    Posted date:  May 15, 1998  5:37 PM
+  Number of letters in database: 675,252,082
+  Number of sequences in database:  442,729
+  
+Lambda     K      H
+    1.37    0.711     1.31 
+
+Gapped
+Lambda     K      H
+    1.37    0.711     1.31 
+
+
+Matrix: blastn matrix:1 -3
+Gap Penalties: Existence: 5, Extension: 2
+Number of Hits to DB: 1123218
+Number of Sequences: 442729
+Number of extensions: 1123218
+Number of successful extensions: 86816
+Number of sequences better than 10.0: 106
+length of query: 2575
+length of database: 675,252,082
+effective HSP length: 21
+effective length of query: 2554
+effective length of database: 665,954,773
+effective search space: 1700848490242
+effective search space used: 1700848490242
+T: 0
+A: 0
+X1: 6 (11.9 bits)
+X2: 10 (19.8 bits)
+S1: 12 (24.3 bits)
+S2: 19 (38.2 bits)
