@@ -162,6 +162,8 @@ sub _index_file {
 		    $self->add_record($acc, $i, $begin);
 		}
 	    }
+	    @accs = ();    # reset acc array
+	    $id = undef;   # reset id
 	} elsif (/^ID\s+(\S+)/) {
 	    $id = $1;
 	    # not sure if I like this. Assummes tell is in bytes.
@@ -169,7 +171,7 @@ sub _index_file {
             $begin = tell(SWISSPROT) - length( $_ ); 
 	    
 	} elsif (/^AC(.*)/) { # ignore ? if there.
-	    @accs = ($1 =~ /\s*(\S+);/g);
+	    push(@accs, ($1 =~ /\s*(\S+);/g));
 	} else {
 	    # do nothing
 	}
