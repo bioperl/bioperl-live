@@ -356,7 +356,7 @@ Sequences producing significant alignments:                      (bits)    value
 
 		my @hspvals = ( {'name'  => 'Query:',
 				 'seq'   => $hsp->query_string,
-				 'start' => ( $hstrand >= 0 ? 
+				 'start' => ( $qstrand >= 0 ? 
 					      $hsp->query->start : 
 					      $hsp->query->end),
 					      'end'   => ($qstrand >= 0 ? 
