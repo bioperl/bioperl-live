@@ -58,7 +58,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Annotation::Target;
 use vars qw(@ISA);
 use strict;
-# use overload '""' => \&as_text; 
+#use overload '""' => \&as_text; 
 
 use Bio::Root::Root;
 use Bio::AnnotationI;
@@ -73,12 +73,11 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
   my ($target_id, $tstart, $tend, $tstrand) =
-      $self->_rearrange([qw(
-                             TARGET_ID,
-                             START,
-                             END,
-                             STRAND,
-			    )], @args);
+      $self->_rearrange([ qw( 
+                              TARGET_ID 
+                              START 
+                              END 
+                              STRAND ) ], @args);
   
   $target_id    && $self->target_id($target_id);
   $tstart       && $self->start($tstart);
@@ -173,7 +172,7 @@ new value of target_id (to set)
 
 sub target_id {
     my $self = shift;
-    return $self->{'target_id'} = shift if defined(@_);
+    return $self->{'target_id'} = shift if defined($_[0]);
     return $self->{'target_id'};
 }
 
