@@ -203,7 +203,7 @@ sub _index_file {
 
 sub fetch {
     my( $self, $id ) = @_;
-    my ($desc,$acc);
+    my ($desc,$acc,$out);
     my $db = $self->db();
 
     if (my $rec = $db->{ $id }) {
