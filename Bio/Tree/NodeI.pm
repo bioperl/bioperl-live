@@ -226,9 +226,10 @@ sub descendent_count{
 
 sub to_string{
    my ($self) = @_;
-   return sprintf("%s%s",
+   return sprintf("%s%s%s",
 		  defined $self->id ? $self->id : '',
-		  defined $self->branch_length ? ':' . $self->branch_length : ' '
+		  defined $self->branch_length ? ':' . $self->branch_length : ' ',
+		  $self->is_Leaf() ? '(leaf)' : ''
 		 );
 }
 
@@ -377,6 +378,97 @@ sub ancestor{
 #'
 
 sub invalidate_height { 
+    shift->throw_not_implemented();
+}
+
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $node->add_tag_value($tag,$value)
+ Function: Adds a tag value to a node 
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+
+=cut
+
+sub add_tag_value{
+    shift->throw_not_implemented();
+}
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $node->remove_tag($tag)
+ Function: Remove the tag and all values for this tag
+ Returns : boolean representing success (0 if tag does not exist)
+ Args    : $tag - tagname to remove
+
+
+=cut
+
+sub remove_tag {
+    shift->throw_not_implemented();
+}
+
+=head2 remove_all_tags
+
+ Title   : remove_all_tags
+ Usage   : $node->remove_all_tags()
+ Function: Removes all tags 
+ Returns : None
+ Args    : None
+
+
+=cut
+
+sub remove_all_tags{
+    shift->throw_not_implemented();  
+}
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : my @tags = $node->get_all_tags()
+ Function: Gets all the tag names for this Node
+ Returns : Array of tagnames
+ Args    : None
+
+
+=cut
+
+sub get_all_tags {
+    shift->throw_not_implemented();
+}
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : my @values = $node->get_tag_value($tag)
+ Function: Gets the values for given tag ($tag)
+ Returns : Array of values or empty list if tag does not exist
+ Args    : $tag - tag name
+
+
+=cut
+
+sub get_tag_values{
+    shift->throw_not_implemented();
+}
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $node->has_tag($tag)
+ Function: Boolean test if tag exists in the Node
+ Returns : Boolean
+ Args    : $tag - tagname
+
+
+=cut
+
+sub has_tag{
     shift->throw_not_implemented();
 }
 
