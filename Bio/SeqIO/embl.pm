@@ -294,7 +294,6 @@ sub next_seq {
    $buffer = $_;
       
    if (defined($buffer) && $buffer =~ /^FT /) {
-     FEATURE_TABLE :   
      until( !defined ($buffer) ) {
 	 my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 	 # process ftunit
