@@ -94,7 +94,8 @@ use strict;
 use Bio::Root::Object;
 use Bio::SeqFeatureI;
 
-@ISA = qw(Bio::Root::Object Bio::SeqFeatureI Exporter);
+
+@ISA = qw(Bio::Root::Object Bio::SeqFeatureI);
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -105,6 +106,7 @@ sub _initialize {
 
   $self->{'_gsf_tag_hash'} = {};
   $self->{'_gsf_sub_array'} = [];
+  $self->{'_parse_h'} = {};
 
   my($start,$end,$strand,$primary,$source,$frame,$score,$tag) = 
       $self->_rearrange([qw(START
@@ -345,8 +347,10 @@ sub flush_sub_SeqFeature {
 
 sub primary_tag{
    my $self = shift;
-
-   return $self->has_tag('primary', @_);
+   if( @_ ) {
+       $self->{'_primary_tag'} = shift;
+   }
+   return $self->{'_primary_tag'};
 }
 
 =head2 source_tag
@@ -365,14 +369,16 @@ sub primary_tag{
 sub source_tag{
    my $self = shift;
 
-   return $self->has_tag('source',@_);
+   if( @_ ) {
+       $self->{'_source_tag'} = shift;
+   }
+   return $self->{'_source_tag'};
 }
 
 =head2 has_tag
 
  Title   : has_tag
  Usage   : $value = $self->has_tag('some_tag')
-           $self->has_tag('some_tag',$value)
  Function: Returns the value of the tag (undef if 
            none)
  Returns : 
@@ -384,12 +390,47 @@ sub source_tag{
 sub has_tag{
    my ($self,$tag) = (shift, shift);
 
-   if( @_ ) {
-       $self->{'_gsf_tag_hash'}->{$tag} = shift;
-   } 
-
-   return $self->{'_gsf_tag_hash'}->{$tag};
+   return exists $self->{'_gsf_tag_hash'}->{$tag};
 }
+
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $self->add_tag_value('note',"this is a note");
+ Returns : nothing
+ Args    : tag (string) and value (any scalar)
+
+
+=cut
+
+sub add_tag_value{
+   my ($self,$tag,$value) = @_;
+
+   if( !defined $self->{'_gsf_tag_hash'}->{$tag} ) {
+       $self->{'_gsf_tag_hash'}->{$tag} = [];
+   }
+
+   push(@{$self->{'_gsf_tag_hash'}->{$tag}},$value);
+}
+
+=head2 each_tag_value
+
+ Title   : each_tag_value
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub each_tag_value {
+   my ($self,$tag) = @_;
+
+   return @{$self->{'_gsf_tag_hash'}->{$tag}};
+}
+
 
 =head2 all_tags
 
@@ -408,6 +449,23 @@ sub all_tags{
    return keys %{$self->{'_gsf_tag_hash'}};
 }
 
+=head2 _parse
+
+ Title   : _parse
+ Usage   :
+ Function: Parsing hints
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _parse{
+   my ($self) = @_;
+
+   return $self->{'_parse_h'};
+}
 
 
 

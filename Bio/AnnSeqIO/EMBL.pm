@@ -145,27 +145,41 @@ sub next_annseq{
    $line =~ /^ID\s+(\S+)/ || $self->throw("EMBL stream with no ID. Not embl in my book");
    $name = $1;
 
-   while( <$fh> ) {
-       /^DE\s+(\S.*\S)/ && do { $desc = $1;};
-       # we need to do the upper level annotation
+   $self->warn("not parsing upper annotation in EMBL file yet!");
 
+   my $buffer = $_;
+
+   my $annseq = Bio::AnnSeq->new();
+   
+   BEFORE_FEATURE_TABLE :
+   while( !eof($fh) ) {
+       $_ = $buffer;
+
+       /^DE\s+(\S.*\S)/ && do { $desc .= $1; $buffer = <$fh>; next;};
+       # accession numbers...
+       /^R/ && do {
+	   my @refs = &_read_EMBL_References(\$buffer,$fh);
+	   $annseq->annotation->add_Reference(@refs);
+       };
+
+       # we need to do the upper level annotation
        /^FH/ && last;
+       # next line.
+
+       $buffer = <$fh>;
    }
 
    while( <$fh> ) {
        /FT   \w/ && last;
    }
-
-   my $buffer = $_;
+   $buffer = $_;
    
-   my $annseq = Bio::AnnSeq->new();
-   print "Buffer starts at $buffer\n";
    FEATURE_TABLE :   
    while( !eof($fh) ) {
        my $ftunit = &_read_FTHelper_EMBL($fh,\$buffer);
        # process ftunit
-       print "FT unit key ", $ftunit->key, " and loc ",$ftunit->loc,"\n";
        &_generic_seqfeature($annseq,$ftunit);
+
        if( $buffer !~ /^FT/ ) {
 	   last;
        }
@@ -178,11 +192,11 @@ sub next_annseq{
        }
    }
 
-	       
+   $seqc = "";	       
    while( <$fh> ) {
        /^\/\// && last;
        $_ = uc($_);
-       s/\W//g;
+       s/[^A-Za-z]//g;
        $seqc .= $_;
        eof $fh && last;
    }
@@ -191,6 +205,126 @@ sub next_annseq{
    $annseq->seq($seq);
    return $annseq;
 
+}
+
+=head2 write_annseq
+
+ Title   : write_annseq
+ Usage   : $stream->write_annseq($seq)
+ Function: writes the $seq object (must be annseq) to the stream
+ Returns : 1 for success and 0 for error
+ Args    : Bio::AnnSeq
+
+
+=cut
+
+sub write_annseq{
+   my ($self,$annseq) = @_;
+   my $fh = $self->_filehandle();
+   my $seq = $annseq->seq();
+   my $i;
+   my $str = $seq->seq;
+
+   print $fh "ID   ", $seq->id(), "\nDE   ", $seq->desc(), "\n";
+   my $t = 1;
+   foreach my $ref ( $annseq->annotation->each_Reference() ) {
+       print $fh "RN   [$t]\n";
+       print $fh "RA   ", $ref->authors, "\n";
+       print $fh "RT   ", $ref->title, "\n";
+       print $fh "RL   ", $ref->location, "\n";
+       $t++;
+   }
+
+   print $fh "FH   Key             Location/Qualifiers\n";
+   print $fh "FH   \n";
+
+   foreach my $sf ( $annseq->top_SeqFeatures ) {
+       my @fth = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf);
+       foreach my $fth ( @fth ) {
+	   &_print_EMBL_FTHelper($fth,$fh);
+       }
+   }
+
+   print $fh "SQ   \n";
+   print $fh "    ";
+   for ($i = 10; $i < length($str); $i += 10) {
+       print $fh substr($str,$i,10), " ";
+       if( $i%50 == 0 ) {
+	   print $fh "\n    ";
+       }
+   }
+   print $fh "\n//\n";
+   return 1;
+}
+
+=head2 _print_EMBL_FTHelper
+
+ Title   : _print_EMBL_FTHelper
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _print_EMBL_FTHelper{
+   my ($fth,$fh) = @_;
+
+   #print $fh "FH   Key             Location/Qualifiers\n";
+   print $fh  sprintf("FT   %-15s %s\n",$fth->key,$fth->loc);
+   foreach my $tag ( keys %{$fth->field} ) {
+       foreach my $value ( @{$fth->field->{$tag}} ) {
+	   print $fh "FT                   /", $tag, "=\"", $value, "\"\n";
+       }
+   }
+
+}
+
+
+=head2 _read_EMBL_References
+
+ Title   : _read_EMBL_References
+ Usage   :
+ Function: Reads references from EMBL format. Internal function really
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub _read_EMBL_References{
+   my ($buffer,$fh) = @_;
+   my (@refs);
+   
+   # assumme things are starting with RN
+
+   if( $$buffer !~ /^RN/ ) {
+       warn("Not parsing line $$buffer which maybe important");
+   }
+   my $title;
+   my $loc;
+   my $au;
+   while( <$fh> ) {
+       /^R/ || last;
+       /^RA   (.*)/ && do { $au .= $1;   next;};
+       /^RT   (.*)/ && do { $title .= $1; next;};
+       /^RL   (.*)/ && do { $loc .= $1; next;};
+   }
+
+   my $ref = new Bio::Annotation::Reference;
+   $au =~ s/;\s*$//g;
+   $title =~ s/;\s*$//g;
+
+   $ref->authors($au);
+   $ref->title($title);
+   $ref->location($loc);
+   push(@refs,$ref);
+   $$buffer = $_;
+   
+   return @refs;
 }
 
 =head2 write_seq
@@ -274,17 +408,55 @@ sub _read_FTHelper_EMBL{
 
    }
 
-   # should read in other fields
+   $out = new Bio::AnnSeqIO::FTHelper();
+   $out->key($key);
+   $out->loc($loc);
 
+   # should read in other fields
+   my $current = "";
    while( <$fh> ) {
+       /^FT/  || last; # leave on non FT lines!
        /^FT   \w/ && last;
+       # field on one line
+       /^FT\s+\/(\S+)=\"(.*)\"/ && do {
+	   my $key = $1;
+	   my $value = $2;
+	   if(! defined $out->field->{$key} ) {
+	       $out->field->{$key} = [];
+	   }
+	   push(@{$out->field->{$key}},$value);
+	   next;
+       };
+       # field on on multilines:
+       /^FT\s+\/(\S+)=\"(.*)/ && do {
+	   my $key = $1;
+	   my $value = $2;
+	   while ( <$fh> ) {
+	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
+	       /FT\s+(.*?)\s*/ && do {$value .= $1; };
+	   }
+	   if(! defined $out->field->{$key} ) {
+	       $out->field->{$key} = [];
+	   }
+	   push(@{$out->field->{$key}},$value);
+	   next;
+       };
+       #field with no quoted value
+       /^FT\s+\/(\S+)=(\S+)/ && do {
+	   my $key = $1;
+	   my $value = $2;
+	   if(! defined $out->field->{$key} ) {
+	       $out->field->{$key} = [];
+	   }
+	   push(@{$out->field->{$key}},$value);
+	   next;
+       };
+
+
    }
 
    $$buffer = $_;
    
-   $out = new Bio::AnnSeqIO::FTHelper();
-   $out->key($key);
-   $out->loc($loc);
    return $out;
 }
 
@@ -303,6 +475,8 @@ sub _generic_seqfeature{
    my ($annseq,$fth) = @_;
    my ($sf);
 
+  # print "Converting from", $fth->key, "\n";
+
    $sf = new Bio::SeqFeature::Generic;
    if( $fth->loc =~ /join/ ) {
        my $strand;
@@ -311,17 +485,19 @@ sub _generic_seqfeature{
        } else {
 	   $strand = 1;
        }
+
        $sf->strand($strand);
-       $sf->primary_tag($fth->key . "_parent");
+       $sf->primary_tag($fth->key . "_span");
        $sf->source_tag('EMBL');
        $sf->has_tag("parent",1);
+       $sf->_parse->{'parent_homogenous'} = 1;
 
        # we need to make sub features
        my $loc = $fth->loc;
        while( $loc =~ /(\d+)\.\.(\d+)/g ) {
 	   my $start = $1;
 	   my $end   = $2;
-	   print "Processing $start-$end\n";
+	   #print "Processing $start-$end\n";
 	   my $sub = new Bio::SeqFeature::Generic;
 	   $sub->primary_tag($fth->key);
 	   $sub->start($start);
@@ -347,6 +523,16 @@ sub _generic_seqfeature{
        }
    }
 
+   #print "Adding B4 ", $sf->primary_tag , "\n";
+
+   foreach my $key ( keys %{$fth->field} ){
+       foreach my $value ( @{$fth->field->{$key}} ) {
+	   $sf->add_tag_value($key,$value);
+       }
+   }
+
+
+
    $annseq->add_SeqFeature($sf);
 }
 
@@ -362,5 +548,8 @@ sub DESTROY {
     $self->{'_filehandle'} = '';
 }
     
+
+
+
 
 

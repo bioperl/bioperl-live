@@ -21,17 +21,10 @@ Bio::Annotation - A generic object for annotations
     # description is a simple, one line description 
     print "Description is ",$ann->description "\n";
 
-    foreach $session ( $ann->each_Session() ) {
-       # $session is a Bio::Annotation::Session 
-       # the first session is the creation. Order by date if possible
-       print "Annotation was edited by ", $session->author->full_name, "\n";
-       print "  On ",$session->date->string "\n";
-    }
 
     foreach $comment ( $ann->each_Comment ) {
        # $comment is a Bio::Annotation::Comment object
-       foreach $line ( $comment->each_line() ) {
-          print "Comment: $line\n"
+          print "Comment: ", $comment->text(), "\n"
        }
     }
 
@@ -64,7 +57,6 @@ has the ability to provide
     free text comments
     links to other biological objects
     references to literature
-    edit session of the annotation
 
 It does not have the following abilities
 
@@ -101,8 +93,15 @@ use strict;
 
 use Bio::Root::Object;
 
-@ISA = qw(Bio::Root::Object Exporter);
-#@EXPORT_OK = qw();
+# we don't really need these object but we should do.
+# declare them here to prevent tears later.
+
+use Bio::Annotation::Reference;
+use Bio::Annotation::DBLink;
+use Bio::Annotation::Comment;
+
+@ISA = qw(Bio::Root::Object);
+
 # new() is inherited from Bio::Root::Object
 
 # _initialize is where the heavy stuff will happen when new is called
@@ -117,7 +116,6 @@ sub _initialize {
   $self->{ 'refs' } = [];
   $self->{ 'comment' } = [];
   $self->{ 'link' } = [];
-  $self->{ 'session' } = [];
   return $make; # success - we hope!
 }
 
@@ -156,8 +154,10 @@ sub description{
 =cut
 
 sub add_Reference{
-   my ($self,$ref) = @_;
-   push(@{$self->{'refs'}},$ref);
+   my ($self) = shift;
+   foreach my $ref ( @_ ) {
+       push(@{$self->{'refs'}},$ref);
+   }
 }
 
 =head2 each_Reference
@@ -193,8 +193,10 @@ sub each_Reference{
 =cut
 
 sub add_Comment{
-   my ($self,$com) = @_;
-   push(@{$self->{'comment'}},$com);
+   my ($self) = shift;
+   foreach my $com ( @_ ) {
+       push(@{$self->{'comment'}},$com);
+   }
 }
 
 =head2 each_Comment
@@ -216,10 +218,10 @@ sub each_Comment{
 }
 
 
-=head2 add_link
+=head2 add_DBLink
 
- Title   : add_DBlink
- Usage   : $self->add_DBlink($ref)
+ Title   : add_DBLink
+ Usage   : $self->add_DBLink($ref)
  Function: adds a link object
  Example :
  Returns : 
@@ -228,14 +230,14 @@ sub each_Comment{
 
 =cut
 
-sub add_DBlink{
+sub add_DBLink{
    my ($self,$com) = @_;
    push(@{$self->{'link'}},$com);
 }
 
-=head2 each_DBlink
+=head2 each_DBLink
 
- Title   : each_DBlink
+ Title   : each_DBLink
  Usage   : foreach $ref ( $self->each_DBlink() )
  Function: gets an array of DBlink of objects
  Example :
@@ -245,49 +247,14 @@ sub add_DBlink{
 
 =cut
 
-sub each_DBlink{
+sub each_DBLink{
    my ($self) = @_;
    
    return @{$self->{'link'}}; 
 }
 
 
-=head2 add_Session
-
- Title   : add_Session
- Usage   : $self->add_Session($se)
- Function: adds a Session object
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub add_Session {
-   my ($self,$com) = @_;
-   push(@{$self->{'session'}},$com);
-}
-
-=head2 each_Session
-
- Title   : each_Session
- Usage   : foreach $session ( $self->each_Session() )
- Function: gets an array of link of objects
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub each_Session {
-   my ($self) = @_;
-   
-   return @{$self->{'session'}}; 
-}
-
-
+1;
 
 
 

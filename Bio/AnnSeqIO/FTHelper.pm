@@ -82,9 +82,77 @@ sub _initialize {
   my($self,@args) = @_;
 
   my $make = $self->SUPER::_initialize;
-
+  $self->{'_field'} = {};
 # set stuff in self from @args
   return $make; # success - we hope!
+}
+
+=head2 from_SeqFeature
+
+ Title   : from_SeqFeature
+ Usage   : @fthelperlist = Bio::AnnSeqIO::FTHelper::from_SeqFeature($sf);
+ Function: constructor of fthelpers from SeqFeatures
+ Returns : an array of FThelpers
+ Args    : seq features
+
+
+=cut
+
+sub from_SeqFeature {
+    my ($sf) = shift;
+    my @ret;
+    my $key;
+
+    # if the parent homogenous flag is set, build things from the
+    # sub level
+    my $loc;
+    if( $sf->_parse->{'parent_homogenous'} == 1 ) {
+	$key = $sf->primary_tag();
+	$key =~ s/_span//g;
+	$loc = "join("; 
+	my $touch = 0;
+	foreach my $sub ( $sf->sub_SeqFeature() ) {
+	    if( $touch == 1 ) {
+		$loc .= ",";
+	    } else {
+		$touch = 1;
+	    }
+
+	    $loc .= $sub->start() . ".." . $sub->end();
+	}
+	$loc .= ")";
+	if( $sf->strand == -1 ) {
+	    $loc = "complement($loc)";
+	} 
+    } else {
+	$loc = $sf->start() . ".." . $sf->end();
+	$key = $sf->primary_tag();
+	if( $sf->strand == -1 ) {
+	    $loc = "complement($loc)";
+	}
+	# going into sub features
+	foreach my $sub ( $sf->sub_SeqFeature() ) {
+	    my $subfth = &Bio::AnnSeqIO::FTHelper::from_SeqFeature($sub);
+	    push(@ret,$subfth);
+	}
+    }
+
+    my $fth = new Bio::AnnSeqIO::FTHelper();
+
+    $fth->loc($loc);
+    $fth->key($key);
+    foreach my $tag ( $sf->all_tags ) {
+	if( !defined $fth->field->{$tag} ) {
+	    $fth->field->{$tag} = [];
+	}
+	foreach my $val ( $sf->each_tag_value($tag) ) {
+	    push(@{$fth->field->{$tag}},$val);
+	}
+    }
+
+    push(@ret,$fth);
+    return @ret;
+
 }
 
 =head2 key
@@ -130,5 +198,22 @@ sub loc{
 }
 
 
+=head2 field
+
+ Title   : field
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub field{
+   my ($self) = @_;
+
+   return $self->{'_field'};
+}
 
 
