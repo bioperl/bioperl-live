@@ -7,8 +7,10 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   use Bio::DB::GFF;
 
   # Open the sequence database
-  my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::mysql',
-                                   -dsn     => 'dbi:mysql:elegans42');
+  my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::mysqlopt',
+                                   -dsn     => 'dbi:mysql:elegans',
+				   -fasta   => '/usr/local/fasta_files'
+				 );
 
   # fetch a 1 megabase segment of sequence starting at landmark "ZK909"
   my $segment = $db->segment('ZK909', 1 => 1000000);
@@ -81,60 +83,76 @@ Bio::DAS modules.
 =head2 GFF Fundamentals
 
 The GFF format is a flat tab-delimited file, each line of which
-corresponds to an annotation, or feature.  Each annotation has the
-following attributes:
+corresponds to an annotation, or feature.  Each line has nine columns
+and looks like this:
+
+ Chr1  curated  CDS 365647  365963  .  +  1  Transcript "R119.7"
+
+The 9 columns are as follows:
 
 =over 4
 
-=item reference sequence
+=item 1. reference sequence
 
 This is the ID of the sequence that is used to establish the
-coordinate system of the annotation.
+coordinate system of the annotation.  In the example above, the
+reference sequence is "Chr1".
 
-=item start position
+=item 2. source
 
-The start of the annotation relative to the reference sequence.  
+The source of the annotation.  This field describes how the annotation
+was derived.  In the example above, the source is "curated" to
+indicate that the feature is the result of human curation.  The names
+and versions of software programs are often used for the source field,
+as in "tRNAScan-SE/1.2".
 
-=item stop position
+=item 3. method
+
+The annotation method.  This field describes the type of the
+annotation, such as "CDS".  Together the method and source describe
+the annotation type.
+
+=item 4. start position
+
+The start of the annotation relative to the reference sequence. 
+
+=item 5. stop position
 
 The stop of the annotation relative to the reference sequence.  Start
 is always less than or equal to stop.
 
-=item method
-
-The annotation method.  This field describes the general nature of the
-annotation, such as "tRNA".
-
-=item source
-
-The source of the annotation.  This field describes how the annotation
-was derived, such as "tRNAScanSE-1.2".  Together the method and source
-describe the annotation type.
-
-=item strand
-
-For those annotations which are strand-specific, this field is the
-strand on which the annotation resides.
-
-=item phase
-
-For annotations that are linked to proteins, this field describes the
-phase of the annotation on the codons.
-
-=item score
+=item 6. score
 
 For annotations that are associated with a numeric score (for example,
-a sequence similarity), this field describes the score.
+a sequence similarity), this field describes the score.  The score
+units are completely unspecified, but for sequence similarities, it is
+typically percent identity.  Annotations that don't have a score can
+use "."
 
-=item group
+=item 7. strand
+
+For those annotations which are strand-specific, this field is the
+strand on which the annotation resides.  It is "+" for the forward
+strand, "-" for the reverse strand, or "." for annotations that are
+not stranded.
+
+=item 8. phase
+
+For annotations that are linked to proteins, this field describes the
+phase of the annotation on the codons.  It is a number from 0 to 2, or
+"." for features that have no phase.
+
+=item 9. group
 
 GFF provides a simple way of generating annotation hierarchies ("is
 composed of" relationships) by providing a group field.  The group
 field contains the class and ID of an annotation which is the logical
-parent of the current one.
+parent of the current one.  In the example given above, the group is
+the Transcript named "R119.7".
 
 The group field is also used to store information about the target of
-sequence similarity hits, and miscellaneous notes.
+sequence similarity hits, and miscellaneous notes.  See the next
+section for a description of how to describe similarity targets.
 
 =back
 
@@ -150,7 +168,98 @@ unique among the RNAi experiments.  Since not all databases support
 this notion, the class is optional in all calls to this module, and
 defaults to "Sequence" when not provided.
 
-This module has no relationship to the GFF.pm module.
+Double-quotes are sometimes used in GFF files around components of the
+group field.  Strictly, this is only necessary if the group name or
+class contains whitespace.
+
+=head2 Making GFF files work with this module
+
+Some annotations do not need to be individually identified.  For
+example, it is probably not useful to assign a unique name to each ALU
+repeat in a vertebrate genome.  Others, such as predicted genes,
+correspond to named biological objects; you probably want to be able
+to fetch the positions of these objects by referring to them by name.
+
+To accomodate named annotations, the GFF format places the object
+class and name in the group field.  The name identifies the object,
+and the class prevents similarly-named objects, for example clones and
+sequences, from collding.
+
+A named object is shown in the following excerpt from a GFF file:
+
+ Chr1  curated transcript  939627 942410 . +  . Transcript Y95B8A.2
+
+This object is a predicted transcript named Y95BA.2.  In this case,
+the group field is used to identify the class and name of the object,
+even though no other annotation belongs to that group.
+
+It now becomes possible to retrieve the region of the genome covered
+by transcript Y95B8A.2 using the segment() method:
+
+  $segment = $db->segment(-class=>'Transcript',-name=>'Y95B8A.2');
+
+It is not necessary for the annotation's method to correspond to the
+object class, although this is commonly the case.
+
+As explained above, each annotation in a GFF file refers to a
+reference sequence.  It is a good idea for each reference sequence to
+be identified by a line in the GFF file.  This allows the Bio::DB::GFF
+module to determine the length and class of the reference sequence,
+and makes it possible to do relative arithmetic.
+
+For example, if "Chr1" is used as a reference sequence, then it should
+have an entry in the GFF file similar to this one:
+
+ Chr1 assembly chromosome 1 14972282 . + . Sequence Chr1
+
+This indicates that the reference sequence named "Chr1" has length
+14972282 bp, method "chromosome" and source "assembly".  In addition,
+as indicated by the group field, Chr1 has class "Sequence" and name
+"Chr".
+
+The object class "Sequence" is used by default when the class is not
+specified in the segment() call.  This allows you to use a shortcut
+form of the segment() method:
+
+ $segment = $db->segment('Chr1');          # whole chromosome
+ $segment = $db->segment('Chr1',1=>1000);  # first 1000 bp
+
+=head2 Sequence alignments
+
+There are two cases in which an annotation indicates the relationship
+between two sequences.  The first case is a similarity hit, where the
+annotation indicates an alignment.  The second case is a map assembly,
+in which the annotation indicates that a portion of a larger sequence
+is built up from one or more smaller ones.
+
+Both cases are indicated by using the b<Target> tag in the group
+field.  For example, a typical similarity hit will look like this:
+
+ Chr1 BLASTX similarity 76953 77108 132 + 0 Target Protein:SW:ABL_DROME 493 544
+
+The group field contains the Target tag, followed by an identifier for
+the biological object referred to.  The GFF format uses the notation
+I<Class>:I<Name> for the biological object, and even though this is
+stylistically inconsistent, that's the way it's done.  The object
+identifier is followed by two integers indicating the start and stop
+of the alignment on the target sequence.
+
+Unlike the main start and stop columns, it is possible for the target
+start to be greater than the target end.  The previous example
+indicates that the the section of Chr1 from 76,953 to 77,108 aligns to
+the protein SW:ABL_DROME starting at position 493 and extending to
+position 544.
+
+A similar notation is used for sequence assembly information as shown
+in this example:
+
+ Chr1        assembly Link   10922906 11177731 . . . Target Sequence:LINK_H06O01 1 254826
+ LINK_H06O01 assembly Cosmid 32386    64122    . . . Target Sequence:F49B2       6 31742
+
+This indicates that the region between bases 10922906 and 11177731 of
+Chr1 are composed of LINK_H06O01 from bp 1 to bp 254826.  The region
+of LINK_H0601 between 32386 and 64122 is, in turn, composed of the
+bases 5 to 31742 of cosmid F49B2.
 
 =head2 Adaptors and Aggregators
 
@@ -283,10 +392,17 @@ pass it to the GFF constructor this way:
 
 sub new {
   my $package   = shift;
-  my ($adaptor,$aggregators,$args) = rearrange([
-						[qw(ADAPTOR FACTORY)],
-						[qw(AGGREGATOR AGGREGATORS)]
-						],@_);
+  my ($adaptor,$aggregators,$args);
+
+  if (@_ == 1) {  # special case, default to dbi::mysqlopt
+    $adaptor = 'dbi::mysqlopt';
+    $args = {DSN => shift};
+  } else {
+    ($adaptor,$aggregators,$args) = rearrange([
+					       [qw(ADAPTOR FACTORY)],
+					       [qw(AGGREGATOR AGGREGATORS)]
+					      ],@_);
+  }
 
   $adaptor    ||= 'dbi::mysqlopt';
   my $class = "Bio::DB::GFF::Adaptor::\L${adaptor}\E";
@@ -518,7 +634,7 @@ sub automerge {
 
 This method generates a segment object, which is a Perl object
 subclassed from Bio::DB::GFF::Segment.  The segment can be used to
-find overlapping features and the raw DNA.  
+find overlapping features and the raw DNA.
 
 When making the segment() call, you specify the ID of a sequence
 landmark (e.g. an accession number, a clone or contig), and a
@@ -604,6 +720,16 @@ the beginning of $s2, accounting for differences in strandedness:
 
   my $rel_start = $segment->start;
 
+IMPORTANT NOTE: This method can be used to return the segment spanned
+by an arbitrary named annotation.  However, if the annotation appears
+at multiple locations on the genome, for example an EST that maps to
+multiple locations, then, provided that all locations reside on the
+same physical segment, the method will return a segment that spans the
+minimum and maximum positions.  If the reference sequence occupies
+ranges on different physical segments, then it returns undef.
+
+See also the fetch_group() method.
+
 =cut
 #'
 
@@ -613,9 +739,39 @@ sub segment {
     @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
     @_ = (-name=>$_[0])               if @_ == 1;
   }
-  # (see Ace::Sequence::DBI::Segment for all the arguments)
   return $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
                        : Bio::DB::GFF::RelSegment->new($self,@_);
+}
+
+=head2 abs_segment
+
+ Title   : abs_segment
+ Usage   : $db->abs_segment(@args);
+ Function: create an absolute segment object
+ Returns : a segment object
+ Args    : numerous, see below
+ Status  : public
+
+This method behaves in the same way as segment(), but it avoids the
+initial database lookup to find the absolute start and stop positions
+of the provided landmark on the genomic sequence.  This is slightly
+faster, but since the module has no way of automatically determining
+the length of the segment, it has the drawback that unless you
+explicitly specify the stop and end points of the segment, the start()
+method will always return 1, and the end() and length() methods will
+return undef.
+
+=cut
+
+sub abs_segment {
+  my $self = shift;
+  if ($_[0] !~ /^-/) {
+    @_ = (-name=> $_[0], -start=>$_[1],-stop=>$_[2]) if @_ == 3;
+    @_ = (-class=>$_[0],-name=>$_[1]) if @_ == 2;
+    @_ = (-name=> $_[0])              if @_ == 1;
+  }
+  push @_,('-force_absolute'=>1);
+  return Bio::DB::GFF::RelSegment->new(-factory => $self,@_);
 }
 
 =head2 types
@@ -773,7 +929,6 @@ sub overlapping_features {
   $self->features_in_range(-range_type=>'overlaps',@_);
 }
 
-
 =head2 contained_features
 
  Title   : contained_features
@@ -798,6 +953,20 @@ sub contained_features {
   my $self = shift;
   $self->features_in_range(-range_type=>'contains',@_);
 }
+
+=head2 contained_in
+
+ Title   : contained_in
+ Usage   : @features = $s->contained_in(@args)
+ Function: get features that contain this segment
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : see features()
+ Status  : Public
+
+This is identical in behavior to features() except that it returns
+only those features that completely contain the segment.
+
+=cut
 
 sub contained_in {
   my $self = shift;
@@ -840,8 +1009,6 @@ expressions are allowed in either field, as in: "similarity:BLAST.*".
 
 =cut
 
-# The same, except that it fetches all features of a particular type regardless
-# of position
 sub features {
   my $self = shift;
   my ($types,$automerge,$iterator);
@@ -860,6 +1027,49 @@ sub features {
   $self->_features('contains',undef,undef,undef,undef,$types,undef,$automerge,$iterator);
 }
 
+=head2 fetch_group
+
+ Title   : fetch_group
+ Usage   : $db->fetch_group($class => $name)
+ Function: fetch features by group name
+ Returns : a list of Bio::DB::GFF::Feature objects
+ Args    : the class and name of the desired feature
+ Status  : public
+
+This method can be used to fetch a named feature from the database.
+GFF annotations are named using the group class and name fields, so
+for features that belong to a group of size one, this method can be
+used to retrieve that group (and is equivalent to the segment() method).
+
+This method may return zero, one, or several Bio::DB::GFF::Feature
+objects.
+
+Aggregation is performed on features as usual.
+
+=cut
+
+sub fetch_group {
+  my $self = shift;
+  my ($gclass,$gname);
+  if (@_ == 1) {
+    $gclass = $self->default_class;
+    $gname  = shift;
+  } else  {
+    ($gclass,$gname) = rearrange(['CLASS','NAME'],@_);
+  }
+  my %groups;         # cache the groups we create to avoid consuming too much unecessary memory
+  my $features = [];
+  my $callback = sub { push @$features,$self->make_feature(undef,\%groups,@_) };
+  $self->get_feature_by_name($gclass,$gname,$callback);
+  @$features;
+}
+
+=head2 get_seq_stream()
+
+Bioperl compatibility.
+
+=cut
+
 # bioperl-compatible stuff
 sub get_seq_stream {
   my $self = shift;
@@ -868,10 +1078,44 @@ sub get_seq_stream {
   $self->features(@args);
 }
 
+=head2 get_Stream_by_id ()
+
+Bioperl compatibility.
+
+=cut
+
 sub get_Stream_by_id {
   my $self = shift;
   my @ids  = @_;
   Bio::DB::GFF::ID_Iterator->new($self,\@ids);
+}
+
+=head2 all_seqfeatures
+
+ Title   : all_seqfeatures
+ Usage   : @features = $db->all_seqfeatures(@args)
+ Function: fetch all the features in the database
+ Returns : an array of features, or an iterator
+ Args    : See below
+ Status  : public
+
+This is equivalent to calling $db->features() without any types, and
+will return all the features in the database.  The -merge and
+-iterator arguments are recognized, and behave the same as described
+for features().
+
+=cut
+
+sub all_seqfeatures {
+  my $self = shift;
+  my ($automerge,$iterator)= rearrange([
+					[qw(MERGE AUTOMERGE)],
+					'ITERATOR'
+				       ],@_);
+  my @args;
+  push @args,(-merge=>$automerge)   if defined $automerge;
+  push @args,(-iterator=>$iterator) if defined $iterator;
+  $self->features(@args);
 }
 
 =head2 notes
@@ -888,12 +1132,44 @@ and remarks.  Adaptors can elect to store the notes in the database,
 or just ignore them.  For those adaptors that store the notes, the
 notes() method will return them as a list.
 
+=cut
+
 sub notes {
   my $self = shift;
   return;
 }
 
+
+=head2 fast_queries
+
+ Title   : fast_queries
+ Usage   : $flag = $db->fast_queries([$flag])
+ Function: turn on and off the "fast queries" option
+ Returns : a boolean
+ Args    : a boolean flag (optional)
+ Status  : public
+
+The mysql database driver (and possibly others) support a "fast" query
+mode that caches results on the server side.  This makes queries come
+back faster, particularly when creating iterators.  The downside is
+that while iterating, new queries will die with a "command synch"
+error.  This method turns the feature on and off.
+
+For databases that do not support a fast query, this method has no
+effect.
+
 =cut
+
+# override this method in order to set the mysql_use_result attribute, which is an obscure
+# but extremely powerful optimization for both performance and memory.
+sub fast_queries {
+  my $self = shift;
+  my $d = $self->{fast_queries};
+  $self->{fast_queries} = shift if @_;
+  $d;
+}
+
+
 
 =head2 add_aggregator
 
@@ -946,7 +1222,7 @@ sub aggregators {
 =head2 abscoords
 
  Title   : abscoords
- Usage   : $db->abscoords($name,$class)
+ Usage   : $db->abscoords($name,$class,$refseq)
  Function: finds position of a landmark in reference coordinates
  Returns : ($ref,$class,$start,$stop,$strand)
  Args    : name and class of landmark
@@ -959,13 +1235,16 @@ the ID of the reference sequence, its class, its start and stop
 positions, and the orientation of the reference sequence's coordinate
 system ("+" for forward strand, "-" for reverse strand).
 
+If $refseq is present in the argument list, it forces the query to
+search for the landmark in a particular reference sequence.
+
 =cut
 
 sub abscoords {
   my $self = shift;
-  my ($name,$class) = @_;
-  $class ||= 'Sequence';
-  $self->get_abscoords($name,$class);
+  my ($name,$class,$refseq) = @_;
+  $class ||= $self->{default_class};
+  $self->get_abscoords($name,$class,$refseq);
 }
 
 =head1 Protected API
@@ -1060,6 +1339,13 @@ sub refclass {
   'Sequence';
 }
 
+sub default_class {
+   my $self = shift;
+   my $d = exists($self->{default_class}) ? $self->{default_class} : 'Sequence';
+   $self->{default_class} = shift if @_;
+   $d;
+}
+
 =head2 setup_load
 
  Title   : setup_load
@@ -1067,10 +1353,11 @@ sub refclass {
  Function: called before load_gff_line()
  Returns : void
  Args    : none
- Status  : protected
+ Status  : abstract
 
-This method gives subclasses a chance to do any schema-specific
-initialization prior to loading a set of GFF records.
+This abstract method gives subclasses a chance to do any
+schema-specific initialization prior to loading a set of GFF records.
+It must be implemented by a subclass.
 
 =cut
 
@@ -1085,7 +1372,7 @@ sub setup_load {
  Function: called after load_gff_line()
  Returns : number of records loaded
  Args    : none
- Status  : protected
+ Status  :abstract
 
 This method gives subclasses a chance to do any schema-specific
 cleanup after loading a set of GFF records.
@@ -1103,10 +1390,10 @@ sub finish_load {
  Function: called to load one parsed line of GFF
  Returns : true if successfully inserted
  Args    : see below
- Status  : protected
+ Status  : abstract
 
-This method is called once per line of the GFF and passed a series of
-parsed data items.  The items are:
+This abstract method is called once per line of the GFF and passed a
+series of parsed data items.  The items are:
 
  $ref          reference sequence
  $source       annotation source
@@ -1198,6 +1485,9 @@ Arguments are as follows:
    $callback  A code reference.  As the passed features are retrieved
               they are passed to this callback routine for processing.
 
+   $automerge A flag.  If present, overrides the value returned by
+              the automerge() method.
+
 This routine is responsible for getting arrays of GFF data out of the
 database and passing them to the callback subroutine.  The callback
 does the work of constructing a Bio::DB::GFF::Feature object out of
@@ -1224,15 +1514,35 @@ fields.
 
 sub get_features{
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$automerge) = @_;
   $self->throw("get_features() must be implemented by an adaptor");
 }
 
 
+=head2 get_feature_by_name
+
+ Title   : get_feature_by_name
+ Usage   : $db->get_feature_by_name($name,$class,$callback)
+ Function: get a list of features by name and class
+ Returns : count of number of features retrieved
+ Args    : name of feature, class of feature, and a callback
+ Status  : protected
+
+This method is used internally.  The callback arguments are those used
+by make_feature().
+
+=cut
+
+sub get_feature_by_name {
+  my $self = shift;
+  my ($class,$name,$callback) = @_;
+  $self->throw("get_feature_by_name() must be implemented by an adaptor");
+}
+
 =head2 get_abscoords
 
  Title   : get_abscoords
- Usage   : $db->get_abscoords($name,$class)
+ Usage   : $db->get_abscoords($name,$class,$refseq)
  Function: get the absolute coordinates of sequence with name & class
  Returns : ($absref,$absstart,$absstop,$absstrand)
  Args    : name and class of the landmark
@@ -1246,11 +1556,14 @@ a four-element array consisting of:
   $absstop     the position at which the landmark stops
   $absstrand   the strand of the landmark, relative to the reference sequence
 
+If $refseq is provided, the function searches only within the
+specified reference sequence.
+
 =cut
 
 sub get_abscoords {
   my $self = shift;
-  my ($name,$class) = @_;
+  my ($name,$class,$refseq) = @_;
   $self->throw("get_abscoords() must be implemented by an adaptor");
 }
 
@@ -1376,7 +1689,8 @@ sub make_feature {
 				      $start,$stop,
 				      $method,$source,
 				      $score,$strand,$phase,
-				      $group,$db_id);
+				      $group,$db_id,
+				      $tstart,$tstop);
   }
 }
 
@@ -1710,13 +2024,16 @@ __END__
 
 =head1 BUGS
 
-Not really Bio::SeqFeatureI compliant yet.
-
-Schemas need some work.
+Features can only belong to a single group at a time.  This must be
+addressed soon.
 
 =head1 SEE ALSO
 
-L<bioperl>
+L<bioperl>,
+L<Bio::DB::GFF::RelSegment>,
+L<Bio::DB::GFF::Feature>,
+L<Bio::DB::GFF::Adaptor::dbi::mysql>,
+L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>
 
 =head1 AUTHOR
 

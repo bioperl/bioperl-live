@@ -111,10 +111,11 @@ use strict;
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::Segment;
+use Bio::RangeI;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Segment);
-$VERSION = '0.25';
+$VERSION = '0.30';
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },
@@ -151,6 +152,7 @@ This function uses a named-argument style:
  -refclass     class of the reference sequence
  -offset       0-based offset from source sequence to start of segment
  -length       length of desired segment
+ -force_absolute     don't look up the sequence coordinates in database
 
 The -seq argument accepts the ID of any landmark in the database.  The
 stored source sequence becomes whatever the GFF file indicates is the
@@ -172,6 +174,11 @@ by -seq is used as the reference sequence.  If the argument to -ref is
 a Bio::GFF::Featname object (such as returned by the group() method),
 then the class is taken from that.
 
+-force_absolute should be used if you wish to skip the lookup of the
+absolute position of the source sequence that ordinarily occurs when
+you create a relative segment.  In this case, the source sequence must
+be a sequence that has been specified as the "source" in the GFF file.
+
 =cut
 
 # Create a new Ace::Sequence::DBI::Segment object
@@ -183,9 +190,10 @@ then the class is taken from that.
 #      -ref        => $sequence which establishes coordinate system
 #      -offset     => 0-based offset relative to sequence
 #      -length     => length of segment
+#' 
 sub new {
   my $package = shift;
-  my ($factory,$name,$start,$stop,$refseq,$class,$refclass,$offset,$length) =
+  my ($factory,$name,$start,$stop,$refseq,$class,$refclass,$offset,$length,$force_absolute) =
     rearrange([
 	       'FACTORY',
 	       [qw(NAME SEQ SEQUENCE SOURCESEQ)],
@@ -196,6 +204,7 @@ sub new {
 	       qw(REFCLASS),
 	       [qw(OFFSET OFF)],
 	       [qw(LENGTH LEN)],
+	       [qw(FORCE_ABSOLUTE)],
 	     ],@_);
 
   $package = ref $package if ref $package;
@@ -217,8 +226,15 @@ sub new {
   $class ||= 'Sequence';
 
   # confirm that indicated sequence is actually in the database!
-  my($absref,$absclass,$absstart,$absstop,$absstrand) = $factory->abscoords($name,$class)
-    or return;
+  my($absref,$absclass,$absstart,$absstop,$absstrand);
+#  if ($force_absolute) { # absolute position is given to us
+#    (undef,undef,$absstart,$absstop,undef) = $factory->abscoords($name,$class,$name);
+#    $start = 1 unless defined $start;
+#    ($absref,$absclass,$absstart,$absstop,$absstrand) = ($name,$class,1,$absstop-$absstart+1,'+');
+#  } else {
+  ($absref,$absclass,$absstart,$absstop,$absstrand)
+    = $factory->abscoords($name,$class,$force_absolute ? $name : ()) or return;
+ #  }
 
   $absstrand ||= '+';
 
@@ -237,18 +253,22 @@ sub new {
   # this allows a SQL optimization way down deep
   $self->{whole}++ if $absref eq $name and !defined($start) and !defined($stop);
 
-  $start = 1                    unless defined $start;
-  $stop  = $absstop-$absstart+1 unless defined $stop;
+  $start = 1                    if !defined $start;
+  $stop  = $absstop-$absstart+1 if !defined $stop;
   $length = $stop - $start + 1;
 
   # now offset to correct subsegment based on desired start and stop
-  if ($absstrand eq '+') {
+  if ($force_absolute) {
+    ($start,$stop) = ($absstart,$absstop);
+    $self->absolute(1);
+  } elsif ($absstrand eq '+') {
     $start =  $absstart + $start - 1;
     $stop  =  $start    + $length - 1;
   } else {
     $start =  $absstop - ($start - 1);
     $stop  =  $absstop - ($stop - 1);
   }
+
   @{$self}{qw(sourceseq start stop strand class)}
     = ($absref,$start,$stop,$absstrand,$absclass);
 
@@ -284,6 +304,7 @@ sub stop {
 
 sub length {
   my $self = shift;
+  return unless defined $self->abs_stop;
   abs($self->abs_stop - $self->abs_start) + 1;
 }
 
@@ -492,9 +513,12 @@ rather than any that overlap.
 # return all features completely contained within this segment
 sub contained_features {
   my $self = shift;
+  local $self->{whole} = 0;
   my @args = $self->_process_feature_args(@_);
   return $self->factory->contained_features(@args);
 }
+
+*contains = \&contained_features;
 
 =head2 contained_in
 
@@ -513,6 +537,7 @@ only those features that completely contain the segment.
 # return all features completely contained within this segment
 sub contained_in {
   my $self = shift;
+  local $self->{whole} = 0;
   my @args = $self->_process_feature_args(@_);
   return $self->factory->contained_in(@args);
 }
@@ -533,7 +558,8 @@ arguments to features() before passing them on to the adaptor.
 =cut 
 
 sub _process_feature_args {
-  my $self = shift;
+  my $self       = shift;
+
   my ($ref,$class,$start,$stop,$strand,$whole)
     = @{$self}{qw(sourceseq class start stop strand whole)};
 
@@ -696,7 +722,6 @@ sub subseq {
 
 
 1;
-__END__
 
 __END__
 

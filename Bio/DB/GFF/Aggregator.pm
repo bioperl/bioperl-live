@@ -144,8 +144,10 @@ use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
 use Bio::DB::GFF::Feature;
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.15';
+$VERSION = '1.00';
 @ISA = qw(Bio::Root::RootI);
+
+my $ALWAYS_TRUE   = sub { 1 };
 
 =head2 new
 
@@ -398,8 +400,7 @@ we should aggregate it, false otherwise.
 sub match_sub {
   my $self    = shift;
   my $factory = shift;
-
-  my $types_to_aggregate = $self->components();  # saved from disaggregate call
+  my $types_to_aggregate = $self->components() or return;  # saved from disaggregate call
   return unless @$types_to_aggregate;
   return $factory->make_match_sub($types_to_aggregate);
 }
@@ -422,7 +423,6 @@ source is appended to the method, like "clone_left_end:cosmid" and
 later use.
 
 =cut
-
 
 sub components {
   my $self = shift;

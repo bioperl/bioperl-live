@@ -26,14 +26,14 @@ use Bio::DB::GFF::Adaptor::dbi::iterator;
 use vars qw($VERSION @ISA);
 
 @ISA =  qw(Bio::DB::GFF);
-$VERSION = '0.20';
+$VERSION = '0.21';
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 
 =head2 new
 
  Title   : new
- Usage   : $db = Bio::DB::GFF->new(-adaptor => 'dbi:some_subclass',@args)
+ Usage   : $db = Bio::DB::GFF->new(@args)
  Function: create a new adaptor
  Returns : a Bio::DB::GFF object
  Args    : see below
@@ -184,9 +184,9 @@ reference sequence and position.
 # given sequence name, return (reference,start,stop,strand)
 sub get_abscoords {
   my $self = shift;
-  my ($name,$class)  = @_;
+  my ($name,$class,$refseq)  = @_;
 
-  my $sth = $self->make_abscoord_query($name,$class);
+  my $sth = $self->make_abscoord_query($name,$class,$refseq);
 
   my @result;
   while ( my @row = $sth->fetchrow_array) {
@@ -198,7 +198,7 @@ sub get_abscoords {
     $self->error("$name not found in database");
     return;
   } elsif (@result > 1) {
-    $self->error("$name present more than once in database");
+    $self->error("$name has more than one reference sequence in database");
     return;
   } else {
     return @{$result[0]};
@@ -288,6 +288,46 @@ sub get_features {
   $callback || $self->throw('must provide a callback argument');
 
   my $sth = $self->range_query($range_type,$refseq,$class,$start,$stop,$types,$order_by_group) or return;
+
+  my $count = 0;
+  while (my @row = $sth->fetchrow_array) {
+    $callback->(@row);
+    $count++;
+  }
+  $sth->finish;
+  return $count;
+}
+
+=head2 get_feature_by_name
+
+ Title   : get_feature_by_name
+ Usage   : $db->get_features($name,$class,$callback)
+ Function: get a list of features by name and class
+ Returns : count of number of features retrieved
+ Args    : name of feature, class of feature, and a callback
+ Status  : protected
+
+This method is used internally.  The callback arguments are those used
+by make_feature().  Internally, it invokes the following abstract procedures:
+
+ make_features_select_part
+ make_features_from_part
+ make_features_byname_where_part
+ make_features_join_part
+
+=cut
+
+sub get_feature_by_name {
+  my $self = shift;
+  my ($class,$name,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+
+  my $select         = $self->make_features_select_part;
+  my $from           = $self->make_features_from_part;
+  my ($where,@args)  = $self->make_features_byname_where_part($class,$name);
+  my $join           = $self->make_features_join_part;
+  my $query  = "SELECT $select FROM $from WHERE $where AND $join";
+  my $sth    = $self->do_query($query,@args);
 
   my $count = 0;
   while (my @row = $sth->fetchrow_array) {
@@ -406,14 +446,14 @@ each of which is expected to be overridden in subclasses:
   $select        = $self->make_features_select_part;
   $from          = $self->make_features_from_part;
   $join          = $self->make_features_join_part;
-  ($where,@args) = $self->make_features_where_part($isrange,$srcseq,$class,
-						   $start,$stop,$types,$class);
+  ($where,@args) = $self->make_features_byrange_where_part($isrange,$srcseq,$class,
+						           $start,$stop,$types,$class);
 
 The query that is constructed looks like this:
 
   SELECT $select FROM $from WHERE $join AND $where
 
-The arguments that are returned from make_features_where_part() are
+The arguments that are returned from make_features_byrange_where_part() are
 passed to the statement handler's execute() method.
 
 range_query() also calls a do_straight_join() method, described
@@ -433,8 +473,8 @@ sub range_query {
   my $select        = $self->make_features_select_part;
   my $from          = $self->make_features_from_part;
   my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_where_part($rangetype,$refseq,$class,
-						      $start,$stop,$types,$class);
+  my ($where,@args) = $self->make_features_byrange_where_part($rangetype,$refseq,$class,
+							      $start,$stop,$types,$class);
   my $order_by      = $self->make_features_order_by_part if $order_by_group;
 
   my $query         = "SELECT $straight $select FROM $from WHERE $join";
@@ -444,9 +484,10 @@ sub range_query {
   my $sth = $self->do_query($query,@args);
   $sth;
 }
-=head2 make_features_where_part
 
- Title   : make_features_where_part
+=head2 make_features_byrange_where_part
+
+ Title   : make_features_byrange_where_part
  Usage   : ($string,@args) =
      $db->make_features_select_part($isrange,$refseq,$class,$start,$stop,$types)
  Function: make where part of the features query
@@ -487,7 +528,7 @@ See Bio::DB::Adaptor::dbi::mysql for an example of how this works.
 
 #'
 
-sub make_features_where_part {
+sub make_features_byrange_where_part {
   my $self = shift;
   my($rangetype,$refseq,$class,$start,$stop,$types) = @_;
   my @query;
@@ -629,9 +670,9 @@ L<Bio::DB::GFF::Adaptor::dbi::iterator>.
 
 sub get_features_iterator {
   my $self = shift;
-  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback) = @_;
+  my ($rangetype,$srcseq,$class,$start,$stop,$types,$callback,$automerge) = @_;
   $callback || $self->throw('must provide a callback argument');
-  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$self->automerge) or return;
+  my $sth = $self->range_query($rangetype,$srcseq,$class,$start,$stop,$types,$automerge) or return;
   return Bio::DB::GFF::Adaptor::dbi::iterator->new($sth,$callback);
 }
 
@@ -703,7 +744,6 @@ The following astract methods either return DBI statement handles or
 fragments of SQL.  They must be implemented by subclasses of this
 module.  See Bio::DB::GFF::Adaptor::dbi::mysql for examples.
 
-
 =head2 make_features_select_part
 
  Title   : make_features_select_part
@@ -760,7 +800,6 @@ sub make_features_join_part {
   shift->throw("make_features_join_part(): must be implemented by subclass");
 }
 
-
 =head2 make_features_order_by_part
 
  Title   : make_features_order_by_part
@@ -780,6 +819,23 @@ to order the returned features in some way.
 sub make_features_order_by_part {
   my $self = shift;
   $self->throw("please implement a make_features_order_by_part() method");
+}
+
+=head2 make_features_byname_where_part
+
+ Title   : make_features_byname_where_part
+ Usage   : $db->make_features_byname_where_part($class,$name)
+ Function: create the SQL fragment needed to select a feature by its group name & class
+ Returns : a SQL fragment and bind arguments
+ Args    : class and name of the feature group
+ Status  : Protected
+
+=cut
+
+sub make_features_byname_where_part {
+  my $self = shift;
+  my ($class,$name) = @_;
+  shift->throw('make_features_byname_where_part(): must be implemented by subclass');
 }
 
 =head2 make_dna_query
@@ -842,7 +898,7 @@ sub make_abscoord_query {
  Args    : reference sequence name and class
  Status  : Abstract
 
-This method is called by make_features_where_part() to construct the
+This method is called by make_features_byrange_where_part() to construct the
 part of the select WHERE section that selects a particular reference
 sequence.  It returns a mult-element list in which the first element
 is the SQL fragment and subsequent elements are bind values.  For
@@ -874,7 +930,7 @@ sub refseq_query {
  Args    : the start and stop of a range, inclusive
  Status  : Abstract
 
-This method is called by make_features_where_part() to construct the
+This method is called by make_features_byrange_where_part() to construct the
 part of the select WHERE section that selects a set of features that
 overlap a range. It returns a multi-element list in which the first
 element is the SQL fragment and subsequent elements are bind values.
@@ -907,7 +963,7 @@ sub overlap_query {
  Args    : the start and stop of a range, inclusive
  Status  : Abstract
 
-This method is called by make_features_where_part() to construct the
+This method is called by make_features_byrange_where_part() to construct the
 part of the select WHERE section that selects a set of features
 entirely enclosed by a range. It returns a multi-element list in which
 the first element is the SQL fragment and subsequent elements are bind
@@ -940,7 +996,7 @@ sub contains_query {
  Args    : the start and stop of a range, inclusive
  Status  : Abstract
 
-This method is called by make_features_where_part() to construct the
+This method is called by make_features_byrange_where_part() to construct the
 part of the select WHERE section that selects a set of features
 entirely enclosed by a range. It returns a multi-element list in which
 the first element is the SQL fragment and subsequent elements are bind
@@ -973,7 +1029,7 @@ sub contained_in_query {
  Args    : an array reference containing the types
  Status  : Abstract
 
-This method is called by make_features_where_part() to construct the
+This method is called by make_features_byrange_where_part() to construct the
 part of the select WHERE section that selects a set of features based
 on their type. It returns a multi-element list in which the first
 element is the SQL fragment and subsequent elements are bind values.
@@ -1201,9 +1257,8 @@ there must be a blank line between each of the CREATE statements:
 
 =cut
 
-# return list of tables that "belong" to us.
-sub tables {
-  shift->throw("tables(): must be implemented by subclass");
+sub schema {
+  shift->throw("The schema() method must be implemented by subclass");
 }
 
 =head2 DESTROY

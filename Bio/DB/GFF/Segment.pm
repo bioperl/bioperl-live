@@ -23,10 +23,11 @@ package Bio::DB::GFF::Segment;
 
 use strict;
 use Bio::Root::RootI;
+use Bio::RangeI;
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Bio::Root::RootI);
-$VERSION = '0.26';
+@ISA = qw(Bio::Root::RootI Bio::RangeI);
+$VERSION = '0.30';
 
 use overload 
   '""'     => 'asString',
@@ -281,6 +282,8 @@ Returns true if the two segments have the same source sequence, start and stop.
 sub equals {
   my $self = shift;
   my $peer = shift;
+  return unless defined $peer;
+  return "$self" eq "$peer" unless $peer->isa('Bio::DB::GFF::Segment');
   return $self->{start} eq $peer->{start}
          && $self->{stop}  eq $peer->{stop}
          && $self->{sourceseq} eq $peer->{sourceseq};
@@ -456,14 +459,71 @@ An alias for refseq()
 
 sub ref { shift->refseq(@_) }
 
+=head2 Bio::RangeI Methods
+
+The following Bio::RangeI methods are supported:
+
+overlaps(), contains(), equals(),intersection(),union(),overlap_extent()
+
+=cut
+
+sub overlaps {
+  my $self  = shift;
+  my($other,$so) = @_;
+  if ($other->isa('Bio::DB::GFF::RelSegment')) {
+    return if $self->abs_ref ne $other->abs_ref;
+  }
+  $self->SUPER::overlaps(@_);
+}
+
+sub contains {
+  my $self  = shift;
+  my($other,$so) = @_;
+  if ($other->isa('Bio::DB::GFF::RelSegment')) {
+    return if $self->abs_ref ne $other->abs_ref;
+  }
+  $self->SUPER::contains(@_);
+}
+#sub equals {
+#  my $self  = shift;
+#  my($other,$so) = @_;
+#  if ($other->isa('Bio::DB::GFF::RelSegment')) {
+#    return if $self->abs_ref ne $other->abs_ref;
+#  }
+#  $self->SUPER::equals(@_);
+#}
+sub intersection {
+  my $self  = shift;
+  my($other,$so) = @_;
+  if ($other->isa('Bio::DB::GFF::RelSegment')) {
+    return if $self->abs_ref ne $other->abs_ref;
+  }
+  $self->SUPER::intersection(@_);
+}
+sub union {
+  my $self  = shift;
+  my($other,$so) = @_;
+  if ($other->isa('Bio::DB::GFF::RelSegment')) {
+    return if $self->abs_ref ne $other->abs_ref;
+  }
+  $self->SUPER::union(@_);
+}
+
+sub overlap_extent {
+  my $self  = shift;
+  my($other) = @_;
+  if ($other->isa('Bio::DB::GFF::RelSegment')) {
+    return if $self->abs_ref ne $other->abs_ref;
+  }
+  $self->SUPER::overlap_extent(@_);
+}
+
 1;
 __END__
 
 =head1 BUGS
 
-Not completely Bio::SeqFeatureI compliant yet.
-
-Schemas need some work.
+Report them please.
 
 =head1 SEE ALSO
 

@@ -393,7 +393,7 @@ use vars qw($VERSION @ISA);
 
 @ISA = qw(Bio::DB::SeqI Bio::Root::RootI);
 
-$VERSION = '1.02';
+$VERSION = '1.03';
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;
@@ -915,7 +915,7 @@ sub EXISTS {
 sub FIRSTKEY { tied(%{shift->{offsets}})->FIRSTKEY(@_); }
 sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
 
-sub END {
+sub DESTROY {
   my $self = shift;
   if ($self->{indexing}) {  # killed prematurely, so index file is no good!
     warn "indexing was interrupted, so unlinking $self->{indexing}";

@@ -1,3 +1,59 @@
+=head1 NAME
+
+Bio::DB::GFF::Adaptor::dbi::mysqlopt -- Optimized Bio::DB::GFF adaptor for mysql
+
+=head1 SYNOPSIS
+
+See L<Bio::DB::GFF>
+
+=head1 DESCRIPTION
+
+This adaptor is similar to Bio::DB::GFF::Adaptor::mysqlopt, except
+that it implements several optimizations:
+
+=over 4
+
+=item 1. Binning
+
+It uses a hierarchical binning scheme to dramatically accelerate
+feature queries that use positional information.
+
+=item 2. DNA fetching
+
+Because mysql is slow when fetching substrings out of large text
+BLOBs, this adaptor uses Bio::DB::Fasta to fetch DNA segments rapidly.
+out of FASTA files.
+
+=item 3. An ACEDB interface
+
+Features can be linked to ACEDB objects, allowing this module to be
+used as a replacement for the Ace::Sequence module.
+
+=back
+
+The schema is identical to Bio::DB::GFF::Adaptor::dbi, except for the
+fdata table:
+
+    fid	           feature ID (integer)
+    fref           reference sequence name (string)
+    fstart         start position relative to reference (integer)
+    fstop          stop postion relative to reference (integer)
+    fbin           bin containing this feature (float)
+    ftypeid        feature type ID (integer)
+    fscore         feature score (float); may be null
+    fstrand        strand; one of "+" or "-"; may be null
+    fphase         phase; one of 0, 1 or 2; may be null
+    gid            group ID (integer)
+    ftarget_start  for similarity features, the target start position (integer)
+    ftarget_stop   for similarity features, the target stop position (integer)
+
+The only difference is the "fbin" field, which indicates the interval
+in which the feature is contained.  This module uses a hierarchical
+set of bins, the smallest of which are 1 kb, and the largest is 100
+megabases.
+
+=cut
+
 package Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 
 # an optimized mysql adaptor
@@ -14,7 +70,7 @@ use Bio::DB::GFF::Util::Rearrange;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
-$VERSION = 0.31;
+$VERSION = 0.32;
 
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
@@ -24,6 +80,50 @@ use constant MIN_BIN    => 1000;
 
 # size of range over which it is faster to force mysql to use the range for indexing
 use constant STRAIGHT_JOIN_LIMIT => 200_000;
+
+=head2 new
+
+ Title   : new
+ Usage   : $db = Bio::DB::GFF->new(@args)
+ Function: create a new adaptor
+ Returns : a Bio::DB::GFF object
+ Args    : see below
+ Status  : Public
+
+The new constructor is identical to the "dbi" adaptor's new() method,
+except that the prefix "dbi:mysql" is added to the database DSN identifier
+automatically if it is not there already.
+
+  Argument       Description
+  --------       -----------
+
+  -dsn           the DBI data source, e.g. 'dbi:mysql:ens0040' or "ens0040"
+
+  -fasta         path to a directory containing FASTA files for this database
+                    (e.g. "/usr/local/share/fasta")
+
+  -acedb         an acedb URL to use when converting features into ACEDB
+                    objects (e.g. sace://localhost:2005)
+
+  -user          username for authentication
+
+  -pass          the password for authentication
+
+  -minbin        minimum value to use for binning
+
+  -maxbin        maximum value to use for binning
+
+The path indicated by -fasta must be writable by the current process.
+This is needed in order to build an index of the fasta files.
+
+-minbin and -maxbin indicate the minimum and maximum sizes of
+features, and are important for range query optimization.  They are
+set at reasonable values -- in particular, the maximum bin size is set
+to 100 megabases. Do not change them unless you know what you are
+doing.
+
+=cut
+
 
 sub new {
   my $class = shift;
@@ -122,7 +222,7 @@ sub contained_in_query {
   my $self = shift;
   my ($start,$stop) = @_;
   my ($bq,@bargs)   = $self->bin_query($start,$stop,abs($stop-$start)+1,undef);
-  my ($iq,@iargs) = $self->SUPER::contained_in_query($start,$stop);
+  my ($iq,@iargs)   = $self->SUPER::contained_in_query($start,$stop);
   my $query = "($bq)\n\tAND $iq";
   my @args  = (@bargs,@iargs);
   return wantarray ? ($query,@args) : $self->dbi_quote($query,@args);
@@ -260,7 +360,7 @@ create table fdata (
     ftarget_start       int unsigned,
     ftarget_stop        int unsigned,
     primary key(fid),
-    index(fref,fbin,fstart,fstop,ftypeid),
+    unique index(fref,fbin,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
 );

@@ -26,6 +26,8 @@ replacement for the -name and -class arguments.
 
 package Bio::DB::GFF::Featname;
 use strict;
+use vars '@ISA';
+@ISA = qw(Bio::Root::RootI);
 
 use overload 
   '""' => 'asString',
