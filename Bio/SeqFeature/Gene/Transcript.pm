@@ -224,7 +224,6 @@ sub add_exon {
 	$self->throw("$fea does not implement Bio::SeqFeature::Gene::ExonI");
     }
     $self->_add($fea,'Bio::SeqFeature::Gene::Exon');
-    return;
 }
 
 =head2 flush_exons
@@ -400,7 +399,6 @@ sub utrs {
 sub add_utr {
     my ($self, $fea, $type) = @_;
     $self->_add($fea,'Bio::SeqFeature::Gene::UTR',$type);
-    return;
 }
 
 =head2 flush_utrs
@@ -758,6 +756,7 @@ sub _add {
 	$self->parent->_expand_region($fea);
     }
     push(@{$self->{'_features'}}, $fea);
+    1;
 }
 
 sub _stranded_sort {
