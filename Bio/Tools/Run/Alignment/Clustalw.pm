@@ -349,7 +349,7 @@ BEGIN {
                    GAPOPEN GAPEXT MAXDIV GAPDIST HGAPRESIDUES PWMATRIX
                    PWDNAMATRIX PWGAPOPEN PWGAPEXT SCORE TRANSWEIGHT
                    SEED HELIXGAP OUTORDER STRANDGAP LOOPGAP TERMINALGAP
-                   HELIXENDIN HELIXENDOUT STRANDENDIN STRANDENDOUT);
+                   HELIXENDIN HELIXENDOUT STRANDENDIN STRANDENDOUT PROGRAM);
 
     @CLUSTALW_SWITCHES = qw(HELP CHECK OPTIONS NEGATIVE NOWEIGHTS ENDGAPS
                         NOPGAP NOHGAP NOVGAP KIMURA TOSSGAPS);
@@ -366,12 +366,6 @@ sub new {
     # to facilitiate tempfile cleanup
     $self->_initialize_io();
 
-    unless (&exists_clustal()) {
-	if( $self->verbose >= 0 ) {
-	    warn "Clustalw program not found as $PROGRAM or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
-	}
-    }
-
     my ($attr, $value);
     (undef,$TMPDIR) = $self->tempdir(CLEANUP=>1);
     (undef,$TMPOUTFILE) = $self->tempfile(-dir => $TMPDIR);
@@ -379,7 +373,19 @@ sub new {
 	$attr =   shift @args;
 	$value =  shift @args;
 	next if( $attr =~ /^-/ ); # don't want named parameters
+	if ($attr eq 'PROGRAM') {
+	    $self->program($value);
+	    next;
+	}
 	$self->$attr($value);	
+    }
+    if (! defined $self->program) {
+	 $self->program($PROGRAM);
+     }
+    unless ($self->exists_clustal()) {
+	if( $self->verbose >= 0 ) {
+	    warn "Clustalw program not found as ".$self->program." or not executable. \n  Clustalw can be obtained from eg- http://corba.ebi.ac.uk/Biocatalog/Alignment_Search_software.html/ \n";
+	}
     }
     return $self;
 }
@@ -408,8 +414,32 @@ sub AUTOLOAD {
 
 
 sub exists_clustal {
-    return Bio::Root::IO->exists_exe($PROGRAM);
+    my $self = shift;
+
+    return Bio::Root::IO->exists_exe($self->program);
 }
+
+=head2 program
+
+ Title   : program
+ Usage   : $obj->program($newval)
+ Function: 
+ Returns : value of program
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub program{
+   my $self = shift;
+   if( @_ ) {
+      my $value = shift;
+      $self->{'program'} = $value;
+    }
+    return $self->{'program'};
+
+}
+
 
 =head2  version
 
@@ -539,8 +569,8 @@ sub _run {
 	chmod 0777, $infile1,$infile2;
 	$command = '-profile';
     }
-
-    my $commandstring = $PROGRAM." $command"." $instring".
+    print STDERR "Program ".$self->program."\n";
+    my $commandstring = $self->program." $command"." $instring".
 	" -output=gcg". " $param_string";
     $self->debug( "clustal command = $commandstring");
     	
