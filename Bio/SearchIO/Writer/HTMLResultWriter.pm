@@ -230,46 +230,34 @@ sub to_string {
     
     
     my %baselens = ( 'Sbjct:'   => ( $dbtype eq 'translated' )  ? 3 : 1,
-		     'Query:'   => ( $qtype    eq 'translated' )  ? 3 : 1);
-    my $reference = $result->algorithm_reference || $self->algorithm_reference($result);
-    $reference =~ s/\~/\n/g;
+		     'Query:'   => ( $qtype  eq 'translated' )  ? 3 : 1);
+
     my $str;
     if( ! defined $num || $num <= 1 ) { 
-	$str = $self->start_report($result);
+	$str = &{$self->start_report}($result);
     }
-    $str .= sprintf(
-qq{
-    %s
-    <hr>
-    %s
-    <b>Query=</b>%s %s<br><dd>(%s letters)</dd>
-    <p>
-    <b>Database:</b> %s<br><dd>%s sequences; %s total letters<p></dd>
-    <p>
-    <table border=0>
-    <tr><th>Sequences producing significant alignments:</th>
-	<th>Score<br>(bits)</th><th>E<br>value</th></tr>
-  }, 
-                    $self->title($result),
-		    $reference,
-		    $result->query_name, 
-		    $result->query_description, $result->query_length, 
-		    $result->database_name(),
-		    &_numwithcommas($result->database_entries()), 
-		    &_numwithcommas($result->database_letters()),
-		    );
+
+    $str .= &{$self->title}($result);
+
+    $str .= $result->algorithm_reference || $self->algorithm_reference($result);
+    $str .= &{$self->introduction}($result);
+
+    $str .= "<table border=0>
+            <tr><th>Sequences producing significant alignments:</th>
+            <th>Score<br>(bits)</th><th>E<br>value</th></tr>";
+
     my $hspstr = '<p><p>';
     if( $result->can('rewind')) {
         $result->rewind(); # support stream based parsing routines
     }
-    
+
     while( my $hit = $result->next_hit ) {
 	next if( $hitfilter && ! &{$hitfilter}($hit) );
 	my $nm = $hit->name();
-	my $id_parser = $self->id_parser;
+	
 	$self->debug( "no $nm for name (".$hit->description(). "\n") 
 	    unless $nm;
-	my ($gi,$acc) = &$id_parser($nm);
+	my ($gi,$acc) = &{$self->id_parser}($nm);
 	my $p = "%-$MaxDescLen". "s";
 	my $descsub;
 	if( length($hit->description) > ($MaxDescLen - 3) ) {
@@ -278,9 +266,9 @@ qq{
 	} else { 
 	    $descsub = sprintf($p,$hit->description);
 	}
-	
-	my $url_desc  = $self->hit_link_desc($hit, $result);
-	my $url_align = $self->hit_link_align($hit, $result);
+
+	my $url_desc  = &{$self->hit_link_desc()}($self,$hit, $result);
+	my $url_align = &{$self->hit_link_align()}($self,$hit, $result);
 
 	my @hsps = $hit->hsps;
 	
@@ -296,7 +284,6 @@ qq{
 			 (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
 			);
 
-#	$hspstr .= "<a name=\"$acc\"><pre>\n".
 	$hspstr .= "<a name=\"$acc\">\n".
 	    sprintf("><b>%s</b> %s\n<dd>Length = %s</dd><p>\n\n", $url_align, 
 			defined $hit->description ? $hit->description : '', 
@@ -328,7 +315,7 @@ qq{
 				   $hsp->gaps('total'),
 				   $hsp->length('total'),
 				   (100 * $hsp->gaps('total') / 
-				    $hsp->length('total')));
+				   $hsp->length('total')));
 	    }
 	    
 	    my ($hframe,$qframe)   = ( $hsp->hit->frame, $hsp->query->frame);
@@ -443,15 +430,17 @@ qq{
 	}
 #	$hspstr .= "</pre>\n";
     }
+
+
+    # make table of search statistics and end the web page
     $str .= "</table><p>\n".$hspstr."<p><p><hr><h2>Search Parameters</h2><table border=1><tr><th>Parameter</th><th>Value</th>\n";
-    
-    
+        
     foreach my $param ( $result->available_parameters ) {
 	$str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
 	
     }
     $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
-   foreach my $stat ( sort $result->available_statistics ) {
+    foreach my $stat ( sort $result->available_statistics ) {
 	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></th>\n";
     }
     $str .=  "</table><P>".$self->footer() . "<P>\n";
@@ -461,7 +450,31 @@ qq{
 =head2 hit_link_desc
 
  Title   : hit_link_desc
- Usage   : $self->hit_link_desc($hit, $result)
+ Usage   : $self->hit_link_desc(\&link_function);
+ Function: Get/Set the function which provides an HTML 
+           link(s) for the given hit to be used
+           within the description section at the top of the BLAST report.
+           This allows a person reading the report within
+           a web browser to go to one or more database entries for
+           the given hit from the description section.
+ Returns : Function reference
+ Args    : Function reference
+ See Also: L<default_hit_link_desc()>
+
+=cut
+
+sub hit_link_desc{
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_hit_link_desc'} = $code;
+    }
+    return $self->{'_hit_link_desc'} || \&default_hit_link_desc;
+}
+
+=head2 default_hit_link_desc
+
+ Title   : defaulthit_link_desc
+ Usage   : $self->default_hit_link_desc($hit, $result)
  Function: Provides an HTML link(s) for the given hit to be used
            within the description section at the top of the BLAST report.
            This allows a person reading the report within
@@ -477,15 +490,14 @@ qq{
  Args    : First argument is a Bio::Search::Hit::HitI
            Second argument is a Bio::Search::Result::ResultI
 
-See Also: hit_link_align(), remote_database(), id_parser()
+See Also: L<hit_link_align()>, L<remote_database()>, L<id_parser()>
 
 =cut
 
-sub hit_link_desc {
+sub default_hit_link_desc {
     my($self, $hit, $result) = @_;
     my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
-    my $id_parser = $self->id_parser;
-    my ($gi,$acc) = &$id_parser($hit->name);
+    my ($gi,$acc) = &{$self->id_parser}($hit->name);
 
     my $url = length($self->remote_database_url($type)) > 0 ? 
               sprintf('<a href="%s">%s</a>',
@@ -495,11 +507,13 @@ sub hit_link_desc {
     return $url;
 }
 
+
 =head2 hit_link_align
 
  Title   : hit_link_align
- Usage   : $self->hit_link_align($hit, $result)
- Function: Provides an HTML link(s) for the given hit to be used
+ Usage   : $self->hit_link_align(\&link_function);
+ Function: Get/Set the function which provides an HTML link(s) 
+           for the given hit to be used
            within the HSP alignment section of the BLAST report.
            This allows a person reading the report within
            a web browser to go to one or more database entries for
@@ -511,39 +525,175 @@ sub hit_link_desc {
  Args    : First argument is a Bio::Search::Hit::HitI
            Second argument is a Bio::Search::Result::ResultI
 
-See Also: hit_link_desc(), remote_database(), id_parser()
+See Also: L<hit_link_desc()>, L<remote_database()>, L<id_parser()>
 
 =cut
 
-sub hit_link_align { shift->hit_link_desc(@_) }
+sub hit_link_align {
+    my ($self,$code) = @_;
+    if ($code) {
+        $self->{'_hit_link_align'} = $code;
+    }
+    return $self->{'_hit_link_align'} || \&default_hit_link_desc;
+}
 
+=head2 start_report
 
-=head2 title
+  Title   : start_report
+  Usage   : $index->start_report( CODE )
+  Function: Stores or returns the code to
+            write the start of the <HTML> block, the <TITLE> block
+            and the start of the <BODY> block of HTML.   Useful
+            for (for instance) specifying alternative
+            HTML if you are embedding the output in
+            an HTML page which you have already started.
+            (For example a routine returning a null string).
+            Returns \&default_start_report (see below) if not
+            set. 
+  Example : $index->start_report( \&my_start_report )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
 
- Title   : title
- Usage   : $self->title($result)
- Function: Provides HTML for the given BLAST report that will appear
-           at the top of the BLAST report HTML output.
- Returns : string containing HTML markup
+=cut
 
-           The default implementation returns <CENTER> <H1> HTML
-           containing text such as:
-           "Bioperl Reformatted HTML of BLASTP Search Report
-                     for gi|1786183|gb|AAC73113.1|"
+sub start_report {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_start_report'} = $code;
+    }
+    return $self->{'_start_report'} || \&default_start_report;
+}
 
+=head2 default_start_report
+
+ Title   : default_start_report
+ Usage   : $self->default_start_report($result)
+ Function: The default method to call when starting a report.
+ Returns : sting
  Args    : First argument is a Bio::Search::Result::ResultI
 
 =cut
 
+sub default_start_report {
+    my ($result) = @_;
+    return sprintf(
+    qq{<HTML>
+      <HEAD> <CENTER><TITLE>Bioperl Reformatted HTML of %s output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
+      <!------------------------------------------------------------------->
+      <!-- Generated by Bio::SearchIO::Writer::HTMLResultWriter          -->
+      <!-- %s -->
+      <!-- http://bioperl.org                                            -->
+      <!------------------------------------------------------------------->
+      <BODY BGCOLOR="WHITE">
+    },$result->algorithm,$Revision);
+    
+}
+
+=head2 title
+
+ Title   : title
+ Usage   : $self->title($CODE)
+
+  Function: Stores or returns the code to provide HTML for the given
+            BLAST report that will appear at the top of the BLAST report
+            HTML output.  Useful for (for instance) specifying
+            alternative routines to write your own titles.
+            Returns \&default_title (see below) if not
+            set. 
+  Example : $index->title( \&my_title )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
 sub title {
-    my ($self, $result) = @_;
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_title'} = $code;
+    }
+    return $self->{'_title'} || \&default_title;
+}
+
+=head2 default_title
+
+ Title   : default_title
+ Usage   : $self->default_title($result)
+ Function: Provides HTML for the given BLAST report that will appear
+           at the top of the BLAST report HTML output.
+ Returns : string containing HTML markup
+           The default implementation returns <CENTER> <H1> HTML
+           containing text such as:
+           "Bioperl Reformatted HTML of BLASTP Search Report
+                     for gi|1786183|gb|AAC73113.1|"
+ Args    : First argument is a Bio::Search::Result::ResultI
+
+=cut
+
+sub default_title {
+    my ($result) = @_;
 
     return sprintf(
-qq{    <CENTER><H1><a href="http://bioperl.org">Bioperl</a> Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>},
+        qq{<CENTER><H1><a href="http://bioperl.org">Bioperl</a> Reformatted HTML of %s Search Report<br> for %s</H1></CENTER>},
 		    $result->algorithm,
 		    $result->query_name());
 }
 
+
+=head2 introduction
+
+ Title   : introduction
+ Usage   : $self->introduction($CODE)
+
+  Function: Stores or returns the code to provide HTML for the given
+            BLAST report detailing the query and the
+            database information.
+            Useful for (for instance) specifying
+            routines returning alternative introductions.
+            Returns \&default_introduction (see below) if not
+            set. 
+  Example : $index->introduction( \&my_introduction )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub introduction {
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_introduction'} = $code;
+    }
+    return $self->{'_introduction'} || \&default_introduction;
+}
+
+=head2 default_introduction
+
+ Title   : default_introduction
+ Usage   : $self->default_introduction($result)
+ Function: Outputs HTML to provide the query
+           and the database information
+ Returns : string containing HTML
+ Args    : First argument is a Bio::Search::Result::ResultI
+           Second argument is string holding literature citation
+
+=cut
+
+sub default_introduction {
+    my ($result) = @_;
+
+    return sprintf(
+    qq{
+    <b>Query=</b> %s %s<br><dd>(%s letters)</dd>
+    <p>
+    <b>Database:</b> %s<br><dd>%s sequences; %s total letters<p></dd>
+    <p>
+  }, 
+		    $result->query_name, 
+		    $result->query_description, $result->query_length, 
+		    $result->database_name(),
+		    &_numwithcommas($result->database_entries()), 
+		    &_numwithcommas($result->database_letters()),
+		    );
+}
 
 =head2 end_report
 
@@ -560,32 +710,6 @@ qq{    <CENTER><H1><a href="http://bioperl.org">Bioperl</a> Reformatted HTML of 
 
 sub end_report {
     return "</BODY>\n</HTML>\n";
-}
-
-=head2 start_report
-
- Title   : start_report
- Usage   : $self->start_report()
- Function: The method to call when starting a report. You can override it
-           to make a custom header
- Returns : string
- Args    : none
-
-=cut
-
-sub start_report {
-    my ($self,$result) = @_;
-    return sprintf(
-qq{<HTML>
-       <HEAD> <CENTER><TITLE>Bioperl Reformatted HTML of %s output with Bioperl Bio::SearchIO system</TITLE></CENTER></HEAD>
-    <!------------------------------------------------------------------->
-    <!-- Generated by Bio::SearchIO::Writer::HTMLResultWriter          -->
-    <!-- %s -->
-    <!-- http://bioperl.org                                            -->
-    <!------------------------------------------------------------------->
-    <BODY BGCOLOR="WHITE">
-},$result->algorithm,$Revision);
-    
 }
 
 # copied from Bio::Index::Fasta
@@ -629,12 +753,10 @@ sub id_parser {
             Returns $1 from applying the regexp /^>\s*(\S+)/
             to $header.
   Returns : ID string
-
             The default implementation checks for NCBI-style
             identifiers in the given string ('gi|12345|AA54321').
             For these IDs, it extracts the GI and accession and
             returns a two-element list of strings (GI, acc).
-
   Args    : a fasta header line string
 
 =cut
@@ -676,7 +798,7 @@ sub footer {
 
 =cut
 
-sub algorithm_reference{
+sub algorithm_reference {
    my ($self,$result) = @_;
    return '' if( ! defined $result || !ref($result) ||
 		 ! $result->isa('Bio::Search::Result::ResultI')) ;   
