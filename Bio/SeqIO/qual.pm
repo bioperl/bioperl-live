@@ -200,8 +200,7 @@ sub write_seq {
 	if (!$header) { $header = "unknown"; }
 	my @quals = $source->qual();
 	# ::dumpValue(\@quals);
-	my $fh = $self->_filehandle();
-	print $fh (">$header \n");
+	$self->_print (">$header \n");
 	my (@slice,$max,$length);
 	$length = $source->length();
 	if ($length eq "DIFFERENT") {
@@ -213,8 +212,7 @@ sub write_seq {
 		if ($count+50 > $length) { $max = $length; }
 		else { $max = $count+49; }
 		my @slice = @{$source->subqual($count,$max)};
-		print $fh join(' ',@slice);
-		print $fh " \n";
+		$self->_print (join(' ',@slice), " \n");
 	}
 }
 
