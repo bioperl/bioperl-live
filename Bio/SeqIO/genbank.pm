@@ -25,6 +25,7 @@ rather go through the SeqIO handler system. Go:
 	# do something with $seq
     }
 
+
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq objects to and from GenBank flat
@@ -32,7 +33,6 @@ file databases.
 
 There is alot of flexibility here about how to dump things which I need
 to document fully.
-
 
 =head2 Optional functions
 
@@ -55,6 +55,17 @@ This is function which is called as
 
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
+
+
+If you want to output annotations in genbank format they need to be
+stored in a Bio::Annotation::Collection object which is accessible
+through the Bio::SeqI interface method L<annotation()|annotation>.  
+
+The following are the names of the keys which are polled from a
+L<Bio::Annotation::Collection> object.
+
+reference       - Should contain Bio::Annotation::Reference objects
+comment         - Should contain Bio::Annotation::Comment objects
 
 =back
 
@@ -442,7 +453,6 @@ sub write_seq {
 
 	my ($div, $mol);
 	my $len = $seq->length();
-
 
 	if ( $seq->can('division') ) {
 	    $div=$seq->division;

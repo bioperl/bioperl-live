@@ -58,6 +58,17 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
+If you want to output annotations in embl format they need to be
+stored in a Bio::Annotation::Collection object which is accessible
+through the Bio::SeqI interface method L<annotation()|annotation>.  
+
+The following are the names of the keys which are polled from a
+L<Bio::Annotation::Collection> object.
+
+reference       - Should contain Bio::Annotation::Reference objects
+comment         - Should contain Bio::Annotation::Comment objects
+dblink          - Should contain Bio::Annotation::DBLink objects
+
 =back
 
 =head1 FEEDBACK
