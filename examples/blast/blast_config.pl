@@ -630,7 +630,7 @@ sub _table_custom {
     $str = &_table_custom_labels unless $_custom_labels;
 
     foreach $hit($bo->hits) {
-	$str .= printf "%s\t%s\t%.1e\t%.2f\t%s\n", 
+	$str .= sprintf "%s\t%s\t%.1e\t%.2f\t%s\n", 
 	               $bo->name, $hit->name, $hit->expect, 
 	               $hit->frac_identical, $hit->desc;
     }
