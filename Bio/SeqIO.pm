@@ -25,13 +25,13 @@ Bio::SeqIO - Handler for SeqIO Formats
 
     $in  = Bio::SeqIO->new(-file => "inputfilename" , '-format' => 'Fasta');
     $out = Bio::SeqIO->new(-file => ">outputfilename" , '-format' => 'EMBL');
-    # note: we quote -format to keep older perl's from complaining.
+    # note: we quote -format to keep older Perls from complaining.
 
     while ( my $seq = $in->next_seq() ) {
 	$out->write_seq($seq);
     }
 
-now, to actually get at the sequence object, use the standard Bio::Seq
+Now, to actually get at the sequence object, use the standard Bio::Seq
 methods (look at L<Bio::Seq> if you don't know what they are)
 
     use Bio::SeqIO;
@@ -43,8 +43,8 @@ methods (look at L<Bio::Seq> if you don't know what they are)
     }
 
 
-the SeqIO system does have a filehandle binding. Most people find this
-a little confusing, but it does mean you write the worlds smallest
+The SeqIO system does have a filehandle binding. Most people find this
+a little confusing, but it does mean you write the world's smallest
 reformatter
 
     use Bio::SeqIO;
@@ -54,6 +54,7 @@ reformatter
 
     # World's shortest Fasta<->EMBL format converter:
     print $out $_ while <$in>;
+
 
 =head1 DESCRIPTION
 
@@ -67,7 +68,7 @@ genbank format, or EMBL format, or binary trace file format) and
 can either read or write sequence objects (Bio::Seq objects, or
 more correctly, Bio::SeqI implementing objects, of which Bio::Seq is
 one such object). If you want to know what to do with a Bio::Seq
-object, read L<Bio::Seq>
+object, read L<Bio::Seq>.
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read
@@ -196,13 +197,14 @@ Specify the format of the file.  Supported formats include:
    game        GAME XML format
    phd         phred output
    qual        Quality values (get a sequence of quality scores)
+   Fastq       Fastq format
 
-If no format is specified and a filename is given, then the module
-will attempt to deduce it from the filename.  If this is unsuccessful,
-Fasta format is assumed.
+If no format is specified and a filename is given then the module
+will attempt to deduce the format from the filename suffix.  If this
+is unsuccessful then Fasta format is assumed.
 
 The format name is case insensitive.  'FASTA', 'Fasta' and 'fasta' are
-all supported.
+all valid suffixes.
 
 =back
 
@@ -245,7 +247,8 @@ These provide the tie interface.  See L<perltie> for more details.
 
 User feedback is an integral part of the evolution of this
 and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
+to one of the Bioperl mailing lists.
+
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
@@ -263,8 +266,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Ewan Birney, Lincoln Stein
 
 Email birney@ebi.ac.uk
-
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -401,7 +402,7 @@ sub _initialize {
  Returns : a Bio::Seq sequence object
  Args    : none
 
-See L<Bio::Root::RootI>, L<Bio::Factory::SeqStreamI>
+See L<Bio::Root::RootI>, L<Bio::Factory::SeqStreamI>, L<Bio::Seq>
 
 =cut
 
@@ -540,7 +541,7 @@ sub _filehandle {
  Args    :
  Notes   : formats that _filehandle() will guess include fasta,
            genbank, scf, pir, embl, raw, gcg, ace, bsml, swissprot,
-           and phd/phred
+           fastq and phd/phred
 
 =cut
 
@@ -558,6 +559,7 @@ sub _guess_format {
    return 'bsml'    if /\.(bsm|bsml)$/i;
    return 'swiss'   if /\.(swiss|sp)$/i;
    return 'phd'     if /\.(phd|phred)$/i;
+   return 'fastq'   if /\.fastq$/i;
 }
 
 sub DESTROY {
