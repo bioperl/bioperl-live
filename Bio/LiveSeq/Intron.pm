@@ -50,7 +50,6 @@ $VERSION=1.0;
 # Mon Mar 20 22:26:13 GMT 2000 v 1.0 begun
 
 use strict;
-use Carp;
 use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);

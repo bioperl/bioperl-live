@@ -51,7 +51,6 @@ $VERSION=1.1;
 # Wed Apr 12 12:42:56 BST 2000 v 1.1 get_Transcript added
 
 use strict;
-use Carp;
 use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Range 1.2; # uses Range, inherits from it
 @ISA=qw(Bio::LiveSeq::Range);

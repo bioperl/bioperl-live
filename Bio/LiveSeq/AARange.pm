@@ -90,18 +90,18 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LiveSeq::AARange;
-$VERSION=1.7;
+$VERSION=1.8;
 
 # Version history:
 # Wed Apr 19 15:10:29 BST 2000 v 1.0 begun
 # Wed Apr 19 17:26:58 BST 2000 v 1.4 new, aa_start, aa_end, seq, length created
 # Wed Apr 19 19:57:42 BST 2000 v 1.5 subseq position label added
 # Thu Apr 20 16:13:58 BST 2000 v 1.7 added: documentation, dna_seq, cdna_seq
+# Wed Mar 28 16:58:02 BST 2001 v 1.8 carp -> warn,throw (coded methods in SeqI)
 
 use strict;
-use Carp;
 use vars qw($VERSION @ISA);
-use Bio::LiveSeq::SeqI 2.11; # uses SeqI, inherits from it
+use Bio::LiveSeq::SeqI 3.2; # uses SeqI, inherits from it
 @ISA=qw(Bio::LiveSeq::SeqI);
 
 =head1 new
@@ -134,10 +134,14 @@ sub new {
   my $class = ref($thing) || $thing;
   my ($obj,%range);
 
+  $obj = \%range;
+  $obj = bless $obj, $class;
+  my $self=$obj;
+
   my ($translation,$start,$end,$name,$description,$translength)=($args{-translation},$args{-start},$args{-end},$args{-name},$args{-description},$args{-translength});
 
   unless (($translation)&&(ref($translation) eq "Bio::LiveSeq::Translation")) {
-    carp "No -translation or wrong type given";
+    $self->warn("No -translation or wrong type given");
     return (-1);
   }
   unless ($translength) { # if it's not given, fetch it
@@ -146,15 +150,15 @@ sub new {
   my $seq=$translation->{'seq'};
 
   if (($start < 1)&&($start > $translength)) {
-    carp "$class not initialised because start aminoacid position not valid";
+    $self->warn("$class not initialised because start aminoacid position not valid");
     return (-1);
   }
   if (($end < 1)&&($end > $translength)) {
-    carp "$class not initialised because end aminoacid position not valid";
+    $self->warn("$class not initialised because end aminoacid position not valid");
     return (-1);
   }
   if ($start > $end) {
-    carp "$class not initialised because start position > end position!";
+    $self->warn("$class not initialised because start position > end position!");
     return (-1);
   }
 
@@ -165,7 +169,7 @@ sub new {
     ($starttripletlabel,$endtripletlabel)=($translation->label($start),$translation->label($end));
   }
   unless (($starttripletlabel > 0)&&($endtripletlabel > 0)) {
-    carp "$class not initialised because of problems in retrieving start or end label!";
+    $self->warn("$class not initialised because of problems in retrieving start or end label!");
     return (-1);
   }
 
@@ -175,25 +179,33 @@ sub new {
     #carp "$class not initialised because of problems retrieving the last nucleotide of the triplet coding for the end aminoacid";
     #return (-1);
   #}
+  $self->{'seq'}=$seq;
+  $self->{'start'}=$starttripletlabel;
+  $self->{'end'}=$endtripletlabel;
+  $self->{'strand'}=$translation->strand;
+  $self->{'translation'}=$translation;
+  $self->{'name'}=$name;
+  $self->{'description'}=$description;
+  $self->{'moltype'}="protein";
 
-  %range = (seq => $seq, start => $starttripletlabel, end => $endtripletlabel, strand => $translation->strand, translation => $translation, name => $name, description => $description, moltype => 'protein');
-  $obj = \%range;
-  $obj = bless $obj, $class;
   return $obj;
 }
 
 sub coordinate_start {
-  carp "Cannot perform this operation in an AminoAcidRange object!";
+  my $self=shift;
+  $self->warn("Cannot perform this operation in an AminoAcidRange object!");
   return (-1);
 }
 
 sub all_labels {
-  carp "Cannot perform this operation in an AminoAcidRange object!";
+  my $self=shift;
+  $self->warn("Cannot perform this operation in an AminoAcidRange object!");
   return (-1);
 }
 
 sub valid {
-  carp "Cannot perform this operation in an AminoAcidRange object!";
+  my $self=shift;
+  $self->warn("Cannot perform this operation in an AminoAcidRange object!");
   return (-1);
 }
 
@@ -230,15 +242,18 @@ sub get_Translation {
 }
 
 sub change {
-  carp "Cannot change an AminoAcidRange object!";
+  my $self=shift;
+  $self->warn("Cannot change an AminoAcidRange object!");
   return (-1);
 }
 sub positionchange {
-  carp "Cannot change an AminoAcidRange object!";
+  my $self=shift;
+  $self->warn("Cannot change an AminoAcidRange object!");
   return (-1);
 }
 sub labelchange {
-  carp "Cannot change an AminoAcidRange object!";
+  my $self=shift;
+  $self->warn("Cannot change an AminoAcidRange object!");
   return (-1);
 }
 
@@ -246,7 +261,7 @@ sub subseq {
   my ($self,$pos1,$pos2,$length) = @_;
   if (defined ($length)) {
     if ($length < 1) {
-      carp "No sense asking for a subseq of length < 1";
+      $self->warn("No sense asking for a subseq of length < 1");
       return (-1);
     }
   }
@@ -255,7 +270,7 @@ sub subseq {
   } elsif ($pos1 < 1) { # if position out of boundaries
     carp "Starting position for AARange cannot be < 1!"; return (-1);
     if ((defined ($pos2))&&($pos1>$pos2)) {
-      carp "1st position($pos1) cannot be > 2nd position($pos2)!"; return (-1);
+      $self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
     }
   }
   my $seq=$self->seq;
@@ -265,16 +280,16 @@ sub subseq {
   }
   if (defined ($pos2)) {
     if ($pos2 > $objlength) { # if position out of boundaries
-      carp "Ending position for AARange cannot be > length of AARange!"; return (-1);
+      $self->warn("Ending position for AARange cannot be > length of AARange!"); return (-1);
     }
     $length=$pos2-$pos1+1;
     if ((defined ($pos1))&&($pos1>$pos2)) {
-      carp "1st position($pos1) cannot be > 2nd position($pos2)!"; return (-1);
+      $self->warn("1st position($pos1) cannot be > 2nd position($pos2)!"); return (-1);
     }
   }
   my $str=substr($seq,$pos1-1,$length);
   if (length($str) < $length) {
-    carp "Attention, cannot return the length requested for subseq";
+    $self->warn("Attention, cannot return the length requested for subseq",1);
   }
   return $str;
 }
@@ -283,7 +298,7 @@ sub seq {
   my $self=shift;
   my ($aa_start,$aa_end)=($self->aa_start,$self->aa_end);
   unless (($aa_start)&&($aa_end)) { # they must both exist
-    carp "Not able to find start or end of the AminoAcid Range";
+    $self->warn("Not able to find start or end of the AminoAcid Range");
     return (0);
   }
   my $translseq=$self->get_Translation->seq;

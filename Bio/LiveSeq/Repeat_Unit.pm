@@ -50,7 +50,6 @@ $VERSION=1.0;
 # Tue Apr  4 18:11:31 BST 2000 v 1.0 created
 
 use strict;
-use Carp;
 use vars qw($VERSION @ISA);
 use Bio::LiveSeq::Repeat_Region 1.0; # uses Repeat_Region, inherits from it
 @ISA=qw(Bio::LiveSeq::Repeat_Region);
