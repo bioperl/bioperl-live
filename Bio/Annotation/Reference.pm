@@ -105,8 +105,7 @@ sub end{
 
  Title   : rp
  Usage   : $self->rp($newval)
- Function: Gives the RP line. No attempt is made to parse this line, unless it indicates
-           start and end reference bases
+ Function: Gives the RP line. No attempt is made to parse this line.
  Example : 
  Returns : value of rp
  Args    : newvalue (optional)
