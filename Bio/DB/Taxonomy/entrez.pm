@@ -107,9 +107,6 @@ $UrlParamSeparatorValue = '&';
 
 sub _initialize {
   my($self) = shift;
-  if( ! $XMLTWIG ) {
-      $self->throw("Need to have installed XML::Twig");
-  }
 
   $self->SUPER::_initialize(@_);
 
@@ -145,6 +142,10 @@ sub _initialize {
 
 sub get_Taxonomy_Node{
    my ($self) = shift;
+   if( ! $XMLTWIG ) {
+       $self->throw("Need to have installed XML::Twig");
+   }
+
    my %p = $self->entrez_params;
    my $taxonid;
    if( @_ > 1 ) {
