@@ -51,8 +51,9 @@ object.
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read
-from or written to (the same object handles both input and output).  A
-physical example of a stream object is the Bio::SeqIO::Fasta object.
+from or written to. A particular SeqIO object instance is configured
+for either input or output. A specific example of a stream object is
+the Bio::SeqIO::fasta object.
 
 Each stream object has functions
 
@@ -173,8 +174,8 @@ sequence objects into an array like this:
 
   @sequences = <$fh>;
 
-Other operations, such as read(), sysread(), write() and printf() are
-not supported.
+Other operations, such as read(), sysread(), write(), close(), and printf() 
+are not supported.
 
 =head1 OBJECT METHODS
 
@@ -245,7 +246,7 @@ use Symbol();
  Title   : new
  Usage   : $stream = Bio::SeqIO->new(-file => $filename, -format => 'Format')
  Function: Returns a new seqstream
- Returns : A Bio::SeqIO::Handler initialsed with the appropiate format
+ Returns : A Bio::SeqIO::Handler initialised with the appropriate format
  Args    : -file => $filename 
            -format => format
            -fh => filehandle to attach to
@@ -431,8 +432,33 @@ sub next_primary_seq{
 =cut
 
 sub write_seq {
-   my ($self,$seq) = @_;
-   $self->throw("Sorry, you cannot write to a generic Bio::SeqIO object.");
+    my ($self,$seq) = @_;
+    $self->throw("Sorry, you cannot write to a generic Bio::SeqIO object.");
+}
+
+
+=head2 moltype
+
+ Title   : moltype
+ Usage   : $self->moltype($newval)
+ Function: Set/get the molecule type for the Seq objects to be created.
+ Example : $seqio->moltype('protein')
+ Returns : value of moltype: 'dna', 'rna', or 'protein'
+ Args    : newvalue (optional) 
+ Throws  : Exception if the argument is not one of 'dna', 'rna', or 'protein' 
+
+=cut
+
+sub moltype {
+   my ($self,$value) = @_;
+   my @VALID_MOLTYPES = qw(dna rna protein);
+   if( defined $value) {
+     if(! grep /$value/i, @VALID_MOLTYPES) {
+         $self->throw("Invalid moltype: $value\nPlease use one of @VALID_MOLTYPES\n");
+     }
+      $self->{'moltype'} = "\L$value";
+    }
+    return $self->{'moltype'};
 }
 
 =head2 _print
