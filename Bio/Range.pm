@@ -171,7 +171,7 @@ sub unions {
 
   } while(1);
 
-  DONE: {};
+  DONE:
 
   return values %i;
 }
