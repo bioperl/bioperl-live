@@ -1,11 +1,10 @@
 # This is -*-Perl-*- code
 ## Bioperl Test Harness Script for Modules
 ##
-# $Id$
+# $Id$ 
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
@@ -20,7 +19,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 10;
+    $NUMTESTS = 14;
     plan tests => $NUMTESTS;
 
     eval {
@@ -67,7 +66,11 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
 ok $tool = Bio::Tools::Analysis::Protein::NetPhos->new(-verbose =>$verbose);
 ok $tool->run ( {seq=>$seq, threshold=>0.9} );
 
-my @res = $tool->result('Bio::SeqFeatureI');
+ok my @res = $tool->result('Bio::SeqFeatureI');
+#new tests her in v 1.2
+ok my $raw = $tool->result('');
+ok my $parsed = $tool->result('parsed');
+ok($parsed->[0][1], '0.934');
 if (scalar @res > 0) {
     ok 1;
 } else {
