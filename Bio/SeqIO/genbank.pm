@@ -711,7 +711,7 @@ sub _read_GenBank_Species {
 	    }
 	    $sub_species = $3 if $3;
         } elsif (/^\s+(.+)/) {
-            @class = split /[;\s\.]+/, $1;
+            push(@class, split /[;\s\.]+/, $1);
         } else {
             last;
         }
