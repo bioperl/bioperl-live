@@ -54,7 +54,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::msf;
-use vars qw(@ISA);
+use vars qw(@ISA %valid_type);
 use strict;
 
 use Bio::AlignIO;
@@ -62,6 +62,9 @@ use Bio::SeqIO::gcg; # for GCG_checksum()
 
 @ISA = qw(Bio::AlignIO);
 
+BEGIN {
+    %valid_type = qw( dna N rna N protein P );
+}
 
 =head2 next_aln
 
@@ -152,6 +155,7 @@ sub next_aln {
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in MSF format
+           Sequence type of the alignment is determined by the first sequence.
  Returns : 1 for success and 0 for error
  Args    : Bio::SimpleAlign object
 
@@ -165,12 +169,11 @@ sub write_aln {
     my $count = 0;
     my $maxname;
     my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index);
-
   foreach my $aln (@aln) {
 
     $date = localtime(time);
     $msftag = "MSF";
-    $type = "P";
+    $type = $valid_type{$aln->get_seq_by_pos(1)->moltype};
     $maxname = $aln->maxdisplayname_length();
     $length  = $aln->length();
     $name = $aln->id();
@@ -179,7 +182,8 @@ sub write_aln {
     }
 
 
-   $self->_print (sprintf("\n%s   MSF: %d  Type: P  %s  Check: 00 ..\n\n",$name,$aln->no_sequences,$date));
+   $self->_print (sprintf("\n%s   MSF: %d  Type: %s  %s  Check: 00 ..\n\n", 
+			  $name,  $aln->no_sequences, $type, $date));
 
 
       foreach $seq ( $aln->each_seq() ) {
