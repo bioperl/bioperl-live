@@ -61,19 +61,21 @@ unless ($protpars_present) {
 
 
 $tree = $tree_factory->create_tree($inputfilename);
-my @nodes = $tree->get_nodes();
-ok ($nodes[1]->id, 'SINFRUP002', 
+
+# have to sort the since there is polytomy here.
+my @nodes = sort { defined $a->id && defined $b->id && $a->id cmp $b->id } $tree->get_nodes();
+ok ($nodes[3]->id, 'SINFRUP002', 
     "failed creating tree by protpars");
 
-my $inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
-my @params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
-              -verbose => $verbose);
+$inputfilename = Bio::Root::IO->catfile("t","data","cysprot.fa");
+@params = ('ktuple' => 2, 'matrix' => 'BLOSUM', 
+	   -verbose => $verbose);
 my  $align_factory = Bio::Tools::Run::Alignment::Clustalw->new(@params);
 my $aln = $align_factory->align($inputfilename);
 $tree = $tree_factory->create_tree($aln);
 
 
-my @nodes = $tree->get_nodes();
-ok ($nodes[1]->id, 'CYS1_DICDI', 
+@nodes = sort { defined $a->id && defined $b->id && $a->id cmp $b->id } $tree->get_nodes();
+ok ($nodes[6]->id, 'CYS1_DICDI', 
     "failed creating tree by protpars");
 	
