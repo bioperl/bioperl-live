@@ -66,9 +66,10 @@ sub acedb       { shift->{acedb}       }
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
   my $self = shift;
-  my ($name,$start,$stop) = @_;
+  my ($name,$start,$stop,$class) = @_;
   my $dna_db = $self->dna_db or return $self->SUPER::get_dna(@_);
-  $dna_db->seq($name,$start,$stop);
+  # in actuality, the class is simply ignored by Bio::DB::Fasta
+  $dna_db->seq($name,$start,$stop,$class);
 }
 
 sub do_straight_join {

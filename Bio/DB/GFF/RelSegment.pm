@@ -23,16 +23,17 @@ use overload '""' => 'asString',
 #      -length     => length of segment
 sub new {
   my $package = shift;
-  my ($factory,$name,$start,$stop,$refseq,$offset,$length,$class) =
+  my ($factory,$name,$start,$stop,$refseq,$offset,$length,$class,$refclass) =
     rearrange([
 	       'FACTORY',
 	       [qw(NAME SEQ SEQUENCE SOURCESEQ)],
 	       [qw(START BEGIN)],
 	       [qw(STOP END)],
-	       [qw(REFSEQ REF)],
+	       [qw(REFSEQ REF REFNAME)],
 	       [qw(OFFSET OFF)],
 	       [qw(LENGTH LEN)],
-	       'CLASS',
+	       [qw(CLASS SEQCLASS)],
+	       'REFCLASS',
 	     ],@_);
 
   $package = ref $package if ref $package;
@@ -76,7 +77,8 @@ sub new {
 
   # but what about the reference sequence?
   if (defined $refseq) {
-    my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refseq);
+    $refclass ||= 'Sequence';
+    my ($refref,$refstart,$refstop,$refstrand) = $factory->abscoords($refclass,$refseq);
     unless ($refref eq $absref) {
       $self->error("reference sequence is on $refref but source sequence is on $absref");
       return;
@@ -117,7 +119,8 @@ sub refseq {
   my $g    = $self->{ref};
   if (@_) {
     my $newref = shift;
-    my ($refref,$refstart,$refstop,$refstrand) = $self->factory->abscoords($newref);
+    my $newclass = shift || 'Sequence';
+    my ($refref,$refstart,$refstop,$refstrand) = $self->factory->abscoords($newclass,$newref);
     croak "illogical: $newref is on $refref, but $self is on $self->{sourceseq}" 
       unless $refref eq $self->{sourceseq};
     @{$self}{qw(ref refstart refstrand)} = ($newref,$refstart,$refstrand);
@@ -142,9 +145,9 @@ sub absolute {
 
 sub dna {
   my $self = shift;
-  my ($ref,$start,$stop,$strand) = @{$self}{qw(sourceseq start stop strand)};
+  my ($ref,$start,$stop,$strand,$class) = @{$self}{qw(sourceseq start stop strand class)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
-  $self->factory->dna($ref,$start,$stop);
+  $self->factory->dna($ref,$start,$stop,$class);
 }
 
 # return all features that overlap with this segment;
@@ -164,9 +167,9 @@ sub contained_features {
 
 sub _process_feature_args {
   my $self = shift;
-  my ($ref,$start,$stop,$strand) = @{$self}{qw(sourceseq start stop strand)};
+  my ($ref,$start,$stop,$strand,$class) = @{$self}{qw(sourceseq start stop strand class)};
   ($start,$stop) = ($stop,$start) if $strand eq '-';
-  my @args = (-ref=>$ref,-start=>$start,-stop=>$stop);
+  my @args = (-ref=>$ref,-start=>$start,-stop=>$stop,-class=>$class);
   if (@_) {
     if ($_[0] =~ /^-/) {
       push @args,@_;

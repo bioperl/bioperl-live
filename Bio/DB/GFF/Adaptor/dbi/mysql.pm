@@ -51,11 +51,12 @@ fgroup.gid = fdata.gid AND ftype.ftypeid = fdata.ftypeid
 END
 }
 
+# IMPORTANT NOTE: THE MYSQL SCHEMA IGNORES THE SEQUENCE CLASS
 sub refseq_query {
   my $self = shift;
-  my $ref = shift;
+  my ($refseq,$refclass) = @_;
   my $query = "fdata.fref = ?\n";
-  return wantarray ? ($query,$ref) : $self->dbi_quote($query,$ref);
+  return wantarray ? ($query,$refseq) : $self->dbi_quote($query,$refseq);
 }
 
 

@@ -57,7 +57,7 @@ sub do_query {
 # given sequence name, and optional (start,stop) give raw dna
 sub get_dna {
   my $self = shift;
-  my ($name,$start,$stop) = @_;
+  my ($name,$start,$stop,$class) = @_;
   my ($offset,$length);
   if ($stop > $start) {
     $offset = $stop - 1;
@@ -69,7 +69,7 @@ sub get_dna {
     return;   # zero length == empty string
   }
 
-  my $sth = $self->dna_query($name,$start,$stop);
+  my $sth = $self->dna_query($name,$start,$stop,$class);
   my @row = $sth->fetchrow_array;
   $sth->finish;
 
@@ -114,9 +114,9 @@ sub get_abscoords {
 # features.  Passes features through callback if provided to construct object.
 sub get_features {
   my $self = shift;
-  my ($isrange,$refseq,$start,$stop,$types,$callback) = @_;
+  my ($isrange,$refseq,$start,$stop,$types,$callback,$class) = @_;
 
-  my $sth = $self->range_or_overlap($isrange,$refseq,$start,$stop,$types) or return;
+  my $sth = $self->range_or_overlap($isrange,$refseq,$start,$stop,$types,$class) or return;
 
   my @result;
   while (my @row = $sth->fetchrow_array) {
@@ -158,7 +158,7 @@ sub get_types {
 # this is what will need to change if the structure of the GFF table is altered
 sub range_or_overlap {
   my $self = shift;
-  my($isrange,$refseq,$start,$stop,$types) = @_;
+  my($isrange,$refseq,$start,$stop,$types,$class) = @_;
   croak "range_or_overlap(): Must provide refseq" unless $refseq;
 
   my $dbh = $self->features_db;
@@ -168,7 +168,7 @@ sub range_or_overlap {
   my $select        = $self->make_features_select_part;
   my $from          = $self->make_features_from_part;
   my $join          = $self->make_features_join_part;
-  my ($where,@args) = $self->make_features_where_part($isrange,$refseq,$start,$stop,$types);
+  my ($where,@args) = $self->make_features_where_part($isrange,$refseq,$start,$stop,$types,$class);
   my $query         = "SELECT $straight $select FROM $from WHERE $join AND $where";
 
   my $sth = $self->do_query($query,@args);
@@ -191,12 +191,13 @@ sub make_features_join_part {
 
 sub make_features_where_part {
   my $self = shift;
-  my($isrange,$refseq,$start,$stop,$types) = @_;
+  my($isrange,$refseq,$start,$stop,$types,$class) = @_;
   my $query = "";
   my @args;
 
+
   if ($refseq) {
-    my ($q,@a) = $self->refseq_query($refseq);
+    my ($q,@a) = $self->refseq_query($refseq,$class);
     $query .= $q;
     push @args,@a;
   }
@@ -234,7 +235,7 @@ sub make_abscoord_query {
 
 sub refseq_query {
   my $self = shift;
-  my $refseq = shift;
+  my ($refseq,$refclass) = @_;
   croak "refseq_query(): must be implemented by subclass";
   # in scalar context, return a query string.
   # in array context, return a query string and bind arguments
@@ -319,7 +320,7 @@ sub dbi_quote {
 
 # Create the schema from scratch.
 # You will need create privileges for this.
-sub initialize {
+sub do_initialize {
   my $self = shift;
   my $drop_all = shift;
   $self->drop_all if $drop_all;

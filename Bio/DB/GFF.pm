@@ -175,6 +175,7 @@ $VERSION = '0.30';
  Function: create a new Bio::DB::GFF object
  Returns : new Bio::DB::GFF object
  Args    : lists of adaptors and aggregators
+ Status  : Public
 
 These are the arguments:
 
@@ -246,6 +247,7 @@ sub new {
  Returns : count of records loaded
  Args    : a directory, a file, a list of files, 
            or a filehandle
+ Status  : Public
 
 This method takes a single overloaded argument, which can be any of:
 
@@ -328,6 +330,7 @@ sub load {
  Returns : true if initialization successful
  Args    : an optional flag indicating that existing
            contents should be wiped clean
+ Status  : Public
 
 This method can be used to initialize an empty database.  It will not
 overwrite existing data unless a true $erase flag is present.
@@ -335,13 +338,23 @@ overwrite existing data unless a true $erase flag is present.
 =cut
 
 sub initialize {
-    shift->throw('initialize(): must be implemented by an adaptor');
+    shift->do_initialize(@_);
 }
 
-# load from <>
-sub load_gff {
-  shift->throw("load_gff(): must be implemented by an adaptor");
-}
+=head2 error
+
+ Title   : error
+ Usage   : $db->error( [$new error] );
+ Function: read or set error message
+ Returns : error message
+ Args    : an optional argument to set the error message
+ Status  : Public
+
+This method can be used to retrieve the last error message.  Errors
+are not reset to empty by successful calls, so contents are only valid
+immediately after an error condition has been detected.
+
+=cut
 
 sub error {
   my $self = shift;
@@ -350,6 +363,20 @@ sub error {
   $g;
 }
 
+=head2 debug
+
+ Title   : debug
+ Usage   : $db->debug( [$flag] );
+ Function: read or set debug flag
+ Returns : current value of debug flag
+ Args    : new debug flag (optional)
+ Status  : Public
+
+This method can be used to turn on debug messages.  The exact nature
+of those messages depends on the adaptor in use.
+
+=cut
+
 sub debug {
   my $self = shift;
   my $g = $self->{debug};
@@ -357,11 +384,89 @@ sub debug {
   $g;
 }
 
-sub aggregators {
+=head2 segment
+
+ Title   : segment
+ Usage   : $db->segment(@args);
+ Function: create a segment object
+ Returns : a segment object
+ Args    : numerous, see below
+ Status  : public
+
+This method generates a segment object, which is a Perl object
+subclassed from Bio::DB::GFF::Segment.  The segment can be used to
+find overlapping features and the raw DNA.  
+
+When making the segment() call, you specify the ID of a sequence
+landmark (e.g. an accession number, a clone or contig), and a
+positional range relative to the landmark.  If no range is specified,
+then the entire extent of the landmark is used to generate the
+segment.  
+
+You may also provide the ID of a "reference" sequence, which will set
+the coordinate system and orientation used for all features contained
+within the segment.  The reference sequence can be changed later.  If
+no reference sequence is provided, then the coordinate system is based
+on the landmark.
+
+Arguments:
+
+ -seq          ID of the landmark sequence.
+
+ -class        Database object class for the landmark sequence.
+               "Sequence" assumed if not specified.  This is
+               irrelevant for databases which do not recognize
+               object classes.
+
+ -start        Start of the segment relative to landmark.  Positions
+               follow standard 1-based sequence rules.  If not specified,
+               defaults to the beginning of the landmark.
+
+ -stop         Stop of the segment relative to the landmark.  If not specified,
+               defaults to the end of the landmark.
+
+ -offset       For those who prefer 0-based indexing, the offset specifies the
+               position of the new segment relative to the start of the landmark.
+
+ -length       For those who prefer 0-based indexing, the length specifies the
+               length of the new segment.
+
+ -refseq       Specifies the ID of the reference landmark used to establish the
+               coordinate system for the newly-created segment.
+
+ -refclass     Specifies the class of the reference landmark, for those databases
+               that distinguish different object classes.  Defaults to "Sequence".
+
+ -name,-sequence,-sourceseq   Aliases for -seq.
+               
+ -begin,-end   Aliases for -start and -stop
+
+ -off,-len     Aliases for -offset and -length
+
+ -seqclass     Alias for -class
+
+=cut
+
+sub segment {
   my $self = shift;
-  return unless $self->{aggregators};
-  return @{$self->{aggregators}};
+  # (see Ace::Sequence::DBI::Segment for all the arguments)
+  return $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
+                       : Bio::DB::GFF::RelSegment->new($self,@_);
 }
+
+=head2 add_aggregator
+
+ Title   : add_aggregator
+ Usage   : $db->add_aggregator($aggregator)
+ Function: add an aggregator to the list
+ Returns : nothing
+ Args    : an aggregator
+ Status  : public
+
+This method will append an aggregator to the end of the list of
+registered aggregators.
+
+=cut
 
 sub add_aggregator {
   my $self       = shift;
@@ -377,17 +482,166 @@ sub add_aggregator {
   }
 }
 
+
+=head2 aggregators
+
+ Title   : aggregators
+ Usage   : $db->aggregators;
+ Function: retrieve list of aggregators
+ Returns : list of aggregators
+ Args    : none
+ Status  : public
+
+This method will return a list of aggregators currently assigned to
+the object.
+
+=cut
+
+sub aggregators {
+  my $self = shift;
+  return unless $self->{aggregators};
+  return @{$self->{aggregators}};
+}
+
+=head1 Protected API
+
+The following methods are not intended for public consumption, but are
+intended to be overridden/implemented by adaptors.
+
+=head2 default_aggregators
+
+ Title   : default_aggregators
+ Usage   : $db->default_aggregators;
+ Function: retrieve list of aggregators
+ Returns : array reference containing list of aggregator names
+ Args    : none
+ Status  : protected
+
+This method (which is intended to be overridden by adaptors) returns a
+list of standard aggregators to be applied when no aggregators are
+specified in the constructor.
+
+=cut
+
 sub default_aggregators {
   my $self = shift;
   return ['transcript','clone','alignment'];
 }
 
-sub segment {
-  my $self = shift;
-  # (see Ace::Sequence::DBI::Segment for all the arguments)
-  return $_[0] =~ /^-/ ? Bio::DB::GFF::RelSegment->new(-factory => $self,@_)
-                       : Bio::DB::GFF::RelSegment->new($self,@_);
+=head2 load_gff
+
+ Title   : load_gff
+ Usage   : $db->load_gff
+ Function: load a GFF input stream
+ Returns : number of features loaded
+ Args    : none
+ Status  : protected
+
+This method is called to load a GFF data stream.  The method will read
+GFF features from <> and load them into the database.  On exit the
+method must return the number of features loaded.
+
+Note that the method is responsible for parsing the GFF lines.  This
+is to allow for differences in the interpretation of the "group"
+field, which are legion.
+
+=cut
+
+# load from <>
+sub load_gff {
+  shift->throw("load_gff(): must be implemented by an adaptor");
 }
+
+
+=head2 do_initialize
+
+ Title   : do_initialize
+ Usage   : $db->do_initialize([$erase])
+ Function: initialize and possibly erase database
+ Returns : true if successful
+ Args    : optional erase flag
+ Status  : protected
+
+This method implements the initialize() method described above, and
+takes the same arguments.
+
+=cut
+
+sub do_initialize {
+    shift->throw('do_initialize(): must be implemented by an adaptor');
+}
+
+=head2 get_dna
+
+ Title   : get_dna
+ Usage   : $db->get_dna($id,$start,$stop,$class)
+ Function: get DNA for indicated segment
+ Returns : the dna string
+ Args    : sequence ID, start, stop and class
+ Status  : protected
+
+If start > stop and the sequence is nucleotide, then this method
+should return the reverse complement.  The sequence class may be
+ignored by those databases that do not recognize different object
+types.
+
+=cut
+
+sub get_dna {
+  my $self = shift;
+  my ($id,$start,$stop,$class) = @_;
+  $self->throw("get_dna() must be implemented by an adaptor");
+}
+
+=head2 get_features
+
+ Title   : get_features
+ Usage   : $db->get_features($isrange,$refseq,$start,$stop,$types,$callback,$class)
+ Function: get list of features for a region
+ Returns : list of Bio::DB::GFF::Feature objects
+ Args    : see below
+ Status  : protected
+
+Arguments are as follows:
+
+   $isrange   Flag indicating that a range query is desired, in which 
+              case only features that are completely contained within
+              start->stop (inclusive) are retrieved.  Otherwise, an
+              overlap retrieval is performed to find those 
+
+   $refseq    ID of the landmark that establishes the absolute 
+              coordinate system.
+
+   $start,$stop  Start and stop of the range, inclusive.
+
+   $types     Array reference containing the list of annotation types
+              to fetch from the database.  Each annotation type is an
+              array reference consisting of [source,method].
+
+   $callback  A code reference.  As features are retrieved they are
+              passed to this
+
+=cut
+
+sub get_features{
+  my $self = shift;
+  my ($isrange,$refseq,$start,$stop,$types,$callback,$class) = @_;
+  $self->throw("get_features() must be implemented by an adaptor");
+}
+
+
+sub get_abscoords {
+  my $self = shift;
+  my ($class,$name) = @_;
+  $self->throw("get_abscoords() must be implemented by an adaptor");
+}
+
+sub get_types {
+  my $self = shift;
+  my ($refseq,$start,$stop,$count) = @_;
+  $self->throw("get_types() must be implemented by an adaptor");
+}
+
 
 # This call is responsible for turning a line of GFF into a
 # feature object.
@@ -420,30 +674,32 @@ sub make_feature {
 # real work is done by get_dna()
 sub dna {
   my $self = shift;
-  my ($id,$start,$stop) = rearrange([
-				     [qw(NAME ID REF REFSEQ)],
-				     qw(START),
-				     [qw(STOP END)],
-				     ],@_);
+  my ($id,$start,$stop,$class) = rearrange([
+					    [qw(NAME ID REF REFSEQ)],
+					    qw(START),
+					    [qw(STOP END)],
+					    'CLASS',
+					   ],@_);
   return unless defined $start && defined $stop;
-  $self->get_dna($id,$start,$stop);
+  $self->get_dna($id,$start,$stop,$class);
 }
 
 # call to return the features that overlap the named region
 # real work is done by get_features
 sub overlapping_features {
   my $self = shift;
-  my ($refseq,$start,$stop,$types,$parent,$automerge) = rearrange([
-								   [qw(REF REFSEQ)],
-								   qw(START),
-								   [qw(STOP END)],
-								   [qw(TYPE TYPES)],
-								   qw(PARENT),
-								   [qw(MERGE AUTOMERGE)],
+  my ($refseq,$start,$stop,$types,$parent,$automerge,$class) = rearrange([
+									  [qw(REF REFSEQ)],
+									  qw(START),
+									  [qw(STOP END)],
+									  [qw(TYPE TYPES)],
+									  qw(PARENT),
+									  [qw(MERGE AUTOMERGE)],
+									  qw(CLASS),
 								  ],@_);
   return unless defined $start && defined $stop;
   $automerge = 1 unless defined $automerge;
-  $self->_features(0,$refseq,$start,$stop,$types,$parent,$automerge);
+  $self->_features(0,$refseq,$start,$stop,$types,$parent,$automerge,$class);
 }
 
 
@@ -451,17 +707,18 @@ sub overlapping_features {
 # range (much faster usually)
 sub contained_features {
   my $self = shift;
-  my ($refseq,$start,$stop,$types,$parent,$automerge) = rearrange([
-								   [qw(REF REFSEQ)],
-								   qw(START),
-								   [qw(STOP END)],
-								   [qw(TYPE TYPES)],
-								   qw(PARENT),
-								   [qw(MERGE AUTOMERGE)],
+  my ($refseq,$start,$stop,$types,$parent,$automerge,$class) = rearrange([
+									  [qw(REF REFSEQ)],
+									  qw(START),
+									  [qw(STOP END)],
+									  [qw(TYPE TYPES)],
+									  qw(PARENT),
+									  [qw(MERGE AUTOMERGE)],
+									  qw(CLASS),
 								  ],@_);
   return unless defined $start && defined $stop;
   $automerge = 1 unless defined $automerge;
-  $self->_features(1,$refseq,$start,$stop,$types,$parent,$automerge);
+  $self->_features(1,$refseq,$start,$stop,$types,$parent,$automerge,$class);
 }
 
 sub types {
@@ -477,7 +734,7 @@ sub types {
 
 sub _features {
   my $self = shift;
-  my ($range_query,$refseq,$start,$stop,$types,$parent,$automerge) = @_;
+  my ($range_query,$refseq,$start,$stop,$types,$parent,$automerge,$class) = @_;
 
 
   $types = $self->parse_types($types);  # parse out list of types
@@ -495,7 +752,7 @@ sub _features {
   my $features = [];
 
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) } if $parent;
-  $self->get_features($range_query,$refseq,$start,$stop,$aggregated_types,$callback) ;
+  $self->get_features($range_query,$refseq,$start,$stop,$aggregated_types,$callback,$class) ;
 
   if ($automerge) {
     warn "aggregating...\n" if $self->debug;
@@ -566,33 +823,6 @@ sub abscoords {
     ($name,$class) = ($class,'Sequence');
   }
   $self->get_abscoords($class,$name);
-}
-
-# THESE ARE THE ROUTINES THAT NEED TO BE OVERRIDDEN IN SUBCLASSES
-
-sub get_dna {
-  my $self = shift;
-  my ($id,$start,$stop) = @_;
-  $self->throw("get_dna() must be implemented by an adaptor");
-}
-
-sub get_features{
-  my $self = shift;
-  my ($isrange,$refseq,$start,$stop,$types,$callback) = @_;
-  $self->throw("get_features() must be implemented by an adaptor");
-}
-
-
-sub get_abscoords {
-  my $self = shift;
-  my ($class,$name) = @_;
-  $self->throw("get_abscoords() must be implemented by an adaptor");
-}
-
-sub get_types {
-  my $self = shift;
-  my ($refseq,$start,$stop,$count) = @_;
-  $self->throw("get_types() must be implemented by an adaptor");
 }
 
 1;

@@ -1,4 +1,4 @@
-## $Id: MANIFEST,v 1.40 2001-07-10 14:57:21 lstein Exp $
+## $Id: MANIFEST,v 1.41 2001-07-10 21:12:25 lstein Exp $
 ##
 ## This is the file listing for everything that
 ## comes with the bioperl distribution. The perl
@@ -9,6 +9,7 @@ AUTHORS
 BUGS
 Changes
 LICENSE
+Makefile.PL
 MANIFEST
 PLATFORMS
 README
