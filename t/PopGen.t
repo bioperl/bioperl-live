@@ -138,9 +138,60 @@ my $envpop = new Bio::PopGen::Population(-name        => 'NC',
 
 my $stats = new Bio::PopGen::PopStats(-haploid => 1);
 my $fst = $stats->Fst([$mrsapop,$mssapop],[qw(AFLP1 )]);
-ok($fst); # We're going to check the values against other programs first
+ok($fst,1,'mrsa,mssa aflp1'); # We're going to check the values against other programs first
 $fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[qw(AFLP1 )]);
-ok($fst); # We're going to check the values against other programs first
+ok($fst,1,'all pops, aflp1'); # We're going to check the values against other programs first
 
 $fst = $stats->Fst([$mrsapop,$envpop],[qw(AFLP1 AFLP2)]);
-ok($fst); # We're going to check the values against other programs first
+ok($fst,1,'mrsa,envpop aflp1,aflp2'); # We're going to check the values against other programs first
+
+
+# Read in data from a file
+$io = new Bio::PopGen::IO(-format => 'csv',
+			  -file   => Bio::Root::IO->catfile
+			  (qw(t data popgen_saureus.multidat)));
+
+@inds = ();
+while( my $ind = $io->next_individual ) {
+    push @inds, $ind;
+}
+
+@mrsainds = grep { $_->unique_id =~ /^MRSA/ } @inds;
+@mssainds = grep { $_->unique_id =~ /^MSSA/ } @inds;
+@envinds = grep { $_->unique_id =~ /^NC/ } @inds;
+
+ok(scalar @mrsainds, 7);
+ok(scalar @mssainds, 10);
+ok(scalar @envinds, 5);
+
+$mrsapop = new Bio::PopGen::Population(-name        => 'MRSA',
+				       -description => 'Resistant S.aureus',
+				       -individuals => \@mrsainds);
+
+$mssapop = new Bio::PopGen::Population(-name        => 'MSSA',
+				       -description =>'Suceptible S.aureus',
+				       -individuals => \@mssainds);
+
+$envpop = new Bio::PopGen::Population(-name        => 'NC',
+				      -description => 'WT isolates',
+				      -individuals => \@envinds);
+
+$stats = new Bio::PopGen::PopStats(-haploid => 1);
+my @all_bands = map { 'B' . $_ } 1..20;
+my @mkr1     = map { 'B' . $_ } 1..13;
+my @mkr2     = map { 'B' . $_ } 14..20;
+
+# still wrong ?
+$fst = $stats->Fst([$mrsapop,$mssapop],[@all_bands ]);
+ok($fst,1,'mssa,mrsa all_bands'); # We're going to check the values against other programs first
+$fst = $stats->Fst([$envpop,$mssapop],[ @mkr1 ]);
+ok($fst,1,'env,mssa mkr1'); # We're going to check the values against other programs first
+
+$fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[ @all_bands ]);
+ok($fst,1,'env,mssa,mrsa all bands'); # We're going to check the values against other programs first
+
+$fst = $stats->Fst([$envpop,$mssapop,$mrsapop],[ @mkr2 ]);
+ok($fst,1, 'env,mssa,mrsa mkr2'); # We're going to check the values against other programs first
+
+$fst = $stats->Fst([$mrsapop,$envpop],[@all_bands ]);
+ok($fst,1,'mrsa,nc all_bands'); # We're going to check the values against other programs first
