@@ -1147,6 +1147,22 @@ sub next_result {
    return $blast;
 }
 
+=head2 write_result
+
+ Title   : write_result
+ Usage   : $stream->write_result($result_result, @other_args)
+ Function: Writes data from the $result_result object into the stream.
+         : Delegates to the to_string() method of the associated 
+         : WriterI object.
+ Returns : 1 for success and 0 for error
+ Args    : Bio::Search:Result::ResultI object,
+         : plus any other arguments for the Writer
+ Throws  : Bio::Root::Exception if a Writer has not been set.
+
+See L<Bio::Root::Exception>
+
+=cut
+
 sub write_result {
    my ($self, $blast, @args) = @_;
 
