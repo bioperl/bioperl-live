@@ -235,9 +235,8 @@ sub next_feature{
    my ($sbjct, $hsp);
    $sbjct = $self->{'_current_sbjct'};
    unless( defined $sbjct ) {
-#       $sbjct = $self->{'_current_sbjct'} = $self->nextSbjct;
-#       return undef unless defined $sbjct;
-	$self->throw(" No hit object found for bl2seq report \n ") ;
+       $self->debug(" No hit object found for bl2seq report \n ") ;
+       return undef;
    }
    $hsp = $sbjct->nextHSP;
    return $hsp || undef;
