@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 22;
+    $TESTCOUNT = 23;
     plan tests => $TESTCOUNT;
     
     $error  = 0;
@@ -94,7 +94,8 @@ ok($cds, 3);
 # make sure we can read what we write
 # test XML-writing
 my $testfile = "testgameout.game";
-my $out = new Bio::SeqIO(-format => 'game', -file => ">$testfile");
+# map argument is require to write a <map_position> element
+my $out = new Bio::SeqIO(-format => 'game', -file => ">$testfile", -map => 1);
 $out->write_seq($seq);
 $out->close();
 
