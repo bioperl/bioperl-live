@@ -306,7 +306,7 @@ sub write_aln {
 
 	# print header information
 	$self->_print(
-		      'VERSION=', $aln->source, "\n",
+		      'VERSION=', ($aln->source and ($aln->source !~ /\A\s*\Z/)) ? $aln->source : 'bioperl', "\n",
 		      'NAME=', $aln->id, "\n",
 		      'TITLE=', ($seqs->[0]->{'seq'}->description or $aln->id), "\n",
 		      'LENGTH=', scalar @{$nodes}, "\n",
