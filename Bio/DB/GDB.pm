@@ -162,7 +162,12 @@ sub get_info {
 	# do more specific stuff?
     }
     my $url = $self->get_request(%params);    
+    
     my ($resp) = $self->_request($url);
+    if( ! defined $resp || ! ref($resp) ) {
+	$self->warn("Did not get any data for url ". $url->uri);
+	return undef;
+    }
     my $content = $resp->content;	
     if( $content =~ /ERROR/ || length($resp->content) == 0 ) {
 	$self->warn("Error getting for url " . $url->uri . "!\n");
