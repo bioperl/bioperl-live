@@ -1100,7 +1100,7 @@ sub _rnaAffected {
 			 last;
 		     }
 		     $before=$exons[$i]->end;
-		 }	     
+		 }
 	     }
 	 }
      }
@@ -1236,7 +1236,8 @@ sub _set_effects {
     $rnachange->end($rnachange->start) if $rnachange->length == 0;
 
     # this holds the aminoacid sequence that will be affected by the mutation
-    my $aa_allele_ori=$AAobj->labelsubseq($self->mutation->label,undef, $self->mutation->lastlabel);
+    my $aa_allele_ori=$AAobj->labelsubseq($self->mutation->label,undef, 
+					  $self->mutation->lastlabel);
 
     my $aa_o = Bio::Variation::Allele->new;
     $aa_o->seq($aa_allele_ori) if $aa_allele_ori;
@@ -1339,7 +1340,7 @@ sub _post_mutation {
 	$aa_start=$AAobj->position($self->RNA->label(2,$aa_start_prelabel));
 	$aachange->start($aa_start);
 	$mut_translation=$AAobj->seq;
-	
+
 	# this now takes in account possible preinsertions
 	my $aa_m = Bio::Variation::Allele->new;
 	$aa_m->seq(substr($mut_translation,$aa_start-1)) if substr($mut_translation,$aa_start-1);
@@ -1367,13 +1368,23 @@ sub _post_mutation {
 				       0, 
 				       length($aachange->allele_ori->seq));
 	}
-	#inframe mutatation
-	elsif (($rlenori+$rlenmut)%3 == 0) {
-	     if ($aachange->RNAChange->codon_pos == 1){
-		 if ($aachange->RNAChange->allele_mut->seq eq  '') {
-		     $aachange->allele_mut->seq('');
-		     $aachange->end($aachange->start + $aachange->length - 1 );
-		 }
+	#inframe mutation
+	elsif ((int($rlenori-$rlenmut))%3 == 0) {
+	    if ($aachange->RNAChange->allele_mut->seq  and
+		$aachange->RNAChange->allele_ori->seq ) {
+		# complex
+		my $rna_len = length ($aachange->RNAChange->allele_mut->seq);
+		my $len = $rna_len/3;
+		$len++ unless $rna_len%3 == 0;
+		$aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0, $len );
+	    }
+	    elsif  ($aachange->RNAChange->codon_pos == 1){
+		 # deletion
+		if ($aachange->RNAChange->allele_mut->seq eq  '') {
+		    $aachange->allele_mut->seq('');
+		    $aachange->end($aachange->start + $aachange->length - 1 );
+		}
+		 # insertion
 		 elsif ($aachange->RNAChange->allele_ori->seq eq '' ) {
 		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0,
 					   length ($aachange->RNAChange->allele_mut->seq) / 3);
@@ -1381,16 +1392,18 @@ sub _post_mutation {
 		     $aachange->end($aachange->start + $aachange->length - 1 );
 		     $aachange->length(0);
 		 }
-	     } else {
-		 #elsif  ($aachange->RNAChange->codon_pos == 2){
+	    } else {
+		#elsif  ($aachange->RNAChange->codon_pos == 2){
+		 # deletion
 		 if (not $aachange->RNAChange->allele_mut->seq ) {
 		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0, 1);
 		 }
+		 # insertion
 		 elsif (not $aachange->RNAChange->allele_ori->seq) {
 		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0,
 						length ($aachange->RNAChange->allele_mut->seq) / 3 +1);
 		 }
-	     }	    
+	     }
 	 } else {
 	     #frameshift
 	     #my $pos = index $aachange->allele_mut
@@ -1398,7 +1411,6 @@ sub _post_mutation {
 	     $aachange->length(CORE::length($aachange->allele_ori->seq));
 	     my $aaend = $aachange->start + $aachange->length -1;
 	     $aachange->end($aachange->start);
-	
 	 }
 
 	 # splicing site deletion check
