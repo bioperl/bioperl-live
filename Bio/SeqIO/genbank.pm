@@ -743,7 +743,6 @@ sub write_seq {
 	}
 	$self->_print("FEATURES             Location/Qualifiers\n");
 
-	my $contig;
 	if( defined $self->_post_sort ) {
 	    # we need to read things into an array. Process. Sort them. Print 'em
 
@@ -769,6 +768,7 @@ sub write_seq {
 		    if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
 			$sf->throw("Cannot process FTHelper... $fth");
 		    }		
+
 		    $self->_print_GenBank_FTHelper($fth);
 		}
 	    }
@@ -862,6 +862,7 @@ sub _print_GenBank_FTHelper {
    }
    if( defined $fth->key && 
        $fth->key eq 'CONTIG' ) {
+       $self->_show_dna(0);
        $self->_write_line_GenBank_regex(sprintf("%-12s",$fth->key),
 					' 'x12,$fth->loc,"\,\|\$",80);
    } else {
