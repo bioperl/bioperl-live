@@ -112,9 +112,11 @@ use vars qw(@ISA );
 use strict;
 use Bio::Root::RootI;
 use Bio::Tools::CodonTable;
+use Bio::IdentifiableI;
+use Bio::DescribableI;
 
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::IdentifiableI Bio::DescribableI);
 
 =head1 Implementation Specific Functions
 

@@ -375,7 +375,7 @@ sub length {
 
 =head2 display_id
 
- Title   : display_id
+ Title   : display_id or display_name
  Usage   : $id_string = $obj->display_id();
  Function: returns the display id, aka the common name of the Sequence object.
 
@@ -389,6 +389,9 @@ sub length {
            information in the ID field, and people are encouraged to use
            other mechanisms (accession field for example, or extending
            the sequence object) to solve this.
+
+           With the new Bio::DescribeableI interface, this is aliased to
+           display_name
 
  Returns : A string
  Args    : None
@@ -405,10 +408,15 @@ sub display_id {
 
 }
 
+sub display_name {
+   my ($obj,$value) = @_;
+
+   return $obj->display_id($value);
+}
 
 =head2 accession_number
 
- Title   : accession_number
+ Title   : accession_number or object_id
  Usage   : $unique_key = $obj->accession_number;
  Function: Returns the unique biological id for a sequence, commonly
            called the accession_number. For sequences from established
@@ -419,6 +427,9 @@ sub display_id {
 
            For sequences with no accession number, this method should
            return "unknown".
+
+           With the new Bio::IdentifiableI interface, this is aliased 
+           to object_id
 
  Returns : A string
  Args    : A string (optional) for setting
@@ -436,6 +447,13 @@ sub accession_number {
     }
     return $acc;
 }
+
+sub object_id {
+   my ($obj,$value) = @_;
+
+   return $obj->accession_number($value);
+}
+
 
 
 =head2 primary_id
@@ -465,6 +483,59 @@ sub primary_id {
    }
    return $obj->{'primary_id'};
 
+}
+
+
+=head2 authority
+
+ Title   : authority
+ Usage   : $string = $obj->authority();
+ Function: a string which represents the organisation which
+           granted the namespace, written as the DNS name for  
+           organisation (eg, wormbase.org)
+
+           This is for compliance with the IdentifiableI interface
+
+ Returns : A string
+ Args    : None
+
+
+=cut
+
+sub authority {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'authority'} = $value;
+    }
+    return $obj->{'authority'};
+
+}
+
+
+
+=head2 namespace
+
+ Title   : namespace
+ Usage   : $string = $obj->namespace();
+ Function: A string representing the name space this identifier
+           is valid in, often the database name or the name
+           describing the collection 
+
+
+           This is for compliance with the IdentifiableI interface
+
+ Returns : A string
+ Args    : None
+
+
+=cut
+
+sub namespace {
+   my ($obj,$value) = @_;
+   if( defined $value) {
+      $obj->{'namespace'} = $value;
+    }
+    return $obj->{'namespace'};
 }
 
 
@@ -502,9 +573,12 @@ sub alphabet {
 
 =head2 desc
 
- Title   : desc
+ Title   : desc or description
  Usage   : $obj->desc($newval)
  Function: Get/set description of the sequence.
+           
+           This is aliased to description for compliance to the 
+           Bio::DescribeableI interface
  Example :
  Returns : value of desc
  Args    : newvalue (optional)
@@ -520,6 +594,13 @@ sub desc {
     return $obj->{'desc'};
 
 }
+
+sub description {
+   my ($obj,$value) = @_;
+
+   return $obj->desc($value);
+}
+
 
 =head2 can_call_new
 
