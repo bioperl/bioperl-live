@@ -350,21 +350,23 @@ sub add_term{
 
 =cut
 
-sub add_relationship{
-    my $self = shift;
-    my $rel = shift;
+sub add_relationship {
+  my $self = shift;
+  my $rel = shift;
 
-    if($rel && $rel->isa("Bio::Ontology::TermI")) {
-	# we need to construct the relationship object on the fly
-	my ($predicate,$object) = @_;
-	$rel = Bio::Ontology::Relationship->new(-subject_term   => $rel,
-						-object_term    => $object,
-						-predicate_term => $predicate,
-						-ontology       => $self);
-    }
-    # set ontology if not set already
-    $rel->ontology($self) unless $rel->ontology();
-    return $self->engine->add_relationship($rel);
+  if($rel && $rel->isa("Bio::Ontology::TermI")) {
+    # we need to construct the relationship object on the fly
+    my ($predicate,$object) = @_;
+    $rel = Bio::Ontology::Relationship->new(
+                                            -subject_term   => $rel,
+                                            -object_term    => $object,
+                                            -predicate_term => $predicate,
+                                            -ontology       => $self,
+                                           );
+  }
+  # set ontology if not set already
+  $rel->ontology($self) unless $rel->ontology();
+  return $self->engine->add_relationship($rel);
 }
 
 =head2 get_relationships
@@ -380,21 +382,21 @@ sub add_relationship{
 
 =cut
 
-sub get_relationships{
-    my $self = shift;
-    my $term = shift;
-    if($term) {
+sub get_relationships {
+  my $self = shift;
+  my $term = shift;
+  if($term) {
 	# we don't need to filter in this case
 	return $self->engine->get_relationships($term);
-    } 
-    # else we need to filter by ontology
-    return grep { my $ont = $_->ontology;
-		  # the first condition is a superset of the second, but
-		  # we add it here for efficiency reasons, as many times
-		  # it will short-cut to true and is supposedly faster than
-		  # string comparison
-		  ($ont == $self) || ($ont->name eq $self->name);
-	      } $self->engine->get_relationships(@_);
+  }
+  # else we need to filter by ontology
+  return grep { my $ont = $_->ontology;
+                # the first condition is a superset of the second, but
+                # we add it here for efficiency reasons, as many times
+                # it will short-cut to true and is supposedly faster than
+                # string comparison
+                ($ont == $self) || ($ont->name eq $self->name);
+              } $self->engine->get_relationships(@_);
 }
 
 =head2 get_predicate_terms

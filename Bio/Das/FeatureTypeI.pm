@@ -122,6 +122,13 @@ use overload '""'     => 'name',
              fallback => 1;
 
 # Object preamble - inherits from Bio::Root::RootI;
+
+=pod
+
+this is somehow FUBAR, implementation classes cannot successfully inherit from Bio::Das::FeatureTypeI
+
+=cut
+
 @ISA = qw(Bio::Root::RootI);
 
 =head2 name

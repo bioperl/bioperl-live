@@ -15,6 +15,7 @@ use constant CM1 => 200; # big bin, x axis
 use constant CM2 => 50;  # big bin, y axis
 use constant CM3 => 50;  # small bin, x axis
 use constant CM4 => 50;  # small bin, y axis
+use constant DEBUG => 0;
 
 use constant QUILL_INTERVAL => 8;  # number of pixels between Jim Kent style intron "quills"
 
@@ -46,17 +47,19 @@ sub new {
   if(defined($self->factory->get_option('maxdepth')) && $self->factory->get_option('maxdepth') > 0){
     @subfeatures = $self->subseq($feature) if $level <= $self->factory->get_option('maxdepth');
   } else {
+
+    warn $self if DEBUG;
+    warn $feature if DEBUG;
+
     @subfeatures = $self->subseq($feature);
   }
 
   if (@subfeatures) {
-
     # dynamic glyph resolution
     @subglyphs = map { $_->[0] }
           sort { $a->[1] <=> $b->[1] }
              map { [$_, $_->left ] } 
     $factory->make_glyph($level+1,@subfeatures);
-
     $self->{parts}   = \@subglyphs;
   }
 
@@ -149,10 +152,12 @@ sub map_no_trunc { shift->{factory}->map_no_trunc(@_) }
 sub add_feature {
   my $self       = shift;
   my $factory    = $self->factory;
+
   for my $feature (@_) {
     if (ref $feature eq 'ARRAY') {
       $self->add_group(@$feature);
     } else {
+      warn $factory if DEBUG;
       push @{$self->{parts}},$factory->make_glyph(0,$feature);
     }
   }
@@ -1030,6 +1035,7 @@ sub draw_component {
 sub subseq {
   my $self    = shift;
   my $feature = shift;
+
   return $self->_subseq($feature) unless ref $self;  # protect against class invocation
   return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
   my @ss = $self->_subseq($feature);
@@ -1042,9 +1048,11 @@ sub _subseq {
   my $feature = shift;
   return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
+
   my @split = eval { my $id   = $feature->location->seq_id;
 		     my @subs = $feature->location->sub_Location;
 		     grep {$id eq $_->seq_id} @subs};
+
   return @split if @split;
   return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
   return;

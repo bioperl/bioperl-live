@@ -304,7 +304,6 @@ sub make_glyph {
   my $flip   = $panel->flip;
 
   for my $f (@_) {
-
     my $type = $self->feature_to_glyph($f);
     my $glyphclass = 'Bio::Graphics::Glyph';
     $type ||= 'generic';
@@ -312,13 +311,13 @@ sub make_glyph {
 
     unless ($LOADED_GLYPHS{$glyphclass}++) {
       carp("the requested glyph class, ``$type'' is not available: $@")
-	unless (eval "require $glyphclass");
+        unless (eval "require $glyphclass");
     }
+
     my $glyph = $glyphclass->new(-feature  => $f,
 				 -factory  => $self,
 				 -flip     => $flip,
 				 -level    => $level);
-
 
     push @result,$glyph;
 
