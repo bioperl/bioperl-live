@@ -51,10 +51,9 @@ Spec of MAF format is here:
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Allen Day
@@ -114,51 +113,50 @@ sub _initialize {
 =cut
 
 sub next_aln {
-  my $self = shift;
+    my $self = shift;
 
-  if(!$seen_header){
+    if(!$seen_header){
 	my $line = $self->_readline;
 	$self->throw("This doesn't look like a MAF file.  First line should start with ##maf, but it was: ".$line)
-	  unless $line =~ /^##maf/;
+	    unless $line =~ /^##maf/;
 	$seen_header = 1;
-  }
+    }
 
-  my $aln =  Bio::SimpleAlign->new(-source => 'maf');
+    my $aln =  Bio::SimpleAlign->new(-source => 'maf');
 
-  my($aline, @slines);
-  while(my $line = $self->_readline()){
+    my($aline, @slines);
+    while(my $line = $self->_readline()){
 	$aline = $line if $line =~ /^a/;
 	push @slines, $line if $line =~ /^s /;
 	last if $line !~ /\S/;
 
-  }
+    }
 
-  return undef unless $aline;
+    return undef unless $aline;
 
-  my($kvs) = $aline =~ /^a\s+(.+)$/;
-  my @kvs  = split /\s+/, $kvs if $kvs;
-  my %kv;
-  foreach my $kv (@kvs){
-    my($k,$v) = $kv =~ /(.+)=(.+)/;
-    $kv{$k} = $v;
-  }
+    my($kvs) = $aline =~ /^a\s+(.+)$/;
+    my @kvs  = split /\s+/, $kvs if $kvs;
+    my %kv;
+    foreach my $kv (@kvs){
+	my($k,$v) = $kv =~ /(.+)=(.+)/;
+	$kv{$k} = $v;
+    }
 
-  $aln->score($kv{score});
+    $aln->score($kv{score});
 
-  foreach my $sline (@slines){
+    foreach my $sline (@slines){
 	my($s,$src,$start,$size,$strand,$srcsize,$text) =
-	  split /\s+/, $sline;
-
+	    split /\s+/, $sline;
 	my $seq = new Bio::LocatableSeq('-seq'    => $text,
-									'-id'     => $src,
-									'-start'  => $start,
-									'-end'    => $start + $size,
-                                                                        '-strand' => $strand,
-								   );
+					'-id'     => $src,
+					'-start'  => $start,
+					'-end'    => $start + $size -1,
+					'-strand' => $strand,
+					);
 	$aln->add_seq($seq);
-  }
+    }
 
-  return $aln;
+    return $aln;
 }
 
 sub write_aln {
