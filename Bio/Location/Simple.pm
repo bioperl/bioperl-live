@@ -22,7 +22,7 @@ Bio::Location::Simple - Implementation of a Simple Location on a Sequence
     } else {
 	printf "%d..%d\n", $location->start, $location->end;
     }
-    
+
 =head1 DESCRIPTION
 
 This is an implementation of Bio::LocationI to manage simple location

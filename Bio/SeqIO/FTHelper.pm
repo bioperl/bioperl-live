@@ -233,27 +233,44 @@ sub _parse_loc {
     # HL 05/16/2000
 
     $strand = ( $locstr =~ /complement/ ) ? -1 : 1;
-    if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\?\d]\d*)[.\^\s]{1,3}([\>\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    my ($fuzzystartbf, $fuzzystartaf, $fuzzyendbf,$fuzzyendaf,$delim);
+    if($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?])?(\d+)([\<\>\?])?([.\^\s]{1,3})([\<\>\?])?(\d+)([\<\>\?])?[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
 	$fea_type = $1 if $1;
-	$start = $2;
-	$end   = $3;
-	$tagval = $4 if $4;
+	($fuzzystartbf, $fuzzystartaf) = ($2, $4);
+	$start = $3;
+	$delim = $5;
+	($fuzzyendbf, $fuzzyendaf) = ($6,$8);
+	$end   = $7;
+	$tagval = $9 if $9;
     } 
     # like before, but only one number
-    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?\d]\d*)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+    elsif($locstr =~ /^\s*(\w+[A-Za-z])?\(?([\<\>\?])?(\d+)([\<\>\?])[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
 #	print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";	
 	$fea_type = $1 if $1;
-	$start = $end = $2;
-	$tagval = $3 if $3;
+	($fuzzystartbf, $fuzzystartaf) = ($2, $4);
+	$start = $end = $3;
+	$tagval = $5 if $5;
     } else {
 	#print "didn't match\n";
 	return 0;
     }
     my $location;
-    if ( (my $startfuzzy = ($start =~ s/^[\<\>\?]//)) || 
-	 (my $endfuzzy = ($end =~ s/^[\<\>\?]//)) ||
-	 (my $rangefuzzy = ($locstr =~ /\d+\.\d+/)) ) {
+    if ( $fuzzystartbf || $fuzzystartaf  || $fuzzyendbf || $fuzzyendaf || $delim)
+    {
+	my $startfuzzy = ( $fuzzystartbf ) ? -1 : ( $fuzzystartaf ) ? 1 : 0; 
+	my $endfuzzy   = ( $fuzzyendbf ) ? -1 : ( $fuzzyendaf ) ? 1 : 0; 
+	my $rangefuzzy = ( $delim && $delim eq '.' ) ? 1 : 0;
+#	if ( defined $delim && 
+#	     $delim eq '^' ) {
+#	    $location->strand(0);
+#	    if ($location->start + 1 != $location->end ) {
+		# FIXME this is a uncertainty condition, which is not yet retained
+		# in the feature object
+		
+	    # we should become fuzzy here
+#	    }
+#	} 
 	$location = new Bio::Location::Fuzzy(-strand=>$strand,
 					     -start=>$start, 
 					     -end  => $end, 
@@ -273,16 +290,6 @@ sub _parse_loc {
 	$sf->add_tag_value($fea_type, $tagval);
     }
 
-    if ( $locstr =~ /\d+\^\d+/ ) {
-	$location->strand(0);
-#	$sf->add_tag_value('_zero_width_feature', 1);
-	if ($location->start + 1 != $location->end ) {
-	    # FIXME this is a uncertainty condition, which is not yet retained
-	    # in the feature object
-	    
-	    # we should become fuzzy here
-	}
-    }
     return $location;
 }
 
@@ -376,24 +383,20 @@ sub _output_single_location {
     if( !ref($location) || ! $location->isa('Bio::LocationI') ) {
 	$fth->throw("Cannot call _output_single_location w/o a valid LocationI object");
     }
-    # handle fuzziness here as well?
-    my ($pref,$postf,$delim) = ('','','..');
-    
+    # handle fuzziness here as well
+    my ( $delim,$start, $end ) = ( '..', $location->start, $location->end );
     if( $location->isa('Bio::Location::FuzzyLocationI') ) {
-	if( $location->start_fuzzy ) {
-	    $pref = "<";
-	}
-	if( $location->end_fuzzy ) {
-	    $postf = ">";
-	}
-	if( $location->range_fuzzy ) {
-	    $delim = '.';
-	}
+	$start = $location->fuzzy_string($location->start, 
+					 $location->start_fuzzy);
+	$end = $location->fuzzy_string($location->end, 
+					 $location->end_fuzzy);
+
+	$delim = '.' if( $location->range_fuzzy );	
     } elsif($location->length <= 1) {
 	$delim = '^';
     }
-    my $str = join('', ($pref,$location->start, $delim,
-		     $postf, $location->end));
+    
+    my $str = $start . $delim . $end;
     if( $location->strand == -1 ) {
 	$str = "complement($str)";
     }

@@ -16,7 +16,10 @@ which has unclear start/end location
 =head1 SYNOPSIS
 
     # Get a FuzzyLocationI object somehow
-    # methods have yet to be defined
+    my $fuzzy_start = $loc->fuzzy_string($loc->start, $loc->start_fuzzy);
+    my $fuzzy_end = $loc->fuzzy_string($loc->end, $loc->end_fuzzy);
+    print $fuzzy_start, $loc->range_fuzzy ? "." : "..",
+          $fuzzy_end, "\n";
 
 =head1 DESCRIPTION
 
@@ -134,6 +137,33 @@ sub end_fuzzy {
 sub range_fuzzy {
     my ($self, $value) = @_;
     $self->_abstractDeath();
+}
+
+=head2
+
+  Title   : fuzzy_string
+  Usage   : $fuzzystr = $fuzzy->fuzzy_string();
+  Function: get a fuzzy string representation of a location point 
+  Returns : string
+  Args    : location point - integer
+          : fuzziness      - [-1, 0, 1] indicating 5' partial, 
+          :                   not fuzzy, or 3' partial 
+          : format         - [optional] when other output formats are supported
+                                        they can be handled here
+
+=cut
+
+sub fuzzy_string {
+    my ($self, $loc, $fuzziness, $format) = @_;
+    if( $fuzziness == 0) {
+	return $loc;
+    } elsif( $fuzziness < 0 ) {
+	return "<$loc";
+    } elsif ($fuzziness > 0 ) { 
+	return "$loc>";
+    } else {
+	return $loc;
+    }
 }
 
 1;

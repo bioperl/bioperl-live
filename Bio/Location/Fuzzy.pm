@@ -16,7 +16,15 @@ which has unclear start and/or end locations
 =head1 SYNOPSIS
 
     my $fuzzylocation = new Bio::Location::Fuzzy(-start => 30,
-						 -end   => 'missing');
+						 -end   => 90,
+						 -startfuzzy => -1
+						 -rangefuzzy => 1);
+
+    my $fuzzy_start = $loc->fuzzy_string($loc->start, $loc->start_fuzzy);
+    my $fuzzy_end = $loc->fuzzy_string($loc->end, $loc->end_fuzzy);
+    print $fuzzy_start, $loc->range_fuzzy ? "." : "..",
+          $fuzzy_end, "\n";
+
 
 =head1 DESCRIPTION
 
