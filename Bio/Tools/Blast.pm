@@ -1747,17 +1747,18 @@ sub _get_parse_blast_func {
 		# In some reports, the Database is only listed at end.
 		#$Blast->warn("Can't determine database name from BLAST report.");
 	      }
-	    }
 
-            # Incyte_Fix:   Nasty Invisible Bug.
-            # Records in blast report are delimited by '>', but... when
-            #  there are no hits for a query, there won't be a '>'.  That
-            #  causes several blast reports to run together in the data
-            #  passed to this routine.  Need to get rid of non-hits in data
-            if ($data =~ /.+(No hits? found.+Sequences.+)/so) {
-                $data = $1;
-            }
-            # End Incyte_Fix
+	      # Incyte_Fix:   Nasty Invisible Bug.
+	      # Records in blast report are delimited by '>', but... when
+	      #  there are no hits for a query, there won't be a '>'.  That
+	      #  causes several blast reports to run together in the data
+	      #  passed to this routine.  Need to get rid of non-hits in data
+	      if ($data =~ /.+(No hits? found.+Sequences.+)/so) {
+		  $data = $1;
+	      }
+	      # End Incyte_Fix
+
+	    }
 
 	    # Determine if we need to create a new Blast object 
 	    # or use the $self object for this method.
@@ -2032,9 +2033,9 @@ sub _parse_descriptions {
 	## in the description line. 
 
       # These regexps need testing on a variety of reports.
-      if ( $line =~ /\d+\s{1,2}[\de.-]+\s*$/) {
+      if ( $line =~ /\d+\s{1,5}[\de.-]+\s*$/) {
 	$layout = 2;
-      } elsif( $line =~ /\d+\s{1,2}[\de.-]+\s{1,}\d+\s*$/) {
+      } elsif( $line =~ /\d+\s{1,5}[\de.-]+\s{1,}\d+\s*$/) {
 	$layout = 1;
       } else {
 	$self->warn("Can't parse significance data in description line $line");
@@ -2424,7 +2425,7 @@ sub _set_blast1_stats {
 #----------------------
     my ($self, $data) = (@_);
     
-    if(!$self->{'_gapped'} and $self->program_version() =~ /^2[\w-.]+WashU/) {
+    if(!$self->{'_gapped'} and $self->program_version() =~ /^2[\w\-\.]+WashU/) {
 	$self->_set_gapping_wu($data);
     } else {
 	$self->{'_gapped'} = 0;
@@ -3071,8 +3072,8 @@ sub hit {
 
     my @hits = @{$self->{'_hits'}};
     
-    return $hits[0]      if $option =~ /best|first|1/i;
-    return $hits[$#hits] if $option =~ /worst|last/i;
+    return $hits[0]      if $option =~ /^(best|first|1)$/i;
+    return $hits[$#hits] if $option =~ /^(worst|last)$/i;
 
     # Get hit by name.	    
     foreach ( @hits ) {
