@@ -35,7 +35,7 @@ $dumper->veryCompact(1);
 
 
 my $aio = Bio::Assembly::IO->new(-file=>"<t/data/consed_project/edit_dir/test_project.fasta.screen.ace.1",
-                                -forat=>'ace');
+                                -format=>'ace');
 
 my $assembly = $aio->next_assembly();
 my @contigs = $assembly->all_contigs();
@@ -64,7 +64,7 @@ foreach my $contig (@contigs) {
 sub contig_dump {
      my ($contig) = @_;
      my $returner;
-     my $count = 1;
+     #my $count = 1;
      my $prefix .= ("Contig: name(".$contig->id().") ");
      my @members = $contig->each_seq();
      if (!@members) { return $prefix." No Members\n"; }
