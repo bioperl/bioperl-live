@@ -447,7 +447,7 @@ sub _type_and_version {
   Usage   : $index->_check_file_sizes()
   Function: Verifies that the files listed in the database
             are the same size as when the database was built,
-            or throws an exception.  Called by the _initialize()
+            or throws an exception.  Called by the new()
             function.
   Example : 
   Returns : 1 or exception

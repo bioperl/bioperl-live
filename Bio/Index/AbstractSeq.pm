@@ -86,11 +86,12 @@ use Bio::DB::SeqI;
 
 @ISA = qw(Bio::Index::Abstract Bio::DB::SeqI);
 
-sub _initialize {
-    my ($self, @args) = @_;
-    $self->SUPER::_initialize(@args);
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
     
     $self->{'_seqio_cache'} = [];
+    return $self;
 }
 
 =head2 _file_format
