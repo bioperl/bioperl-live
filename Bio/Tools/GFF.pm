@@ -557,8 +557,8 @@ sub gff_version {
  Usage   : $fh = Bio::Tools::GFF->newFh(-file=>$filename,-format=>'Format')
  Function: does a new() followed by an fh()
  Example : $fh = Bio::Tools::GFF->newFh(-file=>$filename,-format=>'Format')
-           $sequence = <$fh>;   # read a sequence object
-           print $fh $sequence; # write a sequence object
+           $feature = <$fh>;    # read a feature object
+           print $fh $feature ; # write a feature object
  Returns : filehandle tied to the Bio::Tools::GFF class
  Args    :
 
@@ -576,8 +576,8 @@ sub newFh {
  Usage   : $obj->fh
  Function:
  Example : $fh = $obj->fh;      # make a tied filehandle
-           $sequence = <$fh>;   # read a sequence object
-           print $fh $sequence; # write a sequence object
+           $feature = <$fh>;   # read a feature object
+           print $fh $feature; # write a feature object
  Returns : filehandle tied to Bio::Tools::GFF class
  Args    : none
 
