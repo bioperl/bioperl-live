@@ -17,7 +17,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 28;
+    plan tests => 30;
 }
 
 END { 
@@ -119,7 +119,8 @@ my $in_qual  = Bio::SeqIO->new(-file => "<" . Bio::Root::IO->catfile("t","data",
 			       '-verbose' => $verbose);
 ok($in_qual);
 my $pq = $in_qual->next_seq();
-
+ok($pq->qual()->[99], '39'); # spot check boundary
+ok($pq->qual()->[100], '39'); # spot check boundary
 
 my $out_qual = Bio::SeqIO->new('-file'    => ">write_qual.qual",
 			       '-format'  => 'qual',

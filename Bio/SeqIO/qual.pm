@@ -111,25 +111,8 @@ sub next_seq {
     my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
 	or $self->throw("Can't parse fasta header");
     $id =~ s/^>//;
-    # $sequence =~ s/\s//g; # Remove whitespace
-    # for empty sequences we need to know the mol.type
-    # no we don't, not for PrimaryQuals because... well just because.
-    # $alphabet = $self->alphabet();
-    # print("CSM \$alphabet is $alphabet\n");
-    if(length($sequence) == 0) {
-	if(! defined($alphabet)) {
-	    # let's default to dna
-	    # lets not.
-	    # $alphabet = "dna";
-	}
-    } else {
-	# we don't need it really, so disable
-	# you bet we don't need it because PrimaryQual doesn't pay it any mind anyway
-	# $alphabet = undef;
-    }
-
     # create the seq object
-    $sequence =~ s/\n//g;
+    $sequence =~ s/\n+/ /g;
     return $self->sequence_factory->create_sequence
 	(-qual        => $sequence,
 	 -id         => $id,
@@ -137,6 +120,64 @@ sub next_seq {
 	 -display_id => $id,
 	 -desc       => $fulldesc
 	 );
+}
+
+=head2 _next_qual
+
+ Title   : _next_qual
+ Usage   : $seq = $stream->_next_qual() (but do not do
+	   that. Use $stream->next_seq() instead)
+ Function: returns the next quality in the stream
+ Returns : Bio::Seq::PrimaryQual object
+ Args    : NONE
+ Notes	 : An internal method. Gets the next quality in
+	the stream.
+
+=cut
+
+sub _next_qual {
+	my $qual = next_primary_qual( $_[0], 1 );
+	return $qual;    
+}
+
+=head2 next_primary_qual()
+
+ Title   : next_primary_qual()
+ Usage   : $seq = $stream->next_primary_qual()
+ Function: returns the next sequence in the stream
+ Returns : Bio::PrimaryQual object
+ Args    : NONE
+
+=cut
+
+sub next_primary_qual {
+	# print("CSM next_primary_qual!\n");
+  my( $self, $as_next_qual ) = @_;
+  my ($qual,$seq);
+  local $/ = "\n>";
+
+  return unless my $entry = $self->_readline;
+
+  if ($entry eq '>')  {  # very first one
+    return unless $entry = $self->_readline;
+  }
+  
+  my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
+      or $self->throw("Can't parse entry [$entry]");
+  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
+      or $self->throw("Can't parse fasta header");
+  $id =~ s/^>//;
+  # create the seq object
+  $sequence =~ s/\n+/ /g;
+  if ($as_next_qual) {
+      $qual = Bio::Seq::PrimaryQual->new(-qual        => $sequence,
+					 -id         => $id,
+					 -primary_id => $id,
+					 -display_id => $id,
+					 -desc       => $fulldesc
+					 );
+  }
+  return $qual;
 }
 
 =head2 write_seq

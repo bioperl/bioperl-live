@@ -138,25 +138,14 @@ sub new {
     }
     if( defined $given_id ) { $id = $given_id; }
     
-    # if alphabet is provided we set it first, so that it won't be guessed
-    # when the sequence is set
-    
-    # what is the best way to deal with alphabet?
-    # IGNORE it. Bwahahahaha.
-    # $alphabet && $self->alphabet($alphabet);
-    
     # note: the sequence string may be empty
-    $self->qual($qual || []);    
+    $self->qual(defined $qual ? $qual : []);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
     $pid     && $self->primary_id($pid);
     $desc    && $self->desc($desc);
 
     return $self;
-}
-
-sub alphabet {
-	return undef;
 }
 
 =head2 qual()
