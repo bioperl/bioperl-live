@@ -143,7 +143,7 @@ our %AATable = ( 'ALA' => 'A', 'ARG' => 'R', 'ASN' => 'N',
 		 'GLU' => 'E', 'GLY' => 'G', 'HIS' => 'H',
 		 'ILE' => 'I', 'LEU' => 'L', 'LYS' => 'K',
 		 'MET' => 'M', 'PHE' => 'F', 'PRO' => 'P',
-		 'SER' => 'S', 'THR' => 'T', 'TYP' => 'W',
+		 'SER' => 'S', 'THR' => 'T', 'TRP' => 'W',
 		 'TYR' => 'Y', 'VAL' => 'V' );
 
 =head2 new
@@ -633,12 +633,21 @@ sub chains {
 
  Title         : getSeq
  Usage         : returns a Bio::PrimarySeq object which represents an
-                 approximation at the sequence of the specified chain
+                 approximation at the sequence of the specified chain.
  Function      : For most chain of most entries, the sequence returned by
                  this method will be very good.  However, it it inherently 
                  unsafe to rely on STRIDE to extract sequence information about
                  a PDB entry.  More reliable information can be obtained from
-                 the PDB entry itself.
+                 the PDB entry itself.  If a second option is given
+                 (and evaluates to true), the sequence generated will
+                 have 'X' in spaces where the pdb residue numbers are
+                 discontinuous.  In some cases this results in a
+                 better sequence object (when the  discontinuity is
+		 due to regions which were present, but could not be
+		 resolved).  In other cases, it will result in a WORSE
+                 sequence object (when the discontinuity is due to
+		 historical sequence numbering and all sequence is
+		 actually resolved).
  Example       : $pso = $dssp_obj->getSeq( 'A' );
  Returns       : (pointer to) a PrimarySeq object
  Args          : Chain identifier.  If none given, '-' is assumed.  
@@ -647,8 +656,9 @@ sub chains {
 =cut
 
 sub getSeq {
-    my $self  = shift;
-    my $chain = shift;
+    my $self    = shift;
+    my $chain   = shift;
+    my $fill_in = shift;
 
     if ( !( $chain ) ) {
 	$chain = '-';
@@ -671,10 +681,12 @@ sub getSeq {
     $num_res = $self->numResidues( $chain );
     $last_res_num = $self->_pdbNum( 1, $chain );
     for ( $i = 1; $i <= $num_res; $i++ ) {
-	$cur_res_num = $self->_pdbNum( $i, $chain );
-	$step = $cur_res_num - $last_res_num;
-	if ( $step > 1 ) {
-	    $seq .= 'X' x ( $step - 1 );
+	if ( $fill_in ) {
+	    $cur_res_num = $self->_pdbNum( $i, $chain );
+	    $step = $cur_res_num - $last_res_num;
+	    if ( $step > 1 ) {
+		$seq .= 'X' x ( $step - 1 );
+	    }
 	}
 	$seq .= $self->_resAA( $i, $chain );
 	$last_res_num = $cur_res_num;
@@ -717,7 +729,7 @@ sub _pdbNum {
     }
     my $pdb_junk = $self->{ 'ASG' }->{ $chain }->[ $ord ]->[ $ASGTable{ 'resNum' } ];
     my $num_part;
-    ( $num_part ) = ( $pdb_junk =~ /(\d+).*/ );
+    ( $num_part ) = ( $pdb_junk =~ /(-*\d+).*/ );
     return $num_part;
 }
 
