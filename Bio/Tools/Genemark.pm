@@ -105,6 +105,7 @@ use Bio::Root::RootI;
 use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
+use Bio::Seq;
 
 @ISA = qw(Bio::Tools::AnalysisResult);
 
@@ -224,6 +225,7 @@ sub _parse_predictions {
     my $current_gene_no = -1;
 
     while(defined($_ = $self->_readline())) {
+        
 	if( (/^\s*(\d+)\s+(\d+)/) || (/^\s*(\d+)\s+[\+\-]/)) {
 
 	    #  this is an exon, Genemark doesn't predict anything else
@@ -320,7 +322,7 @@ sub _parse_predictions {
 	
         #Matrix file for prokaryot version
        if (/^Model file name:\s+(\S+)/) {
-	    $self->analysis_query($1);
+	    $self->analysis_subject($1);
 	    # since the line after the matrix file is always the date
 	    # (in the output file's I have seen!) extract and store this 
 	    # here
@@ -332,11 +334,11 @@ sub _parse_predictions {
 	}
 
 
-	if(/^Sequence[ file]* name:\s+(.+)\s*$/i) {
-	    $seqname = $1;
-	    $self->analysis_subject($seqname);
-	    next;
-	}
+	#if(/^Sequence[ file]* name:\s+(.+)\s*$/i) {
+	#    $seqname = $1;
+	#    $self->analysis_subject($seqname);
+	#    next;
+	#}
 
 	/^>/ && do {		
     	    $self->_pushback($_);
@@ -353,9 +355,10 @@ sub _parse_predictions {
 	            $gene->primary_tag() =~ /[^0-9]([0-9]+)$/;
 		    my $geneno = $1;
 		    if ($aa_id =~ /\|gene.$geneno\|/) {
-  			  my $seqobj = Bio::PrimarySeq->new('-seq' => $seq,
-	                     		                 '-display_id' => $aa_id,
-					                 '-moltype' => "protein");
+		          #print "x SEQ : \n $seq \nXXXX\n";
+  			  my $seqobj = Bio::Seq->new('-seq' => $seq,
+	                     		             '-display_id' => $aa_id,
+					              '-moltype' => "protein");
 			$gene->predicted_protein($seqobj);
 			last FINDPRED;
 		    }	  
@@ -370,10 +373,8 @@ sub _parse_predictions {
     # if the analysis query object contains a ref to a Seq of PrimarySeq
     # object, then extract the predicted sequences and add it to the gene
     # object.
-    if (defined $self->analysis_subject) {
+    if (defined $self->analysis_query()) { 
         my $orig_seq = $self->analysis_query();
-	#print "Orig sequence = $orig_seq\n";
-        #print "start parsing the sequences out!\n";
         FINDPREDSEQ: foreach my $gene (@{$self->{'_preds'}}) { 
 	   my $predseq = "";
 	   foreach my $exon ($gene->exons()) {
@@ -383,12 +384,7 @@ sub _parse_predictions {
 
 	   my $seqobj = Bio::PrimarySeq->new('-seq' => $predseq,
 	                     		     '-display_id' => "transl");
-	   
 	   $gene->predicted_cds($seqobj);
-	   
-	   #print "Predicted sequence " .$gene->predicted_cds()->seq() ."\n";
-	   #print "Predicted Protein   " . $gene->predicted_protein()->seq();
-	   #print "\nTranslated Sequence " . $seqobj->translate()->seq();
 	}
     }
     
@@ -489,16 +485,18 @@ sub _read_fasta_seq {
     local $/ = ">";
     
     return 0 unless (my $entry = $self->_readline());
-        
+    
     $entry =~ s/^>//;
     # complete the entry if the first line came from a pushback buffer
     while(! ($entry =~ />$/)) {
-	last unless $_ = $self->_readline();
+	last unless ($_ = $self->_readline());
 	$entry .= $_;
     }
-    # mark everything onwards from an intervening empty line
-    $entry =~ s/\n\n.*$//s;
+
+    # delete everything onwards from an new fasta start (>)
+    $entry =~ s/\n>.*$//s;
     # id and sequence
+    
     if($entry =~ s/^(.+)\n//) {
 	$id = $1;
 	$id =~ s/ /_/g;
