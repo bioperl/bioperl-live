@@ -260,7 +260,7 @@ sub register_ontology {
   my $ret = 1;
   foreach my $ont (@args) {
     if(ref($ont) && $ont->isa('Bio::Ontology::OntologyI')){
-      $ont_store_by_name{$ont->name()} = $ont;
+      $ont_store_by_name{$ont->name()} = $ont if $ont->name;
       next;
     }
 
