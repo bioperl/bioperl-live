@@ -155,7 +155,8 @@ sub write_seq {
     my ($self, @seq) = @_;
     
     foreach my $seq (@seq) {
-
+	$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
         my $mol_type = $seq->alphabet;
         my $id = $seq->display_id;
         
