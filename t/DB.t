@@ -119,7 +119,7 @@ eval {
 if ($@) {
     print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n";
     foreach ( $Test::ntest..$NUMTESTS) { 
-	skip(1,1,1,'could not connect to swissprot');}
+	skip(1,1,'could not connect to swissprot');}
 
 }
 $seq = undef;
