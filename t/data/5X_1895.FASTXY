@@ -1,0 +1,1487 @@
+ FASTXY compares a DNA sequence to a protein sequence data bank
+ version 3.4t07 Nov 21, 2001
+Please cite:
+ Pearson et al, Genomics (1997) 46:24-36
+
+ 5X_1895.fa, 7972 aa
+ vs /home/jason/genomes/S_cerevisea/pep/yeast_nrpep.fasta library
+
+       opt      E()
+< 20    53     0:====
+  22     0     0:           one = represents 17 library sequences
+  24     0     0:
+  26     0     0:
+  28     0     2:*
+  30     4    13:*
+  32    11    49:= *
+  34    55   132:====   *
+  36   202   270:============   *
+  38   373   447:======================    *
+  40   619   623:====================================*
+  42   895   762:============================================*========
+  44  1008   840:=================================================*==========
+  46  1000   856:==================================================*========
+  48   915   819:================================================*=====
+  50   820   748:===========================================*=====
+  52   694   657:======================================*==
+  54   552   562:=================================*
+  56   428   469:========================== *
+  58   381   385:======================*
+  60   279   312:================= *
+  62   194   250:============  *
+  64   163   199:========== *
+  66   117   157:=======  *
+  68    62   124:====   *
+  70    50    97:===  *
+  72    36    76:=== *
+  74    26    59:== *
+  76    17    46:= *
+  78    26    36:==*
+  80    18    28:=*
+  82    11    21:=*
+  84    25    17:*=
+  86    19    13:*=
+  88    11    10:*          inset = represents 1 library sequences
+  90    11     8:*
+  92     9     6:*         :=====*===
+  94     9     5:*         :====*====
+  96    13     4:*         :===*=========
+  98     5     3:*         :==*==
+ 100     6     2:*         :=*====
+ 102    13     2:*         :=*===========
+ 104     5     1:*         :*====
+ 106     5     1:*         :*====
+ 108     4     1:*         :*===
+ 110     1     1:*         :*
+ 112     0     0:          *
+ 114     4     0:=         *====
+ 116     1     0:=         *=
+ 118     5     0:=         *=====
+>120    32     0:==        *================================
+4215311 residues in  9190 sequences
+  Expectation_n fit: rho(ln(x))= 4.0381+/-0.00065; mu= 23.8752+/- 0.039
+ mean_var=56.2146+/-11.145, 0's: 53 Z-trim: 75  B-trim: 416 in 2/58
+ Lambda= 0.1711
+ Kolmogorov-Smirnov  statistic: 0.0414 (N=29) at  52
+
+FASTY (3.42 Sept 2001) function [optimized, BL50 matrix (15:-5)] ktup: 2
+ join: 62, opt: 62, gap-pen: -14/ -2 shift: -20, subs: -20 width:  16
+The best scores are:                                       opt bits E(9190)
+NR_SC:SW-YNN2_YEAST SW:YNN2_YEAST P53914 sacch (1056) [f] 2172  547 1.6e-154
+NR_SC:SW-MPCP_YEAST SW:MPCP_YEAST P23641 sacch ( 311) [r]  432  117 1.3e-25
+NR_SC:SW-YEO3_YEAST SW:YEO3_YEAST P40035 sacch ( 300) [r]  154   48 5.7e-05
+NR_SC:SW-RIM2_YEAST SW:RIM2_YEAST P38127 sacch ( 377) [r]  134   44   0.002
+NR_SC:SW-Q05330 SW:Q05330 Q05330 saccharomyces ( 302) [f]  122   41   0.014
+NR_SC:SW-AMYH_YEAST SW:AMYH_YEAST P08640 sacch (1367) [f]  128   43   0.014
+NR_SC:SW-PET8_YEAST SW:PET8_YEAST P38921 sacch ( 284) [r]  121   40   0.016
+NR_SC:SW-AGA1_YEAST SW:AGA1_YEAST P32323 sacch ( 725) [f]  124   41   0.018
+NR_SC:SW-PMT_YEAST SW:PMT_YEAST P32332 sacchar ( 324) [r]  120   40    0.02
+NR_SC:GP-CAA81388_1 gi|439289|emb|CAA81388.1 ( ( 751) [r]  115   39   0.085
+NR_SC:SW-Q07229 SW:Q07229 Q07229 saccharomyces ( 817) [r]  115   39    0.09
+NR_SC:SW-VRP1_YEAST SW:VRP1_YEAST P37370 sacch ( 817) [r]  115   39    0.09
+NR_SC:SW-Q12215 SW:Q12215 Q12215 saccharomyces ( 556) [f]  112   38    0.12
+NR_SC:SW-YH17_YEAST SW:YH17_YEAST P38898 sacch ( 153) [r]  106   36    0.13
+NR_SC:GP-CAB58511_1 gi|6064291|emb|CAB58511.1  ( 894) [f]  113   39    0.13
+NR_SC:SW-YN23_YEAST SW:YN23_YEAST P53832 sacch ( 503) [f]  110   38    0.15
+NR_SC:SW-YHC8_YEAST SW:YHC8_YEAST P38739 sacch ( 605) [f]  110   38    0.17
+NR_SC:SW-FLO1_YEAST SW:FLO1_YEAST P32768 sacch (1537) [f]  113   39     0.2
+NR_SC:PIR-S53465 PIR:S53465 flocculation prote (1537) [f]  113   39     0.2
+NR_SC:SW-Q06143 SW:Q06143 Q06143 saccharomyces ( 298) [r]  105   36    0.25
+NR_SC:PIR-S58652 PIR:S58652 hypothetical prote ( 216) [r]  103   36    0.28
+NR_SC:SW-YKT9_YEAST SW:YKT9_YEAST P36045 sacch ( 187) [f]  102   35     0.3
+NR_SC:SW-YAG3_YEAST SW:YAG3_YEAST P39712 sacch (1322) [f]  109   38    0.35
+NR_SC:PIR-S51959 PIR:S51959 hypothetical prote (1367) [f]  109   38    0.36
+NR_SC:SW-Q12444 SW:Q12444 Q12444 saccharomyces ( 126) [f]   99   34    0.38
+NR_SC:SW-TOA1_YEAST SW:TOA1_YEAST P32773 sacch ( 286) [r]  102   36     0.4
+NR_SC:SW-SIM1_YEAST SW:SIM1_YEAST P40472 sacch ( 475) [f]  104   36    0.41
+NR_SC:GP-CAA47602_1 gi|4824|emb|CAA47602.1 (X6 ( 307) [r]  102   36    0.42
+NR_SC:SW-YMC1_YEAST SW:YMC1_YEAST P32331 sacch ( 307) [r]  102   36    0.42
+NR_SC:SW-YG5F_YEAST SW:YG5F_YEAST P53320 sacch ( 366) [r]  102   36    0.48
+NR_SC:SW-TIR3_YEAST SW:TIR3_YEAST P40552 sacch ( 269) [f]  100   35    0.54
+NR_SC:SW-Q08428 SW:Q08428 Q08428 saccharomyces ( 113) [f]   96   34    0.59
+NR_SC:SW-FLO5_YEAST SW:FLO5_YEAST P38894 sacch (1075) [f]  104   37    0.71
+NR_SC:SW-YK82_YEAST SW:YK82_YEAST P36170 sacch (1169) [f]  104   37    0.76
+NR_SC:SW-YOD0_YEAST SW:YOD0_YEAST Q08193 sacch ( 484) [f]  100   35    0.82
+NR_SC:SW-CW14_YEAST SW:CW14_YEAST O13547 sacch ( 238) [f]   97   34    0.84
+NR_SC:SW-TIR1_YEAST SW:TIR1_YEAST P10863 sacch ( 254) [r]   97   34    0.87
+NR_SC:SW-Q08873 SW:Q08873 Q08873 saccharomyces ( 200) [f]   95   34       1
+NR_SC:SW-TIR2_YEAST SW:TIR2_YEAST P33890 sacch ( 251) [f]   95   34     1.2
+NR_SC:SW-CBF5_YEAST SW:CBF5_YEAST P33322 sacch ( 483) [f]   97   35     1.4
+NR_SC:SW-KRE1_YEAST SW:KRE1_YEAST P17260 sacch ( 313) [f]   95   34     1.4
+NR_SC:GP-CAA52447_1 gi|396560|emb|CAA52447.1 ( ( 250) [f]   94   34     1.4
+NR_SC:GP-CAA81388_1 gi|439289|emb|CAA81388.1 ( ( 751) [f]   98   35     1.6
+NR_SC:SW-VRP1_YEAST SW:VRP1_YEAST P37370 sacch ( 817) [f]   98   35     1.7
+NR_SC:SW-Q07229 SW:Q07229 Q07229 saccharomyces ( 817) [f]   98   35     1.7
+NR_SC:SW-Q12218 SW:Q12218 Q12218 saccharomyces ( 487) [f]   94   34     2.3
+NR_SC:GP-AAA35091_1 gi|295671|gb|AAA35091.1 (L ( 406) [f]   92   33     2.8
+NR_SC:SW-SR40_YEAST SW:SR40_YEAST P32583 sacch ( 406) [f]   92   33     2.8
+NR_SC:SW-TIP1_YEAST SW:TIP1_YEAST P27654 sacch ( 210) [f]   89   32       3
+NR_SC:SW-O94086 SW:O94086 O94086 saccharomyces ( 168) [f]   88   32     3.1
+NR_SC:SW-YM8Z_YEAST SW:YM8Z_YEAST Q04951 sacch ( 389) [f]   91   33     3.3
+NR_SC:SW-YGC8_YEAST SW:YGC8_YEAST P53189 sacch ( 542) [f]   92   33     3.5
+NR_SC:SW-YG1F_YEAST SW:YG1F_YEAST P53214 sacch ( 551) [f]   92   33     3.5
+NR_SC:GP-AAA35015_1 gi|172526|gb|AAA35015.1 (M ( 570) [f]   92   33     3.6
+NR_SC:SW-HRB1_YEAST SW:HRB1_YEAST P38922 sacch ( 429) [f]   90   33     4.2
+NR_SC:SW-MID2_YEAST SW:MID2_YEAST P36027 sacch ( 376) [f]   89   33     4.5
+NR_SC:SW-Q08438 SW:Q08438 Q08438 saccharomyces ( 674) [r]   91   33     4.8
+NR_SC:SW-CCC1_YEAST SW:CCC1_YEAST P47818 sacch ( 322) [f]   88   32     4.8
+
+
+>>NR_SC:SW-YNN2_YEAST SW:YNN2_YEAST P53914 saccharomyces  (1056 aa)
+ initn: 3325 init1: 1027 opt: 2172  Z-score: 2877.6  bits: 547.0 E(): 1.6e-154
+Smith-Waterman score: 3401;  51.588% identity (58.124% ungapped) in 1165 aa overlap (2180-5623:3-1053)
+
+    2180      2210      2240      2270      2300      2330         
+5X_189 RKQLDPRIPALINNGVKANHRSFFVMVGDKGRDQVCPGMQAAMRFD*HRCR/LVNLHFLL
+       .: .: :::.:: :::....::.::.:::..:.:                  : :::.:.
+NR_SC: KKAIDSRIPSLIRNGVQTKQRSIFVIVGDRARNQ------------------LPNLHYLM
+             10        20        30                          40    
+
+     2360      2390       2420      2450      2480      2510       
+5X_189 SQARVSSRPSVLWCYKKD-LGFTT*VAASENLQQTIYFRPIATSHRKKREAKIKRDVKRG
+        .: ..   :::: :::  ::::                    ::::::: :::...:::
+NR_SC: MSADLKMNKSVLWAYKKKLLGFT--------------------SHRKKRENKIKKEIKRG
+           50        60                            70        80    
+
+      2540      2570      2600      2630      2660      2690       
+5X_189 IRDANEQDPFELFVTVTDIRYTYYKDSAKILGQTFGMLVLQDYEAITPNLLARTIETVEG
+        :..::.:::: :..  .:::.:::.: ::::.:.:: .:::.::.::::::::::::::
+NR_SC: TREVNEMDPFESFISNQNIRYVYYKESEKILGNTYGMCILQDFEALTPNLLARTIETVEG
+           90       100       110       120       130       140    
+
+      2720      2750       2780      2810      2840      2870      
+5X_189 GGIVVLLLKTMSSLKQLYAMAM/DKL*CRDGVE*SDFS*LLI*DVHSRYRTDAHQFVQPR
+       :::::.:::.::::::::.:.: :                    ::.::::.::  :  :
+NR_SC: GGIVVILLKSMSSLKQLYTMTM-D--------------------VHARYRTEAHGDVVAR
+          150       160                            170       180   
+
+       2900      2930      2960      2990      3020      3050      
+5X_189 FNERFILSLGSNPDCLVLDDELNVLPLSKGKDIQIGKAGEEDDRGRKRKAEELKEMKENL
+       :::::::::::::.:::.:::::::::: .:...     :.:.   :.   ::.:.::.:
+NR_SC: FNERFILSLGSNPNCLVVDDELNVLPLSGAKNVKPLPPKEDDELPPKQL--ELQELKESL
+           190       200       210       220       230         240 
+
+       3080      3110      3140      3170      3200      3230      
+5X_189 EGVDIVGSLAKLAKTVDQAKAILTFVEAISEKNLSSTVALTAGRGRGKSAALGLAIGAAL
+       : :. .:::..:.:::.::.:::.:..:::::.:. :::::::::::::::::..:.::.
+NR_SC: EDVQPAGSLVSLSKTVNQAHAILSFIDAISEKTLNFTVALTAGRGRGKSAALGISIAAAV
+             250       260       270       280       290       300 
+
+       3260      3290      3320      3350      3380      3410      
+5X_189 AHDYSNIFVTSPDPENLKTLFEFVFKALDALGYEEHIDYDVVQSTNPDFKKAIVRVNIFR
+       .: :::::::::.::::::::::.::..:::::.::::::..:::::::.::::::.: :
+NR_SC: SHGYSNIFVTSPSPENLKTLFEFIFKGFDALGYQEHIDYDIIQSTNPDFNKAIVRVDIKR
+             310       320       330       340       350       360 
+
+       3440      3470      3500      3530      3560      3590      
+5X_189 GHRQTIQYISPEDSHVLGQAELVIIDEAAAIPLPLVRKLIGPYLVFMASTINGYEGTGRS
+        :::::::: :.: .::::::::.::::::::::.:..:.::::::::::::::::::::
+NR_SC: DHRQTIQYIVPQDHQVLGQAELVVIDEAAAIPLPIVKNLLGPYLVFMASTINGYEGTGRS
+             370       380       390       400       410       420 
+
+       3620      3650      3680      3710      3740      3770      
+5X_189 LSIKLIQQLREQTRPSITKDSENAAASSAGSSSKAAAAGRSGAGLVRSLREIKLDEPIRY
+       ::.:::::::.:.  :  .....:..:  .. . .   ..:     :.::::.:::::::
+NR_SC: LSLKLIQQLRNQNNTSGRESTQTAVVSRDNKEKDSHLHSQS-----RQLREISLDEPIRY
+             430       440       450       460            470      
+
+       3800      3830         3860      3890      3920      3950   
+5X_189 SPGDNVEKWLNNLLCLDATIVSK---SIQGCPHPSKCELYYVNRDTLFSYHPASEVFLQR
+       .::: .:::::.:::::.:....   . .: ::::.:.:. :::::::::::.:: ::..
+NR_SC: APGDPIEKWLNKLLCLDVTLIKNPRFATRGTPHPSQCNLFVVNRDTLFSYHPVSENFLEK
+        480       490       500       510       520       530      
+
+          3980      4010      4040      4070       4100      4130  
+5X_189 MMALYVASHYKNSPNDLQMLSDAPAHHLFVLLPPIDEND-NTLPDPLVVLQVALEGNISR
+       ::::::.:::::::::::..::::::.::::::::: .: . .:::: :.:.::::.::.
+NR_SC: MMALYVSSHYKNSPNDLQLMSDAPAHKLFVLLPPIDPKDGGRIPDPLCVIQIALEGEISK
+        540       550       560       570       580       590      
+
+           4160      4190      4220      4250      4280      4310  
+5X_189 EAILKEMAQSGMRSSGDMIPWIISTQFQDNDFATLSGARVVRIATHPDYARMGYGSRAME
+       :.. . ... :.:..::.:::.:: ::::..::.:::::.:::::.:.:: :::::::.:
+NR_SC: ESVRNSLSR-GQRAGGDLIPWLISQQFQDEEFASLSGARIVRIATNPEYASMGYGSRAIE
+        600        610       620       630       640       650     
+
+           4340      4370       4400      4430      4460      4490 
+5X_189 ALESFYNGTSYNFDDVPVDMGESFAD\VPRSDL*VTSFIPFPQNRTSTECVSQNANLQND
+        :.....:         .::.:   : :  .:  .        .:.: . .... :: .:
+NR_SC: LLRDYFEGKF-------TDMSE---D-VRPKDYSI--------KRVSDKELAKT-NLLKD
+         660              670                   680       690      
+
+            4520      4550      4580      4610      4640      4670 
+5X_189 TIAIRDPSRMPPLLQRLSERKPETLDYLGVSFGLTRDLLRFWKKGGFTPLYASQKENALT
+        . .:: . .:::: .:::. :. : :::::.:::..: .:::...:.:.:  :  : ::
+NR_SC: DVKLRDAKTLPPLLLKLSEQPPHYLHYLGVSYGLTQSLHKFWKNNSFVPVYLRQTANDLT
+         700       710       720       730       740       750     
+
+            4700      4730      4760      4790      4820      4850 
+5X_189 GEYTFVMLKVLASAGGGGEWLGAFAQGMSCLLLQDEVHMGND*RL*TDFRQRFMNLLSYE
+       ::.: :::.::   :  ..::  ::.                     :::.::..::::.
+NR_SC: GEHTCVMLNVLE--GRESNWLVEFAK---------------------DFRKRFLSLLSYD
+         760         770                            780       790  
+
+            4880      4910          4940      4970      5000       
+5X_189 AFKKFDASIALSILESTVPRNSPSPAP----KLLTNTELSSLLTPFDIKRLESYADSMLD
+        :.:: :  :::..::.   .. :       : :: :.:.....:::.:::.::....::
+NR_SC: -FHKFTAVQALSVIESSKKAQDLSDDEKHDNKELTRTHLDDIFSPFDLKRLDSYSNNLLD
+             800       810       820       830       840       850 
+
+      5030      5060      5090        5120      5150      5180     
+5X_189 YHVVLDLVPTIASLFFGKRLETS--LPPAQQAILLALGLQRKNVEALENELGITSTQTLA
+       :::. :..: .: :.:: ..  :  :  .:.:::::.::::::.... .::.. :.::.:
+NR_SC: YHVIGDMIPMLALLYFGDKMGDSVKLSSVQSAILLAIGLQRKNIDTIAKELNLPSNQTIA
+             860       870       880       890       900       910 
+
+        5210      5240      5270           5300      5330      5360
+5X_189 LFGKVLRKMTKSLEDIRKASIASELP-----AEPTLAGRSANGSNKFVALQQTIEQDLAD
+       .:.:..:::.. .... . ::   ::     :   . :.  .. :   ::.: .:.:: .
+NR_SC: MFAKIMRKMSQYFRQLLSQSIEETLPNIKDDAIAEMDGEEIKNYNAAEALDQ-MEEDLEE
+             920       930       940       950       960        970
+
+             5390      5420      5450       5480      5510         
+5X_189 SAVQLNGEDDDASKKEQRELLNTLNMEEFAI-DQGGDWTEAEKQVERLASGKGGTRLSST
+       ..    .:  .: ...:.::.:.::....:: :.. .:.:..:..:  :..:: . :.. 
+NR_SC: AG----SEAVQAMREKQKELINSLNLDKYAINDNSEEWAESQKSLEIAAKAKGVVSLKTG
+                  980       990      1000      1010      1020      
+
+    5540       5570      5600       
+5X_189 VSVKVDKLDD\AKRRRRRARMRVPRMRRR
+        .  ..: .:   :.. .: :. ::  ..
+NR_SC: KKRTTEKAED-IYRQEMKA-MKKPRKSKK
+       1030       1040       1050   
+
+>>NR_SC:SW-MPCP_YEAST SW:MPCP_YEAST P23641 saccharomyces  (311 aa)
+rev-comp initn: 1094 init1: 429 opt: 432  Z-score: 563.4  bits: 117.1 E(): 1.3e-25
+Smith-Waterman score: 964;  54.242% identity (66.543% ungapped) in 330 aa overlap (7938-6947:19-287)
+
+      7930      7900      7870      7840      7810      7780       
+5X_18- RFALAGALGCAVTHGALTPVDVVKTRIQLEPEVYNRVGRFFNSS*GF*EL*GVVLMSQT\
+       .::::::.::. ::....:.::::::::::: :::                         
+NR_SC: KFALAGAIGCGSTHSSMVPIDVVKTRIQLEPTVYN-------------------------
+       20        30        40        50                            
+
+       7750      7720      7690      7660      7630      7600      
+5X_18- KGMVASFRQIIAKEGAGALLTGFGPTAVGYAIQGAFKFGG*VMMSLQITA*SRANLPISY
+       ::::.::.:::: ::::::::::::: .::.:::::::::                   :
+NR_SC: KGMVGSFKQIIAGEGAGALLTGFGPTLLGYSIQGAFKFGG-------------------Y
+            60        70        80        90                       
+
+       7570      7540      7510      7480      7450      7420      
+5X_18- EFWKKKAIDLVGVDKARENRQAIYLGASAIAEFFADIALCPLEATRIRLVSQPSFANGLS
+       : .::  :: .: : : . ....:.:..:.:::.:::::::::::::::::::.::::: 
+NR_SC: EVFKKFFIDNLGYDTASRYKNSVYMGSAAMAEFLADIALCPLEATRIRLVSQPQFANGLV
+          100       110       120       130       140       150    
+
+       7390      7360      7330      7300       7270      7240     
+5X_18- GGFLRILREEGPAAFYAGFGPILFKQVPYTMAKFAV*VDRTA*\YQTFG*YYRSYEVAVE
+       ::: :::.::: ..::.:: ::::::.::..::: :    .   :  :.           
+NR_SC: GGFSRILKEEGIGSFYSGFTPILFKQIPYNIAKFLVFERASEF-YYGFAG----------
+          160       170       180       190        200             
+
+        7210      7180      7150      7120      7090      7060     
+5X_18- KILKATGKSKDSLTGGQLTGLNLTSGLIAGLAAAVISQPADTLLSKINKTKGAPGQSTTS
+                :..:.. . : ::: ::: ::::::..::::::::::.:::: ::::::..
+NR_SC: --------PKEKLSSTSTTLLNLLSGLTAGLAAAIVSQPADTLLSKVNKTKKAPGQSTVG
+                   210       220       230       240       250     
+
+        7030      7000      6970       
+5X_18- RLVQMAGQLGVSGLFTGMTTRLVMIGTLTAGQ
+        :.:.: :::  : :.:. :::::.::::. :
+NR_SC: LLAQLAKQLGFFGSFAGLPTRLVMVGTLTSLQ
+         260       270       280       
+
+>>NR_SC:SW-YEO3_YEAST SW:YEO3_YEAST P40035 saccharomyces  (300 aa)
+rev-comp initn: 412 init1: 136 opt: 154  Z-score: 192.8  bits: 48.5 E(): 5.7e-05
+Smith-Waterman score: 469;  33.043% identity (41.455% ungapped) in 345 aa overlap (7943-6915:18-294)
+
+            7920      7890      7860       7830      7800          
+5X_18- YAD/CALAGALGCAVTHGALTPVDVVKTRIQLEPEVY\TGLVVFSTVPKDFENCKAWC*C
+       ::  :.:.: ..:. ::...::.:.:: :.:..:..: :.                    
+NR_SC: YAT-CTLGGIIACGPTHSSITPLDLVKCRLQVNPKLY-TS--------------------
+        20         30        40        50                          
+
+   7770      7740      7710      7680      7650      7620          
+5X_18- HKQ*GMVASFRQIIAKEGAGALLTGFGPTAVGYAIQGAFKFGG*VMMSLQITA*SRANLP
+             . .::.:::.::   . :::: : :::..::: :.::  ...            
+NR_SC: -----NLQGFRKIIANEGWKKVYTGFGATFVGYSLQGAGKYGGYEYFKHL----------
+               60        70        80        90       100          
+
+   7590      7560      7530      7500      7470      7440          
+5X_18- ISYEFWKKKAIDLVGVDKARENRQAIYLGASAIAEFFADIALCPLEATRIR-LVSQPSFA
+         :  : . ..             ..:: ::: :::.::: :::.:: ...  ...: : 
+NR_SC: --YSSWLSPGV-------------TVYLMASATAEFLADIMLCPFEAIKVKQQTTMPPFC
+                             110       120       130       140     
+
+    7410      7380       7350      7320      7290      7260        
+5X_18- NGLSGGFLRILREEGP-AAFYAGFGPILFKQVPYTMAKFAV*VDRTA**SNIWLILS\SY
+       :..  :. ..  : :   ::: :. :.  .:.:::: ::                 . :.
+NR_SC: NNVVDGWKKMYAESGGMKAFYKGIVPLWCRQIPYTMCKF-----------------T-SF
+         150       160       170       180                         
+
+      7230      7200      7170      7140      7110      7080       
+5X_18- EVAVEKILKATGKSKDSLTGGQLTGLNLTSGLIAGLAAAVISQPADTLLSKINKTKGAPG
+       :  :.:: ..  :.:. ... :  ......: .::.  :..:.:::...::::. . : .
+NR_SC: EKIVQKIYSVLPKKKEEMNALQQISVSFVGGYLAGILCAAVSHPADVMVSKINSERKA-N
+       190       200       210       220       230       240       
+
+      7050      7020      6990      6960       6930     
+5X_18- QSTTSRLVQMAGQLGVSGLFTGMTTRLVMIGTLTAGQ/W*VSNAFDAGV
+       .: .    ..  ..: .::..:. .:.:::::::. : : . ..: : :
+NR_SC: ESMSVASKRIYQKIGFTGLWNGLMVRIVMIGTLTSFQ-WLIYDSFKAYV
+        250       260       270       280        290    
+
+>>NR_SC:SW-RIM2_YEAST SW:RIM2_YEAST P38127 saccharomyces  (377 aa)
+rev-comp initn:  79 init1:  79 opt: 134  Z-score: 164.9  bits: 43.6 E(): 0.002
+Smith-Waterman score: 145;  26.047% identity (30.769% ungapped) in 215 aa overlap (7929-7299:180-366)
+
+   7930      7900      7870      7840      7810       7780         
+5X_18- LAGALGCAVTHGALTPVDVVKTRIQLEPEVYNRVGRFFNSS*GF\WNCKAWC*CHKQ*GM
+       .:.: .  .:  : .:. ..:::.::.    . : .. ::     :.:            
+NR_SC: MAAATAGWATATATNPIWLIKTRVQLDKAGKTSVRQYKNS-----WDC------------
+     180       190       200       210            220              
+
+    7750      7720      7690      7660      7630      7600         
+5X_18- VASFRQIIAKEGAGALLTGFGPTAVGYAIQGAFKFGG*VMMSLQITA*SRANLPISYEFW
+          ....: .::  .:  :.. . .: ...: ...    .:.  :   :  ..  . :  
+NR_SC: ---LKSVIRNEGFTGLYKGLSASYLG-SVEGILQWLLYEQMKRLIKERSIEKFGYQAEGT
+               230       240        250       260       270        
+
+    7570      7540      7510      7480      7450      7420         
+5X_18- KKKAIDLVGVDKARENRQAIYLGASAIAEFFADIALCPLEATRIRLVSQPSFA-----NG
+       :. .      .:..:  :    :....:.: :.::  : :..: :: . :.       .:
+NR_SC: KSTS------EKVKEWCQ--RSGSAGLAKFVASIATYPHEVVRTRLRQTPKENGKRKYTG
+      280             290         300       310       320       330
+
+         7390      7360      7330          
+5X_18- LSGGFLRILREEGPAAFYAGFGPILFKQVPYTMAKF
+       :  .:  :..:::  ..:.:. : :.. :: ..  :
+NR_SC: LVQSFKVIIKEEGLFSMYSGLTPHLMRTVPNSIIMF
+              340       350       360      
+
+>>NR_SC:SW-Q05330 SW:Q05330 Q05330 saccharomyces cerevis  (302 aa)
+ initn:  76 init1:  76 opt: 122  Z-score: 150.1  bits: 40.6 E(): 0.014
+Smith-Waterman score: 123;  24.713% identity (28.667% ungapped) in 174 aa overlap (896-1372:55-219)
+
+             920       950       980      1010      1040      1070 
+5X_189 RTHRKRYQRHFHPHHRRHHL*THHRSHLDRNR*RRPLAANLQRLVPVCDRPQPIPNNH*C
+       :::..... : : :. :.:   :::.:: ..: ..      ::   . .: . : . :  
+NR_SC: RTHQHHHRTHQHHHRTRQH---HHRTHLHHHRIHQRHHHIRQRHHHIRQRRHRILQRHHR
+           60        70           80        90       100       110 
+
+            1100      1130                    1160       1190      
+5X_189 QRHEKSKEGRRNENTPLRLL--------------TA*PRQGPSSL*FHPVVV-HSALVPH
+        :...     : . : ::::              ..  :.  ..  ..:.   :...: :
+NR_SC: IRQRRLPTLPRRQATALRLLLILLHLHHTLLRHQVTAQRHQVTAQRLQPIPQHHQVIVLH
+             120       130       140       150       160       170 
+
+       1220      1250      1280      1310      1340      1370
+5X_189 R*QTHLCPARLLQEHQAWQHSSLGLAPAEGMGTYRPIGNLKDQRGVKKLRALIQ
+       : .:      : ..:   ::  : : : . ..  . .   . :  .. :  ..:
+NR_SC: RLHT------LQHHHPIPQHHLLTLPPLQTIALLHLLTPQHLQATAQDLLHILQ
+                   180       190       200       210         
+
+>>NR_SC:SW-AMYH_YEAST SW:AMYH_YEAST P08640 saccharomyces  (1367 aa)
+ initn: 142 init1:  95 opt: 128  Z-score: 150.0  bits: 42.7 E(): 0.014
+Smith-Waterman score: 152;  26.792% identity (28.629% ungapped) in 265 aa overlap (3295-4068:302-556)
+
+         3310      3340      3370      3400      3430      3460    
+5X_189 TSKLCLNLSSKPLMPWVTRSTLIMMSCKAQTPTSKRLL*GSTSSEVTDKPSNTSPPKILT
+       ::: :   ..:   :  : :.    : .: .:: .   . :.:. ::.. ...:   . :
+NR_SC: TSKTC---TKKTTTPVPTPSSSTTESSSAPVPTPSSSTTESSSAPVTSSTTESSSAPVPT
+                310       320       330       340       350        
+
+         3490      3520      3550      3580      3610      3640    
+5X_189 FSAKLSLSSLMKLPPSLFPLFVNSSAPISCLWPPPSTVTRVLAVHCPSSSFSNSVNR/PR
+        :.. . ::   .  :      .::::..      .: .    :  :::: ..: .  : 
+NR_SC: PSSSTTESSSAPVTSSTTE---SSSAPVTS----STTESSSAPVPTPSSSTTESSSA-PV
+      360       370          380           390       400        410
+
+          3670      3700       3730      3760      3790      3820  
+5X_189 PSITKDSENAAASSAGSSSKAAA\VVDRALVSCDLFVRSSLMSLSVTPPETMLKSG*TTS
+        : : .: .: ..:. . :..:  :.. .  : .  : ::    : .:  :  .: . .:
+NR_SC: TSSTTESSSAPVTSSTTESSSAP-VTSSTTESSSAPVTSSTTESSSAPVPTPSSSTTESS
+              420       430        440       450       460         
+
+           3850      3880            3910      3940      3970      
+5X_189 SASMPPSSPNLSKVALTLPNASFT------MSTATLSSLITPLQKCSCKG*WRSTS-LPT
+       :: .  :. . :.. .  :..: :      ....:  :  .:.   : . .  :..  ::
+NR_SC: SAPVTSSTTESSSAPVPTPSSSTTESSSAPVTSSTTESSSAPVPTPSSSTTESSSAPAPT
+     470       480       490       500       510       520         
+
+        4000      4030      4060  
+5X_189 TRTLLTTCRCFPMLPLIIFSFSSPLST
+         .  :     :.      : :.:. :
+NR_SC: PSSSTTESSSAPVTSSTTESSSAPVPT
+     530       540       550      
+
+>>NR_SC:SW-PET8_YEAST SW:PET8_YEAST P38921 saccharomyces  (284 aa)
+rev-comp initn:  91 init1:  91 opt: 121  Z-score: 149.1  bits: 40.3 E(): 0.016
+Smith-Waterman score: 121;  34.146% identity (35.897% ungapped) in 82 aa overlap (7583-7338:172-249)
+
+           7560      7530      7500      7470      7440      7410  
+5X_18- YEFWKKKAIDLVGVDKARENRQAIYLGASAIAEFFADIALCPLEATRIRLVSQPSFANGL
+       ::. ::      : ....  . ::    ..::  .:  .  ::.  . ::. . . :. :
+NR_SC: YEYLKKTWAKANGQSQVEPWKGAI---CGSIAGGIAAATTTPLDFLKTRLMLNKTTAS-L
+             180       190          200       210       220        
+
+           7380      7350    
+5X_18- SGGFLRILREEGPAAFYAGFGP
+       .. ..:: ::::::.:..: ::
+NR_SC: GSVIIRIYREEGPAVFFSGVGP
+       230       240         
+
+>>NR_SC:SW-AGA1_YEAST SW:AGA1_YEAST P32323 saccharomyces  (725 aa)
+ initn: 156 init1:  88 opt: 124  Z-score: 148.1  bits: 41.4 E(): 0.018
+Smith-Waterman score: 144;  23.699% identity (26.032% ungapped) in 346 aa overlap (3286-4232:176-520)
+
+            3310      3340      3370      3400      3430      3460 
+5X_189 TPKTSKLCLNLSSKPLMPWVTRSTLIMMSCKAQTPTSKRLL*GSTSSEVTDKPSNTSPPK
+       : ...    .:::    :  : ..    : .... ...   ....:: .. .::.::  .
+NR_SC: TTSSNPTTTSLSSTSTSPSSTSTSPSSTSTSSSSTSTSSSSTSTSSSSTSTSPSSTSTSS
+         180       190       200       210       220       230     
+
+            3490      3520      3550      3580      3610       3640
+5X_189 ILTFSAKLSLSSLMKLPPSLFPLFVNSSAPISCLWPPPSTVTRVLAVHCPSSSFSN/YRE
+        :: ... : :. ..   .      .: .  :      ::     ..   :.: :. :  
+NR_SC: SLTSTSSSSTSTSQSSTSTSSSSTSTSPSSTSTSSSSTSTSPSSKSTSASSTSTSS-YST
+         240       250       260       270       280       290     
+
+             3670      3700      3730       3760      3790         
+5X_189 QTRPSITKDSENAAASSAGSSSKAAAAGRSGAGL\GDLFVRSSLMSLSVTPPETMLKSG*
+       .: ::.:..: . :..: .:.: ...   : ..: :. .. ::  :.:.  : : . :  
+NR_SC: STSPSLTSSSPTLASTSPSSTSISSTFTDSTSSL-GSSIASSST-SVSLYSPSTPVYSVP
+          300       310       320        330        340       350  
+
+    3820                     3850      3880      3910       3940   
+5X_189 TTSSASMPP---------------SSPNLSKVALTLPNASFTMSTA-TLSSLITPLQKCS
+       .:::    :               ::  ..: ...    ::.:::  :  : .: .    
+NR_SC: STSSNVATPSMTSSTVETTVSSQSSSEYITKSSISTTIPSFSMSTYFTTVSGVTTMYTTW
+            360       370       380       390       400       410  
+
+          3970               4000      4030      4060         4090 
+5X_189 CKG*WRS---------TSLPTTRTLLTTCRCFPMLPLIIFSFSSPLSTRMIIPSL---TL
+       :    .:          .. :  :. :   :.:     ... :  .::. .  :.   :.
+NR_SC: CPYSSESETSTLTSMHETVTTDATVCTHESCMPSQTTSLITSSIKMSTKNVATSVSTSTV
+            420       430       440       450       460       470  
+
+               4120      4150      4180      4210       
+5X_189 LSSFK/CAL--EGNISREAILKEMAQSGMRSSGDMIPWIISTQFQDNDF
+        ::.  :.   : . :  ..    ..:  ... .   :. :   .:.::
+NR_SC: ESSYA-CSTCAETSHSYSSVQTASSSSVTQQTTSTKSWVSSMTTSDEDF
+             480       490       500       510       520
+
+>>NR_SC:SW-PMT_YEAST SW:PMT_YEAST P32332 saccharomyces c  (324 aa)
+rev-comp initn:  86 init1:  86 opt: 120  Z-score: 147.1  bits: 40.1 E(): 0.02
+Smith-Waterman score: 120;  29.630% identity (29.630% ungapped) in 81 aa overlap (7162-6920:231-311)
+
+    7160      7130      7100      7070      7040      7010         
+5X_18- LNLTSGLIAGLAAAVISQPADTLLSKINKTKGAPGQSTTSRLVQMAGQLGVSGLFTGMTT
+       :.::.. :.::..::. .: :..:..: . ::   ..  . ::. .   ::..:. :...
+NR_SC: LHLTASTISGLGVAVVMNPWDVILTRIYNQKGDLYKGPIDCLVKTVRIEGVTALYKGFAA
+              240       250       260       270       280       290
+
+    6980      6950          
+5X_18- RLVMIGTLTAGQCKFQMRLMQ
+       ..  :.  :     :. . :.
+NR_SC: QVFRIAPHTIMCLTFMEQTMK
+              300       310 
+
+>>NR_SC:GP-CAA81388_1 gi|439289|emb|CAA81388.1 (Z26645)   (751 aa)
+rev-comp initn:  83 init1:  83 opt: 115  Z-score: 135.9  bits: 39.2 E(): 0.085
+Smith-Waterman score: 139;  26.996% identity (29.218% ungapped) in 263 aa overlap (7747-6985:222-472)
+
+         7730      7700      7670      7640      7610              
+5X_18- PLSDKSLPRRVPVLFSLVSAPPPSVTPSRVPSSSVGK**CLFK*PPRAALTCQ----LVT
+       :: . ::: .:    .  .::::  ::.   .:.  : .     :: . .       :. 
+NR_SC: PLPSASLPTHVS---NPPQAPPPPPTPTIGLDSKNIKPTDNAVSPPSSEVPAGGLPFLAE
+             230          240       250       260       270        
+
+   7580        7550      7520      7490      7460       7430       
+5X_18- SFGRR--RPLTSLVSTRPVRTDRPSTLVPLPSPSSSPTLLSVPLRPLESGLS/PQPS\LP
+         .::  :  .  ::.  ..:.  ..    : :::.: . .    ::      : :: ::
+NR_SC: INARRSERGAVEGVSSTKIQTENHKSPSQRPLPSSAPPIPTSHAPPLPPTAP-PPPS-LP
+      280       290       300       310       320       330        
+
+       7400      7370      7340      7310      7280        7250    
+5X_18- TVFPVVSLGF*GRKVPLPSTPVSALSSSSRFLIPWPSSPCKSTVL/P**SNIW/PNTIAA
+       .:  . . .  . . : :  :..  :.:.  .   :  :  .  : : ....  ::  ..
+NR_SC: NVTSAPKKATSAPRPPPPPLPAAMSSASTNSVKATPVPPTLAPPL-PNTTSVP-PNKASS
+        340       350       360       370       380         390    
+
+         7220      7190      7160      7130      7100      7070    
+5X_18- TRSPSRRSSRPLASPRTLLLVDSSLVLTLLPVLSPVWPPPLSLNPPTPSCLRSTRPRAPP
+         .:      :   :   . ..:.:  . .: :.:. :::    ::. .    . :  ::
+NR_SC: MPAPPP----PPPPPPGAFSTSSALSASSIP-LAPLPPPP----PPSVATSVPSAPPPPP
+          400           410       420            430       440     
+
+           7040      7010         
+5X_18- --ASLPPLGSSRWLVSSVFPVSSPV*P
+         ..  : .::.    :    :: :.:
+NR_SC: TLTTNKPSASSKQSKISSSSSSSAVTP
+         450       460       470  
+
+>>NR_SC:SW-Q07229 SW:Q07229 Q07229 saccharomyces cerevis  (817 aa)
+rev-comp initn:  83 init1:  83 opt: 115  Z-score: 135.4  bits: 39.3 E(): 0.09
+Smith-Waterman score: 134;  26.996% identity (29.218% ungapped) in 263 aa overlap (7747-6985:222-472)
+
+         7730      7700      7670      7640      7610              
+5X_18- PLSDKSLPRRVPVLFSLVSAPPPSVTPSRVPSSSVGK**CLFK*PPRAALTCQ----LVT
+       :: . ::: .:    .  .::::  ::.   .:.  : .     :: . .       :. 
+NR_SC: PLPSASLPTHVS---NPPQAPPPPPTPTIGLDSKNIKPTDNAVSPPSSEVPAGGLPFLAE
+             230          240       250       260       270        
+
+   7580        7550      7520      7490      7460       7430       
+5X_18- SFGRR--RPLTSLVSTRPVRTDRPSTLVPLPSPSSSPTLLSVPLRPLESGLS/PQPS\LP
+         .::  :  .  ::.  ..:.  ..    : :::.: . .    ::      : :: ::
+NR_SC: INARRSERGAVEGVSSTKIQTENHKSPSQPPLPSSAPPIPTSHAPPLPPTAP-PPPS-LP
+      280       290       300       310       320       330        
+
+       7400      7370      7340      7310      7280        7250    
+5X_18- TVFPVVSLGF*GRKVPLPSTPVSALSSSSRFLIPWPSSPCKSTVL/P**SNIW/PNTIAA
+       .:  . . .  .   : :  :..  :.:.  .   :  :  .  : : ....  ::  ..
+NR_SC: NVTSAPKKATSAPAPPPPPLPAAMSSASTNSVKATPVPPTLAPPL-PNTTSVP-PNKASS
+        340       350       360       370       380         390    
+
+         7220      7190      7160      7130      7100      7070    
+5X_18- TRSPSRRSSRPLASPRTLLLVDSSLVLTLLPVLSPVWPPPLSLNPPTPSCLRSTRPRAPP
+         .:      :   :   . ..:.:  . .: :.:. :::    ::. .    . :  ::
+NR_SC: MPAPPP----PPPPPPGAFSTSSALSASSIP-LAPLPPPP----PPSVATSVPSAPPPPP
+          400           410       420            430       440     
+
+           7040      7010         
+5X_18- --ASLPPLGSSRWLVSSVFPVSSPV*P
+         ..  : .::.    :    :: :.:
+NR_SC: TLTTNKPSASSKQSKISSSSSSSAVTP
+         450       460       470  
+
+>>NR_SC:SW-VRP1_YEAST SW:VRP1_YEAST P37370 saccharomyces  (817 aa)
+rev-comp initn:  83 init1:  83 opt: 115  Z-score: 135.4  bits: 39.3 E(): 0.09
+Smith-Waterman score: 134;  26.996% identity (29.218% ungapped) in 263 aa overlap (7747-6985:222-472)
+
+         7730      7700      7670      7640      7610              
+5X_18- PLSDKSLPRRVPVLFSLVSAPPPSVTPSRVPSSSVGK**CLFK*PPRAALTCQ----LVT
+       :: . ::: .:    .  .::::  ::.   .:.  : .     :: . .       :. 
+NR_SC: PLPSASLPTHVS---NPPQAPPPPPTPTIGLDSKNIKPTDNAVSPPSSEVPAGGLPFLAE
+             230          240       250       260       270        
+
+   7580        7550      7520      7490      7460       7430       
+5X_18- SFGRR--RPLTSLVSTRPVRTDRPSTLVPLPSPSSSPTLLSVPLRPLESGLS/PQPS\LP
+         .::  :  .  ::.  ..:.  ..    : :::.: . .    ::      : :: ::
+NR_SC: INARRSERGAVEGVSSTKIQTENHKSPSQPPLPSSAPPIPTSHAPPLPPTAP-PPPS-LP
+      280       290       300       310       320       330        
+
+       7400      7370      7340      7310      7280        7250    
+5X_18- TVFPVVSLGF*GRKVPLPSTPVSALSSSSRFLIPWPSSPCKSTVL/P**SNIW/PNTIAA
+       .:  . . .  .   : :  :..  :.:.  .   :  :  .  : : ....  ::  ..
+NR_SC: NVTSAPKKATSAPAPPPPPLPAAMSSASTNSVKATPVPPTLAPPL-PNTTSVP-PNKASS
+        340       350       360       370       380         390    
+
+         7220      7190      7160      7130      7100      7070    
+5X_18- TRSPSRRSSRPLASPRTLLLVDSSLVLTLLPVLSPVWPPPLSLNPPTPSCLRSTRPRAPP
+         .:      :   :   . ..:.:  . .: :.:. :::    ::. .    . :  ::
+NR_SC: MPAPPP----PPPPPPGAFSTSSALSASSIP-LAPLPPPP----PPSVATSVPSAPPPPP
+          400           410       420            430       440     
+
+           7040      7010         
+5X_18- --ASLPPLGSSRWLVSSVFPVSSPV*P
+         ..  : .::.    :    :: :.:
+NR_SC: TLTTNKPSASSKQSKISSSSSSSAVTP
+         450       460       470  
+
+>>NR_SC:SW-Q12215 SW:Q12215 Q12215 saccharomyces cerevis  (556 aa)
+ initn:  89 init1:  89 opt: 112  Z-score: 133.5  bits: 38.4 E(): 0.12
+Smith-Waterman score: 115;  27.381% identity (29.677% ungapped) in 168 aa overlap (789-1284:154-311)
+
+            810       840       870        900       930       960 
+5X_189 PSSTCSLLFGPISTKTRDQHM*LATEGNDETAT\TLSYTQKTISTSFSSSPPSTSPLNSS
+       ::.: ::  . ::. ::     . .  ..  :: :.: :. : :.. :..  .::  .::
+NR_SC: PSTTSSLSSAQISSTTRRTSTDMKS--SEMIAT-TVSTTSTTSSSTSSTTSSTTSSTTSS
+           160       170         180        190       200       210
+
+             990      1020      1050      1080      1110      1140 
+5X_189 SESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLMSAS*KEQRGPQK*EHTAPPLNRIT
+       . :: . : :::  :. ..  .. . ::. . ..  ..:        ..  ..  .  .:
+NR_SC: TTSSTTSSSTSSTTSSTTSSTTSSTTSSTTSSTTSSTTS--------STTSSTTSIFSVT
+              220       230       240               250       260  
+
+            1170      1200      1230         1260       
+5X_189 SSGSIFTLVSPCCCPLGTCTPPLTNPFVP---SAPTPGAPGMAALEPWT
+       ::.: .:: :     . . :   .. .::   :. : ..: .... : :
+NR_SC: SSSSSITLSSSEHTTVDSRTSSPSSTLVPVSSSSSTLSTPKVTSMTPST
+            270       280       290       300       310 
+
+>>NR_SC:SW-YH17_YEAST SW:YH17_YEAST P38898 saccharomyces  (153 aa)
+rev-comp initn:  71 init1:  71 opt: 106  Z-score: 132.4  bits: 36.3 E(): 0.13
+Smith-Waterman score: 106;  26.897% identity (28.889% ungapped) in 145 aa overlap (5788-5367:6-144)
+
+      5780      5750      5720      5690      5660      5630       
+5X_18- CIPFRTMQESYILLNQI*VKE*EP*SQI*I*NQKHPLTPSLPSSFHPSPLHSLSSSSSHP
+       :.   .:: : :    : . . .:  .    .. :: ::.     ::   :  .. .  :
+NR_SC: CLTPSSMQYSDIY---IHTPHPHPHPHPHTPTHTHPHTPTPTPHPHPHTPHPHTTPTPTP
+          10           20        30        40        50        60  
+
+         5600      5570       5540      5510      5480      5450   
+5X_18- WH---PHPCPSPPSLCH/PSSLSTFTLTVLDSLAPPLPDASLSTCFSASVQSPP*SIANS
+        :   ::   :  ::   ::   :  :..:   . :::    .  .:.    ::  :. .
+NR_SC: HHTHTPHTTLSNLSLNL-PSHYPTSPLVTLPHSTIPLPT---TIHLSTYYYHPPPIITVT
+             70         80        90       100          110        
+
+          5420       5390        
+5X_18- SMLRVFNSSLCS-FFDASSSSPFSCT
+        .: . ::.  . ..      :  ::
+NR_SC: LQLPISNSTTITLLLPYHPPCPTHCT
+      120       130       140    
+
+>>NR_SC:GP-CAB58511_1 gi|6064291|emb|CAB58511.1 (A74265)  (894 aa)
+ initn:  70 init1:  70 opt: 113  Z-score: 132.3  bits: 38.8 E(): 0.13
+Smith-Waterman score: 113;  27.820% identity (28.244% ungapped) in 133 aa overlap (892-1290:514-644)
+
+           910       940       970      1000      1030      1060   
+5X_189 LSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SL
+       .: .  : .. :: :  :.   .::: :. ::: ::: ::  ..   .   :.. :  : 
+NR_SC: ISSSTTTSTSIFSESSKSSVIPTSSSTSGSSESETSSAGSVSSSSFISSESSKSPTYSSS
+           520       530       540       550       560       570   
+
+          1090      1120      1150      1180      1210      1240   
+5X_189 MSAS*KEQRGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTPG
+                  :..  . :: .   .: .  :::.   :   .::  .. : . :. :  
+NR_SC: SLPLVTSATTSQETASSLPPATTTKTSEQT-TLVTVTSCESHVCTESIS-PAIVSTATVT
+           580       590       600        610       620        630 
+
+          1270      
+5X_189 APGMAALEPWTCP
+       . :...     ::
+NR_SC: VSGVTTEYTTWCP
+             640    
+
+>>NR_SC:SW-YN23_YEAST SW:YN23_YEAST P53832 saccharomyces  (503 aa)
+ initn: 117 init1:  72 opt: 110  Z-score: 131.4  bits: 37.8 E(): 0.15
+Smith-Waterman score: 110;  29.752% identity (30.252% ungapped) in 121 aa overlap (895-1256:165-283)
+
+          910       940       970      1000      1030      1060    
+5X_189 SYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLM
+       : ...: ::. :::  .::  .::: :: : . :.:  :. .. .:.  ::.. . .:  
+NR_SC: SSSSSTTSTTTSSSETTTSSSSSSSSSSTSTTSTTSTTSSTTSTSSS--PSTTSSSTSAS
+          170       180       190       200       210         220  
+
+          1090      1120      1150      1180      1210      1240   
+5X_189 SAS*/TRAKRAAEMRTHRSAS*PHNLVRVHLHSSFTLLLSTRHLYPTVDKPICAQRAYSR
+       :.:  : . .:.   :  ..:   . . .   :: ..  ::..   .: . . .:   . 
+NR_SC: SSSE-TSSTQATSSSTTSTSSSTSTATVTSTPSSTSIGTSTHYTTRVVTQSVVSQANQQA
+             230       240       250       260       270       280 
+
+         
+5X_189 ST
+       ::
+NR_SC: ST
+         
+
+>>NR_SC:SW-YHC8_YEAST SW:YHC8_YEAST P38739 saccharomyces  (605 aa)
+ initn:  90 init1:  90 opt: 110  Z-score: 130.4  bits: 37.9 E(): 0.17
+Smith-Waterman score: 110;  29.545% identity (29.545% ungapped) in 88 aa overlap (4832-5095:216-303)
+
+          4850      4880      4910      4940      4970      5000   
+5X_189 S*TFSHMRHSKSLTLLSLSPSSNLPSLATLPPPHPNFSPTPSSLRSSLRLTSNVLNRTPT
+       . . :    . : ::.: : ::.  :  :     :  . : ::  .:   :: . . .::
+NR_SC: TSSTSTTTSTTSSTLISTSTSSSSSSTPTTTSSAPISTSTTSSTSTSTSTTSPTSSSAPT
+         220       230       240       250       260       270     
+
+          5030      5060      5090 
+5X_189 ACSTITSSSTLFLPSLPYSSARGLKPAY
+       . :. : .:: :  . : ..  .   .:
+NR_SC: SSSNTTPTSTTFTTTSPSTAPSSTTVTY
+         280       290       300   
+
+>>NR_SC:SW-FLO1_YEAST SW:FLO1_YEAST P32768 saccharomyces  (1537 aa)
+ initn:  70 init1:  70 opt: 113  Z-score: 129.4  bits: 39.1 E():  0.2
+Smith-Waterman score: 113;  27.820% identity (28.244% ungapped) in 133 aa overlap (892-1290:1144-1274)
+
+           910       940       970      1000      1030      1060   
+5X_189 LSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SL
+       .: .  : .. :: :  :.   .::: :. ::: ::: ::  ..   .   :.. :  : 
+NR_SC: ISSSTTTSTSIFSESSKSSVIPTSSSTSGSSESETSSAGSVSSSSFISSESSKSPTYSSS
+          1150      1160      1170      1180      1190      1200   
+
+          1090      1120      1150      1180      1210      1240   
+5X_189 MSAS*KEQRGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTPG
+                  :..  . :: .   .: .  :::.   :   .::  .. : . :. :  
+NR_SC: SLPLVTSATTSQETASSLPPATTTKTSEQT-TLVTVTSCESHVCTESIS-PAIVSTATVT
+          1210      1220      1230       1240      1250       1260 
+
+          1270      
+5X_189 APGMAALEPWTCP
+       . :...     ::
+NR_SC: VSGVTTEYTTWCP
+            1270    
+
+>>NR_SC:PIR-S53465 PIR:S53465 flocculation protein FLO1   (1537 aa)
+ initn:  70 init1:  70 opt: 113  Z-score: 129.4  bits: 39.1 E():  0.2
+Smith-Waterman score: 113;  27.820% identity (28.244% ungapped) in 133 aa overlap (892-1290:1144-1274)
+
+           910       940       970      1000      1030      1060   
+5X_189 LSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SL
+       .: .  : .. :: :  :.   .::: :. ::: ::: ::  ..   .   :.. :  : 
+NR_SC: ISSSTTTSTSIFSESSKSSVIPTSSSTSGSSESETSSAGSVSSSSFISSESSKSPTYSSS
+          1150      1160      1170      1180      1190      1200   
+
+          1090      1120      1150      1180      1210      1240   
+5X_189 MSAS*KEQRGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTPG
+                  :..  . :: .   .: .  :::.   :   .::  .. : . :. :  
+NR_SC: SLPLVTSATTSQETASSLPPATTTKTSEQT-TLVTVTSCESHVCTESIS-PAIVSTATVT
+          1210      1220      1230       1240      1250       1260 
+
+          1270      
+5X_189 APGMAALEPWTCP
+       . :...     ::
+NR_SC: VSGVTTEYTTWCP
+            1270    
+
+>>NR_SC:SW-Q06143 SW:Q06143 Q06143 saccharomyces cerevis  (298 aa)
+rev-comp initn: 153 init1: 102 opt: 105  Z-score: 127.5  bits: 36.4 E(): 0.25
+Smith-Waterman score: 105;  30.986% identity (30.986% ungapped) in 71 aa overlap (7509-7299:16-86)
+
+   7510        7480      7450      7420      7390      7360        
+5X_18- PW/W/HSAIAEFFADIALCPLEATRIRLVSQPSFANGLSGGFLRILREEGPAAFYAGFGP
+       :: : ... : .:: ..  ::. ...:: . :     :   .  :: .:: ...:.:.. 
+NR_SC: PW-W-YGGAAGIFATMVTHPLDLAKVRLQAAPMPKPTLFRMLESILANEGVVGLYSGLSA
+            20        30        40        50        60        70   
+
+     7330      7300 
+5X_18- ILFKQVPYTMAKF
+        ...:  :: ..:
+NR_SC: AVLRQCTYTTVRF
+            80      
+
+>>NR_SC:PIR-S58652 PIR:S58652 hypothetical protein YFR03  (216 aa)
+rev-comp initn:  77 init1:  77 opt: 103  Z-score: 126.6  bits: 35.7 E(): 0.28
+Smith-Waterman score: 103;  44.444% identity (44.444% ungapped) in 36 aa overlap (5677-5570:44-79)
+
+         5660      5630      5600          
+5X_18- TPSLPSSFHPSPLHSLSSSSSHPWHPHPCPSPPSLC
+       .::::. : : :.  : ::::  :       : : :
+NR_SC: SPSLPTRFTPCPVAVLPSSSSPSWSFSTSCMPESTC
+            50        60        70         
+
+>>NR_SC:SW-YKT9_YEAST SW:YKT9_YEAST P36045 saccharomyces  (187 aa)
+ initn:  81 init1:  81 opt: 102  Z-score: 126.0  bits: 35.4 E():  0.3
+Smith-Waterman score: 102;  28.235% identity (28.571% ungapped) in 85 aa overlap (4862-5116:96-179)
+
+          4880      4910      4940      4970      5000      5030   
+5X_189 KSLTLLSLSPSSNLPSLATLPPPHPNFSPTPSSLRSSLRLTSNVLNRTPTACSTITSSST
+       .:.. ..  :: .   ::. ::: :  . .:.    .:: :      : :      .. .
+NR_SC: RSMVDIAAHPSPTATVLASSPPPPPPATHVPAEALFTLRETPPPQLATLTLSEEPPATPA
+         100       110       120       130       140       150     
+
+          5060      5090        
+5X_189 LFLPSLPYSSARGLKPAYRLPSRPS
+          :: : . .:: .: .:. . ::
+NR_SC: PSAPSAPSARVRGHSP-HRVGASPS
+         160       170          
+
+>>NR_SC:SW-YAG3_YEAST SW:YAG3_YEAST P39712 saccharomyces  (1322 aa)
+ initn:  71 init1:  71 opt: 109  Z-score: 124.8  bits: 38.0 E(): 0.35
+Smith-Waterman score: 117;  27.612% identity (28.906% ungapped) in 134 aa overlap (892-1290:933-1061)
+
+           910       940        970      1000      1030      1060  
+5X_189 LSYTQKTISTSFSSSPPSTSPLNSS-SESSRSESITSSPGSKPAAFGSGL*PSSAYTE*S
+       .: :  . :    ::  :. : .:: : ::.::. ..: .:. ....:   :.:.:.  :
+NR_SC: ISSTTTSASILSESSKSSVIPTSSSTSGSSESETGSASSASSSSSISSE-SPKSTYSSSS
+            940       950       960       970       980        990 
+
+           1090      1120      1150      1180      1210      1240  
+5X_189 LMSAS*KEQRGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTP
+       :  ..       :.   . ::..   .: .  :::.   :   .::  ... .: .: . 
+NR_SC: LPPVTSATTS--QEITSSLPPVTTTKTSEQT-TLVTVTSCESHVCTESISSAIVSTATVT
+            1000        1010      1020       1030      1040        
+
+           1270      
+5X_189 GAPGMAALEPWTCP
+        . . .    : ::
+NR_SC: VSGATTEYTTW-CP
+     1050       1060 
+
+>>NR_SC:PIR-S51959 PIR:S51959 hypothetical protein YAL06  (1367 aa)
+ initn:  71 init1:  71 opt: 109  Z-score: 124.6  bits: 38.0 E(): 0.36
+Smith-Waterman score: 117;  27.612% identity (28.906% ungapped) in 134 aa overlap (892-1290:978-1106)
+
+           910       940        970      1000      1030      1060  
+5X_189 LSYTQKTISTSFSSSPPSTSPLNSS-SESSRSESITSSPGSKPAAFGSGL*PSSAYTE*S
+       .: :  . :    ::  :. : .:: : ::.::. ..: .:. ....:   :.:.:.  :
+NR_SC: ISSTTTSASILSESSKSSVIPTSSSTSGSSESETGSASSASSSSSISSE-SPKSTYSSSS
+       980       990      1000      1010      1020       1030      
+
+           1090      1120      1150      1180      1210      1240  
+5X_189 LMSAS*KEQRGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTP
+       :  ..       :.   . ::..   .: .  :::.   :   .::  ... .: .: . 
+NR_SC: LPPVTSATTS--QEITSSLPPVTTTKTSEQT-TLVTVTSCESHVCTESISSAIVSTATVT
+       1040        1050      1060       1070      1080      1090   
+
+           1270      
+5X_189 GAPGMAALEPWTCP
+        . . .    : ::
+NR_SC: VSGATTEYTTW-CP
+          1100       
+
+>>NR_SC:SW-Q12444 SW:Q12444 Q12444 saccharomyces cerevis  (126 aa)
+ initn:  79 init1:  79 opt:  99  Z-score: 124.2  bits: 34.5 E(): 0.38
+Smith-Waterman score: 99;  25.472% identity (25.962% ungapped) in 106 aa overlap (5480-5790:19-124)
+
+    5480      5510      5540      5570      5600      5630         
+5X_189 LRSKLRDLHLVRAARDCPAQSA*KWTSLTMTKRRRRRARMRVPRMRRRRGERVEGRRVER
+       .. : :  .  :  :.   .      .:   .: ::. : :  : ::.: .: . :  ..
+NR_SC: MKRKKRKKRKKRRERETMMKIPRILKKLRRKRRTRRKRRKRRKRRRRKRRKRRRKRSPRK
+       20        30        40        50        60        70        
+
+    5660      5690       5720        5750      5780   
+5X_189 RR*GESKRMFLVSYL-DL*LWLLF-FNSYLV/LVKCMILAWF*MVYN
+       ::  ..:  : .  . :    ::: : .. . ...:.    : ....
+NR_SC: RRKRRNKDAFYILIISDPSRSLLFGFRKFSI-IIQCLTYFSFHILFH
+       80        90       100        110       120    
+
+>>NR_SC:SW-TOA1_YEAST SW:TOA1_YEAST P32773 saccharomyces  (286 aa)
+rev-comp initn:  66 init1:  66 opt: 102  Z-score: 123.7  bits: 35.6 E():  0.4
+Smith-Waterman score: 124;  34.091% identity (47.619% ungapped) in 88 aa overlap (998-736:216-278)
+
+       990       960       930       900       870       840       
+5X_18- DVIDSDLDDSDDEFRGDVDGGEDENDVDIVFCVYDKVCCCLIIPLCG*LHMLIARFCGNR
+       : . :.::::::..  . .: ::  : ....:.::::                       
+NR_SC: DEVGSELDDSDDDYLIS-EGEEDGPDENLMLCLYDKV-----------------------
+         220       230        240       250                        
+
+        810       780       750     
+5X_18- S/TRVKNKWKTVFKDGMIHLNGKDYLFAK
+         ::.: .::  .:::.. .: .:: : :
+NR_SC: --TRTKARWKCSLKDGVVTINRNDYTFQK
+               260       270        
+
+>>NR_SC:SW-SIM1_YEAST SW:SIM1_YEAST P40472 saccharomyces  (475 aa)
+ initn: 145 init1:  99 opt: 104  Z-score: 123.7  bits: 36.3 E(): 0.41
+Smith-Waterman score: 120;  27.632% identity (30.216% ungapped) in 152 aa overlap (916-1359:109-251)
+
+             940       970      1000      1030      1060      1090 
+5X_189 STSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLMSAS*KEQ
+       :.. :.:  ..:  .::: .:  :: . : .:. ::  : .  .:. :. :  ::. .  
+NR_SC: SATASTSQGASSSSSSSSATSTLESSSVSSSSEEAAPTSTVVSTSSATQSSASSATKSST
+      110       120       130       140       150       160        
+
+            1120      1150      1180      1210      1240      1270 
+5X_189 RGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTPGAPGMAALE
+        . .    :.   .  .::.:  .  :      :.    :..   ::           ..
+NR_SC: SSTSPSTSTSTSTSSTSSSSSSSSSSSSSSSGSGSIYGDLADFSGPSEK---------FQ
+      170       180       190       200       210                  
+
+                1300      1330         
+5X_189 PWTCPC----RGNGNISADWEFEGPAGGEEAS
+         : ::     :.: :: ::  ::  .: : .
+NR_SC: DGTIPCDKFPSGQGVISIDWIGEGGWSGVENT
+     220       230       240       250 
+
+>>NR_SC:GP-CAA47602_1 gi|4824|emb|CAA47602.1 (X67122) mi  (307 aa)
+rev-comp initn:  77 init1:  77 opt: 102  Z-score: 123.4  bits: 35.6 E(): 0.42
+Smith-Waterman score: 102;  32.609% identity (32.609% ungapped) in 46 aa overlap (7433-7296:252-297)
+
+           7410      7380      7350      7320        
+5X_18- VSQPSFANGLSGGFLRILREEGPAAFYAGFGPILFKQVPYTMAKFA
+       ...:.:.:..:.    .  . : .::. :::: ... .: . : ::
+NR_SC: LQKPKFGNSISSVAKTLYANGGIGAFFKGFGPTMLRAAPANGATFA
+             260       270       280       290       
+
+>>NR_SC:SW-YMC1_YEAST SW:YMC1_YEAST P32331 saccharomyces  (307 aa)
+rev-comp initn:  77 init1:  77 opt: 102  Z-score: 123.4  bits: 35.6 E(): 0.42
+Smith-Waterman score: 102;  32.609% identity (32.609% ungapped) in 46 aa overlap (7433-7296:252-297)
+
+           7410      7380      7350      7320        
+5X_18- VSQPSFANGLSGGFLRILREEGPAAFYAGFGPILFKQVPYTMAKFA
+       ...:.:.:..:.    .  . : .::. :::: ... .: . : ::
+NR_SC: LQKPKFGNSISSVAKTLYANGGIGAFFKGFGPTMLRAAPANGATFA
+             260       270       280       290       
+
+>>NR_SC:SW-YG5F_YEAST SW:YG5F_YEAST P53320 saccharomyces  (366 aa)
+rev-comp initn:  64 init1:  64 opt: 102  Z-score: 122.4  bits: 35.7 E(): 0.48
+Smith-Waterman score: 103;  19.597% identity (21.935% ungapped) in 347 aa overlap (7944-6968:12-342)
+
+        7930      7900      7870      7840             7810        
+5X_18- IRRFALAGALGCAVTHGALTPVDVVKTRIQLEPEVYN-------RVGRFFNSS*GF*EL*
+       ...  :... : ..:   :::.:::. :.: .  . .       .:    .:.  .  ..
+NR_SC: LKERMLSAGAGSVLTSLILTPMDVVRIRLQQQQMIPDCSCDGAAEVPNAVSSGSKMKTFT
+              20        30        40        50        60        70 
+
+     7780      7750        7720       7690          7660      7630 
+5X_18- GVVLMSQTIGYGCLFPTNHC--QGGCRCSS\TGFGPTAVGY----AIQGAFKFGG*VMMS
+       .:   .:... . .:  . :  .  :. ::   :. :  ..    ...:  ..   . ..
+NR_SC: NV--GGQNLNNAKIFWESACFQELHCKNSS-LKFNGTLEAFTKIASVEGITSLWRGISLT
+                80        90        100       110       120        
+
+            7600      7570      7540      7510      7480      7450 
+5X_18- LQITA*SRANLPISYEFWKKKAIDLVGVDKARENRQAIYLGASAIAEFFADIALCPLEAT
+       : ..  .      .::. .    :.  . ..  . . .. ::  ::. ::  .. ::: .
+NR_SC: LLMAIPANMVYFSGYEYIR----DVSPIASTYPTLNPLFCGA--IARVFAATSIAPLELV
+      130       140           150       160         170       180  
+
+             7420      7390      7360      7330      7300          
+5X_18- RIRLVSQPS/SRQRSFRWFP*DFEGGRSRCLLRRFRPYPLQAGSLYHGQVRRVSRPY/WR
+       . .: : :  : . .  :.      ...:  ..   :    . .:..:    .     ::
+NR_SC: KTKLQSIPR-SSKSTKTWMMVKDLLNETRQEMKMVGP----SRALFKG----LEITL-WR
+            190        200       210           220           230   
+
+    7270      7240      7210      7180      7150      7120         
+5X_18- NNQTFG*YYRSYEVAVEKILKATGKSKDSLTGGQLTGLNLTSGLIAGLAAAVISQPAD--
+       .    . :. :::.  :..   . .  .. ..      ...:: :.:. ::. ..: :  
+NR_SC: DVPFSAIYWSSYELCKERLWLDSTRFASKDANWVHFINSFASGCISGMIAAICTHPFDVG
+            240       250       260       270       280       290  
+
+            7090      7060      7030      7000      6970 
+5X_18- ------TLLSKINKTKGAPGQSTTSRLVQMAGQLGVSGLFTGMTTRLVMI
+             ..... .   :  ...  . :  .    :...:.::...:.. :
+NR_SC: KTRWQISMMNNSDPKGGNRSRNMFKFLETIWRTEGLAALYTGLAARVIKI
+            300       310       320       330       340  
+
+>>NR_SC:SW-TIR3_YEAST SW:TIR3_YEAST P40552 saccharomyces  (269 aa)
+ initn:  91 init1:  91 opt: 100  Z-score: 121.4  bits: 35.1 E(): 0.54
+Smith-Waterman score: 100;  29.091% identity (29.358% ungapped) in 110 aa overlap (829-1158:112-220)
+
+            850       880       910       940       970      1000  
+5X_189 QKRAISICN*PQRGMMRQQHTLSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPG
+       :. .::: .  :      ... . .. . :.: :::  :.:  .::: .: : : .:: .
+NR_SC: QSAGISITSLGQTVSESGSESATASSDASSASESSSAASSSASESSSAASSSASESSSAA
+             120       130       140       150       160       170 
+
+           1030      1060      1090      1120      1150  
+5X_189 SKPAAFGSGL*PSSAYTE*SLMSAS*KEQRGPQK*EHTAPPLNRITSSGS
+       :. :. .:.   ::: .: .  :.: : . .      ..   .. .:..:
+NR_SC: SSSASESSSAASSSA-SEAAKSSSSAKSSGSSAASSAASSASSKASSAAS
+             180        190       200       210       220
+
+>>NR_SC:SW-Q08428 SW:Q08428 Q08428 saccharomyces cerevis  (113 aa)
+ initn:  95 init1:  95 opt:  96  Z-score: 120.7  bits: 33.7 E(): 0.59
+Smith-Waterman score: 121;  54.545% identity (60.000% ungapped) in 33 aa overlap (902-1000:31-60)
+
+           920       950       980      
+5X_189 HRKRYQRHFHPHHRRHHL*THHRSHLDRNR*RR
+       ::.: .:: . ::::::   ::: .  : : ::
+NR_SC: HRRRRRRHHRRHHRRHH---HHRRRRRRRRRRR
+               40           50        60
+
+>>NR_SC:SW-FLO5_YEAST SW:FLO5_YEAST P38894 saccharomyces  (1075 aa)
+ initn:  72 init1:  72 opt: 104  Z-score: 119.3  bits: 36.7 E(): 0.71
+Smith-Waterman score: 121;  28.030% identity (31.624% ungapped) in 132 aa overlap (895-1290:707-823)
+
+          910       940       970      1000      1030      1060    
+5X_189 SYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLM
+       : :...: :: :.:  : :  .:.: :: : ::.:   ..:.  .:.: : .. :     
+NR_SC: SSTSSVIPTSSSTSGSSESKTSSASSSSSSSSISSESPKSPTNSSSSLPPVTSATTG---
+        710       720       730       740       750       760      
+
+         1090      1120      1150      1180      1210      1240    
+5X_189 SAS*KEQRGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPFVPSAPTPGA
+                 :..  . :: .   .: .  :::.   :   .::  ... .: .: .  .
+NR_SC: ----------QETASSLPPATTTKTSEQT-TLVTVTSCESHVCTESISSAIVSTATVTVS
+                     770       780        790       800       810  
+
+         1270      
+5X_189 PGMAALEPWTCP
+          .    : ::
+NR_SC: GVTTEYTTW-CP
+            820    
+
+>>NR_SC:SW-YK82_YEAST SW:YK82_YEAST P36170 saccharomyces  (1169 aa)
+ initn:  64 init1:  64 opt: 104  Z-score: 118.8  bits: 36.7 E(): 0.76
+Smith-Waterman score: 104;  25.532% identity (26.471% ungapped) in 141 aa overlap (880-1290:839-978)
+
+     880       910         940       970      1000      1030       
+5X_189 QQHTLSYTQKTISTSF--SSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSA
+       .. . . :.  ::..:   ::: ::    :.. .:..:: .::  .  .  .... :::.
+NR_SC: HETSTASTSVQISSQFVTPSSPISTVAPRSTGLNSQTESTNSSKETMSSENSASVMPSSS
+      840       850       860       870       880       890        
+
+        1060       1090      1120       1150      1180      1210   
+5X_189 YT--E*SLMSAS\EKSKEGRRNENTPLRLLTA*/PSSGSIFTLVSPCCCPLGTCTPPLTN
+        :  ... .... : :.   :...:  :. . . ::..   ::..   :  ..:.  ...
+NR_SC: ATSPKTGKVTSD-ETSSGFSRDRTTVYRMTSET-PSTNEQTTLITVSSCESNSCSNTVSS
+      900       910        920       930        940       950      
+
+          1240      1270      
+5X_189 PFVPSAPTPGAPGMAALEPWTCP
+         : .: :      .    : ::
+NR_SC: AVVSTATTTINGITTEYTTW-CP
+        960       970         
+
+>>NR_SC:SW-YOD0_YEAST SW:YOD0_YEAST Q08193 saccharomyces  (484 aa)
+ initn: 116 init1:  69 opt: 100  Z-score: 118.2  bits: 35.3 E(): 0.82
+Smith-Waterman score: 100;  46.429% identity (48.148% ungapped) in 56 aa overlap (916-1083:405-458)
+
+             940       970      1000      1030      1060       
+5X_189 STSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLMSAS
+       :.: :::  :.:  .:::::: : : .::  :.:.:  ..:  :.: .  : .:.:
+NR_SC: SSSSSSSSSSSSSASSSSESSSSTSKASS--SSPSASETSLLKSAASATSSSQSSS
+          410       420       430         440       450        
+
+>>NR_SC:SW-CW14_YEAST SW:CW14_YEAST O13547 saccharomyces  (238 aa)
+ initn:  77 init1:  77 opt:  97  Z-score: 118.1  bits: 34.3 E(): 0.84
+Smith-Waterman score: 97;  24.183% identity (24.667% ungapped) in 153 aa overlap (784-1234:53-205)
+
+       790        820       850       880       910         940    
+5X_189 EHRLPLVLYSLD-LFPQKRAISICN*PQRGMMRQQHTLSYTQKTISTSFSSS--PPSTSP
+       ::.   :   :: . :.. : .  .  . .  .:. .:. .... :.: :::    :.. 
+NR_SC: EHENSAVKKCLDSICPNNDADAAYSAFKSSCSEQNASLGDSSSSASSSASSSSKASSSTK
+             60        70        80        90       100       110  
+
+          970      1000      1030      1060      1090      1120    
+5X_189 LNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLMSAS*KEQRGPQK*EHTAPPL
+        .::: :: ... .:: .:.  : .:.  :::. .  .  :.: . .    . :...   
+NR_SC: ASSSSASSSTKASSSSASSSTKASSSSAAPSSSKASSTESSSSSSSSTKAPSSEESSSTY
+            120       130       140       150       160       170  
+
+          1150      1180      1210       
+5X_189 \TA*PRQGPSSL*FHPVVVHSALVPHR*QTHLCP
+        ..  .:. :.   :   . :. : ... .   :
+NR_SC: -VSSSKQASSTSEAHSSSAASSTVSQETVSSALP
+             180       190       200     
+
+>>NR_SC:SW-TIR1_YEAST SW:TIR1_YEAST P10863 saccharomyces  (254 aa)
+rev-comp initn:  78 init1:  78 opt:  97  Z-score: 117.7  bits: 34.3 E(): 0.87
+Smith-Waterman score: 97;  39.241% identity (41.892% ungapped) in 79 aa overlap (1483-1263:100-178)
+
+           1460      1430           1400       1370      1340      
+5X_18- SRLLTC*KTRNGKLSCSKHES----PT/SARAGSSSRSP-SPTLESKPEASSPPAGPSNS
+       :::    :. ::  : :   :    :: :. : ::: .: : .  :. ::.:  :.::.:
+NR_SC: SRLEPALKSLNGDASSSAAPSSSAAPT-SSAAPSSSAAPTSSAASSSSEAKSSSAAPSSS
+     100       110       120        130       140       150        
+
+       1310      1280      
+5X_18- QSADMFPFPRQGQVQGSSAA
+       .. .    : ......::::
+NR_SC: EAKSSSAAPSSSEAKSSSAA
+      160       170        
+
+>>NR_SC:SW-Q08873 SW:Q08873 Q08873 saccharomyces cerevis  (200 aa)
+ initn:  85 init1:  85 opt:  95  Z-score: 116.3  bits: 33.7 E():    1
+Smith-Waterman score: 95;  31.868% identity (32.222% ungapped) in 91 aa overlap (7-275:63-153)
+
+       10        40        70        100        130       160      
+5X_189 LVNIIYGVKRGDVNTRYEVIPVLISIQI/DSIS-FLSPTRSYGCLFPSLYYFIDIMNVSA
+       :.::.: .  :..:        .  .:. :.:: ::: .:.::     :.  ::... . 
+NR_SC: LANILYEADTGEANHISWKSSKMPFVQM-DQISQFLSFSRKYGVPEDELFQTIDLFEKKD
+             70        80        90        100       110       120 
+
+        190       220       250        
+5X_189 LFT*T*MLSELSVQLSKVHCDEFPNES*EIST
+              :. ::   .: : :.::  . ..::
+NR_SC: PAIVFQTLKSLSRYANKKHTDRFPVLGPQLST
+             130       140       150   
+
+>>NR_SC:SW-TIR2_YEAST SW:TIR2_YEAST P33890 saccharomyces  (251 aa)
+ initn:  92 init1:  92 opt:  95  Z-score: 115.1  bits: 33.8 E():  1.2
+Smith-Waterman score: 95;  33.846% identity (33.846% ungapped) in 65 aa overlap (889-1083:120-184)
+
+            910       940       970      1000      1030      1060  
+5X_189 TLSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*S
+       : . .  : :.  :::  ..: . ::::.. :   .:: .:. :: .:..  ::  :  .
+NR_SC: TEASSAATSSAVASSSETTSSAVASSSEATSSAVASSSEASSSAATSSAVASSSEATSST
+     120       130       140       150       160       170         
+
+            
+5X_189 LMSAS
+       . :..
+NR_SC: VASST
+     180    
+
+>>NR_SC:SW-CBF5_YEAST SW:CBF5_YEAST P33322 saccharomyces  (483 aa)
+ initn:  77 init1:  77 opt:  97  Z-score: 114.2  bits: 34.6 E():  1.4
+Smith-Waterman score: 97;  20.635% identity (21.757% ungapped) in 252 aa overlap (4951-5685:225-470)
+
+       4960      4990      5020      5050      5080      5110      
+5X_189 TELSSLLTPFDIKRLESYADSMLDYHVVLDLVPTIASLFFGKRLETSLPPAQQAI-----
+       .: ....:  :.   .   :.  :   . ...  . .:. : .  .    : .:.     
+NR_SC: SENDNMVTLHDVMDAQWVYDNTRDESYLRSIIQPLETLLVGYKRIVVKDSAVNAVCYGAK
+          230       240       250       260       270       280    
+
+              5140      5170      5200      5230      5260         
+5X_189 LLALGLQR--KNVEALENELGITSTQTLALFGKVLRKMTKSLEDIRKASIAS/VTSC*AD
+       :.  :: :  ...: : .:. . .:.  :.   . .  : .: .  .. .:: :  :  .
+NR_SC: LMIPGLLRYEEGIE-LYDEIVLITTKGEAIAVAIAQMSTVDLASCDHGVVAS-VKRCIME
+          290        300       310       320       330        340  
+
+     5290      5320       5350      5380      5410      5440       
+5X_189 PRRPISQRV*QVC\PLQQTIEQDLADSAVQLNGEDDDASKKEQRELLNTLNMEEFAIDQG
+         : .  :   .  :. :  .:  ::. ..  :. .. . .. ..    :.  : . ...
+NR_SC: --RDLYPRRWGLG-PVAQKKKQMKADGKLDKYGRVNENTPEQWKKEYVPLDNAEQSTSSS
+              350        360       370       380       390         
+
+      5470      5500      5530      5560      5590      5620       
+5X_189 GDWTEAEKQVERLASGKGGTRLSSTVSVKVDKLDDDKAKAEKGKDAGAKDAKKKRRESGG
+        .  :.:.. ..   .:  . .. . . : .  .::. : .: :    .  .::....  
+NR_SC: QETKETEEEPKK---AKEDSLIKEVETEKEEVKEDDSKKEKKEKKDKKEKKEKKEKKDKK
+     400       410          420       430       440       450      
+
+      5650      5680 
+5X_189 EKGGKKKVRRE*ED
+       ::  ::. .:. ::
+NR_SC: EKKEKKEKKRKSED
+        460       470
+
+>>NR_SC:SW-KRE1_YEAST SW:KRE1_YEAST P17260 saccharomyces  (313 aa)
+ initn:  88 init1:  88 opt:  95  Z-score: 113.9  bits: 33.9 E():  1.4
+Smith-Waterman score: 95;  39.655% identity (40.351% ungapped) in 58 aa overlap (889-1062:139-195)
+
+            910       940       970      1000      1030      1060
+5X_189 TLSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE
+       : ..:... :.. ::.  :.:   ::: :: : . :.: ::  :  :.   ::. .::
+NR_SC: TQTFTHSSTSAT-SSASSSVSSSVSSSGSSSSVKTTTSTGSAVAETGTRPDPSTDFTE
+      140       150        160       170       180       190     
+
+>>NR_SC:GP-CAA52447_1 gi|396560|emb|CAA52447.1 (X74428)   (250 aa)
+ initn:  91 init1:  91 opt:  94  Z-score: 113.8  bits: 33.6 E():  1.4
+Smith-Waterman score: 94;  33.846% identity (33.846% ungapped) in 65 aa overlap (889-1083:119-183)
+
+            910       940       970      1000      1030      1060  
+5X_189 TLSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*S
+       : . .  : :.  :::  ..: . ::::.. :   .:: .:. :: .:..  ::  :  .
+NR_SC: TEASSAATSSAVASSSETTSSAVASSSEATSSAVASSSEASSSAATSSAVASSSEATSSA
+      120       130       140       150       160       170        
+
+            
+5X_189 LMSAS
+       . :..
+NR_SC: VASST
+      180   
+
+>>NR_SC:GP-CAA81388_1 gi|439289|emb|CAA81388.1 (Z26645)   (751 aa)
+ initn:  76 init1:  76 opt:  98  Z-score: 113.2  bits: 35.0 E():  1.6
+Smith-Waterman score: 105;  23.759% identity (24.723% ungapped) in 282 aa overlap (3283-4117:140-414)
+
+             3310      3340      3370      3400       3430         
+5X_189 LTPKTSKLCLNLSSKPLMPWVTRSTLIMMSCKAQTPTSKRLL*GSTS\PRSPTNHPIHLP
+       :.:  .   .  :: : .: .  :.   .    ..:.    : :... :. : :.: :.:
+NR_SC: LSPAPAVPSIPSSSAPPIPDIPSSAAPPIPIVPSSPAPPLPLSGASA-PKVPQNRP-HMP
+     140       150       160       170       180        190        
+
+    3460       3490      3520      3550          3580       3610   
+5X_189 RRFSRSRPS*/RLSSLMKLPPSLFPLFVNSSAPISC----LWPPPSTVTRVLA/DSLSIK
+             :    : :: ..::    : . ..: :         :::  .  .   :: .::
+NR_SC: SVRPAHRSHQ-RKSSNISLPSVSAPPLPSASLPTHVSNPPQAPPPPPTPTIGL-DSKNIK
+       200        210       220       230       240        250     
+
+           3640      3670      3700       3730      3760      3790 
+5X_189 \PFSNSVNRHDHRLPRIARMRLPALLVHLPR\RGCW*IGRWSRAISS*DQA**AYPLLPR
+        : .:.:.  . ..:  .   :  . ..  . ::       ..  .   ..    ::   
+NR_SC: -PTDNAVSPPSSEVPAGGLPFLAEINARRSE-RGAVEGVSSTKIQTENHKSPSQRPLPSS
+          260       270       280        290       300       310   
+
+            3820       3850      3880      3910      3940      3970
+5X_189 RQC*KVVEQPPLP/PMPPSSPNLSKVALTLPNASFTMSTATLSSLITPLQKCSCKG*WRS
+            . . :::: :  :  :.: .:. . :. . .        : . ... : ..   .
+NR_SC: APPIPTSHAPPLP-PTAPPPPSLPNVT-SAPKKATSAPRPPPPPLPAAMSSASTNSVKAT
+           320        330        340       350       360       370 
+
+             4000       4030      4060      4090        
+5X_189 TSLPTTRTLLTTCRCFP\SSRSSSFRSPPPYRRE**YPP*PSCRPSSRA
+          ::    : .    :  ...::. .:::       :: :.   .: :
+NR_SC: PVPPTLAPPLPNTTSVP-PNKASSMPAPPP-----PPPPPPGAFSTSSA
+             380        390       400            410    
+
+>>NR_SC:SW-VRP1_YEAST SW:VRP1_YEAST P37370 saccharomyces  (817 aa)
+ initn:  76 init1:  76 opt:  98  Z-score: 112.7  bits: 35.1 E():  1.7
+Smith-Waterman score: 110;  25.088% identity (26.296% ungapped) in 283 aa overlap (3283-4117:140-414)
+
+             3310      3340      3370      3400       3430         
+5X_189 LTPKTSKLCLNLSSKPLMPWVTRSTLIMMSCKAQTPTSKRLL*GSTS\PRSPTNHPIHLP
+       :.:  .   .  :: : .: .  :.   .    ..:.    : :... :. : :.: :.:
+NR_SC: LSPAPAVPSIPSSSAPPIPDIPSSAAPPIPIVPSSPAPPLPLSGASA-PKVPQNRP-HMP
+     140       150       160       170       180        190        
+
+    3460       3490      3520      3550          3580       3610   
+5X_189 RRFSRSRPS*/RLSSLMKLPPSLFPLFVNSSAPISC----LWPPPSTVTRVLA/DSLSIK
+             :    : :: ..::    : . ..: :         :::  .  .   :: .::
+NR_SC: SVRPAHRSHQ-RKSSNISLPSVSAPPLPSASLPTHVSNPPQAPPPPPTPTIGL-DSKNIK
+       200        210       220       230       240        250     
+
+           3640      3670      3700       3730      3760      3790 
+5X_189 \PFSNSVNRHDHRLPRIARMRLPALLVHLPR\RGCW*IGRWSRAISS*DQA**AYPLLPR
+        : .:.:.  . ..:  .   :  . ..  . ::    :  :  :.. ..   . : :: 
+NR_SC: -PTDNAVSPPSSEVPAGGLPFLAEINARRSE-RGAVE-GVSSTKIQTENHKSPSQPPLPS
+          260       270       280        290        300       310  
+
+             3820       3850      3880      3910      3940         
+5X_189 R-QC*KVVEQPPLP/PMPPSSPNLSKVALTLPNASFTMSTATLSSLITPLQKCSCKG*WR
+             . . :::: :  :  :.: .:. . :. . .  .     : . ... : ..   
+NR_SC: SAPPIPTSHAPPLP-PTAPPPPSLPNVT-SAPKKATSAPAPPPPPLPAAMSSASTNSVKA
+            320        330        340       350       360       370
+
+    3970      4000       4030      4060      4090        
+5X_189 STSLPTTRTLLTTCRCFP\SSRSSSFRSPPPYRRE**YPP*PSCRPSSRA
+       .   ::    : .    :  ...::. .:::       :: :.   .: :
+NR_SC: TPVPPTLAPPLPNTTSVP-PNKASSMPAPPP-----PPPPPPGAFSTSSA
+              380        390       400            410    
+
+>>NR_SC:SW-Q07229 SW:Q07229 Q07229 saccharomyces cerevis  (817 aa)
+ initn:  76 init1:  76 opt:  98  Z-score: 112.7  bits: 35.1 E():  1.7
+Smith-Waterman score: 102;  24.735% identity (25.926% ungapped) in 283 aa overlap (3283-4117:140-414)
+
+             3310      3340      3370      3400       3430         
+5X_189 LTPKTSKLCLNLSSKPLMPWVTRSTLIMMSCKAQTPTSKRLL*GSTS\PRSPTNHPIHLP
+       :.:  .   .  :: : .: .   .   .    ..:.    : :... :. : :.: :.:
+NR_SC: LSPAPAVPSIPSSSAPPIPDIPSFAAPPIPIVPSSPAPPLPLSGASA-PKVPQNRP-HMP
+     140       150       160       170       180        190        
+
+    3460       3490      3520      3550          3580       3610   
+5X_189 RRFSRSRPS*/RLSSLMKLPPSLFPLFVNSSAPISC----LWPPPSTVTRVLA/DSLSIK
+             :    : :: ..::    : . ..: :         :::  .  .   :: .::
+NR_SC: SVRPAHRSHQ-RKSSNISLPSVSAPPLPSASLPTHVSNPPQAPPPPPTPTIGL-DSKNIK
+       200        210       220       230       240        250     
+
+           3640      3670      3700       3730      3760      3790 
+5X_189 \PFSNSVNRHDHRLPRIARMRLPALLVHLPR\RGCW*IGRWSRAISS*DQA**AYPLLPR
+        : .:.:.  . ..:  .   :  . ..  . ::    :  :  :.. ..   . : :: 
+NR_SC: -PTDNAVSPPSSEVPAGGLPFLAEINARRSE-RGAVE-GVSSTKIQTENHKSPSQPPLPS
+          260       270       280        290        300       310  
+
+             3820       3850      3880      3910      3940         
+5X_189 R-QC*KVVEQPPLP/PMPPSSPNLSKVALTLPNASFTMSTATLSSLITPLQKCSCKG*WR
+             . . :::: :  :  :.: .:. . :. . .  .     : . ... : ..   
+NR_SC: SAPPIPTSHAPPLP-PTAPPPPSLPNVT-SAPKKATSAPAPPPPPLPAAMSSASTNSVKA
+            320        330        340       350       360       370
+
+    3970      4000       4030      4060      4090        
+5X_189 STSLPTTRTLLTTCRCFP\SSRSSSFRSPPPYRRE**YPP*PSCRPSSRA
+       .   ::    : .    :  ...::. .:::       :: :.   .: :
+NR_SC: TPVPPTLAPPLPNTTSVP-PNKASSMPAPPP-----PPPPPPGAFSTSSA
+              380        390       400            410    
+
+>>NR_SC:SW-Q12218 SW:Q12218 Q12218 saccharomyces cerevis  (487 aa)
+ initn:  63 init1:  63 opt:  94  Z-score: 110.2  bits: 33.9 E():  2.3
+Smith-Waterman score: 97;  27.778% identity (28.302% ungapped) in 108 aa overlap (775-1092:87-194)
+
+          790        820       850       880       910       940   
+5X_189 SVFEHRLPLV-LYSLDLFPQKRAISICN*PQRGMMRQQHTLSYTQKTISTSFSSSPPSTS
+       :. :: : .:  ::  :.:. .:..   . . .   ..  .. .. . ::: : .: :. 
+NR_SC: SAVEHMLTMVPWYSSRLLPELEAMDASLTTSSSAATSSSEVASSSIASSTSSSVAPSSSE
+         90       100       110       120       130       140      
+
+           970      1000       1030      1060      1090
+5X_189 PLNSSSESSRSESITSS-PGSKPAAFGSGL*PSSAYTE*SLMSAS*KE
+        ..::   : :: ..::   :.  . .:..  ::. .  : .. : .:
+NR_SC: VVSSSVAPSSSEVVSSSVAPSSSEVVSSSVASSSSEVASSSVAPSSSE
+        150       160       170       180       190    
+
+>>NR_SC:GP-AAA35091_1 gi|295671|gb|AAA35091.1 (L11275) s  (406 aa)
+ initn:  78 init1:  78 opt:  92  Z-score: 108.5  bits: 33.3 E():  2.8
+Smith-Waterman score: 109;  30.682% identity (30.682% ungapped) in 88 aa overlap (895-1158:26-113)
+
+          910       940       970      1000      1030      1060    
+5X_189 SYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLM
+       : .... :.: :::  :.:  .::.::: : : .:: .:. .. .:    ::. .  :  
+NR_SC: SSSSSSSSSSSSSSSSSSSSSSSSGESSSSSSSSSSSSSSDSSDSSDSESSSSSSSSSSS
+          30        40        50        60        70        80     
+
+         1090      1120      1150  
+5X_189 SAS*KEQRGPQK*EHTAPPLNRITSSGS
+       :.: ..... .. . ..   .  .::.:
+NR_SC: SSSSSDSESSSESDSSSSGSSSSSSSSS
+          90       100       110   
+
+>>NR_SC:SW-SR40_YEAST SW:SR40_YEAST P32583 saccharomyces  (406 aa)
+ initn:  78 init1:  78 opt:  92  Z-score: 108.5  bits: 33.3 E():  2.8
+Smith-Waterman score: 109;  30.682% identity (30.682% ungapped) in 88 aa overlap (895-1158:26-113)
+
+          910       940       970      1000      1030      1060    
+5X_189 SYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLM
+       : .... :.: :::  :.:  .::.::: : : .:: .:. .. .:    ::. .  :  
+NR_SC: SSSSSSSSSSSSSSSSSSSSSSSSGESSSSSSSSSSSSSSDSSDSSDSESSSSSSSSSSS
+          30        40        50        60        70        80     
+
+         1090      1120      1150  
+5X_189 SAS*KEQRGPQK*EHTAPPLNRITSSGS
+       :.: ..... .. . ..   .  .::.:
+NR_SC: SSSSSDSESSSESDSSSSGSSSSSSSSS
+          90       100       110   
+
+>>NR_SC:SW-TIP1_YEAST SW:TIP1_YEAST P27654 saccharomyces  (210 aa)
+ initn:  77 init1:  77 opt:  89  Z-score: 108.1  bits: 32.3 E():    3
+Smith-Waterman score: 89;  35.000% identity (35.593% ungapped) in 60 aa overlap (913-1089:104-163)
+
+              940       970       1000      1030      1060         
+5X_189 ISTSFSSSPPSTSPLNSSSE-SSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLMSAS*K
+       :.....:  :..:   :::: .: :.. .:: ... :: .:.  :::. .  :   .: :
+NR_SC: IAAALASVSPASSEAASSSEAASSSKAASSSEATSSAAPSSSAAPSSSAAPSSSAESSSK
+           110       120       130       140       150       160   
+
+>>NR_SC:SW-O94086 SW:O94086 O94086 saccharomyces cerevis  (168 aa)
+ initn:  74 init1:  74 opt:  88  Z-score: 107.9  bits: 31.9 E():  3.1
+Smith-Waterman score: 88;  29.348% identity (29.348% ungapped) in 92 aa overlap (7217-7491:5-96)
+
+     7220      7250       7280      7310      7340      7370       
+5X_189 DLLDGNLVAAIVLAKYSI/TYAVRSTYTANLAMV*GTCLKRIGPKPA*KAAGPSSLKILR
+       .. .:.  : .:  . .: :..  ..:. ::..:   ::.  . .:  . . ::  ::: 
+NR_SC: NMEQGKRYAMLVNCSRGI-TFSFNKSYAPNLTVVYVHCLNTAALRPEYNPTTPSFAKILS
+           10        20         30        40        50        60   
+
+      7400      7430      7460      7490
+5X_189 KPPERPLAKDG*ETSLIRVASRGQRAMSAKNSA
+       .  .      :   ::  . :::  .: ::  :
+NR_SC: NILKSVGLGIGAACSLTLAKSRGCVTMVAKIPA
+            70        80        90      
+
+>>NR_SC:SW-YM8Z_YEAST SW:YM8Z_YEAST Q04951 saccharomyces  (389 aa)
+ initn:  69 init1:  69 opt:  91  Z-score: 107.4  bits: 33.0 E():  3.3
+Smith-Waterman score: 91;  47.222% identity (47.222% ungapped) in 36 aa overlap (895-1002:99-134)
+
+          910       940       970      1000
+5X_189 SYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSS
+       : . .:...: :::: :.:  .::. :: : ::..:
+NR_SC: SEAASTVGSSTSSSPSSSSSTSSSASSSASSSISAS
+      100       110       120       130    
+
+>>NR_SC:SW-YGC8_YEAST SW:YGC8_YEAST P53189 saccharomyces  (542 aa)
+ initn:  76 init1:  76 opt:  92  Z-score: 107.0  bits: 33.4 E():  3.5
+Smith-Waterman score: 93;  27.551% identity (28.125% ungapped) in 98 aa overlap (829-1122:192-287)
+
+            850       880       910       940       970      1000  
+5X_189 QKRAISICN*PQRGMMRQQHTLSYTQKTISTSFSSSPPSTSPLNSSSESSRSESITSSPG
+       :  : :  :      . .:..   :.   :.: :::  :..  .::. :: : : .:: .
+NR_SC: QAAATSTLNQQTSTSIASQESTESTNTPTSSSTSSSTSSST--SSSTSSSTSSSTSSSTS
+             200       210       220       230         240         
+
+           1030      1060      1090      1120
+5X_189 SKPAAFGSGL*PSSAYTE*SLMSAS*KEQRGPQK*EHT
+       :. ..  :.   ..: :  .  :.:     .:.   ..
+NR_SC: SSTSSSTSSTQETAATTSEGSSSSSAAITSSPKAIAYS
+     250       260       270       280       
+
+>>NR_SC:SW-YG1F_YEAST SW:YG1F_YEAST P53214 saccharomyces  (551 aa)
+ initn:  63 init1:  63 opt:  92  Z-score: 106.9  bits: 33.4 E():  3.5
+Smith-Waterman score: 123;  27.010% identity (27.815% ungapped) in 311 aa overlap (3034-3951:8-313)
+
+      3040      3070        3100      3130       3160      3190    
+5X_189 RQRSSKR*RKTWK-V*TSLVLLP-SWQRLSTRPRLS*LLS/TAISEKNLSSTVALTAGRG
+       :..::    . :. .  .:. :: :       :  :.  : :: :  .::.. ..:..  
+NR_SC: RKKSSASSLSMWRTILMALTTLPLSVLSQELVPANSTTSS-TAPSITSLSAVESFTSSTD
+        10        20        30        40         50        60      
+
+         3220       3250      3280      3310      3340      3370   
+5X_189 RGKSAALG\SPSVQLLLMTTLTSLLLLLTPKTSKLCLNLSSKPLMPWVTRSTLIMMSCKA
+         .::.:. .::.  . .:.. .   :::  .: :  .:::. ..  :. :.    : ..
+NR_SC: ATSSASLS-TPSIASVSFTSFPQSSSLLT-LSSTLSSELSSSSMQ--VSSSSTSSSSSEV
+         70         80        90        100         110       120  
+
+          3400      3430      3460      3490      3520      3550   
+5X_189 QTPTSKRLL*GSTSSEVTDKPSNTSPPKILTFSAKLSLSSLMKLPPSLFPLFVNSSAPIS
+        . .:.  .  :.:: .  . :.. :   .. ...   :: ..   ::     .:.  .:
+NR_SC: TSSSSSSSISPSSSSSTIISSSSSLPTFTVASTSSTVASSTLSTSSSLVISTSSSTFTFS
+            130       140       150       160       170       180  
+
+            3580      3610      3640      3670      3700      3730 
+5X_189 CL/SAST-INGYEGTGRSLSIKLIQQLREQTRPSITKDSENAAASSAGSSSKAAAAGRSG
+          :.:. :..  .:. : :   . .   .. :: ...  ... ::..:::   . . : 
+NR_SC: SE-SSSSLISSSISTSVSTSSVYVPSSSTSSPPSSSSELTSSSYSSSSSSSTLFSYSSSF
+             190       200       210       220       230       240 
+
+              3760      3790      3820      3850       3880        
+5X_189 A/ASRAISS/SRSSLMSLSVTPPETMLKSG*TTSSASMPPSS-PNLSKVALTLPNASFTM
+       . .: . :: : ::  : : .   ...  ....::. .  :: :..:. . . :..:.: 
+NR_SC: S-SSSSSSS-SSSSSSSSSSSSSSSYFTLSTSSSSSIYSSSSYPSFSSSSSSNPTSSITS
+               250       260       270       280       290         
+
+     3910      3940    
+5X_189 STATLSSLITPLQKCS
+       ..:  :: ::: .. :
+NR_SC: TSA--SSSITPASEYS
+     300         310   
+
+>>NR_SC:GP-AAA35015_1 gi|172526|gb|AAA35015.1 (M16165) S  (570 aa)
+ initn:  79 init1:  79 opt:  92  Z-score: 106.7  bits: 33.4 E():  3.6
+Smith-Waterman score: 113;  26.923% identity (27.723% ungapped) in 104 aa overlap (916-1227:24-124)
+
+             940       970      1000      1030      1060      1090 
+5X_189 STSFSSSPPSTSPLNSSSESSRSESITSSPGSKPAAFGSGL*PSSAYTE*SLMSAS*KEQ
+       ::. ::: :  .: .:..::: .   : : .:. .. . . .: :. :: : . . .  .
+NR_SC: STTESSSAPVPTPSSSTTESSVAPVPTPSSSSNITSSAPSSTPFSSSTESSSVPVPTPSS
+            30        40        50        60        70        80   
+
+            1120      1150      1180      1210     
+5X_189 RGPQK*EHTAPPLNRITSSGSIFTLVSPCCCPLGTCTPPLTNPF
+          . .: .. :..  :. .:.  . .:      : . : . ::
+NR_SC: ---STTESSSAPVSSSTTESSVAPVPTPSSSSNITSSAPSSIPF
+               90       100       110       120    
+
+>>NR_SC:SW-HRB1_YEAST SW:HRB1_YEAST P38922 saccharomyces  (429 aa)
+ initn:  68 init1:  68 opt:  90  Z-score: 105.5  bits: 32.8 E():  4.2
+Smith-Waterman score: 90;  28.947% identity (29.730% ungapped) in 76 aa overlap (6937-7158:28-103)
+
+     6940        6970      7000      7030      7060      7090      
+5X_189 ETYTGQQ*--GYRS*QDEWSYR*RDRKHRADQPSGRA*RW*TGRGRPWSC*S*TRGCRRV
+       .:: :..    ::. ... .:: :.: .  :.: .:       :::  .    .:     
+NR_SC: DTYRGSRDRGEYRGGRERSDYRERERFNNRDNPRSRDRYDDRRRGRDVTGRYGNRRDDYP
+        30        40        50        60        70        80       
+
+       7120      7150  
+5X_189 ER*RRRPNQR*DRK*G
+       .  : : : : : . :
+NR_SC: RSFRSRHNTRDDSRRG
+        90       100   
+
+>>NR_SC:SW-MID2_YEAST SW:MID2_YEAST P36027 saccharomyces  (376 aa)
+ initn:  73 init1:  73 opt:  89  Z-score: 104.9  bits: 32.5 E():  4.5
+Smith-Waterman score: 97;  24.742% identity (27.273% ungapped) in 194 aa overlap (3349-3930:11-186)
+
+           3370      3400      3430      3460      3490      3520  
+5X_189 RSTLIMMSCKAQTPTSKRLL*GSTSSEVTDKPSNTSPPKILTFSAKLSLSSLMKLPPSLF
+       :  :...::  .:  .. .. .:.:.  . . . .:  .. . :. :: :          
+NR_SC: RLLLLILSC-ISTIRAQFFVQSSSSNSSAVSTARSSVSRVSSSSSILSSS----------
+                20        30        40        50                   
+
+           3550      3580      3610      3640       3670      3700 
+5X_189 PLFVNSSAPISCLWPPPSTVTRVLAVHCPSSSFSNSVN/MTRPSITKDSENAAASSAGSS
+        .  .:::  : :    :: .: :. :  ::.   :.. .:  :...:: ....:::.:.
+NR_SC: -MVSSSSADSSSL--TSSTSSRSLVSHTSSSTSIASIS-FTSFSFSSDSSTSSSSSASSD
+       60        70          80        90        100       110     
+
+            3730      3760       3790      3820      3850      3880
+5X_189 SKAAAAGRSGAGLVRSLRE\TSLMSLSVTPPETMLKSG*TTSSASMPPSSPNLSKVALTL
+       :.....   ..  . :    ::  . :..   .. ..  ..:: :   :.:. :    . 
+NR_SC: SSSSSSFSISSTSATSESS-TSSTQTSTSSSSSLSSTPSSSSSPSTITSAPSTS----ST
+         120       130        140       150       160           170
+
+             3910      
+5X_189 PNASFTMSTATLSSLI
+       :...   . .:..:.:
+NR_SC: PSTTAYNQGSTITSII
+              180      
+
+>>NR_SC:SW-Q08438 SW:Q08438 Q08438 saccharomyces cerevis  (674 aa)
+rev-comp initn:  78 init1:  78 opt:  91  Z-score: 104.4  bits: 33.3 E():  4.8
+Smith-Waterman score: 103;  35.714% identity (35.714% ungapped) in 56 aa overlap (1082-915:586-641)
+
+    1080      1050      1020       990       960       930     
+5X_18- DADINDYSV*AEDGHKPEPNAAGLLPGDDVIDSDLDDSDDEFRGDVDGGEDENDVD
+       : : .: .   . : : : :       ::  :.: ::.::.   : :  .:..: :
+NR_SC: DNDEEDDNKKNDTGGKDEDNDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+         590       600       610       620       630       640 
+
+>>NR_SC:SW-CCC1_YEAST SW:CCC1_YEAST P47818 saccharomyces  (322 aa)
+ initn:  81 init1:  81 opt:  88  Z-score: 104.4  bits: 32.2 E():  4.8
+Smith-Waterman score: 88;  23.188% identity (23.188% ungapped) in 69 aa overlap (2052-2258:247-315)
+
+          2070      2100      2130      2160      2190      2220   
+5X_189 GIIPLFFFFFVPEFQSVGVLNIIFVYIQLLSFSTTYSKHHKQ*GSNSTHASQRLSTMVSK
+       :..::  .::: .  .  . .:: . . :. :. . .:     ::....   .   ::  
+NR_SC: GLVPLVPYFFVSDVGTGLIYSIIVMVVTLFWFGYVKTKLSMGSGSSTSKKVTEGVEMVVV
+        250       260       270       280       290       300      
+
+          2250  
+5X_189 RTTGVSSSW
+         ......:
+NR_SC: GGVAAGAAW
+        310     
+
+
+
+
+7972 residues in 1 query   sequences
+4215311 residues in 9190 library sequences
+ Scomplib [34t10]
+ start: Tue Jan  8 20:41:56 2002 done: Tue Jan  8 20:43:22 2002
+ Scan time: 25.790 Display time: 58.770
+
+Function used was FASTXY [version 3.4t07 Nov 21, 2001]
