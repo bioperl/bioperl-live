@@ -18,7 +18,7 @@ Bio::Align::Utilities - A collection of utilities regarding converting and manip
 
 use Bio::Align::Utilities qw(aa_to_dna_aln);
 
-my $aa_aln = aa_to_dna_aln($dnaaln,\%dnaseqs);
+my $dna_aln = aa_to_dna_aln($aaaln,\%dnaseqs);
 
 
 =head1 DESCRIPTION
