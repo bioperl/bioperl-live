@@ -16,11 +16,11 @@ use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
 
 =head1 NAME
 
-bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
+pg_bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % pg_bulk_load_gff.pl -d testdb -f dna.fa features1.gff features2.gff ...
+  % pg_bulk_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
@@ -133,37 +133,11 @@ my $bWINDOWS = ($^O =~ /MSWin32/i) ? 1 : 0;
 my ($DSN,$FORCE,$USER,$PASSWORD,$FASTA);
 
 GetOptions ('database:s'    => \$DSN,
-	    'create'         => \$FORCE,
+	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA
-	   ) or die <<USAGE;
-Usage: $0 [options] <gff file 1> <gff file 2> ...
-Bulk-load a Bio::DB::GFF database from GFF files.
-
- Options:
-   --database            Postgres database name
-   --create              Reinitialize/create data tables without asking
-   --user                Username to log in as
-   --fasta               File or directory containing fasta files to load
-   --password            Password to use for authentication
-
-Options can be abbreviated.  For example, you can use -d for
---database.
-
-NOTE: If no arguments are provided, then the input is taken from
-standard input. Compressed files (.gz, .Z, .bz2) are automatically
-uncompressed.  Fasta files must end in .fa optionally followed by a
-compression suffix in order to be recognized.
-
-The nature of the bulk load requires that the database be on the local
-machine and have enough room in /usr/tmp (or whatever is specified
-by the \$TMPDIR environment variable), to hold the tables transiently.
-
-Note that Windows users must use the --create option.
-
-USAGE
-;
+	   ) or (system('pod2text', $0), exit -1);
 
 $DSN ||= 'test';
 
@@ -188,11 +162,11 @@ unless ($FORCE) {
 my (@auth,$AUTH);
 if (defined $USER) {
   push @auth,(-user=>$USER);
-  $AUTH .= " -U $USER";
+  $AUTH .= " -U $USER ";
 }
 if (defined $PASSWORD) {
   push @auth,(-pass=>$PASSWORD);
-  $AUTH .= " -W $PASSWORD";
+  $AUTH .= " -W $PASSWORD ";
 }
 
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
@@ -205,6 +179,17 @@ foreach (@ARGV) {
   $_ = "uncompress -c $_ |" if /\.Z$/;
   $_ = "bunzip2 -c $_ |" if /\.bz2$/;
 }
+
+my (@gff,@fasta);
+foreach (@ARGV) {
+  if (/\.(fa|fasta|dna|seq|fast)\b/i) {
+    push @fasta,$_;
+  } else {
+    push @gff,$_;
+  }
+}
+@ARGV = @gff;
+push @fasta,$FASTA if defined $FASTA;
 
 # drop everything that was there before
 my %FH;
@@ -293,7 +278,7 @@ while (<>) {
 
 }
 
-if ($FASTA) {
+for my $file (@fasta) {
   warn "Preparing DNA files....\n";
   $FH{FDNA() }->print("COPY fdna (fref, foffset, fdna) FROM stdin;\n");
 
@@ -318,7 +303,8 @@ warn "Loading feature data.  You may see Postgres comments...\n";
 foreach (@files) {
   my $file = "$tmpdir/$_.$$";
 
-  system('psql','-f', $file, $DSN);
+  $AUTH ? system('psql',$AUTH,'-f', $file, $DSN)
+        : system('psql','-f', $file, $DSN);
 
   unlink $file;
 }
