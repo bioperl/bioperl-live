@@ -16,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;    
-    plan tests => 7;
+    plan tests => 8;
 }
 
 use Bio::Root::Root;
