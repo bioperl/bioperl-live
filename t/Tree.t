@@ -15,7 +15,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 7;
+    $TESTCOUNT = 9;
     plan tests => $TESTCOUNT;
 }
 
@@ -69,7 +69,7 @@ my $in = new Bio::TreeIO(-format => 'newick',
 			 -fh     => \*DATA);
 $tree = $in->next_tree;
 
-my ($a,$b,$c,$d,$f,$i) = ( $tree->find_node('A'),
+my ($a,$b,$c,$d) = ( $tree->find_node('A'),
 			   $tree->find_node('B'),
 			   $tree->find_node('C'),
 			   $tree->find_node('D'));
@@ -81,13 +81,15 @@ ok($tree->is_monophyletic(-nodes => [$b,$a],
 			  -outgroup => $d) );
 
 $tree = $in->next_tree;
-($a,$b,$c,$d,$f,$i) = ( $tree->find_node('A'),
-			$tree->find_node('B'),
-			$tree->find_node('C'),
-			$tree->find_node('D'),
-			$tree->find_node('F'),
-			$tree->find_node('I'),
-			);
+my ($e,$f,$i);
+($a,$b,$c,$d,$e,$f,$i) = ( $tree->find_node('A'),
+			   $tree->find_node('B'),
+			   $tree->find_node('C'),
+			   $tree->find_node('D'),
+			   $tree->find_node('E'),
+			   $tree->find_node('F'),
+			   $tree->find_node('I'),
+			   );
 ok(! $tree->is_monophyletic(-nodes => [$b,$f],
 			    -outgroup => $d) );
 
@@ -96,8 +98,11 @@ ok($tree->is_monophyletic(-nodes => [$b,$a],
 
 # test for paraphyly
 
-#ok(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
-#			   -outgroup => $d) );
+ok(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
+			   -outgroup => $d), 0);
+
+ok(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
+			   -outgroup => $i), 1);
     
 
 __DATA__

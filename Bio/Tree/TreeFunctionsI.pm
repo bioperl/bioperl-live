@@ -337,19 +337,20 @@ is_monophyletic");
 =head2 is_paraphyletic
 
  Title   : is_paraphyletic
- Usage   : if( $tree->is_paraphyletic(-nodes => \@nodes, 
-				      -outgroup => $outgroup)
- Function: Will do a test of paraphyly (all descendents for the clade defined 
-	   by the lca are included) for the nodes specified
-           in comparison to a chosen outgroup
- Returns : boolean
- Args    : -nodes => arrayref of nodes to test
-           -outgroup => outgroup to serve as a reference
+ Usage   : if( $tree->is_paraphyletic(-nodes =>\@nodes,
+				      -outgroup => $node) ){ }
+ Function: Tests whether or not a given set of nodes are paraphyletic
+           (representing the full clade) given an outgroup
+ Returns : [-1,0,1] , -1 if the group is not monophyletic
+                       0 if the group is not paraphyletic
+                       1 if the group is paraphyletic
+ Args    : -nodes => Array of Bio::Tree::NodeI objects which are in the tree
+           -outgroup => a Bio::Tree::NodeI to compare the nodes to
 
 
 =cut
 
-sub is_paraphyletic {
+sub is_paraphyletic{
    my ($self,@args) = @_;
    my ($nodes,$outgroup) = $self->_rearrange([qw(NODES OUTGROUP)],@args);
    
@@ -360,45 +361,40 @@ sub is_paraphyletic {
    if( ref($nodes) !~ /ARRAY/i ) { 
        $self->warn("Must provide a valid array reference for -nodes");
    }
-   
-   # algorithm:
-   # For each node, walk up to its ancestor, whenever
-   # nodes have the name ancestor, collapse the ancestor
-   # list, when the ancestors collapse to 1.
-   #
-   # See if this collapsed node is an ancestor of 
-   # outgroup, if it is that violates paraphyly.
-   #
-   # We use the internal_id method here to be sure
-   # we are talking about the same object.
-   
-   # first just start by filling the hash
-   my (%ancestors);
-   for my $n ( @$nodes ) {
-       $ancestors{$n->internal_id} = $n;
-   }  
-       
-   while( (keys %ancestors) > 1 ) {
-       foreach my $n ( values %ancestors ) {
-	   my $a = $n->ancestor;
-	   if( $a ) {
-	       $ancestors{$a->internal_id} = $a;
-	       my $id = $n->internal_id;
-	       delete $ancestors{$id};
-	   }
-       } 
+
+   # Algorithm
+   # Find the lca
+   # Find all the nodes beneath the lca
+   # Test to see that none are missing from the nodes list
+   my %nodehash;
+   foreach my $n ( @$nodes ) {
+       $nodehash{$n->internal_id} = $n;
    }
-   
-   my ($clade_root) = values %ancestors;
+   while( @$nodes > 2 ) { 
+       unshift @$nodes, $self->get_lca(-nodes => [( shift @$nodes, 
+						    shift @$nodes)] );
+   }
+   my $clade_root = $self->get_lca(-nodes => $nodes );
    my $og_ancestor = $outgroup->ancestor;
+
+   # Is this necessary/correct for paraphyly test?
    while( defined ($og_ancestor ) ) {
        if( $og_ancestor->internal_id == $clade_root->internal_id ) {
-	   # monophyly is violated
-	   return 0;
+           # monophyly is violated, could be paraphyletic
+           return -1;
        }
        $og_ancestor = $og_ancestor->ancestor;
    }
-   return 1;
+   my $tree = new Bio::Tree::Tree(-root => $clade_root);
+   
+   foreach my $n ( $tree->get_nodes() ) { 
+       next unless $n->is_Leaf();
+       # if any leaf node is not in the list
+       # then it is part of the clade and so the list
+       # must be paraphyletic
+       return 1 unless (  $nodehash{$n->internal_id} );
+   }
+   return 0;
 }
 
 1;
