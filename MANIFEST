@@ -6,7 +6,6 @@ README
 Changes
 PLATFORMS
 bioperl.pod
-Bio/Parse.pm
 Bio/Root/Err.pm
 Bio/Root/Global.pm
 Bio/Root/IOManager.pm
