@@ -13,8 +13,9 @@ Bioperl. They are organized into directories roughly mirroring those
 in the Bioperl Bio/ directory. There are 2 directories for these 
 scripts, scripts/ and examples/. The scripts in scripts/ are 
 production quality scripts that have POD documentation and accept
-command-line arguments, the scripts in examples/ are useful
-examples of Bioperl code.
+command-line arguments, and all of these scripts have the PLS suffix.
+The scripts in examples/ are useful examples of Bioperl code but
+have been written more casually.
 
 You can install the scripts in the scripts/ directory if you'd like,
 simply follow the instructions on 'make install'. The installation
@@ -165,7 +166,8 @@ Turn SearchIO reports into a tabular format like blastall's "-m 9" output.
 
 =head2 scripts/searchio/fastam9_to_table.PLS
 
-Turn FASTA -m9 reports into a tabular format like blastall's "-m 9" output.  Does not actually use SearchIO is very fast.
+Turn FASTA -m9 reports into a tabular format like blastall's "-m 9"
+output.  Does not actually use SearchIO is very fast.
 
 =head2 scripts/seq/seqconvert.PLS
 
@@ -557,7 +559,8 @@ using Smith-Waterman.
 =head2 examples/tools/run_genscan.pl
 
 Run GENSCAN on multiple sequences and create output sequence files
-using Tools::Genscan. Please see L<Bio::Tools::Genscan> for more information.
+using Tools::Genscan. Please see L<Bio::Tools::Genscan> for more 
+information.
 
 =head2 examples/tools/seq_pattern.pl
 
@@ -568,15 +571,9 @@ Tools::SeqPattern. Please see L<Bio::Tools::SeqPattern> for more information.
 
 The many uses of StandAloneBlast, including BLAST and PSIBLAST.
 
-=head2 examples/tools/state-machine.pl
-
-A demonstration of how to create a state machine using
-StateMachine::AbstractStateMachine. Please see
-L<Bio::Tools::StateMachine::AbstractStateMachine> for more information.
-
 =head2 examples/tools/test-genscan.pl
 
-Script for testing and demonstrating Bio::Tools::Genscan.
+Script for testing and demonstrating L<Bio::Tools::Genscan>.
 
 =head2 examples/tree/paup2phylip.pl
 
