@@ -149,6 +149,7 @@ sub start_result {
    $self->{'_resulttype'} = $type;
    $self->{'_hits'} = [];   
    $self->{'_hsps'} = [];
+   $self->{'_hitcount'} = 0;
    return;
 }
 
@@ -324,8 +325,7 @@ sub end_hit{
                                $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
-    my ($hitrank) = scalar @{$self->{'_hits'} || []} + 1;
-    $args{'-rank'} = $hitrank;
+    $args{'-rank'}      = $self->{'_hitcount'} + 1;
     unless( defined $args{'-significance'} ) {
 	if( defined $args{'-hsps'} && 
 	    $args{'-hsps'}->[0] ) {
@@ -342,6 +342,7 @@ sub end_hit{
 sub _add_hit {
     my ($self, $hit) = @_;
     push @{$self->{'_hits'}}, $hit;
+    $self->{'_hitcount'} = scalar @{$self->{'_hits'}};
 }
 
 =head2 Factory methods
