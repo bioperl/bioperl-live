@@ -404,6 +404,12 @@ sub _parseHeader {
 	  $self->_pushback($_);
 	  return 0;		# there's nothing in the report
       }
+      # bug fix suggested by MI Sadowski via Martin Lomas
+      # see bug report #1118
+      if( eof($self->_fh()) ) {
+	  $self->warn("unexpected EOF in file\n");
+	  return -1;
+      }
   }
   return -1; # EOF
 }
