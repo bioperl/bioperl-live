@@ -28,6 +28,7 @@ Bio/Tools/Fasta.pm
 Bio/Tools/SeqAnal.pm
 Bio/Tools/WWW.pm
 Bio/Tools/pSW.pm
+Bio/Tools/Sigcleave.pm
 Bio/Tools/RestrictionEnzyme.pm
 Bio/DB/Abstract.pm
 t/Seq.t
