@@ -199,7 +199,9 @@ sub AUTOLOAD {
   my($pack,$func_name) = $AUTOLOAD=~/(.+)::([^:]+)$/;
   return if $func_name eq 'DESTROY';
   my $self = shift;
-  $self->{dbh}->$func_name(@_);
+  if( defined $self->{dbh} ) {
+      $self->{dbh}->$func_name(@_);
+  }
 }
 
 package Bio::DB::GFF::Adaptor::dbi::faux_sth;
