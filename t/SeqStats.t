@@ -43,13 +43,13 @@ $seqobj = Bio::PrimarySeq->new(-seq=>'ACTACTTCA', -alphabet=>'dna',
 			       -id=>'test');
 $seqobj_stats  =  Bio::Tools::SeqStats->new('-seq' => $seqobj);
 $wt = $seqobj_stats->get_mol_wt();  # for DNA sequence
-ok $$wt[0], 2738 ;
+ok &round($$wt[0]), 2738 ;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACXACNNCA',
 			       -alphabet=>'dna', -id=>'test');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 2693;
-ok $$wt[1], 2813;
+ok &round($$wt[0]), 2693;
+ok &round($$wt[1]), 2813;
 
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG',
@@ -69,20 +69,23 @@ ok $$count{'I'}, 3;
 ok $$count{'Y'}, 2;
 ok $$count{'T'}, 3;
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 2896;
-ok $$wt[1], 2896;
+ok int $$wt[0], 2896;
+ok int $$wt[1], 2896;
 
 $seqobj = Bio::PrimarySeq->new(-seq=>'UYXUYNNYU', -alphabet=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 2768;
-ok $$wt[1], 2891;
+ok &round($$wt[0]), 2768;
+ok &round($$wt[1]), 2891;
 
 ok $seqobj = Bio::PrimarySeq->new(-seq=>'TGCCGTGTGTGCTGCTGCT', -alphabet=>'rna');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 6104 ;
+ok &round($$wt[0]), 6104 ;
 
 # selenocysteine
 ok $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT',
                                   -alphabet=>'protein');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
-ok $$wt[0], 2896 ;
+ok &round($$wt[0]), 2896 ;
+
+# perl does not have an explicit rounding function
+sub round { return int ((shift @_) + 0.5 ) }
