@@ -13,7 +13,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 46;
+    plan tests => 47;
 }
 
 use Bio::Matrix::PSM::IO;
@@ -95,6 +95,7 @@ ok $instances;
 
 foreach my $instance (@{$instances}) {
   my $id=$instance->primary_id;
+  ok $instance->strand,1;
   last if (ok $id);
 }
 
