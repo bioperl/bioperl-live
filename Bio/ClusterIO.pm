@@ -122,7 +122,7 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
-
+#'
 # Let the code begin...
 
 package Bio::ClusterIO;
@@ -215,10 +215,16 @@ sub next_cluster {
 
 sub _load_format_module {
   my ($format) = @_;
+  my ($module, $load, $m);
 
-  my $load = "Bio::ClusterIO::$format";
+  $module = "_<Bio/ClusterIO/$format.pm";
+  $load = "Bio/ClusterIO/$format.pm";
 
-  if ( require "$load" ) {
+  return 1 if $main::{$module};
+  eval {
+    require $load;
+  };
+  if ( $@ ) {
     print STDERR <<END;
 $load: couldn't load $format - for more details on supported formats please see the ClusterIO docs
 Exception $@
