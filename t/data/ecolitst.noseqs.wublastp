@@ -1,0 +1,96 @@
+BLASTP 2.0MP-WashU [18-Mar-2004] [linux26-ILP32F64 2004-03-13T04:13:13]
+
+Copyright (C) 1996-2004 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2004) http://blast.wustl.edu
+
+Query=  gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I, homoserine
+    dehydrogenase I [Escherichia coli]
+        (820 letters)
+
+Database:  ecoli.aa
+           4289 sequences; 1,358,990 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+gb|AAC73113.1| (AE000111) aspartokinase I, homoserine deh...  4141  0.        1
+gb|AAC76922.1| (AE000468) aspartokinase II and homoserine...   907  6.6e-93   1
+gb|AAC76994.1| (AE000475) aspartokinase III, lysine sensi...   483  2.8e-47   1
+
+
+
+>gb|AAC73113.1| (AE000111) aspartokinase I, homoserine dehydrogenase I
+            [Escherichia coli]
+        Length = 820
+
+ Score = 4141 (1462.8 bits), Expect = 0., P = 0.
+ Identities = 820/820 (100%), Positives = 820/820 (100%)
+
+Query: 1 - 820
+Sbjct: 1 - 820
+
+
+>gb|AAC76922.1| (AE000468) aspartokinase II and homoserine dehydrogenase II
+            [Escherichia coli]
+        Length = 810
+
+ Score = 907 (324.3 bits), Expect = 6.6e-93, P = 6.6e-93
+ Identities = 250/818 (30%), Positives = 413/818 (50%)
+
+Query: 5 - 812
+Sbjct: 16 - 805
+
+
+>gb|AAC76994.1| (AE000475) aspartokinase III, lysine sensitive [Escherichia
+            coli]
+        Length = 449
+
+ Score = 483 (175.1 bits), Expect = 2.8e-47, P = 2.8e-47
+ Identities = 149/467 (31%), Positives = 233/467 (49%)
+
+Query: 3 - 460
+Sbjct: 6 - 448
+
+
+Parameters:
+  -i t/data/ecolitst.fa
+  -d /data/blast/ecoli.aa
+  noseqs
+  E=1e-5
+  postsw
+
+  ctxfactor=1.00
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +0      0   BLOSUM62        0.319   0.135   0.384    same    same    same
+               Q=9,R=2         0.244   0.0300  0.180     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E     S W   T  X   E2     S2
+   +0      0      820       820   1.0e-05  121 3  11 22  0.19    34
+                                                     37  0.22    37
+
+
+Statistics:
+
+  Database:  /data/blast/ecoli.aa
+   Title:  ecoli.aa
+   Posted:  1:55:19 PM EDT Jun 3, 2004
+   Created:  1:55:19 PM EDT Jun 3, 2004
+   Format:  XDF-1
+   # of letters in database:  1,358,990
+   # of sequences in database:  4289
+   # of database sequences satisfying E:  3
+  No. of states in DFA:  618 (66 KB)
+  Total size of DFA:  358 KB (2179 KB)
+  Time to generate neighborhood:  0.00u 0.01s 0.01t  Elapsed: 00:00:00
+  No. of threads or processors used:  2
+  Search cpu time:  1.54u 0.03s 1.57t  Elapsed: 00:00:01
+  Total cpu time:  1.58u 0.04s 1.62t  Elapsed: 00:00:01
+  Start:  Thu Jun  3 14:00:59 2004   End:  Thu Jun  3 14:01:00 2004

@@ -22,7 +22,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1154;
+    $NTESTS = 1205;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -153,7 +153,7 @@ $searchio = new Bio::SearchIO ('-format' => 'blast',
 				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
 $result = $searchio->next_result;
-     $dumper->dumpValue($result);
+# $dumper->dumpValue($result);
 
 ok($result->database_name, 'ecoli.aa');
 ok($result->database_entries, 4289);
@@ -252,6 +252,73 @@ ok($result->get_statistic('Frame+0_entropy_gapped'), '0.180');
 
 @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 4141],
 	   [ 'gb|AAC76922.1|', 810, 'AAC76922', '3.1e-86', 844],
+	   [ 'gb|AAC76994.1|', 449, 'AAC76994', '2.8e-47', 483]);
+$count = 0;
+while( $hit = $result->next_hit ) {
+    my $d = shift @valid;
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    ok($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 1);
+	    ok($hsp->query->end, 820);
+	    ok($hsp->hit->start, 1);
+	    ok($hsp->hit->end, 820);
+	    ok($hsp->length('hsp'), 820);
+	    
+	    ok($hsp->evalue == 0.0);
+	    ok($hsp->pvalue == 0.0);
+	    ok($hsp->score, 4141);
+	    ok($hsp->bits,1462.8);	    	    
+	    ok($hsp->percent_identity, 100);
+	    ok($hsp->frac_identical('query'), 1.00);
+	    ok($hsp->frac_identical('hit'), 1.00);
+	    ok($hsp->gaps, 0);	    
+	}
+    }
+    last if( $count++ > @valid );
+}
+
+# test WU-BLAST -noseqs option
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+			       '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.noseqs.wublastp'));
+
+$result = $searchio->next_result;
+
+ok($result->database_name, 'ecoli.aa');
+ok($result->database_letters, 1358990);
+ok($result->database_entries, 4289);
+ok($result->algorithm, 'BLASTP');
+ok($result->algorithm_version, qr/^2\.0MP\-WashU/);
+ok($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
+ok($result->query_accession, 'AAC73113.1');
+
+ok($result->query_length, 820);
+ok($result->get_statistic('kappa'), 0.135);
+ok($result->get_statistic('lambda'), 0.319);
+ok($result->get_statistic('entropy'), 0.384);
+ok($result->get_statistic('dbletters'), 1358990);
+ok($result->get_statistic('dbentries'), 4289);
+ok($result->get_parameter('matrix'), 'BLOSUM62');
+ok($result->get_statistic('Frame+0_lambda_used'), '0.319');
+ok($result->get_statistic('Frame+0_kappa_used'), '0.135');
+ok($result->get_statistic('Frame+0_entropy_used'), '0.384');
+
+ok($result->get_statistic('Frame+0_lambda_computed'), '0.319');
+ok($result->get_statistic('Frame+0_kappa_computed'), '0.135');
+ok($result->get_statistic('Frame+0_entropy_computed'), '0.384');
+
+ok($result->get_statistic('Frame+0_lambda_gapped'), '0.244');
+ok($result->get_statistic('Frame+0_kappa_gapped'), '0.0300');
+ok($result->get_statistic('Frame+0_entropy_gapped'), '0.180');
+
+@valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 4141],
+	   [ 'gb|AAC76922.1|', 810, 'AAC76922', '6.6e-93', 907],
 	   [ 'gb|AAC76994.1|', 449, 'AAC76994', '2.8e-47', 483]);
 $count = 0;
 while( $hit = $result->next_hit ) {
