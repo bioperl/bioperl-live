@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1152;
+    $NTESTS = 1145;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -1298,47 +1298,6 @@ while( my $hit = $r->next_hit ) {
 }
 
 
-# SearchIO::psiblast test  (remove when psiblast.pm goes away)
-
-$searchio = new Bio::SearchIO ('-format' => 'psiblast',
-			       '-stats'  => 1,
-			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
-
-$result = $searchio->next_result;
-
-ok($result);
-$hit = $result->next_hit;
-ok($hit->accession, 'AE000479');
-ok($hit->bits, 33.6);
-$hsp = $hit->next_hsp;
-ok($hit->hsp->bits,$hsp->bits);
-
-ok($hsp->get_aln->isa('Bio::Align::AlignI'));
-$writer = Bio::SearchIO::Writer::HitTableWriter->new( 
-                                  -columns => [qw(
-                                                  query_name
-                                                  query_length
-                                                  hit_name
-                                                  hit_length
-						  bits
-						  score
-                                                  frac_identical_query
-                                                  expect
-                                                  )]  );
-
-$out = new Bio::SearchIO(-writer => $writer,
-			    -file   => ">searchio.out");
-$out->write_result($result, 1);
-ok(-e 'searchio.out');
-$writerhtml = new Bio::SearchIO::Writer::HTMLResultWriter();
-$outhtml = new Bio::SearchIO(-writer => $writerhtml,
-			     -file   => ">searchio.html");
-$outhtml->write_result($result, 1);
-$outhtml->close();
-ok(-e "searchio.html");
-
-unlink 'searchio.out';
-unlink 'searchio.html';
 
 
 # bl2seq parsing testing
