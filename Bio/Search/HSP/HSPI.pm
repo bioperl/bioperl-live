@@ -458,7 +458,7 @@ sub strand {
 
     if( $val =~ /^q/i ) {
 	return $self->query->strand(shift);
-    } elsif( $val =~ /^hi|s/i ) {
+    } elsif( $val =~ /^hi|^s/i ) {
 	return $self->hit->strand(shift);
     } elsif (  $val =~ /^list|array/i ) {	
 	return ($self->query->strand(shift), 
