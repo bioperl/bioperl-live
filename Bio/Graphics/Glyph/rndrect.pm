@@ -9,8 +9,9 @@ sub draw_component {
   my $gd = shift;
   my ($left,$top) = @_;
   my($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);#$self->bounds(@_);
-  require GD;
-  my $poly = GD::Polygon->new;
+
+  my $poly_pkg = $self->_image_class . '::Polygon';
+  my $poly     = $poly_pkg->new();
   my $boxheight = $y2 - $y1;
 
   if (($x2-$x1) > 3) {
@@ -35,9 +36,8 @@ sub draw_component {
       $poly->addPt($x1, $y2);
   }
 
-  $gd->filledPolygon($poly, $self->fillcolor);
-
-  $gd->polygon($poly, $self->fgcolor);
+  $gd->filledPolygon($poly,$self->fillcolor);
+  $gd->polygon($poly,$self->fgcolor);
 }
 
 # group sets connector to 'solid'
