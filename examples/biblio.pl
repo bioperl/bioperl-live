@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 #
 #   A client showing how to use Bio::Biblio module, a module for
 #   accessing and querying a bibliographic repository.
@@ -22,10 +22,10 @@ sub get_usage {
     return <<"END_OF_USAGE";
 Usage:
    biblio.pl [vh]
-   biblio.pl [bcgpq]         [-l <URL>]
-   biblio.pl [abcdDeknmprsq] [-l <URL>] -i <collection-ID>
-   biblio.pl [abcdDeknmprsq] [-l <URL>] - -find <keywords> [-attrs <attrs>]...
-   biblio.pl [Vq]            [-l <URL>]
+   biblio.pl [bcgOpq]         [-l <URL>]
+   biblio.pl [abcdDeknmOpqrs] [-l <URL>] -i <collection-ID>
+   biblio.pl [abcdDeknmOpqrs] [-l <URL>] - -find <keywords> [-attrs <attrs>]...
+   biblio.pl [Vq]             [-l <URL>]
 
 What service to contact:
     -l <URL> ... a location where a Bibliographic Query service is
@@ -80,6 +80,12 @@ What to do (with the query collection):
                    would not know how to contact the persistent collection
                    next time)
     -D         ... destroy given collection (makes sense together with '-i')
+
+    options specifying output format of the results:
+
+    -Ox        ... output in XML format (default)
+    -Oo        ... output as Biblio objects
+    -Or        ... output as a raw hashtable
 
     options dealing with controlled vocabularies:
 
@@ -155,8 +161,8 @@ BEGIN {
     # specialized options
     use vars qw/ $opt_a $opt_b $opt_c $opt_d $opt_D $opt_e $opt_k $opt_n $opt_p $opt_r $opt_s /;
     # options with a value
-    use vars qw/ $opt_g $opt_i $opt_l $opt_m $opt_V /;
-    my $switches = 'gilmV';   # these are switches taking an argument (a value)
+    use vars qw/ $opt_g $opt_i $opt_l $opt_m $opt_O $opt_V /;
+    my $switches = 'gilmOV';   # these are switches taking an argument (a value)
     getopt ($switches);
 
     # help wanted?
@@ -166,7 +172,9 @@ BEGIN {
     }
 }
 
-use Bio::Biblio;
+use Bio::Biblio;       # to read data via SOAP
+use Bio::Biblio::IO;   # to convert resulting XML to Biblio objects
+use Data::Dumper;      # to print resulting data in a raw form
 
 # --- print version and exit
 if ($opt_v) {
@@ -229,7 +237,7 @@ $biblio = &_find ($biblio, $keywords, $attrs) if $keywords;
 print $biblio->get_count . "\n" if $opt_c;
 
 # ...get one particular citation (this method does not use any -finds above)
-print $biblio->get_by_id ($opt_g) if $opt_g;
+&print_one (&convert_one ($biblio->get_by_id ($opt_g))) if $opt_g;
 
 # ...print all citation IDs
 print join ("\n", @{ $biblio->get_all_ids }) . "\n" if $opt_d;
@@ -322,4 +330,39 @@ sub _find {
 	if $opt_k and not $opt_q;
     return $new_biblio;
 }
+
+sub convert_one {
+    my ($citation) = @_;
+
+    # if no -O option given or if it -Ox we are happy returning XML string
+    return $citation unless defined $opt_O and $opt_O !~ /^x/;
+
+    # -Or means to return a raw hash, everything else means to return
+    # Biblio objects
+    my @args;
+    push (@args, ('-result' => 'raw')) if $opt_O =~ /^r/;
+
+    # the rest of arguments is always the same
+    push (@args, ('-format' => 'medlinexml',
+		  '-data'   => $citation));
+
+    # make an instance of a converter
+    my $io = new Bio::Biblio::IO (@args);
+
+    # and finally make the conversion
+    return $io->next_bibref;
+}
+
+sub print_one {
+    my ($citation) = @_;
+    if (ref (\$citation) eq 'SCALAR') {
+	print $citation;
+    } elsif (ref ($citation) =~ /^HASH|ARRAY|SCALAR$/o) {
+	print Data::Dumper->Dump ( [$citation], ['Citation']);
+    } else {
+	print $citation->print_me;
+    }
+}
+
+
 __END__
