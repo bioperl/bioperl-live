@@ -16,16 +16,16 @@ Bio::Species - Generic species object
 
     $species = Bio::Species->new(); # Can also pass classification
                                     # array to new as below
-
+                                    
     $species->classification(qw( sapiens Homo Hominidae
                                  Catarrhini Primates Eutheria
                                  Mammalia Vertebrata Chordata
                                  Metazoa Eukaryota ));
-
+    
     $genus = $species->genus();
-
+    
     $bi = $species->binomial();     # $bi is now "Homo sapiens"
-
+    
     # For storing common name
     $species->common_name("human");
 
@@ -54,7 +54,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 
-# Let the code begin...
+#' Let the code begin...
 
 
 package Bio::Species;
@@ -72,7 +72,7 @@ use Bio::Root::Object;
 # _initialize is where the heavy stuff will happen when new is called
 
 sub _initialize {
-  my ($self, @args) = @_;
+  my($self,@args) = @_;
 
   my $make = $self->SUPER::_initialize;
 
@@ -91,11 +91,18 @@ sub _initialize {
            @classification = $self->classification();
  Function: Fills or returns the classifcation list in
            the object.  The array provided must be in
-           the order SPECIES, GENUS ---> KINGDOM.
-           The first element of the array, the species,
-           must be in lower case, and the rest in title
+           the order SUBSPECIES, SPECIES, GENUS ---> KINGDOM.
+           The first and second element of the array, the subspecies and
+           species, must be in lower case, and the rest in title
            case.  Only species must be present.
- Example : $self->classification(qw( sapiens Homo Hominidae
+
+           Note that the format convention given above has changed after 
+           release 0.60. Formerly, SUBSPECIES was not necessary. In order to
+           break as few scripts as possible, the method tries to recognize
+           whether or not the subspecies is provided, given that the rest
+           is given in correct case. This is the reason that the example given
+           below is still valid.
+ Example : $obj->classification(qw( sapiens Homo Hominidae
            Catarrhini Primates Eutheria Mammalia Vertebrata
            Chordata Metazoa Eukaryota));
  Returns : Classification array
@@ -107,29 +114,43 @@ sub _initialize {
 
 sub classification {
     my $self = shift;
+
     if (@_) {
         my @classification = @_;
-
+        
+	# Try to be smart and check whether someone may have omitted the
+	# supspecies, but provided everything else in correct case spelling.
+	# Likewise, providing the subspecies alone obviously doesn't make
+	# sense, so it's probably the species.
+	# HL <Hilmar.Lapp@pharma.novartis.com>
+	if(scalar(@classification) == 0) {
+	    $self->throw("no elements in classification: " .
+			 "must at least supply species name");
+	} elsif((scalar(@classification) == 1) ||
+		(($classification[0] =~ /^[a-z].*/) &&
+		 ($classification[1] =~ /^[A-Z][a-z].*/))) {
+	    # looks like subspecies has been omitted, so add it
+	    unshift(@classification, '');
+	}
         # Check the names supplied in the classification string
         {
             # Species should be in lower case
-            my $species = $classification[0];
+            my $species = $classification[1];
             $self->validate_species_name( $species );
 
             # All other names must be in title case
-            for (my $i = 1; $i < @classification; $i++) {
+            for (my $i = 2; $i < @classification; $i++) {
                 $self->validate_name( $classification[$i] );
             }
         }
 
         # Store classification
         $self->{'classification'} = [ @classification ];
-    } else {
-        return @{$self->{'classification'}};
     }
+    return @{$self->{'classification'}};
 }
 
-=head2
+=head2 
 
  Title   : common_name
  Usage   : $self->common_name( $common_name );
@@ -142,16 +163,15 @@ sub classification {
 =cut
 
 sub common_name {
-    my ($self, $name) = @_;
-
+    my($self, $name) = @_;
+    
     if ($name) {
         $self->{'common_name'} = $name;
     } else {
-        return $self->{'common_name'}
+        return $self->{'common_name'} 
     }
 }
-
-=head2
+=head2 
 
  Title   : organelle
  Usage   : $self->organelle( $organelle );
@@ -164,12 +184,12 @@ sub common_name {
 =cut
 
 sub organelle {
-    my ($self, $name) = @_;
-
+    my($self, $name) = @_;
+    
     if ($name) {
         $self->{'organelle'} = $name;
     } else {
-        return $self->{'organelle'}
+        return $self->{'organelle'} 
     }
 }
 
@@ -188,13 +208,13 @@ sub organelle {
 
 
 sub species {
-    my ($self, $species) = @_;
-
+    my($self, $species) = @_;
+    
     if ($species) {
         $self->validate_species_name( $species );
-        $self->{'classification'}[0] = $species;
+        $self->{'classification'}[1] = $species;
     } else {
-        return $self->{'classification'}[0];
+        return $self->{'classification'}[1];
     }
 }
 
@@ -202,7 +222,7 @@ sub species {
 
  Title   : sub_species
  Usage   : $obj->sub_species($newval)
- Function:
+ Function: 
  Returns : value of sub_species
  Args    : newvalue (optional)
 
@@ -210,13 +230,12 @@ sub species {
 =cut
 
 sub sub_species{
-   my $obj = shift;
-   if ( @_ ) {
+   my $self = shift;
+   if( @_ ) {
       my $value = shift;
-      $obj->{'sub_species'} = $value;
+      $self->{'classification'}[0] = $value;
     }
-    return $obj->{'sub_species'};
-
+    return $self->{'classification'}[0];
 }
 
 =head2 genus
@@ -234,13 +253,13 @@ sub sub_species{
 
 
 sub genus {
-    my ($self, $genus) = @_;
-
+    my($self, $genus) = @_;
+    
     if ($genus) {
         $self->validate_name( $genus );
-        $self->{'classification'}[1] = $genus;
+        $self->{'classification'}[2] = $genus;
     } else {
-        return $self->{'classification'}[1];
+        return $self->{'classification'}[2];
     }
 
 }
@@ -249,32 +268,40 @@ sub genus {
 
  Title   : binomial
  Usage   : $binomial = $self->binomial();
- Function: Returns a string "Genus species"
- Args    : None
+           $binomial = $self->binomial('FULL');
+ Function: Returns a string "Genus species", or "Genus species subspecies",
+           the first argument is 'FULL'.
+ Args    : Optionally the string 'FULL' to get the full name including the
+           the subspecies.
 
 =cut
 
 
 sub binomial {
-    my ($self) = @_;
-
-    my ($species, $genus) = $self->classification();
-    return "$genus $species";
+    my( $self, $full ) = @_;
+    
+    my( $ssp, $species, $genus ) = $self->classification();
+    if(defined($full) && ($full eq 'FULL')) {
+	return "$genus $species $ssp";
+    } else {
+	return "$genus $species";
+    }
 }
 
 sub validate_species_name {
-    my ($self, $string) = @_;
-
+    my( $self, $string ) = @_;
+    
     $string =~ /^[\S\d\.]+$||""/ or
         $self->throw("Invalid species name '$string'");
 }
 
 sub validate_name {
-    my ($self, $string) = @_;
-
+    my( $self, $string ) = @_;
+    
     return $string =~ /^[A-Z][a-z]+$/ or
         $self->throw("Invalid name '$string' (Wrong case?)");
 }
+
 
 1;
 
