@@ -104,7 +104,7 @@ sub to_string {
     my $GFF;
     while( my $hit = $result->next_hit ) {
         my $significance = $hit->significance;
-        next unless ($significance < $self->{_evalue} &&  ($self->{_evalue} > 0)); 
+        next unless (($significance < $self->{_evalue}) &&  ($self->{_evalue} > 0)); 
         my $refseq = $hit->name;
         my $seqname = $result->query_name;  # hopefully this will be a simple identifier without a full description line!!
         my $score = $hit->raw_score;
@@ -121,6 +121,7 @@ sub to_string {
         # on both the subject and query strands individually
         my ($qpmin, $qpmax, $qmmin, $qmmax, $spmin, $spmax, $smmin, $smmax); # variables for the plus/minus strand min start and max end to know the full extents of the hit
         while( my $hsp = $hit->next_hsp ) {
+            next unless (($hsp->significance < $self->{_evalue}) && ($self->{_evalue} > 0));
             if ($hsp->strand('subject') eq "1"){
                 push @plus_hsps, $hsp;
                 if (defined $qpmin){  # set or reset the minimum and maximum extent of the plus-strand hit
