@@ -1249,19 +1249,19 @@ panel needs to configure a glyph.  The callback will be called with
 three arguments like this:
 
    sub callback {
-      my ($feature,$option_name,$part_no,$total_parts) = @_;
+      my ($feature,$option_name,$part_no,$total_parts,$glyph) = @_;
       # do something which results in $option_value being set
       return $option_value;
    }
 
-The three arguments are C<$feature>, a reference to the
-IO::SeqFeatureI object, C<$option_name>, the name of the option to
-configure, C<$part_no>, an integer index indicating which subpart of
-the feature is being drawn, and C<$total_parts>, an integer indicating
-the total number of subfeatures in the feature.  The latter fields are
-useful in the common case of treating the first or last subfeature
-differently, such as using a different color for the terminal exon of
-a gene.
+The five arguments are C<$feature>, a reference to the IO::SeqFeatureI
+object, C<$option_name>, the name of the option to configure,
+C<$part_no>, an integer index indicating which subpart of the feature
+is being drawn, C<$total_parts>, an integer indicating the total
+number of subfeatures in the feature, and finally C<$glyph>, the Glyph
+object itself.  The latter fields are useful in the common case of
+treating the first or last subfeature differently, such as using a
+different color for the terminal exon of a gene.
 
 The callback should return a string indicating the desired value of
 the option.  To tell the panel to use the default value for this

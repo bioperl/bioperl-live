@@ -465,6 +465,12 @@ sub draw {
   }
 }
 
+# the "level" is the level of testing of the glyph
+# groups are level -1, top level glyphs are level 0, subcomponents are level 1 and so forth.
+sub level {
+  shift->{level};
+}
+
 sub draw_connectors {
   my $self = shift;
   my $gd = shift;
@@ -487,19 +493,24 @@ sub draw_connectors {
 
 sub _connector {
   my $self = shift;
-  my ($gd,$dx,$dy,$xl,$xt,$xr,$xb,$yl,$yt,$yr,$yb) = @_;
-    my $left   = $dx + $xr;
-    my $right  = $dx + $yl;
-    my $top1     = $dy + $xt;
-    my $bottom1  = $dy + $xb;
-    my $top2     = $dy + $yt;
-    my $bottom2  = $dy + $yb;
-    return unless $right-$left > 1;
+  my ($gd,
+      $dx,$dy,
+      $xl,$xt,$xr,$xb,
+      $yl,$yt,$yr,$yb) = @_;
+  my $left   = $dx + $xr;
+  my $right  = $dx + $yl;
+  my $top1     = $dy + $xt;
+  my $bottom1  = $dy + $xb;
+  my $top2     = $dy + $yt;
+  my $bottom2  = $dy + $yb;
+  # restore this comment if you don't like the group dash working
+  # its way backwards.
+  #    return unless $right-$left > 1;
 
-    $self->draw_connector($gd,
-			  $top1,$bottom1,$left,
-			  $top2,$bottom2,$right,
-			 );
+  $self->draw_connector($gd,
+			$top1,$bottom1,$left,
+			$top2,$bottom2,$right,
+		       );
 }
 
 sub draw_connector {
@@ -508,6 +519,7 @@ sub draw_connector {
 
   my $color          = $self->connector_color;
   my $connector_type = $self->connector or return;
+
   if ($connector_type eq 'hat') {
     $self->draw_hat_connector($gd,$color,@_);
   } elsif ($connector_type eq 'solid') {
@@ -766,7 +778,7 @@ sub all_callbacks {
   my $self = shift;
   my $track_level = $self->option('all_callbacks');
   return $track_level if defined $track_level;
-  return $self->panel->all_callbacks; 
+  return $self->panel->all_callbacks;
 }
 
 sub default_factory {
@@ -912,6 +924,12 @@ Return the value of the indicated option.
 =item $index = $glyph-E<gt>color($color)
 
 Given a symbolic or #RRGGBB-form color name, returns its GD index.
+
+=item $level = $glyph-E<gt>level
+
+The "level" is the nesting level of the glyph.
+Groups are level -1, top level glyphs are level 0,
+subparts (e.g. exons) are level 1 and so forth.
 
 =back
 
