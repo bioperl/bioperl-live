@@ -1,57 +1,58 @@
-#
-# Cared for by Bala Savikalpa
-#
-# 
+#BioPerl module for Bio::Tools::Prints
+
+# Cared for by  Balamurugan Kumarasamy
 #
 # You may distribute this module under the same terms as perl itself
 # POD documentation - main docs before the code
+#
 
 =head1 NAME
 
-Bio::Tools::Prints - Parser for FingerPRINTScanII program 
+ Bio::Tools::Prints - Parser for FingerPRINTScanII program 
+ 
 
 =head1 SYNOPSIS
 
   use Bio::Tools::Prints;
-  my  $parser = Bio::Tools::Prints->new(-fh=>$filehandle);
-
-  while(my $prints_feature = $parser->next_result){
-    push @features, $prints_feature;
+  my $prints_parser = new Bio::Tools::Prints(-fh =>$filehandle );
+  while( my $prints_feat = $prints_parser->next_result ) {
+        push @prints_feat, $prints_feat;
   }
 
 =head1 DESCRIPTION
 
-FingerPRINTScan II is a PRINTS fingerprint identification algorithm.
-Copyright (C) 1998,1999  Phil Scordis
+ PRINTScan II is a PRINTS fingerprint identification algorithm.
+ Copyright (C) 1998,1999  Phil Scordis
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to one
-of the Bioperl mailing lists.  Your participation is much appreciated.
+ User feedback is an integral part of the evolution of this and other
+ Bioperl modules. Send your comments and suggestions preferably to
+ the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+ bioperl-l@bioperl.org              - General discussion
+ http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
+ Report bugs to the Bioperl bug tracking system to help us keep track
+ of the bugs and their resolution. Bug reports can be submitted via
  email or the web:
 
-  bioperl-bugs@bio.perl.org
-  http://bio.perl.org/bioperl-bugs/
+ bioperl-bugs@bioperl.org
+ http://bioperl.org/bioperl-bugs/
 
-=head1 AUTHOR - Bala Savikalpa
+=head1 AUTHOR - Balamurugan Kumarasamy
 
-Email: fugui@worf.fugu-sg.org
+ Email: fugui@worf.fugu-sg.org
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object
-methods. Internal methods are usually preceded with a _
+ The rest of the documentation details each of the object methods.
+ Internal methods are usually preceded with a _
+
 
 =cut
 
@@ -63,20 +64,20 @@ use Bio::Root::Root;
 use Bio::SeqFeature::FeaturePair;
 use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Tools::AnalysisResult);
+@ISA = qw(Bio::Root::Root Bio::Root::IO );
+
 
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Prints(-fh=>$filehandler);
+ Usage   : my $obj = new Bio::Tools::Prints(-fh=>$filehandle);
  Function: Builds a new Bio::Tools::Prints object
  Returns : Bio::Tools::Prints
- Args    : -filename 
-           -fh (filehandle) 
+ Args    : -filename
+           -fh (filehandle)
 
 =cut
-
 sub new {
       my($class,@args) = @_;
 
@@ -86,14 +87,14 @@ sub new {
       return $self;
 }
 
+
 =head2 next_result
 
  Title   : next_result
- Usage   : my $r = $prints_parser->next_result
+ Usage   : my $feat = $prints_parser->next_result
  Function: Get the next result set from parser data
  Returns : L<Bio::SeqFeature::Generic>
  Args    : none
-
 
 =cut
 
@@ -133,8 +134,7 @@ sub next_result {
               
               
               if ($line =~ s/^[HN]//) {
-                   my ($num,$temp,$tot) = "";
-                   
+                   my($num)="";
                    $line =~ s/^\s+//;
 
                    my @elements = split /\s+/, $line;
@@ -167,13 +167,13 @@ sub next_result {
 =head2 create_feature
 
  Title   : create_feature
- Usage   : my $r = $prints_parser->create_feature
- Function: Creates a Seqfeature Generic object
+ Usage   : my $feat=$prints_parser->create_feature($feature,$seqname)
+ Function: creates a SeqFeature Generic object
  Returns : L<Bio::SeqFeature::Generic>
- Args    :  
+ Args    :
+
 
 =cut
-
 sub create_feature {
        my ($self, $feat,$sequenceId) = @_;
 
@@ -200,13 +200,12 @@ sub create_feature {
 
  Title   : print_sac
  Usage   : $prints_parser->print_sac($print_sac)
- Function: get/set for pritn_sac 
- Returns : 
- Args    : 
+ Function: get/set for print_sac
+ Returns :
+ Args    :
+
 
 =cut
-
-
 sub print_sac{
     my($self,$printsac)=@_;
  
@@ -218,7 +217,7 @@ sub print_sac{
 
 }
 
-=head2 seqname
+=head2 seqname 
 
  Title   : seqname
  Usage   : $prints_parser->seqname($seqname)
@@ -226,8 +225,8 @@ sub print_sac{
  Returns :
  Args    :
 
-=cut
 
+=cut
 sub seqname{
     my($self,$seqname)=@_;
 
