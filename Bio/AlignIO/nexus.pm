@@ -134,7 +134,7 @@ sub next_aln {
 
     # file starts with '#NEXUS' but we allow white space only lines before it
     $entry = $self->_readline;
-    $entry = $self->_readline while $entry =~ /^\s+$/;
+    $entry = $self->_readline while defined $entry && $entry =~ /^\s+$/;
 
     return unless $entry;
     $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file\n$entry")
