@@ -110,7 +110,7 @@ sub write_tree{
 	   # for now assumes that characters have been stored
 	   # as tag-values
 	   my @tags = sort $node->get_all_tags;
-	   my @charstates = map { ($node->get_tag_value($_))[0] } @tags;
+	   my @charstates = map { ($node->get_tag_values($_))[0] } @tags;
 	   $self->_print(join(", ", ($node->id || 
 				     sprintf("node%d",$node->internal_id)),
 			      sprintf("node%d",$node->ancestor->internal_id),
