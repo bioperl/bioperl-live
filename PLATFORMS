@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.16 2002-06-18 11:49:35 bosborne Exp $
+# $Id: PLATFORMS,v 1.17 2002-06-18 13:29:18 bosborne Exp $
 
 Perl general comments:
 
@@ -75,7 +75,18 @@ Perl    : 5.6.1
 Comments: Did not attempt to install DB_File or ldb. Bundle::Bioperl
           seems to install without difficulty. Basic functionality
           apart from Bio::Index appears to work. Recommend that blastall
-          be obtained as binary from NCBI (toolbox/ncbi_tools/ncbiz.exe)
+          app be obtained from NCBI (blast/executables/blastz.exe).
+          expat.h in expat package needs the following:
+
+    #ifndef XMLPARSEAPI
+    #  if defined(__declspec) && !defined(__BEOS__) && !defined
+(__CYGWIN32__)
+    #    define XMLPARSEAPI(type) __declspec(dllimport) type __cdecl
+    #  else
+    #    define XMLPARSEAPI(type) type
+    #  endif
+    #endif /* not defined XMLPARSEAPI */ 
+
 
 Machine : MacOS
 Compiler: --
@@ -90,7 +101,6 @@ Perl    : 5.6.0
 Comments: Steve Cannon has made available Bioperl OS X installation
 	  directions and notes online at the following URL:
 	  http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
-
 
 
 Machine : HP-UX / PA-RISC 11.0
