@@ -5,7 +5,7 @@
 # A minimal script that allows basic printing & reformatting of 
 # sequence data. Illustrates use of seqtools.pl (which uses Bio::SeqIO).
 # See seqs2.pl, seqs3.pl, and seqs4.pl for some more advanced scripts.
-# Author  : Steve A. Chervitz (sac@neomorphic.com)
+# Author  : Steve Chervitz (sac@neomorphic.com)
 # Revision: $Id$
 # Usage   : seqs1.pl -h
 # Modified: 

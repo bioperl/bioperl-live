@@ -199,7 +199,7 @@ a converter, is implemented, but not properly tested and documented.
 The relevant environment variables are `CLUSTAL_DIR' and `CLUSTAL'.
 (URL: http://www-igbmc.u-strasbg.fr/BioInfo/ClustalW/Top.html )
 
-(Thanks to Steve A. Chervitz for his help with bundling the module !)
+(Thanks to Steve Chervitz for his help with bundling the module !)
 
 =head1 DESCRIPTION
 
@@ -822,7 +822,7 @@ http://www.techfak.uni-bielefeld.de/~fuellen/
 
 =head1 ACKNOWLEDGEMENTS
 
-Steven E. Brenner, Steve A. Chervitz, Michael Constant, Richard Resnick,
+Steven E. Brenner, Steve Chervitz, Michael Constant, Richard Resnick,
 Chris Dagdigian, Lew Gramer [more to follow]
 
 =head1 SEE ALSO

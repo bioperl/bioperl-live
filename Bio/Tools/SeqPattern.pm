@@ -1,10 +1,10 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::SeqPattern.pm
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 28 Aug 1997
 # REVISION: $Id$
 #            
-# Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ for working with biological sequence regular expressions.
 
 Not all patterns have been tested. If you discover a pattern that
 is not handled properly by Bio::Tools::SeqPattern.pm, please
-send me some email (sac@genome.stanford.edu). Thanks.
+send me some email (sac@bioperl.org). Thanks.
 
 =head1 OTHER FEATURES
 
@@ -201,7 +201,7 @@ or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 =head1 VERSION
 
@@ -209,7 +209,7 @@ Bio::Tools::SeqPattern.pm, 0.011
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

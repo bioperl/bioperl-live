@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::WWW.pm
 # PURPOSE : To encapsulate commonly used URLs for web key websites in bioinformatics.
-# AUTHOR  : Steve A. Chervitz
+# AUTHOR  : Steve Chervitz
 # CREATED : 27 Aug 1996 
 # REVISION: $Id$
 #
@@ -148,7 +148,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 =head1 VERSION
 
@@ -156,7 +156,7 @@ Bio::Tools::WWW.pm, 0.014
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

@@ -5,7 +5,7 @@
 #
 # (This module was originally called Bio::Tools::Blast::Sbjct)
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -169,7 +169,7 @@ or the web:
 
 =head1 AUTHOR - Steve Chervitz
 
-steve_chervitz@affymetrix.com
+sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -181,7 +181,7 @@ colleagues at Affymetrix for useful feedback.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-2001 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1996-2001 Steve Chervitz. All Rights Reserved.
 
 =head1 DISCLAIMER
 

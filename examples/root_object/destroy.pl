@@ -4,7 +4,7 @@
 # PROGRAM : destroy.pl
 # PURPOSE : A basic driver script for testing destruction of Bio::Root::Object.pm
 #           references and parent-child relationships.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 3 Nov 1996
 # REVISION: $Id$
 # INSTALLATION

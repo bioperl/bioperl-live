@@ -2,7 +2,7 @@
 # PACKAGE : Bio::Root::Global.pm
 # PURPOSE : Provides global data, objects, and methods potentially useful to 
 #           many different modules and scripts.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 3 Sep 1996
 # REVISION: $Id$
 #
@@ -123,7 +123,7 @@ use vars qw($AUTHORITY $DEBUG $MONITOR $TESTING $DONT_WARN $WARN_ON_FATAL
             %ROMAN_NUMS $GLOBAL);
 
 # Who should receive feedback from users and possibly automatic error messages.
-$AUTHORITY     = 'sac@genome.stanford.edu';
+$AUTHORITY     = 'sac@bioperl.org';
  
 $DEBUG         = 0;
 $MONITOR       = 0;

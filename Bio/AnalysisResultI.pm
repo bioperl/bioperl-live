@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::AnalysisResultI
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # Derived from Bio::Tools::AnalysisResult by Hilmar Lapp <hlapp@gmx.net>
 #
@@ -62,7 +62,7 @@ or the web:
 
 =head1 AUTHOR - Steve Chervitz, Hilmar Lapp
 
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 Email hlapp@gmx.net (author of Bio::Tools::AnalysisResult on which this module is based)
 
 =head1 COPYRIGHT

@@ -3,7 +3,7 @@
 #----------------------------------------------------------------
 # PROGRAM  : io.pl
 # PURPOSE  : To demonstrate passing filehandles between objects.
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # CREATED  : 21 Mar 1997
 # REVISION : $Id$
 # INSTALLATION

@@ -13,7 +13,7 @@ use strict;
 #-------------------------------------------------------------------
 # PACKAGE  : Outer.pm
 # PURPOSE  : Dummy object for testing Bio::Root::Object.pm and Bio::Root::Err.pm.
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # REVISION : $Id$
 #-------------------------------------------------------------------
 

@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::SearchIO::SearchWriterI
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -30,7 +30,7 @@ objects.
 
 =head1 AUTHOR
 
-Steve Chervitz <steve_chervitz@affymetrix.com>
+Steve Chervitz <sac@bioperl.org>
 
 =head1 DISCLAIMER
 

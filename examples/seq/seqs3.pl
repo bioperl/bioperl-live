@@ -8,7 +8,7 @@
 #            sequences are output.
 #            The basic point is to show how to work with Sequence objects
 #            and Bio::SeqIO streams (via seqtools.pl).
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # CREATED  : 29 Apr 1998
 # REVISION : $Id$
 # USAGE    : seqs3.pl -h

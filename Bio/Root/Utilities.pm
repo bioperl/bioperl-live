@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Root::Utilities.pm
 # PURPOSE : Provides general-purpose utilities of potential interest to any Perl script.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : Feb 1996
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -22,7 +22,7 @@
 #
 # MODIFICATIONS: See bottom of file.
 #
-# Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-2000 Steve Chervitz. All Rights Reserved.
 #          This module is free software; you can redistribute it and/or 
 #          modify it under the same terms as Perl itself.
 #
@@ -151,7 +151,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -167,7 +167,7 @@ Database:
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-98 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1997-98 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

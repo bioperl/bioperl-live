@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::Root::Interface
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -85,7 +85,7 @@ B<Bio::Root::Exception>
 
 =head1 AUTHOR - Steve Chervitz 
 
-steve_chervitz@affymetrix.com
+sac@bioperl.org
 
 =head1 COPYRIGHT
 

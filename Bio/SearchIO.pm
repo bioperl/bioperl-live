@@ -54,7 +54,7 @@ email or the web:
 =head1 AUTHOR - Jason Stajich & Steve Chervitz
 
 Email jason@bioperl.org
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 
 =head1 CONTRIBUTORS
 

@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::Factory::BlastHitFactory
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -53,13 +53,13 @@ or the web:
 
 =head1 AUTHOR Steve Chervitz, 
 
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2001 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
 
 =head1 DISCLAIMER
 

@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------
 # PROGRAM  : restriction.pl
 # PURPOSE  : Simple driver for Bio::Tools::RestrictionEnzyme.pm
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # CREATED  : 2 Jan 1997
 #
 # INSTALLATION

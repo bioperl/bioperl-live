@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Root::Vector.pm
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 15 April 1997
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -16,7 +16,7 @@
 #    0.023, 20 Jul 1998, sac:
 #      * Improved memory management (_destroy_master()).
 #
-#   Copyright (c) 1997 Steve A. Chervitz. All Rights Reserved.
+#   Copyright (c) 1997 Steve Chervitz. All Rights Reserved.
 #             This module is free software; you can redistribute it and/or
 #             modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -168,7 +168,7 @@ Database:
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

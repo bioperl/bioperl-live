@@ -120,7 +120,7 @@ If we really want to incorporate it within Bioperl, a reasonable
 solution would be to distribute Error.pm with Bioperl. 
 
 --
-Steve Chervitz <steve_chervitz@affymetrix.com>
+Steve Chervitz <sac@bioperl.org>
 21 April 2001
 Updated 19 December 2001
 

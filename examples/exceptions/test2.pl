@@ -10,7 +10,7 @@
 # The behavior is the same as when Error.pm is not used.
 # This is important for backward compatibility.
 #
-# Author: Steve Chervitz <steve_chervitz@affymetrix.com>
+# Author: Steve Chervitz <sac@bioperl.org>
 #
 # $Id$
 

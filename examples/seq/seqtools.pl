@@ -20,7 +20,7 @@ BEGIN {
 #            Sequence data can be input and output in a variety of formats 
 #            (raw embl fasta gcg genbank pir scf swiss).
 #            See the Bio/SeqIO directory for the full list.
-# AUTHOR       : Steve A. Chervitz (sac@neomorphic.com)
+# AUTHOR       : Steve Chervitz (sac@neomorphic.com)
 # CREATED      : 10 Apr 1998
 # REVISION     : $Id$
 # INSTALLATION : Edit $INSTALL_PATH to point to the directory containing

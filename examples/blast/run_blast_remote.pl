@@ -10,7 +10,7 @@
 # PROGRAM  : run_blast_remote.pl
 # PURPOSE  : To demonstrate how to run and parse Blast reports using the 
 #            Bio::Tools::Blast.pm module.
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # CREATED  : 3 Feb 1998
 # REVISION : $Id$
 # WEBSITE  : http://bio.perl.org/Projects/Blast/

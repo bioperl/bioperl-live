@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::Search::HSP::HSPI
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 # and Jason Stajich <jason@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
@@ -80,7 +80,7 @@ email or the web:
 
 =head1 AUTHOR - Steve Chervitz, Jason Stajich
 
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 Email jason@bioperl.org
 
 =head1 COPYRIGHT

@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------
 # PROGRAM : parse_positions.pl
 # PURPOSE : To extract identical + conserved positions for a hit.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 12 Jun 1998
 # REVISION: $Id$
 # WEBSITE : http://bio.perl.org/Projects/Blast/

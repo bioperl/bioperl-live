@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::Root::Exception
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -135,11 +135,11 @@ See these RFC's:
 
 =head1 AUTHOR - Steve Chervitz 
 
-steve_chervitz@affymetrix.com
+sac@bioperl.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2001 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 2001 Steve Chervitz. All Rights Reserved.
 
 =head1 DISCLAIMER
 

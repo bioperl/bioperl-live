@@ -26,7 +26,7 @@
 #           containing tab-delimited data on a per-hit basis.
 #   STDERR: Progress info.
 #
-# Author: Steve Chervitz <steve_chervitz@affymetrix.com>
+# Author: Steve Chervitz <sac@bioperl.org>
 # Revision: $Id$
 
 package MyBlastWriter;

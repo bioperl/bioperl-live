@@ -4,7 +4,7 @@
 # PROGRAM : error.pl
 # PURPOSE : A basic driver script for testing Object.pm exception handling
 #           using Bio::Root::Object.pm and Bio::Root::Err.pm.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 28 Oct 1996
 # REVISION: $Id$
 #

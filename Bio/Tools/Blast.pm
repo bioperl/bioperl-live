@@ -2,7 +2,7 @@
 # PACKAGE : Bio::Tools::Blast.pm
 # PURPOSE : To encapsulate code for running, parsing, and analyzing
 #           BLAST reports.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : March 1996
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -13,7 +13,7 @@
 # To generate documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
-# Copyright (c) 1996-2000 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-2000 Steve Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #----------------------------------------------------------------------------
@@ -961,7 +961,7 @@ or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -978,7 +978,7 @@ Bio/Tools/Blast/CHANGES file of the distribution).
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.  This
+Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.  This
 module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 

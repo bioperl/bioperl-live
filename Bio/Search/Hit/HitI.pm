@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::Search::Hit::HitI
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # Originally created by Aaron Mackey <amackey@virginia.edu>
 #
@@ -69,7 +69,7 @@ or the web:
 =head1 AUTHOR - Aaron Mackey, Steve Chervitz
 
 Email amackey@virginia.edu  (original author)
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 
 =head1 COPYRIGHT
 

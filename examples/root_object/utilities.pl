@@ -3,7 +3,7 @@
 #---------------------------------------------------------
 # PROGRAM  : utilities.pl
 # PURPOSE  : A minimal demo script for the Bio::Root::Utilities.pm module.
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # REVISION : $Id$
 #
 # Installation: 

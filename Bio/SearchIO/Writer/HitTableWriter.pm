@@ -117,7 +117,7 @@ corresponding method in Bio::Search::Result::BlastHit.
 
 =head1 AUTHOR
 
-Steve Chervitz <steve_chervitz@affymetrix.com>
+Steve Chervitz <sac@bioperl.org>
 
 =head1 SEE ALSO
 

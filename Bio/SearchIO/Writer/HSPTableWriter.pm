@@ -107,7 +107,7 @@ corresponding method in Bio::Search::HSP::HSPI.
 
 =head1 AUTHOR
 
-Steve Chervitz <steve_chervitz@affymetrix.com>
+Steve Chervitz <sac@bioperl.org>
 
 =head1 SEE ALSO
 

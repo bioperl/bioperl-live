@@ -7,7 +7,7 @@
 #               -- how to screen a set of sequences given a list
 #                  of sequence IDs.
 #               -- write each sequence to a separate file.
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # CREATED  : 10 Apr 1998
 # REVISION : $Id$
 # USAGE    : seqs2.pl -h

@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::SeqAnal.pm
 # PURPOSE : To provide a base class for different sequence analysis tools.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 27 Mar 1998
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -180,7 +180,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -190,7 +190,7 @@ Bio::Tools::SeqAnal.pm, 0.011
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1998 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::AnalysisParserI
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # Derived from Bio::SeqAnalysisParserI by Jason Stajich, Hilmar Lapp.
 #
@@ -100,7 +100,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHOR - Steve Chervitz, Jason Stajich, Hilmar Lapp
 
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 
 Authors of Bio::SeqAnalysisParserI on which this module is based:
 Email jason@chg.mc.duke.edu 

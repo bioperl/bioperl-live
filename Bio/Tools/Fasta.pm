@@ -2,7 +2,7 @@
 # PACKAGE : Bio::Tools::Fasta.pm
 # PURPOSE : To encapsulate code for parsing Fasta sequence files
 #           and eventually for parsing, analyzing, running Fasta analyses.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 27 Mar 1998
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -160,7 +160,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 =head1 VERSION
 
@@ -168,7 +168,7 @@ Bio::Tools::Fasta.pm, 0.014
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1998 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

@@ -2,7 +2,7 @@
 # PACKAGE : Bio::Tools::Blast::Run::Webblast.pm
 # PURPOSE : To run a Blast analysis on a remote server 
 #           and save the results locally.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu) 
+# AUTHOR  : Steve Chervitz (sac@bioperl.org) 
 #               - Webblast.pm: modularized version of webblast.
 #           Alex Dong Li (ali@genet.sickkids.on.ca) 
 #               - original webblast script.
@@ -18,7 +18,7 @@
 #
 # MODIFICATION HISTORY: See bottom of file.
 #
-# Copyright (c) 1998 Alex Dong Li/Steve A. Chervitz/Ross N. Crowhurst. 
+# Copyright (c) 1998 Alex Dong Li/Steve Chervitz/Ross N. Crowhurst. 
 #           All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
@@ -343,7 +343,7 @@ or the web:
 
 =over 0
 
-=item Steve A. Chervitz E<lt>sac@genome.stanford.eduE<gt>
+=item Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
     - Webblast.pm modularized version of webblast script.
 
@@ -363,7 +363,7 @@ Bio::Tools::Blast::Run::Webblast.pm, 1.24
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998, 1999 Steve A. Chervitz, Alex Dong Li,  Ross N. Crowhurst. 
+Copyright (c) 1998, 1999 Steve Chervitz, Alex Dong Li,  Ross N. Crowhurst. 
 All Rights Reserved.This module is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 

@@ -1,13 +1,13 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Root::Xref.pm
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 8 May 1997
 # REVISION: $Id$
 # STATUS  : Pre-Alpha 
 #
 # WARNING: This is considered an experimental module.
 #
-# Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -113,7 +113,7 @@ Bio::Root::Xref.pm, 0.01 pre-alpha
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

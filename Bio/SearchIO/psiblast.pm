@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::SearchIO::psiblast
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -104,7 +104,7 @@ email or the web:
 
 =head1 AUTHOR - Steve Chervitz
 
-steve_chervitz@affymetrix.com
+sac@bioperl.org
 
 =head1 ACKNOWLEDGEMENTS
 

@@ -8,7 +8,7 @@ use lib "/home/steve/perl/lib";
 #----------------------------------------
 # retrieve_blast.pl
 # Retrieves a BLAST report from the NCBI queueing system.
-# Author: Steve A. Chervitz, sac@neomorphic.com
+# Author: Steve Chervitz, sac@neomorphic.com
 # Created: Mon Oct 25 20:54:44 1999
 # Revision: $Id$
 #

@@ -7,7 +7,7 @@
 # Here we use the eval{} style exception handling that's currently
 # in vogue trapping Bioperl exceptions.
 #
-# Author: Steve Chervitz <steve_chervitz@affymetrix.com>
+# Author: Steve Chervitz <sac@bioperl.org>
 #
 # $Id$
 

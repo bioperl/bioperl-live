@@ -16,7 +16,7 @@ BEGIN {
 # LIBRARY      : blast_config.pl
 # PURPOSE      : To provide a set of standard functions & command-line options 
 #                processing for working with Bio::Tools::Blast.pm objects.
-# AUTHOR       : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR       : Steve Chervitz (sac@bioperl.org)
 # CREATED      : 15 May 1998
 # REVISION     : $Id$
 # WEBSITE      : http://bio.perl.org/Projects/Blast/

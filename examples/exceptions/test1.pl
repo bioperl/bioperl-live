@@ -12,7 +12,7 @@
 #
 # This code requires Graham Barr's Error.pm module available from CPAN.
 #
-# Author: Steve Chervitz <steve_chervitz@affymetrix.com>
+# Author: Steve Chervitz <sac@bioperl.org>
 #
 # $Id$
 

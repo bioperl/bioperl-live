@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::Search::Result::ResultI
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # Originally created by Aaron Mackey <amackey@virginia.edu>
 #
@@ -76,7 +76,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 =head1 AUTHOR - Aaron Mackey, Steve Chervitz
 
 Email amackey@virginia.edu  (original author)
-Email steve_chervitz@affymetrix.com
+Email sac@bioperl.org
 
 =head1 COPYRIGHT
 

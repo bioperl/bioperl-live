@@ -1,8 +1,8 @@
 #--------------------------------------------------------------------
 # PACKAGE : PersonManager.pm
 # PURPOSE : Dummy object for testing Bio::Root::Vector.pm.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
-# CREATED : 4 May 1997 (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
+# CREATED : 4 May 1997 (sac@bioperl.org)
 # REVISION: $Id$
 #
 # A PersonManager object may have one or more Person.pm objects.

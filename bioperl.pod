@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.13 2001-06-18 08:27:50 heikki Exp $
+## $Id: bioperl.pod,v 1.14 2002-01-11 08:05:30 sac Exp $
 
 ## Should contain general info about the distribution including
 ## links to all the various modules.
@@ -273,7 +273,7 @@ Rich DiNunno have made significant efforts on our behalf.
 =head1 COPYRIGHT
 
  Copyright (c) 1996-2000 Georg Fuellen, Richard Resnick, Steven E. Brenner,
- Chris Dagdigian, Steve A. Chervitz, Ewan Birney, James Gilbert, Elia Stupka, 
+ Chris Dagdigian, Steve Chervitz, Ewan Birney, James Gilbert, Elia Stupka, 
  and others. All Rights Reserved. This module is free software; 
  you can redistribute it and/or modify it under the same terms as Perl itself.
 

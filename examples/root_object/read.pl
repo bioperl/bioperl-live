@@ -4,7 +4,7 @@
 # PROGRAM  : read.pl
 # PURPOSE  : To demonstrate the read() method of Bio::Root::Object.pm
 #            Uses three tester files read.test1, read.test2, read.test3
-# AUTHOR   : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR   : Steve Chervitz (sac@bioperl.org)
 # CREATED  : 20 Jul 1998
 # REVISION : $Id$
 # USAGE    : read.pl < filename

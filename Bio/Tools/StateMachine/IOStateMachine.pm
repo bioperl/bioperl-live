@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::Tools::StateMachine::IOStateMachine
 #
-# Cared for by Steve Chervitz <steve_chervitz@affymetrix.com>
+# Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself
 #-----------------------------------------------------------------
@@ -60,7 +60,7 @@ or the web:
 
 =head1 AUTHOR - Steve Chervitz
 
-steve_chervitz@affymetrix.com
+sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 

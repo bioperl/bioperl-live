@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::Blast::Run::LocalBlast.pm
 # PURPOSE : Protoype module for running a Blast analysis on a local machine.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu).
+# AUTHOR  : Steve Chervitz (sac@bioperl.org).
 # CREATED : 22 May 1998
 # STATUS  : STUB MODULE, MUST BE CUSTOMIZED FOR A LOCAL SITE.
 # REVISION: $Id$
@@ -145,7 +145,7 @@ or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 =head1 VERSION
 
@@ -153,7 +153,7 @@ Bio::Tools::Blast::Run::LocalBlast.pm, 0.01
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1998 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

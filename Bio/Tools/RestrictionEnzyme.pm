@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::RestrictionEnzyme.pm
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 3 June 1997
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -14,7 +14,7 @@
 #    * Added a few new restriction enzymes to the %RE hash.
 #    * Fixed bug in _make_custom() (now strips white space from RE site).
 #
-# Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
@@ -280,7 +280,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 =head1 VERSION
 
@@ -288,7 +288,7 @@ Bio::Tools::RestrictionEnzyme.pm, 0.04
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-8 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # PACKAGE : Bio::Tools::Blast::HTML.pm
 # PURPOSE : To encapsulate code for HTML formatting BLAST reports.
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 28 Apr 1998
 # STATUS  : Alpha
 # REVISION: $Id$
@@ -18,7 +18,7 @@
 #   modify the regexps in _markup_report() to accomodate the format of
 #   your reports.
 #
-# Copyright (c) 1996-98 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or 
 #           modify it under the same terms as Perl itself.
 #-------------------------------------------------------------------------------
@@ -138,11 +138,11 @@ via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 1998-2000 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1998-2000 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
 

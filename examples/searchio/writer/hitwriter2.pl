@@ -22,7 +22,7 @@
 # For more documentation about the PSI-Blast parser, see docs for
 #   Bio::SearchIO::psiblast
 #
-# Author: Steve Chervitz <steve_chervitz@affymetrix.com>
+# Author: Steve Chervitz <sac@bioperl.org>
 # Revision: $Id$
 
 use strict;

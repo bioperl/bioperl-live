@@ -22,7 +22,7 @@
 #---------------------------------------------------------------------------
 # PROGRAM : parse_multi.pl
 # PURPOSE : To parse a set of Blast report files.
-# AUTHOR  : Steve A. Chervitz
+# AUTHOR  : Steve Chervitz
 # CREATED : 21 Jul 1998
 # REVISION: $Id$
 # WEBSITE : http://bio.perl.org/Projects/Blast/

@@ -327,7 +327,7 @@ sub stack_trace{
            :          first one should be hyphenated.)
  Source    : This function was taken from CGI.pm, written by Dr. Lincoln
            : Stein, and adapted for use in Bio::Seq by Richard Resnick and
-           : then adapted for use in Bio::Root::Object.pm by Steve A. Chervitz.
+           : then adapted for use in Bio::Root::Object.pm by Steve Chervitz.
  Comments  : (SAC)
            : This method may not be appropriate for method calls that are
            : within in an inner loop if efficiency is a concern.

@@ -3,8 +3,8 @@
 #---------------------------------------------------------------------
 # PROGRAM : vector.pl
 # PURPOSE : A basic driver script for testing Bio::Root::Vector.pm.
-# AUTHOR  : Steve A. Chervitz
-# CREATED : 4 May 1997 (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz
+# CREATED : 4 May 1997 (sac@bioperl.org)
 # REVISION: $Id$
 #
 #  A PersonManager object is created which contains a Person data member.

@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 # PACKAGE : Bio::Root::Err.pm
-# AUTHOR  : Steve A. Chervitz (sac@genome.stanford.edu)
+# AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 22 July 1996
 # REVISION: $Id$
 # STATUS  : Alpha
@@ -8,7 +8,7 @@
 # For documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
-# Copyright (c) 1996-8 Steve A. Chervitz. All Rights Reserved.
+# Copyright (c) 1996-8 Steve Chervitz. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #           Retain this notice and note any modifications made.
@@ -167,7 +167,7 @@ their resolution. Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR
 
-Steve A. Chervitz, sac@genome.stanford.edu
+Steve Chervitz, sac@bioperl.org
 
 See the L<FEEDBACK> section for where to send bug reports and comments.
 
@@ -204,7 +204,7 @@ Chris Dagdigian, Georg Fuellen, and Steven Brenner.
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996-8 Steve A. Chervitz. All Rights Reserved.
+Copyright (c) 1996-8 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
