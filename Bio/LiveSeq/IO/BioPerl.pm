@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::IO::BioPerl - Loader for LiveSeq from EMBL entries with BioPerl
+Bio::LiveSeq::IO::BioPerl - Loader for LiveSeq from EMBL entries with BioPerl
 
 =head1 SYNOPSIS
 

@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Repeat_Unit - Repeat_Unit class for LiveSeq
+Bio::LiveSeq::Repeat_Unit - Repeat_Unit class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 

@@ -12,10 +12,13 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Repeat_Region - Repeat_Region class for LiveSeq
+Bio::LiveSeq::Repeat_Region - Repeat_Region class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
+
+=head1 DESCRIPTION
 
 Class for REPEAT_REGION objects. They consist of a beginlabel, an endlabel (both
 referring to a LiveSeq DNA object) and a strand.

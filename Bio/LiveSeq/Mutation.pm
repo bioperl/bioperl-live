@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Mutation - Mutation event descriptor class
+Bio::LiveSeq::Mutation - Mutation event descriptor class
 
 =head1 SYNOPSIS
 

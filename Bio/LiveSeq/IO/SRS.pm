@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::IO::SRS - Loader for LiveSeq from EMBL entries with SRS
+Bio::LiveSeq::IO::SRS - Loader for LiveSeq from EMBL entries with SRS
 
 =head1 SYNOPSIS
 

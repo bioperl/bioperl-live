@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::DNA - DNA object for LiveSeq
+Bio::LiveSeq::DNA - DNA object for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 

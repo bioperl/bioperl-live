@@ -12,11 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::ChainI - Double linked chain data structure
-    
+Bio::LiveSeq::ChainI - Double linked chain data structure
 
 =head1 SYNOPSIS
 
+  #documentation needed
 
 =head1 DESCRIPTION
 

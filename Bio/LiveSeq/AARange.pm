@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::AARange - AARange abstract class for LiveSeq
+Bio::LiveSeq::AARange - AARange abstract class for LiveSeq
 
 =head1 SYNOPSIS
 
+  #documentation needed
 
 =head1 DESCRIPTION
 
@@ -383,7 +384,7 @@ sub dna_seq {
   return ($self->labelsubseq($startlabel,undef,$endlabel));
 }
 
-=head2 dna_seq
+=head2 cdna_seq
 
   Title   : cdna_seq
   Usage   : $end = $aarange->cdna_seq()

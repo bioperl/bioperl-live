@@ -12,10 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Prim_Transcript - Prim_Transcript class for LiveSeq
+Bio::LiveSeq::Prim_Transcript - Prim_Transcript class for LiveSeq
 
 =head1 SYNOPSIS
 
+  # documentation needed
 
 =head1 DESCRIPTION
 

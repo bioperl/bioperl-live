@@ -14,10 +14,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::Chain - DoubleChain DataStructure for Perl
+Bio::LiveSeq::Chain - DoubleChain DataStructure for Perl
 
 =head1 SYNOPSIS
 
+  #documentation needed
 
 =head1 DESCRIPTION
 

@@ -12,9 +12,11 @@
 
 =head1 NAME
 
-  Bio::LiveSeq::IO::Loader - Parent Loader for LiveSeq
+Bio::LiveSeq::IO::Loader - Parent Loader for LiveSeq
 
 =head1 SYNOPSIS
+
+  #documentation needed
 
 =head1 DESCRIPTION
 
