@@ -41,6 +41,8 @@ Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair
     $len = $hsp->length( ['query'|'hit'|'total'] );
 
     $len = $hsp->length( ['query'|'hit'|'total'] );
+    
+    $rank = $hsp->rank;
 
 
 =head1 DESCRIPTION
@@ -138,6 +140,7 @@ BEGIN {
            -homology_seq=> homology sequence for the HSP
            -hit_frame   => hit frame (only if hit is translated protein)
            -query_frame => query frame (only if query is translated protein)
+           -rank        => HSP rank
 
 =cut
 

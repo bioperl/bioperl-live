@@ -105,13 +105,14 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$query_len,$desc, $acc, $length,
       $score,$algo,$signif,$bits,
-      $iter) = $self->_rearrange([qw(HSPS 
+      $iter,$rank) = $self->_rearrange([qw(HSPS 
 				     NAME 
 				     QUERY_LEN
 				     DESCRIPTION
 				     ACCESSION
 				     LENGTH SCORE ALGORITHM 
-				     SIGNIFICANCE BITS ITERATION)], @args);
+				     SIGNIFICANCE BITS ITERATION
+				     RANK )], @args);
   
   $self->{'_query_length'} = $query_len;
 
@@ -129,6 +130,7 @@ sub new {
   defined $score  && $self->raw_score($score);
   defined $bits   && $self->bits($bits);
   defined $iter   && $self->iteration($iter);
+  defined $rank   && $self->rank($rank);
 
   $self->{'_iterator'} = 0;
   $self->{'_hsps'} = [];
@@ -1360,6 +1362,24 @@ sub strand {
 	    return $hstr;
 	}
     }
+}
+
+=head2 rank
+
+ Title   : rank
+ Usage   : $obj->rank($newval)
+ Function: Get/Set the rank of this Hit in the Query search list
+           i.e. this is the Nth hit for a specific query
+ Returns : value of rank
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub rank{
+    my $self = shift;
+    return $self->{'_rank'} = shift if @_;
+    return $self->{'_rank'} || 1;
 }
 
 1;

@@ -140,7 +140,8 @@ sub will_handle{
 sub start_result {
    my ($self,$type) = @_;
    $self->{'_resulttype'} = $type;
-   $self->{'_subjects'} = [];   
+   $self->{'_hits'} = [];   
+   $self->{'_hsps'} = [];
    return;
 }
 
@@ -254,6 +255,8 @@ sub end_hsp {
     # copy this over from result
     $args{'-query_name'} = $data->{'RESULT-query_name'};
     $args{'-hit_name'} = $data->{'HIT-name'};
+    my ($rank) = scalar @{$self->{'_hsps'}} + 1;
+    $args{'-rank'} = $rank;
     my $hsp = $self->factory('hsp')->create(%args);
     push @{$self->{'_hsps'}}, $hsp;
     return $hsp;
@@ -301,6 +304,8 @@ sub end_hit{
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
+    my ($hitrank) = scalar @{$self->{'_hits'}} + 1;
+    $args{'-rank'} = $hitrank;
     my $hit = $self->factory('hit')->create(%args);
     push @{$self->{'_hits'}}, $hit;
     $self->{'_hsps'} = [];

@@ -36,6 +36,8 @@ you can do the following things with it:
 
     $significance = $hit->significance();
 
+    $rank = $hit->rank(); # the Nth hit for a specific query
+
     while( $hsp = $obj->next_hsp()) { ... } # process in iterator fashion
 
     for my $hsp ( $obj->hsps()()) { ... } # process in list fashion
@@ -532,6 +534,24 @@ See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<f
 
 #--------------------
 sub logical_length { shift->throw_not_implemented() }
+
+
+=head2 rank
+
+ Title   : rank
+ Usage   : $obj->rank($newval)
+ Function: Get/Set the rank of this Hit in the Query search list
+           i.e. this is the Nth hit for a specific query
+ Returns : value of rank
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub rank{
+   my ($self,$value) = @_;
+   $self->throw_not_implemented();
+}
 
 1;
 
