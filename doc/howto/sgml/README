@@ -1,9 +1,9 @@
 
 These HOWTOs are written in DocBook SGML.  See the LDP
-(http://www.tldp.org) especially the LDP Author guide on how to author
-these documents in DocBook.  They can be turned into PDF, HTML, Text,
-RTF (which can be MSWord-ified).   
-
+at http://www.tldp.org for more information on how to write documents 
+in DocBook, in particular the LDP Author guide. DocBook SGML can
+be turned into PDF, HTML, Text, and RTF (which can be turned into
+MSWord).   
 
 Jason Stajich
 July 2002

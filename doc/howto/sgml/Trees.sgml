@@ -1,7 +1,7 @@
 <!DOCTYPE article  PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
   <article lang="en">
     <articleinfo>
-      <title>Phylogenetic Tree processing HOWTO</title>
+      <title>Phylogenetic Tree HOWTO</title>
       <author>
 	<firstname>Jason</firstname>
 	<surname>Stajich</surname>
@@ -31,20 +31,21 @@
 	</para>
       </legalnotice>
 
-      <abstract>
-	<para>
-	  This HOWTO is intended to show usage of the Bioperl Tree objects for
-      manipulate phylogenetic trees.  It shows how to read and write
-      trees, query them for information about specific nodes or
-      overall statistics.  Advanced topics include discussion of
-      generating random trees and extensions of the basic structure
-      for integration in other modules in Bioperl.</para>
-      </abstract>
-   </articleinfo>
-
-   <section id="introduction">
-     <title>Introduction</title>
+    <abstract>
       <para>
+	This HOWTO intends to show how to use the Bioperl Tree objects to
+	manipulate phylogenetic trees.  It shows how to read and write
+	trees, query them for information about specific nodes or
+	overall statistics.  Advanced topics include discussion of
+	generating random trees and extensions of the basic structure
+	for integration with other modules in Bioperl.
+      </para>
+    </abstract>
+  </articleinfo>
+
+  <section id="introduction">
+    <title>Introduction</title>
+    <para>
       Generating and manipulating phylogenetic trees is an important
       part of modern systematics and molecular evolution research.
       The construction of trees is the subject of a rich literature
@@ -54,46 +55,45 @@
       </para>
 
       <para>
-
-      The data we intend to capture with these objects is for notion
+      The data we intend to capture with these objects concerns the notion
       of Trees and their Nodes.  A Tree is made up of Nodes and the
       relationships which connect these nodes.  The basic
-      representation of parent and child nodes which are intended to
+      representation of parent and child nodes is intended to
       represent the directionality of evolution.  This is to capture
-      the idea that some ancestor species gave rise, though speciation
-      events, to a number of children species.  The data in the trees
+      the idea that some ancestral species gave rise, through speciation
+      events, to a number of child species.  The data in the trees
       need not be a strictly bifurcating tree (or binary trees to the
-      CS types), a parent node can give rise to 1 or many children
+      CS types), and a parent node can give rise to 1 or many child
       nodes.  
       </para> 
       <para>
 
-      In practice this this implementation there are just a few main
-      objects (or modules) you need to know about.  There is the main
-      Tree object <emphasis>Bio::Tree::Tree</emphasis> which is main
+      In practice there are just a few main
+      objects, or modules, you need to know about.  There is the main
+      Tree object <emphasis>Bio::Tree::Tree</emphasis> which is the main
       entry point to the data represented by a tree.  A Node is
       represented generically by <emphasis>Bio::Tree::Node</emphasis>,
       however there are subclasses of this object to handle particular
       cases where we need a richer object (see
       <emphasis>Bio::PopGen::Simulations::Coalescent</emphasis> and
-      the PopGen HOWTO for more information).  Nodes are connected to
-      one another through a few simple data.  There is the concept of
+      the PopGen HOWTO for more information).  The connections between
+      Nodes are described using a few simple concepts. There is the concept of
       pointers or references where a particular Node keeps track of
-      who its parent is and its children.  A Node can only have one
+      who its parent is and who its children are.  A Node can only have 1
       parent and it can have 1 or many children.  In fact all of the
       information in a tree pertaining to the relationships between
-      Nodes and specific data like bootstrap values and labels are all
+      Nodes and specific data, like bootstrap values and labels, are all
       stored in the Node objects while the
       <emphasis>Bio::Tree::Tree</emphasis> object is just a 
-      container for some summary information about the tree and keeps
-      track of the tree's root node.
+      container for some summary information about the tree and a
+      description of the tree's root node.
       </para>
       
    </section>
    <section id="simple_usage">
      <title>Simple Usage</title>
       <para>
-      Trees are used to representations of the history of a collection of taxa,
+      Trees are used to represent the history of a collection of taxa,
       sequences, or populations. 
       </para>
    </section>
@@ -102,39 +102,38 @@
    <para>
       Using <emphasis>Bio::TreeIO</emphasis> one can read trees
       from files or datastreams and
-      create<emphasis>Bio::Tree::Tree</emphasis> objects.  This is
+      create <emphasis>Bio::Tree::Tree</emphasis> objects.  This is
       analagous to how we read sequences from sequence files with
       <emphasis>Bio::SeqIO</emphasis> to create Bioperl sequence
       objects which can be queried and manipulated.  Similarly we can
       write <emphasis>Bio::Tree::Tree</emphasis> objects out to string
-      representation like the newick or new hampshire format which can
-      be then printed to a file, datastream, stored in database, etc.
+      representations like the Newick or New Hampshire format which can
+      be printed to a file, a datastream, stored in database, etc.
    </para>
    <para>
-
       The main module for reading and writing trees is the
       <emphasis>Bio::TreeIO</emphasis> factory module which has
       several driver modules which plug into it.  These drivers
       include <emphasis>Bio::TreeIO::newick</emphasis> for New
       Hampshire or Newick format,
-      <emphasis>Bio::TreeIO::nhx</emphasis> for New Hampshire eXtended
+      <emphasis>Bio::TreeIO::nhx</emphasis> for the New Hampshire eXtended
       format from Sean Eddy and Christian Zmeck as part of their RIO
       and ATV system [reference here].  The driver
       <emphasis>Bio::TreeIO::nexus</emphasis> supports parsing tree
-      data from PAUP's Nexus format, however this driver currently
-      only supports parsing and not writing of nexus format tree files.
+      data from PAUP's Nexus format. However this driver currently
+      only supports parsing, not writing, of Nexus format tree files.
    </para>
    </section>
    <section>
      <title>Example Code</title>
       <para>
-      Here is some code which will read in a Tree from file called
+      Here is some code which will read in a Tree from a file called
       "tree.tre" and produce a Bio::Tree::Tree object which is stored in 
       the variable <emphasis>$tree</emphasis>.
       </para>
       <para>
       Like most modules which do input/output you can also specify
-      the argument -fh in place of -file provide a glob or filehandle in
+      the argument -fh in place of -file to provide a glob or filehandle in
       place of the filename.  
       </para>
       <para>
@@ -148,14 +147,14 @@
       </para>
       <para>
       Once you have a Tree object you can do a number of things with it.
-      These are all methods required in
-      <emphasis>Bio::Tree::TreeI</emphasis>
+      These are all methods required in <emphasis>Bio::Tree::TreeI</emphasis>.
       </para>
-      
+      </section>
+
       <section id="TreeI">
        <title>Bio::Tree::TreeI methods</title>
         <para>
-	Request the taxa (leaves of the tree)
+	Request the taxa (leaves of the tree).
 	<programlisting>my @taxa = $tree->get_leaf_nodes;</programlisting>
 	</para>
 
@@ -165,7 +164,8 @@
 	</para>
 	<para>
 	Get the total length of the tree (sum of all the branch lengths),
-	only useful if the nodes actually have branch length stored of course.
+	which is only useful if the nodes actually have the branch
+	length stored, of course.
 	<programlisting>my $total_length = $tree->total_branch_length;</programlisting>
 	</para>
 	
@@ -179,11 +179,9 @@
      </para>
      
      <para>
-     
-     Find a particular node, either by name or some other field that is
+     Find a particular node, either by name or by some other field that is
      stored in a Node.  The field type should be the function name we
      can call on all of the Nodes in the Tree.
-     
      <programlisting>
    # find all the nodes named 'node1' (there should be only one) 
    my @nodes = $tree->find_node(-id => 'node1');
@@ -193,15 +191,15 @@
    my @nodes = $tree->find_node(-bootstrap => 70);
    </programlisting>
    
-     If you would like to do more sophisticated searches, like find all
-     the nodes with boostrap value better than 70 you can easily
+     If you would like to do more sophisticated searches, like "find all
+     the nodes with boostrap value better than 70", you can easily
      implement this yourself.
      <programlisting>
      my @nodes = grep { $_->bootstrap > 70 } $tree->get_nodes;
      </programlisting>
 
-     Remove a Node from the Tree (and update the children/ancestor links
-     where the Node is an intervening one)
+     Remove a Node from the Tree and update the children/ancestor links
+     where the Node is an intervening one.
      <programlisting>
    # provide the node object to remove from the Tree
    $tree->remove_Node($node);
@@ -229,7 +227,7 @@
 
    Perform a test of monophyly for a set of nodes and a given outgroup
    node.  This means the common ancestor for the members of the
-   internal_nodes group is more recent than the common ancestor any of them
+   internal_nodes group is more recent than the common ancestor that any of them
    share with the outgroup node.
 
    <programlisting>
@@ -241,10 +239,10 @@
    </programlisting>
    
    Perform a test of paraphyly for a set of nodes and a given outgroup
-   node.  This means a common ancestor 'A' for the members of the
-   group is more recent than a common ancestor 'B' of them share with
-   the outgroup node AND there are no other nodes in the tree which
-   have 'A' as a common ancestor before 'B'.
+   node.  This means that a common ancestor 'A' for the members of the
+   group is more recent than a common ancestor 'B' that they share with
+   the outgroup node <emphasis>and</emphasis> that there are no other 
+	nodes in the tree which have 'A' as a common ancestor before 'B'.
    
    <programlisting>
    if( $tree->is_paraphyletic(-nodes    => \@internal_nodes,
@@ -266,17 +264,15 @@
    </para>
    </section>
 
-   </section>
-
    <section id="advanced_topics">
    <title>Advanced Topics</title>
    <para>
    It is possible to generate random tree topologies with a Bioperl
    object called <emphasis>Bio::Tree::RandomFactory</emphasis>.  The
    factory only requires the specification of the total number of taxa
-   to simulate a history for.  One can request different methods for
-   generating the random phylogeny, at present, however only the
-   simple Yule backward is implemented and is the default choice. 
+   in order to simulate a history.  One can request different methods for
+   generating the random phylogeny. At present, however, only the
+   simple Yule backward is implemented and is the default. 
    </para>
    <para>
    The trees can be generated with the following code.  You can either
@@ -293,7 +289,7 @@
    my @listoftaxa = qw(A B C D E F G H);			      
    my $factory = new Bio::Tree::RandomFactory(-taxa => \@listoftaxa);
    # generate 10 random trees
-   for( my $i = 0; $i < 10; $i++ ) {
+   for( my $i = 0; $i &lt; 10; $i++ ) {
       $out->write_tree($factory->next_tree);
    }
    # One can also just request a total number of taxa (8 here) and 
@@ -314,7 +310,7 @@
    of data, but by no means should this be looked at as the final
    product.  If you have a particular statistic or function that
    applies to trees that you would like to see included in the
-   toolkit, we encourage you to send details to the Bioperl list.
+   toolkit we encourage you to send details to the Bioperl list.
    </para>
    
    </section>
