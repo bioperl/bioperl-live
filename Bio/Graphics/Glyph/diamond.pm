@@ -43,12 +43,8 @@ sub draw_component {
   # because filledPolygon in GD croaks with extra parameters (and
   # doesn't support drawing of stroke anyways).
   if (my $c = $self->bgcolor) {
-    if ($poly_pkg =~ /SVG/) {
-      $gd->filledPolygon($polygon,$c,$fg);
-    } else {
       $gd->filledPolygon($polygon,$c);
       $gd->polygon($polygon,$fg);
-    }
   } else {
     $gd->polygon($polygon,$fg);
   }
