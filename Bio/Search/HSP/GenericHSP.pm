@@ -156,7 +156,7 @@ BEGIN {
            -query_frame => query frame (only if query is translated protein)
            -rank        => HSP rank
            -links       => HSP links information (WU-BLAST only)
-
+           -hsp_group   => HSP Group informat (WU-BLAST only)
 =cut
 
 sub new {
@@ -169,7 +169,7 @@ sub new {
         $hsp_len, $query_len,$hit_len,
         $hit_name,$query_name,$bits,$score,
         $hs,$he,$qs,$qe,
-        $qframe,$hframe, $links,
+        $qframe,$hframe, $links,$hsp_group,
         $rank) = $self->_rearrange([qw(ALGORITHM
                                        EVALUE
                                        PVALUE				       
@@ -197,6 +197,7 @@ sub new {
                                        HIT_FRAME
 				       LINKS
                                        RANK
+                                       HSP_GROUP
                                        )], @args);
 
     $algo = 'GENERIC' unless defined $algo;
@@ -277,8 +278,8 @@ sub new {
                  '-end'       => $he,
                  '-strand'    => $strand,
                  '-expect'    => $evalue,
-                 '-bits'     => $bits,
-                 '-score'    => $score,
+                 '-bits'      => $bits,
+                 '-score'     => $score,
                  '-source'    => $algo,
                  '-seq_id'    => $hit_name,
                  '-seqlength' => $hit_len,
@@ -356,7 +357,8 @@ sub new {
 			    $self->frac_identical('total')*100) if( $hsp_len > 0 );
 
     defined $rank && $self->rank($rank);
-    defined $links && $self->links($links);
+    defined $links && $self->links($links);    
+    defined $hsp_group && $self->hsp_group($hsp_group);
     return $self;
 }
 
@@ -1168,6 +1170,25 @@ sub links{
 
     return $self->{'links'} = shift if @_;
     return $self->{'links'};
+}
+
+=head2 hsp_group
+
+ Title   : hsp_group
+ Usage   : $obj->hsp_group($newval)
+ Function: Get/Set the Group value (from WU-BLAST)
+           Indicates a grouping of HSPs
+ Returns : Value of group
+ Args    : On set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub hsp_group {
+    my $self = shift;
+
+    return $self->{'_hsp_group'} = shift if @_;
+    return $self->{'_hsp_group'};
 }
 
 # The cigar string code is written by Juguang Xiao <juguang@fugu-sg.org>
