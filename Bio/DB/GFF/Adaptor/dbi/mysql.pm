@@ -26,11 +26,30 @@ SELECT fref,
        IF(ISNULL(gclass),'Sequence',gclass),
        min(fstart),
        max(fstop),
-       fstrand
+       fstrand,
+       gname
   FROM fdata,fgroup
   WHERE fgroup.gname=?
     AND fgroup.gclass=?
     AND fgroup.gid=fdata.gid
+    GROUP BY fref,fstrand
+END
+;
+
+use constant GETALIASCOORDS =><<END;
+SELECT fref,
+       IF(ISNULL(gclass),'Sequence',gclass),
+       min(fstart),
+       max(fstop),
+       fstrand,
+       gname
+  FROM fdata,fgroup,fattribute,fattribute_to_feature
+  WHERE fattribute_to_feature.fattribute_value=?
+    AND fgroup.gclass=?
+    AND fgroup.gid=fdata.gid
+    AND fattribute.fattribute_name='Alias'
+    AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id
+    AND fattribute_to_feature.fid=fdata.fid
     GROUP BY fref,fstrand
 END
 ;
@@ -317,6 +336,28 @@ sub make_abscoord_query {
   my ($name,$class,$refseq) = @_;
   defined $refseq ? $self->dbh->do_query(GETFORCEDSEQCOORDS,$name,$class,$refseq) 
     : $self->dbh->do_query(GETSEQCOORDS,$name,$class);
+}
+
+# override parent
+sub get_abscoords {
+  my $self = shift;
+  my ($name,$class,$refseq)  = @_;
+
+  my $result = $self->SUPER::get_abscoords(@_);
+  return $result if $result;
+
+  my $sth = $self->dbh->do_query(GETALIASCOORDS,$name,$class);
+  my @result;
+  while (my @row = $sth->fetchrow_array) { push @result,\@row }
+  $sth->finish;
+
+  if (@result == 0) {
+    $self->error("$name not found in database");
+    return;
+  } else {
+    return \@result;
+  }
+
 }
 
 =head2 make_features_by_name_where_part

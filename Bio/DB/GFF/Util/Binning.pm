@@ -9,28 +9,23 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 
 sub bin {
   my ($start,$stop,$min) = @_;
-  my $magnitude = int(1+log10(($stop - $start) || 1));
-  my $tier = 10 ** $magnitude;
-  $tier = $min if $tier < $min;
-  my $bin_start = int $start/$tier;
-  my $bin_end   = int $stop/$tier;
-  $tier *= 10 if $bin_start != $bin_end;
-  my $index = int $start/$tier;
-  return wantarray ? ($tier,$index) : bin_name($tier,$index);
+  my $tier = $min;
+  my ($bin_start,$bin_end);
+  while (1) {
+    $bin_start = int $start/$tier;
+    $bin_end   = int $stop/$tier;
+    last if $bin_start == $bin_end;
+    $tier *= 10;
+  }
+  return wantarray ? ($tier,$bin_start) : bin_name($tier,$bin_start);
 }
 
 sub bin_bot {
   my $tier = shift;
   my $pos  = shift;
-  my $bin_no = int($pos/$tier);
-  bin_name($tier,$bin_no > 0 ? $bin_no-1 : 0);
-}
-
-sub bin_top {
-  my $tier = shift;
-  my $pos  = shift;
   bin_name($tier,int($pos/$tier));
 }
+*bin_top = \&bin_bot;
 
 sub bin_name { sprintf("%d.%06d",@_) }
 

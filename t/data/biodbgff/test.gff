@@ -21,5 +21,5 @@ Contig2	clone	Component	1	2000	.	.	.	Target "Clone:AL12345.1" 1 2000; Note "Terr
 Contig2	clone	Component	2001	5000	.	.	.	Target "Clone:AL11111.1" 6000 3001
 Contig2	clone	Component	5001	20000	.	.	.	Target "Clone:AC13221.2" 1 15000
 Contig2	clone	Component	2001	37450	.	.	.	Target "Clone:M7.3" 1001 36450
-Contig2	predicted	transcript	2501	4500	.	+	.	Transcript trans-3
+Contig2	predicted	transcript	2501	4500	.	+	.	Transcript trans-3 ; Alias trans-18
 Contig2	predicted	transcript	5001	8001	.	-	.	Transcript trans-4

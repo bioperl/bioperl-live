@@ -311,8 +311,14 @@ sub bin_query {
   $maxbin = defined $maxbin ? $maxbin : $self->max_bin;
   my $tier = $maxbin;
   while ($tier >= $minbin) {
-    push @bins,'fbin between ? and ?';
-    push @args,bin_bot($tier,$start),bin_top($tier,$stop);
+    my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
+    if ($tier_start == $tier_stop) {
+      push @bins,'fbin=?';
+      push @args,$tier_start;
+    } else {
+      push @bins,'fbin between ? and ?';
+      push @args,($tier_start,$tier_stop);
+    }
     $tier /= 10;
   }
   $query = join("\n\t OR ",@bins);

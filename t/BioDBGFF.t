@@ -7,7 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
-use constant TEST_COUNT => 109;
+use constant TEST_COUNT => 113;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -336,6 +336,15 @@ while ($i->next_seq) {
   $count++;
 }
 ok($count,2);
+
+# test that aliases work
+my $st1 = $db->segment(Transcript => 'trans-3');
+ok($st1);
+my $st2 = $db->segment(Transcript => 'trans-18');  # this is an alias!
+ok($st2);
+ok($st1 eq $st2);
+my @transcripts = $st1->features('transcript');
+ok(($transcripts[0]->aliases)[0] eq 'trans-18');
 
 END {
   unlink FASTA_FILES."/directory.index";

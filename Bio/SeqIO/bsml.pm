@@ -1350,7 +1350,7 @@ sub _parseparams {
         $param[$i]=~s/^\-//;
         $param[$i]=~tr/a-z/A-Z/;
     }
-    my(%hash) = @param;
+    %hash = @param;
     return \%hash;
 }
 

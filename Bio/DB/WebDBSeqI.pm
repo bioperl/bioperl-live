@@ -232,7 +232,7 @@ sub get_request {
 =cut
 
 sub get_Stream_by_id {
-    my ($self, $ids) = @_;        
+    my ($self, $ids) = @_;
     return $self->get_seq_stream('-uids' => $ids, '-mode' => 'single');
 }
 
@@ -402,10 +402,10 @@ sub get_seq_stream {
 =cut
 
 sub url_base_address {
-    my ($self, $value) = @_;
-    if( defined $value ) {
-	$self->{'_baseaddress'} = $value;
-    }    
+    my $self = shift;
+    my $d = $self->{'_baseaddress'};
+    $self->{'_baseaddress'} = shift if @_;
+    $d;
 }
 
 

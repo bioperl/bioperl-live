@@ -243,7 +243,8 @@ sub new {
   }
 
   foreach (@abscoords) {
-    my ($absref,$absclass,$absstart,$absstop,$absstrand) = @$_;
+    my ($absref,$absclass,$absstart,$absstop,$absstrand,$sname) = @$_;
+    $sname = $name unless defined $sname;
     my ($this_start,$this_stop,$this_length) = ($start,$stop,$length);
 
     # partially fill in object
@@ -264,7 +265,7 @@ sub new {
     }
 
     # this allows a SQL optimization way down deep
-    $self->{whole}++ if $absref eq $name and !defined($this_start) and !defined($this_stop);
+    $self->{whole}++ if $absref eq $sname and !defined($this_start) and !defined($this_stop);
 
     $this_start     = 1                    if !defined $this_start;
     $this_stop      = $absstop-$absstart+1 if !defined $this_stop;
@@ -298,7 +299,7 @@ sub new {
       @{$self}{qw(ref refstart refstrand)} = ($refseq,$refstart,$refstrand);
     } else {
       $absstart = $absstop if $absstrand eq '-';
-      @{$self}{qw(ref refstart refstrand)} = ($name,$absstart,$absstrand);
+      @{$self}{qw(ref refstart refstrand)} = ($sname,$absstart,$absstrand);
     }
     push @object_results,$self;
   }

@@ -47,9 +47,9 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
   my %type_counts = $segment->types(-enumerate=>1);
 
   # get an iterator on all curated features of type 'exon' or 'intron'
-  my $iterator = $db->get_feature_stream(-type     => ['exon:curated','intron:curated']);
+  my $iterator = $db->get_seq_stream(-type     => ['exon:curated','intron:curated']);
 
-  while (my $s = $iterator->next_feature) {
+  while (my $s = $iterator->next_seq) {
       print $s,"\n";
   }
 
@@ -843,31 +843,36 @@ sub features {
 		   );
 }
 
-=head2 get_feature_stream
+=head2 get_seq_stream
 
- Title   : features
- Usage   : $db->get_feature_stream(@args)
- Function: get a stream on features, possibly filtered by type
-  Returns : a Bio::SeqIO::Stream
+ Title   : get_seq_stream
+ Usage   : my $seqio = $self->get_seq_sream(@args)
+ Function: Performs a query and returns an iterator over it
+ Returns : a Bio::SeqIO stream capable of producing sequence
  Args    : As in features()
  Status  : public
 
 This routine takes the same arguments as features(), but returns a
 Bio::SeqIO::Stream-compliant object.  Use it like this:
 
-  $stream = $db->get_feature_stream('exon');
+  $stream = $db->get_seq_stream('exon');
   while (my $exon = $stream->next_seq) {
-     print $exon,"\n";  
+     print $exon,"\n";
   }
+
+NOTE: This is also called get_feature_stream(), since that's what it
+really does.
 
 =cut
 
-sub get_feature_stream {
+sub get_seq_stream {
   my $self = shift;
-  my @args = $_[0] !~ /^-/ ? (-iterator=>1,-types=>\@_)
-                           : (-iterator=>1,@_);
+  my @args = !defined($_[0]) || $_[0] =~ /^-/ ? (@_,-iterator=>1)
+                                              : (-types=>\@_,-iterator=>1);
   $self->features(@args);
 }
+
+*get_feature_stream = \&get_seq_stream;
 
 =head2 fetch_feature_by_name
 
@@ -1050,23 +1055,16 @@ sub absolute {
   $d;
 }
 
-=head2 get_seq_stream
-
-Bioperl compatibility.  See Bio::SeqIO.
-
-=cut
-
-# bioperl-compatible stuff
-sub get_seq_stream {
-  my $self = shift;
-  my @args = !defined($_[0]) || $_[0] =~ /^-/ ? (@_,-iterator=>1)
-                                              : (-types=>\@_,-iterator=>1);
-  $self->features(@args);
-}
-
 =head2 get_Seq_by_id
 
-Bio::DB::RandomAccessI compatibility
+ Title   : get_Seq_by_id
+ Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
+ Function: Gets a Bio::Seq object by its name
+ Returns : a Bio::Seq object
+ Args    : the id (as a string) of a sequence
+ Throws  : "id does not exist" exception
+
+NOTE: Bio::DB::RandomAccessI compliant method
 
 =cut
 
@@ -1080,7 +1078,14 @@ sub  get_Seq_by_id {
 
 =head2 get_Seq_by_accession
 
-Bio::DB::RandomAccessI compatibility
+ Title   : get_Seq_by_accession
+ Usage   : $seq = $db->get_Seq_by_accession('AL12234')
+ Function: Gets a Bio::Seq object by its accession
+ Returns : a Bio::Seq object
+ Args    : the id (as a string) of a sequence
+ Throws  : "id does not exist" exception
+
+NOTE: Bio::DB::RandomAccessI compliant method
 
 =cut
 
@@ -1091,9 +1096,18 @@ sub  get_Seq_by_accession {
   return $stream->next_seq;
 }
 
-=head2 get_Stream_by_accession ()
+=head2 get_Stream_by_acc ()
 
-Bioperl compatibility.
+=head2 get_Seq_by_acc
+
+ Title   : get_Seq_by_acc
+ Usage   : $seq = $db->get_Seq_by_acc('X77802');
+ Function: Gets a Bio::Seq object by accession number
+ Returns : A Bio::Seq object
+ Args    : accession number (as a string)
+ Throws  : "acc does not exist" exception
+
+NOTE: Bio::DB::RandomAccessI compliant method
 
 =cut
 
@@ -1104,9 +1118,16 @@ sub get_Stream_by_name {
   Bio::DB::GFF::ID_Iterator->new($self,$id,'name');
 }
 
-=head2 get_Stream_by_id ()
+=head2 get_Stream_by_id
 
-Bioperl compatibility.
+  Title   : get_Stream_by_id
+  Usage   : $seq = $db->get_Stream_by_id(@ids);
+  Function: Retrieves a stream of Seq objects given their ids
+  Returns : a Bio::SeqIO stream object
+  Args    : an array of unique ids/accession numbers, or 
+            an array reference
+
+NOTE: This is also called get_Stream_by_batch()
 
 =cut
 
@@ -1116,6 +1137,22 @@ sub get_Stream_by_id {
   my $id = ref($ids[0]) ? $ids[0] : \@ids;
   Bio::DB::GFF::ID_Iterator->new($self,$id,'feature');
 }
+
+=head2 get_Stream_by_batch ()
+
+  Title   : get_Stream_by_batch
+  Usage   : $seq = $db->get_Stream_by_batch(@ids);
+  Function: Retrieves a stream of Seq objects given their ids
+  Returns : a Bio::SeqIO stream object
+  Args    : an array of unique ids/accession numbers, or 
+            an array reference
+
+NOTE: This is the same as get_Stream_by_id().
+
+=cut
+
+*get_Stream_by_batch = \&get_Stream_by_id;
+
 
 =head2 get_Stream_by_group ()
 
@@ -1129,14 +1166,6 @@ sub get_Stream_by_group {
   my $id = ref($ids[0]) ? $ids[0] : \@ids;
   Bio::DB::GFF::ID_Iterator->new($self,$id,'group');
 }
-
-=head2 get_Stream_by_batch ()
-
-Bioperl compatibility.
-
-=cut
-
-*get_Stream_by_batch = \&get_Stream_by_id;
 
 =head2 all_seqfeatures
 
