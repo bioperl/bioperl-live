@@ -7,7 +7,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
-$DEBUG = 1;$ENV{'BIOPERLDEBUG'} || 0;
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
@@ -51,15 +51,14 @@ exit 0 if $ERROR ==  1;
 
 use Data::Dumper;
 
-require Bio::Tools::Analysis::DNA::ESEfinder;
+use Bio::Tools::Analysis::DNA::ESEfinder;
 use Bio::PrimarySeq;
 use Bio::Seq;
-require Bio::WebAgent;
+use Bio::WebAgent;
 
 ok 1;
 
-my $verbose = 0;
-$verbose = 1 if $DEBUG;
+my $verbose = $DEBUG;
 my $tool;
 
 
@@ -68,28 +67,20 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
                                -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
 
 ok $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
-if ( $DEBUG ) {
-    ok $tool->run ( );
-    
-    ok my @res = $tool->result('Bio::SeqFeatureI');
-    #new tests her in v 1.2
-    ok my $raw = $tool->result('');
-    ok my $parsed = $tool->result('parsed');
-    ok my $meta = $tool->result('all');
-    ok ($parsed->[0][1], 41);
-    if (scalar @res > 0) {
-		ok 1;
-    } else {
-		skip('No network access - could not connect to ESEfinder server', 1);
-    }
-    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-		ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
-		ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");
-		ok ($meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
-    }
+ok $tool->run ( );
+ok my @res = $tool->result('Bio::SeqFeatureI');
 
-} else { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('skipping tests to avoid timeouts - set BIOPERLDEBUG env variable to 1 to run.',1);
-    }
+ok my $raw = $tool->result('');
+ok my $parsed = $tool->result('parsed');
+ok my $meta = $tool->result('all');
+ok ($parsed->[0][1], 41);
+if (scalar @res > 0) {
+    ok 1;
+} else {
+    skip('No network access - could not connect to ESEfinder server', 1);
+}
+if (!$METAERROR) {              #if Bio::Seq::Meta::Array available
+    ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
+    ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");
+    ok ($meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
 }
