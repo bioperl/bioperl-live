@@ -218,7 +218,7 @@ sub _parse_genes {
       	$self->debug( $_ ) if( $self->verbose > 0);
         ($score) = $_=~ m/Score\s+(\d+[\.][\d]+)/;
         $self->_score($score) unless defined $self->_score;
-        ($prot_id) = $_=~ m/Query protein:\s+(\S+)/;
+        ($prot_id) = $_=~ m/Query protein|model:\s+(\S+)/;
         $self->_prot_id($prot_id) unless defined $self->_prot_id;
         ($target_id) = $_=~  m/Target Sequence\s+(\S+)/;	
         $self->_target_id($target_id) unless defined $self->_target_id;
@@ -263,7 +263,7 @@ sub _parse_genes {
             $exon->add_tag_value('phase',$phase);
             $exon->is_coding(1);
       	    if( $self->_prot_id ) {
-		$exon->add_tag_value('Sequence',"Protein:".$self->_prot_id);
+		$exon->add_tag_value('Target',"Protein:".$self->_prot_id);
        	    }
       	    $exon->add_tag_value("Exon",$nbr++);
 	    if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {
@@ -271,7 +271,8 @@ sub _parse_genes {
 		my $prot_strand;
 		($prot_start,$prot_end,$prot_strand) = $self->_get_strand($prot_start,$prot_end);
 		my $pf = new Bio::SeqFeature::Generic
-		    ( -start   => $prot_start,-end     => $prot_end,
+		    ( -start   => $prot_start, 
+		      -end     => $prot_end,
 		      -seq_id  => $self->_prot_id,
 		      -score   => $self->_score,
 		      -strand  => $prot_strand,
@@ -291,6 +292,10 @@ sub _parse_genes {
 		    (-feature1 =>$gf,
 		     -feature2 =>$pf);
 		$exon->add_tag_value( 'supporting_feature',$fp );
+		if( $self->_prot_id ) {
+		    $exon->add_tag_value('Target',$prot_start);
+		    $exon->add_tag_value('Target',$prot_end);
+		}
 	    }
             $transcript->add_exon($exon);
 	}
