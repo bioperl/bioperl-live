@@ -21,25 +21,27 @@
 
 ## We start with some black magic to print on failure.
 BEGIN { 
-    eval { require 'IO/String.pm';
-       };
+    eval { require 'IO/String.pm' };
     if( $@ ) {
 	print STDERR "IO::String not loaded. This means DB test cannot be executed. Skipping\n";
 	print "1..1\n";
 	print "ok 1\n";
 	exit(0);
     } 
-
-    $| = 1; print "1..4\n"; 
-    use vars qw($loaded); }
+    
+    $| = 1; print "1..25\n"; 
+    use vars qw($loaded $testnum); 
+}
 
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::DB::GenBank;
 use Bio::DB::GenPept;
 use Bio::DB::SwissProt;
-
+use strict;
 $loaded = 1;
+my $testnum;
+my $verbose = 0;
 print "ok 1\n";    # 1st test passes.
 
 
@@ -49,56 +51,98 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-
-sub test ($$;$) {
-    my($num, $true,$msg) = @_;
-    $msg = '' if !defined $msg;
-    print($true ? "ok $num\n" : "not ok $num $msg\n");
+{ 
+    $testnum = 2;
+    sub test ($;$) {
+	my($true,$msg) = @_;	
+	$msg = '' if !defined $msg;
+	print($true ? "ok $testnum\n" : "not ok $testnum $msg\n");
+	$testnum++;
+    }
 }
 
-my $seq;
-
+my ($gb,$seq,$seqio);
+# get a single seq
 eval { 
-    my $gb = new Bio::DB::GenBank; 
-    $seq = $gb->get_Seq_by_id('MUSIGHBA1'); 
+    test defined ( $gb = new Bio::DB::GenBank(-verbose=>$verbose) );     
+    test defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1'))
+	&& $seq->length == 408; 
+    test  defined ($seq = $gb->get_Seq_by_acc('AF303112')) 
+	&& $seq->length == 1611; 
+    test defined($seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 
+							   2981014)]));
+    test $seqio->next_seq->length == 408;
+    test $seqio->next_seq->length == 1611;
+    test $seqio->next_seq->length == 1156;
 };
 
 if ($@) {
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\n{Probably no network access.\n Skipping Test\n";
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping Test\n";
     warn $@;
-    test 2, 1;
-} else {
-    test 2, ( $seq->length == 408 );
+    while ( $testnum <= 8 ) { test 0 }
 }
-$seq = undef;
+$seq = $seqio = undef;
 
 eval { 
-    my $gb = new Bio::DB::GenPept; 
-    $seq = $gb->get_Seq_by_id('195055'); 
+    test defined($gb = new Bio::DB::GenPept(-verbose=>$verbose)); 
+    test defined($seq = $gb->get_Seq_by_id('195055'))
+	&& $seq->length == 136; 
+    test defined($seq = $gb->get_Seq_by_acc('AAC06201'))
+	&& $seq->length == 353;
+    test defined($seqio = $gb->get_Stream_by_batch([ qw(AAC06201 195055)]));
+    test $seqio->next_seq->length() == 353;
+    test $seqio->next_seq->length == 136;
 };
 
 if ($@) {
     warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\nProbably no network access\n";
-    test 3, 1;
-} else {
-    test 3, ( $seq->length == 136 );
+    warn $@;
+    while( $testnum <= 14 ) { test 0 }    
 }
-
-$seq = undef;
+$seq  = $seqio = undef;
 
 eval { 
-    my $gb = new Bio::DB::SwissProt; 
-    $seq = $gb->get_Seq_by_acc('P43780'); 
+    test defined($gb = new Bio::DB::SwissProt(-verbose=>$verbose)); 
+    test defined($seq = $gb->get_Seq_by_acc('P43780')) 
+	&& $seq->length == 103; 
+    $gb = new Bio::DB::SwissProt(-verbose=>$verbose, 
+				 -retrievaltype => 'tempfile');
+    test defined($seqio = $gb->get_Stream_by_id('KPY1_ECOLI'));
+    undef $gb; # testing to see if we can remove gb
+    test defined($seq = $seqio->next_seq()) && $seq->length == 470;
 };
 
 if ($@) {
-    warn ($@);
-    warn "Warning: Couldn't connect to Genbank with Bio::DB::Swiss.pm!\nProbably no network access\n";
-    test 4, 1;
-} else {
-    test 4, ( $seq->length == 103 );    
+    print STDERR "Warning: Couldn't connect to Genbank with Bio::DB::Swiss.pm!\nProbably no network access\n" . $@;
+
+    while( $testnum <= 18) { test 0;}
+
 }
+$seq = undef;
 
+# test the temporary file creation and fasta
+eval {
+    test defined ( $gb = new Bio::DB::GenBank(-verbose=>$verbose,
+					      -format => 'fasta',
+					      -retrievaltype => 'tempfile') );
+    test defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1'))
+	&& $seq->length == 408; 
+    test  defined ($seq = $gb->get_Seq_by_acc('AF303112')) 
+	&& $seq->length == 1611; 
+    test defined($seqio = $gb->get_Stream_by_batch([ qw(J00522 AF303112 
+							   2981014)]));
+    test $seqio->next_seq->length == 408;
+    undef $gb;  # test the case where the db is gone, 
+                # but a temp file should remain until seqio goes away. 
 
+    test $seqio->next_seq->length == 1611;
+    test $seqio->next_seq->length == 1156;
+    
+};
 
-
+if ($@) {
+    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nProbably no network access.\n Skipping Test\n";
+    warn $@;
+    while ( $testnum <= 25 ) { test 0 }
+}
+$seq = $seqio = undef;

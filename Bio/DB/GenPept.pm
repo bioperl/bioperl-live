@@ -1,5 +1,3 @@
-
-#
 # $Id$
 #
 # BioPerl module for Bio::DB::GenPept
@@ -11,6 +9,8 @@
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
+
+# completely reworked by Jason Stajich to use Bio::DB::WebDBSeqI 2000-12-12
 
 =head1 NAME
 
@@ -24,7 +24,12 @@ Bio::DB::GenPept - Database object interface to GenPept
 
     # or ...
 
-    $seq = $gb->get_Seq_by_acc('195055'); # Accession Number
+    $seq = $gb->get_Seq_by_acc('DEECTH'); # Accession Number
+    
+    my $seqio = $gb->get_Stream_by_id(['195055', 'DEECTH']);
+    while( my $seq = $seqio->next_seq ) {
+	print "seq is is ", $seq->display_id, "\n";
+    }
 
 =head1 DESCRIPTION
 
@@ -35,18 +40,24 @@ WARNING: Please do NOT spam the Entrez web server with multiple requests.
 NCBI offers Batch Entrez for this purpose.  Batch Entrez support will likely
 be supported in a future version of DB::GenPept.
 
+Currently the only return format supported by NCBI Entrez for GenPept
+database is GenPept format, so any format specification passed to
+GenPept will be ignored still be forced to GenPept format (which is
+just GenBank format).
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the
+evolution of this and other Bioperl modules. Send
+your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation
+is much appreciated.
 
-
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  bioperl-guts-l@bioperl.org         - Technically-oriented discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -57,13 +68,15 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Aaron Mackey
+=head1 AUTHOR - Aaron Mackey, Jason Stajich
 
 Email amackey@virginia.edu
+Email jason@chg.mc.duke.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -71,99 +84,83 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::DB::GenPept;
 use strict;
-use vars qw(@ISA $DEFAULTFORMAT);
+use vars qw(@ISA $DEFAULTFORMAT %PARAMSTRING );
+use Bio::DB::NCBIHelper;
 
-# Object preamble - inherits from Bio::DB::BioSeqI
+@ISA = qw(Bio::DB::NCBIHelper);
+BEGIN { 
+    $DEFAULTFORMAT = 'genpept';	    
+    %PARAMSTRING = ( batch  => { 'DB'          => 'p',
+				 'REQUEST_TYPE'=> 'LIST_OF_GIS',
+				 'HTML'        => 'FALSE',
+				 'SAVETO'      => 'FALSE',
+				 'NOHEADER'    => 'TRUE' },
+		     single => { 'db'    => 'p',
+				 'form'  => '6',			     
+				 'title' => 'no',			     
+			     }
+		     );
+}
 
-use Bio::DB::RandomAccessI;
-use Bio::SeqIO;
-use IO::Socket;
-use IO::File;
-use Bio::Root::RootI;
-
-@ISA = qw(Bio::Root::RootI Bio::DB::RandomAccessI);
-$DEFAULTFORMAT = 'GenBank';
 # the new way to make modules a little more lightweight
 sub new {
   my($class,@args) = @_;
-
-  my $self = bless {}, $class;
-  my ($format) = $self->_rearrange([qw(FORMAT)],
-				   @args);
-  $format = $DEFAULTFORMAT unless $format;
-  $self->request_format($format);
- return $self; # success - we hope!
+  my $self = bless({}, $class);    
+  $self->_initialize(@args);  
+  return $self;
 }
+
+sub _initialize {
+    my ($self, @args) = @_;    
+    my $make = $self->SUPER::_initialize(@args);
+    # force format to GenPept at this point in time, NCBI entrez
+    # will only return that type
+    $self->request_format($self->default_format);
+    return $make;
+}
+
+=head2 get_params
+
+ Title   : get_params
+ Usage   : my %params = $self->get_params($mode)
+ Function: Returns key,value pairs to be passed to NCBI database
+           for either 'batch' or 'single' sequence retrieval method
+ Returns : a key,value pair hash
+ Args    : 'single' or 'batch' mode for retrieval
+
+=cut
+
+sub get_params {
+    my ($self, $mode) = @_;
+    return %{$PARAMSTRING{$mode}};
+}
+
+=head2 default_format
+
+ Title   : default_format
+ Usage   : my $format = $self->default_format
+ Function: Returns default sequence format for this module
+ Returns : string
+ Args    : none
+
+=cut
+
+sub default_format {
+    return $DEFAULTFORMAT;
+}
+
+# from Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
+
+=head2 Routines Bio::DB::WebDBSeqI from Bio::DB::RandomAccessI
 
 =head2 get_Seq_by_id
 
  Title   : get_Seq_by_id
- Usage   : $seq = $db->get_Seq_by_id($uid);
- Function: Gets a Bio::Seq object by its unique identifier/name
+ Usage   : $seq = $db->get_Seq_by_id('ROA1_HUMAN')
+ Function: Gets a Bio::Seq object by its name
  Returns : a Bio::Seq object
- Args    : $uid : the id (as a string) of the desired sequence entry
-
-=cut
-
-sub get_Seq_by_id {
-
-  my $self = shift;
-  my $uid = shift or $self->throw("Must supply an identifier!\n");
-
-  my ($fmt, $streamfmt) = $self->request_format();
-  my $entrez = "db=p&form=6&dopt=$fmt&html=no&title=no&uid=$uid" ;
-
-  my $stream = $self->_get_stream($entrez, $streamfmt);
-  my $seq = $stream->next_seq();
-  $self->throw("Unable to get seq for id $uid, is it really a genpept id?\n")
-      if( !defined $seq );
-  return $seq;
-}
-
-=head2 get_Seq_by_acc
-
-  Title   : get_Seq_by_acc
-  Usage   : $seq = $db->get_Seq_by_acc($acc);
-  Function: Gets a Bio::Seq object by its accession number
-  Returns : a Bio::Seq object
-  Args    : $acc : the accession number of the desired sequence entry
-  Note    : For GenPept, this just calls the same code for get_Seq_by_id()
-
-=cut
-
-sub get_Seq_by_acc {
-
-  my $self = shift;
-  my $acc = shift or $self->throw("Must supply an accesion number!\n");
-  
-  return $self->get_Seq_by_id($acc);
-}
-
-=head2 get_Stream_by_id
-
-  Title   : get_Stream_by_id
-  Usage   : $stream = $db->get_Stream_by_id( [$uid1, $uid2] );
-  Function: Gets a series of Seq objects by unique identifiers
-  Returns : a Bio::SeqIO stream object
-  Args    : $ref : a reference to an array of unique identifiers for
-                   the desired sequence entries
-
-
-=cut
-
-sub get_Stream_by_id {
-
-  my $self = shift;
-  my $id = shift or $self->throw("Must supply a unique identifier!\n");
-  ref($id) eq "ARRAY" or $self->throw("Must supply an array ref!\n");
-
-  my $uid = join(',', @{$id});
-  my ($fmt, $streamfmt) = $self->request_format();
-  my $entrez = "db=p&form=6&dopt=$fmt&html=no&title=no&uid=$uid" ;
-
-  return $self->_get_stream($entrez, $streamfmt);
-
-}
+ Args    : the id (as a string) of a sequence
+ Throws  : "id does not exist" exception
 
 =head2 get_Stream_by_acc
 
@@ -173,17 +170,17 @@ sub get_Stream_by_id {
   Returns : a Bio::SeqIO stream object
   Args    : $ref : a reference to an array of accession numbers for
                    the desired sequence entries
-  Note    : For GenPept, this just calls the same code for get_Stream_by_id()
+  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
-=cut
+=head2 Routines implemented by Bio::DB::NCBIHelper
 
-sub get_Stream_by_acc {
+=head2 get_request
 
-  my $self = shift;
-  my $acc = shift or $self->throw("Must supply an accesion number!\n");
-
-  return $self->get_Seq_by_id($acc);
-}
+ Title   : get_request
+ Usage   : my $url = $self->get_request
+ Function: HTTP::Request
+ Returns : 
+ Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =head2 get_Stream_by_batch
 
@@ -197,154 +194,40 @@ sub get_Stream_by_acc {
   Args    : $ref : either an array reference, a filename, or a filehandle
             from which to get the list of unique ids/accession numbers.
 
-=cut
+=head2 get_Stream_by_id
 
+  Title   : get_Stream_by_id
+  Usage   : $stream = $db->get_Stream_by_id( [$uid1, $uid2] );
+  Function: Gets a series of Seq objects by unique identifiers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of unique identifiers for
+                   the desired sequence entries
 
-sub get_Stream_by_batch {
-   my $self = shift;
-   my $ref = shift or $self->throw("Must supply an argument!\n");
-   my $which = ref($ref);
-   my $fh;
-   # my $filename; # not used; what was the purpose?
-   if ( $which eq 'ARRAY') { # $ref is an array reference
-       $fh = new_tmpfile IO::File;
-       for ( @{$ref} ) {
-           print $fh $_ . "\n";
-       }
-       seek $fh, 0, 0;
-       #$filename = "tempfile.txt";
-   } elsif ( $which eq '') { # $ref is a filename
-       $fh = IO::File->new($ref, "r") || 
-	   $self->throw("file $ref does not exist or is not readable");
+=head2 get_Stream_by_acc
 
-       #$filename = $ref;
-   } elsif ( $which eq 'GLOB' or $which eq 'IO::File') { # $ref is assumed to be a filehandle
-       $fh = $ref;
-       #$filename = "tempfile.txt";
-   } else {
-       $self->throw("stream by batch did not get a valid argument\n");
-   }
-   my ($fmt, $streamfmt) = $self->request_format();
-   # unfortunately it seems that we must recode the format code ...
-   if($fmt eq 'g') {
-       # genbank
-       $fmt = "6";
-   } elsif($fmt eq 'f') {
-       $fmt = "1";
-   } # else we leave it as it is
-   my $wwwbuf = "DB=p&REQUEST_TYPE=LIST_OF_GIS&FORMAT=$fmt&HTML=FALSE&SAVETO=FALSE&NOHEADER=TRUE&UID=" . join(',', grep { chomp; } <$fh> );
-   
-   my $sock = $self->_get_sock();
-
-   select $sock;
-   print "POST /cgi-bin/Entrez/qserver.cgi HTTP/1.0\015\012";
-   print "Host: www.ncbi.nlm.nih.gov\015\012";
-   print "User-Agent: $0::Bio::DB::GenBank\015\012";
-   print "Connection: Keep-Alive\015\012";
-   print "Content-type: application/x-www-form-urlencoded\015\012";
-   print "Content-length: " . length($wwwbuf) . "\015\012";
-   print "\015\012";
-   print $wwwbuf;
-
-   while (<$sock>) {
-       if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
-           my $code = $1;
-           return undef unless $code =~ /^2/;
-       }
-       $self->throw("Entrez Error - check query sequences!\n") if m/^ERROR/i;
-       last if m/Batch Entrez results/;
-   }
-   return Bio::SeqIO->new('-fh' => $sock, '-format' => $streamfmt);	  
-}
+  Title   : get_Stream_by_acc
+  Usage   : $seq = $db->get_Seq_by_acc($acc);
+  Function: Gets a series of Seq objects by accession numbers
+  Returns : a Bio::SeqIO stream object
+  Args    : $ref : a reference to an array of accession numbers for
+                   the desired sequence entries
+  Note    : For GenBank, this just calls the same code for get_Stream_by_id()
 
 =head2 request_format
 
  Title   : request_format
- Usage   : $db->request_format("GenBank");
-           ($fmt, $streamfmt) = $db->request_format();
- Function: Sets the format in which all sequences for following queries
-           shall be requested. At present, only "GenBank" and "Fasta" are
-           supported. Using "Fasta" when you are solely interested in the
-           sequence itself may pay off in performance, because the
-           feature table doesnt have to be downloaded.
-
-           As a Get method, returns an array of 2 strings, the first one
-           denoting the NCBI code for the format, and the second one
-           denoting the SeqIO format name. Should normally only be of use
-           internally (as a client, you already get a ready-to-read stream).
-
- Returns : An array of two strings.
- Args    : The desired format for sequence retrieval.
+ Usage   : my $format = $self->request_format;
+           $self->request_format($format);
+ Function: Get/Set sequence format retrieval
+ Returns : string representing format
+ Args    : $format = sequence format
 
 =cut
 
+# oberride to force format to be GenPept regardless
 sub request_format {
-    my ($self, $fmt) = @_;
-
-    if(defined($fmt)) {
-	$fmt = lc $fmt;
-	# only two formats are supported at present (does anyone know how to
-	# request other formats from NCBI?)
-	if($fmt eq 'genbank') {
-	    $self->{'_format'} = "g";
-	    $self->{'_streamfmt'} = "genbank";
-	} elsif($fmt eq 'fasta') {
-	    $self->{'_format'} = "f";
-	    $self->{'_streamfmt'} = "fasta";
-	} else {
-	    $self->throw("currently only GenBank and Fasta supported");
-	}
-    }
-    return ($self->{'_format'}, $self->{'_streamfmt'});
-}
-
-sub _get_stream {
-
-  my($self, $entrez, $streamfmt) = @_;
-
-# most of this socket stuff is borrowed heavily from LWP::Simple, by
-# Gisle Aas and Martijn Koster.  They copyleft'ed it, but we should give
-# them full credit for this little diddy.
-
-  my $sock = $self->_get_sock();
-
-  print $sock join("\015\012" =>
-		   "GET /htbin-post/Entrez/query?$entrez HTTP/1.0",
-		   "Host: www.ncbi.nlm.nih.gov",
-		   "User-Agent: $0::Bio::DB::GenPept",
-		   "", "");
-
-  while(<$sock>) {
-    if ( m,^HTTP/\d+\.\d+\s+(\d+)[^\012]\012, ) {
-      my $code = $1;
-      return undef unless $code =~ /^2/;
-    }
-    $self->throw("Entrez Error - check query sequences!\n") if m/^ERROR/i;
-    last if m/^------/; # Kludgy, but it's how L. Stein does Boulder too
-  }
-
-  if(! defined($streamfmt)) {
-      my $dummy;
-      ($dummy, $streamfmt) = $self->request_format();
-  }
-  return Bio::SeqIO->new('-fh' => $sock, '-format' => $streamfmt);
-
-}
-
-sub _get_sock {
-    my $self = shift;
-    my $sock = IO::Socket::INET->new(PeerAddr => 'www.ncbi.nlm.nih.gov',
-                                   PeerPort => 80,
-                                   Proto    => 'tcp',
-                                   Timeout  => 60
-                                  );
-    unless ($sock) {
-	$@ =~ s/^.*?: //;
-	$self->throw("Can't connect to GenBank ($@)\n");
-    }
-    $sock->autoflush(); # just for safety's sake if they have old IO::Socket
-
-    return $sock;
+    my ($self) = @_;
+    return $self->SUPER::request_format($self->default_format());
 }
 
 1;
