@@ -88,8 +88,7 @@ GetOptions ('dsn:s'       => \$DSN,
 	    'password:s'  => \$PASSWORD,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
-            'maxbin:s'    => \$MAX_BIN,
-            'maxfeature:s'=> \$MAX_FEATURE,
+            'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'     => \$GROUP_TAG,
 	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 

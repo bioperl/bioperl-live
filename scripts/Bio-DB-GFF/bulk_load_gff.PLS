@@ -139,8 +139,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
             'local'         => \$LOCAL,
-            'maxbin:s'      => \$MAX_BIN,
-            'maxfeature:s'  => \$MAX_BIN,
+            'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'       => \$GROUP_TAG,
 	    'long_list:s'   => \$LONG_LIST
 	   ) or (system('pod2text', $0), exit -1);
@@ -194,6 +193,7 @@ my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
 
 $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
+$MAX_BIN ||= $db->meta('max_bin') || 100_000_000;
 
 # deal with really long lists of files
 if ($LONG_LIST) {

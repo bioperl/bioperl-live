@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.14 2004-07-20 17:54:07 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.15 2004-07-23 15:57:00 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -140,8 +140,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
 	    'group:s'       => \$GROUP_TAG,
-            'maxbin:s'      => \$MAX_BIN
-            'maxfeature:s'  => \$MAX_BIN
+            'maxbin|maxfeature:s'    => \$MAX_BIN,
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
@@ -163,6 +162,8 @@ my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@args)
 if ($CREATE) {
   $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 }
+
+$MAX_BIN ||= $db->meta('max_bin') || 100_000_000;
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;
