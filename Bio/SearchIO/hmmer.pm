@@ -170,6 +170,9 @@ sub next_result{
    my $seentop = 0;
    my $reporttype;
    my ($last,@hitinfo,@hspinfo,%hspinfo,%hitinfo);
+   
+   my @alignemnt_lines;
+
    $self->start_document();
    while( defined ($_ = $self->_readline )) {
        chomp;
@@ -243,6 +246,7 @@ sub next_result{
 	       my ($prelength,$lastdomain,$count,$width);
 	       $count = 0;
 	       my %domaincounter;
+	       my $second_tier=0;
 	       while( defined($_ = $self->_readline) ) {
 		   next if( /^Align/o );
 		   if( /^Histogram/o || m!^//!o ) { 
@@ -254,16 +258,15 @@ sub next_result{
 		       }
 		       last;
 		   }
-
 		   chomp;
-
-		   if( /^\s*(\S+):\s+domain\s+(\d+)\s+of\s+(\d+)\,\s+from\s+(\d+)\s+to\s+(\d+)/o ) {
+		   
+		   if( /^\s*(.+):\s+domain\s+(\d+)\s+of\s+(\d+)\,\s+from\s+(\d+)\s+to\s+(\d+)/o ) {
 		       my ($name,$domainct,$domaintotal,
 			   $from,$to) = ($1,$2,$3,$4,$5);
 		       $domaincounter{$name}++;		       
 		       if( ! defined $lastdomain || $lastdomain ne $name ) {
 			   if( $self->within_element('hit') ) {
-			       if( $self->in_element('hsp') ) {
+			       if( $self->within_element('hsp') ) {
 				   $self->end_element({'Name' => 'Hsp'});
 			       }
 			       $self->end_element({'Name' => 'Hit'});
@@ -277,14 +280,11 @@ sub next_result{
 					   'Data' => shift @{$info}});
 			   $self->element({'Name' => 'Hit_desc',
 					   'Data' => shift @{$info}});
-			   $self->element({'Name' => 'Hit_score',
-					   'Data' => shift @{$info}});
 			   $self->element({'Name' => 'Hit_signif',
 					   'Data' => shift @{$info}});
+			   $self->element({'Name' => 'Hit_score',
+					   'Data' => shift @{$info}});
 		       }
-		       if( defined $lastdomain ) {
-			   $self->end_element({'Name' => 'Hsp'});
-		       } 
 		       $self->start_element({'Name' => 'Hsp'});
 		       $self->element({'Name' => 'Hsp_identity',
 				       'Data' => 0});
@@ -313,35 +313,49 @@ sub next_result{
 				       'Data' => shift @$HSPinfo});
 		       $lastdomain = $name;
 		   } else { 
-		       if( /^(\s+\*\-\>)(\S+)/o  || # start
-			   /^(\s+)(\S+)\<\-\*\s*$/o # end of domain
-			   ) {
+		       # Might want to change this so that it
+		       # accumulates all the of the alignment lines into 
+		       # three array slots and then tests for the 
+		       # end of the line
+		       
+		       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
 			   $prelength = CORE::length($1);
-			   $width = CORE::length($2);
-			   $self->element({'Name' =>'Hsp_hseq',
+			   $width = 0;
+			   # $width = CORE::length($2);
+			   $self->element({'Name' =>'Hsp_qseq',
 					   'Data' => $2});
 			   $count = 0;
-		       } elsif( CORE::length($_) == 0 || /^\s+$/o ) { 
+			   $second_tier = 0;
+		       } elsif ( /^(\s+)(\S+)\<\-\*\s*$/o ) { #end of domain
+			   $self->element({'Name' =>'Hsp_qseq',
+					   'Data' => $2});
+			   $width = CORE::length($2);
+			   $count = 0;
+		       } elsif( CORE::length($_) == 0 || /^\s+$/o ||
+				/^\s+\-?\*\s*$/ ) { 
 			   next;
 		       } elsif( $count == 0 ) {
+			   $prelength -= 3 unless ($second_tier++);
 			   unless( defined $prelength) { 
 			       # $self->warn("prelength not set"); 
 			       next;
 			   }
-			   $self->element({'Name' => 'Hsp_hseq',
+			   $self->element({'Name' => 'Hsp_qseq',
 					   'Data' => substr($_,$prelength)});
-
 		       } elsif( $count == 1) { 
-			   if( ! defined $prelength || ! defined $width) { 
-			       $self->warn("prelength or width not set"); 
+			   if( ! defined $prelength ) { 
+			       $self->warn("prelength not set"); 
+			   }			       
+			   if( $width ) {
+			       $self->element({'Name' => 'Hsp_midline',
+					       'Data' => substr($_,$prelength,$width)});
+			   } else { 
+			       $self->element({'Name' => 'Hsp_midline',
+					       'Data' => substr($_,$prelength)});
 			   }
-			   $self->element({'Name' => 'Hsp_midline',
-					   'Data' => substr($_,$prelength,
-							    $width)});
 		       } elsif( $count == 2) {
 			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ) {
-			       # how do reverse strand matches work on DNA???
-			       $self->element({'Name' => 'Hsp_qseq',
+			       $self->element({'Name' => 'Hsp_hseq',
 					       'Data'  => $3});
 			   } else {
 			       $self->warn("unrecognized line: $_\n");
@@ -351,7 +365,7 @@ sub next_result{
 		   }
 	       }
 	   } elsif(  /^Histogram/o || m!^//!o ) { 
-	       while( my $HSPinfo = shift @hspinfo ) {
+	       while( my $HSPinfo = shift @hspinfo ) {		  
 		   my $id = shift @$HSPinfo;
 		   my $info = $hitinfo[$hitinfo{$id}];
 		   next unless defined $info;
@@ -418,6 +432,7 @@ sub next_result{
 	   } elsif( /^Alignments of top/o  ) {
 	       my ($prelength,$lastdomain,$count,$width);
 	       $count = 0;
+	       my $second_tier=0;
 	       while( defined($_ = $self->_readline) ) {
 		   next if( /^Align/o );
 		   if( /^Histogram/o || m!^//!o ) { 
@@ -479,31 +494,44 @@ sub next_result{
 
 		       $lastdomain = $name;
 		   } else { 
-		       if( /^(\s+\*\-\>)(\S+)/o ||
-			   /^(\s+)(\S+)\<\-\*\s*$/o) {
+		       if( /^(\s+\*\-\>)(\S+)/o  ) { # start of domain
 			   $prelength = CORE::length($1);
-			   $width = CORE::length($2);
+			   $width = 0;
+			   # $width = CORE::length($2);
 			   $self->element({'Name' =>'Hsp_hseq',
 					   'Data' => $2});
 			   $count = 0;
-		       } elsif( CORE::length($_) == 0 || /^\s+$/o ) { 
+			   $second_tier = 0;
+		       } elsif ( /^(\s+)(\S+)\<\-?\*?\s*$/o ) { #end of domain
+			   $prelength -= 3 unless ($second_tier++);
+			   $self->element({'Name' =>'Hsp_hseq',
+					   'Data' => $2});
+			   $width = CORE::length($2);
+			   $count = 0;
+		       } elsif( CORE::length($_) == 0 || /^\s+$/o ||
+				/^\s+\-?\*\s*$/ ) { 
 			   next;
 		       } elsif( $count == 0 ) {
-			   if( ! defined $prelength) { 
-			       $self->warn("prelength not set"); }
-
+			   $prelength -= 3 unless ($second_tier++);
+			   unless( defined $prelength) { 
+			       # $self->warn("prelength not set"); 
+			       next;
+			   }
 			   $self->element({'Name' => 'Hsp_hseq',
 					   'Data' => substr($_,$prelength)});
-
 		       } elsif( $count == 1) { 
-			   if( ! defined $prelength || ! defined $width) { 
-			       $self->warn("prelength or width not set"); 
+			   if( ! defined $prelength ) { 
+			       $self->warn("prelength not set"); 
+			   }			       
+			   if( $width ) {
+			       $self->element({'Name' => 'Hsp_midline',
+					       'Data' => substr($_,$prelength,$width)});
+			   } else { 
+			       $self->element({'Name' => 'Hsp_midline',
+					       'Data' => substr($_,$prelength)});
 			   }
-			   $self->element({'Name' => 'Hsp_midline',
-					   'Data' => substr($_,$prelength,$width)});
 		       } elsif( $count == 2) {
 			   if( /^\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+)/o ) {
-			       # how do reverse strand matches work on DNA???
 			       $self->element({'Name' => 'Hsp_qseq',
 					       'Data'  => $3});
 			   } else {
