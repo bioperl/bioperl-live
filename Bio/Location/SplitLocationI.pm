@@ -107,21 +107,6 @@ sub sub_Location {
     $self->_abstractDeath;
 }
 
-=head2 add_sub_Location
-
- Title   : add_sub_Location
- Usage   : $feat->add_sub_Location($locationIobj);
- Function: add an additional sublocation
- Returns : # of current sub locations
- Args    : LocationI object to add
-
-=cut
-
-sub add_sub_Location {
-    my ($self,@args) = @_;
-    $self->_abstractDeath;
-}
-
 =head2 splittype
 
   Title   : splittype
