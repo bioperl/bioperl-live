@@ -435,9 +435,6 @@ o DEPENDENCIES AND Bundle::BioPerl
 			                 Bio::Structure::IO
 
  XML::Parser              Parsing of XML documents
-			                 Bio::SeqIO::game
-			                 Bio::Variation::* 
-			                 Bio::SearchIO::blastxml
 			                 Bio::Biblio::IO::medlinexml
 
  Requires expat from http://sourceforge.net/projects/expat/
