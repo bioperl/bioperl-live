@@ -470,6 +470,7 @@ sub _set_options {
     if($email)   { $resultReturnProtocol="email";
 		   $emailAddress = $email; }
     if($server)  { $blastServerURL = $server;}
+           else  { $blastServerURL = '';}
     if($minl)    { $minimumLength = $minl; } # if match minlength
     if($maxl)    { $maximumLength = $maxl; } # if match maxlength
     if($dir)     { $_out_dir = $dir; }
@@ -1846,7 +1847,9 @@ __END__
 #
 #  1.2.1, 25 Jun 1999, sac:
 #      -- Bug fix in _blast(): Removing characters from temp file name 
-#         that could confuse shell.
+#         that could confuse shell (reported by Bradford Powell).
+#      -- Bug fix in _set_options() to reset the blastServerURL between
+#         invocations (reported by James Diggans).
 #
 #  1.2, 20 Apr 1999, sac:
 #      -- Added support for new options introduced by RNC's modifications
