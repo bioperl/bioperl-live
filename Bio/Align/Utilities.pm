@@ -76,7 +76,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::Utilities;
-use vars qw(@ISA @EXPORT @EXPORT_OK $GAP $CODONGAP);
+use vars qw(@ISA @EXPORT @EXPORT_OK $GAP $CODONGAP %EXPORT_TAGS);
 use strict;
 use Carp;
 use Bio::Root::Version;
@@ -85,8 +85,8 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT = qw();
-@EXPORT_OK = qw(aa_to_dna_aln);
-
+@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates);
+%EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
 BEGIN {
     use constant CODONSIZE => 3;
     $GAP = '-';
@@ -166,58 +166,44 @@ sub aa_to_dna_aln {
     return $dnaalign;
 }
 
+=head2 bootstrap_replicates
 
-# This is the previous implementation of aa_to_dna_aln function
-# which is ~98% slower.
+ Title   : bootstrap_replicates
+ Usage   : my $alns = &bootstrap_replicates($aln,100);
+ Function: Generate a pseudo-replicate of the data by randomly
+           sampling, with replacement, the columns from an alignment for
+           the non-parametric bootstrap.
+ Returns : Arrayref of L<Bio::SimpleAlign> objects
+ Args    : L<Bio::SimpleAlign> object
+           Number of replicates to generate
 
-sub OLD_aa_to_dna_aln {
-    my ($aln,$dnaseqs) = @_;
-    unless( defined $aln && 
-	    ref($aln) &&
-	    $aln->isa('Bio::Align::AlignI') ) { 
-	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
-    }
-    my $alnlen = $aln->length;
-    #print "HSP length is $alnlen\n";
-    my $dnaalign = new Bio::SimpleAlign;
-    foreach my $seq ( $aln->each_seq ) {    
-	my $newseq;	    
-	my $dnaseq = $dnaseqs->{$seq->display_id} || croak("cannot find ".
-							 $seq->display_id);
-	foreach my $pos ( 1..$alnlen ) {
-	    my $loc = $seq->location_from_column($pos);
-	    my $dna = ''; 
-	    if( !defined $loc || $loc->location_type ne 'EXACT' ) {
-		$dna = '---';
-	    } else {
-		# To readjust to codon boundaries
-		# end needs to be +1 so we can just multiply by CODONSIZE 
-		# to get this		    
+=cut
 
-		my ($start,$end) = ((($loc->start - 1)* CODONSIZE) +1,
-				    ($loc->end)* CODONSIZE);
-		
-		if( $start <=0 || $end > $dnaseq->length() ) {
-		    print STDERR "start is ", $loc->start, " end is ", $loc->end, " while dnaseq length is ", $dnaseq->length(), " and start/end projected are $start,$end \n";
-		    warn("codons don't seem to be matching up for $start,$end");
-		    $dna = '---';			    
-		} else {
-		    $dna = $dnaseq->subseq($start,$end);
-		}
-	    }
-	    $newseq .= $dna;
-	}
-	# funky looking math is to readjust to codon boundaries and deal
-	# with fact that sequence start with 1
-	my $newdna = new Bio::LocatableSeq(-display_id  => $seq->id(),
-					   -start => (($seq->start - 1) * 
-						      CODONSIZE) + 1, 
-					   -end   => ($seq->end * CODONSIZE),
-					   -strand => $seq->strand,
-					   -seq   => $newseq);    
-	$dnaalign->add_seq($newdna);
-    }
-    return $dnaalign;
+sub bootstrap_replicates {
+   my ($aln,$count) = @_;
+   $count ||= 1;
+   my $alen = $aln->length;
+   my @seqs = map { $_->seq() } $aln->each_seq;
+   my @alns;
+   while( $count-- > 0 ) {
+       my @newseqs;
+       for(my $i =0; $i < $alen; $i++ ) {
+	   my $index = int(rand($alen));
+	   my $c = 0;
+	   for ( @seqs ) {
+	       $newseqs[$c++] .= substr($_,$index,1);
+	   }
+       }
+       my $newaln = Bio::SimpleAlign->new();
+       for my $s ( @newseqs ) {
+	   $newaln->add_seq( Bio::LocatableSeq->new
+			     (-start => 1,
+			      -end   => $alen,
+			      -seq   => $s));
+       }
+       push @alns, $newaln;
+   }
+   return \@alns;
 }
 
 1;
