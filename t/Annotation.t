@@ -18,10 +18,11 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..1\n"; }
+BEGIN { $| = 1; print "1..7\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Bio::Annotation;
+use Bio::Annotation::DBLink;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
@@ -32,4 +33,37 @@ print "ok 1\n";    # 1st test passes.
 ## Insert additional test code below but remember to change
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
+
+
+
+$link1 = new Bio::Annotation::DBLink(-database => 'TSC',
+				     -primary_id => 'TSC0000030'
+				     );
+print  "ok 2\n";
+
+if( $link1->database() eq 'TSC') { 
+    print "ok 3\n";
+} else {
+    print "not ok 3\n";
+}
+
+if( $link1->primary_id() eq 'TSC0000030') { 
+    print "ok 4\n";
+} else {
+    print "not ok 4\n";
+}
+
+my $a = Bio::Annotation->new ();
+print  "ok 5\n";
+
+
+$a->add_DBLink($link1);
+print  "ok 6\n";
+
+foreach $link ( $a->each_DBLink ) {
+    $link->primary_id;
+    $link->database;
+}
+print  "ok 7\n";
+
 
