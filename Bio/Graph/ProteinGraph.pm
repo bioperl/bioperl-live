@@ -208,8 +208,8 @@ sub has_node {
 sub nodes_by_id {
 
 	my $self  = shift;
-	my @refs  = $self->_ids(@_);
-	my @nodes = $self->nodes(@refs);
+	my @nodes  = $self->_ids(@_);
+	#my @nodes = $self->nodes(@refs);
 	wantarray? @nodes: $nodes[0];
 
 }
@@ -650,83 +650,79 @@ sub unconnected_nodes {
 
 =cut
 
+
+
 sub articulation_points {
 
- my $self = shift;
- my $nodes = $self->_nodes;
- my $nbors = $self->_neighbors;
- my $i = 0;
+ my $self      = shift;
+ my @subgraphs = $self->components();
+ my %rts;
+ for my $sg (@subgraphs) {
+    my $all_nodes = $sg->_nodes;
 
- ## get list of nodes with only 1 interactor, these can't be part of an ap,
- ## they're external nodes.
- map{$self->{'_single'}{$_} = undef}
-       grep{scalar @{$nbors->{$_}} == 1 }keys %$nbors;
+    ##ignore isolated vertices
+	next if scalar keys %$all_nodes <= 2;
+    my $neighbors = $sg->_neighbors;
 
- ##create DS to cache found APs
- $self->{'_aps'}   = {} unless exists ($self->{'_aps'});
- $self->{'_verts'} = {} unless exists ($self->{'_verts'});
- my $aps     = $self->{'_aps'};
- my $apverts = $self->{'_verts'};
-my %sub_graph_nodes;
- for my $node (keys %$nodes) {
-	if ($i++ % 10 == 0) {print STDERR ".";}
-	 ## skip if only has 1 neighbor
-	 next if exists($self->{'_single'}{$node});
+	## find most connected - will be artic point if has >2 neighbors.
+    ## use this to initiate DFS
+	my ($c, $id, $max);
+	for my $n (keys %$neighbors) {
+		my $c = scalar @{$neighbors->{$n}};#
+		($max, $id) = ($c, $n) if  $c > $max;#
+	}
 
-    $self->{'_unique'} = {}; 
-     my %node_sets;
-	my @neighbors = @{$nbors->{$node}};
-	for my $nbor(@neighbors) {
+	my $t      = $sg->node_traversal($all_nodes->{$id},'d');
+	my @nodes  = $t->get_all();
+	
+	## cycle through each node 
+	for (my $i       = $#nodes; $i >= 0; $i--) {
 
-        ## skip if neighbor is an external node
-	    next if exists($self->{'_single'}{$nbor});
+		## initiate minimn to node_id
+		my $curr_min = $all_nodes->{$nodes[$i]}{'_node_id'};
+		
+		## cycle through neighbors, reset minumum if required
+		my $nbors    = $neighbors->{$nodes[$i]};
+		for my $nbor (@$nbors) {	
+			my $nbor_id = $all_nodes->{$nbor}{'_node_id'};
 
-		## make traversal from each neighbor
-		my $t   = $self->traversal($nbor);
-		my @all = $t->get_all($node);
-  
-        ## count how many times a node has been seen in DFS
-		map {$self->{'_unique'}{$_}++}@all;
-	#	next if grep{$self->{'_unique'}{$_} >1}@all;
-		$node_sets{$nbor} =   \@all;
-		}
+			## if is back edge ##
+			if ($nbor_id < $i) {
+				$curr_min  = $nbor_id if $nbor_id < $curr_min ;
+				}
 
-    ## if there is one set of unique nodes, then there is an AP. 
-	for my $nset (keys %node_sets) {
-		next unless defined( $node_sets{$nset}->[0]) ;
-		my $isapt = 1;
-        
-		for my $test (@{$node_sets{$nset}}) {
-			if($self->{'_unique'}{$test} >1) {
-				$isapt = 0;
-				last;
+			## else is tree edge
+			elsif($nbor_id > $i) {
+				my $wlow   = $all_nodes->{$nbor}{'_wlow'};
+				$curr_min  = $wlow if $wlow < $curr_min;
+				}
+		}#next neighbor
+		
+		## now we know the minimum, save. 
+		$all_nodes->{$nodes[$i]}{'_wlow'} = $curr_min;
+
+		## now get tree nodes and test condition
+        my @treenodes = grep{$all_nodes->{$_}{'_node_id'} > $i}@$nbors;
+		for my $tn (@treenodes) {
+			if(($all_nodes->{$tn}{'_wlow'} >= $i && $i != 0) ||
+			($i == 0  && scalar @{$neighbors->{$nodes[0]}} > 1) ){
+				$rts{$nodes[$i]} = $nodes[$i] unless exists $rts{$nodes[$i]};
 			}
 		}
-        ## make new AP if one not existing already. 
-		if ($isapt) {
-			  my ($m,$n)  = ($node, $nset);
-			 ($m, $n)     = ($n, $m) if $n lt $m;
-		  	if (!exists  ($aps->{$m,$n})) {
-				$aps->{$m,$n} = [$nodes->{$node}, $nodes->{$nset}] ;
-				map{$self->{'_verts'}{$_} = undef}($m,$n);
-				}
-			## now make subgraph of RT nodes, and amke lookuphash for them
-            #push @sub_graphs, $self->subgraph(@{$node_sets{$nset}}, $node);
-			#map {$sub_graph_nodes{$_} = undef} @{$node_sets{$nset}};
-		}
-	}	
- }
-	## now we have list of subgraphs
-	return $aps;
+		
+   }#next node
+ }#next sg
+return  values %rts; ## hash of key value
 }
+
 
 
 
 sub _ids {
 	my $self = shift;
 	my @refs;
-	while (@_) {
-		push @refs, $self->{'_id_map'}{shift @_ };
+	while (my $id = shift@_) {
+		push @refs, $self->{'_id_map'}{$id};
 	}
 	return @refs;
 }
