@@ -83,6 +83,11 @@ $instance = {
                 definitions => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.definition?rev=HEAD",
                 format => 'soflat',
                                     },
+             'Sequence Ontology Feature Annotation' => {
+                ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
+                definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',
+                format => 'soflat',
+                                    },
             };
 
 bless $instance, __PACKAGE__;
@@ -159,3 +164,5 @@ sub documents {
     return ();
   }
 }
+
+1;

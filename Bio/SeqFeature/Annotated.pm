@@ -566,7 +566,7 @@ sub get_Annotations{
    my ($self,$tag) = @_;
 
    my @annotations = $self->annotation->get_Annotations($tag);
-   @annotations ||= ();
+   #@annotations ||= ();
 
    if(wantarray){
      return @annotations;

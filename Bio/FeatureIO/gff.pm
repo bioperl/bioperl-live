@@ -91,8 +91,9 @@ sub _initialize {
   }
   $self->_pushback($directive);
 
+  #need to validate against SOFA, no SO
   $self->so(
-            Bio::Ontology::OntologyStore->get_ontology('Sequence Ontology')
+            Bio::Ontology::OntologyStore->get_ontology('Sequence Ontology Feature Annotation')
            );
 }
 
@@ -315,9 +316,9 @@ sub _handle_feature {
   }
 
   #Handle Ontology_term attributes
-  if($attr{Ontology_term}){
-    $self->warn("Warning for line:\n$feature_string\nOntology_term attribute handling not yet implemented, skipping it");
-  }
+#  if($attr{Ontology_term}){
+#    $self->warn("Warning for line:\n$feature_string\nOntology_term attribute handling not yet implemented, skipping it");
+#  }
 
   #Handle Gap attributes
   if($attr{Gap}){
@@ -351,7 +352,7 @@ sub _handle_feature {
     $ac->add_Annotation('Name',$a);
   }
 
-  foreach my $other_canonical (qw(Alias Parent Note)){
+  foreach my $other_canonical (qw(Alias Parent Note Ontology_term)){
     if($attr{$other_canonical}){
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
