@@ -18,7 +18,7 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 
    $feat = new Bio::SeqFeature::Generic ( -start => 10, -end => 100,
 				-strand => -1, -primary => 'repeat',
-				-source => 'repeatmasker',
+				-source_tag => 'repeatmasker',
 				-score  => 1000,
 				-tag    => {
 				    new => 1,
@@ -187,14 +187,16 @@ sub new {
 
 sub set_attributes {
     my ($self,@args) = @_;
-    my ($start, $end, $strand, $primary, $source, $frame, 
+    my ($start, $end, $strand, $primary_tag, $source_tag, $primary, $source, $frame, 
 	$score, $tag, $gff_string, $gff1_string,
 	$seqname, $seqid, $annot, $location) =
 	    $self->_rearrange([qw(START
 				  END
 				  STRAND
-				  PRIMARY
-				  SOURCE
+				  PRIMARY_TAG
+				  SOURCE_TAG
+              PRIMARY
+              SOURCE
 				  FRAME
 				  SCORE
 				  TAG
@@ -211,6 +213,8 @@ sub set_attributes {
 	$self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
 	$self->_from_gff_stream($gff1_string);
     };
+    $primary_tag    && $self->primary_tag($primary_tag);
+    $source_tag     && $self->source_tag($source_tag);
     $primary        && $self->primary_tag($primary);
     $source         && $self->source_tag($source);
     defined $start  && $self->start($start);
