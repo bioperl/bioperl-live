@@ -357,7 +357,7 @@ sub _fasta_stream {
     
     if($stream || (! exists($self->{'_fastastream'}))) {
 	if(! $stream) {
-	    $stream = Bio::SeqIO->new('-fh' => $self->_filehandle(),
+	    $stream = Bio::SeqIO->new('-fh' => $self->_fh(),
 				      '-format' => "fasta");
 	}
 	$self->{'_fastastream'} = $stream;
