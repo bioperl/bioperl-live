@@ -17,16 +17,6 @@
 # to send a mail to all the bioperl core developpers.
 #
 
-
-
-# Novemeber 1998.
-#
-# A note for CVS maintainers *only*
-#
-# Currently this makefile is kept *in the wrong place* 
-# for the distribution. It should be kept in the directory
-# above. This means that all the autoloading finesseing
-# needs rewriting once we get around to it. 
 #
 # Talk to Ewan (<birney@sanger.ac.uk>) for more info.
 #
@@ -80,9 +70,31 @@ WARNING: LWP IS NOT INSTALLED.
    these most-excellent modules which can be readily
    obtained from your local CPAN site:
    http://www.perl.com/CPAN/
+
+   But don't worry, the rest of bioperl will work fine  
 ======================================================
 
 QQ_MISSING_LWP_QQ
+}
+
+# Check for Ace and warn that Bio::DB::Ace
+
+unless( eval "require Ace" ) {
+
+print STDERR <<QQ_MISSING_ACE_QQ;
+
+======================================================
+WARNING: Ace IS NOT INSTALLED.
+
+  Ace.pm (AcePerl) is not installed. Bio::DB::Ace 
+  requires it for access to acedb databases. You can
+  download this sweet module from
+  http://stein.cshl.org/AcePerl
+  
+  But don't worry, the rest of bioperl will work fine  
+======================================================
+
+QQ_MISSING_ACE_QQ
 }
 
 WriteMakefile(
