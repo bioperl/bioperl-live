@@ -19,12 +19,15 @@ Bio::Tree::DistanceFactory - Construct a tree using distance based methods
   use Bio::Tree::DistanceFactory;
   use Bio::AlignIO;
   use Bio::Align::DNAStatistics;
-  my $tfactory = Bio::Tree::DistanceFactory->new(-method => "UPGMA");
+  my $tfactory = Bio::Tree::DistanceFactory->new(-method => "NJ");
   my $stats    = Bio::Align::DNAStatistics->new();
 
   my $alnin    = Bio::AlignIO->new(-format => 'clustalw',
                                    -file   => 'file.aln');
   my $aln = $alnin->next_aln;
+  # Of course matrix can come from a different place
+  # like PHYLIP if you prefer, Bio::Matrix::IO should be able
+  # to parse many things
   my $jcmatrix = $stats->distance(-align => $aln, 
                                   -method => 'Jukes-Cantor');
   my $tree = $tfactory->make_tree($jcmatrix);
@@ -34,9 +37,20 @@ Bio::Tree::DistanceFactory - Construct a tree using distance based methods
 
 This is a factory which will construct a phylogenetic tree based on
 the pairwise sequence distances for a set of sequences.  Currently
-UPGMA (Sokal and Rolf) and NJ (Saitou and Nei) tree construction
-methods are implemented.
+UPGMA (Sokal and Michener 1958) and NJ (Saitou and Nei 1987) tree
+construction methods are implemented.
 
+=head1 REFERENCES
+
+Eddy SR, Durbin R, Krogh A, Mitchison G, (1998) "Biological Sequence Analysis",
+Cambridge Univ Press, Cambridge, UK.
+
+Howe K, Bateman A, Durbin R, (2002) "QuickTree: building huge
+Neighbour-Joining trees of protein sequences." Bioinformatics
+18(11):1546-1547.
+
+Saitou N and Nei M, (1987) "The neighbor-joining method: a new method
+for reconstructing phylogenetic trees." Mol Biol Evol 4(4):406-25.
 
 =head1 FEEDBACK
 
@@ -52,11 +66,9 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted the web:
 
-  bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -74,16 +86,18 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tree::DistanceFactory;
-use vars qw(@ISA $DefaultMethod);
+use vars qw(@ISA $DefaultMethod $Precision);
 use strict;
 
+# some defaults
 $DefaultMethod = 'UPGMA';
+$Precision = 5;
 
 use Bio::Root::Root;
 use Bio::Tree::Node;
 use Bio::Tree::Tree;
 
-@ISA = qw(Bio::Root::Root );
+@ISA = qw(Bio::Root::Root);
 
 =head2 new
 
@@ -126,9 +140,9 @@ sub make_tree{
    }
 
    my $method = uc ($self->method);
-   if( $method eq 'NJ' ) {
+   if( $method =~ /NJ/i ) {
        return $self->_nj($matrix);
-   } elsif( $method eq 'UPGMA' ) {
+   } elsif( $method =~ /UPGMA/i ) {
        return $self->_upgma($matrix);
    } else { 
        $self->warn("Unknown tree construction method '$method'.  Cannot run.");
@@ -144,29 +158,199 @@ sub make_tree{
  Usage   : my $tree = $disttreefact->_nj($matrix);
  Function: Construct a tree based on distance matrix using the 
            Neighbor Joining algorithm (Saitou and Nei, 1987)
+           Implementation based on Kevin Howe's Quicktree implementation
+           and uses his tricks (some based on Bill Bruno's work) to eliminate
+           negative branch lengths
  Returns : L<Bio::Tree::TreeI>
  Args    : L<Bio::Matrix::MatrixI> object
-
+ 
 
 =cut
 
 sub _nj {
-   my ($self,$matrix) = @_;
-
-   $self->throw("Not currently implemented - this is dev code, be patient!");
+   my ($self,$distmat) = @_;
 
    # we assume type checking of $aln has already been done
    # client shouldn't be calling this directly anyways, using the
    # make_tree method is preferred
    
-   # This implementation is highly influenced by the PHYLIP
-   # neighbor.c code
-   my @names =  @{$matrix->names || []};
-   my $sp_count = scalar @names;
-   if( $sp_count < 3 ) {
-       $self->warn("Can only perform NJ treebuilding on sets of 3 or more species\n");
+   # so that we can trim the number of digits shown as the branch length
+   my $precisionstr = "%.$Precision"."f";
+
+   my @names =  @{$distmat->names || []};
+   my $N = scalar @names;scalar @names;;
+   my ($i,$j,$m,@nodes,$mat,@r);
+   my $L = $N;
+
+   if( $N < 2 ) {
+       $self->warn("Can only perform NJ treebuilding on sets of 2 or more species\n");
        return undef;
+   } elsif( $N == 2 ) {
+       $i = 0;
+       my $d = sprintf($precisionstr,
+		       $distmat->get_entry($names[0],$names[1]) / 2);
+       my $root = Bio::Tree::Node->new();
+       for my $nm ( @names ) {
+	   $root->add_Descendents( Bio::Tree::Node->new(-id => $nm,
+							-branch_length => $d));
+       }
+       return Bio::Tree::Tree(-root => $root);
    }
+   my $c = 0;
+   
+   for ( $i = 0; $i < $N; $i++ ) {
+       push @nodes, Bio::Tree::Node->new(-id => $names[$i]);
+       my $ri = 0;
+       for( $j = 0; $j < $N; $j++ ) {
+	   $mat->[$i][$j] = $distmat->get_entry($names[$i],$names[$j]);
+	   $ri += $mat->[$i][$j];
+       }
+       $r[$i] = $ri / ($L -2);
+   }
+   
+   for( my $nodecount = 0; $nodecount < $N-3; $nodecount++) {
+       my ($mini,$minj,$min);
+       for($i = 0; $i < $N; $i++ ) {
+	   next unless defined $nodes[$i];
+	   for( $j = 0; $j < $i; $j++ ) {
+	       next unless defined $nodes[$j];
+	       my $dist = $mat->[$i][$j] - ($r[$i] + $r[$j]);
+	       if( ! defined $min ||
+		   $dist <= $min) {
+		   ($mini,$minj,$min) = ($i,$j,$dist);
+	       }
+	   }
+       }
+       my $dij    = $mat->[$mini][$minj];
+       my $dist_i = ($dij + $r[$mini] - $r[$minj]) / 2;
+       my $dist_j = $dij - $dist_i;
+       
+       # deal with negative branch lengths
+       # per code in K.Howe's quicktree
+       if( $dist_i < 0 ) {
+	   $dist_i = 0;
+	   $dist_j = $dij;
+	   $dist_j = 0 if( $dist_j < 0 );
+       } elsif( $dist_j < 0 ) { 
+	   $dist_j = 0;
+	   $dist_i = $dij;
+	   $dist_i = 0 if( $dist_i < 0 );
+       }
+       
+       $nodes[$mini]->branch_length(sprintf($precisionstr,$dist_i));
+       $nodes[$minj]->branch_length(sprintf($precisionstr,$dist_j));
+       
+       my $newnode = Bio::Tree::Node->new(-descendents => [ $nodes[$mini],
+							    $nodes[$minj] ]);
+
+       $nodes[$mini] = $newnode;
+       delete $nodes[$minj];
+       
+       # update the distance matrix
+       $r[$mini] = 0;
+       my ($dmi,$dmj);
+       for( $m = 0; $m < $N; $m++ ) {	   
+	   next unless defined $nodes[$m];
+	   if( $m != $mini ) {
+	       $dmj = $mat->[$m][$minj];
+	       
+	       my ($row,$col);
+	       ($row,$col) = ($m,$mini);
+	       $dmi = $mat->[$row][$col];
+	       
+	       # from K.Howe's notes in quicktree
+	       # we can actually adjust r[m] here, by using the form:
+	       # rm = ((rm * numseqs) - dmi - dmj + dmk) / (numseqs-1)
+
+	       # Note: in Bill Bruno's method for negative branch
+	       # elimination, then if either dist_i is positive and
+	       # dist_j is 0, or dist_i is zero and dist_j is positive
+	       # (after adjustment) then the matrix entry is formed
+	       # from the distance to the node in question (m) to the
+	       # node with the zero branch length (whichever it was).
+	       # I think my code already has the same effect; this is
+	       # certainly true if dij is equal to dist_i + dist_j,
+	       # which it should have been fixed to
+
+	       my $dmk = $mat->[$row][$col] = $mat->[$col][$row] = 
+		   ($dmi + $dmj - $dij) / 2;
+	       
+	       # If we don't want to try and correct negative brlens
+	       # this is essentially what is in Edddy et al, BSA book.
+	       # $r[$m] = (($r[$m] * $L) - $dmi - $dmj + $dmk) / ($L-1);
+	       # 
+	       $r[$m] = (($r[$m] * ($L - 2)) - $dmi - $dmj + 
+			 $mat->[$row][$col]) / ( $L - 3);
+	       $r[$mini] += $dmk;
+	   }
+       }
+       $L--;
+       $r[$mini] /= $L - 2;
+   }
+   
+   # should be 3 nodes left
+   my (@leftovernodes,@leftovers);
+   for( my $k = 0; $k < $N; $k++ ) {
+       if( defined $nodes[$k] ) {
+	   push @leftovers, $k;
+	   push @leftovernodes, $nodes[$k];
+       }
+   }
+   my ($l_0,$l_1,$l_2) = @leftovers;
+   
+   my $dist_i = ( $mat->[$l_1][$l_0] + $mat->[$l_2][$l_0] -
+		  $mat->[$l_2][$l_1] ) / 2;
+   
+   my $dist_j = ( $mat->[$l_1][$l_0] - $dist_i);
+   my $dist_k = ( $mat->[$l_2][$l_0] - $dist_i);
+
+   # This is Kev's code to get rid of negative branch lengths
+   if( $dist_i < 0 ) { 
+       $dist_i = 0;
+       $dist_j = $mat->[$l_1][$l_0];
+       $dist_k = $mat->[$l_2][$l_0];
+       if( $dist_j < 0 ) { 
+	   $dist_j = 0;
+	   $dist_k = ( $mat->[$l_2][$l_0] + $mat->[$l_2][$l_1] ) / 2;
+	   $dist_k = 0 if( $dist_k < 0 );
+       } elsif( $dist_k < 0 ) {
+	   $dist_k = 0;
+	   $dist_j = ($mat->[$l_1][$l_0] + $mat->[$l_2][$l_1]) / 2;
+	   $dist_j = 0 if( $dist_j < 0 );
+       }
+   } elsif( $dist_j < 0 ) {
+       $dist_j = 0;
+       $dist_i = $mat->[$l_1][$l_0];
+       $dist_k = $mat->[$l_2][$l_1];
+       if( $dist_i < 0 ) { 
+	   $dist_i = 0;
+	   $dist_k = ( $mat->[$l_2][$l_0] + $mat->[$l_2][$l_1]) / 2;
+	   $dist_k = 0 if( $dist_k  < 0 );
+       } elsif( $dist_k < 0 ) { 
+	   $dist_k = 0;
+	   $dist_i = ( $mat->[$l_1][$l_0] + $mat->[$l_2][$l_0]) / 2;
+	   $dist_i = 0 if( $dist_i < 0 );
+       }
+   } elsif( $dist_k < 0 ) {
+       $dist_k = 0;
+       $dist_i = $mat->[$l_2][$l_0];
+       $dist_j = $mat->[$l_2][$l_1];
+       if( $dist_i < 0 ) { 
+	   $dist_i = 0;
+	   $dist_j = ( $mat->[$l_1][$l_0] + $mat->[$l_2][$l_1] ) / 2;
+	   $dist_j = 0 if $dist_j < 0;
+       } elsif( $dist_j < 0  ) {
+	   $dist_j = 0;
+	   $dist_i = ($mat->[$l_1][$l_0] + $mat->[$l_2][$l_0]) / 2;
+	   $dist_i = 0 if $dist_i < 0;
+       }
+   }
+   $leftovernodes[0]->branch_length(sprintf($precisionstr,$dist_i));
+   $leftovernodes[1]->branch_length(sprintf($precisionstr,$dist_j));
+   $leftovernodes[2]->branch_length(sprintf($precisionstr,$dist_k));
+
+   Bio::Tree::Tree->new(-root => Bio::Tree::Node->new
+			(-descendents => \@leftovernodes));
 }
 
 =head2 _upgma
@@ -185,8 +369,12 @@ sub _upgma{
    # we assume type checking of $matrix has already been done
    # client shouldn't be calling this directly anyways, using the
    # make_tree method is preferred
-
+   
    # algorithm, from Eddy, Durbin, Krogh, Mitchison, 1998
+   # originally by Sokal and Michener 1956
+
+   my $precisionstr = "%.$Precision"."f";
+   
    my ($i,$j,$x,$y,@dmat,@orig,@nodes);
 
    my @names = @{$distmat->names || []};
@@ -199,12 +387,11 @@ sub _upgma{
        $c++;
        $r;
    } @names;
-   my $n = scalar @clusters;
-   my $max = 2*$n - 1;
-   my $K = $n;
+
+   my $K = scalar @clusters;
    my (@mins,$min);
-   for ( $i = 0; $i < $n; $i++ ) {
-       for( $j = $i+1; $j < $n; $j++ ) {
+   for ( $i = 0; $i < $K; $i++ ) {
+       for( $j = $i+1; $j < $K; $j++ ) {
 	   my $d =  $distmat->get_entry($names[$i],$names[$j]);
 	   # get Min here on first time around, save 1 cycle
 	   $dmat[$j][$i] = $dmat[$i][$j] = $d;
@@ -221,8 +408,7 @@ sub _upgma{
    }
    # distance between each cluster is avg distance
    # between pairs of sequences from each cluster
-   while( $K > 1 ) {
-       
+   while( $K > 1 ) {       
        # fencepost - we already have found the $min
        # so very first time loop is executed we can skip checking
        unless( defined $min ) {
@@ -247,14 +433,15 @@ sub _upgma{
 
        # now we are going to join clusters x and y, make a new cluster
 
-       my $node = Bio::Tree::Node->new();       
+       my $node = Bio::Tree::Node->new();   
        my @subids;
        for my $cid ( $x,$y ) {
 	   my $nid = $clusters[$cid]->{'id'};
 	   if( ! defined $nodes[$nid] ) {
 	       $nodes[$nid] = Bio::Tree::Node->new(-id => $names[$nid]);
 	   }
-	   $nodes[$nid]->branch_length($min/2 - $clusters[$cid]->{'height'});
+	   $nodes[$nid]->branch_length
+	       (sprintf($precisionstr,$min/2 - $clusters[$cid]->{'height'}));
 	   $node->add_Descendent($nodes[$nid]);
 	   push @subids, @{ $clusters[$cid]->{'contains'} };
        }
