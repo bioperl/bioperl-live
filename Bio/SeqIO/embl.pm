@@ -376,7 +376,7 @@ sub write_seq {
             $acc = $seq->accession;
         }
         if (defined $acc) {
-            $self->_print("AC   $acc\n",
+            $self->_print("AC   $acc;\n",
 			  "XX\n");
         }
     }
@@ -922,110 +922,6 @@ sub _read_FTHelper_EMBL {
 
     return $out;
 }
-
-sub _read_FTHelper_EMBL_old {
-   my ($self,$buffer) = @_;
-   my ($key,$loc,$out);
-
-   $out = new Bio::SeqIO::FTHelper();
-   if ( $$buffer !~ /^FT\s+(\S+)/) {
-       $out->throw("Weird location line in EMBL feature table: '$_'");
-   }
-   if( $$buffer =~ /^FT\s+(\S+)\s+(\S+)/ ) {
-       $key = $1;
-       $loc = $2;
-   }
-
-   # Read the rest of the location
-   while( defined ($_ = $self->_readline) ) {
-       # Exit loop on first qualifier - line is left in $_
-       last if /^XX/; # sometimes a trailing XX comment left in!
-       last if /^FT\s+\//;
-       last if /^FT\s+(\S+)\s+(\S+)/;
-       
-       # Get location line
-       /^FT\s+(\S+)/ or $out->throw("Weird location line in EMBL feature table: '$_'");
-       $loc .= $1;
-   }
-
-   $loc =~ s/<//;
-   $loc =~ s/>//;
-   $out->key($key);
-   $out->loc($loc);
-
-   # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then _readline, until end of file
-   while( defined($_ ||= $self->_readline) ) {
-      
-        # Exit loop on non FT lines!
-        /^FT/  || last;
-
-        # Exit loop on new primary key
-        /^FT   [\w-]/ && last;
-
-        my( $key, $value );
-        
-        # Field on one line
-        if (/^FT\s+\/(\S+)=\"(.+)\"/) {
-	    $key = $1;
-	    $value = $2;
-	    $value =~ s/\"\"/\"/g;
-        }
-        
-        # Field on on multilines:
-        elsif (/^FT\s+\/(\S+)=\"(.*)/) {
-            $key = $1;
-            my @lines = ($2);
-
-            #    /FT\s+(.*)\"/ && do { $value .= $1; last; };
-            #    /FT\s+(.*?)\s*/ && do {$value .= $1; };
-
-            while ( defined ($_ = $self->_readline) ) {
-                 s/\"\"/__DOUBLE_QUOTE_STRING__/g;
-
-                 if (/FT\s+(.*)\"/) {
-                     push(@lines, $1);
-                     last;
-                 }
-                 elsif (/FT\s+(.*?)\s*$/) {
-                     push(@lines, $1);
-                 }
-                 else {
-                     $out->throw("Couldn't match '$_'");
-                 }
-            }
-
-            # Join list with spaces any of the elements contain them
-            my( $join );
-            if (grep /\s/, @lines) {
-                $join = ' ';
-            } else {
-                $join = '';
-            }
-            $value = join($join, @lines);
-
-            $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
-        }
-        
-        # Field with unquoted value
-        elsif (/^FT\s+\/(\S+)=?(\S+)?/) {
-	    $key = $1;
-	    $value = $2 ? $2 : "_no_value";
-        }
-
-        # Store the key and value
-        $out->field->{$key} ||= [];
-        push(@{$out->field->{$key}}, $value);
-
-        # Empty $_ to trigger read from _readline
-        undef $_;
-    }
-
-    $$buffer = $_;
-
-    return $out;
-}
-
 
 =head2 _write_line_EMBL
 

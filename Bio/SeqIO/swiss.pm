@@ -533,31 +533,8 @@ sub write_seq {
 sub _print_swissprot_FTHelper {
    my ($self,$fth,$always_quote) = @_;
    
-   if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
-   }
-   my $loc= $fth->loc;
-   $loc =~ /(\d+)..(\d+)/;
-   my $loc1 = $1;
-   my $loc2 = $2;
-#   my $line = sprintf ("FT   %-12s %-5s %s",$fth->key,$loc1,$loc2);
-#   $self->_print( "$line");
-   my $switch=0; 
-   foreach my $tag ( keys %{$fth->field} ) {
-       foreach my $value ( @{$fth->field->{$tag}} ) {
-	   $value =~ s/\"/\"\"/g;
-	   if ($switch == 0) {
-	       my $line = sprintf ("FT   %-12s %-5s %-10s%s",$fth->key,$loc1,$loc2,$value);
-	       $self->_print( "$line\n");
-	   }
-           else {
-	       $self->_print( "FT                                /$tag\n");
-           } 
-	   $switch = 1;
-	  # $self->_print( "FT                   /", $tag, "=\"", $value, "\"\n");
-       }
-   }
-
+   ### FIXME - not implemented
+    warn "_print_swissprot_FTHelper NOT IMPLEMENTED";
 }
 
 
@@ -725,82 +702,9 @@ sub _filehandle{
 
 sub _read_FTHelper_swissprot {
    my ($self,$buffer) = @_;
-   my ($key,$loc,$out,$value);
-   $out = new Bio::SeqIO::FTHelper();
-
-   if ( $$buffer !~ /^FT\s+(\S+)/) {
-       $out->throw("Weird location line in swissprot feature table: '$_'");
-   }
-   #Read key and location lines
-   if( $$buffer =~ /^FT\s+(\S+)\s+(\d+)\s+(\d+)\s+(.*)/ ) {
-       $key = $1;
-       $loc = $2;
-       $loc .= "..";
-       $loc .= $3;
-       $value = $4;
-   }
-
-   $loc =~ s/<//;
-   $loc =~ s/>//;
-   $out->key($key);
-   $out->loc($loc);
-   # $out->field->{$key};   # What's the purpose of this? I changed to next line. SAC 2/21/00
-   $out->field($key);
-   $value =~ s/\"\"/\"/g;
-   push (@{$out->field->{$key}},$value);
    
-   # Now read in other fields
-   # Loop reads $_ when defined (i.e. only in first loop), then $self->_readline, until end of file
-   $_ = $self->_readline;
-   while( defined($_ ||= $self->_readline) ) {
+    ### FIXME - not implemented
 
-       # Exit loop on non FT lines!
-       /^FT/  || last;       
-       # Exit loop on new primary key
-       /^FT   \w/ && last;
-       # Field on one line
-       if (/^FT\s+\/(\S+)=\"(.+)\"/) {
-	   my $key = $1;
-	   my $value = $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   $value =~ s/\"\"/\"/g;
-	   
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field on on multilines:
-       elsif (/^FT\s+\/(\S+)=\"(.*)/) {
-	   my $key = $1;
-	   my $value = $2;
-	   while ( defined($_ = $self->_readline) ) {
-	       s/\"\"/__DOUBLE_QUOTE_STRING__/g;
-	       /FT\s+(.*)\"/ && do { $value .= $1; last; };
-	       /FT\s+(.*)/ && do {$value .= $1; };
-	   }
-	   $value =~ s/__DOUBLE_QUOTE_STRING__/\"/g;
-
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       # Field with no quoted value
-       elsif (/^FT\s+\/(\S+)=?(\S+)?/) {
-	   my $key = $1;
-	   my $value = $2 if $2;
-	   $value = "_no_value" unless $2;
-	   if(! defined $out->field->{$key} ) {
-	       $out->field->{$key} = [];
-	   }
-	   push(@{$out->field->{$key}},$value);
-       }
-       
-       # Empty $_ to trigger read from $self->_readline
-       undef $_;
-   }   
-   $$buffer = $_;
-   return $out;
 }
 
 
