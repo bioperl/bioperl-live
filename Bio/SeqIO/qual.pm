@@ -90,8 +90,8 @@ sub next_seq {
 =head2 _next_qual
 
  Title   : _next_qual
- Usage   : $seq = $stream->_next_qual() (but don't do
-	that. Use $stream->next_seq() instead)
+ Usage   : $seq = $stream->_next_qual() (but don\'t do
+	   that. Use $stream->next_seq() instead)
  Function: returns the next quality in the stream
  Returns : Bio::Seq::PrimaryQual object
  Args    : NONE
@@ -169,22 +169,6 @@ sub next_primary_qual {
   return $qual;
 }
 
-=head2 _initialize()
-
- Title   : _initialize()
- Usage   :
- Function: Bioperl initialize.
- Returns :
- Args    :
- Notes   :
-
-=cut
-
-sub _initialize {
-  my($self,@args) = @_;
-  return unless my $make = $self->SUPER::_initialize(@args);
-}
-
 =head2 write_qual
 
  Title   : write_qual(-source => $source, -header => "some information")
@@ -204,9 +188,10 @@ sub _initialize {
 
 =cut
 
-sub write_qual {
+sub write_seq {
 	my ($self,%args) = @_;
-	my $source = $args{-source};
+	my ($source)  = $self->_rearrange([qw(SOURCE)], %args);
+	
 	if (!$source || ( ref($source) ne "Bio::Seq::SeqWithQuality" && 
 			  ref($source) ne "Bio::Seq::PrimaryQual")) {
 	    $self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_qual as a parameter named \"source\"");
