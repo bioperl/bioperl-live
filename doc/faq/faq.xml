@@ -209,8 +209,7 @@ The same issue arises when you use Bio::DB::Fasta, but in that case the code mig
          <question>I want to parse BLAST, how do I do this?</question>
          <answer>
             <p>Well you might notice that there are a lot of choices.  Sorry about that.  We've been evolving towards a single solution.</p>
-            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the
-	  Bio::SearchIO system. There is also a the <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
+            <p>Currently the best way to parse a report is to use the SearchIO system.  This supports blast and fasta report parsing.  The bptutorial provides an example of how to use this system as well as the documentation in the Bio::SearchIO system. There is also a <a href="http://www.bioperl.org/HOWTOs/html/SearchIO.html">SearchIO HOWTO</a>.</p>
          </answer>
       </q>
       <q id="2">

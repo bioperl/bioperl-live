@@ -417,9 +417,8 @@ Contents
 	 Currently the best way to parse a report is to use the SearchIO
 	 system.  This supports blast and fasta report parsing.  The
 	 bptutorial provides an example of how to use this system as well
-	 as the documentation in the
-		   Bio::SearchIO system. There is also a the SearchIO
-	 HOWTO.
+	 as the documentation in the Bio::SearchIO system. There is also a
+	 SearchIO HOWTO.
 
 
    Q3.2: What's wrong with Bio::Tools::Blast?
