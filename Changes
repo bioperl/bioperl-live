@@ -1,8 +1,5 @@
 Revision history for Bioperl core modules
 
-0.04.2  Wed Feb 02:00:00 1999
-	- New Bio::Tools::Sigcleave utility
-
 0.04.1  Wed Dec 16 05:39:15 1998
         - Bug fixes in Bio::Tools::Blast modules, version 0.072
           (see Bio::Tools::Blast::CHANGES).
