@@ -136,7 +136,7 @@ sub new {
 
  Title   : add_mapper
  Usage   : $obj->add_mapper($mapper)
- Function: Pushes one Bio::Coodinate::MapperI into the list of mappers.
+ Function: Pushes one Bio::Coordinate::MapperI into the list of mappers.
            Sets _is_sorted() to false.
  Example : 
  Returns : 1 when succeeds, 0 for failure.
@@ -151,7 +151,7 @@ sub add_mapper {
       unless defined $value && $value->isa('Bio::Coordinate::MapperI');
   
   # test pair range lengths
-  $self->warn("Coodinates in pair [". $value . ":" .
+  $self->warn("Coordinates in pair [". $value . ":" .
 	      $value->in->seq_id . "/". $value->out->seq_id .
 	      "] are not right.")
       unless $value->test;
@@ -260,10 +260,12 @@ sub test {
    my $res = 1;
 
    foreach my $mapper ($self->each_mapper) {
-       $self->warn("Coodinates in pair [". $mapper . ":" .
-		   $mapper->in->seq_id . "/". $mapper->out->seq_id .
-		   "] are not right.") && ($res = 0)
-	   unless $mapper->test;
+       unless( $mapper->test ) {
+	   $self->warn("Coordinates in pair [". $mapper . ":" .
+		       $mapper->in->seq_id . "/". $mapper->out->seq_id .
+		       "] are not right."); 
+	   $res = 0;
+       }
    }
    $res;
 }
