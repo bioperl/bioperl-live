@@ -147,13 +147,13 @@ print("7. Checking id()\n");
 
 
 print("Checking to see if PrimaryQual objects can be created from a file...\n");
-my $in_qual  = Bio::SeqIO->new(-file => "<t/qualfile.qual" , '-format' => 'qual');
+my $in_qual  = Bio::SeqIO->new(-file => "<t/data/qualfile.qual" , '-format' => 'qual');
 ok(1);
 my $pq = $in_qual->next_qual();
 
 
 print("Trying to write a primary qual object to a file...\n");
-my $out_qual = Bio::SeqIO->new(-file => ">t/write_qual.qual",-format => 'qual');
+my $out_qual = Bio::SeqIO->new(-file => ">t/data/write_qual.qual",-format => 'qual');
 $out_qual->write_qual(-source	=>	$pq);
 
 print("Now creating a SeqWithQuality object and trying to write _that_...\n");
@@ -164,8 +164,8 @@ $out_qual->write_qual(-source	=>	$swq545);
 
 
 print("Now trying to write quals from one file to another, batchwise...\n");
-$in_qual = Bio::SeqIO->new(-file => "<t/qualfile.qual" , -format => 'qual');
-my $out_qual2 = Bio::SeqIO->new(-file => ">t/batch_write_qual.qual",-format => 'qual');
+$in_qual = Bio::SeqIO->new(-file => "<t/data/qualfile.qual" , -format => 'qual');
+my $out_qual2 = Bio::SeqIO->new(-file => ">t/data/batch_write_qual.qual",-format => 'qual');
 
 while ( my $batch_qual = $in_qual->next_qual() ) {
 	print("Sending ".$batch_qual->id()," to write_qual\n");
