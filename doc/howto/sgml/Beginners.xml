@@ -80,7 +80,7 @@
 		can't be avoided, and the more you understand about
 		programming the better. All efforts will be made
 		not to introduce too much unfamiliar material but 
-		there is an introducton to  modularity, or objects. This is 
+		there is an introducton to modularity, or objects. This is 
 		one of the aspects of the Bioperl package that you'll have
 		to come to grips with as you attempt more complex tasks with
 		your scripts.
@@ -381,49 +381,69 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 			 SeqIO, it's built to open and inter-convert all
 			 the common sequence formats, it can read and write to files,
 			 and it's built to operate with all the other Bioperl 
-			 modules that you will want to use.
+			 modules that you will want to use. 
 		  </para>
-		
+
+                  <para>
+                         Once you've decided to read a sequence (or multiple sequences) from
+                         a file, you should include the following line in your program:
+                  </para>
+
+                  <para>
+                           <programlisting>
+                              use Bio::SeqIO;
+                           </programlisting>
+                  </para>
+
+                  <para>
+                         This tells Perl that you'd like to make use of the
+                         functions and objects defined defined in the
+                         Bio::SeqIO module. "Using" Bio::SeqIO in this manner
+                         will allow input and output from all of the sequence
+                         file formats supported by Bioperl.
+                  </para>
+
+                  <para>
+                         Now that we've told Perl to use the Bio::SeqIO module,
+                         we should make use of it. The following line creates a
+                         Bio::SeqIO object:
+                  </para>
+                            <programlisting>
+                               my $seqio = Bio::SeqIO->new( -file => 'sequence.fasta', -format => 'fasta' );
+                            </programlisting>
+                  </para>
+
+                  <para>
+                         This line does several things:
+                        <simplelist type="horiz" columns="1">
+                           <member>
+                              The word "my" tells the Perl interpreter that this is the
+                              first time that the variable $seqio has been used, and it
+                              also defines the scope of $seqio. Writing "my" before the
+                              first use of a variable is a requirement when "using strict."
+                           </member>
+                           <member>
+                              The new method of the Bio::SeqIO module is called. This method
+                              is used to construct and return a new Bio::SeqIO object.
+                           </member>
+                           <member>
+                              This method is passed two arguments: a file value "seq.fasta" and
+                              a format value of "fasta". These arguments tell Bio::SeqIO that
+                              $seqio will read sequence information from a file named seq.fasta
+                              that is stored in the FASTA sequence file format.
+                           </member>
+                           <member>
+                              The object returned by the "new" method is assigned to the scalar
+                              variable $seqio. 
+                           </member>
+                        </simplelist>
+                  </para>
+
+                  
+
+
   </section>
 
-  <section id="retrieving_gb">
-	 <title><title>
-		  
-
-  </section>
-
-  <section id="perldoc">
-	 <title>Perl's Documentation System</title>
-	 <para>
-		Documentation for Perl is written using a system known as POD, which
-		stands for "Plain Old Documentation." You can access Perl's built-in
-		documentation by using the "perldoc" command. To view information 
-		on how to use perldoc, type the following at the command line:
-		<programlisting>
-		  >perldoc perldoc
-		</programlisting>
-	 </para>
-  
-	 <para>
-		Bioperl is also documented using POD, and perldoc can be an easy way to
-		obtain usage information on any of the Bioperl modules:
-		<programlisting>
-		  >perldoc Bio::SeqIO
-		</programlisting>
-	 </para>
-  
-	 <para>
-		Perldoc is a very useful and versatile tool, shown below are some more
-		examples on how to use perldoc:
-	 </para>
-  
-	 <para>
-		Read about Perl's built-in "print" function:
-		<programlisting>
-		  >perldoc -f print
-		</programlisting>
-	 </para>
-  </section> 
 
   <section id="regexp">
     <title>Regular Expressions</title>
@@ -525,6 +545,107 @@ while( my $seq = $seq_in->next_seq() ) {
 	 </para>
   </section>
   
+  <section id="perldoc">
+	 <title>Appendix I: Perl's Documentation System</title>
+	 <para>
+		Documentation for Perl is written using a system known as POD, which
+		stands for "Plain Old Documentation." You can access Perl's built-in
+		documentation by using the "perldoc" command. To view information 
+		on how to use perldoc, type the following at the command line:
+		<programlisting>
+		  >perldoc perldoc
+		</programlisting>
+	 </para>
+  
+	 <para>
+		Bioperl is also documented using POD, and perldoc can be an easy way to
+		obtain usage information on any of the Bioperl modules:
+		<programlisting>
+		  >perldoc Bio::SeqIO
+		</programlisting>
+	 </para>
+  
+	 <para>
+		Perldoc is a very useful and versatile tool, shown below are some more
+		examples on how to use perldoc:
+	 </para>
+  
+	 <para>
+		Read about Perl's built-in "print" function:
+		<programlisting>
+		  >perldoc -f print
+		</programlisting>
+	 </para>
+  </section> 
+
+  <section id="objects">
+	 <title>Appendix II: The Basics of Perl Objects<title>
+            <para>
+               Object-oriented programming (OOP) is software engineering
+               technique for modularizing code. The difference between
+               object-oriented programming and procedural programming can be
+               simply illustrated.
+            </para>
+
+            <para>
+               <emphasis>A Simple Example</emphasis>
+               Assume that we have a DNA sequence stored in the scalar variable
+               $sequence. We'd like to generate the reverse complement of this 
+               sequence and store it in $reverse_complement. Shown below is the
+               procedural Perl technique of using a subroutine to operate on
+               this scalar data:
+            </para>
+            Example 1: 
+               <programlisting>
+                  my $reverse_complement = &rev_com( $sequence );
+               </programlisting>
+            </para>
+
+            <para>
+               The hallmark of a procedural program is that data and functions to
+               operate on that data are kept separate. In order to generate the reverse
+               complement of a DNA sequence, we need to call a function that operates
+               on that DNA sequence.
+            </para>
+               
+            <para>
+               Shown below is the object-oriented way of generating the reverse 
+               complement of a DNA sequence:
+            </para>
+
+            <para>
+            Example 2:
+               <programlisting>
+                  my $reverse_complement = $sequence->revcom;
+               </programlisting>
+            </para>
+
+            <para>
+               The main difference between this object-oriented example and the
+               procedural example shown before is that the function for
+               generating the reverse complement (called "revcom") part of
+               $sequence. To put it another way, $sequence knows how to calculate
+               and return its reverse complement. Encapsaluting both data and
+               functions into the same construct is the fundamental idea behind
+               object-oriented programming. 
+            </para>
+
+            <para>
+               <emphasis>Terminology</emphasis>
+               In the object-oriented example above, $sequence is called an
+               object, and the function "revcom" is called a method. An object
+               is a data structure that has both data and methods associated
+               with it. Objects are separated into types called classes, and the
+               class of an object defines both the data that it can hold and the 
+               methods that it knows.
+            </para>
+
+            <para>
+               <emphasis>A Bioperl Example</emphasis>
+               
+            </para>
+
+  </section>
 </article>
 
 <!--
