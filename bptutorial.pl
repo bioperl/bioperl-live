@@ -33,7 +33,8 @@ BioPerlTutorial - a tutorial for bioperl
   I.4 Additional comments for non-unix users
 
   II. Brief overview to bioperl\'s objects
-  II.1 Sequence objects: (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI)
+  II.1 Sequence objects:
+         (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, RichSeq, SeqWithQuality, SeqI)
   II.2 Alignment objects (SimpleAlign, UnivAln)
   II.3  Location objects (Simple, Split, Fuzzy)
   II.4  Interface objects and implementation objects
@@ -51,12 +52,14 @@ BioPerlTutorial - a tutorial for bioperl
     III.3.3 Identifying restriction enzyme sites (RestrictionEnzyme)
     III.3.4 Identifying amino acid cleavage sites (Sigcleave)
     III.3.5 Miscellaneous sequence utilities: OddCodes, SeqPattern
+    III.3.6 Sequence manipulation using the Bioperl EMBOSS interface
+    III.3.7 Sequence manipulation without creating Bioperl "objects" 
   III.4 Searching for "similar" sequences
      III.4.1 Running BLAST locally  (StandAloneBlast)
      III.4.2 Running BLAST remotely (using RemoteBlast.pm)
-     III.4.3 Parsing BLAST reports with Blast.pm
-     III.4.4 Parsing BLAST reports with BPlite, BPpsilite and BPbl2seq
-     III.4.5  Parsing HMM reports (HMMER::Results)
+     III.4.3 Parsing BLAST and FASTA reports with Search and SearchIO
+     III.4.4 Parsing BLAST reports with BPlite, BPpsilite, BPbl2seq and Blast.pm
+     III.4.5 Parsing HMM reports (HMMER::Results)
   III.5 Creating and manipulating sequence alignments
      III.5.1 Aligning 2 sequences with Smith-Waterman (pSW)
      III.5.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
@@ -65,15 +68,19 @@ BioPerlTutorial - a tutorial for bioperl
   III.6 Searching for genes and other structures on genomic DNA
                         (Genscan, Sim4, ESTScan, MZEF, Grail, Genemark, EPCR)
   III.7 Developing machine readable sequence annotations
-     III.7.1 Representing sequence annotations (Annotation, SeqFeature)
+     III.7.1 Representing sequence annotations (Annotation, SeqFeature, RichSeq)
      III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
-     III.7.3 Representing related sequences - mutations, polymorphisms etc (Allele, SeqDiff,)
-     III.7.4 Sequence XML representations - generation and parsing (SeqIO::game)
-  III.8 Representing 3D structure
-     III.8.1 Reading PDB files (Structure::IO)
+     III.7.3 Representing related sequences - mutations, polymorphisms etc (Allele, SeqDiff)
+     III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
+     III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
+  III.8 Representing non-sequence data in Bioperl: structures, trees and maps
+     III.8.1 Using 3D structure objects and reading PDB files (STructureI, Structure::IO)
+     III.8.2 Tree objects and phylogentic trees (Tree::Tree, TreeIO)
+     III.8.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
   III.9 Bioperl alphabets
      III.9.1 Extended DNA / RNA alphabet
      III.9.2 Amino Acid alphabet
+
   IV.  Related projects - biocorba, biopython, biojava, EMBOSS, Ensembl, AnnotationWorkbench
      IV.1 Biocorba
      IV.2 Biopython and biojava
@@ -458,7 +465,7 @@ PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI.  Understanding the
 relationships among these objects - and why there are so many of them
 - will help you select the appropriate one to use in your script.
 
-=head2 II.1 Sequence objects: (Seq, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI)
+=head2 II.1 Sequence objects: (Seq, RichSeq, SeqWithQuality, PrimarySeq, LocatableSeq, LiveSeq, LargeSeq, SeqI)
 
 Seq is the central sequence object in bioperl.  When in doubt this is
 probably the object that you want to use to describe a dna, rna or
@@ -475,6 +482,13 @@ a Seq object can store multiple annotations and associated "sequence
 features".  This capability can be very useful - especially in
 development of automated genome annotation systems, see section
 III.7.1.
+
+RichSeq objects store additional annotations beyond those used by
+standard Seq objects.  If you are using sources with very rich
+sequence annotation, you may want to consider using these objects
+which are described in section III.7.1. SeqWithQuality objects are
+used to manipulate sequences with "quality" data.  These objects are
+described in section III.7.4.
 
 On the other hand, if you need a script capable of simultaneously
 handling many (hundreds or thousands) sequences at a time, then the
@@ -1023,6 +1037,54 @@ examples in the script seq_pattern.pl in the examples/ directory.
 
 More detail can be found in L<Bio::Tools::SeqPattern>.
 
+=head2    III.3.6 Sequence manipulation using the Bioperl EMBOSS interface (Tools::Run::EMBOSSApplication)
+
+EMBOSS (European Molecular Biology Open Source Software) is a large
+collection of sequence manipulation programs written in the C
+programming language.  EMBOSS programs are conventially called from
+the command line.  Bioperl provides a Perl "wrapper" for EMBOSS
+function calls so that they can be executed from within a Perl script.
+In the future, it is planned that Bioperl EMBOSS objects will return
+appropriate Bioperl objects to the calling script in addition to
+generating standard EMBOSS reports.  This functionality is
+being initially implemented with the EMBOSS sequence alignment
+programs, so that they will return SimpleAlign objects in a manner
+similar to the way the Bioperl modules TCoffee.pm and Clustalw.pm
+work.
+
+Of course, the EMBOSS package must be installed for the Bioperl
+wrapper to function. An example of usage of the Bioperl EMBOSS wrapper
+would be:
+
+$factory = new Bio::Factory::EMBOSS();
+$compseqapp = $factory->program('compseq');
+%input = ( '-word' => 4,
+	      '-sequence' => $input_datafile'),
+	      '-outfile' => $compseqoutfile);
+$compseqapp->run(\%input);
+
+=head2    III.3.7 Sequence manipulation without creating Bioperl "objects" (Perl.pm)
+
+Using the Bio::Perl.pm module, it is possible to manipulate sequence
+data in Bioperl without explicitly creating Seq or SeqIO objects.
+This feature may ease the Bioperl learning curve for new users
+unfamiliar or uncomfortable with using Perl objects.  However, only
+limited data manipulation are supported in this mode.  IN addition,
+each method (i.e. function) that will be used by the script must be
+explicitly declared in the ininitial "use directive".  For example a
+simple data format conversion and sequence manipulation could be
+performed as follows - note that no "new" methods are called and that
+no Seq or SeqIO objects are created:
+
+use Bio::Perl qw( get_sequence );
+# get a sequence from a database (assummes internet connection)
+$seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+# $seq_object is Bio::Seq object, so the following methods work
+$seq_id  = $seq_object->display_id;
+$seq_as_string = $seq_object->seq();
+
+For more details see: L<Bio::Perl>
+
 =head2 III.4 Searching for "similar" sequences
 
 One of the basic tasks in molecular biology is identifying sequences
@@ -1125,13 +1187,154 @@ and T-Coffee factories.  Specifically RemoteBlast requires parameters to
 be passed with a leading hyphen, as in '-prog' =E<gt> 'blastp', while the
 other programs do not pass parameters with a leading hyphen.
 
-=head2   III.4.3 Parsing BLAST reports with Blast.pm
+=head2    III.4.3 Parsing BLAST and FASTA reports with Search and SearchIO
 
 No matter how Blast searches are run (locally or remotely, with or
 without a perl interface), they return large quantities of data that
-are tedious to sift through.  Bioperl offers two different objects -
-Blast.pm and BPlite.pm (along with its minor modifications, BPpsilite
-and BPbl2seq) for parsing Blast reports.
+are tedious to sift through.  Bioperl offers several different objects
+- Search.pm / SearchIO.pm, BPlite.pm (along with its minor
+modifications, BPpsilite and BPbl2seq) and Blast.pm for parsing Blast
+reports.  Search and SearchIO which are new in Bioperl 1.0 and are now
+the principal Bioperl interfaces for Blast (and FASTA) report parsing
+are described in this section.  The older BPlite and Blast.pm objects
+are described in section III.4.4.
+
+The Search and SearchIO modules provide a uniform interface for
+parsing sequence-similarity-search reports generated by BLAST (in
+standard and BLAST XML formats), PSIBLAST and FASTA. In the future, it
+is envisioned that the Search/SearchIO syntax will be extended to
+provide a uniform interface to a wider range of report parsers
+including parsers for HMMer and Genscan.
+
+Parsing sequence-similarity reports with Search and SearchIO is
+straightforward.  Initially a SearchIO object specifies a file
+containing the report(s). The method next_result reads the next report
+into a Search object in just the same way that the next_seq method of
+SeqIO reads in the next sequence in a file into a Seq object.
+
+Once a report (i.e. a Search object) has been read in and is available
+to the script, the report's overall attributes (e.g. the query) can be
+determined and its individual "hits" can be accessed with the
+next_hit method.  Individual high-scoring-pairs for each hit
+can then be accessed with the next_hsp method. Except for
+the additional syntax required to enable the reading of multiple
+reports in a single file, the remainder of the Search/SearchIO parsing
+syntax is very similar to that of the BPlite and Blast.pm objects it
+is intended to replace.  Sample code to read a BLAST report might look like this:
+
+# Get the report
+searchio = new Bio::SearchIO ('-format' => 'blast',
+				  '-file'   => $blast_report);
+$result = $searchio->next_result;
+
+# Get info about the entire report
+$result->database_name;
+$algorithm_type =  $result->algorithm;
+
+# get info about the first hit
+$hit = $result->next_hit;
+$hit_name = $hit->name ;
+
+#get info about the first hsp of the first hit
+$hsp = $hit->next_hsp;
+$hsp_start = $hsp->query->start;
+
+For more details on parsing with Search/SearchIO see the next section
+ on BPlite and Blast.pm (which uses very similar syntax) as well as
+ the Search and SearchIO documentation: L<Bio::SearchIO::blast>
+ L<Bio::SearchIO::psiblast> L<Bio::SearchIO::blastxml>
+ L<Bio::SearchIO::fasta> L<Bio::SearchIO>
+
+There is also sample code is the searchio subdirectory of the Bio::examples directory which illustrates the use of the Search parser.
+
+=head2 III.4.4 Parsing BLAST reports with BPlite, BPpsilite, BPbl2seq and Blast.pm
+
+Bioperl's older BLAST report parsers - BPlite, BPpsilite, BPbl2seq and
+Blast.pm - are expected to be phased over a period of time. Since a
+considerable amount of legacy Bioperl scripts has been written which
+heavily use these objects, they are likely to remain within Bioperl
+for some time.
+
+Much of the user interface of BPlite (and to a lesser degree Blast.pm)
+is very similar to that of Search. However accessing the next hit or
+HSP uses methods called next_Sbjct and next_HSP, respectively - in
+contrast to Search's next_hit and next_hsp.
+
+BPlite (with its relatives BPpsilite and BPbl2seq) is less complex and
+easier to maintain than Blast.pm.  Although it has fewer options and
+display modes than Blast.pm, you will probably find that BPlite
+contains the functionality that you need, (unless you need to do HSP
+tiling or to implement an arbitrary filter function in which case you
+may want to use the Blast.pm parser.)
+
+BPlite
+
+The syntax for using BPlite is as follows where the method
+for retrieving hits is now called "nextSbjct" (for "subject"), while the
+method for retrieving high-scoring-pairs is called "nextHSP":
+
+  use Bio::Tools::BPlite;
+  $report = new BPlite(-fh=>\*STDIN);
+  $report->query;
+  while(my $sbjct = $report->nextSbjct) {
+       $sbjct->name;
+       while (my $hsp = $sbjct->nextHSP) { $hsp->score; }
+  }
+
+A complete description of the module can be found in L<Bio::Tools::BPlite>.
+
+BPpsilite
+
+BPpsilite and BPbl2seq are objects for parsing (multiple iteration)
+PSIBLAST reports and Blast bl2seq reports, respectively.  They are
+both minor variations on the BPlite object. See L<Bio::Tools::BPbl2seq>
+and L<Bio::Tools::BPpsilite> for details.
+
+The syntax for parsing a multiple iteration PSIBLAST report is as
+shown below.  The only significant additions to BPlite are methods to
+determine the number of iterated blasts and to access the results from
+each iteration.  The results from each iteration are parsed in the
+same manner as a (complete) BPlite object.
+
+  use Bio::Tools::BPpsilite;
+  $report = new BPpsilite(-fh=>\*STDIN);
+  $total_iterations = $report->number_of_iterations;
+  $last_iteration = $report->round($total_iterations)
+  while(my $sbjct =  $last_iteration ->nextSbjct) {
+       $sbjct->name;
+       while (my $hsp = $sbjct->nextHSP) {$hsp->score; }
+  }
+
+See L<Bio::Tools::BPpsilite> for details.
+
+BPbl2seq
+
+BLAST bl2seq is a program for comparing and aligning two sequences
+using BLAST.  Although the report format is similar to that of a
+conventional BLAST, there are a few differences.  Consequently, the
+standard bioperl parsers Blast.pm and BPlite are unable to read bl2seq
+reports directly. From the user\'s perspective, one difference
+between bl2seq and other blast reports is that the bl2seq report does
+not print out the name of the first of the two aligned sequences.
+Consequently, BPbl2seq has no way of identifying the name of one of
+the initial sequence unless it is explicitly passed to constructor as
+a second argument as in:
+
+  use Bio::Tools::BPbl2seq;
+  $report = Bio::Tools::BPbl2seq->new(-file => "t/data/dblseq.out",
+                                      -queryname => "ALEU_HORVU");
+  $hsp = $report->next_feature;
+  $answer=$hsp->score;
+
+In addition, since there will only be (at most) one "subject" (hit) in a
+bl2seq report one should use the method $report-E<gt>next_feature,
+rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high
+scoring pair. See L<Bio::Tools::BPbl2seq> for more details.
+
+
+
+
+
 
 The parser contained within the Bio::Tools::Blast.pm module is the
 original Blast parser developed for Bioperl. It is very full featured and
@@ -1200,79 +1403,13 @@ PSIBLAST and BL2SEQ.  Consequently, the BPlite parser
 (described in the following section) is recommended for most blast
 parsing within bioperl.
 
-=head2 III.4.4 Parsing BLAST reports with BPlite, BPpsilite and BPbl2seq
 
-Because of the issues with Blast.pm discussed above, Ian Korf\'s BPlite
-parser was ported to Bioperl.  BPlite is less complex and easier to
-maintain than Blast.pm.  Although it has fewer options and display modes
-than Blast.pm, you will probably find that BPlite contains the functionality
-that you need, (unless you need to do HSP tiling or to implement an
-arbitrary filter function in which case you may want to use the Blast.pm
-parser.)
 
-BPlite
 
-The syntax for using BPlite is as follows where the method
-for retrieving hits is now called "nextSbjct" (for "subject"), while the
-method for retrieving high-scoring-pairs is called "nextHSP":
 
-  use Bio::Tools::BPlite;
-  $report = new BPlite(-fh=>\*STDIN);
-  $report->query;
-  while(my $sbjct = $report->nextSbjct) {
-       $sbjct->name;
-       while (my $hsp = $sbjct->nextHSP) { $hsp->score; }
-  }
 
-A complete description of the module can be found in L<Bio::Tools::BPlite>.
 
-BPpsilite
 
-BPpsilite and BPbl2seq are objects for parsing (multiple iteration)
-PSIBLAST reports and Blast bl2seq reports, respectively.  They are
-both minor variations on the BPlite object. See L<Bio::Tools::BPbl2seq>
-and L<Bio::Tools::BPpsilite> for details.
-
-The syntax for parsing a multiple iteration PSIBLAST report is as
-shown below.  The only significant additions to BPlite are methods to
-determine the number of iterated blasts and to access the results from
-each iteration.  The results from each iteration are parsed in the
-same manner as a (complete) BPlite object.
-
-  use Bio::Tools::BPpsilite;
-  $report = new BPpsilite(-fh=>\*STDIN);
-  $total_iterations = $report->number_of_iterations;
-  $last_iteration = $report->round($total_iterations)
-  while(my $sbjct =  $last_iteration ->nextSbjct) {
-       $sbjct->name;
-       while (my $hsp = $sbjct->nextHSP) {$hsp->score; }
-  }
-
-See L<Bio::Tools::BPpsilite> for details.
-
-BPbl2seq
-
-BLAST bl2seq is a program for comparing and aligning two sequences
-using BLAST.  Although the report format is similar to that of a
-conventional BLAST, there are a few differences.  Consequently, the
-standard bioperl parsers Blast.pm and BPlite are unable to read bl2seq
-reports directly. From the user\'s perspective, one difference
-between bl2seq and other blast reports is that the bl2seq report does
-not print out the name of the first of the two aligned sequences.
-Consequently, BPbl2seq has no way of identifying the name of one of
-the initial sequence unless it is explicitly passed to constructor as
-a second argument as in:
-
-  use Bio::Tools::BPbl2seq;
-  $report = Bio::Tools::BPbl2seq->new(-file => "t/data/dblseq.out",
-                                      -queryname => "ALEU_HORVU");
-  $hsp = $report->next_feature;
-  $answer=$hsp->score;
-
-In addition, since there will only be (at most) one "subject" (hit) in a
-bl2seq report one should use the method $report-E<gt>next_feature,
-rather than $report-E<gt>nextSbjct-E<gt>nextHSP to obtain the next high
-scoring pair. See L<Bio::Tools::BPbl2seq> for more details.
 
 =head2 III.4.5 Parsing HMM reports (HMMER::Results)
 
@@ -1601,6 +1738,25 @@ location is either "split" - as in a multi-exon gene - or "fuzzy"
 these cases, the SeqFeature objects need to be built with
 one of the alternate Location objects described in Section II.3.
 
+If more detailed annotation than available in Seq objects is required,
+the RichSeq object may be used. It is applicable in particular to
+database sequences (EMBL, GenBank and Swissprot) with detailed annotations.
+Sample usage might be:
+
+    @secondary   = $richseq->get_secondary_accessions;
+    $division    = $richseq->division;
+    @dates       = $richseq->get_dates; 
+    $seq_version = $richseq->seq_version;  
+
+See the L<Bio::Seq::RichSeqI> documentation for more details.
+
+=head1 DESCRIPTION
+
+This interface extends the Bio::SeqI interface to give additional functionality
+to sequences with richer data sources, in particular from database sequences 
+(EMBL, GenBank and Swissprot).
+
+
 =head2 III.7.2 Representing and large and/or changing sequences (LiveSeq,LargeSeq)
 
 Very large sequences and/or data files with sequences that are
@@ -1713,7 +1869,34 @@ see L<Bio::LiveSeq::Mutator> and L<Bio::LiveSeq::Mutation> as well as
 the original documentation for the "Computational Mutation Expression
 Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
 
-=head2 III.7.4 Sequence XML representations - generation and parsing (SeqIO::game)
+=head2 III.7.4 Incorpotating quality data in sequence annotation (SeqWithQuality)
+
+SeqWithQuality objects are used to describe sequences with very
+specific annotations - that is, data quality annotaions.  Data quality
+information is important for documenting the reliability of base
+"calls" in newly sequenced or otherwise questionable sequence
+data. Syntax for using SeqWithQuality objects is as follows:
+
+# first, make a PrimarySeq object
+$seqobj = Bio::PrimarySeq->new
+	 ( -seq => 'atcgatcg', -id  => 'GeneFragment-12',
+	    -accession_number => 'X78121', -alphabet => 'dna');
+# now make a PrimaryQual object
+$qualobj = Bio::Seq::PrimaryQual->new
+	 ( -qual => '10 20 30 40 50 50 20 10', -id  => 'GeneFragment-12',
+	   -accession_number => 'X78121', -alphabet => 'dna');
+# now make the SeqWithQuality object
+$swqobj = Bio::Seq::SeqQithQuality->new
+	  ( -seq  => $seqobj, -qual => $qualobj);
+# Now we access the sequence with quality object
+$swqobj->id(); # the id of the SeqWithQuality object
+	       # may not match the the id of the sequence or
+	       # of the quality 
+$swqobj->seq(); # the sequence of the SeqWithQuality object
+$swqobj->qual(); # the quality of the SeqWithQuality object
+
+
+=head2 III.7.5 Sequence XML representations - generation and parsing (SeqIO::game)
 
 The previous subsections have described tools for automated sequence
 annotation by the creation of an "object layer" on top of a
@@ -1742,21 +1925,24 @@ Seq objects.
   $first_primary_tag = $feats[0]->primary_tag;
 
 
-=head2 III.8 Representing 3D structure
+=head2  III.8 Representing non-sequence data in Bioperl: structures, trees and maps
 
-Though bioperl has its roots in describing and searching nucleotide
-sequence it has also branched out into related fields of study,
-such as protein structure. A StructureIO object can be created from
+Though bioperl has its roots in describing and searching nucleotide and protein
+sequences it has also branched out into related fields of study,
+such as protein structure, phylogenetic trees and genetic maps.
+
+=head2 III.8.1 Using 3D structure objects and reading PDB files
+(StructureI, Structure::IO)
+
+A StructureIO object can be created from
 one or more 3D structures represented in Protein Data Bank, or pdb,
 format (see http://www.rcsb.org/pdb for details).
 
-=head2 III.8.1 Reading PDB files
-
 StructureIO objects allow access to a variety of related Bio:Structure
-objects. An Entry object consist of one or more Model objects, which in
-turn consist of one or more Chain objects. A Chain is composed of Residue
-objects, which in turn consist of Atom objects. There's a wealth of
-methods, here are just a few:
+objects. An Entry object consist of one or more Model objects, which
+in turn consist of one or more Chain objects. A Chain is composed of
+Residue objects, which in turn consist of Atom objects. There's a
+wealth of methods, here are just a few:
 
   my $structio = Bio::Structure::IO->new( -file => "1XYZ.pdb");
   my $struc = $structio->next_structure; # returns an Entry object
@@ -1766,11 +1952,41 @@ methods, here are just a few:
   my @atoms = $struc->get_atoms($res); # Atom objects, given a Residue
   my @xyz = $atom->xyz;         # the 3D coordinates of the atom
 
-These lines show one has access to a number of related objects and methods.
+These lines show how one has access to a number of related objects and methods.
 See L<Bio::Structure::IO>, L<Bio::Structure::Entry>, L<Bio::Structure::Model>,
 L<Bio::Structure::Chain>, L<Bio::Structure::Residue>, and
 L<Bio::Structure::Atom> for more information.
 
+=head2  III.8.2 Tree objects and phylogentic trees (Tree::Tree, TreeIO)
+
+Bioperl Tree objects can store data for all kinds of computer trees
+and are intended especially for phylogenetic trees.  Nodes and
+branches of trees can be individually manipulated.  The TreeIO object
+is used for stream I/O of tree objects.  Currently only phylip/newick
+tree format is supported.  Sample code might be:
+
+$treeio = new Bio::TreeIO( -format => 'newick', -file   => $treefile);
+$tree = $treeio->next_tree;   # get the tree
+@nodes = $tree->get_nodes;    # get all the nodes
+$tree->get_root_node()->each_Descendent();  # get the descendents of the root node
+
+=head2 III.8.3 Map objects for manipulating genetic maps (Map::MapI,
+MapIO)
+
+Bioperl map objects can be used to describe any type of biological map
+data including genetic maps, STS maps etc.  Map I/O is performed with
+the MapIO object which works in a similar manner to the SeqIO,
+SearchIO and similar I/O objects described previously. In principle,
+Map I/O with various map data formats can be performed.  However
+currently only "mapmaker" format is supported.  Manipulation of
+genetic map data with Bioperl Map objects might look like this:
+
+$mapio = new Bio::MapIO( '-format' => 'mapmaker', '-file'   => $mapfile);
+$map = $mapio->next_map;  # get a map
+$maptype =  $map->type ;
+foreach  $marker ( $map->each_element ) {
+   $marker_name =  $marker->name ;  # get the name of each map marker
+}
 
 =head2 III.9 Bioperl alphabets
 
@@ -2022,6 +2238,7 @@ my ($access_remote_db, $index_local_db, $fetch_local_db,
     $run_standaloneblast,  $blast_parser, $bplite_parsing, $hmmer_parsing,
     $run_clustalw_tcoffee, $run_psw_bl2seq, $simplealign_univaln,
     $gene_prediction_parsing, $sequence_annotation, $largeseqs,
+    $run_tree, $run_map, $run_struct, $run_perl, $searchio_parsing,
     $liveseqs, $demo_variations, $demo_xml, $display_help, $bpinspect1 );
 
 # global variable file names.  Edit these if you want to try
@@ -2030,7 +2247,7 @@ my ($access_remote_db, $index_local_db, $fetch_local_db,
  Bio::Root::IO->catfile("t","data","ecolitst.fa");
 
 my $dna_seq_file = Bio::Root::IO->catfile("t","data","dna1.fa");      # used in $sequence_manipulations
-my $amino_seq_file = Bio::Root::IO->catfile("t","data","cysprot1.fa");  # used in $other_seq_utilities
+my $amino_seq_file = Bio::Root::IO->catfile("t","data","cysprot1.fa");  # used in $other_seq_utilities and in $run_perl
                                        #and $sequence_annotation
 my $blast_report_file = Bio::Root::IO->catfile("t","data","blast.report");   # used in $blast_parser
 my $bp_parse_file1 = Bio::Root::IO->catfile("t","data","blast.report");       # used in $bplite_parsing
@@ -2073,7 +2290,12 @@ The following numeric arguments can be passed to run the corresponding demo-scri
 18 => liveseqs ,
 19 => demo_variations ,
 20 => demo_xml ,
-21 => run_remoteblast ,
+21 => run_tree ,
+22 => run_map,
+23 => run_struct,
+24 => run_perl,
+25 => searchio_parsing ,
+26 => run_remoteblast ,
 
 In addition the argument "100" followed by the name of a single
 bioperl object will display a list of all the public methods
@@ -2518,6 +2740,55 @@ $run_remoteblast = sub {
     }
     return 1;
 } ;
+
+#################################################
+#  searchio_parsing ():
+#
+
+
+
+$searchio_parsing = sub {
+
+my ($searchio, $result,$hit,$hsp);
+
+
+use lib '.';
+use Bio::SearchIO;
+use Bio::Root::IO;
+
+
+    print "\nBeginning searchio-parser example... \n";
+
+
+$searchio = new Bio::SearchIO ('-format' => 'blast',
+				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
+
+$result = $searchio->next_result;
+
+print "Database  name is ", $result->database_name , "\n";
+print "Algorithm is ", $result->algorithm , "\n";
+print "Query length used is ", $result->query_length , "\n";
+print "Kappa value is ", $result->get_statistic('kappa') , "\n";
+print "Name of matrix used is ", $result->get_parameter('matrix') , "\n";
+
+
+$hit = $result->next_hit;
+print "First hit  name is ", $hit->name , "\n";
+print "First hit  length is ", $hit->length , "\n";
+print "First hit  accession number is ", $hit->accession , "\n";
+
+$hsp = $hit->next_hsp;
+print "First hsp query start is ", $hsp->query->start , "\n";
+print "First hsp query end is ", $hsp->query->end , "\n";
+print "First hsp hit start is ", $hsp->hit->start , "\n";
+print "First hsp hit end is ", $hsp->hit->end , "\n";
+
+    return 1;
+} ;
+
+
+
+
 
 
 #################################################
@@ -3013,6 +3284,142 @@ $liveseqs = sub {
 
 
 #################################################
+# run_struct  ():
+#
+
+$run_struct = sub {
+
+use Bio::Structure::Entry;
+use Bio::Structure::IO;
+use Bio::Root::IO;
+
+ print "\nBeginning Structure object example... \n";
+
+# testing PDB format
+
+my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); # BPTI
+my $structio = Bio::Structure::IO->new(-file => $pdb_file, -format => 'PDB');
+my $struc = $structio->next_structure;
+
+my ($chain) = $struc->chain;
+print " The current chain is ",  $chain->id ," \n";
+
+my $pseq = $struc->seqres;
+print " The first 20 residues of the sequence corresponding to this structure are ", 
+            $pseq->subseq(1,20) ," \n";
+
+return 1;
+} ;
+
+
+
+
+
+#################################################
+# run_map  ():
+#
+
+$run_map = sub {
+
+use Bio::MapIO;
+use Bio::Root::IO;
+
+ print "\nBeginning MapIO example... \n";
+
+
+my $mapio = new Bio::MapIO(
+			    '-format' => 'mapmaker',
+			    '-file'   => Bio::Root::IO->catfile('t','data', 
+			    'mapmaker.out'));
+
+my $map = $mapio->next_map;
+
+print " The type of the map is " , $map->type  ," \n";
+print " The units of the map are " , $map->units  ," \n";
+
+my $count = 0;
+foreach my $marker ( $map->each_element ) {
+    print " The marker ", $marker->name," is at ordered position " ,  $marker->position->order  ," \n";
+    if ($count++ >= 5) {return 1};
+}
+
+
+    return 1;
+} ;
+
+#################################################
+# run_tree  ():
+#
+
+$run_tree = sub {
+
+use Bio::TreeIO;
+use Bio::Root::IO;
+
+print "\nBeginning phylogenetic tree example... \n";
+
+
+my $treeio = new Bio::TreeIO( -format => 'newick',
+			    -file   => Bio::Root::IO->catfile('t','data', 
+							       'cysprot1b.newick'));
+
+my $tree = $treeio->next_tree;
+my @nodes = $tree->get_nodes;
+
+ foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
+	print "node id and branch length: ", $node->to_string(), "\n";
+	my @ch = $node->each_Descendent();
+	if( @ch ) {
+	    print "\tchildren are: \n";
+	    foreach my $node ( $node->each_Descendent() ) {
+		print "\t\t id and length: ", $node->to_string(), "\n";
+	    }
+	}
+    }
+    return 1;
+} ;
+
+
+
+#################################################
+# run_perl  ():
+#
+
+$run_perl = sub {
+
+use Bio::Perl qw( read_sequence 
+		  read_all_sequences 
+		  write_sequence 
+		  new_sequence 
+		  get_sequence );
+
+print "\nBeginning example of sequence manipulation without explicit Seq objects... \n";
+
+
+  # getting a sequence from a database (assummes internet connection)
+
+   my $seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+
+   # sequences are Bio::Seq objects, so the following methods work
+   # (for more info see Bio::Seq documentation - try perldoc Bio::Seq)
+
+   print "Name of sequence retrieved from swissprot is ",$seq_object->display_id,"\n";
+   print "Sequence acc  is ",$seq_object->accession_number,"\n";
+   print "First 5 residues are ",$seq_object->subseq(1,5),"\n";
+
+  # getting sequence data from disk
+
+   $seq_object = read_sequence($amino_seq_file,'fasta'); 
+   print "Name of sequence retrieved from disk is ",$seq_object->display_id,"\n";
+
+   return 1;
+} ;
+
+
+
+
+
+#################################################
 # demo_variations  ():
 #
 
@@ -3243,7 +3650,7 @@ $bpinspect1 = sub {
 
     @runlist = @ARGV;
     if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
-    if ($runlist[0] == 0) {@runlist = (1..21); }; # argument = 0 means run all tests
+    if ($runlist[0] == 0) {@runlist = (1..25); }; # argument = 0 means run all tests
     foreach $n  (@runlist) {
         if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
         if ($n ==1) {&$access_remote_db; next;}
@@ -3266,10 +3673,13 @@ $bpinspect1 = sub {
         if ($n ==18) {&$liveseqs; next;}
         if ($n ==19) {&$demo_variations; next;}
         if ($n ==20) {&$demo_xml; next;}
-        if ($n ==21) {&$run_remoteblast; next;}
+        if ($n ==21) {&$run_tree; next;}
+        if ($n ==22) {&$run_map; next;}
+        if ($n ==23) {&$run_struct; next;}
+        if ($n ==24) {&$run_perl; next;}
+        if ($n ==25) {&$searchio_parsing; next;}
+        if ($n ==26) {&$run_remoteblast; next;}
         &$display_help;
     }
 
 ## End of "main"
-
-
