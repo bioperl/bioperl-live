@@ -54,6 +54,24 @@ SELECT fref,
 END
 ;
 
+use constant GETALIASLIKE =><<END;
+SELECT fref,
+       IF(ISNULL(gclass),'Sequence',gclass),
+       min(fstart),
+       max(fstop),
+       fstrand,
+       gname
+  FROM fdata,fgroup,fattribute,fattribute_to_feature
+  WHERE fattribute_to_feature.fattribute_value LIKE ?
+    AND fgroup.gclass=?
+    AND fgroup.gid=fdata.gid
+    AND fattribute.fattribute_name='Alias'
+    AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id
+    AND fattribute_to_feature.fid=fdata.fid
+    GROUP BY fref,fstrand,gname
+END
+;
+
 use constant GETFORCEDSEQCOORDS =><<END;
 SELECT fref,
        IF(ISNULL(gclass),'Sequence',gclass),
@@ -368,7 +386,12 @@ sub get_abscoords {
   my $result = $self->SUPER::get_abscoords(@_);
   return $result if $result;
 
-  my $sth = $self->dbh->do_query(GETALIASCOORDS,$name,$class);
+  my $sth;
+  if ($name =~ s/\*/%/g) {
+    $sth = $self->dbh->do_query(GETALIASLIKE,$name,$class);
+  } else {
+    $sth = $self->dbh->do_query(GETALIASCOORDS,$name,$class);
+  }
   my @result;
   while (my @row = $sth->fetchrow_array) { push @result,\@row }
   $sth->finish;
@@ -1105,6 +1128,7 @@ create table fattribute_to_feature (
         fattribute_id    int(10) not null,
 	fattribute_value text,
         key(fid,fattribute_id),
+	key(fattribute_value(48)),
         fulltext(fattribute_value)
 )
     },
