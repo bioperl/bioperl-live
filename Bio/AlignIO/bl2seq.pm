@@ -137,8 +137,8 @@ sub next_aln {
     $aln->add_seq($seq);
 
     $seqchar = $hsp->sbjctSeq;
-    $start = $hsp->subject->start;
-    $end = $hsp->subject->end;
+    $start = $hsp->hit->start;
+    $end = $hsp->hit->end;
     $seqname = $bl2seqobj->sbjctName;
 
     unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
