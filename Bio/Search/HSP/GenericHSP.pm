@@ -196,16 +196,13 @@ sub new {
     defined $score     && $self->score($score);
     my ($queryfactor, $hitfactor) = (0,0);
 
-    if( $algo eq 'TFASTN' || $algo eq 'TFASTY' || $algo eq 'TFASTXY' ||
-	$algo eq 'TBLASTN' ) {
+    if( $algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
 	$hitfactor = 1;	
-    } elsif ($algo eq 'BLASTX' || 
-	     $algo eq 'FASTX' || $algo eq 'FASTY' || $algo eq 'FASTXY'  ) {
+    } elsif ($algo =~ /^(FAST|BLAST)(X|Y|XY)/oi ) {
 	$queryfactor = 1;	
-    } elsif ($algo eq 'TBLASTX' ||$algo eq 'TFASTX' ||
-	     $algo eq 'TFASTXY' || $algo eq 'TFASTY' || 
-	     $algo eq 'BLASTN' || 
-	     $algo eq 'FASTN' || $algo eq 'WABA' || 
+    } elsif ($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ||
+	     $algo =~ /^(BLAST|FAST)N/oi ||
+	     $algo eq 'WABA' || 
 	     $algo eq 'EXONERATE' || $algo eq 'MEGABLAST' ||
 	     $algo eq 'SMITH-WATERMAN' ){
 	$hitfactor = 1;
@@ -281,7 +278,8 @@ sub new {
 	$identical = 0;
     } 
     if( ! defined $conserved ) {
-	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") if( $algo !~ /(FAST|BLAST)N|Exonerate/i);
+	$self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)") 
+	    if( $algo !~ /^((FAST|BLAST)N)|Exonerate/oi);
 	$conserved = $identical;
     } 
     # protect for divide by zero if user does not specify 
@@ -672,8 +670,7 @@ sub frame {
 	  }
 	  $self->hit->frame($sframe);
       }
-    if (wantarray() &&
-	$self->algorithm eq 'TBLASTX')
+    if (wantarray() && $self->algorithm =~ /^T(BLAST|FAST)(X|Y|XY)/oi)
     {
 	return ($self->query->frame(), $self->hit->frame());
     } elsif (wantarray())  {
@@ -1042,14 +1039,11 @@ sub _calculate_seq_positions {
 	$sseq =~ s![\\\/]!!g;
     }
     
-    if($prog eq 'TBLASTN' || $prog eq 'TFASTN' ) {
+    if($prog =~ /^(PSI)?T(BLAST|FAST)N/oi ) {
 	$resCount_sbjct = int($resCount_sbjct / 3);
-    } elsif($prog eq 'BLASTX' || $prog eq 'FASTX' || $prog eq 'FASTY' || 
-	    $prog eq 'FASTXY' ) {
+    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
 	$resCount_query = int($resCount_query / 3);
-    } elsif($prog eq 'TBLASTX' ||
-	    $prog eq 'TFASTXY' || $prog eq 'TFASTY' || 
-	    $prog eq 'TFASTX' ) {
+    } elsif($prog =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
 	$resCount_query = int($resCount_query / 3);
 	$resCount_sbjct = int($resCount_sbjct / 3);
     }    
