@@ -179,7 +179,7 @@ while( $tree = $treeio->next_tree ) {
 
 	@leaves = $tree->get_leaf_nodes;
 	ok(@leaves, 13);
-	ok(@nodes, 24);
+	ok(@nodes, 25);
 	($node) = $tree->find_node(-id => '18');
 	ok($node);
 	ok($node->id, '18');
@@ -198,7 +198,7 @@ ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 @nodes = $tree->get_nodes;
 @leaves = $tree->get_leaf_nodes;
 ok(@leaves, 13);
-ok(@nodes, 24);
+ok(@nodes, 25);
 ($node) = $tree->find_node('18');
 ok($node->id, '18');
 ok($node->branch_length, '0.028117');
@@ -220,7 +220,7 @@ ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 @leaves = $tree->get_leaf_nodes;
 ok(@leaves, 13, scalar @leaves);
 
-ok(@nodes, 24, scalar @leaves);
+ok(@nodes, 25, scalar @nodes);
 ($node) = $tree->find_node('18');
 ok($node->id, '18');
 
