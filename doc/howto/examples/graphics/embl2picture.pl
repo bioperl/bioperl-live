@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # file: embl2picture.pl
-# This is code example 5 in the Graphics-HOWTO
+# This is code example 6 in the Graphics-HOWTO
 # Author: Lincoln Stein
 
 use strict;
