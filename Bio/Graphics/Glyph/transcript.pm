@@ -10,7 +10,8 @@ sub pad_left  {
   my $self = shift;
   my $pad  = $self->SUPER::pad_left;
   return $pad if $self->{level} > 0;
-  return $pad unless $self->feature->strand < 0;
+  my $strand = $self->feature->strand;
+  return $pad unless defined $strand && $strand < 0;
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;
 }
 
@@ -18,7 +19,8 @@ sub pad_right {
   my $self = shift;
   my $pad  = $self->SUPER::pad_right;
   return $pad if $self->{level} > 0;
-  return $pad unless $self->feature->strand > 0;
+  my $strand = $self->feature->strand;
+  return $pad unless defined($strand) && $strand > 0;
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;
 }
 

@@ -59,6 +59,7 @@ Arguments are as follows:
   -seqname     an alias for -name
   -primary_id  an alias for -name
   -display_id  an alias for -name
+  -display_name an alias for -name  (do you get the idea the API has changed?)
 
 The subfeatures passed in -segments may be an array of
 Bio::Graphics::Feature objects, or an array of [$start,$stop]
@@ -141,7 +142,8 @@ sub new {
 
   $arg{-strand} ||= 0;
   $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
-  $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} || $arg{-id} || $arg{-primary_id};
+  $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} 
+    || $arg{-display_name} || $arg{-id} || $arg{-primary_id};
   $self->{type}    = $arg{-type}   || 'feature';
   $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
@@ -259,10 +261,10 @@ sub seq {
 }
 *dna = \&seq;
 
-=head2 display_id
+=head2 display_name
 
- Title   : display_id
- Usage   : $id = $obj->display_id or $obj->display_id($newid);
+ Title   : display_name
+ Usage   : $id = $obj->display_name or $obj->display_name($newid);
  Function: Gets or sets the display id, also known as the common name of
            the Seq object.
 
@@ -285,7 +287,9 @@ sub seq {
 
 =cut
 
-sub display_id { shift->name }
+sub display_name { shift->name }
+
+*display_id = \&display_name;
 
 =head2 accession_number
 
