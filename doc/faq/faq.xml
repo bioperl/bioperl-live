@@ -155,9 +155,9 @@ print join ("\n", sort @{Class::Inspector->methods($class,'full','public')}),
          </answer>
       </q>
       <q id="4">
-         <question>How can I use SeqIO to parse sequence data from a string?</question>
+         <question>How can I use SeqIO to parse sequence data to or from a string?</question>
          <answer>
-            <p>
+            <p>From a string:</p>
                <code>
   use IO::String;
   use Bio::SeqIO;
@@ -169,7 +169,16 @@ print join ("\n", sort @{Class::Inspector->methods($class,'full','public')}),
       # process each seq
   }
 </code>
-            </p>
+            <p>And here is how to write to a string:</p>
+<code>
+use IO::String;
+use Bio::SeqIO;
+my $s;
+my $io = IO::String->new(\$s);
+my $seqOut = new Bio::SeqIO(-format=>'swiss', -fh => $io);
+$seqOut->write_seq($seq1);
+print $s; # $s contains the record
+</code>
          </answer>
       </q>
    </section>
