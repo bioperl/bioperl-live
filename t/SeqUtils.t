@@ -109,20 +109,25 @@ Bio::SeqUtils->mutate($seq,
                      );
 ok $seq->seq, 'agct';
 
-# insertion
+# insertion and deletion
+my @mutations = (
+                 Bio::LiveSeq::Mutation->new(-seq => 'tt',
+                                             -pos => 2,
+                                             -len => 0
+                                            ),
+                 Bio::LiveSeq::Mutation->new(-pos => 2,
+                                             -len => 2
+                                            )
+);
+
+Bio::SeqUtils->mutate($seq, @mutations);
+ok $seq->seq, 'agct';
+
+# insertion to the end of the sequence
 Bio::SeqUtils->mutate($seq,
-                      Bio::LiveSeq::Mutation->new(-seq => 'tt',
-                                                  -pos => 2,
+                      Bio::LiveSeq::Mutation->new(-seq => 'aa',
+                                                  -pos => 5,
                                                   -len => 0
                                                  )
                      );
-ok $seq->seq, 'attgct';
-
-
-# deletion
-Bio::SeqUtils->mutate($seq,
-                      Bio::LiveSeq::Mutation->new(-pos => 2,
-                                                  -len => 2
-                                                 )
-                     );
-ok $seq->seq, 'agct';
+ok $seq->seq, 'agctaa';

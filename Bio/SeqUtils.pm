@@ -321,33 +321,41 @@ sub valid_aa{
 
  Title   : mutate
  Usage   : my @aa = $table->valid_aa
- Function: Does inplace editing of the sequence object
+ Function: 
+
+           Does inplace editing of the sequence. The second argument
+           can be a Bio::LiveSeq::Mutation object or an array of
+           them. The mutations are applied sequentially checking only
+           that their position is within thecurrent sequence.
+           Insertions are inserted before the given position.
+
  Returns : boolean
  Args    : sequence object
-           mutation, a Bio::LiveSeq::Mutation object, r arr
+           mutation, a Bio::LiveSeq::Mutation object, or an array of them
 
 See <Bio::LiveSeq::Mutation>.
 
 =cut
 
 sub mutate {
-    my ($self, $seq, $mutation ) = @_;
+    my ($self, $seq, @mutations ) = @_;
 
     $self->throw('Object [$seq] '. 'of class ['. ref($seq).
                  '] should be a Bio::PrimarySeqI ')
 	unless $seq->isa('Bio::PrimarySeqI');
-    $self->throw('Object [$mutation] '. 'of class ['. ref($mutation).
+    $self->throw('Object [$mutations[0]] '. 'of class ['. ref($mutations[0]).
                  '] should be a Bio::LiveSeq::Mutation')
-	unless $mutation->isa('Bio::LiveSeq::Mutation');
+	unless $mutations[0]->isa('Bio::LiveSeq::Mutation');
 
-    $self->throw(Atempting to mutate sequence beyond its length)
-        unless $mutation->pos <= $seq->length;
+    foreach my $mutation (@mutations) {
+        $self->throw('Attempting to mutate sequence beyond its length')
+            unless $mutation->pos - 1 <= $seq->length;
 
-    my $string = $seq->seq;
-    substr $string, $mutation->pos - 1, $mutation->len, $mutation->seq;
-    $seq->seq($string);
+        my $string = $seq->seq;
+        substr $string, $mutation->pos - 1, $mutation->len, $mutation->seq;
+        $seq->seq($string);
+    }
     1;
-
 }
 
 1;
