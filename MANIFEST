@@ -158,6 +158,7 @@ Bio/Graphics/Glyph/toomany.pm
 Bio/Graphics/Glyph/track.pm
 Bio/Graphics/Glyph/transcript.pm
 Bio/Graphics/Glyph/transcript2.pm
+Bio/Graphics/Glyph/translation.pm
 Bio/Graphics/Glyph/triangle.pm
 Bio/Graphics/Panel.pm
 Bio/Index/Abstract.pm

@@ -70,6 +70,8 @@ sub draw_dna {
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
+  $x1           -= $font->width/2;  # adjust each character so that it appears in middle of its location
+
   my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
 		    G=>'C',A=>'T',T=>'A',C=>'G');
   for (my $i=0;$i<@bases;$i++) {
