@@ -72,13 +72,17 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tree::Node;
-use vars qw(@ISA);
+use vars qw(@ISA $CREATIONORDER);
 use strict;
 
 use Bio::Root::Root;
 use Bio::Tree::NodeI;
 
 @ISA = qw(Bio::Root::Root Bio::Tree::NodeI);
+
+BEGIN { 
+    $CREATIONORDER = 0;
+}
 
 =head2 new
 
@@ -120,6 +124,7 @@ sub new {
 	  $self->add_Descendent($c);
       }
   }
+  $self->_creation_id($CREATIONORDER++);
   return $self;
 }
 
@@ -130,19 +135,27 @@ sub new {
  Function: Adds a descendent to a node
  Returns : number of current descendents for this node
  Args    : Bio::Node::NodeI
+           boolean flag, true if you want to ignore the fact that you are
+           adding a second node with the same unique id (typically memory 
+           location reference in this implementation).  default is false and 
+           will throw an error if you try and overwrite an existing node.
 
 =cut
 
 sub add_Descendent{
-   my ($self,$node) = @_;
+   my ($self,$node,$ignoreoverwrite) = @_;
    return -1 if( ! defined $node ) ;
    if( ! $node->isa('Bio::Tree::NodeI') ) {
        $self->warn("Trying to add a Descendent who is not a Bio::Tree::NodeI");
        return -1;
    }
    # do we care about order?
-   $node->ancestor($self);
-   $self->{'_desc'}->{$node} = $node;
+   $node->{'_ancestor'} = $self;
+   if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
+       $self->throw("Going to overwrite a node which is $node that is already stored here, set the ignore overwrite flag (parameter 2) to true to ignore this in the future");
+   }
+   
+   $self->{'_desc'}->{$node->internal_id} = $node; # is this safely unique - we've tested before at any rate??
    return scalar keys %{$self->{'_desc'}};
 }
 
@@ -162,7 +175,62 @@ sub each_Descendent{
    my ($self) = @_;
    # order can be based on branch length (and sub branchlength)
 
-   return sort { $a->height <=> $b->height } values %{$self->{'_desc'}};
+   return sort {($a->height <=> $b->height) ||
+		    $a->internal_id <=> $b->internal_id } 
+   values %{$self->{'_desc'}};
+}
+
+=head2 remove_Descendent
+
+ Title   : remove_Descendent
+ Usage   : $node->remove_Descedent($node_foo);
+ Function: Removes a specific node from being a Descendent of this node
+ Returns : nothing
+ Args    : An array of Bio::Node::NodeI objects which have be previously
+           passed to the add_Descendent call of this object.
+
+=cut
+
+sub remove_Descendent{
+   my ($self,@nodes) = @_;
+   foreach my $n ( @nodes ) { 
+       if( $self->{'_desc'}->{$n->internal_id} ) {
+	   $n->{'_ancestor'} = undef;
+	   $self->{'_desc'}->{$n->internal_id}->{'_ancestor'} = undef;
+	   delete $self->{'_desc'}->{$n->internal_id};
+	   
+       } else { 
+	   $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
+	   $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
+       }
+   }
+   1;
+}
+
+
+=head2 remove_all_Descendents
+
+ Title   : remove_all_Descendents
+ Usage   : $node->remove_All_Descendents()
+ Function: Cleanup the node's reference to descendents and reset
+           their ancestor pointers to undef, if you don't have a reference
+           to these objects after this call they will be cleanedup - so
+           a get_nodes from the Tree object would be a safe thing to do first
+ Returns : nothing
+ Args    : none
+
+
+=cut
+
+sub remove_all_Descendents{
+   my ($self) = @_;
+   # this won't cleanup the nodes themselves if you also have
+   # a copy/pointer of them (I think)...
+   while( my ($node,$val) = each %{ $self->{'_desc'} } ) {
+       $val->{'_ancestor'} = undef;
+   }
+   $self->{'_desc'} = {};
+   1;
 }
 
 =head2 get_Descendents
@@ -187,13 +255,7 @@ sub each_Descendent{
 =cut
 
 sub ancestor{
-   my ($self,$value) = @_;
-   if( defined $value) {
-       if(! $value->isa('Bio::Tree::NodeI') ) {
-	   $self->throw("Must specify a valid Bio::Tree::NodeI when setting the ancestor");
-       }
-       $self->{'_ancestor'} = $value;
-   }
+   my ($self) = @_;
    return $self->{'_ancestor'};
 }
 
@@ -277,18 +339,60 @@ sub id{
    return $self->{'_id'};
 }
 
+
+
 sub DESTROY {
     my ($self) = @_;
     # try to insure that everything is cleaned up
     $self->SUPER::DESTROY();
     if( defined $self->{'_desc'} &&
 	ref($self->{'_desc'}) =~ /ARRAY/i ) {
-	foreach my $n ( @{$self->{'_desc'}} ) {
-	    $n->DESTROY();
+	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
+	    $node->{'_ancestor'} = undef; # insure no circular references
+	    $node->DESTROY();
+	    $node = undef;
 	}
 	$self->{'_desc'} = {};
     }
 }
+
+=head2 internal_id
+
+ Title   : internal_id
+ Usage   : my $internalid = $node->internal_id
+ Function: Returns the internal unique id for this Node
+           (a monotonically increasing number for this in-memory implementation
+            but could be a database determined unique id in other 
+	    implementations)
+ Returns : unique id
+ Args    : none
+
+=cut
+
+sub internal_id{
+   return $_[0]->_creation_id;
+}
+
+
+=head2 _creation_id
+
+ Title   : _creation_id
+ Usage   : $obj->_creation_id($newval)
+ Function: a private method signifying the internal creation order
+ Returns : value of _creation_id
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub _creation_id{
+    my ($self,$value) = @_;
+    if( defined $value) {
+	$self->{'_creation_id'} = $value;
+    }
+    return $self->{'_creation_id'} || 0;
+}
+
 
 # The following methods are implemented by NodeI decorated interface
 

@@ -181,8 +181,7 @@ sub total_branch_length {
    return $sum;
 }
 
-
-# decorated intereface TreeI Implements this
+# decorated interface TreeI Implements this
 
 
 =head2 height

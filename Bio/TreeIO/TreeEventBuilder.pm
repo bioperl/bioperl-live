@@ -129,10 +129,8 @@ sub start_document {
 =cut
 
 sub end_document {
-    my ($self) = @_;    
-    
-     my $root = new Bio::Tree::Node();
-    
+    my ($self) = @_; 
+    my $root = new Bio::Tree::Node();
     # aggregate the nodes into trees basically ad-hoc.
     while ( @{$self->{'_currentnodes'}} ) {	
 	my ($node) = ( shift @{$self->{'_currentnodes'}});
@@ -194,16 +192,16 @@ sub end_element{
 				 pop @{$self->{'_currentnodes'}},
 				 );
 	   $tnode = new Bio::Tree::Node(%{$node});
-	   $tnode->add_Descendent($left);
-	   $tnode->add_Descendent($right);	   
+	   $tnode->add_Descendent($right);
+	   $tnode->add_Descendent($left);	   
        }
        push @{$self->{'_currentnodes'}}, $tnode;       
        $self->debug ("added node: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");       
    } elsif(  $data->{'Name'} eq 'tree' ) { 
        $self->debug("end of tree: nodes in stack is ". scalar @{$self->{'_currentnodes'}}. "\n");
-
    }
-   $self->{'_lastitem'}->{$data->{'Name'}}--; 
+   $self->{'_lastitem'}->{ $data->{'Name'} }--; 
+   
    pop @{$self->{'_lastitem'}->{'current'}};
 }
 

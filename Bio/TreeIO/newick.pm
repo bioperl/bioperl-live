@@ -86,13 +86,13 @@ use Bio::Event::EventGeneratorI;
  Usage   : my $tree = $treeio->next_tree
  Function: Gets the next tree in the stream
  Returns : Bio::Tree::TreeI
- Args    :
+ Args    : none
 
 
 =cut
 
 sub next_tree{
-   my ($self,@args) = @_;
+   my ($self) = @_;
    local $/ = ";\n";
    return unless $_ = $self->_readline;
    s/\s+//g;
@@ -123,14 +123,17 @@ sub next_tree{
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
 	       } else { 
-		   $self->debug($chars."\n");
+		   $self->debug("id with no branchlength is $chars\n");
 		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	       }	   	   
-	       $self->_eventHandler->end_element( {'Name' => 'node'} );
+	       }
+	       
+	   } else {
+	       $self->_eventHandler->start_element( {'Name' => 'node'} )
 	   }
+	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $self->_eventHandler->end_element( {'Name' => 'tree'} );
 	   $chars = '';
 	   $lastevent = $ch;
@@ -141,16 +144,20 @@ sub next_tree{
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( {'Name' => 'branch_length'});
 	       } else { 
+		   $self->debug("id with no branchlength is $chars\n");
 		   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 		   $self->_eventHandler->start_element( { 'Name' => 'id' } );
 		   $self->_eventHandler->characters($chars);
 		   $self->_eventHandler->end_element( { 'Name' => 'id' } );
-	       }
-	       $self->_eventHandler->end_element( {'Name' => 'node'} );
+	       }   
+	   } else {
+	       $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   }
+	   $self->_eventHandler->end_element( {'Name' => 'node'} );
 	   $chars = '';
 	   $lastevent = $ch;
        } elsif( $ch eq ':' ) {
+	   $self->debug("id with a branchlength coming is $chars\n");
 	   $self->_eventHandler->start_element( { 'Name' => 'node' } );
 	   $self->_eventHandler->start_element( { 'Name' => 'id' } );	   
 	   $self->_eventHandler->characters($chars);
@@ -159,7 +166,7 @@ sub next_tree{
 	   $lastevent = $ch;
        } else { 	   
 	   $chars .= $ch;
-       } 
+       }
    }
    return undef;
 }
@@ -195,11 +202,10 @@ sub _write_tree_Helper {
 	push @data, _write_tree_Helper($n);
     }
 
-    if( @data > 1 && 
-	$node->branch_length) {
+    if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
-	$data[-1] .= ":". $node->branch_length;
+	$data[-1] .= ":". $node->branch_length if( $node->branch_length);
     } else {
 	if( defined $node->id || defined $node->branch_length ) { 
 	    push @data, sprintf("%s%s",

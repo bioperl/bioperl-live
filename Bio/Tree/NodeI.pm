@@ -228,7 +228,7 @@ sub height{
        my $s = $subnode->height;
        if( $s > $max ) { $max = $s; }
    }
-   return $max + ($self->branch_length || 0);
+   return $max + ($self->branch_length || 1);
 }
 
 =head2 Get/Set methods
@@ -267,6 +267,21 @@ sub branch_length{
 sub id{
     my ($self)= @_;
     $self->throw_not_implemented();
+}
+
+=head2 internal_id
+
+ Title   : internal_id
+ Usage   : my $internalid = $node->internal_id
+ Function: Returns the internal unique id for this Node
+ Returns : unique id
+ Args    : none
+
+=cut
+
+sub internal_id{
+   my ($self) = @_;
+   $self->throw_not_implemented();
 }
 
 =head2 description
