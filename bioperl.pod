@@ -1,4 +1,4 @@
-## $Id: bioperl.pod,v 1.34 2002-08-14 18:16:42 bosborne Exp $
+## $Id: bioperl.pod,v 1.35 2002-08-20 20:35:40 lstein Exp $
 
 ## Should contain general info about the distribution including
 ## links to many modules.
@@ -106,12 +106,6 @@ L<Bio::Biblio> for details
 I<examples/biblio_soap.pl> - connect to and test a SOAP server using a
 Bio::Biblio object
 
-I<examples/BioPerlBlast.pl> - script that takes multiple query sequences
-and queries a database with Blast
-
-I<examples/blast/*pl> - a set of scripts showing how to use Blast.pm.
-Please see L<Bio::Tools::Blast> for more information
-
 I<examples/change_gene.pl> - a script showing how to use LiveSeq::Mutator
 and LiveSeq::Mutation. Please see L<Bio::LiveSeq::Mutator> and 
 L<Bio::LiveSeq::Mutation> for more information
@@ -171,9 +165,6 @@ L<Bio::Tools::SeqPattern> for more information
 I<examples/simplealign.pl> - a script that demonstrates some uses of 
 AlignIO. Please see L<Bio::AlignIO> for more information
 
-I<examples/standaloneblast.pl> - a demonstration of some of the uses of
-StandAloneBlast.pm. See L<Bio::Tools::StandAloneBlast> for details
-
 I<examples/state-machine.pl> - a demonstration of how to create a
 state machine using StateMachine::AbstractStateMachine. Please see
 L<Bio::Tools::StateMachine::AbstractStateMachine> for more information
@@ -207,15 +198,6 @@ GFF format files into an indexed database - see L<Bio::DB::GFF> for
 more information
 
 I<scripts/bioperl.pl> - a Bioperl shell!
-
-I<scripts/blast_fetch_local.pl> - parse a Blast results file for ids and
-extract pertinent sequences from a local, indexed database using
-Tools::BPlite and Index::Fasta. See L<Bio::Tools::BPlite> and 
-L<Bio::Index::Fasta> for more information
-
-I<scripts/blast_fetch.pl> - parse a Blast result and fetch sequences from
-Genbank or Genpept over the network using Tools::Blast and Bio::DB*. See
-L<Bio::Tools::Blast>, L<Bio::DB::GenBank>, and L<Bio::Tools::GenPept>
 
 I<scripts/bpfetch.pl> - fetch sequences from local indexed database or over
 the network and reformat using Bio::Index* and Bio::DB*
