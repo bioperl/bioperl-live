@@ -122,6 +122,36 @@ sub add_sub_Location {
     $self->_abstractDeath;
 }
 
+=head2
+
+  Title   : min_start
+  Usage   : $min_start = $fuzzy->min_start();
+  Function: get the minimum starting point
+  Returns : the minimum starting point from the contained sublocations
+  Args    : none
+
+=cut
+
+sub min_start {
+    my ($self, $value) = @_;
+    $self->_abstractDeath();
+}
+
+=head2
+
+  Title   : max_end
+  Usage   : $max_end = $fuzzy->max_end();
+  Function: get the maximum ending point
+  Returns : the maximum ending point from the contained sublocations
+  Args    : none
+
+=cut
+
+sub max_end {
+    my ($self, $value) = @_;
+    $self->_abstractDeath();
+}
+
 
 # we'll need to override the RangeI methods since our locations will
 # not be contiguous.

@@ -130,6 +130,51 @@ sub add_sub_Location {
 }
 
 
+=head2
+
+  Title   : min_start
+  Usage   : $min_start = $fuzzy->min_start();
+  Function: get the minimum starting point
+  Returns : the minimum starting point from the contained sublocations
+  Args    : none
+
+=cut
+
+sub min_start {
+    my ($self, $value) = @_;
+    my @locations = $self->sub_Location();
+    foreach my $begin ( @locations ) {
+	if( $begin->isa('Bio::Location::Simple') ) {
+	    return $begin->start;
+	    last;
+	}
+    }
+    return 0;
+}
+
+=head2
+
+  Title   : max_end
+  Usage   : $max_end = $fuzzy->max_end();
+  Function: get the maximum ending point
+  Returns : the maximum ending point from the contained sublocations
+  Args    : none
+
+=cut
+
+sub max_end {
+    my ($self, $value) = @_;
+    my @locations = $self->sub_Location();
+    for(my $i=$#locations; $i >= 0; $i--) {
+	my $loc = $locations[$i];
+	if( $loc->isa('Bio::Location::Simple') ) {
+	    return $loc->end;
+	    last;
+	}
+    }
+    return 0;
+}
+
 # we'll probably need to override the RangeI methods since our locations will
 # not be contiguous.
 

@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 18; 
+    plan tests => 20; 
 }
 
 use Bio::Location::Simple;
@@ -71,6 +71,9 @@ $splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>1,
 $splitlocation->add_sub_Location(new Bio::Location::Simple('-start'=>50,
 							   '-end'=>61,
 							   '-strand'=>1));
+
+ok($splitlocation->max_end, 61);
+ok($splitlocation->min_start, 1);
 
 ok($splitlocation->sub_Location(),2);
 
