@@ -1,11 +1,13 @@
 package Bio::Graphics::Feature;
 use strict;
+use Bio::Root::Root;
 use Bio::SeqFeatureI;
+use Bio::SeqI;
 use Bio::LocationI;
 
 use vars '$VERSION','@ISA';
 $VERSION = '1.40';
-@ISA  = qw(Bio::SeqFeatureI Bio::LocationI);
+@ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
 
 *stop        = \&end;
 *info        = \&name;
@@ -43,6 +45,7 @@ sub new {
   $self->{ref}     = $arg{-ref};
   $self->{class}   = $arg{-class} if exists $arg{-class};
   $self->{url}     = $arg{-url}   if exists $arg{-url};
+  $self->{seq}     = $arg{-seq}   if exists $arg{-seq};
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
@@ -142,9 +145,101 @@ sub length {
 
 sub seq {
   my $self = shift;
-  return scalar('n' x $self->length);
+  my $dna =  exists $self->{seq} ? $self->{seq} : '';
+  $dna .= 'n' x ($self->length - CORE::length($dna));
+  return $dna;
 }
 *dna = \&seq;
+
+=head2 display_id
+
+ Title   : display_id
+ Usage   : $id = $obj->display_id or $obj->display_id($newid);
+ Function: Gets or sets the display id, also known as the common name of
+           the Seq object.
+
+           The semantics of this is that it is the most likely string
+           to be used as an identifier of the sequence, and likely to
+           have "human" readability.  The id is equivalent to the LOCUS
+           field of the GenBank/EMBL databanks and the ID field of the
+           Swissprot/sptrembl database. In fasta format, the >(\S+) is
+           presumed to be the id, though some people overload the id
+           to embed other information. Bioperl does not use any
+           embedded information in the ID field, and people are
+           encouraged to use other mechanisms (accession field for
+           example, or extending the sequence object) to solve this.
+
+           Notice that $seq->id() maps to this function, mainly for
+           legacy/convenience issues.
+ Returns : A string
+ Args    : None or a new id
+
+
+=cut
+
+sub display_id { shift->seq_id }
+
+=head2 accession_number
+
+ Title   : accession_number
+ Usage   : $unique_biological_key = $obj->accession_number;
+ Function: Returns the unique biological id for a sequence, commonly
+           called the accession_number. For sequences from established
+           databases, the implementors should try to use the correct
+           accession number. Notice that primary_id() provides the
+           unique id for the implemetation, allowing multiple objects
+           to have the same accession number in a particular implementation.
+
+           For sequences with no accession number, this method should return
+           "unknown".
+ Returns : A string
+ Args    : None
+
+
+=cut
+
+sub accession_number {
+    return 'unknown';
+}
+
+=head2 alphabet
+
+ Title   : alphabet
+ Usage   : if( $obj->alphabet eq 'dna' ) { /Do Something/ }
+ Function: Returns the type of sequence being one of
+           'dna', 'rna' or 'protein'. This is case sensitive.
+
+           This is not called <type> because this would cause
+           upgrade problems from the 0.5 and earlier Seq objects.
+
+ Returns : a string either 'dna','rna','protein'. NB - the object must
+           make a call of the type - if there is no type specified it
+           has to guess.
+ Args    : none
+ Status  : Virtual
+
+
+=cut
+
+sub alphabet{
+    return 'dna'; # no way this will be anything other than dna!
+}
+
+
+
+=head2 desc
+
+ Title   : desc
+ Usage   : $seqobj->desc($string) or $seqobj->desc()
+ Function: Sets or gets the description of the sequence
+ Example :
+ Returns : The description
+ Args    : The description or none
+
+
+=cut
+
+sub desc { shift }
 
 sub low {
   my $self = shift;
