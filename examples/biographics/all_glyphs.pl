@@ -1,8 +1,9 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 # Generate a simple display of all glyphs for comparison testing
 # T. Harris (harris@cshl.org)
 
 # Usage:
+# ./all_glyphs GD > all.png
 # ./all_glyphs GD 0 1000 > all.png       # output in png with a wide view
 # ./all_glyphs GD::SVG 100 150 > all.svg # output in SVG, zoomed
 
@@ -11,48 +12,6 @@ use strict;
 use Bio::Seq;
 use Bio::Graphics::Panel;
 use Bio::Graphics::Feature;
-
-# The dot glyph does not perform as expected (it does not accept an array of segments)
-# The same goes for the pinsertion glyph
-
-# Current glyphs, 11/24/2003
-# alignment.pm               supported
-# anchored_arrow.pm          supported
-# arrow.pm                   supported
-# box.pm                     supported
-# cds.pm                     supported
-# crossbox.pm                supported
-# diamond.pm                 supported
-# dna.pm                     supported
-# dot.pm                     supported
-# ellipse.pm                 supported
-# ex.pm                      supported
-# extending_arrow.pm         DEPRECATED - NOT TESTED
-# generic.pm                 supported
-# graded_segments.pm         supported
-# group.pm                   INTERNAL (supported)
-# heterogeneous_segments.pm  supported
-# line.pm                    supported
-# minmax.pm                  INTERNAL (supported)
-# oval.pm                    ALIAS (supported)
-# pinsertion.pm              supported
-# primers.pm                 supported
-# processed_transcript.pm    supported
-# redgreen_box.pm            supported
-# redgreen_segment.pm        supported
-# rndrect.pm                 supported
-# ruler_arrow.pm             supported
-# segmented_keyglyph.pm      INTERNAL (supported)
-# segments.pm                supported
-# span.pm                    supported
-# splice_site.pm             supported
-# toomany.pm                 supported (I guess)
-# track.pm                   INTERNAL (supported)
-# transcript.pm              supported
-# transcript2.pm             supported
-# translation.pm             supported
-# triangle.pm                supported
-# xyplot.pm                  supported
 
 chomp (my $CLASS = shift);
 $CLASS or die "\nUsage: lots_of_glyphs IMAGE_CLASS
@@ -514,7 +473,7 @@ $panel->add_track($partial_gene,
 		  -graph_type => 'boxes');
 
 
-my $gd    = $panel->gd;
+my $gd   = $panel->gd;
 my $type = ($CLASS eq 'GD') ? 'png' : 'svg';
 print $gd->$type;
 
