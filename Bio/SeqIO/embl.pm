@@ -163,7 +163,7 @@ sub next_seq {
    $seq->display_id($name);
    if($mol) {
        $seq->molecule($mol);
-       my $moltype='XXX';
+       my $moltype;
        if (defined $seq->molecule) {
 	   my $mol =$seq->molecule;
 	   if ($mol =~ /DNA/) {
@@ -176,7 +176,9 @@ sub next_seq {
 	       $moltype='protein';
 	   }
        }
-       $seq->primary_seq->moltype($moltype);
+       if ($moltype) {
+	   $seq->primary_seq->moltype($moltype);
+       }
 
    }
    if ($div) {
