@@ -479,6 +479,230 @@ create table fattribute_to_feature (
 )type=MyISAM
 } # fattribute_to_feature table
     }, # fattribute_to_feature
+
+
+cmap_attribute => {
+table=>q{
+create table cmap_attribute (
+  attribute_id int(11) NOT NULL default '0',
+  table_name varchar(30) NOT NULL default '',
+  object_id int(11) NOT NULL default '0',
+  display_order int(11) NOT NULL default '1',
+  is_public tinyint(4) NOT NULL default '1',
+  attribute_name varchar(200) NOT NULL default '',
+  attribute_value text NOT NULL,
+  PRIMARY KEY  (attribute_id),
+  KEY table_name (table_name,object_id,display_order,attribute_name)
+) TYPE=MyISAM;
+} # table
+},
+
+cmap_correspondence_evidence => {
+table=>q{
+create table cmap_correspondence_evidence (
+  correspondence_evidence_id int(11) NOT NULL default '0',
+  accession_id varchar(20) NOT NULL default '',
+  feature_correspondence_id int(11) NOT NULL default '0',
+  evidence_type_accession varchar(20) NOT NULL default '0',
+  score double(8,2) default NULL,
+  rank int(11) NOT NULL default '0',
+  PRIMARY KEY  (correspondence_evidence_id),
+  UNIQUE KEY accession_id (accession_id),
+  KEY feature_correspondence_id (feature_correspondence_id)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_correspondence_lookup => {
+table=>q{
+create table cmap_correspondence_lookup (
+  feature_id1 int(11) default NULL,
+  feature_id2 int(11) default NULL,
+  feature_correspondence_id int(11) default NULL,
+  start_position1 double(11,2) default NULL,
+  start_position2 double(11,2) default NULL,
+  stop_position1 double(11,2) default NULL,
+  stop_position2 double(11,2) default NULL,
+  map_id1 int(11) default NULL,
+  map_id2 int(11) default NULL,
+  feature_type_accession1 varchar(20) default NULL,
+  feature_type_accession2 varchar(20) default NULL,
+  KEY feature_id1 (feature_id1),
+  KEY corr_id (feature_correspondence_id),
+  KEY cl_map_id1 (map_id1),
+  KEY cl_map_id2 (map_id2),
+  KEY cl_map_id1_map_id2 (map_id1,map_id2),
+  KEY cl_map_id2_map_id1 (map_id2,map_id1)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_correspondence_matrix => {
+table=>q{
+create table cmap_correspondence_matrix (
+  reference_map_aid varchar(20) NOT NULL default '0',
+  reference_map_name varchar(32) NOT NULL default '',
+  reference_map_set_aid varchar(20) NOT NULL default '0',
+  reference_species_aid varchar(20) NOT NULL default '0',
+  link_map_aid varchar(20) default NULL,
+  link_map_name varchar(32) default NULL,
+  link_map_set_aid varchar(20) NOT NULL default '0',
+  link_species_aid varchar(20) NOT NULL default '0',
+  no_correspondences int(11) NOT NULL default '0'
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_feature => {
+table=>q{
+create table cmap_feature (
+  feature_id int(11) NOT NULL default '0',
+  accession_id varchar(20) NOT NULL default '',
+  map_id int(11) default NULL,
+  feature_type_accession varchar(20) NOT NULL default '0',
+  feature_name varchar(32) NOT NULL default '',
+  is_landmark tinyint(4) NOT NULL default '0',
+  start_position double(11,2) NOT NULL default '0.00',
+  stop_position double(11,2) default NULL,
+  default_rank int(11) NOT NULL default '1',
+  direction tinyint(4) NOT NULL default '1',
+  gclass varchar(100) default NULL,
+  PRIMARY KEY  (feature_id),
+  UNIQUE KEY gclass (gclass,feature_name),
+  UNIQUE KEY accession_id (accession_id),
+  KEY feature_name (feature_name),
+  KEY feature_id_map_id (feature_id,map_id),
+  KEY feature_id_map_id_start (feature_id,map_id,start_position),
+  KEY map_id (map_id),
+  KEY map_id_feature_id (map_id,feature_id)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_feature_alias => {
+table=>q{
+create table cmap_feature_alias (
+  feature_alias_id int(11) NOT NULL default '0',
+  feature_id int(11) NOT NULL default '0',
+  alias varchar(255) default NULL,
+  PRIMARY KEY  (feature_alias_id),
+  UNIQUE KEY feature_id_2 (feature_id,alias),
+  KEY feature_id (feature_id),
+  KEY alias (alias)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_feature_correspondence => {
+table=>q{
+create table cmap_feature_correspondence (
+  feature_correspondence_id int(11) NOT NULL default '0',
+  accession_id varchar(20) NOT NULL default '',
+  feature_id1 int(11) NOT NULL default '0',
+  feature_id2 int(11) NOT NULL default '0',
+  is_enabled tinyint(4) NOT NULL default '1',
+  PRIMARY KEY  (feature_correspondence_id),
+  UNIQUE KEY accession_id (accession_id),
+  KEY feature_id1 (feature_id1),
+  KEY cmap_feature_corresp_idx (is_enabled,feature_correspondence_id)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_map => {
+table=>q{
+create table cmap_map (
+  map_id int(11) NOT NULL default '0',
+  accession_id varchar(20) NOT NULL default '',
+  map_set_id int(11) NOT NULL default '0',
+  map_name varchar(32) NOT NULL default '',
+  display_order int(11) NOT NULL default '1',
+  start_position double(11,2) default NULL,
+  stop_position double(11,2) default NULL,
+  PRIMARY KEY  (map_id),
+  UNIQUE KEY accession_id (accession_id),
+  UNIQUE KEY map_id (map_id,map_set_id,map_name,accession_id),
+  KEY map_set_id_index (map_set_id)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_map_set => {
+table=>q{
+create table cmap_map_set (
+  map_set_id int(11) NOT NULL default '0',
+  accession_id varchar(20) NOT NULL default '',
+  map_set_name varchar(64) NOT NULL default '',
+  short_name varchar(30) NOT NULL default '',
+  map_type_accession varchar(20) NOT NULL default '0',
+  species_id int(11) NOT NULL default '0',
+  published_on date default NULL,
+  can_be_reference_map tinyint(4) NOT NULL default '1',
+  display_order int(11) NOT NULL default '1',
+  is_enabled tinyint(4) NOT NULL default '1',
+  shape varchar(12) default NULL,
+  color varchar(20) default NULL,
+  width int(11) default NULL,
+  map_units varchar(12) NOT NULL default '',
+  is_relational_map tinyint(11) NOT NULL default '0',
+  PRIMARY KEY  (map_set_id),
+  UNIQUE KEY accession_id (accession_id),
+  UNIQUE KEY map_set_id (map_set_id,species_id,short_name,accession_id),
+  KEY cmap_map_set_idx (can_be_reference_map,is_enabled,species_id,display_order,published_on,short_name)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_next_number => {
+table=>q{
+create table cmap_next_number (
+  table_name varchar(40) NOT NULL default '',
+  next_number int(11) NOT NULL default '0',
+  PRIMARY KEY  (table_name)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_species => {
+table=>q{
+create table cmap_species (
+  species_id int(11) NOT NULL default '0',
+  accession_id varchar(20) NOT NULL default '',
+  common_name varchar(64) NOT NULL default '',
+  full_name varchar(64) NOT NULL default '',
+  display_order int(11) NOT NULL default '1',
+  PRIMARY KEY  (species_id),
+  KEY acc_id_species_id (accession_id,species_id)
+) TYPE=MyISAM;
+} # table
+},
+
+
+cmap_xref => {
+table=>q{
+create table cmap_xref (
+  xref_id int(11) NOT NULL default '0',
+  table_name varchar(30) NOT NULL default '',
+  object_id int(11) default NULL,
+  display_order int(11) NOT NULL default '1',
+  xref_name varchar(200) NOT NULL default '',
+  xref_url text NOT NULL,
+  PRIMARY KEY  (xref_id),
+  KEY table_name (table_name,object_id,display_order)
+) TYPE=MyISAM;
+} # table
+},
+
+
 );
   return \%schema;
 }
@@ -532,7 +756,7 @@ sub setup_load {
   my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
 
   my $lookup_group = $dbh->prepare_delayed('SELECT feature_id FROM cmap_feature WHERE feature_name=? AND gclass=?');
-  my $insert_group = $dbh->prepare_delayed('INSERT INTO cmap_feature (feature_name,gclass) VALUES (?,?)');
+  my $insert_group = $dbh->prepare_delayed(' insert into cmap_feature (feature_id, feature_name, gclass )  select next_number , ?,? from cmap_next_number where table_name=\'cmap_feature\';update cmap_next_number set next_number = next_number +1 where table_name=\'cmap_feature\'');
 
   my $lookup_attribute = $dbh->prepare_delayed('SELECT fattribute_id FROM fattribute WHERE fattribute_name=?');
   my $insert_attribute = $dbh->prepare_delayed('INSERT INTO fattribute (fattribute_name) VALUES (?)');
@@ -548,8 +772,8 @@ END
 
   $self->{load_stuff}{sth}{lookup_ftype}     = $lookup_type;
   $self->{load_stuff}{sth}{insert_ftype}     = $insert_type;
-  $self->{load_stuff}{sth}{lookup_cmap_feature}    = $lookup_group;
-  $self->{load_stuff}{sth}{insert_cmap_feature}    = $insert_group;
+  $self->{load_stuff}{sth}{lookup_fgroup}    = $lookup_group;
+  $self->{load_stuff}{sth}{insert_fgroup}    = $insert_group;
   $self->{load_stuff}{sth}{insert_fdata}     = $insert_data;
   $self->{load_stuff}{sth}{lookup_fattribute} = $lookup_attribute;
   $self->{load_stuff}{sth}{insert_fattribute} = $insert_attribute;
@@ -807,6 +1031,57 @@ sub make_features_order_by_part {
   return "cmap_feature.feature_name";
 }
 
+=head2 create_cmap_viewer_link
+
+ Title   : create_cmap_viewer_link
+ Usage   : $link_str = $db->create_cmap_viewer_link(data_source=>$ds,group_id=>$gid)
+ Function: 
+ Returns : 
+ Args    : 
+ Status  : 
+
+
+=cut
+
+sub create_cmap_viewer_link {
+  my $self = shift;
+  my %args = @_;
+  my $data_source = $args{'data_source'};
+  my $gid         = $args{'group_id'};
+  my $link_str    = undef;
+
+  my $db = $self->features_db;
+  my $sql_str = qq[
+    select f.feature_name, 
+        f.feature_type_accession feature_type_aid,
+        m.accession_id as map_aid,
+        ms.accession_id as map_set_aid 
+    from cmap_feature f, 
+        cmap_map m, 
+        cmap_map_set ms 
+    where f.map_id=m.map_id 
+        and ms.map_set_id=m.map_set_id 
+        and f.feature_id=$gid
+    ];
+
+  my $result_ref = $db->selectrow_hashref($sql_str,{ Columns => {} });
+  
+  if ( $result_ref ) {
+    $link_str='/cgi-bin/cmap/viewer?ref_map_set_aid='
+      . $result_ref->{'map_set_aid'}
+      . '&ref_map_aids='
+      . $result_ref->{'map_aid'}
+      . '&data_source='
+      . $data_source
+      . '&highlight='
+      .$result_ref->{'feature_name'}
+      . '&feature_type_'
+      .$result_ref->{'feature_type_aid'}
+      . '=2';
+  }
+
+  return $link_str;
+}
 
 1;
 
