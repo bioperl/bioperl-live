@@ -8,8 +8,8 @@ BEGIN {
     eval { local * STDERR; require Bio::Ext::Align };
     if ( $@ ) {
 	plan tests => 1;
-	skip(1, 1, 1,'Bio::Ext::Align not loaded');
-	print STDERR "\tBio::Ext::Align not loaded\n";
+	skip(1,'Bio::Ext::Align not loaded');
+	#print STDERR "\tBio::Ext::Align not loaded\n";
 	exit(0);
     }
     plan tests => 3;

@@ -12,7 +12,7 @@
 use Test;
 use strict;
 
-BEGIN { plan tests => 29 }
+BEGIN { plan tests => 31 }
 
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
@@ -82,23 +82,15 @@ $pair->feature2($feat2);
 ok $pair->feature1, $feat;
 ok $pair->feature2, $feat2;
 ok $pair->start, 40;
-
 ok $pair->end, 80;
-
-
 ok $pair->primary_tag, 'exon';
 ok $pair->source_tag, 'internal';
-
 ok $pair->hstart, 400;
-
 ok $pair->hend, 440;
-
 ok $pair->hprimary_tag, 'other' ;
-
 ok $pair->hsource_tag, 'program_a';
 
 $pair->invert;
-
 ok $pair->end, 440;
 
 # Test attaching a SeqFeature::Generic to a Bio::Seq
@@ -123,7 +115,9 @@ ok $pair->end, 440;
     # Test that it gives the correct sequence
     my $sf_seq1 = $sf1->seq->seq;
     ok $sf_seq1, 'aggggt';
-    
+    ok $sf1->end,9;
+    ok $sf1->start,4;
+
     # Make a second seqfeature on the opposite strand
     my $sf2 = Bio::SeqFeature::Generic->new(
         '-start'    => 4,

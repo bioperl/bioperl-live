@@ -13,11 +13,12 @@ use vars ('$DEBUG');
 
 my ($seqobj, $count, $seqobj_stats, $wt);
 
-$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', -moltype=>'dna', -id=>'test');
-$seqobj_stats  =  Bio::Tools::SeqStats->new($seqobj);
+$seqobj = Bio::PrimarySeq->new(-seq=>'ACTGTGGCGTCAACTG', 
+			       -moltype=>'dna', -id=>'test');
+$seqobj_stats  =  Bio::Tools::SeqStats->new(-seq=>$seqobj);
 
-ok defined($seqobj_stats) && ref($seqobj_stats) && $seqobj_stats->isa('Bio::Tools::SeqStats');
-
+ok defined($seqobj_stats) && ref($seqobj_stats) && 
+    $seqobj_stats->isa('Bio::Tools::SeqStats');
 
 $count = $seqobj_stats->count_monomers();  # for DNA sequence
 ok $count->{'A'}, 3; 

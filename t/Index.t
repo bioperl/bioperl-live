@@ -18,10 +18,9 @@ use Bio::Index::EMBL;
 use Bio::Index::GenBank;
 use Bio::Index::Swissprot;
 use vars qw ($dir);
-eval { require Cwd; $dir = &cwd; };
-    
-# CWD must not be installed, revert to unix behavior, best we can do
-if( $@) { $dir = `pwd`; }
+
+($Bio::Root::RootI::FILESPECLOADED && ($dir = File::Spec->cwd) ) ||
+    ($dir = `pwd`) || ($dir = '.');
  
 END {  unlink qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5); }
 
