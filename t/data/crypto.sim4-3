@@ -1,0 +1,28 @@
+
+seq1 = cn416, 630 bp
+seq2 = Contig147.fa (>Contig147), 1086 bp
+
+
+36-132  (191-286)   89% <-
+133-191  (343-401)   93%
+
+      0     .    :    .    :    .    :    .    :    .    :
+     36 AAAGCCATGCAATGCATCCCATGATACCAAAGATAAAATATCCAAAAATC
+        |||||||||||||||||||-||||||||||||| || |||||||||||||
+    191 AAAGCCATGCAATGCATCC ATGATACCAAAGACAATATATCCAAAAATC
+
+     50     .    :    .    :    .    :    .    :    .    :
+     86 CATGACCGATCCTGATGCAATAACCAAGAGACCGTTTATCCCGGGAA   
+         | ||  |||| | ||||||||||||||||||| |||||||||||||<<<
+    240 TAAGATTGATCATCATGCAATAACCAAGAGACCCTTTATCCCGGGAACTA
+
+    100     .    :    .    :    .    :    .    :    .    :
+    133       TGCCACAACGTAGTCCTTCTGTACATCCTGAACATTTCCATCAT
+        ...<<<|||||||||||||||||| |||||||||||||||||||||||||
+    290 ...CACTGCCACAACGTAGTCCTTTTGTACATCCTGAACATTTCCATCAT
+
+    150     .    :    .
+    177 CATCAACGAA AAGTA
+        |||| |||||-||-||
+    387 CATCTACGAACAA TA
+

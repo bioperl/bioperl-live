@@ -1,0 +1,30 @@
+
+seq1 = cn416, 630 bp
+seq2 = Contig147.fa (>Contig147), 1086 bp
+
+>cn416 lastmodified=[2002-10-29 11:40:27] project=[B3501] length=[630] clusterid=[371] coverage=[1] crawid=[1] sequencecount=[2] longestsequence=[k9k11j2.f1] sequences=[k9k11j2.f1|k9k11j2.f1C] clone=[|k9k11j2] 
+>Contig147
+
+36-132  (191-286)   89% <-
+133-191  (343-401)   93%
+
+      0     .    :    .    :    .    :    .    :    .    :
+     36 AAAGCCATGCAATGCATCCCATGATACCAAAGATAAAATATCCAAAAATC
+        |||||||||||||||||||-||||||||||||| || |||||||||||||
+    191 AAAGCCATGCAATGCATCC ATGATACCAAAGACAATATATCCAAAAATC
+
+     50     .    :    .    :    .    :    .    :    .    :
+     86 CATGACCGATCCTGATGCAATAACCAAGAGACCGTTTATCCCGGGAA   
+         | ||  |||| | ||||||||||||||||||| |||||||||||||<<<
+    240 TAAGATTGATCATCATGCAATAACCAAGAGACCCTTTATCCCGGGAACTA
+
+    100     .    :    .    :    .    :    .    :    .    :
+    133       TGCCACAACGTAGTCCTTCTGTACATCCTGAACATTTCCATCAT
+        ...<<<|||||||||||||||||| |||||||||||||||||||||||||
+    290 ...CACTGCCACAACGTAGTCCTTTTGTACATCCTGAACATTTCCATCAT
+
+    150     .    :    .
+    177 CATCAACGAA AAGTA
+        |||| |||||-||-||
+    387 CATCTACGAACAA TA
+
