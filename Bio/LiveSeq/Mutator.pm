@@ -919,7 +919,8 @@ sub _set_effects {
     # removed for now.... (bad fix)
     #my $RNApostlabel=$self->RNA->label(2,$label); # to fix fac7g65 bug
     $dnstreamseq=$self->RNA->labelsubseq($self->mutation->postlabel, $flanklen);
-    if ($dnstreamseq == -1) { # if out of transcript was requested
+    if ($dnstreamseq =~ /^-?\d+/ 
+	&& $dnstreamseq == -1) { # if out of transcript was requested
 	 my $lastexon=$exons[-1];
 	 my $lastexonlength=$lastexon->length;
 	 $dnstreamseq=$self->RNA->labelsubseq($self->mutation->postlabel); # retrieves till RNAend
@@ -1075,7 +1076,7 @@ sub _post_mutation {
 	     } else {
 		 #elsif  ($aachange->RNAChange->codon_pos == 2){
 		 if (not $aachange->RNAChange->allele_mut->seq ) {
-		     $aachange->allele_mut-seq(substr $aachange->allele_mut->seq, 0, 1);
+		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0, 1);
 		 }
 		 elsif (not $aachange->RNAChange->allele_ori->seq) {
 		     $aachange->allele_mut->seq(substr $aachange->allele_mut->seq, 0,

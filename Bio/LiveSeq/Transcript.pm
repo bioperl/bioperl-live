@@ -195,7 +195,7 @@ sub downstream_seq {
       if ($self->gene) { # if there is Gene object attached fetch relevant info
 	$str=$self->{seq}->labelsubseq($self->end,undef,$self->gene->maxtranscript->end); # retrieve from end of this Transcript to end of the maxtranscript
 	$str=substr($str,1); # delete first nucleotide that is the last of Transcript
-	if (length($str) > 0) {
+	if (CORE::length($str) > 0) {
 	  return($str);
 	} else { # if there was no downstream through the gene's maxtranscript, go the usual way
 	  $howmany = 1000;
@@ -434,7 +434,9 @@ sub old_labelsubseq {
 
 sub labelsubseq {
   my ($self,$start,$length,$end,$unsecuremode)=@_;
-  unless ($unsecuremode eq "unsecuremoderequested") { # to skip security checks (faster)
+  unless (defined $unsecuremode && 
+	  $unsecuremode eq "unsecuremoderequested") 
+  { # to skip security checks (faster)
     if ($start) {
       unless ($self->valid($start)) {
 	carp "Start label not valid"; return (-1);
@@ -493,7 +495,7 @@ sub labelsubseq {
 	  $seq .= $exon->seq; # we add it completely to the seq
       } # else, we still have to reach the start point, exon useless, we move on
       if ($length) { # if length argument specified
-	if (length($seq) >= $length) {
+	if (CORE::length($seq) >= $length) {
 	  last EXONCHECK;
 	}
       }
@@ -581,7 +583,7 @@ sub old_subseq {
   my $firstlabel=$self->coordinate_start; # this is inside Transcript obj
   my $coord_pos=$self->_inside_position($firstlabel); # TESTME old
   $seq=$self->seq;
-  $seqlength=length($seq);
+  $seqlength=CORE::length($seq);
   unless (defined ($pos1)) {
     $startcount=1+$coord_pos-1; # i.e. coord_pos
   } else {
@@ -626,7 +628,7 @@ sub old_subseq {
     return (-1);
   } else {
     $str=substr($seq,$offset,$length);
-    if (length($str) < $length) {
+    if (CORE::length($str) < $length) {
       carp "Attention, cannot return the length requested for subseq";
     }
     return $str;

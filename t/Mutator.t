@@ -59,14 +59,14 @@ test 7, ($a->add_Mutation($mt));
 test 8, (scalar @each == 1 );
 $mt_b = pop @each;
 #print STDERR  ref $mt_b, "\n";
-test 9, ($mt_b->seq == 'g');
+test 9, ($mt_b->seq eq 'g');
 #my $filename='/home/heikki/src/bioperl-live/t/g6pd.embl';
 my $filename='t/ar.embl';
 my $loader=Bio::LiveSeq::IO::BioPerl->load(-file => "$filename");
-my $gene_name='G6PD';
-my $gene_name='AR';
+my $gene_name='AR'; # was G6PD
+
 test 10, my $gene=$loader->gene2liveseq(-gene_name => $gene_name, 
-			       -getswissprotinfo => 0);
+					-getswissprotinfo => 0);
 #print STDERR "Gene: ",$gene->name,"\n";
 test 11, $a->gene($gene);
 

@@ -78,6 +78,7 @@ Some note on the terminology/notation of methods' names:
          (see documentation on the Chain datastructure if interested)
 
 =cut
+#'
 
 # Let the code begin...
 
@@ -201,8 +202,9 @@ sub all_labels {
 # NOTE: unsecuremode is to be used /ONLY/ if sure of the start and end labels, expecially that they follow each other in the correct order!!!!
 
 sub labelsubseq {
-  my ($self,$start,$length,$end,$unsecuremode)=@_;
-  if ($unsecuremode eq "unsecuremoderequested") { # to skip security checks (faster)
+  my ($self,$start,$length,$end,$unsecuremode) = @_;
+  if (defined $unsecuremode && $unsecuremode eq "unsecuremoderequested") 
+  { # to skip security checks (faster)
     unless ($start) {
       $start=$self->start;
     }
@@ -284,6 +286,7 @@ sub labelsubseq {
 
 =cut
 
+#'
 # check the fact about reverse strand!
 # is it feasible? Is it correct? Should we do it? How about exons? Does it
 # work when you ask subseq of an exon?
@@ -556,7 +559,7 @@ sub labelchange {
     }
     return $self->_delete($label,$length);
   }
-  my $newseqlength=length($newseq);
+  my $newseqlength=CORE::length($newseq);
   if (defined($length)) {
     unless ($length >= 0) {
       carp "No sense having length < 0 in a change()";
@@ -694,6 +697,7 @@ sub _mutate {
     $newseq =~ tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; # since it's reverse strand we get the complementary bases
   }
   my $errorcheck; # if not equal to $length after summing for all changes, error did occurr
+  $i = 0;
   foreach $base (split(//,$newseq)) {
     $errorcheck += $self->{seq}->set_value_at_label($base,$labels[$i]);
     $i++;
@@ -963,6 +967,7 @@ sub position {
              of a parent object containing the subseq method
 
 =cut
+#'
 
 # wraparound to is_downstream and is_upstream that chooses the correct one
 # depending on the strand
@@ -1034,7 +1039,8 @@ sub translate_string {
   unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
 
   ##Error if monomer is "Amino"
-  carp "Can't translate an amino acid sequence." if ($self->moltype eq 'protein');
+  carp "Can't translate an amino acid sequence." if (defined $self->moltype &&
+						     $self->moltype eq 'protein');
 
   ##Error if frame is not 0, 1 or 2
   carp "Valid values for frame are 0, 1, 2, not [$frame]." unless ($frame == 0 or $frame == 1 or $frame == 2);
@@ -1047,7 +1053,7 @@ sub translate_string {
       $seq = substr ($seq,$frame);
   }
 
-  for $codon ( grep { length == 3 } split(/(.{3})/, $seq) ) {
+  for $codon ( grep { CORE::length == 3 } split(/(.{3})/, $seq) ) {
       my $aa = $codonTable->translate($codon);
       if ($aa eq '*') {
    	   $output .= $stop;
