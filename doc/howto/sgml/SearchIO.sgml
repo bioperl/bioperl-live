@@ -166,8 +166,7 @@
       The generality of the SearchIO approach is demonstrated by large number
       of report formats that have appeared since its introduction. These
       formats include AXT format reports (BLAT, BLASTZ), NCBI tabular
-      output (-m 8 or -m 9
-      options), NCBI Blast XML, chadosxpr format flat databases,
+      output (-m 8 or -m 9 options), NCBI Blast XML, chadosxpr format flat databases,
       Exonerate output, FASTA output, hmmsearch output (HMMER),
       megablast output, PSL format output (BLAT), sim4 output, WABA
       output, and output from Wise.
@@ -766,6 +765,24 @@
     </para>
   </section>
   
+  <section id="creating_reports">
+    <para>
+      One note on creating reports that can be parsed by SearchIO: the
+      developers haven't attempted to parse all the possible reports 
+      that could be created by programs with many command-line options,
+      like blastall. Certainly you should be able to parse reports
+      created using the default settings, but if you're running
+      blastall, say, using some new set of options and you've
+      encountered a parsing problem this may be the explanation.
+    </para>
+    <para>
+      One can currently parse BLAST output created with the default
+      settings as well as the reports created when using the "-m 8"
+      or "-m 9" options (use format "blasttable") or the XML-formatted
+      reports.
+    </para>
+  </section>
+
   <section id="implementation">
     <title>Implementation</title>
     <para>
@@ -773,8 +790,9 @@
       implemented, it is probably not necessary to understand all of
       this unless you are curious or want to implement your own
       Bio::SearchIO parser.  We have utilized an event-based system to
-      process these reports.  This is analagous to the SAX (Simple API
-      for XML) system used to process XML documents.  Event based
+      process these reports.  This is analagous to the SAX 
+      (<emphasis>S</emphasis>imple <emphasis>A</emphasis>PI
+      for <emphasis>X</emphasis>ML) system used to process XML documents.  Event based
       parsing can be simply thought of as simple start and end events.
       When you hit the beginning of a report a start event is thrown,
       when you hit the end of the report an end event is thrown.  So
@@ -809,7 +827,7 @@
       events and not need to keep any state about where it is, it would
       just be processing data and the listener would manage the
       information and state.  However, a lot of the parsing of these
-      human readable reports requires contextual information to apply
+      human-readable reports requires contextual information to apply
       the correct regular expressions.  So in fact the event thrower
       has to know what state it is in and apply different methods based
       on this.  In contrast the XML parsers simply keep track of what
@@ -1016,11 +1034,11 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
     <para>
       We have to register the HSPFactory which is the object which will
       create HSPI objects, by allowing this to be built by a factory
-      rather than a hardcoded Bio::Search::HSP::GenericHSP->new(...) call
-      we are permitting a user from taking advantage of the whole parsing
+      rather than a hard-coded Bio::Search::HSP::GenericHSP->new(...) call.
+      We are allowing the user to take advantage of the whole parsing
       structure and the ability to slot their own object into the process
-      rather than reimplementing very much.  We think this is very
-      powerful and is worth the system overhead which may not permit this
+      rather than re-implementing very much.  We think this is very
+      powerful and is worth the system overhead, but it may not permit this
       to be as efficient in parsing as we would like.  Future work will
       hopefully address speed and memory issues with this parser.
       Volunteers and improvement code is always welcome.
