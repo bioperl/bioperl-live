@@ -1392,7 +1392,7 @@ sub _write_line_GenBank_regex {
        $line = substr($line,0,$subl) . " " . substr($line,$subl);
    }
    my $s = shift @lines;
-   $self->_print("$pre1$s\n");
+   $self->_print("$pre1$s\n") if $s;
    foreach my $s ( @lines ) {
        $self->_print("$pre2$s\n");
    }
