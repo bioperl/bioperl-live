@@ -33,10 +33,10 @@ if( $actually_submit == 0 ) {
 	skip('Skip to avoid blocking',1);
     }
 }  else { 
-    my ($taxaid) = $db->get_taxaid('homo sapiens');
-    ok($taxaid, 9606);
+    my ($taxonid) = $db->get_taxonid('homo sapiens');
+    ok($taxonid, 9606);
 
-    my $n = $db->get_Taxonomy_Node($taxaid);
+    my $n = $db->get_Taxonomy_Node($taxonid);
     ok($n);
     unless( $n ) {
 	for ( 1..4 ) { skip(1,'no species object could be created') }
@@ -47,6 +47,6 @@ if( $actually_submit == 0 ) {
 	ok($n->division, 'mammals');
     }
     sleep(3);
-    my $yeastid = $db->get_taxaid('Saccharomyces cerevisiae');
+    my $yeastid = $db->get_taxonid('Saccharomyces cerevisiae');
     ok($yeastid, 4932);
 }
