@@ -1,4 +1,4 @@
-# PAML.pm,v 1.3 2002/06/20 18:50:37 amackey Exp
+# $Id$
 #
 # BioPerl module for Bio::Tools::Phylo::PAML
 #
@@ -358,7 +358,7 @@ sub _parse_summary {
 
     unless (defined $self->{'_summary'}->{'seqtype'}) {	
 	$self->throw( -class => 'Bio::Root::NotImplemented',
-		      -text => 'Unknown format of PAML output');
+		      -text => 'Unknown format of PAML output did not see seqtype');
     }
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     $self->debug( "seqtype is $seqtype\n");
