@@ -169,8 +169,8 @@ sub next_feature {
 	  '-seq_id'  => $seqname,
 	  '-tag'     => {
 	      $self->groupclass => $mkrname,
-	      'Note'            => $rest,
 	  });
+    $markerfeature->add_tag_value('Note', $rest) if defined $rest;
     return $markerfeature;
 }
 
