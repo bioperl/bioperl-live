@@ -224,7 +224,7 @@ sub next_result {
 
     # OK, depending on seqtype and runmode now, one of a few things can happen:
     my $seqtype = $self->{'_summary'}->{'seqtype'};
-    if ($seqtype eq 'CODONML' || $seqtype eq 'AAML'    ) {
+    if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
 	while ($_ = $self->_readline) {	    
 	    if ($seqtype eq 'CODONML' && 
 		m/^pairwise comparison, codon frequencies:/o) {
@@ -308,6 +308,7 @@ sub next_result {
 	}
     }
     if (%data) {
+	$data{'-version'} = $self->{'_summary'}->{'version'};
 	$data{'-seqs'} = $self->{'_summary'}->{'seqs'};
 	$data{'-patterns'} = $self->{'_summary'}->{'patterns'};
 	$data{'-ngmatrix'} = $self->{'_summary'}->{'ngmatrix'};
@@ -346,7 +347,10 @@ sub _parse_summary {
 	       /ox
 	   ) {
 
-	    @{$self->{_summary}}{qw(seqtype version treefile model)} = ($1, $2, $3, $4);
+	    @{$self->{_summary}}{qw(seqtype version treefile model)} = ($1, 
+									$2,
+									$3,
+									$4);
 	    last;
 
 	} elsif (m/^Data set \d$/o) {

@@ -91,9 +91,10 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
   my ($trees,$mlmat,$seqs,$ngmatrix,
-      $codonpos,$codonfreq) = $self->_rearrange([qw(TREES MLMATRIX 
+      $codonpos,$codonfreq,$version) = $self->_rearrange([qw(TREES MLMATRIX 
 						    SEQS NGMATRIX
-						    CODONPOS CODONFREQ)], @args);
+						    CODONPOS CODONFREQ
+						    VERSION)], @args);
   $self->reset_seqs;
   if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
@@ -142,6 +143,8 @@ sub new {
 	  $self->set_codon_pos_basefreq(@$codonpos);
       }
   }
+
+  $self->version($version) if defined $version;
 
   return $self;
 }
@@ -371,6 +374,23 @@ sub set_codon_pos_basefreq {
 sub get_codon_pos_basefreq{
    my ($self) = @_;
    return @{$self->{'_codonposbasefreq'}};
+}
+
+=head2 version
+
+ Title   : version
+ Usage   : $obj->version($newval)
+ Function: Get/Set version
+ Returns : value of version
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub version{
+   my $self = shift;
+   $self->{'_version'} = shift if @_;
+   return $self->{'_version'};
 }
 
 1;
