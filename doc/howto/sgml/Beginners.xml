@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE article
-  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "file:/c:/docbook/dtd/docbookx.dtd
-"
+  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "./docbookx.dtd"
   [
-    <!ENTITY % global.entities SYSTEM "file:/c:/docbook/include/global.xml">
+    <!ENTITY % global.entities SYSTEM "./global.xml">
     %global.entities;
 
     <!ENTITY % entities SYSTEM "entities.xml">
@@ -145,8 +144,7 @@
 		  </member>
 		  <member>
 			 You'll probably have to learn to use a Unix word processor,
-			 like emacs or vi (nano or pico are other possible choices,
-			 very easy to use).
+			 like emacs or vi.
 		  </member>
 		  <member>
 			 You won't have control of the machine, the administrator
@@ -257,44 +255,6 @@
     </para>
   </section>
 
-  <section id="perldoc">
-     <title>Understanding Perl's Documentation System</title>
-        <para>
-        Documentation for Perl is written using a system known as POD, which
-        stands for "Plain Old Documentation." You can access Perl's built-in
-        documentation by using the "perldoc" command. To view information 
-        on how to use perldoc, type the following at the command line:
-           <programlisting>
-           > perldoc perldoc
-           </programlisting>
-        </para>
-  
-        <para>
-        Bioperl is also documented using POD, and perldoc can be an easy way to
-        obtain usage information on any of the Bioperl modules:
-           <programlisting>
-           > perldoc Bio::ModuleName 
-           </programlisting>
-        </para>
-  
-        <para>
-        Perldoc is a very useful and versatile tool, shown below are some more
-        examples on how to use perldoc:
-        </para>
-  
-        <para>
-           Read about Perl's built-in "print" function:
-           <programlisting>
-           > perldoc -f print
-           </programlisting>
-        </para>
-        <para>
-           Read about the Bio::SeqIO modules:
-           <programlisting>
-           > perldoc Bio::SeqIO
-           </programlisting>
-        </para>
-  </section> 
 
   <section id="starting">
 	 <title>Starting to write a script on Unix</title>
@@ -307,125 +267,163 @@
 		In Unix when you're ready to work you're usually in the
 		command-line or "shell" environment. People have their own
 		choices as to shell, usually bash or tcsh, sometimes zsh, csh,
-		and so on. At any rate, you're in the shell, let's write 
-		something. First find out Perl's version by typing:
-			<para>
-		  <programlisting>
-			 >perl -v
-		  </programlisting>
-		  </para>
-	
-		<para>
-		  <programlisting>
-			 >
-		  </programlisting>
-		</para>
-	
-		<para>
-		  <programlisting>
+		and so on. First find out Perl's version by typing:
+	 </para>		
+	 <para>
+		<programlisting>
+		  >perl -v
+		</programlisting>
+	 </para>
+	 <para>
+		You will see something like:
+	 </para>
+	 <para>
+		<programlisting>
+This is perl, v5.8.2 built for cygwin-thread-multi-64int
+
+Copyright 1987-2003, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using `man perl' or `perldoc perl'.  If you have access to the
+Internet, point your browser at http://www.perl.com/, the Perl Home Page.
+		</programlisting>
+	 </para>
+	 <para>
+		Hopefully you're using Perl version 5.4 or higher, earlier
+		versions may be troublesome. Now let's find out where the Perl 
+		program is located:
+	 </para>	
+	 <para>
+		<programlisting>
 			 >which perl
-		  </programlisting>
-		</para>
-	
-		<para>
-		  <programlisting>
-			 >/bin/perl
-		  </programlisting>
-		</para>
-	
- </para>
+		</programlisting>
+	 </para>
+	 This will give you something like:
+	 <para>
+		<programlisting>
+		  >/bin/perl
+		</programlisting>
+	 </para>
+	 <para>
+		Now that we know where Perl is located we're ready to write a
+		script, and line 1 of the script will specify this location.
+		You're probably using some Unix word processor, emacs or vi,
+		for example  (nano or pico are other possible choices,
+		very easy to use, but not found on all Unix machines unfortunately).
+		Start to write your script by entering something like:
+	 </para>
+	 <para>
+		<programlisting>
+		  >emacs seqio.pl
+		</programlisting>
+	 </para>
+	 And make this the first line:
+	 <para>
+		<programlisting>
+		  #!/bin/perl -w
+		</programlisting>
+	 </para>
+	 <para>
+		The "-w" flag tells Perl to warn you if various common errors
+		are encountered.
+	 </para>
   </section>
 
-
-  <section id="read_seq"> 
-     <title>Simple Example: Reading in a Sequence<title>
-         <para>
-            Shown below is a simple program for reading in a set of biological
-            sequences from a file. 
-         </para>
-         
-         <para>
-            <programlisting>
-               1   #!/usr/bin/perl
-               2
-               3   use strict;
-               4   use Bio::SeqIO;
-               5
-               6   my $seqio = Bio::SeqIO->new( -file   => 'seq.fasta',
-               7                                -format => 'fasta' );
-         
-            </programlisting>
-         </para>
-
-         <para>
-            Let's dissect this example line-by-line. Line one defines the path to
-            the Perl interpreter (/usr/bin/perl), which is called when the program
-            is executed. While not absolutely necessary (especially on a Windows
-            machine), it's a good practice to this line to ensure that programs
-            will run on a Unix machine. This line is sometimes referred to as the
-            "shebang". Line three tells the Perl interpreter to be strict when
-            running this program, and to print informative diagnostic messages
-            when it encounters a potential error. While not absolutely necessary,
-            lines 1-3 are included at the beginning of most Perl programs.
-         </para>
-
-         <para>
-            Line 4 tells the Perl interpreter to "use the Bio::SeqIO module." While
-            this is an over-simplified explanation of what's actually happening,
-            it will suffice for now. Lines 6-7 will require a lot of explanation:
-            <simplelist type="horiz" columns="1">
-               <member>
-                  The new method of the Bio::SeqIO module is called. This method
-                  is used to construct and return a new Bio::SeqIO object.
-               </member>
-               <member>
-                  This method is passed two arguments: a file value "seq.fasta" and
-                  a format value of "fasta". These arguments tell Bio::SeqIO that
-                  $seqio will read sequence information from a file named seq.fasta
-                  that is stored in the FASTA sequence file format.
-               </member>
-               <member>
-                  The object returned by the "new" method is assigned to the scalar
-                  variable $seqio. 
-               </member>
-               <member>
-                  The word "my" tells the Perl interpreter that this is the
-                  first time that the variable $seqio has been used, and it
-                  also defines the scope of $seqio. Writing "my" before the
-                  first use of a variable is a requirement when "using strict."
-               </member>
-            </simplelist>
-               
-            The "new" method called in line 6 is called the <emphasis>constructor</emphasis>
-            of Bio::SeqIO, as it is used to construct Bio::SeqIO objects.
-         </para>
-
-         <para>
-            After executing line 7 of the program listed above, Perl has created a Bio::SeqIO
-            object named $seqio that will read from a FASTA-formatted file named seq.fasta.
-            At this point, the program isn't very impressive, but adding more functionality 
-            is not very difficult.
-         </para>
-    
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from a remote database</title>
+	 <para>
+		One of the strengths of Bioperl is that it allows you to retrieve
+		sequences from all sorts of sources, files, remote databases,
+		local databases, regardless of their format. Let's use this 
+		capability to get a entry from Genbank. With this entry
+		we'll be able to create a local file, search the entry's
+		sequence with a motif, and examine its names and identifiers,
+		amongst other things. 
+	 </para>
+	 <para>
+		In order to use this, or any other Perl module, you need to
+		instruct Perl explicitly. This will be your next line:
+	 </para>
+	 <para>
+		<programlisting>
+		  use Bio::DB::GenBank;
+		</programlisting>
+	 </para>
+	 <para>
+		We could also query SwissProt, GenPept, EMBL, or RefSeq in an 
+		analogous fashion.
+	 </para>
+	 
   </section>
 
   <section id="retrieving_gb">
 	 <title>Retrieving a sequence from a file<title>
-		  
+		  <para>
+			 Furthermore, the 
+			 syntax used to retrieve these sequences is fairly uniform,
+			 since a single class or module does all the work for you. This
+			 module is <classname>Bio::SeqIO</classname>, where IO stands for 
+			 <emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
+		  </para>
 
+		  <para>
+			 A common beginner's mistake is to choose to not use
+			 <classname>Bio::SeqIO</classname>. This is understandable, as you
+			 may have read about Perl's <function>open</function>
+			 function, and Bioperl's way of retrieving sequences looks odd
+			 and overly complicated, at first. But don't use
+			 <function>open()</function>! Using <function>open</function> 
+			 immediately forces you to do the parsing of the sequence
+			 file and this can get complicated very quickly. Trust
+			 SeqIO, it's built to open and inter-convert all
+			 the common sequence formats, it can read and write to files,
+			 and it's built to operate with all the other Bioperl 
+			 modules that you will want to use.
+		  </para>
+		
   </section>
 
   <section id="retrieving_gb">
-	 <title>Retrieving a sequence from Genbank<title>
+	 <title><title>
 		  
 
   </section>
 
-  <section id="retrieving_gb">
-	 <title>Retrieving a sequence from Genbank<title>
-		  
-
-  </section>
+  <section id="perldoc">
+	 <title>Perl's Documentation System</title>
+	 <para>
+		Documentation for Perl is written using a system known as POD, which
+		stands for "Plain Old Documentation." You can access Perl's built-in
+		documentation by using the "perldoc" command. To view information 
+		on how to use perldoc, type the following at the command line:
+		<programlisting>
+		  >perldoc perldoc
+		</programlisting>
+	 </para>
+  
+	 <para>
+		Bioperl is also documented using POD, and perldoc can be an easy way to
+		obtain usage information on any of the Bioperl modules:
+		<programlisting>
+		  >perldoc Bio::SeqIO
+		</programlisting>
+	 </para>
+  
+	 <para>
+		Perldoc is a very useful and versatile tool, shown below are some more
+		examples on how to use perldoc:
+	 </para>
+  
+	 <para>
+		Read about Perl's built-in "print" function:
+		<programlisting>
+		  >perldoc -f print
+		</programlisting>
+	 </para>
+  </section> 
 
   <section id="regexp">
     <title>Regular Expressions</title>
@@ -528,3 +526,78 @@ while( my $seq = $seq_in->next_seq() ) {
   </section>
   
 </article>
+
+<!--
+  <section id="read_seq"> 
+     <title>Simple Example: Reading in a Sequence<title>
+         <para>
+            Shown below is a simple program for reading in a set of biological
+            sequences from a file. 
+         </para>
+         
+         <para>
+            <programlisting>
+               1   #!/usr/bin/perl
+               2
+               3   use strict;
+               4   use Bio::SeqIO;
+               5
+               6   my $seqio = Bio::SeqIO->new( -file   => 'seq.fasta',
+               7                                -format => 'fasta' );
+         
+            </programlisting>
+         </para>
+
+         <para>
+            Let's dissect this example line-by-line. Line one defines the path to
+            the Perl interpreter (/usr/bin/perl), which is called when the program
+            is executed. While not absolutely necessary (especially on a Windows
+            machine), it's a good practice to this line to ensure that programs
+            will run on a Unix machine. This line is sometimes referred to as the
+            "shebang". Line three tells the Perl interpreter to be strict when
+            running this program, and to print informative diagnostic messages
+            when it encounters a potential error. While not absolutely necessary,
+            lines 1-3 are included at the beginning of most Perl programs.
+         </para>
+
+         <para>
+            Line 4 tells the Perl interpreter to "use the Bio::SeqIO module." While
+            this is an over-simplified explanation of what's actually happening,
+            it will suffice for now. Lines 6-7 will require a lot of explanation:
+            <simplelist type="horiz" columns="1">
+               <member>
+                  The new method of the Bio::SeqIO module is called. This method
+                  is used to construct and return a new Bio::SeqIO object.
+               </member>
+               <member>
+                  This method is passed two arguments: a file value "seq.fasta" and
+                  a format value of "fasta". These arguments tell Bio::SeqIO that
+                  $seqio will read sequence information from a file named seq.fasta
+                  that is stored in the FASTA sequence file format.
+               </member>
+               <member>
+                  The object returned by the "new" method is assigned to the scalar
+                  variable $seqio. 
+               </member>
+               <member>
+                  The word "my" tells the Perl interpreter that this is the
+                  first time that the variable $seqio has been used, and it
+                  also defines the scope of $seqio. Writing "my" before the
+                  first use of a variable is a requirement when "using strict."
+               </member>
+            </simplelist>
+               
+            The "new" method called in line 6 is called the <emphasis>constructor</emphasis>
+            of Bio::SeqIO, as it is used to construct Bio::SeqIO objects.
+         </para>
+
+         <para>
+            After executing line 7 of the program listed above, Perl has created a Bio::SeqIO
+            object named $seqio that will read from a FASTA-formatted file named seq.fasta.
+            At this point, the program isn't very impressive, but adding more functionality 
+            is not very difficult.
+         </para>
+    
+  </section>
+
+-->
