@@ -127,6 +127,11 @@ BEGIN {
 		       fasta => 'fasta',
                        namespace => 'swall',
 		       },
+		   'genbank' => {
+		       default => 'genbank',
+			genbank => 'genbank',
+                       namespace => 'genbank',
+		       },
 		   );
 }
 

@@ -193,6 +193,17 @@ the appropriate manual page).  In line 5, we call the sequence
 object's seq() method to fetch and print out the DNA or protein
 string.
 
+=======================================================================================
+
+USING BIOGETSEQ TO ACCESS REGISTRY SEQUENCES FROM THE COMMAND LINE
+
+
+-------------------------------------------------------------------
+ChangeLog
+
 $Log$
+Revision 1.2  2003/02/20 20:52:10  lstein
+check in reasonable howtos for database access and flat databases
+
 Revision 1.1  2003/02/20 02:45:14  lstein
 added some OBDA documentation plus flat file index load script
