@@ -25,12 +25,12 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
 
   my $tree = $sim->next_tree;
 
-  $factory->add_Mutations($tree,20);
+  $sim->add_Mutations($tree,20);
 
   my $stats = new Bio::PopGen::Statistics();
   my $individuals = [ $tree->get_leaf_nodes];
   my $pi = $stats->pi($individuals);
-  my $D  = $stats->tajima_d($individuals);
+  my $D  = $stats->tajima_D($individuals);
 
   # Alternatively to do this on input data from
   # See the tests in t/PopGen.t for more examples
@@ -40,11 +40,11 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   # Note that you can also call the stats as a class method if you like
   # the only reason to instantiate it (as above) is if you want
   # to set the verbosity for debugging
-  $pi     = Bio::PopGen::Statistics->pi($pop);   
+  $pi     = Bio::PopGen::Statistics->pi($pop);
   $theta  = Bio::PopGen::Statistics->theta($pop);
 
   # Pi and Theta also take additional arguments,
-  # see the documentation for more information  
+  # see the documentation for more information
 
 
   # To come -- examples for creating pops/individuals from
@@ -154,7 +154,7 @@ use Bio::Root::Root;
            given an outgroup and the number of external mutations
            (either provided or calculated from list of outgroup individuals)
  Returns : decimal
- Args    : $individuals - array refence which contains ingroup individuals 
+ Args    : $individuals - array reference which contains ingroup individuals 
            (L<Bio::PopGen::Individual> or derived classes)
            $extmutations - number of external mutations OR
            arrayref of outgroup individuals
@@ -625,6 +625,8 @@ sub tajima_D_counts {
 
     return $D;
 }
+
+
 =head2 pi
 
  Title   : pi
@@ -711,6 +713,7 @@ sub pi {
 	return $pi;
     }
 }
+
 
 =head2 theta
 
@@ -904,6 +907,7 @@ sub heterozygosity {
     my $h = ( $samp_size*(1- $sum) ) / ($samp_size - 1) ;
     return $h;
 }
+
 
 =head2 derived_mutations
 
