@@ -9,8 +9,8 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 4; 
-    plan tests => 4; 
+    $NUMTESTS = 6; 
+    plan tests => 6; 
 }
 use Bio::Tools::Run::RemoteBlast;
 
