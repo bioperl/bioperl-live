@@ -107,7 +107,7 @@ sub get_request {
     my $tmp;
     my $format_string = ''; #use Data::Dumper; print Dumper($self); exit;
     $format ||= $self->default_format;
-    ($format, $tmp) = $self->request_format($format); print "====|$format|=====\n";
+    ($format, $tmp) = $self->request_format($format); $self->debug("====|$format|=====\n");
     $format_string = "&format=$format" if $format ne $self->default_format;
 #    if (defined $format && $format ne $self->default_format) {
 #    }
@@ -120,7 +120,7 @@ sub get_request {
     } else {
 	$uid = $uids;
     }
-    print STDERR "\n$url$format_string&id=$uid\n";
+    $self->debug("\n$url$format_string&id=$uid\n");
     return GET $url. $format_string. '&id='. $uid;
 }
 
