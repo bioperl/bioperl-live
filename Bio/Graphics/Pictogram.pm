@@ -42,7 +42,7 @@ Bio::Graphics::Pictogram
   print $svg->xmlify."\n";
 
   #Support for Bio::Matrix::PSM::SiteMatrix now included
-  
+
    use Bio::Matrix::PSM::IO;
 
    my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
@@ -58,7 +58,7 @@ Bio::Graphics::Pictogram
                                                      'G'=>'blue',
                                                      'C'=>'green',
                                                      'T'=>'magenta'});
-   
+
   my $psm = $psmIO->next_psm;
   my $svg = $picto->make_svg($psm);
   print $svg->xmlify;
