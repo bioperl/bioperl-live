@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.22 2003-12-31 20:09:56 bosborne Exp $
+# $Id: PLATFORMS,v 1.23 2004-03-01 14:38:20 bosborne Exp $
 
 Perl general comments:
 
@@ -65,7 +65,7 @@ Comments: Some warnings about <HANDLE> which can be safely
 
 Machine : Win32, WinNT i386
 Compiler: --
-Perl    : ActiveState Perl 5.6, 5.5.1
+Perl    : ActiveState Perl 5.6, 5.5.1, 5.8
 Comments: Be sure that the module DB_File is installed and up-to-date 
 	  to allow Bio::Index modules to work properly. 
 	  Installing ppm's IO-stringy and IO-String and File-Temp are 
@@ -81,9 +81,7 @@ Comments: See INSTALL.WIN for more information
 Machine : MacOS
 Compiler: --
 Perl    : MacPerl
-Comments: Issues and possible ways to fix them summarized by Todd Richmond
-          on the bioperl.org Wiki. We don't recommend using Bioperl on
-          MacOS 9 systems
+Comments: We don't recommend using Bioperl on MacOS 9 systems
 
 Machine : MacOS X
 Compiler: gcc
@@ -110,6 +108,3 @@ Comments: Tested by (dag@sonsorol.org) on a barebones 4-cpu system without the
           working on getting 100% pass rate. Thanks due to HP for providing 
           the OBF with an Itanium workstation plus internet access to other 
           HP test platforms. Feedback from HP-UX users is appreciated.
-
-
-
