@@ -106,7 +106,7 @@ sub _initialize {
  Title   : _generic_seqfeature
  Usage   : $fthelper->_generic_seqfeature($annseq)
  Function: processes fthelper into a generic seqfeature
- Returns : nothing (places a new seqfeature into annseq)
+ Returns : TRUE on success and otherwise FALSE
  Args    : Bio::Seq,Bio::SeqIO::FTHelper
 
 
@@ -135,55 +135,22 @@ sub _generic_seqfeature {
 
 	# we need to make sub features
 	my $loc = $fth->loc;
-	while ( $loc =~ /\<?(\d+)[\.\^]+\>?(\d+)/g ) {
-	    my $start = $1;
-	    my $end   = $2;
-	    #print "Processing $start-$end\n";
+	while ( $loc =~ /(\<?\d+[ \W]{1,3}\>?\d+)/g ) {
+	    my $next_loc = $1;
 	    my $sub = new Bio::SeqFeature::Generic;
 	    $sub->primary_tag($fth->key);
-	    $sub->start($start);
-	    $sub->end($end);
 	    $sub->strand($strand);
-
-	    if ( $loc =~ /\<\d+/ ) {
-		$sub->add_tag_value('_part_feature', '3_prime_missing') if $sub->strand == 1;
-		$sub->add_tag_value('_part_feature', '5_prime_missing') if $sub->strand == -1;
+	    if($fth->_parse_loc($sub, $next_loc)) {
+		$sub->source_tag('EMBL_GenBank');
+		$sf->add_sub_SeqFeature($sub,'EXPAND');
+	    } else {
+		$fth->warn("unable to parse location successfully out of " .
+			   $next_loc . ", ignoring this subfeature (seqid=" .
+			   $annseq->id() . ")");
 	    }
-	    if ( $loc =~ /\>\d+/ ) {
-		$sub->add_tag_value('_part_feature', '5_prime_missing') if $sub->strand == 1;
-		$sub->add_tag_value('_part_feature', '3_prime_missing') if $sub->strand == -1;
-	    }
-	    if ( $loc =~ /\d+\^\d+/ ) {
-		if ( $sub->start + 1 == $sub->end ) {
-		    $sub->add_tag_value('_zero_width_feature', 1);
-		    $sub->strand(0);
-		} else {
-		    $annseq->throw("Zero width feature at [" . $loc . "] has location with width in reading EMBL");
-		}
-	    }
-
-	    $sub->source_tag('EMBL_GenBank');
-	    $sf->add_sub_SeqFeature($sub,'EXPAND');
 	}
 
     } else {
-	my $lst;
-	my $len;
-	my @coord_count = $fth->loc =~ /\d+/g;
-
-	if ( scalar @coord_count == 1 ) {
-	    $lst = $len = shift @coord_count;
-	} else {
-	    $fth->loc =~ /\<?(\d+)[\.\^]+\>?(\d+)/ || do {
-		$annseq->throw("Weird location line [" . $fth->loc . "] in reading EMBL");
-		last;
-	    };
-	    $lst = $1;
-	    $len = $2;
-	}
-
-	$sf->start($lst);
-	$sf->end($len);
 	$sf->source_tag('EMBL_GenBank');
 	$sf->primary_tag($fth->key);
 	if ( $fth->loc =~ /complement/ ) {
@@ -191,40 +158,97 @@ sub _generic_seqfeature {
 	} else {
 	    $sf->strand(1);
 	}
-
-	# test for features which run off the ends of the sequence and store the
-	# information in a _part_feature tag
-
-	if ( $fth->loc =~ /\<\d+/ ) {
-	    $sf->add_tag_value('_part_feature', '5_prime_missing') if $sf->strand == 1;
-	    $sf->add_tag_value('_part_feature', '3_prime_missing') if $sf->strand == -1;
-	}
-	if ( $fth->loc =~ /\>\d+/ ) {
-	    $sf->add_tag_value('_part_feature', '3_prime_missing') if $sf->strand == 1;
-	    $sf->add_tag_value('_part_feature', '5_prime_missing') if $sf->strand == -1;
-	}
-
-	# test for zero width features and store the information in a _zero_width_feature tag
-
-	if ( $fth->loc =~ /\d+\^\d+/ ) {
-	    if ( $sf->start + 1 == $sf->end ) {
-		$sf->add_tag_value('_zero_width_feature', 1);
-		$sf->strand(0);
-	    } else {
-		$annseq->throw("Zero width feature at [" . $fth->loc . "] has location with width in reading EMBL");
-	    }
+	if(! $fth->_parse_loc($sf, $fth->loc())) {
+	    $annseq->warn("unexpected location line [" . $fth->loc() .
+			  "] in reading GenBank/EMBL, ignoring feature " .
+			  $fth->key() . " (seqid=" . $annseq->id() . ")");
+	    $sf = undef;
 	}
     }
-
     #print "Adding B4 ", $sf->primary_tag , "\n";
 
-    foreach my $key ( keys %{$fth->field} ){
-	foreach my $value ( @{$fth->field->{$key}} ) {
-	    $sf->add_tag_value($key,$value);
+    if(defined($sf)) {
+	foreach my $key ( keys %{$fth->field} ){
+	    foreach my $value ( @{$fth->field->{$key}} ) {
+		$sf->add_tag_value($key,$value);
+	    }
+	}
+	$annseq->add_SeqFeature($sf);
+	return 1;
+    } else {
+	$fth->warn("unable to parse feature " . $fth->key() .
+		   " in GenBank/EMBL sequence entry (id=" .
+		   $annseq->id() . "), ignoring");
+	return 0;
+    }
+}
+
+=head2 _parse_loc
+
+ Title   : _parse_loc
+ Usage   : $fthelper->_parse_loc($feature, $loc_string)
+ Function: Parses the given location string and sets start() and end() in the
+           given feature object appropriately. As side effects, tag values
+           (private) for features where only partial locations are given
+           may be set.
+
+           Note that this method is private.
+ Returns : TRUE on success and otherwise FALSE
+ Args    : Bio::SeqFeatureI, string
+
+
+=cut
+
+sub _parse_loc {
+    my ($self, $sf, $loc) = @_;
+    my ($start,$end,$fea_type,$tagval);
+    my %compl_of = ("5" => "3", "3" => "5");
+    my $fwd = ($sf->strand() > -1) ? "5" : "3";
+
+    #print "Processing $loc\n";
+    if($loc =~ /^\s*(\w+[A-Za-z])?\(?\<?(\d+)[ \W]{1,3}\>?(\d+)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+	#print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\", 4 = \"$4\"\n";
+	$fea_type = $1 if $1;
+	$start = $2;
+	$end   = $3;
+	$tagval = $4 if $4;
+	$sf->start($start);
+	$sf->end($end);
+    } elsif($loc =~ /^\s*(\w+[A-Za-z])?\(?[<>]?(\d+)[,;\" ]*([A-Za-z]\w*)?\"?\)?\s*$/) {
+	#print "1 = \"$1\", 2 = \"$2\", 3 = \"$3\"\n";
+	$fea_type = $1 if $1;
+	$start = $end = $2;
+	$tagval = $3 if $3;
+    } else {
+	#print "didn't match\n";
+	return 0;
+    }
+    if ( $loc =~ /\<\d+/ ) {
+	$sf->add_tag_value('_part_feature', $fwd . '_prime_missing');
+    }
+    if ( $loc =~ /\>\d+/ ) {
+	$sf->add_tag_value('_part_feature',
+			    $compl_of{$fwd} . '_prime_missing');
+    }
+    if(defined($fea_type) && ($fea_type ne "complement")) {
+	#print "featype: $fea_type\n";
+	$sf->add_tag_value('_feature_type', $fea_type);
+    }
+    if(defined($tagval)) {
+	if(! $fea_type) {
+	    $fea_type = "note";
+	}
+	$sf->add_tag_value($fea_type, $tagval);
+    }
+    if ( $loc =~ /\d+\^\d+/ ) {
+	$sf->add_tag_value('_zero_width_feature', 1);
+	$sf->strand(0);
+	if ($sf->start + 1 != $sf->end ) {
+	    # FIXME this is a uncertainty condition, which is not yet retained
+	    # in the feature object
 	}
     }
-
-    $annseq->add_SeqFeature($sf);
+    return 1;
 }
 
 sub from_SeqFeature {
