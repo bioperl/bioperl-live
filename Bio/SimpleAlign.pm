@@ -185,7 +185,7 @@ sub new {
   $self->{'start_end_lists'} = {};
   $self->{'_dis_name'} = {};
   $self->{'_id'} = 'NoName';
-
+  $self->{'_symbols'} = {};
   # maybe we should automatically read in from args. Hmmm...
 
   return $self; # success - we hope!
@@ -227,6 +227,12 @@ sub add_seq {
     $id = $seq->id();
     $start = $seq->start();
     $end  = $seq->end();
+
+    # build the symbol list for this sequence,
+    # will prune out the gap and missing/match chars
+    # when actually asked for the symbol list in the 
+    # symbol_chars
+    map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
 
     if( !defined $order ) {
 	$order = keys %{$self->{'_seq'}};
@@ -989,14 +995,38 @@ sub match_char {
 sub gap_char {
     my ($self, $char) = @_;
     
-    if (defined $char ) {
+    if (defined $char || ! defined $self->{'_gap_char'} ) {
+	$char= '-' unless defined $char;
 	$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
 	$self->{'_gap_char'} = $char;
-    } else {
-	$self->{'_gap_char'} = '-';
-    }
-    
+    }    
     return $self->{'_gap_char'};
+}
+
+=head2 symbol_chars
+
+ Title   : symbol_chars
+ Usage   : my @symbolchars = $aln->symbol_chars;
+ Function: Returns all the seen symbols (other than gaps)
+ Returns : array of characters that are the seen symbols
+ Args    : boolean to include the gap/missing/match characters
+
+=cut
+
+sub symbol_chars{
+   my ($self,$includeextra) = @_;
+   if( ! defined $self->{'_symbols'} ) { 
+       $self->warn("Symbol list was not initialized");
+       return ();
+   }
+   my %copy = %{$self->{'_symbols'}};
+   if( ! $includeextra ) { 
+       foreach my $char ( $self->gap_char, $self->match_char, 
+			  $self->missing_char) { 
+	   delete $copy{$char} if( defined $char );
+       }
+   }
+   return keys %copy;
 }
 
 =head1 Alignment descriptors
@@ -1207,7 +1237,7 @@ sub _consensus_iupac {
 =cut
 
 sub is_flush {
-    my $self = shift;
+    my ($self,$report) = @_;
     my $seq;
     my $length = (-1);
     my $temp;
@@ -1217,10 +1247,12 @@ sub is_flush {
 	    $length = CORE::length($seq->seq());
 	    next;
 	}
-
+	
 	$temp = CORE::length($seq->seq());
 
 	if( $temp != $length ) {
+	    $self->warn("expecting $length not $temp from ".$seq->display_id) if ($report);
+	    print $seq->seq(), "\n";
 	    return 0;
 	}
     }
