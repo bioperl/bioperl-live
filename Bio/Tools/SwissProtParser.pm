@@ -34,7 +34,7 @@ SwissProtParser constructor.
 
  my $report = new Bio::Tools::SwissProtParser(\*STDIN);
 
-=head Accesors
+=head2 Accessors
 
 See the Swissprot Manual for the lowdown:
  reference: http://us.expasy.org/sprot/userman.html
@@ -42,8 +42,8 @@ See the Swissprot Manual for the lowdown:
 Here I provide a mapping of tags to verbose accessor names.  
 Useful if you like to type.  All methods are read/write.
 
- SwissProt Tag		Method	Verbose Method
- ---------------------------------------------
+SwissProt Tag		Method	Verbose Method
+---------------------------------------------
  ID			ID	identification
  AC			AC	accession
  DT			DT	date
@@ -67,7 +67,7 @@ Useful if you like to type.  All methods are read/write.
  RL			RR	reference
  CC			CC	comment
 
-=head2 TODO
+=head1 TODO
 
 use Bio::Annotation::Reference in the reference() method.
 
