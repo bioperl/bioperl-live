@@ -154,4 +154,21 @@ sub _parse {
 }
 
 
+=head2 write_tree
+
+ Title   : write_tree
+ Usage   : $treeio->write_tree($tree);
+ Function: Writes a tree onto the stream
+ Returns : none
+ Args    : Bio::Tree::TreeI
+
+
+=cut
+
+sub write_tree{
+   my ($self,$tree) = @_;
+   $self->throw("Cannot call method write_tree on Bio::TreeIO object must use a subclass");
+}
+
+
 1;

@@ -46,9 +46,7 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
+Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 

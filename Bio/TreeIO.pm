@@ -92,7 +92,7 @@ use Bio::Factory::TreeFactoryI;
  Function: Builds a new Bio::TreeIO object 
  Returns : Bio::TreeIO
  Args    : a hash.  useful keys:
-
+   -nodefactory => Bio::Factory::TreeNodeFactoryI object [optional]
    -format : Specify the format of the file.  Supported formats:
 
      newick             Newick tree format
@@ -204,7 +204,7 @@ sub _initialize {
     
     # initialize the IO part
     $self->_initialize_io(@args);
-    $self->attach_EventHandler(new Bio::TreeIO::TreeEventBuilder
+    $self->attach_EventHandler(Bio::TreeIO::TreeEventBuilder->new
 			       (-verbose => $self->verbose(), @args));
 }
 
