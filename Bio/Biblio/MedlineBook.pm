@@ -36,7 +36,7 @@ The main raison d'etre of this class is to be associated with MEDLINE book artic
 
 =head1 SEE ALSO
 
-=over
+=over 4
 
 =item *
 

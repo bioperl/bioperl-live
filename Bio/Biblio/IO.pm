@@ -142,7 +142,7 @@ the directory C<Bio::Biblio>.
 
 =head1 SEE ALSO
 
-=over
+=over 4
 
 =item *
 

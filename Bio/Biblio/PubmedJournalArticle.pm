@@ -49,7 +49,7 @@ There are no specific attributes in this class
 
 =head1 SEE ALSO
 
-=over
+=over 4
 
 =item *
 

@@ -63,7 +63,7 @@ and they are inherited by all citation types.
 
 =head1 SEE ALSO
 
-=over
+=over 4
 
 =item *
 
