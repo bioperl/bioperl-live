@@ -102,19 +102,19 @@ BioPerlTutorial - a tutorial for bioperl
      III.10.1 Extended DNA / RNA alphabet
      III.10.2 Amino Acid alphabet
 
-IV.  Auxilliary Bioperl Libraries (Bioperl-run, Bioperl-db, etc.)
-  IV.1 Using the Bioperl Auxilliary Libraries
-  IV.2 Running programs (Bioperl-run and Bioperl-ext)
-     IV.2.1 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
-     IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
-     IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
-     IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
-   IV.3 Bioperl-db
-   IV.4 Other Bioperl auxilliary libraries
+  IV.  Auxilliary Bioperl Libraries (Bioperl-run, Bioperl-db, etc.)
+     IV.1 Using the Bioperl Auxilliary Libraries
+     IV.2 Running programs (Bioperl-run and Bioperl-ext)
+         IV.2.1 Sequence manipulation using the Bioperl EMBOSS and PISE interfaces
+         IV.2.2 Aligning 2 sequences with Blast using  bl2seq and AlignIO
+         IV.2.3 Aligning multiple sequences (Clustalw.pm, TCoffee.pm)
+         IV.2.4 Aligning 2 sequences with Smith-Waterman (pSW)
+     IV.3 Bioperl-db
+     IV.4 Other Bioperl auxilliary libraries
 
-V.  Appendices
-   V.1 Finding out which methods are used by which Bioperl Objects
-   V.2 Tutorial Demo Scripts
+  V.  Appendices
+     V.1 Finding out which methods are used by which Bioperl Objects
+     V.2 Tutorial Demo Scripts
 
 =head1 I. Introduction
 
@@ -203,7 +203,7 @@ programs are not found.)
 For newcomers and people who want to quickly evaluate whether this package
 is worth using in the first place, we have a very simple module which allows
 easy access to a small number of Bioperl's functionality in an easy to use 
-manner. The L<Bio::Perl> module provides some simple access functions,
+manner. The Bio::Perl module provides some simple access functions,
 for example, this script will retrieve a swissprot sequence and write
 it out in fasta format
 
@@ -232,7 +232,7 @@ number of BLAST searches, please download the blast package locally).
 
   write_blast(">roa1.blast",$blast_report);
 
-L<Bio::Perl> has a number of other "easy to use" functions, including
+Bio::Perl has a number of other "easy to use" functions, including
 
   get_sequence        - gets a sequence from standard, internet accessible
                         databases
@@ -247,8 +247,8 @@ L<Bio::Perl> has a number of other "easy to use" functions, including
                         NCBI
   write_blast         - writes a blast report out to a file
 
-Look at the documentation for L<Bio::Perl> by going 'perldoc Bio::Perl' to
-learn more about these functions. In all these cases, L<Bio::Perl>
+Look at the documentation in L<Bio::Perl> by going 'perldoc Bio::Perl' to
+learn more about these functions. In all these cases, Bio::Perl
 accesses a subset of the underlying Bioperl functions (for example,
 translation in Bioperl can handle many different translation tables
 and provides different options for stop codon processing) - in most
@@ -258,7 +258,7 @@ easy on-ramp for newcomers and lazy programmers.
 
 =head2 I.3 Software requirements
 
-=head2   I.3.1 Minimal bioperl installation (Bioperl "core" installation)
+=head2 I.3.1 Minimal bioperl installation (Bioperl "core" installation)
 
 For a "minimal" installation of bioperl, you will need to have perl
 itself installed as well as the bioperl "core modules".  Bioperl has
@@ -297,7 +297,7 @@ compiled bioinformatics programs.
 B<Perl - extensions>
 
 For a complete listing of external Perl modules required by bioperl
-please see the L<INSTALL> file.
+please see the INSTALL file in the Bioperl package.
 
 B<Bioperl auxilliary repositories>
 
@@ -412,7 +412,7 @@ NCBI-blast).
 
 Bioperl has mainly been developed and tested under various unix
 environments (including Linux and MacOSX).  In addition, this tutorial
-has been written largely from a Unix perspective.  
+has been written largely from a Unix perspective.
 
 Mac users may find Steve Cannon's installation notes and suggestions
 for Bioperl on OS X at
@@ -852,13 +852,15 @@ following formats:
    bl2seq
    clustalw (.aln)
    msf (GCG)
-   water (used by EMBOSS, see L<"IV.2.1">)
+   water*
    phylip (interleaved)
    stockholm
    nexus
    mega
    meme
    psi (PSI-BLAST)
+
+*used by EMBOSS, see L<"IV.2.1">
 
 AlignIO supports output in these formats: fasta, mase, selex, clustalw, msf/gcg,
 and phylip (interleaved).  One significant difference between AlignIO and SeqIO
@@ -1097,12 +1099,12 @@ output of the original sigcleave utility.
 
 The syntax for using Sigcleave is as follows:
 
-  # (Sigcleave doesn't currently accept a Seq object)
-  $seq = "AALLHHHHHHGGGGPPRTTTTTVVVVVVVVVVVVVVV";
+  # create a Seq object, for example:
+  $seqobj = Bio::Seq->new(-seq => "AALLHHHHHHGGGGPPRTTTTTVVVVVVVVVVVVVVV");
 
   use Bio::Tools::Sigcleave;
   $sigcleave_object = new Bio::Tools::Sigcleave
-      ( -seq       => 'sigtest.aa',  # or -seq => $seq
+      ( -seq       => $seqobj,
         -threshold => 3.5,
         -desc      => 'test sigcleave protein seq',
         -type      => 'AMINO'
@@ -1110,8 +1112,7 @@ The syntax for using Sigcleave is as follows:
   %raw_results      = $sigcleave_object->signals;
   $formatted_output = $sigcleave_object->pretty_print;
 
-Note that Sigcleave is passed a raw sequence rather than a sequence
-object. Also note that the "type" in the Sigcleave object is "amino"
+Note that the "type" in the Sigcleave object is "amino"
 whereas in a Seq object it would be called "protein". Please see
 L<Bio::Tools::Sigcleave> for details.
 
@@ -1848,7 +1849,7 @@ Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
 =head2 III.7.4 Incorporating quality data in sequence annotation (SeqWithQuality)
 
 SeqWithQuality objects are used to describe sequences with very
-specific annotations - that is, data quality annotaions.  Data quality
+specific annotations - that is, data quality annotations.  Data quality
 information is important for documenting the reliability of base
 "calls" in newly sequenced or otherwise questionable sequence
 data. The quality data is contained within a Bio::Seq::PrimaryQual object.
@@ -1872,7 +1873,7 @@ Syntax for using SeqWithQuality objects is as follows:
   $swqobj->qual(); # the quality of the SeqWithQuality object
 
 A SeqWithQuality object is created automatically when phred output, a *phd
-file, is read by Seqio, eg
+file, is read by SeqIO, eg
 
   $seqio = Bio::SeqIO->new(-file=>"my.phd",-format=>"phd");
   # or just 'Bio::SeqIO->new(-file=>"my.phd")'
@@ -1923,7 +1924,7 @@ objects.
 =head2  III.7.6 Representing Sequences using GFF (Bio:DB:GFF )
 
 Another format for transmitting machine-readable sequence-feature data
-is the Genome Feature Format(GFF).  This file type is well suited to
+is the Genome Feature Format (GFF).  This file type is well suited to
 sequence annotation because it allows the ability to describe entries
 in terms of parent-child relationships (see
 http://www.sanger.ac.uk/software/GFF for details). Bioperl includes a
@@ -2067,10 +2068,9 @@ given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
 
 These modules contain numerous methods to dictate the sizes, colors,
 labels, and line formats within the image. For information see the
-detailed Bio::Graphics "HOWTO" documentation at
-www.bioperl.org/HOWTOs/ or in the docs/ subdirectory. Additional
-documentation can be found at L<Bio::Graphics>,
-L<Bio::Graphics::Panel>, and in the scripts/render_sequence.pl script.
+excellent Graphics-HOWTO at www.bioperl.org/HOWTOs/ or in the docs/howto 
+subdirectory. Additional documentation can be found at L<Bio::Graphics>, 
+L<Bio::Graphics::Panel>, and in the scripts/graphics/render_sequence.pl script.
 
 =head2 III.10 Bioperl alphabets
 
