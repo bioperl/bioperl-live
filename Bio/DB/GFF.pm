@@ -3585,7 +3585,7 @@ sub _features {
 
   ## TODO: Put back
   my $callback = sub { push @$features,$self->make_feature($parent,\%groups,@_) };
-  ## TODO: REMOVE.  Testing.
+  ## TODO: REMOVE.  This is helpful for debugging; it prints features as they are created.
   #my $callback = sub {
   #  my $new_feature = $self->make_feature($parent,\%groups,@_);
   #  unless( $new_feature->isa( 'Bio::DB::GFF::Feature' ) ) {
@@ -3610,7 +3610,7 @@ sub _features {
   }
 
   @$features;
-}
+} # _features(..)
 
 =head2 get_features_iterator
 

@@ -384,19 +384,31 @@ sub get_features {
     my $previous_mrk_name;
     my $overlaps;
     my $count;
-    foreach my $mrk_name ( sort { $markers{ $a }{ 'order' } <=> $markers{ $b }{ 'order' } } keys %markers ) {
-      ## TODO: REMOVE
-      #warn "Processing marker # ".$markers{ $mrk_name }{ 'order' };
+    foreach my $mrk_name ( sort { $markers{ $a }{ 'start' } <=> $markers{ $b }{ 'start' } } keys %markers ) {
       $handy_range->start( $markers{ $mrk_name }{ 'start' } );
       $handy_range->end( $markers{ $mrk_name }{ 'end' } );
       ## TODO: REMOVE
       #warn "That marker is at ".$handy_range->start().", ".$handy_range->end().".";
-      unless( ( $overlaps = $query_range->overlaps( $handy_range ) ) ||
-              $count ) {
+      unless( $overlaps = $query_range->overlaps( $handy_range ) ) {
+        ## We still need to return the one that's to the right of our range.
+        if( $markers{ $mrk_name }{ 'start' } > $start ) {
+          # If this is the first one we're returning..
+          if( !$count && defined( $previous_mrk_name ) ) {
+            ## Return the previous one too.
+            $self->_do_callback( $callback, $previous_mrk_name, $chr, $str_id, $method, \%markers );
+            $count++;
+          }
+          $self->_do_callback( $callback, $mrk_name, $chr, $str_id, $method, \%markers );
+          $count++;
+          # But only the first one to the right; now we're done.
+          last;
+        }
+   
         $previous_mrk_name = $mrk_name;
         next;
       }
-      unless( $count ) { # If this is the first one we're returning..
+      # If this is the first one we're returning..
+      if( !$count && defined( $previous_mrk_name ) ) {
         ## Return the previous one too.
         $self->_do_callback( $callback, $previous_mrk_name, $chr, $str_id, $method, \%markers );
         $count++;
@@ -404,7 +416,6 @@ sub get_features {
       $self->_do_callback( $callback, $mrk_name, $chr, $str_id, $method, \%markers );
       $previous_mrk_name = $mrk_name;
       $count++;
-      last unless( $overlaps );
     }
 
     # We can return now, because we're only capable of returning
@@ -419,7 +430,7 @@ sub _do_callback {
   my ( $callback, $mrk_name, $chr, $str_id, $method, $markers ) = @_;
   ## TODO: REMOVE
   #warn "This next one has a score of ".$markers->{ $mrk_name }{ 'score' }.".";
-  $callback->( # 13 arguments..
+  $callback->( # 13 arguments, plus a hash of gsf tag values (ala Bio::SeqFeature::Generic)
     $chr,                             # $refseq      The reference sequence
     $markers->{ $mrk_name }{ 'start' }, # $start       feature start
     $markers->{ $mrk_name }{ 'end' },   # $stop        feature stop

@@ -96,7 +96,8 @@ sub draw {
     $self->draw_lod_graph($gd,$left,$top,$right,$bottom);
     for( my $part_i = 0; $part_i < scalar( @parts ); $part_i++ ) {
       ## Don't draw the offscreen ones.
-      next if( ( ( $parts[ $part_i ]->{left} + $parts[ $part_i ]->{width} ) < $left ) || ( $parts[ $part_i ]->{left} > $right ) );
+      next if( $parts[ $part_i ]->{'_offscreen'} );
+
       $parts[ $part_i ]->draw_component( $gd, $dx, $dy, 0, 1 );
     } # End for each part, draw it.
   } else {
@@ -223,7 +224,9 @@ sub draw_lod_graph {
   }
 
   my $last_x = $left;
-  my $last_y = ( $bottom - $zero_height );
+  ## Leave $last_y undefined if you don't want the left line to go to
+  ## 0 when there's nothing offscreen to the left.
+  my $last_y;# = ( $bottom - $zero_height );
   my ( $x, $y );
   for my $part (sort { $a->left <=> $b->left } @parts) {
     ## TODO: REMOVE
@@ -233,7 +236,9 @@ sub draw_lod_graph {
     ## Why do we need this next line?
     #next unless( $x >= $last_x );
     #last if( $x > $right );
-    $gd->line( $last_x, $last_y, $x, $y, $fgcolor );
+    if( defined $last_y ) {
+      $gd->line( $last_x, $last_y, $x, $y, $fgcolor );
+    }
     # Draw the overlay line, if the overlay_line_color is defined.
     if( $self->option('overlay_line_color') ) {
       $gd->line( $x, 0, $x, $gd_height, $overlay_line_color );
