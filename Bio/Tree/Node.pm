@@ -22,8 +22,8 @@ Bio::Tree::Node - A Simple Tree Node
     my $nodeR = new Bio::Tree::Node();
 
     my $node = new Bio::Tree::Node();
-    $node->add_Descendents($nodeL);
-    $node->add_Descendents($nodeR);
+    $node->add_Descendent($nodeL);
+    $node->add_Descendent($nodeR);
 
     print "node is not a leaf \n" if( $node->is_leaf);
 
@@ -110,7 +110,7 @@ sub new {
 						 DESCRIPTION
 						 )],
 					     @args);
-  $self->{'_desc'} = {};
+  $self->{'_desc'} = {}; # for descendents
   if( $d && $desc ) { 
       $self->warn("can only accept -desc or -description, not both, accepting -description");
       $desc = $d;
