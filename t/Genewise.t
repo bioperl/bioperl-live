@@ -10,7 +10,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NTESTS);
-    $NTESTS = 2;
+    $NTESTS = 26;
     plan tests => $NTESTS;
 }
 use Bio::Tools::Genewise;
@@ -53,17 +53,17 @@ $parser = Bio::Tools::Genewise->new(-fh=>\*FH);
 while (my $gene= $parser->next_prediction){
     push @gene, $gene;
 }
-my @t = $gene[0]->transcripts;
-my @e = $t[0]->exons;
+@t = $gene[0]->transcripts;
+@e = $t[0]->exons;
 
 ok (scalar($t[0]->exons), 18);
 ok ($t[0]->start, 22265);
 ok ($t[0]->end, 37062);
 ok ($e[0]->start,22265);
 ok ($e[0]->end, 22396);
-my ($phase) = $e[0]->each_tag_value('phase');
+($phase) = $e[0]->each_tag_value('phase');
 ok ($phase,0);
-my ($sf)= $e[0]->each_tag_value('supporting_feature');
+($sf)= $e[0]->each_tag_value('supporting_feature');
 ok ($sf->feature1->seqname,'Scaffold_2042.1');
 ok ($sf->feature1->start,22265);
 ok ($sf->feature1->end,22396);
