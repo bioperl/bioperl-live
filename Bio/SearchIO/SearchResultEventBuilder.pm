@@ -150,6 +150,8 @@ sub end_report {
 	 '-program_name'=> $data->{'programname'},
 	 '-program_version'=> $data->{'programver'},
 	 '-report_type' => $type,
+	 '-parameters'  => $data->{'param'},
+	 '-statistics'  => $data->{'stat'},
 	 '-subjects'    => $self->{'_subjects'} );
     $self->{'_subjects'} = [];
     return $report;
