@@ -319,9 +319,6 @@ sub primary_id {
    if( defined $value) {
       $obj->{'primary_id'} = $value;
     }
-   if( ! exists $obj->{'primary_id'} ) {
-       return "$obj";
-   }
    return $obj->{'primary_id'};
 
 }
@@ -411,6 +408,54 @@ sub qualat {
         else {
                 $self->throw("AAAH! qualat provided more then one quality.");
         }
+} 
+
+=head2 to_string()
+
+ Title   : to_string()
+ Usage   : $quality = $obj->to_string();
+ Function: Return a textual representation of what the object contains. For
+	this module, this function will return:
+		qual
+		display_id
+		accession_number
+		primary_id
+		desc
+		id
+		length
+ Returns : A scalar.
+ Args    : None.
+
+=cut
+
+sub to_string {
+	my ($self,$out,$result) = shift;
+	$out = "qual: ".join(',',@{$self->qual()});
+	foreach (qw(display_id accession_number primary_id desc id)) {
+		$result = $self->$_();
+		if (!$result) { $result = "<unset>"; }
+		$out .= "$_: $result\n";
+	}
+	return $out;
+}
+
+
+sub to_string_automatic {
+        my ($self,$sub_result,$out) = shift;
+	foreach (sort keys %$self) {
+		print("Working on $_\n");
+		eval { $self->$_(); };
+		if ($@) { $sub_result = ref($_); }
+		elsif (!($sub_result = $self->$_())) {
+			$sub_result = "<unset>";
+		}
+		if (ref($sub_result) eq "ARRAY") {
+			print("This thing ($_) is an array!\n");
+			$sub_result = join(',',@$sub_result);	
+		}
+		$out .= "$_: ".$sub_result."\n";
+	}
+	return $out;
 } 
 
 1;

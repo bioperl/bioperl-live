@@ -488,12 +488,9 @@ sub accession_number {
 
 sub primary_id {
    my ($obj,$value) = @_;
-   if( defined $value) {
+   if ($value) {
       $obj->{'primary_id'} = $value;
     }
-   if( ! exists $obj->{'primary_id'} ) {
-       return "$obj";
-   }
    return $obj->{'primary_id'};
 
 }
@@ -832,4 +829,34 @@ sub quiet {
 	$self->{supress_warnings} = $mode;
 }
 
+=head2 to_string()
+
+ Title   : to_string()
+ Usage   : $quality = $obj->to_string();
+ Function: Return a textual representation of what the object contains. For
+        this module, this function will return:
+                qual
+		seq
+                display_id
+                accession_number
+                primary_id
+                desc
+                id
+                length_sequence
+		length_quality
+ Returns : A scalar.
+ Args    : None.
+
+=cut
+
+sub to_string {
+        my ($self,$out,$result) = shift;
+        $out = "qual: ".join(',',@{$self->qual()})."\n";
+        foreach (qw(seq display_id accession_number primary_id desc id)) {
+                $result = $self->$_();
+                if (!$result) { $result = "<unset>"; }
+                $out .= "$_: $result\n";
+        }
+        return $out;
+}
 1;

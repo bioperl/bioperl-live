@@ -101,7 +101,6 @@ use Carp;
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
-use FreezeThaw qw(freeze thaw safeFreeze);
 use Bio::Root::IO;
 
 $VERSION = '0.60';
@@ -343,27 +342,29 @@ sub get_quality_scalar {
 	   robot later to do database stuff.
  Returns : 0 or 1;
  Args    : None.
- Notes : I am not sure of the platform independence of this
-	   function. Other then the umask thing I think it might
-	   work. <shrug> This probably requires more checking to see
-	   if the print FREEZE was successful. Fix this.
+ Notes   : This procedure was removed so Consed.pm won't require
+	FreezeThaw.
+	
 
 =cut
 
 sub freeze_hash {
     my $self = shift;
-    if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::freeze_hash: \$self->{path} is $self->{path}\n"); }
-    my $filename = $self->{path}."frozen";
-    my %contigs = %{$self->{contigs}};
-    my $frozen = freeze(%contigs);
-    umask 0001;
-    open (FREEZE,">$filename") or do {
-	print "Bio::Tools::Alignment::Consed could not freeze the contig hash because the file ($filename) could not be opened: $!\n";
-	return 1;
-    };
-    print FREEZE $frozen;
-    close FREEZE;
-    return 0;
+	$self->warn("This method was removed from the bioperl consed.pm. Sorry.\n");
+	if (1==2) {
+	    if ($self->{verbose} == 1) { print("Bio::Tools::Alignment::Consed::freeze_hash: \$self->{path} is $self->{path}\n"); }
+	    my $filename = $self->{path}."frozen";
+	    my %contigs = %{$self->{contigs}};
+	    my $frozen = freeze(%contigs);
+	    umask 0001;
+	    open (FREEZE,">$filename") or do {
+		print "Bio::Tools::Alignment::Consed could not freeze the contig hash because the file ($filename) could not be opened: $!\n";
+		return 1;
+	    };
+	    print FREEZE $frozen;
+	    close FREEZE;
+	    return 0;
+	}
 }
 
 =head2 get_members($contig_keyname)
