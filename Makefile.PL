@@ -77,10 +77,14 @@ sub MY::postamble {
 #
 
 if(  eval { require DBI } ) {
-  my $proceed = user_prompt("Do you want to run the BioGFFDB tests (requires mysql) y/n",'n');
-  if( $proceed eq 'y' ) {
-    system("touch t/do_biodbgff.tests");
-  }
+    my $proceed = user_prompt("Do you want to run the BioGFFDB tests (requires mysql) y/n",'n');
+    if( $proceed eq 'y' ) {
+	system("touch t/do_biodbgff.tests");
+    } else { 
+	if( -e "t/do_biodbgff.tests" ) {
+	    unlink "t/do_biodbgff.tests";
+	}
+    }
 }
 
 sub user_prompt ($;$) {
