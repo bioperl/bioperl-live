@@ -777,7 +777,7 @@ See L<Bio::DB::Fasta> for more information on this fully-featured module.
 Both modules also offer the user the ability to designate a specific string
 within the fasta header as the desired id, such as the gi number within the
 string "gi|4556644|gb|X45555" (use the -makeid option for this capability in 
-Bio::DB::Fasta). Consider the following fasta-formatted sequence:
+Bio::DB::Fasta). Consider the following fasta-formatted sequence, "test.fa":
 
   >gi|523232|emb|AAC12345|sp|D12567 titin fragment
   MHRHHRTGYSAAYGPLKJHGYVHFIMCVVVSWWASDVVTYIPLLLNNSSAGWKRWWWIIFGGE
@@ -786,38 +786,50 @@ Bio::DB::Fasta). Consider the following fasta-formatted sequence:
 By default Bio::Index::Fasta and Bio::DB::Fasta will use the first "word" they 
 encounter in the fasta header as the retrieval key, in this case 
 "gi|523232|emb|AAC12345|sp|D12567". What would be more useful as a key would be a 
-single id.  The code below will index a given fasta file and create an index file 
-with a suffix ".idx", and then retrieve an entry using a SwissProt id if it's present 
-in the header as in the example above.
+single id.  The code below will index the "test.fa" file and create an index file 
+called "test.fa.idx".
 
-  # example usage: retrieve.pl myseqs.fa D12567
-  use Bio::Index::Fasta;
-  # SDBM_File is the database that comes with Perl
   $ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
   # look for the index in the current directory
   $ENV{BIOPERL_INDEX} = ".";
 
-  my $file_name = shift or die "Usage: $0 <fasta file name> <Swissprot id>\n";
+  my $file_name = "test.fa";
   my $inx = Bio::Index::Fasta->new( -filename   => $file_name . ".idx",
      				    -write_flag => 1 );
   # pass a reference to the critical function to the Bio::Index object
-  $inx->id_parser(\&get_sp);
+  $inx->id_parser(\&get_id);
   # make the index
   $inx->make_index($file_name);
-  my $id = shift or die "Usage: $0 <fasta file name> <Swissprot id>\n";
-  # retrieve the sequence as Bio::Seq object
-  my $seq = $inx->fetch($id) or die "Id $id not found\n";
-  print $seq->seq;
 
   # here is where the retrieval key is specified
-  sub get_sp {
+  sub get_id {
      my $header = shift;
      $header =~ /^>.*\bsp\|([A-Z]\d{5}\b)/;
      $1;
   }
 
+Here is how you would retrieve the sequence, as a Bio::Seq object:
+
+  my $seq = $inx->fetch("D12567");
+  print $seq->seq;
+
+What if you wanted to retrieve a sequence using either a Swissprot id
+or a gi number and the fasta header was actually a concatenation of headers
+with multiple gi's and Swissprots?
+
+  >gi|523232|emb|AAC12345|sp|D12567|gi|7744242|sp|V11223 titin fragment
+
+Modify the function that's passed to the id_parser method!
+
+  sub get_id {
+     my $header = shift;
+     my (@sps) = $header =~ /^>.*\bsp\|([A-Z]\d{5})\b/g;
+     my (@gis) = $header =~ /gi\|(\d+)\b/g;
+     return (@sps,@gis);
+  }
+
 The core bioperl installation does not support accessing sequences
-stored in relational databases. However, this capability is
+and data stored in relational databases. However, this capability is
 available with the auxilliary bioperl-db library. See section L<"IV.3"> for
 more information.
 
