@@ -72,7 +72,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::emboss;
-use vars qw(@ISA $EMBOSSTitleLen);
+use vars qw(@ISA $EMBOSSTitleLen $EMBOSSLineLen);
 use strict;
 
 use Bio::AlignIO;
@@ -82,6 +82,7 @@ use Bio::LocatableSeq;
 
 BEGIN { 
     $EMBOSSTitleLen    = 13;
+    $EMBOSSLineLen     = 50;
 }
 
 sub _initialize {
@@ -160,8 +161,28 @@ sub next_aln {
 			($start,$align,$end) = @l;
 		    } else { 
 			($seq,$start,$align,$end) = @l;
-		    }
+ 		    }
+                     ## copes when the alignment is longer that an individual
+                     ## sequence resulting in blank lines.
+		    if( ! defined $end ){
+			$end = $align;
+			$align = "";
+                     }
+		    
 		    my $seqname = sprintf("seq%d", ($count == 0) ? '1' : '2'); 
+		    ## do we have a truncated sequence
+		    if( length( $align ) != $EMBOSSLineLen ){
+			## truncation at the beginning.
+			if( $start == 1 ){
+			    $align = "-" x ( $EMBOSSLineLen - 
+					     length( $align ) ) . $align;
+			}
+			## truncation at the end.
+			else{
+                         $align = $align . "-" x ( $EMBOSSLineLen - 
+						   length( $align ) );
+		     }
+		    }
 
 		    $data{$seqname}->{'data'} .= $align;
 		    $data{$seqname}->{'start'} ||= $start;

@@ -8,7 +8,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 42;
+    plan tests => 45;
 }
 
 use Bio::SimpleAlign;
@@ -180,6 +180,15 @@ $aln = $str->next_aln();
 ok($aln);
 ok($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/29-343');
 ok($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
+
+# EMBOSS water 2.2.x sparse needle
+
+$str = new Bio::AlignIO('-format' => 'emboss',
+			'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
+$aln = $str->next_aln();
+ok($aln);
+ok($aln->get_seq_by_pos(1)->get_nse,'KV1K_HUMAN/1-108');
+ok($aln->get_seq_by_pos(2)->get_nse,'IF1Y_HUMAN/1-143');
 
 # MEGA
 
