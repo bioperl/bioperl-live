@@ -628,8 +628,8 @@ sub length {
 	if ($seql != $self->{qual_ref}->length()) {
 		unless ($self->{supress_warnings} == 1) {
 			$self->warn("Sequence length (".$seql.") is different from quality length (".$self->{qual_ref}->length().") in the SeqWithQuality object. This can only lead to problems later.");		
-			$self->{'length'} = "DIFFERENT";
 		}
+		$self->{'length'} = "DIFFERENT";
 	}
 	else {
 		$self->{'length'} = $seql;

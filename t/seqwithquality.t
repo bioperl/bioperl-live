@@ -138,9 +138,12 @@ print("2. Testing the qual() method...\n");
 print("3. Testing the length() method...\n");
 	print("\t3a) When lengths are equal...\n");
 	ok($swq1->length() == 9);	
-	print("\t3b) When lengths are differenct\n");
+	print("\t3b) When lengths are different\n");
 	$swq1->qual("10 10 10 10 10");
-	ok($swq1->length() eq "DIFFERENT");
+	# why is this test failing?
+	# dumpValue($swq1);
+ok($swq1->length() eq "DIFFERENT");
+
 
 print("4. Testing the qual_obj() method...\n");
 	print("\t4a) Testing qual_obj()...\n");
