@@ -666,10 +666,10 @@ sub DESTROY {
     my @probs = $self->get_problems;
     if (!$self->{_problems_reported} &&
 	scalar(@probs)) {
-	print STDERR 
-	  "WARNING: There are UNREPORTED PROBLEMS.\n".
+	$self->warn(
+	    "WARNING: There are UNREPORTED PROBLEMS.\n".
 	    "You may wish to use the method report_problems(), \n",
-	      "or ignore_problems() on the Unflattener object\n";
+	    "or ignore_problems() on the Unflattener object\n");
     }
     return;
 }
@@ -911,8 +911,8 @@ sub add_problem{
     my $self = shift;
 
     $self->{'_problems'} = [] unless exists($self->{'_problems'});
-    if ($self->verbose) {
-        print STDERR "PROBLEM: $_\n" foreach @_;
+    if ($self->verbose > 0) {
+        warn( "PROBLEM: $_\n") foreach @_;
     }
     push(@{$self->{'_problems'}}, @_);
 }
@@ -1160,8 +1160,8 @@ sub unflatten_seq{
 	   #
 	   # see GenBank entry AE003677 (version 3) for an example
 	   $group_tag = 'locus_tag';
-           if ($self->verbose) {
-               print STDERR "Set group tag to: $group_tag\n";
+           if ($self->verbose > 0) {
+               warn "Set group tag to: $group_tag\n";
            }
        }
    }
@@ -1375,8 +1375,8 @@ sub unflatten_seq{
    }
 
    # LOGGING
-   if ($self->verbose) {
-       print STDERR "GROUPS:\n";
+   if ($self->verbose > 0) {
+       warn "GROUPS:\n";
        foreach my $group (@groups) {
 	   $self->_write_group($group, $group_tag);
        }
@@ -1471,8 +1471,8 @@ sub unflatten_seq{
 
    # INFERRING mRNAs
    if ($need_to_infer_mRNAs) {
-       if ($self->verbose) {
-	   print STDERR "** INFERRING mRNA from CDS\n";
+       if ($self->verbose > 0) {
+	   warn "** INFERRING mRNA from CDS\n";
        }
        $self->infer_mRNA_from_CDS(-seq=>$seq);
    }
@@ -1569,7 +1569,7 @@ sub unflatten_seq{
 	       my $thresh = $self->error_threshold;
 	       my @bad_problems = grep {$_->[0] > $thresh} @problems;
 	       if (@bad_problems) {
-		   print STDERR "PROBLEM:\n";
+		   warn "PROBLEM:\n";
 		   $self->_write_hier(\@top_sfs);
 		   # TODO - allow more fine grained control over this
 		   $self->{_problems_reported} = 1;
@@ -1616,8 +1616,8 @@ sub _split_group_if_disconnected {
     else {
 	# @ranges > 1
 	# split the group into disconnected ranges
-	if ($self->verbose) {
-	    print STDERR "GROUP PRE-SPLIT:\n";
+	if ($self->verbose > 0) {
+	    warn "GROUP PRE-SPLIT:\n";
 	    $self->_write_group($group, $self->group_tag);
 	}
 	@groups =
@@ -1627,8 +1627,8 @@ sub _split_group_if_disconnected {
 		  $_->intersection($range);
 	      } @sfs]
 	  } @ranges;
-	if ($self->verbose) {
-	    print STDERR "SPLIT GROUPS:\n";
+	if ($self->verbose > 0) {
+	    warn "SPLIT GROUPS:\n";
 	    $self->_write_group($_, $self->group_tag) foreach @groups;	    
 	}
     }
@@ -1667,8 +1667,8 @@ sub _remove_duplicates_from_group {
 	# the latter is redundant with the CDS entry. So we shall get rid of
 	# the latter with the following filter
 
-	if ($self->verbose) {
-	    print STDERR "REMOVING DUPLICATES:\n";
+	if ($self->verbose > 0) {
+	    warn "REMOVING DUPLICATES:\n";
 	}
 
 	@genes =
@@ -1784,8 +1784,8 @@ sub unflatten_group{
                           )],
                           @args);
 
-   if ($self->verbose) {
-       print STDERR "UNFLATTENING GROUP:\n";
+   if ($self->verbose > 0) {
+       warn "UNFLATTENING GROUP:\n";
        $self->_write_group($group, $self->group_tag);
    }
 
@@ -1871,7 +1871,7 @@ sub unflatten_group{
    # CONDITION: there must be at most one root
    if (@top_sfs > 1) {
        $self->_write_group($group, $self->group_tag);
-       print STDERR "TOP SFS:\n";
+       warn "TOP SFS:\n";
        $self->_write_sf($_) foreach @top_sfs;
        $self->throw("multiple top-sfs in group");
    }
@@ -2021,7 +2021,7 @@ sub unflatten_group{
        if (%unresolved) {
            my %childh = map {$_=>1} keys %unresolved;
            my %parenth = map {$_->[0]=>1} map {@$_} values %unresolved;
-           if ($self->verbose) {
+           if ($self->verbose > 0) {
                printf "MATCHING %d CHILDREN TO %d PARENTS\n",
                  scalar(keys %childh), scalar(keys %parenth);
            }
@@ -2043,8 +2043,8 @@ sub unflatten_group{
    }
 
    # DEBUGGING CODE
-   if ($self->verbose && scalar(keys %unresolved)) {
-       print STDERR "UNRESOLVED PAIRS:\n";
+   if ($self->verbose > 0 && scalar(keys %unresolved)) {
+       warn "UNRESOLVED PAIRS:\n";
        foreach my $childsf (keys %unresolved) {
 	   my @poss = @{$unresolved{$childsf}};
 	   foreach my $p (@poss) {
@@ -2078,7 +2078,7 @@ sub unflatten_group{
            $unresolved_problem_reported = 1;
        }
        foreach my $pair (@$new_pairs) {
-	   if ($self->verbose) {
+	   if ($self->verbose > 0) {
 	       printf "  resolved pair @$pair\n";
 	   }
 	   $container{$pair->[0]} = $pair->[1];
@@ -2164,7 +2164,7 @@ sub find_best_matches {
 
     my $verbose = $self->verbose;
     #################################print "I";
-    if ($verbose) {
+    if ($verbose > 0) {
 	printf "find_best_matches: (/%d)\n", scalar(@$pairs);
     }
 
@@ -2176,7 +2176,7 @@ sub find_best_matches {
     my %unresolved_parents = ();
     my %unresolved =
       map {
-          if ($verbose) {
+          if ($verbose > 0) {
               printf "  $_ : %s\n", join("; ", map {"[@$_]"} @{$matrix->{$_}});
           }
 	  if ($selected_children{$_}) {
@@ -2268,10 +2268,12 @@ sub _write_group {
     if ($f->has_tag($group_tag)) {
 	($label) = $f->get_tag_values($group_tag);
     }
-    printf("  GROUP [%s]:%s\n",
-	   $label,
-	   join(' ',
-		map { $_->primary_tag } @$group));
+    if( $self->verbose > 0 ) { 
+	printf("  GROUP [%s]:%s\n",
+	       $label,
+	       join(' ',
+		    map { $_->primary_tag } @$group));
+    }
 
 }
 
@@ -2285,9 +2287,11 @@ sub _write_sf {
 sub _write_sf_detail {
     my $self = shift;
     my $sf = shift;
-    printf "TYPE:%s\n", $sf->primary_tag;
-    my @locs = $sf->location->each_Location;
-    printf "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
+    if( $self->verbose > 0 ) {
+	printf "TYPE:%s\n", $sf->primary_tag;
+	my @locs = $sf->location->each_Location;
+	printf "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
+    }
     return;
 }
 
@@ -2295,14 +2299,16 @@ sub _write_hier {
     my $self = shift;
     my @sfs = @{shift || []};
     my $indent = shift || 0;
-    foreach my $sf (@sfs) {
-        my $label = '?';
-        if ($sf->has_tag('product')) {
-            ($label) = $sf->get_tag_values('product');
-        }
-        printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
-        my @sub_sfs = $sf->sub_SeqFeature;
-        $self->_write_hier(\@sub_sfs, $indent+1);
+    if( $self->verbose > 0 ) {
+	foreach my $sf (@sfs) {
+	    my $label = '?';
+	    if ($sf->has_tag('product')) {
+		($label) = $sf->get_tag_values('product');
+	    }
+	    printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
+	    my @sub_sfs = $sf->sub_SeqFeature;
+	    $self->_write_hier(\@sub_sfs, $indent+1);
+	}
     }
 }
 
@@ -2334,8 +2340,8 @@ sub _resolve_container_for_sf{
                $inside = 0;
            }
        }
-       if ($self->verbose) {
-	   print STDERR "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
+       if ($self->verbose > 0) {
+	   warn "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
        }
        if ($inside) {
 	   # SCORE: matching (ss-scoords+2)/(n-container-ss-coords+2)
@@ -2467,7 +2473,7 @@ sub feature_from_splitloc{
        my $ok =
 	 $self->_check_order_is_consistent(@subsfs);
        if (!$ok) {
-	   print STDERR "Unordered features:\n";
+	   warn "Unordered features:\n";
 	   $self->_write_sf_detail($_) foreach @subsfs;
 	   $self->throw("ASSERTION ERROR: inconsistent order");
        }

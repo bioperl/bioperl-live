@@ -36,66 +36,74 @@ if (1) {
     
     ok ($seq->accession_number, 'AE003644');
     my @topsfs = $seq->get_SeqFeatures;
-    printf "TOP:%d\n", scalar(@topsfs);
-    write_hier(@topsfs);
+    if( $verbosity > 0 ) {
+	printf "TOP:%d\n", scalar(@topsfs);
+	write_hier(@topsfs);
+    }
     
     # UNFLATTEN
-    $unflattener->verbose(1);
+    $unflattener->verbose($verbosity);
     @sfs = $unflattener->unflatten_seq(-seq=>$seq,
 				       -group_tag=>'locus_tag');
-    print "\n\nPOST PROCESSING:\n";
-    write_hier(@sfs);
-    printf "PROCESSED:%d\n", scalar(@sfs);
+    if( $verbosity > 0 ) {
+	warn "\n\nPOST PROCESSING:\n";
+	write_hier(@sfs);
+	warn sprintf "PROCESSED:%d\n", scalar(@sfs);
+    }
     ok(@sfs == 21);
 }
 
 # now try again, using a custom subroutine to link together features
 $seq = getseq("t","data","AE003644_Adh-genomic.gb");
-@sfs = $unflattener->unflatten_seq(-seq=>$seq,
-                                 -group_tag=>'locus_tag',
-                                 -resolver_method=>sub {
-                                     my $self = shift;
-                                     my ($sf, @candidate_container_sfs) = @_;
-                                     if ($sf->has_tag('note')) {
-                                         my @notes = $sf->get_tag_values('note');
-                                         my @trnames = map {/from transcript\s+(.*)/;
-                                                            $1} @notes;
-                                         @trnames = grep {$_} @trnames;
-                                         my $trname;
-                                         if (@trnames == 0) {
-                                             $self->throw("UNRESOLVABLE");
-                                         }
-                                         elsif (@trnames == 1) {
-                                             $trname = $trnames[0];
-                                         }
-                                         else {
-                                             $self->throw("AMBIGUOUS: @trnames");
-                                         }
-                                         my @container_sfs =
-                                           grep {
-                                               my ($product) =
-                                                 $_->has_tag('product') ?
-                                                   $_->get_tag_values('product') :
-                                                     ('');
-                                               $product eq $trname;
-                                           } @candidate_container_sfs;
-                                         if (@container_sfs == 0) {
-                                             $self->throw("UNRESOLVABLE");
-                                         }
-                                         elsif (@container_sfs == 1) {
-                                             # we got it!
-                                             return ($container_sfs[0]=>0);
-                                         }
-                                         else {
-                                             $self->throw("AMBIGUOUS");
-                                         }
+@sfs = $unflattener->unflatten_seq
+    (-seq=>$seq,
+     -group_tag=>'locus_tag',
+     -resolver_method => 
+     sub {
+	 my $self = shift;
+	 my ($sf, @candidate_container_sfs) = @_;
+	 if ($sf->has_tag('note')) {
+	     my @notes = $sf->get_tag_values('note');
+	     my @trnames = map {/from transcript\s+(.*)/;
+				$1} @notes;
+	     @trnames = grep {$_} @trnames;
+	     my $trname;
+	     if (@trnames == 0) {
+		 $self->throw("UNRESOLVABLE");
+	     }
+	     elsif (@trnames == 1) {
+		 $trname = $trnames[0];
+	     }
+	     else {
+		 $self->throw("AMBIGUOUS: @trnames");
+	     }
+	     my @container_sfs =
+		 grep {
+		     my ($product) =
+			 $_->has_tag('product') ?
+			 $_->get_tag_values('product') :
+			 ('');
+		     $product eq $trname;
+		 } @candidate_container_sfs;
+	     if (@container_sfs == 0) {
+		 $self->throw("UNRESOLVABLE");
+	     }
+	     elsif (@container_sfs == 1) {
+		 # we got it!
+		 return ($container_sfs[0]=>0);
+	     }
+	     else {
+		 $self->throw("AMBIGUOUS");
+	     }
                                          
-                                     }
-                                 });
+	 }
+     });
 $unflattener->feature_from_splitloc(-seq=>$seq);
-print "\n\nPOST PROCESSING:\n";
-write_hier(@sfs);
-printf "PROCESSED2:%d\n", scalar(@sfs);
+if( $verbosity > 0 ) {
+    warn "\n\nPOST PROCESSING:\n";
+    write_hier(@sfs);
+    warn sprintf "PROCESSED2:%d\n", scalar(@sfs);
+}
 ok(@sfs == 21);
 
 # try again; different sequence
@@ -108,9 +116,11 @@ $seq = getseq("t","data","D10483.gbk");
 @sfs = $unflattener->unflatten_seq(-seq=>$seq,
 				   -partonomy=>{'*'=>'gene'},
                                 );
-print "\n\nPOST PROCESSING:\n";
-write_hier(@sfs);
-printf "PROCESSED:%d\n", scalar(@sfs);
+if( $verbosity > 0 ) {
+    warn "\n\nPOST PROCESSING:\n";
+    write_hier(@sfs);
+    warn sprintf "PROCESSED:%d\n", scalar(@sfs);
+}
 ok(@sfs == 98);
 
 
@@ -122,12 +132,12 @@ $seq = getseq("t","data","X98338_Adh-mRNA.gb");
 @sfs = $unflattener->unflatten_seq(-seq=>$seq,
                                  -partonomy=>{'*'=>'gene'},
                                 );
-                                 
-print "\n\nPOST PROCESSING:\n";
-write_hier(@sfs);
-printf "PROCESSED:%d\n", scalar(@sfs);
+if( $verbosity > 0 ) {                                 
+    warn "\n\nPOST PROCESSING:\n";
+    write_hier(@sfs);
+    warn sprintf "PROCESSED:%d\n", scalar(@sfs);
+}
 ok(@sfs == 7);
-
 
 
 
@@ -135,6 +145,7 @@ sub write_hier {
     my @sfs = @_;
     _write_hier(0, @sfs);
 }
+
 sub _write_hier {
     my $indent = shift;
     my @sfs = @_;
@@ -143,7 +154,7 @@ sub _write_hier {
         if ($sf->has_tag('product')) {
             ($label) = $sf->get_tag_values('product');
         }
-        printf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
+        warn sprintf "%s%s $label\n", '  ' x $indent, $sf->primary_tag;
         my @sub_sfs = $sf->sub_SeqFeature;
         _write_hier($indent+1, @sub_sfs);
     }
