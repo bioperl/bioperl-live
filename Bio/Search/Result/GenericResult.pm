@@ -118,6 +118,9 @@ use strict;
 use Bio::Root::Root;
 use Bio::Search::Result::ResultI;
 
+use overload 
+    '""' => \&to_string;
+
 @ISA = qw(Bio::Root::Root Bio::Search::Result::ResultI);
 
 =head2 new
@@ -643,5 +646,116 @@ sub algorithm_reference{
 sub program_reference { shift->algorithm_reference(@_); }
 
 
+=head2 no_hits_found
+
+See documentation in L<Bio::Search::Result::ResultI::no_hits_found()|Bio::Search::Result::ResultI>
+
+=cut
+
+#-----------
+sub no_hits_found {
+#-----------
+    my ($self, $round) = @_;
+
+    my $result = 0;   # final return value of this method.
+    # Watch the double negative! 
+    # result = 0 means "yes hits were found"
+    # result = 1 means "no hits were found" (for the indicated iteration or all iterations)
+
+    # If a iteration was not specified and there were multiple iterations,
+    # this method should return true only if all iterations had no hits found.
+    if( not defined $round ) {
+        if( $self->{'_iterations'} > 1) {
+            $result = 1;
+            foreach my $i( 1..$self->{'_iterations'} ) {
+                if( not defined $self->{"_iteration_$i"}->{'_no_hits_found'} ) {
+                    $result = 0;
+                    last;
+                }
+            }
+        }
+        else {
+            $result = $self->{"_iteration_1"}->{'_no_hits_found'};
+        }
+    }
+    else {
+        $result = $self->{"_iteration_$round"}->{'_no_hits_found'};
+    }
+
+    return $result;
+}
+
+
+=head2 set_no_hits_found
+
+See documentation in L<Bio::Search::Result::ResultI::set_no_hits_found()|Bio::Search::Result::ResultI>
+
+=cut
+
+#-----------
+sub set_no_hits_found {
+#-----------
+    my ($self, $round) = @_;
+    $round ||= 1;
+    $self->{"_iteration_$round"}->{'_no_hits_found'} = 1;
+}
+
+
+=head2 iterations
+
+See documentation in L<Bio::Search::Result::ResultI::iterations()|Bio::Search::Result::ResultI>
+
+=cut
+
+#----------------
+sub iterations {
+#----------------
+    my ($self, $num ) = @_;
+    if( defined $num ) {
+        $self->{'_iterations'} = $num;
+    }
+    return $self->{'_iterations'};
+}
+
+
+=head2 psiblast
+
+See documentation in L<Bio::Search::Result::ResultI::psiblast()|Bio::Search::Result::ResultI>
+
+=cut
+
+#----------------
+sub psiblast {
+#----------------
+    my ($self, $val ) = @_;
+    if( $val ) {
+        $self->{'_psiblast'} = 1;
+    }
+    return $self->{'_psiblast'};
+}
+
+
+=head2 to_string
+
+ Title   : to_string
+ Usage   : print $blast->to_string;
+ Function: Returns a string representation for the Blast result. 
+           Primarily intended for debugging purposes.
+ Example : see usage
+ Returns : A string of the form:
+           [GenericResult] <analysis_method> query=<name> <description> db=<database
+           e.g.:
+           [GenericResult] BLASTP query=YEL060C vacuolar protease B, db=PDBUNIQ 
+ Args    : None
+
+=cut
+
+#---------------
+sub to_string {
+#---------------
+    my $self = shift;
+    my $str = "[GenericResult] " . $self->algorithm . " query=" . $self->query_name . " " . $self->query_description .", db=" . $self->database_name;
+    return $str;
+}
 
 1;
