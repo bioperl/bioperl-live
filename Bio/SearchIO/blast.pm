@@ -142,6 +142,8 @@ BEGIN {
 		 'Parameters_gap-open'  =>   { 'param' => 'gapopen'},
 		 'Parameters_gap-extend'=>   { 'param' => 'gapext'},
 		 'Parameters_filter'    =>  {'param' => 'filter'},
+		 'Parameters_allowgaps' =>   { 'param' => 'allowgaps'},
+
 		 'Statistics_db-len'    => {'stat' => 'dbentries'},
 		 'Statistics_db-let'    => { 'stat' => 'dbletters'},
 		 'Statistics_hsp-len'   => { 'stat' => 'hsplength'},
@@ -161,6 +163,21 @@ BEGIN {
 		 'Statistics_X2'=> { 'stat' => 'X2'},
 		 'Statistics_S1'=> { 'stat' => 'S1'},
 		 'Statistics_S2'=> { 'stat' => 'S2'},
+		 
+		 # WU-BLAST stats
+		 'Statistics_DFA_states'=> { 'stat' => 'num_dfa_states'},
+		 'Statistics_DFA_size'=> { 'stat' => 'dfa_size'},
+		 
+		 'Statistics_search_cputime' => { 'stat' => 'search_cputime'},
+		 'Statistics_total_cputime' => { 'stat' => 'total_cputime'},
+		 'Statistics_search_actualtime' => { 'stat' => 'search_actualtime'},
+		 'Statistics_total_actualtime' => { 'stat' => 'total_actualtime'},
+		 
+		 'Statistics_noprocessors' => { 'stat' => 'no_of_processors'},
+		 'Statistics_neighbortime' => { 'stat' => 'neighborhood_generate_time'},
+		 'Statistics_starttime' => { 'stat' => 'start_time'},
+		 'Statistics_endtime' => { 'stat' => 'end_time'},
+		 
 		 
 		 );
 }
@@ -204,7 +221,7 @@ sub next_result{
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
        next if( /CPU time:/);
-       if( /^([T]?BLAST[NPX])\s*(\S+)/i ) {
+       if( /^([T]?BLAST[NPX])\s*(.+)$/i ) {
 	   if( $seentop ) {
 	       $self->_pushback($_);
 	       $self->end_element({ 'Name' => 'BlastOutput'});
@@ -393,11 +410,15 @@ sub next_result{
 	   	   
 	   $self->element({'Name' => 'Hsp_hit-frame',
 			   'Data' => $hitframe});
-       } elsif(  /^Parameters:/ || /^\s+Database:/ ) {
+       } elsif(  /^Parameters:/ || /^\s+Database:\s+?/ || 
+		 ( $self->in_element('hsp') && (/WARNING/ || /NOTE/)) ) {
 	   $self->in_element('hsp') && $self->end_element({'Name' => 'Hsp'});
 	   $self->in_element('hit') && $self->end_element({'Name' => 'Hit'});
-	   my $blast = ( /Parameters/ ) ? 'wublast' : 'ncbi'; 
+	   my $blast = ( /Parameters\:/ ) ? 'wublast' : 'ncbi'; 
 	   my $last = '';
+	   # default is that gaps are allowed
+	   $self->element({'Name' => 'Parameters_allowgaps',
+			   'Data' => 'yes'});
 	   while( defined ($_ = $self->_readline ) ) {
 	       if( /^([T]?BLAST[NPX])\s*([\d\.]+)/i ) {
 		   $self->_pushback($_);
@@ -421,7 +442,10 @@ sub next_result{
 		   if( /E=(\S+)/ ) {
 		       $self->element({'Name' => 'Parameters_expect',
 				       'Data' => $1});
-		   } elsif( $last =~ /Frame\s+MatID\s+Matrix name/i ) {
+		   } elsif( /nogaps/ ) {
+		       $self->element({'Name' => 'Parameters_allowgaps',
+				       'Data' => 'no'});
+		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ) {
 		       s/^\s+//;
                        #throw away first two slots
 		       my @vals = split;
@@ -435,7 +459,36 @@ sub next_result{
 				       'Data' => $kappa});
 		       $self->element({'Name' => 'Statistics_entropy',
 				       'Data' => $entropy});
-		   } 
+		   } elsif( /(\S+\s+\S+)\s+DFA:\s+(\S+)\s+\((.+)\)/ ) {
+		       if( $1 eq 'states in') { 
+			   $self->element({'Name' => 'Statistics_DFA_states',
+					   'Data' => "$2 $3"});
+		       } elsif( $1 eq 'size of') {
+			   $self->element({'Name' => 'Statistics_DFA_size',
+					   'Data' => "$2 $3"});
+		       }
+		   } elsif( /^\s+Time to generate neighborhood:\s+(\S+\s+\S+\s+\S+)/ ) { 
+		       $self->element({'Name' => 'Statistics_neighbortime',
+				       'Data' => $1});
+		   } elsif( /processors\s+used:\s+(\d+)/ ) {
+		          $self->element({'Name' => 'Statistics_noprocessors',
+					   'Data' => $1});
+		   } elsif( /^\s+(\S+)\s+cpu\s+time:\s+(\S+\s+\S+\s+\S+)\s+Elapsed:\s+(\S+)/ ) {
+		       my $cputype = lc($1);
+		       $self->element({'Name' => "Statistics_$cputype\_cputime",
+				       'Data' => $2});
+		       $self->element({'Name' => "Statistics_$cputype\_actualtime",
+				       'Data' => $3});
+		   } elsif( /^\s+Start:/ ) {
+		       my ($junk,$start,$stime,$end,$etime) = split(/\s+(Start|End)\:\s+/,$_);
+		       chomp($stime);
+		       $self->element({'Name' => 'Statistics_starttime',
+				       'Data' => $stime});
+		       chomp($etime);
+		       $self->element({'Name' => 'Statistics_endtime',
+				       'Data' => $etime});
+		   }
+		   
 	       } elsif ( $blast eq 'ncbi' ) {
 
 		   if( /^Matrix:\s+(\S+)/i ) {
@@ -495,7 +548,7 @@ sub next_result{
 	   my $len;
 	   for( my $i = 0; 
 		defined($_) && $i < 3; 
-		$i++ ){
+		$i++ ){	       
 	       chomp;		       
 	       if( /^((Query|Sbjct):\s+(\d+)\s*)(\S+)\s+(\d+)/ ) {
 		   $data{$2} = $4;
@@ -503,7 +556,8 @@ sub next_result{
 		   $self->{"\_$2"}->{'begin'} = $3 unless $self->{"_$2"}->{'begin'};
 		   $self->{"\_$2"}->{'end'} = $5;
 	       } else { 
-		   $self->throw("no data for midline $_") unless defined $_ && defined $len;
+		   $self->throw("no data for midline $_") 
+		       unless (defined $_ && defined $len);
 		   $data{'Mid'} = substr($_,$len);
 	       }
 	       $_ = $self->_readline();	       
