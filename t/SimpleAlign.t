@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 60;
+use constant NUMTESTS => 61;
 
 BEGIN {
     eval { require Test; };
@@ -94,7 +94,7 @@ ok (($aln->gap_char(), '-') and  ($aln->gap_char('.'), '.')) ;
 
 
 ok $aln->purge(0.7), 12;
-ok $aln->no_sequences, 3;
+ok $aln->no_sequences, 4;
 
 eval { require 'IO/String.pm' };
 if( $@ ) {
@@ -187,5 +187,9 @@ ok $a->sort_alphabetically;
 ok $a->get_seq_by_pos(2)->id,"ABB";
 
 $b = $a->remove_gaps();
-
 ok $b->consensus_string, "aaaattt";
+
+$s1->seq('aaaaattt--');
+
+$b = $a->remove_gaps(undef, 'all_gaps_only');
+ok $b->consensus_string, "aaaaatttt";
