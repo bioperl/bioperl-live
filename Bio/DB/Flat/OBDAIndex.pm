@@ -275,8 +275,6 @@ sub new_from_registry {
     my $dbname   = $config{'dbname'};
     my $location = $config{'location'};
     
-    print STDERR "Creating OBDAIndex from registry  $dbname $location\n";
-
     my $index =  new Bio::DB::Flat::OBDAIndex(-dbname    => $dbname,
 					      -index_dir => $location,
 					      );
