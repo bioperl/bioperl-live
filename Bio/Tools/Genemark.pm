@@ -215,7 +215,9 @@ sub _parse_predictions {
     my %exontags = ('Initial' => 'Initial',
 		    'Internal' => 'Internal',
 		    'Terminal' => 'Terminal',
-		    'Single' => '');
+		    'Single' => '',
+		    '_na_' => '');
+    my $exontag;
     my $gene;
     my $seqname;
 
@@ -243,12 +245,14 @@ sub _parse_predictions {
 	        $prediction_source = "Genemark.hmm.pro";
 	       	$orientation = ($flds[1] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(2,3)];
-		  print "$start $end $orientation \n";
+		$exontag = "_na_";
+		# print "$start $end $orientation \n";
 
 	    } else {		   
 	        $prediction_source = "Genemark.hmm.eu";
 	       	$orientation = ($flds[2] eq '+') ? 1 : -1;
 	        ($start, $end) = @flds[(4,5)];
+		$exontag = $flds[3];
 	    }
 
 	  
@@ -263,7 +267,7 @@ sub _parse_predictions {
 	    $predobj->end($end);
 	    $predobj->strand($orientation);
 	    
-	    $predobj->primary_tag($exontags{$flds[1]} . "Exon");
+	    $predobj->primary_tag($exontags{$exontag} . "Exon");
 	    $predobj->add_tag_value('exon_no',"$signalnr") if ($signalnr);
 
     	    $predobj->is_coding(1);
@@ -272,7 +276,8 @@ sub _parse_predictions {
 	    # is to be implemented...
 	    
 	    # Add the exon to the gene
-	    $gene->add_exon($predobj, $exontags{$flds[1]});
+	    $gene->add_exon($predobj, ($exontag eq "_na_" ?
+				       undef : $exontags{$exontag}));
 
 	    # and, if it is a prokaryot, the gene will have only one exon, 
 	    # close it right away:
@@ -299,7 +304,7 @@ sub _parse_predictions {
 	if(/^(Genemark\.hmm\s*[PROKARYOTIC]*)\s+\(Version (.*)\)$/i) {
 	    $self->analysis_method($1);
 	    my $gm_version = $2;
-  	    print "prog: $1 \nversion: $2 \n";	  
+  	    #print "prog: $1 \nversion: $2 \n";
 	    $self->analysis_method_version($gm_version);
 	    next;
 	}
