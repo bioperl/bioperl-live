@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 57; 
+    plan tests => 59; 
 }
 
 use Bio::Tools::BPbl2seq;
