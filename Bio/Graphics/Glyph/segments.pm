@@ -55,6 +55,15 @@ sub pad_right {
   return ($target->end-1) * $self->scale;
 }
 
+sub height {
+  my $self = shift;
+  my $height = $self->SUPER::height;
+  return $height unless $self->dna_fits 
+    && ($self->option('draw_target') || $self->option('draw_dna'));
+  my $fontheight = $self->font->height;
+  return $fontheight if $fontheight > $height;
+}
+
 # group sets connector to 'solid'
 sub connector {
   my $self = shift;
@@ -124,8 +133,7 @@ sub draw_dna {
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
 
-  my @s                    = $feature->get_SeqFeatures;
-#  @s                       = $feature unless @s;
+  my @s                     = $self->_subseq($feature);
 
   my (@segments,%strands);
   for my $s (@s) {
@@ -223,11 +231,10 @@ sub draw_multiple_alignment {
   my $panel_right          = $self->panel->right;
   my $drew_sequence;
 
-
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
 
-  my @s                    = $feature->get_SeqFeatures;
+  my @s                     = $self->_subseq($feature);
 
   my $can_realign = $do_realign && eval { require Bio::Graphics::Browser::Realign; 1 };
 
@@ -572,16 +579,16 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
 In addition, the following glyph-specific options are recognized:
 
-  -draw_dna     If true, draw the dna residues 0 (false)
+  -draw_dna     If true, draw the dna residues        0 (false)
                  when magnification level
                  allows.
 
-  -draw_target  If true, draw the dna residues 0 (false)
+  -draw_target  If true, draw the dna residues        0 (false)
                  of the TARGET sequence when
                  magnification level allows.
                  See "Displaying Alignments".
 
-  -ragged_extra When combined with -draw_target, 0 (false)
+  -ragged_extra When combined with -draw_target,      0 (false)
                 draw extra bases beyond the end
                 of the alignment. The value is
                 the maximum number of extra
@@ -591,16 +598,18 @@ In addition, the following glyph-specific options are recognized:
   -ragged_start  Deprecated option.  Use
                  -ragged_extra instead
 
-  -show_mismatch When combined with -draw_target, 0 (false)
+  -show_mismatch When combined with -draw_target,     0 (false)
                  highlights mismatched bases in
                  pink.  See "Displaying Alignments".
 
-  -true_target   Show the true sequence of the    0 (false)
-                 matched DNA, even if the match
-                 is on the minus strand. See "Displaying Alignments".
+  -true_target   Show the target DNA in its native    0 (false)
+                 (plus strand) orientation, even if
+                 the alignment is to the minus strand.
+                 See "Displaying Alignments".
 
-  -realign       Attempt to realign sequences at  1 (true)
-                 high mag to account for indels. See "Displaying Alignments".
+  -realign       Attempt to realign sequences at      0 (false)
+                 high mag to account for indels.
+                 See "Displaying Alignments".
 
 If the -draw_dna flag is set to a true value, then when the
 magnification is high enough, the underlying DNA sequence will be
@@ -652,7 +661,7 @@ will use if they can.  If DO_XS is not set, then the scripts will use
 a Perl-based version of the algorithm that is 10-100 times slower.
 
 The display of alignments can be tweaked using the -ragged_extra,
--show_mismatch, -true_target and -realign options.  See the options
+-show_mismatch, -true_target, and -realign options.  See the options
 section for further details.
 
 =head1 BUGS

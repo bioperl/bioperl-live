@@ -94,6 +94,12 @@ sub factory { shift->{factory} }
 sub panel   { shift->factory->panel }
 sub point   { shift->{point}   }
 sub scale   { shift->factory->scale }
+sub flip    {
+  my $self      = shift;
+  my $d         = $self->{flip};
+  $self->{flip} = shift if @_;
+  $d;
+}
 sub start   {
   my $self = shift;
   return $self->{start} if exists $self->{start};
