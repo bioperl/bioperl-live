@@ -168,6 +168,44 @@ sub db {
 }
 
 
+=head2 get_stream
+
+ Title   : get_stream
+ Usage   : $stream = $index->get_stream( $id );
+ Function: Returns a file handle with the file pointer
+    at the approprite place
+ Returns : A filehandle object
+ Args    : string represents the accession number
+ Notes   : 
+    This method should not be used without forethought 
+=cut
+
+sub get_stream {
+   my ($self,$id) = @_;
+
+   my ($desc,$acc,$out);
+   my $db = $self->db();
+
+   if (my $rec = $db->{ $id }) {
+       my( @record );
+       
+       my ($file, $begin, $end) = $self->unpack_record( $rec );
+        
+       # Get the (possibly cached) filehandle
+       my $fh = $self->_file_handle( $file );
+       
+       # move to start
+       seek($fh, $begin, 0);
+       
+       return $fh;
+   }
+   else {
+       $self->throw("Unable to find a record for $id in the flat file index");
+   }
+}
+
+
+
 =head2 _open_dbm
 
   Title   : _open_dbm

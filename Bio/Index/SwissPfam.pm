@@ -162,6 +162,7 @@ sub _index_file {
 		if( $acc ne $id ) {
 		    $self->add_record($acc, $i, $begin, $end);
 		}
+		print STDERR "Added $id\n";
 	    }
 
             $begin = $new_begin;
@@ -173,7 +174,7 @@ sub _index_file {
     # Don't forget to add the last record
     $end = tell(SP);
     $self->add_record($id, $i, $begin, $end) if $id;
-
+    print STDERR "Added $id\n";
 
     close SP;
     return 1;
