@@ -342,7 +342,7 @@ sub subseq {
        }
        return $seq;
    } 
-   else { 
+   elsif(  defined  $start && defined $end ) {
        if( $start > $end ){
 	   $self->throw("in subseq, start [$start] has to be greater than end [$end]");
        }
@@ -354,6 +354,8 @@ sub subseq {
        $start--;
 
        return substr $self->seq(), $start, ($end-$start);
+   } else {
+       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object not ($start,$end)");
    }
 }
 
