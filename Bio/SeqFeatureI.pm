@@ -330,7 +330,7 @@ but can be validly overwritten by subclasses
 
   Args    : [optional] A Bio::DB::RandomAccessI compliant object
   Returns : A Bio::Seq
-  
+
 =cut
 
 sub spliced_seq {

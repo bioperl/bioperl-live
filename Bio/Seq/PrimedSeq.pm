@@ -15,34 +15,33 @@ target region for amplification
 
 =head1 SYNOPSIS
 
-     # create a sequence
-my $sequence = "ctagctagctagctagctagctagctagctgatcgtagctagctagct";
-     # create left and right primer seqfeatures
-     # unfortunately, I haven't created constructors for these yet.
-my $left = Bio::SeqFeature::Primer();
-my $right = Bio::SeqFeature::Primer();
-     # now create the PrimedSeq
-     $primedseq = new Bio::Seq::PrimedSeq(
-                                           -seq => $sequence,
-                                           -display_id => "chads_fantastic_sequence",
-                                           -LEFT_PRIMER => $left,
-                                           -RIGHT_PRIMER => $right,
-                                           -TARGET => '513,26'
-                                           -PRIMER_PRODUCT_SIZE_RANGE => '100-500'
-                                           -PRIMER_FILE_FLAG => '0'
-                                           -PRIMER_LIBERAL_BASE => '1'
-                                           -PRIMER_NUM_RETURN => '1'
-                                           -PRIMER_FIRST_BASE_INDEX => '1'
-                                           -PRIMER_EXPLAIN_FLAG => '1'
-                                           -PRIMER_PRODUCT_SIZE => '185'
-                                        );
-     # get the amplified region
-my $amplified_sequence = $primed_seq->get_amplified_sequence();
-
+  # create a sequence
+  my $sequence = "ctagctagctagctagctagctagctagctgatcgtagctagctagct";
+  # create left and right primer seqfeatures
+  # unfortunately, I haven't created constructors for these yet.
+  my $left = Bio::SeqFeature::Primer();
+  my $right = Bio::SeqFeature::Primer();
+  # now create the PrimedSeq
+  $primedseq = new Bio::Seq::PrimedSeq(
+                                       -seq => $sequence,
+                                       -display_id => "chads_fantastic_sequence",
+                                       -LEFT_PRIMER => $left,
+                                       -RIGHT_PRIMER => $right,
+                                       -TARGET => '513,26'
+                                       -PRIMER_PRODUCT_SIZE_RANGE => '100-500'
+                                       -PRIMER_FILE_FLAG => '0'
+                                       -PRIMER_LIBERAL_BASE => '1'
+                                       -PRIMER_NUM_RETURN => '1'
+                                       -PRIMER_FIRST_BASE_INDEX => '1'
+                                       -PRIMER_EXPLAIN_FLAG => '1'
+                                       -PRIMER_PRODUCT_SIZE => '185'
+                                       );
+  # get the amplified region
+  my $amplified_sequence = $primed_seq->get_amplified_sequence();
 
 =head1 DESCRIPTION
 
-This module is a slightly glorified capsule containg a primed sequence. It was
+This module is a slightly glorified capsule containg a primed seqBuence. It was
 created to address the fact that a primer is more the a seqfeature and there
 need to be ways to represent the primer-sequence complex and the behaviors and
 attributes that are associated with the complex.

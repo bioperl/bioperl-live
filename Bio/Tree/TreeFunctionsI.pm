@@ -16,16 +16,16 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
 
 =head1 SYNOPSIS
 
-use Bio::TreeIO;
-my $in = new Bio::TreeIO(-format => 'newick', -file => 'tree.tre');
+  use Bio::TreeIO;
+  my $in = new Bio::TreeIO(-format => 'newick', -file => 'tree.tre');
 
-my $tree = $in->next_tree;
+  my $tree = $in->next_tree;
 
-my @nodes = $tree->find_nodes('id1');
+  my @nodes = $tree->find_nodes('id1');
 
-if( $tree->is_monophyletic(-clade => @nodes, -outgroup => $outnode) ){
+  if( $tree->is_monophyletic(-clade => @nodes, -outgroup => $outnode) ){
 
-}
+  }
 
 =head1 DESCRIPTION
 
@@ -89,7 +89,6 @@ use  Bio::Tree::TreeI;
  Args    : text string to search for
            OR
            -fieldname => $textstring
-         
 
 =cut
 

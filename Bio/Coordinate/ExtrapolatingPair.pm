@@ -82,6 +82,34 @@ use Bio::Coordinate::Pair;
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
+
+    my($strict) =
+	$self->_rearrange([qw(STRICT
+			     )],
+			 @args);
+
+    $strict  && $self->strict($strict);
+    return $self;
+}
+
+
+=head2 strict
+
+ Title   : strict
+ Usage   : $obj->strict(1);
+ Function: Set and read the strictput coordinate system.
+ Example :
+ Returns : value of input system
+ Args    : boolean
+
+=cut
+
+sub strict {
+   my ($self,$value) = @_;
+   if( defined $value) {
+       $self->{'_strict'} = 1 if $value;
+   }
+   return $self->{'_strict'};
 }
 
 
@@ -95,7 +123,7 @@ sub new {
            In extrapolating coodinate system there is no location zero.
            Locations are  
  Example :
- Returns : new value in the output coordiante system
+ Returns : new value in the output coordinate system
  Args    : integer
 
 =cut
@@ -121,16 +149,25 @@ sub map {
    $start-- if $start < 1;
    $end-- if $end < 1;
 
-   my $match = Bio::Location::Simple->new(-start => $start,
-					  -end => $end,
-					  -strand => $self->strand,
-					  -seq_id => $self->out->seq_id,
-					  -location_type => $value->location_type
-					 );
+   # strict prevents matches outside stated range
+   if ($self->strict) {
+       return undef if $start < 0 and $end < 0;
+       return undef if $start > $self->out->end;
+       $start = 1 if $start < 0;
+       $end = $self->out->end if $end > $self->out->end;
+   }
+
+   my $match = Bio::Location::Simple->
+       new(-start => $start,
+	   -end => $end,
+	   -strand => $self->strand,
+	   -seq_id => $self->out->seq_id,
+	   -location_type => $value->location_type
+	  );
    $match->strand($match->strand * $value->strand) if $value->strand;
    bless $match, 'Bio::Coordinate::Result::Match';
    $result->add_location($match);
-
+   return $result;
 }
 
 1;

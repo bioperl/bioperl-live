@@ -82,8 +82,6 @@ use Bio::Search::HSP::GenericHSP;
  Function: Builds a new Bio::Search::HSP::WABAHSP object 
  Returns : Bio::Search::HSP::WABAHSP
  Args    : -hmmstate_seq => the string representing the state output from WABA
-    
-
 
 =cut
 

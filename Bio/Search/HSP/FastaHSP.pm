@@ -16,17 +16,17 @@ Bio::Search::HSP::FastaHSP - HSP object for FASTA specific data
 
 =head1 SYNOPSIS
 
-# get a FastaHSP from a SearchIO stream
-my $in = new Bio::SearchIO(-format => 'fasta', -file => 'filename.fasta');
+  # get a FastaHSP from a SearchIO stream
+  my $in = new Bio::SearchIO(-format => 'fasta', -file => 'filename.fasta');
 
-while( my $r = $in->next_result) {
-    while( my $hit = $r->next_result ) {
-         while( my $hsp = $hit->next_hsp ) {
-            print "smith-waterman score (if available): ", 
-                  $hsp->sw_score(),"\n";
-         }
-    }
-}
+  while( my $r = $in->next_result) {
+      while( my $hit = $r->next_result ) {
+           while( my $hsp = $hit->next_hsp ) {
+              print "smith-waterman score (if available): ", 
+                    $hsp->sw_score(),"\n";
+           }
+      }
+  }
 
 =head1 DESCRIPTION
 

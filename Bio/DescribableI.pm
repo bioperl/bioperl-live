@@ -29,7 +29,6 @@ Bio::DescribableI - interface for objects with human readable names and descript
 This interface describes methods expected on describable objects, ie
 ones which have human displayable names and descriptions
 
- 
 =head1 FEEDBACK
 
 =head2 Mailing Lists

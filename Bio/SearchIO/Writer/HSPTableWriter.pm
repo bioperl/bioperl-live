@@ -233,7 +233,7 @@ sub to_string {
     my $str = $include_labels ? $self->column_labels() : '';
     my $func_ref = $self->row_data_func;
     my $printf_fmt = $self->printf_fmt;
-    
+
     while( my $hit = $result->next_hit) {
 	while(my $hsp = $hit->next_hsp) {
 	    my @row_data  = &{$func_ref}($result, $hit, $hsp);

@@ -517,7 +517,7 @@ sub alphabet {
  Title   : desc or description
  Usage   : $obj->desc($newval)
  Function: Get/set description of the sequence.
-           
+
            This is aliased to description for compliance to the 
            Bio::DescribeableI interface
  Example :

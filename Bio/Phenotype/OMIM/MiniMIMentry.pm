@@ -28,12 +28,12 @@ MiniMIMentry - Representation of a Mini MIM entry
 =head1 SYNOPSIS
 
   use Bio::Phenotype::OMIM::MiniMIMentry;
-  
+
   $mm = Bio::Phenotype::OMIM::MiniMIMentry->new( -description  => "The central form of ...",
                                                  -created      => "Victor A. McKusick: 6/4/1986",
                                                  -contributors => "Kelly A. Przylepa - revised: 03/18/2002",
                                                  -edited       => "alopez: 06/03/1997" );
-                                                  
+
 
 =head1 DESCRIPTION
 
@@ -102,7 +102,7 @@ use Bio::Root::Object;
                                                           -created      => "Victor A. McKusick: 6/4/1986",
                                                           -contributors => "Kelly A. Przylepa - revised: 03/18/2002",
                                                           -edited       => "alopez: 06/03/1997" );
-                                                                      
+
  Function: Creates a new MiniMIMentry object.
  Returns : A new MiniMIMentry object.
  Args    : -description  => a description

@@ -31,18 +31,17 @@ GOterm - representation of GO terms
                                       -name        => "1-aminocyclopropane-1-carboxylate synthase",
                                       -definition  => "Catalysis of ...",
                                       -is_obsolete => 0,
-                                      -comment     => "" );  
-           
-  $term->add_definition_references( @refs );                                    
+                                      -comment     => "" );
+
+  $term->add_definition_references( @refs );
   $term->add_secondary_GO_ids( @ids );
-  $term->add_aliases( @aliases );                               
-  
+  $term->add_aliases( @aliases );
   foreach my $dr ( $term->each_definition_reference() ) {
       print $dr, "\n";
   }
-  
+
   # etc.
-    
+
 
 =head1 DESCRIPTION
 

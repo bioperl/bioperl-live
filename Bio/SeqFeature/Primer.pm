@@ -39,7 +39,7 @@ or the web:
 
 =head1 AUTHOR - Chad Matsalla
 
-Chad Matsalla <lt>bioinformatics1@dieselwurks.comE<gt>
+Chad Matsalla E<lt>bioinformatics1@dieselwurks.comE<gt>
 
 =head1 DEVELOPERS
 

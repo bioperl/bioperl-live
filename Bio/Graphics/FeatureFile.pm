@@ -669,7 +669,7 @@ sub code_setting {
 
 =over 4
 
-=item $flag = $features->safe([$flag]);
+=item $flag = $features-E<gt>safe([$flag]);
 
 This gets or sets and "safe" flag.  If the safe flag is set, then
 calls to setting() will invoke code_setting(), allowing values that

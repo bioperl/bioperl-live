@@ -36,7 +36,7 @@ Bio::Search::HSP::HSPI - Interface for a High Scoring Pair in a similarity searc
     $homology_string = $hsp->homology_string;
 
     $len = $hsp->length( ['query'|'hit'|'total'] );
-  
+
     $rank = $hsp->rank;
 
 =head1 DESCRIPTION
@@ -363,7 +363,7 @@ sub get_aln {
              class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
                           (default = identical)
                           (can be shortened to 'id' or 'cons')
-                          
+
              collapse  = boolean, if true, consecutive positions are merged
                          using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
                          collapses to "1-5 7 9-11". This is useful for 
@@ -439,7 +439,6 @@ These methods come from Bio::SeqFeature::SimilarityPair
  Returns : +1 or -1 (0 if unknown)
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
            'query' to retrieve the query strand (default)
-      
 
 =cut
 
@@ -467,7 +466,6 @@ sub strand {
  Returns : integer
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the start of the subject
            'query' to retrieve the query start (default)
-      
 
 =cut
 
@@ -495,7 +493,6 @@ sub start {
  Returns : integer
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the end of the subject
            'query' to retrieve the query end (default)
-      
 
 =cut
 

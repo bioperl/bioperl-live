@@ -687,5 +687,5 @@ sub get_rejects {
   > 	  fprintf(stderr, "Vector: %s\n", seqs[i].name);
 
 =cut
-    
+
 1;

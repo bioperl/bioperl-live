@@ -35,12 +35,12 @@ OMIMparser - parser for the OMIM database
 
   $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => "/path/to/genemap",
                                                         -omimtext => "/path/to/omim.txt" );
-                                                        
+
   while ( my $omim_entry = $omim_parser->next_phenotype() ) {
     # This prints everything.
     print( $omim_entry->to_string() );
     print "\n\n";
-    
+
     # This gets individual data (some of them object-arrays)
     # (and illustrates the relevant methods of OMIMentry).
     my $numb  = $omim_entry->MIM_number();                     # *FIELD* NO
@@ -57,7 +57,7 @@ OMIMparser - parser for the OMIM database
     my $sa    = $omim_entry->additional_references();          # *FIELD* SA
     my $cs    = $omim_entry->clinical_symptoms();              # *FIELD* CS
     my $comm  = $omim_entry->comment();                        # from genemap
-    
+
     my $mini_mim   = $omim_entry->miniMIM();                   # *FIELD* MN
       # Array of Bio::Phenotype::OMIM::MiniMIMentry objects.
       # class Bio::Phenotype::OMIM::MiniMIMentry
@@ -66,8 +66,7 @@ OMIMparser - parser for the OMIM database
       # - created()
       # - contributors()
       # - edited() 
-       
-   
+
     my @corrs      = $omim_entry->each_Correlate();            # from genemap
       # Array of Bio::Phenotype::Correlate objects.
       # class Bio::Phenotype::Correlate
@@ -77,12 +76,11 @@ OMIMparser - parser for the OMIM database
       # - species() (always mouse)
       # - type() ("OMIM mouse correlate")
       # - comment() 
-    
-    
+
     my @refs       = $omim_entry->each_Reference();            # *FIELD* RF
       # Array of Bio::Annotation::Reference objects.
-    
-    
+
+
     my @avs        = $omim_entry->each_AllelicVariant();       # *FIELD* AV
       # Array of Bio::Phenotype::OMIM::OMIMentryAllelicVariant objects.
       # class Bio::Phenotype::OMIM::OMIMentryAllelicVariant
@@ -95,17 +93,15 @@ OMIMparser - parser for the OMIM database
       # - aa_mut (used if information in the form "LYS123ARG" is found)
       # - position (used if information in the form "LYS123ARG" is found)
       # - additional_mutations (used for e.g. "1-BP DEL, 911T")
-    
+
     my @cps        = $omim_entry->each_CytoPosition();         # from genemap
       # Array of Bio::Map::CytoPosition objects.
-    
-    
+
     my @gss        = $omim_entry->each_gene_symbol();          # from genemap
       # Array of strings.
-    
-    
+
     # do something ...
-  }                                                      
+  }
 
 =head1 DESCRIPTION
 

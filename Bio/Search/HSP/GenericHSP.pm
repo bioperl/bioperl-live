@@ -564,8 +564,9 @@ sub homology_string{
             arg 2: [optional] integer length value to set for specific type
 
 =cut
+
 sub length {
-    
+
     my $self = shift;
     my $type = shift;
 
@@ -593,6 +594,8 @@ sub length {
  Function: shortcut  length('hsp')
  Returns : floating point between 0 and 100 
  Args    : none
+
+=cut
 
 sub hsp_length { return shift->length('hsp', shift); }
 
@@ -985,7 +988,6 @@ sub bits {
  Returns : +1 or -1 (0 if unknown)
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the strand of the subject
            'query' to retrieve the query strand (default)
-      
 
 =cut
 

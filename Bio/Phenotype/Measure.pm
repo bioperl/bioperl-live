@@ -28,23 +28,22 @@ Measure - Representation of context/value(-range)/unit triplets
 =head1 SYNOPSIS
 
   use Bio::Phenotype::Measure;
-  
+
   my $measure = Bio::Phenotype::Measure->new( -context     => "length",
                                               -description => "reduced length in 4(Tas1r3)",
                                               -start       => 0,
                                               -end         => 15,
                                               -unit        => "mm",
                                               -comment     => "see also Miller et al" );
-    
+
   print $measure->context();
   print $measure->description();
   print $measure->start();
   print $measure->end();
   print $measure->unit();
   print $measure->comment();
-  
-  print $measure->to_string(); 
-    
+
+  print $measure->to_string();
 
 =head1 DESCRIPTION
 

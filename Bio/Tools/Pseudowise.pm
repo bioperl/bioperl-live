@@ -1,4 +1,4 @@
-# BioPerl module for Bio::Tools::Psuedowise
+# BioPerl module for Bio::Tools::Pseudowise
 #
 # Copyright Fugu Team 
 #

@@ -107,6 +107,7 @@ BEGIN {
            -linelength  => integer of how long a sequence lines should be 
            -idlinebreak => insert a line break after the sequence id
                            so that sequence starts on the next line 
+
 =cut
 
 sub _initialize {

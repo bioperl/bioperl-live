@@ -28,21 +28,20 @@ Correlate - Representation of a correlating phenotype in a given species
 =head1 SYNOPSIS
 
   use Bio::Phenotype::Correlate;
-  
+
   $co = Bio::Phenotype::Correlate->new( -name        => "4(Tas1r3)",
                                         -description => "mouse correlate of human phenotype MIM 605865",
                                         -species     => $mouse,
                                         -type        => "homolog",
                                         -comment     => "type=homolog is putative" );
-    
+
   print $co->name();
   print $co->description();
   print $co->species()->binomial();
   print $co->type();
   print $co->comment();
-  
-  print $co->to_string(); 
-    
+
+  print $co->to_string();
 
 =head1 DESCRIPTION
 

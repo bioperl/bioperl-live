@@ -94,6 +94,7 @@ use Bio::Tree::Node;
            -desc      => description of node
            -id        => unique id for node
            -nhx       => hashref of NHX tags and values
+
 =cut
 
 sub new {

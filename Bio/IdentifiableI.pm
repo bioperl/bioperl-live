@@ -53,8 +53,9 @@ Helper functions are provided to make useful strings being
 
 
   lsid_string - string complying to the LSID standard
-  namespace_string - string complying to the usual convention of namespace:object_id.version
- 
+  namespace_string - string complying to the usual convention of 
+     namespace:object_id.version
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -201,7 +202,6 @@ sub lsid_string {
  Title   : namespace_string
  Usage   : $string   = $obj->namespace_string()
  Function: a string which gives the common notation of
- 
            namespace:object_id.version
 
  Returns : A scalar

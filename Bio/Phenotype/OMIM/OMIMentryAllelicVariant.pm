@@ -28,7 +28,7 @@ OMIMentryAllelicVariant - Representation of a allelic variant of the OMIM databa
 =head1 SYNOPSIS
 
   use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
-  
+
   $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number               => ".0001",
                                                             -title                => "ALCOHOL INTOLERANCE",
                                                             -symbol               => "ALDH2*2",
@@ -36,7 +36,7 @@ OMIMentryAllelicVariant - Representation of a allelic variant of the OMIM databa
                                                             -aa_ori               => "GLU",
                                                             -aa_mut               => "LYS",
                                                             -position             => 487,
-                                                            -additional_mutations => "IVS4DS, G-A, +1" ); 
+                                                            -additional_mutations => "IVS4DS, G-A, +1" );
 
 =head1 DESCRIPTION
 

@@ -209,6 +209,8 @@ sequence objects into an array like this:
 Other operations, such as read(), sysread(), write(), close(), and printf() 
 are not supported.
 
+=over 1
+
 =item -flush
 
 By default, all files (or filehandles) opened for writing alignments
@@ -225,6 +227,7 @@ evaluates as defined but false:
                           -flush  => 0; # go as fast as we can!
   while($seq = $clustal->next_aln) { $msf->write_aln($seq) }
 
+=back
 
 =head1 OBJECT METHODS
 

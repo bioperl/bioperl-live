@@ -25,7 +25,7 @@ alignment output
     while( my $result = $in->next_result ) {
 	while( my $hit = $result->next_hit ) {
 	    while( my $hsp = $result->next_hsp ) {
-		
+
 	    }
 	}
     }

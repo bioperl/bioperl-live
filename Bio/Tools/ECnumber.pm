@@ -31,67 +31,66 @@ ECnumber - representation of EC numbers
 
   # Creation of ECnumber objects
   # ----------------------------
-  
+
   my $EC1 = Bio::Tools::ECnumber->new( -ec_string => "4.3.2.1" );
   my $EC2 = Bio::Tools::ECnumber->new( -ec_string => "EC 1.1.1.1" );
   my $EC3 = Bio::Tools::ECnumber->new();
-  
-  
+
+
   # Copying
   # -------
-  
+
   my $EC4 = $EC1->copy();
-  
-  
+
+
   # Modification of ECnumber objects
   # --------------------------------
-  
+
   print $EC3->EC_string( "1.01.01.001" ); # Prints "1.1.1.1".
-  
-  
+
+
   # To string
   # ---------
-  
+
   print $EC3->EC_string();
-  
+
   # or:
-  
+
   print $EC3->to_string();
-  
-  
-  
+
+
+
   # Test for equality
   # -----------------
-  
+
   # Against ECnumber object:
   if ( $EC3->is_equal( $EC2 ) ) { # Prints "equal".
-      print "equal"; 
+      print "equal";
   }
-  
+
   # Against string representation of EC number:
   if ( ! $EC3->is_equal( "1.1.1.-" ) ) { # Prints "not equal".
       print "not equal";
   }
-  
- 
+
+
   # Test for membership
   # -------------------
-   
+
   my $EC5 = Bio::Tools::ECnumber->new( -ec_string => "4.3.2.-" ); 
-   
+
   # Against ECnumber object.
   if ( $EC1->is_member( $EC5 ) ) { # Prints "member".
       print "member"; 
   }
- 
-  
+
+
   # Against string representation of EC number.
   if ( ! $EC1->is_member( "4.3.1.-" ) ) { # Prints "not member".
       print "not member";
   }
- 
-  
- 
+
+
 
 =head1 DESCRIPTION
 

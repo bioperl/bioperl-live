@@ -394,6 +394,7 @@ sub get_sequence{
 
  Args    : Either a sequence object or a string of 
            just DNA sequence characters
+
 =cut
 
 sub translate {
@@ -436,6 +437,7 @@ sub translate {
 
  Args    : Either a sequence object or a string of 
            just DNA sequence characters
+
 =cut
 
 sub translate_as_string {
@@ -459,6 +461,7 @@ sub translate_as_string {
 
  Args    : Either a sequence object or a string of 
            just DNA sequence characters
+
 =cut
 
 sub reverse_complement {
@@ -521,6 +524,7 @@ sub revcom {
 
  Args    : Either a sequence object or a string of 
            just DNA sequence characters
+
 =cut
 
 sub reverse_complement_as_string {
@@ -543,6 +547,7 @@ sub reverse_complement_as_string {
 
  Args    : Either a sequence object or a string of 
            just DNA sequence characters
+
 =cut
 
 sub revcom_as_string {

@@ -27,37 +27,34 @@ PhenotypeI - An interface for classes modeling phenotypes
 =head1 SYNOPSIS
 
   #get Bio::Phenotype::PhenotypeI somehow
-  
+
   print $phenotype->name(), "\n";
   print $phenotype->description(), "\n";
- 
+
   my @keywords = ( "achondroplasia", "dwarfism" );
   $phenotype->add_keywords( @keywords ); 
   foreach my $keyword ( $phenotype->each_keyword() ) {
        print $keyword, "\n";
   }
   $phenotype->remove_keywords();
- 
- 
+
+
   foreach my $gene_symbol ( $phenotype->each_gene_symbol() ) {
        print $gene_symbol, "\n";
   }
-   
+
   foreach my $corr ( $phenotype->each_Correlate() ) {
        # Do something with $corr
   }
-  
+
   foreach my $var ( $phenotype->each_Variant() ) {
        # Do something with $var (mutation)
   }
-  
+
   foreach my $measure ( $phenotype->each_Measure() ) {
        # Do something with $measure
   }
-   
- 
-  
-  
+
 
 =head1 DESCRIPTION
 
@@ -898,16 +895,12 @@ sub add_Genotypes {
 
 sub remove_Genotypes {
     my ( $self ) = @_;
-    
+
     my @a = $self->each_Genotype();
     $self->{ "_genotypes" } = [];
     return @a;
 
 } # remove_Genotypes
-
-
-
-
 
 
 =head2 _check_ref_type
@@ -919,6 +912,7 @@ sub remove_Genotypes {
  Args    : The value to be checked, the expected class.
 
 =cut
+
 sub _check_ref_type {
     my ( $self, $value, $expected_class ) = @_;
 

@@ -91,6 +91,7 @@ $LINELENGTH = 60;
                            in each line of the alignment.
 
            -linelength=> Set the alignment output line length (default 60)
+
 =cut
 
 sub _initialize {
