@@ -842,6 +842,50 @@ sub chains {
 }
 
 
+=head2 residues
+
+    Title : residues
+    Usage : returns array of residue identifiers for all residues in
+    the output file, or in a specific chain
+    Function :
+    Example : @residues_ids = $dssp_obj->residues()
+    Returns : array of residue identifiers
+    Args : if none => returns residue ids of all residues of all
+    chains (in order); if chain id is given, returns just the residue
+    ids of residues in that chain
+
+
+=cut
+
+# Can't use the standard interface for getting the amino acid,
+# pdb_resnum, etc. in this method because we don't *know* the residue
+# indentifiers - we are building a list of them.
+sub residues {
+    my $self  = shift;
+    my $chain = shift;
+    my @residues;
+    my $num_res = $self->_numResLines();
+    my $aa;
+    for ( my $i = 1; $i <= $num_res; $i++ ) {
+	# find what character was in the slot for tha amino acid code,
+	# if it's a '!' we know this is not a *real* amino acid, it's
+	# a chain discontinuity marker 
+	$aa = $self->{ 'Res' }->[ $i ]->{ 'amino_acid' };
+	if ( $aa ne '!' ) {
+	    if ( !$chain ||
+		 $chain eq $self->{ 'Res' }->[ $i ]->{ 'pdb_chain' } ) {
+		push( @residues, 
+		      $self->{ 'Res' }->[ $i ]->{ 'pdb_resnum' }.
+		      $self->{ 'Res' }->[ $i ]->{ 'insertionco' }.
+		      ":".
+		      $self->{ 'Res' }->[ $i ]->{ 'pdb_chain' } );
+	    }
+	}
+    }
+    return @residues;
+}
+
+
 =head2 getSeq
 
  Title         : getSeq
@@ -1165,23 +1209,27 @@ sub _toDsspKey {
     # Now find the residue which fits this description.  Linear search is
     # probably not the best way to do this, but oh well...
     for ( my $i = 1; $i <= $self->_numResLines(); $i++ ) {
-	if ( $key_num == $self->{'Res'}->[$i]->{'pdb_resnum'} ) {
-	    if ( $chain_id ) { # if a chain was specified
-	 	if ( $chain_id eq $self->{'Res'}->[$i]->{'pdb_chain'} ) {
-		    # and it's the right one
-		    if ( $ins_code ) { # if insertion code was specified
-			if ( $ins_code eq $self->{'Res'}->[$i]->{'insertionco'} ) {
-			    # and it's the right one
+	unless ( ($self->{'Res'}->[$i]->{'term_sig'} eq '*') ||
+		 ($self->{'Res'}->[$i]->{'amino_acid'} eq '!') ) {
+	    # chain break 'residue', doesn't match anything
+	    if ( $key_num == $self->{'Res'}->[$i]->{'pdb_resnum'} ) {
+		if ( $chain_id ) { # if a chain was specified
+		    if ( $chain_id eq $self->{'Res'}->[$i]->{'pdb_chain'} ) {
+			# and it's the right one
+			if ( $ins_code ) { # if insertion code was specified
+			    if ( $ins_code eq $self->{'Res'}->[$i]->{'insertionco'} ) {
+				# and it's the right one
+				return $i;
+			    }
+			}
+			else { # no isertion code specified, this is it
 			    return $i;
 			}
 		    }
-		    else { # no isertion code specified, this is it
-			return $i;
-		    }
 		}
-	    }
-	    else { # no chain was specified
-		return $i;
+		else { # no chain was specified
+		    return $i;
+		}
 	    }
 	}
     }
@@ -1301,7 +1349,10 @@ sub _parse {
 	}
     }
 
-    while ( chomp( $cur = <$file> ) ) {
+    while ( $cur = <$file> ) {
+	if ( $cur =~ m/^\s*$/ ) {
+	    next;
+	}
 	$res_num = substr( $cur, 0, 5 );
 	$res_num =~ s/\s//g;
 	$self->{ 'Res' }->[ $res_num ] = &_parseResLine( $cur );
