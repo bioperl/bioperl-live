@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # bioperl module for Bio::PrimarySeq
 #
@@ -155,15 +155,13 @@ package Bio::PrimarySeq;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Object;
+use Bio::Root::RootI;
 use Bio::PrimarySeqI;
 
 
-@ISA = qw(Bio::Root::Object Bio::PrimarySeqI);
+@ISA = qw(Bio::Root::RootI Bio::PrimarySeqI);
 
-# new() is inherited from Bio::Root::Object
+# new() is inherited from Bio::Root::RootI
 
 # _initialize is where the heavy stuff will happen when new is called
 
@@ -271,8 +269,8 @@ sub subseq {
 =cut
 
 sub length {
-   my ($self)= @_;
-
+   my ($self)= @_;   
+   return 0 if ( !defined $self->{'seq'} );
    return CORE::length($self->{'seq'});
 }
 
@@ -561,18 +559,4 @@ sub _guess_type {
 
 }
 
-
-
 1;
-
-
-
-
-
-
-
-
-
-
-
-
