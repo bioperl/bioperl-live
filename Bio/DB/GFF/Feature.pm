@@ -924,7 +924,7 @@ sub has_tag {
   my $tag  = shift;
   my %att  = $self->attributes;
   my %tags = map {$_=>1} ( $self->all_tags );
-  print map { $_, '=>', $tags{$_}, "\n" } keys %tags;
+  
   return $tags{$tag};
 }
 
