@@ -214,6 +214,8 @@ sub addSeq {
 
     }
     else {
+	$self->{'order'}->{$order} = $name;
+
 	if (not exists( $self->{'start_end_lists'}->{$id})) {
 	    $self->{'start_end_lists'}->{$id} = [];
 	}
@@ -221,7 +223,7 @@ sub addSeq {
     }
 
     $self->{'seq'}->{$name} = $seq;
-    $self->{'order'}->{$order} = $name;
+
 
 }
 
