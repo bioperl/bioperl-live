@@ -76,11 +76,11 @@ use vars '%STRAND_OPTIONS';
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand options
   %STRAND_OPTIONS = map { $_,$_ }
-    qw(
-       STRONG # ranges must have the same strand
-       WEAK   # ranges must have the same strand or no strand
-       IGNORE # ignore strand information
-       );
+    (
+       'STRONG', # ranges must have the same strand
+       'WEAK',   # ranges must have the same strand or no strand
+       'IGNORE', # ignore strand information
+     );
 }
 
 # utility method

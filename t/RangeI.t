@@ -18,16 +18,19 @@
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..5\n"; 
-	use vars qw($loaded); }
+use vars qw(@funcs);
+BEGIN {
+  @funcs = qw(start end length strand);
+  $| = 1; print "1..", scalar(@funcs) + 1, "\n"; 
+  use vars qw($loaded);
+}
 END {print "not ok 1\n" unless $loaded;}
 
 use lib '../';
-use Bio::Range;
+use Bio::RangeI;
 
 $loaded = 1;
 print "ok 1\n";    # 1st test passes.
-
 
 ## End of black magic.
 ##
@@ -35,31 +38,17 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-
-my $range = Bio::Range->new(-start=>10,
-                            -end=>20,
-			    -strand=>"+1");
-print "ok 2\n"; 
-
-my $range2 = Bio::Range->new(-start=>15,
-                             -end=>25,
-			     -strand=>"+1");
-
-print "ok 3\n";
-
-my ($start, $stop);
-
-($start, $stop) = $range->union($range2);
-if( $start == 10 && $stop == 25 ) {
-   print "ok 4\n";
-} else {
-   print "not ok 4\n";
+my $i = 1;
+my $func;
+while ($func = shift @funcs) {
+  $i++;
+  if(exists $Bio::RangeI::{$func}) {
+    print "ok $i\n";
+    eval {
+      $Bio::RangeI::{$func}->();
+    };
+    print "not ok $i\n" unless $@;
+  } else {
+    print "not ok $i\n";
+  }
 }
-
-($start, $stop) = $range->intersection($range2);
-if( $start == 15 && $stop == 20 ) {
-   print "ok 5\n";
-} else {
-   print "not ok 5\n";
-}
-

@@ -102,7 +102,7 @@ use vars qw(@ISA);
   Usage   : $range = Bio::Range->new(-start => 100, -stop=> 200, -strand = +1);
   Function: generates a new Bio::Range
   Returns : a new range
-  Args    : two of (-start, -stop, -length) - the third is calculated
+  Args    : two of (-start, -stop, '-length') - the third is calculated
           : -strand (defaults to 0)
 
 =cut
@@ -111,11 +111,11 @@ sub new {
   my $thingy = shift;
   my $package = ref($thingy) || $thingy;
   my $self = bless {}, $package;
-  my $usageMessage = "Specify exactly two of -start, -end, -length";
+  my $usageMessage = "Specify exactly two of -start, -end, '-length'";
   my %args = @_;
   $self->strand($args{-strand} || 0);
   
-  if($args{-start} && $args{-end} && $args{-length}) {
+  if($args{-start} && $args{-end} && $args{'-length'}) {
     confess $usageMessage;
   }
   
@@ -123,14 +123,14 @@ sub new {
     $self->start($args{-start});
     if($args{-end}) {
       $self->end($args{-end});
-    } elsif($args{-length}) {
-      $self->end($self->start()+$args{-length}-1);
+    } elsif($args{'-length'}) {
+      $self->end($self->start()+$args{'-length'}-1);
     } else {
       confess $usageMessage;
     }
-  } elsif($args{-end} && $args{-length}) {
+  } elsif($args{-end} && $args{'-length'}) {
     $self->end($args{-end});
-    $self->start($self->end() - $args{-length} + 1);
+    $self->start($self->end() - $args{'-length'} + 1);
   } else {
     confess $usageMessage;
   }
@@ -216,7 +216,7 @@ sub length {
   if(@_) {
     confess ref($self), "->length() is read-only";
   }
-  return $self->end() - self->start() + 1;
+  return $self->end() - $self->start() + 1;
 }
 
 =head2 toString
