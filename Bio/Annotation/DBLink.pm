@@ -68,7 +68,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($database, $primary_id, $optional_id, $comment, $tag, $ns, $auth, $v) =
+  my ($database, $primary_id, $optional_id, $comment, $tag, $ns, $auth, $v, $url) =
       $self->_rearrange([qw(DATABASE
 			    PRIMARY_ID
 			    OPTIONAL_ID
@@ -77,6 +77,7 @@ sub new {
 			    NAMESPACE
 			    AUTHORITY
 			    VERSION
+			    URL
 			    )], @args);
   
   $database    && $self->database($database);
@@ -88,6 +89,7 @@ sub new {
   $ns          && $self->namespace($ns); # this will override $database
   $auth        && $self->authority($auth);
   defined($v)  && $self->version($v);
+  defined($url)  && $self->version($url);
 
   return $self;
 }
@@ -305,6 +307,23 @@ sub version{
     return $self->{'version'} = shift if @_;
     return $self->{'version'};
 }
+
+
+=head2 url
+
+ Title   : url
+ Usage   : $url    = $obj->url()
+ Function: URL which is associated with this DB link
+ Returns : string, full URL descriptor
+
+=cut
+
+sub url {
+    my $self = shift;
+    return $self->{'url'} = shift if @_;
+    return $self->{'url'};
+}
+
 
 =head2 authority
 
