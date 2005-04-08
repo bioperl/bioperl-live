@@ -868,6 +868,33 @@ S1: 32 (17.6 bits)
       reports but it's still possible to find sets of options that
       SearchIO can't parse.
     </para>
+	 <para>
+		You might also find it useful not to have to create 
+		reports as files. SearchIO, like <ulink
+	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>SeqIO</citetitle></ulink>, is aware of STDIN so you can pipe output from
+		the search application directly to it (on operating systems 
+		that allow such things). It could look something like 
+		this:
+	 </para>
+	 <para></para>
+	 <para>
+		<programlisting>
+use strict;
+use Bio::SearchIO;
+
+my $fh;
+my $fasta   = "/usr/local/bin/fasta34";
+my $library = "hs.seq";
+my $query   = "deserts.seq";
+my $options = "-E 0.01 -m 0 -d 10 -Q";
+my $command = "$fasta $options $query $library";
+
+open $fh,"$command |";
+
+my $searchio  = Bio::SearchIO->new(-format => 'fasta',
+                                   -fh => $fh);
+		</programlisting>
+	 </para>
   </section>
 
   <section id="implementation">
