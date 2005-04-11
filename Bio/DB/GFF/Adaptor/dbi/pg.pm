@@ -1079,4 +1079,33 @@ sub update_sequences {
   1;
 }
 
+=head2 make_features_by_name_where_part
+
+ Title   : make_features_by_name_where_part
+ Usage   : $db->make_features_by_name_where_part
+ Function: Overrides a function in Bio::DB::GFF::Adaptor::dbi to insure
+           that searches will be case insensitive. It creates the SQL
+           fragment needed to select a feature by its group name & class
+ Returns : a SQL fragment and bind arguments
+ Args    : see below
+ Status  : Protected
+
+=cut
+
+sub make_features_by_name_where_part {
+  my $self = shift;
+  my ($class,$name) = @_;
+
+  $name =~ tr/*/%/;
+
+  #Have to use ILIKE no matter what unfortunately, unless
+  #we add a lower(gname) index to fgroup. Then we could add
+  #a conditional to use this line with wildcard searches and
+  #this without: 'lower(fgroup.gname) = lower(?)" which should
+  #be faster
+  return ("fgroup.gclass=? AND fgroup.gname ILIKE ?",$class,$name);
+}
+
+
+
 1;
