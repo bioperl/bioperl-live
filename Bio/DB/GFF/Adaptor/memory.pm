@@ -206,7 +206,7 @@ sub get_abscoords {
     my $empty_class_name;
     if (defined $feature->{gname} and defined $feature->{gclass}){
       my $matches = $feature->{gclass} eq $class
-	&& ($regexp ? $feature->{gname} =~ /$name/i : $feature->{gname} eq $name);
+	&& ($regexp ? $feature->{gname} =~ /$name/i : lc($feature->{gname}) eq lc($name));
       $no_match_class_name = !$matches;  # to accomodate Shuly's interesting logic
     }
 
@@ -239,7 +239,7 @@ sub get_abscoords {
 
   my @found_segments;
   foreach my $ref (keys %refs) {
-    next if defined($refseq) and $ref ne $refseq;
+    next if defined($refseq) and lc($ref) ne lc($refseq);
     my @found = @{$refs{$ref}};
     my ($strand,$start,$stop,$name);
     foreach (@found) {
@@ -343,7 +343,7 @@ sub do_attributes{
   my @result;
   for my $attr (@{$feature->{attributes}}) {
     my ($attr_name,$attr_value) = @$attr ;
-    if (defined($tag) && $attr_name eq $tag){push @result,$attr_value;}
+    if (defined($tag) && lc($attr_name) eq lc($tag)){push @result,$attr_value;}
     elsif (!defined($tag)) {push @result,($attr_name,$attr_value);}
   }
   return @result;
@@ -366,7 +366,7 @@ sub _feature_by_attribute{
       my ($attr_name,$attr_value) = @$attr ;
       #there could be more than one set of attributes......
       foreach (keys %$attributes) {
-	if ($_ eq $attr_name && $attributes->{$_} eq $attr_value){
+	if (lc($_) eq lc($attr_name) && lc($attributes->{$_}) eq lc($attr_value)) {
            $callback->($feature->{ref},
 	        $feature->{start},
 	        $feature->{stop},
@@ -407,7 +407,7 @@ sub get_features{
   $found_features = _get_features_by_search_options($data,$search,$options);
 
   # only true if the sort by group option was specified
-  @{$found_features} = sort {"$a->{gclass}:$a->{gname}" cmp "$b->{gclass}:$b->{gname}"} 
+  @{$found_features} = sort {lc("$a->{gclass}:$a->{gname}") cmp lc("$b->{gclass}:$b->{gname}")}
     @{$found_features} if $options->{sort_by_group} ;
 
   for my $feature (@{$found_features}) {  # only true if the sort by group option was specified
@@ -457,7 +457,7 @@ sub _feature_by_name {
 
   for my $feature (@{$self->{data}}) {
     $id++;
-    next unless ($regexp && $feature->{gname} =~ /$name/i) || $feature->{gname}  eq $name;
+    next unless ($regexp && $feature->{gname} =~ /$name/i) || lc($feature->{gname})  eq lc($name);
     next unless $feature->{gclass} eq $class;
 
     if ($location) {
@@ -563,7 +563,7 @@ sub get_types {
     my $feature_source = $feature->{source};
 
     if (defined $srcseq){
-      next unless $feature_ref eq $srcseq ;
+      next unless lc($feature_ref) eq lc($srcseq);
     }
 
     if (defined $class){ 
@@ -618,7 +618,7 @@ sub _get_features_by_search_options{
     my $feature_ref   = $feature->{ref};
 
     if (defined $refseq){
-      next unless $feature_ref eq $refseq;
+      next unless lc($feature_ref) eq lc($refseq);
     }
 
      if (defined $start or defined $stop) {
