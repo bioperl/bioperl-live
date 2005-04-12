@@ -1788,7 +1788,7 @@ sub no_residues {
     foreach my $seq ($self->each_seq) {
 	my $str = $seq->seq();
 
-	$count += ($str =~ s/[^A-Za-z]//g);
+	$count += ($str =~ s/[A-Za-z]//g);
     }
 
     return $count;
