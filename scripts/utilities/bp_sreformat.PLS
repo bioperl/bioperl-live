@@ -31,6 +31,7 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
                         idlinebreak       -- for phylip, makes it molphy format
                         percentages     -- for clustalw, show % id per line
 	                flat            -- don't show start-end in seqid
+                        linelength      -- line length for clustalw
 ";
 
 
@@ -55,7 +56,7 @@ if( $special ) {
     @extra = map { my @rc;
 		   if( /nointerleaved/) {
 		       @rc = ('-interleaved' => '0');
-		   } elsif( /idlength=(\d+)/ ) { @rc = ( '-idlength' => $1) } 
+		   } elsif( /(\S+)\=(\S+)/ ) { @rc = ( "-$1" => $2) } 
 	           else{ @rc = ("-$_" => 1) }
 		   @rc;
 	       } split(/[\s,]/,$special);
