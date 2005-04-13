@@ -261,6 +261,7 @@ sub result {
 						score     => $hit->{'score'},
 						zscore    => $hit->{'zscore'},
 						motif     => $hit->{'motif'},
+						site      => $hit->{'site'},
 						sequence  => $hit->{'sequence'},
 							},
 				);
