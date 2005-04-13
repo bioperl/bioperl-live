@@ -142,7 +142,7 @@ sub draw {
 sub boxes {
   my $self = shift;
   $self->fixup_glyph();
-  $self->SUPER::draw(@_);
+  $self->SUPER::boxes(@_);
 }
 
 sub is_utr {

@@ -2,7 +2,7 @@ package Bio::Graphics::Glyph;
 #use GD;
 
 use strict;
-use Carp 'croak';
+use Carp 'croak','cluck';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
 use Bio::Root::Version;
 use Bio::Root::Root;
@@ -796,6 +796,8 @@ sub draw_hat_connector {
   my $gd   = shift;
   my $color = shift;
   my ($top1,$bottom1,$left,$top2,$bottom2,$right) = @_;
+
+  cluck "gd object is $gd" unless ref $gd;
 
   my $center1  = ($top1 + $bottom1)/2;
   my $quarter1 = $top1 + ($bottom1-$top1)/4;
