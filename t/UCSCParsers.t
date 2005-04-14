@@ -15,7 +15,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 43;
+    $TESTCOUNT = 48;
     plan tests => $TESTCOUNT;
 }
 
@@ -35,7 +35,8 @@ ok($hit->name, 'sbay_c545');
 ok($hit->length, 28791);
 my $hsp    = $hit->next_hsp;
 ok($hsp->query->start,139871);
-ok($hsp->query->end,141473);
+ok($hsp->query->end,141472);
+ok($hsp->query->length, 1602);
 ok($hsp->query->strand, 1);
 ok($hsp->hit->strand, 1);
 my $q_gapblocks = $hsp->gap_blocks('query');
@@ -48,9 +49,11 @@ ok($q_gapblocks->[1]->[0],139921);
 $hsp       = $hit->next_hsp;
 $hsp       = $hit->next_hsp;
 ok($hsp->hit->start,27302);
-ok($hsp->hit->end,27469);
+ok($hsp->hit->end,27468);
+ok($hsp->hit->length,167);
 ok($hsp->query->start, 123814);
-ok($hsp->query->end, 123973);
+ok($hsp->query->end, 123972);
+ok($hsp->query->length, 159);
 ok($hsp->query->strand,-1);
 
 $q_gapblocks = $hsp->gap_blocks('query');
@@ -77,7 +80,8 @@ ok($hit->name, 'sequence_10');
 ok($hit->length, 1775);
 $hsp    = $hit->next_hsp;
 ok($hsp->query->start,1);
-ok($hsp->query->end,1776);
+ok($hsp->query->end,1775);
+ok($hsp->query->length,1775);
 ok($hsp->query->strand,1);
 ok($hsp->hit->strand,1);
 $q_gapblocks = $hsp->gap_blocks('query');
@@ -89,9 +93,10 @@ ok($q_gapblocks->[1]->[0],undef);
 
 $hsp       = $hit->next_hsp;
 ok($hsp->hit->start,841);
-ok($hsp->hit->end,1245);
+ok($hsp->hit->end,1244);
 ok($hsp->query->start, 841);
-ok($hsp->query->end, 1245);
+ok($hsp->query->end, 1244);
+ok($hsp->query->length, 404);
 ok($hsp->query->strand,-1);
 ok($hsp->hit->strand,1);
 
