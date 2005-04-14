@@ -249,26 +249,26 @@ sub next_result{
 	   $self->element({'Name' => 'Hsp_query-from',
 			   'Data' => $q_start + 1});
 	   $self->element({'Name' => 'Hsp_query-to',
-			   'Data' => $q_end + 1});
+			   'Data' => $q_end});
        } else { 
 	   $self->element({'Name' => 'Hsp_query-to',
 			   'Data' => $q_start + 1});
 	   $self->element({'Name' => 'Hsp_query-from',
-			   'Data' => $q_end + 1});
+			   'Data' => $q_end});
        }
        my $hsplen = $q_base_insert + $t_base_insert + 
 	   abs( $t_end - $t_start) + abs( $q_end - $q_start);
        $self->element({'Name' => 'Hsp_hit-from',
 		       'Data' => $t_start + 1 });
        $self->element({'Name' => 'Hsp_hit-to',
-		       'Data' => $t_end + 1});
+		       'Data' => $t_end});
        $self->element({'Name' => 'Hsp_align-len',
 		       'Data' => $hsplen});
-       my @blocksizes = split(/,/,$block_sizes); # block sizes
        # cleanup trailing commas in some output
        $block_sizes =~ s/\,$//;
        $q_starts    =~ s/\,$//;
        $t_starts    =~ s/\,$//;
+       my @blocksizes = split(/,/,$block_sizes); # block sizes
        my @qstarts = split(/,/,$q_starts); # starting position of each block
                                            # in query
        my @tstarts = split(/,/,$t_starts); # starting position of each block
