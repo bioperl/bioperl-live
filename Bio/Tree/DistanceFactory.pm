@@ -176,7 +176,7 @@ sub _nj {
    # so that we can trim the number of digits shown as the branch length
    my $precisionstr = "%.$Precision"."f";
 
-   my @names =  @{$distmat->names || []};
+   my @names =  $distmat->column_names;
    my $N = scalar @names;
    my ($i,$j,$m,@nodes,$mat,@r);
    my $L = $N;
@@ -376,7 +376,7 @@ sub _upgma{
    
    my ($i,$j,$x,$y,@dmat,@orig,@nodes);
 
-   my @names = @{$distmat->names || []};
+   my @names = $distmat->column_names;
    my $c = 0;
    my @clusters = map { 
        my $r = { 'id'        => $c,
@@ -542,7 +542,7 @@ sub method{
 
 sub check_additivity{
    my ($self,$matrix) = @_;
-   my @names = @{$matrix->names || {}};
+   my @names = $matrix->column_names;
    my $len = scalar @names;
    return unless $len >= 4;
    # look at all sets of 4
