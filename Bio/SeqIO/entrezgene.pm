@@ -67,7 +67,7 @@ Internal methods are usually preceded with a _
 
 use strict;
 use vars qw(@ISA);
-use GI::Parser::EntrezGene;
+use Bio::ASN1::EntrezGene;
 use Bio::Seq;
 use Bio::Species;
 use Bio::Annotation::SimpleValue;
@@ -85,39 +85,34 @@ use Bio::Annotation::OntologyTerm;
 use vars qw(@ISA);
 @ISA = qw(Bio::SeqIO);
 
-
+%main::eg_to_ll=('Official Full Name'=>'OFFICIAL_GENE_NAME','chromosome'=>'CHR','cyto'=>'MAP', 'Official Symbol'=>'OFFICIAL_SYMBOL');
+@main::egonly=keys %main::eg_to_ll;
 #We define $xval and some other variables so we don't have to pass them as arguments
 my ($seq,$ann,$xval,%seqcollection,$buf);
-  my $parser = GI::Parser::EntrezGene->new();
-  my $file=shift;
-  $/ = "Entrezgene ::= {";
 
 sub _initialize {
 my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
-  $self->{_parser}=GI::Parser::EntrezGene->new();#Instantiate the low level parser here
   my %param = @args;
-	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	$self->{_debug}=$param{-debug};
-	$self->{_locuslink}=$param{-locuslink};
+    @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+    $self->{_debug}=$param{-debug};
+    $self->{_locuslink}=$param{-locuslink};
+	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});#Instantiate the low level parser here (it is -file in Bioperl-should tell M.)
+	#$self->{_parser}->next_seq; #First empty record- bug in Bio::ASN::Parser
 }
 
 
 sub next_seq {
-	my $self=shift;
-	local $/="Entrezgene ::= {";
-	return unless my $buf = $self->_readline;
-	chomp $buf;
-	return $self->next_seq unless ($buf=~/\S/);
+    my $self=shift;
+    my $value = $self->{_parser}->next_seq(-trimopt=>1); # $value contains data structure for the
+                                # record being parsed. 2 indicates the recommended
+                                # trimming mode of the data structure
+                                #I use 1 as I prefer not to descend into size 0 arrays
+	return undef unless ($value);
     my $debug=$self->{_debug};
     $ann = Bio::Annotation::Collection->new();
     my @alluncaptured;
     # parse the entry
-    my $text = (/^\s*Entrezgene ::= ({.*)/si)? $1 : "{" . $buf;
-    my $value = $self->{_parser}->parse($text, 1); # $value contains data structure for the
-                                # record being parsed. 2 indicates the recommended
-                                # trimming mode of the data structure
-                                #I use 1 as I prefer not to descend into size 0 arrays
     my @keys=keys %{$value};
     $xval=$value->[0];
     #Basic data
@@ -133,6 +128,7 @@ sub next_seq {
 #}
 #DEBUG:REMOVE
     #Source data here
+    _add_to_ann($xval->{status},'Entrez Gene Status'); 
     my $lineage=$xval->{source}{org}{orgname}{lineage};
     my $sp=$xval->{source}{org}{orgname}{name}{binomial}{species};
     $lineage=~s/[\s\n]//g;
@@ -146,15 +142,15 @@ sub next_seq {
                                 -ncbi_taxid=>$xval->{source}{org}{db}{tag}{id});
     $specie->common_name($xval->{source}{org}{common});
     if (exists($xval->{source}->{subtype}) && ($xval->{source}->{subtype})) {
-	    if (ref($xval->{source}->{subtype}) eq 'ARRAY') {
-		    foreach my $subtype (@{$xval->{source}->{subtype}}) {
-			    _add_to_ann($subtype->{name},$subtype->{subtype});
-		    }
-	    }
-	    else {
-		    _add_to_ann($xval->{source}->{subtype}->{name},$xval->{source}->{subtype}->{subtype}); 
-		}
-	}
+        if (ref($xval->{source}->{subtype}) eq 'ARRAY') {
+            foreach my $subtype (@{$xval->{source}->{subtype}}) {
+                _add_to_ann($subtype->{name},$subtype->{subtype});
+            }
+        }
+        else {
+            _add_to_ann($xval->{source}->{subtype}->{name},$xval->{source}->{subtype}->{subtype}); 
+        }
+    }
     #Synonyms
     if (ref($xval->{gene}->{syn}) eq 'ARRAY') {
         foreach my $symsyn (@{$xval->{gene}->{syn}}) {
@@ -237,7 +233,7 @@ sub next_seq {
           push @alluncaptured,_process_prop($xval->{properties});
         }
         }
-        $seq->annotation($ann);
+        $seq->annotation($ann) unless ($self->{_locuslink} eq 'convert');
         $seq->species($specie);
         my @seqs;
         foreach my $key (keys %seqcollection) {
@@ -259,13 +255,14 @@ sub next_seq {
         delete $xval->{comments};
         delete $xval->{properties};
         delete $xval->{'xtra-index-terms'};
+        $xval->{status};
     }
     push @alluncaptured,$xval;
-        $ann->DESTROY;
         undef %seqcollection;
     undef $xval;
     #print 'x';
-    $seq->_backcomp_ll if ($self->{_locuslink} eq 'convert');
+    &_backcomp_ll if ($self->{_locuslink} eq 'convert');
+    $ann->DESTROY;
     return wantarray ? ($seq,$cluster,\@alluncaptured):$seq;#Hilmar's suggestion
   }
 
@@ -339,10 +336,10 @@ return @uncapt;
 sub _add_to_ann {#Highest level only
 my ($val,$tag)=@_;
   #  $val=~s/\n//g;#Low level EG parser leaves this so we take care of them here
-	unless ($tag) {
-	 warn "No tagname for value $val, tag $tag ",$seq->id,"\n";
-	 return;
-	}
+    unless ($tag) {
+     warn "No tagname for value $val, tag $tag ",$seq->id,"\n";
+     return;
+    }
         my $simann=new Bio::Annotation::SimpleValue(-value=>$val,-tagname=>$tag);
         $ann->add_Annotation($simann);
 }
@@ -597,7 +594,7 @@ sub _process_prop {
     }
     #Will do GO later
     if (exists($prop->{comment})) {
-	push @uncapt,_process_go($prop->{comment});
+    push @uncapt,_process_go($prop->{comment});
     }
 }
 
@@ -610,7 +607,7 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                delete $product->{heading};
                CLASS: {
                    if ($heading =~ 'RefSeq Status') {#IN case NCBI changes slightly the spacing:-)
-                    $seq->{_status}=$product->{label};  last CLASS;
+                    _add_to_ann($product->{label},'RefSeq status');  last CLASS;
                    }
                    if ($heading =~ 'NCBI Reference Sequences') {#IN case NCBI changes slightly the spacing:-)
                     my @uncaptured=_process_refseq($product);
@@ -635,22 +632,25 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                    }
                    if ($heading =~ 'Sequence Tagged Sites') {#IN case NCBI changes slightly the spacing:-)
                      push @alluncaptured,_process_STS($product); 
+                     delete $product->{comment};
                     last CLASS;
                    }
                }
     }
-    if (exists($product->{refs})) {
+	if (exists($product->{type})&&($product->{type} eq 'generif')) {
+		push @alluncaptured,_process_grif($product);
+		return @alluncaptured;#Maybe still process the comments?
+	}
+	if (exists($product->{refs})) {
                 _add_references($product->{refs}->{pmid});
                 delete $product->{refs}->{pmid}; push @alluncaptured,$product;
             }
-            if (exists($product->{comment})) {
+	if (exists($product->{comment})) {
                 my ($allan,$allfeat,$uncapt)=_process_comments($product->{comment});
                 foreach my $cann (@$allan) {$ann->add_Annotation('dblink',$cann);}
                 delete $product->{refs}->{comment}; push @alluncaptured,$uncapt;
             }
-            if (exists($product->{type})&&($product->{type} eq 'generif')) {
-                _add_to_ann($product->{text},$product->{type}); delete $product->{text}; delete $product->{type};
-            }
+
 return @alluncaptured;
 }
 
@@ -659,44 +659,113 @@ my $product=shift;
 }
 
 sub _process_go {
-	my $comm=shift;
-	my @comm;
-	push @comm,( ref($comm) eq 'ARRAY')? @{$comm}:$comm;
-	foreach my $comp (@comm) {
-		if (ref($comp->{comment}) eq 'ARRAY') {
-			foreach my $go (@{$comp->{comment}}) {
-				my $term=_get_go_term($go);
+    my $comm=shift;
+    my @comm;
+    push @comm,( ref($comm) eq 'ARRAY')? @{$comm}:$comm;
+    foreach my $comp (@comm) {
+        if (ref($comp->{comment}) eq 'ARRAY') {
+            foreach my $go (@{$comp->{comment}}) {
+                my $term=_get_go_term($go);
                 my $annterm = new Bio::Annotation::OntologyTerm (-tagname => 'Gene Ontology');
-				$annterm->term($term);
-				$ann->add_Annotation('OntologyTerm',$annterm);
-			}
-		}
-		else {
-			my $term=_get_go_term($comp->{comment});
+                $annterm->term($term);
+                $ann->add_Annotation('OntologyTerm',$annterm);
+            }
+        }
+        else {
+            my $term=_get_go_term($comp->{comment});
             my $annterm = new Bio::Annotation::OntologyTerm (-tagname => 'Gene Ontology');
-			$annterm->term($term);
-			$ann->add_Annotation('OntologyTerm',$annterm);
-		}
-	}
+            $annterm->term($term);
+            $ann->add_Annotation('OntologyTerm',$annterm);
+        }
+    }
 }
 
+sub _process_grif {
+my $grif=shift;
+if (ref($grif->{comment}) eq 'ARRAY') {#Insane isn't it?
+	my @uncapt;
+	foreach my $product (@{$grif->{comment}}) {
+		next unless (exists($product->{text})); 
+		my $uproduct=_process_grif($product);
+	#	$ann->add_Annotation($type,$grifobj);
+		push @uncapt,$uproduct;
+	}
+	return \@uncapt;
+}
+if (exists($grif->{comment}->{comment})) {
+	$grif=$grif->{comment};
+}
+my $ref= (ref($grif->{refs}) eq 'ARRAY') ? shift @{$grif->{refs}}:$grif->{refs};
+my $refergene='';
+my ($obj,$type);
+if ($ref->{pmid}) {
+	$refergene=$grif->{comment}->{source}->{src}->{tag}->{id} if (exists($grif->{comment}->{source})); #unfortunatrely we cannot put yet everything in
+	my $grifobj=new  Bio::Annotation::Comment(-text=>$grif->{text});
+	$obj = new Bio::Annotation::DBLink(-database => 'generif',
+                                        -primary_id => $ref->{pmid}, #The pubmed id (at least the first one) which is a base for the conclusion
+                                        -version=>$grif->{version},
+                                        -optional_id=>$refergene
+                    ); 
+	$obj->comment($grifobj);
+    $type='dblink';
+}
+else {
+	$obj=new  Bio::Annotation::SimpleValue($grif->{text},'generif');
+    $type='generif';
+}
+delete $grif->{text};
+delete $grif->{version};
+delete $grif->{type};
+delete $grif->{refs};
+$ann->add_Annotation($type,$obj);
+return $grif;
+}
 sub _get_go_term {
 my $go=shift;
-	my $refan=new Bio::Annotation::Reference(-database => 'Pubmed', #We expect one ref per GO
-		-primary_id => $go->{refs}->{pmid});
-	my $term = Bio::Ontology::Term->new( 
-		-identifier  => $go->{source}->{src}->{tag}->{id},
-		-name        => $go->{source}->{anchor},
-		-definition  => $go->{source}->{anchor},
-		-comment     => $go->{source}->{'post-text'},
-		-references  => [$refan],
-		-version     =>$go->{version});
+    my $refan=new Bio::Annotation::Reference(-database => 'Pubmed', #We expect one ref per GO
+        -primary_id => $go->{refs}->{pmid});
+    my $term = Bio::Ontology::Term->new( 
+        -identifier  => $go->{source}->{src}->{tag}->{id},
+        -name        => $go->{source}->{anchor},
+        -definition  => $go->{source}->{anchor},
+        -comment     => $go->{source}->{'post-text'},
+        -references  => [$refan],
+        -version     =>$go->{version});
 return $term;
 }
 
 sub _backcomp_ll {
 my $self=shift;
-return $self;
+my $newann=Bio::Annotation::Collection->new();
+        #$newann->{_annotation}->{ALIAS_SYMBOL}=$ann->{_annotation}->{ALIAS_SYMBOL};
+       # $newann->{_annotation}->{CHR}=$ann->{_annotation}->{chromosome};
+       # $newann->{_annotation}->{MAP}=$ann->{_annotation}->{cyto};
+       foreach my $tagmap (keys %{$ann->{_typemap}->{_type}}) {
+	next if (grep(/$tagmap/,@main::egonly));
+        $newann->{_annotation}->{$tagmap}=$ann->{_annotation}->{$tagmap};
+	}
+        #$newann->{_annotation}->{Reference}=$ann->{_annotation}->{Reference};
+        #$newann->{_annotation}->{generif}=$ann->{_annotation}->{generif};
+        #$newann->{_annotation}->{comment}=$ann->{_annotation}->{comment};
+       # $newann->{_annotation}->{OFFICIAL_GENE_NAME}=$ann->{_annotation}->{'Official Full Name'};
+        $newann->{_typemap}->{_type}=$ann->{_typemap}->{_type};
+        foreach my $ftype (keys %main::eg_to_ll) {
+		my $newkey=$main::eg_to_ll{$ftype};
+		$newann->{_annotation}->{$newkey}=$ann->{_annotation}->{$ftype};
+		$newann->{_typemap}->{_type}->{$newkey}='Bio::Annotation::SimpleValue';
+		delete $newann->{_typemap}->{_type}->{$ftype};
+		$newann->{_annotation}->{$newkey}->[0]->{tagname}=$newkey;
+        }
+	foreach my $dblink (@{$newann->{_annotation}->{dblink}}) {
+            next unless ($dblink->{_url});
+            my $simann=new Bio::Annotation::SimpleValue(-value=>$dblink->{_url},-tagname=>'URL');
+            $newann->add_Annotation($simann);
+        }
+
+#        my $simann=new Bio::Annotation::SimpleValue(-value=>$seq->desc,-tagname=>'comment');
+#        $newann->add_Annotation($simann);
+    $seq->annotation($newann);
+return 1;
 }
 
 1;
