@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.6 2005-03-24 13:03:25 smckay Exp $;
+#$Id: genbank2gff3.PLS,v 1.7 2005-04-15 18:13:30 bosborne Exp $;
 
 =pod
 
@@ -250,7 +250,7 @@ for my $file ( @files ) {
         my ($fa_out,$fa_outfile);
         if ($split) {
 	    $fa_outfile = $outfile;
-	    $fa_outfile =~ s/gff/fa/;
+	    $fa_outfile =~ s/gff$/fa/;
 	    open $fa_out, ">$fa_outfile" or die $!; 
 	    print $fa_out ">$seq_name\n$dna";
 	}
