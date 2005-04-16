@@ -694,7 +694,7 @@ ok ($spec_obj->species, 'gambiae');
 ok ($spec_obj->genus, 'Anopheles');
 ok ($spec_obj->binomial, 'Anopheles gambiae');
 
-my $ac = $seq->annotation;
+$ac = $seq->annotation;
 my $reference =  ($ac->get_Annotations('reference') )[1];
 ok ($reference->title,'"A novel acetylcholinesterase gene in mosquitoes codes for the insecticide target and is non-homologous to the ace gene in Drosophila"');
 ok ($reference->authors,'Weill M., Fort P., Berthomi eu A., Dubois M.P., Pasteur N., Raymond M.');

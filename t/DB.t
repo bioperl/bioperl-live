@@ -24,7 +24,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 78;
+   $NUMTESTS = 84;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -78,6 +78,7 @@ my %expected_lengths = ( 'NDP_MOUSE' => 131,
 			 'P18584'    => 497,
 			 'DEGP_CHLTR'=> 497,
 			 'AF442768'  => 2547,
+			 'P31383'    => 635,
 			 );
 ## End of black magic.
 ##
@@ -135,6 +136,18 @@ eval {
    while( my $s = $seqio->next_seq ) {
        ok( $s->length, $expected_lengths{$s->display_id});
    }
+   # swissprot genpept parsing   
+   ok( defined($seq = $gb->get_Seq_by_acc('2AAA_YEAST') ));
+   ok($seq->length, $expected_lengths{$seq->display_id}, 
+      $expected_lengths{$seq->display_id});
+
+   # test dbsource stuff
+   # small chance this might change but hopefully not
+   my @annot = $seq->annotation->get_Annotations('dblink');
+   ok(scalar @annot, 26);
+   ok($annot[0]->database, 'swissprot');
+   ok($annot[0]->primary_id, '2AAA_YEAST');
+   ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
 };
 
 if ($@) {
