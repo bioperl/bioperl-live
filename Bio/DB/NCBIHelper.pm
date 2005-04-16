@@ -161,10 +161,11 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, $query, $query_offset) = $self->_rearrange([qw(MODE UIDS 
-									      FORMAT QUERY OFFSET)],
-									  @qualifiers);
-
+    my ($mode, $uids, $format, 
+	$query, $query_offset) = $self->_rearrange([qw(MODE UIDS FORMAT 
+						       QUERY OFFSET)],
+						   @qualifiers);
+    
     $mode = lc $mode;
     ($format) = $self->request_format() unless ( defined $format);
     if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
@@ -177,11 +178,17 @@ sub get_request {
     unless( defined $uids or defined $query) {
 	$self->throw("Must specify a query or list of uids to fetch");
     }
-
+    
     if ($uids) {
 	if( ref($uids) =~ /array/i ) {
-	    $uids = join(",", @$uids);
+	    $uids = join(",", map { 
+		$_ = "\"$_\"" if( /^\d+/ );
+		$_;		
+	    } @$uids);
+	} elsif( $uids =~ /^\d+/ ) {
+	    $uids = "\"$uids\""; # need to quote it
 	}
+    
 	$params{'id'}      = $uids;
     }
 
