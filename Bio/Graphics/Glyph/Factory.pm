@@ -310,7 +310,7 @@ sub make_glyph {
     $glyphclass .= "\:\:\L$type";
 
     unless ($LOADED_GLYPHS{$glyphclass}++) {
-      carp("the requested glyph class, ``$type'' is not available: $@")
+      carp("The requested glyph class, ``$type'' is not available: $@")
         unless (eval "require $glyphclass");
     }
 

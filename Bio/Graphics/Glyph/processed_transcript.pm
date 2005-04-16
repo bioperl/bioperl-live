@@ -21,8 +21,8 @@ sub guess_options {
   my ($exons,$utrs,$cds);
   foreach ($self->parts) {
     $exons++ if $_->feature->type =~ /exon/i;
-    $utrs++  if $_->feature->type =~ /utr/i;
-    $cds++   if $_->feature->type =~ /cds/i;
+    $utrs++  if $_->feature->type =~ /utr$/i;
+    $cds++   if $_->feature->type =~ /^cds/i;
     $self->configure(implied_utrs=>1) if $exons && $cds && !$utrs;
     $self->configure(adjust_exons=>1) if $exons && $utrs;
   }

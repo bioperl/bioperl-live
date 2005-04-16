@@ -160,7 +160,7 @@ sub draw_parallel {
     }
 	
     my $first_tick = $major_interval * int(0.5 + $start/$major_interval);
-    my $last_tick  = $major_interval * int(0.5 + $stop/$major_interval);
+    my $last_tick  = $major_interval * int(0.5 + ($stop+2)/$major_interval);
 
     for (my $i = $first_tick; $i <= $last_tick; $i += $major_interval) {
       my $abs = $i;
@@ -175,17 +175,23 @@ sub draw_parallel {
 	  $abs = $abs->start;
       }
 
-      $abs = $end - $abs if $flipped;
+      $abs = $end - $abs + 1 if $flipped;
 
       my $tickpos = $dx + $self->map_pt($abs);
-      next if $tickpos < $left or $tickpos > $right;
-      $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$tickpen);
+      next if $tickpos < $x1 || $tickpos > $x2;
+
+      $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$tickpen)
+	unless $tickpos < $left or $tickpos > $right;
+
       my $label = $scale ? $i / $scale : $i;
       my $scaled = $label/$divisor;
       $label = sprintf($format,$scaled,$unit_label);
 
-      my $middle = $tickpos - (length($label) * $width)/2;
-      next if $middle < $left or $middle > $right;
+      my $label_len = length($label) * $width;
+
+      my $middle = $tickpos - $label_len/2;
+      $middle = $left if $middle < $left;
+      $middle = $x2 - $label_len if $middle+$label_len > $x2;
 
       $gd->string($font,$middle,$center+$a2-1,$label,$font_color)
         unless ($self->option('no_tick_label'));
@@ -194,7 +200,7 @@ sub draw_parallel {
     if ($self->option('tick') >= 2) {
 
       $first_tick = $minor_interval * int(0.5 + $start/$minor_interval);
-      $last_tick  = $minor_interval * int(0.5 + $stop/$minor_interval);
+      $last_tick  = $minor_interval * int(0.5 + ($stop+2)/$minor_interval);
 
       my $a4 = $self->height/4;
       for (my $i = $first_tick; $i <= $last_tick; $i += $minor_interval) {
