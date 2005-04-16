@@ -281,26 +281,26 @@ sub next_seq {
       # 09-10-2003
       # 09-10-03
       if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
-			if( length($date) < 11 ) {
-				# improperly formatted date
-				# But we'll be nice and fix it for them
-				my ($d,$m,$y) = ($2,$3,$4);
-				if( length($d) == 1 ) {
-					$d = "0$d";
-				}
+	  if( length($date) < 11 ) {
+	      # improperly formatted date
+	      # But we'll be nice and fix it for them
+	      my ($d,$m,$y) = ($2,$3,$4);
+	      if( length($d) == 1 ) {
+		  $d = "0$d";
+	      }
 				# guess the century here
-				if( length($y) == 2 ) {
-					if( $y > 60 ) {  # arbitrarily guess that '60' means 1960
-						$y = "19$y";
-					} else { 
-						$y = "20$y";
-					}
-					$self->warn("Date was malformed, guessing the century for $date to be $y\n");
-				}
-				$params{'-dates'} = [join('-',$d,$m,$y)];
-			} else { 
-				$params{'-dates'} = [$date];
-			}
+	      if( length($y) == 2 ) {
+		  if( $y > 60 ) { # arbitrarily guess that '60' means 1960
+		      $y = "19$y";
+		  } else { 
+		      $y = "20$y";
+		  }
+		  $self->warn("Date was malformed, guessing the century for $date to be $y\n");
+	      }
+	      $params{'-dates'} = [join('-',$d,$m,$y)];
+	  } else { 
+	      $params{'-dates'} = [$date];
+	  }
       }
       # set them all at once
       $builder->add_slot_value(%params);
@@ -418,25 +418,122 @@ sub next_seq {
 			}
 			# Corresponding Genbank nucleotide id, Genpept only
 			elsif( /^DBSOURCE\s+(.+)/ ) {
-				if ($annotation) {
-					my $dbsource = $1;
-					while (defined($_ = $self->_readline)) {
-						last if (/^\S/);
-						$dbsource .= $_;
-					}
-					my ($id,$version) = $dbsource =~ /(\S+)\.(\d+)$/;
-					$annotation->add_Annotation('dblink',
-		 Bio::Annotation::DBLink->new(-primary_id => $id . "." . $version,
-												-version => $version,
-												-database => "GenBank",
-												-tagname => 'dblink'));
-					$buffer = $_;
-				} else {
-					while(defined($buffer = $self->_readline())) {
-						last if substr($buffer,0,1) ne ' ';
-					}
+			    if ($annotation) {
+				my $dbsource = $1;
+				while (defined($_ = $self->_readline)) {
+				    last if (/^\S/);
+				    $dbsource .= $_;
 				}
-				next;
+				# deal with swissprot dbsources
+				if( $dbsource =~ s/swissprot:\s+locus\s+(\S+)\,.+\n// ) {
+				    $annotation->add_Annotation
+					('dblink',
+					 Bio::Annotation::DBLink->new
+					 (-primary_id => $1,
+					  -database => 'swissprot',
+					  -tagname => 'dblink'));
+				    if( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
+					$annotation->add_Annotation
+					    ('swissprot_dates',
+					     Bio::Annotation::SimpleValue->new
+					     (-tagname => 'date_created',
+					      -value => $1));
+				    }
+				    while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g ) {
+					$annotation->add_Annotation
+					    ('swissprot_dates',
+					     Bio::Annotation::SimpleValue->new
+					     (-tagname => 'date_updated',
+					      -value => $1));
+				    }
+				    $dbsource =~ s/\n/ /g;
+				    if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
+					# will use $i to determine even or odd
+					# for swissprot the accessions are paired
+					my $i = 0; 
+					for my $dbsrc ( split(/,\s+/,$1) ) {
+					    if( $dbsrc =~ /(\S+)\.(\d+)/ || 
+						$dbsrc =~ /(\S+)/ ) {
+						my ($id,$version) = ($1,$2);
+						$version ='' unless defined $version;
+						my $db;
+						if( $id =~ /^\d\S{3}/) {
+						    $db = 'PDB';
+						} else {
+						    $db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
+						}
+						$annotation->add_Annotation
+						    ('dblink',
+						     Bio::Annotation::DBLink->new
+						     (-primary_id => $id . "." . $version,
+						      -version => $version,
+						      -database => $db,
+						      -tagname => 'dblink'));
+					    }
+					}
+				    } elsif( $dbsource =~ s/\s+xrefs:\s+(.+)\s+xrefs/xrefs/i ) {
+					# download screwed up and ncbi didn't put acc in for gi numbers
+					my $i = 0;
+					for my $id ( split(/\,\s+/,$1) ) {
+					    my ($acc,$db);
+					    if( $id =~ /gi:\s+(\d+)/ ) {
+						$acc= $1;
+						$db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
+					    } elsif( $id =~ /pdb\s+accession\s+(\S+)/ ) {
+						$acc= $1;
+						$db = 'PDB';
+					    } else {
+						$acc= $id;
+						$db = '';
+					    }
+					    $annotation->add_Annotation
+						    ('dblink',
+						     Bio::Annotation::DBLink->new
+						     (-primary_id => $acc,
+						      -database => $db,
+						      -tagname => 'dblink'));
+					} 
+				    } else { 
+					$self->debug("Cannot match $dbsource\n");
+				    }
+				    if( $dbsource =~ s/xrefs\s+\(non\-sequence\s+databases\):\s+
+					((?:\S+,\s+)+\S+)//x ) {
+					for my $id ( split(/\,\s+/,$1) ) {
+					    my $db;
+					    # this is because GenBank dropped the spaces!!!
+					    # I'm sure we're not going to get this right
+					    if( $id =~ s/^(EchoBASE|IntAct|SWISS-2DPAGE|ECO2DBASE|ECOGENE|TIGRFAMs|TIGR|GO|InterPro|Pfam|PROSITE|SGD|GermOnline|HSSP|PhosSite)//i ) {
+						$db = $1;
+					    }
+					    $annotation->add_Annotation
+						('dblink',
+						 Bio::Annotation::DBLink->new
+						 (-primary_id => $id,
+						  -database => $db,
+						  -tagname => 'dblink'));
+					}
+				    }
+					
+				} else {
+				    if( $dbsource =~ /(\S+)\.(\d+)/ ) {
+					my ($id,$version) = ($1,$2);
+					$annotation->add_Annotation
+					    ('dblink',
+					     Bio::Annotation::DBLink->new
+					     (-primary_id => $id . "." . $version,
+					      -version => $version,
+					      -database => 'GenBank',
+					      -tagname => 'dblink'));	
+				    }
+				}
+				
+				$buffer = $_;
+			    } else {
+				while(defined($buffer = $self->_readline())) {
+				    last if substr($buffer,0,1) ne ' ';
+				}
+			    }
+			    next;
 			}
 			# Exit at start of Feature table, or start of sequence
 			last if( /^(FEATURES|ORIGIN)/ );
@@ -447,8 +544,8 @@ sub next_seq {
 
       # add them all at once for efficiency
       $builder->add_slot_value(-accession_number => shift(@acc),
-										 -secondary_accessions => \@acc,
-										 %params);
+			       -secondary_accessions => \@acc,
+			       %params);
       $builder->add_slot_value(-annotation => $annotation) if $annotation;
       %params = (); # reset before possible re-use to avoid setting twice
 
@@ -610,29 +707,29 @@ sub write_seq {
 
 		my $temp_line;
 		if( $self->_id_generation_func ) {
-			$temp_line = &{$self->_id_generation_func}($seq);
+		    $temp_line = &{$self->_id_generation_func}($seq);
 		} else {
-			my $date = '';
-			if( $seq->can('get_dates') ) {
-				($date) = $seq->get_dates();
-			}
-
-			$self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
-			  if $seq->display_id =~ /\s/;
-
-			$temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
-										 'LOCUS', $seq->id(),$len,
-										 (lc($alpha) eq 'protein') ? ('aa','', '') : 
-										 ('bp', '',$mol),$circular,
-										 $div,$date);
+		    my $date = '';
+		    if( $seq->can('get_dates') ) {
+			($date) = $seq->get_dates();
+		    }
+		    
+		    $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
+			if $seq->display_id =~ /\s/;
+		    
+		    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
+					  'LOCUS', $seq->id(),$len,
+					  (lc($alpha) eq 'protein') ? ('aa','', '') : 
+					  ('bp', '',$mol),$circular,
+					  $div,$date);
 		}
-
+		
 		$self->_print("$temp_line\n");
 		$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
-													$seq->desc(),"\\s\+\|\$",80);
-
+						 $seq->desc(),"\\s\+\|\$",80);
+		
 		# if there, write the accession line
-
+		
 		if( $self->_ac_generation_func ) {
 			$temp_line = &{$self->_ac_generation_func}($seq);
 			$self->_print("ACCESSION   $temp_line\n");
