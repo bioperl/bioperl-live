@@ -123,8 +123,9 @@ sub next_result {
             my %feature;
             
             ($feature{name}) = $self->seqname;
-            $feature{score} = $score;
+            $feature{raw_score} = $score;
             $feature{p_value} = sprintf ("%.3e", $evalue);
+            $feature{score} = $feature{p_value};
             $feature{start} = $start;
             $feature{end} = $end;
             $feature{hname} = $hid;
