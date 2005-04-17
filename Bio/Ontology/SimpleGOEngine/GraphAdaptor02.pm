@@ -1,7 +1,9 @@
+# $Id$
+#
 # BioPerl adaptor for old Graph verions (0.2x) for use in 
 # Bio::Ontology::SimpleGOEngine
 #
-# Cared for by Nat Goodman <natg@shore.net>
+# Cared for by Nat Goodman <natg at shore.net>
 #
 # (c) Nathan Goodman natg@shore.net 2005
 # (c) ISB, Institute for Systems Biology 2005
@@ -54,7 +56,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 
 Nat Goodman
 
-Email: natg@shore.net
+Email: natg at shore.net
 
 Address:
 
