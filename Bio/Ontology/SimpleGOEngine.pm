@@ -93,7 +93,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Ontology::SimpleGOEngine;
 
-use Graph::Directed;
+use Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 
 use vars qw( @ISA );
 use strict;
@@ -156,11 +156,7 @@ sub init {
     $self->{ "_part_of_relationship" }    = Bio::Ontology::RelationshipType->get_instance( PART_OF );
     $self->{ "_related_to_relationship" } = Bio::Ontology::RelationshipType->get_instance( RELATED_TO );
 
-    if( $Graph::VERSION >= 0.50 ) {
-        $self->graph( Graph::Directed->new('compat02' => 1,'directed' => 1) );
-    } else {
-        $self->graph( Graph::Directed->new() );
-    }
+    $self->graph( Bio::Ontology::SimpleGOEngine::GraphAdaptor->new() );	# NG 05-02-16
 
     # set defaults for the factories
     $self->relationship_factory(Bio::Ontology::RelationshipFactory->new(
@@ -258,8 +254,7 @@ sub add_term {
     my $goid = $self->_get_id($term);
 
     $self->graph()->add_vertex( $goid );
-    $self->graph()->set_attribute( TERM, $goid, $term );
-
+    $self->graph()->set_vertex_attribute( $goid, TERM, $term );	# NG 05-02-16
     return TRUE;
 
 } # add_term
@@ -378,9 +373,9 @@ sub add_relationship {
     }
 
     $g->add_edge( $parentid, $childid );
-    $g->set_attribute( TYPE, $parentid, $childid, $type );
-    $g->set_attribute( ONTOLOGY, $parentid, $childid, $ont );
-
+    $g->set_edge_attribute( $parentid, $childid, TYPE, $type );	   # NG 05-02-16
+    $g->set_edge_attribute( $parentid, $childid, ONTOLOGY, $ont ); # NG 05-02-16
+    
     return TRUE;
 
 } # add_relationship
@@ -421,18 +416,16 @@ sub get_relationships {
     my $relfact = $self->relationship_factory();
     # we'll build the relationships from edges
     my @rels = ();
-    my @edges = $g->edges($termid);
+    my @edges = $g->edges_at( $termid ); # NG 05-02-13
     while(@edges) {
-	my $startid = shift(@edges);
-	my $endid = shift(@edges);
-	my $rel = $relfact->create_object(
-		    -subject_term   => $self->get_terms($endid),
-                    -object_term    => $self->get_terms($startid),
-                    -predicate_term => $g->get_attribute(TYPE, 
-							 $startid, $endid),
-	            -ontology       => $g->get_attribute(ONTOLOGY, 
-							 $startid, $endid));
-        push( @rels, $rel );
+      my ( $startid, $endid ) = @{ shift @edges }; # NG 05-02-16
+      my $rel = $relfact->create_object
+	(-subject_term   => $self->get_terms($endid),
+	 -object_term    => $self->get_terms($startid),
+	 -predicate_term => $g->get_edge_attribute($startid, $endid, TYPE),
+	 -ontology       => $g->get_edge_attribute($startid, $endid, ONTOLOGY)); 
+      push( @rels, $rel );
+
     }
     
     return @rels;
@@ -677,7 +670,7 @@ sub get_terms {
 
     foreach my $id ( @ids ) {
         if ( $self->graph()->has_vertex( $id ) ) {
-            push( @terms, $self->graph()->get_attribute( TERM, $id ) );
+	  push( @terms, $self->graph()->get_vertex_attribute( $id, TERM ) ); # NG 05-02-16
         }
     }
 
@@ -807,7 +800,7 @@ sub graph {
     my ( $self, $value ) = @_;
 
     if ( defined $value ) {
-        $self->_check_class( $value, "Graph::Directed" );
+        $self->_check_class( $value, 'Bio::Ontology::SimpleGOEngine::GraphAdaptor' ); # NG 05-02-16
         $self->{ "_graph" } = $value;
     }
 
@@ -885,10 +878,10 @@ sub _get_child_parent_terms_helper {
             foreach my $type ( @types ) {
                 my $relative_type;
                 if ( $do_get_child_terms ) {
-                    $relative_type = $self->graph()->get_attribute( TYPE, $term, $relative );
+		  $relative_type = $self->graph()->get_edge_attribute ($term, $relative, TYPE );  # NG 05-02-16
                 }
                 else {
-                    $relative_type = $self->graph()->get_attribute( TYPE, $relative, $term );
+		  $relative_type = $self->graph()->get_edge_attribute ($relative, $term, TYPE ); # NG 05-02-16
                 }
                 if ( $relative_type->equals( $type ) ) {
                     push( @relative_terms, $relative );
@@ -942,8 +935,6 @@ sub _get_ancestor_terms_helper {
 
 } # get_ancestor_terms_helper
 
-
-
 sub _check_class {
     my ( $self, $value, $expected_class ) = @_;
 
@@ -958,7 +949,6 @@ sub _check_class {
     }
 
 } # _check_class
-
 
 #################################################################
 # aliases
