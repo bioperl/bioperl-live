@@ -419,7 +419,8 @@ for my $name ( $population->get_marker_names ) {
 
 $io = new Bio::PopGen::IO(-format   => 'hapmap',
 			  -verbose  => 1,
-			  -no_header=>1,
+			  -no_header=> 1,
+			  -starting_column => 10,
 			  -file     => Bio::Root::IO->catfile(qw(t data
 								example.hap)));
 

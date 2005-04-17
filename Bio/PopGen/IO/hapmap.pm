@@ -71,10 +71,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::PopGen::IO::hapmap;
-use vars qw(@ISA $FieldDelim $AlleleDelim $NoHeader $InsertMissing);
+use vars qw(@ISA $FieldDelim $AlleleDelim $NoHeader $StartingCol);
 use strict;
 
-($FieldDelim,$AlleleDelim,$NoHeader,$InsertMissing) =( '\s+','',0,0);
+($FieldDelim,$AlleleDelim,$NoHeader,$StartingCol) =( '\s+','',0,11);
 
 use Bio::PopGen::IO;
 use Bio::PopGen::Individual;
@@ -94,6 +94,7 @@ use Bio::PopGen::Genotype;
            -field_delimiter => ','
            -allele_delimiter=> '\s+'
            -no_header       => 0,
+           -starting_column => 11
 
 
 =cut
@@ -106,15 +107,16 @@ sub _initialize  {
     $Bio::PopGen::Genotype::BlankAlleles='';
 
     my ($fieldsep,$all_sep, 
-	$noheader,$insertmissing) = $self->_rearrange([qw(FIELD_DELIMITER
-							  ALLELE_DELIMITER
-							  NO_HEADER)],@args);
-
+	$noheader, $start_col) = $self->_rearrange([qw(FIELD_DELIMITER
+						       ALLELE_DELIMITER
+						       NO_HEADER
+						       STARTING_COLUMN)],
+						   @args);
 
     $self->flag('no_header', defined $noheader ? $noheader : $NoHeader);
     $self->flag('field_delimiter',defined $fieldsep ? $fieldsep : $FieldDelim);
     $self->flag('allele_delimiter',defined $all_sep ? $all_sep : $AlleleDelim);
-
+    $self->starting_column(defined $start_col ? $start_col : $StartingCol );
 
     $self->{'_header'} = undef;
     return 1;
@@ -157,7 +159,7 @@ sub _pivot {
 	    push @cols, [split $self->flag('field_delimiter')];
 	}
     }
-    my $startingcol = 11;
+    my $startingcol = $self->starting_column;
 
     $self->{'_header'} = [ map { $_->[0] } @cols];
     for my $n ($startingcol.. $#{ $cols[ 0 ]}) { 
@@ -198,7 +200,7 @@ sub next_individual  {
     # should be put in a marker object. Doesn't seem to fit too well
     # though
 
-    my ($samp,@marker_results) = @$_;	
+    my ($samp,@marker_results) = @$_;
 
     # at some point use all this info
     my $i = 1;
@@ -283,6 +285,26 @@ sub write_individual {
 sub write_population {
     my ($self,@inds) = @_;
     $self->throw('writing to hapmap format is not implemented');
+}
+
+
+=head2 starting_column
+
+ Title   : starting_column
+ Usage   : $obj->starting_column($newval)
+ Function: Column where data starts
+ Example : 
+ Returns : value of starting_column (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub starting_column{
+    my $self = shift;
+
+    return $self->{'starting_column'} = shift if @_;
+    return $self->{'starting_column'};
 }
 
 1;
