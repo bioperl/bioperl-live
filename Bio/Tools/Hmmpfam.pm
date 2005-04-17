@@ -108,8 +108,10 @@ sub next_result {
          $line = $_;
          chomp $line;
     
-        
-        last if $line=~m/^Alignments of top-scoring domains/;
+        if ( $line=~m/^Alignments of top-scoring domains/ ) {
+          while( my $rest = $self->_readline() ) { last if $rest =~ m!^//! }
+        }
+
         next if ($line=~m/^Model/ || /^\-/ || /^$/);
         
         if ($line=~m/^Query sequence:\s+(\S+)/) {
