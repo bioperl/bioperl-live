@@ -1,30 +1,50 @@
-package Bio::SeqIO::entrezgene;
+# $Id$
+# BioPerl module for Bio::SeqIO::entrezgene
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::SeqIO::locuslink - DESCRIPTION of Object
+Bio::SeqIO::entrezgene - Entrez Gene ASN1 parser
 
 =head1 SYNOPSIS
 
    # don't instantiate directly - instead do
-   my $seqio = Bio::SeqIO->new(-format => 'entrezgene', -file => $file);
-   my $gene=$seqio->next_seq;
+   my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
+                               -file => $file);
+   my $gene = $seqio->next_seq;
 
 =head1 DESCRIPTION
-This is EntrezGene ASN bioperl parser. It is built on top of GI::Parser::Entrezgene, low level ASN
-parser built by Mingyi Liu (sourceforge.net/projetcs/egparser).
-Easiest way to use it is shown above. You will get most of the EntrezGene annotation such as gene symbol, 
-gene name and description, accession numbers associated with the gene, etc. Almost all of these are given as
-Annotation objects.
+
+This is EntrezGene ASN bioperl parser. It is built on top of 
+GI::Parser::Entrezgene, a low level ASN parser built by Mingyi Liu 
+(sourceforge.net/projetcs/egparser). The easiest way to use it is 
+shown above.
+
+You will get most of the EntrezGene annotation such as gene symbol, 
+gene name and description, accession numbers associated 
+with the gene, etc. Almost all of these are given as Annotation objects.
 A comprehensive list of those objects will be available here later.
+
 If you need all the data do:
-my $seqio = Bio::SeqIO->new(-format => 'entrezgene', -file => $file, -debug=>'on');
-my ($gene,$genestructure,$uncaptured)=$seqio->next_seq;
-The $genestructure is a Bio::Cluster::SequenceFamily object. It contains all refseqs and the genomic contigs
-that are associated with the paricular gene.
-You can also modify the output $seq to allow back compatibility with the previous locuslink parser:
-my $seqio = Bio::SeqIO->new(-format => 'entrezgene', -file => $file, -locuslink=>'convert');
-Both -debug and -locuslink slow down the parser.
+
+   my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
+                               -file => $file,
+                               -debug => 'on');
+   my ($gene,$genestructure,$uncaptured) = $seqio->next_seq;
+
+The $genestructure is a Bio::Cluster::SequenceFamily object. It 
+contains all refseqs and the genomic contigs that are associated with 
+the paricular gene. You can also modify the output $seq to allow back 
+compatibility with old LocusLink parser:
+
+   my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
+                               -file => $file,
+                               -locuslink => 'convert');
+
+The -debug and -locuslink options slow down the parser.
 
 =head1 FEEDBACK
 
@@ -54,16 +74,18 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-
 Hilmar Lapp, hlapp at gmx.net
 
 =head1 APPENDIX
+
 This parser is based on GI::Parser::EntrezGene module
 
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
+
+package Bio::SeqIO::entrezgene;
 
 use strict;
 use vars qw(@ISA);
@@ -85,30 +107,37 @@ use Bio::Annotation::OntologyTerm;
 use vars qw(@ISA);
 @ISA = qw(Bio::SeqIO);
 
-%main::eg_to_ll=('Official Full Name'=>'OFFICIAL_GENE_NAME','chromosome'=>'CHR','cyto'=>'MAP', 'Official Symbol'=>'OFFICIAL_SYMBOL');
-@main::egonly=keys %main::eg_to_ll;
-#We define $xval and some other variables so we don't have to pass them as arguments
+%main::eg_to_ll =('Official Full Name'=>'OFFICIAL_GENE_NAME',
+						'chromosome'=>'CHR',
+						'cyto'=>'MAP', 
+						'Official Symbol'=>'OFFICIAL_SYMBOL');
+@main::egonly = keys %main::eg_to_ll;
+# We define $xval and some other variables so we don't have 
+# to pass them as arguments
 my ($seq,$ann,$xval,%seqcollection,$buf);
 
 sub _initialize {
-my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);
-  my %param = @args;
-    @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-    $self->{_debug}=$param{-debug};
-    $self->{_locuslink}=$param{-locuslink};
-	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});#Instantiate the low level parser here (it is -file in Bioperl-should tell M.)
+	my($self,@args) = @_;
+	$self->SUPER::_initialize(@args);
+	my %param = @args;
+	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+	$self->{_debug}=$param{-debug};
+	$self->{_locuslink}=$param{-locuslink};
+	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});
+	#Instantiate the low level parser here (it is -file in Bioperl
+   #-should tell M.)
 	#$self->{_parser}->next_seq; #First empty record- bug in Bio::ASN::Parser
 }
 
 
 sub next_seq {
     my $self=shift;
-    my $value = $self->{_parser}->next_seq(-trimopt=>1); # $value contains data structure for the
-                                # record being parsed. 2 indicates the recommended
-                                # trimming mode of the data structure
-                                #I use 1 as I prefer not to descend into size 0 arrays
-	return undef unless ($value);
+    my $value = $self->{_parser}->next_seq(-trimopt=>1); 
+	 # $value contains data structure for the
+	 # record being parsed. 2 indicates the recommended
+	 # trimming mode of the data structure
+	 #I use 1 as I prefer not to descend into size 0 arrays
+	 return undef unless ($value);
     my $debug=$self->{_debug};
     $ann = Bio::Annotation::Collection->new();
     my @alluncaptured;
@@ -116,7 +145,7 @@ sub next_seq {
     my @keys=keys %{$value};
     $xval=$value->[0];
     #Basic data
-#    $xval->{summary}=~s/\n//g; 
+	 #$xval->{summary}=~s/\n//g; 
     $seq = Bio::Seq->new(
                         -display_id  => $xval->{gene}{locus},
                         -accession_number =>$xval->{'track-info'}{geneid},
@@ -533,7 +562,7 @@ push @{$seqcollection{genestructure}},$gseq;
 return @uncapt;
 }
 
-=HEAD1 _process_products_coordinates
+=head1 _process_products_coordinates
 To do:
 =cut
 
@@ -546,7 +575,7 @@ my $strand=shift||1;
 my (@coords,@uncapt);
 my $transcript=new Bio::SeqFeature::Gene::Transcript(-primary=>$coord->{accession},
                                           -start=>$start,-end=>$end,-strand=>$strand, -desc=>$coord->{type});
-        
+
 if ((exists($coord->{'genomic-coords'}->{mix}->{'int'}))||(exists($coord->{'genomic-coords'}->{'packed-int'}))) {
 @coords=exists($coord->{'genomic-coords'}->{mix}->{'int'})?@{$coord->{'genomic-coords'}->{mix}->{'int'}}:
                                     @{$coord->{'genomic-coords'}->{'packed-int'}};
@@ -569,7 +598,7 @@ if (exists($coord->{products})) {
 return $transcript,\@uncapt;
 }
 
-=HEAD1 _process_prop
+=head1 _process_prop
 To do: process GO
 =cut
 sub _process_prop {
