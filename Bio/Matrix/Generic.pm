@@ -728,7 +728,7 @@ sub num_rows{
 
 sub num_columns{
    my ($self) = @_;
-   return scalar @{$self->_values->[0]};
+   return scalar @{$self->_values->[0] || []};
 }
 
 
