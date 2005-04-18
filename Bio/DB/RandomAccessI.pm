@@ -35,11 +35,9 @@ Ewan Birney originally wrote this class.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+the bugs and their resolution. Bug reports can be submitted via the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bugzilla.bioperl.org/           
+    http://bugzilla.bioperl.org/
 
 =head1 APPENDIX
 
@@ -116,8 +114,6 @@ sub get_Seq_by_version{
    my ($self,@args) = @_;
    $self->throw_not_implemented();
 }
-
-
 
 ## End of Package
 
