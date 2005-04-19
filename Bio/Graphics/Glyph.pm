@@ -424,19 +424,17 @@ sub font {
   my $font = $self->option('font');
 
   my $img_class = $self->image_class;
-  # Bring in the appropriate image package...yuck...
-  eval "use $img_class; 1" or die $@;
 
   unless (UNIVERSAL::isa($font,$img_class . '::Font')) {
     my $ref    = {
-		  gdTinyFont       => gdTinyFont(),
-		  gdSmallFont      => gdSmallFont(),
-		  gdMediumBoldFont => gdMediumBoldFont(),
-    		  gdLargeFont      => gdLargeFont(),
-    		  gdGiantFont      => gdGiantFont(),
+		  gdTinyFont       => $img_class->gdTinyFont(),
+		  gdSmallFont      => $img_class->gdSmallFont(),
+		  gdMediumBoldFont => $img_class->gdMediumBoldFont(),
+		  gdLargeFont      => $img_class->gdLargeFont(),
+		  gdGiantFont      => $img_class->gdGiantFont(),
     		 };
 
-    my $gdfont = $ref->{$font} || gdSmallFont();
+    my $gdfont = $ref->{$font} || $img_class->gdSmallFont();
     $self->configure(font=>$gdfont);
     return $gdfont;
   }
@@ -786,6 +784,8 @@ sub draw_connector {
     $self->draw_dashed_connector($gd,$color,@_);
   } elsif ($connector_type eq 'quill') {
     $self->draw_quill_connector($gd,$color,@_);
+  } elsif ($connector_type eq 'crossed') {
+    $self->draw_crossed_connector($gd,$color,@_);
   } else {
     ; # draw nothing
   }
@@ -871,6 +871,31 @@ sub draw_quill_connector {
       $gd->line($position,$center1,$position+2,$center1+2,$color);
     }
   }
+}
+
+sub draw_crossed_connector {
+  my $self = shift;
+  my $gd = shift;
+  my $color = shift;
+  my ($top1,$bottom1,$left,$top2,$bottom2,$right) = @_;
+
+  #Draw the horizontal line
+  my $center1  = ($top1 + $bottom1)/2;
+  my $center2  = ($top2 + $bottom2)/2;
+
+  $gd->line($left,$center1,$right,$center2,$color);
+
+  #Extra validations
+  ($left, $right)   = ($right, $left)   if ($right < $left);
+  ($top1, $bottom1) = ($bottom1, $top1) if ($bottom1 < $top1);
+  ($top2, $bottom2) = ($bottom2, $top2) if ($bottom2 < $top2);
+
+  #Draw the "X"
+  my $middle = int(($right - $left) / 2) + $left;
+  my $midLen = int(($bottom1 - $top1) / 2);
+
+  $gd->line($middle-$midLen,$top1,   $middle+$midLen,$bottom2,$color);
+  $gd->line($middle-$midLen,$bottom1,$middle+$midLen,$top2,$color);
 }
 
 sub filled_box {
@@ -1453,7 +1478,10 @@ connector).  Options include:
    "solid"   a straight horizontal connector
    "quill"   a decorated line with small arrows indicating strandedness
              (like the UCSC Genome Browser uses)
-   "dashed"  a horizontal dashed line.  
+   "dashed"  a horizontal dashed line.
+   "crossed" a straight horizontal connector with an "X" on it
+              (Can be used when segments are not yet validated
+               by some internal experiments...)
 
 The B<-connector_color> option controls the color of the connector, if
 any.

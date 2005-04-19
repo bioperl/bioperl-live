@@ -59,6 +59,12 @@ sub new {
   $length   ||= $options{-stop}-$options{-start}+1 
      if defined $options{-start} && defined $options{-stop};
 
+  # load image class immediately, rather than deferring to later
+  # we may die at this point if the image class isn't available.
+  if ($image_class) {
+    eval "use $image_class(); 1" or die $@;
+  }
+
   return bless {
 		tracks => [],
 		width      => $options{-width} || 600,
