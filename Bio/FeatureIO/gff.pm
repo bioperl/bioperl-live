@@ -676,7 +676,7 @@ sub _handle_feature {
     if ($self->{'allIDs'}->{${$attr{ID}}[0]} && $self->validate()) {
       $self->throw("Validation Error: The ID ${$attr{ID}}[0] occurs more than once in the file, but should be unique");
     }
-    $self->{'allIDs'}->{${$attr{ID}}[0]} = $feat;
+    $self->{'allIDs'}->{${$attr{ID}}[0]} = 1;
 
 
     my $a = Bio::Annotation::SimpleValue->new();
