@@ -43,7 +43,8 @@ sub new {
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $autopad      = defined $options{-auto_pad} ? $options{-auto_pad} : 1;
   my $truecolor    = $options{-truecolor}  || 0;
-  my $image_class  = ($options{-image_class} && $options{-image_class} =~ /SVG/) ? 'GD::SVG' 
+  my $image_class  = ($options{-image_class} && $options{-image_class} =~ /SVG/)
+                      ? 'GD::SVG'
 		      : $options{-image_class} || 'GD';  # Allow users to specify GD::SVG using SVG
   my $linkrule     = $options{-link};
   my $titlerule    = $options{-title};
@@ -59,11 +60,8 @@ sub new {
   $length   ||= $options{-stop}-$options{-start}+1 
      if defined $options{-start} && defined $options{-stop};
 
-  # load image class immediately, rather than deferring to later
-  # we may die at this point if the image class isn't available.
-  if ($image_class) {
-    eval "use $image_class(); 1" or die $@;
-  }
+  # bring in the image generator class, since we will need it soon anyway
+  eval "require $image_class; 1" or die $@;
 
   return bless {
 		tracks => [],
@@ -439,8 +437,6 @@ sub setup_fonts {
   return if ref $self->{key_font};
 
   my $image_class = $self->image_class;
-  eval "use $image_class; 1" or die $@;
-
   my $keyfont = $self->{key_font};
   my $font_obj = $image_class->$keyfont;
   $self->{key_font} = $font_obj;
@@ -457,13 +453,8 @@ sub gd {
   $self->setup_fonts;
 
   unless ($existing_gd) {
-    # Encapsulating this eval within a BEGIN block
-    # adds nothing since $image_class is undefined at compile time.
-    # gd exported functions should all use ();
-    # BEGIN {
     my $image_class = $self->image_class;
-    eval "use $image_class; 1" or die $@;
-    # }
+    eval "require $image_class; 1" or die $@;
   }
 
   my $height = $self->height;

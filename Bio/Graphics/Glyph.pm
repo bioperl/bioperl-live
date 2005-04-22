@@ -41,25 +41,31 @@ sub new {
   $self->{flip}++  if $flip;
   $self->{top} = 0;
 
+  my $panel = $factory->panel;
+  my $p_start = $panel->start;
+  my $p_end   = $panel->end;
+
   my @subfeatures;
   my @subglyphs;
 
-  if(defined($self->factory->get_option('maxdepth')) && $self->factory->get_option('maxdepth') > 0){
-    @subfeatures = $self->subseq($feature) if $level <= $self->factory->get_option('maxdepth');
+  if (defined($factory->get_option('maxdepth')) && $factory->get_option('maxdepth') > 0){
+    @subfeatures = $self->subseq($feature) if $level <= $factory->get_option('maxdepth');
   } else {
 
     warn $self if DEBUG;
     warn $feature if DEBUG;
 
-    @subfeatures = $self->subseq($feature);
+    @subfeatures = $level == 0
+                     ? $self->subseq($feature)
+		     : grep {$p_start <= $_->end && $p_end >= $_->start} $self->subseq($feature);
   }
 
   if (@subfeatures) {
     # dynamic glyph resolution
     @subglyphs = map { $_->[0] }
           sort { $a->[1] <=> $b->[1] }
-             map { [$_, $_->left ] } 
-    $factory->make_glyph($level+1,@subfeatures);
+	    map { [$_, $_->left ] }
+	      $factory->make_glyph($level+1,@subfeatures);
     $self->{parts}   = \@subglyphs;
   }
 
@@ -669,7 +675,7 @@ sub draw {
 
   if (my @parts = $self->parts) {
 
-    # invoke sorter if use wants to sort always and we haven't already sorted
+    # invoke sorter if user wants to sort always and we haven't already sorted
     # during bumping.
     @parts = $self->layout_sort(@parts) if !$self->bump && $self->option('always_sort');
 
