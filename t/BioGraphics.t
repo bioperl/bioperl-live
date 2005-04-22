@@ -31,7 +31,6 @@ BEGIN {
     plan tests => $NUMTESTS;
 
     eval {
-	require GD;
 	require Text::Shellwords;
 	require Bio::Graphics::FeatureFile;
 	require Bio::Graphics;
