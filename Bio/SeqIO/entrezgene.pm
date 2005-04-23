@@ -526,7 +526,8 @@ sub _process_locus {
 my $locus=shift;
 my @uncapt;
 my $gseq=new Bio::Seq(-display_id=>$locus->{accession},-version=>$locus->{version},
-            -accession_number=>$locus->{seqs}->{'int'}->{id}->{gi});
+            -accession_number=>$locus->{seqs}->{'int'}->{id}->{gi},
+            -authority=>$locus->{type}, -namespace=>$locus->{heading});
 delete $locus->{accession};
 delete $locus->{version};
 delete $locus->{'int'}->{id}->{gi};
@@ -573,7 +574,7 @@ my $start=shift||0;#In case it is not known: should there be an entry at all?
 my $end=shift||1;
 my $strand=shift||1;
 my (@coords,@uncapt);
-my $transcript=new Bio::SeqFeature::Gene::Transcript(-primary=>$coord->{accession},
+my $transcript=new Bio::SeqFeature::Gene::Transcript(-primary=>$coord->{accession}, #Desc is actually non functional...
                                           -start=>$start,-end=>$end,-strand=>$strand, -desc=>$coord->{type});
 
 if ((exists($coord->{'genomic-coords'}->{mix}->{'int'}))||(exists($coord->{'genomic-coords'}->{'packed-int'}))) {
