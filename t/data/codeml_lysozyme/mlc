@@ -1,0 +1,273 @@
+
+seed used = 162469585
+
+Hsa_Human                            AAG GTC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AGA TTG GGA ATG GAT GGC TAC AGG GGA ATC AGC CTA GCA AAC TGG ATG TGT TTG GCC AAA TGG GAG AGT GGT TAC AAC ACA CGA GCT ACA AAC TAC AAT GCT GGA GAC AGA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CGC TAC TGG TGT AAT GAT GGC AAA ACC CCA GGA GCA GTT AAT GCC TGT CAT TTA TCC TGC AGT GCT TTG CTG CAA GAT AAC ATC GCT GAT GCT GTA GCT TGT GCA AAG AGG GTT GTC CGT GAT CCA CAA GGC ATT AGA GCA TGG GTG GCA TGG AGA AAT CGT TGT CAA AAC AGA GAT GTC CGT CAG TAT GTT CAA GGT TGT GGA GTG 
+Hla_gibbon                           AAG GTC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AGA TTG GGA ATG GAT GGC TAC AGG GGA ATC AGC CTA GCA AAC TGG ATG TGT TTG GCC AAA TGG GAG AGT GGT TAT AAC ACA CGA GCT ACA AAC TAC AAT CCT GGA GAC AGA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CGC TAC TGG TGT AAT GAT GGC AAA ACC CCA GGA GCA GTT AAT GCC TGT CAT TTA TCC TGC AAT GCT TTG CTG CAA GAT AAC ATC GCC GAT GCT GTA GCT TGT GCA AAG AGG GTT GTC CGC GAT CCA CAA GGC ATT AGA GCA TGG GTG GCA TGG AGA AAT CGT TGT CAA AAC AGA GAT CTC CGT CAG TAT ATT CAA GGT TGT GGA GTA 
+Cgu/Can_colobus                      AAG ATC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AAA TTG GGA CTG GAT GGC TAC AAG GGA GTC AGC CTA GCA AAC TGG GTG TGT TTG GCC AAA TGG GAG AGT GGT TAT AAC ACA GAC GCT ACA AAC TAC AAT CCT GGA GAT GAA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CGC TAC TGG TGT AAT AAT GGC AAA ACC CCA GGA GCA GTT AAT GCC TGT CAT ATA TCC TGC AAT GCT TTG CTG CAA AAT AAC ATC GCT GAT GCT GTA GCT TGT GCA AAG AGG GTT GTC AGT GAT CCA CAA GGC ATT CGA GCA TGG GTG GCA TGG AAA AAG CAC TGT CAA AAC AGA GAT GTC AGT CAG TAT GTT GAA GGT TGT GGA GTA 
+Pne_langur                           AAG ATC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AAA TTG GGA CTG GAT GGC TAC AAG GGA GTC AGC CTA GCA AAC TGG GTG TGT TTG GCC AAA TGG GAG AGT GGT TAT AAC ACA GAA GCT ACA AAC TAC AAT CCT GGA GAC GAA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CGC TAC TGG TGT AAT AAT GGC AAA ACC CCA GGA GCA GTT GAT GCC TGT CAT ATA TCC TGC AGT GCT TTG CTG CAA AAC AAC ATC GCT GAT GCT GTA GCT TGT GCA AAG AGG GTT GTC AGT GAT CCA CAA GGC GTT CGA GCA TGG GTG GCA TGG AGA AAT CAC TGT CAA AAC AAA GAT GTC AGT CAG TAC GTT AAA GGT TGT GGA GTG 
+Mmu_rhesus                           AAG ATC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AGA TTG GGA CTG GAT GGC TAC AGG GGA ATC AGC CTA GCA AAC TGG GTG TGT TTG GCC AAA TGG GAG AGT AAT TAT AAC ACA CAA GCT ACA AAC TAC AAT CCT GGA GAC CAA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CAC TAC TGG TGT AAT AAT GGC AAA ACC CCA GGA GCA GTT AAT GCC TGT CAT ATA TCC TGC AAT GCT TTG CTG CAA GAT AAC ATC GCT GAT GCT GTA ACT TGT GCA AAG AGG GTT GTC AGT GAT CCA CAA GGC ATT AGA GCA TGG GTG GCA TGG AGA AAT CAC TGT CAA AAC AGA GAT GTC AGT CAG TAT GTT CAA GGT TGT GGA GTG 
+Ssc_squirrelM                        AAG GTC TTC GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AGG CTT GGA ATG GAT GGC TAC AGG GGA ATC AGC CTA GCA AAC TGG ATG TGT TTG GCC AAA TGG GAG AGT GAC TAT AAC ACA CGT GCT ACA AAC TAC AAT CCT GGA GAC CAA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CAC TAT TGG TGT AAT AAT GGC AGA ACC CCA GGA GCA GTT AAT GCC TGT CAT ATA TCC TGC AAT GCT TTG CTG CAA GAT GAC ATC ACT CAA GCT GTG GCC TGT GCA AAG AGG GTT GTC CGT GAT CCA CAA GGC ATT AGA GCA TGG GTG GCA TGG AAA GCT CAT TGT CAA AAC AGA GAT GTC AGT CAG TAT GTT CAA GGT TGT GGA GTA 
+Cja_marmoset                         AAG GTC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AGG TTT GGA CTG GAT GGC TAC AGG GGA ATC AGC CTA GCA AAC TGG ATG TGT TTG GCC AAA TGG GAG AGT GAT TAT AAC ACA CGT GCT ACA AAC TAC AAT CCT GGA GAC CAA AGC ACT GAT TAT GGG ATA TTT CAG ATC AAT AGC CAC TAT TGG TGT AAC AAT GGC AGA ACC CCA GGA GCA GTT AAT GCC TGT CAT ATA TCC TGC AAT GCT TTG CTG CAA GAT GAC ATC ACT GAA GCT GTG GCC TGT GCA AAG AGG GTT GTC CGC GAT CCA CAA GGC ATT AGG GCA TGG GTG GCA TGG AAA GCT CAT TGT CAA AAC AGA GAT GTC AGT CAG TAT GTT CAA GGT TGT GGA GTA 
+
+
+CODONML (in paml 3.14, January 2004)    lysozymeSmall.txt   Model: several dN/dS ratios for branches 
+Codon frequencies: F3x4
+
+ns = 7  	ls = 130
+# site patterns = 81
+    2    1    1    1    2    7    2    3    3    1    2    2    2    1    1
+    5    1    4    3    2    1    1    3    1    5    4    5    1    1    1
+    1    2    1    3    2    1    1    1    1    1    1    1    2    2    1
+    1    1    1    1    1    2    2    1    1    1    1    1    1    3    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1
+
+1       
+Hsa_Human             AAG GTC TTT GAA AGG TGT GAG TTG GCC AGA ACT CTG AAA AGA TTG GGA ATG GAT GGC TAC AGG ATC AGC CTA GCA AAC TGG ATG AGT GGT TAC ACA CGA GCT AAT GCT GAC AGA TAT GGG ATA TTT CAG ATC CGC TAC AAT GAT AAA ACC CCA GTT AAT CAT TTA TCC TGC AGT CAA GAT AAC GCT GAT GTA GCT GTC CGT ATT AGA GTG AGA AAT CGT AGA GTC CGT TAT GTT CAA GGT GTG 
+Hla_gibbon            ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ..T ... ... ... ... C.. ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... .A. ... ... ... ..C ... ... ... ... ..C ... ... ... ... ... ... ... C.. ... ... A.. ... ... ..A 
+Cgu/Can_colobus       ... A.. ... ... ... ... ... ... ... ... ... ... ... .A. ... ... C.. ... ... ... .A. G.. ... ... ... ... ... G.. ... ... ..T ... GAC ... ... C.. ..T GA. ... ... ... ... ... ... ... ... ... A.. ... ... ... ... ... ... A.. ... ... .A. ... A.. ... ... ... ... ... ... A.. ... C.. ... .A. ..G .AC ... ... A.. ... ... G.. ... ..A 
+Pne_langur            ... A.. ... ... ... ... ... ... ... ... ... ... ... .A. ... ... C.. ... ... ... .A. G.. ... ... ... ... ... G.. ... ... ..T ... GA. ... ... C.. ... GA. ... ... ... ... ... ... ... ... ... A.. ... ... ... ... G.. ... A.. ... ... ... ... A.C ... ... ... ... ... ... A.. G.. C.. ... ... ... .AC .A. ... A.. ..C ... A.. ... ... 
+Mmu_rhesus            ... A.. ... ... ... ... ... ... ... ... ... ... ... ... ... ... C.. ... ... ... ... ... ... ... ... ... ... G.. ... AA. ..T ... .A. ... ... C.. ... CA. ... ... ... ... ... ... .A. ... ... A.. ... ... ... ... ... ... A.. ... ... .A. ... ... ... ... ... ... A.. ... A.. ... ... ... ... ... .AC ... ... A.. ... ... ... ... ... 
+Ssc_squirrelM         ... ... ..C ... ... ... ... ... ... ... ... ... ... ..G C.T ... ... ... ... ... ... ... ... ... ... ... ... ... ... .AC ..T ... ..T ... ... C.. ... CA. ... ... ... ... ... ... .A. ..T ... A.. .G. ... ... ... ... ... A.. ... ... .A. ... ... G.. A.. C.A ..G ..C ... ... ... ... ... .A. GC. .A. ... ... A.. ... ... ... ... ..A 
+Cja_marmoset          ... ... ... ... ... ... ... ... ... ... ... ... ... ..G ..T ... C.. ... ... ... ... ... ... ... ... ... ... ... ... .A. ..T ... ..T ... ... C.. ... CA. ... ... ... ... ... ... .A. ..T ..C A.. .G. ... ... ... ... ... A.. ... ... .A. ... ... G.. A.. ..A ..G ..C ... ..C ... ..G ... .A. GC. .A. ... ... A.. ... ... ... ... ..A 
+
+Codon usage in sequences
+--------------------------------------------------------------------------------------------------------------
+Phe TTT  2  2  2  2  2  1 | Ser TCT  0  0  0  0  0  0 | Tyr TAT  2  3  3  2  3  4 | Cys TGT  7  7  7  7  7  7
+    TTC  0  0  0  0  0  1 |     TCC  1  1  1  1  1  1 |     TAC  4  3  3  4  3  2 |     TGC  1  1  1  1  1  1
+Leu TTA  1  1  0  0  0  0 |     TCA  0  0  0  0  0  0 | *** TAA  0  0  0  0  0  0 | *** TGA  0  0  0  0  0  0
+    TTG  4  4  4  4  4  3 |     TCG  0  0  0  0  0  0 |     TAG  0  0  0  0  0  0 | Trp TGG  5  5  5  5  5  5
+--------------------------------------------------------------------------------------------------------------
+Leu CTT  0  0  0  0  0  1 | Pro CCT  0  1  1  1  1  1 | His CAT  1  1  1  1  1  2 | Arg CGT  3  2  0  0  0  2
+    CTC  0  1  0  0  0  0 |     CCC  0  0  0  0  0  0 |     CAC  0  0  1  1  2  1 |     CGC  1  2  1  1  0  0
+    CTA  1  1  1  1  1  1 |     CCA  2  2  2  2  2  2 | Gln CAA  4  4  3  3  6  6 |     CGA  1  1  1  1  0  0
+    CTG  2  2  3  3  3  2 |     CCG  0  0  0  0  0  0 |     CAG  2  2  2  2  2  2 |     CGG  0  0  0  0  0  0
+--------------------------------------------------------------------------------------------------------------
+Ile ATT  1  2  1  0  1  1 | Thr ACT  2  2  2  2  3  3 | Asn AAT  5  6  7  5  8  6 | Ser AGT  2  1  3  4  3  2
+    ATC  3  3  3  3  4  3 |     ACC  1  1  1  1  1  1 |     AAC  5  5  5  6  5  4 |     AGC  3  3  3  3  3  3
+    ATA  1  1  2  2  2  2 |     ACA  2  2  2  2  2  2 | Lys AAA  3  3  5  6  3  3 | Arg AGA  6  6  2  2  5  4
+Met ATG  2  2  0  0  0  2 |     ACG  0  0  0  0  0  0 |     AAG  2  2  4  3  2  2 |     AGG  3  3  2  2  3  4
+--------------------------------------------------------------------------------------------------------------
+Val GTT  3  2  3  4  3  3 | Ala GCT  6  4  5  5  4  4 | Asp GAT  7  7  6  6  6  5 | Gly GGT  2  2  2  2  1  1
+    GTC  3  2  3  3  2  3 |     GCC  3  4  3  3  3  4 |     GAC  1  1  1  1  1  3 |     GGC  3  3  3  3  3  3
+    GTA  1  2  2  1  1  1 |     GCA  5  5  5  5  5  5 | Glu GAA  1  1  3  3  1  1 |     GGA  5  5  5  5  5  5
+    GTG  2  1  2  3  3  2 |     GCG  0  0  0  0  0  0 |     GAG  2  2  2  2  2  2 |     GGG  1  1  1  1  1  1
+--------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------
+Phe TTT  3 | Ser TCT  0 | Tyr TAT  4 | Cys TGT  7
+    TTC  0 |     TCC  1 |     TAC  2 |     TGC  1
+Leu TTA  0 |     TCA  0 | *** TAA  0 | *** TGA  0
+    TTG  3 |     TCG  0 |     TAG  0 | Trp TGG  5
+--------------------------------------------------
+Leu CTT  0 | Pro CCT  1 | His CAT  2 | Arg CGT  1
+    CTC  0 |     CCC  0 |     CAC  1 |     CGC  1
+    CTA  1 |     CCA  2 | Gln CAA  5 |     CGA  0
+    CTG  3 |     CCG  0 |     CAG  2 |     CGG  0
+--------------------------------------------------
+Ile ATT  1 | Thr ACT  3 | Asn AAT  5 | Ser AGT  2
+    ATC  3 |     ACC  1 |     AAC  5 |     AGC  3
+    ATA  2 |     ACA  2 | Lys AAA  3 | Arg AGA  3
+Met ATG  1 |     ACG  0 |     AAG  2 |     AGG  5
+--------------------------------------------------
+Val GTT  3 | Ala GCT  4 | Asp GAT  6 | Gly GGT  1
+    GTC  3 |     GCC  4 |     GAC  2 |     GGC  3
+    GTA  1 |     GCA  5 | Glu GAA  2 |     GGA  5
+    GTG  2 |     GCG  0 |     GAG  2 |     GGG  1
+--------------------------------------------------
+
+Codon position x base (3x4) table for each sequence.
+
+#1: Hsa_Human      
+position  1:    T:0.20769    C:0.13077    A:0.31538    G:0.34615
+position  2:    T:0.20000    C:0.16923    A:0.30000    G:0.33077
+position  3:    T:0.33077    C:0.22308    A:0.25385    G:0.19231
+
+#2: Hla_gibbon     
+position  1:    T:0.20769    C:0.14615    A:0.32308    G:0.32308
+position  2:    T:0.20000    C:0.16923    A:0.30769    G:0.32308
+position  3:    T:0.32308    C:0.23077    A:0.26154    G:0.18462
+
+#3: Cgu/Can_colobus
+position  1:    T:0.20000    C:0.12308    A:0.32308    G:0.35385
+position  2:    T:0.20000    C:0.16923    A:0.35385    G:0.27692
+position  3:    T:0.33077    C:0.22308    A:0.25385    G:0.19231
+
+#4: Pne_langur     
+position  1:    T:0.20000    C:0.12308    A:0.31538    G:0.36154
+position  2:    T:0.20000    C:0.16923    A:0.34615    G:0.28462
+position  3:    T:0.31538    C:0.23846    A:0.25385    G:0.19231
+
+#5: Mmu_rhesus     
+position  1:    T:0.20000    C:0.13846    A:0.34615    G:0.31538
+position  2:    T:0.20000    C:0.16923    A:0.34615    G:0.28462
+position  3:    T:0.33077    C:0.22308    A:0.25385    G:0.19231
+
+#6: Ssc_squirrelM  
+position  1:    T:0.19231    C:0.15385    A:0.32308    G:0.33077
+position  2:    T:0.20000    C:0.17692    A:0.33077    G:0.29231
+position  3:    T:0.33077    C:0.23077    A:0.24615    G:0.19231
+
+#7: Cja_marmoset   
+position  1:    T:0.20000    C:0.14615    A:0.31538    G:0.33846
+position  2:    T:0.20000    C:0.17692    A:0.33077    G:0.29231
+position  3:    T:0.33077    C:0.23077    A:0.23846    G:0.20000
+
+Sums of codon usage counts
+------------------------------------------------------------------------------
+Phe F TTT      14 | Ser S TCT       0 | Tyr Y TAT      21 | Cys C TGT      49
+      TTC       1 |       TCC       7 |       TAC      21 |       TGC       7
+Leu L TTA       2 |       TCA       0 | *** * TAA       0 | *** * TGA       0
+      TTG      26 |       TCG       0 |       TAG       0 | Trp W TGG      35
+------------------------------------------------------------------------------
+Leu L CTT       1 | Pro P CCT       6 | His H CAT       9 | Arg R CGT       8
+      CTC       1 |       CCC       0 |       CAC       6 |       CGC       6
+      CTA       7 |       CCA      14 | Gln Q CAA      31 |       CGA       4
+      CTG      18 |       CCG       0 |       CAG      14 |       CGG       0
+------------------------------------------------------------------------------
+Ile I ATT       7 | Thr T ACT      17 | Asn N AAT      42 | Ser S AGT      17
+      ATC      22 |       ACC       7 |       AAC      35 |       AGC      21
+      ATA      12 |       ACA      14 | Lys K AAA      26 | Arg R AGA      28
+Met M ATG       7 |       ACG       0 |       AAG      17 |       AGG      22
+------------------------------------------------------------------------------
+Val V GTT      21 | Ala A GCT      32 | Asp D GAT      43 | Gly G GGT      11
+      GTC      19 |       GCC      24 |       GAC      10 |       GGC      21
+      GTA       9 |       GCA      35 | Glu E GAA      12 |       GGA      35
+      GTG      15 |       GCG       0 |       GAG      14 |       GGG       7
+------------------------------------------------------------------------------
+
+
+Codon position x base (3x4) table, overall
+
+position  1:    T:0.20110    C:0.13736    A:0.32308    G:0.33846
+position  2:    T:0.20000    C:0.17143    A:0.33077    G:0.29780
+position  3:    T:0.32747    C:0.22857    A:0.25165    G:0.19231
+
+Codon frequencies under model, for use in evolver:
+  0.01378574  0.00962226  0.01059374  0.00809565
+  0.01181635  0.00824765  0.00908035  0.00693913
+  0.02279949  0.01591374  0.00000000  0.00000000
+  0.02052711  0.01432765  0.00000000  0.01205451
+  0.00941649  0.00657258  0.00723616  0.00552982
+  0.00807127  0.00563364  0.00620242  0.00473984
+  0.01557342  0.01087004  0.01196749  0.00914546
+  0.01402125  0.00978665  0.01077472  0.00823396
+  0.02214758  0.01545871  0.01701945  0.01300613
+  0.01898364  0.01325032  0.01458810  0.01114811
+  0.03662868  0.02556633  0.02814755  0.02151013
+  0.03297798  0.02301819  0.02534214  0.01936627
+  0.02320222  0.01619484  0.01782990  0.01362547
+  0.01988762  0.01388129  0.01528277  0.01167897
+  0.03837291  0.02678377  0.02948791  0.02253443
+  0.03454836  0.02411429  0.02654891  0.02028847
+
+
+
+Nei & Gojobori 1986. dN/dS (dN, dS)
+(Note: This matrix is not used in later m.l. analysis.
+Use runmode = -2 for ML pairwise comparison.)
+
+Hsa_Human           
+Hla_gibbon           0.2782 (0.0133 0.0478)
+Cgu/Can_colobus      1.1086 (0.0742 0.0670) 1.1055 (0.0742 0.0671)
+Pne_langur           1.1979 (0.0725 0.0605) 0.9234 (0.0797 0.0863) 0.5517 (0.0267 0.0484)
+Mmu_rhesus           1.8744 (0.0562 0.0300) 1.0215 (0.0561 0.0550) 1.2973 (0.0473 0.0364) 1.3970 (0.0508 0.0364)
+Ssc_squirrelM        0.4701 (0.0633 0.1346) 0.4688 (0.0633 0.1349) 0.5159 (0.0775 0.1502) 0.5833 (0.0959 0.1645) 0.4544 (0.0559 0.1230)
+Cja_marmoset         0.4725 (0.0634 0.1341) 0.5925 (0.0633 0.1069) 0.4702 (0.0704 0.1496) 0.5411 (0.0886 0.1638) 0.3995 (0.0490 0.1225) 0.1595 (0.0099 0.0619)
+
+
+TREE #  1:  ((1, 2), ((3, 4), 5), (6, 7));   MP score: 65
+lnL(ntime: 11  np: 14):   -904.636553     +0.000000
+   8..9     9..1     9..2     8..10   10..11   11..3    11..4    10..5     8..12   12..6    12..7  
+  0.07000  0.02557  0.03893  0.04388  0.07904  0.04388  0.05215  0.01949  0.12131  0.04103  0.02378  4.56118  0.68580  3.50575
+Note: Branch length is defined as number of nucleotide substitutions per codon (not per neucleotide site).
+
+tree length =   0.55906
+
+((1: 0.025570, 2: 0.038929): 0.070000, ((3: 0.043878, 4: 0.052151): 0.079045, 5: 0.019487): 0.043879, (6: 0.041033, 7: 0.023779): 0.121307);
+
+((Hsa_Human: 0.025570, Hla_gibbon: 0.038929): 0.070000, ((Cgu/Can_colobus: 0.043878, Pne_langur: 0.052151): 0.079045, Mmu_rhesus: 0.019487): 0.043879, (Ssc_squirrelM: 0.041033, Cja_marmoset: 0.023779): 0.121307);
+
+Detailed output identifying parameters
+
+kappa (ts/tv) =  4.56118
+
+dN & dS for each branch
+
+ branch           t        S        N    dN/dS       dN       dS   S*dS   N*dN
+
+   8..9       0.070    107.8    282.2   0.6858   0.0207   0.0302    3.3    5.8
+   9..1       0.026    107.8    282.2   0.6858   0.0076   0.0110    1.2    2.1
+   9..2       0.039    107.8    282.2   0.6858   0.0115   0.0168    1.8    3.2
+   8..10      0.044    107.8    282.2   0.6858   0.0130   0.0189    2.0    3.7
+  10..11      0.079    107.8    282.2   3.5057   0.0328   0.0094    1.0    9.3
+  11..3       0.044    107.8    282.2   0.6858   0.0130   0.0189    2.0    3.7
+  11..4       0.052    107.8    282.2   0.6858   0.0154   0.0225    2.4    4.4
+  10..5       0.019    107.8    282.2   0.6858   0.0058   0.0084    0.9    1.6
+   8..12      0.121    107.8    282.2   0.6858   0.0359   0.0523    5.6   10.1
+  12..6       0.041    107.8    282.2   0.6858   0.0121   0.0177    1.9    3.4
+  12..7       0.024    107.8    282.2   0.6858   0.0070   0.0103    1.1    2.0
+
+tree length for dN:      0.17485
+tree length for dS:      0.21644
+
+dS tree:
+((Hsa_Human: 0.011031, Hla_gibbon: 0.016794): 0.030198, ((Cgu/Can_colobus: 0.018929, Pne_langur: 0.022498): 0.009367, Mmu_rhesus: 0.008407): 0.018929, (Ssc_squirrelM: 0.017702, Cja_marmoset: 0.010258): 0.052332);
+dN tree:
+((Hsa_Human: 0.007565, Hla_gibbon: 0.011517): 0.020710, ((Cgu/Can_colobus: 0.012982, Pne_langur: 0.015429): 0.032838, Mmu_rhesus: 0.005765): 0.012982, (Ssc_squirrelM: 0.012140, Cja_marmoset: 0.007035): 0.035889);
+
+
+
+TREE #  2:  ((1, 2), ((3, 4), 5), (6, 7));   MP score: 65
+lnL(ntime: 11  np: 14):   -904.636553     -0.000000
+   8..9     9..1     9..2     8..10   10..11   11..3    11..4    10..5     8..12   12..6    12..7  
+  0.07000  0.02557  0.03893  0.04388  0.07905  0.04388  0.05215  0.01949  0.12131  0.04103  0.02378  4.56122  0.68581  3.50574
+Note: Branch length is defined as number of nucleotide substitutions per codon (not per neucleotide site).
+
+tree length =   0.55906
+
+((1: 0.025570, 2: 0.038929): 0.070001, ((3: 0.043878, 4: 0.052150): 0.079045, 5: 0.019488): 0.043879, (6: 0.041033, 7: 0.023779): 0.121307);
+
+((Hsa_Human: 0.025570, Hla_gibbon: 0.038929): 0.070001, ((Cgu/Can_colobus: 0.043878, Pne_langur: 0.052150): 0.079045, Mmu_rhesus: 0.019488): 0.043879, (Ssc_squirrelM: 0.041033, Cja_marmoset: 0.023779): 0.121307);
+
+Detailed output identifying parameters
+
+kappa (ts/tv) =  4.56122
+
+dN & dS for each branch
+
+ branch           t        S        N    dN/dS       dN       dS   S*dS   N*dN
+
+   8..9       0.070    107.8    282.2   0.6858   0.0207   0.0302    3.3    5.8
+   9..1       0.026    107.8    282.2   0.6858   0.0076   0.0110    1.2    2.1
+   9..2       0.039    107.8    282.2   0.6858   0.0115   0.0168    1.8    3.2
+   8..10      0.044    107.8    282.2   0.6858   0.0130   0.0189    2.0    3.7
+  10..11      0.079    107.8    282.2   3.5057   0.0328   0.0094    1.0    9.3
+  11..3       0.044    107.8    282.2   0.6858   0.0130   0.0189    2.0    3.7
+  11..4       0.052    107.8    282.2   0.6858   0.0154   0.0225    2.4    4.4
+  10..5       0.019    107.8    282.2   0.6858   0.0058   0.0084    0.9    1.6
+   8..12      0.121    107.8    282.2   0.6858   0.0359   0.0523    5.6   10.1
+  12..6       0.041    107.8    282.2   0.6858   0.0121   0.0177    1.9    3.4
+  12..7       0.024    107.8    282.2   0.6858   0.0070   0.0103    1.1    2.0
+
+tree length for dN:      0.17485
+tree length for dS:      0.21644
+
+dS tree:
+((Hsa_Human: 0.011031, Hla_gibbon: 0.016794): 0.030198, ((Cgu/Can_colobus: 0.018929, Pne_langur: 0.022497): 0.009367, Mmu_rhesus: 0.008407): 0.018929, (Ssc_squirrelM: 0.017702, Cja_marmoset: 0.010258): 0.052331);
+dN tree:
+((Hsa_Human: 0.007565, Hla_gibbon: 0.011517): 0.020710, ((Cgu/Can_colobus: 0.012982, Pne_langur: 0.015429): 0.032838, Mmu_rhesus: 0.005766): 0.012982, (Ssc_squirrelM: 0.012140, Cja_marmoset: 0.007035): 0.035889);
+
+
+Tree comparisons (Kishino & Hasegawa 1989; Shimodaira & Hasegawa 1999)
+Number of replicates: 10000
+
+  tree           li       Dli     +- SE     pKH       pSH    pRELL
+
+     1*    -904.637     0.000     0.000  -1.000    -1.000    0.511
+     2     -904.637    -0.000     0.000   0.500     0.516    0.489
+
+pKH: P value for KH normal test (Kishino & Hasegawa 1989)
+pRELL: RELL bootstrap proportions (Kishino & Hasegawa 1989)
+pSH: P value with multiple-comparison correction (MC in table 1 of Shimodaira & Hasegawa 1999)
+(-1 for P values means N/A)
