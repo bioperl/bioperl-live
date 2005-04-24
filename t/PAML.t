@@ -21,7 +21,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 142;
+    $NUMTESTS = 166;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -296,3 +296,67 @@ $baseml = $baseml_p->next_result;
 @trees = $baseml->get_trees;
 ok(@trees, 1);
 ok($trees[0]->score, -129.328757);
+
+
+# Let's parse the RST file
+
+my $paml = Bio::Tools::Phylo::PAML->new
+    (-file => Bio::Root::IO->catfile(qw(t data codeml_lysozyme mlc)),
+     -dir  => Bio::Root::IO->catfile(qw(t data codeml_lysozyme)));
+
+$result = $paml->next_result;
+
+my ($rst) = grep {$_->id eq 'node#8'} $result->get_rst_seqs;
+ok($rst);
+ok($rst->seq, join('',qw(
+AAGGTCTTTGAAAGGTGTGAGTTGGCCAGAACTCTGAAAAGATTGGGACTGGATGGCTAC
+AGGGGAATCAGCCTAGCAAACTGGATGTGTTTGGCCAAATGGGAGAGTGATTATAACACA
+CGAGCTACAAACTACAATCCTGGAGACCAAAGCACTGATTATGGGATATTTCAGATCAAT
+AGCCACTACTGGTGTAATAATGGCAAAACCCCAGGAGCAGTTAATGCCTGTCATATATCC
+TGCAATGCTTTGCTGCAAGATAACATCGCTGATGCTGTAGCTTGTGCAAAGAGGGTTGTC
+CGTGATCCACAAGGCATTAGAGCATGGGTGGCATGGAGAAATCATTGTCAAAACAGAGAT
+GTCAGTCAGTATGTTCAAGGTTGTGGAGTG)),
+   'node#8 reconstructed seq');
+
+my ($first_tree) = $result->get_rst_trees;
+my ($node) = $first_tree->find_node(-id => '5_Mmu_rhesus');
+my @changes = $node->get_tag_values('changes');
+my ($site) = grep { $_->{'site'} == 94 } @changes;
+ok($site->{'anc_aa'}, 'A','ancestral AA');
+ok($site->{'anc_prob'}, '0.947','ancestral AA prob');
+ok($site->{'derived_aa'}, 'T','derived AA');
+
+($node) = $first_tree->find_node(-id => '12');
+@changes = $node->get_tag_values('changes');
+($site) = grep { $_->{'site'} == 88 } @changes;
+ok($site->{'anc_aa'}, 'N','ancestral AA');
+ok($site->{'anc_prob'}, '0.993','ancestral AA prob');
+ok($site->{'derived_aa'}, 'D','derived AA');
+ok($site->{'derived_prob'}, '0.998','derived AA prob');
+
+my $persite = $result->get_rst_persite;
+# minus 1 because we have shifted so that array index matches site number
+# there are 130 sites in this seq file
+ok(scalar @$persite -1, $result->patterns->{'-ls'}); 
+# let's score site 1
+$site = $persite->[2]; 
+# so site 2, node 2 (extant)
+ok($site->[2]->{'codon'}, 'GTC');
+ok($site->[2]->{'aa'}, 'V');
+# site 2, node 3
+ok($site->[3]->{'codon'}, 'ATC');
+ok($site->[3]->{'aa'}, 'I');
+
+# ancestral node 9
+ok($site->[9]->{'codon'}, 'GTC');
+ok($site->[9]->{'aa'},    'V');
+ok($site->[9]->{'prob'},  '1.000');
+ok($site->[9]->{'Yang95_aa'},'V');
+ok($site->[9]->{'Yang95_aa_prob'},'1.000');
+
+# ancestral node 10
+ok($site->[10]->{'codon'}, 'ATC');
+ok($site->[10]->{'aa'},    'I');
+ok($site->[10]->{'prob'},  '0.992');
+ok($site->[10]->{'Yang95_aa'},'I');
+ok($site->[10]->{'Yang95_aa_prob'},'0.992');
