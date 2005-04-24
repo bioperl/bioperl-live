@@ -160,21 +160,29 @@ sub from_string{
              )*
              \)
             }x;
+	    my $oparg_orig = $oparg;
 	    my @sections;
-	    if( $oparg =~ s/(.*),(join|order|bond)/$2/i) {
-		push @sections, split(/,/,$1);
-	    }
 	    # lets capture and remove all the sections which
 	    # are groups
 	    while( $oparg =~ s/(join|order|bond)$re//ig ) {
 		push @sections, $&;
 	    }
 	    push @sections, split(/,/,$oparg) if length($oparg);
+	    # because we don't necessarily process the string in-order
+	    # as we are pulling the data from the string out for
+	    # groups first, then pulling out data, comma delimited
+	    # I am re-sorting the sections based on their position
+	    # in the original string, using the index function to figure
+	    # out their position in the string
+	    # --jason
+	    # resort based on input order, schwartzian style!
+	    @sections = map { shift @$_ } sort { $a->[1] <=> $b->[1] }
+	                map { [$_, index($oparg_orig, $_)] } @sections;
 	    # end of fix for bug #1674
 	    foreach my $s (@sections) {
+		next unless length($s);
 		$loc->add_sub_Location($self->from_string($s, 1));
-	    }
-	    
+	    }	    
 	} else {
 	    $self->throw("operator \"$op\" unrecognized by parser");
 	}
