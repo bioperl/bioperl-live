@@ -36,6 +36,54 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
   my $AAmatrix   = $result->get_AADistMatrix;
   my $AAMLmatrix   = $result->get_AAMLDistMatrix;
 
+  # if -dir contains an rst file get list of
+  # Bio::PrimarySeq ancestral state reconstructions of the sequences
+  my @rsts          = $result->get_rst_seqs; 
+
+
+  # if you want to print the changes on the tree
+  # this will print out the 
+  # anc_aa       => ANCESTRAL AMINO ACID
+  # anc_prob     => ANCESTRAL AA PROBABILITY 
+  # derived_aa   => DERIVED AA
+  # derived_prob => DERIVE AA PROBABILITY (where appropriate - NA for extant/tip taxas)
+  # site         => which codon site this in the alignment
+    @trees = $result->get_rst_trees;
+    for my $t ( @trees ) {
+	for my $node ( $t->get_nodes ) {	
+	    next unless $node->ancestor; # skip root node
+	    my @changes = $node->get_tag_values('changes');
+	    my $chgstr = '';
+	    for my $c ( @changes ) { 
+		for my $k ( sort keys %$c ) {
+		    $chgstr .= "$k => $c->{$k} ";
+		}
+		$chgstr .= "\n\t";
+	    }
+
+	    printf "node:%s n=%s s=%s\n\t%s\n",
+	    $node->id, 
+	    $node->get_tag_values('n'),
+	    $node->get_tag_values('s'),
+	    $chgstr;
+	}
+    }
+
+  # Persite probabilities
+  my $persite = $result->get_rst_persite;
+  # let's score site 1
+  $site = $persite->[2]; 
+  # so site 2, node 2 (extant node, node 2)
+  print $site->[2]->{'codon'}, ' ',$site->[2]->{'aa'},"\n";
+  # site 2, node 3
+  print $site->[3]->{'codon'}, ' ',$site->[3]->{'aa'}, "\n";
+
+  # ancestral node 9, codon, aa, marginal probabilities; Yang95 is listed as 
+  #  (eqn. 4 in Yang et al. 1995 Genetics 141:1641-1650) in PAML rst file.
+  print $site->[9]->{'codon'}, ' ',$site->[9]->{'aa'}, ' ', $site->[9]->{'prob'}, ' ',
+        $site->[9]->{'Yang95_aa'},' ', $site->[9]->{'Yang95_aa_prob'},"\n";
+
+
 =head1 DESCRIPTION
 
 This is a container object for PAML Results.
@@ -61,14 +109,14 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason-at-bioperl-dot-org
+Email jason-at-bioperl .dot. org
 Email amackey-at-virginia-dot-edu
 
 Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Albert Vilella avilella-at-ebi dot ac dot uk 
 
 =head1 APPENDIX
 
@@ -93,12 +141,12 @@ use Bio::AnalysisResultI;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::PAML::Result(%data);
+ Usage   : my $obj = Bio::Tools::Phylo::PAML::Result->new(%data);
  Function: Builds a new Bio::Tools::Phylo::PAML::Result object
  Returns : Bio::Tools::Phylo::PAML::Result
- Args    : -trees     => array reference of L<Bio::Tree::TreeI> objects
+ Args    : -trees     => array reference of Bio::Tree::TreeI objects
            -MLmatrix  => ML matrix
-           -seqs      => array reference of L<Bio::PrimarySeqI> objects
+           -seqs      => array reference of Bio::PrimarySeqI objects
            -codonpos  => array reference of codon positions 
            -codonfreq => array reference of codon frequencies
            -version   => version string
@@ -113,6 +161,13 @@ use Bio::AnalysisResultI;
            -alpha_mat => Bio::Matrix::PhylipDist of alpha values (only for BASEML)
            -NSSitesresult => arrayref of PAML::ModelResult 
            -input_params  => input params from .ctl file 
+           -rst       => array reference of Bio::PrimarySeqI objects
+                         of ancestral state reconstruction
+           -rst_persite=> arrayref of persite data, this is a complicated set of AoH
+           -rst_trees  => rst trees with changes coded on the tree
+
+See Also: L<Bio::Tree::TreeI>, L<Bio::PrimarySeqI>, L<Bio::Matrix::PhylipDist>, L<Bio::Tools::Phylo::PAML>
+
 
 =cut
 
@@ -126,7 +181,7 @@ sub new {
       $aafreq, $aadistmat, 
       $aamldistmat,
       $ntfreqs, $kappa_mat,$alpha_mat,
-      $NSSitesresults,$input_params ) = 
+      $NSSitesresults,$input_params,$rst,$rst_persite,$rst_trees ) = 
 	  $self->_rearrange([qw
 			     (TREES MLMATRIX 
 			      SEQS NGMATRIX
@@ -138,7 +193,8 @@ sub new {
 			      KAPPA_DISTMAT
 			      ALPHA_DISTMAT
 			      NSSITESRESULTS
-			      INPUT_PARAMS)], 
+			      INPUT_PARAMS
+			      RST RST_PERSITE RST_TREES)], 
 			    @args);
   $self->reset_seqs;
   if( $trees ) {
@@ -249,7 +305,7 @@ sub new {
 
   if( $input_params ) {
       if(  ref($input_params) !~ /HASH/i ) {
-	  warn("need a valid HASH object for input_params\n");
+	  $self->warn("need a valid HASH object for input_params\n");
       } else {
 	  while( my ($p,$v) = each %$input_params ) {
 	      $self->set_input_parameter($p,$v);
@@ -257,6 +313,30 @@ sub new {
       }
       
   }
+  $self->reset_rst_seqs;
+  if( $rst ) {
+      if( ref($rst) =~ /ARRAY/i ) {	  
+	  for ( @$rst ) {
+	      $self->add_rst_seq($_);
+	  }
+      } else {
+	  $self->warn("Need a valid array ref for -rst option\n");
+      }
+  }
+  if( defined $rst_persite ) {
+      $self->set_rst_persite($rst_persite);
+  }
+  $self->reset_rst_trees;
+  if( $rst_trees ) {
+      if( ref($rst_trees) =~ /ARRAY/i ) {	  
+	  for ( @$rst_trees ) {
+	      $self->add_rst_tree($_);
+	  }
+      } else {
+	  $self->warn("Need a valid array ref for -rst_trees option\n");
+      }
+  }
+
   return $self;
 }
 
@@ -980,6 +1060,153 @@ sub reset_input_parameters{
    my ($self) = @_;
    $self->{'_input_parameters'} = {};
 }
+
+=head1 Reconstructed Ancestral State relevant options 
+
+=head2 add_rst_seq
+
+ Title   : add_rst_seq
+ Usage   : $obj->add_rst_seq($seq)
+ Function: Add a Bio::PrimarySeq to the RST Result
+ Returns : none
+ Args    : Bio::PrimarySeqI
+See also : L<Bio::PrimarySeqI>
+
+=cut
+
+sub add_rst_seq{
+   my ($self,$seq) = @_;
+   if( $seq ) { 
+       unless( $seq->isa("Bio::PrimarySeqI") ) {
+	   $self->warn("Must provide a valid Bio::PrimarySeqI to add_rst_seq");
+	   return;
+       }
+       push @{$self->{'_rstseqs'}},$seq;
+   }
+
+}
+
+=head2 reset_rst_seqs
+
+ Title   : reset_rst_seqs
+ Usage   : $result->reset_rst_seqs
+ Function: Reset the RST seqs stored
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub reset_rst_seqs{
+   my ($self) = @_;
+   $self->{'_rstseqs'} = [];
+}
+
+=head2 get_rst_seqs
+
+ Title   : get_rst_seqs
+ Usage   : my @otus = $result->get_rst_seqs
+ Function: Get the seqs Bio::PrimarySeq
+ Returns : Array of Bio::PrimarySeqI objects
+ Args    : None
+See also : L<Bio::PrimarySeq>
+
+=cut
+
+sub get_rst_seqs{
+   my ($self) = @_;
+   return @{$self->{'_rstseqs'} || []};
+}
+
+
+=head2 add_rst_tree
+
+ Title   : add_rst_tree
+ Usage   : $obj->add_rst_tree($tree)
+ Function: Add a Bio::Tree::TreeI to the RST Result
+ Returns : none
+ Args    : Bio::Tree::TreeI
+See also : L<Bio::Tree::TreeI>
+
+=cut
+
+sub add_rst_tree{
+   my ($self,$tree) = @_;
+   if( $tree ) { 
+       unless( $tree->isa("Bio::Tree::TreeI") ) {
+	   $self->warn("Must provide a valid Bio::Tree::TreeI to add_rst_tree not $tree");
+	   return;
+       }
+       push @{$self->{'_rsttrees'}},$tree;
+   }
+}
+
+=head2 reset_rst_trees
+
+ Title   : reset_rst_trees
+ Usage   : $result->reset_rst_trees
+ Function: Reset the RST trees stored
+ Returns : none
+ Args    : none
+
+
+=cut
+
+sub reset_rst_trees{
+   my ($self) = @_;
+   $self->{'_rsttrees'} = [];
+}
+
+=head2 get_rst_trees
+
+ Title   : get_rst_trees
+ Usage   : my @otus = $result->get_rst_trees
+ Function: Get the trees Bio::Tree::TreeI
+ Returns : Array of Bio::Tree::TreeI objects
+ Args    : None
+See also : L<Bio::Tree::TreeI>
+
+=cut
+
+sub get_rst_trees{
+   my ($self) = @_;
+   return @{$self->{'_rsttrees'} || []};
+}
+
+=head2 set_rst_persite
+
+ Title   : set_rst_persite
+ Usage   : $obj->set_rst_persite($newval)
+ Function: Get/Set the per-site RST values
+ Returns : value of set_rst_persite (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub set_rst_persite{
+    my $self = shift;
+
+    return $self->{'_rstpersite'} = shift if @_;
+    return $self->{'_rstpersite'};
+}
+
+=head2 get_rst_persite
+
+ Title   : get_rst_persite
+ Usage   : my @rst_persite = @{$result->get_rst_persite()} 
+ Function: Get the per-site RST values
+ Returns : Array
+ Args    : none
+
+
+=cut
+
+sub get_rst_persite{
+   my ($self) = @_;
+   return $self->{'_rstpersite'} || [];
+}
+
 
 
 1;

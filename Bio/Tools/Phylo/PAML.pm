@@ -142,9 +142,15 @@ web:
 Email jason-at-bioperl.org
 Email amackey-at-virginia.edu
 
+=head1 CONTRIBUTORS
+
+Albert Vilella avilella-at-ebi dot ac dot uk 
+
 =head1 TODO
 
-check output from pre 1.12
+RST parsing -- done, Avilella contributions bugzilla#1506, added by jason 1.29
+            -- still need to parse in joint probability and non-syn changes 
+               at site table
 
 =head1 APPENDIX
 
@@ -158,7 +164,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::PAML;
-use vars qw(@ISA);
+use vars qw(@ISA $RSTFILENAME);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
@@ -168,6 +174,10 @@ use Bio::AnalysisParserI;
 use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::Root Bio::Root::IO Bio::AnalysisParserI);
+
+BEGIN {
+  $RSTFILENAME = 'rst'; # where to get the RST data from
+}
 
 # other objects used:
 use IO::String;
@@ -185,9 +195,10 @@ use Bio::Tools::Phylo::PAML::ModelResult;
  Returns : Bio::Tools::Phylo::PAML
  Args    : Hash of options: -file, -fh, -dir
            -file (or -fh) should contain the contents of the PAML
-           outfile; -dir is the (optional) name of the directory in
-           which the PAML program was run (and includes other
-           PAML-generated files from which we can try to gather data)
+                 outfile; 
+           -dir is the (optional) name of the directory in
+                which the PAML program was run (and includes other
+                PAML-generated files from which we can try to gather data)
 
 =cut
 
@@ -223,8 +234,10 @@ sub new {
 sub next_result {
 
     my ($self) = @_;
-
     my %data;
+    # parse the RST file, if it doesn't exist or if dir is not set
+    # this will just skip the parsing
+    $self->_parse_rst();
     my $idlookup; # a hashreference to SEQID (number) ==> 'SEQUENCENAME'
     # get the various codon and other sequence summary data, if necessary:
     $self->_parse_summary
@@ -365,7 +378,10 @@ sub next_result {
 	$data{'-aafreq'}    = $self->{'_summary'}->{'aafreqs'};
 	$data{'-ntfreq'}    = $self->{'_summary'}->{'ntfreqs'};
 	$data{'-input_params'} = $self->{'_summary'}->{'inputparams'};
-	return new Bio::Tools::Phylo::PAML::Result %data;
+        $data{'-rst'}          = $self->{'_rst'}->{'rctrted_seqs'};
+        $data{'-rst_persite'}  = $self->{'_rst'}->{'persite'};
+        $data{'-rst_trees'}    = $self->{'_rst'}->{'trees'};
+	return Bio::Tools::Phylo::PAML::Result->new(%data);
     } else {
 	return undef;
     }
@@ -1042,67 +1058,6 @@ sub _parse_branch_dnds {
     return %branch_dnds;
 }
 
-sub parse_rst_dna {
-    my ($self,$dir,$rstFile) = @_;
-    $self=shift;
-
-    my $rstfile = Bio::Root::IO->catfile($dir,$rstFile);
-
-    my $rstio;
-    if (-e $rstfile) {
-	$rstio = Bio::Root::IO->new(-file => $rstfile);
-    } else {
-	return $self;
-    }
-
-    # define whatever data structures you need to store the data
-    # key points are to reuse existing bioperl objs (like Bio::Seq)
-    # where appropriate
-
-    my (@firstseq,@seqs);
-
-    while ( defined( $_ = $rstio->_readline ) ) {
-	# implement the parsing here
-	if (m/^List of extant and reconstructed sequences/) {
-	    while ( defined( $_ = $rstio->_readline ) ) {
-		last if( /^Overall accuracy of the/ );
-		last if( /^\s+$/ && @seqs > 0 );
-		next if ( /^\s+$/ );
-		next if( /^\d+\s+$/ );
-		# runmode = (0)
-		# this should in fact be packed into a Bio::SimpleAlign object
-		# instead of an array but we'll stay with this for now
-		if ($_ =~ /^node /) {
-		    my ($name,$num,$seqstr) = split(/\s+/,$_,3);
-		    $name .= $num;
-		    $seqstr =~ s/\s+//g; # remove whitespace
-		    unless( @firstseq) {
-			@firstseq = split(//,$seqstr);
-			push @seqs, new Bio::PrimarySeq(-id  => $name,
-							-seq => $seqstr);
-		    } else {
-			my $i = 0;
-			my $v;
-			while (($v = index($seqstr,'.',$i)) >= $i ) {
-			    # replace the '.' with the correct seq from the
-			    substr($seqstr,$v,1,$firstseq[$v]);
-			    $i = $v;
-			}
-			$self->debug( "adding seq $seqstr\n");
-			push @seqs, new Bio::PrimarySeq(-id  => $name,
-							-seq => $seqstr);
-			#print $seqs[0]->id;
-		    }#end else
-		    }#end if
-		}
-	    #$self->{'_rst'}->{'rctrted_seqs'} = \@seqs;
-	    #last;
-	}
-    }
-    #return $self;
-    return @seqs;
-}
-
 
 #baseml stuff
 sub _parse_nt_freqs {
@@ -1251,4 +1206,182 @@ sub _parse_rate_parametes {
 	}
     }
 }
+
+
+# RST parsing
+sub _parse_rst { 
+  my ($self) = @_;
+  return unless $self->{'_dir'} && -d $self->{'_dir'} && -r $self->{'_dir'};
+
+  my $rstfile = Bio::Root::IO->catfile($self->{'_dir'},$RSTFILENAME);
+  return unless -e $rstfile && ! -z $rstfile;
+  
+  my $rstio = Bio::Root::IO->new(-file => $rstfile);
+
+  # define whatever data structures you need to store the data
+  # key points are to reuse existing bioperl objs (like Bio::Seq) 
+  # where appropriate
+    
+  my (@firstseq,@seqs,@trees,@per_site_prob);
+  my $count;
+  while ( defined( $_ = $rstio->_readline ) ) {
+      # implement the parsing here
+      if( /^TREE\s+\#\s+(\d+)/ ) {
+	  while(defined ($_ = $rstio->_readline) ) {
+	      if( /tree\s+with\s+node\s+labels\s+for/) {
+		  my $tree = Bio::TreeIO->new(-noclose =>1,
+					      -fh      => $rstio->_fh,
+					      -format  =>'newick')->next_tree;
+		  # cleanup leading/trailing whitespace
+		  for my $n ( $tree->get_nodes ) {
+		      my $id = $n->id;
+		      $id =~ s/^\s+//; $id =~ s/\s+$//;
+		      $n->id($id);
+		      
+		      if( defined( my $blen = $n->branch_length) ) {
+			  $blen =~ s/^\s+//; $blen =~ s/\s+$//;
+			  $n->branch_length($blen);
+		      }
+		      
+		  }
+		  push @trees, $tree;
+		  last;
+	      }
+	  } 
+      } elsif(/^Prob\sof\sbest\scharacter\sat\seach\snode,\slisted\sby\ssite/){
+	  $self->{'_rst'}->{'persite'} = [];
+	  while(defined($_ = $rstio->_readline ) ) {
+	      next if(/^Site/ || /^\s+$/ );
+	      if( s/^\s+(\d+)\s+(\d+)\s+([^:]+)\s+:\s+(.+)// ) {
+		  my ($sitenum,$freq,$extant,$ancestral) = ($1,$2,$3,$4);
+		  my (@anc_site,@extant_site);
+		  @anc_site = {};
+		  @extant_site = {};
+		  while( $extant =~ s/^([A-Z]{3})\s+\(([A-Z])\)\s+//g ) {
+		      push @extant_site, {'codon'=>$1,'aa' => $2 };
+		  }
+		  while( $ancestral =~ s/^([A-Z]{3})\s+([A-Z])\s+  # codon AA
+			                (\S+)\s+                   # Prob
+			                \(([A-Z])\s+(\S+)\)\s+//xg # AA Prob
+			 ) {
+		      push @anc_site, {'codon'            => $1,
+				       'aa'               => $2, 
+				       'prob'             => $3,
+				       'Yang95_aa'        => $4, 
+				       'Yang95_aa_prob'   => $5};
+		  }
+		  # saving persite
+		  $self->{'_rst'}->{'persite'}->[$sitenum] = [@extant_site,
+							      @anc_site];
+		  
+	      } elsif(/^Summary\sof\schanges\salong\sbranches\./ ) {
+		  last;
+	      }
+	  }
+      } elsif( /^Check\sroot\sfor\sdirections\sof\schange\./ || 
+	       /^Summary\sof\schanges\salong\sbranches\./ ) {
+	  my (@branches,@branch2node,$branch,$node);
+	  my $tree = $trees[-1];
+	  if( ! $tree ) {
+	      $self->warn("No tree built before parsing Branch changes\n");
+	      last;
+	  }
+	  my @nodes = ( map { $_->[0] } 
+			sort { $a->[1] <=> $b->[1] } 
+			map { [$_, $_->id =~ /^(\d+)\_?/] } $tree->get_nodes);
+	  unshift @nodes, undef; # fake first node so that index will match nodeid
+	  while(defined($_ = $rstio->_readline ) ) {
+	      next if /^\s+$/;
+	      if( m/^List\sof\sextant\sand\sreconstructed\ssequences/ ) {
+		  $rstio->_pushback($_);
+		  last;
+	      } elsif( /^Branch\s+(\d+):\s+(\d+)\.\.(\d+)\s+/ ) {
+		  my ($left,$right);
+		  ($branch,$left,$right) = ($1,$2,$3);
+		  ($node) = $nodes[$right];
+		  if( ! $node ) {
+		      warn("cannot find $right in $tree ($branch $left..$right)\n");
+		      last;
+		  }
+		  my ($n,$s) = (/\(n=\s*(\S+)\s+s=\s*(\S+)\)/);
+		  $node->add_tag_value('n', $n);
+		  $node->add_tag_value('s', $s);
+		  $branch2node[$branch] = $right;		  
+	      } elsif( /^\s+(\d+)\s+([A-Z])\s+(\S+)\s+\-\>\s+([A-Z])\s+(\S+)?/){
+		  my ($site,$anc,$aprob, $derived,$dprob)= ($1,$2,$3,$4,$5);
+		  if( ! $node ) {
+		      $self->warn("no branch line was previously parsed!");
+		      next;
+		  }
+		  my %c = ( 'site'        => $site,
+			    'anc_aa'      => $anc,
+			    'anc_prob'    => $aprob,
+			    'derived_aa'  => $derived,
+			    );
+		  $c{'derived_prob'} = $dprob if defined $dprob;
+		  $node->add_tag_value('changes',\%c);
+	      }
+	  }	  
+      } elsif( /^Overall\s+accuracy\s+of\s+the\s+(\d+)\s+ancestral\s+sequences:/) 
+      {
+	  my $line = $rstio->_readline;
+	  $line =~ s/^\s+//; $line =~ s/\s+$//;
+	  my @overall_site = split(/\s+/,$line);
+	  # skip next 2 lines, want the third
+	  for ( 1..3 ) {
+	      $line = $rstio->_readline;
+	  }
+	  $line =~ s/^\s+//; $line =~ s/\s+$//;
+	  my @overall_seq = split(/\s+/,$line);	  
+	  if( @overall_seq != @overall_site ||
+	      @overall_seq != @seqs ) {
+	      $self->warn("out of sync somehow seqs, site scores don't match\n");
+	      warn("@seqs @overall_seq @overall_site\n");
+	  }
+	  for ( @seqs ) {
+	      $_->description(sprintf("overall_accuracy_site=%s overall_accuracy_seq=%s",
+				      shift @overall_site,
+				      shift @overall_seq));
+	  } 
+      } elsif (m/^List of extant and reconstructed sequences/o) {
+	  while ( defined( $_ = $rstio->_readline ) ) {
+	      last if( /^Overall accuracy of the/ );
+	      last if( /^\s+$/ && @seqs > 0 );
+	      next if ( /^\s+$/ );
+	      next if( /^\d+\s+$/ );
+	      # runmode = (0)
+	      # this should in fact be packed into a Bio::SimpleAlign object
+	      # instead of an array but we'll stay with this for now
+	      if ($_ =~ /^node /) {
+		  my ($name,$num,$seqstr) = split(/\s+/,$_,3);
+		  $name .= $num;
+		  $seqstr =~ s/\s+//g; # remove whitespace 
+		  unless( @firstseq ) {
+		      @firstseq = split(//,$seqstr);
+		      push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
+						       -seq         => $seqstr);
+		  } else { 
+		      my $i = 0;
+		      my $v;
+		      while (($v = index($seqstr,'.',$i)) >= $i ) {
+			  # replace the '.' with the correct seq from the
+			  substr($seqstr,$v,1,$firstseq[$v]);
+			  $i = $v;
+		      }
+		      $self->debug( "adding seq $seqstr\n");
+		      push @seqs, Bio::PrimarySeq->new
+			  (-display_id  => $name,
+			   -seq         => $seqstr);
+		  }
+	      }
+	  }
+	  $self->{'_rst'}->{'rctrted_seqs'} = \@seqs;
+      } else {
+	  
+      }
+  }
+  $self->{'_rst'}->{'trees'} = \@trees;
+  return;
+}
+
 1;
