@@ -265,7 +265,7 @@ sub next_seq {
         $seq->annotation($ann) unless ($self->{_locuslink} eq 'convert');
         $seq->species($specie);
         my @seqs;
-        foreach my $key (keys %seqcollection) {
+        foreach my $key (keys %seqcollection) {#Optimize this, no need to go through hash?
           push @seqs,@{$seqcollection{$key}};
         }
         my $cluster = Bio::Cluster::SequenceFamily->new(-family_id=>$seq->accession_number,
@@ -306,7 +306,7 @@ foreach my $product (@products) {
    my $nseq = Bio::Seq->new(
                         -accession_number => $product->{seqs}->{whole}->{gi},
                         -display_id=>$product->{accession},
-                        -desc=> $product->{heading}
+                        -authority=> $product->{heading}
                    );
                    if ($product->{source}) {
                     my ($uncapt,$allann)=_process_src($product->{source});
@@ -400,7 +400,7 @@ sub _process_comments {
                     }
         }
             }
-            $comm=$comm->{comment};
+            $comm=$comm->{comment};#DOES THIS NEED TO BE REC CYCLE? INSANE!!!
             if (ref($comm) eq 'ARRAY') {
               @comm=@{$comm};
             }
@@ -418,46 +418,51 @@ sub _process_comments {
                 push @uncaptured,$uncapt;
             }
             }
-            if ((exists($ccomm->{text}))&&($ccomm->{text}=~/Location/i)){
-            my ($l1,$rest)=split(/-/,$ccomm->{text});
-            $l1=~s/\D//g;
-            $rest=~s/^\s//;
-            my ($l2,@rest)=split(/\s/,$rest);
-            my (%tags,$tag);
-            unless ($l1) {
-                next;
+            $ccomm=$ccomm->{comment} if (exists($ccomm->{comment}));#Alice in Wonderland
+            my @loc;
+            if (ref($ccomm) eq 'ARRAY') {
+              @loc=@{$ccomm};
             }
-            $nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, -end=>$l2, -strand=>$tags{strand}, -source=>$ccomm->{type},
-                                -seq_id=>$desc, primary=>$heading);
-            foreach my $rest (@rest) {
-                $rest=~s/[:,]$//;
-                if ($rest=~/\D/) {$tag.=lc($rest).' '; next;}
-                next unless (($tag)&&($rest));
-                 $nfeat->add_tag_value($tag,$rest);
-                 undef $tag;
+            else {
+                push @loc,$ccomm;
             }
-            foreach my $sfann (@sfann) {
-                $nann->add_Annotation('dblink',$sfann);
+            foreach my $loc (@loc) {
+                if ((exists($loc->{text}))&&($loc->{text}=~/Location/i)){
+                    my ($l1,$rest)=split(/-/,$loc->{text});
+                    $l1=~s/\D//g;
+                    $rest=~s/^\s//;
+                    my ($l2,$scorestr)=split(/\s/,$rest,2);
+                    my ($scoresrc,$score)=split(/:/,$scorestr);
+                    $score=~s/\D//g;
+                    my (%tags,$tag);
+                    unless ($l1) {
+                        next;
+                    }
+                    $nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, -end=>$l2, -strand=>$tags{strand}, -source=>$loc->{type},
+                                -seq_id=>$desc, primary=>$heading, -score=>$score, -tag    => {score_src=>$scoresrc});
+                    foreach my $sfann (@sfann) {
+                        $nann->add_Annotation('dblink',$sfann);
+                    }
+                    $nfeat->annotation($nann);
+                    push @nfeat,$nfeat;
+                    delete $loc->{text};
+                    delete $loc->{type};
+                }
+                elsif (exists($loc->{label})) {
+                    _add_to_ann($loc->{text},$loc->{label});
+                    delete $loc->{text};
+                    delete $loc->{label};
+                    push @uncaptured,$loc;
+                }
+                elsif (exists($loc->{text})) {
+                    _add_to_ann($loc->{text},'description');
+                    delete $loc->{text};
+                    push @uncaptured,$loc;
+                }
             }
-            $nfeat->annotation($nann);
-            push @nfeat,$nfeat;
-            delete $ccomm->{text};
-            delete $ccomm->{type};
-            }
-        elsif (exists($ccomm->{label})) {
-            _add_to_ann($ccomm->{text},$ccomm->{label});
-            delete $ccomm->{text};
-            delete $ccomm->{label};
-            push @uncaptured,$ccomm;
-        }
-        elsif (exists($ccomm->{text})) {
-            _add_to_ann($ccomm->{text},'description');
-            delete $ccomm->{text};
-            push @uncaptured,$ccomm;
-        }
         }#Bit clumsy but that's what we get from the low level parser
             unless ($nfeat){ push @anncol,@ann;}
-        push @uncaptured,$comm;
+            push @uncaptured,$comm;
     }
     }
     return \@anncol,\@nfeat,\@uncaptured;
@@ -498,8 +503,11 @@ sub _process_src {
             my $simann=new Bio::Annotation::DBLink(-database => $db,
                                         -primary_id => $id
                     );
-            $simann->{_anchor}=$anchor if ($anchor);
-            $simann->{_url}=$url if ($url);#DBLink should have URL!
+            if ($anchor) {
+                $simann->{_anchor}=$anchor ;
+                $simann->optional_id($anchor);
+            }
+            $simann->url($url) if ($url);#DBLink should have URL!
             push @ann, $simann;
         }
         return $src, \@ann,$anchor;
@@ -540,7 +548,7 @@ if (exists($locus->{seqs}->{'int'}->{from})) {
  delete $locus->{seqs}->{'int'}->{to};
  delete $locus->{seqs}->{'int'}->{strand};
  $strand=$locus->{seqs}->{'int'}->{strand} eq 'minus'?-1:1;
-    my $nfeat=Bio::SeqFeature::Generic->new(-start=>$start, -end=>$end, -strand=>$strand);
+    my $nfeat=Bio::SeqFeature::Generic->new(-start=>$start, -end=>$end, -strand=>$strand, primary=>'gene location');
     $gseq->add_SeqFeature($nfeat);
 }
 my @products;
