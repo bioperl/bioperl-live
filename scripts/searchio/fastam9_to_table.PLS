@@ -1,5 +1,4 @@
-#!perl -w
-use strict;
+#!/usr/bin/perl -w
 
 =head1 NAME 
 
@@ -23,28 +22,27 @@ Not technically a SearchIO script as this doesn't use any Bioperl
 components but is a useful and fast.  The output is tabular output
 with the standard NCBI -m9 columns.
 
-  queryname
-  hit name
-  percent identity
-  alignment length
-  number mismatches 
-  number gaps
-  query start  (if on rev-strand start > end)
-  query end 
-  hit start (if on rev-strand start > end)
-  hit end 
-  evalue
-  bit score
+ queryname
+ hit name
+ percent identity
+ alignment length
+ number mismatches 
+ number gaps
+ query start  (if on rev-strand start > end)
+ query end 
+ hit start (if on rev-strand start > end)
+ hit end 
+ evalue
+ bit score
 
 Additionally 3 more columns are provided
-
-  fasta score
-  sw-score
-  percent similar
-  query length
-  hit length
-  query gaps
-  hit gaps
+ fasta score
+ sw-score
+ percent similar
+ query length
+ hit length
+ query gaps
+ hit gaps
 
 =head1 AUTHOR - Jason Stajich
 
@@ -52,7 +50,7 @@ Jason Stajich jason_at_bioperl-dot-org
 
 =cut
 
-
+use strict;
 use Getopt::Long;
 my $hitsection = 0;
 my %data;
@@ -79,7 +77,7 @@ if( $outfile ) {
 # hit end     -- ax1
 
 my @fields = qw(qname hname percid alen mmcount gapcount 
-		qstart qend hstart hend evalue score bits score sw-score 
+		qstart qend hstart hend evalue score bits fs sw-score 
 		percsim qlen hlen qgap hgap);
 print $outfh "#",uc(join("", map{ sprintf("%-10s",$_) } @fields)), "\n" if $header;
 
@@ -87,7 +85,7 @@ while(<>) {
     my $linestr = $_;
     if( /^\s*\d+>>>(\S+).+/ ) {	
 	$data{'qname'} = $1;
-	if( /\-\s+(\d+)\s+aa\s+$/ ){
+	if( /\-\s+(\d+)\s+(aa|nt)\s+$/ ){
 	    $data{'qlen'} = $1;
 	}
     } elsif( $hitsection && /^>>>\Q$data{'qname'}/ ) {	
@@ -98,6 +96,7 @@ while(<>) {
     } elsif( $hitsection ) {
 	if( s/^(\S+)\s+(.+)\(\s*(\d+)\)\s+// ) {
 	    my ($hit, $desc,$hitlen) = ($1,$2,$3);
+	    my ($dir) = ( s/^\[(r|f)\]\s+// );
 	    my @line = split(/\s+/,$_);
 	    $data{'hname'}    = $hit;
 	    $data{'hlen'}     = $hitlen;
@@ -111,12 +110,12 @@ while(<>) {
 	    $data{'alen'}     = shift @line;
 	    $data{'qstart'}   = shift @line;
 	    $data{'qend'}     = shift @line;
-	    my $pn0           = shift @line; # pn0
-	    $data{'qlen'}     = shift @line; # px0
+	    $data{'pn0'}      = shift @line; # pn0
+	    $data{'px0'}      = shift @line; # px0
 	    $data{'hstart'}   = shift @line; # an1 
 	    $data{'hend'}     = shift @line; # ax1
-	    my $pn1           = shift @line; # pn1
-	    $data{'qlen'}     = shift @line; # px1
+	    $data{'pn1'}      = shift @line; # pn1
+	    $data{'px1'}      = shift @line; # px1
 	    # query + hit gaps
 	    $data{'qgap'}     = shift @line;
 	    $data{'hgap'}     = shift @line;
