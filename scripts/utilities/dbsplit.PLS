@@ -1,5 +1,6 @@
-#!/usr/bin/perl -w
+#!perl -w
 #-*-Perl-*-
+
 =head1 NAME
 
 dbsplit - script to split an input set of database(s) into smaller pieces
@@ -50,7 +51,7 @@ the web:
 
 =head1 AUTHOR
 
-Jason Stajich, jason@bioperl.org
+Jason Stajich, jason-at-bioperl-dot-org
 
 =cut
 
@@ -102,3 +103,5 @@ while( my $seq = $in->next_seq ) {
     $out->write_seq($seq);
 }
 
+
+__END__

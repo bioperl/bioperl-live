@@ -1,7 +1,7 @@
-#!/usr/bin/perl -w
-# $Id: search2BSML.PLS,v 1.1 2003-05-17 18:49:30 jason Exp $
+#!perl -w
+# $Id: search2BSML.PLS,v 1.2 2005-04-26 15:03:53 jason Exp $
 
-# Author:      Jason Stajich <jason@bioperl.org>
+# Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
 #
 =head1 NAME

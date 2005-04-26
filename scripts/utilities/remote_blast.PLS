@@ -1,14 +1,13 @@
+#!perl -w
 # BioPerl module for remote_blast.pl
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason-at-bioperl-dot-org>
 #
 # Copyright Jason Stajich
 #
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs after the code
-
-#!/usr/local/bin/perl -w
 
 use strict;
 use vars qw($USAGE);
@@ -17,9 +16,9 @@ use Bio::Tools::Run::RemoteBlast;
 use Bio::SeqIO;
 use Getopt::Long;
 
-$USAGE = "remote_blast.pl [-h] [-p prog] [-d db] [-e expect] [-mod BPlite|Blast] [-f seqformat] -i seqfile\n";
+$USAGE = "remote_blast.pl [-h] [-p prog] [-d db] [-e expect] [-mod Blast] [-f seqformat] -i seqfile\n";
 
-my ($prog, $db, $expect,$method) = ( 'blastp', 'nr', '10', 'BPlite');
+my ($prog, $db, $expect,$method) = ( 'blastp', 'nr', '10', 'Blast');
 
 my ($sequencefile,$sequenceformat,$help) = (undef, 'fasta',undef);
 
@@ -95,7 +94,7 @@ __END__
 #
 # BioPerl module for remote_blast.pl
 #
-# Cared for by Jason Stajich <jason@chg.mc.duke.edu>
+# Cared for by Jason Stajich <jason-at-bioperl-dot-org>
 #
 # Copyright Jason Stajich
 #
@@ -132,14 +131,13 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@chg.mc.duke.edu
+Email jason-at-bioperl-dot-org
 
 =cut

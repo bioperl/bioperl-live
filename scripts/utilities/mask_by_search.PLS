@@ -1,5 +1,7 @@
-#!/usr/bin/perl -w
-# $Id: mask_by_search.PLS,v 1.4 2004-12-08 10:48:05 heikki Exp $
+#!perl -w
+# $Id: mask_by_search.PLS,v 1.5 2005-04-26 15:03:53 jason Exp $
+# Author:  Jason Stajich <jason-at-bioperl-dot-org>
+
 
 =head1 NAME
 

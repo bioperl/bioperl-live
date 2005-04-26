@@ -1,7 +1,7 @@
-#!/usr/bin/perl -w
-# $Id: bp_nrdb.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
+#!perl -w
+# $Id: bp_nrdb.PLS,v 1.4 2005-04-26 15:03:53 jason Exp $
 
-# Author Jason Stajich <jason@bioperl.org>
+# Author Jason Stajich <jason-at-bioperl-dot-org>
 # 
 # Make a non-redundant database based on sequence (not on ID!)
 # This script is still in progress but is intended to mimic what 
@@ -37,7 +37,7 @@ This script will create a unique database of sequences
 
 =head1 AUTHOR
 
-Jason Stajich, jason@bioperl.org
+Jason Stajich, jason-at-bioperl-dot-org
 
 =cut
 
@@ -131,3 +131,5 @@ foreach my $pair ( @files ) {
 foreach my $seq ( values %unique ) {
     $out->write_seq($seq);
 }
+
+__END__

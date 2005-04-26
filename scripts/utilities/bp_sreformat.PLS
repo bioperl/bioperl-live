@@ -1,5 +1,5 @@
 #!perl
-# Author:  Jason Stajich <jason@bioperl.org>
+# Author:  Jason Stajich <jason-at-bioperl-dot-org>
 # Purpose: Bioperl implementation of Sean Eddy's sreformat
 #          We're not as clever as Sean's squid library though so
 #          you have to specify the input format rather than letting

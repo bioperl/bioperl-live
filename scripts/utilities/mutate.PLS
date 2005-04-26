@@ -1,8 +1,8 @@
-#!/usr/bin/perl 
+#!perl -w
 
 =head1 NAME
 
-mutate.pl
+mutate - a script to randomly mutagenize a single protein or DNA sequence
 
 =head1 SYNOPSIS
 
@@ -37,8 +37,8 @@ mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
   http://bugzilla.bioperl.org/
 

@@ -1,7 +1,7 @@
-#!/usr/bin/perl -w
-# $Id: search2tribe.PLS,v 1.5 2004-03-09 15:11:27 jason Exp $
+#!perl -w
+# $Id: search2tribe.PLS,v 1.6 2005-04-26 15:03:53 jason Exp $
 
-# Author:      Jason Stajich <jason@bioperl.org>
+# Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a TRIBE matrix
 #
 =head1 NAME
@@ -14,6 +14,12 @@ Usage:
   search2tribe [-o outputfile] [-f reportformat] [-w/--weight] file1 file2 ..
 
 =head1 DESCRIPTION
+
+This script is probably too slow for most people's uses.  It is better
+to use something like scripts/searchio/fastam9_to_table, -m 9 output
+from BLAST, or the blast2table from the BLAST O'Reilly book to get a
+tabular output from these programs and then feed the table into MCL
+with the mcxdeblast script and the --m9 option.
 
 This script will turn a protein Search report (BLASTP, FASTP, SSEARCH)
 into a Markov Matrix for TribeMCL clustering.
@@ -33,7 +39,7 @@ You specify this by doing: search2tribe E<lt> file1 file2 file3
 
 =head1 AUTHOR
 
-Jason Stajich, jason@bioperl.org
+Jason Stajich, jason-at-bioperl-dot-org
 
 =cut
 

@@ -1,8 +1,8 @@
 #!perl
-# $Id: bp_mrtrans.PLS,v 1.5 2004-05-12 01:11:47 jason Exp $
+# $Id: bp_mrtrans.PLS,v 1.6 2005-04-26 15:03:53 jason Exp $
 use strict;
 
-# Author:      Jason Stajich <jason@bioperl.org>
+# Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Perl implementation of Bill Pearson's mrtrans
 #              to project protein alignment back into cDNA coordinates
 #
@@ -37,7 +37,7 @@ The options are:
 
 =head1 AUTHOR
 
-Jason Stajich, jason-at-bioperl.org
+Jason Stajich, jason-at-bioperl-dot-org
 
 =cut
 
@@ -100,3 +100,5 @@ while( my $aln = $in->next_aln ) {
     $dnaaln->set_displayname_flat(1);
     $out->write_aln($dnaaln);
 }
+
+__END__
