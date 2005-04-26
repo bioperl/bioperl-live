@@ -84,7 +84,7 @@ sub new {
 	Bio::Root::Root->_load_module($class);
       };
     if ( $@ ) {
-	Bio::Root::RootI->throw("$class cannot be found\nException $@");
+	Bio::Root::Root->throw("$class cannot be found\nException $@");
       }
     bless $self,$class;
 
