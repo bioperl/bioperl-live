@@ -2,6 +2,27 @@ $Id$
   
 Revision history for Bioperl core modules
 
+    o Bio::Tools::Phylo::PAML - parsing RST (ancestral sequence
+      reconstruction) is now supported.  Parsing different models and 
+      branch specific parametes are now supported.
+
+    o Bio::Factory::FTLocationFactory - parse hierarchical locations 
+      (joins of joins)
+
+    o Bio::Matrix::DistanceMatrix returns arrayrefs instead of arrays
+      for getter/setter functions
+
+    o Bio::SearchIO
+      
+      blast bug #1739; match scientific notation in score 
+      and possible e+ values 
+
+      fix off-by-one error in psl parsing
+
+    o Bio::Tools::Hmmpfam 
+      make e-value default score displayed in gff, rather than raw score
+      allow parse of multiple records
+
 1.5 branch
 
 1.5 Developer release
