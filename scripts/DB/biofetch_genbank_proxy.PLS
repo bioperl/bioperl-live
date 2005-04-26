@@ -1,5 +1,5 @@
-#!/usr/bin/perl -w
-# $Id: biofetch_genbank_proxy.PLS,v 1.3 2003-03-26 09:20:02 heikki Exp $
+#!perl -w
+# $Id: biofetch_genbank_proxy.PLS,v 1.4 2005-04-26 15:10:54 jason Exp $
 
 # dbfetch style caching proxy for GenBank
 use strict;
@@ -300,7 +300,7 @@ L<Bio::DB::BioFetch>, L<Bio::DB::Registry>
 
 =head1 AUTHOR
 
-Lincoln Stein, lstein@cshl.org
+Lincoln Stein, E<lt>lstein-at-cshl.orgE<gt>
 
 Copyright (c) 2003 Cold Spring Harbor Laboratory
 

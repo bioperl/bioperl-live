@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#$Id: bioflat_index.PLS,v 1.3 2005-03-04 21:01:38 bosborne Exp $
+#$Id: bioflat_index.PLS,v 1.4 2005-04-26 15:10:54 jason Exp $
 
 =head1 NAME
 
@@ -107,4 +107,6 @@ my $db = Bio::DB::Flat->new(-directory  => $LOCATION,
 my $entries = $db->build_index(@ARGV);
 
 print STDERR "(Re)indexed $entries entries.\n ";
-1;
+
+
+__END__

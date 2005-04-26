@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: extract_feature_seq.PLS,v 1.2 2005-02-03 15:04:58 avilella Exp $
+# $Id: extract_feature_seq.PLS,v 1.3 2005-04-26 15:08:42 jason Exp $
 # Author Jason Stajich <jason@bioperl.org>
 
 =head1 NAME
@@ -36,7 +36,7 @@ email or the web:
 
 =head1 AUTHOR
 
- Jason Stajich <jason@bioperl.org>
+ Jason Stajich E<lt>jason-at-bioperl-dot-orgE<gt>
 
 =cut
 
@@ -80,3 +80,5 @@ while( my $seq = $in->next_seq ) {
 	$out->write_seq($s);
     }
 }
+
+__END__

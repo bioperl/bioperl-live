@@ -1,9 +1,9 @@
 #!perl -w
-# $Id: biogetseq.PLS,v 1.2 2004-06-13 23:55:46 lstein Exp $
+# $Id: biogetseq.PLS,v 1.3 2005-04-26 15:10:54 jason Exp $
 #
 # OBDA Registry compliant sequence retrieval script
 #
-# Copyright Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Copyright Heikki Lehvaslaiho <heikki-at-ebi.ac.uk>
 # You may distribute this program under the same terms as perl itself
 
 

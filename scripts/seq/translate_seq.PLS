@@ -1,7 +1,6 @@
 #!perl -w
 use strict;
-# $Id: translate_seq.PLS,v 1.4 2005-01-24 02:31:57 jason Exp $
-
+# $Id: translate_seq.PLS,v 1.5 2005-04-26 15:08:43 jason Exp $
 
 =head1 NAME
 
@@ -60,3 +59,5 @@ while( (my $seq = $seqin->next_seq()) ) {
 	my $pseq = $seq->translate();
 	$seqout->write_seq($pseq);
 }
+
+__END__

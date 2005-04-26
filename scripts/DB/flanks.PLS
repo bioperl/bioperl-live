@@ -1,8 +1,8 @@
 #!perl
 # -*-Perl-*-
-# $Id: flanks.PLS,v 1.2 2003-02-26 09:32:39 heikki Exp $
+# $Id: flanks.PLS,v 1.3 2005-04-26 15:10:54 jason Exp $
 #
-# Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Heikki Lehvaslaiho <heikki-at-ebi.ac.uk>
 # Finding flanking sequences for a variant.
 #
 #
@@ -302,15 +302,14 @@ Bioperl mailing lists  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email:  heikki@ebi.ac.uk
+Email:  E<lt>heikki-at-ebi.ac.ukE<gt>
 Address:
 
      EMBL Outstation, European Bioinformatics Institute

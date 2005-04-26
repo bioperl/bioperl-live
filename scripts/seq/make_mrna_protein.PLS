@@ -1,5 +1,5 @@
-#!/usr/bin/perl -w
-# $Id: make_mrna_protein.PLS,v 1.1 2005-04-26 01:47:40 bosborne Exp $
+#!perl -w
+# $Id: make_mrna_protein.PLS,v 1.2 2005-04-26 15:08:42 jason Exp $
 #
 =head1 NAME
 
@@ -28,7 +28,7 @@ and the translate() method
 
 =head1 AUTHOR - Jason Stajich
 
-  Email jason@chg.mc.duke.edu
+  Email jason-at-bioperl-dot-org
 
 =cut
 
@@ -88,7 +88,9 @@ if( $output ) {
 }
 
 while( my $seq = $in->next_seq ) {
-	my $protseq = $seq->translate($termchar,$unknownProt, $frame,$codontable,
-											$fullCDS, $throw_on_Incomp_CDS);
-	$out->write_seq($protseq);
+    my $protseq = $seq->translate($termchar,$unknownProt, $frame,$codontable,
+				  $fullCDS, $throw_on_Incomp_CDS);
+    $out->write_seq($protseq);
 }
+
+__END__

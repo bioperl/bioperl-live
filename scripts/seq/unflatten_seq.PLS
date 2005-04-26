@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
-# $Id: unflatten_seq.PLS,v 1.4 2004-09-08 22:04:19 cjm Exp $
-# Author Chris Mungall <cjm@bioperl.org>
+# $Id: unflatten_seq.PLS,v 1.5 2005-04-26 15:08:43 jason Exp $
+# Author Chris Mungall <cjm-at-bioperl.org>
 
 =head1 NAME
 
@@ -160,7 +160,7 @@ email or the web:
 
 =head1 AUTHOR
 
- Chris Mungall <cjm@bioperl.org>
+ Chris Mungall E<lt>cjm-at-bioperl.orgE<gt>
 
 =cut
 
@@ -250,3 +250,5 @@ while( my $seq = $in->next_seq ) {
     }
 
 }
+
+__END__

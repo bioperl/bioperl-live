@@ -1,7 +1,6 @@
 #!perl -w
 use strict;
-# $Id: split_seq.PLS,v 1.2 2004-10-27 19:38:03 jason Exp $
-
+# $Id: split_seq.PLS,v 1.3 2005-04-26 15:08:42 jason Exp $
 
 =head1 NAME
 
@@ -29,14 +28,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-  Ewan Birney <birney@ebi.ac.uk>
+  Ewan Birney E<lt>birney-at-ebi.ac.ukE<gt>
 
 =cut
 
@@ -72,3 +71,5 @@ while( (my $seq = $seqin->next_seq()) ) {
        $seqout->write_seq($seqtrunc);
    }
 }
+
+__END__
