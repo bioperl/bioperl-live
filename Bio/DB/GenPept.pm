@@ -28,7 +28,7 @@ Bio::DB::GenPept - Database object interface to GenPept
 
     my $seqio = $gb->get_Stream_by_id(['195055', 'DEECTH']);
     while( my $seq = $seqio->next_seq ) {
-	print "seq is is ", $seq->display_id, "\n";
+	    print "seq is is ", $seq->display_id, "\n";
     }
 
 =head1 DESCRIPTION
@@ -209,7 +209,7 @@ sub default_format {
 
 =cut
 
-# oberride to force format to be GenPept regardless
+# override to force format to be GenPept regardless
 sub request_format {
     my ($self) = @_;
     return $self->SUPER::request_format($self->default_format());

@@ -320,15 +320,14 @@
 		coming from someone
 		in distress that goes unanswered. The explanation is usually that
 		the person neglected to include 1 or more of the details above,
-		usually the script or the error messages. If you give enough 
-		information you will get help.
+		usually the script or the error messages.
     </para>
 	 <note>
 		<para>
 		  And every once in a while, not often, an email will go
-		  unanswered just because the
-		  the tone of the email is unpleasant. Bioperl
-		  is a 100% volunteer effort, we all have full-time jobs, 
+		  unanswered because the
+		  the tone is unpleasant. Bioperl
+		  is a 100% volunteer effort, we all have other jobs, 
 		  complaining about bugs or lack of
 		  documentation is not the way to make friends!
 		</para>
@@ -552,7 +551,7 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
 		specific methods taken from the module or modules that were used
 		to create it. For example, the 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>
-		module can call a method
+		module can access a method
 		named <function>seq()</function> that will print out the
 		sequence of 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects. You could use it like this:
@@ -1421,7 +1420,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
     </para>
 	 <para>
 		If you compare these values to the values taken from the Genbank 
-		entry you'll see that certain values, or methods, are missing,
+		entry you'll see that certain values are missing,
 		like <function>seq_version</function>. That's because these values
 		like this aren't usually present in the typical fasta file. 
 	 </para>

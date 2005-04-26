@@ -169,6 +169,11 @@ Turn SearchIO reports into a tabular format like blastall's "-m 9" output.
 Turn FASTA -m9 reports into a tabular format like blastall's "-m 9"
 output.  Does not actually use SearchIO is very fast.
 
+=head2 scripts/seq/make_mrna_protein.PLS
+
+Translate a DNA or RNA sequence to protein using Bio::Seq's 
+translate() method.
+
 =head2 scripts/seq/seqconvert.PLS
 
 Bioperl sequence format converter.
@@ -423,10 +428,6 @@ L<Bio::LiveSeq::Mutation> for more information.
 =head2 examples/longorf.pl
 
 A script that finds the longest ORF in one or more nucleotide sequences.
-
-=head2 examples/make_mrna_protein.pl
-
-Translate a cDNA or ORF to protein using Bio::Seq's translate() method.
 
 =head2 examples/make_primers.pl
 

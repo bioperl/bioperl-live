@@ -195,7 +195,7 @@ BEGIN {
 	'ALIGNMENT_VIEW' =>
    '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
 	 # Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
-  	 # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular 
+  	 # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular
 	 'DESCRIPTIONS'	=> '\d+',			# Positive integer
 	 'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',	# yes, no
 	 'EXPECT_LOW'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
@@ -562,7 +562,7 @@ sub retrieve_blast {
 			if( $self->readmethod =~ /BPlite/ ) {
 				$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
 	    	} else {
-				$blastobj = new Bio::SearchIO( -file     => $tempfile,
+				$blastobj = new Bio::SearchIO( -file => $tempfile,
 														 -format => 'blast');
 			}
 
@@ -570,7 +570,8 @@ sub retrieve_blast {
 			$self->file($tempfile);
 	    	return $blastobj;
 		} elsif( $size < 500 ) { # search had a problem
-			open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile"); 
+			open(ERR, "<$tempfile")
+			  or $self->throw("cannot open file $tempfile");
 			$self->warn(join("", <ERR>));
 			close ERR;
 	    	return -1;
@@ -621,37 +622,40 @@ sub save_output {
 }
 
 sub _load_input {
-    my ($self, $input) = @_;
+	my ($self, $input) = @_;
 
-    if( ! defined $input ) {
+	if( ! defined $input ) {
 		$self->throw("Calling remote blast with no input");
-    }
-    my @seqs;
-    if( ! ref $input ) {
-	if( -e $input ) {
-	    my $seqio = new Bio::SeqIO(-format => 'fasta', -file => $input);
-	    while( my $seq = $seqio->next_seq ) {
-		push @seqs, $seq;
-	    }
-	} else {
-	    $self->throw("Input $input was not a valid filename");
-	}	
-    } elsif( ref($input) =~ /ARRAY/i ) {
-	foreach ( @$input ) {
-	    if( ref($_) && $_->isa('Bio::PrimarySeqI') ) {
-		push @seqs, $_;
-	    } else {
-		$self->warn("Trying to add a " . ref($_) .
-			    " but expected a Bio::PrimarySeqI");
-	    }
 	}
-	if( ! @seqs) {
-	    $self->throw("Did not pass in valid input -- no sequence objects found");
+	my @seqs;
+	if( ! ref $input ) {
+		if( -e $input ) {
+			my $seqio = new Bio::SeqIO(-format => 'fasta',
+												-file => $input);
+			while( my $seq = $seqio->next_seq ) {
+				push @seqs, $seq;
+			}
+		} else {
+			$self->throw("Input $input was not a valid filename");
+		}
+	} elsif( ref($input) =~ /ARRAY/i ) {
+		foreach ( @$input ) {
+			if( ref($_) && $_->isa('Bio::PrimarySeqI') ) {
+				push @seqs, $_;
+			} else {
+				$self->warn("Trying to add a " . ref($_) .
+								" but expected a Bio::PrimarySeqI");
+			}
+		}
+		if( ! @seqs) {
+			$self->throw("Did not pass in valid input -- no sequence objects found");
+		}
+	} elsif( $input->isa('Bio::PrimarySeqI') ) {
+		push @seqs, $input;
 	}
-    } elsif( $input->isa('Bio::PrimarySeqI') ) {
-	push @seqs, $input;
-    }
-    return @seqs;
+	return @seqs;
 }
+
 1;
+
 __END__
