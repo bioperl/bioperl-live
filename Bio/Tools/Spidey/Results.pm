@@ -21,7 +21,6 @@ Bio::Tools::Spidey::Results - Results of a Spidey run
 
 	my $spidey = Bio::Tools::Spidey::Results->new( -fh   => \*INPUT );
 
-
 	# get the exons before doing anything else
 	my $exonset = $spidey->next_exonset();
 
@@ -87,7 +86,6 @@ or the web:
 
 Email golharam@umdnj.edu
 
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -131,7 +129,7 @@ sub _initialize_state {
 
  Usage     : $spidey->analysis_method();
  Purpose   : Inherited method. Overridden to ensure that the name matches
-             /sim4/i.
+             /Spidey/i.
  Returns   : String
  Argument  : n/a
 
@@ -187,7 +185,7 @@ sub parse_next_alignment {
 		# bascially, parse a Spidey result...
 		#
 		# matches: --SPIDEY version 1.40--
-		/^--SPIDEY\sversion\s(\d+\.\d+)--/ && do {
+		/^--SPIDEY version (\d+\.\d+)--/ && do {
 			if($started) {
 				$self->_pushback($_);
 				last;
@@ -222,7 +220,7 @@ sub parse_next_alignment {
 			}
 			next;
 		};
-		/^Number\sof\sexons:\s(\d+)/ && do {
+		/^Number of exons: (\d+)/ && do {
 			$exoncount = $1;
 			
 			my ($genomic_start, $genomic_stop, $cdna_start, $cdna_stop, $id, $mismatches, $gaps, $splice_donor, $splice_acceptor, $uncertain);
@@ -284,16 +282,19 @@ sub parse_next_alignment {
 			}
 			next;
 		};
-		/^Number\sof\ssplice\ssites:\s(\d+)/ && do {
+		/^Number of splice sites: (\d+)/ && do {
 			$self->splicesites($1);	
 			next;
 		};
-		/^mRNA\scoverage:\s(\d+)%/ && do {
+		/^mRNA coverage: (\d+)%/ && do {
 			$self->est_coverage($1);
 			next;
 		};
-		/^overall\spercent\sidentity:\s([\d\.]+)%/ && do {
+		/^overall percent identity: ([\d\.]+)%/ && do {
 			$self->overall_percentage_id($1);
+		};
+		/^Missing mRNA ends: (\w+)/ && do {
+			$self->missing_mrna_ends($1);
 		};
 	}
 	return @exons;
@@ -470,6 +471,32 @@ sub overall_percentage_id {
 		$val = $self->{'overall_percentage_id'};
 	}
 	return $val;
+}
+
+=head2 missing_mrna_ends
+
+ Title   : missing_mrna_ends
+ Usage   : $spidey->missing_mrna_ends();
+ Function: Returns left/right/neither from Spidey
+ Example :
+ Returns : A string value.
+ Args    :
+
+=cut
+
+sub missing_mrna_ends
+{
+        my ($self, @args) = @_;
+        my $val;
+
+        if(@args) {
+                $val = shift(@args);
+                $self->{'missing_mrna_ends'} = $val;
+        } else {
+                $val = $self->{'missing_mrna_ends'};
+        }
+        return $val;
+
 }
 
 1;
