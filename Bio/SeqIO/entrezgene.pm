@@ -139,25 +139,21 @@ sub next_seq {
 	 #I use 1 as I prefer not to descend into size 0 arrays
 	 return undef unless ($value);
     my $debug=$self->{_debug};
-    $ann = Bio::Annotation::Collection->new();
+    $self->{_ann} = Bio::Annotation::Collection->new();
+    $self->{_currentann} = Bio::Annotation::Collection->new();
     my @alluncaptured;
     # parse the entry
     my @keys=keys %{$value};
     $xval=$value->[0];
     #Basic data
 	 #$xval->{summary}=~s/\n//g; 
-    $seq = Bio::Seq->new(
+    my $seq = Bio::Seq->new(
                         -display_id  => $xval->{gene}{locus},
                         -accession_number =>$xval->{'track-info'}{geneid},
                         -desc=>$xval->{summary}
                    );
-#DEBUG:REMOVE
-#if ($seq->accession_number == 1107) {
-#	print "debug record\n";
-#}
-#DEBUG:REMOVE
     #Source data here
-    _add_to_ann($xval->{status},'Entrez Gene Status'); 
+    $self->_add_to_ann($xval->{status},'Entrez Gene Status'); 
     my $lineage=$xval->{source}{org}{orgname}{lineage};
     my $sp=$xval->{source}{org}{orgname}{name}{binomial}{species};
     $lineage=~s/[\s\n]//g;
@@ -173,42 +169,44 @@ sub next_seq {
     if (exists($xval->{source}->{subtype}) && ($xval->{source}->{subtype})) {
         if (ref($xval->{source}->{subtype}) eq 'ARRAY') {
             foreach my $subtype (@{$xval->{source}->{subtype}}) {
-                _add_to_ann($subtype->{name},$subtype->{subtype});
+               $self->_add_to_ann($subtype->{name},$subtype->{subtype});
             }
         }
         else {
-            _add_to_ann($xval->{source}->{subtype}->{name},$xval->{source}->{subtype}->{subtype}); 
+            $self->_add_to_ann($xval->{source}->{subtype}->{name},$xval->{source}->{subtype}->{subtype}); 
         }
     }
     #Synonyms
     if (ref($xval->{gene}->{syn}) eq 'ARRAY') {
         foreach my $symsyn (@{$xval->{gene}->{syn}}) {
-        _add_to_ann($symsyn,'ALIAS_SYMBOL');
+        $self->_add_to_ann($symsyn,'ALIAS_SYMBOL');
         }
     }
     else {
-        _add_to_ann($xval->{gene}->{syn},'ALIAS_SYMBOL');
+        $self->_add_to_ann($xval->{gene}->{syn},'ALIAS_SYMBOL');
     }
     
     
     #COMMENTS (STS not dealt with yet)
     if (ref($xval->{comments}) eq 'ARRAY') {
         for my $i (0..$#{$xval->{comments}}) {
-            push @alluncaptured,_process_all_comments($xval->{comments}->[$i]);
+            $self->{_current}=$xval->{comments}->[$i];
+            push @alluncaptured,$self->_process_all_comments();
            }
     }
     else {
-            push @alluncaptured,_process_all_comments($xval->{comments});
+        $self->{_current}=$xval->{comments};
+        push @alluncaptured,$self->_process_all_comments();
     }
        #Gene
        if (exists($xval->{gene}->{db})) {
        if (ref($xval->{gene}->{db}) eq 'ARRAY') {
         foreach my $genedb (@{$xval->{gene}->{db}}) {
-            _add_to_ann($genedb->{tag}->{id},$genedb->{db});
+            $self->_add_to_ann($genedb->{tag}->{id},$genedb->{db});
         }
         }
         else {
-            _add_to_ann($xval->{gene}->{db}->{tag}->{id},$xval->{gene}->{db}->{db});
+            $self->_add_to_ann($xval->{gene}->{db}->{tag}->{id},$xval->{gene}->{db}->{db});
         }
         delete $xval->{gene}->{db} unless ($debug eq 'off');
         }
@@ -216,38 +214,39 @@ sub next_seq {
        if (exists($xval->{location})) {
         if (ref($xval->{location}) eq 'ARRAY') {
             foreach my $loc (@{$xval->{location}}) {
-                _add_to_ann($loc->{'display-str'},$loc->{method}->{'map-type'});
+                $self->_add_to_ann($loc->{'display-str'},$loc->{method}->{'map-type'});
             }
         }
         else {
-            _add_to_ann($xval->{location}->{'display-str'},$xval->{location}->{method}->{'map-type'});
+            $self->_add_to_ann($xval->{location}->{'display-str'},$xval->{location}->{method}->{'map-type'});
         }
         delete $xval->{location} unless ($debug eq 'off');
        }
        #LOCUS
        if (ref($xval->{locus}) eq 'ARRAY') {
        foreach my $locus (@{$xval->{locus}}) {
-        push @alluncaptured,_process_locus($locus);
+        $self->{_current}=$locus;
+        push @alluncaptured,$self->_process_locus();
         }
        }
         else {
-            push @alluncaptured,_process_locus($xval->{locus});
+            push @alluncaptured,$self->_process_locus($xval->{locus});
         }
         #Homology
         my ($uncapt,$hom,$anchor)=_process_src($xval->{homology}->{source});
         foreach my $homann (@$hom) {
-            $ann->add_Annotation('dblink',$homann);
+            $self->{_ann}->add_Annotation('dblink',$homann);
         }
         push @alluncaptured,$uncapt;
         #Index terms
         if (exists($xval->{'xtra-index-terms'})) {
         if (ref($xval->{'xtra-index-terms'}) eq 'ARRAY') {
           foreach my $term (@{$xval->{'xtra-index-terms'}}) {
-           _add_to_ann($term,'Index terms');
+           $self->_add_to_ann($term,'Index terms');
            }
         }
         else {
-          _add_to_ann($xval->{'xtra-index-terms'},'Index terms');
+          $self->_add_to_ann($xval->{'xtra-index-terms'},'Index terms');
         }
         }
         #PROPERTIES
@@ -255,14 +254,14 @@ sub next_seq {
         if (exists($xval->{properties})) {
         if (ref($xval->{properties}) eq 'ARRAY') {
           foreach my $property (@{$xval->{properties}}) {
-            push @alluncaptured,_process_prop($property);
+            push @alluncaptured,$self->_process_prop($property);
            }
         }
         else {
-          push @alluncaptured,_process_prop($xval->{properties});
+          push @alluncaptured,$self->_process_prop($xval->{properties});
         }
         }
-        $seq->annotation($ann) unless ($self->{_locuslink} eq 'convert');
+        $seq->annotation($self->{_ann}) unless ($self->{_locuslink} eq 'convert');
         $seq->species($specie);
         my @seqs;
         foreach my $key (keys %seqcollection) {#Optimize this, no need to go through hash?
@@ -291,57 +290,63 @@ sub next_seq {
     undef $xval;
     #print 'x';
     &_backcomp_ll if ($self->{_locuslink} eq 'convert');
-    $ann->DESTROY;
     return wantarray ? ($seq,$cluster,\@alluncaptured):$seq;#Hilmar's suggestion
   }
 
 sub _process_refseq {
+my $self=shift;
 my $products=shift;
+my $ns=shift;
+my $pid;
 my (@uncaptured,@products);
-my $nann=Bio::Annotation::Collection->new();
 if (ref($products) eq 'ARRAY') { @products=@{$products}; }
 else {push @products,$products ;}
 foreach my $product (@products) {
     if (($product->{seqs}->{whole}->{gi})||($product->{accession})){#Minimal data required
-   my $nseq = Bio::Seq->new(
+        my $cann=Bio::Annotation::Collection->new();
+        $pid=$product->{accession};
+        my $nseq = Bio::Seq->new(
                         -accession_number => $product->{seqs}->{whole}->{gi},
                         -display_id=>$product->{accession},
-                        -authority=> $product->{heading}
+                        -authority=> $product->{heading}, -namespace=>$ns
                    );
                    if ($product->{source}) {
                     my ($uncapt,$allann)=_process_src($product->{source});
                     delete $product->{source};
                     push @uncaptured,$uncapt;
                     foreach my $annotation (@{$allann}) {
-                        $nann->add_Annotation('dblink',$annotation);
+                        $cann->add_Annotation('dblink',$annotation);
                     }
                     }
     delete  $product->{seqs}->{whole}->{gi};
     delete $product->{accession};
     delete $product->{source};
     delete $product->{heading};
-    my ($allan,$allfeat,$uncapt)=_process_comments($product->{comment});
+    my ($uncapt,$ann,$cfeat)=$self->_process_comments($product->{comment});
     push @uncaptured,$uncapt;
-    foreach my $feat (@$allfeat) {
+    foreach my $feat (@{$cfeat}) {
         $nseq->add_SeqFeature($feat);
     }
-    foreach my $annotation (@{$allan}) {
-        $nann->add_Annotation('dblink',$annotation);
-    }
-    $nseq->annotation($nann);
-   push @{$seqcollection{seq}},$nseq;
-    }
     if ($product->{products}) {
-       my @uncapt=_process_refseq($product->{products});
-       push @uncaptured,@uncapt;
+       my ($uncapt,$prodid)=$self->_process_refseq($product->{products});
+       push @uncaptured,$uncapt;
+       my $simann=new Bio::Annotation::SimpleValue(-value=>$prodid,-tagname=>'product');
+        $cann->add_Annotation($simann);
     }
+    foreach my $key (keys %$ann) {
+                    foreach my $val (@{$ann->{$key}}) {
+                        $cann->add_Annotation($key,$val);
+                    }
+                }
+    $nseq->annotation($cann);
+    push @{$seqcollection{seq}},$nseq;
 }
-return @uncaptured;
+}
+return \@uncaptured,$pid;
 }
 
-sub _process_other_seqs {
-}
 sub _process_links {
+my $self=shift;
  my $links=shift;
  my (@annot,@uncapt);
  if (ref($links) eq 'ARRAY') {
@@ -349,7 +354,7 @@ sub _process_links {
         my ($uncapt,$annot)=_process_src($link->{source});
         push @uncapt,$uncapt;
         foreach my $annotation (@$annot) {
-          $ann->add_Annotation('dblink',$annotation);
+          $self->{_ann}->add_Annotation('dblink',$annotation);
         }
     }
  }
@@ -363,40 +368,57 @@ return @uncapt;
 }
 
 sub _add_to_ann {#Highest level only
-my ($val,$tag)=@_;
+my ($self,$val,$tag)=@_;
   #  $val=~s/\n//g;#Low level EG parser leaves this so we take care of them here
     unless ($tag) {
      warn "No tagname for value $val, tag $tag ",$seq->id,"\n";
      return;
     }
         my $simann=new Bio::Annotation::SimpleValue(-value=>$val,-tagname=>$tag);
-        $ann->add_Annotation($simann);
+        $self->{_ann}->add_Annotation($simann);
 }
 
 sub _process_comments {
- my $comment=shift;
- return undef unless ($comment);#Should be more careful when calling _process_comment:To do
-    my (@uncaptured,@comments);
-    my (@nfeat,@anncol);
-    if (ref($comment) eq 'ARRAY') { @comments=@{$comment}; }
-    else {push @comments,$comment ;}
+ my $self=shift;
+ my $prod=shift;
+  my (%cann,@feat,@uncaptured,@comments);
+ if (exists($prod->{comment})) {
+    my $luncapt=$prod;
+    delete $luncapt->{comment};
+    push @uncaptured,$luncapt;
+    $prod=$prod->{comment};
+}
+    if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
+    else {push @comments,$prod;}
     for my $i (0..$#comments) {#Each comments is a
         my ($desc,$nfeat,$add,@ann,@comm);
         my $comm=$comments[$i];
-        my $nann=Bio::Annotation::Collection->new();
-        my $heading=$comm->{heading} if ($comm->{heading});
-        unless (exists($comm->{comment})) {undef $comm->{comment}; $add=1;}#Trick in case we miss something
+       # next unless (exists($comm->{comment}));#Should be more careful when calling _process_comment:To do
+        my $heading=$comm->{heading} || 'description';
+        unless (exists($comm->{comment})) {
+            if (exists($comm->{type}) && exists($comm->{text}) && ($comm->{type} ne 'comment')) {
+                my ($uncapt,$annot,$anchor)=_process_src($comm->{source});
+                my $cann=shift (@$annot);
+                if ($cann) {
+                    $cann->optional_id($comm->{text});
+                    $cann->authority($comm->{type});
+                    $cann->version($comm->{version});
+                    push @{$cann{'dblink'}},$cann;
+                    next;
+                }
+            }
+            undef $comm->{comment}; $add=1;#Trick in case we miss something
+        }
         while ((exists($comm->{comment})&&$comm->{comment})) {
             if ($comm->{source}) {
                my ($uncapt,$allann,$anchor) = _process_src($comm->{source});
            if ($allann) {
-               @ann=@{$allann};
             delete $comm->{source};
             push @uncaptured,$uncapt;
                     foreach my $annotation (@{$allann}) {
-                        $nann->add_Annotation('dblink',$annotation);
                          if ($annotation->{_anchor}) {$desc.=$annotation->{_anchor}.' ';}
                          $annotation->optional_id($heading);
+                         push @{$cann{'dblink'}},$annotation;
                     }
         }
             }
@@ -440,32 +462,34 @@ sub _process_comments {
                     }
                     $nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, -end=>$l2, -strand=>$tags{strand}, -source=>$loc->{type},
                                 -seq_id=>$desc, primary=>$heading, -score=>$score, -tag    => {score_src=>$scoresrc});
+                    my $sfeatann=new Bio::Annotation::Collection;
                     foreach my $sfann (@sfann) {
-                        $nann->add_Annotation('dblink',$sfann);
+                        $sfeatann->add_Annotation('dblink',$sfann);
                     }
-                    $nfeat->annotation($nann);
-                    push @nfeat,$nfeat;
+                    $nfeat->annotation($sfeatann);#Thus the annotation will be available both in the seq and seqfeat?
+                    push @feat,$nfeat;
                     delete $loc->{text};
                     delete $loc->{type};
                 }
                 elsif (exists($loc->{label})) {
-                    _add_to_ann($loc->{text},$loc->{label});
+                    my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$loc->{label});
                     delete $loc->{text};
                     delete $loc->{label};
+                    push @{$cann{'simple'}},$simann;
                     push @uncaptured,$loc;
                 }
                 elsif (exists($loc->{text})) {
-                    _add_to_ann($loc->{text},'description');
+                    my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$heading);
                     delete $loc->{text};
+                    push @{$cann{'simple'}},$simann;
                     push @uncaptured,$loc;
                 }
+                
             }
         }#Bit clumsy but that's what we get from the low level parser
-            unless ($nfeat){ push @anncol,@ann;}
-            push @uncaptured,$comm;
     }
     }
-    return \@anncol,\@nfeat,\@uncaptured;
+    return \@uncaptured,\%cann,\@feat;
 }
 
 sub _process_src {
@@ -489,7 +513,7 @@ sub _process_src {
                 $id=~s/\n//g;
                 undef $anchor if ($anchor eq 'id');
                 my $simann=new Bio::Annotation::DBLink(-database => $db,
-                                        -primary_id => $id,
+                                        -primary_id => $id, -authority=>$src->{heading}
                     );
                 $simann->url($url) if ($url);#DBLink should have URL!
                 push @ann, $simann;
@@ -501,7 +525,7 @@ sub _process_src {
             undef $anchor if ($anchor eq 'id');
             $id=~s/\n//g;
             my $simann=new Bio::Annotation::DBLink(-database => $db,
-                                        -primary_id => $id
+                                        -primary_id => $id, -authority=>$src->{heading}
                     );
             if ($anchor) {
                 $simann->{_anchor}=$anchor ;
@@ -514,51 +538,52 @@ sub _process_src {
 }
 
 sub _add_references {
+my $self=shift;
 my $refs=shift;
 if (ref($refs) eq 'ARRAY') {
     foreach my $ref(@$refs) {
         my $refan=new Bio::Annotation::Reference(-database => 'Pubmed',
                                         -primary_id => $ref);
-        $ann->add_Annotation('Reference',$refan);
+        $self->{_ann}->add_Annotation('Reference',$refan);
     }
 }
 else {
     my $refan=new Bio::Annotation::Reference(-database => 'Pubmed',
                                         -primary_id => $refs);
-        $ann->add_Annotation('Reference',$refan);
+        $self->{_ann}->add_Annotation('Reference',$refan);
 }
 }
 
 #Should we do this at all if no seq coord are present?
 sub _process_locus {
-my $locus=shift;
+my $self=shift;
 my @uncapt;
-my $gseq=new Bio::Seq(-display_id=>$locus->{accession},-version=>$locus->{version},
-            -accession_number=>$locus->{seqs}->{'int'}->{id}->{gi},
-            -authority=>$locus->{type}, -namespace=>$locus->{heading});
-delete $locus->{accession};
-delete $locus->{version};
-delete $locus->{'int'}->{id}->{gi};
+my $gseq=new Bio::Seq(-display_id=>$self->{_current}->{accession},-version=>$self->{_current}->{version},
+            -accession_number=>$self->{_current}->{seqs}->{'int'}->{id}->{gi},
+            -authority=>$self->{_current}->{type}, -namespace=>$self->{_current}->{heading});
+delete $self->{_current}->{accession};
+delete $self->{_current}->{version};
+delete $self->{_current}->{'int'}->{id}->{gi};
 my ($start,$end,$strand);
-if (exists($locus->{seqs}->{'int'}->{from})) {
- $start=$locus->{seqs}->{'int'}->{from};
- delete $locus->{seqs}->{'int'}->{from};
+if (exists($self->{_current}->{seqs}->{'int'}->{from})) {
+ $start=$self->{_current}->{seqs}->{'int'}->{from};
+ delete $self->{_current}->{seqs}->{'int'}->{from};
  #unless ($start) {print $locus->{seqs}->{'int'}->{from},"\n",$locus,"\n";}
- $end=$locus->{seqs}->{'int'}->{to};
- delete $locus->{seqs}->{'int'}->{to};
- delete $locus->{seqs}->{'int'}->{strand};
- $strand=$locus->{seqs}->{'int'}->{strand} eq 'minus'?-1:1;
+ $end=$self->{_current}->{seqs}->{'int'}->{to};
+ delete $self->{_current}->{seqs}->{'int'}->{to};
+ delete $self->{_current}->{seqs}->{'int'}->{strand};
+ $strand=$self->{_current}->{seqs}->{'int'}->{strand} eq 'minus'?-1:1;
     my $nfeat=Bio::SeqFeature::Generic->new(-start=>$start, -end=>$end, -strand=>$strand, primary=>'gene location');
     $gseq->add_SeqFeature($nfeat);
 }
 my @products;
-if (ref($locus->{products}) eq 'ARRAY') {
-    @products=@{$locus->{products}};
+if (ref($self->{_current}->{products}) eq 'ARRAY') {
+    @products=@{$self->{_current}->{products}};
 }
 else {
-    push @products,$locus->{products};
+    push @products,$self->{_current}->{products};
 }
-delete $locus->{products};
+delete $self->{_current}->{products};
 my $gstruct=new Bio::SeqFeature::Gene::GeneStructure;
 foreach my $product (@products) {
     my ($tr,$uncapt)=_process_products_coordinates($product,$start,$end,$strand);
@@ -611,20 +636,21 @@ return $transcript,\@uncapt;
 To do: process GO
 =cut
 sub _process_prop {
+    my $self=shift;;
     my $prop=shift;
     my @uncapt;
     if (exists($prop->{properties})) {#Iterate
         if (ref($prop->{properties}) eq 'ARRAY') {
             foreach my $propn (@{$prop->{properties}}) {
-               push @uncapt,_process_prop($propn);
+               push @uncapt,$self->_process_prop($propn);
             }
         }
         else {
-            push @uncapt,_process_prop($prop->{properties});
+            push @uncapt,$self->_process_prop($prop->{properties});
         }
     }
     unless ((exists($prop->{heading})) && ($prop->{heading} eq 'GeneOntology')) {
-        _add_to_ann($prop->{text},$prop->{label}) if (exists($prop->{text})); 
+        $self->_add_to_ann($prop->{text},$prop->{label}) if (exists($prop->{text})); 
         delete $prop->{text};
         delete $prop->{label};
         push @uncapt,$prop;
@@ -632,31 +658,32 @@ sub _process_prop {
     }
     #Will do GO later
     if (exists($prop->{comment})) {
-    push @uncapt,_process_go($prop->{comment});
+    push @uncapt,$self->_process_go($prop->{comment});
     }
 }
 
 
 sub _process_all_comments {
-my $product=shift;
+my $self=shift;
+my $product=$self->{_current};#Better without copying
 my @alluncaptured;
 my $heading=$product->{heading} if (exists($product->{heading}));
            if ($heading) {
                delete $product->{heading};
                CLASS: {
                    if ($heading =~ 'RefSeq Status') {#IN case NCBI changes slightly the spacing:-)
-                    _add_to_ann($product->{label},'RefSeq status');  last CLASS;
+                    $self->_add_to_ann($product->{label},'RefSeq status');  last CLASS;
                    }
                    if ($heading =~ 'NCBI Reference Sequences') {#IN case NCBI changes slightly the spacing:-)
-                    my @uncaptured=_process_refseq($product);
-            push @alluncaptured,@uncaptured; last CLASS;
+                    my @uncaptured=$self->_process_refseq($product->{products},'refseq');
+                    push @alluncaptured,@uncaptured; last CLASS;
                    }
                    if ($heading =~ 'Related Sequences') {#IN case NCBI changes slightly the spacing:-)
-                    my @uncaptured=_process_refseq($product);
+                    my @uncaptured=$self->_process_refseq($product->{products});
                     push @alluncaptured,@uncaptured;  last CLASS;
                    }
                     if ($heading =~ 'Sequence Tagges Sites') {#IN case NCBI changes slightly the spacing:-)
-                    my @uncaptured=_process_links($product);
+                    my @uncaptured=$self->_process_links($product);
                      push @alluncaptured,@uncaptured;
                      last CLASS;
                    }
@@ -665,27 +692,31 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                      last CLASS;
                    }
                    if ($heading =~ 'LocusTagLink') {#IN case NCBI changes slightly the spacing:-)
-                     _add_to_ann($product->{source}->{src}->{tag}->{id},$product->{source}->{src}->{db}); 
+                     $self->_add_to_ann($product->{source}->{src}->{tag}->{id},$product->{source}->{src}->{db}); 
                     last CLASS;
                    }
                    if ($heading =~ 'Sequence Tagged Sites') {#IN case NCBI changes slightly the spacing:-)
-                     push @alluncaptured,_process_STS($product); 
+                     push @alluncaptured,$self->_process_STS($product->{comment}); 
                      delete $product->{comment};
                     last CLASS;
                    }
                }
     }
 	if (exists($product->{type})&&($product->{type} eq 'generif')) {
-		push @alluncaptured,_process_grif($product);
+		push @alluncaptured,$self->_process_grif($product);
 		return @alluncaptured;#Maybe still process the comments?
 	}
 	if (exists($product->{refs})) {
-                _add_references($product->{refs}->{pmid});
+                $self->_add_references($product->{refs}->{pmid});
                 delete $product->{refs}->{pmid}; push @alluncaptured,$product;
             }
 	if (exists($product->{comment})) {
-                my ($allan,$allfeat,$uncapt)=_process_comments($product->{comment});
-                foreach my $cann (@$allan) {$ann->add_Annotation('dblink',$cann);}
+                my ($uncapt,$allan,$allfeat)=$self->_process_comments($product->{comment});
+                foreach my $key (keys %$allan) {
+                    foreach my $val (@{$allan->{$key}}) {
+                        $self->{_ann}->add_Annotation($key,$val);
+                    }
+                }
                 delete $product->{refs}->{comment}; push @alluncaptured,$uncapt;
             }
 
@@ -693,39 +724,60 @@ return @alluncaptured;
 }
 
 sub _process_STS {
-my $product=shift;
+my $self=shift;
+my $comment=shift;
+my @comm;
+push @comm,( ref($comment) eq 'ARRAY')? @{$comment}:$comment;
+foreach my $product (@comm) {
+ my $sts=new Bio::Ontology::Term->new( 
+                -identifier  => $product->{source}->{src}->{tag}->{id},
+                -name        => $product->{source}->{anchor}, -comment=>$product->{source}->{'post-text'});
+$sts->namespace($product->{source}->{src}->{db});
+$sts->authority('STS marker');
+my @alt;
+push @alt, ( ref($product->{comment}) eq 'ARRAY') ? @{$product->{comment}}:$product->{comment};
+foreach my $alt (@alt) {
+    $sts->add_synonym($alt->{text});
+}
+my $annterm = new Bio::Annotation::OntologyTerm();
+                $annterm->term($sts);
+                $self->{_ann}->add_Annotation('OntologyTerm',$annterm);
+}
 }
 
 sub _process_go {
+    my $self=shift;
     my $comm=shift;
     my @comm;
     push @comm,( ref($comm) eq 'ARRAY')? @{$comm}:$comm;
     foreach my $comp (@comm) {
+        my $category=$comp->{label};
         if (ref($comp->{comment}) eq 'ARRAY') {
             foreach my $go (@{$comp->{comment}}) {
-                my $term=_get_go_term($go);
+                my $term=_get_go_term($go,$category);
                 my $annterm = new Bio::Annotation::OntologyTerm (-tagname => 'Gene Ontology');
                 $annterm->term($term);
-                $ann->add_Annotation('OntologyTerm',$annterm);
+                $self->{_ann}->add_Annotation('OntologyTerm',$annterm);
             }
         }
         else {
-            my $term=_get_go_term($comp->{comment});
+            my $term=_get_go_term($comp->{comment},$category);
             my $annterm = new Bio::Annotation::OntologyTerm (-tagname => 'Gene Ontology');
             $annterm->term($term);
-            $ann->add_Annotation('OntologyTerm',$annterm);
+            $self->{_ann}->add_Annotation('OntologyTerm',$annterm);
         }
     }
 }
 
 sub _process_grif {
+my $self=shift;
 my $grif=shift;
 if (ref($grif->{comment}) eq 'ARRAY') {#Insane isn't it?
 	my @uncapt;
 	foreach my $product (@{$grif->{comment}}) {
 		next unless (exists($product->{text})); 
-		my $uproduct=_process_grif($product);
-	#	$ann->add_Annotation($type,$grifobj);
+		my $uproduct=$self->_process_grif($product);
+	    #$self->{_ann->add_Annotation($type,$grifobj);
 		push @uncapt,$uproduct;
 	}
 	return \@uncapt;
@@ -735,14 +787,19 @@ if (exists($grif->{comment}->{comment})) {
 }
 my $ref= (ref($grif->{refs}) eq 'ARRAY') ? shift @{$grif->{refs}}:$grif->{refs};
 my $refergene='';
+my $refdb='';
 my ($obj,$type);
 if ($ref->{pmid}) {
-	$refergene=$grif->{comment}->{source}->{src}->{tag}->{id} if (exists($grif->{comment}->{source})); #unfortunatrely we cannot put yet everything in
+    if (exists($grif->{source})) { #unfortunatrely we cannot put yet everything in
+        $refergene=$grif->{source}->{src}->{tag}->{id};
+        $refdb=$grif->{source}->{src}->{db};
+    }    
 	my $grifobj=new  Bio::Annotation::Comment(-text=>$grif->{text});
 	$obj = new Bio::Annotation::DBLink(-database => 'generif',
                                         -primary_id => $ref->{pmid}, #The pubmed id (at least the first one) which is a base for the conclusion
                                         -version=>$grif->{version},
-                                        -optional_id=>$refergene
+                                        -optional_id=>$refergene,
+                                        -authority=>$refdb
                     ); 
 	$obj->comment($grifobj);
     $type='dblink';
@@ -755,20 +812,22 @@ delete $grif->{text};
 delete $grif->{version};
 delete $grif->{type};
 delete $grif->{refs};
-$ann->add_Annotation($type,$obj);
+$self->{_ann}->add_Annotation($type,$obj);
 return $grif;
 }
 sub _get_go_term {
 my $go=shift;
-    my $refan=new Bio::Annotation::Reference(-database => 'Pubmed', #We expect one ref per GO
-        -primary_id => $go->{refs}->{pmid});
+my $category=shift;
+    my $refan=new Bio::Annotation::Reference( #We expect one ref per GO
+        -medline => $go->{refs}->{pmid});
     my $term = Bio::Ontology::Term->new( 
         -identifier  => $go->{source}->{src}->{tag}->{id},
         -name        => $go->{source}->{anchor},
         -definition  => $go->{source}->{anchor},
         -comment     => $go->{source}->{'post-text'},
-        -references  => [$refan],
         -version     =>$go->{version});
+    $term->add_reference($refan);
+    $term->namespace($category);
 return $term;
 }
 
