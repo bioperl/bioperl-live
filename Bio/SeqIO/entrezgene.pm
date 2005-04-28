@@ -123,6 +123,7 @@ sub _initialize {
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	$self->{_debug}=$param{-debug};
 	$self->{_locuslink}=$param{-locuslink};
+	$self->{_service_record}=$param{-service_record};
 	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});
 	#Instantiate the low level parser here (it is -file in Bioperl
    #-should tell M.)
@@ -145,6 +146,8 @@ sub next_seq {
     # parse the entry
     my @keys=keys %{$value};
     $xval=$value->[0];
+    return undef if (($self->{_service_record} ne 'yes')&&
+                    ($xval->{gene}->{desc} =~ /record to support submission of generifs for a gene not in entrez/i));
     #Basic data
 	 #$xval->{summary}=~s/\n//g; 
     my $seq = Bio::Seq->new(
@@ -155,14 +158,21 @@ sub next_seq {
     #Source data here
     $self->_add_to_ann($xval->{status},'Entrez Gene Status'); 
     my $lineage=$xval->{source}{org}{orgname}{lineage};
-    my $sp=$xval->{source}{org}{orgname}{name}{binomial}{species};
     $lineage=~s/[\s\n]//g;
     my ($comp,@lineage);
     while ($lineage) {
         ($comp,$lineage)=split(/;/,$lineage,2);
         unshift @lineage,$comp;
     }
-    unshift @lineage,$sp;
+    unless (exists($xval->{source}{org}{orgname}{name}{binomial})) {
+        shift @lineage;
+        my ($gen,$sp)=split(/\s/, $xval->{source}{org}{taxname});
+        unshift @lineage,$sp;
+    }
+    else {
+        my $sp=$xval->{source}{org}{orgname}{name}{binomial}{species};
+        unshift @lineage,$sp;
+    }
      my $specie=new Bio::Species(-classification=>[@lineage],
                                 -ncbi_taxid=>$xval->{source}{org}{db}{tag}{id});
     $specie->common_name($xval->{source}{org}{common});
