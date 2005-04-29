@@ -344,9 +344,9 @@ clustalw need a place to create temporary files. E.g.:
 setenv TMPDIR e:/cygwin/tmp     # csh, tcsh
 export TMPDIR=e:/cygwin/tmp     # sh, bash
 
-Note that this is not the syntax that Cygwin understands, which would 
-be something like "/cygdrive/e/cygwin/tmp", but this is the syntax
-that a Perl module expects on Windows.
+This is not the syntax that Cygwin understands, which would be
+something like "/cygdrive/e/cygwin/tmp" or "/tmp", this is the syntax
+that a Windows application expects.
 
 If this variable is not set correctly you'll see errors like this
 when you run Bio::Tools::Run::StandAloneBlast:
