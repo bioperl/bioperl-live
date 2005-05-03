@@ -99,10 +99,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via 
+the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
@@ -834,23 +833,22 @@ sub _from_gff_string {
 
 
 =cut
-
+    use Data::Dumper;
 sub _expand_region {
     my ($self, $feat) = @_;
     if(! $feat->isa('Bio::SeqFeatureI')) {
         $self->warn("$feat does not implement Bio::SeqFeatureI");
     }
     # if this doesn't have start/end set - forget it!
-    if((! defined($self->start())) && (! defined $self->end())) {
-        $self->start($feat->start());
-        $self->end($feat->end());
-#        $self->strand($feat->strand) unless defined($self->strand());
-        $self->strand($feat->strand) unless $self->strand();
+    if((! defined($self->start)) && (! defined $self->end)) {
+        $self->start($feat->start);
+        $self->end($feat->end);
+        $self->strand($feat->strand) unless $self->strand;
     } else {
-        my $range = $self->union($feat);
-        $self->start($range->start);
-        $self->end($range->end);
-        $self->strand($range->strand);
+        my ($start,$end,$strand) = $self->union($feat);
+        $self->start($start);
+        $self->end($end);
+        $self->strand($strand);
     }
 }
 
