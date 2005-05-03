@@ -12,8 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::GeneStructure - A feature representing an arbitrarily
-           complex structure of a gene
+Bio::SeqFeature::Gene::GeneStructure - A feature representing an arbitrarily complex structure of a gene
 
 =head1 SYNOPSIS
 
@@ -23,40 +22,37 @@ Bio::SeqFeature::Gene::GeneStructure - A feature representing an arbitrarily
 
 A feature representing a gene structure. As of now, a gene structure
 really is only a collection of transcripts. See
-Bio::SeqFeature::Gene::TranscriptI (interface) and
-Bio::SeqFeature::Gene::Transcript (implementation) for the features of
-such objects.
+L<Bio::SeqFeature::Gene::TranscriptI> (interface) and
+L<Bio::SeqFeature::Gene::Transcript> (implementation) for the features
+of such objects.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bio.perl.org/MailList.html  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+ the bugs and their resolution. Bug reports can be submitted via the
+ web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net
-
-Describe contact details here
+Email hlapp-at-gmx.net
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -65,8 +61,15 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::SeqFeature::Gene::GeneStructure;
-use vars qw(@ISA);
+use vars qw(@ISA $WeakRefs);
 use strict;
+
+BEGIN {
+    eval "use Scalar::Util qw(weaken);";
+    if ($@) {
+	$Bio::SeqFeature::Gene::GeneStructure::WeakRefs = 0;  
+    } else { $Bio::SeqFeature::Gene::GeneStructure::WeakRefs = 1; }
+}
 
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Gene::GeneStructureI;
@@ -81,7 +84,7 @@ sub new {
     my ($primary) =
 	$self->_rearrange([qw(PRIMARY
 			      )],@args);
-
+    
     $primary = 'genestructure' unless $primary;
     $self->primary_tag($primary);
     $self->strand(0) if(! defined($self->strand()));
@@ -122,11 +125,15 @@ sub add_transcript {
     if(!$fea || ! $fea->isa('Bio::SeqFeature::Gene::TranscriptI') ) {
 	$self->throw("$fea does not implement Bio::SeqFeature::Gene::TranscriptI");
     }
-    if(! exists($self->{'_transcripts'})) {
+    unless( exists $self->{'_transcripts'}  ) {
 	$self->{'_transcripts'} = [];
     }
     $self->_expand_region($fea);
-    $fea->parent($self);
+    if( $Bio::SeqFeature::Gene::GeneStructure::WeakRefs ) {
+	$fea->parent(weaken $self);
+    } else {
+	$fea->parent($self);
+    }
     push(@{$self->{'_transcripts'}}, $fea);
 }
 
@@ -142,14 +149,13 @@ sub add_transcript {
 =cut
 
 sub flush_transcripts {
-    my ($self) = @_;
-    
-    if(exists($self->{'_transcripts'})) {
+    my ($self) = @_;    
+    if( defined $self->{'_transcripts'} ) {
 	foreach my $t ( grep {defined} @{$self->{'_transcripts'} || []} ) {
 	    $t->parent(undef); # remove bkwds pointers
 	    $t = undef;
 	}
-	delete($self->{'_transcripts'});
+	delete($self->{'_transcripts'});	
     }
 }
 
@@ -165,23 +171,21 @@ sub flush_transcripts {
 
 =cut
 
-sub add_transcript_as_features{
-   my ($self,@features) = @_;
-   my $transcript=Bio::SeqFeature::Gene::Transcript->new;
-   foreach my $fea (@features) {
-       
-       if ($fea->primary_tag =~ /utr/i) {           #UTR / utr/ 3' utr / utr5 etc.
-	   $transcript->add_utr($fea);
-       } elsif ($fea->primary_tag =~ /promot/i) {   #allow for spelling differences
-	   $transcript->add_promoter($fea);
-       } elsif ($fea->primary_tag =~ /poly.*A/i) {  #polyA, POLY_A, etc.
-	   $transcript->poly_A_site($fea);
-       } else {                                     #assume the rest are exons
-	   $transcript->add_exon($fea);
-       }
-   }
-   $self->add_transcript($transcript);
-
+sub add_transcript_as_features {
+    my ($self,@features) = @_;
+    my $transcript=Bio::SeqFeature::Gene::Transcript->new;
+    foreach my $fea (@features) {
+	if ($fea->primary_tag =~ /utr/i) { #UTR / utr/ 3' utr / utr5 etc.
+	    $transcript->add_utr($fea);
+	} elsif ($fea->primary_tag =~ /promot/i) { #allow for spelling differences
+	    $transcript->add_promoter($fea);
+	} elsif ($fea->primary_tag =~ /poly.*A/i) { #polyA, POLY_A, etc.
+	    $transcript->poly_A_site($fea);
+	} else {		#assume the rest are exons
+	    $transcript->add_exon($fea);
+	}
+    }
+    $self->add_transcript($transcript);
 }
 
 
@@ -394,7 +398,7 @@ sub flush_sub_SeqFeature {
 
 sub gene_cleanup {
     my $self = shift;
-    $self->flush_transcripts();
+    $self->flush_transcripts;
 }
 
 1;

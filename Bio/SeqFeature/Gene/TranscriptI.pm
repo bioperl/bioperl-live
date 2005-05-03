@@ -239,12 +239,12 @@ sub parent{
        # we will allow re-setting the parent to undef 
        if (! defined $value || 
 	   $value->isa("Bio::SeqFeature::Gene::GeneStructureI")) {
-	   $self->{'parent'} = $value;
+	   $self->{'_parent'} = $value;
        } else {
 	   $self->throw("$value must be a Bio::SeqFeature::Gene::GeneStructureI")
        }
     }
-    return $self->{'parent'};
+    return $self->{'_parent'};
 }
 
 
