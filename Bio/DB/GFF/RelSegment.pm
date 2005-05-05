@@ -193,7 +193,7 @@ be a sequence that has been specified as the "source" in the GFF file.
 #      -length     => length of segment
 #      -nocheck    => turn off checking, force segment to be constructed
 #      -absolute   => use absolute coordinate addressing
-#' 
+
 sub new {
   my $package = shift;
   my ($factory,$name,$start,$stop,$refseq,$class,$refclass,$offset,$length,$force_absolute,$nocheck) =
@@ -228,6 +228,7 @@ sub new {
     $class = $name->class;
     $name  = $name->name;
   }
+
   # if the class of the landmark is not specified then default to 'Sequence'
   $class ||= eval{$factory->default_class} || 'Sequence';
 
@@ -1147,11 +1148,13 @@ sub intersection {
     $low  = $_->abs_low   if !defined($low)  or $low  < $_->abs_low;
     $high = $_->abs_high  if !defined($high) or $high > $_->abs_high;
   }
+
   return unless $low < $high;
-  $self->new(-factory=> $self->factory,
-	     -seq    => $ref,
-	     -start  => $low,
-	     -stop   => $high);
+  return Bio::DB::GFF::RelSegment->new(-factory => $self->factory,
+				       -seq     => $ref,
+				       -start   => $low,
+				       -stop    => $high,
+				      );
 }
 
 sub overlaps {
