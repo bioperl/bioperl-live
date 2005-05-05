@@ -425,12 +425,12 @@ sub overlap_extent{
     $b->throw("Not a Bio::RangeI object") unless  $b->isa('Bio::RangeI');
     $b->throw("start is undefined") unless defined $b->start;
     $b->throw("end is undefined") unless defined $b->end;
-    
-    my ($au,$bu,$is,$ie);
+
     if( ! $a->overlaps($b) ) {
 	return ($a->length,0,$b->length);
     }
 
+    my ($au,$bu) = (0, 0);
     if( $a->start < $b->start ) {
 	$au = $b->start - $a->start;
     } else {
@@ -442,9 +442,10 @@ sub overlap_extent{
     } else {
 	$bu += $b->end - $a->end;
     }
+
     my $intersect = $a->intersection($b);
-    $ie = $intersect->end;
-    $is = $intersect->start;
+    my $ie = $intersect->end;
+    my $is = $intersect->start;
 
     return ($au,$ie-$is+1,$bu);
 }
