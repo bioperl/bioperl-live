@@ -3,6 +3,7 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
+use GD();  # for gdBrushed constant
 
 # KEYLABELFONT must be treated as string until image_class is established
 use constant KEYLABELFONT => 'gdMediumBoldFont';
@@ -861,7 +862,7 @@ sub set_pen {
   $pen->fill(0,0,$fg);
   #  $self->{gd}->setBrush($pen);
   $gd->setBrush($pen);
-  return gdBrushed();
+  return GD->gdBrushed();
 }
 
 sub png {
