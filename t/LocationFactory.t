@@ -102,12 +102,18 @@ foreach my $locstr (sort keys(%testcases)) {
 }
    
 
-# bug #1674, #1765
-for my $locstr ( 'join(11025..11049,join(complement(315036..315294),complement(251354..251412),complement(241499..241580),complement(239890..240081)))',
-		  'join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))',
-	       'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)' ) {
-    my $loc = $locfac->from_string($locstr);
-    my $ftstr = $loc->to_FTstring();
-    ok($ftstr, $locstr);
+if ($^V gt v5.6.0) {
+    # bug #1674, #1765
+    for my $locstr ( 'join(11025..11049,join(complement(315036..315294),complement(251354..251412),complement(241499..241580),complement(239890..240081)))',
+                     'join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))',
+                     'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)' ) {
+        my $loc = $locfac->from_string($locstr);
+        my $ftstr = $loc->to_FTstring();
+        ok($ftstr, $locstr);   
+    }
+} else {
+    foreach (1..3) { 
+        skip('nested matches in regex only supported in v5.6.1 and higher',1); 
+    } 
 }
 
