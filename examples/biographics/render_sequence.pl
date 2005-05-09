@@ -51,15 +51,18 @@ my @gene     = grep {$_->primary_tag eq 'gene'} @features;
 my @tRNAs    = grep {$_->primary_tag eq 'tRNA'} @features;
 
 warn "rendering...\n";
-$start = $seq->start unless defined $start;
-$stop  = $seq->end   unless defined $stop;
+$start = 1 unless defined $start;
+$stop  = $seq->length   unless defined $stop;
 
 my $panel = Bio::Graphics::Panel->new(
 				      -offset  => $start,
 				      -length  => $stop - $start + 1,
 				      -width   => 1000,
 				      );
-$panel->add_track(arrow => $seq,
+$panel->add_track(arrow => 
+		  Bio::Graphics::Feature->new(-start => $start,
+					      -stop   => $stop,
+					      -name   => $seq->display_id),
 		  -bump => 0,
 		  -double=>1,
 		  -tick => 2);
@@ -101,19 +104,20 @@ sub gene_label {
   my $feature = shift;
   my @notes;
   foreach (qw(product gene)) {
-    next unless $feature->has_tag($_);
-    @notes = $feature->each_tag_value($_);
-    last;
+      next unless $feature->can('has_tag') && $feature->has_tag($_);
+      @notes = $feature->each_tag_value($_);
+      last;
   }
   $notes[0];
 }
 sub gene_description {
   my $feature = shift;
   my @notes;
+  
   foreach (qw(note)) {
-    next unless $feature->has_tag($_);
-    @notes = $feature->each_tag_value($_);
-    last;
+      next unless $feature->can('has_tag') && $feature->has_tag($_);
+      @notes = $feature->each_tag_value($_);
+      last;
   }
   return unless @notes;
   substr($notes[0],30) = '...' if length $notes[0] > 30;
