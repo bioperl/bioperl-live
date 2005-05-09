@@ -17,7 +17,10 @@ Bio::Matrix::PSM::InstanceSite - A PSM site occurance
   my %params=(seq=>'TATAAT',
     id=>"TATAbox1", accession=>'ENSG00000122304', mid=>'TB1',
     desc=>'TATA box, experimentally verified in PRM1 gene',
-    relpos=>-35);
+    -relpos=>-35, -anchor=>'CHR7', -start=>35000921, -end=>35000926);
+    
+    Last 2 arguments are passed to create a Bio::LocatableSeq object
+    Anchor shows the coordinates system for the Bio::LocatableSeq object
 
 =head1 DESCRIPTION
 
@@ -86,7 +89,7 @@ use strict;
                          (-seq=>'TATAAT', -id=>"TATAbox1",
                           -accession_number='ENSG00000122304', -mid=>'TB1',
                           -desc=>'TATA box, experimentally verified in PRM1 gene',
-			  -relpos=>-35)
+                          -relpos=>-35, -anchor=>'CHR7', -start=>35000921, -end=>35000926, strand=>1)
  Function: Creates an InstanceSite object from memory.
  Throws  :
  Example :
@@ -121,6 +124,7 @@ sub new {
     $self->desc($args{desc});
     $self->{score}=$args{score};
     $self->{relpos}=$args{relpos};
+    $self->{anchor}=$args{anchor};
     return $self;
 }
 
@@ -162,6 +166,25 @@ sub score {
     my $self = shift;
     my $prev = $self->{score};
     if (@_) { $self->{score} = shift; }
+    return $prev;
+}
+
+=head2 anchor
+
+ Title   : anchor
+ Usage   : my $anchor=$instance->anchor;
+ Function: Get/Set the anchor which shows what coordinate system start/end use
+ Throws  :
+ Example :
+ Returns : string
+ Args    : string
+
+=cut
+
+sub anchor {
+    my $self = shift;
+    my $prev = $self->{anchor};
+    if (@_) { $self->{anchor} = shift; }
     return $prev;
 }
 
@@ -219,5 +242,53 @@ sub relpos {
     if (@_) { $self->{relpos} = shift; }
     return $prev;
 }
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
+ Function: Gets or sets the annotation
+ Returns : L<Bio::AnnotationCollectionI> object
+ Args    : None or L<Bio::AnnotationCollectionI> object
+
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->throw("object of class ".ref($value)." does not implement ".
+		    "Bio::AnnotationCollectionI. Too bad.")
+	    unless $value->isa("Bio::AnnotationCollectionI");
+	$obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+	$obj->{'_annotation'} = new Bio::Annotation::Collection();
+    }
+    return $obj->{'_annotation'};
+}
+
+=head2 species
+
+ Title   : species
+ Usage   : $species = $seq->species() or $seq->species($species)
+ Function: Gets or sets the species
+ Returns : L<Bio::Species> object
+ Args    : None or L<Bio::Species> object
+
+See L<Bio::Species> for more information
+
+=cut
+
+sub species {
+    my ($self, $species) = @_;
+    if ($species) {
+        $self->{'species'} = $species;
+    } else {
+        return $self->{'species'};
+    }
+}
+
 
 1;
