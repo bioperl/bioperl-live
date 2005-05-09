@@ -281,6 +281,11 @@ sub write_seq {
         $seq_chaos_feature_id = $self->get_chaos_feature_id($seq);
     }
 
+    # All ids must have a namespace prefix
+    if ($seq_chaos_feature_id !~ /:/) {
+        $seq_chaos_feature_id = "EMBL/GenBank/SwissProt:$seq_chaos_feature_id";
+    }
+
 #    if ($seq->accession_number eq 'unknown') {
 #        $seq_chaos_feature_id = $self->get_chaos_feature_id('contig', $seq);
 #    }
@@ -668,17 +673,17 @@ sub get_chaos_feature_id {
             }
         }
     }
-    if ($id) {
-        $id = $self->context_namespace ? $self->context_namespace . ":" . $id : $id;
-
-    }
-    else {
+    if (!$id) {
         if ($ob->isa("Bio::SeqFeatureI")) {
             $id = $IDH->generate_unique_persistent_id($ob);
         }
         else {
             $self->throw("Cannot generate a unique persistent ID for a Seq without either primary_id or accession");
         }
+    }
+    if ($id) {
+        $id = $self->context_namespace ? $self->context_namespace . ":" . $id : $id;
+
     }
     return $id;
 }

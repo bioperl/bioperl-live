@@ -257,7 +257,7 @@ sub generate_unique_persistent_id{
        my $end = $sf->end || $sf->throw("end must be set");
        my $type = $sf->primary_tag || $sf->throw("primary_tag must be set");
 
-       $id = "$type:$source:$seq_id:$start:$end";
+       $id = "$source:$type:$seq_id:$start:$end";
    }
    $sf->primary_id($id);
    return $id;
