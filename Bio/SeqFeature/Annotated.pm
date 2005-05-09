@@ -1,15 +1,93 @@
+# $Id$
+#
+# BioPerl module for Bio::SeqFeature::Annotated
+#
+# Cared for by Allen Day <allenday at ucla.edu>
+#
+# Copyright Allen Day
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::SeqFeature::Annotated - PLEASE PUT SOMETHING HERE
+
+=head1 SYNOPSIS
+
+    # none yet, complain to authors
+
+=head1 DESCRIPTION
+
+None yet, complain to authors.
+
+=head1 Implemented Interfaces
+
+This class implementes the following interfaces.
+
+=over 4
+
+=item Bio::SeqFeatureI
+
+Note that this includes implementing Bio::RangeI.
+
+=item Bio::AnnotatableI
+
+=item Bio::FeatureHolderI
+
+Features held by a feature are essentially sub-features.
+
+=back
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org          - General discussion
+  http://bio.perl.org/MailList.html             - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via 
+the web:
+
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Allen Day
+
+Allen Day E<lt>allenday at ucla.eduE<gt>
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
+
+=cut
+
+
 package Bio::SeqFeature::Annotated;
 
+use vars qw(@ISA);
 use strict;
-use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI Bio::FeatureHolderI);
 
 use Bio::Root::Root;
+use Bio::SeqFeatureI;
+use Bio::AnnotatableI;
+use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
 use Bio::LocatableSeq;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 
 use URI::Escape;
+
+@ISA = qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI Bio::FeatureHolderI);
 
 ######################################
 #get_SeqFeatures
@@ -631,9 +709,9 @@ sub add_SeqFeature {
 
   return undef unless $val;
 
-  if ( !$val->isa('Bio::SeqFeatureI') ) {
-    $self->warn("$val does not implement Bio::SeqFeatureI, ignoring.");
-    return undef;
+  if ((!ref($val)) || !$val->isa('Bio::SeqFeatureI') ) {
+      $self->throw((ref($val) ? ref($val) : $val)
+                   ." does not implement Bio::SeqFeatureI.");
   }
 
   if($expand && ($expand eq 'EXPAND')) {
