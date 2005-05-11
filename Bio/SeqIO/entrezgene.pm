@@ -105,6 +105,7 @@ use Bio::Cluster::SequenceFamily;
 use Bio::Ontology::Term;
 use Bio::Annotation::OntologyTerm;
 use vars qw(@ISA);
+
 @ISA = qw(Bio::SeqIO);
 
 %main::eg_to_ll =('Official Full Name'=>'OFFICIAL_GENE_NAME',
@@ -156,7 +157,7 @@ sub next_seq {
                         -desc=>$xval->{summary}
                    );
     #Source data here
-    $self->_add_to_ann($xval->{status},'Entrez Gene Status'); 
+    $self->_add_to_ann($xval->{'track_info'}->{status},'Entrez Gene Status'); 
     my $lineage=$xval->{source}{org}{orgname}{lineage};
     $lineage=~s/[\s\n]//g;
     my ($comp,@lineage);
@@ -167,11 +168,31 @@ sub next_seq {
     unless (exists($xval->{source}{org}{orgname}{name}{binomial})) {
         shift @lineage;
         my ($gen,$sp)=split(/\s/, $xval->{source}{org}{taxname});
-        unshift @lineage,$sp;
+        if (($sp)&&($sp ne '')) {
+            if ($gen=~/plasmid/i) {
+                $sp=$gen.$sp;
+            }
+            unshift @lineage,$sp;
+        }
+        else {
+         unshift @lineage,'unknown';
+        }
     }
     else {
         my $sp=$xval->{source}{org}{orgname}{name}{binomial}{species};
-        unshift @lineage,$sp;
+        if (($sp)&&($sp ne '')) {
+            my ($spc,$strain)=split('sp.',$sp);#Do we need strain?
+            $spc=~s/\s//g;
+            if (($spc)&&($spc ne '')) {
+                unshift @lineage,$spc;
+            }
+            else {
+                unshift @lineage,'unknown';
+            }
+        }
+        else {
+            unshift @lineage,'unknown';
+        }
     }
      my $specie=new Bio::Species(-classification=>[@lineage],
                                 -ncbi_taxid=>$xval->{source}{org}{db}{tag}{id});
@@ -371,7 +392,7 @@ my $self=shift;
  else { my ($uncapt,$annot)=_process_src($links->{source});         
         push @uncapt,$uncapt;
         foreach my $annotation (@$annot) {
-          $ann->add_Annotation('dblink',$annotation);
+          $self->{_ann}->add_Annotation('dblink',$annotation);
         }
     }
 return @uncapt;
@@ -393,14 +414,12 @@ sub _process_comments {
  my $prod=shift;
   my (%cann,@feat,@uncaptured,@comments);
  if (exists($prod->{comment})) {
-    my $luncapt=$prod;
-    delete $luncapt->{comment};
-    push @uncaptured,$luncapt;
     $prod=$prod->{comment};
 }
     if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
     else {push @comments,$prod;}
     for my $i (0..$#comments) {#Each comments is a
+            my @sfann;
         my ($desc,$nfeat,$add,@ann,@comm);
         my $comm=$comments[$i];
        # next unless (exists($comm->{comment}));#Should be more careful when calling _process_comment:To do
@@ -413,7 +432,7 @@ sub _process_comments {
                     $cann->optional_id($comm->{text});
                     $cann->authority($comm->{type});
                     $cann->version($comm->{version});
-                    push @{$cann{'dblink'}},$cann;
+                    push @sfann,$cann;
                     next;
                 }
             }
@@ -428,6 +447,7 @@ sub _process_comments {
                     foreach my $annotation (@{$allann}) {
                          if ($annotation->{_anchor}) {$desc.=$annotation->{_anchor}.' ';}
                          $annotation->optional_id($heading);
+                    	push @sfann,$annotation;
                          push @{$cann{'dblink'}},$annotation;
                     }
         }
@@ -441,7 +461,6 @@ sub _process_comments {
             }
             foreach my $ccomm (@comm) {
             next unless ($ccomm);
-            my @sfann;
             if (exists($ccomm->{source})) {
                 my ($uncapt,$allann,$anchor) = _process_src($ccomm->{source});
                if ($allann) {
@@ -597,7 +616,7 @@ delete $self->{_current}->{products};
 my $gstruct=new Bio::SeqFeature::Gene::GeneStructure;
 foreach my $product (@products) {
     my ($tr,$uncapt)=_process_products_coordinates($product,$start,$end,$strand);
-    $gstruct->add_transcript($tr);
+    $gstruct->add_transcript($tr) if ($tr);
     undef $tr->{parent}; #Because of a cycleG
     push @uncapt,$uncapt;
 }
@@ -617,6 +636,7 @@ my $start=shift||0;#In case it is not known: should there be an entry at all?
 my $end=shift||1;
 my $strand=shift||1;
 my (@coords,@uncapt);
+return undef unless (exists($coord->{accession}));
 my $transcript=new Bio::SeqFeature::Gene::Transcript(-primary=>$coord->{accession}, #Desc is actually non functional...
                                           -start=>$start,-end=>$end,-strand=>$strand, -desc=>$coord->{type});
 
@@ -698,7 +718,7 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                      last CLASS;
                    }
                    if ($heading =~ 'Additional Links') {#IN case NCBI changes slightly the spacing:-)
-                    push @alluncaptured,_process_links($product->{comment});
+                    push @alluncaptured,$self->_process_links($product->{comment});
                      last CLASS;
                    }
                    if ($heading =~ 'LocusTagLink') {#IN case NCBI changes slightly the spacing:-)
@@ -729,7 +749,12 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                 }
                 delete $product->{refs}->{comment}; push @alluncaptured,$uncapt;
             }
-
+    #if (exists($product->{source})) {
+    #    my ($uncapt,$ann,$anchor)=_process_src($product->{source});
+    #    foreach my $dbl (@$ann) {
+    #        $self->{_ann}->add_Annotation('dblink',$dbl);
+    #    }
+    #}
 return @alluncaptured;
 }
 
@@ -829,7 +854,7 @@ sub _get_go_term {
 my $go=shift;
 my $category=shift;
     my $refan=new Bio::Annotation::Reference( #We expect one ref per GO
-        -medline => $go->{refs}->{pmid});
+        -medline => $go->{refs}->{pmid}, -title=>'no title');
     my $term = Bio::Ontology::Term->new( 
         -identifier  => $go->{source}->{src}->{tag}->{id},
         -name        => $go->{source}->{anchor},
