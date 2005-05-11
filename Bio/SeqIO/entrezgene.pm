@@ -157,7 +157,7 @@ sub next_seq {
                         -desc=>$xval->{summary}
                    );
     #Source data here
-    $self->_add_to_ann($xval->{'track_info'}->{status},'Entrez Gene Status'); 
+    $self->_add_to_ann($xval->{'track-info'}->{status},'Entrez Gene Status'); 
     my $lineage=$xval->{source}{org}{orgname}{lineage};
     $lineage=~s/[\s\n]//g;
     my ($comp,@lineage);
