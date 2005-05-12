@@ -446,7 +446,7 @@ sub init_prob {
    }
    else {
       for ($i = 0; $i < length($self->{'states'}); ++$i) {
-         $A[$i] = Bio::HMM::HMM->get_init_entry($self->{'hmm'}, substr($self->{'states'}, $i, 1));
+         $A[$i] = Bio::Ext::HMM::HMM->get_init_entry($self->{'hmm'}, substr($self->{'states'}, $i, 1));
       }
       return \@A;
    } 
