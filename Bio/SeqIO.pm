@@ -619,24 +619,24 @@ sub _filehandle {
 sub _guess_format {
    my $class = shift;
    return unless $_ = shift;
-   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
-   return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
-   return 'scf'     if /\.scf$/i;
    return 'abi'     if /\.ab[i1]$/i;
-   return 'alf'     if /\.alf$/i;
-   return 'ctf'     if /\.ctf$/i;
-   return 'ztr'     if /\.ztr$/i;
-   return 'pln'     if /\.pln$/i;
-   return 'exp'     if /\.exp$/i;
-   return 'pir'     if /\.pir$/i;
-   return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
-   return 'raw'     if /\.(txt)$/i;
-   return 'gcg'     if /\.gcg$/i;
    return 'ace'     if /\.ace$/i;
+   return 'alf'     if /\.alf$/i;
    return 'bsml'    if /\.(bsm|bsml)$/i;
-   return 'swiss'   if /\.(swiss|sp)$/i;
-   return 'phd'     if /\.(phd|phred)$/i;
+   return 'ctf'     if /\.ctf$/i;
+   return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
+   return 'exp'     if /\.exp$/i;
+   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
    return 'fastq'   if /\.fastq$/i;
+   return 'gcg'     if /\.gcg$/i;
+   return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
+   return 'phd'     if /\.(phd|phred)$/i;
+   return 'pir'     if /\.pir$/i;
+   return 'pln'     if /\.pln$/i;
+   return 'raw'     if /\.(txt)$/i;
+   return 'scf'     if /\.scf$/i;
+   return 'swiss'   if /\.(swiss|sp)$/i;
+   return 'ztr'     if /\.ztr$/i;
 }
 
 sub DESTROY {
