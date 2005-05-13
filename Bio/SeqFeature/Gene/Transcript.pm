@@ -291,7 +291,8 @@ sub introns {
     if((! defined($strand)) || ($strand != -1) || (! $rev_order)) {
 	# always sort forward for plus-strand transcripts, and for negative-
 	# strand transcripts that appear to be unsorted or forward sorted
-        @exons = map { $_->[0] } sort { $a->[1] <=> $b->[1] } map { [ $_, $_->start()] } @exons;
+        @exons = map { $_->[0] } sort { $a->[1] <=> $b->[1] } 
+	         map { [ $_, $_->start * ($_->strand || 1)] } @exons;
     } else {
 	# sort in reverse order for transcripts on the negative strand and
 	# found to be in reverse order
