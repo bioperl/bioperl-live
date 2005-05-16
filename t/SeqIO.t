@@ -11,7 +11,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$TESTCOUNT = 358;
+	$TESTCOUNT = 359;
 	# interpro uses XML::DOM
 	eval {require XML::DOM::XPath};
 	if ($@) {
@@ -800,9 +800,9 @@ ok($seq->molecule ,'RNA');
 # test BSML-SAX
 unless( $NOSAX ){
 	$str = Bio::SeqIO->new(-format => 'bsml_sax', 
-								  -file => Bio::Root::IO->catfile(qw(t data 
-							      U83300.bsml) )
-								 );
+			       -file => Bio::Root::IO->catfile
+			       (qw(t data U83300.bsml) )
+			       );
 	ok($seq = $str->next_seq);
 	@refs = $seq->annotation->get_Annotations('reference');
 	ok(@refs, 2);
@@ -819,4 +819,13 @@ unless( $NOSAX ){
 	ok($feats[1]->get_tag_values('db_xref'), 3);
 	ok($seq->annotation->get_Annotations('reference'),2);
 	ok($seq->annotation->get_Annotations('dblink'),2);
+}
+
+
+# bug 1571
+{
+    my $ent = Bio::SeqIO->new(-format => 'embl',
+			      -file   => Bio::Root::IO->catfile
+			      (qw(t data test.embl2sq)));
+    ok($ent->next_seq->length,4877);
 }
