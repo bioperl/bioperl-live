@@ -31,7 +31,7 @@ Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence
                      -mismatch => -1,
                      -gap => 3,
                      -ext => 1,
-                     -alg => dpAlign::DPALIGN_LOCAL_MILLER_MYERS);
+                     -alg => Bio::Tools::dpAlign::DPALIGN_LOCAL_MILLER_MYERS);
 
   # actually do the alignment
   $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
@@ -46,7 +46,7 @@ Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence
 
   $parser = new Bio::Matrix::IO(-format => 'scoring', -file => 'blosum50.mat');
   $matrix = $parser->next_matrix;
-  $factory = new Bio::Tools::dpAlign(-matrix => $matrix, -alg => Bio::Tools::DPALIGN_LOCAL_MILLERMYERS);
+  $factory = new Bio::Tools::dpAlign(-matrix => $matrix, -alg => Bio::Tools::dpAlign::DPALIGN_LOCAL_MILLERMYERS);
   $seq1->alphabet('protein');
   $seq2->alphabet('protein');
   $out = $factory->pairwise_alignment($seq1->next_seq, $seq2->next_seq);
