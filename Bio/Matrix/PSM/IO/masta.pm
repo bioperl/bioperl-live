@@ -137,10 +137,10 @@ sub write_psm {
     }
 }
 
-=head2 next_matrix
+=head2 next_psm
 
- Title   : next_matrix
- Usage   : my $matrix=$psmio->next_matrix;
+ Title   : next_psm
+ Usage   : my $matrix=$psmio->next_psm;
  Function: returns the next matrix in the stream
  Throws  : If there is you mix different types, for example weights and frequencies occur in the same entry
 	   You can mix weights, but these should be designated by different ID lines
@@ -150,7 +150,7 @@ sub write_psm {
 
 =cut
 
-sub next_matrix {
+sub next_psm {
     my $self=shift;
     return undef if ($self->{_end});
     my $line=$self->_readline;
@@ -178,12 +178,12 @@ sub next_matrix {
       $line=~s/[\s\t]+/\t/g;
       my @data=split(/[\s\t]+/,$line);
       if ($#data==3) {
-         $self->throw("Mixing between types is not allowed or a parsing error occured\n") if (($self->{_mtype} !=1) &&($mtype)) ;
+         $self->throw("Mixing between types is not allowed or a parsing error occured\n") if (($mtype)&&($self->{_mtype} !=1)) ;
          $self->{_mtype}=1;
          $mtype=1;
       }
       else   {
-         $self->throw("Mixing between types is not allowedor a parsing error occured\n") if (($self->{_mtype} !=2) &&($mtype)) ;
+         $self->throw("Mixing between types is not allowedor a parsing error occured\n") if (($mtype)&&($self->{_mtype} !=2)) ;
          $self->{_mtype}=2;
          $mtype=1;
       }
