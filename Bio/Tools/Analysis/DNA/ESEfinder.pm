@@ -150,7 +150,7 @@ use vars qw(@ISA );
 
 #global vars are now file-scoped lexicals
 
-my $URL = 'http://exon.cshl.org/cgi-bin/ESE/esefinder.cgi';
+my $URL = 'http://rulai.cshl.org/cgi-bin/tools/ESE/esefinder.cgi';
 	
 my $ANALYSIS_NAME = 'ESEfinder';
 
@@ -207,16 +207,16 @@ sub _run {
     $self->status('TERMINATED_BY_ERROR');
 
     my $request = POST $self->url,
-        Content_Type => 'x-www-form-urlencoded',
+        #Content_Type => 'x-www-form-urlencoded',
             Content  => [
                          protein1 => 1,
                          protein2 => 1,
                          protein3 => 1,
                          protein4 => 1,
-                         #radio_sf2 => 1,
-                         #radio_sc35 => 1,
-                         #radio_srp40 => 1,
-                         #radio_srp55 => 1,
+                         radio_sf2 => 0,
+                         radio_sc35 => 0,
+                         radio_srp40 => 0,
+                         radio_srp55 => 0,
                          sequence =>$seq_fasta,
                         ];
     my $content = $self->request($request);
@@ -226,10 +226,10 @@ sub _run {
     }
 
     my $text = $content->content; #1st reponse
-    my ($tmpfile) = $text =~ /value="(tmp.+txt)"/;
+    my ($tmpfile) = $text =~ /value="(tmp\/.+txt)"/;
     # now get data for all residues #
-    my $rq2 = POST 'http://exon.cshl.org/cgi-bin/ESE/resultfile.txt',
-        Content_Type => 'x-www-form-urlencoded',
+    my $rq2 = POST 'http://rulai.cshl.org/cgi-bin/tools/ESE/resultfile.txt',
+        #Content_Type => 'x-www-form-urlencoded',
             Content => [
                         fname => $tmpfile,
                        ];
