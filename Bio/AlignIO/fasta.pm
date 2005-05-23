@@ -56,7 +56,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::fasta;
-use vars qw(@ISA);
+use vars qw(@ISA $MATCHPATTERN);
 use strict;
 
 use Bio::AlignIO;
@@ -64,6 +64,7 @@ use Bio::SimpleAlign;
 
 @ISA = qw(Bio::AlignIO);
 
+$MATCHPATTERN = '^A-Za-z\.\-';
 
 =head2 next_aln
 
@@ -115,7 +116,7 @@ sub next_aln {
 	    $seqchar  = "";
 	    next;
 	}
-	$entry =~ s/[^A-Za-z\.\-]//g;
+	$entry =~ s/[$MATCHPATTERN]//g;
 	$seqchar .= $entry;	
     }
 #
