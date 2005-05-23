@@ -113,8 +113,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw(@ISA);
+use vars qw(@ISA $MATCHPATTERN);
 use strict;
+
+$MATCHPATTERN = 'A-Za-z\-\.\*\?';
 
 use Bio::Root::Root;
 use Bio::PrimarySeqI;
@@ -209,7 +211,7 @@ sub new {
     if( $direct && $ref_to_seq) {
 		 $self->{'seq'} = $$ref_to_seq;
 		 if( ! $alphabet ) {
-			 $self->_guess_alphabet();
+		     $self->_guess_alphabet();
 		 } # else it has been set already above
     } else {
 		 #	print STDERR "DEBUG: setting sequence to [$seq]\n";
@@ -264,8 +266,8 @@ sub seq {
    my ($value,$alphabet) = @args;
 
    if(@args) {
-		if(defined($value) && (! $obj->validate_seq($value))) {
-			$obj->throw("Attempting to set the sequence to [$value] ".
+       if(defined($value) && (! $obj->validate_seq($value))) {
+	   $obj->throw("Attempting to set the sequence to [$value] ".
 							"which does not look healthy");
 		}
        # if a sequence was already set we make sure that we re-adjust the
@@ -318,9 +320,10 @@ sub validate_seq {
 	my ($self,$seqstr) = @_;
 	if( ! defined $seqstr ){ $seqstr = $self->seq(); }
 	return 0 unless( defined $seqstr); 
-	if((CORE::length($seqstr) > 0) && ($seqstr !~ /^([A-Za-z\-\.\*\?]+)$/)) {
-		$self->warn("seq doesn't validate, mismatch is " .
-						($seqstr =~ /([^A-Za-z\-\.\*\?]+)/g));
+	if((CORE::length($seqstr) > 0) && 
+	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
+	    $self->warn("seq doesn't validate, mismatch is " .
+			($seqstr =~ /([^$MATCHPATTERN]+)/g));
 		return 0;
 	}
 	return 1;
@@ -835,8 +838,9 @@ sub _guess_alphabet {
 
    my $total = CORE::length($str);
    if( $total == 0 ) {
-       $self->throw("Got a sequence with no letters in it ".
-		    "cannot guess alphabet [$str]");
+       $self->warn("Got a sequence with no letters in it ".
+		   "cannot guess alphabet [$str]");
+       return '';
    }
 
    my $u = ($str =~ tr/Uu//);
