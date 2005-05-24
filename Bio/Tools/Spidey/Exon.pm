@@ -121,10 +121,10 @@ sub new {
 =head2 percentage_id
 
  Title   : percentage_id
- Usage   : $obj->percentage_id($newval)
+ Usage   : $obj->percentage_id
  Function: This is the percent id as reported by Spidey
  Returns : value of percentage_id
- Args    : newvalue (optional)
+ Args    : 
 
 
 =cut
@@ -163,11 +163,11 @@ sub est_hit {
 =head2 mismatches
 
  Title   : mismatches
- Usage   : $obj->mismatches($newval);
+ Usage   : $obj->mismatches;
  Function: Returns the mismatches of the cDNA to (i.e., aligned to by Spidey) this
            exon (i.e., genomic region). 
  Returns : value of mismatches.
- Args    : newvalue (optional)
+ Args    : 
 
 
 =cut
@@ -188,11 +188,11 @@ sub mismatches {
 =head2 gaps
 
  Title   : gaps
- Usage   : $obj->gaps($newval);
+ Usage   : $obj->gaps;
  Function: Returns the gaps of the cDNA to (i.e., aligned to by Spidey) this
            exon (i.e., genomic region). 
  Returns : value of gaps.
- Args    : newvalue (optional)
+ Args    : 
 
 
 =cut
@@ -209,5 +209,56 @@ sub gaps {
 	}
 	return $val;
 }
+
+=head2 donor
+
+ Title   : donor
+ Usage   : $obj->donor;
+ Function: Returns 0 if a splice donor site does not exist, or 
+           1 if a splice donor site exists
+ Returns : value of existence of donor splice site (0 or 1)
+ Args    :
+
+
+=cut
+
+sub donor {
+	my ($self, @args) = @_;
+	my $val;
+
+	if (@args) {
+		$val = shift @args;
+		$self->{'donor'} = $val;
+	} else {
+		$val = $self->{'donor'};
+	}
+	return $val;
+}
+
+=head2 acceptor
+
+ Title   : acceptor
+ Usage   : $obj->acceptor;
+ Function: Returns 0 if a splice acceptor site does not exist, or 
+           1 if a splice acceptor site exists
+ Returns : value of existence of acceptor splice site (0 or 1)
+ Args    :
+
+
+=cut
+
+sub acceptor {
+	my ($self, @args) = @_;
+	my $val;
+
+	if (@args) {
+		$val = shift @args;
+		$self->{'acceptor'} = $val;
+	} else {
+		$val = $self->{'acceptor'};
+	}
+	return $val;
+}
+
 
 1;

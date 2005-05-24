@@ -25,6 +25,9 @@ Bio::Tools::Spidey::Results - Results of a Spidey run
 	my $exonset = $spidey->next_exonset();
 
 	# parse the results
+	my @exons = $exonset->sub_SeqFeature();
+	print "Total # of Exons: ", scalar(@exons), "\n";
+	
 	print "Genomic sequence length: ", $spidey->genomic_dna_length(), "\n";
 
 	# $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Spidey::Exons
@@ -43,7 +46,7 @@ Bio::Tools::Spidey::Results - Results of a Spidey run
 	}
 
 	# essential if you gave a filename at initialization (otherwise 
-   # the file stays open)
+  	# the file stays open)
 	$spidey->close();
 
 =head1 DESCRIPTION
@@ -176,7 +179,6 @@ sub parse_next_alignment {
 	# we refer to the properties of each seq by reference
 #	my ($estseq, $genomseq, $to_reverse);
 #	my $hit_direction = 1;
-#	my $output_fmt = 3; # same as 0 and 1 (we cannot deal with A=2 produced output yet)
    
 	while(defined($_ = $self->_readline())) {
 		chomp();
@@ -273,6 +275,8 @@ sub parse_next_alignment {
 					$exon->percentage_id($5);
 					$exon->mismatches($6);
 					$exon->gaps($7);
+					$exon->donor($8);
+					$exon->acceptor($9);
 
 					# push onto array
 					push(@exons, $exon);
@@ -296,6 +300,32 @@ sub parse_next_alignment {
 		/^Missing mRNA ends: (\w+)/ && do {
 			$self->missing_mrna_ends($1);
 		};
+		# Typical format:
+		# 	Exon 1: 36375798-36375691 (gen)  1-108 (mRNA)
+		#
+		#
+		#	CCTCTTTTTCTTTGCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
+		#        	   |  ||||||||||||||||||||||||||||||||||||||||||||||
+		#	          ATGTCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
+		#	           M  S  G  Y  I  P  S  Y  L  D  K  D  E  L  C  V  V 
+		#
+		#
+		#	ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAGGT
+		#	||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+		#	ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAG
+		#	  C  G  D  K  A  T  G  Y  H  Y  R  C  I  T  C  E  G  C  K 
+		#
+		#
+		#	AAATGGCA
+		#
+		/^Exon (\d+): (\d+)-(\d+) \(gen\)\s+(\d+)-(\d+) \(mRNA\)/ && do {
+			my ($exon_num, $gen_start, $gen_stop, $cdna_start, $cdna_stop);						
+			$exon_num = $1;
+			$gen_start = $2;
+			$gen_stop = $3;
+			$cdna_start = $4;
+			$cdna_stop = $5;			
+		}
 	}
 	return @exons;
 }
