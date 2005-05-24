@@ -61,9 +61,10 @@ ones when the cache is full.
 
 The fasta files may contain any combination of nucleotide and protein
 sequences; during indexing the module guesses the molecular type.
-Entries may have any line length, and different line lengths are
-allowed in the same file.  However, within a sequence entry, all lines
-must be the same length except for the last.
+Entries may have any line length up to 65,536 characters, and
+different line lengths are allowed in the same file.  However, within
+a sequence entry, all lines must be the same length except for the
+last.
 
 The module uses /^E<gt>(\S+)/ to extract each sequence's primary ID from
 the Fasta header.  During indexing, you may pass a callback routine to
@@ -707,11 +708,14 @@ sub calculate_offsets {
       }
       $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
       ($offset,$firstline,$linelength) = ($pos,length($_),0);
+      $self->_check_linelength($linelength);
     } else {
       $linelength ||= length($_);
       $type       ||= $self->_type($_);
     }
-    }
+  }
+
+  $self->_check_linelength($linelength);
   # deal with last entry
   if ($id) {
     my $pos = tell($fh);
@@ -811,6 +815,14 @@ sub path2fileno {
     $self->{offsets}{"__file_$fileno"} = $path;
   }
   return $self->{offsets}{"__path_$path"}
+}
+
+sub _check_linelength {
+  my $self       = shift;
+  my $linelength = shift;
+  return unless defined $linelength;
+  $self->throw("Each line of the fasta file must be less than 65,536 characters.  Line $. is $linelength chars.")	if $linelength > 65535.
+
 }
 
 =head2 subseq
