@@ -5,7 +5,7 @@ BEGIN {
     # as a fallback
     eval { require Test; };
     if( $@ ) {
-	use lib 't';
+		  	use lib 't';
     }
     use Test;
     plan tests => 28;
@@ -26,7 +26,7 @@ ok(!defined($exonset));
 
 $spidey = new Bio::Tools::Spidey::Results(-file=> Bio::Root::IO->catfile("t", "data",
 "spidey.test1"));
-my $exonset = $spidey->next_exonset;
+$exonset = $spidey->next_exonset;
 my @exons = $exonset->sub_SeqFeature(); 
 ok @exons, 6;
 
