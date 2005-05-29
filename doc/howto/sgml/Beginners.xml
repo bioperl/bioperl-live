@@ -1874,8 +1874,9 @@ url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</cite
 				The former contains more carefully written and documented
 				scripts that can be installed along with Bioperl. You should
 				feel free to contribute scripts to either of these 
-				directories.
-		  </para></listitem>
+				directories. There's also a complete list of scripts,
+<ulink url="http://bioperl.org/Core/Latest/bioscripts.html"><citetitle>bioscripts.pod</citetitle></ulink>. 
+			 </para></listitem>
 		  <listitem><para>
 			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user"><citetitle>User-contributed documentation</citetitle></ulink>. There's some very good material here.
 		  </para></listitem>
