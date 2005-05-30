@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 64;
+    plan tests => 68;
 }
 
 END {
@@ -58,6 +58,13 @@ ok($matrix->column_header(0),'D');
 ok($matrix->add_row(1, 'b', [qw(21 13 14)]),4);
 ok($matrix->add_column(2, 'f', [qw(71 81 14 3)]),4);
 
+ok($matrix->add_row(4, 'c', [qw(22 11 17)]),5);
+ok($matrix->remove_row(4),4);
+
+ok($matrix->add_column(4, 'g', [qw(11 10 100 71)]),5);
+ok($matrix->remove_column(4),4);
+
+
 ok($matrix->row_num_for_name('B'),2);
 ok($matrix->row_num_for_name('b'),1);
 ok($matrix->column_num_for_name('D'),0);
@@ -69,6 +76,7 @@ ok($matrix->column_header(3),'F');
 
 
 ok($matrix->get_entry('b', 'f'), 81);
+
 
 
 # read in a scoring matrix
