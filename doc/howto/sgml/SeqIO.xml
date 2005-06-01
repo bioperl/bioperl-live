@@ -248,6 +248,11 @@ my $seq_object = $seqio_object->next_seq;
 				  <entry>embl|ebl|emb|dat</entry>
 				</row>
 				<row>
+				  <entry>entrezgene</entry>
+				  <entry>Entrez Gene ASN1</entry>
+				  <entry></entry>
+				</row>
+				<row>
 				  <entry>exp</entry>
 				  <entry>Staden EXP format</entry>
 				  <entry>exp</entry>
