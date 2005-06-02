@@ -251,7 +251,7 @@ for you.
 sub render {
   my $self = shift;
   my $panel = shift;
-  my ($position_to_insert,$options,$max_bump,$max_label) = @_;
+  my ($position_to_insert,$options,$max_bump,$max_label,$selector) = @_;
 
   $panel ||= $self->new_panel;
 
@@ -284,6 +284,7 @@ sub render {
   }
 
   for my $type (@configured_types,@unconfigured_types) {
+    next if defined $selector && !$selector->($self,$type);
     my $f = $self->features($type);
     my @features = grep {$self->{visible}{$_} || $_->type eq 'group'} @$f;
     next unless @features;  # suppress tracks for features that don't appear
@@ -296,6 +297,7 @@ sub render {
     my @config = ( -glyph   => 'segments',         # really generic
 		   -bgcolor => $COLORS[$color++ % @COLORS],
 		   -label   => 1,
+		   -description => 1,
 		   -key     => $type,
 		   @auto_bump,
 		   @base_config,         # global
