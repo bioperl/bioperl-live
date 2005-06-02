@@ -1029,7 +1029,7 @@ sub next_result{
                        chomp($etime);
                        $self->element({'Name' => 'Statistics_endtime',
                                        'Data' => $etime});
-                   } elsif( /^\s+Database:\s+(\S+)/ ) {
+                   } elsif( /^\s+Database:\s+(.+)$/ ) {
 		       $self->element({'Name' => 'Parameters_full_dbpath',
 				       'Data' => $1});
 		       
