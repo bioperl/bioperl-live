@@ -232,43 +232,18 @@ BEGIN {
           'Statistics_framewindow'=> { 'RESULT-statistics' => 'frameshiftwindow'},
           'Statistics_decay'=> { 'RESULT-statistics' => 'decayconst'},
 
-          'Statistics_T'=> { 'RESULT-statistics' => 'T'},
-          'Statistics_A'=> { 'RESULT-statistics' => 'A'},
-          'Statistics_X1'=> { 'RESULT-statistics' => 'X1'},
-          'Statistics_X2'=> { 'RESULT-statistics' => 'X2'},
-          'Statistics_X3'=> { 'RESULT-statistics' => 'X3'},
-          'Statistics_S1'=> { 'RESULT-statistics' => 'S1'},
-          'Statistics_S2'=> { 'RESULT-statistics' => 'S2'},
-	  
-,         'Statistics_X1_bits'=> { 'RESULT-statistics' => 'X1_bits'},
-          'Statistics_X2_bits'=> { 'RESULT-statistics' => 'X2_bits'},
-          'Statistics_X3_bits'=> { 'RESULT-statistics' => 'X3_bits'},
-          'Statistics_S1_bits'=> { 'RESULT-statistics' => 'S1_bits'},
-          'Statistics_S2_bits'=> { 'RESULT-statistics' => 'S2_bits'},
+
 	  
 	  'Statistics_hit_to_db' => { 'RESULT-statistics'          => 'Hits_to_DB'},
-	  'Statistics_num_extensions' => { 'RESULT-statistics'     => 'num_extensions'},
-	  'Statistics_num_extensions' => { 'RESULT-statistics'     => 'num_extensions'},
 	  'Statistics_num_suc_extensions' => { 'RESULT-statistics' => 'num_successful_extensions'},
-	  'Statistics_seqs_better_than_cutoff' => { 'RESULT-statistics' 
-							           => 'seqs_better_than_cutoff'},
-	  'Statistics_posted_date' => { 'RESULT-statistics' => 'posted_date'},
-	  
           # WU-BLAST stats
-          'Statistics_DFA_states'=> { 'RESULT-statistics' => 'num_dfa_states'},
-          'Statistics_DFA_size'=> { 'RESULT-statistics' => 'dfa_size'},
-
-          'Statistics_search_cputime' => { 'RESULT-statistics' => 'search_cputime'},
-          'Statistics_total_cputime' => { 'RESULT-statistics' => 'total_cputime'},
-          'Statistics_search_actualtime' => { 'RESULT-statistics' => 'search_actualtime'},
-          'Statistics_total_actualtime' => { 'RESULT-statistics' => 'total_actualtime'},
-
-          'Statistics_noprocessors' => { 'RESULT-statistics' => 'no_of_processors'},
-          'Statistics_neighbortime' => { 'RESULT-statistics' => 'neighborhood_generate_time'},
-          'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
-          'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
-	  'Statistics_ctxfactor' => { 'RESULT-statistics' => 'ctxfactor'},
-          );
+	'Statistics_DFA_states'=> { 'RESULT-statistics' => 'num_dfa_states'},
+	'Statistics_DFA_size'=> { 'RESULT-statistics' => 'dfa_size'},
+	'Statistics_noprocessors' => { 'RESULT-statistics' => 'no_of_processors'},
+	'Statistics_neighbortime' => { 'RESULT-statistics' => 'neighborhood_generate_time'},
+	'Statistics_starttime' => { 'RESULT-statistics' => 'start_time'},
+	'Statistics_endtime' => { 'RESULT-statistics' => 'end_time'},
+	);
     # add WU-BLAST Frame-Based Statistics
     for my $frame ( 0..3 ) {
 	for my $strand ( '+', '-') {
@@ -286,6 +261,31 @@ BEGIN {
 	    }
 	}      
     }    
+    # add Statistics
+    for my $stats ( qw(T A X1 X2 X3 S1 S2 X1_bits X2_bits X3_bits
+		       S1_bits S2_bits  num_extensions 
+		       num_successful_extensions
+		       seqs_better_than_cutoff
+		       posted_date
+		       search_cputime total_cputime 
+		       search_actualtime total_actualtime
+		       no_of_processors ctxfactor)) {
+	my $key ="Statistics_$stats";
+	my $val = { 'RESULT-statistics' => $stats };
+	$MAPPING{$key} = $val;
+    }
+
+    # add WU-BLAST Parameters 
+    for my $param ( qw(span span1 span2 links warnings notes hspsepsmax 
+		       hspsepqmax topcomboN topcomboE postsw cpus wordmask 
+		       filter sort_by_pvalue sort_by_count sort_by_highscore
+		       sort_by_totalscore sort_by_subjectlength noseqs gi qtype
+		       qres V B Z Y M N) ) {
+	my $key ="Parameters_$param";
+	my $val = { 'RESULT-parameters' => $param };
+	 $MAPPING{$key} = $val;
+    }
+    
     $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
     $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
     $DEFAULTREPORTTYPE = 'BLASTP'; # for bl2seq
@@ -900,6 +900,7 @@ sub next_result{
                } elsif( $blast eq 'btk' ) { 
 		   next;
 	       } elsif( $blast eq 'wublast' ) {
+#		   warn($_);
                    if( /E=(\S+)/ ) {
                        $self->element({'Name' => 'Parameters_expect',
                                        'Data' => $1});
@@ -909,6 +910,12 @@ sub next_result{
                    } elsif( /ctxfactor=(\S+)/ ) {
 		       $self->element({'Name' => 'Statistics_ctxfactor',
 				       'Data' => $1});
+		   } elsif( /(postsw|links|span[12]?|warnings|notes|gi|noseqs|qres|qype)/ ) {
+		       $self->element({'Name' => "Parameters_$1",
+				       'Data' => 'yes'});
+		   } elsif( /(\S+)=(\S+)/) {
+		       $self->element({'Name' => "Parameters_$1",
+				       'Data' => $2});
 		   } elsif( $last =~ /(Frame|Strand)\s+MatID\s+Matrix name/i ){
 		       my $firstgapinfo = 1;
 		       my $frame = undef;		       
