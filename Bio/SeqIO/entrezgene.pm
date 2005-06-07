@@ -124,7 +124,7 @@ sub _initialize {
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	$self->{_debug}=$param{-debug};
 	$self->{_locuslink}=$param{-locuslink};
-	$self->{_service_record}=$param{-service_record};
+	$self->{_service_record}=$param{-service_record}||'no';
 	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});
 	#Instantiate the low level parser here (it is -file in Bioperl
    #-should tell M.)
@@ -145,9 +145,9 @@ sub next_seq {
     $self->{_currentann} = Bio::Annotation::Collection->new();
     my @alluncaptured;
     # parse the entry
-    my @keys=keys %{$value};
+    #my @keys=keys %{$value}; obsolete
     $xval=$value->[0];
-    return undef if (($self->{_service_record} ne 'yes')&&
+    return new Bio::Seq (-id=>'Generif service record', -seq=>'') if (($self->{_service_record} ne 'yes')&&
                     ($xval->{gene}->{desc} =~ /record to support submission of generifs for a gene not in entrez/i));
     #Basic data
 	 #$xval->{summary}=~s/\n//g; 
@@ -314,7 +314,7 @@ sub next_seq {
         delete $xval->{comments};
         delete $xval->{properties};
         delete $xval->{'xtra-index-terms'};
-        $xval->{status};
+        delete $xval->{status};
     }
     push @alluncaptured,$xval;
         undef %seqcollection;
