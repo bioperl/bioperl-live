@@ -134,7 +134,7 @@ sub _initialize {
 
 sub next_seq {
     my $self=shift;
-    my $value = $self->{_parser}->next_seq(-trimopt=>1); 
+    my $value = $self->{_parser}->next_seq(1); 
 	 # $value contains data structure for the
 	 # record being parsed. 2 indicates the recommended
 	 # trimming mode of the data structure
