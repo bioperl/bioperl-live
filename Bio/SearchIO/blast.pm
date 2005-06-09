@@ -1159,7 +1159,7 @@ sub next_result{
                    last; 
                }
                chomp;
-               if( /^((Query|Sbjct):\s+(\-?\d+)\s*)(\S+)\s+(\-?\d+)/ ) {
+               if( /^((Query|Sbjct):?\s+(\-?\d+)\s*)(\S+)\s+(\-?\d+)/ ) {
 		   my ($full,$type,$start,$str,$end) = ($1,$2,$3,$4,$5);
 		   if( $str eq '-' ) {
 		       $i = 3 if $type eq 'Sbjct';

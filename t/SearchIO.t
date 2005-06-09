@@ -22,7 +22,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1216;
+    $NTESTS = 1223;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -1641,7 +1641,7 @@ ok($result->get_statistic('dbentries'),'1867771');
 # test for links and groups being parsed out of WU-BLAST properly
 $searchio = Bio::SearchIO->new(-format => 'blast',
 			       -file   => Bio::Root::IO->catfile
-			       ((qw(t data brassica_ATH.WUBLASTN) )));
+			       (qw(t data brassica_ATH.WUBLASTN) ));
 ok($result = $searchio->next_result);
 ok($hit = $result->next_hit);
 ok($hsp = $hit->next_hsp);
@@ -1649,6 +1649,22 @@ ok($hsp->links,'(1)-3-2');
 ok($hsp->query->strand, 1);
 ok($hsp->hit->strand, 1);
 ok($hsp->hsp_group, '1');
+
+
+
+## Web blast result parsing
+
+$searchio = Bio::SearchIO->new(-format => 'blast',
+			       -file   => Bio::Root::IO->catfile
+			       (qw(t data catalase-webblast.BLASTP)));
+ok($result = $searchio->next_result);
+ok($hit = $result->next_hit);
+ok($hit->name, 'gi|40747822|gb|EAA66978.1|', 'full hit name');
+ok($hit->accession, 'EAA66978', 'hit accession');
+ok($hsp = $hit->next_hsp);
+ok($hsp->query->start, 1, 'query start');
+ok($hsp->query->end, 528, 'query start');
+
 
 # some utilities
 # a utility function for comparing result objects
