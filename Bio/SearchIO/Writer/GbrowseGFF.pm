@@ -15,9 +15,11 @@ Bio::SearchIO::Writer::GbrowseGFF - Interface for outputting parsed search resul
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $in = new Bio::SearchIO(-file   => 'result.blast',
+  my $in = new Bio::SearchIO(-file   => 'result.blast',      
                              -format => 'blast');
   my $out = new Bio::SearchIO(-output_format  => 'GbrowseGFF',
+                              -output_cigar   => 1,
+                              -output_signif  => 1,
                               -file           => ">result.gff");
   while( my $r = $in->next_result ) {
     $out->write_result($r);
@@ -30,6 +32,11 @@ This writer produces Gbrowse flavour GFF from a Search::Result object.
 =head1 AUTHOR  Mark Wilkinson
 
 Email markw-at-illuminae-dot-com
+
+=head1 CONTRIBUTORS
+
+Susan Miller sjmiller at email-DOT-arizon-DOT-edu
+Jason Stajich jason at bioperl-dot-org
 
 =head1 FEEDBACK
 
@@ -61,8 +68,12 @@ Internal methods are usually preceded with a _
 package Bio::SearchIO::Writer::GbrowseGFF;
 use Bio::SearchIO::SearchWriterI;
 use Bio::Root::RootI;
-use vars qw(@ISA);
+use vars qw(@ISA %Defaults);
 use strict;
+
+$Defaults{'Prefix'}   = 'EST';
+$Defaults{'HSPTag'}   = 'HSP';
+$Defaults{'MatchTag'} = 'match';
 
 @ISA = qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
@@ -82,14 +93,16 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($evalue) = $self->_rearrange(["E_VALUE"], @args);
-    $self->{_evalue} = $evalue;
-    $evalue && print STDERR 'use of the -e_value argument is deprecated.  In future, use $writer->filter("type", \&code)  instead.\n\tparsing will proceed correctly with this e_value\n';
+    ($self->{'_evalue'},
+     $self->{'_cigar'},
+     $self->{'_prefix'},
+     $self->{'signif'} ) = $self->_rearrange([qw(E_VALUE OUTPUT_CIGAR PREFIX
+						 OUTPUT_SIGNIF)], @args);
+    $self->{'_evalue'} && warn( 'use of the -e_value argument is deprecated.  In future, use $writer->filter("type", \&code)  instead.\n\tparsing will proceed correctly with this e_value\n');
     $self->{Gbrowse_HSPID} = 0;
     $self->{Gbrowse_HITID} = 0;
-
+    $self->{'_prefix'} ||= $Defaults{'Prefix'};
     return $self;
-
 }
 
 sub _incrementHSP {
@@ -116,6 +129,9 @@ sub _incrementHIT {
              -match_tag => match|cDNA_match|EST_match|translated_nucleotide_match
                            nucleotide_to_protein_match|nucleotide_motif
                            This is the SO term to be placed in GFF column 3.
+             -prefix => String to prefix the group by, default is EST 
+                        (see %Defaults class variable) A default can also
+                        be set on object init
  Returns   : String containing data for each search Result or any of its
            : sub-objects (Hits and HSPs).
  Throws    : n/a
@@ -128,9 +144,17 @@ sub _incrementHIT {
 
 sub to_string {
     my ($self, $result, @args) = @_;
-    my ($format, $reference, $match_tag) = $self->_rearrange(["VERSION", "REFERENCE", "MATCH_TAG"], @args);
+    my ($format, $reference, 
+	$match_tag,$hsp_tag,
+	$prefix) = $self->_rearrange([qw
+				      (VERSION 
+				       REFERENCE 
+				       MATCH_TAG HSP_TAG
+				       PREFIX)], @args);
     $reference ||='hit'; # default is that the hit sequence (db sequence) becomes the reference sequence.  I think this is fairly typical...
-    $match_tag ||='match'; # default is the generic 'match' tag.
+    $match_tag ||= $Defaults{'MatchTag'}; # default is the generic 'match' tag.
+    $hsp_tag   ||= $Defaults{'HSPTag'}; # default is the generic 'hsp' tag.
+    $prefix    ||= $self->{'_prefix'};
     $self->throw("$reference must be one of 'query', or 'hit'\n") unless $reference;
     
     #*************  THIS IS WHERE I STOPPED  ****************   
@@ -144,7 +168,7 @@ sub to_string {
     return "" unless defined $gffio;  # be kind and don't return undef in case the person is putting teh output directly into a printstatement without testing it
     # now $gffio is either false, or a valid GFF formatter
 
-    my $GFF;
+    my ($GFF,$cigar,$score);
     my ($resultfilter,$hitfilter,$hspfilter) = (
         $self->filter('RESULT'),
         $self->filter('HIT'),
@@ -158,11 +182,15 @@ sub to_string {
             next unless ($hit->significance < $self->{_evalue});
         }
         next if( defined $hitfilter && ! &{$hitfilter}($hit) ); # test against filter code
-
+	
         my $refseq = $hit->name;
         my $seqname = $result->query_name;  # hopefully this will be a simple identifier without a full description line!!
-        my $score = $hit->raw_score;
-        $self->throw("No reference sequence name found in hit; required for GFF (this may not be your fault if your report type does not include reference sequence names)\n") unless $refseq;
+	if ($self->{_signif}) {
+	    $score = $hit->significance;
+	} else {
+	    $score = $hit->raw_score;
+	}
+	$self->throw("No reference sequence name found in hit; required for GFF (this may not be your fault if your report type does not include reference sequence names)\n") unless $refseq;
         my $source = $hit->algorithm;
         $self->throw("No algorithm name found in hit; required for GFF (this may not be your fault if your report type does not include algorithm names)\n") unless $refseq;
         $self->throw("This module only works on BLASTN reports at this time.  Sorry.\n") unless $source eq "BLASTN";
@@ -175,57 +203,63 @@ sub to_string {
         # on both the subject and query strands individually
         my ($qpmin, $qpmax, $qmmin, $qmmax, $spmin, $spmax, $smmin, $smmax); # variables for the plus/minus strand min start and max end to know the full extents of the hit
         while( my $hsp = $hit->next_hsp ) {
-            if (defined $self->{_evalue}){  # for backward compatibility only
+            if ( defined $self->{_evalue} ) {  
+                # for backward compatibility only
                 next unless ($hsp->significance < $self->{_evalue});
-            }
+	    }
             next if( defined $hspfilter && ! &{$hspfilter}($hsp) ); # test against HSP filter
-            if ($hsp->strand('subject') eq "1"){
+            if ($hsp->hit->strand >= 0 ){
                 push @plus_hsps, $hsp;
                 if (defined $qpmin){  # set or reset the minimum and maximum extent of the plus-strand hit
-                    $qpmin = $hsp->start('query') if $hsp->start('query') < $qpmin;
-                    $qpmax = $hsp->end('query') if $hsp->end('query') > $qpmax;
-                    $spmin = $hsp->start('subject') if $hsp->start('subject') < $spmin;
-                    $spmax = $hsp->end('subject') if $hsp->end('subject') > $spmax;                    
+                    $qpmin = $hsp->query->start if $hsp->query->start < $qpmin;
+                    $qpmax = $hsp->query->end if $hsp->query->end > $qpmax;
+                    $spmin = $hsp->hit->start if $hsp->hit->start < $spmin;
+                    $spmax = $hsp->hit->end if $hsp->hit->end > $spmax;
                 } else {
-                    $qpmin = $hsp->start('query');
-                    $qpmax = $hsp->end('query');
-                    $spmin = $hsp->start('subject');
-                    $spmax = $hsp->end('subject');
+                    $qpmin = $hsp->query->start;
+                    $qpmax = $hsp->query->end;
+                    $spmin = $hsp->hit->start;
+                    $spmax = $hsp->hit->end;
                 }
             } 
-            if ($hsp->strand('subject') eq "-1"){
+            if ($hsp->hit->strand < 0 ){
                 push @minus_hsps, $hsp;
                 if (defined $qmmin){ # set or reset the minimum and maximum extent of the minus-strand hit
-                    $qmmin = $hsp->start('query') if $hsp->start('query') < $qmmin;
-                    $qmmax = $hsp->end('query') if $hsp->end('query') > $qmmax;
-                    $smmin = $hsp->start('subject') if $hsp->start('subject') < $smmin;
-                    $smmax = $hsp->end('subject') if $hsp->end('subject') > $smmax;                    
+                    $qmmin = $hsp->query->start if $hsp->query->start < $qmmin;
+                    $qmmax = $hsp->query->end if $hsp->query->end > $qmmax;
+                    $smmin = $hsp->hit->start if $hsp->hit->start < $smmin;
+                    $smmax = $hsp->hit->end if $hsp->hit->end > $smmax;
                 } else {
-                    $qmmin = $hsp->start('query');
-                    $qmmax = $hsp->end('query');
-                    $smmin = $hsp->start('subject');
-                    $smmax = $hsp->end('subject');
+                    $qmmin = $hsp->query->start;
+                    $qmmax = $hsp->query->end;
+                    $smmin = $hsp->hit->start;
+                    $smmax = $hsp->hit->end;
                 }
             }
             #else next if there is no strand, but that makes no sense..??
         }
         next unless (scalar(@plus_hsps) + scalar(@minus_hsps));  # next if no hsps (??)
         my $ID = $self->_incrementHIT();
-        # okay, write out the index line for the entire hit before processing HSP's
-        # unfortunately (or not??), HitI objects do not implement SeqFeatureI, so we can't just call ->gff_string
-        # as a result, this module is quite brittle to changes in the GFF format since we are hard-coding the GFF output here :-(
+        # okay, write out the index line for the entire hit before 
+	# processing HSP's
+        # unfortunately (or not??), HitI objects do not implement 
+	# SeqFeatureI, so we can't just call ->gff_string
+        # as a result, this module is quite brittle to changes 
+	# in the GFF format since we are hard-coding the GFF output here :-(
+	
         if (scalar(@plus_hsps)){
 	    my %tags = ( 'ID' => "match_sequence$ID");
 
 	    if ($format==2.5) {
-		$tags{'Target'} = "EST:$seqname";
-		$tags{'tstart'} = $qpmin;
-		$tags{'tend'}   = $qpmax;
+		$tags{'Target'} = "$prefix:$seqname";
+		$tags{'tstart'} = $qmmin;
+		$tags{'tend'}   = $qmmax;
+	    } else {
+		$tags{'Target'} = "$prefix:$seqname $qpmin $qpmax";
 	    }
-	    else {
-		$tags{'Target'} = "EST:$seqname $qpmin $qpmax";
+	    if ( $self->{'_cigar'} ) {
+		$tags{'Gap'} = $cigar;
 	    }
-
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
@@ -246,14 +280,13 @@ sub to_string {
 	    my %tags  = ( 'ID' => "match_sequence$ID");
 
             if ($format==2.5) {
-                $tags{'Target'} = "EST:$seqname";
+                $tags{'Target'} = "$prefix:$seqname";
                 $tags{'tstart'} = $qpmax;
                 $tags{'tend'}   = $qpmin;
             }
             else {
-                $tags{'Target'} = "EST:$seqname $qpmax $qpmin";
+                $tags{'Target'} = "$prefix:$seqname $qpmax $qpmin";
             }
-
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
@@ -271,30 +304,33 @@ sub to_string {
         }
         
         # process + strand hsps
-        foreach my $hsp(@plus_hsps){
+        foreach my $hsp (@plus_hsps){
             my $hspID  = $self->_incrementHSP();
-            my $qstart = $hsp->start('query');
-            my $qend   = $hsp->end('query');
-            my $sstart = $hsp->start('subject');
-            my $send   = $hsp->end('subject');
+            my $qstart = $hsp->query->start;
+            my $qend   = $hsp->query->end;
+            my $sstart = $hsp->hit->start;
+            my $send   = $hsp->hit->end;
             my $score  = $hsp->score;
-
+	    
 	    my %tags  = ( 'ID'     => "match_hsp$hspID",
 		          'Parent' => "match_sequence$ID" );
-
+	    
             if ($format==2.5) {
-                $tags{'Target'} = "EST:$seqname";
+                $tags{'Target'} = "$prefix:$seqname";
                 $tags{'tstart'} = $qstart;
                 $tags{'tend'}   = $qend;
             }
             else {
-                $tags{'Target'} = "EST:$seqname $qstart $qend";
+                $tags{'Target'} = "$prefix:$seqname $qstart $qend";
             }
+	    if ( $self->{'_cigar'} ) {
+		$tags{'Gap'} = $hsp->cigar_string;
+	    }
 
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
-                -primary_tag => $match_tag,
+                -primary_tag => $hsp_tag,
                 -start       => $sstart,
                 -end         => $send,
                 -score       => $score,
@@ -306,31 +342,34 @@ sub to_string {
             my $formatter = Bio::Tools::GFF->new(-gff_version => $format);
             $GFF .= $feat->gff_string($formatter)."\n";
         }
-        foreach my $hsp(@minus_hsps){
 
-            my $hspID = $self->_incrementHSP();
-            my $qstart = $hsp->start('query');
-            my $qend = $hsp->end('query');
-            my $sstart = $hsp->start('subject');
-            my $send = $hsp->end('subject');
-            my $score = $hsp->score;
+        foreach my $hsp (@minus_hsps) {
+            my $hspID  = $self->_incrementHSP();
+            my $qstart = $hsp->query->start;
+            my $qend   = $hsp->query->end;
+            my $sstart = $hsp->hit->start;
+            my $send   = $hsp->hit->end;
+            my $score  = $hsp->score;
 
             my %tags  = ( 'ID'     => "match_hsp$hspID",
                           'Parent' => "match_sequence$ID" );
 
             if ($format==2.5) {
-                $tags{'Target'} = "EST:$seqname";
+                $tags{'Target'} = "$prefix:$seqname";
                 $tags{'tstart'} = $qend;
                 $tags{'tend'}   = $qstart;
             }
             else {
-                $tags{'Target'} = "EST:$seqname $qend $qstart";
+                $tags{'Target'} = "$prefix:$seqname $qend $qstart";
             }
+	    if ( $self->{'_cigar'} ) {
+		$tags{'Gap'} = $hsp->cigar_string;
+	    }
 
             my $feat = Bio::SeqFeature::Generic->new(
                 -seq_id      => $refseq,
                 -source_tag  => $source,
-                -primary_tag => $match_tag,
+                -primary_tag => $hsp_tag,
                 -start       => $sstart,
                 -end         => $send,
                 -score       => $score,
