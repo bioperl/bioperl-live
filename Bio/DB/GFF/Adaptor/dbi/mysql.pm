@@ -684,7 +684,7 @@ sub load_gff_line {
   defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
   if ($gff->{stop}-$gff->{start}+1 > $self->max_bin) {
-    warn "$gff->{gclass}:$gff->{gname} is longer than ",$self->_maxbin,".\n";
+    warn "$gff->{gclass}:$gff->{gname} is longer than ",$self->maxbin,".\n";
     warn "Please set the maxbin value to a larger length than the largest feature you wish to store.\n";
     warn "With the command-line tools you do with this with --maxfeature option.\n";
   }

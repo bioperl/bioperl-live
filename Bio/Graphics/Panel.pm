@@ -3,7 +3,6 @@ package Bio::Graphics::Panel;
 use strict;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
-use GD();  # for gdBrushed constant
 
 # KEYLABELFONT must be treated as string until image_class is established
 use constant KEYLABELFONT => 'gdMediumBoldFont';
@@ -733,9 +732,10 @@ sub draw_empty {
   my $left  = $self->pad_left;
   my $right = $self->width-$self->pad_right;
   my $color = $self->translate_color(MISSING_TRACK_COLOR);
+  my $ic    = $self->image_class;
   if ($style eq 'dashed') {
-    $gd->setStyle($color,$color,gdTransparent(),gdTransparent());
-    $gd->line($left,$offset,$right,$offset,gdStyled());
+    $gd->setStyle($color,$color,$ic->gdTransparent(),$ic->gdTransparent());
+    $gd->line($left,$offset,$right,$offset,$ic->gdStyled());
   } else {
     $gd->line($left,$offset,$right,$offset,$color);
   }
@@ -860,7 +860,6 @@ sub set_pen {
   my $bg = $pen->colorAllocate(255,255,255);
   my $fg = $pen->colorAllocate(@rgb);
   $pen->fill(0,0,$fg);
-  #  $self->{gd}->setBrush($pen);
   $gd->setBrush($pen);
   return $self->image_class->gdBrushed();
 }
