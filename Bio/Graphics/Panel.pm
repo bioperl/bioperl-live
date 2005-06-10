@@ -862,8 +862,7 @@ sub set_pen {
   $pen->fill(0,0,$fg);
   #  $self->{gd}->setBrush($pen);
   $gd->setBrush($pen);
-  (my $pk = $pkg) =~ s/::Image$//;  # kludge
-  return $pk->gdBrushed();
+  return $self->image_class->gdBrushed();
 }
 
 sub png {

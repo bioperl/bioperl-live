@@ -845,8 +845,11 @@ sub draw_dashed_connector {
 
   my $center1  = ($top1 + $bottom1)/2;
   my $center2  = ($top2 + $bottom2)/2;
-  $gd->setStyle($color,$color,gdTransparent(),gdTransparent());
-  $gd->line($left,$center1,$right,$center2,gdStyled());
+  my $image_class   = $self->panel->image_class;
+  my $gdTransparent = $image_class->gdTransparent;
+  my $gdStyled      = $image_class->gdStyled;
+  $gd->setStyle($color,$color,$gdTransparent,$gdTransparent);
+  $gd->line($left,$center1,$right,$center2,$gdStyled);
 }
 
 sub draw_quill_connector {
