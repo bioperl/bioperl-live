@@ -181,6 +181,7 @@ sub next_population{
     while( my $ind = $self->next_individual ) {
 	push @inds, $ind;
     }
+    return undef unless @inds;
     Bio::PopGen::Population->new(-individuals => \@inds);
 }
 
