@@ -243,7 +243,7 @@ sub contains {
   $self->throw("end is undefined") unless defined $self->end;
 
   if(defined $other && ref $other) { # a range object?
-      $other->throw("Not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+      $other->throw("Not a Bio::RangeI object: $other") unless  $other->isa('Bio::RangeI');
       $other->throw("start is undefined") unless defined $other->start;
       $other->throw("end is undefined") unless defined $other->end;
 
@@ -303,11 +303,14 @@ which new ranges could be built.
 
 sub intersection {
     my ($self, $other, $so) = @_;
+    $self->throw("missing arg: you need to pass in another feature")
+      unless $other;
     return unless $self->_testStrand($other, $so);
 
     $self->throw("start is undefined") unless defined $self->start;
     $self->throw("end is undefined") unless defined $self->end;
-    $other->throw("Not a Bio::RangeI object") unless  $other->isa('Bio::RangeI');
+    $self->throw("Not a Bio::RangeI object: $other") unless ref($other);
+    $other->throw("Not a Bio::RangeI object: $other") unless $other->isa('Bio::RangeI');
     $other->throw("start is undefined") unless defined $other->start;
     $other->throw("end is undefined") unless defined $other->end;
 
@@ -349,8 +352,8 @@ sub intersection {
 
    Title   : union
     Usage   : ($start, $stop, $strand) = $r1->union($r2);
-            : ($start, $stop, $strand) = Bio::RangeI->union(@ranges);
-              my $newrange = Bio::RangeI->union(@ranges);
+            : ($start, $stop, $strand) = Bio::Range->union(@ranges);
+              my $newrange = Bio::Range->union(@ranges);
     Function: finds the minimal range that contains all of the ranges
     Args    : a range or list of ranges
     Returns : the range object containing all of the ranges
@@ -361,6 +364,10 @@ sub intersection {
 sub union {
     my $self = shift;
     my @ranges = @_;
+    if ($self eq "Bio::RangeI") {
+	$self = "Bio::Range";
+	$self->warn("calling static methods of an interface is deprecated; use $self instead");
+    }
     if(ref $self) {
 	unshift @ranges, $self;
     }
@@ -465,16 +472,30 @@ sub overlap_extent{
 
 sub disconnected_ranges {
     my $self = shift;
+    if ($self eq "Bio::RangeI") {
+	$self = "Bio::Range";
+	$self->warn("calling static methods of an interface is deprecated; use $self instead");
+    }
     my @inranges = @_;
     if(ref $self) {
 	unshift @inranges, $self;
     }
 
-    my @outranges = ();
+    my @outranges = (); # disconnected ranges
+
+    # iterate through all input ranges $inrange,
+    # adding each input range to the set of output ranges @outranges,
+    # provided $inrange does not overlap ANY range in @outranges
+    # - if it does overlap an outrange, then merge it
     foreach my $inrange (@inranges) {
 	my $intersects = 0;
 	my @outranges_new = ();
 	my @intersecting_ranges = ();
+
+        # iterate through all @outranges, testing if it intersects
+        # current $inrange; if it does, merge and add to list
+        # of @intersecting_ranges, otherwise add $outrange to
+        # the new list of outranges that do NOT intersect
 	for (my $i=0; $i<@outranges; $i++) {
 	    my $outrange = $outranges[$i];
 	    my $intersection = $inrange->intersection($outrange);
@@ -488,14 +509,18 @@ sub disconnected_ranges {
 	    }
 	}
 	@outranges = @outranges_new;
+        # @outranges now contains a list of non-overlapping ranges
+        # that do not intersect the current $inrange
+
 	if (@intersecting_ranges) {
-#	    printf "  I:%d..%d\n", $_->start, $_->end foreach @intersecting_ranges;
 	    if (@intersecting_ranges > 1) {
 		# this sf intersected > 1 range, which means that
 		# all the ranges it intersects should be joined
 		# together in a new range
-		push(@outranges,
-		     Bio::RangeI->union(@intersecting_ranges));
+                my $merged_range =
+                  $self->union(@intersecting_ranges);
+		push(@outranges, $merged_range);
+		     
 	    }
 	    else {
 		# exactly 1 intersecting range
@@ -510,10 +535,7 @@ sub disconnected_ranges {
 			    '-strand'=>$inrange->strand,
 			   ));
 	}
-#	printf "IN_INT:%d N_OUT:%d [%s]\n", scalar(@intersecting_ranges), scalar(@outranges), $inrange->primary_tag;
-#	printf "  U:%d..%d\n", $_->start, $_->end foreach @outranges;
     }
-#    printf "DONE:%d\n", scalar(@outranges);
     return @outranges;
 }
 

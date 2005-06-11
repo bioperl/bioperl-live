@@ -222,7 +222,7 @@ sub map_types_to_SO{
 		     misc_feature=>'located_sequence_feature',
 
 		     # not sure about this one...
-		     source=>'databank_entry',
+		     source=>'contig',
 
 		     LTR=>'LTR_retrotransposon',
 
