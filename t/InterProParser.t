@@ -12,7 +12,7 @@ use vars qw($NUMTESTS $DEBUG $HAVEGRAPHDIRECTED $errmsg);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    $errmsg = 'Unable to run Interpro Tests';
+	$errmsg = 'Unable to run Interpro Tests';
    # to handle systems with no installed Test module
    # we include the t dir (where a copy of Test.pm is located)
    # as a fallback
@@ -24,15 +24,15 @@ BEGIN {
    use Test; 
    $NUMTESTS = 47;
    plan tests => $NUMTESTS;
-   eval { 
+   eval {
       require XML::Parser::PerlSAX;
    };
-   if( $@ ) {
+   if ( $@ ) {
       warn( "XML::Parser::PerlSAX not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests.\n") if $DEBUG;
       $errmsg .= ', XML::Parser::PerlSAX not installed';
       $error = 1;
    }
-   
+
    eval {
       require XML::Parser;
    };
@@ -41,16 +41,16 @@ BEGIN {
       $error = 1;
       $errmsg .= ', XML::Parser not installed';
    }
-    eval {require Graph::Directed; 
-	  $HAVEGRAPHDIRECTED=1;
-	 };
-    if ($@) {
-	$errmsg .= ', Graph::Directed not installed';
-	$HAVEGRAPHDIRECTED = 0;
-	$error = 1;
-    }
-
+	eval {require Graph::Directed; 
+			$HAVEGRAPHDIRECTED=1;
+		};
+	if ($@) {
+		$errmsg .= ', Graph::Directed not installed';
+		$HAVEGRAPHDIRECTED = 0;
+		$error = 1;
+	}
 }
+
 END {
    foreach ( $Test::ntest..$NUMTESTS) {
       skip($errmsg,1);
@@ -68,9 +68,9 @@ my $io = Bio::Root::IO->new();
 ok (1);
 
 my $ipp = Bio::OntologyIO->new( -format => 'interpro',
-				-file =>
-				$io->catfile('t','data','interpro_short.xml'),
-				-ontology_engine => 'simple' );
+										  -file =>
+										  $io->catfile('t','data','interpro_short.xml'),
+										  -ontology_engine => 'simple' );
 ok ($ipp);
 
 my $ip;
@@ -90,9 +90,9 @@ ok (scalar(@rt), 6);
 
 # every InterPro term should have an ontology,
 foreach ($ip->get_leaf_terms, @rt) {
-    ok ($_->ontology);
-    ok ($_->ontology->name, "InterPro",
-	"term ".$_->name." not in ontology InterPro");
+	ok ($_->ontology);
+	ok ($_->ontology->name, "InterPro",
+		 "term ".$_->name." not in ontology InterPro");
 }
 
 # there are 6 fully instantiated InterPro terms in total, which should be returned as the leafs
@@ -109,13 +109,13 @@ ok (scalar($ip->get_child_terms($rt[3])), 3);      # dto.
 
 # test for ancestors and parents (synonymous here because of depth 1)
 foreach my $t ($ip->get_leaf_terms) {
-    # every InterPro term has exactly one parent - namely either 
-    # Domain, Family, Repeat, or PTM(Post Transl. Modification)
-    if (!($t->identifier eq "Repeat" || $t->identifier eq "PTM" 
-        || $t->identifier eq'Active_site' || $t->identifier eq'Binding_site')) {
-	ok (scalar($ip->get_parent_terms($t)), 1);
-	ok (scalar($ip->get_ancestor_terms($t)), 1);
-    }
+	# every InterPro term has exactly one parent - namely either 
+	# Domain, Family, Repeat, or PTM(Post Transl. Modification)
+	if (!($t->identifier eq "Repeat" || $t->identifier eq "PTM" 
+			|| $t->identifier eq'Active_site' || $t->identifier eq'Binding_site')) {
+		ok (scalar($ip->get_parent_terms($t)), 1);
+		ok (scalar($ip->get_ancestor_terms($t)), 1);
+	}
 }
 
 # test for secondary accession map
