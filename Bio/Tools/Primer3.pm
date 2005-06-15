@@ -1,17 +1,6 @@
+# $Id$
 #
-# This is the original copyright statement. I have relied on Chad's module
-# extensively for this module.
-#
-# Copyright (c) 1997-2001 bioperl, Chad Matsalla. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or
-#           modify it under the same terms as Perl itself. 
-#
-# Copyright Chad Matsalla
-#
-# You may distribute this module under the same terms as perl itself
-# POD documentation - main docs before the code
-#
-# But I have modified lots of it, so I guess I should add:
+# BioPerl module for Bio::Tools::Primer3
 #
 # Copyright (c) 2003 bioperl, Rob Edwards. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or
@@ -24,14 +13,14 @@
 
 =head1 NAME
 
-Bio::Tools::Primer3 - Create input for and work with the output from the 
-program primer3
+Bio::Tools::Primer3
 
 =head1 SYNOPSIS
 
+Create input for and work with the output from the program primer3.
+
  # parse primer3 output to get some data
  # this is also called from Bio::Tools::Run::Primer3
-
  use Bio::Tools::Primer3;
 
  # read a primer3 output file
@@ -44,55 +33,61 @@ program primer3
  # get all the results
  my $all_results=$p3->all_results;
  print "ALL the results\n";
- foreach my $key (keys %{$all_results}) {print "$key\t${$all_results}{$key}\n"}
+ foreach my $key (keys %{$all_results}) {
+    print "$key\t${$all_results}{$key}\n";
+ }
 
  # get specific results
  my $result1=$p3->primer_results(1);
  print "The first primer is\n";
- foreach my $key (keys %{$result1}) {print "$key\t${$result1}{$key}\n"}
+ foreach my $key (keys %{$result1}) {
+    print "$key\t${$result1}{$key}\n";
+ }
 
  # get the results as a Bio::Seq::PrimedSeq stream
  my $primer=$p3->next_primer;
- print "The left primer in the stream is ", $primer->get_primer('-left_primer')->seq->seq, "\n";
+ print "The left primer in the stream is ", 
+   $primer->get_primer('-left_primer')->seq->seq, "\n";
 
 =head1 DESCRIPTION
 
- Bio::Tools::Primer3 creates the input files needed to design primers using
- primer3 and provides mechanisms to access data in the primer3 output files.
+Bio::Tools::Primer3 creates the input files needed to design primers using
+primer3 and provides mechanisms to access data in the primer3 output files.
 
- This module provides a bioperl interface to the program primer3. See 
- http://www-genome.wi.mit.edu/genome_software/other/primer3.html
- for details and to download the software.
+This module provides a bioperl interface to the program primer3. See 
+http://www-genome.wi.mit.edu/genome_software/other/primer3.html
+for details and to download the software.
 
- This module is based on one written by Chad Matsalla (bioinformatics1@dieselwurks.com)
+This module is based on one written by Chad Matsalla 
+(bioinformatics1@dieselwurks.com)
 
- I have ripped some of his code, and added a lot of my own. I hope he's not mad at me!
+I have ripped some of his code, and added a lot of my own. I hope he's 
+not mad at me!
 
- This is probably best run in one of the two following ways:
+This is probably best run in one of the two following ways:
+
   i. To parse the output from Bio::Tools::Run::Primer3. 
-     You'll most likely just use next_primer to get the results from Bio::Tools::Run::Primer3.
+     You'll most likely just use next_primer to get the results from 
+     Bio::Tools::Run::Primer3.
   ii. To parse the output of primer3 handed to it as a file name.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-  User feedback is an integral part of the evolution of this and other
-  Bioperl modules. Send your comments and suggestions preferably to one
-  of the Bioperl mailing lists.  Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
     bioperl-l@bioperl.org          - General discussion
-    http://www.bioperl.org/MailList.html             - About the mailing lists
+    http://www.bioperl.org/MailList.html    - About the mailing lists
 
 =head2 Reporting Bugs
 
-  Report bugs to the Bioperl bug tracking system to help us keep track
-  the bugs and their resolution.  Bug reports can be submitted via email
-  or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via the web:
 
-    bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
-
 
 =head1 AUTHOR - 
 
@@ -108,14 +103,12 @@ program primer3
 
 =head1 APPENDIX
 
-  The rest of the documentation details each of the object methods. 
-  Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
 # Let the code begin...
-
-
 
 package Bio::Tools::Primer3;
 
@@ -154,12 +147,15 @@ $ID = 'Bio::Tools::Primer3';
 
 =head2 new()
 
- Title   : new()
- Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file) to read a primer3 output file.
- Function: Parse primer3 output
- Returns : Doesn't return anything. If called with a filename will allow you to retrieve the results
- Args    : -file (optional) file of primer3 results to parse -verbose (optional) set verbose output
- Notes   : 
+Title   : new()
+Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file) 
+          to read a primer3 output file.
+Function: Parse primer3 output
+Returns : Doesn't return anything. If called with a filename will 
+          allow you to retrieve the results
+Args    : -file (optional) file of primer3 results to parse -verbose 
+          (optional) set verbose output
+Notes   : 
 
 =cut
 
@@ -178,29 +174,33 @@ sub new {
 
 =head2 number_of_results()
 
- Title   : number_of_results()
- Usage   : $primer3->number_of_results()
- Function: Retrieve the number of primers returned from Primer3.
- Returns : A scalar
- Args    : None
- Notes   : Returns the maximum number of primers returned from Primer3.
+Title   : number_of_results()
+Usage   : $primer3->number_of_results()
+Function: Retrieve the number of primers returned from Primer3.
+Returns : A scalar
+Args    : None
+Notes   : This returns the count of the primers returned by Primer3 
+           (aka how many of them there are). 
+           This is one more than the maximum offset into the zero 
+           based list of primers that is accessed by primer_results().
 
 =cut
 
 sub number_of_results {
  my $self=shift;
- return $self->{'maximum_primers_returned'};
+ return $self->{'maximum_primers_returned'} + 1;
 }
 
 
 =head2 all_results()
 
- Title   : all_results()
- Usage   : $primer3->all_results() to print all results or 
-           $primer3->all_results('primer3 result name', 'other results') to return a specific result
- Function: Retrieve the results returned from Primer3.
- Returns : A reference to a hash
- Args    : Optional array of results to retrieve
+Title   : all_results()
+Usage   : $primer3->all_results() to print all results or 
+          $primer3->all_results('primer3 result name', 
+          'other results') to return a specific result
+Function: Retrieve the results returned from Primer3.
+Returns : A reference to a hash
+Args    : Optional array of results to retrieve
 
 =cut
 
@@ -224,11 +224,12 @@ sub all_results {
 
 =head2 primer_results()
 
- Title   : primer_results()
- Usage   : $primer3->primer_results(2) to print results for the third choice primer (indexed on 0)
- Function: Retrieve the results returned from Primer3 for specific primer pairs.
- Returns : A reference to a hash
- Args    : A number between 0 and the maximum number of primers to retrieve
+Title   : primer_results()
+Usage   : $primer3->primer_results(2) to print results for the third 
+          choice primer (indexed on 0)
+Function: Retrieve the results returned from Primer3 for specific primer pairs.
+Returns : A reference to a hash
+Args    : A number between 0 and the maximum number of primers to retrieve
 
 =cut
 
@@ -243,12 +244,12 @@ sub primer_results {
 
 =head2 _readfile()
 
- Title   : _readfile()
- Usage   : $self->_readfile();
- Function: An internal function that reads a file and sets up the results
- Returns : Nothing.
- Args    : None
- Notes   : 
+Title   : _readfile()
+Usage   : $self->_readfile();
+Function: An internal function that reads a file and sets up the results
+Returns : Nothing.
+Args    : None
+Notes   : 
 
 =cut
 
@@ -278,13 +279,14 @@ sub _readfile {
 
 =head2 primer_stream()
 
- Title   : primer_stream()
- Usage   : while (my $primed_seq  = $primer3->primer_stream()) {
- Function: Retrieve the primer/sequences one at a time
- Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
- Args    : None
- Notes   : Deprecated. I should just delete this, but my test scripts will all break.
-           This will be removed before it goes really live, and is just a link to next_primer
+Title   : primer_stream()
+Usage   : while (my $primed_seq  = $primer3->primer_stream()) {
+Function: Retrieve the primer/sequences one at a time
+Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+Args    : None
+Notes   : Deprecated. I should just delete this, but my test scripts will 
+          all break. This will be removed before it goes really live, and is 
+          just a link to next_primer
 
 
 =cut
@@ -299,12 +301,13 @@ sub primer_stream {
 
 =head2 next_primer()
 
- Title   : next_primer()
- Usage   : while (my $primed_seq  = $primer3->next_primer()) {
- Function: Retrieve the primer/sequences one at a time
- Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
- Args    : None
- Notes   : Use $primed_seq->annotated_seq to get an annotated sequence object you can write out.
+Title   : next_primer()
+Usage   : while (my $primed_seq  = $primer3->next_primer()) {
+Function: Retrieve the primer/sequences one at a time
+Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+Args    : None
+Notes   : Use $primed_seq->annotated_seq to get an annotated sequence 
+          object you can write out.
 
 =cut
 
@@ -357,12 +360,13 @@ sub next_primer {
 
 =head2 _set_variable()
 
- Title   : _set_variable()
- Usage   : $self->_set_variable('variable name', 'value');
- Function: An internal function that sets a variable
- Returns : Nothing.
- Args    : None
- Notes   : Mainly used by Bio::Tools::Run::Primer3 to set $self->{results} and $self->seqobject
+Title   : _set_variable()
+Usage   : $self->_set_variable('variable name', 'value');
+Function: An internal function that sets a variable
+Returns : Nothing.
+Args    : None
+Notes   : Mainly used by Bio::Tools::Run::Primer3 to set 
+          $self->{results} and $self->seqobject
 
 =cut
 
@@ -374,12 +378,13 @@ sub _set_variable {
 
 =head2 _separate()
 
- Title   : _separate()
- Usage   : $self->_separate();
- Function: An internal function that groups the results by number (e.g. primer pair 1, etc)
- Returns : Nothing.
- Args    : None
- Notes   : 
+Title   : _separate()
+Usage   : $self->_separate();
+Function: An internal function that groups the results by number 
+          (e.g. primer pair 1, etc)
+Returns : Nothing.
+Args    : None
+Notes   : 
 
 =cut
 
