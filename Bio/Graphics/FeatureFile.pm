@@ -797,7 +797,8 @@ sub code_setting {
     return $coderef;
   }
   elsif ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/) {
-    my $coderef   = eval $setting;
+    my $package         = $self->base2package;
+    my $coderef         = eval "package $package; $setting";
     warn $@ if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
