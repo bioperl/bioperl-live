@@ -81,6 +81,10 @@ sub draw {
   for (my $i=0; $i < @parts; $i++) {
     my $part    = $parts[$i];
     my $feature = $part->feature;
+
+    my $type = $feature->method;
+    next if ($self->option('sub_part') && $type ne $self->option('sub_part'));
+
     my $pos     = $feature->start;
     my $phase   = eval {$feature->phase} || 0;
     my $strand  = $feature->strand;
@@ -299,6 +303,10 @@ glyph-specific options:
               Don't draw the reading frame 0 (false)
               unless it is a feature
               subpart.
+
+  -sub_part   For objects with multiple	   undef
+              subpart types, defines which
+              is the CDS part.
 
   -codontable   Codon table to use           1 (see Bio::Tools::CodonTable)
 
