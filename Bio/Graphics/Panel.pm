@@ -49,6 +49,8 @@ sub new {
   my $linkrule     = $options{-link};
   my $titlerule    = $options{-title};
   my $targetrule   = $options{-target};
+  my $background   = $options{-background};
+  my $postgrid     = $options{-postgrid};
   $options{-stop}||= $options{-end};  # damn damn damn
 
   if (my $seg = $options{-segment}) {
@@ -82,6 +84,8 @@ sub new {
 		key_spacing => $keyspacing,
 		key_style => $keystyle,
 		key_align => $keyalign,
+		background => $background,
+		postgrid   => $postgrid,
 		autopad   => $autopad,
 		all_callbacks => $allcallbacks,
 		truecolor     => $truecolor,
@@ -226,6 +230,13 @@ sub left {
 sub right {
   my $self = shift;
   $self->pad_left + $self->width; # - $self->pad_right;
+}
+sub top {
+  shift->pad_top;
+}
+sub bottom {
+  my $self = shift;
+  $self->height - $self->pad_bottom;
 }
 
 sub spacing {
@@ -506,7 +517,9 @@ sub gd {
     $offset += $track->layout_height + $spacing;
   }
 
-  $self->draw_grid($gd)  if $self->{grid};
+  $self->draw_background($gd,$self->{background})  if $self->{background};
+  $self->draw_grid($gd)                            if $self->{grid};
+  $self->draw_background($gd,$self->{postgrid})    if $self->{postgrid};
 
   $offset = $pt;
   for my $track (@{$self->{tracks}}) {
@@ -768,6 +781,37 @@ sub draw_grid {
                                             : $tick);
 
     $gd->line($pl+$pos,$pt,$pl+$pos,$pb,$gridcolor);
+  }
+}
+
+# draw an image (or invoke a drawing routine)
+sub draw_background {
+  my $self = shift;
+  my ($gd,$image_or_routine) = @_;
+  if (ref $image_or_routine eq 'CODE') {
+    return $image_or_routine->($gd,$self);
+  }
+  if (-f $image_or_routine) { # a file to draw
+    my $method = $image_or_routine =~ /\.png$/i   ? 'newFromPng'
+               : $image_or_routine =~ /\.jpe?g$/i ? 'newFromJpeg'
+               : $image_or_routine =~ /\.gd$/i    ? 'newFromGd'
+               : $image_or_routine =~ /\.gif$/i   ? 'newFromGif'
+               : $image_or_routine =~ /\.xbm$/i   ? 'newFromXbm'
+	       : '';
+    return unless $method;
+    my $image = eval {$self->image_package->$method($image_or_routine)};
+    unless ($image) {
+      warn $@;
+      return;
+    }
+    my ($src_width,$src_height) = $image->getBounds;
+    my ($dst_width,$dst_height) = $gd->getBounds;
+    # tile the thing on
+    for (my $x = 0; $x < $dst_width; $x += $src_width) {
+      for (my $y = 0; $y < $dst_height; $y += $src_height) {
+	$gd->copy($image,$x,$y,0,0,$src_width,$src_height);
+      }
+    }
   }
 }
 
@@ -1434,6 +1478,14 @@ a set of tag/value pairs as follows:
 
   -gridcolor   Color of the grid                     lightcyan
 
+  -background  An image or callback to use for the   none
+               background of the image. Will be
+               invoked I<before> drawing the grid.
+
+  -postgrid    An image or callback to use for the   none
+               background of the image.  Will be 
+               invoked I<after> drawing the grid.
+
   -image_class To create output in scalable vector
                graphics (SVG), optionally pass the image
                class parameter 'GD::SVG'. Defaults to
@@ -1443,6 +1495,7 @@ a set of tag/value pairs as follows:
   -link, -title, -target
                These options are used when creating imagemaps
                for display on the web.  See L</"Creating Imagemaps">.
+
 
 Typically you will pass new() an object that implements the
 Bio::RangeI interface, providing a length() method, from which the
@@ -1467,6 +1520,34 @@ In order to obtain scalable vector graphics (SVG) output, you should
 pass new() the -image_class=E<gt>'GD::SVG' parameter. This will cause
 Bio::Graphics::Panel to load the optional GD::SVG module. See the gd()
 and svg() methods below for additional information.
+
+You can tile an image onto the panel either before or after it draws
+the grid. Simply provide the filename of the image in the -background
+or -postgrid options. The image file must be of type PNG, JPEG, XBM or
+GIF and have a filename ending in .png, .jpg, .jpeg, .xbm or .gif.
+
+You can also pass a code ref for the -background or -postgrid option,
+in which case the subroutine will be invoked at the appropriate time
+with the GD::Image object and the Panel object as its two arguments.
+You can then use the panel methods to map base pair coordinates into
+pixel coordinates and do some custom drawing.  For example, this code
+fragment will draw a gray rectangle between bases 500 and 600 to
+indicate a "gap" in the sequence:
+
+  my $panel = Bio::Graphics::Panel->new(-segment=>$segment,
+                                        -grid=>1,
+                                        -width=>600,
+                                        -postgrid=> \&draw_gap);
+  sub gap_it {
+     my $gd    = shift;
+     my $panel = shift;
+     my ($gap_start,$gap_end) = $panel->location2pixel(500,600);
+     my $top                  = $panel->top;
+     my $bottom               = $panel->bottom;
+     my $gray                 = $panel->translate_color('gray');
+     $gd->filledRectangle($gap_start,$top,$gap_end,$bottom,$gray);
+}
+
 
 =back
 
@@ -1771,7 +1852,20 @@ called before gd() or boxes() or with an invalid track.
 =item @pixel_coords = $panel-E<gt>location2pixel(@feature_coords)
 
 Public routine to map feature coordinates (in base pairs) into pixel
-coordinates relative to the left-hand edge of the picture.
+coordinates relative to the left-hand edge of the picture. If you
+define a -background callback, the callback may wish to invoke this
+routine in order to translate base coordinates into pixel coordinates.
+
+=item $left = $panel->left
+
+=item $right = $panel->right
+
+=item $top   = $panel->top
+
+=item $bottom = $panel->bottom
+
+Return the pixel coordinates of the I<drawing area> of the panel, that
+is, exclusive of the padding.
 
 =back
 
