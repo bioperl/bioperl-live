@@ -80,7 +80,7 @@ sub new {
   my ($features_db,$username,$auth,$other) = rearrange([
 							[qw(FEATUREDB DB DSN)],
 							[qw(USERNAME USER)],
-							[qw(PASSWORD PASS)],
+							[qw(PASSWORD PASSWD PASS)],
 						       ],@_);
 
   $features_db  || $class->throw("new(): Provide a data source or DBI database");
