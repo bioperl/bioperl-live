@@ -175,7 +175,9 @@ sub end_result {
         if( $data->{'runid'} !~ /^lcl\|/) { 
             $data->{"RESULT-query_name"}= $data->{'runid'};
         } else { 
-            ($data->{"RESULT-query_name"},$data->{"RESULT-query_description"}) = split(/\s+/,$data->{"RESULT-query_description"},2);
+            ($data->{"RESULT-query_name"},
+	     $data->{"RESULT-query_description"}) = 
+		 split(/\s+/,$data->{"RESULT-query_description"},2);
         }
         
         if( my @a = split(/\|/,$data->{'RESULT-query_name'}) ) {
@@ -226,6 +228,27 @@ sub start_hsp {
 
 sub end_hsp {
     my ($self,$type,$data) = @_;
+
+    if( defined $data->{'runid'} &&
+        $data->{'runid'} !~ /^\s+$/ ) {        
+
+        if( $data->{'runid'} !~ /^lcl\|/) { 
+            $data->{"RESULT-query_name"}= $data->{'runid'};
+        } else { 
+            ($data->{"RESULT-query_name"},
+	     $data->{"RESULT-query_description"}) = 
+		 split(/\s+/,$data->{"RESULT-query_description"},2);
+        }
+        
+        if( my @a = split(/\|/,$data->{'RESULT-query_name'}) ) {
+            my $acc = pop @a ; # this is for accession |1234|gb|AAABB1.1|AAABB1
+            # this is for |123|gb|ABC1.1|
+            $acc = pop @a if( ! defined $acc || $acc =~ /^\s+$/);
+            $data->{"RESULT-query_accession"}= $acc;
+        }
+        delete $data->{'runid'};
+    }
+
     # this code is to deal with the fact that Blast XML data
     # always has start < end and one has to infer strandedness
     # from the frame which is a problem for the Search::HSP object
@@ -278,6 +301,9 @@ sub end_hsp {
 
     my $hsp = $self->factory('hsp')->create_object(%args);
     push @{$self->{'_hsps'}}, $hsp;
+    $hsp->hit->seqdesc($data->{'HIT-description'});
+#    warn('desc is ', $data->{'RESULT-query_description'}, "\n");
+    $hsp->query->seqdesc($data->{'RESULT-query_description'});
     return $hsp;
 }
 

@@ -22,7 +22,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 1223;
+    $NTESTS = 1227;
     $LASTXMLTEST = 63;
     $error = 0;
 
@@ -88,6 +88,10 @@ if( ! $SKIPXML ) {
     ok($hit->length, 310);
 
     $hsp = $hit->next_hsp;
+    ok($hsp->query->seq_id, $result->query_name,'query name on HSP');
+    ok($hsp->query->seqdesc, $result->query_description,'query desc on HSP');
+    ok($hsp->hit->seq_id, $hit->name,'hitname');
+    ok($hsp->hit->seqdesc, $hit->description,'hitdesc');
     ok($hsp->pvalue, undef);
     ok(sprintf("%g",$hsp->evalue), sprintf("%g",'1.46134e-90'));
     ok($hsp->score, 838);
