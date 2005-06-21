@@ -261,7 +261,12 @@ sub next_result{
                
                while( defined($_ = $self->_readline) ) {
                    last if( /^\s+$/);
-                   next if( /^(Model|Sequence)\s+Domain/o || /^\-\-\-/o );
+                   if( m!^//!) {
+		       $self->_pushback($_);
+		       last;
+		   }
+		   next if( /^(Model|Sequence)\s+Domain/ || /^\-\-\-/ );
+		   
                    chomp;
                    if( my ($n,$domainnum,$domainct, @vals) = 
 		       (m!^(\S+)\s+      # host name
@@ -470,6 +475,10 @@ sub next_result{
                @hspinfo = ();
                while( defined($_ = $self->_readline) ) {
                    last if( /^\s+$/);
+		   if( m!^//!) {
+		       $self->_pushback($_);
+		       last;
+		   }
                    next if( /^Model\s+Domain/o || /^\-\-\-/o );
                    chomp;
                    if( my ($n,$domainnum,$domainct,@vals) = 
@@ -623,7 +632,47 @@ sub next_result{
 		       $count = 0 if $count++ >= 2;
 		   }
 	       }           
-	   } else {
+	   } elsif( /^Histogram/o || m!^//!o ) { 
+
+               while( my $HSPinfo = shift @hspinfo ) {                  
+                   my $id = shift @$HSPinfo;
+                   my $info = [@{$hitinfo[$hitinfo{$id}]}];
+                   next unless defined $info;
+                   $self->start_element({'Name' => 'Hit'});
+                   $self->element({'Name' => 'Hit_id',
+                                   'Data' => shift @{$info}});
+                   $self->element({'Name' => 'Hit_desc',
+                                   'Data' => shift @{$info}});
+                   $self->element({'Name' => 'Hit_signif',
+                                   'Data' => shift @{$info}});
+                   $self->element({'Name' => 'Hit_score',
+                                   'Data' => shift @{$info}});
+                   $self->start_element({'Name' => 'Hsp'});
+                   $self->element({'Name' => 'Hsp_query-from',
+                                   'Data' => shift @$HSPinfo});
+                   $self->element({'Name' => 'Hsp_query-to',
+                                   'Data' => shift @$HSPinfo});
+                   $self->element({'Name' => 'Hsp_hit-from',
+                                   'Data' => shift @$HSPinfo});
+                   $self->element({'Name' => 'Hsp_hit-to',
+                                   'Data' => shift @$HSPinfo});
+                   $self->element({'Name' => 'Hsp_score',
+                                   'Data' => shift @$HSPinfo});
+                   $self->element({'Name' => 'Hsp_evalue',
+                                   'Data' => shift @$HSPinfo});
+                   $self->element({'Name' => 'Hsp_identity',
+                                   'Data' => 0});
+                   $self->element({'Name' => 'Hsp_positive',
+                                   'Data' => 0});
+                   $self->element({'Name' => 'Hsp_positive',
+                                   'Data' => 0});
+                   $self->end_element({'Name' => 'Hsp'});
+                   $self->end_element({'Name' => 'Hit'});                   
+               }
+               @hitinfo = ();
+               %hitinfo = ();
+               last;           
+           } else {
 	       $self->debug($_) if $verbose > 0;
 	   }
        }
