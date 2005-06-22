@@ -191,6 +191,7 @@ sub new {
 	return $self unless (defined($input{pA}) && defined($input{pC}) && defined($input{pG}) && defined($input{pT}));
 #This should go to _initialize?
 #Check for input type- no mixing alllowed, throw ex
+    
     if (ref($input{pA}) =~ /ARRAY/i ) {
 	$self->throw("Mixing matrix data types not allowed: C is not reference") unless(ref($input{pC}));
 	$self->throw("Mixing matrix data types not allowed: G is not reference") unless (ref($input{pG}));
@@ -199,8 +200,7 @@ sub new {
 	$self->{probC}   = $input{pC};
 	$self->{probG}   = $input{pG};
 	$self->{probT}   = $input{pT};
-    }
-    else {
+    } else {
 	$self->throw("Mixing matrix data types not allowed: C is reference") if (ref($input{pC}));
 	$self->throw("Mixing matrix data types not allowed: G is reference") if (ref($input{pG}));
 	$self->throw("Mixing matrix data types not allowed: T is reference") if (ref($input{pT}));
@@ -208,18 +208,30 @@ sub new {
 	$self->{probC}   = [split(//,$input{pC})];
 	$self->{probG}   = [split(//,$input{pG})];
 	$self->{probT}   = [split(//,$input{pT})];
-	for (my $i=0; $i<@{$self->{probA}}+1; $i++) {
-	    ${$self->{probA}}[$i]='10' if ( ${$self->{probA}}[$i] and ${$self->{probA}}[$i] eq 'a');
-	    ${$self->{probC}}[$i]='10' if ( ${$self->{probC}}[$i] and ${$self->{probC}}[$i] eq 'a');
-	    ${$self->{probG}}[$i]='10' if ( ${$self->{probG}}[$i] and ${$self->{probG}}[$i] eq 'a');
-	    ${$self->{probT}}[$i]='10' if ( ${$self->{probT}}[$i] and ${$self->{probT}}[$i] eq 'a');
+	for (my $i=0; $i<= @{$self->{probA}}+1; $i++) {
+	    if ( ${$self->{probA}}[$i] and ${$self->{probA}}[$i] eq 'a') {
+		${$self->{probA}}[$i]='10';
+	    }
+	    if ( ${$self->{probC}}[$i] and ${$self->{probC}}[$i] eq 'a') {
+		${$self->{probC}}[$i]='10';
+	    }
+	    if ( ${$self->{probG}}[$i] and ${$self->{probG}}[$i] eq 'a') {
+		${$self->{probG}}[$i]='10';
+	    }
+	    if ( ${$self->{probT}}[$i] and ${$self->{probT}}[$i] eq 'a') {
+		${$self->{probT}}[$i]='10';
+	    }
 	}
-#If this is MEME like output(probabilities, rather than count) here is the place for a check
+# If this is MEME like output(probabilities, rather than count) 
+# here is the place for a check
     }
 #Check for position with 0 for all bases, throw exception if so
 #Correct 0 positions- inc by 1
-    for (my $i=0;$i<$#{$self->{probA}}+1;$i++) {
-	$self->throw("Position meaningless-all frequencies are 0") if ((${$self->{probA}}[$i]+${$self->{probC}}[$i]+${$self->{probG}}[$i]+${$self->{probT}}[$i])==0);
+    for (my $i=0;$i <= $#{$self->{probA}}; $i++) {
+	if ((${$self->{probA}}[$i] + ${$self->{probC}}[$i] + 
+	     ${$self->{probG}}[$i] + ${$self->{probT}}[$i]) ==0 ) {
+	    $self->throw("Position meaningless-all frequencies are 0");
+	}
 	$self->{_corrected}= ((${$self->{probA}}[$i]==0) || 
 			      (${$self->{probG}}[$i]==0) || 
 			      (${$self->{probC}}[$i]==0) || 
