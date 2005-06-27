@@ -224,6 +224,7 @@ sub get_request {
 
 	my $content = $reply->content;
         return 0 unless $content;
+    $self->debug (" reply from query is \n  $content");
 	#####  if no matches, assign defaults - or can throw here?  ######
 	if ($content =~ /not found/i) {
 		$self->warn ("organism not found -selecting human as default");
@@ -264,6 +265,7 @@ sub get_request {
 	## strip html tags, basic but works here
 	 $content2 =~ s/<[^>]+>//sg;
 	$content2 =~ s/Format.*//sg;
+    $self->debug ("raw DDB table  is :\n $content2");
 
 	### and pass to Bio::CodonUsage::IO for parsing
 	my $iostr = IO::String->new($content2);

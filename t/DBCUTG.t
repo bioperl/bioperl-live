@@ -60,13 +60,14 @@ if( $DEBUG ) {
 
 #get CUT from web
     ok my $db = Bio::DB::CUTG->new();
+    ok $db->verbose(1);
     my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
     exit unless $cdtable;
 #tests for Table.pm
-    ok $cdtable->cds_count(), 485;
+    ok $cdtable->cds_count(), 637;
     ok int($cdtable->aa_frequency('LEU')), 10;
     ok $cdtable->get_coding_gc('all');
-    ok $cdtable->codon_rel_frequency('ttc'), "0.62"; 
+    ok $cdtable->codon_rel_frequency('ttc'), "0.61"; 
     
 #now try reading from file
     ok my $io = Bio::CodonUsage::IO->new
@@ -88,7 +89,12 @@ if( $DEBUG ) {
     ok $cut->codon_abs_frequency('CTG'), 2.6;
     ok $cut->codon_count('CTG'), 26;
     ok $cut->get_coding_gc(1), "39.70";
-	ok my $ref = $cut->probable_codons(40);
+	ok my $ref = $cut->probable_codons(30);
+
+    ## now lets enter a non-existen species ans check handling..
+    ## should default to human...
+    my $db2 =  Bio::DB::CUTG->new(-sp =>'Wookie magnus');
+    ok $db2->sp('Homo sapiens');
 	ok 1 ;
 } else { 
    for ( $Test::ntest..$NUMTESTS) {

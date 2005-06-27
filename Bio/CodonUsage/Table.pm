@@ -35,7 +35,7 @@ at http://www.kazusa.or.jp/codon.
   ## get a Bio::PrimarySeq compliant object ##
   # $codonstats is a ref to a hash of codon name /count key-value pairs.
 
-  my $codonstats = Bio::Tools::SeqUtils->codon_count($my_1ary_Seq_objct);
+  my $codonstats = Bio::Tools::SeqStats->codon_count($my_1ary_Seq_objct);
 
   ### the '-data' field must be specified ##
   ### the '-species' and 'genetic_code' fields are optional
@@ -161,7 +161,7 @@ sub new {
 			}
 		while (@args) {
 			my $key = shift @args;
-			$key =~ s/\-(\w+)/\L($1)/;
+			$key =~ s/\-(\w+)/\L$1/;
 			
 			$self->$key(shift @args);
 			}
@@ -499,11 +499,12 @@ sub common_codon{
 	$aa =~ s/^(\w)/\U$1/;
 
 	if ($self->_check_aa($aa))	{
-		my $aa3 = $Bio::SeqUtils::THREECODE{$aa};
+		my $aa3 = $Bio::SeqUtils::THREECODE{$aa} ;
+		$aa3 ||= $aa;
 		my $max = 0;
-		for my $cod (keys %{$self->{'_cod_table'}{$aa3}}) {
-			$max = ($self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'} > $max) ?
-					$self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'}:$max;
+		for my $cod (keys %{$self->{'_table'}{$aa3}}) {
+			$max = ($self->{'_table'}{$aa3}{$cod}{'rel_freq'} > $max) ?
+					$self->{'_table'}{$aa3}{$cod}{'rel_freq'}:$max;
 			}
 		return $max;
 		}else {return 0;}
@@ -525,10 +526,11 @@ my ($self, $a) = @_;
 	$aa =~ s/^(\w)/\U$1/;
 	if ($self->_check_aa($aa))	{
 		my $aa3 = $Bio::SeqUtils::THREECODE{$aa};
-		my $min = 0;
-		for my $cod (keys %{$self->{'_cod_table'}{$aa3}}) {
-			$min = ($self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'} < $min) ?
-					$self->{'_cod_table'}{$aa3}{$cod}{'rel_freq'}:$min;
+		$aa3 ||= $aa;
+		my $min = 1;
+		for my $cod (keys %{$self->{'_table'}{$aa3}}) {
+			$min = ($self->{'_table'}{$aa3}{$cod}{'rel_freq'} < $min) ?
+					$self->{'_table'}{$aa3}{$cod}{'rel_freq'}:$min;
 			}
 		return $min;
 		}else {return 0;}
