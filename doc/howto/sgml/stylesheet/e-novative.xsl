@@ -364,7 +364,7 @@ sect2     toc
 
 
 <!-- title indentation/left margin -->
-<xsl:param name="title.margin.left">0</xsl:param>
+<xsl:param name="title.margin.left">0cm</xsl:param>
 
 <!-- indentation in table of contents -->
 <!-- value is in points, used by fop processors that don´t support extensions and can´t calculate it -->
