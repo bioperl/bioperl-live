@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Annotation::Link
+# BioPerl module for Bio::Annotation::DBLink
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -34,7 +34,10 @@ Bio::Annotation::DBLink - DESCRIPTION of Object
 =head1 DESCRIPTION
 
 Provides an object which represents a link from one object to something
-in another database without prescribing what is in the other database
+in another database without prescribing what is in the other database.
+
+Aside from L<Bio::AnnotationI>, this class also implements
+L<Bio::IdentifiableI>.
 
 =head1 AUTHOR - Ewan Birney
 
@@ -63,12 +66,38 @@ use Bio::IdentifiableI;
 @ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
 
 
+=head2 new
+
+ Title   : new
+ Usage   : $dblink = Bio::Annotation::DBLink->new(-database =>"GenBank",
+                                                  -primary_id => "M123456");
+ Function: Creates a new instance of this class.
+ Example :
+ Returns : A new instance of Bio::Annotation::DBLink.
+ Args    : Named parameters. At present, the following parameters are
+           recognized.
+
+             -database    the name of the database referenced by the xref
+             -primary_id  the primary (main) id of the referenced entry
+                          (usually this will be an accession number)
+             -optional_id a secondary ID under which the referenced entry
+                          is known in the same database
+             -comment     comment text for the dbxref
+             -tagname     the name of the tag under which to add this
+                          instance to an annotation bundle (usually 'dblink')
+             -namespace   synonymous with -database (also overrides)
+             -version     version of the referenced entry
+             -authority   attribute of the Bio::IdentifiableI interface
+             -url         attribute of the Bio::IdentifiableI interface
+
+=cut
+
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
 
-  my ($database, $primary_id, $optional_id, $comment, $tag, $ns, $auth, $v, $url) =
+  my ($database,$primary_id,$optional_id,$comment,$tag,$ns,$auth,$v,$url) =
       $self->_rearrange([qw(DATABASE
 			    PRIMARY_ID
 			    OPTIONAL_ID
@@ -170,10 +199,9 @@ sub hash_tree{
 =cut
 
 sub tagname{
-    my ($self,$value) = @_;
-    if( defined $value) {
-	$self->{'tagname'} = $value;
-    }
+    my $self = shift;
+
+    return $self->{'tagname'} = shift if @_;
     return $self->{'tagname'};
 }
 
