@@ -89,12 +89,13 @@ if( $DEBUG ) {
     ok $cut->codon_abs_frequency('CTG'), 2.6;
     ok $cut->codon_count('CTG'), 26;
     ok $cut->get_coding_gc(1), "39.70";
-	ok my $ref = $cut->probable_codons(30);
+	ok my $ref = $cut->probable_codons(20);
 
-    ## now lets enter a non-existen species ans check handling..
+    ## now lets enter a non-existent species ans check handling..
     ## should default to human...
-    my $db2 =  Bio::DB::CUTG->new(-sp =>'Wookie magnus');
-    ok $db2->sp('Homo sapiens');
+    my $db2 =  Bio::DB::CUTG->new();
+    ok my $cut2 = $db2->get_request(-sp =>'Wookie magnus');
+    ok $cut2->species(), 'Homo sapiens';
 	ok 1 ;
 } else { 
    for ( $Test::ntest..$NUMTESTS) {
