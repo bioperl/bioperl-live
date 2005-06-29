@@ -291,10 +291,11 @@ sub has_term {
 
  Title   : add_relationship_type
  Usage   : $engine->add_relationship_type( $type_name, $ont );
- Function: Adds a new relationship type to the engine.  User get_relationship_type($type_name) to retrieve.
+ Function: Adds a new relationship type to the engine.  Use
+           get_relationship_type($type_name) to retrieve.
  Returns : true if successfully added, false otherwise
  Args    : relationship type name to add (scalar)
-
+           ontology to which to assign the relationship type
 
 =cut
 
@@ -336,11 +337,20 @@ sub get_relationship_type{
            $engine->add_relatioship( $subject_id, $predicate_id, $object_id, $ontology);
  Function: Adds a relationship to this engine
  Returns : true if successfully added, false otherwise
- Args    : term id, Bio::Ontology::TermI (rel.type), term id, ontology 
+ Args    : The relationship in one of three ways:
+
+             a) subject (or child) term id, Bio::Ontology::TermI
+                (rel.type), object (or parent) term id, ontology
+
            or
-           Bio::Ontology::TermI, Bio::Ontology::TermI (rel.type), Bio::Ontology::TermI, ontology
+
+             b) subject Bio::Ontology::TermI, predicate
+                Bio::Ontology::TermI (rel.type), object
+                Bio::Ontology::TermI, ontology
+
            or
-           Bio::Ontology::RelationshipI
+           
+             c) Bio::Ontology::RelationshipI-compliant object
 
 =cut
 
@@ -416,7 +426,7 @@ sub get_relationships {
     my $relfact = $self->relationship_factory();
     # we'll build the relationships from edges
     my @rels = ();
-    my @edges = $g->edges_at( $termid ); # NG 05-02-13
+    my @edges = $termid ? $g->edges_at( $termid ) : $g->edges(); # NG 05-02-13
     while(@edges) {
       my ( $startid, $endid ) = @{ shift @edges }; # NG 05-02-16
       my $rel = $relfact->create_object
