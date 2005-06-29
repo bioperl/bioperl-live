@@ -305,4 +305,51 @@ sub get_secondary_ids {
 } # get_secondary_ids
 
 
+=head1  Deprecated methods
+
+Used for looking up the methods that supercedes them.
+
+=cut
+
+=head2 category
+
+ Title   : category
+ Usage   :
+ Function: This method is deprecated. Use ontology() instead. We provide
+           an implementation here that preserves backwards compatibility,
+           but if you don't have legacy code using it you should not be
+           calling this method.
+ Example :
+ Returns :
+ Args    :
+
+
+=cut
+
+sub category {
+    my $self = shift;
+
+    $self->warn("TermI::category is deprecated and being phased out. ".
+		"Use TermI::ontology instead.");
+
+    # called in set mode?
+    if(@_) {
+	# yes; what is incompatible with ontology() is if we were given
+	# a TermI object
+	my $arg = shift;
+	$arg = $arg->name() if ref($arg) && $arg->isa("Bio::Ontology::TermI");
+	return $self->ontology($arg,@_);
+    } else {
+	# No, called in get mode. This is always incompatible with ontology()
+	# since category is supposed to return a TermI.
+	my $ont = $self->ontology();
+	my $term;
+	if(defined($ont)) {
+	    $term = Bio::Ontology::Term->new(-name => $ont->name(),
+					     -identifier =>$ont->identifier());
+	}
+	return $term;
+    }
+} # category
+
 1;
