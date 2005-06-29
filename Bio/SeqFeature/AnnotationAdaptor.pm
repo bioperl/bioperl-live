@@ -228,11 +228,11 @@ sub annotation{
     my ($self,$value) = @_;
 
     if( defined $value) {
-      $self->{'annotation'} = $value;
+        $self->{'annotation'} = $value;
     }
     if((! exists($self->{'annotation'})) &&
        $self->feature()->can('annotation')) {
-      return $self->feature()->annotation();
+        return $self->feature()->annotation();
     }
     return $self->{'annotation'};
 }
