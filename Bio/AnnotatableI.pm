@@ -93,7 +93,6 @@ our %tagclass = (
   gene_name      => 'Bio::Annotation::SimpleValue',
   ontology_term  => 'Bio::Annotation::OntologyTerm',
   reference      => 'Bio::Annotation::Reference',
-
   __DEFAULT__    => 'Bio::Annotation::SimpleValue',
 );
 
@@ -104,8 +103,7 @@ our %tag2text = (
   'Bio::Annotation::SimpleValue'    => 'value',
   'Bio::Annotation::OntologyTerm'   => 'name',
   'Bio::Annotation::Reference'      => 'title',
-
-  __DEFAULT__    => 'value',
+  __DEFAULT__                       => 'value',
 
 );
 
@@ -195,9 +193,11 @@ sub add_tag_value {
  Usage   : my $parent   = $obj->get_Annotations('Parent');
            my @parents = $obj->get_Annotations('Parent');
  Function: a wrapper around Bio::Annotation::Collection::get_Annotations().
- Returns : returns annotations as Bio::Annotation::Collection::get_Annotations() does,
-           but additionally returns a single scalar in scalar context instead of list context
-           so that if an annotation tag contains only a single value, you can do:
+ Returns : returns annotations as
+           Bio::Annotation::Collection::get_Annotations() does, but
+           additionally returns a single scalar in scalar context
+           instead of list context so that if an annotation tag
+           contains only a single value, you can do:
 
            $parent = $feature->get_Annotations('Parent');
 
@@ -205,52 +205,55 @@ sub add_tag_value {
 
            ($parent) = ($feature->get_Annotations('Parent'))[0];
 
-           if the 'Parent' tag has multiple values and is called in a scalar context,
-           the number of annotations is returned.
+           if the 'Parent' tag has multiple values and is called in a
+           scalar context, the number of annotations is returned.
+
  Args    : an annotation tag name.
 
 =cut
 
 sub get_Annotations {
-  my ($self,$tag) = @_;
+    my $self = shift;
 
-  my @annotations = $self->annotation->get_Annotations($tag);
-  #@annotations ||= ();
+    my @annotations = $self->annotation->get_Annotations(@_);
 
-  if(wantarray){
-    return @annotations;
-  } elsif(scalar(@annotations) == 1){
-    return $annotations[0];
-  } else {
-    return scalar(@annotations);
-  }
+    if(wantarray){
+        return @annotations;
+    } elsif(scalar(@annotations) == 1){
+        return $annotations[0];
+    } else {
+        return scalar(@annotations);
+    }
 }
 
 =head2 get_tag_values()
 
  Usage   : @annotations = $obj->get_tag_values($tag)
  Function: returns annotations corresponding to $tag
- Returns : a list of Bio::AnnotationI objects
+ Returns : a list of scalars
  Args    : tag name
  Note    : B<DEPRECATED>: this method is essentially L</get_Annotations()>.
 
 =cut
 
 sub get_tag_values {
-  my ($self,$tag) = @_;
+    my ($self,$tag) = @_;
+    
+    #uncomment in 1.6
+    #$self->deprecated('get_tag_values() is deprecated. use get_Annotations()');
 
-  #uncomment in 1.6
-  #$self->deprecated('get_tag_values() is deprecated.  use get_Annotations()');
+    if(!$tagclass{$tag} && $self->annotation->get_Annotations($tag)){
+        #new tag, haven't seen it yet but it exists.  add to registry
+        my($proto) = $self->annotation->get_Annotations($tag);
+        # we can only register if there's a method known for obtaining the value
+        if (exists($tag2text{ref($proto)})) {
+            $tagclass{$tag} = ref($proto);
+        }
+    }
 
-  if(!$tagclass{$tag} && $self->annotation->get_Annotations($tag)){
-    #new tag, haven't seen it yet but it exists.  add to registry
-    my($proto) = $self->annotation->get_Annotations($tag);
-    $tagclass{$tag} = ref($proto);
-  }
-
-  my $slot  = $tag2text{ $tagclass{$tag} || $tagclass{__DEFAULT__} };
-
-  return map { $_->$slot } $self->annotation->get_Annotations($tag);
+    my $slot  = $tag2text{ $tagclass{$tag} || $tagclass{__DEFAULT__} };
+    
+    return map { $_->$slot } $self->annotation->get_Annotations($tag);
 }
 
 =head2 get_tagset_values()
