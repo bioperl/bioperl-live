@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-Term - interface for ontology terms
+Term - implementation of the interface for ontology terms
 
 =head1 SYNOPSIS
 
@@ -41,9 +41,9 @@ Term - interface for ontology terms
 
 =head1 DESCRIPTION
 
-This is "dumb" interface for ontology terms providing basic methods
-(it provides no functionality related to graphs). It implements the
-L<Bio::Ontology::TermI> interface.
+This is a simple implementation for ontology terms providing basic
+methods (it provides no functionality related to graphs). It
+implements the L<Bio::Ontology::TermI> interface.
 
 This class also implements L<Bio::IdentifiableI> and
 L<Bio::DescribableI>.
@@ -144,11 +144,6 @@ sub new {
     my( $class,@args ) = @_;
 
     my $self = $class->SUPER::new( @args );
-#    return $self;
-#}
-
-#sub _initialize {
-#    my ($self, @args) =@_;
     my ( $identifier,
          $name,
          $definition,
@@ -162,11 +157,12 @@ sub new {
 				   NAME
 				   DEFINITION
 				   CATEGORY
-                   ONTOLOGY
+                                   ONTOLOGY
 				   VERSION
 				   IS_OBSOLETE
 				   COMMENT
-                   DBLINKS REFERENCES
+                                   DBLINKS 
+                                   REFERENCES
        ) ], @args );
 
     $self->init();
@@ -209,7 +205,7 @@ sub init {
 =head2 identifier
 
  Title   : identifier
- Usage   : $term->identifier( "0003947" );
+ Usage   : $term->identifier( "GO:0003947" );
            or
            print $term->identifier();
  Function: Set/get for the identifier of this Term.
@@ -443,16 +439,21 @@ sub remove_synonyms {
  Usage   : @ds = $term->get_dblinks();
  Function: Returns a list of each dblinks of this GO term.
  Returns : A list of dblinks [array of [scalars]].
- Args    : context. If omitted, the default/context-less one will be used.
+ Args    : A scalar indicating the context (optional). 
+           If omitted, all dblinks will be returned.
 
 =cut
 
 sub get_dblinks {
     my $self = shift;
-    my $context=shift ||'_default';
-    
-    return @{$self->{_dblinks}->{$context}} 
-        if exists($self->{_dblinks}->{$context});
+    my $context = shift;
+
+    if (defined($context)) {
+        return @{$self->{_dblinks}->{$context}} 
+            if exists($self->{_dblinks}->{$context});
+    } else {
+        return map { @$_ } values %{$self->{_dblinks}};
+    }
     return ();
 } # get_dblinks
 
@@ -482,32 +483,23 @@ sub get_dblink_context {
  Returns :
  Args    : One  dblink [scalar] or a list of
             dblinks [array of [scalars]].
- Note    : For back compatibility, we keep it since it takes an array of 
-            arguments.
+
 =cut
 
 sub add_dblink {
-    my ( $self, @values ) = @_;
-    my $context = '_default';
-    return unless( @values );
-
-    # avoid duplicates
-    foreach my $dbl (@values) {
-	    next if grep { $_ eq $dbl; } @{$self->{_dblinks}->{$context}};
-	    push( @{ $self->{_dblinks}->{$context} }, $dbl );
-    }
-
+    my $self = shift;
+    $self->add_dblink_context($_,'_default') foreach @_;
 } # add_dblink
 
 =head2 add_dblink_context 
 
-  Title   : add_db_link_context
+  Title   : add_dblink_context
   Usage   : $term->add_dblink_context($db, $context);
   Function: add a dblink with its context
   Return  : [none]
   Args    : [arg1] an object of Bio::Annotation::DBLink
-            [arg2] a string for context
-            context. If omitted, the default/context-less one will be used.
+            [arg2] a string for context; if omitted, the
+                   default/context-less one will be used.
 
 =cut
 
@@ -516,13 +508,13 @@ sub add_dblink_context {
     return unless defined $value;
     $self->throw("'all' is a reserved word for context.") if $context eq 'all';
     $context ||= '_default';
-    $self->{_dblink_context}->{$context}={}
-        unless exist $self->{_dblink_context}->{$context};
-        
-    if(grep {$_ eq $value} @{$self->{_dblink_context}->{$context}}){
+    if (! exists($self->{_dblinks}->{$context})) {
+        $self->{_dblinks}->{$context} = [];
+    }
+    if (grep {$_ eq $value} @{$self->{_dblinks}->{$context}}) {
         $self->warn("$value exists in the dblink of $context");
     }
-    push @{$self->{_dblink_context}->{$context}}, $value;
+    push @{$self->{_dblinks}->{$context}}, $value;
 }
 
 =head2 remove_dblinks
@@ -531,24 +523,21 @@ sub add_dblink_context {
  Usage   : $term->remove_dblinks();
  Function: Deletes (and returns) the definition references of this GO term.
  Returns : A list of definition references [array of [scalars]].
- Args    : context. If omitted, the default/context-less one will be used.
+ Args    : Context. If omitted or equal to 'all', all dblinks 
+           will be removed.
 
 =cut
 
 sub remove_dblinks {
     my ($self, $context) = @_;
-    $context ||= '_default';
-    my @old;
-    if($context eq 'all'){
-        foreach my $sub_context($self->get_dblink_context){
-            push @old, $self->remove_db_links($sub_context);
-        }
-    }else{
-        push @old, $self->get_dblinks($context);
+    $context = undef if $context && ($context eq "all");
+    my @old = $self->get_dblinks($context);
+    if (defined($context)) {
         $self->{_dblinks}->{$context}=[];
+    } else {
+        $self->{_dblinks} = {};
     }
     return @old;
-
 } # remove_dblinks
 
 
@@ -814,44 +803,6 @@ sub description {
 Used for looking up the methods that supercedes them.
 
 =cut
-
-=head2 category
-
- Title   : category
- Usage   :
- Function: This method is deprecated. Use ontology() instead.
- Example :
- Returns :
- Args    :
-
-
-=cut
-
-sub category {
-    my $self = shift;
-
-    $self->warn("TermI::category is deprecated and being phased out. ".
-		"Use TermI::ontology instead.");
-
-    # called in set mode?
-    if(@_) {
-	# yes; what is incompatible with ontology() is if we were given
-	# a TermI object
-	my $arg = shift;
-	$arg = $arg->name() if ref($arg) && $arg->isa("Bio::Ontology::TermI");
-	return $self->ontology($arg,@_);
-    } else {
-	# No, called in get mode. This is always incompatible with ontology()
-	# since category is supposed to return a TermI.
-	my $ont = $self->ontology();
-	my $term;
-	if(defined($ont)) {
-	    $term = Bio::Ontology::Term->new(-name => $ont->name(),
-					     -identifier =>$ont->identifier());
-	}
-	return $term;
-    }
-} # category
 
 *each_synonym = \&get_synonyms;
 *add_synonyms = \&add_synonym;
