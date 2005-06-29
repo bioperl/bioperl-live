@@ -483,14 +483,13 @@ sub get_relationships{
 	    my @parent_terms = $self->get_term_by_identifier($parent_id);
 	    foreach my $parent_term (@parent_terms) {
 	    	push(@rels,
-			 $relfact->create_object(-object_term    => $parent_term,
-						 -subject_term   => $term,
-						 -predicate_term =>
-						    $parent_entry->{$term->identifier},
-						 -ontology       => $term->ontology()
-						 )
-		 	);
- 	     }
+                     $relfact->create_object(-object_term    => $parent_term,
+                                             -subject_term   => $term,
+                                             -predicate_term =>
+                                             $parent_entry->{$term->identifier},
+                                             -ontology => $term->ontology())
+                    );
+            }
 		 
 	} else {
 	    # otherwise, i.e., no term supplied, or the parent equals the
