@@ -107,8 +107,7 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Ontology::OntologyI;
-use Bio::Ontology::SimpleOntologyEngine;
-use Bio::Ontology::SimpleGOEngine;
+#use Bio::Ontology::SimpleOntologyEngine; # loaded dynamically now!
 
 @ISA = qw(Bio::Root::Root Bio::Ontology::OntologyI);
 
@@ -149,8 +148,7 @@ sub new {
   defined($auth) && $self->authority($auth);
   defined($def) && $self->definition($def);
   defined($id) && $self->identifier($id);
-  $engine = Bio::Ontology::SimpleOntologyEngine->new() unless $engine;
-  $self->engine($engine);
+  defined($engine) && $self->engine($engine);
 
   return $self;
 }
@@ -306,14 +304,28 @@ sub close{
 sub engine{
     my $self = shift;
 
-    if(@_) {
+    if (@_) {
 	my $engine = shift;
-	if($engine && (! (ref($engine) &&
-			  $engine->isa("Bio::Ontology::OntologyEngineI")))) {
+	if($engine && 
+           (! (ref($engine) && 
+               $engine->isa("Bio::Ontology::OntologyEngineI")))) {
 	    $self->throw("object of class ".ref($engine)." does not implement".
 			 " Bio::Ontology::OntologyEngineI. Bummer!");
 	}
 	$self->{'engine'} = $engine;
+    } elsif (! exists($self->{'engine'})) {
+        # instantiate on demand
+        eval {
+            # this introduces a dependency on Graph.pm, so load dynamically
+            require Bio::Ontology::SimpleOntologyEngine;
+        };
+        if ($@) {
+            $self->throw("failed to load SimpleOntologyEngine, possibly "
+                         ."Graph.pm is not installed; either install or supply "
+                         ."another OntologyEngineI implementation:\n"
+                         .$@);
+        }
+        $self->{'engine'} = Bio::Ontology::SimpleOntologyEngine->new();
     }
     return $self->{'engine'};
 }
