@@ -244,12 +244,11 @@ sub add_Annotation{
    my ($self,$key,$object,$archetype) = @_;
    
    # if there's no key we use the tagname() as key
-   if(ref($key) && $key->isa("Bio::AnnotationI") &&
-      (! ($object && ref($object)))) {
-       $archetype = $object if $object;
+   if(ref($key) && $key->isa("Bio::AnnotationI") && (!ref($object))) {
+       $archetype = $object if defined($object);
        $object = $key;
        $key = $object->tagname();
-       $key = $key->name() if $key && ref($key); # OntologyTermI
+       $key = $key->name() if ref($key); # OntologyTermI
        $self->throw("Annotation object must have a tagname if key omitted")
 	   unless $key;
    }
