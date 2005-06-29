@@ -206,9 +206,12 @@ sub new {
 	     -alphabet          =>  $alphabet
 	     );
     }
-    elsif (UNIVERSAL::isa($seq,"Bio::PrimarySeq")) {
+    elsif (UNIVERSAL::isa($seq,"Bio::PrimarySeq") ||  UNIVERSAL::isa($seq,"Bio::Seq")) {
 	$self->{seq_ref} = $seq;
     }
+	elsif (ref($seq)) {
+		$self->throw("You passed a seq argument into a SeqWithQUality object and it was a reference ($seq) which did not inherit from Bio::Seq or Bio::PrimarySeq. I don't know what to do with this.");
+	}
 
     else {
 	my $seqobj = Bio::PrimarySeq->new
