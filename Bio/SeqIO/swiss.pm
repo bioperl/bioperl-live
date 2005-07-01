@@ -874,32 +874,34 @@ sub _read_swissprot_References{
            # don't forget to reset the state for the next reference
            $b1 = $b2 = $rg = $med = $com = $pubmed = undef;
            $title = $loc = $au = undef;
-       } elsif ( /^RP   (.+? OF (\d+)-(\d+).*)/) { 
+       } elsif ( /^RP\s{3}(.+? OF (\d+)-(\d+).*)/) { 
 	   $rp  .= $1;
 	   $b1   = $2;
 	   $b2   = $3; 
-       } elsif ( /^RP   (.*)/) {
+       } elsif ( /^RP\s{3}(.*)/) {
 	   if($rp) { $rp .= " ".$1 }
 	   else    { $rp = $1 }
-       } elsif( /^RX   MEDLINE;\s+(\d+)/ )  {
-	   $med   = $1;
-       } elsif( /^RX   MEDLINE=(\d+);\s+PubMed=(\d+);/ ) { 
+       } elsif( /^RX\s{3}MEDLINE;\s+(\d+)(?!<;)/ )  {
+	   $med  = $1;
+       } elsif( /^RX\s{3}MEDLINE=(\d+);\s+PubMed=(\d+);/ ) { 
 	   $med   = $1;
 	   $pubmed= $2;
-       } elsif( /^RA   (.*)/ ) { 
+       } elsif( /^RX\s{3}PubMed=(\d+);/ ) { # can start with pubmed only
+	   $pubmed = $1;
+       } elsif( /^RA\s{3}(.*)/ ) { 
 	   $au .= $au ? " $1" : $1;
-       } elsif( /^RG   (.*)/ ) { 
+       } elsif( /^RG\s{3}(.*)/ ) { 
 	   $rg .= $rg ? " $1" : $1;
-       } elsif ( /^RT   (.*)/ ) { 
+       } elsif ( /^RT\s{3}(.*)/ ) { 
            if ($title) {
                my $tline = $1;
                $title .= ($title =~ /[\w;,:\?!]$/) ? " $tline" : $tline;
            } else {
                $title = $1;
            }
-       } elsif (/^RL   (.*)/ ) { 
+       } elsif (/^RL\s{3}(.*)/ ) { 
 	   $loc .= $loc ? " $1" : $1;
-       } elsif ( /^RC   (.*)/ ) {
+       } elsif ( /^RC\s{3}(.*)/ ) {
 	   $com .= $com ? " $1" : $1;
        } 
        #/^CC/ && last;
