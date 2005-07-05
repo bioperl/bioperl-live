@@ -36,7 +36,7 @@ Bio::Factory::LocationFactoryI - A factory interface for generating locations fr
  my $location = $locfact->from_string("1..200");
  print $location->start(), " ", $location->end(), " ", $location->strand,"\n";
 
-=Head1 DESCRIPTION
+=head1 DESCRIPTION
 
 An interface for Location Factories which generate Bio::LocationI
 objects from a string.

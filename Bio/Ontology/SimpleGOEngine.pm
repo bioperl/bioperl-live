@@ -349,7 +349,7 @@ sub get_relationship_type{
                 Bio::Ontology::TermI, ontology
 
            or
-           
+
              c) Bio::Ontology::RelationshipI-compliant object
 
 =cut

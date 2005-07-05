@@ -53,8 +53,8 @@ Email brian.oconnor-at-excite.com
 =head1 CONTRIBUTORS
 
 Allen Day
-Guillaume Rousse <Guillaume-dot-Rousse-at-inria-dot-fr>
-    
+Guillaume Rousse, Guillaume-dot-Rousse-at-inria-dot-fr
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.

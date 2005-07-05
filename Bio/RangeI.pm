@@ -359,6 +359,7 @@ sub intersection {
     Returns : the range object containing all of the ranges
               (in the form of an object like the calling one, OR 
               a three element array)
+
 =cut
 
 sub union {

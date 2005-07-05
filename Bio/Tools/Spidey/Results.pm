@@ -27,7 +27,7 @@ Bio::Tools::Spidey::Results - Results of a Spidey run
 	# parse the results
 	my @exons = $exonset->sub_SeqFeature();
 	print "Total # of Exons: ", scalar(@exons), "\n";
-	
+
 	print "Genomic sequence length: ", $spidey->genomic_dna_length(), "\n";
 
 	# $exonset is-a Bio::SeqFeature::Generic with Bio::Tools::Spidey::Exons

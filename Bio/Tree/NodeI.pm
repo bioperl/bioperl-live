@@ -489,6 +489,7 @@ sub has_tag{
 
 =head2 Helper Functions
 
+=cut
 
 =head2 id_output
 

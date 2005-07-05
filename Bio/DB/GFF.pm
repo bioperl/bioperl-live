@@ -500,7 +500,7 @@ has some limitations.
 
 =item 1. GFF version string is required
 
-The GFF file b<must> contain the version comment:
+The GFF file B<must> contain the version comment:
 
  ##gff-version 3
 

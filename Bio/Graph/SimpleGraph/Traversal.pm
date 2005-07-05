@@ -15,10 +15,10 @@ Bio::Graph::SimpleGraph::Traversal;
   use Bio::Graph::SimpleGraph;
 
   ## get a graph , $g.
-  
+
   my $traversal = Bio::Graph::SimpleGraph::Traversal->new(-graph=>$g,
                                                           -start=>$start,
-                                                         -order=>$order,
+                                                          -order=>$order,
                                                           -what =>$what);
  ##cycle through nodes one at a time
  while ($traversal->has_next() {
@@ -30,12 +30,15 @@ Bio::Graph::SimpleGraph::Traversal;
  ## get all nodes
   my @all_nodes = $traversal->get_all();
 
- 
-
 
 
 =head1 DESCRIPTION
-This is a helper class for performing graph traversal operations for Bio::Graph::SimpleGraph objects and Bio::Graph::Protein::Graph objects. The documentation ocnerning the use of this class is described in the "Graph algorithms" section of the  Bio::Graph::SimpleGraph  modules. Only the methods are documented here. 
+
+This is a helper class for performing graph traversal operations for
+Bio::Graph::SimpleGraph objects and Bio::Graph::Protein::Graph
+objects. The documentation ocnerning the use of this class is
+described in the "Graph algorithms" section of the
+Bio::Graph::SimpleGraph modules. Only the methods are documented here.
 
 =head1 FEEDBACK
 
@@ -87,6 +90,7 @@ sub _init_self {
 	$self->graph or $self->graph(new Bio::Graph::SimpleGraph);
 	# can't be in DEFAULTS - circular includes!
 }
+
 =head2      has_next
 
  name      : has_next
@@ -102,6 +106,7 @@ sub has_next {
   $self->reset unless $self->is_initialized;
   @{$self->_future}>0;
 }
+
 =head2      get_next
 
  name      : get_next
@@ -190,6 +195,7 @@ sub get_this {
   $self->reset unless $self->is_initialized;
   $self->_present;
 }
+
 =head2      reset
 
  name      : reset

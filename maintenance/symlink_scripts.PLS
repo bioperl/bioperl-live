@@ -63,6 +63,8 @@ that don't allow symbolic linking.
 
 =head1 SEE ALSO
 
+=cut
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

@@ -1856,13 +1856,13 @@ coordinates relative to the left-hand edge of the picture. If you
 define a -background callback, the callback may wish to invoke this
 routine in order to translate base coordinates into pixel coordinates.
 
-=item $left = $panel->left
+=item $left = $panel-E<gt>left
 
-=item $right = $panel->right
+=item $right = $panel-E<gt>right
 
-=item $top   = $panel->top
+=item $top   = $panel-E<gt>top
 
-=item $bottom = $panel->bottom
+=item $bottom = $panel-E<gt>bottom
 
 Return the pixel coordinates of the I<drawing area> of the panel, that
 is, exclusive of the padding.

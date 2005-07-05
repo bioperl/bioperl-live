@@ -626,7 +626,9 @@ return @uncapt;
 }
 
 =head1 _process_products_coordinates
+
 To do:
+
 =cut
 
 
@@ -663,8 +665,11 @@ return $transcript,\@uncapt;
 }
 
 =head1 _process_prop
+
 To do: process GO
+
 =cut
+
 sub _process_prop {
     my $self=shift;;
     my $prop=shift;
@@ -850,6 +855,7 @@ delete $grif->{refs};
 $self->{_ann}->add_Annotation($type,$obj);
 return $grif;
 }
+
 sub _get_go_term {
 my $go=shift;
 my $category=shift;

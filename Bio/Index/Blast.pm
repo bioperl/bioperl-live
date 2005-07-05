@@ -21,7 +21,7 @@ based on query accession(s)
     use Bio::Index::Blast;
     my ($indexfile,$file1,$file2,$query);
     my $index = new Bio::Index::Blast(-filename => $indexfile,
-				                          -write_flag => 1);
+				      -write_flag => 1);
     $index->make_index($file1,$file2);
 
     my $data = $index->get_stream($query);
@@ -38,14 +38,12 @@ based on query accession(s)
 
 =head1 DESCRIPTION
 
-=head1 DESCRIPTION
-
 This object allows one to build an index on a blast file (or files)
 and provide quick access to the blast report for that accession.
 Note: for best results 'use strict'.
 
-The default key is the first word in a line (/^\s*(\S+)/).
-You can also set or customize the unique key used to retrieve by
+The default key is the word after the "E<gt>" character (/^\s*(\S+)/).
+You can also set or customize the unique key used to retrieve by 
 writing your own function and calling the id_parser() method.
 For example:
 
@@ -68,8 +66,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org            - General discussion
-http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -166,8 +164,8 @@ sub fetch_report{
         my ($self,$id) = @_;
         my $fh = $self->get_stream($id);
         my $report = new Bio::SearchIO(-noclose => 1,
-													-format => 'blast',
-													-fh => $fh);
+                                       -format => 'blast',
+                                       -fh => $fh);
         return $report->next_result;
 }
 
@@ -301,6 +299,8 @@ sub _process_report {
 }
 
 =head2 Bio::Index::Abstract methods
+
+=cut
 
 =head2 filename
 

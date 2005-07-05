@@ -430,7 +430,7 @@ sub union {
 									-weight => $other_edge->weight(),
 									-id     => $other_edge->object_id(),
 								   -nodes  =>[$new, $self->nodes_by_id($common)],
-																 )
+                                                                     )
 									);
 
 				## add new ids to self graph look up table
@@ -544,6 +544,7 @@ sub _get_ids {
 	return %ids;
 
 }
+
 =head2 add_edge
 
  Name        : add_edge
@@ -609,6 +610,7 @@ sub add_edge {
   $self->_is_connected(undef);	# clear cached value
 
 }
+
 =head2       subgraph
 
  Name      :  subgraph
@@ -621,10 +623,8 @@ sub add_edge {
              nodes from the parent graph whilst operating on subgraph nodes. 
  Arguments : A list of node objects.
 
-
-
-
 =cut
+
 sub subgraph {
  my $self=shift;
 

@@ -980,9 +980,9 @@ sub get_table_id {
  Returns : a SQL fragment and bind arguments
  Args    : see below
  Status  : Protected
-                                                                                                                             
+
 =cut
-                                                                                                                             
+
 sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
@@ -993,21 +993,21 @@ sub make_features_by_name_where_part {
     return ("cmap_feature.gclass=? AND cmap_feature.feature_name=?",$class,$name);
   }
 }
-                                                                                                                             
+
 =head2 make_features_join_part
-                                                                                                                             
+
  Title   : make_features_join_part
  Usage   : $string = $db->make_features_join_part()
  Function: make join part of the features query
  Returns : a string
  Args    : none
  Status  : protected
-                                                                                                                             
+
 This method creates the part of the features query that immediately
 follows the WHERE keyword.
-                                                                                                                             
+
 =cut
-                                                                                                                             
+
 sub make_features_join_part {
   my $self = shift;
   my $options = shift || {};
@@ -1026,52 +1026,50 @@ sub getseqcoords_query {
    my $self = shift;
    return GETSEQCOORDS ;
 }
-                                                                                                                             
+
 sub getaliascoords_query{
   my $self = shift;
   return GETALIASCOORDS ;
 }
-                                                                                                                             
-                                                                                                                             
+
 sub getforcedseqcoords_query{
   my $self = shift;
   return GETFORCEDSEQCOORDS ;
 }
-                                                                                                                             
-                                                                                                                             
+
 sub getaliaslike_query{
   my $self = shift;
   return GETALIASLIKE ;
 }
 
 =head2 search_notes
-                                                                                                                             
+
  Title   : search_notes
  Usage   : @search_results = $db->search_notes("full text search string",$limit)
  Function: Search the notes for a text string, using mysql full-text search
  Returns : array of results
  Args    : full text search string, and an optional row limit
  Status  : public
-                                                                                                                             
+
 This is a mysql-specific method.  Given a search string, it performs a
 full-text search of the notes table and returns an array of results.
 Each row of the returned array is a arrayref containing the following fields:
-                                                                                                                             
+
   column 1     A Bio::DB::GFF::Featname object, suitable for passing to segment()
   column 2     The text of the note
   column 3     A relevance score.
-                                                                                                                             
+
 =cut
 
 sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
-                                                                                                                             
+
   my @words  = $search_string =~ /(\w+)/g;
   my $regex  = join '|',@words;
   my @searches = map {"fattribute_value LIKE '%${_}%'"} @words;
   my $search   = join(' OR ',@searches);
-                                                                                                                             
+
   my $query = <<END;
 SELECT distinct gclass,feature_name as gname,fattribute_value
   FROM cmap_feature,fattribute_to_feature,fdata
@@ -1080,7 +1078,7 @@ SELECT distinct gclass,feature_name as gname,fattribute_value
 END
 ;
   $query .= " AND ($search) " if ($search);
-                                                                                                                             
+
   my $sth = $self->dbh->do_query($query);
   my @results;
   while (my ($class,$name,$note) = $sth->fetchrow_array) {

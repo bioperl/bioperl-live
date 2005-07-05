@@ -51,7 +51,7 @@ first tree oriented left-to-right and the second tree oriented
 right-to-left, and with corresponding taxa connected by straight lines
 in a shade of gray. Each correspondence between a $taxon1 of the first
 tree and a $taxon2 of the second tree is established by setting
-$taxon1->add_tag_value('connection',$taxon2). Thus, a taxon of the
+$taxon1-E<gt>add_tag_value('connection',$taxon2). Thus, a taxon of the
 first tree can be connected to more than one taxon of the second tree,
 and vice versa.
 

@@ -18,9 +18,9 @@ Bio::Matrix::PSM::InstanceSite - A PSM site occurance
     id=>"TATAbox1", accession=>'ENSG00000122304', mid=>'TB1',
     desc=>'TATA box, experimentally verified in PRM1 gene',
     -relpos=>-35, -anchor=>'CHR7', -start=>35000921, -end=>35000926);
-    
-    Last 2 arguments are passed to create a Bio::LocatableSeq object
-    Anchor shows the coordinates system for the Bio::LocatableSeq object
+
+  #Last 2 arguments are passed to create a Bio::LocatableSeq object
+  #Anchor shows the coordinates system for the Bio::LocatableSeq object
 
 =head1 DESCRIPTION
 

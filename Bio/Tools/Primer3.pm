@@ -145,17 +145,17 @@ sub AUTOLOAD {
 
 $ID = 'Bio::Tools::Primer3';
 
-=head2 new()
+=head2 new
 
-Title   : new()
-Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file) 
-          to read a primer3 output file.
-Function: Parse primer3 output
-Returns : Doesn't return anything. If called with a filename will 
-          allow you to retrieve the results
-Args    : -file (optional) file of primer3 results to parse -verbose 
-          (optional) set verbose output
-Notes   : 
+  Title   : new()
+  Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file) 
+            to read a primer3 output file.
+  Function: Parse primer3 output
+  Returns : Doesn't return anything. If called with a filename will 
+            allow you to retrieve the results
+  Args    : -file (optional) file of primer3 results to parse -verbose 
+            (optional) set verbose output
+  Notes   : 
 
 =cut
 
@@ -172,17 +172,17 @@ sub new {
 
 
 
-=head2 number_of_results()
+=head2 number_of_results
 
-Title   : number_of_results()
-Usage   : $primer3->number_of_results()
-Function: Retrieve the number of primers returned from Primer3.
-Returns : A scalar
-Args    : None
-Notes   : This returns the count of the primers returned by Primer3 
-           (aka how many of them there are). 
-           This is one more than the maximum offset into the zero 
-           based list of primers that is accessed by primer_results().
+  Title   : number_of_results()
+  Usage   : $primer3->number_of_results()
+  Function: Retrieve the number of primers returned from Primer3.
+  Returns : A scalar
+  Args    : None
+  Notes   : This returns the count of the primers returned by Primer3 
+             (aka how many of them there are). 
+             This is one more than the maximum offset into the zero 
+             based list of primers that is accessed by primer_results().
 
 =cut
 
@@ -192,15 +192,15 @@ sub number_of_results {
 }
 
 
-=head2 all_results()
+=head2 all_results
 
-Title   : all_results()
-Usage   : $primer3->all_results() to print all results or 
-          $primer3->all_results('primer3 result name', 
-          'other results') to return a specific result
-Function: Retrieve the results returned from Primer3.
-Returns : A reference to a hash
-Args    : Optional array of results to retrieve
+  Title   : all_results()
+  Usage   : $primer3->all_results() to print all results or 
+            $primer3->all_results('primer3 result name', 
+            'other results') to return a specific result
+  Function: Retrieve the results returned from Primer3.
+  Returns : A reference to a hash
+  Args    : Optional array of results to retrieve
 
 =cut
 
@@ -222,14 +222,14 @@ sub all_results {
 } 
 
 
-=head2 primer_results()
+=head2 primer_results
 
-Title   : primer_results()
-Usage   : $primer3->primer_results(2) to print results for the third 
-          choice primer (indexed on 0)
-Function: Retrieve the results returned from Primer3 for specific primer pairs.
-Returns : A reference to a hash
-Args    : A number between 0 and the maximum number of primers to retrieve
+  Title   : primer_results()
+  Usage   : $primer3->primer_results(2) to print results for the third 
+            choice primer (indexed on 0)
+  Function: Retrieve the results returned from Primer3 for specific primer pairs.
+  Returns : A reference to a hash
+  Args    : A number between 0 and the maximum number of primers to retrieve
 
 =cut
 
@@ -242,14 +242,14 @@ sub primer_results {
  else {return \%{$self->{'results_by_number'}->{$toget}}}
 }
 
-=head2 _readfile()
+=head2 _readfile
 
-Title   : _readfile()
-Usage   : $self->_readfile();
-Function: An internal function that reads a file and sets up the results
-Returns : Nothing.
-Args    : None
-Notes   : 
+  Title   : _readfile()
+  Usage   : $self->_readfile();
+  Function: An internal function that reads a file and sets up the results
+  Returns : Nothing.
+  Args    : None
+  Notes   : 
 
 =cut
 
@@ -277,16 +277,16 @@ sub _readfile {
  $self->_separate();
 }
 
-=head2 primer_stream()
+=head2 primer_stream
 
-Title   : primer_stream()
-Usage   : while (my $primed_seq  = $primer3->primer_stream()) {
-Function: Retrieve the primer/sequences one at a time
-Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
-Args    : None
-Notes   : Deprecated. I should just delete this, but my test scripts will 
-          all break. This will be removed before it goes really live, and is 
-          just a link to next_primer
+  Title   : primer_stream()
+  Usage   : while (my $primed_seq  = $primer3->primer_stream()) {
+  Function: Retrieve the primer/sequences one at a time
+  Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+  Args    : None
+  Notes   : Deprecated. I should just delete this, but my test scripts will 
+            all break. This will be removed before it goes really live, and is 
+            just a link to next_primer
 
 
 =cut
@@ -299,15 +299,15 @@ sub primer_stream {
 
 
 
-=head2 next_primer()
+=head2 next_primer
 
-Title   : next_primer()
-Usage   : while (my $primed_seq  = $primer3->next_primer()) {
-Function: Retrieve the primer/sequences one at a time
-Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
-Args    : None
-Notes   : Use $primed_seq->annotated_seq to get an annotated sequence 
-          object you can write out.
+  Title   : next_primer()
+  Usage   : while (my $primed_seq  = $primer3->next_primer()) {
+  Function: Retrieve the primer/sequences one at a time
+  Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
+  Args    : None
+  Notes   : Use $primed_seq->annotated_seq to get an annotated sequence 
+            object you can write out.
 
 =cut
 
@@ -358,15 +358,15 @@ sub next_primer {
  return $primed_seq;
 }
 
-=head2 _set_variable()
+=head2 _set_variable
 
-Title   : _set_variable()
-Usage   : $self->_set_variable('variable name', 'value');
-Function: An internal function that sets a variable
-Returns : Nothing.
-Args    : None
-Notes   : Mainly used by Bio::Tools::Run::Primer3 to set 
-          $self->{results} and $self->seqobject
+  Title   : _set_variable()
+  Usage   : $self->_set_variable('variable name', 'value');
+  Function: An internal function that sets a variable
+  Returns : Nothing.
+  Args    : None
+  Notes   : Mainly used by Bio::Tools::Run::Primer3 to set 
+            $self->{results} and $self->seqobject
 
 =cut
 
@@ -376,15 +376,15 @@ sub _set_variable {
  $self->{$name}=$value;
  }
 
-=head2 _separate()
+=head2 _separate
 
-Title   : _separate()
-Usage   : $self->_separate();
-Function: An internal function that groups the results by number 
-          (e.g. primer pair 1, etc)
-Returns : Nothing.
-Args    : None
-Notes   : 
+  Title   : _separate()
+  Usage   : $self->_separate();
+  Function: An internal function that groups the results by number 
+            (e.g. primer pair 1, etc)
+  Returns : Nothing.
+  Args    : None
+  Notes   : 
 
 =cut
 
