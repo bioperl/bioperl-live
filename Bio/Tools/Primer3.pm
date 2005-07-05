@@ -13,11 +13,9 @@
 
 =head1 NAME
 
-Bio::Tools::Primer3
+Bio::Tools::Primer3 - Create input for and work with the output from the program primer3
 
 =head1 SYNOPSIS
-
-Create input for and work with the output from the program primer3.
 
  # parse primer3 output to get some data
  # this is also called from Bio::Tools::Run::Primer3

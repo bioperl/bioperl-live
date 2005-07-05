@@ -18,10 +18,10 @@ Bio::Graph::SimpleGraph::Traversal;
 
   my $traversal = Bio::Graph::SimpleGraph::Traversal->new(-graph=>$g,
                                                           -start=>$start,
-                                                          -order=>$order,
+                                                          -order=>$order,
                                                           -what =>$what);
  ##cycle through nodes one at a time
- while ($traversal->has_next() {
+ while ($traversal->has_next() ) {
         my $node = $traversal->get_next();
       }
  ## reset traversal to start
