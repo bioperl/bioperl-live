@@ -431,6 +431,7 @@ sub synopsis {
 
         next unless $c->type eq "instance";
         next if $c->name eq 'Bio::Root::Version';
+        next if $c->name eq 'Bio::Tools::HMM';
 
         my $synopsis = '';
         open (F, $c->path) or warn "can't open file ".$c->name.": $!" && return;
