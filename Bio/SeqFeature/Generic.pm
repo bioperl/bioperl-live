@@ -833,7 +833,7 @@ sub _from_gff_string {
 
 
 =cut
-    use Data::Dumper;
+
 sub _expand_region {
     my ($self, $feat) = @_;
     if(! $feat->isa('Bio::SeqFeatureI')) {
