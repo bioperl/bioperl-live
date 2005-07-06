@@ -74,9 +74,18 @@ bin range.
 
 =cut
 
-*bin_top = \&bin_bot;
+sub bin_top {
+  my $tier = shift;
+  my $pos  = shift;
+  bin_name($tier,int($pos/$tier));  #  bin_name($tier,int($pos/$tier),+1);
+}
 
-sub bin_name {my ($tier, $int) = @_;  sprintf("%d.%06d",$tier, abs($int)) }
+sub bin_name {
+  my ($tier, $int, $fudge) = @_;
+  my $pos = abs($int) + ($fudge || 0);
+  $pos    = 0 if $pos < 0;
+  sprintf("%d.%06d",$tier, $pos);
+}
 
 sub log10 {
   my $i = shift;

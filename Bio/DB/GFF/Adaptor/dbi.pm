@@ -47,6 +47,10 @@ use constant STRAIGHT_JOIN_LIMIT => 200_000;
 # this is the size to which DNA should be shredded
 use constant DNA_CHUNK_SIZE  => 2000;
 
+# for debugging fbin optimization
+use constant EPSILON  => 1e-7;  # set to zero if you trust mysql's floating point comparisons
+use constant OPTIMIZE => 1;     # set to zero to turn off optimization completely
+
 ##############################################################################
 
 
@@ -1940,7 +1944,7 @@ sub bin_query {
   $maxbin = defined $maxbin ? $maxbin : $self->max_bin;
   my $tier = $maxbin;
   while ($tier >= $minbin) {
-    my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
+    my ($tier_start,$tier_stop) = (bin_bot($tier,$start)-EPSILON(),bin_top($tier,$stop)+EPSILON());
     if ($tier_start == $tier_stop) {
       push @bins,'fbin=?';
       push @args,$tier_start;
@@ -1960,10 +1964,17 @@ sub overlap_query {
   my $self = shift;
   my ($start,$stop) = @_;
 
-  my ($bq,@bargs)   = $self->bin_query($start,$stop);
-  my ($iq,@iargs) = $self->overlap_query_nobin($start,$stop);
-  my $query = "($bq)\n\tAND $iq";
-  my @args  = (@bargs,@iargs);
+  my ($query,@args);
+  my ($iq,@iargs)   = $self->overlap_query_nobin($start,$stop);
+  if (OPTIMIZE) {
+    my ($bq,@bargs)   = $self->bin_query($start,$stop);
+    $query = "($bq)\n\tAND $iq";
+    @args  = (@bargs,@iargs);
+  }
+  else {
+    $query = $iq;
+    @args  = @iargs;
+  }
 
   return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
