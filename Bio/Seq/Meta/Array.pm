@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Seq::Meta::Array - array-based generic implementation of a sequence class with residue-based meta information
+Bio::Seq::Meta::Array - array-based generic implementation of a
+sequence class with residue-based meta information
 
 =head1 SYNOPSIS
 
@@ -35,6 +36,17 @@ Bio::Seq::Meta::Array - array-based generic implementation of a sequence class w
 
   $seq->meta('1 2 3 4 5 6 7 8 9 10');
 
+  # or you could create the Meta object directly
+  my $seq = Bio::Seq::Meta::Array->new(-id=>'test',
+                                       -seq=>'ACTGCTAGCT',
+                                       -start=>2434,
+                                       -start=>2443,
+                                       -strand=>1,
+                                       -meta=>'1 2 3 4 5 6 7 8 9 10',
+                                       -varbose=>1, # to see warnings
+                                      );
+
+
   # accessors
   $arrayref   = $seq->meta();
   $string     = $seq->meta_text();
@@ -53,6 +65,8 @@ and can be a complex structure.  Blank values are undef or zero.
 
 Application specific implementations should inherit from this class to
 override and add to these methods.
+
+This class can be used for storing sequence quality values.
 
 =head1 SEE ALSO
 

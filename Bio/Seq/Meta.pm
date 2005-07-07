@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Seq::MetaI - Generic superclass for sequence objects with
+Bio::Seq::Meta - Generic superclass for sequence objects with
 residue-based meta information
 
 =head1 SYNOPSIS
@@ -37,10 +37,18 @@ residue-based meta information
   $seq->isa("Bio::Seq::Meta")
       || $seq->throw("$seq is not a Bio::Seq::Meta");
 
+
   $seq->meta('1234567890');
+  my $seq = Bio::Seq::Meta->new(-id=>'test',
+                                -seq=>'ACTGCTAGCT',
+                                -start=>2434,
+                                -start=>2443,
+                                -strand=>1,
+                                -meta=>'1234567890',
+                                -varbose=>1, # to see warnings
+                               );
 
   # accessors
-
   $string     = $seq->meta_text();
   $substring  = $seq->submeta_text(2,5);
   $unique_key = $seq->accession_number();
@@ -75,6 +83,9 @@ sequence strand value.
 Application specific implementations should inherit from this class to
 override and add to these methods.
 
+L<Bio::Seq::Meta::Array> allows for more complex meta values (scalars
+or objects) to be used.
+
 =head2 Method naming
 
 Character based meta data is read and set by method meta() and its
@@ -99,7 +110,7 @@ region of the sequence range and takes start and end as arguments.
 Unlike subseq(), these methods are able to set values.  If the range
 is not defined, it defaults to the complete sequence.
 
-=item named_
+=item named
 
 Prefix B<named_> in method names allows the used to attach multiple
 meta strings to one sequence by explicitly naming them. The name is
@@ -115,7 +126,9 @@ name will silently store the data under a wrong name. The used names
 
 =head1 SEE ALSO
 
-L<Bio::LocatableSeq>
+L<Bio::LocatableSeq>, 
+L<Bio::Seq::MetaI>, 
+L<Bio::Seq::Meta::Array>
 
 =head1 FEEDBACK
 
