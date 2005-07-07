@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 18;
+    plan tests => 20;
 }
 
 
@@ -188,7 +188,7 @@ ok  $swq1->length, $swq2->length;
 $swq1 = Bio::Seq::SeqWithQuality->new(-seq =>  'GC',
                                       -qual => '0 0',
                                      );
-my $swq2 = Bio::Seq::SeqWithQuality->new(-seq =>  'GT',
+$swq2 = Bio::Seq::SeqWithQuality->new(-seq =>  'GT',
                                          -qual => '65 0',
                                      );
 ok  $swq1->length, $swq2->length;
