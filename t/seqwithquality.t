@@ -165,15 +165,30 @@ print("5. Testing the seq_obj() method...\n") if $DEBUG;
 	print("\t5b) Testing seq_obj(\$ref)...\n") if $DEBUG;
 		$swq1->seq_obj($seqobj);
 
-print("6. Testing the subqual() method...\n");
+print("6. Testing the subqual() method...\n") if $DEBUG;
      my $t_subqual = "10 20 30 40 50 60 70 80 90";
      $swq1->qual($t_subqual);
-     print("\t6d) Testing the subqual at the start (border condition)\n");
+     print("\t6d) Testing the subqual at the start (border condition)\n") if $DEBUG;
           # ok ('1 2 3' eq join(' ',@{$swq1->subqual(1,3)}));
-     print("\t6d) Testing the subqual at the end (border condition)\n");
+     print("\t6d) Testing the subqual at the end (border condition)\n") if $DEBUG;
           # ok ('7 8 9' eq join(' ',@{$swq1->subqual(7,9)}));
-     print("\t6d) Testing the subqual in the middle\n");
+     print("\t6d) Testing the subqual in the middle\n") if $DEBUG;
           # ok ('4 5 6' eq join(' ',@{$swq1->subqual(4,6)}));
 
 
+print("7. Testing cases where quality is zero...\n") if $DEBUG;
+$swq1 = Bio::Seq::SeqWithQuality->new(-seq =>  'G',
+                                      -qual => '0',
+                                     );
+my $swq2 = Bio::Seq::SeqWithQuality->new(-seq =>  'G',
+                                         -qual => '65',
+                                     );
+ok  $swq1->length, $swq2->length;
 
+$swq1 = Bio::Seq::SeqWithQuality->new(-seq =>  'GC',
+                                      -qual => '0 0',
+                                     );
+my $swq2 = Bio::Seq::SeqWithQuality->new(-seq =>  'GT',
+                                         -qual => '65 0',
+                                     );
+ok  $swq1->length, $swq2->length;

@@ -140,7 +140,7 @@ sub new {
     if( defined $given_id ) { $id = $given_id; }
     
     # note: the sequence string may be empty
-    $self->qual($qual ? $qual : []);
+    $self->qual(defined($qual) ? $qual : []);
      $header && $self->header($header);
     $id      && $self->display_id($id);
     $acc     && $self->accession_number($acc);
@@ -163,7 +163,7 @@ sub new {
 
 sub qual {
     my ($self,$value) = @_;
-    
+
     if( ! defined $value || length($value) == 0 ) { 
 	$self->{'qual'} ||= [];
     } elsif( ref($value) =~ /ARRAY/i ) {

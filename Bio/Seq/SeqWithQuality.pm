@@ -225,7 +225,7 @@ sub new {
 	$self->{seq_ref} = $seqobj;
     }
 
-    if (!$qual) {
+    if (!defined($qual)) {
 	$self->{qual_ref} = Bio::Seq::PrimaryQual->new
 	    (
 	     -qual		=>	"",
