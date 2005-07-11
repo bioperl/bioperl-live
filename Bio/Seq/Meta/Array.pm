@@ -136,15 +136,15 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : $metaseq = Bio::Seq::Meta->new
+ Usage   : $metaseq = Bio::Seq::Meta::Array->new
 	        ( -meta => 'aaaaaaaabbbbbbbb',
                   -seq =>  'TKLMILVSHIVILSRM'
 	          -id  => 'human_id',
 	          -accession_number => 'S000012',
 	        );
- Function: Constructor for Bio::Seq::Meta class, meta data being in a
+ Function: Constructor for Bio::Seq::Meta::Array class, meta data being in a
            string. Note that you can provide an empty quality string.
- Returns : a new Bio::Seq::Meta object
+ Returns : a new Bio::Seq::Meta::Array object
 
 =cut
 
@@ -200,7 +200,7 @@ sub meta {
 
  Title   : meta_text
  Usage   : $meta_values  = $obj->meta_text($values_arrayref);
- Function: Variant of meta() guarantied to return a textual
+ Function: Variant of meta() guarantied to return a string
            representation  of meta data. For details, see L<meta>.
  Returns : a string
  Args    : new value, string or array ref, optional
