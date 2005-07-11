@@ -190,8 +190,8 @@ sub draw_parallel {
       my $label_len = length($label) * $width;
 
       my $middle = $tickpos - $label_len/2;
-      $middle = $left if $middle < $left;
-      $middle = $x2 - $label_len if $middle+$label_len > $x2;
+      $middle = $x1 if $middle < $x1;
+      $middle = $x2 if $middle > $x2;
 
       $gd->string($font,$middle,$center+$a2-1,$label,$font_color)
         unless ($self->option('no_tick_label'));
