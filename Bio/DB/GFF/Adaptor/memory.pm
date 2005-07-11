@@ -179,7 +179,7 @@ sub load_gff_line {
   my $feature_hash  = shift;
   $feature_hash->{strand} = '' if $feature_hash->{strand} && $feature_hash->{strand} eq '.';
   $feature_hash->{phase}  = ''  if $feature_hash->{phase}  && $feature_hash->{phase} eq '.';
-  $feature_hash->{gclass} = 'Sequence' if length $feature_hash->{gclass} == 0;
+  $feature_hash->{gclass} = 'Sequence' unless defined $feature_hash->{gclass};
   # sort by group please
   push @{$self->{tmp}{$feature_hash->{gclass},$feature_hash->{gname}}},$feature_hash;
 }
