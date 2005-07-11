@@ -24,6 +24,8 @@ my $DEBUG = $ENV{'BIOPERLDEBUG'};
         # redirect STDERR to STDOUT
 open (STDERR, ">&STDOUT");
 
+my $verbosity = -1;
+
 print("Checking if the Bio::Seq::SeqWithQuality module could be used...\n") if $DEBUG;
         # test 1
 use Bio::Seq::SeqWithQuality;
@@ -40,10 +42,9 @@ my $seqobj_broken = Bio::PrimarySeq->new( -seq => "ATCGATCGA",
 my $seqobj = Bio::PrimarySeq->new( -seq => "ATCGATCGA",
                             -id  => 'QualityFragment-12',
                             -accession_number => 'X78121',
+                            -verbose => $verbosity
                             );
 ok(!$@);
-
-
 
 
 # create some random quality object with the same number of qualities and the same identifiers
@@ -54,16 +55,18 @@ eval {
 $qualobj = Bio::Seq::PrimaryQual->new( -qual => $string_quals,
                             -id  => 'QualityFragment-12',
                             -accession_number => 'X78121',
+                            -verbose => $verbosity
                             );
 };
 ok(!$@);
 
+
      # check to see what happens when you construct the SeqWithQuality object
 my $swq1 = Bio::Seq::SeqWithQuality->new( -seq	=>	$seqobj,
+                                         -verbose => $verbosity,
 					-qual		=>	$qualobj);
 ok(!$@);
-
-
+no warnings;
 
 print("Testing various weird constructors...\n") if $DEBUG;
 print("\ta) No ids, Sequence object, no quality...\n") if $DEBUG;
@@ -71,20 +74,22 @@ print("\ta) No ids, Sequence object, no quality...\n") if $DEBUG;
 my $wswq1;
 eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq  =>	$seqobj,
+                                                -verbose => $verbosity,
 						-qual	=>	"");
 };
 ok(!$@);
 
-
 print("\tb) No ids, no sequence, quality object...\n") if $DEBUG;
 	# note that you must provide a alphabet for this one.
 $wswq1 = Bio::Seq::SeqWithQuality->new( -seq => "",
+                                        -verbose => $verbosity,
 					-qual => $qualobj,
 					-alphabet => 'dna'
 );
 print("\tc) Absolutely nothing. (HAHAHAHA)...\n") if $DEBUG;
 eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq => "",
+                                                -verbose => $verbosity,
 						-qual => "",
 						-alphabet => 'dna'
 	);
@@ -93,6 +98,7 @@ ok(!$@);
 print("\td) Absolutely nothing but an ID\n") if $DEBUG;
 eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq => "",
+                                                -verbose => $verbosity,
 						-qual => "",
 						-alphabet => 'dna',
 						-id => 'an object with no sequence and no quality but with an id'
@@ -104,6 +110,7 @@ print("\td) No sequence, No quality, No ID...\n") if $DEBUG;
 
 eval {
 	$wswq1 = Bio::Seq::SeqWithQuality->new( -seq  =>	"",
+                                                -verbose => $verbosity,
 							-qual	=>	"");
 };
 	# this should fail without a alphabet
@@ -179,16 +186,20 @@ print("6. Testing the subqual() method...\n") if $DEBUG;
 print("7. Testing cases where quality is zero...\n") if $DEBUG;
 $swq1 = Bio::Seq::SeqWithQuality->new(-seq =>  'G',
                                       -qual => '0',
+                                      -verbose => $verbosity,
                                      );
 my $swq2 = Bio::Seq::SeqWithQuality->new(-seq =>  'G',
                                          -qual => '65',
+                                         -verbose => $verbosity,
                                      );
 ok  $swq1->length, $swq2->length;
 
 $swq1 = Bio::Seq::SeqWithQuality->new(-seq =>  'GC',
+                                      -verbose => $verbosity,
                                       -qual => '0 0',
                                      );
 $swq2 = Bio::Seq::SeqWithQuality->new(-seq =>  'GT',
-                                         -qual => '65 0',
+                                      -verbose => $verbosity,
+                                      -qual => '65 0',
                                      );
 ok  $swq1->length, $swq2->length;

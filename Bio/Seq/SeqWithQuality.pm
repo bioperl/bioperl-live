@@ -255,6 +255,7 @@ sub new {
     # now try to set the descriptors for this object
     $self->_set_descriptors($qual,$seq,$id,$acc,$pid,$desc,$given_id,$alphabet);
     $self->length();
+    $self->deprecated("deprecated class- use Bio::Seq::Quality instead");
 
     return $self;
 }
