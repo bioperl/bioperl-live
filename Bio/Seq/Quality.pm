@@ -1,0 +1,409 @@
+# $Id$
+#
+# BioPerl module for Bio::Seq::Quality
+#
+# Cared for by Heikki Lehvaslaiho
+#
+# Copyright Heikki Lehvaslaiho
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::Seq::Quality - Implementation of sequence with residue quality values
+
+=head1 SYNOPSIS
+
+  use Bio::Seq::Quality;
+
+  # input can be space delimited string or array ref
+  my $qual = '0 1 2 3 4 5 6 7 8 9 11 12';
+  my $trace = '0 5 10 15 20 25 30 35 40 45 50 55';
+
+  ok my $seq = Bio::Seq::Quality->new
+      ( -qual => $qual,
+        -trace_indices => $trace,
+        -seq =>  'atcgatcgatcg',
+        -id  => 'human_id',
+        -accession_number => 'S000012',
+        -verbose => -1   # to silence deprecated methods
+  );
+
+  my $quals = $seq->qual; # array ref
+  my $traces = $seq->trace;  # array ref
+
+  my $quals = $seq->qual_text; # string
+  my $traces = $seq->trace_text; # string
+
+
+  # sbu values
+  $quals = $seq->subqual(2, 3);  # array ref
+  $traces = $seq->subtrace(2, 3); # array ref
+  $quals = $seq->subqual_text(2, 3); # string
+  $quals = $seq->subtrace_text(2, 3); # string
+
+  # set 
+  $seq->subqual(2, 3, "9 9");
+  $seq->subtrace(2, 3, "9 9");
+
+
+
+=head1 DESCRIPTION
+
+This object stores base quality values together with the sequence
+string.
+
+It is a reimplementation of Chad Matsalla's Bio::Seq::SeqWithQuality
+module using Bio::Seq::MetaI. 
+
+The implementation is based on Bio::Seq::Meta::Array. qual() and
+trace() are base methods to store and retrieve information that have
+extensions to retrieve values as a scalar (e.g. qual_text() ), or get
+or set subvalues (e.g. subqual() ). See L<Bio::Seq::MetaI> for more details.
+
+All the functional code is in Bio::Seq::Meta::Array.
+
+There deprecated methods that are included for compatibility with
+Bio::Seq::SeqWithQuality. These will print a warning unless verbosity
+of the object is set to be less than zero.
+
+=head2 Differences from Bio::Seq::SeqWithQuality
+
+It is not possible to fully follow the interface of
+Bio::Seq::SeqWithQuality since internally a Bio::Seq::SeqWithQuality
+object is a composite of two independent objects: a Bio::PrimarySeq
+object and Bio::Seq::PrimaryQual object. Both of these objects can be
+created separately and merged inot Bio::Seq::SeqWithQuality.
+
+This implemtation is based on Bio::Seq::Meta::Array that is a subclass
+of Bio::PrimarySeq that stores any number of meta information in
+unnnamed arrays.
+
+Here we assume that two meta sets, called 'qual' and 'trace_indices' are
+attached to a sequence. (But there is nothing that prevents you to add
+as many named meta sets as you need using normal meta() methods).
+
+qual() is an alias to meta(), qualat($loc) is an alias to
+submeta($loc,$loc).
+
+trace_indices() in Bio::Seq::SeqWithQuality has been abbreviated to
+trace() and is an alias to named_meta('trace').
+
+You can create an object without passing any arguments to the
+constructor (Bio::Seq::SeqWithQuality fails without alphabet). It will
+warn about not beeing able to set alphabet unless you set verbosiry of
+the object to a negative value.
+
+The greatest difference to Bio::Seq::SeqWithQuality is that in this
+implementation quality for all sequence residues are automatically
+assigned a quality value of '0' (zero) unless you set it to something
+else. Length of the quality array always equals the length of the
+sequence. Therefore, lenght() never returns "DIFFERENT".
+
+qual_obj() and seq_obj() methods do not exist!
+
+Finally, there is only one set of descriptors (primary_id, display_id,
+accession_number) for the object.
+
+
+=head1 SEE ALSO
+
+L<Bio::Seq::MetaI>, 
+L<Bio::Seq::Meta::Array>
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                      - General discussion
+  http://bio.perl.org/MailList.html          - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
+
+  bioperl-bugs@bio.perl.org
+  http://bugzilla.bioperl.org/
+
+=head1 AUTHOR - Heikki Lehvaslaiho
+
+Email heikki@ebi.ac.uk
+
+=head1 CONTRIBUTORS
+
+Chad Matsalla, bioinformatics@dieselwurks.com
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
+
+
+# Let the code begin...
+
+
+package Bio::Seq::Quality;
+use vars qw(@ISA $DEFAULT_NAME $GAP $META_GAP);
+use strict;
+use Bio::LocatableSeq;
+use Bio::Seq::Meta::Array;
+
+#use overload '""' => \&to_string;
+
+@ISA = qw( Bio::LocatableSeq Bio::Seq::Meta::Array );
+
+
+BEGIN {
+
+    $DEFAULT_NAME = 'DEFAULT';
+    $GAP = '-';
+    $META_GAP = ' ';
+}
+
+=head2 new
+
+ Title   : new
+ Usage   : $metaseq = Bio::Seq::Quality->new
+	        ( -qual => '0 1 2 3 4 5 6 7 8 9 11 12',
+                  -trace => '0 5 10 15 20 25 30 35 40 45 50 55',
+                  -seq =>  'atcgatcgatcg',
+	          -id  => 'human_id',
+	          -accession_number => 'S000012',
+	        );
+ Function: Constructor for Bio::Seq::Quality class.
+           Note that you can provide an empty quality and trace strings.
+ Returns : a new Bio::Seq::Quality object
+
+=cut
+
+
+sub new {
+    my ($class, @args) = @_;
+
+    my $self = $class->SUPER::new(@args);
+
+    my($meta, $qual, $trace, $trace_indices) =
+        $self->_rearrange([qw(META
+                              QUAL
+                              TRACE
+                              TRACE_INDICES
+                              )],
+                          @args);
+
+    $self->{'_meta'}->{$DEFAULT_NAME} = undef;
+    $self->{'_meta'}->{'trace'} = undef;
+
+    $meta && $self->meta($meta);
+    $qual && $self->meta($qual);
+    $trace && $self->named_meta('trace', $trace);
+    $trace_indices && $self->named_meta('trace', $trace_indices);
+
+    return $self;
+}
+
+
+=head2 qual
+
+ Title   : qual
+ Usage   : $qual_values  = $obj->qual($values_string);
+ Function:
+
+           Get and set method for the meta data starting from residue
+           position one. Since it is dependent on the length of the
+           sequence, it needs to be manipulated after the sequence.
+
+           The length of the returned value always matches the length
+           of the sequence.
+
+ Returns : reference to an array of meta data
+ Args    : new value, string or array ref, optional
+
+=cut
+
+sub qual {
+   shift->named_meta($DEFAULT_NAME, shift);
+}
+
+=head2 qual_text
+
+ Title   : qual_text
+ Usage   : $qual_values  = $obj->qual_text($values_arrayref);
+ Function: Variant of meta() and qual()  guarantied to return a string
+           representation  of meta data. For details, see L<meta>.
+ Returns : a string
+ Args    : new value, optional
+
+=cut
+
+sub qual_text {
+    return join ' ', @{shift->submeta(@_)};
+}
+
+=head2 subqual
+
+ Title   : subqual
+ Usage   : $subset_of_qual_values = $obj->subqual(10, 20, $value_string);
+           $subset_of_qual_values = $obj->subqual(10, undef, $value_string);
+ Function:
+
+           Get and set method for meta data for subsequences.
+
+           Numbering starts from 1 and the number is inclusive, ie 1-2
+           are the first two residue of the sequence. Start cannot be
+           larger than end but can be equal.
+
+           If the second argument is missing the returned values
+           should extend to the end of the sequence.
+
+ Returns : A reference to an array
+ Args    : integer, start position
+           integer, end position, optional when a third argument present
+           new value, optional
+
+=cut
+
+sub subqual {
+   shift->named_submeta($DEFAULT_NAME, @_);
+}
+
+=head2 subqual_text
+
+ Title   : subqual_text
+ Usage   : $meta_values  = $obj->subqual_text(20, $value_string);
+ Function: Variant of subqual() returning a stringified
+           representation  of meta data. For details, see L<Bio::Seq::MetaI>.
+ Returns : a string
+ Args    : new value, optional
+
+=cut
+
+sub subqual_text {
+    return join ' ', @{shift->submeta(@_)};
+}
+
+
+=head2 trace
+
+ Title   : trace
+ Usage   : $trace_values  = $obj->trace($values_string);
+ Function:
+
+           Get and set method for the meta data starting from residue
+           position one. Since it is dependent on the length of the
+           sequence, it needs to be manipulated after the sequence.
+
+           The length of the returned value always matches the length
+           of the sequence.
+
+ Returns : reference to an array of meta data
+ Args    : new value, string or array ref, optional
+
+=cut
+
+sub trace {
+    return shift->named_meta('trace', shift);
+}
+
+=head2 trace_text
+
+ Title   : trace_text
+ Usage   : $trace_values  = $obj->trace_text($values_arrayref);
+ Function: Variant of meta() and trace()  guarantied to return a string
+           representation  of meta data. For details, see L<meta>.
+ Returns : a string
+ Args    : new value, optional
+
+=cut
+
+sub trace_text {
+    return join ' ', @{shift->named_submeta('trace', @_)};
+}
+
+=head2 subtrace
+
+ Title   : subtrace
+ Usage   : $subset_of_trace_values = $obj->subtrace(10, 20, $value_string);
+           $subset_of_trace_values = $obj->subtrace(10, undef, $value_string);
+ Function:
+
+           Get and set method for meta data for subsequences.
+
+           Numbering starts from 1 and the number is inclusive, ie 1-2
+           are the first two residue of the sequence. Start cannot be
+           larger than end but can be equal.
+
+           If the second argument is missing the returned values
+           should extend to the end of the sequence.
+
+ Returns : A reference to an array
+ Args    : integer, start position
+           integer, end position, optional when a third argument present
+           new value, optional
+
+
+=cut
+
+sub subtrace {
+    return shift->named_submeta('trace', @_);
+}
+
+=head2 subtrace_text
+
+ Title   : subtrace_text
+ Usage   : $meta_values  = $obj->subtrace_text(20, $value_string);
+ Function: Variant of subtrace() returning a stringified
+           representation  of meta data. For details, see L<Bio::Seq::MetaI>.
+ Returns : a string
+ Args    : new value, optional
+
+=cut
+
+sub subtrace_text {
+    return join ' ', @{shift->named_submeta('trace', @_)};
+}
+
+
+################## deprecated methdods ##################
+
+
+sub trace_indices {
+    my $self = shift;
+    $self->deprecated("trace_indices() is deprecated - use trace() instead");
+    return $self->named_meta('trace');
+}
+
+sub trace_index_at {
+    my ($self, $val) =@_;
+    $self->deprecated("trace_index_at() is deprecated - use subtrace($val, $val) instead");
+    return shift @{$self->named_submeta('trace', $val, $val)};
+}
+
+
+sub sub_trace_index {
+    my $self = shift; 
+    $self->deprecated("sub_trace_index() is deprecated - use subtrace() instead");
+    return $self->named_submeta('trace', @_);
+}
+
+
+
+sub baseat {
+    my ($self,$val) = @_;
+    $self->deprecated("baseat() is deprecated - use subseq($val,$val) instead");
+    return $self->subseq($val,$val);
+}
+
+
+
+1;
+
