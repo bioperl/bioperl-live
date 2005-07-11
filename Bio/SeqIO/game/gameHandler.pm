@@ -2,9 +2,7 @@
 #
 # BioPerl module for Bio::SeqIO::game::gameHandler
 #
-# Cared for by Sheldon McKay <smckay@bcgsc.bc.ca>
-#
-# Copyright Sheldon McKay
+# Cared for by Sheldon McKay <mckays@cshl.edu>
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -48,7 +46,7 @@ Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR - Sheldon McKay
 
-Email smckay@bcgsc.bc.ca
+Email mckays@cshl.edu
 
 =head1 APPENDIX
 
@@ -118,8 +116,7 @@ sub load {
     for ( 1..$self->{game} ) {
         my $seq  = $self->{sequences}->{$_} 
 	  or $self->throw("No sequences defined");
-        my $ann  = $self->{annotations}->{$_}
-	  or $self->throw("No annotations");
+        my $ann  = $self->{annotations}->{$_};
         my $comp = $self->{computations}->{$_};
 	my $map  = $self->{map_position}->{$_};
         my $foc  = $self->{focus}->{$_}

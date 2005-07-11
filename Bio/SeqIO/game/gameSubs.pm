@@ -9,9 +9,7 @@
 #
 # BioPerl module for Bio::SeqIO::game::gameSubs
 #
-# Cared for by Sheldon McKay <smckay@bcgsc.bc.ca>
-#
-# Copyright 2003 Sheldon McKay
+# Cared for by Sheldon McKay <mckays@cshl.edu>
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -57,7 +55,7 @@ Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR - Sheldon McKay
 
-Email smckay@bcgsc.bc.ca
+Email mckays@cshl.edu
 
 =head1 APPENDIX
 

@@ -2,9 +2,7 @@
 #
 # BioPerl module for Bio::SeqIO::game::seqHandler
 #
-# Cared for by Sheldon McKay <smckay@bcgsc.bc.ca>
-#
-# Copyright Sheldon McKay
+# Cared for by Sheldon McKay <mckays@cshl.edu>
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -49,7 +47,7 @@ Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR - Sheldon McKay
 
-Email smckay@bcgsc.bc.ca
+Email mckays@cshl.edu
 
 =head1 APPENDIX
 
@@ -119,7 +117,7 @@ sub new {
 
 sub convert {
     my $self = shift;
-    my @ann  = @{$self->{anns}};
+    my @ann  = @{$self->{anns}} if defined $self->{anns};;
     my @seq  = @{$self->{seqs}};
     
     # not used yet

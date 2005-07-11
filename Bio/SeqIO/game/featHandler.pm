@@ -3,9 +3,7 @@
 #
 # Helper module for Bio::SeqIO::game::featHandler
 #
-# Cared for by Sheldon McKay <smckay@bcgsc.bc.ca>
-#
-# Copyright Sheldon McKay
+# Cared for by Sheldon McKay <mckays@cshl.edu>
 #
 # You may distribute this module under the same terms as perl itself
 #
@@ -51,7 +49,7 @@ _Bug reports can be submitted via email or the web:
 
 =head1 AUTHOR - Sheldon McKay
 
-Email smckay@bcgsc.bc.ca
+Email mckays@cshl.edu
 
 =head1 APPENDIX
 
