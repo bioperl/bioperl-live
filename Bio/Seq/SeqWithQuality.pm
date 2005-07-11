@@ -18,6 +18,7 @@ Bio::Seq::SeqWithQuality - Bioperl object packaging a sequence with its quality
 
 	use Bio::PrimarySeq;
 	use Bio::Seq::PrimaryQual;
+        use Bio::Seq::SeqWithQuality;
 
 		# make from memory
 	my $qual = Bio::Seq::SeqWithQuality->new
