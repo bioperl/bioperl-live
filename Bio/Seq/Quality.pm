@@ -75,11 +75,11 @@ It is not possible to fully follow the interface of
 Bio::Seq::SeqWithQuality since internally a Bio::Seq::SeqWithQuality
 object is a composite of two independent objects: a Bio::PrimarySeq
 object and Bio::Seq::PrimaryQual object. Both of these objects can be
-created separately and merged inot Bio::Seq::SeqWithQuality.
+created separately and merged into Bio::Seq::SeqWithQuality.
 
-This implemtation is based on Bio::Seq::Meta::Array that is a subclass
+This implementation is based on Bio::Seq::Meta::Array that is a subclass
 of Bio::PrimarySeq that stores any number of meta information in
-unnnamed arrays.
+unnamed arrays.
 
 Here we assume that two meta sets, called 'qual' and 'trace_indices' are
 attached to a sequence. (But there is nothing that prevents you to add
@@ -93,14 +93,14 @@ trace() and is an alias to named_meta('trace').
 
 You can create an object without passing any arguments to the
 constructor (Bio::Seq::SeqWithQuality fails without alphabet). It will
-warn about not beeing able to set alphabet unless you set verbosiry of
+warn about not being able to set alphabet unless you set verbosity of
 the object to a negative value.
 
 The greatest difference to Bio::Seq::SeqWithQuality is that in this
 implementation quality for all sequence residues are automatically
 assigned a quality value of '0' (zero) unless you set it to something
 else. Length of the quality array always equals the length of the
-sequence. Therefore, lenght() never returns "DIFFERENT".
+sequence. Therefore, length() never returns "DIFFERENT".
 
 qual_obj() and seq_obj() methods do not exist!
 
