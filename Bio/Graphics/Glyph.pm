@@ -1068,12 +1068,19 @@ sub draw_component {
   }
 }
 
+
+sub no_subparts {
+  return shift->option('no_subparts');
+}
+
 # memoize _subseq -- it's a bottleneck with segments
 sub subseq {
   my $self    = shift;
   my $feature = shift;
 
   return $self->_subseq($feature) unless ref $self;  # protect against class invocation
+  return () if $self->no_subparts;
+
   return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
   my @ss = $self->_subseq($feature);
   $self->{cached_subseq}{$feature} = \@ss;
@@ -1467,6 +1474,10 @@ glyph pages for more options.
 
   -description  Whether to draw a description  undef (false)
 
+  -no_subparts  Set to true to prevent         undef (false)
+                drawing of the subparts
+                of a feature.
+
   -sort_order   Specify layout sort order      "default"
 
   -always_sort  Sort even when bumping is off  undef (false)
@@ -1578,6 +1589,10 @@ color name.  For example:
 
   -hilite => sub { my $name = shift->display_name; 
                    return 'yellow' if $name =~ /XYZ/ }
+
+The B<-no_subparts> option will prevent the glyph from searching its
+feature for subfeatures. This may enhance performance if you know in
+advance that none of your features contain subfeatures.
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 
