@@ -203,6 +203,7 @@ sub new {
 		   },$class;
   $self->{coordinate_mapper} = $args{-map_coords} 
     if exists $args{-map_coords} && ref($args{-map_coords}) eq 'CODE';
+
   $self->smart_features($args{-smart_features})       if exists $args{-smart_features};
   $self->{safe}              = $args{-safe}           if exists $args{-safe};
 
