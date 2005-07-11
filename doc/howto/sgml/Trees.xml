@@ -37,6 +37,12 @@
 		  <authorinitials>BIO</authorinitials>
 		  <revremark>Add SVG section and links</revremark>
       </revision>
+      <revision>
+		  <revnumber>0.3</revnumber>
+		  <date>2005-07-11</date>
+		  <authorinitials>JES</authorinitials>
+		  <revremark>Explore Node objects more</revremark>
+      </revision>
     </revhistory>
     <legalnotice>	
       <para>This document is copyright Jason Stajich, 2003.  It can
@@ -229,8 +235,38 @@ my $total_length = $tree->total_branch_length;
       distance between two nodes.
       <programlisting>
    # Provide a list of Nodes that are in this tree
+   # This only works when @nodes is 2 sequences
    my $lca = $tree->get_lca(-nodes => \@nodes);
-      </programlisting>
+   </programlisting>
+   </para>
+   <para>
+     In order to get the LCA for multiple nodes we have to iterate
+     until they converge on a single node.
+   <programlisting>
+   use strict;
+   use Bio::TreeIO;
+   my $tree = Bio::TreeIO->new(-format => 'newick', -fh => \*DATA)->next_tree;
+   my @nodes = grep { $_->id =~ /c|d|f/ } $tree->get_nodes;
+   my @orig = @nodes;
+   while( @nodes > 1 ) {
+     my $lca = $tree->get_lca(-nodes => [shift @nodes, shift @nodes]);
+     push @nodes, $lca;
+   }
+   my $lca = shift @nodes;
+   print "lca is ",$lca->id, " for ", join(",",map { $_->id } @orig), "\n";
+
+   @nodes = grep { $_->id =~ /a|z/ } $tree->get_nodes;
+   @orig = @nodes;
+   while( @nodes > 1 ) {
+     my $lca = $tree->get_lca(-nodes => [shift @nodes, shift @nodes]);
+     push @nodes, $lca;
+    }
+    $lca = shift @nodes;
+    print "lca is ",$lca->id, " for ", join(",",map { $_->id } @orig), "\n";
+
+    __DATA__
+    (a,((c,d)z,(e,f)y)x)root;
+    </programlisting>
     </para>
     <para>
       Get the distance between two nodes by adding up the branch lengths
