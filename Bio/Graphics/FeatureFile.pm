@@ -793,21 +793,25 @@ sub code_setting {
     my $package         = $self->base2package;
     my $codestring      = "\\&${package}\:\:${subroutine_name}";
     my $coderef         = eval $codestring;
-    warn "An error occurred while evaluating callback for section=$section, option=$option: $@\n"
-      if $@;
+    $self->_callback_complain($section,$option) if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
   }
   elsif ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/) {
     my $package         = $self->base2package;
     my $coderef         = eval "package $package; $setting";
-    warn "An error occurred while evaluating callback for section=$section, option=$option: $@\n"
-      if $@;
+    $self->_callback_complain($section,$option) if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
   } else {
     return $setting;
   }
+}
+
+sub _callback_complain {
+  my $self    = shift;
+  my ($section,$option) = @_;
+  warn "An error occurred while evaluating the callback at section='$section', option='$option':\n   => $@";
 }
 
 =over 4
@@ -1211,8 +1215,7 @@ sub initialize_code {
   my $init_code = $self->_setting(general => 'init_code') or return;
   my $code = "package $package; $init_code; 1;";
   eval $code;
-  warn "An error occurred while evaluating init_code callback: $@\n"
-    if $@;
+  $self->_callback_complain(general=>'init_code') if $@;
 }
 
 sub base2package {
@@ -1328,7 +1331,7 @@ sub link_pattern {
 
   if (ref($linkrule) && ref($linkrule) eq 'CODE') {
     my $val = eval {$linkrule->($feature,$panel)};
-    warn $@ if $@;
+    $self->_callback_complain(none=>"linkrule for $feature") if $@;
     return $val;
   }
 
