@@ -793,14 +793,16 @@ sub code_setting {
     my $package         = $self->base2package;
     my $codestring      = "\\&${package}\:\:${subroutine_name}";
     my $coderef         = eval $codestring;
-    warn $@ if $@;
+    warn "An error occurred while evaluating callback for section=$section, option=$option: $@\n"
+      if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
   }
   elsif ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/) {
     my $package         = $self->base2package;
     my $coderef         = eval "package $package; $setting";
-    warn $@ if $@;
+    warn "An error occurred while evaluating callback for section=$section, option=$option: $@\n"
+      if $@;
     $self->set($section,$option,$coderef);
     return $coderef;
   } else {
@@ -1209,7 +1211,8 @@ sub initialize_code {
   my $init_code = $self->_setting(general => 'init_code') or return;
   my $code = "package $package; $init_code; 1;";
   eval $code;
-  warn $@ if $@;
+  warn "An error occurred while evaluating init_code callback: $@\n"
+    if $@;
 }
 
 sub base2package {
