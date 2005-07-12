@@ -546,7 +546,7 @@ sub layout {
       my $height = $_->layout_height;
       $highest   = $height > $highest ? $height : $highest;
     }
-    return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom;
+    return $self->{layout_height} = $highest; # + $self->pad_top + $self->pad_bottom; INCORRECTLY ADDING THESE TWICE
   }
 
   my (%bin1,%bin2);

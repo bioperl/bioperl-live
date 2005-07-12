@@ -20,11 +20,19 @@ sub point_radius {
   shift->option('point_radius') || DEFAULT_POINT_RADIUS;
 }
 
-sub pad_top { 0 }
+sub pad_top {
+  my $self = shift;
+  $self->font('gdTinyFont')->height;
+}
+
+sub pad_bottom {
+  my $self = shift;
+  ($self->font('gdTinyFont')->height)/2;
+}
 
 sub default_scale
 {
-  return 'right';  
+  return 'right';
 }
 
 sub draw {
@@ -46,13 +54,17 @@ sub draw {
     $max_score = max10($max_score);
     $min_score = min10($min_score);
   }
-  
-  my $height = $self->option('height');
+
+  my $height = $self->height;
   my $scale  = $max_score > $min_score ? $height/($max_score-$min_score)
                                        : 1;
-									   
+
   my $x = $dx;
-  my $y = $dy + $self->top + $self->pad_top;
+  my $y = $dy + $self->pad_top;
+  $bottom = $y+$height;
+
+  # position of "0" on the scale
+  my $y_origin = $bottom - (0 - $min_score) * $scale;
 
   # now seed all the parts with the information they need to draw their positions
   foreach (@parts) {
@@ -63,17 +75,17 @@ sub draw {
   }
 
   my $type = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
-  $self->_draw_histogram($gd,$x,$y)  if $type eq 'histogram';
-  $self->_draw_boxes($gd,$x,$y)      if $type eq 'boxes';
-  $self->_draw_line ($gd,$x,$y)      if $type eq 'line'
-                                       or $type eq 'linepoints';
-  $self->_draw_points($gd,$x,$y)     if $type eq 'points'
-                                       or $type eq 'linepoints';
+  $self->_draw_histogram($gd,$x,$y)            if $type eq 'histogram';
+  $self->_draw_boxes($gd,$x,$y,$y_origin)      if $type eq 'boxes';
+  $self->_draw_line ($gd,$x,$y)                if $type eq 'line' or $type eq 'linepoints';
+  $self->_draw_points($gd,$x,$y)               if $type eq 'points' or $type eq 'linepoints';
 
-  $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy);
+
+  $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy,$y_origin);
 
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
+
 }
 
 sub log10 { log(shift)/log(10) }
@@ -133,19 +145,17 @@ sub _draw_histogram {
   my ($x3,$y3,$x4,$y4) = $parts[-1]->calculate_boundaries($left,$top);
   $gd->line($x4,$parts[-1]->{_y_position},$x4,$y4,$fgcolor);
 
-  # from left to right  -- don't like this
-  # $gd->line($x1,$y2,$x4,$y4,$fgcolor);
-
   # That's it.  Not too hard.
 }
 
 sub _draw_boxes {
   my $self = shift;
-  my ($gd,$left,$top) = @_;
+  my ($gd,$left,$top,$y_origin) = @_;
 
   my @parts  = $self->parts;
   my $fgcolor = $self->fgcolor;
   my $bgcolor = $self->bgcolor;
+  my $negcolor = $self->color('neg_color') || $bgcolor;
   my $height  = $self->height;
 
   # draw each of the component lines of the histogram surface
@@ -153,7 +163,11 @@ sub _draw_boxes {
     my $part = $parts[$i];
     my $next = $parts[$i+1];
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
-    $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y2,$bgcolor,$fgcolor);
+    if ($part->{_y_position} < $y_origin) {
+      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$bgcolor,$fgcolor);
+    } else {
+      $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$fgcolor);
+    }
     next unless $next;
     my ($x3,$y3,$x4,$y4) = $next->calculate_boundaries($left,$top);
     $gd->line($x2,$y2,$x3,$y4,$fgcolor) if $x2 < $x3;
@@ -215,41 +229,34 @@ sub _determine_side
 
 sub _draw_scale {
   my $self = shift;
-  my ($gd,$scale,$min,$max,$dx,$dy) = @_;
+  my ($gd,$scale,$min,$max,$dx,$dy,$y_origin) = @_;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($dx,$dy);
 
   my $side = $self->_determine_side();
 
   my $fg    = $self->fgcolor;
-  my $half  = ($y1+$y2)/2;
   my $font  = $self->font('gdTinyFont');
-  
+
   $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
   $gd->line($x2,$y1,$x2,$y2,$fg) if $side eq 'right' || $side eq 'both';
-  
-  my $midmark = ($max+$min)/2;
-  $midmark = int($midmark+0.5) if (abs($midmark) > 10);
 
-  for ([$y1,$max],[$half,($max+$min)/2]) {
+  $gd->line($x1,$y_origin,$x2,$y_origin,$fg);
+
+  for ([$y1,$max],[$y_origin,0],[$y2,$min]) {
     $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
+
+    my $font_pos = $_->[0]-($font->height/2);
+
     if ($side eq 'left' or $side eq 'both') {
-      #      $gd->string(gdTinyFont,
-      #		  $x1 - gdTinyFont->width * length($_->[1]) - 3,$_->[0]-(gdTinyFont->height/3),
-      #		  $_->[1],
-      #		  $fg);
      $gd->string($font,
-		  $x1 - $font->width * length($_->[1]) - 3,$_->[0]-($font->height/3),
+		  $x1 - $font->width * length($_->[1]) - 3,$font_pos,
 		  $_->[1],
 		  $fg);
     }
     if ($side eq 'right' or $side eq 'both') {
-#      $gd->string(gdTinyFont,
-#		  $x2 + 4,$_->[0]-(gdTinyFont->height/3),
-#		  $_->[1],
-#		  $fg);
       $gd->string($font,
-		  $x2 + 5,$_->[0]-($font->height/3),
+		  $x2 + 5,$font_pos,
 		  $_->[1],
 		  $fg);
     }
@@ -447,6 +454,9 @@ glyph-specific options:
 
   -graph_height Specify height of the graph   Same as the
                                               "height" option.
+
+  -neg_color   For boxes only, bgcolor for    Same as bgcolor
+               points with negative scores
 
 Note that when drawing scales on the left or right that the scale is
 actually drawn a few pixels B<outside> the boundaries of the glyph.
