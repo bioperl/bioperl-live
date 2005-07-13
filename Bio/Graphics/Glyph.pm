@@ -546,7 +546,7 @@ sub layout {
       my $height = $_->layout_height;
       $highest   = $height > $highest ? $height : $highest;
     }
-    return $self->{layout_height} = $highest; # + $self->pad_top + $self->pad_bottom; INCORRECTLY ADDING THESE TWICE
+    return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom; # INCORRECTLY ADDING THESE TWICE?
   }
 
   my (%bin1,%bin2);
@@ -616,7 +616,8 @@ sub layout {
   foreach (@parts) {
     $bottom = $_->bottom if $_->bottom > $bottom;
   }
-  return $self->{layout_height} = $self->pad_bottom + $self->pad_top + $bottom - $self->top  + 1;
+  # return $self->{layout_height} = $self->pad_bottom + $self->pad_top + $bottom - $self->top  + 1;
+  return $self->{layout_height} = $bottom + $self->pad_top + $self->pad_bottom;
 }
 
 # the $%occupied structure is a hash of {left,top} = [left,top,right,bottom]
