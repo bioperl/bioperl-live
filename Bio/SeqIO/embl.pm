@@ -194,11 +194,12 @@ sub next_seq {
    #}
 
 	($name, $mol, $div) = 
-	  ($line =~ /^ID\s+(\S+).*;\s+(\S+);\s+(\S+);/);
+	  ($line =~ /^ID\s+(\S+).*;\s+([^;]+);\s+(\S+);/);
 
    unless( defined $name && length($name) ) {
 		$name = "unknown_id";
    }
+
    my $alphabet;
 
 	# this is important to have the id for display in e.g. FTHelper, 
@@ -354,8 +355,8 @@ sub next_seq {
 			my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
 			# process ftunit
 			push(@features,
-				  $ftunit->_generic_seqfeature($self->location_factory(),
-														 $name));
+                             $ftunit->_generic_seqfeature($self->location_factory(),
+                                                          $name));
 
 			if( $buffer !~ /^CO/ ) {
 				last;
