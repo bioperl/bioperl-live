@@ -152,7 +152,7 @@ sub write_seq {
  Usage   : $stream->write_qual($seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
+ Args    : Bio::Seq::Quality object
 
 
 =cut
@@ -161,8 +161,8 @@ sub write_qual {
    my ($self,@seq) = @_;
    my @qual = ();
    foreach (@seq) {
-     unless ($_->isa("Bio::Seq::SeqWithQuality")){
-        warn("You cannot write raw qualities without supplying a Bio::Seq::SeqWithQuality object! You passed a ", ref($_), "\n");
+     unless ($_->isa("Bio::Seq::Quality")){
+        warn("You cannot write raw qualities without supplying a Bio::Seq::Quality object! You passed a ", ref($_), "\n");
         next;
      } 
      @qual = @{$_->qual};

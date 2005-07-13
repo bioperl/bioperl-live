@@ -30,7 +30,7 @@ Bio::Seq::TraceI - Interface definition for a Bio::Seq::Trace
           # what is the trace value for "A" at position 355?
      my $trace_calue = $st->traceat("A",355);
           # create a false trace for "A" with $accuracy
-     $arrayref = $st->false_trace("A",Bio::Seq::SeqWithQuality, $accuracy);
+     $arrayref = $st->false_trace("A",Bio::Seq::Quality, $accuracy);
           # does this trace have entries for each base?
      $bool = $st->is_complete();
           # how many entries are there in this trace?

@@ -26,8 +26,7 @@ Do not use this module directly.  Use it via the Bio::SeqIO class
 =head1 DESCRIPTION
 
 This object can transform .qual (similar to fasta) objects to and from
-Bio::Seq::SeqWithQuality objects. See L<Bio::Seq::SeqWithQuality> for
-details.
+Bio::Seq::Quality objects. See L<Bio::Seq::Quality> for details.
 
 =head1 FEEDBACK
 
@@ -174,12 +173,12 @@ sub next_primary_qual {
 	# create the seq object
 	$sequence =~ s/\n+/ /g;
 	if ($as_next_qual) {
-      $qual = Bio::Seq::PrimaryQual->new(-qual       => $sequence,
-													  -id         => $id,
-													  -primary_id => $id,
-													  -display_id => $id,
-													  -desc       => $fulldesc
-													 );
+            $qual = Bio::Seq::PrimaryQual->new(-qual       => $sequence,
+                                               -id         => $id,
+                                               -primary_id => $id,
+                                               -display_id => $id,
+                                               -desc       => $fulldesc
+                                              );
 	}
 	return $qual;
 }
@@ -188,18 +187,18 @@ sub next_primary_qual {
 
  Title   : write_seq
  Usage   : $obj->write_seq( -source => $source,
-				                -header => "some information");
+		            -header => "some information");
  Function: Write out a list of quality values to a fasta-style file.
  Returns : Nothing.
- Args    : Requires a reference to a SeqWithQuality object or a
+ Args    : Requires a reference to a Bio::Seq::Quality object or a
 	        PrimaryQual object as the -source. Optional: information
 	        for the header.
  Notes   : If no -header is provided, $obj->id() will be used where
-	        $obj is a reference to either a SeqWithQuality object or a
+	        $obj is a reference to either a Quality object or a
 	        PrimaryQual object. If $source->id() fails, "unknown" will be
-	        the header. If the SeqWithQuality object has $source->length() 
+	        the header. If the Quality object has $source->length() 
            of "DIFFERENT" (read the pod, luke), write_seq will use the 
-           length of the PrimaryQual object within the SeqWithQuality 
+           length of the PrimaryQual object within the Quality 
            object.
 
 =cut
@@ -207,9 +206,9 @@ sub next_primary_qual {
 sub write_seq {
 	my ($self,@args) = @_;
 	my ($source)  = $self->_rearrange([qw(SOURCE HEADER)], @args);
-	if (!$source || ( !$source->isa('Bio::Seq::SeqWithQuality') &&
+	if (!$source || ( !$source->isa('Bio::Seq::Quality') &&
 							!$source->isa('Bio::Seq::PrimaryQual')   )) {
-		$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::PrimaryQual object to write_seq() as a parameter named \"source\"");
+		$self->throw("You must pass a Bio::Seq::Quality or a Bio::Seq::PrimaryQual object to write_seq() as a parameter named \"source\"");
 	}
 	my $header = ($source->can("header") && $source->header) ?
 	              $source->header :
@@ -221,10 +220,10 @@ sub write_seq {
 	$self->_print (">$header \n");
 	my (@slice,$max,$length);
 	$length = $source->length();
-	if ($length eq "DIFFERENT") {
-		$self->warn("You passed a SeqWithQuality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the SeqWithQuality object.");
-		$length = $source->qual_obj()->length();
-    }
+#	if ($length eq "DIFFERENT") {
+#		$self->warn("You passed a Bio::Seq::Quality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the Quality object.");
+#		$length = $source->qual_obj()->length();
+#    }
 	# print("Printing $header to a file.\n");
 	for (my $count = 1; $count<=$length; $count+= 50) {
 		if ($count+50 > $length) { $max = $length; }

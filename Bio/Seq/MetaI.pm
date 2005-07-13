@@ -100,10 +100,10 @@ name will silently store the data under a wrong name. The used names
 =head1 SEE ALSO
 
 L<Bio::Seq::Meta>, 
+L<Bio::Seq::Meta::Array>, 
 L<Bio::Seq::EncodedSeq>, 
 L<Bio::Tools::OddCodes>, 
-L<Bio::Seq::PrimaryQual>, 
-L<Bio::Seq::SeqWithQuality>
+L<Bio::Seq::Quality>
 
 
 =head1 FEEDBACK

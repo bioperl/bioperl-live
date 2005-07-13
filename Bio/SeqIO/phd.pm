@@ -21,7 +21,7 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 =head1 DESCRIPTION
 
 This object can transform .phd files (from Phil Green's phred basecaller)
-to and from Bio::Seq::SeqWithQuality objects
+to and from Bio::Seq::Quality objects
 
 =head1 FEEDBACK
 
@@ -75,7 +75,7 @@ sub _initialize {
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
 			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq::SeqWithQuality'));      
+			       -type => 'Bio::Seq::Quality'));      
   }
 }
 
@@ -84,7 +84,7 @@ sub _initialize {
  Title   : next_seq()
  Usage   : $swq = $stream->next_seq()
  Function: returns the next phred sequence in the stream
- Returns : Bio::Seq::SeqWithQuality object
+ Returns : Bio::Seq::Quality object
  Args    : NONE
  Notes   : This is really redundant because AFAIK there is no such thing as
   	   a .phd file that contains more then one sequence. It is included as
@@ -141,11 +141,11 @@ sub next_seq {
 
 =head2 write_seq
 
- Title   : write_seq(-SeqWithQuality => $swq, <comments>)
- Usage   : $obj->write_seq(     -SeqWithQuality => $swq,);
+ Title   : write_seq(-Quality => $swq, <comments>)
+ Usage   : $obj->write_seq(     -Quality => $swq,);
  Function: Write out an scf.
  Returns : Nothing.
- Args    : Requires: a reference to a SeqWithQuality object to form the
+ Args    : Requires: a reference to a Quality object to form the
            basis for the scf. Any other arguments are assumed to be comments
            and are put into the comments section of the scf. Read the
            specifications for scf to decide what might be good to put in here.
@@ -173,13 +173,14 @@ sub write_seq {
     my @phredstack;
     my ($label,$arg);
 
-    my ($swq, $chromatfile, $abithumb, 
+    my ($swq, $swq2, $chromatfile, $abithumb, 
 	$phredversion, $callmethod,
 	$qualitylevels,$time,
 	$trace_min_index,
 	$trace_max_index,
 	$chem, $dye
-	) = $self->_rearrange([qw(SEQWITHQUALITY
+	) = $self->_rearrange([qw(QUALITY
+                                  SEQWITHQUALITY
 				  CHROMAT_FILE
 				  ABI_THUMBPRINT
 				  PHRED_VERSION
@@ -192,11 +193,12 @@ sub write_seq {
 				  DYE
 				  )], @args);
 
-    unless (ref($swq) eq "Bio::Seq::SeqWithQuality") {
-	$self->throw("You must pass a Bio::Seq::SeqWithQuality object to write_scf as a parameter named \"SeqWithQuality\"");
+    $swq = $swq2 if not $swq and $swq2;
+    unless (ref($swq) eq "Bio::Seq::Quality") {
+	$self->throw("You must pass a Bio::Seq::Quality object to write_scf as a parameter named \"Quality\"");
     }
     my $id = $swq->id();
-    if (!$id) { $id = "UNDEFINED in SeqWithQuality Object"; }
+    if (!$id) { $id = "UNDEFINED in Quality Object"; }
     push @phredstack,("BEGIN_SEQUENCE $id","","BEGIN_COMMENT","");
 
     $chromatfile = 'undefined in write_phd' unless defined $chromatfile;
@@ -235,7 +237,7 @@ sub write_seq {
 
     my $length = $swq->length();
     if ($length eq "DIFFERENT") {
-	$self->throw("Can't create the phd because the sequence and the quality in the SeqWithQuality object are of different lengths.");
+	$self->throw("Can't create the phd because the sequence and the quality in the Quality object are of different lengths.");
     }
     for (my $curr = 1; $curr<=$length; $curr++) {
 	$self->_print (uc($swq->baseat($curr))." ".

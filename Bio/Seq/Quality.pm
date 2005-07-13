@@ -204,7 +204,7 @@ sub new {
     $self->{'_meta'}->{'trace'} = undef;
 
     $meta && $self->meta($meta);
-    $qual && $self->meta($qual);
+    $qual && $self->qual($qual);
     $trace && $self->named_meta('trace', $trace);
     $trace_indices && $self->named_meta('trace', $trace_indices);
 
@@ -226,12 +226,15 @@ sub new {
            of the sequence.
 
  Returns : reference to an array of meta data
- Args    : new value, string or array ref, optional
+ Args    : new value, string or array ref or Bio::Seq::PrimaryQual, optional
 
 =cut
 
 sub qual {
-   shift->named_meta($DEFAULT_NAME, shift);
+    my $self = shift;
+    my $value = shift;
+    $value = $value->qual if ref($value) and ref($value) ne 'ARRAY' and $value->isa('Bio::Seq::PrimaryQual');
+    $self->named_meta($DEFAULT_NAME, $value);
 }
 
 =head2 qual_text
@@ -378,28 +381,34 @@ sub subtrace_text {
 
 sub trace_indices {
     my $self = shift;
-    $self->deprecated("trace_indices() is deprecated - use trace() instead");
+#    $self->deprecated("trace_indices() is deprecated - use trace() instead");
     return $self->named_meta('trace');
 }
 
 sub trace_index_at {
     my ($self, $val) =@_;
-    $self->deprecated("trace_index_at() is deprecated - use subtrace($val, $val) instead");
+#    $self->deprecated("trace_index_at() is deprecated - use subtrace($val, $val) instead");
     return shift @{$self->named_submeta('trace', $val, $val)};
 }
 
 
 sub sub_trace_index {
     my $self = shift; 
-    $self->deprecated("sub_trace_index() is deprecated - use subtrace() instead");
+#    $self->deprecated("sub_trace_index() is deprecated - use subtrace() instead");
     return $self->named_submeta('trace', @_);
 }
 
 
+sub qualat {
+    my ($self, $val) =@_;
+#    $self->deprecated("trace_index_at() is deprecated - use subqual($val, $val) instead");
+    return shift @{$self->submeta($val, $val)};
+}
+
 
 sub baseat {
     my ($self,$val) = @_;
-    $self->deprecated("baseat() is deprecated - use subseq($val,$val) instead");
+#    $self->deprecated("baseat() is deprecated - use subseq($val,$val) instead");
     return $self->subseq($val,$val);
 }
 

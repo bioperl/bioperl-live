@@ -21,9 +21,9 @@ L<Bio::SeqIO> for more information.
 
 =head1 DESCRIPTION
 
-This object can transform .scf files to and from
-Bio::Seq::SeqWithQuality objects.  Mechanisms are present to retrieve
-trace data from scf files.
+This object can transform .scf files to and from Bio::Seq::Quality
+objects.  Mechanisms are present to retrieve trace data from scf
+files.
 
 =head1 FEEDBACK
 
@@ -89,7 +89,7 @@ sub _initialize {
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
 			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq::SeqWithQuality'));
+			       -type => 'Bio::Seq::Quality'));
   }
 }
 
@@ -229,8 +229,8 @@ sub next_seq {
     $buffer = $self->read_from_buffer($fh,$buffer,$length);
     $creator->{comments} = $self->_get_comments($buffer);
           # can a bioperl person explain how this factory should create 
-          # a sequencetrace?  create a SeqWithQuality object
-     my $swq = Bio::Seq::SeqWithQuality->new(
+          # a sequencetrace?  create a Bio::Seq::Quality object
+     my $swq = Bio::Seq::Quality->new(
                -seq =>   $creator->{'sequence'},
               -qual =>	$creator->{'qualities'},
               -id   =>	$creator->{'comments'}->{'NAME'}
@@ -548,14 +548,14 @@ sub _dump_traces_outgoing_deprecated_use_the_sequencetrace_object {
 
 =head2 write_seq
 
- Title   : write_seq(-SeqWithQuality => $swq, <comments>)
+ Title   : write_seq(-Quality => $swq, <comments>)
  Usage   : $obj->write_seq(
                -target => $swq,
 			-version => 2,
 			-CONV => "Bioperl-Chads Mighty SCF writer.");
  Function: Write out an scf.
  Returns : Nothing.
- Args    : Requires: a reference to a SeqWithQuality object to form the
+ Args    : Requires: a reference to a Bio::Seq::Quality object to form the
            basis for the scf. 
 	   if -version is provided, it should be "2" or "3". A SCF of that
 	   version will be written.
@@ -582,8 +582,8 @@ sub write_seq {
     my ($label,$arg);
     my ($swq) = $self->_rearrange([qw(TARGET)], %args);
      my $writer_fodder;
-     if (ref($swq) =~ /Bio::Seq::SequenceTrace|Bio::Seq::SeqWithQuality/) {
-               if (ref($swq) eq "Bio::Seq::SeqWithQuality") {
+     if (ref($swq) =~ /Bio::Seq::SequenceTrace|Bio::Seq::Quality/) {
+               if (ref($swq) eq "Bio::Seq::Quality") {
                          # this means that the object *has no trace data*
                          # we might as well synthesize some now, ok?
                     my $swq2 = new Bio::Seq::SequenceTrace(
@@ -595,7 +595,7 @@ sub write_seq {
                }
      }
     else  {
-	$self->throw("You must pass a Bio::Seq::SeqWithQuality or a Bio::Seq::SequenceTrace object to write_seq as a parameter named \"target\"");
+	$self->throw("You must pass a Bio::Seq::Quality or a Bio::Seq::SequenceTrace object to write_seq as a parameter named \"target\"");
     }
           # all of the rest of the arguments are comments for the scf
     foreach $arg (sort keys %args) {
@@ -785,15 +785,15 @@ sub _get_binary_header {
 sub _get_binary_traces {
     my ($self,$version,$ref,$sample_size) = @_;
           # ref _should_ be a Bio::Seq::SequenceTrace, but might be a 
-          # Bio::Seq::SeqWithQuality
+          # Bio::Seq::Quality
      my $returner;
      my $sequence = $ref->seq();
      my $sequence_length = length($sequence);	
           # first of all, do we need to synthesize the trace?
           # if so, call synthesize_base
      my ($traceobj,@traces,$current);
-     if ( ref($ref) eq "Bio::Seq::SeqWithQuality" ) {
-          $traceobj = new Bio::Seq::SeqWithQuality(
+     if ( ref($ref) eq "Bio::Seq::Quality" ) {
+          $traceobj = new Bio::Seq::Quality(
                -target   =>   $ref
           );
           $traceobj->_synthesize_traces();
@@ -976,34 +976,34 @@ sub _get_binary_comments {
      return $returner;
 }
 
-=head2 _fill_missing_data($swq)
-
- Title   : _fill_missing_data($swq)
- Usage   : $self->_fill_missing_data($swq);
- Function: If the $swq with quality has no qualities, set all qualities
-	   to 0.
-	   If the $swq has no sequence, set the sequence to N's.
- Returns : Nothing. Modifies the SeqWithQuality that was passed as an
-	   argument.
- Args    : A reference to a Bio::Seq::SeqWithQuality
- Notes   : None.
-
-=cut
-
-#'
-sub _fill_missing_data {
-    my ($self,$swq) = @_;
-    my $qual_obj = $swq->qual_obj();
-    my $seq_obj = $swq->seq_obj();
-    if ($qual_obj->length() == 0 && $seq_obj->length() != 0) {
-	my $fake_qualities = ("$DEFAULT_QUALITY ")x$seq_obj->length();
-	$swq->qual($fake_qualities);
-    }
-    if ($seq_obj->length() == 0 && $qual_obj->length != 0) {
-	my $sequence = ("N")x$qual_obj->length();
-	$swq->seq($sequence);
-    }
-}
+#=head2 _fill_missing_data($swq)
+#
+# Title   : _fill_missing_data($swq)
+# Usage   : $self->_fill_missing_data($swq);
+# Function: If the $swq with quality has no qualities, set all qualities
+#	   to 0.
+#	   If the $swq has no sequence, set the sequence to N's.
+# Returns : Nothing. Modifies the Bio::Seq::Quality that was passed as an
+#	   argument.
+# Args    : A reference to a Bio::Seq::Quality
+# Notes   : None.
+#
+#=cut
+#
+##'
+#sub _fill_missing_data {
+#    my ($self,$swq) = @_;
+#    my $qual_obj = $swq->qual_obj();
+#    my $seq_obj = $swq->seq_obj();
+#    if ($qual_obj->length() == 0 && $seq_obj->length() != 0) {
+#	my $fake_qualities = ("$DEFAULT_QUALITY ")x$seq_obj->length();
+#	$swq->qual($fake_qualities);
+#    }
+#    if ($seq_obj->length() == 0 && $qual_obj->length != 0) {
+#	my $sequence = ("N")x$qual_obj->length();
+#	$swq->seq($sequence);
+#    }
+#}
 
 =head2 _delta(\@trace_data,$direction)
 

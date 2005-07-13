@@ -27,7 +27,7 @@ END {
 open (STDERR, ">&STDOUT");
 use Bio::Root::IO;
 use Bio::SeqIO;
-use Bio::Seq::SeqWithQuality;
+use Bio::Seq::Quality;
 use Bio::Seq::PrimaryQual;
 
 my $string_quals = "10 20 30 40 50 40 30 20 10";
@@ -134,13 +134,13 @@ ok($pq->qual()->[99], '39'); # spot check boundary
 ok($pq->qual()->[100], '39'); # spot check boundary
 
 my $out_qual = Bio::SeqIO->new('-file'    => ">write_qual.qual",
-										 '-format'  => 'qual',
-										 '-verbose' => $verbose);
+                               '-format'  => 'qual',
+                               '-verbose' => $verbose);
 $out_qual->write_seq(-source	=>	$pq);
 
-my $swq545 = Bio::Seq::SeqWithQuality->new (	-seq	=>	"ATA",
-															-qual	=>	$pq
-														 );
+my $swq545 = Bio::Seq::Quality->new (	-seq	=>	"ATA",
+                                        -qual	=>	$pq
+                                    );
 $out_qual->write_seq(-source	=>	$swq545);
 
 $in_qual = Bio::SeqIO->new('-file' => 

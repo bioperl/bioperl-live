@@ -35,7 +35,7 @@ Bio::Index::Fastq - Interface for indexing (multiple) fastq files
     my $out = Bio::SeqIO->new('-format' => 'Fastq','-fh' => \*STDOUT);
 
     foreach my $id (@ARGV) {
-        my $seq = $inx->fetch($id); # Returns Bio::Seq::SeqWithQuality object
+        my $seq = $inx->fetch($id); # Returns Bio::Seq::Quality object
 	$out->write_seq($seq);
     }
 

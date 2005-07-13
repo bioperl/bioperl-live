@@ -810,8 +810,8 @@ sub set_consensus_quality {
     my $self = shift;
     my $qual  = shift;
 
-    $self->throw("Consensus quality must be a Bio::Seq::QualI object!")
-	unless ( $qual->isa("Bio::Seq::QualI") );
+    $self->throw("Consensus quality must be a Bio::Seq::Quality object!")
+	unless ( $qual->isa("Bio::Seq::Quality") );
 
     $self->throw("Consensus quality can't be added before you set the consensus sequence!")
 	unless (defined $self->{'_consensus_sequence'});
