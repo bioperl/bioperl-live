@@ -21,13 +21,15 @@ sub point_radius {
 }
 
 sub pad_top {
-  my $self = shift;
-  $self->font('gdTinyFont')->height;
+  shift->Bio::Graphics::Glyph::generic::pad_top(@_);
 }
 
 sub pad_bottom {
   my $self = shift;
-  ($self->font('gdTinyFont')->height)/2;
+  my $pad  = $self->Bio::Graphics::Glyph::generic::pad_bottom(@_);
+  if ($pad < ($self->font('gdTinyFont')->height)/4) {
+    $pad = ($self->font('gdTinyFont')->height)/4;  # extra room for the scale
+  }
 }
 
 sub default_scale
@@ -64,12 +66,23 @@ sub draw {
   $bottom = $y+$height;
 
   # position of "0" on the scale
-  my $y_origin = $bottom - (0 - $min_score) * $scale;
+  my $y_origin = $min_score <= 0 ? $bottom - (0 - $min_score) * $scale : $bottom;
+  $y_origin    = $top if $max_score < 0;
+
+  my $clip_ok = $self->option('clip');
 
   # now seed all the parts with the information they need to draw their positions
   foreach (@parts) {
     my $s = eval {$_->feature->score};
     next unless defined $s;
+    if ($clip_ok && $s < $min_score) {
+      $_->{_y_position} = $bottom;
+      next;
+    }
+    if ($clip_ok && $s > $max_score) {
+      $_->{_y_position} = $top;
+      next;
+    }
     my $position      = ($s-$min_score) * $scale;
     $_->{_y_position} = $bottom - $position;
   }
@@ -152,19 +165,35 @@ sub _draw_boxes {
   my $self = shift;
   my ($gd,$left,$top,$y_origin) = @_;
 
-  my @parts  = $self->parts;
-  my $fgcolor = $self->fgcolor;
-  my $bgcolor = $self->bgcolor;
-  my $negcolor = $self->color('neg_color') || $bgcolor;
-  my $height  = $self->height;
+  my @parts    = $self->parts;
+  my $fgcolor  = $self->fgcolor;
+  my $bgcolor  = $self->bgcolor;
+  my $negative = $self->color('neg_color') || $bgcolor;
+  my $height   = $self->height;
+
+  my $partcolor = $self->code_option('part_color');
+  my $factory  = $self->factory;
 
   # draw each of the component lines of the histogram surface
   for (my $i = 0; $i < @parts; $i++) {
     my $part = $parts[$i];
     my $next = $parts[$i+1];
+
+    my ($color,$negcolor);
+
+    # special check here for the part_color being defined so as not to introduce lots of
+    # checking overhead when it isn't
+    if ($partcolor) {
+      $color    = $factory->translate_color($factory->option($part,'part_color',0,0));
+      $negcolor = $color;
+    } else {
+      $color    = $bgcolor;
+      $negcolor = $negative;
+    }
+
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     if ($part->{_y_position} < $y_origin) {
-      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$bgcolor,$fgcolor);
+      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$fgcolor);
     } else {
       $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$fgcolor);
     }
@@ -210,11 +239,22 @@ sub _draw_points {
   my $bgcolor = $self->bgcolor;
   my $pr      = $self->point_radius;
 
+  my $partcolor = $self->code_option('part_color');
+  my $factory  = $self->factory;
+
   for my $part (@parts) {
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $x = ($x1+$x2)/2;
     my $y = $part->{_y_position};
-    $symbol_ref->($gd,$x,$y,$pr,$bgcolor);
+
+    my $color;
+    if ($partcolor) {
+      $color    = $factory->translate_color($factory->option($part,'part_color',0,0));
+    } else {
+      $color    = $bgcolor;
+    }
+
+    $symbol_ref->($gd,$x,$y,$pr,$color);
   }
 }
 
@@ -224,13 +264,15 @@ sub _determine_side
   my $side = $self->option('scale');
   return undef if $side eq 'none';
   $side   ||= $self->default_scale();
-  return $side;  
+  return $side;
 }
 
 sub _draw_scale {
   my $self = shift;
   my ($gd,$scale,$min,$max,$dx,$dy,$y_origin) = @_;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($dx,$dy);
+
+  $y2 -= $self->pad_bottom - 1;
 
   my $side = $self->_determine_side();
 
@@ -242,7 +284,10 @@ sub _draw_scale {
 
   $gd->line($x1,$y_origin,$x2,$y_origin,$fg);
 
-  for ([$y1,$max],[$y_origin,0],[$y2,$min]) {
+  my @points = ([$y1,$max],[$y2,$min]);
+  push @points,[$y_origin,0] if ($min < 0 && $max > 0);
+
+  for (@points) {
     $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
 
@@ -458,10 +503,36 @@ glyph-specific options:
   -neg_color   For boxes only, bgcolor for    Same as bgcolor
                points with negative scores
 
+  -part_color  For boxes & points only,       none
+               bgcolor of each part (should
+               be a callback). Supersedes
+               -neg_color.
+
+  -clip        If min_score and/or max_score  false
+               are manually specified, then
+               setting this to true will
+               cause values outside the
+               range to be clipped.
+
 Note that when drawing scales on the left or right that the scale is
 actually drawn a few pixels B<outside> the boundaries of the glyph.
 You may wish to add some padding to the image using -pad_left and
 -pad_right when you create the panel.
+
+The B<-part_color> option can be used to color each part of the
+graph. Only the "boxes", "points" and "linepoints" styles are
+affected by this.  Here's a simple example:
+
+  $panel->add_track->(\@affymetrix_data,
+                      -glyph      => 'xyplot',
+                      -graph_type => 'boxes',
+                      -part_color => sub {
+                                   my $score = shift->score;
+	                           return 'red' if $score < 0;
+	                           return 'lightblue' if $score < 500;
+                                   return 'blue'      if $score >= 500;
+                                  }
+                      );
 
 =head1 BUGS
 

@@ -531,8 +531,7 @@ sub layout {
   return $self->{layout_height} if exists $self->{layout_height};
 
   my @parts = $self->parts;
-  return $self->{layout_height}
-    = $self->height + $self->pad_top + $self->pad_bottom unless @parts;
+  return $self->{layout_height} = $self->height + $self->pad_top + $self->pad_bottom unless @parts;
 
   my $bump_direction = $self->bump;
   my $bump_limit = $self->option('bump_limit') || -1;
@@ -546,7 +545,7 @@ sub layout {
       my $height = $_->layout_height;
       $highest   = $height > $highest ? $height : $highest;
     }
-    return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom; # INCORRECTLY ADDING THESE TWICE?
+    return $self->{layout_height} = $highest + $self->pad_top + $self->pad_bottom;
   }
 
   my (%bin1,%bin2);
