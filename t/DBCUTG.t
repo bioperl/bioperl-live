@@ -94,7 +94,7 @@ if( $DEBUG ) {
     ## now lets enter a non-existent species ans check handling..
     ## should default to human...
     my $db2 =  Bio::DB::CUTG->new();
-    ok my $cut2 = $db2->get_request(-sp =>'Wookie magnus');
+    ok $cut2 = $db2->get_request(-sp =>'Wookie magnus');
     ok $cut2->species(), 'Homo sapiens';
 	ok 1 ;
 } else { 
