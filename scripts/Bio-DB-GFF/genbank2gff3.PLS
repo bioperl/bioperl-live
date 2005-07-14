@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.7 2005-04-15 18:13:30 bosborne Exp $;
+#$Id: genbank2gff3.PLS,v 1.8 2005-07-14 18:05:07 smckay Exp $;
 
 =pod
 
@@ -224,8 +224,13 @@ for my $file ( @files ) {
 	    $feature->source_tag('GenBank');
 	    my $method = $feature->primary_tag;
 	    
-	    # unflattened gene parts will have this tag
-	    if ( $feature->has_tag('gene') ) {
+	    # current gene name.  The unflattened gene features should be in order so any
+            # exons, CDSs, etc that follow will belong to this gene
+	    if ( $method eq 'gene' ) {
+		gene_name($feature);
+	    }
+
+	    if ( $feature->has_tag('gene') || $method =~ /CDS|exon|RNA|UTR|gene/ ) {
 		my $unique = gene_features($feature);
 		push @to_print, $feature if $unique;
 	    }
@@ -292,8 +297,8 @@ sub gene_features {
     $method{$_}++;
     
     if ( /gene/ ) {
-	($gene_id)  = $f->get_tag_values('gene');
-	$gene_id    = 'gene:' . $gene_id;
+	#($gene_id)  = $f->get_tag_values('gene');
+	#$gene_id    = 'gene:' . $gene_id;
 	$f->add_tag_value( ID => $gene_id );
 	$tnum   = 0;
     }
@@ -372,32 +377,7 @@ sub unflatten_seq {
     # map feature types to the sequence ontology
     $tm->map_types_to_SO( -seq => $seq );
 
-    # recursively add gene tags if required
-    # to rescue unlabelled containment hierarchies
-    for my $f ($seq->get_SeqFeatures) {
-	if ($f->has_tag('gene')) {
-	    ($gene_id) = $f->get_tag_values('gene'); 
-	    label_geneparts($f);
-	}
-    }
-
     1;
-}
-
-sub label_geneparts {
-    my $g = shift;
-
-    for my $child ( $g->get_SeqFeatures ) {
-	add_gene($child) unless $child->has_tag('gene');
-	for my $grandchild ( $child->get_SeqFeatures ) {
-	    add_gene($grandchild) unless $grandchild->has_tag('gene');
-	}
-    }
-}
-
-sub add_gene {
-    my $f = shift;
-    $f->add_tag_value( gene => $gene_id );
 }
 
 sub filter {
@@ -426,6 +406,19 @@ sub get_all_SeqFeatures  {
         _add_flattened_SeqFeatures(\@flatarr,$feat);
     }
     return @flatarr;
+}
+
+sub gene_name {
+    my $g = shift;
+
+    if ($g->has_tag('gene')) {
+	($gene_id) = $g->get_tag_values('gene'); 
+    }
+    elsif ($g->has_tag('locus_tag')) {
+	($gene_id) = $g->get_tag_values('locus_tag');
+    }
+
+    $gene_id;
 }
 
 sub _add_flattened_SeqFeatures  {
