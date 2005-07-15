@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.8 2005-07-14 18:05:07 smckay Exp $;
+#$Id: genbank2gff3.PLS,v 1.9 2005-07-15 16:54:01 matsallac Exp $;
 
 =pod
 
@@ -84,9 +84,15 @@ Copyright (c) 2004 Cold Spring Harbor Laboratory.
 use strict;
 
 use lib "$ENV{HOME}/bioperl-live";
+# chad put this here to enable situations when this script is tested
+# against bioperl compiled into blib along with other programs using blib
+BEGIN {
+	unshift(@INC,'blib/lib');
+};
 use Pod::Usage;
 use Bio::Root::RootI;
 use Bio::SeqIO;
+use File::Spec;
 use Bio::SeqFeature::Tools::Unflattener;
 use Bio::SeqFeature::Tools::TypeMapper;
 use Bio::SeqFeature::Tools::IDHandler;
@@ -168,9 +174,14 @@ for my $file ( @files ) {
 
     my $lump_fh;
     if ( $lump ) {
-        ($lump) = $file =~ /^(\S+?)\./;
-        $lump   = $outdir . $lump . '.gff';
-	open $lump_fh, ">$lump" or die $!;
+		# this really doesn't do what you think it does.
+        # ($lump) = $file =~ /^(\S+?)\./;
+		# this is better, but still should use catfile
+         
+	  my ($vol,$dirs,$fileonly) = File::Spec->splitpath($file); 
+        $lump   = $outdir . $fileonly . '.gff';
+	open $lump_fh, ">$lump" or die "Could not create a lump outfile called ($lump) because ($!)\n";
+
     }
     
     my ($outfile, $outfa);
