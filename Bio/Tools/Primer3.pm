@@ -389,7 +389,7 @@ sub _set_variable {
 sub _separate {
  my $self=shift;
  my %results; # the results that we find
- my $maxlocation=0; # the maximum number of primers returned
+ my $maxlocation=-1; # the maximum number of primers returned
  foreach my $key (keys %{$self->{'results'}}) {
   next if (${$self->{'input_options'}}{$key}); # don't process it if it is an input key
 
