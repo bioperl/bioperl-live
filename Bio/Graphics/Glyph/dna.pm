@@ -29,10 +29,6 @@ sub do_gc {
   return  1;
 }
 
-sub draw {
-  shift->draw_component(@_);
-}
-
 sub draw_component {
   my $self = shift;
   my $gd = shift;
@@ -107,16 +103,57 @@ sub draw_gc_content {
   my $dna = shift;
   my ($x1,$y1,$x2,$y2) = @_;
 
+# get the options that tell us how to draw the GC content
+
   my $bin_size = length($dna) / ($self->option('gc_bins') || 100);
   $bin_size = 100 if $bin_size < 100;
+  my $gc_window = $self->option('gc_window');
+
+# Calculate the GC content...
 
   my @bins;
-  for (my $i = 0; $i < length($dna) - $bin_size; $i+= $bin_size) {
-    my $subseq  = substr($dna,$i,$bin_size);
-    my $gc      = $subseq =~ tr/gcGC/gcGC/;
-    my $content = $gc/$bin_size;
-    push @bins,$content;
+  my @datapoints;
+  my $maxgc;
+  my $mingc;
+  if ($gc_window)
+  {
+
+# ...using a sliding window...
+      
+      for (my $i=$gc_window/2 + 1; $i < length($dna) - $gc_window/2; $i++)
+      {
+	  my $subseq = substr($dna, $i-$gc_window/2, $gc_window);
+	  my $gc = $subseq =~ tr/gcGC/gcGC/;
+	  my $content = $gc / $gc_window;
+	  push @datapoints, $content;
+	  $maxgc = $content if ($content > $maxgc);
+	  $mingc = $content if ($content < $mingc);
+      }
+      push @datapoints, 0.5 unless @datapoints;
+
+      my $scale = $maxgc - $mingc;
+      foreach (my $i; $i < @datapoints; $i++)
+      {
+	  $datapoints[$i] = ($datapoints[$i] - $mingc) / $scale;
+      }
+      $maxgc = int($maxgc * 100);
+      $mingc = int($mingc * 100);
   }
+  else
+  {
+
+# ...or a fixed number of bins.
+
+      for (my $i = 0; $i < length($dna) - $bin_size; $i+= $bin_size) {
+	  my $subseq  = substr($dna,$i,$bin_size);
+	  my $gc      = $subseq =~ tr/gcGC/gcGC/;
+	  my $content = $gc/$bin_size;
+	  push @bins,$content;
+      }
+  }
+
+# Calculate values that will be used in the layout
+  
   push @bins,0.5 unless @bins;  # avoid div by zero
   my $bin_width  = ($x2-$x1)/@bins;
   my $bin_height = $y2-$y1;
@@ -124,6 +161,8 @@ sub draw_gc_content {
   my $bgcolor    = $self->factory->translate_color($self->panel->gridcolor);
   my $axiscolor  = $self->color('axis_color') || $fgcolor;
 
+# Draw the axes
+  
   $gd->line($x1,  $y1,        $x1,  $y2,        $axiscolor);
   $gd->line($x2-2,$y1,        $x2-2,$y2,        $axiscolor);
   $gd->line($x1,  $y1,        $x1+3,$y1,        $axiscolor);
@@ -137,13 +176,49 @@ sub draw_gc_content {
   $gd->line($x1+5,$y1,        $x2-5,$y1,        $bgcolor);
   $gd->string($self->font,$x1+5,$y1,'% gc',$axiscolor) if $bin_height > $self->font->height*2;
 
-  for (my $i = 0; $i < @bins; $i++) {
-    my $bin_start  = $x1+$i*$bin_width;
-    my $bin_stop   = $bin_start + $bin_width;
-    my $y          = $y2 - ($bin_height*$bins[$i]);
-    $gd->line($bin_start,$y,$bin_stop,$y,$fgcolor);
-    $gd->line($bin_stop,$y,$bin_stop,$y2 - ($bin_height*$bins[$i+1]),$fgcolor)
-      if $i < @bins-1;
+# If we are using a sliding window, the GC graph will be scaled to use the full
+# height of the glyph, so label the right vertical axis to show the scaling that# is in effect
+
+  if ($gc_window)
+  {
+      $gd->string($self->font,$x2-20,$y1,$maxgc,$axiscolor) 
+	  if $bin_height > $self->font->height*2.5;
+      $gd->string($self->font,$x2-20,$y2-$self->font->height,$mingc,$axiscolor) 
+	  if $bin_height > $self->font->height*2.5;
+  }
+
+# Draw the GC content graph itself
+
+  if ($gc_window)
+  {
+      my $graphwidth = $x2 - $x1;
+      my $scale = $graphwidth / @datapoints;
+      for (my $i = 1; $i < @datapoints; $i++)
+      {
+	  my $x = $i + $gc_window / 2;
+	  my $xlo = $x1 + ($x - 1) * $scale;
+	  my $xhi = $x1 + $x * $scale;
+	  my $y = $y2 - ($bin_height*$datapoints[$i]);
+	  $gd->line($xlo, $y2 - ($bin_height*$datapoints[$i-1]), 
+		    $xhi, $y, 
+		    $fgcolor);
+      }
+  }
+  else
+  {
+      for (my $i = 0; $i < @bins; $i++) 
+      {
+	  my $bin_start  = $x1+$i*$bin_width;
+	  my $bin_stop   = $bin_start + $bin_width;
+	  my $y          = $y2 - ($bin_height*$bins[$i]);
+	  $gd->line($bin_start,$y,
+		    $bin_stop,$y,
+		    $fgcolor);
+	  $gd->line($bin_stop,$y,
+		    $bin_stop,$y2 - ($bin_height*$bins[$i+1]),
+		    $fgcolor)
+	      if $i < @bins-1;
+      }
   }
 }
 
@@ -181,7 +256,10 @@ Bio::Graphics::Glyph::dna - The "dna" glyph
 
 This glyph draws DNA sequences.  At high magnifications, this glyph
 will draw the actual base pairs of the sequence (both strands).  At
-low magnifications, the glyph will plot the GC content.
+low magnifications, the glyph will plot the GC content.  By default,
+the GC calculation will use non-overlapping bins, but this can be
+changed by specifying the gc_window option, in which case, a 
+sliding window calculation will be used.
 
 For this glyph to work, the feature must return a DNA sequence string
 in response to the dna() method.
@@ -228,6 +306,13 @@ options are recognized:
   -do_gc      Whether to draw the GC      true
               graph at low mags
 
+  -gc_window  Size of the sliding window  E<lt>noneE<gt>
+  	      to use in the GC content 
+	      calculation.  If this is 
+	      not defined, non-
+	      overlapping bins will be 
+	      used.
+	      
   -gc_bins    Fixed number of intervals   100
               to sample across the
               panel.
@@ -286,6 +371,8 @@ L<GD>
 =head1 AUTHOR
 
 Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Sliding window GC calculation added by Peter Ashton E<lt>pda@sanger.ac.ukE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory
 
