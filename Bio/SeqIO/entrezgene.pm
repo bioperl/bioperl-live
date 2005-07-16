@@ -233,7 +233,8 @@ sub next_seq {
        if (exists($xval->{gene}->{db})) {
        if (ref($xval->{gene}->{db}) eq 'ARRAY') {
         foreach my $genedb (@{$xval->{gene}->{db}}) {
-            $self->_add_to_ann($genedb->{tag}->{id},$genedb->{db});
+            my $id=exists($genedb->{tag}->{id})?$genedb->{tag}->{id}:$genedb->{tag}->{str};
+            $self->_add_to_ann($id,$genedb->{db});
         }
         }
         else {
@@ -320,7 +321,7 @@ sub next_seq {
         undef %seqcollection;
     undef $xval;
     #print 'x';
-    &_backcomp_ll if ($self->{_locuslink} eq 'convert');
+    $seq->annotation(_backcomp_ll($self->{_ann})) if ($self->{_locuslink} eq 'convert');#Fix this!
     return wantarray ? ($seq,$cluster,\@alluncaptured):$seq;#Hilmar's suggestion
   }
 
@@ -342,6 +343,7 @@ foreach my $product (@products) {
                         -authority=> $product->{heading}, -namespace=>$ns
                    );
                    if ($product->{source}) {
+                    unless ($nseq->authority) {$nseq->authority($product->{source}->{src}->{db})};
                     my ($uncapt,$allann)=_process_src($product->{source});
                     delete $product->{source};
                     push @uncaptured,$uncapt;
@@ -412,14 +414,13 @@ my ($self,$val,$tag)=@_;
 sub _process_comments {
  my $self=shift;
  my $prod=shift;
-  my (%cann,@feat,@uncaptured,@comments);
+  my (%cann,@feat,@uncaptured,@comments,@sfann);
  if (exists($prod->{comment})) {
     $prod=$prod->{comment};
 }
     if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
     else {push @comments,$prod;}
     for my $i (0..$#comments) {#Each comments is a
-            my @sfann;
         my ($desc,$nfeat,$add,@ann,@comm);
         my $comm=$comments[$i];
        # next unless (exists($comm->{comment}));#Should be more careful when calling _process_comment:To do
@@ -433,7 +434,6 @@ sub _process_comments {
                     $cann->authority($comm->{type});
                     $cann->version($comm->{version});
                     push @sfann,$cann;
-                    next;
                 }
             }
             undef $comm->{comment}; $add=1;#Trick in case we miss something
@@ -495,6 +495,7 @@ sub _process_comments {
                     foreach my $sfann (@sfann) {
                         $sfeatann->add_Annotation('dblink',$sfann);
                     }
+                    undef @sfann;
                     $nfeat->annotation($sfeatann);#Thus the annotation will be available both in the seq and seqfeat?
                     push @feat,$nfeat;
                     delete $loc->{text};
@@ -518,6 +519,7 @@ sub _process_comments {
         }#Bit clumsy but that's what we get from the low level parser
     }
     }
+    if (@sfann) {push @{$cann{'dblink'}},@sfann;}#Annotation that is not location specific, for example phenotype
     return \@uncaptured,\%cann,\@feat;
 }
 
@@ -587,6 +589,7 @@ else {
 sub _process_locus {
 my $self=shift;
 my @uncapt;
+return $self unless (exists($self->{_current}->{accession})&&($self->{_current}->{accession}));
 my $gseq=new Bio::Seq(-display_id=>$self->{_current}->{accession},-version=>$self->{_current}->{version},
             -accession_number=>$self->{_current}->{seqs}->{'int'}->{id}->{gi},
             -authority=>$self->{_current}->{type}, -namespace=>$self->{_current}->{heading});
@@ -873,7 +876,7 @@ return $term;
 }
 
 sub _backcomp_ll {
-my $self=shift;
+my $ann=shift;
 my $newann=Bio::Annotation::Collection->new();
         #$newann->{_annotation}->{ALIAS_SYMBOL}=$ann->{_annotation}->{ALIAS_SYMBOL};
        # $newann->{_annotation}->{CHR}=$ann->{_annotation}->{chromosome};
@@ -902,8 +905,8 @@ my $newann=Bio::Annotation::Collection->new();
 
 #        my $simann=new Bio::Annotation::SimpleValue(-value=>$seq->desc,-tagname=>'comment');
 #        $newann->add_Annotation($simann);
-    $seq->annotation($newann);
-return 1;
+    
+return $newann;
 }
 
 1;
