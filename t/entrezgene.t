@@ -20,7 +20,7 @@ BEGIN {
 	$ASNOK = 0;
     }
 
-    plan tests => ($NUMTESTS = 1006);
+    plan tests => ($NUMTESTS = 1003);
 }
 END {
     foreach ( $Test::ntest..$NUMTESTS) {
@@ -148,9 +148,10 @@ my @revkeys=('Entrez Gene Status','RefSeq status','Official Full Name','chromoso
 my $eio=new Bio::SeqIO(-file=>Bio::Root::IO->catfile("t","data",
 							 "entrezgene.dat"),-format=>'entrezgene', -debug=>'on',-service_record=>'yes');
 ok $eio;
+my ($seq,$struct,$uncapt);
 while (1) {
 my $seq;
-my ($seq,$struct,$uncapt)=$eio->next_seq;
+($seq,$struct,$uncapt)=$eio->next_seq;
 last unless ($seq);
 
 #T0: GENERAL TESTS
@@ -264,7 +265,7 @@ my @keys=$ann->get_all_annotation_keys;
 #T10: GENERIF AND OTHER DBLINK TESTS
 my @url=qw(HGMD Ensembl KEGG Homologene);#Only validate the URL
 foreach my $dblink (@dblinks) {
-my $dbname=$dblink->database;
+my $dbname=$dblink->database||'';
 DB: {
     if ( $dbname eq 'generif') {#Should have ID and text
         ok $dblink->primary_id;
@@ -272,7 +273,7 @@ DB: {
         last DB;
     }
     if ($acc==2) {
-        if (($dbname eq 'MIM')&&($dblink->authority eq 'phenotype')) {
+        if (($dbname eq 'MIM')&&($dblink->authority)&&($dblink->authority eq 'phenotype')) {
             ok $dblink->optional_id;
             last DB;
         }
@@ -351,7 +352,7 @@ my (%pmeds,%go);
 my @types=qw(Function Component Process);
 if (($acc==11305)||($acc==11298)) { #Let's check just this two...
 foreach my $ot ($ann->get_Annotations('OntologyTerm')) {
-    if ($ot->term->authority eq 'STS marker') {
+    if (($ot->term->authority)&&($ot->term->authority eq 'STS marker')) {
         if ($acc==11305) {
             ok $ot->name,'AI413825';
             ok $ot->term->namespace,'UniSTS';
@@ -381,12 +382,12 @@ foreach my $ot ($ann->get_Annotations('OntologyTerm')) {
 }
 
 #T15/16/17: GENOMIC LOCATION TESTS/SEQUENCE TYPES TESTS/CONSERVED DOMAINS TESTS
-my @gffs=('SEQ		gene location	63548355	63556668	.	+	.',
-            'SEQ		genestructure	63548355	63556668	.	+	.',
-            'SEQ		gene location	31124733	31133046	.	+	.',
-            'SEQ		genestructure	31124733	31133046	.	+	.',
-            'SEQ		gene location	8163589	8172398	.	+	.',
-            'SEQ		genestructure	8163589	8172398	.	+	.');
+my @gffs=('SEQ	entrezgene	gene location	63548355	63556668	.	+	.',
+            'SEQ	entrezgene	genestructure	63548355	63556668	.	+	.',
+            'SEQ	entrezgene	gene location	31124733	31133046	.	+	.',
+            'SEQ	entrezgene	genestructure	31124733	31133046	.	+	.',
+            'SEQ	entrezgene	gene location	8163589	8172398	.	+	.',
+            'SEQ	entrezgene	genestructure	8163589	8172398	.	+	.');
 my @contigs=$struct->get_members;
 my @auth=('mrna','genomic','product','mrna sequence','protein');#Known types....
 foreach my $contig (@contigs) {
@@ -395,6 +396,7 @@ foreach my $contig (@contigs) {
     if ($acc==1) {#Do just 1?
         if (($contig->authority eq 'genomic')||($contig->authority eq 'Genomic')) {
             foreach my $sf ($contig->get_SeqFeatures) {
+		$sf->source_tag('entrezgene');
                 my $gff=$sf->gff_string;
                 $gff=~s/[\t\s]+$//g;
                 foreach my $gffstr (@gffs) {
