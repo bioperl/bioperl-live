@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.29 2005-03-21 18:56:39 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.30 2005-07-18 19:49:32 lstein Exp $
 
 
 use strict;
@@ -94,6 +94,7 @@ e.g. -d instead of --database.
    --maxfeature          Set the value of the maximum feature size
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
+   --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
 
 =head1 SEE ALSO
 
@@ -184,7 +185,7 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST);
+my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE);
 
 GetOptions ('database:s'    => \$DSN,
         'adaptor:s'     => \$ADAPTOR,
@@ -195,7 +196,8 @@ GetOptions ('database:s'    => \$DSN,
         'local'         => \$LOCAL,
         'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'       => \$GROUP_TAG,
-	    'long_list:s'   => \$LONG_LIST
+	    'long_list:s'   => \$LONG_LIST,
+	    'gff3_munge'    => \$MUNGE,
 	   ) or (system('pod2text', $0), exit -1);
 
 # If called as pg_bulk_load_gff.pl behave as that did.
@@ -292,6 +294,8 @@ elsif ( $use_pg ) {
 
 my $db = Bio::DB::GFF->new(-adaptor=>$faux_adaptor,-dsn => $DSN,@auth)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
+
+$db->gff3_name_munging(1) if $MUNGE;
 
 $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 $MAX_BIN ||= $db->meta('max_bin') || 100_000_000;

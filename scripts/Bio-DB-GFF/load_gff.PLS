@@ -62,6 +62,7 @@ e.g. -d instead of --database.
    --group               A list of one or more tag names (comma or space separated)
                           to be used for grouping in the 9th column.
    --upgrade             Upgrade existing database to current schema
+   --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
 
 =head1 SEE ALSO
 
@@ -80,7 +81,7 @@ disclaimers of warranty.
 =cut
 
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE);
 
 GetOptions ('dsn:s'       => \$DSN,
 	    'adaptor:s'   => \$ADAPTOR,
@@ -90,6 +91,7 @@ GetOptions ('dsn:s'       => \$DSN,
             'upgrade'     => \$UPGRADE,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'     => \$GROUP_TAG,
+	    'gff3_munge'    => \$MUNGE,
 	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
@@ -103,6 +105,8 @@ push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_
 
 my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@args)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
+
+$db->gff3_name_munging(1) if $MUNGE;
 
 if ($CREATE) {
   $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) :

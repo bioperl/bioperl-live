@@ -276,26 +276,26 @@ sub unfilled_box {
 # return boxes surrounding each part
 sub boxes {
   my $self = shift;
-  my ($left,$top) = @_;
+  my ($left,$top,$parent) = @_;
   $top  += 0; $left += 0;
   my @result;
 
   $self->layout;
-  my @parts = $self->parts;
-  @parts    = $self if !@parts && $self->option('box_subparts') && $self->level>0;
+  my @parts         = $self->parts;
+  @parts            = $self if !@parts && $self->option('box_subparts') && $self->level>0;
+  $parent         ||= $self;
 
   for my $part ($self->parts) {
     my $type = eval{$part->feature->primary_tag} || '';
     if ($type eq 'group' or
 	($part->level == 0 && $self->option('box_subparts'))) {
-      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$self);
-    } else {
-      my ($x1,$y1,$x2,$y2) = $part->box;
-      push @result,[$part->feature,
-		    $left + $x1,$top+$self->top+$self->pad_top+$y1,
-		    $left + $x2,$top+$self->top+$self->pad_top+$y2,
-		    $self];
+      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$parent);
     }
+    my ($x1,$y1,$x2,$y2) = $part->box;
+    push @result,[$part->feature,
+		  $left + $x1,$top+$self->top+$self->pad_top+$y1,
+		  $left + $x2,$top+$self->top+$self->pad_top+$y2,
+		  $parent];
   }
   return wantarray ? @result : \@result;
 }

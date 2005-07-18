@@ -117,7 +117,7 @@ belong to the same group named yk53c10.
 use strict;
 use Bio::Graphics::Feature;
 use Bio::DB::GFF::Util::Rearrange;
-use Carp;
+use Carp 'cluck','carp','croak';
 use Bio::DB::GFF;
 use IO::File;
 use Text::Shellwords;
@@ -811,7 +811,7 @@ sub code_setting {
 sub _callback_complain {
   my $self    = shift;
   my ($section,$option) = @_;
-  warn "An error occurred while evaluating the callback at section='$section', option='$option':\n   => $@";
+  carp "An error occurred while evaluating the callback at section='$section', option='$option':\n   => $@";
 }
 
 =over 4

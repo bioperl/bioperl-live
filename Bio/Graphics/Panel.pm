@@ -440,7 +440,7 @@ sub height {
 
   # get rid of spacing under last track
   $height -= $self->spacing unless $bottom_key;
-  return $height + $key_height + $self->pad_top + $self->pad_bottom;
+  return $height + $key_height + $self->pad_top + $self->pad_bottom + 1;
 }
 
 sub setup_fonts {
@@ -1839,8 +1839,8 @@ The first element is the feature object; either an
 Ace::Sequence::Feature, a Das::Segment::Feature, or another Bioperl
 Bio::SeqFeatureI object.  The coordinates are the topleft and
 bottomright corners of the glyph, including any space allocated for
-labels. The track is the Bio::Graphics::Glyph object corresponding
-to the track that the feature is rendered inside.
+labels. The track is the Bio::Graphics::Glyph object corresponding to
+the track that the feature is rendered inside.
 
 =item $position = $panel-E<gt>track_position($track)
 

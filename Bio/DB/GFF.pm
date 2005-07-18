@@ -3419,6 +3419,30 @@ sub _split_gff2_group {
   return ($gclass,$gname,$tstart,$tstop,\@attributes);
 }
 
+
+=head2 gff3_name_munging
+
+ Title   : gff3_name_munging
+ Usage   : $db->gff3_name_munging($boolean)
+ Function: get/set gff3_name_munging flag
+ Returns : $current value of flag
+ Args    : new value of flag (optional)
+ Status  : utility
+
+If this is set to true (default false), then features identified in
+gff3 files with an ID in the format foo:bar will be parsed so that
+"foo" is the class and "bar" is the name.  This is mostly for backward
+compatibility with GFF2.
+
+=cut
+
+sub gff3_name_munging {
+  my $self = shift;
+  my $d = $self->{gff3_name_munging};
+  $self->{gff3_name_munging} = shift if @_;
+  $d;
+}
+
 =head2 _split_gff3_group
 
 This is called internally from split_group().
@@ -3442,7 +3466,7 @@ sub _split_gff3_group {
     if ($tag eq 'Parent') {
       my (@names,@classes);
       for (@values) {
-	my ($name,$class) = _gff3_name_munging($_,$dc);
+	my ($name,$class) = $self->gff3_name_munging ? _gff3_name_munging($_,$dc) : ($_,$dc);
 	push @names,$name;
 	push @classes,$class;
       }

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.20 2005-04-05 22:16:56 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.21 2005-07-18 19:49:32 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -92,6 +92,7 @@ e.g. -d instead of --database.
    --maxfeature          Set the value of the maximum feature size (default 100Mb)
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
+   --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
 
 =head1 SEE ALSO
 
@@ -126,7 +127,7 @@ package main;
 eval "use Time::HiRes"; undef $@;
 my $timer = defined &Time::HiRes::time;
 
-my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG,$LONG_LIST);
+my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE);
 
 if ($DO_FAST) {
   $SIG{CHLD} = sub {
@@ -148,6 +149,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'group:s'       => \$GROUP_TAG,
 	    'long_list:s'   => \$LONG_LIST,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
+	    'gff3_munge'    => \$MUNGE,
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
@@ -165,6 +167,8 @@ push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_
 
 my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@args)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";
+
+$db->gff3_name_munging(1) if $MUNGE;
 
 if ($CREATE) {
   $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
