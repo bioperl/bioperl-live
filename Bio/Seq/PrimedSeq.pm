@@ -258,13 +258,15 @@ sub new {
  Returns : A Bio::SeqFeature::Primer object
  Args    : Either of (l, left, left_primer, -left_primer) to get left primer.
            Either of (r, right, right_primer, -right_primer) to get right primer
-	   Either of (b, both, both_primers, -both_primers) to get both primers. Note that this is plural.
+	   Either of (b, both, both_primers, -both_primers) to get both primers. Note that this is plural. [default]
 
 =cut
 
 sub get_primer() {
  my ($self, $arg) = @_;
- if ($arg =~ /^l/ || $arg =~ /^-l/) { 
+ if (! defined $arg ) {
+  return ($self->{'left_primer'}, $self->{'right_primer'});
+ } elsif( $arg =~ /^l/ || $arg =~ /^-l/) { 
   # what a cheat, I couldn't be bothered to write all those or statements!
   # Hah, now you can write leprechaun to get the left primer.
   return $self->{'left_primer'}
