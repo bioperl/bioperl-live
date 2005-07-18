@@ -123,7 +123,7 @@ sub _initialize {
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	$self->{_debug}=$param{-debug};
-	$self->{_locuslink}=$param{-locuslink};
+	$self->{_locuslink}=$param{-locuslink}||'no';
 	$self->{_service_record}=$param{-service_record}||'no';
 	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});
 	#Instantiate the low level parser here (it is -file in Bioperl
@@ -271,7 +271,7 @@ sub next_seq {
         }
         push @alluncaptured,$uncapt;
         #Index terms
-        if (exists($xval->{'xtra-index-terms'})) {
+        if ((exists($xval->{'xtra-index-terms'}))&&($xval->{'xtra-index-terms'})) {
         if (ref($xval->{'xtra-index-terms'}) eq 'ARRAY') {
           foreach my $term (@{$xval->{'xtra-index-terms'}}) {
            $self->_add_to_ann($term,'Index terms');
@@ -293,7 +293,7 @@ sub next_seq {
           push @alluncaptured,$self->_process_prop($xval->{properties});
         }
         }
-        $seq->annotation($self->{_ann}) unless ($self->{_locuslink} eq 'convert');
+        $seq->annotation($self->{_ann});
         $seq->species($specie);
         my @seqs;
         foreach my $key (keys %seqcollection) {#Optimize this, no need to go through hash?
@@ -415,7 +415,7 @@ sub _process_comments {
  my $self=shift;
  my $prod=shift;
   my (%cann,@feat,@uncaptured,@comments,@sfann);
- if (exists($prod->{comment})) {
+ if ((ref($prod) eq 'HASH') && (exists($prod->{comment}))) {
     $prod=$prod->{comment};
 }
     if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
@@ -452,7 +452,7 @@ sub _process_comments {
                     }
         }
             }
-            $comm=$comm->{comment};#DOES THIS NEED TO BE REC CYCLE? INSANE!!!
+            $comm=$comm->{comment};#DOES THIS NEED TO BE REC CYCLE?
             if (ref($comm) eq 'ARRAY') {
               @comm=@{$comm};
             }
@@ -529,7 +529,7 @@ sub _process_src {
     my @ann;
     my $db=$src->{src}->{db};
     delete $src->{src}->{db};
-    my $anchor=$src->{anchor};
+    my $anchor=$src->{anchor}||'';
     delete $src->{anchor};
     my $url;
     if ($src->{url}) {
@@ -551,7 +551,7 @@ sub _process_src {
             }
         }
         else {
-            my $id=$src->{src}->{tag}->{id};
+            my $id=$src->{src}->{tag}->{id}||'';
             delete $src->{src}->{tag};
             undef $anchor if ($anchor eq 'id');
             $id=~s/\n//g;
@@ -604,7 +604,8 @@ if (exists($self->{_current}->{seqs}->{'int'}->{from})) {
  $end=$self->{_current}->{seqs}->{'int'}->{to};
  delete $self->{_current}->{seqs}->{'int'}->{to};
  delete $self->{_current}->{seqs}->{'int'}->{strand};
- $strand=$self->{_current}->{seqs}->{'int'}->{strand} eq 'minus'?-1:1;
+ $strand=$self->{_current}->{seqs}->{'int'}->{strand} eq 'minus'?-1:1
+	if (exists($self->{_current}->{seqs}->{'int'}->{strand}));#1 being default
     my $nfeat=Bio::SeqFeature::Generic->new(-start=>$start, -end=>$end, -strand=>$strand, primary=>'gene location');
     $gseq->add_SeqFeature($nfeat);
 }
