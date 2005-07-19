@@ -233,15 +233,34 @@ sub new {
 
 =over 4
 
-=item ($rendered,$panel) = $features-E<gt>render([$panel])
+=item ($rendered,$panel) = $features-E<gt>render([$panel, $position_to_insert, $options, $max_bump, $max_label, $selector])
 
 Render features in the data set onto the indicated
 Bio::Graphics::Panel.  If no panel is specified, creates one.
 
+All arguments are optional.
+
+$panel is a Bio::Graphics::Panel that has previously been created and
+configured.
+
+$position_to_insert indicates the position at which to start inserting
+new tracks. The last current track on the panel is assumed.
+
+$options is a scalar used to control automatic expansion of the
+tracks. 0=auto, 1=compact, 2=expanded, 3=expand and label,
+4=hyperexpand, 5=hyperexpand and label.
+
+$max_bump and $max_label indicate the maximum number of features
+before bumping and labeling are turned off.
+
+$selector is a code ref that can be used to filter which features to
+render. It receives a feature and should return true to include the
+feature and false to exclude it.
+
 In a scalar context returns the number of tracks rendered.  In a list
-context, returns a two-element list containing the number of features
-rendered and the panel.  Use this form if you want the panel created
-for you.
+context, returns a three-element list containing the number of
+features rendered, the created panel, and a list of all the track
+objects created.
 
 =back
 
@@ -257,7 +276,7 @@ sub render {
   $panel ||= $self->new_panel;
 
   # count up number of tracks inserted
-  my $tracks = 0;
+  my @tracks;
   my $color;
   my %types = map {$_=>1} $self->configured_types;
 
@@ -306,13 +325,12 @@ sub render {
 		   @override,
 		 );
     if (defined($position_to_insert)) {
-      $panel->insert_track($position_to_insert++,$features,@config);
+      push @tracks,$panel->insert_track($position_to_insert++,$features,@config);
     } else {
-      $panel->add_track($features,@config);
+      push @tracks,$panel->add_track($features,@config);
     }
-    $tracks++;
   }
-  return wantarray ? ($tracks,$panel) : $tracks;
+  return wantarray ? (scalar(@tracks),$panel,\@tracks) : scalar @tracks;
 }
 
 sub _stat {
@@ -1303,7 +1321,7 @@ interface) or its primary_tag() method otherwise.
 sub feature2label {
   my $self = shift;
   my $feature = shift;
-  my $type  = eval {$feature->type} || $feature->primary_tag or return;
+  my $type  = $feature->primary_tag or return;
   (my $basetype = $type) =~ s/:.+$//;
   my @labels = $self->type2label($type);
   @labels = $self->type2label($basetype) unless @labels;
@@ -1373,7 +1391,15 @@ sub make_link {
 sub make_title {
   my $self = shift;
   my $feature = shift;
-  my $method  = $feature->method;
+
+  for my $label ($self->feature2label($feature)) {
+    my $linkrule     = $self->setting($label,'title');
+    $linkrule        ||= $self->setting(general=>'title');
+    next unless $linkrule;
+    return $self->link_pattern($linkrule,$feature);
+  }
+
+  my $method  = eval {$feature->method} || $feature->primary_tag;
   my $seqid   = $feature->can('seq_id')      ? $feature->seq_id : $feature->location->seq_id;
   my $title = eval {
     if ($feature->can('target') && (my $target = $feature->target)) {
