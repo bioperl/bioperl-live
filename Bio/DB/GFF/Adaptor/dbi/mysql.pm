@@ -684,9 +684,12 @@ sub load_gff_line {
   defined(my $groupid = $self->get_table_id('fgroup',$gff->{gname}  => $gff->{gclass})) or return;
 
   if ($gff->{stop}-$gff->{start}+1 > $self->max_bin) {
-    warn "$gff->{gclass}:$gff->{gname} is longer than ",$self->maxbin,".\n";
-    warn "Please set the maxbin value to a larger length than the largest feature you wish to store.\n";
-    warn "With the command-line tools you do with this with --maxfeature option.\n";
+    warn "$gff->{gclass}:$gff->{gname} is ",$gff->{stop}-$gff->{start}+1,
+      " bp long, but the maximum indexable feature is set to ",$self->max_bin," bp.\n";
+    warn "Please set the maxbin value to a length at least as large as the largest feature you wish to store.\n";
+    warn "\n* You will need to reinitialize the database from scratch.\n";
+    warn "* With the Perl API you do this using the -max_bin argument to \$db->initialize().\n";
+    warn "* With the command-line tools you do with this with --maxfeature option.\n";
   }
 
   my $bin =  bin($gff->{start},$gff->{stop},$self->min_bin);
