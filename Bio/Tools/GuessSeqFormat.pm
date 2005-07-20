@@ -839,7 +839,7 @@ data).
 sub _possibly_phylip
 {
     my ($line, $lineno) = (shift, shift);
-    return (($lineno == 1 && $line =~ /^\s*\d+\s\d+/) ||
+    return (($lineno == 1 && $line =~ /^\s*\d+\s+\d+/) ||
             ($line =~ /^seq\d/));
 }
 
