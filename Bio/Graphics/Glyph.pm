@@ -1079,7 +1079,7 @@ sub subseq {
   my $feature = shift;
 
   return $self->_subseq($feature) unless ref $self;  # protect against class invocation
-  return () if $self->no_subparts;
+  return () if $self->level == 0 && $self->no_subparts;
 
   return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
   my @ss = $self->_subseq($feature);
