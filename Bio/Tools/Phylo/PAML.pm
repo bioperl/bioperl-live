@@ -929,6 +929,12 @@ sub _parse_NSsitesBatch {
 	} elsif( /^dN/i ) {
 	    if( /K\=(\d+)/ ) {
 		$data{'-num_site_classes'} = $1;   
+                while ($_ = $self->_readline) {
+                    unless ($_ =~ /^\s+$/) {
+                        $self->_pushback($_);
+                        last;
+                    }
+                }
 		my @p = split(/\s+/,$self->_readline);
 		my @w = split(/\s+/,$self->_readline);
 		shift @p;
