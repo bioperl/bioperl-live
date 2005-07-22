@@ -213,7 +213,7 @@ sub likelihood {
       $self->throw("Observation Sequence contains characters that is not in the
                     alphabet of observation symbols!\n");
    }
-   return Bio::Ext::HMM->HMM_likelihood($self{'hmm'}, $seq);
+   return Bio::Ext::HMM->HMM_likelihood($self->{'hmm'}, $seq);
 }
 
 =head2 statistical_training
