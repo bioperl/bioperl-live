@@ -102,7 +102,6 @@ sub _attr_type { shift->throw_not_implemented(); }
 #
 sub AUTOLOAD {
     my ($self, $newval) = @_;
-
     if ($AUTOLOAD =~ /.*::(\w+)/ && $self->_accessible ("_$1")) {
 	my $attr_name = "_$1";
 	my $attr_type = $self->_attr_type ($attr_name);

@@ -28,7 +28,7 @@ Bio::Biblio - A Bibliographic Query Service module
 
   $biblio = Bio::Biblio
     (-access          => 'soap',
-     -location        => 'http://industry.ebi.ac.uk/soap/openBQS',
+     -location        => 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS',
      -destroy_on_exit => '0');
 
   # See below for some one-liners
@@ -48,9 +48,7 @@ called on instances of this (Bio::Biblio) module.
 
 The module complies (with some simplifications) with the specification
 described in the B<OpenBQS> project. Its home page is at
-I<http://industry.ebi.ac.uk/openBQS>. There are also links to
-available servers providing access to the bibliographic repositories
-(namely to I<MEDLINE>).
+I<http://www.ebi.ac.uk/~senger/openbqs>.
 
 The module also gives an access to a set of controlled vocabularies
 and their values. It allows to introspect bibliographic repositories
@@ -60,7 +58,7 @@ attributes they have, eventually what attribute values are allowed.
 
 Here are some one-liners:
 
-  perl -MBio::Biblio -e 'print new Bio::Biblio->get_by_id ("94033980")'
+  perl -MBio::Biblio -e 'print new Bio::Biblio->get_by_id ("12368254")'
   perl -MBio::Biblio \
        -e 'print join ("\n", @{ new Bio::Biblio->find ("brazma")->get_all_ids })'
   perl -MBio::Biblio \
@@ -145,7 +143,7 @@ web:
 
 =head1 AUTHOR
 
-Martin Senger (senger@ebi.ac.uk)
+Martin Senger (martin.senger@gmail.com)
 
 =head1 COPYRIGHT
 
@@ -164,11 +162,11 @@ This software is provided "as is" without warranty of any kind.
 
 =item *
 
-OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+OpenBQS home page: http://www.ebi.ac.uk/~senger/openbqs/
 
 =item *
 
-Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+Comments to the Perl client: http://www.ebi.ac.uk/~senger/openbqs/Client_perl.html
 
 =back
 
@@ -218,7 +216,7 @@ BEGIN {
                 on the '-access' argument.
 
                 For 'soap' access it is a URL of a WebService.
-                Default is http://industry.ebi.ac.uk/soap/openBQS
+                Default is http://www.ebi.ac.uk/openbqs/services/MedlineSRS
 
            Other arguments can be given here but they are
            recognized by the lower-level module

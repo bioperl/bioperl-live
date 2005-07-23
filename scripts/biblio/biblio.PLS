@@ -11,12 +11,12 @@
 #   functional command-line client for querying repository and
 #   retrieving citations from it.
 #
-#   Usage: biblio -h
+#   Usage: biblio.PLS -h
 #
-#   senger@ebi.ac.uk
+#   martin.senger@gmail.com
 #   February 2002
 #
-#   $Id: biblio.PLS,v 1.1 2003-03-03 13:31:00 heikki Exp $
+#   $Id: biblio.PLS,v 1.2 2005-07-23 12:41:55 senger Exp $
 #-----------------------------------------------------------------------------
 
 use strict;
@@ -282,20 +282,20 @@ __END__
 
 =head1 NAME
 
-biblio - bioperl client for accessing and querying a bibliographic
+biblio.PLS - bioperl client for accessing and querying a bibliographic
 repository.
 
 =head1 SYNOPSIS
 
 Usage:
 
-  biblio [vh]
-  biblio [bcFgOpq]         [-l <URL>]
-  biblio [abcdDeFknmOpqrs] [-l <URL>] -i <collection-ID>
-  biblio [abcdDeFknmOpqrs] [-l <URL>] - -find <keywords> \
+  biblio.PLS [vh]
+  biblio.PLS [bcFgOpq]         [-l <URL>]
+  biblio.PLS [abcdDeFknmOpqrs] [-l <URL>] -i <collection-ID>
+  biblio.PLS [abcdDeFknmOpqrs] [-l <URL>] - -find <keywords> \
          [-attrs <attrs>]...
-  biblio [Vq]              [-l <URL>]
-  biblio [FOq]             [-f <filename>]
+  biblio.PLS [Vq]              [-l <URL>]
+  biblio.PLS [FOq]             [-f <filename>]
 
 =head1 DESCRIPTION
 
@@ -316,7 +316,7 @@ from it.
 
   -l <URL> ... a location where a Bibliographic Query service is
                provided as a WebService
-               (default: http://industry.ebi.ac.uk/soap/openBQS)
+               (default: http://www.ebi.ac.uk/openbqs/services/MedlineSRS)
 
 =head2 What query collection to use:
 
@@ -402,41 +402,44 @@ And the remaining options:
 
 =head1 EXAMPLES
 
-  biblio -l http://localhost:8080/soap/servlet/rpcrouter -c
-  biblio - -find Java -attrs abstract -find perl
+  biblio.PLS - -find Java -attrs abstract -find perl
 
 Several separate invocations sharing the same query collection:
 
-  biblio -p -q - -find Brazma,Robinson > b.tmp
-  biblio -i `cat b.tmp` -d
-  MEDLINENEW/21583752
-  MEDLINE2002/20155445
-  MEDLINE2002/20431611
-
-  biblio -i `cat b.tmp` -g MEDLINENEW/21583752
+  biblio.PLS -p -q - -find Brazma,Robinson > b.tmp
+  biblio.PLS -i `cat b.tmp` -d
+  MEDLINE2005/10693778
+  MEDLINE2005/10977099
+  MEDLINE2005/11726920
+  MEDLINE2005/12225585
+  MEDLINE2005/12227734
+  biblio.PLS -i `cat b.tmp` -g 10693778
   <MedlineCitation Status="Completed">
-  <MedlineID>21583752</MedlineID>
    ...
   </MedlineCitation>
 
-  biblio -i `cat b.tmp` -e
+  biblio.PLS -i `cat b.tmp` -e
   Exists: 1       Has next: 1
 
-  biblio -i `cat b.tmp` -D
+  biblio.PLS -i `cat b.tmp` -D
   Destroyed OK.
 
-  biblio -i `cat b.tmp` -e
+  biblio.PLS -i `cat b.tmp` -e
   Exists: 0       Has next: 0
 
 Access to controlled vocabularies:
 
-  biblio -Vn
-  MEDLINE2002/JournalArticle/properties
-  MEDLINE2002/Person/properties
-  MEDLINE2002/*/publication_type
-  ...
+  biblio.PLS -Vn
+  MEDLINE2005/JournalArticle/properties
+  MEDLINENEW/resource_types
+  MEDLINE2005/resource_types
+  MEDLINE2005/Person/properties
+  MEDLINE2005/*/publication_type
+  MEDLINENEW/JournalArticle/properties
+  repository_subsets
+  MEDLINE2005/*/citation_subset
 
-  biblio -Vv::MEDLINE2002/JournalArticle/properties
+  biblio.PLS -Vv::MEDLINE2005/JournalArticle/properties
   AllText
   ID
   PMID
@@ -445,8 +448,9 @@ Access to controlled vocabularies:
 
 Converting local XML MEDLINE file:
 
-  biblio -f a_file.xml -Oo   ... to Perl objects
-  biblio -f a_file.xml -Or   ... as a raw hash
+  biblio.PLS -g 10693778 > a_file.xml
+  biblio.PLS -f a_file.xml -Oo   ... to Perl objects
+  biblio.PLS -f a_file.xml -Or   ... as a raw hash
 
 =head1 ENVIRONMENT VARIABLES
 
@@ -456,7 +460,7 @@ Use this if you use this script on a machine which needs to access
 remote HTTP targets via a proxy server.  For example:
 
   export HTTPPROXY=http://128.243.220.41:3128
-  biblio -c
+  biblio.PLS -c
 
 =head1 FEEDBACK
 
@@ -480,10 +484,11 @@ email or the web:
 
 =head1 AUTHOR - Martin Senger
 
-Email senger@ebi.ac.uk
+Email martin.senger@gmail.com
 
 =head1 HISTORY
 
 Written February 2002
+Updated July 2005
 
 =cut

@@ -61,7 +61,8 @@ Bio::Biblio::IO - Handling the bibliographic references
   #use I<Bio::Biblio> module which returns an XML string:
 
     use Bio::Biblio;
-    my $xml = new Bio::Biblio->get_by_id ('94033980');
+    use Bio::Biblio::IO;
+    my $xml = new Bio::Biblio->get_by_id ('12368254');
     my $reader = Bio::Biblio::IO->new ('-data' => $xml,
 				       '-format' => 'medlinexml');
 
@@ -153,11 +154,11 @@ format to achieve).
 
 =item *
 
-OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+OpenBQS home page: http://www.ebi.ac.uk/~senger/openbqs
 
 =item *
 
-Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+Comments to the Perl client: http://www.ebi.ac.uk/~senger/openbqs/Client_perl.html
 
 =back
 

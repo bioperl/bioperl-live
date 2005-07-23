@@ -39,11 +39,11 @@ and they are inherited by all provider types.
 
 =item *
 
-OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+OpenBQS home page: http://www.ebi.ac.uk/~senger/openbqs/
 
 =item *
 
-Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+Comments to the Perl client: http://www.ebi.ac.uk/~senger/openbqs/Client_perl.html
 
 =back
 

@@ -298,7 +298,7 @@ sub _new_instance {
 }
 
 #
-# see OpenBQS specification (http://industry.ebi.ac.uk/openBQS) how
+# see OpenBQS specification (http://www.ebi.ac.uk/~senger/openbqs/) how
 # a date should be coded;
 # TBD: this can be improved - checking is missing, timezones,
 #      converting to UTC...

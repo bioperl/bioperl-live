@@ -29,7 +29,7 @@ Bio::Biblio::PubmedArticle - Representation of a PUBMED article
 
 A storage object for a general PUBMED article.
 See its place in the class hierarchy in
-http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+http://www.ebi.ac.uk/~senger/openbqs/images/bibobjects_perl.gif
 
 =head2 Attributes
 
@@ -48,11 +48,11 @@ The following attributes are specific to this class
 
 =item *
 
-OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+OpenBQS home page: http://www.ebi.ac.uk/~senger/openbqs/
 
 =item *
 
-Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+Comments to the Perl client: http://www.ebi.ac.uk/~senger/openbqs/Client_perl.html
 
 =back
 

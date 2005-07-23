@@ -24,7 +24,7 @@ Bio::Biblio::Ref - Representation of a bibliographic reference
 
 A storage object for a general bibliographic reference (a citation).
 See its place in the class hierarchy in
-http://industry.ebi.ac.uk/openBQS/images/bibobjects_perl.gif
+http://www.ebi.ac.uk/~senger/openbqs/images/bibobjects_perl.gif
 
 =head2 Attributes
 
@@ -67,11 +67,11 @@ and they are inherited by all citation types.
 
 =item *
 
-OpenBQS home page: http://industry.ebi.ac.uk/openBQS
+OpenBQS home page: http://www.ebi.ac.uk/~senger/openbqs/
 
 =item *
 
-Comments to the Perl client: http://industry.ebi.ac.uk/openBQS/Client_perl.html
+Comments to the Perl client: http://www.ebi.ac.uk/~senger/openbqs/Client_perl.html
 
 =back
 
