@@ -18,7 +18,7 @@ use constant EXTRA_RIGHT_PADDING => 30;
 my %COLORS;  # translation table for symbolic color names to RGB triple
 my $IMAGEMAP = 'bgmap00001';
 
-sub api_version { 1.63 }
+sub api_version { 1.631 }
 
 # Create a new panel of a given width and height, and add lists of features
 # one by one
@@ -442,7 +442,7 @@ sub height {
 
   # get rid of spacing under last track
   $height -= $self->spacing unless $bottom_key;
-  return $height + $key_height + $self->pad_top + $self->pad_bottom + 1;
+  return $height + $key_height + $self->pad_top + $self->pad_bottom + 2;
 }
 
 sub setup_fonts {
