@@ -190,7 +190,7 @@ sub get_abscoords {
   my ($name,$class,$refseq) = @_;
   my %refs;
   my $regexp;
-
+  
   if ($name =~ /[*?]/) {  # uh oh regexp time
     $name = quotemeta($name);
     $name =~ s/\\\*/.*/g;
@@ -215,10 +215,9 @@ sub get_abscoords {
     }
 
     if ($no_match_class_name || $empty_class_name){
-
       my $feature_attributes = $feature->{attributes};
       my $attributes = {Alias => $name};
-      if (!_matching_attributes($feature_attributes,$attributes)){
+      if (!$self->_matching_attributes($feature_attributes,$attributes)){
 	next;
       }
     }
@@ -252,6 +251,7 @@ sub get_abscoords {
     push @found_segments,[$ref,$class,$start,$stop,$strand,$name];
 
   }
+  
   return \@found_segments;
 }
 
@@ -283,6 +283,7 @@ sub search_notes {
     push @results,[$featname,$note,$relevance];
     last if @results >= $limit;
   }
+    
   @results;
 }
 
@@ -339,7 +340,9 @@ sub do_attributes{
   my ($feature_id,$tag) = @_;
   my $attr ;
 
-  my $feature = ${$self->{data}}[$feature_id];
+  #my $feature = ${$self->{data}}[$feature_id];
+  my $feature = $self->_basic_features_by_id($feature_id);
+
   my @result;
   for my $attr (@{$feature->{attributes}}) {
     my ($attr_name,$attr_value) = @$attr ;
@@ -401,10 +404,10 @@ sub get_features{
   my $count = 0;
   my ($search,$options,$callback) = @_;
   my $data = \@{$self->{data}};
-
+  
   my $found_features;
 
-  $found_features = _get_features_by_search_options($data,$search,$options);
+  $found_features = $self->_get_features_by_search_options($data,$search,$options);
 
   # only true if the sort by group option was specified
   @{$found_features} = sort {lc("$a->{gclass}:$a->{gname}") cmp lc("$b->{gclass}:$b->{gname}")}
@@ -498,7 +501,7 @@ sub _feature_by_id{
   my $count = 0;
   if ($type eq 'feature'){
     for my $feature_id (@$ids){
-       my $feature = ${$self->{data}}[$feature_id];
+      my $feature = $self->_basic_features_by_id($feature_id);
        $callback->($feature->{ref},
 	        $feature->{start},
 	        $feature->{stop},
@@ -512,12 +515,24 @@ sub _feature_by_id{
 		$feature->{tstart},
 		$feature->{tstop},
 	        $feature_id,
-		$feature_group_id);
+		$feature_group_id) if $callback;
 	   $count++;
     }
   }
 }
 
+sub _basic_features_by_id{
+  my $self = shift;
+  my ($ids) = @_;
+  
+  $ids = [$ids] unless ref $ids =~ /ARRAY/;
+
+  my @result;
+  for my $feature_id (@$ids){
+	  push @result, ${$self->{data}}[$feature_id];
+  }
+  return wantarray() ? @result : $result[0];
+}
 
 # This method is similar to get_features(), except that it returns an
 # iterator across the query.  
@@ -529,13 +544,11 @@ sub get_features_iterator {
   $callback || $self->throw('must provide a callback argument');
 
   my $data = \@{$self->{data}};
-  my $results = _get_features_by_search_options($data,$search,$options);
-  my $results_array = _convert_feature_hash_to_array($results);
+  my $results = $self->_get_features_by_search_options($data,$search,$options);
+  my $results_array = $self->_convert_feature_hash_to_array($results);
 
   return Bio::DB::GFF::Adaptor::memory_iterator->new($results_array,$callback);
 }
-
-
 
 
 # This method is responsible for fetching the list of feature type names.
@@ -552,6 +565,7 @@ sub get_features_iterator {
 sub get_types {
   my $self = shift;
   my ($srcseq,$class,$start,$stop,$want_count,$typelist) = @_;
+	  
   my(%result,%obj);
 
   for my $feature (@{$self->{data}}) {
@@ -578,7 +592,7 @@ sub get_types {
     }
 
     if (defined $typelist && @$typelist){
-      next unless _matching_typelist($feature_method,$feature_source,$typelist);
+      next unless $self->_matching_typelist($feature_method,$feature_source,$typelist);
     }
 
     my $type = Bio::DB::GFF::Typename->new($feature_method,$feature_source);
@@ -599,7 +613,7 @@ sub get_types {
 # according to the search options.
 sub _get_features_by_search_options{
   my $count = 0;
-  my ($data,$search,$options) = @_;
+  my ($self, $data,$search,$options) = @_;
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
     @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
@@ -641,12 +655,12 @@ sub _get_features_by_search_options{
     my $feature_method = $feature->{method};
 
     if (defined $types && @$types){
-      next unless _matching_typelist($feature_method,$feature_source,$types);
+      next unless $self->_matching_typelist($feature_method,$feature_source,$types);
     }
 
     my $feature_attributes = $feature->{attributes};
     if (defined $attributes){
-      next unless _matching_attributes($feature_attributes,$attributes);
+      next unless $self->_matching_attributes($feature_attributes,$attributes);
     }
 
     # if we get here, then we have a feature that meets the criteria.
@@ -669,7 +683,7 @@ sub _get_features_by_search_options{
 # this subroutine is needed for convertion of the feature from hash to array in order to 
 # pass it to the callback subroutine
 sub _convert_feature_hash_to_array{
-  my @features_hash_array = @_;
+  my ($self, @features_hash_array) = @_;
 
   use constant FREF    => 0;
   use constant FSTART  => 1;
@@ -688,7 +702,7 @@ sub _convert_feature_hash_to_array{
 
   my @features_array_array;
   my $feature_count = 0;
-
+  
   for my $feature_hash (@{$features_hash_array[0]}){
     my @feature_array;
 
@@ -710,11 +724,12 @@ sub _convert_feature_hash_to_array{
     $features_array_array[$feature_count] = \@feature_array;
     $feature_count++;
   }
+  
   return \@features_array_array;
 }
 
 sub _matching_typelist{ 
-  my ($feature_method,$feature_source,$typelist) = @_; 
+  my ($self, $feature_method,$feature_source,$typelist) = @_; 
   foreach (@$typelist) {
 	 my ($search_method,$search_source) = @$_;
 	 next if $search_method ne $feature_method;
@@ -725,7 +740,7 @@ sub _matching_typelist{
 }
 
 sub _matching_attributes {
-  my ($feature_attributes,$attributes) = @_ ;
+  my ($self, $feature_attributes,$attributes) = @_ ;
   foreach (keys %$attributes) {
     return 0 if !_match_all_attr_in_feature($_,$attributes->{$_},$feature_attributes)
   }
