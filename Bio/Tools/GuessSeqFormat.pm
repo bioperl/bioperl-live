@@ -204,9 +204,8 @@ participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us
 keep track the bugs and their resolution.  Bug reports can be
-submitted via email or the web:
+submitted via the web:
 
-    bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
@@ -590,7 +589,7 @@ sub _possibly_fasta
 {
     my ($line, $lineno) = (shift, shift);
     return (($lineno != 1 && $line =~ /^[A-IK-NP-Z]+$/i) ||
-            $line =~ /^>\w/);
+            $line =~ /^>\s*\w/);
 }
 
 =head2 _possibly_fastxy
