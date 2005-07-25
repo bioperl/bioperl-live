@@ -19,7 +19,7 @@
       <firstname>Brian</firstname>
       <surname>Osborne</surname>
       <authorblurb>
-		  <para>Bioperl contributor</para>
+		  <para><ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> contributor</para>
       </authorblurb>
       <affiliation>
 		  <orgname>
@@ -68,14 +68,14 @@
     <abstract>
       <para>
 		  This is a HOWTO written in DocBook (XML) that talks about using
-		  Bioperl, for biologists who would like to learn more
-		  about writing their own bioinformatics scripts using Bioperl. 
+		  <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, for biologists who would like to learn more
+		  about writing their own bioinformatics scripts using <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. 
       </para>
 		<para>
-		  What is Bioperl? It is an open source bioinformatics toolkit
+		  What is <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>? It is an open source bioinformatics toolkit
 		  used by researchers all over the world. If you're looking for
 		  a script built to fit your exact need it's likely 
-		  you won't find it in Bioperl. What you will find is a
+		  you won't find it in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. What you will find is a
 		  diverse set of Perl modules that will enable you to write
 		  your own script, and a commmunity of people who are willing 
 		  to help you.
@@ -92,11 +92,11 @@
 		hand at automating some of these tasks, or you're just curious
 		about learning more about the programming side of bioinformatics.
 		In this HOWTO you'll see discussions of some of the common uses
-		of Bioperl, 
+		of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, 
 		like sequence analysis with BLAST and retrieving sequences from 
 		public databases. You'll also see how to
-		write Bioperl scripts that chain these tasks together, that's
-		how you'll be able to do really powerful things with Bioperl.
+		write <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> scripts that chain these tasks together, that's
+		how you'll be able to do really powerful things with <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>.
     </para>
     <para>
 		You will also see some discussions of software concepts, this
@@ -104,7 +104,7 @@
 		programming the better, but all efforts will be made
 		to not introduce too much unfamiliar material. 
 		However, there will be an introducton to modularity, or objects. This is 
-		one of the aspects of the Bioperl package that you'll have
+		one of the aspects of the <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> package that you'll have
 		to come to grips with as you attempt more complex tasks with
 		your scripts.
     </para>
@@ -122,16 +122,16 @@
 		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html"><citetitle>Bio::Perl</citetitle></ulink>. The reason is that though this is an
 			 excellent introductory tool, it is not object-oriented and
 		  can't be extended. What we're
-		  attempting here is to introduce Bioperl and show you
+		  attempting here is to introduce <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> and show you
 		  ways to expand your new-found skills.
       </para>
     </note>
   </section>
 
   <section id="installation">
-    <title>Installing Bioperl</title>
+    <title>Installing <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink></title>
     <para>
-		The first thing to determine is the Bioperl platform - Unix or
+		The first thing to determine is the <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> platform - Unix or
 		Windows? Here are some things to consider, if you're choosing 
 		between the two.
 	 </para>
@@ -158,7 +158,7 @@
 		  </member>
 		  <member>
 			 There may be an administrator taking care of the machine - maybe
-			 she'll even install Bioperl for you! Ask and see.
+			 she'll even install <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> for you! Ask and see.
 		  </member>
 		</simplelist>
 	 </para>
@@ -196,7 +196,7 @@
 			 Simplicity, if Windows is what you're working with now.
 		  </member>
 		  <member>
-			 Plenty of Bioperl users run it on Windows.
+			 Plenty of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> users run it on Windows.
 		  </member>
 		</simplelist>
 	 </para>
@@ -238,8 +238,8 @@
 			 <para>
 				On Windows, messages like "Error: Failed to download URL
 				http://bioperl.org/DIST/GD.ppd", or "Not found". The 
-				explanation is that Bioperl does not supply every
-				accessory module that's necessary to run all of Bioperl.
+				explanation is that <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> does not supply every
+				accessory module that's necessary to run all of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>.
 				You'll need to search other repositories to install
 				all of these accessory modules. See the
 		<ulink
@@ -253,7 +253,7 @@
 				&lt;some-module&gt;.pm in @INC...". This means that Perl
 				could not find a particular module and the explanation
 				usually is that this module is not installed. You can
-				either install Bundle::Bioperl or install that specific
+				either install Bundle::<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> or install that specific
 				module by hand. See 
 <ulink
 				url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>INSTALL</citetitle></ulink>
@@ -264,15 +264,15 @@
 			 <para>
 				Seeing messages like "Tests Failed". If you see an 
 				error during installation consider whether
-				this problem is going to affect your use of Bioperl. There
-				are almost 800 modules in Bioperl, and ten times that many
+				this problem is going to affect your use of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. There
+				are almost 800 modules in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, and ten times that many
 				tests are run during the installation. If there's a
 				complaint about GD it's only relevant if you want to 
 				use the Bio/Graphics modules, if you see an error about
 				some XML parser it's only going to affect you if 
 				you're reading XML files. Yes, you could try and make
 				each and every test pass, but that may be a lot of work, with much
-				of it fixing modules that aren't in Bioperl itself.
+				of it fixing modules that aren't in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> itself.
 			 </para>
 		  </listitem>
 		</orderedlist>
@@ -282,8 +282,8 @@
   <section id="help">
     <title>Getting Assistance</title>
     <para>
-		People will run into problems installing Bioperl or writing 
-		scripts using Bioperl, nothing unusual about that. If you need 
+		People will run into problems installing <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> or writing 
+		scripts using <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, nothing unusual about that. If you need 
 		assistance the way to get it is to mail bioperl-l@bioperl.org.
 		There are a good number of helpful people who regularly read
 		this list but if you want their advice it's best to give
@@ -295,7 +295,7 @@
 	 <para>
 		<orderedlist>
 		  <listitem>
-			<para> The version of Bioperl you're working with. </para>
+			<para> The version of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> you're working with. </para>
 		  </listitem>
 		  <listitem>
 			 <para>The platform or operating system you're using. </para>
@@ -326,7 +326,7 @@
 		<para>
 		  And every once in a while, not often, an email will go
 		  unanswered because the
-		  the tone is unpleasant. Bioperl
+		  the tone is unpleasant. <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>
 		  is a 100% volunteer effort, we all have other jobs, 
 		  complaining about bugs or lack of
 		  documentation is not the way to make friends!
@@ -451,7 +451,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
     <para>
 		Our first script will create a sequence. Well, not just a sequence,
 		you will be creating a "sequence object", since
-		Bioperl is written in an object-oriented way. Why be
+		<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is written in an object-oriented way. Why be
 		object-oriented? Why introduce these odd or intrusive notions into
 		software that should be "biological" or "intuitive"? The reason is 
 		that thinking in terms of modules or objects turns out to be the
@@ -468,8 +468,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		an object can be. 
 	 </para>
 	 <para>
-		All objects in Bioperl are created by specific
-		Bioperl modules, so if you want to create an object you're also going
+		All objects in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> are created by specific
+		<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> modules, so if you want to create an object you're also going
 		to have to tell Perl which module to use. Let's add another line:
     </para>	
     <para>
@@ -490,9 +490,9 @@ use Bio::Seq;
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> object.
 		The 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> module is one of the central modules in
-		Bioperl. The analogous 
+		<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. The analogous 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> object, or "Sequence object", or
-		"Seq object", is ubiquitous in Bioperl, it contains 
+		"Seq object", is ubiquitous in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, it contains 
 		a single sequence and associated names, identifiers, and
 		properties. Let's create a very simple sequence object at
 		first, like so:
@@ -511,24 +511,24 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
 	 <para>
 		That's it! The variable <varname>$seq_obj</varname> is the
 		Sequence object, a simple one, containing just a sequence.
-		Note that the code tells Bioperl that the sequence is DNA
+		Note that the code tells <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> that the sequence is DNA
 		(the choices here are 'dna', 'rna', and 'protein'), this is
-		the wise thing to do. If you don't tell Bioperl it will attempt 
+		the wise thing to do. If you don't tell <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> it will attempt 
 		to guess the alphabet. Normally it guesses correctly but if your sequence
 		has lots of odd or ambiguous characters, such as N or X,
-		Bioperl's guess may be incorrect and this may lead to some
+		<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>'s guess may be incorrect and this may lead to some
 		problems.
 	 </para>
 	 <para>
 		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects can be created manually, as above, but
 		they're also create automatically in many operations
-		in Bioperl, for example when alignment files or database
+		in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, for example when alignment files or database
 		entries or BLAST reports are parsed.
 	 </para>      
 	 <para>
 		Any time you explicitly create an object, you
 		will use this <function>new()</function> method. The syntax of this
-		line is one you'll see again and again in Bioperl: the name
+		line is one you'll see again and again in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>: the name
 		of the object or variable, the module name, the 
 		<emphasis>-></emphasis> symbol, the
 		method name <emphasis>new</emphasis>, some argument name like
@@ -617,7 +617,7 @@ print $seq_obj->seq();
 		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
 		By using 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> in this manner you will be able to get input
-		and make output for all of the sequence file formats supported by Bioperl
+		and make output for all of the sequence file formats supported by <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>
 		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
@@ -720,14 +720,14 @@ ORIGIN
 		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> when working with sequence
 		files. This is understandable in some respects. You
 		may have read about Perl's <function>open</function>
-		function, and Bioperl's way of retrieving sequences may look odd
+		function, and <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>'s way of retrieving sequences may look odd
 		and overly complicated, at first. But don't use
 		<function>open</function>! Using <function>open</function> 
 		immediately forces you to do the parsing of the sequence
 		file and this can get complicated very quickly. Trust
 		the SeqIO object, it's built to open and parse all
 		the common sequence formats, it can read and write to files,
-		and it's built to operate with all the other Bioperl 
+		and it's built to operate with all the other <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> 
 		modules that you will want to use. 
 	 </para>
 	 <para>
@@ -775,7 +775,7 @@ $seq_obj = $seqio_obj->next_seq;
 		Sequence object, <varname>$seq_obj</varname>, that's created
 		will be identical to
 		to the Sequence object we created manually in our first example.
-		This is another idiom that's used frequently in Bioperl, the
+		This is another idiom that's used frequently in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, the
 		next_&lt;something&gt; method. You'll come across the same idea
 		in the <function>next_aln</function> method of 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html"><citetitle>AlignIO</citetitle></ulink> (reading and 
@@ -812,12 +812,25 @@ while ($seq_obj = $seqio_obj->next_seq){
 		file's contents but there's no guarantee that it can guess
 		correctly for every single format.
 	 </para>
+    <tip>
+      <para>
+		  It may be useful to specify the alphabet, using the
+		  "-alphabet" argument. What this does is to tell <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> not to
+		  try to determine the alphabet ("dna", "rna", "protein"). This helps
+		  when <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> guesses incorrectly (e.g. <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is going to
+		  guess that the protein sequence "GATC" is DNA) or if there are odd 
+		  characters in the sequence that
+		  SeqIO may object to (e.g. "-"). Set "-alphabet" to a value
+		  when reading sequences and SeqIO will not examine those sequence.
+      </para>
+    </tip>
+
   </section>
 
   <section id="retrieving_gb">
 	 <title>Retrieving a sequence from a database</title>
 	 <para>
-		One of the strengths of Bioperl is that it allows you to retrieve
+		One of the strengths of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is that it allows you to retrieve
 		sequences from all sorts of sources, files, remote databases,
 		local databases, regardless of their format. Let's use this 
 		capability to get a entry from Genbank. What will we retrieve?
@@ -830,7 +843,9 @@ use Bio::DB::GenBank;
 	 </para>
 <para></para>
 	 <para>
-		We could also query SwissProt, GenPept, EMBL, SeqHound, or RefSeq in an 
+		We could also query <ulink
+		href="http://www.expasy.ch"><citetitle>SwissProt</citetitle></ulink>,
+		GenPept, EMBL, <ulink href="http://www.blueprint.org/seqhound"><citetitle>SeqHound</citetitle>, or RefSeq in an 
 		analogous fashion (e.g "use Bio::DB::SwissProt"). Now we'll
 		create the object:
 	 </para>
@@ -886,8 +901,8 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 	 <note>
 		<para>
 		  This capability to query by string and field is only available
-		  for GenBank as of Bioperl version 1.5, queries to other
-		  databases, like Swissprot or EMBL, are limited to identifiers
+		  for GenBank as of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> version 1.5, queries to other
+		  databases, like <ulink href="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink> or EMBL, are limited to identifiers
 		  and accessions.
 		</para>
 	 </note>
@@ -1333,7 +1348,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		There's a few comments that need to be made. First,
 		you noticed that there's an awful lot of
 		information missing. All of this missing information is stored in
-		what Bioperl calls Features and Annotations, see the
+		what <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> calls Features and Annotations, see the
 		<ulink
 		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> if you'd like to learn more about this.
 		Second, a few of the
@@ -1430,15 +1445,16 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		the only thing distinguishing these entries are their respective
 		formats. The reason is that there are no rules governing how 
 		one interconverts formats, meaning how Genbank creates fasta
-		files from Genbank files may be different from how SwissProt
+		files from Genbank files may be different from how 
+<ulink href="http://www.expasy.ch"><citetitle>SwissProt</citetitle></ulink>
 		performs the same interconversion. Again, until the
 		organizations creating these databases agree on standard sets
-		of names and formats all the Bioperl authors can do is do 
+		of names and formats all the <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> authors can do is do 
 		make reasonable choices.
 	 </para>
 	 <note>
 		<para>
-		  Yes, Bioperl could follow the
+		  Yes, <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> could follow the
 		  conventions of a single organization like Genbank such that
 		  <function>display_id</function> returns the same value when
 		  using Genbank format or Genbank's fasta format but why?
@@ -1449,7 +1465,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 	 </note>
 	 <para></para>
 	 <para>
-		Let's use a Swissprot file as our last example. The input entry
+		Let's use a <ulink href="http://www.expasy.ch"><citetitel>Swissprot</citetitle></ulink> file as our last example. The input entry
 		looks like this:
 	 </para>
 	 <para>
@@ -1538,7 +1554,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </para>
 	 <para>
 		<table>
-		  <title>Values from Swissprot</title>
+		  <title>Values from <ulink href="http://www.expasy.ch"><citetitle>Swissprot<citetitle></ulink></title>
 		  <tgroup cols="2">
 			 <thead>
 				<row>
@@ -1591,7 +1607,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
     <title>BLAST</title>
 	 <para>
 		You have access to a large number of sequence analysis programs 
-		within Bioperl. Typically this means you have a means to run
+		within <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Typically this means you have a means to run
 		the program and frequently a means of parsing the resulting 
 		output, or report, as well. Certainly the most popular 
 		analytical program is 
@@ -1662,7 +1678,7 @@ print $result_obj->num_hits;
 		Sometimes you'll see errors when you try to use
 <ulink
 		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink> 
-		that have nothing to do with Bioperl. Make sure that BLAST is 
+		that have nothing to do with <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Make sure that BLAST is 
 		set up properly and running before you attempt to script it
 		using 
 <ulink
@@ -1673,7 +1689,7 @@ print $result_obj->num_hits;
 		file.
 	 </para>
 	 <para>
-		Bioperl enables you to run a wide variety of bioinformatics
+		<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> enables you to run a wide variety of bioinformatics
 		programs but in order to do so, in most cases, you will need
 		to install the accessory bioperl-run package. In addition 
 		there is no guarantee that there is a corresponding parser
@@ -1688,7 +1704,7 @@ print $result_obj->num_hits;
   <section id="indexing">
 	 <title>Indexing for Fast Retrieval</title>
 	 <para>
-		One of the under-appreciated features of Bioperl is its ability
+		One of the under-appreciated features of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is its ability
 		to index sequence files. The idea is that you would create some sequence
 		file locally and create an index file for it that enables you to 
 		retrieve sequences from the sequence file. Why would you want to do this?
@@ -1840,10 +1856,10 @@ sub get_id {
 -->  
 
   <section id="more">
-	 <title>More on Bioperl</title>
+	 <title>More on <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink></title>
 	 <para>
 		Perhaps this article has gotten you interested in learning a
-		bit more about Bioperl. Here are some other things you might 
+		bit more about <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Here are some other things you might 
 		want to look at:
 	 </para>
 	 <para>
@@ -1869,10 +1885,10 @@ url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</cite
 			 but the quality and quantity varies by module. 
 		  </para></listitem>
 		  <listitem><para>
-				Bioperl scripts. You'll find them in the scripts/ directory
-				and in the examples/ directory of the Bioperl package.
+				<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> scripts. You'll find them in the scripts/ directory
+				and in the examples/ directory of the <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> package.
 				The former contains more carefully written and documented
-				scripts that can be installed along with Bioperl. You should
+				scripts that can be installed along with <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. You should
 				feel free to contribute scripts to either of these 
 				directories. There's also a complete list of scripts,
 <ulink url="http://bioperl.org/Core/Latest/bioscripts.html"><citetitle>bioscripts.pod</citetitle></ulink>. 
@@ -1909,7 +1925,7 @@ url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</cite
 		</programlisting>
 	 </para>
 	 <para>
-		Read about any module, including any of the Bioperl modules:
+		Read about any module, including any of the <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> modules:
 		<programlisting>
 >perldoc Bio::SeqIO
 		</programlisting>
@@ -1994,17 +2010,17 @@ $reversed_obj = $seq_obj->revcom;
 	 <para>
 		That's the sort of explanation you'll get in programming
 		books, but what is a Perl object really? Usually a hash.
-		In Bioperl the data that the object contains is stored in a 
+		In <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> the data that the object contains is stored in a 
 		single, complex hash and the object, like 
 		<varname>$seq_obj</varname>,
 		is a reference to this hash. In addition, the methods
 		that the object can use are also stored in this hash as
 		particular kinds of references. You could say that an
-		object in Bioperl is a special kind of hash reference.
+		object in <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is a special kind of hash reference.
 	 </para>
 
 	 <para>
-		Bioperl uses the object-oriented paradigm, and here are
+		<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> uses the object-oriented paradigm, and here are
 		some texts if you want to learn more:
 	 </para>
 	 <para>
@@ -2016,7 +2032,7 @@ $reversed_obj = $seq_obj->revcom;
 		  </listitem>
 		  <listitem>
 			 <para>               
-				The <ulink url="http://bioperl.org/Core/Latest/biodesign.html"><citetitle>Bioperl design documentation</citetitle></ulink>, for anyone who'd like
+				The <ulink url="http://bioperl.org/Core/Latest/biodesign.html"><citetitle><ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> design documentation</citetitle></ulink>, for anyone who'd like
 				to write their own modules. 
 			 </para>
 		  </listitem>
