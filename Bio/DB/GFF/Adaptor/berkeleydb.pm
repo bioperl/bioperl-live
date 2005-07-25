@@ -5,8 +5,10 @@ use strict;
 use Data::Dumper;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
+use Bio::DB::Fasta;
 
-use BerkeleyDB;
+use DB_File;
+use File::Path 'mkpath';
 use Storable qw(freeze thaw);
 
 # this is the smallest bin (1 K)
@@ -20,23 +22,131 @@ use constant MAX_NUM_LENGTH => length(MAX_BIN);
 
 use base 'Bio::DB::GFF::Adaptor::memory';
 
-sub setup_load {
-  my $self = shift;
-	$self->{id} = 1;
-	
-	my $filename = $ENV{SERVER_SOFTWARE} ? "/tmp/db" :"/tmp/db1" ;
-	unlink $filename ;
-	$self->{db} = new BerkeleyDB::Btree
-				-Filename => $filename,
-				-Flags    => DB_CREATE,
-				-Property => DB_DUP
-		or die "Cannot open file $filename: $! $BerkeleyDB::Error\n" ;		
+sub new {
+  my $class = shift ;
+  my ($dbdir,$preferred_groups) = rearrange([
+					     [qw(DSN DB DIR DIRECTORY)],
+					     'PREFERRED_GROUPS',
+					    ],@_);
+  $dbdir ||= $ENV{TMPDIR} ? "$ENV{TMPDIR}/test" : "/tmp/test";
+  my $self = bless {},$class;
+  $self->dsn($dbdir);
+  $self->preferred_groups($preferred_groups) if defined $preferred_groups;
+  $self->_open_databases();
+  return $self;
+}
 
-	$filename = $ENV{SERVER_SOFTWARE} ? "/tmp/recno" :"/tmp/recno1" ;
-	$self->{iddb} = new BerkeleyDB::Recno
-				-Filename => $filename,
-				-Flags    => DB_CREATE,
-		or die "Cannot open file $filename: $! $BerkeleyDB::Error\n" ;		
+sub _open_databases {
+  my $self = shift;
+  my $dsn  = $self->dsn;
+  unless (-d $dsn) {  # try to create the directory
+    mkpath($dsn) or die "Couldn't create database directory $dsn: $!";
+  }
+  my (%db,%iddb);
+  local $DB_BTREE->{flags} = R_DUP;
+  tie(%db,'DB_File',$self->_index_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
+    or die "Couldn't tie ",$self->_index_file,": $!";
+  tie(%iddb,'DB_File',$self->_hash_file,O_RDWR|O_CREAT,0666,$DB_HASH)
+    or die "Couldn't tie ",$self->_hash_fle,": $!";
+  $self->{db}   = \%db;
+  $self->{iddb} = \%iddb;
+
+  if (-e $self->_fasta_file) {
+    my $dna_db = Bio::DB::Fasta->new($self->_fasta_file) or $self->throw("Can't reindex sequence file: $@");
+    $self->dna_db($dna_db);
+  }
+
+}
+
+sub _close_databases {
+  my $self = shift;
+  delete $self->{db};
+  delete $self->{iddb};
+}
+
+sub do_initialize {
+  my $self  = shift;
+  my $erase = shift;
+  if ($erase) {
+    $self->_close_databases;
+    unlink $self->_index_file;
+    unlink $self->_hash_file;
+    unlink $self->_fasta_file;
+    unlink $self->_fasta_file.'.index';
+    $self->_open_databases;
+    $self->_next_id(0);
+  }
+  1;
+}
+
+sub load_sequence {
+  my $self = shift;
+  my ($io_handle,$id) = @_;
+  my $file = $self->_fasta_file;
+  my $loaded = 0;
+
+  open (F,">>$file") or $self->throw("Couldn't open $file for writing: $!");
+
+  if (defined $id) {
+    print F ">$id\n";
+    $loaded++;
+  }
+
+  while (<$io_handle>) {
+    $loaded++ if /^>/;
+    print F $_;
+  }
+  close F;
+  my $dna_db = Bio::DB::Fasta->new($file) or $self->throw("Can't reindex sequence file: $@");
+  $self->dna_db($dna_db);
+  return $loaded;
+}
+
+# with duplicates enabled, we cannot simply do $db->{__index__}++;
+sub _next_id {
+  my $self = shift;
+  my $db = $self->{db};
+  if (@_) {
+    delete $db->{__index__};
+    return $db->{__index__} = shift;
+  } else {
+    my $index = ${db}->{__index__};
+    delete $db->{__index__};
+    $db->{__index__} = $index + 1;
+    return $index;
+  }
+}
+
+sub _index_file {
+  my $self = shift;
+  return $self->dsn . "/features.btree";
+}
+
+sub _hash_file {
+  my $self = shift;
+  return $self->dsn . "/features.hash";
+}
+
+sub _fasta_file {
+  my $self = shift;
+  return $self->dsn . "/sequence.fa";
+}
+
+sub db {
+  my $db   = shift()->{db} or return;
+  return tied(%$db);
+}
+
+sub iddb {
+  my $iddb   = shift()->{iddb} or return;
+  return tied(%$iddb);
+}
+
+sub dsn {
+  my $self = shift;
+  my $d    = $self->{dsn};
+  $self->{dsn} = shift if @_;
+  $d;
 }
 
 sub load_gff_line {
@@ -55,22 +165,27 @@ sub load_gff_line {
   my $bin =  bin($feat->{start},$feat->{stop},MIN_BIN);
   $feat->{bin} = $bin;
 
-  $feat->{feature_id} = $self->{id};
+  my $id = $feat->{feature_id} = $self->_next_id;
   $bin = $self->normalizeNumber($bin);
 
-  $self->{db}->db_put("__class__". $feat->{gclass}, $self->{id});
-  $self->{db}->db_put("__name__".(lc $feat->{gname}), $self->{id}); 
-  $self->{db}->db_put("__bin__".$bin, $self->{id});
+  my $db = $self->{db};
+  $db->{"__class__". $feat->{gclass}}   = $id;
+  $db->{"__name__".(lc $feat->{gname})} = $id;
+  $db->{"__bin__".$bin}                 = $id;
 
   for my $attr (@{$feat->{attributes}}) {
-	my ($attr_name,$attr_value) = @$attr;
-	$self->{db}->db_put("__attr__".$attr_name."__".$attr_value, $self->{id});
+    my ($attr_name,$attr_value) = @$attr;
+    $db->{"__attr__".$attr_name."__".$attr_value} = $id;
   }
 
-  #warn "Storing start $start, stop $stop, bin $bin, id ".$self->{id}."\n";
-  $self->{iddb}->db_put($self->{id}, freeze($feat));
+  #warn "Storing start $start, stop $stop, bin $bin, id $id";
+  $self->{iddb}{$id} = freeze($feat);
+}
 
-  $self->{id}++;
+sub finish_load {
+  my $self = shift;
+  $self->iddb->sync;
+  $self->db->sync;
 }
 
 
@@ -177,39 +292,40 @@ sub _feature_by_name {
 
   if ($name =~ /[*?]/) {  # uh oh regexp time
 	
-	#If there is only one trailing *, do a range search
-	if ($name =~ /^([^\*]+)\*$/)
-	{
-	  $name = $1;
-	  $use_glob++;
-	}
-	else
-	{
-	  $name = quotemeta($name);
-	  $name =~ s/\\\*/.*/g;
-	  $name =~ s/\\\?/.?/g;
-	  $use_regexp++;
-	}
+    #If there is only one trailing *, do a range search
+    if ($name =~ /^([^\*]+)\*$/) {
+      $name = $1;
+      $use_glob++;
+    }
+	
+    else {
+      $name = quotemeta($name);
+      $name =~ s/\\\*/.*/g;
+      $name =~ s/\\\?/.?/g;
+      $use_regexp++;
+    }
   }
+
   my @features;
-  if ($use_glob)
-  {
-	my $callback = sub {my $feat = shift; $feat->{gname} =~ /^$name/i};
-	@features = @{$self->retrieve_features_range
-	  (-table => "name", -start => $name, -do_while => $callback)};
+  if ($use_glob) {
+    my $callback = sub {my $feat = shift; $feat->{gname} =~ /^$name/i};
+    @features = @{$self->retrieve_features_range (-table => "name",
+						  -start => $name,
+						  -do_while => $callback)
+		};
   }
-  elsif ($use_regexp)
-  {
-	my $filter = sub {my $feat = shift; $feat->{gname} =~ /$name/i};
+  elsif ($use_regexp) {
+    my $filter = sub {my $feat = shift; $feat->{gname} =~ /$name/i};
     @features = @{$self->filter_features(-table => "name", -filter => $filter)};
   }
-  else
-  {
+
+  else {
     @features = @{$self->retrieve_features(-table => "name", -key => lc $name)};
   }
+
   foreach my $feature (@features){
     $id++;
-	#next unless ($regexp && $feature->{gname} =~ /$name/i);
+    #next unless ($regexp && $feature->{gname} =~ /$name/i);
     next unless $feature->{gclass} eq $class;
 
     if ($location) {
@@ -218,6 +334,7 @@ sub _feature_by_name {
       next if $location->[2] && $location->[2] < $feature->{start};
     }
     $count++;
+
     $callback->(@{$feature}{qw(
 			       ref
 			       start
@@ -231,7 +348,7 @@ sub _feature_by_name {
 			       gname
 			       tstart
 			       tstop
-				   feature_id
+			       feature_id
 			      )},0
 	       );
   }
@@ -250,30 +367,30 @@ sub _feature_by_attribute{
   #there could be more than one set of attributes......
   while (my ($key, $value) = each %$attributes) {
 	
-	my @features = @{$self->retrieve_features
-	  (-table => "attr", -key => $key."__".$value)};
+    my @features = @{$self->retrieve_features
+		       (-table => "attr", -key => $key."__".$value)};
 
     for my $feature (@features) {
 
-	  $feature_id++;
-	  for my $attr (@{$feature->{attributes}}) {
-			 $callback->($feature->{ref},
-			  $feature->{start},
-			  $feature->{stop},
-			  $feature->{source},
-			  $feature->{method},
-			  $feature->{score},
-			  $feature->{strand},
-			  $feature->{phase},
-			  $feature->{gclass},
-			  $feature->{gname},
-		  $feature->{tstart},
-		  $feature->{tstop},
-			  $feature_id,
-		  $feature_group_id);
-		 $count++;
-		  }
+      $feature_id++;
+      for my $attr (@{$feature->{attributes}}) {
+	$callback->($feature->{ref},
+		    $feature->{start},
+		    $feature->{stop},
+		    $feature->{source},
+		    $feature->{method},
+		    $feature->{score},
+		    $feature->{strand},
+		    $feature->{phase},
+		    $feature->{gclass},
+		    $feature->{gname},
+		    $feature->{tstart},
+		    $feature->{tstop},
+		    $feature_id,
+		    $feature_group_id);
+	$count++;
       }
+    }
   }
 
 }
@@ -286,59 +403,56 @@ sub search_notes {
   my $search = join '|',@words;
 
   my $filter = sub {
-	my $feature = shift;
+    my $feature = shift;
     next unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
     next unless $feature->{attributes};
     my @attributes = @{$feature->{attributes}};
     my @values     = map {$_->[1]} @attributes;
     my $value      = "@values";
     my $matches    = 0;
+
     for my $w (@words) {
       my @hits = $value =~ /($w)/ig;
       $matches += @hits;
     }
 	
-	if ($matches)
-	{
-	  push @matches, $matches;
-	  return -1 if @matches >= $limit;
-	}
-	
-	return $matches;
+    if ($matches) {
+      push @matches, $matches;
+      return -1 if @matches >= $limit;
+    }
+    return $matches;
   };
 
   my @features = @{$self->filter_features(-table => "attrib__Note", -filter => $filter)};
 
-  for (my $i=0; $i<scalar @matches; $i++)
-  {
-	my $feature = $features[$i];
-	my $matches = $matches[$i];
+  for (my $i=0; $i<scalar @matches; $i++)  {
+    my $feature = $features[$i];
+    my $matches = $matches[$i];
 	
-	my $relevance = 10 * $matches;
-	my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
-	my $note;
-	$note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
-	$note  .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
-	push @results,[$featname,$note,$relevance];
-  }	
+    my $relevance = 10 * $matches;
+    my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
+    my $note;
+    $note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
+    $note  .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
+    push @results,[$featname,$note,$relevance];
+  }
 
   return @results;
 }
 
-sub _get_features_by_search_options
-{
-#The $data argument is not used and is preserved for superclass compatibility
+sub _get_features_by_search_options {
+
+  #The $data argument is not used and is preserved for superclass compatibility
   my ($self, $data,$search,$options) = @_;
   my $count = 0;
 
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
-    @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
+     @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
 	
   $start = 0               unless defined($start);
-  $stop  = MAX_BIN unless defined($stop);
+  $stop  = MAX_BIN         unless defined($stop);
 	
-  my $cursor = $self->{db}->db_cursor;
   my %found;
 
   my $bin =  bin($start,$stop,MIN_BIN);  
@@ -346,43 +460,59 @@ sub _get_features_by_search_options
 
   my @features;
   my $filter = sub {
-	my $feature = shift;
+    my $feature = shift;
 	
-	my $feature_start = $feature->{start};
-	my $feature_stop  = $feature->{stop};
-	my $feature_id  = $feature->{feature_id};
+    my $feature_start = $feature->{start};
+    my $feature_stop  = $feature->{stop};
+    my $feature_id  = $feature->{feature_id};
 
-	return 0 if $found{$feature_id};
-	
-	if ($rangetype eq 'overlaps') {
-	  return 0 unless $feature_stop >= $start && $feature_start <= $stop;
-	} elsif ($rangetype eq 'contains') {
-	  return 0 unless $feature_start >= $start && $feature_stop <= $stop;
-	} elsif ($rangetype eq 'contained_in') {
-	  return 0 unless $feature_start <= $start && $feature_stop >= $stop;
-	} else {
-	  return 0 unless $feature_start == $start && $feature_stop == $stop;
-	}
-	
-	$found{$feature_id} = 1;
-	return 1;
+    return 0 if $found{$feature_id};
+
+    if ($rangetype eq 'overlaps') {
+      return 0 unless $feature_stop >= $start && $feature_start <= $stop;
+    } elsif ($rangetype eq 'contains') {
+      return 0 unless $feature_start >= $start && $feature_stop <= $stop;
+    } elsif ($rangetype eq 'contained_in') {
+      return 0 unless $feature_start <= $start && $feature_stop >= $stop;
+    } else {
+      return 0 unless $feature_start == $start && $feature_stop == $stop;
+    }
+
+    my $feature_source = $feature->{source};
+    my $feature_method = $feature->{method};
+
+    if (defined $types && @$types){
+      return unless $self->_matching_typelist($feature_method,$feature_source,$types);
+    }
+
+    my $feature_attributes = $feature->{attributes};
+    if (defined $attributes){
+      return unless $self->_matching_attributes($feature_attributes,$attributes);
+    }
+
+    $found{$feature_id}++;
+    return 1;
   };
 
   my $tier = MAX_BIN;
   while ($tier >= MIN_BIN) {
-	my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
-	warn "Using $tier_start $tier_stop\n";
-	if ($tier_start == $tier_stop) {
-	  push @features, @{$self->retrieve_features(
-		-table => "bin", -key => $tier_start, -filter => $filter)};
-	} else {
-	  my $callback = sub {my $feat = shift; $feat->{bin} <= $tier_stop};
-	  push @features, @{$self->retrieve_features_range
-		(-table => "bin", -start => $tier_start, -do_while => $callback, -filter => $filter
-		)};
-	}
+    my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
+    # warn "Using $tier_start $tier_stop\n";
+    if ($tier_start == $tier_stop) {
+      push @features, @{$self->retrieve_features(-table => "bin",
+						 -key => $tier_start,
+						 -filter => $filter)};
+    } else {
+      my $callback = sub {my $feat = shift; $feat->{bin} <= $tier_stop};
+      push @features, @{$self->retrieve_features_range(-table => "bin",
+						       -start => $tier_start,
+						       -do_while => $callback,
+						       -filter => $filter,
+						      )
+		      };
+    }
 	
-	$tier /= 10;
+    $tier /= 10;
   }
 
   return \@features;
@@ -395,82 +525,66 @@ sub retrieve_features
   my ($table, $key, $filter) = rearrange(['TABLE','KEY','FILTER'],@_);
 
   my $frozen;
-  my @ids = $self->{db}->get_dup("__".$table."__".$key);
+  my @ids = $self->db->get_dup("__".$table."__".$key);
   my @result;
+  my $iddb = $self->{iddb};
 
-  foreach my $id (@ids)
-  {
-	$self->{iddb}->db_get($id, $frozen);
-	my $feat = thaw($frozen);
-	next if $filter && !$filter->($feat);
-	push @result, $feat;
+  foreach my $id (@ids) {
+    my $frozen = $iddb->{$id};
+    my $feat = thaw($frozen);
+    next if $filter && !$filter->($feat);
+    push @result, $feat;
   }
   return \@result;
 }
 
-sub retrieve_features_range
-{
+sub retrieve_features_range {
   my ($self) = shift;
   my ($table, $start, $do_while, $filter) = rearrange(['TABLE','START','DO_WHILE', 'FILTER'],@_);
 
   my @result;
   my ($id, $key, $frozen);
 
-  my $cursor = $self->{db}->db_cursor;
+  $key = "__".$table."__".$start;
+  my $iddb = $self->iddb;
 
-  $key = "__".$table."__".$start;  
-  my $status = $cursor->c_get($key, $id, DB_SET_RANGE);
-  return \@result if $status;
+  for (my $status = $iddb->seq($key,$frozen,R_CURSOR);
+       $status == 0;
+       $status = $iddb->seq($key,$frozen,R_NEXT)) {
 
-  $self->{iddb}->db_get($id, $frozen);
-  my $feature = thaw($frozen);
+    my $feature = thaw($frozen);
+    last unless $do_while->($feature);
 
-  while ($do_while->($feature))
-  {
-	unless ($filter)
-	{
-	  push @result, $feature;
-	}
-	else
-	{
-	  my $filter_result = $filter->($feature);
-	  push @result, $feature if $filter_result;
-	  last if $filter_result == -1;
-	}
-	
-	$status = $cursor->c_get($key, $id, DB_NEXT);
-	last if $status;
-	$self->{iddb}->db_get($id, $frozen);
-	$feature = thaw($frozen);
+    unless ($filter) {
+      push @result, $feature;
+    } else {
+      my $filter_result = $filter->($feature);
+      push @result, $feature if $filter_result;
+      last if $filter_result == -1;
+    }
   }
 
   return \@result;
 }
 
-sub filter_features
-{
+sub filter_features {
   my ($self) = shift;
 
   my ($table, $filter) = rearrange(['TABLE','FILTER'],@_);
 
   my @result;
-  my ($id, $frozen);
+  my ($key, $frozen);
 
-  my $cursor = $self->{iddb}->db_cursor;
+  my $iddb = $self->iddb;
+  for (my $status = $iddb->seq($key,$frozen,R_FIRST);
+       $status == 0;
+       $status = $iddb->seq($key,$frozen,R_NEXT)) {
 
-  my $status = $cursor->c_get($id, $frozen, DB_NEXT);
-  return \@result if $status;
-
-  $self->{iddb}->db_get($id, $frozen);
-  my $feature = thaw($frozen);
-
-  while (!$status)
-  {
-	my $filter_result = $filter->($feature);
-	push @result, $feature if $filter_result;
-	last if $filter_result == -1;
-	$status = $cursor->c_get($id, $frozen, DB_NEXT);
-	$feature = thaw($frozen) if $frozen;
+    my $feature = thaw($frozen);
+    if (my $filter_result = $filter->($feature)) {
+      push @result, $feature;
+      last if $filter_result == -1;
+    }
   }
 
   return \@result;
@@ -484,21 +598,20 @@ sub _basic_features_by_id{
   $ids = [$ids] unless ref $ids =~ /ARRAY/;
 
   my @result;
+  my $iddb = $self->{iddb};
   for my $feature_id (@$ids){
-	  my $frozen;
-	  $self->{iddb}->db_get($feature_id, $frozen);  
-	  push @result, thaw($frozen);
+    my $frozen = $iddb->{$feature_id};
+    push @result, thaw($frozen);
   }
 
   return wantarray() ? @result : $result[0];
 }
 
-sub normalizeNumber
-{
+sub normalizeNumber {
   my ($self, $num) = @_;
   while ((length $num) < MAX_NUM_LENGTH)
   {
-	$num = "0".$num;
+    $num = "0".$num;
   }
   return $num;
 }

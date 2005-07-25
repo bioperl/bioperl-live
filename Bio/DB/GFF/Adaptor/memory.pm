@@ -69,9 +69,6 @@ use strict;
 # Inherits from Bio::DB::GFF.
 
 
-#use lib './blib/lib';
-#use lib '/u/swiss/shuly/bioperl-live';
-# use lib '/a/swiss/export/home/shuly/bioperl-live';
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory_iterator;
