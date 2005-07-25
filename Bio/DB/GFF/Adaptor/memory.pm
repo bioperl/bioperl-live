@@ -76,7 +76,7 @@ use File::Basename 'dirname';
 
 use vars qw(@ISA);
 
-use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
+use constant MAX_SEGMENT => 1_000_000_000;  # the largest a segment can get
 
 @ISA =  qw(Bio::DB::GFF);
 
@@ -297,7 +297,7 @@ sub _delete_features {
 
 sub _delete {
   my $self = shift;
-    my $delete_spec = shift;
+  my $delete_spec = shift;
   my $ranges      = $delete_spec->{segments} || [];
   my $types       = $delete_spec->{types}    || [];
   my $force       = $delete_spec->{force};

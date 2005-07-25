@@ -15,6 +15,7 @@ use Storable qw(freeze thaw);
 use constant MIN_BIN    => 1000;
 # this is the largest that any reference sequence can be (100 megabases)
 use constant MAX_BIN    => 100_000_000;
+use constant MAX_SEGMENT => 1_000_000_000;  # the largest a segment can get
 
 #We have to define a limit because Berkeleydb sorts in lexicografic order,
 #so all the numbers have to have the same length.	
@@ -62,6 +63,46 @@ sub _close_databases {
   my $self = shift;
   delete $self->{db};
   delete $self->{iddb};
+}
+
+sub _delete_features {
+  my $self        = shift;
+  my @feature_ids = @_;
+  my $removed = 0;
+  my $last_id = $self->{db}{__index__};
+  for my $id (@feature_ids) {
+    next unless $id >= 0 && $id < $last_id;
+    my $feat  = thaw ($self->{iddb}{$id}) or next;
+    delete $self->{iddb}{$id};  # delete data
+    my @keys = $self->_secondary_keys($feat);
+    $self->db->del_dup($_,$id) foreach @keys;
+    $removed++;
+  }
+  $removed;
+}
+
+sub _secondary_keys {
+  my $self = shift;
+  my $feat = shift;
+  return (
+		"__class__". $feat->{gclass},
+		"__name__".(lc $feat->{gname}),
+		"__bin__"."$feat->{ref}$;$feat->{bin}",
+		"__type__".join(':',$feat->{method},$feat->{source}),
+		map {"__attr__".$_->[0]."__".$_->[1]} @{$feat->{attributes}}
+	  );
+}
+
+sub _delete {
+  my $self        = shift;
+  my $delete_spec = shift;
+  return $self->SUPER::_delete($delete_spec) if @{$delete_spec->{segments}} or @{$delete_spec->{types}};
+  $self->throw("This operation would delete all feature data and -force not specified")
+    unless $delete_spec->{force};
+  my $deleted = $self->{db}{__index__};
+  %{$self->{iddb}} = ();
+  %{$self->{db}}   = ();
+  $deleted;
 }
 
 sub do_initialize {
@@ -154,13 +195,14 @@ sub load_gff_line {
   my ($self, $feat) = @_;
 
   #Continue if this is the '##sequence-region' header line.
-  return if lc($feat->{source}) eq "reference";
+  # return if lc($feat->{source}) eq "reference";
 
   $feat->{strand} = '' if $feat->{strand} && $feat->{strand} eq '.';
-  $feat->{phase} = ''  if $feat->{phase}  && $feat->{phase} eq '.';
+  $feat->{phase} = ''  if $feat->{phase}  && $feat->{phase}  eq '.';
 
   my $start = $feat->{start};
   my $stop = $feat->{stop};
+  my $type = join(':',$feat->{method},$feat->{source});
 
   my $bin =  bin($feat->{start},$feat->{stop},MIN_BIN);
   $feat->{bin} = $bin;
@@ -171,7 +213,9 @@ sub load_gff_line {
   my $db = $self->{db};
   $db->{"__class__". $feat->{gclass}}   = $id;
   $db->{"__name__".(lc $feat->{gname})} = $id;
-  $db->{"__bin__".$bin}                 = $id;
+
+  $db->{"__bin__"."$feat->{ref}$;$bin"}   = $id;
+  $db->{"__type__".$type}                 = $id;
 
   for my $attr (@{$feat->{attributes}}) {
     my ($attr_name,$attr_value) = @$attr;
@@ -186,6 +230,7 @@ sub finish_load {
   my $self = shift;
   $self->iddb->sync;
   $self->db->sync;
+  1;
 }
 
 
@@ -257,6 +302,52 @@ sub get_abscoords {
   }
 
   return \@found_segments;
+}
+
+sub get_types {
+  my $self = shift;
+  my ($srcseq,$class,$start,$stop,$want_count,$typelist) = @_;
+  my (%obj,%result,$key,$value);
+  $key = "__type__";
+
+  if (!$srcseq) { # optimized full type list
+    my $db = $self->db;
+    my $status = $db->seq($key,$value,R_CURSOR);
+
+    while ($status == 0 && $key =~ /^__type__(.+)/) {
+      my $type = $1;
+      my ($method,$source) = split ':',$type;
+      $obj{$type} = Bio::DB::GFF::Typename->new($method,$source);
+      $result{$type}++;
+
+      if ($want_count) {
+	$status = $db->seq($key,$value,R_NEXT);
+      } else { # skip to next key set
+	$key .= "\0";
+	$status = $db->seq($key,$value,R_CURSOR)
+      }
+
+    }
+  }
+
+  else { # range search
+    for my $feature (@{$self->_get_features_by_search_options(undef,
+							      {rangetype => 'overlaps',
+							       refseq    => $srcseq,
+							       refclass  => ($class || undef),
+							       start     => ($start || undef),
+							       stop      => ($stop  || undef),
+							      },
+							      {}
+							     )}
+		    ) {
+      my $type = Bio::DB::GFF::Typename->new($feature->{method},$feature->{source});
+      $obj{$type} = $type;
+      $result{$type}++;
+    }
+  }
+
+  return $want_count ? %result : values %obj;
 }
 
 
@@ -462,20 +553,30 @@ sub _get_features_by_search_options {
   my $filter = sub {
     my $feature = shift;
 	
+    my $ref           = $feature->{ref};
     my $feature_start = $feature->{start};
     my $feature_stop  = $feature->{stop};
-    my $feature_id  = $feature->{feature_id};
+    my $feature_id    = $feature->{feature_id};
 
-    return 0 if $found{$feature_id};
+    return if $found{$feature_id};
 
-    if ($rangetype eq 'overlaps') {
-      return 0 unless $feature_stop >= $start && $feature_start <= $stop;
-    } elsif ($rangetype eq 'contains') {
-      return 0 unless $feature_start >= $start && $feature_stop <= $stop;
-    } elsif ($rangetype eq 'contained_in') {
-      return 0 unless $feature_start <= $start && $feature_stop >= $stop;
-    } else {
-      return 0 unless $feature_start == $start && $feature_stop == $stop;
+    if (defined $refseq) {
+      next unless lc $refseq eq lc $ref;
+    }
+
+    if (defined $start or defined $stop) {
+      $start = 0               unless defined($start);
+      $stop  = MAX_SEGMENT     unless defined($stop);
+
+      if ($rangetype eq 'overlaps') {
+	return unless $feature_stop >= $start && $feature_start <= $stop;
+      } elsif ($rangetype eq 'contains') {
+	return unless $feature_start >= $start && $feature_stop <= $stop;
+      } elsif ($rangetype eq 'contained_in') {
+	return unless $feature_start <= $start && $feature_stop >= $stop;
+      } else {
+	return unless $feature_start == $start && $feature_stop == $stop;
+      }
     }
 
     my $feature_source = $feature->{source};
@@ -500,12 +601,12 @@ sub _get_features_by_search_options {
     # warn "Using $tier_start $tier_stop\n";
     if ($tier_start == $tier_stop) {
       push @features, @{$self->retrieve_features(-table => "bin",
-						 -key => $tier_start,
+						 -key => "$refseq$;$tier_start",
 						 -filter => $filter)};
     } else {
       my $callback = sub {my $feat = shift; $feat->{bin} <= $tier_stop};
       push @features, @{$self->retrieve_features_range(-table => "bin",
-						       -start => $tier_start,
+						       -start => "$refseq$;$tier_start",
 						       -do_while => $callback,
 						       -filter => $filter,
 						      )
@@ -518,10 +619,8 @@ sub _get_features_by_search_options {
   return \@features;
 }
 
-sub retrieve_features
-{
-  my ($self) = shift;
-
+sub retrieve_features {
+  my $self = shift;
   my ($table, $key, $filter) = rearrange(['TABLE','KEY','FILTER'],@_);
 
   my $frozen;
@@ -543,16 +642,16 @@ sub retrieve_features_range {
   my ($table, $start, $do_while, $filter) = rearrange(['TABLE','START','DO_WHILE', 'FILTER'],@_);
 
   my @result;
-  my ($id, $key, $frozen);
+  my ($id, $key, $value);
 
   $key = "__".$table."__".$start;
-  my $iddb = $self->iddb;
+  my $db   = $self->db;
 
-  for (my $status = $iddb->seq($key,$frozen,R_CURSOR);
+  for (my $status = $db->seq($key,$value,R_CURSOR);
        $status == 0;
-       $status = $iddb->seq($key,$frozen,R_NEXT)) {
+       $status = $db->seq($key,$value,R_NEXT)) {
 
-    my $feature = thaw($frozen);
+    my $feature = thaw($self->{iddb}{$value});
     last unless $do_while->($feature);
 
     unless ($filter) {

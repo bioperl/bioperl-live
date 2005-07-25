@@ -7,6 +7,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
+use FindBin '$Bin';
 use constant TEST_COUNT => 138;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
@@ -33,7 +34,10 @@ use lib "$ENV{HOME}/cvswork/bioperl-live/";
 use Bio::DB::GFF;
 use Bio::SeqIO;
 
+# chdir "$Bin/..";
+
 my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysql' : 'memory';
+$adaptor    = shift if @ARGV;
 my @args;
 
 if ($adaptor =~ /^dbi/) {
