@@ -6,6 +6,7 @@ use Data::Dumper;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::Fasta;
+use Bio::DB::GFF::Adaptor::berkeleydb::iterator;
 
 use DB_File;
 use File::Path 'mkpath';
@@ -46,9 +47,9 @@ sub _open_databases {
   my (%db,%iddb);
   local $DB_BTREE->{flags} = R_DUP;
   tie(%db,'DB_File',$self->_index_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
-    or die "Couldn't tie ",$self->_index_file,": $!";
+    or $self->throw("Couldn't tie ".$self->_index_file.": $!");
   tie(%iddb,'DB_File',$self->_hash_file,O_RDWR|O_CREAT,0666,$DB_HASH)
-    or die "Couldn't tie ",$self->_hash_fle,": $!";
+    or $self->throw("Couldn't tie ".$self->_hash_fle.": $!");
   $self->{db}   = \%db;
   $self->{iddb} = \%iddb;
 
@@ -171,6 +172,11 @@ sub _hash_file {
 sub _fasta_file {
   my $self = shift;
   return $self->dsn . "/sequence.fa";
+}
+
+sub _temp_file {
+  my $self = shift;
+  return $self->dsn ."/temporary_results.btree";
 }
 
 sub db {
@@ -537,19 +543,28 @@ sub _get_features_by_search_options {
   my ($self, $data,$search,$options) = @_;
   my $count = 0;
 
-  my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
+  my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$temp_table) =
     (@{$search}{qw(rangetype refseq refclass start stop types)},
-     @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
+     @{$options}{qw(sparse sort_by_group ATTRIBUTES temp_table)}) ;
 	
   $start = 0               unless defined($start);
   $stop  = MAX_BIN         unless defined($stop);
 	
-  my %found;
-
   my $bin =  bin($start,$stop,MIN_BIN);  
   $bin = $self->normalizeNumber($bin);
 
-  my @features;
+  my ($results,@features,%found,%results_table);
+
+  if ($temp_table) {
+    local $DB_BTREE->{flags} = R_DUP;
+    unlink $self->_temp_file;
+    tie(%results_table,'DB_File',$self->_temp_file,O_RDWR|O_CREAT,0666,$DB_BTREE) 
+      or $self->throw("Couldn't tie ".$self->_temp_file.": $!");
+    $results = \%results_table;
+  } else {
+    $results = \@features;
+  }
+
   my $filter = sub {
     my $feature = shift;
 	
@@ -558,7 +573,7 @@ sub _get_features_by_search_options {
     my $feature_stop  = $feature->{stop};
     my $feature_id    = $feature->{feature_id};
 
-    return if $found{$feature_id};
+    return 0 if $found{$feature_id}++;
 
     if (defined $refseq) {
       next unless lc $refseq eq lc $ref;
@@ -591,7 +606,6 @@ sub _get_features_by_search_options {
       return unless $self->_matching_attributes($feature_attributes,$attributes);
     }
 
-    $found{$feature_id}++;
     return 1;
   };
 
@@ -604,14 +618,14 @@ sub _get_features_by_search_options {
 	$self->retrieve_features(-table => "bin",
 				 -key => "$refseq$;$tier_start",
 				 -filter => $filter,
-				 -result => \@features);
+				 -result => $results);
       } else {
 	my $callback = sub {my $feat = shift; $feat->{bin} <= $tier_stop};
 	$self->retrieve_features_range(-table => "bin",
 				       -start => "$refseq$;$tier_start",
 				       -do_while => $callback,
 				       -filter => $filter,
-				       -result => \@features);
+				       -result => $results);
       }
 	
       $tier /= 10;
@@ -628,7 +642,7 @@ sub _get_features_by_search_options {
 										  $f->{method},
 										  $f->{source},
 										  [$_]) },
-				     -result => \@features);
+				     -result => $results);
     }
   }
 
@@ -637,18 +651,14 @@ sub _get_features_by_search_options {
     $self->retrieve_features(-table => 'attr',
 			     -key   => "${attribute_name}__${attribute_value}",
 			     -filter => $filter,
-			     -result  => \@features);
+			     -result  => $results);
   }
 
-  else { # linear search
-    while (my ($key,$value) = each %{$self->{iddb}}) {
-      my $feature = thaw($self->{iddb}{$key});
-      next unless $filter->($feature);
-      push @features,$feature;
-    }
+  else {
+    $self->filter_features(-filter => $filter,-result=>$results);
   }
 
-  return \@features;
+  return $results;
 }
 
 sub retrieve_features {
@@ -665,8 +675,14 @@ sub retrieve_features {
   foreach my $id (@ids) {
     my $frozen = $iddb->{$id};
     my $feat = thaw($frozen);
-    next if $filter && !$filter->($feat);
-    push @$result, $feat;
+    my $filter_result = $filter ? $filter->($feat) : 1;
+    next unless $filter_result;
+    if (ref $result eq 'HASH') {
+     $result->{"$feat->{gclass}:$feat->{gname}"} = freeze($self->_hash_to_array($feat));
+    } else {
+      push @$result, $feat;
+    }
+    last if $filter_result == -1;
   }
   return $result;
 }
@@ -686,42 +702,51 @@ sub retrieve_features_range {
        $status == 0;
        $status = $db->seq($key,$value,R_NEXT)) {
 
-    my $feature = thaw($self->{iddb}{$value});
-    last unless $do_while->($feature);
+    my $feat = thaw($self->{iddb}{$value});
+    last unless $do_while->($feat);
 
-    unless ($filter) {
-      push @$result, $feature;
+    my $filter_result = $filter ? $filter->($feat) : 1;
+    next unless $filter_result;
+
+    if (ref $result eq 'HASH') {
+     $result->{"$feat->{gclass}:$feat->{gname}"} = freeze($self->_hash_to_array($feat));
     } else {
-      my $filter_result = $filter->($feature);
-      push @$result, $feature if $filter_result;
-      last if $filter_result == -1;
+      push @$result,$feat;
     }
+    last if $filter_result == -1;
   }
 
   return $result;
 }
 
+
 sub filter_features {
   my ($self) = shift;
 
-  my ($table, $filter) = rearrange(['TABLE','FILTER'],@_);
+  my ($filter,$result) = rearrange(['FILTER','RESULT'],@_);
 
   my @result;
-  my ($key, $frozen);
+  $result ||= \@result;
 
+  my ($key, $frozen);
   my $iddb = $self->iddb;
   for (my $status = $iddb->seq($key,$frozen,R_FIRST);
        $status == 0;
        $status = $iddb->seq($key,$frozen,R_NEXT)) {
 
-    my $feature = thaw($frozen);
-    if (my $filter_result = $filter->($feature)) {
-      push @result, $feature;
-      last if $filter_result == -1;
+    my $feat = thaw($frozen);
+    my $filter_result = $filter ? $filter->($feat) : 1;
+    next unless $filter_result;
+
+    if (ref($result) eq 'HASH') {
+     $result->{"$feat->{gclass}:$feat->{gname}"} = freeze($self->_hash_to_array($feat));
+    } else {
+      push @$result,$feat;
     }
+    last if $filter_result == -1;
   }
 
-  return \@result;
+  return $result;
 }
 
 
@@ -749,6 +774,19 @@ sub normalizeNumber {
   }
   return $num;
 }
+
+sub get_features_iterator {
+  my $self = shift;
+
+  my ($search,$options,$callback) = @_;
+  $callback || $self->throw('must provide a callback argument');
+  $options->{temp_table}++;
+
+  my $data = \@{$self->{data}};
+  my $results = $self->_get_features_by_search_options($data,$search,$options);
+  return Bio::DB::GFF::Adaptor::berkeleydb::iterator->new($results,$callback,$self->_temp_file);
+}
+
 
 1;
 

@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::memory_iterator - iterator for Bio::DB::GFF::Adaptor::memory
+Bio::DB::GFF::Adaptor::memory::iterator - iterator for Bio::DB::GFF::Adaptor::memory
 
 =head1 SYNOPSIS
 
@@ -33,15 +33,11 @@ it under the same terms as Perl itself.
 
 =cut
 
-package Bio::DB::GFF::Adaptor::memory_iterator;
+package Bio::DB::GFF::Adaptor::memory::iterator;
 use strict;
 # $Id$
 # this module needs to be cleaned up and documented
 use Bio::Root::Version;
-
-#use constant STH         => 0;
-#use constant CALLBACK    => 1;
-#use constant CACHE       => 2;
 
 *next_seq = \&next_feature;
 

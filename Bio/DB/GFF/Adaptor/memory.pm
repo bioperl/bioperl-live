@@ -71,7 +71,7 @@ use strict;
 
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
-use Bio::DB::GFF::Adaptor::memory_iterator;
+use Bio::DB::GFF::Adaptor::memory::iterator;
 use File::Basename 'dirname';
 
 use vars qw(@ISA);
@@ -533,7 +533,7 @@ sub _basic_features_by_id{
 
 # This method is similar to get_features(), except that it returns an
 # iterator across the query.
-# See Bio::DB::GFF::Adaptor::memory_iterator.
+# See Bio::DB::GFF::Adaptor::memory::iterator.
 
 sub get_features_iterator {
   my $self = shift;
@@ -544,7 +544,7 @@ sub get_features_iterator {
   my $results = $self->_get_features_by_search_options($data,$search,$options);
   my $results_array = $self->_convert_feature_hash_to_array($results);
 
-  return Bio::DB::GFF::Adaptor::memory_iterator->new($results_array,$callback);
+  return Bio::DB::GFF::Adaptor::memory::iterator->new($results_array,$callback);
 }
 
 
@@ -670,51 +670,17 @@ sub _get_features_by_search_options{
 }
 
 
+sub _hash_to_array {
+  my ($self,$feature_hash) = @_;
+  my @array = @{$feature_hash}{qw(ref start stop source method score strand phase gclass gname tstart tstop feature_id group_id)};
+  return \@array;
+}
+
 # this subroutine is needed for convertion of the feature from hash to array in order to 
 # pass it to the callback subroutine
 sub _convert_feature_hash_to_array{
-  my ($self, @features_hash_array) = @_;
-
-  use constant FREF    => 0;
-  use constant FSTART  => 1;
-  use constant FSTOP   => 2;
-  use constant FSOURCE => 3;
-  use constant FMETHOD => 4;
-  use constant FSCORE  => 5;
-  use constant FSTRAND => 6;
-  use constant FPHASE  => 7;
-  use constant GCLASS  => 8;
-  use constant GNAME   => 9;
-  use constant TSTART  => 10;
-  use constant TSTOP   => 11;
-  use constant FID     => 12;
-  use constant GID     => 13;
-
-  my @features_array_array;
-  my $feature_count = 0;
-  
-  for my $feature_hash (@{$features_hash_array[0]}){
-    my @feature_array;
-
-    $feature_array[FREF]    = $feature_hash->{ref};
-    $feature_array[FSTART]  = $feature_hash->{start};
-    $feature_array[FSTOP]   = $feature_hash->{stop};  
-    $feature_array[FSOURCE] = $feature_hash->{source};
-    $feature_array[FMETHOD] = $feature_hash->{method};
-    $feature_array[FSCORE]  = $feature_hash->{score};
-    $feature_array[FSTRAND] = $feature_hash->{strand};  
-    $feature_array[FPHASE ] = $feature_hash->{phase};
-    $feature_array[GCLASS]  = $feature_hash->{gclass};  
-    $feature_array[GNAME]   = $feature_hash->{gname};
-    $feature_array[TSTART]  = $feature_hash->{tstart};
-    $feature_array[TSTOP]   = $feature_hash->{tstop};
-    $feature_array[FID]     = $feature_hash->{feature_id};  
-    $feature_array[GID]     = $feature_hash->{group_id};
-
-    $features_array_array[$feature_count] = \@feature_array;
-    $feature_count++;
-  }
-  
+  my ($self, $feature_hash_array) = @_;
+  my @features_array_array = map {$self->_hash_to_array($_)} @$feature_hash_array;
   return \@features_array_array;
 }
 
