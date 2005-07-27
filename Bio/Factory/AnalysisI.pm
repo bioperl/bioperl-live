@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Factory::AnalysisI
 #
-# Cared for by Martin Senger <senger@ebi.ac.uk>
+# Cared for by Martin Senger <martin.senger@gmail.com>
 # For copyright and disclaimer see below.
 #
 
@@ -46,7 +46,7 @@ web:
 
 =head1 AUTHOR
 
-Martin Senger (senger@ebi.ac.uk)
+Martin Senger (martin.senger@gmail.com)
 
 =head1 COPYRIGHT
 
@@ -66,7 +66,7 @@ This software is provided "as is" without warranty of any kind.
 
 =item *
 
-http://industry.ebi.ac.uk/soaplab/Perl_Client.html
+http://www.ebi.ac.uk/soaplab/Perl_Client.html
 
 =back
 

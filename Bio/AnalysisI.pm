@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::AnalysisI
 #
-# Cared for by Martin Senger <senger@ebi.ac.uk>
+# Cared for by Martin Senger <martin.senger@gmail.com>
 # For copyright and disclaimer see below.
 #
 
@@ -47,7 +47,7 @@ web:
 
 =head1 AUTHOR
 
-Martin Senger (senger@ebi.ac.uk)
+Martin Senger (martin.senger@gmail.com)
 
 =head1 COPYRIGHT
 
@@ -67,7 +67,7 @@ This software is provided "as is" without warranty of any kind.
 
 =item *
 
-http://industry.ebi.ac.uk/soaplab/Perl_Client.html
+http://www.ebi.ac.uk/soaplab/Perl_Client.html
 
 =back
 
@@ -121,7 +121,7 @@ C<supplier>, C<installation>, C<description>.
 
 Here is an example output:
 
-  Analysis 'edit::seqret':
+  Analysis 'edit.seqret':
         installation => EMBL-EBI
         description => Reads and writes (returns) sequences
         supplier => EMBOSS
@@ -180,7 +180,7 @@ The DTD used for returned metadata is based on the adopted standard
 
 But the DTD may be extended by provider-specific metadata. For
 example, the EBI experimental SOAP-based service on top of EMBOSS uses
-DTD explained at C<http://industry.ebi.ac.uk/applab>.
+DTD explained at C<http://www.ebi.ac.uk/~senger/applab>.
 
 =cut
 
@@ -297,7 +297,7 @@ The analysis results are named and can be retrieved using their names
 by methods C<results> and C<result>.
 
 Here is an example of the result specification (again for the service
-I<edit::seqret>):
+I<edit.seqret>):
 
   $result_spec = {
           'outseq' => 'String',
@@ -552,7 +552,7 @@ started, but before it finishes (note that the example uses an
 analysis 'showdb' which does not need any input data):
 
    use Bio::Tools::Run::Analysis;
-   print new Bio::Tools::Run::Analysis (-name => 'display::showdb')
+   print new Bio::Tools::Run::Analysis (-name => 'display.showdb')
              ->run
 	     ->last_event;
 
@@ -567,7 +567,7 @@ It prints:
 The same example but now after it finishes:
 
    use Bio::Tools::Run::Analysis;
-   print new Bio::Tools::Run::Analysis (-name => 'display::showdb')
+   print new Bio::Tools::Run::Analysis (-name => 'display.showdb')
              ->wait_for
 	     ->last_event;
 
@@ -685,11 +685,11 @@ An example - both for unformatted and formatted times:
 
    use Data::Dumper;
    use Bio::Tools::Run::Analysis;
-   my $rh = new Bio::Tools::Run::Analysis (-name => 'nucleic_cpg_islands::cpgplot')
+   my $rh = new Bio::Tools::Run::Analysis (-name => 'nucleic_cpg_islands.cpgplot')
              ->wait_for ( { 'sequence_usa' => 'embl:hsu52852' } )
 	     ->times (1);
    print Data::Dumper->Dump ( [$rh], ['Times']);
-   $rh = new Bio::Tools::Run::Analysis (-name => 'nucleic_cpg_islands::cpgplot')
+   $rh = new Bio::Tools::Run::Analysis (-name => 'nucleic_cpg_islands.cpgplot')
              ->wait_for ( { 'sequence_usa' => 'embl:AL499624' } )
 	     ->times;
    print Data::Dumper->Dump ( [$rh], ['Times']);

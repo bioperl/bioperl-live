@@ -2287,7 +2287,7 @@ See L<Bio::MapIO> and L<Bio::Map::SimpleMap> for more information.
 
 Bio::Biblio objects are used to query bibliographic databases, such as MEDLINE.
 The associated modules are built to work with OpenBQS-compatible databases
-(see http://industry.ebi.ac.uk/openBQS). A Bio::Biblio object can execute
+(see http://www.ebi.ac.uk/~senger/openbqs). A Bio::Biblio object can execute
 a query like:
 
   my $collection = $biblio->find ('brazma', 'authors');
