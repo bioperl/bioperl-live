@@ -52,7 +52,9 @@ sub _autoindex {
   my $dir    = $self->dsn;
   my %ignore = map {$_=>1} ($self->_index_file,$self->_hash_file,$self->_fasta_file,$self->_temp_file,$self->_timestamp_file);
 
-  my $maxtime = 0;
+  my $maxtime   = 0;
+  my $maxfatime = 0;
+
   opendir (D,$dir) or $self->throw("Couldn't open directory $dir for reading: $!");
 
   while (defined (my $node = readdir(D))) {
@@ -61,18 +63,24 @@ sub _autoindex {
     next if $ignore{$path};
     next unless -f $path;
     my $mtime = _mtime(\*_);  # not a typo
-    $maxtime  = $mtime if $mtime > $maxtime;
+    $maxtime   = $mtime if $mtime > $maxtime;
+    $maxfatime = $mtime if $mtime > $maxfatime && $node =~ /\.(?:fa|fasta|dna)(?:\.gz)?$/;
   }
 
   close D;
 
   my $timestamp_time  = _mtime($self->_timestamp_file) || 0;
-  my $all_files_exist = -e $self->_index_file && -e $self->_hash_file;
+  my $all_files_exist = -e $self->_index_file && -e $self->_hash_file && (-e $self->_fasta_file || !$maxfatime);
+
+  # to avoid rebuilding FASTA files if not changed
+  my $spare_fasta     = $maxfatime > 0 && $maxfatime < $timestamp_time && -e $self->_fasta_file;  
 
   if ($maxtime > $timestamp_time || !$all_files_exist) {
-    $self->do_initialize(1);
+    print STDERR __PACKAGE__,": Reindexing files in $dir. This may take a while....\n";
+    $self->do_initialize(1,$spare_fasta);
     $self->load_gff($dir);
-    $self->load_fasta($dir);
+    $self->load_fasta($dir) unless $spare_fasta;
+    print STDERR __PACKAGE__,": Reindexing done\n";
   }
 
   else {
@@ -92,7 +100,7 @@ sub _open_databases {
   tie(%db,'DB_File',$self->_index_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
     or $self->throw("Couldn't tie ".$self->_index_file.": $!");
   tie(%iddb,'DB_File',$self->_hash_file,O_RDWR|O_CREAT,0666,$DB_HASH)
-    or $self->throw("Couldn't tie ".$self->_hash_fle.": $!");
+    or $self->throw("Couldn't tie ".$self->_hash_file.": $!");
   $self->{db}   = \%db;
   $self->{iddb} = \%iddb;
 
@@ -152,12 +160,15 @@ sub _delete {
 sub do_initialize {
   my $self  = shift;
   my $erase = shift;
+  my $spare_fasta = shift;
   if ($erase) {
     $self->_close_databases;
     unlink $self->_index_file;
     unlink $self->_hash_file;
-    unlink $self->_fasta_file;
-    unlink $self->_fasta_file.'.index';
+    unless ($spare_fasta) {
+      unlink $self->_fasta_file;
+      unlink $self->_fasta_file.'.index';
+    }
     unlink $self->_timestamp_file;
     $self->_open_databases;
     $self->_next_id(0);
@@ -558,23 +569,22 @@ sub search_notes {
 
   my $filter = sub {
     my $feature = shift;
-    next unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
-    next unless $feature->{attributes};
+    return unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
+    return unless $feature->{attributes};
     my @attributes = @{$feature->{attributes}};
     my @values     = map {$_->[1]} @attributes;
     my $value      = "@values";
-    my $matches    = 0;
 
-    for my $w (@words) {
-      my @hits = $value =~ /($w)/ig;
-      $matches += @hits;
+    my @hits;
+    while ($value =~ /($search)/ig) {
+      push @hits,$1;
     }
 	
-    if ($matches) {
-      push @matches, $matches;
+    if (@hits) {
+      push @matches, scalar @hits;
       return -1 if @matches >= $limit;
     }
-    return $matches;
+    return scalar @hits;
   };
 
   my @features = @{$self->filter_features(-table => "attrib__Note", -filter => $filter)};
