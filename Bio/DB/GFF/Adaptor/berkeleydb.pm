@@ -595,25 +595,57 @@ sub _get_features_by_search_options {
     return 1;
   };
 
-  my $tier = MAX_BIN;
-  while ($tier >= MIN_BIN) {
-    my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
-    # warn "Using $tier_start $tier_stop\n";
-    if ($tier_start == $tier_stop) {
-      push @features, @{$self->retrieve_features(-table => "bin",
-						 -key => "$refseq$;$tier_start",
-						 -filter => $filter)};
-    } else {
-      my $callback = sub {my $feat = shift; $feat->{bin} <= $tier_stop};
-      push @features, @{$self->retrieve_features_range(-table => "bin",
-						       -start => "$refseq$;$tier_start",
-						       -do_while => $callback,
-						       -filter => $filter,
-						      )
-		      };
-    }
+  if (defined $refseq && !$sparse) {
+    my $tier = MAX_BIN;
+    while ($tier >= MIN_BIN) {
+      my ($tier_start,$tier_stop) = (bin_bot($tier,$start),bin_top($tier,$stop));
+      # warn "Using $tier_start $tier_stop\n";
+      if ($tier_start == $tier_stop) {
+	$self->retrieve_features(-table => "bin",
+				 -key => "$refseq$;$tier_start",
+				 -filter => $filter,
+				 -result => \@features);
+      } else {
+	my $callback = sub {my $feat = shift; $feat->{bin} <= $tier_stop};
+	$self->retrieve_features_range(-table => "bin",
+				       -start => "$refseq$;$tier_start",
+				       -do_while => $callback,
+				       -filter => $filter,
+				       -result => \@features);
+      }
 	
-    $tier /= 10;
+      $tier /= 10;
+    }
+  }
+
+  elsif (@$types) {
+    foreach (@$types) {
+      my $type = join ':',@$_;
+      $self->retrieve_features_range(-table    => 'type',
+				     -start    => $type,
+				     -do_while => sub { my $f = shift;
+							$self->_matching_typelist(
+										  $f->{method},
+										  $f->{source},
+										  [$_]) },
+				     -result => \@features);
+    }
+  }
+
+  elsif (defined $attributes) {
+    my ($attribute_name,$attribute_value) = each %$attributes; # pick first one
+    $self->retrieve_features(-table => 'attr',
+			     -key   => "${attribute_name}__${attribute_value}",
+			     -filter => $filter,
+			     -result  => \@features);
+  }
+
+  else { # linear search
+    while (my ($key,$value) = each %{$self->{iddb}}) {
+      my $feature = thaw($self->{iddb}{$key});
+      next unless $filter->($feature);
+      push @features,$feature;
+    }
   }
 
   return \@features;
@@ -621,27 +653,30 @@ sub _get_features_by_search_options {
 
 sub retrieve_features {
   my $self = shift;
-  my ($table, $key, $filter) = rearrange(['TABLE','KEY','FILTER'],@_);
+  my ($table, $key, $filter, $result) = rearrange(['TABLE','KEY','FILTER', 'RESULT'],@_);
+
+  my @result;
+  $result ||= \@result;
 
   my $frozen;
   my @ids = $self->db->get_dup("__".$table."__".$key);
-  my @result;
   my $iddb = $self->{iddb};
 
   foreach my $id (@ids) {
     my $frozen = $iddb->{$id};
     my $feat = thaw($frozen);
     next if $filter && !$filter->($feat);
-    push @result, $feat;
+    push @$result, $feat;
   }
-  return \@result;
+  return $result;
 }
 
 sub retrieve_features_range {
   my ($self) = shift;
-  my ($table, $start, $do_while, $filter) = rearrange(['TABLE','START','DO_WHILE', 'FILTER'],@_);
+  my ($table, $start, $do_while, $filter, $result) = rearrange(['TABLE','START','DO_WHILE', 'FILTER', 'RESULT'],@_);
 
   my @result;
+  $result ||= \@result;
   my ($id, $key, $value);
 
   $key = "__".$table."__".$start;
@@ -655,15 +690,15 @@ sub retrieve_features_range {
     last unless $do_while->($feature);
 
     unless ($filter) {
-      push @result, $feature;
+      push @$result, $feature;
     } else {
       my $filter_result = $filter->($feature);
-      push @result, $feature if $filter_result;
+      push @$result, $feature if $filter_result;
       last if $filter_result == -1;
     }
   }
 
-  return \@result;
+  return $result;
 }
 
 sub filter_features {

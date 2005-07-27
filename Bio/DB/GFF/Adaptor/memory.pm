@@ -401,7 +401,7 @@ sub get_features{
   my $count = 0;
   my ($search,$options,$callback) = @_;
   my $data = \@{$self->{data}};
-  
+
   my $found_features;
 
   $found_features = $self->_get_features_by_search_options($data,$search,$options);
@@ -532,7 +532,7 @@ sub _basic_features_by_id{
 }
 
 # This method is similar to get_features(), except that it returns an
-# iterator across the query.  
+# iterator across the query.
 # See Bio::DB::GFF::Adaptor::memory_iterator.
 
 sub get_features_iterator {
@@ -599,11 +599,7 @@ sub get_types {
   }   #end features loop
 
   return $want_count ? %result : values %obj;
- 
 }
-
-
-
 
 # Internal method that performs a search on the features array, 
 # sequentialy retrieves the features, and performs a check on each feature
@@ -613,7 +609,7 @@ sub _get_features_by_search_options{
   my ($self, $data,$search,$options) = @_;
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
-    @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
+     @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
 
   my @found_features;
 
@@ -672,9 +668,6 @@ sub _get_features_by_search_options{
 
   return \@found_features; 
 }
-
-
-
 
 
 # this subroutine is needed for convertion of the feature from hash to array in order to 
