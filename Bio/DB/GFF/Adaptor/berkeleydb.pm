@@ -26,16 +26,59 @@ use base 'Bio::DB::GFF::Adaptor::memory';
 
 sub new {
   my $class = shift ;
-  my ($dbdir,$preferred_groups) = rearrange([
-					     [qw(DSN DB DIR DIRECTORY)],
-					     'PREFERRED_GROUPS',
+  my ($dbdir,$preferred_groups,$autoindex) = rearrange([
+							[qw(DSN DB)],
+							'PREFERRED_GROUPS',
+							[qw(DIR AUTOINDEX)],
 					    ],@_);
+  if (defined $dbdir && defined $autoindex) {
+    $class->throw("If both -dsn and -dir (or -autoindex) are specified, they must point to the same directory")
+      unless $dbdir eq $autoindex;
+  }
+
+  $dbdir ||= $autoindex;
   $dbdir ||= $ENV{TMPDIR} ? "$ENV{TMPDIR}/test" : "/tmp/test";
+
   my $self = bless {},$class;
   $self->dsn($dbdir);
   $self->preferred_groups($preferred_groups) if defined $preferred_groups;
+  $self->_autoindex                          if $autoindex;
   $self->_open_databases();
   return $self;
+}
+
+sub _autoindex {
+  my $self = shift;
+  my $dir    = $self->dsn;
+  my %ignore = map {$_=>1} ($self->_index_file,$self->_hash_file,$self->_fasta_file,$self->_temp_file,$self->_timestamp_file);
+
+  my $maxtime = 0;
+  opendir (D,$dir) or $self->throw("Couldn't open directory $dir for reading: $!");
+
+  while (defined (my $node = readdir(D))) {
+    next if $node =~ /^\./;
+    my $path      = "$dir/$node";
+    next if $ignore{$path};
+    next unless -f $path;
+    my $mtime = _mtime(\*_);  # not a typo
+    $maxtime  = $mtime if $mtime > $maxtime;
+  }
+
+  close D;
+
+  my $timestamp_time  = _mtime($self->_timestamp_file) || 0;
+  my $all_files_exist = -e $self->_index_file && -e $self->_hash_file;
+
+  if ($maxtime > $timestamp_time || !$all_files_exist) {
+    $self->do_initialize(1);
+    $self->load_gff($dir);
+    $self->load_fasta($dir);
+  }
+
+  else {
+    $self->_open_databases();
+  }
+
 }
 
 sub _open_databases {
@@ -115,6 +158,7 @@ sub do_initialize {
     unlink $self->_hash_file;
     unlink $self->_fasta_file;
     unlink $self->_fasta_file.'.index';
+    unlink $self->_timestamp_file;
     $self->_open_databases;
     $self->_next_id(0);
   }
@@ -141,6 +185,7 @@ sub load_sequence {
   close F;
   my $dna_db = Bio::DB::Fasta->new($file) or $self->throw("Can't reindex sequence file: $@");
   $self->dna_db($dna_db);
+  $self->_touch_timestamp;
   return $loaded;
 }
 
@@ -159,24 +204,35 @@ sub _next_id {
   }
 }
 
+sub _mtime {
+  my $file = shift;
+  my @stat = stat($file);
+  return $stat[9];
+}
+
 sub _index_file {
   my $self = shift;
-  return $self->dsn . "/features.btree";
+  return $self->dsn . "/_bdb_features.btree";
 }
 
 sub _hash_file {
   my $self = shift;
-  return $self->dsn . "/features.hash";
+  return $self->dsn . "/_bdb_features.hash";
 }
 
 sub _fasta_file {
   my $self = shift;
-  return $self->dsn . "/sequence.fa";
+  return $self->dsn . "/_bdb_sequence.fa";
 }
 
 sub _temp_file {
   my $self = shift;
-  return $self->dsn ."/temporary_results.btree";
+  return $self->dsn ."/_bdb_temporary_results.btree";
+}
+
+sub _timestamp_file {
+  my $self = shift;
+  return $self->dsn ."/_bdb_timestamp";
 }
 
 sub db {
@@ -217,18 +273,10 @@ sub load_gff_line {
   $bin = $self->normalizeNumber($bin);
 
   my $db = $self->{db};
-  $db->{"__class__". $feat->{gclass}}   = $id;
-  $db->{"__name__".(lc $feat->{gname})} = $id;
-
-  $db->{"__bin__"."$feat->{ref}$;$bin"}   = $id;
-  $db->{"__type__".$type}                 = $id;
-
-  for my $attr (@{$feat->{attributes}}) {
-    my ($attr_name,$attr_value) = @$attr;
-    $db->{"__attr__".$attr_name."__".$attr_value} = $id;
+  for my $skey ($self->_secondary_keys($feat)) {
+    $db->{$skey} = $id;
   }
 
-  #warn "Storing start $start, stop $stop, bin $bin, id $id";
   $self->{iddb}{$id} = freeze($feat);
 }
 
@@ -236,7 +284,16 @@ sub finish_load {
   my $self = shift;
   $self->iddb->sync;
   $self->db->sync;
+  $self->_touch_timestamp;
   1;
+}
+
+sub _touch_timestamp {
+  my $self = shift;
+  my $tsf = $self->_timestamp_file;
+  open (F,">$tsf") or $self->throw("Couldn't open $tsf: $!");
+  print F scalar(localtime);
+  close F;
 }
 
 
@@ -576,21 +633,18 @@ sub _get_features_by_search_options {
     return 0 if $found{$feature_id}++;
 
     if (defined $refseq) {
-      next unless lc $refseq eq lc $ref;
-    }
-
-    if (defined $start or defined $stop) {
+      return 0 unless lc $refseq eq lc $ref;
       $start = 0               unless defined($start);
       $stop  = MAX_SEGMENT     unless defined($stop);
 
       if ($rangetype eq 'overlaps') {
-	return unless $feature_stop >= $start && $feature_start <= $stop;
+	return 0 unless $feature_stop >= $start && $feature_start <= $stop;
       } elsif ($rangetype eq 'contains') {
-	return unless $feature_start >= $start && $feature_stop <= $stop;
+	return 0 unless $feature_start >= $start && $feature_stop <= $stop;
       } elsif ($rangetype eq 'contained_in') {
-	return unless $feature_start <= $start && $feature_stop >= $stop;
+	return 0 unless $feature_start <= $start && $feature_stop >= $stop;
       } else {
-	return unless $feature_start == $start && $feature_stop == $stop;
+	return 0 unless $feature_start == $start && $feature_stop == $stop;
       }
     }
 
@@ -598,12 +652,12 @@ sub _get_features_by_search_options {
     my $feature_method = $feature->{method};
 
     if (defined $types && @$types){
-      return unless $self->_matching_typelist($feature_method,$feature_source,$types);
+      return 0 unless $self->_matching_typelist($feature_method,$feature_source,$types);
     }
 
     my $feature_attributes = $feature->{attributes};
     if (defined $attributes){
-      return unless $self->_matching_attributes($feature_attributes,$attributes);
+      return 0 unless $self->_matching_attributes($feature_attributes,$attributes);
     }
 
     return 1;
@@ -637,11 +691,12 @@ sub _get_features_by_search_options {
       my $type = join ':',@$_;
       $self->retrieve_features_range(-table    => 'type',
 				     -start    => $type,
+				     -filter   => $filter,
 				     -do_while => sub { my $f = shift;
-							$self->_matching_typelist(
-										  $f->{method},
-										  $f->{source},
-										  [$_]) },
+							lc($f->{method}) eq lc($_->[0]) 
+							  &&
+							lc($f->{source}||$_->[1]||'') eq lc($_->[1]||'')
+						      },
 				     -result => $results);
     }
   }
