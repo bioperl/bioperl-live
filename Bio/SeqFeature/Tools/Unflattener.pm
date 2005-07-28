@@ -2305,11 +2305,9 @@ sub _write_sf {
 sub _write_sf_detail {
     my $self = shift;
     my $sf = shift;
-    if( $self->verbose > 0 ) {
-	printf STDERR "TYPE:%s\n", $sf->primary_tag;
-	my @locs = $sf->location->each_Location;
-	printf STDERR "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
-    }
+    printf STDERR "TYPE:%s\n", $sf->primary_tag;
+    my @locs = $sf->location->each_Location;
+    printf STDERR "  %s,%s [%s]\n", $_->start, $_->end, $_->strand foreach @locs;
     return;
 }
 
@@ -2454,10 +2452,17 @@ sub feature_from_splitloc{
        # an mRNA from genbank will have a discontinuous location,
        # with each sub-location being equivalent to an exon
        my @locs = $sf->location;
+
        if ($sf->location->isa("Bio::Location::SplitLocationI")) {
            @locs = $sf->location->each_Location;
        }
-       
+
+       if (!@locs) {
+           use Data::Dumper;
+           print Dumper $sf;
+	   $self->throw("ASSERTION ERROR: sf has no location objects");
+       }
+
        # make exons from locations
        my @subsfs =
          map {
@@ -2493,7 +2498,7 @@ sub feature_from_splitloc{
        if (!$ok) {
            use Data::Dumper;
            print Dumper $sf->location;
-	   printf STDERR "Unordered features [on strand:%s]:\n",
+	   printf STDERR "Unordered features [on strand:%s]\n",
              $sf->location->strand;
 	   $self->_write_sf_detail($_) foreach @subsfs;
 	   $self->throw("ASSERTION ERROR: inconsistent order");
@@ -2699,7 +2704,7 @@ sub remove_types{
 
 sub _check_order_is_consistent {
     my $self = shift;
-    my $parent_strand = shift;
+    my $parent_strand = shift; # this does nothing..?
     my @ranges = @_;
     return unless @ranges;
     my $strand = $ranges[0]->strand;

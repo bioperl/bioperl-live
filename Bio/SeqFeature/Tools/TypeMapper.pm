@@ -204,35 +204,96 @@ Based on revision 1.22 of SO
 
 Please see the actual code for the mappings
 
-!!!NOT COMPLETE!!!
+Taken from
+
+L<http://song.sourceforge.net/FT_SO_map.txt>
 
 =cut
 
 sub map_types_to_SO{
    my ($self,@args) = @_;
 
+   # note : some of the FT_SO mappings are commented out and overriden...
    push(@args,
 	(-type_map=>{
+
+                     "FT term" => "SO term",
+                     "-" => "located_sequence_feature",
+                     "-10_signal" => "minus_10_signal",
+                     "-35_signal" => "minus_35_signal",
+                     "3'UTR" => "three_prime_UTR",
+                     "3'clip" => "three_prime_clip",
+                     "5'UTR" => "five_prime_UTR",
+                     "5'clip" => "five_prime_clip",
+                     "CAAT_signal" => "CAAT_signal",
+                     "CDS" => "CDS",
+                     "C_region" => "undefined",
+                     "D-loop" => "D_loop",
+                     "D_segment" => "D_gene",
+                     "GC_signal" => "GC_rich_region",
+                     "J_segment" => "undefined",
+                     "LTR" => "long_terminal_repeat",
+                     "N_region" => "undefined",
+                     "RBS" => "ribosome_entry_site",
+                     "STS" => "STS",
+                     "S_region" => "undefined",
+                     "TATA_signal" => "TATA_box",
+                     "V_region" => "undefined",
+                     "V_segment" => "undefined",
+                     "attenuator" => "attenuator",
+                     "conflict" => "undefined",
+                     "enhancer" => "enhancer",
+                     "exon" => "exon",
+                     "gap" => "gap",
+                     "gene" => "gene",
+                     "iDNA" => "iDNA",
+                     "intron" => "intron",
+                     "mRNA" => "mRNA",
+                     "mat_peptide" => "mature_peptide",
+#                     "misc_RNA" => "transcript",
+                     "misc_binding" => "binding_site",
+                     "misc_difference" => "sequence_difference",
+                     "misc_feature" => "region",
+                     "misc_recomb" => "recombination_feature",
+                     "misc_signal" => "regulatory_region",
+                     "misc_structure" => "sequence_secondary_structure",
+                     "modified_base" => "modified_base_site",
+                     "old_sequence" => "undefined",
+                     "operon" => "operon",
+                     "oriT" => "origin_of_transfer",
+                     "polyA_signal" => "polyA_signal_sequence",
+                     "polyA_site" => "polyA_site",
+                     "precursor_RNA" => "primary_transcript",
+                     "prim_transcript" => "primary_transcript",
+                     "primer_bind" => "primer_binding_site",
+                     "promoter" => "promoter",
+                     "protein_bind" => "protein_binding_site",
+                     "rRNA" => "rRNA",
+                     "repeat_region" => "repeat_region",
+                     "repeat_unit" => "repeat_unit",
+                     "satellite" => "satellite_DNA",
+                     "scRNA" => "scRNA",
+                     "sig_peptide" => "signal_peptide",
+                     "snRNA" => "snRNA",
+                     "snoRNA" => "snoRNA",
+#                     "source" => "databank_entry",
+                     "stem_loop" => "stem_loop",
+                     "tRNA" => "tRNA",
+                     "terminator" => "terminator",
+                     "transit_peptide" => "transit_peptide",
+                     "unsure" => "undefined",
+                     "variation" => "sequence_variant",
 
 		     # this is the most generic form for RNAs;
 		     # we always represent the processed form of
 		     # the transcript
 		     misc_RNA=>'processed_transcript',
 
-		     misc_feature=>'located_sequence_feature',
-
 		     # not sure about this one...
 		     source=>'contig',
 
-		     LTR=>'LTR_retrotransposon',
-
 		     rep_origin=>'origin_of_replication',
 
-                     # this should really be subtyped...
-                     variation=>'sequence_variant',
-
-		     "5'UTR"=>'five_prime_UTR',
-		     "3'UTR"=>'three_prime_UTR',
 
                      Protein=>'protein',
 		     
@@ -282,11 +343,10 @@ sub get_relationship_type_by_parent_child {
    # TODO - do this with metadata, or infer via SO itself
 
    if (lc($child) eq 'protein') {
-       # DEPRECATED!!!
-       $type = 'produced_by';
+       $type = 'derives_from';
    }
    if (lc($child) eq 'polypeptide') {
-       $type = 'derived_from';
+       $type = 'derives_from';
    }
    return $type;
 }
