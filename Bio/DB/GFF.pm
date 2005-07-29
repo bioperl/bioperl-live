@@ -2331,7 +2331,7 @@ sub do_load_gff {
       last;
     }
 
-    print STDERR $count-1," features loaded$lineend" if $self->{__verbose__} && ++$count % 1000 == 0;
+    print STDERR $count," features loaded$lineend" if $self->{__verbose__} && ++$count % 1000 == 0;
 
     if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
       $self->load_gff_line(
@@ -2441,7 +2441,7 @@ sub load_sequence {
       $offset = 0;
       $seq    = '';
       $loaded++;
-      print STDERR $loaded," features loaded$lineend" if $self->{__verbose__} && $loaded %1000;
+      print STDERR $loaded," sequences loaded$lineend" if $self->{__verbose__} && $loaded %1000;
     } else {
       $seq .= $_;
       $self->insert_sequence_chunk($id,\$offset,\$seq);
