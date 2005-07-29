@@ -586,7 +586,7 @@ sub _feature_by_attribute{
 
   #there could be more than one set of attributes......
   while (my ($key, $value) = each %$attributes) {
-	
+
     my @features = @{$self->retrieve_features
 		       (-table => "attr", -key => "$key:$value")};
 
@@ -610,32 +610,39 @@ sub search_notes {
     return unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
     return unless $feature->{attributes};
     my @attributes = @{$feature->{attributes}};
-    my @values     = map {$_->[1]} @attributes;
+    my @values     = map {lc $_->[0] eq 'note' ? $_->[1] : ()} @attributes;
     my $value      = "@values";
 
     my @hits;
     while ($value =~ /($search)/ig) {
       push @hits,$1;
     }
-	
+
     if (@hits) {
       push @matches, scalar @hits;
-      return -1 if @matches >= $limit;
+      return -1 if defined $limit && @matches >= $limit;
     }
     return scalar @hits;
   };
 
-  my @features = @{$self->filter_features(-table => "attrib__note", -filter => $filter)};
+  my @features = @{$self->retrieve_features_range(
+						  -table => 'attr',
+						  -start => 'note',
+						  -filter => $filter,
+						  -do_while=>sub { my ($feature,$key)=@_;
+								   $key =~ /^__attr__note/;
+								 }
+						 )
+		 };
 
-  for (my $i=0; $i<scalar @matches; $i++)  {
+  for (my $i=0; $i<@matches; $i++)  {
     my $feature = $features[$i];
     my $matches = $matches[$i];
-	
+
     my $relevance = 10 * $matches;
     my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
     my $note;
     $note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
-    $note  .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
     push @results,[$featname,$note,$relevance];
   }
 
@@ -651,10 +658,10 @@ sub _get_features_by_search_options {
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$temp_table) =
     (@{$search}{qw(rangetype refseq refclass start stop types)},
      @{$options}{qw(sparse sort_by_group ATTRIBUTES temp_table)}) ;
-	
+
   $start = 0               unless defined($start);
   $stop  = MAX_BIN         unless defined($stop);
-	
+
   my $bin =  bin($start,$stop,MIN_BIN);  
   $bin = $self->normalizeNumber($bin);
 
@@ -672,7 +679,7 @@ sub _get_features_by_search_options {
 
   my $filter = sub {
     my $feature = shift;
-	
+
     my $ref           = $feature->{ref};
     my $feature_start = $feature->{start};
     my $feature_stop  = $feature->{stop};
@@ -729,7 +736,6 @@ sub _get_features_by_search_options {
 				       -filter => $filter,
 				       -result => $results);
       }
-	
       $tier /= 10;
     }
   }
@@ -805,7 +811,7 @@ sub retrieve_features_range {
        $status = $db->seq($key,$value,R_NEXT)) {
 
     my $feat = $self->{data}->get($value);
-    last unless $do_while->($feat);
+    last unless $do_while->($feat,$key);
 
     my $filter_result = $filter ? $filter->($feat) : 1;
     next unless $filter_result;
@@ -839,7 +845,7 @@ sub filter_features {
     next unless $filter_result;
 
     if (ref($result) eq 'HASH') {
-     $result->{"$feat->{gclass}:$feat->{gname}"} = join($;,$self->_hash_to_array($feat));
+      $result->{"$feat->{gclass}:$feat->{gname}"} = join($;,$self->_hash_to_array($feat));
     } else {
       push @$result,$feat;
     }
