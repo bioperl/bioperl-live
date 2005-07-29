@@ -390,7 +390,7 @@ sub load_gff_line {
   # save searchable notes to separate index
   my $fh = $self->{notes};
   my @notes = map {$_->[1]} grep {lc $_->[0] eq 'note'} @{$feat->{attributes}};
-  print $fh $_,"\t",pack("u*",$id),"\n" foreach @notes;
+  print $fh $_,"\t",pack("u*",$id) foreach @notes;
 
   $self->_bump_feature_count();
 
