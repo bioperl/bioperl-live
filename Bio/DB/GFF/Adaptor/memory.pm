@@ -647,8 +647,8 @@ sub _matching_typelist{
   my ($self, $feature_method,$feature_source,$typelist) = @_; 
   foreach (@$typelist) {
 	 my ($search_method,$search_source) = @$_;
-	 next if $search_method ne $feature_method;
-	 next if defined($search_source) && $search_source ne $feature_source;
+	 next if lc($search_method) ne lc($feature_method);
+	 next if defined($search_source) && lc($search_source) ne lc($feature_source);
 	 return 1;
   }
   return 0;

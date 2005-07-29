@@ -122,11 +122,12 @@ use base 'Bio::DB::GFF::Adaptor::memory';
 
 sub new {
   my $class = shift ;
-  my ($dbdir,$preferred_groups,$autoindex) = rearrange([
-							[qw(DSN DB)],
-							'PREFERRED_GROUPS',
-							[qw(DIR AUTOINDEX)],
-					    ],@_);
+  my ($dbdir,$preferred_groups,$create,$autoindex) = rearrange([
+								[qw(DSN DB)],
+								'PREFERRED_GROUPS',
+								[qw(DIR AUTOINDEX)],
+								'CREATE',
+							       ],@_);
   $dbdir ||= $autoindex;
   $dbdir ||= $ENV{TMPDIR} ? "$ENV{TMPDIR}/test" : "/tmp/test";
 
@@ -134,7 +135,7 @@ sub new {
   $self->dsn($dbdir);
   $self->preferred_groups($preferred_groups) if defined $preferred_groups;
   $self->_autoindex($autoindex)              if $autoindex;
-  $self->_open_databases();
+  $self->_open_databases($create);
   return $self;
 }
 
@@ -183,13 +184,19 @@ sub _autoindex {
 }
 
 sub _open_databases {
-  my $self = shift;
+  my $self   = shift;
+  my $create = shift;
+
   my $dsn  = $self->dsn;
   unless (-d $dsn) {  # try to create the directory
+    $create or $self->throw("Directory $dsn does not exist and you did not specify the -create flag");
     mkpath($dsn) or die "Couldn't create database directory $dsn: $!";
   }
+
   my %db;
   local $DB_BTREE->{flags} = R_DUP;
+  $DB_BTREE->{compare}     = sub { lc($_[0]) cmp lc($_[1]) };
+
   tie(%db,'DB_File',$self->_index_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
     or $self->throw("Couldn't tie ".$self->_index_file.": $!");
   $self->{db}   = \%db;
@@ -200,6 +207,8 @@ sub _open_databases {
     $self->dna_db($dna_db);
   }
 
+  open (F,"+>>",$self->_notes_file) or $self->throw($self->_notes_file.": $!");
+  $self->{notes} = \*F;
 }
 
 sub _close_databases {
@@ -233,7 +242,7 @@ sub _secondary_keys {
   return (
 		"__name__".lc(join ":",$feat->{gclass},$feat->{gname}),
 		"__bin__".lc("$feat->{ref}$;$feat->{bin}"),
-		"__type__".lc(join(':',$feat->{method},$feat->{source})),
+		"__type__".join(':',$feat->{method},$feat->{source}),
 		map {"__attr__".lc(join(':',$_->[0],$_->[1]))} @{$feat->{attributes}}
 	  );
 }
@@ -273,12 +282,13 @@ sub do_initialize {
     $self->_close_databases;
     unlink $self->_index_file;
     unlink $self->_data_file;
+    unlink $self->_notes_file;
     unless ($spare_fasta) {
       unlink $self->_fasta_file;
       unlink $self->_fasta_file.'.index';
     }
     unlink $self->_timestamp_file;
-    $self->_open_databases;
+    $self->_open_databases(1);
   }
   1;
 }
@@ -315,17 +325,22 @@ sub _mtime {
 
 sub _index_file {
   my $self = shift;
-  return $self->dsn . "/_bdb_features.btree";
+  return $self->dsn . "/bdb_features.btree";
 }
 
 sub _data_file {
   my $self = shift;
-  return $self->dsn . "/_bdb_features.data";
+  return $self->dsn . "/bdb_features.data";
 }
 
 sub _fasta_file {
   my $self = shift;
-  return $self->dsn . "/_bdb_sequence.fa";
+  return $self->dsn . "/bdb_sequence.fa";
+}
+
+sub _notes_file {
+  my $self = shift;
+  return $self->dsn . "/bdb_notes.idx";
 }
 
 sub _temp_file {
@@ -354,9 +369,6 @@ sub load_gff_line {
 
   my ($self, $feat) = @_;
 
-  #Continue if this is the '##sequence-region' header line.
-  # return if lc($feat->{source}) eq "reference";
-
   $feat->{strand} = '' if $feat->{strand} && $feat->{strand} eq '.';
   $feat->{phase} = ''  if $feat->{phase}  && $feat->{phase}  eq '.';
 
@@ -374,6 +386,11 @@ sub load_gff_line {
   for my $skey ($self->_secondary_keys($feat)) {
     $db->{$skey} = $id;
   }
+
+  # save searchable notes to separate index
+  my $fh = $self->{notes};
+  my @notes = map {$_->[1]} grep {lc $_->[0] eq 'note'} @{$feat->{attributes}};
+  print $fh $_,"\t",pack("u*",$id),"\n" foreach @notes;
 
   $self->_bump_feature_count();
 
@@ -601,39 +618,34 @@ sub _feature_by_attribute{
 sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
-  my (@results, @matches);
+  my @results;
+
   my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
   my $search = join '|',@words;
 
-  my $filter = sub {
-    my $feature = shift;
-    return unless defined $feature->{gclass} && defined $feature->{gname}; # ignore NULL objects
-    return unless $feature->{attributes};
+  my (%found,$found);
+  my $note_index = $self->{notes};
+  seek($note_index,0,0);  # back to start
+  while (<$note_index>) {
+    next unless /$search/;
+    chomp;
+    my ($note,$uu) = split "\t";
+    $found{unpack("u*",$uu)}++;
+    last if $limit && ++$found >= $limit;
+  }
+
+  my (@features, @matches);
+  for my $idx (keys %found) {
+    my $feature = $self->{data}->get($idx) or next;
     my @attributes = @{$feature->{attributes}};
     my @values     = map {lc $_->[0] eq 'note' ? $_->[1] : ()} @attributes;
     my $value      = "@values";
 
-    my @hits;
-    while ($value =~ /($search)/ig) {
-      push @hits,$1;
-    }
-
-    if (@hits) {
-      push @matches, scalar @hits;
-      return -1 if defined $limit && @matches >= $limit;
-    }
-    return scalar @hits;
-  };
-
-  my @features = @{$self->retrieve_features_range(
-						  -table => 'attr',
-						  -start => 'note',
-						  -filter => $filter,
-						  -do_while=>sub { my ($feature,$key)=@_;
-								   $key =~ /^__attr__note/;
-								 }
-						 )
-		 };
+    my $hits;
+    $hits++ while $value =~ /($search)/ig;  # count the number of times we were hit
+    push @matches,$hits;
+    push @features,$feature;
+  }
 
   for (my $i=0; $i<@matches; $i++)  {
     my $feature = $features[$i];
@@ -803,7 +815,7 @@ sub retrieve_features_range {
   $result ||= \@result;
   my ($id, $key, $value);
 
-  $key = lc "__".$table."__".$start;
+  $key = "__".$table."__".$start;
   my $db   = $self->db;
 
   for (my $status = $db->seq($key,$value,R_CURSOR);
