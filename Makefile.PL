@@ -34,6 +34,7 @@
 	     'SVG::Graph'               => '0.01/Generate optional SVG output/creating SVG images/Bio::TreeIO::svggraph',
 	     'GD::SVG'                  => '0.0/Generate optional SVG output/creating SVG images/Bio::Graphics::Panel',
 	     'Storable'                 => '0.0/Persistent object storage and retrieval/storing sequence objects in local file cache/Bio::DB::FileCache',
+	     'DB_File'                  => '0.0/Persistent object storage and retrieval/Bio::DB::GFF::Adaptor::berkeleydb',
 	     'Graph::Directed'          => '0.0/Generic Graph data structure and algorithms/ontology engine implementation for the GO parser/Bio::Ontology::SimpleOntologyEngine',
 	     'Class::AutoClass'         => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph',
 	     'Clone'                    => '0.0/Recursively copy Perl datatypes/cloning ProteinGraph objects/Bio::Graph::ProteinGraph',
