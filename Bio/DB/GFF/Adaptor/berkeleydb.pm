@@ -1,5 +1,102 @@
 package Bio::DB::GFF::Adaptor::berkeleydb;
 
+# $Id$
+
+=head1 NAME
+
+Bio::DB::GFF::Adaptor::memory -- Bio::DB::GFF database adaptor for in-memory databases
+
+=head1 SYNOPSIS
+
+  use Bio::DB::GFF;
+  my $db = Bio::DB::GFF->new(-adaptor=> 'berkeleydb',
+			     -dsn    => '/usr/local/share/gff/dmel');
+
+  # initialize an empty database, then load GFF and FASTA files
+  $db->initialize(1);
+  $db->load_gff('/home/drosophila_R3.2.gff');
+  $db->load_fasta('/home/drosophila_R3.2.fa');
+
+  # do queries
+  my $segment  = $db->segment(Chromosome => '1R');
+  my $subseg   = $segment->subseq(5000..6000);
+  my @features = $subseg->features('gene');
+
+See L<Bio::DB::GFF> for other methods.
+
+=head1 DESCRIPTION
+
+This adaptor implements a berkeleydb-indexed version of Bio::DB::GFF.
+It requires the DB_File and Storable modules. It can be used to store
+and retrieve short to medium-length GFF files of several million
+features in length.
+
+=head1 CONSTRUCTOR
+
+Use Bio::DB::GFF-E<gt>new() to construct new instances of this class.
+Three named arguments are recommended:
+
+   Argument    Description
+
+   -adaptor    Set to "berkeleydb" to create an instance of this class.
+   -dsn        Path to directory where the database index files will be stored (alias -db)
+   -dir        Monitor the indicated directory path for FASTA and GFF files, and update the
+                 indexes automatically if they change (alias -autoindex)
+
+The -dsn option selects the directory in which to store the database
+index files. If the directory does not exist it will be created
+automatically, provided that the current process has sufficient
+privileges. If no -dsn argument is specified, a database named
+"$TMPDIR/test" will be created using the current value of the TMPDIR
+environment variable.
+
+The -dir argument, if present, selects a directory to be monitored for
+GFF and FASTA files (which can be compressed with the gzip program if
+desired). Whenever any file in this directory is changed, the index
+files will be updated. Note that the indexing can take a long time to
+run the first time. -dsn and -dir can point to the same directory. If
+-dir is given but -dsn is absent the index files will be stored into
+the directory containing the source files.  For autoindexing to work,
+you must specify the same -dir path each time you open the database.
+
+If you do not choose autoindexing, then you will probably want to load
+the database using the bp_load_gff.pl command-line tool. For example:
+
+ bp_load_gff.pl -a berkeleydb -c -d /usr/local/share/gff/dmel dna1.fa dna2.fa features.gff
+
+=head1 METHODS
+
+See L<Bio::DB::GFF> for inherited methods
+
+=head1 BUGS
+
+The various get_Stream_* methods and the features() method with the
+-iterator argument only return an iterator after the query runs
+completely and the module has been able to generate a temporary
+results file on disk. This means that iteration is not as big a win as
+it is for the relational-database adaptors.
+
+Like the dbi::mysqlopt adaptor, this module uses a binning scheme to
+speed up range-based searches. The binning scheme used here imposes a
+hard-coded 1 gigabase (1000 Mbase) limit on the size of the largest
+chromosome or other reference sequence.
+
+=head1 SEE ALSO
+
+L<Bio::DB::GFF>, L<bioperl>
+
+=head1 AUTHORS
+
+Vsevolod (Simon) Ilyushchenko E<gt>simonf@cshl.eduE<lt>
+Lincoln Stein E<gt>lstein@cshl.eduE<lt>
+
+Copyright (c) 2005 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
 use strict;
 
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
@@ -13,8 +110,8 @@ use File::Path 'mkpath';
 
 # this is the smallest bin (1 K)
 use constant MIN_BIN    => 1000;
-# this is the largest that any reference sequence can be (100 megabases)
-use constant MAX_BIN    => 100_000_000;
+# this is the largest that any reference sequence can be (1000 megabases)
+use constant MAX_BIN     => 1_000_000_000;
 use constant MAX_SEGMENT => 1_000_000_000;  # the largest a segment can get
 
 #We have to define a limit because Berkeleydb sorts in lexicografic order,
@@ -30,31 +127,28 @@ sub new {
 							'PREFERRED_GROUPS',
 							[qw(DIR AUTOINDEX)],
 					    ],@_);
-  if (defined $dbdir && defined $autoindex) {
-    $class->throw("If both -dsn and -dir (or -autoindex) are specified, they must point to the same directory")
-      unless $dbdir eq $autoindex;
-  }
-
   $dbdir ||= $autoindex;
   $dbdir ||= $ENV{TMPDIR} ? "$ENV{TMPDIR}/test" : "/tmp/test";
 
   my $self = bless {},$class;
   $self->dsn($dbdir);
   $self->preferred_groups($preferred_groups) if defined $preferred_groups;
-  $self->_autoindex                          if $autoindex;
+  $self->_autoindex($autoindex)              if $autoindex;
   $self->_open_databases();
   return $self;
 }
 
 sub _autoindex {
-  my $self = shift;
+  my $self    = shift;
+  my $autodir = shift;
+
   my $dir    = $self->dsn;
   my %ignore = map {$_=>1} ($self->_index_file,$self->_hash_file,$self->_fasta_file,$self->_temp_file,$self->_timestamp_file);
 
   my $maxtime   = 0;
   my $maxfatime = 0;
 
-  opendir (D,$dir) or $self->throw("Couldn't open directory $dir for reading: $!");
+  opendir (D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
 
   while (defined (my $node = readdir(D))) {
     next if $node =~ /^\./;
@@ -77,8 +171,8 @@ sub _autoindex {
   if ($maxtime > $timestamp_time || !$all_files_exist) {
     print STDERR __PACKAGE__,": Reindexing files in $dir. This may take a while....\n";
     $self->do_initialize(1,$spare_fasta);
-    $self->load_gff($dir);
-    $self->load_fasta($dir) unless $spare_fasta;
+    $self->load_gff($autodir);
+    $self->load_fasta($autodir) unless $spare_fasta;
     print STDERR __PACKAGE__,": Reindexing done\n";
   }
 

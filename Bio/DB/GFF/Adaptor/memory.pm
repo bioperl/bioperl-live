@@ -2,7 +2,7 @@ package Bio::DB::GFF::Adaptor::memory;
 
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::dbi::mysql -- Database adaptor for a specific mysql schema
+Bio::DB::GFF::Adaptor::memory -- Bio::DB::GFF database adaptor for in-memory databases
 
 =head1 SYNOPSIS
 

@@ -10,9 +10,7 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
 
   # Open the sequence database
   my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::mysqlopt',
-                                   -dsn     => 'dbi:mysql:elegans',
-				   -fasta   => '/usr/local/fasta_files'
-				 );
+                                   -dsn     => 'dbi:mysql:elegans);
 
   # fetch a 1 megabase segment of sequence starting at landmark "ZK909"
   my $segment = $db->segment('ZK909', 1 => 1000000);
@@ -420,11 +418,28 @@ specified during Bio::DB::GFF construction.  The adaptor encapsulates
 database-specific information such as the schema, user authentication
 and access methods.
 
-Currently there are two adaptors: 'dbi::mysql' and 'dbi::mysqlopt'.
-The former is an interface to a simple Mysql schema.  The latter is an
-optimized version of dbi::mysql which uses a binning scheme to
-accelerate range queries and the Bio::DB::Fasta module for rapid
-retrieval of sequences.  Note the double-colon between the words.
+There are currently five adaptors recommended for general use:
+
+  Adaptor Name             Description
+  ------------             -----------
+
+  memory                   A simple in-memory database suitable for testing
+                            and small data sets.
+
+  berkeleydb               An indexed file database based on the DB_File module,
+                            suitable for medium-sized read-only data sets.
+
+  dbi::mysql               An interface to a schema implemented in the Mysql
+                            relational database management system.
+
+  dbi::oracle              An interface to a schema implemented in the Oracle
+                            relational database management system.
+
+  dbi::pg                  An interface to a schema implemented in the PostgreSQL
+                            relational database management system.
+
+Check the Bio/DB/GFF/Adaptor directory and subdirectories for other,
+more specialized adaptors, as well as experimental ones.
 
 =item Aggregators
 
@@ -3623,6 +3638,7 @@ L<Bio::DB::GFF::Feature>,
 L<Bio::DB::GFF::Adaptor::dbi::mysqlopt>,
 L<Bio::DB::GFF::Adaptor::dbi::oracle>,
 L<Bio::DB::GFF::Adaptor::memory>
+L<Bio::DB::GFF::Adaptor::berkeleydb>
 
 =head1 AUTHOR
 
