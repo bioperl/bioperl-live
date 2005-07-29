@@ -366,9 +366,9 @@ sub _add_track {
   # top-level glyph is the track
   my $feature = Bio::Graphics::Feature->new(
 					    -segments=>$features,
-					    -start => $self->offset+1,
-					    -stop  => $self->offset+$self->length,
-					    -type => 'track'
+					    -start   => $self->offset+1,
+					    -stop    => $self->offset+$self->length,
+					    -type    => 'track'
 					   );
 
   my $factory = Bio::Graphics::Glyph::Factory->new($self,@options);

@@ -267,8 +267,13 @@ sub add_segment {
     local $^W = 0;  # some warning of an uninitialized variable...
     $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
     $self->{ref}    ||= $self->{segments}[0]->seq_id;
-    $self->{start}    = $self->{segments}[0]->start;
-    ($self->{stop})   = sort { $b <=> $a } map { $_->end } @segments;
+    my $seg_start     = $self->{segments}[0]->start;
+    my $seg_stop;
+    foreach (@segments) {
+      $seg_stop = $_->end if !defined $seg_stop or $_->end > $seg_stop;
+    }
+    $self->{start}    = $seg_start if !defined $self->{start} || $self->{start} > $seg_start;
+    $self->{stop}     = $seg_stop  if !defined $self->{stop}  || $self->{end}   < $seg_stop;
   }
 }
 

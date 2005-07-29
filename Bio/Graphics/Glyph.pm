@@ -77,6 +77,7 @@ sub new {
     $self->{left}    = $left;
     $self->{width}   = $right - $left + 1;
   }
+
   if (@subglyphs) {
       my $l            = $subglyphs[0]->left;
       $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
