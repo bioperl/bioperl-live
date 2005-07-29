@@ -1682,7 +1682,7 @@ sub initialize {
 =head2 load_gff
 
  Title   : load_gff
- Usage   : $db->load_gff($file|$directory|$filehandle);
+ Usage   : $db->load_gff($file|$directory|$filehandle [,$verbose]);
  Function: load GFF data into database
  Returns : count of records loaded
  Args    : a directory, a file, a list of files, 
@@ -1722,6 +1722,9 @@ web server can be loaded with an expression like this:
 
 =back
 
+The optional second argument, if true, will turn on verbose status
+reports that indicate the progress.
+
 If successful, the method will return the number of GFF lines
 successfully loaded.
 
@@ -1733,6 +1736,9 @@ old method name is also recognized.
 sub load_gff {
   my $self              = shift;
   my $file_or_directory = shift || '.';
+  my $verbose           = shift;
+
+  local $self->{__verbose__} = $verbose;
   return $self->do_load_gff($file_or_directory) if ref($file_or_directory) 
                                                    && tied *$file_or_directory;
 
@@ -1794,6 +1800,9 @@ web server can be loaded with an expression like this:
 sub load_fasta {
   my $self              = shift;
   my $file_or_directory = shift || '.';
+  my $verbose           = shift;
+
+  local $self->{__verbose__} = $verbose;
   return $self->load_sequence($file_or_directory) if ref($file_or_directory)
                                                      && tied *$file_or_directory;
 
@@ -2290,6 +2299,9 @@ sub do_load_gff {
   my $self      = shift;
   my $io_handle = shift;
 
+  my $count     = 0;
+  my $lineend = -t STDERR && !$ENV{EMACS} ? "\r" : "\n";
+
   local $self->{gff3_flag} = 0;
   $self->setup_load();
 
@@ -2303,6 +2315,9 @@ sub do_load_gff {
       $fasta_sequence_id = $1;
       last;
     }
+
+    print STDERR $count-1," features loaded$lineend" if $self->{__verbose__} && ++$count % 1000 == 0;
+
     if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
       $self->load_gff_line(
 			   {
@@ -2369,8 +2384,9 @@ sub do_load_gff {
     }
   }
 
+  print STDERR $count," features loaded$lineend" if $self->{__verbose__};
   my $result = $self->finish_load();
-  $result += $self->load_sequence($io_handle,$fasta_sequence_id) 
+  $result += $self->load_sequence($io_handle,$fasta_sequence_id)
     if defined $fasta_sequence_id;
   $result;
 
@@ -2398,6 +2414,8 @@ sub load_sequence {
   my $io_handle = shift;
   my $id        = shift;   # hack for GFF files that contain fasta data
 
+  my $lineend = -t STDERR && !$ENV{EMACS} ? "\r" : "\n";
+
   # read fasta file(s) from ARGV
   my ($seq,$offset,$loaded) = (undef,0,0);
   while (<$io_handle>) {
@@ -2408,6 +2426,7 @@ sub load_sequence {
       $offset = 0;
       $seq    = '';
       $loaded++;
+      print STDERR $loaded," features loaded$lineend" if $self->{__verbose__} && $loaded %1000;
     } else {
       $seq .= $_;
       $self->insert_sequence_chunk($id,\$offset,\$seq);

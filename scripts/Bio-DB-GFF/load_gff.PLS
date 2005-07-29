@@ -63,6 +63,7 @@ e.g. -d instead of --database.
                           to be used for grouping in the 9th column.
    --upgrade             Upgrade existing database to current schema
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
+   --quiet               No progress reports
 
 =head1 SEE ALSO
 
@@ -81,7 +82,7 @@ disclaimers of warranty.
 =cut
 
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE,$QUIET);
 
 GetOptions ('dsn:s'       => \$DSN,
 	    'adaptor:s'   => \$ADAPTOR,
@@ -92,6 +93,7 @@ GetOptions ('dsn:s'       => \$DSN,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'     => \$GROUP_TAG,
 	    'gff3_munge'    => \$MUNGE,
+	    'quiet'       => \$QUIET,
 	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
@@ -135,7 +137,7 @@ foreach (@ARGV) {
 
 for my $file (@gff) {
   warn "$file: loading...\n";
-  my $loaded = $db->load_gff($file);
+  my $loaded = $db->load_gff($file,!$QUIET);
   warn "$file: $loaded records loaded\n";
 }
 
@@ -143,6 +145,6 @@ unshift @fasta,$FASTA if defined $FASTA;
 
 for my $file (@fasta) {
   warn "Loading fasta ",(-d $file?"directory":"file"), " $file\n";
-  my $loaded = $db->load_fasta($file);
+  my $loaded = $db->load_fasta($file,!$QUIET);
   warn "$file: $loaded records loaded\n";
 }

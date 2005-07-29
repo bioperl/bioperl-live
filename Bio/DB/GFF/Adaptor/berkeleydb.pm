@@ -137,11 +137,10 @@ sub _secondary_keys {
   my $self = shift;
   my $feat = shift;
   return (
-		"__class__". $feat->{gclass},
-		"__name__".(lc $feat->{gname}),
-		"__bin__"."$feat->{ref}$;$feat->{bin}",
-		"__type__".join(':',$feat->{method},$feat->{source}),
-		map {"__attr__".$_->[0]."__".$_->[1]} @{$feat->{attributes}}
+		"__name__".lc(join ":",$feat->{gclass},$feat->{gname}),
+		"__bin__".lc("$feat->{ref}$;$feat->{bin}"),
+		"__type__".lc(join(':',$feat->{method},$feat->{source})),
+		map {"__attr__".lc(join(':',$_->[0],$_->[1]))} @{$feat->{attributes}}
 	  );
 }
 
@@ -317,28 +316,12 @@ sub get_abscoords {
   }
   # Find all features that have the requested name and class.
   # Sort them by reference point.
-  my @features = @{$self->retrieve_features(-table => "class", key => $class)};
+  my @features = @{$self->retrieve_features(-table => 'name', -key=>"$class:$name")};
+  if (!@features) {  # nothing matched exactly, so try aliases
+    @features = @{$self->retrieve_features(-table=>'attr',-key=>"Alias:$name")};
+  }
 
   foreach my $feature (@features){
-    my $no_match_class_name;
-    my $empty_class_name;
-    if (defined $feature->{gname}){
-      my $matches = $regexp ? $feature->{gname} =~ /$name/i : $feature->{gname} eq $name;
-      $no_match_class_name = !$matches;  # to accomodate Shuly's interesting logic
-    }
-
-    else{
-      $empty_class_name = 1;
-    }
-
-    if ($no_match_class_name || $empty_class_name){
-      my $feature_attributes = $feature->{attributes};
-      my $attributes = {Alias => $name};
-      if (!$self->_matching_attributes($feature_attributes,$attributes)){
-		next;
-      }
-    }
-
     push @{$refs{$feature->{ref}}},$feature;
   }
 
@@ -468,18 +451,18 @@ sub _feature_by_name {
   my @features;
   if ($use_glob) {
     my $callback = sub {my $feat = shift; $feat->{gname} =~ /^$name/i};
-    @features = @{$self->retrieve_features_range (-table => "name",
-						  -start => $name,
+    @features = @{$self->retrieve_features_range (-table => 'name',
+						  -start => "$class:$name",
 						  -do_while => $callback)
 		};
   }
   elsif ($use_regexp) {
     my $filter = sub {my $feat = shift; $feat->{gname} =~ /$name/i};
-    @features = @{$self->filter_features(-table => "name", -filter => $filter)};
+    @features = @{$self->filter_features(-table =>'name', -filter => $filter)};
   }
 
   else {
-    @features = @{$self->retrieve_features(-table => "name", -key => lc $name)};
+    @features = @{$self->retrieve_features(-table => 'name', -key => "$class:$name")};
   }
 
   foreach my $feature (@features){
@@ -511,7 +494,7 @@ sub _feature_by_attribute{
   while (my ($key, $value) = each %$attributes) {
 	
     my @features = @{$self->retrieve_features
-		       (-table => "attr", -key => $key."__".$value)};
+		       (-table => "attr", -key => "$key:$value")};
 
     for my $feature (@features) {
       $callback->(@{$feature}{@hash2array_map},$feature_group_id);
@@ -548,7 +531,7 @@ sub search_notes {
     return scalar @hits;
   };
 
-  my @features = @{$self->filter_features(-table => "attrib__Note", -filter => $filter)};
+  my @features = @{$self->filter_features(-table => "attrib__note", -filter => $filter)};
 
   for (my $i=0; $i<scalar @matches; $i++)  {
     my $feature = $features[$i];
@@ -675,7 +658,7 @@ sub _get_features_by_search_options {
   elsif (defined $attributes) {
     my ($attribute_name,$attribute_value) = each %$attributes; # pick first one
     $self->retrieve_features(-table => 'attr',
-			     -key   => "${attribute_name}__${attribute_value}",
+			     -key   => "${attribute_name}:${attribute_value}",
 			     -filter => $filter,
 			     -result  => $results);
   }
@@ -695,7 +678,7 @@ sub retrieve_features {
   $result ||= \@result;
 
   my $frozen;
-  my @ids  = $self->db->get_dup("__".$table."__".$key);
+  my @ids  = $self->db->get_dup("__".lc($table)."__".lc($key));
   my $data = $self->{data};
 
   foreach my $id (@ids) {
@@ -720,7 +703,7 @@ sub retrieve_features_range {
   $result ||= \@result;
   my ($id, $key, $value);
 
-  $key = "__".$table."__".$start;
+  $key = lc "__".$table."__".$start;
   my $db   = $self->db;
 
   for (my $status = $db->seq($key,$value,R_CURSOR);
