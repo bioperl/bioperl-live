@@ -73,6 +73,7 @@ use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory::iterator;
 use File::Basename 'dirname';
+use Bio::DB::GFF::Adaptor::memory::feature_serializer qw(@hash2array_map);
 
 use vars qw(@ISA);
 
@@ -163,7 +164,9 @@ sub setup_load {
 
 sub finish_load {
   my $self = shift;
+  my $idx  = 0;
   foreach my $arrayref (values %{$self->{tmp}}) {
+    foreach (@$arrayref) {$_->{feature_id} = $idx++; }
     push @{$self->{data}},@$arrayref;
   }
   1;
@@ -174,7 +177,7 @@ sub finish_load {
 sub load_gff_line {
   my $self = shift;
   my $feature_hash  = shift;
-  $feature_hash->{strand} = '' if $feature_hash->{strand} && $feature_hash->{strand} eq '.';
+  $feature_hash->{strand} = ''  if $feature_hash->{strand} && $feature_hash->{strand} eq '.';
   $feature_hash->{phase}  = ''  if $feature_hash->{phase}  && $feature_hash->{phase} eq '.';
   $feature_hash->{gclass} = 'Sequence' unless defined $feature_hash->{gclass};
   # sort by group please
@@ -367,22 +370,9 @@ sub _feature_by_attribute{
       #there could be more than one set of attributes......
       foreach (keys %$attributes) {
 	if (lc($_) eq lc($attr_name) && lc($attributes->{$_}) eq lc($attr_value)) {
-           $callback->($feature->{ref},
-	        $feature->{start},
-	        $feature->{stop},
-	        $feature->{source},
-	        $feature->{method},
-	        $feature->{score},
-	        $feature->{strand},
-	        $feature->{phase},
-	        $feature->{gclass},
-	        $feature->{gname},
-		$feature->{tstart},
-		$feature->{tstop},
-	        $feature_id,
-		$feature_group_id);
-	   $count++;
-        }
+	  $callback->($self->_hash_to_array($feature));
+	  $count++;
+	}
       }
     }
   }
@@ -400,11 +390,10 @@ sub get_features{
   my $self = shift;
   my $count = 0;
   my ($search,$options,$callback) = @_;
-  my $data = \@{$self->{data}};
 
   my $found_features;
 
-  $found_features = $self->_get_features_by_search_options($data,$search,$options);
+  $found_features = $self->_get_features_by_search_options($search,$options);
 
   # only true if the sort by group option was specified
   @{$found_features} = sort {lc("$a->{gclass}:$a->{gname}") cmp lc("$b->{gclass}:$b->{gname}")}
@@ -413,8 +402,7 @@ sub get_features{
   for my $feature (@{$found_features}) {  # only true if the sort by group option was specified
     $count++;
     $callback->(
-		@{$feature}{qw(ref start stop source method score strand phase
-			       gclass gname tstart tstop feature_id feature_group_id)}
+		$self->_hash_to_array($feature)
 	       );
   }
 
@@ -445,7 +433,6 @@ sub _feature_by_name {
   my ($class,$name,$location,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
   my $count = 0;
-  my $id    = -1;
   my $regexp;
 
   if ($name =~ /[*?]/) {  # uh oh regexp time
@@ -456,7 +443,6 @@ sub _feature_by_name {
   }
 
   for my $feature (@{$self->{data}}) {
-    $id++;
     next unless ($regexp && $feature->{gname} =~ /$name/i) || lc($feature->{gname})  eq lc($name);
     next unless $feature->{gclass} eq $class;
 
@@ -466,21 +452,7 @@ sub _feature_by_name {
       next if $location->[2] && $location->[2] < $feature->{start};
     }
     $count++;
-    $callback->(@{$feature}{qw(
-			       ref
-			       start
-			       stop
-			       source
-			       method
-			       score
-			       strand
-			       phase
-			       gclass
-			       gname
-			       tstart
-			       tstop
-			      )},$id,0
-	       );
+    $callback->($self->_hash_to_array($feature),0);
   }
   return $count;
 }
@@ -499,21 +471,8 @@ sub _feature_by_id{
   if ($type eq 'feature'){
     for my $feature_id (@$ids){
       my $feature = $self->_basic_features_by_id($feature_id);
-       $callback->($feature->{ref},
-	        $feature->{start},
-	        $feature->{stop},
-	        $feature->{source},
-	        $feature->{method},
-	        $feature->{score},
-	        $feature->{strand},
-	        $feature->{phase},
-	        $feature->{gclass},
-	        $feature->{gname},
-		$feature->{tstart},
-		$feature->{tstop},
-	        $feature_id,
-		$feature_group_id) if $callback;
-	   $count++;
+      $callback->($self->_hash_to_array($feature)) if $callback;
+      $count++;
     }
   }
 }
@@ -540,8 +499,7 @@ sub get_features_iterator {
   my ($search,$options,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
 
-  my $data = \@{$self->{data}};
-  my $results = $self->_get_features_by_search_options($data,$search,$options);
+  my $results = $self->_get_features_by_search_options($search,$options);
   my $results_array = $self->_convert_feature_hash_to_array($results);
 
   return Bio::DB::GFF::Adaptor::memory::iterator->new($results_array,$callback);
@@ -606,12 +564,13 @@ sub get_types {
 # according to the search options.
 sub _get_features_by_search_options{
   my $count = 0;
-  my ($self, $data,$search,$options) = @_;
+  my ($self, $search,$options) = @_;
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes) = 
     (@{$search}{qw(rangetype refseq refclass start stop types)},
      @{$options}{qw(sparse sort_by_group ATTRIBUTES)}) ;
 
   my @found_features;
+  my $data = $self->{data};
 
   my $feature_id = -1 ;
   my $feature_group_id = undef;
@@ -672,15 +631,15 @@ sub _get_features_by_search_options{
 
 sub _hash_to_array {
   my ($self,$feature_hash) = @_;
-  my @array = @{$feature_hash}{qw(ref start stop source method score strand phase gclass gname tstart tstop feature_id group_id)};
-  return \@array;
+  my @array = @{$feature_hash}{@hash2array_map};
+  return wantarray ? @array : \@array;
 }
 
 # this subroutine is needed for convertion of the feature from hash to array in order to 
 # pass it to the callback subroutine
 sub _convert_feature_hash_to_array{
   my ($self, $feature_hash_array) = @_;
-  my @features_array_array = map {$self->_hash_to_array($_)} @$feature_hash_array;
+  my @features_array_array = map {scalar $self->_hash_to_array($_)} @$feature_hash_array;
   return \@features_array_array;
 }
 

@@ -35,7 +35,6 @@ it under the same terms as Perl itself.
 
 package Bio::DB::GFF::Adaptor::berkeleydb::iterator;
 use strict;
-use Storable 'thaw';
 # $Id$
 
 # this module needs to be cleaned up and documented
@@ -61,9 +60,9 @@ sub next_feature {
   my $features;
   while (1) {
     my (undef,$value) = each %$data;
-    my $feature       = thaw($value);
-    if ($feature) {
-      $features   = $callback->(@{$feature});
+    my @feature       = split ($;,$value);
+    if (@feature) {
+      $features   = $callback->(@feature);
       last if $features;
     } else {
       $features = $callback->();

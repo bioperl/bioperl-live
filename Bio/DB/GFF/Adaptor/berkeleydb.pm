@@ -2,15 +2,14 @@ package Bio::DB::GFF::Adaptor::berkeleydb;
 
 use strict;
 
-use Data::Dumper;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::Fasta;
 use Bio::DB::GFF::Adaptor::berkeleydb::iterator;
+use Bio::DB::GFF::Adaptor::memory::feature_serializer; # qw(feature2string string2feature @hash2array_map);
 
 use DB_File;
 use File::Path 'mkpath';
-use Storable qw(freeze thaw);
 
 # this is the smallest bin (1 K)
 use constant MIN_BIN    => 1000;
@@ -95,14 +94,12 @@ sub _open_databases {
   unless (-d $dsn) {  # try to create the directory
     mkpath($dsn) or die "Couldn't create database directory $dsn: $!";
   }
-  my (%db,%iddb);
+  my %db;
   local $DB_BTREE->{flags} = R_DUP;
   tie(%db,'DB_File',$self->_index_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
     or $self->throw("Couldn't tie ".$self->_index_file.": $!");
-  tie(%iddb,'DB_File',$self->_hash_file,O_RDWR|O_CREAT,0666,$DB_HASH)
-    or $self->throw("Couldn't tie ".$self->_hash_file.": $!");
   $self->{db}   = \%db;
-  $self->{iddb} = \%iddb;
+  $self->{data} = FeatureStore->new($self->_data_file);
 
   if (-e $self->_fasta_file) {
     my $dna_db = Bio::DB::Fasta->new($self->_fasta_file) or $self->throw("Can't reindex sequence file: $@");
@@ -114,18 +111,21 @@ sub _open_databases {
 sub _close_databases {
   my $self = shift;
   delete $self->{db};
-  delete $self->{iddb};
+  delete $self->{data};
 }
+
+# do nothing!
+sub setup_load { 1; }
 
 sub _delete_features {
   my $self        = shift;
   my @feature_ids = @_;
   my $removed = 0;
-  my $last_id = $self->{db}{__index__};
+  my $last_id = $self->{data}->last_id;
   for my $id (@feature_ids) {
     next unless $id >= 0 && $id < $last_id;
-    my $feat  = thaw ($self->{iddb}{$id}) or next;
-    delete $self->{iddb}{$id};  # delete data
+    my $feat  = $self->{data}->get($id) or next;
+    $self->{data}->remove($id);
     my @keys = $self->_secondary_keys($feat);
     $self->db->del_dup($_,$id) foreach @keys;
     $removed++;
@@ -151,10 +151,25 @@ sub _delete {
   return $self->SUPER::_delete($delete_spec) if @{$delete_spec->{segments}} or @{$delete_spec->{types}};
   $self->throw("This operation would delete all feature data and -force not specified")
     unless $delete_spec->{force};
-  my $deleted = $self->{db}{__index__};
-  %{$self->{iddb}} = ();
+  my $deleted = $self->{db}{__count__};
+  $self->{data} = FeatureStore->new($self->_data_file,1);
   %{$self->{db}}   = ();
   $deleted;
+}
+
+# with duplicates enabled, we cannot simply do $db->{__index__}++;
+sub _bump_feature_count {
+  my $self = shift;
+  my $db = $self->{db};
+  if (@_) {
+    delete $db->{__count__};
+    return $db->{__tount__} = shift;
+  } else {
+    my $index = ${db}->{__count__};
+    delete $db->{__count__};
+    $db->{__count__} = $index + 1;
+    return $index;
+  }
 }
 
 sub do_initialize {
@@ -164,14 +179,13 @@ sub do_initialize {
   if ($erase) {
     $self->_close_databases;
     unlink $self->_index_file;
-    unlink $self->_hash_file;
+    unlink $self->_data_file;
     unless ($spare_fasta) {
       unlink $self->_fasta_file;
       unlink $self->_fasta_file.'.index';
     }
     unlink $self->_timestamp_file;
     $self->_open_databases;
-    $self->_next_id(0);
   }
   1;
 }
@@ -200,21 +214,6 @@ sub load_sequence {
   return $loaded;
 }
 
-# with duplicates enabled, we cannot simply do $db->{__index__}++;
-sub _next_id {
-  my $self = shift;
-  my $db = $self->{db};
-  if (@_) {
-    delete $db->{__index__};
-    return $db->{__index__} = shift;
-  } else {
-    my $index = ${db}->{__index__};
-    delete $db->{__index__};
-    $db->{__index__} = $index + 1;
-    return $index;
-  }
-}
-
 sub _mtime {
   my $file = shift;
   my @stat = stat($file);
@@ -226,9 +225,9 @@ sub _index_file {
   return $self->dsn . "/_bdb_features.btree";
 }
 
-sub _hash_file {
+sub _data_file {
   my $self = shift;
-  return $self->dsn . "/_bdb_features.hash";
+  return $self->dsn . "/_bdb_features.data";
 }
 
 sub _fasta_file {
@@ -249,11 +248,6 @@ sub _timestamp_file {
 sub db {
   my $db   = shift()->{db} or return;
   return tied(%$db);
-}
-
-sub iddb {
-  my $iddb   = shift()->{iddb} or return;
-  return tied(%$iddb);
 }
 
 sub dsn {
@@ -280,7 +274,7 @@ sub load_gff_line {
   my $bin =  bin($feat->{start},$feat->{stop},MIN_BIN);
   $feat->{bin} = $bin;
 
-  my $id = $feat->{feature_id} = $self->_next_id;
+  my $id = $self->{data}->put($feat);
   $bin = $self->normalizeNumber($bin);
 
   my $db = $self->{db};
@@ -288,12 +282,12 @@ sub load_gff_line {
     $db->{$skey} = $id;
   }
 
-  $self->{iddb}{$id} = freeze($feat);
+  $self->_bump_feature_count();
+
 }
 
 sub finish_load {
   my $self = shift;
-  $self->iddb->sync;
   $self->db->sync;
   $self->_touch_timestamp;
   1;
@@ -405,7 +399,7 @@ sub get_types {
   }
 
   else { # range search
-    for my $feature (@{$self->_get_features_by_search_options(undef,
+    for my $feature (@{$self->_get_features_by_search_options(
 							      {rangetype => 'overlaps',
 							       refseq    => $srcseq,
 							       refclass  => ($class || undef),
@@ -500,22 +494,7 @@ sub _feature_by_name {
     }
     $count++;
 
-    $callback->(@{$feature}{qw(
-			       ref
-			       start
-			       stop
-			       source
-			       method
-			       score
-			       strand
-			       phase
-			       gclass
-			       gname
-			       tstart
-			       tstop
-			       feature_id
-			      )},0
-	       );
+    $callback->(@{$feature}{@hash2array_map},0);
   }
   return $count;
 }
@@ -526,7 +505,6 @@ sub _feature_by_attribute{
   my ($attributes,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
   my $count = 0;
-  my $feature_id = -1;
   my $feature_group_id = undef;
 
   #there could be more than one set of attributes......
@@ -536,25 +514,8 @@ sub _feature_by_attribute{
 		       (-table => "attr", -key => $key."__".$value)};
 
     for my $feature (@features) {
-
-      $feature_id++;
-      for my $attr (@{$feature->{attributes}}) {
-	$callback->($feature->{ref},
-		    $feature->{start},
-		    $feature->{stop},
-		    $feature->{source},
-		    $feature->{method},
-		    $feature->{score},
-		    $feature->{strand},
-		    $feature->{phase},
-		    $feature->{gclass},
-		    $feature->{gname},
-		    $feature->{tstart},
-		    $feature->{tstop},
-		    $feature_id,
-		    $feature_group_id);
-	$count++;
-      }
+      $callback->(@{$feature}{@hash2array_map},$feature_group_id);
+      $count++;
     }
   }
 
@@ -607,7 +568,7 @@ sub search_notes {
 sub _get_features_by_search_options {
 
   #The $data argument is not used and is preserved for superclass compatibility
-  my ($self, $data,$search,$options) = @_;
+  my ($self, $search,$options) = @_;
   my $count = 0;
 
   my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$temp_table) =
@@ -734,16 +695,15 @@ sub retrieve_features {
   $result ||= \@result;
 
   my $frozen;
-  my @ids = $self->db->get_dup("__".$table."__".$key);
-  my $iddb = $self->{iddb};
+  my @ids  = $self->db->get_dup("__".$table."__".$key);
+  my $data = $self->{data};
 
   foreach my $id (@ids) {
-    my $frozen = $iddb->{$id};
-    my $feat = thaw($frozen);
+    my $feat = $data->get($id);
     my $filter_result = $filter ? $filter->($feat) : 1;
     next unless $filter_result;
     if (ref $result eq 'HASH') {
-     $result->{"$feat->{gclass}:$feat->{gname}"} = freeze($self->_hash_to_array($feat));
+     $result->{"$feat->{gclass}:$feat->{gname}"} = join ($;,$self->_hash_to_array($feat));
     } else {
       push @$result, $feat;
     }
@@ -767,14 +727,14 @@ sub retrieve_features_range {
        $status == 0;
        $status = $db->seq($key,$value,R_NEXT)) {
 
-    my $feat = thaw($self->{iddb}{$value});
+    my $feat = $self->{data}->get($value);
     last unless $do_while->($feat);
 
     my $filter_result = $filter ? $filter->($feat) : 1;
     next unless $filter_result;
 
     if (ref $result eq 'HASH') {
-     $result->{"$feat->{gclass}:$feat->{gname}"} = freeze($self->_hash_to_array($feat));
+     $result->{"$feat->{gclass}:$feat->{gname}"} = join($;,$self->_hash_to_array($feat));
     } else {
       push @$result,$feat;
     }
@@ -794,17 +754,15 @@ sub filter_features {
   $result ||= \@result;
 
   my ($key, $frozen);
-  my $iddb = $self->iddb;
-  for (my $status = $iddb->seq($key,$frozen,R_FIRST);
-       $status == 0;
-       $status = $iddb->seq($key,$frozen,R_NEXT)) {
+  my $data = $self->{data};
+  $data->reset;
+  while (my $feat = $data->next) {
 
-    my $feat = thaw($frozen);
     my $filter_result = $filter ? $filter->($feat) : 1;
     next unless $filter_result;
 
     if (ref($result) eq 'HASH') {
-     $result->{"$feat->{gclass}:$feat->{gname}"} = freeze($self->_hash_to_array($feat));
+     $result->{"$feat->{gclass}:$feat->{gname}"} = join($;,$self->_hash_to_array($feat));
     } else {
       push @$result,$feat;
     }
@@ -822,10 +780,9 @@ sub _basic_features_by_id{
   $ids = [$ids] unless ref $ids =~ /ARRAY/;
 
   my @result;
-  my $iddb = $self->{iddb};
+  my $data = $self->{data};
   for my $feature_id (@$ids){
-    my $frozen = $iddb->{$feature_id};
-    push @result, thaw($frozen);
+    push @result, $data->get($feature_id);
   }
 
   return wantarray() ? @result : $result[0];
@@ -847,11 +804,131 @@ sub get_features_iterator {
   $callback || $self->throw('must provide a callback argument');
   $options->{temp_table}++;
 
-  my $data = \@{$self->{data}};
-  my $results = $self->_get_features_by_search_options($data,$search,$options);
+  my $results = $self->_get_features_by_search_options($search,$options);
   return Bio::DB::GFF::Adaptor::berkeleydb::iterator->new($results,$callback,$self->_temp_file);
+}
+
+#--------------------------------------------------------------------------#
+
+package FeatureStore;
+
+# This is a very specialized package that stores serialized features onto a file-based
+# array. The array is indexed by the physical offset to the beginning of each serialized
+# feature.
+
+use strict;
+use Fcntl qw(SEEK_SET SEEK_END);
+use base 'Bio::Root::Root';
+use Bio::DB::GFF::Adaptor::memory::feature_serializer; # qw(feature2string string2feature @hash2array_map);
+
+sub new {
+  my $class  = shift;
+  my $dbname = shift    or $class->throw("must provide a filepath argument");
+  my $overwrite = shift;
+
+  my $mode = $overwrite ? "+>" : "+>>";
+
+  open (F,$mode,$dbname) or $class->throw("$dbname: $!");
+  my $self = bless {
+		    fh        => \*F,
+		    next_idx  => 0,
+		    last_id   => 0,
+		   },$class;
+  return $self;
+}
+
+sub put {
+  my $self   = shift;
+  my $feature = shift;
+  my $fh = $self->{fh};
+  seek($fh,0,SEEK_END);
+  my $offset = tell($fh) || 0;
+
+  $self->{last_id} = $offset;
+
+  my $id = pack("L",$offset);
+  $feature->{feature_id} = $id;
+  my $value = feature2string($feature);
+  print $fh pack("n/a*",$value);
+
+
+  return $id;
+}
+
+sub last_id {
+  shift->{last_id};
+}
+
+sub get {
+  my $self     = shift;
+  my $idx      = shift;
+  my $offset   = unpack("L",$idx);
+  my $fh = $self->{fh};
+
+  my ($value,$length);
+  seek($fh,$offset,SEEK_SET);
+  return unless read($fh,$length,2);
+  return unless read($fh,$value,unpack("n",$length));
+  $self->{next_idx} = tell($fh);
+  return if substr($value,0,1) eq "\0";
+  return string2feature($value);
+}
+
+sub next {
+  my $self = shift;
+  my $fh     = $self->{fh};
+  my $result;
+  do {
+    $result = $self->get(pack("L",$self->{next_idx}));
+  } until $result || eof($fh);
+  $self->{next_idx} = 0 unless $result;
+  $result;
+}
+
+sub remove {
+  my $self   = shift;
+  my $id     = shift;
+  my $offset = unpack("L",$id);
+  my $fh     = $self->{fh};
+  my ($value,$length);
+  seek($fh,$offset,SEEK_SET);
+  return unless read($fh,$length,2);
+  print $fh "\0"x$length;  # null it out
+  1;
+}
+
+sub _seek {
+  my $self = shift;
+  my $idx  = shift;
+  my $offset   = unpack("L",$idx);
+  seek($self->{fh},$offset,SEEK_SET);
+  $self->{next_idx} = tell($self->{fh});
+}
+
+sub reset {
+  my $self = shift;
+  $self->_seek(pack("L",0));
+}
+
+sub _feature2string {
+  my $feature = shift;
+  my @a = @{$feature}{@hash2array_map};
+  push @a,map {@$_} @{$feature->{attributes}} if $feature->{attributes};
+  return join $;,@a;
+}
+
+sub _string2feature {
+  my $string  = shift;
+  my (%feature,@attributes);
+
+  (@feature{@hash2array_map},@attributes) = split $;,$string;
+  while (@attributes) {
+    my ($key,$value) = splice(@attributes,0,2);
+    push @{$feature{attributes}},[$key,$value];
+  }
+  $feature{group_id} = undef;
+  \%feature;
 }
 
 
 1;
-
