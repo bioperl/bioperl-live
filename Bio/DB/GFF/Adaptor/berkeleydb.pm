@@ -439,7 +439,8 @@ sub load_gff_line {
   # save searchable notes to separate index
   my $fh = $self->{notes};
   my @notes = map {$_->[1]} grep {lc $_->[0] eq 'note'} @{$feat->{attributes}};
-  print $fh $_,"\t",pack("u*",$id) foreach @notes;
+  print $fh $_,"\t",pack("u*",$id) or $self->throw("An error occurred while updating indexes: $!")
+    foreach @notes;
 
   $self->_bump_feature_count();
 
@@ -447,7 +448,7 @@ sub load_gff_line {
 
 sub finish_load {
   my $self = shift;
-  $self->db->sync;
+  $self->db->sync && $self->throw("An error occurred while updating indexes: $!");
   $self->_touch_timestamp;
   1;
 }
@@ -999,7 +1000,7 @@ sub put {
   my $id = pack("L",$offset);
   $feature->{feature_id} = $id;
   my $value = feature2string($feature);
-  print $fh pack("n/a*",$value);
+  print $fh pack("n/a*",$value) or $self->throw("An error occurred while updating the data file: $!");
 
 
   return $id;
