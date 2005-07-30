@@ -36,6 +36,7 @@ it under the same terms as Perl itself.
 package Bio::DB::GFF::Adaptor::berkeleydb::iterator;
 use strict;
 # $Id$
+use DB_File qw(R_FIRST R_NEXT);
 
 # this module needs to be cleaned up and documented
 use Bio::Root::Version;
@@ -58,20 +59,24 @@ sub next_feature {
   my $callback = $self->{callback};
 
   my $features;
-  while (1) {
-    my (undef,$value) = each %$data;
+  my $db = tied(%$data);
+  my ($key,$value);
+
+  for (my $status = $db->seq($key,$value,$self->{iter}++ ? R_NEXT : R_FIRST);
+       $status == 0;
+       $status = $db->seq($key,$value,R_NEXT)) {
     my @feature       = split ($;,$value);
-    if (@feature) {
-      $features   = $callback->(@feature);
-      last if $features;
-    } else {
-      $features = $callback->();
-      undef $self->{data};
-      undef $self->{cache};
-      unlink $self->{tmpfile};
-      last;
-    }
+    $features   = $callback->(@feature);
+    last if $features;
   }
+
+  unless ($features) {
+    $features = $callback->();
+    undef $self->{data};
+    undef $self->{cache};
+    unlink $self->{tmpfile};
+  }
+
   $self->{cache} = $features or return;
   shift @{$self->{cache}};
 }
