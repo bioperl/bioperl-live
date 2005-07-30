@@ -36,31 +36,53 @@ features in length.
 Use Bio::DB::GFF-E<gt>new() to construct new instances of this class.
 Three named arguments are recommended:
 
-   Argument    Description
+ Argument    Description
+ --------    -----------
 
-   -adaptor    Set to "berkeleydb" to create an instance of this class.
-   -dsn        Path to directory where the database index files will be stored (alias -db)
-   -dir        Monitor the indicated directory path for FASTA and GFF files, and update the
-                 indexes automatically if they change (alias -autoindex)
+ -adaptor    Set to "berkeleydb" to create an instance of this class.
 
-The -dsn option selects the directory in which to store the database
+ -dsn        Path to directory where the database index files will be stored (alias -db)
+
+ -autoindex  Monitor the indicated directory path for FASTA and GFF files, and update the
+               indexes automatically if they change (alias -dir)
+
+ -write      Set to a true value in order to update the database.
+
+ -create     Set to a true value to create the database the first time
+               (implies -write)
+
+ -tmp        Location of temporary directory for storing intermediate files
+               during certain queries.
+
+ -preferred_groups  Specify the grouping tag. See L<Bio::DB::GFF>
+
+The -dsn argument selects the directory in which to store the database
 index files. If the directory does not exist it will be created
 automatically, provided that the current process has sufficient
-privileges. If no -dsn argument is specified, a database named
-"$TMPDIR/test" will be created using the current value of the TMPDIR
-environment variable.
+privileges. If no -dsn argument is specified, a database named "test"
+will be created in your system's temporary files directory.
 
-The -dir argument, if present, selects a directory to be monitored for
-GFF and FASTA files (which can be compressed with the gzip program if
-desired). Whenever any file in this directory is changed, the index
-files will be updated. Note that the indexing can take a long time to
-run the first time. -dsn and -dir can point to the same directory. If
--dir is given but -dsn is absent the index files will be stored into
-the directory containing the source files.  For autoindexing to work,
-you must specify the same -dir path each time you open the database.
+The -tmp argument specifies the temporary directory to use for storing
+intermediate search results. If not specified, your system's temporary
+files directory will be used. On Unix systems, the TMPDIR environment
+variable is honored. Note that some queries can require a lot of
+space.
 
-If you do not choose autoindexing, then you will probably want to load
-the database using the bp_load_gff.pl command-line tool. For example:
+The -autoindex argument, if present, selects a directory to be
+monitored for GFF and FASTA files (which can be compressed with the
+gzip program if desired). Whenever any file in this directory is
+changed, the index files will be updated. Note that the indexing can
+take a long time to run: anywhere from 5 to 10 minutes for a million
+features. An alias for this argument is -dir, which gives this adaptor
+a similar flavor to the "memory" adaptor.
+
+-dsn and -dir can point to the same directory. If -dir is given but
+-dsn is absent the index files will be stored into the directory
+containing the source files.  For autoindexing to work, you must
+specify the same -dir path each time you open the database.
+
+If you do not choose autoindexing, then you will want to load the
+database using the bp_load_gff.pl command-line tool. For example:
 
  bp_load_gff.pl -a berkeleydb -c -d /usr/local/share/gff/dmel dna1.fa dna2.fa features.gff
 
@@ -99,14 +121,16 @@ it under the same terms as Perl itself.
 
 use strict;
 
+use DB_File;
+use File::Path 'mkpath';
+use File::Spec;
+use File::Temp 'tempfile';
+
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::Fasta;
 use Bio::DB::GFF::Adaptor::berkeleydb::iterator;
 use Bio::DB::GFF::Adaptor::memory::feature_serializer; # qw(feature2string string2feature @hash2array_map);
-
-use DB_File;
-use File::Path 'mkpath';
 
 # this is the smallest bin (1 K)
 use constant MIN_BIN    => 1000;
@@ -122,20 +146,25 @@ use base 'Bio::DB::GFF::Adaptor::memory';
 
 sub new {
   my $class = shift ;
-  my ($dbdir,$preferred_groups,$create,$autoindex) = rearrange([
-								[qw(DSN DB)],
-								'PREFERRED_GROUPS',
-								[qw(DIR AUTOINDEX)],
-								'CREATE',
-							       ],@_);
-  $dbdir ||= $autoindex;
-  $dbdir ||= $ENV{TMPDIR} ? "$ENV{TMPDIR}/test" : "/tmp/test";
+  my ($dbdir,$preferred_groups,$write,$create,$autoindex,$tmpdir) = rearrange([
+									       [qw(DSN DB)],
+									       'PREFERRED_GROUPS',
+									       [qw(DIR AUTOINDEX)],
+									       [qw(WRITE WRITABLE)],
+									       'CREATE',
+									       'TMP',
+									      ],@_);
+  $tmpdir ||= File::Spec->tmpdir;
+  $dbdir  ||= $autoindex;
+  $dbdir  ||= "$tmpdir/test";
+  $write  ||= $create;
 
   my $self = bless {},$class;
   $self->dsn($dbdir);
+  $self->tmpdir($tmpdir);
   $self->preferred_groups($preferred_groups) if defined $preferred_groups;
   $self->_autoindex($autoindex)              if $autoindex;
-  $self->_open_databases($create);
+  $self->_open_databases($write,$create);
   return $self;
 }
 
@@ -144,7 +173,10 @@ sub _autoindex {
   my $autodir = shift;
 
   my $dir    = $self->dsn;
-  my %ignore = map {$_=>1} ($self->_index_file,$self->_hash_file,$self->_fasta_file,$self->_temp_file,$self->_timestamp_file);
+  my %ignore = map {$_=>1} ($self->_index_file,$self->_hash_file,
+			    $self->_fasta_file,$self->_temp_file,
+			    $self->_notes_file,
+			    $self->_timestamp_file);
 
   my $maxtime   = 0;
   my $maxfatime = 0;
@@ -172,8 +204,8 @@ sub _autoindex {
   if ($maxtime > $timestamp_time || !$all_files_exist) {
     print STDERR __PACKAGE__,": Reindexing files in $dir. This may take a while....\n";
     $self->do_initialize(1,$spare_fasta);
-    $self->load_gff($autodir);
-    $self->load_fasta($autodir) unless $spare_fasta;
+    $self->load_gff($autodir,1);
+    $self->load_fasta($autodir,1) unless $spare_fasta;
     print STDERR __PACKAGE__,": Reindexing done\n";
   }
 
@@ -185,10 +217,10 @@ sub _autoindex {
 
 sub _open_databases {
   my $self   = shift;
-  my $create = shift;
+  my ($write,$create) = @_;
 
   my $dsn  = $self->dsn;
-  unless (-d $dsn) {  # try to create the directory
+  unless (-d $dsn) {  # directory does not exist
     $create or $self->throw("Directory $dsn does not exist and you did not specify the -create flag");
     mkpath($dsn) or die "Couldn't create database directory $dsn: $!";
   }
@@ -196,18 +228,25 @@ sub _open_databases {
   my %db;
   local $DB_BTREE->{flags} = R_DUP;
   $DB_BTREE->{compare}     = sub { lc($_[0]) cmp lc($_[1]) };
+  my $flags = O_RDONLY;
+  $flags   |= O_RDWR  if $write;
+  $flags   |= O_CREAT if $create;
 
-  tie(%db,'DB_File',$self->_index_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
+  tie(%db,'DB_File',$self->_index_file,$flags,0666,$DB_BTREE)
     or $self->throw("Couldn't tie ".$self->_index_file.": $!");
   $self->{db}   = \%db;
-  $self->{data} = FeatureStore->new($self->_data_file);
+  $self->{data} = FeatureStore->new($self->_data_file,$write,$create);
 
   if (-e $self->_fasta_file) {
     my $dna_db = Bio::DB::Fasta->new($self->_fasta_file) or $self->throw("Can't reindex sequence file: $@");
     $self->dna_db($dna_db);
   }
 
-  open (F,"+>>",$self->_notes_file) or $self->throw($self->_notes_file.": $!");
+  my $mode =  $write  ? "+>>"
+            : $create ? "+>"
+            : "<";
+
+  open (F,$mode,$self->_notes_file) or $self->throw($self->_notes_file.": $!");
   $self->{notes} = \*F;
 }
 
@@ -215,6 +254,7 @@ sub _close_databases {
   my $self = shift;
   delete $self->{db};
   delete $self->{data};
+  delete $self->{notes};
 }
 
 # do nothing!
@@ -254,7 +294,7 @@ sub _delete {
   $self->throw("This operation would delete all feature data and -force not specified")
     unless $delete_spec->{force};
   my $deleted = $self->{db}{__count__};
-  $self->{data} = FeatureStore->new($self->_data_file,1);
+  $self->{data} = FeatureStore->new($self->_data_file,1,1);
   %{$self->{db}}   = ();
   $deleted;
 }
@@ -277,7 +317,7 @@ sub _bump_feature_count {
 sub do_initialize {
   my $self  = shift;
   my $erase = shift;
-  my $spare_fasta = shift;
+  my $spare_fasta = shift; # used internally only!
   if ($erase) {
     $self->_close_databases;
     unlink $self->_index_file;
@@ -288,11 +328,12 @@ sub do_initialize {
       unlink $self->_fasta_file.'.index';
     }
     unlink $self->_timestamp_file;
-    $self->_open_databases(1);
+    $self->_open_databases(1,1);
   }
   1;
 }
 
+# load_sequence($fasta_filehandle,$first_sequence_id)
 sub load_sequence {
   my $self = shift;
   my ($io_handle,$id) = @_;
@@ -345,12 +386,13 @@ sub _notes_file {
 
 sub _temp_file {
   my $self = shift;
-  return $self->dsn ."/_bdb_temporary_results.btree";
+  my (undef,$filename) = tempfile("bdb_temp_XXXXXX",DIR=>$self->tmpdir,OPEN=>0);
+  return $filename;
 }
 
 sub _timestamp_file {
   my $self = shift;
-  return $self->dsn ."/_bdb_timestamp";
+  return $self->dsn ."/bdb_timestamp";
 }
 
 sub db {
@@ -362,6 +404,13 @@ sub dsn {
   my $self = shift;
   my $d    = $self->{dsn};
   $self->{dsn} = shift if @_;
+  $d;
+}
+
+sub tmpdir {
+  my $self = shift;
+  my $d    = $self->{tmpdir};
+  $self->{tmpdir} = shift if @_;
   $d;
 }
 
@@ -667,9 +716,9 @@ sub _get_features_by_search_options {
   my ($self, $search,$options) = @_;
   my $count = 0;
 
-  my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$temp_table) =
+  my ($rangetype,$refseq,$class,$start,$stop,$types,$sparse,$order_by_group,$attributes,$temp_file) =
     (@{$search}{qw(rangetype refseq refclass start stop types)},
-     @{$options}{qw(sparse sort_by_group ATTRIBUTES temp_table)}) ;
+     @{$options}{qw(sparse sort_by_group ATTRIBUTES temp_file)}) ;
 
   $start = 0               unless defined($start);
   $stop  = MAX_BIN         unless defined($stop);
@@ -679,11 +728,13 @@ sub _get_features_by_search_options {
 
   my ($results,@features,%found,%results_table);
 
-  if ($temp_table) {
+  if ($temp_file) {
     local $DB_BTREE->{flags} = R_DUP;
-    unlink $self->_temp_file;
-    tie(%results_table,'DB_File',$self->_temp_file,O_RDWR|O_CREAT,0666,$DB_BTREE) 
-      or $self->throw("Couldn't tie ".$self->_temp_file.": $!");
+    # note: there is a race condition possible here, if someone reuses the
+    # same name between the time we get the tmpfile name and the time we
+    # ask DB_File to open it.
+    tie(%results_table,'DB_File',$temp_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
+      or $self->throw("Couldn't tie temporary file ".$temp_file." for writing: $!");
     $results = \%results_table;
   } else {
     $results = \@features;
@@ -792,6 +843,7 @@ sub retrieve_features {
   my $frozen;
   my @ids  = $self->db->get_dup("__".lc($table)."__".lc($key));
   my $data = $self->{data};
+  local $^W = 0;   # because _hash_to_array() will generate lots of uninit values
 
   foreach my $id (@ids) {
     my $feat = $data->get($id);
@@ -810,6 +862,7 @@ sub retrieve_features {
 sub retrieve_features_range {
   my ($self) = shift;
   my ($table, $start, $do_while, $filter, $result) = rearrange(['TABLE','START','DO_WHILE', 'FILTER', 'RESULT'],@_);
+  local $^W = 0;  # because _hash_to_array will generate lots of uninit warnings
 
   my @result;
   $result ||= \@result;
@@ -897,10 +950,10 @@ sub get_features_iterator {
 
   my ($search,$options,$callback) = @_;
   $callback || $self->throw('must provide a callback argument');
-  $options->{temp_table}++;
+  $options->{temp_file} = $self->_temp_file;
 
   my $results = $self->_get_features_by_search_options($search,$options);
-  return Bio::DB::GFF::Adaptor::berkeleydb::iterator->new($results,$callback,$self->_temp_file);
+  return Bio::DB::GFF::Adaptor::berkeleydb::iterator->new($results,$callback,$options->{temp_file});
 }
 
 #--------------------------------------------------------------------------#
@@ -919,9 +972,11 @@ use Bio::DB::GFF::Adaptor::memory::feature_serializer; # qw(feature2string strin
 sub new {
   my $class  = shift;
   my $dbname = shift    or $class->throw("must provide a filepath argument");
-  my $overwrite = shift;
+  my ($write,$create) = @_;
 
-  my $mode = $overwrite ? "+>" : "+>>";
+  my $mode =  $create  ? "+>"
+            : $write   ? "+>>"
+            : "<";
 
   open (F,$mode,$dbname) or $class->throw("$dbname: $!");
   my $self = bless {
@@ -961,6 +1016,7 @@ sub get {
   my $fh = $self->{fh};
 
   my ($value,$length);
+  $offset ||= 0;
   seek($fh,$offset,SEEK_SET);
   return unless read($fh,$length,2);
   return unless read($fh,$value,unpack("n",$length));
