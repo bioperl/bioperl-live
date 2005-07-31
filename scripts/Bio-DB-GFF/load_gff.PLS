@@ -81,7 +81,6 @@ disclaimers of warranty.
 
 =cut
 
-
 my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE,$QUIET);
 
 GetOptions ('dsn:s'       => \$DSN,
@@ -104,6 +103,7 @@ my @args;
 push @args,(-user=>$USER)     if defined $USER;
 push @args,(-pass=>$PASSWORD) if defined $PASSWORD;
 push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_TAG;
+push @args,(-write=>1);
 
 my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@args)
   or die "Can't open database: ",Bio::DB::GFF->error,"\n";

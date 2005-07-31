@@ -2331,10 +2331,8 @@ sub do_load_gff {
       last;
     }
 
-    $count++;
-    print STDERR $count," features loaded$lineend" if $self->{__verbose__} && $count % 1000 == 0;
-
     if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+      $count++;
       $self->load_gff_line(
 			   {
 			    ref    => $1,
@@ -2357,11 +2355,15 @@ sub do_load_gff {
     }
 
     next if /^\#/;
+
     my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
     next unless defined($ref) && defined($method) && defined($start) && defined($stop);
     foreach (\$score,\$strand,\$phase) {
       undef $$_ if $$_ eq '.';
     }
+
+    $count++;
+    print STDERR $count," records$lineend" if $self->{__verbose__} && $count % 1000 == 0;
 
     my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
 
@@ -2400,7 +2402,7 @@ sub do_load_gff {
     }
   }
 
-  print STDERR "\n",$count," features loaded\n" if $self->{__verbose__};
+  print STDERR $count," records loaded\n" if $self->{__verbose__};
   my $result = $self->finish_load();
   $result += $self->load_sequence($io_handle,$fasta_sequence_id)
     if defined $fasta_sequence_id;

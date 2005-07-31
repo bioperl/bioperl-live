@@ -257,9 +257,6 @@ sub _close_databases {
   delete $self->{notes};
 }
 
-# do nothing!
-sub setup_load { 1; }
-
 sub _delete_features {
   my $self        = shift;
   my @feature_ids = @_;
@@ -442,15 +439,23 @@ sub load_gff_line {
   print $fh $_,"\t",pack("u*",$id) or $self->throw("An error occurred while updating indexes: $!")
     foreach @notes;
 
+  $self->{records_loaded}++;
   $self->_bump_feature_count();
 
+}
+
+# do nothing!
+sub setup_load {
+  my $self = shift;
+  $self->{records_loaded} = 0;
+  1;
 }
 
 sub finish_load {
   my $self = shift;
   $self->db->sync && $self->throw("An error occurred while updating indexes: $!");
   $self->_touch_timestamp;
-  1;
+  $self->{records_loaded};
 }
 
 sub _touch_timestamp {
