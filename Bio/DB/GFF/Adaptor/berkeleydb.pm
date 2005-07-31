@@ -383,6 +383,7 @@ sub _notes_file {
 
 sub _temp_file {
   my $self = shift;
+  local $^W=0;
   my (undef,$filename) = tempfile("bdb_temp_XXXXXX",DIR=>$self->tmpdir,OPEN=>0);
   return $filename;
 }
