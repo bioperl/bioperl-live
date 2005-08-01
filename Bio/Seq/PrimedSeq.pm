@@ -437,9 +437,9 @@ sub _set_seqfeature {
  }
  my ($start, $length) = split /,/, $self->{'left_primer'}->{'PRIMER_LEFT'};
  my $tm=$self->{'left_primer'}->{'PRIMER_LEFT_TM'} || $self->{'left_primer'}->Tm || 0;
- 
+
  my $seqfeatureL=new Bio::SeqFeature::Generic(
-   -start => $start, -end => $start+$length, -strand => 1,
+   -start => $start+1, -end => $start+$length, -strand => 1,
    -primary_tag => 'left_primer', -source => 'primer3',
    -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
     );
@@ -448,7 +448,7 @@ sub _set_seqfeature {
  $tm=$self->{'right_primer'}->{'PRIMER_RIGHT_TM'} || $self->{'right_primer'}->Tm || 0;
  
  my $seqfeatureR=new Bio::SeqFeature::Generic(
-   -start => $start-$length, -end => $start, -strand => -1,
+   -start => $start-$length+2, -end => $start+1, -strand => -1,
    -primary_tag => 'right_primer', -source => 'primer3',
    -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
     );
