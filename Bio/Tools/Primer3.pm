@@ -318,7 +318,12 @@ sub next_primer {
  # the problem at the moment is that PrimedSeq can only take one sequence/primer pair, and
  # yet for each sequence we can have lots of primer pairs. We need a way to overcome this.
  # at the moment we can do this as a stream, I guess.
-
+ 
+ if (! $self->number_of_results) {
+  $self->warn("No primers were found for: ".$self->{'seqobject'}->{'primary_id'});
+  #return;
+ }
+ 
  my $next=0;
  if ($self->{'next_to_return'}) {$next=$self->{'next_to_return'}}
  if ($next>$self->{'maximum_primers_returned'}) {return}
@@ -329,7 +334,7 @@ sub next_primer {
 
  my $left_seq  = Bio::SeqFeature::Primer->new(-primer_sequence_id=>"left_primer", -sequence=>${$results}{'PRIMER_LEFT_SEQUENCE'});
  my $right_seq = Bio::SeqFeature::Primer->new(-primer_sequence_id=>"right_primer", -sequence=>${$results}{'PRIMER_RIGHT_SEQUENCE'});
- my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence=>$self->{'seqobject'}, -left_primer=>$left_seq, -right_primer=>$right_seq);
+ 
  my %product_hash; my %primer_left_hash; my %primer_right_hash;
  # now we are going to add the remaining primer3 results to the appropriate place (either primer or primed seq)
  foreach my $key (keys %$results) {
@@ -348,10 +353,12 @@ sub next_primer {
  while (my ($k, $v) = each %primer_right_hash) {
     $right_seq->add_tag_value($k, $v);
  }
+ # wait till tags have been added to each of the primer sequences, before creating the primed seq
+ my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence=>$self->{'seqobject'}, -left_primer=>$left_seq, -right_primer=>$right_seq);
  while (my ($k, $v) = each %product_hash) {
     $primed_seq->add_tag_value($k, $v);
  }
-
+ 
  $self->{'next_to_return'}=$next+1;
  return $primed_seq;
 }
@@ -401,8 +408,13 @@ sub _separate {
   if ($tempkey =~ s/_(\d+)//) {
    $location=$1;
    if ($location > $maxlocation) {$maxlocation = $location}
-   } else {$location = 0}
-
+  } elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)/ ) {  # first primers reported without a number, therefore set $location to 0
+   $location = 0;
+   if ($location > $maxlocation) {$maxlocation = $location}
+  } else {
+   $location = 0;
+  }
+#print "$key\t$tempkey\n" if $location==0;
   # we will hash the results by number, and then by name
   ${$results{$location}}{$tempkey}=${$self->{'results'}}{$key};
  }
