@@ -6,7 +6,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 my $error = 0;
-
+use vars qw($NUMTESTS);
 use strict;
 BEGIN {
 	# to handle systems with no installed Test module
@@ -18,7 +18,8 @@ BEGIN {
 	}
 
 	use Test;
-	plan tests => 50;
+	$NUMTESTS = 56;
+	plan tests => $NUMTESTS;
 }
 
 if( $error == 1 ) {
@@ -50,6 +51,17 @@ ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
 
 my @nodes = $tree->get_nodes;
 ok(@nodes, 6);
+my ($rat) = $tree->find_node('CATL_RAT');
+ok($rat);
+ok($rat->branch_length, '0.12788');
+# move the id to the bootstap
+ ok($rat->ancestor->bootstrap($rat->ancestor->id), '95');
+ $rat->ancestor->id('');
+# maybe this can be auto-detected, but then can't distinguish
+# between internal node labels and bootstraps...
+ok($rat->ancestor->bootstrap, '95');
+ok($rat->ancestor->branch_length, '0.18794');
+ok($rat->ancestor->id, '');
 
 if($verbose ) {
 	foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
