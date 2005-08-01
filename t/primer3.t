@@ -27,7 +27,7 @@ my ($p3, $num, $primer);
 
 ok $p3=Bio::Tools::Primer3->new(-file=>"t/data/primer3_output.txt");
 ok $num=$p3->number_of_results;
-ok $num, 4, "Got $num";
+ok $num, 5, "Got $num";
 ok $num=$p3->all_results;
 ok defined $num, 1, "Can't get all results";
 ok $num=$p3->primer_results(1);
