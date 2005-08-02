@@ -559,6 +559,15 @@ sub get_types {
   return $want_count ? %result : values %obj;
 }
 
+sub classes {
+  my $self = shift;
+  my %classes;
+  for my $feature (@{$self->{data}}) {
+    $classes{$feature->{gclass}}++;
+  }
+  return sort keys %classes;
+}
+
 # Internal method that performs a search on the features array, 
 # sequentialy retrieves the features, and performs a check on each feature
 # according to the search options.

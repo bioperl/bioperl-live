@@ -146,7 +146,7 @@ use base 'Bio::DB::GFF::Adaptor::memory';
 
 sub new {
   my $class = shift ;
-  my ($dbdir,$preferred_groups,$write,$create,$autoindex,$tmpdir) = rearrange([
+  my ($dbdir,$preferred_groups,$autoindex,$write,$create,$tmpdir) = rearrange([
 									       [qw(DSN DB)],
 									       'PREFERRED_GROUPS',
 									       [qw(DIR AUTOINDEX)],
@@ -173,7 +173,7 @@ sub _autoindex {
   my $autodir = shift;
 
   my $dir    = $self->dsn;
-  my %ignore = map {$_=>1} ($self->_index_file,$self->_hash_file,
+  my %ignore = map {$_=>1} ($self->_index_file,$self->_data_file,
 			    $self->_fasta_file,$self->_temp_file,
 			    $self->_notes_file,
 			    $self->_timestamp_file);
@@ -196,7 +196,7 @@ sub _autoindex {
   close D;
 
   my $timestamp_time  = _mtime($self->_timestamp_file) || 0;
-  my $all_files_exist = -e $self->_index_file && -e $self->_hash_file && (-e $self->_fasta_file || !$maxfatime);
+  my $all_files_exist = -e $self->_index_file && -e $self->_data_file && (-e $self->_fasta_file || !$maxfatime);
 
   # to avoid rebuilding FASTA files if not changed
   my $spare_fasta     = $maxfatime > 0 && $maxfatime < $timestamp_time && -e $self->_fasta_file;  
@@ -266,6 +266,7 @@ sub _delete_features {
     next unless $id >= 0 && $id < $last_id;
     my $feat  = $self->{data}->get($id) or next;
     $self->{data}->remove($id);
+    $self->_bump_class_count($feat->{gclass},-1);
     my @keys = $self->_secondary_keys($feat);
     $self->db->del_dup($_,$id) foreach @keys;
     $removed++;
@@ -302,13 +303,38 @@ sub _bump_feature_count {
   my $db = $self->{db};
   if (@_) {
     delete $db->{__count__};
-    return $db->{__tount__} = shift;
+    return $db->{__count__} = shift;
   } else {
     my $index = ${db}->{__count__};
     delete $db->{__count__};
     $db->{__count__} = $index + 1;
     return $index;
   }
+}
+
+sub _bump_class_count {
+  my $self = shift;
+  my ($class,$count) = @_;
+  $count ||= 1;
+  my $db  = $self->{db};
+  my $key = "__class__$class";
+  my $newcount = $db->{$key} + $count;
+  delete $db->{$key};
+  $db->{$key} = $newcount;
+}
+
+sub classes {
+  my $self = shift;
+  my $db   = $self->db;
+  my ($key,$value) = ('__class__',undef);
+  my %classes;
+  for (my $status = $db->seq($key,$value,R_CURSOR);
+       $status == 0;
+       $status = $db->seq($key,$value,R_NEXT)) {
+    my ($class) = $key =~ /^__class__(.+)/ or last;
+    $classes{$class}++ if $value > 0;
+  }
+  return sort keys %classes;
 }
 
 sub do_initialize {
@@ -442,6 +468,7 @@ sub load_gff_line {
 
   $self->{records_loaded}++;
   $self->_bump_feature_count();
+  $self->_bump_class_count($feat->{gclass});
 
 }
 

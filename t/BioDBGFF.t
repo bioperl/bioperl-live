@@ -57,7 +57,7 @@ if ($adaptor =~ /^dbi/) {
   push @args,('-pass' => $cfg->{test_pass}) if $cfg->{test_pass};
 } else {
   @args = ('-adaptor' => $adaptor,
-	   '-write'   => 1);       # "write" required by berkeleydb adaptor
+	   '-create'  => 1);
 }
 
 push @args,('-aggregators' => ['transcript','processed_transcript']);
