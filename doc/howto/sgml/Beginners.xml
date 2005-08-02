@@ -845,7 +845,7 @@ use Bio::DB::GenBank;
 	 <para>
 		We could also query <ulink
 		href="http://www.expasy.ch"><citetitle>SwissProt</citetitle></ulink>,
-		GenPept, EMBL, <ulink href="http://www.blueprint.org/seqhound"><citetitle>SeqHound</citetitle>, or RefSeq in an 
+		GenPept, EMBL, <ulink href="http://www.blueprint.org/seqhound"><citetitle>SeqHound</citetitle></ulink>, or RefSeq in an 
 		analogous fashion (e.g "use Bio::DB::SwissProt"). Now we'll
 		create the object:
 	 </para>
@@ -1465,7 +1465,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 	 </note>
 	 <para></para>
 	 <para>
-		Let's use a <ulink href="http://www.expasy.ch"><citetitel>Swissprot</citetitle></ulink> file as our last example. The input entry
+		Let's use a <ulink href="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink> file as our last example. The input entry
 		looks like this:
 	 </para>
 	 <para>
@@ -1554,7 +1554,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </para>
 	 <para>
 		<table>
-		  <title>Values from <ulink href="http://www.expasy.ch"><citetitle>Swissprot<citetitle></ulink></title>
+		  <title>Values from <ulink href="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink></title>
 		  <tgroup cols="2">
 			 <thead>
 				<row>
