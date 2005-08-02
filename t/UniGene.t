@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 65;
+    $NUMTESTS = 71;
     plan tests => $NUMTESTS;
 
 }
@@ -198,10 +198,24 @@ ok $protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=2
 
 
 
-# do a quick test on Rn record included as the next cluster in the test data file because it has version numbers tacked on the end of the accession numbers in each seq line - NCBI has started doing this now (Sept 2003).
+# do a quick test on Rn record included as the next cluster in the
+# test data file because it has version numbers tacked on the end of
+# the accession numbers in each seq line - NCBI has started doing this
+# now (Sept 2003).
 
 $unigene = $str->next_cluster();
 $seq = $unigene->next_seq;
 ok($seq->isa('Bio::PrimarySeqI'), 1,'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 $version = $seq->seq_version();
 ok($version, '1');
+
+# next cluster contains a // in the title - yes NCBI did that. Nonetheless,
+# this should not trip up the parser:
+
+$unigene = $str->next_cluster();
+ok ($unigene); # previously this would have been undef
+ok ($unigene->unigene_id, "Mm.340763");
+ok ($unigene->title, 'Transcribed locus, strongly similar to NP_003008.1 splicing factor, arginine/serine-rich 3; splicing factor, arginine//serine-rich, 20-kD [Homo sapiens]');
+ok ($unigene->homol, 'YES');
+ok ($unigene->scount, 31);
+ok (scalar($unigene->get_members()), 31);
