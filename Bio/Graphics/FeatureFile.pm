@@ -377,8 +377,9 @@ sub smart_features {
 
 sub parse_argv {
   my $self = shift;
-
   $self->init_parse;
+
+  local $/ = "\n";
   while (<>) {
     chomp;
     $self->parse_line($_);
@@ -389,9 +390,11 @@ sub parse_argv {
 sub parse_file {
   my $self = shift;
   my $fh   = shift or return;
-  $self->_stat($fh);
 
+  $self->_stat($fh);
   $self->init_parse;
+
+  local $/ = "\n";
   while (<$fh>) {
     chomp;
     $self->parse_line($_) || last;
