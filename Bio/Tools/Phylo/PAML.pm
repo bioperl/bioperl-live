@@ -76,7 +76,7 @@ baseml, basemlg, codemlsites and yn00
   # for runmode's other than -2, get tree topology with estimated
   # branch lengths; returns a Bio::Tree::TreeI-based tree object with
   # added PAML parameters at each node
-  my $tree = $result->get_tree();
+  my ($tree) = $result->get_trees();
   for my $node ($tree->get_nodes()) {
      # inspect the tree: the "t" (time) parameter is available via
      # $node->branch_length(); all other branch-specific parameters
