@@ -126,7 +126,7 @@ sub _initialize {
 
 sub next_cluster {
 	my( $self) = @_;
-	local $/ = "//";
+	local $/ = "\n//";
 	return unless my $entry = $self->_readline;
 	
 # set up the variables we'll need
