@@ -887,11 +887,12 @@ sub remove_columns{
 =head2 remove_gaps
 
  Title     : remove_gaps
- Usage     : $aln2 = $aln->remove_gaps('-'[,$all_gaps_columns])
+ Usage     : $aln2 = $aln->remove_gaps
  Function  : Creates an aligment with gaps removed 
  Returns   : a Bio::SimpleAlign object
- Args      : a gap character(optional) if no specified, 
-             taken from $self->gap_char, optional $all_gaps_columns flag
+ Args      : a gap character(optional) if none specified taken 
+                from $self->gap_char, 
+             [optional] $all_gaps_columns flag (1 or 0, default is 0)
                         indicates that only all-gaps columns should be deleted
 
 =cut
