@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SearchIO
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -42,6 +42,22 @@ Once you get a SearchIO object, calling next_result() gives you back
 a L<Bio::Search::Result::ResultI> compliant object, which is an object that
 represents one Blast/Fasta/HMMER whatever report.
 
+A list of module names and formats is below:
+
+  blast      BLAST (WUBLAST, NCBIBLAST,bl2seq)   
+  fasta      FASTA -m9 and -m0
+  blasttable BLAST -m9 or -m8 output (NCBI not WUBLAST tabular)
+  megablast  MEGABLAST
+  psl        UCSC PSL format
+  waba       Jim Kent's WABA output
+  axt        AXT format
+  sim4       Sim4
+  hmmer      HMMER hmmpfam and hmmsearch
+  exonerate  Exonerate CIGAR format (moderatley supported, may be broken)
+  blastxml   NCBI BLAST XML
+  wise       Genewise -genesf format
+  
+  
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -64,8 +80,8 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich & Steve Chervitz
 
-Email jason@bioperl.org
-Email sac@bioperl.org
+Email jason-at-bioperl.org
+Email sac-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
