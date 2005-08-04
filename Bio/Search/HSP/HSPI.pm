@@ -78,16 +78,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Steve Chervitz, Jason Stajich
 
-Email sac@bioperl.org
-Email jason@bioperl.org
+Email sac-at-bioperl.org
+Email jason-at-bioperl.org
 
 =head1 COPYRIGHT
 
@@ -342,7 +341,7 @@ sub percent_identity{
 =head2 get_aln
 
  Title   : get_aln
- Usage   : my $aln = $hsp->gel_aln
+ Usage   : my $aln = $hsp->get_aln
  Function: Returns a Bio::SimpleAlign representing the HSP alignment
  Returns : Bio::SimpleAlign
  Args    : none
