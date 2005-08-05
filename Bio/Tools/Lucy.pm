@@ -306,7 +306,7 @@ sub _parse {
 		if ($line =~ /^>(\S+)/) {
 			$name = $1;
 			@vals = split /\s/ , $qual;
-			@slice = @vals[$self->{sequences}{$name}{beg_clear} .. $self->{sequences}{$name}{end_clear} - 1];
+			@slice = @vals[$self->{sequences}{$name}{beg_clear} - 1 .. $self->{sequences}{$name}{end_clear} - 1];
 			$vals = join "\t", @slice;
 			$self->{sequences}{$name}{quality} = $vals;
 			$qual = "";
