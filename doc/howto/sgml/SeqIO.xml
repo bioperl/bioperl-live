@@ -687,7 +687,7 @@ my $seq_object = $seqio_object->next_seq;
   </section>
 
   <section id="string">
-    <title>To and from a string</title>
+    <title>To and From a String</title>
     <para>
       A popular question many people have asked is "What if I have a 
 		string that has a series of sequence records in some format, 
@@ -914,8 +914,8 @@ my $seq_object = $seqio_object->next_seq;
       </programlisting>
     </para>
     <para>                             
-      And finally, you might want to make use of the SeqIO object in a perl 
-      one-liner. Perl one-liners are perl programs that make use of flags to the perl 
+      And finally, you might want to make use of the SeqIO object in a
+      perl one-liner. Perl one-liners are perl programs that make use of flags to the perl 
       binary allowing you to run programs from the command-line without actually 
       needing to write a script into a file. The -e flag takes a quoted string, usually 
       single quoted, and attempts to execute it as code, while the -M flag

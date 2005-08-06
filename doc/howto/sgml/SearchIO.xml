@@ -209,13 +209,58 @@
     <para>
       The generality of the SearchIO approach is demonstrated by large number
       of report formats that have appeared since its introduction. These
-      formats include AXT format reports (BLAT, BLASTZ), NCBI tabular
-      output (-m 8 or -m 9 options), NCBI Blast XML, chadosxpr format 
-      flat databases,
-      Exonerate output, FASTA output, hmmsearch output (HMMER),
-      megablast output, PSL format output (BLAT), sim4 output, WABA
-      output, and output from Wise.
+      formats are listed below.
     </para>
+    <para>
+      <table>
+        <title>SearchIO Formats</title>
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Mame</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+				  <entry>blast</entry><entry>BLAST (WUBLAST, NCBIBLAST, bl2seq)</entry>
+				</row>
+				<row>
+				  <entry>fasta</entry>      <entry>FASTA -m9 and -m0</entry>
+				</row>
+				<row>
+				  <entry>blasttable</entry> <entry>BLAST -m9 or -m8 (NCBI, not WUBLAST tabular)</entry>
+				</row>
+				<row>
+				  <entry>megablast</entry>  <entry>MEGABLAST</entry>
+				</row>
+				<row>
+				  <entry>psl</entry>        <entry>UCSC PSL</entry>
+				</row>
+				<row>
+				  <entry>waba</entry>       <entry>WABA</entry>
+				</row>
+				<row>
+				  <entry>axt</entry>        <entry>AXT</entry>
+				</row>
+				<row>
+				  <entry>sim4</entry>       <entry>Sim4</entry>
+				</row>
+				<row>
+				  <entry>hmmer</entry>      <entry>HMMER hmmpfam and hmmsearch</entry>
+				</row>
+				<row>
+				  <entry>exonerate</entry>  <entry>Exonerate CIGAR</entry>
+				</row>
+				<row>
+				  <entry>blastxml</entry>   <entry>NCBI BLAST XML</entry>
+				</row>
+				<row>
+				  <entry>wise</entry>       <entry>Genewise -genesf</entry>
+			 </tbody>
+		  </tgroup>
+		</table>
+	 </para>
   </section>
 
   <section id="use">
@@ -364,20 +409,20 @@ S1: 32 (17.6 bits)
     </para>
     <para>
       <table>
-	<title>SearchIO Methods</title>
-	<tgroup cols="4">
-	  <thead>
-	    <row>
-	      <entry>Object</entry>
-	      <entry>Method</entry>
-	      <entry>Example</entry>
-	      <entry>Description</entry>
-	    </row>
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry>Result</entry>
-	      <entry>algorithm</entry>
+		  <title>SearchIO Methods</title>
+		  <tgroup cols="4">
+			 <thead>
+				<row>
+				  <entry>Object</entry>
+				  <entry>Method</entry>
+				  <entry>Example</entry>
+				  <entry>Description</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>Result</entry>
+				  <entry>algorithm</entry>
 	      <entry>BLASTX</entry>
 	      <entry>algorithm</entry>
 	    </row>
