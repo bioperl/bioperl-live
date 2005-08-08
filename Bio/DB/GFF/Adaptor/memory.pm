@@ -107,7 +107,7 @@ sub load_or_store_fasta {
       or
       (-d $fasta && -w $fasta)) {
     require Bio::DB::Fasta;
-    my $dna_db = eval {Bio::DB::Fasta->new($fasta)} 
+    my $dna_db = eval {Bio::DB::Fasta->new($fasta);}
       or warn "$@\nCan't open sequence file(s). Use -gff instead of -dir if you wish to load features without sequence.\n";
     $dna_db && $self->dna_db($dna_db);
   } else {

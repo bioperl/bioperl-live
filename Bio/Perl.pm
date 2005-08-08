@@ -112,6 +112,7 @@ use Exporter;
 
 use Bio::SeqIO;
 use Bio::Seq;
+use Bio::Root::Version '$VERSION';
 BEGIN {
     eval {
 	require Bio::DB::EMBL;
