@@ -39,6 +39,11 @@ This script installs scripts from the scripts/ directory on
 Render a GenBank or EMBL entry into drawable form.  Return as a GIF or
 PNG image on standard output.
 
+=head2 scripts/biographics/bp_glyphs1-demo.PLS 
+
+Generates a PNG image of some of the more esoteric Bio::Graphics
+glyphs.
+
 =head2 scripts/biblio/biblio.PLS
 
 A fully-featured script that uses Bio::Biblio, a module for 
