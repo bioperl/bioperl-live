@@ -23,7 +23,7 @@ Bio::Tools::tRNAscanSE - A parser for tRNAscan-SE output
    # parse the results
    while( my $gene = $parser->next_prediction ) {
 
-       @exon_arr = $gene->exons();
+       @exon_arr = $gene->get_seqFeatures();
 
    }
 
@@ -46,21 +46,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich
 
 Email jason-at-bioperl.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -269,7 +262,7 @@ sub next_prediction {
 		  -primary_tag => $genetag,
 		  -source_tag  => $srctag,
 		  -tag     => {
-		      'Id'    => "tRNA:$type",
+		      'ID'    => "tRNA:$type",
 		      'AminoAcid' => $type,
 		      'Codon'     => $codon,
 		  });
