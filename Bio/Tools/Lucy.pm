@@ -367,7 +367,7 @@ sub _parse {
 			$self->{reject}{$1} = "Q" if /dropping\s+(\S+)/;
 			$self->{reject}{$1} = "V" if /Vector: (\S+)/;
 			$self->{reject}{$1} = "E" if /Empty: (\S+)/;
-			$self->{reject}{$1} = "S" if /Short: (\S+)/;
+			$self->{reject}{$1} = "S" if m{Short/ no insert: (\S+)};
 			$self->{sequences}{$1}{polyA} = 1 if /(\S+) has PolyA/;
 			if (/Dropped PolyA: (\S+)/) {
 				$self->{reject}{$1} = "P";
