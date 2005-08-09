@@ -217,7 +217,11 @@ species or taxon ids.
 
 =head2 scripts/taxa/taxid4species.PLS
 
-Retrieve the NCBI Tada ID for a given species.
+Retrieve the NCBI TaxonID for a given species.
+
+=head2 scripts/taxa/query_entrez_taxa.PLS
+
+Demonstrate how to retrieve the NCBI TaxonID for a given species.  Also retrieve taxonid for a GI number.
 
 =head2 scripts/tree/blast2tree.PLS
 
