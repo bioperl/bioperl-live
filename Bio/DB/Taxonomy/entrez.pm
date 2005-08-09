@@ -26,7 +26,28 @@ Bio::DB::Taxonomy::entrez - Taxonomy Entrez driver
   my $taxonid = $db->get_taxonid('Homo sapiens');
   my $node   = $db->get_Taxonomy_Node(-taxonid => $taxonid);
 
+  my $gi = 71836523;
+  my $node = $db->get_Taxonomy_Node(-gi => $gi, -db => 'protein');
+  print $node->binomial, "\n";
+  my ($species,$genus,$family) =  $node->classification;
+  print "family is $family\n";
+
+  # Can also go up 4 levels
+  my $p = $node;  
+  for ( 1..4 ) { 
+    $p = $db->get_Taxonomy_Node(-taxonid => $p->parent_id);
+  }
+  print $p->rank, " ", ($p->classification)[0], "\n";
   
+  # could then classify a set of BLAST hits based on their GI numbers
+  # into taxonomic categories.
+
+
+It is not currently possibly to query a node for its children so we
+cannot completely replace the advantage of the flatfile
+Bio::DB::Taxonomy::source module.
+
+
 =head1 DESCRIPTION
 
 A driver for querying NCBI Entrez Taxonomy database.
