@@ -68,13 +68,9 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Juguang Xiao, juguang@tll.org.sg
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -103,153 +99,98 @@ use Bio::DB::Taxonomy;
  Args    : -dbh       => a reference to a Bio::DB::Taxonomy object
            -name      => a string representing the node name
            -object_id => unique identifier - typically NCBI Taxid
-
+           -parent_id => parent id (unique identifier for parent)
+           -rank      => node rank (one of 'species', 'genus', etc)
+           -division  => 'primates', 'rodents', or 'inv', etc
+           -factory   => Bio::Taxonomy::FactoryI object for creating new nodes
+           -classification => Arrayref of full lineage classification
+           -ncbi_taxid  => alias for -object_id, only use one of these
+           -common_name => genbank common name for an organism
+           -organelle   => organelle type where appropriate
+           -sub_species => if this is a subspecies, provide that as well,
+                           most relavent for virii and others
+           -variant     => provide variant info
+           -genetic_code=> genetic code table number
+           -mito_genetic_code => mitochondrial genetic code table number
+           -create_date       => date created (where available)
+           -update_date       => date last updated
+           -pub_date          => date published 
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
-  my $self = $class->SUPER::new(@args);
-  my ($name,$uniqueid,$parentid,
-      $rank,$div,$dbh, 
-      $factory,
-      $classification, $ncbitaxid, $commonname,
-      $organelle, $sub_species,$variant) = 
-	  $self->_rearrange([ qw ( NAME OBJECT_ID PARENT_ID RANK DIVISION
-                                   DBH 
-				   FACTORY
-                                   CLASSIFICATION
-                                   NCBI_TAXID
-			           COMMON_NAME
-                                   ORGANELLE
-				   SUB_SPECIES
-			           VARIANT
-			     )],
-			@args);
-  if( defined $ncbitaxid && defined $uniqueid && $ncbitaxid ne $uniqueid  ) {
-      $self->warn("Only provide one of -object_id or -ncbi_taxid, using $uniqueid\n");
-  } elsif( ! defined $uniqueid && defined $ncbitaxid ) { 
-      $uniqueid = $ncbitaxid;
-  }
-$uniqueid && $self->object_id($uniqueid);
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($name,$uniqueid,$parentid,
+	$rank,$div,$dbh, 
+	$factory,
+	$classification, $ncbitaxid, $commonname,
+	$organelle, $sub_species,$variant,$gcode,$mitocode,
+	$createdate,$updatedate,$pubdate) = 
+	    $self->_rearrange([ qw ( NAME OBJECT_ID PARENT_ID RANK DIVISION
+				     DBH 
+				     FACTORY
+				     CLASSIFICATION
+				     NCBI_TAXID
+				     COMMON_NAME
+				     ORGANELLE
+				     SUB_SPECIES
+				     VARIANT
+				     GENETIC_CODE
+				     MITO_GENETIC_CODE
+				     CREATE_DATE
+				     UPDATE_DATE
+				     PUB_DATE
+				     )],
+			      @args);
+    if( defined $ncbitaxid && defined $uniqueid && $ncbitaxid ne $uniqueid  ) {
+	$self->warn("Only provide one of -object_id or -ncbi_taxid, using $uniqueid\n");
+    } elsif( ! defined $uniqueid && defined $ncbitaxid ) { 
+	$uniqueid = $ncbitaxid;
+    }
+    $uniqueid && $self->object_id($uniqueid);
 
-  if( defined $name && defined $commonname && $commonname ne $name ) { 
-      $self->warn("Only provide one of -name or -common_name to $class, using -name value\n");
-  } elsif( ! defined $name && defined $commonname ) { 
-      $name = $commonname;
-  }
+    if( defined $name && defined $commonname && $commonname ne $name ) { 
+	$self->warn("Only provide one of -name or -common_name to $class, using -name value\n");
+    } elsif( ! defined $name && defined $commonname ) { 
+	$name = $commonname;
+    }
 
-  defined $name && $self->node_name($name);
-  defined $rank && $self->rank($rank);
-  defined $div  && $self->division($div);
+    defined $name && $self->node_name($name);
+    defined $rank && $self->rank($rank);
+    defined $div  && $self->division($div);
 
-  
+    defined $gcode    && $self->genetic_code($gcode);
+    defined $mitocode && $self->mitochondrial_genetic_code($mitocode);
+    defined $createdate    && $self->create_date($createdate);
+    defined $updatedate    && $self->update_date($updatedate);
+    defined $pubdate       && $self->pub_date($pubdate);
+
 #unless(defined $factory ){
-   $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
+    $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
 #  } else { 
 #      $self->factory($factory);
 #  }
 
-  defined $parentid && $self->parent_id($parentid);
-  if( defined $classification ) {
-      if( ref($classification) !~ /ARRAY/ ) {
-	  $self->warn("Classification can only be initialize with an arrayref\n");
-      }
-      $self->classification(@$classification);
-  }
-  defined $organelle && $self->name('organelle', $organelle);
-  defined $sub_species && $self->name('sub_species', $sub_species);
-  defined $variant && $self->name('variant',$variant);
-
-  return $self;
-}
-
-
-=head2 db_handle
-
- Title   : db_handle
- Usage   : $obj->db_handle($newval)
- Function: Get/Set Bio::DB::Taxonomy Handle
- Returns : value of db_handle (a scalar) (Bio::DB::Taxonomy object)
- Args    : on set, new value (a scalar or undef, optional) Bio::DB::Taxonomy object
-
-
-=cut
-
-sub db_handle {
-    my $self = shift;
-    if( @_ ) {
-	my $v = shift;
-	# until we establish some other higher level TaxonomyDB interface
-	if( ! ref($v) || ! $v->isa('Bio::DB::Taxonomy') ) {
-	    $self->throw("Must have provided a valid Bio::DB::Taxonomy object");
+    defined $parentid && $self->parent_id($parentid);
+    if( defined $classification ) {
+	if( ref($classification) !~ /ARRAY/ ) {
+	    $self->warn("Classification can only be initialize with an arrayref\n");
 	}
-	$self->{'db_handle'} = $v;
+	$self->classification(@$classification);
     }
-    return $self->{'db_handle'};
+    defined $organelle && $self->name('organelle', $organelle);
+    defined $sub_species && $self->name('sub_species', $sub_species);
+
+    defined $variant && $self->name('variant',$variant);
+
+
+    return $self;
 }
 
-=head2 factory
+=head1 Bio::IdentifiableI interface 
 
-  Title:    factory
-  Usage:    $factory->factory($newval);
-  Function: Get/Set Bio::Taxonomy::FactoryI implementation
-  Returns:  Bio:;Taxonomy::FactoryI
-  Args:     Bio::Taxonomy::FactoryI
-
-=cut
-
-sub factory {
-    my $self = shift;
-    if(@_){
-        my $v = shift;
-        unless(ref($v) || $v->isa('Bio::Taxonomy::FactoryI')){
-            $self->throw('A Bio::Taxonomy::FactoryI object required');
-        }
-        $self->{_factory} = $v;
-    }
-    return $self->{_factory};
-}
-
-=head2 rank
-
- Title   : rank
- Usage   : $obj->rank($newval)
- Function: 
- Example : 
- Returns : value of rank (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-
-=cut
-
-sub rank{
-    my $self = shift;
-
-    return $self->{'rank'} = shift if @_;
-    return $self->{'rank'};
-}
-
-=head2 object_id
-
- Title   : object_id
- Usage   : $obj->object_id($newval)
- Function: 
- Example : 
- Returns : value of object_id (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-
-=cut
-
-sub object_id {
-    my $self = shift;
-
-    return $self->{'_object_id'} = shift if @_;
-    return $self->{'_object_id'};
-}
-
-*ncbi_taxid = \&object_id;
+Also see L<Bio::IdentifiableI>
 
 =head2 version
 
@@ -309,12 +250,100 @@ sub namespace{
     return $self->{'namespace'};
 }
 
+=head1 Bio::Taxonomy::Node implementation
+
+=head2 db_handle
+
+ Title   : db_handle
+ Usage   : $obj->db_handle($newval)
+ Function: Get/Set Bio::DB::Taxonomy Handle
+ Returns : value of db_handle (a scalar) (Bio::DB::Taxonomy object)
+ Args    : on set, new value (a scalar or undef, optional) Bio::DB::Taxonomy object
+
+Also see L<Bio::DB::Taxonomy>
+
+=cut
+
+sub db_handle {
+    my $self = shift;
+    if( @_ ) {
+	my $v = shift;
+	# until we establish some other higher level TaxonomyDB interface
+	if( ! ref($v) || ! $v->isa('Bio::DB::Taxonomy') ) {
+	    $self->throw("Must have provided a valid Bio::DB::Taxonomy object");
+	}
+	$self->{'db_handle'} = $v;
+    }
+    return $self->{'db_handle'};
+}
+
+=head2 factory
+
+  Title:    factory
+  Usage:    $factory->factory($newval);
+  Function: Get/Set Bio::Taxonomy::FactoryI implementation
+  Returns:  Bio:;Taxonomy::FactoryI
+  Args:     Bio::Taxonomy::FactoryI
+
+Also see L<Bio::Taxonomy::FactoryI>
+
+=cut
+
+sub factory {
+    my $self = shift;
+    if(@_){
+        my $v = shift;
+        unless(ref($v) || $v->isa('Bio::Taxonomy::FactoryI')){
+            $self->throw('A Bio::Taxonomy::FactoryI object required');
+        }
+        $self->{_factory} = $v;
+    }
+    return $self->{_factory};
+}
+
+=head2 rank
+
+ Title   : rank
+ Usage   : $obj->rank($newval)
+ Function: Get/set rank of this Node, 'species', 'genus', 'order', etc...
+ Returns : value of rank (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub rank{
+    my $self = shift;
+
+    return $self->{'rank'} = shift if @_;
+    return $self->{'rank'};
+}
+
+=head2 object_id
+
+ Title   : object_id
+ Usage   : $obj->object_id($newval)
+ Function: Get/Set object id (NCBI Taxonomy ID in most cases)
+ Returns : value of object_id (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub object_id {
+    my $self = shift;
+
+    return $self->{'_object_id'} = shift if @_;
+    return $self->{'_object_id'};
+}
+
+*ncbi_taxid = \&object_id;
+
 =head2 parent_id
 
  Title   : parent_id
  Usage   : $obj->parent_id($newval)
- Function: 
- Example : 
+ Function: Get/Set parent ID
  Returns : value of parent_id (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -326,6 +355,99 @@ sub parent_id{
 
     return $self->{'parent_id'} = shift if @_;
     return $self->{'parent_id'};
+}
+
+=head2 genetic_code
+
+ Title   : genetic_code
+ Usage   : $obj->genetic_code($newval)
+ Function: Get/set genetic code table
+ Returns : value of genetic_code (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub genetic_code{
+    my $self = shift;
+
+    return $self->{'genetic_code'} = shift if @_;
+    return $self->{'genetic_code'};
+}
+
+=head2 mitochondrial_genetic_code
+
+ Title   : mitochondrial_genetic_code
+ Usage   : $obj->mitochondrial_genetic_code($newval)
+ Function: Get/set mitochondrial genetic code table
+ Returns : value of mitochondrial_genetic_code (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub mitochondrial_genetic_code{
+    my $self = shift;
+
+    return $self->{'mitochondrial_genetic_code'} = shift if @_;
+    return $self->{'mitochondrial_genetic_code'};
+}
+
+
+=head2 create_date
+
+ Title   : create_date
+ Usage   : $obj->create_date($newval)
+ Function: Get/Set Date this node was created (in the database)
+ Returns : value of create_date (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub create_date{
+    my $self = shift;
+
+    return $self->{'create_date'} = shift if @_;
+    return $self->{'create_date'};
+}
+
+
+=head2 update_date
+
+ Title   : update_date
+ Usage   : $obj->update_date($newval)
+ Function: Get/Set Date this node was updated (in the database)
+ Returns : value of update_date (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub update_date{
+    my $self = shift;
+
+    return $self->{'update_date'} = shift if @_;
+    return $self->{'update_date'};
+}
+
+
+=head2 pub_date
+
+ Title   : pub_date
+ Usage   : $obj->pub_date($newval)
+ Function: Get/Set Date this node was pubd (in the database)
+ Returns : value of pub_date (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub pub_date{
+    my $self = shift;
+
+    return $self->{'pub_date'} = shift if @_;
+    return $self->{'pub_date'};
 }
 
 =head2 get_Parent_Node
@@ -629,7 +751,10 @@ sub sub_species {
 
 sub binomial {
     my( $self, $full ) = @_;
-
+    my $rank = $self->rank;
+    if( $rank ne 'species' ) {
+	$self->warn("Asking for binomial for a $rank node which is not a species, you may not get what you are expecting (genus, species is not available)\n");
+    }
     my( $species, $genus ) = $self->classification();
     unless( defined $species) {
 	$species = 'sp.';

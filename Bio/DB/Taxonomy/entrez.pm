@@ -23,8 +23,10 @@ Bio::DB::Taxonomy::entrez - Taxonomy Entrez driver
 
   my $db = new Bio::DB::Taxonomy(-source => 'entrez');
 
-  my $taxaid = $db->get_taxaid('Homo sapiens');
+  my $taxonid = $db->get_taxonid('Homo sapiens');
+  my $node   = $db->get_Taxonomy_Node(-taxonid => $taxonid);
 
+  
 =head1 DESCRIPTION
 
 A driver for querying NCBI Entrez Taxonomy database.
@@ -88,9 +90,12 @@ if( $@ ) {
 
 $EntrezLocation = 'http://www.ncbi.nih.gov/entrez/eutils/';
 $EntrezGet      = 'esearch.fcgi';
-$EntrezSummary  = 'esummary.fcgi';
+$EntrezSummary  = 'efetch.fcgi';
 
-%EntrezParams = ( 'db' => 'taxonomy');
+%EntrezParams = ( 'db'     => 'taxonomy', 
+		  'report' => 'xml',
+		  'retmode'=> 'xml',
+		  'tool'   => 'Bioperl');
 $UrlParamSeparatorValue = '&';
 
 =head2 new
@@ -178,30 +183,64 @@ sub get_Taxonomy_Node{
        return;
    }
    my $twig = new XML::Twig;
+   
    $self->debug( "resp is $response\n") if( $self->verbose > 0);
+   
    $twig->parse($response);
    my $root = $twig->root;
-   my $list = $root->first_child('DocSum');
-   if( ! $list ) { 
+   my $list = $root->first_child('Taxon');
+   my %init = ('-dbh'            => $self,
+	       '-rank'           => '',
+	       '-classification' => []);
+   my ($scientfic_name);
+   for my $child ( $list->children ) {
+       my $name = uc ($child->gi);
+       if( $name eq 'OTHERNAMES' ) {
+	   my ($first_name) = map {$_->text } $child->children('GenbankCommonName');
+	   $init{'-name'} = $first_name;
+       } elsif( $name eq 'TAXID' ) {
+	   $init{'-object_id'} = $child->text;
+       } elsif( $name eq 'PARENTTAXID' ) {
+	   $init{'-parent_id'} = $child->text;
+       } elsif( $name eq 'DIVISION' ) {
+	   $init{'-division'} = $child->text;
+       } elsif( $name eq 'RANK' ) {
+	   $init{'-rank'} = $child->text;
+       } elsif( $name eq 'GENETICCODE' ) {
+	   ($init{'-genetic_code'}) = ( map { $_->text } 
+					$child->children('GCId'));
+       } elsif( $name eq 'MITOGENETICCODE' ) {
+	   ($init{'-mito_genetic_code'}) = ( map { $_->text } 
+					     $child->children('MGCId'));
+       } elsif( $name eq 'CREATEDATE' ) {
+	   $init{'-create_date'} = $child->text;
+       } elsif( $name eq 'UPDATEDATE' ) {
+	   $init{'-update_date'} = $child->text;
+       } elsif( $name eq 'PUBDATE' ) {
+	   $init{'-pub_date'} = $child->text;
+       } elsif( $name eq 'LINEAGEEX' ) {
+	   for my $taxon ( $child->children('Taxon') ) {
+	       my ($id) = map { $_->text } $taxon->children('TaxId');
+	       my ($sname) = map { $_->text } $taxon->children('ScientificName');
+	       my ($rank) = map { $_->text } $taxon->children('Rank');
+	       next if( $rank eq 'no rank' );
+	       unshift @{$init{'-classification'}}, $sname;
+	   }
+       } elsif( $name eq 'SCIENTIFICNAME' ) {
+	   $scientfic_name = $child->text;
+       } 
+   }
+   if( ! $init{'-object_id'} ) { 
        $self->warn("Could not find any value for $taxonid");
        return undef;
    }
-   my ($id) = map { $_->text } $list->children('Id');
-   my (%item) = map {  uc($_->{'att'}->{'Name'}) => $_->text } $list->children('Item');
-   if( $item{'RANK'} eq 'species') {
-       my $node = Bio::Taxonomy::Node->new(-name      => $item{'COMMONNAME'},
-					   -object_id => $item{'TAXID'},
-					   -parent_id => undef,
-					   -rank      => $item{'RANK'},
-					   -division  => $item{'DIVISION'},
-					   -dbh       => $self);
-       $node->classification(reverse split(/\s+/,$item{'SCIENTIFICNAME'}));
-       return $node;
+   if( $init{'-rank'} eq 'species' ) {
+       my ($genus,$species) = split(/\s+/,$scientfic_name);
+       unshift @{$init{'-classification'}}, $species;
    } else {
-       $self->warn(sprintf("can't create a species object for %s (%s) because it isn't a species but is a '%s' instead",$item{'SCIENTIFICNAME'},
-			   $item{'COMMONNAME'}, $item{'RANK'}));
+       unshift @{$init{'-classification'}}, $scientfic_name;
    }
-   \%item;
+   Bio::Taxonomy::Node->new(%init);      
 }
 
 
@@ -324,5 +363,14 @@ sub entrez_params{
 
 
 =cut
+
+# taken from Bio::DB::GFF
+
+sub unescape {
+  my $v = shift;
+  $v =~ tr/+/ /;
+  $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
+  return $v;
+}
 
 1;
