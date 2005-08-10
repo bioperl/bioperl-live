@@ -17,7 +17,7 @@ Bio::SeqIO::embl - EMBL sequence input/output stream
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
-rather go through the AnnSeqIO handler system. Go:
+rather go through the SeqIO handler system. Go:
 
     $stream = Bio::SeqIO->new(-file => $filename, -format => 'EMBL');
 
@@ -30,11 +30,11 @@ rather go through the AnnSeqIO handler system. Go:
 This object can transform Bio::Seq objects to and from EMBL flat
 file databases.
 
-There is alot of flexibility here about how to dump things which
+There is a lot of flexibility here about how to dump things which
 should be documented more fully.
 
-There should be a common object that this and genbank share (probably
-with swissprot). Too much of the magic is identical.
+There should be a common object that this and Genbank share (probably
+with Swissprot). Too much of the magic is identical.
 
 =head2 Optional functions
 
@@ -58,7 +58,7 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
-If you want to output annotations in embl format they need to be
+If you want to output annotations in EMBL format they need to be
 stored in a Bio::Annotation::Collection object which is accessible
 through the Bio::SeqI interface method L<annotation()|annotation>.
 
@@ -76,8 +76,8 @@ L<Bio::Annotation::Collection> object.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
+and other Bioperl modules. Send your comments and suggestions 
+preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
@@ -193,8 +193,11 @@ sub next_seq {
    #    ($name,$mol,$div) = ($1,$2,$3);
    #}
 
-	($name, $mol, $div) = 
-	  ($line =~ /^ID\s+(\S+).*;\s+([^;]+);\s+(\S+);/);
+	#($name, $mol, $div) =
+	#  ($line =~ /^ID\s+(\S+).*;\s+([^;]+);\s+(\S+);/);
+
+   ($name, $mol, $div) = 
+     ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/);
 
    unless( defined $name && length($name) ) {
 		$name = "unknown_id";
