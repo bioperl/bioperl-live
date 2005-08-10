@@ -11,7 +11,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$TESTCOUNT = 359;
+	$TESTCOUNT = 360;
 	# interpro uses XML::DOM
 	eval {require XML::DOM::XPath};
 	if ($@) {
@@ -184,6 +184,11 @@ $seq = $ent->next_seq();
 ok($seq);
 ok(lc($seq->subseq(1,10)),'gatcagtaga');
 ok($seq->length);
+
+# embl repbase
+$ent = Bio::SeqIO->new(-file => Bio::Root::IO->catfile("t","data","BEL16-LTR_AG.embl"), -format => 'embl');
+$seq = $ent->next_seq;
+ok($seq->display_id,'BEL16-LTR_AG');
 
 # kegg
 my $kegg = Bio::SeqIO->new( '-format' => 'kegg' ,
