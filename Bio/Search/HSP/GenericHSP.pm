@@ -1035,9 +1035,9 @@ sub _calculate_seq_positions {
     my $sdir = $self->hit->strand || 1;
     my $resCount_query = ($qdir >=0) ? $self->query->end : $self->query->start;
     my $resCount_sbjct = ($sdir >=0) ? $self->hit->end : $self->hit->start;
-    
+
     my $prog = $self->algorithm;
-    if( $prog  =~ /FAST/i ) {
+    if( $prog  =~ /FAST|SSEARCH|SMITH-WATERMAN/i ) {
         # fasta reports some extra 'regional' sequence information
         # we need to clear out first
         # this seemed a bit insane to me at first, but it appears to 
@@ -1058,7 +1058,7 @@ sub _calculate_seq_positions {
         $seqString = substr($seqString, $start,$self->length('total'));
         $qseq = substr($qseq, $start,$self->length('total'));
         $sseq = substr($sseq, $start,$self->length('total'));
-
+	
         $qseq =~ s![\\\/]!!g;
         $sseq =~ s![\\\/]!!g;
     }
