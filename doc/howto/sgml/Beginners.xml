@@ -68,7 +68,7 @@
     <abstract>
       <para>
 		  This is a HOWTO written in DocBook (XML) that talks about using
-		  <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, for biologists who would like to learn more
+		  <ulink href="http://bioperl.org">Bioperl</ulink>, for biologists who would like to learn more
 		  about writing their own bioinformatics scripts using <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. 
       </para>
 		<para>
@@ -256,7 +256,7 @@
 				either install Bundle::<ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> or install that specific
 				module by hand. See 
 <ulink
-				url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>INSTALL</citetitle></ulink>
+				url="http://bioperl.org/Core/Latest/INSTALL"><citetitle>INSTALL</citetitle></ulink>
 				for details.
 			 </para>
 		  </listitem>
@@ -597,7 +597,7 @@ print $seq_obj->seq();
 	 </para>
 <para></para>
 	 <para>
-		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
+		<emphasis>aaaatgggggggggggccccgtt</emphasis>, <emphasis>#12345</emphasis>, and <emphasis>example 1</emphasis> are called
 		"arguments" in programming jargon. You could say that
 		this example shows how to pass arguments to the
 		<function>new</function> method.
@@ -902,8 +902,11 @@ $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
 		<para>
 		  This capability to query by string and field is only available
 		  for GenBank as of <ulink href="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> version 1.5, queries to other
-		  databases, like <ulink href="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink> or EMBL, are limited to identifiers
-		  and accessions.
+		  databases, like <ulink
+		  href="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink>
+		  or EMBL, are limited to identifiers and accessions.
+		You can find detailed information on Genbank's query fields
+		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html"><citetitle>here</citetitle></ulink>.
 		</para>
 	 </note>
 	 <para></para>
@@ -960,10 +963,6 @@ while ($seq_obj = $stream_obj->next_seq) {
 		</para>
 	 </warning>
 	 <para></para>
-	 <para>
-		You can find detailed information on Genbank's query fields
-		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html"><citetitle>here</citetitle></ulink>.
-	 </para>
   </section>
 
   <section id="seq_obj">
@@ -1673,6 +1672,34 @@ print $result_obj->num_hits;
 		the SearchIO modules. The
 		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html"><citetitle>SearchIO HOWTO</citetitle></ulink> will tell you all about using these
 		objects to extract useful data from your BLAST analyses.
+	 </para>
+	 <para>
+		Here's an example of how one would use SearchIO to extract
+		data from a BLAST report:
+	 </para>
+	 <para>
+		<programlisting>
+	 use Bio::SearchIO;
+   
+    $report_obj = new Bio::SearchIO(-format => 'blast', 
+                               -file   => 'report.bls');
+    while( $result = $report_obj->next_result ) {
+      while( $hit = $result->next_hit ) {
+        while( $hsp = $hit->next_hsp ) {
+            if ( $hsp->percent_identity > 75 ) {
+              print "Hit\t",        $hit->name,             "\n", 
+                    "Length\t",     $hsp->length('total'),  "\n", 
+                    "Percent_id\t", $hsp->percent_identity, "\n";
+          }
+        }  
+      }
+    }
+		</programlisting>
+	 </para>
+	 <para>
+		This code prints out details about the match when the 
+		HSP or aligned pair are greater than
+		75% identical.
 	 </para>
 	 <para>
 		Sometimes you'll see errors when you try to use
