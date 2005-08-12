@@ -716,7 +716,7 @@ S1: 32 (17.6 bits)
 	    </row>
 	    <row>
 	    <entry>HSP</entry>
-	      <entry>range('hit')</entry>
+	      <Entry>range('hit')</entry>
 	      <entry>(197,246)</entry>
 	      <entry>start and end as array</entry>
 	    </row>
@@ -846,8 +846,14 @@ S1: 32 (17.6 bits)
     <para>
       Another method that's useful in dissecting an HSP is the
       seq_inds() method of the HSP object. What this method does is tell
-      us what the positions are of all the identical or conserved
-      residues in an alignment, query or hit. It could be used like this:
+      us what the positions are of all the identical, conserved, 
+		mismatched, or gap ("identical", "conserved", "nomatch", "gap")
+      residues in an alignment, referring to the query or hit strand
+		("sbjct" is 
+		synonymous with "hit"). It could be used like this:
+	 </para>
+	 <para></para>
+	 <para>
       <programlisting>
 	# put all the conserved matches in query strand into an array
 	my @str_array = split "",$hsp->query_string;
