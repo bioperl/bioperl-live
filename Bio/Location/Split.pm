@@ -567,8 +567,15 @@ sub to_FTstring {
 	} 
 	push @strs, $str;
     }    
+    my $str;
+    if( @strs == 1 ) {
+	($str) = @strs;
+    } elsif( @strs == 0 ) {
+	$self->warn("no Sublocations for this splitloc, so not returning anything\n");
 
-    my $str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
+    } else {  
+	$str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
+    }
     return $str;
 }
 
