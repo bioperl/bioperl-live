@@ -61,7 +61,7 @@ ok( $species);
 ok $species->binomial(), 'Homo sapiens';
 
 # test if Taxonomy::Node can masquerade as a Bio::Species object
-my $node = Bio::Taxonomy::Node->new();
+my $node = Bio::Taxonomy::Node->new(-rank => 'species');
 ok( $node );
 $node->classification(qw( sapiens Homo Hominidae
 			 Catarrhini Primates Eutheria Mammalia Vertebrata
@@ -76,12 +76,13 @@ ok($node->sub_species(), 'sapiensis');
 
 # test object level initializtion
 my $newnode = new Bio::Taxonomy::Node( 
-    -organelle      => 'mito',
-    -sub_species    => 'sapiensis',
-    -variant        => 'varianthere',
-    -ncbi_taxid     => 9606,
-    -common_name    => 'human',
-    -classification => 
+				       -rank           => 'species',
+				       -organelle      => 'mito',
+				       -sub_species    => 'sapiensis',
+				       -variant        => 'varianthere',
+				       -ncbi_taxid     => 9606,
+				       -common_name    => 'human',
+				       -classification => 
     [ qw( sapiens Homo Hominidae Catarrhini Primates Eutheria 
 	  Mammalia Vertebrata Chordata Metazoa Eukaryota) ] );
 ok( $newnode );
