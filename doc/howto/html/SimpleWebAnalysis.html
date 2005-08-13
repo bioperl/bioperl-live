@@ -1,17 +1,15 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Web-based SimpleAnalysis HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	  This HOWTO tries to teach you to run a web based sequence&#xA;	  analysis program using basic SimpleAnalysis rules.&#xA;	"></head><body><div xmlns="" id="customheader">
-BioPerl DocBook
-</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Web-based SimpleAnalysis HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Richard</span> <span class="surname">Adams</span></h3><div class="affiliation"><span class="orgname">Dept. Medical Genetics, University of Edinburgh<br></span><div class="address"><p><tt class="email">&lt;<a href="mailto:radams_at_staffmail.ed.ac.uk">radams_at_staffmail.ed.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Richard Adams, 2003.  It can
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Web-based SimpleAnalysis HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;  This HOWTO tries to teach you to run a web based sequence&#xA;  analysis program using basic SimpleAnalysis rules.&#xA;"></meta></head><body><div xmlns="" id="customheader">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
+</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Web-based SimpleAnalysis HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Richard</span> <span class="surname">Adams</span></h3><div class="affiliation"><span class="orgname">Dept. Medical Genetics, University of Edinburgh<br></br></span><div class="address"><p><tt class="email">&lt;<a href="mailto:radams_at_staffmail.ed.ac.uk">radams_at_staffmail.ed.ac.uk</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><a id="d4e20"></a><p>This document is copyright Richard Adams, 2003.  It can
         be copied and distributed under the terms of the Perl
         Artistic License.
 	</p></div></div><div><p class="pubdate">2003-11-14</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2003-11-14</td><td align="left">RA</td></tr><tr><td align="left" colspan="3">First version</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 	  This HOWTO tries to teach you to run a web based sequence
 	  analysis program using basic SimpleAnalysis rules.
-	</p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#introduction">Introduction</a></dt><dt>2. <a href="#Simple">Simple Examples</a></dt><dt>3. <a href="#retrieving_results">Retrieving results</a></dt><dt>4. <a href="#Metasequences">Metasequences</a></dt><dt>5. <a href="#parameters">How to  run the same analysis with varying parameters</a></dt><dt>6. <a href="#caveats">Caveats</a></dt><dt>7. <a href="#developing">Interested in developing your own Analysis module?</a></dt><dt>8. <a href="#Acknowledgments">Acknowledgments</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div><div></div></div><p>
+	</p></div></div></div><hr></hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#introduction">1. Introduction</a></span></dt><dt><span class="section"><a href="#Simple">2. Simple Examples</a></span></dt><dt><span class="section"><a href="#retrieving_results">3. Retrieving results</a></span></dt><dt><span class="section"><a href="#Metasequences">4. Metasequences</a></span></dt><dt><span class="section"><a href="#parameters">5. How to  run the same analysis with varying parameters</a></span></dt><dt><span class="section"><a href="#caveats">6. Caveats</a></span></dt><dt><span class="section"><a href="#developing">7. Interested in developing your own Analysis module?</a></span></dt><dt><span class="section"><a href="#Acknowledgments">8. Acknowledgments</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
         There are several situations where it would be useful to run a web
         based sequence analysis program via a Perl script rather than using
         the web interface manually or downloading the program. Firstly, the
@@ -34,8 +32,8 @@ BioPerl DocBook
         are modules wrapping remote analyses using HMMER, Pfam, the ELM 
         peptide motif database and SIFT for prediction of untolerated 
         non-synonymous SNPs. 
-       <div class="table"><a id="d3e29"></a><table summary="Supported analyses" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Analysis</th><th>Purpose</th><th>Reference</th></tr></thead><tbody><tr><td>Domcut</td><td>Protein domain boundaries</td><td>Bioinformatics 19, 673-674 (2003)</td></tr><tr><td>NetPhos</td><td>Protein phosphorylation sites</td><td>J Mol Biol 294, 1351-1362 (1999)</td></tr><tr><td>GOR4</td><td>Protein Secondary structure</td><td>Meths. Enzymology 266, 540-553 (1996)</td></tr><tr><td>HNN</td><td>Protein Secondary structure</td><td>Bioinformatics 15,413-421 (1999)</td></tr><tr><td>Sopma</td><td>Protein Secondary structure</td><td>Comput Appl Biosci 11, 681-684 (1995)</td></tr><tr><td>Mitoprot</td><td>Mitochondrial cleavage site prediction</td><td>Eur J Biochem 241, 779-786 (1996)</td></tr><tr><td>ESEfinder</td><td>Exonic splice site enhancers</td><td>NAR 31, 3568-3571 (2003)</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;Supported analyses</b></p></div>
-      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Simple"></a>2.&nbsp;Simple Examples</h2></div></div><div></div></div><p>
+       <div class="table"><a id="d4e29"></a><table summary="Supported analyses" border="1"><thead><tr><th>Analysis</th><th>Purpose</th><th>Reference</th></tr></thead><tbody><tr><td>Domcut</td><td>Protein domain boundaries</td><td>Bioinformatics 19, 673-674 (2003)</td></tr><tr><td>NetPhos</td><td>Protein phosphorylation sites</td><td>J Mol Biol 294, 1351-1362 (1999)</td></tr><tr><td>GOR4</td><td>Protein Secondary structure</td><td>Meths. Enzymology 266, 540-553 (1996)</td></tr><tr><td>HNN</td><td>Protein Secondary structure</td><td>Bioinformatics 15,413-421 (1999)</td></tr><tr><td>Sopma</td><td>Protein Secondary structure</td><td>Comput Appl Biosci 11, 681-684 (1995)</td></tr><tr><td>Mitoprot</td><td>Mitochondrial cleavage site prediction</td><td>Eur J Biochem 241, 779-786 (1996)</td></tr><tr><td>ESEfinder</td><td>Exonic splice site enhancers</td><td>NAR 31, 3568-3571 (2003)</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;Supported analyses</b></p></div>
+      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Simple"></a>2.&nbsp;Simple Examples</h2></div></div></div><p>
         The script below runs multiple analyses on a single sequence
         and parses the results into standard BioPerl sequence feature
         objects (Bio::SeqFeature::Generic objects to be precise). 
@@ -77,7 +75,7 @@ BioPerl DocBook
         results. If you initially have  a Bio::Seq object or Bio::RichSeq
         object (e.g., from a GenBank file) you can call its primary_seq() 
         method to obtain a Bio::PrimarySeq object.
-      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="retrieving_results"></a>3.&nbsp;Retrieving results</h2></div></div><div></div></div><p>
+      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="retrieving_results"></a>3.&nbsp;Retrieving results</h2></div></div></div><p>
 		If the run() method executes successfully, the raw output (stripped of
         HTML) is now stored in the Analysis object. 
         All modules should return the raw report by a call to result() 
@@ -110,7 +108,7 @@ BioPerl DocBook
         case retrieving the results as Bio::Seq::Meta::Array type objects 
         might be better. 
 
-   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Metasequences"></a>4.&nbsp;Metasequences</h2></div></div><div></div></div><p>
+   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Metasequences"></a>4.&nbsp;Metasequences</h2></div></div></div><p>
 
         Many analyses produce a list of scores, one for each residue
         in a sequence. For example, the protein secondary structure
@@ -152,7 +150,7 @@ BioPerl DocBook
        Although a full description of how metasequence objects work isn't
        really the purpose of this HOWTO there is excellent documentation in
        Bio::Seq::MetaI and Bio::Seq::Meta::Array modules. 
-     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="parameters"></a>5.&nbsp;How to  run the same analysis with varying parameters</h2></div></div><div></div></div><p>
+     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="parameters"></a>5.&nbsp;How to  run the same analysis with varying parameters</h2></div></div></div><p>
 
       You might want to run some analyses with varying parameters in
       order to determine the effect on the prediction.  
@@ -227,7 +225,7 @@ BioPerl DocBook
      ## now onto comparison..... ##
      </pre> 
 
-     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="caveats"></a>6.&nbsp;Caveats</h2></div></div><div></div></div><p>
+     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="caveats"></a>6.&nbsp;Caveats</h2></div></div></div><p>
         The problem with these analyses is their speed of execution, which
         obviously depends on your network speed, the complexity of the
         analysis and the speed of the host. Moreover, it is usually polite to
@@ -238,7 +236,7 @@ BioPerl DocBook
         smaller numbers of sequences. However, the code in the result()
         methods should still be usable for parsing analyses run locally when
         the local output and webpage output are the same format.
-      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="developing"></a>7.&nbsp;Interested in developing your own Analysis module?</h2></div></div><div></div></div><p>
+      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="developing"></a>7.&nbsp;Interested in developing your own Analysis module?</h2></div></div></div><p>
         Most of the hard work is done by Bio::WebAgent and
         Bio::SimpleAnalysisBase. Any module must inherit from this latter
         module as it contains methods common to all analyses.
@@ -275,7 +273,7 @@ BioPerl DocBook
         analysis programs as they become available which are not included in
         the usual protein annotations and will be glad to hear of new 
         suggestions.
-      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Acknowledgments"></a>8.&nbsp;Acknowledgments</h2></div></div><div></div></div><p>
+      </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="Acknowledgments"></a>8.&nbsp;Acknowledgments</h2></div></div></div><p>
       These modules depend on several recently developed modules and wouldn't
       work at all without them: Bio::Seq::Meta modules by
       Chad Matsalla, Aaron Mackey and Heikki Lehvaslaiho,
@@ -284,5 +282,5 @@ BioPerl DocBook
       Bio::SimpleAnalysisI by
       Martin Senger.
     </p></div></div><div xmlns="" id="customfooter">
-BioPerl DocBook
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div></body></html>

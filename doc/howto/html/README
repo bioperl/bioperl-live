@@ -1,6 +1,2 @@
-UNIX:
-To generate the files run
-% docbook2html -u ../sgml/FILENAME.sgml
-WINDOWS:
-Use e-novative DocBook from
-http://www.e-novative.de
+See the README in doc/howto/xml for information on creating HTML 
+from DocBook XML.

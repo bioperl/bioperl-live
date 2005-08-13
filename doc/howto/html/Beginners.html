@@ -1,53 +1,51 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Beginners HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"><meta name="description" content="&#xA;		  This is a HOWTO written in DocBook (XML) that talks about using&#xA;		  Bioperl, for biologists who would like to learn more&#xA;		  about writing their own bioinformatics scripts using Bioperl. &#xA;       &#xA;		  What is Bioperl? It is an open source bioinformatics toolkit&#xA;		  used by researchers all over the world. If you're looking for&#xA;		  a script built to fit your exact need it's likely &#xA;		  you won't find it in Bioperl. What you will find is a&#xA;		  diverse set of Perl modules that will enable you to write&#xA;		  your own script, and a commmunity of people who are willing &#xA;		  to help you.&#xA;		"></head><body><div xmlns="" id="customheader">
-TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bold;">Cognia</a>)
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Beginners HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;  This is a HOWTO written in DocBook (XML) that talks about using&#xA;  Bioperl, for biologists who would like to learn more&#xA;  about writing their own bioinformatics scripts using Bioperl. &#xA;       &#xA;  What is Bioperl? It is an open source bioinformatics toolkit&#xA;  used by researchers all over the world. If you're looking for&#xA;  a script built to fit your exact need it's likely &#xA;  you won't find it in Bioperl. What you will find is a&#xA;  diverse set of Perl modules that will enable you to write&#xA;  your own script, and a commmunity of people who are willing &#xA;  to help you.&#xA;"></meta></head><body><div xmlns="" id="customheader">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Beginners HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Brian</span> <span class="surname">Osborne</span></h3><div class="affiliation"><span class="orgname">
 			 <a href="http://www.cognia.com" target="_top"><i class="citetitle">Cognia
 				Corporation</i></a>
-		  <br></span><div class="address"><p><br>
-			&nbsp;<tt class="email">&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt><br>
+		  <br></br></span><div class="address"><p><br></br>
+			&nbsp;<tt class="email">&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt><br></br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">James</span> <span class="surname">Thompson</span></h3><div class="affiliation"><span class="orgname">
-		  <br></span><div class="address"><p><br>
-			&nbsp;<tt class="email">&lt;<a href="mailto:tex-at-biocompute.net">tex-at-biocompute.net</a>&gt;</tt><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><a id="d4e25"></a><p>
+		  <br></br></span><div class="address"><p><br></br>
+			&nbsp;<tt class="email">&lt;<a href="mailto:tex-at-biocompute.net">tex-at-biocompute.net</a>&gt;</tt><br></br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><a id="d4e27"></a><p>
 		  This document is copyright Brian Osborne, 2004.  For
 		  reproduction other than personal use please contact 
 		  brian at cognia.com.
       </p></div></div><div><p class="pubdate">2005-02-08</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 		  This is a HOWTO written in DocBook (XML) that talks about using
-		  Bioperl, for biologists who would like to learn more
-		  about writing their own bioinformatics scripts using Bioperl. 
+		  <a href="http://www.bioperl.org/" target="_top">Bioperl</a>, for biologists who would like to learn more
+		  about writing their own bioinformatics scripts using <a href="http://www.bioperl.org/" target="_top"><i class="citetitle">Bioperl</i></a>. 
       </p><p>
-		  What is Bioperl? It is an open source bioinformatics toolkit
+		  What is <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>? It is an open source bioinformatics toolkit
 		  used by researchers all over the world. If you're looking for
 		  a script built to fit your exact need it's likely 
-		  you won't find it in Bioperl. What you will find is a
+		  you won't find it in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. What you will find is a
 		  diverse set of Perl modules that will enable you to write
 		  your own script, and a commmunity of people who are willing 
 		  to help you.
-		</p></div></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#introduction">1. Introduction</a></span></dt><dt><span class="section"><a href="#installation">2. Installing Bioperl</a></span></dt><dt><span class="section"><a href="#help">3. Getting Assistance</a></span></dt><dt><span class="section"><a href="#perl">4. Perl Itself</a></span></dt><dt><span class="section"><a href="#starting_unix">5. Starting to write a script on Unix</a></span></dt><dt><span class="section"><a href="#create">6. Creating a sequence, and an object</a></span></dt><dt><span class="section"><a href="#writing">7. Writing a sequence to a file</a></span></dt><dt><span class="section"><a href="#reading">8. Retrieving a sequence from a file</a></span></dt><dt><span class="section"><a href="#retrieving_gb">9. Retrieving a sequence from a database</a></span></dt><dt><span class="section"><a href="#seq_obj">10. The Sequence object</a></span></dt><dt><span class="section"><a href="#examples">11. Example Sequence objects</a></span></dt><dt><span class="section"><a href="#blast">12. BLAST</a></span></dt><dt><span class="section"><a href="#indexing">13. Indexing for Fast Retrieval</a></span></dt><dt><span class="section"><a href="#more">14. More on Bioperl</a></span></dt><dt><span class="section"><a href="#perldoc">15. Perl's Documentation System</a></span></dt><dt><span class="section"><a href="#objects">16. The Basics of Perl Objects</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
+		</p></div></div></div><hr></hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#introduction">1. Introduction</a></span></dt><dt><span class="section"><a href="#installation">2. Installing <i class="citetitle">Bioperl</i></a></span></dt><dt><span class="section"><a href="#help">3. Getting Assistance</a></span></dt><dt><span class="section"><a href="#perl">4. Perl Itself</a></span></dt><dt><span class="section"><a href="#starting_unix">5. Starting to write a script on Unix</a></span></dt><dt><span class="section"><a href="#create">6. Creating a sequence, and an object</a></span></dt><dt><span class="section"><a href="#writing">7. Writing a sequence to a file</a></span></dt><dt><span class="section"><a href="#reading">8. Retrieving a sequence from a file</a></span></dt><dt><span class="section"><a href="#retrieving_gb">9. Retrieving a sequence from a database</a></span></dt><dt><span class="section"><a href="#seq_obj">10. The Sequence object</a></span></dt><dt><span class="section"><a href="#examples">11. Example Sequence objects</a></span></dt><dt><span class="section"><a href="#blast">12. BLAST</a></span></dt><dt><span class="section"><a href="#indexing">13. Indexing for Fast Retrieval</a></span></dt><dt><span class="section"><a href="#more">14. More on <i class="citetitle">Bioperl</i></a></span></dt><dt><span class="section"><a href="#perldoc">15. Perl's Documentation System</a></span></dt><dt><span class="section"><a href="#objects">16. The Basics of Perl Objects</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="introduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
 		If you're a molecular biologist it's likely that
 		you're interested in gene and protein sequences, and you study them
 		in some way on a regular basis. Perhaps you'd like to try your
 		hand at automating some of these tasks, or you're just curious
 		about learning more about the programming side of bioinformatics.
 		In this HOWTO you'll see discussions of some of the common uses
-		of Bioperl, 
+		of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>, 
 		like sequence analysis with BLAST and retrieving sequences from 
 		public databases. You'll also see how to
-		write Bioperl scripts that chain these tasks together, that's
-		how you'll be able to do really powerful things with Bioperl.
+		write <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> scripts that chain these tasks together, that's
+		how you'll be able to do really powerful things with <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>.
     </p><p>
 		You will also see some discussions of software concepts, this
 		can't be avoided. The more you understand about
 		programming the better, but all efforts will be made
 		to not introduce too much unfamiliar material. 
 		However, there will be an introducton to modularity, or objects. This is 
-		one of the aspects of the Bioperl package that you'll have
+		one of the aspects of the <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> package that you'll have
 		to come to grips with as you attempt more complex tasks with
 		your scripts.
     </p><p>
@@ -56,16 +54,16 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 		interesting terms and concepts. Be patient - remember that the
 		programmers learning biology have had just as tough a task
 		(if not worse - just ask them!).
-	 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+	 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></img></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 		  This HOWTO does not discuss a very nice module that's designed for
 		  beginners, 
 		  <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html" target="_top"><i class="citetitle">Bio::Perl</i></a>. The reason is that though this is an
 			 excellent introductory tool, it is not object-oriented and
 		  can't be extended. What we're
-		  attempting here is to introduce Bioperl and show you
+		  attempting here is to introduce <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> and show you
 		  ways to expand your new-found skills.
-      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="installation"></a>2.&nbsp;Installing Bioperl</h2></div></div></div><p>
-		The first thing to determine is the Bioperl platform - Unix or
+      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="installation"></a>2.&nbsp;Installing <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a></h2></div></div></div><p>
+		The first thing to determine is the <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> platform - Unix or
 		Windows? Here are some things to consider, if you're choosing 
 		between the two.
 	 </p><p>
@@ -85,7 +83,7 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 			 available Windows machine.
 		  </td></tr><tr><td>
 			 There may be an administrator taking care of the machine - maybe
-			 she'll even install Bioperl for you! Ask and see.
+			 she'll even install <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> for you! Ask and see.
 		  </td></tr></table>
 	 </p><p>
 		<span class="emphasis"><em>Unix Disadvantages</em></span>
@@ -110,7 +108,7 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 		<table class="simplelist" border="0" summary="Simple list"><tr><td>
 			 Simplicity, if Windows is what you're working with now.
 		  </td></tr><tr><td>
-			 Plenty of Bioperl users run it on Windows.
+			 Plenty of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> users run it on Windows.
 		  </td></tr></table>
 	 </p><p>
 		<span class="emphasis"><em>Windows Disadvantages</em></span>
@@ -124,7 +122,7 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 			 Your computer may not be able to handle serious 
 			 computation gracefully.
 		  </td></tr></table>
-	 </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+	 </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></img></td><th align="left">Tip</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 		  If you decide to use Unix there are many Web pages that can 
 		  give you a good introduction, google "introduction unix" to
 		  see more than a few.
@@ -138,8 +136,8 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 		<div class="orderedlist"><ol type="1"><li><p>
 				On Windows, messages like "Error: Failed to download URL
 				http://bioperl.org/DIST/GD.ppd", or "Not found". The 
-				explanation is that Bioperl does not supply every
-				accessory module that's necessary to run all of Bioperl.
+				explanation is that <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> does not supply every
+				accessory module that's necessary to run all of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>.
 				You'll need to search other repositories to install
 				all of these accessory modules. See the
 		<a href="http://bioperl.org/Core/Latest/INSTALL.WIN" target="_top"><i class="citetitle">INSTALL.WIN</i></a>
@@ -149,26 +147,26 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 				&lt;some-module&gt;.pm in @INC...". This means that Perl
 				could not find a particular module and the explanation
 				usually is that this module is not installed. You can
-				either install Bundle::Bioperl or install that specific
+				either install Bundle::<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> or install that specific
 				module by hand. See 
-<a href="http://bioperl.org/Core/Latest/INSTALL.WIN" target="_top"><i class="citetitle">INSTALL</i></a>
+<a href="http://bioperl.org/Core/Latest/INSTALL" target="_top"><i class="citetitle">INSTALL</i></a>
 				for details.
 			 </p></li><li><p>
 				Seeing messages like "Tests Failed". If you see an 
 				error during installation consider whether
-				this problem is going to affect your use of Bioperl. There
-				are almost 800 modules in Bioperl, and ten times that many
+				this problem is going to affect your use of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. There
+				are almost 800 modules in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>, and ten times that many
 				tests are run during the installation. If there's a
 				complaint about GD it's only relevant if you want to 
 				use the Bio/Graphics modules, if you see an error about
 				some XML parser it's only going to affect you if 
 				you're reading XML files. Yes, you could try and make
 				each and every test pass, but that may be a lot of work, with much
-				of it fixing modules that aren't in Bioperl itself.
+				of it fixing modules that aren't in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> itself.
 			 </p></li></ol></div>
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="help"></a>3.&nbsp;Getting Assistance</h2></div></div></div><p>
-		People will run into problems installing Bioperl or writing 
-		scripts using Bioperl, nothing unusual about that. If you need 
+		People will run into problems installing <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> or writing 
+		scripts using <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>, nothing unusual about that. If you need 
 		assistance the way to get it is to mail bioperl-l@bioperl.org.
 		There are a good number of helpful people who regularly read
 		this list but if you want their advice it's best to give
@@ -176,7 +174,7 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 	 </p><p>
 		<span class="emphasis"><em>Please include:</em></span>
 	 </p><p>
-		<div class="orderedlist"><ol type="1"><li><p> The version of Bioperl you're working with. </p></li><li><p>The platform or operating system you're using. </p></li><li><p>What you are trying to do.</p></li><li><p>	 
+		<div class="orderedlist"><ol type="1"><li><p> The version of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> you're working with. </p></li><li><p>The platform or operating system you're using. </p></li><li><p>What you are trying to do.</p></li><li><p>	 
 				The code that gives the error, if you're writing a script.
 			 </p></li><li><p>			 
 				Any error messages you saw.
@@ -187,10 +185,10 @@ TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bo
 		in distress that goes unanswered. The explanation is usually that
 		the person neglected to include 1 or more of the details above,
 		usually the script or the error messages.
-    </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+    </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></img></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 		  And every once in a while, not often, an email will go
 		  unanswered because the
-		  the tone is unpleasant. Bioperl
+		  the tone is unpleasant. <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>
 		  is a 100% volunteer effort, we all have other jobs, 
 		  complaining about bugs or lack of
 		  documentation is not the way to make friends!
@@ -269,12 +267,12 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 #!/bin/perl -w
 		</pre>
 	 </p><p></p><p>
-		The "-w" flag tells Perl to warn you if and when various common errors
-		are encountered, it's useful.
+		The <span class="emphasis"><em>-w</em></span> flag tells Perl to warn you if and
+		when various common errors are encountered, it's useful.
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="create"></a>6.&nbsp;Creating a sequence, and an object</h2></div></div></div><p>
 		Our first script will create a sequence. Well, not just a sequence,
 		you will be creating a "sequence object", since
-		Bioperl is written in an object-oriented way. Why be
+		<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> is written in an object-oriented way. Why be
 		object-oriented? Why introduce these odd or intrusive notions into
 		software that should be "biological" or "intuitive"? The reason is 
 		that thinking in terms of modules or objects turns out to be the
@@ -289,8 +287,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		and so on) so it will serve as a nice example of what
 		an object can be. 
 	 </p><p>
-		All objects in Bioperl are created by specific
-		Bioperl modules, so if you want to create an object you're also going
+		All objects in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> are created by specific
+		<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> modules, so if you want to create an object you're also going
 		to have to tell Perl which module to use. Let's add another line:
     </p><p>
 		<pre class="programlisting">
@@ -307,9 +305,9 @@ use Bio::Seq;
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html" target="_top"><i class="citetitle">Bio::Seq</i></a> object.
 		The 
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html" target="_top"><i class="citetitle">Bio::Seq</i></a> module is one of the central modules in
-		Bioperl. The analogous 
+		<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. The analogous 
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html" target="_top"><i class="citetitle">Bio::Seq</i></a> object, or "Sequence object", or
-		"Seq object", is ubiquitous in Bioperl, it contains 
+		"Seq object", is ubiquitous in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>, it contains 
 		a single sequence and associated names, identifiers, and
 		properties. Let's create a very simple sequence object at
 		first, like so:
@@ -325,22 +323,22 @@ $seq_obj = Bio::Seq-&gt;new(-seq =&gt; "aaaatgggggggggggccccgtt"
     </p><p></p><p>
 		That's it! The variable <tt class="varname">$seq_obj</tt> is the
 		Sequence object, a simple one, containing just a sequence.
-		Note that the code tells Bioperl that the sequence is DNA
+		Note that the code tells <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> that the sequence is DNA
 		(the choices here are 'dna', 'rna', and 'protein'), this is
-		the wise thing to do. If you don't tell Bioperl it will attempt 
+		the wise thing to do. If you don't tell <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> it will attempt 
 		to guess the alphabet. Normally it guesses correctly but if your sequence
 		has lots of odd or ambiguous characters, such as N or X,
-		Bioperl's guess may be incorrect and this may lead to some
+		<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>'s guess may be incorrect and this may lead to some
 		problems.
 	 </p><p>
 		<a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html" target="_top"><i class="citetitle">Bio::Seq</i></a> objects can be created manually, as above, but
 		they're also create automatically in many operations
-		in Bioperl, for example when alignment files or database
+		in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>, for example when alignment files or database
 		entries or BLAST reports are parsed.
 	 </p><p>
 		Any time you explicitly create an object, you
 		will use this <tt class="function">new()</tt> method. The syntax of this
-		line is one you'll see again and again in Bioperl: the name
+		line is one you'll see again and again in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>: the name
 		of the object or variable, the module name, the 
 		<span class="emphasis"><em>-&gt;</em></span> symbol, the
 		method name <span class="emphasis"><em>new</em></span>, some argument name like
@@ -348,7 +346,7 @@ $seq_obj = Bio::Seq-&gt;new(-seq =&gt; "aaaatgggggggggggccccgtt"
 		symbol, and then
 		the argument or value itself, like
 		<span class="emphasis"><em>aaaatgggggggggggccccgtt</em></span>.
-	 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+	 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></img></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 		  If you've programmed before you've come across the term
 		  "function" or "sub-routine". In object-oriented programming the term
 		  "method" is used instead.			 
@@ -396,7 +394,7 @@ $seq_obj = Bio::Seq-&gt;new(-seq =&gt; "aaaatgggggggggggccccgtt",
 print $seq_obj-&gt;seq();
 		</pre>
 	 </p><p></p><p>
-		"aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
+		<span class="emphasis"><em>aaaatgggggggggggccccgtt</em></span>, <span class="emphasis"><em>#12345</em></span>, and <span class="emphasis"><em>example 1</em></span> are called
 		"arguments" in programming jargon. You could say that
 		this example shows how to pass arguments to the
 		<tt class="function">new</tt> method.
@@ -411,7 +409,7 @@ print $seq_obj-&gt;seq();
 		<span class="emphasis"><em>I</em></span>nput-<span class="emphasis"><em>O</em></span>utput.
 		By using 
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html" target="_top"><i class="citetitle">Bio::SeqIO</i></a> in this manner you will be able to get input
-		and make output for all of the sequence file formats supported by Bioperl
+		and make output for all of the sequence file formats supported by <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>
 		(the <a href="http://bioperl.org/HOWTOs/SeqIO/index.html" target="_top"><i class="citetitle">SeqIO HOWTO</i></a> has a complete list of supported formats).
 		The way you create <tt class="classname">Bio::SeqIO</tt> objects is 
 		very similar to the way we used <tt class="function">new()</tt> to
@@ -495,14 +493,14 @@ ORIGIN
 		<a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html" target="_top"><i class="citetitle">Bio::SeqIO</i></a> when working with sequence
 		files. This is understandable in some respects. You
 		may have read about Perl's <tt class="function">open</tt>
-		function, and Bioperl's way of retrieving sequences may look odd
+		function, and <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>'s way of retrieving sequences may look odd
 		and overly complicated, at first. But don't use
 		<tt class="function">open</tt>! Using <tt class="function">open</tt> 
 		immediately forces you to do the parsing of the sequence
 		file and this can get complicated very quickly. Trust
 		the SeqIO object, it's built to open and parse all
 		the common sequence formats, it can read and write to files,
-		and it's built to operate with all the other Bioperl 
+		and it's built to operate with all the other <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> 
 		modules that you will want to use. 
 	 </p><p>
 		Let's read the file we created previously, "sequence.fasta",
@@ -543,7 +541,7 @@ $seq_obj = $seqio_obj-&gt;next_seq;
 		Sequence object, <tt class="varname">$seq_obj</tt>, that's created
 		will be identical to
 		to the Sequence object we created manually in our first example.
-		This is another idiom that's used frequently in Bioperl, the
+		This is another idiom that's used frequently in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>, the
 		next_&lt;something&gt; method. You'll come across the same idea
 		in the <tt class="function">next_aln</tt> method of 
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html" target="_top"><i class="citetitle">AlignIO</i></a> (reading and 
@@ -575,8 +573,20 @@ while ($seq_obj = $seqio_obj-&gt;next_seq){
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
 		correctly for every single format.
-	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="retrieving_gb"></a>9.&nbsp;Retrieving a sequence from a database</h2></div></div></div><p>
-		One of the strengths of Bioperl is that it allows you to retrieve
+	 </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></img></td><th align="left">Tip</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+		  It may be useful to tell SeqIO the alphabet of the input, using the
+		  "-alphabet" argument. What this does is to tell SeqIO not to
+		  try to determine the alphabet ("dna", "rna", "protein"). This helps
+		  because <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>
+		  may guess incorrectly (e.g. <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> is going to
+		  guess that the protein sequence "MGGGGTCAATT" is DNA) or there
+		  may be odd 
+		  characters in the sequence that
+		  SeqIO objects to (e.g. "-"). Set "-alphabet" to a value
+		  when reading sequences and SeqIO will not attempt to guess
+		  the alphabet of those sequences or validate the sequences.
+      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="retrieving_gb"></a>9.&nbsp;Retrieving a sequence from a database</h2></div></div></div><p>
+		One of the strengths of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> is that it allows you to retrieve
 		sequences from all sorts of sources, files, remote databases,
 		local databases, regardless of their format. Let's use this 
 		capability to get a entry from Genbank. What will we retrieve?
@@ -586,7 +596,8 @@ while ($seq_obj = $seqio_obj-&gt;next_seq){
 use Bio::DB::GenBank;
 		</pre>
 	 </p><p></p><p>
-		We could also query SwissProt, GenPept, EMBL, or RefSeq in an 
+		We could also query <a href="http://www.expasy.ch" target="_top"><i class="citetitle">SwissProt</i></a>,
+		GenPept, EMBL, <a href="http://www.blueprint.org/seqhound" target="_top"><i class="citetitle">SeqHound</i></a>, or RefSeq in an 
 		analogous fashion (e.g "use Bio::DB::SwissProt"). Now we'll
 		create the object:
 	 </p><p>
@@ -629,11 +640,13 @@ $query = "Arabidopsis[ORGN] AND topoisomerase[TITL] and 0:3000[SLEN]";
 $query_obj = Bio::DB::Query::GenBank-&gt;new(-db    =&gt; 'nucleotide',
 		                          -query =&gt; $query ); 
 		</pre>
-	 </p><p></p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+	 </p><p></p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></img></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 		  This capability to query by string and field is only available
-		  for GenBank as of Bioperl version 1.5, queries to other
-		  databases, like Swissprot or EMBL, are limited to identifiers
-		  and accessions.
+		  for GenBank as of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> version 1.5, queries to other
+		  databases, like <a href="http://www.expasy.ch" target="_top"><i class="citetitle">Swissprot</i></a>
+		  or EMBL, are limited to identifiers and accessions.
+		You can find detailed information on Genbank's query fields
+		<a href="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html" target="_top"><i class="citetitle">here</i></a>.
 		</p></td></tr></table></div><p></p><p>
 		That is how we would construct a query object, but we
 		haven't retrieved sequences yet. To do so we will have to create
@@ -672,16 +685,13 @@ while ($seq_obj = $stream_obj-&gt;next_seq) {
 		hold the query,
 		an object to execute the query using this query object, an object to 
 		do the I/O, and finally the sequence object.
-	 </p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+	 </p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></img></td><th align="left">Warning</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 		  Be careful what you ask for, many of today's nucleotide database
 		  entries are genome-size and you will probably run out of memory
 		  if your query happens to match one of 
 		  these monstrosities. You can use the SLEN field to limit the 
 		  size of the sequences you retrieve.
-		</p></td></tr></table></div><p></p><p>
-		You can find detailed information on Genbank's query fields
-		<a href="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html" target="_top"><i class="citetitle">here</i></a>.
-	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="seq_obj"></a>10.&nbsp;The Sequence object</h2></div></div></div><p>
+		</p></td></tr></table></div><p></p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="seq_obj"></a>10.&nbsp;The Sequence object</h2></div></div></div><p>
 		There's been a lot of discussion around the Sequence object, 
 		and this object has been created in a few different ways, but we
 		haven't shown what it's capable of doing. The table below
@@ -704,7 +714,7 @@ $sequence = $seq_obj-&gt;seq;
 $seq_obj-&gt;seq("MMTYDFFFFVVNNNNPPPPAAAW");
       </pre>
 	 </p><p></p><p>
-		<div class="table"><a id="d4e344"></a><table summary="Sequence Object Methods" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Name</th><th>Returns</th><th>Example</th><th>Note</th></tr></thead><tbody><tr><td>new</td><td>Sequence object</td><td>$so = Bio::Seq-&gt;new(-seq =&gt; "MP")</td><td>create a new one</td></tr><tr><td>seq</td><td>sequence string</td><td>$seq = $so-&gt;seq</td><td>get or set the sequence</td></tr><tr><td>display_id</td><td>identifier</td><td>$so-&gt;display_id("NP_123456")</td><td>get or set an identifier</td></tr><tr><td>primary_id</td><td>identifier</td><td>$so-&gt;primary_id(12345)</td><td>get or set an identifier</td></tr><tr><td>desc</td><td>description</td><td>$so-&gt;desc("Example 1")</td><td>get or set a description</td></tr><tr><td>accession</td><td>identifier</td><td>$acc = $so-&gt;accession</td><td>get or set an identifier</td></tr><tr><td>length</td><td>length, a number</td><td>$len = $so-&gt;length</td><td>get the length</td></tr><tr><td>alphabet</td><td>alphabet</td><td>$so-&gt;alphabet('dna')</td><td>get or set the alphabet ('dna','rna','protein')</td></tr><tr><td>subseq</td><td>sequence string</td><td>$string = $seq_obj-&gt;subseq(10,40)</td><td>Arguments are start and end</td></tr><tr><td>trunc</td><td>Sequence object</td><td>$so2 = $so1-&gt;trunc(10,40)</td><td>Truncate, arguments are start and end</td></tr><tr><td>revcom</td><td>Sequence object</td><td>$so2 = $so1-&gt;revcom</td><td>Reverse complement</td></tr><tr><td>translate</td><td>Sequence object</td><td>$prot_obj = $dna_obj-&gt;translate</td><td>See
+		<div class="table"><a id="d4e438"></a><table summary="Sequence Object Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Example</th><th>Note</th></tr></thead><tbody><tr><td>new</td><td>Sequence object</td><td>$so = Bio::Seq-&gt;new(-seq =&gt; "MP")</td><td>create a new one</td></tr><tr><td>seq</td><td>sequence string</td><td>$seq = $so-&gt;seq</td><td>get or set the sequence</td></tr><tr><td>display_id</td><td>identifier</td><td>$so-&gt;display_id("NP_123456")</td><td>get or set an identifier</td></tr><tr><td>primary_id</td><td>identifier</td><td>$so-&gt;primary_id(12345)</td><td>get or set an identifier</td></tr><tr><td>desc</td><td>description</td><td>$so-&gt;desc("Example 1")</td><td>get or set a description</td></tr><tr><td>accession</td><td>identifier</td><td>$acc = $so-&gt;accession</td><td>get or set an identifier</td></tr><tr><td>length</td><td>length, a number</td><td>$len = $so-&gt;length</td><td>get the length</td></tr><tr><td>alphabet</td><td>alphabet</td><td>$so-&gt;alphabet('dna')</td><td>get or set the alphabet ('dna','rna','protein')</td></tr><tr><td>subseq</td><td>sequence string</td><td>$string = $seq_obj-&gt;subseq(10,40)</td><td>Arguments are start and end</td></tr><tr><td>trunc</td><td>Sequence object</td><td>$so2 = $so1-&gt;trunc(10,40)</td><td>Truncate, arguments are start and end</td></tr><tr><td>revcom</td><td>Sequence object</td><td>$so2 = $so1-&gt;revcom</td><td>Reverse complement</td></tr><tr><td>translate</td><td>Sequence object</td><td>$prot_obj = $dna_obj-&gt;translate</td><td>See
 					 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html" target="_top"><i class="citetitle">Bio::PrimarySeqI</i></a>
 					 for more</td></tr><tr><td>species</td><td>Species object</td><td>$species_obj = $so-&gt;species</td><td>See
 					 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html" target="_top"><i class="citetitle">Bio::Species</i></a>
@@ -719,7 +729,7 @@ $seq_obj-&gt;seq("MMTYDFFFFVVNNNNPPPPAAAW");
 <a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">HOWTO</i></a>.
 		The methods related to this topic are shown below.
 	 </p><p>
-		<div class="table"><a id="d4e452"></a><table summary="Feature and Annotation Methods" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Name</th><th>Returns</th><th>Note</th></tr></thead><tbody><tr><td>get_SeqFeatures</td><td>array of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>get_all_SeqFeatures</td><td>array of SeqFeature objects</td><td>array includes sub-features</td></tr><tr><td>remove_SeqFeatures</td><td>array of SeqFeatures removed</td><td>&nbsp;</td></tr><tr><td>feature_count</td><td>number of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>add_SeqFeature</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>annotation</td><td>array of Annotation objects</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Feature and Annotation Methods</b></p></div>
+		<div class="table"><a id="d4e546"></a><table summary="Feature and Annotation Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Note</th></tr></thead><tbody><tr><td>get_SeqFeatures</td><td>array of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>get_all_SeqFeatures</td><td>array of SeqFeature objects</td><td>array includes sub-features</td></tr><tr><td>remove_SeqFeatures</td><td>array of SeqFeatures removed</td><td>&nbsp;</td></tr><tr><td>feature_count</td><td>number of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>add_SeqFeature</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>annotation</td><td>array of Annotation objects</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Feature and Annotation Methods</b></p></div>
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="examples"></a>11.&nbsp;Example Sequence objects</h2></div></div></div><p>
 		Let's use some of the methods above and see what they return
 		when the sequence object is obtained from different sources.
@@ -817,12 +827,12 @@ ORIGIN      15 bp upstream from HhaI site.
     </p><p></p><p>
 		Either way, the values returned by various methods are shown below.
 	 </p><p>
-		<div class="table"><a id="d4e501"></a><table summary="Values from the Sequence object (Genbank)" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor.</td></tr><tr><td>display_name</td><td>ECORHO</td></tr><tr><td>accession</td><td>J01673</td></tr><tr><td>primary_id</td><td>147605</td></tr><tr><td>seq_version</td><td>1</td></tr><tr><td>keywords</td><td>attenuator; leader peptide; rho gene; transcription terminator</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr></tbody></table><p class="title"><b>Table&nbsp;3.&nbsp;Values from the Sequence object (Genbank)</b></p></div>
+		<div class="table"><a id="d4e595"></a><table summary="Values from the Sequence object (Genbank)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor.</td></tr><tr><td>display_name</td><td>ECORHO</td></tr><tr><td>accession</td><td>J01673</td></tr><tr><td>primary_id</td><td>147605</td></tr><tr><td>seq_version</td><td>1</td></tr><tr><td>keywords</td><td>attenuator; leader peptide; rho gene; transcription terminator</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr></tbody></table><p class="title"><b>Table&nbsp;3.&nbsp;Values from the Sequence object (Genbank)</b></p></div>
     </p><p>
 		There's a few comments that need to be made. First,
 		you noticed that there's an awful lot of
 		information missing. All of this missing information is stored in
-		what Bioperl calls Features and Annotations, see the
+		what <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> calls Features and Annotations, see the
 		<a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> if you'd like to learn more about this.
 		Second, a few of the
 		methods don't return anything, like
@@ -857,7 +867,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
     </p><p></p><p>
 		And here are the values:
     </p><p>
-		<div class="table"><a id="d4e556"></a><table summary="Values from Genbank" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor</td></tr><tr><td>display_name</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>accession</td><td>unknown</td></tr><tr><td>primary_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr></tbody></table><p class="title"><b>Table&nbsp;4.&nbsp;Values from Genbank</b></p></div>
+		<div class="table"><a id="d4e652"></a><table summary="Values from Genbank" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor</td></tr><tr><td>display_name</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>accession</td><td>unknown</td></tr><tr><td>primary_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr></tbody></table><p class="title"><b>Table&nbsp;4.&nbsp;Values from Genbank</b></p></div>
     </p><p>
 		If you compare these values to the values taken from the Genbank 
 		entry you'll see that certain values are missing,
@@ -869,13 +879,14 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		the only thing distinguishing these entries are their respective
 		formats. The reason is that there are no rules governing how 
 		one interconverts formats, meaning how Genbank creates fasta
-		files from Genbank files may be different from how SwissProt
+		files from Genbank files may be different from how 
+<a href="http://www.expasy.ch" target="_top"><i class="citetitle">SwissProt</i></a>
 		performs the same interconversion. Again, until the
 		organizations creating these databases agree on standard sets
-		of names and formats all the Bioperl authors can do is do 
+		of names and formats all the <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> authors can do is do 
 		make reasonable choices.
-	 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
-		  Yes, Bioperl could follow the
+	 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></img></td><th align="left">Note</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+		  Yes, <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> could follow the
 		  conventions of a single organization like Genbank such that
 		  <tt class="function">display_id</tt> returns the same value when
 		  using Genbank format or Genbank's fasta format but why?
@@ -883,7 +894,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		  when, really, what they should be doing is talking to each
 		  other and using the same terms?
 		</p></td></tr></table></div><p></p><p>
-		Let's use a Swissprot file as our last example. The input entry
+		Let's use a <a href="http://www.expasy.ch" target="_top"><i class="citetitle">Swissprot</i></a> file as our last example. The input entry
 		looks like this:
 	 </p><p>
 		<pre class="programlisting">
@@ -968,14 +979,14 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </p><p>
 		The corresponding set of values is shown below.
 	 </p><p>
-		<div class="table"><a id="d4e607"></a><table summary="Values from Swissprot" border="1"><colgroup><col><col></colgroup><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>A2S3_RAT</td></tr><tr><td>desc</td><td>Amyotrophic lateral ... protein of 98 kDa).</td></tr><tr><td>display_name</td><td>A2S3_RAT</td></tr><tr><td>accession</td><td>Q8R2H7</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>913</td></tr><tr><td>seq</td><td>MSLSQ...ILKED</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Values from Swissprot</b></p></div>
+		<div class="table"><a id="d4e711"></a><table summary="Values from Swissprot" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>A2S3_RAT</td></tr><tr><td>desc</td><td>Amyotrophic lateral ... protein of 98 kDa).</td></tr><tr><td>display_name</td><td>A2S3_RAT</td></tr><tr><td>accession</td><td>Q8R2H7</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>913</td></tr><tr><td>seq</td><td>MSLSQ...ILKED</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Values from <a href="http://www.expasy.ch" target="_top"><i class="citetitle">Swissprot</i></a></b></p></div>
 	 </p><p>
 		As in the Genbank example there's information that the Sequence
 		object doesn't supply, and it's stored in Annotation objects. See the
 	<a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> for more.
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="blast"></a>12.&nbsp;BLAST</h2></div></div></div><p>
 		You have access to a large number of sequence analysis programs 
-		within Bioperl. Typically this means you have a means to run
+		within <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. Typically this means you have a means to run
 		the program and frequently a means of parsing the resulting 
 		output, or report, as well. Certainly the most popular 
 		analytical program is 
@@ -1033,9 +1044,34 @@ print $result_obj-&gt;num_hits;
 		<a href="http://bioperl.org/HOWTOs/SearchIO/index.html" target="_top"><i class="citetitle">SearchIO HOWTO</i></a> will tell you all about using these
 		objects to extract useful data from your BLAST analyses.
 	 </p><p>
+		Here's an example of how one would use SearchIO to extract
+		data from a BLAST report:
+	 </p><p>
+		<pre class="programlisting">
+	 use Bio::SearchIO;
+   
+    $report_obj = new Bio::SearchIO(-format =&gt; 'blast', 
+                               -file   =&gt; 'report.bls');
+    while( $result = $report_obj-&gt;next_result ) {
+      while( $hit = $result-&gt;next_hit ) {
+        while( $hsp = $hit-&gt;next_hsp ) {
+            if ( $hsp-&gt;percent_identity &gt; 75 ) {
+              print "Hit\t",        $hit-&gt;name,             "\n", 
+                    "Length\t",     $hsp-&gt;length('total'),  "\n", 
+                    "Percent_id\t", $hsp-&gt;percent_identity, "\n";
+          }
+        }  
+      }
+    }
+		</pre>
+	 </p><p>
+		This code prints out details about the match when the 
+		HSP or aligned pair are greater than
+		75% identical.
+	 </p><p>
 		Sometimes you'll see errors when you try to use
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html" target="_top"><i class="citetitle">Bio::Tools::Run::StandAloneBlast</i></a> 
-		that have nothing to do with Bioperl. Make sure that BLAST is 
+		that have nothing to do with <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. Make sure that BLAST is 
 		set up properly and running before you attempt to script it
 		using 
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html" target="_top"><i class="citetitle">Bio::Tools::Run::StandAloneBlast</i></a>. There are
@@ -1043,7 +1079,7 @@ print $result_obj-&gt;num_hits;
 <a href="http://bioperl.org/Core/Latest/INSTALL" target="_top"><i class="citetitle">INSTALL</i></a> 
 		file.
 	 </p><p>
-		Bioperl enables you to run a wide variety of bioinformatics
+		<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> enables you to run a wide variety of bioinformatics
 		programs but in order to do so, in most cases, you will need
 		to install the accessory bioperl-run package. In addition 
 		there is no guarantee that there is a corresponding parser
@@ -1052,7 +1088,7 @@ print $result_obj-&gt;num_hits;
 		bioperl-run package on the 
 <a href="http://bioperl.org/Core/Latest/index.shtml" target="_top"><i class="citetitle">download page</i></a>. 
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="indexing"></a>13.&nbsp;Indexing for Fast Retrieval</h2></div></div></div><p>
-		One of the under-appreciated features of Bioperl is its ability
+		One of the under-appreciated features of <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> is its ability
 		to index sequence files. The idea is that you would create some sequence
 		file locally and create an index file for it that enables you to 
 		retrieve sequences from the sequence file. Why would you want to do this?
@@ -1160,9 +1196,9 @@ sub get_id {
 		To be precise, one would say that the
 		<tt class="function">id_parser</tt> method accepts
 		a reference to a function as an argument.
-	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="more"></a>14.&nbsp;More on Bioperl</h2></div></div></div><p>
+	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="more"></a>14.&nbsp;More on <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a></h2></div></div></div><p>
 		Perhaps this article has gotten you interested in learning a
-		bit more about Bioperl. Here are some other things you might 
+		bit more about <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. Here are some other things you might 
 		want to look at:
 	 </p><p>
 		<div class="orderedlist"><ol type="1"><li><p>
@@ -1181,13 +1217,14 @@ sub get_id {
 			 The <a href="http://doc.bioperl.org/releases/bioperl-1.4/" target="_top"><i class="citetitle">module documentation</i></a>. Each module is documented,
 			 but the quality and quantity varies by module. 
 		  </p></li><li><p>
-				Bioperl scripts. You'll find them in the scripts/ directory
-				and in the examples/ directory of the Bioperl package.
+				<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> scripts. You'll find them in the scripts/ directory
+				and in the examples/ directory of the <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> package.
 				The former contains more carefully written and documented
-				scripts that can be installed along with Bioperl. You should
+				scripts that can be installed along with <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. You should
 				feel free to contribute scripts to either of these 
-				directories.
-		  </p></li><li><p>
+				directories. There's also a complete list of scripts,
+<a href="http://bioperl.org/Core/Latest/bioscripts.html" target="_top"><i class="citetitle">bioscripts.pod</i></a>. 
+			 </p></li><li><p>
 			 <a href="http://bioperl.org/Core/Latest/modules.html#user" target="_top"><i class="citetitle">User-contributed documentation</i></a>. There's some very good material here.
 		  </p></li></ol></div>
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="perldoc"></a>15.&nbsp;Perl's Documentation System</h2></div></div></div><p>
@@ -1208,7 +1245,7 @@ sub get_id {
 &gt;perldoc -f print
 		</pre>
 	 </p><p>
-		Read about any module, including any of the Bioperl modules:
+		Read about any module, including any of the <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> modules:
 		<pre class="programlisting">
 &gt;perldoc Bio::SeqIO
 		</pre>
@@ -1274,23 +1311,24 @@ $reversed_obj = $seq_obj-&gt;revcom;
 	 </p><p>
 		That's the sort of explanation you'll get in programming
 		books, but what is a Perl object really? Usually a hash.
-		In Bioperl the data that the object contains is stored in a 
+		In <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> the data that the object contains is stored in a 
 		single, complex hash and the object, like 
 		<tt class="varname">$seq_obj</tt>,
 		is a reference to this hash. In addition, the methods
 		that the object can use are also stored in this hash as
 		particular kinds of references. You could say that an
-		object in Bioperl is a special kind of hash reference.
+		object in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> is a special kind of hash reference.
 	 </p><p>
-		Bioperl uses the object-oriented paradigm, and here are
+		<a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> uses the object-oriented paradigm, and here are
 		some texts if you want to learn more:
 	 </p><p>
 		<div class="orderedlist"><ol type="1"><li><p>
 				<a href="http://www.manning.com/Conway/" target="_top"><i class="citetitle">Object Oriented Perl</i></a>
           </p></li><li><p>               
-				The <a href="http://bioperl.org/Core/Latest/biodesign.html" target="_top"><i class="citetitle">Bioperl design documentation</i></a>, for anyone who'd like
+				The <a href="http://bioperl.org/Core/Latest/biodesign.html" target="_top">
+<i class="citetitle">Bioperl design documentation</i></a>, for anyone who'd like
 				to write their own modules. 
 			 </p></li></ol></div>	
 	 </p></div></div><div xmlns="" id="customfooter">
-TXM DocBook (<a href="http://www.cognia.com" style="color: #fff; font-weight: bold;">Cognia</a>)
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div></body></html>

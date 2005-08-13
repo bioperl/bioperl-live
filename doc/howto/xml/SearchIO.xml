@@ -93,10 +93,16 @@
 	<revremark>Made document redistributable under Perl Artistic.</revremark>
       </revision>
       <revision>
-	<revnumber>0.7</revnumber>
-	<date>2004-12-02</date>
-	<authorinitials>JES and BIO</authorinitials>
-	<revremark>Section on lightweight objects</revremark>
+		  <revnumber>0.7</revnumber>
+		  <date>2004-12-02</date>
+		  <authorinitials>JES and BIO</authorinitials>
+		  <revremark>Section on lightweight objects</revremark>
+      </revision>
+      <revision>
+		  <revnumber>0.8</revnumber>
+		  <date>2005-08-15</date>
+		  <authorinitials>BIO</authorinitials>
+		  <revremark>Table of formats</revremark>
       </revision>
     </revhistory>
     <legalnotice>
@@ -223,40 +229,53 @@
           </thead>
           <tbody>
             <row>
-				  <entry>blast</entry><entry>BLAST (WUBLAST, NCBIBLAST, bl2seq)</entry>
+				  <entry>blast</entry>
+				  <entry>BLAST (WUBLAST, NCBIBLAST, bl2seq)</entry>
 				</row>
 				<row>
-				  <entry>fasta</entry>      <entry>FASTA -m9 and -m0</entry>
+				  <entry>fasta</entry>      
+				  <entry>FASTA -m9 and -m0</entry>
 				</row>
 				<row>
-				  <entry>blasttable</entry> <entry>BLAST -m9 or -m8 (NCBI, not WUBLAST tabular)</entry>
+				  <entry>blasttable</entry> 
+				  <entry>BLAST -m9 or -m8 (NCBI, not WUBLAST tabular)</entry>
 				</row>
 				<row>
-				  <entry>megablast</entry>  <entry>MEGABLAST</entry>
+				  <entry>megablast</entry>  
+				  <entry>MEGABLAST</entry>
 				</row>
 				<row>
-				  <entry>psl</entry>        <entry>UCSC PSL</entry>
+				  <entry>psl</entry>        
+				  <entry>UCSC PSL</entry>
 				</row>
 				<row>
-				  <entry>waba</entry>       <entry>WABA</entry>
+				  <entry>waba</entry>       
+				  <entry>WABA</entry>
 				</row>
 				<row>
-				  <entry>axt</entry>        <entry>AXT</entry>
+				  <entry>axt</entry>        
+				  <entry>AXT</entry>
 				</row>
 				<row>
-				  <entry>sim4</entry>       <entry>Sim4</entry>
+				  <entry>sim4</entry>       
+				  <entry>Sim4</entry>
 				</row>
 				<row>
-				  <entry>hmmer</entry>      <entry>HMMER hmmpfam and hmmsearch</entry>
+				  <entry>hmmer</entry>      
+				  <entry>HMMER hmmpfam and hmmsearch</entry>
 				</row>
 				<row>
-				  <entry>exonerate</entry>  <entry>Exonerate CIGAR</entry>
+				  <entry>exonerate</entry>  
+				  <entry>Exonerate CIGAR</entry>
 				</row>
 				<row>
-				  <entry>blastxml</entry>   <entry>NCBI BLAST XML</entry>
+				  <entry>blastxml</entry>   
+				  <entry>NCBI BLAST XML</entry>
 				</row>
 				<row>
-				  <entry>wise</entry>       <entry>Genewise -genesf</entry>
+				  <entry>wise</entry>       
+				  <entry>Genewise -genesf</entry>
+				</row>
 			 </tbody>
 		  </tgroup>
 		</table>
@@ -715,21 +734,21 @@ S1: 32 (17.6 bits)
 	      <entry>start and end as array</entry>
 	    </row>
 	    <row>
-	    <entry>HSP</entry>
-	      <Entry>range('hit')</entry>
-	      <entry>(197,246)</entry>
-	      <entry>start and end as array</entry>
-	    </row>
-	    <row>
-	      <entry>HSP</entry>
-	      <entry>percent_identity</entry>
-	      <entry>88.4615384615385</entry>
-	      <entry>% identical</entry>
-	    </row>
-	    <row>
-	      <entry>HSP</entry>
-	      <entry>strand('hit')</entry>
-	      <entry>1</entry>
+				  <entry>HSP</entry>
+				  <entry>range('hit')</entry>
+				  <entry>(197,246)</entry>
+				  <entry>start and end as array</entry>
+				</row>
+				<row>
+				  <entry>HSP</entry>
+				  <entry>percent_identity</entry>
+				  <entry>88.4615384615385</entry>
+				  <entry>% identical</entry>
+				</row>
+				<row>
+				  <entry>HSP</entry>
+				  <entry>strand('hit')</entry>
+				  <entry>1</entry>
 	      <entry>strand of the hit</entry>
 	    </row>
 	    <row>

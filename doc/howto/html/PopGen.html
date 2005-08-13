@@ -1,202 +1,222 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Population Genetics in BioPerl HOWTO</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a name="id764810"></a>Population Genetics in BioPerl HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Jason</span> <span class="surname">Stajich</span></h3><div class="affiliation"><span class="orgname">Dept Molecular Genetics and Microbiology, Duke
-	 University<br></span><div class="address"><p><code class="email">&lt;<a href="mailto:jason-at-bioperl-dot-org">jason-at-bioperl-dot-org</a>&gt;</code></p></div></div></div></div><div><div class="legalnotice"><a name="id872133"></a><p>This document is copyright Jason Stajich, 2004.  It can be
-	copied and distributed under the terms of the Perl Artistic
-	License.</p></div></div><div><p class="pubdate">2005-03-1</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2004-06-28</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">First draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2004-02-22</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">Updated method docs</td></tr><tr><td align="left">Revision 0.3</td><td align="left">2005-03-05</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">Expanded to cover coalescent and others</td></tr></table></div></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#intoduction">Introduction</a></span></dt><dt><span class="section"><a href="#basicobjects">The <code class="classname">Bio::PopGen</code> Objects</a></span></dt><dt><span class="section"><a href="#buildingpops">Building Populations</a></span></dt><dt><span class="section"><a href="#popgenio">Reading and Writing Population data with Bio::PopGen::IO</a></span></dt><dt><span class="section"><a href="#data_from_aln">Allele data from Alignments
-   using <code class="classname">Bio::AlignIO</code> and <code class="classname">Bio::PopGen::Utilities</code></a></span></dt><dt><span class="section"><a href="#statistics">Summary Statistics with <code class="classname">Bio::PopGen::Statistics</code></a></span></dt><dt><span class="section"><a href="#popstats">Population Statistics using <code class="classname">Bio::PopGen::PopStats</code></a></span></dt><dt><span class="section"><a href="#coalescent">Coalescent Simulations</a></span></dt><dt><span class="bibliography"><a href="#id872960">Bibliography</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="intoduction"></a>Introduction</h2></div></div></div><p>
 
-   We have aimed to build a set of modules that can be used as part of
-   an automated process for testing population genetics and molecular
-   evolutionary hypotheses.  These typically center around sequence
-   based data and we have built a set of routines which will enable
-   processing of large datasets in a pipeline fashion.
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Population Genetics in BioPerl HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta></head><body><div xmlns="" id="customheader">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
+</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Population Genetics in BioPerl HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Jason</span> <span class="surname">Stajich</span></h3><div class="affiliation"><span class="orgname">
+				Dept Molecular Genetics and Microbiology, Duke
+				University
+			 <br></br></span><div class="address"><p><tt class="email">&lt;<a href="mailto:jason-at-bioperl-dot-org">jason-at-bioperl-dot-org</a>&gt;</tt></p></div></div></div></div><div><div class="legalnotice"><a id="d4e30"></a><p>
+			 This document is copyright Jason Stajich, 2004.  It can be
+			 copied and distributed under the terms of the Perl Artistic
+			 License.
+		  </p></div></div><div><p class="pubdate">2005-03-1</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2004-06-28</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">First draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2004-02-22</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">Updated method docs</td></tr><tr><td align="left">Revision 0.3</td><td align="left">2005-03-05</td><td align="left">JES</td></tr><tr><td align="left" colspan="3">Expanded to cover coalescent and others</td></tr></table></div></div></div><hr></hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#intoduction">1. Introduction</a></span></dt><dt><span class="section"><a href="#basicobjects">2. The <tt class="classname">Bio::PopGen</tt> Objects</a></span></dt><dt><span class="section"><a href="#buildingpops">3. Building Populations</a></span></dt><dt><span class="section"><a href="#popgenio">4. Reading and Writing Population data with Bio::PopGen::IO</a></span></dt><dt><span class="section"><a href="#data_from_aln">5. Allele data from Alignments
+		  using <tt class="classname">Bio::AlignIO</tt> and 
+		  <tt class="classname">Bio::PopGen::Utilities</tt></a></span></dt><dt><span class="section"><a href="#statistics">6. 
+		  Summary Statistics with
+		  <tt class="classname">Bio::PopGen::Statistics</tt>
+		</a></span></dt><dt><span class="section"><a href="#popstats">7. 
+		  Population Statistics using
+		  <tt class="classname">Bio::PopGen::PopStats</tt>
+		</a></span></dt><dt><span class="section"><a href="#coalescent">8. Coalescent Simulations</a></span></dt><dt><span class="bibliography"><a href="#d4e182">Bibliography</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="intoduction"></a>1.&nbsp;Introduction</h2></div></div></div><p>
+		  
+		  We have aimed to build a set of modules that can be used as part of
+		  an automated process for testing population genetics and molecular
+		  evolutionary hypotheses.  These typically center around sequence
+		  based data and we have built a set of routines which will enable
+		  processing of large datasets in a pipeline fashion.
+		  
+		</p><p>
 
-  </p><p>
+		  To see results of using these tools see Stajich and Hahn (2005)
+		  using <tt class="function">tajima_D</tt>, Hahn MW et al (2004)
+		  using <tt class="function">composite_LD</tt>, and Rockman MV et al
+		  (2003) using <tt class="function">F<sub>st</sub></tt>.
 
-  To see results of using these tools see Stajich and Hahn (2005)
-  using <code class="function">tajima_D</code>, Hahn MW et al (2004)
-  using <code class="function">composite_LD</code>, and Rockman MV et al
-  (2003) using <code class="function">F<sub>st</sub></code>.
+		</p><p>
+		  This document will be split up into sections which describe 
+		  the data objects for representing populations, tests you can
+		  perform using these objects, a coalescent implementation,
+		  and objects for performing sequence distance based calculations.
+		  A full treatment of the Bioperl interface to the PAML suite
+		  (Z.Yang, 1997) is covered in the PAML HOWTO and objects and data
+		  pertinent to phylogenetic data manipulation are covered in the
+		  Trees HOWTO.
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="basicobjects"></a>2.&nbsp;The <tt class="classname">Bio::PopGen</tt> Objects</h2></div></div></div><p>
+		  In Bioperl we have created a few objects to describe population
+		  genetic data.  These are all located in the Bio::PopGen
+		  namespace, so they can be browsed by looking at the Bio/PopGen
+		  directory.
+		</p><p>
 
-  </p><p>
-    This document will be split up into sections which describe 
-    the data objects for representing populations, tests you can
-    perform using these objects, a coalescent implementation,
-    and objects for performing sequence distance based calculations.
-    A full treatment of the Bioperl interface to the PAML suite
-    (Z.Yang, 1997) is covered in the PAML HOWTO and objects and data
-    pertinent to phylogenetic data manipulation are covered in the
-    Trees HOWTO.
-  </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="basicobjects"></a>The <code class="classname">Bio::PopGen</code> Objects</h2></div></div></div><p>
-    In Bioperl we have created a few objects to describe population
-    genetic data.  These are all located in the Bio::PopGen
-    namespace, so they can be browsed by looking at the Bio/PopGen
-    directory.
-  </p><p>
+		  Bio::PopGen::Population is a container for a set of
+		  Bio::PopGen::Individual in order to represent individuals from a
+		  population.  Each Individual has a set of Bio::PopGen::Genotype
+		  genotype objects which are an allele set associated with a unique
+		  marker name.  Methods associated with the Population object can
+		  calculate the summary statistics such
+		  as <tt class="function">pi</tt>, <tt class="function">theta</tt>, 
+		  <tt class="function">heterozygocity</tt> by processing each Individual
+		  in the set.
+		</p><p>
 
-    Bio::PopGen::Population is a container for a set of
-    Bio::PopGen::Individual in order to represent individuals from a
-    population.  Each Individual has a set of Bio::PopGen::Genotype
-    genotype objects which are an allele set associated with a unique
-    marker name.  Methods associated with the Population object can
-    calculate the summary statistics such
-    as <code class="function">pi</code>, <code class="function">theta</code>, 
-    <code class="function">heterozygocity</code> by processing each Individual
-    in the set.
-  </p><p>
+		  A Marker is the name given to a polymorphic region of the genome.
+		  Markers are represented by
+		  a <tt class="classname">Bio::PopGen::Marker</tt> object which can
+		  contain information such as allele frequencies in a population.
+		  Derived subclasses of the main
+		  <tt class="classname">Bio::PopGen::Marker</tt> are used to store
+		  specialized information about markers where supported by data
+		  formats.  This is done particularly in
+		  the <tt class="classname">Bio::Pedigree</tt> objects which are a set
+		  of modules derived from <tt class="classname">Bio::PopGen</tt> and
+		  intended to handle the case of interrelated individuals.
 
-    A Marker is the name given to a polymorphic region of the genome.
-    Markers are represented by
-    a <code class="classname">Bio::PopGen::Marker</code> object which can
-    contain information such as allele frequencies in a population.
-    Derived subclasses of the main
-    <code class="classname">Bio::PopGen::Marker</code> are used to store
-    specialized information about markers where supported by data
-    formats.  This is done particularly in
-    the <code class="classname">Bio::Pedigree</code> objects which are a set
-    of modules derived from <code class="classname">Bio::PopGen</code> and
-    intended to handle the case of interrelated individuals.
-
-  </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="buildingpops"></a>Building Populations</h2></div></div></div><p>
-    Although a typical user will want to obtain data for analysis
-    from files or directly from databases we will describe briefly
-    how to create Individuals with Genotypes and Populations of
-    Individuals directly in the code to illustrate the parameters
-    used and access to the data stored in the objects.
-  </p><p>
-    A genotype is a triple of a marker name (string), an individual id
-    (string or int), and set of alleles (array of string).  The
-    individual_id field is optional as it is explicitly set when a
-    genotype is added to and individual.  We can
-    instantiate a Genotype object by using the following code.  
-  </p><pre class="programlisting">
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="buildingpops"></a>3.&nbsp;Building Populations</h2></div></div></div><p>
+		  Although a typical user will want to obtain data for analysis
+		  from files or directly from databases we will describe briefly
+		  how to create Individuals with Genotypes and Populations of
+		  Individuals directly in the code to illustrate the parameters
+		  used and access to the data stored in the objects.
+		</p><p>
+		  A genotype is a triple of a marker name (string), an individual id
+		  (string or int), and set of alleles (array of string).  The
+		  individual_id field is optional as it is explicitly set when a
+		  genotype is added to and individual.  We can
+		  instantiate a Genotype object by using the following code.  
+		</p><pre class="programlisting">
 use Bio::PopGen::Genotype;
 my $genotype = Bio::PopGen::Genotype-&gt;new(-marker_name   =&gt; 'D7S123',
                                           -individual_id =&gt; '1001',
                                           -alleles       =&gt; ['104','107'], 
                                           );
-  </pre><p>
-    To get the alleles back out from a Genotype object the
-    </p><pre class="programlisting">get_Alleles</pre><p> method can be used.  
-    To replace alleles one must call
-    the </p><pre class="programlisting">reset_Alleles</pre><p> and
-    then </p><pre class="programlisting">add_Allele</pre><p> with a list of
-    alleles to add for the genotype.
-  </p><p>
-    This genotype object can be added to an individual object with the
-    following code which also builds an individual with an id of
-    '1001'.
-  </p><pre class="programlisting">
+		</pre><p>
+		  To get the alleles back out from a Genotype object the
+		  <pre class="programlisting">get_Alleles</pre> method can be used.  
+		  To replace alleles one must call
+		  the <pre class="programlisting">reset_Alleles</pre> and
+		  then <pre class="programlisting">add_Allele</pre> with a list of
+		  alleles to add for the genotype.
+		</p><p>
+		  This genotype object can be added to an individual object with the
+		  following code which also builds an individual with an id of
+		  '1001'.
+		</p><pre class="programlisting">
 use Bio::PopGen::Individual;
 my $ind = Bio::PopGen::Individual-&gt;new(-unique_id  =&gt; '1001',
                                        -genotypes  =&gt; [$genotype]
                                        );
-  </pre><p>
-     There is no restriction on the names of markers nor is there any 
-     attempted validation that a genotype's individual_id is equal to
-     the id of Individual is has been associated with it.    
-   </p><p>
-    Additional genotypes can be added to an individual with the
-    add_Genotype method as the following code illustrates. 
-   </p><pre class="programlisting">
+		</pre><p>
+		  There is no restriction on the names of markers nor is there any 
+		  attempted validation that a genotype's individual_id is equal to
+		  the id of Individual is has been associated with it.    
+		</p><p>
+		  Additional genotypes can be added to an individual with the
+		  add_Genotype method as the following code illustrates. 
+		</p><pre class="programlisting">
 $ind-&gt;add_Genotype(Bio::PopGen::Genotype-&gt;new(
                      -alleles       =&gt; ['102', '123'],
                      -marker_name   =&gt; 'D17S111'
                                              )
                   );
-   </pre><p>
-     A population is a collecion of individuals and can be
-     instantiated with all the individuals at once or individuals can
-     be added to the object after it has been created. 
-   </p><pre class="programlisting">
+		</pre><p>
+		  A population is a collecion of individuals and can be
+		  instantiated with all the individuals at once or individuals can
+		  be added to the object after it has been created. 
+		</p><pre class="programlisting">
 use Bio::PopGen::Population;
 my $pop = Bio::PopGen::Population-&gt;new(-name        =&gt; 'pop name',
                                        -description =&gt; 'description',
                                        -individuals =&gt; [$ind] );
 # add another individual later on
 $pop-&gt;add_Inidividual($ind2);
-   </pre><p>
-     Using these basic operations one can create
-     a <code class="classname">Population</code> of individuals.  
-     <code class="classname">Bio::PopGen::Marker</code> objects are intended to provide
-     summary of information about the markers stored for all the
-     individuals.  
-   </p><p>
-     Typically it is expected that all individuals will have a
-     genotype associated for all the possible markers in the
-     population.  For cases where no genotype information is available
-     for an individual empty or blank alleles can be stored.  This is
-     necessary for consistency when running some tests on the
-     population but these blank alleles do not get counted when
-     evaluating the number of alleles, etc.  Blank alleles can be
-     coded as a dash ('-'), as a blank or empty (' ', or ''), or as
-     missing '?'. The 'N' allele is also considered a blank allele.
-     The regexp used to test if an allele is blank is stored in the
-     <code class="classname">Bio::PopGen::Genotype</code> as the package 
-     variable $BlankAlleles.
-     The following code resets the blank allele pattern to
-     additionally match '.' as a blank allele.  This code should go
-     BEFORE any code that calls the <code class="function">get_Alleles</code> method in 
-     <code class="classname">Bio::PopGen::Genotype</code>.
-   </p><pre class="programlisting">
-     use Bio::PopGen::Genotype;
-     $Bio::PopGen::Genotype::BlankAlleles = '[\s\-N\?\.]';
-   </pre><p>
-     <code class="classname">Bio::PopGen::Marker</code> is a simple object to
-     represent polymorphism regions of the genome.
-   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="popgenio"></a>Reading and Writing Population data with Bio::PopGen::IO</h2></div></div></div><p>
-     Typically one wants to get population data from a datafile. 
-   </p><p>
-     To read data in CSV format
-   </p><p>
-     The CSV format is a comma delimited format where each row is for
-     an individual. The first column gives the individual or sample id
-     and the rest of the columns are the alleles for the individual
-     for each marker.  The names of the markers in these rows are
-     listed in the header or which is the very first line of the file.
-   </p><pre class="programlisting">
+		</pre><p>
+		  Using these basic operations one can create
+		  a <tt class="classname">Population</tt> of individuals.  
+		  <tt class="classname">Bio::PopGen::Marker</tt> objects 
+		  are intended to provide
+		  summary of information about the markers stored for all the
+		  individuals.  
+		</p><p>
+		  Typically it is expected that all individuals will have a
+		  genotype associated for all the possible markers in the
+		  population.  For cases where no genotype information is available
+		  for an individual empty or blank alleles can be stored.  This is
+		  necessary for consistency when running some tests on the
+		  population but these blank alleles do not get counted when
+		  evaluating the number of alleles, etc.  Blank alleles can be
+		  coded as a dash ('-'), as a blank or empty (' ', or ''), or as
+		  missing '?'. The 'N' allele is also considered a blank allele.
+		  The regexp used to test if an allele is blank is stored in the
+		  <tt class="classname">Bio::PopGen::Genotype</tt> as the package 
+		  variable $BlankAlleles.
+		  The following code resets the blank allele pattern to
+		  additionally match '.' as a blank allele.  This code should go
+		  BEFORE any code that calls the
+		  <tt class="function">get_Alleles</tt> 
+		  method in 
+		  <tt class="classname">Bio::PopGen::Genotype</tt>.
+		</p><pre class="programlisting">
+use Bio::PopGen::Genotype;
+$Bio::PopGen::Genotype::BlankAlleles = '[\s\-N\?\.]';
+		</pre><p>
+		  <tt class="classname">Bio::PopGen::Marker</tt> is a simple object to
+		  represent polymorphism regions of the genome.
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="popgenio"></a>4.&nbsp;Reading and Writing Population data with Bio::PopGen::IO</h2></div></div></div><p>
+		  Typically one wants to get population data from a datafile. 
+		</p><p>
+		  To read data in CSV format
+		</p><p>
+		  The CSV format is a comma delimited format where each row is for
+		  an individual. The first column gives the individual or sample id
+		  and the rest of the columns are the alleles for the individual
+		  for each marker.  The names of the markers in these rows are
+		  listed in the header or which is the very first line of the file.
+		</p><pre class="programlisting">
      SAMPLE,D17S1111,D7S123
      1001,102 123,104 107
      1002,105 123,104 111
-   </pre><p>
-     To read in this CSV we use
-     the <code class="classname">Bio::Popgen::IO</code> object and specify the
-     csv format.  We can call <code class="function">next_individual</code>
-     repeated times to get back a list of the individuals (one is
-     returned after each time the iterator is called).  Additionally
-     the <code class="function">next_population</code> is a convience method
-     which will read in all the individuals at once and create a
-     new <code class="classname">Bio::PopGen::Population</code> object
-     containing all of thse individuals.  The CSV format assumes that
-     ',' is the delimiter between columns while '\s+' is the delimiter
-     between alleles.  One can override these settings by providing
-     the -field_delimiter and -allele_delimited argument to
-     Bio::Popgen::IO when instantiating.  Additionally a flag called
-     -no_header can be supplied which specifies there is no header
-     line in the report and that the object should assign arbitrary
-     marker names in the form 'Marker1', 'Marker2' ... etc.
-   </p><p>
-     Pretty Base format
-   </p><p>
-     Phase and hapmap format
-   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="data_from_aln"></a>Allele data from Alignments
-   using <code class="classname">Bio::AlignIO</code> and <code class="classname">Bio::PopGen::Utilities</code></h2></div></div></div><p>
-     Often one doesn't already have data in SNP format but want to
-     determine the polymorphisms from an alignment of sequences from
-     many individuals.  To do this we can read in an alignment and
-     process each column of the alignment determine if it is
-     polymorphic in the individuals assayed.  Of course this will not
-     work properly if the alignment is bad or with very distantly
-     related species.  It also may not properly work for gapped or
-     indel columns so we might need to recode these as Insertion or
-     Deletion depending on the questions one is asking. 
-   </p><p>
+		</pre><p>
+		  To read in this CSV we use
+		  the <tt class="classname">Bio::Popgen::IO</tt> object and specify the
+		  csv format.  We can call <tt class="function">next_individual</tt>
+		  repeated times to get back a list of the individuals (one is
+		  returned after each time the iterator is called).  Additionally
+		  the <tt class="function">next_population</tt> is a convience method
+		  which will read in all the individuals at once and create a
+		  new <tt class="classname">Bio::PopGen::Population</tt> object
+		  containing all of thse individuals.  The CSV format assumes that
+		  ',' is the delimiter between columns while '\s+' is the delimiter
+		  between alleles.  One can override these settings by providing
+		  the -field_delimiter and -allele_delimited argument to
+		  Bio::Popgen::IO when instantiating.  Additionally a flag called
+		  -no_header can be supplied which specifies there is no header
+		  line in the report and that the object should assign arbitrary
+		  marker names in the form 'Marker1', 'Marker2' ... etc.
+		</p><p>
+		  Pretty Base format
+		</p><p>
+		  Phase and hapmap format
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="data_from_aln"></a>5.&nbsp;Allele data from Alignments
+		  using <tt class="classname">Bio::AlignIO</tt> and 
+		  <tt class="classname">Bio::PopGen::Utilities</tt></h2></div></div></div><p>
+		  Often one doesn't already have data in SNP format but want to
+		  determine the polymorphisms from an alignment of sequences from
+		  many individuals.  To do this we can read in an alignment and
+		  process each column of the alignment determine if it is
+		  polymorphic in the individuals assayed.  Of course this will not
+		  work properly if the alignment is bad or with very distantly
+		  related species.  It also may not properly work for gapped or
+		  indel columns so we might need to recode these as Insertion or
+		  Deletion depending on the questions one is asking. 
+		</p><p>
 
-     The modules to parse alignments are part of
-     the <code class="classname">Bio::AlignIO</code> system.  To parse a
-     clustalw or clustalw-like output one uses the following code to
-     get an alignment which is
-     a <code class="classname">Bio::SimpleAlign</code> object.
-   </p><pre class="programlisting">
+		  The modules to parse alignments are part of
+		  the <tt class="classname">Bio::AlignIO</tt> system.  To parse a
+		  clustalw or clustalw-like output one uses the following code to
+		  get an alignment which is
+		  a <tt class="classname">Bio::SimpleAlign</tt> object.
+		</p><pre class="programlisting">
 use Bio::AlignIO;
 my $in = Bio::AlignIO-&gt;new(-format =&gt; 'clustalw', -file =&gt; 'file.aln');
 my $aln;
@@ -204,17 +224,17 @@ if( $aln = $in-&gt;next_aln ) { # we use the while( $aln = $in-&gt;next_aln ) {}
                              # code to process multi-aln files
       # $aln is-a Bio::SimpleAlign object
 }
-   </pre><p>
-     The <code class="classname">Bio::PopGen::Utilities</code> object has
-     methods for turning a <code class="classname">Bio::SimpleAlign</code>
-     object into a <code class="classname">Bio::PopGen::Population</code>
-     object.  Each polymorphic column is considered
-     a <span class="emphasis"><em>Marker</em></span> and as assigned a number from left
-     to right.  By default only sites which are polymorphic are
-     returned but it is possible to also get the monomorphic sites by
-     specifying -include_monomorphic =&gt; 1 as an argument to the
-     function.  The method is called as follows.
-     </p><pre class="programlisting">
+		</pre><p>
+		  The <tt class="classname">Bio::PopGen::Utilities</tt> object has
+		  methods for turning a <tt class="classname">Bio::SimpleAlign</tt>
+		  object into a <tt class="classname">Bio::PopGen::Population</tt>
+		  object.  Each polymorphic column is considered
+		  a <span class="emphasis"><em>Marker</em></span> and as assigned a number from left
+		  to right.  By default only sites which are polymorphic are
+		  returned but it is possible to also get the monomorphic sites by
+		  specifying -include_monomorphic =&gt; 1 as an argument to the
+		  function.  The method is called as follows.
+		</p><pre class="programlisting">
 use Bio::PopGen::Alignment;
 # get a population object from an alignment
 my $pop = Bio::PopGen::Utilities-&gt;aln_to_population(-alignment=&gt;$aln);
@@ -222,21 +242,24 @@ my $pop = Bio::PopGen::Utilities-&gt;aln_to_population(-alignment=&gt;$aln);
 
 my $pop = Bio::PopGen::Utilities-&gt;aln_to_population(-alignment=&gt;$aln,
                                                     -include_monomorphic =&gt;1);
-   </pre><p>
-     In the future it will be possible to just ask for the sites which
-     are synonymous and non-synonymous if one can assume the first
-     sequence is the reference sequence and that the sequence only
-     contains coding sequences.
-   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="statistics"></a>Summary Statistics with <code class="classname">Bio::PopGen::Statistics</code></h2></div></div></div><p>
-     Pi or average pairwise differences is calculated by taking all
-     pairs of individuals in a population and computing the average
-     number of differences between them.  To use pi you need to either
-     provide a <code class="classname">Bio::PopGen::PopulationI</code> object
-     or an arrayref
-     of <code class="classname">Bio::PopGen::IndividualI</code>. Each of the
-     individuals in the population need to have the same complement of
-     Genotypes for the Markers with the same name.
-   </p><pre class="programlisting">
+		</pre><p>
+		  In the future it will be possible to just ask for the sites which
+		  are synonymous and non-synonymous if one can assume the first
+		  sequence is the reference sequence and that the sequence only
+		  contains coding sequences.
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="statistics"></a>6.&nbsp;
+		  Summary Statistics with
+		  <tt class="classname">Bio::PopGen::Statistics</tt>
+		</h2></div></div></div><p>
+		  Pi or average pairwise differences is calculated by taking all
+		  pairs of individuals in a population and computing the average
+		  number of differences between them.  To use pi you need to either
+		  provide a <tt class="classname">Bio::PopGen::PopulationI</tt> object
+		  or an arrayref
+		  of <tt class="classname">Bio::PopGen::IndividualI</tt>. Each of the
+		  individuals in the population need to have the same complement of
+		  Genotypes for the Markers with the same name.
+		</p><pre class="programlisting">
 use warnings;
 use strict;
 use Bio::PopGen::IO;
@@ -293,108 +316,111 @@ __DATA__
 04	out	G
 05	out	T
 11	out	G
-   </pre><p>
-     Waterson's theta - <code class="function">theta</code> 
-     </p><div class="informalequation"><span>K = Sum ( 1 / a<sub>n</sub>) </span></div><p>
-   </p><p>
-     <span class="emphasis"><em>Tajima's D</em></span> can be calculated with the
-     function <code class="function">tajima_D</code> which calculates the D
-     statistic for a set of individuals.  These can be provided
-     as <code class="classname">Bio::PopGen::Population</code> objects or as
-     an arrayref of <code class="classname">Bio::PopGen::Individuals</code>. 
-   </p><p> 
-     The companion function <code class="function">tajima_D_counts</code> can
-     be called with just the number of samples (N), number of
-     segregating sites (n), and the average number of pairwise
-     differences (pi) in that order. 
-   </p><p>
-     <span class="emphasis"><em>Fu and Li's D</em></span> can be calculated with the
-     function <code class="function">fu_and_li_D</code> which calculates D
-     statistic for a set of individuals and an outgroup.   The
-     function takes 2 arguments both of which can be either an arrayref
-     of <code class="classname">Bio::PopGen::Individual</code> objects or
-     a <code class="classname">Bio::PopGen::Population</code> object.  The
-     outgroup is used to determine which mutations are derived or
-     ancestral. Additionally if the number of external mutations is
-     known they can be provided as the second argument instead of
-     a <code class="classname">Population</code> object or
-     arrayref of <code class="classname">Individuals</code>.
-   </p><p> 
-     The companion method <code class="function">fu_and_li_D_counts</code>
-     allows one to just provide the raw counts of the number of samples
-     (N) number of segregating sites (n)and number of external mutations (n_e).
-   </p><p>
-     <span class="emphasis"><em>Fu and Li's D<sup>*</sup></em></span>
-     can be calculated with the
-     function <code class="function">fu_and_li_D_star</code> calculates the D*
-     statistics using the number of samples, singleton mutations
-     (mutations on external branches) and total number of segregating
-     sites.  It takes one argument which is either an array reference
-     to a set of <code class="classname">Bio::PopGen::Individual</code>
-     objects (which all have a set of Genotypes with markers of the
-     same name) OR it takes
-     a <code class="classname">Bio::PopGen::Population</code> object which
-     itsself is just a collection
-     of <code class="classname">Individuals</code>. 
-   </p><p> 
-     The companion method <code class="function">fu_and_li_D_star_counts</code>
-     can be called with just the raw numbers of samples (N), site (n),
-     and singletons (n_s) as the arguments (in that order).
-   </p><p>
-     <span class="emphasis"><em>Fu and Li's F</em></span> can be calculated with the
-     function <code class="function">fu_and_li_F</code> and calculates the F
-     statistic for a set of individuals and an outgroup. The
-     function takes 2 arguments both of which can be either an arrayref
-     of <code class="classname">Bio::PopGen::Individual</code> objects or
-     a <code class="classname">Bio::PopGen::Population</code> object.  The
-     outgroup is used to determine which mutations are derived or
-     ancestral. Additionally if the number of external mutations is
-     known they can be provided as the second argument instead of
-     a <code class="classname">Population</code> object or
-     arrayref of <code class="classname">Individuals</code>.
-   </p><p>
-     The companion method <code class="function">fu_and_li_F_counts</code>
-     can be called with just the raw numbers of samples (N), average
-     pairwise differences (pi), number of segregating sites (n), and
-     the number of external mutatiosn (n_e) as the arguments (in that order).
-   </p><p>
-     <span class="emphasis"><em>Fu and Li's F*</em></span> can be calculated with
-     the <code class="function">fu_li_F_star</code> and calculates the
-     F<sup>*</sup> statistic for a set of
-     individuals.  The function takes one argument an arrayref of
-     <code class="classname">Bio::PopGen::Individual</code> or
-     a <code class="classname">Bio::PopGen::Population</code> object.
-   </p><p>
-     The companion method <code class="function">fu_and_li_F_star_counts</code>
-     can be called with just the raw numbers of samples (N), average
-     pairwise differences (pi), number of segregating sites (n), and
-     the number of singleton mutations (n_s) the arguments (in that order).
-   </p><p>
-     Linkage Disequilibrium <span class="emphasis"><em>composite_LD</em></span> from Weir
-   </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="popstats"></a>Population Statistics using <code class="classname">Bio::PopGen::PopStats</code></h2></div></div></div><p>
-     Wright's <span class="emphasis"><em>F<sub>st</sub></em></span> can be
-     calculated for populations using the <code class="function">Fst</code>
-     in <code class="classname">Bio::PopGen::PopStats</code>.  
-   </p><pre class="programlisting">
+		</pre><p>
+		  Waterson's theta - <tt class="function">theta</tt> 
+		  <div class="informalequation"><div class="mediaobject"></div></div>
+		</p><p>
+		  <span class="emphasis"><em>Tajima's D</em></span> can be calculated with the
+		  function <tt class="function">tajima_D</tt> which calculates the D
+		  statistic for a set of individuals.  These can be provided
+		  as <tt class="classname">Bio::PopGen::Population</tt> objects or as
+		  an arrayref of <tt class="classname">Bio::PopGen::Individuals</tt>. 
+		</p><p> 
+		  The companion function <tt class="function">tajima_D_counts</tt> can
+		  be called with just the number of samples (N), number of
+		  segregating sites (n), and the average number of pairwise
+		  differences (pi) in that order. 
+		</p><p>
+		  <span class="emphasis"><em>Fu and Li's D</em></span> can be calculated with the
+		  function <tt class="function">fu_and_li_D</tt> which calculates D
+		  statistic for a set of individuals and an outgroup.   The
+		  function takes 2 arguments both of which can be either an arrayref
+		  of <tt class="classname">Bio::PopGen::Individual</tt> objects or
+		  a <tt class="classname">Bio::PopGen::Population</tt> object.  The
+		  outgroup is used to determine which mutations are derived or
+		  ancestral. Additionally if the number of external mutations is
+		  known they can be provided as the second argument instead of
+		  a <tt class="classname">Population</tt> object or
+		  arrayref of <tt class="classname">Individuals</tt>.
+		</p><p> 
+		  The companion method <tt class="function">fu_and_li_D_counts</tt>
+		  allows one to just provide the raw counts of the number of samples
+		  (N) number of segregating sites (n)and number of external mutations (n_e).
+		</p><p>
+		  <span class="emphasis"><em>Fu and Li's D<sup>*</sup></em></span>
+		  can be calculated with the
+		  function <tt class="function">fu_and_li_D_star</tt> calculates the D*
+		  statistics using the number of samples, singleton mutations
+		  (mutations on external branches) and total number of segregating
+		  sites.  It takes one argument which is either an array reference
+		  to a set of <tt class="classname">Bio::PopGen::Individual</tt>
+		  objects (which all have a set of Genotypes with markers of the
+		  same name) OR it takes
+		  a <tt class="classname">Bio::PopGen::Population</tt> object which
+		  itsself is just a collection
+		  of <tt class="classname">Individuals</tt>. 
+		</p><p> 
+		  The companion method <tt class="function">fu_and_li_D_star_counts</tt>
+		  can be called with just the raw numbers of samples (N), site (n),
+		  and singletons (n_s) as the arguments (in that order).
+		</p><p>
+		  <span class="emphasis"><em>Fu and Li's F</em></span> can be calculated with the
+		  function <tt class="function">fu_and_li_F</tt> and calculates the F
+		  statistic for a set of individuals and an outgroup. The
+		  function takes 2 arguments both of which can be either an arrayref
+		  of <tt class="classname">Bio::PopGen::Individual</tt> objects or
+		  a <tt class="classname">Bio::PopGen::Population</tt> object.  The
+		  outgroup is used to determine which mutations are derived or
+		  ancestral. Additionally if the number of external mutations is
+		  known they can be provided as the second argument instead of
+		  a <tt class="classname">Population</tt> object or
+		  arrayref of <tt class="classname">Individuals</tt>.
+		</p><p>
+		  The companion method <tt class="function">fu_and_li_F_counts</tt>
+		  can be called with just the raw numbers of samples (N), average
+		  pairwise differences (pi), number of segregating sites (n), and
+		  the number of external mutatiosn (n_e) as the arguments 
+		  (in that order).
+		</p><p>
+		  <span class="emphasis"><em>Fu and Li's F*</em></span> can be calculated with
+		  the <tt class="function">fu_li_F_star</tt> and calculates the
+		  F<sup>*</sup> statistic for a set of
+		  individuals.  The function takes one argument an arrayref of
+		  <tt class="classname">Bio::PopGen::Individual</tt> or
+		  a <tt class="classname">Bio::PopGen::Population</tt> object.
+		</p><p>
+		  The companion method <tt class="function">fu_and_li_F_star_counts</tt>
+		  can be called with just the raw numbers of samples (N), average
+		  pairwise differences (pi), number of segregating sites (n), and
+		  the number of singleton mutations (n_s) the arguments (in that order).
+		</p><p>
+		  Linkage Disequilibrium <span class="emphasis"><em>composite_LD</em></span> from Weir
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="popstats"></a>7.&nbsp;
+		  Population Statistics using
+		  <tt class="classname">Bio::PopGen::PopStats</tt>
+		</h2></div></div></div><p>
+		  Wright's <span class="emphasis"><em>F<sub>st</sub></em></span> can be
+		  calculated for populations using the <tt class="function">Fst</tt>
+		  in <tt class="classname">Bio::PopGen::PopStats</tt>.  
+		</p><pre class="programlisting">
 use Bio::PopGen::PopStats;
 # @populations - are the sets of Bio::PopGen::Population
 # objects
 # @markernames - set of Marker names to use in this analysis
-my $fst = $stats-&gt;Fst(\@populations,\@markernames);
-     
-   </pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="coalescent"></a>Coalescent Simulations</h2></div></div></div><p>
-     The <code class="classname">Bio::PopGen::Simulation::Coalescent</code>
-     module provides a very simple coalescent simulation. It builds a
-     tree with individual.
-   </p><p>
-     Some very simple usage is to generate a few random coalescents
-     and calculate some summary statistics.  We separate the topology
-     generation from throwing the mutations down on the tree. So
-     depending on your question, you may want to generate a bunch of
-     different topologies with mutations thrown down randomly on them.
-     Or if you want to look at a single topology with mutations thrown
-     down randomly many different times.
-   </p><pre class="programlisting">
+my $fst = $stats-&gt;Fst(\@populations,\@markernames);     
+		</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="coalescent"></a>8.&nbsp;Coalescent Simulations</h2></div></div></div><p>
+		  The <tt class="classname">Bio::PopGen::Simulation::Coalescent</tt>
+		  module provides a very simple coalescent simulation. It builds a
+		  tree with individual.
+		</p><p>
+		  Some very simple usage is to generate a few random coalescents
+		  and calculate some summary statistics.  We separate the topology
+		  generation from throwing the mutations down on the tree. So
+		  depending on your question, you may want to generate a bunch of
+		  different topologies with mutations thrown down randomly on them.
+		  Or if you want to look at a single topology with mutations thrown
+		  down randomly many different times.
+		</p><pre class="programlisting">
 use Bio::PopGen::Simulation::Coalescent;
 use Bio::PopGen::Statistics;
 # generate 10 anonymous individuals 
@@ -436,20 +462,16 @@ for ( 1..50 ) {
     printf "Fu and Li's F*=%-6.3f\n", $stats-&gt;fu_and_li_F_star($c);
 }
 
-   </pre></div><div class="bibliography"><div class="titlepage"><div><div><h2 class="title"><a name="id872960"></a>Bibliography</h2></div></div></div><div class="biblioentry"><p><span class="bibliomset">
-  <span class="title"><i>Disentangling the effects of demography and selection in
-  human history</i>. </span>
-  <span class="authorgroup"><span class="firstname">Jason</span> <span class="othername">E</span> <span class="surname">Stajich</span> and <span class="firstname">Matthew</span> <span class="othername">W</span> <span class="surname">Hahn</span>. </span>
-    <span class="title"><i>Mol Biol Evol</i>. </span>
-    2005 <span class="volumenum">22(1):63-73. </span>
-  . </span></p></div><div class="biblioentry"><p><span class="bibliomset">
-    <span class="title"><i>Population genetic and phylogenetic evidence for positive selection on regulatory mutations at the factor VII locus in humans</i>. </span>
-    <span class="authorgroup"><span class="firstname">Matthew</span> <span class="othername">W</span> <span class="surname">Hahn</span>, <span class="firstname">Matthew</span> <span class="othername">V</span> <span class="surname">Rockman</span>, <span class="firstname">Nicole</span> <span class="surname">Soranzo</span>, <span class="firstname">David</span> <span class="othername">B</span> <span class="surname">Goldstein</span>, and <span class="firstname">Greg</span> <span class="othername">A</span> <span class="surname">Wray</span>. </span>
-    <span class="title"><i>Genetics</i>. </span>
-    2004  <span class="volumenum">167(2):867-77. </span>
-  . </span></p></div><div class="biblioentry"><p><span class="bibliomset">
-    <span class="title"><i>Positive selection on a human-specific transcription factor binding site regulating IL4 expression</i>. </span>
-    <span class="authorgroup"><span class="firstname">Matthew</span> <span class="othername">V</span> <span class="surname">Rockman</span>, <span class="firstname">Matthew</span> <span class="othername">W</span> <span class="surname">Hahn</span>, <span class="firstname">Nicole</span> <span class="surname">Soranzo</span>, <span class="firstname">David</span> <span class="othername">B</span> <span class="surname">Goldstein</span>, and <span class="firstname">Greg</span> <span class="othername">A</span> <span class="surname">Wray</span>. </span>
-    <span class="title"><i>Current Biology</i>. </span>
-    2003  <span class="volumenum">13(23):2118-23. </span>
-  . </span></p></div></div></div></body></html>
+		</pre></div><div class="bibliography"><div class="titlepage"><div><div><h2 class="title"><a id="d4e182"></a>Bibliography</h2></div></div></div><div class="biblioentry"><p>[1] <span class="biblioset">&#8220;
+				Disentangling the effects of demography and selection in
+				human history
+			 &#8221;. <span class="authorgroup"><span class="firstname">Jason</span> <span class="othername">E</span> <span class="surname">Stajich</span> and <span class="firstname">Matthew</span> <span class="othername">W</span> <span class="surname">Hahn</span>. </span>&#8220;Mol Biol Evol&#8221;. <span class="copyright">Copyright &copy; 2005 . </span><span class="volumenum">22(1):63-73. </span></span></p></div><div class="biblioentry"><p>[2] <span class="biblioset">&#8220;
+				Population genetic and phylogenetic evidence for positive
+				selection on regulatory mutations at the factor VII locus
+				in humans
+			 &#8221;. <span class="authorgroup"><span class="firstname">Matthew</span> <span class="othername">W</span> <span class="surname">Hahn</span>, <span class="firstname">Matthew</span> <span class="othername">V</span> <span class="surname">Rockman</span>, <span class="firstname">Nicole</span> <span class="surname">Soranzo</span>, <span class="firstname">David</span> <span class="othername">B</span> <span class="surname">Goldstein</span>, and <span class="firstname">Greg</span> <span class="othername">A</span> <span class="surname">Wray</span>. </span>&#8220;Genetics&#8221;. <span class="copyright">Copyright &copy; 2004 . </span><span class="volumenum">167(2):867-77. </span></span></p></div><div class="biblioentry"><p>[3] <span class="biblioset">&#8220;
+				Positive selection on a human-specific transcription
+				factor binding site regulating IL4 expression
+			 &#8221;. <span class="authorgroup"><span class="firstname">Matthew</span> <span class="othername">V</span> <span class="surname">Rockman</span>, <span class="firstname">Matthew</span> <span class="othername">W</span> <span class="surname">Hahn</span>, <span class="firstname">Nicole</span> <span class="surname">Soranzo</span>, <span class="firstname">David</span> <span class="othername">B</span> <span class="surname">Goldstein</span>, and <span class="firstname">Greg</span> <span class="othername">A</span> <span class="surname">Wray</span>. </span>&#8220;Current Biology&#8221;. <span class="volumenum">13(23):2118-23. </span><span class="copyright">Copyright &copy; 2003 . </span></span></p></div></div></div><div xmlns="" id="customfooter">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
+</div></body></html>

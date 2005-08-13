@@ -1,32 +1,21 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Bio::Tools::Phylo::PAML HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	paml is a package of C programs that implement&#xA;	Phylogenetic&#xA;	Analyses using&#xA;	Maximum&#xA;	Likelihood, written by Dr. Ziheng Yang,&#xA;	University College London.  These programs implement a wide&#xA;	variety of models to explore the evolutionary relationships&#xA;	between sequences at either the protein, codon or raw DNA&#xA;	level.  This document's aim is to explore and document how the&#xA;	BioPerl paml parser and result objects &#34;work&#34;.&#xA;      "></head><body><div xmlns="" id="customheader">
-BioPerl DocBook
-</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Bio::Tools::Phylo::PAML HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Aaron</span> <span class="surname">Mackey</span></h3><div class="affiliation"><span class="orgname">
-	  <a href="http://www.virginia.edu" target="_top">University of Virginia</a>
-	<br></span><div class="address"><p><br>
-	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:amackey@virginia.edu">amackey@virginia.edu</a>&gt;</tt><br>
-	</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">Jason</span> <span class="surname">Stajich</span></h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top">Duke
-	    University</a><br></span><span class="orgdiv">
-	  <a href="http://upg.duke.edu" target="_top">University Program in
-	  Genetics</a>
-	<br></span><span class="orgdiv"><a href="http://cgt.genetics.duke.edu" target="_top">Center for
-	    Genome Technology</a><br></span><div class="address"><p><br>
-	&nbsp;&nbsp;Duke&nbsp;University&nbsp;Medical&nbsp;Center<br>
-	&nbsp;&nbsp;<span class="pob">Box&nbsp;3568</span><br>
-	&nbsp;&nbsp;<span class="city">Durham,&nbsp;</span><br>
-	&nbsp;&nbsp;<span class="state">North&nbsp;Carolina</span>&nbsp;<br>
-	&nbsp;&nbsp;<span class="postcode">27710-3568</span>&nbsp;<br>
-	&nbsp;&nbsp;<span class="country">USA</span><br>
-	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:jason-at-bioperl.org">jason-at-bioperl.org</a>&gt;</tt><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><p>
-	This document is copyright Aaron Mackey, 2002.  For
-	reproduction other than personal use please contact me at
-	amackey@virginia.edu
-      </p></div></div><div><p class="pubdate">2002-08-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2002-08-01</td><td align="left">ajm</td></tr><tr><td align="left" colspan="3">first draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2003-03-01</td><td align="left">jes</td></tr><tr><td align="left" colspan="3">Added pairwise Ka,Ks example code and running code</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::Tools::Phylo::PAML HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;paml is a package of C programs that implement&#xA;Phylogenetic&#xA;Analyses using&#xA;Maximum&#xA;Likelihood, written by Dr. Ziheng Yang,&#xA;University College London.  These programs implement a wide&#xA;variety of models to explore the evolutionary relationships&#xA;between sequences at either the protein, codon or raw DNA&#xA;level.  This document's aim is to explore and document how the&#xA;BioPerl paml parser and result objects &#34;work&#34;.&#xA;      "></meta></head><body><div xmlns="" id="customheader">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
+</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Bio::Tools::Phylo::PAML HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Aaron</span> <span class="surname">Mackey</span></h3><div class="affiliation"><span class="orgname">
+	  <a href="http://www.virginia.edu" target="_top"><i class="citetitle">University of Virginia</i></a>
+	<br></br></span><div class="address"><p><br></br>
+	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:amackey@virginia.edu">amackey@virginia.edu</a>&gt;</tt><br></br>
+	</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">Jason</span> <span class="surname">Stajich</span></h3><div class="affiliation"><span class="orgname"><a href="http://www.duke.edu" target="_top"><i class="citetitle">Duke
+	    University</i></a><br></br></span><div class="address"><p><br></br>
+	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:jason-at-bioperl.org">jason-at-bioperl.org</a>&gt;</tt><br></br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><a id="d4e39"></a><p>
+	This document is copyright Aaron Mackey, Jason Stajich, 2002-2005.  For
+	reproduction other than personal use please contact us at
+	amackey@virginia.edu or jason@bioperl.org.
+      </p></div></div><div><p class="pubdate">2002-08-01</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 0.1</td><td align="left">2002-08-01</td><td align="left">ajm</td></tr><tr><td align="left" colspan="3">first draft</td></tr><tr><td align="left">Revision 0.2</td><td align="left">2003-03-01</td><td align="left">jes</td></tr><tr><td align="left" colspan="3">Added pairwise Ka,Ks example code and running code</td></tr><tr><td align="left">Revision 0.3</td><td align="left">2005-03-15</td><td align="left">jes</td></tr><tr><td align="left" colspan="3">Added branch-specific paramater parsing (NSsites
+	and per-branch rates)</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 	<span class="emphasis"><em>paml</em></span> is a package of C programs that implement
 	<span class="emphasis"><em>P</em></span>hylogenetic
 	<span class="emphasis"><em>A</em></span>nalyses using
@@ -37,7 +26,7 @@ BioPerl DocBook
 	between sequences at either the protein, codon or raw DNA
 	level.  This document's aim is to explore and document how the
 	BioPerl <span class="emphasis"><em>paml</em></span> parser and result objects "work".
-      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#background">Background</a></dt><dt>2. <a href="#results">Accessing paml results</a></dt><dt>3. <a href="#running">Running PAML from within Bioperl</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="background"></a>1.&nbsp;Background</h2></div></div><div></div></div><p>
+      </p></div></div></div><hr></hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#background">1. Background</a></span></dt><dt><span class="section"><a href="#results">2. Accessing <span class="emphasis"><em>paml</em></span> results</a></span></dt><dt><span class="section"><a href="#running">3. Running PAML from within Bioperl</a></span></dt><dt><span class="section"><a href="#nssites">4. Parsing branch-specific rates and NSSites results</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="background"></a>1.&nbsp;Background</h2></div></div></div><p>
       The <span class="emphasis"><em>paml</em></span> package consists of many different executable
       programs, but the BioPerl Bio::Tools::Phylo::PAML object
       (hereafter referred to as simply the <span class="emphasis"><em>paml</em></span>
@@ -93,7 +82,7 @@ BioPerl DocBook
       in the following "top-down" order: datasets, genes, models,
       tree topologies.  So how shall the BioPerl <span class="emphasis"><em>paml</em></span> module treat
       these sources of multiple results?
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="results"></a>2.&nbsp;Accessing <span class="emphasis"><em>paml</em></span> results</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="results"></a>2.&nbsp;Accessing <span class="emphasis"><em>paml</em></span> results</h2></div></div></div><p>
       The BioPerl <span class="emphasis"><em>paml</em></span> result parser takes the view that a distinct
       "recordset" or single, top-level PAML::Result object
       represents a single <span class="emphasis"><em>dataset</em></span>.  Each
@@ -137,7 +126,7 @@ while(my $result = $parser-&gt;next_result) {
       reconstructed ancestral sequences (again, associated with an
       accompanying tree topology), or statistical comparisons of
       multiple tree topologies.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="running"></a>3.&nbsp;Running PAML from within Bioperl</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="running"></a>3.&nbsp;Running PAML from within Bioperl</h2></div></div></div><p>
       Bioperl also has facilities for running
       <span class="emphasis"><em>paml</em></span> from within a
       Perl script.  This allows you to compute Ka and Ks estimations
@@ -254,6 +243,115 @@ for( my $i = 0; $i &lt; (scalar @otus -1) ; $i++) {
 }
       </pre>
     </p><p>
-    </p></div></div><div xmlns="" id="customfooter">
-BioPerl DocBook
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="nssites"></a>4.&nbsp;Parsing branch-specific rates and NSSites results</h2></div></div></div><p>
+<span class="emphasis"><em>PAML</em></span> allows for several models of molecular
+evolution.  Given a tree topology one can test whether or not
+contraints of evolutionary rates on different parts of the topology
+better explain the observe data than a null model where an overall
+rate is assumed.  To do this a tree topology must be provided and
+typically marked to specify which branches to test the alternative
+hypotheses of differing rates.
+    </p><p>
+To get access to this branch specific data we store it in the <tt class="classname">Bio::Tree::Tree</tt> object which is
+      parsed for each result.  The nodes in the tree will contain
+      additional tagged values for capturing the branch specific
+      evolutionary rates.  In cases where there are several
+      different models of evolution tested (i.e. M0, M1, etc) we
+      create
+      a <tt class="classname">Bio::Tools::Phylo::PAML::ModelResult</tt>
+      to store each of the model results separately.  A separate
+      Tree object will be associated with each one of these models.
+    </p><p>
+      <span class="emphasis"><em>Please note that the models underlting PAML 3.14 have
+	changed some from PAML 3.13 and earlier.  NSsites 1 and 2 mean
+	slightly different things than they did in previous versions.
+	</em></span>
+    </p><p>Accessing Tree data</p><p> First we'll just descibe how to access data for a
+	topology for a single model or where NSsites=0. In this case
+	we'll just want to get the tree(s) associated with a give
+	result.  In this code we loop through all
+	the <tt class="classname">Bio::Tree::Tree</tt> associated with the <tt class="classname">Bio::Tools::Phylo::PAML::Result</tt>.
+      </p><pre class="programlisting">
+use Bio::Tools::Phylo::PAML;
+
+my $outcodeml = shift(@ARGV);
+my $paml_parser = new Bio::Tools::Phylo::PAML(-file =&gt; $outcodeml, 
+                                              -dir =&gt; "./");
+if( my $result = $paml_parser-&gt;next_result() ) {
+ while ( my $tree = $result-&gt;next_tree ) {
+  for my $node ( $tree-&gt;get_nodes ) {
+   my $id;
+   # first we do some work to figure out what the ID should be.
+   # for a leaf or tip node this is just the taxon label
+   if( $node-&gt;is_Leaf() ) {
+    $id = $node-&gt;id;
+   } else {
+   # for the internal nodes it is just the name of all the sub-nodes
+   # put together, much like how Sanderson represents internal nodes
+   # in r8s 
+    $id = "(".join(",", map { $_-&gt;id } grep { $_-&gt;is_Leaf } 
+                              $node-&gt;get_all_Descendents) .")";
+   }
+   if( ! $node-&gt;ancestor || ! $node-&gt;has_tag('t') ) {
+     # skip when no values have been associated with this node
+     # (like the root node)
+     next; 
+   }
+   printf "%s\tt=%.3f\tS=%.1f\tN=%.1f\tdN/dS=%.4f\tdN=%.4f\t".
+           "dS=%.4f\tS*dS=%.1f\tN*dN=%.1f\n",
+    $id,map { ($node-&gt;get_tag_values($_))[0] } 
+    qw(t S N dN/dS dN dS), 'S*dS', 'N*dN';
+  }
+ }
+}
+      </pre><p>Accessing NSsites data</p><p>
+	In cases where nssites=1 or nssites=2 is provided the data for
+	the results is accessible through
+	the <tt class="classname">Bio::Tools::Phylo::PAML::ModelResult</tt>.
+	The function <tt class="function">get_NSSite_results</tt> on
+	the <tt class="classname">Bio::Tool::Phylo::PAML::Result</tt>
+	object.  In this way multiple model results can be folded into
+	a single <tt class="classname">PAML::Result</tt> object.  The
+	code shown below is nearly identical to that in the previous
+	example, there is just an additional loop to process the
+	NSsite Result objects.
+      </p><pre class="programlisting">
+use Bio::Tools::Phylo::PAML;
+
+my $outcodeml = shift(@ARGV);
+my $paml_parser = new Bio::Tools::Phylo::PAML(-file =&gt; $outcodeml, 
+                                              -dir =&gt; "./");
+if( my $result = $paml_parser-&gt;next_result() ) {
+  for my $ns_result ( $result-&gt;get_NSSite_results ) {
+    print "model ", $ns_result-&gt;model_num, " ", 
+          $ns_result-&gt;model_description, "\n";
+  while ( my $tree = $ns_result-&gt;next_tree ) {
+   for my $node ( $tree-&gt;get_nodes ) {
+    my $id;
+    # first we do some work to figure out what the ID should be.
+    # for a leaf or tip node this is just the taxon label
+    if( $node-&gt;is_Leaf() ) {
+     $id = $node-&gt;id;
+    } else {
+    # for the internal nodes it is just the name of all the sub-nodes
+    # put together, much like how Sanderson represents internal nodes
+    # in r8s 
+     $id = "(".join(",", map { $_-&gt;id } grep { $_-&gt;is_Leaf } 
+                              $node-&gt;get_all_Descendents) .")";
+    }
+    if( ! $node-&gt;ancestor || ! $node-&gt;has_tag('t') ) {
+     # skip when no values have been associated with this node
+     # (like the root node)
+     next; 
+    }
+    printf "%s\tt=%.3f\tS=%.1f\tN=%.1f\tdN/dS=%.4f\tdN=%.4f\t".
+           "dS=%.4f\tS*dS=%.1f\tN*dN=%.1f\n",
+    $id,map { ($node-&gt;get_tag_values($_))[0] } 
+    qw(t S N dN/dS dN dS), 'S*dS', 'N*dN';
+   }
+  }
+ }
+}
+      </pre></div></div><div xmlns="" id="customfooter">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div></body></html>

@@ -1,21 +1,19 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Flat Databases HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	  The Open Biological Database Access (OBDA) standard&#xA;	  specifies a way of generating indexes for entry-based&#xA;	  sequence files (e.g. FASTA, EMBL) so that the entries can be&#xA;	  looked up and retrieved quickly.  These indexes are created&#xA;	  and accessed using the Bio::DB::Flat&#xA;	  module.&#xA;	"></head><body><div xmlns="" id="customheader">
-BioPerl DocBook
-</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Flat Databases HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Lincoln</span> <span class="surname">Stein</span></h3><div class="affiliation"><span class="orgname">
-	  <a href="http://www.cshl.org" target="_top">Cold Spring Harbor Laboratory</a>
-	<br></span><div class="address"><p><br>
-	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:lstein-at-cshl.org">lstein-at-cshl.org</a>&gt;</tt><br>
-	</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">Brian</span> <span class="surname">Osborne</span></h3><div class="affiliation"><span class="orgname"><a href="http://www.cognia.com" target="_top">Cognia Corporation</a><br></span><div class="address"><p><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt><br>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Flat Databases HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;  The Open Biological Database Access (OBDA) standard&#xA;  specifies a way of generating indexes for entry-based&#xA;  sequence files (e.g. FASTA, EMBL) so that the entries can be&#xA;  looked up and retrieved quickly.  These indexes are created&#xA;  and accessed using the Bio::DB::Flat&#xA;  module.&#xA;"></meta></head><body><div xmlns="" id="customheader">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
+</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Flat Databases HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Lincoln</span> <span class="surname">Stein</span></h3><div class="affiliation"><span class="orgname">
+	  <a href="http://www.cshl.org" target="_top"><i class="citetitle">Cold Spring Harbor Laboratory</i></a>
+	<br></br></span><div class="address"><p><br></br>
+	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:lstein-at-cshl.org">lstein-at-cshl.org</a>&gt;</tt><br></br>
+	</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">Brian</span> <span class="surname">Osborne</span></h3><div class="affiliation"><span class="orgname"><a href="http://www.cognia.com" target="_top"><i class="citetitle">Cognia Corporation</i></a><br></br></span><div class="address"><p><br></br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:brian-at-cognia.com">brian-at-cognia.com</a>&gt;</tt><br></br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="author"><h3 class="author"><span class="firstname">Heikki</span> <span class="surname">Lehv&auml;slaiho</span></h3><div class="affiliation"><span class="orgname">
-          <a href="http://www.ebi.ac.uk" target="_top">European Bioinformatics Institute</a>
-        <br></span><div class="address"><p><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:heikki-at-ebi.co.uk">heikki-at-ebi.co.uk</a>&gt;</tt><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><p>This document is copyright Lincoln Stein, 2002.  For
+          <a href="http://www.ebi.ac.uk" target="_top"><i class="citetitle">European Bioinformatics Institute</i></a>
+        <br></br></span><div class="address"><p><br></br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:heikki-at-ebi.co.uk">heikki-at-ebi.co.uk</a>&gt;</tt><br></br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><a id="d4e57"></a><p>This document is copyright Lincoln Stein, 2002.  For
            reproduction other than personal use please contact lstein at cshl.org
          </p></div></div><div><p class="pubdate">2003-02-26</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 1.0</td><td align="left">2003-02-26</td><td align="left">LS</td></tr><tr><td align="left" colspan="3">First version</td></tr><tr><td align="left">Revision 1.1</td><td align="left">2003-10-17</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3"></td></tr><tr><td align="left">Revision 1.2</td><td align="left">2003-10-17</td><td align="left">HL</td></tr><tr><td align="left" colspan="3">from txt reformatted into SGML</td></tr><tr><td align="left">Revision 1.3</td><td align="left">2004-05-20</td><td align="left">BIO</td></tr><tr><td align="left" colspan="3">Add section on custom indexes</td></tr></table></div></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 	  The Open Biological Database Access (OBDA) standard
@@ -24,11 +22,11 @@ BioPerl DocBook
 	  looked up and retrieved quickly.  These indexes are created
 	  and accessed using the <tt class="classname">Bio::DB::Flat</tt>
 	  module.
-	</p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#intro">Creating OBDA-Compliant Indexed Sequence Files</a></dt><dt>2. <a href="#options">Choosing Your Options</a></dt><dt>3. <a href="#files">Moving Database Files</a></dt><dt>4. <a href="#d3e160">Secondary or custom namespaces</a></dt><dt>5. <a href="#more">More information</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="intro"></a>1.&nbsp;Creating OBDA-Compliant Indexed Sequence Files</h2></div></div><div></div></div><p>
+	</p></div></div></div><hr></hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#intro">1. Creating OBDA-Compliant Indexed Sequence Files</a></span></dt><dt><span class="section"><a href="#options">2. Choosing Your Options</a></span></dt><dt><span class="section"><a href="#files">3. Moving Database Files</a></span></dt><dt><span class="section"><a href="#d4e165">4. Secondary or custom namespaces</a></span></dt><dt><span class="section"><a href="#more">5. More information</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="intro"></a>1.&nbsp;Creating OBDA-Compliant Indexed Sequence Files</h2></div></div></div><p>
       <tt class="classname">Bio::DB::Flat</tt> has the same functionality as
       the various <tt class="classname">Bio::Index</tt> modules.  The main
       reason to use it is if you want to use the BioSequence Registry
-      system (see the OBDA Access HOWTO at <a href="http://bioperl.org/HOWTOs" target="_top">http://bioperl.org/HOWTOs</a>),
+      system (see the OBDA Access HOWTO at <a href="http://bioperl.org/HOWTOs" target="_top"><i class="citetitle">http://bioperl.org/HOWTOs</i></a>),
       or if you want to share the same indexed files among scripts
       written in other languages, such as those written with BioJava or
       BioPython.
@@ -64,7 +62,7 @@ BioPerl DocBook
 	  For convenience, you are offered the option to copy it to
 	  /usr/bin or another system-wide directory on 'make install' (and
 	  its name will be changed to bioflat_index.pl).
-	</p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="options"></a>2.&nbsp;Choosing Your Options</h2></div></div><div></div></div><p>
+	</p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="options"></a>2.&nbsp;Choosing Your Options</h2></div></div></div><p>
       The typical usage is as follows:
     </p><p>
       <pre class="programlisting">
@@ -72,7 +70,7 @@ BioPerl DocBook
       </pre>
     </p><p>
      The following command line options are required:
-      <div class="table"><a id="d3e86"></a><table summary="bioflat_index command-line options" border="1"><colgroup><col><col></colgroup><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody><tr><td>-c</td><td>create a new index</td></tr><tr><td>-l</td><td>path to the root directory</td></tr><tr><td>-d</td><td>symbolic name for the new database</td></tr><tr><td>-i</td><td>indexing scheme (discussed below)</td></tr><tr><td>-f</td><td>source file format</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;bioflat_index command-line options</b></p></div>
+      <div class="table"><a id="d4e90"></a><table summary="bioflat_index command-line options" border="1"><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody><tr><td>-c</td><td>create a new index</td></tr><tr><td>-l</td><td>path to the root directory</td></tr><tr><td>-d</td><td>symbolic name for the new database</td></tr><tr><td>-i</td><td>indexing scheme (discussed below)</td></tr><tr><td>-f</td><td>source file format</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;bioflat_index command-line options</b></p></div>
     </p><p>
       The <i class="parameter"><tt>-c</tt></i> option must be present to create the
       database.  If the database already exists,
@@ -91,7 +89,7 @@ BioPerl DocBook
       Currently there are two indexing schemes supported: "bdb" and
       "flat."  "bdb" selects an index based on the Berkeley DB library.  
       It is generally the faster of the two, but it requires that the
-      Berkeley DB library (from Linux RPM or from <a href="http://www.sleepycat.com" target="_top">www.sleepycat.com</a>, 
+      Berkeley DB library (from Linux RPM or from <a href="http://www.sleepycat.com" target="_top"><i class="citetitle">www.sleepycat.com</i></a>, 
       version 2 or higher) and the Perl BerkeleyDB module be installed 
       on your system. The Perl DB_File module will not work.
     </p><p>
@@ -127,12 +125,12 @@ BioPerl DocBook
     </p><p>
       For your convenience, bioflat_index.pl will also take default values
       from the following environment variables:
-      <div class="table"><a id="d3e132"></a><table summary="Environmental variables" border="1"><colgroup><col><col></colgroup><thead><tr><th>ENV variable</th><th>description</th></tr></thead><tbody><tr><td>OBDA_FORMAT</td><td>format of sequence file (<i class="parameter"><tt>-f</tt></i>)
+      <div class="table"><a id="d4e137"></a><table summary="Environmental variables" border="1"><thead><tr><th>ENV variable</th><th>description</th></tr></thead><tbody><tr><td>OBDA_FORMAT</td><td>format of sequence file (<i class="parameter"><tt>-f</tt></i>)
 	      </td></tr><tr><td>OBDA_LOCATION</td><td>path to directory
 		in which index files are stored
 		(<i class="parameter"><tt>-l</tt></i>)
 	      </td></tr><tr><td>OBDA_DBNAME</td><td>name of database (-d)</td></tr><tr><td>OBDA_INDEX</td><td>type of index to create (<i class="parameter"><tt>-i</tt></i>)</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Environmental variables</b></p></div>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="files"></a>3.&nbsp;Moving Database Files</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="files"></a>3.&nbsp;Moving Database Files</h2></div></div></div><p>
       If you must change the location of the source sequence files after
       you create the index, there is a way to do so.  Inside the root
       directory you will find a subdirectory named after the database,
@@ -154,7 +152,7 @@ BioPerl DocBook
       "fileid" line and change the path.  Be careful not to change
       anything else in the file or to inadvertently replace tab
       characters with spaces.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="d3e160"></a>4.&nbsp;Secondary or custom namespaces</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="d4e165"></a>4.&nbsp;Secondary or custom namespaces</h2></div></div></div><p>
       The bioflat_index script creates what could be called a default
       index using sequence files in a few different formats. Each of
       these formats has its own default primary key, the key that can
@@ -176,7 +174,7 @@ BioPerl DocBook
       object's display_id() method. The table below shows the 
       default primary keys of the 4 Bio::DB::Flat formats.
     </p><p>
-      <div class="table"><a id="d3e170"></a><table summary="Default primary keys" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Format</th><th>Seq
+      <div class="table"><a id="d4e175"></a><table summary="Default primary keys" border="1"><thead><tr><th>Format</th><th>Seq
 		method</th><th>Regular expression</th></tr></thead><tbody><tr><td>fasta</td><td>display_id()</td><td>&gt;(\S+)</td></tr><tr><td>swiss</td><td>display_id()</td><td>^ID\s+(\S+)</td></tr><tr><td>genbank</td><td>primary_id()</td><td>^LOCUS\s+(\S+)</td></tr><tr><td>embl</td><td>display_id()</td><td>^ID\s+(\S+)</td></tr></tbody></table><p class="title"><b>Table&nbsp;3.&nbsp;Default primary keys</b></p></div>
     </p><p>
       What if you wanted to use some other part of the entry as a
@@ -216,10 +214,10 @@ BioPerl DocBook
       my $acc_seq = $db-&gt;get_Seq_by_id("P84139");
       my $gi_seq = $db-&gt;get_Seq_by_secondary("GI",443893);
       </pre>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="more"></a>5.&nbsp;More information</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="more"></a>5.&nbsp;More information</h2></div></div></div><p>
       For more information on using your indexed flat files please see the 
-      <a href="http://bioperl.org/HOWTOs/OBDA_Access/index.html" target="_top">
-	OBDA Access HOWTO</a>.
+      <a href="http://bioperl.org/HOWTOs/OBDA_Access/index.html" target="_top"><i class="citetitle">
+	OBDA Access HOWTO</i></a>.
     </p></div></div><div xmlns="" id="customfooter">
-BioPerl DocBook
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div></body></html>
