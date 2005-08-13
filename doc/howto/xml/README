@@ -7,10 +7,35 @@ turned into PDF, HTML, text, and RTF (which can be turned into
 MS Word).
 
 As of this writing one cannot turn Docbook XML into these formats
-using one single open source package. The PDF, HTML, and text versions
+using one single open source package. The HTML, PDF, and text versions
 of the XML were created using saxon-j, Apache FOP, and lynx,
 respectively. In addition, the XSL stylesheets from the e-novative 
 eDe package were used, with these stylesheets one can create some
-attractive documents. Examine the enclosed docbook-tx.sh script for 
-details. All of the necessary stylesheets and associated files have 
-been added to the Bioperl package.
+attractive documents. All of the necessary stylesheets and associated 
+files have been added to the Bioperl package. Example code is shown below. 
+
+
+# Docbook XML to HTML, PDF, and text using e-novative
+# stylesheets, saxon-j version 6, Apache FOP, and lynx.
+
+setenv HTML_STYLE './stylesheet/e-novative_article_html.xsl'
+setenv PDF_STYLE './stylesheet/e-novative_article_fo.xsl'
+setenv XML 'Beginners.xml'
+setenv HTML 'Beginners.html'
+setenv TXT 'Beginners.txt'
+setenv PDF 'Beginners.pdf'
+setenv FOP_JAR '/usr/local/fop-0.20.5/build/fop.jar:/usr/local/fop-0.20.5/lib/avalon-framework-cvs-20020806.jar:/usr/local/fop-0.20.5/lib/batik.jar'
+setenv SAXON_JAR '/usr/local/saxon6-5-4/saxon.jar'
+setenv FOP 'org.apache.fop.apps.Fop'
+setenv JAVA '/usr/bin/java'
+setenv LYNX '/sw/bin/lynx'
+
+
+# Create HTML file
+$JAVA -jar $SAXON_JAR -o $HTML $XML $HTML_STYLE use.extensions=1 
+
+# Create text from HTML file
+$LYNX -dump $HTML > $TXT
+
+# Create PDF
+$JAVA -classpath $FOP_JAR $FOP -q -xml $XML -xsl $PDF_STYLE -pdf $PDF
