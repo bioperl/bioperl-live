@@ -1,13 +1,13 @@
 
-   BioPerl DocBook
+   BioPerl DocBook ([1]BioPerl)
 
 Feature and Annotation HOWTO
 
 Brian Osborne
 
-   [1]Cognia Corporation
+   [2]Cognia Corporation
 
-    <[2]brian_osborne-at-cognia.com>
+    <[3]brian_osborne-at-cognia.com>
 
    This document is copyright Brian Osborne, 2003. For reproduction other
    than personal use please contact brian at cognia.com
@@ -22,18 +22,18 @@ Brian Osborne
 
    Table of Contents
 
-   1. [3]Introduction
-   2. [4]The Basics
-   3. [5]Features from Genbank
-   4. [6]Getting Sequences
-   5. [7]Location Objects
-   6. [8]Other objects
-   7. [9]Annotations from Genbank
-   8. [10]Directly from the Sequence object
-   9. [11]Other sequence file formats
-   10. [12]Building your own sequences
-   11. [13]Additional Information
-   12. [14]Acknowledgements
+   [4]1. Introduction
+   [5]2. The Basics
+   [6]3. Features from Genbank
+   [7]4. Getting Sequences
+   [8]5. Location Objects
+   [9]6. Other objects
+   [10]7. Annotations from Genbank
+   [11]8. Directly from the Sequence object
+   [12]9. Other sequence file formats
+   [13]10. Building your own sequences
+   [14]11. Additional Information
+   [15]12. Acknowledgements
 
 1. Introduction
 
@@ -79,13 +79,13 @@ Brian Osborne
    and evaluated separately.
 
    A central idea in OOP is inheritance, which means that a child object
-   can derive some of its capabilities from a parent object. The OOP
-   approach also allows new modules to modify or add functionality,
-   distinct from the parent. Practically speaking this means that there's
-   not one definitive SeqFeature or Annotation object but many, each a
-   variation on a theme. The details of the these varieties will be
-   discussed in other sections, but for now we could use some broad
-   definitions that apply to all the variations.
+   can derive some of its capabilities or functionality from a parent
+   object. The OOP approach also allows new modules to modify or add
+   functionality, distinct from the parent. Practically speaking this
+   means that there's not one definitive SeqFeature or Annotation object
+   but many, each a variation on a theme. The details of the these
+   varieties will be discussed in other sections, but for now we could
+   use some broad definitions that apply to all the variations.
 
    A SeqFeature object is designed to be associated with a sequence, and
    can have a location on that sequence - it's a way of describing the
@@ -116,21 +116,23 @@ Brian Osborne
 
    SeqFeatures and Annotations will make the most sense if you're already
    somewhat familiar with Bioperl and its central Seq and SeqIO objects.
-   The reader is referred to the [15]bptutorial, the module
-   documentation, and the [16]SeqIO HOWTO for more information on these
+   The reader is referred to the [16]bptutorial, the module
+   documentation, and the [17]SeqIO HOWTO for more information on these
    topics. Here's a bit of code, to summarize:
 
         # BAB55667.gb is a Genbank file, and Bioperl knows that it
-         # is a Genbank file because of the '.gb' file suffix
+        # is a Genbank file because of the '.gb' file suffix
         use Bio::SeqIO;
 
         my $seqio_object = Bio::SeqIO->new(-file => "BAB55667.gb" );
         my $seq_object = $seqio_object->next_seq;
 
-   [Note] Note
 
-   This object, $seq_object, is actually a [17]Bio::Seq::RichSeq object -
-   can a [18]PrimarySeq object, the simple parent of all Sequence
+   [Note]
+   Note
+
+   This object, $seq_object, is actually a [18]Bio::Seq::RichSeq object -
+   can a [19]PrimarySeq object, the simple parent of all Sequence
    objects, have a feature or an annotation? No.
 
    Now that we have a sequence object in hand we can examine its features
@@ -171,24 +173,36 @@ FEATURES             Location/Qualifiers
 
 
    Features in Bioperl are accessed using their tags, either a "primary
-   tag" or a plain "tag". Examples of primary tags in this text are
-   "source", "gene", and "CDS". Plain tags in this table include
-   "organism" (/organism="Homo sapiens"), "note" (/note="ND"), "db_xref"
-   (/db_xref="taxon:9606"), and "translation"
-   (/translation="MRKHVL...HCEECNS").
+   tag" or a plain "tag". Examples of primary tags and tags in this
+   Genbank entry are shown below. You can see that in this case the
+   primary tag is a means to access the tags and it's the tags that are
+   associated with the data from the file.
 
-   When a Genbank file like this is parsed the feature data is converted
-   into objects, specifically [19]Bio::SeqFeature::Generic objects. How
-   many? In this case 3, one for each of the primary tags.
+    Tag name    Tag type      Tag value
+   source      primary tag
+   CDS         primary tag
+   gene        primary tag
+   organism    tag         Homo sapiens
+   note        tag         ND
+   protein_id  tag         NP_000257.1
+   translation tag         MRKHVL...HCEECNS
+
+   Table 1. Tag Examples
+
+   When a Genbank file like the one above is parsed the feature data is
+   converted into objects, specifically [20]Bio::SeqFeature::Generic
+   objects. How many? In this case 3, one for each of the primary tags.
 
    In other parts of the Bioperl documentation one finds discussions of
-   the "SeqFeature object", but there's more than one of these, so what
-   is this a reference to? More than likely it's referring to this same
-   [20]Bio::SeqFeature::Generic object. Think of it as the default
-   SeqFeature object. Now, should you care what kind of object is being
-   made? For the most part, no, you can write lots of useful and powerful
-   Bioperl code without ever knowing these specific details.
-   [Tip] Tip
+   the "SeqFeature object", but there's more than one kind of these, as
+   we'll see later, so what is this a reference to? More than likely it's
+   referring to this same [21]Bio::SeqFeature::Generic object. Think of
+   it as the default SeqFeature object. Now, should you care what kind of
+   object is being made? For the most part no, you can write lots of
+   useful and powerful Bioperl code without ever knowing these specific
+   details.
+   [Tip]
+   Tip
 
    By the way, how does one know what kind of object one has in hand? Try
    something like:
@@ -199,11 +213,11 @@ FEATURES             Location/Qualifiers
    information, and the values are always returned as arrays. A simple
    way to access all the data in the features of a Seq object would look
    something like this:
-        foreach my $feat_object ($seq_object->get_SeqFeatures) {
+        for my $feat_object ($seq_object->get_SeqFeatures) {
            print "primary tag: ", $feat_object->primary_tag, "\n";
-           foreach my $tag ($feat_object->get_all_tags) {
+           for my $tag ($feat_object->get_all_tags) {
               print "  tag: ", $tag, "\n";
-              foreach my $value ($feat_object->get_tag_values($tag)) {
+              for my $value ($feat_object->get_tag_values($tag)) {
                  print "    value: ", $value, "\n";
               }
            }
@@ -245,30 +259,31 @@ primary tag: CDS
    So to retrieve specific values, like all the database identifiers, you
    could do:
 
-      foreach my $feat_object ($seq_object->get_SeqFeatures) {
+      for my $feat_object ($seq_object->get_SeqFeatures) {
          push @ids,$feat_object->get_tag_values("db_xref")
               if ($feat_object->has_tag("db_xref"));
       }
 
 
-   [Important] Important
+   [Important]
+   Important
 
-   Make sure to include that "if ($feat_object->has_tag("<tag>"))" part,
+   Make sure to include that if ($feat_object->has_tag("<tag>")) part,
    otherwise you'll get errors when the feature does not have the tag
    you're requesting.
 
    One last note on Genbank features. The Bioperl parsers for Genbank and
    EMBL are built to respect the specification for the feature tables
-   agreed upon by Genbank, EMBL, and DDBJ (see [21]Feature Table
+   agreed upon by Genbank, EMBL, and DDBJ (see [22]Feature Table
    Definition for the details). Check this page if you're interested in a
    complete listing and description of all the Genbank, EMBL, and DDBJ
    feature tags.
 
-   Despite this specification some non-standard feature descriptors have
-   crept into Genbank, like "bond". When the Bioperl Genbank parser
-   encounters a non-standard feature like this it's going to throw a
-   fatal exception. The work-around is to use eval{} so your script
-   doesn't die, something like:
+   Despite this specification some non-standard feature tags have crept
+   into Genbank, like "bond". When the Bioperl Genbank parser encounters
+   a non-standard feature like this it's going to throw a fatal
+   exception. The work-around is to use eval{} so your script doesn't
+   die, something like:
 
         use Bio::SeqIO;
 
@@ -277,13 +292,12 @@ primary tag: CDS
                                            -format => "genbank");
         eval { $seq_object = $seqio_object->next_seq; };
         # if there's an error
-   print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
-
+        print "Problem in $gb_file. Bad feature perhaps?\n" if $@;
 
 4. Getting Sequences
 
    One commonly asked question is "How do I get the sequence of a
-   SeqFeature?" The answer is "it depends on what you're looking for". If
+   SeqFeature?" The answer is "It depends on what you're looking for." If
    you'd like the sequence of the parent, the sequence object that the
    SeqFeature is associated with, then use entire_seq():
 
@@ -291,7 +305,7 @@ primary tag: CDS
 
 
    This doesn't return the parent's sequence directly but rather a
-   [22]Bio::PrimarySeq object corresponding to the parent sequence. Now
+   [23]Bio::PrimarySeq object corresponding to the parent sequence. Now
    that you have this object you can call its seq() method to get the
    sequence string, or you could do this all in one step:
 
@@ -320,10 +334,10 @@ FEATURES             Location/Qualifiers
    seq()         103..157
    spliced_seq() 103..111,121..157
 
-   Table 1. Sequence retrieval methods
+   Table 2. Sequence retrieval methods
 
    It's not unusual for a Genbank file to have multiple CDS or gene
-   features (and recall that 'CDS' or 'gene' are common primary tags in
+   features (and recall that 'CDS' and 'gene' are common primary tags in
    Genbank format), each with a number of tags, like 'note',
    'protein_id', or 'product'. How can we get, say, the nucleotide
    sequences and gene names from all these CDS features? By putting all
@@ -334,13 +348,13 @@ FEATURES             Location/Qualifiers
         my $seqio_object = Bio::SeqIO->new(-file => $gb_file);
         my $seq_object = $seqio_object->next_seq;
 
-        foreach my $feat_object ($seq_object->get_SeqFeatures) {
+        for my $feat_object ($seq_object->get_SeqFeatures) {
           if ($feat_object->primary_tag eq "CDS") {
             print $feat_object->spliced_seq->seq,"\n";
         # e.g. 'ATTATTTTCGCTCGCTTCTCGCGCTTTTTGAGATAAGGTCGCGT...'
             if ($feat->has_tag('gene')) {
-              foreach my $val ($feat->get_tag_values('gene')){
-              print "gene: ",$val,"\n";
+              for my $val ($feat->get_tag_values('gene')){
+                print "gene: ",$val,"\n";
         # e.g. 'NDP', from a line like '/gene="NDP"'
               }
             }
@@ -401,7 +415,7 @@ FEATURES             Location/Qualifiers
    WITHIN  ((5.10)..100)
    BETWEEN (99^100)
 
-   Table 2. Location Examples
+   Table 3. Location Examples
 
    One type that might not be self-explanatory is 'WITHIN'. The example
    means "starting somewhere between positions 5 and 10, inclusive, and
@@ -414,13 +428,13 @@ FEATURES             Location/Qualifiers
    start and end positions, getting the positions could look like this:
 
         # polyA_signal    1811..1815
-         #                 /gene="NDP"
+        #                 /gene="NDP"
         my $start = $feat_object->location->start;
         my $end = $feat_object->location->end;
 
 
-   By now you know that the location() method returns a Location object -
-   this object has end() and start() methods.
+   By now you've figured out that the location() method returns a
+   Location object - this object has end() and start() methods.
 
    Another way of describing a feature in Genbank involves multiple start
    and end positions. These could be called "split" locations, and a very
@@ -429,10 +443,10 @@ FEATURES             Location/Qualifiers
    specialized object, SplitLocation, which is a container for Location
    objects:
 
-       foreach my $feature ($seqobj->top_SeqFeatures){
+       for my $feature ($seqobj->top_SeqFeatures){
          if ( $feature->location->isa('Bio::Location::SplitLocationI')
                         && $feature->primary_tag eq 'CDS' )  {
-           foreach my $location ( $feature->location->sub_Location ) {
+           for my $location ( $feature->location->sub_Location ) {
              print $location->start . ".." . $location->end . "\n";
            }
          }
@@ -445,7 +459,7 @@ FEATURES             Location/Qualifiers
    file is accessible both as a feature and through a specialized object.
    Taxonomic information on a sequence, below, can be accessed through a
    Species object as well as a value to the "organism" tag, and you'll
-   get more information from the [23]Bio::Species object.
+   get more information from the [24]Bio::Species object.
 
 SOURCE      human.
   ORGANISM  Homo sapiens
@@ -470,13 +484,15 @@ SOURCE      human.
    The reason that ORGANISM isn't treated only as a plain tag is that
    there are a variety of things one would want to do with taxonomic
    information, so returning just an array wouldn't suffice. See the
-   documentation on [24]Bio::Species for more information.
+   documentation on [25]Bio::Species for more information.
 
 7. Annotations from Genbank
 
-   There's still quite a bit of data left our Genbank files that's not in
-   SeqFeature objects, and much of it is parsed into Annotation objects.
-   In order to get access to these objects we can get an
+   There's still quite a bit of data left in our Genbank files that's not
+   in SeqFeature objects, and much of it is parsed into Annotation
+   objects. Annotations, if you recall, are those values that are
+   assigned to a sequence that have no specific location on that
+   sequence. In order to get access to these objects we can get an
    AnnotationCollection object, which is exactly what it sounds like:
 
         my $io = Bio::SeqIO->new(-file => $file, -format => "genbank" );
@@ -487,9 +503,9 @@ SOURCE      human.
    Now we can access each Annotation in the AnnotationCollection object.
    The Annotation objects can be retrieved in arrays:
 
-        foreach my $key ( $anno_collection->get_all_annotation_keys ) {
+        for my $key ( $anno_collection->get_all_annotation_keys ) {
           my @annotations = $anno_collection->get_Annotations($key);
-          foreach my $value ( @annotations ) {
+          for my $value ( @annotations ) {
             print "tagname : ", $value->tagname, "\n";
             # $value is an Bio::Annotation, and has an "as_text" method
             print "  annotation value: ", $value->as_text, "\n";
@@ -525,16 +541,17 @@ tagname : date_changed
    The following is a list of some of the common Annotations, their keys
    in Bioperl, and what they're derived from in Genbank files:
 
-   Genbank Text         Key         Object Type         Note
-   COMMENT      comment             Comment    
-   SEGMENT      segment             SimpleValue e.g. "1 of 2"
-   ORIGIN       origin              SimpleValue e.g. "X Chromosome."
-   REFERENCE    reference           Reference  
-   INV          date_changed        SimpleValue e.g. "08-JUL-1994"
-   KEYWORDS     keyword             SimpleValue
-   ACCESSION    secondary_accession SimpleValue 2nd of 2 accessions
+   Genbank Text         Key           Object Type              Note
+   COMMENT      comment             [26]Comment    
+   SEGMENT      segment             [27]SimpleValue e.g. "1 of 2"
+   ORIGIN       origin              [28]SimpleValue e.g. "X Chromosome."
+   REFERENCE    reference           [29]Reference  
+   INV          date_changed        [30]SimpleValue e.g. "08-JUL-1994"
+   KEYWORDS     keyword             [31]SimpleValue
+   ACCESSION    secondary_accession [32]SimpleValue 2nd of 2 accessions
+   DBSOURCE     dblink              [33]DBLink      Link to entry in a database
 
-   Table 3. Genbank Annotations
+   Table 4. Genbank Annotations
 
    Some Annotation objects, like Reference, make use of a hash_tree()
    method, which returns a hash reference. This is a more thorough way to
@@ -570,8 +587,8 @@ start: 1
 
    The simplest bits of Genbank text, like KEYWORDS, end up in these
    Annotation::SimpleValue objects, the COMMENT ends up in a
-   [25]Bio::Annotation::Comment object, and references are tranformed
-   into [26]Bio::Annotation::Reference objects. Some of these specialized
+   [34]Bio::Annotation::Comment object, and references are tranformed
+   into [35]Bio::Annotation::Reference objects. Some of these specialized
    objects will have specialized methods. Take the Annotation::Reference
    object, for example:
 
@@ -598,9 +615,9 @@ start: 1
    pid                      string
    division                 string
 
-   Table 4. RichSeq methods
+   Table 5. RichSeq methods
 
-   These [27]Bio::Seq::RichSeq objects are created automatically when you
+   These [36]Bio::Seq::RichSeq objects are created automatically when you
    use SeqIO to read from EMBL, GenBank, GAME, Chado XML, TIGR XML,
    Locuslink, BSML, KEGG, and SwissProt sequence files. However, it's not
    guaranteed that each of these formats will supply data for all of the
@@ -623,7 +640,7 @@ start: 1
    KEGG      kegg       yes        yes
    SwissProt swiss      yes        yes
 
-   Table 5. Formats, SeqFeatures, and Annotations
+   Table 6. Formats, SeqFeatures, and Annotations
 
    How does one find out what data is in which object in these formats?
    In general the individual module documentation is not going to provide
@@ -662,10 +679,9 @@ GO: cellular component|integral to plasma membrane|P|GO:0005887|Proteome|839693
 
    First collect all the annotations:
 
-        use Bio::SeqIO;
+use Bio::SeqIO;
 
-        my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locusl
-ink")->
+my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
                next_seq->annotation->get_Annotations;
 
 
@@ -673,51 +689,51 @@ ink")->
    as_text strings as keys and the concatenated tagnames and object types
    as values:
 
-        my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) } @an
-notations;
+        my %tagname_type = map {$_->as_text,($_->tagname . " " . ref($_)) }
+                  @annotations;
 
 
    The contents of the %tagname_type hash will look like the table below.
 
    as_text() tagname() ref()
    Direct database link to AAA93114 in database GenBank dblink
-   [28]Bio::Annotation::DBLink
-   Value: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=52931
-   URL [29]Bio::Annotation::SimpleValue
-   Value: 8 CHR [30]Bio::Annotation::SimpleValue
-   Direct database link to NP_000671 in database RefSeq dblink
-   [31]Bio::Annotation::DBLink
-   Direct database link to SGC35558 in database STS dblink
-   [32]Bio::Annotation::DBLink
-   Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily
-   comment [33]Bio::Annotation::Comment
-   Value: adrenergic, alpha-1A-, receptor OFFICIAL_GENE_NAME
-   [34]Bio::Annotation::SimpleValue
-   Value: ADRA1C ALIAS_SYMBOL [35]Bio::Annotation::SimpleValue
-   Value: adrenergic, alpha -1A-, receptor ALIAS_PROT
-   [36]Bio::Annotation::SimpleValue
-   Direct database link to NM_000680 in database RefSeq dblink
    [37]Bio::Annotation::DBLink
-   Value: ADRA1A OFFICIAL_SYMBOL [38]Bio::Annotation::SimpleValue
-   Direct database link to SGC35557 in database STS dblink
-   [39]Bio::Annotation::DBLink
-   Value: 8p21-p11.2 MAP [40]Bio::Annotation::SimpleValue
-   Direct database link to 104221 in database MIM dblink
+   Value: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=52931
+   URL [38]Bio::Annotation::SimpleValue
+   Value: 8 CHR [39]Bio::Annotation::SimpleValue
+   Direct database link to NP_000671 in database RefSeq dblink
+   [40]Bio::Annotation::DBLink
+   Direct database link to SGC35558 in database STS dblink
    [41]Bio::Annotation::DBLink
-   Direct database link to D8S2033 in database STS dblink
-   [42]Bio::Annotation::DBLink
-   Direct database link to none in database GenBank dblink
-   [43]Bio::Annotation::DBLink
-   cellular component|integral to plasma membrane|GO:0005887 cellular
-   component [44]Bio::Annotation::OntologyTerm
-   Direct database link to Hs.52931 in database UniGene dblink
-   [45]Bio::Annotation::DBLink
-   Direct database link to M11313 in database GenBank dblink
+   Comment: Summary: Alpha-1-ARs are members of the GPCR superfamily
+   comment [42]Bio::Annotation::Comment
+   Value: adrenergic, alpha-1A-, receptor OFFICIAL_GENE_NAME
+   [43]Bio::Annotation::SimpleValue
+   Value: ADRA1C ALIAS_SYMBOL [44]Bio::Annotation::SimpleValue
+   Value: adrenergic, alpha -1A-, receptor ALIAS_PROT
+   [45]Bio::Annotation::SimpleValue
+   Direct database link to NM_000680 in database RefSeq dblink
    [46]Bio::Annotation::DBLink
+   Value: ADRA1A OFFICIAL_SYMBOL [47]Bio::Annotation::SimpleValue
+   Direct database link to SGC35557 in database STS dblink
+   [48]Bio::Annotation::DBLink
+   Value: 8p21-p11.2 MAP [49]Bio::Annotation::SimpleValue
+   Direct database link to 104221 in database MIM dblink
+   [50]Bio::Annotation::DBLink
+   Direct database link to D8S2033 in database STS dblink
+   [51]Bio::Annotation::DBLink
+   Direct database link to none in database GenBank dblink
+   [52]Bio::Annotation::DBLink
+   cellular component|integral to plasma membrane|GO:0005887 cellular
+   component [53]Bio::Annotation::OntologyTerm
+   Direct database link to Hs.52931 in database UniGene dblink
+   [54]Bio::Annotation::DBLink
+   Direct database link to M11313 in database GenBank dblink
+   [55]Bio::Annotation::DBLink
    Direct database link to P35348 in database GenBank dblink
-   [47]Bio::Annotation::DBLink
+   [56]Bio::Annotation::DBLink
 
-   Table 6. Locuslink Annotations
+   Table 7. Locuslink Annotations
 
    The output from the script shows that Locuslink Annotations come in a
    variety of types, including DBLink, OntologyTerm, Comment, and
@@ -728,8 +744,8 @@ notations;
    If you were only interested in a certain type of Annotation you could
    retrieve it efficently with something like this:
 
-        @term_annotations = map { $_->isa("Bio::Ontology::TermI"); } $seq_objec
-t->get_Annotations();
+           @term_annotations = map { $_->isa("Bio::Ontology::TermI"); }
+                      $seq_object->get_Annotations();
 
 
    To completely parse these sequence formats you may also need to use
@@ -745,15 +761,14 @@ t->get_Annotations();
 
    We've taken a look at getting data from SeqFeature and Annotation
    objects, but what about creating these objects when you already have
-   the data? The [48]Bio::SeqFeature::Generic object is probably the best
+   the data? The [57]Bio::SeqFeature::Generic object is probably the best
    SeqFeature object for this purpose, in part because of its
    flexibility. Let's assume we have a sequence that has an interesting
    sub-sequence, going from position 10 to 22.
 
         use Bio::SeqFeature::Generic;
 
-        # create the feature and add additional data while initializing,
-        # an author and a note
+        # create the feature with some data, evidence and a note
         my $feat = new Bio::SeqFeature::Generic(-start  => 10,
                                                 -end    => 22,
                                                 -strand => 1,
@@ -762,7 +777,7 @@ ted',
                                                             note   => 'TATA box
 ' } );
 
-   The [49]SeqFeature::Generic object offers the user a "tag system" for
+   The [58]SeqFeature::Generic object offers the user a "tag system" for
    addition of data that's not explicitly accounted for by its methods,
    that's what the "-tag" is for, above. If you want to add your own
    custom data to a feature you could use the "-tag" tag or you could add
@@ -775,7 +790,7 @@ ted',
         for my $tag (@arr) {
           print $tag,":",$feat->get_tag_values($tag),"  ";
         }
-         # prints out:
+        # prints out:
         # author:john  match1:PF000123 e-7.2  match2:PF002534 e-3.1  note:TATA
 box
 
@@ -791,7 +806,7 @@ box
         # create a simple Sequence object
         my $seq_obj = Bio::Seq->new(-seq => "attcccccttataaaattttttttttgaggggtg
 gg",
-                                     -display_id => "BIO52" );
+                                    -display_id => "BIO52" );
         # then add the feature we've created to the sequence
         $seq_obj->add_SeqFeature($feat);
 
@@ -845,179 +860,189 @@ ORIGIN
 11. Additional Information
 
    If you would like to learn about representing sequences and features
-   in graphical form take a look at the [50]Graphics HOWTO. The
+   in graphical form take a look at the [59]Graphics HOWTO. The
    documentation for each of the individual SeqFeature, Range, Location
    and Annotation modules is also very useful, here's a list of them. If
    you have questions or comments that aren't addressed herein then write
    the Bioperl community at bioperl-l@bioperl.org.
 
    SeqFeature Modules
-   [51]SeqFeatureI.pm
-   [52]SeqFeature/AnnotationAdaptor.pm
-   [53]SeqFeature/FeaturePair.pm
-   [54]SeqFeature/Similarity.pm
-   [55]SeqFeature/Generic.pm
-   [56]SeqFeature/SimilarityPair.pm
-   [57]SeqFeature/PositionProxy.pm
-   [58]SeqFeature/Computation.pm
-   [59]SeqFeature/Primer.pm
-   [60]SeqFeature/Collection.pm
-   [61]SeqFeature/CollectionI.pm
-   [62]SeqFeature/SiRNA/Pair.pm
-   [63]SeqFeature/SiRNA/Oligo.pm
-   [64]SeqFeature/Gene/GeneStructure.pm
-   [65]SeqFeature/Gene/NC_Feature.pm
-   [66]SeqFeature/Gene/Transcript.pm
-   [67]SeqFeature/Gene/Exon.pm
-   [68]SeqFeature/Gene/GeneStructureI.pm
-   [69]SeqFeature/Gene/Poly_A_site.pm
-   [70]SeqFeature/Gene/TranscriptI.pm
-   [71]SeqFeature/Gene/ExonI.pm
-   [72]SeqFeature/Gene/Intron.pm
-   [73]SeqFeature/Gene/Promoter.pm
-   [74]SeqFeature/Gene/UTR.pm
-   [75]SeqFeature/Tools/Unflattener.pm
-   [76]SeqFeature/Tools/TypeMapper.pm
+   [60]SeqFeatureI.pm
+   [61]SeqFeature/AnnotationAdaptor.pm
+   [62]SeqFeature/FeaturePair.pm
+   [63]SeqFeature/Similarity.pm
+   [64]SeqFeature/Generic.pm
+   [65]SeqFeature/SimilarityPair.pm
+   [66]SeqFeature/PositionProxy.pm
+   [67]SeqFeature/Computation.pm
+   [68]SeqFeature/Primer.pm
+   [69]SeqFeature/Collection.pm
+   [70]SeqFeature/CollectionI.pm
+   [71]SeqFeature/SiRNA/Pair.pm
+   [72]SeqFeature/SiRNA/Oligo.pm
+   [73]SeqFeature/Gene/GeneStructure.pm
+   [74]SeqFeature/Gene/NC_Feature.pm
+   [75]SeqFeature/Gene/Transcript.pm
+   [76]SeqFeature/Gene/Exon.pm
+   [77]SeqFeature/Gene/GeneStructureI.pm
+   [78]SeqFeature/Gene/Poly_A_site.pm
+   [79]SeqFeature/Gene/TranscriptI.pm
+   [80]SeqFeature/Gene/ExonI.pm
+   [81]SeqFeature/Gene/Intron.pm
+   [82]SeqFeature/Gene/Promoter.pm
+   [83]SeqFeature/Gene/UTR.pm
+   [84]SeqFeature/Tools/Unflattener.pm
+   [85]SeqFeature/Tools/TypeMapper.pm
 
    Annotation Modules
-   [77]AnnotationI.pm
-   [78]AnnotatableI.pm
-   [79]AnnotationCollectionI.pm
-   [80]Annotation/AnnotationFactory.pm
-   [81]Annotation/Comment.pm
-   [82]Annotation/Reference.pm
-   [83]Annotation/TypeManager.pm
-   [84]Annotation/DBLink.pm
-   [85]Annotation/SimpleValue.pm
-   [86]Annotation/Collection.pm
-   [87]Annotation/OntologyTerm.pm
-   [88]Annotation/StructuredValue.pm
+   [86]AnnotationI.pm
+   [87]AnnotatableI.pm
+   [88]AnnotationCollectionI.pm
+   [89]Annotation/AnnotationFactory.pm
+   [90]Annotation/Comment.pm
+   [91]Annotation/Reference.pm
+   [92]Annotation/TypeManager.pm
+   [93]Annotation/DBLink.pm
+   [94]Annotation/SimpleValue.pm
+   [95]Annotation/Collection.pm
+   [96]Annotation/OntologyTerm.pm
+   [97]Annotation/StructuredValue.pm
 
    Location Modules
-   [89]LocationI.pm
-   [90]LocatableSeq.pm
-   [91]Location/Atomic.pm
-   [92]Location/AvWithinCoordPolicy.pm
-   [93]Location/CoordinatePolicyI.pm
-   [94]Location/Fuzzy.pm
-   [95]Location/FuzzyLocationI.pm
-   [96]Location/NarrowestCoordPolicy.pm
-   [97]Location/Simple.pm
-   [98]Location/Split.pm
-   [99]Location/SplitLocationI.pm
-   [100]Location/WidestCoordPolicy.pm
+   [98]LocationI.pm
+   [99]LocatableSeq.pm
+   [100]Location/Atomic.pm
+   [101]Location/AvWithinCoordPolicy.pm
+   [102]Location/CoordinatePolicyI.pm
+   [103]Location/Fuzzy.pm
+   [104]Location/FuzzyLocationI.pm
+   [105]Location/NarrowestCoordPolicy.pm
+   [106]Location/Simple.pm
+   [107]Location/Split.pm
+   [108]Location/SplitLocationI.pm
+   [109]Location/WidestCoordPolicy.pm
 
    Range Modules
-   [101]RangeI.pm
-   [102]Range.pm
+   [110]RangeI.pm
+   [111]Range.pm
 
 12. Acknowledgements
 
    Thanks to Steven Lembark for comments and neat code discussions.
 
-   BioPerl DocBook
+   BioPerl DocBook ([112]BioPerl)
 
 References
 
-   1. http://www.cognia.com/
-   2. mailto:brian_osborne-at-cognia.com
-   3. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#introduction
-   4. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#basics
-   5. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#feat_from_genbank
-   6. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#sequences
-   7. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#location
-   8. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#other_objects
-   9. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#anno_from_genbank
-  10. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#direct
-  11. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#other_formats
-  12. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#annotation
-  13. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#in_addition
-  14. file://localhost/cygdrive/c/docbook/deploy/Feature-Annotation/Feature-Annotation.html#acknowledgements
-  15. http://bioperl.org/Core/Latest/bptutorial.html
-  16. http://bioperl.org/HOWTOs/SeqIO/index.html
-  17. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html
-  18. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
-  19. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
+   1. http://bioperl.org/
+   2. http://www.cognia.com/
+   3. mailto:brian_osborne-at-cognia.com
+   4. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#introduction
+   5. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#basics
+   6. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#feat_from_genbank
+   7. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#sequences
+   8. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#location
+   9. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#other_objects
+  10. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#anno_from_genbank
+  11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#direct
+  12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#other_formats
+  13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#annotation
+  14. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#in_addition
+  15. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#acknowledgements
+  16. http://bioperl.org/Core/Latest/bptutorial.html
+  17. http://bioperl.org/HOWTOs/SeqIO/index.html
+  18. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html
+  19. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
   20. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
-  21. http://www.ncbi.nlm.nih.gov/projects/collab/FT/
-  22. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
-  23. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
+  21. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
+  22. http://www.ncbi.nlm.nih.gov/projects/collab/FT/
+  23. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
   24. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
-  25. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
-  26. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html
-  27. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html
-  28. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  29. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  25. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
+  26. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
+  27. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  28. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  29. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html
   30. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
-  31. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  32. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  33. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
-  34. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
-  35. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
-  36. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  31. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  32. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  33. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  34. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
+  35. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html
+  36. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html
   37. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
   38. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
-  39. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  40. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  39. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  40. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
   41. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  42. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  43. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  44. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html
-  45. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  42. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
+  43. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  44. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  45. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
   46. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  47. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  48. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
-  49. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
-  50. http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html
-  51. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html
-  52. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/AnnotationAdaptor.html
-  53. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/FeaturePair.html
-  54. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Similarity.html
-  55. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
-  56. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SimilarityPair.html
-  57. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/PositionProxy.html
-  58. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Computation.html
-  59. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Primer.html
-  60. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Collection.html
-  61. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/CollectionI.html
-  62. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Pair.html
-  63. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Oligo.html
-  64. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructure.html
-  65. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/NC_Feature.html
-  66. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Transcript.html
-  67. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Exon.html
-  68. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructureI.html
-  69. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Poly_A_site.html
-  70. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/TranscriptI.html
-  71. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/ExonI.html
-  72. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Intron.html
-  73. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Promoter.html
-  74. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/UTR.html
-  75. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/Unflattener.html
-  76. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/TypeMapper.html
-  77. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationI.html
-  78. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotatableI.html
-  79. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationCollectionI.html
-  80. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/AnnotationFactory.html
-  81. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
-  82. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html
-  83. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/TypeManager.html
-  84. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
-  85. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
-  86. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Collection.html
-  87. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html
-  88. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/StructuredValue.html
-  89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocationI.html
-  90. http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocatableSeq.html
-  91. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Atomic.html
-  92. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/AvWithinCoordPolicy.html
-  93. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/CoordinatePolicyI.html
-  94. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Fuzzy.html
-  95. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/FuzzyLocationI.html
-  96. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/NarrowestCoordPolicy.html
-  97. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Simple.html
-  98. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Split.html
-  99. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/SplitLocationI.html
- 100. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/WidestCoordPolicy.html
- 101. http://doc.bioperl.org/releases/bioperl-1.4/Bio/RangeI.html
- 102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Range.html
+  47. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  48. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  49. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  50. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  51. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  52. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  53. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html
+  54. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  55. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  56. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  57. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
+  58. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
+  59. http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html
+  60. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html
+  61. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/AnnotationAdaptor.html
+  62. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/FeaturePair.html
+  63. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Similarity.html
+  64. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
+  65. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SimilarityPair.html
+  66. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/PositionProxy.html
+  67. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Computation.html
+  68. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Primer.html
+  69. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Collection.html
+  70. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/CollectionI.html
+  71. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Pair.html
+  72. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/SiRNA/Oligo.html
+  73. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructure.html
+  74. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/NC_Feature.html
+  75. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Transcript.html
+  76. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Exon.html
+  77. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/GeneStructureI.html
+  78. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Poly_A_site.html
+  79. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/TranscriptI.html
+  80. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/ExonI.html
+  81. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Intron.html
+  82. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/Promoter.html
+  83. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Gene/UTR.html
+  84. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/Unflattener.html
+  85. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Tools/TypeMapper.html
+  86. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationI.html
+  87. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotatableI.html
+  88. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AnnotationCollectionI.html
+  89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/AnnotationFactory.html
+  90. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Comment.html
+  91. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Reference.html
+  92. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/TypeManager.html
+  93. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
+  94. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/SimpleValue.html
+  95. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/Collection.html
+  96. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/OntologyTerm.html
+  97. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/StructuredValue.html
+  98. http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocationI.html
+  99. http://doc.bioperl.org/releases/bioperl-1.4/Bio/LocatableSeq.html
+ 100. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Atomic.html
+ 101. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/AvWithinCoordPolicy.html
+ 102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/CoordinatePolicyI.html
+ 103. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Fuzzy.html
+ 104. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/FuzzyLocationI.html
+ 105. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/NarrowestCoordPolicy.html
+ 106. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Simple.html
+ 107. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/Split.html
+ 108. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/SplitLocationI.html
+ 109. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Location/WidestCoordPolicy.html
+ 110. http://doc.bioperl.org/releases/bioperl-1.4/Bio/RangeI.html
+ 111. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Range.html
+ 112. http://bioperl.org/

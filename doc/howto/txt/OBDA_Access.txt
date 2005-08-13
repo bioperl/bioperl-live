@@ -1,37 +1,37 @@
 
-   BioPerl DocBook
+   BioPerl DocBook ([1]BioPerl)
 
 OBDA Access HOWTO
 
 Aaron Mackey
 
-   [1]University of Virginia
+   [2]University of Virginia
 
-     <[2]amackey@virginia.edu>
+     <[3]amackey@virginia.edu>
 
 Brian Osborne
 
-   [3]Cognia Corporation
+   [4]Cognia Corporation
 
-     <[4]brian-at-cognia.com>
+     <[5]brian-at-cognia.com>
 
 Peter Schattner
 
-   [5]UCSC
+   [6]UCSC
 
-     <[6]schattner@alum.mit.edu>
+     <[7]schattner@alum.mit.edu>
 
 Heikki Lehvaslaiho
 
-   [7]EBI
+   [8]EBI
 
-     <[8]heikki@ebi.ac.uk>
+     <[9]heikki@ebi.ac.uk>
 
 Lincoln Stein
 
-   [9]Cold Spring Harbor Laboratory
+   [10]Cold Spring Harbor Laboratory
 
-     <[10]lstein@cshl.org>
+     <[11]lstein@cshl.org>
 
    This document is copyright Lincoln Stein, 2002. For reproduction other
    than personal use please contact lstein at cshl.org
@@ -55,23 +55,23 @@ Lincoln Stein
 
    Abstract
 
-   This is a HOWTO written in DocBook (SGML) that explains how to set up
+   This is a HOWTO written in DocBook (XML) that explains how to set up
    and use the Open Biological Database Access system.
      _________________________________________________________________
 
    Table of Contents
 
-   1. [11]Introduction
-   2. [12]Using the OBDA Registry System
-   3. [13]Installing the Registry File
-   4. [14]Modifying the Search Path
-   5. [15]Format of the Registry File
-   6. [16]The Protocol Tag
-   7. [17]The Location Tag
-   8. [18]Other Tags
-   9. [19]Installing Local Databases
-   10. [20]Writing code to use the Registry
-   11. [21]Using biogetseq to Access Registry Databases
+   [12]1. Introduction
+   [13]2. Using the OBDA Registry System
+   [14]3. Installing the Registry File
+   [15]4. Modifying the Search Path
+   [16]5. Format of the Registry File
+   [17]6. The Protocol Tag
+   [18]7. The Location Tag
+   [19]8. Other Tags
+   [20]9. Installing Local Databases
+   [21]10. Writing code to use the Registry
+   [22]11. Using biogetseq to Access Registry Databases
 
 1. Introduction
 
@@ -94,8 +94,9 @@ Lincoln Stein
    OBDA-registry configuration file and how to access data from the
    databases referred to in the configuration file using a perl script as
    well as from the command line. The Web site for OBDA is
-   [22]obda.open-bio.org.
-   [Note] Note
+   [23]obda.open-bio.org.
+   [Note]
+   Note
 
    Accessing data via the OBDA system is optional in Bioperl. It is still
    possible to access sequence data via the old database-format-specific
@@ -143,7 +144,8 @@ Lincoln Stein
    semicolon-delimited string of directories and URLs, for example:
  OBDA_SEARCH_PATH=/home/lstein/;http://foo.org/
 
-   [Important] Important
+   [Important]
+   Important
 
    Note that the fact that the search path is for an entire file
    (seqdatabase.ini) rather than for single entry (e.g. 'genbank') means
@@ -223,7 +225,8 @@ Lincoln Stein
    you will need to have an instantiated relational database conforming
    to the BioSQL schema, and install the bioperl-db distribution.
 
-   [Important] Important
+   [Important]
+   Important
 
    Support for the biosql protocol is disabled as of Bioperl version 1.4.
    We hope to remedy this in a subsequent release.
@@ -267,13 +270,14 @@ Lincoln Stein
    create and initialize a local database. See the following
    documentation on how to do this:
 
-   flat protocol:[23]Flat Databases HOWTO
+   flat protocol:[24]Flat Databases HOWTO
 
    biosql protocol: BioSQL INSTALL (from the biosql-schema package,
-   available at [24]obda.open-bio.org). Download the Biosql tar file to
+   available at [25]obda.open-bio.org). Download the Biosql tar file to
    view all the documentation.
 
-   [Important] Important
+   [Important]
+   Important
 
    Support for the biosql protocol in OBDA is disabled as of Bioperl
    version 1.4. We hope to remedy this in a subsequent release.
@@ -324,7 +328,7 @@ Lincoln Stein
    These methods return Bio::Seq objects by searching for their primary
    IDs, accession numbers and accession.version numbers respectively. The
    returned objects have all the methods defined by Bio::Seq (see the
-   appropriate manual page, online at [25]doc.bioperl.org). In line 5, we
+   appropriate manual page, online at [26]doc.bioperl.org). In line 5, we
    call the sequence object's seq() method to fetch and print out the DNA
    or protein string.
 
@@ -355,32 +359,34 @@ Usage: biogetseq --dbname embl --format embl --namespace acc id [ id ... ]*
         % biogetseq -f fasta -n acc J02231 A21530 A10516 > filed.seq
 
 
-   BioPerl DocBook
+   BioPerl DocBook ([27]BioPerl)
 
 References
 
-   1. http://www.virginia.edu/
-   2. mailto:amackey@virginia.edu
-   3. http://www.cognia.com/
-   4. mailto:brian-at-cognia.com
-   5. http://www.ucsc.edu/
-   6. mailto:schattner@alum.mit.edu
-   7. http://ebi.ac.uk/
-   8. mailto:heikki@ebi.ac.uk
-   9. http://www.cshl.org/
-  10. mailto:lstein@cshl.org
-  11. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#introduction
-  12. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#registry
-  13. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#installation
-  14. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#modifying
-  15. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#format
-  16. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#protocol
-  17. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#location
-  18. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#others
-  19. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#local
-  20. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#code
-  21. file://localhost/cygdrive/c/docbook/deploy/OBDA_Access/OBDA_Access.html#biogetseq
-  22. http://obda.open-bio.org/
-  23. http://bioperl.org/HOWTOs/Flat_Databases/index.html
-  24. http://obda.open-bio.org/
-  25. http://doc.bioperl.org/
+   1. http://bioperl.org/
+   2. http://www.virginia.edu/
+   3. mailto:amackey@virginia.edu
+   4. http://www.cognia.com/
+   5. mailto:brian-at-cognia.com
+   6. http://www.ucsc.edu/
+   7. mailto:schattner@alum.mit.edu
+   8. http://ebi.ac.uk/
+   9. mailto:heikki@ebi.ac.uk
+  10. http://www.cshl.org/
+  11. mailto:lstein@cshl.org
+  12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#introduction
+  13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#registry
+  14. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#installation
+  15. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#modifying
+  16. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#format
+  17. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#protocol
+  18. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#location
+  19. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#others
+  20. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#local
+  21. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#code
+  22. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#biogetseq
+  23. http://obda.open-bio.org/
+  24. http://bioperl.org/HOWTOs/Flat_Databases/index.html
+  25. http://obda.open-bio.org/
+  26. http://doc.bioperl.org/
+  27. http://bioperl.org/

@@ -1,5 +1,5 @@
 
-   TXM DocBook ([1]Cognia)
+   BioPerl DocBook ([1]BioPerl)
 
 Beginners HOWTO
 
@@ -21,35 +21,35 @@ James Thompson
    Abstract
 
    This is a HOWTO written in DocBook (XML) that talks about using
-   Bioperl, for biologists who would like to learn more about writing
-   their own bioinformatics scripts using Bioperl.
+   [5]Bioperl, for biologists who would like to learn more about writing
+   their own bioinformatics scripts using [6]Bioperl.
 
-   What is Bioperl? It is an open source bioinformatics toolkit used by
-   researchers all over the world. If you're looking for a script built
-   to fit your exact need it's likely you won't find it in Bioperl. What
-   you will find is a diverse set of Perl modules that will enable you to
-   write your own script, and a commmunity of people who are willing to
-   help you.
+   What is [7]Bioperl? It is an open source bioinformatics toolkit used
+   by researchers all over the world. If you're looking for a script
+   built to fit your exact need it's likely you won't find it in
+   [8]Bioperl. What you will find is a diverse set of Perl modules that
+   will enable you to write your own script, and a commmunity of people
+   who are willing to help you.
      _________________________________________________________________
 
    Table of Contents
 
-   [5]1. Introduction
-   [6]2. Installing Bioperl
-   [7]3. Getting Assistance
-   [8]4. Perl Itself
-   [9]5. Starting to write a script on Unix
-   [10]6. Creating a sequence, and an object
-   [11]7. Writing a sequence to a file
-   [12]8. Retrieving a sequence from a file
-   [13]9. Retrieving a sequence from a database
-   [14]10. The Sequence object
-   [15]11. Example Sequence objects
-   [16]12. BLAST
-   [17]13. Indexing for Fast Retrieval
-   [18]14. More on Bioperl
-   [19]15. Perl's Documentation System
-   [20]16. The Basics of Perl Objects
+   [9]1. Introduction
+   [10]2. Installing Bioperl
+   [11]3. Getting Assistance
+   [12]4. Perl Itself
+   [13]5. Starting to write a script on Unix
+   [14]6. Creating a sequence, and an object
+   [15]7. Writing a sequence to a file
+   [16]8. Retrieving a sequence from a file
+   [17]9. Retrieving a sequence from a database
+   [18]10. The Sequence object
+   [19]11. Example Sequence objects
+   [20]12. BLAST
+   [21]13. Indexing for Fast Retrieval
+   [22]14. More on Bioperl
+   [23]15. Perl's Documentation System
+   [24]16. The Basics of Perl Objects
 
 1. Introduction
 
@@ -58,34 +58,36 @@ James Thompson
    regular basis. Perhaps you'd like to try your hand at automating some
    of these tasks, or you're just curious about learning more about the
    programming side of bioinformatics. In this HOWTO you'll see
-   discussions of some of the common uses of Bioperl, like sequence
+   discussions of some of the common uses of [25]Bioperl, like sequence
    analysis with BLAST and retrieving sequences from public databases.
-   You'll also see how to write Bioperl scripts that chain these tasks
-   together, that's how you'll be able to do really powerful things with
-   Bioperl.
+   You'll also see how to write [26]Bioperl scripts that chain these
+   tasks together, that's how you'll be able to do really powerful things
+   with [27]Bioperl.
 
    You will also see some discussions of software concepts, this can't be
    avoided. The more you understand about programming the better, but all
    efforts will be made to not introduce too much unfamiliar material.
    However, there will be an introducton to modularity, or objects. This
-   is one of the aspects of the Bioperl package that you'll have to come
-   to grips with as you attempt more complex tasks with your scripts.
+   is one of the aspects of the [28]Bioperl package that you'll have to
+   come to grips with as you attempt more complex tasks with your
+   scripts.
 
    One of the challenging aspects of learning a new skill is learning the
    jargon, and programming certainly has its share of interesting terms
    and concepts. Be patient - remember that the programmers learning
    biology have had just as tough a task (if not worse - just ask them!).
-   [Note] Note
+   [Note]
+   Note
 
    This HOWTO does not discuss a very nice module that's designed for
-   beginners, [21]Bio::Perl. The reason is that though this is an
+   beginners, [29]Bio::Perl. The reason is that though this is an
    excellent introductory tool, it is not object-oriented and can't be
-   extended. What we're attempting here is to introduce Bioperl and show
-   you ways to expand your new-found skills.
+   extended. What we're attempting here is to introduce [30]Bioperl and
+   show you ways to expand your new-found skills.
 
-2. Installing Bioperl
+2. Installing [31]Bioperl
 
-   The first thing to determine is the Bioperl platform - Unix or
+   The first thing to determine is the [32]Bioperl platform - Unix or
    Windows? Here are some things to consider, if you're choosing between
    the two.
 
@@ -100,7 +102,7 @@ James Thompson
    probably more stable and more powerful than the available Windows
    machine.
    There may be an administrator taking care of the machine - maybe
-   she'll even install Bioperl for you! Ask and see.
+   she'll even install [33]Bioperl for you! Ask and see.
 
    Unix Disadvantages
 
@@ -115,7 +117,7 @@ James Thompson
    Windows Advantages
 
    Simplicity, if Windows is what you're working with now.
-   Plenty of Bioperl users run it on Windows.
+   Plenty of [34]Bioperl users run it on Windows.
 
    Windows Disadvantages
 
@@ -124,49 +126,50 @@ James Thompson
    details yourself.
    Your computer may not be able to handle serious computation
    gracefully.
-   [Tip] Tip
+   [Tip]
+   Tip
 
    If you decide to use Unix there are many Web pages that can give you a
    good introduction, google "introduction unix" to see more than a few.
 
-   You should also read the instructions for [22]Unix installation or
-   [23]Windows installation. Many of the letters to the the bioperl-l
+   You should also read the instructions for [35]Unix installation or
+   [36]Windows installation. Many of the letters to the the bioperl-l
    mailing list concern problems with installation, and there is a set of
    concerns that come up repeatedly:
 
     1. On Windows, messages like "Error: Failed to download URL
        http://bioperl.org/DIST/GD.ppd", or "Not found". The explanation
-       is that Bioperl does not supply every accessory module that's
-       necessary to run all of Bioperl. You'll need to search other
+       is that [37]Bioperl does not supply every accessory module that's
+       necessary to run all of [38]Bioperl. You'll need to search other
        repositories to install all of these accessory modules. See the
-       [24]INSTALL.WIN file for more information.
+       [39]INSTALL.WIN file for more information.
     2. On Unix, messages like "Can't locate <some-module>.pm in @INC...".
        This means that Perl could not find a particular module and the
        explanation usually is that this module is not installed. You can
-       either install Bundle::Bioperl or install that specific module by
-       hand. See [25]INSTALL for details.
+       either install Bundle::[40]Bioperl or install that specific module
+       by hand. See [41]INSTALL for details.
     3. Seeing messages like "Tests Failed". If you see an error during
        installation consider whether this problem is going to affect your
-       use of Bioperl. There are almost 800 modules in Bioperl, and ten
-       times that many tests are run during the installation. If there's
-       a complaint about GD it's only relevant if you want to use the
-       Bio/Graphics modules, if you see an error about some XML parser
-       it's only going to affect you if you're reading XML files. Yes,
-       you could try and make each and every test pass, but that may be a
-       lot of work, with much of it fixing modules that aren't in Bioperl
-       itself.
+       use of [42]Bioperl. There are almost 800 modules in [43]Bioperl,
+       and ten times that many tests are run during the installation. If
+       there's a complaint about GD it's only relevant if you want to use
+       the Bio/Graphics modules, if you see an error about some XML
+       parser it's only going to affect you if you're reading XML files.
+       Yes, you could try and make each and every test pass, but that may
+       be a lot of work, with much of it fixing modules that aren't in
+       [44]Bioperl itself.
 
 3. Getting Assistance
 
-   People will run into problems installing Bioperl or writing scripts
-   using Bioperl, nothing unusual about that. If you need assistance the
-   way to get it is to mail bioperl-l@bioperl.org. There are a good
-   number of helpful people who regularly read this list but if you want
-   their advice it's best to give sufficent detail.
+   People will run into problems installing [45]Bioperl or writing
+   scripts using [46]Bioperl, nothing unusual about that. If you need
+   assistance the way to get it is to mail bioperl-l@bioperl.org. There
+   are a good number of helpful people who regularly read this list but
+   if you want their advice it's best to give sufficent detail.
 
    Please include:
 
-    1. The version of Bioperl you're working with.
+    1. The version of [47]Bioperl you're working with.
     2. The platform or operating system you're using.
     3. What you are trying to do.
     4. The code that gives the error, if you're writing a script.
@@ -176,10 +179,11 @@ James Thompson
    someone in distress that goes unanswered. The explanation is usually
    that the person neglected to include 1 or more of the details above,
    usually the script or the error messages.
-   [Note] Note
+   [Note]
+   Note
 
    And every once in a while, not often, an email will go unanswered
-   because the the tone is unpleasant. Bioperl is a 100% volunteer
+   because the the tone is unpleasant. [48]Bioperl is a 100% volunteer
    effort, we all have other jobs, complaining about bugs or lack of
    documentation is not the way to make friends!
 
@@ -190,8 +194,8 @@ James Thompson
 
    Perl's own documentation. Do "perldoc perl" from the command-line for
    an introduction.
-   [26]Learning Perl is the most frequently cited beginner's book.
-   [27]Perl in a Nutshell is also good. Not much in the way of examples,
+   [49]Learning Perl is the most frequently cited beginner's book.
+   [50]Perl in a Nutshell is also good. Not much in the way of examples,
    but covers many topics succintly.
 
 5. Starting to write a script on Unix
@@ -242,14 +246,14 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 
 #!/bin/perl -w
 
-   The "-w" flag tells Perl to warn you if and when various common errors
+   The -w flag tells Perl to warn you if and when various common errors
    are encountered, it's useful.
 
 6. Creating a sequence, and an object
 
    Our first script will create a sequence. Well, not just a sequence,
-   you will be creating a "sequence object", since Bioperl is written in
-   an object-oriented way. Why be object-oriented? Why introduce these
+   you will be creating a "sequence object", since [51]Bioperl is written
+   in an object-oriented way. Why be object-oriented? Why introduce these
    odd or intrusive notions into software that should be "biological" or
    "intuitive"? The reason is that thinking in terms of modules or
    objects turns out to be the most flexible, and ultimately the
@@ -262,21 +266,22 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
    (a sequence, one or more identifiers, and so on) so it will serve as a
    nice example of what an object can be.
 
-   All objects in Bioperl are created by specific Bioperl modules, so if
-   you want to create an object you're also going to have to tell Perl
-   which module to use. Let's add another line:
+   All objects in [52]Bioperl are created by specific [53]Bioperl
+   modules, so if you want to create an object you're also going to have
+   to tell Perl which module to use. Let's add another line:
 
 #!/bin/perl -w
 
 use Bio::Seq;
 
    This line tells Perl to use a module on your machine called
-   "Bio/Seq.pm". We will use this [28]Bio::Seq module to create a
-   [29]Bio::Seq object. The [30]Bio::Seq module is one of the central
-   modules in Bioperl. The analogous [31]Bio::Seq object, or "Sequence
-   object", or "Seq object", is ubiquitous in Bioperl, it contains a
-   single sequence and associated names, identifiers, and properties.
-   Let's create a very simple sequence object at first, like so:
+   "Bio/Seq.pm". We will use this [54]Bio::Seq module to create a
+   [55]Bio::Seq object. The [56]Bio::Seq module is one of the central
+   modules in [57]Bioperl. The analogous [58]Bio::Seq object, or
+   "Sequence object", or "Seq object", is ubiquitous in [59]Bioperl, it
+   contains a single sequence and associated names, identifiers, and
+   properties. Let's create a very simple sequence object at first, like
+   so:
 
 #!/bin/perl -w
 
@@ -286,24 +291,27 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
                          -alphabet => 'dna' );
 
    That's it! The variable $seq_obj is the Sequence object, a simple one,
-   containing just a sequence. Note that the code tells Bioperl that the
-   sequence is DNA (the choices here are 'dna', 'rna', and 'protein'),
-   this is the wise thing to do. If you don't tell Bioperl it will
-   attempt to guess the alphabet. Normally it guesses correctly but if
-   your sequence has lots of odd or ambiguous characters, such as N or X,
-   Bioperl's guess may be incorrect and this may lead to some problems.
+   containing just a sequence. Note that the code tells [60]Bioperl that
+   the sequence is DNA (the choices here are 'dna', 'rna', and
+   'protein'), this is the wise thing to do. If you don't tell
+   [61]Bioperl it will attempt to guess the alphabet. Normally it guesses
+   correctly but if your sequence has lots of odd or ambiguous
+   characters, such as N or X, [62]Bioperl's guess may be incorrect and
+   this may lead to some problems.
 
-   [32]Bio::Seq objects can be created manually, as above, but they're
-   also create automatically in many operations in Bioperl, for example
-   when alignment files or database entries or BLAST reports are parsed.
+   [63]Bio::Seq objects can be created manually, as above, but they're
+   also create automatically in many operations in [64]Bioperl, for
+   example when alignment files or database entries or BLAST reports are
+   parsed.
 
    Any time you explicitly create an object, you will use this new()
    method. The syntax of this line is one you'll see again and again in
-   Bioperl: the name of the object or variable, the module name, the ->
-   symbol, the method name new, some argument name like -seq, the =>
+   [65]Bioperl: the name of the object or variable, the module name, the
+   -> symbol, the method name new, some argument name like -seq, the =>
    symbol, and then the argument or value itself, like
    aaaatgggggggggggccccgtt.
-   [Note] Note
+   [Note]
+   Note
 
    If you've programmed before you've come across the term "function" or
    "sub-routine". In object-oriented programming the term "method" is
@@ -312,8 +320,8 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
    The object was described as a data container, but it is more than
    that. It can also do work, meaning it can use or call specific methods
    taken from the module or modules that were used to create it. For
-   example, the [33]Bio::Seq module can access a method named seq() that
-   will print out the sequence of [34]Bio::Seq objects. You could use it
+   example, the [66]Bio::Seq module can access a method named seq() that
+   will print out the sequence of [67]Bio::Seq objects. You could use it
    like this:
 
 #!/bin/perl -w
@@ -343,9 +351,9 @@ $seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
 
 print $seq_obj->seq();
 
-   "aaaatgggggggggggccccgtt", "#12345", and "example 1" are called
-   "arguments" in programming jargon. You could say that this example
-   shows how to pass arguments to the new method.
+   aaaatgggggggggggccccgtt, #12345, and example 1 are called "arguments"
+   in programming jargon. You could say that this example shows how to
+   pass arguments to the new method.
 
 7. Writing a sequence to a file
 
@@ -353,11 +361,11 @@ print $seq_obj->seq();
    create a sequence file. We already have a Sequence object, $seq_obj,
    and we will create an additional object whose responsibility it is to
    read from and write to files. This object is the SeqIO object, where
-   IO stands for Input-Output. By using [35]Bio::SeqIO in this manner you
+   IO stands for Input-Output. By using [68]Bio::SeqIO in this manner you
    will be able to get input and make output for all of the sequence file
-   formats supported by Bioperl (the [36]SeqIO HOWTO has a complete list
-   of supported formats). The way you create Bio::SeqIO objects is very
-   similar to the way we used new() to create a [37]Bio::Seq, or
+   formats supported by [69]Bioperl (the [70]SeqIO HOWTO has a complete
+   list of supported formats). The way you create Bio::SeqIO objects is
+   very similar to the way we used new() to create a [71]Bio::Seq, or
    sequence, object:
 
 use Bio::SeqIO;
@@ -419,15 +427,15 @@ ORIGIN
 
 8. Retrieving a sequence from a file
 
-   One beginner's mistake is to not use [38]Bio::SeqIO when working with
+   One beginner's mistake is to not use [72]Bio::SeqIO when working with
    sequence files. This is understandable in some respects. You may have
-   read about Perl's open function, and Bioperl's way of retrieving
+   read about Perl's open function, and [73]Bioperl's way of retrieving
    sequences may look odd and overly complicated, at first. But don't use
    open! Using open immediately forces you to do the parsing of the
    sequence file and this can get complicated very quickly. Trust the
    SeqIO object, it's built to open and parse all the common sequence
    formats, it can read and write to files, and it's built to operate
-   with all the other Bioperl modules that you will want to use.
+   with all the other [74]Bioperl modules that you will want to use.
 
    Let's read the file we created previously, "sequence.fasta", using
    SeqIO. The syntax will look familiar:
@@ -453,15 +461,15 @@ $seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
 
 $seq_obj = $seqio_obj->next_seq;
 
-   Here we've used the next_seq() method of the [39]Bio::SeqIO object.
+   Here we've used the next_seq() method of the [75]Bio::SeqIO object.
    When you use, or call, next_seq() the SeqIO object will get the next
    available sequence, in this case the first sequence in the file that
    was just opened. The Sequence object, $seq_obj, that's created will be
    identical to to the Sequence object we created manually in our first
-   example. This is another idiom that's used frequently in Bioperl, the
-   next_<something> method. You'll come across the same idea in the
-   next_aln method of [40]AlignIO (reading and writing alignment files)
-   and the next_hit method of [41]SearchIO (reading the output of
+   example. This is another idiom that's used frequently in [76]Bioperl,
+   the next_<something> method. You'll come across the same idea in the
+   next_aln method of [77]AlignIO (reading and writing alignment files)
+   and the next_hit method of [78]SearchIO (reading the output of
    sequence comparison programs such as BLAST and HMMER).
 
    If there were multiple sequences in the input file you could just
@@ -477,15 +485,27 @@ while ($seq_obj = $seqio_obj->next_seq){
    file, as we did? Not necessarily, but it's the safe thing to do. If
    you don't give a format then the SeqIO object will try to determine
    the format from the file suffix or extension (and a list of the file
-   extensions is in the [42]SeqIO HOWTO). In fact, the suffix "fasta" is
+   extensions is in the [79]SeqIO HOWTO). In fact, the suffix "fasta" is
    one that SeqIO understands, so "-format" is unnecessary above. Without
    a known suffix SeqIO will attempt to guess the format based on the
    file's contents but there's no guarantee that it can guess correctly
    for every single format.
+   [Tip]
+   Tip
+
+   It may be useful to tell SeqIO the alphabet of the input, using the
+   "-alphabet" argument. What this does is to tell SeqIO not to try to
+   determine the alphabet ("dna", "rna", "protein"). This helps because
+   [80]Bioperl may guess incorrectly (e.g. [81]Bioperl is going to guess
+   that the protein sequence "MGGGGTCAATT" is DNA) or there may be odd
+   characters in the sequence that SeqIO objects to (e.g. "-"). Set
+   "-alphabet" to a value when reading sequences and SeqIO will not
+   attempt to guess the alphabet of those sequences or validate the
+   sequences.
 
 9. Retrieving a sequence from a database
 
-   One of the strengths of Bioperl is that it allows you to retrieve
+   One of the strengths of [82]Bioperl is that it allows you to retrieve
    sequences from all sorts of sources, files, remote databases, local
    databases, regardless of their format. Let's use this capability to
    get a entry from Genbank. What will we retrieve? Again, a Sequence
@@ -493,9 +513,9 @@ while ($seq_obj = $seqio_obj->next_seq){
 
 use Bio::DB::GenBank;
 
-   We could also query SwissProt, GenPept, EMBL, or RefSeq in an
-   analogous fashion (e.g "use Bio::DB::SwissProt"). Now we'll create the
-   object:
+   We could also query [83]SwissProt, GenPept, EMBL, [84]SeqHound, or
+   RefSeq in an analogous fashion (e.g "use Bio::DB::SwissProt"). Now
+   we'll create the object:
 
 use Bio::DB::GenBank;
 
@@ -519,7 +539,7 @@ $seq_obj = $db_obj->get_Seq_by_id(2);
 
    There are more sophisticated ways to query Genbank than this. This
    next example attempts to do something "biological", using the module
-   [43]Bio::DB::Query::GenBank. Want all Arabidopsis topoisomerases from
+   [85]Bio::DB::Query::GenBank. Want all Arabidopsis topoisomerases from
    Genbank Nucleotide? This would be a reasonable first attempt:
 
 use Bio::DB::Query::GenBank;
@@ -528,11 +548,13 @@ $query = "Arabidopsis[ORGN] AND topoisomerase[TITL] and 0:3000[SLEN]";
 $query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
                                           -query => $query );
 
-   [Note] Note
+   [Note]
+   Note
 
    This capability to query by string and field is only available for
-   GenBank as of Bioperl version 1.5, queries to other databases, like
-   Swissprot or EMBL, are limited to identifiers and accessions.
+   GenBank as of [86]Bioperl version 1.5, queries to other databases,
+   like [87]Swissprot or EMBL, are limited to identifiers and accessions.
+   You can find detailed information on Genbank's query fields [88]here.
 
    That is how we would construct a query object, but we haven't
    retrieved sequences yet. To do so we will have to create a database
@@ -565,14 +587,14 @@ while ($seq_obj = $stream_obj->next_seq) {
    in the code above: there's an object just to hold the query, an object
    to execute the query using this query object, an object to do the I/O,
    and finally the sequence object.
-   [Warning] Warning
+
+   [Warning]
+   Warning
 
    Be careful what you ask for, many of today's nucleotide database
    entries are genome-size and you will probably run out of memory if
    your query happens to match one of these monstrosities. You can use
    the SLEN field to limit the size of the sequences you retrieve.
-
-   You can find detailed information on Genbank's query fields [44]here.
 
 10. The Sequence object
 
@@ -610,9 +632,9 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
    are start and end
    revcom Sequence object $so2 = $so1->revcom Reverse complement
    translate Sequence object $prot_obj = $dna_obj->translate See
-   [45]Bio::PrimarySeqI for more
+   [89]Bio::PrimarySeqI for more
    species Species object $species_obj = $so->species See
-   [46]Bio::Species for more
+   [90]Bio::Species for more
    seq_version version, if available $so->seq_version("1") get or set a
    version
    keywords keywords, if available @array = $so->keywords get or set
@@ -629,7 +651,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
    the Sequence object directly. There are also a number of methods that
    are concerned with the Features and Annotations associated with the
    Sequence object. This is something of a tangent but if you'd like to
-   learn about Features and Annotations see the relevant [47]HOWTO. The
+   learn about Features and Annotations see the relevant [91]HOWTO. The
    methods related to this topic are shown below.
 
    Name Returns Note
@@ -754,18 +776,19 @@ ORIGIN      15 bp upstream from HhaI site.
 
    There's a few comments that need to be made. First, you noticed that
    there's an awful lot of information missing. All of this missing
-   information is stored in what Bioperl calls Features and Annotations,
-   see the [48]Feature and Annotation HOWTO if you'd like to learn more
-   about this. Second, a few of the methods don't return anything, like
-   namespace and authority. The reason is that though these are good
-   values in principle there are no commonly agreed upon standard names -
-   perhaps someday the authors will be able to rewrite the code when we
-   all agree what these values should be. Finally, you may be wondering
-   why the method names are what they are and why particular fields or
-   identifiers end up associated with particular methods. Again, without
-   having standard names for things that are agreed upon by the creators
-   of our public databases all the authors could do is use common sense,
-   and these choices seem to be reasonable ones.
+   information is stored in what [92]Bioperl calls Features and
+   Annotations, see the [93]Feature and Annotation HOWTO if you'd like to
+   learn more about this. Second, a few of the methods don't return
+   anything, like namespace and authority. The reason is that though
+   these are good values in principle there are no commonly agreed upon
+   standard names - perhaps someday the authors will be able to rewrite
+   the code when we all agree what these values should be. Finally, you
+   may be wondering why the method names are what they are and why
+   particular fields or identifiers end up associated with particular
+   methods. Again, without having standard names for things that are
+   agreed upon by the creators of our public databases all the authors
+   could do is use common sense, and these choices seem to be reasonable
+   ones.
 
    Next let's take a look at the values returned by the methods used by
    the Sequence object when a fasta file is used as input. The fasta file
@@ -809,20 +832,21 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
    these entries are their respective formats. The reason is that there
    are no rules governing how one interconverts formats, meaning how
    Genbank creates fasta files from Genbank files may be different from
-   how SwissProt performs the same interconversion. Again, until the
+   how [94]SwissProt performs the same interconversion. Again, until the
    organizations creating these databases agree on standard sets of names
-   and formats all the Bioperl authors can do is do make reasonable
+   and formats all the [95]Bioperl authors can do is do make reasonable
    choices.
-   [Note] Note
+   [Note]
+   Note
 
-   Yes, Bioperl could follow the conventions of a single organization
+   Yes, [96]Bioperl could follow the conventions of a single organization
    like Genbank such that display_id returns the same value when using
    Genbank format or Genbank's fasta format but why? Does any single
    organization deserve to become a standard when, really, what they
    should be doing is talking to each other and using the same terms?
 
-   Let's use a Swissprot file as our last example. The input entry looks
-   like this:
+   Let's use a [97]Swissprot file as our last example. The input entry
+   looks like this:
 
 ID   A2S3_RAT       STANDARD;      PRT;   913 AA.
 AC   Q8R2H7; Q8R2H6; Q8R4G3;
@@ -915,25 +939,25 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
    length       913
    seq          MSLSQ...ILKED
 
-   Table 5. Values from Swissprot
+   Table 5. Values from [98]Swissprot
 
    As in the Genbank example there's information that the Sequence object
    doesn't supply, and it's stored in Annotation objects. See the
-   [49]Feature and Annotation HOWTO for more.
+   [99]Feature and Annotation HOWTO for more.
 
 12. BLAST
 
    You have access to a large number of sequence analysis programs within
-   Bioperl. Typically this means you have a means to run the program and
-   frequently a means of parsing the resulting output, or report, as
-   well. Certainly the most popular analytical program is [50]BLAST, so
+   [100]Bioperl. Typically this means you have a means to run the program
+   and frequently a means of parsing the resulting output, or report, as
+   well. Certainly the most popular analytical program is [101]BLAST, so
    let's use it as an example. First you'll need to get BLAST, also known
    as blastall, installed on your machine and running. This example also
    assumes that you used the formatdb program to index the database
    sequence file "db.fa".
 
    As usual, we start by choosing a module to use, in this case
-   [51]Bio::Tools::Run::StandAloneBlast. You stipulate the parameters
+   [102]Bio::Tools::Run::StandAloneBlast. You stipulate the parameters
    used by the blastall program by populating an array, it's called
    @params in this example but any name for the array will work:
 
@@ -969,28 +993,52 @@ print $result_obj->num_hits;
    report ends up in the report object, and you can access or print out
    the data in all sorts of ways. The report object, $report_obj, and the
    result object, $result_obj, come from the SearchIO modules. The
-   [52]SearchIO HOWTO will tell you all about using these objects to
+   [103]SearchIO HOWTO will tell you all about using these objects to
    extract useful data from your BLAST analyses.
 
-   Sometimes you'll see errors when you try to use
-   [53]Bio::Tools::Run::StandAloneBlast that have nothing to do with
-   Bioperl. Make sure that BLAST is set up properly and running before
-   you attempt to script it using [54]Bio::Tools::Run::StandAloneBlast.
-   There are some notes on setting up BLAST in the [55]INSTALL file.
+   Here's an example of how one would use SearchIO to extract data from a
+   BLAST report:
 
-   Bioperl enables you to run a wide variety of bioinformatics programs
-   but in order to do so, in most cases, you will need to install the
-   accessory bioperl-run package. In addition there is no guarantee that
-   there is a corresponding parser for the program that you wish to run,
-   but parsers have been built for the most popular programs. You can
-   find the bioperl-run package on the [56]download page.
+         use Bio::SearchIO;
+
+    $report_obj = new Bio::SearchIO(-format => 'blast',
+                               -file   => 'report.bls');
+    while( $result = $report_obj->next_result ) {
+      while( $hit = $result->next_hit ) {
+        while( $hsp = $hit->next_hsp ) {
+            if ( $hsp->percent_identity > 75 ) {
+              print "Hit\t",        $hit->name,             "\n",
+                    "Length\t",     $hsp->length('total'),  "\n",
+                    "Percent_id\t", $hsp->percent_identity, "\n";
+          }
+        }
+      }
+    }
+
+   This code prints out details about the match when the HSP or aligned
+   pair are greater than 75% identical.
+
+   Sometimes you'll see errors when you try to use
+   [104]Bio::Tools::Run::StandAloneBlast that have nothing to do with
+   [105]Bioperl. Make sure that BLAST is set up properly and running
+   before you attempt to script it using
+   [106]Bio::Tools::Run::StandAloneBlast. There are some notes on setting
+   up BLAST in the [107]INSTALL file.
+
+   [108]Bioperl enables you to run a wide variety of bioinformatics
+   programs but in order to do so, in most cases, you will need to
+   install the accessory bioperl-run package. In addition there is no
+   guarantee that there is a corresponding parser for the program that
+   you wish to run, but parsers have been built for the most popular
+   programs. You can find the bioperl-run package on the [109]download
+   page.
 
 13. Indexing for Fast Retrieval
 
-   One of the under-appreciated features of Bioperl is its ability to
-   index sequence files. The idea is that you would create some sequence
-   file locally and create an index file for it that enables you to
-   retrieve sequences from the sequence file. Why would you want to do
+   One of the under-appreciated features of [110]Bioperl is its ability
+   to index sequence files. The idea is that you would create some
+   sequence file locally and create an index file for it that enables you
+   to retrieve sequences from the sequence file. Why would you want to do
    this? Speed, for one. Retrieving sequences from local, indexed
    sequence files is much faster than using the Bio::DB* modules that
    were used above. It's also much faster than using SeqIO, in part
@@ -1056,7 +1104,7 @@ $seq_obj = $inx->fetch($id)
 
    However, what if you wanted to retrieve using some other key, like
    "1CRA" in the example above? You can customize the index by using
-   [57]Bio::Index::Fasta's id_parser method, which accepts the name of a
+   [111]Bio::Index::Fasta's id_parser method, which accepts the name of a
    function as an argument where that function tells the indexing object
    what key to use. For example:
 
@@ -1072,26 +1120,28 @@ sub get_id {
    To be precise, one would say that the id_parser method accepts a
    reference to a function as an argument.
 
-14. More on Bioperl
+14. More on [112]Bioperl
 
    Perhaps this article has gotten you interested in learning a bit more
-   about Bioperl. Here are some other things you might want to look at:
+   about [113]Bioperl. Here are some other things you might want to look
+   at:
 
-    1. The [58]bptutorial gives a good overview of many different topics.
-       Few topics are covered in detail but many of the most important
-       modules and concepts are covered.
-    2. The [59]HOWTOs. Each one covers a topic in some detail, but there
+    1. The [114]bptutorial gives a good overview of many different
+       topics. Few topics are covered in detail but many of the most
+       important modules and concepts are covered.
+    2. The [115]HOWTOs. Each one covers a topic in some detail, but there
        are certainly some HOWTOs that are missing that we would like to
        see written. Would you like to become an expert and write one
        yourself?
-    3. The [60]module documentation. Each module is documented, but the
+    3. The [116]module documentation. Each module is documented, but the
        quality and quantity varies by module.
-    4. Bioperl scripts. You'll find them in the scripts/ directory and in
-       the examples/ directory of the Bioperl package. The former
-       contains more carefully written and documented scripts that can be
-       installed along with Bioperl. You should feel free to contribute
-       scripts to either of these directories.
-    5. [61]User-contributed documentation. There's some very good
+    4. [117]Bioperl scripts. You'll find them in the scripts/ directory
+       and in the examples/ directory of the [118]Bioperl package. The
+       former contains more carefully written and documented scripts that
+       can be installed along with [119]Bioperl. You should feel free to
+       contribute scripts to either of these directories. There's also a
+       complete list of scripts, [120]bioscripts.pod.
+    5. [121]User-contributed documentation. There's some very good
        material here.
 
 15. Perl's Documentation System
@@ -1108,7 +1158,7 @@ sub get_id {
    Read about Perl's built-in print function:
 >perldoc -f print
 
-   Read about any module, including any of the Bioperl modules:
+   Read about any module, including any of the [122]Bioperl modules:
 >perldoc Bio::SeqIO
 
 16. The Basics of Perl Objects
@@ -1155,85 +1205,149 @@ $reversed_obj = $seq_obj->revcom;
    use the term "module" rather than "class".
 
    That's the sort of explanation you'll get in programming books, but
-   what is a Perl object really? Usually a hash. In Bioperl the data that
-   the object contains is stored in a single, complex hash and the
+   what is a Perl object really? Usually a hash. In [123]Bioperl the data
+   that the object contains is stored in a single, complex hash and the
    object, like $seq_obj, is a reference to this hash. In addition, the
    methods that the object can use are also stored in this hash as
    particular kinds of references. You could say that an object in
-   Bioperl is a special kind of hash reference.
+   [124]Bioperl is a special kind of hash reference.
 
-   Bioperl uses the object-oriented paradigm, and here are some texts if
-   you want to learn more:
+   [125]Bioperl uses the object-oriented paradigm, and here are some
+   texts if you want to learn more:
 
-    1. [62]Object Oriented Perl
-    2. The [63]Bioperl design documentation, for anyone who'd like to
+    1. [126]Object Oriented Perl
+    2. The [127]Bioperl design documentation, for anyone who'd like to
        write their own modules.
 
-   TXM DocBook ([64]Cognia)
+   BioPerl DocBook ([128]BioPerl)
 
 References
 
-   1. http://www.cognia.com/
+   1. http://bioperl.org/
    2. http://www.cognia.com/
    3. mailto:brian-at-cognia.com
    4. mailto:tex-at-biocompute.net
-   5. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#introduction
-   6. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#installation
-   7. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#help
-   8. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#perl
-   9. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#starting_unix
-  10. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#create
-  11. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#writing
-  12. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#reading
-  13. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#retrieving_gb
-  14. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#seq_obj
-  15. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#examples
-  16. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#blast
-  17. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#indexing
-  18. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#more
-  19. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#perldoc
-  20. file://localhost/cygdrive/c/docbook/deploy/Beginners/Beginners.html#objects
-  21. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html
-  22. http://bioperl.org/Core/Latest/INSTALL
-  23. http://bioperl.org/Core/Latest/INSTALL.WIN
-  24. http://bioperl.org/Core/Latest/INSTALL.WIN
-  25. http://bioperl.org/Core/Latest/INSTALL.WIN
-  26. http://www.oreilly.com/catalog/lperl3/
-  27. http://www.oreilly.com/catalog/perlnut2/
-  28. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  29. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  30. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  31. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  32. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  33. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  34. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  35. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
-  36. http://bioperl.org/HOWTOs/SeqIO/index.html
-  37. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
-  38. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
-  39. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
-  40. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html
-  41. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
-  42. http://bioperl.org/HOWTOs/SeqIO/index.html
-  43. http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html
-  44. http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html
-  45. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html
-  46. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
-  47. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
-  48. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
-  49. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
-  50. http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall
-  51. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
-  52. http://bioperl.org/HOWTOs/SearchIO/index.html
-  53. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
-  54. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
-  55. http://bioperl.org/Core/Latest/INSTALL
-  56. http://bioperl.org/Core/Latest/index.shtml
-  57. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html
-  58. http://bioperl.org/Core/Latest/bptutorial.html
-  59. http://bioperl.org/HOWTOs
-  60. http://doc.bioperl.org/releases/bioperl-1.4/
-  61. http://bioperl.org/Core/Latest/modules.html#user
-  62. http://www.manning.com/Conway/
-  63. http://bioperl.org/Core/Latest/biodesign.html
-  64. http://www.cognia.com/
+   5. http://www.bioperl.org/
+   6. http://www.bioperl.org/
+   7. http://bioperl.org/
+   8. http://bioperl.org/
+   9. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#introduction
+  10. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#installation
+  11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#help
+  12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#perl
+  13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#starting_unix
+  14. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#create
+  15. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#writing
+  16. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#reading
+  17. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#retrieving_gb
+  18. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#seq_obj
+  19. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#examples
+  20. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#blast
+  21. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#indexing
+  22. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#more
+  23. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#perldoc
+  24. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Beginners.html#objects
+  25. http://bioperl.org/
+  26. http://bioperl.org/
+  27. http://bioperl.org/
+  28. http://bioperl.org/
+  29. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html
+  30. http://bioperl.org/
+  31. http://bioperl.org/
+  32. http://bioperl.org/
+  33. http://bioperl.org/
+  34. http://bioperl.org/
+  35. http://bioperl.org/Core/Latest/INSTALL
+  36. http://bioperl.org/Core/Latest/INSTALL.WIN
+  37. http://bioperl.org/
+  38. http://bioperl.org/
+  39. http://bioperl.org/Core/Latest/INSTALL.WIN
+  40. http://bioperl.org/
+  41. http://bioperl.org/Core/Latest/INSTALL
+  42. http://bioperl.org/
+  43. http://bioperl.org/
+  44. http://bioperl.org/
+  45. http://bioperl.org/
+  46. http://bioperl.org/
+  47. http://bioperl.org/
+  48. http://bioperl.org/
+  49. http://www.oreilly.com/catalog/lperl3/
+  50. http://www.oreilly.com/catalog/perlnut2/
+  51. http://bioperl.org/
+  52. http://bioperl.org/
+  53. http://bioperl.org/
+  54. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  55. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  56. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  57. http://bioperl.org/
+  58. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  59. http://bioperl.org/
+  60. http://bioperl.org/
+  61. http://bioperl.org/
+  62. http://bioperl.org/
+  63. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  64. http://bioperl.org/
+  65. http://bioperl.org/
+  66. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  67. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  68. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
+  69. http://bioperl.org/
+  70. http://bioperl.org/HOWTOs/SeqIO/index.html
+  71. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  72. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
+  73. http://bioperl.org/
+  74. http://bioperl.org/
+  75. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
+  76. http://bioperl.org/
+  77. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html
+  78. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
+  79. http://bioperl.org/HOWTOs/SeqIO/index.html
+  80. http://bioperl.org/
+  81. http://bioperl.org/
+  82. http://bioperl.org/
+  83. http://www.expasy.ch/
+  84. http://www.blueprint.org/seqhound
+  85. http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html
+  86. http://bioperl.org/
+  87. http://www.expasy.ch/
+  88. http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html
+  89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html
+  90. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
+  91. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  92. http://bioperl.org/
+  93. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  94. http://www.expasy.ch/
+  95. http://bioperl.org/
+  96. http://bioperl.org/
+  97. http://www.expasy.ch/
+  98. http://www.expasy.ch/
+  99. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+ 100. http://bioperl.org/
+ 101. http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall
+ 102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
+ 103. http://bioperl.org/HOWTOs/SearchIO/index.html
+ 104. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
+ 105. http://bioperl.org/
+ 106. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
+ 107. http://bioperl.org/Core/Latest/INSTALL
+ 108. http://bioperl.org/
+ 109. http://bioperl.org/Core/Latest/index.shtml
+ 110. http://bioperl.org/
+ 111. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html
+ 112. http://bioperl.org/
+ 113. http://bioperl.org/
+ 114. http://bioperl.org/Core/Latest/bptutorial.html
+ 115. http://bioperl.org/HOWTOs
+ 116. http://doc.bioperl.org/releases/bioperl-1.4/
+ 117. http://bioperl.org/
+ 118. http://bioperl.org/
+ 119. http://bioperl.org/
+ 120. http://bioperl.org/Core/Latest/bioscripts.html
+ 121. http://bioperl.org/Core/Latest/modules.html#user
+ 122. http://bioperl.org/
+ 123. http://bioperl.org/
+ 124. http://bioperl.org/
+ 125. http://bioperl.org/
+ 126. http://www.manning.com/Conway/
+ 127. http://bioperl.org/Core/Latest/biodesign.html
+ 128. http://bioperl.org/

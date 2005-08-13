@@ -1,5 +1,5 @@
 
-   BioPerl DocBook
+   BioPerl DocBook ([1]BioPerl)
 
 Bio::SeqIO HOWTO
 
@@ -7,19 +7,19 @@ Ewan Birney
 
    EBI
 
-   <[1]birney-at-ebi.ac.uk>
+   <[2]birney-at-ebi.ac.uk>
 
 Darinn London
 
    EBI
 
-   <[2]dlondon-at-ebi.ac.uk>
+   <[3]dlondon-at-ebi.ac.uk>
 
 Brian Osborne
 
    Cognia Corporation
 
-   <[3]brian-at-cognia.com>
+   <[4]brian-at-cognia.com>
 
    This document is copyright Ewan Birney, 2002. For reproduction other
    than personal use please contact me at birney-at-ebi.ac.uk
@@ -32,15 +32,15 @@ Brian Osborne
 
    Table of Contents
 
-   1. [4]The basics
-   2. [5]10 second overview
-   3. [6]Background Information
-   4. [7]Formats
-   5. [8]Working Examples
-   6. [9]To and from a string
-   7. [10]And more examples...
-   8. [11]Caveats
-   9. [12]Error Handling
+   [5]1. The basics
+   [6]2. 10 second overview
+   [7]3. Background Information
+   [8]4. Formats
+   [9]5. Working Examples
+   [10]6. To and From a String
+   [11]7. And more examples...
+   [12]8. Caveats
+   [13]9. Error Handling
 
 1. The basics
 
@@ -55,7 +55,9 @@ Brian Osborne
 
 #!/bin/perl
 
+use strict;
 use Bio::SeqIO;
+
 my $file = shift; # get the file name, somehow
 my $seqio_object = Bio::SeqIO->new(-file => $file);
 my $seq_object = $seqio_object->next_seq;
@@ -67,7 +69,7 @@ my $seq_object = $seqio_object->next_seq;
    format contains a sequence and some kind of identifier, but nothing
    else is required nor does the format inherently allow for much more
    detail, like a feature (a sub-sequence, usually with some biological
-   property - see the [13]Feature-Annotation HOWTO for more information).
+   property - see the [14]Feature-Annotation HOWTO for more information).
    When given fasta SeqIO creates a Bio::Seq object, a more spare object
    than the Bio::Seq::RichSeq object that's created when SeqIO is given
    formats like Genbank or EMBL, which may contain features and
@@ -121,41 +123,51 @@ my $seq_object = $seqio_object->next_seq;
    Bioperl's SeqIO system understands lot of formats and can interconvert
    all of them. Here is a current listing of formats, as of version 1.4.
 
-      Name            Description                  extensions
-   abi        ABI tracefile                ab[i1]
-   ace        Ace database                 ace
-   agave      AGAVE XML                   
-   alf        ALF tracefile                alf
-   bsml                                    bsm|bsml
-   chado      Chado                       
-   ctf        CTF tracefile                ctf
-   embl       EMBL database                embl|ebl|emb|dat
-   exp        EXP format                   exp
-   fasta      FASTA                        fasta|fast|seq|fa|fsa|nt|aa
-   fastq                                   fastq
-   game       GAME XML                    
-   gcg        GCG                          gcg
-   genbank    GenBank                      gb|gbank|genbank
-   interpro   InterProScan XML            
-   kegg       KEGG                        
-   largefasta                           
-   phd        Phred                        phd|phred
-   pir        PIR database                 pir
-   pln        PLN tracefile                pln
-   qual       Phred                       
-   raw        plain text                   txt
-   scf        Standard Chromatogram Format scf
-   swiss      SwissProt                    swiss|sp
-   tab        tab-delimited               
-   tigr       TIGR XML                    
-   tinyseq    NCBI TinySeq XML            
-   ztr        ZTR tracefile                ztr
+      Name               Description                    extensions
+   abi        ABI tracefile                     ab[i1]
+   ace        Ace database                      ace
+   agave      AGAVE XML                        
+   alf        ALF tracefile                     alf
+   asciitree  write-only, to visualize features
+   bsml       BSML, using XML::DOM              bsm|bsml
+   bsml_sax   BSML, using XML::SAX             
+   chadoxml   Chado XML                        
+   chaos      Chaos XML                        
+   chaosxml   Chaos XML                        
+   ctf        CTF tracefile                     ctf
+   embl       EMBL database                     embl|ebl|emb|dat
+   entrezgene Entrez Gene ASN1                 
+   exp        Staden EXP format                 exp
+   fasta      FASTA                             fasta|fast|seq|fa|fsa|nt|aa
+   fastq                                        fastq
+   game       GAME XML                         
+   gcg        GCG                               gcg
+   genbank    GenBank                           gb|gbank|genbank
+   interpro   InterProScan XML                 
+   kegg       KEGG                             
+   largefasta                                
+   locuslink  LocusLink LL_tmpl                
+   metafasta                                 
+   phd        Phred                             phd|phred
+   pir        PIR database                      pir
+   pln        PLN tracefile                     pln
+   qual       Phred                            
+   raw        plain text                        txt
+   scf        Standard Chromatogram Format      scf
+   swiss      SwissProt                         swiss|sp
+   tab        tab-delimited                    
+   tigr       TIGR XML                         
+   tigrxml    TIGR Coordset XML                
+   tinyseq    NCBI TinySeq XML                 
+   ztr        ZTR tracefile                     ztr
 
    Table 1. Formats
-   [Note] Note
+   [Note]
+   Note
 
-   SeqIO needs the bioperl-ext package to read the scf, abi, alf, pln,
-   exp, ctf, and ztr formats.
+   SeqIO needs the bioperl-ext package and the io_lib library from the
+   Staden package in order to read the scf, abi, alf, pln, exp, ctf, and
+   ztr formats.
 
    For some one of the initial perplexities of Bioperl is the variety of
    different sequence objects, and this gives rise to questions like "How
@@ -283,7 +295,7 @@ my $seq_object = $seqio_object->next_seq;
    DIVISION information stored on the LOCUS line, etc. To get that SeqI
    information back out to a new file, of a different format (or of the
    same format, but with sequences grouped in a new way), Bio::SeqIO has
-   a second method, called 'write_seq' that revearses the process done by
+   a second method, called 'write_seq' that reverses the process done by
    next_seq. It knows how to write all of the data contained in the SeqI
    object into the right places, with the correct labels, for any of the
    supported formats. Let's make this more concrete by writing a
@@ -316,7 +328,8 @@ my $seq_object = $seqio_object->next_seq;
    sequence formats. However, rather than using the <F> operator to read
    files you use the $seqio->next_seq() method and rather than saying
    "print F $line" you say $seqio->write_seq($seq_object).
-   [Note] Note
+   [Note]
+   Note
 
    Bio::SeqIO actually allows you to make use of a rather scary/clever
    part of Perl that can "mimic" filehandles, so that the <F> operator
@@ -395,8 +408,7 @@ my $seq_object = $seqio_object->next_seq;
      }
      exit;
 
-
-6. To and from a string
+6. To and From a String
 
    A popular question many people have asked is "What if I have a string
    that has a series of sequence records in some format, and I want to
@@ -712,20 +724,22 @@ seq->keywords =~ m/GSS/);}
    error will be caught. And, of course, you are going to "use strict"
    right?
 
-   BioPerl DocBook
+   BioPerl DocBook ([15]BioPerl)
 
 References
 
-   1. mailto:birney-at-ebi.ac.uk
-   2. mailto:dlondon-at-ebi.ac.uk
-   3. mailto:brian-at-cognia.com
-   4. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#basics
-   5. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#overview
-   6. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#background
-   7. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#formats
-   8. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#working
-   9. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#string
-  10. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#and_more
-  11. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#caveats
-  12. file://localhost/cygdrive/c/docbook/deploy/SeqIO/SeqIO.html#errors
-  13. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+   1. http://bioperl.org/
+   2. mailto:birney-at-ebi.ac.uk
+   3. mailto:dlondon-at-ebi.ac.uk
+   4. mailto:brian-at-cognia.com
+   5. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#basics
+   6. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#overview
+   7. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#background
+   8. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#formats
+   9. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#working
+  10. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#string
+  11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#and_more
+  12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#caveats
+  13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#errors
+  14. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  15. http://bioperl.org/

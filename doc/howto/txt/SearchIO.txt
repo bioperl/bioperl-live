@@ -1,5 +1,5 @@
 
-   Bioperl DocBook ([1]Bioperl)
+   BioPerl DocBook ([1]BioPerl)
 
 Bio::SearchIO HOWTO
 
@@ -45,6 +45,8 @@ Brian Osborne
    Made document redistributable under Perl Artistic.
    Revision 0.7 2004-12-02 JES and BIO
    Section on lightweight objects
+   Revision 0.8 2005-08-15 BIO
+   Table of formats
 
    Abstract
 
@@ -130,11 +132,23 @@ Brian Osborne
 
    The generality of the SearchIO approach is demonstrated by large
    number of report formats that have appeared since its introduction.
-   These formats include AXT format reports (BLAT, BLASTZ), NCBI tabular
-   output (-m 8 or -m 9 options), NCBI Blast XML, chadosxpr format flat
-   databases, Exonerate output, FASTA output, hmmsearch output (HMMER),
-   megablast output, PSL format output (BLAT), sim4 output, WABA output,
-   and output from Wise.
+   These formats are listed below.
+
+      Mame                    Description
+   blast      BLAST (WUBLAST, NCBIBLAST, bl2seq)
+   fasta      FASTA -m9 and -m0
+   blasttable BLAST -m9 or -m8 (NCBI, not WUBLAST tabular)
+   megablast  MEGABLAST
+   psl        UCSC PSL
+   waba       WABA
+   axt        AXT
+   sim4       Sim4
+   hmmer      HMMER hmmpfam and hmmsearch
+   exonerate  Exonerate CIGAR
+   blastxml   NCBI BLAST XML
+   wise       Genewise -genesf
+
+   Table 1. SearchIO Formats
 
 3. Parsing with Bio::SearchIO
 
@@ -348,7 +362,7 @@ S1: 32 (17.6 bits)
    HSP links Links field from WU-BLAST reports run with -links showing
    consistent HSP linking
 
-   Table 1. SearchIO Methods
+   Table 2. SearchIO Methods
 
    Table 1 shows that a method can return a string, an array, or an
    object. When an object is returned some additional code will probably
@@ -385,8 +399,11 @@ S1: 32 (17.6 bits)
 
    Another method that's useful in dissecting an HSP is the seq_inds()
    method of the HSP object. What this method does is tell us what the
-   positions are of all the identical or conserved residues in an
-   alignment, query or hit. It could be used like this:
+   positions are of all the identical, conserved, mismatched, or gap
+   ("identical", "conserved", "nomatch", "gap") residues in an alignment,
+   referring to the query or hit strand ("sbjct" is synonymous with
+   "hit"). It could be used like this:
+
         # put all the conserved matches in query strand into an array
         my @str_array = split "",$hsp->query_string;
         foreach ( $hsp->seq_inds('query','conserved') ){
@@ -805,7 +822,7 @@ $searchio->_eventHandler->register_factory('hit', $hitfact);
    [92]Search/GenericStatistics.pm
    [93]Search/StatisticsI.pm
 
-   Bioperl DocBook ([94]Bioperl)
+   BioPerl DocBook ([94]BioPerl)
 
 References
 
@@ -816,15 +833,15 @@ References
    5. mailto:jason-at-bioperl.org
    6. http://www.cognia.com/
    7. mailto:brian-at-cognia.com
-   8. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#background
-   9. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#design
-  10. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#use
-  11. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#creating-reports
-  12. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#implementation
-  13. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#outputting
-  14. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#extending
-  15. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#lightweight
-  16. file://localhost/cygdrive/c/docbook/deploy/SearchIO/SearchIO.html#links
+   8. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#background
+   9. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#design
+  10. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#use
+  11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#creating-reports
+  12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#implementation
+  13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#outputting
+  14. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#extending
+  15. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#lightweight
+  16. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SearchIO.html#links
   17. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
   18. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
   19. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html

@@ -1,15 +1,13 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <title>Bio::Graphics HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.61.3"><meta name="description" content="&#xA;	This HOWTO describes how to render sequence data graphically in a&#xA;	horizontal map.  It applies to a variety of situations ranging from&#xA;	rendering the feature table of a GenBank entry, to graphing the&#xA;	positions and scores of a BLAST search, to rendering a clone map.  It&#xA;	describes the programmatic interface to the Bio::Graphics module, and&#xA;	discusses how to create dynamic web pages using Bio::DB::GFF and the&#xA;	gbrowse package.&#xA;      "></head><body><div xmlns="" id="customheader">
-BioPerl DocBook
-</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d3e1"></a>Bio::Graphics HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Lincoln</span> <span class="surname">Stein</span></h3><div class="affiliation"><span class="orgname">
-	  <a href="http://www.cshl.org" target="_top">Cold Spring Harbor Laboratory</a>
-	<br></span><div class="address"><p><br>
-	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:lstein@cshl.org">lstein@cshl.org</a>&gt;</tt><br>
-	</p></div></div></div></div><div><div class="legalnotice"><p>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Bio::Graphics HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;This HOWTO describes how to render sequence data graphically in a&#xA;horizontal map.  It applies to a variety of situations ranging from&#xA;rendering the feature table of a GenBank entry, to graphing the&#xA;positions and scores of a BLAST search, to rendering a clone map.  It&#xA;describes the programmatic interface to the Bio::Graphics module, and&#xA;discusses how to create dynamic web pages using Bio::DB::GFF and the&#xA;gbrowse package.&#xA;      "></meta></head><body><div xmlns="" id="customheader">
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
+</div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Bio::Graphics HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Lincoln</span> <span class="surname">Stein</span></h3><div class="affiliation"><span class="orgname">
+	  <a href="http://www.cshl.org" target="_top"><i class="citetitle">Cold Spring Harbor Laboratory</i></a>
+	<br></br></span><div class="address"><p><br></br>
+	&nbsp;&nbsp;<tt class="email">&lt;<a href="mailto:lstein@cshl.org">lstein@cshl.org</a>&gt;</tt><br></br>
+	</p></div></div></div></div><div><div class="legalnotice"><a id="d4e20"></a><p>
 	This document is copyright Lincoln Stein, 2002.  It can
         be copied and distributed under the terms of the Perl
         Artistic License.
@@ -21,7 +19,7 @@ BioPerl DocBook
 	describes the programmatic interface to the Bio::Graphics module, and
 	discusses how to create dynamic web pages using Bio::DB::GFF and the
 	gbrowse package.
-      </p></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt>1. <a href="#intro">Introduction</a></dt><dt>2. <a href="#prelim">Preliminaries</a></dt><dt>3. <a href="#gettingStarted">Getting Started</a></dt><dt>4. <a href="#addingscale">Adding a Scale to the Image</a></dt><dt>5. <a href="#improving">Improving the Image</a></dt><dt>6. <a href="#parsing-blast">Parsing Real BLAST Output</a></dt><dt>7. <a href="#rendering-features">Rendering Features from a GenBank or EMBL File</a></dt><dt>8. <a href="#rendering-features-better">A Better Version of the Feature Renderer</a></dt><dt>9. <a href="#summary">Summary</a></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="intro"></a>1.&nbsp;Introduction</h2></div></div><div></div></div><p>
+      </p></div></div></div><hr></hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#intro">1. Introduction</a></span></dt><dt><span class="section"><a href="#prelim">2. Preliminaries</a></span></dt><dt><span class="section"><a href="#gettingStarted">3. Getting Started</a></span></dt><dt><span class="section"><a href="#addingscale">4. Adding a Scale to the Image</a></span></dt><dt><span class="section"><a href="#improving">5. Improving the Image</a></span></dt><dt><span class="section"><a href="#parsing-blast">6. Parsing Real BLAST Output</a></span></dt><dt><span class="section"><a href="#rendering-features">7. Rendering Features from a GenBank or EMBL File</a></span></dt><dt><span class="section"><a href="#rendering-features-better">8. A Better Version of the Feature Renderer</a></span></dt><dt><span class="section"><a href="#summary">9. Summary</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="intro"></a>1.&nbsp;Introduction</h2></div></div></div><p>
       This HOWTO describes the Bio::Graphics module, and some of the
       applications that were built on top of it.  Bio::Graphics was designed
       to solve the following common problems:
@@ -46,7 +44,7 @@ BioPerl DocBook
     </p><p>
       This document takes you through a few common applications of
       Bio::Graphics in a cookbook fashion.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="prelim"></a>2.&nbsp;Preliminaries</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="prelim"></a>2.&nbsp;Preliminaries</h2></div></div></div><p>
       Bio::Graphics is dependent on GD, a Perl module for generating
       bitmapped graphics written by the author.  GD in turn is dependent on
       libgd, a C library written by Thomas Boutell, formerly also of Cold
@@ -79,7 +77,7 @@ BioPerl DocBook
     </p><p>
       You will also need to install the Text::Shellwords module, which is
       available from CPAN.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="gettingStarted"></a>3.&nbsp;Getting Started</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="gettingStarted"></a>3.&nbsp;Getting Started</h2></div></div></div><p>
       All the code examples and BLAST input files we'll use are available in
       the doc/howto/examples/graphics directory in the BioPerl package. 
     </p><p>
@@ -91,7 +89,7 @@ BioPerl DocBook
       parsed by the Bio::SearchIO module, but for now, our table looks like
       this:
     </p><p>
-      <div class="figure"><a id="d3e51"></a><pre class="programlisting">
+      <div class="figure"><a id="d4e52"></a><pre class="programlisting">
 # hit		score	start	end
 hsHOX3		381	2	200
 scHOX3		210	2	210
@@ -161,7 +159,7 @@ PRES1		127	310	700
       render them and convert it into a Portable Network Graphics file, the
       contents of which are printed to standard output.  We can now view the
       result by piping it to our favorite image display program.
-    </p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left">Important</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+    </p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></img></td><th align="left">Important</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 	If you are on a Windows platform, you need to put
 	STDOUT into binary mode so that the PNG file does not go through
 	Window's carriage return/linefeed transformations.  Before the
@@ -170,14 +168,14 @@ PRES1		127	310	700
       This advice also applies to certain versions of RedHat, which ship
       with a patched (and possibly broken) version of Perl.
     </p><p>
-      <div class="figure"><a id="d3e68"></a><pre class="programlisting">
+      <div class="figure"><a id="d4e69"></a><pre class="programlisting">
 % render_blast1.pl data1.txt | display -
-	</pre><div class="mediaobject"><img src="../figs/graphics/fig1.png" alt="Rendering BLAST hits"></div><p class="title"><b>Figure&nbsp;2.&nbsp;Rendering BLAST hits</b></p></div>
+	</pre><div class="mediaobject"><img src="../figs/graphics/fig1.png" alt="Rendering BLAST hits"></img></div><p class="title"><b>Figure&nbsp;2.&nbsp;Rendering BLAST hits</b></p></div>
     </p><p>
       Users of operating systems that don't support pipes can simply
       redirect the output to a file and view it in their favorite image
       program.
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="addingscale"></a>4.&nbsp;Adding a Scale to the Image</h2></div></div><div></div></div><p>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="addingscale"></a>4.&nbsp;Adding a Scale to the Image</h2></div></div></div><p>
       This is all very nice, but it's missing two essential components:
     </p><div class="itemizedlist"><ul type="disc"><li><p>It doesn't have a scale.</p></li><li><p>It doesn't distinguish between hits with different
 	  scores.
@@ -245,7 +243,7 @@ PRES1		127	310	700
       shown (tick type of "2").  We set the foreground color to black, and
       request that arrows should be placed at both ends (-double =&gt;1).
     </p><p>
-      <sup>[<a id="d3e93" href="#ftn.d3e93">1</a>]</sup>
+      <sup>[<a id="d4e94" href="#ftn.d4e94">1</a>]</sup>
     </p><p>
       In lines 18-22, we get a bit fancier with the blast hit track.  Now,
       instead of creating a generic glyph, we use the "graded_segments"
@@ -259,13 +257,13 @@ PRES1		127	310	700
     </p><p>
       When we run the modified script, we get this image.
     </p><p>
-      <div class="figure"><a id="d3e98"></a><div class="mediaobject"><img src="../figs/graphics/fig2.png" alt="The improved image"></div><p class="title"><b>Figure&nbsp;3.&nbsp;The improved image</b></p></div>
-    </p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left">Important</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+      <div class="figure"><a id="d4e99"></a><div class="mediaobject"><img src="../figs/graphics/fig2.png" alt="The improved image"></img></div><p class="title"><b>Figure&nbsp;3.&nbsp;The improved image</b></p></div>
+    </p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></img></td><th align="left">Important</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 	Remember that if you are on a Windows platform, you need to put
 	STDOUT into binary mode so that the PNG file does not go through
 	Window's carriage return/linefeed transformations.  Before the
 	final print statement, write binmode(STDOUT).
-      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="improving"></a>5.&nbsp;Improving the Image</h2></div></div><div></div></div><p>
+      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="improving"></a>5.&nbsp;Improving the Image</h2></div></div></div><p>
       Before we move into displaying gapped alignments, let's tweak the
       image slightly so that higher scoring hits appear at the top of the
       image, and the score itself is printed in red underneath each hit.
@@ -340,7 +338,7 @@ PRES1		127	310	700
       string to use as the value of the description.  In our code, we simply
       fetch out the BLAST hit's score using its <tt class="function">score()</tt>
       method, and incorporate that into the description string.
-    </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+    </p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></img></td><th align="left">Tip</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 	The ability to use a code reference as a configuration option isn't
 	unique to <i class="parameter"><tt>-description</tt></i>.  In fact, you can use a 
 	code reference for any of the options passed to add_track().
@@ -350,8 +348,8 @@ PRES1		127	310	700
       sets the color used for the description strings.  Figure 3 shows the
       effect of these changes.
     </p><p>
-      <div class="figure"><a id="d3e128"></a><div class="mediaobject"><img src="../figs/graphics/fig3.png" alt="The image with descriptions and sorted hits"></div><p class="title"><b>Figure&nbsp;4.&nbsp;The image with descriptions and sorted hits</b></p></div>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="parsing-blast"></a>6.&nbsp;Parsing Real BLAST Output</h2></div></div><div></div></div><p>
+      <div class="figure"><a id="d4e129"></a><div class="mediaobject"><img src="../figs/graphics/fig3.png" alt="The image with descriptions and sorted hits"></img></div><p class="title"><b>Figure&nbsp;4.&nbsp;The image with descriptions and sorted hits</b></p></div>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="parsing-blast"></a>6.&nbsp;Parsing Real BLAST Output</h2></div></div></div><p>
       From here it's just a small step to writing a general purpose utility
       that will read a BLAST file, parse its output, and output a picture.
       The key is to use the <tt class="classname">Bio::SearchIO</tt>
@@ -470,22 +468,22 @@ PRES1		127	310	700
     </p><p>
       Figure 4 shows the output from a sample BLAST hit file.
     </p><p>
-      <div class="figure"><a id="d3e160"></a><div class="mediaobject"><img src="../figs/graphics/fig4.png" alt="Output from the BLAST parsing and rendering script"></div><p class="title"><b>Figure&nbsp;5.&nbsp;Output from the BLAST parsing and rendering script</b></p></div>
+      <div class="figure"><a id="d4e161"></a><div class="mediaobject"><img src="../figs/graphics/fig4.png" alt="Output from the BLAST parsing and rendering script"></img></div><p class="title"><b>Figure&nbsp;5.&nbsp;Output from the BLAST parsing and rendering script</b></p></div>
     </p><p>
       The next section will demonstrate how to parse and display feature
       tables from GenBank and EMBL.
-    </p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left">Important</th></tr><tr><td colspan="2" align="left" valign="top"><p>
+    </p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></img></td><th align="left">Important</th></tr><tr><td colspan="2" align="left" valign="top"><p>
 	Remember that if you are on a Windows platform, you need to put
 	STDOUT into binary mode so that the PNG file does not go through
 	Window's carriage return/linefeed transformations.  Before the
 	final print statement, write binmode(STDOUT).
-      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="rendering-features"></a>7.&nbsp;Rendering Features from a GenBank or EMBL File</h2></div></div><div></div></div><p>
+      </p></td></tr></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="rendering-features"></a>7.&nbsp;Rendering Features from a GenBank or EMBL File</h2></div></div></div><p>
       With <tt class="classname">Bio::Graphics</tt> you can render the feature
       table of a GenBank or EMBL file quite easily.  The trick is to use
       <tt class="classname">Bio::SeqIO</tt> to generate a set of
       <tt class="classname">Bio::SeqFeatureI</tt> objects, and to use those
-      features to populate tracks (see the <a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top">Feature-Annotation
-	HOWTO</a> for more information on features). The documentation for
+      features to populate tracks (see the <a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">Feature-Annotation
+	HOWTO</i></a> for more information on features). The documentation for
       each of  the individual. For simplicity's sake, we will sort each
       feature by its primary tag (such as "exon") and create a new track for
       each tag type.
@@ -609,8 +607,8 @@ PRES1		127	310	700
     </p><p>
       Figure 5 shows an example of the output of this script.
     </p><p>
-      <div class="figure"><a id="d3e201"></a><div class="mediaobject"><img src="../figs/graphics/fig5.png" alt="The embl2picture.pl script"></div><p class="title"><b>Figure&nbsp;6.&nbsp;The embl2picture.pl script</b></p></div>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="rendering-features-better"></a>8.&nbsp;A Better Version of the Feature Renderer</h2></div></div><div></div></div><p>
+      <div class="figure"><a id="d4e203"></a><div class="mediaobject"><img src="../figs/graphics/fig5.png" alt="The embl2picture.pl script"></img></div><p class="title"><b>Figure&nbsp;6.&nbsp;The embl2picture.pl script</b></p></div>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="rendering-features-better"></a>8.&nbsp;A Better Version of the Feature Renderer</h2></div></div></div><p>
       The previous example's rendering has numerous deficiencies.  For one
       thing, there are no lines connecting the various CDS rectangles in the
       CDS track to show how they are organized into a spliced transcript.
@@ -826,8 +824,8 @@ PRES1		127	310	700
     </p><p>
       Figure 6 shows an example of the output of this script.
     </p><p>
-      <div class="figure"><a id="d3e235"></a><div class="mediaobject"><img src="../figs/graphics/fig6.png" alt="The embl2picture.pl script"></div><p class="title"><b>Figure&nbsp;7.&nbsp;The embl2picture.pl script</b></p></div>
-    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="summary"></a>9.&nbsp;Summary</h2></div></div><div></div></div><p>
+      <div class="figure"><a id="d4e237"></a><div class="mediaobject"><img src="../figs/graphics/fig6.png" alt="The embl2picture.pl script"></img></div><p class="title"><b>Figure&nbsp;7.&nbsp;The embl2picture.pl script</b></p></div>
+    </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="summary"></a>9.&nbsp;Summary</h2></div></div></div><p>
       In summary, we have seen how to use the
       <tt class="classname">Bio::Graphics</tt> module to generate
       representations of sequence features as horizontal maps.  We applied
@@ -843,7 +841,7 @@ PRES1		127	310	700
       clusters, cytogenetic maps, restriction maps, and much more.
     </p><p>
       Although we haven't shown it, <tt class="classname">Bio::Graphics</tt>
-      provides support for generating HTML image maps.  The <a href="http://www.gmod.org" target="_top">Generic Genome Browser</a> uses this
+      provides support for generating HTML image maps.  The <a href="http://www.gmod.org" target="_top"><i class="citetitle">Generic Genome Browser</i></a> uses this
       facility to generate clickable, browsable images of the genome from a
       variety of genome databases.
     </p><p>
@@ -859,10 +857,10 @@ PRES1		127	310	700
       sequence features.  feature_draw.PLS is a Perl script built on top of
       this module, which you can find in the scripts/graphics directory in
       the Bioperl distribution.
-    </p></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a id="ftn.d3e93" href="#d3e93">1</a>] </sup>Obtain the list of glyphs by running perldoc on
+    </p></div><div class="footnotes"><br></br><hr width="100" align="left"></hr><div class="footnote"><p><sup>[<a id="ftn.d4e94" href="#d4e94">1</a>] </sup>Obtain the list of glyphs by running perldoc on
 	  Bio::Graphics::Glyph.  Obtain a description of the glyph options by
 	  running perldoc on individual glyphs, for example 
 	  "perldoc Bio::Graphics::Glyph::arrow."
 	</p></div></div></div><div xmlns="" id="customfooter">
-BioPerl DocBook
+BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div></body></html>

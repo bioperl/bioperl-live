@@ -212,9 +212,11 @@
           <xsl:when test="function-available('simg:getWidth')">
             <xsl:value-of select="simg:getWidth(simg:new($filename),                                                 $nominal.image.width)"/>
           </xsl:when>
-          <xsl:when test="function-available('ximg:getWidth')">
+<!--
+BIO          <xsl:when test="function-available('ximg:getWidth')">
             <xsl:value-of select="ximg:getWidth(ximg:new($filename),                                                 $nominal.image.width)"/>
           </xsl:when>
+-->
           <xsl:otherwise>
             <xsl:value-of select="$nominal.image.width"/>
           </xsl:otherwise>
@@ -234,9 +236,11 @@
           <xsl:when test="function-available('simg:getDepth')">
             <xsl:value-of select="simg:getDepth(simg:new($filename),                                                 $nominal.image.depth)"/>
           </xsl:when>
-          <xsl:when test="function-available('ximg:getDepth')">
+<!--   
+BIO       <xsl:when test="function-available('ximg:getDepth')">
             <xsl:value-of select="ximg:getDepth(ximg:new($filename),                                                 $nominal.image.depth)"/>
           </xsl:when>
+-->
           <xsl:otherwise>
             <xsl:value-of select="$nominal.image.depth"/>
           </xsl:otherwise>

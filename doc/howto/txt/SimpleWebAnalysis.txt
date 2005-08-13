@@ -1,5 +1,5 @@
 
-   BioPerl DocBook
+   BioPerl DocBook ([1]BioPerl)
 
 Web-based SimpleAnalysis HOWTO
 
@@ -7,7 +7,7 @@ Richard Adams
 
    Dept. Medical Genetics, University of Edinburgh
 
-   <[1]radams_at_staffmail.ed.ac.uk>
+   <[2]radams_at_staffmail.ed.ac.uk>
 
    This document is copyright Richard Adams, 2003. It can be copied and
    distributed under the terms of the Perl Artistic License.
@@ -25,14 +25,14 @@ Richard Adams
 
    Table of Contents
 
-   1. [2]Introduction
-   2. [3]Simple Examples
-   3. [4]Retrieving results
-   4. [5]Metasequences
-   5. [6]How to run the same analysis with varying parameters
-   6. [7]Caveats
-   7. [8]Interested in developing your own Analysis module?
-   8. [9]Acknowledgments
+   [3]1. Introduction
+   [4]2. Simple Examples
+   [5]3. Retrieving results
+   [6]4. Metasequences
+   [7]5. How to run the same analysis with varying parameters
+   [8]6. Caveats
+   [9]7. Interested in developing your own Analysis module?
+   [10]8. Acknowledgments
 
 1. Introduction
 
@@ -307,16 +307,18 @@ Richard Adams
    Matsalla, Aaron Mackey and Heikki Lehvaslaiho, Bio::WebAgent by Heikki
    Lehvaslaiho, and Bio::SimpleAnalysisI by Martin Senger.
 
-   BioPerl DocBook
+   BioPerl DocBook ([11]BioPerl)
 
 References
 
-   1. mailto:radams_at_staffmail.ed.ac.uk
-   2. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#introduction
-   3. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#Simple
-   4. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#retrieving_results
-   5. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#Metasequences
-   6. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#parameters
-   7. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#caveats
-   8. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#developing
-   9. file://localhost/cygdrive/c/docbook/deploy/SimpleWebAnalysis/SimpleWebAnalysis.html#Acknowledgments
+   1. http://bioperl.org/
+   2. mailto:radams_at_staffmail.ed.ac.uk
+   3. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#introduction
+   4. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#Simple
+   5. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#retrieving_results
+   6. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#Metasequences
+   7. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#parameters
+   8. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#caveats
+   9. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#developing
+  10. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SimpleWebAnalysis.html#Acknowledgments
+  11. http://bioperl.org/

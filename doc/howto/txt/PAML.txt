@@ -1,30 +1,23 @@
 
-   BioPerl DocBook
+   BioPerl DocBook ([1]BioPerl)
 
 Bio::Tools::Phylo::PAML HOWTO
 
 Aaron Mackey
 
-   [1]University of Virginia
+   [2]University of Virginia
 
-     <[2]amackey@virginia.edu>
+     <[3]amackey@virginia.edu>
 
 Jason Stajich
 
-   [3]Duke University
-   [4]University Program in Genetics
-   [5]Center for Genome Technology
+   [4]Duke University
 
-     Duke University Medical Center
-     Box 3568
-     Durham,
-     North Carolina
-     27710-3568
-     USA
-     <[6]jason-at-bioperl.org>
+     <[5]jason-at-bioperl.org>
 
-   This document is copyright Aaron Mackey, 2002. For reproduction other
-   than personal use please contact me at amackey@virginia.edu
+   This document is copyright Aaron Mackey, Jason Stajich, 2002-2005. For
+   reproduction other than personal use please contact us at
+   amackey@virginia.edu or jason@bioperl.org.
 
    2002-08-01
    Revision History
@@ -32,6 +25,8 @@ Jason Stajich
    first draft
    Revision 0.2 2003-03-01 jes
    Added pairwise Ka,Ks example code and running code
+   Revision 0.3 2005-03-15 jes
+   Added branch-specific paramater parsing (NSsites and per-branch rates)
 
    Abstract
 
@@ -45,9 +40,10 @@ Jason Stajich
 
    Table of Contents
 
-   1. [7]Background
-   2. [8]Accessing paml results
-   3. [9]Running PAML from within Bioperl
+   [6]1. Background
+   [7]2. Accessing paml results
+   [8]3. Running PAML from within Bioperl
+   [9]4. Parsing branch-specific rates and NSSites results
 
 1. Background
 
@@ -246,16 +242,127 @@ for( my $i = 0; $i < (scalar @otus -1) ; $i++) {
 }
 
 
-   BioPerl DocBook
+4. Parsing branch-specific rates and NSSites results
+
+   PAML allows for several models of molecular evolution. Given a tree
+   topology one can test whether or not contraints of evolutionary rates
+   on different parts of the topology better explain the observe data
+   than a null model where an overall rate is assumed. To do this a tree
+   topology must be provided and typically marked to specify which
+   branches to test the alternative hypotheses of differing rates.
+
+   To get access to this branch specific data we store it in the
+   Bio::Tree::Tree object which is parsed for each result. The nodes in
+   the tree will contain additional tagged values for capturing the
+   branch specific evolutionary rates. In cases where there are several
+   different models of evolution tested (i.e. M0, M1, etc) we create a
+   Bio::Tools::Phylo::PAML::ModelResult to store each of the model
+   results separately. A separate Tree object will be associated with
+   each one of these models.
+
+   Please note that the models underlting PAML 3.14 have changed some
+   from PAML 3.13 and earlier. NSsites 1 and 2 mean slightly different
+   things than they did in previous versions. 
+
+   Accessing Tree data
+
+   First we'll just descibe how to access data for a topology for a
+   single model or where NSsites=0. In this case we'll just want to get
+   the tree(s) associated with a give result. In this code we loop
+   through all the Bio::Tree::Tree associated with the
+   Bio::Tools::Phylo::PAML::Result.
+use Bio::Tools::Phylo::PAML;
+
+my $outcodeml = shift(@ARGV);
+my $paml_parser = new Bio::Tools::Phylo::PAML(-file => $outcodeml,
+                                              -dir => "./");
+if( my $result = $paml_parser->next_result() ) {
+ while ( my $tree = $result->next_tree ) {
+  for my $node ( $tree->get_nodes ) {
+   my $id;
+   # first we do some work to figure out what the ID should be.
+   # for a leaf or tip node this is just the taxon label
+   if( $node->is_Leaf() ) {
+    $id = $node->id;
+   } else {
+   # for the internal nodes it is just the name of all the sub-nodes
+   # put together, much like how Sanderson represents internal nodes
+   # in r8s
+    $id = "(".join(",", map { $_->id } grep { $_->is_Leaf }
+                              $node->get_all_Descendents) .")";
+   }
+   if( ! $node->ancestor || ! $node->has_tag('t') ) {
+     # skip when no values have been associated with this node
+     # (like the root node)
+     next;
+   }
+   printf "%s\tt=%.3f\tS=%.1f\tN=%.1f\tdN/dS=%.4f\tdN=%.4f\t".
+           "dS=%.4f\tS*dS=%.1f\tN*dN=%.1f\n",
+    $id,map { ($node->get_tag_values($_))[0] }
+    qw(t S N dN/dS dN dS), 'S*dS', 'N*dN';
+  }
+ }
+}
+
+
+   Accessing NSsites data
+
+   In cases where nssites=1 or nssites=2 is provided the data for the
+   results is accessible through the
+   Bio::Tools::Phylo::PAML::ModelResult. The function get_NSSite_results
+   on the Bio::Tool::Phylo::PAML::Result object. In this way multiple
+   model results can be folded into a single PAML::Result object. The
+   code shown below is nearly identical to that in the previous example,
+   there is just an additional loop to process the NSsite Result objects.
+use Bio::Tools::Phylo::PAML;
+
+my $outcodeml = shift(@ARGV);
+my $paml_parser = new Bio::Tools::Phylo::PAML(-file => $outcodeml,
+                                              -dir => "./");
+if( my $result = $paml_parser->next_result() ) {
+  for my $ns_result ( $result->get_NSSite_results ) {
+    print "model ", $ns_result->model_num, " ",
+          $ns_result->model_description, "\n";
+  while ( my $tree = $ns_result->next_tree ) {
+   for my $node ( $tree->get_nodes ) {
+    my $id;
+    # first we do some work to figure out what the ID should be.
+    # for a leaf or tip node this is just the taxon label
+    if( $node->is_Leaf() ) {
+     $id = $node->id;
+    } else {
+    # for the internal nodes it is just the name of all the sub-nodes
+    # put together, much like how Sanderson represents internal nodes
+    # in r8s
+     $id = "(".join(",", map { $_->id } grep { $_->is_Leaf }
+                              $node->get_all_Descendents) .")";
+    }
+    if( ! $node->ancestor || ! $node->has_tag('t') ) {
+     # skip when no values have been associated with this node
+     # (like the root node)
+     next;
+    }
+    printf "%s\tt=%.3f\tS=%.1f\tN=%.1f\tdN/dS=%.4f\tdN=%.4f\t".
+           "dS=%.4f\tS*dS=%.1f\tN*dN=%.1f\n",
+    $id,map { ($node->get_tag_values($_))[0] }
+    qw(t S N dN/dS dN dS), 'S*dS', 'N*dN';
+   }
+  }
+ }
+}
+
+
+   BioPerl DocBook ([10]BioPerl)
 
 References
 
-   1. http://www.virginia.edu/
-   2. mailto:amackey@virginia.edu
-   3. http://www.duke.edu/
-   4. http://upg.duke.edu/
-   5. http://cgt.genetics.duke.edu/
-   6. mailto:jason-at-bioperl.org
-   7. file://localhost/cygdrive/c/docbook/deploy/PAML/PAML.html#background
-   8. file://localhost/cygdrive/c/docbook/deploy/PAML/PAML.html#results
-   9. file://localhost/cygdrive/c/docbook/deploy/PAML/PAML.html#running
+   1. http://bioperl.org/
+   2. http://www.virginia.edu/
+   3. mailto:amackey@virginia.edu
+   4. http://www.duke.edu/
+   5. mailto:jason-at-bioperl.org
+   6. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/PAML.html#background
+   7. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/PAML.html#results
+   8. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/PAML.html#running
+   9. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/PAML.html#nssites
+  10. http://bioperl.org/
