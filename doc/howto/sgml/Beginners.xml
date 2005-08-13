@@ -2063,7 +2063,9 @@ $reversed_obj = $seq_obj->revcom;
 		  </listitem>
 		  <listitem>
 			 <para>               
-				The <ulink url="http://bioperl.org/Core/Latest/biodesign.html"><citetitle><ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> design documentation</citetitle></ulink>, for anyone who'd like
+				The <ulink
+				url="http://bioperl.org/Core/Latest/biodesign.html">
+<citetitle>Bioperl design documentation</citetitle></ulink>, for anyone who'd like
 				to write their own modules. 
 			 </para>
 		  </listitem>
