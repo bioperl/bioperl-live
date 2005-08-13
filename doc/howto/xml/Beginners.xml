@@ -1,0 +1,2202 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE article
+  PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "./docbookx.dtd"
+  [ <!ENTITY % global.entities SYSTEM "global.xml">
+    %global.entities;
+
+    <!ENTITY % entities SYSTEM "entities.xml">
+    %entities; ]
+>
+
+<article lang="en">
+  <articleinfo>
+    <title>Beginners HOWTO</title>
+    <author>
+      <!-- 
+		one of (CONTRIB AUTHORBLURB AFFILIATION OTHERNAME 
+		LINEAGE SURNAME FIRSTNAME HONORIFIC) 
+		-->
+      <firstname>Brian</firstname>
+      <surname>Osborne</surname>
+      <authorblurb>
+		  <para><ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> contributor</para>
+      </authorblurb>
+      <affiliation>
+		  <orgname>
+			 <ulink url="http://www.cognia.com"><citetitle>Cognia
+				Corporation</citetitle></ulink>
+		  </orgname>
+		  <address>
+			 <email>brian-at-cognia.com</email>
+        </address>
+      </affiliation>
+    </author>
+    <author>
+      <firstname>James</firstname>
+      <surname>Thompson</surname>
+      <authorblurb>
+		  <para></para>
+      </authorblurb>
+      <affiliation>
+		  <orgname>
+		  </orgname>
+		  <address>
+			 <email>tex-at-biocompute.net</email>
+        </address>
+      </affiliation>
+    </author>
+
+    <pubdate>2005-02-08</pubdate>
+<!--
+    <revhistory>
+      <revision>
+		  <revnumber></revnumber>
+		  <date></date>
+		  <authorinitials></authorinitials>
+		  <revremark></revremark>
+      </revision>
+    </revhistory>
+-->    
+	 <legalnotice>
+      <para>
+		  This document is copyright Brian Osborne, 2004.  For
+		  reproduction other than personal use please contact 
+		  brian at cognia.com.
+      </para>      
+    </legalnotice>
+    
+    <abstract>
+      <para>
+		  This is a HOWTO written in DocBook (XML) that talks about using
+		  <ulink url="http://www.bioperl.org/">Bioperl</ulink>, for biologists who would like to learn more
+		  about writing their own bioinformatics scripts using <ulink url="http://www.bioperl.org/"><citetitle>Bioperl</citetitle></ulink>. 
+      </para>
+		<para>
+		  What is <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>? It is an open source bioinformatics toolkit
+		  used by researchers all over the world. If you're looking for
+		  a script built to fit your exact need it's likely 
+		  you won't find it in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. What you will find is a
+		  diverse set of Perl modules that will enable you to write
+		  your own script, and a commmunity of people who are willing 
+		  to help you.
+		</para>
+    </abstract>
+  </articleinfo>
+  
+  <section id="introduction">
+    <title>Introduction</title>
+    <para>
+		If you're a molecular biologist it's likely that
+		you're interested in gene and protein sequences, and you study them
+		in some way on a regular basis. Perhaps you'd like to try your
+		hand at automating some of these tasks, or you're just curious
+		about learning more about the programming side of bioinformatics.
+		In this HOWTO you'll see discussions of some of the common uses
+		of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, 
+		like sequence analysis with BLAST and retrieving sequences from 
+		public databases. You'll also see how to
+		write <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> scripts that chain these tasks together, that's
+		how you'll be able to do really powerful things with <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>.
+    </para>
+    <para>
+		You will also see some discussions of software concepts, this
+		can't be avoided. The more you understand about
+		programming the better, but all efforts will be made
+		to not introduce too much unfamiliar material. 
+		However, there will be an introducton to modularity, or objects. This is 
+		one of the aspects of the <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> package that you'll have
+		to come to grips with as you attempt more complex tasks with
+		your scripts.
+    </para>
+	 <para>
+		One of the challenging aspects of learning a new skill is
+		learning the jargon, and programming certainly has its share of
+		interesting terms and concepts. Be patient - remember that the
+		programmers learning biology have had just as tough a task
+		(if not worse - just ask them!).
+	 </para>
+    <note>
+      <para>
+		  This HOWTO does not discuss a very nice module that's designed for
+		  beginners, 
+		  <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Perl.html"><citetitle>Bio::Perl</citetitle></ulink>. The reason is that though this is an
+			 excellent introductory tool, it is not object-oriented and
+		  can't be extended. What we're
+		  attempting here is to introduce <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> and show you
+		  ways to expand your new-found skills.
+      </para>
+    </note>
+  </section>
+
+  <section id="installation">
+    <title>Installing <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink></title>
+    <para>
+		The first thing to determine is the <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> platform - Unix or
+		Windows? Here are some things to consider, if you're choosing 
+		between the two.
+	 </para>
+	 <para>
+		<emphasis>Unix Advantages</emphasis>
+	 </para>
+	 <para>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Knowing some Unix is a useful skill. No matter how prevalent 
+			 Windows is on the desktop, Unix rules bioinformatics.
+		  </member>
+		  <member>
+			 Unix isn't as hard as you may think, if you know less than
+			 10 commands you're ready to work.
+		  </member>
+		  <member>
+			 Every bioinformatics application you've ever heard of runs on Unix.
+		  </member>
+		  <member>
+			 If you want to do serious computation the typical Unix server is
+			 probably more stable and more powerful than the 
+			 available Windows machine.
+		  </member>
+		  <member>
+			 There may be an administrator taking care of the machine - maybe
+			 she'll even install <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> for you! Ask and see.
+		  </member>
+		</simplelist>
+	 </para>
+	 <para>
+		<emphasis>Unix Disadvantages</emphasis>
+	 </para>
+	 <para>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 The command-line can seem unfamiliar and awkward at first.
+		  </member>
+		  <member>
+			 Your Unix account may be on a server - not too portable!
+		  </member>
+		  <member>
+			 You may not have easy access to all your familiar programs.
+		  </member>
+		  <member>
+			 You'll probably have to learn to use a Unix word processor,
+			 like emacs or vi.
+		  </member>
+		  <member>
+			 You may not have control of the machine, the administrator
+			 will. You may not be able to download all of Genbank,
+			 for example!
+		  </member>
+		</simplelist>
+	 </para>
+	 <para>
+		<emphasis>Windows Advantages</emphasis>
+	 </para>		
+	 <para>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Simplicity, if Windows is what you're working with now.
+		  </member>
+		  <member>
+			 Plenty of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> users run it on Windows.
+		  </member>
+		</simplelist>
+	 </para>
+	 <para>
+		<emphasis>Windows Disadvantages</emphasis>
+	 </para>
+	 <para>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Not all bioinformatics applications run on Windows.
+		  </member>
+		  <member>
+			 It's your computer, you will have to deal with the 
+			 installation details yourself.
+		  </member>
+		  <member>
+			 Your computer may not be able to handle serious 
+			 computation gracefully.
+		  </member>
+		</simplelist>
+	 </para>
+	 <tip>
+		<para>
+		  If you decide to use Unix there are many Web pages that can 
+		  give you a good introduction, google "introduction unix" to
+		  see more than a few.
+		</para>
+	 </tip>
+    <para>
+		You should also read the instructions for 
+		<ulink url="http://bioperl.org/Core/Latest/INSTALL"><citetitle>Unix installation</citetitle></ulink> or 
+		<ulink url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>Windows installation</citetitle></ulink>. Many of the letters to the the bioperl-l
+		mailing list concern problems with installation, and there is a 
+		set of concerns that come up repeatedly:
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem>
+			 <para>
+				On Windows, messages like "Error: Failed to download URL
+				http://bioperl.org/DIST/GD.ppd", or "Not found". The 
+				explanation is that <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> does not supply every
+				accessory module that's necessary to run all of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>.
+				You'll need to search other repositories to install
+				all of these accessory modules. See the
+		<ulink
+				url="http://bioperl.org/Core/Latest/INSTALL.WIN"><citetitle>INSTALL.WIN</citetitle></ulink>
+				file for more information. 
+			 </para>
+		  </listitem>
+		  <listitem>
+			 <para>
+				On Unix, messages like "Can't locate
+				&lt;some-module&gt;.pm in @INC...". This means that Perl
+				could not find a particular module and the explanation
+				usually is that this module is not installed. You can
+				either install Bundle::<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> or install that specific
+				module by hand. See 
+<ulink
+				url="http://bioperl.org/Core/Latest/INSTALL"><citetitle>INSTALL</citetitle></ulink>
+				for details.
+			 </para>
+		  </listitem>
+		  <listitem>
+			 <para>
+				Seeing messages like "Tests Failed". If you see an 
+				error during installation consider whether
+				this problem is going to affect your use of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. There
+				are almost 800 modules in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, and ten times that many
+				tests are run during the installation. If there's a
+				complaint about GD it's only relevant if you want to 
+				use the Bio/Graphics modules, if you see an error about
+				some XML parser it's only going to affect you if 
+				you're reading XML files. Yes, you could try and make
+				each and every test pass, but that may be a lot of work, with much
+				of it fixing modules that aren't in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> itself.
+			 </para>
+		  </listitem>
+		</orderedlist>
+	 </para>
+  </section>
+  
+  <section id="help">
+    <title>Getting Assistance</title>
+    <para>
+		People will run into problems installing <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> or writing 
+		scripts using <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, nothing unusual about that. If you need 
+		assistance the way to get it is to mail bioperl-l@bioperl.org.
+		There are a good number of helpful people who regularly read
+		this list but if you want their advice it's best to give
+		sufficent detail.
+	 </para>
+	 <para>
+		<emphasis>Please include:</emphasis>
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem>
+			<para> The version of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> you're working with. </para>
+		  </listitem>
+		  <listitem>
+			 <para>The platform or operating system you're using. </para>
+		  </listitem>
+		  <listitem>
+			 <para>What you are trying to do.</para>
+		  </listitem>
+		  <listitem>
+			 <para>	 
+				The code that gives the error, if you're writing a script.
+			 </para>
+		  </listitem>
+		  <listitem>
+			 <para>			 
+				Any error messages you saw.
+			 </para>
+		  </listitem>
+		</orderedlist>
+    </para>    
+    <para>
+		Every once in a while a message will appear in bioperl-l 
+		coming from someone
+		in distress that goes unanswered. The explanation is usually that
+		the person neglected to include 1 or more of the details above,
+		usually the script or the error messages.
+    </para>
+	 <note>
+		<para>
+		  And every once in a while, not often, an email will go
+		  unanswered because the
+		  the tone is unpleasant. <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>
+		  is a 100% volunteer effort, we all have other jobs, 
+		  complaining about bugs or lack of
+		  documentation is not the way to make friends!
+		</para>
+	 </note>
+  </section>
+
+  <section id="perl">
+    <title>Perl Itself</title>
+    <para>
+		Here are a few things you might want to look at if you
+		want to learn more about Perl:
+	 </para>
+    <para>
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 Perl's own documentation. Do "perldoc perl" from the
+			 command-line for an introduction.
+		  </member>
+		  <member>
+			 <ulink url="http://www.oreilly.com/catalog/lperl3/"><citetitle>Learning Perl</citetitle></ulink>
+			 is the most frequently cited beginner's book.
+		  </member>
+		  <member>
+			 <ulink url="http://www.oreilly.com/catalog/perlnut2/"><citetitle>Perl in a Nutshell</citetitle></ulink>
+			 is also good. Not much in the way of examples, but covers
+			 many topics succintly.
+		  </member>
+		</simplelist>
+    </para>
+    <para>
+    </para>
+  </section>
+
+  <section id="starting_unix">
+	 <title>Starting to write a script on Unix</title>
+	 <para>
+		Sometimes the trickiest part is this step, writing something and
+		getting it to run, so this section attempts to address some of 
+		the more common tribulations.
+	 </para>
+	 <para>
+		In Unix when you're ready to work you're usually in the
+		command-line or "shell" environment. First find out Perl's 
+		version by typing this command:
+	 </para>		
+	 <para>
+		<programlisting>
+>perl -v
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		You will see something like:
+	 </para>
+	 <para>
+		<programlisting>
+This is perl, v5.8.2 built for cygwin-thread-multi-64int
+
+Copyright 1987-2003, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using `man perl' or `perldoc perl'.  If you have access to the
+Internet, point your browser at http://www.perl.com/, the Perl Home Page.
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		Hopefully you're using Perl version 5.4 or higher, earlier
+		versions may be troublesome. Now let's find out where the Perl 
+		program is located:
+	 </para>	
+	 <para>
+		<programlisting>
+>which perl
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		This will give you something like:
+	 </para>
+	 <para>
+		<programlisting>
+>/bin/perl
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		Now that we know where Perl is located we're ready to write a
+		script, and line 1 of the script will specify this location.
+		You're probably using some Unix word processor, emacs or vi,
+		for example  (nano or pico are other possible choices,
+		very easy to use, but not found on all Unix machines unfortunately).
+		Start to write your script by entering something like:
+	 </para>
+	 <para>
+		<programlisting>
+>emacs seqio.pl
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+	 And make this the first line of the script:
+	 </para>
+	 <para>
+		<programlisting>
+#!/bin/perl -w
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		The <emphasis>-w</emphasis> flag tells Perl to warn you if and
+		when various common errors are encountered, it's useful.
+	 </para>
+  </section>
+
+  <section id="create">
+	 <title>Creating a sequence, and an object</title>
+    <para>
+		Our first script will create a sequence. Well, not just a sequence,
+		you will be creating a "sequence object", since
+		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is written in an object-oriented way. Why be
+		object-oriented? Why introduce these odd or intrusive notions into
+		software that should be "biological" or "intuitive"? The reason is 
+		that thinking in terms of modules or objects turns out to be the
+		most flexible, and ultimately the simplest, way to deal with
+		data as complex as biological data. Once you get over your initial
+		skepticism, and have written a few scripts, you will find this
+		idea of an object becoming a bit more natural.
+	 </para>
+	 <para>
+		One way to think about an object in software is that it is a container
+		for data. The typical sequence entry contains
+		differents sorts of data (a sequence, one or more identifiers, 
+		and so on) so it will serve as a nice example of what
+		an object can be. 
+	 </para>
+	 <para>
+		All objects in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> are created by specific
+		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> modules, so if you want to create an object you're also going
+		to have to tell Perl which module to use. Let's add another line:
+    </para>	
+    <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::Seq;
+		</programlisting>
+    </para>
+<para></para>
+	 <para>
+		This line tells Perl to <function>use</function> a module on 
+		your machine called "Bio/Seq.pm".
+		We will use this 
+		<ulink
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>
+		module to create a 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> object.
+		The 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> module is one of the central modules in
+		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. The analogous 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> object, or "Sequence object", or
+		"Seq object", is ubiquitous in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, it contains 
+		a single sequence and associated names, identifiers, and
+		properties. Let's create a very simple sequence object at
+		first, like so:
+    </para>
+    <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::Seq;
+		
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
+                         -alphabet => 'dna' );
+		</programlisting>
+    </para>
+	 <para></para>
+	 <para>
+		That's it! The variable <varname>$seq_obj</varname> is the
+		Sequence object, a simple one, containing just a sequence.
+		Note that the code tells <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> that the sequence is DNA
+		(the choices here are 'dna', 'rna', and 'protein'), this is
+		the wise thing to do. If you don't tell <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> it will attempt 
+		to guess the alphabet. Normally it guesses correctly but if your sequence
+		has lots of odd or ambiguous characters, such as N or X,
+		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>'s guess may be incorrect and this may lead to some
+		problems.
+	 </para>
+	 <para>
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects can be created manually, as above, but
+		they're also create automatically in many operations
+		in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, for example when alignment files or database
+		entries or BLAST reports are parsed.
+	 </para>      
+	 <para>
+		Any time you explicitly create an object, you
+		will use this <function>new()</function> method. The syntax of this
+		line is one you'll see again and again in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>: the name
+		of the object or variable, the module name, the 
+		<emphasis>-></emphasis> symbol, the
+		method name <emphasis>new</emphasis>, some argument name like
+		<emphasis>-seq</emphasis>, the <emphasis>=></emphasis>
+		symbol, and then
+		the argument or value itself, like
+		<emphasis>aaaatgggggggggggccccgtt</emphasis>.
+	 </para>
+	 <note>
+		<para>
+		  If you've programmed before you've come across the term
+		  "function" or "sub-routine". In object-oriented programming the term
+		  "method" is used instead.			 
+		</para>
+	 </note>
+	 <para></para>
+	 <para>
+		The object was described as a data container, but it is more
+		than that. It can also do work, meaning it can use or call
+		specific methods taken from the module or modules that were used
+		to create it. For example, the 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>
+		module can access a method
+		named <function>seq()</function> that will print out the
+		sequence of 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink> objects. You could use it like this:
+	 </para>
+	 <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::Seq;
+		
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+		         -alphabet => 'dna' );
+
+print $seq_obj->seq;
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		As you'd expect, this script will print out <emphasis>
+		  aaaatgggggggggggccccgtt</emphasis>. That <emphasis>->
+		</emphasis> symbol is used when an object calls or accesses
+		its methods. 
+	 </para>
+<para></para>
+	 <para>
+		Let's make our example a bit more true-to-life, since a typical
+		sequence needs an identifier, perhaps a description, in addition to
+		its sequence.
+	 </para>
+	 <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::Seq;
+		
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+		         -display_id => "#12345",
+		         -desc => "example 1",
+                         -alphabet => "dna" );
+
+print $seq_obj->seq();
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		<emphasis>aaaatgggggggggggccccgtt</emphasis>, <emphasis>#12345</emphasis>, and <emphasis>example 1</emphasis> are called
+		"arguments" in programming jargon. You could say that
+		this example shows how to pass arguments to the
+		<function>new</function> method.
+	 </para>
+  </section>
+
+  <section id="writing">
+    <title>Writing a sequence to a file</title>
+	 <para>
+		This next example will show how two objects can work together
+		to create a sequence file.
+		We already have a Sequence object, <varname>$seq_obj</varname>, 
+		and we will create an
+		additional object whose responsibility it is to read from and write
+		to files. This object is the SeqIO object, 
+		where IO stands for 
+		<emphasis>I</emphasis>nput-<emphasis>O</emphasis>utput.
+		By using 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> in this manner you will be able to get input
+		and make output for all of the sequence file formats supported by <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>
+		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink> has a complete list of supported formats).
+		The way you create <classname>Bio::SeqIO</classname> objects is 
+		very similar to the way we used <function>new()</function> to
+		create a 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>, or sequence, object:
+	 </para>    
+	 <para>
+		<programlisting>
+use Bio::SeqIO;
+
+$seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
+		             -format => 'fasta' );
+		</programlisting> 
+	 </para> 
+<para></para>
+	 <para>
+	   Note that <emphasis>&gt;</emphasis> in the -file argument.
+		This character indicates that we're going to
+		<emphasis>write</emphasis> to the file named
+		"sequence.fasta", the same character we'd use if we were using Perl's
+		<function>open()</function> function to write to a file. The
+		"-format" argument, "fasta", tells the SeqIO object that it
+		should create the file in fasta format.
+    </para>
+	 <para></para>
+    <para>
+		Let's put our 2 examples together:
+	 </para>
+	 <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::Seq;
+use Bio::SeqIO;
+
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
+		         -display_id => "#12345",
+		         -desc => "example 1",
+                         -alphabet => "dna" );
+
+$seqio_obj = Bio::SeqIO->new(-file => '>sequence.fasta', 
+	                     -format => 'fasta' );
+
+$seqio_obj->write_seq($seq_obj);
+		</programlisting> 
+	 </para> 
+<para></para>
+	 <para>
+		Let's consider that last <function>write_seq</function>
+		line where you see two objects since 
+		this is where some  
+		neophytes start to get a bit nervous. What's going on there? In that
+		line we handed or passed the Sequence object to the SeqIO object as an
+		argument to its <function>write_seq</function> method. Another
+		way to think about this is that we hand the Sequence object to the SeqIO 
+		object since SeqIO understands how
+		to take information from the Sequence object and write to a file
+		using that information, in this case in fasta format. If you
+		run this script like this:
+	 </para>
+	 <para>
+		<programlisting>
+>perl seqio.pl
+		</programlisting>
+	 </para>
+	 <para>
+		You should create a file called "sequence.fasta" that looks like
+		this:
+	 </para>
+	 <para>
+		<programlisting>
+>#12345 example 1
+aaaatgggggggggggccccgtt
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		Let's demonstrate the intelligence of the SeqIO - the example
+		below shows what file content is created when the argument to
+		"-format" is set to "genbank" instead of "fasta":
+	 </para>
+	 <para>
+		<programlisting>
+LOCUS       #12345                    23 bp    dna     linear   UNK
+DEFINITION  example 1
+ACCESSION   unknown
+FEATURES             Location/Qualifiers
+BASE COUNT        4 a      4 c     12 g      3 t
+ORIGIN
+        1 aaaatggggg ggggggcccc gtt
+//
+		</programlisting>
+	 </para>
+  </section>
+
+  <section id="reading">
+	 <title>Retrieving a sequence from a file</title>
+	 <para>
+		One beginner's mistake is to not use
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> when working with sequence
+		files. This is understandable in some respects. You
+		may have read about Perl's <function>open</function>
+		function, and <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>'s way of retrieving sequences may look odd
+		and overly complicated, at first. But don't use
+		<function>open</function>! Using <function>open</function> 
+		immediately forces you to do the parsing of the sequence
+		file and this can get complicated very quickly. Trust
+		the SeqIO object, it's built to open and parse all
+		the common sequence formats, it can read and write to files,
+		and it's built to operate with all the other <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> 
+		modules that you will want to use. 
+	 </para>
+	 <para>
+		Let's read the file we created previously, "sequence.fasta",
+		using SeqIO. The syntax will look familiar:
+	 </para>
+	 <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::SeqIO;
+
+$seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
+                             -format => "fasta" );
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		One difference is immediately apparent: there is no <emphasis>
+		  &gt;</emphasis> character. Just as with with the <function>
+		  open()</function> function this means we'll be reading from
+		the "sequence.fasta" file. Let's add the key line, where
+		we actually retrieve the Sequence object from the file using
+		the <function>next_seq</function> method:
+	 </para>
+	 <para>
+		<programlisting>
+#!/bin/perl -w
+
+use Bio::SeqIO;
+
+$seqio_obj = Bio::SeqIO->new(-file => "sequence.fasta",
+                             -format => "fasta" );
+		  
+$seq_obj = $seqio_obj->next_seq;
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		Here we've used the <function>next_seq()</function> method of the
+		<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> object. When you use, or call, 
+		<function>next_seq()</function> the
+		SeqIO	object will get the next available sequence, in this case
+		the first sequence in the file that was just opened. The
+		Sequence object, <varname>$seq_obj</varname>, that's created
+		will be identical to
+		to the Sequence object we created manually in our first example.
+		This is another idiom that's used frequently in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>, the
+		next_&lt;something&gt; method. You'll come across the same idea
+		in the <function>next_aln</function> method of 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html"><citetitle>AlignIO</citetitle></ulink> (reading and 
+		writing alignment files) and 
+		the <function>next_hit</function> method of 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html"><citetitle>SearchIO</citetitle></ulink> (reading 
+		the output of sequence comparison programs such as BLAST and 
+		HMMER).
+	 </para>
+	 <para>
+		If there were multiple sequences in the input file you could just 
+		continue to call <function>next_seq()</function> in some loop, 
+		and SeqIO would retrieve the Seq objects, one by one, 
+		until none were left:
+	 </para>
+	 <para>
+		<programlisting>
+while ($seq_obj = $seqio_obj->next_seq){
+    # print the sequence
+    print $seq_obj->seq,"\n";
+}
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		Do you have to supply a "-format" argument when you are reading 
+		from a file, as we did? Not necessarily, but it's the safe thing
+		to do. If you don't give a format then the SeqIO object will 
+		try to determine the format from the file suffix or extension 
+		(and a list of the file extensions is in the  
+		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink>). In fact, the suffix "fasta" is one that
+		SeqIO understands, so "-format" is unnecessary above. Without a known
+		suffix SeqIO will attempt to guess the format based on the 
+		file's contents but there's no guarantee that it can guess
+		correctly for every single format.
+	 </para>
+    <tip>
+      <para>
+		  It may be useful to tell SeqIO the alphabet of the input, using the
+		  "-alphabet" argument. What this does is to tell SeqIO not to
+		  try to determine the alphabet ("dna", "rna", "protein"). This helps
+		  because <ulink
+		  url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>
+		  may guess incorrectly (e.g. <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is going to
+		  guess that the protein sequence "MGGGGTCAATT" is DNA) or there
+		  may be odd 
+		  characters in the sequence that
+		  SeqIO objects to (e.g. "-"). Set "-alphabet" to a value
+		  when reading sequences and SeqIO will not attempt to guess
+		  the alphabet of those sequences or validate the sequences.
+      </para>
+    </tip>
+
+  </section>
+
+  <section id="retrieving_gb">
+	 <title>Retrieving a sequence from a database</title>
+	 <para>
+		One of the strengths of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is that it allows you to retrieve
+		sequences from all sorts of sources, files, remote databases,
+		local databases, regardless of their format. Let's use this 
+		capability to get a entry from Genbank. What will we retrieve?
+		Again, a Sequence object. Let's choose our module:
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::DB::GenBank;
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		We could also query <ulink
+		url="http://www.expasy.ch"><citetitle>SwissProt</citetitle></ulink>,
+		GenPept, EMBL, <ulink url="http://www.blueprint.org/seqhound"><citetitle>SeqHound</citetitle></ulink>, or RefSeq in an 
+		analogous fashion (e.g "use Bio::DB::SwissProt"). Now we'll
+		create the object:
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::DB::GenBank;
+
+$db_obj = Bio::DB::GenBank->new;
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		In this case we've created a "database object" using the 
+		<function>new</function> method, but without any arguments. 
+		Let's ask the object to do something useful:
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::DB::GenBank;
+
+$db_obj = Bio::DB::GenBank->new;
+
+$seq_obj = $db_obj->get_Seq_by_id(2); 
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		The argument passed to the <function>get_Seq_by_id</function>
+		method is an identifier, 2, a Genbank GI number. You could
+		also use the <function>get_Seq_by_acc</function> method, this
+		would accept an accession number, "A12345" for example. Make
+		sure to use the proper identifier for the method you use, the 
+		methods are not interchangeable.
+	 </para>
+	 <para>
+		There are more sophisticated ways to query Genbank than
+		this. This next example attempts to do something "biological",
+		using the module 
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html"><citetitle>Bio::DB::Query::GenBank</citetitle></ulink>. Want all Arabidopsis
+		topoisomerases from Genbank Nucleotide? This would be a 
+		reasonable first attempt:
+	 </para>
+	  <para>
+		<programlisting>
+use Bio::DB::Query::GenBank;
+
+$query = "Arabidopsis[ORGN] AND topoisomerase[TITL] and 0:3000[SLEN]";
+$query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
+		                          -query => $query ); 
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <note>
+		<para>
+		  This capability to query by string and field is only available
+		  for GenBank as of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> version 1.5, queries to other
+		  databases, like <ulink
+		  url="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink>
+		  or EMBL, are limited to identifiers and accessions.
+		You can find detailed information on Genbank's query fields
+		<ulink url="http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html"><citetitle>here</citetitle></ulink>.
+		</para>
+	 </note>
+	 <para></para>
+	 <para>
+		That is how we would construct a query object, but we
+		haven't retrieved sequences yet. To do so we will have to create
+		a database object, some object that can get Sequence objects
+		for us, just as we did in the first Genbank example:
+	 </para>
+	  <para>
+		<programlisting>
+use Bio::DB::GenBank;
+use Bio::DB::Query::GenBank;
+
+$query = "Arabidopsis[ORGN] AND topoisomerase[TITL] and 0:3000[SLEN]";
+$query_obj = Bio::DB::Query::GenBank->new(-db    => 'nucleotide',
+		                          -query => $query ); 
+
+$gb_obj = Bio::DB::GenBank->new;
+
+$stream_obj = $gb_obj->get_Stream_by_query($query_obj);
+		  
+while ($seq_obj = $stream_obj->next_seq) {
+     # do something with the sequence object
+     print $seq_obj->display_id, "\t", $seq_obj->length, "\n";
+}
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		That <varname>$stream_obj</varname> and its 
+		<function>get_Stream_by_query</function> method may not 
+		look familiar. The idea
+		is that you will use a <emphasis>stream</emphasis> whenever 
+		you expect to retrieve 
+		a stream or series of sequence objects. Much like <function>
+		  get_Seq_by_id</function>, but built to retrieve one or
+		more objects, not just one object.
+	 </para>
+	 <para>
+		Notice how carefully separated the responsibilities of each
+		object are in the code above: there's an object just to 
+		hold the query,
+		an object to execute the query using this query object, an object to 
+		do the I/O, and finally the sequence object.
+	 </para>
+	 <warning>
+		<para>
+		  Be careful what you ask for, many of today's nucleotide database
+		  entries are genome-size and you will probably run out of memory
+		  if your query happens to match one of 
+		  these monstrosities. You can use the SLEN field to limit the 
+		  size of the sequences you retrieve.
+		</para>
+	 </warning>
+	 <para></para>
+  </section>
+
+  <section id="seq_obj">
+    <title>The Sequence object</title>
+    <para>
+		There's been a lot of discussion around the Sequence object, 
+		and this object has been created in a few different ways, but we
+		haven't shown what it's capable of doing. The table below
+		lists the methods available to you if you have a Sequence
+		object in hand. "Returns" means what the object will give
+		you when you ask it for data. 
+		Some methods, such as <function>seq()</function>, can be used to 
+		<emphasis>get</emphasis> or <emphasis>set</emphasis> values.
+		You're setting when you assign a value, you're
+		getting when you ask the object what values it has.
+		For example, to <emphasis>get</emphasis> or retrieve a value
+    </para>
+    <para>
+      <programlisting>
+$sequence = $seq_obj->seq;
+      </programlisting>
+	 </para>
+<para></para>
+	 <para>
+		To <emphasis>set</emphasis> or assign a value:
+	 </para>
+	 <para>
+		<programlisting>
+$seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
+      </programlisting>
+	 </para>
+<para></para>
+	 <para>
+		<table>
+		  <title>Sequence Object Methods</title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry>Name</entry>
+				  <entry>Returns</entry>
+				  <entry>Example</entry>
+				  <entry>Note</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>new</entry>
+				  <entry>Sequence object</entry>
+				  <entry>$so = Bio::Seq->new(-seq => "MP")</entry>
+				  <entry>create a new one</entry>
+				</row>
+				<row>
+				  <entry>seq</entry>
+				  <entry>sequence string</entry>
+				  <entry>$seq = $so->seq</entry>
+				  <entry>get or set the sequence</entry>
+				</row>
+				<row>
+				  <entry>display_id</entry>
+				  <entry>identifier</entry>
+				  <entry>$so->display_id("NP_123456")</entry>
+				  <entry>get or set an identifier</entry>
+				</row>
+				<row>
+				  <entry>primary_id</entry>
+				  <entry>identifier</entry>
+				  <entry>$so->primary_id(12345)</entry>
+				  <entry>get or set an identifier</entry>
+				</row>
+				<row>
+				  <entry>desc</entry>
+				  <entry>description</entry>
+				  <entry>$so->desc("Example 1")</entry>
+				  <entry>get or set a description</entry>
+				</row>
+				<row>
+				  <entry>accession</entry>
+				  <entry>identifier</entry>
+				  <entry>$acc = $so->accession</entry>
+				  <entry>get or set an identifier</entry>
+				</row>
+				<row>
+				  <entry>length</entry>
+				  <entry>length, a number</entry>
+				  <entry>$len = $so->length</entry>
+				  <entry>get the length</entry>
+				</row>
+				<row>
+				  <entry>alphabet</entry>
+				  <entry>alphabet</entry>
+				  <entry>$so->alphabet('dna')</entry>
+				  <entry>get or set the alphabet ('dna','rna','protein')</entry>
+				</row>
+				<row>
+				  <entry>subseq</entry>
+				  <entry>sequence string</entry>
+				  <entry>$string = $seq_obj->subseq(10,40)</entry>
+				  <entry>Arguments are start and end</entry>
+				</row>
+				<row>
+				  <entry>trunc</entry>
+				  <entry>Sequence object</entry>
+				  <entry>$so2 = $so1->trunc(10,40)</entry>
+				  <entry>Truncate, arguments are start and end</entry>
+				</row>
+				<row>
+				  <entry>revcom</entry>
+				  <entry>Sequence object</entry>
+				  <entry>$so2 = $so1->revcom</entry>
+				  <entry>Reverse complement</entry>
+				</row>
+				<row>
+				  <entry>translate</entry>
+				  <entry>Sequence object</entry>
+				  <entry>$prot_obj = $dna_obj->translate</entry>
+				  <entry>See
+					 <ulink
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html"><citetitle>Bio::PrimarySeqI</citetitle></ulink>
+					 for more</entry>
+				</row>
+				<row>
+				  <entry>species</entry>
+				  <entry>Species object</entry>
+				  <entry>$species_obj = $so->species</entry>
+				  <entry>See
+					 <ulink
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html"><citetitle>Bio::Species</citetitle></ulink>
+					 for more</entry>
+				</row>
+				<row>
+				  <entry>seq_version</entry>
+				  <entry>version, if available</entry>
+				  <entry>$so->seq_version("1")</entry>
+				  <entry>get or set a version</entry>
+				</row>
+				<row>
+				  <entry>keywords</entry>
+				  <entry>keywords, if available</entry>
+				  <entry>@array = $so->keywords</entry>
+				  <entry>get or set keywords</entry>
+				</row>
+				<row>
+				  <entry>namespace</entry>
+				  <entry>namespace, if available</entry>
+				  <entry>$so->namespace("Private")</entry>
+				  <entry>get or set the name space</entry>
+				</row>
+				<row>
+				  <entry>authority</entry>
+				  <entry>authority, if available</entry>
+				  <entry>$so->authority("FlyBase")</entry>
+				  <entry>get or set the organization</entry>
+				</row>
+				<row>
+				  <entry>is_circular</entry>
+				  <entry>Boolean</entry>
+				  <entry>if $so->is_circular { # }</entry>
+				  <entry>get or set</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+	 <para>
+		The table above shows the methods you're likely to use that
+		concern the Sequence object directly. There are also a number
+		of methods that are concerned with the Features and Annotations
+		associated with the Sequence object. This is something of a 
+		tangent but if you'd like to learn about Features and Annotations
+		see the relevant 
+<ulink url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>HOWTO</citetitle></ulink>.
+		The methods related to this topic are shown below.
+	 </para>
+	 <para>
+		<table>
+		  <title>Feature and Annotation Methods</title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry>Name</entry>
+				  <entry>Returns</entry>
+				  <entry>Note</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>get_SeqFeatures</entry>
+				  <entry>array of SeqFeature objects</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>get_all_SeqFeatures</entry>
+				  <entry>array of SeqFeature objects</entry>
+				  <entry>array includes sub-features</entry>
+				</row>
+				<row>
+				  <entry>remove_SeqFeatures</entry>
+				  <entry>array of SeqFeatures removed</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>feature_count</entry>
+				  <entry>number of SeqFeature objects</entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>add_SeqFeature</entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+				<row>
+				  <entry>annotation</entry>
+				  <entry>array of Annotation objects</entry>
+				  <entry>get or set</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+  </section>
+
+  <section id="examples">
+    <title>Example Sequence objects</title>
+    <para>
+		Let's use some of the methods above and see what they return
+		when the sequence object is obtained from different sources.
+		In the Genbank example we're assuming we've used Genbank to
+		retrieve or create a Sequence object. So this object could have
+		have been retrieved like this:
+    </para>
+	 <para>
+		<programlisting>
+use Bio::DB::GenBank;
+
+$db_obj = Bio::DB::GenBank->new;
+$seq_obj = $db_obj->get_Seq_by_acc("J01673"); 
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		Or it could have been created from a file like this:
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::SeqIO;
+
+$seqio_obj = Bio::SeqIO->new(-file => "J01673.gb",
+                             -format => "genbank" );
+$seq_obj = $seqio_obj->next_seq;
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		What the Genbank file looks like:
+	 </para>
+    <para>
+      <programlisting>
+LOCUS       ECORHO                  1880 bp    DNA     linear   BCT 26-APR-1993
+DEFINITION  E.coli rho gene coding for transcription termination factor.
+ACCESSION   J01673 J01674
+VERSION     J01673.1  GI:147605
+KEYWORDS    attenuator; leader peptide; rho gene; transcription terminator.
+SOURCE      Escherichia coli
+  ORGANISM  Escherichia coli
+            Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;
+            Enterobacteriaceae; Escherichia.
+REFERENCE   1  (bases 1 to 1880)
+  AUTHORS   Brown,S., Albrechtsen,B., Pedersen,S. and Klemm,P.
+  TITLE     Localization and regulation of the structural gene for
+            transcription-termination factor rho of Escherichia coli
+  JOURNAL   J. Mol. Biol. 162 (2), 283-298 (1982)
+  MEDLINE   83138788
+   PUBMED   6219230
+REFERENCE   2  (bases 1 to 1880)
+  AUTHORS   Pinkham,J.L. and Platt,T.
+  TITLE     The nucleotide sequence of the rho gene of E. coli K-12
+  JOURNAL   Nucleic Acids Res. 11 (11), 3531-3545 (1983)
+  MEDLINE   83220759
+   PUBMED   6304634
+COMMENT     Original source text: Escherichia coli (strain K-12) DNA.
+            A clean copy of the sequence for [2] was kindly provided by
+            J.L.Pinkham and T.Platt.
+FEATURES             Location/Qualifiers
+     source          1..1880
+                     /organism="Escherichia coli"
+                     /mol_type="genomic DNA"
+                     /strain="K-12"
+                     /db_xref="taxon:562"
+     mRNA            212..>1880
+                     /product="rho mRNA"
+     CDS             282..383
+                     /note="rho operon leader peptide"
+                     /codon_start=1
+                     /transl_table=11
+                     /protein_id="AAA24531.1"
+                     /db_xref="GI:147606"
+                     /translation="MRSEQISGSSLNPSCRFSSAYSPVTRQRKDMSR"
+     gene            468..1727
+                     /gene="rho"
+     CDS             468..1727
+                     /gene="rho"
+                     /note="transcription termination factor"
+                     /codon_start=1
+                     /transl_table=11
+                     /protein_id="AAA24532.1"
+                     /db_xref="GI:147607"
+                     /translation="MNLTELKNTPVSELITLGENMGLENLARMRKQDIIFAILKQHAK
+                     SGEDIFGDGVLEILQDGFGFLRSADSSYLAGPDDIYVSPSQIRRFNLRTGDTISGKIR
+                     PPKEGERYFALLKVNEVNFDKPENARNKILFENLTPLHANSRLRMERGNGSTEDLTAR
+                     VLDLASPIGRGQRGLIVAPPKAGKTMLLQNIAQSIAYNHPDCVLMVLLIDERPEEVTE
+                     MQRLVKGEVVASTFDEPASRHVQVAEMVIEKAKRLVEHKKDVIILLDSITRLARAYNT
+                     VVPASGKVLTGGVDANALHRPKRFFGAARNVEEGGSLTIIATALIDTGSKMDEVIYEE
+                     FKGTGNMELHLSRKIAEKRVFPAIDYNRSGTRKEELLTTQEELQKMWILRKIIHPMGE
+                     IDAMEFLINKLAMTKTNDDFFEMMKRS"
+ORIGIN      15 bp upstream from HhaI site.
+        1 aaccctagca ctgcgccgaa atatggcatc cgtggtatcc cgactctgct gctgttcaaa
+       61 aacggtgaag tggcggcaac caaagtgggt gcactgtcta aaggtcagtt gaaagagttc
+
+                                  ...deleted...  
+
+     1801 tgggcatgtt aggaaaattc ctggaatttg ctggcatgtt atgcaatttg catatcaaat
+     1861 ggttaatttt tgcacaggac
+//      
+		</programlisting>
+    </para>
+<para></para>
+	 <para>
+		Either way, the values returned by various methods are shown below.
+	 </para>
+	 <para>
+		<table>
+		  <title>Values from the Sequence object (Genbank)</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Method</entry>
+				  <entry>Returns</entry>
+				</row>
+			 </thead>
+			 <tbody>
+<row>
+<entry>display_id</entry>      <entry>ECORHO</entry>
+</row>
+<row>
+<entry>desc</entry>    <entry>E.coli rho gene coding for transcription termination factor.</entry>
+</row>
+<row>
+<entry>display_name</entry>    <entry>ECORHO</entry>
+</row>
+<row>
+<entry>accession</entry>       <entry>J01673</entry>
+</row>
+<row>
+<entry>primary_id</entry>      <entry>147605</entry>
+</row>
+<row>
+<entry>seq_version</entry>     <entry>1</entry>
+</row>
+<row>
+<entry>keywords</entry> <entry>attenuator; leader peptide; rho gene; transcription terminator</entry>
+</row>
+<row>
+<entry>is_circular</entry> <entry></entry>
+</row>
+<row>
+<entry>namespace</entry>  <entry></entry>
+</row>
+<row>
+<entry>authority</entry> <entry></entry>
+</row>
+<row>
+<entry>length</entry>  <entry>1880</entry>
+</row>
+<row>
+<entry>seq</entry>     <entry>AACCCT...ACAGGAC</entry>
+</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+    <para>
+		There's a few comments that need to be made. First,
+		you noticed that there's an awful lot of
+		information missing. All of this missing information is stored in
+		what <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> calls Features and Annotations, see the
+		<ulink
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> if you'd like to learn more about this.
+		Second, a few of the
+		methods don't return anything, like
+		<classname>namespace</classname> and <classname>authority</classname>.
+		The reason is that though these are good values in principle
+		there are no commonly agreed upon standard names - perhaps someday
+		the authors will be able to rewrite the code when we all agree 
+		what these values should be.
+		Finally, you may be wondering why the method names are what they
+		are and why particular fields or identifiers end up associated with
+		particular methods. Again, without having standard names for things
+		that are agreed upon by the creators of our public databases all
+		the authors could do is use common sense, and these choices seem to be
+		reasonable ones.
+	 </para>
+	 <para>
+		Next let's take a look at the values returned by the methods
+		used by the Sequence object when a fasta file is used as input.
+		The fasta file entry looks like this, clearly much simpler
+		than the corresponding Genbank entry:
+	 </para>
+	 <para>
+      <programlisting>
+>gi|147605|gb|J01673.1|ECORHO E.coli rho gene coding for transcription terminati
+on factor
+AACCCTAGCACTGCGCCGAAATATGGCATCCGTGGTATCCCGACTCTGCTGCTGTTCAAAAACGGTGAAG
+TGGCGGCAACCAAAGTGGGTGCACTGTCTAAAGGTCAGTTGAAAGAGTTCCTCGACGCTAACCTGGCGTA
+
+                           ...deleted...
+
+ACGTGTTTACGTGGCGTTTTGCTTTTATATCTGTAATCTTAATGCCGCGCTGGGCATGTTAGGAAAATTC
+CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC		  
+		</programlisting>
+    </para>
+<para></para>
+    <para>
+		And here are the values:
+    </para>
+    <para>
+		<table>
+		  <title>Values from Genbank</title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Method</entry>
+				  <entry>Returns</entry>
+				</row>
+			 </thead>
+			 <tbody>
+<row>
+<entry>display_id</entry>      <entry>gi|147605|gb|J01673.1|ECORHO</entry>
+</row>
+<row>
+<entry>desc</entry>    <entry>E.coli rho gene coding for transcription termination factor</entry>
+</row>
+<row>
+<entry>display_name</entry>    <entry>gi|147605|gb|J01673.1|ECORHO</entry>
+</row>
+<row>
+<entry>accession</entry>       <entry>unknown</entry>
+</row>
+<row>
+<entry>primary_id</entry>      <entry>gi|147605|gb|J01673.1|ECORHO</entry>
+</row>
+<row>
+<entry>is_circular</entry> <entry></entry>
+</row>
+<row>
+<entry>namespace</entry>  <entry></entry>
+</row>
+<row>
+<entry>authority</entry> <entry></entry>
+</row>
+<row>
+<entry>length</entry>  <entry>1880</entry>
+</row>
+<row>
+<entry>seq</entry>     <entry>AACCCT...ACAGGAC</entry>
+</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+    </para>
+	 <para>
+		If you compare these values to the values taken from the Genbank 
+		entry you'll see that certain values are missing,
+		like <function>seq_version</function>. That's because these values
+		like this aren't usually present in the typical fasta file. 
+	 </para>
+	 <para>
+		Another natural question is why the values returned by methods
+		like <function>display_id</function> are different even though
+		the only thing distinguishing these entries are their respective
+		formats. The reason is that there are no rules governing how 
+		one interconverts formats, meaning how Genbank creates fasta
+		files from Genbank files may be different from how 
+<ulink url="http://www.expasy.ch"><citetitle>SwissProt</citetitle></ulink>
+		performs the same interconversion. Again, until the
+		organizations creating these databases agree on standard sets
+		of names and formats all the <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> authors can do is do 
+		make reasonable choices.
+	 </para>
+	 <note>
+		<para>
+		  Yes, <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> could follow the
+		  conventions of a single organization like Genbank such that
+		  <function>display_id</function> returns the same value when
+		  using Genbank format or Genbank's fasta format but why?
+		  Does any single organization deserve to become a standard
+		  when, really, what they should be doing is talking to each
+		  other and using the same terms?
+		</para>
+	 </note>
+	 <para></para>
+	 <para>
+		Let's use a <ulink url="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink> file as our last example. The input entry
+		looks like this:
+	 </para>
+	 <para>
+		<programlisting>
+ID   A2S3_RAT       STANDARD;      PRT;   913 AA.
+AC   Q8R2H7; Q8R2H6; Q8R4G3;
+DT   28-FEB-2003 (Rel. 41, Created)
+DE   Amyotrophic lateral sclerosis 2 chromosomal region candidate gene
+DE   protein 3 homolog (GABA-A receptor interacting factor-1) (GRIF-1) (O-
+DE   GlcNAc transferase-interacting protein of 98 kDa).
+GN   ALS2CR3 OR GRIF1 OR OIP98.
+OS   Rattus norvegicus (Rat).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Rodentia; Sciurognathi; Muridae; Murinae; Rattus.
+OX   NCBI_TaxID=10116;
+RN   [1]
+RP   SEQUENCE FROM N.A. (ISOFORMS 1 AND 2), SUBCELLULAR LOCATION, AND
+RP   INTERACTION WITH GABA-A RECEPTOR.
+RC   TISSUE=Brain;
+RX   MEDLINE=22162448; PubMed=12034717;
+RA   Beck M., Brickley K., Wilkinson H.L., Sharma S., Smith M.,
+RA   Chazot P.L., Pollard S., Stephenson F.A.;
+RT   "Identification, molecular cloning, and characterization of a novel
+RT   GABAA receptor-associated protein, GRIF-1.";
+RL   J. Biol. Chem. 277:30079-30090(2002).
+RN   [2]
+RP   REVISIONS TO 579 AND 595-596, AND VARIANTS VAL-609 AND PRO-820.
+RA   Stephenson F.A.;
+RL   Submitted (FEB-2003) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SEQUENCE FROM N.A. (ISOFORM 3), INTERACTION WITH O-GLCNAC TRANSFERASE,
+RP   AND O-GLYCOSYLATION.
+RC   STRAIN=Sprague-Dawley; TISSUE=Brain;
+RX   MEDLINE=22464403; PubMed=12435728;
+RA   Iyer S.P.N., Akimoto Y., Hart G.W.;
+RT   "Identification and cloning of a novel family of coiled-coil domain
+RT   proteins that interact with O-GlcNAc transferase.";
+RL   J. Biol. Chem. 278:5399-5409(2003).
+CC   -!- SUBUNIT: Interacts with GABA-A receptor and O-GlcNac transferase.
+CC   -!- SUBCELLULAR LOCATION: Cytoplasmic.
+CC   -!- ALTERNATIVE PRODUCTS:
+CC       Event=Alternative splicing; Named isoforms=3;
+CC       Name=1; Synonyms=GRIF-1a;
+CC         IsoId=Q8R2H7-1; Sequence=Displayed;
+CC       Name=2; Synonyms=GRIF-1b;
+CC         IsoId=Q8R2H7-2; Sequence=VSP_003786, VSP_003787;
+CC       Name=3;
+CC         IsoId=Q8R2H7-3; Sequence=VSP_003788;
+CC   -!- PTM: O-glycosylated.
+CC   -!- SIMILARITY: TO HUMAN OIP106.
+DR   EMBL; AJ288898; CAC81785.2; -.
+DR   EMBL; AJ288898; CAC81786.2; -.
+DR   EMBL; AF474163; AAL84588.1; -.
+DR   GO; GO:0005737; C:cytoplasm; IEP.
+DR   GO; GO:0005634; C:nucleus; IDA.
+DR   GO; GO:0005886; C:plasma membrane; IEP.
+DR   GO; GO:0006357; P:regulation of transcription from Pol II pro...; IDA.
+DR   InterPro; IPR006933; HAP1_N.
+DR   Pfam; PF04849; HAP1_N; 1.
+KW   Coiled coil; Alternative splicing; Polymorphism.
+FT   DOMAIN      134    355       COILED COIL (POTENTIAL).
+FT   VARSPLIC    653    672       VATSNPGKCLSFTNSTFTFT -> ALVSHHCPVEAVRAVHP
+FT                                TRL (in isoform 2).
+FT                                /FTId=VSP_003786.
+FT   VARSPLIC    673    913       Missing (in isoform 2).
+FT                                /FTId=VSP_003787.
+FT   VARSPLIC    620    687       VQQPLQLEQKPAPPPPVTGIFLPPMTSAGGPVSVATSNPGK
+FT                                CLSFTNSTFTFTTCRILHPSDITQVTP -> GSAASSTGAE
+FT                                ACTTPASNGYLPAAHDLSRGTSL (in isoform 3).
+FT                                /FTId=VSP_003788.
+FT   VARIANT     609    609       E -> V.
+FT   VARIANT     820    820       S -> P.
+SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
+     MSLSQNAIFK SQTGEENLMS SNHRDSESIT DVCSNEDLPE VELVNLLEEQ LPQYKLRVDS
+     LFLYENQDWS QSSHQQQDAS ETLSPVLAEE TFRYMILGTD RVEQMTKTYN DIDMVTHLLA
+
+                              ...deleted...
+
+     GIARVVKTPV PRENGKSREA EMGLQKPDSA VYLNSGGSLL GGLRRNQSLP VMMGSFGAPV
+     CTTSPKMGIL KED
+//
+		</programlisting>
+	 </para>
+	 <para>
+		The corresponding set of values is shown below.
+	 </para>
+	 <para>
+		<table>
+		  <title>Values from <ulink url="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink></title>
+		  <tgroup cols="2">
+			 <thead>
+				<row>
+				  <entry>Method</entry>
+				  <entry>Returns</entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry>display_id</entry><entry>A2S3_RAT</entry>
+				</row>
+				<row>
+				  <entry>desc</entry>
+				  <entry>Amyotrophic lateral ... protein of 98 kDa).</entry>
+				</row>
+				<row>
+				  <entry>display_name</entry><entry>A2S3_RAT</entry>
+				</row>
+				<row>
+				  <entry>accession</entry><entry>Q8R2H7</entry>
+				</row>
+				<row>
+				  <entry>is_circular</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>namespace</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>authority</entry><entry></entry>
+				</row>
+				<row>
+				  <entry>length</entry><entry>913</entry>
+				</row>
+				<row>
+				  <entry>seq</entry><entry>MSLSQ...ILKED</entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+	 </para>
+	 <para>
+		As in the Genbank example there's information that the Sequence
+		object doesn't supply, and it's stored in Annotation objects. See the
+	<ulink
+		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> for more.
+	 </para>
+  </section>
+
+  <section id="blast">
+    <title>BLAST</title>
+	 <para>
+		You have access to a large number of sequence analysis programs 
+		within <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Typically this means you have a means to run
+		the program and frequently a means of parsing the resulting 
+		output, or report, as well. Certainly the most popular 
+		analytical program is 
+<ulink
+		url="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall"><citetitle>BLAST</citetitle></ulink>,
+		so let's use it as an example. First you'll need to get 
+		BLAST, also known as blastall, installed on your machine
+		and running. This example also assumes that you used the formatdb 
+		program to index the database sequence file "db.fa".
+	 </para>
+    <para>
+		As usual, we start by choosing a module to use, in this case
+<ulink
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink>.
+		You stipulate the parameters used by the blastall program by
+		populating an array, it's called
+		<varname>@params</varname> in this example but any name for the array 
+		will work:
+	 </para>
+	 <para>
+      <programlisting>
+use Bio::Tools::Run::StandAloneBlast;
+
+@params = (program  => 'blastn',
+	   database => 'db.fa' );
+      </programlisting>
+    </para>
+<para></para>
+	 <para>
+		As you'd expect, we want to create a Blast object, and we will
+		pass a Sequence object to the Blast object, this Sequence
+		object will be used as the query:
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::Seq;
+use Bio::Tools::Run::StandAloneBlast;
+
+@params = (program  => 'blastn',
+	   database => 'db.fa' );
+
+$blast_obj = Bio::Tools::Run::StandAloneBlast->new(@params);
+
+$seq_obj = Bio::Seq->new(-id  =>"test query",
+			 -seq =>"TTTAAATATATTTTGAAGTATAGATTATATGTT");
+
+$report_obj = $blast_obj->blastall($seq_obj);
+
+$result_obj = $report_obj->next_result;
+
+print $result_obj->num_hits;
+		</programlisting>
+	 </para>
+<para></para>
+	 <para>
+		By calling the <function>blastall</function> method you're
+		actually running BLAST, creating the report file, and parsing
+		the file's contents. All the data in the report ends up 
+		in the report object, and you can access or print out the
+		data in all sorts of ways.
+		The report object, <varname>$report_obj</varname>, and the
+		result object, <varname>$result_obj</varname>, come from 
+		the SearchIO modules. The
+		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html"><citetitle>SearchIO HOWTO</citetitle></ulink> will tell you all about using these
+		objects to extract useful data from your BLAST analyses.
+	 </para>
+	 <para>
+		Here's an example of how one would use SearchIO to extract
+		data from a BLAST report:
+	 </para>
+	 <para>
+		<programlisting>
+	 use Bio::SearchIO;
+   
+    $report_obj = new Bio::SearchIO(-format => 'blast', 
+                               -file   => 'report.bls');
+    while( $result = $report_obj->next_result ) {
+      while( $hit = $result->next_hit ) {
+        while( $hsp = $hit->next_hsp ) {
+            if ( $hsp->percent_identity > 75 ) {
+              print "Hit\t",        $hit->name,             "\n", 
+                    "Length\t",     $hsp->length('total'),  "\n", 
+                    "Percent_id\t", $hsp->percent_identity, "\n";
+          }
+        }  
+      }
+    }
+		</programlisting>
+	 </para>
+	 <para>
+		This code prints out details about the match when the 
+		HSP or aligned pair are greater than
+		75% identical.
+	 </para>
+	 <para>
+		Sometimes you'll see errors when you try to use
+<ulink
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink> 
+		that have nothing to do with <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Make sure that BLAST is 
+		set up properly and running before you attempt to script it
+		using 
+<ulink
+		  url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html"><citetitle>Bio::Tools::Run::StandAloneBlast</citetitle></ulink>. There are
+		some notes on setting up BLAST in the 
+<ulink
+		  url="http://bioperl.org/Core/Latest/INSTALL"><citetitle>INSTALL</citetitle></ulink> 
+		file.
+	 </para>
+	 <para>
+		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> enables you to run a wide variety of bioinformatics
+		programs but in order to do so, in most cases, you will need
+		to install the accessory bioperl-run package. In addition 
+		there is no guarantee that there is a corresponding parser
+		for the program that you wish to run, but parsers have been
+		built for the most popular programs. You can find the
+		bioperl-run package on the 
+<ulink
+		  url="http://bioperl.org/Core/Latest/index.shtml"><citetitle>download page</citetitle></ulink>. 
+	 </para>
+  </section>
+
+  <section id="indexing">
+	 <title>Indexing for Fast Retrieval</title>
+	 <para>
+		One of the under-appreciated features of <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is its ability
+		to index sequence files. The idea is that you would create some sequence
+		file locally and create an index file for it that enables you to 
+		retrieve sequences from the sequence file. Why would you want to do this?
+		Speed, for one. Retrieving sequences from local, indexed
+		sequence files is much faster than using the Bio::DB* modules
+		that were used above. It's also much faster than using SeqIO,
+		in part because SeqIO is stepping through the file, one 
+		sequence at a time, starting at
+		the beginning of the file. Flexibility is another reason. What
+		if you'd created your own collection of sequences, not found in
+		a public database? By indexing this collection you'll get fast
+		access to your sequences.
+	 </para>
+	 <para>
+		There's only one requirement here, the term or id that you
+		use to retrieve the sequence object must be unique in the index,
+		these indices are not built to retrieve multiple sequence
+		objects at a time.
+	 </para>
+	 <para>
+		Let's begin our script with the <function>use</function>
+		statement and also set up our environment with some
+		variables (the sequence file, fasta format, will be called 
+		"sequence.fa"):
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::Index::Fasta;
+$ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
+$ENV{BIOPERL_INDEX} = ".";
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		The lines above show that you can set environmental 
+		variables from within Perl and
+		they are stored in Perl's own <varname>%ENV</varname> hash.
+		This is essentially the same thing as the following in tcsh
+		or csh:
+	 </para>
+	 <para>
+		<programlisting>
+>setenv BIOPERL_INDEX_TYPE SDBM_File
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		Or the following in the bash shell:
+	 </para>
+<para></para>
+	 <para>
+		<programlisting>
+>export BIOPERL_INDEX_TYPE=SDBM_File
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		The BIOPERL_INDEX_TYPE variable refers to the indexing scheme, 
+		and SDBM_File is the scheme that comes with Perl. BIOPERL_INDEX
+		stipulates the location of the index file, and this way you
+		could have more 
+		than one index file per sequence file if you wanted, by 
+		designating multiple locations (and the 
+		utility of more than 1 index will become apparent).
+	 </para>
+	 <para>
+		Now let's construct the index:
+	 </para>
+	 <para>
+		<programlisting>
+$ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
+$ENV{BIOPERL_INDEX} = ".";
+use Bio::Index::Fasta;
+
+$file_name = "sequence.fa";
+$id = "48882";
+$inx = Bio::Index::Fasta->new (-filename => $file_name . ".idx",
+                               -write_flag => 1);
+$inx->make_index($file_name);
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		You would execute this script in the directory containing the
+		"sequence.fa" file, and it would create an index file called
+		"sequence.fa.idx". Then you would retrieve a sequence object
+		like this:
+	 </para>
+	 <para>
+		<programlisting>
+$seq_obj = $inx->fetch($id)
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		By default the fasta indexing code will use the string following the 
+		<emphasis>&gt;</emphasis> character as a key, meaning that 
+		fasta header line should look something like this if you want to
+		<function>fetch</function> using the value "48882":
+	 </para>
+	 <para>
+		<programlisting>
+>48882 pdb|1CRA
+		</programlisting>
+	 </para>
+	 <para></para>
+	  <para>
+		However, what if you wanted to retrieve using some other key,
+		like "1CRA" in the example above? You can customize the index by 
+		using 
+<ulink
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html"><citetitle>Bio::Index::Fasta</citetitle></ulink>'s 
+<function>id_parser</function> method, which accepts
+		the name of a function as an argument where that function
+		tells the indexing object what key to use. For example:
+	 </para>
+	 <para>
+		<programlisting>
+$inx->id_parser(\&amp;get_id);
+$inx->make_index($file_name);
+
+sub get_id {
+	$header = shift;
+	$header =~ /pdb\|(\S+)/;
+	$1;
+}
+		</programlisting>
+	 </para>
+	 <para></para>
+	 <para>
+		To be precise, one would say that the
+		<function>id_parser</function> method accepts
+		a reference to a function as an argument.
+	 </para>
+</section>
+
+<!--
+  <section id="regexp">
+    <title>Regular Expressions</title>
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+    </para>
+    <para>
+    </para>
+  </section>
+-->  
+
+  <section id="more">
+	 <title>More on <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink></title>
+	 <para>
+		Perhaps this article has gotten you interested in learning a
+		bit more about <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Here are some other things you might 
+		want to look at:
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem><para>
+			 The 
+	<ulink 
+url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</citetitle></ulink>
+			 gives a good overview of many
+			 different topics. Few topics are covered in detail but many
+			 of the most important modules and concepts are covered.
+		  </para></listitem>
+		  <listitem><para>
+			 The <ulink url="http://bioperl.org/HOWTOs"><citetitle>
+				HOWTOs</citetitle></ulink>. Each one covers a topic in some detail, 
+			 but there are certainly some HOWTOs that are missing that
+			 we would like to see written. Would you like to become an
+				expert and write one yourself?
+		  </para></listitem>
+		  <listitem><para>
+			 The <ulink
+					 url="http://doc.bioperl.org/releases/bioperl-1.4/"><citetitle>module documentation</citetitle></ulink>. Each module is documented,
+			 but the quality and quantity varies by module. 
+		  </para></listitem>
+		  <listitem><para>
+				<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> scripts. You'll find them in the scripts/ directory
+				and in the examples/ directory of the <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> package.
+				The former contains more carefully written and documented
+				scripts that can be installed along with <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. You should
+				feel free to contribute scripts to either of these 
+				directories. There's also a complete list of scripts,
+<ulink url="http://bioperl.org/Core/Latest/bioscripts.html"><citetitle>bioscripts.pod</citetitle></ulink>. 
+			 </para></listitem>
+		  <listitem><para>
+			 <ulink url="http://bioperl.org/Core/Latest/modules.html#user"><citetitle>User-contributed documentation</citetitle></ulink>. There's some very good material here.
+		  </para></listitem>
+		</orderedlist>
+	 </para>
+  </section>
+
+  <section id="perldoc">
+	 <title>Perl's Documentation System</title>
+	 <para>
+		The documentation for Perl is available using a system known as POD, which
+		stands for <emphasis>P</emphasis>lain <emphasis>O</emphasis>ld 
+		<emphasis>D</emphasis>ocumentation. You can access this built-in
+		documentation by using the "perldoc" command. To view information 
+		on how to use perldoc, type the following at the command line:
+		<programlisting>
+>perldoc perldoc
+		</programlisting>
+	 </para>
+  
+	 <para>
+		Perldoc is a very useful and versatile tool, shown below are some more
+		examples on how to use perldoc.
+	 </para>
+  
+	 <para>
+		Read about Perl's built-in <function>print</function> function:
+		<programlisting>
+>perldoc -f print
+		</programlisting>
+	 </para>
+	 <para>
+		Read about any module, including any of the <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> modules:
+		<programlisting>
+>perldoc Bio::SeqIO
+		</programlisting>
+	 </para>
+
+  </section> 
+
+  <section id="objects">
+	 <title>The Basics of Perl Objects</title>
+	 <para>
+		Object-oriented programming (OOP) is a software engineering
+		technique for modularizing code. The difference between
+		object-oriented programming and procedural programming can be
+		simply illustrated.
+	 </para>
+	 <para>
+		<emphasis>A Simple Procedural Example</emphasis>
+		Assume that we have a DNA sequence stored in the scalar variable
+		<varname>$sequence</varname>. We'd like to generate the 
+		reverse complement of this 
+		sequence and store it in
+		<varname>$reverse_complement</varname>. 
+		Shown below is the
+		procedural Perl technique of using a function, or sub-routine,
+		to operate on this scalar data:
+	 </para>
+	 <para>
+		<programlisting>
+use Bio::Perl;
+
+$reverse_complement = revcom( $sequence );
+		</programlisting>
+	 </para>
+	 <para>
+		The hallmark of a procedural program is that data and 
+		functions to operate on that data are kept separate. In order 
+		to generate the reverse
+		complement of a DNA sequence, we need to call a function that operates
+		on that DNA sequence.
+	 </para>
+	 
+	 <para>
+		<emphasis>A Simple Object-Oriented Example</emphasis>
+		Shown below is the object-oriented way of generating the reverse 
+		complement of a DNA sequence:
+	 </para>
+
+	 <para>
+		<programlisting>
+$reversed_obj = $seq_obj->revcom;
+		</programlisting>
+	 </para>
+
+	 <para>
+		The main difference between this object-oriented example and the
+		procedural example shown before is that the method for
+		generating the reverse complement, <function>revcom</function>,
+		is part of <varname>$seq_obj</varname>. To put it another way, 
+		the object <varname>$seq_obj</varname> knows how to calculate
+		and return its reverse complement. Encapsaluting both data and
+		functions into the same construct is the fundamental idea behind
+		object-oriented programming. 
+	 </para>
+
+	 <para>
+		<emphasis>Terminology</emphasis>
+		In the object-oriented example above, <varname>$seq_obj</varname> is
+		called an object, and <function>revcom</function> is called
+		a method.  An <emphasis>object</emphasis> is a data
+		structure that has both data and methods associated
+		with it.  Objects are separated into types called
+		<emphasis>classes</emphasis>, and the class of an
+		object defines both the data that it can hold and the
+		methods that it knows. A specific object that has a
+		defined class is referred to as an
+		<emphasis>instance</emphasis> of that class. In perl
+		you could say that each module is actually a class,
+		but for some reason the author of Perl elected to
+		use the term "module" rather than "class".
+	 </para>
+
+	 <para>
+		That's the sort of explanation you'll get in programming
+		books, but what is a Perl object really? Usually a hash.
+		In <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> the data that the object contains is stored in a 
+		single, complex hash and the object, like 
+		<varname>$seq_obj</varname>,
+		is a reference to this hash. In addition, the methods
+		that the object can use are also stored in this hash as
+		particular kinds of references. You could say that an
+		object in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is a special kind of hash reference.
+	 </para>
+
+	 <para>
+		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> uses the object-oriented paradigm, and here are
+		some texts if you want to learn more:
+	 </para>
+	 <para>
+		<orderedlist>
+		  <listitem>
+			 <para>
+				<ulink url="http://www.manning.com/Conway/"><citetitle>Object Oriented Perl</citetitle></ulink>
+          </para>
+		  </listitem>
+		  <listitem>
+			 <para>               
+				The <ulink
+				url="http://bioperl.org/Core/Latest/biodesign.html">
+<citetitle>Bioperl design documentation</citetitle></ulink>, for anyone who'd like
+				to write their own modules. 
+			 </para>
+		  </listitem>
+		</orderedlist>	
+	 </para>
+
+  </section>
+</article>
+
+
+
+<!--
+  <section id="read_seq"> 
+     <title>Simple Example: Reading in a Sequence<title>
+         <para>
+            Shown below is a simple program for reading in a set of biological
+            sequences from a file. 
+         </para>
+         
+         <para>
+            <programlisting>
+               1   #!/usr/bin/perl
+               2
+               3   use strict;
+               4   use Bio::SeqIO;
+               5
+               6   my $seqio = Bio::SeqIO->new( -file   => 'seq.fasta',
+               7                                -format => 'fasta' );
+         
+            </programlisting>
+         </para>
+
+         <para>
+            Let's dissect this example line-by-line. Line one defines the path to
+            the Perl interpreter (/usr/bin/perl), which is called when the program
+            is executed. While not absolutely necessary (especially on a Windows
+            machine), it's a good practice to this line to ensure that programs
+            will run on a Unix machine. This line is sometimes referred to as the
+            "shebang". Line three tells the Perl interpreter to be strict when
+            running this program, and to print informative diagnostic messages
+            when it encounters a potential error. While not absolutely necessary,
+            lines 1-3 are included at the beginning of most Perl programs.
+         </para>
+
+         <para>
+            Line 4 tells the Perl interpreter to "use the Bio::SeqIO module." While
+            this is an over-simplified explanation of what's actually happening,
+            it will suffice for now. Lines 6-7 will require a lot of explanation:
+            <simplelist type="horiz" columns="1">
+               <member>
+                  The new method of the Bio::SeqIO module is called. This method
+                  is used to construct and return a new Bio::SeqIO object.
+               </member>
+               <member>
+                  This method is passed two arguments: a file value "seq.fasta" and
+                  a format value of "fasta". These arguments tell Bio::SeqIO that
+                  $seqio will read sequence information from a file named seq.fasta
+                  that is stored in the FASTA sequence file format.
+               </member>
+               <member>
+                  The object returned by the "new" method is assigned to the scalar
+                  variable $seqio. 
+               </member>
+               <member>
+                  The word "my" tells the Perl interpreter that this is the
+                  first time that the variable $seqio has been used, and it
+                  also defines the scope of $seqio. Writing "my" before the
+                  first use of a variable is a requirement when "using strict."
+               </member>
+            </simplelist>
+               
+            The "new" method called in line 6 is called the <emphasis>constructor</emphasis>
+            of Bio::SeqIO, as it is used to construct Bio::SeqIO objects.
+         </para>
+
+         <para>
+            After executing line 7 of the program listed above, Perl has created a Bio::SeqIO
+            object named $seqio that will read from a FASTA-formatted file named seq.fasta.
+            At this point, the program isn't very impressive, but adding more functionality 
+            is not very difficult.
+         </para>
+    
+  </section>
+-->
+
+<!--
+		<table>
+		  <title></title>
+		  <tgroup cols="3">
+			 <thead>
+				<row>
+				  <entry></entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+			 </thead>
+			 <tbody>
+				<row>
+				  <entry></entry>
+				  <entry></entry>
+				  <entry></entry>
+				</row>
+			 </tbody>
+		  </tgroup>
+      </table>
+-->
+
+<!--
+	 <para>
+		This line does several things:
+		<simplelist type="horiz" columns="1">
+		  <member>
+			 The word "my" tells the Perl interpreter that this is the
+			 first time that the variable $seqio has been used, and it
+			 also defines the scope of $seqio. Writing "my" before the
+			 first use of a variable is a requirement when "using strict."
+		  </member>
+		  <member>
+			 The new method of the Bio::SeqIO module is called. This method
+			 is used to construct and return a new Bio::SeqIO object.
+		  </member>
+		  <member>
+			 This method is passed two arguments: a file value "seq.fasta" and
+			 a format value of "fasta". These arguments tell Bio::SeqIO that
+			 $seqio will read sequence information from a file named seq.fasta
+			 that is stored in the FASTA sequence file format.
+		  </member>
+		  <member>
+			 The object returned by the "new" method is assigned to the scalar
+			 variable $seqio. 
+		  </member>
+		</simplelist>
+	 </para>	 
+-->
