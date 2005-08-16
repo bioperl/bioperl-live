@@ -236,7 +236,7 @@ X3: 64 (24.7 bits)
 S1: 32 (17.6 bits)
       </pre>
     </p><p>
-      Table 1 shows all the data returned by methods used by the
+      Table 2 shows all the data returned by methods used by the
       Result, Hit, and HSP objects when the report shown above is used as
       input. Note that many of the methods shown can be used to either
       get or set values, but we're just showing what they get.
@@ -245,7 +245,7 @@ S1: 32 (17.6 bits)
 		with -topcomboN or -topcomboE specified</td></tr><tr><td>HSP</td><td>links</td><td> </td><td>Links field from WU-BLAST reports run with
 	      -links showing consistent HSP linking</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;SearchIO Methods</b></p></div>
     </p><p>
-      Table 1 shows that a method can return a string, an array,
+      Table 2 shows that a method can return a string, an array,
       or an object. When an object is returned some
       additional code will probably be needed to get the data of
       interest. For example, if you wanted a printable alignment after
@@ -316,6 +316,20 @@ S1: 32 (17.6 bits)
 	my $blast_frame = ($hsp-&gt;query-&gt;frame + 1) * $hsp-&gt;query-&gt;strand;
       </pre>
     </p><p>
+		One frequently-asked question has to do with getting sorted
+		output from a report, or sorting hits or HSPs just 
+		as they're sorted in the input file. There's little in the
+		way of sorting in SearchIO's methods, generally speaking you'll
+		just use a standard Perl approach. Here is an example that sorts
+		hits according to their bit scores:
+	 </p><p></p><p>
+		<pre class="programlisting">
+my @hits = $result-&gt;hits;
+for my $hit ( sort { $a-&gt; bits &lt;=&gt; $b-&gt;bits } @hits ) {
+    # Do something...
+}
+		</pre>
+	 </p><p>
       Our simple table of methods does not show all available
       arguments or returned values for all the SearchIO methods. The
       best place to explore any method in detail is 
