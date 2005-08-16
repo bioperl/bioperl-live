@@ -163,6 +163,7 @@ sub next_seq {
 
     foreach my $meta (@metas) {
         my ($name,$string) = split /\n/, $meta;
+#        $split ||= '';
         $string =~ s/\n//g;	# Remove newlines, spaces are important
         $seq->named_meta($name, $string);
     }

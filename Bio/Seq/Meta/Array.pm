@@ -37,14 +37,14 @@ sequence class with residue-based meta information
   $seq->meta('1 2 3 4 5 6 7 8 9 10');
 
   # or you could create the Meta object directly
-  my $seq = Bio::Seq::Meta::Array->new(-id=>'test',
-                                       -seq=>'ACTGCTAGCT',
-                                       -start=>2434,
-                                       -start=>2443,
-                                       -strand=>1,
-                                       -meta=>'1 2 3 4 5 6 7 8 9 10',
-                                       -varbose=>1, # to see warnings
-                                      );
+  $seq = Bio::Seq::Meta::Array->new(-id=>'test',
+                                    -seq=>'ACTGCTAGCT',
+                                    -start=>2434,
+                                    -start=>2443,
+                                    -strand=>1,
+                                    -meta=>'1 2 3 4 5 6 7 8 9 10',
+                                    -varbose=>1, # to see warnings
+                                   );
 
 
   # accessors
@@ -66,13 +66,15 @@ and can be a complex structure.  Blank values are undef or zero.
 Application specific implementations should inherit from this class to
 override and add to these methods.
 
-This class can be used for storing sequence quality values.
+This class can be used for storing sequence quality values but
+Bio::Seq::Quality has named methods that make it easier.
 
 =head1 SEE ALSO
 
 L<Bio::LocatableSeq>, 
 L<Bio::Seq::MetaI>, 
 L<Bio::Seq::Meta>, 
+L<Bio::Seq::Quality>
 
 =head1 FEEDBACK
 
@@ -124,7 +126,7 @@ use Data::Dumper;
 
 #use overload '""' => \&to_string;
 
-@ISA = qw( Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI );
+@ISA = qw( Bio::LocatableSeq Bio::Seq  Bio::Seq::MetaI );
 
 BEGIN {
 
@@ -161,14 +163,16 @@ sub new {
 
     my $self = $class->SUPER::new(%args);
 
-    my($meta) =
+    my($meta, $forceflush) =
         $self->_rearrange([qw(META
+                              FORCE_FLUSH
                               )],
                           %args);
 
-    $self->{'_meta'}->{$DEFAULT_NAME} = undef;
+    $self->{'_meta'}->{$DEFAULT_NAME} = [];
 
     $meta && $self->meta($meta);
+    $forceflush && $self->force_flush($forceflush);
 
     return $self;
 }
@@ -208,7 +212,7 @@ sub meta {
 =cut
 
 sub meta_text {
-    return join ' ',  @{shift->meta(shift)};
+    return join ' ',  map {0 unless $_} @{shift->meta(shift)};
 }
 
 =head2 named_meta
@@ -251,12 +255,10 @@ sub named_meta {
        #$self->_test_gap_positions($name) if $self->verbose > 0;
    }
 
-   if (defined $self->{'_meta'}->{$name} and
-       scalar @{$self->{'_meta'}->{$name}} > $self->length ) {
-       return [@{$self->{'_meta'}->{$name}}[0..($self->length-1)]];
-   } else {
-       return $self->{'_meta'}->{$name} || (" " x $self->length);
-   }
+   $self->_do_flush if $self->force_flush;
+
+   return $self->{'_meta'}->{$name} || (" " x $self->length);
+
 }
 
 =head2 _test_gap_positions
@@ -289,7 +291,6 @@ sub _test_gap_positions {
         my $m = substr $self->{_meta}->{$name}, $i, 1;
         $self->warn("Gap mismatch in column [". ($i+1). "] of [$name] meta data in seq [". $self->id. "]")
             and $success = 0
-                #if ($s eq '-' || $m eq '-') && $s ne $m;
                 if ($m eq '-') && $s ne $m;
     }
     return $success;
@@ -358,7 +359,7 @@ sub submeta {
 =cut
 
 sub submeta_text {
-    return join ' ', @{shift->submeta(@_)};
+    return join ' ', @{shift->named_submeta($DEFAULT_NAME, @_)};
 }
 
 =head2 named_submeta
@@ -371,7 +372,7 @@ sub submeta_text {
  Returns : A reference to an array or a string
  Args    : scalar, name of the meta data set
            integer, start position
-           integer, end position, optional when a third argument present
+           integer, end position, optional when a third argument present (can be undef)
            new value, string or array ref, optional
 
 =cut
@@ -386,14 +387,8 @@ sub named_submeta {
         $self->throw("Need at least a positive integer start value");
     $start--;
 
-    my $metaref = $self->{_meta}->{$name};
-
     if (defined $value) {
         my $arrayref;
-
-        $self->warn("You are setting meta values beyond the length of the sequence\n".
-                    "[$start > ". length($self->seq)."] in sequence ". $self->id)
-            if $start > $self->length;
 
         if (ref $value eq 'ARRAY' ) { # array ref
             $arrayref = $value;
@@ -401,13 +396,15 @@ sub named_submeta {
         elsif (not ref($value)) { # scalar
             $arrayref = [split /\s+/, $value];
         } else {
-            $self->throw("I need a scalar or array ref, not [". ref($value). "]");
+            $self->throw("I need a space separated scalar or array ref, not [". ref($value). "]");
         }
 
+        $self->warn("You are setting meta values beyond the length of the sequence\n".
+                    "[$start > ". length($self->seq)."] in sequence ". $self->id)
+            if $start + scalar @{$arrayref} -1 > $self->length;
 
 
-        $end or $end = @{$arrayref}  + $start;
-        #$end = length @{$arrayref} + $start if $end > (length (@{$arrayref}) + $start);
+        $end or $end = @{$arrayref} + $start;
         $end--;
 
         # test for length; pad if needed
@@ -416,7 +413,10 @@ sub named_submeta {
             foreach (1..$diff) { push @{$arrayref}, $META_GAP}
         }
 
-        @{$metaref}[$start..$end] = @{$arrayref};
+        @{$self->{_meta}->{$name}}[$start..$end] = @{$arrayref};
+
+        $self->_do_flush if $self->force_flush;
+
         return $arrayref;
 
     } else {
@@ -424,7 +424,7 @@ sub named_submeta {
         $end or $end = $self->length;
         $end = $self->length if $end > $self->length;
         $end--;
-        return [@{$metaref}[$start..$end]];
+        return [@{$self->{_meta}->{$name}}[$start..$end]];
 
     }
 }
@@ -469,7 +469,142 @@ sub meta_names {
     }
     unshift @r, $DEFAULT_NAME if $self->{'_meta'}->{$DEFAULT_NAME};
     return @r;
- }
+}
+
+
+=head2 meta_length
+
+ Title   : meta_length()
+ Usage   : $meta_len  = $obj->meta_length();
+ Function: return the number of elements in the meta set
+ Returns : integer
+ Args    : -
+
+=cut
+
+sub meta_length {
+   my ($self) = @_;
+   return $self->named_meta_length($DEFAULT_NAME);
+}
+
+
+=head2 named_meta_length
+
+ Title   : named_meta_length()
+ Usage   : $meeta_len  = $obj->named_meta_length($name);
+ Function: return the number of elements in the named meta set
+ Returns : integer
+ Args    : -
+
+=cut
+
+sub named_meta_length {
+   my ($self, $name) = @_;
+   $name ||= $DEFAULT_NAME;
+   return scalar @{$self->{'_meta'}->{$name}};
+}
+
+
+
+=head2 force_flush
+
+ Title   : force_flush()
+ Usage   : $force_flush = $obj->force_flush(1);
+ Function: Automatically pad with empty values or truncate meta values
+           to sequence length. Not done by default.
+ Returns : boolean 1 or 0
+ Args    : optional boolean value
+
+Note that if you turn this forced padding off, the previously padded
+values are not changed.
+
+=cut
+
+sub force_flush {
+    my ($self, $value) = @_;
+
+    if (defined $value) {
+        if ($value) {
+            $self->{force_flush} = 1;
+            $self->_do_flush;
+        } else {
+            $self->{force_flush} = 0;
+        }
+    }
+    return $self->{force_flush};
+}
+
+
+=head2 _do_flush
+
+ Title   : _do_flush
+ Usage   : 
+ Function: internal method to do the force that meta values are same
+           length as sequence . Called from L<force_flush>
+ Returns : 
+ Args    : 
+
+=cut
+
+
+sub _do_flush {
+    my ($self) = @_;
+
+    foreach my $name ($self->meta_names) {
+        #print "seq: ", $self->length , "  ", $name, ": ", $self->named_meta_length($name), "======\n";
+        
+        # elongnation
+        if ($self->length > $self->named_meta_length($name)) {
+            my $diff = $self->length - $self->named_meta_length($name);
+            foreach (1..$diff) { push @{$self->{'_meta'}->{$name}}, $META_GAP}
+        }
+        # truncation
+        elsif ( $self->length < $self->named_meta_length($name) ) {
+            $self->{_meta}->{$name} = [@{$self->{_meta}->{$name}}[0..($self->length-1)]]
+        }
+    }
+}
+
+
+
+=head2 is_flush
+
+ Title   : is_flush
+ Usage   : $is_flush  = $obj->is_flush()
+           or  $is_flush = $obj->is_flush($my_meta_name)
+ Function: Boolean to tell if all meta values are in
+           flush with the sequence length.
+           Returns true if force_flush() is set
+           Set verbosity to a positive value to see failed meta sets
+ Returns : boolean 1 or 0
+ Args    : optional name of the meta set
+
+=cut
+
+sub is_flush {
+
+    my ($self, $name) = shift;
+
+    return 1 if $self->force_flush;
+
+    my $sticky = '';
+
+
+    if ($name) {
+        $sticky .= "$name " if $self->length != $self->named_meta_length($name);
+    } else {
+        foreach my $m ($self->meta_names) {
+            $sticky .= "$m " if $self->length != $self->named_meta_length($m);
+        }
+    }
+
+    if ($sticky) {
+        print "These meta set are not flush: $sticky\n" if $self->verbose; 
+        return 0;
+    }
+
+    return 1;
+}
 
 
 =head1 Bio::PrimarySeqI methods
@@ -482,11 +617,17 @@ sub meta_names {
            the order of residues and their meta information is reversed.
  Returns : A new (fresh) Bio::Seq::Meta object
  Args    : none
+ Throws  : if the object returns false on is_flush()
+
+Note: The method does nothing to meta values, it reorders them, only.
 
 =cut
 
 sub revcom {
     my $self = shift;
+
+    $self->throw("Can not get a reverse complement. The object is not flush.")
+        unless $self->is_flush;
 
     my $new = $self->SUPER::revcom;
     my $end = $self->length - 1;
@@ -523,6 +664,7 @@ sub trunc {
 
     my $new = $self->SUPER::trunc($start, $end);
     $start--;
+    $end--;
     map {
         $new->{_meta}->{$_} = [@{$self->{_meta}->{$_}}[$start..$end]]
     } keys %{$self->{_meta}};

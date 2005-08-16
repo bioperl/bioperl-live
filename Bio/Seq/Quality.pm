@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Seq::Quality - Implementation of sequence with residue quality values
+Bio::Seq::Quality - Implementation of sequence with residue quality and trace values
 
 =head1 SYNOPSIS
 
@@ -38,13 +38,13 @@ Bio::Seq::Quality - Implementation of sequence with residue quality values
   my $traces = $seq->trace_text; # string
 
 
-  # sbu values
+  # get sub values
   $quals = $seq->subqual(2, 3);  # array ref
   $traces = $seq->subtrace(2, 3); # array ref
   $quals = $seq->subqual_text(2, 3); # string
   $quals = $seq->subtrace_text(2, 3); # string
 
-  # set 
+  # set sub values 
   $seq->subqual(2, 3, "9 9");
   $seq->subtrace(2, 3, "9 9");
 
@@ -96,11 +96,12 @@ constructor (Bio::Seq::SeqWithQuality fails without alphabet). It will
 warn about not being able to set alphabet unless you set verbosity of
 the object to a negative value.
 
-The greatest difference to Bio::Seq::SeqWithQuality is that in this
-implementation quality for all sequence residues are automatically
-assigned a quality value of '0' (zero) unless you set it to something
-else. Length of the quality array always equals the length of the
-sequence. Therefore, length() never returns "DIFFERENT".
+After the latest rewrite, the meta information sets (quality and
+trace) no longer cover all the residues automatically. Methods to
+check the length of meta information (L<quality_length>,
+L<trace_length>)and to see if the ends are flushed to the sequence
+have been added (L<quality_is_flush>, L<trace_is_flush>). To force
+the old functinality, set L<force_flush> to true.
 
 qual_obj() and seq_obj() methods do not exist!
 
@@ -200,8 +201,8 @@ sub new {
                               )],
                           @args);
 
-    $self->{'_meta'}->{$DEFAULT_NAME} = undef;
-    $self->{'_meta'}->{'trace'} = undef;
+    $self->{'_meta'}->{$DEFAULT_NAME} = [];
+    $self->{'_meta'}->{'trace'} = [];
 
     $meta && $self->meta($meta);
     $qual && $self->qual($qual);
@@ -295,6 +296,39 @@ sub subqual_text {
 }
 
 
+=head2 quality_length
+
+ Title   : quality_length()
+ Usage   : $qual_len  = $obj->quality_length();
+ Function: return the number of elements in the quality array
+ Returns : integer
+ Args    : -
+
+=cut
+
+sub quality_length {
+   my ($self) = @_;
+   return $self->named_meta_length('DEFAULT');
+}
+
+
+
+=head2 quality_is_flush
+
+ Title   : quality_is_flush
+ Usage   : $quality_is_flush  = $obj->quality_is_flush()
+ Function: Boolean to tell if the trace length equals the sequence length.
+           Returns true if force_flush() is set.
+ Returns : boolean 1 or 0
+ Args    : none
+
+=cut
+
+sub quality_is_flush {
+    return shift->is_flush('quality');
+}
+
+
 =head2 trace
 
  Title   : trace
@@ -376,39 +410,65 @@ sub subtrace_text {
 }
 
 
+=head2 trace_length
+
+ Title   : trace_length()
+ Usage   : $trace_len  = $obj->trace_length();
+ Function: return the number of elements in the trace set
+ Returns : integer
+ Args    : -
+
+=cut
+
+sub trace_length {
+   my ($self) = @_;
+   return $self->named_meta_length('trace');
+}
+
+=head2 trace_is_flush
+
+ Title   : trace_is_flush
+ Usage   : $trace_is_flush  = $obj->trace_is_flush()
+ Function: Boolean to tell if the trace length equals the sequence length.
+           Returns true if force_flush() is set.
+ Returns : boolean 1 or 0
+ Args    : none
+
+=cut
+
+sub trace_is_flush {
+    return shift->is_flush('trace');
+}
+
+
 ################## deprecated methdods ##################
 
 
 sub trace_indices {
     my $self = shift;
-#    $self->deprecated("trace_indices() is deprecated - use trace() instead");
     return $self->named_meta('trace');
 }
 
 sub trace_index_at {
     my ($self, $val) =@_;
-#    $self->deprecated("trace_index_at() is deprecated - use subtrace($val, $val) instead");
     return shift @{$self->named_submeta('trace', $val, $val)};
 }
 
 
 sub sub_trace_index {
     my $self = shift; 
-#    $self->deprecated("sub_trace_index() is deprecated - use subtrace() instead");
     return $self->named_submeta('trace', @_);
 }
 
 
 sub qualat {
     my ($self, $val) =@_;
-#    $self->deprecated("trace_index_at() is deprecated - use subqual($val, $val) instead");
     return shift @{$self->submeta($val, $val)};
 }
 
 
 sub baseat {
     my ($self,$val) = @_;
-#    $self->deprecated("baseat() is deprecated - use subseq($val,$val) instead");
     return $self->subseq($val,$val);
 }
 

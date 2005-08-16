@@ -319,9 +319,63 @@ sub named_submeta_text { shift->throw_not_implemented }
 
 =cut
 
-sub submeta_names { shift->throw_not_implemented }
+sub meta_names { shift->throw_not_implemented }
 
 
+=head2 force_flush
+
+ Title   : force_flush()
+ Usage   : $force_flush = $obj->force_flush(1);
+ Function: Automatically pad with empty values or truncate meta values to
+            sequence length
+ Returns : boolean 1 or 0
+ Args    : optional boolean value
+
+=cut
+
+sub force_flush { shift->throw_not_implemented }
+
+
+=head2 is_flush
+
+ Title   : is_flush
+ Usage   : $is_flush  = $obj->is_flush()
+           or  $is_flush = $obj->is_flush($my_meta_name)
+ Function: Boolean to tell if all meta values are in
+           flush with the sequence length.
+           Returns true if force_flush() is set
+           Set verbosity to a positive value to see failed meta sets
+ Returns : boolean 1 or 0
+ Args    : optional name of the meta set
+
+=cut
+
+sub is_flush { shift->throw_not_implemented }
+
+
+=head2 meta_length
+
+ Title   : meta_length()
+ Usage   : $meeta_len  = $obj->meta_length();
+ Function: return the number of elements in the meta set
+ Returns : integer
+ Args    : -
+
+=cut
+
+sub meta_length { shift->throw_not_implemented }
+
+=head2 named_meta_length
+
+ Title   : named_meta_length()
+ Usage   : $meeta_len  = $obj->named_meta_length($name);
+ Function: return the number of elements in the named meta set
+ Returns : integer
+ Args    : -
+
+=cut
+
+sub named_meta_length { shift->throw_not_implemented }
 
 
 =head1 Bio::PrimarySeqI methods
