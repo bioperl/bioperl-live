@@ -839,7 +839,9 @@ sub _possibly_phylip
 {
     my ($line, $lineno) = (shift, shift);
     return (($lineno == 1 && $line =~ /^\s*\d+\s\d+/) ||
-            ($line =~ /^\S+\s+[A-IK-NP-Z\s]+/));
+            ($lineno == 2 && $line =~ /^\w\s+[A-IK-NP-Z\s]+/) ||
+            ($lineno == 3 && $line =~ /(?:^\w\s+[A-IK-NP-Z\s]+|\s+[A-IK-NP-Z\s]+)/)
+           );
 }
 
 =head2 _possibly_prodom
