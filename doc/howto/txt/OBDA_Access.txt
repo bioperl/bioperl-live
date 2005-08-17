@@ -386,7 +386,7 @@ References
   21. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#code
   22. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#biogetseq
   23. http://obda.open-bio.org/
-  24. http://bioperl.org/HOWTOs/Flat_Databases/index.html
+  24. http://bioperl.org/HOWTOs/html/Flat_Databases.html
   25. http://obda.open-bio.org/
   26. http://doc.bioperl.org/
   27. http://bioperl.org/

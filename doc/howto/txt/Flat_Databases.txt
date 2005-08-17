@@ -265,5 +265,5 @@ References
   12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Flat_Databases.html#more
   13. http://bioperl.org/HOWTOs
   14. http://www.sleepycat.com/
-  15. http://bioperl.org/HOWTOs/OBDA_Access/index.html
+  15. http://bioperl.org/HOWTOs/html/OBDA_Access.html
   16. http://bioperl.org/

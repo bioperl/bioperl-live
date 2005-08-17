@@ -410,7 +410,7 @@ print $seq_obj-&gt;seq();
 		By using 
 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html" target="_top"><i class="citetitle">Bio::SeqIO</i></a> in this manner you will be able to get input
 		and make output for all of the sequence file formats supported by <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>
-		(the <a href="http://bioperl.org/HOWTOs/SeqIO/index.html" target="_top"><i class="citetitle">SeqIO HOWTO</i></a> has a complete list of supported formats).
+		(the <a href="http://bioperl.org/HOWTOs/html/SeqIO.html" target="_top"><i class="citetitle">SeqIO HOWTO</i></a> has a complete list of supported formats).
 		The way you create <tt class="classname">Bio::SeqIO</tt> objects is 
 		very similar to the way we used <tt class="function">new()</tt> to
 		create a 
@@ -568,7 +568,7 @@ while ($seq_obj = $seqio_obj-&gt;next_seq){
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
-		<a href="http://bioperl.org/HOWTOs/SeqIO/index.html" target="_top"><i class="citetitle">SeqIO HOWTO</i></a>). In fact, the suffix "fasta" is one that
+		<a href="http://bioperl.org/HOWTOs/html/SeqIO.html" target="_top"><i class="citetitle">SeqIO HOWTO</i></a>). In fact, the suffix "fasta" is one that
 		SeqIO understands, so "-format" is unnecessary above. Without a known
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
@@ -726,7 +726,7 @@ $seq_obj-&gt;seq("MMTYDFFFFVVNNNNPPPPAAAW");
 		associated with the Sequence object. This is something of a 
 		tangent but if you'd like to learn about Features and Annotations
 		see the relevant 
-<a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">HOWTO</i></a>.
+<a href="http://bioperl.org/HOWTOs/html/Feature-Annotation.html" target="_top"><i class="citetitle">HOWTO</i></a>.
 		The methods related to this topic are shown below.
 	 </p><p>
 		<div class="table"><a id="d4e546"></a><table summary="Feature and Annotation Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Note</th></tr></thead><tbody><tr><td>get_SeqFeatures</td><td>array of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>get_all_SeqFeatures</td><td>array of SeqFeature objects</td><td>array includes sub-features</td></tr><tr><td>remove_SeqFeatures</td><td>array of SeqFeatures removed</td><td>&nbsp;</td></tr><tr><td>feature_count</td><td>number of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>add_SeqFeature</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>annotation</td><td>array of Annotation objects</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Feature and Annotation Methods</b></p></div>
@@ -833,7 +833,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		you noticed that there's an awful lot of
 		information missing. All of this missing information is stored in
 		what <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a> calls Features and Annotations, see the
-		<a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> if you'd like to learn more about this.
+		<a href="http://bioperl.org/HOWTOs/html/Feature-Annotation.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> if you'd like to learn more about this.
 		Second, a few of the
 		methods don't return anything, like
 		<tt class="classname">namespace</tt> and <tt class="classname">authority</tt>.
@@ -983,7 +983,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </p><p>
 		As in the Genbank example there's information that the Sequence
 		object doesn't supply, and it's stored in Annotation objects. See the
-	<a href="http://bioperl.org/HOWTOs/Feature-Annotation/index.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> for more.
+	<a href="http://bioperl.org/HOWTOs/html/Feature-Annotation.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> for more.
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="blast"></a>12.&nbsp;BLAST</h2></div></div></div><p>
 		You have access to a large number of sequence analysis programs 
 		within <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. Typically this means you have a means to run
@@ -1041,7 +1041,7 @@ print $result_obj-&gt;num_hits;
 		The report object, <tt class="varname">$report_obj</tt>, and the
 		result object, <tt class="varname">$result_obj</tt>, come from 
 		the SearchIO modules. The
-		<a href="http://bioperl.org/HOWTOs/SearchIO/index.html" target="_top"><i class="citetitle">SearchIO HOWTO</i></a> will tell you all about using these
+		<a href="http://bioperl.org/HOWTOs/html/SearchIO.html" target="_top"><i class="citetitle">SearchIO HOWTO</i></a> will tell you all about using these
 		objects to extract useful data from your BLAST analyses.
 	 </p><p>
 		Here's an example of how one would use SearchIO to extract

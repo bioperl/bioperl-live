@@ -950,7 +950,7 @@ References
   14. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#in_addition
   15. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Feature-Annotation.html#acknowledgements
   16. http://bioperl.org/Core/Latest/bptutorial.html
-  17. http://bioperl.org/HOWTOs/SeqIO/index.html
+  17. http://bioperl.org/HOWTOs/html/SeqIO.html
   18. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html
   19. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeq.html
   20. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
@@ -992,7 +992,7 @@ References
   56. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html
   57. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
   58. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html
-  59. http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html
+  59. http://bioperl.org/HOWTOs/html/Graphics-HOWTO.html
   60. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeatureI.html
   61. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/AnnotationAdaptor.html
   62. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/FeaturePair.html

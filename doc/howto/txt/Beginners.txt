@@ -1292,7 +1292,7 @@ References
   67. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
   68. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
   69. http://bioperl.org/
-  70. http://bioperl.org/HOWTOs/SeqIO/index.html
+  70. http://bioperl.org/HOWTOs/html/SeqIO.html
   71. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
   72. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html
   73. http://bioperl.org/
@@ -1301,7 +1301,7 @@ References
   76. http://bioperl.org/
   77. http://doc.bioperl.org/releases/bioperl-1.4/Bio/AlignIO.html
   78. http://doc.bioperl.org/releases/bioperl-1.4/Bio/SearchIO.html
-  79. http://bioperl.org/HOWTOs/SeqIO/index.html
+  79. http://bioperl.org/HOWTOs/html/SeqIO.html
   80. http://bioperl.org/
   81. http://bioperl.org/
   82. http://bioperl.org/
@@ -1313,19 +1313,19 @@ References
   88. http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html
   89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html
   90. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
-  91. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  91. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
   92. http://bioperl.org/
-  93. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  93. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
   94. http://www.expasy.ch/
   95. http://bioperl.org/
   96. http://bioperl.org/
   97. http://www.expasy.ch/
   98. http://www.expasy.ch/
-  99. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  99. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
  100. http://bioperl.org/
  101. http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall
  102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
- 103. http://bioperl.org/HOWTOs/SearchIO/index.html
+ 103. http://bioperl.org/HOWTOs/html/SearchIO.html
  104. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
  105. http://bioperl.org/
  106. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html

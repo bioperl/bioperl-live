@@ -741,5 +741,5 @@ References
   11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#and_more
   12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#caveats
   13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#errors
-  14. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  14. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
   15. http://bioperl.org/

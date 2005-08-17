@@ -925,7 +925,7 @@ References
   11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Graphics-HOWTO.html#rendering-features-better
   12. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Graphics-HOWTO.html#summary
   13. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Graphics-HOWTO.html#ftn.d4e94
-  14. http://bioperl.org/HOWTOs/Feature-Annotation/index.html
+  14. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
   15. http://www.gmod.org/
   16. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/Graphics-HOWTO.html#d4e94
   17. http://bioperl.org/
