@@ -709,7 +709,7 @@ to know whether the required database is flat-file or relational or
 even whether it is local or accessible only over the net.
 Descriptions of how to set up the necessary registry configuration
 file and access sequence data with the registry in described at
-http://bioperl.org/HOWTO/OBDA_Access/index.html (or in doc/howto).
+http://bioperl.org/HOWTOs/html/OBDA_Access.html (or in doc/howto).
 
 =head2   III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -929,7 +929,7 @@ the format based on the file's suffix, in a case-insensitive manner. If
 there's no suffix available then SeqIO will attempt to guess the format 
 based on actual content. If it can't determine the format then it will 
 assume "fasta". A complete list of formats and suffixes can be 
-found in the SeqIO HOWTO (http://bioperl.org/HOWTOs/SeqIO/index.html).
+found in the SeqIO HOWTO (http://bioperl.org/HOWTOs/html/SeqIO.html).
 
 =for html <A NAME ="iii.2.2"></A>
 
@@ -1062,7 +1062,7 @@ of related, top-level annotation is found in L<Bio::Annotation::Collection>.
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory examples/DB. Finally,
 there's a HOWTO on features and annotations
-(http://bioperl.org/HOWTOs/Feature-Annotation/index.html) and there's a 
+(http://bioperl.org/HOWTOs/html/Feature-Annotation.html) and there's a 
 section on features in the FAQ (http://bioperl.org/Core/Latest/faq.html#5).
 
 The following methods returns new sequence objects, but do not transfer
@@ -1504,7 +1504,7 @@ Sample code to read a BLAST report might look like this:
   $hsp_start = $hsp->query->start;
 
 For more details there is a good description of how to use
-SearchIO at http://www.bioperl.org/HOWTOs/SearchIO/index.html
+SearchIO at http://www.bioperl.org/HOWTOs/html/SearchIO.html
 or in the docs/howto subdirectory of the distribution. Additional
 documentation can be found in L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
@@ -1957,7 +1957,7 @@ Objects with the "reference" tagname are Bio::Annotation::Reference objects
 and represent scientific articles. See L<Bio::Annotation::Reference> for 
 descriptions of the methods used to access the data in Reference objects.
 There is also a HOWTO on features and annotation 
-(http://bioperl.org/HOWTOs/Feature-Annotation/index.html).
+(http://bioperl.org/HOWTOs/html/Feature-Annotation.html).
 
 =for html <A NAME ="iii.7.3"></A>
 
@@ -2262,7 +2262,7 @@ See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 Using the Bio::Tools::Phylo::PAML module one can also parse the
 results of the PAML tree-building programs codeml, baseml, basemlg,
 codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> or the PAML HOWTO
-(http://bioperl.org/HOWTOs/PAML/index.html) for more information.
+(http://bioperl.org/HOWTOs/html/PAML.html) for more information.
 
 =head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
 
@@ -3321,6 +3321,7 @@ $run_remoteblast = sub {
 		  sleep 5;
 	      } else {
             $remote_blast_object->remove_rid($rid);
+            # test		
             while ( my $sbjct = $rc->nextSbjct ) {
               print $outputfh "sbjct name is ", $sbjct->name, "\n";
               while ( my $hsp = $sbjct->nextHSP ) {
