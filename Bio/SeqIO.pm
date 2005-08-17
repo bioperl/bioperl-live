@@ -189,7 +189,7 @@ some HTML tags:
 Specify the format of the file.  Supported formats include fasta,
 genbank, embl, swiss (SwissProt), and tracefile formats such as
 abi (ABI) and scf. There are many more, for a complete listing see
-the SeqIO HOWTO (http://bioperl.org/HOWTOs/SeqIO/index.html).
+the SeqIO HOWTO (http://bioperl.org/HOWTOs/html/SeqIO.html).
 
 If no format is specified and a filename is given then the module
 will attempt to deduce the format from the filename suffix. If
