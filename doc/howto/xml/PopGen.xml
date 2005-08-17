@@ -82,9 +82,10 @@
 		  perform using these objects, a coalescent implementation,
 		  and objects for performing sequence distance based calculations.
 		  A full treatment of the Bioperl interface to the PAML suite
-		  (Z.Yang, 1997) is covered in the PAML HOWTO and objects and data
+		  (Z.Yang, 1997) is covered in the 
+<ulink url="http://bioperl.org/HOWTOs/html/PAML.html"><citetitle>PAML HOWTO></citetitle></ulink> and objects and data
 		  pertinent to phylogenetic data manipulation are covered in the
-		  Trees HOWTO.
+		  <ulink url="http://bioperl.org/HOWTOs/html/Trees.html"><citetitle>Trees HOWTO</citetitle></ulink>.
 		</para>
 	 </section>
  

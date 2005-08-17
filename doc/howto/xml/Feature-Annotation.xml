@@ -154,7 +154,7 @@
       and SeqIO objects. The reader is referred to the 
       <ulink url="http://bioperl.org/Core/Latest/bptutorial.html"><citetitle>bptutorial</citetitle></ulink>, 
       the module documentation, and the 
-      <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink> 
+      <ulink url="http://bioperl.org/HOWTOs/html/SeqIO.html"><citetitle>SeqIO HOWTO</citetitle></ulink> 
       for more information on these topics. Here's a bit of code, to summarize:
     </para>
     <para>
@@ -1264,7 +1264,7 @@ ORIGIN
     <para>
       If you would like to learn about representing sequences and 
       features in graphical form take a look at the <ulink 
-      url="http://bioperl.org/HOWTOs/Graphics-HOWTO/index.html"><citetitle>Graphics
+      url="http://bioperl.org/HOWTOs/html/Graphics-HOWTO.html"><citetitle>Graphics
       HOWTO</citetitle></ulink>. The documentation for each of the individual
       SeqFeature, Range, Location and 
       Annotation modules is also very useful, here's a list of them. 

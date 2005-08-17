@@ -618,7 +618,7 @@ print $seq_obj->seq();
 		By using 
 <ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqIO.html"><citetitle>Bio::SeqIO</citetitle></ulink> in this manner you will be able to get input
 		and make output for all of the sequence file formats supported by <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>
-		(the <ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink> has a complete list of supported formats).
+		(the <ulink url="http://bioperl.org/HOWTOs/html/SeqIO.html"><citetitle>SeqIO HOWTO</citetitle></ulink> has a complete list of supported formats).
 		The way you create <classname>Bio::SeqIO</classname> objects is 
 		very similar to the way we used <function>new()</function> to
 		create a 
@@ -806,7 +806,7 @@ while ($seq_obj = $seqio_obj->next_seq){
 		to do. If you don't give a format then the SeqIO object will 
 		try to determine the format from the file suffix or extension 
 		(and a list of the file extensions is in the  
-		<ulink url="http://bioperl.org/HOWTOs/SeqIO/index.html"><citetitle>SeqIO HOWTO</citetitle></ulink>). In fact, the suffix "fasta" is one that
+		<ulink url="http://bioperl.org/HOWTOs/html/SeqIO.html"><citetitle>SeqIO HOWTO</citetitle></ulink>). In fact, the suffix "fasta" is one that
 		SeqIO understands, so "-format" is unnecessary above. Without a known
 		suffix SeqIO will attempt to guess the format based on the 
 		file's contents but there's no guarantee that it can guess
@@ -1137,7 +1137,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 		associated with the Sequence object. This is something of a 
 		tangent but if you'd like to learn about Features and Annotations
 		see the relevant 
-<ulink url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>HOWTO</citetitle></ulink>.
+<ulink url="http://bioperl.org/HOWTOs/html/Feature-Annotation.html"><citetitle>HOWTO</citetitle></ulink>.
 		The methods related to this topic are shown below.
 	 </para>
 	 <para>
@@ -1353,7 +1353,7 @@ ORIGIN      15 bp upstream from HhaI site.
 		information missing. All of this missing information is stored in
 		what <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> calls Features and Annotations, see the
 		<ulink
-		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> if you'd like to learn more about this.
+		  url="http://bioperl.org/HOWTOs/html/Feature-Annotation.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> if you'd like to learn more about this.
 		Second, a few of the
 		methods don't return anything, like
 		<classname>namespace</classname> and <classname>authority</classname>.
@@ -1602,7 +1602,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		As in the Genbank example there's information that the Sequence
 		object doesn't supply, and it's stored in Annotation objects. See the
 	<ulink
-		  url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> for more.
+		  url="http://bioperl.org/HOWTOs/html/Feature-Annotation.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> for more.
 	 </para>
   </section>
 
@@ -1674,7 +1674,7 @@ print $result_obj->num_hits;
 		The report object, <varname>$report_obj</varname>, and the
 		result object, <varname>$result_obj</varname>, come from 
 		the SearchIO modules. The
-		<ulink url="http://bioperl.org/HOWTOs/SearchIO/index.html"><citetitle>SearchIO HOWTO</citetitle></ulink> will tell you all about using these
+		<ulink url="http://bioperl.org/HOWTOs/html/SearchIO.html"><citetitle>SearchIO HOWTO</citetitle></ulink> will tell you all about using these
 		objects to extract useful data from your BLAST analyses.
 	 </para>
 	 <para>

@@ -724,7 +724,7 @@ PRES1		127	310	700
       <classname>Bio::SeqIO</classname> to generate a set of
       <classname>Bio::SeqFeatureI</classname> objects, and to use those
       features to populate tracks (see the <ulink
-	url="http://bioperl.org/HOWTOs/Feature-Annotation/index.html"><citetitle>Feature-Annotation
+	url="http://bioperl.org/HOWTOs/html/Feature-Annotation.html"><citetitle>Feature-Annotation
 	HOWTO</citetitle></ulink> for more information on features). The documentation for
       each of  the individual. For simplicity's sake, we will sort each
       feature by its primary tag (such as "exon") and create a new track for
