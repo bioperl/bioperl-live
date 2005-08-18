@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.30 2005-07-18 19:49:32 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.31 2005-08-18 16:39:13 scain Exp $
 
 
 use strict;
@@ -579,7 +579,7 @@ elsif( $use_mysql or $use_mysqlcmap ) {
 ];
   $command =~ s/\n/ /g;
   $success &&= system($command) == 0;
-  #unlink "$tmpdir/$_.$$";
+  unlink "$tmpdir/$_.$$";
 }
 printf STDERR "Total load time %5.2fs\n",(time() - $start) if $timer;
 warn "done...\n";
