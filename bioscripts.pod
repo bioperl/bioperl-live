@@ -148,6 +148,10 @@ reformat using Bio::Index* and Bio::DB*.
 
 Indexes local databases, partners with bp_fetch.pl.
 
+=head1 scripts/index/bp_seqret.PLS 
+
+Index a local FASTA database and fetch sequences using same syntax as EMBOSS seqret tool.  Does not support the full EMBOSS db config files, it is designed to support fast fetching of seqs from a FASTA db.
+
 =head2 scripts/seq/extract_feature_seq.PLS
 
 Extract the sequence for a specified feature type.
