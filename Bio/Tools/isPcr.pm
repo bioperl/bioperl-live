@@ -140,10 +140,10 @@ sub new {
 
   my $ftype = defined $file ? '-file' 
             : defined $fh ? '-fh' 
-            : $self->throw('no input file'); 
+            : $self->throw("Bio::Tools::isPcr: no input file or handle"); 
 
   # default output for isPcr is fasta format
-  $self->{io} = Bio::SeqIO->new(-format => 'fasta', -file => $file);
+  $self->{io} = Bio::SeqIO->new(-format => 'fasta', $ftype => ($file||$fh));
 
   return $self;
 }
