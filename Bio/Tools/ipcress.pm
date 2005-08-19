@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::isPcr
+# BioPerl module for Bio::Tools::ipcress
 #
 # Cared for by Sheldon McKay <mckays@cshl.edu>
 #
@@ -12,25 +12,22 @@
 
 =head1 NAME
 
-Bio::Tools::isPcr - Parse isPcr output and make features
+Bio::Tools::ipcress - Parse ispcress output and make features
 
 =head1 SYNOPSIS
 
-    # A simple annotation pipeline wrapper for isPcr data
-    # assuming isPcr data is already generated in file seq1.isPcr
+    # A simple annotation pipeline wrapper for ispcress data
+    # assuming ispcress data is already generated in file seq1.ispcress
     # and sequence data is in fasta format in file called seq1.fa
 
-    # Note: this parser is meant for the default fasta output from
-    # isPcr.  bed and psl output formats are not supported.
-
-    use Bio::Tools::IsPcr;
+    use Bio::Tools::ipcress;
     use Bio::SeqIO;
-    my $parser = new Bio::Tools::isPcr(-file => 'seq1.isPcr');
+    my $parser = new Bio::Tools::ipcress(-file => 'seq1.ispcress');
     my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
     my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
 
     while( my $feat = $parser->next_feature ) {
-	# add isPcr annotation to a sequence
+	# add ipcress annotation to a sequence
 	$seq->add_SeqFeature($feat);
     }
     my $seqout = new Bio::SeqIO(-format => 'embl');
@@ -39,10 +36,10 @@ Bio::Tools::isPcr - Parse isPcr output and make features
 
 =head1 DESCRIPTION
 
-This object serves as a parser for isPcr data (in the default fasta
-format), creating a Bio::SeqFeatureI for each isPcr hit.  
-These can be processed or added as annotation to an existing
-Bio::SeqI object for the purposes of automated annotation.
+This object serves as a parser for ispcress data, creating a
+Bio::SeqFeatureI for each ispcress hit.  These can be processed or added
+as annotation to an existing Bio::SeqI object for the purposes of
+automated annotation.
 
 This module is adapted from the Bio::Tools::EPCR module
 written by Jason Stajich <jason@bioperl.org>
@@ -84,62 +81,77 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::Tools::isPcr;
+package Bio::Tools::ipcress;
 use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 
-
 @ISA = qw(Bio::Root::Root);
-
 
 =head2 new
 
  Title   : new
- Usage   : my $ispcr = new Bio::Tools::isPcr( -file => $file,
-					      -primary => $fprimary, 
-					      -source => $fsource,
-					      -groupclass => $fgroupclass);
-
- Function: Initializes a new isPcr parser
- Returns : Bio::Tools::isPcr
+ Usage   : my $ipcress = new Bio::Tools::ipcress(-file => $file,
+					   -primary => $fprimary, 
+					   -source => $fsource, 
+					   -groupclass => $fgroupclass);
+ Function: Initializes a new ipcress parser
+ Returns : Bio::Tools::ipcress
  Args    : -fh   => filehandle
            OR
            -file => filename
 
            -primary => a string to be used as the common value for
                        each features '-primary' tag.  Defaults to
-                       the sequence ontology term 'PCR_product'.  
+                       the sequence ontology term 'PCR_product'.
                        (This in turn maps to the GFF 'type'
                        tag (aka 'method')).
 
             -source => a string to be used as the common value for
                        each features '-source' tag.  Defaults to
-                       'isPcr'. (This in turn maps to the GFF 'source'
+                       'ipcress'. (This in turn maps to the GFF 'source'
                        tag)
 
-            -groupclass => a string to be used as the name of the tag
+             -groupclass => a string to be used as the name of the tag
                            which will hold the sts marker namefirst
                            attribute.  Defaults to 'name'.
 
 =cut
 
-
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($primary,$source,$groupclass) = 
-      $self->_rearrange([qw/PRIMARY SOURCE GROUPCLASS/],@args);
+  my ($primary, $source, 
+      $groupclass, $file, $fh) = $self->_rearrange([qw(PRIMARY
+						       SOURCE 
+						       GROUPCLASS
+						       FILE FH)],@args);
   $self->primary(defined $primary ? $primary : 'PCR_product');
-  $self->source(defined $source ? $source : 'isPcr');
+  $self->source(defined $source ? $source : 'ipcress');
   $self->groupclass(defined $groupclass ? $groupclass : 'name');
 
-  # default output for isPcr is fasta format
-  $self->{io} = Bio::SeqIO->new(-format => 'fasta', @args);
+  local $/ = 'Ipcress result';
+  my @result;
+
+  if ($file) {
+      open FH, $file;
+      @result = (<FH>);
+      close FH;
+  }
+  elsif ($fh) {
+      @result = (<$fh>);
+  }
+  else {
+      $self->throw("Bio::Tools::ipcress: no input file");
+  }
+
+
+  shift @result;
+
+  $self->{result} = \@result;
 
   return $self;
 }
@@ -159,36 +171,53 @@ sub new {
 
 sub next_feature {
     my ($self) = @_;
-    my $result = $self->{io}->next_seq;
-    return undef unless defined $result;
+    my $result = shift @{$self->{result}};
+    return undef unless defined($result);
+
+    chomp $result;
+    my @lines = split "\n", $result;
+    my ($ipcress) = grep /ipcress: /, @lines;
+
+    my (undef,$seqname,$mkrname,$length,undef,$start,$mismatchL,
+       undef,undef,$mismatchR,$desc) = split /\s+/, $ipcress;
+ 
+    my $end = $start + $length;
+    $start += 1;
+
+    my $strand = $desc eq 'forward' ? '+' : $desc eq 'revcomp' ? '-' : 0;
     
-    my ($seqname,$location)    = split ':', $result->primary_id;
-    my ($pcrname,$left,$right) = split /\s+/, $result->desc;
-    my ($start,$strand,$end)   = $location =~ /^(\d+)([-+])(\d+)$/;
-    my $amplicon = $result->seq;
+    my ($left)  = grep /\# forward/, @lines;
+    $left  =~ s/[^A-Z]+//g;
+    my ($right) = grep /\# revcomp/, @lines;
+    $right =~ s/[^A-Z]+//g;
+    $right = reverse $right;
 
     # if there are multiple hits, increment the name for
     # the groupclass
-    if (++$self->{seen}->{$pcrname} > 1) {
-	$pcrname .= "\.$self->{seen}->{$pcrname}";
+    if (++$self->{seen}->{$mkrname} > 1) {
+        $mkrname .= "\.$self->{seen}->{$mkrname}";
     }
 
-    my $tags = {
-	$self->groupclass => $pcrname,
-	amplicon          => $amplicon,
-	left_primer       => $left,
-	right_primer       => $right
-	};
 
-    my $markerfeature = Bio::SeqFeature::Generic->new( 
-						       '-start'   => $start,
-						       '-end'     => $end,
-						       '-strand'  => $strand,
-						       '-source'  => $self->source,
-						       '-primary' => $self->primary,
-						       '-seq_id'  => $seqname,
-						       '-tag'     => $tags
-						       );
+    my $markerfeature = new Bio::SeqFeature::Generic 
+	( '-start'   => $start,
+	  '-end'     => $end,
+	  '-strand'  => $strand,
+	  '-source'  => $self->source,
+	  '-primary' => $self->primary,
+	  '-seq_id'  => $seqname,
+	  '-tag'     => {
+	      $self->groupclass => $mkrname,
+	  });
+
+    if (!$strand) {
+	$markerfeature->add_tag_value('Note' => "bad product: single primer amplification");
+    }
+
+    $markerfeature->add_tag_value('left_primer' => $left);
+    $markerfeature->add_tag_value('right_primer' => $right);
+    $markerfeature->add_tag_value('left_mismatches' => $mismatchL) if $mismatchL;
+    $markerfeature->add_tag_value('right_mismatches' => $mismatchR) if $mismatchR;
 
     return $markerfeature;
 }
