@@ -116,7 +116,7 @@ achieve meaningful results
 
 =item 4
 
-ALignment must therefore be a multiple of 3 nucleotides long.
+Alignment must therefore be a multiple of 3 nucleotides long.
 
 =item 5
 
@@ -164,11 +164,11 @@ proportion of non-synonymous differences in both sequences given by P_n = S_n/S.
 
 =item D_s
 
-estimation of synonymous mutations per synonymous site (by Jukes-CAntor).
+estimation of synonymous mutations per synonymous site (by Jukes-Cantor).
 
 =item D_n
 
-estimation of non-synonymous mutations per non-synonymous site (by Jukes-CAntor).
+estimation of non-synonymous mutations per non-synonymous site (by Jukes-Cantor).
 
 =item D_n_var
 
@@ -209,7 +209,7 @@ Estimated variance of Dn from bootstrapped alignments.
 
 =item z_score
 
-calculation of z value. POsitive value indicates D_n E<gt>D_s,
+calculation of z value. Positive value indicates D_n E<gt>D_s,
 negative values vice versa.
 
 =back
@@ -372,7 +372,7 @@ $CODONS = get_codons();
 my @t = split '', "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG";
 #create look up hash of number of possible synonymous mutations per codon
 $synsites = get_syn_sites();
-#create refernce look up hash of single basechanges in codons
+#create reference look up hash of single basechanges in codons
 %synchanges = get_syn_changes();
 
 
@@ -1243,7 +1243,7 @@ sub calc_all_KaKs_pairs {
 
 sub calc_average_KaKs {
 #calculates global value for sequences in alignment using bootstrapping
-#this is quite slow (~10 sexonds per  3 X 200nt seqs); 
+#this is quite slow (~10 seconds per  3 X 200nt seqs); 
     my ($self, $aln, $bootstrap_rpt) = @_;
     $bootstrap_rpt ||= 1000;
     $self->throw ("This calculation needs a Bio::Align::AlignI compatible object, not a [ " . ref($aln) . " ]object") unless $aln->isa('Bio::Align::AlignI');
@@ -1441,7 +1441,7 @@ sub analyse_mutations {
 
 	#ignore codon if beeing compared with gaps! 
 	if ($input{'cod1'} =~ /\-/ || $input{'cod2'} =~ /\-/){
-	    $gap_cnt += 3; #just increments once if there is a apair of gaps
+	    $gap_cnt += 3; #just increments once if there is a pair of gaps
 	    next;
 	}
 
@@ -1552,7 +1552,7 @@ sub count_diffs {
            the values of which describe type of change.
            my $type = $hash{$codon1}->{$codon2};
            values are :
-             1   synonomous
+             1   synonymous
              0   non-syn
             -1   either codon is a stop codon
  Args    : none
