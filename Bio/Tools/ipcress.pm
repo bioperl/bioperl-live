@@ -12,17 +12,17 @@
 
 =head1 NAME
 
-Bio::Tools::ipcress - Parse ispcress output and make features
+Bio::Tools::ipcress - Parse ipcress output and make features
 
 =head1 SYNOPSIS
 
-    # A simple annotation pipeline wrapper for ispcress data
-    # assuming ispcress data is already generated in file seq1.ispcress
+    # A simple annotation pipeline wrapper for ipcress data
+    # assuming ipcress data is already generated in file seq1.ipcress
     # and sequence data is in fasta format in file called seq1.fa
 
     use Bio::Tools::ipcress;
     use Bio::SeqIO;
-    my $parser = new Bio::Tools::ipcress(-file => 'seq1.ispcress');
+    my $parser = new Bio::Tools::ipcress(-file => 'seq1.ipcress');
     my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
     my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
 
@@ -36,8 +36,8 @@ Bio::Tools::ipcress - Parse ispcress output and make features
 
 =head1 DESCRIPTION
 
-This object serves as a parser for ispcress data, creating a
-Bio::SeqFeatureI for each ispcress hit.  These can be processed or added
+This object serves as a parser for ipcress data, creating a
+Bio::SeqFeatureI for each ipcress hit.  These can be processed or added
 as annotation to an existing Bio::SeqI object for the purposes of
 automated annotation.
 
