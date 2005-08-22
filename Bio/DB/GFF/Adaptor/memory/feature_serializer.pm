@@ -12,6 +12,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK @hash2array_map);
 
 sub feature2string {
   my $feature = shift;
+  local $^W = 0;
   my @a = @{$feature}{@hash2array_map};
   push @a,map {join "\0",@$_} @{$feature->{attributes}} if $feature->{attributes};
   return join $;,@a;

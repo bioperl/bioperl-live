@@ -103,6 +103,7 @@ my @args;
 push @args,(-user=>$USER)     if defined $USER;
 push @args,(-pass=>$PASSWORD) if defined $PASSWORD;
 push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_TAG;
+push @args,(-create=>1)       if $CREATE;
 push @args,(-write=>1);
 
 my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@args)

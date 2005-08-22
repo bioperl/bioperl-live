@@ -19,7 +19,7 @@ Bio::DB::GFF::Adaptor::memory -- Bio::DB::GFF database adaptor for in-memory dat
 
   # do queries
   my $segment  = $db->segment(Chromosome => '1R');
-  my $subseg   = $segment->subseq(5000..6000);
+  my $subseg   = $segment->subseq(5000,6000);
   my @features = $subseg->features('gene');
 
 See L<Bio::DB::GFF> for other methods.
