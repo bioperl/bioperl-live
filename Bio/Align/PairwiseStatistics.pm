@@ -19,7 +19,7 @@ Bio::Align::PairwiseStatistics - Base statistic object for Pairwise Alignments
   use strict;
   my $stats = Bio::Align::DNAStatistics->new();
 
-  # get alignment object of two sequences homehow
+  # get alignment object of two sequences somehow
   my $pwaln;
   print $stats->number_of_comparable_bases($pwaln);
 
