@@ -691,6 +691,7 @@ sub calculate_offsets {
   my $base = $self->path2fileno(basename($file));
 
   my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
+  binmode $fh;
   warn "indexing $file\n" if $self->{debug};
   my ($offset,$id,$linelength,$type,$firstline,$count,$termination_length,%offsets);
   while (<$fh>) {		# don't try this at home
@@ -912,6 +913,7 @@ sub fhcache {
       for (@lru) { delete $self->{fhcache}{$_} }
     }
     $self->{fhcache}{$path} = IO::File->new($path) or return;
+    binmode $self->{fhcache}{$path};
     $self->{curopen}++;
   }
   $self->{cacheseq}{$path}++;
