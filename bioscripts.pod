@@ -228,6 +228,12 @@ Also retrieve taxonid for a GI number.
 
 Retrieve the NCBI TaxonID for a given species.
 
+=head2 scripts/taxa/classify_hits_kingdom.PLS
+
+Classify hits on the taxonomy hierarchy from an -m9/-m8 BLAST tab
+delimited using a local copy of the taxonomy database downloaded from
+NCBI.
+
 =head2 scripts/tree/blast2tree.PLS
 
 Builds a phylogenetic tree based on a sequence search (Fasta,
