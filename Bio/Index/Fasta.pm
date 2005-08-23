@@ -15,34 +15,36 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
 
 =head1 SYNOPSIS
 
-    # Complete code for making an index for several
-    # fasta files
+    # Make an index for one or more fasta files
     use Bio::Index::Fasta;
     use strict;
 
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Fasta->new(
-        '-filename' => $Index_File_Name,
-        '-write_flag' => 1);
+    my $inx = Bio::Index::Fasta->new(-filename => $Index_File_Name,
+                                     -write_flag => 1);
     $inx->make_index(@ARGV);
 
-    # Print out several sequences present in the index
-    # in Fasta format
+
+    # Once the index is made it can accessed, either in the
+    # same script or a different one
     use Bio::Index::Fasta;
     use strict;
 
+    $ENV{BIOPERL_INDEX} = "."; # find index in current directory
+
     my $Index_File_Name = shift;
-    my $inx = Bio::Index::Fasta->new('-filename' => $Index_File_Name);
-    my $out = Bio::SeqIO->new('-format' => 'Fasta','-fh' => \*STDOUT);
+    my $inx = Bio::Index::Fasta->new(-filename => $Index_File_Name);
+    my $out = Bio::SeqIO->new(-format => 'Fasta',
+                              -fh => \*STDOUT);
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
-	$out->write_seq($seq);
+	     $out->write_seq($seq);
     }
 
     # or, alternatively
     my $id;
-    my $seq = $inx->get_Seq_by_id($id); #identical to fetch
+    my $seq = $inx->get_Seq_by_id($id); # identical to fetch()
 
 =head1 DESCRIPTION
 
