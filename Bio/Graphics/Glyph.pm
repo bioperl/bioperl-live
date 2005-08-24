@@ -404,9 +404,8 @@ sub hbumppad {
 
 # we also look for the "color" option for Ace::Graphics compatibility
 sub fgcolor {
-  my $self = shift;
-  my $color = $self->option('fgcolor');
-  my $index = defined $color ? $color : $self->option('color');
+  my $self  = shift;
+  my $index   = $self->option('color') || $self->option('fgcolor');
   $index = 'black' unless defined $index;
   $self->factory->translate_color($index);
 }
