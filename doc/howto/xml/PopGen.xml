@@ -329,7 +329,7 @@ if( $aln = $in->next_aln ) { # we use the while( $aln = $in->next_aln ) {}
 		  function.  The method is called as follows.
 		</para>
 		<programlisting>
-use Bio::PopGen::Alignment;
+use Bio::PopGen::Utilities;
 # get a population object from an alignment
 my $pop = Bio::PopGen::Utilities->aln_to_population(-alignment=>$aln);
 # to include monomorphic sites (so every site in the alignment basically)
