@@ -236,7 +236,7 @@ if( $aln = $in-&gt;next_aln ) { # we use the while( $aln = $in-&gt;next_aln ) {}
 		  specifying -include_monomorphic =&gt; 1 as an argument to the
 		  function.  The method is called as follows.
 		</p><pre class="programlisting">
-use Bio::PopGen::Alignment;
+use Bio::PopGen::Utilities;
 # get a population object from an alignment
 my $pop = Bio::PopGen::Utilities-&gt;aln_to_population(-alignment=&gt;$aln);
 # to include monomorphic sites (so every site in the alignment basically)
