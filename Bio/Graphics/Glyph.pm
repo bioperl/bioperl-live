@@ -669,9 +669,6 @@ sub draw {
   my $gd = shift;
   my ($left,$top,$partno,$total_parts) = @_;
 
-  local($self->{partno},$self->{total_parts});
-  @{$self}{qw(partno total_parts)} = ($partno,$total_parts);
-
   my $connector =  $self->connector;
 
   if (my @parts = $self->parts) {
@@ -700,6 +697,7 @@ sub draw {
       if $connector && $connector ne 'none' && $self->{level} == 0;
     $self->draw_component($gd,$left,$top) unless eval{$self->feature->compound};
   }
+
 }
 
 # the "level" is the level of testing of the glyph
@@ -1138,6 +1136,13 @@ sub all_callbacks {
   my $track_level = $self->option('all_callbacks');
   return $track_level if defined $track_level;
   return $self->panel->all_callbacks;
+}
+
+sub subpart_callbacks {
+  my $self = shift;
+  return 1 if $self->all_callbacks;
+  my $do_subparts = $self->option('subpart_callbacks');
+  return $self->{level} == 0 || ($self->{level} > 0 && $do_subparts);
 }
 
 sub default_factory {

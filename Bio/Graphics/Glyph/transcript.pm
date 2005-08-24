@@ -30,6 +30,13 @@ sub draw_component {
   $self->SUPER::draw_component(@_);
 }
 
+sub part_label_merge {
+  my $self = shift;
+  my $label = $self->SUPER::part_label_merge;
+  return $label if defined $label;
+  1;
+}
+
 sub draw_connectors {
   my $self = shift;
   my $gd = shift;

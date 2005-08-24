@@ -28,6 +28,7 @@ sub pad_bottom {
   return $bottom if defined $bottom;
   my $pad = $self->SUPER::pad_bottom;
   $pad   += $self->labelheight if $self->description;
+  $pad   += $self->labelheight if $self->part_labels;
   $pad;
 }
 sub pad_right {
@@ -47,17 +48,30 @@ sub labelheight {
 sub label {
   my $self = shift;
   return if $self->{overbumped};  # set by the bumper when we have hit bump limit
-  return unless $self->{level} == 0;
+  return unless $self->subpart_callbacks;  # returns true if this is level 0 or if subpart callbacks allowed
+  return $self->_label if $self->{level} > 0;
   return exists $self->{label} ? $self->{label}
                                : ($self->{label} = $self->_label);
 }
 sub description {
   my $self = shift;
   return if $self->{overbumped}; # set by the bumper when we have hit bump limit
-  return unless $self->{level} == 0;
+  return unless $self->subpart_callbacks;  # returns true if this is level 0 or if subpart callbacks allowed
+  return $self->_description if $self->{level} > 0;
   return exists $self->{description} ? $self->{description}
                                      : ($self->{description} = $self->_description);
 }
+
+sub part_labels {
+  my $self = shift;
+  my @parts = $self->parts;
+  return ($self->{level} == 0) && @parts && @parts>1 && $self->option('part_labels');
+}
+
+sub part_label_merge {
+  shift->option('part_label_merge');
+}
+
 sub _label {
   my $self = shift;
 
@@ -109,10 +123,17 @@ sub get_description {
 
 sub draw {
   my $self = shift;
+  my ($gd,$left,$top,$partno,$total_parts) = @_;
+
+  local($self->{partno},$self->{total_parts});
+  @{$self}{qw(partno total_parts)} = ($partno,$total_parts);
+
   $self->SUPER::draw(@_);
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
+  $self->draw_part_labels(@_) if $self->option('label') && $self->option('part_labels');
 }
+
 
 sub min { $_[0] <= $_[1] ? $_[0] : $_[1] }
 sub max { $_[0] >= $_[1] ? $_[0] : $_[1] }
@@ -136,12 +157,80 @@ sub draw_description {
   my $label = $self->description or return;
   my $x = $self->left + $left;
   $x = $self->panel->left + 1 if $x <= $self->panel->left;
+  my $dy= $self->part_labels ? $self->font->height : 0;
   $gd->string($self->font,
 	      $x,
-	      $self->bottom - $self->pad_bottom + $top,
+	      $self->bottom - $self->pad_bottom + $top + $dy,
 	      $label,
 	      $self->font2color);
 }
+
+sub draw_part_labels {
+  my $self = shift;
+  my ($gd,$left,$top,$partno,$total_parts) = @_;
+  return unless $self->{level} == 0;
+  my @p = $self->parts or return;
+  @p > 1 or return;
+  @p = reverse @p if $self->flip;
+
+  my $font  = $self->font;
+  my $width = $font->width;
+  my $color = $self->fontcolor;
+
+  my $y     = $top + $self->bottom - $self->pad_bottom;
+  my $merge_em = $self->part_label_merge;
+
+  my @parts;
+  my $previous;
+
+  if ($merge_em) {
+    my $current_contig = [];
+
+    for my $part (@p) {
+      if (!$previous || $part->feature->start - $previous->feature->end <= 1) {
+	push @$current_contig,$part;
+      } else {
+	push @parts,$current_contig;
+	$current_contig = [$part];
+      }
+      $previous = $part;
+    }
+    push @parts,$current_contig;
+  }
+
+  else {
+    @parts = map {[$_]} @p;
+  }
+
+  my $last_x;  # avoid overlapping labels
+  for (my $i=0; $i<@parts; $i++) {
+    my $x1     = $parts[$i][0]->left;
+    my $x2     = $parts[$i][-1]->right;
+
+    my $string = $self->part_label($i,scalar @parts);
+    my $x    = $left + $x1 + ($x2 - $x1 - $width*length($string))/2;
+    my $w    = $width * length($string);
+    next if defined $last_x && $self->flip ?  $x + $w > $last_x : $x < $last_x;
+    $gd->string($font,
+		$x,$y,
+		$string,
+		$color);
+    $last_x = $x + ($self->flip ? 0 : $w);
+  }
+}
+
+sub part_label {
+  my $self = shift;
+  my ($part,$total)  = @_;
+
+  local $self->{partno} = $self->feature->strand < 0 ? $total - $part -1 : $part;
+  my $label = $self->option('part_labels');
+  return unless defined $label;
+  return $label unless $label eq '1';
+  return "1"   if $label eq '1 ';
+  return $self->{partno}+1;
+}
+
 
 sub dna_fits {
   my $self = shift;

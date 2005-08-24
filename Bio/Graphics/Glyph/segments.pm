@@ -93,6 +93,7 @@ sub draw {
 
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
+  $self->draw_part_labels(@_) if $self->option('part_labels');
 
   my $drew_sequence;
 
