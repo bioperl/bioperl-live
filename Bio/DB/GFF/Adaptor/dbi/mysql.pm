@@ -437,25 +437,6 @@ sub schema {
   my %schema = (
 		fdata =>{ 
 table=> q{
-#create table fdata (
-#    fid	         int not null  auto_increment,
-#    fref         varchar(100)    not null,
-#    fstart       int unsigned   not null,
-#    fstop        int unsigned   not null,
-#    ftypeid      int not null,
-#    fscore        float,
-#    fstrand       enum('+','-'),
-#    fphase        enum('0','1','2'),
-#    gid          int not null,
-#    ftarget_start int unsigned,
-#    ftarget_stop  int unsigned,
-#    primary key(fid),
-#    unique index(fref,fstart,fstop,ftypeid,gid),
-#    index(ftypeid),
-#    index(gid)
-#) type=MyISAM
-
-
  create table fdata (
     fid	                int not null  auto_increment,
     fref                varchar(100) not null,
@@ -612,9 +593,9 @@ sub setup_load {
     my $tables = join ', ',@tables;
     $dbh->do("LOCK TABLES $tables");
   }
-  for my $table ($self->tables) {
-    $dbh->do("alter table $table disable keys");
-  }
+#  for my $table (qw(fdata)) {
+#    $dbh->do("alter table $table disable keys");
+#  }
 
   my $lookup_type = $dbh->prepare_delayed('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
   my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
@@ -727,9 +708,9 @@ sub finish_load {
   my $self = shift;
   my $dbh = $self->features_db;
   local $dbh->{PrintError} = 0;
-  for my $table ($self->tables) {
-    $dbh->do("alter table $table enable keys");
-  }
+#  for my $table (qw(fdata)) {
+#    $dbh->do("alter table $table enable keys");
+#  }
   $self->SUPER::finish_load;
 }
 
