@@ -2309,149 +2309,187 @@ about the arguments it accepts.
 
 =cut
 
-# load from <>
 sub do_load_gff {
   my $self      = shift;
   my $io_handle = shift;
 
-  my $count     = 0;
-  my $lineend = -t STDERR && !$ENV{EMACS} ? "\r" : "\n";
+  local $self->{load_data} = {
+			      lineend => (-t STDERR && !$ENV{EMACS} ? "\r" : "\n"),
+			      count   => 0
+			     };
 
-  local $self->{gff3_flag} = 0;
   $self->setup_load();
-
-  my $fasta_sequence_id;
+  my $mode = 'gff';
 
   while (<$io_handle>) {
     chomp;
-    $self->{gff3_flag}++                      if /^\#\#\s*gff-version\s+3/;
-    $self->preferred_groups(split(/\s+/,$1))  if /^\#\#\s*group-tags?\s+(.+)/;
-    if (/^>(\S+)/) {  # uh oh, sequence coming
-      $fasta_sequence_id = $1;
-      last;
-    }
-
-    if (/^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
-      $count++;
-      $self->load_gff_line(
-			   {
-			    ref    => $1,
-			    class  => 'Sequence',
-			    source => 'reference',
-			    method => 'Component',
-			    start  => $2,
-			    stop   => $3,
-			    score  => undef,
-			    strand => undef,
-			    phase  => undef,
-			    gclass => 'Sequence',
-			    gname  => $1,
-			    tstart => undef,
-			    tstop  => undef,
-			    attributes  => [],
-			   }
-			  );
-      next;
-    }
-
-    next if /^\#/;
-
-    my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t";
-    next unless defined($ref) && defined($method) && defined($start) && defined($stop);
-    foreach (\$score,\$strand,\$phase) {
-      undef $$_ if $$_ eq '.';
-    }
-
-    $count++;
-    print STDERR $count," records$lineend" if $self->{__verbose__} && $count % 1000 == 0;
-
-    my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
-
-    # no standard way in the GFF file to denote the class of the reference sequence -- drat!
-    # so we invoke the factory to do it
-    my $class = $self->refclass($ref);
-
-    # call subclass to do the dirty work
-    if ($start > $stop) {
-      ($start,$stop) = ($stop,$start);
-      if ($strand eq '+') {
-	$strand = '-';
-      } elsif ($strand eq '-') {
-	$strand = '+';
+    if ($mode eq 'gff') {
+      if (/^>/) {    # Sequence coming
+	$mode = 'fasta';
+	$self->_load_sequence_start;
+	$self->_load_sequence_line($_);
+      } else {
+	$self->_load_gff_line($_);
       }
     }
-    # GFF2/3 transition stuff
-    $gclass = [$gclass] unless ref $gclass;
-    $gname  = [$gname]  unless ref $gname;
-    for (my $i=0; $i<@$gname;$i++) {
-      $self->load_gff_line({ref    => $ref,
-			    class  => $class,
-			    source => $source,
-			    method => $method,
-			    start  => $start,
-			    stop   => $stop,
-			    score  => $score,
-			    strand => $strand,
-			    phase  => $phase,
-			    gclass => $gclass->[$i],
-			    gname  => $gname->[$i],
-			    tstart => $tstart,
-			    tstop  => $tstop,
-			    attributes  => $attributes}
-			  );
+    elsif ($mode eq 'fasta') {
+      if (/^##|\t/) {    # Back to GFF mode
+	$self->_load_sequence_finish;
+	$mode = 'gff';
+	$self->_load_gff_line($_);
+      } else {
+	$self->_load_sequence_line($_);
+      }
     }
   }
+  $self->finish_load();
+  $self->_load_sequence_finish;
 
-  print STDERR $count," records loaded\n" if $self->{__verbose__};
-  my $result = $self->finish_load();
-  $result += $self->load_sequence($io_handle,$fasta_sequence_id)
-    if defined $fasta_sequence_id;
-  $result;
+  return $self->{load_data}{count};
+}
+
+sub _load_gff_line {
+  my $self = shift;
+  my $line = shift;
+  my $lineend = $self->{load_data}{lineend};
+
+  $self->{load_data}{gff3_flag}++           if $line =~ /^\#\#\s*gff-version\s+3/;
+  $self->preferred_groups(split(/\s+/,$1))  if $line =~ /^\#\#\s*group-tags?\s+(.+)/;
+
+  if ($line =~ /^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+    $self->load_gff_line(
+			 {
+			  ref    => $1,
+			  class  => 'Sequence',
+			  source => 'reference',
+			  method => 'Component',
+			  start  => $2,
+			  stop   => $3,
+			  score  => undef,
+			  strand => undef,
+			  phase  => undef,
+			  gclass => 'Sequence',
+			  gname  => $1,
+			  tstart => undef,
+			  tstop  => undef,
+			  attributes  => [],
+			 }
+			);
+    return $self->{load_data}{count}++;
+  }
+
+  return if /^#/;
+
+  my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) = split "\t",$line;
+  return unless defined($ref) && defined($method) && defined($start) && defined($stop);
+  foreach (\$score,\$strand,\$phase) {
+    undef $$_ if $$_ eq '.';
+  }
+
+  print STDERR $self->{load_data}{count}," records$lineend" 
+    if $self->{__verbose__} && $self->{load_data}{count} % 1000 == 0;
+
+  my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
+
+  # no standard way in the GFF file to denote the class of the reference sequence -- drat!
+  # so we invoke the factory to do it
+  my $class = $self->refclass($ref);
+
+  # call subclass to do the dirty work
+  if ($start > $stop) {
+    ($start,$stop) = ($stop,$start);
+    if ($strand eq '+') {
+      $strand = '-';
+    } elsif ($strand eq '-') {
+      $strand = '+';
+    }
+  }
+  # GFF2/3 transition stuff
+  $gclass = [$gclass] unless ref $gclass;
+  $gname  = [$gname]  unless ref $gname;
+  for (my $i=0; $i<@$gname;$i++) {
+    $self->load_gff_line({ref    => $ref,
+			  class  => $class,
+			  source => $source,
+			  method => $method,
+			  start  => $start,
+			  stop   => $stop,
+			  score  => $score,
+			  strand => $strand,
+			  phase  => $phase,
+			  gclass => $gclass->[$i],
+			  gname  => $gname->[$i],
+			  tstart => $tstart,
+			  tstop  => $tstop,
+			  attributes  => $attributes}
+			);
+    $self->{load_data}{count}++;
+  }
+}
+
+sub _load_sequence_start {
+  my $self = shift;
+  my $ld   = $self->{load_data};
+  undef $ld->{id};
+  $ld->{offset} = 0;
+  $ld->{seq}    = '';
+}
+sub _load_sequence_finish {
+  my $self = shift;
+  my $ld   = $self->{load_data};
+  $self->insert_sequence($ld->{id},$ld->{offset},$ld->{seq}) if defined $ld->{id};
+}
+
+sub _load_sequence_line {
+  my $self = shift;
+  my $line = shift;
+  my $ld   = $self->{load_data};
+  my $lineend = $ld->{lineend};
+
+  if (/^>(\S+)/) {
+    $self->insert_sequence($ld->{id},$ld->{offset},$ld->{seq}) if defined $ld->{id};
+    $ld->{id}     = $1;
+    $ld->{offset} = 0;
+    $ld->{seq}    = '';
+    $ld->{count}++;
+    print STDERR $ld->{count}," sequences loaded$lineend" if $self->{__verbose__} && $ld->{count} % 1000 == 0;
+  } else {
+    $ld->{seq} .= $_;
+    $self->insert_sequence_chunk($ld->{id},\$ld->{offset},\$ld->{seq});
+  }
 
 }
 
 =head2 load_sequence
 
  Title   : load_sequence
- Usage   : $db->load_sequence($handle [,$id])
+ Usage   : $db->load_sequence($handle)
  Function: load a FASTA data stream
  Returns : number of sequences
- Args    : a filehandle and optionally the ID of
-  the first sequence in the stream.
+ Args    : a filehandle to the FASTA file
  Status  : protected
 
-You probably want to use load_fasta() instead.  The $id argument is a
-hack used to switch from GFF loading to FASTA loading when load_gff()
-discovers FASTA data hiding at the bottom of the GFF file (as Artemis
-does).
+You probably want to use load_fasta() instead.
 
 =cut
 
+# note - there is some repeated code here
 sub load_sequence {
   my $self = shift;
   my $io_handle = shift;
-  my $id        = shift;   # hack for GFF files that contain fasta data
 
-  my $lineend = -t STDERR && !$ENV{EMACS} ? "\r" : "\n";
+  local $self->{load_data} = {
+			      lineend => (-t STDERR && !$ENV{EMACS} ? "\r" : "\n"),
+			      count   => 0
+			     };
 
-  # read fasta file(s) from ARGV
-  my ($seq,$offset,$loaded) = (undef,0,0);
+  $self->_load_sequence_start;
   while (<$io_handle>) {
     chomp;
-    if (/^>(\S+)/) {
-      $self->insert_sequence($id,$offset,$seq) if $id;
-      $id     = $1;
-      $offset = 0;
-      $seq    = '';
-      $loaded++;
-      print STDERR $loaded," sequences loaded$lineend" if $self->{__verbose__} && $loaded % 1000 == 0;
-    } else {
-      $seq .= $_;
-      $self->insert_sequence_chunk($id,\$offset,\$seq);
-    }
+    $self->_load_sequence_line($_);
   }
-  $self->insert_sequence($id,$offset,$seq) if $id;
-  $loaded+0;
+  $self->_load_sequence_finish;
+  return $self->{load_data}{count};
 }
 
 sub insert_sequence_chunk {

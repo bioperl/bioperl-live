@@ -612,6 +612,9 @@ sub setup_load {
     my $tables = join ', ',@tables;
     $dbh->do("LOCK TABLES $tables");
   }
+  for my $table ($self->tables) {
+    $dbh->do("alter table $table disable keys");
+  }
 
   my $lookup_type = $dbh->prepare_delayed('SELECT ftypeid FROM ftype WHERE fmethod=? AND fsource=?');
   my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
@@ -718,6 +721,16 @@ sub load_gff_line {
   }
 
   $fid;
+}
+
+sub finish_load {
+  my $self = shift;
+  my $dbh = $self->features_db;
+  local $dbh->{PrintError} = 0;
+  for my $table ($self->tables) {
+    $dbh->do("alter table $table enable keys");
+  }
+  $self->SUPER::finish_load;
 }
 
 
