@@ -673,10 +673,13 @@ SOURCE      human.
 	# legible and long
 	my $species_object = $seq_object->species;
 	my $species_string = $species_object->species;
-	# Perlish
+	
+   # Perlish
 	my $species_string = $seq_object->species->species;
 	# either way $species_string is "Homo sapiens"
-	my $classification = $seq_object->species->classification;
+	
+   # get all taxa from the ORGANISM section in an array
+   my @classification = $seq_object->species->classification;
 	# "sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia
 	# Euteleostomi Vertebrata Craniata Chordata Metazoa Eukaryota"
       </programlisting>

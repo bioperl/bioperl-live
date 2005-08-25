@@ -1683,7 +1683,7 @@ print $result_obj->num_hits;
 	 </para>
 	 <para>
 		<programlisting>
-	 use Bio::SearchIO;
+    use Bio::SearchIO;
    
     $report_obj = new Bio::SearchIO(-format => 'blast', 
                                -file   => 'report.bls');
