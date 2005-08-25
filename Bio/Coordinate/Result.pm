@@ -100,6 +100,10 @@ use Bio::Coordinate::ResultI;
 
 sub add_sub_Location {
   my ($self,$value) = @_;
+  if( ! $value ) {
+      $self->warn("provding an empty value for location\n");
+      return;
+  }
   $self->throw("Is not a Bio::LocationI but [$value]")
       unless $value->isa('Bio::LocationI');
 
