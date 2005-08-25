@@ -23,7 +23,7 @@ BEGIN {
     }
     use vars qw($NTESTS);
     $NTESTS = 1227;
-    $LASTXMLTEST = 63;
+    $LASTXMLTEST = 67;
     $error = 0;
 
     use Test;
