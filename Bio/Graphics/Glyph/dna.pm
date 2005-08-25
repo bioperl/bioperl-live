@@ -312,7 +312,7 @@ options are recognized:
 	      not defined, non-
 	      overlapping bins will be 
 	      used.
-	      
+
   -gc_bins    Fixed number of intervals   100
               to sample across the
               panel.

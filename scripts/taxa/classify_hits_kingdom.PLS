@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: classify_hits_kingdom.PLS,v 1.1 2005-08-22 13:34:18 jason Exp $
+# $Id: classify_hits_kingdom.PLS,v 1.2 2005-08-25 07:21:26 heikki Exp $
 
 =head1 NAME
 
@@ -28,7 +28,7 @@ FASTA).
                   the search was against a NT db)
    -i/--in        The name of the tab delimited -m8/-m9 output files to 
                   process.
-             
+
     -e/--evalue   Provide an E-value cutoff for hits to be considered
     -z/--zcat     Path to the 'zcat' executable, can also be 'gunzip -c'
                   if no zcat on your system.

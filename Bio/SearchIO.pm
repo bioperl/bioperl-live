@@ -56,8 +56,8 @@ A list of module names and formats is below:
   exonerate  Exonerate CIGAR format (moderatley supported, may be broken)
   blastxml   NCBI BLAST XML
   wise       Genewise -genesf format
-  
-  
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

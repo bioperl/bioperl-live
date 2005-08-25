@@ -38,7 +38,7 @@ Bio::DB::Taxonomy::entrez - Taxonomy Entrez driver
     $p = $db->get_Taxonomy_Node(-taxonid => $p->parent_id);
   }
   print $p->rank, " ", ($p->classification)[0], "\n";
-  
+
   # could then classify a set of BLAST hits based on their GI numbers
   # into taxonomic categories.
 
