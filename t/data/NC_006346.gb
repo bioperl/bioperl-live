@@ -1,0 +1,57 @@
+LOCUS       NC_006346              21657 bp    DNA     circular VRT 12-JAN-2005
+DEFINITION  Bolitoglossa n. sp. RLM-2004 mitochondrion, complete genome.
+ACCESSION   NC_006346
+VERSION     NC_006346.1  GI:53686544
+KEYWORDS    .
+SOURCE      mitochondrion Bolitoglossa n. sp. RLM-2004 (mushroomtongue
+            salamander)
+  ORGANISM  Bolitoglossa n. sp. RLM-2004
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Amphibia; Batrachia; Caudata; Salamandroidea; Plethodontidae;
+            Plethodontinae; Bolitoglossini; Bolitoglossa.
+REFERENCE   1  (bases 1 to 21657)
+  AUTHORS   Mueller,R.L., Macey,J.R., Jaekel,M., Wake,D.B. and Boore,J.L.
+  TITLE     Morphological homoplasy, life history evolution, and historical
+            biogeography of plethodontid salamanders inferred from complete
+            mitochondrial genomes
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 101 (38), 13820-13825 (2004)
+   PUBMED   15365171
+REFERENCE   2  (bases 1 to 21657)
+  AUTHORS   .
+  CONSRTM   NCBI Genome Project
+  TITLE     Direct Submission
+  JOURNAL   Submitted (01-OCT-2004) National Center for Biotechnology
+            Information, NIH, Bethesda, MD 20894, USA
+REFERENCE   3  (bases 1 to 21657)
+  AUTHORS   Mueller,R.L., Macey,J.R., Jaekel,M., Wake,D.B. and Boore,J.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (18-AUG-2004) Museum of Vertebrate Zoology and
+            Evolutionary Genomics, University of California at Berkeley and DOE
+            Joint Genome Institute, 3101 Valley Life Sciences Bldg., Berkeley,
+            CA 94720-3160, USA
+COMMENT     REVIEWED REFSEQ: This record has been curated by NCBI staff. The
+            reference sequence was derived from AY728235.
+FEATURES             Location/Qualifiers
+     source          1..21657
+                     /organism="Bolitoglossa n. sp. RLM-2004"
+                     /organelle="mitochondrion"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:291262"
+                     /common="mushroomtongue salamander"
+     tRNA            1..64
+                     /product="tRNA-Phe"
+     rRNA            65..96
+                     /product="s-rRNA"
+     D-loop          152..216
+                     /note="putative control region"
+ORIGIN      
+        1 gcaagtgtag tttataaaaa catagcactg aaaatgctaa aataaatatt atatttcact
+       61 agcaatagat ttggtcctaa tctttttatt aattataact ataattatac atgcaagttt
+      121 caccacccca gtgagtaagc cccacatccc cgcttagtga tgaaggagct ggtatcaggc
+      181 atacacaccc aaaacaccac gcttagccac acctacacag gaactcagca gtaattaaca
+      241 ttaaaccata agtgaaaact tgatttagta atagtattta aagttggtaa atctcgtgcc
+      301 agccaccgcg gttacacgaa agacttaaat taatatatgc ggcccaaagg acagtttaag
+      361 gttttatagg aacttaagag cctttaaggc cgttatacgt ttaaaaggtc aaaaacacaa
+      421 atcaccccac caacttgaat ctgttaaagc cgggggacac actgggatta gataccccac
+//
+

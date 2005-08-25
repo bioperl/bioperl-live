@@ -11,7 +11,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$TESTCOUNT = 360;
+	$TESTCOUNT = 363;
 	# interpro uses XML::DOM
 	eval {require XML::DOM::XPath};
 	if ($@) {
@@ -112,7 +112,8 @@ my $as = $ast->next_seq();
 ok $as->molecule, 'mRNA';
 ok $as->alphabet, 'dna';
 ok($as->primary_id, 3598416);
-
+my @class = $as->species->classification;
+ok $class[$#class],'Eukaryota';
 
 $ast = Bio::SeqIO->new( '-format' => 'genbank' ,
                         '-file' => Bio::Root::IO->catfile("t","data",
@@ -128,7 +129,7 @@ my ($cds) = grep { $_->primary_tag eq 'CDS' } $as->get_SeqFeatures();
 ok(($cds->get_tag_values('transl_except'))[1],
    '(pos:complement(4224..4226),aa:OTHER)');
 
-# This file has a DBSOURCE line, let's see if we can parse it
+# test for a DBSOURCE line
 $ast = Bio::SeqIO->new(-format => 'genbank' ,
                        -file => Bio::Root::IO->catfile("t","data",
 																		 "BAB68554.gb"));
@@ -141,6 +142,16 @@ my $ac = $as->annotation;
 ok defined $ac;
 my @dblinks = $ac->get_Annotations('dblink');
 ok(scalar @dblinks,1);
+
+# test for multi-line SOURCE
+$ast = Bio::SeqIO->new(-format => 'genbank' ,
+                       -file => Bio::Root::IO->catfile("t","data",
+                                                       "NC_006346.gb"));
+$as = $ast->next_seq;
+ok $as->species->binomial,'Bolitoglossa n. sp.';
+@class = $as->species->classification;
+# ok $class[$#class],'Eukaryota'
+
 
 # embl
 $ast = Bio::SeqIO->new( '-format' => 'embl' ,
