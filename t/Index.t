@@ -191,9 +191,6 @@ sub get_id {
 }
 
 END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Cannot run tests some needed modules (DB_File, Fcntl, or Storable) are not installed',1);
-	}
 	cleanup();
 }
 
