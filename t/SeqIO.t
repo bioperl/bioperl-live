@@ -11,7 +11,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$TESTCOUNT = 367;
+	$TESTCOUNT = 369;
 	# interpro uses XML::DOM
 	eval {require XML::DOM::XPath};
 	if ($@) {
@@ -153,6 +153,14 @@ ok $as->species->binomial,'Bolitoglossa n. sp.';
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
 ok($as->species->common_name,'mitochondrion Bolitoglossa n. sp. RLM-2004 (mushroomtongue salamander)');
+
+$ast = Bio::SeqIO->new(-format => 'genbank' ,
+                       -file => Bio::Root::IO->catfile("t","data",
+                                                       "U71225.gb"));
+$as = $ast->next_seq;
+@class = $as->species->classification;
+ok($class[$#class],'Eukaryota');
+ok $as->species->common_name,'mitochondrion Desmognathus quadramaculatus (black-bellied salamander)';
 
 # test for unusual common name
 $ast = Bio::SeqIO->new(-format => 'genbank' ,
