@@ -11,7 +11,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$TESTCOUNT = 363;
+	$TESTCOUNT = 367;
 	# interpro uses XML::DOM
 	eval {require XML::DOM::XPath};
 	if ($@) {
@@ -137,6 +137,7 @@ $ast->verbose($verbosity);
 $as = $ast->next_seq();
 ok $as->molecule, 'linear';
 ok $as->alphabet, 'protein';
+ok $as->species->common_name, 'Aldabra giant tortoise';
 ok($as->primary_id, 15824047);
 my $ac = $as->annotation;
 ok defined $ac;
@@ -150,8 +151,15 @@ $ast = Bio::SeqIO->new(-format => 'genbank' ,
 $as = $ast->next_seq;
 ok $as->species->binomial,'Bolitoglossa n. sp.';
 @class = $as->species->classification;
-# ok $class[$#class],'Eukaryota'
+ok($class[$#class],'Eukaryota');
+ok($as->species->common_name,'mitochondrion Bolitoglossa n. sp. RLM-2004 (mushroomtongue salamander)');
 
+# test for unusual common name
+$ast = Bio::SeqIO->new(-format => 'genbank' ,
+                       -file => Bio::Root::IO->catfile("t","data",
+                                                       "AB077698.gb"));
+$as = $ast->next_seq;
+ok $as->species->common_name,'Homo sapiens cDNA to mRNA';
 
 # embl
 $ast = Bio::SeqIO->new( '-format' => 'embl' ,
