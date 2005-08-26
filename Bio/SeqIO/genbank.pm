@@ -17,7 +17,7 @@ Bio::SeqIO::GenBank - GenBank sequence input/output stream
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
-rather go through the SeqIO handler system. Go:
+rather go through the SeqIO handler:
 
     $stream = Bio::SeqIO->new(-file => $filename,
                               -format => 'GenBank');
@@ -32,8 +32,8 @@ rather go through the SeqIO handler system. Go:
 This object can transform Bio::Seq objects to and from GenBank flat
 file databases.
 
-There is alot of flexibility here about how to dump things which I need
-to document fully.
+There is some flexibility here about how to write GenBank output
+that is not fully documented.
 
 =head2 Optional functions
 
@@ -76,9 +76,8 @@ L<Bio::Annotation::Collection> object:
 =head1 Where does the data go?
 
 Data parsed in Bio::SeqIO::genbank is stored in a variety of data
-fields in the sequence object that is returned.  More information in
-the HOWTOs about exactly what each field means and where it goes.
-Here is a partial list of fields.
+fields in the sequence object that is returned. Here is a partial list
+of fields.
 
 Items listed as RichSeq or Seq or PrimarySeq and then NAME() tell you
 the top level object which defines a function called NAME() which
@@ -115,6 +114,9 @@ sequence object.
 
  Sequence             PrimarySeq seq()
 
+There is more information in the Feature-Annotation HOWTO about each 
+field and how it is mapped to the Sequence object.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -131,8 +133,7 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.
-Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via the web:
 
   http://bugzilla.bioperl.org/
 
@@ -1179,15 +1180,17 @@ sub _add_ref_to_array {
            lines. Able to deal with unconvential Organism naming
            formats, and varietas in plants
  Example : ORGANISM  unknown marine gamma proteobacterium NOR5
-           $genus = undef;
+           $genus = undef
            $species = unknown marine gamma proteobacterium NOR5
 
            ORGANISM  Drosophila sp. 'white tip scutellum'
-           $genus = Drosophila; $species = sp.;
-           $subspecies = 'white tip scutellum'
+           $genus = Drosophila
+           $species = sp.
+           $subspecies = white tip scutellum
 
            ORGANISM  Ajellomyces capsulatus var. farciminosus
-           $genus = Ajellomyces; $species = capsulatus var.;
+           $genus = Ajellomyces
+           $species = capsulatus var.
            $subspecies = farciminosus
 
  Returns : A Bio::Species object
@@ -1196,113 +1199,125 @@ sub _add_ref_to_array {
 =cut
 
 sub _read_GenBank_Species {
-    my( $self,$buffer) = @_;
-    my @organell_names = ("chloroplast", "mitochondr"); 
-    # only those carrying DNA, apart from the nucleus
-	
-	my @unkn_names=("other", 'unknown organism', 'not specified', 'not shown', 'Unspecified', 'Unknown', 'None', 'unclassified', 'unidentified organism', 'not supplied');
-	#dictionary of synonyms for taxid 32644
-	my @unkn_genus=('unknown','unclassified','uncultured','unidentified');
-	#all above can be part of valid species name
-    
+	my( $self,$buffer) = @_;
+	my @organell_names = ("chloroplast", "mitochondr"); 
+	# only those carrying DNA, apart from the nucleus
+
+	my @unkn_names = ("other", 'unknown organism', 'not specified', 'not shown',
+							'Unspecified', 'Unknown', 'None', 'unclassified',
+							'unidentified organism', 'not supplied');
+	# dictionary of synonyms for taxid 32644
+	my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
+	# all above can be part of valid species name
+
 	$_ = $$buffer;
-    
-    my( $sub_species, $species, $genus, $common, $organelle, @class, $ns_name );
-    # upon first entering the loop, we must not read a new line -- the SOURCE
-    # line is already in the buffer (HL 05/10/2000)
-    while (defined($_) || defined($_ = $self->_readline())) {
-	# de-HTMLify (links that may be encountered here don't contain
-	# escaped '>', so a simple-minded approach suffices)
-        s/<[^>]+>//g;
-	if (/^SOURCE\s+(.*)/o) {
-	    # FIXME this is probably mostly wrong (e.g., it yields things like
-	    # Homo sapiens adult placenta cDNA to mRNA
-	    # which is certainly not what you want)
-	    $common = $1;
-	    $common =~ s/\.$//; # remove trailing dot
-	} elsif (/^\s{2}ORGANISM/o) {
-	    my @spflds = split(' ', $_);
-            ($ns_name) = $_ =~ /\w+\s+(.*)/o;
-	    shift(@spflds); # ORGANISM
-	   #does the next term start with uppercase?
-		#yes: valid genus; no then unconventional
-		#e.g. leaf litter basidiomycete sp. Collb2-39
-		if ($spflds[0]=~m/^[A-Z]/)	{
-			$genus=shift(@spflds);
-		} else { undef $genus; }
-		#populate species tag
-		if (@spflds)	{
-			#my $size=scalar @spflds;
-			while (my $fld = shift @spflds)	{
-				$species .= "$fld ";
-				#does it have subspecies or varietas?
-				last if ($fld =~ m/(sp\.|var\.)/);
+
+	my( $sub_species, $species, $genus, $common, $organelle, @class,
+		 $ns_name, $source_flag );
+	# upon first entering the loop, we must not read a new line -- the SOURCE
+	# line is already in the buffer (HL 05/10/2000)
+	while (defined($_) || defined($_ = $self->_readline())) {
+		# de-HTMLify (links that may be encountered here don't contain
+		# escaped '>', so a simple-minded approach suffices)
+		s/<[^>]+>//g;
+		if (/^SOURCE\s+(.*)/o) {
+			# FIXME this is probably mostly wrong (e.g., it yields things like
+			# Homo sapiens adult placenta cDNA to mRNA
+			# which is certainly not what you want)
+			$common = $1;
+			$common =~ s/\.$//; # remove trailing dot
+			$source_flag = 1; ###
+		} elsif (/^\s{2}ORGANISM/o) {
+			$source_flag = 0; ###
+			my @spflds = split(' ', $_);
+			($ns_name) = $_ =~ /\w+\s+(.*)/o;
+			shift(@spflds); # ORGANISM
+			# does the next term start with uppercase?
+			# yes: valid genus; no then unconventional
+			# e.g. leaf litter basidiomycete sp. Collb2-39
+			if ($spflds[0] =~ m/^[A-Z]/)	{
+				$genus = shift(@spflds);
+			} else { undef $genus; }
+			# populate species tag
+			if (@spflds)	{
+				# my $size=scalar @spflds;
+				while (my $fld = shift @spflds)	{
+					$species .= "$fld ";
+					# does it have subspecies or varietas?
+					last if ($fld =~ m/(sp\.|var\.)/);
+				}
+				chop $species;	# last space
+				$sub_species = join ' ',@spflds if(@spflds);
 			}
-			chop $species;	#last space
-			$sub_species = join ' ',@spflds if(@spflds);
-		}
-		else { $species = 'sp.'; }
-		#does ORGANISM start with any words which make its genus undefined?
-		#these are in @unkn_genus	
-		#this in case species starts with uppercase so isn't caught above. 
-		#alter common name if required
-		my $unconv=0;	#is it unconventional species name?
-		foreach (@unkn_genus)	{
-			if ($genus && $genus=~m/$_/i)	{
-				$species = $genus." ".$species; undef $genus;
-				$unconv=1;
-				last;
+			else { $species = 'sp.'; }
+			# does ORGANISM start with any words which make its genus undefined?
+			# these are in @unkn_genus	
+			# this in case species starts with uppercase so isn't caught above. 
+			# alter common name if required
+			my $unconv = 0; # is it unconventional species name?
+			foreach (@unkn_genus)	{
+				if ($genus && $genus =~ m/$_/i)	{
+					$species = $genus ." ". $species;
+					undef $genus;
+					$unconv = 1;
+					last;
+				}
+				elsif ($species =~ m/$_/i)	{
+					$unconv=1;
+					last;
+				}
 			}
-			elsif ($species=~m/$_/i)	{
-				$unconv=1;
-				last;
-			}
-		}
-		if (!$unconv && !$sub_species && $species =~s/^(\w+)\s(\w+)$/$1/)	{
-			#need to extract subspecies from conventional ORGANISM format.  
-			#Will the 'word' in a two element species name
-			#e.g. $species = 'thummi thummi' => $species='thummi' & $sub_species='thummi' 	
+			if (!$unconv && !$sub_species && $species =~ s/^(\w+)\s(\w+)$/$1/)	{
+				# need to extract subspecies from conventional ORGANISM format.  
+				# Will the 'word' in a two element species name
+				# e.g. $species = 'thummi thummi' => $species='thummi' & 
+				# $sub_species='thummi'
 				$sub_species = $2;
+			}
 		}
-		
-	} elsif (/^\s+(.+)/o) {
-	    # only split on ';' or '.' so that 
-	    # classification that is 2 words will 
-	    # still get matched
-	    # use map to remove trailing/leading spaces
-            push(@class, map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/, $1);
-        } else {
-            last;
-        }
-        
-        $_ = undef; # Empty $_ to trigger read of next line
-    }
-     $$buffer = $_;
-    
-    # Don't make a species object if it's empty or "Unknown" or "None"
-    #return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
-    	 # Don't make a species object if it belongs to taxid 32644
-	 my $unkn = grep { $_ =~ /^\Q$common\E$/; } @unkn_names;
-	 return unless ($species||$genus) and $unkn==0;
+		elsif ($source_flag) {
+			$common .= $_;
+			$common =~ s/\n//g;
+			$common =~ s/\s+/ /g;
+			$source_flag = 0;
+		} elsif (/^\s+(.+)/o) {
+			# only split on ';' or '.' so that 
+			# classification that is 2 words will 
+			# still get matched
+			# use map to remove trailing/leading spaces
+			push(@class, map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/, $1);
+		} else {
+			last;
+		}
+
+		$_ = undef; # Empty $_ to trigger read of next line
+	}
+	$$buffer = $_;
+
+	# Don't make a species object if it's empty or "Unknown" or "None"
+	# return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
+	# Don't make a species object if it belongs to taxid 32644
+	my $unkn = grep { $_ =~ /^\Q$common\E$/; } @unkn_names;
+	return unless ($species || $genus) and $unkn == 0;
 	# Bio::Species array needs array in Species -> Kingdom direction
-    if ($class[0] eq 'Viruses') {
-        push( @class, $ns_name );
-    }
-    elsif ($genus && $class[$#class] eq $genus) {
-        push( @class, $species );
-    } else {
-        push( @class, $genus, $species );
-    }
-    @class = reverse @class;
-    
-    my $make = Bio::Species->new();
-    $make->classification( \@class, "FORCE" ); # no name validation please
-    $make->common_name( $common      ) if $common;
-    unless ($class[-1] eq 'Viruses') {
-        $make->sub_species( $sub_species ) if $sub_species;
-    }
-    $make->organelle($organelle) if $organelle;
-    return $make;
+	if ($class[0] eq 'Viruses') {
+		push( @class, $ns_name );
+	}
+	elsif ($genus && $class[$#class] eq $genus) {
+		push( @class, $species );
+	} else {
+		push( @class, $genus, $species );
+	}
+	@class = reverse @class;
+
+	my $make = Bio::Species->new();
+	$make->classification( \@class, "FORCE" ); # no name validation please
+	$make->common_name( $common ) if $common;
+	unless ($class[-1] eq 'Viruses') {
+		$make->sub_species( $sub_species ) if $sub_species;
+	}
+	$make->organelle($organelle) if $organelle;
+	return $make;
 }
 
 =head2 _read_FTHelper_GenBank
