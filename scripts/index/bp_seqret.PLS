@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: bp_seqret.PLS,v 1.1 2005-08-19 15:51:08 jason Exp $
+# $Id: bp_seqret.PLS,v 1.2 2005-08-27 19:58:23 jason Exp $
 # -*-Perl-*- mode (for emacs)
 
 =head1 NAME
@@ -59,7 +59,7 @@ if( ! $dbname ) {
     }				
 }
 
-my $db = Bio::DB::Fasta->new($dbname);
+my $db = Bio::DB::Fasta->new($dbname, -glob => "*.{fa,fas,fsa,fasta,pep,aa,seq,cds,peps}");
 if( ! $outfile ) {
     $outfile = pop @ARGV;
 }
@@ -73,8 +73,9 @@ if( $outfile ) {
 for my $nm ( @names ) {    
     if( my $seq = $db->get_Seq_by_acc($nm) ) {
 	my ($id,$desc) = split(/\s+/,$db->header($nm),2);
-	$seq->description($desc);
-	$out->write_seq($seq);
+	$out->write_seq(Bio::PrimarySeq->new(-display_id => $id,
+					     -description => $desc,
+					     -seq => $seq->seq));
     } else {
 	warn("$nm not found\n");
     }
