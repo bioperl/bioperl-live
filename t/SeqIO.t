@@ -19,9 +19,9 @@ ok(1);
 # Set to -1 for release version, so warnings aren't printed
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
-#
-## Basic read and/or write tests
-#
+# Basic read and/or write tests for SeqIO. Specific tests for
+# given module should go into their own file.
+
 my @formats = qw(gcg fasta raw pir tab ace );
 # The following files or formats are failing: swiss genbank interpro embl
 
