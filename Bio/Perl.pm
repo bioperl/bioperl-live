@@ -567,7 +567,7 @@ sub translate {
 
  Function: translates a DNA sequence object OR just a plain
            string of DNA to amino acids
- Returns : A stirng of just amino acids
+ Returns : A string of just amino acids
 
  Args    : Either a sequence object or a string of
            just DNA sequence characters
