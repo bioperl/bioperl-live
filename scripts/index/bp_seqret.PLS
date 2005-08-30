@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: bp_seqret.PLS,v 1.2 2005-08-27 19:58:23 jason Exp $
+# $Id: bp_seqret.PLS,v 1.3 2005-08-30 13:05:23 jason Exp $
 # -*-Perl-*- mode (for emacs)
 
 =head1 NAME
@@ -43,11 +43,14 @@ my $dbname;
 my @names;
 my $format = 'fasta';
 my $outfile;
+my ($start,$end);
 GetOptions(
 	   'f|format:s'   => \$format,
 	   'o|out|outfile:s' => \$outfile,
-	'd|db|dbname:s'   => \$dbname,
-	'i|id|s|seqname:s' => \@names);
+	   's|sbegin|begin|start:s'  => \$start,
+	   'e|send|end|stop:s'       => \$end,
+	   'd|db|dbname:s'   => \$dbname,
+	   'i|id|seqname:s' => \@names);
 
 
 if( ! $dbname ) {
@@ -70,12 +73,22 @@ if( $outfile ) {
 } else {
     $out = Bio::SeqIO->new(-format => $format);
 }
-for my $nm ( @names ) {    
-    if( my $seq = $db->get_Seq_by_acc($nm) ) {
+for my $nm ( @names ) {   
+    my $seq;
+    if( $start || $end ) {
+	$seq = $db->seq($nm, $start => $end);
+    } else { 
+	$seq = $db->seq($nm);
+    }
+    if( $seq ) { 
 	my ($id,$desc) = split(/\s+/,$db->header($nm),2);
+	if( $start && $end ) { 
+	    $id = sprintf("%s_%d-%d",$id,$start || 0,$end || 0);
+	}
+	
 	$out->write_seq(Bio::PrimarySeq->new(-display_id => $id,
 					     -description => $desc,
-					     -seq => $seq->seq));
+					     -seq => $seq));
     } else {
 	warn("$nm not found\n");
     }
