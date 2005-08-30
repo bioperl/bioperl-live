@@ -1615,7 +1615,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		output, or report, as well. Certainly the most popular 
 		analytical program is 
 <ulink
-		url="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall"><citetitle>BLAST</citetitle></ulink>,
+		url="http://www.ncbi.nlm.nih.gov/BLAST/"><citetitle>BLAST</citetitle></ulink>,
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
 		and running. This example also assumes that you used the formatdb 
