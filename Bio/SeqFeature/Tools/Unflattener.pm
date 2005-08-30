@@ -2493,16 +2493,7 @@ sub feature_from_splitloc{
          } @locs;
        
        # PARANOID CHECK
-       my $ok =
-	 $self->_check_order_is_consistent($sf->location->strand,@subsfs);
-       if (!$ok) {
-           use Data::Dumper;
-           print Dumper $sf->location;
-	   printf STDERR "Unordered features [on strand:%s]\n",
-             $sf->location->strand;
-	   $self->_write_sf_detail($_) foreach @subsfs;
-	   $self->throw("ASSERTION ERROR: inconsistent order");
-       }
+       $self->_check_order_is_consistent($sf->location->strand,@subsfs);
        #----
 
        $sf->location(Bio::Location::Simple->new());
@@ -2611,14 +2602,8 @@ sub infer_mRNA_from_CDS{
                if ($self->verbose > 0) {
                    print "    Inferring mRNA from CDS $cds\n";
                }
-	       my $ok;
-	       $ok =
-		 $self->_check_order_is_consistent($cds->location->strand,$cds->location->each_Location);
-	       if (!$ok) {
-		   $self->_write_sf_detail($cds);
-		   $self->throw("inconsistent order");
-	       }
-
+               $self->_check_order_is_consistent($cds->location->strand,$cds->location->each_Location);
+               
 	       my $loc = Bio::Location::Split->new;
 	       foreach my $cdsexonloc ($cds->location->each_Location) {
 		   my $subloc =
@@ -2636,11 +2621,7 @@ sub infer_mRNA_from_CDS{
                $mrna->seq_id($cds->seq_id) if $cds->seq_id;
                $mrna->source_tag($cds->source_tag) if $cds->source_tag;
 
-	       $ok =
-		 $self->_check_order_is_consistent($mrna->location->strand,$mrna->location->each_Location);
-	       if (!$ok) {
-		   $self->throw("inconsistent order");
-	       }
+               $self->_check_order_is_consistent($mrna->location->strand,$mrna->location->each_Location);
 
                # make the mRNA hold the CDS; no EXPAND option,
                # the CDS cannot be wider than the mRNA
@@ -2702,15 +2683,37 @@ sub remove_types{
 }
 
 
+# _check_order_is_consistent($strand,$ranges) RETURNS BOOL
+#
+# note: the value of this test is moot - there are many valid,
+# if unusual cases where it would flag an anomaly. for example
+# transpliced genes such as mod(mdg4) in dmel on AE003744, and
+# the following spliced gene on NC_001284:
+#
+#     mRNA            complement(join(20571..20717,21692..22086,190740..190761,
+#                     140724..141939,142769..142998))
+#                     /gene="nad5"
+#                     /note="trans-splicing, RNA editing"
+#                     /db_xref="GeneID:814567"
+#
+# note how the exons are not in order
+#  this will flag a level-3 warning, the user of this module
+#  can ignore this and deal appropriately with the resulting
+#  unordered exons
 sub _check_order_is_consistent {
     my $self = shift;
+
     my $parent_strand = shift; # this does nothing..?
     my @ranges = @_;
     return unless @ranges;
+    my $rangestr =
+      join(" ",map{sprintf("[%s,%s]",$_->start,$_->end)} @ranges);
     my $strand = $ranges[0]->strand;
     for (my $i=1; $i<@ranges;$i++) {
 	if ($ranges[$i]->strand != $strand) {
-	    return 1; # mixed ranges - autopass
+            $self->problem(1,"inconsistent strands. Trans-spliced gene? Range: $rangestr");
+	    return 1; 
+            # mixed ranges - autopass
             # some mRNAs have exons on both strands; for
             # example, the dmel mod(mdg4) gene which is
             # trans-spliced (in actual fact two mRNAs)
@@ -2721,7 +2724,9 @@ sub _check_order_is_consistent {
 	my $rangeP = $ranges[$i-1];
 	my $range = $ranges[$i];
 	    if ($rangeP->start > $range->end) {
+                # failed - but still get one more chance..
 		$pass = 0;
+                $self->problem(2,"Ranges not in correct order. Strange ensembl genbank entry? Range: $rangestr");
                 last;
 	    }
     }
@@ -2735,6 +2740,7 @@ sub _check_order_is_consistent {
             my $rangeP = $ranges[$i-1];
             my $range = $ranges[$i];
 	    if ($rangeP->end < $range->start) {
+                $self->problem(3,"inconsistent order. Range: $rangestr");
                 return 0;
 	    }
         }

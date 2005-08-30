@@ -274,16 +274,27 @@ sub write_seq {
     ###    $w->S("chaos_block");
 
     my $seq_chaos_feature_id;
-    if ($seq->accession_number) {
-        $seq_chaos_feature_id = $seq->accession_number . '.' . ($seq->can('seq_version') ? $seq->seq_version : $seq->version);
+
+    # different seq objects have different version accessors - 
+    # weird but true
+    my $version = $seq->can('seq_version') ? $seq->seq_version : $seq->version;
+
+    my $accversion = $seq->accession_number;
+    if ($version) {
+        $accversion .= ".$version";
+    }
+
+    if ($accversion) {
+        $seq_chaos_feature_id = $accversion;
     }
     else {
         $seq_chaos_feature_id = $self->get_chaos_feature_id($seq);
+        $accversion = $seq_chaos_feature_id;
     }
 
     # All ids must have a namespace prefix
     if ($seq_chaos_feature_id !~ /:/) {
-        $seq_chaos_feature_id = "EMBL/GenBank/SwissProt:$seq_chaos_feature_id";
+        $seq_chaos_feature_id = "GenericSeqDB:$seq_chaos_feature_id";
     }
 
 #    if ($seq->accession_number eq 'unknown') {
@@ -326,17 +337,6 @@ sub write_seq {
         # genus_species is part of uniquename - add haplotype
         # to make it genuinely unique
         $self->genus_species($self->genus_species .= " $haplotype");
-    }
-
-    my $accversion = $seq->accession_number;
-    if ($seq->can("version")) {
-        $accversion .= ".".$seq->version;
-    }
-    elsif ($seq->can("seq_version")) {
-        $accversion .= ".".$seq->seq_version;
-    }
-    else {
-        $self->throw("ASSERTION ERROR: cannot get version for seq!");
     }
 
     my $uname = $self->make_uniquename($self->genus_species, $accversion);
@@ -463,7 +463,7 @@ sub write_sf {
 
     # The CDS (eg in a genbank feature) implicitly represents
     # the protein
-    $type =~ s/CDS/protein/;
+    $type =~ s/CDS/polypeptide/;
 
     my @subsfs = $sf->sub_SeqFeature;
     my @locnodes = ();
@@ -528,6 +528,7 @@ sub write_sf {
     }
     my $feature_id = $self->get_chaos_feature_id($sf);
     
+    delete $props{id} if $props{id};
     # do something with genbank stuff
     my $pid = $props{'protein_id'};
     my $tn = $props{'translation'};
@@ -594,7 +595,7 @@ sub write_sf {
             my $rtype = 
               $TM->get_relationship_type_by_parent_child($sf,$ssf);
 	    if ($ssf->primary_tag eq 'CDS') {
-		$rtype = 'produced_by';
+		$rtype = 'derives_from';
 	    }
 	    $w->ev(feature_relationship=>[
 					  [subject_id=>$ssfid],
@@ -606,7 +607,7 @@ sub write_sf {
 	}
     }
     else {
-        # parents not stored as 
+        # parents not stored as bioperl containment hierarchy
         my @parent_ids = @{$props{parent} || []};
         foreach my $parent_id (@parent_ids) {
             my $ptype =
@@ -706,6 +707,7 @@ sub subpartof {
     my $type = 'partof_'.shift;
     $type =~ s/partof_CDS/CDS_exon/;
     $type =~ s/partof_protein/CDS_exon/;
+    $type =~ s/partof_polypeptide/CDS_exon/;
     $type =~ s/partof_\w*RNA/exon/;
     return $type;
 }

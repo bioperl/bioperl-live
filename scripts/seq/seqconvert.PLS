@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: seqconvert.PLS,v 1.4 2005-04-26 15:08:42 jason Exp $
+# $Id: seqconvert.PLS,v 1.5 2005-08-30 17:43:11 cjm Exp $
 
 use strict;
 use Getopt::Long;
@@ -12,7 +12,8 @@ my $to=undef;
 ### please add to this list (see the modules under Bio/SeqIO):
 my @known_formats=
   qw(gcg fasta ace raw fastq phd pir scf swiss genbank locuslink
-     embl game qual bsml tab raw abi chado alf ctf exp ztr pln);
+     embl game qual bsml tab raw abi chado alf ctf exp ztr pln
+     chaosxml chadoxml yaml);
 
 my $script=substr($0, 1+rindex($0,'/'));
 my $usage="Usage:
