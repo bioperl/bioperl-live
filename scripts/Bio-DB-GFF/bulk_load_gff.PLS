@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.31 2005-08-18 16:39:13 scain Exp $
+# $Id: bulk_load_gff.PLS,v 1.32 2005-08-30 16:42:42 lstein Exp $
 
 
 use strict;
@@ -188,13 +188,13 @@ if ($^O =~ /MSWin32/i) {
 my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE);
 
 GetOptions ('database:s'    => \$DSN,
-        'adaptor:s'     => \$ADAPTOR,
+	    'adaptor:s'     => \$ADAPTOR,
 	    'create'        => \$FORCE,
 	    'user:s'        => \$USER,
 	    'password:s'    => \$PASSWORD,
 	    'fasta:s'       => \$FASTA,
-        'local'         => \$LOCAL,
-        'maxbin|maxfeature:s'    => \$MAX_BIN,
+	    'local'         => \$LOCAL,
+	    'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'group:s'       => \$GROUP_TAG,
 	    'long_list:s'   => \$LONG_LIST,
 	    'gff3_munge'    => \$MUNGE,
@@ -405,7 +405,7 @@ while (<>) {
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
 
   # close sequence filehandle if required
-  if ( /^\#|\s+|^$|^>/ && defined $FH{FASTA}) {
+  if ( /^\#|\s+|^$|^>|\t/ && defined $FH{FASTA}) {
     $FH{FASTA}->close;
     delete $FH{FASTA};
   }
@@ -423,7 +423,7 @@ while (<>) {
     push @fasta, "$tmpdir/$1\.fa";
     next;
   }
-  
+
   elsif (/^\#\#\s*gff-version\s+3/) {
     $gff3++;
     next;
@@ -437,7 +437,7 @@ while (<>) {
     ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group) =
 	($1,'reference','Component',$2,$3,'.','.','.',$gff3 ? "ID=Sequence:$1": qq(Sequence "$1"));
   }
-  
+
   elsif (/^\#/) {
     next;
   }
@@ -513,18 +513,21 @@ while (<>) {
   }
 }
 
+$FH{FASTA}->close if exists $FH{FASTA};
+
 for my $file (@fasta) {
   warn "Preparing DNA file $file....\n";
   if ($use_pg){
     $FH{FDNA() }->print("COPY fdna (fref, foffset, fdna) FROM stdin;\n");
   }
   my $old = select($FH{FDNA()});
-  $db->load_fasta($file);
+  $db->load_fasta($file) or warn "Couldn't load fasta file $file: $!";
   if ($use_pg){
     $FH{FDNA() }->print("\\.\n\n");
   }
   warn "done...\n";
   select $old;
+  unlink $file;
 }
 
 if ($use_pg) { 

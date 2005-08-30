@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.21 2005-07-18 19:49:32 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.22 2005-08-30 16:42:42 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -276,7 +276,7 @@ while (<>) {
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
 
   # close sequence filehandle if required
-  if ( /^\#|\s+|^$|^>/ && defined $FH{FASTA}) {
+  if ( /^\#|\s+|^$|^>|\t/ && defined $FH{FASTA}) {
       $FH{FASTA}->close;
       delete $FH{FASTA};
   }
@@ -367,6 +367,8 @@ while (<>) {
     }
   }
 }
+
+$FH{FASTA}->close if exists $FH{FASTA};
 
 printf STDERR "Feature load time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
 $start = time();
