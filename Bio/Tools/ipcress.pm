@@ -42,7 +42,7 @@ as annotation to an existing Bio::SeqI object for the purposes of
 automated annotation.
 
 This module is adapted from the Bio::Tools::EPCR module
-written by Jason Stajich <jason@bioperl.org>
+written by Jason Stajich (jason@bioperl.org).
 
 =head1 FEEDBACK
 
