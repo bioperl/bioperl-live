@@ -144,7 +144,7 @@ eval {
    # test dbsource stuff
    # small chance this might change but hopefully not
    my @annot = $seq->annotation->get_Annotations('dblink');
-   ok(scalar @annot, 27); # sure enough it did change on 05/01/05 ...
+   ok(scalar @annot, 28); #
    ok($annot[0]->database, 'swissprot');
    ok($annot[0]->primary_id, '2AAA_YEAST');
    ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
