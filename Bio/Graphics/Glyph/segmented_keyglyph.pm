@@ -18,7 +18,7 @@ sub make_key_feature {
 				-segments=>[ [ 0*$scale +$offset,50*$scale+$offset],
 					     [60*$scale+$offset, 80*$scale+$offset]
 					   ],
-				-name => $self->option('key'),
+				-name => $self->make_key_name(),
 				-strand => '+1',
 			       );
 }

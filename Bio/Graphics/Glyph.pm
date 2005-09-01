@@ -1121,13 +1121,24 @@ sub make_key_feature {
   # one segments, at pixels 0->80
   my $offset = $self->panel->offset;
 
-
   my $feature =
     Bio::Graphics::Feature->new(-start =>0 * $scale +$offset,
 				-end   =>80*$scale+$offset,
-				-name => $self->option('key'),
+				-name => $self->make_key_name(),
 				-strand => '+1');
   return $feature;
+}
+
+sub make_key_name {
+  my $self = shift;
+
+  # breaking encapsulation - this should be handled by the panel
+  my $key      = $self->option('key') || '';
+  return $key unless $self->panel->add_category_labels;
+
+  my $category = $self->option('category');
+  my $name     = defined $category ? "$key ($category)" : $key;
+  return $name;
 }
 
 sub all_callbacks {
