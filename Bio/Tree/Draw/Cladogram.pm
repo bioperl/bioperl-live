@@ -270,10 +270,11 @@ sub new {
 
   for my $node (@queue) {
     if (!$node->is_Leaf) {
-      my $xmin = 1000;
-      my $ymin = 1000;
-      my $ymax = 0;
-      foreach my $child ($node->each_Descendent) {
+      my @children = $node->each_Descendent;
+      my $child = shift @children;
+      my $xmin = $xx{$child};
+      my $ymin = my $ymax = $yy{$child};
+      foreach $child (@children) {
 	$xmin = $xx{$child} if $xx{$child} < $xmin;
 	$ymax = $yy{$child} if $yy{$child} > $ymax;
 	$ymin = $yy{$child} if $yy{$child} < $ymin;
@@ -282,6 +283,38 @@ sub new {
       $yy{$node} = ($ymin + $ymax)/2;
     }
   }
+
+  ######################################################################
+  # ragged right
+  ######################################################################
+  my @preorder = $t1->get_nodes(-order => 'depth');
+  shift @preorder; # skip root
+  for my $node (@preorder) {
+    $xx{$node} = $xx{$node->ancestor} + $xstep;
+  }
+  ######################################################################
+
+  ######################################################################
+  # set to 3/4 aspect ratio and use branch length if available
+  ######################################################################
+  $xx{$t1->get_root_node} = $left + $xstep;
+  my $total_height = (scalar($t1->get_leaf_nodes) - 1) * $ystep;
+  my $scale_factor = $total_height * 3 / 4 / $t1->get_root_node->height;
+  
+  $width = $t1->get_root_node->height * $scale_factor;
+  $width += $left + $xstep;
+  $width += $tip + $tipwidth1 + $right;
+
+  # $tipwidth1 has a different meaning if ragged right
+  
+  my @preorder = $t1->get_nodes(-order => 'depth');
+  shift @preorder; # skip root
+  for my $node (@preorder) {
+    my $bl = $node->branch_length;
+    $bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
+    $xx{$node} = $xx{$node->ancestor} + $bl * $scale_factor;
+  }
+  ######################################################################
 
   if ($t2) {
 
@@ -310,10 +343,11 @@ sub new {
 
     for my $node (@queue) {
       if (!$node->is_Leaf) {
-	my $xmax = 0;
-	my $ymin = 1000;
-	my $ymax = 0;
-	foreach my $child ($node->each_Descendent) {
+	my @children = $node->each_Descendent;
+	my $child = shift @children;
+	my $xmax = $xx{$child};
+	my $ymin = my $ymax = $yy{$child};
+	foreach $child (@children) {
 	  $xmax = $xx{$child} if $xx{$child} > $xmax;
 	  $ymax = $yy{$child} if $yy{$child} > $ymax;
 	  $ymin = $yy{$child} if $yy{$child} < $ymin;
@@ -369,8 +403,8 @@ sub print {
       print INFO $xx{$node->ancestor}, " ", $yy{$node->ancestor}, " lineto\n";
     }
   }
-  my $ymin = 1000;
-  my $ymax = 0;
+  my $ymin = $yy{$root1};
+  my $ymax = $yy{$root1};
   foreach my $child ($root1->each_Descendent) {
     $ymax = $yy{$child} if $yy{$child} > $ymax;
     $ymin = $yy{$child} if $yy{$child} < $ymin;
@@ -398,8 +432,8 @@ sub print {
     }
 
     my $root2 = $t2->get_root_node;
-    my $ymin = 1000;
-    my $ymax = 0;
+    my $ymin = $yy{$root2};
+    my $ymax = $yy{$root2};
     foreach my $child2 ($root2->each_Descendent) {
       $ymax = $yy{$child2} if $yy{$child2} > $ymax;
       $ymin = $yy{$child2} if $yy{$child2} < $ymin;
