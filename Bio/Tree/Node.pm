@@ -496,7 +496,7 @@ sub is_Leaf {
  Title   : height
  Usage   : my $len = $node->height
  Function: Returns the height of the tree starting at this
-           node.  Height is the maximum branchlength.
+           node.  Height is the maximum branchlength to get to the tip.
  Returns : The longest length (weighting branches with branch_length) to a leaf
  Args    : none
 
@@ -504,21 +504,20 @@ sub is_Leaf {
 
 sub height { 
     my ($self) = @_;
-
+    
     return $self->{'_height'} if( defined $self->{'_height'} );
     
     return 0 if( $self->is_Leaf );
     
     my $max = 0;
     foreach my $subnode ( $self->each_Descendent ) { 
-	my $s = $subnode->height;
+	my $bl = $subnode->branch_length;
+	$bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
+	my $s = $subnode->height + $bl;
 	if( $s > $max ) { $max = $s; }
     }
-    my $bl = $self->branch_length;
-    $bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
-   return ($self->{'_height'} = $max + $bl);
+    return ($self->{'_height'} = $max);
 }
-
 
 =head2 invalidate_height
 
