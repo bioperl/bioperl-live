@@ -243,16 +243,16 @@ sub to_string{
 =cut
 
 sub height{
-   my ($self) = @_;
-   
-   return 0 if( $self->is_Leaf );
+    my ($self) = @_;
 
-   my $max = 0;
-   foreach my $subnode ( $self->each_Descendent ) { 
-       my $s = $subnode->height;
-       if( $s > $max ) { $max = $s; }
-   }
-   return $max + $self->branch_length;
+    return 0 if( $self->is_Leaf );
+    
+    my $max = 0;
+    foreach my $subnode ( $self->each_Descendent ) { 
+	my $s = $subnode->height + $subnode->branch_length;;
+	if( $s > $max ) { $max = $s; }
+    }
+    return $max;
 }
 
 =head2 depth
