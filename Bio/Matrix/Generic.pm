@@ -18,11 +18,11 @@ Bio::Matrix::GenericMatrix - A generic matrix implementation
 
   # A matrix has columns and rows 
   my $matrix = new Bio::Matrix::GenericMatrix();
-  $matrix->add_column_num(1,$column1);
-  $matrix->add_column_num(2,$column2);
+  $matrix->add_column(1,$column1);
+  $matrix->add_column(2,$column2);
 
-  my $element = $matrix->element(1,2);
-  $matrix->element(1,2,$newval);
+  my $element = $matrix->entry_by_num(1,2);
+  $matrix->entry_by_num(1,2,$newval);
 
   my $entry = $matrix->entry('human', 'mouse');
 
