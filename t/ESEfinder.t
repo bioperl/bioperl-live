@@ -54,8 +54,6 @@ END {
 if($ERROR ==  1 ) {
   warn("exiting early\n");
   exit(0);
-} else {
- warn("error is $ERROR\n");
 }
 
 use Data::Dumper;
