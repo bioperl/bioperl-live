@@ -123,6 +123,7 @@ my $xstep;     # branch length in drawing
 my $tip;       # extra space between tip and label
 my $tipwidth1; # width of longest label among $t1 taxa
 my $tipwidth2; # width of longest label among $t2 taxa
+my $ratio;     # horizontal to vertical ratio
 
 =head2 new
 
@@ -140,6 +141,7 @@ my $tipwidth2; # width of longest label among $t2 taxa
            -right => right margin [integer] (optional)
            -tip => extra tip space [integer] (optional)
            -column => extra space between cladograms [integer] (optional)
+           -ratio => horizontal to vertical ratio [integer] (optional)
 
 =cut
 
@@ -158,6 +160,7 @@ sub new {
   $right ||= 10;
   $tip ||= 5;
   $column ||= 60;
+  $ratio ||= 1 / 1.6180339887;
 
   # Roughly, a cladogram is set according to the following parameters.
 
@@ -299,7 +302,7 @@ sub new {
   ######################################################################
   $xx{$t1->get_root_node} = $left + $xstep;
   my $total_height = (scalar($t1->get_leaf_nodes) - 1) * $ystep;
-  my $scale_factor = $total_height * 3 / 4 / $t1->get_root_node->height;
+  my $scale_factor = $total_height * $ratio / $t1->get_root_node->height;
   
   $width = $t1->get_root_node->height * $scale_factor;
   $width += $left + $xstep;
