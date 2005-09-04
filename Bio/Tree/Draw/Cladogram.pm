@@ -123,6 +123,7 @@ my $xstep;     # branch length in drawing
 my $tip;       # extra space between tip and label
 my $tipwidth1; # width of longest label among $t1 taxa
 my $tipwidth2; # width of longest label among $t2 taxa
+my $compact;   # whether or not to ignore branch lengths
 my $ratio;     # horizontal to vertical ratio
 
 =head2 new
@@ -141,6 +142,7 @@ my $ratio;     # horizontal to vertical ratio
            -right => right margin [integer] (optional)
            -tip => extra tip space [integer] (optional)
            -column => extra space between cladograms [integer] (optional)
+           -compact => ignore branch lengths [boolean] (optional)
            -ratio => horizontal to vertical ratio [integer] (optional)
 
 =cut
@@ -150,8 +152,8 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   ($t1, $t2, $font, $size, my $top, my $bottom, my $left, my $right,
-    $tip, my $column) = $self->_rearrange([qw(TREE SECOND FONT SIZE
-    TOP BOTTOM LEFT RIGHT TIP COLUMN)], @args);
+    $tip, my $column, $compact, $ratio) = $self->_rearrange([qw(TREE SECOND
+    FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN COMPACT RATIO)], @args);
   $font ||= "Helvetica-Narrow";
   $size ||= 12;
   $top ||= 10;
@@ -160,6 +162,7 @@ sub new {
   $right ||= 10;
   $tip ||= 5;
   $column ||= 60;
+  $compact ||= 0;
   $ratio ||= 1 / 1.6180339887;
 
   # Roughly, a cladogram is set according to the following parameters.
@@ -287,37 +290,37 @@ sub new {
     }
   }
 
-  ######################################################################
-  # ragged right
-  ######################################################################
-  my @preorder = $t1->get_nodes(-order => 'depth');
-  shift @preorder; # skip root
-  for my $node (@preorder) {
-    $xx{$node} = $xx{$node->ancestor} + $xstep;
-  }
-  ######################################################################
-
-  ######################################################################
-  # set to 3/4 aspect ratio and use branch length if available
-  ######################################################################
   $xx{$t1->get_root_node} = $left + $xstep;
-  my $total_height = (scalar($t1->get_leaf_nodes) - 1) * $ystep;
-  my $scale_factor = $total_height * $ratio / $t1->get_root_node->height;
-  
-  $width = $t1->get_root_node->height * $scale_factor;
-  $width += $left + $xstep;
-  $width += $tip + $tipwidth1 + $right;
 
-  # $tipwidth1 has a different meaning if ragged right
-  
-  my @preorder = $t1->get_nodes(-order => 'depth');
-  shift @preorder; # skip root
-  for my $node (@preorder) {
-    my $bl = $node->branch_length;
-    $bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
-    $xx{$node} = $xx{$node->ancestor} + $bl * $scale_factor;
+  if ($compact) { # ragged right, ignoring branch lengths
+
+    my @preorder = $t1->get_nodes(-order => 'depth');
+    $width = 0;
+    shift @preorder; # skip root
+    for my $node (@preorder) {
+      $xx{$node} = $xx{$node->ancestor} + $xstep;
+      $width = $xx{$node} if $xx{$node} > $width;
+    }
+    $width += $tip + $tipwidth1 + $right;
+
+  } else { # set to aspect ratio and use branch lengths if available
+
+    my $total_height = (scalar($t1->get_leaf_nodes) - 1) * $ystep;
+    my $scale_factor = $total_height * $ratio / $t1->get_root_node->height;    
+
+    $width = $t1->get_root_node->height * $scale_factor;
+    $width += $left + $xstep;
+    $width += $tip + $tipwidth1 + $right;
+
+    my @preorder = $t1->get_nodes(-order => 'depth');
+    shift @preorder; # skip root
+    for my $node (@preorder) {
+      my $bl = $node->branch_length;
+      $bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
+      $xx{$node} = $xx{$node->ancestor} + $bl * $scale_factor;
+    }
+
   }
-  ######################################################################
 
   if ($t2) {
 
