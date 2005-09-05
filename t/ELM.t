@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 14;
+    $NUMTESTS = 13;
     plan tests => $NUMTESTS;
 
     eval {
@@ -65,9 +65,8 @@ ok $tool = Bio::Tools::Analysis::Protein::ELM->new(
 ok $tool->compartment(['golgi', 'er']);
 ok my $cmp = $tool->compartment();
 ok $cmp->[1], 'GO:0005783';
+ok $tool->species(9606);
 ok $tool->species, 9606;
-ok $tool->species(8355);
-ok $tool->species, 8355;
 
 ok $tool->run ();
 exit if $tool->status eq 'TERMINATED_BY_ERROR';
