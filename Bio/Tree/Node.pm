@@ -231,24 +231,24 @@ sub remove_Descendent{
 	   # should be redundant
 	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
 	   delete $self->{'_desc'}->{$n->internal_id};
-	   my $a1 = $self->ancestor;
-	   # remove unecessary nodes if we have removed the part 
-	   # which branches.
-	   # if( $a1 ) {
-	   #    my $bl = $self->branch_length || 0;
-	   #    my @d = $self->each_Descendent;
-	   #    if (scalar @d == 1) {
-	   #	   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
-	   #	   $a1->add_Descendent($d[0]);
-	   #    }
-	   #    $a1->remove_Descendent($self);
-	   #}
 	   $c++;
        } else { 
 	   if( $self->verbose ) {
 	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
 	       $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
 	   }
+       }
+   }
+   # remove unecessary nodes if we have removed the part 
+   # which branches.
+   my $a1 = $self->ancestor;   
+   if( $a1 ) {
+       my $bl = $self->branch_length || 0;
+       my @d = $self->each_Descendent;
+       if (scalar @d == 1) {
+	   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
+	   $a1->add_Descendent($d[0]);	       
+	   $a1->remove_Descendent($self);
        }
    }
    $c;
