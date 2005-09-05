@@ -237,8 +237,8 @@ sub  _run {
     }
     my %h = (swissprotId      => "",
              sequence         => $self->seq->seq,
-             userSpecies      => '',
-             typedUserSpecies => $self->species(),
+             userSpecies      => $self->species,
+             typedUserSpecies => '',
              fun              => "Submit");
     splice (@cc_str, @cc_str,0, ( map{$_, $h{$_}} keys %h));
 
@@ -254,9 +254,10 @@ sub  _run {
     }
 
     my $text = $r1->content;
-    my ($url) = $text =~ /URL=(\S+)\"/s; 
-    $url =~ s/amp;//g ;
+    my ($url) = $text =~ /URL=\S+(fun=\S+r=\d)/s; 
+    #$url =~ s/amp;//g ;
     my ($resp2);
+    $url = $URL . "?" .$url;
     while (1) {
 	my $req2 = HTTP::Request->new(GET=>$url);
 	my $r2 = $self->request ($req2);
@@ -273,7 +274,7 @@ sub  _run {
 	    return;
 	} else {
 	    print "." if $self->verbose > 0;
-	    $self->sleep();
+	    $self->sleep(1);
 	}
     }
 }
