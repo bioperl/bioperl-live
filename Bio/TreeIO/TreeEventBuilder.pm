@@ -337,8 +337,12 @@ sub characters{
    if( $self->within_element('node') ) {
        my $hash = pop @{$self->{'_currentitems'}};
        if( $self->in_element('bootstrap') ) {
+	   # leading/trailing Whitespace-B-Gone
+	   $ch =~ s/^\s+//; $ch =~ s/\s+$//;  
 	   $hash->{'-bootstrap'} = $ch;
        } elsif( $self->in_element('branch_length') ) {
+	   # leading/trailing Whitespace-B-Gone
+	   $ch =~ s/^\s+//; $ch =~ s/\s+$//;
 	   $hash->{'-branch_length'} = $ch;
        } elsif( $self->in_element('id')  ) {
 	   $hash->{'-id'} = $ch;
