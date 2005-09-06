@@ -683,4 +683,44 @@ sub get_rejects {
 
 =cut
 
+=head2 This patch is to be applied to lucy.c from the lucy-1.19p release
+
+ 277a278,279
+ >       /* AGW added next line */
+ >       fprintf(stderr, "Short/ no insert: %s\n", seqs[i].name);
+ 588c590,592
+ <     if ((seqs[i].len=bases)<=0)
+ ---
+ >     if ((seqs[i].len=bases)<=0) {
+ >       /* AGW added next line */
+ >       fprintf(stderr, "Empty: %s\n", seqs[i].name);
+ 589a594
+ >     }
+ 893c898,902
+ <       if (left) seqs[i].left+=left;
+ ---
+ >       if (left) {
+ >         seqs[i].left+=left;
+ >         /*  AGW added next line */
+ >         fprintf(stderr, "%s has PolyA (left).\n", seqs[i].name);
+ >       }
+ 896c905,909
+ <       if (right) seqs[i].right-=right;
+ ---
+ >       if (right) {
+ >         seqs[i].right-=right;
+ >         /*  AGW added next line */
+ >         fprintf(stderr, "%s has PolyA (right).\n", seqs[i].name);
+ >         }
+ 898a912,913
+ >         /* AGW added next line */
+ >         fprintf(stderr, "Dropped PolyA: %s\n", seqs[i].name);
+ 949a965,966
+ >         /* AGW added next line */
+ >           fprintf(stderr, "Vector: %s\n", seqs[i].name);
+
+=cut
+
+=cut
+
 1;
