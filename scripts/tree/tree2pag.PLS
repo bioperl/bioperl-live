@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-nexus2nh - convert Bio::TreeIO parseable format trees to pagel format
+tree2pag - convert Bio::TreeIO parseable format trees to pagel format
 
 =head1 SYNOPSIS
 
