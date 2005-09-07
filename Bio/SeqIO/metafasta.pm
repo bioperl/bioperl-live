@@ -17,6 +17,14 @@ Bio::SeqIO::metafasta - metafasta sequence input/output stream
 
 Do not use this module directly.  Use it via the Bio::SeqIO class.
 
+  use Bio::SeqIO;
+
+  # read the metafasta file
+  $io = Bio::SeqIO->new(-file => "test.metafasta",
+                        -format => "metafasta" );
+
+  $seq = $io->next_seq;
+
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq::Meta objects to and from metafasta
@@ -80,6 +88,7 @@ use strict;
 use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
+use Bio::Seq::Meta;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -106,74 +115,72 @@ sub _initialize {
 =cut
 
 sub next_seq {
-    my( $self ) = @_;
-    my $seq;
-    my $alphabet;
-    local $/ = "\n>";
-    return unless my $entry = $self->_readline;
+	my( $self ) = @_;
+	my $seq;
+	my $alphabet;
+	local $/ = "\n>";
+	return unless my $entry = $self->_readline;
 
-    chomp($entry);
-    if ($entry =~ m/\A\s*\Z/s)  { # very first one
-	return unless $entry = $self->_readline;
 	chomp($entry);
-    }
-    $entry =~ s/^>//;
-
-    my ($top,$sequence) = split(/\n/,$entry,2);
-    defined $sequence && $sequence =~ s/>//g;
-
-    my @metas;
-    ($sequence, @metas) = split /\n&/, $sequence;
-
-    my ($id,$fulldesc);
-    if( $top =~ /^\s*(\S+)\s*(.*)/ ) {
-	($id,$fulldesc) = ($1,$2);
-    }
-
-    if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space 
-                                                   # between > and name \AE
-    defined $sequence && $sequence =~ s/\s//g;	# Remove whitespace
-
-    # for empty sequences we need to know the mol.type
-    $alphabet = $self->alphabet();
-    if(defined $sequence && length($sequence) == 0) {
-	if(! defined($alphabet)) {
-	    # let's default to dna
-	    $alphabet = "dna";
+	if ($entry =~ m/\A\s*\Z/s)  { # very first one
+		return unless $entry = $self->_readline;
+		chomp($entry);
 	}
-    } else {
-	# we don't need it really, so disable
-	$alphabet = undef;
-    }
+	$entry =~ s/^>//;
 
-    $seq = $self->sequence_factory->create(
-					   -seq         => $sequence,
-					   -id          => $id,
+	my ($top,$sequence) = split(/\n/,$entry,2);
+	defined $sequence && $sequence =~ s/>//g;
+
+	my @metas;
+	($sequence, @metas) = split /\n&/, $sequence;
+
+	my ($id,$fulldesc);
+	if( $top =~ /^\s*(\S+)\s*(.*)/ ) {
+		($id,$fulldesc) = ($1,$2);
+	}
+
+	if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space 
+	                                               # between > and name \AE
+	defined $sequence && $sequence =~ s/\s//g;	  # Remove whitespace
+
+	# for empty sequences we need to know the mol.type
+	$alphabet = $self->alphabet();
+	if(defined $sequence && length($sequence) == 0) {
+		if(! defined($alphabet)) {
+			# let's default to dna
+			$alphabet = "dna";
+		}
+	} else {
+		# we don't need it really, so disable
+		$alphabet = undef;
+	}
+
+	$seq = $self->sequence_factory->create(
+						-seq         => $sequence,
+						-id          => $id,
 					   # Ewan's note - I don't think this healthy
 					   # but obviously to taste.
 					   #-primary_id  => $id,
 					   -desc        => $fulldesc,
 					   -alphabet    => $alphabet,
 					   -direct      => 1,
-					   );
+													  );
 
+	$seq = $seq->primary_seq;
+	bless $seq, 'Bio::Seq::Meta';
 
-    $seq = $seq->primary_seq;
-    bless $seq, 'Bio::Seq::Meta';
+	foreach my $meta (@metas) {
+		my ($name,$string) = split /\n/, $meta;
+		# $split ||= '';
+		$string =~ s/\n//g;	# Remove newlines, spaces are important
+		$seq->named_meta($name, $string);
+	}
 
-    foreach my $meta (@metas) {
-        my ($name,$string) = split /\n/, $meta;
-#        $split ||= '';
-        $string =~ s/\n//g;	# Remove newlines, spaces are important
-        $seq->named_meta($name, $string);
-    }
-
-    # if there wasn't one before, set the guessed type
-    unless ( defined $alphabet ) {
-	$self->alphabet($seq->alphabet());
-    }
-    return $seq;
-
+	# if there wasn't one before, set the guessed type
+	unless ( defined $alphabet ) {
+		$self->alphabet($seq->alphabet());
+	}
+	return $seq;
 }
 
 =head2 write_seq
@@ -183,7 +190,6 @@ sub next_seq {
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
  Args    : array of 1 to n Bio::PrimarySeqI objects
-
 
 =cut
 
