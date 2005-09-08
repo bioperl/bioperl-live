@@ -721,6 +721,4 @@ sub get_rejects {
 
 =cut
 
-=cut
-
 1;
