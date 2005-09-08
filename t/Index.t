@@ -32,6 +32,12 @@ BEGIN {
    plan tests => $NUMTESTS;
 }
 
+END {
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip("Missing dependencies. Skipping tests",1);
+    }
+}
+
 exit(0) if $exit;
 
 use Bio::Root::IO;
