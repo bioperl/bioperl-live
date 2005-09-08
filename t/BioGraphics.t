@@ -31,6 +31,7 @@ BEGIN {
     plan tests => $NUMTESTS;
 
     eval {
+        require GD;
 	require Text::Shellwords;
 	require Bio::Graphics::FeatureFile;
 	require Bio::Graphics;
@@ -41,13 +42,13 @@ BEGIN {
     }
 }
 
-exit 0 if $error;
-
 END { 
     foreach ( $Test::ntest..$NUMTESTS) {
 	skip('unable to run all of the Bio::Graphics tests',1);
     }
 }
+
+exit 0 if $error;
 
 my $verbose = -1;
 my $write   = 0;
