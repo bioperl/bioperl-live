@@ -876,26 +876,26 @@ sub connected_subgraphs {
 }
 
 sub components {
-  my($self)  = @_;
-  return $self->_components if defined $self->_components;
-  my $components = [];
-  my @nodes      = $self->nodes;
-  my %future;
-  my $i = 1;
-  @future{@nodes}=(0)x@nodes;
-  while(my($node, $used)=each %future) {
+    my($self)  = @_;
+    return $self->_components if defined $self->_components;
+    my $components = [];
+    my @nodes      = $self->nodes;
+    my %future;
+    my $i = 1;
+    @future{@nodes}=(0)x@nodes;
+    while(my($node, $used)=each %future) {
 	if ($i++ %10 ==0 ) {
-		print STDERR "|";
+	    $self->debug("|");
 	}
-    next if $used;
-    my @nodes = $self->traversal($self->node($node))->get_all;
+	next if $used;
+	my @nodes = $self->traversal($self->node($node))->get_all;
 
-    my $component   = $self->subgraph(@nodes);
-    my @nodes       = $component->nodes;
-    @future{@nodes} = (1)x@nodes;
-    push(@$components,$component);
-  }
-  wantarray? @$components: $components;
+	my $component   = $self->subgraph(@nodes);
+	my @nodes2       = $component->nodes;
+	@future{@nodes2} = (1)x@nodes2;
+	push(@$components,$component);
+    }
+    wantarray? @$components: $components;
 }
 
 sub by_num {$a <=> $b}

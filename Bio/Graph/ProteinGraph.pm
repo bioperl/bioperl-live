@@ -370,74 +370,74 @@ sub union {
 	}
 
 	## now cyle through common nodes..
-	print STDERR "there are ", scalar @common_nodes, " common nodes\n";
+	$self->debug( "there are ". scalar @common_nodes. " common nodes\n");
 	my $i = 0;
 	for my $common (@common_nodes) {
-		if ($i++ % 10 ==0 ) {
-			print STDERR ".";
-		}
-		## get neighbours of common node for self and other
-		my @self_ns   = $self->neighbors($self->nodes_by_id($common));
-		my @other_ns  = $other->neighbors($other->nodes_by_id($common));
+	    if ($i++ % 10 ==0 ) {
+		$self->debug(".");
+	    }
+	    ## get neighbours of common node for self and other
+	    my @self_ns   = $self->neighbors($self->nodes_by_id($common));
+	    my @other_ns  = $other->neighbors($other->nodes_by_id($common));
 
-		## now get all ids of all neighbours
-		my %self_n_ids = $self->_get_ids(@self_ns); # get all ids of neighbors
+	    ## now get all ids of all neighbours
+	    my %self_n_ids = $self->_get_ids(@self_ns);	# get all ids of neighbors
 
-		##cycle through other neighbors
-		for my $other_n(@other_ns){ 
-			my %other_n_ids = $self->_get_ids($other_n); # get ids of single other neighbor
+	    ##cycle through other neighbors
+	    for my $other_n(@other_ns){ 
+		my %other_n_ids = $self->_get_ids($other_n); # get ids of single other neighbor
 
-			## case (1) in description
-			## do any ids in other graph exist in self ?
-			#if yes,  @int_match is defined, interaction does not involve a new node
-			my @int_match = grep{exists($self->{'_id_map'}{$_}) } keys %other_n_ids;
-			if (@int_match){
-				my $i = 0;
-				my $edge;
+		## case (1) in description
+		## do any ids in other graph exist in self ?
+		#if yes,  @int_match is defined, interaction does not involve a new node
+		my @int_match = grep{exists($self->{'_id_map'}{$_}) } keys %other_n_ids;
+		if (@int_match){
+		    my $i = 0;
+		    my $edge;
 
-				## we cycle through until we have an edge defined, this deals with 
-				## multiple id matches
-				while (!$edge && $i <= $#int_match){
+		    ## we cycle through until we have an edge defined, this deals with 
+		    ## multiple id matches
+		    while (!$edge && $i <= $#int_match){
 
-					## get edge from other graph
-					my $other_edge = $other->edge(
-							 [$other->nodes_by_id($common),
-							  $other->nodes_by_id($other_n->object_id)]
-														  );
+			## get edge from other graph
+			my $other_edge = $other->edge(
+						      [$other->nodes_by_id($common),
+						       $other->nodes_by_id($other_n->object_id)]
+						      );
 
-					## copy it
-					my $edge = Bio::Graph::Edge->new(
-										 -weight=> $other_edge->weight(),
-										 -id    => $other_edge->object_id(),
-										 -nodes =>[$self->nodes_by_id($common),
-													 $self->nodes_by_id($int_match[$i])
-													]);
-					## add it to self graph.
-					##add_edge() works out if the edge is a new,  
-               ##duplicate or a redundant edge.
-					$self->add_edge($edge);
+			## copy it
+			my $edge = Bio::Graph::Edge->new(
+							 -weight=> $other_edge->weight(),
+							 -id    => $other_edge->object_id(),
+							 -nodes =>[$self->nodes_by_id($common),
+								   $self->nodes_by_id($int_match[$i])
+								   ]);
+			## add it to self graph.
+			##add_edge() works out if the edge is a new,  
+			##duplicate or a redundant edge.
+			$self->add_edge($edge);
 
-					$i++;
-				}
-			} #end if
-			## but if other neighbour is entirely new, clone it and 
-            ## make connection.
-			else  {
-				my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
-											  $other->nodes_by_id($common));
-				my $new = clone($other_n);
-				$self->add_edge(Bio::Graph::Edge->new(
-									-weight => $other_edge->weight(),
-									-id     => $other_edge->object_id(),
-								   -nodes  =>[$new, $self->nodes_by_id($common)],
-                                                                     )
-									);
+			$i++;
+		    }
+		}		#end if
+		## but if other neighbour is entirely new, clone it and 
+		## make connection.
+		else  {
+		    my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
+						  $other->nodes_by_id($common));
+		    my $new = clone($other_n);
+		    $self->add_edge(Bio::Graph::Edge->new(
+							  -weight => $other_edge->weight(),
+							  -id     => $other_edge->object_id(),
+							  -nodes  =>[$new, $self->nodes_by_id($common)],
+							  )
+				    );
 
 				## add new ids to self graph look up table
-				map {$self->{'_id_map'}{$_} = $new} keys %other_n_ids;
-			}#end if
+		    map {$self->{'_id_map'}{$_} = $new} keys %other_n_ids;
+		}#end if
 		}#next neighbor
-	}#next node
+	    }#next node
 }
 
 =head2 edge_count
@@ -989,16 +989,14 @@ sub articulation_points {
  return $self->{'_artic_points'} if $self->{'_artic_points'};
 
 ## else calculate...
- print STDERR "doing subgraphs\n";
+ $self->debug( "doing subgraphs\n");
  my @subgraphs = $self->components();
  
  my %rts;
 
  for my $sg (@subgraphs) {
      my $all_nodes = $sg->_nodes;
-     print STDERR "in subgraph - size", scalar keys %$all_nodes, "\n";
-
-
+     $self->debug( "in subgraph - size". scalar (keys %$all_nodes) . "\n");
      ##ignore isolated vertices
      next if scalar keys %$all_nodes <= 2;
      my $neighbors = $sg->_neighbors;
