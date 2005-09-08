@@ -69,10 +69,6 @@ use Carp;
 
 @ISA = qw(Bio::RangeI);
 
-BEGIN {
-    $coord_policy = Bio::Location::WidestCoordPolicy->new();
-}
-
 =head2 location_type
 
   Title   : location_type
@@ -229,6 +225,12 @@ sub start_pos_type {
 
 =cut
 
+
+sub flip_strand {
+    my $self= shift;
+    $self->strand($self->strand * -1);
+}
+
 =head2 min_end
 
   Title   : min_end
@@ -301,11 +303,8 @@ sub end_pos_type {
 =cut
 
 sub seq_id {
-    my ($self, $seqid) = @_;
-    if( defined $seqid ) {
-	$self->{'_seqid'} = $seqid;
-    }
-    return $self->{'_seqid'};
+    my($self) = @_;
+    $self->throw_not_implemented();
 }
 
 =head2 is_remote
@@ -370,22 +369,7 @@ See L<Bio::Location::CoordinatePolicyI> for more information
 =cut
 
 sub coordinate_policy {
-    my ($self, $policy) = @_;
-
-    if(defined($policy)) {
-	if(! $policy->isa('Bio::Location::CoordinatePolicyI')) {
-	    $self->throw("Object of class ".ref($policy)." does not implement".
-			 " Bio::Location::CoordinatePolicyI");
-	}
-	if(ref($self)) {
-	    $self->{'_coordpolicy'} = $policy;
-	} else {
-	    # called as class method
-	    $coord_policy = $policy;
-	}
-    }
-    return (ref($self) && exists($self->{'_coordpolicy'}) ?
-	    $self->{'_coordpolicy'} : $coord_policy);
+    shift->throw_not_implemented();
 }
 
 =head2 to_FTstring
