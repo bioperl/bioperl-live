@@ -529,7 +529,7 @@ sub _possibly_ace
 
 =head2 _possibly_blast
 
-From various blast results.
+ From various blast results.
 
 =cut
 
