@@ -327,6 +327,23 @@ sub strand{
     }
 }
 
+=head2 flip_strand
+
+  Title   : flip_strand
+  Usage   : $location->flip_strand();
+  Function: Flip-flop a strand to the opposite
+  Returns : None
+  Args    : None
+
+=cut
+
+sub flip_strand {
+    my $self = shift;
+    for my $loc ( $self->sub_Location(0) ) {
+	$loc->flip_strand;
+    }
+}
+
 =head2 start
 
   Title   : start
@@ -555,7 +572,12 @@ sub seq_id {
 sub to_FTstring {
     my ($self) = @_;
     my @strs;
-    foreach my $loc ( $self->sub_Location() ) {	
+    my $strand;
+    if( ($strand = ($self->strand || 0)) < 0 ) {
+	$self->flip_strand; # this will recursively set the strand
+	                    # to +1 for all the sub locations
+    }
+    foreach my $loc ( $self->sub_Location()  ) {		
 	my $str = $loc->to_FTstring();
 	# we only append the remote seq_id if it hasn't been done already
 	# by the sub-location (which it should if it knows it's remote)
@@ -566,15 +588,19 @@ sub to_FTstring {
 	    $str = sprintf("%s:%s", $loc->seq_id, $str);
 	} 
 	push @strs, $str;
-    }    
+    }
+    $self->flip_strand if $strand < 0;
     my $str;
     if( @strs == 1 ) {
 	($str) = @strs;
     } elsif( @strs == 0 ) {
 	$self->warn("no Sublocations for this splitloc, so not returning anything\n");
 
-    } else {  
+    } else { 
 	$str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
+	if( $strand < 0 ) {  # wrap this in a complement if it was unrolled
+	    $str = sprintf("%s(%s)",'complement',$str);
+	}
     }
     return $str;
 }
