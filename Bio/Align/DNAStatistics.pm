@@ -658,11 +658,14 @@ sub D_Kimura {
 	   }
 	   my $P = $self->transitions($pairwise) / $L;
 	   my $Q = $self->transversions($pairwise) / $L;
-	   
+	   my $K = 0;
 	   my $a = 1 / ( 1 - (2 * $P) - $Q);
 	   my $b = 1 / ( 1 - 2 * $Q );
-	   my $K = (1/2) * log ( $a ) + (1/4) * log($b);
-
+	   if( $a < 0 || $b < 0 ) { 
+	       $K = -1;
+	   } else{ 
+	       $K = (1/2) * log ( $a ) + (1/4) * log($b);
+	   }
 	   # fwd and rev lookup
 	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
 	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
@@ -793,6 +796,7 @@ sub D_Tamura {
    for my $t1 ( @seqs ) {
        $j = 0;
        for my $t2 ( @seqs ) {
+	   $gap[$i][$j] = 0;
 	   for( my $k = 0; $k < $length; $k++ ) {
 	       my ($c1,$c2) = ( substr($seqs[$i],$k,1),
 				substr($seqs[$j],$k,1) );
@@ -970,12 +974,19 @@ sub D_TajimaNei{
 	   my $m = ( $matrix->[0]->[0] + $matrix->[1]->[1] + 
 		     $matrix->[2]->[2] + $matrix->[3]->[3] );
 	   my $D = 1 - ( $m / $slen);
-	   
-	   my $b = (1 - $fij2 + (($D**2)/$h)) / 2;
-	   $self->debug("h is $h fij2 is $fij2 b is $b\n");
+	   my $d;
+	   if( $h == 0 ) {
+	       $d = -1;
+	   } else {
+	       my $b = (1 - $fij2 + (($D**2)/$h)) / 2;
+	       my $c = 1- $D/ $b;
 
-	   my $d = (-1 * $b) * log ( 1 - $D/ $b);
-	   
+	       if( $c < 0 ) {
+		   $d = -1;
+	       } else { 
+		   $d = (-1 * $b) * log ( $c);
+	       }
+	   }
 	   # fwd and rev lookup
 	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
 	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
