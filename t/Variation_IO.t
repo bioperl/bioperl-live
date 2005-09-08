@@ -21,7 +21,7 @@ BEGIN {
 		print STDERR "Skip tests - missing Text::Wrap 98 installed or XML::Writer\n";
 		$error = 1;
 	}
-	$NUMTESTS = 24;
+	$NUMTESTS = 25;
 	plan tests => $NUMTESTS;
 }
 
