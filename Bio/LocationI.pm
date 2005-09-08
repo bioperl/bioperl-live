@@ -218,6 +218,17 @@ sub start_pos_type {
     $self->throw_not_implemented();
 }
 
+
+=head2 flip_strand
+
+  Title   : flip_strand
+  Usage   : $location->flip_strand();
+  Function: Flip-flop a strand to the opposite
+  Returns : None
+  Args    : None
+
+=cut
+
 =head2 min_end
 
   Title   : min_end
