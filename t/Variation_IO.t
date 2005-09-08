@@ -25,6 +25,12 @@ BEGIN {
 	plan tests => $NUMTESTS;
 }
 
+END {
+    foreach ( $Test::ntest..$NUMTESTS) {
+        skip("Missing dependencies. Skipping tests",1);
+    }
+}
+
 if ($error == 1 ) {
 	exit(0);
 }
