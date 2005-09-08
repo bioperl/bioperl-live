@@ -17,9 +17,12 @@ BEGIN {
 }
 
 use Bio::Matrix::PSM::IO;
+use Bio::Root::IO;
 
 ok(1);
-
+END {
+ unlink(Bio::Root::IO->catfile(qw(t data masta_w.dat)));
+}
 #Let's try masta formats here
 my $mio =  new Bio::Matrix::PSM::IO(-format=>'masta', 
 				      -file=>Bio::Root::IO->catfile(qw(t data masta.dat)));
