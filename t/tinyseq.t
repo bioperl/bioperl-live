@@ -39,7 +39,7 @@ BEGIN {
     if( $error == 0 ) {
 	eval { require Bio::SeqIO::tinyseq; };
 	if( $@ ) {
-	    print STDERR "tinyseq.pm not loaded. This means game test cannot be executed. Skipping\n";
+	    print STDERR "tinyseq.pm not loaded. This means tinyseq test cannot be executed. Skipping\n";
 	    foreach ( $Test::ntest..$TESTCOUNT ) {
 		skip('tinyseq.pm not loaded because XML::Writer not loaded',1);
 	    }
