@@ -127,10 +127,8 @@ sub from_string{
     # there is no place in FT-formatted location strings where whitespace 
     # carries meaning, so strip it off entirely upfront
     $locstr =~ s/\s+//g if ! $is_rec;
-
     # does it contain an operator?
-    if($locstr =~ /^([A-Za-z]+)\((.*)\)$/) {
-
+    if($locstr =~ /^(\w+)\((.*)\)$/) {	
 	# yes:
 	my $op = lc($1);	
 	my $oparg = $2;
@@ -152,20 +150,31 @@ sub from_string{
 	    # This fixes bug #1674
 	    my $re;
 	    $re = qr{
-             \(
+             \(                 # <<--- paired parens required
              (?:
                 (?> [^()]+ )    # Non-parens without backtracking
               |
                 (??{ $re })     # Group with matching parens
              )*
-             \)
+             \)                 # ---->> paired parens required
             }x;
 	    my $oparg_orig = $oparg;
 	    my @sections;
 	    # lets capture and remove all the sections which
-	    # are groups
-	    while( $oparg =~ s/(join|order|bond)$re//ig ) {
+	    # are groups	    
+	    while( $oparg =~ s/(join|complement|bond|order)$re//ig ) {
+		# oh man this is SUUUCCCH a hack
+		# I don't know what else to do though
+		# s// seems to be dropping the whole 
+		# warn("rematch is $&   $` $'\n");
+		# the code use to just be this line
 		push @sections, $&;
+		# but I recognized join(...,complement(join(..)))
+		# was failling
+		my $before = $`;
+		if( $oparg ne $before . $') { #'
+		    $oparg = $before . $'; # '
+		}
 	    }
 	    push @sections, split(/,/,$oparg) if length($oparg);
 	    # because we don't necessarily process the string in-order
@@ -180,7 +189,7 @@ sub from_string{
 	                map { [$_, index($oparg_orig, $_)] } @sections;
 	    # end of fix for bug #1674
 	    foreach my $s (@sections) {
-		next unless length($s);
+		next unless length($s);		
 		$loc->add_sub_Location($self->from_string($s, 1));
 	    }	    
 	} else {
@@ -211,7 +220,6 @@ sub _parse_location {
     my ($loc, $seqid);
 
     $self->debug( "Location parse, processing $locstr\n");
-
     # 'remote' location?
     if($locstr =~ /^(\S+):(.*)$/) {
 	# yes; memorize remote ID and strip from location string
