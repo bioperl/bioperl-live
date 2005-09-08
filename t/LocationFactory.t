@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 180;
+    plan tests => 182;
 }
 
 use Bio::Factory::FTLocationFactory;
@@ -54,7 +54,7 @@ my %testcases = ("467" => [$simple_impl,
 		   145, 145, "EXACT", 177, 177, "EXACT", "IN-BETWEEN", 1, 1],
 		 "join(12..78,134..202)" => [$split_impl,
 		   12, 12, "EXACT", 202, 202, "EXACT", "EXACT", 2, 1],
-		 "join(complement(4918..5163),complement(2691..4571))" => [$split_impl,
+		 "complement(join(4918..5163,2691..4571))" => [$split_impl,
 		   2691, 2691, "EXACT", 5163, 5163, "EXACT", "EXACT", 2, -1],
 		 "complement(34..(122.126))" => [$fuzzy_impl,
 		   34, 34, "EXACT", 122, 126, "WITHIN", "EXACT", 1, -1],
@@ -104,12 +104,30 @@ foreach my $locstr (sort keys(%testcases)) {
 
 if ($^V gt v5.6.0) {
     # bug #1674, #1765
-    for my $locstr ( 'join(11025..11049,join(complement(315036..315294),complement(251354..251412),complement(241499..241580),complement(239890..240081)))',
-                     'join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))',
-                     'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)' ) {
+    # Join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))
+
+    my @expected = ( # intentionally testing same expected string twice
+		     # as I am providing two different encodings
+		     # that should mean the same thing
+		     'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
+		     'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
+		     # ditto
+		     'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
+		     'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
+		     # this is just seem once
+		     'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)'
+		     );
+
+    for my $locstr ( 
+		     'join(11025..11049,join(complement(315036..315294),complement(251354..251412),complement(241499..241580),complement(239890..240081)))',
+		     'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
+                     'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
+		     'join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))',
+                     'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)' 
+		     ) {
         my $loc = $locfac->from_string($locstr);
         my $ftstr = $loc->to_FTstring();
-        ok($ftstr, $locstr);   
+        ok($ftstr, shift @expected);   
     }
 } else {
     foreach (1..3) { 
