@@ -1,7 +1,7 @@
 
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Beginners HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;  This is a HOWTO written in DocBook (XML) that talks about using&#xA;  Bioperl, for biologists who would like to learn more&#xA;  about writing their own bioinformatics scripts using Bioperl. &#xA;       &#xA;  What is Bioperl? It is an open source bioinformatics toolkit&#xA;  used by researchers all over the world. If you're looking for&#xA;  a script built to fit your exact need it's likely &#xA;  you won't find it in Bioperl. What you will find is a&#xA;  diverse set of Perl modules that will enable you to write&#xA;  your own script, and a commmunity of people who are willing &#xA;  to help you.&#xA;"></meta></head><body><div xmlns="" id="customheader">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Beginners HOWTO</title><link rel="stylesheet" href="ede.css" type="text/css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.66.0"></meta><meta name="description" content="&#xA;  This is a HOWTO written in DocBook (XML) that talks about using&#xA;  Bioperl, for biologists who would like to learn more&#xA;  about writing their own bioinformatics scripts using Bioperl. &#xA;       &#xA;  What is Bioperl? &#xA;  It is an open source bioinformatics toolkit&#xA;  used by researchers all over the world. If you're looking for&#xA;  a script built to fit your exact need it's likely &#xA;  you won't find it in Bioperl. &#xA;  What you will find is a&#xA;  diverse set of Perl modules that will enable you to write&#xA;  your own script, and a commmunity of people who are willing &#xA;  to help you.&#xA;"></meta></head><body><div xmlns="" id="customheader">
 BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: bold;">BioPerl</a>)
 </div><div class="article" lang="en"><div class="titlepage"><div><div><h1 class="title"><a id="d4e1"></a>Beginners HOWTO</h1></div><div><div class="author"><h3 class="author"><span class="firstname">Brian</span> <span class="surname">Osborne</span></h3><div class="affiliation"><span class="orgname">
 			 <a href="http://www.cognia.com" target="_top"><i class="citetitle">Cognia
@@ -20,10 +20,12 @@ BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: b
 		  <a href="http://www.bioperl.org/" target="_top">Bioperl</a>, for biologists who would like to learn more
 		  about writing their own bioinformatics scripts using <a href="http://www.bioperl.org/" target="_top"><i class="citetitle">Bioperl</i></a>. 
       </p><p>
-		  What is <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>? It is an open source bioinformatics toolkit
+		  What is <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>? 
+		  It is an open source bioinformatics toolkit
 		  used by researchers all over the world. If you're looking for
 		  a script built to fit your exact need it's likely 
-		  you won't find it in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. What you will find is a
+		  you won't find it in <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. 
+		  What you will find is a
 		  diverse set of Perl modules that will enable you to write
 		  your own script, and a commmunity of people who are willing 
 		  to help you.
@@ -990,7 +992,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		the program and frequently a means of parsing the resulting 
 		output, or report, as well. Certainly the most popular 
 		analytical program is 
-<a href="http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall" target="_top"><i class="citetitle">BLAST</i></a>,
+<a href="http://www.ncbi.nlm.nih.gov/BLAST/" target="_top"><i class="citetitle">BLAST</i></a>,
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
 		and running. This example also assumes that you used the formatdb 
@@ -1048,7 +1050,7 @@ print $result_obj-&gt;num_hits;
 		data from a BLAST report:
 	 </p><p>
 		<pre class="programlisting">
-	 use Bio::SearchIO;
+    use Bio::SearchIO;
    
     $report_obj = new Bio::SearchIO(-format =&gt; 'blast', 
                                -file   =&gt; 'report.bls');

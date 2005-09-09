@@ -999,7 +999,7 @@ print $result_obj->num_hits;
    Here's an example of how one would use SearchIO to extract data from a
    BLAST report:
 
-         use Bio::SearchIO;
+    use Bio::SearchIO;
 
     $report_obj = new Bio::SearchIO(-format => 'blast',
                                -file   => 'report.bls');
@@ -1323,7 +1323,7 @@ References
   98. http://www.expasy.ch/
   99. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
  100. http://bioperl.org/
- 101. http://bioinformatics.ubc.ca/resources/tools/index.php?name=blastall
+ 101. http://www.ncbi.nlm.nih.gov/BLAST/
  102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
  103. http://bioperl.org/HOWTOs/html/SearchIO.html
  104. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html

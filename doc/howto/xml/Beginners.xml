@@ -72,10 +72,14 @@
 		  about writing their own bioinformatics scripts using <ulink url="http://www.bioperl.org/"><citetitle>Bioperl</citetitle></ulink>. 
       </para>
 		<para>
-		  What is <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>? It is an open source bioinformatics toolkit
+		  What is <ulink
+			 url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>? 
+		  It is an open source bioinformatics toolkit
 		  used by researchers all over the world. If you're looking for
 		  a script built to fit your exact need it's likely 
-		  you won't find it in <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. What you will find is a
+		  you won't find it in <ulink
+		  url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. 
+		  What you will find is a
 		  diverse set of Perl modules that will enable you to write
 		  your own script, and a commmunity of people who are willing 
 		  to help you.
@@ -1359,8 +1363,8 @@ ORIGIN      15 bp upstream from HhaI site.
 		<classname>namespace</classname> and <classname>authority</classname>.
 		The reason is that though these are good values in principle
 		there are no commonly agreed upon standard names - perhaps someday
-		the authors will be able to rewrite the code when we all agree 
-		what these values should be.
+		the authors will be able to rewrite the code when all our 
+		public databases agree what these values should be.
 		Finally, you may be wondering why the method names are what they
 		are and why particular fields or identifiers end up associated with
 		particular methods. Again, without having standard names for things
@@ -1600,7 +1604,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </para>
 	 <para>
 		As in the Genbank example there's information that the Sequence
-		object doesn't supply, and it's stored in Annotation objects. See the
+		object doesn't supply, and it's all stored in Annotation objects. See the
 	<ulink
 		  url="http://bioperl.org/HOWTOs/html/Feature-Annotation.html"><citetitle>Feature and Annotation HOWTO</citetitle></ulink> for more.
 	 </para>
