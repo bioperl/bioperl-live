@@ -18,7 +18,7 @@ BEGIN {
 	}
 
 	use Test;
-	$NUMTESTS = 56;
+	$NUMTESTS = 58;
 	plan tests => $NUMTESTS;
 }
 
@@ -272,6 +272,16 @@ if( eval "require IO::String; 1;" ) {
 	skip("skipping nexus tree parsing, IO::String not installed",1);
     }
 }
+
+# bug #1854
+# process no-newlined tree
+$treeio = Bio::TreeIO->new(-format => 'nexus',
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data tree_nonewline.nexus) ));
+
+$tree = $treeio->next_tree;
+ok($tree);
+ok($tree->find_node('TRXHomo'));
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
