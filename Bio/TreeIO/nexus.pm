@@ -136,47 +136,57 @@ sub _parse {
        $self->warn("File does not start with #NEXUS"); #'
 	   return;
    }
-   my $state = 0;
+
+   my $line;
    my %translate;
    while( defined ( $_ = $self->_readline ) ) {
-       next if ( /^\[/);
-       if( /^\[/ ) {
-	   $state = 1 if $state != 0;
-       } elsif( /^\]/ ) {
-	   $state = 0 if $state == 1;
-       } elsif( /^\s*Translate/i ) { 
-	   $state = 3;
-       } elsif( $state == 3 ) {
-	   if( /^\s+(\S+)\s+([^\s\,\;]+)\s*([\,\;])?\s*$/ ) {
-	       $translate{$1} = $2;
-	       $state = 1 if( defined $3 && $3 eq ';' );
-	   } elsif( /^\s+;/) {
-	       $state = 1;
-	   }
-       } elsif( /^\s*tree\s+(\S+)\s+\=\s+(?:\[\S+\])?\s*([^\;]+;)\s*$/ ) {
-	   my ($tree_name,$tree_str) = ($1,$2);
-
-	   # MrBayes does not print colons for node label
-	   # $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
-	   my $buf = new IO::String($tree_str);	   
-	   my $treeio = new Bio::TreeIO(-format => 'newick',
-					-fh     => $buf);
-	   my $tree = $treeio->next_tree;
-	   foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
-	       my $id = $node->id;
-	       my $lookup = $translate{$id};
-	       $node->id($lookup || $id);
-	   }
-	   $tree->id($tree_name) if defined $tree_name;
-	   push @{$self->{'_trees'}},$tree;
-       } elsif( /^\s*Begin(\s+trees)?;/io ) {
-	   $state = 1;
-       } elsif( /^\s*End(\s+trees)?;/io ) {
-	   $state = 0;
-	   return;
-       } else { 
-	   $self->debug("$state, $_");
+     $line .= $_;     
+   }
+   $line =~ s/\n/ /g;   
+   my @sections = split(/#NEXUS/i, $line);
+   for my $s ( @sections ) {
+     if( $self->verbose > 0 ) {
+       while( $s =~ s/(\[[^\]]+\])// ) {
+	 $self->debug("removing comment $1\n");
        }
+     } else {
+       $s =~ s/(\[[^\]]+\])//g;
+     }
+     if( $s =~ /begin trees;(.+)(end;)?/i ) {
+       my $trees = $1;
+       if( $trees =~ s/\s+translate\s+([^;]+);//i )  {
+	 my $trans = $1;
+	 for my $n ( split(/\s*,\s*/,$trans) ) {
+	   my ($id,$tag) = split(/\s+/,$n);
+	   $translate{$id} = $tag;
+	 }
+       } else {
+	 $self->debug("no translate in: $trees\n");
+       }
+       while( $trees =~ /\s+tree\s+(\S+)\s*\=
+			 \s*(?:\[\S+\])?\s*([^\;]+;)\s*/igx) {
+	 my ($tree_name,$tree_str) = ($1,$2);
+	 
+	 # MrBayes does not print colons for node label
+	 # $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
+	 my $buf = new IO::String($tree_str);	   
+	 my $treeio = new Bio::TreeIO(-format => 'newick',
+				      -fh     => $buf);
+	 my $tree = $treeio->next_tree;
+	 foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
+	   my $id = $node->id;
+	   my $lookup = $translate{$id};
+	   $node->id($lookup || $id);
+	 }
+	 $tree->id($tree_name) if defined $tree_name;
+	 push @{$self->{'_trees'}},$tree;
+       }       
+     } else {
+       $self->debug("begin_trees failed: $s\n");
+     }
+   }
+   if( ! @sections ) {     
+     $self->debug("warn no sections: $line\n");
    }
 }
 
