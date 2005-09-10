@@ -445,7 +445,7 @@ sub pairwise_alignment {
 					 -start => $aln->start2,
 					 -end => $aln->end2,
 					 -id => $seq2->id));
-
+    $out->score($aln->score);
     return $out;
 }
 
