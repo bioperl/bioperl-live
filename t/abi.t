@@ -28,6 +28,12 @@ BEGIN {
 	plan tests => $NUMTESTS;
 }
 
+END { 
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip('Unable to run all of the abi tests',1);
+   }
+}
+
 exit(0) if ( $error == 1 );
 
 use Bio::SeqIO::abi;

@@ -22,9 +22,9 @@ ok(1);
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $ast = Bio::SeqIO->new( -format => 'embl',
-									-verbose => $verbose,
-									-file => Bio::Root::IO->catfile
-									("t","data","roa1.dat"));
+			   -verbose => $verbose,
+			   -file => Bio::Root::IO->catfile
+			   ("t","data","roa1.dat"));
 $ast->verbose($verbose);
 my $as = $ast->next_seq();
 ok defined $as->seq;
