@@ -22,7 +22,7 @@ BEGIN {
 	};
 	if ( $@ ) {
 		$error = 1;
-		warn "Bio::SeqIO::staden::read is not installed correctly or is installed incorrectly - skipping abi.t tests\n";
+		warn "Bio::SeqIO::staden::read is not installed or is installed incorrectly - skipping abi.t tests\n";
    }
 	use Test;
 	plan tests => $NUMTESTS;
