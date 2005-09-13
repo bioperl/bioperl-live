@@ -78,9 +78,8 @@ sub _label {
   # allow caller to specify the label
   my $label = $self->option('label');
   return unless defined $label;
-  return $label unless $label eq '1';
   return "1"    if $label eq '1 '; # 1 with a space
-
+  return $label unless $label eq '1';
 
   # figure it out ourselves
   my $f = $self->feature;
@@ -96,8 +95,8 @@ sub _description {
   # allow caller to specify the long label
   my $label = $self->option('description');
   return unless defined $label;
-  return $label unless $label eq '1';
   return "1"   if $label eq '1 ';
+  return $label unless $label eq '1';
 
   return $self->{_description} if exists $self->{_description};
   return $self->{_description} = $self->get_description($self->feature);
@@ -226,8 +225,8 @@ sub part_label {
   local $self->{partno} = $self->feature->strand < 0 ? $total - $part -1 : $part;
   my $label = $self->option('part_labels');
   return unless defined $label;
-  return $label unless $label eq '1';
   return "1"   if $label eq '1 ';
+  return $label unless $label eq '1';
   return $self->{partno}+1;
 }
 
