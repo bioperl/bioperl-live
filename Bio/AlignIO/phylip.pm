@@ -420,7 +420,7 @@ sub flag_SI{
 =head2 idlength
 
  Title   : idlength
- Usage   : my $idlength = $obj->interleaved
+ Usage   : my $idlength = $obj->idlength
  Function: Get/Set value of id length 
  Returns : string 
  Args    : string 
