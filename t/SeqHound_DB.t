@@ -25,10 +25,11 @@ BEGIN {
 
     $NUMTESTS = 15;
     plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm' };
+    eval { require 'IO/String.pm';
+	 require 'LWP/UserAgent.pm'};
     if( $@ ) {
 	for( $Test::ntest..$NUMTESTS ) {
-	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+	    skip("IO::String or LWP::UserAgent not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
 	}
        $error = 1; 
     }
