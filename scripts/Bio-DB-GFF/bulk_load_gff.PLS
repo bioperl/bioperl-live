@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.32 2005-08-30 16:42:42 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.33 2005-09-14 17:00:42 jason Exp $
 
 
 use strict;
@@ -361,6 +361,7 @@ my %ATTRIBUTEID = ();
 my %DONE        = ();
 my $FEATURES    = 0;
 
+my %tmpfiles; # keep track of temporary fasta files
 my $count;
 my $fasta_sequence_id;
 my $gff3;
@@ -421,6 +422,7 @@ while (<>) {
     $FH{FASTA}->print("$_\n");
     print STDERR "Preparing embedded sequence $1\n";
     push @fasta, "$tmpdir/$1\.fa";
+    $tmpfiles{"$tmpdir/$1\.fa"}++;
     next;
   }
 
@@ -527,7 +529,7 @@ for my $file (@fasta) {
   }
   warn "done...\n";
   select $old;
-  unlink $file;
+  unlink $file if $tmpfiles{$file};
 }
 
 if ($use_pg) { 
