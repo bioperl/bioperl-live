@@ -11,6 +11,8 @@ Bio::SeqIO::entrezgene - Entrez Gene ASN1 parser
 
 =head1 SYNOPSIS
 
+   use Bio::SeqIO;
+
    # don't instantiate directly - instead do
    my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
                                -file => $file);
@@ -19,8 +21,8 @@ Bio::SeqIO::entrezgene - Entrez Gene ASN1 parser
 =head1 DESCRIPTION
 
 This is EntrezGene ASN bioperl parser. It is built on top of 
-GI::Parser::Entrezgene, a low level ASN parser built by Mingyi Liu 
-(sourceforge.net/projetcs/egparser). The easiest way to use it is 
+Bio::ASN1::EntrezGene, a low level ASN parser built by Mingyi Liu 
+(sourceforge.net/projects/egparser). The easiest way to use it is 
 shown above.
 
 You will get most of the EntrezGene annotation such as gene symbol, 
@@ -32,12 +34,12 @@ If you need all the data do:
 
    my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
                                -file => $file,
-                               -debug => 'on');
+                               -debug => 'on' );
    my ($gene,$genestructure,$uncaptured) = $seqio->next_seq;
 
 The $genestructure is a Bio::Cluster::SequenceFamily object. It 
-contains all refseqs and the genomic contigs that are associated with 
-the paricular gene. You can also modify the output $seq to allow back 
+contains all Refseqs and the genomic contigs that are associated with 
+the particular gene. You can also modify the output to allow back 
 compatibility with old LocusLink parser:
 
    my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
@@ -61,9 +63,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Stefan Kirov
@@ -78,7 +79,7 @@ Hilmar Lapp, hlapp at gmx.net
 
 =head1 APPENDIX
 
-This parser is based on GI::Parser::EntrezGene module
+This parser is based on Bio::ASN1::EntrezGene module.
 
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
