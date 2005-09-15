@@ -930,6 +930,7 @@ sub cleanup_generic {
     $self->{'_gsf_seq'} = undef;
     foreach my $t ( keys %{$self->{'_gsf_tag_hash'} || {}} ) {
 	$self->{'_gsf_tag_hash'}->{$t} = undef;
+	delete($self->{'_gsf_tag_hash'}->{$t}); # bug 1720 fix
     }
 }
 
