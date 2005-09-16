@@ -70,24 +70,19 @@ sub draw {
   $y_origin    = $top if $max_score < 0;
 
   my $clip_ok = $self->option('clip');
+  $self->{_clip_ok}   = $clip_ok;
+  $self->{_scale}     = $scale;
+  $self->{_min_score} = $min_score;
+  $self->{_max_score} = $max_score;
+  $self->{_top}       = $top;
+  $self->{_bottom}    = $bottom;
 
   # now seed all the parts with the information they need to draw their positions
   foreach (@parts) {
     my $s = eval {$_->feature->score};
     next unless defined $s;
-    if ($clip_ok && $s < $min_score) {
-      $_->{_y_position} = $bottom;
-      next;
-    }
-    if ($clip_ok && $s > $max_score) {
-      $_->{_y_position} = $top;
-      next;
-    }
-    my $position      = ($s-$min_score) * $scale;
-    $_->{_y_position} = $bottom - $position;
+    $_->{_y_position}   = $self->score2position($s);
   }
-
-  $self->{_scale} = $scale;
 
   my $type        = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
   my $draw_method = $self->lookup_draw_method($type);
@@ -107,6 +102,26 @@ sub lookup_draw_method {
   return '_draw_boxes'                if $type eq 'boxes';
   return '_draw_line'                 if $type eq 'line'   or $type eq 'linepoints';
   return '_draw_points'               if $type eq 'points' or $type eq 'linepoints';
+}
+
+sub score2position {
+  my $self  = shift;
+  my $score = shift;
+
+  return unless defined $score;
+
+  if ($self->{_clip_ok} && $score < $self->{_min_score}) {
+    return $self->{_bottom};
+  }
+
+  elsif ($self->{_clip_ok} && $score > $self->{_max_score}) {
+    return $self->{_top};
+  }
+
+  else {
+    my $position      = ($score-$self->{_min_score}) * $self->{_scale};
+    return $self->{_bottom} - $position;
+  }
 }
 
 sub log10 { log(shift)/log(10) }
@@ -295,12 +310,15 @@ sub _draw_scale {
   my @points = ([$y1,$max],[($y1+$y2)/2,($min+$max)/2],[$y2,$min]);
   push @points,[$y_origin,0] if ($min < 0 && $max > 0);
 
+  my $last_font_pos = -99999999999;
+
   for (@points) {
     $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
 
     my $font_pos = $_->[0]-($font->height/2);
 
+    next unless $font_pos > $last_font_pos + $font->height; # prevent labels from clashing
     if ($side eq 'left' or $side eq 'both') {
       $gd->string($font,
 		  $x1 - $font->width * length($_->[1]) - 3,$font_pos,
@@ -313,6 +331,7 @@ sub _draw_scale {
 		  $_->[1],
 		  $fg);
     }
+    $last_font_pos = $font_pos;
   }
 }
 
@@ -438,15 +457,25 @@ of events would look like this:
   my $segment  = $db->segment('Chr1');
   my @features = $segment->features('repeat_density');
 
-  my $panel = Bio::Graphics::Panel->new;
+  my $panel = Bio::Graphics::Panel->new(-pad_left=>40,-pad_right=>40);
   $panel->add_track(\@features,
-                    -glyph => 'xyplot');
+                    -glyph => 'xyplot',
+  		    -graph_type=>'points',
+		    -point_symbol=>'disc',
+		    -point_radius=>4,
+		    -scale=>'both',
+		    -height=>200,
+  );
 
 If you are using Generic Genome Browser, you will add this to the
 configuration file:
 
   aggregators = repeat_density{density:repeat}
                 clone alignment etc
+
+Note that it is a good idea to add some padding to the left and right
+of the panel; otherwise the scale will be partially cut off by the
+edge of the image.
 
 =head2 OPTIONS
 
@@ -591,7 +620,10 @@ you could draw a simple scatter plot with this code:
     $gd->setPixel($x,$y,$bgcolor);
  }
 
+=item $y_position = $self->score2position($score)
 
+Translate a score into a y pixel position, obeying clipping rules and
+min and max values.
 
 =back
 

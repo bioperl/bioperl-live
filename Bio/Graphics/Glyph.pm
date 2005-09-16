@@ -912,10 +912,10 @@ sub filled_box {
 
   $bg ||= $self->bgcolor;
   $fg ||= $self->fgcolor;
+
   my $linewidth = $self->option('linewidth') || 1;
 
   $gd->filledRectangle($x1,$y1,$x2,$y2,$bg);
-
   $fg = $self->set_pen($linewidth,$fg) if $linewidth > 1;
 
   # draw a box
@@ -1690,6 +1690,7 @@ L<Bio::Graphics::Glyph::transcript>,
 L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::wormbase_transcript>
 L<Bio::Graphics::Glyph::xyplot>
+L<Bio::Graphics::Glyph::whiskerplot>
 
 =head1 AUTHOR
 

@@ -148,6 +148,7 @@ use vars '@ISA';
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
 *method      = \&type;
 *source      = \&source_tag;
+*get_tag_values = \&each_tag_value;
 
 # implement Bio::SeqI and FeatureHolderI interface
 

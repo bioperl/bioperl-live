@@ -507,6 +507,8 @@ sub parse_line {
 	  $url = $_ 
 	} elsif ($key=~/note/i) { 
 	  push @notes,$value;
+	} else {
+	  push @notes,"$key=$value";
 	}
       }
       $description = join '; ',@notes if @notes;
@@ -565,7 +567,7 @@ sub parse_line {
   }
 
   # attribute handling
-  if (defined $description && $description =~ /\w+=\w+/) { # attribute line
+  if (defined $description && $description =~ /\w+=\S+/) { # attribute line
     my @attributes = split /;\s*/,$description;
     foreach (@attributes) {
       my ($name,$value) = split /=/,$_,2;
@@ -1274,7 +1276,8 @@ sub new_panel {
   my $new_segment = Bio::Graphics::Feature->new(-start=>$start,-stop=>$stop);
   my $panel = Bio::Graphics::Panel->new(-segment   => $new_segment,
 					-width     => $width,
-					-key_style => 'between');
+					-key_style => 'between',
+					$self->style('general'));
   $panel;
 }
 

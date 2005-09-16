@@ -18,7 +18,7 @@ use constant EXTRA_RIGHT_PADDING => 30;
 my %COLORS;  # translation table for symbolic color names to RGB triple
 my $IMAGEMAP = 'bgmap00001';
 
-sub api_version { 1.634 }
+sub api_version { 1.635 }
 
 # Create a new panel of a given width and height, and add lists of features
 # one by one
@@ -1712,6 +1712,8 @@ Currently, the following glyphs are available:
 
   xyplot      Histograms and other graphs plotted against the genome.
 
+  whiskerplot Box and whisker plot for statistical data
+
 If the glyph name is omitted from add_track(), the "generic" glyph
 will be used by default.  To get more information about a glyph, run
 perldoc on "Bio::Graphics::Glyph::glyphname", replacing "glyphname"
@@ -2555,6 +2557,7 @@ L<Bio::Graphics::Glyph::transcript2>,
 L<Bio::Graphics::Glyph::translation>,
 L<Bio::Graphics::Glyph::triangle>,
 L<Bio::Graphics::Glyph::xyplot>,
+L<Bio::Graphics::Glyph::whiskerplot>,
 L<Bio::SeqI>,
 L<Bio::SeqFeatureI>,
 L<Bio::Das>,
