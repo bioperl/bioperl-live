@@ -19,8 +19,9 @@ BEGIN {
     plan tests => 16;
 }
 
-END {
-}
+# END {
+# }
+
 require 'dumpvar.pl';
 
 use Bio::Map::LinkagePosition;
