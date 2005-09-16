@@ -466,6 +466,8 @@ o DEPENDENCIES AND Bundle::BioPerl
 
  XML::Twig        	     Parsing of XML documents
 			                 Bio::Variation::IO::xml
+                          Bio/DB/Biblio/eutils
+                          Bio/Graph/IO/psi_xml
 
  File::Temp               Temporary File creation
 			                 Bio::DB::FileCache
@@ -484,7 +486,7 @@ o DEPENDENCIES AND Bundle::BioPerl
 			                 bioperl-db external package
 			                 bioperl-pipeline external package
 
- Mysql DB free from www.mysql.org
+ Requires Mysql from www.mysql.org
 
  GD			              GD graphical drawing library
 			                 Bio::Graphics
