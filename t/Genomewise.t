@@ -16,9 +16,9 @@ BEGIN {
 use Bio::Tools::Genomewise;
 
 END {
-    for ( $Test::ntest..$NTESTS ) {
-        skip("Genewise program not found. Skipping. (Be sure you have the wise package )",1);
-    }
+	for ( $Test::ntest..$NTESTS ) {
+		skip("Cannot complete genomewise tests, skipping.",1);
+	}
 }
 
 
