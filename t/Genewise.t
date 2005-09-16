@@ -19,11 +19,10 @@ use Bio::SearchIO;
 use Bio::Root::IO;
 
 END {
-    for ( $Test::ntest..$NTESTS ) {
-        skip("Genewise program not found. Skipping. (Be sure you have the wise package )",1);
-    }
+	for ( $Test::ntest..$NTESTS ) {
+		skip("Cannot run remaining Genewise tests, skipping.",1);
+	}
 }
-
 
 my $inputfilename= Bio::Root::IO->catfile("t","data","genewise.out");
 my $parser = Bio::Tools::Genewise->new(-file => $inputfilename);
