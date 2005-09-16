@@ -33,9 +33,9 @@ BEGIN {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip("Missing dependencies. Skipping tests",1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip("Cannot complete Index.t tests, skipping",1);
+	}
 }
 
 exit(0) if $exit;
