@@ -4,6 +4,7 @@
 # $Id: HNN.t,v 1.1 2003/07/23 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
+
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
@@ -24,8 +25,8 @@ BEGIN {
     eval {
 	require IO::String; 
 	require LWP::UserAgent;
-	
-    }; 
+
+    };
     if( $@ ) {
         warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
 	$ERROR = 1;
@@ -41,9 +42,9 @@ BEGIN {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('unable to complete all of the HNN.t tests',1);
+	}
 }
 
 exit 0 if $ERROR ==  1;
