@@ -11,30 +11,30 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
-    $ERROR = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
+	eval { require Test; };
+	$ERROR = 0;
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
 
-    $NUMTESTS = 8;
-    plan tests => $NUMTESTS;
+	$NUMTESTS = 8;
+	plan tests => $NUMTESTS;
 
-    eval {
-	require IO::String; 
-	require LWP::UserAgent;
-    }; 
-    if( $@ ) {
-        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
-	$ERROR = 1;
-    }
+	eval {
+		require IO::String; 
+		require LWP::UserAgent;
+	};
+	if( $@ ) {
+		warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
+		$ERROR = 1;
+	}
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('unable to complete MitoProt tests, skipping',1);
+	}
 }
 
 exit 0 if $ERROR ==  1;
