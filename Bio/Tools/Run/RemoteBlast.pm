@@ -538,50 +538,71 @@ sub submit_blast {
 =cut
 
 sub retrieve_blast {
-	my($self, $rid) = @_;
-	my ($fh,$tempfile) = $self->tempfile();
-	close $fh; #explicit close
-	my %hdr = %RETRIEVALHEADER;
-	$hdr{'RID'} = $rid;
-	my $req = POST $URLBASE, [%hdr];
-	if( $self->verbose > 0 ) {
-		$self->warn("retrieve request is " . $req->as_string());
-	}
-	my $response = $self->ua->request($req, $tempfile);
-	if( $response->is_success ) {
+    my($self, $rid) = @_;
+    my ($fh,$tempfile) = $self->tempfile();
+    close $fh;			#explicit close
+    my %hdr = %RETRIEVALHEADER;
+    $hdr{'RID'} = $rid;
+    my $req = POST $URLBASE, [%hdr];
+    if( $self->verbose > 0 ) {
+	$self->warn("retrieve request is " . $req->as_string());
+    }
+    my $response = $self->ua->request($req, $tempfile);
+    if( $response->is_success ) {
     	if( $self->verbose > 0 ) {
-			#print content of reply if verbose > 1
-			open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-			while(<TMP>) { print $_; }
-			close TMP;
-		}
-		## if proper reply 
-		my $size = -s $tempfile;
-		if( $size > 1000 ) {
-	    	my $blastobj;
-			if( $self->readmethod =~ /BPlite/ ) {
-				$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
-	    	} else {
-				$blastobj = new Bio::SearchIO( -file => $tempfile,
-														 -format => 'blast');
-			}
-
-			## store filename in object ##
-			$self->file($tempfile);
-	    	return $blastobj;
-		} elsif( $size < 500 ) { # search had a problem
-			open(ERR, "<$tempfile")
-			  or $self->throw("cannot open file $tempfile");
+	    #print content of reply if verbose > 1
+	    open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
+	    while(<TMP>) { print $_; }
+	    close TMP;
+	}
+	## if proper reply 
+	open(TMP, $tempfile) || $self->throw("Error opening $tempfile");
+	my $waiting = 1;
+	my $s = 0;
+	while(<TMP>) {
+	    if( /QBlastInfoBegin/i ) {
+		$s = 1;
+	    } elsif( $s ) {
+		if( /Status=(WAITING|ERROR|READY)/i ) {
+		    if( $1 eq 'WAITING' ) {
+			$waiting = 1;
+		    } elsif( $1 eq 'ERROR' ) {
+			close(TMP);
+			open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
 			$self->warn(join("", <ERR>));
 			close ERR;
-	    	return -1;
-		} else { # still working
-	    	return 0;
+			return -1;
+		    } elsif( $1 eq 'READY' ) {
+			$waiting = 0;
+			last;
+		    } else {
+			$self->warn("Unknown status $1:\n");
+			last;
+		    }
 		}
-	} else {
-		$self->warn($response->error_as_HTML);
-		return -1;
+	    }
 	}
+	close(TMP);
+	if( ! $waiting ) {
+	    my $blastobj;
+	    if( $self->readmethod =~ /BPlite/ ) {
+		$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
+	    } else {
+		$blastobj = new Bio::SearchIO( -file => $tempfile,
+					       -format => 'blast');
+	    }
+	    
+	    ## store filename in object ##
+	    $self->file($tempfile);
+	    return $blastobj;
+	} else {		# still working
+	    return 0;
+	}
+	
+    } else {
+	$self->warn($response->error_as_HTML);
+	return -1;
+    }
 }
 
 =head2 save_output
