@@ -660,5 +660,24 @@ sub node_cleanup {
     $self->{'_desc'} = {};
 }
 
+=head2 reverse_edge
+
+ Title   : reverse_edge
+ Usage   : $node->reverse_edge(child);
+ Function: makes child be a parent of node
+ Requires: child must be a direct descendent of node
+ Returns : 1 on success, 0 on failure
+ Args    : Bio::Tree::NodeI that is in the tree
+
+=cut
+
+sub reverse_edge {
+    my ($self,$node) = @_;
+    if( $self->delete_edge($node) ) {
+      $node->add_Descendent($self);
+      return 1;
+    } 
+    return 0;
+}
 
 1;

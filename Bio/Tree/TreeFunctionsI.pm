@@ -162,10 +162,11 @@ sub remove_Node {
    } else { 
        $node = $input;
    }
-   if( ! $node->ancestor && $self->get_root_node->internal_id != $node->internal_id) {
-       $self->warn("Node (".$node->to_string . ") has no ancestor, can't remove!");
+   if( ! $node->ancestor && 
+       $self->get_root_node->internal_id != $node->internal_id) {
+     $self->warn("Node (".$node->to_string . ") has no ancestor, can't remove!");
    } else { 
-       $node->ancestor->remove_Descendent($node);
+     $node->ancestor->remove_Descendent($node);
    }
 }
 
@@ -510,56 +511,6 @@ sub reroot {
     $self->set_root_node($new_root);
 
     return 1;
-}
-
-=head2 reverse_edge
-
- Title   : reverse_edge
- Usage   : $node->reverse_edge(child);
- Function: makes child be a parent of node
- Requires: child must be a direct descendent of node
- Returns : nothing
- Args    : Bio::Tree::NodeI that is in the tree
-
-=cut
-
-sub reverse_edge {
-    my ($self,$node) = @_;
-    delete_edge($self, $node);
-    $node->add_Descendent($self);
-    1;
-}
-
-=head2 delete_edge
-
- Title   : delete_edge
- Usage   : $node->reverse_edge(child); 
- Function: makes child be a parent of node
- Requires: child must be a direct descendent of node
- Returns : nothing
- Args    : Bio::Tree::NodeI that is in the tree
-
-=cut
-
-sub delete_edge {
-    my ($self,$node) = @_;
-    unless (defined $self && $self->isa("Bio::Tree::NodeI")) {
-        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
-        return 1;
-    }
-    unless (defined $node && $node->isa("Bio::Tree::NodeI")) {
-        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
-        return 1;
-    }
-    if( $self->{'_desc'}->{$node->internal_id} ) {
-        $node->ancestor(undef);
-        $self->{'_desc'}->{$node->internal_id}->ancestor(undef);
-        delete $self->{'_desc'}->{$node->internal_id};
-    } else {
-        $self->warn("First argument must be direct parent of node");
-        return 1;
-    }
-    1;
 }
 
 =head2 findnode_by_id
