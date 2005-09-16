@@ -19,8 +19,9 @@ BEGIN {
     plan tests => 6;
 }
 
-END {
-}
+#END {
+#}
+
 require 'dumpvar.pl';
 use Bio::Map::SimpleMap;
 use Bio::Map::Position;
