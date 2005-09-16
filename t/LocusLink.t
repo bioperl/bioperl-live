@@ -6,27 +6,27 @@ use vars qw($DEBUG $NUMTESTS $HAVEGRAPHDIRECTED);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    eval {
-	require Graph::Directed; 
-	$HAVEGRAPHDIRECTED=1;
-    };
-    if ($@) {
-	$HAVEGRAPHDIRECTED = 0;
-    }
-
-    plan tests => ($NUMTESTS = 23);
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	eval {
+		require Graph::Directed; 
+		$HAVEGRAPHDIRECTED=1;
+	};
+	if ($@) {
+		$HAVEGRAPHDIRECTED = 0;
+		warn "Graph::Directed not installed, skipping tests\n";
+	}
+	plan tests => ($NUMTESTS = 23);
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests as Graph::Directed is not installed',1);
-    }
-    unlink("locuslink-test.out.embl");
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot complete LocusLink tests, skipping',1);
+	}
+	unlink("locuslink-test.out.embl") if -e "locuslink-test.out.embl";
 }
 
 exit(0) unless $HAVEGRAPHDIRECTED;
