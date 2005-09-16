@@ -2603,8 +2603,8 @@ or profile_align() to add one or more sequences or a second alignment
 to an initial alignment.  Input to align() consists of a set of
 unaligned sequences in the form of the name of file containing the
 sequences or a reference to an array of Seq objects. Typical
-syntax is shown below. (We illustrate with Clustalw.pm, but the same
-syntax - except for the module name - would work for TCoffee.pm)
+syntax is shown below. We illustrate with Clustalw.pm, but the same
+syntax - except for the module name - would work for TCoffee.pm.
 
   use Bio::Tools::Run::Alignment::Clustalw;
   @params = ('ktuple' => 2, 'matrix' => 'BLOSUM');
