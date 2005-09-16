@@ -11,8 +11,8 @@ BEGIN {
     }
     use Test;
     $error = 0;
-    $NUMTESTS = 6; 
-    plan tests => 6;
+    $NUMTESTS = 13; 
+    plan tests => $NUMTESTS;
     eval { require IO::String;
 	   require LWP;
 	   require LWP::UserAgent;
@@ -45,18 +45,21 @@ require Bio::SeqIO;
 require Bio::AlignIO;
 require Bio::Seq;
 require Bio::Root::IO;
+use Env;
 
 ok(1);
 
 my $prog = 'blastp';
-my $db   = 'ecoli';
+my $db   = 'swissprot';
 my $e_val= '1e-10';
-my $v = 0;
+my $v = $BIOPERLDEBUG > 1;
 my  $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
 						      '-prog' => $prog,
 						      '-data' => $db,
 						      '-expect' => $e_val,
 						      );
+$remote_blast->submit_parameter('ENTREZ_QUERY', 
+				'Escherichia coli[ORGN]');
 my $inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
 ok( -e $inputfilename);
 
@@ -84,7 +87,7 @@ if( $actually_submit == 0 ) {
 		ok(1);
 		$remote_blast->remove_rid($rid);
 		my $result = $rc->next_result;
-		ok($result->database_name, qr/(ecoli|E\. coli)/);
+		ok($result->database_name, qr/swissprot/i);
 		my $count = 0;
 		while( my $hit = $result->next_hit ) {		
 		    $count++;
@@ -100,3 +103,111 @@ if( $actually_submit == 0 ) {
     }
 }
 
+# test blasttable
+
+my $remote_blast2 = Bio::Tools::Run::RemoteBlast->new
+    ('-verbose'    => $v,
+     '-prog'       => $prog,
+     '-data'       => $db,
+     '-readmethod' => 'blasttable',
+     '-expect'     => $e_val,     
+     );
+$remote_blast2->submit_parameter('ENTREZ_QUERY', 
+				'Escherichia coli[ORGN]');
+
+$remote_blast2->retrieve_parameter('ALIGNMENT_VIEW', 'Tabular');
+
+$inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
+
+if( $actually_submit == 0 ) {
+    print STDERR "Skipping submitting remote BLAST to avoid Time-out\n" if( $DEBUG );
+    foreach( $Test::ntest..$NUMTESTS) { 
+       skip('Skip to avoid timeout',1);
+    }
+} else {
+
+    my $r = $remote_blast2->submit_blast($inputfilename);
+    ok($r);
+    print STDERR "waiting..." if( $v > 0 );
+    while ( my @rids = $remote_blast2->each_rid ) {
+	foreach my $rid ( @rids ) {
+	    my $rc = $remote_blast2->retrieve_blast($rid);
+	    if( !ref($rc) ) {
+		if( $rc < 0 ) { 		
+		    $remote_blast2->remove_rid($rid);
+		    ok(0);
+		}
+		print STDERR "." if ( $v > 0 );
+		sleep 5;
+	    } else { 
+		ok(1);
+		$remote_blast2->remove_rid($rid);
+		my $result = $rc->next_result;
+		my $count = 0;
+		while( my $hit = $result->next_hit ) {		
+		    $count++;
+		    next unless ( $v > 0);
+		    print "sbjct name is ", $hit->name, "\n";
+		    while( my $hsp = $hit->next_hsp ) {
+			print "score is ", $hsp->score, "\n";
+		    } 
+		}
+		ok($count, 3);
+	    }
+	}
+    }
+}
+
+
+my $remote_blastxml = Bio::Tools::Run::RemoteBlast->new
+    ('-verbose'    => $v,
+     '-prog'       => $prog,
+     '-data'       => $db,
+     '-readmethod' => 'xml',
+     '-expect'     => $e_val,
+     );
+$remote_blast->submit_parameter('ENTREZ_QUERY', 
+				'Escherichia coli[ORGN]');
+
+$remote_blastxml->retrieve_parameter('FORMAT_TYPE', 'XML');
+$inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
+
+if( $actually_submit == 0 ) {
+    print STDERR "Skipping submitting remote BLAST to avoid Time-out\n" if( $DEBUG );
+    foreach( $Test::ntest..$NUMTESTS) { 
+       skip('Skip to avoid timeout',1);
+    }
+} else {
+
+    my $r = $remote_blastxml->submit_blast($inputfilename);
+    ok($r);
+    print STDERR "waiting..." if( $v > 0 );
+    while ( my @rids = $remote_blastxml->each_rid ) {
+	foreach my $rid ( @rids ) {
+	    my $rc = $remote_blastxml->retrieve_blast($rid);
+	    if( !ref($rc) ) {
+		if( $rc < 0 ) { 		
+		    $remote_blastxml->remove_rid($rid);
+		    ok(0);
+		}
+		print STDERR "." if ( $v > 0 );
+		sleep 5;
+	    } else { 
+		ok(1);
+		$remote_blastxml->remove_rid($rid);
+		my $result = $rc->next_result;
+		ok($result->database_name, qr/swissprot/i);
+		my $count = 0;
+		while( my $hit = $result->next_hit ) {		
+		    $count++;
+		    next unless ( $v > 0);
+		    print "sbjct name is ", $hit->name, "\n";
+		    while( my $hsp = $hit->next_hsp ) {
+			print "score is ", $hsp->score, "\n";
+		    } 
+		}
+		ok($count, 3);
+	    }
+	}
+    }
+}
