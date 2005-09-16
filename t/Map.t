@@ -19,8 +19,8 @@ BEGIN {
     plan tests => 48;
 }
 
-END {
-}
+#END {
+#}
 
 #
 # Let's test first the map class : Bio::Map::SimpleMap

@@ -19,8 +19,8 @@ BEGIN {
     plan tests => 68;
 }
 
-END {
-}
+#END {
+#}
 
 use Bio::Matrix::Generic;
 use Bio::Matrix::IO;
