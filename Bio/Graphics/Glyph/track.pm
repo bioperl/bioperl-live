@@ -24,10 +24,10 @@ sub draw {
     # glyphs are allowed a slop area of ~3 on either side and 6 on the top and bottom
     # in order to spill out over their boundaries.  Beyond this they start overlapping
     # with other glyphs in an ugly way.
-    my @cliprect = ($left-3,
-	      $top-6,
-	      $self->panel->right+$self->panel->extra_right_padding+3,
-	      $top+$self->layout_height+6);
+    my @cliprect = ($left-$self->panel->pad_left,
+		    $top-6,
+		    $self->panel->right+$self->panel->pad_right,
+		    $top+$self->layout_height+6);
     $gd->clip(@cliprect);
   }
 

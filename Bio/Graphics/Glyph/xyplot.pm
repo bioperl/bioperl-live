@@ -87,18 +87,26 @@ sub draw {
     $_->{_y_position} = $bottom - $position;
   }
 
-  my $type = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
-  $self->_draw_histogram($gd,$x,$y)            if $type eq 'histogram';
-  $self->_draw_boxes($gd,$x,$y,$y_origin)      if $type eq 'boxes';
-  $self->_draw_line ($gd,$x,$y)                if $type eq 'line' or $type eq 'linepoints';
-  $self->_draw_points($gd,$x,$y)               if $type eq 'points' or $type eq 'linepoints';
+  $self->{_scale} = $scale;
 
+  my $type        = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
+  my $draw_method = $self->lookup_draw_method($type);
+  $self->$draw_method($gd,$x,$y,$y_origin);
 
   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy,$y_origin);
-
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
 
+}
+
+sub lookup_draw_method {
+  my $self = shift;
+  my $type = shift;
+
+  return '_draw_histogram'            if $type eq 'histogram';
+  return '_draw_boxes'                if $type eq 'boxes';
+  return '_draw_line'                 if $type eq 'line'   or $type eq 'linepoints';
+  return '_draw_points'               if $type eq 'points' or $type eq 'linepoints';
 }
 
 sub log10 { log(shift)/log(10) }
@@ -284,7 +292,7 @@ sub _draw_scale {
 
   $gd->line($x1,$y_origin,$x2,$y_origin,$fg);
 
-  my @points = ([$y1,$max],[$y2,$min]);
+  my @points = ([$y1,$max],[($y1+$y2)/2,($min+$max)/2],[$y2,$min]);
   push @points,[$y_origin,0] if ($min < 0 && $max > 0);
 
   for (@points) {
@@ -294,7 +302,7 @@ sub _draw_scale {
     my $font_pos = $_->[0]-($font->height/2);
 
     if ($side eq 'left' or $side eq 'both') {
-     $gd->string($font,
+      $gd->string($font,
 		  $x1 - $font->width * length($_->[1]) - 3,$font_pos,
 		  $_->[1],
 		  $fg);
@@ -533,6 +541,59 @@ affected by this.  Here's a simple example:
                                    return 'blue'      if $score >= 500;
                                   }
                       );
+
+=head2 METHODS
+
+For those developers wishing to derive new modules based on this
+glyph, the main method to override is:
+
+=over 4
+
+=item 'method_name' = $glyph->lookup_draw_method($type)
+
+This method accepts the name of a graph type (such as 'histogram') and
+returns the name of a method that will be called to draw the contents
+of the graph, for example '_draw_histogram'. This method will be
+called with three arguments:
+
+  $self->$draw_method($gd,$left,$top,$y_origin)
+
+where $gd is the GD object, $left and $top are the left and right
+positions of the whole glyph (which includes the scale and label), and
+$y_origin is the position of the zero value on the y axis (in
+pixels). By the time this method is called, the y axis and labels will
+already have been drawn, and the scale of the drawing (in pixels per
+unit score) will have been calculated and stored in
+$self->{_scale}. The y position (in pixels) of each point to graph
+will have been stored into the part, as $part->{_y_position}. Hence
+you could draw a simple scatter plot with this code:
+
+ sub lookup_draw_method {
+    my $self = shift;
+    my $type = shift;
+    if ($type eq 'simple_scatterplot') {
+      return 'draw_points';
+    } else {
+      return $self->SUPER::lookup_draw_method($type);
+    }
+ }
+
+ sub draw_points {
+  my $self = shift;
+  my ($gd,$left,$top) = @_;
+  my @parts   = $self->parts;
+  my $bgcolor = $self->bgcolor;
+
+  for my $part (@parts) {
+    my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    my $x = ($x1+$x2)/2;  # take center
+    my $y = $part->{_y_position};
+    $gd->setPixel($x,$y,$bgcolor);
+ }
+
+
+
+=back
 
 =head1 BUGS
 
