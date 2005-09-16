@@ -193,7 +193,7 @@ BEGIN {
     %GETPARAMS = (
    'ALIGNMENTS'	=> '\d+',			# Positive integer
 	'ALIGNMENT_VIEW' =>
-   '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
+		  '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
 	 # Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
   	 # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular
 	 'DESCRIPTIONS'	=> '\d+',			# Positive integer
@@ -217,25 +217,25 @@ BEGIN {
 
     # Default values go in here for PUT
     %HEADER = (
-          'CMD'                          => 'Put',
+	       'CMD'                          => 'Put',
 	       'FORMAT_OBJECT'                => 'Alignment',
 	       'COMPOSITION_BASED_STATISTICS' => 'off', 
-	       'DATABASE'	    	              => 'nr',
-	       'EXPECT'			              => '1e-3', 
-	       'FILTER'			              => 'L', 
-	       'PROGRAM'		                 => 'blastp', 
-	       'SERVICE'		                 => 'plain' 
+	       'DATABASE'	    	      => 'nr',
+	       'EXPECT'			      => '1e-3', 
+	       'FILTER'			      => 'L', 
+	       'PROGRAM'		      => 'blastp', 
+	       'SERVICE'		      => 'plain' 
 	       );
-
+    
     # Default values go in here for GET
     %RETRIEVALHEADER = (
-         'CMD'            => 'Get',
-			'ALIGNMENTS'	  => '50',
+			'CMD'            => 'Get',
+			'ALIGNMENTS'	 => '50',
 			'ALIGNMENT_VIEW' => 'Pairwise',
-			'DESCRIPTIONS'	  => '100',
-			'FORMAT_TYPE'	  => 'Text'
+			'DESCRIPTIONS'	 => '100',
+			'FORMAT_TYPE'	 => 'Text',
 			);
-
+    
     $RIDLINE = 'RID\s+=\s+(\S+)';
 }
 
@@ -247,7 +247,7 @@ sub new {
 	$self->_initialize_io();
 	my ($prog, $data,
 		 $readmethod) = $self->_rearrange([qw(PROG DATA
-					     READMETHOD)],
+						      READMETHOD)],
 					 @args);
 	# Use these two parameters for backward-compatibility. 
 	# Overridden by PROGRAM and DATABASE if supplied.
@@ -348,7 +348,7 @@ sub header {
  Usage   : my $readmethod = $self->readmethod
  Function: Get/Set the method to read the blast report
  Returns : string
- Args    : string [ Blast, BPlite ]
+ Args    : string [ Blast, BPlite, blasttable, xml ]
 
 =cut
 
@@ -510,9 +510,9 @@ sub submit_blast {
 			}	
 	    }
 	    if( $count == 0 ) {
-			$self->warn("req was ". $request->as_string() . "\n");
-			$self->warn(join('', @subdata));
-	    	}    	
+		$self->warn("req was ". $request->as_string() . "\n");
+		$self->warn(join('', @subdata));
+	    }    	
 	    $tcount += $count;
 	} else {
 	    # should try and be a little more verbose here
@@ -560,6 +560,10 @@ sub retrieve_blast {
 	my $waiting = 1;
 	my $s = 0;
 	while(<TMP>) {
+	    if( /<\?xml version=/ ) { # xml time
+		$waiting = 0;
+		last;
+	    }
 	    if( /QBlastInfoBegin/i ) {
 		$s = 1;
 	    } elsif( $s ) {
@@ -585,12 +589,35 @@ sub retrieve_blast {
 	close(TMP);
 	if( ! $waiting ) {
 	    my $blastobj;
-	    if( $self->readmethod =~ /BPlite/ ) {
+	    my $mthd = $self->readmethod;
+	    if( $mthd =~ /BPlite/i ) {
 		$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
+	    } elsif( $mthd =~ /blasttable/i ) {
+		# pre-process
+		my ($fh2,$tempfile2) = $self->tempfile();
+		open(TMP,$tempfile) || die $!;
+		my $s = 0;
+		while(<TMP>) {
+		    if(/\<PRE\>/i ) {
+			$s = 1;
+		    } elsif( /\<\/PRE\>/i ) {
+			$s = 0;
+			last;
+		    } elsif( $s ) {
+			print $fh2 $_;
+		    }
+		} 
+		close($fh2);
+		close(OUT);		
+		$blastobj = new Bio::SearchIO( -file => $tempfile2,
+					       -format => 'blasttable');
+	    } elsif( $mthd =~ /xml/ ) {
+		$blastobj = new Bio::SearchIO( -file => $tempfile,
+					       -format => 'blastxml');
 	    } else {
 		$blastobj = new Bio::SearchIO( -file => $tempfile,
 					       -format => 'blast');
-	    }
+	    } 
 	    
 	    ## store filename in object ##
 	    $self->file($tempfile);
