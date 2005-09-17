@@ -12,32 +12,33 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $error;
 
-BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-
-    $NUMTESTS = 15;
-    plan tests => $NUMTESTS;
-    eval { require 'IO/String.pm';
-	 require 'LWP/UserAgent.pm'};
-    if( $@ ) {
-	for( $Test::ntest..$NUMTESTS ) {
-	    skip("IO::String or LWP::UserAgent not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+BEGIN {
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
 	}
-       $error = 1; 
-    }
+	use Test;
+
+	$NUMTESTS = 15;
+	plan tests => $NUMTESTS;
+	eval { require IO::String;
+			 require LWP::UserAgent;
+		 };
+	if( $@ ) {
+		for( $Test::ntest..$NUMTESTS ) {
+			skip("IO::String or LWP::UserAgent not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+		}
+		$error = 1;
+	}
 }
-END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Biblio_biofetch tests',1);
-    }
+END {
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to run all of the SeqHound_DB tests',1);
+	}
 }
 
 if( $error ==  1 ) {

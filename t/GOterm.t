@@ -18,20 +18,20 @@ BEGIN {
     }
     use Test;
     eval {require Graph::Directed; 
-	  $HAVEGRAPHDIRECTED=1;
-	  require Bio::Ontology::GOterm;
-	  require Bio::Ontology::Ontology;
-	 };
+			 $HAVEGRAPHDIRECTED=1;
+			 require Bio::Ontology::GOterm;
+			 require Bio::Ontology::Ontology;
+		 };
     if ($@) {
-	$HAVEGRAPHDIRECTED = 0;
+		 $HAVEGRAPHDIRECTED = 0;
     }
-
     plan tests => ($NUMTESTS = 59);
 }
+
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Unable to run all of the GOterm tests without Graph::Directed installed',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to run all of the GOterm tests ',1);
+	}
 }
 
 exit(0) unless $HAVEGRAPHDIRECTED;

@@ -74,8 +74,8 @@ ok($dna2 eq $revcom);
 
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests some needed modules for Bio::DB::Fasta are not installed',1);
-    }
-    # test dir is cleaned up automagically by tempdir(CLEANUP => 1)
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to complete DBFasta tests',1);
+	}
+	# test dir is cleaned up automagically by tempdir(CLEANUP => 1)
 }

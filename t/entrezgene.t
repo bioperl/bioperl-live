@@ -7,25 +7,26 @@ use vars qw($DEBUG $NUMTESTS $ASNOK);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    eval {
-	require Bio::ASN1::EntrezGene; 
-	$ASNOK=1;
-    };
-    if ($@) {
-	$ASNOK = 0;
-    }
-
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	eval {
+		require Bio::ASN1::EntrezGene;
+		$ASNOK=1;
+	};
+	if ($@) {
+		$ASNOK = 0;
+		warn "Bio::ASN1::EntrezGene not installed, skipping tests\n";
+	}
     plan tests => ($NUMTESTS = 1003);
 }
+
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests as Bio::ASN1::EntrezGene is not installed',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot complete entrezgene tests',1);
+	}
 }
 
 exit(0) unless $ASNOK;

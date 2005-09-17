@@ -18,10 +18,9 @@ use Bio::SeqIO;
 
 END {
     for ( $Test::ntest..$NTESTS ) {
-        skip("RepeatMasker program not found. Skipping. (Be sure you have the phrap package )",1);
+        skip("Cannot complete RepeatMasker tests",1);
     }
 }
-
 
 my $inputfilename= Bio::Root::IO->catfile("t","data","repeatmasker.fa.out");
 my $parser = Bio::Tools::RepeatMasker->new(-file => $inputfilename);

@@ -1,31 +1,34 @@
 # This is -*-Perl-*- code
 # $Id$
+
 use strict;
 use vars qw($NUMTESTS $DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 
-BEGIN { 
-    eval { require Test; };
-    if( $@ ) { 
-	use lib 't';
-    }
-    use Test;
-    $NUMTESTS = 20;
-    $error = 0;
-    plan tests => $NUMTESTS;
-}
-END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests because XML::Twig is not installed',1);
-    }
+BEGIN {
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	eval {
+		require Bio::DB::Taxonomy;
+		require XML::Twig;
+	};
+	if ( $@ ) {
+		$error = 1;
+		warn "Unable to run tests because XML::Twig is not installed\n";
+	}
+	$NUMTESTS = 20;
+	$error = 0;
+	plan tests => $NUMTESTS;
 }
 
-eval { 
-    require Bio::DB::Taxonomy;
-    require XML::Twig; };
-if( $@ ) {
-    $error = 1;
+END {
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to complete Taxonomy tests',1);
+	}
 }
 
 my $actually_submit = $DEBUG > 0;

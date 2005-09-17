@@ -9,30 +9,31 @@ use vars qw($DEBUG $NUMTESTS $HAVE_DB_FILE);
 $DEBUG = $ENV{'BIOPERLDEBUG'};
 my $verbose = -1 unless $DEBUG;
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-     # bioperl takes far too long to compile.
-    unshift(@INC,'Bio');
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    eval { require Bio::Assembly::Contig;
-	   require DB_File;
-	   $HAVE_DB_FILE = 1;
-	 };
-    if( $@ ) {
-	warn("No DB_File installed which is needed for Bio::Assembly::Contig\n") if $DEBUG;
-	$HAVE_DB_FILE=0;
-    }
-    plan tests => ($NUMTESTS = 3);
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	# bioperl takes far too long to compile.
+	unshift(@INC,'Bio');
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	eval { require Bio::Assembly::Contig;
+			 require DB_File;
+			 $HAVE_DB_FILE = 1;
+		 };
+	if( $@ ) {
+		warn "No DB_File installed which is needed for Bio::Assembly::Contig\n";
+		$HAVE_DB_FILE=0;
+	}
+	plan tests => ($NUMTESTS = 3);
 }
+
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests as DB_File is not installed',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot complete singlet tests',1);
+	}
 }
 
 exit(0) unless $HAVE_DB_FILE;

@@ -23,10 +23,9 @@ BEGIN {
     plan tests => $NUMTESTS;
 
     eval {
-	require IO::String; 
-	require LWP::UserAgent;
-	
-    }; 
+		 require IO::String; 
+		 require LWP::UserAgent;
+    };
     if( $@ ) {
         warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
 	$ERROR = 1;

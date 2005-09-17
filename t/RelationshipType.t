@@ -20,19 +20,20 @@ BEGIN {
     }
     use Test;
     eval {require Graph::Directed; 
-	  $HAVEGRAPHDIRECTED=1;
+			 $HAVEGRAPHDIRECTED=1;
 	 };
 
     if ($@) {
-	$HAVEGRAPHDIRECTED = 0;
+		 $HAVEGRAPHDIRECTED = 0;
+		 warn "Cannot run tests as Graph::Directed is not installed\n";
     }
     plan tests => ($NUMTESTS = 21);
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests as Graph::Directed is not installed',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot complete RelationshipType tests',1);
+	}
 }
 
 exit 0 unless $HAVEGRAPHDIRECTED;

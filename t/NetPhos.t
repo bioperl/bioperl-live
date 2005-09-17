@@ -7,39 +7,39 @@
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
-use lib '../';
+
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $ERROR = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$ERROR = 0;
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
 
-    $NUMTESTS = 14;
-    plan tests => $NUMTESTS;
+	$NUMTESTS = 14;
+	plan tests => $NUMTESTS;
 
-    eval {
-	require IO::String; 
-	require LWP::UserAgent;
-    }; 
-    if( $@ ) {
-        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
-	$ERROR = 1;
-    }
+	eval {
+		require IO::String; 
+		require LWP::UserAgent;
+	};
+	if( $@ ) {
+		warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
+		$ERROR = 1;
+	}
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to run NetPhos tests',1);
+	}
 }
 
-exit 0 if $ERROR ==  1;
+exit 0 if $ERROR == 1;
 
 use Data::Dumper;
 

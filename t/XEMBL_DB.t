@@ -11,26 +11,25 @@ use constant NUMTESTS => 9;
 my $error;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
 
-    plan tests => NUMTESTS;
-    
-    unless( eval "require SOAP::Lite; require XML::DOM; 1;" ) {
- #     warn $@;
+	plan tests => NUMTESTS;
+
+	unless( eval "require SOAP::Lite; require XML::DOM; 1;" ) {
       print STDERR "SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n";
       for( 1..NUMTESTS ) {
-	skip("SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n",1);
+			skip("SOAP::Lite and/or XML::DOM not installed. This means that Bio::DB::XEMBL module is not usable. Skipping tests.\n",1);
       }
       $error = 1;
-    }
+	}
 }
 
 if( $error ==  1 ) {
@@ -38,9 +37,9 @@ if( $error ==  1 ) {
 }
 
 END {
-    foreach ( $Test::ntest..NUMTESTS) {
-	skip('Server may be down',1);
-    }
+	foreach ( $Test::ntest..NUMTESTS) {
+		skip('Cannot run XEMBL_DB tests',1);
+	}
 }
 
 require Bio::DB::XEMBL;

@@ -16,31 +16,27 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    $NUMTESTS = 26;
-
-    plan tests => $NUMTESTS;
-
-    eval { require IO::String; 
-	   require LWP::UserAgent;
-	   require HTTP::Request::Common;
-       };
-    if( $@ ) {
-	print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the MeSH modules are not usable. Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
-	    skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
 	}
-       $error = 1; 
-    }
+	use Test;
+	$NUMTESTS = 26;
 
+	plan tests => $NUMTESTS;
 
-
-
+	eval { require IO::String; 
+			 require LWP::UserAgent;
+			 require HTTP::Request::Common;
+       };
+	if( $@ ) {
+		print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the MeSH modules are not usable. Skipping tests.\n";
+		for( 1..$NUMTESTS ) {
+			skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
+		}
+		$error = 1;
+	}
 }
 
 if( $error ==  1 ) {
@@ -48,11 +44,10 @@ if( $error ==  1 ) {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('unable to run all of the MeSH.t tests, skipping',1);
     }
 }
-
 
 use Data::Dumper;
 require Bio::Phenotype::MeSH::Term;

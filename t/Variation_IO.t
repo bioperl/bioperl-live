@@ -26,9 +26,9 @@ BEGIN {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-        skip("Missing dependencies. Skipping tests",1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip("Cannot complete Variation_IO tests",1);
+	}
 }
 
 if ($error == 1 ) {

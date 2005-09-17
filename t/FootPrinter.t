@@ -17,9 +17,9 @@ use Bio::Tools::FootPrinter;
 use Bio::SeqIO;
 
 END {
-    for ( $Test::ntest..$NTESTS ) {
-        skip("FootPrinter parserr failed.",1);
-    }
+	for ( $Test::ntest..$NTESTS ) {
+		skip("FootPrinter parser failed.",1);
+	}
 }
 
 

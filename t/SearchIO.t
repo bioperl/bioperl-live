@@ -13,31 +13,31 @@ use lib '.';
 use Dumpvalue();
 my $dumper = new Dumpvalue();
 
-BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use vars qw($NTESTS);
-    $NTESTS = 1227;
-    $LASTXMLTEST = 67;
-    $error = 0;
-
-    use Test;
-    plan tests => $NTESTS; 
-
-    eval { require XML::Parser::PerlSAX; 
-           require HTML::Entities; };
-    if( $@ ) {
-	$SKIPXML = 1;
-	print STDERR "XML::Parser::PerlSAX or HTML::Entities not loaded. This means SearchIO::blastxml test cannot be executed. Skipping\n";
-	foreach ( 1..$LASTXMLTEST ) {
-	    skip('No XML::Parser::PerlSAX or HTML::Entities loaded',1);
+BEGIN {
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
 	}
-    }
+	use vars qw($NTESTS);
+	$NTESTS = 1227;
+	$LASTXMLTEST = 67;
+	$error = 0;
+
+	use Test;
+	plan tests => $NTESTS; 
+
+	eval { require XML::Parser::PerlSAX; 
+			 require HTML::Entities; };
+	if( $@ ) {
+		$SKIPXML = 1;
+		print STDERR "XML::Parser::PerlSAX or HTML::Entities not loaded. This means SearchIO::blastxml test cannot be executed. Skipping\n";
+		foreach ( 1..$LASTXMLTEST ) {
+			skip('No XML::Parser::PerlSAX or HTML::Entities loaded',1);
+		}
+	}
 }
 
 if( $error == 1 ) {

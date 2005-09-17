@@ -14,36 +14,36 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-
-    $NUMTESTS = 13;
-    plan tests => $NUMTESTS;
-
-    eval { require IO::String; 
-	   require LWP::UserAgent;
-	   require HTTP::Request::Common;
-       };
-    if( $@ ) {
-	print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
-	    skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
 	}
-       $error = 1; 
-    }
+	use Test;
+
+	$NUMTESTS = 13;
+	plan tests => $NUMTESTS;
+
+	eval { require IO::String; 
+			 require LWP::UserAgent;
+			 require HTTP::Request::Common;
+       };
+	if( $@ ) {
+		print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
+		for( 1..$NUMTESTS ) {
+			skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
+		}
+		$error = 1; 
+	}
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Unable to run all of the DB tests',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to run all of the DB tests',1);
+	}
 }
 
 

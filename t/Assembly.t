@@ -27,19 +27,19 @@ BEGIN {
     plan tests => $NUMTESTS;
     eval { require DB_File };
     if( $@ ) {
-	print STDERR "DB_File not installed. This means the Assembly modules are not available.  Skipping tests.\n";
-	for( 1..$NUMTESTS ) {
-	    skip("DB_File not installed",1);
-	}
-	$error = 1; 
+		 print STDERR "DB_File not installed. This means the Assembly modules are not available.  Skipping tests.\n";
+		 for( 1..$NUMTESTS ) {
+			 skip("DB_File not installed",1);
+		 }
+		 $error = 1; 
     }
 }
 
 
-END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the DB tests',1);
-    }
+END {
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('unable to run all of the DB tests',1);
+	}
 }
 
 if( $error ==  1 ) {

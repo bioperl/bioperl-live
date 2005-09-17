@@ -22,7 +22,7 @@ BEGIN {
 	};
 	if ( $@ ) {
 		$error = 1;
-		warn "Bio::SeqIO::staden::read is not installed or is installed incorrectly - skipping pln.t tests\n";
+		warn "Bio::SeqIO::staden::read of bioperl-ext is not installed or is installed incorrectly - skipping pln.t tests\n";
    }
 	use Test;
 	plan tests => $NUMTESTS;
@@ -30,8 +30,8 @@ BEGIN {
 
 
 END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Unable to run all of the pln tests',1);
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to run all of the pln tests',1);
    }
 }
 

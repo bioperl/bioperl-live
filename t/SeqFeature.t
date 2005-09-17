@@ -12,36 +12,35 @@ use strict;
 use vars qw($NUMTESTS);
 my $skipdbtests ;
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    $NUMTESTS = 192;
-    plan tests => $NUMTESTS;
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	$NUMTESTS = 192;
+	plan tests => $NUMTESTS;
 
-    eval { 
-	require IO::String; 
-	require LWP::UserAgent;
-	require HTTP::Request::Common;
-	require Bio::DB::GenBank;
-       };
-    if( $@ ) {
-	print STDERR "skipping DB tests...\n";
-	$skipdbtests = 1;
-    } else {
-	$skipdbtests = 0;
-    }
-
+	eval { 
+		require IO::String; 
+		require LWP::UserAgent;
+		require HTTP::Request::Common;
+		require Bio::DB::GenBank;
+	};
+	if( $@ ) {
+		print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed - skipping DB tests...\n";
+		$skipdbtests = 1;
+	} else {
+		$skipdbtests = 0;
+	}
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Skipping tests which need the Bio::DB::GenBank module',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Skipping tests which need the Bio::DB::GenBank module',1);
+	}
 }
 
 use Bio::Seq;

@@ -42,7 +42,7 @@ BEGIN {
 	warn ("Bio::Seq::Meta::Array not installed - will skip tests using meta sequences");
 	$METAERROR = 1;
     }
-    }
+  }
 }
 
 END {

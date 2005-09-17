@@ -47,8 +47,9 @@ ok my $out = Bio::Restriction::IO->new(-format => 'base',
 #
 
 ok $in  = Bio::Restriction::IO->new
-    (-format=> 31, -verbose => 0,
-     -file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
+  (-format=> 31,
+	-verbose => 0,
+	-file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
 ok $renzs = $in->read;
 ok $renzs->each_enzyme, 11;
 

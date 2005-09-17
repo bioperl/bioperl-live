@@ -22,15 +22,15 @@ BEGIN {
 	};
 	if ( $@ ) {
 		$error = 1;
-		warn "Bio::SeqIO::staden::read is not installed or is installed incorrectly - skipping ztr.t tests\n";
+		warn "Bio::SeqIO::staden::read of bioperl-ext is not installed or is installed incorrectly - skipping ztr.t tests\n";
    }
 	use Test;
 	plan tests => $NUMTESTS;
 }
 
 END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Unable to run all of the ztr tests',1);
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Unable to run all of the ztr tests',1);
    }
 }
 

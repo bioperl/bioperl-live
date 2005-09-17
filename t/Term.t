@@ -10,27 +10,29 @@ use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    eval {require Graph::Directed; 
-	  $HAVEGRAPHDIRECTED=1;
-	 };
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	eval {require Graph::Directed;
+			$HAVEGRAPHDIRECTED=1;
+		};
 
-    if ($@) {
-	$HAVEGRAPHDIRECTED = 0;
-    }
-    plan tests => ($NUMTESTS = 51);
+	if ($@) {
+		$HAVEGRAPHDIRECTED = 0;
+		warn "Cannot run tests as Graph::Directed is not installed\n";
+	}
+	plan tests => ($NUMTESTS = 51);
 }
+
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests as Graph::Directed is not installed',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot complete Term tests',1);
+	}
 }
 
 exit 0 unless $HAVEGRAPHDIRECTED;

@@ -8,29 +8,29 @@
 use strict;
 use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    eval {
-	require Graph::Directed; 
-	$HAVEGRAPHDIRECTED=1;
-    };
-    if ($@) {
-	$HAVEGRAPHDIRECTED = 0;
-    }
-
-    plan tests => ($NUMTESTS = 22);
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	eval {
+		require Graph::Directed;
+		$HAVEGRAPHDIRECTED=1;
+	};
+	if ($@) {
+		$HAVEGRAPHDIRECTED = 0;
+		warn "Cannot run tests, Graph::Directed not installed\n";
+	}
+	plan tests => ($NUMTESTS = 22);
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('Cannot run tests as Graph::Directed is not installed',1);
-   }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('Cannot run OntologyEngine tests, skipping',1);
+	}
 }
 exit(0) unless $HAVEGRAPHDIRECTED;
 require Bio::Ontology::Term;

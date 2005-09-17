@@ -7,27 +7,28 @@ use strict;
 use vars qw($NUMTESTS $old_search_path $no_DB_File $no_LWP $DEBUG);
 
 BEGIN {
-    $DEBUG = $ENV{BIOPERLDEBUG} || 0;
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't','..';
-    }
-    use Test;
-    $no_DB_File = 0;
-    $old_search_path = $ENV{OBDA_SEARCH_PATH} if defined $ENV{OBDA_SEARCH_PATH};
-    $ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat;t/data/registry/bdb';
-    eval { require DB_File;
-	   require BerkeleyDB;	  
-	 };
-    if ($@) {
-	$ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat';
-	$no_DB_File = 1;
-    }
-    eval { require LWP::UserAgent; require HTTP::Request::Common; };
-    if( $@ ) {
-	$no_LWP =1;
-    }
-    plan tests => ($NUMTESTS=13);
+	$DEBUG = $ENV{BIOPERLDEBUG} || 0;
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't','..';
+	}
+	use Test;
+	$no_DB_File = 0;
+	$old_search_path = $ENV{OBDA_SEARCH_PATH} if defined $ENV{OBDA_SEARCH_PATH};
+	$ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat;t/data/registry/bdb';
+	eval { require DB_File;
+			 require BerkeleyDB;
+		 };
+	if ($@) {
+		$ENV{OBDA_SEARCH_PATH} = 't/data/registry/flat';
+		$no_DB_File = 1;
+	}
+	eval { require LWP::UserAgent;
+			 require HTTP::Request::Common; };
+	if( $@ ) {
+		$no_LWP =1;
+	}
+	plan tests => ($NUMTESTS=13);
 }
 
 require Bio::DB::Registry;
@@ -93,13 +94,13 @@ if( $no_LWP ) {
     }
 }
 END {
-    cleanup();
+	cleanup();
 }
 
 sub cleanup {
-    eval {
-	Bio::Root::IO->rmtree($tmpdir) if (-d $tmpdir);
-      };
+	eval {
+		Bio::Root::IO->rmtree($tmpdir) if (-d $tmpdir);
+	};
 }
 
 __END__

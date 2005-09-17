@@ -42,10 +42,10 @@ BEGIN {
     }
 }
 
-END{ 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip($msg,1);
-    }
+END{
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip($msg,1);
+	}
 }
 
 exit if $error;

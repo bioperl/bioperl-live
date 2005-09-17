@@ -13,36 +13,35 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-
-    $NUMTESTS = 14;
-    $BIODBTESTS = 5;
-    plan tests => $NUMTESTS;
-    eval { require IO::String };
-    if( $@ ) {
-	print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests.\n";
-	for( 1..$BIODBTESTS ) {
-	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests",1);
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
 	}
-       $error = 1; 
-    }
+	use Test;
+
+	$NUMTESTS = 14;
+	$BIODBTESTS = 5;
+	plan tests => $NUMTESTS;
+	eval { require IO::String };
+	if( $@ ) {
+		print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests.\n";
+		for( 1..$BIODBTESTS ) {
+			skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests",1);
+		}
+		$error = 1;
+	}
 }
 
 END {
-    # clean up after oneself
-    unlink (  'Perltmp' );
-
-    for ( $Test::ntest..$NUMTESTS ) {
-	skip("Unable to run db access tests - probably no network connection.",1);
-    }
+	# clean up after oneself
+	unlink (  'Perltmp' );
+	for ( $Test::ntest..$NUMTESTS ) {
+		skip("Unable to run database access tests",1);
+	}
 }
 
 use Bio::Perl;

@@ -12,32 +12,34 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-
-    $NUMTESTS = 13;
-    plan tests => $NUMTESTS;
-    eval { require IO::String; require LWP::UserAgent; 
-	   require HTTP::Request::Common; 1; };
-    if( $@ ) {
-	for( $Test::ntest..$NUMTESTS ) {
-	    skip("IO::String,LWP::UserAgent, or HTTP::Request::Common not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
 	}
-       $error = 1; 
-    }
+	use Test;
+
+	$NUMTESTS = 13;
+	plan tests => $NUMTESTS;
+	eval { require IO::String; 
+			 require LWP::UserAgent; 
+			 require HTTP::Request::Common;
+		 };
+	if( $@ ) {
+		for( $Test::ntest..$NUMTESTS ) {
+			skip("IO::String,LWP::UserAgent, or HTTP::Request::Common not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+		}
+		$error = 1;
+	}
 }
 
 END {
-    for ( $Test::ntest..$NUMTESTS ) {
-        skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
-    }
+	for ( $Test::ntest..$NUMTESTS ) {
+		skip("Unable to complete RefSeq tests - set env variable BIOPERLDEBUG to test",1);
+	}
 }
 
 if( $error ==  1 ) {

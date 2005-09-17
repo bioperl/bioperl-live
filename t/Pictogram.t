@@ -1,4 +1,5 @@
 # -*-Perl-*-
+# $Id$
 ## Bioperl Test Harness Script for Modules
 
 
@@ -14,20 +15,21 @@ BEGIN {
     $NTESTS = 3;
     plan tests => $NTESTS;
     eval {
-	require Bio::Graphics::Pictogram;
-    };
+		 require Bio::Graphics::Pictogram;
+		 require SVG;
+	 };
     $SVG_AVAIL = $@ ? 0 : 1;
 }
 
 END {
-    for ( $Test::ntest..$NTESTS ) {
-        skip("SVG module not found. Skipping. ",1);
-    }
+	for ( $Test::ntest..$NTESTS ) {
+		skip("Cannot complete Pictogram tests. Skipping. ",1);
+	}
 }
 
 if(!$SVG_AVAIL){
-  warn("SVG not installed, skipping tests");
-  exit;
+	warn("SVG not installed, skipping tests");
+	exit;
 }
 
 use Bio::SeqIO;

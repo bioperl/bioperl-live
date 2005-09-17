@@ -9,31 +9,31 @@
 use strict;
 use vars qw($NUMTESTS $error);
 
-
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
 
-    $NUMTESTS = 166;
-    plan tests => $NUMTESTS;
-    eval { require IO::String; 
-	   require Bio::Tools::Phylo::PAML;}; 
-    if( $@ ) { print STDERR "no IO string installed\n"; 
-	$error = 1;
+	$NUMTESTS = 166;
+	plan tests => $NUMTESTS;
+	eval { require IO::String; 
+			 require Bio::Tools::Phylo::PAML;}; 
+	if( $@ ) {
+		print STDERR "no IO::String installed\n"; 
+		$error = 1;
 	}
 }
 
-END { 
-    foreach ( $Test::ntest .. $NUMTESTS ) {
-	skip("unable to run all of the PAML tests",1);
-    }
+END {
+	foreach ( $Test::ntest .. $NUMTESTS ) {
+		skip("Unable to run all of the PAML tests",1);
+	}
 }
 
 
