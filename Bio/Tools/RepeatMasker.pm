@@ -10,19 +10,19 @@
 
 =head1 NAME
 
-Bio::Tools::RepeatMasker - DESCRIPTION of Object
+Bio::Tools::RepeatMasker
 
 =head1 SYNOPSIS
 
     use Bio::Tools::RepeatMasker;
     my $parser = new Bio::Tools::RepeatMasker(-file => 'seq.fa.out');
     while( my $result = $parser->next_result ) {
-
+      # get some value
     }
 
 =head1 DESCRIPTION
 
-A parser for RepeatMasker  output 
+A parser for RepeatMasker output
 
 =head1 FEEDBACK
 
@@ -39,16 +39,13 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Shawn Hoon 
+=head1 AUTHOR - Shawn Hoon
 
-Email shawnh@fugu-sg.org 
-
-Describe contact details here
+Email shawnh@fugu-sg.org
 
 =head1 CONTRIBUTORS
 
@@ -79,10 +76,9 @@ use Bio::Root::IO;
 
  Title   : new
  Usage   : my $obj = new Bio::Tools::RepeatMasker();
- Function: Builds a new Bio::Tools::RepeatMasker object 
+ Function: Builds a new Bio::Tools::RepeatMasker object
  Returns : Bio::Tools::RepeatMasker
- Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
-
+ Args    : -fh/-file => $val, for initing input, see Bio::Root::IO
 
 =cut
 
@@ -100,9 +96,8 @@ sub new {
  Title   : next_result
  Usage   : my $r = $rpt_masker->next_result
  Function: Get the next result set from parser data
- Returns : L<Bio::SeqFeature::FeaturePair> 
+ Returns : Bio::SeqFeature::FeaturePair
  Args    : none
-
 
 =cut
 
@@ -148,8 +143,7 @@ sub next_result{
           $rf->primary_tag      ($repeat_class);
           my $fp = Bio::SeqFeature::FeaturePair->new(-feature1=>$rf,
                                                      -feature2=>$rf2);
-
-          return $fp;                                                     
+          return $fp;
         }
     }
 }
