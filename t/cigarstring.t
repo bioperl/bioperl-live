@@ -1,4 +1,7 @@
+# -*-Perl-*-
+# $Id$
 # written by Juguang Xiao
+
 use strict;
 
 BEGIN {
@@ -7,12 +10,12 @@ BEGIN {
     plan tests => 3;
 }
 
-END { }
+# END { }
 
 use Bio::SearchIO;
 
 my $searchio = new Bio::SearchIO(
-    -format => 'blast',
+	 -format => 'blast',
     -file => 't/data/blast.report'
 );
 
