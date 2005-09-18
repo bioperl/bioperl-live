@@ -34,9 +34,9 @@ BEGIN {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('unable to complete DBCUTG tests',1);
+	}
 }
 
 exit 0 if $ERROR ==  1;

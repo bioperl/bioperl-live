@@ -32,7 +32,7 @@ BEGIN {
         1;
     }; 
     if( $@ ) {
-        warn("IO::String, LWP::UserAgent,Bio::WebAgent,HTML::HeadParser,HTTP::Request::Common not installed. This means that the module is not usable. Skipping tests\n");
+        warn("IO::String, LWP::UserAgent, Bio::WebAgent, HTML::HeadParser, or HTTP::Request::Common not installed. This means that the module is not usable. Skipping tests\n");
 	$ERROR = 1;
     } else {
      eval {
@@ -46,9 +46,9 @@ BEGIN {
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the tests depending on web access',1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip('unable to complete ESEfinder tests',1);
+	}
 }
 
 if($ERROR ==  1 ) {
