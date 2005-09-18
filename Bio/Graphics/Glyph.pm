@@ -587,11 +587,11 @@ sub layout {
 
       if ($bump_direction > 0) {
 	$pos += $collision->[3]-$collision->[1] + BUMP_SPACING;    # collision, so bump
-
       } else {
 	$pos -= BUMP_SPACING;
       }
 
+      $pos++ if $pos % 2; # correct for GD rounding errors
     }
 
     $g->move(0,$pos);
