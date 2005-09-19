@@ -24,32 +24,40 @@ sub draw_whiskerplot {
     # get the range and tendency
     if (my $range =  $part->get_range) {
 
-      my ($range_low,$range_high,$lower_quartile,$higher_quartile) = @$range;
+      unshift @$range,undef if @$range == 4;  # backward compatibility
+
+      my ($median,$range_low,$range_high,$lower_quartile,$higher_quartile) = @$range;
+      $y = $part->{_y_position} = $self->score2position($median) if defined $median;
 
       # draw the quartile box
-      my $box_top    = $self->score2position($higher_quartile);
-      my $box_bottom = $self->score2position($lower_quartile);
-      $self->filled_box($gd,$x1,$box_top,$x2,$box_bottom);
+      my ($box_top,$box_bottom) = ($y,$y);
+      if (defined $lower_quartile && defined $higher_quartile) {
+	$box_top    = $self->score2position($higher_quartile);
+	$box_bottom = $self->score2position($lower_quartile);
+	$self->filled_box($gd,$x1,$box_top,$x2,$box_bottom);
+      }
 
       # calculate positions of the range whiskers
-      my $range_top    = $self->score2position($range_high);
-      my $range_bottom = $self->score2position($range_low);
-      my $center       = ($x1+$x2)/2;
-      my $whisker_left  = $center-5;
-      my $whisker_right = $center+5;
-      $whisker_left     = $x1 if $whisker_left  < $x1;
-      $whisker_right    = $x2 if $whisker_right > $x2;
+      if (defined $range_low && defined $range_high) {
+	my $range_top    = $self->score2position($range_high);
+	my $range_bottom = $self->score2position($range_low);
+	my $center       = ($x1+$x2)/2;
+	my $whisker_left  = $center-5;
+	my $whisker_right = $center+5;
+	$whisker_left     = $x1 if $whisker_left  < $x1;
+	$whisker_right    = $x2 if $whisker_right > $x2;
 
-      # top whisker
-      $gd->line($center,$box_top,$center,$range_top,$fgcolor);
-      $gd->line($whisker_left,$range_top,$whisker_right,$range_top,$fgcolor);
+	# top whisker
+	$gd->line($center,$box_top,$center,$range_top,$fgcolor);
+	$gd->line($whisker_left,$range_top,$whisker_right,$range_top,$fgcolor);
 
-      # bottom whisker
-      $gd->line($center,$box_bottom,$center,$range_bottom,$fgcolor);
-      $gd->line($whisker_left,$range_bottom,$whisker_right,$range_bottom,$fgcolor);
+	# bottom whisker
+	$gd->line($center,$box_bottom,$center,$range_bottom,$fgcolor);
+	$gd->line($whisker_left,$range_bottom,$whisker_right,$range_bottom,$fgcolor);
+      }
     }
 
-    # draw the central portion
+    # draw the median
     $gd->line($x1,$y,$x2,$y,$fgcolor);
 
   }
@@ -127,13 +135,18 @@ score. The range and quartile data must either be provided in a
 feature tag named "range", or must be generated dynamically by a
 -range callback option passed to add_track. The data returned by the
 tag or option should be an array reference containing the following
-four fields:
+five fields:
 
- [$range_low,$range_high,$quartile_low,$quartile_high]
+ [$median,$range_low,$range_high,$quartile_low,$quartile_high]
 
 where $range_low and $range_high correspond to the low and high value
 of the "whiskers" and $quartile_low and $quartile_high correspond to
 the low and high value of the "box."
+
+If $median is undef or missing, then the score field of the feature
+will be used instead. It may be useful to repeat the median in the
+score field in any case, in order to allow the minimum and maximum
+range calculations of the graph itself to occur.
 
 See Examples for three ways of generating an image.
 
@@ -172,8 +185,8 @@ xyplot glyph, as well as the following glyph-specific option:
   Option         Description                  Default
   ------         -----------                  -------
 
-  -range        Callback to return a range    none - data comes from feature "range" tag
-                and quartiles for each
+  -range        Callback to return median,    none - data comes from feature "range" tag
+                range and quartiles for each
                 sub feature
 
 =head1 EXAMPLES
@@ -223,7 +236,7 @@ Here are three examples of how to use this glyph.
    my $range_bottom = $score - 5*sqrt($score) - rand(50);
    my $quartile_top    = $score + 2*sqrt($score) + rand(50);
    my $quartile_bottom = $score - 2*sqrt($score) - rand(50);
-   return [$range_bottom,$range_top,$quartile_bottom,$quartile_top];
+   return [$score,$range_bottom,$range_top,$quartile_bottom,$quartile_top];
  }
 
 =head2 Example 2: Generating the range data with a callback
@@ -268,7 +281,7 @@ Here are three examples of how to use this glyph.
    my $range_bottom = $score - 5*sqrt($score) - rand(50);
    my $quartile_top    = $score + 2*sqrt($score) + rand(50);
    my $quartile_bottom = $score - 2*sqrt($score) - rand(50);
-   return [$range_bottom,$range_top,$quartile_bottom,$quartile_top];
+   return [$score,$range_bottom,$range_top,$quartile_bottom,$quartile_top];
  }
 
 =head2 Example 3: Generating the image from a FeatureFile
@@ -292,6 +305,7 @@ Here are three examples of how to use this glyph.
  scale     = both
  height    = 200
  min_score = -500
+ max_score = 2800
  key       = Whiskers
  bgcolor   = orange
 

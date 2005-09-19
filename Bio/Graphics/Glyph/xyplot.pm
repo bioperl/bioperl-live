@@ -79,7 +79,7 @@ sub draw {
 
   # now seed all the parts with the information they need to draw their positions
   foreach (@parts) {
-    my $s = eval {$_->feature->score};
+    my $s = $_->score;
     next unless defined $s;
     $_->{_y_position}   = $self->score2position($s);
   }
@@ -102,6 +102,13 @@ sub lookup_draw_method {
   return '_draw_boxes'                if $type eq 'boxes';
   return '_draw_line'                 if $type eq 'line'   or $type eq 'linepoints';
   return '_draw_points'               if $type eq 'points' or $type eq 'linepoints';
+}
+
+sub score {
+  my $self    = shift;
+  my $s       = $self->option('score');
+  return $s   if defined $s;
+  return eval { $self->feature->score };
 }
 
 sub score2position {
