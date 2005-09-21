@@ -895,15 +895,18 @@ sub remove_columns{
              [optional] $all_gaps_columns flag (1 or 0, default is 0)
                         indicates that only all-gaps columns should be deleted
 
+Used from method L<remove_columns> in most cases. Set gap character
+using L<gap_char()|gap_char>.
+
 =cut
 
 sub remove_gaps {
     my ($self,$gapchar,$all_gaps_columns) = @_;
     my $gap_line;
     if ($all_gaps_columns) {
-        $gap_line = $self->all_gap_line;
+        $gap_line = $self->all_gap_line($gapchar);
     } else {
-        $gap_line = $self->gap_line;
+        $gap_line = $self->gap_line($gapchar);
     }
     my $aln = $self->new;
 
