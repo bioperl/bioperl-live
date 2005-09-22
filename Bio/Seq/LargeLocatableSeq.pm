@@ -1,7 +1,7 @@
 
 # BioPerl module for Bio::Seq::LargeLocatableSeq
 #
-# Cared for by Albert Vilella <avilella@ebi.ac.uk, avilella@ub.edu>
+# Cared for by Albert Vilella
 #
 #	based on the Bio::LargePrimarySeq module
 #       by Ewan Birney <birney@sanger.ac.uk>
@@ -68,7 +68,7 @@ the web:
 
 =head1 AUTHOR - Albert Vilella
 
-Email avilella@ebi.ac.uk, avilella@ub.edu
+Email avilella-AT-gmail-DOT-com
 
 Describe contact details here
 
