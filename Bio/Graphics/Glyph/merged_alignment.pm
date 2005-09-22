@@ -279,6 +279,8 @@ glyph-specific options:
               Whether to simplify the 
               alignment at low magnification
 
+  -max_gap    Do not merge across graps   Calculated
+              that exceed this threshold
 
 
 If max_score and min_score are not specified, then the glyph will
