@@ -526,7 +526,7 @@ Heikki Lehvaslaiho, heikki@ebi.ac.uk
 
 =head1 Contributors
 
-Albert Vilella, avilella@ebi.ac.uk
+Albert Vilella, avilella-AT-gmail-DOT-com
 
 =cut
 

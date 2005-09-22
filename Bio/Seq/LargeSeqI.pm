@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Seq::LargeSeqI
 #
-# Cared for by Albert Vilella <avilella@ebi.ac.uk>
+# Cared for by Albert Vilella
 #
 # Copyright Albert Vilella
 #
@@ -55,7 +55,7 @@ email or the web:
 
 =head1 AUTHOR - Albert Vilella
 
-Email avilella@ebi.ac.uk
+Email avilella-AT-gmail-DOT-com
 
 =head1 CONTRIBUTORS
 

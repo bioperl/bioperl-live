@@ -144,7 +144,7 @@ Email amackey-at-virginia.edu
 
 =head1 CONTRIBUTORS
 
-Albert Vilella avilella-at-ebi dot ac dot uk 
+Albert Vilella avilella-AT-gmail-DOT-com
 
 =head1 TODO
 
