@@ -229,65 +229,74 @@ sub next_result{
 #	   $self->element({'Name' => 'Hit_len',
 #			   'Data' => $he});
 	
+	   ## gc note:
+	   ## add one because these values are zero-based
+	   ## this calculation was originally done lower in the code,
+	   ## but it's clearer to do it just once at the start
 	   my @rest = split;
-	   if( $qstrand eq '-' ) {
-	       $qstrand = -1;
-	       ($qs,$qe) = ($qe,$qs); # flip-flop if we're on opp strand
-	   		$qs--; $qe++;
-	   } else { $qstrand = 1; }
-	   if( $hstrand eq '-' ) {
-	       $hstrand = -1;
-	       ($hs,$he) = ($he,$hs); # flip-flop if we're on opp strand
-	       $hs--; $he++;
-	   } else { $hstrand = 1; }
-	   # okay let's do this right and generate a set of HSPs
-	   # from the cigar line
+	   my ($qbegin,$qend) = ('query-from', 'query-to');
 
-		## gc note:
-		## add one because these values are zero-based
-		## this calculation was originally done lower in the code,
-		## but it's clearer to do it just once at the start
-	   $qs++;
-	   $hs++;
+	   if( $qstrand eq '-' ) {
+	       $qstrand = -1; $qe++;		       
+	   } else { 
+	       $qstrand = 1;  
+	       $qs++;
+	   }
+	   my ($hbegin,$hend) = ('hit-from', 'hit-to');
+
+	   if( $hstrand eq '-' ) {
+	       $hstrand = -1;	  
+	       $he++;
+	   } else { 
+	       $hstrand = 1; 
+	       $hs++; 
+	   }
+	   # okay let's do this right and generate a set of HSPs
+	   # from the cigar line/home/bio1/jes12/bin/exonerate  --model est2genome --bestn 1 t/data/exonerate_cdna.fa t/data/exonerate_genomic_rev.fa 
 
 	   my ($aln_len,$inserts,$deletes) = (0,0,0);
-	   
+	   my ($laststate,@events,$gaps) =( '' );
 	   while( @rest >= 3 ) {
 	       my ($state,$len1,$len2) = (shift @rest, shift @rest, shift @rest);
-
 	       # 
 	       # HSPs are only the Match cases; otherwise we just
 	       # move the coordinates on by the correct amount
 	       #
-
+	       
 	       if( $state eq 'M' ) {
-		   $self->start_element({'Name' => 'Hsp'});
-		   
-		   $self->element({'Name' => 'Hsp_score',
-				   'Data' => $score});
-		   $self->element({'Name' => 'Hsp_align-len',
-				   'Data' => $len1});
-		   $self->element({'Name' => 'Hsp_query-from',
-				   'Data' => $qs});
-		   $qs += $len1*$qstrand;
-		   $self->element({'Name' => 'Hsp_query-to',
-				   'Data' => $qs - ($qstrand*1)});
-		   
-		   $self->element({'Name' => 'Hsp_hit-from',
-				   'Data' => $hs});
-		   $hs += $len2*$hstrand;
-		   $self->element({'Name' => 'Hsp_hit-to',
-				   'Data' => $hs-($hstrand*1)});
-		   $self->element({'Name' => 'Hsp_identity',
-				   'Data' => 0});
-		
-		   $self->end_element({'Name' => 'Hsp'});
-
-
-	       } else {
-		   $qs += $len1*$qstrand;
-		   $hs += $len2*$hstrand;
+		   if( $laststate eq 'G' ) {
+		       # merge gaps across Match states so the HSP
+		       # goes across
+		       $events[-1]->{$qend} = $qs + $len1*$qstrand - $qstrand;
+		       $events[-1]->{$hend}   = $hs + $len2*$hstrand - $hstrand;
+		       $events[-1]->{'gaps'} = $gaps;
+		   } else {
+		       push @events, 
+		       { 'score'     => $score,
+			 'align-len' => $len1,
+			 $qbegin => $qs, 
+			 $qend  => ($qs + $len1*$qstrand - $qstrand),
+			 $hbegin => $hs,
+			 $hend   => ($hs + $len2*$hstrand - $hstrand),
+		     };
+		   }
+		   $gaps = 0;
+	       } else {		   
+		   $gaps = $len1 + $len2 if $state eq 'G';
 	       }
+	       $qs += $len1*$qstrand;
+	       $hs += $len2*$hstrand;
+	       $laststate= $state;
+	   }
+	   for my $event ( @events ) {
+	       $self->start_element({'Name' => 'Hsp'});
+	       while( my ($key,$val) = each %$event ) {
+		   $self->element({'Name' => "Hsp_$key",
+				   'Data' => $val});
+	       }
+	       $self->element({'Name' => 'Hsp_identity',
+			       'Data' => 0});	       
+	       $self->end_element({'Name' => 'Hsp'});
 	   }
 
 	   # end of hit
@@ -331,7 +340,7 @@ sub next_result{
 	   if( $qstrand eq '-' ) {
 	       $qstrand = -1;
 	       ($qs,$qe) = ($qe,$qs); # flip-flop if we're on opp strand
-	   		$qs--; $qe++;
+	       $qs--; $qe++;
 	   } else { $qstrand = 1; }
 	   if( $hstrand eq '-' ) {
 	       $hstrand = -1;
@@ -340,13 +349,12 @@ sub next_result{
 	   } else { $hstrand = 1; }
 	   # okay let's do this right and generate a set of HSPs
 	   # from the cigar line
-
-		## gc note:
-		## add one because these values are zero-based
-		## this calculation was originally done lower in the code,
-		## but it's clearer to do it just once at the start
-	   $qs++;
-	   $hs++;
+	   
+	   ## gc note:
+	   ## add one because these values are zero-based
+	   ## this calculation was originally done lower in the code,
+	   ## but it's clearer to do it just once at the start
+	   $qs++; $hs++;
 
 	   my ($aln_len,$inserts,$deletes) = (0,0,0);
 	   while( @rest >= 2 ) {
@@ -421,15 +429,15 @@ sub next_result{
 	
 ## gc addition start
 		
-		       $self->element({'Name' => 'Hsp_qseq',
-				       'Data' => shift @q_ex,
-				   });
-		       $self->element({'Name' => 'Hsp_hseq',
-				       'Data' => shift @h_ex,
-				   });
-		       $self->element({'Name' => 'Hsp_midline',
-				       'Data' => shift @m_ex,
-				   });
+	   $self->element({'Name' => 'Hsp_qseq',
+			   'Data' => shift @q_ex,
+		       });
+	   $self->element({'Name' => 'Hsp_hseq',
+			   'Data' => shift @h_ex,
+		       });
+	   $self->element({'Name' => 'Hsp_midline',
+			   'Data' => shift @m_ex,
+		       });
 ## gc addition end
 
 	   $self->element({'Name' => 'Hsp_score',
@@ -440,7 +448,7 @@ sub next_result{
 
 	   $qs += $aln_len*$qstrand;
 	   $self->element({'Name' => 'Hsp_query-to',
-				       'Data' => $qs - ($qstrand*1)});
+			   'Data' => $qs - ($qstrand*1)});
 
 	   $hs += $deletes*$hstrand;
 	   $self->element({'Name' => 'Hsp_hit-from',
