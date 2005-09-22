@@ -102,9 +102,9 @@ o INSTALLING BIOPERL THE EASY WAY USING CPAN
    fail some tests. Possible explanations: problems with local
    Perl installation, network problems, previously undetected
    bug in Bioperl, flawed test script, problems with CGI script
-   using for sequence retrieval at public database, and so on.
+   used for sequence retrieval at public database, and so on.
    Remember that there are over 700 modules in Bioperl and the
-   test suite is running almost 9000 individual tests, a few
+   test suite is running more than 9000 individual tests, a few
    failed tests may not affect your usage of Bioperl.
 
    If you decide that the failed tests will not affect how you
@@ -357,7 +357,7 @@ o THE TEST SYSTEM
     
       >perl -I. -w t/SeqIO.t 
  
-   The -I tells Perl to use the current directory as the include path -
+   The -I. tells Perl to use the current directory as the include path -
    this makes sure you are testing the modules in this directory not
    ones installed elsewhere in your PERL5LIB path.
    The -w tells Perl to print all warnings.
@@ -415,7 +415,7 @@ o BUILDING THE OPTIONAL bioperl-ext PACKAGE
 o DEPENDENCIES AND Bundle::BioPerl
 
    The following packages are used by Bioperl.  Not all are required for
-   Bioperl to operate properly, however, some functionality will be
+   Bioperl to operate properly, however some functionality will be
    missing without them.  You can easily install all of these, except
    srsperl.pm, using the Bundle::BioPerl CPAN bundle.
 
