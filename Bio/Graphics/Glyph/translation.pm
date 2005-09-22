@@ -60,15 +60,33 @@ sub show_sequence {
   return $show_sequence;
 }
 
+sub triletter_code {
+  my $self = shift;
+  my $triletter_code = $self->option("triletter_code");
+  return 0 unless defined $triletter_code; # default to false
+  return $triletter_code;
+}
+
 sub protein_fits {
   my $self = shift;
   return unless $self->show_sequence;
 
-  my $pixels_per_base = $self->pixels_per_residue;
-  my $font            = $self->font;
-  my $font_width      = $font->width;
+  my $pixels_per_residue = $self->pixels_per_residue;
+  my $font               = $self->font;
+  my $font_width         = $font->width;
 
-  return $pixels_per_base >= $font_width;
+  return $pixels_per_residue >= $font_width;
+}
+
+sub longprotein_fits {
+  my $self = shift;
+  return unless $self->show_sequence;
+
+  my $pixels_per_residue = $self->pixels_per_residue;
+  my $font               = $self->font;
+  my $font_width         = $font->width * 4; # not 3; leave room for whitespace
+
+  return $pixels_per_residue >= $font_width;
 }
 
 sub translation_type {
@@ -177,6 +195,17 @@ sub draw_protein {
   my $left   = $self->panel->left;
   my $right  = $self->panel->right;
 
+  my $longprotein = $self->triletter_code && $self->longprotein_fits;
+
+  my %abbrev = ( A => "Ala", B => "Asx", C => "Cys", D => "Asp",
+		 E => "Glu", F => "Phe", G => "Gly", H => "His",
+		 I => "Ile", J => "???", K => "Lys", L => "Leu",
+		 M => "Met", N => "Asn", O => "???", P => "Pro",
+		 Q => "Gln", R => "Arg", S => "Ser", T => "Thr",
+		 U => "Sec", W => "Trp", X => "Xaa", Y => "Tyr",
+		 Z => "Glx", '*' => " * ",
+	       );
+
   my @residues = split '',$$protein;
   for (my $i=0;$i<@residues;$i++) {
     my $x = $strand > 0
@@ -185,9 +214,17 @@ sub draw_protein {
     next if $x+1 < $x1;
     last if $x > $x2;
     if ($flip) {
-      $gd->char($font,$right-($x-$left+$pixels_per_base)+2,$y1,$residues[$i],$color);
+      if ($longprotein) {
+	$gd->string($font,$right-($x-$left+$pixels_per_base)+1,$y1,$abbrev{$residues[$i]},$color);
+      } else {
+	$gd->char($font,$right-($x-$left+$pixels_per_base)+2,$y1,$residues[$i],$color);
+      }
     } else {
-      $gd->char($font,$x+2,$y1,$residues[$i],$color);
+      if ($longprotein) {
+	$gd->string($font, $x+1, $y1, $abbrev{$residues[$i]}, $color);
+      } else {
+	$gd->char($font,$x+2,$y1,$residues[$i],$color);
+      }
     }
   }
 }
@@ -361,6 +398,9 @@ options are recognized:
 
   -show_sequence Show the amino acid sequence 1 (true)
                 if there's room.
+
+  -triletter_code Show the 3-letter amino acid 0 (false)
+                code if there's room
 
   -codontable   Codon table to use           1 (see Bio::Tools::CodonTable)
 
