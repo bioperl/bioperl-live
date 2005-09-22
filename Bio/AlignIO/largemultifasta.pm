@@ -47,7 +47,7 @@ or the web:
 
 =head1 AUTHORS - Albert Vilella, Heikki Lehvaslaiho
 
-Email: avilella@ebi.ac.uk, heikki@ebi.ac.uk
+Email: avilella-AT-gmail-DOT-com, heikki@ebi.ac.uk
 
 
 =head1 APPENDIX
