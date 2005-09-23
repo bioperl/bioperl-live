@@ -202,8 +202,8 @@ sub draw_protein {
 		 I => "Ile", J => "???", K => "Lys", L => "Leu",
 		 M => "Met", N => "Asn", O => "???", P => "Pro",
 		 Q => "Gln", R => "Arg", S => "Ser", T => "Thr",
-		 U => "Sec", W => "Trp", X => "Xaa", Y => "Tyr",
-		 Z => "Glx", '*' => " * ",
+		 U => "Sec", V => "Val", W => "Trp", X => "Xaa",
+		 Y => "Tyr", Z => "Glx", '*' => " * ",
 	       );
 
   my @residues = split '',$$protein;
