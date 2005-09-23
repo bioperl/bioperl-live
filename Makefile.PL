@@ -123,7 +123,7 @@ sub MY::install {
 
 sub MY::postamble {
   $tline . "\n\n"
-     .  "link_install ::\n\t\$(PERL) \"".cwd()."/maintenance/symlink_scripts.pl\"\n\n";
+     .  "link_install ::\n\t\$(PERL) '".cwd()."/maintenance/symlink_scripts.pl' '\$(INSTALLSITEBIN)'\n\n";
 }
 
 sub get_scripts_to_install {

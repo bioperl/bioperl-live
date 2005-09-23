@@ -18,11 +18,8 @@ print OUT <<'!NO!SUBS!';
 use strict;
 
 my %symlink_scripts = ('bp_bulk_load_gff.pl' => 'bp_pg_bulk_load_gff.pl');
-!NO!SUBS!
 
-print OUT 'my $dir = "' . $Config{'installscript'} . '";';
-
-print OUT <<'!NO!SUBS!';
+my $dir = $ARGV[0];
 
 foreach my $target ( keys ( %symlink_scripts ) ) {
     unlink "$dir/".$symlink_scripts{$target} if -e "$dir/".$symlink_scripts{$target};
