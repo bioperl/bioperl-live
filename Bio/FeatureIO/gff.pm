@@ -592,7 +592,15 @@ sub _handle_feature {
     $values =~ s/["']$//;
 
     my @values = map{uri_unescape($_)} split ',', $values;
-    $attr{$key} = [@values];
+
+   #minor hack to allow for multiple instances of the same tag
+    if ($attr{$key}) {
+      my @tmparray = @{$attr{$key}};
+      push @tmparray, @values;
+      $attr{$key} = [@tmparray];
+    } else {
+      $attr{$key} = [@values];
+    }
   }
 
   #Handle Dbxref attributes
