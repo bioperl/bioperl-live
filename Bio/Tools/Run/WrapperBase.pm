@@ -217,11 +217,12 @@ sub outfile_name{
 
 sub tempdir{
    my ($self) = @_;
-   
+
+   $self->{'_tmpdir'} = shift if @_;
    unless( $self->{'_tmpdir'} ) {
        $self->{'_tmpdir'} = $self->io->tempdir(CLEANUP => ! $self->save_tempfiles );
    }
-   unless( -d $self->{'_tmpdir'} ) { 
+   unless( -d $self->{'_tmpdir'} ) {
        mkdir($self->{'_tmpdir'},0777);
    }
    $self->{'_tmpdir'};
