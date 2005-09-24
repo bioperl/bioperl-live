@@ -44,9 +44,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
@@ -87,11 +86,14 @@ L<Bio::Biblio::Ref> and L<Bio::DB::MeSH>.
 
 =head1 SEE ALSO
 
- Pub Med Help
+ Pub Med Help:
  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/help/pmhelp.html
 
- Entrez Utilities
+ Entrez Utilities:
  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/eutils_help.html
+
+ Example code:
+ examples/biblio/biblio-eutils-example.pl
 
 =head1 APPENDIX
 
@@ -319,12 +321,11 @@ sub has_next {
 
   Title   : find
   Usage   : $biblio = $biblio->find($pubmed_query_phrase);
-  Function: perform a PubMed query using Entrez' ESearch
+  Function: perform a PubMed query using Entrez ESearch
   Returns : a reference to the object on which the method was called
   Args    : a PubMed query phrase.  See
             http://eutils.ncbi.nlm.nih.gov/entrez/query/static/help/pmhelp.html
             for help on how to construct a query.
-
 
 =cut
 
