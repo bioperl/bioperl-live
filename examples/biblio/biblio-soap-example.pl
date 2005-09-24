@@ -1,19 +1,28 @@
 #!/usr/bin/perl -w
-# simple examples of Bio::Biblio usage
-# Brian Osborne
-# As of Bioperl version 1.4 there are 3 bibliographic repositories,
-# stipulated by the -access argument: soap, eutils, and biofetch.
-# The default is 'soap'. Not all of these repositories support all
-# the Biblio methods nor are the contents of these repositories
-# necessarily the same. Choose wisely!
+# $Id$
+=head1 NAME
+
+biblio-soap-example.pl
+
+=head1 SYNOPSIS
+
+Script showing code that uses Bio::Biblio, with 'soap' at OpenBQS.
+
+As of Bioperl version 1.4 there are 3 bibliographic repositories,
+stipulated by the -access argument: soap, eutils, and biofetch.
+The default is 'soap'. Not all of these repositories support all
+the Biblio methods nor are the contents of these repositories
+necessarily the same. Choose wisely!
+
+=cut
 
 use strict;
 use Bio::Biblio;
 use Bio::Biblio::IO;
 use Data::Dumper;
 
-# number of articles in 'eutils' with author Osborne...
-my $num = new Bio::Biblio(-access => "eutils")->find("Osborne","authors")->
+# number of articles in 'soap' with author Osborne...
+my $num = new Bio::Biblio->find("Osborne","authors")->
   get_count;
 
 # number of articles in OpenBQS with 'topoisomerase' in the title, year 2000,
@@ -67,10 +76,7 @@ while ($refs->has_next){
    print $abstract,"\n";
 }
 
-
-__END__
-
-Output from Data::Dumper->Dump:
+=head1 Output from Data::Dumper->Dump:
 
 88329717 = {
 	    'chemicals' => [
@@ -225,3 +231,5 @@ Output from Data::Dumper->Dump:
 				'year' => '1988'
 			       }
 	   };
+
+=cut
