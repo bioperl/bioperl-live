@@ -423,7 +423,7 @@ sub expect {
 sub ua {
     my ($self, $value) = @_;    
     if( ! defined $self->{'_ua'} ) {
-	$self->{'_ua'} = new LWP::UserAgent();
+	$self->{'_ua'} = LWP::UserAgent->new(env_proxy => 1);
 	my $nm = ref($self);
 	$nm =~ s/::/_/g;
 	$self->{'_ua'}->agent("bioperl-$nm/$MODVERSION");
