@@ -1,0 +1,16 @@
+Synonymous     : 7
+Nonsynonymous  : 18
+Ka/Ks          : 2.57
+Unlikely       : 0
+Identical      : 5
+Stop           : 0
+Total codons   : 30
+Frameshift     : 0
+Intron         : 1
+//
+Breaking with no 5'SS on END with 625
+Gene 1
+Gene 163 626 
+  Exon 163 213 phase -1
+  Exon 585 626 phase -1
+//
