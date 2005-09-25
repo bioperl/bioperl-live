@@ -1,6 +1,8 @@
 # BioPerl module for Bio::Tools::Pseudowise
 #
-# Copyright Fugu Team 
+# $Id$
+# 
+# Copyright Jason Stajich, Fugu Team 
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -21,8 +23,9 @@ Bio::Tools::Pseudowise - Results of one Pseudowise run
 
 =head1 DESCRIPTION
 
-Pseudowise is a pseudogene prediction program written by Ewan Birney as part of the 
-Wise Package. This module is the parser for the output of the program.
+Pseudowise is a pseudogene prediction program written by Ewan Birney
+as part of the Wise Package. This module is the parser for the output
+of the program.
 
 http://www.sanger.ac.uk/software/wise2
 
@@ -40,15 +43,16 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Fugu Team 
+=head1 AUTHOR - Jason Stajich
 
-Describe contact details here
+Previous committed by the Fugu Team 
+
+Re-written by Jason Stajich jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -111,6 +115,26 @@ sub analysis_method {
     return $self->SUPER::analysis_method($method);
 }
 
+=head2 next_feature
+
+ Title   : next_feature
+ Usage   : $seqfeature = $obj->next_feature();
+ Function: Returns the next feature available in the analysis result, or
+           undef if there are no more features.
+ Example :
+ Returns : A Bio::SeqFeatureI implementing object, or undef if there are no
+           more features.
+ Args    : none
+
+See Also  L<Bio::SeqFeatureI>
+
+=cut
+
+sub next_feature {
+    return shift->next_prediction(@_);
+}
+
+
 =head2 next_prediction
 
  Title   : next_prediction
@@ -122,21 +146,19 @@ sub analysis_method {
 
  Example :
  Returns : a Bio::SeqFeature::Generic 
- Args    :
+ Args    : none
+
+See Also L<Bio::SeqFeature::Generic>
 
 =cut
 
 sub next_prediction {
-    my ($self,$filehandle) = @_;
-    my $gene;
-
+    my ($self) = @_;
     # if the prediction section hasn't been parsed yet, we do this now
-    $self->_parse_predictions($filehandle) unless $self->_predictions_parsed();
+    $self->_parse_predictions unless $self->_predictions_parsed;
 
     # get next gene structure
-    $gene = $self->_prediction();
-
-    return $gene;
+    return $self->_prediction();
 }
 
 =head2 _parse_predictions
@@ -151,56 +173,54 @@ sub next_prediction {
 =cut
 
 sub _parse_predictions {
-    my ($self, $filehandle) = @_;
+    my ($self) = @_;
     my $gene;
     my @genes;
-    #The big parsing loop - parses exons and predicted peptides
-    while (<$filehandle>)
-    {
-      if (/Gene/i)
-      {
-        $gene = new Bio::SeqFeature::Generic (
-                    -primary => 'pseudogene',
-                    -source => 'pseudowise');
-        push @genes, $gene;
 
-        while(<$filehandle>) {
-          my @gene_elements = split;
-          my $no = scalar(@gene_elements);
-          if ((/Gene/i) && $no == 3) {
-            my @element = split;
-            my $no = scalar(@element);
-            my $gene_start = $element[1];
-            my $gene_end = $element[2];
-            $gene->start($gene_start);
-            $gene->end($gene_end);
-          }
-          elsif (/Exon/i) {
-            my @element = split;
-            my $no = scalar(@element);
-            my $exon_start = $element[1];
-            my $exon_end = $element[2];
-            my $exon_phase = $element[4];
-            my $exon = new Bio::SeqFeature::Generic (
-                           -start => $exon_start,
-                           -end => $exon_end,
-                           -primary => 'exon',
-                           -source => 'pseudowise',
-                           -frame  => $exon_phase);
-            $gene->add_sub_SeqFeature($exon);
-          }
-          elsif ((/Gene/i) && $no != 3) {
-            $gene = new Bio::SeqFeature::Generic (
-                        -primary => 'pseudogene',
-                        -source => 'pseudowise');
-            push @genes, $gene;
-          }
-        }
-      }
+    local $/= "\n";
+    local($_);
+    my %tags;
+    while (defined( $_ = $self->_readline)){ 
+	if( /^(Total codons|\S+)\s+:\s+(\S+)/ ) {
+	    $tags{$1} = $2;
+	} elsif(m!^//! ) {
+	    if( $gene ) {
+		$gene = undef;
+		%tags = ();
+	    }
+	} elsif (/Gene\s+(\d+)\s*$/i) {
+	    $gene = Bio::SeqFeature::Generic->new 
+		( -primary => 'pseudogene',
+		  -source  => 'pseudowise',
+		  -tag     => \%tags);
+	    push @genes, $gene;
+	} elsif( /Gene\s+(\d+)\s+(\d+)/i ) {
+	    if( $1 < $2 ) {
+		$gene->start($1);
+		$gene->end($2);
+		$gene->strand(1);
+	    } else {
+		$gene->start($2);
+		$gene->end($1);
+		$gene->strand(-1);
+	    }
+	} elsif (/Exon\s+(\d+)\s+(\d+)\s+phase\s+(\S+)/i) {
+	    my ($s,$e,$st) = ($1,$2,1);
+	    if( $s > $e) {
+		($s,$e,$st)=($e,$s,-1);
+	    }
+	    my $exon = Bio::SeqFeature::Generic->new 
+		( -start   => $s,
+		  -end     => $e,
+		  -strand  => $st,
+		  -primary => 'exon',
+		  -source  => 'pseudowise',
+		  -tag     => {'frame'  => $3});
+	    $gene->add_sub_SeqFeature($exon);
+	} 
     }
     $self->_add_prediction(\@genes);
     $self->_predictions_parsed(1);
-        
 }
 
 =head1 _prediction
@@ -215,9 +235,7 @@ sub _parse_predictions {
 
 sub _prediction {
     my ($self) = @_;
-
-    return undef unless(exists($self->{'_preds'}) && @{$self->{'_preds'}});
-    return shift(@{$self->{'_preds'}});
+    return shift(@{$self->{'_preds'} || []});
 }
 
 =head2 _add_prediction
@@ -232,11 +250,13 @@ sub _prediction {
 
 sub _add_prediction {
     my ($self, $gene) = @_;
+    $self->{'_preds'} ||= [];
 
-    if(! exists($self->{'_preds'})) {
-	$self->{'_preds'} = [];
+    if( ref($gene) =~ /ARRAY/ ) {
+	push(@{$self->{'_preds'}}, @$gene);
+    } else {
+	push(@{$self->{'_preds'}}, $gene);
     }
-    push(@{$self->{'_preds'}}, $gene);
 }
 
 =head2 _predictions_parsed
