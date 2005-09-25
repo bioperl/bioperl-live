@@ -216,7 +216,7 @@ sub outfile_name{
 =cut
 
 sub tempdir{
-   my ($self) = @_;
+   my ($self) = shift;
 
    $self->{'_tmpdir'} = shift if @_;
    unless( $self->{'_tmpdir'} ) {
@@ -225,7 +225,7 @@ sub tempdir{
    unless( -d $self->{'_tmpdir'} ) {
        mkdir($self->{'_tmpdir'},0777);
    }
-   $self->{'_tmpdir'};
+   return $self->{'_tmpdir'};
 }
 
 =head2 cleanup
