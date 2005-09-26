@@ -609,7 +609,7 @@ sub _process_repeat_list
 sub _process_tiling_path
 {
 	my($self) = @_;
-	my $line = $self->_readine();
+	my $line = $self->_readline();
 
 
 	if($line =~ /<TILING_PATH>/o) {
