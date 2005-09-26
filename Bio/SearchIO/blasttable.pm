@@ -164,7 +164,7 @@ sub _initialize {
 sub next_result{
    my ($self) = @_;
    my ($lastquery,$lasthit) = undef;
-   local ($_);
+   local ($_ = "\n");
    while( defined ($_ = $self->_readline) ) {
        next if /^\#/ || /^\s+$/;
        my ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,

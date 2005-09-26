@@ -169,7 +169,7 @@ sub _initialize {
 sub next_result{
    my ($self) = @_;
    my ($lastquery,$lasthit) = undef;
-   local ($_);
+   local $_ = "\n";
 
    #clear header if exists
    my $head = $self->_readline;

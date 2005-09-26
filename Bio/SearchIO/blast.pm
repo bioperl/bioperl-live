@@ -400,7 +400,7 @@ sub next_result{
    my (@hit_signifs);
    my $gapped_stats = 0; # for switching between gapped/ungapped
                          # lambda, K, H
-   
+   local $_ = "\n";
    while( defined ($_ = $self->_readline )) {
        next if( /^\s+$/); # skip empty lines
        next if( /CPU time:/);
