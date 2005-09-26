@@ -3,8 +3,9 @@ package Bio::Graphics::Glyph::graded_segments;
 
 use strict;
 use Bio::Graphics::Glyph::minmax;
+use Bio::Graphics::Glyph::merge_parts;
 use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::minmax';
+@ISA = qw/Bio::Graphics::Glyph::minmax Bio::Graphics::Glyph::merge_parts/;
 
 # override draw method to calculate the min and max values for the components
 sub draw {
@@ -28,6 +29,8 @@ sub draw {
   # allocate colors
   my $fill   = $self->bgcolor;
   my ($red,$green,$blue) = $self->panel->rgb($fill);
+
+  @parts = $self->merge_parts(@parts) if $self->option('merge_parts');
 
   foreach my $part (@parts) {
     my $s = eval { $part->feature->score };
@@ -161,10 +164,41 @@ glyph-specific options:
   -vary_fg    Vary the foreground color as  0 (false)
               well as the background
 
+  -merge_parts                             0 (false)
+              Whether to simplify the
+              alignment at low magnification
+
+  -max_gap    Do not merge across gaps     Calculated
+              that exceed this threshold
+
+
 If max_score and min_score are not specified, then the glyph will
 calculate the local maximum and minimum scores at run time.  Since
 many scoring functions are exponential you may wish to take the log of
 your scores before passing them to this glyph.
+
+
+=head2 Simplifying the display of alignment features for large segments
+
+The "merge_parts" option is used for semantic zooming.
+Specifically, if features are small and dense, they
+will not be displayed very well for large segments and the
+color-coding will be lost.  If merge-parts is set to a
+true value, adjacent alignment parts will be merged until a gap
+exceeding a calculated or user-specified value is encountered.
+Unless specified, the maximum gap allowed for merging adjacent features is
+calculated as (L/10000)*(L/500), where L = the length of the sequence
+displayed in the browser.  The exponentially increasing gap threshold
+allows more aggressive merging of alignment features as the size of
+the displayed sequence grows larger.
+
+The score of the merged feature is calculated as a weighted average.
+For example, consider two adjacent HSPs that are each 400 bp in
+length and have scores of 60% and 70%.  If the merge_parts option
+is set to a true value, the two HSPs would be merged in the display to
+a single 800 bp alignment block with an average score of 65%.
+
+The merge_parts option is turned off by default.
 
 
 =head1 BUGS

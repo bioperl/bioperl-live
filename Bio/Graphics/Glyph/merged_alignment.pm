@@ -18,6 +18,7 @@ package Bio::Graphics::Glyph::merged_alignment;
 # merge_parts = 1
 # max_gap     = 500 # do not merge across gaps > 500 bp 
 
+
 use strict;
 use Bio::Graphics::Glyph::graded_segments;
 use vars '@ISA';
@@ -45,7 +46,6 @@ sub draw {
 
   @parts = $self->merge_parts(@parts) if $self->option('merge_parts');
 
-
   # figure out the colors
   for my $part (@parts) {
       my ($bin) = grep { $part->in_range($_) } @bins;
@@ -58,60 +58,6 @@ sub draw {
   $self->{parts} = \@parts;
   $self->Bio::Graphics::Glyph::generic::draw(@_);
 }
-
-
-sub merge_parts {
-    my ($self,@parts)  = @_;
-
-    my $last_part;
-
-    # always go from left->right
-    my @sorted_parts = sort {$a->start <=> $b->start} @parts;
-
-    for my $part (@sorted_parts) {
-        if ($last_part) {
-	    my $start  = $part->start;
-	    my $end    = $part->stop;
-	    my $score  = $part->score;
-	    my $pstart = $last_part->start;
-	    my $pend   = $last_part->stop;
-	    my $pscore = $last_part->score || 'null';
-	    my $len    = 1 + abs($end - $start);
-	    my $plen   = 1 + abs($pend - $pstart);
-
-            # weighted average score
-            my $new_score = (($score*$len)+($pscore*$plen))/($len+$plen);
-
-            # don't merge if there is a gap spanning > 10% of the
-            # segment in question
-	    my $gap   = abs($start - $pend);
-	    my $total = abs($end - $pstart);
-	    
-
-	    if ($gap/$total > 0.10) {
-		$last_part = $part;
-		next;
-	    }
-
-            $part->{start}    = $pstart;
-	    $part->{score}    = $new_score;
-	    my ($left,$right) = $self->factory->map_pt($pstart,$end+1);
-	    $part->{left}     = $left;
-	    $part->{width}    = ($right - $left) + 1;
-
-            # flag the left feature for removal
-	    $last_part->{remove} = 1;
-	}
-
-	$last_part = $part;
-
-    }
-
-    @parts =  grep {!defined $_->{remove}} @parts;
-
-    return @parts;
-}
-
 
 sub in_range {
     my $self = shift;
@@ -220,8 +166,9 @@ Bio::Graphics::Glyph::merged_alignment - The "merged_alignment" glyph
 =head1 DESCRIPTION
 
 This glyph acts like graded_segments but the bgcolor of segments 
-(sub-feature) is controlled by binned scores
-
+(sub-feature) is controlled by binned scores.  It also supports
+semantic zooming to optimize glyph drawing for larger sequence
+displays.
 
 =head2 OPTIONS
 
@@ -279,7 +226,7 @@ glyph-specific options:
               Whether to simplify the 
               alignment at low magnification
 
-  -max_gap    Do not merge across graps   Calculated
+  -max_gap    Do not merge across gaps     Calculated
               that exceed this threshold
 
 
@@ -288,7 +235,7 @@ calculate the local maximum and minimum scores at run time.
 
 If the bins are not specified, they will be calculated
 based on the number of colors assigned and the local
-(or user-specified) minimum and maximum score.
+(or user-specified) minimum and maximum scores.
 Calculated bins are equal in size.  
 
 User-specified bins are expressed as ranges,
@@ -306,23 +253,28 @@ Specifically, if features are small and dense, they
 will not be displayed very well for large segments and the 
 color-coding will be lost.  If merge-parts is set to a
 true value, adjacent alignment parts will be merged until a gap
-exceeding 10% of the merged feature length (or a user-specified
-value) is encountered. The score of the merged feature 
-is calculated as a weighted average.
+exceeding a calculated or user-specified value is encountered. 
+Unless specified, the maximum gap allowed for merging adjacent features is
+calculated as (L/10000)*(L/500), where L = the length of the sequence
+displayed in the browser.  The exponentially increasing gap threshold
+allows more aggressive merging of alignment features as the size of
+the displayed sequence grows larger.
 
+The score of the merged feature is calculated as a weighted average.
 For example, consider two adjacent HSPs that are each 400 bp in 
 length and have scores of 60% and 70%.  If the merge_parts option
 is set to a true value, the two HSPs would be merged in the display to
 a single 800 bp alignment block with an average score of 65%.
 
-The merge_parts  option is turned off by default.
+The merge_parts option is turned off by default.
 
 =head2 SAMPLE CONFIGURATION
 
 Sample gbrowse configuration stanzas for an alignment feature
-using this glyph.  In this example, the scores are assumed to 
-be expressed as percent identity (0-100).
+using this glyph.  The scores are assumed to be expressed 
+as percent identity (0-100).
 
+ # base configuration
  [BLASTZ]
  feature      = blastz_alignment
  glyph        = merged_alignment
@@ -334,6 +286,9 @@ be expressed as percent identity (0-100).
  label        = 1
  fgcolor      = black
  key          = BLASTZ
+
+Semantic zooming with defined maximum gap between
+merged features for different zoom levels
 
  # if the displayed segment is >= 20000 in length,
  # use the merge_parts option to simplify the alignment
@@ -349,6 +304,15 @@ be expressed as percent identity (0-100).
  merge_parts  = 1
  max_gap      = 500 # do not merge across gaps > 500 bp
 
+--OR-- 
+
+Semantic zooming with dynamically calculated maximum
+gap
+
+ # if the displayed segment is >= 20000 in length,
+ [BLASTZ:20000]
+ feature      = blastz_alignment
+ merge_parts  = 1
 
 =head1 BUGS
 
