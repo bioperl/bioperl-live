@@ -58,10 +58,9 @@ sub merge_parts {
     return @parts;
 }
 
-# max_gap getter/setter
 sub max_gap {
     my $self = shift;
-    $self->panel->{max_gap} ||= $self->option('max_gap') || shift;
+    $self->panel->{max_gap} ||= $self->option('max_gap');
     return $self->panel->{max_gap} || $self->calculate_max_gap;
 }
 
