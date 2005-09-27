@@ -135,15 +135,14 @@ Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and 
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via the web:
 
-    bioperl-bugs@bio.perl.org                   
-    http://bugzilla.bioperl.org/           
+    http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz, sac-at-bioperl.org
 
 =head1 VERSION
 

@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::AnalysisResult
 #
-# Cared for by Hilmar Lapp <hlapp@gmx.net>
+# Cared for by Hilmar Lapp <hlapp-at-gmx.net>
 #
 # Copyright Hilmar Lapp
 #
@@ -38,24 +38,24 @@ Bio::Tools::AnalysisResult - Base class for analysis result objects and parsers
 =head1 DESCRIPTION
 
 The AnalysisResult module is supposed to be the base class for modules
-encapsulating parsers and interpreters for the result of a analysis that was
-carried out with a query sequence.
+encapsulating parsers and interpreters for the result of a analysis
+that was carried out with a query sequence.
 
-The notion of an analysis represented by this base class is that of a unary or
-binary operator, taking either one query or a query and a subject and producing
-a result. The query is e.g. a sequence, and a subject is either a sequence,
-too, or a database of sequences. 
+The notion of an analysis represented by this base class is that of a
+unary or binary operator, taking either one query or a query and a
+subject and producing a result. The query is e.g. a sequence, and a
+subject is either a sequence, too, or a database of sequences.
 
-This module also implements the Bio::SeqAnalysisParserI interface, and thus
-can be used wherever such an object fits. 
-See L<Bio::SeqAnalysisParserI|Bio::SeqAnalysisParserI>.
-Developers will find a ready-to-use B<parse()> method, but need to implement 
-B<next_feature()> in an inheriting class. Support for initialization with input
-file names and reading from streams is also ready to use.
+This module also implements the Bio::SeqAnalysisParserI interface, and
+thus can be used wherever such an object fits.  See
+L<Bio::SeqAnalysisParserI|Bio::SeqAnalysisParserI>.  Developers will
+find a ready-to-use B<parse()> method, but need to implement
+B<next_feature()> in an inheriting class. Support for initialization
+with input file names and reading from streams is also ready to use.
 
-Note that this module does not provide support for B<running> an analysis.
-Rather, it is positioned in the subsequent parsing step (concerned with
-turning raw results into BioPerl objects).
+Note that this module does not provide support for B<running> an
+analysis.  Rather, it is positioned in the subsequent parsing step
+(concerned with turning raw results into BioPerl objects).
 
 =head1 FEEDBACK
 
@@ -71,21 +71,19 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email hlapp@gmx.net
-
-Describe contact details here
+Email hlapp-at-gmx.net
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 

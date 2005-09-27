@@ -1,9 +1,12 @@
+# $Id$
 # Parser module for Signalp Bio::Tools::Signalp
 #
-# Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
-# originally written by Marc Sohrmann (ms2@sanger.ac.uk)
-# Written in BioPipe by Balamurugan Kumarasamy <savikalpa@fugu-sg.org>
-# Cared for by the Fugu Informatics team (fuguteam@fugu-sg.org)
+# 
+# Based on the EnsEMBL module
+# Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally
+# written by Marc Sohrmann (ms2@sanger.ac.uk) Written in BioPipe by
+# Balamurugan Kumarasamy <savikalpa@fugu-sg.org> Cared for by the Fugu
+# Informatics team (fuguteam@fugu-sg.org)
 
 # You may distribute this module under the same terms as perl itself
 #
@@ -40,25 +43,24 @@ Bio::Tools::Signalp
 
 =head2 Reporting Bugs
 
- Report bugs to the Bioperl bug tracking system to help us keep track
- of the bugs and their resolution. Bug reports can be submitted via
- email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted va the
+web:
 
- bioperl-bugs@bio.perl.org
  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
- Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
- originally written by Marc Sohrmann (ms2@sanger.ac.uk)
- Written in BioPipe by Balamurugan Kumarasamy <savikalpa@fugu-sg.org>
- Cared for by the Fugu Informatics team (fuguteam@fugu-sg.org)
+ Based on the EnsEMBL module
+ Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally written
+ by Marc Sohrmann (ms2@sanger.ac.uk) Written in BioPipe by Balamurugan
+ Kumarasamy <savikalpa@fugu-sg.org> Cared for by the Fugu Informatics
+ team (fuguteam@fugu-sg.org)
 
 =head1 APPENDIX
 
  The rest of the documentation details each of the object methods.
  Internal methods are usually preceded with a _
-
 
 =cut
 

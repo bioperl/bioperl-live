@@ -152,10 +152,10 @@ vector of Sbjct.pm objects.  Stay tuned.
 =head1 BUGS
 
 One consequence of the HSP tiling is that methods that rely on HSP
-tiling such as L<frac_identical()|frac_identical>, L<frac_conserved()|frac_conserved>, L<gaps()|gaps>
-etc. may report misleading numbers when C<-OVERLAP> is set to a large
-number.  For example, say we have two HSPs and the query sequence tile
-as follows:
+tiling such as L<frac_identical()|frac_identical>,
+L<frac_conserved()|frac_conserved>, L<gaps()|gaps> etc. may report
+misleading numbers when C<-OVERLAP> is set to a large number.  For
+example, say we have two HSPs and the query sequence tile as follows:
 
             1      8             22      30        40             60 
  Full seq:  ------------------------------------------------------------
@@ -212,17 +212,17 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-    bioperl-bugs@bio.perl.org                   
     http://bugzilla.bioperl.org/           
 
 =head1 AUTHOR
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz, sac-at-bioperl.org
 
-See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports
+and comments.
 
 =head1 COPYRIGHT
 

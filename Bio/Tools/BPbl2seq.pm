@@ -48,17 +48,21 @@ alignment using the BLAST algorithm.
 
 =head1 DESCRIPTION
 
-BPbl2seq is a package for parsing BLAST bl2seq reports. BLAST bl2seq is a
-program for comparing and aligning two sequences using BLAST.  Although
-the report format is similar to that of a conventional BLAST, there are a
-few differences so that BPlite is unable to read bl2seq reports directly.
+B<NOTE:> This module's functionality has been implemented in
+L<Bio::SearchIO::blast> and therefore is not actively maintained.
 
-From the user's perspective, one difference between bl2seq and
-other blast reports is that the bl2seq report does not print out the
-name of the first of the two aligned sequences.  (The second sequence
-name is given in the report as the name of the "hit").  Consequently,
-BPbl2seq has no way of identifying the name of the initial sequence
-unless it is passed to constructor as a second argument as in:
+BPbl2seq is a package for parsing BLAST bl2seq reports. BLAST bl2seq
+is a program for comparing and aligning two sequences using BLAST.
+Although the report format is similar to that of a conventional BLAST,
+there are a few differences so that BPlite is unable to read bl2seq
+reports directly.
+
+From the user's perspective, one difference between bl2seq and other
+blast reports is that the bl2seq report does not print out the name of
+the first of the two aligned sequences.  (The second sequence name is
+given in the report as the name of the "hit").  Consequently, BPbl2seq
+has no way of identifying the name of the initial sequence unless it
+is passed to constructor as a second argument as in:
 
 	my $report = Bio::Tools::BPbl2seq->new(\*FH, "ALEU_HORVU");
 
@@ -95,10 +99,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Schattner
@@ -113,7 +116,7 @@ Lorenz Pollak (lorenz@ist.org, bioperl port)
 
 =head1 CONTRIBUTORS
 
-Jason Stajich, jason@cgt.mc.duke.edu
+Jason Stajich, jason-at-bioperl.org
 
 =cut
 

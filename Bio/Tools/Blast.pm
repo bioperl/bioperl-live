@@ -97,9 +97,9 @@ Full parameters for parsing Blast reports.
 		-save_array      => \@blast_objs,  # not used if -exce_func defined.
 	       );
 
-See L<parse()|parse> for a description of parameters and see L<USAGE | USAGE> for
-more examples including how to parse streams containing multiple Blast
-reports L<Using the Static $Blast Object>.
+See L<parse()|parse> for a description of parameters and see L<USAGE |
+USAGE> for more examples including how to parse streams containing
+multiple Blast reports L<Using the Static $Blast Object>.
 
 See L<Memory Usage Issues> for information about how to make Blast
 parsing be more memory efficient.
@@ -334,7 +334,7 @@ that hold the parameters required by the L<run()|run> method.
 The constructor for Blast objects is inherited from Bio::Tools::SeqAnal.pm.
 See the B<_initialize>() method of that package for general information
 relevant to creating Blast objects. (The B<new>() method, inherited from
-B<Bio::Root::Object.pm>, calls B<_initialize>(). See L<Links to related modules>).
+L<Bio::Root::Object>, calls B<_initialize>(). See L<Links to related modules>).
 
 The Blast object can read compressed (gzipped) Blast report
 files. Compression/decompression uses the gzip or compress programs
@@ -382,7 +382,7 @@ each Blast report extracted from the input stream, the parser will
 generate a new Blast object and pass it to the function specified by
 C<-exec_func>.  The destroy() call tells Perl to free the memory
 associated with the object, important if you are crunching through
-many reports. This method is inherited from B<Bio::Root::Object.pm>
+many reports. This method is inherited from L<Bio::Root::Object>
 (see L<Links to related modules>). See L<parse()|parse> for a full
 description of parameters and L<the DEMO SCRIPTS section | DEMO> for
 additional examples.
@@ -951,17 +951,17 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-    bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz, sac-at-bioperl.org
 
-See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports
+and comments.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -982,15 +982,15 @@ under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
- Bio::Tools::SeqAnal.pm                  - Sequence analysis object base class.
- Bio::Tools::Blast::Sbjct.pm             - Blast hit object.
- Bio::Tools::Blast::HSP.pm               - Blast HSP object.
- Bio::Tools::Blast::HTML.pm              - Blast HTML-formating utility class.
- Bio::Tools::Blast::Run::Webblast.pm     - Utility module for running Blasts remotely.
- Bio::Tools::Blast::Run::LocalBlast.pm   - Utility module for running Blasts locally.
- Bio::Seq.pm                             - Biosequence object
- Bio::UnivAln.pm                         - Biosequence alignment object.
- Bio::Root::Object.pm                    - Proposed base class for all Bioperl objects.
+ L<Bio::Tools::SeqAnal>                  - Sequence analysis object base class.
+ L<Bio::Tools::Blast::Sbjct>             - Blast hit object.
+ L<Bio::Tools::Blast::HSP>               - Blast HSP object.
+ L<Bio::Tools::Blast::HTML>              - Blast HTML-formating utility class.
+ L<Bio::Tools::Blast::Run::Webblast>     - Utility module for running Blasts remotely.
+ L<Bio::Tools::Blast::Run::LocalBlast>   - Utility module for running Blasts locally.
+ L<Bio::Seq>                             - Biosequence object
+ L<Bio::UnivAln>                         - Biosequence alignment object.
+ L<Bio::Root::Object>                    - Proposed base class for all Bioperl objects.
 
 =head2 Links to related modules
 

@@ -83,15 +83,16 @@ This is a Bio::Seq object that can also hold data about each residue
 in the sequence In this case, the sequence can be associated with a
 single array of HNN prediction scores.  e.g.,
 
-  my $meta_sequence = $analysis_object->result('meta');					
+  my $meta_sequence = $analysis_object->result('meta');
+
   print "helix scores from residues 10-20 are ",
-      $meta_sequence->named_submeta_text("HNN_helix",10,20), "\n";			
+      $meta_sequence->named_submeta_text("HNN_helix",10,20), "\n";
 
 Meta sequence default names are : HNN_helix, HNN_sheet, HNN_coil,
 HNN_struc, representing the scores for each residue.
 
 Many methods common to all analyses are inherited from
-Bio::Tools::Analysis::SimpleAnalysisBase.
+L<Bio::Tools::Analysis::SimpleAnalysisBase>.
 
 =back
 
@@ -116,10 +117,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS

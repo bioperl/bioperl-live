@@ -1,4 +1,4 @@
-#------------------------------------------------------------------
+'#------------------------------------------------------------------
 # $Id$
 #
 # BioPerl module Bio::Tools::RestrictionEnzyme
@@ -120,15 +120,15 @@ mailing lists. Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs
-and their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-    bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
+Steve Chervitz, E<lt>sac-at-bioperl.orgE<gt>
 
 =head1 COPYRIGHT
 
@@ -138,8 +138,8 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-  Bio::Root::Root    - Base class.
-  Bio::PrimarySeq    - Lightweight sequence object.
+L<Bio::Root::Root>    - Base class.
+L<Bio::PrimarySeq>    - Lightweight sequence object.
 
   http://bio.perl.org/  - Bioperl Project Homepage
 

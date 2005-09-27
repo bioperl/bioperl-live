@@ -39,16 +39,20 @@ Bio::Tools::BPpsilite - Lightweight BLAST parser for (iterated) psiblast reports
 
 =head1 DESCRIPTION
 
-BPpsilite is a package for parsing multiple iteration PSIBLAST
-reports.  It is based closely on Ian Korf's BPlite.pm module for
-parsing single iteration BLAST reports (as modified by Lorenz Pollak).
+B<NOTE:> This module's functionality has been implemented in
+L<Bio::SearchIO::blast> and therefore is not actively maintained.
 
-Two of the four basic objects of BPpsilite.pm are identical to the
-corresponding objects in BPlite - the "HSP.pm" and "Sbjct.pm" objects.
-This DESCRIPTION documents only the one new object, the "iteration",
-as well as the additional methods that are implemented in BPpsilite
-that are not in BPlite.  See the BPlite documentation for information
-on the BPlite, SBJCT and HSP objects.
+BPpsilite is a package for parsing multiple iteration PSIBLAST
+reports.  It is based closely on Ian Korf's L<Bio::Tools::BPlite>
+module for parsing single iteration BLAST reports (as modified by
+Lorenz Pollak).
+
+Two of the four basic objects of L<Bio::Tools::BPpsilite> are
+identical to the corresponding objects in BPlite - the "HSP.pm" and
+"Sbjct.pm" objects.  This DESCRIPTION documents only the one new
+object, the "iteration", as well as the additional methods that are
+implemented in BPpsilite that are not in BPlite.  See the BPlite
+documentation for information on the BPlite, SBJCT and HSP objects.
 
 The essential difference between PSIBLAST and the other BLAST programs
 (in terms of report parsing) is that PSIBLAST performs multiple
@@ -106,10 +110,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Schattner
@@ -118,7 +121,7 @@ Email: schattner@alum.mit.edu
 
 =head1 CONTRIBUTORS
 
-Jason Stajich, jason@cgt.mc.duke.edu
+Jason Stajich, jason-at-bioperl.org
 
 =head1 ACKNOWLEDGEMENTS
 

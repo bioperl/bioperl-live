@@ -13,7 +13,8 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 =head1 SYNOPSIS
 
    # parse a hmmsearch file (can also parse a hmmpfam file)
-   $res = new Bio::Tools::HMMER::Results( -file => 'output.hmm' , -type => 'hmmsearch');
+   $res = new Bio::Tools::HMMER::Results( -file => 'output.hmm' , 
+                                          -type => 'hmmsearch');
 
    # print out the results for each sequence
    foreach $seq ( $res->each_Set ) {
@@ -24,7 +25,8 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
        }
    }
 
-   # new result object on a sequence/domain cutoff of 25 bits sequence, 15 bits domain
+   # new result object on a sequence/domain cutoff of 
+   # 25 bits sequence, 15 bits domain
    $newresult = $res->filter_on_cutoff(25,15);
 
    # alternative way of getting out all domains directly
@@ -60,10 +62,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://www.bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
@@ -72,7 +73,7 @@ Email birney@ebi.ac.uk
 
 =head1 CONTRIBUTORS
 
-Jason Stajich, jason@bioperl.org
+Jason Stajich, jason-at-bioperl.org
 
 =head1 APPENDIX
 

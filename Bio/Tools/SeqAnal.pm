@@ -145,44 +145,47 @@ B<Bio::Tools::Fasta>.
 
 =head2 Parsing & Running
 
-Parsing and running of sequence analysis reports must be implemented for each
-specific subclass of SeqAnal.pm. No-op stubs ("virtual methods") are provided here for
-the L<parse()|parse> and L<run()|run> methods. See B<Bio::Tools::Blast> and B<Bio::Tools::Fasta>
-for examples.
+Parsing and running of sequence analysis reports must be implemented
+for each specific subclass of SeqAnal.pm. No-op stubs ("virtual
+methods") are provided here for the L<parse()|parse> and L<run()|run>
+methods. See B<Bio::Tools::Blast> and L<Bio::Tools::Fasta> for
+examples.
 
 
 =head1 DEPENDENCIES
 
-Bio::Tools::SeqAnal.pm is a concrete class that inherits from B<Bio::Root::Object>.
-This module also makes use of a number of functionalities inherited from
-B<Bio::Root::Object> (file manipulations such as reading, compressing, decompressing,
-deleting, and obtaining date.
+Bio::Tools::SeqAnal.pm is a concrete class that inherits from
+L<Bio::Root::Object>.  This module also makes use of a number of
+functionalities inherited from L<Bio::Root::Object> (file
+manipulations such as reading, compressing, decompressing, deleting,
+and obtaining date.
 
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules.  Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-    bioperl-l@bioperl.org          - General discussion
-    http://bio.perl.org/MailList.html             - About the mailing lists
+    bioperl-l@bioperl.org             - General discussion
+    http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track the bugs and
-their resolution. Bug reports can be submitted via email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via email
+or the web:
 
-    bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-Steve Chervitz, sac@bioperl.org
+Steve Chervitz, sac-at-bioperl.org
 
-See the L<FEEDBACK | FEEDBACK> section for where to send bug reports and comments.
+See the L<FEEDBACK | FEEDBACK> section for where to send bug reports
+and comments.
 
 =head1 VERSION
 

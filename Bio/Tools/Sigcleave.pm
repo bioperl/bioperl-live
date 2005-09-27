@@ -129,23 +129,22 @@ is useful or have any improvements/features to suggest.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution. Bug reports can be submitted via email
-or the web:
+the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-    bioperl-bugs@bio.perl.org
     http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
-Chris Dagdigian, dag@sonsorol.org  & others
+Chris Dagdigian, dag-at-sonsorol.org  & others
 
 =head1 CONTRIBUTORS
 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-ebi.ac.uk
 
 =head1 VERSION
 
-Bio::Tools::Sigcleave.pm, $Id$
+Bio::Tools::Sigcleave, $Id$
 
 =head1 COPYRIGHT
 
