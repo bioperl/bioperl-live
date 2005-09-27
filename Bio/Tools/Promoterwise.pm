@@ -133,10 +133,10 @@ sub next_result {
 sub _parse{
    my ($self) = @_;
    my (%hash,@fp);
-   while ($_=$self->_readline()) {
-      chomp;
-      my @array = split;
-      push @{$hash{$array[$#array]}}, \@array;
+   while (defined($_ = $self->_readline()) ) {
+       chomp;
+       my @array = split;
+       push @{$hash{$array[-1]}}, \@array;
    }
    foreach my $key(keys %hash){
     my $sf1 = Bio::SeqFeature::Generic->new(-primary=>"conserved_element",
@@ -146,8 +146,19 @@ sub _parse{
                                             -source_tag=>"promoterwise");
     $sf2->attach_seq($self->query2_seq) if $self->query2_seq;
     foreach my $info(@{$hash{$key}}){
-      my ($score,$id1,$start_1,$end_1, $strand_1,$id2,$start_2,$end_2,
-          $strand_2,$group)= @{$info};
+	
+      my ($score,$id1,$start_1,$end_1, $strand_1,$s1_len,
+	  $id2,$start_2,$end_2,$strand_2,$s2_len, $group);
+      if( @{$info} == 12 ) {
+	  ($score,$id1,$start_1,$end_1, $strand_1,$s1_len,
+	   $id2,$start_2,$end_2,$strand_2,$s2_len, $group) = @{$info};
+      } elsif( @{$info} == 10 ) {
+	  ($score,$id1,$start_1,$end_1, $strand_1,
+	   $id2,$start_2,$end_2,$s2_len, $group) = @{$info};
+      } else {
+	  $self->throw("unknown promoterwise output, ", scalar @{$info},
+		       " columns, expected 10 or 12\n");
+      }
       if(!$sf1->strand && !$sf2->strand){
         $sf1->strand($strand_1);
         $sf2->strand($strand_2);
@@ -156,6 +167,7 @@ sub _parse{
         $sf1->score($score);
         $sf2->score($score);
       }
+
       my $sub1 = Bio::SeqFeature::Generic->new(-start=>$start_1,
                                               -seq_id=>$id1,
                                               -end  =>$end_1,
