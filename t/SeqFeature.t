@@ -58,7 +58,7 @@ use Bio::SeqFeature::Gene::Poly_A_site;
 use Bio::SeqFeature::Gene::GeneStructure;
 
 use Bio::Location::Fuzzy;
-
+use Env qw(BIOPERLDEUG); # for importing bioperldebug var
 ok(1);
 
 # predeclare variables for strict
@@ -338,7 +338,7 @@ my ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
 my $db;
 
 unless( $skipdbtests ) {
- $db = new Bio::DB::GenBank();
+ $db = new Bio::DB::GenBank(-verbose=> $BIOPERLDEBUG);
  $CDS->verbose(-1);
  my $cdsseq = $CDS->spliced_seq($db,1);
  
