@@ -1,9 +1,9 @@
-
+# $Id$
 #
 # BioPerl module for Bio::Tools::Sim4::Results
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
-#          and Hilmar Lapp <hlapp@gmx.net>
+# Cared for by Ewan Birney <birney-at-sanger.ac.uk>
+#          and Hilmar Lapp <hlapp-at-gmx.net>
 #
 # Copyright Ewan Birney and Hilmar Lapp
 #
@@ -92,18 +92,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney, Hilmar Lapp
 
-Email birney@sanger.ac.uk
-      hlapp@gmx.net (or hilmar.lapp@pharma.novartis.com)
-
-Describe contact details here
+Ewan Birney E<lt>birney-at-sanger.ac.ukE<gt>
+Hilmar Lapp E<lt>hlapp-at-gmx.netE<gt> or E<lt>hilmar.lapp-at-pharma.novartis.comE<gt>.
 
 =head1 APPENDIX
 
