@@ -585,14 +585,14 @@ glyph, the main method to override is:
 
 =over 4
 
-=item 'method_name' = $glyph->lookup_draw_method($type)
+=item 'method_name' = $glyph-E<gt>lookup_draw_method($type)
 
 This method accepts the name of a graph type (such as 'histogram') and
 returns the name of a method that will be called to draw the contents
 of the graph, for example '_draw_histogram'. This method will be
 called with three arguments:
 
-  $self->$draw_method($gd,$left,$top,$y_origin)
+   $self->$draw_method($gd,$left,$top,$y_origin)
 
 where $gd is the GD object, $left and $top are the left and right
 positions of the whole glyph (which includes the scale and label), and
@@ -600,8 +600,8 @@ $y_origin is the position of the zero value on the y axis (in
 pixels). By the time this method is called, the y axis and labels will
 already have been drawn, and the scale of the drawing (in pixels per
 unit score) will have been calculated and stored in
-$self->{_scale}. The y position (in pixels) of each point to graph
-will have been stored into the part, as $part->{_y_position}. Hence
+$self-E<gt>{_scale}. The y position (in pixels) of each point to graph
+will have been stored into the part, as $part-E<gt>{_y_position}. Hence
 you could draw a simple scatter plot with this code:
 
  sub lookup_draw_method {
@@ -627,7 +627,7 @@ you could draw a simple scatter plot with this code:
     $gd->setPixel($x,$y,$bgcolor);
  }
 
-=item $y_position = $self->score2position($score)
+=item $y_position = $self-E<gt>score2position($score)
 
 Translate a score into a y pixel position, obeying clipping rules and
 min and max values.
