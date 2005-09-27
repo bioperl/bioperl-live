@@ -73,13 +73,13 @@ Bioperl mailing lists  Your participation is much appreciated.
   bioperl-l@bioperl.org                         - General discussion
   http://bio.perl.org/MailList.html             - About the mailing lists
 
+
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
