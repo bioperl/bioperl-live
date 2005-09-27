@@ -1,5 +1,5 @@
-
-
+# $Id$
+#
 # BioPerl module for Bio::Tools::Primer::Feature
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
@@ -34,8 +34,9 @@ Bio::Tools::Primer::Feature - position of a single primer
 
 =head1 DESCRIPTION
 
-Primer Features represents one primer in a primer pair. This object is mainly for
-designing primers, and probably principly used in the primer design system
+Primer Features represents one primer in a primer pair. This object is
+mainly for designing primers, and probably principly used in the
+primer design system
 
 =head1 FEEDBACK
 
@@ -51,21 +52,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@ebi.ac.uk
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email birney-at-ebi.ac.uk
 
 =head1 APPENDIX
 

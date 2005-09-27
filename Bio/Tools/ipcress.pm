@@ -42,7 +42,10 @@ as annotation to an existing Bio::SeqI object for the purposes of
 automated annotation.
 
 This module is adapted from the Bio::Tools::EPCR module
-written by Jason Stajich (jason@bioperl.org).
+written by Jason Stajich (jason-at-bioperl.org).
+
+Ipcress is available through Guy Slater's Exonerate package 
+http://www.ebi.ac.uk/~guy/exonerate/
 
 =head1 FEEDBACK
 
@@ -58,10 +61,9 @@ http://bioperl.org/MailList.shtml  - About the mailing lists
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Sheldon McKay

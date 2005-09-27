@@ -1,4 +1,5 @@
-
+# $Id$
+#
 # BioPerl module for Bio::Tools::Primer::Assessor::Base
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
@@ -19,8 +20,6 @@ Bio::Tools::Primer::Assessor::Base - base class for common assessor things
 
     $base->weight(10);
 
-
-
 =head1 DESCRIPTION
 
 Base class for assessors, probably only defining the weight function
@@ -39,21 +38,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@ebi.ac.uk
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email birney-at-ebi.ac.uk
 
 =head1 APPENDIX
 

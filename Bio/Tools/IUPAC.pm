@@ -108,15 +108,14 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://www.bugzilla.bioperl.org/
 
 =head1 AUTHOR - Aaron Mackey
 
-Email amackey@virginia.edu
+Email amackey-at-virginia.edu
 
 =head1 APPENDIX
 

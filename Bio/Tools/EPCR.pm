@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::EPCR
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -55,17 +55,14 @@ http://bioperl.org/MailList.shtml  - About the mailing lists
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
+Email jason-at-bioperl.org
 
 =head1 APPENDIX
 

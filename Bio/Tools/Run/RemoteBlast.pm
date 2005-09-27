@@ -118,11 +118,14 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bio.perl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org
 
 =head1 AUTHOR -  Jason Stajich
 
-Email jason@bioperl.org
+Please do NOT contact me directly about this module.  Please post to
+the bioperl mailing list (L<FEEDBACK>). If you would like to be the
+official maintainer of this module, please volunteer on the list and
+we will make it official in this POD.
 
 =head1 APPENDIX
 

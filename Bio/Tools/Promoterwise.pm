@@ -1,3 +1,4 @@
+# $Id$
 # BioPerl module for Bio::Tools::Promoterwise
 #
 # Cared for by Shawn Hoon <shawnh@fugu-sg.org>
@@ -58,21 +59,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Shawn Hoon
 
 Email shawnh@fugu-sg.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

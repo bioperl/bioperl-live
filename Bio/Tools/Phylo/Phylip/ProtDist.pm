@@ -1,3 +1,4 @@
+# $Id$
 # BioPerl module for Bio::Tools::Phylo::Phylip::ProtDist
 #
 # Cared for by Shawn Hoon <shawnh@fugu-sg.org>
@@ -22,7 +23,8 @@ Bio::Tools::Phylo::Phylip::ProtDist - DESCRIPTION of Object
 
 =head1 DESCRIPTION
 
-A parser for ProtDist  output into a Bio::Matrix::PhylipDist object
+A parser for ProtDist output into a L<Bio::Matrix::PhylipDist> object.
+See also L<Bio::Matrix::IO::phylip> this module may go away.
 
 =head1 FEEDBACK
 
@@ -38,21 +40,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Shawn Hoon 
 
 Email shawnh@fugu-sg.org 
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

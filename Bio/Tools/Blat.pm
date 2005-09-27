@@ -37,10 +37,9 @@ Bio::Tools::Blat
 =head2 Reporting Bugs
 
  Report bugs to the Bioperl bug tracking system to help us keep track
- of the bugs and their resolution. Bug reports can be submitted via
- email or the web:
+ of the bugs and their resolution. Bug reports can be submitted the
+ web:
 
- bioperl-bugs@bioperl.org
  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Balamurugan Kumarasamy

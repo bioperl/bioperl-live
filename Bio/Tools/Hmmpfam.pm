@@ -1,4 +1,5 @@
-#BioPerl module for Bio::Tools::Hmmpfam
+# $Id$
+# BioPerl module for Bio::Tools::Hmmpfam
 #
 # Cared for by  Balamurugan Kumarasamy
 #
@@ -20,7 +21,7 @@ Bio::Tools::Hmmpfam
 
 =head1 DESCRIPTION
 
- Parser for Hmmpfam  program
+Parser for Hmmpfam  program.  See also L<Bio::SearchIO::hmmer>.
 
 =head1 FEEDBACK
 
@@ -35,11 +36,10 @@ Bio::Tools::Hmmpfam
 
 =head2 Reporting Bugs
 
- Report bugs to the Bioperl bug tracking system to help us keep track
- of the bugs and their resolution. Bug reports can be submitted via
- email or the web:
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
- bioperl-bugs@bioperl.org
  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Balamurugan Kumarasamy
