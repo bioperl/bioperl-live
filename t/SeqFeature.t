@@ -338,7 +338,7 @@ my ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
 my $db;
 
 unless( $skipdbtests ) {
- $db = new Bio::DB::GenBank(-verbose=> $BIOPERLDEBUG);
+ $db = new Bio::DB::GenBank(-verbose=> $ENV{BIOPERLDEBUG});
  $CDS->verbose(-1);
  my $cdsseq = $CDS->spliced_seq($db,1);
  
