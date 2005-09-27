@@ -63,7 +63,7 @@ particular sequence
   # Obtain the molecular weight of a sequence. Since the sequence 
   # may contain ambiguous monomers, the molecular weight is returned 
   # as a (reference to) a two element array containing greatest lower 
-  #  bound (GLB) and least upper bound (LUB) of the molecular weight
+  # bound (GLB) and least upper bound (LUB) of the molecular weight
   $weight = $seq_stats->get_mol_wt();
   print "\nMolecular weight (using statistics object) of sequence ", 
           $seqobj->id(), " is between ", $$weight[0], " and " ,
@@ -94,7 +94,6 @@ shown as is they were DNA. Objects are supposed to make the
 distinction when needed. This class is one of the few where this
 distinctions needs to be made. Internally, it changes all Ts into Us
 before weight and monomer count.
-
 
 SeqStats can be called in two distinct manners.  If only a single
 computation is required on a given sequence object, the method can be
@@ -176,7 +175,7 @@ the bugs and their resolution.  Bug reports can be submitted the web:
 
 =head1 AUTHOR -  Peter Schattner
 
-Email schattner@alum.mit.edu
+Email schattner at alum.mit.edu
 
 =head1 APPENDIX
 
@@ -199,7 +198,7 @@ BEGIN {
 			 'dna'     => [ qw(A C G T R Y M K S W H B V D X N) ],
 		    'rna'     => [ qw(A C G U R Y M K S W H B V D X N) ],
 		    'protein' => [ qw(A R N D C Q E G H I L K M F U
-				      P S T W X Y V B Z *) ], # sac: added B, Z
+									 P S T W X Y V B Z *) ], # sac: added B, Z
 						);
 
 # SAC: new strict alphabet: doesn't allow any ambiguity characters.
@@ -545,7 +544,7 @@ sub get_mol_wt {
 =head2  count_codons
 
  Title   : count_codons
- Usage   : $rcount = $seqstats->count_codons (); or
+ Usage   : $rcount = $seqstats->count_codons(); or
            $rcount = Bio::Tools::SeqStats->count_codons($seqobj);
 
  Function: Counts the number of each type of codons in a given frame
