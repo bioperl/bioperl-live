@@ -30,7 +30,7 @@ objects.
 
 =head1 AUTHOR
 
-Steve Chervitz E<lt>sac@bioperl.orgE<gt>
+Steve Chervitz E<lt>sac-at-bioperl.orgE<gt>
 
 =head1 DISCLAIMER
 

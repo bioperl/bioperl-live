@@ -53,9 +53,11 @@ A list of module names and formats is below:
   axt        AXT format
   sim4       Sim4
   hmmer      HMMER hmmpfam and hmmsearch
-  exonerate  Exonerate CIGAR format (moderatley supported, may be broken)
+  exonerate  Exonerate CIGAR and VULGAR format
   blastxml   NCBI BLAST XML
   wise       Genewise -genesf format
+
+See the SearchIO HOWTO linked from http://bioperl.org/HOWTOs/
 
 
 =head1 FEEDBACK
@@ -72,10 +74,9 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich & Steve Chervitz

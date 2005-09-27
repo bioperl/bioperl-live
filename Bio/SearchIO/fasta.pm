@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SearchIO::fasta
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -21,12 +21,19 @@ Bio::SearchIO::fasta - A SearchIO parser for FASTA results
    my $searchio = new Bio::SearchIO(-format => 'fasta',
 				    -file   => 'report.FASTA');
    while( my $result = $searchio->next_result ) {
-	# ....
+	# ... do what you would normally doi with Bio::SearchIO.
    }
 
 =head1 DESCRIPTION
 
-This object contains the event based parsing code for FASTA format reports.
+This object contains the event based parsing code for FASTA format
+reports.  It creates L<Bio::Search::HSP::FastaHSP> objects instead of
+L<Bio::Search::HSP::GenericHSP> for the HSP objects. 
+
+This module will parse -m 9 -d 0 output as well as default m 1 output
+from FASTA as well as SSEARCH.
+
+See the SearchIO HOWTO linked from http://bioperl.org/HOWTOs/
 
 =head1 FEEDBACK
 
@@ -42,21 +49,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Jason Stajich
+=head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason@bioperl.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email jason-at-bioperl.org
 
 =head1 APPENDIX
 

@@ -34,13 +34,22 @@ Slater) output.  You can get Exonerate at
 http://cvsweb.sanger.ac.uk/cgi-bin/cvsweb.cgi/exonerate/?cvsroot=Ensembl
 [until Guy puts up a Web reference,publication for it.]).
 
-
 An optional parameter -min_intron is supported by the L<new>
 initialization method.  This is if you run Exonerate with a different
 minimum intron length (default is 30) the parser will be able to
 detect the difference between standard deletions and an intron.  Still
 some room to play with there that might cause this to get
 misinterpreted that has not been fully tested or explored.
+
+The VULGAR and CIGAR formats should be parsed okay now creating HSPs
+where appropriate (so merging match states where appropriate rather
+than breaking an HSP at each indel as it may have done in the past).
+The GFF that comes from exonerate is still probably a better way to go
+if you are doing protein2genome or est2genome mapping.
+For example you can see this script:
+
+http://fungal.genome.duke.edu/~jes12/software/scripts/process_exonerate_gff3.pl
+
 
 =head1 FEEDBACK
 
@@ -56,21 +65,14 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bioperl.org/bioperl-bugs/
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email jason-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -90,10 +92,7 @@ use Bio::SearchIO;
 
 @ISA = qw(Bio::SearchIO );
 
-use POSIX;
-
-
-%MODEMAP = ('ExonerateOutput' => 'result',
+%MODEMAP = ( 'ExonerateOutput' => 'result',
     'Hit'             => 'hit',
     'Hsp'             => 'hsp'
     );
