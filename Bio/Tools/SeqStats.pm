@@ -600,7 +600,8 @@ sub count_codons {
 
 	if (!$_is_strict ) {
 		$seqobj->warn(" Sequence $seqobj contains ambiguous bases.\n".
-		" All codons with ambiguous bases will be added together in count.\n");
+		" All codons with ambiguous bases will be added together in count.\n")
+                    if $self->verbose >= 0 ;
 	}
 
 	my $seq = $seqobj->seq();
