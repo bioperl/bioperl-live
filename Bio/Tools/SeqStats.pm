@@ -610,7 +610,7 @@ sub count_codons {
 
  CODON:
 	while (length($seq) > 2) {
-		$codon = substr($seq,0,3);
+		$codon = uc substr($seq,0,3);
 		$seq = substr($seq,3);
 		if ($codon =~ /[^ACTGU]/i) {
 			$$rcount{'ambiguous'}++; #lump together ambiguous codons
