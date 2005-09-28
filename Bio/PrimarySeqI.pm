@@ -12,45 +12,42 @@
 
 =head1 NAME
 
-Bio::PrimarySeqI [Developers] - Interface definition for a Bio::PrimarySeq
+Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
 =head1 SYNOPSIS
 
-
     # Bio::PrimarySeqI is the interface class for sequences.
-
     # If you are a newcomer to bioperl, you should
     # start with Bio::Seq documentation. This
     # documentation is mainly for developers using
     # Bioperl.
 
-    # to test this is a seq object
+    # Test if this is a seq object
 
     $obj->isa("Bio::PrimarySeqI") ||
       $obj->throw("$obj does not implement the Bio::PrimarySeqI interface");
 
-    # accessors
+    # Accessors
 
     $string    = $obj->seq();
     $substring = $obj->subseq(12,50);
-    $display   = $obj->display_id(); # for human display
-    $id        = $obj->primary_id(); # unique id for this object,
-                                     # implementation defined
-    $unique_key= $obj->accession_number();
-                       # unique biological id
+    $display   = $obj->display_id();       # for human display
+    $id        = $obj->primary_id();       # unique id for this object,
+                                           # implementation defined
+    $unique_key= $obj->accession_number(); # unique biological id
 
-    # object manipulation
+
+    # Object manipulation
 
     eval {
-	$rev    = $obj->revcom();
+	   $rev    = $obj->revcom();
     };
     if( $@ ) {
-	$obj->throw("Could not reverse complement. ".
+	   $obj->throw("Could not reverse complement. ".
 		    "Probably not DNA. Actual exception\n$@\n");
     }
 
     $trunc = $obj->trunc(12,50);
-
     # $rev and $trunc are Bio::PrimarySeqI compliant objects
 
 
@@ -58,12 +55,11 @@ Bio::PrimarySeqI [Developers] - Interface definition for a Bio::PrimarySeq
 
 This object defines an abstract interface to basic sequence
 information - for most users of the package the documentation (and
-methods) in this class are not useful - this is a developers only
+methods) in this class are not useful - this is a developers-only
 class which defines what methods have to be implmented by other Perl
 objects to comply to the Bio::PrimarySeqI interface. Go "perldoc
 Bio::Seq" or "man Bio::Seq" for more information on the main class for
 sequences.
-
 
 PrimarySeq is an object just for the sequence and its name(s), nothing
 more. Seq is the larger object complete with features. There is a pure
@@ -74,13 +70,12 @@ want to wrap their own Perl Objects/RDBs/FileSystems etc in way that
 they "are" bioperl sequence objects, even though it is not using Perl
 to store the sequence etc.
 
-
-This interface defines what bioperl consideres necessary to "be" a
-sequence, without providing an implementation of this. (An
-implementation is provided in Bio::PrimarySeq). If you want to provide
-a Bio::PrimarySeq 'compliant' object which in fact wraps another
+This interface defines what bioperl considers necessary to "be" a
+sequence, without providing an implementation of this, an
+implementation is provided in Bio::PrimarySeq. If you want to provide
+a Bio::PrimarySeq-compliant object which in fact wraps another
 object/database/out-of-perl experience, then this is the correct thing
-to wrap, generally by providing a wrapper class which would inheriet
+to wrap, generally by providing a wrapper class which would inherit
 from your object and this Bio::PrimarySeqI interface. The wrapper class
 then would have methods lists in the "Implementation Specific
 Functions" which would provide these methods for your object.
@@ -100,10 +95,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
@@ -137,13 +130,12 @@ define.
 =head2 seq
 
  Title   : seq
- Usage   : $string    = $obj->seq()
+ Usage   : $string = $obj->seq()
  Function: Returns the sequence as a string of letters. The
            case of the letters is left up to the implementer.
            Suggested cases are upper case for proteins and lower case for
-           DNA sequence (IUPAC standard),
-           but implementations are suggested to keep an open mind about
-           case (some users... want mixed case!)
+           DNA sequence (IUPAC standard), but implementations are suggested to 
+           keep an open mind about case (some users... want mixed case!)
  Returns : A scalar
  Status  : Virtual
 
@@ -158,13 +150,13 @@ sub seq {
 
  Title   : subseq
  Usage   : $substring = $obj->subseq(10,40);
- Function: returns the subseq from start to end, where the first base
-           is 1 and the number is inclusive, ie 1-2 are the first two
-           bases of the sequence
+ Function: Returns the subseq from start to end, where the first base
+           is 1 and the number is inclusive, i.e. 1-2 are the first two
+           bases of the sequence.
 
-           Start cannot be larger than end but can be equal
+           Start cannot be larger than end but can be equal.
 
- Returns : a string
+ Returns : A string
  Args    :
  Status  : Virtual
 
@@ -179,7 +171,8 @@ sub subseq{
 
  Title   : display_id
  Usage   : $id_string = $obj->display_id();
- Function: returns the display id, aka the common name of the Sequence object.
+ Function: Returns the display id, also known as the common name of the Sequence 
+           object.
 
            The semantics of this is that it is the most likely string
            to be used as an identifier of the sequence, and likely to
@@ -193,7 +186,7 @@ sub subseq{
            example, or extending the sequence object) to solve this.
 
            Notice that $seq->id() maps to this function, mainly for
-           legacy/convience issues
+           legacy/convenience reasons.
  Returns : A string
  Args    : None
  Status  : Virtual
@@ -246,8 +239,6 @@ sub accession_number {
            For sequences with no accession number, this method should
            return a stringified memory location.
 
-           [Note this method name is likely to change in 1.3]
-
  Returns : A string
  Args    : None
  Status  : Virtual
@@ -267,7 +258,7 @@ sub primary_id {
  Usage   : if( $obj->can_call_new ) {
              $newobj = $obj->new( %param );
 	 }
- Function: can_call_new returns 1 or 0 depending
+ Function: Can_call_new returns 1 or 0 depending
            on whether an implementation allows new
            constructor to be called. If a new constructor
            is allowed, then it should take the followed hashed
@@ -278,7 +269,6 @@ sub primary_id {
 			   -accession_number => $accession
 			   -alphabet => 'dna',
 			   );
- Example :
  Returns : 1 or 0
  Args    :
 
@@ -300,13 +290,13 @@ sub can_call_new{
  Function: Returns the type of sequence being one of
            'dna', 'rna' or 'protein'. This is case sensitive.
 
-           This is not called <type> because this would cause
+           This is not called "type" because this would cause
            upgrade problems from the 0.5 and earlier Seq objects.
 
- Returns : a string either 'dna','rna','protein'. NB - the object must
-           make a call of the type - if there is no type specified it
+ Returns : A string either 'dna','rna','protein'. NB - the object must
+           make a call of the alphabet, if there is no alphabet specified it
            has to guess.
- Args    : none
+ Args    : None
  Status  : Virtual
 
 
@@ -347,12 +337,12 @@ are encouraged to override these methods
  Function: Produces a new Bio::PrimarySeqI implementing object which
            is the reversed complement of the sequence. For protein
            sequences this throws an exception of "Sequence is a
-           protein. Cannot revcom"
+           protein. Cannot revcom".
 
            The id is the same id as the original sequence, and the
            accession number is also indentical. If someone wants to
            track that this sequence has be reversed, it needs to
-           define its own extensions
+           define its own extensionsj.
 
            To do an inplace edit of an object you can go:
 
@@ -363,7 +353,7 @@ are encouraged to override these methods
            efficient as an inplace edit.
 
  Returns : A new (fresh) Bio::PrimarySeqI object
- Args    : none
+ Args    : None
 
 
 =cut
@@ -430,10 +420,8 @@ sub revcom{
 
  Title   : trunc
  Usage   : $subseq = $myseq->trunc(10,100);
- Function: Provides a truncation of a sequence,
-
- Example :
- Returns : a fresh Bio::PrimarySeqI implementing object
+ Function: Provides a truncation of a sequence.
+ Returns : A fresh Bio::PrimarySeqI implementing object.
  Args    : Two integers denoting first and last base of the sub-sequence.
 
 
@@ -480,33 +468,31 @@ sub trunc{
 
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
-           #if full CDS expected:
+           Or if a full CDS is expected:
            $protein_seq_obj = $cds_seq_obj->translate(undef,undef,undef,undef,1);
- Function:
-
-           Provides the translation of the DNA sequence using full
+ Function: Provides the translation of the DNA sequence using full
            IUPAC ambiguities in DNA/RNA and amino acid codes.
 
            The full CDS translation is identical to EMBL/TREMBL
            database translation. Note that the trailing terminator
-           character is removed before returning the translation
+           character is removed before returning the translated protein
            object.
 
            Note: if you set $dna_seq_obj->verbose(1) you will get a
            warning if the first codon is not a valid initiator.
 
            Added way of translating using a custom codon table.  This
-           has to be the final addition to this overloaded interface!
-
+           has to be the final addition to this awkward interface!
 
  Returns : A Bio::PrimarySeqI implementing object
- Args    : character for terminator (optional) defaults to '*'
-           character for unknown amino acid (optional) defaults to 'X'
-           frame (optional) valid values 0, 1, 2, defaults to 0
-           codon table id (optional) defaults to 1
-           complete coding sequence expected, defaults to 0 (false)
-           boolean, throw exception if not complete CDS (true) or defaults to warning (false)
-           codontable, a custom Bio::Tools::CodonTable object, optional
+ Args    : 1: character for terminator (optional), defaults to '*'.
+           2: character for unknown amino acid (optional), defaults to 'X'.
+           3: frame (optional), valid values are 0, 1, 2, defaults to 0.
+           4: codon table id (optional), defaults to 1.
+           5: complete coding sequence expected, defaults to 0 (false).
+           6: boolean, throw exception if not complete CDS (true),
+              defaults to warning (false)
+           7: codontable, a custom Bio::Tools::CodonTable object (optional).
 
 =cut
 
@@ -525,15 +511,15 @@ sub translate {
     ## the codon table ID
     unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
 
-    ##Error if monomer is "Amino"
+    ## Error if alphabet is "protein"
     $self->throw("Can't translate an amino acid sequence.") if
 	($self->alphabet eq 'protein');
 
-    ##Error if frame is not 0, 1 or 2
+    ## Error if frame is not 0, 1 or 2
     $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
 	($frame == 0 or $frame == 1 or $frame == 2);
 
-    #warns if ID is invalid
+    ## warns if ID is invalid
     if ($codonTable) {
         $self->throw("Need a Bio::Tools::CodonTable object, not". $codonTable)
             unless $codonTable->isa('Bio::Tools::CodonTable');
@@ -608,7 +594,6 @@ sub translate {
  Usage   : $id = $seq->id()
  Function: ID of the sequence. This should normally be (and actually is in
            the implementation provided here) just a synonym for display_id().
- Example :
  Returns : A string.
  Args    :
 
@@ -626,9 +611,8 @@ sub  id {
 
  Title   : length
  Usage   : $len = $seq->length()
- Function:
- Example :
- Returns : integer representing the length of the sequence.
+ Function: 
+ Returns : Integer representing the length of the sequence.
  Args    :
 
 
@@ -645,8 +629,7 @@ sub  length {
  Usage   : $seq->desc($newval);
            $description = $seq->desc();
  Function: Get/set description text for a seq object
- Example :
- Returns : value of desc
+ Returns : Value of desc
  Args    : newvalue (optional)
 
 
