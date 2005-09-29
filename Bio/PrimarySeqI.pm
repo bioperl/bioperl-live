@@ -17,9 +17,8 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 =head1 SYNOPSIS
 
     # Bio::PrimarySeqI is the interface class for sequences.
-    # If you are a newcomer to bioperl, you should
-    # start with Bio::Seq documentation. This
-    # documentation is mainly for developers using
+    # If you are a newcomer to bioperl, you should start with Bio::Seq 
+    # documentation. This documentation is mainly for developers using
     # Bioperl.
 
     # Test if this is a seq object
@@ -40,7 +39,7 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
     # Object manipulation
 
     eval {
-	   $rev    = $obj->revcom();
+	   $rev = $obj->revcom();
     };
     if( $@ ) {
 	   $obj->throw("Could not reverse complement. ".
@@ -63,8 +62,8 @@ sequences.
 
 PrimarySeq is an object just for the sequence and its name(s), nothing
 more. Seq is the larger object complete with features. There is a pure
-perl implementation of this in Bio::PrimarySeq. If you just want to
-use Bio::PrimarySeq objects, then please read that module first. This
+perl implementation of this in L<Bio::PrimarySeq>. If you just want to
+use L<Bio::PrimarySeq> objects, then please read that module first. This
 module defines the interface, and is of more interest to people who
 want to wrap their own Perl Objects/RDBs/FileSystems etc in way that
 they "are" bioperl sequence objects, even though it is not using Perl
@@ -72,7 +71,7 @@ to store the sequence etc.
 
 This interface defines what bioperl considers necessary to "be" a
 sequence, without providing an implementation of this, an
-implementation is provided in Bio::PrimarySeq. If you want to provide
+implementation is provided in L<Bio::PrimarySeq>. If you want to provide
 a Bio::PrimarySeq-compliant object which in fact wraps another
 object/database/out-of-perl experience, then this is the correct thing
 to wrap, generally by providing a wrapper class which would inherit
@@ -468,8 +467,12 @@ sub trunc{
 
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
-           Or if a full CDS is expected:
-           $protein_seq_obj = $cds_seq_obj->translate(undef,undef,undef,undef,1);
+            
+           Or if you expect a full coding sequence (CDS) translation, with 
+           inititator at the beginning and terminator at the end:
+
+           $protein_seq_obj = $cds_seq_obj->translate(-complete => 1);
+
  Function: Provides the translation of the DNA sequence using full
            IUPAC ambiguities in DNA/RNA and amino acid codes.
 
@@ -481,11 +484,21 @@ sub trunc{
            Note: if you set $dna_seq_obj->verbose(1) you will get a
            warning if the first codon is not a valid initiator.
 
-           Added way of translating using a custom codon table.  This
-           has to be the final addition to this awkward interface!
-
  Returns : A Bio::PrimarySeqI implementing object
- Args    : 1: character for terminator (optional), defaults to '*'.
+ Args    : -terminator    => <character for terminator>      default is *
+           -unknown       => <character for unknown>         default is X
+           -frame         => <frame>                         default is 0
+           -codontable_id => <codon table id>                default is 1
+           -complete      => <complete CDS expected>         default is 0
+           -throw         => <throw exception if incomplete> default is 0
+           -codontable    => <custom Bio::Tools::CodonTable object>
+
+For details on codon tables see L<Bio::Tools::CodonTable>.
+
+           Deprecated argument set (v. 1.5.1 and prior versions)
+           where each argument is an element in an array.
+
+           1: character for terminator (optional), defaults to '*'.
            2: character for unknown amino acid (optional), defaults to 'X'.
            3: frame (optional), valid values are 0, 1, 2, defaults to 0.
            4: codon table id (optional), defaults to 1.
@@ -497,9 +510,20 @@ sub trunc{
 =cut
 
 sub translate {
-    my($self) = shift;
-    my($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable) = @_;
-    my($i, $len, $output) = (0,0,'');
+	 my ($self,@args) = @_;
+	 my ($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable, $orf);
+	 
+	 ## new API with named parameters, post 1.5.1
+	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
+		 ($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable, $orf) =
+			$self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID 
+										 COMPLETE THROW CODONTABLE ORF)], @args);
+	 ## old API, 1.5.1 and preceding versions
+	 } else {
+		 ($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable) = @args;
+	 }
+
+	 my($i, $len, $output) = (0,0,'');
     my($codon)   = "";
     my $aa;
 
@@ -513,25 +537,25 @@ sub translate {
 
     ## Error if alphabet is "protein"
     $self->throw("Can't translate an amino acid sequence.") if
-	($self->alphabet eq 'protein');
+		($self->alphabet eq 'protein');
 
     ## Error if frame is not 0, 1 or 2
     $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
-	($frame == 0 or $frame == 1 or $frame == 2);
+		($frame == 0 or $frame == 1 or $frame == 2);
 
     ## warns if ID is invalid
     if ($codonTable) {
-        $self->throw("Need a Bio::Tools::CodonTable object, not". $codonTable)
-            unless $codonTable->isa('Bio::Tools::CodonTable');
+		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
+			unless $codonTable->isa('Bio::Tools::CodonTable');
     } else {
-        $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
+		 $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
     }
 
     my ($seq) = $self->seq();
 
     # deal with frame offset.
     if( $frame ) {
-	$seq = substr ($seq,$frame);
+		 $seq = substr ($seq,$frame);
     }
 
     # Translate it
@@ -542,50 +566,49 @@ sub translate {
 	
     # only if we are expecting to translate a complete coding region
     if ($fullCDS) {
-	my $id = $self->display_id;
-	#remove the stop character
-	if( substr($output,-1,1) eq $stop ) {
-	    chop $output;
-	} else {
-	    $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
-	    $self->warn("Seq [$id]: Not using a valid terminator codon!");
-	}
-	# test if there are terminator characters inside the protein sequence!
-	if ($output =~ /\*/) {
-	    $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
-	    $self->warn("Seq [$id]: Terminator codon inside CDS!");
-	}
-	# if the initiator codon is not ATG, the amino acid needs to changed into M
-	if ( substr($output,0,1) ne 'M' ) {
-	    if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
-		$output = 'M'. substr($output,1);
-	    }
-	    elsif ($throw) {
-		$self->throw("Seq [$id]: Not using a valid initiator codon!");
-	    } else {
-		$self->warn("Seq [$id]: Not using a valid initiator codon!");
-	    }
-	}
+		 my $id = $self->display_id;
+		 #remove the stop character
+		 if( substr($output,-1,1) eq $stop ) {
+			 chop $output;
+		 } else {
+			 $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
+			 $self->warn("Seq [$id]: Not using a valid terminator codon!");
+		 }
+		 # test if there are terminator characters inside the protein sequence!
+		 if ($output =~ /\*/) {
+			 $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
+			 $self->warn("Seq [$id]: Terminator codon inside CDS!");
+		 }
+		 # if the initiator codon is not ATG, the amino acid needs to changed into M
+		 if ( substr($output,0,1) ne 'M' ) {
+			 if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
+				 $output = 'M'. substr($output,1);
+			 }
+			 elsif ($throw) {
+				 $self->throw("Seq [$id]: Not using a valid initiator codon!");
+			 } else {
+				 $self->warn("Seq [$id]: Not using a valid initiator codon!");
+			 }
+		 }
     }
 
     my $seqclass;
     if($self->can_call_new()) {
-	$seqclass = ref($self);
+		 $seqclass = ref($self);
     } else {
-	$seqclass = 'Bio::PrimarySeq';
-	$self->_attempt_to_load_Seq();
+		 $seqclass = 'Bio::PrimarySeq';
+		 $self->_attempt_to_load_Seq();
     }
     my $out = $seqclass->new( '-seq' => $output,
-			      '-display_id'  => $self->display_id,
-			      '-accession_number' => $self->accession_number,
-			      # is there anything wrong with retaining the
-			      # description?
-			      '-desc' => $self->desc(),
-			      '-alphabet' => 'protein',
+										'-display_id'  => $self->display_id,
+										'-accession_number' => $self->accession_number,
+										# is there anything wrong with retaining the
+										# description?
+										'-desc' => $self->desc(),
+										'-alphabet' => 'protein',
                               '-verbose' => $self->verbose
 			      );
     return $out;
-
 }
 
 =head2 id
