@@ -15,7 +15,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 37;
+	plan tests => 41;
 }
 use Bio::PrimarySeq;
 use Bio::Location::Simple;
@@ -52,24 +52,27 @@ ok $seq->namespace_string(), "t:X677667.0";
 ok $seq->description(), 'Sample Bio::Seq object';
 ok $seq->display_name(), "new-id";
 
-my $location = new Bio::Location::Simple('-start' => 2, '-end' => 5,
-					 '-strand' => -1);
+my $location = new Bio::Location::Simple('-start' => 2, 
+													  '-end' => 5,
+													  '-strand' => -1);
 ok ($seq->subseq($location), 'ACCA');
 
 my $splitlocation = new Bio::Location::Split();
-$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 1,
+$splitlocation->add_sub_Location( new Bio::Location::Simple(
+								 '-start' => 1,
 							    '-end'   => 4,
 							    '-strand' => 1));
 
-$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 7,
+$splitlocation->add_sub_Location( new Bio::Location::Simple(
+                         '-start' => 7,
 							    '-end'   => 12,
 							    '-strand' => -1));
 
 ok( $seq->subseq($splitlocation), 'TTGGTGACGC');
 
 my $fuzzy = new Bio::Location::Fuzzy(-start => '<3',
-				     -end   => '8',
-				     -strand => 1);
+												 -end   => '8',
+												 -strand => 1);
 
 ok( $seq->subseq($fuzzy), 'GGTGGC');
 
@@ -88,27 +91,51 @@ ok( $trunc->seq(), 'GGTGGC');
 my $rev = $seq->revcom();
 ok defined $rev; 
 
-ok $rev->seq(), 'AGTTGACGCCACCAA', 'rev faile was ' . $rev->seq();
+ok $rev->seq(), 'AGTTGACGCCACCAA', 'revcom() failed, was ' . $rev->seq();
 
 #
 # Translate
 #
 
-my $aa = $seq->translate();
+my $aa = $seq->translate(); # TTG GTG GCG TCA ACT
 ok $aa->seq, 'LVAST', "Translation: ". $aa->seq;
 
-$seq->seq('TTGGTGGCGTCAACTTAA');
+# tests for non-standard initiator codon coding for
+# M by making translate() look for an initiator codon and
+# terminator codon ("complete", the 5th argument below)
+$seq->seq('TTGGTGGCGTCAACTTAA'); # TTG GTG GCG TCA ACT TAA
 $aa = $seq->translate(undef, undef, undef, undef, 1);
-
-# tests for non-Methionin initiator codon (AGT) coding for M
 ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
+
+# same test as above, but using named parameter
+$aa = $seq->translate(-complete => 1);
+ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
+
+# ignore codons outside the CDS
+#$seq->seq('TTTATGGTGGCGTCAACTTAATTT'); # ATG GTG GCG TCA ACT TAA
+#$aa = $seq->translate(-orf => 1);
+#ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
+
+# use non-standard codon table where terminator is read as Q
+$seq->seq('ATGGTGGCGTCAACTTAG'); # ATG GTG GCG TCA ACT TAG
+$aa = $seq->translate(-codontable_id => 6);
+ok $aa->seq, 'MVASTQ', "Translation: ". $aa->seq;
+
+# insert an odd character instead of terminating
+$aa = $seq->translate(-terminator => 'X');
+ok $aa->seq, 'MVASTX', "Translation: ". $aa->seq;
+
+# change frame from default
+$aa = $seq->translate(-frame => 1); # TGG TGG CGT CAA CTT AG
+ok $aa->seq, 'WWRQL', "Translation: ". $aa->seq;
+
 
 # test for character '?' in the sequence string
 ok $seq->seq('TTGGTGGCG?CAACT'), 'TTGGTGGCG?CAACT';
 
 # test for some aliases
-$seq = Bio::PrimarySeq->new('-id'          => 'aliasid',
-									 '-description' => 'Alias desc');
+$seq = Bio::PrimarySeq->new(-id          => 'aliasid',
+									 -description => 'Alias desc');
 ok($seq->description, 'Alias desc');
 ok($seq->display_id, 'aliasid');
 
