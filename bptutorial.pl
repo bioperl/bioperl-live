@@ -1092,48 +1092,63 @@ these tasks easily. Any sequence object which is not of alphabet 'protein'
 can be translated by simply calling the method which returns a protein
 sequence object:
 
-  $translation1 = $my_seq_object->translate;
+  $prot_obj = $my_seq_object->translate;
+
+All codons will be translated, including those before and after initiation
+and termination codons.
 
 However, the translate method can also be passed several optional
-parameters to modify its behavior. For example, the first two
-arguments to translate() can be used to modify the characters used to
-represent stop (default '*') and unknown amino acid ('X'). (These are
-normally best left untouched.)  The third argument determines the
-frame of the translation. The default frame is "0".  To get
-translations in the other two forward frames, we would write:
+parameters to modify its behavior. For example, you can tell translate() 
+to modify the characters used to represent terminator (default '*') and unknown 
+amino acids (default 'X').
 
-  $translation2 = $my_seq_object->translate(undef,undef,1);
-  $translation3 = $my_seq_object->translate(undef,undef,2);
+  $prot_obj = $my_seq_object->translate(-terminator => '-');
+  $prot_obj = $my_seq_object->translate(-unknown => '_');
 
-The fourth argument to translate() makes it possible to use
+You can also determine the frame of the translation. The default 
+frame starts at the first nucleotide (frame 0). To get translation in the next
+frame, we would write:
+
+  $prot_obj = $my_seq_object->translate(-frame => 1);
+
+The codontable_id argument to translate() makes it possible to use
 alternative genetic codes. There are currently 16 codon tables
 defined, including tables for 'Vertebrate Mitochondrial', 'Bacterial',
 'Alternative Yeast Nuclear' and 'Ciliate, Dasycladacean and Hexamita
-Nuclear' translation. These tables are located in the object
-Bio::Tools::CodonTable which is used by the translate method. For
+Nuclear' translation. All these tables are located in the
+L<Bio::Tools::CodonTable> module which is used by the translate method. For
 example, for mitochondrial translation:
 
-  $human_mitochondrial_translation = $seq_obj->translate(undef,undef,undef,2);
+  $prot_obj = $seq_obj->translate(-codontable_id => 2);
 
 If we want to translate full coding regions (CDS) the way major
 nucleotide databanks EMBL, GenBank and DDBJ do it, the translate
-method has to perform more tricks. Specifically, 'translate' needs to
+method has to perform more tricks. Specifically, translate() needs to
 confirm that the sequence has appropriate start and terminator codons
 at the beginning and the end of the sequence and that there are no
 terminator codons present within the sequence.  In addition, if the
 genetic code being used has an atypical (non-ATG) start codon, the
 translate method needs to convert the initial amino acid to
-methionine.  These checks and conversions are triggered by setting the
-fifth argument of the translate method to evaluate to "true".
+methionine.  These checks and conversions are triggered by setting
+"complete" to 1:
 
-If argument 5 is set to true and the criteria for a proper CDS are
-not met, the method, by default, issues a warning. By setting the
-sixth argument to evaluate to "true", one can instead instruct
-the program to die if an improper CDS is found, e.g.
+  $prot_obj = $my_seq_object->translate(-complete => 1);
 
-  $protein_object = $cds->translate(undef,undef,undef,undef,1,'die_if_errors');
+If "complete" is set to true and the criteria for a proper CDS are
+not met, the method, by default, issues a warning. By setting "throw"
+to 1, one can instead instruct the program to die if an improper CDS is 
+found, e.g.
+
+  $prot_obj = $my_seq_object->translate(-complete => 1,
+                                        -throw => 1);
+
+You can also create a custom codon table and pass this object to 
+translate:
+
+  $prot_obj = $my_seq_object->translate(-codontable => $table_obj);
 
 See L<Bio::Tools::CodonTable> for related details.
+
 
 =head2 III.3.2 Obtaining basic sequence statistics (SeqStats,SeqWord)
 
