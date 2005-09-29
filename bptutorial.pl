@@ -7,7 +7,7 @@ BioPerlTutorial - a tutorial for bioperl
 
 =head1 VERSION
 
-1.5
+1.5.1
 
 =head1 AUTHOR
 
@@ -2680,8 +2680,6 @@ manipulation of biology relational databases via a perl
 interface. Obviously it requires having administrative access to a
 relational database.  Currently the bioperl-db interface is
 implemented to support databases in the Mysql, Postgres and Oracle formats.
-More details on bioperl-db can be found in the bioperl-db CVS directory at
-http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-db/?cvsroot=bioperl.
 
 The database schema itself is not specified in the bioperl-db package but
 in the BioSQL package, available at http://obda.open-bio.org/. It is worth 
@@ -2692,11 +2690,13 @@ features, and annotations can be easily loaded into the databases, as in
   $loader->store($newid,$seqobj)
 
 Similarly one can query the database in a variety of ways and retrieve
-arrays of Seq objects. See biodatabases.pod,
-L<Bio::DB::SQL::SeqAdaptor>, L<Bio::DB::SQL::QueryConstraint>, and
-L<Bio::DB::SQL::BioQuery> for examples. The README file in the
-bioperl-db package has a helpful overview of the approach used in
-bioperl-db.
+arrays of Seq objects. See biodatabases.pod, Bio::DB::SQL::SeqAdaptor,
+Bio::DB::SQL::QueryConstraint, and Bio::DB::SQL::BioQuery for examples. 
+
+The bioperl-db package can be downloaded or browsed at
+http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/bioperl-db/?cvsroot=bioperl
+Also, the README file in the bioperl-db package has a helpful overview of the 
+approachs used in bioperl-db.
 
 =for html <A NAME ="iv.4"></A>
 
