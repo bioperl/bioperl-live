@@ -58,10 +58,10 @@ Bio::Tools::CodonTable - Bioperl codon table object
 
 =head1 DESCRIPTION
 
-Codon tables are also called translation tables or genetics codes
-since that is what they try to represent. A bit more complete picture
+Codon tables are also called translation tables or genetic codes
+since that is what they represent. A bit more complete picture
 of the full complexity of codon usage in various taxonomic groups
-presented at the NCBI Genetic Codes Home page.
+is presented at the NCBI Genetic Codes Home page.
 
 CodonTable is a BioPerl class that knows all current translation
 tables that are used by primary nucleotide sequence databases
@@ -77,10 +77,12 @@ acid transcripts. The CodonTable object accepts codons of both type as
 input and allows the user to set the mode for output when reverse
 translating. Its default for output is DNA.
 
-Note: This class deals primarily with individual codons and amino
-      acids. However in the interest of speed you can L<translate>
-      longer sequence, too. The full complexity of protein translation
-      is tackled by L<Bio::PrimarySeqI::translate>.
+Note: 
+
+This class deals primarily with individual codons and amino
+acids. However in the interest of speed you can L<translate>
+longer sequence, too. The full complexity of protein translation
+is tackled by L<Bio::PrimarySeqI::translate>.
 
 
 The amino acid codes are IUPAC recommendations for common amino acids:
@@ -116,7 +118,7 @@ only differences are in available initiator codons.
 
 
 NCBI Genetic Codes home page:
-     http://www.ncbi.nlm.nih.gov/htbin-post/Taxonomy/wprintgc?mode=c
+     http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi?mode=c
 
 EBI Translation Table Viewer:
      http://www.ebi.ac.uk/cgi-bin/mutations/trtables.cgi
@@ -124,7 +126,7 @@ EBI Translation Table Viewer:
 Amended ASN.1 version with ids 16 and 21 is at:
      ftp://ftp.ebi.ac.uk/pub/databases/geneticcode/
 
-Thank your for Matteo diTomasso for the original Perl implementation
+Thanks to Matteo diTomasso for the original Perl implementation
 of these tables.
 
 =head1 FEEDBACK
