@@ -16,7 +16,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
 =head1 SYNOPSIS
 
-  # The Bio::SeqIO for file reading, Bio::DB::GenBank for
+  # Bio::SeqIO for file reading, Bio::DB::GenBank for
   # database reading
 
   use Bio::Seq;
@@ -25,16 +25,17 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   # make from memory
   $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-				   -id  => 'GeneFragment-12',
-				   -accession_number => 'X78121',
-				   -alphabet => 'dna',
-				   -is_circular => 1
-				   );
+				                       -id  => 'GeneFragment-12',
+				                       -accession_number => 'X78121',
+				                       -alphabet => 'dna',
+				                       -is_circular => 1
+				                     );
   print "Sequence ", $seqobj->id(), " with accession ", 
     $seqobj->accession_number, "\n";
 
   # read from file
-  $inputstream = Bio::SeqIO->new(-file => "myseq.fa",-format => 'Fasta');
+  $inputstream = Bio::SeqIO->new(-file => "myseq.fa",
+                                 -format => 'Fasta');
   $seqobj = $inputstream->next_seq();
   print "Sequence ", $seqobj->id(), " and desc ", $seqobj->desc, "\n";
 
@@ -89,10 +90,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
@@ -831,6 +830,8 @@ These are internal methods to PrimarySeq
 sub _guess_alphabet {
    my ($self) = @_;
    my $type;
+
+	#return if $self->alphabet;
 
    my $str = $self->seq();
 	# Remove char's that clearly denote ambiguity
