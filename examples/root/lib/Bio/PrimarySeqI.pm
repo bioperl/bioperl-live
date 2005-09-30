@@ -481,8 +481,7 @@ sub trunc{
 
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
-           #if full CDS expected:
-           $protein_seq_obj = $cds_seq_obj->translate(undef,undef,undef,undef,1);
+
  Function:
 
            Provides the translation of the DNA sequence using full

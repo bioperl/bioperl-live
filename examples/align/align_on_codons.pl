@@ -22,7 +22,7 @@ BEGIN {
 qq{align_on_codons.pl < file.fa
 -h/--help                 See this information
 -f/--frame            Translation Frame (0,1,2) are valid (defaults to '0')
--ct/--codontable      Codon table to use (defaults to '0')
+-ct/--codontable      Codon table to use (defaults to '1')
                         see perldoc Bio::PrimarySeq for more information
 -i/--input            Input Filename (defaults to STDIN)
 -o/--output           Output Filename (defaults to STDOUT)
@@ -40,22 +40,20 @@ qq{align_on_codons.pl < file.fa
 
 my ($help, $input, $output);
 
-my ($alignprog, $sformat, $aformat,$frame,
-    $codontable,$verbose) = ('clustalw', 'fasta', 'clustalw', 
-		    0,0);
+my ($alignprog, $sformat, $aformat, $frame, $codontable, $verbose) 
+  = ('clustalw', 'fasta', 'clustalw', 0, 1, 0);
 
 GetOptions( 'h|help'            => \$help,
-	    'i|input:s'         => \$input,
-	    'o|output:s'        => \$output,
-	    'sf|seqformat:s'    => \$sformat,
-	    'af|alignformat:s'  => \$aformat,
-	    'ap|alignprog:s'    => \$alignprog,
-	    
-	    # for translate
-	    'f|frame:s'         => \$frame,
-	    'ct|codontable:s'   => \$codontable,
-	    'v|verbose'         => \$verbose,
-	    );
+				'i|input:s'         => \$input,
+				'o|output:s'        => \$output,
+				'sf|seqformat:s'    => \$sformat,
+				'af|alignformat:s'  => \$aformat,
+				'ap|alignprog:s'    => \$alignprog,
+				# for translate
+				'f|frame:s'         => \$frame,
+				'ct|codontable:s'   => \$codontable,
+				'v|verbose'         => \$verbose,
+			 );
 
 if( $help ) { 
     die($USAGE);
@@ -90,20 +88,22 @@ if( $input ) {
 my $table = new Bio::Tools::CodonTable();
 while( my $seq = $seqio->next_seq ) {
     
-#    if( $frame == 0 && $alignprog eq 'tcoffee' ) {
-#	print "last codon is ",$seq->subseq($seq->length() -2,
-#					    $seq->length()), "\n";
-#	if( $table->is_ter_codon($seq->subseq($seq->length() -2,
-#					      $seq->length())) ) {
-#	    $seq->seq($seq->subseq(1,$seq->length() - 3));
-#	}
-#    }
-    push @nucseqs, $seq;    
-    push @protseqs, $seq->translate(undef,undef,$frame,$codontable,0,0);
+	#    if( $frame == 0 && $alignprog eq 'tcoffee' ) {
+	#	print "last codon is ",$seq->subseq($seq->length() -2,
+	#					    $seq->length()), "\n";
+	#	if( $table->is_ter_codon($seq->subseq($seq->length() -2,
+	#					      $seq->length())) ) {
+	#	    $seq->seq($seq->subseq(1,$seq->length() - 3));
+	#	}
+	#    }
+
+	push @nucseqs, $seq;    
+	push @protseqs, $seq->translate(-frame => $frame,
+											   -codontable_id => $codontable );
 }
 
 if( @nucseqs <= 1 ) {
-    die("Must specify > 1 sequence for alignment on codons");
+	die("Must specify > 1 sequence for alignment on codons");
 }
 
 # allow these to be tweaked by cmdline parameters at some point
@@ -118,39 +118,39 @@ my $dnaalign = new Bio::SimpleAlign;
 my $seqorder = 0;
 my $alnlen = $aln->length;
 foreach my $seq ( $aln->each_seq ) {    
-    my $newseq;
+	my $newseq;
     
-    foreach my $pos ( 1..$alnlen ) {
-	my $loc = $seq->location_from_column($pos);
-	my $dna = ''; 
-	if( !defined $loc || $loc->location_type ne 'EXACT' ) {
-	    $dna = '---';
-	} else {
-	    # to readjust to codon boundaries
-	    # end needs to be +1 so we can just multiply by CODONSIZE 
-	    # to get this
-	    my ($start,$end) = ((($loc->start - 1)*$CODONSIZE) +1,
-				($loc->end)*$CODONSIZE);
-	    if( $start <=0 || $end > $nucseqs[$seqorder]->length() ) {
-		print "start is ", $loc->start, " end is ", $loc->end, "\n";
-		warn("codons don't seem to be matching up for $start,$end");
-		$dna = '---';
-	    } else {
-		$dna = $nucseqs[$seqorder]->subseq($start,$end);
-	    }
+	foreach my $pos ( 1..$alnlen ) {
+		my $loc = $seq->location_from_column($pos);
+		my $dna = ''; 
+		if( !defined $loc || $loc->location_type ne 'EXACT' ) {
+			$dna = '---';
+		} else {
+			# to readjust to codon boundaries
+			# end needs to be +1 so we can just multiply by CODONSIZE 
+			# to get this
+			my ($start,$end) = ((($loc->start - 1)*$CODONSIZE) +1,
+									  ($loc->end)*$CODONSIZE);
+			if( $start <=0 || $end > $nucseqs[$seqorder]->length() ) {
+				print "start is ", $loc->start, " end is ", $loc->end, "\n";
+				warn("codons don't seem to be matching up for $start,$end");
+				$dna = '---';
+			} else {
+				$dna = $nucseqs[$seqorder]->subseq($start,$end);
+			}
+		}
+		$newseq .= $dna;
 	}
-	$newseq .= $dna;
-    }
-    $seqorder++;
-    # funky looking math is to readjust to codon boundaries and deal
-    # with fact that sequence start with 1
-    my $newdna = new Bio::LocatableSeq(-display_id  => $seq->id(),
-				       -start => (($seq->start - 1) * 
-						   $CODONSIZE) + 1, 
-					-end   => ($seq->end * $CODONSIZE),
-					-strand => $seq->strand,
-					-seq   => $newseq);    
-    $dnaalign->add_seq($newdna);
+	$seqorder++;
+	# funky looking math is to readjust to codon boundaries and deal
+	# with fact that sequence start with 1
+	my $newdna = new Bio::LocatableSeq(-display_id  => $seq->id(),
+												  -start => (($seq->start - 1) * 
+																 $CODONSIZE) + 1, 
+												  -end   => ($seq->end * $CODONSIZE),
+												  -strand => $seq->strand,
+												  -seq   => $newseq);    
+	$dnaalign->add_seq($newdna);
 }
 
 $alignout->write_aln($dnaalign);
