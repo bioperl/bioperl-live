@@ -15,7 +15,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 41;
+	plan tests => 48;
 }
 use Bio::PrimarySeq;
 use Bio::Location::Simple;
@@ -107,27 +107,61 @@ $seq->seq('TTGGTGGCGTCAACTTAA'); # TTG GTG GCG TCA ACT TAA
 $aa = $seq->translate(undef, undef, undef, undef, 1);
 ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
 
-# same test as above, but using named parameter
+# same test as previous, but using named parameter
 $aa = $seq->translate(-complete => 1);
 ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
 
-# ignore codons outside the CDS
-#$seq->seq('TTTATGGTGGCGTCAACTTAATTT'); # ATG GTG GCG TCA ACT TAA
-#$aa = $seq->translate(-orf => 1);
-#ok $aa->seq, 'MVAST', "Translation: ". $aa->seq;
+# find ORF, ignore codons outside the ORF or CDS
+$seq->seq('TTTTATGGTGGCGTCAACTTAATTT'); # ATG GTG GCG TCA ACT
+$aa = $seq->translate(-orf => 1);
+ok $aa->seq, 'MVAST*', "Translation: ". $aa->seq;
+
+# smallest possible ORF
+$seq->seq("ggggggatgtagcccc"); # atg tga
+$aa = $seq->translate(-orf => 1);
+ok $aa->seq, 'M*', "Translation: ". $aa->seq;
+
+# same as previous but complete, so * is removed
+$aa = $seq->translate(-orf => 1,
+							 -complete => 1);
+ok $aa->seq, 'M', "Translation: ". $aa->seq;
+
+# ORF without termination codon
+$seq->seq("ggggggatgtggcccc"); # atg tgg ccc
+$aa = $seq->translate(-orf => 1);
+ok $aa->seq, 'MWP', "Translation: ". $aa->seq;
 
 # use non-standard codon table where terminator is read as Q
 $seq->seq('ATGGTGGCGTCAACTTAG'); # ATG GTG GCG TCA ACT TAG
 $aa = $seq->translate(-codontable_id => 6);
 ok $aa->seq, 'MVASTQ', "Translation: ". $aa->seq;
 
-# insert an odd character instead of terminating
+# insert an odd character instead of terminating with *
 $aa = $seq->translate(-terminator => 'X');
 ok $aa->seq, 'MVASTX', "Translation: ". $aa->seq;
 
 # change frame from default
 $aa = $seq->translate(-frame => 1); # TGG TGG CGT CAA CTT AG
 ok $aa->seq, 'WWRQL', "Translation: ". $aa->seq;
+
+# TTG is initiator in Standard codon table? Afraid so.
+$seq->seq("ggggggttgtagcccc"); # ttg tag
+$aa = $seq->translate(-orf => 1);
+ok $aa->seq, 'L*', "Translation: ". $aa->seq;
+
+# Replace L at 1st position with M by setting complete to 1 
+$seq->seq("ggggggttgtagcccc"); # ttg tag
+$aa = $seq->translate(-orf => 1,
+							 -complete => 1);
+ok $aa->seq, 'M', "Translation: ". $aa->seq;
+
+# Ignore non-ATG initiators (e.g. TTG) in codon table
+$seq->seq("ggggggttgatgtagcccc"); # atg tag
+$aa = $seq->translate(-orf => 1,
+							 -atg => 1,
+							 -complete => 1);
+ok $aa->seq, 'M', "Translation: ". $aa->seq;
+
 
 
 # test for character '?' in the sequence string
