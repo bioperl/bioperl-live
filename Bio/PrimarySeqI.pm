@@ -22,12 +22,10 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
     # Bioperl.
 
     # Test if this is a seq object
-
     $obj->isa("Bio::PrimarySeqI") ||
       $obj->throw("$obj does not implement the Bio::PrimarySeqI interface");
 
     # Accessors
-
     $string    = $obj->seq();
     $substring = $obj->subseq(12,50);
     $display   = $obj->display_id();       # for human display
@@ -37,7 +35,6 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 
 
     # Object manipulation
-
     eval {
 	   $rev = $obj->revcom();
     };
@@ -78,7 +75,6 @@ to wrap, generally by providing a wrapper class which would inherit
 from your object and this Bio::PrimarySeqI interface. The wrapper class
 then would have methods lists in the "Implementation Specific
 Functions" which would provide these methods for your object.
-
 
 =head1 FEEDBACK
 
@@ -468,15 +464,20 @@ sub trunc{
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
             
-           Or if you expect a full coding sequence (CDS) translation, with 
-           inititator at the beginning and terminator at the end:
+           Or if you expect a complete coding sequence (CDS) translation,
+           with inititator at the beginning and terminator at the end:
 
            $protein_seq_obj = $cds_seq_obj->translate(-complete => 1);
+
+           Or if you want translate() to find the first initiation
+           codon and return the corresponding protein:
+
+           $protein_seq_obj = $cds_seq_obj->translate(-orf => 1);
 
  Function: Provides the translation of the DNA sequence using full
            IUPAC ambiguities in DNA/RNA and amino acid codes.
 
-           The full CDS translation is identical to EMBL/TREMBL
+           The complete CDS translation is identical to EMBL/TREMBL
            database translation. Note that the trailing terminator
            character is removed before returning the translated protein
            object.
@@ -485,15 +486,24 @@ sub trunc{
            warning if the first codon is not a valid initiator.
 
  Returns : A Bio::PrimarySeqI implementing object
- Args    : -terminator    => <character for terminator>      default is *
-           -unknown       => <character for unknown>         default is X
-           -frame         => <frame>                         default is 0
-           -codontable_id => <codon table id>                default is 1
-           -complete      => <complete CDS expected>         default is 0
-           -throw         => <throw exception if incomplete> default is 0
-           -codontable    => <custom Bio::Tools::CodonTable object>
+ Args    : -terminator    - character for terminator        default is *
+           -unknown       - character for unknown           default is X
+           -frame         - frame                           default is 0
+           -codontable_id - codon table id                  default is 1
+           -complete      - complete CDS expected           default is 0
+           -throw         - throw exception if not complete default is 0
+           -orf           - find 1st ORF                    default is 0
+           -atg           - use only ATG as initiator       default is 0
+           -codontable    - Bio::Tools::CodonTable object
 
-For details on codon tables see L<Bio::Tools::CodonTable>.
+ Notes   : The -atg argument only applies when -orf is set to 1. Otherwise
+           all initiation codons found in the given codon table are used.
+
+           By default translate() will add a character to the sequence when 
+           translating the termination codon. Setting "-complete" to 1 tells
+           translate() to remove the *.
+
+For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 
            Deprecated argument set (v. 1.5.1 and prior versions)
            where each argument is an element in an array.
@@ -503,7 +513,7 @@ For details on codon tables see L<Bio::Tools::CodonTable>.
            3: frame (optional), valid values are 0, 1, 2, defaults to 0.
            4: codon table id (optional), defaults to 1.
            5: complete coding sequence expected, defaults to 0 (false).
-           6: boolean, throw exception if not complete CDS (true),
+           6: boolean, throw exception if not complete coding sequence (true),
               defaults to warning (false)
            7: codontable, a custom Bio::Tools::CodonTable object (optional).
 
@@ -511,64 +521,61 @@ For details on codon tables see L<Bio::Tools::CodonTable>.
 
 sub translate {
 	 my ($self,@args) = @_;
-	 my ($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable, $orf);
+	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, 
+		  $codonTable, $orf, $atg);
 	 
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
-		 ($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable, $orf) =
-			$self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID 
-										 COMPLETE THROW CODONTABLE ORF)], @args);
+		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, 
+		  $codonTable, $orf, $atg) =
+			 $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID 
+										  COMPLETE THROW CODONTABLE ORF ATG)], @args);
 	 ## old API, 1.5.1 and preceding versions
 	 } else {
-		 ($stop, $unknown, $frame, $tableid, $fullCDS, $throw, $codonTable) = @args;
+		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, $codonTable) = @args;
 	 }
 
-	 my($i, $len, $output) = (0,0,'');
-    my($codon)   = "";
-    my $aa;
+    ## Initialize termination codon, unknown codon, codon table id, frame
+    $terminator = '*'    unless (defined($terminator) and $terminator ne '');
+    $unknown = "X"       unless (defined($unknown) and $unknown ne '');
+    $frame = 0           unless (defined($frame) and $frame ne '');
+    $codonTableId = 1    unless (defined($codonTableId) and $codonTableId ne '');
 
-    ## User can pass in symbol for stop and unknown codons
-    unless(defined($stop) and $stop ne '')    { $stop = "*"; }
-    unless(defined($unknown) and $unknown ne '') { $unknown = "X"; }
-    unless(defined($frame) and $frame ne '') { $frame = 0; }
-
-    ## the codon table ID
-    unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
+    ## Get a CodonTable, error if custom CodonTable is invalid
+    if ($codonTable) {
+		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
+			unless $codonTable->isa('Bio::Tools::CodonTable');
+    } else {
+		 $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);		 
+	 }
 
     ## Error if alphabet is "protein"
     $self->throw("Can't translate an amino acid sequence.") if
 		($self->alphabet eq 'protein');
 
-    ## Error if frame is not 0, 1 or 2
-    $self->throw("Valid values for frame are 0, 1, 2, not [$frame].") unless
-		($frame == 0 or $frame == 1 or $frame == 2);
-
-    ## warns if ID is invalid
-    if ($codonTable) {
-		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
-			unless $codonTable->isa('Bio::Tools::CodonTable');
-    } else {
-		 $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
-    }
-
     my ($seq) = $self->seq();
 
-    # deal with frame offset.
-    if( $frame ) {
-		 $seq = substr ($seq,$frame);
+    ## ignore frame if an ORF is supposed to be found
+	 if ($orf) {
+		 $seq = $self->_find_orf($seq,$codonTable,$atg);
+	 } else {
+	 ## Error if frame is not 0, 1 or 2
+		 $self->throw("Valid values for frame are 0, 1, or 2, not [$frame].") unless
+			($frame == 0 or $frame == 1 or $frame == 2);
+		 $seq = substr($seq,$frame);
     }
 
-    # Translate it
-    $output = $codonTable->translate($seq);
-    # Use user-input stop/unknown
-    $output =~ s/\*/$stop/g;
+    ## Translate it
+    my $output = $codonTable->translate($seq);
+    # Use user-input terminator/unknown
+    $output =~ s/\*/$terminator/g;
     $output =~ s/X/$unknown/g;
 	
-    # only if we are expecting to translate a complete coding region
-    if ($fullCDS) {
+    ## Only if we are expecting to translate a complete coding region
+    if ($complete) {
 		 my $id = $self->display_id;
-		 #remove the stop character
-		 if( substr($output,-1,1) eq $stop ) {
+		 # remove the terminator character
+		 if( substr($output,-1,1) eq $terminator ) {
 			 chop $output;
 		 } else {
 			 $throw && $self->throw("Seq [$id]: Not using a valid terminator codon!");
@@ -579,12 +586,11 @@ sub translate {
 			 $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
 			 $self->warn("Seq [$id]: Terminator codon inside CDS!");
 		 }
-		 # if the initiator codon is not ATG, the amino acid needs to changed into M
+		 # if the initiator codon is not ATG, the amino acid needs to be changed to M
 		 if ( substr($output,0,1) ne 'M' ) {
 			 if ($codonTable->is_start_codon(substr($seq, 0, 3)) ) {
 				 $output = 'M'. substr($output,1);
-			 }
-			 elsif ($throw) {
+			 }	elsif ($throw) {
 				 $self->throw("Seq [$id]: Not using a valid initiator codon!");
 			 } else {
 				 $self->warn("Seq [$id]: Not using a valid initiator codon!");
@@ -593,7 +599,7 @@ sub translate {
     }
 
     my $seqclass;
-    if($self->can_call_new()) {
+    if ($self->can_call_new()) {
 		 $seqclass = ref($self);
     } else {
 		 $seqclass = 'Bio::PrimarySeq';
@@ -620,7 +626,6 @@ sub translate {
  Returns : A string.
  Args    :
 
-
 =cut
 
 sub  id {
@@ -638,7 +643,6 @@ sub  id {
  Returns : Integer representing the length of the sequence.
  Args    :
 
-
 =cut
 
 sub  length {
@@ -654,7 +658,6 @@ sub  length {
  Function: Get/set description text for a seq object
  Returns : Value of desc
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -681,6 +684,48 @@ sub is_circular{
 
 These are some private functions for the PrimarySeqI interface. You do not
 need to implement these functions
+
+=head2 _find_orf
+
+ Title   : _find_orf
+ Usage   :
+ Function: Finds ORF starting at 1st initiation codon in nucleotide sequence.
+           The ORF is not required to have a termination codon.
+ Example :
+ Returns : A nucleotide sequence or nothing, if no initiation codon is found.
+ Args    : Nucleotide sequence, CodonTable object, optional argument to use ATG.
+
+=cut
+
+sub _find_orf {
+	my ($self,$sequence,$codonTable,$atg) = @_;
+	
+	# find initiation codon and remove leading sequence
+	while ($sequence) {
+		my $codon = substr($sequence,0,3);
+		if ($atg) {
+			last if ( $codon =~ /atg/i );	
+		} else {
+			last if ($codonTable->is_start_codon($codon));
+		}
+		$sequence = substr($sequence,1);
+	}
+	return unless $sequence;
+
+	# find termination codon and remove trailing sequence
+	my $len = CORE::length($sequence);
+	my $offset = 3;
+	while ($offset < $len) {
+		my $codon = substr($sequence,$offset,3);
+		if ( $codonTable->is_ter_codon($codon) ){
+			$sequence = substr($sequence, 0, $offset + 3);
+			return $sequence;
+		}
+		$offset += 3;
+	}
+	$self->warn("No termination codon found, will translate - sequence:\n$sequence");
+	$sequence;
+}
 
 =head2 _attempt_to_load_Seq
 
