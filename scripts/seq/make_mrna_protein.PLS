@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: make_mrna_protein.PLS,v 1.2 2005-04-26 15:08:42 jason Exp $
+# $Id: make_mrna_protein.PLS,v 1.3 2005-09-30 18:32:29 bosborne Exp $
 #
 =head1 NAME
 
@@ -21,7 +21,7 @@ One can also specify:
   -of/--format         Output format (defaults to FASTA/Pearson)
   -o/--output          Output Filename (defaults to STDOUT)
   -i/--input           Input Filename (defaults to STDIN)
-  -ct/--codontable     Codon table to use (defaults to '0')
+  -ct/--codontable     Codon table to use (defaults to '1')
 
 See L<Bio::PrimarySeq> for more information on codon tables
 and the translate() method
@@ -44,7 +44,7 @@ qq{make_mrna_protein.pl < file.fa > file.prots
 -f/--frame            Translation Frame (0,1,2) are valid (defaults to '0')
 -t/--terminator	    Stop Codon Character ('*' by default)
 -u/--unknown          Unknown Protein character (defaults to 'X')
--ct/--codontable      Codon table to use (defaults to '0')
+-ct/--codontable      Codon table to use (defaults to '1')
                       (see Bio::PrimarySeq for more information)
 -cds/--fullcds        Expected Full CDS (with start and Stop codon)
 -throwOnError         Throw an error if no Full CDS (defaults to 0)
@@ -55,8 +55,8 @@ qq{make_mrna_protein.pl < file.fa > file.prots
 };
 
 }
-my ($iformat,$oformat,$frame,$termchar,$unknownProt,$codontable,$fullCDS,
-    $throw_on_Incomp_CDS,$help) = ('fasta','fasta',0,undef, undef,0,0,0);
+my ($iformat, $oformat, $frame, $termchar, $unknownProt, $codontable, $fullCDS,
+    $throw_on_Incomp_CDS, $help) = ('fasta','fasta', 0, undef, undef, 1, 0, 0);
 my ($input,$output);
 
 GetOptions('f|frame:s'       => \$frame,
@@ -88,8 +88,12 @@ if( $output ) {
 }
 
 while( my $seq = $in->next_seq ) {
-    my $protseq = $seq->translate($termchar,$unknownProt, $frame,$codontable,
-				  $fullCDS, $throw_on_Incomp_CDS);
+    my $protseq = $seq->translate(-terminator => $termchar,
+											 -unknown => $unknownProt,
+											 -frame => $frame,
+											 -codontable_id => $codontable,
+											 -complete => $fullCDS,
+											 -throw => $throw_on_Incomp_CDS );
     $out->write_seq($protseq);
 }
 
