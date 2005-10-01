@@ -697,7 +697,7 @@ module called Bio::DB::RefSeq which actually queries an EBI server.
 Please see L<Bio::DB::RefSeq> before using it as there are some caveats
 with RefSeq retrieval. RefSeq ids in Genbank begin with "NT_", "NC_",
 "NG_", "NM_", "NP_", "XM_", "XR_", or "XP_" (for more information see
-http://www.ncbi.nlm.nih.gov/LocusLink/refseq.html). Bio::DB::GenBank
+http://www.ncbi.nlm.nih.gov/LocusLink/refseq.html ). Bio::DB::GenBank
 can be used to retrieve entries corresponding to these ids but bear in
 mind that these are not Genbank entries, strictly speaking. See
 L<Bio::DB::GenBank> for special details on retrieving entries beginning
@@ -1204,7 +1204,7 @@ directly from a REBASE file, like this:
   my $rebase_collection = $re_io->read;
 
 A REBASE file in the correct format can be found at 
-ftp://ftp.neb.com/pub/rebase, it will have a name like "withrefm.308".
+ftp://ftp.neb.com/pub/rebase - it will have a name like "withrefm.308".
 If need be you can also create new enzymes, like this:
 
   my $re = new Bio::Restriction::Enzyme(-enzyme => 'BioRI',
@@ -1602,10 +1602,9 @@ approach and will be formally supported in future releases.
 
 Blast is not the only sequence-similarity-searching program supported
 by bioperl. HMMER is a Hidden Markov Model (HMM) program that
-(among other capabilities) enables sequence similarity searching, from
-http://hmmer.wustl.edu. Bioperl does not currently provide a Perl interface
-for running HMMER.  However, Bioperl does provide 2 HMMER report parsers,
-the recommended SearchIO HMMER parser and an older parser called HMMER::Results.
+enables sequence similarity searching ( http://hmmer.wustl.edu ). Bioperl 
+provides 2 HMMER report parsers, the recommended SearchIO HMMER parser and 
+an older parser called HMMER::Results.
 
 SearchIO can parse reports generated both by the HMMER program
 hmmsearch - which searches a sequence database for sequences similar
@@ -2059,7 +2058,7 @@ For a complete working script, see the change_gene.pl script
 in the examples/liveseq directory. For more details on the use of these objects
 see L<Bio::LiveSeq::Mutator> and L<Bio::LiveSeq::Mutation> as well as
 the original documentation for the "Computational Mutation Expression
-Toolkit" project at http://www.ebi.ac.uk/mutations/toolkit/.
+Toolkit" project ( http://www.ebi.ac.uk/mutations/toolkit/ ).
 
 =for html <A NAME ="iii.7.6"></A>
 
@@ -2285,7 +2284,7 @@ See L<Bio::MapIO> and L<Bio::Map::SimpleMap> for more information.
 
 Bio::Biblio objects are used to query bibliographic databases, such as MEDLINE.
 The associated modules are built to work with OpenBQS-compatible databases
-(see http://www.ebi.ac.uk/~senger/openbqs). A Bio::Biblio object can execute
+( see http://www.ebi.ac.uk/~senger/openbqs ). A Bio::Biblio object can execute
 a query like:
 
   my $collection = $biblio->find ('brazma', 'authors');
@@ -2460,7 +2459,7 @@ these modules are described in this section.
 
 EMBOSS (European Molecular Biology Open Source Software) is an extensive
 collection of sequence analysis programs written in the C
-programming language, from http://www.uk.embnet.org/Software/EMBOSS.
+programming language ( http://www.uk.embnet.org/Software/EMBOSS ).
 There are a number of algorithms in EMBOSS that are not found in "Bioperl
 proper" (e.g. calculating DNA melting temperature, finding repeats,
 identifying prospective antigenic sites) so if you cannot find
@@ -2665,7 +2664,7 @@ relational database.  Currently the bioperl-db interface is
 implemented to support databases in the Mysql, Postgres and Oracle formats.
 
 The database schema itself is not specified in the bioperl-db package but
-in the BioSQL package, available at http://obda.open-bio.org/. It is worth 
+in the BioSQL package ( http://obda.open-bio.org/ ). It is worth 
 mentioning that most of the Bioperl objects mentioned above map directly to 
 tables in the Biosql schema. Therefore object data such as sequences, their 
 features, and annotations can be easily loaded into the databases, as in
