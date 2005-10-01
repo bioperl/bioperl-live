@@ -2,9 +2,9 @@
 #
 # BioPerl module for Bio::SeqIO::GenBank
 #
-# Cared for by Elia Stupka <elia@tll.org.sg>
+# Cared for by Bioperl project bioperl-l(at)bioperl.org
 #
-# Copyright Elia Stupka
+# Copyright Elia Stupka and contributors see AUTHORS section
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -137,9 +137,11 @@ the bugs and their resolution. Bug reports can be submitted via the web:
 
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Elia Stupka
+=head1 AUTHOR - Bioperl Project
 
-Email elia@tll.org.sg
+bioperl-l at bioperl.org
+
+Original author Elia Stupka, elia -at- tigem.it
 
 =head1 CONTRIBUTORS
 
@@ -197,17 +199,17 @@ use Bio::Annotation::DBLink;
 		  );
 
 sub _initialize {
-	my($self,@args) = @_;
+    my($self,@args) = @_;
 
-	$self->SUPER::_initialize(@args);
-	# hash for functions for decoding keys.
-	$self->{'_func_ftunit_hash'} = {}; 
-	$self->_show_dna(1); # sets this to one by default. People can change it
-	if( ! defined $self->sequence_factory ) {
-		$self->sequence_factory(new Bio::Seq::SeqFactory
-										(-verbose => $self->verbose(), 
-										 -type => 'Bio::Seq::RichSeq'));
-	}
+    $self->SUPER::_initialize(@args);
+    # hash for functions for decoding keys.
+    $self->{'_func_ftunit_hash'} = {}; 
+    $self->_show_dna(1); # sets this to one by default. People can change it
+    if( ! defined $self->sequence_factory ) {
+	$self->sequence_factory(new Bio::Seq::SeqFactory
+				(-verbose => $self->verbose(), 
+				 -type => 'Bio::Seq::RichSeq'));
+    }
 }
 
 =head2 next_seq
@@ -289,7 +291,7 @@ sub next_seq {
 	      if( length($d) == 1 ) {
 		  $d = "0$d";
 	      }
-				# guess the century here
+	      # guess the century here
 	      if( length($y) == 2 ) {
 		  if( $y > 60 ) { # arbitrarily guess that '60' means 1960
 		      $y = "19$y";
@@ -678,289 +680,290 @@ sub next_seq {
 =cut
 
 sub write_seq {
-	my ($self,@seqs) = @_;
+    my ($self,@seqs) = @_;
 
-	foreach my $seq ( @seqs ) {
-		$self->throw("Attempting to write with no seq!") unless defined $seq;
+    foreach my $seq ( @seqs ) {
+	$self->throw("Attempting to write with no seq!") unless defined $seq;
 
-		if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
-			$self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
-		}
-
-		my $str = $seq->seq;
-
-		my ($div, $mol);
-		my $len = $seq->length();
-
-		if ( $seq->can('division') ) {
-			$div=$seq->division;
-		}
-		if( !defined $div || ! $div ) { $div = 'UNK'; }
-		my $alpha = $seq->alphabet;
-		if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
-			$mol =  $alpha || 'DNA';
-		}
-
-		my $circular = 'linear  ';
-		$circular = 'circular' if $seq->is_circular;
-
-		local($^W) = 0;	# supressing warnings about uninitialized fields.
-
-		my $temp_line;
-		if( $self->_id_generation_func ) {
-		    $temp_line = &{$self->_id_generation_func}($seq);
-		} else {
-		    my $date = '';
-		    if( $seq->can('get_dates') ) {
-			($date) = $seq->get_dates();
-		    }
-		    
-		    $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
-			if $seq->display_id =~ /\s/;
-		    
-		    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
-					  'LOCUS', $seq->id(),$len,
-					  (lc($alpha) eq 'protein') ? ('aa','', '') : 
-					  ('bp', '',$mol),$circular,
-					  $div,$date);
-		}
-		
-		$self->_print("$temp_line\n");
-		$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
-						 $seq->desc(),"\\s\+\|\$",80);
-		
-		# if there, write the accession line
-		
-		if( $self->_ac_generation_func ) {
-			$temp_line = &{$self->_ac_generation_func}($seq);
-			$self->_print("ACCESSION   $temp_line\n");
-		} else {
-			my @acc = ();
-			push(@acc, $seq->accession_number());
-			if( $seq->isa('Bio::Seq::RichSeqI') ) {
-				push(@acc, $seq->get_secondary_accessions());
-			}
-			$self->_print("ACCESSION   ", join(" ", @acc), "\n");
-			# otherwise - cannot print <sigh>
-		}
-
-		# if PID defined, print it
-		if($seq->isa('Bio::Seq::RichSeqI') && $seq->pid()) {
-			$self->_print("PID         ", $seq->pid(), "\n");
-		}
-
-		# if there, write the version line
-
-		if( defined $self->_sv_generation_func() ) {
-			$temp_line = &{$self->_sv_generation_func}($seq);
-			if( $temp_line ) {
-				$self->_print("VERSION     $temp_line\n");   
-			}
-		} else {
-			if($seq->isa('Bio::Seq::RichSeqI') && defined($seq->seq_version)) {
-				my $id = $seq->primary_id(); # this may be a GI number
-				$self->_print("VERSION     ",
-								  $seq->accession_number(), ".", $seq->seq_version,
-								  ($id && ($id =~ /^\d+$/) ? "  GI:".$id : ""),
-								  "\n");
-			}
-		}
-
-		# if there, write the DBSOURCE line
-		foreach my $ref ( $seq->annotation->get_Annotations('dblink') ) {
-			# if ($ref->comment eq 'DBSOURCE') {
-				$self->_print('DBSOURCE    accession ',
-								  $ref->primary_id, "\n");
-			# }
-		}
-
-		# if there, write the keywords line
-		if( defined $self->_kw_generation_func() ) {
-			$temp_line = &{$self->_kw_generation_func}($seq);
-			$self->_print("KEYWORDS    $temp_line\n");
-		} else {
-			if( $seq->can('keywords') ) {
-				my $kw = $seq->keywords;
-				$kw .= '.' if( $kw !~ /\.$/ );
-				$self->_print("KEYWORDS    $kw\n");
-			}
-		}
-
-		# SEGMENT if it exists
-		foreach my $ref ( $seq->annotation->get_Annotations('segment') ) {
-			$self->_print(sprintf ("%-11s %s\n",'SEGMENT',
-										  $ref->value));
-		}
-
-		# Organism lines
-		if (my $spec = $seq->species) {
-			my ($species, $genus, @class) = $spec->classification();
-			my $OS;
-			if( $spec->common_name ) {
-				$OS = $spec->common_name;
-			} else { 
-				$OS = "$genus $species";
-			}
-			if (my $ssp = $spec->sub_species) {
-				$OS .= " $ssp";
-			}
-			$self->_print("SOURCE      $OS\n");
-			$self->_print("  ORGANISM  ",
-							  ($spec->organelle() ? $spec->organelle()." " : ""),
-							  "$genus $species", "\n");
-			my $OC = join('; ', (reverse(@class), $genus)) .'.';
-			$self->_write_line_GenBank_regex(' 'x12,' 'x12,
-														$OC,"\\s\+\|\$",80);
-		}
-
-		# Reference lines
-		my $count = 1;
-		foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
-			$temp_line = "REFERENCE   $count";
-			$temp_line .= sprintf ("  (%s %d to %d)",
-										  ($seq->alphabet() eq "protein" ?
-											"residues" : "bases"),
-										  $ref->start,$ref->end)
-			  if $ref->start;
-			$self->_print("$temp_line\n");
-			$self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
-														$ref->authors,"\\s\+\|\$",80);
-			$self->_write_line_GenBank_regex("  TITLE     "," "x12,
-														$ref->title,"\\s\+\|\$",80);
-			$self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
-														$ref->location,"\\s\+\|\$",80);
-			if ($ref->comment) {
-				$self->_write_line_GenBank_regex("  REMARK    "," "x12,
-															$ref->comment,"\\s\+\|\$",80);
-			}
-			if( $ref->medline) {
-				$self->_write_line_GenBank_regex("  MEDLINE   "," "x12,
-															$ref->medline, "\\s\+\|\$",80);
-				# I am assuming that pubmed entries only exist when there
-				# are also MEDLINE entries due to the indentation
-			}
-			# This could be a wrong assumption
-			if( $ref->pubmed ) {
-				$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
-															$ref->pubmed, "\\s\+\|\$",
-															80);
-			}
-			$count++;
-		}
-
-		# Comment lines
-		foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
-			$self->_write_line_GenBank_regex("COMMENT     "," "x12,
-														$comment->text,"\\s\+\|\$",80);
-		}
-		$self->_print("FEATURES             Location/Qualifiers\n");
-
-		if( defined $self->_post_sort ) {
-			# we need to read things into an array. Process. Sort them. Print 'em
-
-			my $post_sort_func = $self->_post_sort();
-			my @fth;
-
-			foreach my $sf ( $seq->top_SeqFeatures ) {
-				push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
-			}
-
-			@fth = sort { &$post_sort_func($a,$b) } @fth;
-
-			foreach my $fth ( @fth ) {
-				$self->_print_GenBank_FTHelper($fth);
-			}
-		} else {
-			# not post sorted. And so we can print as we get them.
-			# lower memory load...
-
-			foreach my $sf ( $seq->top_SeqFeatures ) {
-				my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
-				foreach my $fth ( @fth ) {
-					if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-						$sf->throw("Cannot process FTHelper... $fth");
-					}
-					$self->_print_GenBank_FTHelper($fth);
-				}
-			}
-		}
-
-		# deal with WGS
-		foreach my $wgs ( $seq->annotation->get_Annotations('wgs') ) {
-			$self->_print(sprintf ("%-11s %s\n",'WGS',
-										  $wgs->value));
-			$self->_show_dna(0);
-		}
-
-		if( $seq->length == 0 ) { $self->_show_dna(0) }
-
-		if( $self->_show_dna() == 0 ) {
-			$self->_print("\n//\n");
-			return;
-		}
-
-		# finished printing features.
-
-		$str =~ tr/A-Z/a-z/;
-
-		# Count each nucleotide
-		unless(  $mol eq 'protein' ) {
-			my $alen = $str =~ tr/a/a/;
-			my $clen = $str =~ tr/c/c/;
-			my $glen = $str =~ tr/g/g/;
-			my $tlen = $str =~ tr/t/t/;
-
-			my $olen = $len - ($alen + $tlen + $clen + $glen);
-			if( $olen < 0 ) {
-				$self->warn("Weird. More atgc than bases. Problem!");
-			}
-
-			my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
-											 $alen,$clen,$glen,$tlen,
-											 ( $olen > 0 ) ? 
-											 sprintf("%6s others",$olen) : '');
-			$self->_print($base_count);
-		}
-
-		my ($o) = $seq->annotation->get_Annotations('origin');
-		$self->_print(sprintf("%-12s%s\n",
-									 'ORIGIN', $o ? $o->value : ''));
-		# print out the sequence
-		my $nuc = 60;		# Number of nucleotides per line
-		my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
-		my $out_pat   = 'A11' x 6; # Pattern for packing a line
-		my $length = length($str);
-
-		# Calculate the number of nucleotides which fit on whole lines
-		my $whole = int($length / $nuc) * $nuc;
-
-		# Print the whole lines
-		my $i;
-		for ($i = 0; $i < $whole; $i += $nuc) {
-			my $blocks = pack $out_pat,
-			  unpack $whole_pat,
-				 substr($str, $i, $nuc);
-			chop $blocks;
-			$self->_print(sprintf("%9d $blocks\n", $i + $nuc - 59));
-		}
-
-		# Print the last line
-		if (my $last = substr($str, $i)) {
-			my $last_len = length($last);
-			my $last_pat = 'a10' x int($last_len / 10) .
-			  'a'. $last_len % 10;
-			my $blocks = pack $out_pat,
-			  unpack($last_pat, $last);
-			$blocks =~ s/ +$//;
-			$self->_print(sprintf("%9d $blocks\n", 
-										 $length - $last_len + 1));
-		}
-
-		$self->_print("//\n");
-
-		$self->flush if $self->_flush_on_write && defined $self->_fh;
-		return 1;
+	if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
+	    $self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
 	}
+
+	my $str = $seq->seq;
+
+	my ($div, $mol);
+	my $len = $seq->length();
+
+	if ( $seq->can('division') ) {
+	    $div=$seq->division;
+	}
+	if( !defined $div || ! $div ) { $div = 'UNK'; }
+	my $alpha = $seq->alphabet;
+	if( !$seq->can('molecule') || ! defined ($mol = $seq->molecule()) ) {
+	    $mol =  $alpha || 'DNA';
+	}
+
+	my $circular = 'linear  ';
+	$circular = 'circular' if $seq->is_circular;
+
+	local($^W) = 0;	# supressing warnings about uninitialized fields.
+
+	my $temp_line;
+	if( $self->_id_generation_func ) {
+	    $temp_line = &{$self->_id_generation_func}($seq);
+	} else {
+	    my $date = '';
+	    if( $seq->can('get_dates') ) {
+		($date) = $seq->get_dates();
+	    }
+
+	    $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
+		if $seq->display_id =~ /\s/;
+
+	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
+				  'LOCUS', $seq->id(),$len,
+				  (lc($alpha) eq 'protein') ? ('aa','', '') : 
+				  ('bp', '',$mol),$circular,
+				  $div,$date);
+	}
+
+	$self->_print("$temp_line\n");
+	$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
+					 $seq->desc(),"\\s\+\|\$",80);
+
+	# if there, write the accession line
+
+	if( $self->_ac_generation_func ) {
+	    $temp_line = &{$self->_ac_generation_func}($seq);
+	    $self->_print("ACCESSION   $temp_line\n");
+	} else {
+	    my @acc = ();
+	    push(@acc, $seq->accession_number());
+	    if( $seq->isa('Bio::Seq::RichSeqI') ) {
+		push(@acc, $seq->get_secondary_accessions());
+	    }
+	    $self->_print("ACCESSION   ", join(" ", @acc), "\n");
+	    # otherwise - cannot print <sigh>
+	}
+
+	# if PID defined, print it
+	if($seq->isa('Bio::Seq::RichSeqI') && $seq->pid()) {
+	    $self->_print("PID         ", $seq->pid(), "\n");
+	}
+
+	# if there, write the version line
+
+	if( defined $self->_sv_generation_func() ) {
+	    $temp_line = &{$self->_sv_generation_func}($seq);
+	    if( $temp_line ) {
+		$self->_print("VERSION     $temp_line\n");   
+	    }
+	} else {
+	    if($seq->isa('Bio::Seq::RichSeqI') && defined($seq->seq_version)) {
+		my $id = $seq->primary_id(); # this may be a GI number
+		$self->_print("VERSION     ",
+			      $seq->accession_number(), ".", $seq->seq_version,
+			      ($id && ($id =~ /^\d+$/) ? "  GI:".$id : ""),
+			      "\n");
+	    }
+	}
+
+	# if there, write the DBSOURCE line
+	foreach my $ref ( $seq->annotation->get_Annotations('dblink') ) {
+	    # if ($ref->comment eq 'DBSOURCE') {
+	    $self->_print('DBSOURCE    accession ',
+			  $ref->primary_id, "\n");
+	    # }
+	}
+
+	# if there, write the keywords line
+	if( defined $self->_kw_generation_func() ) {
+	    $temp_line = &{$self->_kw_generation_func}($seq);
+	    $self->_print("KEYWORDS    $temp_line\n");
+	} else {
+	    if( $seq->can('keywords') ) {
+		my $kw = $seq->keywords;
+		$kw .= '.' if( $kw !~ /\.$/ );
+		$self->_print("KEYWORDS    $kw\n");
+	    }
+	}
+
+	# SEGMENT if it exists
+	foreach my $ref ( $seq->annotation->get_Annotations('segment') ) {
+	    $self->_print(sprintf ("%-11s %s\n",'SEGMENT',
+				   $ref->value));
+	}
+
+	# Organism lines
+	if (my $spec = $seq->species) {
+	    my ($species, $genus, @class) = $spec->classification();
+	    my $OS;
+	    if( $spec->common_name ) {
+		$OS = $spec->common_name;
+	    } else { 
+		$OS = "$genus $species";
+	    }
+	    if (my $ssp = $spec->sub_species) {
+		$OS .= " $ssp";
+	    }
+	    $self->_print("SOURCE      $OS\n");
+	    $self->_print("  ORGANISM  ",
+			  ($spec->organelle() ? $spec->organelle()." " : ""),
+			  "$genus $species", "\n");
+	    my $OC = join('; ', (reverse(@class), $genus)) .'.';
+	    $self->_write_line_GenBank_regex(' 'x12,' 'x12,
+					     $OC,"\\s\+\|\$",80);
+	}
+
+	# Reference lines
+	my $count = 1;
+	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
+	    $temp_line = "REFERENCE   $count";
+	    $temp_line .= sprintf ("  (%s %d to %d)",
+				   ($seq->alphabet() eq "protein" ?
+				    "residues" : "bases"),
+				   $ref->start,$ref->end)
+		if $ref->start;
+	    $self->_print("$temp_line\n");
+	    $self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
+					     $ref->authors,"\\s\+\|\$",80);
+	    $self->_write_line_GenBank_regex("  TITLE     "," "x12,
+					     $ref->title,"\\s\+\|\$",80);
+	    $self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
+					     $ref->location,"\\s\+\|\$",80);
+	    if( $ref->medline) {
+		$self->_write_line_GenBank_regex("  MEDLINE   "," "x12,
+						 $ref->medline, "\\s\+\|\$",80);
+		# I am assuming that pubmed entries only exist when there
+		# are also MEDLINE entries due to the indentation
+	    }
+	    # This could be a wrong assumption
+	    if( $ref->pubmed ) {
+		$self->_write_line_GenBank_regex("   PUBMED   "," "x12,
+						 $ref->pubmed, "\\s\+\|\$",
+						 80);
+	    }
+	    # put remark at the end
+	    if ($ref->comment) {
+		$self->_write_line_GenBank_regex("  REMARK    "," "x12,
+						 $ref->comment,"\\s\+\|\$",80);
+	    }
+	    $count++;
+	}
+
+	# Comment lines
+	foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
+	    $self->_write_line_GenBank_regex("COMMENT     "," "x12,
+					     $comment->text,"\\s\+\|\$",80);
+	}
+	$self->_print("FEATURES             Location/Qualifiers\n");
+
+	if( defined $self->_post_sort ) {
+	    # we need to read things into an array. Process. Sort them. Print 'em
+
+	    my $post_sort_func = $self->_post_sort();
+	    my @fth;
+
+	    foreach my $sf ( $seq->top_SeqFeatures ) {
+		push(@fth,Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq));
+	    }
+
+	    @fth = sort { &$post_sort_func($a,$b) } @fth;
+
+	    foreach my $fth ( @fth ) {
+		$self->_print_GenBank_FTHelper($fth);
+	    }
+	} else {
+	    # not post sorted. And so we can print as we get them.
+	    # lower memory load...
+
+	    foreach my $sf ( $seq->top_SeqFeatures ) {
+		my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
+		foreach my $fth ( @fth ) {
+		    if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
+			$sf->throw("Cannot process FTHelper... $fth");
+		    }
+		    $self->_print_GenBank_FTHelper($fth);
+		}
+	    }
+	}
+
+	# deal with WGS
+	foreach my $wgs ( $seq->annotation->get_Annotations('wgs') ) {
+	    $self->_print(sprintf ("%-11s %s\n",'WGS',
+				   $wgs->value));
+	    $self->_show_dna(0);
+	}
+
+	if( $seq->length == 0 ) { $self->_show_dna(0) }
+
+	if( $self->_show_dna() == 0 ) {
+	    $self->_print("\n//\n");
+	    return;
+	}
+
+	# finished printing features.
+
+	$str =~ tr/A-Z/a-z/;
+
+	# Count each nucleotide
+	unless(  $mol eq 'protein' ) {
+	    my $alen = $str =~ tr/a/a/;
+	    my $clen = $str =~ tr/c/c/;
+	    my $glen = $str =~ tr/g/g/;
+	    my $tlen = $str =~ tr/t/t/;
+
+	    my $olen = $len - ($alen + $tlen + $clen + $glen);
+	    if( $olen < 0 ) {
+		$self->warn("Weird. More atgc than bases. Problem!");
+	    }
+
+	    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
+				     $alen,$clen,$glen,$tlen,
+				     ( $olen > 0 ) ? 
+				     sprintf("%6s others",$olen) : '');
+	    $self->_print($base_count);
+	}
+
+	my ($o) = $seq->annotation->get_Annotations('origin');
+	$self->_print(sprintf("%-12s%s\n",
+			      'ORIGIN', $o ? $o->value : ''));
+	# print out the sequence
+	my $nuc = 60;		# Number of nucleotides per line
+	my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
+	my $out_pat   = 'A11' x 6; # Pattern for packing a line
+	my $length = length($str);
+
+	# Calculate the number of nucleotides which fit on whole lines
+	my $whole = int($length / $nuc) * $nuc;
+
+	# Print the whole lines
+	my $i;
+	for ($i = 0; $i < $whole; $i += $nuc) {
+	    my $blocks = pack $out_pat,
+	    unpack $whole_pat,
+	    substr($str, $i, $nuc);
+	    chop $blocks;
+	    $self->_print(sprintf("%9d $blocks\n", $i + $nuc - 59));
+	}
+
+	# Print the last line
+	if (my $last = substr($str, $i)) {
+	    my $last_len = length($last);
+	    my $last_pat = 'a10' x int($last_len / 10) .
+		'a'. $last_len % 10;
+	    my $blocks = pack $out_pat,
+	    unpack($last_pat, $last);
+	    $blocks =~ s/ +$//;
+	    $self->_print(sprintf("%9d $blocks\n", 
+				  $length - $last_len + 1));
+	}
+
+	$self->_print("//\n");
+
+	$self->flush if $self->_flush_on_write && defined $self->_fh;
+	return 1;
+    }
 }
 
 =head2 _print_GenBank_FTHelper
@@ -1049,7 +1052,7 @@ sub _read_GenBank_References{
        if (/^\s{2}AUTHORS\s+(.*)/o) { 
 	   push (@authors, $1);   
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/o && do { push (@authors, $1);next;};
+	       /^\s{9,}(.*)/o && do { push (@authors, $1);next;};
 	       last;
 	   }
 	   $ref->authors(join(' ', @authors));
@@ -1057,7 +1060,7 @@ sub _read_GenBank_References{
        if (/^\s{2}TITLE\s+(.*)/o)  { 
 	   push (@title, $1);
 	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{3,}(.*)/o && do { push (@title, $1);
+	       /^\s{9,}(.*)/o && do { push (@title, $1);
 				     next;
 				 };
 	       last;
@@ -1070,7 +1073,7 @@ sub _read_GenBank_References{
 	       # we only match when there are at least 4 spaces
 	       # there is probably a better way to match this
 	       # as it assumes that the describing tag is short enough 
-	       /^\s{4,}(.*)/o && do { push(@loc, $1);
+	       /^\s{9,}(.*)/o && do { push(@loc, $1);
 				      next;
 				 };
 	       last;
@@ -1081,9 +1084,9 @@ sub _read_GenBank_References{
        if (/^\s{2}REMARK\s+(.*)/o) { 
 	   push (@com, $1);
 	   while ( defined($_ = $self->_readline) ) {	       
-	       /^\s{3,}(.*)/o && do { push(@com, $1);
-				     next;
-				 };
+	       /^\s{9,}(.*)/o && do { push(@com, $1);
+				      next;
+				  };
 	       last;
 	   }
 	   $ref->comment(join(' ', @com));
@@ -1092,7 +1095,7 @@ sub _read_GenBank_References{
        if( /^\s{2}MEDLINE\s+(.*)/ ) {
 	   push(@medline,$1);
 	   while ( defined($_ = $self->_readline) ) {	       
-	       /^\s{4,}(.*)/ && do { push(@medline, $1);
+	       /^\s{9,}(.*)/ && do { push(@medline, $1);
 				     next;
 				 };
 	       last;
@@ -1103,7 +1106,7 @@ sub _read_GenBank_References{
        if( /^\s{3}PUBMED\s+(.*)/ ) {
 	   push(@pubmed,$1);
 	   while ( defined($_ = $self->_readline) ) {	       
-	       /^\s{5,}(.*)/ && do { push(@pubmed, $1);
+	       /^\s{9,}(.*)/ && do { push(@pubmed, $1);
 				     next;
 				 };
 	       last;
