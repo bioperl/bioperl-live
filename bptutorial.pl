@@ -2715,7 +2715,7 @@ So how would you know to look in AnalysisResult.pm
 for this documentation? The easy way is to use the special function
 "option 100" in the bptutorial script. Specifically if you run:
 
- > Perl -w bptutorial.pl 100 Bio::Tools::Genscan
+ > perl -w bptutorial.pl 100 Bio::Tools::Genscan
 
 you will receive the following output:
 
@@ -2749,18 +2749,18 @@ in any Bioperl object.
 The following scripts demonstrate many of the features of bioperl. To
 run all the core demos, run:
 
- > Perl -w  bptutorial.pl 0
+ > perl -w  bptutorial.pl 0
 
 To run a subset of the scripts do
 
- > Perl -w  bptutorial.pl
+ > perl -w  bptutorial.pl
 
 and use the displayed help screen.
 
 It may be best to start by just running one or two demos at a time. For 
 example, to run the basic sequence manipulation demo, do:
 
- > Perl -w  bptutorial.pl 1
+ > perl -w  bptutorial.pl 1
 
 Some of the later demos require that you have an internet connection
 and/or that you have an auxiliary Bioperl library and/or external
@@ -2864,11 +2864,11 @@ Using any other argument (or no argument) will run this display.
 
 So typical command lines might be:
 To run all core demo scripts:
- > Perl -w  bptutorial.pl 0
+ > perl -w  bptutorial.pl 0
 or to just run the local indexing demos:
- > Perl -w  bptutorial.pl 12 13
+ > perl -w  bptutorial.pl 12 13
 or to list all the methods available for object Bio::Tools::SeqStats -
- > Perl -w  bptutorial.pl 100 Bio::Tools::SeqStats
+ > perl -w  bptutorial.pl 100 Bio::Tools::SeqStats
 
 QQ_PARAMS_QQ
 
