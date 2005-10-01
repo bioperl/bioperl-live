@@ -19,7 +19,9 @@ Bio::SeqIO::tigrxml - Parse TIGR (new) XML
   use Bio::SeqIO;
   my $in = new Bio::SeqIO(-format => 'tigrcoordset',
                           -file   => 'file.xml');
+
   while( my $seq = $in->next_seq ) {
+     # do something...
   }
 
 =head1 DESCRIPTION
@@ -44,7 +46,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org
 
 =head1 AUTHOR - Jason Stajich
 

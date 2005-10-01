@@ -36,7 +36,7 @@ Bio::SeqIO::bsml - BSML sequence input/output stream
     $stream = Bio::SeqIO->new( -file => $filename, -format => 'bsml');
 
     while ( my $bioSeqObj = $stream->next_seq() ) {
-	# do something with $bioSeqObj
+   	# do something with $bioSeqObj
     }
 
  To write a Seq object to the current file handle in BSML XML format:
@@ -81,9 +81,8 @@ Bio::SeqIO::bsml - BSML sequence input/output stream
 
  Report bugs to the Bioperl bug tracking system to help us keep track
  the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+ Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head2 Things Still to Do

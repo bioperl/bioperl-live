@@ -179,10 +179,10 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via the web:
+the bugs and their resolution.
+Bug reports can be submitted via the web:
 
-  http://bio.perl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org
 
 =head1 AUTHOR - Peili Zhang
 

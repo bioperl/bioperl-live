@@ -39,7 +39,6 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 This object can transform Bio::Seq objects to and from raw flat
 file databases.
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -55,10 +54,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.
+Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS

@@ -52,8 +52,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.bioperl.org/
-
+  http://bugzilla.bioperl.org
 
 =head1 SEE ALSO
 

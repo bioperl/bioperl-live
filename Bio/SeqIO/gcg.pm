@@ -42,16 +42,14 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Ewan Birney & Lincoln Stein
 
 Email: E<lt>birney@ebi.ac.ukE<gt>
-       E<lt>lstein@cshl.orgE<gt>       
+       E<lt>lstein@cshl.orgE<gt>
 
 =head1 CONTRIBUTORS
 
