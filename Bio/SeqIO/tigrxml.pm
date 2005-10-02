@@ -77,6 +77,7 @@ use Bio::SeqFeature::Generic;
 use Bio::Annotation::Reference;
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
+use List::Util qw(min max);
 
 @ISA = qw( Bio::SeqIO XML::SAX::Base);
 
@@ -170,7 +171,8 @@ sub start_element {
 	$self->{'_seendata'}->{'_seqs'}->[-1]->add_SeqFeature($f);
     } elsif( $name eq 'MODEL' ) { # mRNA/transcript
 	# reset the UTRs
-	$self->{'_seendata'}->{"5'-UTR"}= $self->{'_seendata'}->{"3'-UTR"}= undef;
+	$self->{'_seendata'}->{"five_prime_UTR"}= undef;
+	$self->{'_seendata'}->{"three_prime_UTR"} = undef;
 	my ($s,$e) = ($attr->{'{}COORDS'}->{'Value'} =~ /(\d+)\-(\d+)/);
 	my $strand = 1;
 	if( $s > $e) { 
@@ -181,8 +183,8 @@ sub start_element {
 	my $f = Bio::SeqFeature::Generic->new
 	    (-primary_tag => 'transcript',
 	     -source_tag  => $Default_Source,
-	     -start       => $parent->start,	     
-	     -end         => $parent->end, 
+	     -start       => $s,	     # we use parent start/stop because 'MODEL' means CDS start/stop
+	     -end         => $e,             # but we want to reflect 
 	     -strand      => $strand,
 	     -seq_id      => $seqid,
 	     -tag         => {
@@ -214,7 +216,7 @@ sub start_element {
 		 'ID'     => $attr->{'{}FEAT_NAME'}->{'Value'},
 		 'Parent' => $parentid,
 	     });
-	$parent->add_SeqFeature($f);
+	$parent->add_SeqFeature($f,'EXPAND');
 	$self->{'_seendata'}->{'_seqs'}->[-1]->add_SeqFeature($f);
 	# we'll still just add exons to the transcript 
     } elsif( $name eq 'PROTEIN_SEQ' ) { 
@@ -384,7 +386,7 @@ sub end_element {
 	# look at the exons, find those which come after the model start
 	my $cdsexon = shift @cdsexons;	
 	my $exon = shift @exons; # first exon
-		if( ! defined $cdsexon ) { 
+	if( ! defined $cdsexon ) { 
 	    $self->warn( "no CDS exons $parentid!");
 	    return;
 	} elsif( ! defined $exon ) { 
@@ -399,15 +401,22 @@ sub end_element {
 			 " CDSexon is ".$cdsexon->location->to_FTstring."\n");
 	    
 	    my $utr = Bio::SeqFeature::Generic->new
-	       (-seq_id      => $exon->seq_id,
-		-strand      => $exon->strand,
-		-primary_tag => $exon->strand > 0 ? "5'-UTR" : "3'-UTR",
-		-source_tag  => $Default_Source,
-		-tag         => { 
-		    'ID'     => "$pid.UTR".$utrct++,
-		    'Parent' => $pid },
-		);
-	    my ($ns,$ne) = $exon->union($cdsexon);
+		(-seq_id      => $exon->seq_id,
+		 -strand      => $exon->strand,
+		 -primary_tag => $exon->strand > 0 ? "five_prime_UTR" : "three_prime_UTR",
+		 -source_tag  => $Default_Source,
+		 -tag         => { 
+		     'ID'     => "$pid.UTR".$utrct++,
+		     'Parent' => $pid },
+		 );
+	    my ($ns,$ne);
+	    if( $utr->primary_tag eq 'five_prime_UTR' ) {
+		$ns = $exon->start;
+		$ne = min ( $exon->end, $cdsexon->start - 1);
+	    } else {
+		$ne = min( $exon->end, $cdsexon->start - 1);
+		$ns = $exon->start;
+	    }
 	    $utr->start($ns); $utr->end($ne);	    
 	    $model->add_SeqFeature($utr);
 	    $curseq->add_SeqFeature($utr);
@@ -437,16 +446,23 @@ sub end_element {
 	    my $utr = Bio::SeqFeature::Generic->new
 	       (-seq_id      => $exon->seq_id,
 		-strand      => $exon->strand,
-		-primary_tag => $exon->strand < 0 ? "5'-UTR" : "3'-UTR",
+		-primary_tag => $exon->strand < 0 ? "five_prime_UTR" : "three_prime_UTR",
 		-source_tag  => $Default_Source,
 		-tag         => { 
 		    'Parent' => $pid,
 		    'ID'     => "$pid.UTR".$utrct++,
 		}
 		);
-	    my ($ns,$ne) = $exon->union($cdsexon);
+	    my ($ns,$ne);
+	    if( $utr->primary_tag eq 'three_prime_UTR' ) {		
+		$ns = max ( $exon->start, $cdsexon->end + 1);
+		$ne = $exon->end;		
+	    } else {		
+		$ns = $cdsexon->end+1;
+		$ne = max ( $exon->end, $cdsexon->start + 1);
+	    }
 	    $utr->start($ns); $utr->end($ne);
-
+	    
 	    $model->add_SeqFeature($utr);
 	    $curseq->add_SeqFeature($utr);
 	    $exon = pop @exons;
