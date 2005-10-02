@@ -50,8 +50,6 @@ Bio::Structure::IO - Handler for Structure Formats
              scalar $struc->model,"\n";
     }
 
-
-
 =head1 DESCRIPTION
 
 [ The following description is a copy-paste from the Bio::SeqIO
@@ -98,7 +96,7 @@ and print operations to read and write structure::IOuence objects:
     $stream = Bio::Structure::IO->newFh(-format => 'pdb'); # read from standard input
 
     while ( $structure = <$stream> ) {
-	# do something with $structure
+   	# do something with $structure
     }
 
 and
@@ -232,10 +230,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.
+Bug reports can be submitted via the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney, Lincoln Stein, Kris Boulez
