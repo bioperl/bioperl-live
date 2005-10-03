@@ -1617,12 +1617,14 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		within <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink>. Typically this means you have a means to run
 		the program and frequently a means of parsing the resulting 
 		output, or report, as well. Certainly the most popular 
-		analytical program is 
-<ulink
-		url="http://www.ncbi.nlm.nih.gov/BLAST/"><citetitle>BLAST</citetitle></ulink>,
+		analytical program is BLAST
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
-		and running. This example also assumes that you used the formatdb 
+		and running and versions of the program that can run on all the 
+		popular operating systems can be downloaded from 
+		<ulink
+		url="http://www.ncbi.nlm.nih.gov/BLAST/download.shtml"><citetitle>NCBI</citetitle></ulink>. The
+		example code assumes that you used the formatdb 
 		program to index the database sequence file "db.fa".
 	 </para>
     <para>
