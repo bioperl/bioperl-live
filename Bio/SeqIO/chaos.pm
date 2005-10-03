@@ -18,7 +18,8 @@ Bio::SeqIO::chaos - chaos sequence input/output stream
     #In general you will not want to use this module directly;
     #use the chaosxml format via SeqIO
 
-    $outstream = Bio::SeqIO->new(-file => $filename, -format => 'chaosxml');
+    $outstream = Bio::SeqIO->new(-file => $filename,
+                                 -format => 'chaosxml');
 
     while ( my $seq = $instream->next_seq() ) {
        $outstream->write_seq($seq);
@@ -100,7 +101,7 @@ Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
-Bug reports can be submitted via email or the web:
+Bug reports can be submitted via the web:
 
   http://bugzilla.bioperl.org
 
