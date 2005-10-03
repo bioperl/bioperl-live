@@ -166,8 +166,7 @@ sub annotation {
 
 sub get_nof_contigs {
     my $self = shift;
-
-    return scalar( $self->get_contig_ids() );
+    return scalar( @{[$self->get_contig_ids()]} );
 }
 
 =head2 get_nof_sequences_in_contigs
