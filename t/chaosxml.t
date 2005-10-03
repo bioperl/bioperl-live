@@ -4,10 +4,11 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($error $NUMTESTS);
+use vars qw($error $NUMTESTS $out_file);
 BEGIN {
 	$NUMTESTS = 2;
 	$error = 0;
+	$out_file = "t/data/tmp-chaosxml";
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
@@ -21,7 +22,7 @@ BEGIN {
 	};
 	if ( $@ ) {
 		$error = 1;
-		warn "Data::Stag not installed, cannot perform chaosxml tests\n";
+		warn "Data::Stag::Writer not installed, cannot perform chaosxml tests\n";
    } 
 	use Test;
 	plan tests => $NUMTESTS;
@@ -37,17 +38,20 @@ use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'};
 ok(1);
 
-my $io = Bio::SeqIO->new(-format => 'chaosxml',
+# currently chaosxml is write-only
+my $in = Bio::SeqIO->new(-format => 'genbank',
 								 -verbose => $verbose,
 								 -file => Bio::Root::IO->catfile
-								 (qw(t data Rab1.chaos-xml) ));
-ok(my $seq = $io->next_seq);
-# ok($seq->length, 1063);
-# ok($seq->display_id,'AE00373');
-# ok($seq->molecule,'dna');
+								 qw(t data AE003644_Adh-genomic.gb) );
 
-END { 
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Unable to run all of the chaosxml tests',1);
-   }
+my $seq = $in->next_seq;
+
+my $out = Bio::SeqIO->new(-file => ">$out_file",
+								  -verbose => $verbose,
+								  -format => 'chaosxml');
+$out->write_seq($seq);
+ok (-e $out_file);
+
+END {
+	unlink $out_file if -e $out_file;
 }
