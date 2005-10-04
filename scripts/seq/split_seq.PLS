@@ -1,10 +1,11 @@
 #!perl -w
 use strict;
-# $Id: split_seq.PLS,v 1.4 2005-09-10 20:23:11 jason Exp $
+# $Id: split_seq.PLS,v 1.5 2005-10-04 00:21:14 bosborne Exp $
 
 =head1 NAME
 
-split_seq - splits a sequence into equal sized chunks with an optional overlapping range
+split_seq - splits a sequence into equal sized chunks with an optional
+            overlapping range
 
 =head1 SYNOPSIS
 
@@ -22,8 +23,9 @@ Mandatory Options:
 Special Options:
 
   -o  Overlapping range between the resulting sequences.
-  -i  Create an index file with the resulting sequence files. This is useful if you want to
-      pass this list as input arguments into another programs (i.e. CLUSTAL, HMMER, etc.).
+  -i  Create an index file with the resulting sequence files. This is
+      useful if you want to pass this list as input arguments into
+      another programs (i.e. CLUSTAL, HMMER, etc.).
 
 =head1 FEEDBACK
 
@@ -47,7 +49,8 @@ web:
 =head1 AUTHORS
 
   Ewan Birney E<lt>birney-at-ebi.ac.ukE<gt>
-  Mauricio Herrera Cuadra E<lt>arareko-at-campus.iztacala.unam.mxE<gt> (some enhancements)
+  Mauricio Herrera Cuadra E<lt>arareko-at-campus.iztacala.unam.mxE<gt>
+  (some enhancements)
 
 =cut
 

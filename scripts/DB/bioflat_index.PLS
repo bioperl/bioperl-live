@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#$Id: bioflat_index.PLS,v 1.4 2005-04-26 15:10:54 jason Exp $
+#$Id: bioflat_index.PLS,v 1.5 2005-10-04 00:21:14 bosborne Exp $
 
 =head1 NAME
 
@@ -56,7 +56,7 @@ GetOptions( 'create'      => \$CREATE,
 				'format:s'    => \$FORMAT,
 				'location:s'  => \$LOCATION,
 				'dbname:s'    => \$DBNAME,
-				'indextype:s' => \$INDEXTYPE ) or die USAGE;
+				'indextype:s' => \$INDEXTYPE );
 
 $FORMAT    = $ENV{OBDA_FORMAT}    unless defined $FORMAT;
 $LOCATION  = $ENV{OBDA_LOCATION}  unless defined $LOCATION;
@@ -67,16 +67,22 @@ my $root = 'Bio::Root::Root';
 my $io   = 'Bio::Root::IO';
 
 # confirm that database directory is there
-defined $LOCATION or $root->throw("please provide a base directory with the --location option");
+defined $LOCATION or 
+  $root->throw("please provide a base directory with the --location option");
 
--d $LOCATION or $root->throw("$LOCATION is not a valid directory; use --create to create a new index");
+-d $LOCATION or 
+  $root->throw("$LOCATION is not a valid directory; use --create to create a new index");
 
-defined $DBNAME or $root->throw("please provide a database name with the --dbname option");
+defined $DBNAME or 
+  $root->throw("please provide a database name with the --dbname option");
 
-defined $FORMAT or $root->throw("please specify the format for the input files with the --format option");
+defined $FORMAT or 
+  $root->throw("please specify the format for the input files with the --format option");
 
-defined $INDEXTYPE or (($INDEXTYPE='flat')
-		       && $root->warn('setting index type to "flat", use the --indextype option to override'));
+unless (defined $INDEXTYPE) {
+	$INDEXTYPE = 'flat';
+	$root->warn('setting index type to "flat", use the --indextype option to override');
+}
 
 # Confirm that database is there and that --create flag is sensible.
 my $path = $io->catfile($LOCATION,$DBNAME,'config.dat');
@@ -107,6 +113,5 @@ my $db = Bio::DB::Flat->new(-directory  => $LOCATION,
 my $entries = $db->build_index(@ARGV);
 
 print STDERR "(Re)indexed $entries entries.\n ";
-
 
 __END__
