@@ -782,13 +782,13 @@ ORIGIN      15 bp upstream from HhaI site.
    anything, like namespace and authority. The reason is that though
    these are good values in principle there are no commonly agreed upon
    standard names - perhaps someday the authors will be able to rewrite
-   the code when we all agree what these values should be. Finally, you
-   may be wondering why the method names are what they are and why
-   particular fields or identifiers end up associated with particular
-   methods. Again, without having standard names for things that are
-   agreed upon by the creators of our public databases all the authors
-   could do is use common sense, and these choices seem to be reasonable
-   ones.
+   the code when all our public databases agree what these values should
+   be. Finally, you may be wondering why the method names are what they
+   are and why particular fields or identifiers end up associated with
+   particular methods. Again, without having standard names for things
+   that are agreed upon by the creators of our public databases all the
+   authors could do is use common sense, and these choices seem to be
+   reasonable ones.
 
    Next let's take a look at the values returned by the methods used by
    the Sequence object when a fasta file is used as input. The fasta file
@@ -942,7 +942,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
    Table 5. Values from [98]Swissprot
 
    As in the Genbank example there's information that the Sequence object
-   doesn't supply, and it's stored in Annotation objects. See the
+   doesn't supply, and it's all stored in Annotation objects. See the
    [99]Feature and Annotation HOWTO for more.
 
 12. BLAST
@@ -950,11 +950,12 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
    You have access to a large number of sequence analysis programs within
    [100]Bioperl. Typically this means you have a means to run the program
    and frequently a means of parsing the resulting output, or report, as
-   well. Certainly the most popular analytical program is [101]BLAST, so
-   let's use it as an example. First you'll need to get BLAST, also known
-   as blastall, installed on your machine and running. This example also
-   assumes that you used the formatdb program to index the database
-   sequence file "db.fa".
+   well. Certainly the most popular analytical program is BLAST so let's
+   use it as an example. First you'll need to get BLAST, also known as
+   blastall, installed on your machine and running and versions of the
+   program that can run on all the popular operating systems can be
+   downloaded from [101]NCBI. The example code assumes that you used the
+   formatdb program to index the database sequence file "db.fa".
 
    As usual, we start by choosing a module to use, in this case
    [102]Bio::Tools::Run::StandAloneBlast. You stipulate the parameters
@@ -1323,7 +1324,7 @@ References
   98. http://www.expasy.ch/
   99. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
  100. http://bioperl.org/
- 101. http://www.ncbi.nlm.nih.gov/BLAST/
+ 101. http://www.ncbi.nlm.nih.gov/BLAST/download.shtml
  102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
  103. http://bioperl.org/HOWTOs/html/SearchIO.html
  104. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html

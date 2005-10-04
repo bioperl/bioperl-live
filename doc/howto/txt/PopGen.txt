@@ -53,8 +53,8 @@ Jason Stajich
    these objects, a coalescent implementation, and objects for performing
    sequence distance based calculations. A full treatment of the Bioperl
    interface to the PAML suite (Z.Yang, 1997) is covered in the [12]PAML
-   HOWTO> and objects and data pertinent to phylogenetic data
-   manipulation are covered in the [13]Trees HOWTO.
+   HOWTO and objects and data pertinent to phylogenetic data manipulation
+   are covered in the [13]Trees HOWTO.
 
 2. The Bio::PopGen Objects
 

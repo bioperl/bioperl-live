@@ -841,8 +841,8 @@ ORIGIN      15 bp upstream from HhaI site.
 		<tt class="classname">namespace</tt> and <tt class="classname">authority</tt>.
 		The reason is that though these are good values in principle
 		there are no commonly agreed upon standard names - perhaps someday
-		the authors will be able to rewrite the code when we all agree 
-		what these values should be.
+		the authors will be able to rewrite the code when all our 
+		public databases agree what these values should be.
 		Finally, you may be wondering why the method names are what they
 		are and why particular fields or identifiers end up associated with
 		particular methods. Again, without having standard names for things
@@ -984,18 +984,20 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 		<div class="table"><a id="d4e711"></a><table summary="Values from Swissprot" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>A2S3_RAT</td></tr><tr><td>desc</td><td>Amyotrophic lateral ... protein of 98 kDa).</td></tr><tr><td>display_name</td><td>A2S3_RAT</td></tr><tr><td>accession</td><td>Q8R2H7</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>913</td></tr><tr><td>seq</td><td>MSLSQ...ILKED</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Values from <a href="http://www.expasy.ch" target="_top"><i class="citetitle">Swissprot</i></a></b></p></div>
 	 </p><p>
 		As in the Genbank example there's information that the Sequence
-		object doesn't supply, and it's stored in Annotation objects. See the
+		object doesn't supply, and it's all stored in Annotation objects. See the
 	<a href="http://bioperl.org/HOWTOs/html/Feature-Annotation.html" target="_top"><i class="citetitle">Feature and Annotation HOWTO</i></a> for more.
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="blast"></a>12.&nbsp;BLAST</h2></div></div></div><p>
 		You have access to a large number of sequence analysis programs 
 		within <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. Typically this means you have a means to run
 		the program and frequently a means of parsing the resulting 
 		output, or report, as well. Certainly the most popular 
-		analytical program is 
-<a href="http://www.ncbi.nlm.nih.gov/BLAST/" target="_top"><i class="citetitle">BLAST</i></a>,
+		analytical program is BLAST
 		so let's use it as an example. First you'll need to get 
 		BLAST, also known as blastall, installed on your machine
-		and running. This example also assumes that you used the formatdb 
+		and running and versions of the program that can run on all the 
+		popular operating systems can be downloaded from 
+		<a href="http://www.ncbi.nlm.nih.gov/BLAST/download.shtml" target="_top"><i class="citetitle">NCBI</i></a>. The
+		example code assumes that you used the formatdb 
 		program to index the database sequence file "db.fa".
 	 </p><p>
 		As usual, we start by choosing a module to use, in this case
