@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SearchIO::exonerate
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -96,6 +96,7 @@ use Bio::SearchIO;
     'Hit'             => 'hit',
     'Hsp'             => 'hsp'
     );
+
 %MAPPING =
     (
     'Hsp_query-from'=>  'HSP-query_start',
@@ -144,10 +145,19 @@ sub new {
     my ($class) = shift;
     my $self = $class->SUPER::new(@_);
 
-    my ($min_intron) = $self->_rearrange([qw(MIN_INTRON)], @_);
+    my ($min_intron,$cigar,
+	$vulgar) = $self->_rearrange([qw(MIN_INTRON
+					 CIGAR
+					 VULGAR)], @_);
     if( $min_intron ) {
 	$MIN_INTRON = $min_intron;
     }
+    if( $cigar && $vulgar ) {
+	$self->warn("cannot get HSPs from both CIGAR and VULGAR lines, will just choose whichever comes first (same as if you had chosen neither");
+	$cigar = 0; $vulgar=0;
+    }
+    $self->cigar($cigar);
+    $self->vulgar($vulgar);
     $self;
 }
 
@@ -168,28 +178,30 @@ sub next_result{
    $self->start_document();
    my @hit_signifs;
    my $seentop;
-   my (@q_ex, @m_ex, @h_ex); ## gc addition
+   my (@q_ex, @m_ex, @h_ex); ## gc addition   
    while( defined($_ = $self->_readline) ) {
-       #print STDERR "Reading $_";
-       if( /^Query:\s+(\S+)(\s+(.+))?/ ) {
+       # warn( "Reading $_");
+       if( /^Query:\s+(\S+)\s*(.+)?/ ) {
 	   if( $seentop ) {
 	       $self->end_element({'Name' => 'ExonerateOutput'});
 	       $self->_pushback($_);
 	       return $self->end_document();
 	   }
 	   $seentop = 1;
-	   my ($nm,$desc) = ($1,$2);
+	   my ($nm,$desc) = ($1,$2);	   
 	   chomp($desc) if defined $desc;
 	   $self->{'_result_count'}++;
-	   $self->start_element({'Name' => 'ExonerateOutput'});
+	   $self->start_element({'Name' => 'ExonerateOutput'});	   
 	   $self->element({'Name' => 'ExonerateOutput_query-def',
 			   'Data' => $nm });
 	   $self->element({'Name' => 'ExonerateOutput_query-desc',
 			   'Data' => $desc });
 	   $self->element({'Name' => 'ExonerateOutput_program',
-			    'Data' => 'Exonerate' });
+			   'Data' => 'Exonerate' });
+	   $self->{'_seencigar'} = 0;
+	   $self->{'_vulgar'}    = 0;
 
-       } elsif ( /^Target:\s+(\S+)(\s+(.+))?/ ) {
+       } elsif ( /^Target:\s+(\S+)\s*(.+)?/ ) {
 	   my ($nm,$desc) = ($1,$2);
 	   chomp($desc) if defined $desc;
 	   $self->start_element({'Name' => 'Hit'});
@@ -197,25 +209,30 @@ sub next_result{
 			   'Data' => $nm});
 	   $self->element({'Name' => 'Hit_desc',
 			   'Data' => $desc});
+	   $self->{'_seencigar'} = 0;
+	   $self->{'_vulgar'}    = 0;
        } elsif(  s/^vulgar:\s+(\S+)\s+         # query sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
 		 (\S+)\s+                      # target sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
 		 (\d+)\s+                      # score
 		 //ox ) {
-
+	   next if( $self->cigar || $self->{'_seencigar'});
+	   $self->{'_vulgar'}++;
 	   #
 	   # Note from Ewan. This is ugly - copy and paste from
 	   # cigar line parsing. Should unify somehow...
 	   #
-
-	   $self->start_element({'Name' => 'ExonerateOutput'});
-	   $self->element({'Name' => 'ExonerateOutput_query-def',
-			   'Data' => $1 });
-
-	   $self->start_element({'Name' => 'Hit'});
-	   $self->element({'Name' => 'Hit_id',
-			   'Data' => $5});
+	   if( ! $self->within_element('result') ) {	       
+	       $self->start_element({'Name' => 'ExonerateOutput'});
+	       $self->element({'Name' => 'ExonerateOutput_query-def',
+			       'Data' => $1 });
+	   }
+	   if( ! $self->within_element('hit') ) {
+	       $self->start_element({'Name' => 'Hit'});
+	       $self->element({'Name' => 'Hit_id',
+			       'Data' => $5});
+	   }
 
 	   ## gc note:
 	   ## $qe and $he are no longer used for calculating the ends,
@@ -313,13 +330,15 @@ sub next_result{
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
 		 (\d+)\s+                      # score
 		 //ox ) {
+	   next if( $self->vulgar || $self->{'_seenvulgar'});
+	   $self->{'_cigar'}++;
 
-	   if( ! $self->in_element('ExonerateOutput') ) {
+	   if( ! $self->within_element('result') ) {	       
 	       $self->start_element({'Name' => 'ExonerateOutput'});
 	       $self->element({'Name' => 'ExonerateOutput_query-def',
 			       'Data' => $1 });
 	   }
-	   if( ! $self->in_element('Hit') ) {
+	   if( ! $self->within_element('hit') ) {
 	       $self->start_element({'Name' => 'Hit'});
 	       $self->element({'Name' => 'Hit_id',
 			       'Data' => $5});
@@ -470,8 +489,10 @@ sub next_result{
 	   $self->element({'Name' => 'Hsp_hitgaps',
 			   'Data' => $deletes});	   	
 	   $self->end_element({'Name' => 'Hsp'});
+
 	   $self->element({'Name' => 'Hit_score',
 			   'Data' => $score});
+	   
 	   $self->end_element({'Name' => 'Hit'});
 	   $self->end_element({'Name' => 'ExonerateOutput'});
 
@@ -506,7 +527,6 @@ sub start_element{
 	   $self->_eventHandler->$func($data->{'Attributes'});
        }
        unshift @{$self->{'_elements'}}, $type;
-
        if($type eq 'result') {
 	   $self->{'_values'} = {};
 	   $self->{'_result'}= undef;
@@ -694,6 +714,42 @@ sub result_count {
 }
 
 sub report_count { shift->result_count }
+
+=head2 vulgar
+
+ Title   : vulgar
+ Usage   : $obj->vulgar($newval)
+ Function: Get/Set flag, do you want to build HSPs from VULGAR string?
+ Returns : value of vulgar (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub vulgar{
+    my $self = shift;
+
+    return $self->{'_vulgar'} = shift if @_;
+    return $self->{'_vulgar'};
+}
+
+=head2 cigar
+
+ Title   : cigar
+ Usage   : $obj->cigar($newval)
+ Function: Get/Set boolean flag do you want to build HSPs from CIGAR strings?
+ Returns : value of cigar (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub cigar{
+    my $self = shift;
+
+    return $self->{'_cigar'} = shift if @_;
+    return $self->{'_cigar'};
+}
 
 1;
 
