@@ -13,7 +13,8 @@
 
 =head1 NAME
 
-Bio::Annotation::Collection - Default Perl implementation of AnnotationCollectionI
+Bio::Annotation::Collection - Default Perl implementation of 
+AnnotationCollectionI
 
 =head1 SYNOPSIS
 
@@ -51,10 +52,9 @@ of the Bioperl mailing lists. Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney

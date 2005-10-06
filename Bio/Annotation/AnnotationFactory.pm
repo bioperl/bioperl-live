@@ -26,13 +26,15 @@
 
 =head1 NAME
 
-Bio::Annotation::AnnotationFactory - Instantiates a new Bio::AnnotationI (or derived class) through a factory
+Bio::Annotation::AnnotationFactory - Instantiates a new 
+Bio::AnnotationI (or derived class) through a factory
 
 =head1 SYNOPSIS
 
     use Bio::Annotation::AnnotationFactory;
     # 
-    my $factory = new Bio::Annotation::AnnotationFactory(-type => 'Bio::Annotation::SimpleValue');
+    my $factory = new Bio::Annotation::AnnotationFactory(
+                    -type => 'Bio::Annotation::SimpleValue');
     my $ann = $factory->create_object(-value => 'peroxisome',
                                       -tagname => 'cellular component');
 
@@ -56,9 +58,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Hilmar Lapp

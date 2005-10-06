@@ -24,7 +24,7 @@ Bio::Annotation::TypeManager - Manages types for annotation collections
     print "The type for $key is ",$tm->type_for_key($key),"\n";
 
     if( !$tm->is_valid($key,$object) ) {
-	$self->throw("Invalid object for key $key");
+	      $self->throw("Invalid object for key $key");
     }
 
 =head1 DESCRIPTION
@@ -45,10 +45,9 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.
+Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney

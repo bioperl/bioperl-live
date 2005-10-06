@@ -48,7 +48,8 @@ Bio::Annotation::OntologyTerm - An ontology term adapted to AnnotationI
    my $term = $annterm->term(); # term is-a Bio::Ontology::TermI
    print "ontology term ",$term->name()," (ID ",$term->identifier(),
          "), ontology ",$term->ontology()->name(),"\n";
-   $term = Bio::Ontology::Term->new(-name => 'ABC2', -ontology => 'Gene Name');
+   $term = Bio::Ontology::Term->new(-name => 'ABC2',
+                                    -ontology => 'Gene Name');
    $annterm->term($term);
 
 =head1 DESCRIPTION
@@ -69,10 +70,9 @@ of the Bioperl mailing lists. Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Hilmar Lapp
@@ -83,7 +83,8 @@ Email hlapp at gmx.net
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
