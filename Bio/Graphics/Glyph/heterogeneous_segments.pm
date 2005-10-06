@@ -25,16 +25,22 @@ sub draw {
   @parts    = $self if !@parts && $self->level == 0;
   return $self->SUPER::draw(@_) unless @parts;
 
+  @parts = $self->merge_parts(@parts) if $self->option('merge_parts');
+
   # figure out the colors
   $self->{source2color} ||= {};
   my $fill = $self->bgcolor;
   for my $part (@parts) {
+    if ($self->option('merge_parts')) {
+      $part->{partcolor} = $fill;
+      next;
+    }  
     my $s = eval { $part->feature->source_tag } or next;
     $self->{source2color}{$s} ||= $self->color(lc($s)."_color") || $fill;
     $part->{partcolor} = $self->{source2color}{$s};
   }
 
-  $self->Bio::Graphics::Glyph::generic::draw(@_);
+  $self->SUPER::draw(@_);
 }
 
 

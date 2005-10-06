@@ -56,7 +56,8 @@ sub draw {
   }
   
   $self->{parts} = \@parts;
-  $self->Bio::Graphics::Glyph::generic::draw(@_);
+
+  $self->SUPER::draw(@_);
 }
 
 sub in_range {
