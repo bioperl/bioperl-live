@@ -26,14 +26,16 @@
 
 =head1 NAME
 
-Bio::Ontology::TermFactory - Instantiates a new Bio::Ontology::TermI (or derived class) through a factory
+Bio::Ontology::TermFactory - Instantiates a new 
+Bio::Ontology::TermI (or derived class) through a factory
 
 =head1 SYNOPSIS
 
     use Bio::Ontology::TermFactory;
 
     # the default type is Bio::Ontology::Term
-    my $factory = new Bio::Ontology::TermFactory(-type => 'Bio::Ontology::GOterm');
+    my $factory = new Bio::Ontology::TermFactory(
+                        -type => 'Bio::Ontology::GOterm');
     my $term = $factory->create_object(-name => 'peroxisome',
                                        -ontology => 'Gene Ontology',
                                        -identifier => 'GO:0005777');
@@ -58,9 +60,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Hilmar Lapp

@@ -82,25 +82,25 @@ my $instance;
 
 BEGIN {
 $instance = {
-             'Sequence Ontology' => {
-                ontology => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.ontology?rev=HEAD",
-                definitions => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.definition?rev=HEAD",
-                format => 'soflat',
+   'Sequence Ontology' => {
+	     ontology => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.ontology?rev=HEAD",
+        definitions => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.definition?rev=HEAD",
+        format => 'soflat',
                                     },
-             'Sequence Ontology Feature Annotation' => {
-                ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
-                definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',
-                format => 'soflat',
+   'Sequence Ontology Feature Annotation' => {
+        ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
+        definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',
+        format => 'soflat',
                                     },
-             'Gene Ontology' => {
-                ontology => [
-                             'http://www.geneontology.org/ontology/function.ontology',
-                             'http://www.geneontology.org/ontology/process.ontology',
-                             'http://www.geneontology.org/ontology/component.ontology'
-                            ],
-                definitions => 'http://www.geneontology.org/ontology/GO.defs',
-                format => 'soflat',
-                                },
+    'Gene Ontology' => {
+         ontology => [
+							 'http://www.geneontology.org/ontology/function.ontology',
+							 'http://www.geneontology.org/ontology/process.ontology',
+							 'http://www.geneontology.org/ontology/component.ontology'
+							],
+			definitions => 'http://www.geneontology.org/ontology/GO.defs',
+         format => 'soflat',
+							  },
             };
 
 #aliases

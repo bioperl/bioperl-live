@@ -27,7 +27,6 @@ SimpleOntologyEngine - Implementation of OntologyEngineI interface
 
   my $soe = Bio::Ontology::SimpleOntologyEngine->new;
 
-
 =head1 DESCRIPTION
 
 This is a "simple" implementation of Bio::Ontology::OntologyEngineI.
@@ -47,10 +46,9 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
-  http://bioperl.org/bioperl-bugs/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Dimitrov
 

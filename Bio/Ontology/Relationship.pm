@@ -65,10 +65,9 @@ Bioperl mailing lists  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.  Bug reports can be submitted via
- email or the web:
+the bugs and their resolution.  Bug reports can be submitted via
+the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
@@ -137,12 +136,12 @@ sub new {
    
     my ( $identifier,
          $subject_term,
-	 $child,        # for backwards compatibility
+			$child,        # for backwards compatibility
          $object_term,
-	 $parent,       # for backwards compatibility
+			$parent,       # for backwards compatibility
          $predicate_term,
-	 $reltype,      # for backwards compatibility
-	 $ont)
+			$reltype,      # for backwards compatibility
+			$ont)
 	= $self->_rearrange( [qw( IDENTIFIER
 				  SUBJECT_TERM
 				  CHILD_TERM

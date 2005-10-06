@@ -62,10 +62,8 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
@@ -128,14 +126,16 @@ use constant FALSE   => 0;
            -name                  => the name of this term [scalar]
            -definition            => the definition of this term [scalar]
            -ontology              => the ontology this term lives in
-                                     (a L<Bio::Ontology::OntologyI> object)
+                                     (a Bio::Ontology::OntologyI object)
            -version               => version information [scalar]
            -is_obsolete           => the obsoleteness of this term [0 or 1]
            -comment               => a comment [scalar]
-           -dblinks               => L<Bio::Annotation::DBLink> objects
+           -dblinks               => Bio::Annotation::DBLink objects
                                      [reference to array] 
-           -references            => L<Bio::Annotation::Reference> objects
+           -references            => Bio::Annotation::Reference objects
                                      [reference to array]
+
+See L<Bio::Ontology::OntologyI>, L<Bio::Annotation::Reference>, L<Bio::Annotation::DBLink>.
 
 =cut
 
@@ -148,21 +148,22 @@ sub new {
          $name,
          $definition,
          $category,
-	 $ont,
+			$ont,
          $version,
          $is_obsolete,
          $comment,
-	 $dblinks, $references)
+			$dblinks, 
+			$references)
 	= $self->_rearrange( [ qw( IDENTIFIER
-				   NAME
-				   DEFINITION
-				   CATEGORY
-                                   ONTOLOGY
-				   VERSION
-				   IS_OBSOLETE
-				   COMMENT
-                                   DBLINKS 
-                                   REFERENCES
+										NAME
+										DEFINITION
+										CATEGORY
+										ONTOLOGY
+										VERSION
+										IS_OBSOLETE
+										COMMENT
+										DBLINKS 
+										REFERENCES
        ) ], @args );
 
     $self->init();

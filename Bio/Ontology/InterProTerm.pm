@@ -25,10 +25,11 @@ InterProTerm - Implementation of InterProI term interface
 
 =head1 SYNOPSIS
 
-  my $term = Bio::Ontology::InterProTerm->new( -interpro_id => "IPR000001",
-					       -name => "Kringle",
-					       -definition => "Kringles are autonomous structural domains ...",
-					       -ontology => "Domain"
+  my $term = Bio::Ontology::InterProTerm->new( 
+        -interpro_id => "IPR000001",
+		  -name => "Kringle",
+		  -definition => "Kringles are autonomous structural domains ...",
+		  -ontology => "Domain"
 					     );
   print $term->interpro_id(), "\n";
   print $term->name(), "\n";
@@ -55,9 +56,8 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+the web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Peter Dimitrov
