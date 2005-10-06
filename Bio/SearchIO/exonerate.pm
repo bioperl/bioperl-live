@@ -50,6 +50,20 @@ For example you can see this script:
 
 http://fungal.genome.duke.edu/~jes12/software/scripts/process_exonerate_gff3.pl
 
+If your report contains both CIGAR and VULGAR lines only the first one
+will processed for a given Query/Target pair.  If you preferentially
+want to use VULGAR or CIGAR add one of these options when initializing
+the SearchIO object.
+
+    -cigar => 1 
+    -vulgar => 1 
+
+Or set them via these methods.
+
+    $parser->cigar(1)
+    $parser->vulgar(1)
+
+
 
 =head1 FEEDBACK
 
@@ -136,8 +150,15 @@ $MIN_INTRON=30; # This is the minimum intron size
  Usage   : my $obj = new Bio::SearchIO::exonerate();
  Function: Builds a new Bio::SearchIO::exonerate object
  Returns : an instance of Bio::SearchIO::exonerate
- Args    :
-
+ Args    : -min_intron => somewhat obselete option, how to determine if a
+                          an indel is an intron or a local gap.  Use VULGAR
+                          rather than CIGAR to avoid this heuristic,default 30.
+           -cigar       => 1   set this to 1 if you want to parse 
+                               CIGAR exclusively.
+           -vulgar      => 1   set this to 1 if you want to parse VULGAR
+                               exclusively, setting both to 1 will revert
+                               to the default behavior of just parsing the
+                               first line that it sees.
 
 =cut
 
@@ -728,8 +749,14 @@ sub report_count { shift->result_count }
 
 sub vulgar{
     my $self = shift;
-
-    return $self->{'_vulgar'} = shift if @_;
+    my $x = shift if @_;
+    if( @_ ) {
+	if( $_[0] && $self->{'_cigar'} ) {
+	    $self->warn("Trying to set vulgar and cigar both to 1, must be either or");
+	    $self->{'_cigar'}  = 0;
+	    return $self->{'_vulgar'} = 0;
+	}
+    }
     return $self->{'_vulgar'};
 }
 
@@ -746,8 +773,14 @@ sub vulgar{
 
 sub cigar{
     my $self = shift;
-
-    return $self->{'_cigar'} = shift if @_;
+    my $x = shift if @_;
+    if( @_ ) {
+	if( $_[0] && $self->{'_vulgar'} ) {
+	    $self->warn("Trying to set vulgar and cigar both to 1, must be either or");
+	    $self->{'_vulgar'}  = 0;
+	    return $self->{'_cigar'} = 0;
+	}
+    }
     return $self->{'_cigar'};
 }
 
