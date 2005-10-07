@@ -381,8 +381,8 @@ sub next_assembly {
      while (my $seq = $singlets_fh->next_seq()) {
           # $dumper->dumpValue($seq);
                # find the name of this singlet and attempt to get the phd from phd_dir instead
-          my ($phdfilename,$chromatfilename);
-          if ($seq->desc() =~ /PHD_FILE: (\S+)/) {
+          my ($phdfilename,$chromatfilename) = qw(unset unset);
+	  if ($seq->desc() =~ /PHD_FILE: (\S+)/) {
               $phdfilename = $1;
           }
           if ($seq->desc() =~ /CHROMAT_FILE: (\S+)/)  {
