@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bioperl 1.5 - Perl Modules for Biology
+Bioperl 1.5.1 - Perl Modules for Biology
 
 =head1 DESCRIPTION
 

@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bioscripts 1.5 - Bioperl scripts
+Bioscripts 1.5.1 - Bioperl scripts
 
 =head1 SYNOPSIS
 
