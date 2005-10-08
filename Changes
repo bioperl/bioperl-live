@@ -2,6 +2,91 @@ $Id$
   
 Revision history for Bioperl core modules
 
+1.5 series - these releases represent the pre-1.6 releases, the 1.6 series
+    will be branches from the last 1.5.x release. 
+
+1.5.1 Developer release
+
+    o Major problem with how Annotations were written out with
+      Bio::Seq is fixed by reverting to old behavior for
+      Bio::Annotation objects.
+
+    o Bio::SeqIO
+
+     - genbank.pm
+       * bug #1871; REFLOOP' parsing loop, I changed the pattern to
+         expect at l east 9 spaces at the beginning of a line to
+         indicate line wrapping.
+
+       * Treat multi-line SOURCE sections correctly, this defect broke
+         both common_name() and classification()
+
+       * parse swissprot fields in genpept file 
+
+       * parse WGS genbank records
+
+     - embl.pm
+        * Changed regexp for ID line. The capturing parentheses are
+          the same, the difference is an optional repeated-not-semi-
+          colon expression following the captured \S+. This means the
+          regexp works when the division looks like /PRO;/ or when the
+          division looks like /ANG ;/ - the latter is from EMBL
+          repbase
+
+        * fix ID line parsing: the molecule string can have spaces in
+          it. Like: "genomic DNA"
+
+     - swiss.pm: bugs  #1727, #1734
+
+    o Bio::AlignIO
+
+     -  maf.pm coordinate problem fixed
+      
+    o Bio::Taxonomy and Bio::DB::Taxonomy
+
+     - Parse NCBI XML now so that nearly all the taxonomy up-and-down 
+       can be done via Web without downloading all the sequence.
+ 
+    o Bio::Tools::Run::RemoteBlast supports more options and complies
+      to changes to the NCBI interface. It is reccomended that you
+      retrieve the data in XML instead of plain-text BLAST report to
+      insure proper parsing and retrieval of all information as NCBI
+      fully expects to change things in the future.
+ 
+    o Bio::Tree and Bio::TreeIO
+
+      - Fixes so that re-rooting a tree works properly
+
+      - Writing out nhx format from a newick/nexus file will properly output
+        bootstrap information.  The use must move the internal node labels over
+        to bootstraps.
+         for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
+            $node->bootstrap($node->id);
+	    $node->id('');
+	 }
+      - Nexus parsing is much more flexible now, does not care about
+        LF.
+
+      - Cladogram drawing module in Bio::Tree::Draw
+      
+      - Node height and depth now properly calculated
+
+      - fix tree pruning algorithm so that node with 1 child gets merged
+
+
+    o Graphics tweaks.  Glyph::xyplot improved.  Many other small-medium sized
+      bugs and improvements were added, see Gbrowse mailing list for most of 
+      these.
+
+    o Bio::DB::GFF partially supports GFF3.  See information about 
+      gff3_munge flag in scripts/Bio-DB-GFF/bulk_load_gff.pl.
+         
+    o Better location parsing in Bio::Factory::FTLocationFactory -
+      this is part of the engine for parsing EMBL/GenBank feature table
+      locations.  Nested join/order-by/complement are allowed now
+
+    o Bio::PrimarySeqI->translate now takes named parameters
+
     o Bio::Tools::Phylo::PAML - parsing RST (ancestral sequence
       reconstruction) is now supported.  Parsing different models and 
       branch specific parametes are now supported.
@@ -14,16 +99,32 @@ Revision history for Bioperl core modules
 
     o Bio::SearchIO
       
-      blast bug #1739; match scientific notation in score 
-      and possible e+ values 
+      - blast bug #1739; match scientific notation in score 
+        and possible e+ values 
 
-      fix off-by-one error in psl parsing
+      - blast.pm reads more WU-BLAST parameters and parameters, match
+        a full database pathname, 
+   
+      - Handle NCBI WEB and newer BLAST formats specifically
+        (Query|Sbjct:) match in alignment blocks can now be (Query|Sbjct).
+
+      - psl off-by-one error fixed
+
+      - exonerate parsing much improved, CIGAR and VULGAR can be parsed
+        and HSPs can be constructed from them.
+
+      - HSPs query/hit now have a seqdesc field filled out (this was
+        always available via $hit->description and
+        $result->query_description
+
+      - hmmer.pm can parse -A0 hmmpfam files
+
+      - Writer::GbrowseGFF more customizeable.
 
     o Bio::Tools::Hmmpfam 
       make e-value default score displayed in gff, rather than raw score
       allow parse of multiple records
 
-1.5 branch
 
 1.5 Developer release
 
