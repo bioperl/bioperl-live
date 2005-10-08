@@ -313,8 +313,8 @@ sub write_individual{
 sub write_population{
     my ($self,@pops) = @_;
     my $fielddelim  = $self->flag('field_delimiter');
-    my $alleledelim= $self->flag('allele_delimiter');
-    
+#     my $alleledelim= $self->flag('allele_delimiter');
+    my $alleledelim = ' ';
     foreach my $pop ( @pops ) {
 	if (! ref($pop) || ! $pop->isa('Bio::PopGen::PopulationI') ) {
 	    $self->warn("Cannot write an object that is not a Bio::PopGen::PopulationI object");
