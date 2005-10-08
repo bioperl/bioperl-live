@@ -32,7 +32,9 @@ Bio::PopGen::IO::phase - A parser for Phase format data
 
 =head1 DESCRIPTION
 
-A driver module for Bio::PopGen::IO for parsing hapmap data.
+A driver module for Bio::PopGen::IO for parsing phase data.
+
+PHASE is defined in http://www.stat.washington.edu/stephens/instruct2.1.pdf
 
 =head1 FEEDBACK
 
