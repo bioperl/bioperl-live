@@ -41,7 +41,7 @@
 	     'XML::SAX'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
 	     'XML::SAX::Base'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
 	     'XML::SAX::Writer'         => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-# 	    # 'GI::Parser::EntrezGene'         => '0.0/Enztrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene',
+ 	     'Bio::ANS1::EntrezGene'    => '0.0/Enztrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene'
 # Bio::Microarray is not in core bioperl yet
 #	     'enum'                     => '0.0/C style enumerated types and bitmask flags 
 # in Perl/Bio::Microarray::Affymetrix::*',

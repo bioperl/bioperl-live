@@ -37,6 +37,10 @@ Revision history for Bioperl core modules
           it. Like: "genomic DNA"
 
      - swiss.pm: bugs  #1727, #1734
+     
+     - entrezgene.pm
+        * Added parser for entrezgene ASN1 (text format) files.
+          Uses Bio::ASN1::EntrezGene as a low level parser (get it from CPAN)
 
     o Bio::AlignIO
 
