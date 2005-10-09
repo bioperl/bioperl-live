@@ -16,7 +16,7 @@
 #   martin.senger@gmail.com
 #   February 2002
 #
-#   $Id: biblio.PLS,v 1.2 2005-07-23 12:41:55 senger Exp $
+#   $Id: biblio.PLS,v 1.3 2005-10-09 14:53:25 heikki Exp $
 #-----------------------------------------------------------------------------
 
 use strict;
@@ -476,10 +476,9 @@ the Bioperl mailing list.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug trackingi system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via
-email or the web:
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Martin Senger

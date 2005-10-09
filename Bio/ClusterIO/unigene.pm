@@ -24,8 +24,9 @@ Do not use this module directly.  Use it via the Bio::ClusterIO class.
 
 =head1 DESCRIPTION
 
-This object reads from Unigene *.data files downloaded from ftp://ftp.ncbi.nih.gov/repository/UniGene/.
-It doesn't download and decompress the file, you have to do that yourself.
+This object reads from Unigene *.data files downloaded from
+ftp://ftp.ncbi.nih.gov/repository/UniGene/.  It doesn't download and
+decompress the file, you have to do that yourself.
 
 
 =head1 FEEDBACK
@@ -42,10 +43,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHORS - Andrew Macgregor

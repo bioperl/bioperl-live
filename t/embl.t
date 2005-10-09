@@ -119,7 +119,7 @@ ok($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party An
 
 
 $ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
-								("t","data","test.embl"),
+                        ("t","data","test.embl"),
                         -format => 'embl');
 $ent->verbose($verbose);
 $seq = $ent->next_seq();
@@ -132,14 +132,14 @@ $ent->close();
 ## read-write - test embl writing of a PrimarySeq
 #
 my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
-												  -id  => 'myid',
-												  -desc => 'mydescr',
-												  -alphabet => 'DNA',
-												  -accession_number => 'myaccession');
+                                      -id  => 'myid',
+                                      -desc => 'mydescr',
+                                      -alphabet => 'DNA',
+                                      -accession_number => 'myaccession');
 
 my $embl = new Bio::SeqIO(-format => 'embl',
-								  -verbose => $verbose,
-								  -file => ">primaryseq.embl");
+                          -verbose => $verbose,
+                          -file => ">primaryseq.embl");
 
 ok($embl->write_seq($primaryseq));
 
