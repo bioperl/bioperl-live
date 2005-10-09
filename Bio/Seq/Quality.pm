@@ -22,7 +22,7 @@ Bio::Seq::Quality - Implementation of sequence with residue quality and trace va
   my $qual = '0 1 2 3 4 5 6 7 8 9 11 12';
   my $trace = '0 5 10 15 20 25 30 35 40 45 50 55';
 
-  ok my $seq = Bio::Seq::Quality->new
+  my $seq = Bio::Seq::Quality->new
       ( -qual => $qual,
         -trace_indices => $trace,
         -seq =>  'atcgatcgatcg',
@@ -128,10 +128,9 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Heikki Lehvaslaiho

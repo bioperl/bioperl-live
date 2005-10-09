@@ -24,7 +24,9 @@ Bio::Cluster::UniGeneI - abstract interface of UniGene object
 
 =head1 DESCRIPTION
 
-This is the general interface for a UniGene cluster representation in Bioperl. You cannot use this module directly, use an implementation instead.
+This is the general interface for a UniGene cluster representation in
+Bioperl. You cannot use this module directly, use an implementation
+instead.
 
 You can create UniGene cluster objects yourself by instantiating
 L<Bio::Cluster::UniGene>. If you read UniGene clusters from a
@@ -50,10 +52,9 @@ of the Bioperl mailing lists. Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bioperl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Andrew Macgregor

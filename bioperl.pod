@@ -121,10 +121,9 @@ sort of work, advice is freely given and all are welcome!
 
 =head2 Find bugs!
 
-We know that there are bugs in there. If you find something which you are
-pretty sure is a problem, post a note to bioperl-bugs@bioperl.org and
-we will get on it as soon as possible. You can also access the bug
-system through the web pages.
+We know that there are bugs in there. If you find something which you
+are pretty sure is a problem, post a note to us via the bug tracking
+system http://bugzilla.bioperl.org/.
 
 =head2 Suggest new functionality
 

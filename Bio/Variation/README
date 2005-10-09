@@ -20,8 +20,7 @@ information:
 
 
 Send bug reports using the bioperl bug-tracking system at
-http://bio.perl.org/Bugs/ or send them via e-mail to
-bioperl-bugs@bio.perl.org.
+http://bugzilla.bioperl.org/.
  
 Send general comments, questions, and feature requests to the bioperl
 mailing list:

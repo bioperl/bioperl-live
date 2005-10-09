@@ -95,6 +95,25 @@ L<Bio::DB::GFF::Feature>,
 L<Ace::Sequence>,
 L<GD>
 
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.bioperl.org/
+
 =head1 AUTHOR
 
 Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
