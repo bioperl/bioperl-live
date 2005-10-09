@@ -10,7 +10,7 @@ Bio::DB::GFF -- Storage and retrieval of sequence annotation data
 
   # Open the sequence database
   my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::mysqlopt',
-                                   -dsn     => 'dbi:mysql:elegans);
+                                   -dsn     => 'dbi:mysql:elegans');
 
   # fetch a 1 megabase segment of sequence starting at landmark "ZK909"
   my $segment = $db->segment('ZK909', 1 => 1000000);
