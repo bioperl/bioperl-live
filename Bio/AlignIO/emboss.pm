@@ -149,7 +149,7 @@ sub next_aln {
 	    $names{$nm}++;
 	    $data{"seq$1"}->{'name'} = $nm;	
 	} elsif( $data{'seq1'}->{'name'} &&
-		 /^$data{'seq1'}->{'name'}/ ) {	    
+		 /^\Q$data{'seq1'}->{'name'}/ ) {
 	    my $count = 0;
 	    $seenbegin = 1;
 	    my @current;
@@ -193,7 +193,7 @@ sub next_aln {
 		my $d = length($current[0]->[1]) - length($current[2]->[1]);
 		if( $d < 0 ) { # s1 is smaller, need to add some
 		    # compare the starting points for this alignment line
-		    if( $current[0]->[0] <= 1 && $current[2]->[0] > 1) { 
+		    if( $current[0]->[0] <= 1 ) {
 			$s1->{'data'} = ('-' x abs($d)) . $s1->{'data'};
 			$data{'align'} = (' 'x abs($d)).$data{'align'};
 		    } else { 
@@ -201,7 +201,7 @@ sub next_aln {
 			$data{'align'} .= ' 'x abs($d);
 		    }
 		} elsif( $d > 0) { # s2 is smaller, need to add some  
-		    if( $current[2]->[0] <= 1 && $current[0]->[0] > 1) { 
+		    if( $current[2]->[0] <= 1 ) { 
 			$s2->{'data'} = ('-' x abs($d)) . $s2->{'data'};
 			$data{'align'} = (' 'x abs($d)).$data{'align'};
 		    } else { 
