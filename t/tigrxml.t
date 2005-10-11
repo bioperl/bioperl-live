@@ -2,15 +2,35 @@
 # $Id$
 
 use strict;
+use vars qw($error $NUMTESTS $verbose);
+$verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
+    $NUMTESTS = 48;
+    $error = 0;
     eval { require Test; };
     if ( $@ ) {
 	use lib 't';
     }
     use Test;
-    plan tests => 48;
+    plan tests => $NUMTESTS;
+    eval {
+	require XML::SAX;
+        require XML::SAX::Writer;
+    };
+    if( $@ ) {
+	$error = 1;
+	warn("No XML::SAX or XML::SAX::Writer installed cannot test Bio::SeqIO::tigrxml\n");
+    }
 }
+warn("error is $error\n");
+END { 
+   foreach ( $Test::ntest..$NUMTESTS) {
+      skip('Unable to run tigrxml tests no XML::SAX or XML::SAX::Writer is installed',1);
+   }
+}
+
+exit (0) if ($error);
 
 use Bio::SeqIO;
 use Bio::Root::IO;
