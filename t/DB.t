@@ -55,31 +55,31 @@ my $testnum;
 my $verbose = 0;
 
 my %expected_lengths = ( 'NDP_MOUSE' => 131,
-			 'NDP_HUMAN' => 133,
-			 'MUSIGHBA1' => 408,
-			 'AF303112'  => 1611,
-			 'J00522'    => 408,
-			 'AF303112'  => 1611,
-			 'AF303112.1' => 1611,
-			 '2981014'   => 1156,
-			 'AF041456'  => 1156,
-			 'AY080910'  => 798,
-			 'AY080909'  => 1042,
-			 'AF155220'  => 1172,
-			 '405830'    => 1743,
-			 'CELRABGDI' => 1743,
-			 '195055'    => 136,
-			 'AAD15290'  => 136,
-			 'AAC06201'  => 353,
-			 'P43780'    => 103,
-			 'BOLA_HAEIN'=> 103,
-			 'YNB3_YEAST'=> 125,
-			 'O39869'    => 56,
-			 'P18584'    => 497,
-			 'DEGP_CHLTR'=> 497,
-			 'AF442768'  => 2547,
-			 'P31383'    => 635,
-			 );
+								 'NDP_HUMAN' => 133,
+								 'MUSIGHBA1' => 408,
+								 'AF303112'  => 1611,
+								 'J00522'    => 408,
+								 'AF303112'  => 1611,
+								 'AF303112.1' => 1611,
+								 '2981014'   => 1156,
+								 'AF041456'  => 1156,
+								 'AY080910'  => 798,
+								 'AY080909'  => 1042,
+								 'AF155220'  => 1172,
+								 '405830'    => 1743,
+								 'CELRABGDI' => 1743,
+								 '195055'    => 136,
+								 'AAD15290'  => 136,
+								 'AAC06201'  => 353,
+								 'P43780'    => 103,
+								 'BOLA_HAEIN'=> 103,
+								 'YNB3_YEAST'=> 125,
+								 'O39869'    => 56,
+								 'P18584'    => 497,
+								 'DEGP_CHLTR'=> 497,
+								 'AF442768'  => 2547,
+								 'P31383'    => 635,
+							  );
 ## End of black magic.
 ##
 ## Insert additional test code below but remember to change
@@ -144,7 +144,7 @@ eval {
    # test dbsource stuff
    # small chance this might change but hopefully not
    my @annot = $seq->annotation->get_Annotations('dblink');
-   ok(scalar @annot, 28); #
+   ok(scalar @annot, 29); #
    ok($annot[0]->database, 'swissprot');
    ok($annot[0]->primary_id, '2AAA_YEAST');
    ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
