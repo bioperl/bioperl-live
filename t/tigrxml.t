@@ -16,16 +16,17 @@ BEGIN {
     plan tests => $NUMTESTS;
     eval {
 	require XML::SAX;
+        require XML::SAX::Writer;
     };
     if( $@ ) {
 	$error = 1;
-	warn("No XML::SAX installed cannot test Bio::SeqIO::tigrxml\n");
+	warn("No XML::SAX or XML::SAX::Writer installed cannot test Bio::SeqIO::tigrxml\n");
     }
 }
-
+warn("error is $error\n");
 END { 
    foreach ( $Test::ntest..$NUMTESTS) {
-      skip('Unable to run tigrxml tests no XML::SAX is installed',1);
+      skip('Unable to run tigrxml tests no XML::SAX or XML::SAX::Writer is installed',1);
    }
 }
 
