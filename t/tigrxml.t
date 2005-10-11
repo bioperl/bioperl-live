@@ -23,7 +23,6 @@ BEGIN {
 	warn("No XML::SAX or XML::SAX::Writer installed cannot test Bio::SeqIO::tigrxml\n");
     }
 }
-warn("error is $error\n");
 END { 
    foreach ( $Test::ntest..$NUMTESTS) {
       skip('Unable to run tigrxml tests no XML::SAX or XML::SAX::Writer is installed',1);
