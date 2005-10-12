@@ -1019,7 +1019,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				<row>
 				  <entry>new</entry>
 				  <entry>Sequence object</entry>
-				  <entry>$so = Bio::Seq->new(-seq => "MP")</entry>
+				  <entry>$so = Bio::Seq->new(-seq => "MPQRAS")</entry>
 				  <entry>create a new one</entry>
 				</row>
 				<row>
@@ -1123,6 +1123,36 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>authority, if available</entry>
 				  <entry>$so->authority("FlyBase")</entry>
 				  <entry>get or set the organization</entry>
+				</row>
+				<row>
+				  <entry>get_secondary_accessions</entry>
+				  <entry>secondary accessions, if available</entry>
+				  <entry>@accs = $so->get_secondary_accessions</entry>
+				  <entry>get other identifiers</entry>
+				</row>
+				<row>
+				  <entry>division</entry>
+				  <entry>division, if available (e.g. PRI)</entry>
+				  <entry>$div = $so->division</entry>
+				  <entry>get division</entry>
+				</row>
+				<row>
+				  <entry>molecule</entry>
+				  <entry>molecule type, if available</entry>
+				  <entry>$type = $so->molecule</entry>
+				  <entry>get molecule</entry>
+				</row>
+				<row>
+				  <entry>get_dates</entry>
+				  <entry>dates, if available</entry>
+				  <entry>@dates = $so->get_dates</entry>
+				  <entry>get dates</entry>
+				</row>
+				<row>
+				  <entry>pid</entry>
+				  <entry>pid, if available</entry>
+				  <entry>$pid = $so->pid</entry>
+				  <entry>get pid</entry>
 				</row>
 				<row>
 				  <entry>is_circular</entry>
@@ -1347,6 +1377,18 @@ ORIGIN      15 bp upstream from HhaI site.
 <row>
 <entry>seq</entry>     <entry>AACCCT...ACAGGAC</entry>
 </row>
+<row>
+<entry>division</entry>     <entry>BCT</entry>
+</row>
+<row>
+<entry>molecule</entry>     <entry>DNA</entry>
+</row>
+<row>
+<entry>get_dates</entry>     <entry>26-APR-1993</entry>
+</row>
+<row>
+<entry>get_secondary_accessions</entry>     <entry>J01674</entry>
+</row>
 			 </tbody>
 		  </tgroup>
       </table>
@@ -1397,7 +1439,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
     </para>
     <para>
 		<table>
-		  <title>Values from Genbank</title>
+		  <title>Values from the Sequence object (FASTA)</title>
 		  <tgroup cols="2">
 			 <thead>
 				<row>
@@ -1443,8 +1485,8 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 	 <para>
 		If you compare these values to the values taken from the Genbank 
 		entry you'll see that certain values are missing,
-		like <function>seq_version</function>. That's because these values
-		like this aren't usually present in the typical fasta file. 
+		like <function>seq_version</function>. That's because values
+		like these aren't usually present in a fasta file. 
 	 </para>
 	 <para>
 		Another natural question is why the values returned by methods
@@ -1454,20 +1496,21 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 		one interconverts formats, meaning how Genbank creates fasta
 		files from Genbank files may be different from how 
 <ulink url="http://www.expasy.ch"><citetitle>SwissProt</citetitle></ulink>
-		performs the same interconversion. Again, until the
+		performs the same interconversion. Until the
 		organizations creating these databases agree on standard sets
 		of names and formats all the <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> authors can do is do 
 		make reasonable choices.
 	 </para>
 	 <note>
 		<para>
-		  Yes, <ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> could follow the
+		  Yes, <ulink
+			 url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> 
+		  could follow the
 		  conventions of a single organization like Genbank such that
 		  <function>display_id</function> returns the same value when
-		  using Genbank format or Genbank's fasta format but why?
-		  Does any single organization deserve to become a standard
-		  when, really, what they should be doing is talking to each
-		  other and using the same terms?
+		  using Genbank format or Genbank's fasta format but the authors
+		  have elected not to base Bioperl around the conventions of any 
+		  one organization.
 		</para>
 	 </note>
 	 <para></para>
@@ -1561,7 +1604,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </para>
 	 <para>
 		<table>
-		  <title>Values from <ulink url="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink></title>
+		  <title>Values from the Sequence object (<ulink url="http://www.expasy.ch"><citetitle>Swissprot</citetitle></ulink>)</title>
 		  <tgroup cols="2">
 			 <thead>
 				<row>
@@ -1597,6 +1640,15 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 				</row>
 				<row>
 				  <entry>seq</entry><entry>MSLSQ...ILKED</entry>
+				</row>
+				<row>
+				  <entry>division</entry><entry>RAT</entry>
+				</row>
+				<row>
+				  <entry>get_dates</entry><entry>28-FEB-2003 (Rel. 41, Created) 15-MAR-2004 (Rel. 43, Last sequence update) 15-MAR-2004 (Rel. 43, Last annotation update)</entry>
+				</row>
+				<row>
+				  <entry>get_secondary_accessions</entry><entry>Q8R2H6 Q8R4G3</entry>
 				</row>
 			 </tbody>
 		  </tgroup>
@@ -1674,7 +1726,7 @@ print $result_obj->num_hits;
 	 <para>
 		By calling the <function>blastall</function> method you're
 		actually running BLAST, creating the report file, and parsing
-		the file's contents. All the data in the report ends up 
+		the report file's contents. All the data in the report ends up 
 		in the report object, and you can access or print out the
 		data in all sorts of ways.
 		The report object, <varname>$report_obj</varname>, and the
@@ -1692,7 +1744,7 @@ print $result_obj->num_hits;
     use Bio::SearchIO;
    
     $report_obj = new Bio::SearchIO(-format => 'blast', 
-                               -file   => 'report.bls');
+                                    -file   => 'report.bls');
     while( $result = $report_obj->next_result ) {
       while( $hit = $result->next_hit ) {
         while( $hsp = $hit->next_hsp ) {
