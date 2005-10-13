@@ -95,9 +95,11 @@ use Bio::Factory::ObjectFactory;
  Usage   : my $obj = new Bio::Ontology::RelationshipFactory();
  Function: Builds a new Bio::Ontology::RelationshipFactory object 
  Returns : Bio::Ontology::RelationshipFactory
- Args    : -type => string, name of a L<Bio::Ontology::RelationshipI>
+ Args    : -type => string, name of a Bio::Ontology::RelationshipI
                     derived class.
-                    The default is L<Bio::Ontology::Relationship>.
+                    The default is Bio::Ontology::Relationship.
+
+See L<Bio::Ontology::Relationship>, L<Bio::Ontology::RelationshipI>.
 
 =cut
 

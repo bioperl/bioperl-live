@@ -130,7 +130,6 @@ my $instance = undef;
  Returns : an instance of Bio::Ontology::OntologyStore
  Args    :
 
-
 =cut
 
 sub new {
@@ -154,8 +153,9 @@ sub new {
  Returns : an instance of this class
  Args    : named parameters, if any (currently, there are no 
            class-specific parameters other than those accepted by
-           L<Bio::Root::Root>.
+           Bio::Root::Root.
 
+See L<Bio::Root::Root>.
 
 =cut
 
@@ -185,7 +185,7 @@ sub get_instance{
            name, without dereferencing an object.
 
  Example :
- Returns : a L<Bio::Ontology::OntologyI> implementing object, or undef
+ Returns : a Bio::Ontology::OntologyI implementing object, or undef
            if the query could not be satisfied
  Args    : Named parameters specifying the query. The following parameters
            are recognized:
@@ -193,6 +193,8 @@ sub get_instance{
               -id     query for an ontology with the given identifier
            If both are specified, an implicit AND logical operator is
            assumed.
+
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 
@@ -250,8 +252,9 @@ sub get_ontology{
 
  Example :
  Returns : TRUE on success and FALSE otherwise
- Args    : the L<Bio::Ontology::OntologyI> object(s) to register
+ Args    : the Bio::Ontology::OntologyI object(s) to register
 
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 
@@ -293,9 +296,10 @@ sub register_ontology {
  Function: Remove the specified ontology from the store.
  Example :
  Returns : TRUE on success and FALSE otherwise
- Args    : the L<Bio::Ontology::OntologyI> implementing object(s)
+ Args    : the Bio::Ontology::OntologyI implementing object(s)
            to be removed from the store
 
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 
@@ -315,14 +319,15 @@ sub remove_ontology{
 
 =head2 guess_ontology()
 
- Usage   : my $ontology = Bio::Ontology::OntologyStore->guess_ontology('GO:0000001');
- Function: tries to guess which ontology a term identifier comes from, loads it as necessary,
+ Usage   : my $ontology = 
+           Bio::Ontology::OntologyStore->guess_ontology('GO:0000001');
+ Function: tries to guess which ontology a term identifier comes from, 
+           loads it as necessary,
            and returns it as a Bio::Ontology::Ontology object.
  Example :
  Returns : a Bio::Ontology::Ontology object, or warns and returns undef
- Args    : an ontology term identifier in XXXX:DDDDDDD format.  guessing is based on the XXXX
-           string before the colon.
-
+ Args    : an ontology term identifier in XXXX:DDDDDDD format.  
+           Guessing is based on the XXXX string before the colon.
 
 =cut
 

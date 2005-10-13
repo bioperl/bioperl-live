@@ -95,8 +95,10 @@ use Bio::Factory::ObjectFactory;
  Usage   : my $obj = new Bio::Ontology::TermFactory();
  Function: Builds a new Bio::Ontology::TermFactory object 
  Returns : Bio::Ontology::TermFactory
- Args    : -type => string, name of a L<Bio::Ontology::TermI> derived class.
-                    The default is L<Bio::Ontology::Term>.
+ Args    : -type => string, name of a Bio::Ontology::TermI derived class.
+                    The default is Bio::Ontology::Term.
+
+See L<Bio::Ontology::TermI>, L<Bio::Ontology::Term>.
 
 =cut
 
@@ -122,13 +124,15 @@ sub new {
            This object allows us to genericize the instantiation of
            Term objects.
 
- Returns : L<Bio::Ontology::TermI> compliant object
+ Returns : Bio::Ontology::TermI compliant object
            The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of term
            object we want.  Typically 
            -name        => $name
            -identifier  => identifier for the term
            -ontology    => ontology for the term
+
+See L<Bio::Ontology::TermI>.
 
 =cut
 

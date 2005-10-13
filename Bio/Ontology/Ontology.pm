@@ -294,10 +294,11 @@ sub close{
  Function: Get/set the ontology engine to which all the query methods
            delegate.
  Example : 
- Returns : an object implementing L<Bio::Ontology::OntologyEngineI>
+ Returns : an object implementing Bio::Ontology::OntologyEngineI
  Args    : on set, new value (an object implementing
-           L<Bio::Ontology::OntologyEngineI>, or  undef)
+           Bio::Ontology::OntologyEngineI, or  undef)
 
+See L<Bio::Ontology::OntologyEngineI>.
 
 =cut
 
@@ -364,7 +365,7 @@ sub add_term{
 
  Title   : add_relationship
  Usage   : add_relationship(RelationshipI relationship): RelationshipI
-  add_relatioship(TermI subject, TermI predicate, TermI object)
+           add_relatioship(TermI subject, TermI predicate, TermI object)
  Function: Adds a relationship object to the ontology engine.
  Example :
  Returns : Its argument.
@@ -425,7 +426,7 @@ sub get_relationships {
 =head2 get_predicate_terms
 
  Title   : get_predicate_terms
- Usage   : get_predicate_terms(): TermI[]
+ Usage   : get_predicate_terms(): TermI
  Function: Retrieves all relationship types.
  Example :
  Returns : Array of TermI objects
@@ -444,7 +445,7 @@ sub get_predicate_terms{
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
+ Usage   : get_child_terms(TermI term, TermI predicate_terms): TermI
  Function: Retrieves all child terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_child_terms is a special
@@ -472,7 +473,7 @@ sub get_child_terms{
 =head2 get_descendant_terms
 
  Title   : get_descendant_terms
- Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
+ Usage   : get_descendant_terms(TermI term, TermI rel_types): TermI
  Function: Retrieves all descendant terms of a given term, that
            satisfy a relationship among those that are specified in
            the second argument or undef otherwise.
@@ -498,7 +499,7 @@ sub get_descendant_terms{
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
+ Usage   : get_parent_terms(TermI term, TermI predicate_terms): TermI
  Function: Retrieves all parent terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_parent_terms is a special
@@ -526,7 +527,7 @@ sub get_parent_terms{
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
+ Usage   : get_ancestor_terms(TermI term, TermI predicate_terms): TermI
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
            argument or undef otherwise.
@@ -552,14 +553,13 @@ sub get_ancestor_terms{
 =head2 get_leaf_terms
 
  Title   : get_leaf_terms
- Usage   : get_leaf_terms(): TermI[]
+ Usage   : get_leaf_terms(): TermI
  Function: Retrieves all leaf terms from the ontology. Leaf term is a
            term w/o descendants.
 
  Example : @leaf_terms = $obj->get_leaf_terms()
  Returns : Array of TermI objects.
  Args    :
-
 
 =cut
 
@@ -577,14 +577,13 @@ sub get_leaf_terms{
 =head2 get_root_terms()
 
  Title   : get_root_terms
- Usage   : get_root_terms(): TermI[]
+ Usage   : get_root_terms(): TermI
  Function: Retrieves all root terms from the ontology. Root term is a
            term w/o descendants.
 
  Example : @root_terms = $obj->get_root_terms()
  Returns : Array of TermI objects.
  Args    :
-
 
 =cut
 
@@ -602,7 +601,7 @@ sub get_root_terms{
 =head2 get_all_terms
 
  Title   : get_all_terms
- Usage   : get_all_terms: TermI[]
+ Usage   : get_all_terms: TermI
  Function: Retrieves all terms from the ontology.
 
            We do not mandate an order here in which the terms are
@@ -612,7 +611,6 @@ sub get_root_terms{
  Example : @terms = $obj->get_all_terms()
  Returns : Array of TermI objects.
  Args    :
-
 
 =cut
 
@@ -646,7 +644,6 @@ sub get_all_terms{
               -identifier    query by the given identifier
               -name          query by the given name
 
-
 =cut
 
 sub find_terms{
@@ -672,7 +669,6 @@ sub find_terms{
            compliant object)
  Args    : 
 
-
 =cut
 
 sub relationship_factory{
@@ -691,7 +687,6 @@ sub relationship_factory{
  Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
  Args    : 
-
 
 =cut
 

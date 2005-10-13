@@ -96,7 +96,6 @@ use Bio::Ontology::RelationshipI;
  Returns : value of distance (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
 sub distance{
@@ -160,9 +159,10 @@ sub distance{
  Usage   : $ont = $obj->ontology()
  Function: Get the ontology that defined this relationship.
  Example : 
- Returns : an object implementing L<Bio::Ontology::OntologyI>
+ Returns : an object implementing Bio::Ontology::OntologyI
  Args    : 
 
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 

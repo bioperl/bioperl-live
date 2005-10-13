@@ -64,7 +64,7 @@ Bioperl mailing lists  Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
+Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
 the web:
 
@@ -316,8 +316,9 @@ sub predicate_term {
  Example : 
  Returns : an object implementing L<Bio::Ontology::OntologyI>
  Args    : on set, undef or an object implementing 
-           L<Bio::Ontology::OntologyI> (optional)
+           Bio::Ontology::OntologyI (optional)
 
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 

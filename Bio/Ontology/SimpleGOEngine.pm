@@ -40,7 +40,6 @@ SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
   my $PART_OF    = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
   my $RELATED_TO = Bio::Ontology::RelationshipType->get_instance( "RELATED_TO" );
 
-
 =head1 DESCRIPTION
 
 Needs Graph.pm from CPAN.
@@ -58,7 +57,7 @@ Bioperl mailing lists  Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
+Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
 the web:
 
@@ -242,7 +241,6 @@ sub related_to_relationship {
            term already existed in the ontology engine)
  Args    : Bio::Ontology::TermI
 
-
 =cut
 
 sub add_term {
@@ -269,7 +267,6 @@ sub add_term {
  Args    : Bio::Ontology::TermI
            or
            Term identifier (e.g. "GO:0012345")
-
 
 =cut
 
@@ -316,10 +313,10 @@ sub add_relationship_type{
 
  Title   : get_relationship_type
  Usage   : $engine->get_relationship_type( $type_name );
- Function: Gets a Bio::Ontology::RelationshipI object corresponding to $type_name
+ Function: Gets a Bio::Ontology::RelationshipI object corresponding 
+           to $type_name
  Returns : a Bio::Ontology::RelationshipI object
  Args    :
-
 
 =cut
 
@@ -332,8 +329,10 @@ sub get_relationship_type{
 
  Title   : add_relationship
  Usage   : $engine->add_relationship( $relationship );
-           $engine->add_relatioship( $subject_term, $predicate_term, $object_term, $ontology );
-           $engine->add_relatioship( $subject_id, $predicate_id, $object_id, $ontology);
+           $engine->add_relatioship( $subject_term, $predicate_term, 
+                                     $object_term, $ontology );
+           $engine->add_relatioship( $subject_id, $predicate_id, 
+                                     $object_id, $ontology);
  Function: Adds a relationship to this engine
  Returns : true if successfully added, false otherwise
  Args    : The relationship in one of three ways:
@@ -399,7 +398,7 @@ sub add_relationship {
  Usage   : $engine->get_relationships( $term );
  Function: Returns all relationships of a term, or all relationships in
            the graph if no term is specified.
- Returns : Relationship[]
+ Returns : Relationship
  Args    : term id
            or
            Bio::Ontology::TermI
@@ -447,7 +446,7 @@ sub get_relationships {
  Title   : get_all_relationships
  Usage   : @rels = $engine->get_all_relationships();
  Function: Returns all relationships in the graph.
- Returns : Relationship[]
+ Returns : Relationship
  Args    : 
 
 =cut
@@ -463,9 +462,8 @@ sub get_all_relationships {
  Title   : get_predicate_terms
  Usage   : $engine->get_predicate_terms();
  Function: Returns the types of relationships this engine contains
- Returns : Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::RelationshipType
  Args    :
-
 
 =cut
 
@@ -492,12 +490,12 @@ sub get_predicate_terms {
  Usage   : $engine->get_child_terms( $term_obj, @rel_types );
            $engine->get_child_terms( $term_id, @rel_types );
  Function: Returns the children of this term
- Returns : Bio::Ontology::TermI[]
- Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType
            or
-           term id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType
 
-           if NO Bio::Ontology::RelationshipType[] is indicated: children
+           if NO Bio::Ontology::RelationshipType is indicated: children
            of ALL types are returned
 
 =cut
@@ -516,13 +514,13 @@ sub get_child_terms {
  Usage   : $engine->get_descendant_terms( $term_obj, @rel_types );
            $engine->get_descendant_terms( $term_id, @rel_types );
  Function: Returns the descendants of this term
- Returns : Bio::Ontology::TermI[]
- Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType
            or
-           term id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType
 
-           if NO Bio::Ontology::RelationshipType[] is indicated: descendants
-           of ALL types are returned
+           if NO Bio::Ontology::RelationshipType is indicated: 
+           descendants of ALL types are returned
 
 =cut
 
@@ -557,13 +555,13 @@ sub get_descendant_terms {
  Usage   : $engine->get_parent_terms( $term_obj, @rel_types );
            $engine->get_parent_terms( $term_id, @rel_types );
  Function: Returns the parents of this term
- Returns : Bio::Ontology::TermI[]
- Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType
            or
-           term id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType
 
-           if NO Bio::Ontology::RelationshipType[] is indicated: parents
-           of ALL types are returned
+           if NO Bio::Ontology::RelationshipType is indicated: 
+           parents of ALL types are returned
 
 =cut
 
@@ -582,13 +580,13 @@ sub get_parent_terms {
  Usage   : $engine->get_ancestor_terms( $term_obj, @rel_types );
            $engine->get_ancestor_terms( $term_id, @rel_types );
  Function: Returns the ancestors of this term
- Returns : Bio::Ontology::TermI[]
- Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType[]
+ Returns : Bio::Ontology::TermI
+ Args    : Bio::Ontology::TermI, Bio::Ontology::RelationshipType
            or
-           term id, Bio::Ontology::RelationshipType[]
+           term id, Bio::Ontology::RelationshipType
 
-           if NO Bio::Ontology::RelationshipType[] is indicated: ancestors
-           of ALL types are returned
+           if NO Bio::Ontology::RelationshipType is indicated: 
+           ancestors of ALL types are returned
 
 =cut
 
@@ -623,7 +621,7 @@ sub get_ancestor_terms {
  Title   : get_leaf_terms
  Usage   : $engine->get_leaf_terms();
  Function: Returns the leaf terms
- Returns : Bio::Ontology::TermI[]
+ Returns : Bio::Ontology::TermI
  Args    :
 
 =cut
@@ -644,7 +642,7 @@ sub get_leaf_terms {
  Title   : get_root_terms
  Usage   : $engine->get_root_terms();
  Function: Returns the root terms
- Returns : Bio::Ontology::TermI[]
+ Returns : Bio::Ontology::TermI
  Args    :
 
 =cut
@@ -665,10 +663,9 @@ sub get_root_terms {
  Title   : get_terms
  Usage   : @terms = $engine->get_terms( "GO:1234567", "GO:2234567" );
  Function: Returns term objects with given identifiers
- Returns : Bio::Ontology::TermI[], or the term corresponding to the
+ Returns : Bio::Ontology::TermI, or the term corresponding to the
            first identifier if called in scalar context
- Args    : term ids[]
-
+ Args    : term ids
 
 =cut
 
@@ -693,7 +690,7 @@ sub get_terms {
  Title   : get_all_terms
  Usage   : $engine->get_all_terms();
  Function: Returns all terms in this engine
- Returns : Bio::Ontology::TermI[]
+ Returns : Bio::Ontology::TermI
  Args    :
 
 =cut
@@ -722,7 +719,6 @@ sub get_all_terms {
 
               -identifier    query by the given identifier
               -name          query by the given name
-
 
 =cut
 
@@ -755,7 +751,6 @@ sub find_terms{
            compliant object)
  Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
 
-
 =cut
 
 sub relationship_factory{
@@ -780,7 +775,6 @@ sub relationship_factory{
  Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
  Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
-
 
 =cut
 

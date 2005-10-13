@@ -50,7 +50,7 @@ Bioperl mailing lists  Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
+Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
 the web:
 
@@ -112,7 +112,8 @@ my %term_name_map = ();
            $FOUND_IN   = Bio::Ontology::RelationshipType->get_instance( "FOUND_IN" );
  Function: Factory method to create instances of RelationshipType
  Returns : [Bio::Ontology::RelationshipType]
- Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" or "RELATED_TO" [scalar]
+ Args    : "IS_A" or "PART_OF" or "CONTAINS" or "FOUND_IN" or 
+           "RELATED_TO" [scalar]
            the ontology [Bio::Ontology::OntologyI] (optional)
 
 =cut
@@ -423,7 +424,6 @@ sub _check_class {
  Args    : The name of the attribute that was attempted to change.
            Optionally, the old value and the new value for reporting
            purposes only.
-
 
 =cut
 

@@ -52,7 +52,7 @@ Bioperl mailing lists  Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
+Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via
 the web:
 
@@ -155,7 +155,6 @@ sub init {
  Example : 
  Returns : value of distance (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
