@@ -1,4 +1,4 @@
-# $GNF: projects/gi/symgene/src/perl/seqproc/Bio/OntologyIO/InterProParser.pm,v 1.5 2003/02/07 22:05:58 pdimitro Exp $
+# $Id$
 #
 # BioPerl module for InterProParser
 #
@@ -162,7 +162,6 @@ sub _initialize{
  Returns : 
  Args    :
 
-
 =cut
 
 sub parse{
@@ -195,10 +194,11 @@ sub parse{
            InterPro XML input.
 
  Example : $ipp->next_ontology();
- Returns : Returns the ontology as a L<Bio::Ontology::OntologyEngineI>
+ Returns : Returns the ontology as a Bio::Ontology::OntologyEngineI
            compliant object.
  Args    : 
 
+See L<Bio::Ontology::OntologyEngineI>.
 
 =cut
 
@@ -224,7 +224,6 @@ sub next_ontology{
  Returns : value of _is_parsed (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
 sub _is_parsed{
@@ -238,13 +237,13 @@ sub _is_parsed{
 
  Title   : secondary_accessions_map
  Usage   : $obj->secondary_accessions_map()
- Function:  This method is merely for convenience, and one should
- normally use the InterProTerm secondary_ids method to access
- the secondary accessions.
+ Function: This method is merely for convenience, and one should
+           normally use the InterProTerm secondary_ids method to
+           access the secondary accessions.
  Example : $map = $interpro_parser->secondary_accessions_map;
  Returns : Reference to a hash that maps InterPro identifier to an
-  array reference of secondary accessions following the InterPro
- xml schema.
+           array reference of secondary accessions following the 
+           InterPro xml schema.
  Args    : Empty hash reference
 
 =cut

@@ -58,7 +58,7 @@ Bioperl mailing lists  Your participation is much appreciated.
 
 =head2 Reporting Bugs
 
-report bugs to the Bioperl bug tracking system to help us keep track
+Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
@@ -110,7 +110,7 @@ use constant FALSE        => 0;
  Title   : new
  Usage   : see SYNOPSIS
  Function: Creates a new simplehierarchy parser.
- Returns : A new simplehierarchy parser object, implementing L<Bio::OntologyIO>.
+ Returns : A new simplehierarchy parser object, implementing Bio::OntologyIO.
  Args    : -files         => a single ontology flat file holding the
                              term relationships, or an array ref holding
                              the file names
@@ -142,11 +142,12 @@ use constant FALSE        => 0;
 
                              indent_string would be "  ".  Defaults to
                              one space (" ").
-
            -comment_char  => Allows specification of a regular
                              expression string to indicate a comment line.
                              Currently defaults to "[\|\-]".
                              Note: this is not yet implemented.
+
+See L<Bio::OntologyIO>.
 
 =cut
 
@@ -201,7 +202,6 @@ sub _initialize {
  Example : 
  Returns : value of ontology_name (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
@@ -283,7 +283,6 @@ sub parse {
            there is no more ontology in the input.
  Args    :
 
-
 =cut
 
 sub next_ontology{
@@ -332,7 +331,6 @@ sub _flat_files {
  Example : 
  Returns : value of _defs_io (a Bio::Root::IO object)
  Args    : on set, new value (a Bio::Root::IO object or undef, optional)
-
 
 =cut
 
@@ -555,8 +553,6 @@ sub _ont_engine {
 } # _ont_engine
 
 
-
-
 # Used to create ontology terms.
 # Arguments: name, id
 sub _create_ont_entry {
@@ -568,7 +564,6 @@ sub _create_ont_entry {
     return $term;
 
 } # _create_ont_entry
-
 
 
 # Holds whether first record or not
@@ -623,7 +618,6 @@ sub _term {
  Returns : value of indent_string (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
 sub indent_string{
@@ -648,7 +642,6 @@ sub indent_string{
  Returns : value of file_is_root (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
 sub file_is_root{
@@ -666,7 +659,6 @@ sub file_is_root{
  Example : 
  Returns : value of _virtual_root (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
