@@ -28,7 +28,7 @@ Allows lookups by name.
 
 =head1 DESCRIPTION
 
-Don't use this directly, use Bio::Ontology::OntologyStore instead.
+Do not use this directly, use Bio::Ontology::OntologyStore instead.
 Bio::Ontology::OntologyStore uses Bio::Ontology::DocumentRegistry to
 load and cache ontologies as object graphs, you can just ask it for
 what you want by name.  See L<Bio::Ontology::OntologyStore> for
@@ -120,7 +120,7 @@ sub new {
 
 =item Usage
 
-  my $singleton = Bio::Ontology::DocumentRegistry->get_instance();
+my $singleton = Bio::Ontology::DocumentRegistry->get_instance();
 
 =item Function
 
@@ -128,7 +128,7 @@ constructor
 
 =item Returns
 
-the Bio::Ontology::DocumentRegistry singleton.
+The Bio::Ontology::DocumentRegistry singleton.
 
 =item Arguments
 
@@ -148,15 +148,16 @@ sub get_instance {
 
 =item Usage
 
-  my($ontology_url, $definitions_url, $format) = $obj->documents('Sequence Ontology');
+my($ontology_url, $definitions_url, $format) = $obj->documents('Sequence Ontology');
 
 =item Function
 
-  maps an ontology name to a list of (local or) remote URIs where the files can be located.
+Maps an ontology name to a list of (local or) remote URIs where the files 
+can be located.
 
 =item Returns
 
-  a 3-item list:
+A 3-item list:
 
     (1) URI for the ontology file
     (2) URI for the ontology definitions file
@@ -164,7 +165,8 @@ sub get_instance {
 
 =item Arguments
 
-  name of an ontology, e.g. 'Sequence Ontology', or 'Cellular Component (Gene Ontology)'
+Name of an ontology, e.g. 'Sequence Ontology', or 'Cellular Component 
+(Gene Ontology)'
 
 =back
 

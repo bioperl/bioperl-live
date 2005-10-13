@@ -31,14 +31,14 @@ OntologyEngineI - Interface a minimal Ontology implementation should satisfy
 =head1 DESCRIPTION
 
 This describes the minimal interface an ontology query engine should
-provide.  It intentionally doesn't make explicit references to the
+provide.  It intentionally does not make explicit references to the
 ontology being a DAG, nor does it mandate that the ontology be a
 vocabulary. Rather, it tries to generically express what should be
 accessible (queriable) about an ontology.
 
 The idea is to allow for different implementations for different
 purposes, which may then differ as to which operations are efficient
-and which aren't, and how much richer the functionality is on top of
+and which are not, and how much richer the functionality is on top of
 this minimalistic set of methods. Check modules in the Bio::Ontology
 namespace to find out which implementations exist. At the time of
 writing, there is a SimpleOntologyEngine (which does not use
@@ -104,7 +104,6 @@ use Bio::Root::RootI;
  Returns : its argument.
  Args    : object of class TermI.
 
-
 =cut
 
 sub add_term{
@@ -120,7 +119,6 @@ sub add_term{
  Returns : Its argument.
  Args    : A RelationshipI object.
 
-
 =cut
 
 sub add_relationship{
@@ -134,8 +132,8 @@ sub add_relationship{
  Function: Adds a relationshiptype object to the ontology engine.
  Example :
  Returns : 1 on success, undef on failure
- Args    : The name(scalar) of the relationshiptype, and the OntologyI it is to be added to.
-
+ Args    : The name(scalar) of the relationshiptype, and the OntologyI 
+           it is to be added to.
 
 =cut
 
@@ -152,7 +150,6 @@ sub add_relationship_type{
  Returns : A RelationshipTypeI object.
  Args    : The name (scalar) of the RelationshipTypeI object desired.
 
-
 =cut
 
 sub get_relationship_type{
@@ -162,14 +159,13 @@ sub get_relationship_type{
 =head2 get_relationships
 
  Title   : get_relationships
- Usage   : get_relationships(TermI term): RelationshipI[]
+ Usage   : get_relationships(TermI term): RelationshipI
  Function: Retrieves all relationship objects from this ontology engine,
            or all relationships of a term if a term is supplied.
  Example :
  Returns : Array of Bio::Ontology::RelationshipI objects
  Args    : None, or a Bio::Ontology::TermI compliant object for which
            to retrieve the relationships.
-
 
 =cut
 
@@ -180,12 +176,11 @@ sub get_relationships{
 =head2 get_predicate_terms
 
  Title   : get_predicate_terms
- Usage   : get_predicate_terms(): TermI[]
+ Usage   : get_predicate_terms(): TermI
  Function:
  Example :
  Returns :
  Args    :
-
 
 =cut
 
@@ -196,7 +191,7 @@ sub get_predicate_terms{
 =head2 get_child_terms
 
  Title   : get_child_terms
- Usage   : get_child_terms(TermI term, TermI[] predicate_terms): TermI[]
+ Usage   : get_child_terms(TermI term, TermI predicate_terms): TermI
  Function: Retrieves all child terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_child_terms is a special
@@ -208,7 +203,6 @@ sub get_predicate_terms{
  Args    : First argument is the term of interest, second is the list
            of relationship type terms.
 
-
 =cut
 
 sub get_child_terms{
@@ -218,7 +212,7 @@ sub get_child_terms{
 =head2 get_descendant_terms
 
  Title   : get_descendant_terms
- Usage   : get_descendant_terms(TermI term, TermI[] rel_types): TermI[]
+ Usage   : get_descendant_terms(TermI term, TermI rel_types): TermI
  Function: Retrieves all descendant terms of a given term, that
            satisfy a relationship among those that are specified in
            the second argument or undef otherwise. 
@@ -226,7 +220,6 @@ sub get_child_terms{
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list
            of relationship type terms.
-
 
 =cut
 
@@ -237,7 +230,7 @@ sub get_descendant_terms{
 =head2 get_parent_terms
 
  Title   : get_parent_terms
- Usage   : get_parent_terms(TermI term, TermI[] predicate_terms): TermI[]
+ Usage   : get_parent_terms(TermI term, TermI predicate_terms): TermI
  Function: Retrieves all parent terms of a given term, that satisfy a
            relationship among those that are specified in the second
            argument or undef otherwise. get_parent_terms is a special
@@ -249,7 +242,6 @@ sub get_descendant_terms{
  Args    : First argument is the term of interest, second is the list
            of relationship type terms.
 
-
 =cut
 
 sub get_parent_terms{
@@ -259,7 +251,7 @@ sub get_parent_terms{
 =head2 get_ancestor_terms
 
  Title   : get_ancestor_terms
- Usage   : get_ancestor_terms(TermI term, TermI[] predicate_terms): TermI[]
+ Usage   : get_ancestor_terms(TermI term, TermI predicate_terms): TermI
  Function: Retrieves all ancestor terms of a given term, that satisfy
            a relationship among those that are specified in the second
            argument or undef otherwise. 
@@ -268,7 +260,6 @@ sub get_parent_terms{
  Returns : Array of TermI objects.
  Args    : First argument is the term of interest, second is the list
            of relationship type terms.
-
 
 =cut
 
@@ -279,14 +270,13 @@ sub get_ancestor_terms{
 =head2 get_leaf_terms
 
  Title   : get_leaf_terms
- Usage   : get_leaf_terms(): TermI[]
+ Usage   : get_leaf_terms(): TermI
  Function: Retrieves all leaf terms from the ontology. Leaf term is a
            term w/o descendants.
 
  Example : @leaf_terms = $obj->get_leaf_terms()
  Returns : Array of TermI objects.
  Args    :
-
 
 =cut
 
@@ -297,14 +287,13 @@ sub get_leaf_terms{
 =head2 get_root_terms
 
  Title   : get_root_terms
- Usage   : get_root_terms(): TermI[]
+ Usage   : get_root_terms(): TermI
  Function: Retrieves all root terms from the ontology. Root term is a
            term w/o ancestors.
 
  Example : @root_terms = $obj->get_root_terms()
  Returns : Array of TermI objects.
  Args    :
-
 
 =cut
 
@@ -329,7 +318,6 @@ sub get_root_terms{
            compliant object)
  Args    : 
 
-
 =cut
 
 sub relationship_factory{
@@ -349,7 +337,6 @@ sub relationship_factory{
            compliant object)
  Args    : 
 
-
 =cut
 
 sub term_factory{
@@ -368,7 +355,7 @@ sub term_factory{
 =head2 get_all_terms
 
  Title   : get_all_terms
- Usage   : get_all_terms: TermI[]
+ Usage   : get_all_terms: TermI
  Function: Retrieves all terms from the ontology.
 
            This is more a decorator method. We provide a default
@@ -387,7 +374,6 @@ sub term_factory{
  Example : @terms = $obj->get_all_terms()
  Returns : Array of TermI objects.
  Args    :
-
 
 =cut
 
@@ -424,7 +410,6 @@ sub get_all_terms{
               -identifier    query by the given identifier
               -name          query by the given name
 
-
 =cut
 
 sub find_terms{
@@ -443,7 +428,7 @@ sub find_terms{
 
 =head1 Experimental API method proposals
 
- Ontologies are a very new domain in bioperl, and we aren't sure yet
+ Ontologies are a very new domain in bioperl, and we are not sure yet
  what we will want to do on and with ontologies in which
  situation. The methods from here on downwards are solely API
  descriptions to solicit comment and feedback; the chance of any of
@@ -489,7 +474,6 @@ sub find_terms{
            The latter may also be given as a scalar, in which case it
            is treated as a boolean that, if TRUE, means that the two paths
            must have identical predicates in order to be returned.
-
 
 =cut
 

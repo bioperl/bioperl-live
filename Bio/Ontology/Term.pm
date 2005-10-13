@@ -135,7 +135,8 @@ use constant FALSE   => 0;
            -references            => Bio::Annotation::Reference objects
                                      [reference to array]
 
-See L<Bio::Ontology::OntologyI>, L<Bio::Annotation::Reference>, L<Bio::Annotation::DBLink>.
+See L<Bio::Ontology::OntologyI>, L<Bio::Annotation::Reference>, 
+L<Bio::Annotation::DBLink>.
 
 =cut
 
@@ -223,8 +224,6 @@ sub identifier {
 } # identifier
 
 
-
-
 =head2 name
 
  Title   : name
@@ -243,9 +242,6 @@ sub name {
     return $self->{'name'} = shift if @_;
     return $self->{'name'};
 } # name
-
-
-
 
 
 =head2 definition
@@ -277,12 +273,14 @@ sub definition {
  Function: Get the ontology this term is in.
 
            Note that with the ontology in hand you can query for all
-           related terms etc. See L<Bio::Ontology::OntologyI>.
+           related terms etc.
 
- Returns : The ontology of this Term as a L<Bio::Ontology::OntologyI>
+ Returns : The ontology of this Term as a Bio::Ontology::OntologyI
            implementing object.
- Args    : On set, the  ontology of this Term as a L<Bio::Ontology::OntologyI>
+ Args    : On set, the  ontology of this Term as a Bio::Ontology::OntologyI
            implementing object or a string representing its name.
+
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 
@@ -344,9 +342,6 @@ sub is_obsolete{
     return $self->{'is_obsolete'} = shift if @_;
     return $self->{'is_obsolete'};
 } # is_obsolete
-
-
-
 
 
 =head2 comment
@@ -757,8 +752,8 @@ sub namespace {
  Usage   : $string    = $obj->display_name()
  Function: A string which is what should be displayed to the user.
 
-           The definition in L<Bio::DescribableI> states that the
-           string should not contain spaces. As this isn't very
+           The definition in Bio::DescribableI states that the
+           string should not contain spaces. As this is not very
            sensible for ontology terms, we relax this here. The
            implementation just forwards to name().
 
@@ -784,7 +779,7 @@ sub display_name {
            This forwards to definition(). The caveat is that the text
            will often be longer for ontology term definitions than the
            255 characters stated in the definition in
-           L<Bio::DescribableI>.
+           Bio::DescribableI.
 
  Returns : A scalar
  Args    : on set, the new value (a scalar)

@@ -108,11 +108,12 @@ use constant FALSE        => 0;
 =head2 new
 
  Title   : new
- Usage   : $term = Bio::Ontology::GOterm->new( -go_id       => "GO:0016847",
-                                               -name        => "1-aminocyclopropane-1-carboxylate synthase",
-                                               -definition  => "Catalysis of ...",
-                                               -is_obsolete => 0,
-                                               -comment     => "" );                   
+ Usage   : $term = Bio::Ontology::GOterm->new( 
+       -go_id       => "GO:0016847",
+       -name        => "1-aminocyclopropane-1-carboxylate synthase",
+       -definition  => "Catalysis of ...",
+       -is_obsolete => 0,
+       -comment     => "" );                   
  Function: Creates a new Bio::Ontology::GOterm.
  Returns : A new Bio::Ontology::GOterm object.
  Args    : -go_id         => the goid of this GO term [GO:nnnnnnn] 
@@ -166,8 +167,6 @@ sub init {
     #$self->GO_id( GOID_DEFAULT );
   
 } # init
-
-
 
 
 =head2 GO_id
@@ -260,8 +259,6 @@ sub add_secondary_GO_id {
 sub remove_secondary_GO_ids {
     return shift->remove_secondary_ids(@_);
 } # remove_secondary_GO_ids
-
-
 
 
 =head2 to_string

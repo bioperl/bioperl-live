@@ -171,10 +171,12 @@ sub definition {
            take special precaution in order not to create cyclical
            references in memory.
 
- Returns : The ontology of this Term as a L<Bio::Ontology::OntologyI>
+ Returns : The ontology of this Term as a Bio::Ontology::OntologyI
            implementing object.
- Args    : On set, the  ontology of this Term as a L<Bio::Ontology::OntologyI>
+ Args    : On set, the  ontology of this Term as a Bio::Ontology::OntologyI
            implementing object or a string representing its name.
+
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 
@@ -316,12 +318,11 @@ Used for looking up the methods that supercedes them.
  Usage   :
  Function: This method is deprecated. Use ontology() instead. We provide
            an implementation here that preserves backwards compatibility,
-           but if you don't have legacy code using it you should not be
+           but if you do not have legacy code using it you should not be
            calling this method.
  Example :
  Returns :
  Args    :
-
 
 =cut
 

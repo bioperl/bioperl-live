@@ -177,9 +177,10 @@ sub predicate_term{
  Function: Get the ontology that defined (is the scope for) this
            relationship.
  Example : 
- Returns : an object implementing L<Bio::Ontology::OntologyI>
+ Returns : an object implementing Bio::Ontology::OntologyI
  Args    : 
 
+See L<Bio::Ontology::OntologyI>.
 
 =cut
 
