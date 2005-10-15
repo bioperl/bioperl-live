@@ -623,14 +623,18 @@ sub rank { shift->throw_not_implemented }
 
 =head2 matches
 
- Usage     : $hsp->matches([seq_type], [start], [stop]);
+ Usage     : $hsp->matches(-seq   => 'hit'|'query', 
+                           -start => $start, 
+                           -stop  => $stop);
  Purpose   : Get the total number of identical and conservative matches 
            : in the query or sbjct sequence for the given HSP. Optionally can
            : report data within a defined interval along the seq.
            : (Note: 'conservative' matches are called 'positives' in the
            : Blast report.)
- Example   : ($id,$cons) = $hsp_object->matches('hit');
-           : ($id,$cons) = $hsp_object->matches('query',300,400);
+ Example   : ($id,$cons) = $hsp_object->matches(-seq   => 'hit');
+           : ($id,$cons) = $hsp_object->matches(-seq   => 'query',
+                                                -start => 300,
+                                                -stop  => 400);
  Returns   : 2-element array of integers 
  Argument  : (1) seq_type = 'query' or 'hit' or 'sbjct' (default = query)
            :  ('sbjct' is synonymous with 'hit') 
