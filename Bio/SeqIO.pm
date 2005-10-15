@@ -187,9 +187,9 @@ some HTML tags:
 =item -format
 
 Specify the format of the file.  Supported formats include fasta,
-genbank, embl, swiss (SwissProt), and tracefile formats such as
-abi (ABI) and scf. There are many more, for a complete listing see
-the SeqIO HOWTO (http://bioperl.org/HOWTOs/html/SeqIO.html).
+genbank, embl, swiss (SwissProt), Entrez Gene and tracefile formats 
+such as abi (ABI) and scf. There are many more, for a complete listing 
+see the SeqIO HOWTO (http://bioperl.org/HOWTOs/html/SeqIO.html).
 
 If no format is specified and a filename is given then the module
 will attempt to deduce the format from the filename suffix. If
@@ -594,7 +594,6 @@ sub _concatenate_lines {
  Returns : value of _filehandle
  Args    : newvalue (optional)
 
-
 =cut
 
 sub _filehandle {
@@ -625,6 +624,7 @@ sub _guess_format {
    return 'bsml'    if /\.(bsm|bsml)$/i;
    return 'ctf'     if /\.ctf$/i;
    return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
+	return 'entrezgene' if /\.asn$/i;
    return 'exp'     if /\.exp$/i;
    return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
    return 'fastq'   if /\.fastq$/i;
@@ -670,7 +670,6 @@ sub PRINT {
  Returns : Bio::Factory::SequenceFactoryI
  Args    : [optional] Bio::Factory::SequenceFactoryI
 
-
 =cut
 
 sub sequence_factory{
@@ -698,7 +697,6 @@ sub sequence_factory{
  Returns : value of object_factory (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
 sub object_factory{
@@ -718,7 +716,6 @@ sub object_factory{
 
  Returns : a Bio::Factory::ObjectBuilderI compliant object
  Args    : [optional] a Bio::Factory::ObjectBuilderI compliant object
-
 
 =cut
 
@@ -742,7 +739,6 @@ sub sequence_builder{
  Returns : a Bio::Factory::LocationFactoryI implementing object
  Args    : [optional] on set, a Bio::Factory::LocationFactoryI implementing
            object.
-
 
 =cut
 
