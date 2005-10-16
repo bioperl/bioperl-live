@@ -697,7 +697,7 @@ module called Bio::DB::RefSeq which actually queries an EBI server.
 Please see L<Bio::DB::RefSeq> before using it as there are some caveats
 with RefSeq retrieval. RefSeq ids in Genbank begin with "NT_", "NC_",
 "NG_", "NM_", "NP_", "XM_", "XR_", or "XP_" (for more information see
-http://www.ncbi.nlm.nih.gov/LocusLink/refseq.html ). Bio::DB::GenBank
+http://www.ncbi.nlm.nih.gov/projects/RefSeq/ ). Bio::DB::GenBank
 can be used to retrieve entries corresponding to these ids but bear in
 mind that these are not Genbank entries, strictly speaking. See
 L<Bio::DB::GenBank> for special details on retrieving entries beginning
