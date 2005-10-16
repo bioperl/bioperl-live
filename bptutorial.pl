@@ -334,7 +334,7 @@ http://igs-server.cnrs-mrs.fr/~cnotred/Projects_home_page/t_coffee_home_page.htm
 
 for local blast searching- ftp://ftp.ncbi.nih.gov/blast/executables/release/
 
-for EMBOSS applications - http://www.emboss.org
+for EMBOSS applications - http://emboss.sourceforge.net/
 
 =for html <A NAME ="i.3"></A>
 
@@ -2459,7 +2459,7 @@ these modules are described in this section.
 
 EMBOSS (European Molecular Biology Open Source Software) is an extensive
 collection of sequence analysis programs written in the C
-programming language ( http://www.uk.embnet.org/Software/EMBOSS ).
+programming language ( http://emboss.sourceforge.net/ ).
 There are a number of algorithms in EMBOSS that are not found in "Bioperl
 proper" (e.g. calculating DNA melting temperature, finding repeats,
 identifying prospective antigenic sites) so if you cannot find
