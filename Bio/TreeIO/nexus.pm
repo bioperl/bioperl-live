@@ -245,13 +245,11 @@ sub write_tree{
 sub _write_tree_Helper {
     my ($node,$node2num) = @_;
     return () if (!defined $node);
-
     my @data;
     
     foreach my $n ( $node->each_Descendent() ) {
-	push @data, _write_tree_Helper($n);
+	push @data, _write_tree_Helper($n,$node2num);
     }
-    
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
@@ -265,7 +263,7 @@ sub _write_tree_Helper {
 	} else { 
 	 $data[-1] .= ":$bl";
 	}
-	if( defined ($b = $node->bootstrap) ) {
+	if( defined ($b = $node->bootstrap) ) {	    
 	    $data[-1] .= sprintf("[%s]",$b);
 	} elsif( defined ($b = $node->id) ) {
 	    $b = $node2num->{$b} if( $node2num->{$b} ); # translate node2num
@@ -276,7 +274,7 @@ sub _write_tree_Helper {
 	if( defined $node->id || defined $node->branch_length ) { 
 	    my $id= defined $node->id ? $node->id : '';
 	    if( length($id) && $node2num->{$id} ) {
-		$id = $node2num->{$id};
+		$id = $node2num->{$id};		
 	    }
 	    push @data, sprintf("%s%s",$id,
 				defined $node->branch_length ? ":" .
