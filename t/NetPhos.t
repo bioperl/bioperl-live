@@ -54,6 +54,7 @@ $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
+if( $DEBUG ) {
 ok $tool->sleep;
 ok $tool->delay(1), 1;
 ok $tool->sleep;
@@ -76,4 +77,11 @@ if (scalar @res > 0) {
     ok 1;
 } else {
     skip('No network access - could not connect to NetPhos server', 1);
+}
+} else {
+    for ( $Test::ntest..$NUMTESTS) {
+        skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+    }
+
+
 }
