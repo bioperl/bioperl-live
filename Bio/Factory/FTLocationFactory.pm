@@ -31,12 +31,13 @@ Bio::Factory::FTLocationFactory - A FeatureTable Location Parser
 =head1 SYNOPSIS
 
     # parse a string into a location object
-    $loc = Bio::Factory::FTLocationFactory->from_string("join(100..200, 400..500");
+    $loc = Bio::Factory::FTLocationFactory->from_string("join(100..200, 
+                                                         400..500");
 
 =head1 DESCRIPTION
 
-Implementation of string-encoded location parsing for the Genbank feature table
-encoding of locations.
+Implementation of string-encoded location parsing for the Genbank feature
+table encoding of locations.
 
 =head1 FEEDBACK
 
@@ -99,7 +100,6 @@ use Bio::Location::Fuzzy;
  Returns : an instance of Bio::Factory::FTLocationFactory
  Args    :
 
-
 =cut
 
 =head2 from_string
@@ -115,54 +115,53 @@ use Bio::Location::Fuzzy;
  Returns : A Bio::LocationI implementing object.
  Args    : A string.
 
-
 =cut
 
 sub from_string{
-    # the third parameter is purely optional and indicates a recursive
-    # call if set
-    my ($self,$locstr,$is_rec) = @_;
-    my $loc;
+	# the third parameter is purely optional and indicates a recursive
+	# call if set
+	my ($self,$locstr,$is_rec) = @_;
+	my $loc;
     
-    # there is no place in FT-formatted location strings where whitespace 
-    # carries meaning, so strip it off entirely upfront
-    $locstr =~ s/\s+//g if ! $is_rec;
-    # does it contain an operator?
-    if($locstr =~ /^(\w+)\((.*)\)$/) {	
-	# yes:
-	my $op = lc($1);	
-	my $oparg = $2;
-	if($op eq "complement") {
-	    # parse the argument recursively, then set the strand to -1
-	    $loc = $self->from_string($oparg, 1);
-	    $loc->strand(-1);
-	} elsif($op eq "join" || $op eq "order" || $op eq "bond" ) {
-	    # This is a split location. Split into components and parse each
-	    # one recursively, then gather into a SplitLocationI instance.
-	    #
-	    # Note: The following code will /not/ work with nested
-	    # joins (you want to have grammar-based parsing for that).
-	    $loc = Bio::Location::Split->new(-verbose   => $self->verbose,
-					     -splittype => $op);
+	# there is no place in FT-formatted location strings where whitespace 
+	# carries meaning, so strip it off entirely upfront
+	$locstr =~ s/\s+//g if ! $is_rec;
+	# does it contain an operator?
+	if($locstr =~ /^(\w+)\((.*)\)$/) {	
+		# yes:
+		my $op = lc($1);	
+		my $oparg = $2;
+		if($op eq "complement") {
+			# parse the argument recursively, then set the strand to -1
+			$loc = $self->from_string($oparg, 1);
+			$loc->strand(-1);
+		} elsif($op eq "join" || $op eq "order" || $op eq "bond" ) {
+			# This is a split location. Split into components and parse each
+			# one recursively, then gather into a SplitLocationI instance.
+			#
+			# Note: The following code will /not/ work with nested
+			# joins (you want to have grammar-based parsing for that).
+			$loc = Bio::Location::Split->new(-verbose   => $self->verbose,
+														-splittype => $op);
 
 	    # have to do this to capture nested joins, something like this
-	    # join(11..21,join(100..300,complement(150..230)))
-	    # This fixes bug #1674
-	    my $re;
-	    $re = qr{
-             \(                 # <<--- paired parens required
-             (?:
-                (?> [^()]+ )    # Non-parens without backtracking
-              |
-                (??{ $re })     # Group with matching parens
-             )*
-             \)                 # ---->> paired parens required
-            }x;
-	    my $oparg_orig = $oparg;
-	    my @sections;
-	    # lets capture and remove all the sections which
-	    # are groups	    
-	    while( $oparg =~ s/(join|complement|bond|order)$re//ig ) {
+			# join(11..21,join(100..300,complement(150..230)))
+			# This fixes bug #1674
+			my $re;
+			$re = qr{
+						\(                 # <<--- paired parens required
+						(?:
+						(?> [^()]+ )    # Non-parens without backtracking
+						|
+						(??{ $re })     # Group with matching parens
+					  )*
+						\)                 # ---->> paired parens required
+					}x;
+			my $oparg_orig = $oparg;
+			my @sections;
+			# lets capture and remove all the sections which
+			# are groups	    
+			while( $oparg =~ s/(join|complement|bond|order)$re//ig ) {
 		# oh man this is SUUUCCCH a hack
 		# I don't know what else to do though
 		# s// seems to be dropping the whole 
@@ -216,75 +215,82 @@ sub from_string{
 =cut
 
 sub _parse_location {
-    my ($self, $locstr) = @_;
-    my ($loc, $seqid);
-
-    $self->debug( "Location parse, processing $locstr\n");
-    # 'remote' location?
-    if($locstr =~ /^(\S+):(.*)$/) {
-	# yes; memorize remote ID and strip from location string
-	$seqid = $1;
-	$locstr = $2;
-    }
-    
-    # split into start and end
-    my ($start, $end) = split(/\.\./, $locstr);
-    # remove enclosing parentheses if any; note that because of parentheses
-    # possibly surrounding the entire location the parentheses around start
-    # and/or may be asymmetrical
-    $start =~ s/^\(+//;
-    $start =~ s/\)+$//;
-    $end   =~ s/^\(+// if $end;
-    $end   =~ s/\)+$// if $end;
-
-    # Is this a simple (exact) or a fuzzy location? Simples have exact start
-    # and end, or is between two adjacent bases. Everything else is fuzzy.
-    my $loctype = ".."; # exact with start and end as default
-    my $locclass = "Bio::Location::Simple";
-    if(! defined($end)) {
-	if($locstr =~ /(\d+)([\.\^])(\d+)/) {
-	    $start = $1;
-	    $end = $3;
-	    $loctype = $2;
-	    $locclass = "Bio::Location::Fuzzy"
-		unless (abs($end-$start) <= 1) && ($loctype eq "^");
-	} else {
-	    $end = $start;
+	my ($self, $locstr) = @_;
+	my ($loc, $seqid);
+	
+	$self->debug( "Location parse, processing $locstr\n");
+	# 'remote' location?
+	if($locstr =~ /^(\S+):(.*)$/) {
+		# yes; memorize remote ID and strip from location string
+		$seqid = $1;
+		$locstr = $2;
 	}
-    }
-    # start_num and end_num are for the numeric only versions of 
-    # start and end so they can be compared
-    # in a few lines
-    my ($start_num, $end_num) = ($start,$end);
-    if ( ($start =~ /[\>\<\?\.\^]/) || ($end   =~ /[\>\<\?\.\^]/) ) {
-	$locclass = 'Bio::Location::Fuzzy';
-	if($start =~ /(\d+)/) {
-	    ($start_num) = $1;
-	} else { $start_num = 0 }
-	if($end =~ /(\d+)/) {
-	    ($end_num)   = $1;
-	} else { $end_num = 0 }
-    } 
-    my $strand = 1;
-
-    if( $start_num > $end_num ) {
-	($start,$end,$strand) = ($end,$start,-1);
-    }
-    # instantiate location and initialize
-    $loc = $locclass->new(-verbose => $self->verbose,
-			  -start   => $start, 
-			  -end     => $end, 
-			  -strand  => $strand, 
-			  -location_type => $loctype);
-    # set remote ID if remote location
-    if($seqid) {
-	$loc->is_remote(1);
-	$loc->seq_id($seqid);
-    }
-
-    # done (hopefully)
-    return $loc;
     
+	# split into start and end
+	my ($start, $end) = split(/\.\./, $locstr);
+	# remove enclosing parentheses if any; note that because of parentheses
+	# possibly surrounding the entire location the parentheses around start
+	# and/or may be asymmetrical
+	$start =~ s/^\(+//;
+	$start =~ s/\)+$//;
+	$end   =~ s/^\(+// if $end;
+	$end   =~ s/\)+$// if $end;
+
+	# Is this a simple (exact) or a fuzzy location? Simples have exact start
+	# and end, or is between two adjacent bases. Everything else is fuzzy.
+	my $loctype = ".."; # exact with start and end as default
+
+	$loctype = '?' if ( ($locstr =~ /\?/) &&
+							  ($locstr !~ /\?\d+/) );
+	$loctype = '?' if ( ($locstr =~ /\?/) &&
+							  ($locstr !~ /\?\d+/) );
+
+	my $locclass = "Bio::Location::Simple";
+	if(! defined($end)) {
+		if($locstr =~ /(\d+)([\.\^])(\d+)/) {
+			$start = $1;
+			$end = $3;
+			$loctype = $2;
+			$locclass = "Bio::Location::Fuzzy"
+			  unless (abs($end-$start) <= 1) && ($loctype eq "^");
+		} else {
+			$end = $start;
+		}
+	}
+	# start_num and end_num are for the numeric only versions of 
+	# start and end so they can be compared
+	# in a few lines
+	my ($start_num, $end_num) = ($start,$end);
+	if ( ($start =~ /[\>\<\?\.\^]/) || ($end   =~ /[\>\<\?\.\^]/) ) {
+		$locclass = 'Bio::Location::Fuzzy';
+		if($start =~ /(\d+)/) {
+			($start_num) = $1;
+		} else { 
+			$start_num = 0
+		}
+		if ($end =~ /(\d+)/) {
+			($end_num)   = $1;
+		} else { $end_num = 0 }
+	} 
+	my $strand = 1;
+
+	if( $start_num > $end_num && $loctype ne '?') {
+		($start,$end,$strand) = ($end,$start,-1);
+	}
+	# instantiate location and initialize
+	$loc = $locclass->new(-verbose => $self->verbose,
+								 -start   => $start, 
+								 -end     => $end, 
+								 -strand  => $strand, 
+								 -location_type => $loctype);
+	# set remote ID if remote location
+	if($seqid) {
+		$loc->is_remote(1);
+		$loc->seq_id($seqid);
+	}
+
+	# done (hopefully)
+	return $loc;
 }
 
 1;
