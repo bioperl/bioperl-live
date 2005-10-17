@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 182;
+    plan tests => 259;
 }
 
 use Bio::Factory::FTLocationFactory;
@@ -66,39 +66,54 @@ my %testcases = ("467" => [$simple_impl,
 		   100, 100, "EXACT", 202, 202, "EXACT", "EXACT", 1, 1],
 		 "((122.133)..(204.221))" => [$fuzzy_impl,
 		   122, 133, "WITHIN", 204, 221, "WITHIN", "EXACT", 1, 1],
-		 "join(AY016290.1:108..185,AY016291.1:1546..1599)"=>
-		 [$split_impl,
-		  108, 108, "EXACT", 185, 185, "EXACT", "EXACT", 2, undef] 
+		 "join(AY016290.1:108..185,AY016291.1:1546..1599)"=> [$split_impl,
+		  108, 108, "EXACT", 185, 185, "EXACT", "EXACT", 2, undef],
+
+		 # UNCERTAIN locations and positions (Swissprot)
+       "?2465..2774" => [$fuzzy_impl,
+          2465, 2465, "UNCERTAIN", 2774, 2774, "EXACT", "EXACT", 1, 1],
+       "22..?64" => [$fuzzy_impl,
+          22, 22, "EXACT", 64, 64, "UNCERTAIN", "EXACT", 1, 1],
+       "?22..?64" => [$fuzzy_impl,
+           22, 22, "UNCERTAIN", 64, 64, "UNCERTAIN", "EXACT", 1, 1],
+       "?..>393" => [$fuzzy_impl,
+          undef, undef, "UNCERTAIN", 393, undef, "AFTER", "UNCERTAIN", 1, 1],
+       "<1..?" => [$fuzzy_impl,
+          undef, 1, "BEFORE", undef, undef, "UNCERTAIN", "UNCERTAIN", 1, 1],
+       "?..536" => [$fuzzy_impl,
+          undef, undef, "UNCERTAIN", 536, 536, "EXACT", "UNCERTAIN", 1, 1],
+       "1..?" => [$fuzzy_impl,
+          1, 1, "EXACT", undef, undef, "UNCERTAIN", "UNCERTAIN", 1, 1]
 		 );
 
 my $locfac = Bio::Factory::FTLocationFactory->new();
 ok($locfac->isa("Bio::Factory::LocationFactoryI"));
 
 # sorting is to keep the order constant from one run to the next
-foreach my $locstr (sort keys(%testcases)) { 
-    my $loc = $locfac->from_string($locstr);
-    if($locstr eq "join(AY016290.1:108..185,AY016291.1:1546..1599)") {
-	$loc->seq_id("AY016295.1");
-    }
-    my @res = @{$testcases{$locstr}};
-    ok(ref($loc), $res[0]);
-    ok($loc->min_start(), $res[1]);
-    ok($loc->max_start(), $res[2]);
-    ok($loc->start_pos_type(), $res[3]);
-    ok($loc->min_end(), $res[4]);
-    ok($loc->max_end(), $res[5]);
-    ok($loc->end_pos_type(), $res[6]);
-    ok($loc->location_type(), $res[7]);
-    my @locs = $loc->each_Location();
-    ok(@locs, $res[8]);
-    my $ftstr = $loc->to_FTstring();
-    # this is a somewhat ugly hack, but we want clean output from to_FTstring()
-    $locstr = "J00194:100..202" if $locstr eq "J00194:(100..202)";
-    $locstr = "(122.133)..(204.221)" if $locstr eq "((122.133)..(204.221))";
-    # now test
-    ok($ftstr, $locstr);
-    # test strand production
-    ok($loc->strand(), $res[9]);
+foreach my $locstr (keys %testcases) { 
+	my $loc = $locfac->from_string($locstr);
+	if($locstr eq "join(AY016290.1:108..185,AY016291.1:1546..1599)") {
+		$loc->seq_id("AY016295.1");
+	}
+	my @res = @{$testcases{$locstr}};
+	ok(ref($loc), $res[0]);
+	ok($loc->min_start(), $res[1]);
+	ok($loc->max_start(), $res[2]);
+	ok($loc->start_pos_type(), $res[3]);
+	ok($loc->min_end(), $res[4]);
+	ok($loc->max_end(), $res[5]);
+	ok($loc->end_pos_type(), $res[6]);
+	ok($loc->location_type(), $res[7]);
+	my @locs = $loc->each_Location();
+	ok(@locs, $res[8]);
+	my $ftstr = $loc->to_FTstring();
+	# this is a somewhat ugly hack, but we want clean output from to_FTstring()
+	$locstr = "J00194:100..202" if $locstr eq "J00194:(100..202)";
+	$locstr = "(122.133)..(204.221)" if $locstr eq "((122.133)..(204.221))";
+	# now test
+	ok($ftstr, $locstr);
+	# test strand production
+	ok($loc->strand(), $res[9]);
 }
 
 if ($^V gt v5.6.0) {
