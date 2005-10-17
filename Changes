@@ -2,6 +2,15 @@ $Id$
   
 Revision history for Bioperl core modules
 
+Main trunk
+
+    o Bio::TreeIO
+      - fixed nexus writer bug that was not properly pushing the node IDs out
+        in the tree stanza (merged to 1.5.1 branch post 1.5.1 release).
+    
+    o Bio::Factory::FTLocationFactory
+      - bug #1754, handle UNCERTAIN values
+
 1.5 series - these releases represent the pre-1.6 releases, the 1.6 series
     will be branches from the last 1.5.x release. 
 
