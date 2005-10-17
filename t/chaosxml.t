@@ -28,6 +28,13 @@ BEGIN {
 	plan tests => $NUMTESTS;
 }
 
+END { 
+   foreach ( $Test::ntest..$NUMTESTS) {
+      skip('Unable to run all of the chaosxml tests',1);
+   }
+}
+
+
 if ( $error == 1 ) {
   exit(0);
 }
