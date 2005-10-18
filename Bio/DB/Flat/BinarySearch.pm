@@ -10,12 +10,11 @@
 
 =head1 NAME
 
-Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for
-sequence files
+Bio::DB::Flat::BinarySearch
 
 =head1 SYNOPSIS
 
-  # See below
+BinarySearch search indexing system for sequence files
 
 =head1 DESCRIPTION
 
@@ -49,10 +48,10 @@ The index can now be created using
     my $index = new Bio::DB::Flat::BinarySearch(
              -directory         => "/home/max/",
              -dbname            => "mydb",
-	     -start_pattern     => $start_pattern,
-	     -primary_pattern   => $primary_pattern,
+	          -start_pattern     => $start_pattern,
+	          -primary_pattern   => $primary_pattern,
              -primary_namespace => "ID",
-	     -format            => "fasta" );
+	          -format            => "fasta" );
 
     my @files = ("file1","file2","file3");
 
@@ -102,8 +101,8 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
 
     my $index = new Bio::DB::Flat::BinarySearch(
                 -directory          => $index_directory,
-		-dbname             => "ppp",
-		-write_flag         => 1,
+		          -dbname             => "ppp",
+		          -write_flag         => 1,
                 -verbose            => 1,
                 -start_pattern      => $start_pattern,
                 -primary_pattern    => $primary_pattern,
@@ -139,7 +138,7 @@ This can then be passed to a seqio object for output or converting
 into objects.
 
     my $seq = new Bio::SeqIO(-fh     => $fh,
-			     -format => 'fasta');
+			                    -format => 'fasta');
 
 The last way is to retrieve a sequence directly.  This is the
 slowest way of extracting as the sequence objects need to be made.
@@ -1208,85 +1207,81 @@ sub make_config_file {
  Returns : value of read_config_file
  Args    : newvalue (optional)
 
-
 =cut
 
 sub read_config_file {
-    my ($self) = @_;
+	my ($self) = @_;
+	my $configfile = $self->_config_file;
+	return unless -e $configfile;
 
-    my $configfile = $self->_config_file;
-    return unless -e $configfile;
+	open(CON,"<$configfile") || $self->throw("Can't open configfile [$configfile]");
 
-    open(CON,"<$configfile") || $self->throw("Can't open configfile [$configfile]");
+	# First line must be type
+	my $line = <CON>; 
+	chomp($line);
+	my $version;
 
-    # First line must be type
+	# This is hard coded as we only index flatfiles here
+	if ($line =~ /index\tflat\/(\d+)/) {
+		$version = $1;
+	} else {
+		$self->throw("First line not compatible with flat file index.  Should be something like\n\nindex\tflat/1");
+	}
 
-    my $line = <CON>; chomp($line);
-    my $version;
+	$self->index_type("flat");
+	$self->index_version($version);
 
-    # This is hard coded as we only index flatfiles here
-    if ($line =~ /index\tflat\/(\d+)/) {
-	$version = $1;
-    } else {
-	$self->throw("First line not compatible with flat file index.  Should be something like\n\nindex\tflat/1");
-    }
+	while (<CON>) {
+		chomp;
 
-    $self->index_type("flat");
-    $self->index_version($version);
-
-    while (<CON>) {
-	chomp;
-
-	# Look for fileid lines
-	if ($_ =~ /^fileid_(\d+)\t(\S+)\t(\d+)/) {
-	    my $fileid   = $1;
-	    my $filename = $2;
-	    my $filesize = $3;
+		# Look for fileid lines
+		if ($_ =~ /^fileid_(\d+)\t(\S+)\t(\d+)/) {
+			my $fileid   = $1;
+			my $filename = $2;
+			my $filesize = $3;
 	    
-	    if (! -e $filename) {
-		$self->throw("File [$filename] does not exist!");
-	    }
-	    if (-s $filename != $filesize) {
-		$self->throw("Flatfile size for $filename differs from what the index thinks it is. Real size [" . (-s $filename) . "] Index thinks it is [" . $filesize  . "]");
-	    }
+			if (! -e $filename) {
+				$self->throw("File [$filename] does not exist!");
+			}
+			if (-s $filename != $filesize) {
+				$self->throw("Flatfile size for $filename differs from what the index thinks it is. Real size [" . (-s $filename) . "] Index thinks it is [" . $filesize  . "]");
+			}
 		
-	    my $fh;
-	    open($fh,"<$filename") || $self->throw($!);
+			my $fh;
+			open($fh,"<$filename") || $self->throw($!);
 
-	    $self->{_fileid}{$fileid}   = $fh;
-	    $self->{_file}  {$fileid}   = $filename;
-	    $self->{_dbfile}{$filename} = $fileid;
-            $self->{_size}  {$fileid}   = $filesize; 
-
-	}
-
-	# Look for namespace lines
-	if (/(.*)_namespaces?\t(.+)/) {
-	    if ($1 eq "primary") {
-		$self->primary_namespace($2);
-	    } elsif ($1 eq "secondary") {
-		$self->secondary_namespaces(split "\t",$2);
-	    } else {
-		$self->throw("Unknown namespace name in config file [$1");
-	    }
-	}
+			$self->{_fileid}{$fileid}   = $fh;
+			$self->{_file}  {$fileid}   = $filename;
+			$self->{_dbfile}{$filename} = $fileid;
+			$self->{_size}  {$fileid}   = $filesize; 
+		}
+		
+		# Look for namespace lines
+		if ( /(.*)_namespaces?\t(.+)/ ) {
+	      if ($1 eq "primary") {
+		       $self->primary_namespace($2);
+	      } elsif ($1 eq "secondary") {
+		       $self->secondary_namespaces(split "\t",$2);
+	      } else {
+		       $self->throw("Unknown namespace name in config file [$1");
+	      }
+	   }
 	
-	# Look for format lines
+	   # Look for format lines
+	   if ($_ =~ /format\t(\S+)/) {
+	      # Check the format here?
+	      my $format = $1;
 
-	if ($_ =~ /format\t(\S+)/) {
-
-	  # Check the format here?
-	  my $format = $1;
-
-	  # handle LSID format
-	  if ($format =~ /^URN:LSID:open-bio\.org:(\w+)(?:\/(\w+))?/) {
-	      $self->format($1);
-	      $self->alphabet($2);
-	  } else {  # compatibility with older versions
-	    $self->format($1);
-	  }
-	}
+	      # handle LSID format
+	      if ($format =~ /^URN:LSID:open-bio\.org:(\w+)(?:\/(\w+))?/) {
+	         $self->format($1);
+	         $self->alphabet($2);
+	      } else {  # compatibility with older versions
+	         $self->format($1);
+	      }
+	    }
     }
+    
     close(CON);
 
     # Now check we have all that we need
@@ -1294,15 +1289,15 @@ sub read_config_file {
     my @fileid_keys = keys (%{$self->{_fileid}});
 
     if (!(@fileid_keys)) {
-	$self->throw("No flatfile fileid files in config - check the index has been made correctly");
+	     $self->throw("No flatfile fileid files in config - check the index has been made correctly");
     }
 
     if (!defined($self->primary_namespace)) {
-	$self->throw("No primary namespace exists");
+	    $self->throw("No primary namespace exists");
     }
 
     if (! -e $self->primary_index_file) {
-	$self->throw("Primary index file [" . $self->primary_index_file . "] doesn't exist");
+	    $self->throw("Primary index file [" . $self->primary_index_file . "] doesn't exist");
     }
 
     1;
@@ -1316,7 +1311,6 @@ sub read_config_file {
  Example : 
  Returns : value of get_fileid_by_filename
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -1339,7 +1333,6 @@ sub get_fileid_by_filename {
  Example : 
  Returns : value of get_filehandle_by_fileid
  Args    : newvalue (optional)
-
 
 =cut
 
