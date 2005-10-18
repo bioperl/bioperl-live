@@ -121,7 +121,7 @@ sub new {
 		 			       -method => $method);
  Function: Calculates a distance matrix for all pairwise distances of
            sequences in an alignment.
- Returns : Array ref
+ Returns : L<Bio::Matrix::PhylipDist> object
  Args    : -align  => Bio::Align::AlignI object
            -method => String specifying specific distance method 
                       (implementing class may assume a default)
