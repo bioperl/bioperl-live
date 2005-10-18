@@ -318,7 +318,7 @@ implementing class does not need to provide these functions, as they
 will be provided by this class, but is free to override these
 functions.
 
-All of revcom(), trunc(), and translate() create new sequence
+The revcom(), trunc(), and translate() methods create new sequence
 objects. They will call new() on the class of the sequence object
 instance passed as argument, unless can_call_new() returns FALSE. In
 the latter case a Bio::PrimarySeq object will be created. Implementors
@@ -499,23 +499,26 @@ sub trunc{
 
  Notes   : The -atg argument only applies when -orf is set to 1. Otherwise
            all initiation codons found in the given codon table are used.
+           Note that the default codon table here and at NCBI ("Standard") 
+           has 3 initiation codons!
 
-           By default translate() will add a character to the sequence when 
-           translating the termination codon. Setting "-complete" to 1 tells
-           translate() to remove the *.
+           By default translate() translates termination codons to 
+           the some character (default is *), both internal and trailing
+           codons. Setting "-complete" to 1 tells translate() to remove
+           the trailing character.
 
 For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 
            Deprecated argument set (v. 1.5.1 and prior versions)
-           where each argument is an element in an array.
+           where each argument is an element in an array:
 
            1: character for terminator (optional), defaults to '*'.
            2: character for unknown amino acid (optional), defaults to 'X'.
            3: frame (optional), valid values are 0, 1, 2, defaults to 0.
            4: codon table id (optional), defaults to 1.
            5: complete coding sequence expected, defaults to 0 (false).
-           6: boolean, throw exception if not complete coding sequence (true),
-              defaults to warning (false)
+           6: boolean, throw exception if not complete coding sequence
+              (true), defaults to warning (false)
            7: codontable, a custom Bio::Tools::CodonTable object (optional).
 
 =cut
@@ -561,8 +564,8 @@ sub translate {
 		 $seq = $self->_find_orf($seq,$codonTable,$atg);
 	 } else {
 	 ## Error if frame is not 0, 1 or 2
-		 $self->throw("Valid values for frame are 0, 1, or 2, not [$frame].") unless
-			($frame == 0 or $frame == 1 or $frame == 2);
+		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.") 
+			unless ($frame == 0 or $frame == 1 or $frame == 2);
 		 $seq = substr($seq,$frame);
     }
 
