@@ -20,7 +20,7 @@ This module will parse PSI-BLAST output of the format seqid XXXX
 
 =head1 DESCRIPTION
 
-This is for parser for a psi-blast blocks.
+This is a parser for psi-blast blocks.
 
 =head1 FEEDBACK
 
@@ -92,8 +92,10 @@ use Bio::LocatableSeq;
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream
- Returns : L<Bio::Align::AlignI> object
+ Returns : Bio::Align::AlignI object
  Args    : NONE
+
+See L<Bio::Align::AlignI>
 
 =cut
 
@@ -127,39 +129,40 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the NCBI psi-format object (.aln) into the stream
  Returns : 1 for success and 0 for error
- Args    : L<Bio::Align::AlignI> object
+ Args    : Bio::Align::AlignI object
 
+L<Bio::Align::AlignI>
 
 =cut
 
 sub write_aln {
-    my ($self,$aln) = @_;
-    unless( defined $aln && ref($aln) && 
-	    $aln->isa('Bio::Align::AlignI') ) {
-	$self->warn("Must provide a valid Bio::Align::AlignI to write_aln");
-	return 0;
-    }
-    my $ct = 0;
-    my @seqs = $aln->each_seq;
-    my $len = 1;
-    my $alnlen = $aln->length;
-    my $idlen = $IdLength;
-    my @ids = map { substr($_->display_id,0,$idlen) } @seqs;
-    while( $len < $alnlen ) {
-	my $start = $len;
-	my $end   = $len + $BlockLen;
-	if( $end > $alnlen ) { $end = $alnlen; }
-	my $c = 0;
-	foreach my $seq ( @seqs ) {
-	    $self->_print(sprintf("%-".$idlen."s %s\n",
-				  $ids[$c++],
-				  $seq->subseq($start,$end)));
+	my ($self,$aln) = @_;
+	unless( defined $aln && ref($aln) && 
+			  $aln->isa('Bio::Align::AlignI') ) {
+		$self->warn("Must provide a valid Bio::Align::AlignI to write_aln");
+		return 0;
 	}
-	$self->_print("\n");
-	$len += $BlockLen+1;
-    }
-    $self->flush if $self->_flush_on_write && defined $self->_fh;
-    return 1;
+	my $ct = 0;
+	my @seqs = $aln->each_seq;
+	my $len = 1;
+	my $alnlen = $aln->length;
+	my $idlen = $IdLength;
+	my @ids = map { substr($_->display_id,0,$idlen) } @seqs;
+	while( $len < ($alnlen + 1) ) {
+		my $start = $len;
+		my $end   = $len + $BlockLen;
+		$end = $alnlen if ( $end > $alnlen ); 
+		my $c = 0;
+		foreach my $seq ( @seqs ) {
+			$self->_print(sprintf("%-".$idlen."s %s\n",
+										 $ids[$c++],
+										 $seq->subseq($start,$end)));
+		}
+		$self->_print("\n");
+		$len += $BlockLen+1;
+	}
+	$self->flush if $self->_flush_on_write && defined $self->_fh;
+	return 1;
 }
 
 1;
