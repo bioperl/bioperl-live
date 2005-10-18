@@ -61,7 +61,7 @@ If you want to output annotations in Genbank format they need to be
 stored in a Bio::Annotation::Collection object which is accessible
 through the Bio::SeqI interface method L<annotation()|annotation>.
 
-The following are the names of the keys which are polled from a
+The following are the names of the keys which are pulled from a
 L<Bio::Annotation::Collection> object:
 
  reference       - Should contain Bio::Annotation::Reference objects
@@ -1332,129 +1332,128 @@ sub _read_GenBank_Species {
  Returns : Bio::SeqIO::FTHelper object 
  Args    : filehandle and reference to a scalar
 
-
 =cut
 
 sub _read_FTHelper_GenBank {
-    my ($self,$buffer) = @_;
+	my ($self,$buffer) = @_;
     
-    my ($key,   # The key of the feature
-        $loc    # The location line from the feature
-        );
-    my @qual = (); # An arrray of lines making up the qualifiers
+	my ($key,   # The key of the feature
+		 $loc    # The location line from the feature
+		);
+	my @qual = (); # An array of lines making up the qualifiers
     
-    if ($$buffer =~ /^\s{5}(\S+)\s+(.+?)\s*$/o) {
-        $key = $1;
-        $loc = $2;
-        # Read all the lines up to the next feature
-        while ( defined($_ = $self->_readline) ) {
-            if (/^(\s+)(.+?)\s*$/o) {
-                # Lines inside features are preceded by 21 spaces
-                # A new feature is preceded by 5 spaces
-                if (length($1) > 6) {
-                    # Add to qualifiers if we're in the qualifiers, or if it's
-		    # the first qualifier
-                    if (@qual || (index($2,'/') == 0)) {
-                        push(@qual, $2);
-                    }
-                    # We're still in the location line, so append to location
-                    else {
-                        $loc .= $2;
-                    }
-                } else {
-                    # We've reached the start of the next feature
-                    last;
-                }
-            } else {
-                # We're at the end of the feature table
-                last;
-            }
-        }
-    } else {
-        # No feature key
-	$self->debug("no feature key!\n");
-	# change suggested by JDiggans to avoid infinite loop- 
-	# see bugreport 1062.
-	# reset buffer to prevent infinite loop
-	$$buffer = $self->_readline();
-        return;
-    } 
-    
-    # Put the first line of the next feature into the buffer
-    $$buffer = $_;
-
-    # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper();
-    $out->verbose($self->verbose());
-    $out->key($key);
-    $out->loc($loc);
-
-    # Now parse and add any qualifiers.  (@qual is kept
-    # intact to provide informative error messages.)
-  QUAL: for (my $i = 0; $i < @qual; $i++) {
-        $_ = $qual[$i];
-        my( $qualifier, $value ) = (m{^/([^=]+)(?:=(.+))?})
-	    or $self->warn("cannot see new qualifier in feature $key: ".
-			   $qual[$i]);
-            #or $self->throw("Can't see new qualifier in: $_\nfrom:\n"
-            #    . join('', map "$_\n", @qual));
-	$qualifier = '' unless( defined $qualifier);
-        if (defined $value) {
-            # Do we have a quoted value?
-            if (substr($value, 0, 1) eq '"') {
-                # Keep adding to value until we find the trailing quote
-                # and the quotes are balanced
-                while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
-		    if($i >= $#qual) {
-		       $self->warn("Unbalanced quote in:\n" .
-				   join("\n", @qual) .
-				   "No further qualifiers will " .
-				   "be added for this feature");
-		       last QUAL;
-                    }
-                    $i++; # modifying a for-loop variable inside of the loop
-		          # is not the best programming style ...
-                    my $next = $qual[$i];
-
-                    # add to value with a space unless the value appears
-		    # to be a sequence (translation for example)
-		    if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
-			$value .= " ";
-		    }
-                    $value .= $next;
-                }
-                # Trim leading and trailing quotes
-                $value =~ s/^"|"$//g;
-                # Undouble internal quotes
-                $value =~ s/""/\"/g;
-            } elsif ( $value =~ /^\(/ ) { # values quoted by ()s
-		# Keep addingto value until we find the trailing bracket
-		# and the ()s are balanced
-		my $left = ($value =~ tr/\(/\(/); # count left parens
-		my $right = ($value =~ tr/\)/\)/); # count right parens
-		while( $value !~ /\)$/ or $left != $right ) {
-		    if( $i >= $#qual) {
-			$self->warn("Unbalanced parens in:\n".
-				    join("\n", @qual).
-				    "No further qualifiers will ".
-				    "be added for this feature");
-			last QUAL;
-		    }
-		    $i++;
-		    my $next = $qual[$i];		    
-		    $value .= $next;
-		    $left += ($next =~ tr/\(/\(/);
-		    $right += ($next =~ tr/\)/\)/);
+	if ($$buffer =~ /^\s{5}(\S+)\s+(.+?)\s*$/o) {
+		$key = $1;
+		$loc = $2;
+		# Read all the lines up to the next feature
+		while ( defined($_ = $self->_readline) ) {
+			if (/^(\s+)(.+?)\s*$/o) {
+				# Lines inside features are preceded by 21 spaces
+				# A new feature is preceded by 5 spaces
+				if (length($1) > 6) {
+					# Add to qualifiers if we're in the qualifiers, or if it's
+					# the first qualifier
+					if (@qual || (index($2,'/') == 0)) {
+						push(@qual, $2);
+					}
+					# We're still in the location line, so append to location
+					else {
+						$loc .= $2;
+					}
+				} else {
+					# We've reached the start of the next feature
+					last;
+				}
+			} else {
+				# We're at the end of the feature table
+				last;
+			}
 		}
-	    }
-        } else {
+	} else {
+		# No feature key
+		$self->debug("no feature key!\n");
+		# change suggested by JDiggans to avoid infinite loop- 
+		# see bugreport 1062.
+		# reset buffer to prevent infinite loop
+		$$buffer = $self->_readline();
+		return;
+	} 
+    
+	# Put the first line of the next feature into the buffer
+	$$buffer = $_;
+
+	# Make the new FTHelper object
+	my $out = new Bio::SeqIO::FTHelper();
+	$out->verbose($self->verbose());
+	$out->key($key);
+	$out->loc($loc);
+
+	# Now parse and add any qualifiers.  (@qual is kept
+	# intact to provide informative error messages.)
+ QUAL: 
+	for (my $i = 0; $i < @qual; $i++) {
+		$_ = $qual[$i];
+		my( $qualifier, $value ) = (m{^/([^=]+)(?:=(.+))?})
+		  or $self->warn("cannot see new qualifier in feature $key: ".
+							  $qual[$i]);
+		$qualifier = '' unless( defined $qualifier);
+		if (defined $value) {
+			# Do we have a quoted value?
+			if (substr($value, 0, 1) eq '"') {
+				# Keep adding to value until we find the trailing quote
+				# and the quotes are balanced
+				while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
+					if($i >= $#qual) {
+						$self->warn("Unbalanced quote in:\n" .
+										join("\n", @qual) .
+										"No further qualifiers will " .
+										"be added for this feature");
+						last QUAL;
+					}
+					$i++; # modifying a for-loop variable inside of the loop
+					# is not the best programming style ...
+					my $next = $qual[$i];
+
+					# add to value with a space unless the value appears
+					# to be a sequence (translation for example)
+					if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
+						$value .= " ";
+					}
+					$value .= $next;
+				}
+				# Trim leading and trailing quotes
+				$value =~ s/^"|"$//g;
+				# Undouble internal quotes
+				$value =~ s/""/\"/g;
+			} elsif ( $value =~ /^\(/ ) { # values quoted by ()s
+				# Keep adding to value until we find the trailing bracket
+				# and the ()s are balanced
+				my $left = ($value =~ tr/\(/\(/); # count left parens
+				my $right = ($value =~ tr/\)/\)/); # count right parens
+
+				while( $left != $right ) { # was "$value !~ /\)$/ or $left != $right"
+					if( $i >= $#qual) {
+						$self->warn("Unbalanced parens in:\n".
+										join("\n", @qual).
+										"\nNo further qualifiers will ".
+										"be added for this feature");
+						last QUAL; 
+					}
+					$i++;
+					my $next = $qual[$i];		    
+					$value .= $next;
+					$left += ($next =~ tr/\(/\(/);
+								 $right += ($next =~ tr/\)/\)/);
+							 }
+				}
+			} else {
             $value = '_no_value';
-        }
-        # Store the qualifier
-        $out->field->{$qualifier} ||= [];
-        push(@{$out->field->{$qualifier}},$value);
-    }       
-    return $out;
+			}
+			# Store the qualifier
+			$out->field->{$qualifier} ||= [];
+			push(@{$out->field->{$qualifier}},$value);
+		}       
+	return $out;
 }
 
 =head2 _write_line_GenBank
