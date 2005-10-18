@@ -10,26 +10,26 @@
 
 =head1 NAME
 
-Bio::SeqIO::chadoxml - chadoxml sequence input/output stream
+Bio::SeqIO::chadoxml - chadoxml sequence output stream
 
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
-rather go through the SeqIO handler system. Go:
+rather go through the SeqIO handler system:
 
-    $stream = Bio::SeqIO->new(-file => $filename, 
+    $writer = Bio::SeqIO->new(-file => ">chado.xml", 
                               -format => 'chadoxml');
 
-    while ( my $seq = $stream->next_seq() ) {
-        # do something with $seq
-    }
+    # assume you already have a Sequence object
+    $writer->write_seq($seq_obj);
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to and from chadoxml flat
+This object can transform Bio::Seq objects to chadoxml flat
 file databases (for chadoxml DTD, see
 http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd).
- CURRENTLY ONLY TO
+
+This is currently a write-only module.
 
     $seqio = Bio::SeqIO->new(-file => '>outfile.xml', 
                              -format => 'chadoxml');
@@ -92,7 +92,7 @@ Destination of data in the subject Bio::Seq object $seq is as following:
 	*$seq->keywords, $seq->desc, comments: featureprop;
 
 	*references: pub and feature_pub;
-		medline/pubmed id's: pub_dbxref;
+		medline/pubmed ids: pub_dbxref;
 		comments: pubprop;
 
 	*feature "source" span: featureloc for top-level feature;
@@ -315,7 +315,7 @@ sub _initialize {
 
 
  Args     : A Bio::Seq object $seq, optional $seqSOtype, $srcfeature,
-	   $srcfeattype, $nounflatten, $is_analysis and $data_source.  
+	         $srcfeattype, $nounflatten, $is_analysis and $data_source.  
            when $srcfeature (a string, the uniquename of the source 
            feature) is given, the location and strand information of 
            the top-level feature against the source feature will be 
