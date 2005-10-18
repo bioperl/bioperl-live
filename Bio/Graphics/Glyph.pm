@@ -282,8 +282,6 @@ sub boxes {
   my @result;
 
   $self->layout;
-  my @parts         = $self->parts;
-  @parts            = $self if !@parts && $self->option('box_subparts') && $self->level>0;
   $parent         ||= $self;
 
   for my $part ($self->parts) {

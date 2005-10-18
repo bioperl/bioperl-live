@@ -624,7 +624,7 @@ sub _feature_by_name {
 
   my $count = 0;
   my $id    = -1;
-  my ($use_regexp, $use_glob);
+  my ($use_regexp, $use_glob,$using_alias_search);
 
   if ($name =~ /[*?]/) {  # uh oh regexp time
 	
@@ -656,13 +656,17 @@ sub _feature_by_name {
   }
 
   else {
-    @features = @{$self->retrieve_features(-table => 'name', -key => "$class:$name")};
+    @features = @{$self->retrieve_features(-table=>'name',   -key => "$class:$name")};
+  }
+
+  unless (@features) {
+    $using_alias_search++;
+    @features = @{$self->retrieve_features(-table=>'attr',   -key=>"Alias:$name")};
   }
 
   foreach my $feature (@features){
     $id++;
-    #next unless ($regexp && $feature->{gname} =~ /$name/i);
-    next unless $feature->{gclass} eq $class;
+    next unless $using_alias_search || $feature->{gclass} eq $class;
 
     if ($location) {
       next if $location->[0] ne $feature->{ref};

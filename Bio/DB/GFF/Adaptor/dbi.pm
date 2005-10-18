@@ -406,7 +406,7 @@ sub _feature_by_name {
     }
     $sth->finish;
   }
-  
+
   return $count;
 }
 
