@@ -1249,6 +1249,7 @@ sub read_config_file {
 		
 			my $fh;
 			open($fh,"<$filename") || $self->throw($!);
+			close $fh;
 
 			$self->{_fileid}{$fileid}   = $fh;
 			$self->{_file}  {$fileid}   = $filename;
