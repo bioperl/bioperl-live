@@ -1025,9 +1025,9 @@ the features from the starting object to the resulting feature:
 Note that some methods return strings, some return arrays and some
 return objects. See L<Bio::Seq> for more information.
 
-Many of these methods are self-explanatory. However, bioperl's flexible
-translation methods warrant further comment. Translation in bioinformatics
-can mean two slightly different things:
+Many of these methods are self-explanatory. However, the flexible
+translation() method needs some explanation. Translation in 
+bioinformatics can mean two slightly different things:
 
 =over 2
 
@@ -1045,7 +1045,8 @@ sequence object:
   $prot_obj = $my_seq_object->translate;
 
 All codons will be translated, including those before and after any
-initiation and termination codons.
+initiation and termination codons. For example, B<ttttttatgccctaggggg> 
+will be translated to B<FFMP*G>
 
 However, the translate() method can also be passed several optional
 parameters to modify its behavior. For example, you can tell translate() 
@@ -1072,14 +1073,14 @@ L<Bio::Tools::CodonTable>. For example, for mitochondrial translation:
 
 If we want to translate full coding regions (CDS) the way major
 nucleotide databanks EMBL, GenBank and DDBJ do it, the translate()
-method has to perform more tricks. Specifically, translate() needs to
+method has to perform more checks. Specifically, translate() needs to
 confirm that the sequence has appropriate start and terminator codons
-at the beginning and the end of the sequence and that there are no
-terminator codons present within the sequence.  In addition, if the
-genetic code being used has an atypical (non-ATG) start codon, the
-translate() method needs to convert the initial amino acid to
-methionine.  These checks and conversions are triggered by setting
-"complete" to 1:
+at the very beginning and the very end of the sequence and that there
+are no terminator codons present within the sequence in frame 0.  
+In addition, if the genetic code being used has an atypical (non-ATG) 
+start codon, the translate() method needs to convert the initial amino
+acid to methionine.  These checks and conversions are triggered by 
+setting "complete" to 1:
 
   $prot_obj = $my_seq_object->translate(-complete => 1);
 
@@ -1097,12 +1098,14 @@ translate:
   $prot_obj = $my_seq_object->translate(-codontable => $table_obj);
 
 translate() can also find the open reading frame (ORF) starting at the
-1st initiation codon in the nucleotide sequence and translate that:
+1st initiation codon in the nucleotide sequence, regardless of its
+frame, and translate that:
 
   $prot_obj = $my_seq_object->translate(-orf => 1);
 
 Most of the codon tables used by translate() have other initiation codons
-in addition to ATG. To tell translate() to only use ATG as the initiation
+in addition to ATG, including the default codon table ("Standard"). 
+To tell translate() to only use ATG as the initiation
 codon set -atg to 1:
 
   $prot_obj = $my_seq_object->translate(-orf => 1,
