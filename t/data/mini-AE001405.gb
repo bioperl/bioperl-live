@@ -1,0 +1,61 @@
+LOCUS       AE001405               11389 bp    DNA     linear   INV 04-OCT-2002
+DEFINITION  Plasmodium falciparum 3D7 chromosome 2 section 42 of 73 of the
+            complete sequence.
+ACCESSION   AE001405 AE001362
+VERSION     AE001405.2  GI:23503395
+KEYWORDS    .
+SOURCE      Plasmodium falciparum 3D7
+  ORGANISM  Plasmodium falciparum 3D7
+            Eukaryota; Alveolata; Apicomplexa; Haemosporida; Plasmodium.
+REFERENCE   1  (bases 1 to 11389)
+  AUTHORS   Gardner,M.J., Tettelin,H., Carucci,D.J., Cummings,L.M., Aravind,L.,
+            Koonin,E.V., Shallom,S., Mason,T., Yu,K., Fujii,C., Pederson,J.,
+            Shen,K., Jing,J., Aston,C., Lai,Z., Schwartz,D.C., Pertea,M.,
+            Salzberg,S., Zhou,L., Sutton,G.G., Clayton,R., White,O.,
+            Smith,H.O., Fraser,C.M., Adams,M.D., Venter,J.C. and Hoffman,S.L.
+  TITLE     Chromosome 2 sequence of the human malaria parasite Plasmodium
+            falciparum
+  JOURNAL   Science 282 (5391), 1126-1132 (1998)
+   PUBMED   9804551
+REFERENCE   2  (bases 1 to 11389)
+  AUTHORS   Gardner,M.J., Hall,N., Fung,E., White,O., Berriman,M., Hyman,R.W.,
+            Carlton,J.M., Pain,A., Nelson,K.E., Bowman,S., Paulsen,I.T.,
+            James,K., Eisen,J.A., Rutherford,K., Salzberg,S.L., Craig,A.,
+            Kyes,S., Chan,M.S., Nene,V., Shallom,S.J., Suh,B., Peterson,J.,
+            Angiuoli,S., Pertea,M., Allen,J., Selengut,J., Haft,D.,
+            Mather,M.W., Vaidya,A.B., Martin,D.M., Fairlamb,A.H.,
+            Fraunholz,M.J., Roos,D.S., Ralph,S.A., McFadden,G.I.,
+            Cummings,L.M., Subramanian,G.M., Mungall,C., Venter,J.C.,
+            Carucci,D.J., Hoffman,S.L., Newbold,C., Davis,R.W., Fraser,C.M. and
+            Barrell,B.
+  TITLE     Genome sequence of the human malaria parasite Plasmodium falciparum
+  JOURNAL   Nature 419 (6906), 498-511 (2002)
+   PUBMED   12368864
+REFERENCE   3  (bases 1 to 11389)
+  AUTHORS   Gardner,M.J.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (02-OCT-2002) The Institute for Genomic Research, 9712
+            Medical Center Dr, Rockville, MD 20850, USA
+COMMENT     On Oct 4, 2002 this sequence version replaced gi:3845224.
+FEATURES             Location/Qualifiers
+     source          1..180
+                     /organism="Plasmodium falciparum 3D7"
+                     /mol_type="genomic DNA"
+                     /isolate="3D7"
+                     /db_xref="taxon:36329"
+                     /chromosome="2"
+     repeat_region   complement(<1..55)
+                     /rpt_type=tandem
+                     /rpt_unit=(TG)10;A;(TG)7
+     repeat_region   112..117
+                     /rpt_type=tandem
+                     /rpt_unit_seq="(TAAAA)n"
+     repeat_region   complement(116..119)
+                     /rpt_type=tandem
+                     /rpt_unit_seq="(TA)n"
+ORIGIN      
+        1 tattatattt ttattaaatg caaatatgtt gatatgtaca tatatatata tatatgatca
+       61 taatatattt catttttatc atttttaaag tgtttgttta tttatattta ttatttttaa
+      121 tttttttatt ttatttaatt attttttttt attttttaaa tttttgtgac aagtttatat
+//
+
