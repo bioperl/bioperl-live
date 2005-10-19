@@ -135,6 +135,9 @@ sub new {
 
 sub next_result{
     my ($self) = @_;
+    local $/ = "\n";
+    local $_;
+
     my ($curquery,$curhit);
     $self->start_document();
     my @hit_signifs;

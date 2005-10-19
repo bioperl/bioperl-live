@@ -144,6 +144,8 @@ sub _initialize {
 
 sub next_result{
     my ($self) = @_;
+    local $/ = "\n";
+    local $_;
     
     my ($curquery,$curhit);
     my $state = -1;

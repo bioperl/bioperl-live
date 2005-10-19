@@ -194,6 +194,9 @@ sub new {
 
 sub next_result{
    my ($self) = @_;
+   local $/ = "\n";
+   local $_;
+
    $self->{'_last_data'} = '';
    my ($reporttype,$seenquery,$reportline);
    $self->start_document();

@@ -195,6 +195,8 @@ sub _initialize {
 
 sub next_result{
    my ($self) = @_;
+   local $/ = "\n";
+   local $_;
 
    my $data = '';
    my $seentop = 0;

@@ -172,6 +172,8 @@ sub _initialize {
 
 sub next_result{
    my ($self) = @_;
+   local $/ = "\n";
+   local $_;
 
    return undef unless $self->wise;
    my $prediction = $self->wise->next_prediction;

@@ -154,6 +154,8 @@ $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 
 sub next_result {
     my ($self) = @_;
+    local $/ = "\n";
+    local $_;
 
     # Declare/adjust needed variables
     $self->{'_last_data'} = '';

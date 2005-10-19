@@ -209,6 +209,8 @@ sub _initialize{
 
 sub next_result {
     my ($self) = @_;
+    local $/ = "\n";
+    local $_;
  
     my $data = '';
     my $firstline = 1;
@@ -217,6 +219,7 @@ sub next_result {
 	$tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
 	$tfh->autoflush(1);
     }
+   
     my ($sawxmlheader,$okaytoprocess,$sawdoctype);
     while( defined( $_ = $self->_readline) ) {
 	if( /^RPS-BLAST/i ) {

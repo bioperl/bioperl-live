@@ -182,6 +182,8 @@ sub next_result{
    my $seentop = 0;
    my $reporttype;
    my ($last,@hitinfo,@hspinfo,%hspinfo,%hitinfo);
+   local $/ = "\n";
+   local $_;
    
    my @alignemnt_lines;
    my $verbose = $self->verbose; # cache for speed?

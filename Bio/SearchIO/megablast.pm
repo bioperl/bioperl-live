@@ -169,6 +169,9 @@ sub _initialize {
 
 sub next_result{
    my ($self) = @_;
+   
+   local $/ = "\n";
+   local $_;
 
    my $fmt = $self->report_format;
    my ($lastquery,$lasthit);
