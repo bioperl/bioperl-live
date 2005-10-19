@@ -1103,19 +1103,19 @@ frame, and translate that:
 
   $prot_obj = $my_seq_object->translate(-orf => 1);
 
-Most of the codon tables used by translate() have other initiation codons
-in addition to ATG, including the default codon table ("Standard"). 
-To tell translate() to only use ATG as the initiation
-codon set -atg to 1:
+Most of the codon tables used by translate() have initiation codons
+in addition to ATG, including the default codon table, NCBI "Standard". 
+To tell translate() to use only ATG, or atg, as the initiation
+codon set -start to "atg":
 
   $prot_obj = $my_seq_object->translate(-orf => 1,
-                                        -atg => 1 );
+                                        -start => "atg" );
 
-The -atg argument only applies when -orf is set to 1.
+The -start argument only applies when -orf is set to 1.
 
 Last trick. By default translate() will translate the termination codon
-to some special character (the default is *, but this can be reset using the
--terminator argument).
+to some special character (the default is *, but this can be reset using
+the -terminator argument).
 
 When -complete is set to 1 this character is removed. So, with this:
 

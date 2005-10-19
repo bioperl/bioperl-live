@@ -17,9 +17,8 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 =head1 SYNOPSIS
 
     # Bio::PrimarySeqI is the interface class for sequences.
-    # If you are a newcomer to bioperl, you should start with Bio::Seq 
-    # documentation. This documentation is mainly for developers using
-    # Bioperl.
+    # If you are a newcomer to bioperl, you might want to start with 
+    # Bio::Seq documentation.
 
     # Test if this is a seq object
     $obj->isa("Bio::PrimarySeqI") ||
@@ -494,13 +493,14 @@ sub trunc{
            -complete      - complete CDS expected           default is 0
            -throw         - throw exception if not complete default is 0
            -orf           - find 1st ORF                    default is 0
-           -atg           - use only ATG as initiator       default is 0
+           -start         - alternative initiation codon
            -codontable    - Bio::Tools::CodonTable object
 
- Notes   : The -atg argument only applies when -orf is set to 1. Otherwise
-           all initiation codons found in the given codon table are used.
-           Note that the default codon table here and at NCBI ("Standard") 
-           has 3 initiation codons!
+ Notes   : The -start argument only applies when -orf is set to 1. By default
+           all initiation codons found in the given codon table are used
+           but when "start" is set to some codon this codon will be used
+           exclusively as the initiation codon. Note that the default codon 
+           table (NCBI "Standard") has 3 initiation codons!
 
            By default translate() translates termination codons to 
            the some character (default is *), both internal and trailing
@@ -526,17 +526,18 @@ For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 sub translate {
 	 my ($self,@args) = @_;
 	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, 
-		  $codonTable, $orf, $atg);
+		  $codonTable, $orf, $start_codon);
 	 
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
 		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, 
-		  $codonTable, $orf, $atg) =
+		  $codonTable, $orf, $start_codon) =
 			 $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID 
-										  COMPLETE THROW CODONTABLE ORF ATG)], @args);
+										  COMPLETE THROW CODONTABLE ORF START)], @args);
 	 ## old API, 1.5.1 and preceding versions
 	 } else {
-		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, $codonTable) = @args;
+		 ($terminator, $unknown, $frame, $codonTableId, 
+		  $complete, $throw, $codonTable) = @args;
 	 }
 
     ## Initialize termination codon, unknown codon, codon table id, frame
@@ -555,15 +556,21 @@ sub translate {
 
     ## Error if alphabet is "protein"
     $self->throw("Can't translate an amino acid sequence.") if
-		($self->alphabet eq 'protein');
+		($self->alphabet =~ /protein/i);
+
+    ## Error if -start parameter isn't a valid codon
+	 if ($start_codon) {
+		 $self->throw("Invalid start codon: $start_codon.") if 
+			( $start_codon !~ /^[A-Z]{3}$/i );
+	 }
 
     my ($seq) = $self->seq();
 
     ## ignore frame if an ORF is supposed to be found
 	 if ($orf) {
-		 $seq = $self->_find_orf($seq,$codonTable,$atg);
+		 $seq = $self->_find_orf($seq,$codonTable,$start_codon);
 	 } else {
-	 ## Error if frame is not 0, 1 or 2
+	 ## use frame, error if frame is not 0, 1 or 2
 		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.") 
 			unless ($frame == 0 or $frame == 1 or $frame == 2);
 		 $seq = substr($seq,$frame);
@@ -697,18 +704,19 @@ need to implement these functions
            The ORF is not required to have a termination codon.
  Example :
  Returns : A nucleotide sequence or nothing, if no initiation codon is found.
- Args    : Nucleotide sequence, CodonTable object, optional argument to use ATG.
+ Args    : Nucleotide sequence, CodonTable object, alternative initiation 
+           codon (optional).
 
 =cut
 
 sub _find_orf {
-	my ($self,$sequence,$codonTable,$atg) = @_;
+	my ($self,$sequence,$codonTable,$start_codon) = @_;
 	
 	# find initiation codon and remove leading sequence
 	while ($sequence) {
 		my $codon = substr($sequence,0,3);
-		if ($atg) {
-			last if ( $codon =~ /atg/i );	
+		if ($start_codon) {
+			last if ( $codon =~ /$start_codon/i );	
 		} else {
 			last if ($codonTable->is_start_codon($codon));
 		}

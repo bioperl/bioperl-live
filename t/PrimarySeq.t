@@ -158,7 +158,7 @@ ok $aa->seq, 'M', "Translation: ". $aa->seq;
 # Ignore non-ATG initiators (e.g. TTG) in codon table
 $seq->seq("ggggggttgatgtagcccc"); # atg tag
 $aa = $seq->translate(-orf => 1,
-							 -atg => 1,
+							 -start => "atg",
 							 -complete => 1);
 ok $aa->seq, 'M', "Translation: ". $aa->seq;
 
