@@ -69,8 +69,6 @@ sub draw_component {
   my $strand = $f->strand;
   my $str    = $strand * ($self->{flip} ? -1 : 1);
 
-  warn $f->name," strand = $strand";
-
   my $width = abs($rect[2] - $rect[0]);
   my $filled = defined($self->{partno}) && $width >= MIN_WIDTH_FOR_ARROW;
   my ($pwidth) = $gd->getBounds;
