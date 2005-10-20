@@ -1,33 +1,26 @@
 # $Id$
 #
 # BioPerl module for Bio::AlignIO::fasta
-
-#	based on the Bio::SeqIO::fasta module
-#       by Ewan Birney <birney@sanger.ac.uk>
-#       and Lincoln Stein  <lstein@cshl.org>
-#
-#       and the SimpleAlign.pm module of Ewan Birney
 #
 # Copyright Peter Schattner
 #
 # You may distribute this module under the same terms as perl itself
-# _history
-# September 5, 2000
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::AlignIO::fasta - FastA MSA Sequence input/output stream
+Bio::AlignIO::fasta - fasta MSA Sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
+Do not use this module directly.  Use it via the L<Bio::AlignIO> 
+class.
 
 =head1 DESCRIPTION
 
 This object can transform L<Bio::SimpleAlign> objects to and from
-fasta flat file databases.  This is for the fasta sequence format NOT
-FastA analysis program.  To process the pairwise alignments from a
+fasta flat file databases.  This is for the fasta alignment format, not
+for the FastA sequence analysis program.  To process the alignments from
 FastA (FastX, FastN, FastP, tFastA, etc) use the Bio::SearchIO module.
 
 =head1 FEEDBACK
@@ -40,10 +33,9 @@ web:
 
   http://bugzilla.bioperl.org/
 
-=head1 AUTHORS - Peter Schattner
+=head1 AUTHORS
 
-Email: schattner@alum.mit.edu
-
+Peter Schattner
 
 =head1 APPENDIX
 
@@ -70,106 +62,97 @@ $MATCHPATTERN = '^A-Za-z\.\-';
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
-	    or on error
+ Returns : Bio::Align::AlignI object - returns 0 on end of file
+	        or on error
  Args    : NONE
 
 =cut
 
 sub next_aln {
-    my $self = shift;
-    my $entry;
-    my ($start,$end,$name,$seqname,$seq,$seqchar,$tempname,$tempdesc,
-	%align,$desc);
-    my $aln =  Bio::SimpleAlign->new();
-    my $maxlen;
-    while(defined ($entry = $self->_readline) ) {
-	if( $entry =~ s/^>(\S+)\s*// ) {
-	    $tempname  = $1;
-	    chomp($entry);
-	    $tempdesc  = $entry;
-	    if( defined $name ) {
-		# put away last name and sequence
-		if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
-		    $seqname = $1;
-		    $start = $2;
-		    $end = $3;
-		} else {
-		    $seqname=$name;
-		    $start = 1;
-		    $end = length($seqchar); #ps 9/6/00
+	my $self = shift;
+	my ($start, $end, $name, $seqname, $seq, $seqchar, $entry, 
+		 $tempname, $tempdesc, %align, $desc, $maxlen);
+	my $aln =  Bio::SimpleAlign->new();
+
+	while (defined ($entry = $self->_readline) ) {
+		if ( $entry =~ s/^>\s*(\S+)\s*// ) {
+			$tempname  = $1;
+			chomp($entry);
+			$tempdesc = $entry;
+			if ( defined $name ) {
+				# put away last name and sequence
+				if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+					$seqname = $1;
+					$start = $2;
+					$end = $3;
+				} else {
+					$seqname = $name;
+					$start = 1;
+					$end = $self->_get_len($seqchar);
+				}
+				$seq = new Bio::LocatableSeq(
+						  -seq         => $seqchar,
+					     -display_id  => $seqname,
+					     -description => $desc,
+					     -start       => $start,
+					     -end         => $end,
+													 );
+				$aln->add_seq($seq);
+				$self->debug("Reading $seqname");
+			}
+			$desc = $tempdesc;	
+			$name = $tempname;
+			$desc = $entry;
+			$seqchar  = "";
+			next;
 		}
-#		print STDERR  "Going to add with $seqchar $seqname\n";
-		$seq = new Bio::LocatableSeq('-seq'        =>$seqchar,
-					     '-display_id' =>$seqname,
-					     '-description'=>$desc,
-					     '-start'      =>$start,
-					     '-end'        =>$end,
-					     );
-		$aln->add_seq($seq);
-                $self->debug("Reading $seqname");
-	    }
-	    $desc = $tempdesc;	
-	    $name = $tempname;
-	    $desc = $entry;
-	    $seqchar  = "";
-	    next;
+		$entry =~ s/[$MATCHPATTERN]//g;
+		$seqchar .= $entry;	
 	}
-	$entry =~ s/[$MATCHPATTERN]//g;
-	$seqchar .= $entry;	
-    }
-#
-#  Next two lines are to silence warnings that
-#  otherwise occur at EOF when using <$fh>
 
-   if (!defined $name) {$name="";}
-   if (!defined $seqchar) {$seqchar="";}
-
-#  Put away last name and sequence
-    if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
-	$seqname = $1;
-	$start = $2;
-	$end = $3;
-    } else {
-	$seqname=$name;
-	$start = 1;
-	$end = length($seqchar);   #ps 9/6/00
-#	$end = length($align{$name});
-    }
-
-
-#  If $end <= 0, we have either reached the end of
-#  file in <> or we have encountered some other error
-#
-   if ($end <= 0) { undef $aln; return $aln;}
-
-# This logic now also reads empty lines at the 
-# end of the file. Skip this is seqchar and seqname is null
-
-    if( length($seqchar) == 0 && length($seqname) == 0 ) {
-	# skip
-    } else {
-#	print STDERR "end to add with $seqchar $seqname\n";
-	$seq = new Bio::LocatableSeq('-seq'        => $seqchar,
-				     '-display_id' => $seqname,
-				     '-description'=> $desc,
-				     '-start'      => $start,
-				     '-end'        => $end,
-				     );
+	#  Next two lines are to silence warnings that
+	#  otherwise occur at EOF when using <$fh>
+   $name = "" if (!defined $name);
+   $seqchar="" if (!defined $seqchar);
 	
-	$aln->add_seq($seq);
-    }
-    $self->debug("Reading $seqname");
-    my $alnlen = $aln->length;
-    foreach my $seq ( $aln->each_seq ) {
-	if( $seq->length < $alnlen ) {
-	    my ($diff) = ($alnlen - $seq->length);
-	    $seq->seq( $seq->seq() . "-" x $diff);
+	#  Put away last name and sequence
+	if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+		$seqname = $1;
+		$start = $2;
+		$end = $3;
+	} else {
+		$seqname = $name;
+		$start = 1;
+		$end = $self->_get_len($seqchar);
 	}
-    }
 
+	#  If $end <= 0, we have either reached the end of
+	#  file in <> or we have encountered some other error
+   if ( $end <= 0 ) { 
+		undef $aln; 
+		return $aln;
+	}
+	
+	# This logic now also reads empty lines at the 
+	# end of the file. Skip this is seqchar and seqname is null
+	unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
+		$seq = new Bio::LocatableSeq(-seq         => $seqchar,
+											  -display_id  => $seqname,
+											  -description => $desc,
+											  -start       => $start,
+											  -end         => $end,
+											 );
+		$aln->add_seq($seq);
+	}
+	$self->debug("Reading $seqname");
+	my $alnlen = $aln->length;
+	foreach my $seq ( $aln->each_seq ) {
+		if ( $seq->length < $alnlen ) {
+			my ($diff) = ($alnlen - $seq->length);
+			$seq->seq( $seq->seq() . "-" x $diff);
+		}
+	}
     return $aln;
-
 }
 	
 
@@ -179,8 +162,9 @@ sub next_aln {
  Usage   : $stream->write_aln(@aln)
  Function: writes the $aln object into the stream in fasta format
  Returns : 1 for success and 0 for error
- Args    : L<Bio::Align::AlignI> object
+ Args    : Bio::Align::AlignI object
 
+See <Bio::Align::AlignI>
 
 =cut
 
@@ -212,6 +196,22 @@ sub write_aln {
     }
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return 1;
+}
+
+=head2 _get_len
+
+ Title   : _get_len
+ Usage   : 
+ Function: determine number of alphabetic chars
+ Returns : integer
+ Args    : sequence string
+
+=cut
+
+sub _get_len {
+	my ($self,$seq) = @_;
+	$seq =~ s/[^A-Z]//gi;
+	return CORE::length($seq);
 }
 
 1;
