@@ -50,6 +50,7 @@ Arguments are as follows:
   -stop        an alias for end
   -name        the feature name (returned by seqname())
   -type        the feature type (returned by primary_tag())
+  -primary_tag the same as -type
   -source      the source tag
   -desc        a description of the feature
   -segments    a list of subfeatures (see below)
@@ -149,6 +150,7 @@ use vars '@ISA';
 *method      = \&type;
 *source      = \&source_tag;
 *get_tag_values = \&each_tag_value;
+*add_SeqFeature = \&add_segment;
 
 # implement Bio::SeqI and FeatureHolderI interface
 
@@ -208,7 +210,7 @@ sub new {
   }
   $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} 
     || $arg{-display_name} || $arg{-id} || $arg{-primary_id};
-  $self->{type}    = $arg{-type}   || 'feature';
+  $self->{type}    = $arg{-type}   || $arg{-primary_tag} || 'feature';
   $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
   $self->{score}   = $arg{-score}   if exists $arg{-score};
@@ -260,7 +262,7 @@ sub add_segment {
 				-type   => $type,
 			        -name   => $name,
 			        -class  => $class);
-    } else {
+    } elsif (ref $seg) {
       push @segments,$seg;
     }
   }
