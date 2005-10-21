@@ -78,7 +78,7 @@
     </para>
     <para>
       The HOWTO will discuss these objects and the differences
-      between them. I'll also show how to get useful data from these
+      between them. There's also discussion of how to get useful data from these
       objects and discuss the basics of how to annotate sequence
       using the objects. 
     </para>
@@ -516,9 +516,13 @@ FEATURES             Location/Qualifiers
     </para>
     <para>
     </para>
+  </section>
+
+  <section id="compact-code">
+	 <title>Compact Code</title>
     <para>
       Many people wouldn't write code in the rather deliberate style
-      I've used above. The following is more compact code
+       used above. The following is more compact code
       that gets all the features with a primary tag of 'CDS',
       starting with a Genbank file:
     </para>
