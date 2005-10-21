@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 109;
+	plan tests => 113;
 }
 
 use Bio::SeqIO;
@@ -120,6 +120,19 @@ eval {
 };
 
 ok(! $@ );
+
+# bug 1647 rpt_unit sub-feature with multiple parens
+$str = Bio::SeqIO->new(-format => 'genbank',
+							  -verbose => $verbose,
+                       -file => Bio::Root::IO->catfile
+							  (qw(t data mini-AE001405.gb) ));
+ok($seq = $str->next_seq);
+my @rpts = grep { $_->primary_tag eq 'repeat_region' }
+  $seq->get_SeqFeatures;
+ok $#rpts, 2;
+my @rpt_units = map {$_->get_tag_values('rpt_unit')} @rpts;
+ok $#rpt_units, 0;
+ok $rpt_units[0],'(TG)10;A;(TG)7';
 
 # test bug #1673 , RDB-II genbank files
 $str = Bio::SeqIO->new(-format => 'genbank',
