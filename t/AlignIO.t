@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 152;
+	plan tests => 153;
 }
 
 use Bio::SimpleAlign;
@@ -87,14 +87,18 @@ ok $status, 1, "  failed msf output test";
 
 # FASTA
 $str = Bio::AlignIO->new(
-    '-file' => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
-			   '-format' => 'fasta');
+		 -file => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
+		 -format => 'fasta');
 $aln = $str->next_aln();
-ok $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', " failed fasta input test ";
+ok $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', 
+  " failed fasta input test ";
 ok ($aln->get_seq_by_pos(1)->description, 'DESCRIPTION HERE', 
     " failed fasta input test for description");
 ok ($aln->get_seq_by_pos(11)->display_id, 'AK_YEAST',
     " failed fasta input test for id");
+
+ok ($aln->get_seq_by_pos(2)->end, 318,
+    " failed fasta input test for end");
 
 ok ($aln->get_seq_by_pos(11)->description, 'A COMMENT FOR YEAST', 
     " failed fasta input test for description");
