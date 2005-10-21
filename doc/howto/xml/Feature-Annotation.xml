@@ -591,15 +591,16 @@ FEATURES             Location/Qualifiers
 	  <thead>
 	    <row><entry>Type</entry><entry>Example</entry></row>
 	  </thead>
-	  <tbody>
-	    <row><entry>EXACT</entry><entry>(5..100)</entry></row>
-	    <row><entry>BEFORE</entry><entry>(&lt;5..100)</entry></row>
-	    <row><entry>AFTER</entry><entry>(&gt;5..100)</entry></row>
-	    <row><entry>WITHIN</entry><entry>((5.10)..100)</entry></row>
-	    <row><entry>BETWEEN</entry><entry>(99^100)</entry></row>
-	  </tbody>
-	</tgroup>
-      </table>
+		  <tbody>
+			 <row><entry>EXACT</entry><entry>(5..100)</entry></row>
+			 <row><entry>BEFORE</entry><entry>(&lt;5..100)</entry></row>
+			 <row><entry>AFTER</entry><entry>(&gt;5..100)</entry></row>
+			 <row><entry>WITHIN</entry><entry>((5.10)..100)</entry></row>
+			 <row><entry>BETWEEN</entry><entry>(99^100)</entry></row>
+			 <row><entry>UNCERTAIN</entry><entry>(99.?100)</entry></row>
+		  </tbody>
+		</tgroup>
+	 </table>
     <para>
       One type that might not be self-explanatory is 'WITHIN'. The
       example means "starting somewhere between positions 5 and 10,
@@ -608,6 +609,10 @@ FEATURES             Location/Qualifiers
       of such a location would be a cleavage site, between two bases
       or residues, but not including them.
     </para>
+	 <para>
+		The UNCERTAIN attribute means what it says, not known. This
+		value is found in SwissProt features.
+	 </para>
     <para>
       In their simplest form the Location objects are used to get or
       set start and end positions, getting the positions could

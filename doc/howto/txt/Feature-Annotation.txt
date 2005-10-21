@@ -411,12 +411,13 @@ FEATURES             Location/Qualifiers
    precisely defined. You'll also find methods like union() and
    intersection() that act on pairs of ranges. The table below is meant
    to illustrate some of the modules' capabilities.
-    Type      Example
-   EXACT   (5..100)
-   BEFORE  (<5..100)
-   AFTER   (>5..100)
-   WITHIN  ((5.10)..100)
-   BETWEEN (99^100)
+     Type       Example
+   EXACT     (5..100)
+   BEFORE    (<5..100)
+   AFTER     (>5..100)
+   WITHIN    ((5.10)..100)
+   BETWEEN   (99^100)
+   UNCERTAIN (99.?100)
 
    Table 3. Location Examples
 
@@ -426,6 +427,9 @@ FEATURES             Location/Qualifiers
    99 and 100, exclusive". A biological example of such a location would
    be a cleavage site, between two bases or residues, but not including
    them.
+
+   The UNCERTAIN attribute means what it says, not known. This value is
+   found in SwissProt features.
 
    In their simplest form the Location objects are used to get or set
    start and end positions, getting the positions could look like this:
