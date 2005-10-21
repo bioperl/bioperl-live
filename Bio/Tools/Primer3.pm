@@ -292,7 +292,6 @@ sub primer_stream {
 }
 
 
-
 =head2 next_primer
 
   Title   : next_primer()
@@ -319,27 +318,34 @@ sub next_primer {
 		#return;
 	}
  
-	my $next=0;
-	if ($self->{'next_to_return'}) {$next=$self->{'next_to_return'}}
-	if ($next>$self->{'maximum_primers_returned'}) {return}
-	my $results=$self->primer_results($next);
-	unless (${$results}{'PRIMER_LEFT_SEQUENCE'}) {$self->throw("No left primer sequence")}
-	unless (${$results}{'PRIMER_RIGHT_SEQUENCE'}) {$self->throw("No right primer sequence")}
-	unless ($self->{'seqobject'}) {$self->throw("No target sequence")}
+	my $next = 0;
+	$next = $self->{'next_to_return'} if ($self->{'next_to_return'});
+	return if ($next > $self->{'maximum_primers_returned'});
+	my $results = $self->primer_results($next);
 
-	my $left_seq  = Bio::SeqFeature::Primer->new(-primer_sequence_id=>"left_primer", 
-																-sequence=>${$results}{'PRIMER_LEFT_SEQUENCE'});
-	my $right_seq = Bio::SeqFeature::Primer->new(-primer_sequence_id=>"right_primer", 
-																-sequence=>${$results}{'PRIMER_RIGHT_SEQUENCE'});
+	$self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'}); 
+	$self->throw("No right primer sequence") unless (${$results}{'PRIMER_RIGHT_SEQUENCE'});
+	$self->throw("No target sequence") unless ($self->{'seqobject'});
+
+	my $left_seq  = Bio::SeqFeature::Primer->new(
+                                   -primer_sequence_id => "left_primer", 
+											  -sequence => ${$results}{'PRIMER_LEFT_SEQUENCE'});
+	my $right_seq = Bio::SeqFeature::Primer->new(
+											  -primer_sequence_id => "right_primer", 
+											  -sequence => ${$results}{'PRIMER_RIGHT_SEQUENCE'});
  
 	my %product_hash; my %primer_left_hash; my %primer_right_hash;
 	# now we are going to add the remaining primer3 results to the appropriate place 
-	#(either primer or primed seq)
+	# (either primer or primed seq)
 	foreach my $key (keys %$results) {
 		next if ($key eq 'PRIMER_LEFT_SEQUENCE' || $key eq 'PRIMER_RIGHT_SEQUENCE');
-		if ($key =~ /PRIMER_LEFT/i) {$primer_left_hash{$key}=$$results{$key}}
-		elsif ($key =~ /PRIMER_RIGHT/i) {$primer_right_hash{$key}=$$results{$key}}
-		else {$product_hash{$key}=$$results{$key}}
+		if ($key =~ /PRIMER_LEFT/i) {
+			$primer_left_hash{$key} = $$results{$key};
+		} elsif ($key =~ /PRIMER_RIGHT/i) {
+			$primer_right_hash{$key} = $$results{$key};
+		} else {
+			$product_hash{$key} = $$results{$key};
+		}
 	}
 	#$left_seq->add_tag_value(%primer_left_hash);
 	#$right_seq->add_tag_value(%primer_right_hash);
@@ -353,14 +359,14 @@ sub next_primer {
 	}
 	# wait till tags have been added to each of the primer sequences
 	# before creating the primed seq
-	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence=>$self->{'seqobject'}, 
-															-left_primer=>$left_seq, 
-															-right_primer=>$right_seq);
+	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => $self->{'seqobject'}, 
+															-left_primer => $left_seq, 
+															-right_primer => $right_seq);
 	while (my ($k, $v) = each %product_hash) {
 		$primed_seq->add_tag_value($k, $v);
 	}
  
-	$self->{'next_to_return'}=$next+1;
+	$self->{'next_to_return'} = $next + 1;
 	return $primed_seq;
 }
 
