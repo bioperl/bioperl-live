@@ -639,16 +639,17 @@ start: 1
    shows what sorts of objects, Annotation or SeqFeature, you'll get when
    you parse other sequence formats using Bio::SeqIO.
 
-    Format   SeqIO name SeqFeature Annotation
-   Genbank   embl       yes        yes
-   EMBL      genbank    yes        yes
-   GAME      game       yes        -
-   Chado XML chadoxml   yes        yes
-   TIGR XML  tigr       yes        yes
-   Locuslink locuslink  -          yes
-   BSML      bsml       yes        yes
-   KEGG      kegg       yes        yes
-   SwissProt swiss      yes        yes
+     Format    SeqIO name SeqFeature Annotation
+   Genbank     embl       yes        yes
+   EMBL        genbank    yes        yes
+   GAME        game       yes        no
+   Chado XML   chadoxml   yes        yes
+   TIGR XML    tigr       yes        yes
+   Locuslink   locuslink  no         yes
+   BSML        bsml       yes        yes
+   KEGG        kegg       yes        yes
+   SwissProt   swiss      yes        yes
+   Entrez Gene entrezgene no         yes
 
    Table 6. Formats, SeqFeatures, and Annotations
 

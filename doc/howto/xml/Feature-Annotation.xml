@@ -952,33 +952,35 @@ start: 1
     </para>
     <para>
       <table>
-	<title>Formats, SeqFeatures, and Annotations</title>
-	<tgroup cols="4">
-	  <thead>
-	    <row><entry>Format</entry><entry>SeqIO name</entry>
-	      <entry>SeqFeature</entry><entry>Annotation</entry></row>  
-	  </thead>
-	  <tbody>
-	    <row><entry>Genbank</entry><entry>embl</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>EMBL</entry><entry>genbank</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>GAME</entry><entry>game</entry><entry>yes</entry>
-	      <entry>-</entry></row>
-	    <row><entry>Chado XML</entry><entry>chadoxml</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>TIGR XML</entry><entry>tigr</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>Locuslink</entry><entry>locuslink</entry><entry>-</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>BSML</entry><entry>bsml</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>KEGG</entry><entry>kegg</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	    <row><entry>SwissProt</entry><entry>swiss</entry><entry>yes</entry>
-	      <entry>yes</entry></row>
-	  </tbody>
-	</tgroup>
+		  <title>Formats, SeqFeatures, and Annotations</title>
+		  <tgroup cols="4">
+			 <thead>
+				<row><entry>Format</entry><entry>SeqIO name</entry>
+				  <entry>SeqFeature</entry><entry>Annotation</entry></row>  
+			 </thead>
+			 <tbody>
+				<row><entry>Genbank</entry><entry>embl</entry><entry>yes</entry>
+				  <entry>yes</entry></row>
+				<row><entry>EMBL</entry><entry>genbank</entry><entry>yes</entry>
+				  <entry>yes</entry></row>
+				<row><entry>GAME</entry><entry>game</entry><entry>yes</entry>
+				  <entry>no</entry></row>
+				<row><entry>Chado XML</entry><entry>chadoxml</entry>
+				  <entry>yes</entry><entry>yes</entry></row>
+				<row><entry>TIGR XML</entry><entry>tigr</entry><entry>yes</entry>
+				  <entry>yes</entry></row>
+				<row><entry>Locuslink</entry><entry>locuslink</entry>
+				  <entry>no</entry><entry>yes</entry></row>
+				<row><entry>BSML</entry><entry>bsml</entry><entry>yes</entry>
+				  <entry>yes</entry></row>
+				<row><entry>KEGG</entry><entry>kegg</entry><entry>yes</entry>
+				  <entry>yes</entry></row>
+				<row><entry>SwissProt</entry><entry>swiss</entry><entry>yes</entry>
+				  <entry>yes</entry></row>
+				<row><entry>Entrez Gene</entry><entry>entrezgene</entry>
+				  <entry>no</entry><entry>yes</entry></row>
+			 </tbody>
+		  </tgroup>
       </table>
     </para>
     <para>
