@@ -13,19 +13,18 @@ use vars qw($NUMTESTS);
 my $error;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $error = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test; };
+	$error = 0;
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
 
-    $NUMTESTS = 71;
-    plan tests => $NUMTESTS;
-
+	$NUMTESTS = 73;
+	plan tests => $NUMTESTS;
 }
 
 use Bio::Cluster::UniGene;
@@ -34,8 +33,8 @@ use Bio::ClusterIO;
 my ($str, $unigene); # predeclare variables for strict
 
 
-$str = Bio::ClusterIO->new('-file' => Bio::Root::IO->catfile("t","data","unigene.data"), '-format' => "unigene");
-
+$str = Bio::ClusterIO->new('-file' => Bio::Root::IO->catfile(
+				"t","data","unigene.data"), '-format' => "unigene");
 ok $str;
 
 ok ( defined ($unigene = $str->next_cluster()));
@@ -126,7 +125,6 @@ ok($accession, 'AI262683');
 my $version = $seq->seq_version();
 ok($version, "1");
 
-
 # test the sequence parsing is working
 my $ac = $seq->annotation();
 my $simple_ann_object;
@@ -134,7 +132,13 @@ my $simple_ann_object;
 ok $simple_ann_object;
 ok($simple_ann_object->value(), 'EST', 'seqtype was ' . $simple_ann_object->value);	
 
-
+# test PERIPHERAL, bug 1708
+$seq = $unigene->next_seq;
+$accession = $seq->accession_number;
+ok($accession, 'CB161982');
+#$ac = $seq->annotation();
+my @acs = $seq->annotation->get_Annotations('peripheral');
+ok $acs[0], 1;
 
 # tests not specific to unigene record provided in the unigene.data file
 my @locuslink_test = ( "58473", "5354" );
