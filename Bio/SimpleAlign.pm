@@ -19,23 +19,23 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
 
 =head1 SYNOPSIS
 
-  # use Bio::AlignIO to read in the alignment
-  $str = Bio::AlignIO->new('-file' => 't/data/testaln.pfam');
+  # Use Bio::AlignIO to read in the alignment
+  $str = Bio::AlignIO->new(-file => 't/data/testaln.pfam');
   $aln = $str->next_aln();
 
-  # some descriptors
-  print $aln->length, "\n";
-  print $aln->no_residues, "\n";
-  print $aln->is_flush, "\n";
-  print $aln->no_sequences, "\n";
-  print $aln->score, "\n";
-  print $aln->percentage_identity, "\n";
-  print $aln->consensus_string(50), "\n";
+  # Describe
+  print $aln->length;
+  print $aln->no_residues;
+  print $aln->is_flush;
+  print $aln->no_sequences;
+  print $aln->score;
+  print $aln->percentage_identity;
+  print $aln->consensus_string(50);
 
-  # find the position in the alignment for a sequence location
+  # Find the position in the alignment for a sequence location
   $pos = $aln->column_from_residue_number('1433_LYCES', 14); # = 6;
 
-  # extract sequences and check values for the alignment column $pos
+  # Extract sequences and check values for the alignment column $pos
   foreach $seq ($aln->each_seq) {
       $res = $seq->subseq($pos, $pos);
       $count{$res}++;
@@ -44,41 +44,43 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
       printf "Res: %s  Count: %2d\n", $res, $count{$res};
   }
 
+  # Manipulate
+  $aln->remove_seq($seq);
+  $mini_aln = $aln->slice(20,30);  # get a block of columns
+  $mini_aln = $aln->select_noncont(1,3,5,7,11); # get single columns
+  $new_aln = $aln->remove_columns([20,30]); # or
+  $new_aln = $aln->remove_columns(['mismatch']);
+
+  # Analyze
+  $str = $aln->consensus_string($threshold_percent);
+  $str = $aln->match_line();
+  $str = $aln->cigar_line()
+  $id = $aln->percentage_identity;
+  
+See the module documentation for details and more methods.
 
 =head1 DESCRIPTION
 
 SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it won't insist on things being all same length,
+permissive of types (it does not insist on things being all same length,
 for example). Think of it as a set of sequences held in memory with a
 whole series of built-in manipulations and methods for reading and 
 writing alignments.
 
-SimpleAlign basically views an alignment as an immutable block of
-text.  SimpleAlign *is not* the object to be using if you want to
-perform complex alignment manipulations.
-
-However for lightweight displaying and formatting and minimal manipulation
-(e.g. removing all-gaps columns) this is the one to use.
-
 SimpleAlign uses L<Bio::LocatableSeq>, a subclass of L<Bio::PrimarySeq>,
-to store its sequences. These are subsequences
-with a start and end positions in the parent reference sequence.
+to store its sequences. These are subsequences with a start and end 
+positions in the parent reference sequence.
 
-Tricky concepts. SimpleAlign expects name, start, and end to be 'unique'
+SimpleAlign expects name, start, and end to be 'unique'
 in the alignment, and this is the key for the internal hashes
 (name, start, end are abbreviated 'nse' in the code). However, in many
-cases people don't want the name/start-end to be displayed: either
+cases people do not want the name/start-end to be displayed: either
 multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
 
 The SimpleAlign Module came from Ewan Birney's Align module.
-
-=head1 PROGRESS
-
-SimpleAlign is being slowly converted to bioperl coding standards,
-mainly by Ewan.
 
 =over 3
 
@@ -123,7 +125,7 @@ Allen Smith, allens-at-cpan.org,
 Jason Stajich, jason-at-bioperl.org, 
 Anthony Underwood, aunderwood-at-phls.org.uk, 
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
-
+Brian Osborne, osborne1 at optonline.net
 
 =head1 SEE ALSO
 
@@ -143,7 +145,7 @@ use vars qw(@ISA %CONSERVATION_GROUPS);
 use strict;
 
 use Bio::Root::Root;
-use Bio::LocatableSeq;         # uses Seq's as list
+use Bio::LocatableSeq;  # uses Seq's as list
 use Bio::Align::AlignI;
 
 use Bio::Seq;
@@ -156,7 +158,9 @@ BEGIN {
     # Gonnet Pam250 matrix. The strong and weak groups are
     # defined as strong score >0.5 and weak score =<0.5 respectively.
 
-    %CONSERVATION_GROUPS = ( 'strong' => [ qw(STA
+    %CONSERVATION_GROUPS = ( 
+            'strong' => [ qw(
+						 STA
 						 NEQK
 						 NHQK
 						 NDEQ
@@ -164,9 +168,9 @@ BEGIN {
 						 MILV
 						 MILF
 						 HY
-						 FYW)
-					      ],
-				'weak' => [ qw(CSA
+						 FYW )],
+				'weak' => [ qw(
+                      CSA
 					       ATV
 					       SAG
 					       STNK
@@ -176,9 +180,7 @@ BEGIN {
 					       NDEQHK
 					       NEQHRK
 					       FVLIM
-					       HFY) ],
-				);
-
+					       HFY )],);
 }
 
 @ISA = qw(Bio::Root::Root Bio::Align::AlignI);
@@ -474,16 +476,15 @@ sub eachSeq {
 }
 
 sub each_seq {
-    my $self = shift;
-    my (@arr,$order);
+	my $self = shift;
+	my (@arr,$order);
 
-    foreach $order ( sort { $a <=> $b } keys %{$self->{'_order'}} ) {
-	if( exists $self->{'_seq'}->{$self->{'_order'}->{$order}} ) {
-	    push(@arr,$self->{'_seq'}->{$self->{'_order'}->{$order}});
+	foreach $order ( sort { $a <=> $b } keys %{$self->{'_order'}} ) {
+		if( exists $self->{'_seq'}->{$self->{'_order'}->{$order}} ) {
+			push(@arr,$self->{'_seq'}->{$self->{'_order'}->{$order}});
+		}
 	}
-    }
-
-    return @arr;
+	return @arr;
 }
 
 
@@ -500,20 +501,18 @@ sub each_seq {
 =cut
 
 sub each_alphabetically {
-    my $self = shift;
-    my ($seq,$nse,@arr,%hash,$count);
+	my $self = shift;
+	my ($seq,$nse,@arr,%hash,$count);
 
-    foreach $seq ( $self->each_seq() ) {
-	$nse = $seq->get_nse;
-	$hash{$nse} = $seq;
-    }
+	foreach $seq ( $self->each_seq() ) {
+		$nse = $seq->get_nse;
+		$hash{$nse} = $seq;
+	}
 
-    foreach $nse ( sort _alpha_startend keys %hash) {
-	push(@arr,$hash{$nse});
-    }
-
-    return @arr;
-
+	foreach $nse ( sort _alpha_startend keys %hash) {
+		push(@arr,$hash{$nse});
+	}
+	return @arr;
 }
 
 sub _alpha_startend {
@@ -527,7 +526,6 @@ sub _alpha_startend {
     else {
 	return $aname cmp $bname;
     }
-
 }
 
 =head2 each_seq_with_id
@@ -605,7 +603,6 @@ sub {
       $consensus =~ s/([^?])$q([^?])/$1$n$2/;
     }
   }
-
   return $consensus;
 }
 
@@ -653,11 +650,10 @@ sub seq_with_features{
    my $seq = Bio::Seq->new();
 
 #   my $rootfeature = Bio::SeqFeature::Generic->new(
-#                                                   -source_tag => 'location',
-#                                                   -start      => $self->get_seq_by_pos($arg{-pos})->start,
-#                                                   -end        => $self->get_seq_by_pos($arg{-pos})->end,
+#                -source_tag => 'location',
+#                -start      => $self->get_seq_by_pos($arg{-pos})->start,
+#                -end        => $self->get_seq_by_pos($arg{-pos})->end,
 #                                                  );
-
 #   $seq->add_SeqFeature($rootfeature);
 
    while(my $b = shift @bs){
@@ -755,7 +751,7 @@ sub select_noncont {
  Args      : positive integer for start column
              positive integer for end column
              optional boolean which if true will keep gap only columns too
-              in the newly created slice
+             in the newly created slice
 
 =cut
 
@@ -822,64 +818,32 @@ sub slice {
 
 =head2 remove_columns
 
- Title     : remove_columns
- Usage     : $aln2 = $aln->remove_columns(['mismatch','weak'])
+ Title     : remove_columns 
+ Usage     : $aln2 = $aln->remove_columns(['mismatch','weak']) or
+             $aln2 = $aln->remove_columns([0,0],[6,8])
  Function  : Creates an aligment with columns removed corresponding to
-             the specified criteria.
- Returns   : a Bio::SimpleAlign object
- Args      : array ref of types, 'match'|'weak'|'strong'|'mismatch'|'gaps'|
-                        'all_gaps_columns'
+             the specified type or by specifying the columns by number.
+ Returns   : Bio::SimpleAlign object
+ Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch'|'gaps'|
+             'all_gaps_columns') or array ref where the referenced array
+             contains a pair of integers that specify a range. 
+             The first column is 0, 
 
 =cut
 
-sub remove_columns{
-    my ($self,$type) = @_;
-    $type || return $self;
-    if( !ref($type) ) { 
-	$type = [$type];
-    }
-    my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
-    my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
-    my %matchchars = ( 'match'  => '\*',
-                       'weak'   => '\.',
-                       'strong' => ':',
-                       'mismatch'=> ' ',
-                       'gaps' => '', 'all_gaps_columns' => ''
-                     );
-    #get the characters to delete against
-    my $del_char;
-    foreach my $type(@{$type}){
-        $del_char.= $matchchars{$type};
-    }
+sub remove_columns {
+	my ($self,@args) = @_;
+	@args || return $self;
+   my $aln;
 
-    my $match_line = $self->match_line;
-    my $aln = $self->new;
-
-    my @remove;
-    my $length = 0;
-
-    #do the matching to get the segments to remove
-    if($del_char){
-        while($match_line =~ m/[$del_char]/g ){
-            my $start = pos($match_line)-1;
-            $match_line=~/\G[$del_char]+/gc;
-            my $end = pos($match_line)-1;
-
-            #have to offset the start and end for subsequent removes
-            $start-=$length;
-            $end  -=$length;
-            $length += ($end-$start+1);
-            push @remove, [$start,$end];
-        }
-    }
-
-    #remove the segments
-    $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
-
-    $aln = $aln->remove_gaps() if $gap;
-    $aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
-
-    return $aln;
+	if ($args[0][0] =~ /^[a-z]+$/i) {
+		 $aln = $self->_remove_columns_by_type($args[0]);
+	} elsif ($args[0][0] =~ /^\d+$/) {
+       $aln = $self->_remove_columns_by_num(\@args);
+	} else {
+		 $self->throw("You must pass array references to remove_columns(), not @args");
+	}
+   $aln;
 }
 
 
@@ -932,13 +896,13 @@ sub remove_gaps {
 
 
 sub _remove_col {
-
     my ($self,$aln,$remove) = @_;
     my @new;
 
-    #splice out the segments and create new seq
+    # splice out the segments and create new seq
     foreach my $seq($self->each_seq){
-        my $new_seq = new Bio::LocatableSeq(-id      => $seq->id,
+        my $new_seq = new Bio::LocatableSeq(
+						 -id      => $seq->id,
 					    -strand  => $seq->strand,
 					    -verbose => $self->verbose);
         my $sequence = $seq->seq;
@@ -965,18 +929,75 @@ sub _remove_col {
             }
         }
         $new_seq->seq($sequence) if $sequence;
-        push @new, $new_seq;
+		  push @new, $new_seq;
     }
-    #add the new seqs to the alignment
+    # add the new seqs to the alignment
     foreach my $new(@new){
         $aln->add_seq($new);
     }
     return $aln;
 }
 
+sub _remove_columns_by_type {
+	my ($self,$type) = @_;
+	my $aln = $self->new;
+	my @remove;
+
+	my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
+	my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
+	my %matchchars = ( 'match'           => '\*',
+                       'weak'             => '\.',
+                       'strong'           => ':',
+                       'mismatch'         => ' ',
+                       'gaps'             => '', 
+                       'all_gaps_columns' => ''
+                     );
+	# get the characters to delete against
+	my $del_char;
+	foreach my $type (@{$type}){
+		$del_char.= $matchchars{$type};
+	}
+
+	my $length = 0;
+	my $match_line = $self->match_line;
+	# do the matching to get the segments to remove
+	if($del_char){
+		while($match_line =~ m/[$del_char]/g ){
+			my $start = pos($match_line)-1;
+			$match_line=~/\G[$del_char]+/gc;
+			my $end = pos($match_line)-1;
+			
+			#have to offset the start and end for subsequent removes
+			$start-=$length;
+			$end  -=$length;
+			$length += ($end-$start+1);
+			push @remove, [$start,$end];
+		}
+	}
+	
+	# remove the segments
+	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+	$aln = $aln->remove_gaps() if $gap;
+	$aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
+
+	$aln;
+}
+
+
+sub _remove_columns_by_num {
+	my ($self,$positions) = @_;
+	my $aln = $self->new;
+	
+	# sort the positions to remove columns at the end 1st
+	@$positions = sort { $b->[0] <=> $a->[0] } @$positions;
+	$aln = $self->_remove_col($aln,$positions);
+	$aln;
+}
+
+
 =head1 Change sequences within the MSE
 
-These methods affect characters in all sequences without changeing the
+These methods affect characters in all sequences without changing the
 alignment.
 
 =head2 splice_by_seq_pos
