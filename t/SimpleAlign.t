@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 62;
+use constant NUMTESTS => 63;
 
 BEGIN {
 	eval { require Test; };
@@ -34,7 +34,7 @@ ok $aln2;
 ok $aln2->no_sequences, 3;
 
 # test select non continous
-$aln2 = $aln->select_noncont(2,7,8);
+$aln2 = $aln->select_noncont(8,2,7);
 ok($aln2->no_sequences, 3);
 ok($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(7)->id);
 
@@ -211,3 +211,10 @@ $s1->seq('aaaaattt--');
 
 $b = $a->remove_gaps(undef, 'all_gaps_only');
 ok $b->consensus_string, "aaaaatttt";
+
+__END__
+
+  print $aln->score;
+  print $aln->percentage_identity;
+  $mini_aln = $aln->select_noncont(1,3,5,7,11); # need sort?
+  $str = $aln->cigar_line()
