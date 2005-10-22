@@ -61,21 +61,22 @@ See the module documentation for details and more methods.
 
 =head1 DESCRIPTION
 
-SimpleAlign handles multiple alignments of sequences. It is very
-permissive of types (it does not insist on things being all same length,
-for example). Think of it as a set of sequences held in memory with a
-whole series of built-in manipulations and methods for reading and 
+SimpleAlign is an object that handles a multiple sequence alignment
+(MSA). It is very permissive of types (it does not insist on sequences 
+being all same length, for example). Think of it as a set of sequences 
+with a whole series of built-in manipulations and methods for reading and 
 writing alignments.
 
 SimpleAlign uses L<Bio::LocatableSeq>, a subclass of L<Bio::PrimarySeq>,
 to store its sequences. These are subsequences with a start and end 
-positions in the parent reference sequence.
+positions in the parent reference sequence. Each sequence in the 
+SimpleAlign object is a Bio::LocatableSeq.
 
-SimpleAlign expects name, start, and end to be 'unique'
-in the alignment, and this is the key for the internal hashes
-(name, start, end are abbreviated 'nse' in the code). However, in many
-cases people do not want the name/start-end to be displayed: either
-multiple names in an alignment or names specific to the alignment
+SimpleAlign expects the combination of name, start, and end for a 
+given sequence to be unique in the alignment, and this is the key for the 
+internal hashes (name, start, end are abbreviated 'nse' in the code). 
+However, in some cases people do not want the name/start-end to be displayed: 
+either multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
@@ -153,7 +154,7 @@ use Bio::SeqFeature::Generic;
 
 BEGIN {
     # This data should probably be in a more centralized module...
-    # it is taken from Clustalw documentation
+    # it is taken from Clustalw documentation.
     # These are all the positively scoring groups that occur in the
     # Gonnet Pam250 matrix. The strong and weak groups are
     # defined as strong score >0.5 and weak score =<0.5 respectively.
@@ -220,7 +221,7 @@ sub new {
 
 =head1 Modifier methods
 
-These methods modify the MSE by adding, removing or shuffling complete
+These methods modify the MSA by adding, removing or shuffling complete
 sequences.
 
 =head2 add_seq
@@ -463,8 +464,8 @@ Methods returning one or more sequences objects.
 
  Title     : each_seq
  Usage     : foreach $seq ( $align->each_seq() ) 
- Function  : Gets an array of Seq objects from the alignment
- Returns   : an array
+ Function  : Gets a Seq object from the alignment
+ Returns   : Seq object
  Argument  : 
 
 =cut
@@ -492,10 +493,10 @@ sub each_seq {
 
  Title     : each_alphabetically
  Usage     : foreach $seq ( $ali->each_alphabetically() )
- Function  : Returns an array of sequence object sorted alphabetically 
-             by name and then by start point.
-             Does not change the order of the alignment
- Returns   : 
+ Function  : Returns a sequence object, but the objects are returned
+             in alphabetically sorted order.
+             Does not change the order of the alignment.
+ Returns   : Seq object
  Argument  : 
 
 =cut
@@ -532,10 +533,10 @@ sub _alpha_startend {
 
  Title     : each_seq_with_id
  Usage     : foreach $seq ( $align->each_seq_with_id() )
- Function  : Gets an array of Seq objects from the
-             alignment, the contents being those sequences
-             with the given name (there may be more than one)
- Returns   : an array
+ Function  : Gets a Seq objects from the alignment, the contents 
+             being those sequences with the given name (there may be 
+             more than one)
+ Returns   : Seq object
  Argument  : a seq name
 
 =cut
@@ -593,19 +594,17 @@ sub get_seq_by_pos {
  Usage   : $seq = $aln->seq_with_features(-pos => 1,
                                           -consensus => 60
                                           -mask =>
-sub {
-  my $consensus = shift;
+           sub { my $consensus = shift;
 
-  for my $i (1..5){
-    my $n = 'N' x $i;
-    my $q = '\?' x $i;
-    while($consensus =~ /[^?]$q[^?]/){
-      $consensus =~ s/([^?])$q([^?])/$1$n$2/;
-    }
-  }
-  return $consensus;
-}
-
+                 for my $i (1..5){
+                    my $n = 'N' x $i;
+                    my $q = '\?' x $i;
+                    while($consensus =~ /[^?]$q[^?]/){
+                       $consensus =~ s/([^?])$q([^?])/$1$n$2/;
+                    }
+                  }
+                 return $consensus;
+               }
                                          );
  Function: produces a Bio::Seq object by first splicing gaps from -pos
            (by means of a splice_by_seq_pos() call), then creating
@@ -618,7 +617,7 @@ sub {
              default cutoff value
            -mask : optional, a coderef to apply to consensus_string()'s
              output before building features.  this may be useful for
-             closing gaps of 1bp by glossing over them with N, for
+             closing gaps of 1 bp by masking over them with N, for
              instance
 
 =cut
@@ -660,8 +659,6 @@ sub seq_with_features{
 	 my $e = shift @es;
 	 $seq->add_SeqFeature(
        Bio::SeqFeature::Generic->new(
-#         -start => $b - 1,
-#         -end   => $e - 1,
          -start => $b - 1 + $self->get_seq_by_pos($arg{-pos})->start,
          -end   => $e - 1 + $self->get_seq_by_pos($arg{-pos})->start,
          -source_tag => $self->source || 'MSA',
@@ -676,7 +673,7 @@ sub seq_with_features{
 =head1 Create new alignments
 
 The result of these methods are horizontal or vertical subsets of the
-current MSE.
+current MSA.
 
 =head2 select
 
@@ -996,7 +993,7 @@ sub _remove_columns_by_num {
 }
 
 
-=head1 Change sequences within the MSE
+=head1 Change sequences within the MSA
 
 These methods affect characters in all sequences without changing the
 alignment.
@@ -1101,52 +1098,50 @@ sub uppercase {
 
  Title    : cigar_line()
  Usage    : $align->cigar_line()
- Function : Generates a "cigar" line for each sequence in the alignment
+ Function : Generates a "cigar" (Compact Idiosyncratic Gapped Alignment 
+            Report) line for each sequence in the alignment
             The format is simply A-1,60;B-1,1:4,60;C-5,10:12,58
-            where A,B,C,etc. are the sequence identifiers, and the numbers
+            where A,B,C, etc. are the sequence identifiers, and the numbers
             refer to conserved positions within the alignment
  Args     : none
+ Returns  : Hash of cigar lines (strings)
 
 =cut
 
 sub cigar_line {
-    my ($self) = @_;
+	my ($self) = @_;
 
-    my %cigar;
-    my %clines;
-    my @seqchars;
-    my $seqcount = 0;
-    my $sc;
-    foreach my $seq ( $self->each_seq ) {
-	push @seqchars, [ split(//, uc ($seq->seq)) ];
-	$sc = scalar(@seqchars);
-    }
-
-    foreach my $pos ( 0..$self->length ) {
-	my $i=0;
-	foreach my $seq ( @seqchars ) {
-	    $i++;
-#	    print STDERR "Seq $i at pos $pos: ".$seq->[$pos]."\n";
-	    if ($seq->[$pos] eq '.') {
-		if (defined $cigar{$i} && $clines{$i} !~ $cigar{$i}) {
-		    $clines{$i}.=$cigar{$i};
-		}
-	    }
-	    else {
-		if (! defined $cigar{$i}) {
-		    $clines{$i}.=($pos+1).",";
-		}
-		$cigar{$i}=$pos+1;
-	    }
-	    if ($pos+1 == $self->length && ($clines{$i} =~ /\,$/) ) {
-		$clines{$i}.=$cigar{$i};
-	     }
+	my (%cigar,%clines,@seqchars);
+	my $seqcount = 0;
+	my $sc;
+	foreach my $seq ( $self->each_seq ) {
+		push @seqchars, [ split(//, uc ($seq->seq)) ];
+		$sc = scalar(@seqchars);
 	}
-    }
-    for(my $i=1; $i<$sc+1;$i++) {
-	print STDERR "Seq $i cigar line ".$clines{$i}."\n";
-    }
-    return %clines;
+
+	foreach my $pos ( 0..$self->length ) {
+		my $i = 0;
+		foreach my $seq ( @seqchars ) {
+			$i++;
+			if ($seq->[$pos] eq '.') {
+				if (defined $cigar{$i} && $clines{$i} !~ $cigar{$i}) {
+					$clines{$i}.=$cigar{$i};
+				}
+			} else {
+				if (! defined $cigar{$i}) {
+					$clines{$i}.=($pos+1).",";
+				}
+				$cigar{$i}=$pos+1;
+			}
+			if ($pos+1 == $self->length && ($clines{$i} =~ /\,$/) ) {
+				$clines{$i}.=$cigar{$i};
+			}
+		}
+	}
+	#for(my $i=1; $i<$sc+1;$i++) {
+	#	print STDERR "Seq $i cigar line ".$clines{$i}."\n";
+	#}
+	return %clines;
 }
 
 =head2 match_line
@@ -1158,6 +1153,7 @@ sub cigar_line {
  Args     : (optional) Match line characters ('*' by default)
             (optional) Strong match char (':' by default)
             (optional) Weak match char ('.' by default)
+ Returns  : String
 
 =cut
 
@@ -1302,7 +1298,7 @@ sub all_gap_line {
              identical to residue in first sequence to match '.'
              character. Sets match_char.
 
-             USE WITH CARE: Most MSE formats do not support match
+             USE WITH CARE: Most MSA formats do not support match
              characters in sequences, so this is mostly for output
              only. NEXUS format (Bio::AlignIO::nexus) can handle
              it.
@@ -1378,9 +1374,9 @@ sub unmatch {
     return 1;
 }
 
-=head1 MSE attibutes
+=head1 MSA attibutes
 
-Methods for setting and reading the MSE attributes.
+Methods for setting and reading the MSA attributes.
 
 Note that the methods defining character semantics depend on the user
 to set them sensibly.  They are needed only by certain input/output
@@ -1501,7 +1497,7 @@ sub symbol_chars{
 
 =head1 Alignment descriptors
 
-These read only methods describe the MSE in various ways.
+These read only methods describe the MSA in various ways.
 
 
 =head2 score
@@ -1783,7 +1779,7 @@ sub length {
  Title     : maxdisplayname_length
  Usage     : $ali->maxdisplayname_length()
  Function  : Gets the maximum length of the displayname in the
-             alignment. Used in writing out various MSE formats.
+             alignment. Used in writing out various MSA formats.
  Returns   : integer
  Argument  : 
 
