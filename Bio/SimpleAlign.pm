@@ -713,7 +713,7 @@ sub select {
 =head2 select_noncont
 
  Title     : select_noncont
- Usage     : $aln2 = $aln->select_noncont(1, 3) # first and 3rd sequences
+ Usage     : $aln2 = $aln->select_noncont(1, 3) # 1st and 3rd sequences
  Function  : Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
              larger than no_sequences() will thow an error.
@@ -723,19 +723,20 @@ sub select {
 =cut
 
 sub select_noncont {
-    my $self = shift;
-    my (@pos) = @_;
-    my $end = $self->no_sequences;
-    foreach ( @pos ) {
-	$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
-	    unless( /^\d+$/ && $_ > 0 && $_ <= $end );
-    }
-    my $aln = $self->new;
-    foreach my $p (@pos) {
-	$aln->add_seq($self->get_seq_by_pos($p));
-    }
-    $aln->id($self->id);
-    return $aln;
+	my $self = shift;
+	my (@pos) = @_;
+	my $end = $self->no_sequences;
+	@pos = sort @pos;
+	foreach ( @pos ) {
+		$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
+		  unless( /^\d+$/ && $_ > 0 && $_ <= $end );
+	}
+	my $aln = $self->new;
+	foreach my $p (@pos) {
+		$aln->add_seq($self->get_seq_by_pos($p));
+	}
+	$aln->id($self->id);
+	return $aln;
 }
 
 =head2 slice
