@@ -2,16 +2,16 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 60;
+use constant NUMTESTS => 62;
 
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
 
-    plan tests => NUMTESTS;
+	plan tests => NUMTESTS;
 }
 
 use Bio::SimpleAlign;
@@ -28,7 +28,6 @@ ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed pfam input tes
 
 my $aln1 = $aln->remove_columns(['mismatch']);
 ok ($aln1->match_line, '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:.*.:*:**:****************::');
-
 
 my $aln2 = $aln->select(1,3);
 ok $aln2;
@@ -92,17 +91,16 @@ ok (($aln->missing_char(), 'P') and  ($aln->missing_char('X'), 'X')) ;
 ok (($aln->match_char(), '.') and  ($aln->match_char('-'), '-')) ;
 ok (($aln->gap_char(), '-') and  ($aln->gap_char('.'), '.')) ;
 
-
 ok $aln->purge(0.7), 12;
 ok $aln->no_sequences, 4;
 
 eval { require 'IO/String.pm' };
 if( $@ ) {
-    print STDERR "IO::String not installed.  Skipping tests.\n";
-    for( $Test::ntest..NUMTESTS ) {
-	skip("IO::String not installed. Skipping tests",1);
-    }
-    exit;
+	print STDERR "IO::String not installed.  Skipping tests.\n";
+	for( $Test::ntest..NUMTESTS ) {
+		skip("IO::String not installed. Skipping tests",1);
+	}
+	exit;
 }
 
 my $string;
@@ -121,7 +119,7 @@ my $s2 = new Bio::LocatableSeq (-id => 'BBB',
   			    -alphabet => 'dna'
 			    );
 $a = new Bio::SimpleAlign;
-$a->add_seq($s1);
+$a->add_seq($s1);           
 $a->add_seq($s2);
 
 ok $a->consensus_iupac, "aAWWAT-TN-";
@@ -140,7 +138,8 @@ ok $string, "AAA/1-10    aaaaattttt
 BBB/1-8     -aaaatttt-
 ";
 
-$out->setpos(0); $string ='';
+$out->setpos(0); 
+$string ='';
 my $b = $a->slice(2,9);
 $strout->write_aln($b);
 ok $string, "AAA/2-9    aaaatttt
@@ -163,18 +162,42 @@ BBB/1-1    -a
 ";
 
 eval {
-    $b = $a->slice(11,13);
+	$b = $a->slice(11,13);
 };
 
 ok ($@ =~ /EX/ );
 
-#sort_alphabetically
+# remove_columns by position
+$out->setpos(0); 
+$string ='';
+$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
+											"t","data","mini-align.aln"));
+$aln1 = $str->next_aln;
+$aln2 = $aln1->remove_columns([0,0]);
+$strout->write_aln($aln2);
+ok $string, "P84139/1-31              NEGEHQIKLDELFEKLLRARKIFKNKDVLR
+P814153/1-31             NEGMHQIKLDVLFEKLLRARKIFKNKDVLR
+BAB68554/1-11            -------------------MLTEDDKQLIQ
+gb|443893|124775/1-30    MRFRFGVVVPPAVAGARPELLVVGSRPELG
+";
+
+$out->setpos(0); 
+$string ='';
+my $aln3 = $aln1->remove_columns([1,1],[30,30],[5,6]);
+$strout->write_aln($aln3);
+ok $string, "P84139/1-31              MEGEIKLDELFEKLLRARKIFKNKDVL
+P814153/1-31             MEGMIKLDVLFEKLLRARKIFKNKDVL
+BAB68554/1-11            -----------------MLTEDDKQLI
+gb|443893|124775/1-30    -RFRVVVPPAVAGARPELLVVGSRPEL
+";
+
+# sort_alphabetically
 my $s3 = new Bio::LocatableSeq (-id => 'ABB',
-			    -seq => '-attat-tt-',
-			    -start => 1,
-			    -end => 7,
-  			    -alphabet => 'dna'
-			    );
+										  -seq => '-attat-tt-',
+										  -start => 1,
+										  -end => 7,
+										  -alphabet => 'dna'
+										 );
 $a->add_seq($s3);
 
 ok $a->get_seq_by_pos(2)->id,"BBB";
