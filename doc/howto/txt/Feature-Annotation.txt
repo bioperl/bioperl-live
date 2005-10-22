@@ -629,9 +629,9 @@ start: 1
 
    These [37]Bio::Seq::RichSeq objects are created automatically when you
    use SeqIO to read from EMBL, GenBank, GAME, Chado XML, TIGR XML,
-   Locuslink, BSML, KEGG, and SwissProt sequence files. However, it's not
-   guaranteed that each of these formats will supply data for all of the
-   methods above.
+   Locuslink, BSML, KEGG, Entrez Gene, and SwissProt sequence files.
+   However, it's not guaranteed that each of these formats will supply
+   data for all of the methods above.
 
 10. Other sequence file formats
 

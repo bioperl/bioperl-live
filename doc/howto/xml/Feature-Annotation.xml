@@ -936,7 +936,7 @@ start: 1
       These <ulink
 	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq/RichSeq.html"><citetitle>Bio::Seq::RichSeq</citetitle></ulink> objects are created 
       automatically when you use SeqIO to read from EMBL, GenBank, GAME,
-      Chado XML, TIGR XML, Locuslink, BSML, KEGG, and SwissProt sequence
+      Chado XML, TIGR XML, Locuslink, BSML, KEGG, Entrez Gene, and SwissProt sequence
       files. However, it's not guaranteed that each of these
       formats will supply data for all of the methods above.
     </para>
