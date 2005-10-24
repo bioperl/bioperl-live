@@ -48,8 +48,8 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   $aln->remove_seq($seq);
   $mini_aln = $aln->slice(20,30);  # get a block of columns
   $mini_aln = $aln->select_noncont(1,3,5,7,11); # get single columns
-  $new_aln = $aln->remove_columns([20,30]); # or
-  $new_aln = $aln->remove_columns(['mismatch']);
+  $new_aln = $aln->remove_columns([20,30]); # remove by position
+  $new_aln = $aln->remove_columns(['mismatch']); # remove by property
 
   # Analyze
   $str = $aln->consensus_string($threshold_percent);
@@ -81,7 +81,7 @@ either multiple names in an alignment or names specific to the alignment
 'displayname', and generally is what is used to print out the
 alignment. They default to name/start-end.
 
-The SimpleAlign Module came from Ewan Birney's Align module.
+The SimpleAlign Module is derived from the Align module by Ewan Birney.
 
 =over 3
 
@@ -1097,52 +1097,78 @@ sub uppercase {
 =head2 cigar_line
 
  Title    : cigar_line()
- Usage    : $align->cigar_line()
+ Usage    : %cigars = $align->cigar_line()
  Function : Generates a "cigar" (Compact Idiosyncratic Gapped Alignment 
-            Report) line for each sequence in the alignment
-            The format is simply A-1,60;B-1,1:4,60;C-5,10:12,58
-            where A,B,C, etc. are the sequence identifiers, and the numbers
-            refer to conserved positions within the alignment
+            Report) line for each sequence in the alignment. Examples are
+            "1,60" or "5,10:12,58", where the numbers refer to conserved 
+            positions within the alignment. The keys of the hash are the 
+            NSE's (name/start/end) assigned to each sequence.
  Args     : none
- Returns  : Hash of cigar lines (strings)
+ Returns  : Hash of strings (cigar lines)
 
 =cut
 
 sub cigar_line {
-	my ($self) = @_;
+	my $self = shift;
+	my %cigars;
 
-	my (%cigar,%clines,@seqchars);
-	my $seqcount = 0;
-	my $sc;
+	my @consensus = split "",($self->consensus_string(100));
+	my $len = $self->length;
+	my $gapchar = $self->gap_char;
+
+	# create a precursor, something like (1,4,5,6,7,33,45),
+	# where each number corresponds to a conserved position
 	foreach my $seq ( $self->each_seq ) {
-		push @seqchars, [ split(//, uc ($seq->seq)) ];
-		$sc = scalar(@seqchars);
-	}
-
-	foreach my $pos ( 0..$self->length ) {
-		my $i = 0;
-		foreach my $seq ( @seqchars ) {
-			$i++;
-			if ($seq->[$pos] eq '.') {
-				if (defined $cigar{$i} && $clines{$i} !~ $cigar{$i}) {
-					$clines{$i}.=$cigar{$i};
-				}
-			} else {
-				if (! defined $cigar{$i}) {
-					$clines{$i}.=($pos+1).",";
-				}
-				$cigar{$i}=$pos+1;
-			}
-			if ($pos+1 == $self->length && ($clines{$i} =~ /\,$/) ) {
-				$clines{$i}.=$cigar{$i};
+		my @seq = split "", uc ($seq->seq);
+		my $pos = 1;
+		for (my $x = 0 ; $x < $len ; $x++ ) {
+			if ($seq[$x] eq $consensus[$x]) {
+				push @{$cigars{$seq->get_nse}},$pos;
+				$pos++;
+			} elsif ($seq[$x] ne $gapchar) {
+				$pos++;
 			}
 		}
 	}
-	#for(my $i=1; $i<$sc+1;$i++) {
-	#	print STDERR "Seq $i cigar line ".$clines{$i}."\n";
-	#}
-	return %clines;
+	# duplicate numbers - (1,4,5,6,7,33,45) becomes (1,1,4,5,6,7,33,33,45,45)
+	for my $name (keys %cigars) {
+		splice @{$cigars{$name}}, 1, 0, ${$cigars{$name}}[0] if
+		  ( ${$cigars{$name}}[0] + 1 < ${$cigars{$name}}[1] );
+      push @{$cigars{$name}}, ${$cigars{$name}}[$#{$cigars{$name}}] if
+           ( ${$cigars{$name}}[($#{$cigars{$name}} - 1)] + 1 < 
+		          ${$cigars{$name}}[$#{$cigars{$name}}] );
+		for ( my $x = 1 ; $x < $#{$cigars{$name}} - 1 ; $x++) {
+			if (${$cigars{$name}}[$x - 1] + 1 < ${$cigars{$name}}[$x]  &&
+		       ${$cigars{$name}}[$x + 1]  > ${$cigars{$name}}[$x] + 1) {
+	         splice @{$cigars{$name}}, $x, 0, ${$cigars{$name}}[$x];
+			}
+      }
+	}
+  # collapse series - (1,1,4,5,6,7,33,33,45,45) becomes (1,1,4,7,33,33,45,45)
+  for my $name (keys %cigars) {
+	  my @remove;
+	  for ( my $x = 0 ; $x < $#{$cigars{$name}} ; $x++) {
+		   if ( ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x - 1)] + 1 && 
+			     ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x + 1)] - 1 ) {
+		      unshift @remove,$x;
+	      }
+	   }
+      for my $pos (@remove) {
+		  	splice @{$cigars{$name}}, $pos, 1;
+	   }     
+   }
+   # join and punctuate
+   for my $name (keys %cigars) {
+ 	  my ($start,$end,$str) = "";  
+ 	  while ( ($start,$end) = splice @{$cigars{$name}}, 0, 2 ) {
+ 		  $str .= ($start . "," . $end . ":");
+ 	  }
+ 	  $str =~ s/:$//;
+      $cigars{$name} = $str;
+   } 
+   %cigars;
 }
+
 
 =head2 match_line
 
@@ -1158,80 +1184,81 @@ sub cigar_line {
 =cut
 
 sub match_line {
-    my ($self,$matchlinechar, $strong, $weak) = @_;
-    my %matchchars = ( 'match'  => $matchlinechar || '*',
-		       'weak'   => $weak          || '.',
-		       'strong' => $strong        || ':',
-		       'mismatch'=> ' ', 
-	       );
+	my ($self,$matchlinechar, $strong, $weak) = @_;
+	my %matchchars = ('match'    => $matchlinechar || '*',
+							  'weak'     => $weak          || '.',
+							  'strong'   => $strong        || ':',
+							  'mismatch' => ' ', 
+						  );
 
-
-    my @seqchars;
-    my $seqcount = 0;
-    my $alphabet;
-    foreach my $seq ( $self->each_seq ) {
-	push @seqchars, [ split(//, uc ($seq->seq)) ];
-	$alphabet = $seq->alphabet unless defined $alphabet;
-    }
-    my $refseq = shift @seqchars;
-    # let's just march down the columns
-    my $matchline;
-    POS: foreach my $pos ( 0..$self->length ) {
-	my $refchar = $refseq->[$pos];
-	my $char = $matchchars{'mismatch'};
-	unless( defined $refchar ) {  
-	    last if $pos == $self->length; # short circuit on last residue
-	    # this in place to handle jason's soon-to-be-committed
-	    # intron mapping code
-	    goto bottom;
+	my @seqchars;
+	my $alphabet;
+	foreach my $seq ( $self->each_seq ) {
+		push @seqchars, [ split(//, uc ($seq->seq)) ];
+		$alphabet = $seq->alphabet unless defined $alphabet;
 	}
-	my %col = ($refchar => 1);
-	my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
-	foreach my $seq ( @seqchars ) {
-	    next if $pos >= scalar @$seq;
-	    $dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' || 
-			  $seq->[$pos] eq ' ' );
-	    $col{$seq->[$pos]}++ if defined $seq->[$pos];
+	my $refseq = shift @seqchars;
+	# let's just march down the columns
+	my $matchline;
+ POS: 
+	foreach my $pos ( 0..$self->length ) {
+		my $refchar = $refseq->[$pos];
+		my $char = $matchchars{'mismatch'};
+		unless( defined $refchar ) {  
+			last if $pos == $self->length; # short circuit on last residue
+			# this in place to handle jason's soon-to-be-committed
+			# intron mapping code
+			goto bottom;
+		}
+		my %col = ($refchar => 1);
+		my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
+		foreach my $seq ( @seqchars ) {
+			next if $pos >= scalar @$seq;
+			$dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' || 
+							  $seq->[$pos] eq ' ' );
+			$col{$seq->[$pos]}++ if defined $seq->[$pos];
+		}
+		my @colresidues = sort keys %col;
+
+		# if all the values are the same
+		if( $dash ) { $char =  $matchchars{'mismatch'} }
+		elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
+		elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
+			# matches for protein seqs
+	    TYPE: 
+			foreach my $type ( qw(strong weak) ) {
+				# iterate through categories
+				my %groups;
+				# iterate through each of the aa in the col
+				# look to see which groups it is in
+				foreach my $c ( @colresidues ) {
+					foreach my $f ( grep /\Q$c/, 
+										 @{$CONSERVATION_GROUPS{$type}} ) {
+						push @{$groups{$f}},$c;
+					}
+				}
+			 GRP: 
+				foreach my $cols ( values %groups ) {
+					@$cols = sort @$cols;
+					# now we are just testing to see if two arrays
+					# are identical w/o changing either one
+					# have to be same len
+					next if( scalar @$cols != scalar @colresidues );
+					# walk down the length and check each slot
+					for($_=0;$_ < (scalar @$cols);$_++ ) {
+						next GRP if( $cols->[$_] ne $colresidues[$_] );
+					}
+					$char = $matchchars{$type};
+					last TYPE;
+				}
+			}
+		}
+	 bottom:
+		$matchline .= $char;
 	}
-	my @colresidues = sort keys %col;
-
-	# if all the values are the same
-	if( $dash ) { $char =  $matchchars{'mismatch'} }
-	elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
-	elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
-	                                  # matches for protein seqs
-	    TYPE: foreach my $type ( qw(strong weak) ) {
-                # iterate through categories
-		my %groups;
-		# iterate through each of the aa in the col
-		# look to see which groups it is in
-		foreach my $c ( @colresidues ) {
-		    foreach my $f ( grep /\Q$c/, 
-				    @{$CONSERVATION_GROUPS{$type}} ) {
-			push @{$groups{$f}},$c;
-		    }
-		}
-		GRP: foreach my $cols ( values %groups ) {
-		    @$cols = sort @$cols;
-		    # now we are just testing to see if two arrays
-		    # are identical w/o changing either one
-
-		    # have to be same len
-		    next if( scalar @$cols != scalar @colresidues );
-		    # walk down the length and check each slot
-		    for($_=0;$_ < (scalar @$cols);$_++ ) {
-			next GRP if( $cols->[$_] ne $colresidues[$_] );
-		    }
-		    $char = $matchchars{$type};
-		    last TYPE;
-		}
-	    }
-	  }
-      bottom:
-	$matchline .= $char;
-    }
-    return $matchline;
+	return $matchline;
 }
+
 
 =head2 gap_line
 

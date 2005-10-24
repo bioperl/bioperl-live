@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 63;
+use constant NUMTESTS => 66;
 
 BEGIN {
 	eval { require Test; };
@@ -175,21 +175,29 @@ $str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
 $aln1 = $str->next_aln;
 $aln2 = $aln1->remove_columns([0,0]);
 $strout->write_aln($aln2);
-ok $string, "P84139/1-31              NEGEHQIKLDELFEKLLRARKIFKNKDVLR
-P814153/1-31             NEGMHQIKLDVLFEKLLRARKIFKNKDVLR
-BAB68554/1-11            -------------------MLTEDDKQLIQ
-gb|443893|124775/1-30    MRFRFGVVVPPAVAGARPELLVVGSRPELG
+ok $string, "P84139/1-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC
+P814153/1-33             NEGMHQIKLDVLFEKLLRARLIFKNKDVLRRC
+BAB68554/1-14            ------------------AMLIFKDKQLLQQC
+gb|443893|124775/1-32    MRFRFQIKVPPAVEGARPALLIFKSRPELGGC
 ";
 
+# and when arguments are entered in "wrong order"?
 $out->setpos(0); 
 $string ='';
 my $aln3 = $aln1->remove_columns([1,1],[30,30],[5,6]);
 $strout->write_aln($aln3);
-ok $string, "P84139/1-31              MEGEIKLDELFEKLLRARKIFKNKDVL
-P814153/1-31             MEGMIKLDVLFEKLLRARKIFKNKDVL
-BAB68554/1-11            -----------------MLTEDDKQLI
-gb|443893|124775/1-30    -RFRVVVPPAVAGARPELLVVGSRPEL
+ok $string, "P84139/1-33              MEGEIKLDELFEKLLRARLIFKNKDVLRC
+P814153/1-33             MEGMIKLDVLFEKLLRARLIFKNKDVLRC
+BAB68554/1-14            ----------------AMLIFKDKQLLQC
+gb|443893|124775/1-32    -RFRIKVPPAVEGARPALLIFKSRPELGC
 ";
+
+my %cigars = $aln1->cigar_line;
+ok $cigars{'gb|443893|124775/1-32'},'19,19:21,24:29,29:32,32';
+ok $cigars{'P814153/1-33'},'20,20:22,25:30,30:33,33';
+ok $cigars{'BAB68554/1-14'},'1,1:3,6:11,11:14,14';
+ok $cigars{'P84139/1-33'},'20,20:22,25:30,30:33,33';
+
 
 # sort_alphabetically
 my $s3 = new Bio::LocatableSeq (-id => 'ABB',
@@ -216,5 +224,3 @@ __END__
 
   print $aln->score;
   print $aln->percentage_identity;
-  $mini_aln = $aln->select_noncont(1,3,5,7,11); # need sort?
-  $str = $aln->cigar_line()
