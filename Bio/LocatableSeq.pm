@@ -13,7 +13,8 @@
 =head1 NAME
 
 Bio::LocatableSeq - A Sequence object with start/end points on it
-  that can be projected into a MSA or have coordinates relative to another seq.
+that can be projected into a MSA or have coordinates relative to 
+another seq.
 
 =head1 SYNOPSIS
 
@@ -27,7 +28,6 @@ Bio::LocatableSeq - A Sequence object with start/end points on it
 
 =head1 DESCRIPTION
 
-
     # a normal sequence object
     $locseq->seq();
     $locseq->id();
@@ -36,13 +36,12 @@ Bio::LocatableSeq - A Sequence object with start/end points on it
     $locseq->start();
     $locseq->end();
 
-    # inheriets off RangeI, so range operations possible
+    # inherits off RangeI, so range operations possible
 
 =head1 FEEDBACK
 
 
 =head2 Mailing Lists
-
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
@@ -50,7 +49,6 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                     - General discussion
   http://bio.perl.org/MailList.html         - About the mailing lists
-
 
 The locatable sequence object was developed mainly because the
 SimpleAlign object requires this functionality, and in the rewrite
