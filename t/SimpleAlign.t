@@ -21,10 +21,12 @@ use Bio::Root::IO;
 
 my ($str, $aln, @seqs, $seq);
 
-$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.pfam"));
+$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
+                        "t","data","testaln.pfam"));
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
-ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed pfam input test";
+ok $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', 
+            " failed pfam input test";
 
 my $aln1 = $aln->remove_columns(['mismatch']);
 ok ($aln1->match_line, '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:.*.:*:**:****************::');
@@ -219,8 +221,3 @@ $s1->seq('aaaaattt--');
 
 $b = $a->remove_gaps(undef, 'all_gaps_only');
 ok $b->consensus_string, "aaaaatttt";
-
-__END__
-
-  print $aln->score;
-  print $aln->percentage_identity;
