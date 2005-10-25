@@ -370,58 +370,58 @@ sub remove_seq {
 =cut
 
 sub purge {
-    my ($self,$perc) = @_;
-    my (%duplicate, @dups);
+	my ($self,$perc) = @_;
+	my (%duplicate, @dups);
 
-    my @seqs = $self->each_seq();
+	my @seqs = $self->each_seq();
 
-    for (my $i=0;$i< @seqs - 1;$i++ ) { #for each seq in alignment
-	my $seq = $seqs[$i];
+	for (my $i=0;$i< @seqs - 1;$i++ ) { #for each seq in alignment
+		my $seq = $seqs[$i];
 
-	#skip if already in duplicate hash
-	next if exists $duplicate{$seq->display_id} ;
-	my $one = $seq->seq();
+		#skip if already in duplicate hash
+		next if exists $duplicate{$seq->display_id} ;
+		my $one = $seq->seq();
 
-	my @one = split '', $one;	#split to get 1aa per array element
+		my @one = split '', $one;	#split to get 1aa per array element
 
-	for (my $j=$i+1;$j < @seqs;$j++) {
-	    my $seq2 = $seqs[$j];
+		for (my $j=$i+1;$j < @seqs;$j++) {
+			my $seq2 = $seqs[$j];
 
-	    #skip if already in duplicate hash
-	    next if exists $duplicate{$seq2->display_id} ;
+			#skip if already in duplicate hash
+			next if exists $duplicate{$seq2->display_id} ;
 
-	    my $two = $seq2->seq();
-	    my @two = split '', $two;
+			my $two = $seq2->seq();
+			my @two = split '', $two;
 
-	    my $count = 0;
-	    my $res = 0;
-	    for (my $k=0;$k<@one;$k++) {
-		if ( $one[$k] ne '.' && $one[$k] ne '-' && defined($two[$k]) &&
-		     $one[$k] eq $two[$k]) {
-		    $count++;
+			my $count = 0;
+			my $res = 0;
+			for (my $k=0;$k<@one;$k++) {
+				if ( $one[$k] ne '.' && $one[$k] ne '-' && defined($two[$k]) &&
+					  $one[$k] eq $two[$k]) {
+					$count++;
+				}
+				if ( $one[$k] ne '.' && $one[$k] ne '-' && defined($two[$k]) &&
+					  $two[$k] ne '.' && $two[$k] ne '-' ) {
+					$res++;
+				}
+			}
+
+			my $ratio = 0;
+			$ratio = $count/$res unless $res == 0;
+
+			# if above threshold put in duplicate hash and push onto
+			# duplicate array for returning to get_unique
+			if ( $ratio > $perc ) {
+				$self->warn("duplicate: ", $seq2->display_id) if $self->verbose > 0;
+				$duplicate{$seq2->display_id} = 1;
+				push @dups, $seq2;
+			}
 		}
-		if ( $one[$k] ne '.' && $one[$k] ne '-' && defined($two[$k]) &&
-		     $two[$k] ne '.' && $two[$k] ne '-' ) {
-		    $res++;
-		}
-	    }
-
-	    my $ratio = 0;
-	    $ratio = $count/$res unless $res == 0;
-
-	    # if above threshold put in duplicate hash and push onto
-	    # duplicate array for returning to get_unique
-	    if ( $ratio > $perc ) {
-		print STDERR "duplicate!", $seq2->display_id, "\n" if $self->verbose > 0;
-		$duplicate{$seq2->display_id} = 1;
-		push @dups, $seq2;
-	    }
 	}
-    }
-    foreach my $seq (@dups) {
-	$self->remove_seq($seq);
-    }
-    return @dups;
+	foreach my $seq (@dups) {
+		$self->remove_seq($seq);
+	}
+	return @dups;
 }
 
 =head2 sort_alphabetically
@@ -1102,7 +1102,7 @@ sub uppercase {
             Report) line for each sequence in the alignment. Examples are
             "1,60" or "5,10:12,58", where the numbers refer to conserved 
             positions within the alignment. The keys of the hash are the 
-            NSE's (name/start/end) assigned to each sequence.
+            NSEs (name/start/end) assigned to each sequence.
  Args     : none
  Returns  : Hash of strings (cigar lines)
 
@@ -1173,7 +1173,7 @@ sub cigar_line {
 =head2 match_line
 
  Title    : match_line()
- Usage    : $align->match_line()
+ Usage    : $line = $align->match_line()
  Function : Generates a match line - much like consensus string
             except that a line indicating the '*' for a match.
  Args     : (optional) Match line characters ('*' by default)
@@ -1263,10 +1263,11 @@ sub match_line {
 =head2 gap_line
 
  Title    : gap_line()
- Usage    : $align->gap_line()
+ Usage    : $line = $align->gap_line()
  Function : Generates a gap line - much like consensus string
             except that a line where '-' represents gap  
  Args     : (optional) gap line characters ('-' by default)
+ Returns  : string
 
 =cut
 
@@ -1289,10 +1290,11 @@ sub gap_line {
 =head2 all_gap_line
 
  Title    : all_gap_line()
- Usage    : $align->all_gap_line()
+ Usage    : $line = $align->all_gap_line()
  Function : Generates a gap line - much like consensus string
             except that a line where '-' represents all-gap column
  Args     : (optional) gap line characters ('-' by default)
+ Returns  : string
 
 =cut
 
@@ -1548,7 +1550,7 @@ sub score {
  Title     : consensus_string
  Usage     : $str = $ali->consensus_string($threshold_percent)
  Function  : Makes a strict consensus
- Returns   : 
+ Returns   : Consensus string
  Argument  : Optional treshold ranging from 0 to 100.
              The consensus residue has to appear at least threshold %
              of the sequences at a given location, otherwise a '?'
@@ -1769,7 +1771,7 @@ sub is_flush {
  Usage     : $len = $ali->length()
  Function  : Returns the maximum length of the alignment.
              To be sure the alignment is a block, use is_flush
- Returns   : 
+ Returns   : Integer
  Argument  : 
 
 =cut
@@ -2132,7 +2134,7 @@ sub displayname {
  Usage     : $ali->set_displayname_count
  Function  : Sets the names to be name_# where # is the number of
              times this name has been used.
- Returns   : 
+ Returns   : 1, on success
  Argument  : 
 
 =cut
@@ -2189,7 +2191,7 @@ sub set_displayname_flat {
  Title     : set_displayname_normal
  Usage     : $ali->set_displayname_normal()
  Function  : Makes all the sequences be displayed as name/start-end
- Returns   : 
+ Returns   : 1, on success
  Argument  : 
 
 =cut
