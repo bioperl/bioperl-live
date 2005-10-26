@@ -1277,7 +1277,7 @@ sub gap_line {
     my %gap_hsh; # column gaps vector
     foreach my $seq ( $self->each_seq ) {
 		my $i = 0;
-    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq '-'} 
+    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar} 
 		  map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
@@ -1301,22 +1301,54 @@ sub gap_line {
 sub all_gap_line {
     my ($self,$gapchar) = @_;
     $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh; # column gaps counter hash
-	my @seqs = $self->each_seq;
+    my %gap_hsh;		# column gaps counter hash
+    my @seqs = $self->each_seq;
     foreach my $seq ( @seqs ) {
-		my $i = 0;
-    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq '-'} 
-		  map {[$i++, $_]} split(//, uc ($seq->seq));
+	my $i = 0;
+    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar} 
+	map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
     foreach my $pos ( 0..$self->length-1 ) {
-	  if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {# gaps column
-    	$gap_line .= $gapchar;
-	  } else {
-    	$gap_line .= '.';
-	  }
+	if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {
+            # gaps column
+	    $gap_line .= $gapchar;
+	} else {
+	    $gap_line .= '.';
+	}
     }
     return $gap_line;
+}
+
+=head2 gap_col_matrix
+
+ Title    : gap_col_matrix()
+ Usage    : my $cols = $align->gap_col_matrix()
+ Function : Generates an array of hashes where
+            each entry in the array is a hash reference
+            with keys of all the sequence names and 
+            and value of 1 or 0 if the sequence has a gap at that column
+ Args     : (optional) gap line characters ($aln->gap_char or '-' by default)
+
+=cut
+
+sub gap_col_matrix {
+    my ($self,$gapchar) = @_;
+    $gapchar = $gapchar || $self->gap_char;
+    my %gap_hsh; # column gaps vector
+    my @cols;
+    foreach my $seq ( $self->each_seq ) {
+	my $i = 0;
+	my $str = $seq->seq;
+	my $len = $seq->length;
+	my $ch;
+	my $id = $seq->display_id;
+	while( $i < $len ) {
+	    $ch = substr($str, $i, 1);
+	    $cols[$i++]->{$id} = ($ch eq $gapchar);
+	}
+    }
+    return \@cols;
 }
 
 =head2 match
