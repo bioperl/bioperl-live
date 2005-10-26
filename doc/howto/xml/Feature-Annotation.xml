@@ -15,12 +15,9 @@
       <firstname>Brian</firstname>
       <surname>Osborne</surname>
       <affiliation>
-		  <orgname>
-			 <ulink url="http://www.cognia.com">
-				<citetitle>Cognia Corporation</citetitle></ulink>
-		  </orgname>
+		  <!--		  <orgname></orgname> -->
 		  <address>
-			 <email>brian_osborne-at-cognia.com</email>
+			 <email>osborne1 at optonline.net</email>
         </address>
       </affiliation>
     </author>
@@ -39,7 +36,7 @@
       <para>
 		  This document is copyright Brian Osborne, 2003. For
 		  reproduction other than personal use please contact brian at 
-		  cognia.com
+		  optonline.net.
       </para>      
     </legalnotice>
 
@@ -89,8 +86,8 @@
     <para>
       Some Bioperl neophytes may also be new to object-oriented
       programming (OOP) and this notion of an object. OOP is not the
-      subject of this HOWTO but I do want to touch on how objects are
-      used in Bioperl. In the Bioperl world parsing a
+      subject of this HOWTO but there should be some discussion of
+		how objects are used in Bioperl. In the Bioperl world parsing a
       Genbank file doesn't give you data, it gives you an object and you
       can ask the object, a kind of variable, for data. While 
       annotating you don't create a
@@ -133,10 +130,10 @@
       sense since SeqFeature objects typically have locations. The relative
       simplicity of the Annotation has made it
       amenable to the creation of a useful set of Annotation objects,
-      each devoted to a particular kind of observation or attribute.
+      each devoted to a particular kind of fact or observation.
     </para>
     <para>
-      I mentioned locations, above. Describing locations can be
+      Locations were discussed, above. Describing locations can be
       complicated in certain situations, say when some feature is
       located on different sequences with varying degrees of
       precision. One location could also be shared

@@ -22,12 +22,9 @@
 		  <para><ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> contributor</para>
       </authorblurb>
       <affiliation>
-		  <orgname>
-			 <ulink url="http://www.cognia.com"><citetitle>Cognia
-				Corporation</citetitle></ulink>
-		  </orgname>
+<!-- <orgname></orgname> -->
 		  <address>
-			 <email>brian-at-cognia.com</email>
+			 <email>osborne1-at-optonline.net</email>
         </address>
       </affiliation>
     </author>
@@ -61,7 +58,7 @@
       <para>
 		  This document is copyright Brian Osborne, 2004.  For
 		  reproduction other than personal use please contact 
-		  brian at cognia.com.
+		  brian at optonline.net.
       </para>      
     </legalnotice>
     
@@ -892,7 +889,7 @@ $seq_obj = $db_obj->get_Seq_by_id(2);
 		There are more sophisticated ways to query Genbank than
 		this. This next example attempts to do something "biological",
 		using the module 
-<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/Genbank.html"><citetitle>Bio::DB::Query::GenBank</citetitle></ulink>. Want all Arabidopsis
+<ulink url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Query/GenBank.html"><citetitle>Bio::DB::Query::GenBank</citetitle></ulink>. Want all Arabidopsis
 		topoisomerases from Genbank Nucleotide? This would be a 
 		reasonable first attempt:
 	 </para>
@@ -1084,7 +1081,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				</row>
 				<row>
 				  <entry>translate</entry>
-				  <entry>Sequence object</entry>
+				  <entry>protein Sequence object</entry>
 				  <entry>$prot_obj = $dna_obj->translate</entry>
 				  <entry>See
 					 <ulink
@@ -1126,7 +1123,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				</row>
 				<row>
 				  <entry>get_secondary_accessions</entry>
-				  <entry>secondary accessions, if available</entry>
+				  <entry>array of secondary accessions, if available</entry>
 				  <entry>@accs = $so->get_secondary_accessions</entry>
 				  <entry>get other identifiers</entry>
 				</row>
@@ -1144,7 +1141,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				</row>
 				<row>
 				  <entry>get_dates</entry>
-				  <entry>dates, if available</entry>
+				  <entry>array of dates, if available</entry>
 				  <entry>@dates = $so->get_dates</entry>
 				  <entry>get dates</entry>
 				</row>

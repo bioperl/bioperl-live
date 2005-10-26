@@ -30,9 +30,9 @@
         <para>Bioperl contributor</para>
       </authorblurb>
       <affiliation>
-        <orgname><ulink url="http://www.cognia.com"><citetitle>Cognia Corporation</citetitle></ulink></orgname>
+		  <!--        <orgname></orgname> -->
         <address>
-          <email>brian-at-cognia.com</email>
+          <email>osborne1 at optonline.net</email>
         </address>
       </affiliation>
     </author>

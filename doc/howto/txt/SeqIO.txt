@@ -17,9 +17,7 @@ Darinn London
 
 Brian Osborne
 
-   Cognia Corporation
-
-   <[4]brian-at-cognia.com>
+   <[4]osborne1-at-optonline.net>
 
    This document is copyright Ewan Birney, 2002. For reproduction other
    than personal use please contact me at birney-at-ebi.ac.uk
@@ -731,7 +729,7 @@ References
    1. http://bioperl.org/
    2. mailto:birney-at-ebi.ac.uk
    3. mailto:dlondon-at-ebi.ac.uk
-   4. mailto:brian-at-cognia.com
+   4. mailto:osborne1-at-optonline.net
    5. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#basics
    6. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#overview
    7. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/SeqIO.html#background

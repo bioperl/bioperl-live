@@ -44,11 +44,9 @@
 	<para>Bioperl contributor</para>
       </authorblurb>
       <affiliation>
-	<orgname><ulink url="http://www.cognia.com"><citetitle>Cognia Corporation</citetitle></ulink></orgname>
-	<address>
-	  <city>NYC</city>, <state>NY</state> <postcode>10022</postcode> 
-	  <country>USA</country>
-	  <email>brian-at-cognia.com</email>
+		  <!--	<orgname></orgname> -->
+		  <address>
+			 <email>osborne1 at optonline.net</email>
         </address>
       </affiliation>
     </author>

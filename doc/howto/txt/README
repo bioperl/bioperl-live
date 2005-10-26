@@ -1,4 +1,2 @@
-Most of these text files are created using the corresponding HTML
-files and lynx:
-
->lynx -dump <HTML file> > <text file>
+See the README in doc/howto/xml for information on creating text
+from DocBook XML.
