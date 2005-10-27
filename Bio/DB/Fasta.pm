@@ -1,3 +1,10 @@
+# $Id$
+#
+# BioPerl module for Bio::DB::Fasta
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
 =head1 NAME
 
 Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
@@ -10,12 +17,12 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   my $db      = Bio::DB::Fasta->new('/path/to/fasta/files');
 
   # simple access (for those without Bioperl)
-  my $seq     = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
-  my $revseq  = $db->seq('CHROMOSOME_I',4_100_000 => 4_000_000);
+  my $seq      = $db->seq('CHROMOSOME_I',4_000_000 => 4_100_000);
+  my $revseq   = $db->seq('CHROMOSOME_I',4_100_000 => 4_000_000);
   my @ids     = $db->ids;
-  my $length  = $db->length('CHROMOSOME_I');
+  my $length   = $db->length('CHROMOSOME_I');
   my $alphabet = $db->alphabet('CHROMOSOME_I');
-  my $header  = $db->header('CHROMOSOME_I');
+  my $header   = $db->header('CHROMOSOME_I');
 
   # Bioperl-style access
   my $db      = Bio::DB::Fasta->new('/path/to/fasta/files');
@@ -27,7 +34,7 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
   # (etc)
 
   # Bio::SeqIO-style access
-  my $stream  = Bio::DB::Fasta->new('/path/to/fasta/files')->get_PrimarySeq_stream;
+  my $stream  = Bio::DB::Fasta->new('/path/to/files')->get_PrimarySeq_stream;
   while (my $seq = $stream->next_seq) {
     # Bio::PrimarySeqI stuff
   }
@@ -51,7 +58,7 @@ sequences without bringing the entire sequence into memory.
 When you initialize the module, you point it at a single fasta file or
 a directory of multiple such files.  The first time it is run, the
 module generates an index of the contents of the file or directory
-using the AnyDBM module (Berkeley DB preferred, followed by GDBM_File,
+using the AnyDBM module (Berkeley DB* preferred, followed by GDBM_File,
 NDBM_File, and SDBM_File).  Thereafter it uses the index file to find
 the file and offset for any requested sequence.  If one of the source
 fasta files is updated, the module reindexes just that one file.  (You
@@ -66,8 +73,8 @@ different line lengths are allowed in the same file.  However, within
 a sequence entry, all lines must be the same length except for the
 last.
 
-The module uses /^E<gt>(\S+)/ to extract each sequence's primary ID from
-the Fasta header.  During indexing, you may pass a callback routine to
+The module uses /^E<gt>(\S+)/ to extract the primary ID of each sequence 
+from the Fasta header.  During indexing, you may pass a callback routine to
 modify this primary ID.  For example, you may wish to extract a
 portion of the gi|gb|abc|xyz nonsense that GenBank Fasta files use.
 The original header line can be recovered later.
@@ -78,6 +85,9 @@ megabases.  Indexing the C. elegans genome (100 megabases of genomic
 sequence plus 100,000 ESTs) takes ~5 minutes on my 300 MHz pentium
 laptop. On the same system, average access time for any 200-mer within
 the C. elegans genome was E<lt>0.02s.
+
+*Berkeley DB can be obtained free from www.sleepycat.com. After it is 
+installed you will need to install the BerkeleyDB Perl module.
 
 =head1 DATABASE CREATION AND INDEXING
 
@@ -106,16 +116,16 @@ same name=E<gt>value pairs.  Valid options are:
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST,dna}
                for searching for Fasta
-	       files in directories. 
+	            files in directories. 
 
  -makeid       A code subroutine for     None
-	       transforming Fasta IDs.
+	            transforming Fasta IDs.
 
- -maxopen      Maximum size of		 32
-	       filehandle cache.
+ -maxopen      Maximum size of		     32
+	            filehandle cache.
 
- -debug        Turn on status		 0
-	       messages.
+ -debug        Turn on status		        0
+	            messages.
 
  -reindex      Force the index to be     0
                rebuilt.
@@ -141,7 +151,7 @@ Bio::SeqIO style.
 =back
 
 The -makeid option gives you a chance to modify sequence IDs during
-indexing.  The option's value should be a code reference that will
+indexing.  The option value should be a code reference that will
 take a scalar argument and return a scalar result, like this:
 
   $db = Bio::DB::Fasta->new("file.fa",-makeid=>\&make_my_id);
@@ -425,16 +435,16 @@ These are optional arguments to pass in as well.
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
-	       files in directories. 
+	            files in directories. 
 
  -makeid       A code subroutine for     None
-	       transforming Fasta IDs.
+	            transforming Fasta IDs.
 
- -maxopen      Maximum size of		 32
-	       filehandle cache.
+ -maxopen      Maximum size of		     32
+	            filehandle cache.
 
- -debug        Turn on status		 0
-	       messages.
+ -debug        Turn on status		        0
+	            messages.
 
  -reindex      Force the index to be     0
                rebuilt.
@@ -508,7 +518,8 @@ sub _open_index {
   my %offsets;
   my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
   my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs or $self->throw( "Can't open cache file $index: $!");
+  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
+	 or $self->throw( "Can't open cache file $index: $!");
   return \%offsets;
 }
 
@@ -642,7 +653,6 @@ sub index_file {
  Function: gets stored dbm arguments
  Returns : array
  Args    : none
-
 
 =cut
 
@@ -946,7 +956,6 @@ sub _type {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
