@@ -713,14 +713,20 @@ $sequence = $seq_obj-&gt;seq;
 $seq_obj-&gt;seq("MMTYDFFFFVVNNNNPPPPAAAW");
       </pre>
 	 </p><p></p><p>
-		<div class="table"><a id="d4e435"></a><table summary="Sequence Object Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Example</th><th>Note</th></tr></thead><tbody><tr><td>new</td><td>Sequence object</td><td>$so = Bio::Seq-&gt;new(-seq =&gt; "MPQRAS")</td><td>create a new one</td></tr><tr><td>seq</td><td>sequence string</td><td>$seq = $so-&gt;seq</td><td>get or set the sequence</td></tr><tr><td>display_id</td><td>identifier</td><td>$so-&gt;display_id("NP_123456")</td><td>get or set an identifier</td></tr><tr><td>primary_id</td><td>identifier</td><td>$so-&gt;primary_id(12345)</td><td>get or set an identifier</td></tr><tr><td>desc</td><td>description</td><td>$so-&gt;desc("Example 1")</td><td>get or set a description</td></tr><tr><td>accession</td><td>identifier</td><td>$acc = $so-&gt;accession</td><td>get or set an identifier</td></tr><tr><td>length</td><td>length, a number</td><td>$len = $so-&gt;length</td><td>get the length</td></tr><tr><td>alphabet</td><td>alphabet</td><td>$so-&gt;alphabet('dna')</td><td>get or set the alphabet ('dna','rna','protein')</td></tr><tr><td>subseq</td><td>sequence string</td><td>$string = $seq_obj-&gt;subseq(10,40)</td><td>Arguments are start and end</td></tr><tr><td>trunc</td><td>Sequence object</td><td>$so2 = $so1-&gt;trunc(10,40)</td><td>Truncate, arguments are start and end</td></tr><tr><td>revcom</td><td>Sequence object</td><td>$so2 = $so1-&gt;revcom</td><td>Reverse complement</td></tr><tr><td>translate</td><td>protein Sequence object</td><td>$prot_obj = $dna_obj-&gt;translate</td><td>See
+		<div class="table"><a id="d4e435"></a><table summary="Sequence Object Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Example</th><th>Note</th></tr></thead><tbody><tr><td>new</td><td>Sequence object</td><td>$so = Bio::Seq-&gt;new(-seq =&gt; "MPQRAS")</td><td>create a new one, see <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html" target="_top"><i class="citetitle">Bio::Seq</i></a>
+				  for more</td></tr><tr><td>seq</td><td>sequence string</td><td>$seq = $so-&gt;seq</td><td>get or set the sequence</td></tr><tr><td>display_id</td><td>identifier</td><td>$so-&gt;display_id("NP_123456")</td><td>get or set an identifier</td></tr><tr><td>primary_id</td><td>identifier</td><td>$so-&gt;primary_id(12345)</td><td>get or set an identifier</td></tr><tr><td>desc</td><td>description</td><td>$so-&gt;desc("Example 1")</td><td>get or set a description</td></tr><tr><td>accession</td><td>identifier</td><td>$acc = $so-&gt;accession</td><td>get or set an identifier</td></tr><tr><td>length</td><td>length, a number</td><td>$len = $so-&gt;length</td><td>get the length</td></tr><tr><td>alphabet</td><td>alphabet</td><td>$so-&gt;alphabet('dna')</td><td>get or set the alphabet ('dna','rna','protein')</td></tr><tr><td>subseq</td><td>sequence string</td><td>$string = $seq_obj-&gt;subseq(10,40)</td><td>Arguments are start and end</td></tr><tr><td>trunc</td><td>Sequence object</td><td>$so2 = $so1-&gt;trunc(10,40)</td><td>Arguments are start and end</td></tr><tr><td>revcom</td><td>Sequence object</td><td>$so2 = $so1-&gt;revcom</td><td>Reverse complement</td></tr><tr><td>translate</td><td>protein Sequence object</td><td>$prot_obj = $dna_obj-&gt;translate</td><td>See
 					 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html" target="_top"><i class="citetitle">Bio::PrimarySeqI</i></a>
 					 for more</td></tr><tr><td>species</td><td>Species object</td><td>$species_obj = $so-&gt;species</td><td>See
 					 <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html" target="_top"><i class="citetitle">Bio::Species</i></a>
-					 for more</td></tr><tr><td>seq_version</td><td>version, if available</td><td>$so-&gt;seq_version("1")</td><td>get or set a version</td></tr><tr><td>keywords</td><td>keywords, if available</td><td>@array = $so-&gt;keywords</td><td>get or set keywords</td></tr><tr><td>namespace</td><td>namespace, if available</td><td>$so-&gt;namespace("Private")</td><td>get or set the name space</td></tr><tr><td>authority</td><td>authority, if available</td><td>$so-&gt;authority("FlyBase")</td><td>get or set the organization</td></tr><tr><td>get_secondary_accessions</td><td>array of secondary accessions, if available</td><td>@accs = $so-&gt;get_secondary_accessions</td><td>get other identifiers</td></tr><tr><td>division</td><td>division, if available (e.g. PRI)</td><td>$div = $so-&gt;division</td><td>get division</td></tr><tr><td>molecule</td><td>molecule type, if available</td><td>$type = $so-&gt;molecule</td><td>get molecule</td></tr><tr><td>get_dates</td><td>array of dates, if available</td><td>@dates = $so-&gt;get_dates</td><td>get dates</td></tr><tr><td>pid</td><td>pid, if available</td><td>$pid = $so-&gt;pid</td><td>get pid</td></tr><tr><td>is_circular</td><td>Boolean</td><td>if $so-&gt;is_circular { # }</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;Sequence Object Methods</b></p></div>
+					 for more</td></tr><tr><td>seq_version</td><td>version, if available</td><td>$so-&gt;seq_version("1")</td><td>get or set a version</td></tr><tr><td>keywords</td><td>keywords, if available</td><td>@array = $so-&gt;keywords</td><td>get or set keywords</td></tr><tr><td>namespace</td><td>namespace, if available</td><td>$so-&gt;namespace("Private")</td><td>get or set the name space</td></tr><tr><td>authority</td><td>authority, if available</td><td>$so-&gt;authority("FlyBase")</td><td>get or set the organization</td></tr><tr><td>get_secondary_accessions</td><td>array of secondary accessions, if available</td><td>@accs = $so-&gt;get_secondary_accessions</td><td>get other identifiers</td></tr><tr><td>division</td><td>division, if available (e.g. PRI)</td><td>$div = $so-&gt;division</td><td>get division (e.g. "PRI")</td></tr><tr><td>molecule</td><td>molecule type, if available</td><td>$type = $so-&gt;molecule</td><td>get molecule (e.g. "RNA", "DNA")</td></tr><tr><td>get_dates</td><td>array of dates, if available</td><td>@dates = $so-&gt;get_dates</td><td>get dates</td></tr><tr><td>pid</td><td>pid, if available</td><td>$pid = $so-&gt;pid</td><td>get pid</td></tr><tr><td>is_circular</td><td>Boolean</td><td>if $so-&gt;is_circular { # }</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;1.&nbsp;Sequence Object Methods</b></p></div>
     </p><p>
 		The table above shows the methods you're likely to use that
-		concern the Sequence object directly. There are also a number
+		concern the Sequence object directly. Bear in mind that not all
+		values, such as "molecule" or "division", are found in all
+		sequence formats, you have to know something about your input
+		sequences in order to get some of these values.
+	 </p><p>
+		There are also a number
 		of methods that are concerned with the Features and Annotations
 		associated with the Sequence object. This is something of a 
 		tangent but if you'd like to learn about Features and Annotations
@@ -728,7 +734,7 @@ $seq_obj-&gt;seq("MMTYDFFFFVVNNNNPPPPAAAW");
 <a href="http://bioperl.org/HOWTOs/html/Feature-Annotation.html" target="_top"><i class="citetitle">HOWTO</i></a>.
 		The methods related to this topic are shown below.
 	 </p><p>
-		<div class="table"><a id="d4e568"></a><table summary="Feature and Annotation Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Note</th></tr></thead><tbody><tr><td>get_SeqFeatures</td><td>array of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>get_all_SeqFeatures</td><td>array of SeqFeature objects</td><td>array includes sub-features</td></tr><tr><td>remove_SeqFeatures</td><td>array of SeqFeatures removed</td><td>&nbsp;</td></tr><tr><td>feature_count</td><td>number of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>add_SeqFeature</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>annotation</td><td>array of Annotation objects</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Feature and Annotation Methods</b></p></div>
+		<div class="table"><a id="d4e571"></a><table summary="Feature and Annotation Methods" border="1"><thead><tr><th>Name</th><th>Returns</th><th>Note</th></tr></thead><tbody><tr><td>get_SeqFeatures</td><td>array of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>get_all_SeqFeatures</td><td>array of SeqFeature objects</td><td>array includes sub-features</td></tr><tr><td>remove_SeqFeatures</td><td>array of SeqFeatures removed</td><td>&nbsp;</td></tr><tr><td>feature_count</td><td>number of SeqFeature objects</td><td>&nbsp;</td></tr><tr><td>add_SeqFeature</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>annotation</td><td>array of Annotation objects</td><td>get or set</td></tr></tbody></table><p class="title"><b>Table&nbsp;2.&nbsp;Feature and Annotation Methods</b></p></div>
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="examples"></a>11.&nbsp;Example Sequence objects</h2></div></div></div><p>
 		Let's use some of the methods above and see what they return
 		when the sequence object is obtained from different sources.
@@ -826,7 +832,7 @@ ORIGIN      15 bp upstream from HhaI site.
     </p><p></p><p>
 		Either way, the values returned by various methods are shown below.
 	 </p><p>
-		<div class="table"><a id="d4e617"></a><table summary="Values from the Sequence object (Genbank)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor.</td></tr><tr><td>display_name</td><td>ECORHO</td></tr><tr><td>accession</td><td>J01673</td></tr><tr><td>primary_id</td><td>147605</td></tr><tr><td>seq_version</td><td>1</td></tr><tr><td>keywords</td><td>attenuator; leader peptide; rho gene; transcription terminator</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr><tr><td>division</td><td>BCT</td></tr><tr><td>molecule</td><td>DNA</td></tr><tr><td>get_dates</td><td>26-APR-1993</td></tr><tr><td>get_secondary_accessions</td><td>J01674</td></tr></tbody></table><p class="title"><b>Table&nbsp;3.&nbsp;Values from the Sequence object (Genbank)</b></p></div>
+		<div class="table"><a id="d4e620"></a><table summary="Values from the Sequence object (Genbank)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor.</td></tr><tr><td>display_name</td><td>ECORHO</td></tr><tr><td>accession</td><td>J01673</td></tr><tr><td>primary_id</td><td>147605</td></tr><tr><td>seq_version</td><td>1</td></tr><tr><td>keywords</td><td>attenuator; leader peptide; rho gene; transcription terminator</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr><tr><td>division</td><td>BCT</td></tr><tr><td>molecule</td><td>DNA</td></tr><tr><td>get_dates</td><td>26-APR-1993</td></tr><tr><td>get_secondary_accessions</td><td>J01674</td></tr></tbody></table><p class="title"><b>Table&nbsp;3.&nbsp;Values from the Sequence object (Genbank)</b></p></div>
     </p><p>
 		There's a few comments that need to be made. First,
 		you noticed that there's an awful lot of
@@ -866,7 +872,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
     </p><p></p><p>
 		And here are the values:
     </p><p>
-		<div class="table"><a id="d4e686"></a><table summary="Values from the Sequence object (FASTA)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor</td></tr><tr><td>display_name</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>accession</td><td>unknown</td></tr><tr><td>primary_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr></tbody></table><p class="title"><b>Table&nbsp;4.&nbsp;Values from the Sequence object (FASTA)</b></p></div>
+		<div class="table"><a id="d4e689"></a><table summary="Values from the Sequence object (FASTA)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>desc</td><td>E.coli rho gene coding for transcription termination factor</td></tr><tr><td>display_name</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>accession</td><td>unknown</td></tr><tr><td>primary_id</td><td>gi|147605|gb|J01673.1|ECORHO</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>1880</td></tr><tr><td>seq</td><td>AACCCT...ACAGGAC</td></tr></tbody></table><p class="title"><b>Table&nbsp;4.&nbsp;Values from the Sequence object (FASTA)</b></p></div>
     </p><p>
 		If you compare these values to the values taken from the Genbank 
 		entry you'll see that certain values are missing,
@@ -978,7 +984,7 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
 	 </p><p>
 		The corresponding set of values is shown below.
 	 </p><p>
-		<div class="table"><a id="d4e745"></a><table summary="Values from the Sequence object (Swissprot)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>A2S3_RAT</td></tr><tr><td>desc</td><td>Amyotrophic lateral ... protein of 98 kDa).</td></tr><tr><td>display_name</td><td>A2S3_RAT</td></tr><tr><td>accession</td><td>Q8R2H7</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>913</td></tr><tr><td>seq</td><td>MSLSQ...ILKED</td></tr><tr><td>division</td><td>RAT</td></tr><tr><td>get_dates</td><td>28-FEB-2003 (Rel. 41, Created) 15-MAR-2004 (Rel. 43, Last sequence update) 15-MAR-2004 (Rel. 43, Last annotation update)</td></tr><tr><td>get_secondary_accessions</td><td>Q8R2H6 Q8R4G3</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Values from the Sequence object (<a href="http://www.expasy.ch" target="_top"><i class="citetitle">Swissprot</i></a>)</b></p></div>
+		<div class="table"><a id="d4e748"></a><table summary="Values from the Sequence object (Swissprot)" border="1"><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td>display_id</td><td>A2S3_RAT</td></tr><tr><td>desc</td><td>Amyotrophic lateral ... protein of 98 kDa).</td></tr><tr><td>display_name</td><td>A2S3_RAT</td></tr><tr><td>accession</td><td>Q8R2H7</td></tr><tr><td>is_circular</td><td>&nbsp;</td></tr><tr><td>namespace</td><td>&nbsp;</td></tr><tr><td>authority</td><td>&nbsp;</td></tr><tr><td>length</td><td>913</td></tr><tr><td>seq</td><td>MSLSQ...ILKED</td></tr><tr><td>division</td><td>RAT</td></tr><tr><td>get_dates</td><td>28-FEB-2003 (Rel. 41, Created) 15-MAR-2004 (Rel. 43, Last sequence update) 15-MAR-2004 (Rel. 43, Last annotation update)</td></tr><tr><td>get_secondary_accessions</td><td>Q8R2H6 Q8R4G3</td></tr></tbody></table><p class="title"><b>Table&nbsp;5.&nbsp;Values from the Sequence object (<a href="http://www.expasy.ch" target="_top"><i class="citetitle">Swissprot</i></a>)</b></p></div>
 	 </p><p>
 		As in the Genbank example there's information that the Sequence
 		object doesn't supply, and it's all stored in Annotation objects. See the
@@ -1094,9 +1100,10 @@ print $result_obj-&gt;num_hits;
 		file locally and create an index file for it that enables you to 
 		retrieve sequences from the sequence file. Why would you want to do this?
 		Speed, for one. Retrieving sequences from local, indexed
-		sequence files is much faster than using the Bio::DB* modules
-		that were used above. It's also much faster than using SeqIO,
-		in part because SeqIO is stepping through the file, one 
+		sequence files is much faster than using the Bio::DB::GenBank module
+		used above that retrieves from a remote database. It's also much
+		faster than using SeqIO,
+		in part because SeqIO is stepping through a file, one 
 		sequence at a time, starting at
 		the beginning of the file. Flexibility is another reason. What
 		if you'd created your own collection of sequences, not found in
@@ -1108,6 +1115,10 @@ print $result_obj-&gt;num_hits;
 		these indices are not built to retrieve multiple sequence
 		objects at a time.
 	 </p><p>
+		There are a few different modules in Bioperl that can index
+		sequence files, the Bio::Index::* modules and Bio::DB::Fasta. 
+		All these modules are scripted in a similar way: you first index
+		one or more files, then retrieve sequences from the indices.
 		Let's begin our script with the <tt class="function">use</tt>
 		statement and also set up our environment with some
 		variables (the sequence file, fasta format, will be called 
@@ -1197,6 +1208,26 @@ sub get_id {
 		To be precise, one would say that the
 		<tt class="function">id_parser</tt> method accepts
 		a reference to a function as an argument.
+	 </p><p>
+		<a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Fasta.html" target="_top"><i class="citetitle">Bio::DB::Fasta</i></a> has some features that
+		<a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html" target="_top"><i class="citetitle">Bio::Index::Fasta</i></a> lacks, one of the more interesting ones is that it 
+		was built to handle very large sequences and can retrieve
+		sub-sequences from genome-size sequences efficiently. Here is an example:
+	 </p><pre class="programlisting">
+use Bio::DB::Fasta;
+
+($file,$id,$start,$end) = ("genome.fa","CHROMOSOME_I",11250,11333);
+
+$db = Bio::DB::Fasta-&gt;new($file);
+
+$seqobj = $db-&gt;get_Seq_by_id($id,$start,$end);
+
+print $seqobj-&gt;seq;
+	 </pre><p></p><p>
+		This script indexes the "genome.fa" file, then retrieves a
+		sub-sequence of "CHROMOSOME_I", starting at 11250 and ending 
+		at 11333. One can also specify what ids can be used as keys,
+		just as in Bio::Index::Fasta.
 	 </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="more"></a>14.&nbsp;More on <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a></h2></div></div></div><p>
 		Perhaps this article has gotten you interested in learning a
 		bit more about <a href="http://bioperl.org" target="_top"><i class="citetitle">Bioperl</i></a>. Here are some other things you might 

@@ -1017,7 +1017,9 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>new</entry>
 				  <entry>Sequence object</entry>
 				  <entry>$so = Bio::Seq->new(-seq => "MPQRAS")</entry>
-				  <entry>create a new one</entry>
+				  <entry>create a new one, see <ulink
+						url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html"><citetitle>Bio::Seq</citetitle></ulink>
+				  for more</entry>
 				</row>
 				<row>
 				  <entry>seq</entry>
@@ -1071,7 +1073,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>trunc</entry>
 				  <entry>Sequence object</entry>
 				  <entry>$so2 = $so1->trunc(10,40)</entry>
-				  <entry>Truncate, arguments are start and end</entry>
+				  <entry>Arguments are start and end</entry>
 				</row>
 				<row>
 				  <entry>revcom</entry>
@@ -1131,13 +1133,13 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 				  <entry>division</entry>
 				  <entry>division, if available (e.g. PRI)</entry>
 				  <entry>$div = $so->division</entry>
-				  <entry>get division</entry>
+				  <entry>get division (e.g. "PRI")</entry>
 				</row>
 				<row>
 				  <entry>molecule</entry>
 				  <entry>molecule type, if available</entry>
 				  <entry>$type = $so->molecule</entry>
-				  <entry>get molecule</entry>
+				  <entry>get molecule (e.g. "RNA", "DNA")</entry>
 				</row>
 				<row>
 				  <entry>get_dates</entry>
@@ -1163,7 +1165,13 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
     </para>
 	 <para>
 		The table above shows the methods you're likely to use that
-		concern the Sequence object directly. There are also a number
+		concern the Sequence object directly. Bear in mind that not all
+		values, such as "molecule" or "division", are found in all
+		sequence formats, you have to know something about your input
+		sequences in order to get some of these values.
+	 </para>
+	 <para>
+		There are also a number
 		of methods that are concerned with the Features and Annotations
 		associated with the Sequence object. This is something of a 
 		tangent but if you'd like to learn about Features and Annotations
@@ -1795,9 +1803,10 @@ print $result_obj->num_hits;
 		file locally and create an index file for it that enables you to 
 		retrieve sequences from the sequence file. Why would you want to do this?
 		Speed, for one. Retrieving sequences from local, indexed
-		sequence files is much faster than using the Bio::DB* modules
-		that were used above. It's also much faster than using SeqIO,
-		in part because SeqIO is stepping through the file, one 
+		sequence files is much faster than using the Bio::DB::GenBank module
+		used above that retrieves from a remote database. It's also much
+		faster than using SeqIO,
+		in part because SeqIO is stepping through a file, one 
 		sequence at a time, starting at
 		the beginning of the file. Flexibility is another reason. What
 		if you'd created your own collection of sequences, not found in
@@ -1811,6 +1820,10 @@ print $result_obj->num_hits;
 		objects at a time.
 	 </para>
 	 <para>
+		There are a few different modules in Bioperl that can index
+		sequence files, the Bio::Index::* modules and Bio::DB::Fasta. 
+		All these modules are scripted in a similar way: you first index
+		one or more files, then retrieve sequences from the indices.
 		Let's begin our script with the <function>use</function>
 		statement and also set up our environment with some
 		variables (the sequence file, fasta format, will be called 
@@ -1924,6 +1937,32 @@ sub get_id {
 		To be precise, one would say that the
 		<function>id_parser</function> method accepts
 		a reference to a function as an argument.
+	 </para>
+	 <para>
+		<ulink
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Fasta.html"><citetitle>Bio::DB::Fasta</citetitle></ulink> has some features that
+		<ulink
+		url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html"><citetitle>Bio::Index::Fasta</citetitle></ulink> lacks, one of the more interesting ones is that it 
+		was built to handle very large sequences and can retrieve
+		sub-sequences from genome-size sequences efficiently. Here is an example:
+	 </para>
+	 <programlisting>
+use Bio::DB::Fasta;
+
+($file,$id,$start,$end) = ("genome.fa","CHROMOSOME_I",11250,11333);
+
+$db = Bio::DB::Fasta->new($file);
+
+$seqobj = $db->get_Seq_by_id($id,$start,$end);
+
+print $seqobj->seq;
+	 </programlisting>
+	 <para></para>
+	 <para>
+		This script indexes the "genome.fa" file, then retrieves a
+		sub-sequence of "CHROMOSOME_I", starting at 11250 and ending 
+		at 11333. One can also specify what ids can be used as keys,
+		just as in Bio::Index::Fasta.
 	 </para>
 </section>
 

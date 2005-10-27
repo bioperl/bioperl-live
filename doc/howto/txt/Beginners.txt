@@ -615,7 +615,7 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
 
    Name Returns Example Note
    new Sequence object $so = Bio::Seq->new(-seq => "MPQRAS") create a new
-   one
+   one, see [88]Bio::Seq for more
    seq sequence string $seq = $so->seq get or set the sequence
    display_id identifier $so->display_id("NP_123456") get or set an
    identifier
@@ -627,13 +627,13 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
    ('dna','rna','protein')
    subseq sequence string $string = $seq_obj->subseq(10,40) Arguments are
    start and end
-   trunc Sequence object $so2 = $so1->trunc(10,40) Truncate, arguments
-   are start and end
+   trunc Sequence object $so2 = $so1->trunc(10,40) Arguments are start
+   and end
    revcom Sequence object $so2 = $so1->revcom Reverse complement
    translate protein Sequence object $prot_obj = $dna_obj->translate See
-   [88]Bio::PrimarySeqI for more
+   [89]Bio::PrimarySeqI for more
    species Species object $species_obj = $so->species See
-   [89]Bio::Species for more
+   [90]Bio::Species for more
    seq_version version, if available $so->seq_version("1") get or set a
    version
    keywords keywords, if available @array = $so->keywords get or set
@@ -645,9 +645,9 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
    get_secondary_accessions array of secondary accessions, if available
    @accs = $so->get_secondary_accessions get other identifiers
    division division, if available (e.g. PRI) $div = $so->division get
-   division
+   division (e.g. "PRI")
    molecule molecule type, if available $type = $so->molecule get
-   molecule
+   molecule (e.g. "RNA", "DNA")
    get_dates array of dates, if available @dates = $so->get_dates get
    dates
    pid pid, if available $pid = $so->pid get pid
@@ -656,11 +656,16 @@ $seq_obj->seq("MMTYDFFFFVVNNNNPPPPAAAW");
    Table 1. Sequence Object Methods
 
    The table above shows the methods you're likely to use that concern
-   the Sequence object directly. There are also a number of methods that
-   are concerned with the Features and Annotations associated with the
-   Sequence object. This is something of a tangent but if you'd like to
-   learn about Features and Annotations see the relevant [90]HOWTO. The
-   methods related to this topic are shown below.
+   the Sequence object directly. Bear in mind that not all values, such
+   as "molecule" or "division", are found in all sequence formats, you
+   have to know something about your input sequences in order to get some
+   of these values.
+
+   There are also a number of methods that are concerned with the
+   Features and Annotations associated with the Sequence object. This is
+   something of a tangent but if you'd like to learn about Features and
+   Annotations see the relevant [91]HOWTO. The methods related to this
+   topic are shown below.
 
    Name Returns Note
    get_SeqFeatures array of SeqFeature objects
@@ -788,8 +793,8 @@ ORIGIN      15 bp upstream from HhaI site.
 
    There's a few comments that need to be made. First, you noticed that
    there's an awful lot of information missing. All of this missing
-   information is stored in what [91]Bioperl calls Features and
-   Annotations, see the [92]Feature and Annotation HOWTO if you'd like to
+   information is stored in what [92]Bioperl calls Features and
+   Annotations, see the [93]Feature and Annotation HOWTO if you'd like to
    learn more about this. Second, a few of the methods don't return
    anything, like namespace and authority. The reason is that though
    these are good values in principle there are no commonly agreed upon
@@ -843,19 +848,19 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
    these entries are their respective formats. The reason is that there
    are no rules governing how one interconverts formats, meaning how
    Genbank creates fasta files from Genbank files may be different from
-   how [93]SwissProt performs the same interconversion. Until the
+   how [94]SwissProt performs the same interconversion. Until the
    organizations creating these databases agree on standard sets of names
-   and formats all the [94]Bioperl authors can do is do make reasonable
+   and formats all the [95]Bioperl authors can do is do make reasonable
    choices.
    [Note]
    Note
 
-   Yes, [95]Bioperl could follow the conventions of a single organization
+   Yes, [96]Bioperl could follow the conventions of a single organization
    like Genbank such that display_id returns the same value when using
    Genbank format or Genbank's fasta format but the authors have elected
    not to base Bioperl around the conventions of any one organization.
 
-   Let's use a [96]Swissprot file as our last example. The input entry
+   Let's use a [97]Swissprot file as our last example. The input entry
    looks like this:
 
 ID   A2S3_RAT       STANDARD;      PRT;   913 AA.
@@ -953,26 +958,26 @@ SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
    sequence update) 15-MAR-2004 (Rel. 43, Last annotation update)
    get_secondary_accessions Q8R2H6 Q8R4G3
 
-   Table 5. Values from the Sequence object ([97]Swissprot)
+   Table 5. Values from the Sequence object ([98]Swissprot)
 
    As in the Genbank example there's information that the Sequence object
    doesn't supply, and it's all stored in Annotation objects. See the
-   [98]Feature and Annotation HOWTO for more.
+   [99]Feature and Annotation HOWTO for more.
 
 12. BLAST
 
    You have access to a large number of sequence analysis programs within
-   [99]Bioperl. Typically this means you have a means to run the program
+   [100]Bioperl. Typically this means you have a means to run the program
    and frequently a means of parsing the resulting output, or report, as
    well. Certainly the most popular analytical program is BLAST so let's
    use it as an example. First you'll need to get BLAST, also known as
    blastall, installed on your machine and running and versions of the
    program that can run on all the popular operating systems can be
-   downloaded from [100]NCBI. The example code assumes that you used the
+   downloaded from [101]NCBI. The example code assumes that you used the
    formatdb program to index the database sequence file "db.fa".
 
    As usual, we start by choosing a module to use, in this case
-   [101]Bio::Tools::Run::StandAloneBlast. You stipulate the parameters
+   [102]Bio::Tools::Run::StandAloneBlast. You stipulate the parameters
    used by the blastall program by populating an array, it's called
    @params in this example but any name for the array will work:
 
@@ -1008,7 +1013,7 @@ print $result_obj->num_hits;
    in the report ends up in the report object, and you can access or
    print out the data in all sorts of ways. The report object,
    $report_obj, and the result object, $result_obj, come from the
-   SearchIO modules. The [102]SearchIO HOWTO will tell you all about
+   SearchIO modules. The [103]SearchIO HOWTO will tell you all about
    using these objects to extract useful data from your BLAST analyses.
 
    Here's an example of how one would use SearchIO to extract data from a
@@ -1034,42 +1039,45 @@ print $result_obj->num_hits;
    pair are greater than 75% identical.
 
    Sometimes you'll see errors when you try to use
-   [103]Bio::Tools::Run::StandAloneBlast that have nothing to do with
-   [104]Bioperl. Make sure that BLAST is set up properly and running
+   [104]Bio::Tools::Run::StandAloneBlast that have nothing to do with
+   [105]Bioperl. Make sure that BLAST is set up properly and running
    before you attempt to script it using
-   [105]Bio::Tools::Run::StandAloneBlast. There are some notes on setting
-   up BLAST in the [106]INSTALL file.
+   [106]Bio::Tools::Run::StandAloneBlast. There are some notes on setting
+   up BLAST in the [107]INSTALL file.
 
-   [107]Bioperl enables you to run a wide variety of bioinformatics
+   [108]Bioperl enables you to run a wide variety of bioinformatics
    programs but in order to do so, in most cases, you will need to
    install the accessory bioperl-run package. In addition there is no
    guarantee that there is a corresponding parser for the program that
    you wish to run, but parsers have been built for the most popular
-   programs. You can find the bioperl-run package on the [108]download
+   programs. You can find the bioperl-run package on the [109]download
    page.
 
 13. Indexing for Fast Retrieval
 
-   One of the under-appreciated features of [109]Bioperl is its ability
+   One of the under-appreciated features of [110]Bioperl is its ability
    to index sequence files. The idea is that you would create some
    sequence file locally and create an index file for it that enables you
    to retrieve sequences from the sequence file. Why would you want to do
    this? Speed, for one. Retrieving sequences from local, indexed
-   sequence files is much faster than using the Bio::DB* modules that
-   were used above. It's also much faster than using SeqIO, in part
-   because SeqIO is stepping through the file, one sequence at a time,
-   starting at the beginning of the file. Flexibility is another reason.
-   What if you'd created your own collection of sequences, not found in a
-   public database? By indexing this collection you'll get fast access to
-   your sequences.
+   sequence files is much faster than using the Bio::DB::GenBank module
+   used above that retrieves from a remote database. It's also much
+   faster than using SeqIO, in part because SeqIO is stepping through a
+   file, one sequence at a time, starting at the beginning of the file.
+   Flexibility is another reason. What if you'd created your own
+   collection of sequences, not found in a public database? By indexing
+   this collection you'll get fast access to your sequences.
 
    There's only one requirement here, the term or id that you use to
    retrieve the sequence object must be unique in the index, these
    indices are not built to retrieve multiple sequence objects at a time.
 
-   Let's begin our script with the use statement and also set up our
-   environment with some variables (the sequence file, fasta format, will
-   be called "sequence.fa"):
+   There are a few different modules in Bioperl that can index sequence
+   files, the Bio::Index::* modules and Bio::DB::Fasta. All these modules
+   are scripted in a similar way: you first index one or more files, then
+   retrieve sequences from the indices. Let's begin our script with the
+   use statement and also set up our environment with some variables (the
+   sequence file, fasta format, will be called "sequence.fa"):
 
 use Bio::Index::Fasta;
 $ENV{BIOPERL_INDEX_TYPE} = "SDBM_File";
@@ -1119,7 +1127,7 @@ $seq_obj = $inx->fetch($id)
 
    However, what if you wanted to retrieve using some other key, like
    "1CRA" in the example above? You can customize the index by using
-   [110]Bio::Index::Fasta's id_parser method, which accepts the name of a
+   [111]Bio::Index::Fasta's id_parser method, which accepts the name of a
    function as an argument where that function tells the indexing object
    what key to use. For example:
 
@@ -1135,28 +1143,48 @@ sub get_id {
    To be precise, one would say that the id_parser method accepts a
    reference to a function as an argument.
 
-14. More on [111]Bioperl
+   [112]Bio::DB::Fasta has some features that [113]Bio::Index::Fasta
+   lacks, one of the more interesting ones is that it was built to handle
+   very large sequences and can retrieve sub-sequences from genome-size
+   sequences efficiently. Here is an example:
+use Bio::DB::Fasta;
+
+($file,$id,$start,$end) = ("genome.fa","CHROMOSOME_I",11250,11333);
+
+$db = Bio::DB::Fasta->new($file);
+
+$seqobj = $db->get_Seq_by_id($id,$start,$end);
+
+print $seqobj->seq;
+
+
+   This script indexes the "genome.fa" file, then retrieves a
+   sub-sequence of "CHROMOSOME_I", starting at 11250 and ending at 11333.
+   One can also specify what ids can be used as keys, just as in
+   Bio::Index::Fasta.
+
+14. More on [114]Bioperl
 
    Perhaps this article has gotten you interested in learning a bit more
-   about [112]Bioperl. Here are some other things you might want to look
+   about [115]Bioperl. Here are some other things you might want to look
    at:
 
-    1. The [113]bptutorial gives a good overview of many different
+    1. The [116]bptutorial gives a good overview of many different
        topics. Few topics are covered in detail but many of the most
        important modules and concepts are covered.
-    2. The [114]HOWTOs. Each one covers a topic in some detail, but there
+    2. The [117]HOWTOs. Each one covers a topic in some detail, but there
        are certainly some HOWTOs that are missing that we would like to
        see written. Would you like to become an expert and write one
        yourself?
-    3. The [115]module documentation. Each module is documented, but the
+    3. The [118]module documentation. Each module is documented, but the
        quality and quantity varies by module.
-    4. [116]Bioperl scripts. You'll find them in the scripts/ directory
-       and in the examples/ directory of the [117]Bioperl package. The
+    4. [119]Bioperl scripts. You'll find them in the scripts/ directory
+       and in the examples/ directory of the [120]Bioperl package. The
        former contains more carefully written and documented scripts that
-       can be installed along with [118]Bioperl. You should feel free to
+       can be installed along with [121]Bioperl. You should feel free to
        contribute scripts to either of these directories. There's also a
-       complete list of scripts, [119]bioscripts.pod.
-    5. [120]User-contributed documentation. There's some very good
+       complete list of scripts, [122]bioscripts.pod.
+    5. [123]User-contributed documentation. There's some very good
        material here.
 
 15. Perl's Documentation System
@@ -1173,7 +1201,7 @@ sub get_id {
    Read about Perl's built-in print function:
 >perldoc -f print
 
-   Read about any module, including any of the [121]Bioperl modules:
+   Read about any module, including any of the [124]Bioperl modules:
 >perldoc Bio::SeqIO
 
 16. The Basics of Perl Objects
@@ -1220,21 +1248,21 @@ $reversed_obj = $seq_obj->revcom;
    use the term "module" rather than "class".
 
    That's the sort of explanation you'll get in programming books, but
-   what is a Perl object really? Usually a hash. In [122]Bioperl the data
+   what is a Perl object really? Usually a hash. In [125]Bioperl the data
    that the object contains is stored in a single, complex hash and the
    object, like $seq_obj, is a reference to this hash. In addition, the
    methods that the object can use are also stored in this hash as
    particular kinds of references. You could say that an object in
-   [123]Bioperl is a special kind of hash reference.
+   [126]Bioperl is a special kind of hash reference.
 
-   [124]Bioperl uses the object-oriented paradigm, and here are some
+   [127]Bioperl uses the object-oriented paradigm, and here are some
    texts if you want to learn more:
 
-    1. [125]Object Oriented Perl
-    2. The [126]Bioperl design documentation, for anyone who'd like to
+    1. [128]Object Oriented Perl
+    2. The [129]Bioperl design documentation, for anyone who'd like to
        write their own modules.
 
-   BioPerl DocBook ([127]BioPerl)
+   BioPerl DocBook ([130]BioPerl)
 
 References
 
@@ -1325,43 +1353,46 @@ References
   85. http://bioperl.org/
   86. http://www.expasy.ch/
   87. http://www.ncbi.nlm.nih.gov/entrez/query/static/help/Summary_Matrices.html
-  88. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html
-  89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
-  90. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
-  91. http://bioperl.org/
-  92. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
-  93. http://www.expasy.ch/
-  94. http://bioperl.org/
+  88. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Seq.html
+  89. http://doc.bioperl.org/releases/bioperl-1.4/Bio/PrimarySeqI.html
+  90. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html
+  91. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
+  92. http://bioperl.org/
+  93. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
+  94. http://www.expasy.ch/
   95. http://bioperl.org/
-  96. http://www.expasy.ch/
+  96. http://bioperl.org/
   97. http://www.expasy.ch/
-  98. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
-  99. http://bioperl.org/
- 100. http://www.ncbi.nlm.nih.gov/BLAST/download.shtml
- 101. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
- 102. http://bioperl.org/HOWTOs/html/SearchIO.html
- 103. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
- 104. http://bioperl.org/
- 105. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
- 106. http://bioperl.org/Core/Latest/INSTALL
- 107. http://bioperl.org/
- 108. http://bioperl.org/Core/Latest/index.shtml
- 109. http://bioperl.org/
- 110. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html
- 111. http://bioperl.org/
- 112. http://bioperl.org/
- 113. http://bioperl.org/Core/Latest/bptutorial.html
- 114. http://bioperl.org/HOWTOs
- 115. http://doc.bioperl.org/releases/bioperl-1.4/
- 116. http://bioperl.org/
- 117. http://bioperl.org/
- 118. http://bioperl.org/
- 119. http://bioperl.org/Core/Latest/bioscripts.html
- 120. http://bioperl.org/Core/Latest/modules.html#user
+  98. http://www.expasy.ch/
+  99. http://bioperl.org/HOWTOs/html/Feature-Annotation.html
+ 100. http://bioperl.org/
+ 101. http://www.ncbi.nlm.nih.gov/BLAST/download.shtml
+ 102. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
+ 103. http://bioperl.org/HOWTOs/html/SearchIO.html
+ 104. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
+ 105. http://bioperl.org/
+ 106. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Tools/Run/StandAloneBlast.html
+ 107. http://bioperl.org/Core/Latest/INSTALL
+ 108. http://bioperl.org/
+ 109. http://bioperl.org/Core/Latest/index.shtml
+ 110. http://bioperl.org/
+ 111. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html
+ 112. http://doc.bioperl.org/releases/bioperl-1.4/Bio/DB/Fasta.html
+ 113. http://doc.bioperl.org/releases/bioperl-1.4/Bio/Index/Fasta.html
+ 114. http://bioperl.org/
+ 115. http://bioperl.org/
+ 116. http://bioperl.org/Core/Latest/bptutorial.html
+ 117. http://bioperl.org/HOWTOs
+ 118. http://doc.bioperl.org/releases/bioperl-1.4/
+ 119. http://bioperl.org/
+ 120. http://bioperl.org/
  121. http://bioperl.org/
- 122. http://bioperl.org/
- 123. http://bioperl.org/
+ 122. http://bioperl.org/Core/Latest/bioscripts.html
+ 123. http://bioperl.org/Core/Latest/modules.html#user
  124. http://bioperl.org/
- 125. http://www.manning.com/Conway/
- 126. http://bioperl.org/Core/Latest/biodesign.html
+ 125. http://bioperl.org/
+ 126. http://bioperl.org/
  127. http://bioperl.org/
+ 128. http://www.manning.com/Conway/
+ 129. http://bioperl.org/Core/Latest/biodesign.html
+ 130. http://bioperl.org/
