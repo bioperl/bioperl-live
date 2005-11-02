@@ -1,6 +1,7 @@
 package Bio::Graphics::Panel;
 
 use strict;
+use threads::shared;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
 
@@ -15,8 +16,9 @@ use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
 
-my %COLORS;  # translation table for symbolic color names to RGB triple
-my $IMAGEMAP = 'bgmap00001';
+my %COLORS   : shared;  # translation table for symbolic color names to RGB triple
+my $IMAGEMAP : shared = 'bgmap00001';
+read_colors();
 
 sub api_version { 1.636 }
 
@@ -1050,12 +1052,14 @@ sub make_title {
 
 sub read_colors {
   my $class = shift;
+  lock %COLORS;
   local ($/) = "\n";
   while (<DATA>) {
     chomp;
     last if /^__END__/;
     my ($name,$r,$g,$b) = split /\s+/;
-    $COLORS{$name} = [hex $r,hex $g,hex $b];
+    $COLORS{$name} = &share([]);
+    @{$COLORS{$name}} = (hex $r,hex $g, hex $b);
   }
 }
 
@@ -2119,7 +2123,7 @@ different built-in values for changing the default sort order (which
 is by "left" position): "low_score" (or "high_score") will cause
 features to be sorted from lowest to highest score (or vice versa).
 "left" (or "default") and "right" values will cause features to be
-sorted by their position in the sequence.  "longer" (or "shorter")
+sorted by their position in the sequence.  "longest" (or "shortest")
 will cause the longest (or shortest) features to be sorted first, and
 "strand" will cause the features to be sorted by strand: "+1"
 (forward) then "0" (unknown, or NA) then "-1" (reverse).
