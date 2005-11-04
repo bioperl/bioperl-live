@@ -125,22 +125,24 @@ sub next_result{
             ($hit_start, $hit_end) = (split)[12, 13];
             $strand = -1;
           }
-          my $rf = Bio::SeqFeature::Generic->new;
-          $rf->seq_id          ($query_name);
-          $rf->score            ($score);
-          $rf->start            ($query_start);
-          $rf->end              ($query_end);
-          $rf->strand           ($strand);
-          $rf->source_tag       ("RepeatMasker");
-          $rf->primary_tag      ($repeat_class);
-          my $rf2 = Bio::SeqFeature::Generic->new;
-          $rf2->seq_id         ($repeat_name);
-          $rf2->score           ($score);
-          $rf2->start           ($hit_start);
-          $rf2->end             ($hit_end);
-          $rf2->strand          ($strand);
-          $rf2->source_tag      ("RepeatMasker");
-          $rf->primary_tag      ($repeat_class);
+          my $rf = Bio::SeqFeature::Generic->new
+	      (-seq_id      => $query_name,
+	       -score       => $score,
+	       -start       => $query_start,
+	       -end         => $query_end,
+	       -strand      => $strand,
+	       -source_tag  => 'RepeatMasker',
+	       -primary_tag => $repeat_class);
+
+          my $rf2 = Bio::SeqFeature::Generic->new
+	      (-seq_id         => $repeat_name,
+	       -score          => $score,
+	       -start          => $hit_start,
+	       -end            => $hit_end,
+	       -strand         => $strand,
+	       -source_tag     => "RepeatMasker",
+	       -primary_tag    => $repeat_class);
+
           my $fp = Bio::SeqFeature::FeaturePair->new(-feature1=>$rf,
                                                      -feature2=>$rf2);
           return $fp;
