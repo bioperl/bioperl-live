@@ -19,7 +19,7 @@ Bio::AnnotatableI - the base interface an annotatable object must implement
     use Bio::SeqIO;
     # get an annotatable object somehow: for example, Bio::SeqI objects
     # are annotatable
-    my $seqio = Bio::SeqIO->new(-fh => \*STDIN, -format => 'genbank);
+    my $seqio = Bio::SeqIO->new(-fh => \*STDIN, -format => 'genbank');
     while (my $seq = $seqio->next_seq()) {
         # $seq is-a Bio::AnnotatableI, hence:
         my $ann_coll = $seq->annotation();
@@ -30,9 +30,8 @@ Bio::AnnotatableI - the base interface an annotatable object must implement
 
 =head1 DESCRIPTION
 
-This is the base interface that all annotatable objects must implement. A good
-example is Bio::Seq which is an AnnotableI object; if you are a little confused
-about what this module does, start a Bio::Seq.
+This is the base interface that all annotatable objects must implement. A 
+good example is Bio::Seq which is an AnnotableI object.
 
 =head1 FEEDBACK
 
@@ -112,14 +111,14 @@ our %tag2text = (
 
  Title   : annotation
  Usage   : $obj->annotation($newval)
- Function: Get the annotation collection (see L<Bio::AnnotationCollectionI>)
-           for this annotatable object.
+ Function: Get the annotation collection for this annotatable object.
  Example : 
  Returns : a Bio::AnnotationCollectionI implementing object, or undef
  Args    : on set, new value (a Bio::AnnotationCollectionI
            implementing object, optional) (an implementation may not
            support changing the annotation collection)
 
+See L<Bio::AnnotationCollectionI>
 
 =cut
 
@@ -135,7 +134,7 @@ annotation access to Bio::AnnotationCollectionI.  These need not be
 implemented in a Bio::AnnotationCollectionI compliant class, as they
 are built on top of the methods.
 
- B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
+B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
 
 =cut
 
@@ -145,24 +144,28 @@ are built on top of the methods.
  Function: returns the number of annotations corresponding to $tag
  Returns : an integer
  Args    : tag name
- Note    : B<DEPRECATED>: this method is essentially scalar(L</get_Annotations()>).
+ Note    : DEPRECATED
+
+Use L</get_Annotations()> instead.
 
 =cut
 
 sub has_tag {
   my ($self,$tag) = @_;
   #uncomment in 1.6
-  #$self->deprecated('has_tag() is deprecated.  use get_Annotations()');
+  #$self->deprecated('has_tag() is deprecated, use get_Annotations()');
 
   return scalar($self->annotation->get_Annotations($tag));
 }
 
 =head2 add_tag_value()
 
- Usage   : See L</add_Annotation()>.
+ Usage   : See add_Annotation
  Function:
  Returns : 
- Args    : B<DEPRECATED>: this method is essentially L</add_Annotation()>.
+ Args    : DEPRECATED
+
+See L<Bio::Annotation::CollectionI::add_Annotation>
 
 =cut
 
@@ -170,7 +173,7 @@ sub add_tag_value {
   my ($self,$tag,@vals) = @_;
 
   #uncomment in 1.6
-  #$self->deprecated('add_tag_value() is deprecated.  use add_Annotation()');
+  #$self->deprecated('add_tag_value() is deprecated, use add_Annotation()');
 
   foreach my $val (@vals){
     my $class = $tagclass{$tag}   || $tagclass{__DEFAULT__};
@@ -200,7 +203,7 @@ sub add_tag_value {
 
            $parent = $feature->get_Annotations('Parent');
 
-           instead of (yuck):
+           instead of:
 
            ($parent) = ($feature->get_Annotations('Parent'))[0];
 
@@ -231,7 +234,9 @@ sub get_Annotations {
  Function: returns annotations corresponding to $tag
  Returns : a list of scalars
  Args    : tag name
- Note    : B<DEPRECATED>: this method is essentially L</get_Annotations()>.
+ Note    : DEPRECATED
+
+This method is essentially L</get_Annotations()>, use it instead.
 
 =cut
 
@@ -239,7 +244,7 @@ sub get_tag_values {
     my ($self,$tag) = @_;
     
     #uncomment in 1.6
-    #$self->deprecated('get_tag_values() is deprecated. use get_Annotations()');
+    #$self->deprecated('get_tag_values() is deprecatedk, use get_Annotations()');
 
     if(!$tagclass{$tag} && $self->annotation->get_Annotations($tag)){
         #new tag, haven't seen it yet but it exists.  add to registry
@@ -260,11 +265,12 @@ sub get_tag_values {
  Usage   : @annotations = $obj->get_tagset_values($tag1,$tag2)
  Function: returns annotations corresponding to a list of tags.
            this is a convenience method equivalent to multiple calls
-           to L</get_tag_values> with each tag in the list.
+           to get_tag_values with each tag in the list.
  Returns : a list of Bio::AnnotationI objects.
  Args    : a list of tag names
- Note    : B<DEPRECATED>: this method is essentially multiple calls to
-           L</get_Annotations()>.
+ Note    : DEPRECATED
+
+See L<Bio::Annotation::CollectionI::get_Annotations>
 
 =cut
 
@@ -272,7 +278,7 @@ sub get_tagset_values {
   my ($self,@tags) = @_;
 
   #uncomment in 1.6
-  #$self->deprecated('get_tagset_values() is deprecated.  use get_Annotations()');
+  #$self->deprecated('get_tagset_values() is deprecated, use get_Annotations()');
 
   my @r = ();
   foreach my $tag (@tags){
@@ -288,7 +294,9 @@ sub get_tagset_values {
  Function: returns a list of annotation tag names.
  Returns : a list of tag names
  Args    : none
- Note    : B<DEPRECATED>: use L</get_all_annotation_keys()>.
+ Note    : DEPRECATED
+
+See L<Bio::Annotation::CollectionI::get_all_annotation_keys>
 
 =cut
 
@@ -296,20 +304,22 @@ sub get_all_tags {
   my ($self,@args) = @_;
 
   #uncomment in 1.6
-  #$self->deprecated('get_all_tags() is deprecated.  use get_all_annotation_keys()');
+  #$self->deprecated('get_all_tags() is deprecated, use get_all_annotation_keys()');
 
   return $self->annotation->get_all_annotation_keys(@args);
 }
 
 =head2 remove_tag()
 
- Usage   : See L</remove_Annotations()>.
+ Usage   : See remove_Annotations().
  Function:
  Returns : 
- Args    : B<DEPRECATED>: use L</remove_Annotations()>.
+ Args    : DEPRECATED
  Note    : Contrary to what the name suggests, this method removes
-           B<all> annotations corresponding to $tag, not just a
+           all annotations corresponding to $tag, not just a
            single anntoation.
+
+See L<Bio::Annotation::CollectionI::remove_Annotations>
 
 =cut
 
@@ -317,7 +327,7 @@ sub remove_tag {
   my ($self,@args) = @_;
 
   #uncomment in 1.6
-  #$self->deprecated('remove_tag() is deprecated.  use remove_Annotations()');
+  #$self->deprecated('remove_tag() is deprecated, use remove_Annotations()');
 
   return $self->annotation->remove_Annotations(@args);
 }
