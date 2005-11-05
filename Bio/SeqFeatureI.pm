@@ -19,28 +19,29 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
     # get a seqfeature somehow, eg, from a Sequence with Features attached
 
     foreach $feat ( $seq->get_SeqFeatures() ) {
-            print "Feature from ", $feat->start, "to ", 
-	          $feat->end, " Primary tag  ", $feat->primary_tag, 
+       print "Feature from ", $feat->start, "to ", 
+	       $feat->end, " Primary tag  ", $feat->primary_tag, 
 	          ", produced by ", $feat->source_tag(), "\n";
 
-            if( $feat->strand == 0 ) {
-		print "Feature applicable to either strand\n";
-            } else {
-                print "Feature on strand ", $feat->strand,"\n"; # -1,1
-            }
-            print "feature location is ",$feat->start, "..",
-                  $feat->end, " on strand ", $feat->strand, "\n";
-            print "easy utility to print locations in GenBank/EMBL way ",
-                  $feat->location->to_FTstring(), "\n";
+       if( $feat->strand == 0 ) {
+		    print "Feature applicable to either strand\n";
+       } else {
+          print "Feature on strand ", $feat->strand,"\n"; # -1,1
+       }
+            
+       print "feature location is ",$feat->start, "..",
+          $feat->end, " on strand ", $feat->strand, "\n";
+       print "easy utility to print locations in GenBank/EMBL way ",
+          $feat->location->to_FTstring(), "\n";
 
-            foreach $tag ( $feat->get_all_tags() ) {
-		print "Feature has tag ", $tag, " with values, ",
+       foreach $tag ( $feat->get_all_tags() ) {
+		    print "Feature has tag ", $tag, " with values, ",
 		      join(' ',$feat->get_tag_values($tag)), "\n";
-            }
+       }
 	    print "new feature\n" if $feat->has_tag('new');
 	    # features can have sub features
 	    my @subfeat = $feat->get_SeqFeatures();
-	}
+	 }
 
 =head1 DESCRIPTION
 
@@ -57,8 +58,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org - General discussion
+  http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
