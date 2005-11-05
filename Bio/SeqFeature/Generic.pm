@@ -16,15 +16,17 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 
 =head1 SYNOPSIS
 
-   $feat = new Bio::SeqFeature::Generic ( -start => 10, -end => 100,
-                                -strand => -1, -primary => 'repeat',
-                                -source_tag   => 'repeatmasker',
+   $feat = new Bio::SeqFeature::Generic ( 
+            -start        => 10, 
+            -end          => 100,
+            -strand       => -1, 
+            -primary      => 'repeat',
+            -source_tag   => 'repeatmasker',
 				-display_name => 'alu family',
-                                -score  => 1000,
-                                -tag    => {
-                                    new => 1,
-                                    author => 'someone',
-                                    sillytag => 'this is silly!' } );
+            -score        => 1000,
+            -tag          => { new => 1,
+                               author => 'someone',
+                               sillytag => 'this is silly!' } );
 
    $feat = new Bio::SeqFeature::Generic ( -gff_string => $string );
    # if you want explicitly GFF1
@@ -33,8 +35,6 @@ Bio::SeqFeature::Generic - Generic SeqFeature
    # add it to an annotated sequence
 
    $annseq->add_SeqFeature($feat);
-
-
 
 =head1 DESCRIPTION
 
