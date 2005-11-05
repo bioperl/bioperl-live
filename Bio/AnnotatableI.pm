@@ -165,7 +165,7 @@ sub has_tag {
  Returns : 
  Args    : DEPRECATED
 
-See L<Bio::Annotation::CollectionI::add_Annotation>
+See L<Bio::AnnotationCollectionI::add_Annotation>
 
 =cut
 
@@ -270,7 +270,7 @@ sub get_tag_values {
  Args    : a list of tag names
  Note    : DEPRECATED
 
-See L<Bio::Annotation::CollectionI::get_Annotations>
+See L<Bio::AnnotationCollectionI::get_Annotations>
 
 =cut
 
@@ -296,7 +296,7 @@ sub get_tagset_values {
  Args    : none
  Note    : DEPRECATED
 
-See L<Bio::Annotation::CollectionI::get_all_annotation_keys>
+See L<Bio::AnnotationCollectionI::get_all_annotation_keys>
 
 =cut
 
@@ -319,7 +319,7 @@ sub get_all_tags {
            all annotations corresponding to $tag, not just a
            single anntoation.
 
-See L<Bio::Annotation::CollectionI::remove_Annotations>
+See L<Bio::AnnotationCollectionI::remove_Annotations>
 
 =cut
 
@@ -331,6 +331,5 @@ sub remove_tag {
 
   return $self->annotation->remove_Annotations(@args);
 }
-
 
 1;
