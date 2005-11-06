@@ -113,6 +113,10 @@ BEGIN {
            -tag_length => integer of how long the tags have to be in
                          each line between the space separator. set it
                          to 0 to have 1 tag only.
+           -wrap_sequential => boolean for whether or not sequential 
+                                   format should be broken up or a single line
+                                   default is false (single line)
+    
 
 =cut
 
@@ -121,19 +125,21 @@ sub _initialize {
   $self->SUPER::_initialize(@args);
 
   my ($interleave,$linelen,$idlinebreak,
-      $idlength, $flag_SI, $tag_length) = 
+      $idlength, $flag_SI, $tag_length,$ws) = 
           $self->_rearrange([qw(INTERLEAVED 
                                 LINE_LENGTH
                                 IDLINEBREAK
                                 IDLENGTH
                                 FLAG_SI
-                                TAG_LENGTH)],@args);
+                                TAG_LENGTH
+				WRAP_SEQUENTIAL)],@args);
   $self->interleaved(1) if( $interleave || ! defined $interleave);
   $self->idlength($idlength || $DEFAULTIDLENGTH);
   $self->id_linebreak(1) if( $idlinebreak );
   $self->line_length($linelen) if defined $linelen && $linelen > 0;
   $self->flag_SI(1) if ( $flag_SI );
   $self->tag_length($tag_length) if ( $tag_length || $DEFAULTTAGLEN );
+  $self->wrap_sequential($ws ? 1 : 0);
   1;
 }
 
@@ -281,6 +287,7 @@ sub write_aln {
     my $count = 0;
     my $wrapped = 0;
     my $maxname;
+    my $width = $self->line_length();
     my ($length,$date,$name,$seq,$miss,$pad,
 	%hash,@arr,$tempcount,$index,$idlength,$flag_SI,$line_length, $tag_length);
     
@@ -317,10 +324,10 @@ sub write_aln {
 	    } elsif( $self->id_linebreak) { 
 		$name .= "\n"; 
 	    }
-
-      #phylip needs dashes not dots 
-      my $seq = $seq->seq();
-      $seq=~s/\./-/g;
+	    
+	    #phylip needs dashes not dots 
+	    my $seq = $seq->seq();
+	    $seq =~ s/\./-/g;
 	    $hash{$name} = $seq;
 	    push(@arr,$name);
 	}
@@ -343,7 +350,8 @@ sub write_aln {
 		    $tempcount = $count;
                     $index = 0;
                     $self->debug("residue count: $count\n") if ($count%100000 == 0);
-		    while( ($tempcount + $tag_length < $length) && ($index < $numtags)  ) {
+		    while( ($tempcount + $tag_length < $length) && 
+			   ($index < $numtags)  ) {
 			$self->_print (sprintf("%s ",substr($hash{$name},
 							    $tempcount,
 							    $tag_length)));
@@ -366,8 +374,11 @@ sub write_aln {
 	} else {
 	    foreach $name ( @arr ) {
 		my $dispname = $name;
-		$dispname = '' if $wrapped;
-		$self->_print (sprintf("%s%s\n",$dispname,$hash{$name}));
+		my $line = sprintf("%s%s\n",$dispname,$hash{$name});
+		if( $self->wrap_sequential ) {		
+		    $line =~ s/(.{1,$width})/$1\n/g;		    
+		}
+		$self->_print ($line);
 	    }	
 	}
     }
@@ -494,6 +505,26 @@ sub id_linebreak{
       $self->{'_id_linebreak'} = $value;
     }
     return $self->{'_id_linebreak'} || 0;
+}
+
+
+=head2 wrap_sequential
+
+ Title   : wrap_sequential
+ Usage   : $obj->wrap_sequential($newval)
+ Function: 
+ Returns : value of wrap_sequential
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub wrap_sequential{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_wrap_sequential'} = $value;
+    }
+    return $self->{'_wrap_sequential'} || 0;
 }
 
 1;
