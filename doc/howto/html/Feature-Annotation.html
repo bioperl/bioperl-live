@@ -745,28 +745,37 @@ my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locusl
       The <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html" target="_top"><i class="citetitle">SeqFeature::Generic</i></a> object offers the user a "tag system" for
       addition of data that's not explicitly accounted for by its
       methods, that's what the "-tag" is for, above.
-      If you want to add your own custom data to a feature you could
-      use the "-tag" tag or you could add values after the object has 
-      been created:
+      Since the value passed to "-tag" could be any kind of scalar,
+      like a reference, it's clear that this approach should be able
+      handle just about any sort of data. 
+	 </p><p>
+		You can build on the Feature as well. 
+		Here we'll add some Annotations to the newly-created Feature:
     </p><p>
       <pre class="programlisting">
-	$feat-&gt;add_tag_value("match1","PF000123 e-7.2");
-	$feat-&gt;add_tag_value("match2","PF002534 e-3.1");
+	$feat-&gt;add_Annotation("match1","PF000123 e-7.2");
+	$feat-&gt;add_Annotation("match2","PF002534 e-3.1");
 	
-	my @arr = $feat-&gt;get_all_tags;
-	for my $tag (@arr) {
-	  print $tag,":",$feat-&gt;get_tag_values($tag),"  ";
-	}
-        # prints out:
-	# author:john  match1:PF000123 e-7.2  match2:PF002534 e-3.1  note:TATA box
+	my @tags = $feat-&gt;get_all_tags;
+        for my $tag (@tags) {
+           for my $val ( $feat-&gt;get_tag_values($tag) ) {
+		   print $tag,":",$val,"\n";
+	   }
+   }
+
+# prints out:
+# match2:PF002534 e-3.1
+# match1:PF000123 e-7.2
+# author:john
+# note:TATA box
+# start: 10 end: 22
       </pre>
     </p><p>
     </p><p>
-      Since the value passed to "-tag" could be any kind of scalar,
-      like a reference, it's clear that this approach should be able
-      handle just about any sort of data.
+
     </p><p>
-      Once the feature is created it can be associated with our sequence:
+      Once the feature, and its annotations, are created it can be
+		associated with a sequence:
     </p><p>
       <pre class="programlisting">
 	use Bio::Seq;
@@ -799,7 +808,10 @@ my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locusl
       </pre>
     </p><p></p><p>
       Now let's examine what we've created by writing the contents of
-      <tt class="varname">$seq_obj</tt> to a Genbank file called "test.gb":
+      <tt class="varname">$seq_obj</tt> to a Genbank file called "test.gb".
+		We should see a sequence, an Annotation associated with the
+      sequence, a sequence Feature, and Annotations associated with 
+		the Feature:
     </p><p>
       <pre class="programlisting">
 	use Bio::SeqIO;
