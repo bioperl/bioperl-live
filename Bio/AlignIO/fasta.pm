@@ -47,7 +47,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::fasta;
-use vars qw(@ISA $MATCHPATTERN);
+use vars qw(@ISA $MATCHPATTERN $WIDTH);
 use strict;
 
 use Bio::AlignIO;
@@ -56,6 +56,7 @@ use Bio::SimpleAlign;
 @ISA = qw(Bio::AlignIO);
 
 $MATCHPATTERN = '^A-Za-z\.\-';
+$WIDTH = 60;
 
 =head2 next_aln
 
@@ -64,12 +65,15 @@ $MATCHPATTERN = '^A-Za-z\.\-';
  Function: returns the next alignment in the stream.
  Returns : Bio::Align::AlignI object - returns 0 on end of file
 	        or on error
- Args    : NONE
-
+ Args    : -width => optional argument to specify the width sequence
+                     will be written (60 chars by default)
 =cut
 
 sub next_aln {
 	my $self = shift;
+	my ($width) = $self->_rearrange([qw(WIDTH)],@_);
+	$self->width($width || $WIDTH);
+
 	my ($start, $end, $name, $seqname, $seq, $seqchar, $entry, 
 		 $tempname, $tempdesc, %align, $desc, $maxlen);
 	my $aln =  Bio::SimpleAlign->new();
@@ -137,11 +141,11 @@ sub next_aln {
 	# end of the file. Skip this is seqchar and seqname is null
 	unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
 		$seq = new Bio::LocatableSeq(-seq         => $seqchar,
-											  -display_id  => $seqname,
-											  -description => $desc,
-											  -start       => $start,
-											  -end         => $end,
-											 );
+					     -display_id  => $seqname,
+					     -description => $desc,
+					     -start       => $start,
+					     -end         => $end,
+					     );
 		$aln->add_seq($seq);
 	}
 	$self->debug("Reading $seqname");
@@ -170,6 +174,7 @@ See <Bio::Align::AlignI>
 
 sub write_aln {
     my ($self,@aln) = @_;
+    my $width = $self->width;
     my ($seq,$desc,$rseq,$name,$count,$length,$seqsub);
 
     foreach my $aln (@aln) {
@@ -185,13 +190,14 @@ sub write_aln {
 	    $seq  = $rseq->seq();
 	    $desc = $rseq->description || '';
 	    $self->_print (">$name $desc\n") or return ;	
-	    $count =0;
+	    $count = 0;
 	    $length = length($seq);
-	    while( ($count * 60 ) < $length ) {
-		$seqsub = substr($seq,$count*60,60);
-		$self->_print ("$seqsub\n") or return ;
-		$count++;
+	    if(defined $seq && $length > 0) {
+		$seq =~ s/(.{1,$width})/$1\n/g;
+	    } else {
+		$seq = "\n";
 	    }
+	    $self->_print($seq);
 	}
     }
     $self->flush if $self->_flush_on_write && defined $self->_fh;
@@ -212,6 +218,25 @@ sub _get_len {
 	my ($self,$seq) = @_;
 	$seq =~ s/[^A-Z]//gi;
 	return CORE::length($seq);
+}
+
+=head2 width
+
+ Title   : width
+ Usage   : $obj->width($newwidth)
+           $width = $obj->width;
+ Function: Get/set width of alignment
+ Returns : integer value of width 
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub width{
+    my $self = shift;
+
+    return $self->{'_width'} = shift if @_;
+    return $self->{'_width'} || $WIDTH;
 }
 
 1;
