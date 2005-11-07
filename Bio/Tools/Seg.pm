@@ -22,8 +22,7 @@ Bio::Tools::Seg - parse Seg output (filter low complexity protein sequence)
   use Bio::Tools::Seg;
   my $parser = new Bio::Tools::Seg(-fh =>$filehandle );
   while( my $seg_feat = $parser->next_result ) {
-        #do something
-        #eg
+        # do something, e.g.
         push @seg_feat, $seg_feat;
   }
 
@@ -71,10 +70,6 @@ use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
 @ISA = qw(Bio::Root::Root Bio::Root::IO);
 
-
-
-
-
 =head2 new
 
  Title   : new
@@ -83,17 +78,16 @@ use Bio::SeqFeature::Generic;
  Returns : Bio::Tools::Seg
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
 
-
 =cut
 
 
 sub new {
-      my($class,@args) = @_;
+	my($class,@args) = @_;
 
-      my $self = $class->SUPER::new(@args);
-      $self->_initialize_io(@args);
+	my $self = $class->SUPER::new(@args);
+	$self->_initialize_io(@args);
 
-      return $self;
+	return $self;
 }
 
 =head2 next_result
@@ -104,75 +98,70 @@ sub new {
  Returns : Bio::SeqFeature::Generic
  Args    : none
 
-
 =cut
 
 sub next_result {
-        my ($self) = @_;
+	my ($self) = @_;
 
-        my $line;
-        # parse
-        my $id;
-        while ($_=$self->_readline()) {
-         $line = $_;
-         chomp $line;
+	my $line;
+	# parse
+	my $id;
+	while ($_=$self->_readline()) {
+		$line = $_;
+		chomp $line;
 
-          next if /^$/;
-           if ($line=~/^\>/) { #if it is a line starting with a ">"
-               $line=~/^\>\s*(\S+)\s*\((\d+)\-(\d+)\)\s*complexity=(\S+)/;
-               my $id = $1;
-               my $start = $2;
-               my $end = $3;
-               my $score = $4;
+		next if /^$/;
+		if ($line =~ /^\>/) { #if it is a line starting with a ">"
+			$line =~ /^\>\s*?(\S+)?\s*?\((\d+)\-(\d+)\)\s*complexity=(\S+)/;
+			my $id = $1;
+			my $start = $2;
+			my $end = $3;
+			my $score = $4;
 
-               #for example in this line test_prot(214-226) complexity=2.26 (12/2.20/2.50)
-               #$1 is test_prot  $2 is 214 $3 is 226 and $4 is 2.26
+#for example in this line test_prot(214-226) complexity=2.26 (12/2.20/2.50)
+#$1 is test_prot  $2 is 214 $3 is 226 and $4 is 2.26
 
-               my (%feature);
-               $feature{name} = $id;
-               $feature{score} = $score;
-               $feature{start} = $start;
-               $feature{end} = $end;
-               $feature{source} = "Seg";
-               $feature{primary} = 'low_complexity';
-               $feature{program} = "Seg";
-               $feature{logic_name} = 'low_complexity';
-               my $new_feat =  $self->create_feature (\%feature);
-               return $new_feat;
-            }
-          next;
-        }
-
+			my (%feature);
+			$feature{name} = $id;
+			$feature{score} = $score;
+			$feature{start} = $start;
+			$feature{end} = $end;
+			$feature{source} = "Seg";
+			$feature{primary} = 'low_complexity';
+			$feature{program} = "Seg";
+			$feature{logic_name} = 'low_complexity';
+			my $new_feat =  $self->_create_feature (\%feature);
+			return $new_feat;
+		}
+		next;
+	}
 }
 
 
-=head2 create_feature 
+=head2 _create_feature 
 
- Title   : create_feature
- Usage   : obj->create_feature(\%feature)
+ Title   : _create_feature
+ Usage   : obj->_create_feature(\%feature)
  Function: Internal(not to be used directly)
  Returns : 
  Args    :
 
-
 =cut
 
-sub create_feature {
-       my ($self, $feat) = @_;
+sub _create_feature {
+	my ($self, $feat) = @_;
 
+	# create feature object
+	my $feature = Bio::SeqFeature::Generic->new(-seq_id => $feat->{name},
+															  -start  => $feat->{start},
+															  -end    => $feat->{end},
+															  -score  => $feat->{score},
+															  -source => $feat->{source},
+															  -primary => $feat->{primary},
+															  -logic_name  => $feat->{logic_name}, 
+															 );
 
-       # create feature object
-       my $feature = Bio::SeqFeature::Generic->new(-seq_id => $feat->{name},
-                                                   -start  => $feat->{start},
-                                                   -end    => $feat->{end},
-                                                   -score  => $feat->{score},
-                                                   -source => $feat->{source},
-                                                   -primary => $feat->{primary},
-                                                   -logic_name  => $feat->{logic_name}, 
-                                               );
-
-          return $feature;
-
+	return $feature;
 }
 
 1;
