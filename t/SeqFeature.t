@@ -20,7 +20,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$NUMTESTS = 192;
+	$NUMTESTS = 194;
 	plan tests => $NUMTESTS;
 
 	eval { 
@@ -44,13 +44,13 @@ END {
 }
 
 use Bio::Seq;
+use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::SimilarityPair;
 use Bio::Tools::Blast;
 use Bio::SeqFeature::Computation;
-
-use Bio::SeqIO;
+use Bio::SeqFeature::Annotated;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::UTR;
 use Bio::SeqFeature::Gene::Exon;
@@ -371,7 +371,7 @@ unless ($skipdbtests ) {
 # trans-spliced 
 
 ok( $seqio = Bio::SeqIO->new(-format => 'genbank',
-			     -file   => 
+									  -file   => 
 			    Bio::Root::IO->catfile(qw(t data NC_001284.gbk))));
 my $genome = $seqio->next_seq;
 
@@ -380,3 +380,17 @@ foreach my $cds (grep { $_->primary_tag eq 'CDS' } $genome->get_SeqFeatures) {
    chop($spliced); # remove stop codon
    ok($spliced,($cds->get_tag_values('translation'))[0],'spliced seq translation matches expected');
 }
+
+my $sfa = Bio::SeqFeature::Annotated->new(-start => 1,
+														-end => 5,
+														-strand => "+",
+														-frame => 2,
+														-phase => 2,
+														-score => 12,
+														-display_name => 'test.annot',
+														-seq_id => 'test.displayname' );
+
+ok (defined $sfa);
+my $loc = $sfa->location;
+ok $loc->isa("Bio::Location::Simple");
+
