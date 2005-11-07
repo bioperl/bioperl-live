@@ -124,7 +124,7 @@ sub _initialize {
   my ($self,@args) = @_;
   my ($start, $end, $strand, $frame, $phase, $score,
       $name, $annot, $location,
-      $display_name, #deprecate
+      $display_name, # deprecate
       $seq_id, $type,$source
      ) =
         $self->_rearrange([qw(START
@@ -152,12 +152,11 @@ sub _initialize {
   defined $location     && $self->location($location);
   defined $annot        && $self->annotation($annot);
 
-  if( (defined($display_name) && defined($name))
-    ){
-    $self->throw('cannot define ((-id and -seq_id) or (-name and -display_name)) attributes');
+  if( defined($display_name) && defined($name) ){
+	  $self->throw('Cannot define (-id and -seq_id) or (-name and -display_name) attributes');
   }
-  defined $seq_id       && $self->seq_id($seq_id);
-  defined $name         && $self->name($name || $display_name);
+  defined $seq_id                   && $self->seq_id($seq_id);
+  defined ($name || $display_name)  && $self->name($name || $display_name);
 }
 
 =head1 ATTRIBUTE ACCESSORS FOR Bio::SeqFeature::Annotated
@@ -826,7 +825,6 @@ sub add_target {
  Returns : a list of 0..N Bio::LocatableSeq objects
  Args    : none
 
-
 =cut
 
 sub each_target {
@@ -845,7 +843,6 @@ sub each_target {
            feature. add_SeqFeature() already does this.
  Returns : 
  Args    : A Bio::SeqFeatureI implementing object.
-
 
 =cut
 
