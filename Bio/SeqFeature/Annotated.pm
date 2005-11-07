@@ -48,8 +48,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org            - General discussion
+  http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -87,7 +87,8 @@ use Bio::Tools::GFF;
 
 use URI::Escape;
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI Bio::FeatureHolderI);
+@ISA = qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI 
+			  Bio::FeatureHolderI);
 
 ######################################
 #get_SeqFeatures
@@ -121,9 +122,8 @@ sub new {
 
 sub _initialize {
   my ($self,@args) = @_;
-  my (
-      $start, $end, $strand, $frame, $phase, $score,
-      $name, $id, $annot, $location,
+  my ($start, $end, $strand, $frame, $phase, $score,
+      $name, $annot, $location,
       $display_name, #deprecate
       $seq_id, $type,$source
      ) =
