@@ -24,7 +24,7 @@ This object stores a whole Bio::Structure entry. It can consist of one or
 more models (Bio::Structure::Model), which in turn consist of one or more
 chains (Bio::Structure::Chain). A chain is composed of residues 
 (Bio::Structure::Residue) and a residue consists of atoms (Bio::Structure::Atom)
-If no specific model or chain is chosen, the first one is choosen.
+If no specific model or chain is chosen, the first one is chosen.
 
 =head1 FEEDBACK
 
@@ -50,7 +50,8 @@ Email kris.boulez@algonomics.com
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. Internal 
+methods are usually preceded with a _
 
 =cut
 
@@ -79,7 +80,7 @@ use Tie::RefHash;
                                            );
 
  Function: Returns a new Bio::Structure::Entry object from basic 
-	constructors. Probably most called from Bio::Structure::IO.
+	        constructors. Probably most called from Bio::Structure::IO.
  Returns : a new Bio::Structure::Model object
 
 =cut
@@ -93,9 +94,7 @@ sub new {
 			      ID
 			      MODEL
 			      CHAIN
-			      RESIDUE
-                              )],
-                          @args);
+			      RESIDUE )], @args);
 
     # where to store parent->child relations (1 -> 1..n)
     #  value to this hash will be an array ref
@@ -112,14 +111,13 @@ sub new {
     $self->{'model'} = [];
     $model   && $self->model($model);
 
-
     if($chain) {
-	if ( ! defined($self->model) ) { # no model yet, create default one
-		$self->_create_default_model;
-	}
-	for my $m ($self->model) { # add this chain on all models
-		$m->chain($chain);
-    	}
+		 if ( ! defined($self->model) ) { # no model yet, create default one
+			 $self->_create_default_model;
+		 }
+		 for my $m ($self->model) { # add this chain on all models
+			 $m->chain($chain);
+		 }
     }
 
     $residue  && $self->residue($residue);
@@ -136,9 +134,9 @@ sub new {
 
  Title   : model
  Function: Connects a (or a list of) Model objects to a Bio::Structure::Entry.
- 	To add a Model (and keep the existing ones) use add_model()
- 	It returns a list of Model objects.
- Returns : list of Bio::Structure::Model objects
+ 	        To add a Model (and keep the existing ones) use add_model()
+ 	        It returns a list of Model objects.
+ Returns : List of Bio::Structure::Model objects
  Args    : One Model or a reference to an array of Model objects
 
 =cut
@@ -251,13 +249,12 @@ sub get_models {
 }
 
 
-
 =head2 id()
 
  Title   : id
  Usage   : $entry->id("identity");
  Function: Gets/sets the ID 
- Returns : 
+ Returns : The ID
  Args    : 
 
 =cut
@@ -275,9 +272,9 @@ sub id {
 
  Title   : chain
  Usage   : @chains  = $structure->chain($chain);
- Function: Connects a (or a list of) Chain objects to a Bio::Structure::Entry.
- Returns : list of Bio::Structure::Residue objects
- Args    : One Residue or a reference to an array of Residue objects
+ Function: Connects a Chain or a list of Chain objects to a Bio::Structure::Entry.
+ Returns : List of Bio::Structure::Chain objects
+ Args    : A Chain or a reference to an array of Chain objects
 
 =cut
 
@@ -291,9 +288,8 @@ sub chain {
 	my $first_model = $models[0];
 
 	if ( defined $chain) {
-	
-		if( (ref($chain) eq "ARRAY") ||
-		      ($chain->isa('Bio::Structure::Chain')) ) {
+		
+		if( (ref($chain) eq "ARRAY") || ($chain->isa('Bio::Structure::Chain')) ) {
 			# remove existing ones, tell they've become orphan
 			my @obj = $self->get_chains($first_model);
 			if (@obj) {
@@ -315,10 +311,11 @@ sub chain {
 =head2 add_chain()
 
  Title   : add_chain
- Usage   : @chains  = $structure->add_chain($add_chain);
- Function: Adds a (or a list of) Chain objects to a Bio::Structure::Entry.
- Returns : 
- Args    : 
+ Usage   : @chains  = $structure->add_chain($model,$chain);
+ Function: Adds one or more Chain objects to a Bio::Structure::Entry.
+ Returns : List of Chain objects associated with the Model
+ Args    : A Model object and a Chain object or a reference to an array of 
+           of Chain objects
 
 =cut
 
@@ -330,7 +327,7 @@ sub add_chain {
 	}
 	if (defined $chain) {
 		if (ref($chain) eq "ARRAY") {
-    			# if the user passed in a reference to an array
+			# if the user passed in a reference to an array
 			for my $c ( @{$chain} ) {
 				if( ! $c->isa('Bio::Structure::Chain') ) {
 					$self->throw("$c is not a Chain\n");
@@ -368,9 +365,9 @@ sub add_chain {
 
  Title   : get_chains
  Usage   : $entry->get_chains($model);
- Function: general get method for chains attached to a Model
- Returns : a list of chains attached to this model
- Args    : a Model
+ Function: General get method for Chains attached to a Model
+ Returns : A list of Chains attached to this model
+ Args    : A Model
 
 =cut
 
@@ -390,7 +387,7 @@ sub get_chains {
  Title   : residue
  Usage   : @residues  = $structure->residue($residue);
  Function: Connects a (or a list of) Residue objects to a Bio::Structure::Entry.
- Returns : list of Bio::Structure::Residue objects
+ Returns : List of Bio::Structure::Residue objects
  Args    : One Residue or a reference to an array of Residue objects
 
 =cut
@@ -428,7 +425,7 @@ sub residue {
 		else {
 			$self->throw("Supplied a $residue to residue, we want a Bio::Structure::Residue or a list of these\n");
 		}
-   	}
+	}
 	$self->get_residues($first_chain);
 }
 
@@ -436,10 +433,11 @@ sub residue {
 =head2 add_residue()
 
  Title   : add_residue
- Usage   : @residues  = $structure->add_residue($residue);
- Function: Adds a (or a list of) Residue objects to a Bio::Structure::Entry.
- Returns : list of Bio::Structure::Residue objects
- Args    : One Residue or a reference to an array of Residue objects
+ Usage   : @residues  = $structure->add_residue($chain,$residue);
+ Function: Adds one or more Residue objects to a Bio::Structure::Entry.
+ Returns : List of Bio::Structure::Residue objects
+ Args    : A Chain object and a Residue object or a reference to an array of 
+           Residue objects
 
 =cut
 
@@ -489,9 +487,9 @@ sub add_residue {
 
  Title   : get_residues
  Usage   : $structure->get_residues($chain);
- Function: general get method for residues attached to a Chain
- Returns : a list of residues attached to this chain
- Args    : a chain
+ Function: General get method for Residues attached to a Chain
+ Returns : A list of residues attached to this Chain
+ Args    : A Chain
 
 =cut
 
@@ -511,8 +509,8 @@ sub get_residues {
  Title   : add_atom
  Usage   : @atoms  = $structure->add_atom($residue,$atom);
  Function: Adds a (or a list of) Atom objects to a Bio::Structure::Residue.
- Returns : list of Bio::Structure::Atom objects
- Args    : a residue and an atom
+ Returns : List of Bio::Structure::Atom objects
+ Args    : A Residue and an Atom
 
 =cut
 
@@ -560,9 +558,9 @@ sub add_atom {
 
  Title   : get_atoms
  Usage   : $structure->get_atoms($residue);
- Function: general get method for atoms attached to a Residue
- Returns : a list of atoms attached to this residue
- Args    : a residue
+ Function: General get method for Atoms attached to a Residue
+ Returns : A list of Atoms attached to this Residue
+ Args    : A Residue
 
 =cut
 
@@ -581,9 +579,9 @@ sub get_atoms {
 
  Title   : parent
  Usage   : $structure->parent($residue);
- Function: returns the parent of the argument
- Returns : the parent of the argument
- Args    : a Bio::Structure object
+ Function: Returns the parent of the argument
+ Returns : The parent of the argument
+ Args    : A Bio::Structure object
 
 =cut
 
@@ -591,10 +589,11 @@ sub get_atoms {
 
  Title   : conect
  Usage   : $structure->conect($source);
- Function: get/set method for conect
- Returns : a list of serial numbers for atoms connected to source
- 	(together with $entry->get_atom_by_serial($model, $serial) this should be OK for now)
- Args    : the serial number for the source atom
+ Function: Get/set method for conect
+ Returns : A list of serial numbers for Atoms connected to source
+ 	        (together with $entry->get_atom_by_serial($model, $serial),
+           this should be OK for now)
+ Args    : The source, the serial number for the source Atom, and the type
 
 =cut
 
@@ -602,10 +601,11 @@ sub conect {
 	my ($self, $source, $serial, $type) = @_;
 	
 	if ( !defined $source ) {
-		$self->throw("You need to supply at least a source to conect");
+		$self->throw("You need to supply at least a source to connect");
 	}
 	if ( defined $serial && defined $type ) {
-		if ( !exists(${$self->{'conect'}}{$source}) || ref(${$self->{'conect'}}{$source} !~ /^ARRAY/ ) ) {
+		if ( !exists(${$self->{'conect'}}{$source}) || 
+			  ref(${$self->{'conect'}}{$source} !~ /^ARRAY/ ) ) {
 			${$self->{'conect'}}{$source} = [];
 		}
 		# we also need to store type, a conect object might be better 
@@ -619,12 +619,13 @@ sub conect {
 
  Title   : get_all_conect_source
  Usage   : @sources = $structure->get_all_conect_source;
- Function: get all the sources for the conect records
- Returns : a list of serial numbers for atoms connected to source
- 	(together with $entry->get_atom_by_serial($model, $serial) this should be OK for now)
+ Function: Get all the sources for the conect records
+ Returns : A list of serial numbers for atoms connected to source
+ 	        (together with $entry->get_atom_by_serial($model, $serial), 
+           this should be OK for now)
  Args    : 
- Description : This is a bit of a kludge, but it's the best for now. Conect info might need
- 	to go in a sepearte object
+ Notes   : This is a bit of a kludge, but it is the best for now. Conect info might need
+ 	        to go in a separate object
 
 =cut
 
@@ -643,9 +644,9 @@ sub get_all_conect_source {
 
  Title   : master
  Usage   : $structure->master($source);
- Function: get/set method for master
- Returns : the master line
- Args    : the master line for this entry
+ Function: Get/set method for master
+ Returns : The master line
+ Args    : The master line for this entry
 
 =cut
 
@@ -662,11 +663,11 @@ sub master {
 
  Title   : seqres
  Usage   : $seqobj = $structure->seqres("A");
- Function: gets a sequence object containing the sequence from the SEQRES record.
- 	    if a chain-ID is given , the sequence for this chain is given, if none
-	    is provided the first chain is choosen
- Returns : a Bio::PrimarySeq
- Args    : the chain-ID of the chain you want the sequence from
+ Function: Gets a sequence object containing the sequence from the SEQRES record.
+ 	        if a chain-ID is given, the sequence for this chain is given, if none
+	        is provided the first chain is choosen
+ Returns : A Bio::PrimarySeq
+ Args    : The chain-ID of the chain you want the sequence from
 
 =cut
 
@@ -714,11 +715,11 @@ $self->debug("seqres : $chid $seq_ch{$chid}\n");
 =head2 get_atom_by_serial()
 
  Title   : get_atom_by_serial
- Usage   : $structure->get_atom_by_serial($module, $serial);
- Function: get the Atom for a  for get_atom_by_serial
- Returns : the Atom object with this serial number in the model
+ Usage   : $structure->get_atom_by_serial($model,$serial);
+ Function: Get the Atom by serial
+ Returns : The Atom object with this serial number in the model
  Args    : Model on which to work, serial number for atom
- 	(if only a number is supplied, the first model is chosen)
+ 	        (if only a number is supplied, the first model is chosen)
 
 =cut
 
@@ -808,13 +809,13 @@ sub annotation {
  Title   : _remove_models
  Usage   : 
  Function: Removes the models attached to an Entry. Tells the models they
- 	don't belong to this Entry any more
+ 	        do not belong to this Entry any more
  Returns : 
  Args    : 
 
 =cut
 
-#'
+#
 
 sub _remove_models {
 	my ($self) = shift;
@@ -828,7 +829,7 @@ sub _remove_models {
  Title   : _create_default_model
  Usage   : 
  Function: Creates a default Model for this Entry. Typical situation
- 	in an X-ray structure where there is only one model
+ 	        in an X-ray structure where there is only one model
  Returns : 
  Args    : 
 
@@ -847,7 +848,7 @@ sub _create_default_model {
  Title   : _create_default_chain
  Usage   : 
  Function: Creates a default Chain for this Model. Typical situation
- 	in an X-ray structure where there is only one chain
+ 	        in an X-ray structure where there is only one chain
  Returns : 
  Args    : 
 
@@ -866,15 +867,15 @@ sub _create_default_chain {
 
  Title   : _parent
  Usage   : This is an internal function only. It is used to have one 
- 	place that keeps track of which object has which other object 
-	as parent. Thus allowing the underlying modules (Atom, Residue,...)
-	to have no knowledge about all this (and thus removing the possibility
-	of reference cycles).
-	This method hides the details of manipulating references to an anonymous
-	hash.
+ 	        place that keeps track of which object has which other object 
+	        as parent. Thus allowing the underlying modules (Atom, Residue,...)
+	        to have no knowledge about all this (and thus removing the possibility
+	        of reference cycles).
+	        This method hides the details of manipulating references to an anonymous
+	        hash.
  Function: To get/set an objects parent 
- Returns : a reference to the parent if it exist, undef otherwise. In the 
- 	current implementation each node should have a parent (except Entry).
+ Returns : A reference to the parent if it exist, undef otherwise. In the 
+ 	        current implementation each node should have a parent (except Entry).
  Args    : 
 
 =cut
@@ -910,15 +911,15 @@ sub _parent {
 
  Title   : _child
  Usage   : This is an internal function only. It is used to have one 
- 	place that keeps track of which object has which other object 
-	as child. Thus allowing the underlying modules (Atom, Residue,...)
-	to have no knowledge about all this (and thus removing the possibility
-	to have no knowledge about all this (and thus removing the possibility
-	of reference cycles).
-	This method hides the details of manipulating references to an anonymous
-	hash.
- Function: To get/set an object's child(ren) 
- Returns : a reference to an array of child(ren) if it exist, undef otherwise. 
+ 	        place that keeps track of which object has which other object 
+	        as child. Thus allowing the underlying modules (Atom, Residue,...)
+	        to have no knowledge about all this (and thus removing the possibility
+	        to have no knowledge about all this (and thus removing the possibility
+	        of reference cycles).
+	        This method hides the details of manipulating references to an anonymous
+ 	        hash.
+ Function: To get/set an the children of an object 
+ Returns : A reference to an array of child(ren) if they exist, undef otherwise. 
  Args    : 
 
 =cut
@@ -950,11 +951,11 @@ sub _child {
 
  Title   : _remove_from_graph
  Usage   : This is an internal function only. It is used to remove from
- 	the parent/child graph. We only remove the links from object to
-	his parent. Not the ones from object to its children.
+ 	        the parent/child graph. We only remove the links from object to
+	        his parent. Not the ones from object to its children.
  Function: To remove an object from the parent/child graph
  Returns : 
- Args    : the object to be orphaned
+ Args    : The object to be orphaned
 
 =cut
 
