@@ -1759,7 +1759,7 @@ sub load_gff {
 
   my $tied_stdin = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied_stdin;
-  local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
+  local @ARGV = $self->setup_argv($file_or_directory,'gff','gff3') or return;  # to play tricks with reader
   my $result = $self->do_load_gff('ARGV');
   open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
   return $result;
