@@ -2389,7 +2389,7 @@ sub _load_gff_line {
   print STDERR $self->{load_data}{count}," records$lineend" 
     if $self->{__verbose__} && $self->{load_data}{count} % 1000 == 0;
 
-  my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
+  my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{load_data}{gff3_flag});
 
   # no standard way in the GFF file to denote the class of the reference sequence -- drat!
   # so we invoke the factory to do it

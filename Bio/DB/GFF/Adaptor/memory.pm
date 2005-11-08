@@ -179,7 +179,7 @@ sub load_gff_line {
   my $feature_hash  = shift;
   $feature_hash->{strand} = ''  if $feature_hash->{strand} && $feature_hash->{strand} eq '.';
   $feature_hash->{phase}  = ''  if $feature_hash->{phase}  && $feature_hash->{phase} eq '.';
-  $feature_hash->{gclass} = 'Sequence' unless defined $feature_hash->{gclass};
+  $feature_hash->{gclass} = 'Sequence' unless length $feature_hash->{gclass} > 0;
   # sort by group please
   push @{$self->{tmp}{$feature_hash->{gclass},$feature_hash->{gname}}},$feature_hash;
 }
@@ -204,8 +204,12 @@ sub get_abscoords {
 
     my $no_match_class_name;
     my $empty_class_name;
-    if (defined $feature->{gname} and defined $feature->{gclass}){
-      my $matches = $feature->{gclass} eq $class
+    my $class_matches = !defined($feature->{gclass}) ||
+      length($feature->{gclass}) == 0 ||
+	$feature->{gclass} eq $class;
+
+    if (defined $feature->{gname}) {
+      my $matches = $class_matches
 	&& ($regexp ? $feature->{gname} =~ /$name/i : lc($feature->{gname}) eq lc($name));
       $no_match_class_name = !$matches;  # to accomodate Shuly's interesting logic
     }
@@ -214,7 +218,7 @@ sub get_abscoords {
       $empty_class_name = 1;
     }
 
-    if ($no_match_class_name || $empty_class_name){
+    if ($no_match_class_name){
       my $feature_attributes = $feature->{attributes};
       my $attributes = {Alias => $name};
       if (!$self->_matching_attributes($feature_attributes,$attributes)){
@@ -444,7 +448,7 @@ sub _feature_by_name {
 
   for my $feature (@{$self->{data}}) {
     next unless ($regexp && $feature->{gname} =~ /$name/i) || lc($feature->{gname})  eq lc($name);
-    next unless $feature->{gclass} eq $class;
+    next if defined($feature->{gclass}) && length($feature->{gclass}) > 0 && $feature->{gclass} ne $class;
 
     if ($location) {
       next if $location->[0] ne $feature->{ref};

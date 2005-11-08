@@ -1522,6 +1522,10 @@ a set of tag/value pairs as follows:
                background of the image.  Will be 
                invoked I<after> drawing the grid.
 
+  -truecolor   Create a truecolor (24-bit) image.    false
+               Useful when working with the
+               "image" glyph.
+
   -image_class To create output in scalable vector
                graphics (SVG), optionally pass the image
                class parameter 'GD::SVG'. Defaults to
@@ -1665,6 +1669,8 @@ Currently, the following glyphs are available:
 
   group	      A group of related features connected by a dashed line.
 	      This is used internally by Panel.
+
+  image	      A pixmap image that will be layered on top of the graphic.
 
   heterogeneous_segments
               Like segments, but you can use the source field of the feature
