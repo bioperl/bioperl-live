@@ -20,12 +20,11 @@ Bio::MapIO::mapmaker - A Mapmaker Map reader
 
     use Bio::MapIO;
     my $mapio = new Bio::MapIO(-format => "mapmaker",
-			       -file   => "mapfile.map");
-    while( my $map = $mapio->next_map ) { 
-	# get each map
-	foreach my $marker ( $map->each_element ) {
-	    # loop through the markers associated with the map
-	}
+			                      -file   => "mapfile.map");
+    while( my $map = $mapio->next_map ) {  # get each map
+	    foreach my $marker ( $map->each_element ) {
+	       # loop through the markers associated with the map
+	    }
     }
 
 =head1 DESCRIPTION
@@ -89,45 +88,41 @@ use Bio::Map::Marker;
  Title   : next_tree
  Usage   : my $map = $factory->next_map;
  Function: Get a map from the factory
- Returns : L<Bio::Map::MapI>
+ Returns : Bio::Map::MapI
  Args    : none
+
+See L<Bio::Map::MapI>
 
 =cut
 
 sub next_map{
    my ($self) = @_;
-   my ($ready,$map) = (0,new Bio::Map::SimpleMap('-name'  => '',
-						 '-units' => 'cM',
-						 '-type'  => 'Genetic'));
+   my $map = (new Bio::Map::SimpleMap(-name  => '',
+												  -units => 'cM',
+												  -type  => 'Genetic'));
    my @markers;
-   my $runningDistance = 0;
-   while( defined($_ = $self->_readline()) ) {
-       if ( $ready || /^\s+Markers\s+Distance/ ) { 
-	   unless ( $ready ) { $ready = 1; next }
-       } else { next }
+   my ($ready,$runningDistance);
+   while ( defined ($_ = $self->_readline()) ) {
+		if (/^\s+Markers\s+Distance/ ) {
+			$ready = 1;
+			next;
+		} 
+		next unless $ready;
 
-       last if ( /-{5,}/); # map terminator is ------- 
-       s/ +/\t/;
-       my ($number,$name,$distance) = split;
-       $runningDistance += $distance;
-       $runningDistance = '0.0' if $runningDistance == 0;
-#       print "$_|$number-$name-$distance---------";
-       my $pos = new Bio::Map::LinkagePosition (-order => $number,
-						-map => $map,
-						-value => $runningDistance
-						);
-       my $marker = new Bio::Map::Marker(-name=> $name,
-					 -position => $pos,
-					 );
-       $marker->position($pos);
-#       use Data::Dumper; print Dumper($marker); exit;
-#       print $marker->position->value, "\n";
-#       use Data::Dumper; print Dumper($pos);
-#	 $map->add_element(new Bio::Map::Marker('-name'=> $name,
-#						'-position' => $pos,
-#						));   
+		s/ +/\t/;
+		my ($number,$name,$distance) = split;
+		$runningDistance += $distance unless ($distance =~ /-/);
+		$runningDistance = '0.0' if ($runningDistance == 0 || $distance =~ /-/);
+		my $pos = new Bio::Map::LinkagePosition (-order => $number,
+															  -map => $map,
+															  -value => $runningDistance
+															 );
+		my $marker = new Bio::Map::Marker(-name=> $name,
+													 -position => $pos,
+													);
+		$marker->position($pos);
+		last if $distance =~ /-/; # map terminator is -------
    }
-#   return undef if( ! $ready );
    return $map;
 }
 
