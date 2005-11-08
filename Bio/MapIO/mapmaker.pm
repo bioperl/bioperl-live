@@ -21,7 +21,7 @@ Bio::MapIO::mapmaker - A Mapmaker Map reader
     use Bio::MapIO;
     my $mapio = new Bio::MapIO(-format => "mapmaker",
 			                      -file   => "mapfile.map");
-    while( my $map = $mapio->next_map ) {  # get each map
+    while ( my $map = $mapio->next_map ) {  # get each map
 	    foreach my $marker ( $map->each_element ) {
 	       # loop through the markers associated with the map
 	    }
@@ -68,9 +68,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::MapIO::mapmaker;
 use vars qw(@ISA);
@@ -85,9 +83,9 @@ use Bio::Map::Marker;
 
 =head2 next_map
 
- Title   : next_tree
+ Title   : next_map
  Usage   : my $map = $factory->next_map;
- Function: Get a map from the factory
+ Function: Get one or more map objects from the Mapmaker input
  Returns : Bio::Map::MapI
  Args    : none
 
@@ -97,38 +95,44 @@ See L<Bio::Map::MapI>
 
 sub next_map{
    my ($self) = @_;
-   my $map = (new Bio::Map::SimpleMap(-name  => '',
+   my $map = Bio::Map::SimpleMap->new(-name  => '',
 												  -units => 'cM',
-												  -type  => 'Genetic'));
-   my @markers;
-   my ($ready,$runningDistance);
+												  -type  => 'Genetic');
+
+	# Mapmaker input can be free-form, like the result of a copy-paste
+	# from a terminal, with no particular format before or after the 
+	# map data. The $in_map variable is a flag that's set to 1 when 
+	# we're reading map data lines and set back to 0 when we're finished.
+   my ($in_map,$runningDistance);
+
    while ( defined ($_ = $self->_readline()) ) {
-		if (/^\s+Markers\s+Distance/ ) {
-			$ready = 1;
+		if ( /^\s+Markers\s+Distance/ ) {
+			$in_map = 1;
 			next;
 		} 
-		next unless $ready;
-
+		next unless $in_map;
+ 
 		s/ +/\t/;
 		my ($number,$name,$distance) = split;
-		$runningDistance += $distance unless ($distance =~ /-/);
-		$runningDistance = '0.0' if ($runningDistance == 0 || $distance =~ /-/);
-		my $pos = new Bio::Map::LinkagePosition (-order => $number,
-															  -map => $map,
-															  -value => $runningDistance
-															 );
-		my $marker = new Bio::Map::Marker(-name=> $name,
-													 -position => $pos,
-													);
-		$marker->position($pos);
-		last if $distance =~ /-/; # map terminator is -------
-   }
-   return $map;
+		$runningDistance += $distance unless ($distance =~ /-+/);
+		$runningDistance = '0.0' if ($runningDistance == 0 || $distance =~ /-+/);
+
+		my $pos = new Bio::Map::LinkagePosition(-order => $number,
+															 -map   => $map,
+															 -value => $runningDistance );
+		my $marker = new Bio::Map::Marker(-name     => $name,
+													 -position => $pos );
+		
+		if ($distance =~ /-+/) { # last marker
+			$in_map = 0;
+			return $map;
+		}  
+	}
 }
 
 =head2 write_map
 
- Title   : write_tree
+ Title   : write_map
  Usage   : $factory->write_map($map);
  Function: Write a map out through the factory
  Returns : none
