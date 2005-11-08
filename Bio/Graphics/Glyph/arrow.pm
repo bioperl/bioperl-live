@@ -25,7 +25,7 @@ sub pad_bottom {
 }
 
 # override draw method
-sub draw {
+sub draw_component {
   my $self = shift;
   my $parallel = $self->option('parallel');
   $parallel = 1 unless defined $parallel;

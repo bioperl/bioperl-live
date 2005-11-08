@@ -16,7 +16,7 @@ use constant HEIGHT => 4;
 #}
 
 # override draw method
-sub draw {
+sub draw_component {
   my $self = shift;
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);
