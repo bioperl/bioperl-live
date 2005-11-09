@@ -212,8 +212,8 @@ sub next_psm {
 	$id=~s/\D+//g;
 	my @s;
 	my $width=$index{$id};
-	foreach (1..$width) {push @s,'N';} #We don't know the sequence, but we know the length
-	my $seq=join('N',@s); #Future version will have to parse Section tree nad get the real seq
+    #We don't know the sequence, but we know the length
+	my $seq='N' x $width; #Future version will have to parse Section tree nad get the real seq
 	my $instance=new Bio::Matrix::PSM::InstanceSite 
 	    ( -id=>"$id\@$sid", 
 	      -mid=>$id, 
