@@ -8,7 +8,7 @@ Brian Osborne
     <[2]osborne1 at optonline.net>
 
    This document is copyright Brian Osborne, 2003. For reproduction other
-   than personal use please contact brian at optonline.net.
+   than personal use please contact osborne1 at optonline.net.
 
    2003-10-14
 
@@ -141,9 +141,9 @@ Brian Osborne
    I'll be focusing on the Genbank format but bear in mind that most of
    the code shown here will also work on other formats containing
    features or annotations (EMBL, Swissprot, BSML, Chado XML, GAME, KEGG,
-   Locuslink, TIGR XML). When the entry comes from Genbank it's easy to
-   see where most of the features are, they're in the Feature table
-   section, something like this:
+   Locuslink, Entrez Gene, TIGR XML). When the entry comes from Genbank
+   it's easy to see where most of the features are, they're in the
+   Feature table section, something like this:
 
 FEATURES             Location/Qualifiers
      source          1..1846
@@ -478,12 +478,12 @@ SOURCE      human.
         my $species_object = $seq_object->species;
         my $species_string = $species_object->species;
 
-   # Perlish
+        # Perlish
         my $species_string = $seq_object->species->species;
-        # either way $species_string is "Homo sapiens"
+        # either way, $species_string is "Homo sapiens"
 
-   # get all taxa from the ORGANISM section in an array
-   my @classification = $seq_object->species->classification;
+        # get all taxa from the ORGANISM section in an array
+        my @classification = $seq_object->species->classification;
         # "sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia
         # Euteleostomi Vertebrata Craniata Chordata Metazoa Eukaryota"
 
@@ -491,7 +491,7 @@ SOURCE      human.
    The reason that ORGANISM isn't treated only as a plain tag is that
    there are a variety of things one would want to do with taxonomic
    information, so returning just an array wouldn't suffice. See the
-   documentation on [25]Bio::Species for more information.
+   documentation on [25]Bio::Species for more information on its methods.
 
 8. Annotations from Genbank
 
@@ -701,7 +701,8 @@ my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
                   @annotations;
 
 
-   The contents of the %tagname_type hash will look like the table below.
+   The contents of the %tagname_type hash can be represented in table
+   form, below.
 
    as_text() tagname() ref()
    Direct database link to AAA93114 in database GenBank dblink
@@ -772,7 +773,8 @@ my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
    the data? The [57]Bio::SeqFeature::Generic object is probably the best
    SeqFeature object for this purpose, in part because of its
    flexibility. Let's assume we have a sequence that has an interesting
-   sub-sequence, going from position 10 to 22.
+   sub-sequence, going from position 10 to 22 on the "plus" or "1"
+   strand.
 
         use Bio::SeqFeature::Generic;
 
@@ -802,7 +804,7 @@ ted',
            for my $val ( $feat->get_tag_values($tag) ) {
                    print $tag,":",$val,"\n";
            }
-   }
+        }
 
 # prints out:
 # match2:PF002534 e-3.1
@@ -812,8 +814,8 @@ ted',
 # start: 10 end: 22
 
 
-   Once the feature, and its annotations, are created it can be
-   associated with a sequence:
+   Once the feature and its annotations are created it can be associated
+   with a sequence:
 
         use Bio::Seq;
 

@@ -189,7 +189,7 @@
       I'll be focusing on the Genbank format but bear in mind
       that most of the code shown here will also work on other formats
       containing features or annotations (EMBL, Swissprot, BSML,
-      Chado XML, GAME, KEGG, Locuslink, TIGR XML). 
+      Chado XML, GAME, KEGG, Locuslink, Entrez Gene, TIGR XML). 
       When the entry comes from Genbank it's 
       easy to see where most of the
       features are, they're in the Feature table section, something
@@ -680,12 +680,12 @@ SOURCE      human.
 	my $species_object = $seq_object->species;
 	my $species_string = $species_object->species;
 	
-   # Perlish
+        # Perlish
 	my $species_string = $seq_object->species->species;
-	# either way $species_string is "Homo sapiens"
+	# either way, $species_string is "Homo sapiens"
 	
-   # get all taxa from the ORGANISM section in an array
-   my @classification = $seq_object->species->classification;
+        # get all taxa from the ORGANISM section in an array
+        my @classification = $seq_object->species->classification;
 	# "sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia
 	# Euteleostomi Vertebrata Craniata Chordata Metazoa Eukaryota"
       </programlisting>
@@ -696,7 +696,8 @@ SOURCE      human.
       taxonomic information, so returning just an array wouldn't
       suffice. See the documentation on
       <ulink
-	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html"><citetitle>Bio::Species</citetitle></ulink> for more information.
+	    url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html"><citetitle>Bio::Species</citetitle></ulink>
+      for more information on its methods.
     </para>
   </section>
 
@@ -1043,8 +1044,8 @@ my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
     </para>
 	 <para></para>
     <para>
-      The contents of the <varname>%tagname_type</varname> hash will 
-      look like the table below.
+      The contents of the <varname>%tagname_type</varname> hash can be represented
+      in table form, below.
     </para>
 
     <para>
@@ -1147,7 +1148,8 @@ my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
 	url="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html"><citetitle>Bio::SeqFeature::Generic</citetitle></ulink> object is 
       probably the best SeqFeature object for this purpose, in part because of
       its flexibility. Let's assume we have a sequence that has an
-      interesting sub-sequence, going from position 10 to 22.
+      interesting sub-sequence, going from position 10 to 22 on the
+      "plus" or "1" strand.
     </para>
 	 <para></para>
     <para>
@@ -1186,7 +1188,7 @@ my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
            for my $val ( $feat->get_tag_values($tag) ) {
 		   print $tag,":",$val,"\n";
 	   }
-   }
+        }
 
 # prints out:
 # match2:PF002534 e-3.1
@@ -1202,7 +1204,7 @@ my @annotations = Bio::SeqIO->new(-file => "148.ll", -format => "locuslink")->
 
     </para>
     <para>
-      Once the feature, and its annotations, are created it can be
+      Once the feature and its annotations are created it can be
 		associated with a sequence:
     </para>
     <para>

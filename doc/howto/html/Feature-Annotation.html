@@ -7,7 +7,7 @@ BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: b
 			&nbsp;<tt class="email">&lt;<a href="mailto:osborne1 at optonline.net">osborne1&nbsp;at&nbsp;optonline.net</a>&gt;</tt><br></br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p></div></div></div></div><div><div class="legalnotice"><a id="d4e11"></a><p>
 		  This document is copyright Brian Osborne, 2003. For
-		  reproduction other than personal use please contact brian at 
+		  reproduction other than personal use please contact osborne1 at 
 		  optonline.net.
       </p></div></div><div><p class="pubdate">2003-10-14</p></div><div><div class="abstract"><p class="title"><b>Abstract</b></p><p>
 		  This is a HOWTO written in DocBook format that explains how to
@@ -126,7 +126,7 @@ BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: b
       I'll be focusing on the Genbank format but bear in mind
       that most of the code shown here will also work on other formats
       containing features or annotations (EMBL, Swissprot, BSML,
-      Chado XML, GAME, KEGG, Locuslink, TIGR XML). 
+      Chado XML, GAME, KEGG, Locuslink, Entrez Gene, TIGR XML). 
       When the entry comes from Genbank it's 
       easy to see where most of the
       features are, they're in the Feature table section, something
@@ -475,12 +475,12 @@ SOURCE      human.
 	my $species_object = $seq_object-&gt;species;
 	my $species_string = $species_object-&gt;species;
 	
-   # Perlish
+        # Perlish
 	my $species_string = $seq_object-&gt;species-&gt;species;
-	# either way $species_string is "Homo sapiens"
+	# either way, $species_string is "Homo sapiens"
 	
-   # get all taxa from the ORGANISM section in an array
-   my @classification = $seq_object-&gt;species-&gt;classification;
+        # get all taxa from the ORGANISM section in an array
+        my @classification = $seq_object-&gt;species-&gt;classification;
 	# "sapiens Homo Hominidae Catarrhini Primates Eutheria Mammalia
 	# Euteleostomi Vertebrata Craniata Chordata Metazoa Eukaryota"
       </pre>
@@ -489,7 +489,8 @@ SOURCE      human.
       there are a variety of things one would want to do with
       taxonomic information, so returning just an array wouldn't
       suffice. See the documentation on
-      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html" target="_top"><i class="citetitle">Bio::Species</i></a> for more information.
+      <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Species.html" target="_top"><i class="citetitle">Bio::Species</i></a>
+      for more information on its methods.
     </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="anno_from_genbank"></a>8.&nbsp;Annotations from Genbank</h2></div></div></div><p>
       There's still quite a bit of data left in our Genbank files that's
       not in SeqFeature objects, and much of it is parsed into 
@@ -688,8 +689,8 @@ my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locusl
 		  @annotations;
       </pre>
     </p><p></p><p>
-      The contents of the <tt class="varname">%tagname_type</tt> hash will 
-      look like the table below.
+      The contents of the <tt class="varname">%tagname_type</tt> hash can be represented
+      in table form, below.
     </p><p>
       <div class="table"><a id="d4e463"></a><table summary="Locuslink Annotations" border="1"><thead><tr><th>as_text()</th><th>tagname()</th><th>ref()</th></tr></thead><tbody><tr><td>Direct database link to AAA93114 in database GenBank</td><td>dblink</td><td><a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/Annotation/DBLink.html" target="_top"><i class="citetitle">Bio::Annotation::DBLink</i></a></td></tr><tr><td>Value:
 	    http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&amp;CID=52931</td><td>URL</td><td>
@@ -729,7 +730,8 @@ my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locusl
       <a href="http://doc.bioperl.org/releases/bioperl-1.4/Bio/SeqFeature/Generic.html" target="_top"><i class="citetitle">Bio::SeqFeature::Generic</i></a> object is 
       probably the best SeqFeature object for this purpose, in part because of
       its flexibility. Let's assume we have a sequence that has an
-      interesting sub-sequence, going from position 10 to 22.
+      interesting sub-sequence, going from position 10 to 22 on the
+      "plus" or "1" strand.
     </p><p></p><p>
       <pre class="programlisting">
 	use Bio::SeqFeature::Generic;
@@ -761,7 +763,7 @@ my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locusl
            for my $val ( $feat-&gt;get_tag_values($tag) ) {
 		   print $tag,":",$val,"\n";
 	   }
-   }
+        }
 
 # prints out:
 # match2:PF002534 e-3.1
@@ -774,7 +776,7 @@ my @annotations = Bio::SeqIO-&gt;new(-file =&gt; "148.ll", -format =&gt; "locusl
     </p><p>
 
     </p><p>
-      Once the feature, and its annotations, are created it can be
+      Once the feature and its annotations are created it can be
 		associated with a sequence:
     </p><p>
       <pre class="programlisting">
