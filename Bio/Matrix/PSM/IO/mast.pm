@@ -177,7 +177,6 @@ sub next_psm {
     my $self=shift;
     return undef if ($self->{_end}==1);
     my (@lmotifsm,%index,$eval,$scheme,$sid);
-    my $i=0;
     %index= %{$self->{length}};
     my (@instances,%instances);
     my $line=$self->_readline;
@@ -195,11 +194,10 @@ sub next_psm {
 	$line=$self->_readline;
 	$line=~s/[\t\n]//;
     } until ($line!~/^\s/);
-    my $pos=0;
+    my $pos=1;
     $scheme=~s/\s+//g;
     $scheme=~s/\n//g;
     my @motifs=split(/_/,$scheme);
-    $i++;
     while (@motifs) {
 	my $next=shift(@motifs);
 	if (!($next=~/\D/)) {

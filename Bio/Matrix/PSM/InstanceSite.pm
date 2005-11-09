@@ -103,7 +103,7 @@ sub new {
     my ($class, @args) = @_;
     my %args = @args; #Too many things to rearrange, and I am creating >1K such objects routinely, so this is a performance issue    
     $args{'-start'} ||= 1;
-    my $end = $args{'-start'} + length($args{-seq});
+    my $end = $args{'-start'} + length($args{-seq}) -1;
     if (!defined($args{-strand})) {
 	$args{-strand}=1;
 	@args=%args;
