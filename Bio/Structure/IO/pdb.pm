@@ -22,10 +22,10 @@ It is probably best not to use this object directly, but
 rather go through the Bio::Structure::IO handler system. Go:
 
     $stream = Bio::Structure::IO->new(-file => $filename, 
-    				      -format => 'PDB');
+                                      -format => 'PDB');
 
     while ( (my $structure = $stream->next_structure()) ) {
-	# do something with $structure
+	    # do something with $structure
     }
 
 =head1 DESCRIPTION
@@ -59,7 +59,8 @@ Email kris.boulez@algonomics.com
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
@@ -105,7 +106,6 @@ sub _initialize {
  Returns : Bio::Structure object
  Args    :
 
-
 =cut
 
 sub next_structure {
@@ -140,7 +140,7 @@ sub next_structure {
    my($class, $depdate, $idcode) = unpack "x10 a40 a9 x3 a4", $line;
    $idcode =~ s/^\s*(\S+)\s*$/$1/;
    $struc->id($idcode);
-$self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
+	$self->debug("PBD c $class d $depdate id $idcode\n"); # XXX KB
 
    my $buffer = $line;
    
@@ -518,7 +518,6 @@ $self->debug("get COMPND $compnd\n");
  Returns : 1 for success and 0 for error
  Args    : Bio::Structure object
 
-
 =cut
 
 sub write_structure {
@@ -728,17 +727,18 @@ sub write_structure {
 		for my $chain ($struc->get_chains($model)) {
 			my ($residue, $atom, $resname, $resnum, $atom_line, $atom_serial, $atom_icode, $chain_id);
 			my ($prev_resname, $prev_resnum, $prev_atomicode); # need these for TER record
-			my $wr_ter = 0; # have we already written out a TER for this chain
+			my $last_record; # Used to spot an ATOM -> HETATM change within a chain
 			$chain_id = $chain->id;
 			if ( $chain_id eq "default" ) {
 				$chain_id = " "; 
 			}
-$self->debug("model_id: $model->id chain_id: $chain_id\n");
+			$self->debug("model_id: $model->id chain_id: $chain_id\n");
 			for $residue ($struc->get_residues($chain)) {
 				($resname, $resnum) = split /-/, $residue->id;
 				for $atom ($struc->get_atoms($residue)) {
 					if ($het_res{$resname}) {  # HETATM
-						if ( ! $wr_ter && $resname ne "HOH" ) { # going from ATOM -> HETATM, we have to write TER
+						if ( $last_record eq "ATOM  " && $resname ne "HOH" ) {
+							# going from ATOM -> HETATM, we have to write TER
 							my $ter_line = "TER   ";
 							$ter_line .= sprintf("%5d", $atom_serial + 1);
 							$ter_line .= "      ";
@@ -748,12 +748,12 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 							$ter_line .= $atom_icode ? $prev_atomicode : " "; # 27
 							$ter_line .= " " x (80 - length $ter_line);  # extend to 80 chars
 							$self->_print($ter_line,"\n");
-							$wr_ter = 1;
 						}
 						$atom_line = "HETATM";
 					} else {
 						$atom_line = "ATOM  ";
 					}
+					$last_record = $atom_line;
 					$atom_line .= sprintf("%5d ", $atom->serial);
 					$atom_serial = $atom->serial; # we need it for TER record
 					$atom_icode = $atom->icode;
@@ -820,8 +820,8 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 					$self->_print($atom_line,"\n");
 				}
 			}
-			# write out TER record if it hasn't been written yet
-			if ( $resname ne "HOH" && ! $wr_ter ) {
+			# write out TER record
+			if ( $resname ne "HOH" ) {
 				my $ter_line = "TER   ";
 				$ter_line .= sprintf("%5d", $atom_serial + 1);
 				$ter_line .= "      ";
@@ -831,7 +831,6 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 				$ter_line .= $atom_icode ? $atom_icode : " "; # 27
 				$ter_line .= " " x (80 - length $ter_line);  # extend to 80 chars
 				$self->_print($ter_line,"\n");
-				$wr_ter = 1;
 			}
 		}
 		if ($struc->get_models > 1) { # we need ENDMDL
@@ -886,7 +885,6 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 		}
 	}
 		
-
 	# MASTER line contains checksums, we should calculate them of course :)
 	my $master_line = "MASTER    " . $struc->master;
 	$master_line .= " " x (80 - length($master_line) );
@@ -895,7 +893,6 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
 	my $end_line = "END" . " " x 77;
 	$self->_print($end_line,"\n");
 
-	#$self->throw("write_structure is not yet implemented, start holding your breath\n");
 }
 
 =head2 _filehandle
@@ -906,7 +903,6 @@ $self->debug("model_id: $model->id chain_id: $chain_id\n");
  Example : 
  Returns : value of _filehandle
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -998,7 +994,7 @@ sub _read_PDB_singlecontline {
 	
 		$_ = undef;
 	}
-		$concat_line =~ s/\s$//;  # remove trailing space
+	$concat_line =~ s/\s$//;  # remove trailing space
 	$$buffer = $_;
 	
 	return $concat_line;
