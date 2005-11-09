@@ -585,6 +585,21 @@ sub get_atoms {
 
 =cut
 
+=head2 connect
+
+ Title   : connect
+ Usage   : 
+ Function: Alias to conect()
+ Returns : 
+ Args    : 
+
+=cut
+
+sub connect {
+	my $self = shift;
+	return $self->conect(@_);
+}
+
 =head2 conect()
 
  Title   : conect
@@ -613,6 +628,21 @@ sub conect {
 		push @{ ${$self->{'conect'}}{$source} }, $c;
 	}
 	return @{ ${$self->{'conect'}}{$source} };
+}
+
+=head2 get_all_connect_source
+
+ Title   : get_all_connect_source
+ Usage   : 
+ Function: Alias to get_all_conect_source()
+ Returns : 
+ Args    : 
+
+=cut
+
+sub get_all_connect_source {
+	my $self = shift;
+	return get_all_conect_source(@_);
 }
 
 =head2 get_all_conect_source()
@@ -682,7 +712,7 @@ sub seqres {
 	}
 	my $seqres = ($self->annotation->get_Annotations("seqres"))[0];
 	my $seqres_string = $seqres->as_text;
-$self->debug("seqres : $seqres_string\n");
+	$self->debug("seqres : $seqres_string\n");
 	$seqres_string =~ s/^Value: //;
 	# split into lines of 62 long
 	my @l = unpack("A62" x (length($seqres_string)/62), $seqres_string);
@@ -696,7 +726,7 @@ $self->debug("seqres : $seqres_string\n");
 		$seq =~ s/(\w+)/\u\L$1/g;	# ALA -> Ala  (for SeqUtils)
 		$seq =~ s/\s//g; 		# strip all spaces
 		$seq_ch{$chid} .= $seq;
-$self->debug("seqres : $chid $seq_ch{$chid}\n");
+		$self->debug("seqres : $chid $seq_ch{$chid}\n");
 	}
 	# do we have a seqres for this chainid
 	if(! exists $seq_ch{$chainid} ) {
@@ -711,6 +741,7 @@ $self->debug("seqres : $chid $seq_ch{$chid}\n");
 	$pseq->id($id);
 	return $pseq;
 }
+
 
 =head2 get_atom_by_serial()
 
