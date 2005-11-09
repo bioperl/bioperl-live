@@ -627,6 +627,9 @@ sub conect {
 		my $c = $serial . "_" . $type;
 		push @{ ${$self->{'conect'}}{$source} }, $c;
 	}
+	# Bug 1894
+	return () if ( !exists $self->{'conect'}{$source} || 
+					  !defined $self->{'conect'}{$source} );
 	return @{ ${$self->{'conect'}}{$source} };
 }
 
