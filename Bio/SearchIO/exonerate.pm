@@ -55,12 +55,14 @@ will processed for a given Query/Target pair.  If you preferentially
 want to use VULGAR or CIGAR add one of these options when initializing
 the SearchIO object.
 
-    -cigar => 1 
+    -cigar  => 1 
+OR
     -vulgar => 1 
 
 Or set them via these methods.
 
     $parser->cigar(1)
+OR
     $parser->vulgar(1)
 
 
