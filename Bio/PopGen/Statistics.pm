@@ -750,7 +750,7 @@ sub theta {
 	# This will handle the case when we pass in a PopulationI object
 	my $pop = $n;
 	$totalsites = $seg_sites; # shift the arguments over by one
-	$n = $pop->get_number_individuals;
+	$n = $pop->haploid_population->get_number_individuals;
 	$seg_sites = $self->segregating_sites_count($pop);
     }
     my $a1 = 0; 
