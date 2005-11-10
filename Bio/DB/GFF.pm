@@ -1759,7 +1759,7 @@ sub load_gff {
 
   my $tied_stdin = tied(*STDIN);
   open SAVEIN,"<&STDIN" unless $tied_stdin;
-  local @ARGV = $self->setup_argv($file_or_directory,'gff') or return;  # to play tricks with reader
+  local @ARGV = $self->setup_argv($file_or_directory,'gff','gff3') or return;  # to play tricks with reader
   my $result = $self->do_load_gff('ARGV');
   open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
   return $result;
@@ -2389,7 +2389,7 @@ sub _load_gff_line {
   print STDERR $self->{load_data}{count}," records$lineend" 
     if $self->{__verbose__} && $self->{load_data}{count} % 1000 == 0;
 
-  my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{gff3_flag});
+  my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{load_data}{gff3_flag});
 
   # no standard way in the GFF file to denote the class of the reference sequence -- drat!
   # so we invoke the factory to do it
