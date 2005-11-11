@@ -49,11 +49,9 @@ web:
 
 Email amackey-at-virginia.edu
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -286,14 +284,18 @@ sub _write_tree_Helper {
     if( @data > 1 ) {
 	$data[0] = "(" . $data[0];
 	$data[-1] .= ")";
+	my $id = $node->id;
+	$data[-1] .= $id  if( defined $id );
 	$data[-1] .= ":". $node->branch_length if $node->branch_length;	
 	# this is to not print out an empty NHX for the root node which is 
 	# a convience for how we get a handle to the whole tree
-	if( $node->ancestor || $node->id || defined $node->branch_length ) {
+	
+	if( $node->ancestor || defined $id && length($id) || defined $node->branch_length ) {	    
 	    $data[-1] .= '[' . 
-		join(":", "&&NHX", 
+		join(":", "&&NHX",
 		     map { "$_=" .join(',',$node->get_tag_values($_)) } 
 		     $node->get_all_tags() ) . ']';
+
 	}
     } else { 
 	push @data, $node->to_string; # a leaf
