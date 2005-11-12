@@ -16,8 +16,10 @@ Bio::SeqIO::kegg - KEGG sequence input/output stream
 
 =head1 SYNOPSIS
 
-  #It is probably best not to use this object directly, but
-  #rather go through the SeqIO handler system. Go:
+  # It is probably best not to use this object directly, but
+  # rather go through the SeqIO handler system. Go:
+
+  use Bio::SeqIO;
 
   $stream = Bio::SeqIO->new(-file => $filename, -format => 'KEGG');
 
@@ -104,8 +106,7 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution. Bug reports can be submitted via the web:
 
   http://bugzilla.bioperl.org/
 
@@ -192,10 +193,10 @@ sub next_seq {
 		$FIELDS{$key} = $chunk;
 	}
 
-	#   my($entry_id,$entry_seqtype,$entry_species) = $FIELDS{ENTRY}
-	# =~ /^ENTRY\s+(\d+)\s+(\S+)\s+(\S+)\s*$/;
-	# changing to split method to get entry_ids that include sequence version like Whatever.1
-	my(undef,$entry_id,$entry_seqtype,$entry_species) = split(' ',$FIELDS{ENTRY});
+	# changing to split method to get entry_ids that include 
+	# sequence version like Whatever.1
+	my(undef,$entry_id,$entry_seqtype,$entry_species) = 
+	  split(' ',$FIELDS{ENTRY});
 
 	my($name);
 	if ($FIELDS{NAME}) {
@@ -212,9 +213,11 @@ sub next_seq {
 
 	$annotation = Bio::Annotation::Collection->new();
 
-	$annotation->add_Annotation('description',Bio::Annotation::Comment->new(-text => $definition));
+	$annotation->add_Annotation('description',
+						Bio::Annotation::Comment->new(-text => $definition));
+	
 	$annotation->add_Annotation('aa_seq',
-										 Bio::Annotation::Comment->new(-text => $aa_seq)); ################# NEW
+						Bio::Annotation::Comment->new(-text => $aa_seq));
 
 	my($ortholog_db,$ortholog_id,$ortholog_desc);
 	if ($FIELDS{ORTHOLOG}) {
@@ -226,7 +229,7 @@ sub next_seq {
                      -primary_id => $ortholog_id,
                      -comment => $ortholog_desc) );
   } 
-################ NEW
+
   if($FIELDS{MOTIF}){
      $FIELDS{MOTIF} =~ s/^MOTIF\s+//; 
      while($FIELDS{MOTIF} =~/\s*?(\S+):\s+(.+?)$/mg){
@@ -235,13 +238,12 @@ sub next_seq {
          foreach my $id (split(/\s+/, $ids)){
 
      $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(
-               -database =>$db,
+              -database =>$db,
               -primary_id => $id,
               -comment => "")   );
         }
      }
   }
-
 
   if($FIELDS{PATHWAY}) {
      $FIELDS{PATHWAY} =~ s/^PATHWAY\s+//;
@@ -250,7 +252,6 @@ sub next_seq {
            Bio::Annotation::Comment->new(-text => "$1"));
      }
   }
-####################################
 
   if ($FIELDS{CLASS}) {
       $FIELDS{CLASS} =~ s/^CLASS\s+//;
@@ -276,13 +277,13 @@ sub next_seq {
       }
   }
 
-  $params{'-alphabet'}                 = 'dna';
-  $params{'-seq'}                         = $nt_seq;
-  $params{'-display_id'}              = $name;
+  $params{'-alphabet'}         = 'dna';
+  $params{'-seq'}              = $nt_seq;
+  $params{'-display_id'}       = $name;
   $params{'-accession_number'} = $entry_id;
-  $params{'-species'}                   = Bio::Species->new(-common_name =>
-        $entry_species);
-  $params{'-annotation'}              = $annotation;
+  $params{'-species'}          = Bio::Species->new(
+											  -common_name => $entry_species);
+  $params{'-annotation'}       = $annotation;
 
   $builder->add_slot_value(%params);
   $seq = $builder->make_object();
