@@ -146,12 +146,16 @@ sub _get_genes {
     my $i=0;
     my %instances;
     while (my $line=$self->_readline) {
-	last if ($line=~/^\D{10,}/);
+	last if ($line=~/^[\s\t*]/); #Well, ids can be nearly anything...???
 	chomp($line);
 	$i++;
 	next if ($line eq '');
 	$line=~s/\s+/,/g;
 	my ($id,$key,$eval,$len)=split(/,/,$line);
+    unless ($len) {
+        warn "Malformed data found: $line\n";
+        next;
+    }
 	$instances{$id}=new Bio::Matrix::PSM::InstanceSite ( -id=>$id,
 							     -desc=>$key,-score=>$eval, -width=>$len,-seq=>'ACGT');
     }
