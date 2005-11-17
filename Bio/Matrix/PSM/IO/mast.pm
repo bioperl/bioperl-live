@@ -1,4 +1,3 @@
-#---------------------------------------------------------
 # $Id$
 
 =head1 NAME
@@ -7,7 +6,8 @@ Bio::Matrix::PSM::IO::mast - PSM mast parser implementation
 
 =head1 SYNOPSIS
 
-See Bio::Matrix::PSM::IO for detailed documentation on how to use PSM parsers
+See Bio::Matrix::PSM::IO for detailed documentation on how to 
+use PSM parsers
 
 =head1 DESCRIPTION
 
@@ -25,8 +25,7 @@ available, so we supply 'NNNNN....' as a seq which is not right.
 
 User feedback is an integral part of the evolution of this
 and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+to one of the Bioperl mailing lists. Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
   http://bio.perl.org/MailList.html     - About the mailing lists
@@ -66,7 +65,7 @@ use vars qw(@ISA);
 
  Title   : new
  Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
-						 -file=>$file);
+						                               -file=>$file);
  Function: Associates a file with the appropriate parser
  Throws  : Throws if the file passed is in HTML format or if 
            some criteria for the file
@@ -137,29 +136,32 @@ sub new {
 }
 
 
-#Get the file header and put store it as a hash, which later we'll use to create
-#the header for each Psm. See Bio::Matrix::PSM::PsmI for header function.
+# Get the file header and put store it as a hash, which later we'll use to create
+# the header for each Psm. See Bio::Matrix::PSM::PsmI for header function.
 sub _get_genes {
-    my $self=shift;
-    my %llid;
-    my $ok=0;
-    my $i=0;
-    my %instances;
-    while (my $line=$self->_readline) {
-	last if ($line=~/^[\s\t*]/); #Well, ids can be nearly anything...???
-	chomp($line);
-	$i++;
-	next if ($line eq '');
-	$line=~s/\s+/,/g;
-	my ($id,$key,$eval,$len)=split(/,/,$line);
-    unless ($len) {
-        warn "Malformed data found: $line\n";
-        next;
-    }
-	$instances{$id}=new Bio::Matrix::PSM::InstanceSite ( -id=>$id,
-							     -desc=>$key,-score=>$eval, -width=>$len,-seq=>'ACGT');
-    }
-    return %instances;
+	my $self=shift;
+	my %llid;
+	my $ok=0;
+	my $i=0;
+	my %instances;
+	while (my $line=$self->_readline) {
+		last if ($line=~/^[\s\t*]/); # Well, ids can be nearly anything...???
+		chomp($line);
+		$i++;
+		next if ($line eq '');
+		$line=~s/\s+/,/g;
+		my ($id,$key,$eval,$len)=split(/,/,$line);
+		unless ($len) {
+			warn "Malformed data found: $line\n";
+			next;
+		}
+		$instances{$id}=new Bio::Matrix::PSM::InstanceSite (-id=>$id,
+																			  -desc=>$key,
+																			  -score=>$eval, 
+																			  -width=>$len,
+																			  -seq=>'ACGT');
+	}
+	return %instances;
 }
 
 
