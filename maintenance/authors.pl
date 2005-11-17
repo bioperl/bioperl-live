@@ -50,7 +50,7 @@ our %AUTHORS = map {$_=>1} qw{
                               fugui@worf.fugu-sg.org
                               cjm@fruitfly.bdgp.berkeley.edu
                               elia@tll.org.sg
-                              Heikki@ebi.ac.uk
+                              heikki-at-bioperl-dot-org
                               bioinformatics@dieselwurks.com
                               bioinformatics1@dieselwurks.com
                               bioperl-l@bio.perl.org
@@ -220,7 +220,7 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email heikki@ebi.ac.uk
+Email heikki-at-bioperl-dot-org
 
 =cut
 

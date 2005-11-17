@@ -140,7 +140,7 @@ Chris Dagdigian, dag-at-sonsorol.org  & others
 
 =head1 CONTRIBUTORS
 
-Heikki Lehvaslaiho, heikki-at-ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 VERSION
 

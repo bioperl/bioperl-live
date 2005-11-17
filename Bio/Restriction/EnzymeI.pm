@@ -3,7 +3,7 @@
 #
 # BioPerl module Bio::Restriction::EnzymeI
 #
-# Cared for by Heikki Lehvaslaiho, heikki@ebi.ac.uk
+# Cared for by Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 #
 # You may distribute this module under the same terms as perl itself
 #------------------------------------------------------------------
@@ -43,7 +43,7 @@ web:
 
 =head1 AUTHOR
 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 

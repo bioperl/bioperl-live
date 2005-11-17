@@ -2,7 +2,7 @@
 #
 # bioperl module for Bio::LiveSeq::Mutator
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Joseph Insana
 #
@@ -56,14 +56,8 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho & Joseph A.L. Insana
 
-  Email:  heikki@ebi.ac.uk
+  Email:  heikki-at-bioperl-dot-org
           insana@ebi.ac.uk, jinsana@gmx.net
-
-  Address:
-
-     EMBL Outstation, European Bioinformatics Institute
-     Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom
 
 =head1 APPENDIX
 

@@ -521,7 +521,7 @@ web:
 
 =head1 AUTHOR
 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 Contributors
 

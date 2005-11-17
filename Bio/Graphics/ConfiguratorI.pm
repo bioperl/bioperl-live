@@ -58,7 +58,7 @@ Email rhubley@systemsbiology.org
 
 Paul Edlefsen, pedlefsen@systemsbiology.org
 Lincoln Stein, lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

@@ -59,7 +59,7 @@ Email avilella-AT-gmail-DOT-com
 
 =head1 CONTRIBUTORS
 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

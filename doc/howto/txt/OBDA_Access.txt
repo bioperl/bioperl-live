@@ -23,7 +23,7 @@ Heikki Lehvaslaiho
 
    [7]EBI
 
-     <[8]heikki@ebi.ac.uk>
+     <[8]heikki-at-bioperl-dot-org>
 
 Lincoln Stein
 
@@ -368,7 +368,7 @@ References
    5. http://www.ucsc.edu/
    6. mailto:schattner@alum.mit.edu
    7. http://www.ebi.ac.uk/
-   8. mailto:heikki@ebi.ac.uk
+   8. mailto:heikki-at-bioperl-dot-org
    9. http://www.cshl.org/
   10. mailto:lstein@cshl.org
   11. file://localhost/Users/bosborne/bioperl-live/doc/howto/xml/OBDA_Access.html#introduction

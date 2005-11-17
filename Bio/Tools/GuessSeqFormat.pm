@@ -214,7 +214,7 @@ Andreas Kähäri, andreas.kahari@ebi.ac.uk
 
 =head1 CONTRIBUTORS
 
-Heikki Lehväslaiho, heikki@ebi.ac.uk
+Heikki Lehväslaiho, heikki-at-bioperl-dot-org
 
 =cut
 

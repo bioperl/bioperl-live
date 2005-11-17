@@ -28,12 +28,6 @@ The strand could be 1 (forward strand, default), -1 (reverse strand).
 
 Email:  Insana@ebi.ac.uk, jinsana@gmx.net
 
-Address: 
-
-     EMBL Outstation, European Bioinformatics Institute
-     Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, Regioned Kingdom 
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object

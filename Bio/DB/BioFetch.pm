@@ -80,7 +80,7 @@ web:
 
 Email Lincoln Stein  E<lt>lstein@cshl.orgE<lt>
 
-Also thanks to Heikki Lehvaslaiho E<lt>heikki@ebi.ac.ukE<gt> for the
+Also thanks to Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt> for the
 BioFetch server and interface specification.
 
 =head1 APPENDIX

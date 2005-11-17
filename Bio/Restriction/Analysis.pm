@@ -164,7 +164,7 @@ Steve Chervitz, sac@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 COPYRIGHT
 

@@ -53,7 +53,7 @@ bioinformatics@dieselwurks.com
 
 Jason Stajich, jason@bioperl.org
 Tony Cox, avc@sanger.ac.uk
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

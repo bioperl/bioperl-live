@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::DB::DBFetch
 #
-# Cared for by Heikki Lehvaslaiho <Heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Heikki Lehvaslaiho
 #
@@ -53,7 +53,7 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email Heikki Lehvaslaiho E<lt>Heikki@ebi.ac.ukE<gt>
+Email Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt>
 
 =head1 APPENDIX
 

@@ -59,7 +59,7 @@ Email jason@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Heikki Lehvaslaiho heikki@ebi.ac.uk
+Heikki Lehvaslaiho heikki-at-bioperl-dot-org
 Lincoln Stein      lstein@cshl.org
 
 =head1 APPENDIX

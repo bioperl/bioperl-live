@@ -70,7 +70,7 @@ Email bioinformatics1@dieselwurks.com
 =head1 CONTRIBUTORS
 
 Lincoln Stein, lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

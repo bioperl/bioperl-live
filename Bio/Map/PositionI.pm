@@ -57,7 +57,7 @@ Describe contact details here
 =head1 CONTRIBUTORS
 
 Lincoln Stein, lstein-at-cshl.org
-Heikki Lehvaslaiho, heikki-at-ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

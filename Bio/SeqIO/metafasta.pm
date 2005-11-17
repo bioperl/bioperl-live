@@ -69,7 +69,7 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email heikki@ebi.ac.uk
+Email heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

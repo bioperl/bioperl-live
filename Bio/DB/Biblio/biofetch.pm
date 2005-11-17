@@ -2,7 +2,7 @@
 #
 # BioPerl module Bio::DB::Biblio::biofetch.pm
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 # For copyright and disclaimer see below.
 
 # POD documentation - main docs before the code
@@ -53,7 +53,7 @@ web:
 
 =head1 AUTHOR
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk)
+Heikki Lehvaslaiho (heikki-at-bioperl-dot-org)
 
 =head1 COPYRIGHT
 

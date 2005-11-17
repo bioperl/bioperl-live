@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Range
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copywright Matthew Pocock
 #
@@ -63,7 +63,7 @@ the bugs and their resolution.  Bug reports can be submitted via  the web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email heikki@ebi.ac.uk
+Email heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Coordinate::Result::Match
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copywright Heikki Lehvaslaiho
 #
@@ -46,7 +46,7 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email heikki@ebi.ac.uk
+Email heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 

@@ -50,11 +50,6 @@ web:
 =head1 AUTHOR - Joseph A.L. Insana
 
 Email:  Insana@ebi.ac.uk, jinsana@gmx.net
-Address: 
-
-     EMBL Outstation, European Bioinformatics Institute
-     Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom 
 
 =head1 APPENDIX
 

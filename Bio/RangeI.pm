@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::RangeI
 #
-# Cared for by Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Matthew Pocock
 #
@@ -58,7 +58,7 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email:  heikki@ebi.ac.uk
+Email:  heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 

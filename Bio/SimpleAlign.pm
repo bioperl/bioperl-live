@@ -1,7 +1,7 @@
 # $Id$
 # BioPerl module for SimpleAlign
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Ewan Birney
 #
@@ -121,7 +121,7 @@ Ewan Birney, birney@sanger.ac.uk
 Allen Day, allenday-at-ucla.edu,
 Richard Adams, Richard.Adams-at-ed.ac.uk, 
 David J. Evans, David.Evans-at-vir.gla.ac.uk, 
-Heikki Lehvaslaiho, heikki-at-ebi.ac.uk, 
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org, 
 Allen Smith, allens-at-cpan.org, 
 Jason Stajich, jason-at-bioperl.org, 
 Anthony Underwood, aunderwood-at-phls.org.uk, 

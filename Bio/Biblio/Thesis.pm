@@ -66,7 +66,7 @@ web:
 
 =head1 AUTHORS
 
-Heikki Lehvaslaiho (heikki@ebi.ac.uk),
+Heikki Lehvaslaiho (heikki-at-bioperl-dot-org),
 Martin Senger (senger@ebi.ac.uk)
 
 =head1 COPYRIGHT

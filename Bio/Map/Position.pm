@@ -65,7 +65,7 @@ Describe contact details here
 =head1 CONTRIBUTORS
 
 Lincoln Stein, lstein@cshl.org
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Chad Matsalla, bioinformatics1@dieselwurks.com
 
 =head1 APPENDIX

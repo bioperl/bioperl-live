@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::Analysis::Protein::NetPhos
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Richard Adams
 #
@@ -84,7 +84,7 @@ web:
 =head1 AUTHORS
 
 Richard Adams, Richard.Adams@ed.ac.uk, 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 

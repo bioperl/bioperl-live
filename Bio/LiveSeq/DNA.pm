@@ -27,12 +27,6 @@ and is accessed by exons, genes, transcripts... objects
 
 Email:  Insana@ebi.ac.uk, jinsana@gmx.net
 
-Address: 
-
-     EMBL Outstation, European Bioinformatics Institute
-     Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom 
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object

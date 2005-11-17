@@ -228,7 +228,7 @@ Rob Edwards, redwards@utmem.edu
 
 =head1 CONTRIBUTORS
 
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Peter Blaiklock, pblaiklo@restrictionmapper.org
 
 =head1 COPYRIGHT

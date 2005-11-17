@@ -85,7 +85,7 @@ Thanks go to Alexandre Gattiker E<lt>gattiker@isb-sib.chE<gt> of Swiss
 Institute of Bioinformatics for helping point us in the direction of
 the correct expasy scripts and for swissknife references.
 
-Also thanks to Heikki Lehvaslaiho E<lt>heikki@ebi.ac.ukE<gt> for help with
+Also thanks to Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt> for help with
 adding EBI swall server.
 
 =head1 APPENDIX

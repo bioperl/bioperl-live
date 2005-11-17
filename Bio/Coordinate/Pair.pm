@@ -2,7 +2,7 @@
 #
 # bioperl module for Bio::Coordinate::Pair
 #
-# Cared for by Heikki Lehvaslaiho <heikki@ebi.ac.uk>
+# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Heikki Lehvaslaiho
 #
@@ -76,12 +76,7 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email:  heikki@ebi.ac.uk
-Address:
-
-     EMBL Outstation, European Bioinformatics Institute
-     Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom
+Email:  heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 

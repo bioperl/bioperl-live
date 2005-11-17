@@ -1,8 +1,8 @@
 #!perl
 # -*-Perl-*-
-# $Id: flanks.PLS,v 1.3 2005-04-26 15:10:54 jason Exp $
+# $Id: flanks.PLS,v 1.4 2005-11-17 09:54:54 heikki Exp $
 #
-# Heikki Lehvaslaiho <heikki-at-ebi.ac.uk>
+# Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 # Finding flanking sequences for a variant.
 #
 #
@@ -309,11 +309,6 @@ web:
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
-Email:  E<lt>heikki-at-ebi.ac.ukE<gt>
-Address:
-
-     EMBL Outstation, European Bioinformatics Institute
-     Wellcome Trust Genome Campus, Hinxton
-     Cambs. CB10 1SD, United Kingdom
+Email:  E<lt>heikki-at-bioperl-dot-orgE<gt>
 
 =cut

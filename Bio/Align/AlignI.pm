@@ -67,7 +67,7 @@ Email jason@bioperl.org
 =head1 CONTRIBUTORS
 
 Ewan Birney, birney@ebi.ac.uk
-Heikki Lehvaslaiho, heikki@ebi.ac.uk
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 
 =head1 APPENDIX
 
