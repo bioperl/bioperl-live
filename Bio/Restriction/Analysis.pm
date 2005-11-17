@@ -1,11 +1,10 @@
-#------------------------------------------------------------------
+# $Id$
 #
 # BioPerl module Bio::Restriction::Analysis
 #
 # Cared for by Rob Edwards <redwards@utmem.edu>
 #
 # You may distribute this module under the same terms as perl itself
-#------------------------------------------------------------------
 
 ## POD Documentation:
 
@@ -22,19 +21,18 @@ enzymes
   use Data::Dumper;
 
   # get a DNA sequence from somewhere
-  my $seq=new Bio::PrimarySeq
-      (-seq =>'AGCTTAATTCATTAGCTCTGACTGCAACGGGCAATATGTCTC'.
-       'TGTGTGGATTAAAAAAAGAGTGAGCTTCTGATAGCAGC',
+  my $seq = new Bio::PrimarySeq
+      (-seq =>'AGCTTAATTCATTAGCTCTGACTGCAACGGGCAATATGTCTC',
        -primary_id => 'synopsis',
        -molecule => 'dna');
 
   # now start an analysis.
   # this is using the default set of enzymes
-  my $ra=Bio::Restriction::Analysis->new(-seq=>$seq);
+  my $ra = Bio::Restriction::Analysis->new(-seq=>$seq);
 
   # find unique cutters. This returns a
   # Bio::Restriction::EnzymeCollection object
-  my $enzymes=$ra->unique_cutters;
+  my $enzymes = $ra->unique_cutters;
   print "Unique cutters: ", join (', ', 
       map {$_->name} $enzymes->unique_cutters), "\n";
 
@@ -42,7 +40,7 @@ enzymes
   # This is will return an array of the sequence strings
 
   my $enz = 'AluI';
-  my @frags=$ra->fragments($enz);
+  my @frags = $ra->fragments($enz);
   # how big are the fragments?
   print "AluI fragment lengths: ", join(' & ', map {length $_} @frags), "\n";
 
@@ -53,7 +51,7 @@ enzymes
   print "All sizes, sorted ", join (" ", $ra->sizes($enz, 0, 1)), "\n";
 
   # how many times does each enzyme cut
-  my $cuts=$ra->cuts_by_enzyme('BamHI');
+  my $cuts = $ra->cuts_by_enzyme('BamHI');
   print "BamHI cuts $cuts times\n";
 
   # How many enzymes do not cut at all?
@@ -61,13 +59,13 @@ enzymes
         " enzymes that do not cut\n";
 
   # what about enzymes that cut twice?
-  my $two_cutters=$ra->cutters(2);
+  my $two_cutters = $ra->cutters(2);
   print join (" ", map {$_->name} $two_cutters->each_enzyme),
       " cut the sequence twice\n";
 
   # what are all the enzymes that cut, and how often do they cut
   printf "\n%-10s%s\n", 'Enzyme', 'Number of Cuts';
-  my $all_cutters=$ra->cutters;
+  my $all_cutters = $ra->cutters;
   map {
       printf "%-10s%s\n", $_->name, $ra->cuts_by_enzyme($_->name)
   } $all_cutters->each_enzyme;
@@ -75,7 +73,7 @@ enzymes
   # Finally, we can interact the restriction enzyme object by
   # retrieving it from the collection object see the docs for
   # Bio::Restriction::Enzyme.pm
-  my $enzobj=$enzymes->get_enzyme($enz);
+  my $enzobj = $enzymes->get_enzyme($enz);
 
 
 =head1 DESCRIPTION
@@ -92,16 +90,16 @@ To cut a sequence, set up a Restriction::Analysis object with a sequence
 like this:
 
   use Bio::Restriction::Analysis;
-  my $ra=Bio::Restriction::Analysis->new(-seq=>$seqobj);
+  my $ra = Bio::Restriction::Analysis->new(-seq=>$seqobj);
 
 or
 
-  my $ra=Bio::Restriction::Analysis->new
+  my $ra = Bio::Restriction::Analysis->new
       (-seq=>$seqobj, -enzymes=>$enzs);
 
 Then, to get the fragments for a particular enzyme use this:
 
-  @fragments=$ra->fragments('EcoRI');
+  @fragments = $ra->fragments('EcoRI');
 
 Note that the naming of restriction enzymes is that the last numbers
 are usually Roman numbers (I, II, III, etc). You may want to use
@@ -110,7 +108,7 @@ something like this:
   # get a reference to an array of unique (single) cutters
   $singles = $re->unique_cutters;
   foreach my $enz ($singles->each_enzyme) {
-      @fragments=$re->fragments($enz);
+      @fragments = $re->fragments($enz);
       ... do something here ...
   }
 
@@ -126,7 +124,7 @@ and if you are using very large sequences you should try and use
 this algorithm. If you have a large sequence (e.g. genome) and 
 want to use ambgiuous enzymes you may want to make seperate
 Bio::Restriction::Enzyme objects for each of the possible
-alternatives and make sure that you don't set is_ambiguous!
+alternatives and make sure that you do not set is_ambiguous!
 
 This version should correctly deal with overlapping cut sites
 in both ambiguous and non-ambiguous enzymes.
@@ -480,12 +478,12 @@ length of the sequence.  For example:
   use Bio::Restriction::EnzymeCollection;
   use Bio::PrimarySeq;
 
-  my $seq=new Bio::PrimarySeq
+  my $seq = new Bio::PrimarySeq
       (-seq =>'AGCTTAATTCATTAGCTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATCCAAAAAAGAGTGAGCTTCTGAT',
        -primary_id => 'synopsis',
        -molecule => 'dna');
 
-  my $ra=Bio::Restriction::Analysis->new(-seq=>$seq);
+  my $ra = Bio::Restriction::Analysis->new(-seq=>$seq);
 
   my @gel;
   my @bam_maps = $ra->fragment_maps('BamHI');
