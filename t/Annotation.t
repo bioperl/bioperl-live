@@ -24,7 +24,7 @@ BEGIN {
     if ($@) {
 	$HAVEGRAPHDIRECTED = 0;
     }
-    plan tests => ($NUMTESTS = 63);
+    plan tests => ($NUMTESTS = 70);
 }
 
 use Bio::Annotation::Collection;
@@ -39,6 +39,22 @@ use Bio::SeqFeature::Generic;
 use Bio::Cluster::UniGene;
 
 ok(1);
+
+# simple value
+
+ok my $simple = Bio::Annotation::SimpleValue->new(
+						  -tagname => 'colour',
+						  -value   => '1'
+						 ), ;
+ok $simple, 1;
+ok $simple->value, 1;
+ok $simple->tagname, 'colour';
+
+ok $simple->value(0), 0;
+ok $simple->value, 0;
+ok $simple, 0;
+
+# link
 
 my $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
 					-primary_id => 'TSC0000030'
