@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.22 2005-08-30 16:42:42 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.23 2005-11-18 22:53:36 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -67,7 +67,8 @@ data using the --local option.
 
 About maxfeature: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
-value of maxbin should be increased to 1,000,000,000.
+value of maxfeature should be increased to 1,000,000,000. This value
+must be a power of 10.
 
 If the list of GFF or fasta files exceeds the kernel limit for the
 maximum number of command-line arguments, use the
@@ -89,7 +90,7 @@ e.g. -d instead of --database.
    --password            Password to use for authentication
    --long_list           Directory containing a very large number of
                          GFF and/or FASTA files
-   --maxfeature          Set the value of the maximum feature size (default 100Mb)
+   --maxfeature          Set the value of the maximum feature size (default 100Mb; must be a power of 10)
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
@@ -320,7 +321,7 @@ while (<>) {
   next unless defined $ref;
   $FEATURES++;
 
-  warn "Feature $group is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher value.\n" if $stop-$start+1 > $MAX_BIN;
+  warn "Feature $group is larger than $MAX_BIN. You will have trouble retrieving this feature.\nRerun script with --maxfeature set to a higher power of 10.\n" if $stop-$start+1 > $MAX_BIN;
 
   $source = '\N' unless defined $source;
   $score  = '\N' if $score  eq '.';

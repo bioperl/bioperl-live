@@ -45,6 +45,7 @@ feature that contains no subfeatures, or a hierarchically nested object.
 
 Arguments are as follows:
 
+  -seq_id      the reference sequence
   -start       the start position of the feature
   -end         the stop position of the feature
   -stop        an alias for end
@@ -52,10 +53,12 @@ Arguments are as follows:
   -type        the feature type (returned by primary_tag())
   -primary_tag the same as -type
   -source      the source tag
+  -score       the feature score (for GFF compatibility)
   -desc        a description of the feature
   -segments    a list of subfeatures (see below)
   -subtype     the type to use when creating subfeatures
   -strand      the strand of the feature (one of -1, 0 or +1)
+  -phase       the phase of the feature (0..2)
   -id          an alias for -name
   -seqname     an alias for -name
   -primary_id  an alias for -name
@@ -216,7 +219,7 @@ sub new {
   $self->{score}   = $arg{-score}   if exists $arg{-score};
   $self->{start}   = $arg{-start};
   $self->{stop}    = $arg{-end} || $arg{-stop};
-  $self->{ref}     = $arg{-ref};
+  $self->{ref}     = $arg{-seq_id} || $arg{-ref};
   for my $option (qw(class url seq phase desc attributes factory configurator)) {
     $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
   }
@@ -453,7 +456,7 @@ sub desc {
 }
 
 sub attributes {
-  return;
+  shift->{attributes};
 }
 
 sub notes {

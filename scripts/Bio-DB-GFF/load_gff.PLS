@@ -45,7 +45,8 @@ table" errors.  This is normal.
 
 About maxfeature: the default value is 100,000,000 bases.  If you have
 features that are close to or greater that 100Mb in length, then the
-value of maxbin should be increased to 1,000,000,000.
+value of maxfeature should be increased to 1,000,000,000, or another
+power of 10.
 
 =head1 COMMAND-LINE OPTIONS
 
@@ -58,7 +59,7 @@ e.g. -d instead of --database.
    --pass    <password>  Password for mysql authentication
    --fasta   <path>      Fasta file or directory containing fasta files for the DNA
    --create              Force creation and initialization of database
-   --maxfeature          Set the value of the maximum feature size (default 100 Mb)
+   --maxfeature          Set the value of the maximum feature size (default 100 Mb; must be a power of 10)
    --group               A list of one or more tag names (comma or space separated)
                           to be used for grouping in the 9th column.
    --upgrade             Upgrade existing database to current schema
