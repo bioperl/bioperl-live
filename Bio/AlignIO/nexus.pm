@@ -384,15 +384,27 @@ sub write_aln {
 
 	$symbols = 'symbols="'.join('',$aln->symbol_chars). '"' 
 	    if( $self->flag('symbols') && $aln->symbol_chars);
-	$self->_print (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
-			       $aln->get_seq_by_pos(1)->alphabet, $match, $missing, $gap, $symbols));
+	$self->_print 
+	    (sprintf("format interleave datatype=%s %s %s %s %s;\n\nmatrix\n",
+		     $aln->get_seq_by_pos(1)->alphabet, $match, 
+		     $missing, $gap, $symbols));
 
-	my $indent = $aln->maxdisplayname_length + 2;			# account for single quotes round names
+                     # account for single quotes round names
+	my $indent = $aln->maxdisplayname_length+2;
+
 	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
-	    $name = "\'" . $aln->displayname($seq->get_nse()) . "\'";	# put name in single quotes incase it contains any of the following chars: ()[]{}/\,;:=*'"`+-<> that are not allowed in PAUP* and possible other software
-	    $name = sprintf("%-${indent}s", $name);
-	    $hash{$name} = $seq->seq();
+	    my $nmid = $aln->displayname($seq->get_nse());
+	    if( $nmid =~ /[^\w\d]/ ) {
+              # put name in single quotes incase it contains any of
+              # the following chars: ()[]{}/\,;:=*'"`+-<> that are not
+              # allowed in PAUP* and possible other software
+
+		$name = sprintf("%-${indent}s", "\'" . $nmid . "\'");
+	    } else { 
+		$name = sprintf("%-${indent}s", $nmid);
+	    }
+	    $hash{$name} = $seq->seq;
 	    push(@arr,$name);
 	}
 
