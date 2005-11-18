@@ -200,16 +200,23 @@ sub next_seq {
 
 	my($name);
 	if ($FIELDS{NAME}) {
-      ($name) = $FIELDS{NAME} =~ /^NAME\s+(.+)$/;
+          ($name) = $FIELDS{NAME} =~ /^NAME\s+(.+)$/;
 	}
 
-	my($definition) = $FIELDS{DEFINITION} =~ /^DEFINITION\s+(.+)$/s;
-	$definition =~ s/\s+/ /gs;
+        my( $definition, $aa_length, $aa_seq, $nt_length, $nt_seq );
 
-	my($aa_length,$aa_seq) = $FIELDS{AASEQ} =~ /^AASEQ\s+(\d+)\n(.+)$/s;
-	$aa_seq =~ s/\s+//g;
-	my($nt_length,$nt_seq) = $FIELDS{NTSEQ} =~ /^NTSEQ\s+(\d+)\n(.+)$/s;
-	$nt_seq =~ s/\s+//g;
+        if(( exists $FIELDS{DEFINITION} ) and ( $FIELDS{DEFINITION} =~ /^DEFINITION/ )) {
+          $definition = $FIELDS{DEFINITION} =~ /^DEFINITION\s+(.+)$/s;
+          $definition =~ s/\s+/ /gs;
+        }
+        if(( exists $FIELDS{AASEQ} ) and ( $FIELDS{AASEQ} =~ /^AASEQ/ )) {
+          ($aa_length,$aa_seq) = $FIELDS{AASEQ} =~ /^AASEQ\s+(\d+)\n(.+)$/s;
+          $aa_seq =~ s/\s+//g;
+        }
+        if(( exists  $FIELDS{NTSEQ} ) and ( $FIELDS{NTSEQ} =~ /^NTSEQ/ )) {
+          ($nt_length,$nt_seq) = $FIELDS{NTSEQ} =~ /^NTSEQ\s+(\d+)\n(.+)$/s;
+          $nt_seq =~ s/\s+//g;
+        }
 
 	$annotation = Bio::Annotation::Collection->new();
 
@@ -224,7 +231,7 @@ sub next_seq {
 		($ortholog_db,$ortholog_id,$ortholog_desc) = $FIELDS{ORTHOLOG}
 		  =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(.*?)$/; 
 
-      $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(
+        $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(
                      -database => $ortholog_db,
                      -primary_id => $ortholog_id,
                      -comment => $ortholog_desc) );
