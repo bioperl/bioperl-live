@@ -177,7 +177,7 @@ sub _initialize {
 
 =cut
 
-sub next_result{
+sub next_result {
    my ($self) = @_;
    my $seentop = 0;
    my $reporttype;
@@ -185,7 +185,6 @@ sub next_result{
    local $/ = "\n";
    local $_;
    
-   my @alignemnt_lines;
    my $verbose = $self->verbose; # cache for speed?
    $self->start_document();
    local ($_);
@@ -222,7 +221,7 @@ sub next_result{
 	   } 
 	   $self->element({'Name' => 'HMMER_seqfile',
 			   'Data' => $_});
-       } elsif( s/^Query(\s+(sequence|HMM))?:\s+//o) {
+       } elsif( s/^Query(\s+(sequence|HMM))?(?:\s+\d+)?:\s+//o) {
            if( ! $seentop ) {               
                # we're in a multi-query report
                $self->_pushback($self->{'_hmmidline'});
@@ -485,7 +484,7 @@ sub next_result{
                    chomp;
                    if( my ($n,$domainnum,$domainct,@vals) = 
 			   (m!^(\S+)\s+         # domain name
-			    \s+(\d+)/(\d+)\s+   # domain num out of num
+			    (\d+)/(\d+)\s+   # domain num out of num
 			    (\d+)\s+(\d+).+?    # seq start, end
 			    (\d+)\s+(\d+)\s+    # hmm start, end
 			    \S+\s+              # []
