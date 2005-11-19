@@ -159,8 +159,8 @@ sub each_Descendent{
  Function: Recursively fetch all the nodes and their descendents
            *NOTE* This is different from each_Descendent
  Returns : Array or Bio::Tree::NodeI objects
- Args    : $sortby [optional] "height", "creation" or coderef to be used
-           to sort the order of children nodes.
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha", 
+           or a coderef to be used to sort the order of children nodes.
 
 =cut
 
