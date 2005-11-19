@@ -181,8 +181,8 @@ sub add_Descendent{
  Function: all the descendents for this Node (but not their descendents
 					      i.e. not a recursive fetchall)
  Returns : Array of Bio::Tree::NodeI objects
- Args    : $sortby [optional] "height", "creation" or coderef to be used
-           to sort the order of children nodes.
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
 
 =cut
 
@@ -192,22 +192,49 @@ sub each_Descendent{
    # order can be based on branch length (and sub branchlength)
 
    $sortby ||= 'height';
-
+   
    if (ref $sortby eq 'CODE') {
        return sort $sortby values %{$self->{'_desc'}};
-   } else  {
-       if ($sortby eq 'height') {
-	   return map { $_->[0] }
-		  sort { $a->[1] <=> $b->[1] || 
-			 $a->[2] <=> $b->[2] } 
-	       map { [$_, $_->height, $_->internal_id ] } 
-	   values %{$self->{'_desc'}};
-       } else { # creation
-	   return map { $_->[0] }
-	          sort { $a->[1] <=> $b->[1] } 
-	          map { [$_, $_->internal_id ] }
-	          values %{$self->{'_desc'}};	   
-       }
+   } elsif ($sortby eq 'height') {
+       return map { $_->[0] }
+       sort { $a->[1] <=> $b->[1] || 
+		  $a->[2] <=> $b->[2] } 
+       map { [$_, $_->height, $_->internal_id ] } 
+       values %{$self->{'_desc'}};
+   } elsif( $sortby eq 'alpha' ) {
+       my @set;
+       for my $v ( values %{$self->{'_desc'}} ) {
+	   unless( $v->is_Leaf ) {
+	       my @lst = ( sort { $a cmp $b } map { $_->id } 
+			   grep { $_->is_Leaf } 
+			   $v->get_all_Descendents($sortby));
+	       push @set, [$v, $lst[0], $v->internal_id];
+	   } else {
+	       push @set, [$v, $v->id, $v->internal_id];
+	   }
+       } 
+       return map { $_->[0] }
+       sort {$a->[1] cmp $b->[1] || $a->[2] <=> $b->[2] } @set;       
+   } elsif( $sortby eq 'revalpha' ) {
+       my @set;
+       for my $v ( values %{$self->{'_desc'}} ) {
+	   if( ! defined $v->id && 
+	       ! $v->is_Leaf ) {
+	       my ($l) = ( sort { $b cmp $a } map { $_->id } 
+			   grep { $_->is_Leaf } 
+			   $v->get_all_Descendents($sortby));
+	       push @set, [$v, $l, $v->internal_id];
+	   } else { 
+	       push @set, [$v, $v->id, $v->internal_id];
+	   }
+       } 
+       return map { $_->[0] }
+       sort {$b->[1] cmp $a->[1] || $b->[2] <=> $a->[2] } @set;
+   } else { # creation
+       return map { $_->[0] }
+       sort { $a->[1] <=> $b->[1] } 
+       map { [$_, $_->internal_id ] }
+       values %{$self->{'_desc'}};	   
    }
 }
 
