@@ -83,18 +83,23 @@ $DefaultBootstrapStyle = 'traditional';
 =head2 new
 
  Title   : new
- Args    : -print_count => boolean  default is false
-
+ Args    : -print_count     => boolean  default is false
+           -bootstrap_style => set the bootstrap style (one of nobranchlength,
+							molphy, traditional)
+           -order_by        => set the order by sort method 
+                               (see L<Bio::Node::Node::each_Descendent()> )
 =cut
 
 sub _initialize { 
     my $self = shift;
     $self->SUPER::_initialize(@_);
-    my ($print_count,$style) = $self->_rearrange([qw(PRINT_COUNT 
-						   BOOTSTRAP_STYLE)],
+    my ($print_count,$style,$order_by) = $self->_rearrange([qw(PRINT_COUNT 
+							       BOOTSTRAP_STYLE
+							       ORDER_BY)],
 					  @_);
     $self->print_tree_count($print_count || 0);
     $self->bootstrap_style($style || $DefaultBootstrapStyle);
+    $self->order_by($order_by) if defined $order_by;
     return;
 }
 
@@ -227,13 +232,17 @@ sub next_tree{
 =cut
 
 sub write_tree{
-   my ($self,@trees) = @_;      
+   my ($self,@trees) = @_;  
+   my $orderby = $self->order_by;
+   my $bootstrap_style = $self->bootstrap_style;
    if( $self->print_tree_count ){ 
        $self->_print(sprintf(" %d\n",scalar @trees));
    }
+
    foreach my $tree( @trees ) {
        my @data = _write_tree_Helper($tree->get_root_node,
-				     $self->bootstrap_style);
+				     $bootstrap_style,
+				     $orderby);
        #if($data[-1] !~ /\)$/ ) {
 	#   $data[0] = "(".$data[0];
 	#   $data[-1] .= ")";
@@ -245,14 +254,13 @@ sub write_tree{
 }
 
 sub _write_tree_Helper {
-    my ($node,$style) = @_;
+    my ($node,$style,$orderby) = @_;
     $style = '' unless defined $style;
     return () if (!defined $node);
 
     my @data;
-    
-    foreach my $n ( $node->each_Descendent() ) {
-	push @data, _write_tree_Helper($n,$style);
+    foreach my $n ( $node->each_Descendent($orderby) ) {
+	push @data, _write_tree_Helper($n,$style,$orderby);
     }
     
     # let's explicitly write out the bootstrap if we've got it
@@ -347,7 +355,7 @@ sub print_tree_count{
  Usage   : $obj->bootstrap_style($newval)
  Function: A description of how bootstraps and branch lengths are
            written, as the ID part of the internal node or else in []
-           in the branch length (Molphy-like; I'm sure there is a
+           in the branch length (Molphy-like; I am sure there is a
            better name for this but am not sure where to go for some
            sort of format documentation)
 
@@ -382,5 +390,23 @@ sub bootstrap_style{
     return $self->{'_bootstrap_style'} || $DefaultBootstrapStyle;
 }
 
+=head2 order_by
+
+ Title   : order_by
+ Usage   : $obj->order_by($newval)
+ Function: Allow node order to be specified (typically "alpha")
+           See L<Bio::Node::Node::each_Descendent()>
+ Returns : value of order_by (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub order_by {
+    my $self = shift;
+
+    return $self->{'order_by'} = shift if @_;
+    return $self->{'order_by'};
+}
 
 1;
