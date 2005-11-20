@@ -116,7 +116,6 @@ BEGIN {
            -wrap_sequential => boolean for whether or not sequential 
                                    format should be broken up or a single line
                                    default is false (single line)
-    
 
 =cut
 
