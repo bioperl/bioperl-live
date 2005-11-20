@@ -194,7 +194,7 @@ sub each_Descendent{
    $sortby ||= 'height';
    
    if (ref $sortby eq 'CODE') {
-       return sort $sortby values %{$self->{'_desc'}};
+       return sort { $sortby->($a,$b) } values %{$self->{'_desc'}};
    } elsif ($sortby eq 'height') {
        return map { $_->[0] }
        sort { $a->[1] <=> $b->[1] || 
@@ -205,9 +205,9 @@ sub each_Descendent{
        my @set;
        for my $v ( values %{$self->{'_desc'}} ) {
 	   unless( $v->is_Leaf ) {
-	       my @lst = ( sort { $a cmp $b } map { $_->id } 
-			   grep { $_->is_Leaf } 
-			   $v->get_all_Descendents($sortby));
+	       my @lst = ( sort { $a->id cmp $b->id }
+			   grep { $_->is_Leaf }
+			   $v->get_all_Descendents );
 	       push @set, [$v, $lst[0], $v->internal_id];
 	   } else {
 	       push @set, [$v, $v->id, $v->internal_id];
