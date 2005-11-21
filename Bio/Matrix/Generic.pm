@@ -557,6 +557,8 @@ sub remove_row{
        delete $self->{'_rownamesmap'}->{$self->{'_rownames'}->[$rowindex]};
        splice(@{$self->{'_rownames'}},$rowindex,1);
    }
+   my $ct = 0;
+   %{$self->{'_rownamesmap'}} = map { $_ => $ct++} @{$self->{'_rownames'}};
    return $self->num_rows;
 }
 
