@@ -48,7 +48,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl-dot-org
 
 Describe contact details here
 
@@ -88,6 +88,7 @@ $DefaultBootstrapStyle = 'traditional';
 							molphy, traditional)
            -order_by        => set the order by sort method 
                                (see L<Bio::Node::Node::each_Descendent()> )
+
 =cut
 
 sub _initialize { 
