@@ -52,11 +52,11 @@ the web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Aaron Mackey amackey@virginia.edu
+Aaron Mackey amackey-at-virginia-dot-edu
 
 =head1 APPENDIX
 
@@ -205,9 +205,9 @@ sub each_Descendent{
        my @set;
        for my $v ( values %{$self->{'_desc'}} ) {
 	   unless( $v->is_Leaf ) {
-	       my @lst = ( sort { $a->id cmp $b->id }
-			   grep { $_->is_Leaf }
-			   $v->get_all_Descendents );
+	       my @lst = ( sort { $a cmp $b } map { $_->id } 
+                          grep { $_->is_Leaf } 
+			   $v->get_all_Descendents($sortby));
 	       push @set, [$v, $lst[0], $v->internal_id];
 	   } else {
 	       push @set, [$v, $v->id, $v->internal_id];
