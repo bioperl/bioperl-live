@@ -630,7 +630,6 @@ sub add_column{
  Returns : Updated number of columns in the matrix
  Args    : column index
 
-
 =cut
 
 sub remove_column{
@@ -639,15 +638,17 @@ sub remove_column{
    my $colcount = $self->num_columns;
    my $rowcount = $self->num_rows;
    if( $colindex > $colcount ) {
-       $self->warn("colindex $colindex is greater than number of columns ($colcount), cannot process");
-       return 0;
+		$self->warn("colindex $colindex is greater than number of columns ($colcount), cannot process");
+		return 0;
    } else { 
-       for(my $i = 0; $i < $rowcount; $i++ ) {
-	   splice(@{$self->_values->[$i]},$colindex,1);
-       }
-       delete $self->{'_colnamesmap'}->{$self->{'_colnames'}->[$colindex]};
-       splice(@{$self->{'_colnames'}},$colindex,1);
+		for(my $i = 0; $i < $rowcount; $i++ ) {
+			splice(@{$self->_values->[$i]},$colindex,1);
+		}
+		delete $self->{'_colnamesmap'}->{$self->{'_colnames'}->[$colindex]};
+		splice(@{$self->{'_colnames'}},$colindex,1);
    }
+   my $ct = 0;
+   %{$self->{'_colnamesmap'}} = map {$_ => $ct++} @{$self->{'_colnames'}};
    return $self->num_columns;
 }
 
