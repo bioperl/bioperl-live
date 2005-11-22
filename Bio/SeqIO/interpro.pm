@@ -11,7 +11,17 @@ interpro - DESCRIPTION of Object
 
 =head1 SYNOPSIS
 
-  # do not call this module directly. Use Bio::SeqIO
+  # do not call this module directly, use Bio::SeqIO
+
+  use strict;
+  use Bio::SeqIO;
+
+  my $io = Bio::SeqIO->new(-format => "interpro",
+                           -file   => $interpro_file);
+
+  while (my $seq = $io->next_seq) {
+    # use the Sequence object
+  }
 
 =head1 DESCRIPTION
 
@@ -79,7 +89,6 @@ use Bio::Root::Root;
  Returns : an instance of interpro
  Args    :
 
-
 =cut
 
 sub new {
@@ -99,11 +108,9 @@ use strict;
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use XML::DOM;
-use XML::DOM::XPath;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
-use Data::Dumper;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -126,92 +133,99 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 =cut
 
 sub next_seq {
-  my $self = shift;
-  my ($desc);
-  my $bioSeq = $self->sequence_factory->create(-verbose =>$self->verbose());
+	my $self = shift;
+	my ($desc);
+	my $bioSeq = $self->sequence_factory->create(-verbose =>$self->verbose());
 
-  my $zinc = "(\"zincins\")";
-  my $wing = "\"Winged helix\"";
-  my $finger = "\"zinc finger\"";
+	my $zinc = "(\"zincins\")";
+	my $wing = "\"Winged helix\"";
+	my $finger = "\"zinc finger\"";
 
 
-  my $xml_fragment = undef;
-  while(my $line = $self->_readline()){
+	my $xml_fragment = undef;
+	while(my $line = $self->_readline()){
 
-    my $where = index($line, $zinc);
-    my $wherefinger = index($line, $finger);
-    my $finishedline = $line;
-    my $wingwhere = index($line, $wing);
+		my $where = index($line, $zinc);
+		my $wherefinger = index($line, $finger);
+		my $finishedline = $line;
+		my $wingwhere = index($line, $wing);
 
-    #the interpro XML is not fully formed, so we need to convert the extra double quotes
-    #and ampersands into the appropriate XML chracter codes
-    if($where > 0){
-      my @linearray = split /$zinc/, $line;
-      $finishedline = join "&quot;zincins&quot;", $linearray[0], $linearray[2];
-    }
-    if(index($line, "&") > 0){
-      my @linearray = split /&/, $line;
-      $finishedline = join "&amp;", $linearray[0], $linearray[1];
-    }
-    if($wingwhere > 0){
-      my @linearray = split /$wing/, $line;
-      $finishedline = join "&quot;Winged helix&quot;", $linearray[0], $linearray[1];
-    }
+		# the interpro XML is not fully formed, so we need to convert the extra double quotes
+		# and ampersands into the appropriate XML chracter codes
+		if($where > 0){
+			my @linearray = split /$zinc/, $line;
+			$finishedline = join "&quot;zincins&quot;", $linearray[0], $linearray[2];
+		}
+		if(index($line, "&") > 0){
+			my @linearray = split /&/, $line;
+			$finishedline = join "&amp;", $linearray[0], $linearray[1];
+		}
+		if($wingwhere > 0){
+			my @linearray = split /$wing/, $line;
+			$finishedline = join "&quot;Winged helix&quot;", $linearray[0], $linearray[1];
+		}
 
-    $xml_fragment .= $finishedline;
-    last if $finishedline =~ m!</protein>!;
-  }
+		$xml_fragment .= $finishedline;
+		last if $finishedline =~ m!</protein>!;
+	}
 
-  return undef unless $xml_fragment =~ /<protein/;
+	return undef unless $xml_fragment =~ /<protein/;
 
-  $self->parse_xml($xml_fragment);
+	$self->parse_xml($xml_fragment);
 
-  my $dom = $self->dom;
+	my $dom = $self->dom;
 
-  my ($protein_node) = $dom->findnodes('/protein');
-  my @interproNodes = $protein_node->findnodes('/protein/interpro');
-  for(my $interpn=0; $interpn<scalar(@interproNodes); $interpn++){
-    my $ipnlevel = join "", "/protein/interpro[", $interpn + 1, "]";
-    my @matchNodes = $protein_node->findnodes($ipnlevel);
-    for(my $match=0; $match<scalar(@matchNodes); $match++){
-      my $matlevel = join "", "/protein/interpro[", $interpn+1, "]/match[", $match+1, "]/location";
-      my @locNodes = $protein_node->findnodes($matlevel);
+	my ($protein_node) = $dom->findnodes('/protein');
+	my @interproNodes = $protein_node->findnodes('/protein/interpro');
+	my @DBNodes = $protein_node->findnodes('/protein/interpro/match');
+	for(my $interpn=0; $interpn<scalar(@interproNodes); $interpn++){
+		my $ipnlevel = join "", "/protein/interpro[", $interpn + 1, "]";
+		my @matchNodes = $protein_node->findnodes($ipnlevel);
+		for(my $match=0; $match<scalar(@matchNodes); $match++){
+			my $matlevel = join "", "/protein/interpro[", $interpn+1, "]/match[", $match+1, "]/location";
+			my @locNodes = $protein_node->findnodes($matlevel);
 
-#      $self->warn(join '*', map { $_->getAttribute('score') } @locnodes);
-
-        my @seqFeatures = map { Bio::SeqFeature::Generic->new(
+			# $self->warn(join '*', map { $_->getAttribute('score') } @locnodes);
+			
+			my @seqFeatures = map { Bio::SeqFeature::Generic->new(
                                -start => $_->getAttribute('start'), 
                                -end => $_->getAttribute('end'), 
                                -score => $_->getAttribute('score'), 
                                -source_tag => 'IPRscan',
                                -primary_tag => 'region',
-  #                            -source_tag => $interproNodes[$interpn]->getAttribute('id'), 
+										 # -source_tag => $interproNodes[$interpn]->getAttribute('id'), 
                                -display_name => $interproNodes[$interpn]->getAttribute('name'),
                                -seq_id => $protein_node->getAttribute('id'),
                                 ),
-        } @locNodes;
-        foreach my $seqFeature (@seqFeatures){
-          #my $annotationCollection = Bio::Annotation::Collection->new;
-          my $annotation1 = Bio::Annotation::DBLink->new;
-          $annotation1->database($matchNodes[$match]->getAttribute('dbname'));
-          $annotation1->primary_id($matchNodes[$match]->getAttribute('id'));
-          $annotation1->comment($matchNodes[$match]->getAttribute('name'));
-          $seqFeature->annotation->add_Annotation('dblink',$annotation1);
+									  } @locNodes;
+			foreach my $seqFeature (@seqFeatures){
+				my $annotation1 = Bio::Annotation::DBLink->new;
+				$annotation1->database($matchNodes[$match]->getAttribute('dbname'));
+				$annotation1->primary_id($matchNodes[$match]->getAttribute('id'));
+				$annotation1->comment($matchNodes[$match]->getAttribute('name'));
+				$seqFeature->annotation->add_Annotation('dblink',$annotation1);
+				
+				my $annotation2 = Bio::Annotation::DBLink->new;
+				$annotation2->database('INTERPRO');
+				$annotation2->primary_id($interproNodes[$interpn]->getAttribute('id'));
+				$annotation2->comment($interproNodes[$interpn]->getAttribute('name'));
+				$seqFeature->annotation->add_Annotation('dblink',$annotation2);
 
-          my $annotation2 = Bio::Annotation::DBLink->new;
-          $annotation2->database('INTERPRO');
-          $annotation2->primary_id($interproNodes[$interpn]->getAttribute('id'));
-          $annotation2->comment($interproNodes[$interpn]->getAttribute('name'));
-          $seqFeature->annotation->add_Annotation('dblink',$annotation2)
-        }
-        $bioSeq->add_SeqFeature(@seqFeatures);
-     }
-  }
-  my $accession = $protein_node->getAttribute('id');
-  my $displayname = $protein_node->getAttribute('name');
-  $bioSeq->accession($accession);
-  $bioSeq->display_name($displayname);
-  return $bioSeq;
+				# Bug 1908 (enhancement)
+ 				my $annotation3  = Bio::Annotation::DBLink->new;
+  				$annotation3->database($DBNodes[$interpn]->getAttribute('dbname'));
+  				$annotation3->primary_id($DBNodes[$interpn]->getAttribute('id'));
+  				$annotation3->comment($DBNodes[$interpn]->getAttribute('name'));
+  				$seqFeature->annotation->add_Annotation('dblink',$annotation3);
+			}
+			$bioSeq->add_SeqFeature(@seqFeatures);
+		}
+	}
+	my $accession = $protein_node->getAttribute('id');
+	my $displayname = $protein_node->getAttribute('name');
+	$bioSeq->accession($accession);
+	$bioSeq->display_name($displayname);
+	return $bioSeq;
 }
 
 sub _initialize {
