@@ -22,7 +22,7 @@ BEGIN {
     $error = 1;
     warn "XML::DOM::XPath not found - skipping interpro tests\n";
   }
-  $NUMTESTS = 9;
+  $NUMTESTS = 17;
   use Test;
   plan tests => $NUMTESTS;
 }
@@ -44,8 +44,8 @@ ok(1);
 
 my $t_file = Bio::Root::IO->catfile("t","data","test.interpro");
 my $a_in = Bio::SeqIO->new( -file => $t_file,
-			    -verbose => $verbose,
-			    -format => 'interpro');
+									 -verbose => $verbose,
+									 -format => 'interpro');
 
 my $seq = $a_in->next_seq();
 ok($seq);
@@ -61,3 +61,25 @@ ok($seq = $a_in->next_seq());
 ok(scalar( $seq->get_SeqFeatures() ) == 40);
 
 ok(!($seq = $a_in->next_seq()));
+
+# Bug 1908 (enhancement)
+$t_file = Bio::Root::IO->catfile("t","data","interpro_ebi.xml");
+my $b_in = Bio::SeqIO->new( -file => $t_file,
+									 -verbose => $verbose,
+									 -format => 'interpro');
+$seq = $b_in->next_seq();
+ok($seq);
+
+my @features = $seq->get_SeqFeatures;
+ok scalar @features,2;
+ok $features[0]->primary_tag, 'region';
+ok $features[0]->display_name,'Protein of unknown function DUF1021';
+ok $features[0]->location->end,78;
+
+my @dblinks = $features[0]->annotation->get_Annotations('dblink');
+ok (scalar @dblinks,3);
+ok $dblinks[1]->primary_id,'IPR009366';
+ok $dblinks[2]->primary_id,'PF06257.1';
+
+__END__
+
