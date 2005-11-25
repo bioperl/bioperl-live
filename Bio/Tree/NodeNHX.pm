@@ -89,7 +89,7 @@ use Bio::Tree::Node;
  Args    : -left          => pointer to Left descendent (optional)
            -right         => pointer to Right descenent (optional)
 	   -branch_length => branch length [integer] (optional)
-           -bootstrap     => value   bootstrap value (string)
+           -bootstrap     => bootstrap value (string)
            -description   => description of node
            -id            => unique id for node
            -nhx           => hashref of NHX tags and values
@@ -122,15 +122,19 @@ sub DESTROY {
 
 sub to_string{
    my ($self) = @_;
+   my @tags = $self->get_all_tags;
+   my $tagstr = '';
+   if( @tags ) {
+       $tagstr = '[' . join(":", "&&NHX", 
+			    map { "$_=" .join(',',
+					      $self->get_tag_values($_))}
+			    @tags ) . ']';
+   }
    return sprintf("%s%s%s",
 		  defined $self->id ? $self->id : '',
 		  defined $self->branch_length ? ':' . 
 		  $self->branch_length : ' ',
-		  '[' . join(":", "&&NHX", 
-			     map { "$_=" .join(',',
-					       $self->get_tag_values($_))}
-		 $self->get_all_tags() ) . ']'
-		  );
+		  $tagstr);
 }
 
 =head2 nhx_tag
