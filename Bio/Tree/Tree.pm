@@ -299,4 +299,5 @@ sub cleanup_tree {
     }
     $self->{'_rootnode'} = undef;
 }
+
 1;
