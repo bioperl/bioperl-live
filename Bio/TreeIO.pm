@@ -109,7 +109,7 @@ sub new {
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::TreeIO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);	
+	my ($self) = $class->SUPER::new(@args);		
 	$self->_initialize(@args);
 	return $self;
     } else { 
@@ -118,9 +118,9 @@ sub new {
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $format = $param{'-format'} || 
 	    $class->_guess_format( $param{'-file'} || $ARGV[0] ) ||
-		'newick';
+	    'newick';
 	$format = "\L$format";	# normalize capitalization to lower case
-
+	
 	# normalize capitalization
 	return undef unless( $class->_load_format_module($format) );
 	return "Bio::TreeIO::$format"->new(@args);
@@ -199,6 +199,8 @@ sub _eventHandler{
 sub _initialize {
     my($self, @args) = @_;
     $self->{'_handler'} = undef;
+    ($self->{'newline_each_node'}) = $self->_rearrange
+	([qw(NEWLINE_EACH_NODE)],@args);
     
     # initialize the IO part
     $self->_initialize_io(@args);
@@ -235,6 +237,25 @@ END
   ;
   }
   return $ok;
+}
+
+=head2 newline_each_node
+
+ Title   : newline_each_node
+ Usage   : $obj->newline_each_node($newval)
+ Function: Get/set newline each node flag which is only applicable
+           for writing tree formats for nhx and newick, will
+           print a newline after each node or paren
+ Returns : value of newline_each_node (boolean)
+ Args    : on set, new value (a boolean or undef, optional)
+
+
+=cut
+
+sub newline_each_node{
+    my $self = shift;
+    return $self->{'newline_each_node'} = shift if @_;
+    return $self->{'newline_each_node'};
 }
 
 

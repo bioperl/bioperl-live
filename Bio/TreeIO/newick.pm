@@ -239,29 +239,31 @@ sub write_tree{
    if( $self->print_tree_count ){ 
        $self->_print(sprintf(" %d\n",scalar @trees));
    }
-
+   my $nl = $self->newline_each_node;
    foreach my $tree( @trees ) {
        my @data = _write_tree_Helper($tree->get_root_node,
 				     $bootstrap_style,
-				     $orderby);
-       #if($data[-1] !~ /\)$/ ) {
-	#   $data[0] = "(".$data[0];
-	#   $data[-1] .= ")";
-       #}
-       $self->_print(join(',', @data), ";\n");   
+				     $orderby,
+				     $nl);
+       if( $nl ) {
+	   chomp($data[-1]);# remove last newline
+	   $self->_print(join(",\n", @data), ";\n");
+       } else {
+	   $self->_print(join(',', @data), ";\n");
+       }
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return;
 }
 
 sub _write_tree_Helper {
-    my ($node,$style,$orderby) = @_;
+    my ($node,$style,$orderby,$nl) = @_;
     $style = '' unless defined $style;
     return () if (!defined $node);
 
     my @data;
     foreach my $n ( $node->each_Descendent($orderby) ) {
-	push @data, _write_tree_Helper($n,$style,$orderby);
+	push @data, _write_tree_Helper($n,$style,$orderby,$nl);
     }
     
     # let's explicitly write out the bootstrap if we've got it
@@ -270,8 +272,13 @@ sub _write_tree_Helper {
     $bs =~ s/\s+//g if defined $bs;
     my $bl = $node->branch_length;
     if( @data ) {
-	$data[0] = "(" . $data[0];
-	$data[-1] .= ")";
+	if( $nl ) {
+	    $data[0] = "(\n" . $data[0];
+	    $data[-1] .= ")\n";
+	} else {
+	    $data[0] = "(" . $data[0];
+	    $data[-1] .= ")";
+	}
 
 	if( $node->is_Leaf ) { 
 	    $node->debug("node is a leaf!  This is unexpected...");

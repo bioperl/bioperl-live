@@ -256,46 +256,67 @@ sub next_tree{
 
 sub write_tree{
     my ($self,@trees) = @_;
+    my $nl = $self->newline_each_node;
    foreach my $tree ( @trees ) {
-       my @data = _write_tree_Helper($tree->get_root_node);
+       my @data = _write_tree_Helper($tree->get_root_node,$nl);
        # per bug # 1471 do not include enclosing brackets.
        # this is sort of cheating but it should work
        # remove first and last paren if the set ends in a paren
        if($data[-1] =~ s/\)$// ) {
 	   $data[0] =~ s/^\(//;
        }
-       $self->_print(join(',', @data), ";\n");
+       if( $nl ) {
+	   chomp($data[-1]);# remove last newline
+	   $self->_print(join(",\n", @data), ";\n");
+       } else {
+	   $self->_print(join(',', @data), ";\n");
+       }
    }
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return;
 }
 
 sub _write_tree_Helper {
-    my ($node) = @_;
+    my ($node,$nl) = @_;
     return () unless defined $node;
     # rebless
     $node = bless $node,'Bio::Tree::NodeNHX';
     my @data;
     
     foreach my $n ( $node->each_Descendent() ) {
-	push @data, _write_tree_Helper($n);
+	push @data, _write_tree_Helper($n,$nl);
     }
     
     if( @data > 1 ) {
-	$data[0] = "(" . $data[0];
-	$data[-1] .= ")";
+	if( $nl ) {
+	    $data[0] = "(\n" . $data[0];
+	    $data[-1] .= ")\n";	
+	} else {
+	    $data[0] = "(" . $data[0];
+	    $data[-1] .= ")";
+	}
+
 	my $id = $node->id;
 	$data[-1] .= $id  if( defined $id );
-	$data[-1] .= ":". $node->branch_length if $node->branch_length;	
+	my $blen  = $node->branch_length;
+	$data[-1] .= ":". $blen if $blen;	
 	# this is to not print out an empty NHX for the root node which is 
 	# a convience for how we get a handle to the whole tree
-	
-	if( $node->ancestor || defined $id && length($id) || defined $node->branch_length ) {	    
+	my @tags = $node->get_all_tags;
+	if( $node->ancestor || @tags ) {
 	    $data[-1] .= '[' . 
 		join(":", "&&NHX",
 		     map { "$_=" .join(',',$node->get_tag_values($_)) } 
-		     $node->get_all_tags() ) . ']';
-
+		     @tags ) . ']';
+	    
+	} else {
+	    if( $nl ) {
+		$data[0] = "(\n" . $data[0];
+		$data[-1] .= ")\n";	
+	    } else {
+		$data[0] = "(" . $data[0];
+		$data[-1] .= ")";
+	    }
 	}
     } else { 
 	push @data, $node->to_string; # a leaf
