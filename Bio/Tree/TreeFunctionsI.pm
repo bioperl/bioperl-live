@@ -454,8 +454,7 @@ sub reroot {
     unless (defined $new_root && $new_root->isa("Bio::Tree::NodeI")) {
 	$self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
 	return 0;
-    }
-    
+    }    
     {
 	my $anc = $new_root->ancestor;	
 	unless( $anc ) {
@@ -467,7 +466,7 @@ sub reroot {
 	} else {
 	    $blen = ($new_root->branch_length() || 0) / 2;
 	}
-	my $node = Bio::Tree::Node->new(-branch_length => $blen);
+	my $node = $anc->new(-branch_length => $blen);
 	$new_root->branch_length($blen);
 	$anc->add_Descendent($node);
 	$anc->remove_Descendent($new_root);
