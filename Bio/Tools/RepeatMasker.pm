@@ -1,3 +1,5 @@
+# $Id$
+#
 # BioPerl module for Bio::Tools::RepeatMasker
 #
 # Cared for by Shawn Hoon <shawnh@fugu-sg.org>
