@@ -55,5 +55,5 @@ $structout->write_structure($struc);
 ok(1);
 
 END {
-#	unlink $out_file if -e $out_file;
+	unlink $out_file if -e $out_file;
 }
