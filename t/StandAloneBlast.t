@@ -3,24 +3,24 @@
 ## $Id$
 #
 # Note: the swissprot and ecoli.nt data sets may be downloaded from
-# ftp://ftp.ncbi.nih.gov/blast/db
+# ftp://ftp.ncbi.nih.gov/blast/db/FASTA
 
 use strict;
 use constant NUMTESTS => 18;
 BEGIN { 
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => NUMTESTS; 
+	eval { require Test; };
+	if( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	plan tests => NUMTESTS; 
 }
 
 END { 
-    foreach( $Test::ntest..NUMTESTS) {
-	skip('Blast or env variables not installed correctly',1);
-    }
-    unlink('blastreport.out');
+	foreach( $Test::ntest..NUMTESTS) {
+		skip('Blast or env variables not installed correctly', 1);
+	}
+	unlink('blastreport.out') if -e 'blastreport.out';
 }
 
 use Bio::Tools::BPlite;
@@ -36,10 +36,11 @@ my $verbose = -1;
 my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
 
-my @params = ('program' => 'blastn', 'database' => $nt_database , 
-	      '_READMETHOD' => 'SearchIO', 
-	      'output' => 'blastreport.out',
-	     'verbose' => 0);
+my @params = ('program'    => 'blastn',
+				  'database'    => $nt_database , 
+				  '_READMETHOD' => 'SearchIO', 
+				  'output'      => 'blastreport.out',
+				  'verbose'     => 0 );
 my  $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => $verbose,
 						     @params);
 
@@ -76,20 +77,17 @@ my $file_present = -e $nt_database_file;
 my $exit;
 unless ($file_present) {
    skip("Blast Database $nt_database not found",1);
-#   warn "Blast Database $nt_database not found";
    $exit = 1;
 }
 my $file_present2 = -e $amino_database_file;
 
 unless ($file_present2) {
     skip("Blast Database $amino_database not found",1);
-#    warn "Blast Database $amino_database not found";
     $exit=1;
 }
 
 if ($exit) {
    skip("Blast databases(s) not found, skipping remaining  tests",1);
-#   warn "Blast databases(s) not found, skipping remaining  tests";
    exit(0);
 }
 
@@ -138,13 +136,12 @@ ok($sbjct);
 $hsp = $sbjct->next_hsp;
 ok($hsp->score, $testresults[$testcount++]);
 
-
 @params = ('-verbose' => $verbose,
-	   'program' => 'blastp'); # This used to be blastp but atleast on my implementation it should be T
+			   'program'  => 'blastp'); 
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
-$str = Bio::SeqIO->new(-file=>Bio::Root::IO->catfile(qw(t data amino.fa)),
-		       '-format' => 'Fasta' );
+$str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile(qw(t data amino.fa)),
+							  -format => 'Fasta' );
 my $seq3 = $str->next_seq();
 my $seq4 = $str->next_seq();
 $factory->_READMETHOD('BPlite');
@@ -160,7 +157,7 @@ ok( $hsp->hit->start, $testresults[$testcount++],
     " failed creating or parsing SearchIO bl2seq report object");
 
 @params = ('database' => $amino_database,
-	   '-verbose' => $verbose);
+			  '-verbose' => $verbose);
 $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 my $iter = 2;
