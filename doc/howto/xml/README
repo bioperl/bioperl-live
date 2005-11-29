@@ -1,22 +1,20 @@
 $Id$
 
-These HOWTOs are written in DocBook XML.  See the LDP at
-http://www.tldp.org for more information on how to write documents in
-DocBook, in particular the LDP Author guide. DocBook XML can be
+These HOWTOs are written in DocBook XML. DocBook XML can be
 turned into PDF, HTML, text, and RTF (which can be turned into
 MS Word).
 
 As of this writing one cannot turn Docbook XML into these formats
 using one single open source package. The HTML, PDF, and text versions
-of the XML were created using saxon-j, XEP, and lynx,
+of the XML were created using saxon-j, XEP (from RenderX), and lynx
 respectively. In addition, the XSL stylesheets from the e-novative 
 eDe package were used, with these stylesheets one can create some
-attractive documents. All of the necessary stylesheets and associated 
-files have been added to the Bioperl package. Example code is shown below. 
+attractive documents. All of the necessary stylesheets are in the
+doc/howto/xml directory.
 
+Example shell code:
 
-# Docbook XML to HTML, PDF, and text using e-novative
-# stylesheets, saxon-j version 6, XEP , and lynx.
+!#/bin/csh
 
 setenv HTML_STYLE '~/bioperl-live/doc/howto/xml/stylesheet/e-novative_article_html.xsl'
 setenv PDF_STYLE '~/bioperl-live/doc/howto/xml/stylesheet/e-novative_article_fo.xsl'
@@ -32,7 +30,7 @@ foreach XML ($XML_HOME/[A-Z]*.xml)
     setenv HTML `echo $XML | sed 's/\.xml/\.html/'`
     # Create HTML file
     echo "Creating $HTML..."
-    $JAVA -jar $SAXON_JAR -o $HTML $XML $HTML_STYLE use.extensions=1 
+    $JAVA -jar $SAXON_JAR -o $HTML $XML $HTML_STYLE use.extensions=1 tablecolumns.extension=0
 
     setenv TXT `echo $XML | sed 's/\.xml/\.txt/'`
     # Create text from HTML file

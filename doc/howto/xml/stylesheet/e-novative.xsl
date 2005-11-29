@@ -257,7 +257,7 @@ procedure after
 
 
 <!-- enable better table sizing -->
-<xsl:param name="tablecolumns.extension" select="'1'"/>
+<!-- <xsl:param name="tablecolumns.extension" select="'1'"/> -->
 
 <!-- bibliography entry separator -->
 <xsl:param name="biblioentry.item.separator">. </xsl:param>
@@ -456,7 +456,7 @@ BioPerl DocBook (<a href="http://bioperl.org" style="color: #fff; font-weight: b
 
 <!-- Use Tablecolumns extensions                                             -->
 <!-- Improves HTML table display                                             -->
-<xsl:param name="tablecolumns.extensions">0</xsl:param>
+<!-- <xsl:param name="tablecolumns.extensions">0</xsl:param> -->
 
 <!-- Use Graphicsize extensions                                              -->
 <!-- Allows XSLT processor to retrieve the size from graphics. Does not work -->
