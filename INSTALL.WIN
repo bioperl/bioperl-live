@@ -1,5 +1,7 @@
+# $Id: INSTALL.WIN,v 1.18 2005-11-29 04:09:59 bosborne Exp $
+
 Installing Bioperl on Windows
-=============================
+===================
 
 1) Quick instructions for the impatient
 
@@ -24,7 +26,7 @@ bioperl-l@bioperl.org
 
 
 1) Quick instructions for the impatient, lucky, or experienced user.
-====================================================================
+==========================================
 
 Download the ActivePerl MSI from 
 
@@ -59,7 +61,7 @@ Go to http://www.bioperl.org and start reading documentation.
 
 
 2) Bioperl
-==========
+======
 
 Bioperl is a large collection of Perl modules (extensions to the Perl 
 language) that aid in the task of writing Perl code to deal with 
@@ -119,7 +121,7 @@ successfully and it is discussed in more detail below.
 
  
 3) Perl on Windows
-===================
+============
 
 There are a couple of ways of installing Perl on a Windows machine.  
 The most common and easiest is to get the most recent build from
@@ -149,7 +151,7 @@ Information on Cygwin and Bioperl is found below.
 
 
 4) Bioperl on Windows
-======================
+==============
 
 Perl is a programming language that has been extended a lot by the 
 addition of external modules.
@@ -175,20 +177,20 @@ packages are:
    Bioperl Group                         Functions
    -----------------------------------------------------------------
 
-   bioperl (the core)        Most of the main functionality of Bioperl.
+   bioperl (the core)       Most of the main functionality of Bioperl.
 
    bioperl-run               Wrappers to a lot of external programs.
 
    bioperl-ext               Interaction with some alignment functions
-                             and the Staden package.
+                                    and the Staden package.
 
    bioperl-db                Using bioperl with BioSQL and local
-                             relational databases.
+                                    relational databases.
 
-   bioperl-microarray        Microarray specific functions.
+   bioperl-microarray   Microarray specific functions.
 
    bioperl-gui               Some preliminary work on a graphical user
-                             interface to some Bioperl functions.
+                                    interface to some Bioperl functions.
 
 
 The Bioperl core is what most new users will want to start with.  
@@ -240,7 +242,7 @@ numbered list obtained above.
 
 
 5) Beyond the Core
-===================
+============
 
 You may find that you want some of the features of other Bioperl groups 
 like bioperl-run or bioperl-db.  There are currently no PPM packages 
@@ -264,7 +266,7 @@ best, and if you get stuck consult with others on the bioperl mailing list.
 
 
 6) Bioperl in Cygwin
-====================
+=============
 
 Cygwin is a Unix emulator and shell environment available free at
 www.cygwin.com. Bioperl v. 1.* runs well within Cygwin. 
@@ -290,7 +292,7 @@ THE EASY WAY USING CPAN).
 
 
 7) Cygwin tips
-==============
+=========
 
 If you can, install Cygwin on a drive or partition that's
 NTFS-formatted, not FAT32-formatted. When you install Cygwin on a FAT32
@@ -307,7 +309,7 @@ but the external resource may want 'E:/cygwin/home/jacky'. So your
 depending.
 
 Mysql and DBD::Mysql
-====================
+==============
 
 You may want to install a relational database in order to use 
 bioperl-db, BioSQL or OBDA. The easiest way to install Mysql is to 
@@ -330,19 +332,19 @@ It may be that these issues have been resolved in versions later
 than 2.9.
 
 Expat
-=====
+====
 
 Note that expat comes with Cygwin (it's used by the module
 XML::Parser, which is used by certain Bioperl modules).
 
 Directory for temporary files
-=============================
+==================
 
 Set the environmental variable TMPDIR, programs like BLAST and
 clustalw need a place to create temporary files. E.g.:
 
 setenv TMPDIR e:/cygwin/tmp     # csh, tcsh
-export TMPDIR=e:/cygwin/tmp     # sh, bash
+export TMPDIR=e:/cygwin/tmp    # sh, bash
 
 This is not the syntax that Cygwin understands, which would be
 something like "/cygdrive/e/cygwin/tmp" or "/tmp", this is the syntax
@@ -351,13 +353,13 @@ that a Windows application expects.
 If this variable is not set correctly you'll see errors like this
 when you run Bio::Tools::Run::StandAloneBlast:
 
-------------- EXCEPTION: Bio::Root::Exception -------------
-MSG: Could not open /tmp/gXkwEbrL0a: No such file or directory
-STACK: Error::throw
-..........
+  ------------- EXCEPTION: Bio::Root::Exception -------------
+  MSG: Could not open /tmp/gXkwEbrL0a: No such file or directory
+  STACK: Error::throw
+  ..........
 
 BLAST
-=====
+====
 
 If you want use BLAST we recommend that the Windows binary be obtained 
 from NCBI (ftp://ftp.ncbi.nih.gov/blast/executables/LATEST-BLAST - the 
@@ -365,7 +367,7 @@ file will be named something like blast-2.2.6-ia32-win32.exe).
 Then follow the Windows instructions in README.bls.
 
 Compiling C code
-================
+===========
 
 Although we've recommended using the BLAST and Mysql binaries you
 should be able to compile just about everything else from source 
