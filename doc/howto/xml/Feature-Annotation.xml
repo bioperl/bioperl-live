@@ -186,8 +186,8 @@
   <section id="feat_from_genbank">
     <title>Features from Genbank</title>
     <para>
-      I'll be focusing on the Genbank format but bear in mind
-      that most of the code shown here will also work on other formats
+      The focus of this HOWTO is mostly on Genbank format but bear in mind
+      that all of the code shown here will also work on other formats
       containing features or annotations (EMBL, Swissprot, BSML,
       Chado XML, GAME, KEGG, Locuslink, Entrez Gene, TIGR XML). 
       When the entry comes from Genbank it's 

@@ -2163,6 +2163,14 @@ $reversed_obj = $seq_obj->revcom;
 				to write their own modules. 
 			 </para>
 		  </listitem>
+		  <listitem>
+			 <para>               
+				The <ulink
+				url="http://www.ensembl.org/info/software/core/core_tutorial.html">
+<citetitle>ENSEMBL Perl API</citetitle></ulink>, a way of accessing
+				ENSEMBL's genomics data, in a manner very much like Bioperl.
+			 </para>
+		  </listitem>
 		</orderedlist>	
 	 </para>
 
