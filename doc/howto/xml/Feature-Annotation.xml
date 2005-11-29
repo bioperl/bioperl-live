@@ -568,7 +568,7 @@ FEATURES             Location/Qualifiers
     <title>Location Objects</title>
     <para>
       There's quite a bit to this idea of location, so much that it
-      probably deserves its own HOWTO. This is my way of saying that
+      probably deserves its own HOWTO. Another way of saying this is that
       if this topic interests you should take a closer look at the modules that
       are concerned with both Location and Range. Together these modules
       offer the user a number of useful methods to handle both 
@@ -651,10 +651,9 @@ FEATURES             Location/Qualifiers
   </section>
 
   <section id="other_objects">
-    <title>Other objects</title>
+    <title>The Species object</title>
     <para>
-      As an aside I should mention that certain data
-      associated in a Genbank file is accessible both 
+      Some data in a Genbank file is accessible both 
       as a feature and through a specialized object. Taxonomic 
       information on a sequence, below, can be accessed 
       through a Species object as well as a value to the "organism"
