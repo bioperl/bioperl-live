@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::StandAloneBlast
 #
-# Cared for by Peter Schattner
+# 30 Nov 2005 - rpsblast support added by Torsten Seemann
 #
 # Copyright Peter Schattner
 #
@@ -13,8 +13,8 @@
 =head1 NAME
 
 Bio::Tools::Run::StandAloneBlast - Object for the local execution 
-of the NCBI Blast program suite (blastall, blastpgp, bl2seq). 
-There is experimental support for WU-Blast.
+of the NCBI Blast program suite (blastall, blastpgp, bl2seq, rpsblast). 
+There is experimental support for WU-Blast and NCBI rpsblast.
 
 =head1 SYNOPSIS
 
@@ -45,11 +45,16 @@ There is experimental support for WU-Blast.
  $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
  $factory->bl2seq($input, $input2);
 
-  #experimental support for WU-Blast 2.0
-  my $factory= Bio::Tools::Run::StandAloneBlast->new(program =>"wublastp",
+ # Experimental support for WU-Blast 2.0
+ my $factory = Bio::Tools::Run::StandAloneBlast->new(program =>"wublastp",
                                                      database =>"swissprot",
                                                      E => 1e-20); 
   my $blast_report = $factory->wublast($seq);
+
+ # Experimental support for NCBI rpsblast
+ my $factory= Bio::Tools::Run::StandAloneBlast->new(d => 'CDD/Cog', 
+                                                    e => 0.001); 
+ my $blast_report = $factory->rpsblast($seq);
 
   # Various additional options and input formats are available.  See
   # the DESCRIPTION section for details.
@@ -65,7 +70,7 @@ distribution. BLAST is available from ftp://ncbi.nlm.nih.gov/blast/.
 A source of confusion in documenting a BLAST interface is that the
 term "program" is used in - at least - three different ways in the
 BLAST documentation.  In this DESCRIPTION, "program" will refer to the
-BLAST routine set by BLAST's C<-p> parameter that can be set to blastn,
+BLAST routine set by the BLAST C<-p> parameter that can be set to blastn,
 blastp, tblastx etc.  We will use the term Blast "executable" to refer
 to the various different executable files that may be called - ie
 blastall, blastpgp or bl2seq.  In addition, there are several BLAST
@@ -111,8 +116,8 @@ or numeric) or that their values are within the proper range.
 As an example, to change the value of the Blast parameter 'e' ('e' is
 the parameter for expectation-value cutoff) 
 
- $expectvalue = 0.01;
- $factory->e($expectvalue);
+  $expectvalue = 0.01;
+  $factory->e($expectvalue);
 
 Note that for improved script readibility one can modify the name of
 the BLAST parameters as desired as long as the initial letter (and
@@ -155,7 +160,7 @@ The BPlite method is only provided to support legacy code since
 the BPlite modules are no longer maintained - do not use BPlite
 since these modules will be removed eventually.
 
-For psiblast execution in BLAST's "jumpstart" mode, the program must
+For psiblast execution in the BLAST "jumpstart" mode, the program must
 be passed (in addition to the query sequence itself) an alignment
 containing the query sequence (in the form of a SimpleAlign object) as
 well as a "mask" specifying at what residues position-specific scoring
@@ -197,13 +202,6 @@ encouraged to run the scripts standaloneblast.pl in the bioperl
 examples/tools directory and StandAloneBlast.t in the bioperl t/ 
 directory.
 
-=head1 DEVELOPERS NOTES
-
-B<STILL TO BE WRITTEN>
-
-Note: This module is still under development.  If you would like that a
-specific BLAST feature be added to this perl interface, let me know.
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -238,9 +236,10 @@ package Bio::Tools::Run::StandAloneBlast;
 
 use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR $BLASTTYPE
 	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS @WUBLAST_SWITCH
-	    @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD 
+	    @RPSBLAST_PARAMS @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD 
 	    $DEFAULTREADMETHOD
 	    );
+		 
 use strict;
 use Bio::Root::Root;
 use Bio::Root::IO;
@@ -257,6 +256,7 @@ BEGIN {
 			    D a O J M W z K L Y S T l U y Z);
 	@BLASTPGP_PARAMS = qw(d i A f e m o y P F G E X N g S H a I h c
 			   j J Z O M v b C R W z K s Y p k T Q B l U t L);
+	@RPSBLAST_PARAMS = qw(i d p e m o y P F X N G a I J Z O v b z Y T l U L);
 	@BL2SEQ_PARAMS = qw(i j p g o d a G E X W M q r F e S T m);
 	$DEFAULTREADMETHOD = 'BLAST';
 	$BLASTTYPE = 'ncbi';
@@ -286,7 +286,7 @@ BEGIN {
 	# my @other_switches = qw(QUIET);
 
 	# Authorize attribute fields
-	foreach my $attr (@BLASTALL_PARAMS,  @BLASTPGP_PARAMS, 
+	foreach my $attr (@BLASTALL_PARAMS, @BLASTPGP_PARAMS, @RPSBLAST_PARAMS,
 							@BL2SEQ_PARAMS, @OTHER_PARAMS ,@WUBLAST_PARAMS, 
                      @WUBLAST_SWITCH )
      { $OK_FIELD{$attr}++; }
@@ -344,6 +344,19 @@ program with the option "-" as in blastall -
   -c   is the "constant" used in the pseudocount formula specified in the paper (default 10)
   -B  Multiple alignment file for PSI-BLAST "jump start mode"  Optional
   -Q  Output File for PSI-BLAST Matrix in ASCII [File Out]  Optional
+
+=head2 rpsblast
+
+  -d  Database [String] default = (none - you must specify a database)
+        The database specified must first be formatted with formatdb.
+        Multiple database names (bracketed by quotations) will be accepted.
+        An example would be -d "Cog Smart"
+   -i  Query File [File In]   Set by StandAloneBlast.pm from script.
+    default = stdin. The query should be in FASTA format.  If multiple FASTA entries are in the input
+        file, all queries will be searched.
+  -e  Expectation value (E) [Real] default = 10.0
+  -o  BLAST report Output File [File Out]  Optional,
+	default = ./blastreport.out ; set by StandAloneBlast.pm		
 
 =head2 Bl2seq
 
@@ -643,6 +656,47 @@ sub blastpgp {
     my $blast_report = &_generic_local_blast($self, $executable, $input1, $input2);
 }
 
+=head2  rpsblast
+
+ Title   : rpsblast
+ Usage   :  $blast_report = $factory->rpsblast('t/testquery.fa');
+	or
+	       $input = Bio::Seq->new(-id=>"test query",
+				      -seq=>"MVVLCRADDEEQQPPTCADEEQQQVVGG");
+	       $blast_report = $factory->rpsblast($input);
+	or
+	      $seq_array_ref = \@seq_array;  
+         # where @seq_array is an array of Bio::Seq objects
+	      $blast_report = $factory->rpsblast(\@seq_array);
+ Args    : Name of a file or Bio::Seq object or an array of 
+           Bio::Seq object containing the query sequence(s). 
+           Throws an exception if argument is not either a string 
+           (eg a filename) or a reference to a Bio::Seq object 
+           (or to an array of Seq objects).  If argument is string, 
+           throws exception if file corresponding to string name can 
+           not be found.
+ Returns : Reference to a Bio::SearchIO object or BPlite object 
+           containing the blast report (BPlite only if you specify 
+           _READMETHOD=> 'BPlite')
+
+=cut
+
+sub rpsblast {
+    my ($self, $input1) = @_;
+	
+    my $executable = 'rpsblast';
+
+    # Create input file pointer
+    my $infilename1 = $self->_setinput($executable, $input1);
+    if (! $infilename1) { 
+	   $self->throw(" $input1 ($infilename1) not Bio::Seq object or array of Bio::Seq objects or file name!");
+	 }
+    $self->i($infilename1);	# set file name of sequence to be blasted to inputfilename1 (-i param of blastall)
+    
+	 # Run like a standard NCBI blast from this point
+    my $blast_report = _generic_local_blast($self, $executable);
+}
+
 =head2   bl2seq
 
  Title   : bl2seq
@@ -781,7 +835,7 @@ sub _runblast {
 					$self->j() > 1)  {
 			$self->debug( "using psilite parser\n");
 			$blast_obj = Bio::Tools::BPpsilite->new(-file => $outfile);
-		} elsif( $executable =~ /blastall/i ) { 
+		} elsif( $executable =~ /blastall|rpsblast/i) { 
 			$blast_obj = Bio::Tools::BPlite->new(-file=>$outfile);
 		} else { 
 			$self->warn("Unrecognized executable $executable");
@@ -954,6 +1008,7 @@ sub _setparams {
 
     if ($executable eq 'blastall') {@execparams = @BLASTALL_PARAMS; }
     if ($executable eq 'blastpgp') {@execparams = @BLASTPGP_PARAMS; }
+    if ($executable eq 'rpsblast') {@execparams = @RPSBLAST_PARAMS; }
     if ($executable eq 'bl2seq')   {@execparams = @BL2SEQ_PARAMS; }
     if($executable eq 'wublast')   {@execparams = @WUBLAST_PARAMS; }
 
@@ -1073,4 +1128,5 @@ sub _setparams {
 =cut
 
 1;
+
 __END__
