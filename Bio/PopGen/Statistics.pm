@@ -78,7 +78,7 @@ Currently implemented:
  Fu and Li's D*   (fu_and_li_D_star)
  Fu and Li's F    (fu_and_li_F)
  Tajima's D       (tajima_D)
- Waterson's theta (theta)
+ Watterson's theta (theta)
  pi               (pi) - number of pairwise differences
  composite_LD     (composite_LD)
 
@@ -713,7 +713,7 @@ sub pi {
 
  Title   : theta
  Usage   : my $theta = Bio::PopGen::Statistics->theta($sampsize,$segsites);
- Function: Calculates Waterson's theta from the sample size 
+ Function: Calculates Watterson's theta from the sample size 
            and the number of segregating sites.
            Providing the third parameter, total number of sites will
            return theta per site.
