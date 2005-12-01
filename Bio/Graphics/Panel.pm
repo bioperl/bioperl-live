@@ -840,7 +840,7 @@ sub ticks {
   my ($length,$minwidth) = @_;
 
   my $img = $self->image_class;
-  $length   = $self->{length}       unless defined $length;
+  $length   = $self->{length}             unless defined $length;
   $minwidth = $img->gdSmallFont->width*7  unless defined $minwidth;
 
   my ($major,$minor);
@@ -860,7 +860,7 @@ sub ticks {
 
   # to make sure a major tick shows up somewhere in the first half
   #
-  $interval *= .5 if ($interval > 0.5*$length);
+  # $interval *= .5 if ($interval > 0.5*$length);
 
   return ($interval,$interval/10);
 }

@@ -203,7 +203,7 @@ not stranded.
 
 For annotations that are linked to proteins, this field describes the
 phase of the annotation on the codons.  It is a number from 0 to 2, or
-"." for features that have no phase\.
+"." for features that have no phase.
 
 =item 9. group
 

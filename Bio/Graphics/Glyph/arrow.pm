@@ -127,8 +127,9 @@ sub draw_parallel {
 									     ),
 					 ) if $relative;
 
-    my $unit_label   = $self->option('units') || '';
-    my $unit_divider = $self->option('unit_divider') || 1;
+    my $unit_label     = $self->option('units')        || '';
+    my $unit_divider   = $self->option('unit_divider') || 1;
+    my $units_in_label = $self->option('units_in_label');
 
     my $units      = $self->calculate_units($start/$unit_divider,$self->feature->length/$unit_divider);
     my $divisor    = $UNITS{$units} || 1;
@@ -136,12 +137,16 @@ sub draw_parallel {
     $divisor *= $unit_divider;
 
     my $format     = min($self->feature->length,$self->panel->length)/$divisor > 10
-      ? "%d$units%s" : "%.6g$units%s";
+      ? "%d" : "%.6g";
+
+    $format .= "$units%s" unless $units_in_label;
 
     my $scale  = $self->option('scale') || 1;  ## Does the user want to override the internal scale?
 
     my $model  = sprintf("$format ",$stop/($divisor*$scale),$unit_label);
-    my $minlen = $width * length($model);
+    $model     = "-$model" if $start < 0;
+
+    my $minlen = $width * length($model);# * 1.5;
 
     my ($major_interval,$minor_interval) = $self->panel->ticks(($stop-$start+1)/$unit_divider,$minlen);
 
@@ -159,7 +164,7 @@ sub draw_parallel {
 	    if $self->feature->end   > $self->panel->end;
     }
 	
-    my $first_tick = $major_interval * int(0.5 + $start/$major_interval);
+    my $first_tick = $major_interval * int($start/$major_interval);
     my $last_tick  = $major_interval * int(0.5 + ($stop+2)/$major_interval);
 
     for (my $i = $first_tick; $i <= $last_tick; $i += $major_interval) {
@@ -190,8 +195,8 @@ sub draw_parallel {
       my $label_len = length($label) * $width;
 
       my $middle = $tickpos - $label_len/2;
-      $middle = $x1 if $middle < $x1;
-      $middle = $x2 if $middle > $x2;
+      # $middle = $x1 if $middle < $x1;
+      # $middle = $x2 if $middle > $x2;
 
       $gd->string($font,$middle,$center+$a2-1,$label,$font_color)
         unless ($self->option('no_tick_label'));
@@ -199,7 +204,7 @@ sub draw_parallel {
 
     if ($self->option('tick') >= 2) {
 
-      $first_tick = $minor_interval * int(0.5 + $start/$minor_interval);
+      $first_tick = $minor_interval * int($start/$minor_interval);
       $last_tick  = $minor_interval * int(0.5 + ($stop+2)/$minor_interval);
 
       my $a4 = $self->height/4;
@@ -218,7 +223,7 @@ sub draw_parallel {
 	  $abs = $end - $abs if $flipped;
 
 	  my $tickpos = $dx + $self->map_pt($abs);
-	  next if $tickpos < $left or $tickpos > $right;
+	  next if $tickpos < $left-1 or $tickpos > $right+1;
 
 	  $gd->line($tickpos,$center-$a4,$tickpos,$center+$a4,$tickpen);
       }
@@ -228,6 +233,17 @@ sub draw_parallel {
   # add a label if requested
   $self->draw_label($gd,$dx,$dy)       if $self->option('label');
   $self->draw_description($gd,$dx,$dy) if $self->option('description');
+}
+
+sub label {
+  my $self  = shift;
+  my $label = $self->SUPER::label(@_);
+  return $label unless $self->option('units_in_label');
+  my $unit_divider = $self->option('unit_divider') || 1;
+  my $unit_label   = $self->option('units')        || '';
+  my $start        = $self->feature->start-1;
+  my $units        = $self->calculate_units($start/$unit_divider,$self->feature->length/$unit_divider);
+  return $label . " ($units$unit_label)";
 }
 
 sub arrowheads {
