@@ -1,8 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::StandAloneBlast
-#
-# 30 Nov 2005 - rpsblast support added by Torsten Seemann
+# BioPerl module for Bio::Tools::Run::StandAloneBlast
 #
 # Copyright Peter Schattner
 #
@@ -13,7 +11,7 @@
 =head1 NAME
 
 Bio::Tools::Run::StandAloneBlast - Object for the local execution 
-of the NCBI Blast program suite (blastall, blastpgp, bl2seq, rpsblast). 
+of the NCBI BLAST program suite (blastall, blastpgp, bl2seq). 
 There is experimental support for WU-Blast and NCBI rpsblast.
 
 =head1 SYNOPSIS
@@ -22,13 +20,11 @@ There is experimental support for WU-Blast and NCBI rpsblast.
  # initialization:
 
  @params = ('database' => 'swissprot','outfile' => 'blast1.out');
-
  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
  # Blast a sequence against a database:
 
- $str = Bio::SeqIO->new(-file=>'t/amino.fa' ,
-                        -format => 'Fasta' );
+ $str = Bio::SeqIO->new(-file=>'t/amino.fa', -format => 'Fasta');
  $input = $str->next_seq();
  $input2 = $str->next_seq();
  $blast_report = $factory->blastall($input);
@@ -46,18 +42,21 @@ There is experimental support for WU-Blast and NCBI rpsblast.
  $factory->bl2seq($input, $input2);
 
  # Experimental support for WU-Blast 2.0
+ 
  my $factory = Bio::Tools::Run::StandAloneBlast->new(program =>"wublastp",
                                                      database =>"swissprot",
-                                                     E => 1e-20); 
-  my $blast_report = $factory->wublast($seq);
+                                                     e => 1e-20); 
+ my $blast_report = $factory->wublast($seq);
 
  # Experimental support for NCBI rpsblast
- my $factory= Bio::Tools::Run::StandAloneBlast->new(d => 'CDD/Cog', 
-                                                    e => 0.001); 
+
+ my $factory = Bio::Tools::Run::StandAloneBlast->new(db => 'CDD/Cog', 
+                                                     expect => 0.001);
+ $factory->F('T'); # turn on SEG filtering of query sequence
  my $blast_report = $factory->rpsblast($seq);
 
-  # Various additional options and input formats are available.  See
-  # the DESCRIPTION section for details.
+ # Various additional options and input formats are available,
+ # see the DESCRIPTION section for details.
 
 =head1 DESCRIPTION
 
@@ -172,7 +171,7 @@ locations where (PSSMs) are to be used and a "0" at all other
 locations. So for example:
 
   $str = Bio::AlignIO->new(-file=> "cysprot.msf", 
-                           -format => 'msf'  );
+                           -format => 'msf');
   $aln = $str->next_aln();
   $len = $aln->length_aln();
   $mask =   '1' x $len;
@@ -184,13 +183,13 @@ AlignIO.pm to directly produce a SimpleAlign object from the alignment
 of the two sequences produced by bl2seq as in:
 
   # Get 2 sequences
-  $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
+  $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta');
   my $seq3 = $str->next_seq();
   my $seq4 = $str->next_seq();
 
   # Run bl2seq on them
   $factory = Bio::Tools::Run::StandAloneBlast->new('program' => 'blastp',
-						  'outfile' => 'bl2seq.out');
+                                                   'outfile' => 'bl2seq.out');
   my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 
   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
@@ -223,7 +222,11 @@ the web:
 
 =head1 AUTHOR -  Peter Schattner
 
-Email schattner@alum.mit.edu
+Email schattner at alum.mit.edu
+
+=head1 MAINTAINER - Torsten Seemann
+
+Email torsten at infotech.monash.edu.au
 
 =head1 APPENDIX
 
@@ -291,18 +294,18 @@ BEGIN {
                      @WUBLAST_SWITCH )
      { $OK_FIELD{$attr}++; }
 
-	# You will need to enable Blast to find the Blast program. 
-   # This can be done in at least two different ways:
-	#  1. define an environmental variable blastDIR:
-	#	export BLASTDIR=/home/peter/blast   or
-	#  2. include a definition of an environmental variable 
-   # BLASTDIR in every script that will use StandAloneBlast.pm.
+        # You will need to enable Blast to find the Blast program.  
+        # This can be done in at least two different ways:
+        #  1. define an environmental variable blastDIR:
+        #	export BLASTDIR=/home/peter/blast   or
+        #  2. include a definition of an environmental variable 
+        # BLASTDIR in every script that will use StandAloneBlast.pm.
 
 	$PROGRAMDIR = $BLASTTYPE eq 'ncbi' ? $ENV{'BLASTDIR'}: $ENV{'WUBLASTIDR'};
 
 	# If local BLAST databases are not stored in the standard
 	# /data directory, the variable BLASTDATADIR will need to be 
-   # set explicitly 
+	# set explicitly 
 	$DATADIR =  $ENV{'BLASTDATADIR'} || $ENV{'BLASTDB'} || '';
 }
 
