@@ -407,7 +407,7 @@
             <xsl:copy-of select="ptbl:adjustColumnWidths($colgroup)"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:message terminate="yes">
+            <xsl:message terminate="no">
               <xsl:text>No adjustColumnWidths function available.</xsl:text>
             </xsl:message>
           </xsl:otherwise>

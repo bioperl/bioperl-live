@@ -15,7 +15,7 @@
       <firstname>Brian</firstname>
       <surname>Osborne</surname>
       <affiliation>
-		  <!--		  <orgname></orgname> -->
+		  <!-- <orgname></orgname> -->
 		  <address>
 			 <email>osborne1 at optonline.net</email>
         </address>
@@ -56,7 +56,7 @@
       characteristics. A given stretch of DNA may have been found
       to be essential for the proper transcriptional regulation of a
       gene, or a particular amino acid sequence may bind a particular
-      ion. This simple idea turns out to be a bit more complicated
+      ion, for example. This simple idea turns out to be a bit more complicated
       in the bioinformatics world where there's a need to represent the actual
       data in all its varied forms. The promoter region may not be precisely
       defined down to the base pair, a transcribed region may be divided into
@@ -76,14 +76,14 @@
     <para>
       The HOWTO will discuss these objects and the differences
       between them. There's also discussion of how to get useful data from these
-      objects and discuss the basics of how to annotate sequence
+      objects and the basics of how to create your own sequence annotations
       using the objects. 
     </para>
   </section>
 
   <section id="basics">
     <title>The Basics</title>
-    <para>
+	    <para>
       Some Bioperl neophytes may also be new to object-oriented
       programming (OOP) and this notion of an object. OOP is not the
       subject of this HOWTO but there should be some discussion of
@@ -95,7 +95,8 @@
       object" and an "annotation object", then put these two
       together to create an "annotated sequence object". You could then tell
       this object to make a version of itself as a file, or pass this
-      object to a "database object" for entry. This is a very flexible and
+      object to a "database object" in order to enter some data into the
+      database. This is a very flexible and
       logical way to design a complex piece of software like Bioperl, 
       since each part of the system can be created and evaluated separately. 
     </para>

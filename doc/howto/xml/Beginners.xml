@@ -504,7 +504,7 @@ use Bio::Seq;
 
 use Bio::Seq;
 		
-$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
                          -alphabet => 'dna' );
 		</programlisting>
     </para>

@@ -285,7 +285,7 @@ use Bio::Seq;
 
 use Bio::Seq;
 
-$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt"
+$seq_obj = Bio::Seq->new(-seq => "aaaatgggggggggggccccgtt",
                          -alphabet => 'dna' );
 
    That's it! The variable $seq_obj is the Sequence object, a simple one,
@@ -825,17 +825,17 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
 
    And here are the values:
 
-      Method                              Returns
-   display_id   gi|147605|gb|J01673.1|ECORHO
-   desc         E.coli rho gene coding for transcription termination factor
+   Method Returns
+   display_id gi|147605|gb|J01673.1|ECORHO
+   desc E.coli rho gene coding for transcription termination factor
    display_name gi|147605|gb|J01673.1|ECORHO
-   accession    unknown
-   primary_id   gi|147605|gb|J01673.1|ECORHO
-   is_circular 
-   namespace   
-   authority   
-   length       1880
-   seq          AACCCT...ACAGGAC
+   accession unknown
+   primary_id gi|147605|gb|J01673.1|ECORHO
+   is_circular
+   namespace
+   authority
+   length 1880
+   seq AACCCT...ACAGGAC
 
    Table 4. Values from the Sequence object (FASTA)
 
@@ -852,6 +852,7 @@ CTGGAATTTGCTGGCATGTTATGCAATTTGCATATCAAATGGTTAATTTTTGCACAGGAC
    organizations creating these databases agree on standard sets of names
    and formats all the [95]Bioperl authors can do is do make reasonable
    choices.
+
    [Note]
    Note
 
@@ -1261,8 +1262,10 @@ $reversed_obj = $seq_obj->revcom;
     1. [128]Object Oriented Perl
     2. The [129]Bioperl design documentation, for anyone who'd like to
        write their own modules.
+    3. The [130]ENSEMBL Perl API, a way of accessing ENSEMBL's genomics
+       data, in a manner very much like Bioperl.
 
-   BioPerl DocBook ([130]BioPerl)
+   BioPerl DocBook ([131]BioPerl)
 
 References
 
@@ -1395,4 +1398,5 @@ References
  127. http://bioperl.org/
  128. http://www.manning.com/Conway/
  129. http://bioperl.org/Core/Latest/biodesign.html
- 130. http://bioperl.org/
+ 130. http://www.ensembl.org/info/software/core/core_tutorial.html
+ 131. http://bioperl.org/
