@@ -107,36 +107,32 @@ sub draw_kd_plot {
 	       );
 		 
   my @datapoints;
-  my $maxkd;
-  my $minkd;
-
   my @seq = split('', uc($protein));
 
   $kd_window = $kd_window < scalar(@seq) ? $kd_window : scalar(@seq);
+
+  my $maxkd = 4.5;
+  my $minkd = -4.5;
 
   my $kd = 0;
   for (my $i = 0 ; $i < @seq && $i < $kd_window ; $i++) {
     $kd += $scores{$seq[$i]} || 0;
   }
+
   my $content = $kd / $kd_window;
   push @datapoints, $content;
-  $maxkd = $minkd = $content;
 
   for (my $i = $kd_window; $i < @seq; $i++) {
-    $kd -= $scores{$seq[$i-1]} || 0;
+    $kd -= $scores{$seq[$i-$kd_window]} || 0;
     $kd += $scores{$seq[$i]} || 0;
     $content = $kd / $kd_window;
     push @datapoints, $content;
-    $maxkd = $content if ($content > $maxkd);
-    $minkd = $content if ($content < $minkd);
   }
 
-  #my $scale = $maxkd - $minkd;
-  #foreach (my $i; $i < @datapoints; $i++) {
-  #  $datapoints[$i] = ($datapoints[$i] - $minkd) / $scale;
-  #}
-  #$maxkd = int($maxkd * 100);
-  #$minkd = int($minkd * 100);
+  my $scale = $maxkd - $minkd;
+  foreach (my $i = 0; $i < @datapoints; $i++) {
+    $datapoints[$i] = ($datapoints[$i] - $minkd) / $scale;
+  }
 
   # Calculate values that will be used in the layout
   
@@ -158,7 +154,8 @@ sub draw_kd_plot {
   $gd->line($x1+5,$y2,        $x2-5,$y2,        $bgcolor);
   $gd->line($x1+5,($y2+$y1)/2,$x2-5,($y2+$y1)/2,$bgcolor);
   $gd->line($x1+5,$y1,        $x2-5,$y1,        $bgcolor);
-  $gd->string($self->font,$x1+5,$y1,'KD hydropathy',$axiscolor) if $bin_height > $self->font->height*2;
+  $gd->string($self->font,$x1+5,$y1,'Kyte-Doolittle hydropathy plot',$axiscolor)
+      if $bin_height > $self->font->height*2;
 
   $gd->string($self->font,$x2-20,$y1,$maxkd,$axiscolor) 
     if $bin_height > $self->font->height*2.5;
@@ -166,7 +163,7 @@ sub draw_kd_plot {
     if $bin_height > $self->font->height*2.5;
 
   my $graphwidth = $x2 - $x1;
-  my $scale = $graphwidth / @datapoints;
+  my $scale = $graphwidth / (@datapoints + $kd_window - 1);
   for (my $i = 1; $i < @datapoints; $i++) {
     my $x = $i + $kd_window / 2;
     my $xlo = $x1 + ($x - 1) * $scale;
