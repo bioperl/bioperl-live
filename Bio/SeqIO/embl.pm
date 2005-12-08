@@ -1090,7 +1090,7 @@ sub _read_FTHelper_EMBL {
 sub _write_line_EMBL {
    my ($self,$pre1,$pre2,$line,$length) = @_;
 
-   $length || die "Miscalled write_line_EMBL without length. Programming error!";
+   $length || $self->throw("Miscalled write_line_EMBL without length. Programming error!");
    my $subl = $length - length $pre2;
    my $linel = length $line;
    my $i;
@@ -1128,7 +1128,7 @@ sub _write_line_EMBL_regex {
 
     #print STDOUT "Going to print with $line!\n";
 
-    $length || die "Programming error - called write_line_EMBL_regex without length.";
+    $length || $self->throw("Programming error - called write_line_EMBL_regex without length.");
 
     my $subl = $length - (length $pre1) -1 ;
     my( @lines );
