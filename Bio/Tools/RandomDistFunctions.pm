@@ -106,7 +106,7 @@ sub rand_birth_distribution{
        $lambda = $self;
    }
    unless( $lambda ) { 
-       die("Cannot call birth_distribution without a valid lambda value (>0)");
+       $self->throw("Cannot call birth_distribution without a valid lambda value (>0)");
    }
    return 1 - (log(rand(1) * (exp($lambda) - 1)+1)/ $lambda); 
 }
@@ -132,7 +132,7 @@ sub rand_geometric_distribution{
        $param = $self;
    }
    unless( $param ) { 
-       die("Cannot call rand_geometric_distribution without a valid param value (>0)");
+       $self->throw("Cannot call rand_geometric_distribution without a valid param value (>0)");
    }
 
    my $den;
@@ -171,7 +171,7 @@ sub rand_exponentional_distribution {
        $param = $self;
    }
    unless( $param ) { 
-       die("Cannot call rand_exponentional_distribution without a valid param value (>0)");
+       $self->throw("Cannot call rand_exponentional_distribution without a valid param value (>0)");
    }
    return log( 1- rand(1)) / $param;
 }
