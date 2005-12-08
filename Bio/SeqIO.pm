@@ -1,4 +1,3 @@
-
 # $Id$
 #
 # BioPerl module for Bio::SeqIO
@@ -47,8 +46,8 @@ Bio::SeqIO - Handler for SeqIO Formats
 
 
   # The SeqIO system does have a filehandle binding. Most people find this
-  # a little confusing, but it does mean you write the world's smallest
-  # reformatter
+  # a little confusing, but it does mean you can write the world's
+  # smallest reformatter
 
     use Bio::SeqIO;
 
@@ -89,8 +88,8 @@ and
    $stream->write_seq($seq);
 
 As an added bonus, you can recover a filehandle that is tied to the
-SeqIO object, allowing you to use the standard E<lt>E<gt> and print operations
-to read and write sequence objects:
+SeqIO object, allowing you to use the standard E<lt>E<gt> and print
+operations to read and write sequence objects:
 
     use Bio::SeqIO;
 
@@ -111,7 +110,8 @@ This makes the simplest ever reformatter
     #!/usr/bin/perl
 
     $format1 = shift;
-    $format2 = shift || die "Usage: reformat format1 format2 < input > output";
+    $format2 = shift || die 
+       "Usage: reformat format1 format2 < input > output";
 
     use Bio::SeqIO;
 
@@ -215,7 +215,7 @@ may be important because Bioperl does not always guess correctly.
 
 By default, all files (or filehandles) opened for writing sequences
 will be flushed after each write_seq() (making the file immediately
-usable).  If you don't need this facility and would like to marginally
+usable).  If you do not need this facility and would like to marginally
 improve the efficiency of writing multiple sequences to the same file
 (or filehandle), pass the -flush option '0' or any other value that
 evaluates as defined but false:
@@ -244,8 +244,8 @@ read all sequence objects into an array like this:
 
   @sequences = <$fh>;
 
-Other operations, such as read(), sysread(), write(), close(), and printf() 
-are not supported.
+Other operations, such as read(), sysread(), write(), close(), and 
+printf() are not supported.
 
 =head1 OBJECT METHODS
 
@@ -356,7 +356,7 @@ sub new {
 	} else {
 
 		my %param = @args;
-	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+		@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
 	if (!defined($param{-file}) && !defined($param{-fh})) {
 	  $class->throw("file argument provided, but with an undefined value") if exists($param{'-file'});
