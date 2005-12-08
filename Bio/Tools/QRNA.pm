@@ -19,7 +19,7 @@ Bio::Tools::QRNA - A Parser for qrna output
   use Bio::Tools::QRNA;
   my $parser = new Bio::Tools::QRNA(-file => $qrnaoutput);
   while( my $feature = $parser->next_feature ) {
-
+    # do something here
   }
 
 =head1 DESCRIPTION
@@ -397,8 +397,8 @@ sub _make_feature {
 	    if( $self->verbose > 0 ) {
 		$self->debug( $data->{'entry'} );
 	    }
-	    die "no location parsed for $model in ",
-	    (map { @$_ } @{$data->{'seqs'}}), " ", $f->start, " ", $f->end, "\n";
+	    $self->throw("no location parsed for $model in ",
+	    (map { @$_ } @{$data->{'seqs'}}), " ", $f->start, " ", $f->end);
 	} else { 
 	    $f->add_tag_value("$model\_positions", 
 			      join("..",@{$data->{'model_location'}->{$model} }));
