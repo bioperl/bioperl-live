@@ -443,7 +443,7 @@ sub guess
     } elsif (defined $self->{-file}) {
         # If given a filename, open the file.
         open($fh, $self->{-file}) or
-            die "Can not open '$self->{-file}' for reading: $!";
+            $self->throw("Can not open '$self->{-file}' for reading: $!");
     } elsif (defined $self->{-fh}) {
         # If given a filehandle, figure out if it's a plain GLOB
         # or a IO::Handle which is seekable.  In the case of a
@@ -510,13 +510,12 @@ number of the same line, return 1 if the line possibly is from a
 file of the type that they perform a test of.
 
 A zero return value does not mean that the line is not part
-of a certain type of file, just that the test didn't find any
+of a certain type of file, just that the test did not find any
 characteristics of that type of file in the line.
 
 =head2 _possibly_ace
 
-From bioperl test data, and
-from
+From bioperl test data, and from
 "http://www.isrec.isb-sib.ch/DEA/module8/B_Stevenson/Practicals/transcriptome_recon/transcriptome_recon.html".
 
 =cut
