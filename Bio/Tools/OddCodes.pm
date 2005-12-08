@@ -67,7 +67,7 @@ one protein sequence
 =head1 DESCRIPTION
 
 Bio::Tools::Oddcodes is a welterweight object for rewriting a protein
-sequence in an alternative alphabet.  8 of these are provided, ranging
+sequence in an alternative alphabet.  Eight of these are provided, ranging
 from the the 2-letter hydrophobic alphabet, to the 8-letter chemical
 alphabet.  These are useful for the statistical analysis of protein
 sequences since they can partially avoid the combinatorial explosion
@@ -76,9 +76,18 @@ etc.)
 
 The objects will print out a warning if the input sequence is not a
 protein. If you know what you are doing, you can silence the warning
-by setting verbose() to a negetive value.
+by setting verbose() to a negative value.
 
-See Synopsis above for object creation code.
+See SYNOPSIS above for object creation code.
+
+=head1 REFERENCES
+
+Stanfel LE (1996) A new approach to clustering the amino acids.  J. theor.
+Biol. 183, 195-205.
+
+Karlin S, Ost F and Blaisdell BE (1989)  Patterns in DNA and amino acid
+sequences and their statistical significance.  Chapter 6 of: Mathematical
+Methods for DNA Sequences.  Waterman MS (ed.)  CRC Press, Boca Raton , FL.
 
 =head1 FEEDBACK
 
@@ -111,8 +120,6 @@ Internal methods are usually preceded with a _
 
 =cut
 
-#'
-
 package Bio::Tools::OddCodes;
 use vars qw(@ISA);
 use strict;
@@ -120,7 +127,6 @@ use strict;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::Root::Root);
-
 
 sub new
 {
@@ -133,10 +139,9 @@ sub new
 	# parameter not passed as named parameter?
 	$seqobj = $args[0];
     }
-    unless  ($seqobj->isa("Bio::PrimarySeqI"))
+    unless  ($seqobj->isa("Bio::PrimarySeqI")) 
     {
-	die("die in _init, OddCodes works only on PrimarySeqI
-objects\n");
+        $self->throw("Bio::Tools::OddCodes only works on PrimarySeqI objects");
     }
 
     $self->{'_seqref'} = $seqobj;
@@ -243,6 +248,8 @@ sub hydrophobic()
  Usage   : $output = $oddcode_obj->Dayhoff();
  Function: turns amino acid sequence into 6-letter Dayhoff alphabet
  Example : a sequence ACDEFGH will become CADDGCE
+         : A (=C),   C (=AGPST), D (=DENQ), 
+         : E (=HKR), F (=ILMV),  G (=FWY)
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -279,6 +286,8 @@ sub Dayhoff()
  Usage   : $output = $oddcode_obj->Sneath();
  Function: turns amino acid sequence into 7-letter Sneath alphabet
  Example : a sequence ACDEFGH will become CEFFHCF
+         : A (=ILV), C (=AGP), D (=MNQ), E (=CST), 
+         : F (=DE),  G (=KR),  H (=FHWY)
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -317,6 +326,7 @@ sub Sneath()
  Usage   : $output = $oddcode_obj->Stanfel();
  Function: turns amino acid sequence into 4-letter Stanfel alphabet
  Example : a sequence ACDEFGH will become AACCDAE
+         : A (=ACGILMPSTV), C (=DENQ), D (=FWY), E (=HKR)
  Returns : Reference to the new sequence string
  Args    : none
 
@@ -343,13 +353,13 @@ sub Stanfel()
 # and that's that one
 }
 
-=head2 chemical()
+=head2 chemical
 
  Title   : chemical
  Usage   : $output = $oddcode_obj->chemical();
  Function: turns amino acid sequence into 8-letter chemical alphabet
 	 : A (acidic), L (aliphatic), M (amide), R (aromatic)
-	 : C (basic), H (hydroxyl), I (imino), S (sulphur)
+	 : C (basic),  H (hydroxyl),  I (imino), S (sulphur)
  Example : a sequence ACDEFGH will become LSAARAC
  Returns : Reference to the new sequence string
  Args    : none
@@ -391,6 +401,7 @@ sub chemical()
  Usage   : $output = $oddcode_obj->charge();
  Function: turns amino acid sequence into 3-letter charge alphabet
  Example : a sequence ACDEFGH will become NNAANNC
+         : A (negative; NOT anode), C (positive; NOT cathode), N (neutral)
  Returns : Reference to the new sequence string
  Args    : none
 
