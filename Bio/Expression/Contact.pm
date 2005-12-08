@@ -80,6 +80,7 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  $self->_initialize(@args);
   return $self;
 }
 
@@ -151,6 +152,23 @@ sub accession {
   my($self,$val) = @_;
   $self->{'accession'} = $val if defined($val);
   return $self->{'accession'};
+}
+
+=head2 name()
+
+ Usage   : $obj->name($newval)
+ Function: 
+ Example : 
+ Returns : value of name (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub name {
+  my($self,$val) = @_;
+  $self->{'name'} = $val if defined($val);
+  return $self->{'name'};
 }
 
 =head2 db()

@@ -65,6 +65,7 @@ Internal methods are usually preceded with a _
 package Bio::Expression::Platform;
 use strict;
 use base qw(Bio::Root::Root);
+use Bio::DB::Taxonomy;
 
 =head2 new()
 
@@ -117,10 +118,9 @@ sub _initialize {
     $self->$marg($arg{$arg}) if $self->can($marg);
   }
 
+  $self->taxdb( Bio::DB::Taxonomy->new(-source => 'entrez') );
   return 1;
 }
-
-
 
 
 
@@ -193,18 +193,20 @@ sub name {
 
 =head2 taxon()
 
- Usage   : $obj->taxon($newval)
+ Usage   : $obj->taxon()
  Function: 
  Example : 
- Returns : value of taxon (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
+ Returns : A Bio::Taxonomy::Node object
+ Args    : none
 
 
 =cut
 
 sub taxon {
-  my($self,$val) = @_;
-  $self->{'taxon'} = $val if defined($val);
+  my($self) = @_;
+  if ( ! $self->{'taxon'} ) {
+    $self->{'taxon'} = $self->taxdb->get_Taxonomy_Node( $self->_taxon_id() );
+  }
   return $self->{'taxon'};
 }
 
@@ -241,6 +243,41 @@ sub db {
   $self->{'db'} = $val if defined($val);
   return $self->{'db'};
 }
+
+=head2 _taxon_id()
+
+ Usage   : $obj->_taxon_id($newval)
+ Function: 
+ Example : 
+ Returns : value of _taxon_id (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub _taxon_id {
+  my($self,$val) = @_;
+  $self->{'_taxon_id'} = $val if defined($val);
+  return $self->{'_taxon_id'};
+}
+
+=head2 taxdb()
+
+ Usage   : $obj->taxdb($newval)
+ Function: 
+ Example : 
+ Returns : a Bio::DB::Taxonomy object
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub taxdb {
+  my($self,$val) = @_;
+  $self->{'taxdb'} = $val if defined($val);
+  return $self->{'taxdb'};
+}
+
 
 
 1;

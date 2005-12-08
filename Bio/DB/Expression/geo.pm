@@ -43,7 +43,6 @@ use strict;
 use base qw(Bio::DB::Expression);
 our $VERSION = '0.01';
 
-use Bio::DB::Taxonomy;
 use Bio::Expression::Contact;
 use Bio::Expression::DataSet;
 use Bio::Expression::Platform;
@@ -87,8 +86,6 @@ sub _initialize {
     $self->$marg($arg{$arg}) if $self->can($marg);
   }
 
-  $self->taxdb( Bio::DB::Taxonomy->new(-source => 'entrez') );
-
   return 1;
 }
 
@@ -112,15 +109,20 @@ sub get_platforms {
   my @records = split m!</tr>\s+<tr>!, $doc;
 
   foreach my $record ( @records ) {
-    my ($platform_acc,$name,$tax_acc,$contact_acc) =
-      $record =~ m!acc\.cgi\?acc=(.+?)".+?<td.+?>(.+?)<.+?<td.+?>.+?<.+?<td.+?>.+?href=".+?id=(.+?)".+?<td.+?OpenSubmitter\((\d+?)\).+?!s;
+    my ($platform_acc,$name,$tax_acc,$contact_acc,$contact_name) =
+      $record =~ m!acc\.cgi\?acc=(.+?)".+?<td.+?>(.+?)<.+?<td.+?>.+?<.+?<td.+?>.+?href=".+?id=(.+?)".+?<td.+?OpenSubmitter\((\d+?)\).+?>(.+?)<!s;
     next unless $platform_acc;
 
     my $platform = Bio::Expression::Platform->new(
                                                   -accession => $platform_acc,
                                                   -name => $name,
-#                                                  -taxon => $self->taxdb->get_Taxonomy_Node( $tax_acc ),
-                                                  -contact => Bio::Expression::Contact->new( -source => 'geo', -accession => $contact_acc, -db => $self ),
+                                                  -_taxon_id => $tax_acc,
+                                                  -contact => Bio::Expression::Contact->new(
+                                                                                            -source => 'geo',
+                                                                                            -accession => $contact_acc,
+                                                                                            -name => $contact_name,
+                                                                                            -db => $self
+                                                                                           ),
                                                   -db => $self,
                                                  );
     push @platforms, $platform;
@@ -177,7 +179,7 @@ sub get_datasets {
   my @datasets = ();
 
   foreach my $line ( @lines ) {
-    my ($dataset_acc) = $line =~ /^\!Platform_series_id = (\S+)/;
+    my ($dataset_acc) = $line =~ /^\!Platform_series_id = (\S+?)\s*$/;
     next unless $dataset_acc;
 
     my $dataset = Bio::Expression::DataSet->new(
@@ -198,16 +200,16 @@ sub fill_sample {
   my @lines = split /\n/, $self->_get_url( URL_SAMPLE. $sample->accession );
 
   foreach my $line ( @lines ) {
-    if ( my ($name) = $line =~ /^\!Sample_title = (\S+)/ ) {
+    if ( my ($name) = $line =~ /^\!Sample_title = (.+?)\s*$/ ) {
       $sample->name( $name );
     }
-    elsif ( my ($desc) = $line =~ /^\!Sample_characteristics.*? = (\S+)/ ) {
+    elsif ( my ($desc) = $line =~ /^\!Sample_characteristics.*? = (.+?)\s*$/ ) {
       $sample->description( $desc );
     }
-    elsif ( my ($source_name) = $line =~ /^\!Sample_source_name.*? = (\S+)/ ) {
+    elsif ( my ($source_name) = $line =~ /^\!Sample_source_name.*? = (.+?)\s*$/ ) {
       $sample->source_name( $source_name );
     }
-    elsif ( my ($treatment_desc) = $line =~ /^\!Sample_treatment_protocol.*? = (\S+)/ ) {
+    elsif ( my ($treatment_desc) = $line =~ /^\!Sample_treatment_protocol.*? = (.+?)\s*$/ ) {
       $sample->treatment_description( $treatment_desc );
     }
   }
@@ -222,7 +224,7 @@ sub fill_dataset {
   my @samples = ();
 
   foreach my $line ( @lines ) {
-    if ( my ($sample_acc) = $line =~ /^\!Series_sample_id = (\S+)/ ) {
+    if ( my ($sample_acc) = $line =~ /^\!Series_sample_id = (\S+?)\s*$/ ) {
       my $sample = Bio::Expression::Sample->new(
                                                 -accession => $sample_acc,
                                                 -dataset => $dataset,
@@ -230,25 +232,25 @@ sub fill_dataset {
                                                );
       push @samples, $sample;
     }
-    elsif ( my ($pubmed_acc) = $line =~ /^\!Series_pubmed_id = (\S+)/ ) {
+    elsif ( my ($pubmed_acc) = $line =~ /^\!Series_pubmed_id = (.+?)\s*$/ ) {
       $dataset->pubmed_id( $pubmed_acc );
     }
-    elsif ( my ($web_link) = $line =~ /^\!Series_web_link = (\S+)/ ) {
+    elsif ( my ($web_link) = $line =~ /^\!Series_web_link = (.+?)\s*$/ ) {
       $dataset->web_link( $web_link );
     }
-    elsif ( my ($contact) = $line =~ /^\!Series_contact_name = (\S+)/ ) {
+    elsif ( my ($contact) = $line =~ /^\!Series_contact_name = (.+?)\s*$/ ) {
       $dataset->contact( $contact );
     }
-    elsif ( my ($name) = $line =~ /^\!Series_title = (.+)$/ ) {
+    elsif ( my ($name) = $line =~ /^\!Series_title = (.+?)\s*$/ ) {
       $dataset->name( $name );
     }
-    elsif ( my ($desc) = $line =~ /^\!Series_summary = (.+)$/ ) {
+    elsif ( my ($desc) = $line =~ /^\!Series_summary = (.+?)\s*$/ ) {
       $dataset->description( $desc );
     }
-    elsif ( my ($design) = $line =~ /^\!Series_type = (.+)$/ ) {
+    elsif ( my ($design) = $line =~ /^\!Series_type = (.+?)\s*$/ ) {
       $dataset->design( $design );
     }
-    elsif ( my ($design_desc) = $line =~ /^\!Series_overall_design = (.+)$/ ) {
+    elsif ( my ($design_desc) = $line =~ /^\!Series_overall_design = (.+?)\s*$/ ) {
       $dataset->design_description( $design_desc );
     }
   }
@@ -263,25 +265,6 @@ sub fill_dataset {
 
 
 #################################################
-
-=head2 taxdb()
-
- Usage   : $obj->taxdb($newval)
- Function: 
- Example : 
- Returns : a Bio::DB::Taxonomy object
- Args    : on set, new value (a scalar or undef, optional)
-
-
-=cut
-
-sub taxdb {
-  my($self,$val) = @_;
-  $self->{'taxdb'} = $val if defined($val);
-  return $self->{'taxdb'};
-}
-
-
 
 =head2 _platforms_doc()
 
