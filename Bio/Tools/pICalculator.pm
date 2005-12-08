@@ -75,8 +75,8 @@ Your participation is much appreciated.
 =head2 Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.
-Bug reports can be submitted via the web:
+the bugs and their resolution. Bug reports can be submitted via the 
+web:
 
   http://bugzilla.bioperl.org/
 
@@ -201,7 +201,7 @@ sub new {
 sub seq {
    my( $this, $seq ) = @_;
    unless( defined $seq && UNIVERSAL::isa($seq,'Bio::Seq') ){
-      die $seq . " is not a valid Bio::Seq object\n";
+      $this->throw("$seq is not a valid Bio::Seq object");
    }
    $this->{-seq} = $seq;
    $this->{-count} = count_charged_residues( $seq );
