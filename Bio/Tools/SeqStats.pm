@@ -356,7 +356,7 @@ sub new {
 
 	my ($seqobj) = $self->_rearrange([qw(SEQ)],@args);
 	unless  ($seqobj->isa("Bio::PrimarySeqI")) {
-		$self->throw(" SeqStats works only on PrimarySeqI objects  \n");
+		$self->throw("SeqStats works only on PrimarySeqI objects");
 	}
 	if ( !defined $seqobj->alphabet || 
 		  !defined $Alphabets{$seqobj->alphabet}) {
@@ -417,7 +417,7 @@ sub count_monomers{
 
 		#  Following two lines lead to error in "throw" routine
 		$seqobj->isa("Bio::PrimarySeqI") ||
-		  $self->throw(" SeqStats works only on PrimarySeqI objects  \n");
+		  $self->throw("SeqStats works only on PrimarySeqI objects");
 		# is alphabet OK? Is it strict?
 		$_is_strict =  _is_alphabet_strict($seqobj);
 	}
@@ -491,7 +491,7 @@ sub get_mol_wt {
 	} else {
 		$seqobj =  $object_argument;
 		$seqobj->isa("Bio::PrimarySeqI") ||
-		  die("Error: SeqStats works only on PrimarySeqI objects  \n");
+		  $self->throw("Error: SeqStats works only on PrimarySeqI objects");
 		$_is_strict =  _is_alphabet_strict($seqobj); # is alphabet OK?
 		$rcount =  $self->count_monomers($seqobj);
 	}
@@ -583,7 +583,7 @@ sub count_codons {
 	} else {
 		$seqobj =  $object_argument;
 		$seqobj->isa("Bio::PrimarySeqI") ||
-		  die(" Error: SeqStats works only on PrimarySeqI objects  \n");
+		  $self->throw("Error: SeqStats works only on PrimarySeqI objects");
 		$_is_strict =  _is_alphabet_strict($seqobj);
 	}
 
@@ -591,16 +591,16 @@ sub count_codons {
 	my $alphabet = $seqobj->alphabet();
 
 	unless ($alphabet =~ /[dr]na/i) {
-		$seqobj->throw(" Codon counts only meaningful for dna or rna, ".
-							"not for $alphabet sequences. \n");
+		$seqobj->throw("Codon counts only meaningful for dna or rna, ".
+							"not for $alphabet sequences.");
 	}
 
 	# If sequence contains ambiguous bases, warn that codons
 	# containing them will all be lumped together in the count.
 
 	if (!$_is_strict ) {
-		$seqobj->warn(" Sequence $seqobj contains ambiguous bases.\n".
-		" All codons with ambiguous bases will be added together in count.\n")
+		$seqobj->warn("Sequence $seqobj contains ambiguous bases.".
+		" All codons with ambiguous bases will be added together in count.")
                     if $self->verbose >= 0 ;
 	}
 
@@ -682,7 +682,7 @@ sub _is_alphabet_strict {
 	}
 
 	# If we got here there is an illegal letter in the sequence
-	$seqobj->throw(" Alphabet not OK for $seqobj \n");
+	$seqobj->throw("Alphabet not OK for $seqobj");
 }
 
 =head2   _print_data
