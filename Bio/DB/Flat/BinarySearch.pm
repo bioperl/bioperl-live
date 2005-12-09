@@ -1082,45 +1082,47 @@ sub open_secondary_index {
 =cut
 
 sub _add_id_position {
-  my ($self,$id,$pos,$fileid,$length,$secondary_id) = @_;
+	my ($self,$id,$pos,$fileid,$length,$secondary_id) = @_;
 
-  if (!defined($id)) {
-    $self->throw("No id defined. Can't add id position");
-  }
-  if (!defined($pos)) {
-    $self->throw("No position defined. Can't add id position");
-  }
-  if ( ! defined($fileid)) {
-    $self->throw("No fileid defined. Can't add id position");
-  }
-  if (! defined($length) || $length <= 0) {
-    $self->throw("No length defined or <= 0 [$length]. Can't add id position");
-  }
+	if (!defined($id)) {
+		$self->throw("No id defined. Can't add id position");
+	}
+	if (!defined($pos)) {
+		$self->throw("No position defined. Can't add id position");
+	}
+	if ( ! defined($fileid)) {
+		$self->throw("No fileid defined. Can't add id position");
+	}
+	if (! defined($length) || $length <= 0) {
+		$self->throw("No length defined or <= 0 [$length]. Can't add id position");
+	}
 
-  $self->{_id}{$id}{_pos}    = $pos;
-  $self->{_id}{$id}{_length} = $length;
-  $self->{_id}{$id}{_fileid} = $fileid;
+	$self->{_id}{$id}{_pos}    = $pos;
+	$self->{_id}{$id}{_length} = $length;
+	$self->{_id}{$id}{_fileid} = $fileid;
 
-  # Now the secondary ids
+	# Now the secondary ids
 
-  foreach my $sec (keys (%$secondary_id)) {
-    my $value = $secondary_id->{$sec};
+	foreach my $sec (keys (%$secondary_id)) {
+		my $value = $secondary_id->{$sec};
+		$self->{_secondary_id}{$sec}{$value}{$id} = 1;
+	}
 
-    $self->{_secondary_id}{$sec}{$value}{$id} = 1;
-  }
+	$self->{_maxidlength} = length($id)
+	  if !exists $self->{_maxidlength} or 
+		 length($id) >= $self->{_maxidlength};
 
-  $self->{_maxidlength} = length($id)
-    if !exists $self->{_maxidlength} or length($id) >= $self->{_maxidlength};
+	$self->{_maxfileidlength} = length($fileid)
+	  if !exists $self->{_maxfileidlength} or 
+		 length($fileid) >= $self->{_maxfileidlength};
 
-  $self->{_maxfileidlength} = length($fileid)
-    if !exists $self->{_maxfileidlength} or length($fileid) >= $self->{_maxidlength};
+	$self->{_maxposlength} = length($pos)
+	  if !exists $self->{_maxposlength} or 
+		 length($pos) >= $self->{_maxposlength};
 
-  $self->{_maxposlength} = length($pos)
-    if !exists $self->{_maxposlength} or length($pos) >= $self->{_maxposlength};
-
-  $self->{_maxlengthlength} = length($length)
-      if !exists $self->{_maxlengthlength} or length($length) >= $self->{_maxlengthlength};
-
+	$self->{_maxlengthlength} = length($length)
+	  if !exists $self->{_maxlengthlength} or 
+		 length($length) >= $self->{_maxlengthlength};
 }
 
 =head2 make_config_file
