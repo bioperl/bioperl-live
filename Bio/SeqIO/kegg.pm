@@ -206,7 +206,7 @@ sub next_seq {
         my( $definition, $aa_length, $aa_seq, $nt_length, $nt_seq );
 
         if(( exists $FIELDS{DEFINITION} ) and ( $FIELDS{DEFINITION} =~ /^DEFINITION/ )) {
-          $definition = $FIELDS{DEFINITION} =~ /^DEFINITION\s+(.+)$/s;
+          ($definition) = $FIELDS{DEFINITION} =~ /^DEFINITION\s+(.+)$/s;
           $definition =~ s/\s+/ /gs;
         }
         if(( exists $FIELDS{AASEQ} ) and ( $FIELDS{AASEQ} =~ /^AASEQ/ )) {
