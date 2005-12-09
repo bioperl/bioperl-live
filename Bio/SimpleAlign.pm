@@ -56,7 +56,7 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   $str = $aln->match_line();
   $str = $aln->cigar_line()
   $id = $aln->percentage_identity;
-  
+
 See the module documentation for details and more methods.
 
 =head1 DESCRIPTION

@@ -28,7 +28,7 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
        } else {
           print "Feature on strand ", $feat->strand,"\n"; # -1,1
        }
-            
+
        print "feature location is ",$feat->start, "..",
           $feat->end, " on strand ", $feat->strand, "\n";
        print "easy utility to print locations in GenBank/EMBL way ",

@@ -463,7 +463,7 @@ sub trunc{
 
  Title   : translate
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
-            
+
            Or if you expect a complete coding sequence (CDS) translation,
            with inititator at the beginning and terminator at the end:
 

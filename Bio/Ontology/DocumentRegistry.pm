@@ -120,7 +120,7 @@ sub new {
 
 =item Usage
 
-my $singleton = Bio::Ontology::DocumentRegistry->get_instance();
+  my $singleton = Bio::Ontology::DocumentRegistry->get_instance();
 
 =item Function
 
@@ -148,7 +148,7 @@ sub get_instance {
 
 =item Usage
 
-my($ontology_url, $definitions_url, $format) = $obj->documents('Sequence Ontology');
+  my($ontology_url, $definitions_url, $format) = $obj->documents('Sequence Ontology');
 
 =item Function
 
