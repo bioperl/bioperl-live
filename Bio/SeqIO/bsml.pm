@@ -539,7 +539,7 @@ sub to_bsml {
 	# The user has provided an existing XML DOM object
 	$xml = $args->{XMLDOC};
 	unless ($xml->isa("XML::DOM::Document")) {
-	    die ('SeqIO::bsml.pm error:\n'.
+	    $self->throw('SeqIO::bsml.pm error:\n'.
 		 'When calling ->to_bsml( { xmldoc => $myDoc }), $myDoc \n' .
 		 'should be an XML::DOM::Document object, or an object that\n'.
 		 'inherits from that class (like BsmlHelper.pm)');

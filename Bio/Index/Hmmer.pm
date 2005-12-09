@@ -269,7 +269,7 @@ sub _index_file {
 	my($self, $file, $i) = @_;
 	my($begin);
 
-	open(HMMER, "<$file") or die("cannot open file $file\n");
+	open(HMMER, "<$file") or $self->throw("cannot open file $file\n");
 
 	my $id;
 	my $indexpoint = 0;

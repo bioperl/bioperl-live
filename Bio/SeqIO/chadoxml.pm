@@ -389,33 +389,18 @@ EOUSAGE
 	    {
 		chomp($srcfeature);
 	    } else {
-		# this is really weird - we don't typically 
-		# have any die code in the library
-		# but use throw instead
-		# jason -- 2003-12-10
-		# die($usage)
 		$self->throw( $usage );
 	    }
 
 	    #check for mandatory $srcfeattype
 	    if (! defined $srcfeattype)
 	    {
-		# this is really weird - we don't typically 
-		# have any die code in the library
-		# but use throw instead
-		# jason -- 2003-12-10
-		# die($usage)
 		$self->throw( $usage );
 		#$srcfeattype must be a string of non-whitespace characters
 	    } else {
 		if ($srcfeattype =~ /\S+/) {
 		    chomp($srcfeattype);
 		} else {
-		    # this is really weird - we don't typically 
-		    # have any die code in the library
-		    # but use throw instead
-		    # jason -- 2003-12-10
-		    # die($usage)
 		    $self->throw( $usage );
 		}
 	    }

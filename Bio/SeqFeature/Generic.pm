@@ -782,7 +782,7 @@ sub slurp_gff_file {
    my ($f) = @_;
    my @out;
    if ( !defined $f ) {
-       die "Must have a filehandle";
+       Bio::Root::Root->throw("Must have a filehandle");
    }
 
    Bio::Root::Root->warn("deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.");

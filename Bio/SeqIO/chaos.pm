@@ -509,10 +509,9 @@ sub write_sf {
     else {
         my ($beg, $end, $strand) = $self->bp2ib($loc);
 	if (!$strand) {
-	    print "($beg, $end, $strand) - no strand\n";
 	    use Data::Dumper;
-	    print Dumper $sf;
-	    die Dumper $loc;
+	    print Dumper $sf $loc;
+	    $self->throw("($beg, $end, $strand) - no strand\n");
 	}
         @locnodes = (
                      [featureloc=>[

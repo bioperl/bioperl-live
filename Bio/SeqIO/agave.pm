@@ -724,7 +724,7 @@ sub _process_seq_feature {
 
     } else {
 
-        die "Error.  Missing </seq_feature> tag.  Got this: $$line\n";
+        $self->throw("Error.  Missing </seq_feature> tag.  Got this: $$line\n");
 
     }
 
@@ -885,7 +885,7 @@ sub _process_related_annot { # NOT IN USE.
         }
 
         if ($element_id_count == 0) {
-            die "Error.  Missing <element_id> tag.  Got: $$line";
+            $self->throw("Error.  Missing <element_id> tag.  Got: $$line");
         }
 
         # Zero or more <sci_property>
@@ -897,7 +897,7 @@ sub _process_related_annot { # NOT IN USE.
         push @{$data_structure->{'related_annot'}}, $related_annot;
 
         unless ($$line =~ /<\/related_annot>/){
-            die "Error.  Missing </related_tag>. Got: $$line\n";
+            $self->throw("Error.  Missing </related_tag>. Got: $$line\n");
         }
 
     }
@@ -923,7 +923,7 @@ sub _process_result_group { # NOT IN USE.
             ++$count;
         }
 
-        die "Error.  No <comp_result></comp_result> tag! Got this: $$line"
+        $self->throw("Error.  No <comp_result></comp_result> tag! Got this: $$line")
             if $count == 0;
 
         # in the last iteration in the inner while loop, $line will
@@ -931,7 +931,7 @@ sub _process_result_group { # NOT IN USE.
         if ($line =~ /<\/result_group>/) {
             $$line = $self->_readline;
         } else {
-            die "Error.  No </result_tag>!  Got this: $$line";
+            $self->throw("Error.  No </result_tag>!  Got this: $$line");
         }
 
 
@@ -966,7 +966,7 @@ sub _process_match_region { # NOT IN USE.
             $$line = $self->_readline; # get the next line to be _processed by the next sub
             return;
         } else {
-            die "No closing tag </match_region>!  Got this: $$line\n";
+            $self->throw("No closing tag </match_region>!  Got this: $$line\n");
         }
 
     }
@@ -989,7 +989,7 @@ sub _process_query_region { # NOT IN USE.
             $$line = $self->_readline; # get the next line to _process.
             return;
         } else {
-            die "No closing tag </query_region>.  Got this: $$line\n";
+            $self->throw("No closing tag </query_region>.  Got this: $$line\n");
         }
 
     }

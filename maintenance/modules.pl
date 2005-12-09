@@ -111,7 +111,7 @@ sub tested {
     my $self = shift;
     my $value = shift;
     $self->{'tested'} = 1 if defined $value && $value;
-    return $self->{'tested'};
+    return $self->{'tested'} || 0;
 }
 
 sub type {
@@ -342,13 +342,32 @@ sub list_all {
 =item B<-u | --untested>
 
 Prints a list of instance modules which are I<not> explicitly used by
-test files in t directory. Superclasess or any classes used by others
+test files in the directory. Superclasess or any classes used by others
 are not reported, either, since their methods are assumed to be tested
 by subclass tests.
 
 This method can not be improved much without running the tests!
 
 =cut
+
+sub _used_and_super {
+    my $classname = $shift;
+    unless ( ref $classname eq 'HASH') {
+        my $tmp = $classname;
+        $classname->{$tmp}=1
+    }
+    foreach ($MODULES{$_}->each_superclass) {
+        $MODULES{$_}->tested(1)
+            unless defined $MODULES{$_} or $MODULES{$_}->tested;
+        _used_and_super()
+    }
+    foreach ($MODULES{$_}->each_used_class) {
+        $MODULES{$_}->tested(1)
+            unless defined $MODULES{$_} and $MODULES{$_}->tested;
+    }
+
+    return $classname;
+}
 
 sub untested {
     foreach (`find ../t -name "*.t" -print | xargs grep -hs "use "`) {
@@ -358,7 +377,16 @@ sub untested {
         next unless $MODULES{$_};
         $MODULES{$_}->tested(1) 
             unless defined $MODULES{$_} and $MODULES{$_}->tested;
+
+        next if $MODULES{$_}->name eq "Bio::SeqIO::abi"; # exception: requires bioperl ext package
+        next if $MODULES{$_}->name eq "Bio::SeqIO::ctf"; # exception: requires bioperl ext package
+        next if $MODULES{$_}->name eq "Bio::SeqIO::exp"; # exception: requires bioperl ext package
+        next if $MODULES{$_}->name eq "Bio::SeqIO::pln"; # exception: requires bioperl ext package
+        next if $MODULES{$_}->name eq "Bio::SeqIO::ztr"; # exception: requires bioperl ext package
+#        print $MODULES{$_}->name, "\n";
+#        print Dumper $MODULES{$_};
         foreach ($MODULES{$_}->each_superclass) {
+#            print $MODULES{$_}->name, "\n";
             $MODULES{$_}->tested(1)
                 unless defined $MODULES{$_} or $MODULES{$_}->tested;
         }

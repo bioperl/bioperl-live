@@ -212,7 +212,7 @@ sub get_info {
 			       $state = 2 if( $state == 1 && $text =~ /Amplimer/);
 			   }, "text" ],
 			   marked_sections =>1);
-    $p->parse($content) or die "Can't open: $!";        
+    $p->parse($content) or $self->throw("Can't open: $!");        
     if( ! defined $markerurl ) {
 	@primers = ('notfound','notfound', '?');
     } elsif( $markerurl eq 'this' ) {
@@ -263,7 +263,7 @@ sub get_info {
 			   }  , "text" ],
 			   marked_sections =>1,
 			   );
-    $p->parse($content) || die "Can't open: $!";
+    $p->parse($content) || $self->throw("Can't open: $!");
 
     return { 'gdbid' => $realname, 'length' => $length, 'primers' => \@primers };
 }

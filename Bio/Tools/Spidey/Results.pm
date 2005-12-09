@@ -192,7 +192,7 @@ sub parse_next_alignment {
 			}
 			$version = $1;
 			if ($version != 1.40) {
-				die "Spidey parser only designed to work with Spidey v1.40\n";
+				$self->throw("Spidey parser only designed to work with Spidey v1.40\n");
 			}
 			$started = 1;
 			next;
@@ -243,7 +243,7 @@ sub parse_next_alignment {
 						$splice_acceptor = $9;
 						$uncertain = $10;
 					} else {
-						die "Failed to match anything:\n$_\n";
+						$self->throw( "Failed to match anything:\n$_\n");
 					}
 
 					my $exon = Bio::Tools::Spidey::Exon->new('-start'  => $genomic_start,
@@ -279,7 +279,7 @@ sub parse_next_alignment {
 					# push onto array
 					push(@exons, $exon);
 				} else {
-					die "Unexpected end of file reached\n";
+					$self->throw("Unexpected end of file reached\n");
 				}
 			}
 			next;

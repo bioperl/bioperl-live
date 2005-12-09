@@ -703,7 +703,7 @@ sub insert_sequence {
   my($id,$offset,$seq) = @_;
   my $sth = $self->{_insert_sequence}
     ||= $self->dbh->prepare_delayed('insert into fdna values (?,?,?)');
-  $sth->execute($id,$offset,$seq) or die $sth->errstr;
+  $sth->execute($id,$offset,$seq) or $self->throw($sth->errstr);
 }
 
 =head2 range_query

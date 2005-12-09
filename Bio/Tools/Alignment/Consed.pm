@@ -1639,8 +1639,6 @@ sub parse_phd {
     # print("parse_phd: $sequence_name\n");
     my $fh = new Bio::Root::IO
         (-file=>"$self->{path}/../phd_dir/$sequence_name.phd.1");
-    # open(PHD,"<$self->{path}/../phd_dir/$sequence_name.phd.1") or
-    #    die "Couldn't open the phred for $sequence_name\n";
     while ($fh->_readline()) {
 	# print("Reading a line from a phredfile!\n");
 	chomp;

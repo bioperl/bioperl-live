@@ -597,7 +597,7 @@ sub retrieve_blast {
 	    } elsif( $mthd =~ /blasttable/i ) {
 		# pre-process
 		my ($fh2,$tempfile2) = $self->tempfile();
-		open(TMP,$tempfile) || die $!;
+		open(TMP,$tempfile) || $self->throw($!);
 		my $s = 0;
 		while(<TMP>) {
 		    if(/\<PRE\>/i ) {

@@ -285,7 +285,7 @@ sub add_Mutations{
        $i++;
    }
    # sanity check
-    die("branch len is $branchlen arraylen is $last")
+   $self->throw("branch len is $branchlen arraylen is $last")
         unless ( $branchlen == $last );
    my @mutations;
    for( my $j = 0; $j < $nummut; $j++)  {

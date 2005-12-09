@@ -437,7 +437,7 @@ sub _pullseq
 	
 	unless  ($seqobj->isa("Bio::PrimarySeqI"))
 	{
-		die("die, OddCodes works only on PrimarySeqI objects\n");
+		$self->throw("die, OddCodes works only on PrimarySeqI objects\n");
     	}
         $self->warn("\tAll OddCode alphabets need a protein sequence,\n".
                     "\tbut BioPerl thinks this is not: [". $seqobj->id. "]")
@@ -447,7 +447,7 @@ sub _pullseq
 
 	if(length($seqstring)<1)
 	{
-		die("$seqstring: die, sequence has zero length\n");
+		$self->throw("$seqstring: die, sequence has zero length\n");
 	}
 	return $seqstring;
 }

@@ -222,7 +222,7 @@ sub _open_databases {
   my $dsn  = $self->dsn;
   unless (-d $dsn) {  # directory does not exist
     $create or $self->throw("Directory $dsn does not exist and you did not specify the -create flag");
-    mkpath($dsn) or die "Couldn't create database directory $dsn: $!";
+    mkpath($dsn) or $self->throw("Couldn't create database directory $dsn: $!");
   }
 
   my %db;

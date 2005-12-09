@@ -598,7 +598,7 @@ sub _thaw {
     my $code; 
     $code = eval( $data ) ;
     if($@) {
-      die( "eval: $@" );
+      $self->throw( "eval: $@" );
     }   
     ref( $code ) eq 'REF' || 
       $self->throw( "Serialised string was not a scalar ref" );

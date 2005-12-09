@@ -331,7 +331,7 @@ sub _calculate_consensus {
 
 sub next_pos {
       my $self = shift;
-         die "instance method called on class" unless ref $self;
+         $self->throw("instance method called on class") unless ref $self;
 
       my $len = @{$self->{seq}};
       my $pos = $self->{_position};
