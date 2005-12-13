@@ -185,18 +185,9 @@ HSPs since all HSPs will appear to overlap.
 
 =head1 SEE ALSO
 
- Bio::Tools::Blast::HSP.pm     - Blast HSP object.
- Bio::Tools::Blast.pm          - Blast object.
- Bio::Root::Object.pm          - Proposed base class for all Bioperl objects.
-
-Links:
-
- http://bio.perl.org/Core/POD/Tools/Blast/HSP.pm.html
-
- http://bio.perl.org/Projects/modules.html  - Online module documentation
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
- http://bio.perl.org/                       - Bioperl Project Homepage
-
+ L<Bio::Tools::Blast::HSP>     - Blast HSP object.
+ L<Bio::Tools::Blast>          - Blast object.
+ L<Bio::Root::Object>          - Proposed base class for all Bioperl objects.
 
 =head1 FEEDBACK
 
