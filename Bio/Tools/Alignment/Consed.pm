@@ -222,7 +222,7 @@ sub count_sequences_with_grep {
     my ($working_dir,$grep_cli,@total_grep_sequences);
     # this should be migrated to a pure perl implementation ala
     # Tom Christiansen's 'tcgrep'
-    # http://www.perl.com/language/ppt/src/grep/tcgrep
+    # http://www.cpan.org/modules/by-authors/id/TOMC/scripts/tcgrep.gz
 
     open(FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
     my $counter =0;
