@@ -93,7 +93,7 @@ sub find_modules {
     while ($text =~ m/$RE{URI}{HTTP}{-keep}/g) {
         my $url = $1 or next;
 	# remove Perl code if URL was embedded in string and other stuff
-	$url =~ s/(['"]\s*[,;]?|\))$//;
+	$url =~ s/(['"]\s*[,;]?|\)\.?)$//;
         print STDERR "$url\n" if $verbose;
         push @{ $URL{$url} } , $File::Find::name;
     }    
