@@ -66,9 +66,9 @@ analysis of DNA sequences.
 =head2 Considerations
 
 This module is a precursor for a more full featured version that may do such
-things as download data from online databases such as REBase http://www.neb.com/rebase/.
-Thus, there is currently no functionality for obtaining data about commercial
-availability for a restriction enzyme.
+things as download data from online databases such as REBase http://rebase.neb.com/ .
+Thus, there is currently no functionality for obtaining data regarding commercial
+availability of a restriction enzyme.
 
 At some point in the future, it may make sense to derive RestrictionEnzymes
 from a class such as Bio::Enzyme or Bio::Prot::Protein (neither of which now
