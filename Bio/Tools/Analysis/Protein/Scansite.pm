@@ -99,7 +99,7 @@ primary tag value 'Site' and tag names of 'motif', 'score',
 
 =back
 
-See L<http://www.scansite.mit.edu/>.
+See L<http://scansite.mit.edu/>.
 
 This inherits Bio::SimpleAnalysisI which hopefully makes it easier to
 write wrappers on various services. This class uses a web resource and
