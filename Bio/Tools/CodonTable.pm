@@ -25,7 +25,7 @@ Bio::Tools::CodonTable - Bioperl codon table object
 
   # defaults to ID 1 "Standard"
   $myCodonTable   = Bio::Tools::CodonTable->new();
-  $myCodonTable2  = Bio::Tools::CodonTable -> new ( -id => 3 );
+  $myCodonTable2  = Bio::Tools::CodonTable->new( -id => 3 );
 
   # change codon table
   $myCodonTable->id(5);
@@ -33,6 +33,12 @@ Bio::Tools::CodonTable - Bioperl codon table object
   # examine codon table
   print  join (' ', "The name of the codon table no.", $myCodonTable->id(4),
 	       "is:", $myCodonTable->name(), "\n");
+
+  # print possible codon tables
+  $tables = Bio::Tools::CodonTable->tables;
+  while ( ($id,$name) = each %{$tables} ) {
+    print "$id = $name\n";
+  }
 
   # translate a codon
   $aa = $myCodonTable->translate('ACU');
@@ -336,6 +342,29 @@ sub name{
    return $NAMES[$id-1];
 }
 
+=head2 tables
+
+ Title   : tables
+ Usage   : $obj->tables()  or  Bio::Tools::CodonTable->tables()
+ Function: returns a hash reference where each key is a valid codon
+           table id() number, and each value is the corresponding
+           codon table name() string
+ Example :
+ Returns : A hashref
+ Args    : None
+
+
+=cut
+
+sub tables{
+  my %tables;
+  for my $id (1 .. @NAMES) {
+    my $name = $NAMES[$id-1];
+    $tables{$id} = $name if $name;
+  }
+  return \%tables;
+}
+                
 =head2 translate
 
  Title   : translate

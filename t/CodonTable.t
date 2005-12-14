@@ -17,7 +17,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 44;
+    plan tests => 48;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
@@ -33,12 +33,20 @@ ok $myCodonTable->isa('Bio::Tools::CodonTable');
 $myCodonTable = Bio::Tools::CodonTable->new();
 ok $myCodonTable->id(), 1;
 
-
 # change codon table
 $myCodonTable->id(10);
 ok $myCodonTable->id, 10;
-
 ok $myCodonTable->name(), 'Euplotid Nuclear';
+
+# enumerate tables as object method
+my $table = $myCodonTable->tables();
+ok (keys %{$table} >= 17); # currently 17 known tables
+ok $table->{11}, q{"Bacterial"};
+
+# enumerate tables as class method
+$table = Bio::Tools::CodonTable->tables;
+ok (values %{$table} >= 17); # currently 17 known tables
+ok $table->{23}, 'Thraustochytrium Mitochondrial';
 
 # translate codons
 $myCodonTable->id(1);
@@ -133,7 +141,7 @@ ok $test;
 $myCodonTable->id(1);
 
 ok $myCodonTable->is_start_codon('ATG');  
-ok( $myCodonTable->is_start_codon('GGH'), 0);
+ok $myCodonTable->is_start_codon('GGH'), 0;
 ok $myCodonTable->is_start_codon('HTG');
 ok $myCodonTable->is_start_codon('CCC'), 0;
 
@@ -146,7 +154,6 @@ ok $myCodonTable->is_ter_codon('ttA'), 0;
 ok $myCodonTable->is_unknown_codon('jAG');
 ok $myCodonTable->is_unknown_codon('jg');
 ok $myCodonTable->is_unknown_codon('UAG'), 0;
-
 
 ok $myCodonTable->translate_strict('ATG'), 'M';
 
