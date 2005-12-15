@@ -279,7 +279,7 @@ sub _readfile {
 
   Title   : next_primer()
   Usage   : while (my $primed_seq  = $primer3->next_primer()) {
-  Function: Retrieve the primer/sequences one at a time
+  Function: Retrieve the primed sequence and a primer pair, one at a time
   Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
   Args    : None
   Notes   : Use $primed_seq->annotated_seq to get an annotated sequence 
@@ -287,7 +287,6 @@ sub _readfile {
 
 =cut
 
- 
 sub next_primer {
 	my $self = shift;
 	# here we are going to convert the primers to Bio::SeqFeature::Primer objects
@@ -299,10 +298,9 @@ sub next_primer {
 	$self->warn("No primers were found for: ".$self->{'seqobject'}->{'primary_id'})
 	  if (! $self->number_of_results);
  
-	my $next = 0;
-	$next = $self->{'next_to_return'} if ($self->{'next_to_return'});
-	return if ($next > $self->{'maximum_primers_returned'});
-	my $results = $self->primer_results($next);
+	$self->{'next_to_return'} = 0 unless ($self->{'next_to_return'});
+	return if ($self->{'next_to_return'} >= $self->{'maximum_primers_returned'});
+	my $results = $self->primer_results($self->{'next_to_return'});
 
 	$self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'}); 
 	$self->throw("No right primer sequence") unless (${$results}{'PRIMER_RIGHT_SEQUENCE'});
@@ -310,13 +308,16 @@ sub next_primer {
 
 	my $left_seq  = Bio::SeqFeature::Primer->new(
                                    -primer_sequence_id => "left_primer", 
-											  -sequence => ${$results}{'PRIMER_LEFT_SEQUENCE'});
+											  -sequence => ${$results}{'PRIMER_LEFT_SEQUENCE'},
+											  -display_id => ($self->{'next_to_return'} + 1) );
 	my $right_seq = Bio::SeqFeature::Primer->new(
 											  -primer_sequence_id => "right_primer", 
-											  -sequence => ${$results}{'PRIMER_RIGHT_SEQUENCE'});
- 
+											  -sequence => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
+											  -display_id => ($self->{'next_to_return'} + 1) );
+
+	# add data to the Primer objects
 	for my $key (%$results) {
-		# skip the data on the primed sequence
+		# skip the primer sequence data, already added above
 		next if ($key =~ /PRIMER_(LEFT|RIGHT)_SEQUENCE/i );
 		if ($key =~ /PRIMER_LEFT/i) {
 			$left_seq->add_tag_value($key, $$results{$key});
@@ -325,21 +326,20 @@ sub next_primer {
 		} 
 	}
 
-	# wait until tags have been added to each of the primer sequences
-	# before creating the primed seq
 	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => $self->{'seqobject'}, 
 															-left_primer => $left_seq, 
 															-right_primer => $right_seq);
 
+	# add data to the the PrimedSeq object that's not specific to the Primers
 	for my $key (%$results) {
-		# skip the data on primers
 		next if ($key =~ /PRIMER_(LEFT|RIGHT)/i );
 			$primed_seq->add_tag_value($key, $$results{$key});
 	}
  
-	$self->{'next_to_return'} = $next + 1;
+	$self->{'next_to_return'}++;
 	return $primed_seq;
 }
+
 
 =head2 primer_stream
 
@@ -397,6 +397,23 @@ sub _separate {
 	}
 	$self->{'results_by_number'}=\%results;
 	$self->{'maximum_primers_returned'}=$maxlocation;
+}
+
+=head2 _set_variable
+
+  Title   : _set_variable()
+  Usage   : $self->_set_variable('variable name', 'value');
+  Function: An internal function that sets a variable
+  Returns : Nothing.
+  Args    : None
+  Notes   : Used to set $self->{results} and $self->seqobject
+
+=cut
+
+sub _set_variable {
+        my ($self, $name, $value)=@_;
+        next unless ($name);
+        $self->{$name} = $value;
 }
 
 1;
