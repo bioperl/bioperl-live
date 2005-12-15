@@ -23,7 +23,7 @@ honoured.
 The URL parsing may not be perfect - although I use the B<Regexp::Common::URI>
 module, I have to manually clean up some URLs which are embedded in Perl
 strings to convert the matched URL to a more probable real world URL,
-e.g. most URLs don't end in "'," or ")" :-)
+e.g. most URLs don\'t end in "'," or ")" :-)
 
 =cut
 
@@ -92,8 +92,8 @@ sub find_modules {
     # keep track of URLs
     while ($text =~ m/$RE{URI}{HTTP}{-keep}/g) {
         my $url = $1 or next;
-	# remove Perl code if URL was embedded in string and other stuff
-	$url =~ s/(['"]\s*[,;]?|\)\.?)$//;
+        # remove Perl code if URL was embedded in string and other stuff
+        $url =~ s/\s*[.,;'")]*\s*$//;
         print STDERR "$url\n" if $verbose;
         push @{ $URL{$url} } , $File::Find::name;
     }    
@@ -140,8 +140,6 @@ web:
 
 =head1 AUTHOR - Torsten Seemann
 
-Email tseemann-at-bioperl-dot-org
+Email: torsten-dot-seemann-at-infotech-dot-monash-dot-edu-dot-au
 
 =cut
-
-
