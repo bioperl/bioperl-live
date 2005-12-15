@@ -215,7 +215,7 @@ sub next_seq {
         }
     }
     else {
-        $self->_add_to_ann($xval->{gene}->{syn},'ALIAS_SYMBOL');
+        $self->_add_to_ann($xval->{gene}->{syn},'ALIAS_SYMBOL') if ($xval->{gene}->{syn});
     }
     
     
@@ -239,8 +239,11 @@ sub next_seq {
         }
         }
         else {
-            $self->_add_to_ann($xval->{gene}->{db}->{tag}->{id},$xval->{gene}->{db}->{db});
+		my $id=($xval->{gene}->{db}->{tag}->{id})?
+			$xval->{gene}->{db}->{tag}->{id}:$xval->{gene}->{db}->{tag}->{str};
+            $self->_add_to_ann($id,$xval->{gene}->{db}->{db});
         }
+	$self->_add_to_ann($xval->{gene}->{'locus-tag'},'LOCUS_SYNONYM');
         delete $xval->{gene}->{db} unless ($debug eq 'off');
         }
        #LOCATION To do: uncaptured stuff
