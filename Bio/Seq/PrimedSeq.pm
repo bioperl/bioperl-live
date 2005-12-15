@@ -27,7 +27,7 @@
 =head1 NAME
 
 Bio::Seq::PrimedSeq - A representation of a sequence and two primers 
-flanking a target region for amplification
+flanking a target region
 
 =head1 SYNOPSIS
 
@@ -92,12 +92,12 @@ the behaviors and attributes that are associated with the complex.
 The primers are represented as Bio::SeqFeature::Primer objects, and should
 be instantiated first.
 
-The simplest way to create a PrimedSeq object is as follows:
+A simple way to create a PrimedSeq object is as follows:
 
   my $primedseq = Bio::Seq::PrimedSeq->new(
-          -seq => Bio::Seq object,
-          -left_primer => Bio::SeqFeature::Primer object,
-          -right_primer => Bio::SeqFeature::Primer object,
+          -seq          => $seq,  # Bio::Seq object,
+          -left_primer  => $left, # Bio::SeqFeature::Primer object,
+          -right_primer => $right # Bio::SeqFeature::Primer object,
   );
 
 From the PrimedSeq object you should be able to retrieve
@@ -348,74 +348,73 @@ sub seq {
 =cut
 
 sub _place_seqs {
- my $self = shift;
+	my $self = shift;
  
- # we are going to pull out the target sequence, and then the primer sequences
- my $target_sequence = $self->{'target_sequence'}->seq();
+	# we are going to pull out the target sequence, and then the primer sequences
+	my $target_sequence = $self->{'target_sequence'}->seq();
  
- # left primer
- my $left_seq = $self->{'left_primer'}->seq()->seq();
+	# left primer
+	my $left_seq = $self->{'left_primer'}->seq()->seq();
 
- my $rprc = $self->{'right_primer'}->seq()->revcom();
+	my $rprc = $self->{'right_primer'}->seq()->revcom();
  
- my $right_seq=$rprc->seq();
+	my $right_seq=$rprc->seq();
   
-  
- # now just change the case, because we keep getting screwed on this
- $target_sequence=uc($target_sequence);
- $left_seq=uc($left_seq);
- $right_seq=uc($right_seq);
+	# now just change the case, because we keep getting screwed on this
+	$target_sequence=uc($target_sequence);
+	$left_seq=uc($left_seq);
+	$right_seq=uc($right_seq);
  
- unless ($target_sequence =~ /(.*)$left_seq(.*)$right_seq(.*)/) {
-  unless ($target_sequence =~ /$left_seq/) {$self->throw("Can't place left sequence on target!")}
-  unless ($target_sequence =~ /$right_seq/) {$self->throw("Can't place right sequence on target!")}
+	unless ($target_sequence =~ /(.*)$left_seq(.*)$right_seq(.*)/) {
+		unless ($target_sequence =~ /$left_seq/) {$self->throw("Can't place left sequence on target!")}
+		unless ($target_sequence =~ /$right_seq/) {$self->throw("Can't place right sequence on target!")}
  }
  
- my ($before, $middle, $after) = ($1, $2, $3); # note didn't use $`, $', and $& because they are bad. Just use length instead.
+	my ($before, $middle, $after) = ($1, $2, $3); # note didn't use $`, $', and $& because they are bad. Just use length instead.
 
- # cool now we can figure out lengths and what not.
- # we'll figure out the position and compare it to known positions (e.g. from primer3)
+	# cool now we can figure out lengths and what not.
+	# we'll figure out the position and compare it to known positions (e.g. from primer3)
  
- my $left_location = length($before). ",". length($left_seq);
- my $right_location = (length($target_sequence)-length($after)-1).",".length($right_seq);
- my $amplicon_size = length($left_seq)+length($middle)+length($right_seq);
+	my $left_location = length($before). ",". length($left_seq);
+	my $right_location = (length($target_sequence)-length($after)-1).",".length($right_seq);
+	my $amplicon_size = length($left_seq)+length($middle)+length($right_seq);
  
- if (exists $self->{'left_primer'}->{'PRIMER_LEFT'}) {
-  # this is the left primer from primer3 input
-  # just check to make sure it is right
-  unless ($self->{'left_primer'}->{'PRIMER_LEFT'} eq $left_location) {
-   $self->warn("Note got |".$self->{'left_primer'}->{'PRIMER_LEFT'}."| from primer3 and |$left_location| for the left primer. You should email redwards\@utmem.edu about this.");
-  }
- }
- else {
-  $self->{'left_primer'}->{'PRIMER_LEFT'}=$left_location;
- }
+	if (exists $self->{'left_primer'}->{'PRIMER_LEFT'}) {
+		# this is the left primer from primer3 input
+		# just check to make sure it is right
+		unless ($self->{'left_primer'}->{'PRIMER_LEFT'} eq $left_location) {
+			$self->warn("Note got |".$self->{'left_primer'}->{'PRIMER_LEFT'}."| from primer3 and |$left_location| for the left primer. You should email redwards\@utmem.edu about this.");
+		}
+	}
+	else {
+		$self->{'left_primer'}->{'PRIMER_LEFT'}=$left_location;
+	}
  
- if (exists $self->{'right_primer'}->{'PRIMER_RIGHT'}) {
-  # this is the right primer from primer3 input
-  # just check to make sure it is right
-  unless ($self->{'right_primer'}->{'PRIMER_RIGHT'} eq $right_location) {
-   $self->warn("Note got |".$self->{'right_primer'}->{'PRIMER_RIGHT'}."| from primer3 and |$right_location| for the right primer. You should email redwards\@utmem.edu about this.");
-  }
- }
- else {
-  $self->{'right_primer'}->{'PRIMER_RIGHT'}=$right_location;
- }
+	if (exists $self->{'right_primer'}->{'PRIMER_RIGHT'}) {
+		# this is the right primer from primer3 input
+		# just check to make sure it is right
+		unless ($self->{'right_primer'}->{'PRIMER_RIGHT'} eq $right_location) {
+			$self->warn("Note got |".$self->{'right_primer'}->{'PRIMER_RIGHT'}."| from primer3 and |$right_location| for the right primer. You should email redwards\@utmem.edu about this.");
+		}
+	}
+	else {
+		$self->{'right_primer'}->{'PRIMER_RIGHT'}=$right_location;
+	}
  
- if (exists $self->{'PRIMER_PRODUCT_SIZE'}) {
-  # this is the product size from primer3 input
-  # just check to make sure it is right
-  unless ($self->{'PRIMER_PRODUCT_SIZE'} eq $amplicon_size) {
-   $self->warn("Note got |".$self->{'PRIMER_PRODUCT_SIZE'}."| from primer3 and |$amplicon_size| for the size. You should email redwards\@utmem.edu about this.");
-  }
- }
- else {
-  $self->{'PRIMER_PRODUCT_SIZE'} = $amplicon_size;
- }
+	if (exists $self->{'PRIMER_PRODUCT_SIZE'}) {
+		# this is the product size from primer3 input
+		# just check to make sure it is right
+		unless ($self->{'PRIMER_PRODUCT_SIZE'} eq $amplicon_size) {
+			$self->warn("Note got |".$self->{'PRIMER_PRODUCT_SIZE'}."| from primer3 and |$amplicon_size| for the size. You should email redwards\@utmem.edu about this.");
+		}
+	}
+	else {
+		$self->{'PRIMER_PRODUCT_SIZE'} = $amplicon_size;
+	}
  
- $self->{'amplicon_sequence'}= lc($left_seq).uc($middle).lc($right_seq); # I put this in a different case, but I think the seqobj may revert this
- 
- $self->_set_seqfeature;
+	$self->{'amplicon_sequence'}= lc($left_seq).uc($middle).lc($right_seq); # I put this in a different case, but I think the seqobj may revert this
+	
+	$self->_set_seqfeature;
 }
 
 =head2 _set_seqfeature
@@ -435,34 +434,34 @@ sub _place_seqs {
 
 
 sub _set_seqfeature {
- my $self = shift;
- unless ($self->{'left_primer'}->{'PRIMER_LEFT'} && 
-			$self->{'right_primer'}->{'PRIMER_RIGHT'}) {
-	 $self->warn("hmmm. Haven't placed primers, but trying to make annotated sequence");
-	 return 0;
- }
- my ($start, $length) = split /,/, $self->{'left_primer'}->{'PRIMER_LEFT'};
- my $tm=$self->{'left_primer'}->{'PRIMER_LEFT_TM'} || $self->{'left_primer'}->Tm || 0;
+	my $self = shift;
+	unless ($self->{'left_primer'}->{'PRIMER_LEFT'} && 
+			  $self->{'right_primer'}->{'PRIMER_RIGHT'}) {
+		$self->warn("hmmm. Haven't placed primers, but trying to make annotated sequence");
+		return 0;
+	}
+	my ($start, $length) = split /,/, $self->{'left_primer'}->{'PRIMER_LEFT'};
+	my $tm=$self->{'left_primer'}->{'PRIMER_LEFT_TM'} || $self->{'left_primer'}->Tm || 0;
 
- my $seqfeatureL=new Bio::SeqFeature::Generic(
-   -start => $start+1, -end => $start+$length, -strand => 1,
-   -primary_tag => 'left_primer', -source => 'primer3',
-   -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
-    );
+	my $seqfeatureL=new Bio::SeqFeature::Generic(
+						  -start => $start+1, -end => $start+$length, -strand => 1,
+                    -primary_tag => 'left_primer', -source => 'primer3',
+                    -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
+															  );
  
- ($start, $length) = split /,/, $self->{'right_primer'}->{'PRIMER_RIGHT'};
- $tm=$self->{'right_primer'}->{'PRIMER_RIGHT_TM'} || $self->{'right_primer'}->Tm || 0;
+	($start, $length) = split /,/, $self->{'right_primer'}->{'PRIMER_RIGHT'};
+	$tm=$self->{'right_primer'}->{'PRIMER_RIGHT_TM'} || $self->{'right_primer'}->Tm || 0;
  
- my $seqfeatureR=new Bio::SeqFeature::Generic(
+	my $seqfeatureR=new Bio::SeqFeature::Generic(
    -start => $start-$length+2, -end => $start+1, -strand => -1,
    -primary_tag => 'right_primer', -source => 'primer3',
    -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
-    );
+															  );
 
- # now add the sequences to a annotated sequence
- $self->{annotated_sequence} = $self->{target_sequence};
- $self->{annotated_sequence}->add_SeqFeature($seqfeatureL);
- $self->{annotated_sequence}->add_SeqFeature($seqfeatureR);
+	# now add the sequences to a annotated sequence
+	$self->{annotated_sequence} = $self->{target_sequence};
+	$self->{annotated_sequence}->add_SeqFeature($seqfeatureL);
+	$self->{annotated_sequence}->add_SeqFeature($seqfeatureR);
 }
 
 1;
