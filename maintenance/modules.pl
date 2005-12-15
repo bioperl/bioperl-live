@@ -252,7 +252,7 @@ sub modules {
             }
             $class->path($File::Find::name);
         }
-        if (/^\w*use/ && /(Bio[\w:]+)\W*;/) {
+        if (/^\w*use/ && /(Bio[\w:]+)\W*;/ && not /base/) {
 	    next unless $class;
             #print "\t$1\n" if $verbose;
             $class->add_used_class($1);
@@ -274,7 +274,6 @@ sub modules {
             }
         }
     }
-
     close F;
 }
 
@@ -346,58 +345,77 @@ test files in the directory. Superclasess or any classes used by others
 are not reported, either, since their methods are assumed to be tested
 by subclass tests.
 
-This method can not be improved much without running the tests!
 
 =cut
 
 sub _used_and_super {
-    my $classname = $shift;
-    unless ( ref $classname eq 'HASH') {
-        my $tmp = $classname;
-        $classname->{$tmp}=1
+    my $name = shift;
+#    print "-:$name\n" if /Locati/; 
+    foreach ($MODULES{$name}->each_superclass) {
+        next unless defined $MODULES{$_};
+#        print "-^$_\n" if /Locati/; 
+#        unless (defined $MODULES{$_} or $MODULES{$_}->tested) {
+        if (not  $MODULES{$_}->tested) {
+            $MODULES{$_}->tested(1);
+            _used_and_super($_);
+        }
     }
-    foreach ($MODULES{$_}->each_superclass) {
-        $MODULES{$_}->tested(1)
-            unless defined $MODULES{$_} or $MODULES{$_}->tested;
-        _used_and_super()
+    foreach ($MODULES{$name}->each_used_class) {
+        next unless defined $MODULES{$_};
+#        print "--$_\n" if /Locati/; 
+#        unless (defined $MODULES{$_} or $MODULES{$_}->tested) {
+        if (not  $MODULES{$_}->tested) {
+            $MODULES{$_}->tested(1);
+            _used_and_super($_);
+        }
+#        $MODULES{$_}->tested(1) && _used_and_super($_)
+#            unless defined $MODULES{$_} or $MODULES{$_}->tested;
     }
-    foreach ($MODULES{$_}->each_used_class) {
-        $MODULES{$_}->tested(1)
-            unless defined $MODULES{$_} and $MODULES{$_}->tested;
-    }
-
-    return $classname;
+    return 1;
 }
 
 sub untested {
-    foreach (`find ../t -name "*.t" -print | xargs grep -hs "use "`) {
-        s/^ *?use +//;
+    foreach (`find ../t -name "*.t" -print | xargs grep -hs "[ur][se][eq]"`) {
+#        print "1-$_\n" if /OntologyT/; 
+#        s/^\s*//;
+        s/.*use +//;
+        s/.*require +//;
         next unless /^Bio/;
         s/[\W;]+$//;
+        my $name = $_;
+#        print "2-$name\n" if /OntologyT/; 
         next unless $MODULES{$_};
         $MODULES{$_}->tested(1) 
             unless defined $MODULES{$_} and $MODULES{$_}->tested;
 
-        next if $MODULES{$_}->name eq "Bio::SeqIO::abi"; # exception: requires bioperl ext package
-        next if $MODULES{$_}->name eq "Bio::SeqIO::ctf"; # exception: requires bioperl ext package
-        next if $MODULES{$_}->name eq "Bio::SeqIO::exp"; # exception: requires bioperl ext package
-        next if $MODULES{$_}->name eq "Bio::SeqIO::pln"; # exception: requires bioperl ext package
-        next if $MODULES{$_}->name eq "Bio::SeqIO::ztr"; # exception: requires bioperl ext package
-#        print $MODULES{$_}->name, "\n";
-#        print Dumper $MODULES{$_};
-        foreach ($MODULES{$_}->each_superclass) {
-#            print $MODULES{$_}->name, "\n";
-            $MODULES{$_}->tested(1)
-                unless defined $MODULES{$_} or $MODULES{$_}->tested;
-        }
-        foreach ($MODULES{$_}->each_used_class) {
-            $MODULES{$_}->tested(1)
-                unless defined $MODULES{$_} and $MODULES{$_}->tested;
-        }
+        next if $MODULES{$name}->name eq "Bio::SeqIO::abi"; # exception: requires bioperl ext package
+        next if $MODULES{$name}->name eq "Bio::SeqIO::ctf"; # exception: requires bioperl ext package
+        next if $MODULES{$name}->name eq "Bio::SeqIO::exp"; # exception: requires bioperl ext package
+        next if $MODULES{$name}->name eq "Bio::SeqIO::pln"; # exception: requires bioperl ext package
+        next if $MODULES{$name}->name eq "Bio::SeqIO::ztr"; # exception: requires bioperl ext package
+#        print $MODULES{$name}->name, "\n";
+#        print Dumper $MODULES{$name};
+
+        _used_and_super($name);
+
+#        foreach ($MODULES{$name}->each_superclass) {
+##            print $MODULES{$name}->name, "\n";
+#            $MODULES{$name}->tested(1)
+#                unless defined $MODULES{$name} or $MODULES{$name}->tested;
+#        }
+#        foreach ($MODULES{$name}->each_used_class) {
+#            $MODULES{$name}->tested(1)
+#                unless defined $MODULES{$name} and $MODULES{$name}->tested;
+#        }
 
     }
 
     foreach ( sort keys %MODULES) {
+
+        # skip some name spaces 
+        next  if /^Bio::Search/; # Bio::Search and Bio::SearchIO are extensively tested 
+                                # but classes are used by attribute naming 
+
         print "$_\n" if
             $MODULES{$_}->type eq 'instance' and ($MODULES{$_}->tested == 0) ;
     }
