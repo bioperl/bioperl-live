@@ -20,16 +20,16 @@ Bio::WebAgent - A base class for Web (any protocol) access
 
 =head1 DESCRIPTION
 
-This abstact superclass is a subclass of L<LWP::UserAgent> which
-allows protocol independent access of accessing remote locations over
+This abstract superclass is a subclass of L<LWP::UserAgent> which
+allows protocol independent access of remote locations over
 the Net.
 
 It takes care of error handling, proxies and various net protocols.
-BioPerl classes accessing net should inherit from it.  For details,
+BioPerl classes accessing the net should inherit from it.  For details,
 see L<LWP::UserAgent>.
 
-The interface is still eveolving. For now, I've copied over two public
-methods from Bio::DB::WebDBSeqI: delay() and delay_policy. These are
+The interface is still evolving. For now, two public methods have been
+copied from Bio::DB::WebDBSeqI: delay() and delay_policy. These are
 used to prevent overwhelming the server by rapidly repeated . Ideally
 there should be a common abstract superclass with these. See L<delay>.
 
