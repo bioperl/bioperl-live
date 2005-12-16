@@ -43,7 +43,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     my $query = Bio::DB::Query::GenBank->new
         (-query   =>'Oryza sativa[Organism] AND EST',
          -reldate => '30',
-	 -db      => 'nucleotide');
+	      -db      => 'nucleotide');
     my $seqio = $gb->get_Stream_by_query($query);
 
     while( my $seq =  $seqio->next_seq ) {
@@ -56,7 +56,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     # also don't want features, just sequence so let's save bandwith
     # and request Fasta sequence
     $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' , 
-			       -format => 'Fasta');
+			                      -format => 'Fasta');
     my $seqio = $gb->get_Stream_by_acc(['AC013798', 'AC021953'] );
     while( my $clone =  $seqio->next_seq ) {
       print "cloneid is ", $clone->display_id, " ", 
@@ -149,7 +149,7 @@ BEGIN {
 		     );
 }
 
-# new is in NCBIHelper
+# new() is in NCBIHelper
 
 # helper method to get db specific options
 
@@ -161,9 +161,9 @@ BEGIN {
  Returns : New genbank handle
  Args    : -delay   number of seconds to delay between fetches (3s)
 
-NOTE:  There are other options that are used internally.  By NCBI policy, this
-module introduces a 3s delay between fetches.  If you are fetching multiple genbank
-ids, it is a good idea to use get
+NOTE:  There are other options that are used internally.  By NCBI policy, 
+this module introduces a 3s delay between fetches.  If you are fetching 
+multiple genbank ids, it is a good idea to use get
 
 =cut
 
@@ -305,4 +305,5 @@ instead.
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 1;
+
 __END__
