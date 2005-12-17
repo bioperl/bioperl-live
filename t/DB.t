@@ -80,43 +80,44 @@ my %expected_lengths = ( 'NDP_MOUSE' => 131,
 			 'AF442768'  => 2547,
 			 'P31383'    => 635,
 			 );
-if( $DEBUG ) {
-    my ($gb,$seq,$seqio,$query);
-# get a single seq
-    eval {
-	ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose,'-delay'=>0) );
-	$seq = $gb->get_Seq_by_id('MUSIGHBA1');
-	$seq ? ok 1 : exit 0;
-	ok( $seq->length, $expected_lengths{$seq->display_id});
-	ok( defined ($seq = $gb->get_Seq_by_acc('AF303112')));
-	ok( $seq->length, $expected_lengths{$seq->display_id});
-	ok( defined ($seq = $gb->get_Seq_by_version('AF303112.1')));
-	ok( $seq->length, $expected_lengths{$seq->display_id});
-	ok( defined ($seq = $gb->get_Seq_by_gi('405830')));
-	ok( $seq->length, $expected_lengths{$seq->display_id});
-    };
-    if ($@) {
-	if( $DEBUG ) { 
-	    warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@\nDo you have network access? Skipping all other tests";
-	}
-	foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
-	exit(0);
-    }
-    $seq = $seqio = undef;
 
-    eval {
-	ok( defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
-							2981014)])));
+if( $DEBUG ) {
+	my ($gb,$seq,$seqio,$query);
+	# get a single seq
+	eval {
+		ok defined ( $gb = new Bio::DB::GenBank('-verbose'=>$verbose,'-delay'=>0) );
+		$seq = $gb->get_Seq_by_id('MUSIGHBA1');
+		$seq ? ok 1 : exit 0;
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		ok( defined ($seq = $gb->get_Seq_by_acc('AF303112')));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		ok( defined ($seq = $gb->get_Seq_by_version('AF303112.1')));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		ok( defined ($seq = $gb->get_Seq_by_gi('405830')));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+	};
+	if ($@) {
+		if( $DEBUG ) { 
+			warn "Warning: Couldn't connect to Genbank with Bio::DB::GenBank.pm!\nError: $@\nDo you have network access? Skipping all other tests";
+		}
+		foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+		exit(0);
+	}
+	$seq = $seqio = undef;
+
+	eval {
+		ok( defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
+																		2981014)])));
 	while( my $s = $seqio->next_seq ) {
 	    ok( $s->length, $expected_lengths{$s->display_id});
 	}
     };
 
     if ($@) {
-	if( $DEBUG ) { warn "Batch access test failed.\nError: $@\n"; }
-	foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
-	exit(0);
-    }
+	   if( $DEBUG ) { warn "Batch access test failed.\nError: $@\n"; }
+	   foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+	      exit(0);
+       }
     $seq = $seqio = undef;
 
     eval { 
@@ -131,6 +132,7 @@ if( $DEBUG ) {
 	while( my $s = $seqio->next_seq ) {
 	    ok( $s->length, $expected_lengths{$s->display_id});
 	}
+
 	# swissprot genpept parsing   
 	ok( defined($seq = $gb->get_Seq_by_acc('2AAA_YEAST') ));
 	ok($seq->length, $expected_lengths{$seq->display_id}, 
@@ -139,7 +141,7 @@ if( $DEBUG ) {
 	# test dbsource stuff
 	# small chance this might change but hopefully not
 	my @annot = $seq->annotation->get_Annotations('dblink');
-	ok(scalar @annot, 29);	#
+	ok(scalar @annot, 30);	#
 	ok($annot[0]->database, 'swissprot');
 	ok($annot[0]->primary_id, '2AAA_YEAST');
 	ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
