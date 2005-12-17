@@ -43,7 +43,7 @@ Bio::DB::GenBank - Database object interface to GenBank
     my $query = Bio::DB::Query::GenBank->new
         (-query   =>'Oryza sativa[Organism] AND EST',
          -reldate => '30',
-	      -db      => 'nucleotide');
+	 -db      => 'nucleotide');
     my $seqio = $gb->get_Stream_by_query($query);
 
     while( my $seq =  $seqio->next_seq ) {
@@ -63,6 +63,28 @@ Bio::DB::GenBank - Database object interface to GenBank
              $clone->accession_number, "\n";
     }
     # note that get_Stream_by_version is not implemented
+
+    # don't want the entire sequence or more options
+    my $gb = Bio::DB::GenBank->new(-format     => 'Fasta',
+                                   -seq_start  => 100,
+                                   -seq_stop   => 200,
+                                   -strand     => 1,
+                                   -complexity => 4));
+    my $seqi = $gb->get_Stream_by_query($query);
+
+These alternate methods are described here:
+L<http://www.ncbi.nlm.nih.gov/entrez/query/static/efetchseq_help.html>
+
+NOTE: strand should be 1 for plus or 2 for minus.
+
+Complexity: gi is often a part of a biological blob, containing other gis
+
+complexity regulates the display:
+0 - get the whole blob
+1 - get the bioseq for gi of interest (default in Entrez)
+2 - get the minimal bioseq-set containing the gi of interest
+3 - get the minimal nuc-prot containing the gi of interest
+4 - get the minimal pub-set containing the gi of interest
 
 =head1 DESCRIPTION
 
@@ -97,9 +119,10 @@ of the Bioperl mailing lists. Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
-web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
+  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Aaron Mackey, Jason Stajich
@@ -149,7 +172,7 @@ BEGIN {
 		     );
 }
 
-# new() is in NCBIHelper
+# new is in NCBIHelper
 
 # helper method to get db specific options
 
@@ -161,9 +184,9 @@ BEGIN {
  Returns : New genbank handle
  Args    : -delay   number of seconds to delay between fetches (3s)
 
-NOTE:  There are other options that are used internally.  By NCBI policy, 
-this module introduces a 3s delay between fetches.  If you are fetching 
-multiple genbank ids, it is a good idea to use get
+NOTE:  There are other options that are used internally.  By NCBI policy, this
+module introduces a 3s delay between fetches.  If you are fetching multiple genbank
+ids, it is a good idea to use get
 
 =cut
 
@@ -206,14 +229,6 @@ sub get_params {
   Args    : the accession number as a string
   Note    : For GenBank, this just calls the same code for get_Seq_by_id()
   Throws  : "id does not exist" exception
-
-=cut
-
-
-sub get_Seq_by_acc {
-   my ($self,$seqid) = @_;
-   $self->SUPER::get_Seq_by_acc("gb|$seqid");
-}
 
 =head2 get_Seq_by_gi
 
@@ -305,5 +320,4 @@ instead.
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 1;
-
 __END__

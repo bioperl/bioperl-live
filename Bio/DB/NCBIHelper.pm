@@ -52,10 +52,12 @@ is much appreciated.
 
 =head2 Reporting Bugs
 
-Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via the
+Report bugs to the Bioperl bug tracking system to
+help us keep track the bugs and their resolution.
+Bug reports can be submitted via email or the
 web:
 
+  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
@@ -75,7 +77,7 @@ preceded with a _
 package Bio::DB::NCBIHelper;
 use strict;
 use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
-	    $DEFAULTFORMAT $MAX_ENTRIES);
+	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
 
 use Bio::DB::WebDBSeqI;
 use Bio::DB::Query::GenBank;
@@ -86,6 +88,7 @@ use Bio::DB::RefSeq;
 use Bio::Root::Root;
 
 @ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+$VERSION = '0.8';
 
 BEGIN {
     $MAX_ENTRIES = 19000;
@@ -98,11 +101,9 @@ BEGIN {
 		    'gi'   =>   ['get'  => '/entrez/eutils/efetch.fcgi'],
 		     );
 
-    %FORMATMAP = (
-                  'gb'          => 'genbank',
-                  'gbwithparts' => 'genbank',
-                  'gp'          => 'genbank',
-                  'fasta'       => 'fasta',
+    %FORMATMAP = ( 'gb' => 'genbank',
+		   'gp' => 'genbank',
+		   'fasta'   => 'fasta',
 		   );
 
     $DEFAULTFORMAT = 'gb';
@@ -159,11 +160,9 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, 
-	$query, $query_offset) = $self->_rearrange([qw(MODE UIDS FORMAT 
-						       QUERY OFFSET)],
-						   @qualifiers);
-    
+    my ($mode, $uids, $format, $query, $seq_start, $seq_stop) = $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP)],
+                                                         @qualifiers);
+
     $mode = lc $mode;
     ($format) = $self->request_format() unless ( defined $format);
     if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
@@ -176,17 +175,11 @@ sub get_request {
     unless( defined $uids or defined $query) {
 	$self->throw("Must specify a query or list of uids to fetch");
     }
-    
+
     if ($uids) {
 	if( ref($uids) =~ /array/i ) {
-	    $uids = join(",", map { 
-		$_ = "\"$_\"" if( /^\d+/ );
-		$_;		
-	    } @$uids);
-	} elsif( $uids =~ /^\d+/ ) {
-	    $uids = "\"$uids\""; # need to quote it
+	    $uids = join(",", @$uids);
 	}
-    
 	$params{'id'}      = $uids;
     }
 
@@ -198,9 +191,11 @@ sub get_request {
     elsif ($query) {
 	$params{'id'} = join ',',$query->ids;
     }
+     
+    defined $seq_start and $params{'seq_start'} = $seq_start;
+    defined $seq_stop and $params{'seq_stop'} = $seq_stop;
 
     $params{'rettype'} = $format;
-    $params{'retstart'} = $query_offset if defined $query_offset;
     if ($CGILOCATION{$mode}[0] eq 'post') {
 	return POST $url,[%params];
     } else {
@@ -319,8 +314,8 @@ sub postprocess_data {
 	my $ct = 0;
 	while( my $seq = $stream->next_seq() ) {	    
 	    if( $seq->accession_number !~ /$unique_accessions[$ct]/ ) {
-		$self->warn( sprintf("warning, %s does not match %s\n",
-		$seq->accession_number, $unique_accessions[$ct]));
+		printf STDERR "warning, %s does not match %s\n",
+		$seq->accession_number, $unique_accessions[$ct];
 	    }
 	    $accessions{$unique_accessions[$ct]}->{'seq'} = $seq;
 	    $ct++;
@@ -444,12 +439,14 @@ sub _check_id {
 	if $ids =~ /NT_/;
 
     # Asking for a RefSeq from EMBL/GenBank
-
-    if ($ids =~ /N._/) {
-	$self->warn("[$ids] is not a normal sequence entry but a RefSeq entry.".
-		   " Redirecting the request.\n")
-	    if $self->verbose >= 0;
-	return $self->refseq_db;
+   
+    unless ($self->no_redirect) {
+     if ($ids =~ /N._/) {
+	 $self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
+	 	   " Redirecting the request.\n")
+	     if $self->verbose >= 0;
+	 return  new Bio::DB::RefSeq;
+     }
     }
 }
 
@@ -469,30 +466,6 @@ implements that policy.
 sub delay_policy {
   my $self = shift;
   return 3;
-}
-
-=head2 refseq_db
-
- Title   : refseq_db
- Usage   : $obj->refseq_db($newval)
- Function: 
- Example : 
- Returns : value of refseq_db (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-
-=cut
-
-sub refseq_db{
-    my $self = shift;
-    if( @_ ) {
-	return $self->{'refseq_db'} = shift;
-    } elsif( ! defined $self->{'refseq_db'} ) {
-	$self->{'refseq_db'} = Bio::DB::RefSeq->new
-	    (-retrievaltype => $self->retrieval_type,
-	     -verbose        => $self->verbose);
-    }
-    return $self->{'refseq_db'};
 }
 
 1;
