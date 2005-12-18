@@ -91,7 +91,7 @@ the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Also lorenz@ist.org, bosborne@cognia.com
+Also lorenz@ist.org, osborne1@optonline.net
 
 =head1 APPENDIX
 

@@ -44,7 +44,7 @@ web:
 
 =head1 AUTHOR
 
-Brian Osborne, brian_osborne at cognia.com
+Brian Osborne, osborne1 at optonline.net
 
 =cut
 
