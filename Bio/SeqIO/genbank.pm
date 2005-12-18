@@ -115,7 +115,8 @@ sequence object.
  Sequence             PrimarySeq seq()
 
 There is more information in the Feature-Annotation HOWTO about each 
-field and how it is mapped to the Sequence object.
+field and how it is mapped to the Sequence object 
+(http://bioperl.org/HOWTOs).
 
 =head1 FEEDBACK
 
@@ -153,7 +154,7 @@ Heikki Lehvaslaiho, heikki at ebi.ac.uk
 Hilmar Lapp, hlapp at gmx.net
 Donald G. Jackson, donald.jackson at bms.com
 James Wasmuth, james.wasmuth at ed.ac.uk
-Brian Osborne, brian at cognia.com
+Brian Osborne, osborne1 at optonline.net
 
 =head1 APPENDIX
 
