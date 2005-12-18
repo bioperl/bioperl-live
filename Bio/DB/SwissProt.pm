@@ -85,8 +85,8 @@ Thanks go to Alexandre Gattiker E<lt>gattiker@isb-sib.chE<gt> of Swiss
 Institute of Bioinformatics for helping point us in the direction of
 the correct expasy scripts and for swissknife references.
 
-Also thanks to Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt> for help with
-adding EBI swall server.
+Also thanks to Heikki Lehvaslaiho E<lt>heikki-at-bioperl-dot-orgE<gt> 
+for help with adding EBI swall server.
 
 =head1 APPENDIX
 
@@ -411,10 +411,11 @@ sub location_url {
  Usage   : my ($req_format, $ioformat) = $self->request_format;
            $self->request_format("genbank");
            $self->request_format("fasta");
- Function: Get/Set sequence format retrieval. The get-form will normally not
-           be used outside of this and derived modules.
+ Function: Get/Set sequence format retrieval. The get-form will normally
+           not be used outside of this and derived modules.
  Returns : Array of two strings, the first representing the format for
-           retrieval, and the second specifying the corresponding SeqIO format.
+           retrieval, and the second specifying the corresponding SeqIO 
+           format.
  Args    : $format = sequence format
 
 =cut
@@ -446,4 +447,5 @@ sub request_format {
 }
 
 1;
+
 __END__
