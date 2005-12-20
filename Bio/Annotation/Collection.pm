@@ -36,7 +36,7 @@ AnnotationCollectionI
 
 =head1 DESCRIPTION
 
-Bioperl implementation for Bio::AnnotationCollecitonI 
+Bioperl implementation for Bio::AnnotationCollectionI 
 
 =head1 FEEDBACK
 
