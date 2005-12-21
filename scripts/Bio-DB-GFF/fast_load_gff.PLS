@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.23 2005-11-18 22:53:36 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.24 2005-12-21 19:00:52 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -219,6 +219,8 @@ my %DONE        = ();
 my $FEATURES    = 0;
 
 load_tables($db->dbh) unless $CREATE;
+my ($major,$minor,$sub) = split /\./,$db->dbh->get_info(18); # SQL_DBMS_VER
+my $can_disable_indexes = $major >= 4 and $minor >= 0;
 
 # open up pipes to the database
 my (%FH,%COMMAND);
@@ -232,9 +234,11 @@ foreach (@files) {
   print STDERR "ok\n";
   my $delete = $CREATE ? "delete from $_" : '';
   my $local  = $LOCAL ? 'local' : '';
+  my $analyze = "analyze table $_";
   my $command =<<END;
 $MYSQL $AUTH
--e "lock tables $_ write; $delete; load data $local infile '$file' replace into table $_; unlock tables"
+-s
+-e "lock tables $_ write; $delete; load data $local infile '$file' replace into table $_; unlock tables; $analyze"
 $DSN
 END
 ;
@@ -259,7 +263,7 @@ END
   $FH{$_}->autoflush;
 }
 
-print STDERR "Fast loading enabled\n" if $DO_FAST;
+print STDERR "Fast loading enabled\n"    if $DO_FAST;
 
 my ($count,$gff3,$last,$start,$beginning);
 
@@ -387,13 +391,13 @@ $start = time();
 
 my $success = 1;
 if ($DO_FAST) {
-  warn "Indexing.  This may take some time....\n";
+  warn "Indexing and analyzing tables.  This may take some time (you may see database messages during the process)...\n";
 }
 
 $_->close foreach values %FH;
 
 if (!$DO_FAST) {
-  warn "Loading feature data.  You may see duplicate key warnings here...\n";
+  warn "Loading feature data and analyzing tables.  You may see database messages here...\n";
   $success &&= system($COMMAND{$_}) == 0 foreach @files;
 }
 

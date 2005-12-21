@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.34 2005-11-18 22:53:36 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.35 2005-12-21 19:00:52 lstein Exp $
 
 
 use strict;
@@ -544,7 +544,7 @@ if ($use_pg) {
 
 $_->close foreach values %FH;
 printf STDERR "Total parse time %5.2fs\n",(Time::HiRes::time() - $start) if $timer;
-warn "Loading feature data.  You may see duplicate key warnings here...\n";
+warn "Loading feature data and analyzing tables.  You may see RDBMS messages here...\n";
 
 if ($use_pg){
   warn "Loading feature data.  You may see Postgres comments...\n";
@@ -574,29 +574,28 @@ elsif( $use_mysql or $use_mysqlcmap ) {
   my $success = 1;
   my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
   foreach (@files) {
-    my $command = qq[
-     ${\MYSQL} $AUTH -e "lock tables ]
-    . function_to_table($_,$ADAPTOR)
-    . qq[ write; delete from ]
-    . function_to_table($_,$ADAPTOR)
-    . qq[; load data $LOCAL infile '$tmpdir/$_.$$' replace into table ]
-    . function_to_table($_,$ADAPTOR)
-    . qq[  $TERMINATEDBY; unlock tables"
-];
-  $command =~ s/\n/ /g;
-  $success &&= system($command) == 0;
-  unlink "$tmpdir/$_.$$";
-}
-printf STDERR "Total load time %5.2fs\n",(time() - $start) if $timer;
-warn "done...\n";
+    my $table = function_to_table($_,$ADAPTOR);
+    my $sql = join ('; ',
+		    "lock tables $table write",
+		    "delete from $table",
+		    "load data $LOCAL infile '$tmpdir/$_.$$' replace into table $table $TERMINATEDBY",
+		    "analyze table $table",
+		    "unlock tables");
+    my $command = MYSQL . qq[$AUTH -s -e "$sql"];
+    $command =~ s/\n/ /g;
+    $success &&= system($command) == 0;
+    unlink "$tmpdir/$_.$$";
+  }
+  printf STDERR "Total load time %5.2fs\n",(time() - $start) if $timer;
+  warn "done...\n";
 
-if ($success) {
-  print "$FEATURES features successfully loaded\n";
-  exit 0;
-} else {
-  print "FAILURE: Please see standard error for details\n";
-  exit -1;
-}
+  if ($success) {
+    print "$FEATURES features successfully loaded\n";
+    exit 0;
+  } else {
+    print "FAILURE: Please see standard error for details\n";
+    exit -1;
+  }
 }
 
 sub function_to_table {
