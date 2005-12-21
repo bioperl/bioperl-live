@@ -368,7 +368,7 @@ sub num2month {
     my ($self, $num) = @_;
 
     $self->throw("Month out of range: $num") if $num < 1 or $num > 12;
-    return $MONTHS[$num];
+    return $MONTHS[$num-1];
 }
 
 =head2 compress
