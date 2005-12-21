@@ -301,7 +301,7 @@ BEGIN {
         #  2. include a definition of an environmental variable 
         # BLASTDIR in every script that will use StandAloneBlast.pm.
 
-	$PROGRAMDIR = $BLASTTYPE eq 'ncbi' ? $ENV{'BLASTDIR'}: $ENV{'WUBLASTIDR'};
+	$PROGRAMDIR = $BLASTTYPE eq 'ncbi' ? $ENV{'BLASTDIR'}: $ENV{'WUBLASTDIR'};
 
 	# If local BLAST databases are not stored in the standard
 	# /data directory, the variable BLASTDATADIR will need to be 
