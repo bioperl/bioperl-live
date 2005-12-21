@@ -623,14 +623,13 @@ sub mean_stdev {
     my ($self, @data) = @_;
     return (undef,undef) if not @data; # case of empty @data list
     my $mean = 0;
-    foreach (@data) { $mean += $_; }
-    $mean /= scalar @data;
+    my $N = 0;
+    foreach (@data) { $mean += $_; $N++ }
+    $mean /= $N;
     my $sum_diff_sqd = 0;
     foreach (@data) { $sum_diff_sqd += ($mean - $_) * ($mean - $_); }
     # if only one element in @data list, unbiased stdev is undefined
-    my $stdev = scalar(@data) <= 1 
-              ? undef
-              : sqrt(abs($sum_diff_sqd/(scalar @data)-1));
+    my $stdev = $N <= 1 ? undef : sqrt( $sum_diff_sqd / ($N-1) );
     return ($mean, $stdev);
 }
 
