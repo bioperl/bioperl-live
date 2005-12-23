@@ -15,6 +15,8 @@ Bio::SeqIO::game -- a class for parsing and writing game-XML
 
 =head1 SYNOPSIS
 
+This module is not used directly, use SeqIO.
+
  use Bio::SeqIO;
 
  my $in = Bio::SeqIO->new ( -file    => 'file.xml', 
@@ -26,13 +28,11 @@ Bio::SeqIO::game -- a class for parsing and writing game-XML
 =head1 DESCRIPTION
 
 Bio::SeqIO::game will parse game XML (version 1.2) or write game XML from 
-a Bio::SeqI implementing object.  The XML is readable by the genome annotation
-editor 'Apollo' (www.gmod.org).  It is not backwards compatible with the previous
-version of game XML.  The XML format currently used by Apollo 
-contains a single 'main' annotated sequence, so we will only get a single 
-annotated sequence in the stream when parsing a game-XML record.
-
-This modules is not used directly
+a Bio::SeqI implementing object.  The XML is readable by the genome 
+annotation editor 'Apollo' (www.gmod.org).  It is not backwards compatible 
+with the previous version of game XML.  The XML format currently used by 
+Apollo contains a single 'main' annotated sequence, so we will only get a 
+single annotated sequence in the stream when parsing a game-XML record.
 
 =head1 FEEDBACK
 
