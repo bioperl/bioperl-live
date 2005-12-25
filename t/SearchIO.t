@@ -22,7 +22,7 @@ BEGIN {
 		use lib 't';
 	}
 	use vars qw($NTESTS);
-	$NTESTS = 1227;
+	$NTESTS = 1230;
 	$LASTXMLTEST = 67;
 	$error = 0;
 
@@ -1560,6 +1560,16 @@ ok($hsp->query->frame,0);
 ok($hsp->hit->frame,0);
 ok($hsp->query->strand,1);
 ok($hsp->hit->strand,1);
+
+# this is NCBI tblastn
+$searchio = new Bio::SearchIO(-format => 'blast',
+										-file   => Bio::Root::IO->catfile
+										(qw(t data tblastn.out)));
+$result = $searchio->next_result;
+ok($result);
+ok($result->algorithm, 'TBLASTN');
+$hit = $result->next_hit;
+ok($hit->name,'gi|10040111|emb|AL390796.6|AL390796');
 
 # test blasttable output
 my @eqset = qw( 
