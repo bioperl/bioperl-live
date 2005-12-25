@@ -1,0 +1,108 @@
+TBLASTN 2.2.10 [Oct-19-2004]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= HAHU | 1114 |  Hemoglobin alpha chain - Human, chimpanzee, and
+pygmy chimpanzee
+         (141 letters)
+
+Database: testnt.fa 
+           2 sequences; 13,260 total letters
+
+Searching..done
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gi|10040111|emb|AL390796.6|AL390796 Homo sapiens chromosome 1 cl...    18   2.3  
+test6                                                                  16   6.7  
+
+>gi|10040111|emb|AL390796.6|AL390796 Homo sapiens chromosome 1 clone
+            RP11-562F3, *** SEQUENCING IN PROGRESS ***, 16 unordered
+            pieces /len=164198
+          Length = 8160
+
+ Score = 17.7 bits (34), Expect = 2.3
+ Identities = 8/23 (34%), Positives = 11/23 (47%)
+ Frame = +1
+
+Query: 56   KGHGKKVADALTNAVAHVDDMPN 78
+            KGH KK+     N  ++  D  N
+Sbjct: 7603 KGHLKKITSFFFNHTSNYRDEYN 7671
+
+
+
+ Score = 17.3 bits (33), Expect = 3.0
+ Identities = 9/28 (32%), Positives = 13/28 (46%)
+ Frame = +1
+
+Query: 31   RMFLSFPTTKTYFPHFDLSHGSAQVKGH 58
+            RM+  F    TY+ +F L      V G+
+Sbjct: 7069 RMYFCFLKVLTYYFNFFLFFNIFYVLGY 7152
+
+
+>test6
+          Length = 5100
+
+ Score = 16.2 bits (30), Expect = 6.7
+ Identities = 6/9 (66%), Positives = 7/9 (77%)
+ Frame = +3
+
+Query: 72   HVDDMPNAL 80
+            H+D M NAL
+Sbjct: 3822 HMDYMSNAL 3848
+
+
+
+ Score = 15.8 bits (29), Expect = 8.8
+ Identities = 5/7 (71%), Positives = 6/7 (85%)
+ Frame = -2
+
+Query: 93   VDPVNFK 99
+            +DP NFK
+Sbjct: 1814 IDP*NFK 1794
+
+
+  Database: testnt.fa
+    Posted date:  Feb 5, 2005  6:26 PM
+  Number of letters in database: 13,260
+  Number of sequences in database:  2
+  
+Lambda     K      H
+   0.319    0.130    0.385 
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 1998
+Number of Sequences: 2
+Number of extensions: 23
+Number of successful extensions: 4
+Number of sequences better than 10.0: 2
+Number of HSP's better than 10.0 without gapping: 3
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 4
+length of query: 141
+length of database: 4420
+effective HSP length: 39
+effective length of query: 102
+effective length of database: 4342
+effective search space:   442884
+effective search space used:   442884
+frameshift window, decay const: 40,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 29 (16.3 bits)
+S2: 29 (15.8 bits)
