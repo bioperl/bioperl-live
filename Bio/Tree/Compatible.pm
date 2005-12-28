@@ -213,7 +213,7 @@ of string (descendent labels) to each node, as follows:
 sub cluster_representation {
   my ($tree) = @_;
   my %cluster;
-  my @postorder = @{ postorder($tree) };
+  my @postorder = @{ postorder_traversal($tree) };
   foreach my $node ( @postorder ) {
     my @labeled = map { $_->id } grep { $_->id } $node->get_Descendents;
     push @labeled, $node->id if $node->id;
@@ -287,7 +287,7 @@ C<[A,B,E,G]> are as follows:
 
 sub topological_restriction {
   my ($tree, $labels) = @_;
-  for my $node ( @{ postorder($tree) } ) {
+  for my $node ( @{ postorder_traversal($tree) } ) {
     my @cluster = map { $_->id } grep { $_->id } $node->get_Descendents;
     push @cluster, $node->id if $node->id;
     my $cluster = Set::Scalar->new(@cluster);
@@ -371,8 +371,8 @@ sub is_compatible {
   my $common = $tree1->Bio::Tree::Compatible::common_labels($tree2);
   $tree1->Bio::Tree::Compatible::topological_restriction($common);
   $tree2->Bio::Tree::Compatible::topological_restriction($common);
-  my @postorder1 = @{ postorder($tree1) };
-  my @postorder2 = @{ postorder($tree2) };
+  my @postorder1 = @{ postorder_traversal($tree1) };
+  my @postorder2 = @{ postorder_traversal($tree2) };
   my %cluster1 = %{ cluster_representation($tree1) };
   my %cluster2 = %{ cluster_representation($tree2) };
   my $incompat = 0; # false
