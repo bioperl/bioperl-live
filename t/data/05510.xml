@@ -1,0 +1,824 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE HPRDr2 SYSTEM "hprdr2.dtd">
+<HPRDr2 xmlns="org:hprd:dtd:hprdr2">
+  <protein isoform="1" version="1" id="HPRD_05510">
+   <title>Endothelial differentiation gene 8</title>
+    
+        <alt_title>Sphingosine 1 phosphate receptor EDG8</alt_title>
+    
+    
+        <alt_title>S1P Receptor EDG8</alt_title>
+    
+    
+        <alt_title>Sphingosine 1 phosphate receptor Edg8</alt_title>
+    
+    
+        <alt_title>SPPR</alt_title>
+    
+    
+        <alt_title>Putative G protein coupled receptor</alt_title>
+    
+    
+        <alt_title>Endothelial differentiation, sphingolipid G protein coupled receptor, 8</alt_title>
+    
+    
+        <alt_title>Hypothetical protein FLJ90180</alt_title>
+    
+    
+        <alt_title>GPCR</alt_title>
+    
+    <omim>605146</omim> 
+    <gene_symbol>EDG8 </gene_symbol>
+    <gene_map_locus>
+      <title>19p13.2</title>
+      
+    </gene_map_locus>
+    <seq_entry source="Ref-Seq">
+      <entry_cdna>NM_030760.2</entry_cdna>
+      <entry_protein>NP_110387.1</entry_protein>
+    </seq_entry>
+    <molecular_weight>41778</molecular_weight>
+    <!-- Large sections begin here. -->
+    <entry_sequence>
+      <cdna length="2306">gcgcggccca tggagtcggg gctgctgcgg
+ccggcgccgg tgagcgaggt catcgtcctg
+cattacaact acaccggcaa gctccgcggt
+gcgcgctacc agccgggtgc cggcctgcgc
+gccgacgccg tggtgtgcct ggcggtgtgc
+gccttcatcg tgctagagaa tctagccgtg
+ttgttggtgc tcggacgcca cccgcgcttc
+cacgctccca tgttcctgct cctgggcagc
+ctcacgttgt cggatctgct ggcaggcgcc
+gcctacgccg ccaacatcct actgtcgggg
+ccgctcacgc tgaaactgtc ccccgcgctc
+tggttcgcac gggagggagg cgtcttcgtg
+gcactcactg cgtccgtgct gagcctcctg
+gccatcgcgc tggagcgcag cctcaccatg
+gcgcgcaggg ggcccgcgcc cgtctccagt
+cgggggcgca cgctggcgat ggcagccgcg
+gcctggggcg tgtcgctgct cctcgggctc
+ctgccagcgc tgggctggaa ttgcctgggt
+cgcctggacg cttgctccac tgtcttgccg
+ctctacgcca aggcctacgt gctcttctgc
+gtgctcgcct tcgtgggcat cctggccgcg
+atctgtgcac tctacgcgcg catctactgc
+caggtacgcg ccaacgcgcg gcgcctgccg
+gcacggcccg ggactgcggg gaccacctcg
+acccgggcgc gtcgcaagcc gcgctcgctg
+gccttgctgc gcacgctcag cgtggtgctc
+ctggcctttg tggcatgttg gggccccctc
+ttcctgctgc tgttgctcga cgtggcgtgc
+ccggcgcgca cctgtcctgt actcctgcag
+gccgatccct tcctgggact ggccatggcc
+aactcacttc tgaaccccat catctacacg
+ctcaccaacc gcgacctgcg ccacgcgctc
+ctgcgcctgg tctgctgcgg acgccactcc
+tgcggcagag acccgagtgg ctcccagcag
+tcggcgagcg cggctgaggc ttccgggggc
+ctgcgccgct gcctgccccc gggccttgat
+gggagcttca gcggctcgga gcgctcatcg
+ccccagcgcg acgggctgga caccagcggc
+tccacaggca gccccggtgc acccacagcc
+gcccggactc tggtatcaga accggctgca
+gactgacacc ctcggcccac gactgtcttc
+ccaagtttta cagacttgtt ctttttacat
+aaaggaattt gtaggaaatg cagccaaagg
+tgcagtcgga aaagatgcag gggaaatgta
+tttatgcagc gacaccccac aatgtgaaca
+aacagacaaa aaatctgtgc cctcgtggaa
+ttgacgttct gcttgggaac acagaaaaga
+actcggtgat gaaataatgg agatgattcc
+agtgacaaac gacagagatg gtgatggtgg
+tcagggaaga cctctctgca gaggtagtga
+cttgtgatgt gagctgagac ctctgtcctg
+ggaagaccaa aagaaaagca tttcaggatg
+agggaatggc atgcgcaaag gccctgaggc
+tgaaatgtgc ccatgtgttc taagaaatgc
+agcgatgctg gtgtgcctgg agcagggacg
+gagggggaga atgggaggag acaaggagct
+gaaggagtag ttcccgaagg accttgtggg
+tgatatagag gacttcgctt ttgctctgag
+tgaggtggga gccatagaag cttctaagca
+gaagagggac ttgccctaat tcaggtgatc
+acaggtgtct tgtggcctcc atgggaggtt
+gaaaaccaca gaaggtgaag gggggctgca
+ctgagccaca ggaacaatga tggagattcc
+agctaagccc agaccccgtg gattctagat
+agattttaga ggcagcagac agaattactg
+aggaattgag tgtaagagtg gaataaagtt
+atcaaggaca atgccaaggg tggggcaccc
+ccaaatttga ctttgggaga ctcagccaaa
+tcctatctgg taataaaatt tcttttttat
+ttttcttttc tttctttctt tctttctttc
+tttttttttt tttgagttgg gatcttgtgc
+tctgtcaccc aggctggagt gcaatgggca
+caattatagc tcactgcagc ctggaactcc
+tgggatcaag cctggagttc ctgcttcagc
+ctccctagta gctgggacta caggcatgca
+ccaccatgcc cagttaataa aatttcttca
+aatgcaaaaa aaaaaaaaaa aaaaaa
+</cdna>
+      <cdna_utr5 start="1" end="9"/>
+      <cdna_coding start="10" end="1206"/>
+      <cdna_utr3 start="1207" end="2306"/>
+      <protein_sequence length="398">mesgllrpap vsevivlhyn ytgklrgary
+qpgaglrada vvclavcafi vlenlavllv
+lgrhprfhap mflllgsltl sdllagaaya
+anillsgplt lklspalwfa reggvfvalt
+asvlsllaia lersltmarr gpapvssrgr
+tlamaaaawg vslllgllpa lgwnclgrld
+acstvlplya kayvlfcvla fvgilaaica
+lyariycqvr anarrlparp gtagttstra
+rrkprslall rtlsvvllaf vacwgplfll
+llldvacpar tcpvllqadp flglamansl
+lnpiiytltn rdlrhallrl vccgrhscgr
+dpsgsqqsas aaeasgglrr clppgldgsf
+sgsersspqr dgldtsgstg spgaptaart
+lvsepaad
+</protein_sequence>
+    </entry_sequence>
+    <protein_domain_architecture>
+      <domain domain_source="smart" end="62" type="domain"
+              start="40">
+        <title>TM</title>
+        
+      </domain>
+      <domain domain_source="smart" end="93" type="domain"
+              start="71">
+        <title>TM</title>
+        
+             
+        
+      </domain>
+      <domain domain_source="smart" end="130" type="domain"
+              start="108">
+        <title>TM</title>
+        
+             
+        
+      </domain>
+      <domain domain_source="smart" end="173" type="domain"
+              start="151">
+        <title>TM</title>
+        
+             
+        
+      </domain>
+      <domain domain_source="smart" end="215" type="domain"
+              start="193">
+        <title>TM</title>
+        
+             
+        
+      </domain>
+      <domain domain_source="smart" end="269" type="domain"
+              start="247">
+        <title>TM</title>
+        
+             
+        
+      </domain>
+      <domain domain_source="smart" end="306" type="domain"
+              start="284">
+        <title>TM</title>
+        
+             
+        
+      </domain>
+    </protein_domain_architecture>
+    <expressions>
+      <expression>
+        <title>Keratinocyte</title>
+        
+            <pubmed>12648236</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Cerebral cortex</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Frontal lobe</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Parietal lobe</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Occipital lobe</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Temporal lobe</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Pons</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Amygdaloid nucleus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Cerebellum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Caudate nucleus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Hippocampus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Medulla oblongata</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Putamen</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Leukocyte</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Lymph node</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Bone marrow</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Trachea</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Thalamus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Aorta</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Atrium</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Ventricle</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Oesophagus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Stomach</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Duodenum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Jejunum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Ileum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Caecum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Vermiform appendix</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Colon</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Rectum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Kidney</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Skeletal muscle</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Spleen</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Thymus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Lung</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Placenta</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Uterus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Prostate</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Testis</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Ovary</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Liver</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Adrenal gland</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Thyroid gland </title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Salivary gland</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Fetus</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Urinary bladder</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Corpus callosum</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Nucleus accumbens</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+      <expression>
+        <title>Pancreas</title>
+        
+            <pubmed>11705398</pubmed>
+        
+      </expression>
+    </expressions>
+    <functions>
+      <molecular_class>G protein coupled receptor</molecular_class>
+      
+         <molecular_function>
+            <title>G-protein coupled receptor activity</title>
+            <goid>0004930</goid>
+         </molecular_function>
+      
+      <biological_processes>
+         <biological_process>
+            <title>Signal transduction</title>
+            <goid>0007165</goid>
+         </biological_process>
+         <biological_process>
+            <title>Cell communication </title>
+            <goid>0007154</goid>
+         </biological_process>
+      </biological_processes>
+    </functions>
+    <cellular_component>
+      
+          <primary>
+              <title>plasma membrane</title>
+              <go_id>GO:0005886</go_id>
+              <go_abbreviation>TAS</go_abbreviation>
+              
+                 <pubmed>11331101</pubmed>
+              
+          </primary>
+      
+      
+    </cellular_component>
+    
+    
+    <interactions>
+<entrySet xmlns="net:sf:psidev:mi"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="net:sf:psidev:mi http://psidev.sourceforge.net/mi/xml/src/MIF.xsd"
+          level="1" version="1">
+    <entry>
+        <source>
+            <names>
+                <shortLabel>HPRD</shortLabel>
+                <fullName>Human Protein Reference Database</fullName>
+            </names>
+            <bibref>
+                <xref>
+                     <primaryRef db="PubMed" id="14525934"/>
+                     <secondaryRef db="PubMed" id="14681466"/>
+                </xref>
+            </bibref>
+        </source>
+        <availabilityList>
+            <availability id="copyright">
+                This data is copyrighted by Johns Hopkins University.
+                Commercial entities may not use this without prior licensing
+                authorization. Other databases must agree to enforce the same
+                licensing guidelines before making this data public on their website.
+            </availability>
+        </availabilityList>
+
+        <interactorList>
+          
+            <proteinInteractor id="ID_HPRD_05510">
+                <names>
+                    <shortLabel>Endothelial differentiation gene 8</shortLabel>
+                </names>
+                <xref>
+                    <primaryRef db="HPRD" id="HPRD_05510"/>
+                     
+                    
+                    <secondaryRef version="1" db="Ref-Seq"
+    id="NP_110387"/>
+                    
+                        <secondaryRef db="Swiss-Prot"
+    id="Q9H228"/> 
+                    
+                    <secondaryRef db="Locus-Link" id="53637"/> 
+                    
+                        <secondaryRef db="Unigene"
+    id="501561"/> 
+                    
+                    
+                </xref>
+                <organism ncbiTaxId="9606">
+                   <names>
+                      <shortLabel>Human</shortLabel>
+                      <fullName>Homo sapiens</fullName>
+                   </names>
+                </organism>
+                <sequence>mesgllrpap vsevivlhyn ytgklrgary
+qpgaglrada vvclavcafi vlenlavllv
+lgrhprfhap mflllgsltl sdllagaaya
+anillsgplt lklspalwfa reggvfvalt
+asvlsllaia lersltmarr gpapvssrgr
+tlamaaaawg vslllgllpa lgwnclgrld
+acstvlplya kayvlfcvla fvgilaaica
+lyariycqvr anarrlparp gtagttstra
+rrkprslall rtlsvvllaf vacwgplfll
+llldvacpar tcpvllqadp flglamansl
+lnpiiytltn rdlrhallrl vccgrhscgr
+dpsgsqqsas aaeasgglrr clppgldgsf
+sgsersspqr dgldtsgstg spgaptaart
+lvsepaad
+</sequence>
+            </proteinInteractor>
+          
+          
+            <proteinInteractor id="ID_HPRD_05093">
+                <names>
+                    <shortLabel>Guanine nucleotide binding protein, alpha 12</shortLabel>
+                </names>
+                
+                <organism ncbiTaxId="40674">
+                   <names>
+                      <shortLabel>Mammals</shortLabel>
+                      <fullName>Mammalia</fullName>
+                   </names>
+                </organism>
+                
+            </proteinInteractor>
+          
+          
+            <proteinInteractor id="ID_HPRD_00756">
+                <names>
+                    <shortLabel>G protein, alpha inhibiting 1</shortLabel>
+                </names>
+                
+                <organism ncbiTaxId="40674">
+                   <names>
+                      <shortLabel>Mammals</shortLabel>
+                      <fullName>Mammalia</fullName>
+                   </names>
+                </organism>
+                
+            </proteinInteractor>
+          
+          
+            <proteinInteractor id="ID_HPRD_00757">
+                <names>
+                    <shortLabel>Guanine nucleotide binding protein, alpha 'other'</shortLabel>
+                </names>
+                
+                <organism ncbiTaxId="40674">
+                   <names>
+                      <shortLabel>Mammals</shortLabel>
+                      <fullName>Mammalia</fullName>
+                   </names>
+                </organism>
+                
+            </proteinInteractor>
+          
+        </interactorList>
+        <interactionList>
+           
+            <interaction>
+                <availabilityRef ref="copyright"/>
+                <experimentList>
+                  
+                    <experimentDescription
+    id="I10656758048004_vt">
+                        <bibref>
+                            <xref>
+                               
+                                  
+                                       <primaryRef
+    db="PubMed" id="11069896"/>
+                                       
+                                  
+                                
+                            </xref>
+                        </bibref>
+                        <interactionDetection>
+                            <names>
+                                <shortLabel>vt</shortLabel> 
+                                <fullName>in vitro</fullName>
+                            </names>
+                            <xref>
+                                <primaryRef db="IOB"
+    id="IOB:0002"/> 
+                            </xref>
+                        </interactionDetection>
+                    </experimentDescription>
+                  
+                </experimentList>
+                <participantList>
+                    <proteinParticipant>
+                        <proteinInteractorRef
+    ref="ID_HPRD_05093"/>
+                    </proteinParticipant>
+                    <proteinParticipant>
+                        <proteinInteractorRef
+    ref="ID_HPRD_05510"/>
+                    </proteinParticipant>
+                </participantList>
+                <xref>
+                    <primaryRef db="HPRD" id="HPRD_05510"/>
+                </xref>
+                <attributeList>
+                   
+                      <attribute name="HPRD Author">sandeep</attribute>
+                      
+                   <attribute name="last_updated">2_20_2005</attribute>             
+                </attributeList>
+            </interaction>
+           
+           
+            <interaction>
+                <availabilityRef ref="copyright"/>
+                <experimentList>
+                  
+                    <experimentDescription
+    id="I10993217343120_vv">
+                        <bibref>
+                            <xref>
+                               
+                                  
+                                       <primaryRef
+    db="PubMed" id="11069896"/>
+                                       
+                                  
+                                
+                            </xref>
+                        </bibref>
+                        <interactionDetection>
+                            <names>
+                                <shortLabel>vv</shortLabel> 
+                                <fullName>in vivo</fullName>
+                            </names>
+                            <xref>
+                                <primaryRef db="IOB"
+    id="IOB:0001"/> 
+                            </xref>
+                        </interactionDetection>
+                    </experimentDescription>
+                  
+                </experimentList>
+                <participantList>
+                    <proteinParticipant>
+                        <proteinInteractorRef
+    ref="ID_HPRD_00756"/>
+                    </proteinParticipant>
+                    <proteinParticipant>
+                        <proteinInteractorRef
+    ref="ID_HPRD_05510"/>
+                    </proteinParticipant>
+                </participantList>
+                <xref>
+                    <primaryRef db="HPRD" id="HPRD_05510"/>
+                </xref>
+                <attributeList>
+                   
+                      <attribute name="HPRD Author">sandeep</attribute>
+                      
+                   <attribute name="last_updated">2_20_2005</attribute>             
+                </attributeList>
+            </interaction>
+           
+            <interaction>
+                <availabilityRef ref="copyright"/>
+                <experimentList>
+                  
+                    <experimentDescription
+    id="I10656757483361_vt">
+                        <bibref>
+                            <xref>
+                               
+                                       <primaryRef    db="PubMed" id="11069896"/>
+                                  
+                                
+                            </xref>
+                        </bibref>
+                        <interactionDetection>
+                            <names>
+                                <shortLabel>vt</shortLabel> 
+                                <fullName>in vitro</fullName>
+                            </names>
+                            <xref>
+                                <primaryRef db="IOB"
+    id="IOB:0002"/> 
+                            </xref>
+                        </interactionDetection>
+                    </experimentDescription>
+                  
+                </experimentList>
+                <participantList>
+                    <proteinParticipant>
+                        <proteinInteractorRef
+    ref="ID_HPRD_00757"/>
+                    </proteinParticipant>
+                    <proteinParticipant>
+                        <proteinInteractorRef
+    ref="ID_HPRD_05510"/>
+                    </proteinParticipant>
+                </participantList>
+                <xref>
+                    <primaryRef db="HPRD" id="HPRD_05510"/>
+                </xref>
+                <attributeList>
+                   
+                      <attribute name="HPRD Author">sandeep</attribute>
+                      
+                   <attribute name="last_updated">2_20_2005</attribute>             
+                </attributeList>
+            </interaction>
+             
+        </interactionList>
+    </entry>
+</entrySet>
+</interactions>
+
+    <non_protein_interactions>
+        
+          <non_protein_interaction complex="no">
+              <n_interactor db="HPRD">05510</n_interactor> 
+              <n_interactor db="none_specified">Sphingosine 1 phosphate </n_interactor> 
+              <exp_type>in vitro</exp_type> 
+              <pubmed>11069896</pubmed>
+          </non_protein_interaction>
+        
+    </non_protein_interactions>
+
+    <EXTERNAL_LINKS>
+      <SwissProt>Q9H228</SwissProt>
+      <locusLink>53637</locusLink>
+      <unigene>501561</unigene>
+      <otherResources>None</otherResources>
+      <PDB></PDB>
+    </EXTERNAL_LINKS>
+
+    <author>
+       <annotator>sandeep</annotator>
+       
+    </author>
+    <last_updated>2_20_2005</last_updated>
+
+   </protein>
+</HPRDr2>
+
+
