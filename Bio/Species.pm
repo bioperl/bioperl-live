@@ -332,10 +332,26 @@ sub binomial {
     return $bi;
 }
 
+=head2 binomial
+
+ Title   : validate_species_name
+ Usage   : $result = $self->validate_species_name($string);
+ Function: Validate the species portion of the binomial
+ Args    : string
+ Notes   : The string following the "genus name" in the NCBI binomial
+           is so variable that it's not clear that this is a useful
+           function. Consider the binomials 
+           "Simian 11 rotavirus (serotype 3 / strain SA11-Patton)",
+           or "St. Thomas 3 rotavirus", straight from GenBank.
+           This is particularly problematic in microbes and viruses.
+
+=cut
+
 sub validate_species_name {
     my( $self, $string ) = @_;
 
     return 1 if $string eq "sp.";
+	 return 1 if $string =~ /strain/;
     return 1 if $string =~ /^[a-z][\w\s-]+$/i;
     $self->throw("Invalid species name '$string'");
 }
