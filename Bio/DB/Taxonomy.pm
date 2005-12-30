@@ -19,7 +19,7 @@ Bio::DB::Taxonomy - Access to a taxonomy database
   use Bio::DB::Taxonomy;
   my $db = new Bio::DB::Taxonomy(-source => 'entrez');
   # use NCBI Entrez over HTTP
-  my $taxaid = $db->get_taxonid('Homo sapiens');
+  my $taxonid = $db->get_taxonid('Homo sapiens');
 
 =head1 DESCRIPTION
 
@@ -111,7 +111,7 @@ sub _initialize { }
 =head2 get_Taxonomy_Node
 
  Title   : get_Taxonomy_Node
- Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxaid)
+ Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
  Function: Get a Bio::Taxonomy::Taxon object for a taxonid
  Returns : Bio::Taxonomy::Taxon object
  Args    : -taxonid => taxonomy id (to query by taxonid)
