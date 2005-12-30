@@ -553,16 +553,13 @@ lvsepaad
                     <primaryRef db="HPRD" id="HPRD_05510"/>
                      
                     
-                    <secondaryRef version="1" db="Ref-Seq"
-    id="NP_110387"/>
+                    <secondaryRef version="1" db="Ref-Seq" id="NP_110387"/>
                     
-                        <secondaryRef db="Swiss-Prot"
-    id="Q9H228"/> 
+                        <secondaryRef db="Swiss-Prot" id="Q9H228"/> 
                     
                     <secondaryRef db="Locus-Link" id="53637"/> 
                     
-                        <secondaryRef db="Unigene"
-    id="501561"/> 
+                        <secondaryRef db="Unigene" id="501561"/> 
                     
                     
                 </xref>
