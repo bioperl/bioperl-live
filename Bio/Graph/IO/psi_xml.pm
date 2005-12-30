@@ -106,19 +106,26 @@ sub _proteinInteractor {
 									       -classification => [$sp, $gen],
 									      );
 		$species{$taxid} = $sp_obj;
-		}
+	}
 
 	## next extract sequence id info ##
 	my @ids          = $pi->first_child('xref')->children();
 	my %ids          = map{$_->att('db'), $_->att('id')} @ids;
-	 $ids{'psixml'}  = $pi->att('id');
+	$ids{'psixml'}  = $pi->att('id');
 
 	$prim_id = defined ($ids{'GI'})?  $ids{'GI'}:'';
 	$acc        = $ids{'RefSeq'} || $ids{'SWP'} || $ids{'PIR'} || $ids{'GI'};
 
-	## get description line
-	$desc    = $pi->first_child('names')->first_child('fullName')->text;
-
+	## get description line - certain files, like PSI XML from HPRD, have
+	## "shortLabel" but no "fullName"
+	eval {
+		$desc    = $pi->first_child('names')->first_child('fullName')->text; 
+	};
+	if ($@) {
+		warn("No fullName, use shortLabel for description instead");
+		$desc    = $pi->first_child('names')->first_child('shortLabel')->text;
+	}
+	
 	# use ids that aren't accession_no or primary_tag to build 
    # dbxref Annotations
 	my $ac = Bio::Annotation::Collection->new();	
