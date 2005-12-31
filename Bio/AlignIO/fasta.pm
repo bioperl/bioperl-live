@@ -55,7 +55,7 @@ use Bio::SimpleAlign;
 
 @ISA = qw(Bio::AlignIO);
 
-$MATCHPATTERN = '^A-Za-z\.\-';
+$MATCHPATTERN = '^A-Za-z\.\-\*';
 $WIDTH = 60;
 
 =head2 next_aln
