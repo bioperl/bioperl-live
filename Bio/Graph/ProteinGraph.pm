@@ -150,7 +150,7 @@ due to database errors. These methods are useful when merging 2
 datasets using the union() method. Interactions present in both 
 datasets, with different IDs, will be duplicate edges. 
 
-For developers:
+=head2 For Developers
 
 In this module, nodes are represented by L<Bio::Seq::RichSeq> objects
 containing all possible database identifiers but no sequence, as
@@ -230,6 +230,14 @@ Email richard.adams@ed.ac.uk
 
 =cut
 
+use strict;
+package Bio::Graph::ProteinGraph;
+use Bio::Graph::SimpleGraph;
+use Bio::Graph::Edge;
+use Clone qw(clone);
+use vars  qw(@ISA);
+our @ISA = qw(Bio::Graph::SimpleGraph);
+
 =head2  has_node
 
  name      : has_node
@@ -239,14 +247,6 @@ Email richard.adams@ed.ac.uk
  arguments : A sequence identifier.
 
 =cut
-
-use strict;
-package Bio::Graph::ProteinGraph;
-use Bio::Graph::SimpleGraph;
-use Bio::Graph::Edge;
-use Clone qw(clone);
-use vars  qw(@ISA);
-our @ISA = qw(Bio::Graph::SimpleGraph);
 
 sub has_node {
 
@@ -639,10 +639,6 @@ sub subgraph {
   }#next node
   return $subgraph;
 }
-
-
-
-
 
 =head2 add_dup_edge
 
