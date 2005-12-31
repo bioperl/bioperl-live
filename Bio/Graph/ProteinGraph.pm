@@ -11,31 +11,30 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 
 =head1 SYNOPSIS
 
-  # read in from file
+  # Read in from file
   my $graphio = Bio::Graph::IO->new(-file   => 'myfile.dat',
                                     -format => 'dip');
   my $graph   = $graphio->next_network();
 
-  # remove duplicate interactions from within a dataset
-
+  # Remove duplicate interactions from within a dataset
   $graph->remove_dup_edges();
 
-  # get a node (represented by a sequence object) from the graph.
+  # Get a node (represented by a sequence object) from the graph.
   my $seqobj = $gr->nodes_by_id('P12345');
 
-  # get clustering coefficient of a given node.
+  # Get clustering coefficient of a given node.
   my $cc = $gr->clustering_coefficient($graph->nodes_by_id('NP_023232'));
   if ($cc != -1) {  ## result is -1 if cannot be calculated
     print "CC for NP_023232 is $cc";
   }
 
-  # get graph density
+  # Get graph density
   my $density = $gr->density();
 
-  # get connected subgraphs
+  # Get connected subgraphs
   my @graphs = $gr->components();
 
-  # remove a node
+  # Remove a node
   $gr->remove_nodes($gr->nodes_by_id('P12345'));
 
   # How many interactions are there?
@@ -44,7 +43,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
   # How many nodes are there?
   my $ncount = $gr->node_count();
 
-  # Lets get interactions above a threshold confidence score.
+  # Let's get interactions above a threshold confidence score.
   my $edges = $gr->edges;
   for my $edge (keys %$edges) {
 	 if (defined($edges->{$edge}->weight()) &&
@@ -54,17 +53,15 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
 	 }
   }
 
-  # get interactors of your favourite protein
-
+  # Get interactors of your favourite protein
   my $node      = $graph->nodes_by_id('NP_023232');
   my @neighbors = $graph->neighbors($node); 
   print "      NP_023232 interacts with ";
   print join " ,", map{$_->object_id()} @neighbors;
   print "\n";
 
-  # annotate your sequences with interaction info
-
-  my @seqs; ##array of sequence objects
+  # Annotate your sequences with interaction info
+  my @seqs; ## array of sequence objects
   for my $seq(@seqs) {
     if ($graph->has_node($seq->accession_number)) {
        my $node = $graph->nodes_by_id( $seq->accession_number);
@@ -79,8 +76,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
      }
   }
 
-  # get proteins with > 10 interactors
-
+  # Get proteins with > 10 interactors
   my @nodes = $graph->nodes();
   my @hubs;
   for my $node (@nodes) {
@@ -91,29 +87,24 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
   print "the following proteins have > 10 interactors:\n";
   print join "\n", map{$_->object_id()} @hubs;
 
-  # merge 2 graphs, flag duplicate edges ##
-
-  # get second graph $g2
+  # Merge graphs 1 and 2 and flag duplicate edges
   $g1->union($g2);
   my @duplicates = $g1->dup_edges();
-
   print "these interactions exist in $g1 and $g2:\n";
   print join "\n", map{$_->object_id} @duplicates;
 
-  # what to do if you have interaction data in your own format:
-
-  # e.g.
-  # edgeid node1  node2 node2 score
-
+  # Create a graph if you have interaction data in your own format, e.g. 
+  # edgeid  node1  node2  score
+  #
   my $io = Bio::Root::IO->new(-file => 'mydata');
   my $gr = Bio::Graph::ProteinGraph->new();
-  my %seen= (); # to record seen nodes
+  my %seen = (); # to record seen nodes
   while (my $l = $io->_readline() ) {
 
-  # parse out your data
-  my ($e_id, $n1, $n2, $sc) = split /\t/, $l;
+  # Parse out your data...
+  my ($e_id, $n1, $n2, $sc) = split /\s+/, $l;
 
-  # make nodes if they are unseen
+  # ...then make nodes if they don't already exist in the graph...
   my @nodes =();
     for my $n ($n1, $n2 ) {
 		if (!exists($seen{$n})) {
@@ -125,30 +116,28 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
     }
   }
 
-  # make an edge
+  # ...and add a new edge to the graph
   my $edge  = Bio::Graph::Edge->new(-nodes => \@nodes,
                                     -id    => 'myid',
                                     -weight=> 1);
-  # add it to graph
   $gr->add_edge($edge);
 
 =head1 DESCRIPTION
 
 A ProteinGraph is a representation of a protein interaction network.
-It derives most of its functionality from Nat Goodman's SimpleGraph
+It derives most of its functionality from the L<Bio::Graph::SimpleGraph>
 module, but is adapted to be able to use protein identifiers to
 identify the nodes.
 
-This graph  can use any objects that implement Bio::AnnotatableI and Bio::IdentifiableI
- interfaces.  Bio::Seq (but not Bio::PrimarySeqI)
-  objects can therefore be used  for the nodes, as this class is
-familiar to most BioPerl users. Any object that supports annotation objects and the object_id()
- method should work fine. 
+This graph can use any objects that implement L<Bio::AnnotatableI> and 
+L<Bio::IdentifiableI> interfaces.  L<Bio::Seq> (but not L<Bio::PrimarySeqI>)
+objects can therefore be used for the nodes but any object that supports 
+annotation objects and the object_id() method should work fine. 
 
 At present it is fairly 'lightweight' in that it represents nodes and
-edges but does not contain all the data about experiment ids etc found
+edges but does not contain all the data about experiment ids etc. found
 in the Protein Standards Initiative schema. Hopefully that will be
-available soon
+available soon.
 
 A dataset may contain duplicate or redundant interactions. 
 Duplicate interactions are interactions that occur twice in the dataset 
@@ -163,16 +152,17 @@ datasets, with different IDs, will be duplicate edges.
 
 For developers:
 
-In this module, nodes are represented by Bio::Seq::RichSeq objects
+In this module, nodes are represented by L<Bio::Seq::RichSeq> objects
 containing all possible database identifiers but no sequence, as
 parsed from the interaction files. However, a node represented by a
-Bio::PrimarySeq object should work fine too.
+L<Bio::PrimarySeq> object should work fine too.
 
-Edges are represented by Bio::Graph::Edge objects. In order to
+Edges are represented by L<Bio::Graph::Edge> objects. In order to
 work with SimpleGraph these objects must be array references, with the
 first 2 elements being references to the 2 nodes. More data can be
-added in $e[2]. etc. Edges should  be Bio::Graph::Edge objects, which 
-are Bio::IdentifiableI implementing objects.
+added in $e[2]. etc. Edges should  be L<Bio::Graph::Edge> objects, which 
+are L<Bio::IdentifiableI> implementing objects.
+
 At present edges only have an identifier and a weight() method, to 
 hold confidence data, but subclasses of this could hold all the 
 interaction data held in an XML document.
@@ -230,7 +220,7 @@ web:
 
 =head1 AUTHORS
 
- Richard Adams - this module, IO modules.
+ Richard Adams - this module, Graph::IO modules.
 
 =head2 AUTHOR2
 
