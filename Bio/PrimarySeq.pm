@@ -323,7 +323,7 @@ sub validate_seq {
 	if((CORE::length($seqstr) > 0) && 
 	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
 	    $self->warn("seq doesn't validate, mismatch is " .
-			($seqstr =~ /([^$MATCHPATTERN]+)/g));
+			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
 		return 0;
 	}
 	return 1;
