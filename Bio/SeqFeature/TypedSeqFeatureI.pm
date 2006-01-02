@@ -43,7 +43,7 @@ interface (ie, a TypedSeqFeatureI feature must also implement
 all the Bio::SeqFeatureI interface as well). 
 
 It is suggested that the primary_tag() method of SeqFeatureI
-returns the same as the ontology_term()-E<lt>name() of the OntologyTypedI
+returns the same as the ontology_term()-E<gt>name() of the OntologyTypedI
 (ie, the "string" name of the ontology type is used as the primary
 tag), but this should not be assummed by client code as they
 are scenarios where one would like to maintain the difference.
@@ -71,12 +71,6 @@ web:
 =head1 AUTHOR - Ewan Birney
 
 Email - please email the bioperl list
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
