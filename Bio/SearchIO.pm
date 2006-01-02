@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::SearchIO - Driver for parsing Sequence Database Searches (Blast,FASTA,...)
+Bio::SearchIO - Driver for parsing Sequence Database Searches 
+(BLAST, FASTA, ...)
 
 =head1 SYNOPSIS
 
@@ -49,7 +50,7 @@ A list of module names and formats is below:
   blasttable BLAST -m9 or -m8 output (NCBI not WUBLAST tabular)
   megablast  MEGABLAST
   psl        UCSC PSL format
-  waba       Jim Kent's WABA output
+  waba       WABA output
   axt        AXT format
   sim4       Sim4
   hmmer      HMMER hmmpfam and hmmsearch
@@ -58,7 +59,6 @@ A list of module names and formats is below:
   wise       Genewise -genesf format
 
 See the SearchIO HOWTO linked from http://bioperl.org/HOWTOs/
-
 
 =head1 FEEDBACK
 
