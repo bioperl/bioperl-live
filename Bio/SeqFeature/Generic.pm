@@ -22,7 +22,7 @@ Bio::SeqFeature::Generic - Generic SeqFeature
             -strand       => -1, 
             -primary      => 'repeat',
             -source_tag   => 'repeatmasker',
-				-display_name => 'alu family',
+            -display_name => 'alu family',
             -score        => 1000,
             -tag          => { new => 1,
                                author => 'someone',
@@ -46,8 +46,8 @@ For many Features, this is all you will need to use (for example, this
 is fine for Repeats in DNA sequence or Domains in protein
 sequence). For other features, which have more structure, this is a
 good base class to extend using inheritence to have new things: this
-is what is done in the Bio::SeqFeature::Gene,
-Bio::SeqFeature::Transcript and Bio::SeqFeature::Exon, which provide
+is what is done in the L<Bio::SeqFeature::Gene>,
+L<Bio::SeqFeature::Transcript> and L<Bio::SeqFeature::Exon>, which provide
 well coordinated classes to represent genes on DNA sequence (for
 example, you can get the protein sequence out from a transcript
 class).
@@ -56,7 +56,7 @@ For many Features, you want to add some piece of information, for
 example a common one is that this feature is 'new' whereas other
 features are 'old'.  The tag system, which here is implemented using a
 hash can be used here.  You can use the tag system to extend the
-SeqFeature::Generic programmatically: that is, you know that you have
+L<Bio::SeqFeature::Generic> programmatically: that is, you know that you have
 read in more information into the tag 'mytag' which you can then
 retrieve. This means you do not need to know how to write inherieted
 Perl to provide more complex information on a feature, and/or, if you
@@ -65,7 +65,7 @@ some extra piece of information, you can use the tag system to easily
 store and then retrieve information.
 
 The tag system can be written in/out of GFF format, and also into EMBL
-format via the SeqIO system
+format via the L<Bio::SeqIO> system
 
 =head1 Implemented Interfaces
 
@@ -73,13 +73,13 @@ This class implementes the following interfaces.
 
 =over 4
 
-=item Bio::SeqFeatureI
+=item L<Bio::SeqFeatureI>
 
 Note that this includes implementing Bio::RangeI.
 
-=item Bio::AnnotatableI
+=item L<Bio::AnnotatableI>
 
-=item Bio::FeatureHolderI
+=item L<Bio::FeatureHolderI>
 
 Features held by a feature are essentially sub-features.
 
@@ -93,8 +93,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org             - General discussion
+  http://bio.perl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -168,7 +168,7 @@ sub new {
  Args    : Named parameters, in the form as they would otherwise be passed
            to new(). Currently recognized are:
 
-                  -start          start position
+                    -start          start position
                     -end            end position
                     -strand         strand
                     -primary        primary tag
@@ -934,7 +934,7 @@ sub cleanup_generic {
     }
 }
 
-=head1 INHERITED METHODS FOR Bio::AnnotatableI VIA Bio::SeqFeatureI
+=head1 INHERITED METHODS FOR L<Bio::AnnotatableI> VIA L<Bio::SeqFeatureI>
 
 =head2 has_tag()
 
@@ -952,7 +952,7 @@ sub cleanup_generic {
 
 =cut
 
-=head2 remove_tag
+=head2 remove_tag()
 
 =cut
 
