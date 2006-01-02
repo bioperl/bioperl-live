@@ -16,6 +16,8 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
                                     -format => 'dip');
   my $graph   = $graphio->next_network();
 
+=head2 Using ProteinGraph
+
   # Remove duplicate interactions from within a dataset
   $graph->remove_dup_edges();
 
@@ -69,7 +71,7 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
        for my $n (@neighbors) {
          my $ft = Bio::SeqFeature::Generic->new(
                       -primary_tag => 'Interactor',
-                      -tags        => { id => $n->accession_number}
+                      -tags        => { id => $n->accession_number }
                       );
             $seq->add_SeqFeature($ft);
         }
@@ -93,9 +95,12 @@ Bio::Graph::ProteinGraph - a representation of a protein interaction graph.
   print "these interactions exist in $g1 and $g2:\n";
   print join "\n", map{$_->object_id} @duplicates;
 
-  # Create a graph if you have interaction data in your own format, e.g. 
-  # edgeid  node1  node2  score
-  #
+=head2 Creating networks from your own data
+
+If you have interaction data in your own format, e.g. 
+
+  edgeid  node1  node2  score
+
   my $io = Bio::Root::IO->new(-file => 'mydata');
   my $gr = Bio::Graph::ProteinGraph->new();
   my %seen = (); # to record seen nodes
@@ -169,14 +174,14 @@ interaction data held in an XML document.
 
 So, a graph has the following data:
 
-1. A hash of nodes, where keys are the text representation of a 
+1. A hash of nodes ('_nodes'), where keys are the text representation of a 
 nodes memory address and values are the sequence object references.
 
-2. A hash of neighbors, where keys are the text representation of a 
+2. A hash of neighbors ('_neighbors'), where keys are the text representation of a 
 nodes memory address and a value is a reference to a list of 
 neighboring node references.
 
-3. A hash of edges, where a key is a text representation of the 2 nodes.
+3. A hash of edges ('_edges'), where a key is a text representation of the 2 nodes.
 E.g., "address1,address2" as a string, and values are Bio::Graph::Edge 
 objects.
 
@@ -185,6 +190,11 @@ objects.
 5. Look up hash for edges ('_edge_id_map') for retrieving an edge 
 object  from its identifier.
 
+6. Hash ('_components').
+
+7. An array of duplicate edges ('_dup_edges').
+
+8. Hash ('_is_connected').
 
 =head1  REQUIREMENTS
 
@@ -197,7 +207,8 @@ XML data you will need XML::Twig available from CPAN.
 L<Bio::Graph::SimpleGraph>
 L<Bio::Graph::IO>
 L<Bio::Graph::Edge>
-L<Bio::DB::CUTG>
+L<Bio::Graph::IO::dip>
+L<Bio::Graph::IO::psi_xml>
 
 =head1 FEEDBACK
 
@@ -222,11 +233,11 @@ web:
 
  Richard Adams - this module, Graph::IO modules.
 
+ Email richard.adams@ed.ac.uk
+
 =head2 AUTHOR2
 
  Nat Goodman - SimpleGraph.pm, and all underlying graph algorithms.
-
-Email richard.adams@ed.ac.uk
 
 =cut
 
@@ -453,7 +464,7 @@ sub edge_count {
  Purpose  : returns number of nodes.
  Arguments: void
  Returns  : An integer
- Usage    : my $count  = $graph->node_count;
+ Usage    : my $count = $graph->node_count;
 
 =cut
 
@@ -470,7 +481,7 @@ sub node_count {
  Purpose   : returns number of neighbors of a given node
  Usage     : my $count = $gr->neighbor_count($node)
  Arguments : a node object
- Returns   :  an integer
+ Returns   : an integer
 
 =cut
 
@@ -520,7 +531,7 @@ sub _get_ids {
 			$n->throw("I need a Bio::AnnotatableI and Bio::IdentifiableI  implementing object, not a [" .ref($n) ."]");
 		}
 		#get ids
-		map{$ids{$_} = undef}($n->object_id);
+		map {$ids{$_} = undef} ($n->object_id);
 
 		##if BioSeq getdbxref ids as well.
 		if ($n->can('annotation')) {
@@ -551,65 +562,63 @@ sub _get_ids {
 
 sub add_edge {
 
-  my $self      = shift;
-  my $edges     = $self->_edges;
-  my $neighbors = $self->_neighbors;
-  my $dup_edges = $self->_dup_edges;
+	my $self      = shift;
+	my $edges     = $self->_edges;
+	my $neighbors = $self->_neighbors;
+	my $dup_edges = $self->_dup_edges;
 	my $edge;
-  while (@_) {
-    if ( ref($_[0]) eq 'ARRAY' || !ref($_[0])) {
+	while (@_) {
+		if ( ref($_[0]) eq 'ARRAY' || !ref($_[0])) {
       	$self->SUPER::add_edges(@_);
-		return;
-
-    } 
-	elsif ( $_[0]->isa('Bio::Graph::Edge') ) {	# it's already an edge
-       $edge = shift;
-
-    }
-	else {
-		$self->throw(" Invalid edge! - must be an array of nodes, or an edge object");
-	}
-
-	my ($m, $n) = $edge->nodes();
-    next if $m eq $n;		# no self edges
-    last unless defined $m && defined $n;
-    ($m,$n) = ($n,$m) if "$n" lt "$m";
-
-    if (!exists($edges->{$m,$n})) {
-      $self->add_node($m,$n);
-      ($m,$n)         = $self->nodes($m,$n);
-      $edges->{$m,$n} = $edge;
-      push(@{$neighbors->{$m}},$n);
-      push(@{$neighbors->{$n}},$m);
-
-      ## create look up hash for edge ##
-	  $self->{'_edge_id_map'}{$edge->object_id()} = $edge;
-    } else {
-		## is it a redundant edge, ie with same edge id?
-		my $curr_edge = $edges->{$m,$n};
-		if($curr_edge->object_id() eq $edge->object_id()) {
-			$self->redundant_edge($edge);
-			}
-		## else it is a duplicate i.e., same nodes but different edge id
+			return;
+		} 
+		elsif ( $_[0]->isa('Bio::Graph::Edge') ) {	# it's already an edge
+			$edge = shift;
+		}
 		else {
-   			  $self->add_dup_edge($edge); 
+			$self->throw(" Invalid edge! - must be an array of nodes, or an edge object");
+		}
+
+		my ($m, $n) = $edge->nodes();
+		next if $m eq $n;		# no self edges
+		last unless defined $m && defined $n;
+		($m,$n) = ($n,$m) if "$n" lt "$m";
+
+		if (!exists($edges->{$m,$n})) {
+			$self->add_node($m,$n);
+			($m,$n)         = $self->nodes($m,$n);
+			$edges->{$m,$n} = $edge;
+			push(@{$neighbors->{$m}},$n);
+			push(@{$neighbors->{$n}},$m);
+
+			## create look up hash for edge ##
+			$self->{'_edge_id_map'}{$edge->object_id()} = $edge;
+		} else {
+			## is it a redundant edge, ie with same edge id?
+			my $curr_edge = $edges->{$m,$n};
+			if($curr_edge->object_id() eq $edge->object_id()) {
+				$self->redundant_edge($edge);
+			}
+			## else it is a duplicate i.e., same nodes but different edge id
+			else {
+				$self->add_dup_edge($edge); 
 			}
 		}
-    }
-  $self->_is_connected(undef);	# clear cached value
+	}
+	$self->_is_connected(undef);	# clear cached value
 
 }
 
-=head2       subgraph
+=head2 subgraph
 
- Name      :  subgraph
- Purpose   : To construct  a  subgraph of  nodes from the main network.This 
-              method overrides that of Bio::Graph::SimpleGraph in its dealings with Edge 
-              objects. 
+ Name      : subgraph
+ Purpose   : To construct a subgraph of  nodes from the main network.This 
+             method overrides that of Bio::Graph::SimpleGraph in its dealings with 
+             Edge objects. 
  Usage     : my $sg = $gr->subgraph(@nodes).
- Returns   : A subgraph of the same class as the original graph. Edge objects are cloned from 
-               the original graph but node objects are shared, so beware if you start deleting
-             nodes from the parent graph whilst operating on subgraph nodes. 
+ Returns   : A subgraph of the same class as the original graph. Edge objects are 
+             cloned from the original graph but node objects are shared, so beware if you 
+             start deleting nodes from the parent graph whilst operating on subgraph nodes. 
  Arguments : A list of node objects.
 
 =cut
@@ -654,7 +663,7 @@ sub subgraph {
  Usage      : $gr->add_dup_edge(edge->new (-nodes => [$n1, $n2],
                                            -score => $score
                                            -id    => $id);
- Arguments  : an edgeI implementing object.
+ Arguments  : an EdgeI implementing object.
  Descripton : 
 
 
@@ -682,7 +691,7 @@ sub add_dup_edge {
 
  Name        : edge_by_id
  Purpose     : retrieve data about an edge from its id
- Arguments   :  a text identifier
+ Arguments   : a text identifier
  Returns     : a Bio::Graph::Edge object or undef
  Usage       : my $edge = $gr->edge_by_id('1000E');
 
@@ -738,9 +747,6 @@ sub  remove_dup_edges{
 
 }
 
-# with arg adds it to list, else returns list as reference. 
-
-
 =head2 redundant_edge
 
  Name        : redundant_edge
@@ -749,34 +755,42 @@ sub  remove_dup_edges{
  Arguments   : none (getter) or a Biuo::Graph::Edge object (setter). 
  Description : redundant edges are edges in a graph that have the 
                same edge id, ie. are 2 identical interactions. 
+               With edge arg adds it to list, else returns list as reference. 
 
 =cut
 
 sub redundant_edge {
 
-my ($self, $edge) =@_;
+	my ($self, $edge) =@_;
 	if ($edge) {
 		if (!$edge->isa('Bio::Graph::Edge')) {
-		$self->throw ("I need a Bio::Graph::Edge object , not a [". ref($edge). "] object.");
+			$self->throw ("I need a Bio::Graph::Edge object , not a [". ref($edge). "] object.");
 		}
 		if (!exists($self->{'_redundant_edges'})) {
 			$self->{'_redundant_edges'} = [];
-			}
-		##add edge to list if not already listed
+		}
+		## add edge to list if not already listed
 		if (!grep{$_->object_id eq $edge->object_id} @{$self->{'_redundant_edges'}}){
 			push @{$self->{'_redundant_edges'}}, $edge;
 		}
-		}
+	}
 	else {
 		if (exists ($self->{'_redundant_edges'})){
 			return @{$self->{'_redundant_edges'}};
-			}else{
-
-			}
 		}
+		else{
+			
+		}
+	}
 }
 
-#alias for redundant edge
+=head2 redundant_edges
+
+ Name         : redundant_edges
+ Purpose      : alias for redundant_edge
+
+=cut
+
 sub redundant_edges {
 	my $self = shift;
 	return $self->redundant_edge(shift);
@@ -786,7 +800,7 @@ sub redundant_edges {
 
  Name        : remove_redundant_edges
  Purpose     : removes redundant_edges from graph, used by remove_node(),
-                  may be better as an internal method??
+               may be better as an internal method??
  Arguments   : none         - removes all redundant edges
                edge id list - removes specified edges
  Returns     : void
@@ -821,8 +835,8 @@ my ($self, @args) = @_;
 
  Name      : clustering_coefficient
  Purpose   : determines the clustering coefficient of a node, a number 
-             in range 0-1 indicating the extent to which a node's 
-             neighbours are interconnnected.
+             in range 0-1 indicating the extent to which the neighbors of
+             a node are interconnnected.
  Arguments : A sequence object (preferred) or a text identifier
  Returns   : The clustering coefficient. 0 is a valid result.
              If the CC is not calculable ( if the node has <2 neighbors),
@@ -961,7 +975,7 @@ sub unconnected_nodes {
  Arguments : none
  Returns   : a list references to nodes that will fragment the graph 
              if deleted. 
- Description : This is a "slow but sure" method that works with graphs
+ Notes     : This is a "slow but sure" method that works with graphs
                up to a few hundred nodes reasonably fast.
 
 =cut
@@ -1052,22 +1066,22 @@ return $self->{'_artic_points'};
  Purpose   : to determine if a given node is an articulation point or not. 
  Usage     : if ($gr->is_articulation_point($node)) {.... 
  Arguments : a text identifier for the protein or the node itself
- Returns   : 1 if node is an articulation point, 0 if it isn't 
+ Returns   : 1 if node is an articulation point, 0 if it is not 
 
 =cut
 
 sub is_articulation_point {
- my ($self, $val) = @_;
- my $node = $self->_check_args($val);
+	my ($self, $val) = @_;
+	my $node = $self->_check_args($val);
  
- ## this uses a cached value so doesn't have to recalculate each time..
- my $artic_pt_ref = $self->articulation_points();
- my $acc = $node->accession_number;
- if (grep{$_->accession_number eq $acc} @$artic_pt_ref ){
-    return 1;
+	## this uses a cached value so it does not have to recalculate each time..
+	my $artic_pt_ref = $self->articulation_points();
+	my $acc = $node->accession_number;
+	if (grep{$_->accession_number eq $acc} @$artic_pt_ref ){
+		return 1;
    }
- else {
-   return 0;
+	else {
+		return 0;
    }
 }
 
@@ -1085,10 +1099,10 @@ sub _check_args {
 	my ($self, $val) = @_;
 	my $n;
 	if (!$val ) {
-		$self->throw( " I need a node that's a Bio::AnnotatableI and Bio::IdentifiableI");
+		$self->throw( "I need a node that's a Bio::AnnotatableI and Bio::IdentifiableI");
 		}
 
-	## if param is texttry to get sequence object..
+	## if param is text try to get sequence object..
 	if (!ref($val)){
 		 $n = $self->nodes_by_id($val);
 		if(!defined($n)) {
@@ -1097,7 +1111,7 @@ sub _check_args {
 	}
 	# if reference should be a NodeI implementing object.
     elsif (!$val->isa('Bio::AnnotatableI') || !$val->isa('Bio::IdentifiableI')) {
-		$self->throw( " I need a node that's a Bio::AnnotatableI and Bio::IdentifiableI ,not a [". ref($val) . "].");
+		$self->throw( "I need a node that's a Bio::AnnotatableI and Bio::IdentifiableI ,not a [". ref($val) . "].");
 		}
 
 	## is a seq obj

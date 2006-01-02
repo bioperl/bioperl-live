@@ -16,6 +16,25 @@ Do not use this module directly, use Bio::Graph::IO, for example:
   my $graph_io = Bio::Graph::IO->new(-format => 'psi_xml',
                                      -file   => 'data.xml');
 
+=head1 DESCRIPTION
+
+PSI XML is a format to describe protein-protein interactions and 
+interaction networks. The following databases support PSI XML:
+
+BIND    L<http://www.bind.ca>
+DIP     L<http://dip.doe-mbi.ucla.edu/>
+HPRD    L<http://www.hprd.org>
+IntAct  L<http://www.ebi.ac.uk/intact>
+MINT    L<http://cbm.bio.uniroma2.it/mint/>
+
+Documentation for PSI XML can be found at L<http://psidev.sourceforge.net>.
+
+=head2 Notes
+
+See the Bio::Graph::IO::psi_xml page in the Bioperl Wiki 
+(L<http://bioperl.open-bio.org/wiki/Bio::Graph::IO::psi_xml>)
+for notes on PSI XML from various databases.
+
 =head1 METHODS
 
 The naming system is analagous to the SeqIO system, although usually
@@ -37,9 +56,7 @@ use vars qw(@ISA  %species $g $c $fac);
 @ISA = qw(Bio::Graph::IO);
 
 BEGIN{
-	$fac  = Bio::Seq::SeqFactory->new(
-			  -type => 'Bio::Seq::RichSeq'
-												);
+	$fac  = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq::RichSeq');
 	$g = Bio::Graph::ProteinGraph->new();
 }
 
@@ -100,39 +117,49 @@ sub _proteinInteractor {
 
 	## just make new species object if doesn't already exist ##
 	if (!exists($species{$taxid})) {
+		my $common     =  $org->first_child('names')->first_child('shortLabel')->text;
 		my $full       =  $org->first_child('names')->first_child('fullName')->text;
-		my ($gen, $sp) = $full =~ /(\S+)\s+(.+)/;
+		my ($gen,$sp)  = $full =~ /(\S+)\s+(.+)/;
 		my $sp_obj     = Bio::Species->new(-ncbi_taxid     => $taxid,
-									       -classification => [$sp, $gen],
-									      );
+													  -classification => [$sp, $gen],
+													  -common_name    => $common
+													 );
 		$species{$taxid} = $sp_obj;
 	}
 
 	## next extract sequence id info ##
 	my @ids          = $pi->first_child('xref')->children();
-	my %ids          = map{$_->att('db'), $_->att('id')} @ids;
+	my %ids          = map {$_->att('db'), $_->att('id')} @ids;
 	$ids{'psixml'}  = $pi->att('id');
 
-	$prim_id = defined ($ids{'GI'})?  $ids{'GI'}:'';
-	$acc        = $ids{'RefSeq'} || $ids{'SWP'} || $ids{'PIR'} || $ids{'GI'};
+	$prim_id = defined ($ids{'GI'}) ?  $ids{'GI'} : '';
+	$acc = $ids{'RefSeq'} || 
+	       $ids{'SWP'} || 
+			 $ids{'Swiss-Prot'} || # db name from HPRD
+			 $ids{'Ref-Seq'} ||    # db name from HPRD
+			 $ids{'GI'} || 
+			 $ids{'PIR'} ||
+			 $ids{'intact'} ||     # db name from IntAct
+			 $ids{'psi-mi'};       # db name from IntAct
 
 	## get description line - certain files, like PSI XML from HPRD, have
 	## "shortLabel" but no "fullName"
 	eval {
-		$desc    = $pi->first_child('names')->first_child('fullName')->text; 
+		$desc = $pi->first_child('names')->first_child('fullName')->text; 
 	};
 	if ($@) {
 		warn("No fullName, use shortLabel for description instead");
-		$desc    = $pi->first_child('names')->first_child('shortLabel')->text;
+		$desc = $pi->first_child('names')->first_child('shortLabel')->text;
 	}
 	
 	# use ids that aren't accession_no or primary_tag to build 
    # dbxref Annotations
 	my $ac = Bio::Annotation::Collection->new();	
 	for my $db (keys %ids) {
-		next if $ids{$db} eq $acc or $ids{$db} eq $prim_id;
+		next if $ids{$db} eq $acc;
+		next if $ids{$db} eq $prim_id;
 		my $an = Bio::Annotation::DBLink->new( -database   => $db,
-											   -primary_id => $ids{$db},
+															-primary_id => $ids{$db},
 											);
 		$ac->add_Annotation('dblink',$an);
 	}
@@ -148,25 +175,25 @@ sub _proteinInteractor {
 
 	## now fill hash with keys = ids and vals = node refs to have lookup
 	## hash for nodes by any id.	
-	$g->{'_id_map'}{$ids{'psixml'}}          = $node;
+	$g->{'_id_map'}{$ids{'psixml'}} = $node;
 	if (defined($node->primary_id)) {
 		$g->{'_id_map'}{$node->primary_id} = $node;
-		}
+	}
 	if (defined($node->accession_number)) {
 		$g->{'_id_map'}{$node->accession_number} = $node;
-		}
+	}
 
 	## cycle thru annotations
-	 $ac = $node->annotation();
+	$ac = $node->annotation();
 	for my $an ($ac->get_Annotations('dblink')) {
 		$g->{'_id_map'}{$an->primary_id} = $node;
-		}
+	}
 	$twig->purge();
 }
 
 =head2 add_edge
 
- name     : add_edge
+ name     : _addEdge
  purpose  : adds a new edge to a graph
  usage    : do not call, called by next_network
  returns  : void
@@ -177,8 +204,8 @@ sub _addEdge {
 
 	my ($twig, $i) = @_;
 	my @ints = $i->first_child('participantList')->children;
-	my @node = map{$_->first_child('proteinInteractorRef')->att('ref')} @ints;
-    my $edge_id = $i->first_child('xref')->first_child('primaryRef')->att('id');
+	my @node = map {$_->first_child('proteinInteractorRef')->att('ref')} @ints;
+	my $edge_id = $i->first_child('xref')->first_child('primaryRef')->att('id');
 	$g->add_edge(Bio::Graph::Edge->new(
 					-nodes =>[($g->{'_id_map'}{$node[0]}, 
                                $g->{'_id_map'}{$node[1]})],

@@ -14,7 +14,7 @@ Bio::Graph::IO - Class for reading /writing biological graph data.
   # This is a class for reading /writing biological data that can
   # be represented by graphs e.g., protein interaction data.
 
-  #e.g., a graph reformatter..
+  # e.g., a graph reformatter..
   my $graph_in = Bio::Graph::IO->new(-file =>'myfile.dat',
                                      -format=>'dip' );
   my $graph = $graph_in->next_graph();
@@ -26,10 +26,10 @@ Bio::Graph::IO - Class for reading /writing biological graph data.
 
 This class is analagous to the SeqIO and AlignIO classes. To read in a
 file of a particular format, file and format are given as key/value
-pairs aas arguments.  The Bio::Graph::IO checks that the appropriate
+pairs as arguments.  The Bio::Graph::IO checks that the appropriate
 module is available and loads it.
 
-At present only the DIP tab delimited format and psi-XML is supported
+At present only the DIP tab delimited format and PSI XML format are supported
 
 =head1 METHODS
 
@@ -48,7 +48,7 @@ Writes the graph data to file in requested format.
 
 =head1  REQUIREMENTS
 
-To read write from XML you will need the XML::Twig module available
+To read or write from XML you will need the XML::Twig module available
 from CPAN.
 
 =head1 FEEDBACK
@@ -87,11 +87,12 @@ use Bio::Root::IO;
 =head2  new
 
  Name       : new
- Usage      : $io = Bio::Graph::IO->new(-file=>'myfile.dat', -format=>'dip');
+ Usage      : $io = Bio::Graph::IO->new(-file => 'myfile.dat', 
+                                        -format => 'dip');
  Returns    : A Bio::Graph::IO stream initialised to the appropriate format.
  Args       : Named parameters: 
-                  -file      => $filename
-                  -format    => format
+              -file      => $filename
+              -format    => format
 				  -threshold => a confidence score for the interaction, optional
 
 =cut
@@ -103,13 +104,12 @@ sub new {
 		my $self = $class->SUPER::new(@args);
 		$self->_initialize_io(@args);
 		return $self;
-		}
-	else {
+	} else {
 		my %param = @args;
 		@param{ map { lc $_ } keys %param } = values %param;
 		if (!exists($param{'-format'})) {
 			Bio::Root::Root->throw("Must specify a valid format!");
-			} 
+		} 
 		my $format = $param{'-format'};
 		$format    = "\L$format";	
 		return undef unless ($class->_load_format_module($format));
@@ -167,7 +167,7 @@ my ($self, $format) = @_;
     };
     if ( $@ ) {
     print STDERR <<END
-$self:$format cannot be found
+$self: $format cannot be found
 Exception $@
 For more information about the Bio::Graph::IO system please see the Bio:Graph::IO docs.
 END
