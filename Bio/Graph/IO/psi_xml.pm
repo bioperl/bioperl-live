@@ -52,8 +52,9 @@ use Bio::Graph::IO;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
 use Bio::Species;
+use Bio::Root::Object;
 use vars qw(@ISA  %species $g $c $fac);
-@ISA = qw(Bio::Graph::IO);
+@ISA = qw(Bio::Graph::IO Bio::Root::Object);
 
 BEGIN{
 	$fac  = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq::RichSeq');
