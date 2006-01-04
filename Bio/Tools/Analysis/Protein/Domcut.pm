@@ -56,7 +56,7 @@ The raw text of the program output
 
 =item 2
 
-An reference to an array of hashes of scores for each state and the
+A reference to an array of hashes of scores for each state and the
 assigned state. Each element in the array is a residue (indexed from 0).
 
   my $data_ref = $analysis_object->result('parsed');
@@ -94,7 +94,7 @@ So, in order to add features to an existing Bio::Seq object;
 A Bio::Seq::Meta::Array implementing sequence.
 
 This is a Bio::Seq object that can also hold data about each residue
-in the sequence In this case, the sequence can be associated with a
+in the sequence. In this case, the sequence can be associated with a
 single array of Domcut prediction scores.  e.g.,
 
   my $meta_sequence = $analysis_object->result('meta');
