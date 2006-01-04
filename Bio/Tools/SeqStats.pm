@@ -75,6 +75,11 @@ particular sequence
         $seqobj->id(), " is between ", $$weight[0], " and " ,
         $$weight[1], "\n";
 
+  # Calculate mean Kyte-Doolittle hydropathicity (aka "gravy" score)
+  my $prot = Bio::PrimarySeq->new(-seq=>'MSFVLVAPDMLATAAADVVQIGSAVSAGS',
+                                  -alphabet=>'protein');
+  my $gravy = Bio::Tools::SeqStats->hydropathicity($seqobj);
+  print "might be hydropathic" if $gravy > 1;  
 
 =head1 DESCRIPTION
 
@@ -99,21 +104,22 @@ SeqStats can be called in two distinct manners.  If only a single
 computation is required on a given sequence object, the method can be
 called easily using the SeqStats object directly:
 
-	$weight = Bio::Tools::SeqStats->get_mol_wt($seqobj);
+  $weight = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 
 Alternately, if several computations will be required on a given
 sequence object, an "instance" statistics object can be constructed
 and used for the method calls:
 
-  $seq_stats  =  Bio::Tools::SeqStats->new($seqobj);
+  $seq_stats = Bio::Tools::SeqStats->new($seqobj);
   $monomers = $seq_stats->count_monomers();
   $codons = $seq_stats->count_codons();
   $weight = $seq_stats->get_mol_wt();
+  $gravy = $seq_stats->hydropathicity();
 
 As currently implemented the object can return the following values
 from a sequence:
 
-=over 3
+=over
 
 =item *
 
@@ -127,6 +133,11 @@ The number of each type of monomer present: count_monomers()
 
 The number of each codon present in a nucleic acid sequence:
 count_codons()
+
+=item *
+
+The mean hydropathicity ("gravy" score) of a protein:
+hydropathicity()
 
 =back
 
@@ -155,6 +166,8 @@ Ewan moved it from Bio::SeqStats to Bio::Tools::SeqStats
 Heikki made tiny adjustments (+/- 0.01 daltons) to amino acid
 molecular weights to have the output match values in SWISS-PROT.
 
+Torsten added hydropathicity calculation.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -173,9 +186,13 @@ the bugs and their resolution.  Bug reports can be submitted the web:
 
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR -  Peter Schattner
+=head1 AUTHOR - Peter Schattner
 
 Email schattner at alum.mit.edu
+
+=head1 CONTRIBUTOR  - Torsten Seemann
+
+Email torsten.seemann at infotech.monash.edu.au
 
 =head1 APPENDIX
 
@@ -188,7 +205,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::SeqStats;
 use strict;
 use vars qw(@ISA %Alphabets %Alphabets_strict $amino_weights
-	    $rna_weights $dna_weights %Weights );
+	    $rna_weights $dna_weights %Weights $amino_hydropathicity);
 use Bio::Seq;
 use Bio::Root::Root;
 @ISA = qw(Bio::Root::Root);
@@ -348,6 +365,61 @@ BEGIN {
 		  'rna'     =>  $rna_weights,
 		  'protein' =>  $amino_weights,
 		  );
+
+    $amino_weights = {
+	'A'     => [$amino_A_wt, $amino_A_wt], # Alanine
+	'B'     => [$amino_N_wt, $amino_D_wt], # Aspartic Acid, Asparagine
+	'C'     => [$amino_C_wt, $amino_C_wt], # Cysteine
+	'D'     => [$amino_D_wt, $amino_D_wt], # Aspartic Acid
+	'E'     => [$amino_E_wt, $amino_E_wt], # Glutamic Acid
+	'F'     => [$amino_F_wt, $amino_F_wt], # Phenylalanine
+	'G'     => [$amino_G_wt, $amino_G_wt], # Glycine
+	'H'     => [$amino_H_wt, $amino_H_wt], # Histidine
+	'I'     => [$amino_I_wt, $amino_I_wt], # Isoleucine
+	'K'     => [$amino_K_wt, $amino_K_wt], # Lysine
+	'L'     => [$amino_L_wt, $amino_L_wt], # Leucine
+	'M'     => [$amino_M_wt, $amino_M_wt], # Methionine
+	'N'     => [$amino_N_wt, $amino_N_wt], # Asparagine
+	'P'     => [$amino_P_wt, $amino_P_wt], # Proline
+	'Q'     => [$amino_Q_wt, $amino_Q_wt], # Glutamine
+	'R'     => [$amino_R_wt, $amino_R_wt], # Arginine
+	'S'     => [$amino_S_wt, $amino_S_wt], # Serine
+	'T'     => [$amino_T_wt, $amino_T_wt], # Threonine
+	'U'     => [$amino_U_wt, $amino_U_wt], # SelenoCysteine
+	'V'     => [$amino_V_wt, $amino_V_wt], # Valine
+	'W'     => [$amino_W_wt, $amino_W_wt], # Tryptophan
+	'X'     => [$amino_G_wt, $amino_W_wt], # Unknown
+	'Y'     => [$amino_Y_wt, $amino_Y_wt], # Tyrosine
+	'Z'     => [$amino_Q_wt, $amino_E_wt], # Glutamic Acid, Glutamine
+	};
+	
+	# Amino acid scale: Hydropathicity.
+	# Ref: Kyte J., Doolittle R.F. J. Mol. Biol. 157:105-132(1982).
+	# http://au.expasy.org/tools/pscale/Hphob.Doolittle.html
+	
+	$amino_hydropathicity = {
+    A =>  1.800,  
+    R => -4.500,  
+    N => -3.500,  
+    D => -3.500,  
+    C =>  2.500,  
+    Q => -3.500,  
+    E => -3.500,  
+    G => -0.400,  
+    H => -3.200,  
+    I =>  4.500,  
+    L =>  3.800,  
+    K => -3.900,  
+    M =>  1.900,  
+    F =>  2.800,  
+    P => -1.600,  
+    S => -0.800,  
+    T => -0.700,  
+    W => -0.900,  
+    Y => -1.300,  
+    V =>  4.200,  
+	};
+
 }
 
 sub new {
@@ -631,9 +703,92 @@ sub count_codons {
 }
 
 
+=head2  hydropathicity
+
+ Title   : hydropathicity
+ Usage   : $gravy = $seqstats->hydropathicity(); or
+           $gravy = Bio::Tools::SeqStats->hydropathicity($seqobj);
+
+ Function: Calculates the mean Kyte-Doolittle hydropathicity for a
+           protein sequence. Also known as the "gravy" score. Refer to 
+           Kyte J., Doolittle R.F., J. Mol. Biol. 157:105-132(1982). 
+ Example :
+ Returns : float 
+ Args    : None or reference to sequence object
+
+ Throws  : an exception if type of sequence is not protein.
+
+=cut
+
+sub hydropathicity {
+	my $seqobj;
+	my $_is_strict;
+	my $element = '';
+	my $_is_instance = 1 ;
+	my $self = shift @_;
+	my $object_argument = shift @_;
+
+	if (defined $object_argument) {
+		$_is_instance = 0;
+	}
+
+	if ($_is_instance) {
+		if (my $gravy = $self->{'_hydropathicity'}) {
+			return $gravy;        # return value if previously calculated
+		}
+		$_is_strict =  $self->{'_is_strict'}; # retrieve "strictness"
+		$seqobj =  $self->{'_seqref'};
+	} else {
+		$seqobj =  $object_argument;
+		$seqobj->isa("Bio::PrimarySeqI") ||
+		  $self->throw("Error: SeqStats works only on PrimarySeqI objects");
+		$_is_strict =  _is_alphabet_strict($seqobj);
+	}
+	
+	# hydropathicity not menaingful for empty sequences
+	unless ($seqobj->length() > 0) {
+	  $seqobj->throw("hydropathicity not defined for zero-length sequences");
+        }
+
+	# hydropathicity only make sense for protein sequences
+	my $alphabet = $seqobj->alphabet();
+
+	unless ($alphabet =~ /protein/i) {
+		$seqobj->throw("hydropathicity only meaningful for protein, ".
+							"not for $alphabet sequences.");
+	}
+
+	# If sequence contains ambiguous bases, warn that codons
+	# containing them will all be lumped together in the count.
+
+	unless ($_is_strict ) {
+		$seqobj->throw("Sequence $seqobj contains ambiguous amino acids. ".
+		"Hydropathicity can not be caculated.")
+	}
+
+	my $seq = $seqobj->seq();
+
+	# Now step through the string and add up the hydropathicity values
+
+    my $gravy = 0;
+    for my $i ( 0 .. length($seq) ) {
+       my $codon = uc(substr($seq,$i,1));
+       $gravy += $amino_hydropathicity->{$codon}; # table look-up
+    }
+    $gravy /= length($seq);
+
+
+	if ($_is_instance) {
+		$self->{'_hydropathicity'} = $gravy;  # Save in case called again later
+	}
+
+	return $gravy;
+}
+
+
 =head2  _is_alphabet_strict
 
- Title   :   _is_alphabet_strict
+ Title   :  _is_alphabet_strict
  Usage   :
  Function: internal function to determine whether there are
            any ambiguous elements in the current sequence
@@ -699,11 +854,11 @@ Used for debugging.
 
 sub _print_data {
 
-    print "\n adenine = :  $adenine \n";
-    print "\n guanine = :  $guanine \n";
+    print "\n adenine  = :  $adenine \n";
+    print "\n guanine  = :  $guanine \n";
     print "\n cytosine = :  $cytosine \n";
-    print "\n thymine = :  $thymine \n";
-    print "\n uracil = :  $uracil \n";
+    print "\n thymine  = :  $thymine \n";
+    print "\n uracil   = :  $uracil \n";
 
     print "\n dna_A_wt = :  $dna_A_wt \n";
     print "\n dna_C_wt = :  $dna_C_wt \n";
