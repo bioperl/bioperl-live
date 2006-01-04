@@ -28,15 +28,16 @@ Bio::Tools::Analysis::Protein::ELM
 
 =head1    DESCRIPTION
 
-This module is a wrapper around the ELM server (http://elm.eu.org/)
-which predicts short functional motifs on amino acid sequences.  Two
-filters can be applied to help limit the rate of false positives:
-species and cellular compartment of the protein if known.  The modules
-supply methods for setting these attributes. To set species attribute,
-use either a Bio::Species object or an NCBI taxon ID number.  To set
+This module is a wrapper around the ELM server L<http://elm.eu.org/>
+which predicts short functional motifs on amino acid sequences. 
+
+False positives can be limited by providing values for the species
+and cellular compartment of the protein. To set the species attribute,
+use either a L<Bio::Species> object or an NCBI taxon ID number.  To set
 the cell compartment attribute (any number of compartments can be
 chosen) use an array reference to a list of compartment names.
-Results can be obtained either as raw text output, as parsed into a
+
+Results can be obtained either as raw text output, parsed into a
 data structure, or as Bio::SeqFeature::Generic objects.
 
 =head1 SEE ALSO
@@ -88,7 +89,7 @@ use IO::String;
 %cc = (
       all            => 1,
       nucleus        => 'GO:0005634',
-	  extracellular  => 'GO:0005576',
+      extracellular  => 'GO:0005576',
       cytoplasm      => 'GO:0005737',
       peroxisome     => 'GO:0005777',
       glycosome      => 'GO:0020015',
@@ -96,8 +97,8 @@ use IO::String;
       golgi          => 'GO:0005794',
       er             => 'GO:0005783',
       lysosome       => 'GO:0005764',
-	  endosome       => 'GO:0005768',
-	  plasma_membrane=> 'GO:0005886',
+      endosome       => 'GO:0005768',
+      plasma_membrane=> 'GO:0005886',
 		);
 
 my $URL           = 'http://elm.eu.org/basicELM/cgimodel.py';
@@ -158,9 +159,8 @@ sub _init {
  usage       : $elm->compartment(['golgi', 'er']);
  purpose     : get/setter for cell compartment specifications
  arguments   : None, single compartment string or ref to array of
-                    compartment names.
- returns     : Array of compartment names (default if not previously
-                    set).
+               compartment names.
+ returns     : Array of compartment names (default if not previously set).
 
 =cut
 
@@ -283,13 +283,12 @@ sub  _run {
  name      : result
  usage     : $tool->result('Bio::SeqFeatureI');
  purpose   : parse results into sequence features or basic data format
- arguments : none    (retrieves raw text without html)
-             a value (retrieves data structure)
-             'Bio::SeqFeatureI' (returns array of sequence features)
-					tag names are : {method=>'ELM', motif=>motifname,
-                                     peptide => seqeunce of match,
-                                     concensus=> regularexpression of match.
-	.
+ arguments : 1. none    (retrieves raw text without html)
+             2. a value (retrieves data structure)
+             3. 'Bio::SeqFeatureI' (returns array of sequence features)
+                tag names are : {method => 'ELM', motif => motifname,
+                                 peptide => seqeunce of match,
+                                 concensus => regexp of match}.
  returns   : see arguments. 
 
 =cut
