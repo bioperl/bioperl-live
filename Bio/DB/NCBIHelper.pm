@@ -34,8 +34,8 @@ web databases.  This module just centralizes the methods for
 constructing a URL for querying NCBI GenBank and NCBI GenPept and the
 common HTML stripping done in L<postprocess_data>().
 
-The base NCBI query URL used is 
-http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi.
+The base NCBI query URL used is:
+http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi 
 
 =head1 FEEDBACK
 
@@ -54,10 +54,8 @@ is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to
 help us keep track the bugs and their resolution.
-Bug reports can be submitted via email or the
-web:
+Bug reports can be submitted via the web.
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
@@ -452,14 +450,14 @@ sub _check_id {
 
 =head2 delay_policy
 
- Title   : delay_policy
- Usage   : $secs = $self->delay_policy
- Function: return number of seconds to delay between calls to remote db
- Returns : number of seconds to delay
- Args    : none
+  Title   : delay_policy
+  Usage   : $secs = $self->delay_policy
+  Function: return number of seconds to delay between calls to remote db
+  Returns : number of seconds to delay
+  Args    : none
 
-NOTE: NCBI requests a delay of 3s between requests.  This method
-implements that policy.
+  NOTE: NCBI requests a delay of 3 seconds between requests.  This method
+        implements that policy.
 
 =cut
 
