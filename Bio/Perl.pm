@@ -66,7 +66,7 @@ Bio::Perl - Functional access to BioPerl for people who don't know objects
 
 =head1 DESCRIPTION
 
-Easy first time access to BioPerl via functions
+Easy first time access to BioPerl via functions.
 
 =head1 FEEDBACK
 
@@ -88,8 +88,6 @@ the bugs and their resolution. Bug reports can be submitted via the web:
 =head1 AUTHOR - Ewan Birney
 
 Email bioperl-l@bio.perl.org
-
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -297,13 +295,15 @@ sub write_sequence{
 =head2 new_sequence
 
  Title   : new_sequence
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
+ Usage   : $seq_obj = new_sequence("GATTACA", "kino-enzyme");
 
+ Function: Construct a sequency object from sequence string 
+ Returns : A Bio::Seq object
 
+ Args    : sequence string
+           name string (optional, default "no-name-for-sequence")
+           accession - accession number (optional, no default)
+           
 =cut
 
 sub new_sequence{
