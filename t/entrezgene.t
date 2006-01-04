@@ -177,59 +177,59 @@ my $tcount;
 #T3: ENTREZGENE STATUS TESTS
 my @egstatus=$ann->get_Annotations('Entrez Gene Status');
 foreach my $status (@egstatus) {
-    STATUS: {
-            if ($acc==1) {ok $status->value,'live'; last STATUS;}
-            if ($acc==2) {ok $status->value,'live'; last STATUS;}
-            if ($acc==4) {ok $status->value,'discontinued'; last STATUS;}
-            if ($acc==6) {ok $status->value,'discontinued'; last STATUS;}
-            if ($acc==11288) {ok $status->value,'secondary'; last STATUS;}
-            if ($acc==11293) {ok $status->value,'secondary'; last STATUS;} 
-            if ($acc==171594) {ok $status->value,'live'; last STATUS;} 
-        }
+ STATUS: {
+		if ($acc==1) {ok $status->value,'live'; last STATUS;}
+		if ($acc==2) {ok $status->value,'live'; last STATUS;}
+		if ($acc==4) {ok $status->value,'discontinued'; last STATUS;}
+		if ($acc==6) {ok $status->value,'discontinued'; last STATUS;}
+		if ($acc==11288) {ok $status->value,'secondary'; last STATUS;}
+		if ($acc==11293) {ok $status->value,'secondary'; last STATUS;} 
+		if ($acc==171594) {ok $status->value,'live'; last STATUS;} 
+	}
 }
 
 #T4: REFSEQ STATUS TESTS
 my @refstatus=$ann->get_Annotations('RefSeq status');
 foreach my $status (@refstatus) {
-    STATUS: {
-            if ($acc==1) {ok $status->value,'REVIEWED'; last STATUS;}
-            if ($acc==2) {ok $status->value,'REVIEWED'; last STATUS;}
-            if ($acc==3) {ok $status->value,'PROVISIONAL'; last STATUS;}
-            if ($acc==4) {ok $status->value,'WITHDRAWN'; last STATUS;}
-            if ($acc==9) {ok $status->value,'VALIDATED'; last STATUS;}
-            if ($acc==11300) {ok $status->value,''; last STATUS;}
-            if ($acc==11306) {ok $status->value,'MODEL'; last STATUS;}
-            if ($acc==11293) {ok $status->value,'secondary'; last STATUS;} 
-            if ($acc==171594) {ok $status->value,'Reviewed'; last STATUS;} 
-        }
+ STATUS: {
+		if ($acc==1) {ok $status->value,'REVIEWED'; last STATUS;}
+		if ($acc==2) {ok $status->value,'REVIEWED'; last STATUS;}
+		if ($acc==3) {ok $status->value,'PROVISIONAL'; last STATUS;}
+		if ($acc==4) {ok $status->value,'WITHDRAWN'; last STATUS;}
+		if ($acc==9) {ok $status->value,'VALIDATED'; last STATUS;}
+		if ($acc==11300) {ok $status->value,''; last STATUS;}
+		if ($acc==11306) {ok $status->value,'MODEL'; last STATUS;}
+		if ($acc==11293) {ok $status->value,'secondary'; last STATUS;} 
+		if ($acc==171594) {ok $status->value,'Reviewed'; last STATUS;} 
+	}
 }
 
 #T5: GENE NAME TESTS
 my @ofname=$ann->get_Annotations('Official Full Name');
 foreach my $name (@ofname) {
-    STATUS: {
-            if ($acc==10) {ok $name->value,'N-acetyltransferase 2 (arylamine N-acetyltransferase)'; last STATUS;}
-            if ($acc==13) {ok $name->value,'arylacetamide deacetylase (esterase)'; last STATUS;}
-            if ($acc==14) {ok $name->value,'angio-associated, migratory cell protein'; last STATUS;}
-            if ($acc==11287) {ok $name->value,'pregnancy zone protein'; last STATUS;}
+ STATUS: {
+		if ($acc==10) {ok $name->value,'N-acetyltransferase 2 (arylamine N-acetyltransferase)'; last STATUS;}
+		if ($acc==13) {ok $name->value,'arylacetamide deacetylase (esterase)'; last STATUS;}
+		if ($acc==14) {ok $name->value,'angio-associated, migratory cell protein'; last STATUS;}
+		if ($acc==11287) {ok $name->value,'pregnancy zone protein'; last STATUS;}
             if ($acc==11298) {ok $name->value,'arylalkylamine N-acetyltransferase'; last STATUS;}
-            if ($acc==11304) {ok $name->value,'ATP-binding cassette, sub-family A (ABC1), member 4'; last STATUS;}
-            if ($acc==11306) {ok $name->value,'ATP-binding cassette, sub-family B (MDR/TAP), member 7'; last STATUS;} 
-        }
+		if ($acc==11304) {ok $name->value,'ATP-binding cassette, sub-family A (ABC1), member 4'; last STATUS;}
+		if ($acc==11306) {ok $name->value,'ATP-binding cassette, sub-family B (MDR/TAP), member 7'; last STATUS;} 
+	}
 }
 
 #T6: CHROMOSOME TESTS
 my @chr=$ann->get_Annotations('chromosome');
 foreach my $chr (@chr) {
-    STATUS: {
-            if ($acc==5) {ok $chr->value,1; last STATUS;}
-            if ($acc==6) {ok $chr->value,1; last STATUS;}
-            if ($acc==7) {ok $chr->value,17; last STATUS;}
-            if ($acc==11306) {ok $chr->value,'X'; last STATUS;}
-            if ($acc==11304) {ok $chr->value,3; last STATUS;}
-            if ($acc==171590) {ok $chr->value,'I'; last STATUS;}
-            if ($acc==171592) {ok $chr->value,'I'; last STATUS;} 
-        }
+ STATUS: {
+		if ($acc==5) {ok $chr->value,1; last STATUS;}
+		if ($acc==6) {ok $chr->value,1; last STATUS;}
+		if ($acc==7) {ok $chr->value,17; last STATUS;}
+		if ($acc==11306) {ok $chr->value,'X'; last STATUS;}
+		if ($acc==11304) {ok $chr->value,3; last STATUS;}
+		if ($acc==171590) {ok $chr->value,'I'; last STATUS;}
+		if ($acc==171592) {ok $chr->value,'I'; last STATUS;} 
+	}
 }
 
 #T7: GENE SYMBOL ALIAS TESTS
@@ -244,15 +244,15 @@ my @map=$ann->get_Annotations('cyto');
 foreach my $map (@map) {
 
   STATUS: {
-            if ($acc==10) {ok $map->value,'8p22'; last STATUS;}
-            if ($acc==11) {ok $map->value,'8p22'; last STATUS;}
-            if ($acc==13) {ok $map->value,'3q21.3-q25.2'; last STATUS;}
-            if ($acc==11306) {ok $map->value,'X C-D'; last STATUS;}
-            if ($acc==11305) {ok $map->value,'2 A2-B'; last STATUS;}
-            if ($acc==11304) {ok $map->value,'3 G1'; last STATUS;}
-            if ($acc==11303) {ok $map->value,'4 A5-B3'; last STATUS;} 
-        }
-}
+		 if ($acc==10) {ok $map->value,'8p22'; last STATUS;}
+		 if ($acc==11) {ok $map->value,'8p22'; last STATUS;}
+		 if ($acc==13) {ok $map->value,'3q21.3-q25.2'; last STATUS;}
+		 if ($acc==11306) {ok $map->value,'X C-D'; last STATUS;}
+		 if ($acc==11305) {ok $map->value,'2 A2-B'; last STATUS;}
+		 if ($acc==11304) {ok $map->value,'3 G1'; last STATUS;}
+		 if ($acc==11303) {ok $map->value,'4 A5-B3'; last STATUS;} 
+	 }
+ }
 
 #T9: REFERENCE NUMBER TEST
 my @refs=$ann->get_Annotations('Reference');
@@ -321,18 +321,18 @@ DB: {
 
 #T11: SOME EXTERNAL DATABASE IDS TESTS
 foreach my $key (@keys) {
-    next if grep(/\b$key\b/, @revkeys);
-    my @all=$ann->get_Annotations($key);
-    #Checking xref to some databases- OMIM, Wormbase and HGNC, others later
-    foreach my $pid (@all) {
-        DBID: {
-            if (($acc==8)&&($key eq 'MIM')) {ok $pid->value,'108985'; last DBID;}
-            if (($acc==9)&&($key eq 'HGNC')) {ok $pid->value,'7645'; last DBID;}
-            if (($acc==11298)&&($key eq 'MGI')) {ok $pid->value,'1328365'; last DBID;}
-            if (($acc==171593)&&($key eq 'AceView/WormGenes')) {ok $pid->value,'1A502'; last DBID;} 
-            if (($acc==171594)&&($key eq 'WormBase')) {ok $pid->value,'Y48G1C.4'; last DBID;} 
-        }
-    }
+	next if grep(/\b$key\b/, @revkeys);
+	my @all=$ann->get_Annotations($key);
+	#Checking xref to some databases- OMIM, Wormbase and HGNC, others later
+	foreach my $pid (@all) {
+	 DBID: {
+			if (($acc==8)&&($key eq 'MIM')) {ok $pid->value,'108985'; last DBID;}
+			if (($acc==9)&&($key eq 'HGNC')) {ok $pid->value,'7645'; last DBID;}
+			if (($acc==11298)&&($key eq 'MGI')) {ok $pid->value,'1328365'; last DBID;}
+			if (($acc==171593)&&($key eq 'AceView/WormGenes')) {ok $pid->value,'1A502'; last DBID;} 
+			if (($acc==171594)&&($key eq 'WormBase')) {ok $pid->value,'Y48G1C.4'; last DBID;} 
+		}
+	}
 }
 
 #T12: REFERENCE RECORD TEST
@@ -352,85 +352,85 @@ my (%pmeds,%go);
  $pmeds{11305}=['12466851']; 
 my @types=qw(Function Component Process);
 if (($acc==11305)||($acc==11298)) { #Let's check just this two...
-foreach my $ot ($ann->get_Annotations('OntologyTerm')) {
-    if (($ot->term->authority)&&($ot->term->authority eq 'STS marker')) {
-        if ($acc==11305) {
-            ok $ot->name,'AI413825';
-            ok $ot->term->namespace,'UniSTS';
-            ok $ot->identifier,158928;
-        }
-        else {
-            ok $ot->name,'D11Mit102';
-            ok $ot->term->namespace,'UniSTS';
-            ok $ot->identifier,126289;
-            foreach my $syn ($ot->get_synonyms) {
-                ok grep(/\b$syn\b/,@syn),1;
-            }
-        }
-        next;
-    }
-    my $evid=$ot->comment;
-    $evid=~s/evidence: //i;
-    my $type=$ot->ontology->name;
-    my @ref=$ot->term->get_references;
-    my $id=$ot->identifier;
-    my $thispmed=$ref[0]->medline if (@ref);
-    ok grep(/\b$type\b/,@types),1;
-    ok grep(/\b$id\b/,@{$go{$acc}}),1;
-    ok grep(/\b$thispmed\b/,@{$pmeds{$acc}}),1 if ($thispmed);
-    ok $ot->name;
-}
+	foreach my $ot ($ann->get_Annotations('OntologyTerm')) {
+		if (($ot->term->authority)&&($ot->term->authority eq 'STS marker')) {
+			if ($acc==11305) {
+				ok $ot->name,'AI413825';
+				ok $ot->term->namespace,'UniSTS';
+				ok $ot->identifier,158928;
+			}
+			else {
+				ok $ot->name,'D11Mit102';
+				ok $ot->term->namespace,'UniSTS';
+				ok $ot->identifier,126289;
+				foreach my $syn ($ot->get_synonyms) {
+					ok grep(/\b$syn\b/,@syn),1;
+				}
+			}
+			next;
+		}
+		my $evid=$ot->comment;
+		$evid=~s/evidence: //i;
+		my $type=$ot->ontology->name;
+		my @ref=$ot->term->get_references;
+		my $id=$ot->identifier;
+		my $thispmed=$ref[0]->medline if (@ref);
+		ok grep(/\b$type\b/,@types),1;
+		ok grep(/\b$id\b/,@{$go{$acc}}),1;
+		ok grep(/\b$thispmed\b/,@{$pmeds{$acc}}),1 if ($thispmed);
+		ok $ot->name;
+	}
 }
 
 #T15/16/17: GENOMIC LOCATION TESTS/SEQUENCE TYPES TESTS/CONSERVED DOMAINS TESTS
 my @gffs=('SEQ	entrezgene	gene location	63548355	63556668	.	+	.',
-            'SEQ	entrezgene	genestructure	63548355	63556668	.	+	.',
-            'SEQ	entrezgene	gene location	31124733	31133046	.	+	.',
-            'SEQ	entrezgene	genestructure	31124733	31133046	.	+	.',
-            'SEQ	entrezgene	gene location	8163589	8172398	.	+	.',
-            'SEQ	entrezgene	genestructure	8163589	8172398	.	+	.');
+			 'SEQ	entrezgene	genestructure	63548355	63556668	.	+	.',
+			 'SEQ	entrezgene	gene location	31124733	31133046	.	+	.',
+			 'SEQ	entrezgene	genestructure	31124733	31133046	.	+	.',
+			 'SEQ	entrezgene	gene location	8163589	8172398	.	+	.',
+			 'SEQ	entrezgene	genestructure	8163589	8172398	.	+	.');
 my @contigs=$struct->get_members;
 my @auth=('mrna','genomic','product','mrna sequence','protein');#Known types....
 foreach my $contig (@contigs) {
-    my $stype=$contig->authority;
-    ok grep(/^$stype$/i,@auth),1;
-    if ($acc==1) {#Do just 1?
-        if (($contig->authority eq 'genomic')||($contig->authority eq 'Genomic')) {
-            foreach my $sf ($contig->get_SeqFeatures) {
-		$sf->source_tag('entrezgene');
-                my $gff=$sf->gff_string;
-                $gff=~s/[\t\s]+$//g;
-                foreach my $gffstr (@gffs) {
-                    if ($gffstr eq $gff) {
-                        ok(1);
-                        last;
-                    }
-                }
-            }
-        }
-        if ($contig->authority eq 'Product') {
-        ok $contig->id,'NP_570602';
-        ok $contig->accession_number,21071030;
-        foreach my $sf ($contig->get_SeqFeatures) {
+	my $stype=$contig->authority;
+	ok grep(/^$stype$/i,@auth),1;
+	if ($acc==1) {#Do just 1?
+		if (($contig->authority eq 'genomic')||($contig->authority eq 'Genomic')) {
+			foreach my $sf ($contig->get_SeqFeatures) {
+				$sf->source_tag('entrezgene');
+				my $gff=$sf->gff_string;
+				$gff=~s/[\t\s]+$//g;
+				foreach my $gffstr (@gffs) {
+					if ($gffstr eq $gff) {
+						ok(1);
+						last;
+					}
+				}
+			}
+		}
+		if ($contig->authority eq 'Product') {
+			ok $contig->id,'NP_570602';
+			ok $contig->accession_number,21071030;
+			foreach my $sf ($contig->get_SeqFeatures) {
             foreach my $dblink ($sf->annotation->get_Annotations('dblink')) {
-                my $key=$dblink->{_anchor}?$dblink->{_anchor}:$dblink->optional_id;
-                my $db=$dblink->database;
-		        next unless (($db =~/cdd/i)||($sf->primary_tag=~ /conserved/i));
-                my $desc;
-                if ($key =~ /:/) {
-                    ($key,$desc)=split(/:/,$key);
-                }
-                $desc=~s/^\s+//;#THIS SHOULD GO IN entrezgene.pm!!!
-                ok $desc,'IGc2; Immunoglobulin C-2 Type';
-                ok $key,'smart00408';
-                ok $sf->score,103;
-                ok $db,'CDD';
-                ok $sf->start,223;
-                ok $sf->end,282;
+					my $key=$dblink->{_anchor}?$dblink->{_anchor}:$dblink->optional_id;
+					my $db=$dblink->database;
+					next unless (($db =~/cdd/i)||($sf->primary_tag=~ /conserved/i));
+					my $desc;
+					if ($key =~ /:/) {
+						($key,$desc)=split(/:/,$key);
+					}
+					$desc=~s/^\s+//;#THIS SHOULD GO IN entrezgene.pm!!!
+					ok $desc,'IGc2; Immunoglobulin C-2 Type';
+					ok $key,'smart00408';
+					ok $sf->score,103;
+					ok $db,'CDD';
+					ok $sf->start,223;
+					ok $sf->end,282;
             }
-        }
-    }
-    }
+			}
+		}
+	}
 }
 }
 
@@ -441,7 +441,7 @@ foreach my $contig (@contigs) {
 my @llsp =('OFFICIAL_GENE_NAME','CHR','MAP','OFFICIAL_SYMBOL');
 my $eio_b=new Bio::SeqIO(-file=>Bio::Root::IO->catfile("t","data",
 							 "entrezgene.dat"),-format=>'entrezgene', -debug=>'on',-service_record=>'yes',-locuslink=>'convert');
-                             
+
 while (my $seq=$eio_b->next_seq) {
     ok $seq;
     my $acc=$seq->accession_number;

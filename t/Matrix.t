@@ -27,14 +27,14 @@ use Bio::Matrix::IO;
 use Bio::Root::IO;
 
 my $raw = [ [ 0, 10, 20],
-	    [ 2, 17,  4],
-	    [ 3,  4,  5] ];
+				[ 2, 17,  4],
+				[ 3,  4,  5] ];
 
-my $matrix = new Bio::Matrix::Generic(-values     => $raw,
-				      -matrix_id  => 'fakeid00',
-				      -matrix_name=> 'matname',
-				      -rownames   => [qw(A B C)],
-				      -colnames   => [qw(D E F)]);
+my $matrix = new Bio::Matrix::Generic(-values => $raw,
+												  -matrix_id  => 'fakeid00',
+												  -matrix_name=> 'matname',
+												  -rownames   => [qw(A B C)],
+												  -colnames   => [qw(D E F)] );
 
 ok($matrix->matrix_name, 'matname');
 ok($matrix->matrix_id,   'fakeid00');
@@ -64,19 +64,18 @@ ok($matrix->remove_row(4),4);
 ok($matrix->add_column(4, 'g', [qw(11 10 100 71)]),5);
 ok($matrix->remove_column(4),4);
 
-
 ok($matrix->row_num_for_name('B'),2);
 ok($matrix->row_num_for_name('b'),1);
+
 ok($matrix->column_num_for_name('D'),0);
 ok($matrix->column_num_for_name('F'),3);
 ok($matrix->column_num_for_name('f'),2);
 
 ok($matrix->row_header(2),'B');
+
 ok($matrix->column_header(3),'F');
 
-
 ok($matrix->get_entry('b', 'f'), 81);
-
 
 
 # read in a scoring matrix
@@ -121,9 +120,9 @@ ok($row[5], $pam_matrix->get_entry('D','Q'));
 # test Phylip parsing
 
 $io = new Bio::Matrix::IO(-format  => 'phylip',
-			  -program => 'phylipdist',
-			  -file    => Bio::Root::IO->catfile
-			  (qw(t data phylipdist.out)));
+								  -program => 'phylipdist',
+								  -file    => Bio::Root::IO->catfile
+								  (qw(t data phylipdist.out)));
 
 my $phy = $io->next_matrix;
 ok $phy->program, 'phylipdist';

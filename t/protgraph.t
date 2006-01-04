@@ -1,49 +1,51 @@
 # This is -*-Perl-*- code#
 # Bioperl Test Harness Script for Modules#
 # $Id: protgraph.t,v 1.1 2004/03/13 23:45:32 radams Exp
+
 use vars qw($NUMTESTS $DEBUG $ERROR $XML_ERROR);
 use strict;
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test;};
-    $ERROR = $XML_ERROR = 0;
-    if ( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    $NUMTESTS  = 60;
-    plan tests => $NUMTESTS;
-    eval {	require Class::AutoClass;
-         	require Clone;
-	    };
-    if ( $@ ) {
-	warn("Class::AutoClass or Clone not installed. " .
-	     " This means that the module is not usable. Skipping tests");
-	$ERROR = 1;
-    }
 
-    eval {
-	require XML::Twig;
-    };
-    if ($@) {
-	warn "XML::Twig needed for XML format parsing, skipping these tests";
-	$XML_ERROR = 1;
-    }
+BEGIN {
+	# to handle systems with no installed Test module
+	# we include the t dir (where a copy of Test.pm is located)
+	# as a fallback
+	eval { require Test;};
+	$ERROR = $XML_ERROR = 0;
+	if ( $@ ) {
+		use lib 't';
+	}
+	use Test;
+	$NUMTESTS  = 64;
+	plan tests => $NUMTESTS;
+	eval {	require Class::AutoClass;
+         	require Clone; };
+	if ( $@ ) {
+		warn("Class::AutoClass or Clone not installed. " .
+			  " This means that the module is not usable. Skipping tests");
+		$ERROR = 1;
+	}
+
+	eval {
+		require XML::Twig;
+	};
+	if ($@) {
+		warn "XML::Twig needed for XML format parsing, skipping these tests";
+		$XML_ERROR = 1;
+	}
 }
 
 END {
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip("Missing dependencies. Skipping tests",1);
-    }
+	foreach ( $Test::ntest..$NUMTESTS) {
+		skip("Missing dependencies. Skipping tests",1);
+	}
 }
 exit 0 if $ERROR ==  1;
 
 require Bio::Graph::ProteinGraph;
 require Bio::Graph::IO;
 require Bio::Graph::Edge;
+
 my $verbose = 0;
 $verbose    = 1 if $DEBUG;
 ok 1;
@@ -240,25 +242,38 @@ $io2 = Bio::Graph::IO->new
 $g2 = $io2->next_network();
 ok $gr->edge_count, 72;
 ok $gr->node_count, 74;
- $gr->union($g2);
-#there should be 2 more edge in the graph $gr now and 2 more nodes. 
-#$g2 is unaffected.  
+$gr->union($g2);
+# there should be 2 more edge in the graph $gr now and 2 more nodes. 
+# $g2 is unaffected.  
 ok $gr->edge_count, 74;
 ok $gr->node_count, 76;
 
-
+# test IO/psi_xml if the required modules are present
 unless( $XML_ERROR ) {
-#### now let's test the psi_xml module #####
-    ok $io = Bio::Graph::IO->new
-	(-format => 'psi_xml',
-	 -file   => Bio::Root::IO->catfile("t", "data", "psi_xml.dat"));
-    ok my $g = $io->next_network();
-    ok $g->edge_count, 3;
-    ok $g->node_count, 4;
-#my @rts =$g->articulation_points();
-    my $n = $g->nodes_by_id(207153);
-    ok $n->species->binomial,"Helicobacter pylori 26695";
-    ok $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
-} else {
-    
-}
+	# PSI XML from DIP
+	ok $io = Bio::Graph::IO->new
+	  (-format => 'psi_xml',
+		-file   => Bio::Root::IO->catfile("t", "data", "psi_xml.dat"));
+	ok my $g = $io->next_network();
+	ok $g->edge_count, 3;
+	ok $g->node_count, 4;
+	#my @rts =$g->articulation_points();
+	my $n = $g->nodes_by_id(207153);
+	ok $n->species->binomial,"Helicobacter pylori 26695";
+	ok $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
+
+	# PSI XML from IntAct
+	ok my $io2 = Bio::Graph::IO->new
+	  (-format => 'psi_xml',
+		-file   => Bio::Root::IO->catfile("t", "data", "sv40_small.xml"));
+	ok my $g3 = $io2->next_network();
+	ok $g3->edge_count, 3;
+	ok $g3->node_count, 5;
+
+	# my @rts =$g->articulation_points();
+	#my $n = $g->nodes_by_id(207153);
+	#ok $n->species->binomial,"Helicobacter pylori 26695";
+	#ok $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
+
+} 
+
