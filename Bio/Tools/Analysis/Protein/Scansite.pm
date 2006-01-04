@@ -21,11 +21,10 @@ Bio::Tools::Analysis::Protein::Scansite - a wrapper around the Scansite server
   my $seq; # a Bio::PrimarySeqI object
 
   my $tool = Bio::Tools::Analysis::Protein::Scansite->new
-     ( -seq => $seq->primary_seq(),
-      ); 
+     ( -seq => $seq->primary_seq ); 
 
   # run Scansite prediction on a sequence
-   $tool->run();
+  $tool->run();
 
   # alternatively you can say
   $tool->seq($seq->primary_seq)->run;
@@ -46,17 +45,17 @@ Bio::Tools::Analysis::Protein::Scansite - a wrapper around the Scansite server
 
 =head1 DESCRIPTION
 
-This class is wrapper around the Scansite 2.0 server which produces
+This class is a wrapper around the Scansite 2.0 server which produces
 predictions for serine, threonine and tyrosine phosphorylation sites
 in eukaryotic proteins. At present this is a basic wrapper for the
 "Scan protein by input sequence" functionality, which takes a sequence
-and searches for motifs. Optionally you can select the search
-stringency as well. At present searches for specific phosphorylation
-sites isn't supported, all predicted sites are returned.
+and searches for motifs, with the option to select the search
+stringency. At present, searches for specific phosphorylation
+sites are not supported; all predicted sites are returned.
 
 =head2 Return formats
 
-The Sansite results can be obtained in several formats
+The Scansite results can be obtained in several formats:
 
 =over 3
 
@@ -93,7 +92,7 @@ By calling
 
   my @fts = $tool->Result('Bio::SeqFeatureI');
 
-which returns an array of Bio::SeqFeatureI compliant objects with
+which returns an array of L<Bio::SeqFeatureI> compliant objects with
 primary tag value 'Site' and tag names of 'motif', 'score',
 'sequence', 'zscore' as above.
 
@@ -103,7 +102,7 @@ See L<http://scansite.mit.edu/>.
 
 This inherits Bio::SimpleAnalysisI which hopefully makes it easier to
 write wrappers on various services. This class uses a web resource and
-therefore inherits from Bio::WebAgent.
+therefore inherits from L<Bio::WebAgent>.
 
 =head1 SEE ALSO
 
@@ -212,7 +211,7 @@ my $URL = 'http://scansite.mit.edu/cgi-bin/motifscan_seq';
            the raw result)
 
 The method returns a scalar representing a result of an executed
-job. If the job was terminated by an error the result
+job. If the job was terminated by an error an exception is thrown.
 
 This implementation returns differently processed data depending on
 argument:
@@ -231,7 +230,7 @@ array.  The objects are L<Bio::SeqFeature::Generic>.
 =item 'parsed'
 
 Returns a reference to an array of hashes containing the data of one
-phosphorylation site prediction. Key values are :
+phosphorylation site prediction. Key values are:
 
 motif, percentile, position, protein, score, site, zscore,  sequence.
 
@@ -279,7 +278,7 @@ sub result {
 
 =head2  stringency
 
- Usage   : $job->stringency(...)
+ Usage    : $job->stringency(...)
  Returns  : The significance stringency of a prediction
  Args     : None (retrieves value) or 'High', 'Medium' or 'Low'.
  Purpose  : Get/setter of the stringency to be sumitted for analysis.
@@ -302,11 +301,11 @@ sub stringency {
 
 =head2  protein_id
 
- Usage   : $job->protein_id(...)
+ Usage    : $job->protein_id(...)
  Returns  : The sequence id of the protein or 'unnamed' if not set. 
  Args     : None  
  Purpose  : Getter of the seq_id. Returns the display_id of the sequence
-				object. 
+            object. 
 
 =cut
 
