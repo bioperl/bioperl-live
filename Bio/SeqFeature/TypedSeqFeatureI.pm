@@ -25,7 +25,9 @@ Bio::SeqFeature::TypedSeqFeatureI - a strongly typed SeqFeature
         $type_as_string = $sf->primary_tag();
 	if( $sf->isa("Bio::SeqFeature::TypedSeqFeatureI") ) {
             $ot = $sf->ontology_term();
-            print "Ontology identifier:",$ot->identifier()," name:",$ot->name()," Description:",$ot->description(),"\n";
+            print "Ontology identifier:",$ot->identifier(),
+                  " name:",$ot->name(),
+                  " Description:",$ot->description(),"\n";
 
         } else {
             print "Sequence Feature does not have an ontology type\n";
@@ -43,7 +45,7 @@ interface (ie, a TypedSeqFeatureI feature must also implement
 all the Bio::SeqFeatureI interface as well). 
 
 It is suggested that the primary_tag() method of SeqFeatureI
-returns the same as the ontology_term()-E<gt>name() of the OntologyTypedI
+return the same as the ontology_term()-E<gt>name() of the OntologyTypedI
 (ie, the "string" name of the ontology type is used as the primary
 tag), but this should not be assummed by client code as they
 are scenarios where one would like to maintain the difference.
@@ -70,7 +72,7 @@ web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email - please email the bioperl list
+Email - please email the BioPerl mailing list above.
 
 =head1 APPENDIX
 
