@@ -72,7 +72,7 @@ Bio::DB::GenBank - Database object interface to GenBank
                                    -complexity => 4));
     my $seqi = $gb->get_Stream_by_query($query);
 
-These alternate methods are described here:
+These alternate methods are described at
 L<http://www.ncbi.nlm.nih.gov/entrez/query/static/efetchseq_help.html>
 
 NOTE: strand should be 1 for plus or 2 for minus.
@@ -88,10 +88,10 @@ complexity regulates the display:
 
 =head1 DESCRIPTION
 
-Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the
+Allows the dynamic retrieval of L<Bio::Seq> sequence objects from the
 GenBank database at NCBI, via an Entrez query.
 
-WARNING: Please do NOT spam the Entrez web server with multiple
+WARNING: Please do B<NOT> spam the Entrez web server with multiple
 requests.  NCBI offers Batch Entrez for this purpose.
 
 Note that when querying for GenBank accessions starting with 'NT_' you
@@ -119,10 +119,9 @@ of the Bioperl mailing lists. Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-the bugs and their resolution.  Bug reports can be submitted via email
-or the web:
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Aaron Mackey, Jason Stajich
@@ -318,6 +317,8 @@ instead.
  Function: HTTP::Request
  Returns : 
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
+
+=cut
 
 1;
 __END__
