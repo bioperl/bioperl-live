@@ -24,21 +24,21 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
   use Bio::DB::GenBank;
 
   # make from memory
+
   $seqobj = Bio::PrimarySeq->new ( -seq => 'ATGGGGTGGGCGGTGGGTGGTTTG',
-				                       -id  => 'GeneFragment-12',
-				                       -accession_number => 'X78121',
-				                       -alphabet => 'dna',
-				                       -is_circular => 1
-				                     );
+                                   -id  => 'GeneFragment-12',
+                                   -accession_number => 'X78121',
+                                   -alphabet => 'dna',
+                                   -is_circular => 1 );
   print "Sequence ", $seqobj->id(), " with accession ", 
     $seqobj->accession_number, "\n";
 
   # read from file
+
   $inputstream = Bio::SeqIO->new(-file => "myseq.fa",
                                  -format => 'Fasta');
   $seqobj = $inputstream->next_seq();
   print "Sequence ", $seqobj->id(), " and desc ", $seqobj->desc, "\n";
-
 
   # to get out parts of the sequence.
 
@@ -47,7 +47,6 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   $string  = $seqobj->seq();
   $string2 = $seqobj->subseq(1,40);
-
 
 =head1 DESCRIPTION
 
@@ -98,8 +97,6 @@ web:
 =head1 AUTHOR - Ewan Birney
 
 Email birney@sanger.ac.uk
-
-Describe contact details here
 
 =head1 APPENDIX
 
@@ -820,10 +817,10 @@ These are internal methods to PrimarySeq
 
  Title   : _guess_alphabet
  Usage   :
- Function:
+ Function: Determines (and sets) the type of sequence: dna, rna, protein
  Example :
- Returns :
- Args    :
+ Returns : one of strings 'dna', 'rna' or 'protein'.
+ Args    : none
 
 
 =cut
