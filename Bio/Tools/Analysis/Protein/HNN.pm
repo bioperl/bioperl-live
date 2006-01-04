@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-Bio::Tools::Analysis::Protein::HNN - a wrapper around HNN protein
+Bio::Tools::Analysis::Protein::HNN - a wrapper around the HNN protein
 secondary structure prediction server
 
 =head1  SYNOPSIS
@@ -44,19 +44,19 @@ creates a new object
 submits the query to the server and obtains raw text output.
 
 Given an amino acid sequence the results can be obtained in 4 formats,
-determined by the argument to the result method
+determined by the argument to the result method:
 
 =over 4
 
 =item 1
 
-The raw text of the program output	
+The raw text of the program output.
 
   my $rawdata = $analysis_object->result;				
 
 =item 2
 
-An reference to an array of hashes of scores for each state and the
+A reference to an array of hashes of scores for each state and the
 assigned state.
 
   my $data_ref = $analysis_object->result('parsed');					
@@ -225,14 +225,14 @@ argument:
 
 =item undef
 
-Returns the raw ASCII data stream but without HTML tags
+Returns the raw ASCII data stream but without HTML tags.
 
 =item 'Bio::SeqFeatureI'
 
 The argument string defines the type of bioperl objects returned in an
 array.  The objects are L<Bio::SeqFeature::Generic>.  Feature primary
 tag is "2ary".  Feature tags are "type" (which can be helix, sheet or
-coil) "method" (HNN)
+coil) "method" (HNN).
 
 =item 'parsed'
 
