@@ -44,8 +44,8 @@ hmmpfam searches, only one Set object is made.
 
 
 These objects come from the original HMMResults modules used
-internally in Pfam, written by Ewan. Ewan then converted them to
-bioperl objects in 1999. That conversion is meant to be backwardly
+internally in Pfam, written by Ewan Birney. Ewan then converted them to
+BioPerl objects in 1999. That conversion is meant to be backwardly
 compatible, but may not be (caveat emptor).
 
 =head1 FEEDBACK
@@ -65,7 +65,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://www.bugzilla.bioperl.org/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Ewan Birney
 
