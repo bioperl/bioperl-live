@@ -10,7 +10,7 @@ BEGIN {
     eval { require Test; };
     if( $@ ) { use lib 't'; }
     use Test;
-    plan tests => 28;
+    plan tests => 36;
 }
 
 use Bio::PrimarySeq;
@@ -86,6 +86,36 @@ ok $seqobj = Bio::PrimarySeq->new(-seq=>'MQSERGITIDISLWKFETSKYYVT',
                                   -alphabet=>'protein');
 $wt = Bio::Tools::SeqStats->get_mol_wt($seqobj);
 ok &round($$wt[0]), 2896 ;
+
+#
+# hydropathicity aka "gravy" score
+#
+
+# normal seq (should succeed)
+ok $seqobj = Bio::PrimarySeq->new(-seq=>'MSFVLVAPDMLATAAADVVQIGSAVSAGS',
+                                  -alphabet=>'protein');
+my $gravy = Bio::Tools::SeqStats->hydropathicity($seqobj);
+ok int($gravy*1000) == 1224;  # check to nearest 0.1%
+
+# ambiguous sequence (should fail)
+ok $seqobj = Bio::PrimarySeq->new(-seq=>'XXXB**BS', -alphabet=>'protein');
+eval { Bio::Tools::SeqStats->hydropathicity($seqobj) };
+ok $@ =~ /ambiguous amino acids/i;
+
+# empty sequence (should fail)
+ok $seqobj = Bio::PrimarySeq->new(-seq=>'', -alphabet=>'protein');
+eval { Bio::Tools::SeqStats->hydropathicity($seqobj) };
+ok $@ =~ /hydropathicity not defined/i;
+
+# DNA sequence (should fail)
+ok $seqobj = Bio::PrimarySeq->new(-seq=>'GATTACA', -alphabet=>'dna');
+eval { Bio::Tools::SeqStats->hydropathicity($seqobj) };
+ok $@ =~ /only meaningful for protein/;
+
+
+#
+# Extra functions
+#
 
 # perl does not have an explicit rounding function
 sub round { return int ((shift @_) + 0.5 ) }
