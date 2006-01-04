@@ -22,8 +22,8 @@ server
 
   my $seq; # a Bio::PrimarySeqI or Bio::SeqI object
 
-  $seq = Bio::Seq->new
-      (-primery_id => 'test',
+  $seq = Bio::Seq->new(
+       -primary_id => 'test',
        -seq=>'atgcatgctaggtgtgtgttttgtgggttgtactagctagtgat'.
        -alphabet=>'dna');
 
@@ -73,12 +73,12 @@ with prediction scores for all residues in the sequence
 
 C<$ese_finder-E<gt>result('Bio::SeqFeatureI')> returns an array of
 Bio::SeqFeature objects for sequences with significant scores. Feature
-tags are score, motif,SR_protein and method
+tags are score, motif, SR_protein and method
 
 =item 4.
 
 C<$ese_finder-E<gt>result('raw')> returns an array of significant matches
-with each element being a refernce to [Sprotein, position, motif,
+with each element being a reference to [SR_protein, position, motif, 
 score]
 
 =back
@@ -87,7 +87,7 @@ See L<http://exon.cshl.org/ESE/index.html>
 
 This the second implentation of Bio::SimpleAnalysisI which hopefully
 will make it easier to write wrappers on various services. This class
-uses a web resource and therefore inherits from Bio::WebAgent.
+uses a web resource and therefore inherits from L<Bio::WebAgent>.
 
 =head1 SEE ALSO
 
@@ -174,7 +174,7 @@ my $RESULT_SPEC =
     {
      '' => 'bulk',  # same as undef
      'Bio::SeqFeatureI' => 'ARRAY of Bio::SeqFeature::Generic',
-     'raw' => 'Array of [ SRprotein, position , motif,score]',
+     'raw' => 'Array of [ SR_protein, position, motif, score]',
      'all' => 'Bio::Seq::Meta::Array object'
     };
 
