@@ -437,7 +437,7 @@ sub remove_Annotations {
 
 =head2 display_name()
 
- Deprecated, use L</name()>.  Will raise a warning
+ Deprecated, use L<Bio::SeqFeatureI/name()>.  Will raise a warning.
 
 =cut
 
@@ -452,7 +452,7 @@ sub display_name {
 
 =head2 primary_tag()
 
- Deprecated, use L</type()>.  Will raise a warning
+ Deprecated, use L<Bio::SeqFeatureI/type()>.  Will raise a warning.
 
 =cut
 
@@ -467,7 +467,7 @@ sub primary_tag {
 
 =head2 source_tag()
 
- Deprecated, use L</source()>.  Will raise a warning
+ Deprecated, use L<Bio::SeqFeatureI/source()>.  Will raise a warning.
 
 =cut
 
