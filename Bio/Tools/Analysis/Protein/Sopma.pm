@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-Bio::Tools::Analysis::Protein::Sopma - a wrapper around
+Bio::Tools::Analysis::Protein::Sopma - a wrapper around the
 Sopma protein secondary structure prediction server
 
 =head1  SYNOPSIS
@@ -34,26 +34,26 @@ coil, turn or sheet), e.g.,
 
   my $analysis_object = Bio::Tools::SimpleAnalysis::Protein::Sopma->new
       ( -seq          => $seq,
-        -states       =>4,
-        -window_width =>15,
+        -states       => 4,
+        -window_width => 15,
       );
 
-creates a new object.  Compulsory arguments -seq.  Optional arguments
--states, -window_width,-similarity_threshold. These values can also be
+creates a new object.  Compulsory argument -seq.  Optional arguments
+-states, -window_width,-similarity_threshold. These arguments can also be
 set by direct methods , e.g.,
 
   $analysis_object->states(4);
-  $analysis_object->run   ;
+  $analysis_object->run;
 
-submits the query to the server and obtains raw text output Given an
+submits the query to the server and obtains raw text output. Given an
 amino acid sequence the results can be obtained in 4 formats,
-determined by the argument to the result method
+determined by the argument to the result method:
 
 =over 4
 
 =item 1
 
-The raw text of the program output
+The raw text of the program output.
 
   my $rawdata = $analysis_object->result;
 
@@ -208,8 +208,8 @@ sub similarity_threshold {
 
 =head2  window_width
 
-  Useage   : $job->window_width(...)
-  Returns  : The  window width used in the analysis
+  Usage    : $job->window_width(...)
+  Returns  : The window width used in the analysis
   Args     : None (retrieves value) or  an integer (default = 17)
              that sets the window width.
 
@@ -233,7 +233,7 @@ sub window_width {
 
 =head2  states
 
-  Useage   : $job->states(...)
+  Usage    : $job->states(...)
   Returns  : The number of secondary structure prediction states
   Args     : None (retrieves value) or either '3' or '4' to set
              prior to running analysis.
@@ -282,14 +282,14 @@ coil, or turn if 4 state prediction requested) "method" (Sopma)
 
 =item 'parsed'
 
-Array of hash references of scores/structure assignations { helix =E<gt>,
-sheet =E<gt> , coil =E<gt> , struc=E<gt>}.
+Array of hash references of scores/structure assignations 
+{ helix =E<gt> , sheet =E<gt> , coil =E<gt> , struc=E<gt>}.
 
 =item 'all'
 
 A Bio::Seq::Meta::Array object. Scores can be accessed using methods
 from this class. Meta sequence names are Sopma_helix, Sopma_sheet,
-Sopma_coil, Sopma_turn (if defined) Sopma_struc.
+Sopma_coil, Sopma_turn (if defined), and Sopma_struc.
 
 
 =back
