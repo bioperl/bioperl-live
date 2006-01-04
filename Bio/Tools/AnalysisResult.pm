@@ -48,7 +48,7 @@ subject is either a sequence, too, or a database of sequences.
 
 This module also implements the Bio::SeqAnalysisParserI interface, and
 thus can be used wherever such an object fits.  See
-L<Bio::SeqAnalysisParserI|Bio::SeqAnalysisParserI>.  Developers will
+L<Bio::SeqAnalysisParserI>.  Developers will
 find a ready-to-use B<parse()> method, but need to implement
 B<next_feature()> in an inheriting class. Support for initialization
 with input file names and reading from streams is also ready to use.
@@ -65,8 +65,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org            - General discussion
+  http://bioperl.org/MailList.html - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -128,7 +128,7 @@ sub _initialize {
 
            Performs initialization or reset of the state of this object. The
            difference to _initialize() is that it may be called at any time,
-           and repeatedly within the lifetime of this object. B<Note, however,
+           and repeatedly within the lifetime of this object. B<Note>, however,
            that this is potentially dangerous in a multi-threading
            environment. In general, calling this method twice is discouraged
            for this reason.
