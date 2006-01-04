@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::Promoter - Describes a promotor      
+Bio::SeqFeature::Gene::Promoter - Describes a promoter      
 
 =head1 SYNOPSIS
 
@@ -44,12 +44,6 @@ web:
 =head1 AUTHOR - David Block
 
 Email dblock@gene.pbi.nrc.ca
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
