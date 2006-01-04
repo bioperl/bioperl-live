@@ -14,7 +14,7 @@
 =head1 NAME
 
 Bio::DB::WebDBSeqI - Object Interface to generalize Web Databases
-  for retrieving sequences
+for retrieving sequences
 
 =head1 SYNOPSIS
 
@@ -24,9 +24,6 @@ Bio::DB::WebDBSeqI - Object Interface to generalize Web Databases
 
 =head1 DESCRIPTION
 
-
-
-
 Provides core set of functionality for connecting to a web based
 database for retriving sequences.
 
@@ -35,8 +32,6 @@ extend this class (see Bio::DB::SwissProt or Bio::DB::NCBIHelper for
 examples) and implement the get_request method which returns a
 HTTP::Request for the specified uids (accessions, ids, etc depending
 on what query types the database accepts).
-
-
 
 =head1 FEEDBACK
 
@@ -55,10 +50,8 @@ is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to
 help us keep track the bugs and their resolution.
-Bug reports can be submitted via email or the
-web:
+Bug reports can be submitted via the web.
 
-  bioperl-bugs@bio.perl.org
   http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
