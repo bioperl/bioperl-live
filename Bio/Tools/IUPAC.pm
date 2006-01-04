@@ -111,7 +111,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://www.bugzilla.bioperl.org/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Aaron Mackey
 
@@ -316,8 +316,8 @@ sub iupac_iub{
 
  Title   : iupac_rev_iub
  Usage   : my %dnasymbols = $iupac->iupac_rev_iub
- Function: Returns a hash of nucleotide conmbinations =>IUPAC code
-           - a reverse of the iupac_iub hash.  
+ Function: Returns a hash of nucleotide combinations -> IUPAC code
+           (a reverse of the iupac_iub hash).  
  Returns : Hash
  Args    : none
 
