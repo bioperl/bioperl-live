@@ -17,16 +17,16 @@ SimpleAnalysis implementations
 
 =head1 SYNOPSIS
 
-  # no to be run directly
+# not to be run directly
 
 =head1 DESCRIPTION
 
 This class is a generic implementation of SimpleAnalysisI and should
 be used as a base class for specific implementations.
 
-SimpleAnalysis implementing modules just need to provide a specific _run()
-result() and _init() methods, plus any get/set methods for parameter
-to the analysis program.
+Modules implementing SimpleAnalysisBase only need to provide specific 
+_init(), _run() and result() methods, plus any get/set methods for 
+parameters to the analysis program.
 
 =head1 SEE ALSO
 
@@ -97,8 +97,8 @@ my %STATUS =  map { $_ => 1 } qw(CREATED COMPLETED TERMINATED_BY_ERROR);
 sub new {
     my $class = shift;
 
-    my $self = $class->SUPER::new(); #WebAGent new
-    $self->_init;      #this line has to be before the attributes are filled in
+    my $self = $class->SUPER::new(); #WebAgent new
+    $self->_init; #this line has to be before the attributes are filled in
     while ( @_ ) {
         my $key = lc shift;
         $key =~ s/^-//;
@@ -134,9 +134,9 @@ sub seq {
 
 =head2  analysis_name
 
-    Useage   :  $analysis->analysis_name();
-    Returns  :  The analysis name
-    Arguments:  none
+    Usage     : $analysis->analysis_name();
+    Returns   : The analysis name
+    Arguments : none
 
 =cut
 
@@ -147,7 +147,7 @@ sub analysis_name {
 
 =head2  analysis_spec
 
-    Useage   :  $analysis->analysis_spec();
+    Usage    :  $analysis->analysis_spec();
     Returns  :  a hash reference to  a hash of analysis parameters. See
                 Bio::SimpleAnalysisI for a list of recommended key values.
     Arguments:  none
@@ -161,11 +161,11 @@ sub analysis_spec {
 
 =head2 clear
 
-    Usage     :$analysis->clear();
-    Returns   :true value on success
-    Arguments :none
-    Purpose   :to remove raw results from a previous analysis so that
-               an analysis can be repeated with different parameters.
+    Usage     : $analysis->clear();
+    Returns   : true value on success
+    Arguments : none
+    Purpose   : to remove raw results from a previous analysis so that
+                an analysis can be repeated with different parameters.
 
 =cut
 
@@ -184,10 +184,10 @@ sub clear {
 
 =head2  input_spec
 
-    Useage   :  $analysis->input_spec();
-    Returns  :  a  reference to  an array of  hashes of analysis parameters. See
+    Usage     : $analysis->input_spec();
+    Returns   : a  reference to  an array of  hashes of analysis parameters. See
                 Bio::SimpleAnalysisI for a list of recommended key values.
-    Arguments:  none
+    Arguments : none
 
 =cut
 
@@ -198,12 +198,12 @@ sub input_spec {
 
 =head2  result_spec
 
-    Useage   :  $analysis->result_spec();
-    Returns  :  a  reference to  a   hashes of resultformats. See
+    Usage     : $analysis->result_spec();
+    Returns   : a  reference to  a   hashes of resultformats. See
                 Bio::SimpleAnalysisI for a list of recommended key values. The key
                 values can be used as parameters to the result() method, the values
                 provide descriptions.
-    Arguments:  none
+    Arguments : none
 
 =cut
 
