@@ -532,9 +532,8 @@ o DEPENDENCIES AND Bundle::BioPerl
  Text::Wrap               Very optional
                           Bio::SearchIO::Writer::TextResultWriter
  
- HTML::Entities           If you want to run Web analysis modules
-			                 Bio::Tools::Analysis::DNA::*
-			                 Bio::Tools::Analysis::Protein::*
+ HTML::Entities           Parse BLAST results in XML
+			                 Bio/SearchIO/blastxml
 
  Class::AutoClass         Used to create objects
                           Bio::Graph::SimpleGraph*
