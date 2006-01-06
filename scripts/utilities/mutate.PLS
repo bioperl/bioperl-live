@@ -1,8 +1,8 @@
-#!perl -w
+#!/usr/bin/perl -w
 
 =head1 NAME
 
-mutate - a script to randomly mutagenize a single protein or DNA sequence
+mutate.pl - randomly mutagenize a single protein or DNA sequence
 
 =head1 SYNOPSIS
 
