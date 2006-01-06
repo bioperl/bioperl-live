@@ -1,5 +1,4 @@
 # $Id$
-
 #
 # This module is licensed under the same terms as Perl itself. You use,
 # modify, and redistribute it under the terms of the Perl Artistic License.
@@ -11,50 +10,49 @@ Bio::IdentifiableI - interface for objects with identifiers
 
 =head1 SYNOPSIS
 
-
     # to test this is an identifiable object
 
     $obj->isa("Bio::IdentifiableI") || 
       $obj->throw("$obj does not implement the Bio::IdentifiableI interface");
 
-    # accessors
+    # Accessors
 
     $object_id = $obj->object_id();
     $namespace = $obj->namespace();
     $authority = $obj->authority();
     $version   = $obj->version();
-
-    # utility function
-
-    $lsid        = $obj->lsid_string();      # gives authority:namespace:object_id
-    $ns_string   = $obj->namespace_string(); # gives namespace:object_id.version
-
+    # Gets authority:namespace:object_id
+    $lsid = $obj->lsid_string();      
+    # Gets namespace:object_id.version
+    $ns_string = $obj->namespace_string(); 
 
 =head1 DESCRIPTION
 
-This interface describes methods expected on identifiable objects, ie
+This interface describes methods expected on identifiable objects, i.e.
 ones which have identifiers expected to make sense across a number of
 instances and/or domains. This interface is modeled after pretty much
 ubiquitous ideas for names in bioinformatics being 
 
  databasename:object_id.version
 
-examples being
+Example:
 
  swissprot:P012334.2
 
-or
+or:
 
  GO:0007048
 
-We also work well with LSID proposals which adds in the concept of an
+The object will also work with LSID proposals which adds the concept of an
 authority, being the DNS name of the organisation assigning the namespace.
-Helper functions are provided to make useful strings being
+See L<http://lsid.sourceforge.net/>.
 
+Helper functions are provided to make useful strings:
 
   lsid_string - string complying to the LSID standard
+
   namespace_string - string complying to the usual convention of 
-     namespace:object_id.version
+                     namespace:object_id.version
 
 =head1 FEEDBACK
 
@@ -101,7 +99,6 @@ define.
  Function: a string which represents the stable primary identifier
            in this namespace of this object. For DNA sequences this
            is its accession_number, similarly for protein sequences
-
  Returns : A scalar
  Status  : Virtual
 
@@ -120,7 +117,6 @@ sub object_id {
            the same object. Higher numbers are considered to be
            later and more relevant, but a single object described
            the same identifier should represent the same concept
-
  Returns : A number
  Status  : Virtual
 
@@ -139,7 +135,6 @@ sub version {
  Function: a string which represents the organisation which
            granted the namespace, written as the DNS name for  
            organisation (eg, wormbase.org)
-
  Returns : A scalar
  Status  : Virtual
 
@@ -158,7 +153,6 @@ sub authority {
  Function: A string representing the name space this identifier
            is valid in, often the database name or the name
            describing the collection 
-
  Returns : A scalar
  Status  : Virtual
 
@@ -168,7 +162,6 @@ sub namespace {
    my ($self) = @_;
    $self->throw_not_implemented();
 }
-
 
 
 =head1 Implementation optional functions
@@ -202,7 +195,6 @@ sub lsid_string {
  Usage   : $string   = $obj->namespace_string()
  Function: a string which gives the common notation of
            namespace:object_id.version
-
  Returns : A scalar
 
 =cut
