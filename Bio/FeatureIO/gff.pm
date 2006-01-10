@@ -703,7 +703,7 @@ sub _handle_feature {
     $feat->add_Annotation('Name',$a);
   }
 
-  foreach my $other_canonical (qw(Alias Parent Note)){
+  foreach my $other_canonical (qw(Alias Parent Note Derives_from)){
     if($attr{$other_canonical}){
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
