@@ -827,7 +827,7 @@ sub _parse_YN_Pairwise {
 
 sub _parse_Forestry {
     my ($self) = @_;
-    my ($instancecount,$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0);
+    my ($instancecount,$num_param,$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0);
     my @trees;
     my $okay = 0;
     my (@ids,%match,@branches);
@@ -845,8 +845,9 @@ sub _parse_Forestry {
 	    $treelength = $1;	# not going to store this for now
             # as it is directly calculated from
 	    # $tree->total_branch_length;
-	} elsif( /^\s*lnL\(.+\)\:\s+(\S+)/ ) {
-	    $loglikelihood = $1;
+	} elsif( /^\s*lnL\(.+np\:\s*(\d+)\)\:\s+(\S+)/ ) {
+      $num_param = $1;
+	    $loglikelihood = $2;
 	} elsif( /^\(/) {
 	    s/([\,:])\s+/$1/g;
 	    my $treestr = new IO::String($_);
@@ -855,6 +856,7 @@ sub _parse_Forestry {
 	    my $tree = $treeio->next_tree;
 	    if( $tree ) {
 		$tree->score($loglikelihood);
+                $tree->id($num_param);
 		if( $okay > 0 ) {
                   # we don't save the trees with the number labels
 		    if( ! %match && @ids) {
