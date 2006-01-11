@@ -65,8 +65,8 @@ assigned state.
   my $data_ref = $analysis_object->result('parsed');
   print "score for helix at residue 2 is $data_ref->[1]{'helix'}\n";
   print "predicted struc  at residue 2 is $data_ref->[1]{'struc}\n";
-Hash keys are 'helix', 'struc', 'sheet', 'coil', 'turn'.
 
+Hash keys are 'helix', 'struc', 'sheet', 'coil', 'turn'.
 
 =item 3
 
