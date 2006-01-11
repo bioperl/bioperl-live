@@ -203,7 +203,7 @@ not stranded.
 
 For annotations that are linked to proteins, this field describes the
 phase of the annotation on the codons.  It is a number from 0 to 2, or
-"." for features that have no phase\.
+"." for features that have no phase.
 
 =item 9. group
 
@@ -2222,7 +2222,7 @@ sub _preferred_groups_hash {
 
   # defaults
   if (!@preferred) {
-    @preferred = $self->{gff3_flag} ? qw(Target Parent ID) : qw(Target Sequence Transcript);
+    @preferred = $self->{load_data}{gff3_flag} ? qw(Target Parent ID) : qw(Target Sequence Transcript);
   }
 
   my %preferred = map {lc($_) => @preferred-$count++} @preferred;
