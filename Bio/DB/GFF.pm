@@ -2222,7 +2222,7 @@ sub _preferred_groups_hash {
 
   # defaults
   if (!@preferred) {
-    @preferred = $self->{gff3_flag} ? qw(Target Parent ID) : qw(Target Sequence Transcript);
+    @preferred = $self->{load_data}{gff3_flag} ? qw(Target Parent ID) : qw(Target Sequence Transcript);
   }
 
   my %preferred = map {lc($_) => @preferred-$count++} @preferred;
