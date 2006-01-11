@@ -58,7 +58,6 @@ use vars qw(@ISA  %species $g $c $fac);
 
 BEGIN{
 	$fac  = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq::RichSeq');
-	$g = Bio::Graph::ProteinGraph->new();
 }
 
 #parsing done by XML::Twig, not by RootIO, therefore override usual new
@@ -89,12 +88,13 @@ sub _initialize  {
 sub next_network {
 
  my $self = shift;
+ $g = Bio::Graph::ProteinGraph->new(); ## bugfix, now is reset each time
  my $t    = XML::Twig->new
 	(  TwigHandlers => {
 							  proteinInteractor   => \&_proteinInteractor,
 							  interaction         => \&_addEdge
 							 });
- $t->parsefile($self->file);
+  $t->parsefile($self->file);
  return $g;
 }
 
@@ -109,6 +109,7 @@ sub next_network {
 =cut
 
 sub _proteinInteractor {
+
 	my ($twig, $pi) = @_;
 
 	my ($acc, $sp, $desc, $taxid,  $prim_id);
@@ -120,13 +121,16 @@ sub _proteinInteractor {
 	if (!exists($species{$taxid})) {
 		my $common     =  $org->first_child('names')->first_child('shortLabel')->text;
 		my $full       =  $org->first_child('names')->first_child('fullName')->text;
+		my ($gen, $sp) = $full =~ /(\S+)\s+(.+)/;
 		my ($gen,$sp)  = $full =~ /(\S+)\s+(.+)/;
 		my $sp_obj     = Bio::Species->new(-ncbi_taxid     => $taxid,
 													  -classification => [$sp, $gen],
 													  -common_name    => $common
 													 );
 		$species{$taxid} = $sp_obj;
-	}
+        print "species parse error $@" if $@;
+      }
+      
 
 	## next extract sequence id info ##
 	my @ids          = $pi->first_child('xref')->children();
@@ -162,11 +166,11 @@ sub _proteinInteractor {
 		my $an = Bio::Annotation::DBLink->new( -database   => $db,
 															-primary_id => $ids{$db},
 											);
-		$ac->add_Annotation('dblink',$an);
-	}
+			$ac->add_Annotation('dblink',$an);
+			}
 
-	## now we can make sequence object ##
-	my $node = $fac->create(
+		## now we can make sequence object ##
+		my $node = $fac->create(
 						-accession_number => $acc,
 						-desc             => $desc,
 						-display_id       => $acc,
@@ -211,7 +215,8 @@ sub _addEdge {
 					-nodes =>[($g->{'_id_map'}{$node[0]}, 
                                $g->{'_id_map'}{$node[1]})],
 					-id    => $edge_id));
-	$twig->purge();
+	my $edge_id = $i->first_child('xref')->first_child('primaryRef')->att('id');
+		$twig->purge();
 }
 
 1;

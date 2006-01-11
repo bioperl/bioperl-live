@@ -79,6 +79,9 @@ my @nodes = $gr->articulation_points();
 ok $gr->edge_count, 72;
 $gr->remove_nodes($gr->nodes_by_id('3082N'), $gr->nodes_by_id('3083N'));
 ok $gr->edge_count, 68;
+ my $nodes = $gr->articulation_points();
+ok grep {$_->object_id eq 'H64521'} @$nodes;
+ok scalar @$nodes, 13;
 @nodes = @{$gr->articulation_points()};
 # <NOTE>
 # these were failing, I don't understand the module enough to know if 
