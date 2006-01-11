@@ -16,7 +16,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$NUMTESTS  = 64;
+	$NUMTESTS  = 66;
 	plan tests => $NUMTESTS;
 	eval {	require Class::AutoClass;
          	require Clone; };
@@ -274,9 +274,8 @@ unless( $XML_ERROR ) {
 	ok $g3->node_count, 5;
 
 	# my @rts =$g->articulation_points();
-	#my $n = $g->nodes_by_id(207153);
-	#ok $n->species->binomial,"Helicobacter pylori 26695";
-	#ok $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
-
+	# my $n = $g->nodes_by_id(207153);
+	# ok $n->species->binomial,"Helicobacter pylori 26695";
+	# ok $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
 } 
 
