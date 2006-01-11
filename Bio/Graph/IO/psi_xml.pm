@@ -122,7 +122,6 @@ sub _proteinInteractor {
 		my $common     =  $org->first_child('names')->first_child('shortLabel')->text;
 		my $full       =  $org->first_child('names')->first_child('fullName')->text;
 		my ($gen, $sp) = $full =~ /(\S+)\s+(.+)/;
-		my ($gen,$sp)  = $full =~ /(\S+)\s+(.+)/;
 		my $sp_obj     = Bio::Species->new(-ncbi_taxid     => $taxid,
 													  -classification => [$sp, $gen],
 													  -common_name    => $common
@@ -215,8 +214,8 @@ sub _addEdge {
 					-nodes =>[($g->{'_id_map'}{$node[0]}, 
                                $g->{'_id_map'}{$node[1]})],
 					-id    => $edge_id));
-	my $edge_id = $i->first_child('xref')->first_child('primaryRef')->att('id');
-		$twig->purge();
+	$twig->purge();
+
 }
 
 1;
