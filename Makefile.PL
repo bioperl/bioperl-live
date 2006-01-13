@@ -46,9 +46,6 @@
 #	     'enum'                     => '0.0/C style enumerated types and bitmask flags 
 # in Perl/Bio::Microarray::Affymetrix::*',
 
-# rare function let's not scare people
-# 	     'srsperl.pm'               => '0.0/Sequence Retrieval System (SRS) perl 
-# API/alternative way of retrieving sequences/Bio::LiveSeq::IO::SRS.pm'
 	    );
 
 sub check_package {

@@ -19,6 +19,8 @@ Bio::LiveSeq::IO::BioPerl
 
 Bio::LiveSeq::IO::SRS
 
+        outdated, removed from distribution 13 Jan 2006
+
 	retrieves sequences from a local installation of SRS. It needs
         srsperl.pm which is part of SRS. SRS is short for Sequence
         Retrieval System, a comprehensive program suite for indexing

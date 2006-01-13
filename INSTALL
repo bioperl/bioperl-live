@@ -493,11 +493,6 @@ o DEPENDENCIES AND Bundle::BioPerl
 
  Requires GD library from www.boutell.com/gd
 
- srsperl		              Sequence Retrieval System (SRS) 
-			                 alternative way of retrieving sequences
-			                 Bio::LiveSeq::IO::SRS.pm
-			  
- See README in Bio/LiveSeq/IO
 
  Storable		           Persistent object storage & retrieval 
 			                 Bio::DB::FileCache

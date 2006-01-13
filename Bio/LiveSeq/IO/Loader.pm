@@ -20,7 +20,7 @@ Bio::LiveSeq::IO::Loader - Parent Loader for LiveSeq
 
 =head1 DESCRIPTION
 
-This package holds common methods used by BioPerl, SRS and file loaders.
+This package holds common methods used by BioPerl and file loaders.
 It contains methods to create LiveSeq objects out of entire entries or from a
 localized sequence region surrounding a particular gene.
 
@@ -499,11 +499,8 @@ sub transexonscreation {
             loader. Mainly used for testing purposes.
   Args    : a hashref containing the SWISSPROT entry datas
   Note    : the hashref can be obtained with a call to the method
-               $loader->get_swisshash()      (only with SRS loader or
-                                              BioPerl via Bio::DB::EMBL.pm)
-	    that takes as argument a string like "SWISS-PROT:P10275" or
-	    from $loader->swissprot2hash() that takes an SRS query string
-	    as its argument (e.g. "swissprot-acc:P10275")
+               $loader->get_swisshash()      (BioPerl via Bio::DB::EMBL.pm)
+	    that takes as argument a string like "SWISS-PROT:P10275"
 
 =cut
 
