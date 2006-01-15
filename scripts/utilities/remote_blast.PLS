@@ -23,12 +23,12 @@ my ($prog, $db, $expect,$method) = ( 'blastp', 'nr', '10', 'Blast');
 my ($sequencefile,$sequenceformat,$help) = (undef, 'fasta',undef);
 
 &GetOptions('prog|p=s'               => \$prog,
-	    'db|d=s'                 => \$db,
-	    'expect|e=s'             => \$expect,
-	    'blsmod|module|method=s' => \$method,
-	    'input|i=s'              => \$sequencefile,  	    
-	    'format|f=s'             => \$sequenceformat,
-	    'help|h'                 => \$help, 
+				'db|d=s'                 => \$db,
+				'expect|e=s'             => \$expect,
+				'blsmod|module|method=s' => \$method,
+				'input|i=s'              => \$sequencefile,  	    
+				'format|f=s'             => \$sequenceformat,
+				'help|h'                 => \$help, 
 	    );
 
 if( $help ) {
@@ -43,7 +43,8 @@ if( !defined $db ) {
     die($USAGE . "\n\tMust specify a db to search\n");
 }
 
-my $blastfactory = new Bio::Tools::Run::RemoteBlast ('-prog'      => $prog,
+my $blastfactory = new Bio::Tools::Run::RemoteBlast (
+							  '-prog'      => $prog,
 						     '-data'      => $db,
 						     '-expect'    => $expect,
 						     'readmethod' => $method,
@@ -54,39 +55,39 @@ my $blastfactory = new Bio::Tools::Run::RemoteBlast ('-prog'      => $prog,
 
 my $input;
 if( $sequenceformat !~ /fasta/ ) {
-    my @seqs;
-    my $seqio = new Bio::SeqIO('-format' => $sequenceformat,
-			       '-file'   => $sequencefile );
-    while( my $seq = $seqio->next_seq() ) {
-	push @seqs, $seq;
-    }
-    $input = \@seqs;
+	my @seqs;
+	my $seqio = new Bio::SeqIO('-format' => $sequenceformat,
+										'-file'   => $sequencefile );
+	while( my $seq = $seqio->next_seq() ) {
+		push @seqs, $seq;
+	}
+	$input = \@seqs;
 } else { 
-    $input = $sequencefile;
+	$input = $sequencefile;
 }
 $blastfactory->submit_blast($input);
 print "retrieving blasts..";
 while( my @rids = $blastfactory->each_rid ) {
-    foreach my $rid ( @rids ) {
-	my $rc = $blastfactory->retrieve_blast($rid);
-	if( !ref($rc) ) {
-	    if( $rc < 0 ) { 
-		# there was an error and this RID is not coming back
-		$blastfactory->remove_rid($rid);
-	    }
-	    print ".";
-	    sleep 5;
-	} else { 
-	    print "\n";
-	    $blastfactory->remove_rid($rid);
-	    while( my $sbjct = $rc->nextSbjct ) {		
-		print "sbjct name is ", $sbjct->name, "\n";
-		while( my $hsp = $sbjct->nextHSP ) {
-		    print "score is ", $hsp->score, "\n";
-		} 
-	    }
+	foreach my $rid ( @rids ) {
+		my $rc = $blastfactory->retrieve_blast($rid);
+		if( !ref($rc) ) {
+			if( $rc < 0 ) { 
+				# there was an error and this RID is not coming back
+				$blastfactory->remove_rid($rid);
+			}
+			print ".";
+			sleep 5;
+		} else { 
+			print "\n";
+			$blastfactory->remove_rid($rid);
+			while( my $sbjct = $rc->nextSbjct ) {		
+				print "sbjct name is ", $sbjct->name, "\n";
+				while( my $hsp = $sbjct->nextHSP ) {
+					print "score is ", $hsp->score, "\n";
+				} 
+			}
+		}
 	}
-    }
 }
 
 __END__
