@@ -854,7 +854,7 @@ sub rank {
            : or conserved residues in the query or sbjct sequence.
  Example   : @s_ind = $hsp->seq_inds('query', 'identical');
            : @h_ind = $hsp->seq_inds('hit', 'conserved');
-             @h_ind = $hsp->seq_inds('hit', 'conserved-not-identical'); 
+           : @h_ind = $hsp->seq_inds('hit', 'conserved-not-identical'); 
            : @h_ind = $hsp->seq_inds('hit', 'conserved', 1);
  Returns   : List of integers 
            : May include ranges if collapse is true.
