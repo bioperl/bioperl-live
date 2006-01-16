@@ -991,7 +991,31 @@ sub _parse_NSsitesBatch {
 		    'p'     => $1,
 		    'q'     => $2 };
 	    } else {
-		$self->warn("unparseable beta paramters: $_");
+		$self->warn("unparseable beta parameters: $_");
+	    }
+	} elsif( /^Parameters in beta\&w\>1:/ ) {
+            # Parameters in beta&w>1:
+            #   p0=  1.00000  p=  0.07642 q=  0.85550
+            #  (p1=  0.00000) w=  1.00000
+	    $_ = $self->_readline; # need the next line
+            my ($p0,$p,$q,$p1,$w);
+	    if ( /p0\=\s+(\S+)\s+p\=\s+(\S+)\s+q\=\s+(\S+)/ ) {
+                $p0 = $1; $p = $2; $q = $3;
+	    } else {
+		$self->warn("unparseable beta parameters: $_");
+	    }
+	    $_ = $self->_readline; # need the next line
+	    if ( /\(p1\=\s+(\S+)\)\s+w\=\s+(\S+)/ ) {
+                $p1 = $1; $w = $2;
+		$data{'-shape_params'} = { 
+		    'shape' => 'beta',
+		    'p0'    => $p0,
+		    'p'     => $p,
+		    'p'     => $q,
+		    'p1'    => $p1,
+                    'w'     => $w };
+	    } else {
+		$self->warn("unparseable beta parameters: $_");
 	    }
 	}  elsif( /^alpha\s+\(gamma\)\s+\=\s+(\S+)/ ) {
 	    my $gamma = $1;
