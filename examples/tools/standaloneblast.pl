@@ -29,32 +29,32 @@ my $amino_database = 'swissprot';
 #	to identify an alignment to use for blasting or whether an external alignment is given to 
 #	psiblast
 #
-
+use strict;
 use Getopt::Long;
 use Bio::SimpleAlign;
 use Bio::Tools::Run::StandAloneBlast;
-use Bio::Tools::BPlite::Sbjct;
+use Bio::SearchIO;
 use Bio::AlignIO;
 use Bio::SeqIO;
 use Bio::Root::IO;
-use strict;
 
 # set some default values
 my $queryseq = Bio::Root::IO->catfile(qw(t data cysprot1.fa) );
 my $executable = 'blastpgp';
 my $queryaln = Bio::Root::IO->catfile(qw(t data cysprot.msf) );
 my @params = ('database' => $amino_database);
-my $do_only = ''; 	# string listing examples to be executed. Default is to execute
-			# all tests (ie 1,2 and 3)
+# string listing examples to be executed. Default is to execute
+# all tests (ie 1,2 and 3)
+my $do_only = ''; 	
 my $example1param = 'MATRIX';  # parameter to be varied in example 1
 my $example2param = 'GAP';  # parameter to be varied in example 1
-my $example1values = [ 'BLOSUM62', 'BLOSUM80', 'PAM70']; # MATRIX values to be tried
+my $example1values = [ 'BLOSUM62', 'BLOSUM80', 'PAM70']; # MATRIX values to try
 my $example2values = [ 7, 9, 25]; # GAP values to be tried
 my $queryalnformat = 'msf';
 my $jiter = 2;
-my  $maskvalues = [50, 25, 75] ; # only use pos. specific scoring matrix if > 50% of residues have
-		     # consensus letter (and compare with 25% or 75% cut off)
-my $helpflag = 0;   # Flag to show usage info.
+# only use pos. specific scoring matrix if > 50% of residues have
+# consensus letter (and compare with 25% or 75% cut off)
+my  $maskvalues = [50, 25, 75] ; my $helpflag = 0;   # Flag to show usage info.
 
 # get user options
 my @argv       = @ARGV;  # copy ARGV before GetOptions() massacres it.
@@ -62,26 +62,26 @@ my $paramvalstring;
 my $maskvalstring;
 
 &GetOptions("h!"          => \$helpflag, 
-	    "help!"       => \$helpflag,
-	    "in=s"        => \$queryseq,
-	    "inaln=s"     => \$queryaln,
-	    "alnfmt=s"    => \$queryalnformat,
-	    "param=s"     => \$example1param,
-	    "exec=s"      => \$executable,
-	    "paramvals=s" => \$paramvalstring,
-	    "do=i"        =>  \$do_only,
-	    "maskvals=s"  => \$maskvalstring,
-	    "iter=i"      =>  \$jiter,
+				"help!"       => \$helpflag,
+				"in=s"        => \$queryseq,
+				"inaln=s"     => \$queryaln,
+				"alnfmt=s"    => \$queryalnformat,
+				"param=s"     => \$example1param,
+				"exec=s"      => \$executable,
+				"paramvals=s" => \$paramvalstring,
+				"do=i"        =>  \$do_only,
+				"maskvals=s"  => \$maskvalstring,
+				"iter=i"      =>  \$jiter,
 	) ;
 
 if ($paramvalstring) { @$example1values = split (":", $paramvalstring); }
 if ($maskvalstring)  { @$maskvalues     = split (":", $maskvalstring);  }
 
- if ($helpflag) { &example_usage(); exit 0;}
+if ($helpflag) { &example_usage(); exit 0;}
 
 # create factory & set user-specified global blast parameters
 foreach my $argv (@argv) {
-	unless ($argv =~ /^(.*)=>(.*)$/) { next;}
+	next unless ($argv =~ /^(.*)=>(.*)$/);
 	push (@params, $1 => $2);
 }
 my  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
@@ -165,9 +165,9 @@ sub compare_runs {
 # For each method/parameter-value (labeled by type) display  hits found 
 # exclusively by that method
     foreach $tag (@$runtags)  {
-	@taghits = grep  $$hashhits{$_} =~ /^$tag$/  ,  keys %$hashhits;
-	print  " Hits found only when $typetag was $tag: \n";
-	print   join ( "\n", @taghits ) ,  "\n";
+		 @taghits = grep  $$hashhits{$_} =~ /^$tag$/  ,  keys %$hashhits;
+		 print  " Hits found only when $typetag was $tag: \n";
+		 print   join ( "\n", @taghits ) ,  "\n";
     }
     return 1;
 }
@@ -345,7 +345,7 @@ my $mask = &create_mask($aln, $maskvalue);
 
 
 my $report2 = $factory->blastpgp($queryseq, $aln, $mask);
-while($sbjct = $report2->nextSbjct) {
+while($sbjct = $report2->next_result) {
 		$hashhits->{$sbjct->name} .= "$tag1";			
 }
 
@@ -363,7 +363,7 @@ my $total_iterations = $report1->number_of_iterations;
 my $last_iteration = $report1->round($total_iterations);
 
 
- while($sbjct = $last_iteration->nextSbjct) {
+ while($sbjct = $last_iteration->next_result) {
 		$hashhits->{$sbjct->name} .= "$tag2";			
 	}
 
@@ -398,23 +398,22 @@ return 1;
 
 
 sub create_mask {
-    my $aln = shift;
-    my $maskvalue = shift;
-    my $mask = "";
+	my $aln = shift;
+	my $maskvalue = shift;
+	my $mask = "";
 
-    unless ( $aln->is_flush() )  { die "psiblast jumpstart requires all sequences to be same length \n"; }
-    my $len = $aln->length();
+	die "psiblast jumpstart requires all sequences to be same length \n"
+	  unless $aln->is_flush();
+	my $len = $aln->length();
 
-    if ($maskvalue =~ /^(\d){1,3}$/  ) {
-	$mask = $aln->consensus_string($maskvalue) ;
-	$mask =~ s/[^\?]/1/g ;
-	$mask =~ s/\?/0/g ;
-    }
-    else { die "maskvalue must be an integer between 0 and 100 \n"; }
-    return $mask ;
+	if ($maskvalue =~ /^(\d){1,3}$/  ) {
+		$mask = $aln->consensus_string($maskvalue) ;
+		$mask =~ s/[^\?]/1/g ;
+		$mask =~ s/\?/0/g ;
+	}
+	else { die "maskvalue must be an integer between 0 and 100 \n"; }
+	return $mask ;
 }
-
-
 
 #----------------
 sub example_usage {
