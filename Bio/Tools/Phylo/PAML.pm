@@ -1005,7 +1005,7 @@ sub _parse_NSsitesBatch {
 		$self->warn("unparseable beta parameters: $_");
 	    }
 	    $_ = $self->_readline; # need the next line
-	    if ( /\(p1\=\s+(\S+)\)\s+w\=\s+(\S+)/ ) {
+	    if ( /\(p1\=\s+(\S+)\)\s+w\=\s*(\S+)/ ) {
                 $p1 = $1; $w = $2;
 		$data{'-shape_params'} = { 
 		    'shape' => 'beta',
