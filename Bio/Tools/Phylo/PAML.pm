@@ -846,7 +846,7 @@ sub _parse_Forestry {
             # as it is directly calculated from
 	    # $tree->total_branch_length;
 	} elsif( /^\s*lnL\(.+np\:\s*(\d+)\)\:\s+(\S+)/ ) {
-      $num_param = $1;
+            $num_param = $1;
 	    $loglikelihood = $2;
 	} elsif( /^\(/) {
 	    s/([\,:])\s+/$1/g;
@@ -1011,7 +1011,7 @@ sub _parse_NSsitesBatch {
 		    'shape' => 'beta',
 		    'p0'    => $p0,
 		    'p'     => $p,
-		    'p'     => $q,
+		    'q'     => $q,
 		    'p1'    => $p1,
                     'w'     => $w };
 	    } else {
