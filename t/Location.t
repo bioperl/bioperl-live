@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 72;
+    plan tests => 85;
 }
 
 use Bio::Location::Simple;
@@ -239,3 +239,36 @@ eval {
     $fuzzy->start(10);
 };
 ok($@);
+
+
+
+# testing coodinate policy modules
+
+use Bio::Location::WidestCoordPolicy;
+use Bio::Location::NarrowestCoordPolicy;
+use Bio::Location::AvWithinCoordPolicy;
+
+$f = new Bio::Location::Fuzzy(-start => '40.60',
+			      -end   => '80.100');
+ok $f->start, 40;
+ok $f->end, 100;
+ok $f->length, 61;
+ok  ref $f->coordinate_policy, 'Bio::Location::WidestCoordPolicy';
+
+$f->coordinate_policy(new Bio::Location::NarrowestCoordPolicy);
+ok $f->start, 60;
+ok $f->end, 80;
+ok $f->length, 21;
+
+$f->coordinate_policy(new Bio::Location::AvWithinCoordPolicy);
+ok $f->start, 50;
+ok $f->end, 90;
+ok $f->length, 41;
+
+# to complete the circle
+$f->coordinate_policy(new Bio::Location::WidestCoordPolicy);
+ok $f->start, 40;
+ok $f->end, 100;
+ok $f->length, 61;
+
+
