@@ -376,14 +376,14 @@ sub _used_and_super {
 
 sub untested {
     foreach (`find ../t -name "*.t" -print | xargs grep -hs "[ur][se][eq]"`) {
-#        print "1-$_\n" if /OntologyT/; 
-#        s/^\s*//;
         s/.*use +//;
         s/.*require +//;
         next unless /^Bio/;
+
         s/[\W;]+$//;
+        s/([\w:]+).*/$1/;
         my $name = $_;
-#        print "2-$name\n" if /OntologyT/; 
+
         next unless $MODULES{$_};
         $MODULES{$_}->tested(1) 
             unless defined $MODULES{$_} and $MODULES{$_}->tested;
@@ -398,23 +398,13 @@ sub untested {
 
         _used_and_super($name);
 
-#        foreach ($MODULES{$name}->each_superclass) {
-##            print $MODULES{$name}->name, "\n";
-#            $MODULES{$name}->tested(1)
-#                unless defined $MODULES{$name} or $MODULES{$name}->tested;
-#        }
-#        foreach ($MODULES{$name}->each_used_class) {
-#            $MODULES{$name}->tested(1)
-#                unless defined $MODULES{$name} and $MODULES{$name}->tested;
-#        }
-
     }
 
     foreach ( sort keys %MODULES) {
 
         # skip some name spaces 
         next  if /^Bio::Search/; # Bio::Search and Bio::SearchIO are extensively tested 
-                                # but classes are used by attribute naming 
+                                 # but classes are used by attribute naming 
 
         print "$_\n" if
             $MODULES{$_}->type eq 'instance' and ($MODULES{$_}->tested == 0) ;
