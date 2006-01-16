@@ -80,9 +80,9 @@ while( my @rids = $blastfactory->each_rid ) {
 		} else { 
 			print "\n";
 			$blastfactory->remove_rid($rid);
-			while( my $sbjct = $rc->nextSbjct ) {		
-				print "sbjct name is ", $sbjct->name, "\n";
-				while( my $hsp = $sbjct->nextHSP ) {
+			while( my $sbjct = $rc->next_result ) {		
+				print "sbjct name is ", $sbjct->query_name, "\n";
+				while( my $hsp = $sbjct->next_hit ) {
 					print "score is ", $hsp->score, "\n";
 				} 
 			}
