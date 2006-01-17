@@ -100,7 +100,9 @@ use Bio::Factory::ObjectFactoryI;
  Function: Builds a new Bio::Annotation::AnnotationFactory object 
  Returns : Bio::Annotation::AnnotationFactory
  Args    : -type => string, name of a L<Bio::AnnotationI> derived class.
-                    The default is L<Bio::Ontology::Term>.
+
+If type is not set the module guesses it based on arguments passed to
+method L<create_object>.
 
 =cut
 
@@ -219,12 +221,13 @@ sub _guess_type{
     my $type;
 
     # we can only guess from a certain number of arguments
-    my ($val,$db,$text,$name,$authors) =
+    my ($val,$db,$text,$name,$authors, $start) =
 	$self->_rearrange([qw(VALUE
 			      DATABASE
 			      TEXT
 			      NAME
 			      AUTHORS
+                              START
 			      )], @args);
   SWITCH: {
       $val        && do { $type = "SimpleValue"; last SWITCH; };
@@ -232,6 +235,7 @@ sub _guess_type{
       $db         && do { $type = "DBLink"; last SWITCH; };
       $text       && do { $type = "Comment"; last SWITCH; };
       $name       && do { $type = "OntologyTerm"; last SWITCH; };
+      $start      && do { $type = "Target"; last SWITCH; };
       # what else could we look for?
   }
     $type = "Bio::Annotation::".$type;
