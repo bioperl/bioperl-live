@@ -28,64 +28,63 @@ This object holds handles to Taxonomic Nodes which make up a tree.
 
 =head1 EXAMPLES
 
-              use Bio::Species;
-              use Bio::Taxonomy::Tree;
+  use Bio::Species;
+  use Bio::Taxonomy::Tree;
 
-              my $human=new Bio::Species;
-              my $chimp=new Bio::Species;
-              my $bonobo=new Bio::Species;
+  my $human=new Bio::Species;
+  my $chimp=new Bio::Species;
+  my $bonobo=new Bio::Species;
 
-              $human->classification(qw( sapiens Homo Hominidae
-                                         Catarrhini Primates Eutheria
-                                         Mammalia Euteleostomi Vertebrata 
-                                         Craniata Chordata
-                                         Metazoa Eukaryota ));
-              $chimp->classification(qw( troglodytes Pan Hominidae
-                                         Catarrhini Primates Eutheria
-                                         Mammalia Euteleostomi Vertebrata 
-                                         Craniata Chordata
-                                         Metazoa Eukaryota ));
-              $bonobo->classification(qw( paniscus Pan Hominidae
-                                          Catarrhini Primates Eutheria
-                                          Mammalia Euteleostomi Vertebrata 
-                                          Craniata Chordata
-                                          Metazoa Eukaryota ));
+  $human->classification(qw( sapiens Homo Hominidae
+                             Catarrhini Primates Eutheria
+                             Mammalia Euteleostomi Vertebrata 
+                             Craniata Chordata
+                             Metazoa Eukaryota ));
+  $chimp->classification(qw( troglodytes Pan Hominidae
+                             Catarrhini Primates Eutheria
+                             Mammalia Euteleostomi Vertebrata 
+                             Craniata Chordata
+                             Metazoa Eukaryota ));
+  $bonobo->classification(qw( paniscus Pan Hominidae
+                              Catarrhini Primates Eutheria
+                              Mammalia Euteleostomi Vertebrata 
+                              Craniata Chordata
+                              Metazoa Eukaryota ));
 
-              # ranks passed to $taxonomy match ranks of species
-              my @ranks = ('superkingdom','kingdom','phylum','subphylum',
-                           'no rank 1','no rank 2','class','no rank 3','order',
-                           'suborder','family','genus','species');
+  # ranks passed to $taxonomy match ranks of species
+  my @ranks = ('superkingdom','kingdom','phylum','subphylum',
+               'no rank 1','no rank 2','class','no rank 3','order',
+               'suborder','family','genus','species');
 
-              my $taxonomy=new Bio::Taxonomy(-ranks => \@ranks,
-                                             -method => 'trust',
-                                             -order => -1);
+  my $taxonomy=new Bio::Taxonomy(-ranks => \@ranks,
+                                 -method => 'trust',
+                                 -order => -1);
 
-              my @nodes;
 
-              my $tree1=new Bio::Taxonomy::Tree;
-              my $tree2=new Bio::Taxonomy::Tree;
+  my $tree1=new Bio::Taxonomy::Tree;
+  my $tree2=new Bio::Taxonomy::Tree;
 
-              push @nodes,$tree1->make_species_branch($human,$taxonomy);
-              push @nodes,$tree2->make_species_branch($chimp,$taxonomy);
+  $tree1->make_species_branch($human,$taxonomy);
+  $tree2->make_species_branch($chimp,$taxonomy);
 
-              my ($homo_sapiens)=$tree1->get_leaves;
+  my ($homo_sapiens)=$tree1->get_leaves;
 
-              $tree1->splice($tree2);
+  $tree1->splice($tree2);
 
-              push @nodes,$tree1->add_species($bonobo,$taxonomy);
+  $tree1->add_species($bonobo,$taxonomy);
 
-              my @taxa;
-              foreach my $leaf ($tree1->get_leaves) {
-                 push @taxa,$leaf->taxon;
-              }
-              print join(", ",@taxa)."\n";
+  my @taxa;
+  foreach my $leaf ($tree1->get_leaves) {
+     push @taxa,$leaf->taxon;
+  }
+  print join(", ",@taxa)."\n";
 
-              @taxa=();
-              $tree1->remove_branch($homo_sapiens);
-              foreach my $leaf ($tree1->get_leaves) {
-                 push @taxa,$leaf->taxon;
-              }
-              print join(", ",@taxa)."\n";
+  @taxa=();
+  $tree1->remove_branch($homo_sapiens);
+  foreach my $leaf ($tree1->get_leaves) {
+     push @taxa,$leaf->taxon;
+  }
+  print join(", ",@taxa)."\n";
 
 =head1 FEEDBACK
 

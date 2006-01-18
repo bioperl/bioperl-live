@@ -21,10 +21,10 @@ Bio::Taxonomy::Taxon - Generic Taxonomic Entity object
     my $taxonR = new Bio::Taxonomy::Taxon();
 
     my $taxon = new Bio::Taxonomy::Taxon();
-    $taxon->add_Descendents($nodeL);
-    $taxon->add_Descendents($nodeR);
+    $taxon->add_Descendents($taxonL);
+    $taxon->add_Descendents($taxonR);
 
-    $species = $taxon->species;
+    my $species = $taxon->species;
 
 =head1 DESCRIPTION
 
@@ -304,9 +304,9 @@ sub branch_length {
 sub description {
    my ($self,$value) = @_;
    if( defined $value  ) {
-       $self->{'_desc'} = $value;
+       $self->{'_description'} = $value;
    }
-   return $self->{'_desc'};
+   return $self->{'_description'};
 }
 
 
