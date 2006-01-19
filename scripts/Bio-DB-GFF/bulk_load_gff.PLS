@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.36 2006-01-19 16:04:08 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.37 2006-01-19 16:10:21 lstein Exp $
 
 
 use strict;
@@ -437,10 +437,11 @@ while (<>) {
     next;
   }
 
-  elsif (/^\#\#\s*gff-version\s+3/) {
-    $gff3++;
+  elsif (/^\#\#\s*gff-version\s+(\d+)/) {
+    $gff3 = ($1 >= 3);
     next;
   }
+
   elsif (/^\#\#\s*group-tags\s+(.+)/) {
     $db->preferred_groups(split(/\s+/,$1));
     next;

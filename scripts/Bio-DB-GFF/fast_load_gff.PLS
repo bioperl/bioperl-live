@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.26 2006-01-19 16:05:50 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.27 2006-01-19 16:10:21 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -313,8 +313,8 @@ while (<>) {
     next;
   }
 
-  elsif (/^\#\#\s*gff-version\s+3/) {
-    $gff3++;
+  elsif (/^\#\#\s*gff-version\s+(\d+)/) {
+    $gff3 = ($1 >= 3);
     next;
   }
 
