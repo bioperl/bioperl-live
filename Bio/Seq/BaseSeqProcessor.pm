@@ -199,21 +199,33 @@ sub next_seq{
 
  Title   : write_seq
  Usage   : $stream->write_seq($seq)
- Function: writes the $seq object into the stream
+ Function: Writes the result(s) of processing the sequence object into
+           the stream.
 
-           This implementation passes the sequences to the source
-           stream unaltered. You need to override this in order to
-           have sequence objects altered before output.
+           You need to override this method in order not to alter
+           (process) sequence objects before output.
 
- Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
+ Returns : 1 for success and 0 for error. The method stops attempting
+           to write objects after the first error returned from the
+           source stream. Otherwise the return value is the value
+           returned from the source stream from writing the last
+           object resulting from processing the last sequence object
+           given as argument.
+
+ Args    : Bio::SeqI object, or an array of such objects
 
 =cut
 
 sub write_seq{
-    my ($self, $seq) = @_;
-    $seq = $self->process_seq($seq);
-    return $self->source_stream->write_seq($seq);
+    my ($self, @seqs) = @_;
+    my $ret;
+    foreach my $seq (@seqs) {
+        foreach my $processed ($self->process_seq($seq)) {
+            $ret = $self->source_stream->write_seq($seq);
+            return unless $ret;
+        }
+    }
+    return $ret;
 }
 
 =head2 sequence_factory
