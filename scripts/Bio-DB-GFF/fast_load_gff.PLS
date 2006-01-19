@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.25 2006-01-19 16:04:08 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.26 2006-01-19 16:05:50 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -220,7 +220,7 @@ my $FEATURES    = 0;
 
 load_tables($db->dbh) unless $CREATE;
 my ($major,$minor,$sub) = split /\./,$db->dbh->get_info(18); # SQL_DBMS_VER
-my $can_disable_indexes = $major >= 4 and $minor >= 0;
+my $can_disable_indexes = ($major >= 4 and $minor >= 0);
 
 # open up pipes to the database
 my (%FH,%COMMAND);
