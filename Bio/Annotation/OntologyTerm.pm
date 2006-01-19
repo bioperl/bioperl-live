@@ -155,7 +155,11 @@ sub new{
 
  Title   : as_text
  Usage   : my $text = $obj->as_text
- Function: return the string "Name: $v" where $v is the name of the term
+ Function: Returns a textual representation of the annotation that
+           this object holds. Presently, it is tag name, name of the
+           term, and the is_obsolete attribute concatenated togather
+           with a delimiter (|).
+
  Returns : string
  Args    : none
 
@@ -165,7 +169,7 @@ sub new{
 sub as_text{
    my ($self) = @_;
 
-   return $self->tagname()."|".$self->name()."|".$self->identifier();
+   return $self->tagname()."|".$self->name()."|".($self->is_obsolete()||'');
 }
 
 =head2 hash_tree

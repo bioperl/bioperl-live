@@ -24,7 +24,7 @@ BEGIN {
     if ($@) {
 	$HAVEGRAPHDIRECTED = 0;
     }
-    plan tests => ($NUMTESTS = 73);
+    plan tests => ($NUMTESTS = 89);
 }
 
 use Bio::Annotation::Collection;
@@ -184,7 +184,7 @@ if( $HAVEGRAPHDIRECTED ) {
     ok ($termann->term->identifier, 'Ann:00001');
     ok ($termann->tagname, 'dumpster');
     ok ($termann->ontology->name, 'dumpster');
-    ok ($termann->as_text, "dumpster|test case|Ann:00001");
+    ok ($termann->as_text, "dumpster|test case|");
 } else { 
     for (1..6 ) { 
 	skip('Graph::Directed not installed cannot test Bio::Annotation::OntologyTerm module',1);
@@ -216,11 +216,6 @@ ok  $factory->type('Bio::Annotation::OntologyTerm');
 
 ok $ann = $factory->create_object(-name => 'peroxisome',
                                   -tagname => 'cellular component');
-ok ref $ann, 'Bio::Annotation::OntologyTerm';
-#exit;
-#use Data::Dumper;
-#print Dumper $ann;
-
 ok ref $ann, 'Bio::Annotation::OntologyTerm';
 
 
