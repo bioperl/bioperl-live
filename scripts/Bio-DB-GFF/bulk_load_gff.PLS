@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.35 2005-12-21 19:00:52 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.36 2006-01-19 16:04:08 lstein Exp $
 
 
 use strict;
@@ -366,6 +366,7 @@ my %tmpfiles; # keep track of temporary fasta files
 my $count;
 my $fasta_sequence_id;
 my $gff3;
+my $current_file; #used to reset GFF3 flag in mix of GFF and GFF3 files
 
 $db->preferred_groups(split (/[,\s]+/,$GROUP_TAG)) if defined $GROUP_TAG;
 
@@ -403,6 +404,15 @@ unless (!$use_mysqlcmap or
 
 
 while (<>) {
+
+  $current_file ||= $ARGV;
+
+  # reset GFF3 flag if new filehandle
+  unless($current_file eq $ARGV){
+    undef $gff3;
+    $current_file = $ARGV;
+  }
+
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
 

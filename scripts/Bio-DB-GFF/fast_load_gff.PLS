@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.24 2005-12-21 19:00:52 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.25 2006-01-19 16:04:08 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -265,7 +265,7 @@ END
 
 print STDERR "Fast loading enabled\n"    if $DO_FAST;
 
-my ($count,$gff3,$last,$start,$beginning);
+my ($count,$gff3,$last,$start,$beginning,$current_file);
 
 $last  = Time::HiRes::time() if $timer;
 $beginning = $start = $last;
@@ -277,6 +277,14 @@ if (!@ARGV) {
 }
 
 while (<>) {
+
+  # reset GFF3 flag if new filehandle
+  $current_file ||= $ARGV;
+  unless ($current_file eq $ARGV) {
+    undef $gff3;
+    $current_file = $ARGV;
+  }
+
   chomp;
   my ($ref,$source,$method,$start,$stop,$score,$strand,$phase,$group);
 
