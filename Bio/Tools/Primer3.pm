@@ -13,7 +13,8 @@
 
 =head1 NAME
 
-Bio::Tools::Primer3 - Create input for and work with the output from the program primer3
+Bio::Tools::Primer3 - Create input for and work with the output from 
+the program primer3
 
 =head1 SYNOPSIS
 
@@ -59,13 +60,13 @@ for details and to download the software.
 This module is based on one written by Chad Matsalla 
 (bioinformatics1@dieselwurks.com)
 
-I have ripped some of his code, and added a lot of my own. I hope he's 
-not mad at me!
+I have ripped some of his code, and added a lot of my own. I hope he
+is not mad at me!
 
 This is probably best run in one of the two following ways:
 
   i. To parse the output from Bio::Tools::Run::Primer3. 
-     You'll most likely just use next_primer to get the results from 
+     You will most likely just use next_primer to get the results from 
      Bio::Tools::Run::Primer3.
   ii. To parse the output of primer3 handed to it as a file name.
 
