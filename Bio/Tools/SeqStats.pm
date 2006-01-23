@@ -773,7 +773,7 @@ sub hydropathicity {
     my $gravy = 0;
     for my $i ( 0 .. length($seq) ) {
        my $codon = uc(substr($seq,$i,1));
-       $gravy += $amino_hydropathicity->{$codon}; # table look-up
+       $gravy += $amino_hydropathicity->{$codon}||0; # table look-up
     }
     $gravy /= length($seq);
 
