@@ -14,6 +14,7 @@
 
 # All Bioperl dependencies on external modules are defined here
 %packages = (
+	     'Set::Scalar'              => '0.0/Bio::Tree::Compatible needs it to work',
 	     'HTTP::Request::Common'    => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
 	     'LWP::UserAgent'           => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
 	     'HTML::Entities'           => '0.0/To parse POST request URL formas/Remote Analysis POST submissions/Bio::Tools::Run::Analysis::*',
