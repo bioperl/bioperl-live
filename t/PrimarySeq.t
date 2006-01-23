@@ -123,13 +123,20 @@ ok $aa->seq, 'M*', "Translation: ". $aa->seq;
 
 # same as previous but complete, so * is removed
 $aa = $seq->translate(-orf => 1,
-							 -complete => 1);
+                      -complete => 1);
 ok $aa->seq, 'M', "Translation: ". $aa->seq;
 
 # ORF without termination codon
+# should warn, let's change it into throw for testing
+$seq->verbose(2);
 $seq->seq("ggggggatgtggcccc"); # atg tgg ccc
-$aa = $seq->translate(-orf => 1);
-ok $aa->seq, 'MWP', "Translation: ". $aa->seq;
+
+eval {$aa = $seq->translate(-orf => 1);};
+if ($@) {
+    ok  1 if $@ =~ /atgtggcccc\n/;
+    #ok $aa->seq, 'MWP', "Translation: ". $aa->seq; 
+}
+$seq->verbose(0);
 
 # use non-standard codon table where terminator is read as Q
 $seq->seq('ATGGTGGCGTCAACTTAG'); # ATG GTG GCG TCA ACT TAG
