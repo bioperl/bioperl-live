@@ -18,9 +18,26 @@ BEGIN {
   }
   use Test;
   use vars qw($TESTCOUNT);
-  $TESTCOUNT = 5;
+  $TESTCOUNT = 3;
   plan tests => $TESTCOUNT;
+
+   eval {
+       require Set::Scalar;
+    };
+    if( $@ ) {
+        $error = 1;
+        warn("No Set::Scalar. Unable to test Bio::Tree::Compatible\n");
+    }
+
 }
+
+END {
+   foreach ( $Test::ntest..$TESTCOUNT) {
+      skip('No Set::Scalar: unable to run tests',1);
+   }
+}
+
+exit if $error;
 
 use Bio::Tree::Compatible;
 use Bio::TreeIO;
@@ -60,7 +77,7 @@ ok(!$incompat);
 
 my $t5 = $in->next_tree;
 my $t6 = $in->next_tree;
-my ($incompat, $ilabels, $inodes) = $t5->Bio::Tree::Compatible::is_compatible($t6);
+($incompat, $ilabels, $inodes) = $t5->Bio::Tree::Compatible::is_compatible($t6);
 ok($incompat);
 
 __DATA__
