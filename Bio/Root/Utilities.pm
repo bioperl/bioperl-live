@@ -790,7 +790,7 @@ sub create_filehandle {
 	$file = $client->file($file);
     }
 
-    my $FH; # = new FileHandle;
+    my $FH;
 
     my ($handle_ref);
     
@@ -814,7 +814,8 @@ sub create_filehandle {
 	$client->{'_input_type'} .= " (compressed)";
 	$file = "${GNU_PATH}gzip -cd $file |"
       }
-      
+
+      require FileHandle;
       $FH = new FileHandle;
       open ($FH, $file) || $self->throw("Can't access data file: $file",
 					"$!");
@@ -839,7 +840,7 @@ sub create_filehandle {
            :                                   -FILE =>'usr/people/me/data.txt')
  Argument  : Same arguemnts as for create_filehandle().
  Returns   : Reference to a FileHandle object.   
- Throws    : Propogates and exceptions thrown by Bio::Root::Utilities::get_newline().
+ Throws    : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
 
 See Also : L<taste_file>(), L<create_filehandle>()
 
@@ -949,24 +950,25 @@ sub taste_file {
   seek($FH, 0, 0) or $self->throw("seek failed to seek 0 on FileHandle.");
 
   my @chars = split(//, $buffer);
+  my $flavor;
 
   for ($i = 0; $i <$BUFSIZ; $i++) {
     if (($chars[$i] eq "\012")) {
       unless ($chars[$i-1] eq "\015") {
-	# Unix
+	$flavor='Unix';
 	$octal = "\012";
 	$str = '\n';
 	$irs = "^J";
 	last;
       }
     } elsif (($chars[$i] eq "\015") && ($chars[$i+1] eq "\012")) {
-      # DOS
+      $flavor='DOS';
       $octal = "\015\012";
       $str = '\r\n';
       $irs = "^M^J";
       last;
     } elsif (($chars[$i] eq "\015")) {
-      # Mac
+      $flavor='Mac';
       $octal = "\015";
       $str = '\r';
       $irs = "^M";
@@ -977,9 +979,43 @@ sub taste_file {
     $self->warn("Could not determine newline char. Using '\012'");
     $octal = "\012";
   } else {
-#    print STDERR "NEWLINE CHAR = $irs\n";
+#    print STDERR "FLAVOR=$flavor, NEWLINE CHAR = $irs\n";
   }
   return($octal);
+}
+
+=head2 file_flavor
+
+ Usage     : $object->file_flavor( <filename> );
+ Purpose   : Returns the 'flavor' of a given file (unix, dos, mac)
+ Example   : print "$file has flavor: ", $Util->file_flavor($file);
+ Argument  : filename = string, full path name for file
+ Returns   : String describing flavor of file and handy info about line endings.
+           : One of these is returned:
+           :   unix (\n or 012 or ^J)
+           :   dos (\r\n or 015,012 or ^M^J)
+           :   mac (\r or 015 or ^M)
+           :   unknown
+ Throws    : Exception if argument is not a file
+           : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
+
+See Also : L<get_newline>(),  L<taste_file>()
+
+=cut
+
+#---------------
+sub file_flavor {
+#---------------
+    my ($self, $file) = @_; 
+    my %flavors=("\012"    =>'unix (\n or 012 or ^J)',
+                 "\015\012" =>'dos (\r\n or 015,012 or ^M^J)',
+                 "\015"     =>'mac (\r or 015 or ^M)'
+                );
+
+    -f $file or $self->throw("Can't determine flavor: arg '$file' is either non existant or is not a file.\n");
+    my $octal = $self->get_newline($file);
+    my $flavor = $flavors{$octal} || "unknown";
+    return $flavor;
 }
 
 ######################################
