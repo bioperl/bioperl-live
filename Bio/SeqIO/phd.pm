@@ -65,6 +65,8 @@ use vars qw(@ISA);
 use strict;
 use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
+use Dumpvalue();
+my $dumper = new Dumpvalue();
 
 @ISA = qw(Bio::SeqIO);
 
@@ -99,11 +101,30 @@ sub next_seq {
 	if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
           $id = $1;
      }
+     my $in_comments = 0;
     my $in_dna = 0;
     my $base_number = 0;
+     my $comments = {};
     while ($entry = $self->_readline) {
 	return if (!$entry);
 	chomp($entry);
+     if ($entry =~ /^BEGIN_COMMENT/) {
+          $in_comments = 1;
+          while ($in_comments == 1) {
+              $entry = $self->_readline();
+               chomp($entry);
+              if ($entry) {
+                    if ($entry =~ /^END_COMMENT/) {
+                         $in_comments = 0;
+                    }
+                    else {
+                         my ($name,$content) = split(/:/,$entry);
+                         if ($content) { $content =~ s/^\s//g; }
+                         $comments->{$name} = $content;
+                    }
+               }
+          }
+     }
 	if ($entry =~ /^BEGIN_CHROMAT:\s+(\S+)/) {
 	     # this is where I used to grab the ID
           if (!$id) {
@@ -135,6 +156,9 @@ sub next_seq {
 	 -primary_id => $id,
 	 -display_id => $id,
 	 );
+     # this should be an actual object to assist in serialization
+     # but I don't have time for this now.
+     if ($comments) { $swq->{comments} = $comments; }
     return $swq;
 }
 

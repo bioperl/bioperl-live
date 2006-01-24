@@ -17,7 +17,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 5;
+    plan tests => 6;
 }
 END  {
     unlink qw(write_phd.phd);
@@ -38,6 +38,8 @@ ok(1);
 my @phreds;
 print("I saw these in qualfile.qual:\n") if($DEBUG);
 my $phd = $in_phd->next_seq();
+print("Did you get the 'QUALITY_LEVELS' comment?\n") if ($DEBUG);
+ok($phd->{comments}->{'QUALITY_LEVELS'} eq '99');
 print("Checking to see if this is the right reference...\n") if( $DEBUG);
 ok(ref($phd) eq "Bio::Seq::Quality");
 
