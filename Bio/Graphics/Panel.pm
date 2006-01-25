@@ -20,7 +20,7 @@ my %COLORS   : shared;  # translation table for symbolic color names to RGB trip
 my $IMAGEMAP : shared = 'bgmap00001';
 read_colors();
 
-sub api_version { 1.636 }
+sub api_version { 1.65 }
 
 # Create a new panel of a given width and height, and add lists of features
 # one by one
