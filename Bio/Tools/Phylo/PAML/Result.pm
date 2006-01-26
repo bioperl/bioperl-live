@@ -157,6 +157,7 @@ use Bio::AnalysisResultI;
            -aadistmat => Bio::Matrix::PhylipDist   (only for AAML)
            -aamldistmat => Bio::Matrix::PhylipDist   (only for pairwise AAML)
            -ntfreq    => array ref of NT frequencies (only for BASEML)
+           -seqfile    => seqfile used
            -kappa_mat => Bio::Matrix::PhylipDist of kappa values (only for BASEML)
            -alpha_mat => Bio::Matrix::PhylipDist of alpha values (only for BASEML)
            -NSSitesresult => arrayref of PAML::ModelResult 
@@ -180,7 +181,7 @@ sub new {
       $model,$patterns, $stats,
       $aafreq, $aadistmat, 
       $aamldistmat,
-      $ntfreqs, $kappa_mat,$alpha_mat,
+      $ntfreqs, $seqfile, $kappa_mat, $alpha_mat,
       $NSSitesresults,$input_params,$rst,$rst_persite,$rst_trees ) = 
 	  $self->_rearrange([qw
 			     (TREES MLMATRIX 
@@ -189,7 +190,7 @@ sub new {
 			      VERSION MODEL PATTERNS
 			      STATS AAFREQ AADISTMAT
 			      AAMLDISTMAT 
-			      NTFREQ
+			      NTFREQ SEQFILE
 			      KAPPA_DISTMAT
 			      ALPHA_DISTMAT
 			      NSSITESRESULTS
@@ -248,6 +249,7 @@ sub new {
   }
 
   $self->version($version)   if defined $version;
+  $self->seqfile($seqfile)   if defined $seqfile;
   $self->model($model)       if defined $model;
   if( defined $patterns ) {
       if( ref($patterns) =~ /HASH/i ) {
@@ -598,6 +600,23 @@ sub version{
    my $self = shift;
    $self->{'_version'} = shift if @_;
    return $self->{'_version'};
+}
+
+=head2 seqfile
+
+ Title   : seqfile
+ Usage   : $obj->seqfile($newval)
+ Function: Get/Set seqfile
+ Returns : value of seqfile
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub seqfile{
+   my $self = shift;
+   $self->{'_seqfile'} = shift if @_;
+   return $self->{'_seqfile'};
 }
 
 =head2 model
