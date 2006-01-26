@@ -25,7 +25,7 @@ residue-based meta information
   my $seq = Bio::LocatableSeq->new(-id=>'test',
                                    -seq=>'ACTGCTAGCT',
                                    -start=>2434,
-                                   -start=>2443,
+                                   -end=>2443,
                                    -strand=>1,
                                    -verbose=>1, # to see warnings
                                   );
@@ -42,7 +42,7 @@ residue-based meta information
   $seq = Bio::Seq::Meta->new(-id=>'test',
                              -seq=>'HACILMIFGT',
                              -start=>2434,
-                             -start=>2443,
+                             -end=>2443,
                              -strand=>1,
                              -meta=>'1234567890',
                              -varbose=>1, # to see warnings
