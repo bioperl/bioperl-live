@@ -373,6 +373,7 @@ sub next_result {
 	$data{'-codonpos'}  = $self->{'_summary'}->{'codonposition'};
 	$data{'-codonfreq'} = $self->{'_summary'}->{'codonfreqs'};
 	$data{'-model'}     = $self->{'_summary'}->{'model'};
+	$data{'-seqfile'}     = $self->{'_summary'}->{'seqfile'};
 	$data{'-aadistmat'} = $self->{'_summary'}->{'aadistmat'};
 	$data{'-stats'}     = $self->{'_summary'}->{'stats'};
 	$data{'-aafreq'}    = $self->{'_summary'}->{'aafreqs'};
@@ -413,7 +414,7 @@ sub _parse_summary {
 	       /ox
 	   ) {
 
-	    @{$self->{'_summary'}}{qw(seqtype version treefile model)} = ($1, 
+	    @{$self->{'_summary'}}{qw(seqtype version seqfile model)} = ($1, 
 									$2,
 									$3,
 									$4);
