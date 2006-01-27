@@ -36,6 +36,7 @@ BEGIN {
 }
 
 END {
+        unlink Bio::Root::IO->catfile("t","data","out.mif");
 	foreach ( $Test::ntest..$NUMTESTS) {
 		skip("Missing dependencies. Skipping tests",1);
 	}
