@@ -35,6 +35,10 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
                                                       -pos => 3
                                                      ));
 
+    # concatenate two sequences with annotations and features
+    # the first argument sequence will be modified
+    Bio::SeqUtils->cat($seq, $seq2);
+
 
 =head1 DESCRIPTION
 
@@ -57,7 +61,13 @@ The next two methods, translate_3frames() and translate_6frames(), wrap
 around the standard translate method to give back an array of three
 forward or all six frame translations.
 
-The last method mutates the sequence string.
+The mutate() method mutates the sequence string with a mutation
+description object.
+
+the cat() method concatenates two sequence. The first sequence in the
+sequnce list get modified. All annotations and sequence features, if the
+first sequence supports them, will be transferred.
+
 
 =head1 FEEDBACK
 
@@ -67,8 +77,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org          - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                    - General discussion
+  http://bio.perl.org/MailList.html        - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -81,6 +91,10 @@ web:
 =head1 AUTHOR - Heikki Lehvaslaiho
 
 Email:  heikki-at-bioperl-dot-org
+
+=head1 CONTRIBUTORS
+
+Roy Chaudhuri, roy at colibase d bham d ac d uk
 
 =head1 APPENDIX
 
@@ -362,6 +376,111 @@ sub mutate {
     }
     1;
 }
+
+
+=head2 cat
+
+  Title   : cat
+  Usage   : my $catseq = Bio::SeqUtils->cat(@seqs)
+  Function: Concatenates an array of Bio::Seq objects, using the first sequence
+            as a target. Annotations and sequence features are copied over 
+            from any additional objects. Adjusts the coordinates of copied 
+            features.
+  Returns : a boolean
+  Args    : array of sequence objects
+
+
+Note that annotations have no sequence region. If you concatenate the
+same sequence more than once, you will have its annotations
+duplicated.
+
+=cut
+
+sub cat {
+    my ($self, @seqs) = @_;
+    my $seq=shift @seqs;
+    $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+                 '] should be a Bio::PrimarySeqI ')
+        unless $seq->isa('Bio::PrimarySeqI');
+    
+
+    for my $catseq (@seqs) {
+        $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+                     '] should be a Bio::PrimarySeqI ')
+            unless $seq->isa('Bio::PrimarySeqI');
+
+        $self->throw('Trying to concatenate sequences with different alphabets: '.
+                     $seq->display_id. '('. $seq->alphabet. ') and '. $catseq->display_id.
+                     '('. $_->alphabet. ')')
+            unless $catseq->alphabet eq $seq->alphabet;
+
+
+        my $length=$seq->length;
+        $seq->seq($seq->seq.$catseq->seq);
+
+        # move annotations
+        if ($seq->isa("Bio::AnnotatableI") and $catseq->isa("Bio::AnnotatableI")) {
+            foreach my $key ( $catseq->annotation->get_all_annotation_keys() ) {
+
+                foreach my $value ( $catseq->annotation->get_Annotations($key) ) {
+                    $seq->annotation->add_Annotation($key, $value);
+                }
+            } 
+        }
+        
+        # move SeqFeatures
+        if ( $seq->isa('Bio::SeqI') and $catseq->isa('Bio::SeqI')) {
+            for my $feat ($catseq->get_SeqFeatures) {
+                $seq->add_SeqFeature($self->_coord_adjust($feat, $length));
+            }
+        }
+
+    }
+    1;
+}
+
+
+=head2 _coord_adjust
+
+  Title   : _coord_adjust
+  Usage   : my $newfeat=Bio::SeqUtils->_coord_adjust($feature, 100);
+  Function: Recursive subroutine to adjust the coordinates of a feature
+            and all its subfeatures.
+  Returns : A Bio::SeqFeatureI compliant object.
+  Args    : A Bio::SeqFeatureI compliant object,
+            the number of bases to add to the coordinates
+
+
+=cut
+
+sub _coord_adjust {
+    my ($self, $feat, $add)=@_;
+    $self->throw('Object [$feat] '. 'of class ['. ref($feat).
+                 '] should be a Bio::SeqFeatureI ')
+	unless $feat->isa('Bio::SeqFeatureI');
+    my @adjsubfeat;
+    for my $subfeat ($feat->remove_SeqFeatures) {
+	push @adjsubfeat, Bio::SeqUtils->_coordAdjust($add, $subfeat);
+    }
+    my @loc=$feat->location->each_Location;
+    map {
+	my @coords=($_->start, $_->end);
+	map s/(\d+)/$add+$1/ge, @coords;
+	$_->start(shift @coords);
+	$_->end(shift @coords);
+    } @loc;
+    if (@loc==1) {
+	$feat->location($loc[0])
+    } else {
+	my $loc=Bio::Location::Split->new;
+	$loc->add_sub_Location(@loc);
+	$feat->location($loc);
+    }
+    $feat->add_SeqFeature($_) for @adjsubfeat;
+    return $feat;
+}
+
+
 
 1;
 
