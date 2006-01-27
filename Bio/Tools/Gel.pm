@@ -12,26 +12,29 @@ Bio::Tools::Gel - Calculates relative electrophoretic migration distances
 
 =head1 SYNOPSIS
 
-    #An example of a virtual restriction digest and subsequent gel run
-    use Bio::Seq;
-    use Bio::Tools::RestrictionEnzyme;
+    use Bio::PrimarySeq;
+    use Bio::Tools::RestrictionAnalysis;
     use Bio::Tools::Gel;
 
+    # get a sequence
     my $d = 'AAAAAAAAAGAATTCTTTTTTTTTTTTTTGAATTCGGGGGGGGGGGGGGGGGGGG';
     my $seq1 = Bio::Seq->new(-id=>'groundhog day',-seq=>$d);
-    my $EcoRI = Bio::Tools::RestrictionEnzyme->new(-NAME=>'EcoRI');
-    my @cuts = $EcoRI->cut_seq($seq);
 
+    # cut it with an enzyme
+    my $ra=Bio::Restriction::Analysis->new(-seq=>$seq1);
+    @cuts = $ra->fragments('EcoRI'), 3;
+
+    # analyse the fragments in a gel
     my $gel = Bio::Tools::Gel->new(-seq=>\@cuts,-dilate=>10);
     my %bands = $gel->bands;
-    foreach my $band (keys %bands){
-      print $band,"\t",$bands{$band},"\n";
+    foreach my $band (sort {$b <=> $a} keys %bands){
+      print $band,"\t", sprintf("%.1f", $bands{$band}),"\n";
     }
 
     #prints:
-    #25      26.0205999132796
-    #10      30
-    #20      26.9897000433602
+    #20   27.0
+    #25   26.0
+    #10   30.0
 
 
 =head1 DESCRIPTION
