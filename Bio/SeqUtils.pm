@@ -397,21 +397,20 @@ duplicated.
 =cut
 
 sub cat {
-    my ($self, @seqs) = @_;
-    my $seq=shift @seqs;
+    my ($self, $seq, @seqs) = @_;
     $self->throw('Object [$seq] '. 'of class ['. ref($seq).
                  '] should be a Bio::PrimarySeqI ')
         unless $seq->isa('Bio::PrimarySeqI');
     
 
     for my $catseq (@seqs) {
-        $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+        $self->throw('Object [$catseq] '. 'of class ['. ref($catseq).
                      '] should be a Bio::PrimarySeqI ')
-            unless $seq->isa('Bio::PrimarySeqI');
+            unless $catseq->isa('Bio::PrimarySeqI');
 
         $self->throw('Trying to concatenate sequences with different alphabets: '.
                      $seq->display_id. '('. $seq->alphabet. ') and '. $catseq->display_id.
-                     '('. $_->alphabet. ')')
+                     '('. $catseq->alphabet. ')')
             unless $catseq->alphabet eq $seq->alphabet;
 
 
@@ -457,29 +456,28 @@ sub _coord_adjust {
     my ($self, $feat, $add)=@_;
     $self->throw('Object [$feat] '. 'of class ['. ref($feat).
                  '] should be a Bio::SeqFeatureI ')
-	unless $feat->isa('Bio::SeqFeatureI');
+        unless $feat->isa('Bio::SeqFeatureI');
     my @adjsubfeat;
     for my $subfeat ($feat->remove_SeqFeatures) {
-	push @adjsubfeat, Bio::SeqUtils->_coordAdjust($add, $subfeat);
+       push @adjsubfeat, Bio::SeqUtils->_coord_adjust($add, $subfeat);
     }
     my @loc=$feat->location->each_Location;
     map {
-	my @coords=($_->start, $_->end);
-	map s/(\d+)/$add+$1/ge, @coords;
-	$_->start(shift @coords);
-	$_->end(shift @coords);
+        my @coords=($_->start, $_->end);
+        map s/(\d+)/$add+$1/ge, @coords;
+        $_->start(shift @coords);
+        $_->end(shift @coords);
     } @loc;
     if (@loc==1) {
-	$feat->location($loc[0])
+        $feat->location($loc[0])
     } else {
-	my $loc=Bio::Location::Split->new;
-	$loc->add_sub_Location(@loc);
-	$feat->location($loc);
+        my $loc=Bio::Location::Split->new;
+        $loc->add_sub_Location(@loc);
+        $feat->location($loc);
     }
     $feat->add_SeqFeature($_) for @adjsubfeat;
     return $feat;
 }
-
 
 
 1;
