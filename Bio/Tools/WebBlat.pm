@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # Perl module for Bio::Tools::WebBlat
 #
@@ -151,10 +151,11 @@ sub create_searchio {
     return $searchio;
 
   } else {
-    $self->throw($ua->status_line); }
+    $self->throw($response->status_line); }
 }
 
 
 
 #http://www.genome.ucsc.edu/cgi-bin/hgBlat?hgsid=30902160&org=Human&db=hg16&type=BLAT%27s+guess&output=psl&userSeq=%3EHS.22.q.1++++++%5B1-453%5D%0D%0AGATCTGATAAGTCCCAGGACTTCAGAAGAGCTGTGAGACCTTGGCCAAGTCACTTCCTCCTTCAGGAACAT
+
 1;
