@@ -938,10 +938,11 @@ sub description {
 =head2 annotation
 
  Title   : annotation
- Usage   : $ann = $seq->annotation or $seq->annotation($annotation)
+ Usage   : $ann = $seq->annotation or 
+           $seq->annotation($ann)
  Function: Gets or sets the annotation
- Returns : L<Bio::AnnotationCollectionI> object
- Args    : None or L<Bio::AnnotationCollectionI> object
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::AnnotationCollectionI object
 
 See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
 for more information
