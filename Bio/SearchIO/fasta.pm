@@ -33,7 +33,8 @@ L<Bio::Search::HSP::GenericHSP> for the HSP objects.
 This module will parse -m 9 -d 0 output as well as default m 1 output
 from FASTA as well as SSEARCH.
 
-See the SearchIO HOWTO linked from http://bioperl.org/HOWTOs/
+Also see the SearchIO HOWTO:
+L<http://bioperl.open-bio.org/wiki/HOWTO:SearchIO>.
 
 =head1 FEEDBACK
 

@@ -58,7 +58,8 @@ A list of module names and formats is below:
   blastxml   NCBI BLAST XML
   wise       Genewise -genesf format
 
-See the SearchIO HOWTO linked from http://bioperl.org/HOWTOs/
+Also see the SearchIO HOWTO:
+http://bioperl.open-bio.org/wiki/HOWTO:SearchIO
 
 =head1 FEEDBACK
 

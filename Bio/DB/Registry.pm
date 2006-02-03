@@ -39,7 +39,7 @@ setting $OBDA_SEARCH_PATH to those directories, where multiple
 directories should be separated by ';'.
 
 Please see the OBDA Access HOWTO for more information
-(http://bioperl.org/HOWTOs).
+(http://bioperl.open-bio.org/wiki/HOWTO:OBDA).
 
 =head1 CONTACT
 

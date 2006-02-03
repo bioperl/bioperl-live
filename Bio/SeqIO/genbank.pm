@@ -116,7 +116,7 @@ sequence object.
 
 There is more information in the Feature-Annotation HOWTO about each 
 field and how it is mapped to the Sequence object 
-(http://bioperl.org/HOWTOs).
+L<http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation>.
 
 =head1 FEEDBACK
 
