@@ -423,12 +423,12 @@ and examples/ directories (see bioscripts.pod for a description of
 these scripts, or http://bioperl.org/Core/Latest/bioscripts.html).
 
 Another source of focussed documentation is the HOWTO files, found
-either in the Bioperl doc/howto directory or at http://bioperl.org/HOWTOs/.
-Current topics include OBDA Access, SeqIO, SearchIO, BioGraphics,
+at http://bioperl.open-bio.org/wiki/HOWTOs.
+Current topics include OBDA Access, SeqIO, SearchIO, Graphics,
 Features and Annotations, Trees, PAML, and Biopipe.
 
 
-=head1 II. Brief introduction to bioperl's objects
+=head1 II. Brief introduction to Bioperl objects
 
 The purpose of this tutorial is to get you using Bioperl to solve
 real-life bioinformatics problems as quickly as possible.  The aim is
@@ -659,7 +659,7 @@ to know whether the required database is flat-file or relational or
 even whether it is local or accessible only over the net.
 Descriptions of how to set up the necessary registry configuration
 file and access sequence data with the registry in described at
-http://bioperl.org/HOWTOs/html/OBDA_Access.html (or in doc/howto).
+http://bioperl.open-bio.org/wiki/HOWTO:OBDA.
 
 =head2   III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -879,7 +879,8 @@ the format based on the file's suffix, in a case-insensitive manner. If
 there's no suffix available then SeqIO will attempt to guess the format 
 based on actual content. If it can't determine the format then it will 
 assume "fasta". A complete list of formats and suffixes can be 
-found in the SeqIO HOWTO ( http://bioperl.org/HOWTOs/html/SeqIO.html ).
+found in the SeqIO HOWTO 
+( http://bioperl.open-bio.org/wiki/HOWTO:SeqIO ).
 
 =for html <A NAME ="iii.2.2"></A>
 
@@ -1012,7 +1013,7 @@ of related, top-level annotation is found in L<Bio::Annotation::Collection>.
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory examples/DB. Finally,
 there's a HOWTO on features and annotations
-( http://bioperl.org/HOWTOs/html/Feature-Annotation.html ) and there's a 
+( http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation ) and there's a 
 section on features in the FAQ ( http://bioperl.org/Core/Latest/faq.html#5 ).
 
 The following methods returns new sequence objects, but do not transfer
@@ -1504,9 +1505,8 @@ Sample code to read a BLAST report might look like this:
   $hsp_start = $hsp->query->start;
 
 For more details there is a good description of how to use
-SearchIO at http://www.bioperl.org/HOWTOs/html/SearchIO.html
-or in the docs/howto subdirectory of the distribution. Additional
-documentation can be found in L<Bio::SearchIO::blast>,
+SearchIO at http://bioperl.open-bio.org/wiki/HOWTO:SearchIO
+Additional documentation can be found in L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
 L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>. There is also sample
 code in the examples/searchio directory which illustrates how to
@@ -1918,7 +1918,7 @@ statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 
 See L<Bio::LocationI> and L<Bio::Location::SplitLocationI> for more
 information. Also see the Feature-Annotation HOWTO
-( http://bioperl.org/HOWTOs/html/Feature-Annotation.html ).
+( http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation ).
 
 If more detailed information is required than is currently available in Seq
 objects the RichSeq object may be used. It is applicable in particular to
@@ -1957,7 +1957,7 @@ Objects with the "reference" tagname are Bio::Annotation::Reference objects
 and represent scientific articles. See L<Bio::Annotation::Reference> for 
 descriptions of the methods used to access the data in Reference objects.
 There is also a HOWTO on features and annotation 
-( http://bioperl.org/HOWTOs/html/Feature-Annotation.html ).
+( http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation ).
 
 =for html <A NAME ="iii.7.3"></A>
 
@@ -2262,7 +2262,7 @@ See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 Using the Bio::Tools::Phylo::PAML module one can also parse the
 results of the PAML tree-building programs codeml, baseml, basemlg,
 codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> or the PAML HOWTO
-( http://bioperl.org/HOWTOs/html/PAML.html ) for more information.
+( http://bioperl.open-bio.org/wiki/HOWTO:PAML ) for more information.
 
 =head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
 
@@ -2309,8 +2309,8 @@ given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
 
 These modules contain numerous methods to dictate the sizes, colors,
 labels, and line formats within the image. For information see the
-excellent Graphics-HOWTO ( http://bioperl.org/HOWTOs/html/Graphics-HOWTO.html )
-or in the docs/howto subdirectory. Additional documentation can be found in
+Graphics HOWTO ( http://bioperl.open-bio.org/wiki/HOWTO:Graphics ).
+Additional documentation can be found in
 L<Bio::Graphics>, L<Bio::Graphics::Panel>, and in the scripts in the
 examples/biographics/ and scripts/graphics directories in the Bioperl package.
 
