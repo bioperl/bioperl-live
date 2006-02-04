@@ -454,7 +454,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 		you will be creating a "sequence object", since
 		<ulink url="http://bioperl.org"><citetitle>Bioperl</citetitle></ulink> is written in an object-oriented way. Why be
 		object-oriented? Why introduce these odd or intrusive notions into
-		software that should be "biological" or "intuitive"? The reason is 
+		software that should be "biological" or "intuitive"? One reason is 
 		that thinking in terms of modules or objects turns out to be the
 		most flexible, and ultimately the simplest, way to deal with
 		data as complex as biological data. Once you get over your initial
