@@ -10,11 +10,9 @@
 # If you want help with this Makefile get in touch with
 # the developers by sending a message to bioperl-l@bioperl.org.
 
-
-
 # All Bioperl dependencies on external modules are defined here
 %packages = (
-	     'Set::Scalar'              => '0.0/Bio::Tree::Compatible needs it to work',
+	     'Set::Scalar'              => '0.0/Bio::Tree::Compatible/proper operation/Bio::Tree::Compatible',
 	     'HTTP::Request::Common'    => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
 	     'LWP::UserAgent'           => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
 	     'HTML::Entities'           => '0.0/To parse POST request URL formas/Remote Analysis POST submissions/Bio::Tools::Run::Analysis::*',
@@ -24,7 +22,7 @@
 	     'XML::Parser'              => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
 	     'XML::Writer'              => '0.0/Parsing + writing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
 	     'XML::Parser::PerlSAX'     => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
-	     'XML::Twig'         	=> '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
+	     'XML::Twig'         	     => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
 	     'File::Temp'               => '0.0/Temporary File creation/Bio::Root::IO uses if present/Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq',
 	     'SOAP::Lite'               => '0.0/SOAP protocol/XEMBL Services (also Bibliographic queries in Biblio::) /Bio::DB::XEMBLService',
 	     'HTML::Parser'             => '0.0/HTML parsing/HTML parsing of GDB page/Bio::DB::GDB',
@@ -40,7 +38,7 @@
 	     'Class::AutoClass'         => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph',
 	     'Clone'                    => '0.0/Recursively copy Perl datatypes/cloning ProteinGraph objects/Bio::Graph::ProteinGraph',
 	     'XML::SAX'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-	     'XML::SAX::Base'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+	     'XML::SAX::Base'           => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
 	     'XML::SAX::Writer'         => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
  	     'Bio::ASN1::EntrezGene'    => '0.0/Entrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene'
 # Bio::Microarray is not in core bioperl yet
