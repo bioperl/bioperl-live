@@ -1,6 +1,6 @@
-This is the README file for the Bioperl central distribution.
-
 # $Id$
+
+This is the README file for the Bioperl central distribution.
 
 o Version
 
@@ -10,26 +10,18 @@ o Getting Started
  
  Thanks for downloading this distribution!
 
- For tutorials see Bioperl's bptutorial.pl in this directory or the
- HOWTO documents in docs/howto or online at http://bioperl.org.
- See http://www.pasteur.fr/recherche/unites/sis/formation/bioperl
- for an online tutorial. For information on databases and Bioperl 
- see biodatabases.pod. To look at example code browse the scripts/ 
- and examples/ directories, and look at bioscripts.pod for a
- description of all these scripts. The bioperl.pod file
- gives a overview of the history and purpose of Bioperl. The FAQ
- may also be useful if you have a particular question.
-
  Please see the the INSTALL or INSTALL.WIN documents for installation 
  instructions.
+
+ For tutorials see Bioperl's bptutorial.pl in this directory or the
+ HOWTO documents and tutorials online at http://bioperl.org. 
+ To look at example code browse the scripts/ and examples/ directories
 
  For people starting out with Perl and Bioperl, look at the Bio::Perl
  module (go "perldoc Bio::Perl" from within this directory). This 
  module is designed to flatten the learning curve for newcomers.
 
- For a discussion of issues in design and development please see
- biodesign.pod, recommended for those who want to contribute code. And for
- a list of OS's and versions that are known to support Bioperl see the
+ For a list of OS's and versions that are known to support Bioperl see the
  PLATFORMS file.
  
  For info on Bioperl read on!
@@ -51,10 +43,10 @@ o Contact info
  added all the time. If the tool you're looking for isn't described in
  the documentation please write us, it could be undocumented or in process.
 
- Project website   : http://bioperl.org
- Project FTP server: bioperl.org (anonymous FTP ok)
+ Project website     : http://bioperl.org
+ Project FTP server : bioperl.org (anonymous FTP ok)
 
- Bug reports       : http://bugzilla.bioperl.org/
+ Bug reports           : http://bugzilla.bioperl.org/
 
  Please send us bugs, in particular about documentation which you
  think is unclear or problems in installation. We are also very
@@ -67,14 +59,13 @@ o About the directory structure
 
  The bioperl directory structure is organized as follows:
 
- Bio/         - Bioperl modules  
- models/      - DIA drawing program generated OO UML for bioperl classes
- t/           - Perl built-in tests
- t/data/      - Data files used for the tests - provides good data
-	        examples for those new to bioinformatics data.	     
- scripts/     - Useful production-quality scripts with POD documentation 
- examples/    - Scripts demonstrating the many uses of Bioperl
- doc/         - "How To" files and the FAQ as XML
+ Bio/                - Bioperl modules  
+ models/         - DIA drawing program generated OO UML for bioperl classes
+ t/                   - Perl built-in tests
+ t/data/           - Data files used for the tests - provides good data
+	                       examples for those new to bioinformatics data.	     
+ scripts/          - Useful production-quality scripts with POD documentation 
+ examples/      - Scripts demonstrating the many uses of Bioperl
  maintenance/ - Bioperl housekeeping scripts
 
 o Documentation
