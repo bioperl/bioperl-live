@@ -1,3 +1,6 @@
+# $Id$
+#
+# BioPerl module for Bio::SeqFeature::Primer
 #
 # This is the original copyright statement. I have relied on Chad's module
 # extensively for this module.
@@ -22,7 +25,6 @@
 # You may distribute this module under the same terms as perl itself
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
 Bio::SeqFeature::Primer - Primer Generic SeqFeature
@@ -43,8 +45,8 @@ Bio::SeqFeature::Primer - Primer Generic SeqFeature
  $primer->location(500);
  my $location=$primer->location(500);
 
- # get or set the 5' end of the primer homology, as the primer doesn't have to be the
- # same as the target sequence
+ # get or set the 5' end of the primer homology, as the primer doesn't 
+ # have to be the same as the target sequence
  $primer->start(2);
  my $start=$primer->start;
 

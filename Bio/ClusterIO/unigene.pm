@@ -25,9 +25,8 @@ Do not use this module directly.  Use it via the Bio::ClusterIO class.
 =head1 DESCRIPTION
 
 This object reads from Unigene *.data files downloaded from
-ftp://ftp.ncbi.nih.gov/repository/UniGene/.  It doesn't download and
+ftp://ftp.ncbi.nih.gov/repository/UniGene/.  It does not download and
 decompress the file, you have to do that yourself.
-
 
 =head1 FEEDBACK
 

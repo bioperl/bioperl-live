@@ -351,21 +351,21 @@ sub union {
 	}
 	my @common_nodes;
 	my %detected_common_nodes;
-    my %seen_ids; # holds ids of nodes  already known to be common. 
+	my %seen_ids; # holds ids of nodes  already known to be common. 
 
 	## for each node see if Ids are in common between the 2 graphs
 	## just get1 common id per sequence.
 
-    ##Produces too many common nodesm we only need 1 common id between nodes.
+	## Produces too many common nodes we only need 1 common id between nodes.
 	for my $id (sort keys %{$self->{'_id_map'}}) {
 		if (exists($other->{'_id_map'}{$id}) ) { 
-            ## check  if this node has a commonlink kown lready:
-            my $node = $self->nodes_by_id($id);
-            my $acc = $node->object_id;
+			## check  if this node has a commonlink kown lready:
+			my $node = $self->nodes_by_id($id);
+			my $acc = $node->object_id;
 			if (!exists($detected_common_nodes{$acc})) {
 			   push @common_nodes, $id; ## we store the common id
 			   $detected_common_nodes{$acc} = undef; ## this means we won't store >1 common identifier
-               }
+			}
 		}
 	}
 
@@ -373,71 +373,71 @@ sub union {
 	$self->debug( "there are ". scalar @common_nodes. " common nodes\n");
 	my $i = 0;
 	for my $common (@common_nodes) {
-	    if ($i++ % 10 ==0 ) {
-		$self->debug(".");
-	    }
-	    ## get neighbours of common node for self and other
-	    my @self_ns   = $self->neighbors($self->nodes_by_id($common));
-	    my @other_ns  = $other->neighbors($other->nodes_by_id($common));
+		if ($i++ % 10 ==0 ) {
+			$self->debug(".");
+		}
+		## get neighbours of common node for self and other
+		my @self_ns   = $self->neighbors($self->nodes_by_id($common));
+		my @other_ns  = $other->neighbors($other->nodes_by_id($common));
 
-	    ## now get all ids of all neighbours
-	    my %self_n_ids = $self->_get_ids(@self_ns);	# get all ids of neighbors
+		## now get all ids of all neighbours
+		my %self_n_ids = $self->_get_ids(@self_ns);	# get all ids of neighbors
 
-	    ##cycle through other neighbors
-	    for my $other_n(@other_ns){ 
-		my %other_n_ids = $self->_get_ids($other_n); # get ids of single other neighbor
+		## cycle through other neighbors
+		for my $other_n(@other_ns){ 
+			my %other_n_ids = $self->_get_ids($other_n); # get ids of single other neighbor
 
-		## case (1) in description
-		## do any ids in other graph exist in self ?
-		#if yes,  @int_match is defined, interaction does not involve a new node
-		my @int_match = grep{exists($self->{'_id_map'}{$_}) } keys %other_n_ids;
-		if (@int_match){
-		    my $i = 0;
-		    my $edge;
+			## case (1) in description
+			## do any ids in other graph exist in self ?
+			# if yes,  @int_match is defined, interaction does not involve a new node
+			my @int_match = grep{exists($self->{'_id_map'}{$_}) } keys %other_n_ids;
+			if (@int_match){
+				my $i = 0;
+				my $edge;
 
-		    ## we cycle through until we have an edge defined, this deals with 
-		    ## multiple id matches
-		    while (!$edge && $i <= $#int_match){
+				## we cycle through until we have an edge defined, this deals with 
+				## multiple id matches
+				while (!$edge && $i <= $#int_match){
 
-			## get edge from other graph
-			my $other_edge = $other->edge(
-						      [$other->nodes_by_id($common),
-						       $other->nodes_by_id($other_n->object_id)]
-						      );
+					## get edge from other graph
+					my $other_edge = $other->edge(
+												 [$other->nodes_by_id($common),
+												  $other->nodes_by_id($other_n->object_id)]
+														  );
 
-			## copy it
-			my $edge = Bio::Graph::Edge->new(
-							 -weight=> $other_edge->weight(),
-							 -id    => $other_edge->object_id(),
-							 -nodes =>[$self->nodes_by_id($common),
+					## copy it
+					my $edge = Bio::Graph::Edge->new(
+													 -weight=> $other_edge->weight(),
+													 -id    => $other_edge->object_id(),
+													 -nodes =>[$self->nodes_by_id($common),
 								   $self->nodes_by_id($int_match[$i])
-								   ]);
-			## add it to self graph.
-			##add_edge() works out if the edge is a new,  
-			##duplicate or a redundant edge.
-			$self->add_edge($edge);
+																 ]);
+					## add it to self graph.
+					## add_edge() works out if the edge is a new,  
+					## duplicate or a redundant edge.
+					$self->add_edge($edge);
 
-			$i++;
-		    }
-		}		#end if
-		## but if other neighbour is entirely new, clone it and 
-		## make connection.
-		else  {
-		    my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
-						  $other->nodes_by_id($common));
-		    my $new = clone($other_n);
-		    $self->add_edge(Bio::Graph::Edge->new(
+					$i++;
+				}
+			}		# end if
+			## but if other neighbour is entirely new, clone it and 
+			## make connection.
+			else  {
+				my $other_edge = $other->edge($other->nodes_by_id($other_n->object_id()),
+														$other->nodes_by_id($common));
+				my $new = clone($other_n);
+				$self->add_edge(Bio::Graph::Edge->new(
 							  -weight => $other_edge->weight(),
 							  -id     => $other_edge->object_id(),
 							  -nodes  =>[$new, $self->nodes_by_id($common)],
-							  )
-				    );
+																 )
+									);
 
 				## add new ids to self graph look up table
-		    map {$self->{'_id_map'}{$_} = $new} keys %other_n_ids;
-		}#end if
-		}#next neighbor
-	    }#next node
+				map {$self->{'_id_map'}{$_} = $new} keys %other_n_ids;
+			} #end if
+		} #next neighbor
+	} #next node
 }
 
 =head2 edge_count

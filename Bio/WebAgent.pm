@@ -96,16 +96,16 @@ BEGIN {
 
 
 sub new {
-    my $class = shift;
+	my $class = shift;
 
-    my $self = $class->SUPER::new();
-    while( @_ ) {
-	my $key = shift;
-        $key =~ s/^-//;
-        $self->$key(shift);
-    }
+	my $self = $class->SUPER::new();
+	while( @_ ) {
+		my $key = shift;
+		$key =~ s/^-//;
+		$self->$key(shift);
+	}
 
-    return $self; # success - we hope!
+	return $self; # success - we hope!
 
 }
 
@@ -123,7 +123,7 @@ sub new {
 sub url { 
    my ($self,$value) = @_;
    if( defined $value) {
-       $self->{'_url'} = $value;
+		$self->{'_url'} = $value;
    }
    return $self->{'_url'};
 }

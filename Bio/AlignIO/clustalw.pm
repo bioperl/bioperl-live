@@ -38,7 +38,6 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org               - General discussion
   http://bio.perl.org/MailList.html   - About the mailing lists
 
-
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -190,7 +189,6 @@ sub next_aln {
  Function: writes the clustalw-format object (.aln) into the stream
  Returns : 1 for success and 0 for error
  Args    : Bio::Align::AlignI object
-
 
 =cut
 

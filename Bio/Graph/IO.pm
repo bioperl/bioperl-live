@@ -112,7 +112,7 @@ sub new {
 		} 
 		my $format = $param{'-format'};
 		$format    = "\L$format";	
-		return undef unless ($class->_load_format_module($format));
+		return undef unless ($class->_load_format_module($format)); 
 		return "Bio::Graph::IO::$format"->new(@args);
 	}
 }

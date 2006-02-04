@@ -1,4 +1,3 @@
-
 #
 # $Id$
 #
@@ -21,7 +20,7 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name, 
-					 '-write_flag' => 'WRITE');
+                         					 '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     use Bio::Index::SwissPfam;
@@ -32,12 +31,12 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns stream
-	while( <$seq> ) {
-	    if(/^>/) {
-	    	print;
-		last;
-	    }
-	}
+	     while( <$seq> ) {
+	         if(/^>/) {
+	    	       print;
+		          last;
+	         }
+	     }
     }
 
 
@@ -46,12 +45,11 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 SwissPfam is one of the flat files released with Pfam. This modules
 provides a way of indexing this module.
 
-Inherits functions for managing dbm files from
-Bio::Index::Abstract.pm, and provides the basic funtionallity for
-indexing SwissPfam files.  Only retrieves FileStreams at the
-moment. Once we have something better (ie, an object!), will use
-that. Heavily snaffled from James Gilbert's Fasta system. Note: for
-best results 'use strict'.
+Inherits functions for managing dbm files from Bio::Index::Abstract.pm, and 
+provides the basic funtionallity for indexing SwissPfam files.  Only 
+retrieves FileStreams at the moment. Once we have something better 
+(ie, an object!), will use that. Heavily snaffled from Index::Fasta system of 
+James Gilbert. Note: for best results 'use strict'.
 
 Details on configuration and additional example code are available in the
 biodatabases.pod file.

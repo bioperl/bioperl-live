@@ -58,7 +58,7 @@ features are 'old'.  The tag system, which here is implemented using a
 hash can be used here.  You can use the tag system to extend the
 L<Bio::SeqFeature::Generic> programmatically: that is, you know that you have
 read in more information into the tag 'mytag' which you can then
-retrieve. This means you do not need to know how to write inherieted
+retrieve. This means you do not need to know how to write inherited
 Perl to provide more complex information on a feature, and/or, if you
 do know but you do not want to write a new class every time you need
 some extra piece of information, you can use the tag system to easily
@@ -141,7 +141,7 @@ use Bio::Tools::GFF;
 #use Tie::IxHash;
 
 @ISA = qw(Bio::Root::Root Bio::SeqFeatureI
-           Bio::FeatureHolderI);
+           Bio::FeatureHolderI );
 
 sub new {
     my ( $caller, @args) = @_;
@@ -186,8 +186,8 @@ sub new {
 
 sub set_attributes {
     my ($self,@args) = @_;
-    my ($start, $end, $strand, $primary_tag, $source_tag, $primary, $source, $frame, 
-        $score, $tag, $gff_string, $gff1_string,
+    my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
+		  $source, $frame, $score, $tag, $gff_string, $gff1_string,
         $seqname, $seqid, $annot, $location,$display_name) =
             $self->_rearrange([qw(START
                                   END
@@ -213,17 +213,17 @@ sub set_attributes {
         $self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
         $self->_from_gff_stream($gff1_string);
     };
-    $primary_tag    && $self->primary_tag($primary_tag);
-    $source_tag     && $self->source_tag($source_tag);
-    $primary        && $self->primary_tag($primary);
-    $source         && $self->source_tag($source);
-    defined $start  && $self->start($start);
-    defined $end    && $self->end($end);
-    defined $strand && $self->strand($strand);
-    defined $frame  && $self->frame($frame);
+    $primary_tag            && $self->primary_tag($primary_tag);
+    $source_tag             && $self->source_tag($source_tag);
+    $primary                && $self->primary_tag($primary);
+    $source                 && $self->source_tag($source);
+    defined $start          && $self->start($start);
+    defined $end            && $self->end($end);
+    defined $strand         && $self->strand($strand);
+    defined $frame          && $self->frame($frame);
     defined $display_name   && $self->display_name($display_name);
     defined $score          && $self->score($score);
-    $annot          && $self->annotation($annot);
+    $annot                  && $self->annotation($annot);
     if($seqname) {
         $self->warn("-seqname is deprecated. Please use -seq_id instead.");
         $seqid = $seqname unless $seqid;

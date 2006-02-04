@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.23 2004-03-01 14:38:20 bosborne Exp $
+# $Id: PLATFORMS,v 1.24 2006-02-04 04:17:26 bosborne Exp $
 
 Perl general comments:
 
@@ -85,7 +85,7 @@ Comments: We don't recommend using Bioperl on MacOS 9 systems
 
 Machine : MacOS X
 Compiler: gcc
-Perl    : 5.6.0
+Perl    : 5.6.0, 5.8.1, 5.8.4
 Comments: Steve Cannon has made available Bioperl OS X installation
 	  directions and notes online at the following URL:
 	  http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
