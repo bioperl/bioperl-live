@@ -16,19 +16,34 @@ sub draw_component {
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);
 
   my $h = $self->option('height');
-  $y1 = $y1 + ($h/2);
   my $w = $h*0.6;
 
   my $poly_pkg = $self->polygon_package;
   my $polygon   = $poly_pkg->new();
-  $polygon->addPt($x1,$y1-($h/2));
-  $polygon->addPt($x1+($w*0.7),$y1-($h/2));
-  $polygon->addPt($x1+($w*0.2),$y1-($h*0.15));
-  $polygon->addPt($x1+($w*0.6),$y1-($h*0.15));
-  $polygon->addPt($x1,$y1+$h/2);
-  $polygon->addPt($x1+($w*0.1),$y1+($h*0.05));
-  $polygon->addPt($x1-($w*0.5),$y1+($h*0.05));
-  $polygon->addPt($x1,$y1-($h/2));
+
+  # lightning bolt points up or down
+  if ($self->option('orient') eq 'N') {
+    $y1 = $y1 + $h/4;
+    $polygon->addPt($x2,$y1+($h/2));
+    $polygon->addPt($x2-($w*0.7),$y1+($h/2));
+    $polygon->addPt($x2-($w*0.2),$y1+($h*0.15));
+    $polygon->addPt($x2-($w*0.6),$y1+($h*0.15));
+    $polygon->addPt($x2,$y1-$h/2);
+    $polygon->addPt($x2-($w*0.1),$y1-($h*0.05));
+    $polygon->addPt($x2+($w*0.5),$y1-($h*0.05));
+    $polygon->addPt($x2,$y1+($h/2));
+  }
+  else {
+    $y1 = $y1 + $h/2;
+    $polygon->addPt($x1,$y1-($h/2));
+    $polygon->addPt($x1+($w*0.7),$y1-($h/2));
+    $polygon->addPt($x1+($w*0.2),$y1-($h*0.15));
+    $polygon->addPt($x1+($w*0.6),$y1-($h*0.15));
+    $polygon->addPt($x1,$y1+$h/2);
+    $polygon->addPt($x1+($w*0.1),$y1+($h*0.05));
+    $polygon->addPt($x1-($w*0.5),$y1+($h*0.05));
+    $polygon->addPt($x1,$y1-($h/2));
+}
 
   # Have to draw TWO polygons for fills in order to get an outline
   # because filledPolygon in GD croaks with extra parameters (and
@@ -96,6 +111,15 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -description  Whether to draw a description  0 (false)
 
   -hilite       Highlight color                undef (no color)
+
+
+
+The following options are specific to this Glyph.
+
+  Option      Description                      Default
+  ------      -----------                      -------  
+  -orient     direction of lightning bolt      N
+
 
 =head1 BUGS
 
