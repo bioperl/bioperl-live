@@ -19,10 +19,9 @@ Bio::Tools::Tmhmm - parse TmHMM output (transmembrane HMM)
 =head1 SYNOPSIS
 
   use Bio::Tools::Tmhmm;
-  my $parser = new Bio::Tools::Tmhmm(-fh =>$filehandle );
-  while( my $tmhmm_feat = $parser->next_result ) {
-     #do something
-     #eg
+  my $parser = new Bio::Tools::Tmhmm(-fh => $filehandle );
+  while ( my $tmhmm_feat = $parser->next_result ) {
+     # do something, e.g.
      push @tmhmm_feat, $tmhmm_feat;
   }
 
