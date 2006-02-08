@@ -14,30 +14,30 @@ Swissprot files.
 
 =head1 SYNOPSIS
 
-    # Complete code for making an index for several
-    # Swissprot files
+Make an index for one or more Swissprot files:
+
     use Bio::Index::Swissprot;
     use strict;
 
-    my $Index_File_Name = shift;
+    my $index_file_name = shift;
     my $inx = Bio::Index::Swissprot->new(
-                           -filename => $Index_File_Name,
-					            -write_flag => 'WRITE');
+                           -filename => $index_file_name,
+					            -write_flag => 1);
     $inx->make_index(@ARGV);
 
-    # Print out several sequences present in the index
-    # in gcg format
+Print out several sequences present in the index in Genbank format:
+
     use Bio::Index::Swissprot;
     use Bio::SeqIO;
     use strict;
 
-    my $out = Bio::SeqIO->new( -format => 'gcg',
+    my $out = Bio::SeqIO->new( -format => 'genbank',
                                -fh => \*STDOUT );
-    my $Index_File_Name = shift;
-    my $inx = Bio::Index::Swissprot->new(-filename => $Index_File_Name);
+    my $index_file_name = shift;
+    my $inx = Bio::Index::Swissprot->new(-filename => $index_file_name);
 
     foreach my $id (@ARGV) {
-        my $seq = $inx->fetch($id); # Returns Bio::Seq object
+        my $seq = $inx->fetch($id); # Returns a Bio::Seq object
         $out->write_seq($seq);
     }
 
@@ -48,10 +48,10 @@ Swissprot files.
 
 =head1 DESCRIPTION
 
-By default the index that's created uses the AC and ID identifiers
-as keys. Inherits functions for managing dbm files from 
+By default the index that is created uses the AC and ID identifiers
+as keys. This module inherits functions for managing dbm files from 
 Bio::Index::Abstract.pm, and provides the basic functionality 
-for indexing Swissprot files, and retrieving sequence objects from 
+for indexing Swissprot files and retrieving Sequence objects from 
 them. For best results 'use strict'.
 
 You can also set or customize the unique key used to retrieve by 
@@ -60,7 +60,7 @@ For example:
 
    $inx->id_parser(\&get_id);
    # make the index
-   $inx->make_index($file_name);
+   $inx->make_index($index_file_name);
 
    # here is where the retrieval key is specified
    sub get_id {
@@ -68,7 +68,6 @@ For example:
       $line =~ /^KW\s+([A-Z]+)/i;
       $1;
    }
-
 
 =head1 FEED_BACK
 
