@@ -831,8 +831,8 @@ typically contains
   source
   gene
   CDS
-  exon
-  intron
+  exon [optional]
+  intron [optional]
 
 there are no mRNA features
 
@@ -844,7 +844,7 @@ with this structure type, we want the seq_features to be nested like this
       intron
 
 exon and intron may or may not be present; they may be implicit from
-the mRNA 'join' location
+the CDS 'join' location
 
 =back
 
@@ -1146,6 +1146,10 @@ sub unflatten_seq{
        # use magic to guess the group tag
        my @sfs_with_locus_tag =
 	 grep {$_->has_tag("locus_tag")} @flat_seq_features;
+       my @sfs_with_gene_tag =
+	 grep {$_->has_tag("gene")} @flat_seq_features;
+       my @sfs_with_product_tag =
+	 grep {$_->has_tag("product")} @flat_seq_features;
        if (@sfs_with_locus_tag) {
 	   if ($group_tag && $group_tag ne 'locus_tag') {
 	       $self->throw("You have explicitly set group_tag to be '$group_tag'\n".
@@ -1154,14 +1158,27 @@ sub unflatten_seq{
 			    "You can resolve this by either NOT setting -group_tag\n".
 			    "OR you can unset -use_magic to regain control");
 	   }
-	   # I know what's best for you.
-	   # You want to be using /locus_tag=foo here
-	   #
+
+	   # use /locus_tag instead of /gene tag for grouping
 	   # see GenBank entry AE003677 (version 3) for an example
 	   $group_tag = 'locus_tag';
            if ($self->verbose > 0) {
                warn "Set group tag to: $group_tag\n";
            }
+       }
+
+       # on rare occasions, records will have no /gene or /locus_tag
+       # but it WILL have /product tags. These serve the same purpose
+       # for grouping. For an example, see AY763288 (also in t/data)
+       if (@sfs_with_locus_tag==0 &&
+           @sfs_with_gene_tag==0 &&
+           @sfs_with_product_tag>0 &&
+           !$group_tag) {
+	   $group_tag = 'product';
+           if ($self->verbose > 0) {
+               warn "Set group tag to: $group_tag\n";
+           }
+           
        }
    }
    if (!$group_tag) {
@@ -1303,19 +1320,19 @@ sub unflatten_seq{
 	 scalar(grep {$_->primary_tag eq 'CDS'} @flat_seq_features);
 	   
        # Are there any CDS features in the record?
-       if ($n_cdss) {
+       if ($n_cdss > 0) {
            # YES
            
 	   # - a pc gene model should contain at the least a CDS
 
            # Are there any mRNA features in the record?
-	   if (!$n_mrnas) {
-               # NO mRNAs
+	   if ($n_mrnas == 0) {
+               # NO mRNAs:
 	       # looks like structure_type == 1
 	       $structure_type = 1;
 	       $need_to_infer_mRNAs = 1;
 	   }
-	   elsif (!$n_mrnas_attached_to_gene) {
+	   elsif ($n_mrnas_attached_to_gene == 0) {
                # $n_mrnas > 0
                # $n_mrnas_attached_to_gene = 0
                #
@@ -1397,9 +1414,7 @@ sub unflatten_seq{
    }
    # -
 
-   # >>>>>>>>>                   <<<<<<<<<<<<<
    # --------- FINISHED GROUPING -------------
-   # >>>>>>>>>                   <<<<<<<<<<<<<
 
 
    # TYPE CONTAINMENT HIERARCHY (aka partonomy)
@@ -1475,9 +1490,7 @@ sub unflatten_seq{
    $seq->remove_SeqFeatures;
    $seq->add_SeqFeature(@top_sfs);
 
-   # >>>>>>>>>                       <<<<<<<<<<<<<
    # --------- FINISHED UNFLATTENING -------------
-   # >>>>>>>>>                       <<<<<<<<<<<<<
 
    # lets see if there are any post-unflattening tasks we need to do
 

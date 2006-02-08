@@ -1,0 +1,64 @@
+
+LOCUS       AY763288                 723 bp    DNA     linear   INV 18-JAN-2006
+DEFINITION  Leishmania guyanensis putative elongation factor 1 beta gene,
+            complete cds.
+ACCESSION   AY763288
+VERSION     AY763288.1  GI:54300415
+KEYWORDS    .
+SOURCE      Leishmania guyanensis
+  ORGANISM  Leishmania guyanensis
+            Eukaryota; Euglenozoa; Kinetoplastida; Trypanosomatidae;
+            Leishmania; Leishmania guyanensis species complex.
+REFERENCE   1  (bases 1 to 723)
+  AUTHORS   Walker,J., Acestor,N., Gongora,R., Quadroni,M., Segura,I., Fasel,N.
+            and Saravia,N.G.
+  TITLE     Comparative protein profiling identifies elongation factor-1beta
+            and tryparedoxin peroxidase as factors associated with metastasis
+            in Leishmania guyanensis
+  JOURNAL   Mol. Biochem. Parasitol. 145 (2), 254-264 (2006)
+   PUBMED   16325936
+REFERENCE   2  (bases 1 to 723)
+  AUTHORS   Vergel,C., Gongora,R.E., Saravia,N. and Walker,J.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (24-SEP-2004) Biochemistry and Molecular Biology, Centro
+            Internacional de Entrenamiento e Investigaciones Medicas, Av 1a
+            Norte No. 3-03, Cali, Valle, Colombia
+FEATURES             Location/Qualifiers
+     source          1..723
+                     /organism="Leishmania guyanensis"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:5670"
+                     /clone="WHI/BT/78/M5313"
+                     /dev_stage="promastigote"
+                     /note="subgenus Viannia"
+     mRNA            <1..>723
+                     /product="putative elongation factor 1 beta"
+     CDS             1..723
+                     /note="similar to elongation factor 1 beta of Leishmania
+                     major (Friedlin)"
+                     /codon_start=1
+                     /product="putative elongation factor 1 beta"
+                     /protein_id="AAV32818.1"
+                     /db_xref="GI:54300416"
+                     /translation="MSVKDVSKKAAELEARLGGKLFLGGAKPTAEDVRMLNDLLGANH
+                     ASLYRWVKNMATYTEGERKAWGAPVRTAAPELRMPAPAAAAPAAAKKPVPAAAAPAAA
+                     KKPAPAPKAVAPAEDDDIGLFGETTEEEQAALEAKRAKDAEKKKAKKDVIAKSPILFD
+                     IKAWDDTVDLEALAQKLHAIQRDGLVWGDHKLAPVAFGVKKLQQLVVIEDDKVSGDDL
+                     EEMIMGFEDEVQSIDIVAWNKI"
+     misc_feature    379..381
+                     /note="putative; phosphorylation site"
+ORIGIN      
+        1 atgtctgtga aggacgtgag caagaaggcc gccgagctgg aggcgaggct gggcggcaag
+       61 ctgttcctgg gcggcgcgaa gccgacggcg gaggacgtga ggatgctcaa cgacctgctc
+      121 ggcgcgaacc acgcgagcct gtaccggtgg gtgaagaaca tggcgaccta cacggagggc
+      181 gagcgcaagg cgtggggcgc accggtgcgc actgctgcgc cggagctgcg catgcccgcg
+      241 cctgccgcgg cggcgcctgc tgccgctaag aagcccgtgc ctgccgcggc ggcgcctgct
+      301 gccgctaaga agcccgcgcc tgcgccgaag gctgttgccc ctgcagagga cgacgacatc
+      361 ggcctgttcg gcgagacgac ggaggaggag caggcggcgc tggaggcgaa gagggcaaag
+      421 gacgcggaga agaagaaggc gaagaaggac gtgattgcga agtcgcccat cctgttcgac
+      481 atcaaggcgt gggacgacac ggtggacctg gaggcgctcg cgcagaagct gcacgcgatt
+      541 cagcgcgacg gcctggtgtg gggtgaccac aagctggcgc ccgttgcgtt cggcgtgaag
+      601 aagctgcagc agctggtcgt gatcgaggat gacaaagtgt ctggcgacga cctggaggag
+      661 atgatcatgg gcttcgagga tgaggtgcag tcgattgata tcgtcgcctg gaacaagatc
+      721 tga
+//

@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 6;
+    $TESTCOUNT = 7;
     plan tests => $TESTCOUNT;
 }
 
@@ -123,8 +123,22 @@ if( $verbosity > 0 ) {
 }
 ok(@sfs == 98);
 
+# this sequence has no locus_tag or or gene tags
+$seq = getseq("t","data","AY763288.gb");
 
-# try again; different sequence
+# UNFLATTEN
+@sfs = $unflattener->unflatten_seq(-seq=>$seq,
+				   -use_magic=>1
+                                  );
+if( $verbosity > 0 ) {
+    warn "\n\nPOST PROCESSING:\n";
+    write_hier(@sfs);
+    warn sprintf "PROCESSED:%d\n", scalar(@sfs);
+}
+ok(@sfs == 3);
+
+
+# try again; different sequence - dicistronic gene, mRNA record
 
 $seq = getseq("t","data","X98338_Adh-mRNA.gb");
 
