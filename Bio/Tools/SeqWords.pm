@@ -1,5 +1,4 @@
 # $Id$
-
 #---------------------------------------------------------------------------
 # PACKAGE    : Bio::Tools::SeqWords
 # PURPOSE    : To count n-mers in any sequence of characters
@@ -8,39 +7,38 @@
 # CREATED    : 21st March 2000
 # MODIFIED   : 11th November 2003 (DG - new method, count_overlap_words)
 # LICENCE    : You may distribute this module under the same terms 
-#	     : as the rest of BioPerl.
+#	          : as the rest of BioPerl.
 #---------------------------------------------------------------------------
 
 =head1 NAME
 
-Bio::Tools::SeqWords - Object holding n-mer statistics for one sequence
+Bio::Tools::SeqWords - Object holding n-mer statistics for a sequence
 
 =head1 SYNOPSIS
 
-  # Take a sequence object from eg, an inputstream, and creates an
-  # object for the purposes of holding n-mer word statistics about
-  # that sequence. The sequence can be nucleic acid or protein, but
-  # the module is probably most relevant for DNA.
-  #
-  # In count_words, the words are counted in a non-overlapping manner,
-  # ie. in the style of a codon table, but with any word length.
-  #
-  # In count_overlap_words, the words are counted in an overlapping
-  # manner.
-  #
-  # For counts on opposite strand (DNA/RNA), a reverse complement
-  # method should be performed, and then the count repeated.
+Take a sequence object and create an object for the purposes of 
+holding n-mer word statistics about that sequence. The sequence can 
+be nucleic acid or protein.
 
-  # Creating the SeqWords object, eg:
+In count_words() the words are counted in a non-overlapping manner,
+ie. in the style of a codon table, but with any word length.
 
-  my $inputstream = Bio::SeqIO->new( -file => "seqfile", 
-	                             -format => 'Fasta');
+In count_overlap_words() the words are counted in an overlapping
+manner.
+
+For counts on opposite strand (DNA/RNA), a reverse complement
+method should be performed, and then the count repeated.
+
+Create the SeqWords object, e.g.:
+
+  my $inputstream = Bio::SeqIO->new(-file => "seqfile", 
+	                                 -format => 'Fasta');
   my $seqobj = $inputstream->next_seq();
   my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
 
-  # or:
+Or:
 
-  my $seqobj = Bio::PrimarySeq->new(-seq=>'[cut and paste a sequence here]',
+  my $seqobj = Bio::PrimarySeq->new(-seq => "agggtttccc",
                                     -alphabet => 'dna',
                                     -id => 'test');
   my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
@@ -57,10 +55,10 @@ Bio::Tools::SeqWords - Object holding n-mer statistics for one sequence
     print "\n$key\t$hash{$key}";
   }
 
-  # or	
+Or:
 
-  my $hash_ref = Bio::Tools::SeqWords->count_words($seqobj,$word_length);
-
+  my $hash_ref = 
+     Bio::Tools::SeqWords->count_words($seqobj,$word_length);
 
 =head1 DESCRIPTION
 
@@ -71,10 +69,11 @@ tables as the raw material for statistical calculations; for instance,
 hexamer frequency for the calculation of coding protential, or the
 calculation of periodicity in repetitive DNA.  Triplet frequency is
 already handled by L<Bio::Tools::SeqStats> (author: Peter Schattner).
-There are a few possible applications for protein, eg: hypothesised
+
+There are a few possible applications for protein, e.g. hypothesised
 amino acid 7-mers in heat shock proteins, or proteins with multiple
 simple motifs.  Sometimes these protein periodicities are best seen
-when the amino acid alphabet is truncated, eg Shulman alphabet.  Since
+when the amino acid alphabet is truncated, e.g. Shulman alphabet.  Since
 there are quite a few of these shortened alphabets, this module does
 not specify any particular alphabet.
 
@@ -102,8 +101,8 @@ web:
 =head1 AUTHOR
 
 Derek Gatherer, in the loosest sense of the word 'author'.  The
-general shape of the module is lifted directly from Peter Schattner's
-SeqStats.pm module.  The central subroutine to count the words is
+general shape of the module is lifted directly from the SeqStat
+module of Peter Schattner. The central subroutine to count the words is
 adapted from original code provided by Dave Shivak, in response to a
 query on the bioperl mailing list.  At least 2 other people provided
 alternative means (equally good but not used in the end) of performing
