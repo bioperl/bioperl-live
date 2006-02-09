@@ -88,12 +88,10 @@ sub new {
     my $self = $class->SUPER::new(@args);
     
     my ($entropy,$expected,$scale,$scaleval,$database,
-	$lowestscore,$highestscore,$lambda,
-	$H) = $self->_rearrange([qw(ENTROPY EXPECTED SCALE
-				    SCALE_VALUE DATABASE
-				    LOWEST_SCORE
-				    HIGHEST_SCORE
-				    LAMBDA H)], @args);
+		  $lowestscore,$highestscore,$lambda,$H) = 
+			 $self->_rearrange([qw(
+        ENTROPY EXPECTED SCALE SCALE_VALUE DATABASE
+		  LOWEST_SCORE HIGHEST_SCORE LAMBDA H)], @args);
 
     $self->entropy  ($entropy);
     $self->expected_score($expected);
@@ -105,7 +103,6 @@ sub new {
     $self->lambda($lambda);
     $self->H($H);
 				    
-	
     return $self;
 }
 
