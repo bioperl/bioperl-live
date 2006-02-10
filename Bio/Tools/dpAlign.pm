@@ -27,6 +27,7 @@ Bio::Tools::dpAlign - Perl extension to do pairwise dynamic programming sequence
 
   # create a dpAlign object
   # to do global alignment, specify DPALIGN_GLOBAL_MILLER_MYERS
+  # to do ends-free alignment, specify DPALIGN_ENDSFREE_MILLER_MYERS
   $factory = new dpAlign(-match => 3,
                      -mismatch => -1,
                      -gap => 3,
@@ -143,13 +144,9 @@ compiled the bioperl-ext package.
 
 =item 1.
 
-Support Ends-free Alignment.
-
-=item 2.
-
 Support IUPAC code for DNA sequence
 
-=item 3.
+=item 2.
 
 Allow custom substitution matrix for DNA. Note that for proteins, you
 can now use your own subsitution matirx.
@@ -204,6 +201,7 @@ $VERSION = '0.70';
 # alignment phase.
 use constant DPALIGN_LOCAL_MILLER_MYERS => 1;
 use constant DPALIGN_GLOBAL_MILLER_MYERS => 2;
+use constant DPALIGN_ENDSFREE_MILLER_MYERS => 3;
 # my toy algorithm that tries to do SW as fast as possible
 # use constant DSW_FSW => 3; 
 # Phil Green's approximation to Smith-Waterman. It avoid calculations
