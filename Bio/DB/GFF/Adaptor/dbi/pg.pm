@@ -372,6 +372,9 @@ CREATE UNIQUE INDEX fgroup_gclass_idx ON fgroup (gclass,gname)
                 fgroup_gname_idx => q{
 CREATE INDEX fgroup_gname_idx ON fgroup(gname)
 },
+                fgroup_lower_gname_idx => q{
+CREATE INDEX fgroup_lower_gname_idx ON fgroup (lower(gname))
+},
 	   }, # fgroup indexes
 
 }, # fgroup
@@ -1096,14 +1099,14 @@ sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
 
-  $name =~ tr/*/%/;
-
-  #Have to use ILIKE no matter what unfortunately, unless
-  #we add a lower(gname) index to fgroup. Then we could add
-  #a conditional to use this line with wildcard searches and
-  #this without: 'lower(fgroup.gname) = lower(?)" which should
-  #be faster
-  return ("fgroup.gclass=? AND fgroup.gname ILIKE ?",$class,$name);
+  if ($name !~ /\*/) {
+    #allows utilization of an index on lower(gname)
+    return ("fgroup.gclass=? AND lower(fgroup.gname) = lower(?)",$class,$name);
+  }
+  else {
+    $name =~ tr/*/%/;
+    return ("fgroup.gclass=? AND lower(fgroup.gname) LIKE lower(?)",$class,$name);
+  }
 }
 
 

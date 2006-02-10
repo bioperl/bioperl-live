@@ -151,6 +151,7 @@ sub to_string {
 				       REFERENCE 
 				       MATCH_TAG HSP_TAG
 				       PREFIX)], @args);
+    warn $reference;
     $reference ||='hit'; # default is that the hit sequence (db sequence) becomes the reference sequence.  I think this is fairly typical...
     $match_tag ||= $Defaults{'MatchTag'}; # default is the generic 'match' tag.
     $hsp_tag   ||= $Defaults{'HSPTag'}; # default is the generic 'hsp' tag.
@@ -182,9 +183,9 @@ sub to_string {
             next unless ($hit->significance < $self->{_evalue});
         }
         next if( defined $hitfilter && ! &{$hitfilter}($hit) ); # test against filter code
-	
-        my $refseq = $hit->name;
-        my $seqname = $result->query_name;  # hopefully this will be a simple identifier without a full description line!!
+
+        my $refseq  = $reference eq 'hit' ? $hit->name : $result->query_name;
+        my $seqname = $reference eq 'hit' ? $result->query_name : $hit->name;  # hopefully this will be a simple identifier without a full description line!!
 	if ($self->{_signif}) {
 	    $score = $hit->significance;
 	} else {
