@@ -277,11 +277,11 @@ sub new {
     }
 
     if (defined $alg) {
-	if ($alg == DPALIGN_LOCAL_MILLER_MYERS or $alg == DPALIGN_GLOBAL_MILLER_MYERS) {
+	if ($alg == DPALIGN_LOCAL_MILLER_MYERS or $alg == DPALIGN_GLOBAL_MILLER_MYERS or $alg == DPALIGN_ENDSFREE_MILLER_MYERS) {
 	    $self->alg($alg);
 	}
 	else {
-	    $self->throw("Algorithm must be either 1 or 2");
+	    $self->throw("Algorithm must be either 1, 2 or 3");
 	}
     }
 
