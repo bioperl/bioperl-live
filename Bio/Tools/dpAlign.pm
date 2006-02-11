@@ -663,8 +663,8 @@ sub alg {
     my ($self,$val) = @_;
 
     if( defined $val ) {
-        if( $val != DPALIGN_LOCAL_MILLER_MYERS and $val != DPALIGN_GLOBAL_MILLER_MYERS) {    
-            $self->throw("Can't have an algorithm that is not 1 or 2");
+        if( $val != DPALIGN_LOCAL_MILLER_MYERS and $val != DPALIGN_GLOBAL_MILLER_MYERS and $val != DPALIGN_ENDSFREE_MILLER_MYERS) {    
+            $self->throw("Can't have an algorithm that is not 1, 2 or 3");
         }
         $self->{'alg'} = $val;
     }
