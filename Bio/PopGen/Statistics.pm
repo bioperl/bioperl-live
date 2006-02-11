@@ -77,10 +77,13 @@ Currently implemented:
  Fu and Li's D    (fu_and_li_D)
  Fu and Li's D*   (fu_and_li_D_star)
  Fu and Li's F    (fu_and_li_F)
+ Fu and Li's F*   (fu_and_li_F_star)
  Tajima's D       (tajima_D)
  Watterson's theta (theta)
  pi               (pi) - number of pairwise differences
  composite_LD     (composite_LD)
+
+Count based methods also exist in case you have already calculated the key statistics (seg sites, num individuals, etc) and just want to compute the statistic.
 
 In all cases where a the method expects an arrayref of
 L<Bio::PopGen::IndividualI> objects and L<Bio::PopGen::PopulationI>
