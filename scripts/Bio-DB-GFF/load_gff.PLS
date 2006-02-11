@@ -86,8 +86,8 @@ my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$M
 
 GetOptions ('dsn:s'       => \$DSN,
 	    'adaptor:s'   => \$ADAPTOR,
-	    'user:s'      => \$USER,
-	    'password:s'  => \$PASSWORD,
+	    'u|user:s'      => \$USER,
+	    'p|password:s'  => \$PASSWORD,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
