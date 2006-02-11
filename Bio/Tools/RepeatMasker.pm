@@ -107,7 +107,7 @@ sub next_result{
    my ($self) = @_;
    while ($_=$self->_readline()) {
         if (/no repetitive sequences detected/) {
-           print STDERR "RepeatMasker didn't find any repetitive sequences\n";
+           $self->warn( "RepeatMasker didn't find any repetitive sequences\n");
            return ;
         }
         if (/\d+/) { #ignore introductory lines
@@ -144,9 +144,9 @@ sub next_result{
 	       -strand         => $strand,
 	       -source_tag     => "RepeatMasker",
 	       -primary_tag    => $repeat_class);
-
-          my $fp = Bio::SeqFeature::FeaturePair->new(-feature1=>$rf,
-                                                     -feature2=>$rf2);
+	  
+          my $fp = Bio::SeqFeature::FeaturePair->new(-feature1=>$rf2,
+                                                     -feature2=>$rf);
           return $fp;
         }
     }
