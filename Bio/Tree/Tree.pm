@@ -87,6 +87,8 @@ use Bio::Tree::TreeI;
            -nodelete => boolean, whether or not to try and cleanup all
                                  the nodes when this this tree goes out
                                  of scope.
+           -id       => optional tree ID
+           -score    => optional tree score value
 
 =cut
 
@@ -97,9 +99,12 @@ sub new {
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
   $self->_register_for_cleanup(\&cleanup_tree);
-  my ($root,$nodel)= $self->_rearrange([qw(ROOT NODELETE)], @args);
+  my ($root,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODELETE 
+						      ID SCORE)], @args);
   if( $root ) { $self->set_root_node($root); }
   $self->nodelete($nodel || 0);
+  $self->id($id)       if defined $id;
+  $self->score($score) if defined $score;
   return $self;
 }
 
