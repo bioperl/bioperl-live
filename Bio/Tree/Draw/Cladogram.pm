@@ -1,4 +1,4 @@
-# $Id$
+# Cladogram.pm,v 1.8 2005/09/04 07:35:05 valiente Exp
 #
 # BioPerl module for Cladogram
 #
@@ -55,6 +55,12 @@ $taxon1-E<gt>add_tag_value('connection',$taxon2). Thus, a taxon of the
 first tree can be connected to more than one taxon of the second tree,
 and vice versa.
 
+The branch from the parent to a child $node can be colored by setting
+$node->add_tag_value('Rcolor',$r), $node->add_tag_value('Gcolor',$g),
+and $node->add_tag_value('Bcolor',$b), where $r, $g, and $b are the
+desired values for red, green, and blue (zero for lowest, one for
+highest intensity).
+
 This is a preliminary release of Bio::Tree::Draw::Cladogram. Future
 improvements include an option to output phylograms instead of
 cladograms. Beware that cladograms are automatically scaled according
@@ -89,6 +95,9 @@ the web:
 =head1 AUTHOR - Gabriel Valiente
 
 Email valiente@lsi.upc.edu
+
+Code for coloring branches contributed by Georgii A Bazykin
+(gbazykin@princeton.edu).
 
 =head1 APPENDIX
 
@@ -125,6 +134,10 @@ my $tipwidth1; # width of longest label among $t1 taxa
 my $tipwidth2; # width of longest label among $t2 taxa
 my $compact;   # whether or not to ignore branch lengths
 my $ratio;     # horizontal to vertical ratio
+my $colors;    # use colors to color edges
+my %Rcolor;    # red color for each node
+my %Gcolor;    # green color for each node
+my %Bcolor;    # blue color for each node
 
 =head2 new
 
@@ -144,6 +157,7 @@ my $ratio;     # horizontal to vertical ratio
            -column => extra space between cladograms [integer] (optional)
            -compact => ignore branch lengths [boolean] (optional)
            -ratio => horizontal to vertical ratio [integer] (optional)
+           -colors => use colors to color edges [boolean] (optional)
 
 =cut
 
@@ -152,8 +166,9 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   ($t1, $t2, $font, $size, my $top, my $bottom, my $left, my $right,
-    $tip, my $column, $compact, $ratio) = $self->_rearrange([qw(TREE SECOND
-    FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN COMPACT RATIO)], @args);
+    $tip, my $column, $compact, $ratio, $colors) = $self->_rearrange([qw(TREE
+    SECOND FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN COMPACT RATIO
+    COLORS)], @args);
   $font ||= "Helvetica-Narrow";
   $size ||= 12;
   $top ||= 10;
@@ -164,6 +179,7 @@ sub new {
   $column ||= 60;
   $compact ||= 0;
   $ratio ||= 1 / 1.6180339887;
+  $colors ||= 0;
 
   # Roughly, a cladogram is set according to the following parameters.
 
@@ -292,9 +308,32 @@ sub new {
 
   $xx{$t1->get_root_node} = $left + $xstep;
 
+  my @preorder = $t1->get_nodes(-order => 'depth');
+
+  for my $node (@preorder) {
+    #print "\n$node";
+    if ($colors) {
+      if ($node->has_tag('Rcolor')) {
+        $Rcolor{$node} = $node->get_tag_values('Rcolor')
+      } else {
+        $Rcolor{$node} = 0
+      }
+      if ($node->has_tag('Gcolor')) {
+        $Gcolor{$node} = $node->get_tag_values('Gcolor')
+      } else {
+        $Gcolor{$node} = 0
+      }
+      if ($node->has_tag('Bcolor')) {
+        $Bcolor{$node} = $node->get_tag_values('Bcolor')
+      } else {
+        $Bcolor{$node} = 0
+      }
+      #print "\t$Rcolor{$node}\t$Gcolor{$node}\t$Bcolor{$node}";
+    }
+  }
+
   if ($compact) { # ragged right, ignoring branch lengths
 
-    my @preorder = $t1->get_nodes(-order => 'depth');
     $width = 0;
     shift @preorder; # skip root
     for my $node (@preorder) {
@@ -312,7 +351,6 @@ sub new {
     $width += $left + $xstep;
     $width += $tip + $tipwidth1 + $right;
 
-    my @preorder = $t1->get_nodes(-order => 'depth');
     shift @preorder; # skip root
     for my $node (@preorder) {
       my $bl = $node->branch_length;
@@ -404,6 +442,10 @@ sub print {
     if ($node->ancestor) {
       # print $xx{$node->ancestor}, " ", $yy{$node->ancestor}, " moveto\n";
       # print $xx{$node}, " ", $yy{$node}, " lineto\n";
+      if ($colors) {
+	print INFO "stroke\n";
+	print INFO $Rcolor{$node}, " ", $Gcolor{$node}, " ", $Bcolor{$node}, " setrgbcolor\n";
+      }
       print INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
       print INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
       print INFO $xx{$node->ancestor}, " ", $yy{$node->ancestor}, " lineto\n";
@@ -416,6 +458,10 @@ sub print {
     $ymin = $yy{$child} if $yy{$child} < $ymin;
   }
   my $zz = ($ymin + $ymax)/2;
+  if ($colors) {
+    print INFO "stroke\n";
+    print INFO $Rcolor{$root1}, " ", $Gcolor{$root1}, " ", $Bcolor{$root1}, " setrgbcolor\n";
+  }
   print INFO $xx{$root1}, " ", $zz, " moveto\n";
   print INFO $xx{$root1} - $xstep, " ", $zz, " lineto\n";
 
