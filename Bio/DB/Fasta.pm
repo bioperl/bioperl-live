@@ -158,8 +158,9 @@ take a scalar argument and return a scalar result, like this:
 
   sub make_my_id {
     my $description_line = shift;
-    # get a new id from the fasta header
-    return $new_id;
+    # get a different id from the fasta header, e.g.
+	 $description_line =~ /(\S+)$/;
+    return $1;
   }
 
 make_my_id() will be called with the full fasta id line (including the
