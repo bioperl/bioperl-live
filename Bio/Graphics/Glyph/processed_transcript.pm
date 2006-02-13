@@ -106,6 +106,8 @@ sub adjust_exons {
     my $o_right = $o_left + $other->{width};
     next if $e_left  > $o_right;
     last if $e_right < $o_left;
+    #dgg- need to skip 3prime/right utr for 1exon; end same as exon
+    last if (@unique_exons == 1 && $o_left > $e_left); #dgg- o_ is 3prime not 5
     # clip left hand side; may get clipped into oblivion!
     $first_exon->{left}  = $o_right + 1;
     $first_exon->{width} = $e_right - $first_exon->{left};
@@ -120,7 +122,8 @@ sub adjust_exons {
     next if $e_right < $o_left;
     last if $e_left  > $o_right;
     # clip right hand side; may get clipped into oblivion!
-    $last_exon->{width}    = ($e_left - 1) - $last_exon->{left};
+    #dgg- !! this always clips to oblivion: $last_exon->{width} = ($e_left - 1) - $last_exon->{left};
+    $last_exon->{width} = $o_left - $last_exon->{left}; #dgg-
   }
 
   $self->{parts} =  [ grep {$_->width > 0} sort {$a->{left}<=>$b->{left}} (@other,@unique_exons)];
