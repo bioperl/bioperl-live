@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Matrix::GenericMatrix - A generic matrix implementation
+Bio::Matrix::Generic - A generic matrix implementation
 
 =head1 SYNOPSIS
 
