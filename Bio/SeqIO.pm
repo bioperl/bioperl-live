@@ -626,7 +626,7 @@ sub _guess_format {
    return 'embl'    if /\.(embl|ebl|emb|dat)$/i;
 	return 'entrezgene' if /\.asn$/i;
    return 'exp'     if /\.exp$/i;
-   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa)$/i;
+   return 'fasta'   if /\.(fasta|fast|fas|seq|fa|fsa|nt|aa|fna|faa)$/i;
    return 'fastq'   if /\.fastq$/i;
    return 'gcg'     if /\.gcg$/i;
    return 'genbank' if /\.(gb|gbank|genbank|gbk|gbs)$/i;
