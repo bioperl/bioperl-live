@@ -463,16 +463,16 @@ sub new {
   my %opts  = @_;
 
   my $self = bless { debug      => $opts{-debug},
-		     makeid     => $opts{-makeid},
-		     glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,fsa}',
-		     maxopen    => $opts{-maxfh}   || 32,
-		     dbmargs    => $opts{-dbmargs} || undef,
-		     fhcache    => {},
-		     cacheseq   => {},
-		     curopen    => 0,
-		     openseq    => 1,
-		     dirname    => undef,
-		     offsets    => undef,
+	  makeid     => $opts{-makeid},
+	  glob       => $opts{-glob} || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
+	  maxopen    => $opts{-maxfh}   || 32,
+	  dbmargs    => $opts{-dbmargs} || undef,
+	  fhcache    => {},
+	  cacheseq   => {},
+	  curopen    => 0,
+	  openseq    => 1,
+	  dirname    => undef,
+	  offsets    => undef,
 		   }, $class;
   my ($offsets,$dirname);
 
