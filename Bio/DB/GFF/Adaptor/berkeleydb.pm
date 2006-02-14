@@ -10,6 +10,7 @@ Bio::DB::GFF::Adaptor::memory -- Bio::DB::GFF database adaptor for in-memory dat
 
   use Bio::DB::GFF;
   my $db = Bio::DB::GFF->new(-adaptor=> 'berkeleydb',
+                             -create => 1, # on initial build you need this
 			     -dsn    => '/usr/local/share/gff/dmel');
 
   # initialize an empty database, then load GFF and FASTA files
