@@ -13,7 +13,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 30;
+    plan tests => 31;
 }
 
 use Bio::PrimarySeq;
@@ -223,3 +223,20 @@ eval {
 ok 1 if $@; # did throw
 
 #use Data::Dumper; print Dumper $seq1;
+
+
+
+
+
+
+#
+# evolve()
+#
+
+$seq = Bio::PrimarySeq->new('-seq'=> 'aaaaaaaaaa',
+                            '-id'=>'test');
+
+
+
+$util = new Bio::SeqUtils(-verbose => 0);
+ok my $newseq = $util->evolve($seq, 60, 4);

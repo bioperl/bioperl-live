@@ -34,10 +34,15 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
                           Bio::LiveSeq::Mutation->new(-seq => 'c',
                                                       -pos => 3
                                                      ));
+    # mutate a sequence to desired similarity%
+    $newseq = Bio::SeqUtils-> evolve
+        ($seq, $similarity, $transition_transversion_rate);
+
 
     # concatenate two sequences with annotations and features
     # the first argument sequence will be modified
     Bio::SeqUtils->cat($seq, $seq2);
+
 
 
 =head1 DESCRIPTION
@@ -479,6 +484,127 @@ sub _coord_adjust {
     return $feat;
 }
 
+
+
+
+=head2 evolve
+
+  Title   : evolve
+  Usage   : my $newseq = Bio::SeqUtils->
+                evolve($seq, $similarity, $transition_transversion_rate);
+  Function: Mutates the sequence by point mutations until the similarity of
+            the new sequence has decreased to the required level. 
+            Transition/transversion rate is adjustable.
+  Returns : A new Bio::PrimarySeq object
+  Args    : sequence object
+            percentage similarity (e.g. 80)
+            tr/tv rate, optional, defaults to 1 (= 1:1)
+
+Set the verbosity of the Bio::SeqUtils object to positive integer to
+see the mutations as they happen.
+
+This method works only on nucleotide sequences. It prints a warning if
+you set the target similarity to be less than 25%.
+
+Transition/transversion ratio is an observed attribute of an sequence
+comparison. We are dealing here with the transition/transversion rate
+that we set for our model of sequence evolution.
+
+=cut
+
+sub evolve {
+    my ($self, $seq, $sim, $rate) = @_;
+    $rate ||= 1;
+
+    $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+                     '] should be a Bio::PrimarySeqI ')
+            unless $seq->isa('Bio::PrimarySeqI');
+    
+    $self->throw("[$sim] ". ' should be a positive integer or float under 100')
+            unless $sim =~ /^[+\d.]+$/ and $sim <= 100;
+
+    $self->warn("Nucleotide sequences are 25% similar by chance.
+        Do you really want to set similarity to [$sim]%?\n")
+            unless $sim >25 ;
+
+    $self->throw('Only nucleotide sequences are supported')
+            if $seq->alphabet eq 'protein';
+
+
+    # arrays of possible changes have transitions as first items
+    my %changes;
+    $changes{'a'} = ['t', 'c', 'g'];
+    $changes{'t'} = ['a', 'c', 'g'];
+    $changes{'c'} = ['g', 'a', 't'];
+    $changes{'g'} = ['c', 'a', 't'];
+
+
+    # given the desired rate, find out where cut off points need to be
+    # when random numbers are generated from 0 to 100
+    # we are ignoring identical mutations (e.g. A->A) to speed things up
+    my $bin_size = 100/($rate + 2);  
+    my $transition = 100 - (2*$bin_size);
+    my $first_transversion = $transition + $bin_size;
+
+    #my $bin_size = 50/($rate + 1);
+    #my $transition = 100 - (2 * $bin_size);
+    #my $first_transversion = $transition + $bin_size;
+
+    # unify the look of sequence strings
+    my $string = lc $seq->seq; # lower case
+    $string =~ s/u/t/; # simplyfy our life; modules should deal with the change anyway
+    # store the original sequence string
+    my $oristring = $string;
+    my $length = $seq->length;
+
+    while (1) {
+        # find the location in the string to change
+        my $loc = int (rand $length) + 1;
+
+
+        # nucleotide to change
+        my $oldnuc = substr $string, $loc-1, 1;
+        my $newnuc;
+
+        # nucleotide it is changed to
+        my $choose = rand(100);
+        if ($choose < $transition ) {
+            $newnuc =  $changes{$oldnuc}[0];
+        }
+        elsif ($choose < $first_transversion ) {
+            $newnuc =  $changes{$oldnuc}[1];
+        } else {
+            $newnuc =  $changes{$oldnuc}[2];
+        }
+
+        # do the change
+        substr $string, $loc-1, 1 , $newnuc;
+
+        print STDERR "$loc$oldnuc>$newnuc\n" if $self->verbose > 0;
+
+        # stop evolving if the limit has been reached
+        last if $self->_get_similarity($oristring, $string) <= $sim;
+
+    }
+
+    return new Bio::PrimarySeq(-id => $seq->id. "-$sim",
+                               -description => $seq->description,
+                               -seq => $string
+                              )
+}
+
+
+sub _get_similarity  {
+    my ($self, $oriseq, $seq) = @_;
+
+    my $len = length($oriseq);
+    my $c;
+
+    for (my $i = 0; $i< $len; $i++ ) {
+        $c++ if substr($oriseq, $i, 1) eq substr($seq, $i, 1);
+    }
+    return 100 * $c/$len;
+}
 
 1;
 
