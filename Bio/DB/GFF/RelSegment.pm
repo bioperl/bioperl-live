@@ -383,6 +383,8 @@ sub abs_end {
   }
 }
 
+*abs_stop = \&abs_end;
+
 =head2 refseq
 
  Title   : refseq

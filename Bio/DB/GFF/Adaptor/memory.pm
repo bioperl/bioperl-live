@@ -285,7 +285,7 @@ sub search_notes {
     $note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
     $note  .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
     push @results,[$featname,$note,$relevance];
-    last if @results >= $limit;
+    last if defined $limit && @results >= $limit;
   }
     
   @results;
@@ -382,7 +382,6 @@ sub _feature_by_attribute{
   }
 
 }
-
 
 
 # This is the low-level method that is called to retrieve GFF lines from

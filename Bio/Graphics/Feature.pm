@@ -456,7 +456,12 @@ sub desc {
 }
 
 sub attributes {
-  shift->{attributes};
+  my $self = shift;
+  if (@_) {
+    return $self->each_tag_value(@_);
+  } else {
+    return $self->{attributes};
+  }
 }
 
 sub notes {
