@@ -27,14 +27,14 @@ use Bio::Matrix::IO;
 use Bio::Root::IO;
 
 my $raw = [ [ 0, 10, 20],
-				[ 2, 17,  4],
-				[ 3,  4,  5] ];
+	    [ 2, 17,  4],
+	    [ 3,  4,  5] ];
 
 my $matrix = new Bio::Matrix::Generic(-values => $raw,
-												  -matrix_id  => 'fakeid00',
-												  -matrix_name=> 'matname',
-												  -rownames   => [qw(A B C)],
-												  -colnames   => [qw(D E F)] );
+				      -matrix_id  => 'fakeid00',
+				      -matrix_name=> 'matname',
+				      -rownames   => [qw(A B C)],
+				      -colnames   => [qw(D E F)] );
 
 ok($matrix->matrix_name, 'matname');
 ok($matrix->matrix_id,   'fakeid00');
@@ -120,9 +120,9 @@ ok($row[5], $pam_matrix->get_entry('D','Q'));
 # test Phylip parsing
 
 $io = new Bio::Matrix::IO(-format  => 'phylip',
-								  -program => 'phylipdist',
-								  -file    => Bio::Root::IO->catfile
-								  (qw(t data phylipdist.out)));
+			  -program => 'phylipdist',
+			  -file    => Bio::Root::IO->catfile
+			  (qw(t data phylipdist.out)));
 
 my $phy = $io->next_matrix;
 ok $phy->program, 'phylipdist';
