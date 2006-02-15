@@ -233,8 +233,8 @@ sub get_entry{ $_[0]->entry($_[1],$_[2]) }
 
 =head2 entry_by_num
 
- Title   : entry_by_name
- Usage   : my $entry = $matrix->entry_by_name($rowname,$colname)
+ Title   : entry_by_num
+ Usage   : my $entry = $matrix->entry_by_num($rownum,$colnum)
  Function: Get an entry by row and column numbers instead of by name
            (rows and columns start at 0)
  Returns : scalar value or undef if row or column name does not
