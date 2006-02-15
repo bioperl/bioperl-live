@@ -17,7 +17,7 @@ Bio::Matrix::Generic - A generic matrix implementation
 =head1 SYNOPSIS
 
   # A matrix has columns and rows 
-  my $matrix = new Bio::Matrix::GenericMatrix();
+  my $matrix = Bio::Matrix::Generic->new;
   $matrix->add_column(1,$column1);
   $matrix->add_column(2,$column2);
 
