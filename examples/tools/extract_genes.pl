@@ -21,22 +21,20 @@ runs). The subsequent runs should be fast.
 
 =head1 INSTALLATION
 
-Download gene2accession and create one or more species directories 
-in a single, working directory. Execute the script from within this 
-directory.
-
 =head2 Download gene2accession.gz
 
-Download this file from ftp://ftp.ncbi.nlm.nih.gov/gene/DATA and
-gunzip it.
+Download this file from ftp://ftp.ncbi.nlm.nih.gov/gene/DATA into 
+your working directory and gunzip it.
 
 =head2 Download sequence files
 
+Create one or more species directories in the working directory, their
+names are not important (e.g. "Sc", "Hs").
+
 Download the nucleotide fasta files for a given species from its CHR*
 directories at ftp://ftp.ncbi.nlm.nih.gov/gene and put these files into a 
-dedicated directory (e.g. "Sc", the name of this dedicated directory is 
-unimportant). The sequence files will have the suffix ".fna" or "fa.gz", 
-gunzip if necessary. Any other files can be deleted.
+species directory. The sequence files will have the suffix ".fna" or 
+"fa.gz", gunzip if necessary.
 
 =head2 Determine Taxon id
 
@@ -62,8 +60,9 @@ use Bio::DB::Fasta;
 use Getopt::Long;
 use Storable;
 
-my %species = ( "Sc" => 4932, # Saccharomyces cerevisiae
-				     "Ec" => 83333 # Escherichia coli K12
+my %species = ( "Sc" => 4932,  # Saccharomyces cerevisiae
+				     "Ec" => 83333, # Escherichia coli K12
+					  "Hs" => 9606   # H. sapiens
 				   );
 
 my ($help,$id,$name);
@@ -103,6 +102,7 @@ if (defined $ref->{$id}) {
 	my $chr = $db->get_Seq_by_id($ref->{$id}->{"id"});
 	my $seq = $chr->trunc($ref->{$id}->{"start"},$ref->{$id}->{"end"});
 	$seq = $seq->revcom if ($ref->{$id}->{"strand"} eq "-");
+	# Insert SeqIO options here...
 	print $seq->seq,"\n";
 } else {
 	print "Cannot find id: $id\n";
@@ -120,4 +120,3 @@ sub usage {
 }
 
 __END__
-
