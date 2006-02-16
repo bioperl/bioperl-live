@@ -1176,8 +1176,15 @@ sub gff_string {
   my $n   = ref($ref) ? $ref->name : $ref;
   my $phase = $self->phase;
   $phase = '.' unless defined $phase;
-  return join("\t",$n,$self->source,$self->method,$start||'.',$stop||'.',
-                   $self->score||'.',$strand||'.',$phase,$group_field);
+  return join("\t",
+	      $n,
+	      $self->source,$self->method,
+	      (defined $start ? $start : '.'),
+	      (defined $stop  ? $stop  : '.'),
+	      (defined $self->score ? $self->score : '.'),
+	      (defined $strand ? $strand : '.'),
+	      $phase,
+	      $group_field);
 }
 
 =head2 gff3_string
