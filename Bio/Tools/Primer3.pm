@@ -122,6 +122,7 @@ use Bio::Seq::PrimedSeq;
 use Bio::SeqFeature::Primer;
 use Bio::Root::Root;
 use Bio::Root::IO;
+use Clone qw(clone);
 
 use vars qw($AUTOLOAD @PRIMER3_PARAMS @ISA %OK_FIELD $ID);
 
@@ -327,7 +328,7 @@ sub next_primer {
 		} 
 	}
 
-	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => $self->{'seqobject'}, 
+	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => clone($self->{'seqobject'}), 
 															-left_primer => $left_seq, 
 															-right_primer => $right_seq);
 
