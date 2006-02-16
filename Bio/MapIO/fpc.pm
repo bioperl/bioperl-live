@@ -20,15 +20,6 @@ Bio::MapIO::fpc - A FPC Map reader
 
     use Bio::MapIO;
 
-    # -format  : specifies the format of the file format is "fpc",
-    # -file    : specifies the name of the .fpc file
-    # -readcor : boolean argument, indicating if .cor is to be read
-                 or not. It looks for the .cor file in the same path
-                 as .fpc file.
-                 0 : doesn't read .cor file
-                 1 : reads the .cor file
-                 [default 0]
-    # -verbose : indicates the process of loading of fpc file
     my $mapio = new Bio::MapIO(-format  => "fpc",
                                -file    => "rice.fpc",
                                -readcor => 0,
@@ -40,6 +31,17 @@ Bio::MapIO::fpc - A FPC Map reader
           # loop through the markers associated with the map
     }
 
+=head2 Options
+
+    -format  : specifies the format of the file format is "fpc",
+    -file    : specifies the name of the .fpc file
+    -readcor : boolean argument, indicating if .cor is to be read
+               or not. It looks for the .cor file in the same path
+               as .fpc file.
+               0 : does not read .cor file
+               1 : reads the .cor file
+               [default 0]
+    -verbose : indicates the process of loading of fpc file
 
 =head1 DESCRIPTION
 
@@ -388,7 +390,7 @@ sub next_map{
                 }
             }
         }
-        elsif ($line =~ /^Chr_remark\s+"(-|\+|Chr(\d+))\s+(.+)"$/) {
+        elsif ($line =~ /^Chr_remark\s+"(-|\+|Chr(\d+))\s+(.+)"/) {
 
             $_contigs{$ctgname}{'anchor'}     = 1;
             $_contigs{$ctgname}{'chr_remark'} = $3 if(defined($3));
