@@ -28,11 +28,11 @@ your working directory and gunzip it.
 
 =head2 Download sequence files
 
-Create one or more species directories in the working directory, their
-names are not important (e.g. "Sc", "Hs").
+Create one or more species directories in the working directory, the
+directory names do not have to match those at NCBI (e.g. "Sc", "Hs").
 
 Download the nucleotide fasta files for a given species from its CHR*
-directories at ftp://ftp.ncbi.nlm.nih.gov/gene and put these files into a 
+directories at ftp://ftp.ncbi.nlm.nih.gov/genomes and put these files into a 
 species directory. The sequence files will have the suffix ".fna" or 
 "fa.gz", gunzip if necessary.
 
@@ -95,13 +95,15 @@ unless (-e $storedHash) {
 	store $ref, $storedHash;
 } 
 
+# retrieve the species-specific data from a stored hash
 my $ref = retrieve($storedHash);
 
-# retrieve the relevant data from the stored hash
+# retrieve sequence and sub-sequence
 if (defined $ref->{$id}) {
 	my $chr = $db->get_Seq_by_id($ref->{$id}->{"id"});
 	my $seq = $chr->trunc($ref->{$id}->{"start"},$ref->{$id}->{"end"});
 	$seq = $seq->revcom if ($ref->{$id}->{"strand"} eq "-");
+
 	# Insert SeqIO options here...
 	print $seq->seq,"\n";
 } else {
