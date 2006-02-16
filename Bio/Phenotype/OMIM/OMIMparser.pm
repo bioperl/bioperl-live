@@ -545,7 +545,7 @@ sub _finer_parse_symptoms {
     if( $text ) { 
 	my $part;
 	for my $line (split /\n/, $text){
-	    if($line =~ /^([\w\s]+)\:\s*$/){
+		if ($line =~ /^([\w\s,]+)\:\s*$/) {
 		$part = $1;
 	    } elsif( $line =~ /^\s+$/ ) {
 	    } elsif($line =~ /^(\s+)([^;]+)\;?\s*$/){
