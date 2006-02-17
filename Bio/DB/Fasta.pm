@@ -97,7 +97,7 @@ The latter creates a tied filehandle which can be used Bio::SeqIO
 style to fetch sequence objects in a stream fashion.  There is also a
 tied hash interface.
 
-=over 4
+=over 1
 
 =item $db = Bio::DB::Fasta-E<gt>new($fasta_path [,%options])
 
@@ -179,7 +179,7 @@ The -makeid option is ignored after the index is constructed.
 
 The following object methods are provided.
 
-=over 4
+=over 10
 
 =item $raw_seq = $db-E<gt>seq($id [,$start, $stop])
 
@@ -281,7 +281,7 @@ to treat the database as an I/O stream.
 
 The tied hash interface is very straightforward
 
-=over 4
+=over 1
 
 =item $obj = tie %db,'Bio::DB::Fasta','/path/to/fasta/files' [,@args]
 
@@ -329,10 +329,10 @@ object and call its methods.
     print "$id => ",tied(%db)->length($id),"\n";
  }
 
-You may, in addition invoke Bio::DB::Fasta's FIRSTKEY and NEXTKEY tied
+You may, in addition invoke Bio::DB::Fasta the FIRSTKEY and NEXTKEY tied
 hash methods directly.
 
-=over 4
+=over 2
 
 =item $id = $db-E<gt>FIRSTKEY
 
