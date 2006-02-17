@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 113;
+	plan tests => 115;
 }
 
 use Bio::SeqIO;
@@ -18,6 +18,10 @@ use Bio::Root::IO;
 ok(1);
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
+
+END {
+	unlink "tmp_revcomp_mrna.gb" if -e "tmp_revcomp_mrna.gb";
+}
 
 my $ast = Bio::SeqIO->new(-format => 'GenBank' ,
 								  -verbose => $verbose,
@@ -328,6 +332,17 @@ $gb = new Bio::SeqIO(-format => 'genbank',
 $gb->write_seq($seq);
 undef $gb;
 ok(! -z "tmp_revcomp_mrna.gb");
-
 # INSERT DIFFING CODE HERE
-unlink("tmp_revcomp_mrna.gb");
+
+# bug 1925, continuation of long ORGANISM line ends up in @classification:
+# ORGANISM  Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
+#           9150
+#           Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;
+#           Enterobacteriaceae; Salmonella.
+$gb = new Bio::SeqIO(-format => 'genbank',
+							-file   => Bio::Root::IO->catfile
+							(qw(t data NC_006511-short.gbk)));
+$seq = $gb->next_seq;
+ok $seq->species->common_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
+@class = $seq->species->classification;
+ok $class[$#class], "Bacteria";
