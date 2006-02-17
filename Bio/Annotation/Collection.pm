@@ -318,8 +318,9 @@ sub remove_Annotations{
     @keys = $self->get_all_annotation_keys() unless @keys;
     my @anns = $self->get_Annotations(@keys);
     # flush
-    foreach (@keys) {
-	delete $self->{'_annotation'}->{$_};
+    foreach my $key (@keys) {
+      delete $self->{'_annotation'}->{$key};
+      delete $self->{'_typemap'}->{'_type'}->{$key};
     }
     return @anns;
 }
