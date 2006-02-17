@@ -86,7 +86,7 @@ stores this information.
 Items listed as Annotation 'NAME' tell you the data is stored the
 associated Bio::AnnotationCollectionI object which is associated with
 Bio::Seq objects.  If it is explictly requested that no annotations
-should be stored when parsing a record of course they won't be
+should be stored when parsing a record of course they will not be
 available when you try and get them.  If you are having this problem
 look at the type of SeqBuilder that is being used to contruct your
 sequence object.
@@ -200,17 +200,17 @@ use Bio::Annotation::DBLink;
 		  );
 
 sub _initialize {
-    my($self,@args) = @_;
+	my($self,@args) = @_;
 
-    $self->SUPER::_initialize(@args);
-    # hash for functions for decoding keys.
-    $self->{'_func_ftunit_hash'} = {}; 
-    $self->_show_dna(1); # sets this to one by default. People can change it
-    if( ! defined $self->sequence_factory ) {
-	$self->sequence_factory(new Bio::Seq::SeqFactory
-				(-verbose => $self->verbose(), 
-				 -type => 'Bio::Seq::RichSeq'));
-    }
+	$self->SUPER::_initialize(@args);
+	# hash for functions for decoding keys.
+	$self->{'_func_ftunit_hash'} = {}; 
+	$self->_show_dna(1); # sets this to one by default. People can change it
+	if( ! defined $self->sequence_factory ) {
+		$self->sequence_factory(new Bio::Seq::SeqFactory
+										(-verbose => $self->verbose(), 
+										 -type => 'Bio::Seq::RichSeq'));
+	}
 }
 
 =head2 next_seq
@@ -1198,7 +1198,7 @@ sub _add_ref_to_array {
            $subspecies = farciminosus
 
  Returns : A Bio::Species object
- Args    : a reference to the current line buffer
+ Args    : A reference to the current line buffer
 
 =cut
 
@@ -1207,9 +1207,9 @@ sub _read_GenBank_Species {
 	my @organell_names = ("chloroplast", "mitochondr"); 
 	# only those carrying DNA, apart from the nucleus
 
-	my @unkn_names = ("other", 'unknown organism', 'not specified', 'not shown',
-							'Unspecified', 'Unknown', 'None', 'unclassified',
-							'unidentified organism', 'not supplied');
+	my @unkn_names = ('other', 'unknown organism', 'not specified', 'not shown',
+							 'Unspecified', 'Unknown', 'None', 'unclassified',
+							 'unidentified organism', 'not supplied');
 	# dictionary of synonyms for taxid 32644
 	my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
 	# all above can be part of valid species name
@@ -1224,15 +1224,12 @@ sub _read_GenBank_Species {
 		# de-HTMLify (links that may be encountered here don't contain
 		# escaped '>', so a simple-minded approach suffices)
 		s/<[^>]+>//g;
-		if (/^SOURCE\s+(.*)/o) {
-			# FIXME this is probably mostly wrong (e.g., it yields things like
-			# Homo sapiens adult placenta cDNA to mRNA
-			# which is certainly not what you want)
+		if ( /^SOURCE\s+(.*)/o ) {
 			$common = $1;
 			$common =~ s/\.$//; # remove trailing dot
-			$source_flag = 1; ###
-		} elsif (/^\s{2}ORGANISM/o) {
-			$source_flag = 0; ###
+			$source_flag = 1;
+		} elsif ( /^\s{2}ORGANISM/o ) {
+			$source_flag = 0;
 			my @spflds = split(' ', $_);
 			($ns_name) = $_ =~ /\w+\s+(.*)/o;
 			shift(@spflds); # ORGANISM
@@ -1244,10 +1241,9 @@ sub _read_GenBank_Species {
 			} else { undef $genus; }
 			# populate species tag
 			if (@spflds)	{
-				# my $size=scalar @spflds;
 				while (my $fld = shift @spflds)	{
 					$species .= "$fld ";
-					# does it have subspecies or varietas?
+					# does it have subspecies or varieties?
 					last if ($fld =~ m/(sp\.|var\.)/);
 				}
 				chop $species;	# last space
@@ -1261,13 +1257,13 @@ sub _read_GenBank_Species {
 			my $unconv = 0; # is it unconventional species name?
 			foreach (@unkn_genus)	{
 				if ($genus && $genus =~ m/$_/i)	{
-					$species = $genus ." ". $species;
+					$species = $genus . " " . $species;
 					undef $genus;
 					$unconv = 1;
 					last;
 				}
 				elsif ($species =~ m/$_/i)	{
-					$unconv=1;
+					$unconv = 1;
 					last;
 				}
 			}
@@ -1278,18 +1274,17 @@ sub _read_GenBank_Species {
 				# $sub_species='thummi'
 				$sub_species = $2;
 			}
-		}
-		elsif ($source_flag) {
+		} elsif ($source_flag) {
 			$common .= $_;
 			$common =~ s/\n//g;
 			$common =~ s/\s+/ /g;
 			$source_flag = 0;
-		} elsif (/^\s+(.+)/o) {
-			# only split on ';' or '.' so that 
-			# classification that is 2 words will 
-			# still get matched
-			# use map to remove trailing/leading spaces
-			push(@class, map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/, $1);
+		} elsif ( /^\s+(.+)/o ) {
+			my $line = $1;
+			# only split on ';' or '.' so that classification that is 2 words will 
+			# still get matched, use map() to remove trailing/leading spaces
+			push(@class, map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/, $line)
+			  if ( $line =~ /(;|\.)/ );
 		} else {
 			last;
 		}
