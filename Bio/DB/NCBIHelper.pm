@@ -19,7 +19,7 @@ NCBI databases.
 
 =head1 SYNOPSIS
 
- #Do not use this module directly.
+ # Do not use this module directly.
 
  # get a Bio::DB::NCBIHelper object somehow
  my $seqio = $db->get_Stream_by_acc(['MUSIGHBA1']);
@@ -158,8 +158,9 @@ sub default_format {
 
 sub get_request {
     my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, $query, $seq_start, $seq_stop) = $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP)],
-                                                         @qualifiers);
+    my ($mode, $uids, $format, $query, $seq_start, $seq_stop) = 
+		$self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP)],
+								@qualifiers);
 
     $mode = lc $mode;
     ($format) = $self->request_format() unless ( defined $format);
@@ -253,7 +254,7 @@ sub get_Stream_by_query {
 
  Title   : postprocess_data
  Usage   : $self->postprocess_data ( 'type' => 'string',
-				     'location' => \$datastr);
+				                         'location' => \$datastr);
  Function: process downloaded data before loading into a Bio::SeqIO
  Returns : void
  Args    : hash with two keys - 'type' can be 'string' or 'file'
@@ -266,99 +267,99 @@ sub get_Stream_by_query {
 # override it with their own method.
 
 sub postprocess_data {
-    my ($self, %args) = @_;
-    my $data;
-    my $type = uc $args{'type'};
-    my $location = $args{'location'};
-    if( !defined $type || $type eq '' || !defined $location) {
-	return;
-    } elsif( $type eq 'STRING' ) {
-	$data = $$location; 
-    } elsif ( $type eq 'FILE' ) {
-	open(TMP, $location) or $self->throw("could not open file $location");
-	my @in = <TMP>;
-	close TMP;
-	$data = join("", @in);
-    }
+	my ($self, %args) = @_;
+	my $data;
+	my $type = uc $args{'type'};
+	my $location = $args{'location'};
+	if( !defined $type || $type eq '' || !defined $location) {
+		return;
+	} elsif( $type eq 'STRING' ) {
+		$data = $$location; 
+	} elsif ( $type eq 'FILE' ) {
+		open(TMP, $location) or $self->throw("could not open file $location");
+		my @in = <TMP>;
+		close TMP;
+		$data = join("", @in);
+	}
 
-    # transform links to appropriate descriptions
-    if ($data =~ /\nCONTIG\s+/) {	
-	$self->warn("CONTIG found. GenBank get_Stream_by_acc about to run."); 
+	# transform links to appropriate descriptions
+	if ($data =~ /\nCONTIG\s+/) {	
+		$self->warn("CONTIG found. GenBank get_Stream_by_acc about to run."); 
     	my(@batch,@accession,%accessions,@location,$id,
-	   $contig,$stream,$aCount,$cCount,$gCount,$tCount);
+			$contig,$stream,$aCount,$cCount,$gCount,$tCount);
 
     	# process GenBank CONTIG join(...) into two arrays
     	$data =~ /(?:CONTIG\s+join\()((?:.+\n)+)(?:\/\/)/;
-	$contig = $1;
+		$contig = $1;
     	$contig =~ s/\n|\)//g;
-	foreach (split /\s*,\s*/,$contig){	    
-	    if (/>(.+)<.+>:(.+)/) {
-		($id) = split /\./, $1;		
-		push @accession, $id;
-		push @location, $2;
-		$accessions{$id}->{'count'}++;
-	    } elsif( /([\w\.]+):(.+)/ ) { 
-		($id) = split /\./, $1;
-		$accessions{$id}->{'count'}++;
-		push @accession, $id;
-		push @location, $2;
-	    }
+		foreach (split /\s*,\s*/,$contig){	    
+			if (/>(.+)<.+>:(.+)/) {
+				($id) = split /\./, $1;		
+				push @accession, $id;
+				push @location, $2;
+				$accessions{$id}->{'count'}++;
+			} elsif( /([\w\.]+):(.+)/ ) { 
+				($id) = split /\./, $1;
+				$accessions{$id}->{'count'}++;
+				push @accession, $id;
+				push @location, $2;
+			}
+		}
+
+		# grab multiple sequences by batch and join based location variable
+		my @unique_accessions = keys %accessions;
+		$stream = $self->get_Stream_by_acc(\@unique_accessions);
+		$contig = "";
+		my $ct = 0;
+		while( my $seq = $stream->next_seq() ) {	    
+			if( $seq->accession_number !~ /$unique_accessions[$ct]/ ) {
+				printf STDERR "warning, %s does not match %s\n",
+				  $seq->accession_number, $unique_accessions[$ct];
+			}
+			$accessions{$unique_accessions[$ct]}->{'seq'} = $seq;
+			$ct++;
+		}
+		for (my $i = 0; $i < @accession; $i++) {
+			my $seq = $accessions{$accession[$i]}->{'seq'};
+			unless( defined $seq ) {
+				# seq not cached, get next sequence
+				$self->warn("unable to find sequence $accession[$i]\n");
+				return undef;
+			}
+			my($start,$end) = split(/\.\./, $location[$i]);
+			$contig .= $seq->subseq($start,$end-$start);
+		}
+
+		# count number of each letter in sequence
+		$aCount = () = $contig =~ /a/ig;
+		$cCount = () = $contig =~ /c/ig;
+		$gCount = () = $contig =~ /g/ig;
+		$tCount = () = $contig =~ /t/ig;
+
+		# remove everything after and including CONTIG
+		$data =~ s/(CONTIG[\s\S]+)$//i;
+
+		# build ORIGIN part of data file using sequence and counts
+		$data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
+		$data .= "ORIGIN      \n";
+		$data .= "$contig\n//";
 	}
-
-	# grab multiple sequences by batch and join based location variable
-	my @unique_accessions = keys %accessions;
-	$stream = $self->get_Stream_by_acc(\@unique_accessions);
-	$contig = "";
-	my $ct = 0;
-	while( my $seq = $stream->next_seq() ) {	    
-	    if( $seq->accession_number !~ /$unique_accessions[$ct]/ ) {
-		printf STDERR "warning, %s does not match %s\n",
-		$seq->accession_number, $unique_accessions[$ct];
-	    }
-	    $accessions{$unique_accessions[$ct]}->{'seq'} = $seq;
-	    $ct++;
+	else {
+		$data =~ s/<a\s+href\s*=.+>\s*(\S+)\s*<\s*\/a\s*\>/$1/ig;
 	}
-	for (my $i = 0; $i < @accession; $i++) {
-	    my $seq = $accessions{$accession[$i]}->{'seq'};
-	    unless( defined $seq ) {
-		# seq not cached, get next sequence
-		$self->warn("unable to find sequence $accession[$i]\n");
-		return undef;
-	    }
-	    my($start,$end) = split(/\.\./, $location[$i]);
-	    $contig .= $seq->subseq($start,$end-$start);
-	}
-
-	# count number of each letter in sequence
-	$aCount = () = $contig =~ /a/ig;
-	$cCount = () = $contig =~ /c/ig;
-	$gCount = () = $contig =~ /g/ig;
-	$tCount = () = $contig =~ /t/ig;
-
-	# remove everything after and including CONTIG
-	$data =~ s/(CONTIG[\s\S]+)$//i;
-
-	# build ORIGIN part of data file using sequence and counts
-	$data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
-	$data .= "ORIGIN      \n";
-	$data .= "$contig\n//";
-    }
-    else {
-	$data =~ s/<a\s+href\s*=.+>\s*(\S+)\s*<\s*\/a\s*\>/$1/ig;
-    }
     
-    # fix gt and lt
-    $data =~ s/&gt;/>/ig;
-    $data =~ s/&lt;/</ig;
-    if( $type eq 'FILE'  ) {
-	open(TMP, ">$location") or $self->throw("couldn't overwrite file $location");
-	print TMP $data;
-	close TMP;
-    } elsif ( $type eq 'STRING' ) {
-	${$args{'location'}} = $data;
-    }
-    $self->debug("format is ". join(',',$self->request_format()). 
-		 " data is\n$data\n");
+	# fix gt and lt
+	$data =~ s/&gt;/>/ig;
+	$data =~ s/&lt;/</ig;
+	if( $type eq 'FILE'  ) {
+		open(TMP, ">$location") or $self->throw("couldn't overwrite file $location");
+		print TMP $data;
+		close TMP;
+	} elsif ( $type eq 'STRING' ) {
+		${$args{'location'}} = $data;
+	}
+	$self->debug("format is ". join(',',$self->request_format()). 
+					 " data is\n$data\n");
 }
 
 
@@ -429,23 +430,23 @@ sub get_Stream_by_acc {
 =cut
 
 sub _check_id {
-    my ($self, $ids) = @_;
+	my ($self, $ids) = @_;
 
-    # NT contigs can not be retrieved
-    $self->throw("NT_ contigs are whole chromosome files which are not part of regular".
-		 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
-	if $ids =~ /NT_/;
+	# NT contigs can not be retrieved
+	$self->throw("NT_ contigs are whole chromosome files which are not part of regular".
+					 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
+	  if $ids =~ /NT_/;
 
-    # Asking for a RefSeq from EMBL/GenBank
+	# Asking for a RefSeq from EMBL/GenBank
    
-    unless ($self->no_redirect) {
-     if ($ids =~ /N._/) {
-	 $self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
-	 	   " Redirecting the request.\n")
-	     if $self->verbose >= 0;
-	 return  new Bio::DB::RefSeq;
-     }
-    }
+	unless ($self->no_redirect) {
+		if ($ids =~ /N._/) {
+			$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
+							" Redirecting the request.\n")
+			  if $self->verbose >= 0;
+			return  new Bio::DB::RefSeq;
+		}
+	}
 }
 
 =head2 delay_policy
@@ -467,4 +468,5 @@ sub delay_policy {
 }
 
 1;
+
 __END__
