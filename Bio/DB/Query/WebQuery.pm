@@ -27,7 +27,7 @@ See L<Bio::DB::QueryI>, L<Bio::DB::GenBankQuery>
 =head1 DESCRIPTION
 
 Do not use this class directly.  See Bio::DB::QueryI and one of the
-implementor classes (such as Bio::DB::GenBankQuery) for information.
+implementor classes (such as Bio::DB::Query::GenBank) for information.
 
 Those writing subclasses must define _get_params() and
 _parse_response(), and possibly override _request_method().
