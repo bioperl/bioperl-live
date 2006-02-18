@@ -55,9 +55,10 @@ $taxon1-E<gt>add_tag_value('connection',$taxon2). Thus, a taxon of the
 first tree can be connected to more than one taxon of the second tree,
 and vice versa.
 
-The branch from the parent to a child $node can be colored by setting
-$node->add_tag_value('Rcolor',$r), $node->add_tag_value('Gcolor',$g),
-and $node->add_tag_value('Bcolor',$b), where $r, $g, and $b are the
+The branch from the parent to a child $node, as well as the child
+label, can be colored by setting $node->add_tag_value('Rcolor',$r),
+$node->add_tag_value('Gcolor',$g), and
+$node->add_tag_value('Bcolor',$b), where $r, $g, and $b are the
 desired values for red, green, and blue (zero for lowest, one for
 highest intensity).
 
@@ -167,8 +168,8 @@ sub new {
   my $self = $class->SUPER::new(@args);
   ($t1, $t2, $font, $size, my $top, my $bottom, my $left, my $right,
     $tip, my $column, $compact, $ratio, $colors) = $self->_rearrange([qw(TREE
-    SECOND FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN COMPACT RATIO
-    COLORS)], @args);
+    SECOND FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN
+    COMPACT RATIO COLORS)], @args);
   $font ||= "Helvetica-Narrow";
   $size ||= 12;
   $top ||= 10;
@@ -433,6 +434,9 @@ sub print {
   # taxa labels are centered to 1/3 the font size
 
   for my $taxon (reverse $t1->get_leaf_nodes) {
+    if ($colors) {
+      print INFO $Rcolor{$taxon}, " ", $Gcolor{$taxon}, " ", $Bcolor{$taxon}, " setrgbcolor\n";
+    }
     print INFO $xx{$taxon} + $tip, " ", $yy{$taxon} - $size / 3, " moveto\n";
     print INFO "(", $taxon->id, ") show\n";
   }
