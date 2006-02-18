@@ -48,7 +48,7 @@ sub arrowheads {
   my $pstart  = $self->panel->start;
   my $pend    = $self->panel->end;
 
-  if (!defined $gstart && $gstart <= $pstart) {  # off left end
+  if (!defined $gstart || $gstart <= $pstart) {  # off left end
     $sw = 1;
   }
   if (!defined $gend || $gend >= $pend) { # off right end
