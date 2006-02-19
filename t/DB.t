@@ -24,7 +24,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 85;
+   $NUMTESTS = 93;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -50,38 +50,42 @@ exit (0) if ($error);
 require Bio::DB::GenBank;
 require Bio::DB::GenPept;
 require Bio::DB::SwissProt;
+require Bio::DB::EntrezGene;
 
 my $testnum;
 my $verbose = 0;
 
-my %expected_lengths = ( 'NDP_MOUSE' => 131,
-								 'NDP_HUMAN' => 133,
-								 'MUSIGHBA1' => 408,
-								 'AF303112'  => 1611,
-								 'J00522'    => 408,
-								 'AF303112'  => 1611,
-								 'AF303112.1' => 1611,
-								 '2981014'   => 1156,
-								 'AF041456'  => 1156,
-								 'AY080910'  => 798,
-								 'AY080909'  => 1042,
-								 'AF155220'  => 1172,
-								 '405830'    => 1743,
-								 'CELRABGDI' => 1743,
-								 '195055'    => 136,
-								 'AAD15290'  => 136,
-								 'AAC06201'  => 353,
-								 'P43780'    => 103,
-								 'BOLA_HAEIN'=> 103,
-								 'YNB3_YEAST'=> 125,
-								 'O39869'    => 56,
-								 'P18584'    => 497,
-								 'DEGP_CHLTR'=> 497,
-								 'AF442768'  => 2547,
-								 'P31383'    => 635,
+my %expected_lengths = ('NDP_MOUSE' => 131,
+								  'NDP_HUMAN' => 133,
+								  'MUSIGHBA1' => 408,
+								  'AF303112'  => 1611,
+								  'J00522'    => 408,
+								  'AF303112'  => 1611,
+								  'AF303112.1' => 1611,
+								  '2981014'   => 1156,
+								  'AF041456'  => 1156,
+								  'AY080910'  => 798,
+								  'AY080909'  => 1042,
+								  'AF155220'  => 1172,
+								  '405830'    => 1743,
+								  'CELRABGDI' => 1743,
+								  '195055'    => 136,
+								  'AAD15290'  => 136,
+								  'AAC06201'  => 353,
+								  'P43780'    => 103,
+								  'BOLA_HAEIN'=> 103,
+								  'YNB3_YEAST'=> 125,
+								  'O39869'    => 56,
+								  'P18584'    => 497,
+								  'DEGP_CHLTR'=> 497,
+								  'AF442768'  => 2547,
+								  'P31383'    => 635,
 							  );
 
 if( $DEBUG ) {
+	#
+	# Bio::DB::GenBank
+	#
 	my ($gb,$seq,$seqio,$query);
 	# get a single seq
 	eval {
@@ -108,100 +112,17 @@ if( $DEBUG ) {
 	eval {
 		ok( defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
 																		2981014)])));
-	while( my $s = $seqio->next_seq ) {
-	    ok( $s->length, $expected_lengths{$s->display_id});
-	}
-    };
-
-    if ($@) {
-		 if( $DEBUG ) { warn "Batch access test failed.\nError: $@\n"; }
-		 foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
-		 exit(0);
-	 }
-	$seq = $seqio = undef;
-
-	eval { 
-		ok defined($gb = new Bio::DB::GenPept('-verbose'=>$verbose,'-delay'=>0)); 
-		ok( defined($seq = $gb->get_Seq_by_id('195055')));
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-		$seq = $gb->get_Seq_by_acc('AAC06201');
-		ok(defined $seq);
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-		$seqio = $gb->get_Stream_by_id([ qw(AAC06201 195055)]);
-		ok( defined $seqio);
 		while( my $s = $seqio->next_seq ) {
 			ok( $s->length, $expected_lengths{$s->display_id});
 		}
-
-		# swissprot genpept parsing   
-		ok( defined($seq = $gb->get_Seq_by_acc('2AAA_YEAST') ));
-		ok($seq->length, $expected_lengths{$seq->display_id}, 
-			$expected_lengths{$seq->display_id});
-
-		# test dbsource stuff
-		# small chance this might change but hopefully not
-		my @annot = $seq->annotation->get_Annotations('dblink');
-		ok(scalar @annot, 30);	#
-		ok($annot[0]->database, 'swissprot');
-		ok($annot[0]->primary_id, '2AAA_YEAST');
-		ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
 	};
 
 	if ($@) {
-		if( $DEBUG ) { 
-			warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n$@";
-		}
-		foreach( $Test::ntest..$NUMTESTS ) { 
-			skip('could not connect with GenPept',1); 
-		}
+		if( $DEBUG ) { warn "Batch access test failed.\nError: $@\n"; }
+		foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
 		exit(0);
 	}
-	$seq  = $seqio = undef;
-
-	eval {
-		ok defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose,-retrievaltype=>'pipeline','-delay'=>0));
-		ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-		ok($seq->division, 'YEAST');
-
-		ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-		ok( defined( $seq = $gb->get_Seq_by_acc('O39869')));
-		ok( $seq->length, $expected_lengths{$seq->accession_number});
-		ok($seq->accession_number, 'O39869');
-		ok($seq->division, '9PICO');
-
-		# test for bug #958
-		$seq = $gb->get_Seq_by_id('P18584');
-		ok( defined $seq );
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-
-		#skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'DEGP');
-		ok( $seq->display_id, 'DEGP_CHLTR');
-		ok( $seq->division, 'CHLTR');
-
-		ok( defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose, 
-															  '-retrievaltype' => 'tempfile',
-															  '-delay' => 0,
-															 )));
-		ok(defined($seqio = $gb->get_Stream_by_id(['NDP_MOUSE', 'NDP_HUMAN'])));
-		undef $gb;		# testing to see if we can remove gb
-		ok( defined($seq = $seqio->next_seq()));
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-		ok( defined($seq = $seqio->next_seq()));
-		ok( $seq->length, $expected_lengths{$seq->display_id});
-	};
-
-	if ($@) {
-		if( $DEBUG ) { 
-			print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n$@";
-		}
-		foreach ( $Test::ntest..$NUMTESTS) { 
-			skip('could not connect to swissprot',1);
-		}
-		exit(0);
-	}
-	$seq = undef;
+	$seq = $seqio = undef;
 
 	# test the temporary file creation and fasta
 	eval {
@@ -220,43 +141,42 @@ if( $DEBUG ) {
 		$gb->request_format("gb");
 		ok(defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
 																	  2981014)])));
-	while( my $s = $seqio->next_seq ) {
-	    ok( $s->length, $expected_lengths{$s->display_id});
-	    undef $gb;		# test the case where the db is gone, 
-	    # but a temp file should remain until seqio goes away. 
-	}
-    };
+		while( my $s = $seqio->next_seq ) {
+			ok( $s->length, $expected_lengths{$s->display_id});
+			undef $gb;		# test the case where the db is gone, 
+			# but a temp file should remain until seqio goes away. 
+		}
+	};
 
-    if ($@) {
-	if( $DEBUG ) {
-	    warn "Warning: Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm!\n $@\n";
+	if ($@) {
+		if( $DEBUG ) {
+			warn "Warning: Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm!\n $@\n";
+		}
+		foreach ( $Test::ntest..$NUMTESTS ) { 
+			skip('could not connect to Genbank',1); 
+		}
 	}
-	foreach ( $Test::ntest..$NUMTESTS ) { 
-	    skip('could not connect to Genbank',1); 
-	}
-    }
-    $seq = $seqio = undef;
+	$seq = $seqio = undef;
 
-    $seq = undef;
-# test pipeline creation
-    eval {
-	ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
-						'-retrievaltype' => 'pipeline',
-						'-delay'  => 0,
+	# test pipeline creation
+	eval {
+		ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
+															 '-retrievaltype' => 'pipeline',
+															 '-delay'  => 0,
 						) );
-	ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
-	ok($seq->length, $expected_lengths{$seq->display_id});
-	$seq = $gb->get_Seq_by_acc('AF303112');
-	ok( defined $seq);
-	ok($seq->length, $expected_lengths{$seq->display_id});
-	ok(defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
-						       2981014)])));
-	while( my $s = $seqio->next_seq ) {
-		ok( $s->length, $expected_lengths{$s->display_id});
-		undef $gb;		# test the case where the db is gone, 
-		# but the pipeline should remain until seqio goes away
-	}
-};
+		ok( defined ($seq = $gb->get_Seq_by_id('MUSIGHBA1')));
+		ok($seq->length, $expected_lengths{$seq->display_id});
+		$seq = $gb->get_Seq_by_acc('AF303112');
+		ok( defined $seq);
+		ok($seq->length, $expected_lengths{$seq->display_id});
+		ok(defined($seqio = $gb->get_Stream_by_id([ qw(J00522 AF303112 
+																	  2981014)])));
+		while( my $s = $seqio->next_seq ) {
+			ok( $s->length, $expected_lengths{$s->display_id});
+			undef $gb;		# test the case where the db is gone, 
+			# but the pipeline should remain until seqio goes away
+		}
+	};
 
 	if ($@) {
 		if( $DEBUG ) {
@@ -338,6 +258,125 @@ if( $DEBUG ) {
 
 	$seq = $gb->get_Seq_by_acc("A11111");
 	ok($seq->length,6);
+
+	#
+	# Bio::DB::GenPept
+	#
+	eval { 
+		ok defined($gb = new Bio::DB::GenPept('-verbose'=>$verbose,'-delay'=>0)); 
+		ok( defined($seq = $gb->get_Seq_by_id('195055')));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		$seq = $gb->get_Seq_by_acc('AAC06201');
+		ok(defined $seq);
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		$seqio = $gb->get_Stream_by_id([ qw(AAC06201 195055)]);
+		ok( defined $seqio);
+		while( my $s = $seqio->next_seq ) {
+			ok( $s->length, $expected_lengths{$s->display_id});
+		}
+
+		# swissprot genpept parsing   
+		ok( defined($seq = $gb->get_Seq_by_acc('2AAA_YEAST') ));
+		ok($seq->length, $expected_lengths{$seq->display_id}, 
+			$expected_lengths{$seq->display_id});
+
+		# test dbsource stuff
+		# small chance this might change but hopefully not
+		my @annot = $seq->annotation->get_Annotations('dblink');
+		ok(scalar @annot, 30);	#
+		ok($annot[0]->database, 'swissprot');
+		ok($annot[0]->primary_id, '2AAA_YEAST');
+		ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
+	};
+
+	if ($@) {
+		if( $DEBUG ) { 
+			warn "Warning: Couldn't connect to Genbank with Bio::DB::GenPept.pm!\n$@";
+		}
+		foreach( $Test::ntest..$NUMTESTS ) { 
+			skip('could not connect with GenPept',1); 
+		}
+		exit(0);
+	}
+	$seq = $seqio = undef;
+
+	#
+	# Bio::DB::SwissProt
+	#
+	eval {
+		ok defined($gb = new Bio::DB::SwissProt(-verbose => $verbose,
+															 -retrievaltype =>'pipeline',
+															 -delay => 0));
+		ok(defined($seq = $gb->get_Seq_by_id('YNB3_YEAST')));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		ok($seq->division, 'YEAST');
+
+		ok(defined($seq = $gb->get_Seq_by_acc('P43780')));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		ok( defined( $seq = $gb->get_Seq_by_acc('O39869')));
+		ok( $seq->length, $expected_lengths{$seq->accession_number});
+		ok($seq->accession_number, 'O39869');
+		ok($seq->division, '9PICO');
+
+		# test for bug #958
+		$seq = $gb->get_Seq_by_id('P18584');
+		ok( defined $seq );
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+
+		#skip($seq->primary_id =~ /^Bio::Seq/, $seq->primary_id, 'DEGP');
+		ok( $seq->display_id, 'DEGP_CHLTR');
+		ok( $seq->division, 'CHLTR');
+
+		ok( defined($gb = new Bio::DB::SwissProt('-verbose'=>$verbose, 
+															  '-retrievaltype' => 'tempfile',
+															  '-delay' => 0,
+															 )));
+		ok(defined($seqio = $gb->get_Stream_by_id(['NDP_MOUSE', 'NDP_HUMAN'])));
+		undef $gb;		# testing to see if we can remove gb
+		ok( defined($seq = $seqio->next_seq()));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+		ok( defined($seq = $seqio->next_seq()));
+		ok( $seq->length, $expected_lengths{$seq->display_id});
+	};
+
+	if ($@) {
+		if( $DEBUG ) { 
+			print STDERR "Warning: Couldn't connect to SwissProt with Bio::DB::Swiss.pm!\n$@";
+		}
+		foreach ( $Test::ntest..$NUMTESTS) { 
+			skip('could not connect to swissprot',1);
+		}
+		exit(0);
+	}
+	$seq = $seqio = undef;
+
+	#
+	# Bio::DB::EntrezGene
+	#
+	eval {
+		ok( defined($gb = Bio::DB::EntrezGene->new(-verbose => $verbose, 
+																-retrievaltype => 'tempfile',
+																-delay => 0 )));
+		ok(defined($seqio = $gb->get_Stream_by_id([2,3064])));
+		$seq = $seqio->next_seq;
+		ok( $seq->display_id, "A2M");
+		ok($seq->accession_number, 2);
+		$seq = $seqio->next_seq;
+		ok( $seq->display_id, "HD");
+		ok($seq->accession_number, 3064);
+		$seq = $gb->get_Seq_by_id(6099);
+		ok( $seq->display_id, "RP");
+		ok($seq->accession_number, 6099);
+	};
+	if ($@) {
+		if( $DEBUG ) { 
+			print STDERR "Warning: Couldn't connect to Entrez with Bio::DB::EntrezGene.pm!\n$@";
+		}
+		foreach ( $Test::ntest..$NUMTESTS) { 
+			skip('could not connect to Entrez Gene',1);
+		}
+		exit(0);
+	}
 
 } else {
 	for ( $Test::ntest..$NUMTESTS) {
