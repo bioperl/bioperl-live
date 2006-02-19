@@ -25,7 +25,7 @@ Bio::ASN1::EntrezGene, a low level ASN parser built by Mingyi Liu
 (sourceforge.net/projects/egparser). The easiest way to use it is 
 shown above.
 
-You will get most of the EntrezGene annotation such as gene symbol, 
+You will get most of the Entrez Gene annotation such as gene symbol, 
 gene name and description, accession numbers associated 
 with the gene, etc. Almost all of these are given as Annotation objects.
 A comprehensive list of those objects will be available here later.
@@ -109,10 +109,10 @@ use vars qw(@ISA);
 
 @ISA = qw(Bio::SeqIO);
 
-%main::eg_to_ll =('Official Full Name'=>'OFFICIAL_GENE_NAME',
-						'chromosome'=>'CHR',
-						'cyto'=>'MAP', 
-						'Official Symbol'=>'OFFICIAL_SYMBOL');
+%main::eg_to_ll =('Official Full Name' => 'OFFICIAL_GENE_NAME',
+						  'chromosome' => 'CHR',
+						  'cyto' => 'MAP', 
+						  'Official Symbol' => 'OFFICIAL_SYMBOL');
 @main::egonly = keys %main::eg_to_ll;
 # We define $xval and some other variables so we don't have 
 # to pass them as arguments
@@ -123,10 +123,10 @@ sub _initialize {
 	$self->SUPER::_initialize(@args);
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	$self->{_debug}=$param{-debug};
-	$self->{_locuslink}=$param{-locuslink}||'no';
-	$self->{_service_record}=$param{-service_record}||'no';
-	$self->{_parser}=Bio::ASN1::EntrezGene->new(file=>$param{-file});
+	$self->{_debug} = $param{-debug} || 'off';
+	$self->{_locuslink} = $param{-locuslink}||'no';
+	$self->{_service_record} = $param{-service_record}||'no';
+	$self->{_parser} = Bio::ASN1::EntrezGene->new(file=>$param{-file});
 	#Instantiate the low level parser here (it is -file in Bioperl
    #-should tell M.)
 	#$self->{_parser}->next_seq; #First empty record- bug in Bio::ASN::Parser
