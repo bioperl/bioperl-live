@@ -100,9 +100,10 @@ BEGIN {
 		     );
 
     %FORMATMAP = ( 'gb' => 'genbank',
-		   'gp' => 'genbank',
-		   'fasta'   => 'fasta',
-		   );
+						   'gp' => 'genbank',
+						   'fasta' => 'fasta',
+						   'asn.1' => 'entrezgene'
+					  );
 
     $DEFAULTFORMAT = 'gb';
 }
@@ -157,51 +158,51 @@ sub default_format {
 =cut
 
 sub get_request {
-    my ($self, @qualifiers) = @_;
-    my ($mode, $uids, $format, $query, $seq_start, $seq_stop) = 
-		$self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP)],
-								@qualifiers);
+	my ($self, @qualifiers) = @_;
+	my ($mode, $uids, $format, $query, $seq_start, $seq_stop) = 
+	  $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP)],
+							  @qualifiers);
 
-    $mode = lc $mode;
-    ($format) = $self->request_format() unless ( defined $format);
-    if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
-    my %params = $self->get_params($mode);
-    if( ! %params ) {
-	$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'") 
+	$mode = lc $mode;
+	($format) = $self->request_format() unless ( defined $format);
+	if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
+	my %params = $self->get_params($mode);
+	if( ! %params ) {
+		$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'") 
 	}
-    my $url = URI->new($HOSTBASE . $CGILOCATION{$mode}[1]);
+	my $url = URI->new($HOSTBASE . $CGILOCATION{$mode}[1]);
 
-    unless( defined $uids or defined $query) {
-	$self->throw("Must specify a query or list of uids to fetch");
-    }
-
-    if ($uids) {
-	if( ref($uids) =~ /array/i ) {
-	    $uids = join(",", @$uids);
+	unless( defined $uids or defined $query) {
+		$self->throw("Must specify a query or list of uids to fetch");
 	}
-	$params{'id'}      = $uids;
-    }
 
-    elsif ($query && $query->can('cookie')) {
-	@params{'WebEnv','query_key'} = $query->cookie;
-	$params{'db'}                 = $query->db;
-    }
+	if ($uids) {
+		if( ref($uids) =~ /array/i ) {
+			$uids = join(",", @$uids);
+		}
+		$params{'id'}      = $uids;
+	}
 
-    elsif ($query) {
-	$params{'id'} = join ',',$query->ids;
-    }
+	elsif ($query && $query->can('cookie')) {
+		@params{'WebEnv','query_key'} = $query->cookie;
+		$params{'db'}                 = $query->db;
+	}
+
+	elsif ($query) {
+		$params{'id'} = join ',',$query->ids;
+	}
      
-    defined $seq_start and $params{'seq_start'} = $seq_start;
-    defined $seq_stop and $params{'seq_stop'} = $seq_stop;
+	defined $seq_start and $params{'seq_start'} = $seq_start;
+	defined $seq_stop and $params{'seq_stop'} = $seq_stop;
 
-    $params{'rettype'} = $format;
-    if ($CGILOCATION{$mode}[0] eq 'post') {
-	return POST $url,[%params];
-    } else {
-	$url->query_form(%params);
-	$self->debug("url is $url \n");
-	return GET $url;
-    }
+	$params{'rettype'} = $format;
+	if ($CGILOCATION{$mode}[0] eq 'post') {
+		return POST $url,[%params];
+	} else {
+		$url->query_form(%params);
+		$self->debug("url is $url \n");
+		return GET $url;
+	}
 }
 
 =head2 get_Stream_by_batch
@@ -378,18 +379,18 @@ sub postprocess_data {
 =cut
 
 sub request_format {
-    my ($self, $value) = @_;    
-    if( defined $value ) {
-	$value = lc $value;	
-	if( defined $FORMATMAP{$value} ) {
-	    $self->{'_format'} = [ $value, $FORMATMAP{$value}];
-	} else {
-	    # Try to fall back to a default. Alternatively, we could throw
-	    # an exception
-	    $self->{'_format'} = [ $value, $value ];
+	my ($self, $value) = @_;    
+	if( defined $value ) {
+		$value = lc $value;	
+		if( defined $FORMATMAP{$value} ) {
+			$self->{'_format'} = [ $value, $FORMATMAP{$value}];
+		} else {
+			# Try to fall back to a default. Alternatively, we could throw
+			# an exception
+			$self->{'_format'} = [ $value, $value ];
+		}
 	}
-    }
-    return @{$self->{'_format'}};
+	return @{$self->{'_format'}};
 }
 
 =head2 Bio::DB::WebDBSeqI methods
