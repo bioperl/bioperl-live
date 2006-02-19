@@ -109,6 +109,8 @@ BEGIN {
 sub new {
   my($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
+  # Seems that Bio::SeqIO::entrezgene requires this:
+  $self->{_retrieval_type} = "tempfile"; 
   $self->request_format($self->default_format);
   return $self;
 }
