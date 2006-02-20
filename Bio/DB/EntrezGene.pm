@@ -26,7 +26,7 @@ Bio::DB::EntrezGene - Database object interface to Entrez Gene
 
     my $seqio = $db->get_Stream_by_id([2, 4693, 3064]);
     while( my $seq = $seqio->next_seq ) {
-	    print "seq is is ", $seq->display_id, "\n";
+	    print "id is ", $seq->display_id, "\n";
     }
 
 =head1 DESCRIPTION
@@ -39,10 +39,10 @@ NCBI offers Batch Entrez for this purpose.
 
 =head1 NOTES
 
-The Entrez eutils API does not allow queries by name and taxon id as
-of this writing, therefore there are get_Seq_by_id and get_Stream_by_id
-methods which expect Gene ids. There are no get_Seq_by_acc or 
-get_Stream_by_acc methods.
+The Entrez eutils API does not allow Entrez Gene queries by name as
+of this writing, therefore there are only get_Seq_by_id and 
+get_Stream_by_id methods in this module, and these expect Gene ids. 
+There are no get_Seq_by_acc or get_Stream_by_acc methods.
 
 =head1 FEEDBACK
 
@@ -175,14 +175,14 @@ sub default_format {
   Usage   : $stream = $db->get_Stream_by_id( [$gid1, $gid2] );
   Function: Gets a series of Seq objects using Gene ids
   Returns : A Bio::SeqIO stream object
-  Args    : $ref : a reference to an array of Gene ids
+  Args    : A reference to an array of Gene ids
 
 =head2 request_format
 
  Title   : request_format
  Usage   : my $format = $self->request_format;
            $self->request_format($format);
- Function: Get/Set sequence format retrieval
+ Function: Get or set sequence format retrieval
  Returns : String representing format
  Args    : $format = sequence format
 
