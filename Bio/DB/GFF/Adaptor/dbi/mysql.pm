@@ -412,7 +412,20 @@ sub search_notes {
      my $featname = Bio::DB::GFF::Featname->new($class=>$name);
      push @results,[$featname,$note,$relevance];
   }
-  @results;
+
+  #added result filtering so that this method returns the expected results
+  #this section of code used to be in GBrowse's do_keyword_search method
+
+  my $match_sub = 'sub {';
+  foreach (split /\s+/,$search_string) {
+    $match_sub .= "return unless \$_[0] =~ /\Q$_\E/i; ";
+  }
+  $match_sub .= "};";
+  my $match = eval $match_sub;
+
+  my @matches = grep { $match->($_->[1]) } @results;
+
+  return @matches;
 }
 
 
