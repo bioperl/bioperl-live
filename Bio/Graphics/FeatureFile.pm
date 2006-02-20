@@ -505,8 +505,6 @@ sub parse_line {
 	my ($key,$value) = @$_;
 	if ($value =~ m!^(http|ftp)://!) { 
 	  $url = $_ 
-	} elsif ($key=~/note/i) { 
-	  push @notes,$value;
 	} else {
 	  push @notes,"$key=$value";
 	}
@@ -1247,7 +1245,8 @@ sub base2package {
 
 sub split_group {
   my $self = shift;
-  return Bio::DB::GFF->split_group(shift, $self->{gff_version} > 2);
+  my $gff = $self->{gff} ||= Bio::DB::GFF->new(-adaptor=>'memory');
+  return $gff->split_group(shift, $self->{gff_version} > 2);
 }
 
 # create a panel if needed
