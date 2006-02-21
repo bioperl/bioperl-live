@@ -62,7 +62,7 @@ Or:
 
 =head1 DESCRIPTION
 
-Bio::Tools::SeqWords is a featherweight object for the calculation of
+L<Bio::Tools::SeqWords> is a featherweight object for the calculation of
 n-mer word occurrences in a single sequence.  It is envisaged that the
 object will be useful for construction of scripts which use n-mer word
 tables as the raw material for statistical calculations; for instance,
@@ -150,21 +150,21 @@ sub new {
 =head2 count_words
 
  Title   : count_words
- Usage   : $word_count = $seq_stats->count_words($word_length); 
- or 	 : $word_count = $seq_stats->Bio::Tools::SeqWords->($seqobj,$word_length);
- Function: Counts non-overlapping words within a string
-	 : any alphabet is used
- Example : a sequence ACCGTCCGT, counted at word length 4,
-	 : will give the hash
-	 : ACCG 1, TCCG 1
+ Usage   : $word_count = $seq_stats->count_words($word_length)
+                or 
+           $word_count = $seq_stats->Bio::Tools::SeqWords->($seqobj,$word_length);
+ Function: Counts non-overlapping words within a string, any alphabet is 
+           used
+ Example : a sequence ACCGTCCGT, counted at word length 4, will give the hash
+           {ACCG => 1, TCCG => 1}
  Returns : Reference to a hash in which keys are words (any length) of the
-         : alphabet used and values are number of occurrences of the word 
-         : in the sequence.
+           alphabet used and values are number of occurrences of the word 
+           in the sequence.
  Args    : Word length as scalar and, reference to sequence object if
-         : required
+           required
 
-  Throws an exception word length is not a positive integer
-  or if word length is longer than the sequence.
+           Throws an exception word length is not a positive integer
+           or if word length is longer than the sequence.
 
 =cut
 
@@ -212,17 +212,16 @@ sub count_words
 
  Title   : count_overlap_words
  Usage   : $word_count = $word_obj->count_overlap_words($word_length);
- Function: Counts overlapping words within a string
-	 : any alphabet is used
- Example : a sequence ACCAACCA, counted at word length 4,
-	 : will give the hash
-	 : {ACCA=>2, CCAA=>1, CAAC=>1, AACC=>1}
- Returns : Reference to a hash in which keys are words (any length) of the alphabet
-         : used and values are number of occurrences of the word in the sequence.
+ Function: Counts overlapping words within a string, any alphabet is used
+ Example : A sequence ACCAACCA, counted at word length 4, will give the hash
+	        {ACCA=>2, CCAA=>1, CAAC=>1, AACC=>1}
+ Returns : Reference to a hash in which keys are words (any length) of the 
+           alphabet used and values are number of occurrences of the word in 
+           the sequence.
  Args    : Word length as scalar
 
-  Throws an exception if word length is not a positive integer
-  or if word length is longer than the sequence.
+           Throws an exception if word length is not a positive integer
+           or if word length is longer than the sequence.
 
 =cut
 
