@@ -544,6 +544,34 @@ sub get_Lineage_Nodes{
    return @lineage;
 }
 
+=head2 get_LCA_Node
+
+ Title   : get_LCA_Node
+ Usage   : my $lca = $node1->get_LCA_Node($node2);
+ Function: Get the most recent common ancestor of two nodes as a L<Bio::Taxonomy::Node> object
+ Returns : L<Bio::Taxonomy::Node> object
+ Args    : Bio::Taxonomy::Node object
+
+
+=cut
+
+sub get_LCA_Node{
+   my ($self, $node) = @_;
+   if ($self eq $node) {
+      return $self;
+   } else {
+      my @PATH1 = $self->get_Lineage_Nodes;
+      my @PATH2 = $node->get_Lineage_Nodes;
+      my ($root1, $root2, $lca);
+      do {
+         $root1 = shift @PATH1;
+         $root2 = shift @PATH2;
+         $lca = $root1 if $root1->node_name eq $root2->node_name;
+      } while ($root1->node_name eq $root2->node_name);
+      return $lca;
+   }
+}
+
 =head2 node_name
 
  Title   : node_name
