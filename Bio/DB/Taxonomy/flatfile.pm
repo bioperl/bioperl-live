@@ -95,19 +95,18 @@ $NCBI_TAXONOMY_FILE = '/pub/taxonomy/taxdump.tar.gz';
 $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
 
 @DIVISIONS = ([qw(BCT Bacteria)],
-	      [qw(INV Invertebrates)],
-	      [qw(MAM Mammals)],
-	      [qw(PHG Phages)],
-	      [qw(PLN Plants)], # (and fungi)
-	      [qw(PRI Primates)],
-	      [qw(ROD Rodents)],
-	      [qw(SYN Synthetic)],
-	      [qw(UNA Unassigned)],
-	      [qw(VRL Viruses)],
-	      [qw(VRT Vertebrates)]
-	      );
+				   [qw(INV Invertebrates)],
+				   [qw(MAM Mammals)],
+				   [qw(PHG Phages)],
+				   [qw(PLN Plants)], # (and fungi)
+				   [qw(PRI Primates)],
+				   [qw(ROD Rodents)],
+				   [qw(SYN Synthetic)],
+				   [qw(UNA Unassigned)],
+				   [qw(VRL Viruses)],
+				   [qw(VRT Vertebrates)]);
 
-@ISA = qw(Bio::DB::Taxonomy );
+@ISA = qw( Bio::DB::Taxonomy );
 
 =head2 new
 
@@ -120,22 +119,18 @@ $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
            -namesfile => name of the file containing names(names.dmp from NCBI)
            -force     => 1 replace current indexes even if they exist
 
-
 =cut
 
 sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($dir,$nodesfile,$namesfile,$force) = $self->_rearrange([qw(DIRECTORY
-								 NODESFILE
-								 NAMESFILE
-								 FORCE)],
-							     @args);
+  my ($dir,$nodesfile,$namesfile,$force) = $self->_rearrange([qw
+	  (DIRECTORY NODESFILE NAMESFILE FORCE)], @args);
   
   $self->index_directory($dir || $DEFAULT_INDEX_DIR);
   if ( $nodesfile ) {
-      $self->_build_index($nodesfile,$namesfile,$force);
+	  $self->_build_index($nodesfile,$namesfile,$force);
   }
 
   $self->_db_connect;
@@ -157,6 +152,7 @@ sub new {
            -name   => string (to query by a taxonomy name: common name, 
                               species, genus, etc)
 
+See L<Bio::Taxonomy::Taxon>
 
 =cut
 
@@ -213,7 +209,6 @@ sub get_Taxonomy_Node{
  Returns : Integer ID
  Args    : String representing species/node name 
 
-
 =cut
 
 sub get_taxonid {
@@ -233,8 +228,9 @@ sub get_taxonid {
  Usage   : my @childrenids = $db->get_Children_Taxids 
  Function: Get the children of a node in the taxonomy
  Returns : Array of Ids
- Args    : L<Bio::Taxonomy::Node> or a taxon_id
+ Args    : Bio::Taxonomy::Node or a taxon_id
 
+See L<Bio::Taxonomy::Node>
 
 =cut
 
