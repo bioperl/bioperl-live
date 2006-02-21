@@ -36,13 +36,15 @@ Bio::Taxonomy::Node - A node in a represented taxonomy
   print "rank is ", $hum_node->rank, "\n";
   print "classification is ", join(" ", $hum_node->classification),"\n"; 
   print "division is ", $node->division, "\n";
+  my $mmu_node = $dbh->get_Taxonomy_Node(-name => 'Mus musculus');
+  my @mmu_lineage = $mmu->get_Lineage_Nodes;
 
 =head1 DESCRIPTION
 
 This is the next generation (for Bioperl) of representing Taxonomy
 information.  Previously all information was managed by a single
 object called Bio::Species.  This new implementation allows
-representation of the intermediete nodes not just the species nodes
+representation of the intermediate nodes not just the species nodes
 and can relate their connections.
 
 =head1 FEEDBACK
@@ -71,6 +73,7 @@ Email jason-at-bioperl-dot-org
 =head1 CONTRIBUTORS
 
 Juguang Xiao, juguang@tll.org.sg
+Gabriel Valiente, valiente@lsi.upc.edu
 
 =head1 APPENDIX
 
@@ -512,6 +515,33 @@ sub get_Children_Nodes{
        }
    }
    return @children;
+}
+
+=head2 get_Lineage_Nodes
+
+ Title   : get_Lineage_Nodes
+ Usage   : my @nodes = $node->get_Lineage_Nodes();
+ Function: Get the full lineage of a node as L<Bio::Taxonomy::Node> objects
+ Returns : Array of L<Bio::Taxonomy::Node> objects
+ Args    : none
+
+
+=cut
+
+sub get_Lineage_Nodes{
+   my ($self) = @_;
+   if( ! $self->db_handle ) {
+       $self->warn("Cannot get the lineage nodes for ".$self->node_name.
+		   " because db handle is not defined\n");
+       return undef;
+   }
+   my $node = $self;
+   my @lineage;
+   while ($node->node_name ne "root") {
+      $node = $node->get_Parent_Node;
+      unshift @lineage, $node;
+   }
+   return @lineage;
 }
 
 =head2 node_name
