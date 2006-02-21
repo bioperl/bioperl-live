@@ -509,7 +509,7 @@ sub parse_line {
 	  push @notes,"$key=$value";
 	}
       }
-      $description = join '; ',@notes if @notes;
+      $description = join '; ',map {_escape($_)} @notes if @notes;
       $score       = $scor if defined $scor && $scor ne '.';
     }
     $name ||= $self->{group}->display_id if $self->{group};
@@ -623,6 +623,12 @@ sub _unescape {
     s/%([0-9a-fA-F]{2})/chr hex($1)/g;
   }
   @_;
+}
+
+sub _escape {
+  my $toencode = shift;
+  $toencode =~ s/([^a-zA-Z0-9_.=-])/uc sprintf("%%%02x",ord($1))/eg;
+  $toencode;
 }
 
 sub _make_feature {
