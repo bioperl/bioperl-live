@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::Annotation::Target
 #
@@ -20,7 +21,7 @@ Bio::Annotation::Target
    $target1 = new Bio::Annotation::Target(-target_id  => 'F321966.1',
                                           -start      => 1,
                                           -end        => 200,
-                                          -strand     => 1,    # or -1
+                                          -strand     => 1,   # or -1
 					 );
 
    # or
