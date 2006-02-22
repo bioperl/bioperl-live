@@ -4,7 +4,7 @@ package Bio::DB::GFF::Adaptor::dbi::pg;
 
 Bio::DB::GFF::Adaptor::dbi::pg -- Database adaptor for a specific postgres schema
 
-=head1 SYNOPSIS
+=head1 NOTES 
 
 SQL commands that need to be executed before this adaptor will work:
 
@@ -23,6 +23,50 @@ with the Generic Genome Browser (gbrowse):
   GRANT SELECT ON TABLE fdna                  TO nobody;
   GRANT SELECT ON TABLE fattribute            TO nobody;
   GRANT SELECT ON TABLE ftype                 TO nobody;
+
+=head2 Optimizing the database
+
+PostgreSQL generally requires some tuning before you get very good
+performance for large databases.  For general information on tuning
+a PostgreSQL server, see http://www.varlena.com/GeneralBits/Tidbits/perf.html
+Of particular importance is executing VACUUM FULL ANALYZE whenever
+you change the database.
+
+Additionally, for a GFF database, there are a few items you can tune.
+For each automatic class in your GBrowse conf file, there will be one
+or two searches done when searching for a feature.  If there are lots 
+of features, these search can take several seconds.  To speed these searches,
+do two things:
+
+=over
+
+=item 1
+
+Set 'enable_seqscan = false' in your postgresql.conf file (and restart
+your server).
+
+=item 2
+
+Create 'partial' indexes for each automatic class, doing this for the
+example class 'Allele':
+
+  CREATE INDEX partial_allele_gclass ON 
+    fgroup (lower('gname')) WHERE gclass='Allele';
+
+And be sure to run VACUUM FULL ANALYZE after creating the indexes.
+
+=back
+
+=head2 search_notes
+
+This PostgreSQL adaptor does not implement the search notes method
+because it can be very slow (although the code for the method is
+contained in this method but commented out).
+There is, however, a PostgreSQL adaptor that does implement it in
+a more efficient way: L<Bio::DB::GFF::Adaptor::dbi::pg_fts>,
+which inherits from this adaptor and uses the optional PostgreSQL
+module TSearch2 for full text indexing.  See that adaptor's
+documentation for more information.
 
 See also L<Bio::DB::GFF>
 
@@ -62,7 +106,7 @@ SELECT fref,
        fstrand,
        gname
   FROM fdata,fgroup,fattribute,fattribute_to_feature
-  WHERE fattribute_to_feature.fattribute_value=?
+  WHERE lower(fattribute_to_feature.fattribute_value)=lower(?)
     AND fgroup.gclass=?
     AND fgroup.gid=fdata.gid
     AND fattribute.fattribute_name='Alias'
@@ -80,7 +124,7 @@ SELECT fref,
        fstrand,
        gname
   FROM fdata,fgroup,fattribute,fattribute_to_feature
-  WHERE fattribute_to_feature.fattribute_value LIKE ?
+  WHERE lower(fattribute_to_feature.fattribute_value) LIKE lower(?)
     AND fgroup.gclass=?
     AND fgroup.gid=fdata.gid
     AND fattribute.fattribute_name='Alias'
@@ -103,6 +147,15 @@ SELECT fref,
     AND fdata.fref=?
     AND fgroup.gid=fdata.gid
     GROUP BY fref,fstrand,gclass
+END
+;
+
+use constant FULLTEXTWILDCARD => <<END;
+SELECT distinct gclass,gname,fattribute_value
+    FROM fgroup,fattribute_to_feature,fdata
+     WHERE fgroup.gid=fdata.gid
+       AND fdata.fid=fattribute_to_feature.fid
+       AND lower(fattribute_to_feature.fattribute_value) LIKE lower(?)
 END
 ;
 
@@ -455,6 +508,9 @@ CREATE  INDEX fattribute_to_feature_fid ON fattribute_to_feature (fid,fattribute
 },
        fattribute_txt_idx => q{
 CREATE INDEX fattribute_txt_idx ON fattribute_to_feature (fattribute_value)
+},
+       fattribute_lower_idx => q{
+CREATE INDEX fattribute_lower_idx ON fattribute_to_feature (lower(fattribute_value))
 },
 	   } # fattribute_to_feature indexes
 } # fattribute_to_feature  
@@ -818,6 +874,7 @@ sub range_query {
 
   $query           .= " ORDER BY $order_by" if $order_by;
 
+  $self->dbh->do('set enable_seqscan=off');
   my $sth = $self->dbh->do_query($query,@args);
   $sth;
 }
@@ -887,6 +944,10 @@ sub pg_make_features_order_by_part {
 
 =head2 search_notes
 
+This method is not available by default--if you have a small
+database or very powerful hardware, you can uncomment the 
+method to use it.
+
  Title   : search_notes
  Usage   : @search_results = $db->search_notes("full text search string",$limit)
  Function: Search the notes for a text string, using mysql full-text search
@@ -894,15 +955,47 @@ sub pg_make_features_order_by_part {
  Args    : full text search string, and an optional row limit
  Status  : public
 
-This is a mysql-specific method.  Given a search string, it performs a
-full-text search of the notes table and returns an array of results.
+This is a replacement for the mysql-specific method.  Given a search string, it
+performs a ILIKE search of the notes table and returns an array of results.
 Each row of the returned array is a arrayref containing the following fields:
 
   column 1     A Bio::DB::GFF::Featname object, suitable for passing to segment()
   column 2     The text of the note
   column 3     A relevance score.
 
+Note that for large databases this can be very slow and may result in
+time out or 500-cgi errors.  If this is happening on a regular basis,
+you should look into using L<Bio::DB::GFF::Adaptor::dbi::pg_fts> which
+implements the TSearch2 full text indexing scheme.
+
 =cut
+
+sub search_notes{
+#  my $self = shift;
+#  my ($search_string,$limit) = @_;
+#
+#  $search_string =~ tr/*/%/s;
+#  $search_string =  '%'.$search_string unless $search_string =~ /^\%/;
+#  $search_string =  $search_string.'%' unless $search_string =~ /\%$/;
+#  warn "search_string:$search_string";
+#  my $query = FULLTEXTWILDCARD;
+#  $query   .= " limit $limit" if defined $limit;
+#  my $sth   = $self->dbh->do_query($query,$search_string);
+#
+#  my @results;
+#  while (my ($class,$name,$note) = $sth->fetchrow_array) {
+#
+#     next unless $class && $name;    # sorry, ignore NULL objects
+#     my $featname = Bio::DB::GFF::Featname->new($class=>$name);
+#
+#     push @results,[$featname,$note,0]; #gbrowse expects a score, but
+#                                        #pg doesn't give one, thus the 0
+#  }
+#  warn @results;
+#
+#  return @results;
+}
+
 
 =head2 make_meta_set_query
 
