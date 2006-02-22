@@ -167,6 +167,9 @@ sub draw_parallel {
     my $first_tick = $major_interval * int($start/$major_interval);
     my $last_tick  = $major_interval * int(0.5 + ($stop+2)/$major_interval);
 
+    my $label_intervals = $self->label_intervals;
+    my $interval_width  = $major_interval * $self->scale/2;
+
     for (my $i = $first_tick; $i <= $last_tick; $i += $major_interval) {
       my $abs = $i;
       if ($relative) {
@@ -195,11 +198,13 @@ sub draw_parallel {
       my $label_len = length($label) * $width;
 
       my $middle = $tickpos - $label_len/2;
+      $middle   += $interval_width if $label_intervals;
+
       # $middle = $x1 if $middle < $x1;
       # $middle = $x2 if $middle > $x2;
 
       $gd->string($font,$middle,$center+$a2-1,$label,$font_color)
-        unless ($self->option('no_tick_label'));
+        unless ($self->option('no_tick_label') || $middle > $x2);
     }
 
     if ($self->option('tick') >= 2) {
@@ -244,6 +249,10 @@ sub label {
   my $start        = $self->feature->start-1;
   my $units        = $self->calculate_units($start/$unit_divider,$self->feature->length/$unit_divider);
   return $label . " ($units$unit_label)";
+}
+
+sub label_intervals {
+  return shift->option('label_intervals');
 }
 
 sub arrowheads {
@@ -389,6 +398,12 @@ options are recognized:
   -relative_coords_offset 
                  set the relative offset        1 
                  for scale
+
+  -label_intervals                              0 (false)
+              Put the numeric labels on the
+              intervals between the ticks 
+              rather than on the ticks
+              themselves.
 
   -units      add units to the tick labels      none
               e.g. bp
