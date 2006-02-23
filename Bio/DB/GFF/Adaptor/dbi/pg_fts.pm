@@ -113,9 +113,17 @@ Special thanks to Russell Smithies and Paul Smale at AgResearch in
 New Zealand for giving me their recipe for doing full text indexing
 in a GFF database.
 
+=head1 BUGS
+
+Please report bugs to the BioPerl and/or GBrowse mailing lists
+(L<bioperl-l@lists.open-bio.org> and L<gmod-gbrowse@lists.sourceforge.net>
+respectively).
+
 =head1 SEE ALSO
 
-L<Bio::DB::GFF>, L<Bio::DB::GFF::Adaptor::dbi::pg>
+Please see L<Bio::DB::GFF::Adaptor::dbi::pg> for more information
+about tuning your PostgreSQL server for GFF data, and for general
+information about GFF database access, see L<Bio::DB::GFF>.
 
 =head1 AUTHOR
 
