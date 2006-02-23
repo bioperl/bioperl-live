@@ -402,6 +402,9 @@ Each row of the returned array is a arrayref containing the following fields:
 sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
+
+  $search_string =~ tr/*?//d;
+
   my $query = FULLTEXTSEARCH;
   $query .= " limit $limit" if defined $limit;
   my $sth = $self->dbh->do_query($query,$search_string,$search_string);
