@@ -11,7 +11,7 @@ BEGIN {
 	use Test;
 	plan tests => 153;
 }
-
+use lib '/net/uisdein/export/usr0/radams/BPCVS/bioperl-live';
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::IO;
@@ -36,6 +36,15 @@ END {
 
 my ($str,$aln,$strout,$status);
 
+
+#PSI format  
+ok $str  = new Bio::AlignIO (
+    '-file'	=> Bio::Root::IO->catfile("t","data","testaln.psi"),
+    '-format'	=> 'psi');
+ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
+$aln = $str->next_aln();
+ok $aln->get_seq_by_pos(1)->get_nse, 'QUERY/1-798';
+ok  $aln->no_sequences, 56;
 
 # STOCKHOLM (multiple concatenated files, as Pfam flatfile)
 ok $str  = new Bio::AlignIO (
