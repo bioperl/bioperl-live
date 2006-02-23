@@ -868,7 +868,7 @@ sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
 
-  $search_string =~ tr/*?/%_/d;
+  $search_string =~ tr/*?//d;
 
   my @words  = $search_string =~ /(\w+)/g;
   my $regex  = join '|',@words;
