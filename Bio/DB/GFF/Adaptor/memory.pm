@@ -262,6 +262,9 @@ sub get_abscoords {
 sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
+
+  $search_string =~ tr/*?//d;
+
   my @results;
   my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
   my $search = join '|',@words;

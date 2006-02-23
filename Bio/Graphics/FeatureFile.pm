@@ -1126,6 +1126,9 @@ Each row of the returned array is a arrayref containing the following fields:
 sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
+
+  $search_string =~ tr/*?//d;
+
   my @results;
   my $search = join '|',map {quotemeta($_)} $search_string =~ /(\S+)/g;
 

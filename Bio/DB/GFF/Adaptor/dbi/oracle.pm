@@ -868,6 +868,8 @@ sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
 
+  $search_string =~ tr/*?/%_/d;
+
   my @words  = $search_string =~ /(\w+)/g;
   my $regex  = join '|',@words;
   my @searches = map {"fattribute_value LIKE '%${_}%'"} @words;
