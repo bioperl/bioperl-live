@@ -22,7 +22,7 @@ BEGIN {
 		use lib 't';
 	}
 	use vars qw($NTESTS);
-	$NTESTS = 1230;
+	$NTESTS = 1284;
 	$LASTXMLTEST = 67;
 	$error = 0;
 
@@ -1664,8 +1664,6 @@ ok($hsp->query->strand, 1);
 ok($hsp->hit->strand, 1);
 ok($hsp->hsp_group, '1');
 
-
-
 ## Web blast result parsing
 
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1679,6 +1677,72 @@ ok($hsp = $hit->next_hsp);
 ok($hsp->query->start, 1, 'query start');
 ok($hsp->query->end, 528, 'query start');
 
+# tests for new BLAST 2.2.13 output
+$searchio = new Bio::SearchIO(-format => 'blast',
+							  -file   => Bio::Root::IO->catfile
+							  (qw(t data new_blastn.txt)));
+
+$result = $searchio->next_result;
+ok($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)');
+ok($result->database_entries, 3742891);
+ok($result->database_letters, 16670205594);
+ok($result->algorithm, 'BLASTN');
+ok($result->algorithm_version, '2.2.13 [Nov-27-2005]');
+ok($result->query_name, 'pyrR,');
+ok($result->query_length, 558);
+ok($result->get_statistic('kappa'), '0.711');
+ok($result->get_statistic('kappa_gapped'), '0.711');
+ok($result->get_statistic('lambda'), '1.37');
+ok($result->get_statistic('lambda_gapped'), '1.37');
+ok($result->get_statistic('entropy'), '1.31');
+ok($result->get_statistic('entropy_gapped'), '1.31');
+ok($result->get_statistic('dbletters'), '-509663586');
+ok($result->get_statistic('dbentries'), 3742891);
+ok($result->get_statistic('effective_hsplength'), undef);
+ok($result->get_statistic('effectivespace'), undef);
+ok($result->get_parameter('matrix'), 'blastn matrix:1 -3');
+ok($result->get_parameter('gapopen'), 5);
+ok($result->get_parameter('gapext'), 2);
+ok($result->get_statistic('S2'), '60');
+ok($result->get_statistic('S2_bits'), '119.4');
+ok($result->get_parameter('expect'), '1e-23');
+ok($result->get_statistic('num_extensions'), '117843');
+
+
+@valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', '6e-059', 236],
+	      [ 'gi|54013472|dbj|AP006618.1|', 6021225, 'AP006618', '4e-026', 127],
+	      [ 'gi|57546753|dbj|BA000030.2|', 9025608, 'BA000030', '1e-023', 119]);
+$count = 0;
+while( $hit = $result->next_hit ) {
+    my $d = shift @valid;
+
+    ok($hit->name, shift @$d);
+    ok($hit->length, shift @$d);
+    ok($hit->accession, shift @$d);
+    ok(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    ok($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+	while( my $hsp = $hit->next_hsp ) {
+	    ok($hsp->query->start, 262);
+	    ok($hsp->query->end, 552);
+	    ok($hsp->hit->start, 1166897);
+	    ok($hsp->hit->end, 1167187);
+	    ok($hsp->length('hsp'), 291);
+	    ok($hsp->start('hit'), $hsp->hit->start);
+	    ok($hsp->end('query'), $hsp->query->end);
+	    ok($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
+	    ok($hsp->evalue == 6e-59);
+	    ok($hsp->score, 119);
+	    ok($hsp->bits,236);	    	    
+	    ok(sprintf("%.2f",$hsp->percent_identity), 85.22);
+	    ok(sprintf("%.4f",$hsp->frac_identical('query')), 0.8522);
+	    ok(sprintf("%.4f",$hsp->frac_identical('hit')), 0.8522);
+	    ok($hsp->gaps, 0);	    
+	}
+    }
+    last if( $count++ > @valid );
+}
 
 # some utilities
 # a utility function for comparing result objects
