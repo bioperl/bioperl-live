@@ -640,7 +640,11 @@ sub _handle_feature {
 
   #Handle Gap attributes
   if($attr{Gap}){
-    $self->warn("Warning for line:\n$feature_string\nGap attribute handling not yet implemented, skipping it");
+    for my $value (@{ $attr{Gap} }) {
+      my $a = Bio::Annotation::SimpleValue->new();
+      $a->value($value);
+      $feat->add_Annotation('Gap',$a);
+    }
   }
 
   #Handle Target attributes

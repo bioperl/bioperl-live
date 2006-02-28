@@ -82,7 +82,7 @@ ok($scount == 0);
 while($f = $io->next_feature()){
   $fcount++;
 }
-ok($fcount == 14);
+ok($fcount == 15);
 
 #then try to read sequences again.  should still be undef
 while($s = $io->next_seq()){
