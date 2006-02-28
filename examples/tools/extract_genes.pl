@@ -4,7 +4,8 @@
 
 =head1 NAME
 
-extract_genes.pl
+extract_genes.pl - extract genomic sequences from NCBI files
+using BioPerl
 
 =head1 DESCRIPTION
 
@@ -20,6 +21,10 @@ significantly faster than reading gene2accession each time the script
 runs). The subsequent runs should be fast.
 
 =head1 INSTALLATION
+
+=head2
+
+Install BioPerl, full instructions at http://bioperl.org.
 
 =head2 Download gene2accession.gz
 
