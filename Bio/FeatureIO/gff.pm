@@ -652,7 +652,15 @@ sub _handle_feature {
     my $target_collection = Bio::Annotation::Collection->new();
 
     foreach my $target_string (@{ $attr{Target} } ) {
-      $target_string =~ s/\+/ /g; 
+
+      #only replace + for space if + has been used in place of it
+      #that is, + could also mean plus strand, and we don't want
+      #to accidentally remove it
+
+      #presumably you can't use + for space and + for strand in the same string.      
+      $target_string =~ s/\+/ /g unless $target_string =~ / /; 
+
+
       my ($t_id,$tstart,$tend,$strand,$extra) = split /\s+/, $target_string; 
       if (!$tend || $extra) { # too much or too little stuff in the string
         $self->throw("The value in the Target string, $target_string, does not conform to the GFF3 specification");
