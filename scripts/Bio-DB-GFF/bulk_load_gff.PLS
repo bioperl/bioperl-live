@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.37 2006-01-19 16:10:21 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.38 2006-03-02 00:26:01 lstein Exp $
 
 
 use strict;
@@ -487,8 +487,8 @@ while (<>) {
     $source       ||= '\N';
 
     my $fid     = $FID++;
-    my $gid     = $GROUPID{$group_class->[$i],$group_name->[$i]}      ||= $GID++;
-    my $ftypeid = $FTYPEID{$source,$method}          ||= $FTYPEID++;
+    my $gid     = $GROUPID{lc join('',$group_class->[$i],$group_name->[$i])}  ||= $GID++;
+    my $ftypeid = $FTYPEID{lc join('',$source,$method)}                       ||= $FTYPEID++;
 
     my $bin = bin($start,$stop,$db->min_bin);
     $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
@@ -506,7 +506,7 @@ while (<>) {
 			    ) unless $DONE{"G$gid"}++;
     }
     else {
-      $FH{ FGROUP() }->print(    join("\t",$gid,$group_class->[$i],$group_name->[$i]),"\n")    unless $DONE{"G$gid"}++;
+      $FH{ FGROUP() }->print(    join("\t",$gid,$group_class->[$i],$group_name->[$i]),"\n") unless $DONE{"G$gid"}++;
     }
     $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"T$ftypeid"}++;
 
@@ -584,21 +584,32 @@ elsif( $use_mysql or $use_mysqlcmap ) {
 
   my $success = 1;
   my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
-  foreach (@files) {
-    my $table = function_to_table($_,$ADAPTOR);
+  for my $f (@files) {
+    my $table = function_to_table($f,$ADAPTOR);
+    warn "load data $LOCAL infile '$tmpdir/$f.$$' replace into table $table $TERMINATEDBY";
     my $sql = join ('; ',
 		    "lock tables $table write",
 		    "delete from $table",
-		    "load data $LOCAL infile '$tmpdir/$_.$$' replace into table $table $TERMINATEDBY",
-		    "analyze table $table",
+		    "load data $LOCAL infile '$tmpdir/$f.$$' replace into table $table $TERMINATEDBY",
 		    "unlock tables");
     my $command = MYSQL . qq[$AUTH -s -e "$sql"];
     $command =~ s/\n/ /g;
     $success &&= system($command) == 0;
-    unlink "$tmpdir/$_.$$";
+    unlink "$tmpdir/$f.$$";
   }
   printf STDERR "Total load time %5.2fs\n",(time() - $start) if $timer;
-  warn "done...\n";
+  print STDERR "done...\n";
+
+  print STDERR "Analyzing/optimizing tables. You will see database messages...\n";
+  $start = time();
+  my $sql = '';
+  for my $f (@files) {
+    my $table = function_to_table($f,$ADAPTOR);
+    $sql       .= "analyze table $table;";
+  }
+  my $command = MYSQL . qq[$AUTH -N -s -e "$sql"];
+  $success &&= system($command) == 0;
+  printf STDERR "Optimization time time %5.2fs\n",(time() - $start);
 
   if ($success) {
     print "$FEATURES features successfully loaded\n";

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.27 2006-01-19 16:10:21 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.28 2006-03-02 00:26:01 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -237,6 +237,7 @@ foreach (@files) {
   my $analyze = "analyze table $_";
   my $command =<<END;
 $MYSQL $AUTH
+-N
 -s
 -e "lock tables $_ write; $delete; load data $local infile '$file' replace into table $_; unlock tables; $analyze"
 $DSN
@@ -356,14 +357,14 @@ while (<>) {
     $source       ||= '\N';
 
     my $fid     = $FID++;
-    my $gid     = $GROUPID{$group_class,$group_name} ||= $GID++;
-    my $ftypeid = $FTYPEID{$source,$method}          ||= $FTYPEID++;
+    my $gid     = $GROUPID{lc join('',$group_class,$group_name)} ||= $GID++;
+    my $ftypeid = $FTYPEID{lc join('',$source,$method)}          ||= $FTYPEID++;
 
     my $bin = bin($start,$stop,$db->min_bin);
     $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );
     $FH{ FGROUP() }->print(    join("\t",$gid,$group_class,$group_name),"\n"              ) unless $DONE{"fgroup$;$gid"}++;
     $FH{ FTYPE()  }->print(    join("\t",$ftypeid,$method,$source),"\n"                   ) unless $DONE{"ftype$;$ftypeid"}++;
-    
+
     foreach (@$attributes) {
       my ($key,$value) = @$_;
       my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
