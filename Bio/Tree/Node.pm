@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tree::Node
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -189,10 +189,8 @@ sub add_Descendent{
 sub each_Descendent{
    my ($self, $sortby) = @_;
 
-   # order can be based on branch length (and sub branchlength)
-
-   $sortby ||= 'height';
-   
+   # order can be based on branch length (and sub branchlength)   
+   $sortby ||= 'none';
    if (ref $sortby eq 'CODE') {
        return sort { $sortby->($a,$b) } values %{$self->{'_desc'}};
    } elsif ($sortby eq 'height') {
@@ -244,7 +242,7 @@ sub each_Descendent{
  Usage   : $node->remove_Descedent($node_foo);
  Function: Removes a specific node from being a Descendent of this node
  Returns : nothing
- Args    : An array of Bio::Node::NodeI objects which have be previously
+ Args    : An array of Bio::Node::NodeI objects which have been previously
            passed to the add_Descendent call of this object.
 
 =cut
@@ -280,7 +278,6 @@ sub remove_Descendent{
    }
    $c;
 }
-
 
 =head2 remove_all_Descendents
 
@@ -332,7 +329,7 @@ sub remove_all_Descendents{
 
 sub ancestor{
    my $self = shift;
-   $self->{'_ancestor'} = shift @_ if @_;
+   $self->{'_ancestor'} = shift @_ if @_;   
    return $self->{'_ancestor'};
 }
 
@@ -531,11 +528,10 @@ sub is_Leaf {
 
 sub height { 
     my ($self) = @_;
-    
     return $self->{'_height'} if( defined $self->{'_height'} );
     
     return 0 if( $self->is_Leaf );
-    
+    $self->throw;
     my $max = 0;
     foreach my $subnode ( $self->each_Descendent ) { 
 	my $bl = $subnode->branch_length;
@@ -550,13 +546,11 @@ sub height {
 
  Title   : invalidate_height
  Usage   : private helper method
- Function: Invalidate our cached value of the node's height in the tree
+ Function: Invalidate our cached value of the node height in the tree
  Returns : nothing
  Args    : none
 
 =cut
-
-#'
 
 sub invalidate_height { 
     my ($self) = @_;
@@ -677,6 +671,7 @@ sub has_tag {
 
 sub node_cleanup {
     my $self = shift;
+    return unless defined $self;
     if( defined $self->{'_desc'} &&
 	ref($self->{'_desc'}) =~ /ARRAY/i ) {
 	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
