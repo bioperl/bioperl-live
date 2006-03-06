@@ -3537,18 +3537,18 @@ sub _split_gff3_group {
     if ($tag eq 'Parent') {
       my (@names,@classes);
       for (@values) {
-	my ($name,$class) = $self->gff3_name_munging ? _gff3_name_munging($_,$dc) : ($_,$dc);
+	my ($name,$class) = $self->_gff3_name_munging($_,$dc);
 	push @names,$name;
 	push @classes,$class;
       }
       $id{$tag} = @names > 1 ? [\@names,\@classes] : [$names[0],$classes[0]];
     }
     elsif ($tag eq 'ID') {
-      $id{$tag} = [_gff3_name_munging(shift(@values),$dc)];
+      $id{$tag} = [$self->_gff3_name_munging(shift(@values),$dc)];
     }
     elsif ($tag eq 'Target') {
       my ($gname,$tstart,$tstop) = split /\s+/,shift @values;
-      $id{$tag} = [_gff3_name_munging($gname,$dc),$tstart,$tstop];
+      $id{$tag} = [$self->_gff3_name_munging($gname,$dc),$tstart,$tstop];
     }
     elsif ($tag =~ /synonym/i) {
       $tag = 'Alias';
@@ -3574,7 +3574,10 @@ sub _split_gff3_group {
 
 # accomodation for wormbase style of class:name naming
 sub _gff3_name_munging {
+  my $self = shift;
   my ($name,$default_class) = @_;
+  return ($name,$default_class) unless $self->gff3_name_munging;
+
   if ($name =~ /^(\w+):(.+)/) {
     return ($2,$1);
   } else {

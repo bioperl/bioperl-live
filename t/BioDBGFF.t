@@ -72,6 +72,7 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   fail(TEST_COUNT - 1) unless $db;
 
   $db->debug(0);
+  $db->gff3_name_munging(1);
 
   # set the preferred groups
   $db->preferred_groups( [ 'transcript', 'gene', 'mRNA' ] );
