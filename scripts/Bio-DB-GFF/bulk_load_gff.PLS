@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.38 2006-03-02 00:26:01 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.39 2006-03-06 16:12:56 lstein Exp $
 
 
 use strict;
@@ -586,7 +586,6 @@ elsif( $use_mysql or $use_mysqlcmap ) {
   my $TERMINATEDBY = $bWINDOWS ? q( LINES TERMINATED BY '\r\n') : ''; 
   for my $f (@files) {
     my $table = function_to_table($f,$ADAPTOR);
-    warn "load data $LOCAL infile '$tmpdir/$f.$$' replace into table $table $TERMINATEDBY";
     my $sql = join ('; ',
 		    "lock tables $table write",
 		    "delete from $table",
