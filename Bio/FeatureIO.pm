@@ -25,10 +25,10 @@ Bio::FeatureIO - Handler for FeatureIO
   $in  = Bio::FeatureIO->new(-fh => \*GFF , -format => 'GFF');
 
   #read features already attached to a sequence
-  my $seq = Bio::Seq->new(-seq => $seq , -format => 'features');
+  my $feat = Bio::FeatureIO->new(-seq => $seq , -format => 'features');
 
   #read new features for existing sequence
-  my $seq = Bio::Seq->new(-seq => $seq , -format => 'Das');
+  my $seq = Bio::FeatureIO->new(-seq => $seq , -format => 'Das');
 
   #write out features
   $out = Bio::FeatureIO->new(-file    => ">outputfilename" ,
@@ -52,23 +52,23 @@ An I/O iterator subsystem for genomic sequence features.
  GTF                          gtf.pm
  InterPro (IPRScan 4.0)  interpro.pm
 
-  #Bio::SeqIO is a handler module for the formats in the SeqIO set (eg,
-  #Bio::SeqIO::fasta). It is the officially sanctioned way of getting at
+  #Bio::FeatureIO is a handler module for the formats in the FeatureIO set (eg,
+  #Bio::FeatureIO::GFF). It is the officially sanctioned way of getting at
   #the format objects, which most people should use.
   #
-  #The Bio::SeqIO system can be thought of like biological file handles.
+  #The Bio::FeatureIO system can be thought of like biological file handles.
   #They are attached to filehandles with smart formatting rules (eg,
-  #genbank format, or EMBL format, or binary trace file format) and 
-  #can either read or write sequence objects (Bio::Seq objects, or
-  #more correctly, Bio::SeqI implementing objects, of which Bio::Seq is
-  #one such object). If you want to know what to do with a Bio::Seq
-  #object, read L<Bio::Seq>.
+  #GFF format, or BED format) and 
+  #can either read or write feature objects (Bio::Feature objects, or
+  #more correctly, Bio::FeatureI implementing objects, of which Bio::Feature is
+  #one such object). If you want to know what to do with a Bio::FeatureI
+  #object, read L<Bio::SeqFeatureI>.
   #
   #The idea is that you request a stream object for a particular format.
   #All the stream objects have a notion of an internal file that is read
-  #from or written to. A particular SeqIO object instance is configured
+  #from or written to. A particular FeatureIO object instance is configured
   #for either input or output. A specific example of a stream object is
-  #the Bio::SeqIO::fasta object.
+  #the Bio::FeatureIO::gff object.
   #
   #Each stream object has functions
   #
@@ -110,7 +110,7 @@ conventions apply:
 You may provide new() with a previously-opened filehandle.  For
 example, to read from STDIN:
 
-   $seqIO = Bio::FeatureIO->new(-fh => \*STDIN);
+   $featio = Bio::FeatureIO->new(-fh => \*STDIN);
 
 Note that you must pass filehandles as references to globs.
 
@@ -130,7 +130,7 @@ some HTML tags:
   while ( my $f = $in->next_feature() ) {
       # the output handle is reset for every file
       my $stringio = IO::String->new($string);
-      my $out = Bio::SeqIO->new('-fh' => $stringio,
+      my $out = Bio::FeatureIO->new('-fh' => $stringio,
   			        '-format' => 'gtf');
       # output goes into $string
       $out->write_feature($f);
@@ -507,20 +507,20 @@ sub DESTROY {
 
 sub TIEHANDLE {
     my ($class,$val) = @_;
-    return bless {'seqio' => $val}, $class;
+    return bless {'featio' => $val}, $class;
 }
 
 sub READLINE {
   my $self = shift;
-  return $self->{'seqio'}->next_seq() unless wantarray;
+  return $self->{'featio'}->next_seq() unless wantarray;
   my (@list, $obj);
-  push @list, $obj while $obj = $self->{'seqio'}->next_seq();
+  push @list, $obj while $obj = $self->{'featio'}->next_seq();
   return @list;
 }
 
 sub PRINT {
   my $self = shift;
-  $self->{'seqio'}->write_seq(@_);
+  $self->{'featio'}->write_seq(@_);
 }
 
 1;
