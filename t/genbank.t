@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 115;
+	plan tests => 121;
 }
 
 use Bio::SeqIO;
@@ -346,3 +346,19 @@ $seq = $gb->next_seq;
 ok $seq->species->common_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
 @class = $seq->species->classification;
 ok $class[$#class], "Bacteria";
+
+# WGS tests
+$gb = new Bio::SeqIO(-format => 'genbank',
+							-file   => Bio::Root::IO->catfile
+							(qw(t data O_sat.wgs)));
+$seq = $gb->next_seq;
+
+my @tests = ('WGS' => 'AAAA02000001-AAAA02050231',
+			 'WGS_SCAFLD' => 'CM000126-CM000137',
+			 'WGS_SCAFLD' => 'CH398081-CH401163');
+foreach my $wgs
+(map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD)) {
+    my ($tagname, $value) = (shift @tests, shift @tests);
+	ok($wgs->tagname, $tagname);
+	ok($wgs->value, $value);
+}
