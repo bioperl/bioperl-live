@@ -598,10 +598,11 @@ sub to_FTstring {
 
     } else { 
 	$str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
-	if( $strand < 0 ) {  # wrap this in a complement if it was unrolled
-	    $str = sprintf("%s(%s)",'complement',$str);
-	}
+      }
+    if( $strand < 0 ) {  # wrap this in a complement if it was unrolled
+      $str = sprintf("%s(%s)",'complement',$str);
     }
+
     return $str;
 }
 
