@@ -111,6 +111,8 @@ is not specified, this list, in this order, will be used as the default.
     ambiguous_aln          # Ambiguous alignment indicator ('qs', 'q', 's')
     hit_description        # Full description of the hit sequence
     query_description      # Full description of the query sequence
+    rank                   # The rank order of the hit
+    num_hits               # Number of hits for the query finding this hit
 
 Items marked with a C<*> report data summed across all HSPs
 after tiling them to avoid counting data from overlapping regions
@@ -220,6 +222,8 @@ my %column_map = (
                   'ambiguous_aln'         => ['28', 'hit', 'ambiguous_aln', 's', 'AMBIG'],
                   'hit_description'       => ['29', 'hit', 'description', 's', 'DESC_H'],
                   'query_description'     => ['30', 'result', 'query_description', 's', 'DESC_Q'],
+                  'rank'                  => ['31', 'hit', 'rank', 's', 'RANK'],
+                  'num_hits'              => ['32', 'result', 'num_hits', 's', 'NUM_HITS'],
                  );
 
 sub column_map { return %column_map }
