@@ -619,10 +619,14 @@ sub next_seq {
 						  $ftunit->_generic_seqfeature($self->location_factory(),
 																 $display_id));
 				}
-			} elsif( s/^WGS\s+// ) {
-				chomp;
-				$annotation->add_Annotation('wgs',
-		         Bio::Annotation::SimpleValue->new(-value => $_));
+			} elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
+                while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
+                    chomp;
+                    $annotation->add_Annotation(
+                        Bio::Annotation::SimpleValue->new(-value => $_,
+                                                          -tagname => $1));
+                    $_ = $self->_readline;
+                }
 			} elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
 				while (defined( $_ = $self->_readline) ) {
 					last if /^(ORIGIN|\/\/)/;
@@ -889,12 +893,15 @@ sub write_seq {
 	    }
 	}
 
-	# deal with WGS
-	foreach my $wgs ( $seq->annotation->get_Annotations('wgs') ) {
-	    $self->_print(sprintf ("%-11s %s\n",'WGS',
-				   $wgs->value));
-	    $self->_show_dna(0);
-	}
+	# deal with WGS; WGS_SCAFLD present only if WGS is also present
+    if($seq->annotation->get_Annotations('WGS')) {
+        foreach my $wgs
+        (map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD)) {
+            $self->_print(sprintf ("%-11s %s\n",$wgs->tagname,
+                       $wgs->value));
+        }
+        $self->_show_dna(0);
+    }
 
 	if( $seq->length == 0 ) { $self->_show_dna(0) }
 
