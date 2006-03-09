@@ -102,7 +102,8 @@ BEGIN {
     %FORMATMAP = ( 'gb' => 'genbank',
 						   'gp' => 'genbank',
 						   'fasta' => 'fasta',
-						   'asn.1' => 'entrezgene'
+						   'asn.1' => 'entrezgene',
+						   'gbwithparts' => 'genbank',
 					  );
 
     $DEFAULTFORMAT = 'gb';
@@ -285,64 +286,21 @@ sub postprocess_data {
 
 	# transform links to appropriate descriptions
 	if ($data =~ /\nCONTIG\s+/) {	
-		$self->warn("CONTIG found. GenBank get_Stream_by_acc about to run."); 
-    	my(@batch,@accession,%accessions,@location,$id,
-			$contig,$stream,$aCount,$cCount,$gCount,$tCount);
-
-    	# process GenBank CONTIG join(...) into two arrays
-    	$data =~ /(?:CONTIG\s+join\()((?:.+\n)+)(?:\/\/)/;
-		$contig = $1;
-    	$contig =~ s/\n|\)//g;
-		foreach (split /\s*,\s*/,$contig){	    
-			if (/>(.+)<.+>:(.+)/) {
-				($id) = split /\./, $1;		
-				push @accession, $id;
-				push @location, $2;
-				$accessions{$id}->{'count'}++;
-			} elsif( /([\w\.]+):(.+)/ ) { 
-				($id) = split /\./, $1;
-				$accessions{$id}->{'count'}++;
-				push @accession, $id;
-				push @location, $2;
-			}
-		}
-
-		# grab multiple sequences by batch and join based location variable
-		my @unique_accessions = keys %accessions;
-		$stream = $self->get_Stream_by_acc(\@unique_accessions);
-		$contig = "";
-		my $ct = 0;
-		while( my $seq = $stream->next_seq() ) {	    
-			if( $seq->accession_number !~ /$unique_accessions[$ct]/ ) {
-				printf STDERR "warning, %s does not match %s\n",
-				  $seq->accession_number, $unique_accessions[$ct];
-			}
-			$accessions{$unique_accessions[$ct]}->{'seq'} = $seq;
-			$ct++;
-		}
-		for (my $i = 0; $i < @accession; $i++) {
-			my $seq = $accessions{$accession[$i]}->{'seq'};
-			unless( defined $seq ) {
-				# seq not cached, get next sequence
-				$self->warn("unable to find sequence $accession[$i]\n");
-				return undef;
-			}
-			my($start,$end) = split(/\.\./, $location[$i]);
-			$contig .= $seq->subseq($start,$end-$start);
-		}
-
-		# count number of each letter in sequence
-		$aCount = () = $contig =~ /a/ig;
-		$cCount = () = $contig =~ /c/ig;
-		$gCount = () = $contig =~ /g/ig;
-		$tCount = () = $contig =~ /t/ig;
-
+		$self->warn("CONTIG found. Retrieving contig sequence.".
+					"\nUse format type 'gbwithparts' or 'fasta' with contigs.");
+		# get accession from LOCUS
+		$data =~ /^LOCUS\s+(\S+)/;
+		my $acc = $1;
+		my $stream = Bio::DB::GenBank->new(-format => 'fasta');
+		my $seq = $stream->get_Seq_by_acc($acc);
+		my $contig = $seq->seq;
 		# remove everything after and including CONTIG
 		$data =~ s/(CONTIG[\s\S]+)$//i;
-
-		# build ORIGIN part of data file using sequence and counts
-		$data .= "BASE COUNT     $aCount a   $cCount c   $gCount g   $tCount t\n";
+		# build ORIGIN part of data file
+		# Bio::SeqIO::genbank will fix this line, fills in the actual numbers
+		$data .= "BASE COUNT     0 a   0 c   0 g   0 t  \n";
 		$data .= "ORIGIN      \n";
+		# Bio::SeqIO::genbank also formats this data correctly
 		$data .= "$contig\n//";
 	}
 	else {
