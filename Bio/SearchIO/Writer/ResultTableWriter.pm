@@ -32,6 +32,7 @@ Bio::SearchIO::Writer::ResultTableWriter - Outputs tab-delimited data for each B
                                   -columns => [qw(
                                                   query_name
                                                   query_length
+                                                  num_hits
                                                   )]  );
 
     my $out = Bio::SearchIO->new( -writer => $writer,
@@ -52,7 +53,8 @@ you want to specify. Here's an example:
     my $writer = Bio::SearchIO::Writer::ResultTableWriter->new( 
                                -columns => [qw( query_name 
                                                 query_length
-                                                query_description )],
+                                                query_description 
+                                                num_hits)],
                                -labels  => { 1 => 'QUERY_GI',
   	                                     2 => 'QUERY_LENGTH' } );
 
@@ -146,6 +148,7 @@ my %column_map = (
                   'query_name'        => ['1', 'result', 'query_name', 's', 'QUERY' ],
                   'query_length'      => ['2', 'result', 'query_length', 'd', 'LEN_Q'],
                   'query_description' => ['3', 'result', 'query_description', 's', 'DESC_Q'],
+                  'num_hits'          => ['4', 'result', 'num_hits', 'd', 'NUM_HITS'],
                  );
 
 sub column_map { return %column_map }
