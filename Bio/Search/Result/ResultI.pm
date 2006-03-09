@@ -154,7 +154,7 @@ sub sort_hits {
     my @sorted_hits;
 
     if ($coderef)  {
-	$self->throw('next_hit requires a sort function passed as a subroutine reference')
+	$self->throw('sort_hits requires a sort function passed as a subroutine reference')
 	    unless (ref($coderef) eq 'CODE');
     }
     else {
