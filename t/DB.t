@@ -24,7 +24,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 93;
+   $NUMTESTS = 99;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -80,6 +80,7 @@ my %expected_lengths = ('NDP_MOUSE' => 131,
 								  'DEGP_CHLTR'=> 497,
 								  'AF442768'  => 2547,
 								  'P31383'    => 635,
+                                  'CH402638'  => 5041,
 							  );
 
 if( $DEBUG ) {
@@ -350,6 +351,33 @@ if( $DEBUG ) {
 	}
 	$seq = $seqio = undef;
 
+   # test contig retrieval
+   eval {
+       ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
+                                               '-delay'  => 0,
+                                               '-format' => 'gbwithparts'
+                       ) );
+       ok( defined ($seq = $gb->get_Seq_by_id('CH402638')));
+       ok($seq->length, $expected_lengths{$seq->display_id});
+	   # now to check that postprocess_data in NCBIHelper catches CONTIG...
+	   ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
+                                               '-delay'  => 0,
+                                               '-format' => 'gb'
+                       ) );
+       ok( defined ($seq = $gb->get_Seq_by_id('CH402638')));
+       ok($seq->length, $expected_lengths{$seq->display_id});
+       };
+   if ($@) {
+       if( $DEBUG ) { 
+           print STDERR "Couldn't connect to GenBank with Bio::DB::GenBank.pm!\n$@";
+       }
+       foreach ( $Test::ntest..$NUMTESTS) { 
+           skip('could not connect to GenBank',1);
+       }
+       exit(0);
+   }
+   	$seq = $seqio = undef;
+
 	#
 	# Bio::DB::EntrezGene
 	#
@@ -377,6 +405,7 @@ if( $DEBUG ) {
 		}
 		exit(0);
 	}
+	$seq = $seqio = undef;
 
 } else {
 	for ( $Test::ntest..$NUMTESTS) {
