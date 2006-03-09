@@ -8,10 +8,8 @@
 
 use strict;
 use lib '..','.','./blib/lib';
-use vars qw($NUMTESTS $DEBUG);
+use vars qw($NUMTESTS $DEBUG $error $asn_error);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
-my $error;
 
 BEGIN { 
    # to handle systems with no installed Test module
@@ -30,13 +28,18 @@ BEGIN {
    eval { require IO::String;
 			 require LWP::UserAgent;
 			 require HTTP::Request::Common; };
-   if( $@ ) {
+   if ( $@ ) {
       print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n";
-      for( 1..$NUMTESTS ) {
+      for ( 1..$NUMTESTS ) {
 			skip("IO::String, LWP::UserAgent,or HTTP::Request not installed",1);
       }
       $error = 1;
    }
+	eval { require Bio::ASN1::EntrezGene; };
+	if ($@) {
+      print STDERR "Bio::ASN1::EntrezGene not found, Bio::DB::EntrezGene module is not usable. Skipping tests.\n";
+		$asn_error = 1;
+	}
 }
 
 END { 
@@ -372,7 +375,7 @@ if( $DEBUG ) {
            print STDERR "Couldn't connect to GenBank with Bio::DB::GenBank.pm!\n$@";
        }
        foreach ( $Test::ntest..$NUMTESTS) { 
-           skip('could not connect to GenBank',1);
+           skip('Could not connect to GenBank',1);
        }
        exit(0);
    }
@@ -381,27 +384,30 @@ if( $DEBUG ) {
 	#
 	# Bio::DB::EntrezGene
 	#
-	eval {
-		ok( defined($gb = Bio::DB::EntrezGene->new(-verbose => $verbose, 
-																-retrievaltype => 'tempfile',
-																-delay => 0 )));
-		ok(defined($seqio = $gb->get_Stream_by_id([2,3064])));
-		$seq = $seqio->next_seq;
-		ok( $seq->display_id, "A2M");
-		ok($seq->accession_number, 2);
-		$seq = $seqio->next_seq;
-		ok( $seq->display_id, "HD");
-		ok($seq->accession_number, 3064);
-		$seq = $gb->get_Seq_by_id(6099);
-		ok( $seq->display_id, "RP");
-		ok($seq->accession_number, 6099);
-	};
+	unless ($asn_error) {
+		eval {
+			ok( defined($gb = Bio::DB::EntrezGene->new(-verbose => $verbose, 
+																	 -retrievaltype => 'tempfile',
+																	 -delay => 0 )));
+			ok(defined($seqio = $gb->get_Stream_by_id([2,3064])));
+			$seq = $seqio->next_seq;
+			ok( $seq->display_id, "A2M");
+			ok($seq->accession_number, 2);
+			$seq = $seqio->next_seq;
+			ok( $seq->display_id, "HD");
+			ok($seq->accession_number, 3064);
+			$seq = $gb->get_Seq_by_id(6099);
+			ok( $seq->display_id, "RP");
+			ok($seq->accession_number, 6099);
+		};
+	}
+
 	if ($@) {
 		if( $DEBUG ) { 
 			print STDERR "Warning: Couldn't connect to Entrez with Bio::DB::EntrezGene.pm!\n$@";
 		}
 		foreach ( $Test::ntest..$NUMTESTS) { 
-			skip('could not connect to Entrez Gene',1);
+			skip('Could not connect to Entrez Gene',1);
 		}
 		exit(0);
 	}
