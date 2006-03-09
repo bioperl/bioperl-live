@@ -1,0 +1,99 @@
+LOCUS       AAAA02000000           50231 rc    DNA     linear   PLN 11-MAR-2005
+DEFINITION  Oryza sativa (indica cultivar-group) whole genome shotgun
+            sequencing project.
+ACCESSION   AAAA00000000
+VERSION     AAAA00000000.2  GI:54362548
+KEYWORDS    WGS.
+SOURCE      Oryza sativa (indica cultivar-group)
+  ORGANISM  Oryza sativa (indica cultivar-group)
+            Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+            Spermatophyta; Magnoliophyta; Liliopsida; Poales; Poaceae; BEP
+            clade; Ehrhartoideae; Oryzeae; Oryza.
+REFERENCE   1  (bases 1 to 50231)
+  AUTHORS   Yu,J., Wang,J., Lin,W., Li,S., Li,H., Zhou,J., Ni,P., Dong,W.,
+            Hu,S., Zeng,C., Zhang,J., Zhang,Y., Li,R., Xu,Z., Li,S., Li,X.,
+            Zheng,H., Cong,L., Lin,L., Yin,J., Geng,J., Li,G., Shi,J., Liu,J.,
+            Lv,H., Li,J., Wang,J., Deng,Y., Ran,L., Shi,X., Wang,X., Wu,Q.,
+            Li,C., Ren,X., Wang,J., Wang,X., Li,D., Liu,D., Zhang,X., Ji,Z.,
+            Zhao,W., Sun,Y., Zhang,Z., Bao,J., Han,Y., Dong,L., Ji,J., Chen,P.,
+            Wu,S., Liu,J., Xiao,Y., Bu,D., Tan,J., Yang,L., Ye,C., Zhang,J.,
+            Xu,J., Zhou,Y., Yu,Y., Zhang,B., Zhuang,S., Wei,H., Liu,B., Lei,M.,
+            Yu,H., Li,Y., Xu,H., Wei,S., He,X., Fang,L., Zhang,Z., Zhang,Y.,
+            Huang,X., Su,Z., Tong,W., Li,J., Tong,Z., Li,S., Ye,J., Wang,L.,
+            Fang,L., Lei,T., Chen,C., Chen,H., Xu,Z., Li,H., Huang,H.,
+            Zhang,F., Xu,H., Li,N., Zhao,C., Li,S., Dong,L., Huang,Y., Li,L.,
+            Xi,Y., Qi,Q., Li,W., Zhang,B., Hu,W., Zhang,Y., Tian,X., Jiao,Y.,
+            Liang,X., Jin,J., Gao,L., Zheng,W., Hao,B., Liu,S., Wang,W.,
+            Yuan,L., Cao,M., McDermott,J., Samudrala,R., Wang,J., Wong,G.K. and
+            Yang,H.
+  TITLE     The Genomes of Oryza sativa: A History of Duplications
+  JOURNAL   PLoS Biol. 3 (2), E38 (2005)
+   PUBMED   15685292
+REFERENCE   2  (bases 1 to 50231)
+  AUTHORS   Yu,J., Hu,S., Wang,J., Li,S., Wong,K.-S.G., Liu,B., Deng,Y.,
+            Dai,L., Zhou,Y., Zhang,X., Cao,M., Liu,J., Sun,J., Tang,J.,
+            Chen,Y., Huang,X., Lin,W., Ye,C., Tong,W., Cong,L., Geng,J.,
+            Han,Y., Li,L., Li,W., Hu,G., Huang,X., Li,W., Li,J., Liu,Z., Li,L.,
+            Liu,J., Qi,Q., Liu,J., Li,L., Wang,X., Lu,H., Wu,T., Zhu,M., Ni,P.,
+            Han,H., Dong,W., Ren,X., Feng,X., Cui,P., Li,X., Wang,H., Xu,X.,
+            Zhai,W., Xu,Z., Zhang,J., He,S., Zhang,J., Xu,J., Zhang,K.,
+            Zheng,X., Dong,J., Zeng,W., Tao,L., Chen,X., He,J., Liu,D.,
+            Tian,W., Tian,C., Xia,H., Li,G., Gao,H., Li,P., Chen,W., Wang,X.,
+            Zhang,Y., Hu,J., Wang,J., Liu,S., Yang,J., Zhang,G., Bao,Q.,
+            Xiong,Y., Li,Z., Mao,L., Zhou,C., Chen,R., Zhu,Z., Hao,B.,
+            Zheng,W., Chen,S., Guo,W., Li,G., Liu,S., Huang,G., Tao,M.,
+            Wang,J., Zhu,L., Yuan,L. and Yang,H.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (04-JAN-2002) Beijing Genomics Institute/Center of
+            Genomics & Bioinformatics, Institute of Genomics, Chinese Academy
+            of Sciences, Beijing Airport Industrial Zone B6, Beijing, Beijing
+            101300, P.R.China
+REFERENCE   3  (bases 1 to 50231)
+  AUTHORS   Yu,J., Wang,J., Lin,W., Li,S., Li,H., Zhou,J., Ni,P., Dong,W.,
+            Hu,S., Zeng,C., Zhang,J., Zhang,Y., Li,R., Xu,Z., Li,S., Li,X.,
+            Zheng,H., Cong,L., Lin,L., Yin,J., Geng,J., Li,G., Shi,J., Liu,J.,
+            Lv,H., Li,J., Wang,J., Deng,Y., Ran,L., Shi,X., Wang,X., Wu,Q.,
+            Li,C., Ren,X., Wang,J., Wang,X., Li,D., Liu,D., Zhang,X., Ji,Z.,
+            Zhao,W., Sun,Y., Zhang,Z., Bao,J., Han,Y., Dong,L., Ji,J., Chen,P.,
+            Wu,S., Liu,J., Xiao,Y., Bu,D., Tan,J., Yang,L., Ye,C., Zhang,J.,
+            Xu,J., Zhou,Y., Yu,Y., Zhang,B., Zhuang,S., Wei,H., Liu,B., Lei,M.,
+            Yu,H., Li,Y., Xu,H., Wei,S., He,X., Fang,L., Zhang,Z., Zhang,Y.,
+            Huang,X., Su,Z., Tong,W., Li,J., Tong,Z., Li,S., Ye,J., Wang,L.,
+            Fang,L., Lei,T., Chen,C., Chen,H., Xu,Z., Li,H., Huang,H.,
+            Zhang,F., Xu,H., Li,N., Zhao,C., Li,S., Dong,L., Huang,Y., Li,L.,
+            Xi,Y., Qi,Q., Li,W., Zhang,B., Hu,W., Zhang,Y., Zheng,W., Hao,B.,
+            Liu,S., Wang,W., Yuan,L., Cao,M.L., McDermott,J., Samudrala,R.,
+            Wang,J., Wong,G.K.-S. and Yang,H.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (12-SEP-2003) Beijing Institute of Genomics, Chinese
+            Academy of Sciences, Beijing Airport Industrial Zone B6, Beijing,
+            Beijing 101300, P.R.China
+COMMENT     On Oct 21, 2004 this sequence version replaced gi:19924305.
+            The Oryza sativa (indica cultivar-group) whole genome shotgun (WGS)
+            project has the project accession AAAA00000000.  This version of
+            the project (02) has the accession number AAAA02000000, and
+            consists of sequences AAAA02000001-AAAA02050231.
+            The improved whole-genome shotgun (WGS) sequences for the genomes
+            of indica and japonica rice, AAAA02000000 and AACV01000000,
+            respectively, have multi-megabase contiguity and are nearly
+            1000-fold improved over the drafts of 2002. Tested against a
+            non-redundant collection of 19,079 full-length cDNAs, 98.1% of the
+            genes are aligned without fragmentation to the mapped
+            super-scaffolds of one or the other genome. Despite having only a
+            small variation in gene content, there is an enormous variation in
+            intergenic regions. At least a quarter of the two sequences could
+            not be aligned, and in the aligned region
+            single-nucleotide-polymorphism (SNP) rates varied from as little as
+            3.0 SNP/kb in the coding regions, to 27.6 SNP/kb in the
+            transposable elements.
+FEATURES             Location/Qualifiers
+     source          1..50231
+                     /organism="Oryza sativa (indica cultivar-group)"
+                     /mol_type="genomic DNA"
+                     /cultivar="93-11"
+                     /db_xref="taxon:39946"
+WGS         AAAA02000001-AAAA02050231
+WGS_SCAFLD  CM000126-CM000137
+WGS_SCAFLD  CH398081-CH401163
+//
+
