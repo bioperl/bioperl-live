@@ -543,3 +543,5 @@ o DEPENDENCIES AND Bundle::BioPerl
                           Bio::SeqIO::tigrxml
                   
  XML::SAX::Writer
+
+Convert::Binary::C       Binary Data Conversion using C Types Bio/SeqIO/strider

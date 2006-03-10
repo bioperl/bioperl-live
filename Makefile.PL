@@ -40,7 +40,8 @@
 	     'XML::SAX'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
 	     'XML::SAX::Base'           => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
 	     'XML::SAX::Writer'         => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
- 	     'Bio::ASN1::EntrezGene'    => '0.0/Entrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene'
+ 	     'Bio::ASN1::EntrezGene'    => '0.0/Entrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene',
+ 	     'Convert::Binary::C'       => '0.0/Binary Data Conversion using C Types/Parsers/Bio::SeqIO::strider',
 # Bio::Microarray is not in core bioperl yet
 #	     'enum'                     => '0.0/C style enumerated types and bitmask flags 
 # in Perl/Bio::Microarray::Affymetrix::*',
