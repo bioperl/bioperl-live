@@ -16,8 +16,8 @@ BEGIN {
     }
     use Test;
     use vars qw($NUMTESTS $DEBUG);
-    $NUMTESTS = 23;
-    $DEBUG   = 0;
+    $NUMTESTS = 25;
+    $DEBUG   = 1;
     plan test => $NUMTESTS;
 }
 
@@ -31,12 +31,16 @@ my $seq = $seqio->next_seq;
 ok($seq);
 my $epcr = new Bio::Tools::EPCR( '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.epcr"));
 ok ($epcr);
+my %strand;
 while( defined(my $feature = $epcr->next_feature) ) {
     ok($feature);
     ok($feature->start);
     ok($feature->end);
     $seq->add_SeqFeature($feature);
+    $strand{$feature->strand} ++;
 }
+ok ($strand{1},  3 , 'expected 3 forward strand ePCR hits');
+ok ($strand{-1}, 3 , 'expected 3 reverse strand ePCR hits');
 
 
 if( $DEBUG ) {

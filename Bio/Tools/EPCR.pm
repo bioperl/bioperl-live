@@ -153,10 +153,15 @@ sub next_feature {
     
     my ($start,$end) = ($location =~ /(\S+)\.\.(\S+)/);
 
-    # If we require that e-PCR is run with D=1 we can detect a strand
-    # for now hardcoded to 0
+    # `e-PCR -direct` results code match strand in $rest as +/-.  Decode it if present.
+    my $strandsign;
+    if ($rest =~ m/^\(([+-])\)(.*)$/) {
+      ($strandsign,$rest) = ($1, $2);
+    } else {
+      $strandsign = "?";
+    }
+    my $strand = $strandsign eq "+" ? 1 :  $strandsign eq "-" ? -1 : 0; #decode strandsign of +,-,other as 1,-1,0 respectively
 
-    my $strand = 0;
     my $markerfeature = new Bio::SeqFeature::Generic 
 	( '-start'   => $start,
 	  '-end'     => $end,
