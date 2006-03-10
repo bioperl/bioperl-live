@@ -153,14 +153,14 @@ sub next_feature {
     
     my ($start,$end) = ($location =~ /(\S+)\.\.(\S+)/);
 
-    # `e-PCR -direct` results code match strand in $rest as +/-.  Decode it if present.
+    # `e-PCR -direct` results code match strand in $rest as (+) and (-).  Decode it if present.
     my $strandsign;
     if ($rest =~ m/^\(([+-])\)(.*)$/) {
       ($strandsign,$rest) = ($1, $2);
     } else {
       $strandsign = "?";
     }
-    my $strand = $strandsign eq "+" ? 1 :  $strandsign eq "-" ? -1 : 0; #decode strandsign of +,-,other as 1,-1,0 respectively
+    my $strand = $strandsign eq "+" ? 1 :  $strandsign eq "-" ? -1 : 0;
 
     my $markerfeature = new Bio::SeqFeature::Generic 
 	( '-start'   => $start,
@@ -171,8 +171,9 @@ sub next_feature {
 	  '-seq_id'  => $seqname,
 	  '-tag'     => {
 	      $self->groupclass => $mkrname,
+	      ($rest ? ('Note'            => $rest ) : ()),
 	  });
-    $markerfeature->add_tag_value('Note', $rest) if defined $rest;
+    #$markerfeature->add_tag_value('Note', $rest) if defined $rest;
     return $markerfeature;
 }
 
