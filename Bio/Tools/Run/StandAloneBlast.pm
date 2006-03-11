@@ -109,7 +109,7 @@ factory has been created.  The program checks that any
 parameter/switch being set/read is valid.  Except where specifically
 noted, StandAloneBlast uses the same single-letter, case-sensitive
 parameter names as the actual blast program.  Currently no checks are
-included to verify that parameters are of the proper type (eg string
+included to verify that parameters are of the proper type (e.g. string
 or numeric) or that their values are within the proper range.
 
 As an example, to change the value of the Blast parameter 'e' ('e' is
@@ -120,7 +120,7 @@ the parameter for expectation-value cutoff)
 
 Note that for improved script readibility one can modify the name of
 the BLAST parameters as desired as long as the initial letter (and
-case) of the parameter are preserved, eg:
+case) of the parameter are preserved, e.g.:
 
   $factory->expectvalue($expectvalue);
 
@@ -141,13 +141,13 @@ the BLAST documentation.
 In addition, sequence input may be in the form of either a Bio::Seq
 object or or an array of Bio::Seq objects, e.g.:
 
-  $input = Bio::Seq->new(-id=>"test query",
-                         -seq=>"ACTACCCTTTAAATCAGTGGGGG");
+  $input = Bio::Seq->new(-id => "test query",
+                         -seq => "ACTACCCTTTAAATCAGTGGGGG");
   $blast_report = $factory->blastall($input);
 
 For blastall and non-psiblast blastpgp runs, report object is either a
-L<Bio::Tools::BPlite> or L<Bio::SearchIO> object, selected by the user with the
-parameter _READMETHOD.  The leading underscore is needed to
+L<Bio::Tools::BPlite> or L<Bio::SearchIO> object, selected by the user 
+with the parameter _READMETHOD.  The leading underscore is needed to
 distinguish this option from options which are passed to the BLAST
 executable. The default parser is Bio::SearchIO::blast.  If BPlite
 method is selected, L<Bio::Tools::BPlite> objects will be returned for
@@ -170,7 +170,7 @@ same length as each sequence in the alignment and has a "1" at
 locations where (PSSMs) are to be used and a "0" at all other
 locations. So for example:
 
-  $str = Bio::AlignIO->new(-file=> "cysprot.msf", 
+  $str = Bio::AlignIO->new(-file => "cysprot.msf", 
                            -format => 'msf');
   $aln = $str->next_aln();
   $len = $aln->length_aln();
@@ -183,7 +183,7 @@ AlignIO.pm to directly produce a SimpleAlign object from the alignment
 of the two sequences produced by bl2seq as in:
 
   # Get 2 sequences
-  $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta');
+  $str = Bio::SeqIO->new(-file=>'t/amino.fa' , -format => 'Fasta');
   my $seq3 = $str->next_seq();
   my $seq4 = $str->next_seq();
 
@@ -193,7 +193,7 @@ of the two sequences produced by bl2seq as in:
   my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 
   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
-  $str = Bio::AlignIO->new(-file=> 'bl2seq.out','-format' => 'bl2seq');
+  $str = Bio::AlignIO->new(-file=> 'bl2seq.out',-format => 'bl2seq');
   $aln = $str->next_aln();
 
 For more examples of syntax and use of Blast.pm, the user is
@@ -238,9 +238,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::StandAloneBlast;
 
 use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR $BLASTTYPE
-	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS @WUBLAST_SWITCH
-	    @RPSBLAST_PARAMS @BL2SEQ_PARAMS @OTHER_PARAMS %OK_FIELD 
-	    $DEFAULTREADMETHOD
+	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS 
+		 @WUBLAST_SWITCH @RPSBLAST_PARAMS @BL2SEQ_PARAMS 
+       @OTHER_PARAMS %OK_FIELD $DEFAULTREADMETHOD
 	    );
 		 
 use strict;
