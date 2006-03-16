@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.39 2006-03-06 16:12:56 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.40 2006-03-16 17:10:49 lstein Exp $
 
 
 use strict;
@@ -96,6 +96,7 @@ e.g. -d instead of --database.
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
+   --Temporary           Location of a writable scratch directory
 
 =head1 SEE ALSO
 
@@ -186,7 +187,7 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE);
+my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE,$TMPDIDR);
 
 GetOptions ('database:s'    => \$DSN,
 	    'adaptor:s'     => \$ADAPTOR,
@@ -199,6 +200,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'group:s'       => \$GROUP_TAG,
 	    'long_list:s'   => \$LONG_LIST,
 	    'gff3_munge'    => \$MUNGE,
+	    'Temporary:s'   => \$TMPDIR,
 	   ) or (system('pod2text', $0), exit -1);
 
 # If called as pg_bulk_load_gff.pl behave as that did.
@@ -337,8 +339,14 @@ push @fasta,$FASTA if defined $FASTA;
 
 # drop everything that was there before
 my %FH;
-my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+my $tmpdir = $TMPDIR || $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
 $tmpdir =~ s!\\!\\\\!g if $bWINDOWS; #eliminates backslash mis-interpretation
+-d $tmpdir or die <<END;
+I could not find a suitable temporary directory to write scratch files into ($tmpdir by default).
+Please select a directory and indicate its location by setting the TMP environment variable, or
+by using the -T switch.
+END
+
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
   $FH{$_} = IO::File->new(">$tmpdir/$_.$$") or die $_,": $!";
