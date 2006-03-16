@@ -741,78 +741,70 @@ sub select_noncont {
  Title     : slice
  Usage     : $aln2 = $aln->slice(20, 30)
  Function  : Creates a slice from the alignment inclusive of start and
-             end columns.  Sequences with no residues in the slice are
-             excluded from the new alignment and a warning is printed.
-             Slice beyond the length of the sequence does not do
-             padding.
-             The first column in the alignment is denoted 1.
+             end columns, and the first column in the alignment is denoted 1.
+             Sequences with no residues in the slice are excluded from the
+             new alignment and a warning is printed. Slice beyond the length of 
+             the sequence does not do padding.
  Returns   : a Bio::SimpleAlign object
- Args      : positive integer for start column
-             positive integer for end column
-             optional boolean which if true will keep gap only columns too
-             in the newly created slice
+ Args      : positive integer for start column, positive integer for end column,
+             optional boolean which if true will keep gap-only columns in the newly 
+             created slice
 
 =cut
 
 sub slice {
-    my $self = shift;
-    my ($start, $end,$keep_gap_only) = @_;
+	my $self = shift;
+	my ($start, $end,$keep_gap_only) = @_;
 
-    $self->throw("Slice start has to be a positive integer, not [$start]")
-	unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Slice end has to be a positive integer, not [$end]")
-	unless $end =~ /^\d+$/ and $end > 0;
-    $self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]")
-	unless $start <= $end;
-    $self->throw("This alignment has only ". $self->length.
-		  " residues. Slice start [$start] is too bigger.")
-	 if $start > $self->length;
+	$self->throw("Slice start has to be a positive integer, not [$start]")
+	  unless $start =~ /^\d+$/ and $start > 0;
+	$self->throw("Slice end has to be a positive integer, not [$end]")
+	  unless $end =~ /^\d+$/ and $end > 0;
+	$self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]")
+	  unless $start <= $end;
+	$self->throw("This alignment has only ". $self->length . " residues. Slice start " .
+					 "[$start] is too big.") if $start > $self->length;
 
-    my $aln = $self->new;
-    $aln->id($self->id);
-    foreach my $seq ( $self->each_seq() ) {
-	my $new_seq = Bio::LocatableSeq->new(-id      => $seq->id,
-					     -strand  => $seq->strand,
-					     -verbose => $self->verbose);
-
-
-	# seq
-	my $seq_end = $end;
-	if( $end > $seq->length ) {
-	    $seq_end = $seq->length;
-	} elsif ($end == $start ) {
-	    $end++;
-	}
+	my $aln = $self->new;
+	$aln->id($self->id);
+	foreach my $seq ( $self->each_seq() ) {
+		my $new_seq = Bio::LocatableSeq->new(-id      => $seq->id,
+														 -strand  => $seq->strand,
+														 -verbose => $self->verbose);
+		# seq
+		my $seq_end = $end;
+		$seq_end = $seq->length if( $end > $seq->length );
 	
-	my $slice_seq = $seq->subseq($start, $seq_end);
-	$new_seq->seq( $slice_seq );
-	# start
-	if ($start > 1) {
-	    my $pre_start_seq = $seq->subseq(1, $start - 1);
-	    $pre_start_seq =~ s/\W//g; #print "$pre_start_seq\n";
-	    $new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
-	} else {
-	    $new_seq->start( $seq->start);
-	}
+		my $slice_seq = $seq->subseq($start, $seq_end);
+		$new_seq->seq( $slice_seq );
 
-	# end
-	$slice_seq =~ s/\W//g;
-	$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
+		# start
+		if ($start > 1) {
+			my $pre_start_seq = $seq->subseq(1, $start - 1);
+			$pre_start_seq =~ s/\W//g;
+			$new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
+		} else {
+			$new_seq->start( $seq->start);
+		}
+
+		# end
+		$slice_seq =~ s/\W//g;
+		$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
 	
-	if ($new_seq->start and $new_seq->end >= $new_seq->start) {
-	    $aln->add_seq($new_seq);
-	} else {
-	    if( $keep_gap_only ) {
-		$aln->add_seq($new_seq);
-	    } else {
-		my $nse = $seq->get_nse();
-		$self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
-			    " Sequence excluded from the new alignment.");
-	    }
+		if ($new_seq->start and $new_seq->end >= $new_seq->start) {
+			$aln->add_seq($new_seq);
+		} else {
+			if( $keep_gap_only ) {
+				$aln->add_seq($new_seq);
+			} else {
+				my $nse = $seq->get_nse();
+				$self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
+								" Sequence excluded from the new alignment.");
+			}
+		}
 	}
-    }
 
-    return $aln;
+	return $aln;
 }
 
 =head2 remove_columns
