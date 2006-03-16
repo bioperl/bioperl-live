@@ -745,6 +745,7 @@ sub select_noncont {
              excluded from the new alignment and a warning is printed.
              Slice beyond the length of the sequence does not do
              padding.
+             The first column in the alignment is denoted 1.
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for start column
              positive integer for end column
@@ -2070,21 +2071,21 @@ L<Bio::LocatableSeq::location_from_column>:
            sequence with the given name. For example, for the
            alignment
 
-  	     Seq1/91-97 AC..DEF.GH
-  	     Seq2/24-30 ACGG.RTY..
-  	     Seq3/43-51 AC.DDEFGHI
+    	     Seq1/91-97 AC..DEF.GH.
+   	     Seq2/24-30 ACGG.RTY...
+  	        Seq3/43-51 AC.DDEF.GHI
 
-           column_from_residue_number( "Seq1", 94 ) returns 5.
+           column_from_residue_number( "Seq1", 94 ) returns 6.
            column_from_residue_number( "Seq2", 25 ) returns 2.
-           column_from_residue_number( "Seq3", 50 ) returns 9.
+           column_from_residue_number( "Seq3", 50 ) returns 10.
 
            An exception is thrown if the residue number would lie
            outside the length of the aligment
            (e.g. column_from_residue_number( "Seq2", 22 )
 
-	  Note: If the the parent sequence is represented by more than
-	  one alignment sequence and the residue number is present in
-	  them, this method finds only the first one.
+      	  Note: If the the parent sequence is represented by more than
+	        one alignment sequence and the residue number is present in
+	        them, this method finds only the first one.
 
  Returns : A column number for the position in the alignment of the
            given residue in the given sequence (1 = first column)
