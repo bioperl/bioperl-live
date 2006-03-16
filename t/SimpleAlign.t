@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 66;
+use constant NUMTESTS => 68;
 
 BEGIN {
 	eval { require Test; };
@@ -134,7 +134,7 @@ $a = new Bio::SimpleAlign;
 $a->add_seq($s1);
 $a->add_seq($s2);
 
-my $strout = Bio::AlignIO->new(-fh   => $out,'-format' => 'pfam');
+my $strout = Bio::AlignIO->new(-fh => $out, -format => 'pfam');
 $strout->write_aln($a);
 ok $string, "AAA/1-10    aaaaattttt
 BBB/1-8     -aaaatttt-
@@ -148,7 +148,8 @@ ok $string, "AAA/2-9    aaaatttt
 BBB/1-8    aaaatttt
 ";
 
-$out->setpos(0); $string ='';
+$out->setpos(0); 
+$string ='';
 $b = $a->slice(9,10);
 $strout->write_aln($b);
 ok $string, "AAA/9-10    tt
@@ -156,11 +157,31 @@ BBB/8-8     t-
 ";
 
 $a->verbose(-1);
-$out->setpos(0); $string ='';
+$out->setpos(0); 
+$string ='';
 $b = $a->slice(1,2);
 $strout->write_aln($b);
 ok $string, "AAA/1-2    aa
 BBB/1-1    -a
+";
+
+# not sure what coordinates this should return...
+$a->verbose(-1);
+$out->setpos(0); 
+$string ='';
+$b = $a->slice(1,1,1);
+$strout->write_aln($b);
+ok $string, "AAA/1-1    a
+BBB/1-0    -
+";
+
+$a->verbose(-1);
+$out->setpos(0); 
+$string ='';
+$b = $a->slice(2,2);
+$strout->write_aln($b);
+ok $string, "AAA/2-2    a
+BBB/1-1    a
 ";
 
 eval {
