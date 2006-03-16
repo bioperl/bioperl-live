@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.40 2006-03-16 17:10:49 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.41 2006-03-16 17:15:09 lstein Exp $
 
 
 use strict;
@@ -187,7 +187,7 @@ if ($^O =~ /MSWin32/i) {
     $bWINDOWS = 1;
 }
 
-my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE,$TMPDIDR);
+my ($DSN,$ADAPTOR,$FORCE,$USER,$PASSWORD,$FASTA,$LOCAL,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE,$TMPDIR);
 
 GetOptions ('database:s'    => \$DSN,
 	    'adaptor:s'     => \$ADAPTOR,
@@ -344,7 +344,7 @@ $tmpdir =~ s!\\!\\\\!g if $bWINDOWS; #eliminates backslash mis-interpretation
 -d $tmpdir or die <<END;
 I could not find a suitable temporary directory to write scratch files into ($tmpdir by default).
 Please select a directory and indicate its location by setting the TMP environment variable, or
-by using the -T switch.
+by using the --Temporary switch.
 END
 
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);

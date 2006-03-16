@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.28 2006-03-02 00:26:01 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.29 2006-03-16 17:15:09 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -94,6 +94,7 @@ e.g. -d instead of --database.
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
+   --Temporary           Location of a writable scratch directory
 
 =head1 SEE ALSO
 
@@ -128,7 +129,7 @@ package main;
 eval "use Time::HiRes"; undef $@;
 my $timer = defined &Time::HiRes::time;
 
-my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE);
+my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE,$TMPDIR);
 
 if ($DO_FAST) {
   $SIG{CHLD} = sub {
@@ -151,6 +152,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'long_list:s'   => \$LONG_LIST,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'gff3_munge'    => \$MUNGE,
+	    'Temporary:s'   => \$TMPDIR,
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
@@ -225,7 +227,14 @@ my $can_disable_indexes = ($major >= 4 and $minor >= 0);
 # open up pipes to the database
 my (%FH,%COMMAND);
 my $MYSQL = MYSQL;
-my $tmpdir = $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+my $tmpdir = $TMPDIR || $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+-d $tmpdir or die <<END;
+I could not find a suitable temporary directory to write scratch files into ($tmpdir by default).
+Please select a directory and indicate its location by setting the TMP environment variable, or
+by using the --Temporary switch.
+END
+
+
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
   my $file = "$tmpdir/$_.$$";
