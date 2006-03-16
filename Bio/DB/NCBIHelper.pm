@@ -291,8 +291,10 @@ sub postprocess_data {
 		# get accession from LOCUS
 		$data =~ /^LOCUS\s+(\S+)/;
 		my $acc = $1;
-		my $stream = Bio::DB::GenBank->new(-format => 'fasta');
-		my $seq = $stream->get_Seq_by_acc($acc);
+		my $seqin = $self->get_seq_stream('-uids' => $acc,
+										'-mode' => 'single',
+										'-format' => 'fasta');
+		my $seq = $seqin->next_seq;
 		my $contig = $seq->seq;
 		# remove everything after and including CONTIG
 		$data =~ s/(CONTIG[\s\S]+)$//i;
