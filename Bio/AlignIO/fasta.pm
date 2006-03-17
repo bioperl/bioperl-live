@@ -64,7 +64,7 @@ $WIDTH = 60;
  Usage   : $aln = $stream->next_aln
  Function: returns the next alignment in the stream.
  Returns : Bio::Align::AlignI object - returns 0 on end of file
-	   or on error
+	        or on error
  Args    : -width => optional argument to specify the width sequence
            will be written (60 chars by default)
 
@@ -73,93 +73,93 @@ See L<Bio::Align::AlignI>
 =cut
 
 sub next_aln {
-    my $self = shift;
-    my ($width) = $self->_rearrange([qw(WIDTH)],@_);
-    $self->width($width || $WIDTH);
+	my $self = shift;
+	my ($width) = $self->_rearrange([qw(WIDTH)],@_);
+	$self->width($width || $WIDTH);
 
-    my ($start, $end, $name, $seqname, $seq, $seqchar, $entry, 
-	$tempname, $tempdesc, %align, $desc, $maxlen);
-    my $aln =  Bio::SimpleAlign->new();
+	my ($start, $end, $name, $seqname, $seq, $seqchar, $entry, 
+		 $tempname, $tempdesc, %align, $desc, $maxlen);
+	my $aln = Bio::SimpleAlign->new();
 
-    while (defined ($entry = $self->_readline) ) {
-	if ( $entry =~ s/^>\s*(\S+)\s*// ) {
-	    $tempname  = $1;
-	    chomp($entry);
-	    $tempdesc = $entry;
-	    if ( defined $name ) {
+	while (defined ($entry = $self->_readline) ) {
+		if ( $entry =~ s/^>\s*(\S+)\s*// ) {
+			$tempname  = $1;
+			chomp($entry);
+			$tempdesc = $entry;
+			if ( defined $name ) {
 				# put away last name and sequence
-		if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
-		    $seqname = $1;
-		    $start = $2;
-		    $end = $3;
-		} else {
-		    $seqname = $name;
-		    $start = 1;
-		    $end = $self->_get_len($seqchar);
-		}
-		$seq = new Bio::LocatableSeq(
-					     -seq         => $seqchar,
+				if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+					$seqname = $1;
+					$start = $2;
+					$end = $3;
+				} else {
+					$seqname = $name;
+					$start = 1;
+					$end = $self->_get_len($seqchar);
+				}
+				$seq = new Bio::LocatableSeq(
+						  -seq         => $seqchar,
 					     -display_id  => $seqname,
 					     -description => $desc,
 					     -start       => $start,
 					     -end         => $end,
 					     );
+				$aln->add_seq($seq);
+				$self->debug("Reading $seqname");
+			}
+			$desc = $tempdesc;	
+			$name = $tempname;
+			$desc = $entry;
+			$seqchar  = "";
+			next;
+		}
+		$entry =~ s/[$MATCHPATTERN]//g;
+		$seqchar .= $entry;	
+	}
+
+	#  Next two lines are to silence warnings that
+	#  otherwise occur at EOF when using <$fh>
+	$name = "" if (!defined $name);
+	$seqchar="" if (!defined $seqchar);
+
+	#  Put away last name and sequence
+	if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+		$seqname = $1;
+		$start = $2;
+		$end = $3;
+	} else {
+		$seqname = $name;
+		$start = 1;
+		$end = $self->_get_len($seqchar);
+	}
+
+	#  If $end <= 0, we have either reached the end of
+	#  file in <> or we have encountered some other error
+	if ( $end <= 0 ) { 
+		undef $aln; 
+		return $aln;
+	}
+
+	# This logic now also reads empty lines at the 
+	# end of the file. Skip this is seqchar and seqname is null
+	unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
+		$seq = new Bio::LocatableSeq(-seq         => $seqchar,
+											  -display_id  => $seqname,
+											  -description => $desc,
+											  -start       => $start,
+											  -end         => $end,
+											 );
 		$aln->add_seq($seq);
-		$self->debug("Reading $seqname");
-	    }
-	    $desc = $tempdesc;	
-	    $name = $tempname;
-	    $desc = $entry;
-	    $seqchar  = "";
-	    next;
 	}
-	$entry =~ s/[$MATCHPATTERN]//g;
-	$seqchar .= $entry;	
-    }
-
-    #  Next two lines are to silence warnings that
-    #  otherwise occur at EOF when using <$fh>
-    $name = "" if (!defined $name);
-    $seqchar="" if (!defined $seqchar);
-
-    #  Put away last name and sequence
-    if ( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
-	$seqname = $1;
-	$start = $2;
-	$end = $3;
-    } else {
-	$seqname = $name;
-	$start = 1;
-	$end = $self->_get_len($seqchar);
-    }
-
-    #  If $end <= 0, we have either reached the end of
-    #  file in <> or we have encountered some other error
-    if ( $end <= 0 ) { 
-	undef $aln; 
+	$self->debug("Reading $seqname");
+	my $alnlen = $aln->length;
+	foreach my $seq ( $aln->each_seq ) {
+		if ( $seq->length < $alnlen ) {
+			my ($diff) = ($alnlen - $seq->length);
+			$seq->seq( $seq->seq() . "-" x $diff);
+		}
+	}
 	return $aln;
-    }
-
-    # This logic now also reads empty lines at the 
-    # end of the file. Skip this is seqchar and seqname is null
-    unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
-	$seq = new Bio::LocatableSeq(-seq         => $seqchar,
-				     -display_id  => $seqname,
-				     -description => $desc,
-				     -start       => $start,
-				     -end         => $end,
-				     );
-	$aln->add_seq($seq);
-    }
-    $self->debug("Reading $seqname");
-    my $alnlen = $aln->length;
-    foreach my $seq ( $aln->each_seq ) {
-	if ( $seq->length < $alnlen ) {
-	    my ($diff) = ($alnlen - $seq->length);
-	    $seq->seq( $seq->seq() . "-" x $diff);
-	}
-    }
-    return $aln;
 }
 
 =head2 write_aln
