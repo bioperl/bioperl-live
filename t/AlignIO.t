@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 153;
+	plan tests => 157;
 }
 use lib '/net/uisdein/export/usr0/radams/BPCVS/bioperl-live';
 use Bio::SimpleAlign;
