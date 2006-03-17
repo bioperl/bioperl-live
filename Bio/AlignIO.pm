@@ -11,7 +11,6 @@
 # You may distribute this module under the same terms as perl itself
 #
 # History
-# October 18, 1999  SeqIO largely rewritten by Lincoln Stein
 # September, 2000 AlignIO written by Peter Schattner
 
 # POD documentation - main docs before the code
@@ -78,11 +77,11 @@ operations to read and write alignment objects:
 
     use Bio::AlignIO;
 
-     # read from standard input
+    # read from standard input
     $stream = Bio::AlignIO->newFh(-format => 'Fasta');
 
     while ( $aln = <$stream> ) {
-	# do something with $aln
+	     # do something with $aln
     }
 
 And:
@@ -155,7 +154,7 @@ Specify the format of the file.  Supported formats include:
    msf         msf (GCG) format
    nexus       Swofford et al NEXUS format
    pfam        Pfam sequence alignment format
-   phylip      Felsenstein's PHYLIP format
+   phylip      Felsenstein PHYLIP format
    prodom      prodom (protein domain) format
    psi         PSI-BLAST format
    selex       selex (hmmer) format
@@ -198,7 +197,7 @@ are not supported.
 
 By default, all files (or filehandles) opened for writing alignments
 will be flushed after each write_aln() making the file immediately
-usable.  If you don't need this facility and would like to marginally
+usable.  If you do not need this facility and would like to marginally
 improve the efficiency of writing multiple sequences to the same file
 (or filehandle), pass the -flush option '0' or any other value that
 evaluates as defined but false:
@@ -281,7 +280,7 @@ use Bio::Tools::GuessSeqFormat;
 
  Title   : new
  Usage   : $stream = Bio::AlignIO->new(-file => $filename,
-                                       '-format' => 'Format')
+                                       -format => 'Format')
  Function: Returns a new seqstream
  Returns : A Bio::AlignIO::Handler initialised with 
            the appropriate format
