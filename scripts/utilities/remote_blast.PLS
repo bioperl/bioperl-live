@@ -1,9 +1,12 @@
-#!perl -w
+#!/usr/bin/perl -w
+# $Id: remote_blast.PLS,v 1.5 2006-03-17 15:29:11 bosborne Exp $
+#
 # BioPerl module for remote_blast.pl
 #
-# Cared for by Jason Stajich <jason-at-bioperl-dot-org>
+# Revived by Evan Weaver for bioperl-1.5.1
+# 3/14/2006
 #
-# Copyright Jason Stajich
+# Copyright Jason Stajich, Evan Weaver
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -16,20 +19,26 @@ use Bio::Tools::Run::RemoteBlast;
 use Bio::SeqIO;
 use Getopt::Long;
 
-$USAGE = "remote_blast.pl [-h] [-p prog] [-d db] [-e expect] [-mod Blast] [-f seqformat] -i seqfile\n";
+$USAGE = "remote_blast.pl [-h] [-p prog] [-d db] [-e expect] [-mod
+Blast] [-f seqformat] -z=\"entrez query\" -v 1 -t output_format -i
+seqfile\n";
 
 my ($prog, $db, $expect,$method) = ( 'blastp', 'nr', '10', 'Blast');
 
-my ($sequencefile,$sequenceformat,$help) = (undef, 'fasta',undef);
+my ($sequencefile,$sequenceformat,$help, $entrez, $outputformat,
+$verbose) = (undef, 'fasta',undef, undef, undef, 1);
 
 &GetOptions('prog|p=s'               => \$prog,
 				'db|d=s'                 => \$db,
 				'expect|e=s'             => \$expect,
 				'blsmod|module|method=s' => \$method,
-				'input|i=s'              => \$sequencefile,  	    
+				'input|i=s'              => \$sequencefile,  	
 				'format|f=s'             => \$sequenceformat,
-				'help|h'                 => \$help, 
-	    );
+				'help|h'                 => \$help,
+				'entrez|z=s'             => \$entrez,
+				'output_format|t=s'      => \$outputformat,
+				'verbose|v=s'            => \$verbose
+			  );
 
 if( $help ) {
     exec('perldoc', $0);
@@ -42,13 +51,27 @@ if( !defined $prog ) {
 if( !defined $db ) {
     die($USAGE . "\n\tMust specify a db to search\n");
 }
+if( !defined $sequencefile ) {
+    die($USAGE . "\n\tMust specify an input file\n");
+}
 
-my $blastfactory = new Bio::Tools::Run::RemoteBlast (
-							  '-prog'      => $prog,
-						     '-data'      => $db,
-						     '-expect'    => $expect,
-						     'readmethod' => $method,
-						     );
+my $blastfactory = new Bio::Tools::Run::RemoteBlast ('-prog' => $prog,
+																	  '-data'      => $db,
+																	  '-expect'    => $expect,
+																	  'readmethod' => $method,
+																	 );
+
+if ($entrez) {
+  if ($verbose) {
+    print "Entrez query (submission side): $entrez\n";
+  }
+  #$Bio::Tools::Run::RemoteBlast::RETRIEVALHEADER{ FORMAT_ENTREZ_QUERY} = $entrez;
+  $Bio::Tools::Run::RemoteBlast::HEADER{ ENTREZ_QUERY } = $entrez;
+}
+if ($outputformat) {
+  print "Don't use output format type; it doesn't work.\n";
+  $Bio::Tools::Run::RemoteBlast::RETRIEVALHEADER{ FORMAT_TYPE } = $outputformat;
+}
 
 # submit_blast can only currenly handle fasta format files so I'll
 # preprocess outside of the module but I'd rather be sure here
@@ -62,33 +85,42 @@ if( $sequenceformat !~ /fasta/ ) {
 		push @seqs, $seq;
 	}
 	$input = \@seqs;
-} else { 
+} else {
 	$input = $sequencefile;
 }
-$blastfactory->submit_blast($input);
-print "retrieving blasts..";
-while( my @rids = $blastfactory->each_rid ) {
-	foreach my $rid ( @rids ) {
-		my $rc = $blastfactory->retrieve_blast($rid);
-		if( !ref($rc) ) {
-			if( $rc < 0 ) { 
-				# there was an error and this RID is not coming back
-				$blastfactory->remove_rid($rid);
-			}
-			print ".";
-			sleep 5;
-		} else { 
-			print "\n";
-			$blastfactory->remove_rid($rid);
-			while( my $sbjct = $rc->next_result ) {		
-				print "sbjct name is ", $sbjct->query_name, "\n";
-				while( my $hsp = $sbjct->next_hit ) {
-					print "score is ", $hsp->score, "\n";
-				} 
-			}
-		}
-	}
+
+my $r = $blastfactory->submit_blast($input);
+#my $r = $factory->submit_blast(?amino.fa?);
+
+print STDERR "waiting...\n" if( $verbose > 0 );
+while ( my @rids = $blastfactory->each_rid ) {
+  foreach my $rid ( @rids ) {
+    my $rc = $blastfactory->retrieve_blast($rid);
+    if( !ref($rc) ) {
+      if( $rc < 0 ) {
+        $blastfactory->remove_rid($rid);
+      }
+      print STDERR "   checking $rid\n" if ( $verbose > 0 );
+      sleep 5;
+    } else {
+      my $result = $rc->next_result();
+      #save the output
+      my $filename = $result->query_name()."\.out";
+      $blastfactory->save_output($filename);
+      $blastfactory->remove_rid($rid);
+      print "\nQuery Name: ", $result->query_name(), "\n";
+      while ( my $hit = $result->next_hit ) {
+        next unless ( $verbose > 0);
+        print "\thit name is ", $hit->name, "\n";
+        while( my $hsp = $hit->next_hsp ) {
+          print "\t\tscore is ", $hsp->score, "\n";
+        }
+      }
+    }
+  }
+  print STDERR scalar(@rids) . " left\n";
 }
+	
 
 __END__
 
