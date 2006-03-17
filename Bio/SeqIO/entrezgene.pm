@@ -430,7 +430,10 @@ sub _process_comments {
        # next unless (exists($comm->{comment}));#Should be more careful when calling _process_comment:To do
         my $heading=$comm->{heading} || 'description';
         unless (exists($comm->{comment})) {
-            if (exists($comm->{type}) && exists($comm->{text}) && ($comm->{type} ne 'comment')) {
+		if (($comm->{type})&&($self->{_current_heading})) {
+			$comm->{type}=$self->{_current_heading};
+		}
+            if ((exists($comm->{type})) && (exists($comm->{text}))&& ($comm->{type} ne 'comment')) {
                 my ($uncapt,$annot,$anchor)=_process_src($comm->{source});
                 my $cann=shift (@$annot);
                 if ($cann) {
@@ -524,6 +527,7 @@ sub _process_comments {
     }
     }
     if (@sfann) {push @{$cann{'dblink'}},@sfann;}#Annotation that is not location specific, for example phenotype
+    undef $self->{_current_heading};
     return \@uncaptured,\%cann,\@feat;
 }
 
@@ -708,7 +712,7 @@ sub _process_prop {
 
 sub _process_all_comments {
 my $self=shift;
-my $product=$self->{_current};#Better without copying
+my $product=$self->{_current};#Better without copying 
 my @alluncaptured;
 my $heading=$product->{heading} if (exists($product->{heading}));
            if ($heading) {
@@ -741,6 +745,10 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                    if ($heading =~ 'Sequence Tagged Sites') {#IN case NCBI changes slightly the spacing:-)
                      push @alluncaptured,$self->_process_STS($product->{comment}); 
                      delete $product->{comment};
+                    last CLASS;
+                   }
+		   if ($heading =~ 'Pathways') {
+                     $self->{_current_heading}='Pathways';
                     last CLASS;
                    }
                }
