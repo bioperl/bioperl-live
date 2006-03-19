@@ -98,7 +98,12 @@ BEGIN {
 sub new {
 	my $class = shift;
 
-	my $self = $class->SUPER::new();
+        # We make env_proxy the default here, but it can be 
+        # over-ridden by $self->env_proxy later,
+        # or by new(env_proxy=>0) at constructor time
+        
+	my $self = $class->SUPER::new(env_proxy => 1);
+
 	while( @_ ) {
 		my $key = shift;
 		$key =~ s/^-//;
