@@ -20,7 +20,7 @@ Bio::SeqFeature::Generic - Generic SeqFeature
             -start        => 10, 
             -end          => 100,
             -strand       => -1, 
-            -primary      => 'repeat',
+            -primary      => 'repeat', # -primary_tag is a synonym
             -source_tag   => 'repeatmasker',
             -display_name => 'alu family',
             -score        => 1000,
@@ -171,7 +171,8 @@ sub new {
                     -start          start position
                     -end            end position
                     -strand         strand
-                    -primary        primary tag
+                    -primary_tag    primary tag 
+                    -primary        (synonym for -primary_tag)
                     -source         source tag
                     -frame          frame
                     -score          score value
