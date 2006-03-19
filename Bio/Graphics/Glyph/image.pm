@@ -80,7 +80,7 @@ sub image_data {
 
   if ($path =~ m!^\w+:/!) { # looks like a URL
     require LWP::UserAgent;
-    my $ua = LWP::UserAgent->new;
+    my $ua = LWP::UserAgent->new(env_proxy => 1);
     my $response = $ua->get($path);
     if ($response->is_success) {
       return ($response->content_type,$response->content);

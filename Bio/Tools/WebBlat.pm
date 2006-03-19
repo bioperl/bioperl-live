@@ -133,7 +133,7 @@ sub create_searchio {
                     uri_escape($fasta),
                    );
 
-  my $ua = LWP::UserAgent->new();
+  my $ua = LWP::UserAgent->new(env_proxy => 1);
   my $response = $ua->get($url);
   if($response->is_success){
 

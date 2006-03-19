@@ -465,7 +465,7 @@ sub get_request {
 		if (defined $other){
 			$url=$url."&".$other;
 		}
-		my $ua = LWP::UserAgent->new();
+		my $ua = LWP::UserAgent->new(env_proxy => 1);
 		my $req = HTTP::Request->new ('GET', $url);
 		my $res = $ua->request($req);
 		if ($res->is_success){
