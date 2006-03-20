@@ -33,12 +33,36 @@ $DEBUG = 1;
  Usage     : tile_hsps( $sbjct );
            : This is called automatically by methods in Bio::Search::Hit::GenericHit 
            : that rely on having tiled data.
+           :
+           : If you are interested in getting data about the constructed HSP contigs:
+           : my ($qcontigs, $scontigs) = Bio::Search::SearchUtils::tile_hsps($hit);
+           : if (ref $qcontigs) {
+           :    print STDERR "Query contigs:\n";
+           :    foreach (@{$qcontigs}) {
+           :         print "contig start is $_->{'start'}\n";
+           :         print "contig stop is $_->{'stop'}\n";
+           :    }
+           : }
+           : See below for more information about the contig data structure.
+           :
  Purpose   : Collect statistics about the aligned sequences in a set of HSPs.
            : Calculates the following data across all HSPs: 
            :    -- total alignment length 
            :    -- total identical residues 
            :    -- total conserved residues
- Returns   : true if tiling was possible, false if not
+ Returns   : If there was only a single HSP (so no tiling was necessary)
+               tile_hsps() returns a list of two non-zero integers.
+             If there were multiple HSP, 
+               tile_hsps() returns a list of two array references containin HSP contig data.
+             The first array ref contains a list of HSP contigs on the query sequence.
+             The second array ref contains a list of HSP contigs on the subject sequence.
+             Each contig is a hash reference with the following data fields:
+               'start' => start coordinate of the contig
+               'stop'  => start coordinate of the contig
+               'iden'  => number of identical residues in the contig
+               'cons'  => number of conserved residues in the contig
+               'strand'=> strand of the contig
+               'frame' => frame of the contig
  Argument  : A Bio::Search::Hit::HitI object 
  Throws    : n/a
  Comments  :
@@ -104,15 +128,15 @@ See Also   : L<_adjust_contigs>(), L<Bio::Search::Hit::GenericHit|Bio::Search::H
 sub tile_hsps {
 #--------------
     my $sbjct = shift;
-    
-    #print STDERR "tile_hsps(): $sbjct\n";
+
+    #print STDERR "Calling tile_hsps(): $sbjct\n";
     #$sbjct->verbose(1);  # to activate debugging
     $sbjct->tiled_hsps(1);
 
     if( $sbjct->num_hsps == 0 || $sbjct->n == 0 ) { 		
 	#print STDERR "_tile_hsps(): no hsps, nothing to tile! (", $sbjct->num_hsps, ")\n";
         _warn_about_no_hsp($sbjct);
-        return undef;
+        return (undef, undef);
 
     } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
         ## Simple summation scheme. Valid if there is only one HSP.
@@ -126,7 +150,7 @@ sub tile_hsps {
 	$sbjct->gaps('sbjct', $hsp->gaps('sbjct'));
 
         _adjust_length_aln($sbjct);
-	return 1;
+	return (1, 1);
     } else {
 	#print STDERR "Sbjct: _tile_hsps: summing multiple HSPs\n";
 	$sbjct->length_aln('query', 0);
@@ -284,7 +308,8 @@ sub tile_hsps {
     }
 
     _adjust_length_aln($sbjct);
-    return 1;
+
+    return ( [@qcontigs], [@scontigs] );
 }
 
 
