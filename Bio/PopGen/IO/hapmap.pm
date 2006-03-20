@@ -16,7 +16,7 @@ Bio::PopGen::IO::hapmap - A parser for HapMap output data
 
 =head1 SYNOPSIS
 
-# Do not use directly, use through the Bio::PopGen::IO driver
+  # Do not use directly, use through the Bio::PopGen::IO driver
 
   use Bio::PopGen::IO;
   my $io = new Bio::PopGen::IO(-format => 'hapmap',
@@ -96,7 +96,6 @@ use Bio::PopGen::Genotype;
            -no_header       => 0,
            -starting_column => 11
 
-
 =cut
 
 
@@ -132,7 +131,6 @@ sub _initialize  {
  Args    : A flag name, currently we expect 
            'no_header', 'field_delimiter', or 'allele_delimiter' 
            on set, new value (a boolean or undef, optional)
-
 
 =cut
 
@@ -177,9 +175,10 @@ sub _pivot {
  Title   : next_individual
  Usage   : my $ind = $popgenio->next_individual;
  Function: Retrieve the next individual from a dataset
- Returns : L<Bio::PopGen::IndividualI> object
+ Returns : A Bio::PopGen::IndividualI object
  Args    : none
 
+See L<Bio::PopGen::IndividualI>
 
 =cut
 
@@ -235,9 +234,11 @@ sub next_individual  {
  Title   : next_population
  Usage   : my $ind = $popgenio->next_population;
  Function: Retrieve the next population from a dataset
- Returns : L<Bio::PopGen::PopulationI> object
+ Returns : Bio::PopGen::PopulationI object
  Args    : none
  Note    : Many implementation will not implement this
+
+See L<Bio::PopGen::PopulationI>
 
 =cut
 
@@ -257,7 +258,9 @@ sub next_population {
  Function: Write an individual out in the file format
            NOT SUPPORTED  BY hapmap format
  Returns : none
- Args    : L<Bio::PopGen::PopulationI> object(s)
+ Args    : Bio::PopGen::PopulationI object(s)
+
+See L<Bio::PopGen::PopulationI>
 
 =cut
 
@@ -277,8 +280,10 @@ sub write_individual {
  Function: Write a population out in the file format
            NOT SUPPORTED  BY hapmap format
  Returns : none
- Args    : L<Bio::PopGen::PopulationI> object(s)
+ Args    : Bio::PopGen::PopulationI object(s)
  Note    : Many implementation will not implement this
+
+See L<Bio::PopGen::PopulationI>
 
 =cut
 
@@ -296,7 +301,6 @@ sub write_population {
  Example : 
  Returns : value of starting_column (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
