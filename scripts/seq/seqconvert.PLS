@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: seqconvert.PLS,v 1.5 2005-08-30 17:43:11 cjm Exp $
+# $Id: seqconvert.PLS,v 1.6 2006-03-21 03:52:16 tseemann Exp $
 
 use strict;
 use Getopt::Long;
@@ -13,7 +13,8 @@ my $to=undef;
 my @known_formats=
   qw(gcg fasta ace raw fastq phd pir scf swiss genbank locuslink
      embl game qual bsml tab raw abi chado alf ctf exp ztr pln
-     chaosxml chadoxml yaml);
+     chaosxml chadoxml yaml tigr tigrxml agave chaos kegg interpro
+     lasergene strider);
 
 my $script=substr($0, 1+rindex($0,'/'));
 my $usage="Usage:
