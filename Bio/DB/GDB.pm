@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::GenBank
+# BioPerl module for Bio::DB::GDB
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -17,10 +17,12 @@ Bio::DB::GDB - Database object interface to GDB HTTP query
 
 =head1 SYNOPSIS
 
+    use Bio::DB::GDB;
+
     $gdb = new Bio::DB::GDB;
 
-    $info = $gdb->get_info(-type=>'marker',
-			     -id=>'D1S243'); # Marker name
+    $info = $gdb->get_info(-type => 'marker',
+			                  -id => 'D1S243'); # Marker name
 
    print "genbank id is ", $info->{'gdbid'},
     "\nprimers are (fwd, rev) ", join(",", @{$info->{'primers'}}), 
