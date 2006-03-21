@@ -22,7 +22,7 @@ BEGIN {
 		use lib 't';
 	}
 	use vars qw($NTESTS);
-	$NTESTS = 1284;
+	$NTESTS = 1292;
 	$LASTXMLTEST = 67;
 	$error = 0;
 
@@ -260,6 +260,22 @@ ok($result->get_statistic('Frame+0_entropy_gapped'), '0.180');
 $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
+
+    if ($count==1) {
+        # Test HSP contig data returned by SearchUtils::tile_hsps()
+        # Second hit has two hsps that overlap.
+        my($qcontigs, $scontigs) = Bio::Search::SearchUtils::tile_hsps($hit);
+        # Query contigs
+        ok($qcontigs->[0]->{'start'}, 5);
+        ok($qcontigs->[0]->{'stop'}, 812);
+        ok($qcontigs->[0]->{'iden'}, 250);
+        ok($qcontigs->[0]->{'cons'}, 413);
+        # Subject contigs
+        ok($scontigs->[0]->{'start'}, 16);
+        ok($scontigs->[0]->{'stop'}, 805);
+        ok($scontigs->[0]->{'iden'}, 248);
+        ok($scontigs->[0]->{'cons'}, 410);
+    }
 
     ok($hit->name, shift @$d);
     ok($hit->length, shift @$d);
