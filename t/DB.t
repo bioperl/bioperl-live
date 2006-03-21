@@ -22,7 +22,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 99;
+   $NUMTESTS = 100;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -54,6 +54,7 @@ require Bio::DB::GenBank;
 require Bio::DB::GenPept;
 require Bio::DB::SwissProt;
 require Bio::DB::EntrezGene;
+require Bio::DB::GDB;
 
 my $testnum;
 my $verbose = 0;
@@ -380,6 +381,14 @@ if( $DEBUG ) {
        exit(0);
    }
    	$seq = $seqio = undef;
+
+	#
+	# Bio::DB::GDB
+	#
+	my $gdb = new Bio::DB::GDB;  
+	my $info = $gdb->get_info(-type => 'marker', 
+									  -id => 'D1S243'); 
+	ok $info->{gdbid},'GDB:188393';
 
 	#
 	# Bio::DB::EntrezGene
