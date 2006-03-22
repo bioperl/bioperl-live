@@ -288,14 +288,16 @@ C<[A,B,E,G]> are as follows:
 sub topological_restriction {
   my ($tree, $labels) = @_;
   for my $node ( @{ postorder_traversal($tree) } ) {
-    my @cluster = map { $_->id } grep { $_->id } $node->get_Descendents;
-    push @cluster, $node->id if $node->id;
-    my $cluster = Set::Scalar->new(@cluster);
-    if ($cluster->is_disjoint($labels)) {
-      $tree->remove_Node($node);
-    } else {
-      if ($node->id and not $labels->has($node->id)) {
-	$node->{'_id'} = undef;
+    unless (ref($node)) { # skip $node if already removed
+      my @cluster = map { $_->id } grep { $_->id } $node->get_Descendents;
+      push @cluster, $node->id if $node->id;
+      my $cluster = Set::Scalar->new(@cluster);
+      if ($cluster->is_disjoint($labels)) {
+        $tree->remove_Node($node);
+      } else {
+        if ($node->id and not $labels->has($node->id)) {
+          $node->{'_id'} = undef;
+        }
       }
     }
   }
