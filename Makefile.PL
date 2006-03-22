@@ -16,6 +16,7 @@
 	     'HTTP::Request::Common'    => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
 	     'LWP::UserAgent'           => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
 	     'HTML::Entities'           => '0.0/To parse POST request URL formas/Remote Analysis POST submissions/Bio::Tools::Run::Analysis::*',
+	     'HTML::Parser'             => '3.0/Parse HTML documents/screen scraping www.gdb.org/Bio::DB::GDB',
 	     'Ace'                      => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace',
 	     'IO::Scalar'               => '0.0/IO handle to read or write to a scalar/remote http Blast jobs/Bio::Tools::Blast::Run::Webblast',
 	     'IO::String'               => '0.0/IO handle to read or write to a string/GenBank+GenPept sequence retrieval, Variation code/Bio::DB::*,Bio::Variation::*,Bio::Tools::Blast::Run::Webblast, Bio::Index::Blast',
