@@ -531,7 +531,6 @@ sub height {
     return $self->{'_height'} if( defined $self->{'_height'} );
     
     return 0 if( $self->is_Leaf );
-    $self->throw;
     my $max = 0;
     foreach my $subnode ( $self->each_Descendent ) { 
 	my $bl = $subnode->branch_length;
