@@ -1,6 +1,7 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# $Id$
+# Bioperl Test Harness Script for Modules
+#
 
 my $error;
 use strict;
@@ -21,14 +22,13 @@ BEGIN {
   $TESTCOUNT = 3;
   plan tests => $TESTCOUNT;
 
-   eval {
-       require Set::Scalar;
-    };
-    if( $@ ) {
-        $error = 1;
-        warn("No Set::Scalar. Unable to test Bio::Tree::Compatible\n");
-    }
-
+  eval {
+	  require Set::Scalar;
+  };
+  if( $@ ) {
+	  $error = 1;
+	  warn("No Set::Scalar. Unable to test Bio::Tree::Compatible\n");
+  }
 }
 
 END {
@@ -44,7 +44,7 @@ use Bio::TreeIO;
 my $verbose = 0;
 
 my $in = new Bio::TreeIO(-format => 'newick',
-			 -fh     => \*DATA);
+								 -fh     => \*DATA);
 
 # the common labels of (((A,B)C,D),(E,F,G)); and ((A,B)H,E,(J,(K)G)I);
 # are [A,B,E,G]
