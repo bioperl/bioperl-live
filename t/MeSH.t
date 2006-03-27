@@ -49,7 +49,6 @@ END {
     }
 }
 
-use Data::Dumper;
 require Bio::Phenotype::MeSH::Term;
 require Bio::Phenotype::MeSH::Twig;
 require Bio::DB::MeSH;
@@ -90,5 +89,4 @@ eval {
     ok my $mesh = new Bio::DB::MeSH(-verbose => $verbose);
     ok my $t=$mesh->get_exact_term('Dietary Fats');
     ok $t->each_twig(), 2;
-    #print Dumper $t;
 };
