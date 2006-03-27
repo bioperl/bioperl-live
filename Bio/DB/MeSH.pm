@@ -15,9 +15,8 @@ Bio::DB::MeSH - Term retrieval from a Web MeSH database
 =head1 SYNOPSIS
 
  my $mesh = new Bio::DB::MeSH();
- my $term=$mesh->get_exact_term('Butter');
+ my $term = $mesh->get_exact_term('Butter');
  print $term->description;
-
 
 =head1 DESCRIPTION
 
@@ -258,8 +257,9 @@ sub result {
     print substr ($_, 0, 100), "\n" if $self->verbose > 0;
     my ($id) = m|Unique ID</TH><TD>(.*?)</TD>|i;
     my ($name) = m|MeSH Heading</TH><TD>([^<]+)|i;
-    my ($desc) = m|Scope Note</TH><TD>(.*?)</TD>|i;
+    my ($desc) = m|Scope Note</TH><TD>(.*?)</TD>|is;
     $desc =~ s/<.*?>//sg;
+	 $desc =~ s/\n/ /g;
 
     my $term = Bio::Phenotype::MeSH::Term->new(-id => $id,
                                                -name => $name,
