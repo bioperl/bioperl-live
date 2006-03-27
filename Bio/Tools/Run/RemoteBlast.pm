@@ -533,8 +533,7 @@ sub submit_blast {
  Function: Attempts to retrieve a blast report from remote blast queue
  Returns : -1 on error,
            0 on 'job not finished',
-           Bio::Tools::BPlite or Bio::Tools::Blast object
-           (depending on how object was initialized) on success
+           Bio::SearchIO object
  Args    : Remote Blast ID (RID)
 
 =cut

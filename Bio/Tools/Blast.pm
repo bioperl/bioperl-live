@@ -1069,7 +1069,7 @@ documentation purposes only.
 
 sub new { 
 	my ($class,@args) = @_;
-	$class->warn("Bio::Tools::BLAST is deprecated, use Bio::SearchIO system or Bio::Tools::BPlite");
+	$class->warn("Bio::Tools::BLAST is deprecated, use Bio::SearchIO");
 return	$class->SUPER::new(@args);
  }
 
