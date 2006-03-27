@@ -22,7 +22,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$NUMTESTS = 26;
+	$NUMTESTS = 23;
 
 	plan tests => $NUMTESTS;
 
@@ -38,6 +38,7 @@ BEGIN {
 		$error = 1;
 	}
 }
+# For tests of Bio::DB::MeSH see t/DB.t
 
 if( $error ==  1 ) {
     exit(0);
@@ -85,8 +86,3 @@ ok $twig->purge_children();
 ok $twig->each_child(), 0;
 
 
-eval {
-    ok my $mesh = new Bio::DB::MeSH(-verbose => $verbose);
-    ok my $t=$mesh->get_exact_term('Dietary Fats');
-    ok $t->each_twig(), 2;
-};
