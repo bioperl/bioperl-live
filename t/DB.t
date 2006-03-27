@@ -22,7 +22,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 100;
+   $NUMTESTS = 105;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -55,6 +55,7 @@ require Bio::DB::GenPept;
 require Bio::DB::SwissProt;
 require Bio::DB::EntrezGene;
 require Bio::DB::GDB;
+require Bio::DB::MeSH;
 
 my $testnum;
 my $verbose = 0;
@@ -413,7 +414,7 @@ if( $DEBUG ) {
 
 	if ($@) {
 		if( $DEBUG ) { 
-			print STDERR "Warning: Couldn't connect to Entrez with Bio::DB::EntrezGene.pm!\n$@";
+			print STDERR "Warning: Couldn't connect to Entrez with Bio::DB::EntrezGene!\n$@";
 		}
 		foreach ( $Test::ntest..$NUMTESTS) { 
 			skip('Could not connect to Entrez Gene',1);
@@ -421,6 +422,30 @@ if( $DEBUG ) {
 		exit(0);
 	}
 	$seq = $seqio = undef;
+
+	#
+	# Bio::DB::MeSH
+	#
+	eval {
+		ok my $mesh = new Bio::DB::MeSH(-verbose => $verbose);
+		ok my $t = $mesh->get_exact_term('Dietary Fats');
+		ok $t->each_twig(), 2;
+
+		$t = $mesh->get_exact_term("Sinus Thrombosis, Intracranial");
+		ok $t->description, "Thrombus formation in an intracranial venous sinus, including the superior sagittal, cavernous, lateral, and petrous sinuses. Etiologies include thrombosis due to infection,  DEHYDRATION, coagulation disorders (see  THROMBOPHILIA), and  CRANIOCEREBRAL TRAUMA.";
+		ok $t->id, "D012851";
+	};
+	if ($@) {
+		if( $DEBUG ) { 
+			print STDERR "Warning: Couldn't connect to MeSH with Bio::DB::MeSH!\n$@";
+		}
+		foreach ( $Test::ntest..$NUMTESTS) { 
+			skip('Could not connect to MeSH',1);
+		}
+		exit(0);
+	}
+	$seq = $seqio = undef;
+
 
 } else {
 	for ( $Test::ntest..$NUMTESTS) {
