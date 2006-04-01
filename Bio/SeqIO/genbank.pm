@@ -1005,8 +1005,6 @@ sub _print_GenBank_FTHelper {
 
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
-       # fix suggested by Scott Markel (3/31/06)
-       $value = $value->{"value"};
 	   $value =~ s/\"/\"\"/g;
 	   if ($value eq "_no_value") {
 	       $self->_write_line_GenBank_regex(" "x21,
