@@ -1094,6 +1094,7 @@ sub _subseq {
 		     grep {$id eq $_->seq_id} @subs};
 
   return @split if @split;
+  return $feature->get_SeqFeatures         if $feature->can('get_SeqFeatures');
   return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
   return;
 }

@@ -458,7 +458,7 @@ table=> q{
     fref                varchar(100) not null,
     fstart              int not null,
     fstop               int not null,
-    fbin                double(20,6)  not null,
+    fbin                double precision,
     ftypeid             int not null,
     fscore              float,
     fstrand             enum('+','-'),

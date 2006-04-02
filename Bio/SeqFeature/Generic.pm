@@ -137,6 +137,7 @@ use Bio::AnnotatableI;
 use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
+use Bio::Location::Split;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
 

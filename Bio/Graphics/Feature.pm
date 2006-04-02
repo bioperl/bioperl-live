@@ -61,9 +61,9 @@ Arguments are as follows:
   -phase       the phase of the feature (0..2)
   -id          an alias for -name
   -seqname     an alias for -name
-  -primary_id  an alias for -name
   -display_id  an alias for -name
   -display_name an alias for -name  (do you get the idea the API has changed?)
+  -primary_id  unique database ID
   -url         a URL to link to when rendered with Bio::Graphics
   -configurator an object (like a Bio::Graphics::FeatureFile) that knows how 
                to configure the graphical representation of the object based
@@ -150,10 +150,12 @@ use vars '@ISA';
 *seqname     = \&name;
 *type        = \&primary_tag;
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
+*get_all_SeqFeatures = *get_SeqFeatures = \&segments;
 *method      = \&type;
 *source      = \&source_tag;
 *get_tag_values = \&each_tag_value;
 *add_SeqFeature = \&add_segment;
+*get_all_tags   = \&all_tags;
 
 # implement Bio::SeqI and FeatureHolderI interface
 
@@ -179,10 +181,7 @@ sub species {
     }
 }
 
-*get_all_SeqFeatures = *get_SeqFeatures = \&segments;
 sub feature_count { return scalar @{shift->{segments} || []} }
-
-
 
 sub target { return; }
 sub hit    { return; }
@@ -212,7 +211,7 @@ sub new {
 	  $self->{strand}  = $arg{-strand} ? ($arg{-strand} >= 0 ? +1 : -1) : 0;
   }
   $self->{name}    = $arg{-name}   || $arg{-seqname} || $arg{-display_id} 
-    || $arg{-display_name} || $arg{-id} || $arg{-primary_id};
+    || $arg{-display_name} || $arg{-id};
   $self->{type}    = $arg{-type}   || $arg{-primary_tag} || 'feature';
   $self->{subtype} = $arg{-subtype} if exists $arg{-subtype};
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
@@ -220,7 +219,7 @@ sub new {
   $self->{start}   = $arg{-start};
   $self->{stop}    = $arg{-end} || $arg{-stop};
   $self->{ref}     = $arg{-seq_id} || $arg{-ref};
-  for my $option (qw(class url seq phase desc attributes factory configurator)) {
+  for my $option (qw(class url seq phase desc attributes factory configurator primary_id)) {
     $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
   }
 
@@ -246,6 +245,9 @@ sub add_segment {
   my $name  = $self->name;
   my $class = $self->class;
 
+  my $min_start = $self->start ||  999_999_999_999;
+  my $max_stop  = $self->end   || -999_999_999_999;
+
   my @segments = @{$self->{segments}};
 
   for my $seg (@_) {
@@ -265,21 +267,22 @@ sub add_segment {
 				-type   => $type,
 			        -name   => $name,
 			        -class  => $class);
+      $min_start = $start if $start < $min_start;
+      $max_stop  = $stop  if $stop  > $max_stop;
+
     } elsif (ref $seg) {
       push @segments,$seg;
+
+      $min_start = $seg->start if $seg->start < $min_start;
+      $max_stop  = $seg->end   if $seg->end   > $max_stop;
     }
   }
   if (@segments) {
     local $^W = 0;  # some warning of an uninitialized variable...
     $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
     $self->{ref}    ||= $self->{segments}[0]->seq_id;
-    my $seg_start     = $self->{segments}[0]->start;
-    my $seg_stop;
-    foreach (@segments) {
-      $seg_stop = $_->end if !defined $seg_stop or $_->end > $seg_stop;
-    }
-    $self->{start}    = $seg_start if !defined $self->{start} || $self->{start} > $seg_start;
-    $self->{stop}     = $seg_stop  if !defined $self->{stop}  || $self->{end}   < $seg_stop;
+    $self->{start}    = $min_start;
+    $self->{stop}     = $max_stop;
   }
 }
 
@@ -462,6 +465,13 @@ sub attributes {
   } else {
     return $self->{attributes};
   }
+}
+
+sub primary_id {
+  my $self = shift;
+  my $d = $self->{primary_id};
+  $self->{primary_id} = shift if @_;
+  $d;
 }
 
 sub notes {
