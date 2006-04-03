@@ -169,38 +169,34 @@ sub next_aln {
     my $idlen = $self->idlength;
     $count = 0;
     my $iter = 1;
-    my $non_interleaved = ! $self->interleaved ;
-    while( $entry = $self->_readline) {
+    my $interleaved = $self->interleaved;
+    while( $entry = $self->_readline) {	
+	last if( $entry =~ /^\s?$/ && $interleaved );
 	
-	last if( $entry =~ /^\s?$/ && ! $non_interleaved );
-
 	if( $entry =~ /^\s+(\d+)\s+(\d+)\s*$/) { 
 	    $self->_pushback($entry);
 	    last;
 	}
 	if( $entry =~ /^\s+(.+)$/ ) {
+	    $interleaved = 0;
 	    $str = $1;
-	    $non_interleaved = 1;
-	    $str =~ s/\s//g;
-	    unless( ! $non_interleaved ) {
-		$count = scalar @names;
-		$hash{$count} .= $str;
-	    } else {
-		$hash{$iter++} .= $str;
-		$iter = 1 if $iter > $count;
-	    }
-	} elsif( $entry =~ /^(.{$idlen})\s+(.*)\s$/ ||		 
+	    $str =~ s/\s//g;	    
+	    $count = scalar @names;
+	    $hash{$count} .= $str;
+	    
+       	} elsif( $entry =~ /^(.{$idlen})\s+(.*)\s$/ ||		 
 		 $entry =~ /^(.{$idlen})(\S{$idlen}\s+.+)\s$/ # Handle weirdnes s when id is too long
 		 ) {
 	    $name = $1;
 	    $str = $2;
 	    $name =~ s/[\s\/]/_/g;
 	    $name =~ s/_+$//; # remove any trailing _'s
+
 	    push @names, $name;
 	    $str =~ s/\s//g;
 	    $count = scalar @names;
 	    $hash{$count} = $str;
-	} elsif( $non_interleaved ) {
+	} elsif( $interleaved ) {
 	    if( $entry =~ /^(\S+)\s+(.+)/ ||
 		$entry =~ /^(.{$idlen})(.*)\s$/ ) {
 		$name = $1;
@@ -218,7 +214,7 @@ sub next_aln {
 	$self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
     }
     
-    unless( $non_interleaved ) {    
+    if( $interleaved ) {    
 	# interleaved sections
 	$count = 0;
 	while( $entry = $self->_readline) {
@@ -234,7 +230,7 @@ sub next_aln {
 		$count++;
 		$hash{$count} .= $str;
 	    };
-	    $self->throw("Not a valid interleaved PHYLIP file!") if $count > $seqcount; 
+	    $self->throw("Not a valid interleaved PHYLIP file! [$count,$seqcount] ($entry)") if $count > $seqcount; 
 	}
     }
     return 0 if scalar @names < 1;
@@ -262,9 +258,8 @@ sub next_aln {
 				    '-id'=>$seqname,
 				    '-start'=>$start,
 				    '-end'=>$end,
-				    );
-	
-       $aln->add_seq($seq);
+				   );
+	$aln->add_seq($seq);
 
    }
    return $aln;
