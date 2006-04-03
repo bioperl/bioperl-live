@@ -10,24 +10,24 @@ use strict;
 use vars qw($NUMTESTS $error);
 
 BEGIN { 
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	$error = 0;
-	if( $@ ) {
-		use lib 't';
-	}
-	use Test;
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    $error = 0;
+    if( $@ ) {
+	use lib 't';
+    }
+    use Test;
 
-	$NUMTESTS = 166;
-	plan tests => $NUMTESTS;
-	eval { require IO::String; 
-			 require Bio::Tools::Phylo::PAML;}; 
-	if( $@ ) {
-		print STDERR "no IO::String installed\n"; 
-		$error = 1;
-	}
+    $NUMTESTS = 174;
+    plan tests => $NUMTESTS;
+    eval { require IO::String; 
+	   require Bio::Tools::Phylo::PAML;}; 
+    if( $@ ) {
+	print STDERR "no IO::String installed\n"; 
+	$error = 1;
+    }
 }
 
 END {
@@ -360,3 +360,21 @@ ok($site->[10]->{'aa'},    'I');
 ok($site->[10]->{'prob'},  '0.992');
 ok($site->[10]->{'Yang95_aa'},'I');
 ok($site->[10]->{'Yang95_aa_prob'},'0.992');
+
+
+## PAML 3.15
+$paml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile(qw(t data codeml315.mlc)) );
+$result = $paml->next_result;
+
+ok($result->model, 'One dN/dS ratio');
+ok($result->version, qr'3\.15');
+$MLmat = $result->get_MLmatrix;
+$NGmat = $result->get_NGmatrix;
+
+ok($NGmat->[0]->[1]->{'omega'}, 0.2264);
+ok($NGmat->[0]->[1]->{'dN'}, 0.0186);
+ok($NGmat->[0]->[1]->{'dS'}, 0.0821);
+
+ok($MLmat->[0]->[1]->{'omega'}, 0.32693);
+ok($MLmat->[0]->[1]->{'dN'}, '0.0210');
+ok($MLmat->[0]->[1]->{'dS'}, 0.0644);
