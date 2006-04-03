@@ -413,7 +413,6 @@ sub _parse_summary {
 	       \s* $                                 # trim any trailing space
 	       /ox
 	   ) {
-
 	    @{$self->{'_summary'}}{qw(seqtype version seqfile model)} = ($1, 
 									$2,
 									$3,
@@ -644,9 +643,12 @@ sub _parse_aa_dists {
 
 sub _parse_patterns { 
     my ($self) = @_;
-    my ($patternct,@patterns,$ns,$ls);
+    my ($patternct,@patterns,$ns,$ls);    
     while( defined($_ = $self->_readline) ) {
-	if( $patternct ) { 
+	if( /^Codon position/ ) {
+	    $self->_pushback($_);
+	    last;
+	} elsif( $patternct ) { 
 #	    last unless ( @patterns == $patternct );
 	    last if( /^\s+$/ );
 	    s/^\s+//;
@@ -671,7 +673,7 @@ sub _parse_seqs {
     my ($self) = @_;
     my (@firstseq,@seqs);
     while( defined ($_ = $self->_readline) ) {
-	if( /^TREE/ ) { $self->_pushback($_); last }
+	if( /^(TREE|(Codon position))/ ) { $self->_pushback($_);  last }
 	last if( /^\s+$/ && @seqs > 0 );
 	next if ( /^\s+$/ );
 	next if( /^\d+\s+$/ );
@@ -828,10 +830,10 @@ sub _parse_YN_Pairwise {
 
 sub _parse_Forestry {
     my ($self) = @_;
-    my ($instancecount,$num_param,$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0);
-    my @trees;
+    my ($instancecount,$num_param,
+	$loglikelihood,$score,$done,$treelength) = (0,0,0,0,0,0);
     my $okay = 0;
-    my (@ids,%match,@branches);
+    my (@ids,%match,@branches,@trees);
     while( defined ($_ = $self->_readline) ) {
 	last if $done;	
 	if( s/^TREE\s+\#\s*\d+:\s+// ) {
@@ -846,9 +848,9 @@ sub _parse_Forestry {
 	    $treelength = $1;	# not going to store this for now
             # as it is directly calculated from
 	    # $tree->total_branch_length;
-	} elsif( /^\s*lnL\(.+np\:\s*(\d+)\)\:\s+(\S+)/ ) {
-            $num_param = $1;
-	    $loglikelihood = $2;
+	}   elsif( /^\s*lnL\(.+np\:\s*(\d+)\)\:\s+(\S+)/ ) {
+	# elsif( /^\s*lnL\(.+\)\:\s+(\S+)/ ) {
+	    ($num_param,$loglikelihood) = ($1,$2);
 	} elsif( /^\(/) {
 	    s/([\,:])\s+/$1/g;
 	    my $treestr = new IO::String($_);
@@ -857,7 +859,7 @@ sub _parse_Forestry {
 	    my $tree = $treeio->next_tree;
 	    if( $tree ) {
 		$tree->score($loglikelihood);
-                $tree->id($num_param);
+		$tree->id("num_param:$num_param");
 		if( $okay > 0 ) {
                   # we don't save the trees with the number labels
 		    if( ! %match && @ids) {
