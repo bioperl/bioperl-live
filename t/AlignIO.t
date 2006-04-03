@@ -11,7 +11,6 @@ BEGIN {
 	use Test;
 	plan tests => 157;
 }
-use lib '/net/uisdein/export/usr0/radams/BPCVS/bioperl-live';
 use Bio::SimpleAlign;
 use Bio::AlignIO;
 use Bio::Root::IO;
@@ -19,19 +18,18 @@ use Bio::Root::IO;
 ok (1);
 
 END {
-
-	unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
-			 Bio::Root::IO->catfile("t","data","testout.selex"),
-			 Bio::Root::IO->catfile("t","data","testout.pfam"),
-			 Bio::Root::IO->catfile("t","data","testout.msf"),
-			 Bio::Root::IO->catfile("t","data","testout.fasta"),
-			 Bio::Root::IO->catfile("t","data","testout.clustal"),
-			 Bio::Root::IO->catfile("t","data","testout.phylip"),
-			 Bio::Root::IO->catfile("t","data","testout.nexus"),
-			 Bio::Root::IO->catfile("t","data","testout.mega"),
-			 Bio::Root::IO->catfile("t","data","testout.po"),
-			 Bio::Root::IO->catfile("t","data","testout.largemultifasta")
-			);
+    unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
+	   Bio::Root::IO->catfile("t","data","testout.selex"),
+	   Bio::Root::IO->catfile("t","data","testout.pfam"),
+	   Bio::Root::IO->catfile("t","data","testout.msf"),
+	   Bio::Root::IO->catfile("t","data","testout.fasta"),
+	   Bio::Root::IO->catfile("t","data","testout.clustal"),
+	   Bio::Root::IO->catfile("t","data","testout.phylip"),
+	   Bio::Root::IO->catfile("t","data","testout.nexus"),
+	   Bio::Root::IO->catfile("t","data","testout.mega"),
+	   Bio::Root::IO->catfile("t","data","testout.po"),
+	   Bio::Root::IO->catfile("t","data","testout.largemultifasta")
+	  );
 }
 
 my ($str,$aln,$strout,$status);
@@ -191,17 +189,17 @@ ok $aln->get_seq_by_pos(2)->get_nse, 'ALEU_HORVU/60-360',
     "failed BLAST bl2seq format test";
 
 
-# PHYLIP
+# PHYLIP interleaved
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","testaln.phylip"),
-			  '-format' => 'phylip');
+    '-file' => Bio::Root::IO->catfile("t","data","testaln.phylip"),
+    '-format' => 'phylip');
 ok defined($str) && ref($str) && $str->isa('Bio::AlignIO');
 $aln = $str->next_aln();
 ok $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapie/1-45';
 
 $strout = Bio::AlignIO->new(
-   '-file'  => ">".Bio::Root::IO->catfile("t","data","testout.phylip"),
-			      '-format' => 'phylip');
+    '-file'  => ">".Bio::Root::IO->catfile("t","data","testout.phylip"),
+    '-format' => 'phylip');
 $status = $strout->write_aln($aln);
 ok $status, 1, "  failed phylip output test";
 
@@ -415,7 +413,7 @@ ok($aln->get_seq_by_pos(1)->get_nse,'gf.s71.44/1-448');
 ok($aln->get_seq_by_pos(2)->get_nse,'Y50C1A.2/1-406');
 
 
-# PHYLIP non-interleaved
+# PHYLIP sequential/non-interleaved
 $strout = Bio::AlignIO->new('-file'  =>
 			    Bio::Root::IO->catfile("t","data",
 						   "noninterleaved.phy"),
