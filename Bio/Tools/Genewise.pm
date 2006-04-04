@@ -30,7 +30,7 @@ Bio::Tools::Genewise - Results of one Genewise run
 =head1 DESCRIPTION
 
 This is the parser for the output of Genewise. It takes either a file
-handle or a file name and returns a
+handle or a file name and returns a 
 Bio::SeqFeature::Gene::GeneStructure object.
 
 =head1 FEEDBACK
@@ -92,7 +92,9 @@ $Srctag = 'genewise';
            $obj->new(-fh=>\*GW);
  Function: Constructor for genewise wrapper. Takes either a file or filehandle
  Example :
- Returns : L<Bio::Tools::Genewise>
+ Returns : Bio::Tools::Genewise object
+
+See L<Bio::Tools::Genewise>
 
 =cut
 
@@ -107,7 +109,8 @@ sub new {
 
  Title   : _get_strand
  Usage   : $obj->_get_strand
- Function: takes start and end values, swap them if start>end and returns end
+ Function: takes start and end values, swap them if start>end and 
+           returns end
  Example :
  Returns :$start,$end,$strand
 
@@ -115,8 +118,8 @@ sub new {
 
 sub _get_strand {
   my ($self,$start,$end) = @_;
-  $start || $self->throw("Need a start");
-  $end   || $self->throw("Need an end");
+  defined($start) || $self->throw("Need a start");
+  defined($end)   || $self->throw("Need an end");
   my $strand;
   if ($start > $end) {
     my $tmp = $start;
@@ -189,6 +192,8 @@ sub _target_id {
  Example :
  Returns : a Bio::SeqFeature::Gene::GeneStructure object
  Args    :
+
+See L<Bio::SeqFeature::Gene::GeneStructure>
 
 =cut
 
@@ -329,4 +334,5 @@ sub _parse_genes {
     }
     $self->{'_genes'} = \@genes;
 }
+
 1;
