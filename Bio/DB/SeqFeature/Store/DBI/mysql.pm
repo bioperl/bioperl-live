@@ -7,7 +7,6 @@ use Bio::DB::SeqFeature::Store::DBI::Iterator;
 use DBI;
 use Memoize;
 use Cwd 'abs_path';
-use Time::HiRes 'time';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use constant BINSIZE => 10_000;  # most features should be smaller than this
 use constant DEBUG=>0;
@@ -83,6 +82,7 @@ END
   seqid    int(10)      not null,
   start    int          not null,
   end      int          not null,
+  strand   tinyint      default 0,
   bin      int          not null,
   index(id),
   index(seqid,bin,start,end)
@@ -151,6 +151,14 @@ END
 (
   name      varchar(128) primary key,
   value     varchar(128) not null
+)
+END
+	  sequence => <<END,
+(
+  id       int(10) not null,
+  offset   int(10) unsigned not null,
+  sequence longblob,
+  primary key(id,offset)
 )
 END
 	 };
@@ -364,6 +372,7 @@ sub _finish_bulk_update {
     unlink $path;
   }
   delete $self->{bulk_update_in_progress};
+  delete $self->{filehandles};
 }
 
 
@@ -448,6 +457,73 @@ END
 }
 
 ###
+# get primary sequence between start and end
+#
+sub _fetch_sequence {
+  my $self = shift;
+  my ($seqid,$start,$end) = @_;
+
+  # backward compatibility to the old days when I liked reverse complementing
+  # dna by specifying $start > $end
+  my $reversed;
+  if (defined $start && defined $end && $start > $end) {
+    $reversed++;
+    ($start,$end) = ($end,$start);
+  }
+  $start-- if defined $start;
+  $end--   if defined $end;
+
+  my $offset1 = $self->_offset_boundary($seqid,$start || 'left');
+  my $offset2 = $self->_offset_boundary($seqid,$end   || 'right');
+  my $sequence_table = $self->_sequence_table;
+  my $locationlist_table = $self->_locationlist_table;
+
+  my $sth     = $self->_prepare(<<END);
+SELECT sequence,offset
+   FROM $sequence_table as s,$locationlist_table as ll
+   WHERE s.id=ll.id
+     AND ll.seqname= ?
+     AND offset >= ?
+     AND offset <= ?
+   ORDER BY offset
+END
+
+  my $seq = '';
+  $sth->execute($seqid,$offset1,$offset2) or $self->throw($sth->errstr);
+
+
+  while (my($frag,$offset) = $sth->fetchrow_array) {
+    substr($frag,0,$start-$offset) = '' if defined $start && $start > $offset;
+    $seq .= $frag;
+  }
+  substr($seq,$end-$start+1) = '' if defined $end && $end-$start+1 < length($seq);
+  if ($reversed) {
+    $seq = reverse $seq;
+    $seq =~ tr/gatcGATC/ctagCTAG/;
+  }
+
+  $seq;
+}
+
+sub _offset_boundary {
+  my $self = shift;
+  my ($seqid,$position) = @_;
+
+  my $sequence_table     = $self->_sequence_table;
+  my $locationlist_table = $self->_locationlist_table;
+
+  my $sql;
+  $sql =  $position eq 'left'  ? "SELECT min(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
+         :$position eq 'right' ? "SELECT max(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
+	 :"SELECT max(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=? AND offset<=?";
+  my $sth = $self->_prepare($sql);
+  my @args = $position =~ /^-?\d+$/ ? ($seqid,$position) : ($seqid);
+  $sth->execute(@args) or $self->throw($sth->errstr);
+  return $sth->fetchall_arrayref->[0][0];
+}
+
+
+###
 # add namespace to tablename
 #
 sub _qualify {
@@ -494,14 +570,14 @@ END
 
 sub _features {
   my $self = shift;
-  my ($seq_id,$start,$end,
+  my ($seq_id,$start,$end,$strand,
       $name,$class,$allow_aliases,
       $types,
       $attributes,
       $range_type,
       $fromtable,
       $iterator
-     ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+     ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
 		    'NAME','CLASS','ALIASES',
 		    ['TYPES','TYPE','PRIMARY_TAG'],
 		    ['ATTRIBUTES','ATTRIBUTE'],
@@ -518,7 +594,7 @@ sub _features {
 
   if (defined $name) {
     # hacky backward compatibility workaround
-    $name = "$class:$name" if defined $class;
+    $name = "$class:$name" if defined $class && length $class > 0;
     my ($from,$where,$group,@a) = $self->_name_sql($name,$allow_aliases,'f.id');
     push @from,$from   if $from;
     push @where,$where if $where;
@@ -527,7 +603,7 @@ sub _features {
   }
 
   if (defined $seq_id) {
-    my ($from,$where,$group,@a) = $self->_location_sql($seq_id,$start,$end,$range_type,'f.id');
+    my ($from,$where,$group,@a) = $self->_location_sql($seq_id,$start,$end,$range_type,$strand,'f.id');
     push @from,$from   if $from;
     push @where,$where if $where;
     push @group,$group if $group;
@@ -574,7 +650,7 @@ SELECT DISTINCT f.id,f.object
   $group
 END
 
-  $self->_print_query($query,@args) if DEBUG;
+  $self->_print_query($query,@args) if DEBUG || $self->debug;
 
   my $sth = $self->_prepare($query);
   $sth->execute(@args) or $self->throw($sth->errstr);
@@ -592,6 +668,41 @@ sub _name_sql {
   my $where = "n.id=$join AND n.name $match";
   $where   .= " AND n.display_name>0" unless $allow_aliases;
   return ($from,$where,'',$string);
+}
+
+sub _search_notes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+  my @words               = map {quotemeta($_)} split /\s+/,$search_string;
+  my $name_table          = $self->_name_table;
+  my $attribute_table     = $self->_attribute_table;
+  my $attributelist_table = $self->_attributelist_table;
+
+  my $perl_regexp = join '|',@words;
+
+  my $sql_regexp = join ' AND ',("a.attribute_value REGEXP ?")  x @words;
+  my $sql = <<END;
+SELECT name,attribute_value
+  FROM $name_table as n,$attribute_table as a,$attributelist_table as al
+  WHERE n.id=a.id
+    AND al.id=a.attribute_id
+    AND n.display_name=1
+    AND al.tag='Note'
+    AND ($sql_regexp)
+END
+  $sql .= "LIMIT $limit" if defined $limit;
+  my $sth = $self->_prepare($sql);
+  $sth->execute(@words) or $self->throw($sth->errstr);
+
+  my @results;
+  while (my($name,$value) = $sth->fetchrow_array) {
+    my (@hits) = $value =~ /$perl_regexp/ig;
+    my @words_in_row = split /\b/,$value;
+    my $score  = int(@hits*100/@words/@words_in_row);
+    push @results,[$name,$value,$score];
+  }
+  $sth->finish;
+  return sort {$b->[2]<=>$a->[2]} @results;
 }
 
 sub _match_sql {
@@ -688,7 +799,7 @@ END
 
 sub _location_sql {
   my $self = shift;
-  my ($seq_id,$start,$end,$range_type,$join) = @_;
+  my ($seq_id,$start,$end,$range_type,$strand,$join) = @_;
 
   my $location_table = $self->_location_table;
   my $location_list  = $self->_locationlist_table;
@@ -719,6 +830,11 @@ sub _location_sql {
     @range_args = ($bin_min,$bin_max,$start,$end);
   } else {
     $self->throw("range_type must be one of 'overlaps', 'contains' or 'contained_in'");
+  }
+
+  if (defined $strand) {
+    $range .= " AND strand=?";
+    push @range_args,$strand;
   }
 
 
@@ -755,7 +871,11 @@ sub reindex {
   my $dbh  = $self->dbh;
   my $count = 0;
   my $now;
-  my $last_time = time();
+
+  # try to bring in highres time() function
+  eval "require Time::HiRes";
+
+  my $last_time = $self->time();
 
   # tell _delete_index() not to bother removing the index rows corresponding
   # to each individual feature
@@ -773,7 +893,7 @@ sub reindex {
     my $iterator = $self->get_seq_stream(-from_table=>$from_update_table ? $update : undef);
     while (my $f = $iterator->next_seq) {
       if (++$count %1000 == 0) {
-	$now = time();
+	$now = $self->time();
 	my $elapsed = sprintf(" in %5.2fs",$now - $last_time);
 	$last_time = $now;
 	print STDERR "$count features indexed$elapsed...",' 'x60;
@@ -955,6 +1075,20 @@ END
 }
 
 ###
+# Insert a bit of DNA or protein into the database
+#
+sub _insert_sequence {
+  my $self = shift;
+  my ($seqid,$offset,$seq) = @_;
+  my $id = $self->_locationid($seqid);
+  my $seqtable = $self->_sequence_table;
+  my $sth = $self->_prepare(<<END);
+INSERT INTO $seqtable (id,offset,sequence) VALUES (?,?,?)
+END
+  $sth->execute($id,$offset,$seq) or $self->throw($sth->errstr);
+}
+
+###
 # Update a Bio::SeqFeatureI into database. primary_id must NOT be undef
 #
 sub _update {
@@ -1047,12 +1181,13 @@ sub _update_location_index {
   my $seqname     = $obj->seq_id || '';
   my $start       = $obj->start  || '';
   my $end         = $obj->end    || '';
+  my $strand      = $obj->strand;
   my $bin_min     = int $start/BINSIZE;
   my $bin_max     = int $end/BINSIZE;
-  my $sth         = $self->_prepare("INSERT INTO $location (id,seqid,start,end,bin) VALUES (?,?,?,?,?)");
+  my $sth         = $self->_prepare("INSERT INTO $location (id,seqid,start,end,strand,bin) VALUES (?,?,?,?,?,?)");
   my $seqid       = $self->_locationid($seqname,1);
   for (my $bin=$bin_min; $bin<=$bin_max; $bin++) {
-    $sth->execute($id,$seqid,$start,$end,$bin) or $self->throw($sth->errstr);
+    $sth->execute($id,$seqid,$start,$end,$strand,$bin) or $self->throw($sth->errstr);
   }
   $sth->finish;
 }
@@ -1177,6 +1312,7 @@ sub _attributelist_table {  shift->_qualify('attributelist')}
 sub _parent2child_table  {  shift->_qualify('parent2child')}
 sub _meta_table          {  shift->_qualify('meta')}
 sub _update_table        {  shift->_qualify('update_table')}
+sub _sequence_table      {  shift->_qualify('sequence')}
 
 sub _make_attribute_where {
   my $self                     = shift;
@@ -1295,12 +1431,13 @@ sub _dump_update_location_index {
   my $seqname     = $obj->seq_id || '';
   my $start       = $obj->start  || '';
   my $end         = $obj->end    || '';
+  my $strand      = $obj->strand;
   my $bin_min     = int $start/BINSIZE;
   my $bin_max     = int $end/BINSIZE;
   my $fh          = $self->dump_filehandle('location');
   my $seqid       = $self->_locationid($seqname,1);
   for (my $bin=$bin_min; $bin<=$bin_max; $bin++) {
-    print $fh join("\t",$id,$seqid,$start,$end,$bin),"\n";
+    print $fh join("\t",$id,$seqid,$start,$end,$strand,$bin),"\n";
   }
 }
 
@@ -1315,6 +1452,11 @@ sub _dump_update_attribute_index {
       print $fh join("\t",$id,$tagid,$dbh->quote($value)),"\n";
     }
   }
+}
+
+sub time {
+  return Time::HiRes::time() if Time::HiRes->can('time');
+  return time();
 }
 
 1;

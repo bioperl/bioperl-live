@@ -7,11 +7,10 @@ use base 'Bio::Graphics::Feature';
 use base 'Bio::DB::SeqFeature::NormalizedTableFeatureI';
 use overload '""' => \&as_string;
 
-my $USE_OVERLOADED_NAMES     = 0;
+my $USE_OVERLOADED_NAMES     = 1;
 
 # some of this is my fault and some of it is changing bioperl API
-*segments = *get_all_SeqFeatures = *sub_SeqFeature = \&get_SeqFeatures;
-*add_SeqFeature;
+*merged_segments = *segments = *get_all_SeqFeatures = *sub_SeqFeature = \&get_SeqFeatures;
 
 ##### CLASS METHODS ####
 
@@ -59,6 +58,15 @@ sub add_SeqFeature {
 sub add_segment {
   my $self = shift;
   $self->_add_segment(0,@_);
+}
+
+sub seq {
+  my $self = shift;
+  if (my $store = $self->object_store) {
+    return $store->fetch_sequence(@_);
+  } else {
+    return $self->SUPER::seq(@_);
+  }
 }
 
 # This adds subfeatures. It has the property of converting the
@@ -217,6 +225,22 @@ sub primary_id {
   my $d    = $self->{primary_id};
   $self->{primary_id} = shift if @_;
   $d;
+}
+
+sub target {
+  my $self    = shift;
+  my @targets = $self->attributes('Target');
+  my @result;
+  for my $t (@targets) {
+    my ($seqid,$start,$end,$strand) = split /\s+/,$t;
+    $strand ||= +1;
+    push @result,Bio::DB::SeqFeature::Segment->new($self->object_store,
+						   $seqid,
+						   $start,
+						   $end,
+						   $strand);
+  }
+  return wantarray ? @result : $result[0];
 }
 
 sub as_string {

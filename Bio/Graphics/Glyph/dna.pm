@@ -78,13 +78,11 @@ sub draw_dna {
     $forward = 1;
   }
 
-#  my $start  = $self->map_no_trunc($feature->start);
-#  my $end    = $self->map_no_trunc($feature->end);
   my $start   = $self->panel->left + $self->map_pt($feature->start);
   my $end     = $self->panel->left + $self->map_pt($feature->end);
 
   my $offset  = int(($x1-$start-1)/$pixels_per_base);
-  #  $start += $pixels_per_base if $self->{flip};  # line up correctly
+  $offset     = 0 if $offset < 0; # adjust for truncation
 
   for (my $i=$offset;$i<@bases;$i++) {
     my $x = $start + $i * $pixels_per_base;

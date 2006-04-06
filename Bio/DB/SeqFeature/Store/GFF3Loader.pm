@@ -14,8 +14,9 @@ use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Store::Cacher;
 use CGI::Util 'unescape';
-
 use base 'Bio::Root::Root';
+
+use constant DEFAULT_SEQ_CHUNK_SIZE => 2000;
 
 my %Special_attributes =(
 			 Gap    => 1, Target => 1,
@@ -23,15 +24,21 @@ my %Special_attributes =(
 			 Alias  => 1, ID     => 1,
 			 Index  => 1,
 			);
+my %Strandedness = ( '+' => 1,
+		     '-' => -1,
+		     '.' => 0,
+		     ''  => 0,
+		   );
 
 sub new {
   my $self = shift;
-  my ($store,$seqfeature_class,$tmpdir,$verbose,$fast) = rearrange(['STORE',
-								    ['SF_CLASS','SEQFEATURE_CLASS'],
-								    'TMP',
-								    'VERBOSE',
-								    'FAST',
-								   ],@_);
+  my ($store,$seqfeature_class,$tmpdir,$verbose,$fast,$seq_chunk_size) = rearrange(['STORE',
+										    ['SF_CLASS','SEQFEATURE_CLASS'],
+										    'TMP',
+										    'VERBOSE',
+										    'FAST',
+										    'CHUNK_SIZE',
+										   ],@_);
 
   $seqfeature_class ||= $self->default_seqfeature_class;
   eval "require $seqfeature_class" unless $seqfeature_class->can('new');
@@ -62,6 +69,7 @@ END
 		tmp_store        => $tmp_store,
 		seqfeature_class => $seqfeature_class,
 		fast             => $fast,
+		seq_chunk_size   => $seq_chunk_size || DEFAULT_SEQ_CHUNK_SIZE,
 		verbose          => $verbose,
 		load_data        => {},
 		subfeatures_normalized => $normalized,
@@ -74,11 +82,12 @@ sub default_seqfeature_class {
   return 'Bio::DB::SeqFeature::LazyTableFeature';
 }
 
-sub store     { shift->{store}            }
-sub tmp_store { shift->{tmp_store}        }
-sub sfclass   { shift->{seqfeature_class} }
-sub fast      { shift->{fast}             }
-sub verbose   { shift->{verbose}          }
+sub store          { shift->{store}            }
+sub tmp_store      { shift->{tmp_store}        }
+sub sfclass        { shift->{seqfeature_class} }
+sub fast           { shift->{fast}             }
+sub seq_chunk_size { shift->{seq_chunk_size}             }
+sub verbose        { shift->{verbose}          }
 
 sub subfeatures_normalized {
   my $self = shift;
@@ -148,20 +157,33 @@ sub do_load {
 
   my $start = $self->time();
   my $count = 0;
+  my $mode  = 'gff';  # or 'fasta'
 
   while (<$fh>) {
     chomp;
 
     next unless /^\S/;     # blank line
+    $mode = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
 
     if (/^\#\#\s*(.+)/) {  ## meta instruction
+      $mode = 'gff';
       $self->handle_meta($1);
 
     } elsif (/^\#/) {
+      $mode = 'gff';  # just to be safe
       next;  # comment
     }
 
-    else {
+    elsif (/^>\s*(\S+)/) { # FASTA lines are coming
+      $mode = 'fasta';
+      $self->start_or_finish_sequence($1);
+    }
+
+    elsif ($mode eq 'fasta') {
+      $self->load_sequence($_);
+    }
+
+    elsif ($mode eq 'gff') {
       $self->handle_feature($_);
       if (++$count % 1000 == 0) {
 	my $now = $self->time();
@@ -170,8 +192,13 @@ sub do_load {
 	$start = $now;
       }
     }
+
+    else {
+      $self->throw("I don't know what to do with this line:\n$_");
+    }
   }
-  $self->store_current_feature(); # during fast loading, we will have a feature left at the very end
+  $self->store_current_feature();      # during fast loading, we will have a feature left at the very end
+  $self->start_or_finish_sequence();   # finish any half-loaded sequences
   $self->msg(' 'x80,"\n"); #clear screen
 }
 
@@ -204,12 +231,11 @@ sub handle_feature {
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
   return unless @columns >= 8;
   my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes)      = @columns;
+  $strand = $Strandedness{$strand};
 
   my ($reserved,$unreserved) = $self->parse_attributes($attributes);
 
-  my $name        = ($reserved->{Name}   && $reserved->{Name}[0]) ||
-                    ($reserved->{Target} && $reserved->{Target}[0]) ||
-                    ($reserved->{Alias}  && $reserved->{Alias}[0]);
+  my $name        = ($reserved->{Name}   && $reserved->{Name}[0]);
 
   my $feature_id  = $reserved->{ID}[0] || $ld->{TemporaryID}++;
   my @parent_ids  = @{$reserved->{Parent}} if $reserved->{Parent};
@@ -221,8 +247,10 @@ sub handle_feature {
 
   # Everything in the unreserved hash becomes an attribute, so we copy
   # some attributes over
-  $unreserved->{Note}  = $reserved->{Note}  if exists $reserved->{Note};
-  $unreserved->{Alias} = $reserved->{Alias} if exists $reserved->{Alias};
+  $unreserved->{Note}  = $reserved->{Note}   if exists $reserved->{Note};
+  $unreserved->{Alias} = $reserved->{Alias}  if exists $reserved->{Alias};
+  $unreserved->{Target}= $reserved->{Target} if exists $reserved->{Target};
+  $unreserved->{Gap}   = $reserved->{Gap}    if exists $reserved->{Gap};
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
   $unreserved->{load_id}   = $feature_id  if defined $feature_id;
@@ -396,7 +424,6 @@ sub fetch {
       : $self->tmp_store->fetch($id);
 }
 
-
 sub add_segment {
   my $self = shift;
   my ($parent,$child) = @_;
@@ -450,6 +477,37 @@ sub parse_attributes {
     }
   }
   return (\%reserved,\%unreserved);
+}
+
+# this gets called at the beginning and end of a fasta section
+sub start_or_finish_sequence {
+  my $self  = shift;
+  my $seqid = shift;
+  if (my $sl    = $self->{fasta_load}) {
+    if (defined $sl->{seqid}) {
+      $self->store->insert_sequence($sl->{seqid},$sl->{offset},$sl->{sequence});
+      delete $self->{fasta_load};
+    }
+  }
+  if (defined $seqid) {
+    $self->{fasta_load} = {seqid  => $seqid,
+			   offset => 0,
+			   sequence => ''};
+  }
+}
+
+sub load_sequence {
+  my $self = shift;
+  my $seq  = shift;
+  my $sl   = $self->{fasta_load} or return;
+  my $cs   = $self->seq_chunk_size;
+  $sl->{sequence} .= $seq;
+  while (length $sl->{sequence} >= $cs) {
+    my $chunk = substr($sl->{sequence},0,$cs);
+    $self->store->insert_sequence($sl->{seqid},$sl->{offset},$chunk);
+    $sl->{offset} += length $chunk;
+    substr($sl->{sequence},0,$cs) = '';
+  }
 }
 
 sub open_fh {

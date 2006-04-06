@@ -643,76 +643,12 @@ sub features {
  Returns : L<Bio::SeqFeatureI> objects
  Args    : none
 
-Alias for features().  Provided for Bio::SeqI compatibility.
+Segments do not ordinarily return any subfeatures.
 
 =cut
 
-=head2 get_all_SeqFeatures
-
- Title   : get_all_SeqFeatures
- Usage   :
- Function: returns all the sequence features
- Returns : L<Bio::SeqFeatureI> objects
- Args    :
-
-Alias for features().  Provided for Bio::SeqI compatibility.
-
-=cut
-
-=head2 sub_SeqFeatures
-
- Title   : sub_SeqFeatures
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-Alias for features().  Provided for Bio::SeqI compatibility.
-
-=cut
-
-
-=head2 top_SeqFeatures
-
- Title   : top_SeqFeatures
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-Alias for features().  Provided for Bio::SeqI compatibility.
-
-=cut
-
-=head2 all_SeqFeatures
-
- Title   : all_SeqFeatures
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-Alias for features().  Provided for Bio::SeqI compatibility.
-
-=cut
-
-=head2 sub_SeqFeatures
-
- Title   : sub_SeqFeatures
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-Alias for features().  Provided for Bio::SeqI compatibility.
-
-=cut
-
-*get_all_SeqFeature = *get_SeqFeatures = *top_SeqFeatures = *all_SeqFeatures = \&features;
+# A SEGMENT DOES NOT HAVE SUBFEATURES!
+sub get_SeqFeatures { return }
 
 =head2 feature_count
 

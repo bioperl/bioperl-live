@@ -4,17 +4,28 @@ use strict;
 use base 'Bio::SeqFeature::CollectionI';
 use Carp 'croak';
 use Bio::DB::GFF::Util::Rearrange;
+use Bio::DB::SeqFeature::Segment;
+use Scalar::Util 'blessed';
+
+*dna = *get_dna = *get_sequence = \&fetch_sequence;
+*get_SeqFeatures = \&fetch_SeqFeatures;
 
 ###
 # object constructor
 #
 sub new {
   my $self      = shift;
-  my ($adaptor,$serializer,$index_subfeatures,$args) =
-    rearrange(['ADAPTOR',
-	       'SERIALIZER',
-	       'INDEX_SUBFEATURES'
-	      ],@_);
+  my ($adaptor,$serializer,$index_subfeatures,$args);
+  if (@_ == 1) {
+    $args = {DSN => shift}
+  }
+  else {
+    ($adaptor,$serializer,$index_subfeatures,$args) =
+      rearrange(['ADAPTOR',
+		 'SERIALIZER',
+		 'INDEX_SUBFEATURES'
+		],@_);
+  }
   $adaptor ||= 'DBI::mysql';
 
   my $class = "Bio::DB::SeqFeature::Store::$adaptor";
@@ -34,6 +45,13 @@ sub new_instance {
 sub init {
   my $self = shift;
   $self->default_settings();
+}
+
+sub debug {
+  my $self = shift;
+  my $d = $self->{debug};
+  $self->{debug} = shift if @_;
+  $d;
 }
 
 ###
@@ -149,7 +167,7 @@ sub add_SeqFeature {
   $self->_add_SeqFeature($parent,@children);
 }
 
-sub get_SeqFeatures {
+sub fetch_SeqFeatures {
   my $self   = shift;
   my $parent = shift;
   my @types  = @_;
@@ -194,21 +212,79 @@ sub get_seq_stream {
 }
 
 ###
+# Replacement for Bio::DB::GFF->segment() method
+#
+sub segment {
+  my $self = shift;
+  my (@features,@args);
+
+  if (@_ == 1 && blessed($_[0])) {
+    @features = @_;
+    @args = ();
+  }
+  else {
+    @args     = $self->setup_segment_args(@_);
+    @features = $self->get_features_by_name(@args);
+  }
+  if (!wantarray && @features > 1) {
+    $self->throw(<<END);
+segment() called in a scalar context but multiple features match.
+Either call in a list context or narrow your search using the -types or -class arguments
+END
+  }
+  my ($rel_start,$rel_end) = rearrange(['START',['STOP','END']],@args);
+  $rel_start = 1 unless defined $rel_start;
+
+  my @segments;
+  for my $f (@features) {
+    my $seqid  = $f->seq_id;
+    my $strand = $f->strand;
+    my ($start,$end);
+    $rel_end = $f->end - $f->start + 1 unless defined $rel_end;
+
+    if ($strand >= 0) {
+      $start = $f->start + $rel_start - 1;
+      $end   = $f->start + $rel_end   - 1;
+    }
+    else {
+      $start = $f->end - $rel_end   + 1;
+      $end   = $f->end - $rel_start + 1;
+    }
+    push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand);
+  }
+  return wantarray ? @segments : $segments[0];
+}
+
+sub setup_segment_args {
+  my $self = shift;
+  return @_ if defined $_[0] && $_[0] =~ /^-/;
+  return (-name=>$_[0],-start=>$_[1],-end=>$_[2]) if @_ == 3;
+  return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
+  return (-name=>$_[0])                            if @_ == 1;
+  return;
+}
+
+# backward compatibility for gbrowse
+sub get_feature_by_name { shift->get_features_by_name(@_) }
+
+###
 # get_feature_by_name() return 0 or more features using a name lookup
 # uses the Bio::DB::GFF API
 #
 sub get_features_by_name {
   my $self   = shift;
-  my ($class,$name,$allow_alias);
+  my ($class,$name,$types,$allow_alias);
 
   if (@_ == 1) {  # get_features_by_name('name');
     $name = shift;
   } else {        # get_features_by_name('class'=>'name'), get_feature_by_name(-name=>'name')
-    ($class,$name,$allow_alias) = rearrange([qw(CLASS NAME ALIASES)],@_);
+    ($class,$name,$allow_alias,$types) = rearrange([qw(CLASS NAME ALIASES),[qw(TYPE TYPES)]],@_);
   }
 
-  $name = "$class:$name" if length $class;  # hacky workaround
-  $self->_features(-name=>$name,-aliases=>$allow_alias);
+  # hacky workaround for assumption in Bio::DB::GFF that unclassed reference points were of type "Sequence"
+  undef $class if $class && $class eq 'Sequence';
+
+  $self->_features(-name=>$name,-class=>$class,-aliases=>$allow_alias,-type=>$types);
 }
 
 sub get_features_by_alias {
@@ -229,8 +305,13 @@ sub get_features_by_type {
 
 sub get_features_by_location {
   my $self = shift;
-  my ($seqid,$start,$end,$rangetype) = rearrange([['SEQ_ID','SEQID','REF'],'START',['STOP','END'],'RANGE_TYPE'],@_);
-  $self->_features(-seqid=>$seqid,-start=>$start||undef,-end=>$end||undef,-range_type=>$rangetype);
+  my ($seqid,$start,$end,$strand,$rangetype) = 
+    rearrange([['SEQ_ID','SEQID','REF'],'START',['STOP','END'],'STRAND','RANGE_TYPE'],@_);
+  $self->_features(-seqid=>$seqid,
+		   -start=>$start||undef,
+		   -end=>$end||undef,
+		   -strand=>$strand||undef,
+		   -range_type=>$rangetype);
 }
 
 sub get_features_by_attribute {
@@ -239,25 +320,65 @@ sub get_features_by_attribute {
   $attributes  or croak "Usage: get_feature_by_attribute({attribute_hash})";
   $self->_features(-attributes=>$attributes);
 }
-
-sub features {
-  my $self = shift;
-  $self->_features(@_);
+###
+# features() call -- main query interface
+#
 
 # documentation of args
-#   my ($seq_id,$start,$end,
+#   my ($seq_id,$start,$end,$strand,
 #       $name,$class,$allow_aliases,
 #       $types,
 #       $attributes,
 #       $range_type,
 #       $iterator,
-#      ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+#      ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
 # 		    'NAME','CLASS','ALIASES',
 # 		    ['TYPES','TYPE','PRIMARY_TAG'],
 # 		    ['ATTRIBUTES','ATTRIBUTE'],
 # 		    'RANGE_TYPE',
 # 		   ],@_);
 #   $range_type ||= 'overlaps';
+sub features {
+  my $self = shift;
+  my @args;
+  if (@_ == 1) {
+    @args = (-type=>shift);
+  } else {
+    @args = @_;
+  }
+  $self->_features(@args);
+}
+
+###
+# search_notes()
+#
+sub search_notes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+  return $self->_search_notes($search_string,$limit);
+}
+
+###
+# insert_sequence()
+#
+# insert a bit of primary sequence into the database
+#
+sub insert_sequence {
+  my $self = shift;
+  my ($seqid,$offset,$seq) = @_;
+  $self->_insert_sequence($seqid,$offset,$seq);
+}
+
+###
+# get_sequence()
+#
+# equivalent to old Bio::DB::GFF->dna() method
+#
+sub fetch_sequence {
+  my $self = shift;
+  my ($seqid,$start,$end,$class) = rearrange([['NAME','SEQID','SEQ_ID'],'START',['END','STOP'],'CLASS'],@_);
+  $seqid = "$seqid:$class" if defined $class;
+  $self->_fetch_sequence($seqid,$start,$end);
 }
 
 ###
@@ -400,8 +521,10 @@ sub _fetch_many {
 # bottleneck query generator
 sub _features { shift->throw_not_implemented }
 
+sub _search_notes { shift->throw_not_implemented }
+
 # return true here if the storage engine is prepared to store parent/child
-# relationships using _add_SeqFeature and return them using _get_SeqFeatures
+# relationships using _add_SeqFeature and return them using _fetch_SeqFeatures
 sub _can_store_subFeatures { return; }
 
 # these two are called only if _can_store_subFeatures() returns true
@@ -409,7 +532,11 @@ sub _can_store_subFeatures { return; }
 sub _add_SeqFeature { shift->throw_not_implemented }
 
 # _get_SeqFeatures($parent,@list_of_child_types)
-sub _get_SeqFeatures {shift->throw_not_implemented }
+sub _fetch_SeqFeatures {shift->throw_not_implemented }
+
+# _fetch_sequence() is similar to old dna() method
+sub _insert_sequence { shift->throw_not_implemented }
+sub _fetch_sequence    { shift->throw_not_implemented }
 
 # for full TIE() interface  - not necessary to implement in most cases
 sub _firstid  { shift->throw_not_implemented }

@@ -81,8 +81,7 @@ use vars qw(@ISA $AUTOLOAD);
 
 #' 
 
-*segments = \&sub_SeqFeature;
-*get_SeqFeatures = \&sub_SeqFeature;
+*segments = *get_SeqFeatures = \&sub_SeqFeature;
 
 my %CONSTANT_TAGS = (method=>1, source=>1, score=>1, phase=>1, notes=>1, id=>1, group=>1);
 
@@ -616,8 +615,6 @@ you can retrieve a subset of the subfeatures by providing a method
 name to filter on.
 
 This method may also be called as segments() or get_SeqFeatures().
-
-
 
 =cut
 

@@ -156,6 +156,9 @@ use vars '@ISA';
 *get_tag_values = \&each_tag_value;
 *add_SeqFeature = \&add_segment;
 *get_all_tags   = \&all_tags;
+*abs_ref        = \&ref;
+*abs_start      = \&start;
+*abs_end        = \&end;
 
 # implement Bio::SeqI and FeatureHolderI interface
 

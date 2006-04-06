@@ -115,7 +115,7 @@ sub start   {
   return $self->{start} if exists $self->{start};
   if ($self->{flip}) {
     $self->{start} = defined $self->{feature}->end
-                     ? $self->panel->end + 1 - $self->{feature}->end 
+                     ? $self->panel->end + 1 - $self->{feature}->end
                      : 0;
   } else {
     $self->{start} = defined $self->{feature}->start
@@ -125,12 +125,13 @@ sub start   {
 
   return $self->{start};
 }
+
 sub stop    {
   my $self = shift;
   return $self->{stop} if exists $self->{stop};
   if ($self->{flip}) {
     $self->{stop} = defined $self->{feature}->start 
-      ? $self->panel->end + 1 - $self->{feature}->start 
+      ? $self->panel->end + 1 - $self->{feature}->start
       : $self->panel->offset - 1;
   } else {
     $self->{stop} = defined $self->{feature}->end
@@ -1086,6 +1087,9 @@ sub subseq {
 sub _subseq {
   my $class   = shift;
   my $feature = shift;
+
+  warn "_subseq($feature)";
+
   return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
 
@@ -1094,6 +1098,8 @@ sub _subseq {
 		     grep {$id eq $_->seq_id} @subs};
 
   return @split if @split;
+
+  # Either the APIs have changed, or I got confused at some point...
   return $feature->get_SeqFeatures         if $feature->can('get_SeqFeatures');
   return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
   return;
