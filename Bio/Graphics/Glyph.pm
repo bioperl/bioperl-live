@@ -1088,8 +1088,6 @@ sub _subseq {
   my $class   = shift;
   my $feature = shift;
 
-  warn "_subseq($feature)";
-
   return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
 
