@@ -288,8 +288,11 @@ sub arrow {
 }
 
 sub reversec {
-  $_[1]=~tr/gatcGATC/ctagCTAG/;
-  return scalar reverse $_[1];
+  my $self = shift;
+  my $dna  = shift;
+  $dna =~ tr/gatcGATC/ctagCTAG/;
+  $dna = reverse $dna;
+  return $dna;
 }
 
 1;

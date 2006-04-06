@@ -60,6 +60,7 @@ sub draw_dna {
   $strand *= -1 if $self->{flip};
 
   my @bases = split '',$strand >= 0 ? $dna : $self->reversec($dna);
+
   my $color = $self->fgcolor;
   my $font  = $self->font;
   my $lineheight = $font->height;
@@ -78,16 +79,9 @@ sub draw_dna {
     $forward = 1;
   }
 
-  my $start   = $self->panel->left + $self->map_pt($feature->start);
-  my $end     = $self->panel->left + $self->map_pt($feature->end);
-
-  my $offset  = int(($x1-$start-1)/$pixels_per_base);
-  $offset     = 0 if $offset < 0; # adjust for truncation
-
-  for (my $i=$offset;$i<@bases;$i++) {
-    my $x = $start + $i * $pixels_per_base;
-    next if $x+1 < $x1;
-    last if $x > $x2;
+  for (my $i=0;$i<@bases;$i++) {
+    my $x = $x1 + $i * $pixels_per_base;
+    $x += $pixels_per_base if $strand < 0;       # minus strand features align right, not left
     $gd->char($font,$x+2,$y1,$bases[$i],$color)                                   if $forward;
     $gd->char($font,$x+2,$y1+($forward ? $lineheight:0),
 	      $complement{$bases[$i]}||$bases[$i],$color)                         if $reverse;
