@@ -15,6 +15,8 @@
 Bio::Tools::RestrictionEnzyme - Bioperl object for a restriction endonuclease
 (cuts DNA at specific locations)
 
+DEPRECATED. Please use the Bio::Restriction modules instead.
+
 =head1 SYNOPSIS
 
 =head2 Object Creation
