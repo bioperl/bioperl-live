@@ -401,7 +401,7 @@ sub clean_features {
         $b = shift @features if !defined($b);
         $sf2 = shift @features;
         # from same sequence?
-        if ($sf2) {
+        if ($sf2) { # if there is no feature, then...
             if ($b->seq_id == $sf2->seq_id) {
                 # close starts (probable redundant hit)?
                 if(abs(($b->start)-($sf2->start)) <= abs($bp)) {
@@ -417,9 +417,11 @@ sub clean_features {
                 push @list, $b;
                 $b = $sf2;
             }
-        } else {
-            push @list, $b;
         }
+    }
+    push @list, $b if $b;
+    for my $feat (@list) {
+        print "RNAMotif : ",$feat->start, "\t", $feat->end, "\n";
     }
     my $col = Bio::SeqFeature::Collection->new;
     $col->add_features(\@list);
