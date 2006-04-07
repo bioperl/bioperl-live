@@ -401,21 +401,24 @@ sub clean_features {
         $b = shift @features if !defined($b);
         $sf2 = shift @features;
         # from same sequence?
-        if ($b->seq_id == $sf2->seq_id) {
-            # close starts (probable redundant hit)?
-            if(abs(($b->start)-($sf2->start)) <= abs($bp)) {
-                # which score is better?
-                if( (($bp < 0) && ($b->score > $sf2->score))  ||  # lowest score
-                    (($bp > 0) && ($b->score < $sf2->score)) ){   # highest score
-                    $b = $sf2;
-                    next;
-                } else {
-                    next;
+        if ($sf2) {
+            if ($b->seq_id == $sf2->seq_id) {
+                # close starts (probable redundant hit)?
+                if(abs(($b->start)-($sf2->start)) <= abs($bp)) {
+                    # which score is better?
+                    if( (($bp < 0) && ($b->score > $sf2->score))  ||  # lowest score
+                        (($bp > 0) && ($b->score < $sf2->score)) ){   # highest score
+                        $b = $sf2;
+                        next;
+                    } else {
+                        next;
+                    }
                 }
+                push @list, $b;
+                $b = $sf2;
             }
+        } else {
             push @list, $b;
-            $b = $sf2;
-            push @list, $b if(!@features);
         }
     }
     my $col = Bio::SeqFeature::Collection->new;
