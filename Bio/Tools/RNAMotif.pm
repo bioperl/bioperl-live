@@ -420,9 +420,6 @@ sub clean_features {
         }
     }
     push @list, $b if $b;
-    for my $feat (@list) {
-        print "RNAMotif : ",$feat->start, "\t", $feat->end, "\n";
-    }
     my $col = Bio::SeqFeature::Collection->new;
     $col->add_features(\@list);
     return $col;
