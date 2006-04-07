@@ -49,7 +49,6 @@ which can be accessed by using the following:
 
 If the score contains anything besides a digit, it will throw a
 warning that sprintf() may have been used.
-
 Several values have also been added in the 'tag' hash.  These can be
 accessed using the following syntax:
 
@@ -68,11 +67,44 @@ Added tags are :
 
 See t/RNAMotif.t for example usage.
 
+The clean_features method can also be used to return a list of seqfeatures (in a
+Bio::SeqFeature::Collection object) that are within a particular region.   RNAMotif
+is prone with some descriptors to returning redundant hits; an attempt to rectify
+this problem is attempted with RNAMotif's companion program rmprune, which returns
+the structure with the longest helices (and theoretically the best scoring structure).
+However, this doesn't take into account alternative foldings which may score better.
+This method adds a bit more flexibility, giving the user the ability to screen folds
+based on where the feature is found and the score.  Passing a positive integer x
+screens SeqFeatures based on the highest score within x bp, while a negative integer
+screens based on the lowest score. So, to return the highest scoring values within
+20 bp (likely using an arbitrary scroing system in the SCORE section of a descriptor
+file), one could use:
+
+$list = $obj->clean_features(20); 
+
+... and returning the lowest scoring structures within the same region (when the
+score is based on calculated free energies from efn2) can be accomplished
+by the following:
+
+$list = $obj->clean_features(-20);
+
+If you wanted the best feature in a sequence, you could set this to a large number,
+preferrably on that exceeds the bases in a sequence
+
+$list = $obj->clean_features(10000000);
+
+Each seqfeature in the collection can then be acted upon:
+
+@sf = $list->get_all_features;
+for my $f (@sf) {
+  # do crazy things here
+}
+
 At some point a more complicated feature object may be used to support
 this data rather than forcing most of the information into tag/value
 pairs in a SeqFeature::Generic.  This will hopefully allow for more
 flexible analysis of data (specifically RNA secondary structural
-data).
+data).  It works for now...
 
 =head1 FEEDBACK
 
@@ -112,6 +144,7 @@ use strict;
 
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
+use Bio::SeqFeature::Collection;
 
 @ISA = qw(Bio::Tools::AnalysisResult );
 
@@ -267,7 +300,7 @@ sub next_feature {
            }
  Function: Returns the next gene structure prediction of the RNAMotif result
            file. Call this method repeatedly until FALSE is returned.
- Returns : A Bio::Tools::Prediction::Gene object.
+ Returns : A Bio::SeqFeature::Generic object
  Args    : None (at present)
 
 =cut
@@ -278,14 +311,6 @@ sub next_prediction {
 				       $self->source_tag,
 				       $self->desc_tag);
     my ($score, $strand, $start, $length, $sequence, $end, $seqid, $description)=0;
-    # the tags needed for rnamotif include start, end, length, seqid, descriptor,
-	# sequence, score, strand.  The 'end' tag is claculated from the values for $start,
-    # $length, and $strand.  The 'score' tag may carry a number score or a list of data;
-    # here I get 
-    # Here, the idea is to run through the header of the file first, grab the secondary
-    # structure information and the dfile (if present; only versions> RNAMotif
-    # v. 3.0.4 add this line).  These are added to the private hash keys _sec_structure
-    # and _dfile and added as a tagged hash.
     while($_ = $self->_readline) {
         while($_ =~ /^#RM/) { # header line
             if(/^#RM\sdescr\s(.*)$/) { # contains sec structure
@@ -298,9 +323,6 @@ sub next_prediction {
             }
             $_ = $self->_readline;
         }
-        # Now scan through the rest of the file; hits will have alternating
-        # lines with a FASTA-like header followed by the important stuff.
-        # Get the description, then advance a line   
         if(m/^>((\S*)\s.*)$/) {
             $self->debug("Found a description: $1\n");
             $seqid = $2;
@@ -350,6 +372,55 @@ sub next_prediction {
             return $gene;
         }
     }
+}
+
+=head2 clean_features
+
+ Title   : next_prediction
+ Usage   : @list = $obj->clean_features(-10);
+ Function: Returns array of SeqFeatures when called.   
+ Returns : a Bio::SeqFeature::Collection object
+ Args    : Pos./Neg. integer (for highest/lowest scoring seqfeature within x bp).
+ Throws  : Error unless digit is entered.  You could enter in something weird that
+           gets around the regex but, really, why would you do that?
+
+=cut
+
+sub clean_features {
+    my $self = shift;
+    my $bp = shift;
+    $self->throw("No arg, need pos. or neg. integer") if !$bp;
+    $self->throw("Need pos. or neg. integer") if ($bp !~ /\-?\d/ || $bp =~ /\./);
+    my ($b, $sf2);
+    my @list = ();
+    my @features = ();
+    while (my $pred = $self->next_prediction) {
+        push @features, $pred;
+    }
+    while (@features) {
+        $b = shift @features if !defined($b);
+        $sf2 = shift @features;
+        # from same sequence?
+        if ($b->seq_id == $sf2->seq_id) {
+            # close starts (probable redundant hit)?
+            if(abs(($b->start)-($sf2->start)) <= abs($bp)) {
+                # which score is better?
+                if( (($bp < 0) && ($b->score > $sf2->score))  ||  # lowest score
+                    (($bp > 0) && ($b->score < $sf2->score)) ){   # highest score
+                    $b = $sf2;
+                    next;
+                } else {
+                    next;
+                }
+            }
+            push @list, $b;
+            $b = $sf2;
+            push @list, $b if(!@features);
+        }
+    }
+    my $col = Bio::SeqFeature::Collection->new;
+    $col->add_features(\@list);
+    return $col;
 }
 
 1;
