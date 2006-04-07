@@ -168,16 +168,15 @@ sub next_result{
    local $/ = "\n";
    local $_;
 
-   #clear header if exists
-   my $head = $self->_readline;
-   if($head =~ /^psLayout/){
-       for(1..4){$self->_readline}
-   } else {
-     $self->_pushback($head);
-   }
-
    while( defined ($_ = $self->_readline) ) {
-       my ( $matches,$mismatches,$rep_matches,$n_count,
+	    #clear header if exists
+	    if(/^psLayout/){
+			#pass over header lines lines
+			while(!/^\d+\s+\d+\s+/) {
+				$_ = $self->_readline;
+			}
+	    } 
+		my ( $matches,$mismatches,$rep_matches,$n_count,
 	    $q_num_insert,$q_base_insert,
 	    $t_num_insert, $t_base_insert, 
 	    $strand, $q_name, $q_length, $q_start,
