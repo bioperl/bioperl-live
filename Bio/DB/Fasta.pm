@@ -4,7 +4,9 @@
 #
 # You may distribute this module under the same terms as perl itself
 #
+
 # POD documentation - main docs before the code
+
 =head1 NAME
 
 Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
@@ -97,7 +99,7 @@ The latter creates a tied filehandle which can be used Bio::SeqIO
 style to fetch sequence objects in a stream fashion.  There is also a
 tied hash interface.
 
-=over 1
+=over 2
 
 =item $db = Bio::DB::Fasta-E<gt>new($fasta_path [,%options])
 
@@ -1043,6 +1045,11 @@ sub trunc {
 						       $self->{start}-($stop-1)
 						      );  
 	
+}
+
+sub is_circular {
+  my $self = shift;
+  return $self->{is_circular};
 }
 
 sub display_id {
