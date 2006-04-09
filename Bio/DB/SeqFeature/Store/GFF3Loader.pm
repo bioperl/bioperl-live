@@ -485,7 +485,7 @@ sub start_or_finish_sequence {
   my $seqid = shift;
   if (my $sl    = $self->{fasta_load}) {
     if (defined $sl->{seqid}) {
-      $self->store->insert_sequence($sl->{seqid},$sl->{offset},$sl->{sequence});
+      $self->store->insert_sequence($sl->{seqid},$sl->{sequence},$sl->{offset});
       delete $self->{fasta_load};
     }
   }
@@ -504,7 +504,7 @@ sub load_sequence {
   $sl->{sequence} .= $seq;
   while (length $sl->{sequence} >= $cs) {
     my $chunk = substr($sl->{sequence},0,$cs);
-    $self->store->insert_sequence($sl->{seqid},$sl->{offset},$chunk);
+    $self->store->insert_sequence($sl->{seqid},$chunk,$sl->{offset});
     $sl->{offset} += length $chunk;
     substr($sl->{sequence},0,$cs) = '';
   }

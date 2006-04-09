@@ -273,7 +273,7 @@ sub _init_database {
     my $query = "CREATE TABLE IF NOT EXISTS $table $tables->{$_}";
     $dbh->do($query) or $self->throw($dbh->errstr);
   }
-  $self->subfeatures_are_indexed(1);
+  $self->subfeatures_are_indexed(1) if $erase;
   1;
 }
 
@@ -1079,7 +1079,7 @@ END
 #
 sub _insert_sequence {
   my $self = shift;
-  my ($seqid,$offset,$seq) = @_;
+  my ($seqid,$seq,$offset) = @_;
   my $id = $self->_locationid($seqid);
   my $seqtable = $self->_sequence_table;
   my $sth = $self->_prepare(<<END);

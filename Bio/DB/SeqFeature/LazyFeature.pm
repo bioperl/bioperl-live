@@ -6,6 +6,8 @@ use base 'Bio::Graphics::FeatureBase';
 use base 'Bio::DB::SeqFeature::NormalizedFeatureI';
 use overload '""' => \&as_string;
 
+use vars '$AUTOLOAD';
+
 my $USE_OVERLOADED_NAMES     = 1;
 
 # some of this is my fault and some of it is changing bioperl API
@@ -37,6 +39,24 @@ sub overloaded_names {
   $USE_OVERLOADED_NAMES = shift if @_;
   $d;
 }
+
+### instance methods
+
+sub AUTOLOAD {
+  my($pack,$func_name) = $AUTOLOAD=~/(.+)::([^:]+)$/;
+  my $sub = $AUTOLOAD;
+  my $self = $_[0];
+
+  # ignore DESTROY calls
+  return if $func_name eq 'DESTROY';
+
+  # fetch subfeatures if func_name has an initial cap
+  return $self->get_SeqFeatures($func_name) if $func_name =~ /^[A-Z]/;
+
+  # error message of last resort
+  $self->throw(qq(Can't locate object method "$func_name" via package "$pack"));
+}#'
+
 
 sub object_store {
   my $self = shift;
@@ -234,13 +254,14 @@ sub as_string {
   return "$type($name)";
 }
 
+# completely case insensitive
 sub type_match {
   my $self = shift;
   my @types = @_;
-  my $method = $self->primary_tag;
-  my $source = $self->source_tag;
+  my $method = lc $self->primary_tag;
+  my $source = lc $self->source_tag;
   for my $t (@types) {
-    my ($m,$s) = split /:/,$t;
+    my ($m,$s) = map {lc $_} split /:/,$t;
     return 1 if $method eq $m && (!defined $s || $source eq $s);
   }
   return;

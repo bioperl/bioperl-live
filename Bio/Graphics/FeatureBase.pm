@@ -466,7 +466,7 @@ sub gff3_string {
   $string .= "\n";
   if ($recurse) {
     foreach ($self->sub_SeqFeature) {
-      $string .= $_->gff3_string(1,$self->name);
+      $string .= $_->gff3_string(1,$self);
     }
   }
   $string;
@@ -519,8 +519,11 @@ sub format_attributes {
     my @values = $self->each_tag_value($t);
     push @result,join '=',escape($t),escape($_) foreach @values;
   }
-  push @result,"ID=".escape($self->name) if defined $self->name;
-  push @result,"Parent=".escape($parent) if defined $parent;
+  my $id   = $self->primary_id;
+  my $name = $self->display_name;
+  push @result,"ID=".escape($id)                     if defined $id;
+  push @result,"Parent=".escape($parent->primary_id) if defined $parent;
+  push @result,"Name=".escape($name)                 if defined $name;
   return join ';',@result;
 }
 
