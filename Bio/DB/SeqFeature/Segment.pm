@@ -47,7 +47,8 @@ sub ref    { shift->seq_id   }
 sub length { my $self = shift; return $self->end-$self->start+1; }
 sub factory { shift->{store} }
 sub store   { shift->{store} }
-sub type    { 'Segment' }
+sub type    { shift->primary_tag }
+sub primary_tag    { 'Segment' }
 sub display_name { shift->as_string }
 sub abs_ref      { shift->ref}
 sub abs_start    { shift->start}

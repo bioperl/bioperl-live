@@ -525,7 +525,7 @@ sub _search_notes { shift->throw_not_implemented }
 
 # return true here if the storage engine is prepared to store parent/child
 # relationships using _add_SeqFeature and return them using _fetch_SeqFeatures
-sub _can_store_subFeatures { return; }
+sub can_store_parentage { return; }
 
 # these two are called only if _can_store_subFeatures() returns true
 # _add_SeqFeature ($parent,@children)

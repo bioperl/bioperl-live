@@ -33,13 +33,14 @@ BEGIN {
     eval {
         require GD;
 	require Text::Shellwords;
-	require Bio::Graphics::FeatureFile;
-	require Bio::Graphics;
     };
     if( $@ ) {
 	print STDERR "GD or Text::Shellwords modules are not installed. This means that Bio::Graphics module is unusable. Skipping tests.\n";
       $error = 1;
     }
+
+    require Bio::Graphics::FeatureFile;
+    require Bio::Graphics;
 }
 
 END { 

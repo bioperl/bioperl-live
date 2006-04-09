@@ -253,9 +253,9 @@ sub handle_feature {
   $unreserved->{Gap}   = $reserved->{Gap}    if exists $reserved->{Gap};
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
-  $unreserved->{load_id}   = $feature_id  if defined $feature_id;
-  $unreserved->{Alias}     = $feature_id  if defined $feature_id;
-  $unreserved->{parent_id} = \@parent_ids if @parent_ids;
+  $unreserved->{load_id}   = $feature_id    if defined $feature_id;
+  push @{$unreserved->{Alias}},$feature_id  if defined $feature_id;
+  $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
   my @args = (-display_name => $name || undef,
 	      -seq_id       => $refname,
