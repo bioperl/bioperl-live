@@ -3,14 +3,19 @@
 
 use strict;
 use vars qw($DEBUG);
-use Test;
+use constant NUMTESTS => 449;
+use constant NONEXCELTESTS => 337;
 
 BEGIN {     
-    plan tests => 449;
-}
-
-END {
-    #unlink("somefile");
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) { 
+        use lib 't';
+    }
+    use Test;
+    plan tests => NUMTESTS;
 }
 
 use Bio::Tools::CodonTable;
@@ -88,6 +93,19 @@ ok $seqin;
 run_tests([@names],[@accs],[4,4,4,4,4,5,5,5,5,5],[@psg],[@rs]);
 
 $seqin->close();
+
+# need Spreadsheet::ParseExcel installed for testing Excel format
+eval {
+    require Spreadsheet::ParseExcel;
+};
+if ($@) {
+    print STDERR "# Spreadsheet::ParseExcel failed to load, probably because it is not installed.\n";
+    print STDERR "# Cannot test Excel format parsing w/o it, hence will skip.\n";
+    foreach ((NONEXCELTESTS+1)..NUMTESTS) { 
+        skip ("Skip Excel format test b/c Spreadsheet::ParseExcel not installed",1,1); 
+    }
+    exit(0);
+}
 
 $seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.xls"),
                          -format  => 'excel',
