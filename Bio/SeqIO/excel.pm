@@ -1,4 +1,4 @@
-# $GNF: projects/gi/symgene/src/perl/seqproc/Bio/SeqIO/excel.pm,v 1.1 2005/04/08 02:04:43 hlapp Exp $
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::excel
 #

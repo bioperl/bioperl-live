@@ -1,4 +1,4 @@
-# $GNF: projects/gi/symgene/src/perl/seqproc/Bio/SeqIO/table.pm,v 1.5 2006/01/19 22:06:00 hlapp Exp $
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::table
 #
