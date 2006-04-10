@@ -544,4 +544,8 @@ o DEPENDENCIES AND Bundle::BioPerl
                   
  XML::SAX::Writer
 
-Convert::Binary::C       Binary Data Conversion using C Types Bio/SeqIO/strider
+Convert::Binary::C       Binary Data Conversion using C Types
+                                   Bio/SeqIO/strider
+
+Spreadsheet::ParseExcel	     Read Microsoft Excel files
+                                            Bio/SeqIO/excel.pm
