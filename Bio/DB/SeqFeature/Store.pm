@@ -721,15 +721,32 @@ sub get_features_by_location {
  Args    : see below
  Status  : public
 
-MORE DOCUMENTATION PENDING
+This implements a simple tag filter. Pass a list of tag names and
+their values. The module will return a list of features whose tag
+names and values match. Tag names are case insensitive. If multiple
+tag name/value pairs are present, they will be ANDed together. To
+match any of a list of values, use an array reference for the value.
+
+Examples:
+
+ # return all features whose "function" tag is "GO:0000123"
+ @features = $db->get_features_by_attribute(function => 'GO:0000123');
+
+ # return all features whose "function" tag is "GO:0000123" or "GO:0000555"
+ @features = $db->get_features_by_attribute(function => ['GO:0000123','GO:0000555']);
+
+ # return all features whose "function" tag is "GO:0000123" or "GO:0000555"
+ # and whose "confirmed" tag is 1
+ @features = $db->get_features_by_attribute(function  => ['GO:0000123','GO:0000555'],
+                                            confirmed => 1);
 
 =cut
 
 sub get_features_by_attribute {
   my $self       = shift;
-  my $attributes = shift;
-  $attributes  or croak "Usage: get_feature_by_attribute({attribute_hash})";
-  $self->_features(-attributes=>$attributes);
+  my %attributes = ref($_[0]) ? %{$_[0]} : @_;
+  %attributes  or $self->throw("Usage: get_feature_by_attribute(attribute_name=>\$attribute_value...)");
+  $self->_features(-attributes=>\%attributes);
 }
 ###
 # features() call -- main query interface

@@ -852,7 +852,7 @@ sub _location_sql {
    AND   $range
 END
 
-  my $group = '';
+  my $group = 'f.id,l.bin';
 
 # using a join (slow)
 #  my @args  = ($seq_id,@range_args);
@@ -1340,7 +1340,7 @@ sub _make_attribute_group {
   my $self                     = shift;
   my ($table_name,$attributes) = @_;
   my $key_count = keys %$attributes or return;
-  return "$table_name.id HAVING count($table_name.id)>?",$key_count-1;
+  return "f.id HAVING count(f.id)>?",$key_count-1;
 }
 
 sub _print_query {
