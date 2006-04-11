@@ -739,22 +739,24 @@ sub select_noncont {
 =head2 slice
 
  Title     : slice
- Usage     : $aln2 = $aln->slice(20, 30)
+ Usage     : $aln2 = $aln->slice(20,30)
  Function  : Creates a slice from the alignment inclusive of start and
              end columns, and the first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
              new alignment and a warning is printed. Slice beyond the length of 
              the sequence does not do padding.
- Returns   : a Bio::SimpleAlign object
- Args      : positive integer for start column, positive integer for end column,
+ Returns   : A Bio::SimpleAlign object
+ Args      : Positive integer for start column, positive integer for end column,
              optional boolean which if true will keep gap-only columns in the newly 
-             created slice
+             created slice. Example:
+
+             $aln2 = $aln->slice(20,30,1)
 
 =cut
 
 sub slice {
 	my $self = shift;
-	my ($start, $end,$keep_gap_only) = @_;
+	my ($start, $end, $keep_gap_only) = @_;
 
 	$self->throw("Slice start has to be a positive integer, not [$start]")
 	  unless $start =~ /^\d+$/ and $start > 0;
