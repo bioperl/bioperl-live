@@ -232,7 +232,9 @@ This class method creates a new database connection. The following
 
  -index_subfeatures Whether or not to make subfeatures searchable
                     (default true)
-      
+
+ -cache             Activate LRU caching feature -- size of cache
+
 The B<-index_subfeatures> argument, if true, tells the module to
 create indexes for a feature and all its subfeatures (and its
 subfeatues' subfeatures). Indexing subfeatures means that you will be
@@ -241,6 +243,15 @@ each mRNA. It also means when you search the database for all features
 contained within a particular location, you will get the gene, the
 mRNAs and all the exons as individual objects as well as subfeatures
 of each other.
+
+The B<-cache> argument, if true, tells the module to try to create a
+LRU (least-recently-used) object cache using the Tie::Cacher
+module. Caching will cause two objects that share the same primary_id
+to (often, but not always) share the same memory location, and may
+improve performance modestly. If Tie::Cacher is not present, this
+argument has no effect. If is present, then the argument is taken as
+the desired size for the cache. If you pass "1" as the cache value, a
+reasonable default cache size will be chosen.
 
 The new() method of individual adaptors recognize additional
 arguments. The default DBI::mysql adaptor recognizes the following
@@ -273,23 +284,26 @@ ones:
 #
 sub new {
   my $self      = shift;
-  my ($adaptor,$serializer,$index_subfeatures,$args);
+  my ($adaptor,$serializer,$index_subfeatures,$cache,$args);
   if (@_ == 1) {
     $args = {DSN => shift}
   }
   else {
-    ($adaptor,$serializer,$index_subfeatures,$args) =
+    ($adaptor,$serializer,$index_subfeatures,$cache,$args) =
       rearrange(['ADAPTOR',
 		 'SERIALIZER',
-		 'INDEX_SUBFEATURES'
+		 'INDEX_SUBFEATURES',
+		 'CACHE'
 		],@_);
   }
   $adaptor ||= 'DBI::mysql';
 
   my $class = "Bio::DB::SeqFeature::Store::$adaptor";
   eval "require $class " or croak $@;
+  $cache &&= eval "require Tie::Cacher; 1";
   my $obj = $class->new_instance();
   $obj->init($args);
+  $obj->init_cache($cache) if $cache;
   $obj->serializer($serializer)               if defined $serializer;
   $obj->index_subfeatures($index_subfeatures) if defined $index_subfeatures;
   $obj;
@@ -377,7 +391,7 @@ each subfeatures that has changed.
 
 sub store {
   my $self = shift;
-  $self->_store(1,@_);
+  my $result = $self->store_and_cache(1,@_);
 }
 
 =head2 store_noindex
@@ -401,7 +415,19 @@ subfeatures that are not indexed.
 # (typically used only for subfeatures)
 sub store_noindex {
   my $self = shift;
-  $self->_store(0,@_);
+  $self->store_and_cache(0,@_);
+}
+
+sub store_and_cache {
+  my $self = shift;
+  my $indexit = shift;
+  $self->_store($indexit,@_);
+  if (my $cache = $self->cache) {
+    for my $obj (@_) {
+      defined (my $id     = eval {$obj->primary_id}) or next;
+      $cache->store($id,$obj);
+    }
+  }
 }
 
 =head2 delete
@@ -455,7 +481,7 @@ sub fetch {
   my $self       = shift;
   @_ or croak "usage: fetch(\$primary_id)";
   my $primary_id = shift;
-  $self->_fetch($primary_id);
+  return $self->_fetch($primary_id);
 }
 
 =head2 fetch_many
@@ -1302,6 +1328,15 @@ sub fetch_SeqFeatures {
   $self->_add_SeqFeatures($parent,@types);
 }
 
+sub init_cache {
+  my $self       = shift;
+  my $cache_size = shift;
+  $cache_size    = 5000 if $cache_size == 1;   # in case somebody treats it as a flag
+  $self->{cache} = Tie::Cacher->new($cache_size) or $self->throw("Couldn't tie cache: $!");
+}
+
+sub cache { shift->{cache} }
+
 
 ###################### TO BE IMPLEMENTED BY ADAPTOR ##########
 
@@ -1556,10 +1591,26 @@ sub _freeze {
 sub _thaw {
   my $self               = shift;
   my ($obj,$primary_id)  = @_;
+
+  if (my $cache = $self->cache) {
+    return $cache->fetch($primary_id) if $cache->exists($primary_id);
+    my $object = $self->_thaw_object($obj,$primary_id) or return;
+    $cache->store($primary_id,$object);
+    return $object;
+  } else {
+    return $self->_thaw_object($obj,$primary_id);
+  }
+
+}
+
+sub _thaw_object {
+  my $self               = shift;
+  my ($obj,$primary_id)  = @_;
+
   my $serializer = $self->serializer;
   my $object;
   if ($serializer eq 'Data::Dumper') {
-    $object = $obj;
+    $object = eval $obj;
   } elsif ($serializer eq 'Storable') {
     $object = Storable::thaw($obj);
   }
