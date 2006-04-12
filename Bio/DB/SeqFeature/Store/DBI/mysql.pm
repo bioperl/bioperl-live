@@ -320,7 +320,7 @@ sub _store {
   eval {
     for my $obj (@_) {
       $self->replace($obj,$indexed);
-      $self->update_indexes($obj) if $indexed && $autoindex;
+      $self->_update_indexes($obj) if $indexed && $autoindex;
       $count++;
     }
   };
@@ -644,7 +644,7 @@ sub _features {
   $group    = "GROUP BY $group" if @group;
 
   my $query = <<END;
-SELECT DISTINCT f.id,f.object
+SELECT f.id,f.object
   FROM $from
   WHERE $where
   $group
@@ -852,6 +852,8 @@ sub _location_sql {
    AND   $range
 END
 
+  # setting up the group this way avoids a select distinct and more importantly
+  # fixes issues when combining location queries with attribute queries
   my $group = 'f.id,l.bin';
 
 # using a join (slow)
@@ -899,7 +901,7 @@ sub reindex {
 	print STDERR "$count features indexed$elapsed...",' 'x60;
 	print STDERR -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
       }
-      $self->update_indexes($f);
+      $self->_update_indexes($f);
     }
   };
   for my $table ($self->index_tables) {
@@ -1049,7 +1051,7 @@ REPLACE INTO $features (id,object,indexed) VALUES (?,?,?)
 END
   $sth->execute($id,$self->_freeze($object),$index_flag||0) or $self->throw($sth->errstr);
   my $dbh = $self->dbh;
-  $object->primary_id($dbh->{mysql_insertid});
+  $object->primary_id($dbh->{mysql_insertid}) unless defined $id;
   $self->flag_for_indexing($dbh->{mysql_insertid}) if $self->{bulk_update_in_progress};
 }
 
@@ -1089,25 +1091,6 @@ END
 }
 
 ###
-# Update a Bio::SeqFeatureI into database. primary_id must NOT be undef
-#
-sub _update {
-  my $self   = shift;
-  my $object        = shift;
-  my $primary_id    = shift;
-
-  my $features = $self->_feature_table;
-  my $sth = $self->_prepare(<<END);
-UPDATE $features SET object=? where id=?
-END
-  # If I had Mysql 4.1 or higher, I could do this:
-  # INSERT INTO features (id,object) VALUES (?,?)
-  # ON DUPLICATE KEY UPDATE object=?
-  $sth->execute($self->_freeze($object),$primary_id)       or $self->throw($self->dbh->errstr);
-  $self->flag_for_indexing($self->dbh->{mysql_insertid})   if $self->{bulk_update_in_progress};
-}
-
-###
 # This subroutine flags the given primary ID for later reindexing
 #
 sub flag_for_indexing {
@@ -1121,7 +1104,7 @@ sub flag_for_indexing {
 ###
 # Update indexes for given object
 #
-sub update_indexes {
+sub _update_indexes {
   my $self = shift;
   my $obj  = shift;
   defined (my $id   = $obj->primary_id) or return;
@@ -1370,7 +1353,7 @@ sub _dump_store {
     my $id       = $self->next_id;
     print $store_fh join("\t",$id,$indexed,$dbh->quote($self->_freeze($obj))),"\n";
     $obj->primary_id($id);
-    $self->update_indexes($obj) if $indexed && $autoindex;
+    $self->_update_indexes($obj) if $indexed && $autoindex;
     $count++;
   }
 

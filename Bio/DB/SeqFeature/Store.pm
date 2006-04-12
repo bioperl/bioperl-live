@@ -357,6 +357,13 @@ database.
 Subfeatures will be indexed for separate retrieval based on the
 current value of index_subfeatures().
 
+If you call store() with one or more features that already have valid
+primary_ids, then an existing object(s) will be B<replaced>. Note that
+when using normalized features such as
+Bio::Db::SeqFeature::LazyFeature, the subfeatures are not recursively
+updated when you update the parent feature. You must manually update
+each subfeatures that has changed.
+
 =cut
 
 ###
@@ -426,35 +433,6 @@ sub delete {
   }
   $success;
 }
-
-=head2 update
-
- Title   : update
- Usage   : $success = $db->update($feature)
- Function: update a single feature
- Returns : true if successful
- Args    : feature to be updated
- Status  : public
-
-This method writes a modified feature back into the database. The
-feature must contain a valid primary_id.
-
-When using normalized feature classes such as
-Bio::DB::SeqFeature::LazyTableFeature the subfeatures are not
-recursively updated when you update the parent feature. You must
-manually update each of the subfeatures you have changed.
-
-=cut
-
-sub update {
-  my $self = shift;
-  my $object = shift;
-  defined (my $primary_id = eval { $object->primary_id})
-    or $self->throw("$object has no primary ID: $@");
-  $self->_update($object,$primary_id);
-}
-
-
 
 =head2 fetch
 
@@ -752,6 +730,80 @@ sub get_features_by_attribute {
 # features() call -- main query interface
 #
 
+=head2 features
+
+ Title   : features
+ Usage   : @features = $db->features(@args)
+ Function: generalized query & retrieval interface
+ Returns : list of features
+ Args    : see below
+ Status  : Public
+
+This is the workhorse for feature query and retrieval. It takes a
+series of -name=>$value arguments filter arguments. Features that
+match all the filters are returned.
+
+  Argument       Value
+  --------       -----
+
+ Location filters:
+  -seqid         Chromosome, contig or other DNA segment
+  -seq_id        Synonym for -seqid
+  -ref           Synonym for -seqid
+  -start         Start of range
+  -end           End of range
+  -stop          Synonym for -end
+  -strand        Strand
+  -range_type    Type of range match ('overlaps','contains','contained_in')
+
+ Name filters:
+  -name          Name of feature (may be a glob expression)
+  -aliases       If true, match aliases as well as display names
+  -class         Archaic argument for backward compatibility.
+                  (-class=>'Clone',-name=>'ABC123') is equivalent
+                  to (-name=>'Clone:ABC123')
+
+ Type filters:
+  -types         List of feature types (array reference) or one type (scalar)
+  -type          Synonym for the above
+  -primary_tag   Synonym for the above
+
+  -attributes    Hashref of attribute=>value pairs as per
+                    get_features_by_attribute(). Multiple alternative values
+                    can be matched by providing an array reference.
+  -attribute     synonym for -attributes
+
+You may also provide features() with a list of scalar values (the
+first element of which must B<not> begin with a dash), in which case
+it will treat the list as a feature type filter.
+
+Examples:
+
+All features on chromosome 1:
+
+ @features = $db->features(-seqid=>'Chr1');
+
+All features on chromosome 1 between 5000 and 6000:
+
+ @features = $db->features(-seqid=>'Chr1',-start=>5000,-end=>6000);
+
+All mRNAs on chromosome 1 between 5000 and 6000:
+
+ @features = $db->features(-seqid=>'Chr1',-start=>5000,-end=>6000,-types=>'mRNA');
+
+All confirmed mRNAs and repeats on chromosome 1 between 5000 and 6000:
+
+ @features = $db->features(-seqid     => 'Chr1',-start=>5000,-end=>6000,
+                           -types     => ['mRNA','repeat'],
+                           -attributes=> {confirmed=>1}
+                          );
+
+All genes and repeats:
+
+ @features = $db->features('gene','repeat');
+
+=cut
+
 # documentation of args
 #   my ($seq_id,$start,$end,$strand,
 #       $name,$class,$allow_aliases,
@@ -769,8 +821,9 @@ sub get_features_by_attribute {
 sub features {
   my $self = shift;
   my @args;
-  if (@_ == 1) {
-    @args = (-type=>shift);
+  unless ($_[0] =~/^-/) {
+    my @types = @_;
+    @args = (-type=>\@types);
   } else {
     @args = @_;
   }
@@ -1252,10 +1305,50 @@ sub fetch_SeqFeatures {
 
 ###################### TO BE IMPLEMENTED BY ADAPTOR ##########
 
-# DOC THIS!!!!!
-sub _new { shift->throw_not_implemented}
+=head2 _init_database
+
+ Title   : _init_database
+ Usage   : $success = $db->_init_database([$erase])
+ Function: initialize an empty database
+ Returns : true on success
+ Args    : optional boolean flag to erase contents of an existing database
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is the back end for init_database(). It must be
+implemented by an adaptor that inherits from
+Bio::DB::SeqFeature::Store. It returns true on success.
+
+=cut
 
 sub _init_database { shift->throw_not_implemented }
+
+=head2 _store
+
+ Title   : _store
+ Usage   : $success = $db->_store($indexed,@objects)
+ Function: store seqfeature objects into database
+ Returns : true on success
+ Args    : a boolean flag indicating whether objects are to be indexed,
+           and one or more objects
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is the back end for store() and store_noindex(). It should
+write the seqfeature objects into the database. If indexing is
+requested, the features should be indexed for query and
+retrieval. Otherwise the features should be stored without indexing
+(it is not required that adaptors respect this).
+
+If the object has no primary_id (undef), then the object is written
+into the database and assigned a new primary_id. If the object already
+has a primary_id, then the system will perform an update, replacing
+whatever was there before.
+
+In practice, the implementation will serialize each object using the
+_freeze() method and then store it in the database under the
+corresponding primary_id. The object is then updated with the
+primary_id.
+
+=cut
 
 # _store($indexed,@objs)
 sub _store {
@@ -1265,24 +1358,42 @@ sub _store {
   $self->throw_not_implemented;
 }
 
-# _store($indexed,@objs)
-sub _update {
-  my $self       = shift;
-  my $object     = shift;
-  my $primary_id = shift;
-  $self->throw_not_implemented;
-}
+=head2 _fetch
 
-# this is called to index a feature
-sub _update_indexes { shift->throw_not_implemented }
+ Title   : _fetch
+ Usage   : $feature = $db->_fetch($primary_id)
+ Function: fetch feature from database
+ Returns : feature
+ Args    : primary id
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
 
-# these do not necessary have to be overridden
-# they are called at beginning and end of reindexing process
-sub _start_reindexing {}
-sub _end_reindexing   {}
+This method is the back end for fetch(). It accepts a primary_id and
+returns a feature object. It must be implemented by the adaptor.
+
+In practice, the implementation will retrieve the serialized
+Bio::SeqfeatureI object from the database and pass it to the _thaw()
+method to unserialize it and synchronize the primary_id.
+
+=cut
 
 # _fetch($id)
 sub _fetch { shift->throw_not_implemented }
+
+
+=head2 _fetch_many
+
+ Title   : _fetch_many
+ Usage   : $feature = $db->_fetch_many(@primary_ids)
+ Function: fetch many features from database
+ Returns : feature
+ Args    : primary id
+ Status  : private -- does not need to be implemented
+
+This method fetches many features specified by a list of IDs. The
+default implementation simply calls _fetch() once for each
+primary_id. Implementors can override it if needed for efficiency.
+
+=cut
 
 # _fetch_many(@ids)
 # this one will fall back to many calls on fetch() if you don't
@@ -1291,6 +1402,62 @@ sub _fetch_many {
   my $self = shift;
   return map {$self->_fetch($_)} @_;
 }
+
+=head2 _update_indexes
+
+ Title   : _update_indexes
+ Usage   : $success = $db->_update_indexes($feature)
+ Function: update the indexes for a feature
+ Returns : true on success
+ Args    : A seqfeature object
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is called by reindex() to update the searchable indexes
+for a feature object that has changed.
+
+=cut
+
+# this is called to index a feature
+sub _update_indexes { shift->throw_not_implemented }
+
+=head2 _start_reindexing, _end_reindexing
+
+ Title   : _start_reindexing, _end_reindexing
+ Usage   : $db->_start_reindexing()
+           $db->_end_reindexing
+ Function: flag that a series of reindexing operations is beginning/ending
+ Returns : true on success
+ Args    : none
+ Status  : MAY BE IMPLEMENTED BY AN ADAPTOR (optional)
+
+These methods are called by reindex() before and immediately after a
+series of reindexing operations. The default behavior is to do
+nothing, but these methods can be overridden by an adaptor in order to
+perform optimizations, turn off autocommits, etc.
+
+=cut
+
+# these do not necessary have to be overridden
+# they are called at beginning and end of reindexing process
+sub _start_reindexing {}
+sub _end_reindexing   {}
+
+
+=head2 _features
+
+ Title   : _features
+ Usage   : @features = $db->_features(@args)
+ Function: back end for all get_feature_by_*() queries
+ Returns : list of features
+ Args    : see below
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
+
+This is the backend for features(), get_features_by_name(),
+get_features_by_location(), etc. Arguments are as described for the
+features() method, except that only the named-argument form is
+recognized.
+
+=cut
 
 # bottleneck query generator
 sub _features { shift->throw_not_implemented }
