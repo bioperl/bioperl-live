@@ -165,10 +165,11 @@ sub draw_parallel {
     }
 	
     my $first_tick = $major_interval * int($start/$major_interval);
-    my $last_tick  = $major_interval * int(0.5 + ($stop+2)/$major_interval);
+    my $last_tick  = $major_interval * int(($stop+2)/$major_interval);
 
     my $label_intervals = $self->label_intervals;
     my $interval_width  = $major_interval * $self->scale/2;
+    my %drewit;
 
     for (my $i = $first_tick; $i <= $last_tick; $i += $major_interval) {
       my $abs = $i;
@@ -185,8 +186,9 @@ sub draw_parallel {
 
       $abs = $end - $abs + 1 if $flipped;
 
-      my $tickpos = $dx + $self->map_pt($abs);
+      my $tickpos = int $dx + $self->map_pt($abs);
       next if $tickpos < $x1 || $tickpos > $x2;
+      $drewit{$tickpos}++;
 
       $gd->line($tickpos,$center-$a2,$tickpos,$center+$a2,$tickpen)
 	unless $tickpos < $left or $tickpos > $right;
@@ -200,9 +202,6 @@ sub draw_parallel {
       my $middle = $tickpos - $label_len/2;
       $middle   += $interval_width if $label_intervals;
 
-      # $middle = $x1 if $middle < $x1;
-      # $middle = $x2 if $middle > $x2;
-
       $gd->string($font,$middle,$center+$a2-1,$label,$font_color)
         unless ($self->option('no_tick_label') || $middle > $x2);
     }
@@ -210,7 +209,7 @@ sub draw_parallel {
     if ($self->option('tick') >= 2) {
 
       $first_tick = $minor_interval * int($start/$minor_interval);
-      $last_tick  = $minor_interval * int(0.5 + ($stop+2)/$minor_interval);
+      $last_tick  = $minor_interval * int(($stop+2)/$minor_interval);
 
       my $a4 = $self->height/4;
       for (my $i = $first_tick; $i <= $last_tick; $i += $minor_interval) {
@@ -227,8 +226,9 @@ sub draw_parallel {
 	  }
 	  $abs = $end - $abs if $flipped;
 
-	  my $tickpos = $dx + $self->map_pt($abs);
+	  my $tickpos = int $dx + $self->map_pt($abs);
 	  next if $tickpos < $left-1 or $tickpos > $right+1;
+	  next if $drewit{$tickpos} || $drewit{$tickpos-1} || $drewit{$tickpos+1}; # prevent roundoff errors from appearing
 
 	  $gd->line($tickpos,$center-$a4,$tickpos,$center+$a4,$tickpen);
       }
