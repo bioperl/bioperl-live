@@ -1,7 +1,6 @@
 package Bio::Graphics::Panel;
 
 use strict;
-use threads::shared;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
 
@@ -16,8 +15,8 @@ use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
 
-my %COLORS   : shared;  # translation table for symbolic color names to RGB triple
-my $IMAGEMAP : shared = 'bgmap00001';
+my %COLORS;  # translation table for symbolic color names to RGB triple
+my $IMAGEMAP = 'bgmap00001';
 read_colors();
 
 sub api_version { 1.651 }
@@ -1058,7 +1057,6 @@ sub read_colors {
     chomp;
     last if /^__END__/;
     my ($name,$r,$g,$b) = split /\s+/;
-    $COLORS{$name} = &share([]);
     @{$COLORS{$name}} = (hex $r,hex $g, hex $b);
   }
 }
