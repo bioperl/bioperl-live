@@ -786,7 +786,7 @@ sub draw_grid {
   } else {
     my ($major,$minor) = $self->ticks;
     my $first_tick = $minor * int($self->start/$minor);
-    for (my $i = $first_tick; $i < $self->end; $i += $minor) {
+    for (my $i = $first_tick-1; $i <= $self->end+1; $i += $minor) {
       push @positions,$i;
     }
   }

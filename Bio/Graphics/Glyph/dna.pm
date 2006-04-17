@@ -53,7 +53,6 @@ sub draw_dna {
 
   my ($gd,$dna,$x1,$y1,$x2,$y2) = @_;
   my $pixels_per_base = $self->scale;
-  
   my $feature = $self->feature;
 
   my $strand = $feature->strand;
@@ -78,10 +77,10 @@ sub draw_dna {
   } else {
     $forward = 1;
   }
-
+  # minus strand features align right, not left
+  $x1 += $pixels_per_base - $font->width - 1 if $strand < 0;
   for (my $i=0;$i<@bases;$i++) {
     my $x = $x1 + $i * $pixels_per_base;
-    $x += $pixels_per_base if $strand < 0;       # minus strand features align right, not left
     $gd->char($font,$x+2,$y1,$bases[$i],$color)                                   if $forward;
     $gd->char($font,$x+2,$y1+($forward ? $lineheight:0),
 	      $complement{$bases[$i]}||$bases[$i],$color)                         if $reverse;

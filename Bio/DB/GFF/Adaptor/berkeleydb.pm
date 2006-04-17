@@ -707,7 +707,7 @@ sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
 
-  $search_notes =~ tr/*?//d;
+  $search_string =~ tr/*?//d;
 
   my @results;
 
