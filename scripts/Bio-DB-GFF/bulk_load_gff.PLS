@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.41 2006-03-16 17:15:09 lstein Exp $
+# $Id: bulk_load_gff.PLS,v 1.42 2006-04-18 16:18:09 scain Exp $
 
 
 use strict;
@@ -90,6 +90,8 @@ e.g. -d instead of --database.
    --long_list           Directory containing a very large number of 
                          GFF and/or FASTA files
    --password            Password to use for authentication
+                           (Doesn't work with Postgres, password must be
+                           supplied interactively)
    --maxbin              Set the value of the maximum bin size
    --local               Flag to indicate that the data source is local
    --maxfeature          Set the value of the maximum feature size (power of 10)
@@ -264,9 +266,9 @@ if (defined $PASSWORD) {
   if ( $use_mysql or $use_mysqlcmap ) {
     $AUTH .= " -p$PASSWORD";
   }
-  elsif ( $use_pg ) {
-    $AUTH .= " -W $PASSWORD ";
-  }
+#  elsif ( $use_pg ) {
+#    $AUTH .= " -W $PASSWORD ";
+#  }
 }
 
 if (defined $HOST) {
