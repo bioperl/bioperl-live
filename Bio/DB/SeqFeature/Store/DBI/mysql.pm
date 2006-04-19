@@ -64,7 +64,7 @@ sub init {
   $self->init_tmp_database()                     if $self->is_temp;
 }
 
-sub _can_store_subFeatures { 1 }
+sub can_store_parentage { 1 }
 
 sub table_definitions {
   my $self = shift;
@@ -379,7 +379,7 @@ sub _finish_bulk_update {
 ###
 # Add a subparts to a feature. Both feature and all subparts must already be in database.
 #
-sub add_SeqFeature {
+sub _add_SeqFeature {
   my $self     = shift;
 
   # special purpose method for case when we are doing a bulk update
@@ -422,7 +422,7 @@ END
   $count;
 }
 
-sub get_SeqFeatures {
+sub _fetch_SeqFeatures {
   my $self   = shift;
   my $parent = shift;
   my @types  = @_;
@@ -670,13 +670,16 @@ sub _name_sql {
   return ($from,$where,'',$string);
 }
 
-sub _search_notes {
+sub _search_attributes {
   my $self = shift;
-  my ($search_string,$limit) = @_;
+  my ($search_string,$attribute_names,$limit) = @_;
   my @words               = map {quotemeta($_)} split /\s+/,$search_string;
   my $name_table          = $self->_name_table;
   my $attribute_table     = $self->_attribute_table;
   my $attributelist_table = $self->_attributelist_table;
+
+  my @tags    = @$attribute_names;
+  my $tag_sql = join ' OR ',("al.tag=?") x @tags;
 
   my $perl_regexp = join '|',@words;
 
@@ -687,12 +690,12 @@ SELECT name,attribute_value
   WHERE n.id=a.id
     AND al.id=a.attribute_id
     AND n.display_name=1
-    AND al.tag='Note'
+    AND ($tag_sql)
     AND ($sql_regexp)
 END
   $sql .= "LIMIT $limit" if defined $limit;
   my $sth = $self->_prepare($sql);
-  $sth->execute(@words) or $self->throw($sth->errstr);
+  $sth->execute(@words,@tags) or $self->throw($sth->errstr);
 
   my @results;
   while (my($name,$value) = $sth->fetchrow_array) {
@@ -1049,7 +1052,7 @@ sub replace {
   my $sth = $self->_prepare(<<END);
 REPLACE INTO $features (id,object,indexed) VALUES (?,?,?)
 END
-  $sth->execute($id,$self->_freeze($object),$index_flag||0) or $self->throw($sth->errstr);
+  $sth->execute($id,$self->freeze($object),$index_flag||0) or $self->throw($sth->errstr);
   my $dbh = $self->dbh;
   $object->primary_id($dbh->{mysql_insertid}) unless defined $id;
   $self->flag_for_indexing($dbh->{mysql_insertid}) if $self->{bulk_update_in_progress};
@@ -1070,7 +1073,7 @@ sub insert {
   my $sth = $self->_prepare(<<END);
 INSERT INTO $features (id,object,indexed) VALUES (?,?,?)
 END
-  $sth->execute(undef,$self->_freeze($object),$index_flag) or $self->throw($sth->errstr);
+  $sth->execute(undef,$self->freeze($object),$index_flag) or $self->throw($sth->errstr);
   my $dbh = $self->dbh;
   $object->primary_id($dbh->{mysql_insertid});
   $self->flag_for_indexing($dbh->{mysql_insertid}) if $self->{bulk_update_in_progress};
@@ -1253,7 +1256,7 @@ sub _sth2objs {
   my $sth  = shift;
   my @result;
   while (my ($id,$o) = $sth->fetchrow_array) {
-    my $obj = $self->_thaw($o,$id);
+    my $obj = $self->thaw($o,$id);
     push @result,$obj;
   }
   $sth->finish;
@@ -1267,7 +1270,7 @@ sub _sth2obj {
   my $sth  = shift;
   my ($id,$o) = $sth->fetchrow_array;
   return unless $o;
-  my $obj = $self->_thaw($o,$id);
+  my $obj = $self->thaw($o,$id);
   $obj;
 }
 
@@ -1351,7 +1354,7 @@ sub _dump_store {
 
   for my $obj (@_) {
     my $id       = $self->next_id;
-    print $store_fh join("\t",$id,$indexed,$dbh->quote($self->_freeze($obj))),"\n";
+    print $store_fh join("\t",$id,$indexed,$dbh->quote($self->freeze($obj))),"\n";
     $obj->primary_id($id);
     $self->_update_indexes($obj) if $indexed && $autoindex;
     $count++;

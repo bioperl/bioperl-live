@@ -1,7 +1,9 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.1 2006-04-02 19:06:59 lstein Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.2 2006-04-19 03:10:53 lstein Exp $
 
 use strict;
+
+use lib '/home/lstein/projects/bioperl-live';
 
 use Getopt::Long;
 use File::Spec;
@@ -20,7 +22,7 @@ my $PASS     = '';
 
 GetOptions(
 	   'dsn=s'       => \$DSN,
-	   'features=s'  => \$SFCLASS,
+	   'seqfeature=s'  => \$SFCLASS,
 	   'adaptor=s'   => \$ADAPTOR,
 	   'verbose!'    => \$VERBOSE,
 	   'fast'       => \$FAST,
@@ -31,16 +33,16 @@ GetOptions(
 	   ) || die <<END;
 Usage: $0 [options] gff_file1 gff_file2...
   Options:
-          -d --dsn       The database name ($DSN)
-          -f --features  The type of SeqFeature to create ($SFCLASS)
-          -a --adaptor   The storage adaptor to use ($ADAPTOR)
-          -v --verbose   Turn on verbose progress reporting
-             --noverbose Turn off verbose progress reporting
-          -f --fast      Activate fast loading (only some adaptors)
+          -d --dsn        The database name ($DSN)
+          -s --seqfeature The type of SeqFeature to create ($SFCLASS)
+          -a --adaptor    The storage adaptor to use ($ADAPTOR)
+          -v --verbose    Turn on verbose progress reporting
+             --noverbose  Turn off verbose progress reporting
+          -f --fast       Activate fast loading (only some adaptors)
           -T --temporary-directory  Specify temporary directory for fast loading ($TMP)
-          -c --create    Create the database and reinitialize it (will erase contents)
-          -u --user      User to connect to database as
-          -p --password  Password to use to connect to database
+          -c --create     Create the database and reinitialize it (will erase contents)
+          -u --user       User to connect to database as
+          -p --password   Password to use to connect to database
 END
 
 if ($FAST) {

@@ -42,7 +42,7 @@ sub _store {
   for my $obj (@_) {
     my $primary_id = $obj->primary_id;
     $primary_id    = $db->{'.next_id'}++ unless defined $primary_id;
-    $db->{$primary_id} = $self->_freeze($obj);
+    $db->{$primary_id} = $self->freeze($obj);
     $obj->primary_id($primary_id);
     $count++;
   }
@@ -54,14 +54,14 @@ sub _update {
   my ($object,$primary_id) = @_;
   my $db = $self->db;
   $self->throw("$object is not in database") unless exists $db->{$primary_id};
-  $db->{$primary_id} = $self->_freeze($object);
+  $db->{$primary_id} = $self->freeze($object);
 }
 
 sub _fetch {
   my $self = shift;
   my $id   = shift;
   my $db = $self->db;
-  my $obj = $self->_thaw($db->{$id},$id);
+  my $obj = $self->thaw($db->{$id},$id);
   $obj;
 }
 

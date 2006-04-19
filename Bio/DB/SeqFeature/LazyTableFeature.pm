@@ -34,7 +34,8 @@ sub _add_segment {
   my $normalized = shift;
 
   my $store      = $self->object_store;
-  return         $self->SUPER::_add_segment($normalized,@_) unless $normalized && eval{$store->can_store_parentage};
+  return         $self->SUPER::_add_segment($normalized,@_)
+    unless $normalized && eval{$store->can_store_parentage};
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
@@ -61,7 +62,8 @@ sub _add_segment {
     push @{$self->{segments}},@segments;
   }
 
-  $self->update if $self->primary_id && $pos ne "@{$self}{'start','end','ref','strand'}"; # write us back to disk
+  # write us back to disk
+  $self->update if $self->primary_id && $pos ne "@{$self}{'start','end','ref','strand'}"; 
 }
 
 # segments can be stored directly in the object (legacy behavior)
@@ -73,14 +75,14 @@ sub get_SeqFeatures {
 
   my @inline_segs  = exists $self->{segments} ? @{$self->{segments}} : ();
   my $store        = $self->object_store;
-  return @inline_segs unless $store && $store->_can_store_subFeatures;
+  return @inline_segs unless $store && $store->can_store_parentage;
 
   my @db_segs;
 
   if (!@types || $store->subfeatures_are_indexed) {
-    @db_segs = $store->get_SeqFeatures($self,@types);
+    @db_segs = $store->fetch_SeqFeatures($self,@types);
   } else {
-    @db_segs     = grep {$_->type_match(@types)} $store->get_SeqFeatures($self);
+    @db_segs     = grep {$_->type_match(@types)} $store->fetch_SeqFeatures($self);
   }
   my @segs         = (@inline_segs,@db_segs);
   return @segs;

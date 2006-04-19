@@ -11,7 +11,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   use Bio::DB::SeqFeature::Store
 
   # Open the sequence database
-  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysq',
+  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
                                                  -dsn     => 'dbi:mysql:elegans');
 
   # get a feature from somewhere
@@ -50,8 +50,8 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   # ...by attribute
   @features = $db->get_features_by_attribute({description => 'protein kinase'})
 
-  # ...by the GFF "note" field
-  @features = $db->search_notes('kinase');
+  # ...by the GFF "Note" field
+  @result_list = $db->search_notes('kinase');
 
   # ...by arbitrary combinations of selectors
   @features = $db->features(-name => $name,
@@ -125,11 +125,10 @@ describe how to use the module.
 =head2 Adaptors
 
 Bio::DB::SeqFeature::Store is designed to work with a variety of
-storage back ends called "adaptors." Adaptors are specialized
-subclasses of Bio::DB::SeqFeature::Store and provide the interface
-between the store() and fetch() methods and the physical
-database. Currently the number of adaptors is quite limited, but the
-number will grow soon.
+storage back ends called "adaptors." Adaptors are subclasses of
+Bio::DB::SeqFeature::Store and provide the interface between the
+store() and fetch() methods and the physical database. Currently the
+number of adaptors is quite limited, but the number will grow soon.
 
 =over 4
 
@@ -191,9 +190,9 @@ cloned when stored into the database.
 The special-purpose L<Bio::DB::SeqFeature::LazyTableFeature> class is
 able to normalize its subfeatures in the database, so that shared
 subfeatures are stored only once. This minimizes wasted storage
-space. In addition, when combined with the
-L<Bio::DB::SeqFeature::Store::Cacher> module, each shared subfeature
-will usually occupy only a single memory location upon restoration.
+space. In addition, when in-memory caching is turned on, each shared
+subfeature will usually occupy only a single memory location upon
+restoration.
 
 =cut
 
@@ -205,6 +204,9 @@ use Carp 'croak';
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Segment;
 use Scalar::Util 'blessed';
+
+# this probably shouldn't be here
+use Bio::DB::SeqFeature::LazyTableFeature;
 
 *dna = *get_dna = *get_sequence = \&fetch_sequence;
 *get_SeqFeatures = \&fetch_SeqFeatures;
@@ -248,10 +250,11 @@ The B<-cache> argument, if true, tells the module to try to create a
 LRU (least-recently-used) object cache using the Tie::Cacher
 module. Caching will cause two objects that share the same primary_id
 to (often, but not always) share the same memory location, and may
-improve performance modestly. If Tie::Cacher is not present, this
-argument has no effect. If is present, then the argument is taken as
-the desired size for the cache. If you pass "1" as the cache value, a
-reasonable default cache size will be chosen.
+improve performance modestly. The argument is taken as the desired
+size for the cache. If you pass "1" as the cache value, a reasonable
+default cache size will be chosen. Caching requires the Tie::Cacher
+module to be installed. If the module is not installed, then caching
+will silently be disabled.
 
 The new() method of individual adaptors recognize additional
 arguments. The default DBI::mysql adaptor recognizes the following
@@ -481,7 +484,15 @@ sub fetch {
   my $self       = shift;
   @_ or croak "usage: fetch(\$primary_id)";
   my $primary_id = shift;
-  return $self->_fetch($primary_id);
+  if (my $cache = $self->cache()) {
+    return $cache->fetch($primary_id) if $cache->exists($primary_id);
+    my $object = $self->_fetch($primary_id);
+    $cache->store($primary_id,$object);
+    return $object;
+  }
+  else {
+    return $self->_fetch($primary_id);
+  }
 }
 
 =head2 fetch_many
@@ -773,8 +784,8 @@ match all the filters are returned.
   --------       -----
 
  Location filters:
-  -seqid         Chromosome, contig or other DNA segment
-  -seq_id        Synonym for -seqid
+  -seq_id        Chromosome, contig or other DNA segment
+  -seqid         Synonym for -seqid
   -ref           Synonym for -seqid
   -start         Start of range
   -end           End of range
@@ -817,12 +828,22 @@ All mRNAs on chromosome 1 between 5000 and 6000:
 
  @features = $db->features(-seqid=>'Chr1',-start=>5000,-end=>6000,-types=>'mRNA');
 
-All confirmed mRNAs and repeats on chromosome 1 between 5000 and 6000:
+All confirmed mRNAs and repeats on chromosome 1 that overlap the range 5000..6000:
 
  @features = $db->features(-seqid     => 'Chr1',-start=>5000,-end=>6000,
                            -types     => ['mRNA','repeat'],
                            -attributes=> {confirmed=>1}
                           );
+
+All confirmed mRNAs and repeats on chromosome 1 strictly contained within the range 5000..6000:
+
+ @features = $db->features(-seqid     => 'Chr1',-start=>5000,-end=>6000,
+                           -types     => ['mRNA','repeat'],
+                           -attributes=> {confirmed=>1}
+                           -range_type => 'contained_in',
+                          );
+
+
 
 All genes and repeats:
 
@@ -856,14 +877,81 @@ sub features {
   $self->_features(@args);
 }
 
+=head2 search_attributes
+
+ Title   : search_attributes
+ Usage   : @result_list = $db->search_attributes("text search string",[$tag1,$tag2...],$limit)
+ Function: Search attributes for keywords occurring in a text string
+ Returns : array of results
+ Args    : full text search string, array ref of attribute names, and an optional feature limit
+ Status  : public
+
+Given a search string, this method performs a full-text search of the
+specified attributes and returns an array of results.  You may pass a
+scalar attribute name to search the values of one attribute
+(e.g. "Note") or you may pass an array reference to search inside
+multiple attributes (['Note','Alias','Parent']).Each row of the
+returned array is a arrayref containing the following fields:
+
+  column 1     The display name of the feature
+  column 2     The text of the note
+  column 3     A relevance score.
+
+=cut
+
+sub search_attributes {
+  my $self = shift;
+  my ($search_string,$attribute_names,$limit) = @_;
+  my $attribute_array   = ref $attribute_names
+                      && ref $attribute_names eq 'ARRAY' ? $attribute_names : [$attribute_names];
+  return $self->_search_attributes($search_string,$attribute_array,$limit);
+}
+
+=head2 search_notes
+
+ Title   : search_notes
+ Usage   : @result_list = $db->search_notes("full text search string",$limit)
+ Function: Search the notes for a text string
+ Returns : array of results
+ Args    : full text search string, and an optional feature limit
+ Status  : public
+
+Given a search string, this method performs a full-text search of the
+"Notes" attribute and returns an array of results.  Each row of the
+returned array is a arrayref containing the following fields:
+
+  column 1     The display_name of the feature, suitable for passing to get_feature_by_name()
+  column 2     The text of the note
+  column 3     A relevance score.
+
+NOTE: This is equivalent to $db->search_attributes('full text search string','Note',$limit).
+
+=cut
+
 ###
 # search_notes()
 #
 sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
-  return $self->_search_notes($search_string,$limit);
+  return $self->_search_attributes($search_string,['Note'],$limit);
 }
+
+=head2 insert_sequence
+
+ Title   : insert_sequence
+ Usage   : $success = $db->insert_sequence($seqid,$sequence_string,$offset)
+ Function: Inserts sequence data into the database at the indicated offset
+ Returns : true if successful
+ Args    : see below
+ Status  : public
+
+This method inserts the DNA or protein sequence fragment
+$sequence_string, identified by the ID $seq_id, into the database at
+the indicated offset $offset. It is used internally by the GFF3Loader
+to load sequence data from the files.
+
+=cut
 
 ###
 # insert_sequence()
@@ -874,11 +962,41 @@ sub insert_sequence {
   my $self = shift;
   my ($seqid,$seq,$offset) = @_;
   $offset ||= 0;
-  $self->_insert_sequence($seqid,$offset,$seq);
+  $self->_insert_sequence($seqid,$seq,$offset);
 }
 
+=head2 fetch_sequence
+
+ Title   : fetch_sequence
+ Usage   : $sequence = $db->fetch_sequence(-seq_id=>$seqid,-start=>$start,-end=>$end)
+ Function: Fetch the indicated subsequene from the database
+ Returns : The sequence string (not a Bio::PrimarySeq object!)
+ Args    : see below
+ Status  : public
+
+This method retrieves a portion of the indicated sequence. The arguments are:
+
+  Argument       Value
+  --------       -----
+  -seq_id        Chromosome, contig or other DNA segment
+  -seqid         Synonym for -seq_id
+  -name          Synonym for -seq_id
+  -start         Start of range
+  -end           End of range
+  -class         Obsolete argument used for Bio::DB::GFF compatibility. If
+                  specified will qualify the seq_id as "$class:$seq_id".
+
+You can call fetch_sequence using the following shortcuts:
+
+ $seq = $db->fetch_sequence('chr3');  # entire chromosome
+ $seq = $db->fetch_sequence('chr3',1000);        # position 1000 to end of chromosome
+ $seq = $db->fetch_sequence('chr3',undef,5000);  # position 1 to 5000
+ $seq = $db->fetch_sequence('chr3',1000,5000);   # positions 1000 to 5000
+
+=cut
+
 ###
-# get_sequence()
+# fetch_sequence()
 #
 # equivalent to old Bio::DB::GFF->dna() method
 #
@@ -963,14 +1081,20 @@ END
   return wantarray ? @segments : $segments[0];
 }
 
-sub setup_segment_args {
-  my $self = shift;
-  return @_ if defined $_[0] && $_[0] =~ /^-/;
-  return (-name=>$_[0],-start=>$_[1],-end=>$_[2]) if @_ == 3;
-  return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
-  return (-name=>$_[0])                            if @_ == 1;
-  return;
-}
+=head2 reindex
+
+ Title   : reindex
+ Usage   : $db->reindex
+ Function: reindex the database
+ Returns : nothing
+ Args    : nothing
+ Status  : public
+
+This method will force the secondary indexes (name, location,
+attributes, feature types) to be recalculated. It may be useful to
+rebuild a corrupted database.
+
+=cut
 
 ###
 # force reindexing
@@ -999,18 +1123,73 @@ sub reindex {
   $self->_end_reindexing;
 }
 
-sub _load_class {
-  my $self = shift;
-  my $obj  = shift;
-  return if $self->{class_loaded}{ref $obj}++;
-  unless ($obj && $obj->can('primary_id')) {
-    my $class = ref $obj;
-    eval "require $class";
+=head2 start_bulk_update,finish_bulk_update
+
+ Title   : start_bulk_update,finish_bulk_update
+ Usage   : $db->start_bulk_update
+           $db->finish_bulk_update
+ Function: Activate optimizations for large number of insertions/updates
+ Returns : nothing
+ Args    : nothing
+ Status  : public
+
+With some adaptors (currently only the DBI::mysql adaptor), these
+methods signal the adaptor that a large number of insertions or
+updates are to be performed, and activate certain optimizations. These
+methods are called automatically by the
+Bio::DB::SeqFeature::GFF3Loader module.
+
+Example:
+
+  $db->start_bulk_update;
+  for my $f (@features) {
+    $db->store($f);
   }
-}
+  $db->finish_bulk_update;
+
+=cut
 
 sub start_bulk_update  { shift->_start_bulk_update(@_) }
 sub finish_bulk_update { shift->_finish_bulk_update(@_) }
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $count = $db->add_SeqFeature($parent,@children)
+ Function: store a parent/child relationship between $parent and @children
+ Returns : number of children successfully stored
+ Args    : parent feature and one or more children
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
+
+If can_store_parentage() returns true, then some store-aware features
+(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
+to store feature/subfeature relationships in a normalized table.
+
+=cut
+
+# these two are called only if _can_store_subFeatures() returns true
+# _add_SeqFeature ($parent,@children)
+sub add_SeqFeature  { shift->_add_SeqFeature(@_)   }
+
+=head2 fetch_SeqFeatures
+
+ Title   : fetch_SeqFeatures
+ Usage   : @children = $db->fetch_SeqFeatures($parent_feature)
+ Function: return the immediate subfeatures of the indicated feature
+ Returns : list of subfeatures
+ Args    : the parent feature
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
+
+If can_store_parentage() returns true, then some store-aware features
+(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
+to retrieve feature/subfeature relationships from the database.
+
+=cut
+
+# _get_SeqFeatures($parent,@list_of_child_types)
+sub fetch_SeqFeatures {shift->_fetch_SeqFeatures(@_)  }
+
+
 
 =head1 Changing the Behavior of the Database
 
@@ -1101,6 +1280,18 @@ sub index_subfeatures {
 
 ################################# TIE interface ####################
 
+=head1 TIE Interface
+
+This module implements a full TIEHASH interface. The keys are the
+primary IDs of the features in the database. Example:
+
+ tie %h,'Bio::DB::SeqFeature::Store',-adaptor=>'DBI::mysql',-dsn=>'dbi:mysql:elegans';
+ $h{123} = $feature1;
+ $h{124} = $feature2;
+ print $h{123}->display_name;
+
+=cut
+
 sub TIEHASH {
   my $class = shift;
   return $class->new(@_);
@@ -1110,7 +1301,7 @@ sub STORE {
   my $self = shift;
   my ($key,$feature) = @_;
   $key =~ /^\d+$/ && $key > 0 or croak "keys must be positive integers";
-  $self->_load_class($feature);
+  $self->load_class($feature);
   $feature->primary_id($key);
   $self->store($feature);
 }
@@ -1153,12 +1344,368 @@ sub SCALAR {
   $self->_featurecount;
 }
 
-=head1 Private Methods
 
-These methods are private to Bio::DB::SeqFeature::Store and its
-descendents (the adaptors). Some methods in this section B<must> be
-implemented by adaptors in order to have full functionality. They are
-preceded by an understore (_).
+###################### TO BE IMPLEMENTED BY ADAPTOR ##########
+
+=head2 _init_database
+
+ Title   : _init_database
+ Usage   : $success = $db->_init_database([$erase])
+ Function: initialize an empty database
+ Returns : true on success
+ Args    : optional boolean flag to erase contents of an existing database
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is the back end for init_database(). It must be
+implemented by an adaptor that inherits from
+Bio::DB::SeqFeature::Store. It returns true on success.
+
+=cut
+
+sub _init_database { shift->throw_not_implemented }
+
+=head2 _store
+
+ Title   : _store
+ Usage   : $success = $db->_store($indexed,@objects)
+ Function: store seqfeature objects into database
+ Returns : true on success
+ Args    : a boolean flag indicating whether objects are to be indexed,
+           and one or more objects
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is the back end for store() and store_noindex(). It should
+write the seqfeature objects into the database. If indexing is
+requested, the features should be indexed for query and
+retrieval. Otherwise the features should be stored without indexing
+(it is not required that adaptors respect this).
+
+If the object has no primary_id (undef), then the object is written
+into the database and assigned a new primary_id. If the object already
+has a primary_id, then the system will perform an update, replacing
+whatever was there before.
+
+In practice, the implementation will serialize each object using the
+freeze() method and then store it in the database under the
+corresponding primary_id. The object is then updated with the
+primary_id.
+
+=cut
+
+# _store($indexed,@objs)
+sub _store {
+  my $self    = shift;
+  my $indexed = shift;
+  my @objs    = @_;
+  $self->throw_not_implemented;
+}
+
+=head2 _fetch
+
+ Title   : _fetch
+ Usage   : $feature = $db->_fetch($primary_id)
+ Function: fetch feature from database
+ Returns : feature
+ Args    : primary id
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is the back end for fetch(). It accepts a primary_id and
+returns a feature object. It must be implemented by the adaptor.
+
+In practice, the implementation will retrieve the serialized
+Bio::SeqfeatureI object from the database and pass it to the thaw()
+method to unserialize it and synchronize the primary_id.
+
+=cut
+
+# _fetch($id)
+sub _fetch { shift->throw_not_implemented }
+
+=head2 _fetch_many
+
+ Title   : _fetch_many
+ Usage   : $feature = $db->_fetch_many(@primary_ids)
+ Function: fetch many features from database
+ Returns : feature
+ Args    : primary id
+ Status  : private -- does not need to be implemented
+
+This method fetches many features specified by a list of IDs. The
+default implementation simply calls _fetch() once for each
+primary_id. Implementors can override it if needed for efficiency.
+
+=cut
+
+# _fetch_many(@ids)
+# this one will fall back to many calls on fetch() if you don't
+# override it
+sub _fetch_many {
+  my $self = shift;
+  return map {$self->_fetch($_)} @_;
+}
+
+=head2 _update_indexes
+
+ Title   : _update_indexes
+ Usage   : $success = $db->_update_indexes($feature)
+ Function: update the indexes for a feature
+ Returns : true on success
+ Args    : A seqfeature object
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
+
+This method is called by reindex() to update the searchable indexes
+for a feature object that has changed.
+
+=cut
+
+# this is called to index a feature
+sub _update_indexes { shift->throw_not_implemented }
+
+=head2 _start_reindexing, _end_reindexing
+
+ Title   : _start_reindexing, _end_reindexing
+ Usage   : $db->_start_reindexing()
+           $db->_end_reindexing
+ Function: flag that a series of reindexing operations is beginning/ending
+ Returns : true on success
+ Args    : none
+ Status  : MAY BE IMPLEMENTED BY AN ADAPTOR (optional)
+
+These methods are called by reindex() before and immediately after a
+series of reindexing operations. The default behavior is to do
+nothing, but these methods can be overridden by an adaptor in order to
+perform optimizations, turn off autocommits, etc.
+
+=cut
+
+# these do not necessary have to be overridden
+# they are called at beginning and end of reindexing process
+sub _start_reindexing {}
+sub _end_reindexing   {}
+
+=head2 _features
+
+ Title   : _features
+ Usage   : @features = $db->_features(@args)
+ Function: back end for all get_feature_by_*() queries
+ Returns : list of features
+ Args    : see below
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
+
+This is the backend for features(), get_features_by_name(),
+get_features_by_location(), etc. Arguments are as described for the
+features() method, except that only the named-argument form is
+recognized.
+
+=cut
+
+# bottleneck query generator
+sub _features { shift->throw_not_implemented }
+
+=head2 _search_attributes
+
+ Title   : _search_attributes
+ Usage   : @result_list = $db->_search_attributes("text search string",[$tag1,$tag2...],$limit)
+ Function: back end for the search_attributes() method
+ Returns : results list
+ Args    : as per search_attributes()
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
+
+See search_attributes() for the format of the results list. The only
+difference between this and the public method is that the tag list is
+guaranteed to be an array reference.
+
+=cut
+
+sub _search_attributes { shift->throw_not_implemented }
+
+=head2 can_store_parentage
+
+ Title   : can_store_parentage
+ Usage   : $flag = $db->can_store_parentage
+ Function: return true if this adaptor can store parent/child relationships
+ Returns : boolean
+ Args    : none
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
+
+Override this method and return true if this adaptor supports the
+_add_SeqFeature() and _get_SeqFeatures() methods, which are used for
+storing feature parent/child relationships in a normalized
+fashion. Default is false (parent/child relationships are stored in
+denormalized form in each feature).
+
+=cut
+
+# return true here if the storage engine is prepared to store parent/child
+# relationships using _add_SeqFeature and return them using _fetch_SeqFeatures
+sub can_store_parentage { return; }
+
+=head2 _add_SeqFeature
+
+ Title   : _add_SeqFeature
+ Usage   : $count = $db->_add_SeqFeature($parent,@children)
+ Function: store a parent/child relationship between $parent and @children
+ Returns : number of children successfully stored
+ Args    : parent feature and one or more children
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
+
+If can_store_parentage() returns true, then some store-aware features
+(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
+to store feature/subfeature relationships in a normalized table.
+
+=cut
+
+sub _add_SeqFeature { shift->throw_not_implemented }
+
+=head2 _fetch_SeqFeatures
+
+ Title   : _fetch_SeqFeatures
+ Usage   : @children = $db->_fetch_SeqFeatures($parent_feature)
+ Function: return the immediate subfeatures of the indicated feature
+ Returns : list of subfeatures
+ Args    : the parent feature
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
+
+If can_store_parentage() returns true, then some store-aware features
+(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
+to retrieve feature/subfeature relationships from the database.
+
+=cut
+
+# _get_SeqFeatures($parent,@list_of_child_types)
+sub _fetch_SeqFeatures {shift->throw_not_implemented }
+
+=head2 _insert_sequence
+
+ Title   : _insert_sequence
+ Usage   : $success = $db->_insert_sequence($seqid,$sequence_string,$offset)
+ Function: Inserts sequence data into the database at the indicated offset
+ Returns : true if successful
+ Args    : see below
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
+
+This is the back end for insert_sequence(). Adaptors must implement
+this method in order to store and retrieve nucleotide or protein
+sequence.
+
+=cut
+sub _insert_sequence   { shift->throw_not_implemented }
+
+# _fetch_sequence() is similar to old dna() method
+
+=head2 _fetch_sequence
+
+ Title   : _fetch_sequence
+ Usage   : $sequence = $db->_fetch_sequence(-seq_id=>$seqid,-start=>$start,-end=>$end)
+ Function: Fetch the indicated subsequene from the database
+ Returns : The sequence string (not a Bio::PrimarySeq object!)
+ Args    : see below
+ Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
+
+This is the back end for fetch_sequence(). Adaptors must implement
+this method in order to store and retrieve nucleotide or protein
+sequence.
+
+=cut
+
+sub _fetch_sequence    { shift->throw_not_implemented }
+
+=head2 _start_bulk_update,_finish_bulk_update
+
+ Title   : _start_bulk_update, _finish_bulk_update
+ Usage   : $db->_start_bulk_update
+           $db->_finish_bulk_update
+ Function: Activate optimizations for large number of insertions/updates
+ Returns : nothing
+ Args    : nothing
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTOR
+
+These are the backends for start_bulk_update() and
+finish_bulk_update(). The default behavior of both methods is to do
+nothing.
+
+=cut
+
+# Optional flags to change behavior to optimize bulk updating.
+sub _start_bulk_update { }
+sub _finish_bulk_update { }
+
+
+# for full TIE() interface  - not necessary to implement in most cases
+
+=head2 Optional methods needed to implement full TIEHASH interface
+
+The core TIEHASH interface will work if just the _store() and _fetch()
+methods are implemented. To support the full TIEHASH interface,
+including support for keys(), each(), and exists(), the following
+methods should be implemented:
+
+=over 4
+
+=item $id = $db->_firstid()
+
+Return the first primary ID in the database. Needed for the each()
+function.
+
+=item $next_id = $db->_nextid($id)
+
+Given a primary ID, return the next primary ID in the series. Needed
+for the each() function.
+
+=item $boolean = $db->_existsid($id)
+
+Returns true if the indicated primary ID is in the database. Needed
+for the exists() function.
+
+=item $db->_deleteid($id)
+
+Delete the feature corresponding to the given primary ID. Needed for
+delete().
+
+=item $db->_clearall()
+
+Empty the database. Needed for %tied_hash = ().
+
+=item $count = $db->_featurecount()
+
+Return the number of features in the database. Needed for scalar
+%tied_hash.
+
+=back
+
+=cut
+
+sub _firstid  { shift->throw_not_implemented }
+sub _nextid   { shift->throw_not_implemented }
+sub _existsid { shift->throw_not_implemented }
+sub _deleteid { shift->throw_not_implemented }
+sub _clearall { shift->throw_not_implemented }
+sub _featurecount { shift->throw_not_implemented }
+
+
+=head1 Internal Methods
+
+These methods are internal to Bio::DB::SeqFeature::Store and adaptors.
+
+=head2 new_instance
+
+ Title   : new_instance
+ Usage   : $db = $db->new_instance()
+ Function: class constructor
+ Returns : A descendent of Bio::DB::SeqFeature::Store
+ Args    : none
+ Status  : internal
+
+This method is called internally by new() to create a new
+uninitialized instance of Bio::DB::SeqFeature::Store. It is used
+internally and should not be called by application software.
+
+=cut
+
+sub new_instance {
+  my $class = shift;
+  return bless {},ref($class) || $class;
+}
 
 =head2 init
 
@@ -1325,8 +1872,45 @@ sub fetch_SeqFeatures {
   my $self   = shift;
   my $parent = shift;
   my @types  = @_;
-  $self->_add_SeqFeatures($parent,@types);
+  $self->_fetch_SeqFeatures($parent);
 }
+
+=head2 setup_segment_args
+
+ Title   : setup_segment_args
+ Usage   : @args = $db->setup_segment_args(@args)
+ Function: munge the arguments to the segment() call
+ Returns : munged arguments
+ Args    : see below
+ Status  : private
+
+This method is used internally by segment() to translate positional
+arguments into named argument=>value pairs.
+
+=cut
+
+sub setup_segment_args {
+  my $self = shift;
+  return @_ if defined $_[0] && $_[0] =~ /^-/;
+  return (-name=>$_[0],-start=>$_[1],-end=>$_[2]) if @_ == 3;
+  return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
+  return (-name=>$_[0])                            if @_ == 1;
+  return;
+}
+
+=head2 init_cache
+
+ Title   : init_cache
+ Usage   : $db->init_cache($size)
+ Function: initialize the in-memory feature cache
+ Returns : the Tie::Cacher object
+ Args    : desired size of the cache
+ Status  : private
+
+This method is used internally by new() to create the Tie::Cacher
+instance used for the in-memory feature cache.
+
+=cut
 
 sub init_cache {
   my $self       = shift;
@@ -1335,226 +1919,67 @@ sub init_cache {
   $self->{cache} = Tie::Cacher->new($cache_size) or $self->throw("Couldn't tie cache: $!");
 }
 
+=head2 cache
+
+ Title   : cache
+ Usage   : $cache = $db->cache
+ Function: return the cache object
+ Returns : the Tie::Cacher object
+ Args    : none
+ Status  : private
+
+This method returns the Tie::Cacher object used for the in-memory
+feature cache.
+
+=cut
+
 sub cache { shift->{cache} }
 
+=head2 load_class
 
-###################### TO BE IMPLEMENTED BY ADAPTOR ##########
+ Title   : load_class
+ Usage   : $db->load_class($blessed_object)
+ Function: loads the module corresponding to a blessed object
+ Returns : empty
+ Args    : a blessed object
+ Status  : private
 
-=head2 _init_database
-
- Title   : _init_database
- Usage   : $success = $db->_init_database([$erase])
- Function: initialize an empty database
- Returns : true on success
- Args    : optional boolean flag to erase contents of an existing database
- Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
-
-This method is the back end for init_database(). It must be
-implemented by an adaptor that inherits from
-Bio::DB::SeqFeature::Store. It returns true on success.
+This method is used by thaw() to load the code for a blessed
+object. This ensures that all the object's methods are available.
 
 =cut
 
-sub _init_database { shift->throw_not_implemented }
-
-=head2 _store
-
- Title   : _store
- Usage   : $success = $db->_store($indexed,@objects)
- Function: store seqfeature objects into database
- Returns : true on success
- Args    : a boolean flag indicating whether objects are to be indexed,
-           and one or more objects
- Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
-
-This method is the back end for store() and store_noindex(). It should
-write the seqfeature objects into the database. If indexing is
-requested, the features should be indexed for query and
-retrieval. Otherwise the features should be stored without indexing
-(it is not required that adaptors respect this).
-
-If the object has no primary_id (undef), then the object is written
-into the database and assigned a new primary_id. If the object already
-has a primary_id, then the system will perform an update, replacing
-whatever was there before.
-
-In practice, the implementation will serialize each object using the
-_freeze() method and then store it in the database under the
-corresponding primary_id. The object is then updated with the
-primary_id.
-
-=cut
-
-# _store($indexed,@objs)
-sub _store {
-  my $self    = shift;
-  my $indexed = shift;
-  my @objs    = @_;
-  $self->throw_not_implemented;
-}
-
-=head2 _fetch
-
- Title   : _fetch
- Usage   : $feature = $db->_fetch($primary_id)
- Function: fetch feature from database
- Returns : feature
- Args    : primary id
- Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
-
-This method is the back end for fetch(). It accepts a primary_id and
-returns a feature object. It must be implemented by the adaptor.
-
-In practice, the implementation will retrieve the serialized
-Bio::SeqfeatureI object from the database and pass it to the _thaw()
-method to unserialize it and synchronize the primary_id.
-
-=cut
-
-# _fetch($id)
-sub _fetch { shift->throw_not_implemented }
-
-
-=head2 _fetch_many
-
- Title   : _fetch_many
- Usage   : $feature = $db->_fetch_many(@primary_ids)
- Function: fetch many features from database
- Returns : feature
- Args    : primary id
- Status  : private -- does not need to be implemented
-
-This method fetches many features specified by a list of IDs. The
-default implementation simply calls _fetch() once for each
-primary_id. Implementors can override it if needed for efficiency.
-
-=cut
-
-# _fetch_many(@ids)
-# this one will fall back to many calls on fetch() if you don't
-# override it
-sub _fetch_many {
+sub load_class {
   my $self = shift;
-  return map {$self->_fetch($_)} @_;
-}
-
-=head2 _update_indexes
-
- Title   : _update_indexes
- Usage   : $success = $db->_update_indexes($feature)
- Function: update the indexes for a feature
- Returns : true on success
- Args    : A seqfeature object
- Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY AN ADAPTOR
-
-This method is called by reindex() to update the searchable indexes
-for a feature object that has changed.
-
-=cut
-
-# this is called to index a feature
-sub _update_indexes { shift->throw_not_implemented }
-
-=head2 _start_reindexing, _end_reindexing
-
- Title   : _start_reindexing, _end_reindexing
- Usage   : $db->_start_reindexing()
-           $db->_end_reindexing
- Function: flag that a series of reindexing operations is beginning/ending
- Returns : true on success
- Args    : none
- Status  : MAY BE IMPLEMENTED BY AN ADAPTOR (optional)
-
-These methods are called by reindex() before and immediately after a
-series of reindexing operations. The default behavior is to do
-nothing, but these methods can be overridden by an adaptor in order to
-perform optimizations, turn off autocommits, etc.
-
-=cut
-
-# these do not necessary have to be overridden
-# they are called at beginning and end of reindexing process
-sub _start_reindexing {}
-sub _end_reindexing   {}
-
-
-=head2 _features
-
- Title   : _features
- Usage   : @features = $db->_features(@args)
- Function: back end for all get_feature_by_*() queries
- Returns : list of features
- Args    : see below
- Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
-
-This is the backend for features(), get_features_by_name(),
-get_features_by_location(), etc. Arguments are as described for the
-features() method, except that only the named-argument form is
-recognized.
-
-=cut
-
-# bottleneck query generator
-sub _features { shift->throw_not_implemented }
-
-sub _search_notes { shift->throw_not_implemented }
-
-# return true here if the storage engine is prepared to store parent/child
-# relationships using _add_SeqFeature and return them using _fetch_SeqFeatures
-sub can_store_parentage { return; }
-
-# these two are called only if _can_store_subFeatures() returns true
-# _add_SeqFeature ($parent,@children)
-sub _add_SeqFeature { shift->throw_not_implemented }
-
-# _get_SeqFeatures($parent,@list_of_child_types)
-sub _fetch_SeqFeatures {shift->throw_not_implemented }
-
-# _fetch_sequence() is similar to old dna() method
-sub _insert_sequence   { shift->throw_not_implemented }
-sub _fetch_sequence    { shift->throw_not_implemented }
-
-# for full TIE() interface  - not necessary to implement in most cases
-sub _firstid  { shift->throw_not_implemented }
-sub _nextid   { shift->throw_not_implemented }
-sub _existsid { shift->throw_not_implemented }
-sub _deleteid { shift->throw_not_implemented }
-sub _clearall { shift->throw_not_implemented }
-sub _featurecount { shift->throw_not_implemented }
-
-# Optional flags to change behavior to optimize bulk updating.
-sub _start_bulk_update { }
-sub _finish_bulk_update { }
-
-=head1 Internal Methods
-
-These methods are used internally and will not ordinarily be of use to
-either application-level scripts or those implementing adaptors.
-
-=head2 new_instance
-
- Title   : new_instance
- Usage   : $db = $db->new_instance()
- Function: class constructor
- Returns : A descendent of Bio::DB::SeqFeature::Store
- Args    : none
- Status  : internal
-
-This method is called internally by new() to create a new
-uninitialized instance of Bio::DB::SeqFeature::Store. It is used
-internally and should not be called by application software.
-
-=cut
-
-sub new_instance {
-  my $class = shift;
-  return bless {},ref($class) || $class;
+  my $obj  = shift;
+  return if $self->{class_loaded}{ref $obj}++;
+  unless ($obj && $obj->can('primary_id')) {
+    my $class = ref $obj;
+    eval "require $class";
+  }
 }
 
 
 #################################### Internal methods ####################
 
-sub _freeze {
+=head2 freeze
+
+ Title   : freeze
+ Usage   : $serialized_object = $db->freeze($feature)
+ Function: serialize a feature object into a string
+ Returns : serialized feature object
+ Args    : a seqfeature object
+ Status  : private
+
+This method converts a Bio::SeqFeatureI object into a serialized form
+suitable for storage into a database. The feature's primary ID is set
+to undef before it is serialized. This avoids any potential mismatch
+between the primary ID used as the database key and the primary ID
+stored in the serialized object.
+
+=cut
+
+sub freeze {
   my $self = shift;
   my $obj  = shift;
 
@@ -1588,22 +2013,52 @@ sub _freeze {
   return $data;
 }
 
-sub _thaw {
+=head2 thaw
+
+ Title   : thaw
+ Usage   : $feature = $db->thaw($serialized_object,$primary_id)
+ Function: unserialize a string into a feature object
+ Returns : Bio::SeqFeatureI object
+ Args    : serialized form of object from freeze() and primary_id of object
+ Status  : private
+
+This method is the reverse of the freeze(). The supplied primary_id
+becomes the primary_id() of the returned Bio::SeqFeatureI object. This
+implementation checks for a deserialized object in the cache before it
+calls thaw_object() to do the actual deserialization.
+
+=cut
+
+sub thaw {
   my $self               = shift;
   my ($obj,$primary_id)  = @_;
 
   if (my $cache = $self->cache) {
     return $cache->fetch($primary_id) if $cache->exists($primary_id);
-    my $object = $self->_thaw_object($obj,$primary_id) or return;
+    my $object = $self->thaw_object($obj,$primary_id) or return;
     $cache->store($primary_id,$object);
     return $object;
   } else {
-    return $self->_thaw_object($obj,$primary_id);
+    return $self->thaw_object($obj,$primary_id);
   }
 
 }
 
-sub _thaw_object {
+=head2 thaw_object
+
+ Title   : thaw_object
+ Usage   : $feature = $db->thaw_object($serialized_object,$primary_id)
+ Function: unserialize a string into a feature object
+ Returns : Bio::SeqFeatureI object
+ Args    : serialized form of object from freeze() and primary_id of object
+ Status  : private
+
+After thaw() checks the cache and comes up empty, this method is
+invoked to thaw the object.
+
+=cut
+
+sub thaw_object {
   my $self               = shift;
   my ($obj,$primary_id)  = @_;
 
@@ -1619,7 +2074,7 @@ sub _thaw_object {
   # identity of the store, so that we can do lazy loading;
   # both of these are wrapped in an eval because not all
   # bioseqfeatures support them (or want to)
-  $self->_load_class($object);
+  $self->load_class($object);
   eval {
     $object->primary_id($primary_id);
     $object->object_store($self);
