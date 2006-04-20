@@ -1,4 +1,4 @@
-package Bio::DB::SeqFeature::LazyFeature;
+package Bio::DB::SeqFeature::NormalizedFeature;
 
 use strict;
 use Carp 'croak';
@@ -83,6 +83,7 @@ sub add_segment {
 sub _add_segment {
   my $self       = shift;
   my $normalized = shift;
+  my $store      = $self->store;
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
@@ -114,7 +115,8 @@ sub _create_subfeatures {
   my $ref   = $self->seq_id;
   my $name  = $self->name;
   my $class = $self->class;
-  my $store = $self->object_store or return;
+  my $store = $self->object_store
+    or $self->throw("Feature must be associated with a Bio::DB::SeqFeature::Store database before attempting to add subfeatures");
 
   my $index_subfeatures_policy = $store->index_subfeatures;
 
@@ -176,7 +178,7 @@ sub _create_subfeatures {
 
   return unless @segments;
 
-  if ($normalized) {  # parent/child data is going to be stored in the database
+  if ($normalized && $store) {  # parent/child data is going to be stored in the database
 
     my @need_loading = grep {!defined $_->primary_id || $_->object_store ne $store} @segments;
     if (@need_loading) {
@@ -195,7 +197,8 @@ sub _create_subfeatures {
 
 sub update {
   my $self = shift;
-  $self->object_store->store($self);
+  my $store = $self->object_store or return;
+  $store->store($self);
 }
 
 # segments can be either normalized IDs or ordinary feature objects
