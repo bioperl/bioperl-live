@@ -207,6 +207,7 @@ sub draw_protein {
 	       );
 
   my @residues = split '',$$protein;
+  my $fontwidth = $font->width;
   for (my $i=0;$i<@residues;$i++) {
     my $x = $strand > 0
       ? $x1 + 3 * $i * $pixels_per_base
@@ -214,6 +215,7 @@ sub draw_protein {
     next if $x+1 < $x1;
     last if $x > $x2;
     if ($flip) {
+      $x -= $fontwidth if $flip;
       if ($longprotein) {
 	$gd->string($font,$right-($x-$left+$pixels_per_base)+1,$y1,$abbrev{$residues[$i]},$color);
       } else {

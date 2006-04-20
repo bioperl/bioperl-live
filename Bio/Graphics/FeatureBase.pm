@@ -15,7 +15,6 @@ methods of Bio::Graphics::Feature except for those that are required
 to interface with Bio::Graphics::FeatureFile, namely factory(),
 configurator(), url(), and make_link().  Please see
 L<Bio::Graphics::Feature> for full documentation.
-=back
 
 =cut
 
@@ -24,9 +23,10 @@ use Bio::Root::Root;
 use Bio::SeqFeatureI;
 use Bio::SeqI;
 use Bio::LocationI;
+use Bio::RangeI;
 
 use vars '@ISA';
-@ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI);
+@ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::RangeI);
 
 *stop        = \&end;
 *info        = \&name;
@@ -34,8 +34,8 @@ use vars '@ISA';
 *type        = \&primary_tag;
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
 *get_all_SeqFeatures = *get_SeqFeatures = \&segments;
-*method      = \&type;
-*source      = \&source_tag;
+*method         = \&type;
+*source         = \&source_tag;
 *get_tag_values = \&each_tag_value;
 *add_SeqFeature = \&add_segment;
 *get_all_tags   = \&all_tags;

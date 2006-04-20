@@ -156,6 +156,7 @@ sub draw_component {
   my $pixels_per_residue = $self->pixels_per_residue;
   my $strand = $feature->strand;
   my $y      = $y1-1;
+  my $fontwidth = $font->width;
 
   $strand *= -1 if $self->{flip};
 
@@ -173,7 +174,7 @@ sub draw_component {
   push @residues,$self->{cds_splice_residue} if $self->{cds_splice_residue};
   for (my $i=0;$i<@residues;$i++) {
     my $x = $strand > 0 ? $start + $i * $pixels_per_residue
-                        : $stop  - $i * $pixels_per_residue;
+                        : $stop  - $i * $pixels_per_residue  + $fontwidth + 1;
     next unless ($x >= $x1 && $x <= $x2);
     $x -= $pixels_per_residue/3 if $self->{flip};
     $gd->char($font,$x+1,$y,$residues[$i],$color);

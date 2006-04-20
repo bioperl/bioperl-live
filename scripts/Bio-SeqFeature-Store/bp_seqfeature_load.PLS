@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.2 2006-04-19 03:10:53 lstein Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.3 2006-04-20 15:24:55 lstein Exp $
 
 use strict;
 
@@ -11,7 +11,7 @@ use Bio::DB::SeqFeature::Store::GFF3Loader;
 use Bio::DB::SeqFeature::Store;
 
 my $DSN         = 'dbi:mysql:test';
-my $SFCLASS     = 'Bio::DB::SeqFeature::LazyTableFeature';
+my $SFCLASS     = 'Bio::DB::SeqFeature';
 my $ADAPTOR     = 'DBI::mysql';
 my $VERBOSE  = 1;
 my $FAST     = 0;
