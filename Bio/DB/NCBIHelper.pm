@@ -160,8 +160,8 @@ sub default_format {
 
 sub get_request {
 	my ($self, @qualifiers) = @_;
-	my ($mode, $uids, $format, $query, $seq_start, $seq_stop) = 
-	  $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP)],
+	my ($mode, $uids, $format, $query, $seq_start, $seq_stop, $strand, $complexity) = 
+	  $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP STRAND COMPLEXITY)],
 							  @qualifiers);
 
 	$mode = lc $mode;
@@ -195,7 +195,8 @@ sub get_request {
      
 	defined $seq_start and $params{'seq_start'} = $seq_start;
 	defined $seq_stop and $params{'seq_stop'} = $seq_stop;
-
+	defined $strand and $params{'strand'} = $strand;
+	defined $complexity and $params{'complexity'} = $complexity;
 	$params{'rettype'} = $format;
 	if ($CGILOCATION{$mode}[0] eq 'post') {
 		return POST $url,[%params];

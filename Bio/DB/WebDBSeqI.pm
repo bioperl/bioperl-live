@@ -424,7 +424,10 @@ sub get_seq_stream {
 	  $qualifiers{'-seq_start'} = $self->seq_start();
 	defined $self->seq_stop() and
 	  $qualifiers{'-seq_stop'} = $self->seq_stop();
-
+	defined $self->strand() and
+	  $qualifiers{'-strand'} = $self->strand();
+	defined $self->seq_stop() and
+	  $qualifiers{'-complexity'} = $self->complexity();
 	my $request = $self->get_request(%qualifiers);
 	$request->proxy_authorization_basic($self->authentication)
 	  if ( $self->authentication);
