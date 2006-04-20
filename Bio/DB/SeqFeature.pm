@@ -1,14 +1,47 @@
-package Bio::DB::SeqFeature::LazyTableFeature;
+package Bio::DB::SeqFeature;
 
 # $Id$
 
-# just like Bio::DB::SeqFeature::LazyFeature except that the parent/child relationships are
+=head1 NAME
+
+Bio::DB::SeqFeature -- Normalized feature for use with Bio::DB::SeqFeature::Store
+
+=head1 SYNOPSIS
+
+ use Bio::DB::SeqFeature::Store;
+ # Open the sequence database
+ my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
+                                                -dsn     => 'dbi:mysql:test');
+ my ($feature)   = $db->get_features_by_name('ZK909');
+ my @subfeatures = $feature->get_SeqFeatures();
+ my @exons_only  = $feature->get_SeqFeatures('exon');
+
+ # create a new object
+ my $new = Bio::DB::SeqFeature->new(-primary_tag=>'gene',
+                                    -seq_id     => 'chr3',
+                                    -start      => 10000,
+                                    -end        => 11000,
+                                    -store      => $db);
+
+ # add a new exon
+ $feature->add_SeqFeature(Bio::SeqFeature::Generic->new(-primary_tag=>'exon',
+                                                        -seq_id     => 'chr3',
+                                                        -start      => 5000,
+                                                        -end        => 5551));
+
+=head1 DESCRIPTION
+
+The Bio::DB::SeqFeature object 
+
+=cut
+
+# just like Bio::DB::SeqFeature::NormalizedFeature except that the parent/child relationships are
 # stored in a table in the Bio::DB::SeqFeature::Store
 
 use strict;
 use Carp 'croak';
 use Bio::DB::SeqFeature::Store;
-use base qw(Bio::DB::SeqFeature::LazyFeature Bio::DB::SeqFeature::NormalizedTableFeatureI);
+use base qw(Bio::DB::SeqFeature::NormalizedFeature Bio::DB::SeqFeature::NormalizedTableFeatureI);
 
 sub add_segment {
   my $self = shift;
@@ -94,3 +127,33 @@ sub denormalized_segments {
 }
 
 1;
+
+
+__END__
+
+=head1 BUGS
+
+This is an early version, so there are certainly some bugs. Please
+use the BioPerl bug tracking system to report bugs.
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature::Store>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>,
+L<Bio::DB::SeqFeature::Store::bdb>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+

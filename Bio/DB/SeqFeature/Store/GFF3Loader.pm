@@ -12,7 +12,7 @@ use strict;
 use Carp 'croak';
 use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
-use Bio::DB::SeqFeature::Store::Cacher;
+use Bio::DB::SeqFeature::Store;
 use CGI::Util 'unescape';
 use base 'Bio::Root::Root';
 
@@ -62,7 +62,8 @@ END
   # try to bring in highres time() function
   eval "require Time::HiRes";
 
-  my $tmp_store = Bio::DB::SeqFeature::Store::Cacher->new(-adaptor=>'bdb',-tmp=>1,-dir=>$tmpdir) unless $normalized;
+  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-tmp=>1,-dir=>$tmpdir,-cache=>1)
+    unless $normalized;
 
   return bless {
 		store            => $store,
@@ -79,7 +80,7 @@ END
 
 sub default_seqfeature_class {
   my $self = shift;
-  return 'Bio::DB::SeqFeature::LazyTableFeature';
+  return 'Bio::DB::SeqFeature';
 }
 
 sub store          { shift->{store}            }

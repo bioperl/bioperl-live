@@ -269,4 +269,9 @@ sub type_match {
 
 sub segments { shift->get_SeqFeatures(@_) }
 
+sub segment  {
+  my $self = shift;
+  return Bio::DB::SeqFeature::Segment->new($self);
+}
+
 1;

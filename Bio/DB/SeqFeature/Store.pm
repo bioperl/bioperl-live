@@ -8,11 +8,11 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
 =head1 SYNOPSIS
 
-  use Bio::DB::SeqFeature::Store
+  use Bio::DB::SeqFeature::Store;
 
   # Open the sequence database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
-                                                 -dsn     => 'dbi:mysql:elegans');
+                                                 -dsn     => 'dbi:mysql:test');
 
   # get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
@@ -75,7 +75,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
   # ...limiting the search to a particular region
   my $segment  = $db->segment('Chr1',5000=>6000);
-  my @features = $db->features(-type=>['mRNA','match']);
+  my @features = $segment->features(-type=>['mRNA','match']);
 
   # getting & storing sequence information
   # warning -- this is a string not a PrimarySeq object
@@ -172,7 +172,7 @@ higher. It is used when Storable is unavailable.
 If you do not specify the serializer, then Storable will be used if
 available; otherwise Data::Dumper.
 
-=head2 Loaders and Lazy Features
+=head2 Loaders and Normalized Features
 
 The Bio::DB::SeqFeature::GFF3Loader parses a GFF3-format file and
 loads the annotations and sequence data into the database of your
@@ -187,12 +187,11 @@ issue is that if two vanilla features share the same subfeature
 (e.g. two transcripts sharing an exon), the shared subfeature will be
 cloned when stored into the database.
 
-The special-purpose L<Bio::DB::SeqFeature::LazyTableFeature> class is
-able to normalize its subfeatures in the database, so that shared
-subfeatures are stored only once. This minimizes wasted storage
-space. In addition, when in-memory caching is turned on, each shared
-subfeature will usually occupy only a single memory location upon
-restoration.
+The special-purpose L<Bio::DB::SeqFeature> class is able to normalize
+its subfeatures in the database, so that shared subfeatures are stored
+only once. This minimizes wasted storage space. In addition, when
+in-memory caching is turned on, each shared subfeature will usually
+occupy only a single memory location upon restoration.
 
 =cut
 
@@ -206,7 +205,7 @@ use Bio::DB::SeqFeature::Segment;
 use Scalar::Util 'blessed';
 
 # this probably shouldn't be here
-use Bio::DB::SeqFeature::LazyTableFeature;
+use Bio::DB::SeqFeature;
 
 *dna = *get_dna = *get_sequence = \&fetch_sequence;
 *get_SeqFeatures = \&fetch_SeqFeatures;
@@ -366,20 +365,19 @@ calling the feature's primary_id() method:
   my $id = $my_feature->primary_id;
 
 If the feature contains subfeatures, they will all be stored
-recursively. In the case of Bio::DB::SeqFeature::LazyFeature and
-Bio::DB::SeqFeature::LazyTableFeature, the subfeatures will be stored
-in a normalized way so that each subfeature appears just once in the
-database.
+recursively. In the case of Bio::DB::SeqFeature and
+Bio::DB::SeqFeature::Store::NormalizedFeature, the subfeatures will be
+stored in a normalized way so that each subfeature appears just once
+in the database.
 
 Subfeatures will be indexed for separate retrieval based on the
 current value of index_subfeatures().
 
 If you call store() with one or more features that already have valid
 primary_ids, then an existing object(s) will be B<replaced>. Note that
-when using normalized features such as
-Bio::Db::SeqFeature::LazyFeature, the subfeatures are not recursively
-updated when you update the parent feature. You must manually update
-each subfeatures that has changed.
+when using normalized features such as Bio::DB::SeqFeature, the
+subfeatures are not recursively updated when you update the parent
+feature. You must manually update each subfeatures that has changed.
 
 =cut
 
@@ -421,16 +419,34 @@ sub store_noindex {
   $self->store_and_cache(0,@_);
 }
 
-sub store_and_cache {
+=head2 new_feature
+
+ Title   : new_feature
+ Usage   : $feature = $db->new_feature(@args)
+ Function: create a new Bio::DB::SeqFeature object in the database
+ Returns : the new seqfeature
+ Args    : see below
+ Status  : public
+
+This method creates and stores a new Bio::SeqFeatureI object using the
+specialized Bio::DB::SeqFeature class. This class is able to store its
+subfeatures in a normalized fashion, allowing subfeatures to be shared
+among multiple parents (e.g. multiple exons shared among several
+mRNAs).
+
+The arguments are the same as for Bio::SeqFeature::Generic->new() and
+Bio::Graphics::Feature->new(), with the addition of a B<-index>
+option, which controls whether the feature will be indexed for
+retrieval. If B<-index> is not specified, true is assumed. Ordinarily,
+you would only want to turn indexing off when creating subfeatures,
+because features stored without indexes will only be reachable via
+their primary IDs or their parents.
+
+=cut
+
+sub new_feature {
   my $self = shift;
-  my $indexit = shift;
-  $self->_store($indexit,@_);
-  if (my $cache = $self->cache) {
-    for my $obj (@_) {
-      defined (my $id     = eval {$obj->primary_id}) or next;
-      $cache->store($id,$obj);
-    }
-  }
+  return Bio::DB::SeqFeature->new(-store=>$self,@_);
 }
 
 =head2 delete
@@ -526,7 +542,7 @@ sub fetch_many {
  Usage   : $iterator = $db->get_seq_stream(@args)
  Function: return an iterator across all features in the database
  Returns : a Bio::DB::SeqFeature::Store::Iterator object
- Args    : (optional) the feature() method
+ Args    : feature filters (optional)
  Status  : public
 
 When called without any arguments this method will return an iterator
@@ -847,7 +863,7 @@ All confirmed mRNAs and repeats on chromosome 1 strictly contained within the ra
 
 All genes and repeats:
 
- @features = $db->features('gene','repeat');
+ @features = $db->features('gene','repeat_region');
 
 =cut
 
@@ -1162,8 +1178,8 @@ sub finish_bulk_update { shift->_finish_bulk_update(@_) }
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
-(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
-to store feature/subfeature relationships in a normalized table.
+(e.g. Bio::DB::SeqFeature) will invoke this method to store
+feature/subfeature relationships in a normalized table.
 
 =cut
 
@@ -1181,8 +1197,8 @@ sub add_SeqFeature  { shift->_add_SeqFeature(@_)   }
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
-(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
-to retrieve feature/subfeature relationships from the database.
+(e.g. Bio::DB::SeqFeature) will invoke this method to retrieve
+feature/subfeature relationships from the database.
 
 =cut
 
@@ -1550,8 +1566,8 @@ sub can_store_parentage { return; }
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
-(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
-to store feature/subfeature relationships in a normalized table.
+(e.g. Bio::DB::SeqFeature) will invoke this method to store
+feature/subfeature relationships in a normalized table.
 
 =cut
 
@@ -1567,8 +1583,8 @@ sub _add_SeqFeature { shift->throw_not_implemented }
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
-(e.g. Bio::DB::SeqFeature::LazyTableFeature) will invoke this method
-to retrieve feature/subfeature relationships from the database.
+(e.g. Bio::DB::SeqFeature) will invoke this method to retrieve
+feature/subfeature relationships from the database.
 
 =cut
 
@@ -1807,12 +1823,11 @@ sub setting {
  Args    : (optional) new value of the flag
  Status  : private
 
-This method is used internally by the
-Bio::DB::SeqFeature::LazyTableFeature class to optimize some of its
-operations. It returns true if all of the subfeatures in the database
-are indexed; it returns false if at least one of the subfeatures is
-not indexed. Do not attempt to change the value of this setting unless
-you are writing an adaptor.
+This method is used internally by the Bio::DB::SeqFeature class to
+optimize some of its operations. It returns true if all of the
+subfeatures in the database are indexed; it returns false if at least
+one of the subfeatures is not indexed. Do not attempt to change the
+value of this setting unless you are writing an adaptor.
 
 =cut
 
@@ -1836,9 +1851,8 @@ sub subfeatures_are_indexed {
  Args    : parent feature and list of subfeatures
  Status  : private
 
-This method is used internally by the
-Bio::DB::SeqFeature::LazyTableFeature class to store its
-parent/children relationships in the database.
+This method is used internally by the Bio::DB::SeqFeature class to
+store its parent/children relationships in the database.
 
 =cut
 
@@ -1862,9 +1876,8 @@ sub add_SeqFeature {
  Args    : parent feature
  Status  : private
 
-This method is used internally by the
-Bio::DB::SeqFeature::LazyTableFeature class to retreive its
-parent/children relationships from the database.
+This method is used internally by the Bio::DB::SeqFeature class to
+retreive its parent/children relationships from the database.
 
 =cut
 
@@ -1872,7 +1885,7 @@ sub fetch_SeqFeatures {
   my $self   = shift;
   my $parent = shift;
   my @types  = @_;
-  $self->_fetch_SeqFeatures($parent);
+  $self->_fetch_SeqFeatures($parent,@types);
 }
 
 =head2 setup_segment_args
@@ -1896,6 +1909,33 @@ sub setup_segment_args {
   return (-class=>$_[0],-name=>$_[1])              if @_ == 2;
   return (-name=>$_[0])                            if @_ == 1;
   return;
+}
+
+=head2 store_and_cache
+
+ Title   : store_and_cache
+ Usage   : $success = $db->store_and_cache(@features)
+ Function: store features into database and update cache
+ Returns : number of features stored
+ Args    : list of features
+ Status  : private
+
+This private method stores the list of Bio::SeqFeatureI objects into
+the database and caches them in memory for retrieval.
+
+=cut
+
+sub store_and_cache {
+  my $self = shift;
+  my $indexit = shift;
+  my $result = $self->_store($indexit,@_);
+  if (my $cache = $self->cache) {
+    for my $obj (@_) {
+      defined (my $id     = eval {$obj->primary_id}) or next;
+      $cache->store($id,$obj);
+    }
+  }
+  $result;
 }
 
 =head2 init_cache
@@ -2083,3 +2123,31 @@ sub thaw_object {
 }
 
 1;
+
+__END__
+
+=head1 BUGS
+
+This is an early version, so there are certainly some bugs. Please
+use the BioPerl bug tracking system to report bugs.
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>,
+L<Bio::DB::SeqFeature::Store::bdb>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
