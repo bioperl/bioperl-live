@@ -393,6 +393,23 @@ sub add_relationship {
   return $self->engine->add_relationship($rel);
 }
 
+=head2 get_relationship_type
+
+ Title   : get_relationship_type
+ Usage   : get_relationship_type(scalar): RelationshipTypeI
+ Function: Get a relationshiptype object from the ontology engine.
+ Example :
+ Returns : A RelationshipTypeI object.
+ Args    : The name (scalar) of the RelationshipTypeI object desired.
+
+
+=cut
+
+sub get_relationship_type{
+    my $self = shift;
+    return $self->engine->get_relationship_type(@_);
+}
+
 =head2 get_relationships
 
  Title   : get_relationships
