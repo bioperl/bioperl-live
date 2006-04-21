@@ -34,6 +34,8 @@ Bio::DB::EntrezGene - Database object interface to Entrez Gene
 Allows the dynamic retrieval of Sequence objects from the 
 Entrez Gene database at NCBI, via an Entrez query using Gene ids.
 
+This module requires the CPAN Bio::ASN1 module.
+
 WARNING: Please do NOT spam the Entrez web server with multiple requests.
 NCBI offers Batch Entrez for this purpose.
 
