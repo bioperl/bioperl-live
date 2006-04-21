@@ -2,9 +2,9 @@
 #
 # BioPerl module for Bio::Tools::Run::RemoteBlast
 #
-# Cared for by Jason Stajich, Mat Wiepert
+# FORMERLY Cared for by Jason Stajich, Mat Wiepert
 #
-# Copyright Jason Stajich
+# Copyright Jason Stajich, Bioperl
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -120,12 +120,14 @@ web:
 
   http://bugzilla.bioperl.org
 
-=head1 AUTHOR -  Jason Stajich
+=head1 AUTHOR 
 
-Please do NOT contact me directly about this module.  Please post to
+Please do NOT contact Jason directly about this module.  Please post to
 the bioperl mailing list (L<FEEDBACK>). If you would like to be the
 official maintainer of this module, please volunteer on the list and
 we will make it official in this POD.
+
+First written by Jason Stajich, many others have helped keep it running.
 
 =head1 APPENDIX
 
