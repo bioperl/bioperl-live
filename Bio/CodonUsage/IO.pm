@@ -30,7 +30,10 @@ Bio::CodonUsage::IO - for reading and writing codon usage tables to file
 This class provides standard IO methods for reading and writing text files
 of codon usage tables. These tables can initially be retrieved using
 Bio::DB::CUTG. At present only this format is supported for read/write. 
- Reading a CUTG will return a Bio::CodonUsage::Table object. 
+You can also find CUTG codon tables here:
+ftp://ftp.ebi.ac.uk/pub/databases/cutg.
+
+Reading a CUTG will return a Bio::CodonUsage::Table object. 
 
 =head1 SEE ALSO
 

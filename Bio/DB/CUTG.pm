@@ -26,11 +26,11 @@ at http://www.kazusa.or.jp/codon.
 
 =head1 DESCRIPTION
 
-
-This class retrieves and objectifies codon usage tables either from a
-web database . The idea is that you can initially retrieve a CUT from
+This class retrieves and objectifies codon usage tables either from the
+CUTG web database . The idea is that you can initially retrieve a CUT from
 the web database, and write it to file in a way that can be read in
-later, using the Bio::CodonUsage::IO module.
+later, using the Bio::CodonUsage::IO module. You can also find files 
+here: ftp://ftp.ebi.ac.uk/pub/databases/cutg.
 
 For a web query, two parameters need to be specified: species(sp) and
 genetic code id (gc). The database is searched using regular
