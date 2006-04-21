@@ -107,9 +107,10 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Ontology::OntologyI;
+use Bio::AnnotatableI;
 #use Bio::Ontology::SimpleOntologyEngine; # loaded dynamically now!
 
-@ISA = qw(Bio::Root::Root Bio::Ontology::OntologyI);
+@ISA = qw(Bio::Root::Root Bio::Ontology::OntologyI Bio::AnnotatableI);
 
 =head2 new
 
@@ -137,7 +138,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($name,$auth,$def,$id,$engine) =
-	$self->_rearrange([qw(NAME
+        $self->_rearrange([qw(NAME
                           AUTHORITY
                           DEFINITION
                           IDENTIFIER
@@ -245,13 +246,13 @@ sub identifier{
     my $self = shift;
 
     if(@_) {
-	$self->throw("cannot modify identifier for ".ref($self))
-	    if exists($self->{'identifier'});
-	my $id = shift;
-	$self->{'identifier'} = $id if $id;
+        $self->throw("cannot modify identifier for ".ref($self))
+            if exists($self->{'identifier'});
+        my $id = shift;
+        $self->{'identifier'} = $id if $id;
     }
     if(! exists($self->{'identifier'})) {
-	($self->{'identifier'}) = "$self" =~ /(0x[0-9a-fA-F]+)/;
+        ($self->{'identifier'}) = "$self" =~ /(0x[0-9a-fA-F]+)/;
     }
     return $self->{'identifier'};
 }
@@ -293,7 +294,7 @@ sub close{
  Usage   : $engine = $obj->engine()
  Function: Get/set the ontology engine to which all the query methods
            delegate.
- Example : 
+ Example :
  Returns : an object implementing Bio::Ontology::OntologyEngineI
  Args    : on set, new value (an object implementing
            Bio::Ontology::OntologyEngineI, or  undef)
@@ -306,14 +307,14 @@ sub engine{
     my $self = shift;
 
     if (@_) {
-	my $engine = shift;
-	if($engine && 
-           (! (ref($engine) && 
+        my $engine = shift;
+        if($engine &&
+           (! (ref($engine) &&
                $engine->isa("Bio::Ontology::OntologyEngineI")))) {
-	    $self->throw("object of class ".ref($engine)." does not implement".
-			 " Bio::Ontology::OntologyEngineI. Bummer!");
-	}
-	$self->{'engine'} = $engine;
+            $self->throw("object of class ".ref($engine)." does not implement".
+                         " Bio::Ontology::OntologyEngineI. Bummer!");
+        }
+        $self->{'engine'} = $engine;
     } elsif (! exists($self->{'engine'})) {
         # instantiate on demand
         eval {
@@ -427,8 +428,8 @@ sub get_relationships {
   my $self = shift;
   my $term = shift;
   if($term) {
-	# we don't need to filter in this case
-	return $self->engine->get_relationships($term);
+        # we don't need to filter in this case
+        return $self->engine->get_relationships($term);
   }
   # else we need to filter by ontology
   return grep { my $ont = $_->ontology;
@@ -456,7 +457,7 @@ sub get_predicate_terms{
     my $self = shift;
 
     return grep { $_->ontology->name eq $self->name;
-	      } $self->engine->get_predicate_terms(@_);
+              } $self->engine->get_predicate_terms(@_);
 }
 
 =head2 get_child_terms
@@ -583,12 +584,12 @@ sub get_ancestor_terms{
 sub get_leaf_terms{
     my $self = shift;
     return grep { my $ont = $_->ontology;
-		  # the first condition is a superset of the second, but
-		  # we add it here for efficiency reasons, as many times
-		  # it will short-cut to true and is supposedly faster than
-		  # string comparison
-		  ($ont == $self) || ($ont->name eq $self->name);
-	      } $self->engine->get_leaf_terms(@_);
+                  # the first condition is a superset of the second, but
+                  # we add it here for efficiency reasons, as many times
+                  # it will short-cut to true and is supposedly faster than
+                  # string comparison
+                  ($ont == $self) || ($ont->name eq $self->name);
+              } $self->engine->get_leaf_terms(@_);
 }
 
 =head2 get_root_terms()
@@ -607,12 +608,12 @@ sub get_leaf_terms{
 sub get_root_terms{
     my $self = shift;
     return grep { my $ont = $_->ontology;
-		  # the first condition is a superset of the second, but
-		  # we add it here for efficiency reasons, as many times
-		  # it will short-cut to true and is supposedly faster than
-		  # string comparison
-		  ($ont == $self) || ($ont->name eq $self->name);
-	      } $self->engine->get_root_terms(@_);
+                  # the first condition is a superset of the second, but
+                  # we add it here for efficiency reasons, as many times
+                  # it will short-cut to true and is supposedly faster than
+                  # string comparison
+                  ($ont == $self) || ($ont->name eq $self->name);
+              } $self->engine->get_root_terms(@_);
 }
 
 =head2 get_all_terms
@@ -634,12 +635,12 @@ sub get_root_terms{
 sub get_all_terms{
     my $self = shift;
     return grep { my $ont = $_->ontology;
-		  # the first condition is a superset of the second, but
-		  # we add it here for efficiency reasons, as many times
-		  # it will short-cut to true and is supposedly faster than
-		  # string comparison
-		  ($ont == $self) || ($ont->name eq $self->name);
-	      } $self->engine->get_all_terms(@_);
+                  # the first condition is a superset of the second, but
+                  # we add it here for efficiency reasons, as many times
+                  # it will short-cut to true and is supposedly faster than
+                  # string comparison
+                  ($ont == $self) || ($ont->name eq $self->name);
+              } $self->engine->get_all_terms(@_);
 }
 
 =head2 find_terms
@@ -666,7 +667,7 @@ sub get_all_terms{
 sub find_terms{
     my $self = shift;
     return grep { $_->ontology->name eq $self->name;
-	      } $self->engine->find_terms(@_);
+              } $self->engine->find_terms(@_);
 }
 
 =head1 Factory for relationships and terms
@@ -681,10 +682,10 @@ sub find_terms{
            factory to be used when relationship objects are created by
            the implementation on-the-fly.
 
- Example : 
+ Example :
  Returns : value of relationship_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
- Args    : 
+ Args    :
 
 =cut
 
@@ -700,15 +701,39 @@ sub relationship_factory{
            factory to be used when term objects are created by
            the implementation on-the-fly.
 
- Example : 
+ Example :
  Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
- Args    : 
+ Args    :
 
 =cut
 
 sub term_factory{
     return shift->engine->term_factory(@_);
+}
+
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $annos = $obj->annotation()
+ Function: Get/Set the Bio::Annotation::Collection object
+           The collection contains Bio::Annotation::SimpleValue
+           objects to store header information like the version
+           and date present in the header section of an Ontology
+           file.
+
+ Example :
+ Returns : value of annotation (a Bio::Annotation::Collection
+           compliant object)
+ Args    : A Bio::Annotation::Collection object (Optional)
+
+=cut
+
+sub annotation{
+    my $self = shift;
+    $self->{'annotation'} = shift if @_;
+    return $self->{'annotation'};
 }
 
 
