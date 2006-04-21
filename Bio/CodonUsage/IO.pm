@@ -15,23 +15,21 @@ Bio::CodonUsage::IO - for reading and writing codon usage tables to file
 
 =head1 SYNOPSIS
 
-        use Bio::CodonUsage::IO;
+  use Bio::CodonUsage::IO;
 
-        ##read in a codon usage file
-        my $io = Bio::CodonUsage::IO->new(-file => "in");
-        my $cut = $io->next_data();
+  ## read in a codon usage file
+  my $io = Bio::CodonUsage::IO->new(-file => "in");
+  my $cut = $io->next_data();
 
-        ##write it out again
-        my $out = Bio::CodonUsage::IO->new(-file => ">out");
-        $out->write_data($cut);
+  ## write it out again
+  my $out = Bio::CodonUsage::IO->new(-file => ">out");
+  $out->write_data($cut);
 
 =head1 DESCRIPTION
 
 This class provides standard IO methods for reading and writing text files
 of codon usage tables. These tables can initially be retrieved using
 Bio::DB::CUTG. At present only this format is supported for read/write. 
-You can also find CUTG codon tables here:
-ftp://ftp.ebi.ac.uk/pub/databases/cutg.
 
 Reading a CUTG will return a Bio::CodonUsage::Table object. 
 
@@ -45,7 +43,6 @@ L<Bio::CodonUsage::IO>
 =head1 FEEDBACK
 
 =head2 Mailing Lists
-
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
@@ -78,6 +75,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::CodonUsage::IO;
 use Bio::Root::IO;
+use Bio::CodonUsage::Table;
 use vars qw(@ISA);
 
 @ISA = qw(Bio::Root::IO);
@@ -112,7 +110,7 @@ sub next_data {
 	my $self = shift;
 	my $cut = $self->_parse;
 	return $cut;
-	}
+}
 
 =head2  write_data
 
@@ -224,5 +222,7 @@ sub _parse {
 		
 }
 
+1;
 
+__END__
 
