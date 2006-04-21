@@ -927,10 +927,12 @@ sub _parse_NSsitesBatch {
 		scalar @{$data{'-trees'}} ) {
 		$data{'-likelihood'}= $data{'-trees'}->[0]->score;
 	    }
-	} elsif( /^Positively selected sites/ ) {
+	} elsif( /^(Naive Empirical Bayes)|(Bayes Empirical Bayes)|(Positively\sselected\ssites)/i ) {
 	    $self->_pushback($_);
-	    my @sites = $self->_parse_Pos_selected_sites;
-	    $data{'-pos_sites'} = [@sites];
+	    my ($sites,$neb,$beb) = $self->_parse_Pos_selected_sites;
+	    $data{'-pos_sites'} = $sites;
+	    $data{'-neb_sites'} = $neb;
+	    $data{'-beb_sites'} = $beb;
 	} elsif( /^dN/i ) {
 	    if( /K\=(\d+)/ ) {
 		$data{'-num_site_classes'} = $1;   
@@ -1043,25 +1045,38 @@ sub _parse_NSsitesBatch {
 
 sub _parse_Pos_selected_sites {
     my $self = shift;
-    my ($okay,$done) = (0,0);
-    my @sites;
+    my $okay = 0;
+    my (%sites) = ('default' => [],
+		   'neb'     => [],
+		   'beb'     => []);
+    my $type = 'default';
     while( defined($_ = $self->_readline) ) {
-
-	next if ( /^\s+$/ );
-	last if $done;
-	next unless ( $okay || /^Positively selected sites Prob/);
-	if( /^Positively selected sites Prob/ ) {
-	    $okay = 1;
-	} elsif( /^\s+(\d+)\s+(\S)\s+([\d\.\-\+]+)(\**)/ ) {
-	    my $signif = $4; 
-	    $signif = '' unless defined $signif;
-	    push @sites, [$1,$2,$3,$signif];
-	} else {
+	next if ( /^\s+$/ || /^\s+Pr\(w\>1\)/ );
+	if(  /^Time used/ || /^TREE/) {
 	    $self->_pushback($_);
 	    last;
 	}
+	if( /^Naive Empirical Bayes/i ) {
+	    $type = 'neb';
+	} elsif( /^Bayes Empirical Bayes/i ) {
+	    $type = 'beb';
+	} elsif( /^Positively selected sites/ ) {
+	    $okay = 1;
+	} elsif( $okay && /^\s+(\d+)\s+(\S+)\s+(\-?\d+(?:\.\d+)?)(\**)\s+(\-?\d+(?:\.\d+)?)\s+\+\-\s+(\-?\d+(?:\.\d+)?)/ ) {
+	    my $signif = $4;
+	    $signif = '' unless defined $signif;
+	    push @{$sites{$type}}, [$1,$2,$3,$signif,$5,$6];
+	} elsif( $okay && /^\s+(\d+)\s+(\S+)\s+(\-?\d*(?:.\d+))(\**)\s+(\-?\d+(?:\.\d+)?)/ ) {
+	    my $signif = $4;
+	    $signif = '' unless defined $signif;
+	    push @{$sites{$type}}, [$1,$2,$3,$signif,$5];
+	} elsif( $okay && /^\s+(\d+)\s+(\S)\s+([\d\.\-\+]+)(\**)/ ) {
+	    my $signif = $4; 
+	    $signif = '' unless defined $signif;
+	    push @{$sites{$type}}, [$1,$2,$3,$signif];
+	} 
     }
-    return @sites;
+    return ($sites{'default'}, $sites{'neb'}, $sites{'beb'});
 }
 
 sub _parse_branch_dnds { 
