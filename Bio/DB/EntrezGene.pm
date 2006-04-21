@@ -18,14 +18,14 @@ Bio::DB::EntrezGene - Database object interface to Entrez Gene
 
     use Bio::DB::EntrezGene;
 
-    $db = Bio::DB::EntrezGene->new;
+    my $db = Bio::DB::EntrezGene->new;
 
-    $seq = $db->get_Seq_by_id(2); # Gene id
+    my $seq = $db->get_Seq_by_id(2); # Gene id
 
     # or ...
 
-    my $seqio = $db->get_Stream_by_id([2, 4693, 3064]);
-    while( my $seq = $seqio->next_seq ) {
+    my $seqio = $db->get_Stream_by_id([2, 4693, 3064]); # Gene ids
+    while ( my $seq = $seqio->next_seq ) {
 	    print "id is ", $seq->display_id, "\n";
     }
 
