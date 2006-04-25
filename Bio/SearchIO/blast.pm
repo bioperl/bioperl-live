@@ -471,9 +471,10 @@ sub next_result {
                 }
             );
         }
-        elsif (/^Searching/) {
-
-            $self->debug("blast.pm: Searching found...\n");
+        # added Windows workaround for bug 1985
+        elsif (/^(Searching|Results from round)/) { 
+            next unless $1 =~ /Results from round/; 
+            $self->debug("blast.pm: Possible psi blast iterations found...\n");
             $self->in_element('hsp')
               && $self->end_element( { 'Name' => 'Hsp' } );
             $self->in_element('hit')
@@ -635,7 +636,7 @@ sub next_result {
 
      # This block is for WU-BLAST, so we don't have to check for psi-blast stuff
      # skip the next line
-            $self->debug("blast.pm: Processing WU-BLAST descripitons\n");
+            $self->debug("blast.pm: Processing WU-BLAST descriptions\n");
             $_      = $self->_readline();
             $flavor = 'wu';
 
@@ -1764,12 +1765,6 @@ sub next_result {
                     $self->{"\_$type"}->{'begin'} = $start
                       unless $self->{"_$type"}->{'begin'};
                     $self->{"\_$type"}->{'end'} = $end;
-#                 }
-#                 elsif (/Features\sin\sthis\part\sof\sequence\ssubject:/) {
-#                 	while($_ =~ /\S+/) {
-#                 		print $_,"\n";;
-#                 		$_ = $self->_readline;
-#                 	}            
                 } else {
                     $self->throw("no data for midline $_")
                       unless ( defined $_ && defined $len );
