@@ -1,4 +1,4 @@
-# blast.pm,v 1.90 2005/09/27 14:54:03 jason Exp
+# $Id$
 #
 # BioPerl module for Bio::SearchIO::blast
 #
