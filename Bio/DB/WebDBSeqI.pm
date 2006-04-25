@@ -94,26 +94,13 @@ BEGIN {
 	$DEFAULT_RETRIEVAL_TYPE = 'pipeline';
 	$DEFAULTFORMAT = 'fasta';
 	$LAST_INVOCATION_TIME = 0;
-	@ATTRIBUTES = qw(complexity strand seq_start seq_stop no_redirect);
-	for my $method (@ATTRIBUTES) {
-		eval <<END;
-sub $method {
-	my \$self = shift;
-	my \$d    = \$self->{'_$method'};
-	\$self->{'_$method'} = shift if \@_;
-	\$d;
-}
-END
-	}
 }
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($baseaddress, $params, $ret_type, $format,$delay,$db,
-		  $seq_start,$seq_stop,$no_redirect,$complexity,$strand) =
-	 $self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT DELAY DB 
-								  SEQ_START SEQ_STOP NO_REDIRECT COMPLEXITY STRAND)],
+    my ($baseaddress, $params, $ret_type, $format,$delay,$db) =
+	 $self->_rearrange([qw(BASEADDRESS PARAMS RETRIEVALTYPE FORMAT DELAY DB)],
 							 @args);
 
     $ret_type = $DEFAULT_RETRIEVAL_TYPE unless ( $ret_type);
@@ -121,11 +108,6 @@ sub new {
     $params        && $self->url_params($params);
     $db            && $self->db($db);
     $ret_type      && $self->retrieval_type($ret_type);
-    $seq_start     && $self->seq_start($seq_start);
-    $seq_stop      && $self->seq_stop($seq_stop);
-    $no_redirect   && $self->no_redirect($no_redirect);
-    $complexity    && $self->complexity($complexity);
-    $strand        && $self->strand($strand);
     $delay          = $self->delay_policy unless defined $delay;
     $self->delay($delay);
 
@@ -419,15 +401,16 @@ sub get_seq_stream {
 	}
 	$qualifiers{'-format'} = $rformat if( !$seen);
 	($rformat, $ioformat) = $self->request_format($rformat);
-
-	defined $self->seq_start() and
-	  $qualifiers{'-seq_start'} = $self->seq_start();
-	defined $self->seq_stop() and
-	  $qualifiers{'-seq_stop'} = $self->seq_stop();
-	defined $self->strand() and
-	  $qualifiers{'-strand'} = $self->strand();
-	defined $self->seq_stop() and
-	  $qualifiers{'-complexity'} = $self->complexity();
+	# These parameters are implemented for Bio::DB::GenBank objects only
+	if(ref($self) =~ /Bio::DB::GenBank/) {
+		defined $self->seq_start() and
+		  $qualifiers{'-seq_start'} = $self->seq_start();
+		defined $self->seq_stop() and
+		  $qualifiers{'-seq_stop'} = $self->seq_stop();
+		defined $self->strand() and
+		  $qualifiers{'-strand'} = $self->strand();
+	}
+	# manage complexity flag here; URI doesn't like '0' or ''!
 	my $request = $self->get_request(%qualifiers);
 	$request->proxy_authorization_basic($self->authentication)
 	  if ( $self->authentication);

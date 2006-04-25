@@ -75,7 +75,7 @@ preceded with a _
 package Bio::DB::NCBIHelper;
 use strict;
 use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
-	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
+	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION @ATTRIBUTES);
 
 use Bio::DB::WebDBSeqI;
 use Bio::DB::Query::GenBank;
@@ -105,8 +105,18 @@ BEGIN {
 						   'asn.1' => 'entrezgene',
 						   'gbwithparts' => 'genbank',
 					  );
-
     $DEFAULTFORMAT = 'gb';
+	@ATTRIBUTES = qw(complexity strand seq_start seq_stop no_redirect);
+	for my $method (@ATTRIBUTES) {
+		eval <<END;
+sub $method {
+	my \$self = shift;
+	my \$d    = \$self->{'_$method'};
+	\$self->{'_$method'} = shift if \@_;
+	\$d;
+}
+END
+	}
 }
 
 # the new way to make modules a little more lightweight
@@ -114,6 +124,13 @@ BEGIN {
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);
+    my ($seq_start,$seq_stop,$no_redirect,$complexity,$strand) =
+	 $self->_rearrange([qw(SEQ_START SEQ_STOP NO_REDIRECT COMPLEXITY STRAND)],
+							 @args);
+	$seq_start     && $self->seq_start($seq_start);
+    $seq_stop      && $self->seq_stop($seq_stop);
+    $no_redirect   && $self->no_redirect($no_redirect);
+    $strand        && $self->strand($strand);
     return $self;
 }
 
@@ -192,11 +209,10 @@ sub get_request {
 	elsif ($query) {
 		$params{'id'} = join ',',$query->ids;
 	}
-     
 	defined $seq_start and $params{'seq_start'} = $seq_start;
 	defined $seq_stop and $params{'seq_stop'} = $seq_stop;
 	defined $strand and $params{'strand'} = $strand;
-	defined $complexity and $params{'complexity'} = $complexity;
+	# add complexity here
 	$params{'rettype'} = $format;
 	if ($CGILOCATION{$mode}[0] eq 'post') {
 		return POST $url,[%params];
