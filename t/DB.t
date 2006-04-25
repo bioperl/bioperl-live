@@ -358,14 +358,14 @@ if( $DEBUG ) {
 
    # test contig retrieval
    eval {
-       ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
+       ok defined ( $gb = new Bio::DB::GenBank('-verbose' => $verbose,
                                                '-delay'  => 0,
                                                '-format' => 'gbwithparts'
                        ) );
        ok( defined ($seq = $gb->get_Seq_by_id('CH402638')));
        ok($seq->length, $expected_lengths{$seq->display_id});
 	   # now to check that postprocess_data in NCBIHelper catches CONTIG...
-	   ok defined ( $gb = new Bio::DB::GenBank('-verbose' =>$verbose,
+	   ok defined ( $gb = new Bio::DB::GenBank('-verbose' => -1,
                                                '-delay'  => 0,
                                                '-format' => 'gb'
                        ) );
