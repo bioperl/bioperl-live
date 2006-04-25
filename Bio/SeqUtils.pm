@@ -39,10 +39,9 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
         ($seq, $similarity, $transition_transversion_rate);
 
 
-    # concatenate two sequences with annotations and features
-    # the first argument sequence will be modified
-    Bio::SeqUtils->cat($seq, $seq2);
-
+    # concatenate two or more sequences with annotations and features,
+    # the first sequence will be modified
+    Bio::SeqUtils->cat(@seqs);
 
 
 =head1 DESCRIPTION
@@ -69,9 +68,9 @@ forward or all six frame translations.
 The mutate() method mutates the sequence string with a mutation
 description object.
 
-the cat() method concatenates two sequence. The first sequence in the
-sequnce list get modified. All annotations and sequence features, if the
-first sequence supports them, will be transferred.
+The cat() method concatenates two or more sequences. The first sequence 
+is modified by addition of the remaining sequences. All annotations and 
+sequence features will be transferred.
 
 
 =head1 FEEDBACK
@@ -394,10 +393,8 @@ sub mutate {
   Returns : a boolean
   Args    : array of sequence objects
 
-
-Note that annotations have no sequence region. If you concatenate the
-same sequence more than once, you will have its annotations
-duplicated.
+Note that annotations have no sequence locations. If you concatenate
+sequences with the same annotations they will all be added.
 
 =cut
 
