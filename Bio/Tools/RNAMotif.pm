@@ -52,14 +52,14 @@ warning that sprintf() may have been used.
 Several values have also been added in the 'tag' hash.  These can be
 accessed using the following syntax:
 
-  my ($entry) = $feature->get_Annotations('SecStructure');
+  my ($entry) = $feature->get_Annotations('Secstructure');
 
 Added tags are : 
 
-   DescLine     - entire description line (in case the regex used for
+   Descline     - entire description line (in case the regex used for
                   sequence ID doesn't adequately catch the name
-   DescFile     - name of the descriptor file (may include path to file)
-   SecStrucure  - contains structural information from the descriptor
+   Descfile     - name of the descriptor file (may include path to file)
+   Secstrucure  - contains structural information from the descriptor
                   used as a query
    Sequence     - sequence of motif, separated by spaces according to
                   matches to the structure in the descriptor (in
@@ -365,9 +365,9 @@ sub next_prediction {
                                                       -source_tag  => $srctag,
                                                       -display_name => $desctag,
                                                       -tag     => {
-                                                        'DescLine'       => $description,
-                                                        'DescFile'      => $self->{'_dfile'},
-                                                        'SecStructure'  => $self->{'_sec_structure'},
+                                                        'Descline'       => $description,
+                                                        'Descfile'      => $self->{'_dfile'},
+                                                        'Secstructure'  => $self->{'_sec_structure'},
                                                         'Sequence'       => $sequence});
             return $gene;
         }
