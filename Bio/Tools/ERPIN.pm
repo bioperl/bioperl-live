@@ -318,7 +318,7 @@ sub next_prediction {
         elsif (/^(FW|RC)\s+\d+\s+(\d+)..(\d+)\s+(\d+.\d+)\s+(.*)/) {
             $self->debug("caught hit information:\n");
             ($strand, $start, $end, $logodds, $score)=($1, $2, $3, $4, $5);
-            $sequence = $self->_readline; # grab next line, which is the sequence hit
+            chomp ($sequence = $self->_readline); # grab next line, which is the sequence hit
             my $gene = Bio::SeqFeature::Generic->new(-seq_id => $self->{_seqid},
                                                       -start  => $start,
                                                       -end    => $end,
