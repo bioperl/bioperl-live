@@ -128,7 +128,6 @@ Internal methods are usually preceded with a _
 package Bio::SearchIO::blast;
 
 use Bio::SearchIO::IteratedSearchResultEventBuilder;
-
 use strict;
 use vars qw(@ISA %MAPPING %MODEMAP
   $DEFAULT_BLAST_WRITER_CLASS
@@ -379,9 +378,12 @@ sub _initialize {
 
     my $handler = new Bio::SearchIO::IteratedSearchResultEventBuilder(@args);
     $self->attach_EventHandler($handler);
-
- # Optimization: caching the EventHandler since it's use a lot during the parse.
-    $self->{'_handler_cache'} = $handler;
+    
+    # 2006-04-26 move this to the attach_handler function in this
+    # module so we can really reset the handler 
+    # Optimization: caching
+    # the EventHandler since it is used a lot during the parse.
+    # $self->{'_handler_cache'} = $handler;
 
     my ( $min_qlen, $check_all, $overlap, $best, $rpttype ) = $self->_rearrange(
         [
@@ -396,6 +398,18 @@ sub _initialize {
     defined $best      && $self->best_hit_only($best);
     defined $check_all && $self->check_all_hits($check_all);
     defined $rpttype   && ( $self->{'_reporttype'} = $rpttype );
+}
+
+sub attach_EventHandler {
+    my ($self,$handler) = @_;
+
+    $self->SUPER::attach_EventHandler($handler);    
+
+    # Optimization: caching the EventHandler since it is used a lot
+    # during the parse.
+
+    $self->{'_handler_cache'} = $handler;
+    return;
 }
 
 =head2 next_result

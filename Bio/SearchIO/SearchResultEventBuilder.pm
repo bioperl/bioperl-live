@@ -126,7 +126,7 @@ sub new {
 sub will_handle{
    my ($self,$type) = @_;
    # these are the events we recognize
-   return ( $type eq 'hsp' || $type eq 'hit' || $type eq 'result' );
+   return ( $type eq 'hsp' || $type eq 'hit' || $type eq 'result' || $type eq 'iteration' );
 }
 
 =head2 SAX methods
@@ -428,5 +428,11 @@ sub inclusion_threshold {
     return $self->{'_inclusion_threshold'} = shift if @_;
     return $self->{'_inclusion_threshold'};
 }
+
+# NOOP so this can behave like a IteratedSearchResultBuilder 
+sub start_iteration {}
+
+# NOOP so this can behave like a IteratedSearchResultBuilder 
+sub end_iteration {}
 
 1;
