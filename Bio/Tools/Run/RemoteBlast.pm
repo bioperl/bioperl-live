@@ -611,7 +611,6 @@ sub retrieve_blast {
 		    }
 		} 
 		close($fh2);
-		close(OUT);		
 		$blastobj = new Bio::SearchIO( -file => $tempfile2,
 					       -format => 'blasttable');
 	    } elsif( $mthd =~ /xml/ ) {
@@ -656,15 +655,16 @@ sub save_output {
 
 	open(SAVEOUT, ">$filename") or $self->throw("cannot open $filename");
 	my $seentop = 0;
-	while(my $l = <TMP>) {
-		next if ($l =~ /<pre>/);
-		if( $l =~ /^(?:[T]?BLAST[NPX])\s*.+$/i ||
-			 $l =~/^RPS-BLAST\s*.+$/i ) {
+	while(<TMP>) {
+		next if (/<pre>/);
+		if(/^(?:[T]?BLAST[NPX])\s*.+$/i ||
+           /^RPS-BLAST\s*.+$/i ||
+           /<\?xml\sversion=/ ) {
 			$seentop=1;
-		}
-		next if !$seentop;
+		} 
+        next if !$seentop;
 		if( $seentop ) {
-			print SAVEOUT $l;
+			print SAVEOUT $_;
 		}
 	}
 	close TMP;
