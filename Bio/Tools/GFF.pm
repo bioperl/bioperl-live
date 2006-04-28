@@ -1032,7 +1032,10 @@ sub _gff3_string {
 	    }
 	    push @v, $value;
 	}
-	$tag= lcfirst($tag) unless ($tag =~/^ID|Name|Alias|Parent|Gap|Target$/);
+	$tag= lcfirst($tag) unless ($tag 
+          =~ /
+     ^ID|Name|Alias|Parent|Gap|Target|Derives_from|Note|Dbxref|Ontology_term$
+             /);
 
 	push @groups, "$tag=".join(",",@v);
     }
