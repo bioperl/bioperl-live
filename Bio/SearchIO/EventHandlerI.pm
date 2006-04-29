@@ -164,6 +164,38 @@ sub end_hit {
    $self->throw_not_implemented();
 }
 
+=head2 start_iteration
+
+ Title   : start_iteration
+ Usage   : $handler->start_iteration()
+ Function: Starts an Iteration event cycle
+ Returns : none
+ Args    : type of event and associated hashref
+
+
+=cut
+
+sub start_iteration {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented
+}
+
+=head2 end_iteration
+
+ Title   : end_iteration
+ Usage   : $handler->end_iteration()
+ Function: Ends an Iterationevent cycle
+ Returns : Bio::Search::Iteration::IterationI object
+ Args    : type of event and associated hashref
+
+
+=cut
+
+sub end_iteration {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 register_factory
 
  Title   : register_factory

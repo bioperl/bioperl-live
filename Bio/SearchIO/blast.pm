@@ -1920,10 +1920,9 @@ sub start_element {
             $self->{'_handler_rc'} = $handler->$func( $data->{'Attributes'} );
         }
         else {
-            $self->throw(
-                -class => 'Bio::SearchIO::InternalParserError',
-                -text  => "Can't handle elements of type '$type'.",
-                -value => $type
+            $self->debug( # changed 4/29/2006 to play nice with other event handlers
+                "Bio::SearchIO::InternalParserError ".
+                "\nCan't handle elements of type \'$type.\'"
             );
         }
         unshift @{ $self->{'_elements'} }, $type;
