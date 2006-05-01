@@ -59,7 +59,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-AT-bioperl_DOT_org
 
 =head1 APPENDIX
 
