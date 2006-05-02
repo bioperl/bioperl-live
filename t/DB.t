@@ -264,11 +264,11 @@ if( $DEBUG ) {
 
 	$seq = $gb->get_Seq_by_acc("A11111");
 	ok($seq->length,6);
-	# complexity
+	# complexity tests
 	$gb = Bio::DB::GenBank->new(-format     => 'Fasta',
 										 -complexity  => 0);
 
-	my $seqin = $gb->get_Seq_by_acc("5");
+	my $seqin = $gb->get_Stream_by_acc("5");
 	my @result = (1136, 'dna', 342, 'protein');
 	my $ct = 0;
 	while ($seq = $seqin->next_seq) {
