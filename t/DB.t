@@ -22,7 +22,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 105;
+   $NUMTESTS = 109;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -264,7 +264,19 @@ if( $DEBUG ) {
 
 	$seq = $gb->get_Seq_by_acc("A11111");
 	ok($seq->length,6);
+	# complexity
+	$gb = Bio::DB::GenBank->new(-format     => 'Fasta',
+										 -complexity  => 0);
 
+	my $seqin = $gb->get_Seq_by_acc("5");
+	my @result = (1136, 'dna', 342, 'protein');
+	my $ct = 0;
+	while ($seq = $seqin->next_seq) {
+	  ok($seq->length,$result[$ct]);
+	  $ct++;
+	  ok($seq->alphabet,$result[$ct]);
+	  $ct++;
+	}
 	#
 	# Bio::DB::GenPept
 	#
