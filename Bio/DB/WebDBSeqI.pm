@@ -143,6 +143,9 @@ sub get_Seq_by_id {
     $self->_sleep;
     my $seqio = $self->get_Stream_by_id([$seqid]);
     $self->throw("id does not exist") if( !defined $seqio ) ;
+    return $seqio if ($self->can('complexity') && 
+                      defined $self->complexity &&
+                      $self->complexity==0);
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
     $self->throw("id does not exist") unless @seqs;
@@ -165,6 +168,9 @@ sub get_Seq_by_acc {
    $self->_sleep;
    my $seqio = $self->get_Stream_by_acc($seqid);
    $self->throw("acc $seqid does not exist") if( ! defined $seqio );
+    return $seqio if ($self->can('complexity') &&
+                      defined $self->complexity &&
+                      $self->complexity==0);
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
    $self->throw("acc $seqid does not exist") unless @seqs;
@@ -188,6 +194,9 @@ sub get_Seq_by_gi {
     $self->_sleep;
    my $seqio = $self->get_Stream_by_gi($seqid);
    $self->throw("gi does not exist") if( !defined $seqio );
+    return $seqio if ($self->can('complexity') &&
+                      defined $self->complexity &&
+                      $self->complexity==0);
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
    $self->throw("gi does not exist") unless @seqs;
@@ -210,7 +219,10 @@ sub get_Seq_by_version {
     $self->_sleep;
    my $seqio = $self->get_Stream_by_version($seqid);
    $self->throw("accession.version does not exist") if( !defined $seqio );
-   my @seqs;
+    return $seqio if ($self->can('complexity') &&
+                      defined $self->complexity &&
+                      $self->complexity==0);
+    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
    $self->throw("accession.version does not exist") unless @seqs;
    if( wantarray ) { return @seqs } else { return shift @seqs }
@@ -403,14 +415,11 @@ sub get_seq_stream {
 	($rformat, $ioformat) = $self->request_format($rformat);
 	# These parameters are implemented for Bio::DB::GenBank objects only
 	if(ref($self) =~ /Bio::DB::GenBank/) {
-		defined $self->seq_start() and
-		  $qualifiers{'-seq_start'} = $self->seq_start();
-		defined $self->seq_stop() and
-		  $qualifiers{'-seq_stop'} = $self->seq_stop();
-		defined $self->strand() and
-		  $qualifiers{'-strand'} = $self->strand();
+		$self->seq_start() &&  ($qualifiers{'-seq_start'} = $self->seq_start());
+		$self->seq_stop() && ($qualifiers{'-seq_stop'} = $self->seq_stop());
+		$self->strand() && ($qualifiers{'-strand'} = $self->strand());
+		defined $self->complexity() && ($qualifiers{'-complexity'} = $self->complexity());
 	}
-	# manage complexity flag here; URI doesn't like '0' or ''!
 	my $request = $self->get_request(%qualifiers);
 	$request->proxy_authorization_basic($self->authentication)
 	  if ( $self->authentication);

@@ -131,6 +131,9 @@ sub new {
     $seq_stop      && $self->seq_stop($seq_stop);
     $no_redirect   && $self->no_redirect($no_redirect);
     $strand        && $self->strand($strand);
+	# adjust statement to accept zero value
+	defined $complexity && ($complexity >=0 && $complexity <=4)
+		&& $self->complexity($complexity);
     return $self;
 }
 
@@ -209,10 +212,17 @@ sub get_request {
 	elsif ($query) {
 		$params{'id'} = join ',',$query->ids;
 	}
-	defined $seq_start and $params{'seq_start'} = $seq_start;
-	defined $seq_stop and $params{'seq_stop'} = $seq_stop;
-	defined $strand and $params{'strand'} = $strand;
-	# add complexity here
+	$seq_start && ($params{'seq_start'} = $seq_start);
+	$seq_stop && ($params{'seq_stop'} = $seq_stop);
+	$strand && ($params{'strand'} = $strand);
+	if ((defined $complexity && $complexity == 0)
+		&& ($seq_start || $seq_stop || $strand == 2)) {
+		$self->warn("Complexity set to 0; seq_start and seq_stop will not work!")
+			if ($seq_start|| $seq_stop);
+		$self->warn("Complexity set to 0; expect strange results with strand set to 2")
+			if ($strand == 2);
+	}
+	defined $complexity && ($params{'complexity'} = $complexity);
 	$params{'rettype'} = $format;
 	if ($CGILOCATION{$mode}[0] eq 'post') {
 		return POST $url,[%params];
