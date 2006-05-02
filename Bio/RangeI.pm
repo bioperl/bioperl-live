@@ -83,8 +83,8 @@ use vars qw( @ISA %STRAND_OPTIONS );
 @ISA = qw( Bio::Root::RootI );
 
 BEGIN {
-# STRAND_OPTIONS contains the legal values for the strand options
-    %STRAND_OPTIONS = map { $_, '_'.$_ }
+# STRAND_OPTIONS contains the legal values for the strand-testing options
+    %STRAND_OPTIONS = map { $_, '_' . $_ }
     (
      'strong', # ranges must have the same strand
      'weak',   # ranges must have the same strand or no strand
@@ -178,7 +178,7 @@ sub length {
   Title   : strand
   Usage   : $strand = $range->strand();
   Function: get/set the strand of this range
-  Returns : the strandidness (-1, 0, +1)
+  Returns : the strandedness (-1, 0, +1)
   Args    : optionally allows the strand to be set
             using $range->strand($strand)
 
@@ -201,27 +201,27 @@ end are not defined.
   Usage   : if($r1->overlaps($r2)) { do stuff }
   Function: tests if $r2 overlaps $r1
   Args    : arg #1 = a range to compare this one to (mandatory)
-            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
+            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
   Returns : true if the ranges overlap, false otherwise
 
 =cut
 
 sub overlaps {
-    my ($self, $other, $so) = @_;
+	my ($self, $other, $so) = @_;
     
-    $self->throw("start is undefined") unless defined $self->start;
-    $self->throw("end is undefined") unless defined $self->end;
-    $self->throw("not a Bio::RangeI object") unless defined $other && 
-	$other->isa('Bio::RangeI');
-    $other->throw("start is undefined") unless defined $other->start;
-    $other->throw("end is undefined") unless defined $other->end;
+	$self->throw("start is undefined") unless defined $self->start;
+	$self->throw("end is undefined") unless defined $self->end;
+	$self->throw("not a Bio::RangeI object") unless defined $other && 
+	  $other->isa('Bio::RangeI');
+	$other->throw("start is undefined") unless defined $other->start;
+	$other->throw("end is undefined") unless defined $other->end;
     
-    return
-	($self->_testStrand($other, $so) 
-	 and not (
-		  ($self->start() > $other->end() or
-		   $self->end() < $other->start()   )
-		  ));
+	return
+	  ($self->_testStrand($other, $so) 
+		and not (
+					($self->start() > $other->end() or
+					 $self->end() < $other->start()   )
+				  ));
 }
 
 =head2 contains
@@ -231,27 +231,27 @@ sub overlaps {
   Function: tests whether $r1 totally contains $r2 
   Args    : arg #1 = a range to compare this one to (mandatory)
 	             alternatively, integer scalar to test
-            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
+            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
   Returns : true if the argument is totally contained within this range
 
 =cut
 
 sub contains {
-  my ($self, $other, $so) = @_;
-  $self->throw("start is undefined") unless defined $self->start;
-  $self->throw("end is undefined") unless defined $self->end;
+	my ($self, $other, $so) = @_;
+	$self->throw("start is undefined") unless defined $self->start;
+	$self->throw("end is undefined") unless defined $self->end;
 
-  if(defined $other && ref $other) { # a range object?
+	if(defined $other && ref $other) { # a range object?
       $other->throw("Not a Bio::RangeI object: $other") unless  $other->isa('Bio::RangeI');
       $other->throw("start is undefined") unless defined $other->start;
       $other->throw("end is undefined") unless defined $other->end;
 
       return ($self->_testStrand($other, $so)      and
-	      $other->start() >= $self->start() and
-	      $other->end() <= $self->end());
+				  $other->start() >= $self->start() and
+				  $other->end() <= $self->end());
   } else { # a scalar?
-      $self->throw("'$other' is not an integer.\n") unless $other =~ /^[-+]?\d+$/;
-      return ($other >= $self->start() and $other <= $self->end());
+	  $self->throw("'$other' is not an integer.\n") unless $other =~ /^[-+]?\d+$/;
+	  return ($other >= $self->start() and $other <= $self->end());
   }
 }
 
@@ -289,13 +289,13 @@ which new ranges could be built.
 =head2 intersection
 
   Title   : intersection
-  Usage   : ($start, $stop, $strand) = $r1->intersection($r2) or
+  Usage   : ($start, $stop, $strand) = $r1->intersection($r2) OR
             my $containing_range = $r1->intersection($r2)
   Function: gives the range that is contained by both ranges
   Args    : arg #1 = a range to compare this one to (mandatory)
-            arg #2 = optional strand option ('strong', 'weak', 'ignore')
-  Returns : undef if they do not overlap, 
-            or a range if they do overlap (in the form of an object 
+            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
+  Returns : undef if they do not overlap OR 
+            a range if they do overlap (in the form of an object 
             like the calling one, OR a three element array)
 
 =cut
@@ -309,37 +309,36 @@ sub intersection {
 	$self->throw("start is undefined") unless defined $self->start;
 	$self->throw("end is undefined") unless defined $self->end;
 	$self->throw("Not a Bio::RangeI object: $other") unless ref($other);
+
 	$other->throw("Not a Bio::RangeI object: $other") unless $other->isa('Bio::RangeI');
 	$other->throw("start is undefined") unless defined $other->start;
 	$other->throw("end is undefined") unless defined $other->end;
 
-	my @start = sort {$a<=>$b}
-	  ($self->start(), $other->start());
-	my @end   = sort {$a<=>$b}
-	  ($self->end(),   $other->end());
+	my @starts = sort {$a <=> $b} ($self->start(), $other->start());
+	my @ends   = sort {$a <=> $b} ($self->end(),   $other->end());
 
-	my $start = pop @start;
-	my $end = shift @end;
+	my $start = pop @starts; # larger of the 2 starts
+	my $end = shift @ends;   # smaller of the 2 ends
 
-	my $union_strand;  # Strand for the union range object.
+	my $intersect_strand;  # Strand for the union range object.
 
-	if (defined($self->strand) && defined($other->strand) &&
-		$self->strand == $other->strand) {
-		$union_strand = $other->strand;
+	if ( defined($self->strand) && defined($other->strand) &&
+		           $self->strand == $other->strand ) {
+		$intersect_strand = $other->strand;
 	} else {
-		$union_strand = 0;
+		$intersect_strand = 0;
 	}
 
 	if ($start > $end) {
 		return undef;
 	} else {
 		if( wantarray() ) {
-			return ($start, $end, $union_strand);
+			return ($start, $end, $intersect_strand);
 		}
 		else {
-			return $self->new('-start' => $start,
-									'-end' => $end,
-									'-strand' => $union_strand
+			return $self->new(-start  => $start,
+									-end    => $end,
+									-strand => $intersect_strand
 								  );
 		}
 	}
@@ -360,50 +359,50 @@ sub intersection {
 =cut
 
 sub union {
-    my $self = shift;
-    my @ranges = @_;
-    if ($self eq "Bio::RangeI") {
-	$self = "Bio::Range";
-	$self->warn("calling static methods of an interface is deprecated; use $self instead");
-    }
-    if(ref $self) {
-	unshift @ranges, $self;
-    }
-
-    my @start = sort {$a<=>$b}
-    map( { $_->start() } @ranges);
-    my @end   = sort {$a<=>$b}
-    map( { $_->end()   } @ranges);
-
-    my $start = shift @start;
-    while( !defined $start ) {
-	$start = shift @start;
-    }
-
-    my $end = pop @end;
-
-    my $union_strand;  # Strand for the union range object.
-
-    foreach(@ranges) {
-	if(! defined $union_strand) {
-	    $union_strand = $_->strand;
-	    next;
-	} else {
-	    if(not defined $_->strand or $union_strand ne $_->strand) {
-		$union_strand = 0;
-		last;
-	    }
+	my $self = shift;
+	my @ranges = @_;
+	if ($self eq "Bio::RangeI") {
+		$self = "Bio::Range";
+		$self->warn("calling static methods of an interface is deprecated; use $self instead");
 	}
-    }
-    return undef unless $start or $end;
-    if( wantarray() ) {
-	return ( $start,$end,$union_strand);
-    } else { 
-	return $self->new('-start' => $start,
-			  '-end' => $end,
-			  '-strand' => $union_strand
-			  );
-    }
+	if(ref $self) {
+		unshift @ranges, $self;
+	}
+
+	my @start = sort {$a<=>$b}
+	  map( { $_->start() } @ranges);
+	my @end   = sort {$a<=>$b}
+	  map( { $_->end()   } @ranges);
+
+	my $start = shift @start;
+	while( !defined $start ) {
+		$start = shift @start;
+	}
+
+	my $end = pop @end;
+
+	my $union_strand;  # Strand for the union range object.
+
+	foreach(@ranges) {
+		if(! defined $union_strand) {
+			$union_strand = $_->strand;
+			next;
+		} else {
+			if(not defined $_->strand or $union_strand ne $_->strand) {
+				$union_strand = 0;
+				last;
+			}
+		}
+	}
+	return undef unless $start or $end;
+	if( wantarray() ) {
+		return ( $start,$end,$union_strand);
+	} else { 
+		return $self->new('-start' => $start,
+								'-end' => $end,
+								'-strand' => $union_strand
+							  );
+	}
 }
 
 =head2 overlap_extent
@@ -423,36 +422,36 @@ sub union {
 =cut
 
 sub overlap_extent{
-    my ($a,$b) = @_;
+	my ($a,$b) = @_;
 
-    $a->throw("start is undefined") unless defined $a->start;
-    $a->throw("end is undefined") unless defined $a->end;
-    $b->throw("Not a Bio::RangeI object") unless  $b->isa('Bio::RangeI');
-    $b->throw("start is undefined") unless defined $b->start;
-    $b->throw("end is undefined") unless defined $b->end;
+	$a->throw("start is undefined") unless defined $a->start;
+	$a->throw("end is undefined") unless defined $a->end;
+	$b->throw("Not a Bio::RangeI object") unless  $b->isa('Bio::RangeI');
+	$b->throw("start is undefined") unless defined $b->start;
+	$b->throw("end is undefined") unless defined $b->end;
 
-    if( ! $a->overlaps($b) ) {
-	return ($a->length,0,$b->length);
-    }
+	if( ! $a->overlaps($b) ) {
+		return ($a->length,0,$b->length);
+	}
 
-    my ($au,$bu) = (0, 0);
-    if( $a->start < $b->start ) {
-	$au = $b->start - $a->start;
-    } else {
-	$bu = $a->start - $b->start;
-    }
+	my ($au,$bu) = (0, 0);
+	if( $a->start < $b->start ) {
+		$au = $b->start - $a->start;
+	} else {
+		$bu = $a->start - $b->start;
+	}
 
-    if( $a->end > $b->end ) {
-	$au += $a->end - $b->end;
-    } else {
-	$bu += $b->end - $a->end;
-    }
+	if( $a->end > $b->end ) {
+		$au += $a->end - $b->end;
+	} else {
+		$bu += $b->end - $a->end;
+	}
 
-    my $intersect = $a->intersection($b);
-    my $ie = $intersect->end;
-    my $is = $intersect->start;
+	my $intersect = $a->intersection($b);
+	my $ie = $intersect->end;
+	my $is = $intersect->start;
 
-    return ($au,$ie-$is+1,$bu);
+	return ($au,$ie-$is+1,$bu);
 }
 
 =head2 disconnected_ranges
