@@ -86,6 +86,12 @@ complexity regulates the display:
 3 - get the minimal nuc-prot containing the gi of interest
 4 - get the minimal pub-set containing the gi of interest
 
+'seq_start' and 'seq_stop' will not work when setting complexity to any value
+other than 1.  'strand' works for any setting other than a complexity of 0
+(whole glob); when you try this with a GenBank return format nothing happens,
+whereas using FASTA works but causes display problems with the other sequences
+in the glob.  As Tao Tao says from NCBI, "Better left it out or set it to 1."
+
 =head1 DESCRIPTION
 
 Allows the dynamic retrieval of L<Bio::Seq> sequence objects from the

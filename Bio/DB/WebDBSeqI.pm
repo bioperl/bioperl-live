@@ -143,9 +143,11 @@ sub get_Seq_by_id {
     $self->_sleep;
     my $seqio = $self->get_Stream_by_id([$seqid]);
     $self->throw("id does not exist") if( !defined $seqio ) ;
-    return $seqio if ($self->can('complexity') && 
-                      defined $self->complexity &&
-                      $self->complexity==0);
+    if ($self->can('complexity') &&  defined $self->complexity && $self->complexity==0) {
+        $self->warn("When complexity is set to 0, use get_Stream_by_id\n".
+                    "Returning Bio::SeqIO object");
+        return $seqio;
+    }
     my @seqs;
     while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
     $self->throw("id does not exist") unless @seqs;
@@ -168,9 +170,11 @@ sub get_Seq_by_acc {
    $self->_sleep;
    my $seqio = $self->get_Stream_by_acc($seqid);
    $self->throw("acc $seqid does not exist") if( ! defined $seqio );
-    return $seqio if ($self->can('complexity') &&
-                      defined $self->complexity &&
-                      $self->complexity==0);
+    if ($self->can('complexity') &&  defined $self->complexity && $self->complexity==0) {
+        $self->warn("When complexity is set to 0, use get_Stream_by_acc\n".
+                    "Returning Bio::SeqIO object");
+        return $seqio;
+    }
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
    $self->throw("acc $seqid does not exist") unless @seqs;
@@ -194,9 +198,11 @@ sub get_Seq_by_gi {
     $self->_sleep;
    my $seqio = $self->get_Stream_by_gi($seqid);
    $self->throw("gi does not exist") if( !defined $seqio );
-    return $seqio if ($self->can('complexity') &&
-                      defined $self->complexity &&
-                      $self->complexity==0);
+    if ($self->can('complexity') &&  defined $self->complexity && $self->complexity==0) {
+        $self->warn("When complexity is set to 0, use get_Stream_by_gi\n".
+                    "Returning Bio::SeqIO object");
+        return $seqio;
+    }
    my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
    $self->throw("gi does not exist") unless @seqs;
@@ -219,9 +225,11 @@ sub get_Seq_by_version {
     $self->_sleep;
    my $seqio = $self->get_Stream_by_version($seqid);
    $self->throw("accession.version does not exist") if( !defined $seqio );
-    return $seqio if ($self->can('complexity') &&
-                      defined $self->complexity &&
-                      $self->complexity==0);
+    if ($self->can('complexity') &&  defined $self->complexity && $self->complexity==0) {
+        $self->warn("When complexity is set to 0, use get_Stream_by_version\n".
+                    "Returning Bio::SeqIO object");
+        return $seqio;
+    }
     my @seqs;
    while( my $seq = $seqio->next_seq() ) { push @seqs, $seq; }
    $self->throw("accession.version does not exist") unless @seqs;

@@ -215,12 +215,11 @@ sub get_request {
 	$seq_start && ($params{'seq_start'} = $seq_start);
 	$seq_stop && ($params{'seq_stop'} = $seq_stop);
 	$strand && ($params{'strand'} = $strand);
-	if ((defined $complexity && $complexity == 0)
-		&& ($seq_start || $seq_stop || $strand == 2)) {
-		$self->warn("Complexity set to 0; seq_start and seq_stop will not work!")
-			if ($seq_start|| $seq_stop);
+	if (defined $complexity && ($seq_start || $seq_stop || $strand)) {
+		$self->warn("Complexity set to $complexity; seq_start and seq_stop may not work!")
+			if ($complexity != 1 && ($seq_start || $seq_stop));
 		$self->warn("Complexity set to 0; expect strange results with strand set to 2")
-			if ($strand == 2);
+			if ($complexity == 0 && $strand == 2 && $format eq 'fasta');
 	}
 	defined $complexity && ($params{'complexity'} = $complexity);
 	$params{'rettype'} = $format;
