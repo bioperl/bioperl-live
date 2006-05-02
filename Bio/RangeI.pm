@@ -289,11 +289,11 @@ which new ranges could be built.
 =head2 intersection
 
   Title   : intersection
-  Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
+  Usage   : ($start, $stop, $strand) = $r1->intersection($r2) or
             my $containing_range = $r1->intersection($r2)
   Function: gives the range that is contained by both ranges
   Args    : arg #1 = a range to compare this one to (mandatory)
-            arg #2 = strand option ('strong', 'weak', 'ignore') (optional)
+            arg #2 = optional strand option ('strong', 'weak', 'ignore')
   Returns : undef if they do not overlap, 
             or a range if they do overlap (in the form of an object 
             like the calling one, OR a three element array)
@@ -301,50 +301,48 @@ which new ranges could be built.
 =cut
 
 sub intersection {
-    my ($self, $other, $so) = @_;
-    $self->throw("missing arg: you need to pass in another feature")
-      unless $other;
-    return unless $self->_testStrand($other, $so);
+	my ($self, $other, $so) = @_;
+	$self->throw("missing arg: you need to pass in another feature")
+	  unless $other;
+	return unless $self->_testStrand($other, $so);
 
-    $self->throw("start is undefined") unless defined $self->start;
-    $self->throw("end is undefined") unless defined $self->end;
-    $self->throw("Not a Bio::RangeI object: $other") unless ref($other);
-    $other->throw("Not a Bio::RangeI object: $other") unless $other->isa('Bio::RangeI');
-    $other->throw("start is undefined") unless defined $other->start;
-    $other->throw("end is undefined") unless defined $other->end;
+	$self->throw("start is undefined") unless defined $self->start;
+	$self->throw("end is undefined") unless defined $self->end;
+	$self->throw("Not a Bio::RangeI object: $other") unless ref($other);
+	$other->throw("Not a Bio::RangeI object: $other") unless $other->isa('Bio::RangeI');
+	$other->throw("start is undefined") unless defined $other->start;
+	$other->throw("end is undefined") unless defined $other->end;
 
-    my @start = sort {$a<=>$b}
-    ($self->start(), $other->start());
-    my @end   = sort {$a<=>$b}
-    ($self->end(),   $other->end());
+	my @start = sort {$a<=>$b}
+	  ($self->start(), $other->start());
+	my @end   = sort {$a<=>$b}
+	  ($self->end(),   $other->end());
 
-    my $start = pop @start;
-    my $end = shift @end;
+	my $start = pop @start;
+	my $end = shift @end;
 
-    my $union_strand;  # Strand for the union range object.
+	my $union_strand;  # Strand for the union range object.
 
-    if(defined($self->strand) &&
-       defined($other->strand) &&
-       $self->strand == $other->strand) {
-	$union_strand = $other->strand;
-    } else {
-	$union_strand = 0;
-    }
-
-    if($start > $end) {
-	return undef;
-    } else {
-	if( wantarray() ) {
-	    return ($start, $end, $union_strand);
-	}
-	else {
-	    return $self->new('-start' => $start,
-			      '-end' => $end,
-			      '-strand' => $union_strand
-			     );
+	if (defined($self->strand) && defined($other->strand) &&
+		$self->strand == $other->strand) {
+		$union_strand = $other->strand;
+	} else {
+		$union_strand = 0;
 	}
 
-    }
+	if ($start > $end) {
+		return undef;
+	} else {
+		if( wantarray() ) {
+			return ($start, $end, $union_strand);
+		}
+		else {
+			return $self->new('-start' => $start,
+									'-end' => $end,
+									'-strand' => $union_strand
+								  );
+		}
+	}
 }
 
 =head2 union
