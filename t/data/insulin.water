@@ -21,21 +21,21 @@
 #
 #=======================================
 
-hs_insulin         1 GTCTGTTCCAAGGGCCTTTGCGTCAGGTGGGCTCAGGG------------     38
+hs_insulin         1 gtctgttccaagggcctttgcgtcaggtgggctcaggg------------     38
                      ||||||||||||||||||.|||||||||||||||||||            
-                   1 GTCTGTTCCAAGGGCCTTCGCGTCAGGTGGGCTCAGGGCTGCCCACTTGG     50
+                   1 gtctgttccaagggccttcgcgtcaggtgggctcagggctgcccacttgg     50
 
-hs_insulin        39 -----CCAGGGTGGCTGGACCCCAGGCCCCAGCTCTGCAGCAGGGAGGAC     83
+hs_insulin        39 -----ccagggtggctggaccccaggccccagctctgcagcagggaggac     83
                           ||||||||||||||||||||||||||||||||||.||||||||||
-                  51 GGGTTCCAGGGTGGCTGGACCCCAGGCCCCAGCTCTGCAACAGGGAGGAC    100
+                  51 gggttccagggtggctggaccccaggccccagctctgcaacagggaggac    100
 
-hs_insulin        84 GTGGCTGGGCTCGTGAAGCATGTGGGGGTGAGCCCAGGGGCCCCAAGGCA    133
+hs_insulin        84 gtggctgggctcgtgaagcatgtgggggtgagcccaggggccccaaggca    133
                      .|||||||||||.||||||.|.||.||||||.|||||||| ||||.||||
-                 101 ATGGCTGGGCTCTTGAAGCGTTTGAGGGTGAACCCAGGGG-CCCAGGGCA    149
+                 101 atggctgggctcttgaagcgtttgagggtgaacccagggg-cccagggca    149
 
-hs_insulin       134 GGGCACCTGGCCTTCAGCCTGCCTCAGCCCTGCCTGTCTCCCAG    177
+hs_insulin       134 gggcacctggccttcagcctgcctcagccctgcctgtctcccag    177
                       ||||||||||| |||||..||||||| .|||||||||||.|||
-                 150 -GGCACCTGGCC-TCAGCTGGCCTCAG-GCTGCCTGTCTCTCAG    190
+                 150 -ggcacctggcc-tcagctggcctcag-gctgcctgtctctcag    190
 
 
 #---------------------------------------
