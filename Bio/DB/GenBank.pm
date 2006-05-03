@@ -153,12 +153,11 @@ use Bio::DB::NCBIHelper;
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN {    
     $DEFAULTMODE   = 'single';
-    $DEFAULTFORMAT = 'gp';
-    %PARAMSTRING = ( 
-		     'batch' => { 'db'     => 'nucleotide',
+    $DEFAULTFORMAT = 'gb';
+    %PARAMSTRING = (
+			 'batch' => { 'db'     => 'nucleotide',
 				  'usehistory' => 'n',
-				  'tool'   => 'bioperl',
-				  'retmode' => 'text'},
+				  'tool'   => 'bioperl'},
 		     'query' => { 'usehistory' => 'y',
 				  'tool'   => 'bioperl',
 				  'retmode' => 'text'},
@@ -174,6 +173,13 @@ BEGIN {
 				   'usehistory' => 'n',
 				   'tool'   => 'bioperl',
 				   'retmode' => 'text'},
+			 'webenv' => {    
+				  'query_key'  => 'querykey',
+				  'WebEnv'  => 'cookie',
+				  'db'     => 'nucleotide',
+				  'usehistory' => 'n',
+				  'tool'   => 'bioperl',
+				  'retmode' => 'text'},
 		     );
 }
 

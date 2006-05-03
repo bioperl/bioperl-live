@@ -84,6 +84,7 @@ use URI;
 use Bio::Root::IO;
 use Bio::DB::RefSeq;
 use Bio::Root::Root;
+use URI::Escape qw(uri_unescape);
 
 @ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 $VERSION = '0.8';
@@ -92,11 +93,12 @@ BEGIN {
     $MAX_ENTRIES = 19000;
     $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
     %CGILOCATION = (
-		    'batch'  => ['post' => '/entrez/eutils/efetch.fcgi'],
+			'batch'  => ['post' => '/entrez/eutils/epost.fcgi'],
 		    'query'  => ['get'  => '/entrez/eutils/efetch.fcgi'],
 		    'single' => ['get'  => '/entrez/eutils/efetch.fcgi'],
 		    'version'=> ['get'  => '/entrez/eutils/efetch.fcgi'],
 		    'gi'   =>   ['get'  => '/entrez/eutils/efetch.fcgi'],
+			'webenv' => ['get'  => '/entrez/eutils/efetch.fcgi']
 		     );
 
     %FORMATMAP = ( 'gb' => 'genbank',
@@ -183,7 +185,6 @@ sub get_request {
 	my ($mode, $uids, $format, $query, $seq_start, $seq_stop, $strand, $complexity) = 
 	  $self->_rearrange([qw(MODE UIDS FORMAT QUERY SEQ_START SEQ_STOP STRAND COMPLEXITY)],
 							  @qualifiers);
-
 	$mode = lc $mode;
 	($format) = $self->request_format() unless ( defined $format);
 	if( !defined $mode || $mode eq '' ) { $mode = 'single'; }
@@ -192,25 +193,25 @@ sub get_request {
 		$self->throw("must specify a valid retrieval mode 'single' or 'batch' not '$mode'") 
 	}
 	my $url = URI->new($HOSTBASE . $CGILOCATION{$mode}[1]);
-
-	unless( defined $uids or defined $query) {
+	unless( $mode eq 'webenv' || defined $uids || defined $query) {
 		$self->throw("Must specify a query or list of uids to fetch");
 	}
-
-	if ($uids) {
+	if ($query && $query->can('cookie')) {
+		@params{'WebEnv','query_key'} = $query->cookie;
+		$params{'db'}                 = $query->db;
+	}
+	elsif ($query) {
+		$params{'id'} = join ',',$query->ids;
+	}
+	# for batch retrieval, non-query style
+	elsif ($mode eq 'webenv' && $self->can('cookie')) {
+		@params{'WebEnv','query_key'} = $self->cookie;
+	}
+	elsif ($uids) {
 		if( ref($uids) =~ /array/i ) {
 			$uids = join(",", @$uids);
 		}
 		$params{'id'}      = $uids;
-	}
-
-	elsif ($query && $query->can('cookie')) {
-		@params{'WebEnv','query_key'} = $query->cookie;
-		$params{'db'}                 = $query->db;
-	}
-
-	elsif ($query) {
-		$params{'id'} = join ',',$query->ids;
 	}
 	$seq_start && ($params{'seq_start'} = $seq_start);
 	$seq_stop && ($params{'seq_stop'} = $seq_stop);
@@ -222,12 +223,23 @@ sub get_request {
 			if ($complexity == 0 && $strand == 2 && $format eq 'fasta');
 	}
 	defined $complexity && ($params{'complexity'} = $complexity);
-	$params{'rettype'} = $format;
+	$params{'rettype'} = $format unless $mode eq 'batch';
+	# for now, 'post' is batch retrieval
 	if ($CGILOCATION{$mode}[0] eq 'post') {
-		return POST $url,[%params];
+		my $response = $self->ua->request(POST $url,[%params]);
+		$response->proxy_authorization_basic($self->authentication)
+			if ( $self->authentication);
+		$self->_parse_response($response->content);
+		my ($cookie, $querykey) = $self->cookie;
+		my %qualifiers = ('-mode' 			=> 'webenv',
+						  '-seq_start' 		=> $seq_start,
+						  '-seq_stop' 		=> $seq_stop,
+						  '-strand'			=> $strand,
+						  '-complexity'		=> $complexity,
+						  '-format'			=> $format);
+		return $self->get_request(%qualifiers);
 	} else {
 		$url->query_form(%params);
-		$self->debug("url is $url \n");
 		return GET $url;
 	}
 }
@@ -454,6 +466,56 @@ sub delay_policy {
   return 3;
 }
 
+=head2 cookie
+
+ Title   : cookie
+ Usage   : ($cookie,$querynum) = $db->cookie
+ Function: return the NCBI query cookie
+ Returns : list of (cookie,querynum)
+ Args    : none
+
+NOTE: this information is used by Bio::DB::GenBank in
+conjunction with efetch.
+
+=cut
+
+# ripped from Bio::DB::Query::GenBank
+sub cookie {
+  my $self = shift;
+  if (@_) {
+    $self->{'_cookie'}   = shift;
+    $self->{'_querynum'} = shift;
+  }
+  else {
+    return @{$self}{qw(_cookie _querynum)};
+  }
+}
+
+=head2 _parse_response
+
+ Title   : _parse_response
+ Usage   : $db->_parse_response($content)
+ Function: parse out response for cookie
+ Returns : empty
+ Args    : none
+ Throws  : 'unparseable output exception'
+
+=cut
+
+# trimmed-down version of _parse_response from Bio::DB::Query::GenBank
+sub _parse_response {
+  my $self    = shift;
+  my $content = shift;
+  if (my ($warning) = $content =~ m!<ErrorList>(.+)</ErrorList>!s) {
+    warn "Warning(s) from GenBank: $warning\n";
+  }
+  if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
+    $self->throw("Error from Genbank: $error");
+  }
+  my ($cookie)    = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
+  my ($querykey)  = $content =~ m!<QueryKey>(\d+)!;
+  $self->cookie(uri_unescape($cookie),$querykey);
+}
 1;
 
 __END__

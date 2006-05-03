@@ -92,8 +92,8 @@ BEGIN {
     %PARAMSTRING = ( 
 		     'batch' => { 'db'     => 'protein',
 				  'usehistory' => 'n',
-				  'tool'   => 'bioperl',
-				  'retmode' => 'text'},
+				  'tool'   => 'bioperl'},
+			 # no query?
 		     'gi' => { 'db'     => 'protein',
 			       'usehistory' => 'n',
 			       'tool'   => 'bioperl',
@@ -106,6 +106,13 @@ BEGIN {
 				   'usehistory' => 'n',
 				   'tool'   => 'bioperl',
 				   'retmode' => 'text'},
+			 'webenv' => {    
+				  'query_key'  => 'querykey',
+				  'WebEnv'  => 'cookie',
+				  'db'     => 'protein',
+				  'usehistory' => 'n',
+				  'tool'   => 'bioperl',
+				  'retmode' => 'text'},
 		     );
 }
 
