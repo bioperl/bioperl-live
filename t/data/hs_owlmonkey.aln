@@ -1,18 +1,18 @@
 CLUSTAL W (1.82) multiple sequence alignment
 
 
-human           GTCTGTTCCAAGGGCCTTTGCGTCAGGTGGG--CTCAGGGTT-------CCAGGGTGGCT
-owlmonkey       GTCTGTTCCAAGGGCCTTCGAGCCAGTCTGGGCCCCAGGGCTGCCCCACTCGGGGTTCCA
+human           gtctgttccaagggcctttgcgtcaggtggg--ctcagggtt-------ccagggtggct
+owlmonkey       gtctgttccaagggccttcgagccagtctgggccccagggctgccccactcggggttcca
                 ****************** * * ***   **  * ***** *        * ****  * 
 
-human           GGACC-CCAGGCCCCAGCTCTGCAGCAGGGAGGACGTGGCTGGGCTCGTGAAGCATGTGG
-owlmonkey       GAGCAGTTGGACCCCAGGTCT-CAGC-GGGAGGGTGTGGCTGGGCTC-TGAAGCATTTGG
+human           ggacc-ccaggccccagctctgcagcagggaggacgtggctgggctcgtgaagcatgtgg
+owlmonkey       gagcagttggaccccaggtct-cagc-gggagggtgtggctgggctc-tgaagcatttgg
                 *  *     * ****** *** **** ******  ************ ******** ***
 
-human           GGGTGAGCCCAGGGGCCCCAAGGCAGGGCACCTGGCCTTCAGCCTGCCTCAGCCCTGCCT
-owlmonkey       G--TGAGCCCAGGGGCTC-AGGGCAGGGCACCTG-CCTTCAGCG-GCCTCAGCC-TGCCT
+human           gggtgagcccaggggccccaaggcagggcacctggccttcagcctgcctcagccctgcct
+owlmonkey       g--tgagcccaggggctc-agggcagggcacctg-ccttcagcg-gcctcagcc-tgcct
                 *  ************* * * ************* ********  ********* *****
 
-human           GTCTCCCAG
-owlmonkey       GTCTCCCAG
+human           gtctcccag
+owlmonkey       gtctcccag
                 *********
