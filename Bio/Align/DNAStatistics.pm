@@ -1063,8 +1063,8 @@ sub _trans_count_helper {
     return 0 unless( $self->_check_arg($aln) );
     if( ! $aln->is_flush ) { $self->throw("must be flush") }
     my (@tcount);
-    my ($first,$second) = ( $aln->get_seq_by_pos(1)->seq(),
-			    $aln->get_seq_by_pos(2)->seq() );
+    my ($first,$second) = ( uc $aln->get_seq_by_pos(1)->seq(),
+			    uc $aln->get_seq_by_pos(2)->seq() );
     my $alen = $aln->length; 
     for (my $i = 0;$i<$alen; $i++ ) { 
 	my ($c1,$c2) = ( substr($first,$i,1),
