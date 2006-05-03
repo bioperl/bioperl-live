@@ -422,7 +422,7 @@ sub get_seq_stream {
 	$qualifiers{'-format'} = $rformat if( !$seen);
 	($rformat, $ioformat) = $self->request_format($rformat);
 	# These parameters are implemented for Bio::DB::GenBank objects only
-	if(ref($self) =~ /Bio::DB::GenBank/) {
+	if($self->isa('Bio::DB::GenBank')) {
 		$self->seq_start() &&  ($qualifiers{'-seq_start'} = $self->seq_start());
 		$self->seq_stop() && ($qualifiers{'-seq_stop'} = $self->seq_stop());
 		$self->strand() && ($qualifiers{'-strand'} = $self->strand());
