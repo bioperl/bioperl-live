@@ -21,30 +21,28 @@ BEGIN {
 	plan tests => 148;
 }
 
-# REQUIREMENTS:
-# handle SP fuzzies (eg ?s)
-# handle OX lines
-
 if( $error == 1 ) {
 	exit(0);
 }
+
 END {
    unlink(qw (swiss_unk.dat test.swiss));
 }
+
 use Bio::SeqIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'};
 ok(1);
 
-my $seqio =
-  new Bio::SeqIO( -verbose => $verbose,
-                  -format => 'swiss',
-                  -file   => Bio::Root::IO->catfile('t','data', 
+my $seqio = new Bio::SeqIO( -verbose => $verbose,
+									 -format => 'swiss',
+									 -file   => Bio::Root::IO->catfile('t','data', 
                                                     'test.swiss'));
 
 ok($seqio);
 my $seq = $seqio->next_seq;
 my @gns = $seq->annotation->get_Annotations('gene_name');
+
 $seqio = new Bio::SeqIO( -verbose => $verbose,
 								 -format => 'swiss',
 								 -file   => Bio::Root::IO->catfile
