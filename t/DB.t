@@ -22,7 +22,7 @@ BEGIN {
    }
    use Test;
 
-   $NUMTESTS = 109;
+   $NUMTESTS = 121;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
@@ -267,7 +267,7 @@ if( $DEBUG ) {
 	# complexity tests
 	$gb = Bio::DB::GenBank->new(-format     => 'Fasta',
 										 -complexity  => 0);
-
+   
 	my $seqin = $gb->get_Stream_by_acc("5");
 	my @result = (1136, 'dna', 342, 'protein');
 	my $ct = 0;
@@ -277,6 +277,37 @@ if( $DEBUG ) {
 	  ok($seq->alphabet,$result[$ct]);
 	  $ct++;
 	}
+	#
+	# Real batch retrieval using epost/efetch 
+	# these tests may change if integrated further into Bio::DB::Gen*
+	# Currently only useful for retrieving GI's via get_seq_stream
+	#
+   $gb = Bio::DB::GenBank->new();
+   
+   $seqin = $gb->get_seq_stream(-uids 	=> [4887706 ,431229, 147460],
+								-mode	=> 'batch');
+   @result = ('M59757', 12611 ,'X76083', 3140, 'J01670', 1593);
+   $ct = 0;
+   print STDERR "Batch tests\n";
+   while ($seq = $seqin->next_seq) {
+	  ok($seq->accession,$result[$ct]);
+	  $ct++;
+	  ok($seq->length,$result[$ct]);
+	  $ct++;
+   }
+   
+   $gb = Bio::DB::GenPept->new();
+   
+   $seqin = $gb->get_seq_stream(-uids 	=> [2981015, 1621261, 195055],
+								-mode	=> 'batch');
+   @result = ('AAC06201', 353, 'CAB02640', 193, 'AAD15290', 136);
+   $ct = 0;
+   while ($seq = $seqin->next_seq) {
+	  ok($seq->accession,$result[$ct]);
+	  $ct++;
+	  ok($seq->length,$result[$ct]);
+	  $ct++;
+   }
 	#
 	# Bio::DB::GenPept
 	#
