@@ -16,7 +16,7 @@ Bio::SeqFeatureI and so has the familiar start(), stop(),
 primary_tag() and location() methods (it implements Bio::LocationI
 too, if needed).
 
-Bio::DB::GFF::Feature adds new methods to retrieve the annotation's
+Bio::DB::GFF::Feature adds new methods to retrieve the annotation
 type, group, and other GFF attributes.  Annotation types are
 represented by Bio::DB::GFF::Typename objects, a simple class that has 
 two methods called method() and source().  These correspond to the
@@ -95,10 +95,10 @@ my %CONSTANT_TAGS = (method=>1, source=>1, score=>1, phase=>1, notes=>1, id=>1, 
  Status  : Internal
 
 This method is called by Bio::DB::GFF to create a new feature using
-
 information obtained from the GFF database.  It is one of two similar
 constructors.  This one is called when the feature is generated from a
-RelSegment object, and should inherit that object's coordinate system.
+RelSegment object, and should inherit the coordinate system of that 
+object.
 
 The 13 arguments are positional (sorry):
 
@@ -107,7 +107,7 @@ The 13 arguments are positional (sorry):
   $stop         stop of this feature
   $method       this feature's GFF method
   $source       this feature's GFF source
-  $score	this feature's score
+  $score	       this feature's score
   $fstrand      this feature's strand (relative to the source
                       sequence, which has its own strandedness!)
   $phase        this feature's phase
@@ -117,7 +117,7 @@ The 13 arguments are positional (sorry):
   $tstart       this feature's target start
   $tstop        this feature's target stop
 
-tstart and tstop aren't used for anything at the moment, since the
+tstart and tstop are not used for anything at the moment, since the
 information is embedded in the group object.
 
 =cut
@@ -181,7 +181,7 @@ The 11 arguments are positional:
   $stop         stop of this feature
   $method       this feature's GFF method
   $source       this feature's GFF source
-  $score	this feature's score
+  $score	       this feature's score
   $fstrand      this feature's strand (relative to the source
                       sequence, which has its own strandedness!)
   $phase        this feature's phase
@@ -192,6 +192,7 @@ The 11 arguments are positional:
 
 # 'This is called when creating a feature from scratch.  It does not have
 # an inherited coordinate system.
+
 sub new {
   my $package = shift;
   my ($factory,
