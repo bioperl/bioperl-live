@@ -1088,7 +1088,6 @@ sub _subseq {
   my $class   = shift;
   my $feature = shift;
 
-  return $feature->merged_segments         if $feature->can('merged_segments');
   return $feature->segments                if $feature->can('segments');
 
   my @split = eval { my $id   = $feature->location->seq_id;
