@@ -305,6 +305,7 @@ sub render {
 
   for my $type (@configured_types,@unconfigured_types) {
     next if defined $selector && !$selector->($self,$type);
+    next unless length $type > 0; # avoid empty ''
     my $f = $self->features($type);
     my @features = grep {$self->{visible}{$_} || $_->type eq 'group'} @$f;
     next unless @features;  # suppress tracks for features that don't appear
@@ -433,7 +434,7 @@ sub parse_line {
   # abort if we see a >FASTA line
   return 0 if /^>/;
 
-  if (/^\s+(.+)/ && $self->{current_tag}) { # continuation line
+  if (/^\s+(.+)/ && $self->{current_tag} && !$self->{group}) { # configuration continuation line
     my $value = $1;
     my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
     $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
@@ -468,7 +469,6 @@ sub parse_line {
 
   # parse data lines
   my @tokens = shellwords($_);
-  # my @tokens = split "\t",$_;  # faster?
   unshift @tokens,'' if /^\s+/;
 
   # close any open group
@@ -491,8 +491,10 @@ sub parse_line {
 
   my @parts;
 
-  if (@tokens >= 8) { # conventional GFF file
+  # conventional GFF file, with check for numeric start/end
+  if (@tokens >= 8 && $tokens[3]=~ /^-?\d+$/ && $tokens[4]=~ /^-?\d+$/) {
     my ($r,$source,$method,$start,$stop,$scor,$s,$phase,@rest) = @tokens;
+    # sanity checks
     my $group = join ' ',@rest;
     $type   = defined $source && $source ne '.' ? join(':',$method,$source) : $method;
     #$bounds = join '..',$start,$stop;
@@ -544,6 +546,7 @@ sub parse_line {
   }
 
   my $visible = 1;
+
   if ($self->{coordinate_mapper} && $ref) {
     my @remapped = $self->{coordinate_mapper}->($ref,@parts);
     ($ref,@parts) = @remapped if @remapped;
