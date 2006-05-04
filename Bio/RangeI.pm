@@ -320,7 +320,7 @@ sub intersection {
 	my $start = pop @starts; # larger of the 2 starts
 	my $end = shift @ends;   # smaller of the 2 ends
 
-	my $intersect_strand;  # Strand for the union range object.
+	my $intersect_strand;  # strand for the intersection
 
 	if ( defined($self->strand) && defined($other->strand) &&
 		           $self->strand == $other->strand ) {
@@ -350,9 +350,9 @@ sub intersection {
     Usage   : ($start, $stop, $strand) = $r1->union($r2);
             : ($start, $stop, $strand) = Bio::Range->union(@ranges);
               my $newrange = Bio::Range->union(@ranges);
-    Function: finds the minimal range that contains all of the ranges
-    Args    : a range or list of ranges
-    Returns : the range object containing all of the ranges
+    Function: finds the minimal Range that contains all of the Ranges
+    Args    : a Range or list of Range objects
+    Returns : the range containing all of the range
               (in the form of an object like the calling one, OR 
               a three element array)
 
@@ -410,14 +410,12 @@ sub union {
  Title   : overlap_extent
  Usage   : ($a_unique,$common,$b_unique) = $a->overlap_extent($b)
  Function: Provides actual amount of overlap between two different
-           ranges.
+           ranges
  Example :
- Returns : array of values for 
-           - the amount unique to a
-           - the amount common to both
-           - the amount unique to b
+ Returns : array of values containing the length unique to the calling 
+           range, the length common to both, and the length unique to 
+           the argument range
  Args    : a range
-
 
 =cut
 
