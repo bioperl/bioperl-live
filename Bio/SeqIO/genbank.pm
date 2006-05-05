@@ -609,16 +609,19 @@ sub next_seq {
 			$_ = $buffer;
       }
       if( defined ($_) ) {
-			if( /^CONTIG/o && $builder->want_slot('features')) {
-				$b = "     $_"; # need 5 spaces to treat it like a feature
-				my $ftunit = $self->_read_FTHelper_GenBank(\$b);
-				if( ! defined $ftunit ) {
-					$self->warn("unable to parse the CONTIG feature\n");
-				} else { 
-					push(@features,
-						  $ftunit->_generic_seqfeature($self->location_factory(),
-																 $display_id));
-				}
+			if( /^CONTIG/o ) {
+                my @contig;
+                while($_ !~ /^\/\//) { # end of file
+                    $_ =~ /^((?:CONTIG)?\s+.*)/;
+                    push @contig, $1;
+                    $_ = $self->_readline;
+                }
+                my $value = join "\n",@contig;
+                $annotation->add_Annotation(
+                    Bio::Annotation::SimpleValue->new(-value   => $value,
+                                                      -tagname => 'CONTIG'));
+                $self->_pushback($_);
+                $self->debug("CONTIG line\n$value");
 			} elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
                 while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
                     chomp;
@@ -628,6 +631,7 @@ sub next_seq {
                     $_ = $self->_readline;
                 }
 			} elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
+                $self->debug("Found $1\n");
 				while (defined( $_ = $self->_readline) ) {
 					last if /^(ORIGIN|\/\/)/;
 				}
@@ -902,7 +906,11 @@ sub write_seq {
         }
         $self->_show_dna(0);
     }
-
+    if($seq->annotation->get_Annotations('CONTIG')) {
+        my ($ann) = $seq->annotation->get_Annotations('CONTIG');
+        $self->_print(sprintf ("%s", $ann->value));
+        $self->_show_dna(0);
+    }
 	if( $seq->length == 0 ) { $self->_show_dna(0) }
 
 	if( $self->_show_dna() == 0 ) {
@@ -992,17 +1000,9 @@ sub _print_GenBank_FTHelper {
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
        $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");   
    }
-   if( defined $fth->key && 
-       $fth->key eq 'CONTIG' ) {
-       $self->_show_dna(0);
-       $self->_write_line_GenBank_regex(sprintf("%-12s",$fth->key),
-					' 'x12,$fth->loc,"\,\|\$",80);
-   } else {
-       $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
-					" "x21,
-					$fth->loc,"\,\|\$",80);
-   }
-
+   $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
+                 " "x21,
+                 $fth->loc,"\,\|\$",80);
    foreach my $tag ( keys %{$fth->field} ) {
        foreach my $value ( @{$fth->field->{$tag}} ) {
 	   $value =~ s/\"/\"\"/g;
