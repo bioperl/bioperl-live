@@ -21,7 +21,6 @@ BEGIN {
       use lib 't';
    }
    use Test;
-
    $NUMTESTS = 121;
    plan tests => $NUMTESTS;
 
@@ -288,7 +287,6 @@ if( $DEBUG ) {
 								-mode	=> 'batch');
    @result = ('M59757', 12611 ,'X76083', 3140, 'J01670', 1593);
    $ct = 0;
-   print STDERR "Batch tests\n";
    while ($seq = $seqin->next_seq) {
 	  ok($seq->accession,$result[$ct]);
 	  $ct++;
@@ -398,7 +396,6 @@ if( $DEBUG ) {
 		exit(0);
 	}
 	$seq = $seqio = undef;
-
    # test contig retrieval
    eval {
        ok defined ( $gb = new Bio::DB::GenBank('-verbose' => $verbose,
