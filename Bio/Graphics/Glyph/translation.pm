@@ -14,6 +14,7 @@ my %default_colors = qw(
 			frame1r  red
 			frame2r  darkred
 		       );
+
 $VERSION = 1.00;
 
 # turn off description
@@ -129,7 +130,7 @@ sub draw_component {
   my @strands =  $type eq '6frame' ? (1,-1)
 	       : $strand > 0       ? (1)
 	       : -1;
-  my @phase = (0,2,1);   # looks weird, but gives correct effect
+  my @phase = (0,1,2);
   for my $s (@strands) {
     for (my $i=0; $i < @phase; $i++) {
       $self->draw_frame($self->feature,$s,$i,$phase[$i],$gd,$x1,$y1,$x2,$y2);
@@ -148,15 +149,17 @@ sub draw_frame {
   my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
+  warn "frame=$frame, phase=$phase";
+
   ($strand >= 0 ? $x1 : $x2) += $self->pixels_per_base * $offset;
   my $lh;
   if ($self->translation_type eq '6frame') {
     $lh = $self->height / 6;
-    $y1 += $lh * (($strand >= 0) ? $frame : (2-$frame));
+    $y1 += $lh * $frame;
     $y1 += $self->height/2 if $strand < 0;
   } else {
     $lh = $self->height / 3;
-    $y1 += $lh * (($strand >= 0) ? $frame : (2-$frame));
+    $y1 += $lh * $frame;
   }
 
   $y2 = $y1;
@@ -165,7 +168,7 @@ sub draw_frame {
 
   # the dreaded difference between a Bio::SeqFeature and a Bio::Seq
   my $realseq     = $seq->can('translate') ? $seq
-                  : $seq->can('seq')      ? $seq->seq
+                  : $seq->can('seq')       ? $seq->seq
 		  : undef;
   return unless $realseq;
   my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
@@ -173,12 +176,11 @@ sub draw_frame {
   my $str     = $strand;
   $str *= -1  if $self->{flip};
 
-  my $f       = $strand >=0 ? $frame : (2-$frame);
   my $k       = $str>=0     ? 'f' : 'r';
 
-  my $color   = $self->color("frame$f$k") ||
-                $self->color("frame$f") ||
-                $self->default_color("frame$f$k") || $self->fgcolor;
+  my $color   = $self->color("frame$frame$k") ||
+                $self->color("frame$frame") ||
+                $self->default_color("frame$frame$k") || $self->fgcolor;
   if ($self->protein_fits) {
     $self->draw_protein(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   } else {
@@ -206,6 +208,8 @@ sub draw_protein {
 		 Y => "Tyr", Z => "Glx", '*' => " * ",
 	       );
 
+  warn "protein = $$protein, y1=$y1";
+
   my @residues = split '',$$protein;
   my $fontwidth = $font->width;
   for (my $i=0;$i<@residues;$i++) {
@@ -215,7 +219,7 @@ sub draw_protein {
     next if $x+1 < $x1;
     last if $x > $x2;
     if ($flip) {
-      $x -= $fontwidth if $flip;
+      $x -= $pixels_per_base - $font->width - 1; #align right, not left
       if ($longprotein) {
 	$gd->string($font,$right-($x-$left+$pixels_per_base)+1,$y1,$abbrev{$residues[$i]},$color);
       } else {

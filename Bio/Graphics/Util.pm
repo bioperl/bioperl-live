@@ -28,11 +28,14 @@ sub frame_and_offset {
   my ($pos,$strand,$phase) = @_;
   $strand ||= +1;
   $phase  ||= 0;
-  my $frame = $strand >= 0 
-    ? ($pos - $phase - 1) % 3
-    : (1 - $pos - $phase) % 3;
-  my $offset = -$phase % 3;
-  $offset   *= -1 if $strand < 0;
+  my $codon_start =  $strand >= 0
+                   ? $pos + $phase
+	           : $pos - $phase;  # probably wrong
+  my $frame  = ($codon_start-1) % 3;
+#  my $frame = $strand >= 0
+#    ? ($pos - $phase - 1) % 3
+#    : (1 - $pos - $phase) % 3;
+  my $offset = $strand >= 0 ? $phase : -$phase;
   return wantarray ? ($frame,$offset) : $frame;
 }
 
