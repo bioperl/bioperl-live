@@ -307,58 +307,7 @@ sub get_Stream_by_query {
 # override it with their own method.
 
 sub postprocess_data {
-	my ($self, %args) = @_;
-	my $data;
-	my $type = uc $args{'type'};
-	my $location = $args{'location'};
-	if( !defined $type || $type eq '' || !defined $location) {
-		return;
-	} elsif( $type eq 'STRING' ) {
-		$data = $$location; 
-	} elsif ( $type eq 'FILE' ) {
-		open(TMP, $location) or $self->throw("could not open file $location");
-		my @in = <TMP>;
-		close TMP;
-		$data = join("", @in);
-	}
-
-	# transform links to appropriate descriptions
-	if ($data =~ /\nCONTIG\s+/) {	
-		$self->warn("CONTIG found. Retrieving contig sequence.".
-					"\nUse format type 'gbwithparts' or 'fasta' with contigs.");
-		# get accession from LOCUS
-		$data =~ /^LOCUS\s+(\S+)/;
-		my $acc = $1;
-		my $seqin = $self->get_seq_stream('-uids' => $acc,
-										'-mode' => 'single',
-										'-format' => 'fasta');
-		my $seq = $seqin->next_seq;
-		my $contig = $seq->seq;
-		# remove everything after and including CONTIG
-		$data =~ s/(CONTIG[\s\S]+)$//i;
-		# build ORIGIN part of data file
-		# Bio::SeqIO::genbank will fix this line, fills in the actual numbers
-		$data .= "BASE COUNT     0 a   0 c   0 g   0 t  \n";
-		$data .= "ORIGIN      \n";
-		# Bio::SeqIO::genbank also formats this data correctly
-		$data .= "$contig\n//";
-	}
-	else {
-		$data =~ s/<a\s+href\s*=.+>\s*(\S+)\s*<\s*\/a\s*\>/$1/ig;
-	}
-    
-	# fix gt and lt
-	$data =~ s/&gt;/>/ig;
-	$data =~ s/&lt;/</ig;
-	if( $type eq 'FILE'  ) {
-		open(TMP, ">$location") or $self->throw("couldn't overwrite file $location");
-		print TMP $data;
-		close TMP;
-	} elsif ( $type eq 'STRING' ) {
-		${$args{'location'}} = $data;
-	}
-	$self->debug("format is ". join(',',$self->request_format()). 
-					 " data is\n$data\n");
+	# retain this in case postprocessing is needed at a future date
 }
 
 
