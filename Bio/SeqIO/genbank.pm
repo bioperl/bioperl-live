@@ -612,16 +612,13 @@ sub next_seq {
 			if( /^CONTIG/o ) {
                 my @contig;
                 while($_ !~ /^\/\//) { # end of file
-                    $_ =~ /^((?:CONTIG)?\s+.*)/;
-                    push @contig, $1;
+                    $_ =~ /^(?:CONTIG)?\s+(.*)/;
+                    $annotation->add_Annotation(
+                    Bio::Annotation::SimpleValue->new(-value   => $1,
+                                                      -tagname => 'CONTIG'));
                     $_ = $self->_readline;
                 }
-                my $value = join "\n",@contig;
-                $annotation->add_Annotation(
-                    Bio::Annotation::SimpleValue->new(-value   => $value,
-                                                      -tagname => 'CONTIG'));
                 $self->_pushback($_);
-                $self->debug("CONTIG line\n$value");
 			} elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
                 while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
                     chomp;
@@ -907,8 +904,17 @@ sub write_seq {
         $self->_show_dna(0);
     }
     if($seq->annotation->get_Annotations('CONTIG')) {
-        my ($ann) = $seq->annotation->get_Annotations('CONTIG');
-        $self->_print(sprintf ("%s", $ann->value));
+        my $ct = 0;
+        my $cline;
+        foreach my $contig ($seq->annotation->get_Annotations('CONTIG')) {
+            unless ($ct) {
+                $cline = $contig->tagname."      ".$contig->value."\n";
+            } else {
+                $cline = "            ".$contig->value."\n";
+            }
+            $self->_print($cline);
+            $ct++;
+        }
         $self->_show_dna(0);
     }
 	if( $seq->length == 0 ) { $self->_show_dna(0) }
