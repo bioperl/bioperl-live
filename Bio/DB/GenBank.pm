@@ -153,7 +153,7 @@ use Bio::DB::NCBIHelper;
 @ISA = qw(Bio::DB::NCBIHelper);
 BEGIN {    
     $DEFAULTMODE   = 'single';
-    $DEFAULTFORMAT = 'gb';
+    $DEFAULTFORMAT = 'gbwithparts';
     %PARAMSTRING = (
 			 'batch' => { 'db'     => 'nucleotide',
 				  'usehistory' => 'n',
@@ -331,6 +331,20 @@ instead.
  Args    : %qualifiers = a hash of qualifiers (ids, format, etc)
 
 =cut
+
+=head2 default_format
+
+ Title   : default_format
+ Usage   : my $format = $self->default_format
+ Function: Returns default sequence format for this module
+ Returns : string
+ Args    : none
+
+=cut
+
+sub default_format {
+    return $DEFAULTFORMAT;
+}
 
 1;
 __END__
