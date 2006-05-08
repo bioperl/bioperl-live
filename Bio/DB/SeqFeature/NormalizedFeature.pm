@@ -18,7 +18,7 @@ my $USE_OVERLOADED_NAMES     = 1;
 sub new {
   my $class = shift;
   my %args  = @_;
-  my $db      = $args{-store};
+  my $db      = $args{-store} || $args{-factory};
   my $index = exists $args{-index} ? $args{-index} : 1;
   my $self  = $class->SUPER::new(@_);
 

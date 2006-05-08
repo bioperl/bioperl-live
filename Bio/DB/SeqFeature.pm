@@ -17,21 +17,31 @@ Bio::DB::SeqFeature -- Normalized feature for use with Bio::DB::SeqFeature::Stor
  my @exons_only  = $feature->get_SeqFeatures('exon');
 
  # create a new object
- my $new = Bio::DB::SeqFeature->new(-primary_tag=>'gene',
-                                    -seq_id     => 'chr3',
-                                    -start      => 10000,
-                                    -end        => 11000,
-                                    -store      => $db);
+ my $new = $db->new_feature(-primary_tag=>'gene',
+                            -seq_id     => 'chr3',
+                            -start      => 10000,
+                            -end        => 11000);
 
  # add a new exon
- $feature->add_SeqFeature(Bio::SeqFeature::Generic->new(-primary_tag=>'exon',
-                                                        -seq_id     => 'chr3',
-                                                        -start      => 5000,
-                                                        -end        => 5551));
+ $feature->add_SeqFeature($db->new_feature(-primary_tag=>'exon',
+                                           -seq_id     => 'chr3',
+                                           -start      => 5000,
+                                           -end        => 5551));
 
 =head1 DESCRIPTION
 
-The Bio::DB::SeqFeature object 
+The Bio::DB::SeqFeature object is the default SeqFeature class stored
+in Bio::DB::SeqFeature databases. It implements both the
+Bio::DB::SeqFeature::NormalizedFeatureI and
+Bio::DB::SeqFeature::TableFeatureI interfaces, which means that its
+subfeatures, if any, are stored in the database in a normalized
+fashion, and that the parent/child hierarchy of features and
+subfeatures are also stored in the database as set of tuples. This
+provides efficiencies in both storage and retrieval speed.
+
+Typically you will not create Bio::DB::SeqFeature directly, but will
+ask the database to do so on your behalf, as described in
+L<Bio::DB::SeqFeature::Store>.
 
 =cut
 

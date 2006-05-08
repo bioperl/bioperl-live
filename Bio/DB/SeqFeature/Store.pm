@@ -78,9 +78,16 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   my @features = $segment->features(-type=>['mRNA','match']);
 
   # getting & storing sequence information
-  # warning -- this is a string not a PrimarySeq object
+  # Warning: this returns a string, and not a PrimarySeq object
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
   my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
+
+  # create a new feature in the database
+  my $feature = $db->new_feature(-primary_tag => 'mRNA',
+                                 -seq_id      => 'chr3',
+                                 -start      => 10000,
+                                 -end        => 11000);
+
 
 =head1 DESCRIPTION
 
@@ -434,13 +441,41 @@ subfeatures in a normalized fashion, allowing subfeatures to be shared
 among multiple parents (e.g. multiple exons shared among several
 mRNAs).
 
-The arguments are the same as for Bio::SeqFeature::Generic->new() and
-Bio::Graphics::Feature->new(), with the addition of a B<-index>
-option, which controls whether the feature will be indexed for
-retrieval. If B<-index> is not specified, true is assumed. Ordinarily,
-you would only want to turn indexing off when creating subfeatures,
-because features stored without indexes will only be reachable via
-their primary IDs or their parents.
+The arguments are the same as for Bio::DB::SeqFeature->new(), which in
+turn are similar to Bio::SeqFeature::Generic->new() and
+Bio::Graphics::Feature->new(). The most important difference is the
+B<-index> option, which controls whether the feature will be indexed
+for retrieval (default is true). Ordinarily, you would only want to
+turn indexing off when creating subfeatures, because features stored
+without indexes will only be reachable via their primary IDs or their
+parents.
+
+Arguments are as follows:
+
+  -seq_id       the reference sequence
+  -start        the start position of the feature
+  -end          the stop position of the feature
+  -display_name the feature name (returned by seqname)
+  -primary_tag  the feature type (returned by primary_tag)
+  -source       the source tag
+  -score        the feature score (for GFF compatibility)
+  -desc         a description of the feature
+  -segments     a list of subfeatures (see Bio::Graphics::Feature)
+  -subtype      the type to use when creating subfeatures
+  -strand       the strand of the feature (one of -1, 0 or +1)
+  -phase        the phase of the feature (0..2)
+  -url          a URL to link to when rendered with Bio::Graphics
+  -attributes   a hashref of tag value attributes, in which the key is the tag
+                  and the value is an array reference of values
+
+Aliases:
+
+  -id           an alias for -display_name
+  -seqname      an alias for -display_name
+  -display_id   an alias for -display_name
+  -name         an alias for -display_name
+  -stop         an alias for end
+  -type         an alias for primary_tag
 
 =cut
 
