@@ -51,10 +51,6 @@ retrieves FileStreams at the moment. Once we have something better
 (ie, an object!), will use that. Heavily snaffled from Index::Fasta system of 
 James Gilbert. Note: for best results 'use strict'.
 
-Details on configuration and additional example code are available in the
-biodatabases.pod file.
-
-
 =head1 FEED_BACK
 
 =head2 Mailing Lists

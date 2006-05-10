@@ -53,8 +53,8 @@ retrieving the sequence from them. For best results 'use strict'.
 Bio::Index::Qual supports the Bio::DB::BioSeqI interface, meaning
 it can be used as a Sequence database for other parts of bioperl
 
-Details on configuration and additional example code are available in the
-biodatabases.pod file, scripts/index/*PLS and in bptutorial.pl.
+Additional example code is available in scripts/index/*PLS and in 
+bptutorial.pl.
 
 Note that by default the key for the sequence will be the first continuous
 string after the 'E<gt>' in the qual header. If you want to use a specific

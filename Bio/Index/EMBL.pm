@@ -48,13 +48,10 @@ Bio::Index::EMBL - Interface for indexing (multiple) EMBL/Swissprot
 
 Inherits functions for managing dbm files from Bio::Index::Abstract.pm,
 and provides the basic funtionallity for indexing EMBL files, and
-retrieving the sequence from them. Heavily snaffled from James Gilbert's
-Fasta system. Note: for best results 'use strict'.
+retrieving the sequence from them. Heavily snaffled from James Gilbert
+and his Fasta system. Note: for best results 'use strict'.
 
-The keys are the identifiers in the ID and AC lines. Details on 
-configuration and additional example code are available in the
-biodatabases.pod file.
-
+The keys are the identifiers in the ID and AC lines.
 
 =head1 FEED_BACK
 

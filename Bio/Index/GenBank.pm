@@ -16,18 +16,16 @@ files (i.e. flat file GenBank format).
 
 =head1 SYNOPSIS
 
-    # Complete code for making an index for several
-    # GenBank files
-    use Bio::Index::GenBank;
+    # Complete code for making an index for one or more GenBank files
     use strict;
+    use Bio::Index::GenBank;
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::GenBank->new(-filename => $Index_File_Name, 
-				       -write_flag => 'WRITE');
+				                           -write_flag => 'WRITE');
     $inx->make_index(@ARGV);
 
-    # Print out several sequences present in the index
-    # in gcg format
+    # Print out sequences present in the index in gcg format
     use Bio::Index::GenBank;
     use Bio::SeqIO;
     use strict;
@@ -47,7 +45,7 @@ files (i.e. flat file GenBank format).
 
 =head1 DESCRIPTION
 
-By default the index that's created uses the LOCUS, ACCESSION, and
+By default the index that is created uses the LOCUS, ACCESSION, and
 VERSION identifiers as keys. Inherits functions for managing dbm 
 files from Bio::Index::Abstract.pm, and provides the basic 
 functionality for indexing GenBank files, and retrieving the 
@@ -67,10 +65,6 @@ For example:
       $line =~ /clone="(\S+)"/;
       $1;
    }
-
-Details on configuration and additional example code are available in the
-biodatabases.pod file.
-
 
 =head1 FEED_BACK
 
@@ -178,9 +172,8 @@ sub _index_file {
 sub id_parser {
 	my ($self,$code) = @_;
 
-	if ($code) {
-		$self->{'_id_parser'} = $code;
-	}
+	$self->{'_id_parser'} = $code if $code;
+
 	return $self->{'_id_parser'} || \&default_id_parser;
 }
 
@@ -189,7 +182,7 @@ sub id_parser {
   Title   : default_id_parser
   Usage   : $id = default_id_parser($line)
   Function: The default parser for GenBank.pm
-  Returns : Array of specified id's
+  Returns : Array of specified ids
   Args    : a line string
 
 =cut
