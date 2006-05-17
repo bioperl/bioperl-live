@@ -55,9 +55,6 @@ loader, pass Bio::DB::SeqFeature::Store::GFF3Loader->new() the
                );
 =cut
 
-
-
-
 use strict;
 use Carp 'croak';
 use base 'Bio::Graphics::FeatureBase';
@@ -161,6 +158,129 @@ Please see L<Bio::SeqFeatureI> for more details.
 
 =cut
 
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $flag = $feature->add_SeqFeature(@features)
+ Function: Add subfeatures to the feature
+ Returns : true if successful
+ Args    : list of Bio::SeqFeatureI objects
+ Status  : public
+
+Add one or more subfeatures to the feature. For best results,
+subfeatures should be of the same class as the parent feature
+(i.e. don't try mixing Bio::DB::SeqFeature::NormalizedFeature with
+other feature types).
+
+An alias for this method is add_segment().
+
+=cut
+
+sub add_SeqFeature {
+  my $self = shift;
+  $self->_add_segment(1,@_);
+}
+
+=head2 update
+
+ Title   : update
+ Usage   : $flag = $feature->update()
+ Function: Update feature in the database
+ Returns : true if successful
+ Args    : none
+ Status  : public
+
+After changing any fields in the feature, call update() to write it to
+the database. This is not needed for add_SeqFeature() as update() is
+invoked automatically.
+
+=cut
+
+sub update {
+  my $self = shift;
+  my $store = $self->object_store or return;
+  $store->store($self);
+}
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeature
+ Usage   : @subfeatures = $feature->get_SeqFeatures([@types])
+ Function: return subfeatures of this feature
+ Returns : list of subfeatures
+ Args    : list of subfeature primary_tags (optional)
+ Status  : public
+
+This method extends the Bio::SeqFeatureI get_SeqFeatures() slightly by
+allowing you to pass a list of primary_tags, in which case only
+subfeatures whose primary_tag is contained on the list will be
+returned. Without any types passed all subfeatures are returned.
+
+=cut
+
+
+# segments can be either normalized IDs or ordinary feature objects
+sub get_SeqFeatures {
+  my $self = shift;
+  my @types        = @_;
+
+  my $s     = $self->{segments} or return;
+  my $store = $self->object_store;
+  my (@ordinary,@ids);
+  for (@$s) {
+    if (ref ($_)) {
+      push @ordinary,$_;
+    } else {
+      push @ids,$_;
+    }
+  }
+  my @r = grep {$_->type_match(@types)} (@ordinary,$store->fetch_many(\@ids));
+  return @r;
+}
+
+=head2 object_store
+
+ Title   : object_store
+ Usage   : $store = $feature->object_store([$new_store])
+ Function: get or set the database handle
+ Returns : current database handle
+ Args    : new database handle (optional)
+ Status  : public
+
+This method will get or set the Bio::DB::SeqFeature::Store object that
+is associated with the feature. After changing the store, you should
+probably unset the feature's primary_id() and call update() to ensure
+that the object is written into the database as a new feature.
+
+=cut
+
+sub object_store {
+  my $self = shift;
+  my $d = $self->{store};
+  $self->{store} = shift if @_;
+  $d;
+}
+
+
+=head2 overloaded_names
+
+ Title   : overloaded_names
+ Usage   : $overload = $feature->overloaded_names([$new_overload])
+ Function: get or set overloading of object strings
+ Returns : current flag
+ Args    : new flag (optional)
+ Status  : public
+
+For convenience, when objects of this class are stringified, they are
+represented in the form "primary_tag(display_name)". To turn this
+feature off, call overloaded_names() with a false value. You can
+invoke this on an individual feature object or on the class:
+
+  Bio::DB::SeqFeature::NormalizedFeature->overloaded_names(0);
+
+=cut
+
+
 sub overloaded_names {
   my $class = shift;
   my $d     = $USE_OVERLOADED_NAMES;
@@ -168,7 +288,41 @@ sub overloaded_names {
   $d;
 }
 
+=head2 segment
+
+ Title   : segment
+ Usage   : $segment = $feature->segment
+ Function: return a Segment object corresponding to feature
+ Returns : a Bio::DB::SeqFeature::Segment
+ Args    : none
+ Status  : public
+
+This turns the feature into a Bio::DB::SeqFeature::Segment object,
+which you can then use to query for overlapping features. See
+L<Bio::DB::SeqFeature::Segment>.
+
+=cut
+
+sub segment  {
+  my $self = shift;
+  return Bio::DB::SeqFeature::Segment->new($self);
+}
+
 ### instance methods
+
+=head2 AUTOLOADED methods
+
+ @subfeatures = $feature->Exon;
+
+If you use an unknown method that begins with a capital letter, then
+the feature autogenerates a call to get_SeqFeatures() using the
+lower-cased method name as the primary_tag. In other words
+$feature->Exon is equivalent to:
+
+ @subfeature s= $feature->get_SeqFeatures('exon')
+
+=cut
+
 
 sub AUTOLOAD {
   my($pack,$func_name) = $AUTOLOAD=~/(.+)::([^:]+)$/;
@@ -179,24 +333,12 @@ sub AUTOLOAD {
   return if $func_name eq 'DESTROY';
 
   # fetch subfeatures if func_name has an initial cap
-  return $self->get_SeqFeatures($func_name) if $func_name =~ /^[A-Z]/;
+  return $self->get_SeqFeatures(lc $func_name) if $func_name =~ /^[A-Z]/;
 
   # error message of last resort
   $self->throw(qq(Can't locate object method "$func_name" via package "$pack"));
 }#'
 
-
-sub object_store {
-  my $self = shift;
-  my $d = $self->{store};
-  $self->{store} = shift if @_;
-  $d;
-}
-
-sub add_SeqFeature {
-  my $self = shift;
-  $self->_add_segment(1,@_);
-}
 
 sub add_segment {
   my $self = shift;
@@ -323,31 +465,6 @@ sub _create_subfeatures {
   return @segments;
 }
 
-sub update {
-  my $self = shift;
-  my $store = $self->object_store or return;
-  $store->store($self);
-}
-
-# segments can be either normalized IDs or ordinary feature objects
-sub get_SeqFeatures {
-  my $self = shift;
-  my @types        = @_;
-
-  my $s     = $self->{segments} or return;
-  my $store = $self->object_store;
-  my (@ordinary,@ids);
-  for (@$s) {
-    if (ref ($_)) {
-      push @ordinary,$_;
-    } else {
-      push @ids,$_;
-    }
-  }
-  my @r = grep {$_->type_match(@types)} (@ordinary,$store->fetch_many(\@ids));
-  return @r;
-}
-
 sub load_id {
   return shift->attributes('load_id');
 }
@@ -400,9 +517,35 @@ sub type_match {
 
 sub segments { shift->get_SeqFeatures(@_) }
 
-sub segment  {
-  my $self = shift;
-  return Bio::DB::SeqFeature::Segment->new($self);
-}
-
 1;
+
+
+__END__
+
+=head1 BUGS
+
+This is an early version, so there are certainly some bugs. Please
+use the BioPerl bug tracking system to report bugs.
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature>,
+L<Bio::DB::SeqFeature::Store>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>,
+L<Bio::DB::SeqFeature::Store::bdb>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+

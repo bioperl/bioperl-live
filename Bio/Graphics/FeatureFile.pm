@@ -120,7 +120,7 @@ use Bio::DB::GFF::Util::Rearrange;
 use Carp 'cluck','carp','croak';
 use Bio::DB::GFF;
 use IO::File;
-use Text::Shellwords;
+use Text::ParseWords 'shellwords';
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
