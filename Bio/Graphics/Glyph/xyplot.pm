@@ -229,7 +229,8 @@ sub _draw_boxes {
     }
     next unless $next;
     my ($x3,$y3,$x4,$y4) = $next->calculate_boundaries($left,$top);
-    $gd->line($x2,$y2,$x3,$y4,$fgcolor) if $x2 < $x3;
+    # this isn't necessary because line is already drawn here
+    # $gd->line($x2,$y2,$x3,$y4,$fgcolor) if $x2 < $x3;
   }
 
   # That's it.

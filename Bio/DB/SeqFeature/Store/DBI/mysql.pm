@@ -1009,6 +1009,19 @@ END
   $count;
 }
 
+sub _seq_ids {
+  my $self = shift;
+  my $dbh = $self->dbh;
+  my $location = $self->_locationlist_table;
+  my $sth = $self->_prepare("SELECT DISTINCT seqname FROM $location");
+  $sth->execute() or $self->throw($sth->errstr);
+  my @result;
+  while (my ($id) = $sth->fetchrow_array) {
+    push @result,$id;
+  }
+  return @result;
+}
+
 sub setting {
   my $self = shift;
   my ($variable_name,$value) = @_;

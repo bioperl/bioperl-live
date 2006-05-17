@@ -1,5 +1,63 @@
 package Bio::DB::SeqFeature::NormalizedFeature;
 
+# $Id
+
+=head1 NAME
+
+Bio::DB::SeqFeature::NormalizedFeature -- Normalized feature for use with Bio::DB::SeqFeature::Store
+
+=head1 SYNOPSIS
+
+ use Bio::DB::SeqFeature::Store;
+ # Open the sequence database
+ my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
+                                                -dsn     => 'dbi:mysql:test');
+ my ($feature)   = $db->get_features_by_name('ZK909');
+ my @subfeatures = $feature->get_SeqFeatures();
+ my @exons_only  = $feature->get_SeqFeatures('exon');
+
+ # create a new object
+ $db->seqfeature_class('Bio::DB::SeqFeature::NormalizedFeature');
+ my $new = $db->new_feature(-primary_tag=>'gene',
+                            -seq_id     => 'chr3',
+                            -start      => 10000,
+                            -end        => 11000);
+
+ # add a new exon
+ $feature->add_SeqFeature($db->new_feature(-primary_tag=>'exon',
+                                           -seq_id     => 'chr3',
+                                           -start      => 5000,
+                                           -end        => 5551));
+
+=head1 DESCRIPTION
+
+The Bio::DB::SeqFeature::NormalizedFeature object is an alternative
+representation of SeqFeatures for use with Bio::DB::SeqFeature::Store
+database system. It is identical to Bio::DB::SeqFeature, except that
+instead of storing feature/subfeature relationships in a database
+table, the information is stored in the object itself. This actually
+makes the objects somewhat inconvenient to work with from SQL, but
+does speed up access somewhat.
+
+To use this class, pass the name of the class to the
+Bio::DB::SeqFeature::Store object's seqfeature_class() method. After
+this, $db->new_feature() will create objects of type
+Bio::DB::SeqFeature::NormalizedFeature. If you are using the GFF3
+loader, pass Bio::DB::SeqFeature::Store::GFF3Loader->new() the
+-seqfeature_class argument:
+
+  use Bio::DB::SeqFeature::Store::GFF3Loader;
+
+  my $store  = connect_to_db_somehow();
+  my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(
+                -store=>$db,
+                -seqfeature_class => 'Bio::DB::SeqFeature::NormalizedFeature'
+               );
+=cut
+
+
+
+
 use strict;
 use Carp 'croak';
 use base 'Bio::Graphics::FeatureBase';
@@ -14,6 +72,59 @@ my $USE_OVERLOADED_NAMES     = 1;
 *get_all_SeqFeatures = *sub_SeqFeature = *merged_segments = \&segments;
 
 ##### CLASS METHODS ####
+
+=head2 new
+
+ Title   : new
+ Usage   : $feature = Bio::DB::SeqFeature::NormalizedFeature->new(@args)
+ Function: create a new feature
+ Returns : the new seqfeature
+ Args    : see below
+ Status  : public
+
+This method creates and, if possible stores into a database, a new
+Bio::DB::SeqFeature::NormalizedFeature object using the specialized
+Bio::DB::SeqFeature class.
+
+The arguments are the same to Bio::SeqFeature::Generic->new() and
+Bio::Graphics::Feature->new(). The most important difference is the
+B<-store> option, which if present creates the object in a
+Bio::DB::SeqFeature::Store database, and he B<-index> option, which
+controls whether the feature will be indexed for retrieval (default is
+true). Ordinarily, you would only want to turn indexing on when
+creating top level features, and off only when storing
+subfeatures. The default is on.
+
+Arguments are as follows:
+
+  -seq_id       the reference sequence
+  -start        the start position of the feature
+  -end          the stop position of the feature
+  -display_name the feature name (returned by seqname)
+  -primary_tag  the feature type (returned by primary_tag)
+  -source       the source tag
+  -score        the feature score (for GFF compatibility)
+  -desc         a description of the feature
+  -segments     a list of subfeatures (see Bio::Graphics::Feature)
+  -subtype      the type to use when creating subfeatures
+  -strand       the strand of the feature (one of -1, 0 or +1)
+  -phase        the phase of the feature (0..2)
+  -url          a URL to link to when rendered with Bio::Graphics
+  -attributes   a hashref of tag value attributes, in which the key is the tag
+                  and the value is an array reference of values
+  -store        a previously-opened Bio::DB::SeqFeature::Store object
+  -index        index this feature if true
+
+Aliases:
+
+  -id           an alias for -display_name
+  -seqname      an alias for -display_name
+  -display_id   an alias for -display_name
+  -name         an alias for -display_name
+  -stop         an alias for end
+  -type         an alias for primary_tag
+
+=cut
 
 sub new {
   my $class = shift;
@@ -32,6 +143,23 @@ sub new {
   }
   $self;
 }
+
+=head2 Bio::SeqFeatureI methods
+
+The following Bio::SeqFeatureI methods are supported:
+
+ seq_id(), start(), end(), strand(), get_SeqFeatures(),
+ display_name(), primary_tag(), source_tag(), seq(),
+ location(), primary_id(), overlaps(), contains(), equals(),
+ intersection(), union(), has_tag(), remove_tag(),
+ add_tag_value(), get_tag_values(), get_all_tags()
+
+Some methods that do not make sense in the context of a genome
+annotation database system, such as attach_seq(), are not supported.
+
+Please see L<Bio::SeqFeatureI> for more details.
+
+=cut
 
 sub overloaded_names {
   my $class = shift;

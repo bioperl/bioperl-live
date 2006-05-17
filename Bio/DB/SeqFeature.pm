@@ -53,6 +53,59 @@ use Carp 'croak';
 use Bio::DB::SeqFeature::Store;
 use base qw(Bio::DB::SeqFeature::NormalizedFeature Bio::DB::SeqFeature::NormalizedTableFeatureI);
 
+=head2 new
+
+ Title   : new
+ Usage   : $feature = Bio::DB::SeqFeature::NormalizedFeature->new(@args)
+ Function: create a new feature
+ Returns : the new seqfeature
+ Args    : see below
+ Status  : public
+
+This method creates and, if possible stores into a database, a new
+Bio::DB::SeqFeature::NormalizedFeature object using the specialized
+Bio::DB::SeqFeature class.
+
+The arguments are the same to Bio::SeqFeature::Generic->new() and
+Bio::Graphics::Feature->new(). The most important difference is the
+B<-store> option, which if present creates the object in a
+Bio::DB::SeqFeature::Store database, and he B<-index> option, which
+controls whether the feature will be indexed for retrieval (default is
+true). Ordinarily, you would only want to turn indexing on when
+creating top level features, and off only when storing
+subfeatures. The default is on.
+
+Arguments are as follows:
+
+  -seq_id       the reference sequence
+  -start        the start position of the feature
+  -end          the stop position of the feature
+  -display_name the feature name (returned by seqname)
+  -primary_tag  the feature type (returned by primary_tag)
+  -source       the source tag
+  -score        the feature score (for GFF compatibility)
+  -desc         a description of the feature
+  -segments     a list of subfeatures (see Bio::Graphics::Feature)
+  -subtype      the type to use when creating subfeatures
+  -strand       the strand of the feature (one of -1, 0 or +1)
+  -phase        the phase of the feature (0..2)
+  -url          a URL to link to when rendered with Bio::Graphics
+  -attributes   a hashref of tag value attributes, in which the key is the tag
+                  and the value is an array reference of values
+  -store        a previously-opened Bio::DB::SeqFeature::Store object
+  -index        index this feature if true
+
+Aliases:
+
+  -id           an alias for -display_name
+  -seqname      an alias for -display_name
+  -display_id   an alias for -display_name
+  -name         an alias for -display_name
+  -stop         an alias for end
+  -type         an alias for primary_tag
+
+=cut
+
 sub add_segment {
   my $self = shift;
   $self->_add_segment(0,@_);
