@@ -130,28 +130,28 @@ sub _version {
 =cut
 
 sub _index_file {
-	my( $self,
-		 $file, # File name
-		 $i     # Index-number of file being indexed
-	  ) = @_;
+    my( $self,
+	$file,			# File name
+	$i			# Index-number of file being indexed
+	) = @_;
 
-	my $begin = 0;
+    my $begin = 0;
 
-	my $id_parser = $self->id_parser;
+    my $id_parser = $self->id_parser;
 
-	open GENBANK,$file or 
-	  $self->throw("Can't open file for read : $file");
+    open GENBANK,$file or 
+	$self->throw("Can't open file for read : $file");
 
-	while (<GENBANK>) {
-		if (/^LOCUS/) {
-			$begin = tell(GENBANK) - length($_);
-		}
-		for my $id (&$id_parser($_)) {
-			$self->add_record($id, $i, $begin) if $id;
-		}
+    while (<GENBANK>) {
+	if (/^LOCUS/) {
+	    $begin = tell(GENBANK) - length($_);
 	}
-	close GENBANK;
-	1;
+	for my $id (&$id_parser($_)) {
+	    $self->add_record($id, $i, $begin) if $id;
+	}
+    }
+    close GENBANK;
+    1;
 }
 
 =head2 id_parser
@@ -170,11 +170,12 @@ sub _index_file {
 =cut
 
 sub id_parser {
-	my ($self,$code) = @_;
+    my ($self,$code) = @_;
 
-	$self->{'_id_parser'} = $code if $code;
-
-	return $self->{'_id_parser'} || \&default_id_parser;
+    if ($code) {
+	$self->{'_id_parser'} = $code;
+    }
+    return $self->{'_id_parser'} || \&default_id_parser;
 }
 
 =head2 default_id_parser
@@ -187,20 +188,25 @@ sub id_parser {
 
 =cut
 
+#'
+
 sub default_id_parser {
-	my $line = shift;
-	my @accs = ();
-	if ( $line =~ /^LOCUS\s+(\S+)/ ) {
-		push @accs,$1;
-	} elsif ( $line =~ /^ACCESSION(.*)/ ) {
-		(@accs) = $1 =~ /\s*(\S+)/g;
-	} elsif ( /^VERSION\s+(.*)/) {
-		my $a = $1;
-		$a =~ s/\s+$//;
-		$a =~ s/GI\://;
-		push @accs, split(/\s+/,$a);
+    my $line = shift;
+    my %accs;
+    if ( $line =~ /^LOCUS\s+(\S+)/ ) {
+	$accs{$1}++;
+    } elsif ( $line =~ /^ACCESSION\s+(.*)/ ) {
+	for my $acc ( split(/\s+/,$1) ) {
+	    $accs{$acc}++;
 	}
-	@accs;
+    } elsif ( /^VERSION\s+(.*)/) {	
+	my $x = $1;
+	for my $acc ( split(/\s+/,$1) ) {
+	    $acc=~ s/GI\://;
+	    $accs{$acc}++;
+	}
+    }
+    keys %accs;
 }
 
 =head2 _file_format
