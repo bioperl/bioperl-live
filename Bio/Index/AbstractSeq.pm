@@ -141,14 +141,15 @@ sub fetch {
 	#$begin-- if( $^O =~ /mswin/i); # workaround for Win DB_File bug
         seek($fh, $begin, 0);
 	
-	$seq = $seqio->next_seq();
+	$seq = $seqio->next_seq();	
     }
 
     # we essentially assumme that the primary_id for the database
     # is the display_id
-    $seq->primary_id($seq->display_id()) if( defined $seq && ref($seq) &&
-					     $seq->isa('Bio::PrimarySeqI') );
-
+    if( $seq->primary_id =~ /^\D+$/ ) {
+	$seq->primary_id($seq->display_id()) if( defined $seq && ref($seq) &&
+						 $seq->isa('Bio::PrimarySeqI') );
+    }
     return $seq;
 }
 
