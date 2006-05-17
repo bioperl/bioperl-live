@@ -86,11 +86,9 @@ $DTD = 'ftp://ftp.ncbi.nlm.nih.gov/blast/documents/NCBI_BlastOutput.dtd';
 
 use Bio::Root::Root;
 use Bio::SearchIO;
-use XML::Parser::PerlSAX;
-use XML::Handler::Subs;
+use XML::SAX;
 use HTML::Entities;
 use IO::File;
-
 
 BEGIN { 
     # mapping of NCBI Blast terms to Bioperl hash keys
@@ -193,7 +191,7 @@ sub _initialize{
    $self->SUPER::_initialize(@args);
    my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
    defined $usetempfile && $self->use_tempfile($usetempfile);
-   $self->{'_xmlparser'} = new XML::Parser::PerlSAX();
+   $self->{'_xmlparser'} = XML::SAX::ParserFactory->parser(Handler => $self);
    $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
 }
 
@@ -263,11 +261,9 @@ sub next_result {
     my %parser_args;
     if( defined $tfh ) {
 	seek($tfh,0,0);
-	%parser_args = ('Source' => { 'ByteStream' => $tfh },
-			'Handler' => $self);
+	%parser_args = ('Source' => { 'ByteStream' => $tfh });
     } else {
-	%parser_args = ('Source' => { 'String' => $data },
-			'Handler' => $self);
+	%parser_args = ('Source' => { 'String' => $data });
     }
     my $result;
     my $starttime;
