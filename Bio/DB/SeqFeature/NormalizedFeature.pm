@@ -362,7 +362,7 @@ sub add_segment {
 sub _add_segment {
   my $self       = shift;
   my $normalized = shift;
-  my $store      = $self->store;
+  my $store      = $self->object_store;
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 

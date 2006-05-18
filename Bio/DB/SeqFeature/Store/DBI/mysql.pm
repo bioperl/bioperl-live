@@ -191,7 +191,7 @@ sub init {
 				 'PASS',
 				 ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
 				],@_);
-  $dbi_options  ||= [];
+  $dbi_options  ||= {};
 
   $dsn or $self->throw("Usage: ".__PACKAGE__."->init(-dsn => \$dbh || \$dsn)");
 
