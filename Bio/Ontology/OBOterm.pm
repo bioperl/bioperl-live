@@ -20,7 +20,8 @@ OBOterm - representation of OBO terms
 
 =head1 DESCRIPTION
 
-This is class for OBO terms
+This is data holder class for OBO terms. It is currently a dummy class since we anticipate that the
+OBO term will become more richer with more features being added to OBO flat-file format.
 
 =head1 FEEDBACK
 
@@ -104,30 +105,6 @@ sub new {
     return $self;
 }    # new
 
-=head2 has_dblink
 
-  Title   : has_dblink
-  Usage   : $term->has_dblink($dblink);
-  Function: Checks if a DBXref is already existing in the OBOterm object
-  Return  : TRUE/FALSE
-  Args    : [arg1] A DBxref identifier
-
-=cut
-
-sub has_dblink {
-    my ( $self, $value ) = @_;
-    return unless defined $value;
-    my $context = "_default";
-    $self->throw("'all' is a reserved word for context.") if $context eq 'all';
-    $context ||= '_default';
-    if ( ( $self->{_dblinks}->{$context} ) && grep { $_ eq $value }
-        @{ $self->{_dblinks}->{$context} } )
-    {
-        return TRUE;
-    }
-    else {
-        return FALSE;
-    }
-}
 
 1;
