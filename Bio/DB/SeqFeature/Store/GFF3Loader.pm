@@ -2,6 +2,55 @@ package Bio::DB::SeqFeature::Store::GFF3Loader;
 
 # $Id$
 
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::GFF3Loader -- GFF3 file loader for Bio::DB::SeqFeature::Store
+
+=head1 SYNOPSIS
+
+  use Bio::DB::SeqFeature::Store;
+
+  # Open the sequence database
+  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
+                                                 -dsn     => 'dbi:mysql:test');
+
+  my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $db,
+							   -verbose  => 1,
+							   -fast     => 1);
+
+  $loader->load('./my_genome.gff3');
+
+
+=head1 DESCRIPTION
+
+The Bio::DB::SeqFeature::Store::GFF3Loader object parsers GFF3-format
+sequence annotation files and loads Bio::DB::SeqFeature::Store
+databases. For certain combinations of SeqFeature classes and
+SeqFeature::Store databases it features a "fast load" mode which will
+greatly accelerate the loading of GFF3 databases by a factor of 5-10.
+
+The GFF3 file format has been extended very slightly to accomodate
+Bio::DB::SeqFeature::Store. First, the loader recognizes is a new
+directive:
+
+  ##index-subfeatures [0|1]
+
+If this is true, then subfeatures are indexed (the default) so that
+they can be retrieved with a query. See L<Bio::DB::SeqFeature::Store>
+for an explanation of this. If false, then subfeatures can only be
+accessed through their parent feature.
+
+Second, the loader recognizes a new attribute tag called Index, which
+if present, controls indexing of the current feature. Example:
+
+ ctg123	. TF_binding_site 1000 1012 . + . ID=tfbs00001;Index=1
+
+You can use this to turn indexing on and off, overriding the default
+for a particular feature.
+
+=cut
+
+
 # load utility - incrementally load the store based on GFF3 file
 #
 # two modes:
@@ -29,6 +78,72 @@ my %Strandedness = ( '+' => 1,
 		     '.' => 0,
 		     ''  => 0,
 		   );
+
+=head2 new
+
+ Title   : new
+ Usage   : $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(@options)
+ Function: create a new parser
+ Returns : a Bio::DB::SeqFeature::Store::GFF3Loader gff3 parser and loader
+ Args    : several - see below
+ Status  : public
+
+This method creates a new GFF3 loader and establishes its connection
+with a Bio::DB::SeqFeature::Store database. Arguments are -name=>$value
+pairs as described in this table:
+
+ Name               Value
+ ----               -----
+
+ -store             A writeable Bio::DB::SeqFeature::Store database handle.
+
+ -seqfeature_class  The name of the type of Bio::SeqFeatureI object to create
+                      and store in the database (Bio::DB::SeqFeature by default)
+
+ -sf_class          A shorter alias for -seqfeature_class
+
+ -verbose           Send progress information to standard error.
+
+ -fast              If true, activate fast loading (see below)
+
+ -chunk_size        Set the storage chunk size for nucleotide/protein sequences
+                       (default 2000 bytes)
+
+ -tmp               Indicate a temporary directory to use when loading non-normalized
+                       features.
+
+When you call new(), a connection to a Bio::DB::SeqFeature::Store
+database should already have been established and the database
+initialized (if appropriate).
+
+Some combinations of Bio::SeqFeatures and Bio::DB::SeqFeature::Store
+databases support a fast loading mode. Currently the only reliable
+implementation of fast loading is the combination of DBI::mysql with
+Bio::DB::SeqFeature. The other important restriction on fast loading
+is the requirement that a feature that contains subfeatures must occur
+in the GFF3 file before any of its subfeatures. Otherwise the
+subfeatures that occurred before the parent feature will not be
+attached to the parent correctly. This restriction does not apply to
+normal (slow) loading.
+
+If you use an unnormalized feature class, such as
+Bio::SeqFeature::Generic, then the loader needs to create a temporary
+database in which to cache features until all their parts and subparts
+have been seen. This temporary databases uses the "bdb" adaptor. The
+-tmp option specifies the directory in which that database will be
+created. If not present, it defaults to the system default tmp
+directory specified by File::Spec->tmpdir().
+
+The -chunk_size option allows you to tune the representation of
+DNA/Protein sequence in the Store database. By default, sequences are
+split into 2000 base/residue chunks and then reassembled as
+needed. This avoids the problem of pulling a whole chromosome into
+memory in order to fetch a short subsequence from somewhere in the
+middle. Depending on your usage patterns, you may wish to tune this
+parameter using a chunk size that is larger or smaller than the
+default.
+
+=cut
 
 sub new {
   my $self = shift;
@@ -78,10 +193,60 @@ END
 	       },ref($self) || $self;
 }
 
-sub default_seqfeature_class {
-  my $self = shift;
-  return 'Bio::DB::SeqFeature';
+=head2 load
+
+ Title   : load
+ Usage   : $count = $loader->load(@ARGV)
+ Function: load the indicated files or filehandles
+ Returns : number of feature lines loaded
+ Args    : list of files or filehandles
+ Status  : public
+
+Once the loader is created, invoke its load() method with a list of
+GFF3 or FASTA file paths or previously-opened filehandles in order to
+load them into the database. Compressed files ending with .gz, .Z and
+.bz2 are automatically recognized and uncompressed on the fly. Paths
+beginning with http: or ftp: are treated as URLs and opened using the
+LWP GET program (which must be on your path).
+
+FASTA files are recognized by their initial ">" character. Do not feed
+the loader a file that is neither GFF3 nor FASTA; I don't know what
+will happen, but it will probably not be what you expect.
+
+=cut
+
+sub load {
+  my $self       = shift;
+  my $start      = $self->time();
+  my $count = 0;
+
+  for my $file_or_fh (@_) {
+    $self->msg("loading $file_or_fh...\n");
+    my $fh = $self->open_fh($file_or_fh) or $self->throw("Couldn't open $file_or_fh: $!");
+    $count += $self->load_fh($fh);
+    $self->msg(sprintf "load time: %5.2fs\n",$self->time()-$start);
+  }
+  $count;
 }
+
+=head2 accessors
+
+The following read-only accessors return values passed or created during new():
+
+ store()          the long-term Bio::DB::SeqFeature::Store object
+
+ tmp_store()      the temporary Bio::DB::SeqFeature::Store object used
+                    during loading
+
+ sfclass()        the Bio::SeqFeatureI class
+
+ fast()           whether fast loading is active
+
+ seq_chunk_size() the sequence chunk size
+
+ verbose()        verbose progress messages
+
+=cut
 
 sub store          { shift->{store}            }
 sub tmp_store      { shift->{tmp_store}        }
@@ -90,12 +255,51 @@ sub fast           { shift->{fast}             }
 sub seq_chunk_size { shift->{seq_chunk_size}             }
 sub verbose        { shift->{verbose}          }
 
+=head2 Internal Methods
+
+The following methods are used internally and may be overidden by
+subclasses.
+
+=over 4
+
+=item default_seqfeature_class
+
+  $class = $loader->default_seqfeature_class
+
+Return the default SeqFeatureI class (Bio::DB::SeqFeature).
+
+=cut
+
+sub default_seqfeature_class {
+  my $self = shift;
+  return 'Bio::DB::SeqFeature';
+}
+
+=item subfeatures_normalized
+
+  $flag = $loader->subfeatures_normalized([$new_flag])
+
+Get or set a flag that indicates that the subfeatures are
+normalized. This is deduced from the SeqFeature class information.
+
+=cut
+
 sub subfeatures_normalized {
   my $self = shift;
   my $d    = $self->{subfeatures_normalized};
   $self->{subfeatures_normalized} = shift if @_;
   $d;
 }
+
+=item subfeatures_in_table
+
+  $flag = $loader->subfeatures_in_table([$new_flag])
+
+Get or set a flag that indicates that feature/subfeature relationships
+are stored in a table. This is deduced from the SeqFeature class and
+Store information.
+
+=cut
 
 sub subfeatures_in_table {
   my $self = shift;
@@ -104,25 +308,34 @@ sub subfeatures_in_table {
   $d;
 }
 
-sub load {
-  my $self       = shift;
-  my $start      = $self->time();
+=item load_fh
 
-  for my $file_or_fh (@_) {
-    $self->msg("loading $file_or_fh...\n");
-    my $fh = $self->open_fh($file_or_fh) or $self->throw("Couldn't open $file_or_fh: $!");
-    $self->load_fh($fh);
-    $self->msg(sprintf "load time: %5.2fs\n",$self->time()-$start);
-  }
-}
+  $count = $loader->load_fh($filehandle)
+
+Load the GFF3 data at the other end of the filehandle and return true
+if successful. Internally, load_fh() invokes:
+
+  start_load();
+  do_load($filehandle);
+  finish_load();
+
+=cut
 
 sub load_fh {
   my $self = shift;
   my $fh   = shift;
   $self->start_load();
-  $self->do_load($fh);
+  my $count = $self->do_load($fh);
   $self->finish_load();
+  $count;
 }
+
+
+=item start_load, finish_load
+
+These methods are called at the start and end of a filehandle load.
+
+=cut
 
 sub start_load {
   my $self = shift;
@@ -151,6 +364,16 @@ sub finish_load {
   }
   delete $self->{load_data};
 }
+
+
+=item do_load
+
+  $count = $loader->do_load($fh)
+
+This is called by load_fh() to load the GFF3 file's filehandle and
+return the number of lines loaded.
+
+=cut
 
 sub do_load {
   my $self = shift;
@@ -201,7 +424,18 @@ sub do_load {
   $self->store_current_feature();      # during fast loading, we will have a feature left at the very end
   $self->start_or_finish_sequence();   # finish any half-loaded sequences
   $self->msg(' 'x80,"\n"); #clear screen
+  $count;
 }
+
+=item handle_meta
+
+  $loader->handle_meta($meta_directive)
+
+This method is called to handle meta-directives such as
+##sequence-region. The method will receive the directive with the
+initial ## stripped off.
+
+=cut
 
 sub handle_meta {
   my $self = shift;
@@ -217,12 +451,21 @@ sub handle_meta {
     return;
   }
 
-  if (/^\#\#\s*index-subfeatures\s+(\S+)/) {
+  if ($instruction =~/index-subfeatures\s+(\S+)/) {
     $self->{load_data}{IndexSubfeatures} = $1;
     $self->store->index_subfeatures($1);
     return;
   }
 }
+
+=item handle_feature
+
+  $loader->handle_feature($gff3_line)
+
+This method is called to process a single GFF3 line. It manipulates
+information stored a data structure called $self->{load_data}.
+
+=cut
 
 sub handle_feature {
   my $self     = shift;
@@ -318,6 +561,16 @@ END
 
 }
 
+=item store_current_feature
+
+  $loader->store_current_feature()
+
+This method is called to store the currently active feature in the
+database. It uses a data structure stored in $self->{load_data}.
+
+=cut
+
+
 sub store_current_feature {
   my $self    = shift;
 
@@ -359,6 +612,14 @@ sub store_current_feature {
   undef $ld->{IndexIt}{$ld->{CurrentID}} if $normalized;  # no need to remember this
 }
 
+=item build_object_tree
+
+ $loader->build_object_tree()
+
+This method gathers together features and subfeatures and builds the graph that connects them.
+
+=back
+
 ###
 # put objects together
 #
@@ -366,6 +627,16 @@ sub build_object_tree {
   my $self = shift;
   $self->subfeatures_in_table ? $self->build_object_tree_in_tables : $self->build_object_tree_in_features;
 }
+
+=item build_object_tree_in_tables
+
+ $loader->build_object_tree_in_tables()
+
+This method gathers together features and subfeatures and builds the
+graph that connects them, assuming that parent/child relationships
+will be stored in a database table.
+
+=back
 
 sub build_object_tree_in_tables {
   my $self = shift;
@@ -382,6 +653,17 @@ sub build_object_tree_in_tables {
   }
 
 }
+
+=item build_object_tree_in_features
+
+ $loader->build_object_tree_in_features()
+
+This method gathers together features and subfeatures and builds the
+graph that connects them, assuming that parent/child relationships are
+stored in the seqfeature objects themselves.
+
+=back
+
 
 sub build_object_tree_in_features {
   my $self  = shift;
@@ -400,6 +682,16 @@ sub build_object_tree_in_features {
 
 }
 
+=item attach_children
+
+ $loader->attach_children($store,$load_data,$load_id,$feature)
+
+This recursively adds children to features and their subfeatures. It
+is called when subfeatures are directly contained within other
+features, rather than stored in a relational table.
+
+=back
+
 sub attach_children {
   my $self = shift;
   my ($store,$ld,$load_id,$feature)  = @_;
@@ -413,6 +705,16 @@ sub attach_children {
   }
 }
 
+=item fetch
+
+ my $feature = $loader->fetch($load_id)
+
+Given a load ID (from the ID= attribute) this method returns the
+feature from the temporary database or the permanent one, depending on
+where it is stored.
+
+=back
+
 sub fetch {
   my $self    = shift;
   my $load_id = shift;
@@ -424,6 +726,14 @@ sub fetch {
       ? $self->store->fetch($id)
       : $self->tmp_store->fetch($id);
 }
+
+=item add_segment
+
+ $loader->add_segment($parent,$child)
+
+This method is used to add a split location to the parent.
+
+=back
 
 sub add_segment {
   my $self = shift;
@@ -462,6 +772,16 @@ sub add_segment {
   }
 }
 
+=item parse_attributes
+
+ ($reserved,$unreserved) = $loader->parse_attributes($attribute_line)
+
+This method parses the information contained in the $attribute_line
+into two hashrefs, one containing the values of reserved attribute
+tags (e.g. ID) and the other containing the values of unreserved ones.
+
+=back
+
 sub parse_attributes {
   my $self = shift;
   my $att  = shift;
@@ -480,6 +800,15 @@ sub parse_attributes {
   return (\%reserved,\%unreserved);
 }
 
+=item start_or_finish_sequence
+
+  $loader->start_or_finish_sequence('Chr9')
+
+This method is called at the beginning and end of a fasta section.
+
+=back
+
+
 # this gets called at the beginning and end of a fasta section
 sub start_or_finish_sequence {
   my $self  = shift;
@@ -497,6 +826,15 @@ sub start_or_finish_sequence {
   }
 }
 
+=item load_sequence
+
+  $loader->load_sequence('gatttcccaaa')
+
+This method is called to load some amount of sequence after
+start_or_finish_sequence() is first called.
+
+=back
+
 sub load_sequence {
   my $self = shift;
   my $seq  = shift;
@@ -510,6 +848,16 @@ sub load_sequence {
     substr($sl->{sequence},0,$cs) = '';
   }
 }
+
+=item open_fh
+
+ my $io_file = $loader->open_fh($filehandle_or_path)
+
+This method opens up the indicated file or pipe, using some intelligence to recognized compressed files and URLs and doing 
+the right thing.
+
+=back
+
 
 sub open_fh {
   my $self  = shift;
@@ -532,9 +880,46 @@ sub msg {
   print STDERR @msg;
 }
 
+=item time
+
+ my $time = $loader->time
+
+This method returns the current time in seconds, using Time::HiRes if available.
+
+=back
+
 sub time {
   return Time::HiRes::time() if Time::HiRes->can('time');
   return time();
 }
 
 1;
+__END__
+
+=head1 BUGS
+
+This is an early version, so there are certainly some bugs. Please
+use the BioPerl bug tracking system to report bugs.
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature::Store>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::NormalizedFeature>,
+L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>,
+L<Bio::DB::SeqFeature::Store::bdb>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+

@@ -222,7 +222,7 @@ use Bio::DB::SeqFeature;
 =head2 new
 
  Title   : new
- Usage   : $db = $db->new(@options)
+ Usage   : $db = Bio::DB::SeqFeature::Store->new(@options)
  Function: connect to a database
  Returns : A descendent of Bio::DB::Seqfeature::Store
  Args    : several - see below

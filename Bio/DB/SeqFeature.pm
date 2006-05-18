@@ -111,14 +111,198 @@ sub add_segment {
   $self->_add_segment(0,@_);
 }
 
-sub seq {
-  my $self = shift;
-  if (my $store = $self->object_store) {
-    return $store->fetch_sequence(@_);
-  } else {
-    return $self->SUPER::seq(@_);
-  }
-}
+
+=head2 Bio::SeqFeatureI methods
+
+The following Bio::SeqFeatureI methods are supported:
+
+ seq_id(), start(), end(), strand(), get_SeqFeatures(),
+ display_name(), primary_tag(), source_tag(), seq(),
+ location(), primary_id(), overlaps(), contains(), equals(),
+ intersection(), union(), has_tag(), remove_tag(),
+ add_tag_value(), get_tag_values(), get_all_tags()
+
+Some methods that do not make sense in the context of a genome
+annotation database system, such as attach_seq(), are not supported.
+
+Please see L<Bio::SeqFeatureI> for more details.
+
+=cut
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $flag = $feature->add_SeqFeature(@features)
+ Function: Add subfeatures to the feature
+ Returns : true if successful
+ Args    : list of Bio::SeqFeatureI objects
+ Status  : public
+
+Add one or more subfeatures to the feature. For best results,
+subfeatures should be of the same class as the parent feature
+(i.e. don't try mixing Bio::DB::SeqFeature::NormalizedFeature with
+other feature types).
+
+An alias for this method is add_segment().
+
+=cut
+
+=head2 update
+
+ Title   : update
+ Usage   : $flag = $feature->update()
+ Function: Update feature in the database
+ Returns : true if successful
+ Args    : none
+ Status  : public
+
+After changing any fields in the feature, call update() to write it to
+the database. This is not needed for add_SeqFeature() as update() is
+invoked automatically.
+
+=cut
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeature
+ Usage   : @subfeatures = $feature->get_SeqFeatures([@types])
+ Function: return subfeatures of this feature
+ Returns : list of subfeatures
+ Args    : list of subfeature primary_tags (optional)
+ Status  : public
+
+This method extends the Bio::SeqFeatureI get_SeqFeatures() slightly by
+allowing you to pass a list of primary_tags, in which case only
+subfeatures whose primary_tag is contained on the list will be
+returned. Without any types passed all subfeatures are returned.
+
+=cut
+
+=head2 object_store
+
+ Title   : object_store
+ Usage   : $store = $feature->object_store([$new_store])
+ Function: get or set the database handle
+ Returns : current database handle
+ Args    : new database handle (optional)
+ Status  : public
+
+This method will get or set the Bio::DB::SeqFeature::Store object that
+is associated with the feature. After changing the store, you should
+probably unset the feature's primary_id() and call update() to ensure
+that the object is written into the database as a new feature.
+
+=cut
+
+=head2 overloaded_names
+
+ Title   : overloaded_names
+ Usage   : $overload = $feature->overloaded_names([$new_overload])
+ Function: get or set overloading of object strings
+ Returns : current flag
+ Args    : new flag (optional)
+ Status  : public
+
+For convenience, when objects of this class are stringified, they are
+represented in the form "primary_tag(display_name)". To turn this
+feature off, call overloaded_names() with a false value. You can
+invoke this on an individual feature object or on the class:
+
+  Bio::DB::SeqFeature::NormalizedFeature->overloaded_names(0);
+
+=cut
+
+=head2 segment
+
+ Title   : segment
+ Usage   : $segment = $feature->segment
+ Function: return a Segment object corresponding to feature
+ Returns : a Bio::DB::SeqFeature::Segment
+ Args    : none
+ Status  : public
+
+This turns the feature into a Bio::DB::SeqFeature::Segment object,
+which you can then use to query for overlapping features. See
+L<Bio::DB::SeqFeature::Segment>.
+
+=cut
+
+=head2 AUTOLOADED methods
+
+ @subfeatures = $feature->Exon;
+
+If you use an unknown method that begins with a capital letter, then
+the feature autogenerates a call to get_SeqFeatures() using the
+lower-cased method name as the primary_tag. In other words
+$feature->Exon is equivalent to:
+
+ @subfeature s= $feature->get_SeqFeatures('exon')
+
+=cut
+
+=head2 load_id
+
+ Title   : load_id
+ Usage   : $id = $feature->load_id
+ Function: get the GFF3 load ID
+ Returns : the GFF3 load ID (string)
+ Args    : none
+ Status  : public
+
+For features that were originally loaded by the GFF3 loader, this
+method returns the GFF3 load ID. This method may not be supported in
+future versions of the module.
+
+=cut
+
+=head2 primary_id
+
+ Title   : primary_id
+ Usage   : $id = $feature->primary_id([$new_id])
+ Function: get/set the feature's database ID
+ Returns : the current primary ID
+ Args    : none
+ Status  : public
+
+This method gets or sets the primary ID of the feature in the
+underlying Bio::DB::SeqFeature::Store database. If you change this
+field and then call update(), it will have the effect of making a copy
+of the feature in the database under a new ID.
+
+=cut
+
+=head2 target
+
+ Title   : target
+ Usage   : $segment = $feature->target
+ Function: return the segment correspondent to the "Target" attribute
+ Returns : a Bio::DB::SeqFeature::Segment object
+ Args    : none
+ Status  : public
+
+For features that are aligned with others via the GFF3 Target
+attribute, this returns a segment corresponding to the aligned
+region. The CIGAR gap string is not yet supported.
+
+=cut
+
+=head2 Internal methods
+
+=over 4
+
+=item $feature->as_string()
+
+Internal method used to implement overloaded stringification.
+
+=item $boolean = $feature->type_match(@list_of_types)
+
+Internal method that will return true if the feature's primary_tag and
+source_tag match any of the list of types (in primary_tag:source_tag
+format) provided.
+
+=back
+
+=cut
 
 # This adds subfeatures. It has the property of converting the
 # provided features into an object like itself and storing them
@@ -204,6 +388,7 @@ use the BioPerl bug tracking system to report bugs.
 L<bioperl>,
 L<Bio::DB::SeqFeature::Store>,
 L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::NormalizedFeature>,
 L<Bio::DB::SeqFeature::GFF3Loader>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
 L<Bio::DB::SeqFeature::Store::bdb>

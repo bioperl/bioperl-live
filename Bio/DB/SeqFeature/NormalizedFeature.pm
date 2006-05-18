@@ -1,6 +1,6 @@
 package Bio::DB::SeqFeature::NormalizedFeature;
 
-# $Id
+# $Id$
 
 =head1 NAME
 
@@ -157,6 +157,15 @@ annotation database system, such as attach_seq(), are not supported.
 Please see L<Bio::SeqFeatureI> for more details.
 
 =cut
+
+sub seq {
+  my $self = shift;
+  if (my $store = $self->object_store) {
+    return $store->fetch_sequence(@_);
+  } else {
+    return $self->SUPER::seq(@_);
+  }
+}
 
 =head2 add_SeqFeature
 
@@ -465,9 +474,40 @@ sub _create_subfeatures {
   return @segments;
 }
 
+=head2 load_id
+
+ Title   : load_id
+ Usage   : $id = $feature->load_id
+ Function: get the GFF3 load ID
+ Returns : the GFF3 load ID (string)
+ Args    : none
+ Status  : public
+
+For features that were originally loaded by the GFF3 loader, this
+method returns the GFF3 load ID. This method may not be supported in
+future versions of the module.
+
+=cut
+
 sub load_id {
   return shift->attributes('load_id');
 }
+
+=head2 primary_id
+
+ Title   : primary_id
+ Usage   : $id = $feature->primary_id([$new_id])
+ Function: get/set the feature's database ID
+ Returns : the current primary ID
+ Args    : none
+ Status  : public
+
+This method gets or sets the primary ID of the feature in the
+underlying Bio::DB::SeqFeature::Store database. If you change this
+field and then call update(), it will have the effect of making a copy
+of the feature in the database under a new ID.
+
+=cut
 
 sub primary_id {
   my $self = shift;
@@ -475,6 +515,21 @@ sub primary_id {
   $self->{primary_id} = shift if @_;
   $d;
 }
+
+=head2 target
+
+ Title   : target
+ Usage   : $segment = $feature->target
+ Function: return the segment correspondent to the "Target" attribute
+ Returns : a Bio::DB::SeqFeature::Segment object
+ Args    : none
+ Status  : public
+
+For features that are aligned with others via the GFF3 Target
+attribute, this returns a segment corresponding to the aligned
+region. The CIGAR gap string is not yet supported.
+
+=cut
 
 sub target {
   my $self    = shift;
@@ -491,6 +546,24 @@ sub target {
   }
   return wantarray ? @result : $result[0];
 }
+
+=head2 Internal methods
+
+=over 4
+
+=item $feature->as_string()
+
+Internal method used to implement overloaded stringification.
+
+=item $boolean = $feature->type_match(@list_of_types)
+
+Internal method that will return true if the feature's primary_tag and
+source_tag match any of the list of types (in primary_tag:source_tag
+format) provided.
+
+=back
+
+=cut
 
 sub as_string {
   my $self = shift;
