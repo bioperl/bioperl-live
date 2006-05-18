@@ -114,7 +114,7 @@ use constant FALSE   => 0;
 =head2 new
 
  Title   : new
- Usage   : $term = Bio::Ontology::Term->new( 
+ Usage   : $term = Bio::Ontology::Term->new(
                 -identifier  => "16847",
                 -name        => "1-aminocyclopropane-1-carboxylate synthase",
                 -definition  => "Catalysis of ...",
@@ -131,11 +131,11 @@ use constant FALSE   => 0;
            -is_obsolete           => the obsoleteness of this term [0 or 1]
            -comment               => a comment [scalar]
            -dblinks               => Bio::Annotation::DBLink objects
-                                     [reference to array] 
+                                     [reference to array]
            -references            => Bio::Annotation::Reference objects
                                      [reference to array]
 
-See L<Bio::Ontology::OntologyI>, L<Bio::Annotation::Reference>, 
+See L<Bio::Ontology::OntologyI>, L<Bio::Annotation::Reference>,
 L<Bio::Annotation::DBLink>.
 
 =cut
@@ -149,26 +149,26 @@ sub new {
          $name,
          $definition,
          $category,
-			$ont,
+                        $ont,
          $version,
          $is_obsolete,
          $comment,
-			$dblinks, 
-			$references)
-	= $self->_rearrange( [ qw( IDENTIFIER
-										NAME
-										DEFINITION
-										CATEGORY
-										ONTOLOGY
-										VERSION
-										IS_OBSOLETE
-										COMMENT
-										DBLINKS 
-										REFERENCES
+                        $dblinks,
+                        $references)
+        = $self->_rearrange( [ qw( IDENTIFIER
+                                                                                NAME
+                                                                                DEFINITION
+                                                                                CATEGORY
+                                                                                ONTOLOGY
+                                                                                VERSION
+                                                                                IS_OBSOLETE
+                                                                                COMMENT
+                                                                                DBLINKS
+                                                                                REFERENCES
        ) ], @args );
 
     $self->init();
-    
+
     defined($identifier)   && $self->identifier( $identifier );
     defined($name)         && $self->name( $name );
     defined($definition)   && $self->definition( $definition );
@@ -289,15 +289,15 @@ sub ontology {
     my $ont;
 
     if(@_) {
-	$ont = shift;
-	if($ont) {
-	    $ont = Bio::Ontology::Ontology->new(-name => $ont) if ! ref($ont);
-	    if(! $ont->isa("Bio::Ontology::OntologyI")) {
-		$self->throw(ref($ont)." does not implement ".
-			     "Bio::Ontology::OntologyI. Bummer.");
-	    }
-	}
-	return $self->{"_ontology"} = $ont;
+        $ont = shift;
+        if($ont) {
+            $ont = Bio::Ontology::Ontology->new(-name => $ont) if ! ref($ont);
+            if(! $ont->isa("Bio::Ontology::OntologyI")) {
+                $self->throw(ref($ont)." does not implement ".
+                             "Bio::Ontology::OntologyI. Bummer.");
+            }
+        }
+        return $self->{"_ontology"} = $ont;
     }
     return $self->{"_ontology"};
 } # ontology
@@ -403,8 +403,8 @@ sub add_synonym {
 
     # avoid duplicates
     foreach my $syn (@values) {
-	next if grep { $_ eq $syn; } @{$self->{ "_synonyms" }};
-	push( @{ $self->{ "_synonyms" } }, $syn );
+        next if grep { $_ eq $syn; } @{$self->{ "_synonyms" }};
+        push( @{ $self->{ "_synonyms" } }, $syn );
     }
 
 } # add_synonym
@@ -435,7 +435,7 @@ sub remove_synonyms {
  Usage   : @ds = $term->get_dblinks();
  Function: Returns a list of each dblinks of this GO term.
  Returns : A list of dblinks [array of [scalars]].
- Args    : A scalar indicating the context (optional). 
+ Args    : A scalar indicating the context (optional).
            If omitted, all dblinks will be returned.
 
 =cut
@@ -445,7 +445,7 @@ sub get_dblinks {
     my $context = shift;
 
     if (defined($context)) {
-        return @{$self->{_dblinks}->{$context}} 
+        return @{$self->{_dblinks}->{$context}}
             if exists($self->{_dblinks}->{$context});
     } else {
         return map { @$_ } values %{$self->{_dblinks}};
@@ -462,7 +462,7 @@ sub get_dblinks {
   Returns : a list of scalar
   Args    : [none]
 
-=cut 
+=cut
 
 sub get_dblink_context {
     my $self=shift;
@@ -487,7 +487,35 @@ sub add_dblink {
     $self->add_dblink_context($_,'_default') foreach @_;
 } # add_dblink
 
-=head2 add_dblink_context 
+
+=head2 has_dblink
+
+  Title   : has_dblink
+  Usage   : $term->has_dblink($dblink);
+  Function: Checks if a DBXref is already existing in the OBOterm object
+  Return  : TRUE/FALSE
+  Args    : [arg1] A DBxref identifier
+
+=cut
+
+sub has_dblink {
+    my ( $self, $value ) = @_;
+    return unless defined $value;
+    my $context = "_default";
+    $self->throw("'all' is a reserved word for context.") if $context eq 'all';
+    $context ||= '_default';
+    if ( ( $self->{_dblinks}->{$context} ) && grep { $_ eq $value }
+        @{ $self->{_dblinks}->{$context} } )
+    {
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
+}
+
+
+=head2 add_dblink_context
 
   Title   : add_dblink_context
   Usage   : $term->add_dblink_context($db, $context);
@@ -519,7 +547,7 @@ sub add_dblink_context {
  Usage   : $term->remove_dblinks();
  Function: Deletes (and returns) the definition references of this GO term.
  Returns : A list of definition references [array of [scalars]].
- Args    : Context. If omitted or equal to 'all', all dblinks 
+ Args    : Context. If omitted or equal to 'all', all dblinks
            will be removed.
 
 =cut
@@ -632,8 +660,8 @@ sub add_secondary_id {
 
     # avoid duplicates
     foreach my $id (@_) {
-	next if grep { !$_ or $_ eq $id; } @{$self->{ "_secondary_ids" }};
-	push( @{ $self->{ "_secondary_ids" } }, $id );
+        next if grep { !$_ or $_ eq $id; } @{$self->{ "_secondary_ids" }};
+        push( @{ $self->{ "_secondary_ids" } }, $id );
     }
 
 } # add_secondary_id
@@ -715,7 +743,7 @@ sub authority {
 
     return $ont->authority(@_) if $ont;
     $self->throw("cannot manipulate authority prior to ".
-		 "setting the namespace or ontology") if @_;
+                 "setting the namespace or ontology") if @_;
     return undef;
 }
 
