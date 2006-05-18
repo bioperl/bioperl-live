@@ -1,5 +1,152 @@
 package Bio::DB::SeqFeature::Store::DBI::mysql;
 # $Id$
+
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFeature::Store
+
+=head1 SYNOPSIS
+
+  use Bio::DB::SeqFeature::Store;
+
+  # Open the sequence database
+  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
+                                                 -dsn     => 'dbi:mysql:test');
+
+  # get a feature from somewhere
+  my $feature = Bio::SeqFeature::Generic->new(...);
+
+  # store it
+  $db->store($feature) or die "Couldn't store!";
+
+  # primary ID of the feature is changed to indicate its primary ID
+  # in the database...
+  my $id = $feature->primary_id;
+
+  # get the feature back out
+  my $f  = $db->fetch($id);
+
+  # change the feature and update it
+  $f->start(100);
+  $db->update($f) or die "Couldn't update!";
+
+  # searching...
+  # ...by id
+  my @features = $db->fetch_many(@list_of_ids);
+
+  # ...by name
+  @features = $db->get_features_by_name('ZK909');
+
+  # ...by alias
+  @features = $db->get_features_by_alias('sma-3');
+
+  # ...by type
+  @features = $db->get_features_by_name('gene');
+
+  # ...by location
+  @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);
+
+  # ...by attribute
+  @features = $db->get_features_by_attribute({description => 'protein kinase'})
+
+  # ...by the GFF "Note" field
+  @result_list = $db->search_notes('kinase');
+
+  # ...by arbitrary combinations of selectors
+  @features = $db->features(-name => $name,
+                            -type => $types,
+                            -seq_id => $seqid,
+                            -start  => $start,
+                            -end    => $end,
+                            -attributes => $attributes);
+
+  # ...using an iterator
+  my $iterator = $db->get_seq_stream(-name => $name,
+                                     -type => $types,
+                                     -seq_id => $seqid,
+                                     -start  => $start,
+                                     -end    => $end,
+                                     -attributes => $attributes);
+
+  while (my $feature = $iterator->next_seq) {
+    # do something with the feature
+  }
+
+  # ...limiting the search to a particular region
+  my $segment  = $db->segment('Chr1',5000=>6000);
+  my @features = $segment->features(-type=>['mRNA','match']);
+
+  # getting & storing sequence information
+  # Warning: this returns a string, and not a PrimarySeq object
+  $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
+  my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
+
+  # create a new feature in the database
+  my $feature = $db->new_feature(-primary_tag => 'mRNA',
+                                 -seq_id      => 'chr3',
+                                 -start      => 10000,
+                                 -end        => 11000);
+
+=head1 DESCRIPTION
+
+Bio::DB::SeqFeature::Store::mysql is the Mysql adaptor for
+Bio::DB::SeqFeature::Store. You will not create it directly, but
+instead use Bio::DB::SeqFeature::Store->new() to do so.
+
+See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
+
+=head2 Using the Mysql adaptor
+
+Before you can use the adaptor, you must use the mysqladmin tool to
+create a database and establish a user account with write
+permission. In order to use "fast" loading, the user account must have
+"file" privileges.
+
+To establish a connection to the database, call
+Bio::DB::SeqFeature::Store->new(-adaptor=>'DBI::mysql',@more_args). The
+additional arguments are as follows:
+
+  Argument name       Description
+  -------------       -----------
+
+ -dsn              The database name. You can abbreviate 
+                   "dbi:mysql:foo" as "foo" if you wish.
+
+ -user             Username for authentication.
+
+ -pass             Password for authentication.
+
+ -namespace        A prefix to attach to each table. This allows you
+                   to have several virtual databases in the same
+                   physical database.
+
+ -temp             Boolean flag. If true, a temporary database
+                   will be created and destroyed as soon as
+                   the Store object goes out of scope. (synonym -temporary)
+
+ -autoindex        Boolean flag. If true, features in the database will be
+                   reindexed every time they change. This is the default.
+
+
+ -binsize          An integer in bases. Used to speed up location searches.
+                   The default size of 10,000 bases seems to work well.
+
+ -tmpdir           Directory in which to place temporary files during "fast" loading.
+                   Defaults to File::Spec->tmpdir(). (synonyms -dump_dir, -dumpdir, -tmp)
+
+ -dbi_options      A hashref to pass to DBI->connect's 4th argument, the "attributes."
+                   (synonyms -options, -dbi_attr)
+
+If successful, a new instance of
+Bio::DB::SeqFeature::Store::DBI::mysql will be returned.
+
+In addition to the standard methods supported by all well-behaved
+Bio::DB::SeqFeature::Store databases, several following
+adaptor-specific methods are provided. These are described in the next
+sections.
+
+=cut
+
 use strict;
 
 use base 'Bio::DB::SeqFeature::Store';
@@ -8,6 +155,7 @@ use DBI;
 use Memoize;
 use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
+use File::Spec;
 use constant BINSIZE => 10_000;  # most features should be smaller than this
 use constant DEBUG=>0;
 
@@ -30,16 +178,18 @@ sub init {
       $autoindex,
       $namespace,
       $binsize,
-      $index_subfeatures,
       $dump_dir,
+      $user,
+      $pass,
       $dbi_options) = rearrange(['DSN',
 				 ['TEMP','TEMPORARY'],
 				 'AUTOINDEX',
 				 'NAMESPACE',
 				 'BINSIZE',
-				 'INDEX_SUBFEATURES',
-				 ['DUMP_DIR','DUMPDIR'],
-				 'OPTIONS',
+				 ['DUMP_DIR','DUMPDIR','TMP','TMPDIR'],
+				 'USER',
+				 'PASS',
+				 ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
 				],@_);
   $dbi_options  ||= [];
 
@@ -50,7 +200,7 @@ sub init {
     $dbh = $dsn;
   } else {
     $dsn = "dbi:mysql:$dsn" unless $dsn =~ /^dbi:/;
-    $dbh = DBI->connect($dsn,@$dbi_options);
+    $dbh = DBI->connect($dsn,$user,$pass,$dbi_options);
   }
   $self->{dbh}       = $dbh;
   $self->{is_temp}   = $is_temporary;
@@ -172,7 +322,7 @@ sub default_settings {
   $self->SUPER::default_settings;
   $self->binsize(BINSIZE);
   $self->autoindex(1);
-  $self->dumpdir(abs_path('.'));
+  $self->dumpdir(File::Spec->tmpdir);
 }
 
 

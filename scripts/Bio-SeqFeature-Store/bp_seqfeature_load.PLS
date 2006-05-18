@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.3 2006-04-20 15:24:55 lstein Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.4 2006-05-18 21:48:41 lstein Exp $
 
 use strict;
 
@@ -56,8 +56,9 @@ my @options;
 my $store = Bio::DB::SeqFeature::Store->new(
 					    -dsn     => $DSN,
 					    -adaptor => $ADAPTOR,
-					    -dumpdir => $TMP,
-					    -dbi_options => \@options)
+					    -tmpdir  => $TMP,
+					    -user    => $USER,
+					    -pass    => $PASS)
   or die "Couldn't create connection to the database";
 
 $store->init_database('erase') if $CREATE;
@@ -65,6 +66,7 @@ $store->init_database('erase') if $CREATE;
 my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $store,
 							 -sf_class => $SFCLASS,
 							 -verbose  => $VERBOSE,
+							 -tmpdir   => $TMP,
 							 -fast     => $FAST)
   or die "Couldn't create GFF3 loader";
 

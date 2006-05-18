@@ -63,6 +63,7 @@ use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Store;
 use CGI::Util 'unescape';
+use File::Spec;
 use base 'Bio::Root::Root';
 
 use constant DEFAULT_SEQ_CHUNK_SIZE => 2000;
@@ -149,7 +150,7 @@ sub new {
   my $self = shift;
   my ($store,$seqfeature_class,$tmpdir,$verbose,$fast,$seq_chunk_size) = rearrange(['STORE',
 										    ['SF_CLASS','SEQFEATURE_CLASS'],
-										    'TMP',
+										    ['TMP','TMPDIR'],
 										    'VERBOSE',
 										    'FAST',
 										    'CHUNK_SIZE',
@@ -176,6 +177,8 @@ END
 
   # try to bring in highres time() function
   eval "require Time::HiRes";
+
+  $tmpdir ||= File::Spec->tmpdir();
 
   my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-tmp=>1,-dir=>$tmpdir,-cache=>1)
     unless $normalized;
@@ -618,7 +621,7 @@ sub store_current_feature {
 
 This method gathers together features and subfeatures and builds the graph that connects them.
 
-=back
+=cut
 
 ###
 # put objects together
@@ -636,7 +639,7 @@ This method gathers together features and subfeatures and builds the
 graph that connects them, assuming that parent/child relationships
 will be stored in a database table.
 
-=back
+=cut
 
 sub build_object_tree_in_tables {
   my $self = shift;
@@ -662,8 +665,7 @@ This method gathers together features and subfeatures and builds the
 graph that connects them, assuming that parent/child relationships are
 stored in the seqfeature objects themselves.
 
-=back
-
+=cut
 
 sub build_object_tree_in_features {
   my $self  = shift;
@@ -690,7 +692,7 @@ This recursively adds children to features and their subfeatures. It
 is called when subfeatures are directly contained within other
 features, rather than stored in a relational table.
 
-=back
+=cut
 
 sub attach_children {
   my $self = shift;
@@ -713,7 +715,7 @@ Given a load ID (from the ID= attribute) this method returns the
 feature from the temporary database or the permanent one, depending on
 where it is stored.
 
-=back
+=cut
 
 sub fetch {
   my $self    = shift;
@@ -733,7 +735,7 @@ sub fetch {
 
 This method is used to add a split location to the parent.
 
-=back
+=cut
 
 sub add_segment {
   my $self = shift;
@@ -780,7 +782,7 @@ This method parses the information contained in the $attribute_line
 into two hashrefs, one containing the values of reserved attribute
 tags (e.g. ID) and the other containing the values of unreserved ones.
 
-=back
+=cut
 
 sub parse_attributes {
   my $self = shift;
@@ -806,7 +808,7 @@ sub parse_attributes {
 
 This method is called at the beginning and end of a fasta section.
 
-=back
+=cut
 
 
 # this gets called at the beginning and end of a fasta section
@@ -833,7 +835,7 @@ sub start_or_finish_sequence {
 This method is called to load some amount of sequence after
 start_or_finish_sequence() is first called.
 
-=back
+=cut
 
 sub load_sequence {
   my $self = shift;
@@ -856,7 +858,7 @@ sub load_sequence {
 This method opens up the indicated file or pipe, using some intelligence to recognized compressed files and URLs and doing 
 the right thing.
 
-=back
+=cut
 
 
 sub open_fh {
@@ -886,7 +888,7 @@ sub msg {
 
 This method returns the current time in seconds, using Time::HiRes if available.
 
-=back
+=cut
 
 sub time {
   return Time::HiRes::time() if Time::HiRes->can('time');
@@ -895,6 +897,8 @@ sub time {
 
 1;
 __END__
+
+=back
 
 =head1 BUGS
 
