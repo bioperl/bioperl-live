@@ -83,8 +83,8 @@ my $instance;
 BEGIN {
 $instance = {
    'Sequence Ontology' => {
-	     ontology => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.ontology?rev=HEAD",
-        definitions => "http://cvs.sourceforge.net/viewcvs.py/*checkout*/song/ontology/so.definition?rev=HEAD",
+	     ontology => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.ontology?rev=HEAD",
+        definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'soflat',
                                     },
    'Sequence Ontology Feature Annotation' => {
