@@ -609,30 +609,29 @@ sub next_seq {
 			$_ = $buffer;
       }
       if( defined ($_) ) {
-			if( /^CONTIG/o ) {
-                my @contig;
-                while($_ !~ /^\/\//) { # end of file
-                    $_ =~ /^(?:CONTIG)?\s+(.*)/;
-                    $annotation->add_Annotation(
-                    Bio::Annotation::SimpleValue->new(-value   => $1,
-                                                      -tagname => 'CONTIG'));
-                    $_ = $self->_readline;
-                }
-                $self->_pushback($_);
-			} elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
-                while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
-                    chomp;
-                    $annotation->add_Annotation(
-                        Bio::Annotation::SimpleValue->new(-value => $_,
-                                                          -tagname => $1));
-                    $_ = $self->_readline;
-                }
-			} elsif(! /^(ORIGIN|\/\/)/ ) {    # advance to the sequence, if any
-                $self->debug("Found $1\n");
-				while (defined( $_ = $self->_readline) ) {
-					last if /^(ORIGIN|\/\/)/;
-				}
-			}
+	  if( /^CONTIG/o ) {
+	      my @contig;
+	      while($_ !~ /^\/\//) { # end of file
+		  $_ =~ /^(?:CONTIG)?\s+(.*)/;
+		  $annotation->add_Annotation(
+					      Bio::Annotation::SimpleValue->new(-value   => $1,
+										-tagname => 'CONTIG'));
+		  $_ = $self->_readline;
+	      }
+	      $self->_pushback($_);
+	  } elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
+	      while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
+		  chomp;
+		  $annotation->add_Annotation(
+					      Bio::Annotation::SimpleValue->new(-value => $_,
+										-tagname => $1));
+		  $_ = $self->_readline;
+	      }
+	  } elsif(! /^(ORIGIN|\/\/)/ ) { # advance to the sequence, if any
+	      while (defined( $_ = $self->_readline) ) {
+		  last if /^(ORIGIN|\/\/)/;
+	      }
+	  }
       }
       if(! $builder->want_object()) {
 			$builder->make_object(); # implicit end-of-object
