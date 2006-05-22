@@ -1077,6 +1077,8 @@ sub subseq {
 
   return $self->_subseq($feature) unless ref $self;  # protect against class invocation
   return () if $self->level == 0 && $self->no_subparts;
+  return () if (defined ($self->factory->get_option('maxdepth')) 
+                && $self->level  >= $self->factory->get_option('maxdepth')) ;
 
   return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
   my @ss = $self->_subseq($feature);
@@ -1495,6 +1497,10 @@ glyph pages for more options.
   -no_subparts  Set to true to prevent         undef (false)
                 drawing of the subparts
                 of a feature.
+
+  -maxdepth     Specifies the maximum number   undef (unlimited) 
+                child-generations to decend
+                when getting subfeatures
 
   -sort_order   Specify layout sort order      "default"
 
