@@ -102,7 +102,7 @@ sub new {
   my ($store,$seqid,$start,$end,$strand);
   if (ref $_[0] && UNIVERSAL::isa($_[0],'Bio::SeqFeatureI')) {
     my $seqfeature = shift;
-    my $store      = shift;
+    $store      = shift;
     $store       ||= eval {$seqfeature->object_store};
     $class->throw("I could not derive the Bio::DB::SeqFeature::Store object from the arguments passed to Bio::DB::SeqFeature::Segment->new(). Please pass the Store object as the second argument") unless $store;
     $seqid = $seqfeature->seq_id;

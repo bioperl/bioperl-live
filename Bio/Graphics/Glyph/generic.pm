@@ -19,7 +19,7 @@ sub pad_top {
   my $top  = $self->option('pad_top');
   return $top if defined $top;
   my $pad = $self->SUPER::pad_top;
-  $pad   += $self->labelheight if $self->label;
+  $pad   += $self->labelheight if $self->label && $self->label_position eq 'top';
   $pad;
 }
 sub pad_bottom {
@@ -28,22 +28,39 @@ sub pad_bottom {
   return $bottom if defined $bottom;
   my $pad = $self->SUPER::pad_bottom;
   $pad   += $self->labelheight if $self->description;
-  $pad   += $self->labelheight if $self->part_labels;
+  $pad   += $self->labelheight if $self->part_labels && $self->label_position eq 'top';
   $pad;
 }
 sub pad_right {
   my $self = shift;
   my $pad = $self->SUPER::pad_right;
-  my $label_width       = length($self->label||'') * $self->font->width;
-  my $description_width = length($self->description||'') * $self->font->width;
+  my $label_width       = $self->label_position eq 'top' ? $self->labelwidth : 0;
+  my $description_width = $self->descriptionwidth;
   my $max = $label_width > $description_width ? $label_width : $description_width;
   my $right = $max - $self->width;
   return $pad > $right ? $pad : $right;
 }
-
+sub pad_left {
+  my $self = shift;
+  my $pad = $self->SUPER::pad_left;
+  return $pad unless $self->label_position eq 'left' && $self->label;
+  return $pad + $self->labelwidth;
+}
+sub labelwidth {
+  my $self = shift;
+  return $self->{labelwidth} ||= length($self->label||'') * $self->font->width;
+}
+sub descriptionwidth {
+  my $self = shift;
+  return $self->{descriptionwidth} ||= length($self->description||'') * $self->font->width;
+}
 sub labelheight {
   my $self = shift;
   return $self->{labelheight} ||= $self->font->height;
+}
+sub label_position {
+  my $self = shift;
+  return $self->{labelposition} ||= $self->option('label_position') || 'top';
 }
 sub label {
   my $self = shift;
@@ -141,20 +158,31 @@ sub draw_label {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
   my $label = $self->label or return;
-  my $x = $self->left + $left;
-  $x = $self->panel->left + 1 if $x <= $self->panel->left;
-  my $font = $self->option('labelfont') || $self->font;
-  $gd->string($font,
-	      $x,
-	      $self->top + $top,
-	      $label,
-	      $self->fontcolor);
+  my $x    = $self->left + $left; # valid for both "top" and "left" because the left-hand side is defined by pad_left
+  my $font = $self->font;
+  if ($self->label_position eq 'top') {
+    $x += $self->pad_left;  # offset to beginning of the drawn part of the feature
+    $x = $self->panel->left + 1 if $x <= $self->panel->left;
+    $gd->string($font,
+		$x,
+		$self->top + $top,
+		$label,
+		$self->fontcolor);
+  }
+  elsif ($self->label_position eq 'left') {
+    $gd->string($font,
+		$x,
+		$self->{top} + ($self->height - $font->height)/2 + $top,
+		$label,
+		$self->fontcolor);
+  }
 }
 sub draw_description {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
   my $label = $self->description or return;
   my $x = $self->left + $left;
+  $x   += $self->pad_left;  # offset to beginning of drawn part of feature
   $x = $self->panel->left + 1 if $x <= $self->panel->left;
   my $dy= $self->part_labels ? $self->font->height : 0;
   $gd->string($self->font,
@@ -344,6 +372,8 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -pad_bottom   Bottom padding                 0
 
   -label        Whether to draw a label	       0 (false)
+
+  -label_position Where to draw the label      "top" (default) or "left"
 
   -description  Whether to draw a description  0 (false)
 

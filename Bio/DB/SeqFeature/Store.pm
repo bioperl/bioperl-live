@@ -1938,53 +1938,6 @@ sub subfeatures_are_indexed {
   $d;
 }
 
-
-=head2 add_SeqFeature
-
- Title   : add_SeqFeature
- Usage   : $db->add_SeqFeature($parent,@children)
- Function: add a series of subfeatures to a parent feature
- Returns : true if successful
- Args    : parent feature and list of subfeatures
- Status  : private
-
-This method is used internally by the Bio::DB::SeqFeature class to
-store its parent/children relationships in the database.
-
-=cut
-
-###
-# Add a subparts to a feature. Both feature and all subparts must already be in database.
-#
-sub add_SeqFeature {
-  my $self     = shift;
-  my $parent   = shift;
-  my @children = @_;
-
-  $self->_add_SeqFeature($parent,@children);
-}
-
-=head2 fetch_SeqFeatures
-
- Title   : fetch_SeqFeatures
- Usage   : @children = $db->fetch_SeqFeatures($parent)
- Function: retrieve the subfeatures of a parent feature
- Returns : list of Bio::SeqFeatureI objects
- Args    : parent feature
- Status  : private
-
-This method is used internally by the Bio::DB::SeqFeature class to
-retreive its parent/children relationships from the database.
-
-=cut
-
-sub fetch_SeqFeatures {
-  my $self   = shift;
-  my $parent = shift;
-  my @types  = @_;
-  $self->_fetch_SeqFeatures($parent,@types);
-}
-
 =head2 setup_segment_args
 
  Title   : setup_segment_args

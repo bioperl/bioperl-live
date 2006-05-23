@@ -794,7 +794,7 @@ sub _features {
   $group    = "GROUP BY $group" if @group;
 
   my $query = <<END;
-SELECT f.id,f.object
+SELECT DISTINCT f.id,f.object
   FROM $from
   WHERE $where
   $group

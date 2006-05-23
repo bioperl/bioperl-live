@@ -493,6 +493,27 @@ sub load_id {
   return shift->attributes('load_id');
 }
 
+
+=head2 notes
+
+ Title   : notes
+ Usage   : @notes = $feature->notes
+ Function: get contents of the GFF3 Note tag
+ Returns : List of GFF3 Note tags
+ Args    : none
+ Status  : public
+
+For features that were originally loaded by the GFF3 loader, this
+method returns the contents of the Note tag as a list. This is a
+convenience for Bio::Graphics, which looks for notes() when it
+constructs a default description line.
+
+=cut
+
+sub notes {
+  return shift->attributes('Note');
+}
+
 =head2 primary_id
 
  Title   : primary_id
