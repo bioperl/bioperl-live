@@ -82,11 +82,12 @@ sub new{
 
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$authors,$location,$title,$medline,
+    my ($start,$end,$authors,$consortium,$location,$title,$medline,
 	$pubmed,$rp,$rg) =
 	$self->_rearrange([qw(START
 			      END
 			      AUTHORS
+				  CONSORTIUM
 			      LOCATION
 			      TITLE
 			      MEDLINE
@@ -98,6 +99,7 @@ sub new{
     defined $start    && $self->start($start);
     defined $end      && $self->end($end);
     defined $authors  && $self->authors($authors);
+	defined $consortium  && $self->consortium($consortium);
     defined $location && $self->location($location);
     defined $title    && $self->title($title);
     defined $medline  && $self->medline($medline);
@@ -493,5 +495,25 @@ sub encoded_ref {
    return $self->{'encoded_ref'};
 }
 
+=head2 consortium
+
+ Title   : consortium
+ Usage   : $self->consortium($newval)
+ Function: Gives the consortium line. No attempt is made to parse the consortium line
+ Example : 
+ Returns : value of consortium
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub consortium{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'consortium'} = $value;
+    }
+    return $self->{'consortium'};
+
+}
 
 1;

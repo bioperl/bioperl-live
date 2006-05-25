@@ -832,6 +832,8 @@ sub write_seq {
 	    $self->_print("$temp_line\n");
 	    $self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
 					     $ref->authors,"\\s\+\|\$",80);
+	    $self->_write_line_GenBank_regex("  CONSRTM   ",' 'x12,
+					     $ref->consortium,"\\s\+\|\$",80);
 	    $self->_write_line_GenBank_regex("  TITLE     "," "x12,
 					     $ref->title,"\\s\+\|\$",80);
 	    $self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
@@ -1059,7 +1061,7 @@ sub _read_GenBank_References{
 
    $_ = $$buffer;
 
-   my (@title,@loc,@authors,@com,@medline,@pubmed);
+   my (@title,@loc,@authors,@consort,@com,@medline,@pubmed);
 
    REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
        if (/^\s{2}AUTHORS\s+(.*)/o) { 
@@ -1069,6 +1071,14 @@ sub _read_GenBank_References{
 	       last;
 	   }
 	   $ref->authors(join(' ', @authors));
+       }
+       if (/^\s{2}CONSRTM\s+(.*)/o) { 
+	   push (@consort, $1);   
+	   while ( defined($_ = $self->_readline) ) {
+	       /^\s{9,}(.*)/o && do { push (@consort, $1);next;};
+	       last;
+	   }
+	   $ref->consortium(join(' ', @consort));
        }
        if (/^\s{2}TITLE\s+(.*)/o)  { 
 	   push (@title, $1);
