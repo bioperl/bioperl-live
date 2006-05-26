@@ -125,52 +125,46 @@ sub read {
         next unless ($name && $site);
        
         # the standard sequence format for these guys is:
-	# GATC, 2;
-	# or, for enzymes that cut more than once
-	# GATC, 2; GTAC, 2; 
+        # GATC, 2;
+        # or, for enzymes that cut more than once
+        # GATC, 2; GTAC, 2; 
 
         # there are a couple of sequences that have multiple
         # recognition sites. 
 
-
         my @sequences;
         if ($site =~ /\;/) {
             @sequences = split /\;/, $site;
+            print STDERR @sequences,"\n";
             $site=shift @sequences;
         }
         
-	my ($seq, $cut)=split /,\s+/, $site;
-	print STDERR "SITE: |$site| GAVE: |$seq| and |$cut|\n";
-	if ($seq eq '?') {
-	   $self->warn("$name: no site. Skipping") if $self->verbose > 1;
-	   next;
-	}
-	
-        # this is mainly an error check to make sure that I am adding what I think I am!	
-	if ($seq !~ /[NGATC]/i) {
-	  $self->throw("Sequence $name has weird sequence: |$seq|");
-	}
-	my $re;
-	if ($cut eq "?") {
-          $re = new Bio::Restriction::Enzyme(-name=>$name, -seq => $seq);
-	}
-	else {
-           if ($cut !~ /^-?\d+$/) {
-	     $self->throw("Cut site from $name is weird: |$cut|\n");
-           }
-	
-           $re = new Bio::Restriction::Enzyme(-name=>$name,
-                                              -cut => $cut,
-                                              -seq => $seq
-                                              );
-	}
+        my ($seq, $cut)=split /,\s+/, $site;
+        print STDERR "SITE: |$site| GAVE: |$seq| and |$cut|\n";
+        if ($seq eq '?') {
+           $self->warn("$name: no site. Skipping") if $self->verbose > 1;
+           next;
+        }
+        
+            # this is mainly an error check to make sure that I am adding what I think I am!	
+        if ($seq !~ /[NGATC]/i) {
+          $self->throw("Sequence $name has weird sequence: |$seq|");
+        }
+        my $re;
+        if ($cut eq "?") {
+              $re = new Bio::Restriction::Enzyme(-name=>$name, -seq => $seq);
+        }
+        else {
+               if ($cut !~ /^-?\d+$/) {
+             $self->throw("Cut site from $name is weird: |$cut|\n");
+               }
+        
+               $re = new Bio::Restriction::Enzyme(-name=>$name,
+                                                  -cut => $cut,
+                                                  -seq => $seq
+                                                  );
+        }
         $renzs->enzymes($re);
-
-        #
-        # create special types of Enzymes
-        #
-        $self->_make_multisites($renzs, $re, \@sequences, \@meths) if @sequences;
-
 
         #
         # prototype / isoschizomers
@@ -233,7 +227,10 @@ sub read {
         #my ($refs) = $entry =~ /<8>(.+)/s;
         #$re->references(map {split /\n+/} $refs) if $refs;
 
-
+        #
+        # create special types of Enzymes
+        #
+        #$self->_make_multisites($renzs, $re, \@sequences, \@meths) if @sequences;
 
     }
 

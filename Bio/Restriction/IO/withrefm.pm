@@ -68,8 +68,6 @@ use strict;
 #use Bio::Restriction::IO;
 use Bio::Restriction::IO::base;
 use Bio::Restriction::Enzyme;
-use Bio::Restriction::Enzyme::MultiCut;
-use Bio::Restriction::Enzyme::MultiSite;
 use Bio::Restriction::EnzymeCollection;
 
 use Data::Dumper;

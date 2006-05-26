@@ -68,6 +68,8 @@ use strict;
 use Bio::Restriction::IO;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::EnzymeCollection;
+use Bio::Restriction::Enzyme::MultiCut;
+use Bio::Restriction::Enzyme::MultiSite;
 use Data::Dumper;
 
 @ISA = qw(Bio::Restriction::IO);
