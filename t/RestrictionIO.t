@@ -47,7 +47,7 @@ ok my $out = Bio::Restriction::IO->new(-format => 'base',
 #
 
 ok $in  = Bio::Restriction::IO->new
-  (-format=> 31,
+  (-format=> 'withrefm',
 	-verbose => 0,
 	-file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
 ok $renzs = $in->read;
@@ -60,7 +60,7 @@ ok $renzs->each_enzyme, 11;
 #  [tab] methylation site and type [tab] commercial source [tab] references
 
 ok $in  = Bio::Restriction::IO->new
-    (-format=> 8, -verbose => 0,
+    (-format=> 'itype2', -verbose => 0,
      -file => Bio::Root::IO->catfile("t","data","rebase.itype2"));
 
 ok $renzs = $in->read;
