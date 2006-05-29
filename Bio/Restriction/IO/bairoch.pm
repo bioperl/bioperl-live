@@ -230,6 +230,8 @@ sub read {
         #
         # create special types of Enzymes
         #
+        $self->warn("Current issues with multisite enzymes using bairoch format\n".
+                    "Recommend using itype2 or withrefm formats for now") if @sequences;
         #$self->_make_multisites($renzs, $re, \@sequences, \@meths) if @sequences;
 
     }
