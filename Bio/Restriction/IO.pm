@@ -30,12 +30,12 @@ officially sanctioned way of getting at the format objects, which most
 people should use.
 
 The structure, conventions and most of the code is inherited from
-L<Bio::SeqIO> module. The main difference is that instead of using
-methods next_seq, you drop '_seq' from the method name.
+Bio::SeqIO. The main difference is that instead of using methods
+next_seq, you drop '_seq' from the method name.
 
 Also, instead of dealing only with individual Bio::Restriction::Enzyme
 objects, read() will slurp in all enzymes into a Collection (a
-L<Bio::Restriction::EnzymeCollection> object).
+Bio::Restriction::EnzymeCollection object).
 
 For more details, see documentation in L<Bio::SeqIO>.
 
