@@ -20,21 +20,7 @@ Bio::Restriction::IO - Handler for sequence variation IO Formats
 
     $in  = Bio::Restriction::IO->new(-file => "inputfilename" ,
                                      -format => 'withrefm');
-    $out = Bio::Restriction::IO->new(-file => ">outputfilename" ,
-                                     -format => 'bairoch');
     my $res = $in->read; # a Bio::Restriction::EnzymeCollection
-    $out->write($res);
-
-  # or
-
-  #    use Bio::Restriction::IO;
-  #
-  #    #input file format can be read from the file extension (dat|xml)
-  #    $in  = Bio::Restriction::IO->newFh(-file => "inputfilename");
-  #    $out = Bio::Restriction::IO->newFh('-format' => 'xml');
-  #
-  #    # World's shortest flat<->xml format converter:
-  #    print $out $_ while <$in>;
 
 =head1 DESCRIPTION
 
@@ -45,20 +31,30 @@ people should use.
 
 The structure, conventions and most of the code is inherited from
 L<Bio::SeqIO> module. The main difference is that instead of using
-methods next_seq and write_seq, you drop '_seq' from the method names.
+methods next_seq, you drop '_seq' from the method name.
 
 Also, instead of dealing only with individual Bio::Restriction::Enzyme
-objects, write() will go through all enzymes from a
-Bio::Restriction::EnzymeCollection objects and read() will slurp in all
-enzymes into a Collection.
+objects, read() will slurp in all enzymes into a Collection (a
+L<Bio::Restriction::EnzymeCollection> object).
 
-For more details, see documentation in Bio::SeqIO.
+For more details, see documentation in L<Bio::SeqIO>.
 
 =head1 TO DO
 
-This inherits from SeqIOfor convinience sake. Get rid of it by copying
-relevant methods in. Bio::SeqIO has too many sequence IO specific
-tweeks in it.
+At the moment, these can be use mainly to get a custom set if enzymes in
+'withrefm' or 'itype2' formats into Bio::Restriction::Enzyme or
+Bio::Restriction::EnzymeCollection objects.  Using 'bairoch' format is
+highly experimental and is not recommmended at this time.
+
+This class inherits from Bio::SeqIO for convenience sake, though this should
+inherit from Bio::Root::Root.  Get rid of Bio::SeqIO inheritance by
+copying relevant methods in.
+
+write() methods are currently not implemented for any format except 'base'.
+Using write() even with 'base' format is not recommended as it does not
+support multicut/multisite enzyme output.
+
+Should additional formats be supported (such as XML)?
 
 =head1 SEE ALSO
 
