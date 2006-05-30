@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.4 2006-05-18 21:48:41 lstein Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.5 2006-05-30 22:12:02 lstein Exp $
 
 use strict;
 
@@ -58,7 +58,8 @@ my $store = Bio::DB::SeqFeature::Store->new(
 					    -adaptor => $ADAPTOR,
 					    -tmpdir  => $TMP,
 					    -user    => $USER,
-					    -pass    => $PASS)
+					    -pass    => $PASS,
+					    -write    => 1)
   or die "Couldn't create connection to the database";
 
 $store->init_database('erase') if $CREATE;

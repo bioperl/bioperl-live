@@ -12,7 +12,8 @@ Bio::DB::SeqFeature::Store::GFF3Loader -- GFF3 file loader for Bio::DB::SeqFeatu
 
   # Open the sequence database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
-                                                 -dsn     => 'dbi:mysql:test');
+                                                 -dsn     => 'dbi:mysql:test',
+                                                 -write   => 1 );
 
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $db,
 							   -verbose  => 1,
@@ -180,7 +181,7 @@ END
 
   $tmpdir ||= File::Spec->tmpdir();
 
-  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-tmp=>1,-dir=>$tmpdir,-cache=>1)
+  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-tmp=>1,-dir=>$tmpdir,-cache=>1,-write=>1)
     unless $normalized;
 
   return bless {
@@ -484,6 +485,8 @@ sub handle_feature {
 
   my $name        = ($reserved->{Name}   && $reserved->{Name}[0]);
 
+  my $has_loadid  = defined $reserved->{ID}[0];
+
   my $feature_id  = $reserved->{ID}[0] || $ld->{TemporaryID}++;
   my @parent_ids  = @{$reserved->{Parent}} if $reserved->{Parent};
 
@@ -500,8 +503,8 @@ sub handle_feature {
   $unreserved->{Gap}   = $reserved->{Gap}    if exists $reserved->{Gap};
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
-  $unreserved->{load_id}   = $feature_id    if defined $feature_id;
-  push @{$unreserved->{Alias}},$feature_id  if defined $feature_id;
+  $unreserved->{load_id}   = $feature_id    if $has_loadid;
+  push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
   my @args = (-display_name => $name || undef,

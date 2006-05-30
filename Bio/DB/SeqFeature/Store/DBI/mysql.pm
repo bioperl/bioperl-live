@@ -137,6 +137,8 @@ additional arguments are as follows:
  -dbi_options      A hashref to pass to DBI->connect's 4th argument, the "attributes."
                    (synonyms -options, -dbi_attr)
 
+ -write            Pass true to open database for writing or updating.
+
 If successful, a new instance of
 Bio::DB::SeqFeature::Store::DBI::mysql will be returned.
 
@@ -181,17 +183,21 @@ sub init {
       $dump_dir,
       $user,
       $pass,
-      $dbi_options) = rearrange(['DSN',
-				 ['TEMP','TEMPORARY'],
-				 'AUTOINDEX',
-				 'NAMESPACE',
-				 'BINSIZE',
-				 ['DUMP_DIR','DUMPDIR','TMP','TMPDIR'],
-				 'USER',
-				 'PASS',
-				 ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
-				],@_);
+      $dbi_options,
+      $writeable
+     ) = rearrange(['DSN',
+		    ['TEMP','TEMPORARY'],
+		    'AUTOINDEX',
+		    'NAMESPACE',
+		    'BINSIZE',
+		    ['DUMP_DIR','DUMPDIR','TMP','TMPDIR'],
+		    'USER',
+		    'PASS',
+		    ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
+		    ['WRITE','WRITEABLE'],
+		   ],@_);
   $dbi_options  ||= {};
+  $writeable    = 1 if $is_temporary or $dump_dir;
 
   $dsn or $self->throw("Usage: ".__PACKAGE__."->init(-dsn => \$dbh || \$dsn)");
 
@@ -205,14 +211,16 @@ sub init {
   $self->{dbh}       = $dbh;
   $self->{is_temp}   = $is_temporary;
   $self->{namespace} = $namespace;
+  $self->{writeable} = $writeable;
 
-  $self->maybe_create_meta();
   $self->default_settings;
   $self->binsize($binsize)                       if $binsize;
   $self->autoindex($autoindex)                   if defined $autoindex;
   $self->dumpdir($dump_dir)                      if $dump_dir;
   $self->init_tmp_database()                     if $self->is_temp;
 }
+
+sub writeable { shift->{writeable} }
 
 sub can_store_parentage { 1 }
 
@@ -319,6 +327,7 @@ END
 #
 sub default_settings {
   my $self = shift;
+  $self->maybe_create_meta();
   $self->SUPER::default_settings;
   $self->binsize(BINSIZE);
   $self->autoindex(1);
@@ -429,6 +438,7 @@ sub _init_database {
 
 sub maybe_create_meta {
   my $self = shift;
+  return unless $self->writeable;
   my $table = $self->_qualify('meta');
   my $tables = $self->table_definitions;
   $self->dbh->do("CREATE TABLE IF NOT EXISTS $table $tables->{meta}");
@@ -640,7 +650,6 @@ END
 
   my $seq = '';
   $sth->execute($seqid,$offset1,$offset2) or $self->throw($sth->errstr);
-
 
   while (my($frag,$offset) = $sth->fetchrow_array) {
     substr($frag,0,$start-$offset) = '' if defined $start && $start > $offset;
@@ -1177,7 +1186,7 @@ sub setting {
   my ($variable_name,$value) = @_;
   my $meta  = $self->_meta_table;
 
-  if (defined $value) {
+  if (defined $value && $self->writeable) {
     my $query = <<END;
 REPLACE INTO $meta (name,value) VALUES (?,?)
 END

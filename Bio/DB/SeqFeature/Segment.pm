@@ -340,6 +340,8 @@ sub length  { my $self = shift; return $self->end-$self->start+1; }
 sub primary_tag  { 'region' }
 sub source_tag   { __PACKAGE__ }
 sub display_name { shift->as_string }
+sub name         { shift->display_name }
+sub class        { 'region' }
 sub abs_ref      { shift->ref}
 sub abs_start    { shift->start}
 sub abs_end      { shift->end}

@@ -31,10 +31,9 @@ use vars '@ISA';
 *stop        = \&end;
 *info        = \&name;
 *seqname     = \&name;
-*type        = \&primary_tag;
 *exons       = *sub_SeqFeature = *merged_segments = \&segments;
 *get_all_SeqFeatures = *get_SeqFeatures = \&segments;
-*method         = \&type;
+*method         = \&primary_tag;
 *source         = \&source_tag;
 *get_tag_values = \&each_tag_value;
 *add_SeqFeature = \&add_segment;
@@ -42,6 +41,7 @@ use vars '@ISA';
 *abs_ref        = \&ref;
 *abs_start      = \&start;
 *abs_end        = \&end;
+*abs_strand     = \&strand;
 
 # implement Bio::SeqI and FeatureHolderI interface
 
@@ -71,6 +71,13 @@ sub feature_count { return scalar @{shift->{segments} || []} }
 
 sub target { return; }
 sub hit    { return; }
+
+sub type {
+  my $self = shift;
+  my $method = $self->primary_tag;
+  my $source = $self->source_tag;
+  return defined $source ? "$method:$source" : $method;
+}
 
 # usage:
 # Bio::Graphics::Feature->new(
@@ -226,7 +233,12 @@ sub seq {
   # $dna .= 'n' x ($self->length - CORE::length($dna));
   return $dna;
 }
-*dna = \&seq;
+
+sub dna {
+  my $seq = shift->seq;
+  $seq    = $seq->seq if CORE::ref($seq);
+  return $seq;
+}
 
 =head2 display_name
 
@@ -330,7 +342,7 @@ sub attributes {
   if (@_) {
     return $self->each_tag_value(@_);
   } else {
-    return $self->{attributes};
+    return $self->{attributes} ? %{$self->{attributes}} : ();
   }
 }
 
@@ -425,7 +437,7 @@ sub class {
   my $self = shift;
   my $d = $self->{class};
   $self->{class} = shift if @_;
-  return defined($d) ? $d : ucfirst $self->method;
+  return defined($d) ? $d : 'Sequence';  # acedb is still haunting me - LS
 }
 
 sub gff_string {

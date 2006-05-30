@@ -161,9 +161,9 @@ Please see L<Bio::SeqFeatureI> for more details.
 sub seq {
   my $self = shift;
   if (my $store = $self->object_store) {
-    return $store->fetch_sequence(@_);
+    return $store->fetch_sequence($self->seq_id,$self->start,$self->end);
   } else {
-    return $self->SUPER::seq(@_);
+    return $self->SUPER::seq($self->seq_id,$self->start,$self->end);
   }
 }
 
