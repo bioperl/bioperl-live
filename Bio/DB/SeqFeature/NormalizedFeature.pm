@@ -244,6 +244,9 @@ sub get_SeqFeatures {
     }
   }
   my @r = grep {$_->type_match(@types)} (@ordinary,$store->fetch_many(\@ids));
+  for my $r (@r) {
+    eval {$r->object_store($store) };
+  }
   return @r;
 }
 

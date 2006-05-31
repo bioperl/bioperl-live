@@ -149,7 +149,7 @@ sub draw_frame {
   my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
                                : ($feature,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
-  warn "frame=$frame, phase=$phase";
+  # warn "frame=$frame, phase=$phase";
 
   ($strand >= 0 ? $x1 : $x2) += $self->pixels_per_base * $offset;
   my $lh;

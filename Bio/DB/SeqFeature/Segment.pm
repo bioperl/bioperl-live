@@ -345,6 +345,7 @@ sub class        { 'region' }
 sub abs_ref      { shift->ref}
 sub abs_start    { shift->start}
 sub abs_end      { shift->end}
+sub abs_strand   { shift->strand}
 sub get_SeqFeatures { }
 sub get_all_tags { }
 sub get_tag_values { }
@@ -358,6 +359,12 @@ sub seq {
 			      -seq => $self->store->fetch_sequence($self->seq_id,$self->start,$self->end),
 			      -id  => $self->display_name);
 }
+sub dna {
+  my $seq = shift->seq;
+  $seq    = $seq->seq if CORE::ref($seq);
+  return $seq;
+}
+
 sub entire_seq {
   my $self = shift;
   require Bio::PrimarySeq unless Bio::PrimarySeq->can('new');

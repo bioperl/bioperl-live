@@ -355,16 +355,21 @@ sub get_SeqFeatures {
 
   my @inline_segs  = exists $self->{segments} ? @{$self->{segments}} : ();
   my $store        = $self->object_store;
-  return @inline_segs unless $store && $store->can_store_parentage;
 
   my @db_segs;
 
-  if (!@types || $store->subfeatures_are_indexed) {
-    @db_segs = $store->fetch_SeqFeatures($self,@types);
-  } else {
-    @db_segs     = grep {$_->type_match(@types)} $store->fetch_SeqFeatures($self);
+  if ($store && $store->can_store_parentage) {
+    if (!@types || $store->subfeatures_are_indexed) {
+      @db_segs = $store->fetch_SeqFeatures($self,@types);
+    } else {
+      @db_segs     = grep {$_->type_match(@types)} $store->fetch_SeqFeatures($self);
+    }
   }
+
   my @segs         = (@inline_segs,@db_segs);
+  foreach (@segs) {
+    eval {$_->object_store($store)};
+  }
   return @segs;
 }
 

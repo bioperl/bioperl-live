@@ -1285,7 +1285,12 @@ feature/subfeature relationships from the database.
 =cut
 
 # _get_SeqFeatures($parent,@list_of_child_types)
-sub fetch_SeqFeatures {shift->_fetch_SeqFeatures(@_)  }
+sub fetch_SeqFeatures {
+  my $self = shift;
+  my $obj  = shift;
+  return unless defined $obj->primary_id;
+  $self->_fetch_SeqFeatures($obj,@_);
+}
 
 
 
