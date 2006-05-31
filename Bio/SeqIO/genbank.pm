@@ -833,7 +833,7 @@ sub write_seq {
 	    $self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
 					     $ref->authors,"\\s\+\|\$",80);
 	    $self->_write_line_GenBank_regex("  CONSRTM   ",' 'x12,
-					     $ref->consortium,"\\s\+\|\$",80);
+					     $ref->consortium,"\\s\+\|\$",80) if $ref->consortium;
 	    $self->_write_line_GenBank_regex("  TITLE     "," "x12,
 					     $ref->title,"\\s\+\|\$",80);
 	    $self->_write_line_GenBank_regex("  JOURNAL   "," "x12,
