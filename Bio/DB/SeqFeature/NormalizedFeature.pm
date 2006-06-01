@@ -167,6 +167,14 @@ sub seq {
   }
 }
 
+sub subseq {
+  my $self = shift;
+  my ($newstart,$newstop) = @_;
+  my $store = $self->object_store or return;
+  my $seq = $store->fetch_sequence($self->seq_id,$self->start+$newstart-1,$self->end+$newstop-1);
+  return Bio::PrimarySeq->new($seq);
+}
+
 =head2 add_SeqFeature
 
  Title   : add_SeqFeature

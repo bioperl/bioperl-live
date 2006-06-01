@@ -70,7 +70,7 @@ sub species {
 sub feature_count { return scalar @{shift->{segments} || []} }
 
 sub target { return; }
-sub hit    { return; }
+sub hit    { shift->target }
 
 sub type {
   my $self = shift;
@@ -127,6 +127,7 @@ sub new {
   if (my $s = $arg{-segments}) {
     $self->add_segment(@$s);
   }
+
   $self;
 }
 

@@ -359,6 +359,13 @@ sub seq {
 			      -seq => $self->store->fetch_sequence($self->seq_id,$self->start,$self->end),
 			      -id  => $self->display_name);
 }
+sub subseq {
+  my $self = shift;
+  my ($newstart,$newstop) = @_;
+  my $store = $self->store or return;
+  my $seq   = $store->fetch_sequence($self->seq_id,$self->start+$newstart-1,$self->end+$newstop-1);
+  return Bio::PrimarySeq->new(-seq=>$seq);
+}
 sub dna {
   my $seq = shift->seq;
   $seq    = $seq->seq if CORE::ref($seq);

@@ -178,7 +178,7 @@ sub add_group {
   my @features = ref($_[0]) eq 'ARRAY' ? @{$_[0]} : @_;
   my $f    = Bio::Graphics::Feature->new(
 					 -segments=>\@features,
-					 -type => 'group'
+					 -type => 'group',
 					);
   $self->add_feature($f);
   $f;
@@ -669,9 +669,10 @@ sub _collision_keys {
 sub draw {
   my $self = shift;
   my $gd = shift;
-  my ($left,$top,$partno,$total_parts) = @_;
+  my ($left,$top,$partno,$total_parts,$ig) = @_;
 
   my $connector =  $self->connector;
+  my $is_group  = $self->feature->primary_tag eq 'group';
 
   if (my @parts = $self->parts) {
 
@@ -689,7 +690,7 @@ sub draw {
       # lie just a little bit to avoid lines overlapping and make the picture prettier
       my $fake_x = $x;
       $fake_x-- if defined $last_x && $parts[$i]->left - $last_x == 1;
-      $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts));
+      $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts),$is_group);
       $last_x = $parts[$i]->right;
     }
   }
@@ -697,7 +698,7 @@ sub draw {
   else {  # no part
     $self->draw_connectors($gd,$left,$top)
       if $connector && $connector ne 'none' && $self->{level} == 0;
-    $self->draw_component($gd,$left,$top) unless eval{$self->feature->compound};
+    $self->draw_component($gd,$left,$top) unless $ig || eval{$self->feature->compound};
   }
 
 }
