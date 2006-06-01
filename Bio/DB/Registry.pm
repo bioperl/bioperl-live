@@ -119,7 +119,8 @@ sub _load_registry {
 	my @ini_files = _get_ini_files($home);
 
    unless (@ini_files) {
-      $self->warn("No seqdatabase.ini file found in ~/.bioinformatics/\nnor in /etc/bioinformatics/ nor in directory specified by\n$OBDA_SEARCH_PATH. Using web to get database registry from\n$fallbackRegistryURL");
+	  my $nor_in = $OBDA_SEARCH_PATH ? "nor in directory specified by\n$OBDA_SEARCH_PATH" : "and environment variable\nOBDA_SEARCH_PATH wasn't set";
+	  $self->warn("No seqdatabase.ini file found in ~/.bioinformatics/\nnor in /etc/bioinformatics/ $nor_in.\nUsing web to get database registry from\n$fallbackRegistryURL");
 
       # Last gasp. Try to use HTTPget module to retrieve the registry from
       # the web...
