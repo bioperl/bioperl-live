@@ -78,6 +78,13 @@ sub bump {
   return 0;
 }
 
+sub maxdepth {
+  my $self = shift;
+  my $md   = $self->Bio::Graphics::Glyph::maxdepth;
+  return $md if defined $md;
+  return 1;
+}
+
 sub fontcolor {
   my $self = shift;
   return $self->SUPER::fontcolor unless $self->option('draw_target') || $self->option('draw_dna');

@@ -49,17 +49,13 @@ sub new {
   my @subfeatures;
   my @subglyphs;
 
-  if (defined($factory->get_option('maxdepth')) && $factory->get_option('maxdepth') > 0){
-    @subfeatures = $self->subseq($feature) if $level <= $factory->get_option('maxdepth');
-  } else {
+  warn $self if DEBUG;
+  warn $feature if DEBUG;
 
-    warn $self if DEBUG;
-    warn $feature if DEBUG;
-
-    @subfeatures = $level == 0
-                     ? $self->subseq($feature)
-		     : grep {$p_start <= $_->end && $p_end >= $_->start} $self->subseq($feature);
-  }
+#  @subfeatures = $level == 0
+#    ? $self->subseq($feature)
+#      : grep {$p_start <= $_->end && $p_end >= $_->start} $self->subseq($feature);
+  @subfeatures = grep {$p_start <= $_->end && $p_end >= $_->start} $self->subseq($feature);
 
   if (@subfeatures) {
     # dynamic glyph resolution
@@ -669,10 +665,10 @@ sub _collision_keys {
 sub draw {
   my $self = shift;
   my $gd = shift;
-  my ($left,$top,$partno,$total_parts,$ig) = @_;
+  my ($left,$top,$partno,$total_parts) = @_;
 
-  my $connector =  $self->connector;
-  my $is_group  = $self->feature->primary_tag eq 'group';
+
+  my $connector = $self->connector;
 
   if (my @parts = $self->parts) {
 
@@ -690,7 +686,7 @@ sub draw {
       # lie just a little bit to avoid lines overlapping and make the picture prettier
       my $fake_x = $x;
       $fake_x-- if defined $last_x && $parts[$i]->left - $last_x == 1;
-      $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts),$is_group);
+      $parts[$i]->draw($gd,$fake_x,$y,$i,scalar(@parts));
       $last_x = $parts[$i]->right;
     }
   }
@@ -698,7 +694,9 @@ sub draw {
   else {  # no part
     $self->draw_connectors($gd,$left,$top)
       if $connector && $connector ne 'none' && $self->{level} == 0;
-    $self->draw_component($gd,$left,$top) unless $ig || eval{$self->feature->compound};
+#    $self->draw_component($gd,$left,$top) unless $ig || eval{$self->feature->compound};
+#    $self->draw_component($gd,$left,$top) unless eval{$self->feature->compound};
+    $self->draw_component($gd,$left,$top);
   }
 
 }
@@ -1079,15 +1077,28 @@ sub no_subparts {
   return shift->option('no_subparts');
 }
 
+sub maxdepth {
+  my $self = shift;
+  return $self->option('maxdepth');
+}
+
+sub exceeds_depth {
+  my $self = shift;
+  my $max_depth     = $self->maxdepth;
+  return unless defined $max_depth;
+
+  my $current_depth = $self->level || 0;
+  return $current_depth >= $max_depth;
+}
+
 # memoize _subseq -- it's a bottleneck with segments
 sub subseq {
   my $self    = shift;
   my $feature = shift;
 
   return $self->_subseq($feature) unless ref $self;  # protect against class invocation
-  return () if $self->level == 0 && $self->no_subparts;
-  return () if (defined ($self->factory->get_option('maxdepth')) 
-                && $self->level  >= $self->factory->get_option('maxdepth')) ;
+  return if $self->level == 0 && $self->no_subparts;
+  return if $self->exceeds_depth;
 
   return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
   my @ss = $self->_subseq($feature);

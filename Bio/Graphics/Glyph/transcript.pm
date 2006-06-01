@@ -76,16 +76,6 @@ sub draw_connectors {
   }
 }
 
-sub draw_label {
-  my $self = shift;
-  my ($gd,$left,$top,$partno,$total_parts) = @_;
-  if ($self->label_position eq 'left') {
-    $self->SUPER::draw_label($gd,$left-$self->arrow_length,$top,$partno,$total_parts);
-  } else {
-    $self->SUPER::draw_label(@_);
-  }
-}
-
 sub arrow_length {
   my $self = shift;
   return $self->option('arrow_length') || 8;

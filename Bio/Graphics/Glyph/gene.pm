@@ -5,6 +5,13 @@ package Bio::Graphics::Glyph::gene;
 use strict;
 use base 'Bio::Graphics::Glyph::processed_transcript';
 
+sub extra_arrow_length {
+  my $self = shift;
+  return 0 unless $self->{level} == 1;
+  local $self->{level} = 0;  # fake out superclass
+  return $self->SUPER::extra_arrow_length;
+}
+
 sub pad_right {
   my $self = shift;
   my $strand = $self->feature->strand;
@@ -14,7 +21,6 @@ sub pad_right {
   my $al = $self->arrow_length;
   return $al > $pad ? $al : $pad;
 }
-
 
 sub bump {
   my $self = shift;
@@ -47,6 +53,14 @@ sub draw_connectors {
   return if $self->feature->primary_tag eq 'gene';
   $self->SUPER::draw_connectors(@_);
 }
+
+sub maxdepth {
+  my $self = shift;
+  my $md   = $self->Bio::Graphics::Glyph::maxdepth;
+  return $md if defined $md;
+  return 2;
+}
+
 
 sub _subseq {
   my $class   = shift;

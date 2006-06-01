@@ -387,6 +387,7 @@ sub draw_point {
 sub _subseq {
   my $class   = shift;
   my $feature = shift;
+
   return $feature->segments                if $feature->can('segments');
   my @split = eval { my $id   = $feature->location->seq_id;
 		     my @subs = $feature->location->sub_Location;

@@ -66,7 +66,7 @@ sub label {
   my $self = shift;
   return if $self->{overbumped};  # set by the bumper when we have hit bump limit
   return unless $self->subpart_callbacks;  # returns true if this is level 0 or if subpart callbacks allowed
-  return $self->_label if $self->{level} > 0;
+  return $self->_label if $self->{level} >= 0;
   return exists $self->{label} ? $self->{label}
                                : ($self->{label} = $self->_label);
 }
@@ -87,6 +87,13 @@ sub part_labels {
 
 sub part_label_merge {
   shift->option('part_label_merge');
+}
+
+sub maxdepth {
+  my $self = shift;
+  my $md   = $self->SUPER::maxdepth;
+  return $md if defined $md;
+  return 1;
 }
 
 sub _label {
@@ -165,7 +172,7 @@ sub draw_label {
     $x = $self->panel->left + 1 if $x <= $self->panel->left;
     $gd->string($font,
 		$x,
-		$self->top + $top,
+		$self->top + $top - 1,
 		$label,
 		$self->fontcolor);
   }
