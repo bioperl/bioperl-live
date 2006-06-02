@@ -424,9 +424,13 @@ sub bgcolor {
   $self->factory->translate_color($index);
 }
 
-sub font {
-  my $self = shift;
-  my $font = $self->option('font');
+sub getfont {
+  my $self    = shift;
+  my $option  = shift || 'font';
+  my $default = shift;
+
+  my $font = $self->option($option) || $default;
+  return unless $font;
 
   my $img_class = $self->image_class;
 
@@ -439,11 +443,16 @@ sub font {
 		  gdGiantFont      => $img_class->gdGiantFont(),
     		 };
 
-    my $gdfont = $ref->{$font} || $img_class->gdSmallFont();
-    $self->configure(font=>$gdfont);
+    my $gdfont = $ref->{$font};
+    $self->configure($option => $gdfont);
     return $gdfont;
   }
   return $font;
+}
+
+sub font {
+  my $self = shift;
+  return $self->getfont('font','gdSmallFont');
 }
 
 sub fontcolor {

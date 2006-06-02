@@ -231,7 +231,6 @@ sub length {
 sub seq {
   my $self = shift;
   my $dna =  exists $self->{seq} ? $self->{seq} : '';
-  # $dna .= 'n' x ($self->length - CORE::length($dna));
   return $dna;
 }
 

@@ -355,8 +355,12 @@ sub has_tag { }
 sub seq {
   my $self = shift;
   require Bio::PrimarySeq unless Bio::PrimarySeq->can('new');
+  my ($start,$end) = ($self->start,$self->end);
+  if ($self->strand < 0) {
+    ($start,$end) = ($end,$start);
+  }
   return Bio::PrimarySeq->new(
-			      -seq => $self->store->fetch_sequence($self->seq_id,$self->start,$self->end),
+			      -seq => $self->store->fetch_sequence($self->seq_id,$start,$end),
 			      -id  => $self->display_name);
 }
 sub subseq {

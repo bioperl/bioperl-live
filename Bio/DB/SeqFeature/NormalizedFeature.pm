@@ -160,10 +160,17 @@ Please see L<Bio::SeqFeatureI> for more details.
 
 sub seq {
   my $self = shift;
+  require Bio::PrimarySeq unless Bio::PrimarySeq->can('new');
+
+  my ($start,$end) = ($self->start,$self->end);
+  if ($self->strand < 0) {
+    ($start,$end) = ($end,$start);
+  }
   if (my $store = $self->object_store) {
-    return $store->fetch_sequence($self->seq_id,$self->start,$self->end);
+    return Bio::PrimarySeq->new(-seq => $store->fetch_sequence($self->seq_id,$start,$end),
+				-id  => $self->display_name);
   } else {
-    return $self->SUPER::seq($self->seq_id,$self->start,$self->end);
+    return $self->SUPER::seq($self->seq_id,$start,$end);
   }
 }
 
@@ -171,7 +178,11 @@ sub subseq {
   my $self = shift;
   my ($newstart,$newstop) = @_;
   my $store = $self->object_store or return;
-  my $seq = $store->fetch_sequence($self->seq_id,$self->start+$newstart-1,$self->end+$newstop-1);
+  my ($start,$stop) = ($self->start+$newstart-1,$self->end+$newstop-1);
+  if ($self->strand < 0) {
+    ($start,$stop) = ($stop,$start);
+  }
+  my $seq = $store->fetch_sequence($self->seq_id,$start,$stop);
   return Bio::PrimarySeq->new($seq);
 }
 

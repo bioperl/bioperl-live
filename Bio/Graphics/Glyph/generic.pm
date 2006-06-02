@@ -46,6 +46,14 @@ sub pad_left {
   return $pad unless $self->label_position eq 'left' && $self->label;
   return $pad + $self->labelwidth;
 }
+sub labelfont {
+  my $self = shift;
+  return $self->getfont('label_font',$self->font);
+}
+sub descfont {
+  my $self = shift;
+  return $self->getfont('desc_font',$self->font);
+}
 sub labelwidth {
   my $self = shift;
   return $self->{labelwidth} ||= length($self->label||'') * $self->font->width;
@@ -166,7 +174,7 @@ sub draw_label {
   my ($gd,$left,$top,$partno,$total_parts) = @_;
   my $label = $self->label or return;
   my $x    = $self->left + $left; # valid for both "top" and "left" because the left-hand side is defined by pad_left
-  my $font = $self->font;
+  my $font = $self->labelfont;
   if ($self->label_position eq 'top') {
     $x += $self->pad_left;  # offset to beginning of the drawn part of the feature
     $x = $self->panel->left + 1 if $x <= $self->panel->left;
@@ -192,7 +200,7 @@ sub draw_description {
   $x   += $self->pad_left;  # offset to beginning of drawn part of feature
   $x = $self->panel->left + 1 if $x <= $self->panel->left;
   my $dy= $self->part_labels ? $self->font->height : 0;
-  $gd->string($self->font,
+  $gd->string($self->descfont,
 	      $x,
 	      $self->bottom - $self->pad_bottom + $top + $dy,
 	      $label,
@@ -367,7 +375,11 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -height       Height of glyph		       10
 
-  -font         Glyph font		       gdSmallFont
+  -font         Default font                   gdSmallFont
+
+  -label_font   Font used for label	       gdSmallFont
+
+  -desc_font    Font used for description      gdSmallFont
 
   -connector    Connector type                 0 (false)
 

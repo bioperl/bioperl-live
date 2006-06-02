@@ -110,8 +110,9 @@ sub draw {
   }
 
   elsif ($self->option('draw_dna')) {
-    return $self->SUPER::draw(@_) unless eval {$self->feature->seq};
-    $drew_sequence = $self->draw_dna(@_);
+    my $dna = eval {$self->feature->seq};
+    return $self->SUPER::draw(@_) unless $dna;
+    $drew_sequence = $self->draw_dna(@_,$dna);
   }
 
   my ($gd,$x,$y) = @_;
@@ -124,7 +125,7 @@ sub draw {
 sub draw_dna {
   my $self = shift;
   my $gd   = shift;
-  my ($left,$top,$partno,$total_parts) = @_;
+  my ($left,$top,$partno,$total_parts,$ref_dna) = @_;
   my $flipped              = $self->flip;
   my $pixels_per_base      = $self->scale;
   my $feature              = $self->feature;
@@ -146,11 +147,12 @@ sub draw_dna {
   my (@segments,%strands);
   for my $s (@s) {
     my ($src_start,$src_end) = ($s->start,$s->end);
+    next if $src_end < $panel_start or $src_start > $panel_end;
     push @segments,[$s,$src_start,$src_end];
   }
 
-  my $ref_dna = lc $feature->seq;
-  $ref_dna    = $self->reversec($ref_dna) if $strand < 0;
+  $ref_dna = lc ref($ref_dna) ? $ref_dna->seq : $ref_dna;
+  $ref_dna = $self->reversec($ref_dna) if $strand < 0;
 
   for my $seg (@segments) {
     # left clipping
@@ -162,10 +164,12 @@ sub draw_dna {
     if ( (my $delta = $panel_end - $seg->[SRC_END]) < 0) {
       $seg->[SRC_END] = $panel_end;
     }
-    warn "Clipping gives [@$seg]\n"if DEBUG;
+    warn "Clipping gives [@$seg]\n" if DEBUG;
 
     $seg->[SRC_START] -= $abs_start - 1;
     $seg->[SRC_END]   -= $abs_start - 1;
+
+    warn "Coordinate translation gives [@$seg]\n" if DEBUG;
   }
 
   # draw
@@ -174,7 +178,7 @@ sub draw_dna {
   my $lineheight = $font->height;
   my $fontwidth  = $font->width;
 
-  my $pink = $self->factory->translate_color('lightpink');
+  my $pink  = $self->factory->translate_color('lightpink');
   my $grey  = $self->factory->translate_color('gray');
 
   my $base2pixel = 
@@ -192,7 +196,7 @@ sub draw_dna {
   my $src_last_end;
   for my $seg (@segments) {
 
-    my $y = $top - $lineheight/4; 
+    my $y = $top;
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
 
@@ -331,9 +335,9 @@ sub draw_multiple_alignment {
   # the subseq() method
   my $ref_dna = lc $feature->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
   my $tgt_dna = lc $feature->hit->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
-  
+
   # sanity check.  Let's see if they look like they're lining up
-  warn "dna sanity check:\n$ref_dna\n$tgt_dna\n" if DEBUG;
+  warn "$feature dna sanity check:\n$ref_dna\n$tgt_dna\n" if DEBUG;
 
   # now we're all lined up, and we're going to adjust everything to fall within the bounds
   # of the left and right panel coordinates
@@ -412,7 +416,7 @@ sub draw_multiple_alignment {
   my ($tgt_last_end,$src_last_end);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
 
-    my $y = $top - $lineheight/4; 
+    my $y = $top;
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
 
@@ -502,9 +506,6 @@ sub _subseq {
   my @subseq  = $self->SUPER::_subseq($feature);
   return @subseq if @subseq;
   if ($self->level == 0 && !@subseq && !eval{$feature->compound}) {
-    # my($start,$end) = ($feature->start,$feature->end);
-    # ($start,$end) = ($end,$start) if $start > $end; # to keep Bio::Location::Simple from bitching
-    # return Bio::Location::Simple->new(-start=>$start,-end=>$end);
     return $self->feature;
   } else {
     return;
