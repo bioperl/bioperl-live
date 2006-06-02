@@ -557,12 +557,16 @@ sub retrieve_blast {
 	    open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
 	    while(<TMP>) { print $_; }
 	    close TMP;
-	}
+	}   
 	## if proper reply 
 	open(TMP, $tempfile) || $self->throw("Error opening $tempfile");
 	my $waiting = 1;
 	my $s = 0;
+    my $got_content = 0;
 	while(<TMP>) {
+        if (/./) {
+            $got_content = 1;
+        }
 	    if( /<\?xml version=/ ) { # xml time
 		$waiting = 0;
 		last;
@@ -624,6 +628,10 @@ sub retrieve_blast {
 	    ## store filename in object ##
 	    $self->file($tempfile);
 	    return $blastobj;
+    } elsif (!$got_content) {
+        # server returned no content, can't be good
+        $self->warn("Server failed to return any data");
+        return -1
 	} else {		# still working
 	    return 0;
 	}
