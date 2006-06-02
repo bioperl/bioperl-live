@@ -363,8 +363,7 @@ WriteMakefile(
     'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
     EXE_FILES   => \@scripts_to_install,
-    PL_FILES	=> { 'doc/makedoc.PL' => ['bioscripts.pod','biodatabases.pod','biodesign.pod','bioperl.pod'],
-                     'maintenance/symlink_scripts.PLS' => 'maintenance/symlink_scripts.pl' },
+    PL_FILES	=> {'maintenance/symlink_scripts.PLS' => 'maintenance/symlink_scripts.pl' },
     PREREQ_PM   => {
 	'IO::String'       => 0,
     	'File::Temp'       => 0,
