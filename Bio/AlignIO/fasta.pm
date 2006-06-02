@@ -51,11 +51,12 @@ use vars qw(@ISA $MATCHPATTERN $WIDTH);
 use strict;
 
 use Bio::AlignIO;
-use Bio::SimpleAlign;
 
 @ISA = qw(Bio::AlignIO);
 
-$MATCHPATTERN = '^A-Za-z\.\-\*\?';
+# This needs to be changed to something more like how clustalw does matching;
+# shouldn't have to change here AND in Bio::PrimarySeq to work!
+$MATCHPATTERN = '^A-Za-z\.\-\*\?=';
 $WIDTH = 60;
 
 =head2 next_aln
@@ -82,6 +83,7 @@ sub next_aln {
 	my $aln = Bio::SimpleAlign->new();
 
 	while (defined ($entry = $self->_readline) ) {
+		chomp $entry;
 		if ( $entry =~ s/^>\s*(\S+)\s*// ) {
 			$tempname  = $1;
 			chomp($entry);
@@ -105,7 +107,7 @@ sub next_aln {
 					     -end         => $end,
 					     );
 				$aln->add_seq($seq);
-				$self->debug("Reading $seqname");
+				$self->debug("Reading $seqname\n");
 			}
 			$desc = $tempdesc;	
 			$name = $tempname;
@@ -113,8 +115,10 @@ sub next_aln {
 			$seqchar  = "";
 			next;
 		}
-		$entry =~ s/[$MATCHPATTERN]//g;
-		$seqchar .= $entry;	
+		$entry =~ s/([$MATCHPATTERN])//g;
+		my $leftover = $1;
+		$seqchar .= $entry;
+		$self->warn("Unmatched chars :$leftover\n") if $leftover;
 	}
 
 	#  Next two lines are to silence warnings that
@@ -150,8 +154,8 @@ sub next_aln {
 											  -end         => $end,
 											 );
 		$aln->add_seq($seq);
+		$self->debug("Reading $seqname\n");
 	}
-	$self->debug("Reading $seqname");
 	my $alnlen = $aln->length;
 	foreach my $seq ( $aln->each_seq ) {
 		if ( $seq->length < $alnlen ) {

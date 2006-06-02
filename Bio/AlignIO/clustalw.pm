@@ -65,8 +65,6 @@ use vars qw(@ISA $LINELENGTH $CLUSTALPRINTVERSION);
 use strict;
 
 use Bio::AlignIO;
-use Bio::LocatableSeq;
-use Bio::SimpleAlign; # to be Bio::Align::Simple
 
 $LINELENGTH = 60;
 $CLUSTALPRINTVERSION = '1.81';
