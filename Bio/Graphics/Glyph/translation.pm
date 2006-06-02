@@ -208,8 +208,6 @@ sub draw_protein {
 		 Y => "Tyr", Z => "Glx", '*' => " * ",
 	       );
 
-  warn "protein = $$protein, y1=$y1";
-
   my @residues = split '',$$protein;
   my $fontwidth = $font->width;
   for (my $i=0;$i<@residues;$i++) {
