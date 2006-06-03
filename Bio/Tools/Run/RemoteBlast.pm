@@ -277,7 +277,8 @@ sub new {
 	foreach my $getName (keys %getNames) {
 		$self->retrieve_parameter($getName,$getNames{$getName});
 	}
-
+        # private variable to keep track of total rids
+        $self->{'_total_rids'} = 0;
 	return $self;
 }
 
@@ -457,7 +458,8 @@ sub proxy {
 sub add_rid {
     my ($self, @vals) = @_;
     foreach ( @vals ) {
-	$self->{'_rids'}->{$_} = 1;
+	$self->{'_rids'}->{$_} = $self->{'_total_rids'};
+        $self->{'_total_rids'}++; 
     }
     return scalar keys %{$self->{'_rids'}};
 }
@@ -472,7 +474,9 @@ sub remove_rid {
 
 sub each_rid {
     my ($self) = @_;
-    return keys %{$self->{'_rids'}};
+    # sort on key value, a little tricky...
+    my @sort_rids = sort {$self->{'_rids'}->{$a} <=> $self->{'_rids'}->{$b}} keys %{$self->{'_rids'}};
+    return @sort_rids;
 }
 
 =head2 submit_blast
