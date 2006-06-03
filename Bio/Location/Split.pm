@@ -182,14 +182,14 @@ sub sub_Location {
 	  @locs = map { $_->[0] }
 	  sort { (defined $a && defined $b) ? 
 		     $a->[1] <=> $b->[1] : $a ? -1 : 1 }
-	  map { [$_, $_->start] } @locs;
+	  map { [$_, (defined $_->start ? $_->start : $_->end)] } @locs;;
 
       } else { # $order == -1
 	@locs = map {$_->[0]}
 	        sort { 
 		    (defined $a && defined $b) ? 
 			$b->[1] <=> $a->[1] : $a ? -1 : 1 }
- 	        map { [$_, $_->end] } @locs;
+ 	        map { [$_, (defined $_->end ? $_->end : $_->start)] } @locs;
       }
     }
     # push the rest unsorted
