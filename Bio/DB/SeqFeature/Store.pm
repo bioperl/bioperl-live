@@ -971,6 +971,8 @@ returned array is a arrayref containing the following fields:
   column 2     The text of the note
   column 3     A relevance score.
 
+NOTE: This search will fail to find features that do not have a display name!
+
 =cut
 
 sub search_attributes {
@@ -998,7 +1000,9 @@ returned array is a arrayref containing the following fields:
   column 2     The text of the note
   column 3     A relevance score.
 
-NOTE: This is equivalent to $db->search_attributes('full text search string','Note',$limit).
+NOTE: This is equivalent to $db->search_attributes('full text search
+string','Note',$limit). This search will fail to find features that do
+not have a display name!
 
 =cut
 

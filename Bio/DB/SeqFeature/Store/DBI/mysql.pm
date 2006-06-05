@@ -854,7 +854,7 @@ SELECT name,attribute_value
 END
   $sql .= "LIMIT $limit" if defined $limit;
   my $sth = $self->_prepare($sql);
-  $sth->execute(@words,@tags) or $self->throw($sth->errstr);
+  $sth->execute(@tags,@words) or $self->throw($sth->errstr);
 
   my @results;
   while (my($name,$value) = $sth->fetchrow_array) {
