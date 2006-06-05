@@ -457,6 +457,7 @@ my $class = shift;
    return unless $_ = shift;
    return 'clustalw' if /\.aln$/i;
    return 'emboss'   if /\.(water|needle)$/i;
+   return 'metafasta'if /\.metafasta$/;
    return 'fasta'    if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
    return 'maf'      if /\.maf/i;
    return 'mega'     if /\.(meg|mega)$/i;
