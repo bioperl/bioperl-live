@@ -71,6 +71,7 @@ use Bio::AlignIO;
 use Bio::SimpleAlign;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
+use Bio::Seq::Meta;
 
 @ISA = qw(Bio::AlignIO);
 
@@ -130,11 +131,11 @@ sub next_aln {
 
         defined $sequence && $sequence =~ s/\s//g; # Remove whitespace
 
-        $seq = new Bio::Seq::Meta('-seq'=>$sequence,
-                                  '-id'=>$id,
-                                  '-start'=>$start,
-                                  '-end'=>$end
-                                 );
+        $seq = Bio::Seq::Meta->new('-seq'=>$sequence,
+				   '-id'=>$id,
+				   '-start'=>$start,
+				   '-end'=>$end
+				  );
 
         foreach my $meta (@metas) {
             my ($name,$string) = split /\n/, $meta;
