@@ -185,10 +185,13 @@ for my $n (  $tree->get_leaf_nodes ) {
 for my $n ( grep {! $_->is_Leaf } $tree->get_nodes ) {
     $n->id($ct++);
 }
+# enable for debugging
+Bio::TreeIO->new(-format => 'newick')->write_tree($tree) if( $DEBUG );
+
 my $BFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'b')));
-ok($BFSorder, '0,1,2,E,F,G,H,C,D,3,A,B');
+ok($BFSorder, '0,1,3,2,C,D,E,F,G,H,A,B');
 my $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-ok($DFSorder, '0,1,E,F,G,H,2,C,D,3,A,B');
+ok($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H');
 
 __DATA__
 (D,(C,(A,B)));
