@@ -65,8 +65,7 @@ use Bio::Root::Root;
 use Bio::SeqFeature::FeaturePair;
 use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
-
+@ISA = qw(Bio::Root::Root Bio::Root::IO);
 
 
 =head2 new
@@ -164,7 +163,7 @@ sub next_result {
  Title   : create_feature
  Usage   : my $feat=$prints_parser->create_feature($feature,$seqname)
  Function: creates a SeqFeature Generic object
- Returns : L<Bio::SeqFeature::Feature>
+ Returns : L<Bio::SeqFeature::FeaturePair>
  Args    :
 
 
@@ -210,7 +209,7 @@ sub create_feature {
 
 =cut
 
-sub print_sac{
+sub print_sac {
     my $self = shift;
     return $self->{'print_sac'} = shift if @_;
     return $self->{'print_sac'};
@@ -227,11 +226,10 @@ sub print_sac{
 
 =cut
 
-sub seqname{
+sub seqname {
     my($self,$seqname)=@_;
     return $self->{'seqname'}=$seqname if(defined($seqname));
     return $self->{'seqname'};
-
 }
 
 1;
