@@ -171,7 +171,7 @@ sub next_matrix{
 sub write_matrix{
    my ($self,@args) = @_;
    $self->warn("cannot actually use this function yet - it isn't finished");
-   return undef;
+   return;
 }
 
 

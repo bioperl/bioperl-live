@@ -179,7 +179,7 @@ sub nextFeaturePair {shift->nextHSP}; # just another name
 
 sub nextHSP {
   my ($self) = @_;  
-  return undef if $self->{'HSP_ALL_PARSED'};
+  return  if $self->{'HSP_ALL_PARSED'};
   
   ############################
   # get and parse scorelines #
@@ -187,7 +187,7 @@ sub nextHSP {
   my ($qframe, $sframe);
   my $scoreline = $self->_readline();
   my $nextline = $self->_readline();
-  return undef if not defined $nextline;
+  return if not defined $nextline;
   $scoreline .= $nextline;
   my ($score, $bits);
   if ($scoreline =~ /\d bits\)/) {
@@ -199,7 +199,7 @@ sub nextHSP {
   }
   unless( defined $bits && defined $score ) { 
       $self->warn("Weird scoreline ($scoreline) bailing\n");
-      return undef;
+      return;
   }
   my ($match, $hsplength) = ($scoreline =~ /Identities = (\d+)\/(\d+)/);
   my ($positive) = ($scoreline =~ /Positives = (\d+)/);

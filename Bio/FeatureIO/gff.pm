@@ -131,7 +131,7 @@ sub next_feature {
     return $f;
   }
 
-  return undef if $self->fasta_mode();
+  return if $self->fasta_mode();
 
   # be graceful about empty lines or comments, and make sure we return undef
   # if the input is consumed
@@ -141,13 +141,13 @@ sub next_feature {
     last;
   }
 
-  return undef unless $gff_string;
+  return unless $gff_string;
 
   # looks like we went into FASTA mode without a directive.
   if($gff_string =~ /^>/){
     $self->_pushback($gff_string);
     $self->fasta_mode(1);
-    return undef;
+    return;
   }
 
   # got a directive
@@ -233,7 +233,7 @@ will return undef if not all features in the stream have been handled
 
 sub next_seq() {
   my $self = shift;
-  return undef unless $self->fasta_mode();
+  return unless $self->fasta_mode();
 
   #first time next_seq has been called.  initialize Bio::SeqIO instance
   if(!$self->seqio){
@@ -332,7 +332,7 @@ sub sequence_region {
     return $self->{'sequence-region'}{$k};
   }
   else {
-    return undef;
+    return;
   }
 }
 
@@ -419,7 +419,7 @@ sub _buffer_feature {
     return shift @{ $self->{'buffer'} };
   }
   else {
-    return undef;
+    return;
   }
 }
 
@@ -481,7 +481,7 @@ sub _handle_directive {
   elsif($directive eq 'FASTA' or $directive =~ /^>/){
     #next_seq() will take care of this.
     $self->fasta_mode(1);
-    return undef;
+    return;
   }
 
   elsif($directive eq '#'){

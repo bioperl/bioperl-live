@@ -198,13 +198,13 @@ sub substitution_matrix{
 	   foreach my $v (values %{$val} ) {
 	       if( ref($v) !~ /HASH/i ) { 
 		   $self->warn("Must be a valid hashref of hashrefs for substition_matrix");
-		   return undef;
+		   return;
 	       }
 	   }
 	   $self->{'_substitution_matrix'} = $val;
        } else { 
 	   $self->warn("Must be a valid hashref of hashrefs for substition_matrix");
-	   return undef;
+	   return;
        }
    }
    return $self->{'_substitution_matrix'};
@@ -230,13 +230,13 @@ sub transition_probability_matrix {
 	   foreach my $v (values %{$val} ) {
 	       if( ref($v) !~ /HASH/i ) { 
 		   $self->warn("Must be a valid hashref of hashrefs for transition_probability_matrix");
-		   return undef;
+		   return;
 	       }
 	   } 
 	   $self->{'_TPM'}->{$type} = $val;
        } else { 
 	   $self->warn("Must be a valid hashref of hashrefs for transition_probablity_matrix");
-	   return undef;
+	   return;
        }
    }
 

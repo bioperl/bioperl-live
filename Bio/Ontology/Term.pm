@@ -744,7 +744,7 @@ sub authority {
     return $ont->authority(@_) if $ont;
     $self->throw("cannot manipulate authority prior to ".
                  "setting the namespace or ontology") if @_;
-    return undef;
+    return;
 }
 
 

@@ -211,7 +211,7 @@ sub _CpG_value {
 	}
     } else {
 	$self->warn('CpG makes sense only in the context of point mutation');
-	return undef;
+	return;
     }
 }
 
@@ -233,14 +233,14 @@ sub RNAChange {
   if (defined $value) {
       if( ! $value->isa('Bio::Variation::RNAChange') ) {
 	  $self->throw("Is not a Bio::Variation::RNAChange object but a [$self]");
-	  return (undef);
+	  return;
       }
       else {
 	  $self->{'RNAChange'} = $value;
       }
   }
   unless (exists $self->{'RNAChange'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'RNAChange'};
   }
@@ -342,12 +342,15 @@ sub sysname {
 	my $sysname = '';
 	# show the alphabet only if $self->SeqDiff->alphabet is set;
 	my $mol = '';
-	if ($self->SeqDiff->alphabet && $self->SeqDiff->alphabet eq 'dna') {
+
+if ($self->SeqDiff ) {
+	if ($self->SeqDiff && $self->SeqDiff->alphabet && $self->SeqDiff->alphabet eq 'dna') {
 	    $mol = 'g.';
 	}
 	elsif ($self->SeqDiff->alphabet && $self->SeqDiff->alphabet eq 'rna') {
 	    $mol = 'c.';
 	}
+    }
 	my $sep;
 	if ($self->isMutation) {
 	    $sep = '>';

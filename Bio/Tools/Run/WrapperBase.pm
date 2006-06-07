@@ -280,7 +280,7 @@ sub io{
 
 sub version{
    my ($self,@args) = @_;
-   return undef;
+   return;
 }
 
 =head2 executable

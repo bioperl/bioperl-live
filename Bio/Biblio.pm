@@ -286,7 +286,7 @@ sub new {
 	$access = "\L$access";	# normalize capitalization to lower case
 
 	# load module with the real implementation - as defined in $access
-	return undef unless (&_load_access_module ($access));
+	return unless (&_load_access_module ($access));
 
 	# this will call this same method new() - but rather its the
 	# upper (object) branche

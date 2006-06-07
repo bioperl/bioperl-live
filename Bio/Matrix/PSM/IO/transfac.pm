@@ -99,7 +99,7 @@ sub new {
 sub next_psm {
     my $self=shift;
     my $line;
-    return undef if ($self->{end});
+    return if ($self->{end});
     my (@a,@c,@g,@t, $id, $tr1, @refs,$accn, $bf, $sites);
     my $i=0;
     while (defined( $line=$self->_readline)) {
@@ -115,7 +115,7 @@ sub next_psm {
     }
     if (!(defined($id) && defined($accn))) {
 	$self->{end}=1;
-	return undef;
+	return;
     }
     while (defined( $line=$self->_readline)) {	#How many sites?
 	if ($line=~/^BA\s/) {

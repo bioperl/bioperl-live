@@ -286,7 +286,7 @@ sub next_result{
 	   push @trees, $tree;
        }
    }
-   return undef unless( $parsed );
+   return unless( $parsed );
    my $result = new Bio::Tools::Phylo::Molphy::Result
        (-trees => \@trees,
 	-substitution_matrix => \%subst_matrix,

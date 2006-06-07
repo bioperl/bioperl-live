@@ -308,7 +308,7 @@ sub get_Taxonomy_Node{
        }
        if( ! $init{'-object_id'} ) { 
 	   $self->warn("Could not find any value for $taxonid");
-	   return undef;
+	   return;
        }
        if( $init{'-rank'} eq 'species' ) {
 	   my ($genus,$species) = split(/\s+/,$scientfic_name);

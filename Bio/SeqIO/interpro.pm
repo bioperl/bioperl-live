@@ -169,7 +169,7 @@ sub next_seq {
 		last if $finishedline =~ m!</protein>!;
 	}
 
-	return undef unless $xml_fragment =~ /<protein/;
+	return unless $xml_fragment =~ /<protein/;
 
 	$self->parse_xml($xml_fragment);
 

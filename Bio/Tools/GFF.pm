@@ -330,7 +330,7 @@ sub _parse_sequence {
 sub next_segment{
    my ($self,@args) = @_;
    return shift @{ $self->{'segments'} } if defined $self->{'segments'};
-   return undef;
+   return;
 }
 
 =head2 next_feature
@@ -371,7 +371,7 @@ sub next_feature {
         }
         last; 
     }
-    return undef unless $gff_string;
+    return unless $gff_string;
 
     my $feat = Bio::SeqFeature::Generic->new();
     $self->from_gff_string($feat, $gff_string);

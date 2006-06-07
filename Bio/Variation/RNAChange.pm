@@ -367,14 +367,14 @@ sub DNAMutation {
     if (defined $value) {
 	if( ! $value->isa('Bio::Variation::DNAMutation') ) {
 	    $self->throw("Is not a Bio::Variation::DNAMutation object but a [$self]");
-	    return (undef);
+	    return;
 	}
 	else {
 	    $self->{'DNAMutation'} = $value;
 	}
     }
     unless (exists $self->{'DNAMutation'}) {
-	return (undef);
+	return;
     } else {
 	return $self->{'DNAMutation'};
     }
@@ -397,14 +397,14 @@ sub AAChange {
     if (defined $value) {
 	if( ! $value->isa('Bio::Variation::AAChange') ) {
 	    $self->throw("Is not a Bio::Variation::AAChange object but a [$self]");
-	return (undef);
+	return;
 	}
 	else {
 	    $self->{'AAChange'} = $value;
 	}
     }
     unless (exists $self->{'AAChange'}) {
-	return (undef);
+	return;
     } else {
 	return $self->{'AAChange'};
     }

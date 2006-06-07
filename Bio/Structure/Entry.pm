@@ -734,7 +734,7 @@ sub seqres {
 	# do we have a seqres for this chainid
 	if(! exists $seq_ch{$chainid} ) {
 		$self->warn("There is no SEQRES known for chainid \"$chainid\"");
-		return undef;
+		return;
 	}
 
 	# this will break for non-protein structures (about 10% for now) XXX KB

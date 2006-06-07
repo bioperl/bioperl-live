@@ -249,14 +249,14 @@ sub _get_species {
 
 sub _create_species {
     my ($self, $orgname, $taxid) = @_;
-    return undef unless ($orgname); # not required in TinySeq dtd so don't throw an error
+    return unless ($orgname); # not required in TinySeq dtd so don't throw an error
 
     my %params;
     $params{'-classification'} = [reverse(split(/ /, $orgname))];
     $params{'-ncbi_taxid'} = $taxid if ($taxid);
 
     my $species = Bio::Species->new(%params)
-	or return undef;
+	or return;
 
     return $species;
 }

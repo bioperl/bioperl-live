@@ -127,7 +127,7 @@ sub next_seq {
 	}
 	(++$count % 1000 == 0 && $self->verbose() > 0) && print "line $count\n";
     }
-    if( ! $seen ) { return undef; } 
+    return unless $seen;
     return $largeseq;
 }
 

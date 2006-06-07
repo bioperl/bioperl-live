@@ -189,10 +189,10 @@ sub get_lca {
     my ($nodes) = $self->_rearrange([qw(NODES)],@args);
    if( ! defined $nodes ) {
        $self->warn("Must supply -nodes parameter to get_lca() method");
-       return undef;
+       return;
    }
     my ($node1,$node2) = $self->_check_two_nodes($nodes);
-    return undef unless $node1 && $node2;
+    return unless $node1 && $node2;
 
     # algorithm: Start with first node, find and save every node from it to
     #    root. Then start with second node; for it and each of its ancestor
@@ -227,7 +227,7 @@ sub get_lca {
     }
     $self->warn("Could not find lca!"); # should never execute, 
                                         # if so, there's a problem
-    return undef;
+    return;
 }
 
 # Added for Justin Reese by Jason
@@ -248,7 +248,7 @@ sub distance {
     my ($nodes) = $self->_rearrange([qw(NODES)],@args);
     if( ! defined $nodes ) {
 	$self->warn("Must supply -nodes parameter to distance() method");
-	return undef;
+	return;
     }
     my ($node1,$node2) = $self->_check_two_nodes($nodes);
     # algorithm:
@@ -294,7 +294,7 @@ sub distance {
     }
     $self->warn("Could not find distance!"); # should never execute, 
     # if so, there's a problem
-    return undef;
+    return;
 }
 
 # helper function to check lca and distance arguments
@@ -307,17 +307,17 @@ sub _check_two_nodes {
        !ref($nodes->[1])
        ) {
        $self->warn("Must provide a valid array reference for -nodes");
-       return undef;
+       return;
    } elsif( scalar(@$nodes) > 2 ){
        $self->warn("More than two nodes given, using first two");
    } elsif( scalar(@$nodes) < 2 ){
        $self->warn("-nodes parameter does not contain reference to two nodes");
-       return undef;
+       return;
    }
     unless( $nodes->[0]->isa('Bio::Tree::NodeI') &&
 	    $nodes->[1]->isa('Bio::Tree::NodeI') ) {
 	$self->warn("Did not provide valid Bio::Tree::NodeI objects as nodes\n");
-	return undef;
+	return;
     }
     return @$nodes;
 }
@@ -344,7 +344,7 @@ sub is_monophyletic{
    if( ! defined $nodes || ! defined $outgroup ) {
        $self->warn("Must supply -nodes and -outgroup parameters to the method
 is_monophyletic");
-       return undef;
+       return;
    }
    if( ref($nodes) !~ /ARRAY/i ) {
        $self->warn("Must provide a valid array reference for -nodes");
@@ -391,11 +391,11 @@ sub is_paraphyletic{
 
    if( ! defined $nodes || ! defined $outgroup ) {
        $self->warn("Must suply -nodes and -outgroup parameters to the method is_paraphyletic");
-       return undef;
+       return;
    }
    if( ref($nodes) !~ /ARRAY/i ) { 
        $self->warn("Must provide a valid array reference for -nodes");
-       return undef;
+       return;
    }
 
    # Algorithm
@@ -413,7 +413,7 @@ sub is_paraphyletic{
    my $clade_root = $self->get_lca(-nodes => $nodes );
    unless( defined $clade_root ) { 
        $self->warn("could not find clade root via lca");
-       return undef;
+       return;
    }
    my $og_ancestor = $outgroup->ancestor;
 

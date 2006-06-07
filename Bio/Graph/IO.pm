@@ -93,7 +93,7 @@ use Bio::Root::IO;
  Args       : Named parameters: 
               -file      => $filename
               -format    => format
-				  -threshold => a confidence score for the interaction, optional
+	      -threshold => a confidence score for the interaction, optional
 
 =cut
 
@@ -112,7 +112,7 @@ sub new {
 		} 
 		my $format = $param{'-format'};
 		$format    = "\L$format";	
-		return undef unless ($class->_load_format_module($format)); 
+		return unless ($class->_load_format_module($format)); 
 		return "Bio::Graph::IO::$format"->new(@args);
 	}
 }

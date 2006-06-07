@@ -692,11 +692,11 @@ sub get_seq_coord {
 
     unless (exists( $self->{'_elem'}{$seqID} )) {
 	$self->warn("No such sequence ($seqID) in contig ".$self->id);
-	return undef;
+	return;
     }
     unless (exists( $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} )) {
 	# $self->warn("Chad. Location not set for sequence ($seqID) in contig ".$self->id);
-	return undef;
+	return;
     }
 
     return $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"};
@@ -1017,7 +1017,7 @@ sub get_seq_by_name {
 
     unless (exists $self->{'_elem'}{$seqID}{'_seq'}) {
 	$self->throw("Could not find sequence $seqID in contig ".$self->id);
-	return undef;
+	return;
     }
 
     return $self->{'_elem'}{$seqID}{'_seq'};
@@ -1044,7 +1044,7 @@ sub get_qual_by_name {
 
     unless (exists $self->{'_elem'}{$seqID}{'_qual'}) {
 	$self->warn("Could not find quality for $seqID in contig!");
-	return undef;
+	return;
     }
 
     return $self->{'_elem'}{$seqID}{'_qual'};

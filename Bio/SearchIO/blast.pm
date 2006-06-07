@@ -2327,7 +2327,7 @@ sub _get_accession_version {
     if ( ref($id) && $id->isa('Bio::SearchIO') ) {
         $id = shift;
     }
-    return undef unless defined $id;
+    return unless defined $id;
     my ( $acc, $version );
     if ( $id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/ ) {
         ( $acc, $version ) = split /\./, $2;

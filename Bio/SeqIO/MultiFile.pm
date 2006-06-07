@@ -119,7 +119,7 @@ sub next_seq{
    my $seq = $self->_current_seqio->next_seq();
    if( !defined $seq ) {
        if( $self->_load_file() == 0) {
-	   return undef;
+	   return;
        } else {
 	   return $self->next_seq();
        }
@@ -147,7 +147,7 @@ sub next_primary_seq{
    my $seq = $self->_current_seqio->next_primary_seq();
    if( !defined $seq ) {
        if( $self->_load_file() == 0) {
-	   return undef;
+	   return;
        } else {
 	   return $self->next_primary_seq();
        }

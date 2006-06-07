@@ -177,7 +177,7 @@ sub add_hsp {
    my ($self,$hsp) = @_;
    if( !defined $hsp || ! $hsp->isa('Bio::Search::HSP::HSPI') ) { 
        $self->throw("Must provide a valid Bio::Search::HSP::HSPI object to object: $self method: add_hsp value: $hsp");
-       return undef;
+       return;
    }
 #   print STDERR "GenericHit::add_hsp()\n";
    push @{$self->{'_hsps'}}, $hsp;
@@ -346,7 +346,7 @@ sub significance {
     } elsif ( ! defined $previous ) {
 	unless( defined $self->{'_hsps'}->[0] ) {
 	    $self->warn("No HSPs for this Hit (".$self->name.")");
-	    return undef;
+	    return;
 	}
         # Set the significance of the Hit to that of the top HSP.
         $previous = $self->{'_significance'} = ($self->hsps)[0]->significance;
@@ -379,7 +379,7 @@ sub bits {
         # Set the significance of the Hit to that of the top HSP.
 	unless( defined $self->{'_hsps'}->[0] ) {
 	    $self->warn("No HSPs for this Hit (".$self->name.")");
-	    return undef;
+	    return;
 	}
         $previous = $self->{'_bits'} = ($self->hsps)[0]->bits;
     }    
@@ -400,7 +400,7 @@ sub bits {
 sub next_hsp {
     my $self = shift;
     $self->{'_iterator'} = 0 unless defined $self->{'_iterator'};
-    return undef unless
+    return unless
         defined($self->{'_hsps'}) 
         && $self->{'_iterator'} <= scalar @{$self->{'_hsps'}};
     return $self->{'_hsps'}->[$self->{'_iterator'}++];    

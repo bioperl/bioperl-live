@@ -3008,7 +3008,7 @@ sub hit {
     $option ||= 'best';
 
     if($Blast->{'_no_aligns'} || ! ref($self->{'_hits'})) {
-        return undef;
+        return;
     }
 
     $self->{'_is_significant'} or

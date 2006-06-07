@@ -151,7 +151,7 @@ sub next_aln {
     $self->{'_hit'} = undef, return unless defined $hit;
     
     my $hsp  = $hit->next_hsp;
-    return undef unless defined $hsp;
+    return unless defined $hsp;
     return $hsp->get_aln;
 # much easier above, eh?
 #     $seqchar = $hsp->query_string;

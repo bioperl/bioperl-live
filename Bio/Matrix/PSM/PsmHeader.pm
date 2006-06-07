@@ -148,7 +148,7 @@ sub seq {
 
 sub hid {
     my $self = shift;
-    return undef unless ($self->_check('hid'));
+    return unless ($self->_check('hid'));
     my @header=@{$self->{hid}};
     return @header;
 }
@@ -169,7 +169,7 @@ sub hid {
 
 sub length {
      my $self = shift;
-     return undef unless ($self->_check('length'));
+     return unless ($self->_check('length'));
     return $self->{length};
 }
 
@@ -188,8 +188,8 @@ sub length {
 
 sub instances {
       my $self = shift;
-     return undef unless ($self->_check('instances'));
-    return %{$self->{instances}};
+      return unless ($self->_check('instances'));
+      return %{$self->{instances}};
 }
 
 =head2 weight
@@ -271,7 +271,7 @@ sub release {
 =head2 _check
 
  Title   : _check
- Usage   : if ($self->_check('weights') { #do something} else {return undef;}
+ Usage   : if ($self->_check('weights') { #do something} else {return 0;}
  Function: Checks if the method called is aplicable to the file format
  Throws  :
  Example :
@@ -285,16 +285,16 @@ sub _check {
     my ($self,$method) = @_;
     my $type= $self->{'_type'};
     if ($type eq 'meme') { 
-	return undef unless (grep(/$method/,
+	return 0 unless (grep(/$method/,
 				  @Bio::Matrix::PSM::PsmHeader::MEMEHEADER)); 
     } elsif ($type eq 'mast') { 
-	return undef unless (grep(/$method/,
+	return 0 unless (grep(/$method/,
 				  @Bio::Matrix::PSM::PsmHeader::MASTHEADER));
     } elsif ($type eq 'transfac') { 
-	return undef unless (grep(/$method/,
+	return 0 unless (grep(/$method/,
 				  @Bio::Matrix::PSM::PsmHeader::TRANSFACHEADER)); 
     } elsif ($type eq 'psiblast') { 
-	return undef unless (grep(/$method/,
+	return 0 unless (grep(/$method/,
 				  @Bio::Matrix::PSM::PsmHeader::PSIBLASTHEADER)); 
     }
     return 1;

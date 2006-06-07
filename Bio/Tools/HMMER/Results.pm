@@ -311,7 +311,7 @@ sub domain_bits_cutoff_from_evalue {
     
     if( ! defined $prev || $seen == 0) {
 	$self->throw("Evalue is either above or below the list...");
-	return undef;
+	return;
     }
 
     $sep = $prev->bits - $dom->bits ;
@@ -842,7 +842,7 @@ sub get_unit_nse {
 	}
     }
 
-    return undef;
+    return;
 }
 
 

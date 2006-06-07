@@ -157,7 +157,7 @@ sub new {
 sub next_feature {
     my ($self) = @_;
     my $result = $self->{io}->next_seq;
-    return undef unless defined $result;
+    return unless defined $result;
     
     my ($seqname,$location)    = split ':', $result->primary_id;
     my ($pcrname,$left,$right) = split /\s+/, $result->desc;

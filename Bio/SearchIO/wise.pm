@@ -175,9 +175,9 @@ sub next_result{
    local $/ = "\n";
    local $_;
 
-   return undef unless $self->wise;
+   return unless $self->wise;
    my $prediction = $self->wise->next_prediction;
-   return undef unless $prediction;
+   return unless $prediction;
    $self->{'_reporttype'} = uc $self->wisetype;
    $self->start_element({'Name' => 'WiseOutput'});
    $self->element({'Name' => 'WiseOutput_program',

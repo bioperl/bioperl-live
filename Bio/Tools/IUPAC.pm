@@ -261,7 +261,7 @@ sub next_seq{
 	next unless $self->{'_string'}->[$i] || @{$self->{'_alpha'}->[$i]} > 1;
 	if ( $self->{'_string'}->[$i] == $#{$self->{'_alpha'}->[$i]} ) { # rollover
 	    if ( $i == $#{$self->{'_string'}} ) { # end of possibilities
-		return undef;
+		return;
 	    } else {
 		$self->{'_string'}->[$i] = 0;
 		next;

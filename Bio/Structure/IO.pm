@@ -296,7 +296,7 @@ sub new {
 	$format = "\L$format";	# normalize capitalization to lower case
 
 	# normalize capitalization
-	return undef unless( &_load_format_module($format) );
+	return unless( &_load_format_module($format) );
 	return "Bio::Structure::IO::$format"->new(@args);
     }
 }

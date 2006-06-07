@@ -132,14 +132,14 @@ sub gene {
   if (defined $value) {
       if( ! $value->isa('Bio::LiveSeq::Gene') ) {
 	  $self->throw("Is not a Bio::LiveSeq::Gene object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'gene'} = $value;
       }
   }
   unless (exists $self->{'gene'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'gene'};
   }
@@ -196,15 +196,15 @@ sub add_Mutation{
     if( $value->isa('Bio::Liveseq::Mutation') ) {
 	my $com = ref $value;
 	$self->throw("Is not a Mutation object but a [$com]" );
-	return undef;
+	return;
     }
     if (! $value->pos) {
 	$self->warn("No value for mutation position in the sequence!");
-	return undef;
+	return;
     }
     if (! $value->seq && ! $value->len) {
 	$self->warn("Either mutated sequence or length of the deletion must be given!");
-	return undef;
+	return;
     }
     push(@{$self->{'mutations'}},$value);
 }
@@ -249,14 +249,14 @@ sub mutation {
   if (defined $value) {
       if( ! $value->isa('Bio::LiveSeq::Mutation') ) {
 	  $self->throw("Is not a Bio::LiveSeq::Mutation object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'mutation'} = $value;
       }
   }
   unless (exists $self->{'mutation'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'mutation'};
   }
@@ -283,14 +283,14 @@ sub DNA {
   if (defined $value) {
       if( ! $value->isa('Bio::LiveSeq::DNA') and ! $value->isa('Bio::LiveSeq::Transcript') ) {
 	  $self->throw("Is not a Bio::LiveSeq::DNA/Transcript object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'DNA'} = $value;
       }
   }
   unless (exists $self->{'DNA'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'DNA'};
   }
@@ -319,14 +319,14 @@ sub RNA {
   if (defined $value) {
       if( ! $value->isa('Bio::LiveSeq::Transcript') ) {
 	  $self->throw("Is not a Bio::LiveSeq::RNA/Transcript object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'RNA'} = $value;
       }
   }
   unless (exists $self->{'RNA'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'RNA'};
   }
@@ -356,14 +356,14 @@ sub dnamut {
   if (defined $value) {
       if( ! $value->isa('Bio::Variation::DNAMutation') ) {
 	  $self->throw("Is not a Bio::Variation::DNAMutation object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'dnamut'} = $value;
       }
   }
   unless (exists $self->{'dnamut'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'dnamut'};
   }
@@ -393,14 +393,14 @@ sub rnachange {
   if (defined $value) {
       if( ! $value->isa('Bio::Variation::RNAChange') ) {
 	  $self->throw("Is not a Bio::Variation::RNAChange object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'rnachange'} = $value;
       }
   }
   unless (exists $self->{'rnachange'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'rnachange'};
   }
@@ -430,14 +430,14 @@ sub aachange {
   if (defined $value) {
       if( ! $value->isa('Bio::Variation::AAChange') ) {
 	  $self->throw("Is not a Bio::Variation::AAChange object but a [$value]");
-	  return undef;
+	  return;
       }
       else {
 	  $self->{'aachange'} = $value;
       }
   }
   unless (exists $self->{'aachange'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'aachange'};
   }
@@ -468,7 +468,7 @@ sub exons {
       $self->{'exons'} = $value;
   }
   unless (exists $self->{'exons'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'exons'};
   }

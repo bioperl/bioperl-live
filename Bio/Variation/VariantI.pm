@@ -655,14 +655,14 @@ sub SeqDiff {
     if (defined $value) {
 	if( ! $value->isa('Bio::Variation::SeqDiff') ) {
 	    $self->throw("Is not a Bio::Variation::SeqDiff object but a [$value]");
-	    return (undef);
+	    return;
 	}
 	else {
 	    $self->{'seqDiff'} = $value;
 	}
     }
     unless (exists $self->{'seqDiff'}) {
-	return (undef);
+	return;
     } else {
 	return $self->{'seqDiff'};
     }

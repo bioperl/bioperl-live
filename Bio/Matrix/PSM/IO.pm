@@ -142,7 +142,7 @@ sub new {
 	$format = "\L$format"; # normalize capitalization to lower case
 
 	# normalize capitalization
-	return undef unless( $class->_load_format_module($format) );
+	return unless( $class->_load_format_module($format) );
 	return "Bio::Matrix::PSM::IO::$format"->new(@args);
     }
 }

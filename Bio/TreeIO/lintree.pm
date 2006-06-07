@@ -208,7 +208,7 @@ sub next_tree {
 	}
 	return $T;
     }
-    return undef; # if there are no more trees, return undef
+    return; # if there are no more trees, return undef
 	
 }
 

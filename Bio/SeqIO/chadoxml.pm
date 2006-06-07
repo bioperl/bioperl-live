@@ -1421,7 +1421,7 @@ sub _getRefAuthors {
 
 	#no authors, Bio::SeqIO::genbank doesn't pick up 'CONSRTM' line.
 	else {
-		return undef;
+		return;
 	}
 
 }
@@ -1434,7 +1434,7 @@ sub _getSubmitYear {
 
     if ($citation !~ /Submitted/) {
 	$self->warn("not citation for a submitted reference. cannot extract submission year.");
-	return undef;
+	return;
     } else {
 	$citation =~ /Submitted \(\d\d-[a-zA-Z]{3}-\d{4}\)/;
 	my $a = $MATCH;
@@ -1453,7 +1453,7 @@ sub _getSubmitAddr {
     my $citation = $ref->location;
     if ($citation !~ /Submitted/) {
 	$self->warn("not citation for a submitted reference. cannot extract submission year.");
-	return undef;
+	return;
     } else {
 	$citation =~ /Submitted \(\d\d-[a-zA-Z]{3}-\d{4}\)/;
 	my $a = $POSTMATCH;
@@ -1464,7 +1464,7 @@ sub _getSubmitAddr {
 		       );
 	    return \%author;
 	} else {
-	    return undef;
+	    return;
 	}
     }
 }

@@ -170,12 +170,12 @@ sub get_info {
     my ($resp) = $self->_request($url);
     if( ! defined $resp || ! ref($resp) ) {
 	$self->warn("Did not get any data for url ". $url->uri);
-	return undef;
+	return;
     }
     my $content = $resp->content;	
     if( $content =~ /ERROR/ || length($resp->content) == 0 ) {
 	$self->warn("Error getting for url " . $url->uri . "!\n");
-	return undef;
+	return;
     }
     my (@primers, $length, $markerurl, $realname);
     my $state = 0;
@@ -222,7 +222,7 @@ sub get_info {
     }
     else { 
 	my $resp = $self->_request(GET $markerurl);
-        return undef if ( !defined $resp );
+        return if ( !defined $resp );
 	$content = $resp->content();
     }
     $state = 0;
@@ -302,7 +302,7 @@ sub _request {
     if( $resp->is_error  ) {
 	$self->warn($resp->as_string() . "\nError getting for url " .
 		     $url->uri . "!\n");
-	return undef;
+	return;
     }
     return $resp;
 }

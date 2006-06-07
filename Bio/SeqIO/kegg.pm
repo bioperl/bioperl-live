@@ -181,7 +181,7 @@ sub next_seq {
 
 	$buffer = $self->_readline();
 
-	return undef if( !defined $buffer ); # end of file
+	return if( !defined $buffer ); # end of file
 	$buffer =~ /^ENTRY/ ||
 	  $self->throw("KEGG stream with bad ENTRY line. Not KEGG in my book. Got $buffer'");
 

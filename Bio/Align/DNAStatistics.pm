@@ -427,7 +427,7 @@ sub distance{
    }
    $self->warn("Unrecognized distance method $method must be one of [".
 	       join(',',$self->available_distance_methods())."]");
-   return undef;
+   return;
 }
 
 =head2 available_distance_methods
@@ -1021,7 +1021,7 @@ sub D_TajimaNei{
 sub D_JinNei{
    my ($self,@args) = @_;
    $self->warn("JinNei implementation not completed");
-   return undef;
+   return;
 }
 
 =head2 transversions

@@ -117,13 +117,13 @@ sub end_report {  return '' }
 
 sub filter {
     my ($self,$method,$code) = @_;    
-    return undef unless $method;
+    return unless $method;
     $method = uc($method);
     if( $method ne 'HSP' &&
 	$method ne 'HIT' &&
 	$method ne 'RESULT' ) {
 	$self->warn("Unknown method $method");
-	return undef;
+	return;
     }
     if( $code )  {
 	$self->throw("Must provide a valid code reference") unless ref($code) =~ /CODE/;

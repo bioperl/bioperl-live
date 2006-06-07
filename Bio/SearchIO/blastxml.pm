@@ -260,7 +260,7 @@ sub next_result {
 	}
 	$firstline = 0;
     }
-    return undef unless( $okaytoprocess);
+    return unless( $okaytoprocess);
     
     my %parser_args;
     if( defined $tfh ) {

@@ -439,7 +439,7 @@ sub column_num_for_name{
        return $ct if $n eq $name;
        $ct++;
    }
-   return undef;
+   return;
 }
 
 =head2 row_num_for_name

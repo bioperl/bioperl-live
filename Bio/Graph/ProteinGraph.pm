@@ -709,7 +709,7 @@ sub edge_by_id {
     }
   if (defined($self->{'_edge_id_map'}{$id})) {
      return $self->{'_edge_id_map'}{$id};
-       }else {return undef;}
+       }else {return;}
 
 }
 

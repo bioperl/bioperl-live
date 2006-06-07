@@ -330,7 +330,7 @@ sub intersection {
 	}
 
 	if ($start > $end) {
-		return undef;
+		return;
 	} else {
 		if( wantarray() ) {
 			return ($start, $end, $intersect_strand);
@@ -394,7 +394,7 @@ sub union {
 			}
 		}
 	}
-	return undef unless $start or $end;
+	return unless $start or $end;
 	if( wantarray() ) {
 		return ( $start,$end,$union_strand);
 	} else { 

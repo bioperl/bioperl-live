@@ -163,7 +163,7 @@ sub type {
 
 sub length{
    my ($self,@args) = @_;
-   return undef;
+   return;
 }
 
 =head2 Methods inherited from L<Bio::Map::SimpleMap>

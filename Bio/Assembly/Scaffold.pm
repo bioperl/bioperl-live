@@ -287,7 +287,7 @@ sub get_seq_by_id {
     my $self = shift;
     my $seqID = shift;
 
-    return undef unless (exists $self->{'_seqs'}{$seqID});
+    return unless (exists $self->{'_seqs'}{$seqID});
 
     return $self->{'_seqs'}{$seqID}->get_seq_by_name($seqID);
 }
@@ -306,7 +306,7 @@ sub get_contig_by_id {
     my $self = shift;
     my $contigID = shift;
 
-    return undef unless (exists $self->{'_contigs'}{$contigID});
+    return unless (exists $self->{'_contigs'}{$contigID});
 
     return $self->{'_contigs'}{$contigID};
 }
@@ -326,7 +326,7 @@ sub get_singlet_by_id {
 
     my $singletID = shift;
 
-    return undef unless (exists $self->{'_singlets'}{$singletID});
+    return unless (exists $self->{'_singlets'}{$singletID});
 
     return $self->{'_singlets'}{$singletID};
 }

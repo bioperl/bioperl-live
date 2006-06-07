@@ -123,7 +123,7 @@ sub next_structure {
    $line = $self->_readline;   # This needs to be before the first eof() test
 
    if( !defined $line ) {
-       return undef; # no throws - end of file
+       return; # no throws - end of file
    }
 
    if( $line =~ /^\s+$/ ) {
@@ -132,7 +132,7 @@ sub next_structure {
        }
    }   
    if( !defined $line ) {
-       return undef; # end of file
+       return; # end of file
    }
    $line =~ /^HEADER\s+\S+/ || $self->throw("PDB stream with no HEADER. Not pdb in my book");
    my($header_line) = unpack "x10 a56", $line;

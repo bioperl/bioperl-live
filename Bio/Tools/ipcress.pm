@@ -174,7 +174,7 @@ sub new {
 sub next_feature {
     my ($self) = @_;
     my $result = shift @{$self->{result}};
-    return undef unless defined($result);
+    return unless defined($result);
 
     chomp $result;
     my @lines = split "\n", $result;

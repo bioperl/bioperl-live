@@ -212,7 +212,7 @@ sub next_ontology{
       delete $self->{_ontology_engine};
       return $ont;
   }
-  return undef;
+  return;
 }
 
 =head2 _is_parsed

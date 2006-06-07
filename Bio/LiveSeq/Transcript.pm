@@ -777,7 +777,7 @@ sub translation_table {
     $self->{'translation_table'} = $value;
   }
   unless (exists $self->{'translation_table'}) {
-    return (undef);
+    return;
   } else {
     return $self->{'translation_table'};
   }

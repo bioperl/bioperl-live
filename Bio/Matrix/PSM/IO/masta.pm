@@ -169,7 +169,7 @@ sub next_matrix {
 
 sub next_psm {
     my $self=shift;
-    return undef if ($self->{_end});
+    return if ($self->{_end});
     my $line=$self->_readline;
     $self->throw("No ID line- wrong format\n") unless ($line=~/^>/);
     my ($id,$desc)=split(/[\t\s]+/,$line,2);

@@ -213,13 +213,13 @@ sub next_aln {
 	    
 	}
     }
-    return undef unless $seenbegin;
+    return unless $seenbegin;
     my $aln =  Bio::SimpleAlign->new(-verbose => $self->verbose(),
 				     -score   => $data{'score'},
 				     -source => "EMBOSS-".$data{'type'});
     
     foreach my $seqname ( qw(seq1 seq2) ) { 
-	return undef unless ( defined $data{$seqname} );	
+	return unless ( defined $data{$seqname} );	
 	$data{$seqname}->{'name'} ||= $seqname;
 	my $seq = new Bio::LocatableSeq('-seq' => $data{$seqname}->{'data'},
 					'-id'  => $data{$seqname}->{'name'},

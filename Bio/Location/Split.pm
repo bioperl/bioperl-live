@@ -398,7 +398,7 @@ sub min_start {
     }
     my @locs = $self->sub_Location(1);
     return $locs[0]->min_start() if @locs; 
-    return undef;
+    return;
 }
 
 =head2 max_start
@@ -419,7 +419,7 @@ sub max_start {
     }
     my @locs = $self->sub_Location(1);
     return $locs[0]->max_start() if @locs; 
-    return undef;
+    return;
 }
 
 =head2 start_pos_type
@@ -462,7 +462,7 @@ sub min_end {
     # reverse sort locations by largest ending to smallest ending
     my @locs = $self->sub_Location(-1);
     return $locs[0]->min_end() if @locs; 
-    return undef;
+    return;
 }
 
 =head2 max_end
@@ -484,7 +484,7 @@ sub max_end {
     # reverse sort locations by largest ending to smallest ending
     my @locs = $self->sub_Location(-1);
     return $locs[0]->max_end() if @locs; 
-    return undef;
+    return;
 }
 
 =head2 end_pos_type

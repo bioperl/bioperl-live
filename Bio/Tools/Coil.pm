@@ -170,7 +170,7 @@ sub next_result {
 sub _result {
     my ($self) = @_;
 
-    return undef unless(exists($self->{'_feats'}) && @{$self->{'_feats'}});
+    return unless(exists($self->{'_feats'}) && @{$self->{'_feats'}});
     return shift(@{$self->{'_feats'}});
 }
 

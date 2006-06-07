@@ -104,7 +104,7 @@ sub new {
     $source = "\L$source";	# normalize capitalization to lower case
 
     # normalize capitalization
-    return undef unless( $class->_load_expression_module($source) );
+    return unless( $class->_load_expression_module($source) );
     return "Bio::DB::Expression::$source"->new(@args);
   }
 }

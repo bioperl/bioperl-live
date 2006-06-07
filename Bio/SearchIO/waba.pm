@@ -262,7 +262,7 @@ sub next_result{
 	$self->end_element({'Name' => 'WABAOutput'});
 	return $self->end_document();
     }
-    return undef;
+    return;
 }
 
 =head2 start_element

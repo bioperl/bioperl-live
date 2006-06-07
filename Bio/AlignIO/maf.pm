@@ -132,7 +132,7 @@ sub next_aln {
 
     }
 
-    return undef unless $aline;
+    return unless $aline;
 
     my($kvs) = $aline =~ /^a\s+(.+)$/;
     my @kvs  = split /\s+/, $kvs if $kvs;

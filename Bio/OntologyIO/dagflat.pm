@@ -325,7 +325,7 @@ sub next_ontology {
       return $ont;
     }
   }
-  return undef;
+  return;
 }
 
 =head2 defs_file
@@ -694,7 +694,7 @@ sub _get_name {
         return $name;
     }
     else {
-        return undef;
+        return;
     }
 } # _get_name
 
@@ -773,7 +773,7 @@ sub _next_term {
   my ( $self ) = @_;
 
   if ( ($self->_done() == TRUE) || (! $self->_defs_io())) {
-    return undef;
+    return;
   }
 
   my $line      = "";

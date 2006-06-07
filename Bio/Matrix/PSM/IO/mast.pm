@@ -181,7 +181,7 @@ sub _get_genes {
 
 sub next_psm {
     my $self=shift;
-    return undef if ($self->{_end}==1);
+    return if ($self->{_end}==1);
     my (@lmotifsm,%index,$eval,$scheme,$sid);
     %index= %{$self->{length}};
     my (@instances,%instances);
@@ -189,7 +189,7 @@ sub next_psm {
     $line=~s/[\t\n]//;
     if ($line =~ /\*{10,}/) { #Endo of Section II if we do only section II
         $self->{_end}=1;
-        return undef;
+        return ;
     }
     do {
 	if ($line!~/^\s/) {

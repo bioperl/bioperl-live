@@ -241,7 +241,7 @@ sub next_tree{
 	$prev_event = $lastevent;
 	$lastevent = $ch;
     }       
-    return undef;
+    return;
 }
 
 =head2 write_tree

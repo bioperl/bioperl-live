@@ -176,7 +176,7 @@ sub next_seq {
 	# This needs to be before the first eof() test
 
    if( !defined $line ) {
-       return undef; # no throws - end of file
+       return; # no throws - end of file
    }
 
    if( $line =~ /^\s+$/ ) {

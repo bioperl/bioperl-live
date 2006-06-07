@@ -268,7 +268,7 @@ sub create_feature {
 sub _prediction {
     my ($self) = @_;
 
-    return undef unless(exists($self->{'_flist'}) && @{$self->{'_flist'}});
+    return unless(exists($self->{'_flist'}) && @{$self->{'_flist'}});
     return shift(@{$self->{'_flist'}});
 }
 

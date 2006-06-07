@@ -502,7 +502,7 @@ sub seq {
    }
 
    if ( ! exists $self->{'_gsf_seq'} ) {
-       return undef;
+       return;
    }
 
    # assumming our seq object is sensible, it should not have to yank

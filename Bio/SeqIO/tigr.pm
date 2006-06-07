@@ -102,7 +102,7 @@ sub next_seq()
 	my ($self) = @_;
 	
 	# Check for any more sequences
-	return undef if !defined($self->{_sequences}) or scalar(@{$self->{_sequences}}) < 1;
+	return if !defined($self->{_sequences}) or scalar(@{$self->{_sequences}}) < 1;
 
 	# get the next sequence
 	my $seq = shift(@{ $self->{_sequences} } );

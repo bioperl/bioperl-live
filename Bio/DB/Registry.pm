@@ -206,11 +206,11 @@ sub get_database {
 	$dbname = lc $dbname;
 	if( !defined $dbname ) {
 		$self->warn("must get_database with a database name");
-		return undef;
+		return;
 	}
 	if( !exists $self->{'_dbs'}->{$dbname} ) {
 		$self->warn("No database with name $dbname in Registry");
-		return undef;
+		return;
 	}
 	return $self->{'_dbs'}->{$dbname};
 }

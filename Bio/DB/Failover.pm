@@ -118,7 +118,7 @@ sub get_Seq_by_id {
 	}
     }
 
-    return undef;
+    return;
 }
 
 =head2 get_Seq_by_acc
@@ -149,7 +149,7 @@ sub get_Seq_by_acc {
 	    return $seq;
 	}
     }
-    return undef;
+    return;
 }
 
 =head2 get_Seq_by_acc
@@ -180,7 +180,7 @@ sub get_Seq_by_version {
 	    return $seq;
 	}
     }
-    return undef;
+    return;
 }
 
 

@@ -181,13 +181,13 @@ sub next_seq {
     
     unless (exists $self->{'domtree'}) {
 	$self->throw("A BSML document has not yet been parsed.");
-	return undef;
+	return;
     }
     my $dom = $self->{'domtree'};
     my $seqElements = $dom->getElementsByTagName ("Sequence");
     if ($self->{'current_node'} == $seqElements->getLength ) {
 	# There are no more <Sequence>s to process
-	return undef;
+	return;
     }
     my $xmlSeq = $seqElements->item($self->{'current_node'});
     
@@ -439,7 +439,7 @@ sub FLOPPYVALS {
 # Rational - avoid grabbing a comment rather than the PCDATA. Not foolproof...
 sub FIRSTDATA {
     my $element = shift;
-    return undef unless ($element);
+    return unless ($element);
 
     my $hopefuls = $element->getChildNodes;
     my $data;
@@ -1017,7 +1017,7 @@ sub _parse_bsml_location {
 	$start = $end = $loc->getAttribute('sitepos');
     } else {
 	warn "Unknown location type '$type', could not make GSF\n";
-	return undef;
+	return;
     }
     $gsf->start($start);
     $gsf->end($end);
@@ -1134,7 +1134,7 @@ sub _parse_annotation {
     # No good place to put any of this (except for references). Most stuff
     # just gets dumped to <Attribute>s
     my $ann = $obj->annotation;
-    return undef unless ($ann);
+    return  unless ($ann);
 #	use BMS::Branch; my $debug = BMS::Branch->new( ); warn "$obj :"; $debug->branch($ann);
     unless (ref($ann) =~ /Collection/) {
 	# Old style annotation. It seems that Features still use this
@@ -1398,7 +1398,7 @@ sub _parse_xml {
     
     unless (-e $file) {
 	$self->throw("Could not parse non-existant XML file '$file'.");
-	return undef;
+	return;
     }
     my $parser = new XML::DOM::Parser;
     my $doc = $parser->parsefile ($file);

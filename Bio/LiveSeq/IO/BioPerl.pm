@@ -169,7 +169,7 @@ sub load {
 	} else { 
 	    my $root = new Bio::Root::Root();
 	    $root->warn("Must have HTTP::Request::Common installed, cannot run load without the -filename option specified, see docs for Bio::LiveSeq::IO::BioPerl");
-	    return undef;
+	    return;
 	}
     }
 

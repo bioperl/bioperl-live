@@ -176,14 +176,14 @@ sub new {
  Usage    : $sbjct = $obj->getSbjct();
  Function : Method of obtaining single "subject" of a bl2seq report
  Example  : my $sbjct = $obj->getSbjct ) {}
- Returns  : Sbjct object or null if finished
+ Returns  : Sbjct object or undef if finished
  Args     :
 
 =cut
 
 sub getSbjct {
   my ($self) = @_;
-#  $self->_fastForward or return undef;
+#  $self->_fastForward or return;
 
   #######################
   # get bl2seq "sbjct" name and length #
@@ -204,7 +204,7 @@ sub getSbjct {
 	last READLOOP;
      }
   }
-  return undef if ! defined $def;
+  return if ! defined $def;
   $def =~ s/\s+/ /g;
   $def =~ s/\s+$//g;
   
@@ -240,7 +240,7 @@ sub next_feature{
    $sbjct = $self->{'_current_sbjct'};
    unless( defined $sbjct ) {
        $self->debug(" No hit object found for bl2seq report \n ");
-       return undef;
+       return;
    }
    $hsp = $sbjct->nextHSP;
    return $hsp || undef;
@@ -280,7 +280,7 @@ sub  sbjctName {
 	my $self = shift;
 #	unless( defined  $self->{'_current_sbjct'} ) {
 #       		my $sbjct = $self->{'_current_sbjct'} = $self->nextSbjct;
-#       		return undef unless defined $sbjct;
+#       		return unless defined $sbjct;
 #   	}
 	$self->{'_current_sbjct'}->{'NAME'} || '';
 }
@@ -300,7 +300,7 @@ sub sbjctLength {
 	my $self = shift;
 #	unless( defined  $self->{'_current_sbjct'} ) {
 #       		my $sbjct = $self->{'_current_sbjct'} = $self->nextSbjct;
-#       		return undef unless defined $sbjct;
+#       		return unless defined $sbjct;
 #   	}
 	$self->{'_current_sbjct'}->{'LENGTH'};
 }

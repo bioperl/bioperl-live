@@ -563,7 +563,7 @@ sub has_rank {
       $self=$self->ancestor;
    }
 
-   return undef;
+   return;
 }
 
 
@@ -593,7 +593,7 @@ sub has_taxon {
       $self=$self->ancestor;
    }
 
-   return undef;
+   return;
 }
 
 
@@ -642,7 +642,7 @@ sub recent_common_ancestor {
       $node=$node->ancestor;
    }
 
-   return undef;
+   return;
 }
 
 =head2 species

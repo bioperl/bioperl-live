@@ -193,7 +193,7 @@ sub instances {
        dealing with PSM such as information content (IC), score
        (e-value, etc.), number of sites (sites) and width. This
        list may expand. The current list should be in
-       @Bio::Matrix::PSM::Psm::HEADER. Returns undef if an
+       @Bio::Matrix::PSM::Psm::HEADER. Returns an epty list if an
        argument is supplied that is not in
        @Bio::Matrix::PSM::meme::HEADER.
  Throws  :
@@ -205,7 +205,7 @@ sub instances {
 
 sub header {
     my $self = shift;
-    return undef if ($self->{end});
+    return  if ($self->{end});
     my %header;
     if (@_) {my $key=shift; return $self->{$key}; }
     foreach my $key (@Bio::Matrix::PSM::ProtPsm::HEADER) {

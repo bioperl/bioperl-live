@@ -477,7 +477,7 @@ sub flush_sub_SeqFeature {
  Function: Returns the CDS (coding sequence) as defined by the exons
            of this transcript and the attached sequence.
 
-           If no sequence is attached this method will return undef.
+           If no sequence is attached this method will return false.
 
            Note that the implementation provided here returns a
            concatenation of all coding exons, thereby assuming that
@@ -498,7 +498,7 @@ sub cds {
     my @exons = $self->exons_ordered();  #this is always sorted properly according to strand
     my $strand;
 
-    return undef unless(@exons);
+    return  unless(@exons);
     # record strand (a minus-strand transcript must have the exons sorted in
     # reverse order)
     foreach my $exon (@exons) {
@@ -511,7 +511,7 @@ sub cds {
 	}
     }
     my $cds = $self->_make_cds(@exons);
-    return undef unless $cds;
+    return unless $cds;
     return Bio::PrimarySeq->new('-id' => $self->seq_id(),
 				'-seq' => $cds,
 				'-alphabet' => "dna");
@@ -538,7 +538,7 @@ sub protein {
 
     $seq = $self->cds();
     return $seq->translate() if $seq;
-    return undef;
+    return;
 }
 
 =head2 mrna
@@ -584,7 +584,7 @@ sub mrna {
     if($self->poly_A_site()) {
 	$seq->seq($seq->seq() . $self->poly_A_site()->seq()->seq());
     }
-    return undef if($seq->length() == 0);
+    return if($seq->length() == 0);
     return $seq;
 }
 

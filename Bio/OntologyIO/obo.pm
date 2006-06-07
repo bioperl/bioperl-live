@@ -338,7 +338,7 @@ sub next_ontology {
             return $ont;
         }
     }
-    return undef;
+    return;
 }
 
 =head2 close

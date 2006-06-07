@@ -291,7 +291,7 @@ Bio::Search::Result::ResultI implementation
 sub next_hit {
     my ($self,@args) = @_;
     my $index = $self->_nexthitindex;
-    return undef if $index > scalar @{$self->{'_hits'}};
+    return if $index > scalar @{$self->{'_hits'}};
     return $self->{'_hits'}->[$index];    
 }
 

@@ -209,7 +209,6 @@ sub entry{
    my ($self,$row,$column,$newvalue) = @_;
    if( ! defined $row || ! defined $column ) {
        $self->throw("Need at least 2 ids");
-       return undef;
    }
 
    my ($rownum) = $self->row_num_for_name($row);
@@ -251,7 +250,7 @@ sub entry_by_num {
 	$row !~ /^\d+$/ ||
 	$col !~ /^\d+$/ ) {
 	$self->warn("expected to get 2 number for entry_by_num");
-	return undef;
+	return;
     }
     
     if( defined $newvalue ) {
@@ -288,12 +287,12 @@ sub column{
 
     if( ! defined $column ) {
 	$self->warn("Need at least a column id");
-	return undef;
+	return;
     }
     my $colnum  = $self->column_num_for_name($column);
     if( ! defined $colnum ) { 
 	$self->warn("could not find column number for $column");
-	return undef;
+	return;
     }
     return $self->column_by_num($colnum,$newcol);
 }
@@ -333,7 +332,7 @@ sub column_by_num{
     my ($self,$colnum,$newcol) = @_;
     if( ! defined $colnum ) {
 	$self->warn("need at least a column number");
-	return undef;
+	return;
     }
     my $rowcount = $self->num_rows;
     my $colcount = $self->num_columns;
@@ -342,11 +341,11 @@ sub column_by_num{
     if( defined $newcol ) {
 	if( ref($newcol) !~ /ARRAY/i) {
 	    $self->warn("expected a valid arrayref for resetting a column");
-	    return undef;
+	    return;
 	}
 	if( scalar @$newcol != $rowcount ) {
 	    $self->warn("new column is not the correct length ($rowcount) - call add or remove row to shrink or grow the number of rows first");
-	    return undef;
+	    return;
 	}
 	for(my $i=0; $i < $rowcount; $i++) {
 	    $self->entry_by_num($i,$colnum,$newcol->[$i]);
@@ -381,7 +380,7 @@ sub row {
     my ($self,$row,$newrow) = @_;
     if( ! defined $row) {
 	$self->warn("Need at least a row id");
-	return undef;
+	return;
     }
     my $rownum = $self->row_num_for_name($row);
     return $self->row_by_num($rownum,$newrow);
@@ -418,18 +417,18 @@ sub row_by_num{
    my ($self,$rownum,$newrow) = @_;
    if( ! defined $rownum ) {
        $self->warn("need at least a row number");
-       return undef;
+       return;
    }
     my $colcount = $self->num_columns;
     my $ret;
     if( defined $newrow ) {
 	if( ref($newrow) !~ /ARRAY/i) {
 	    $self->warn("expected a valid arrayref for resetting a row");
-	    return undef;
+	    return;
 	}
 	if( scalar @$newrow != $colcount ) {
 	    $self->warn("new row is not the correct length ($colcount) - call add or remove column to shrink or grow the number of columns first");
-	    return undef;
+	    return;
 	}
 	for(my $i=0; $i < $colcount; $i++) {
 	    $self->entry_by_num($rownum,$i, $newrow->[$i]);
@@ -496,13 +495,13 @@ sub add_row{
    if( !defined $index || 
        $index !~ /^\d+$/ ) {
        $self->warn("expected a valid row index in add_row");
-       return undef;
+       return;
    } elsif( ! defined $name) {
        $self->warn("Need a row name or heading");
-       return undef;
+       return;
    } elsif( defined $self->row_num_for_name($name) ) {
        $self->warn("Need a unqiue name for the column heading, $name is already used");
-       return undef;
+       return;
    }
    my $colcount = $self->num_columns;
    my $rowcount = $self->num_rows;
@@ -586,13 +585,13 @@ sub add_column{
    if( !defined $index ||
        $index !~ /^\d+$/ ) {
        $self->warn("expected a valid col index in add_column");
-       return undef;
+       return;
    } elsif( ! defined $name) {
        $self->warn("Need a column name or heading");
-       return undef;
+       return;
    } elsif( defined $self->column_num_for_name($name) ) {
        $self->warn("Need a unqiue name for the column heading, $name is already used");
-       return undef;
+       return;
    }
    my $colcount = $self->num_columns;
    my $rowcount = $self->num_rows;

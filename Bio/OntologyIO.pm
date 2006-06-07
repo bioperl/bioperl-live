@@ -176,7 +176,7 @@ sub new {
         my $format = $class->_map_format($param{'-format'});
 
         # normalize capitalization
-        return undef unless( $class->_load_format_module($format) );
+        return unless( $class->_load_format_module($format) );
         return "Bio::OntologyIO::$format"->new(@args);
     }
 

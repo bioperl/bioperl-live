@@ -128,7 +128,7 @@ sub map {
     foreach my $mapper ($self->each_mapper) {
 
 	my $res = $mapper->map($value);
-	return undef unless $res->each_match;
+	return unless $res->each_match;
 	$value = $res->match;
     }
 

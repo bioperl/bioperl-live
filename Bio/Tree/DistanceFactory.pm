@@ -136,7 +136,7 @@ sub make_tree{
    if( ! defined $matrix || !ref($matrix) || 
        ! $matrix->isa('Bio::Matrix::MatrixI') ) {
        $self->warn("Need to provide a valid Bio::Matrix::MatrixI object to make_tree");
-       return undef;
+       return;
    }
 
    my $method = uc ($self->method);
@@ -146,7 +146,7 @@ sub make_tree{
        return $self->_upgma($matrix);
    } else { 
        $self->warn("Unknown tree construction method '$method'.  Cannot run.");
-       return undef;
+       return;
    }
    
 }
@@ -183,7 +183,7 @@ sub _nj {
 
    if( $N < 2 ) {
        $self->warn("Can only perform NJ treebuilding on sets of 2 or more species\n");
-       return undef;
+       return;
    } elsif( $N == 2 ) {
        $i = 0;
        my $d = sprintf($precisionstr,

@@ -1060,7 +1060,7 @@ sub _next_element{
     if(! @$queue) {
 	# yes, remove queue and signal to the caller
 	delete $self->{$queuename};
-	return undef;
+	return;
     }
     return shift(@$queue);
 }
@@ -1241,7 +1241,7 @@ sub next_seq {
     if(! @$queue) {
 	# yes, remove queue and signal to the caller
 	delete $obj->{'_seq_queue'};
-	return undef;
+	return;
     }
     # no, still data in the queue: get the next one from the queue
     my $seq_h = shift(@$queue);

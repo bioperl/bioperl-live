@@ -179,7 +179,7 @@ sub  oldhits  {shift->{'OLDHITS'}}
 
 sub nextSbjct {
     my ($self) = @_;
-    $self->_fastForward or return undef;
+    $self->_fastForward or return;
 
     #######################
     # get all sbjct lines #
@@ -239,9 +239,9 @@ sub nextSbjct {
 sub Align {
     use Bio::SimpleAlign;
     my ($self) = @_;
-    $self->_fastForward or return undef;
+    $self->_fastForward or return;
     my $lastline = $self->_readline();
-    return undef unless $lastline =~ /^QUERY/; # If psiblast not run correctly
+    return unless $lastline =~ /^QUERY/; # If psiblast not run correctly
     my (%sequence,%first,%last,$num);
 
     if ( $lastline =~ /^QUERY\s+(\d*)\s*([-\w]+)\s*(\d*)\s*$/){

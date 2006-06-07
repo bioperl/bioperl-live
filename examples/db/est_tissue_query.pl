@@ -142,7 +142,7 @@ sub get_tissue {
     }
 
     my $seq = $db->get_Seq_by_acc($id);
-    return undef unless(  $seq );
+    return  unless(  $seq );
 
     foreach my $feature ( $seq->all_SeqFeatures ) {
 	if( $feature->primary_tag eq 'source' ) {
@@ -158,5 +158,5 @@ sub get_tissue {
 	    }
 	}
     }	    
-    return undef;
+    return;
 }

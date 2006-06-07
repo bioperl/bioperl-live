@@ -203,7 +203,7 @@ sub likelihood {
 
    if( ! defined $seq) {
       $self->warn("Cannot calculate without supply an observation sequence!");
-      return undef;
+      return;
    }
    my $s = $self->{'symbols'};
    $_ = $seq;
@@ -239,7 +239,7 @@ sub statistical_training {
 
    if( ! defined $seqs or ! defined $hss) {
       $self->warn("Cannot calculate without supply an observation and a hidden state sequence!");
-      return undef;
+      return;
    }
    $seq_cnt = @{$seqs};
    $hs_cnt = @{$seqs};
@@ -292,7 +292,7 @@ sub baum_welch_training {
 
    if( ! defined $seqs) {
       $self->warn("Cannot calculate without supply an observation sequence!");
-      return undef;
+      return;
    }
    foreach $seq (@{$seqs}) {
       my $s = $self->{'symbols'};
@@ -324,7 +324,7 @@ sub viterbi {
 
    if( ! defined $seq) {
       $self->warn("Cannot calculate without supply an observation sequence!");
-      return undef;
+      return;
    }
    my $s = $self->{'symbols'};
    $_ = $seq;

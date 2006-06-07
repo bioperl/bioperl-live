@@ -143,7 +143,7 @@ sub distance{
    }
    $self->warn("Unrecognized distance method $method must be one of [".
 	       join(',',$self->available_distance_methods())."]");
-   return undef;
+   return;
 }
 
 =head2 available_distance_methods

@@ -185,7 +185,7 @@ sub rank {
 	}
 	else {
 	    $self->throw("Rank not defined for this Pair\n");
-	    return undef;
+	    return;
 	}
     }
 }
@@ -250,7 +250,7 @@ sub sense {
     my ($self, $soligo) = @_;
 
     if ($soligo) {
-	$self->_add_oligo($soligo, 1) or return undef;
+	$self->_add_oligo($soligo, 1) or return;
     }
     else {
 	return $self->_get_oligo(1);
@@ -271,7 +271,7 @@ sub antisense {
     my ($self, $asoligo) = @_;
 
     if ($asoligo) {
-	$self->_add_oligo($asoligo, -1) or return undef;
+	$self->_add_oligo($asoligo, -1) or return;
     }
     else {
 	return $self->_get_oligo(-1);
@@ -301,7 +301,7 @@ sub _get_oligo {
 	next unless ($feat->strand == $strand);
 	return $feat;
     }
-    return undef;
+    return;
 }
 
 1;

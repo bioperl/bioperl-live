@@ -521,7 +521,7 @@ sub attach_seq {
 sub seq {
   my ($self) = @_;
 
-  return undef unless defined($self->entire_seq());
+  return unless defined($self->entire_seq());
 
   my $seq = $self->entire_seq->trunc($self->start(), $self->end());
 
@@ -706,7 +706,7 @@ sub get_SeqFeatures {
 sub add_SeqFeature {
   my ($self,$val, $expand) = @_;
 
-  return undef unless $val;
+  return unless $val;
 
   if ((!ref($val)) || !$val->isa('Bio::SeqFeatureI') ) {
       $self->throw((ref($val) ? ref($val) : $val)
@@ -718,7 +718,7 @@ sub add_SeqFeature {
   } else {
       if ( !$self->contains($val) ) {
 	  $self->warn("$val is not contained within parent feature, and expansion is not valid, ignoring.");
-	  return undef;
+	  return;
       }
   }
 

@@ -162,7 +162,7 @@ sub next_aln {
 #  If $end <= 0, we have either reached the end of
 #  file in <fh> or we have encountered some other error
 #
-    return undef if ($end <= 0);
+    return if ($end <= 0);
     return $aln;
 }
 

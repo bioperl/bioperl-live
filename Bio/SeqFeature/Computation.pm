@@ -137,7 +137,7 @@ sub new {
 
 sub has_score {
     my ($self, $score) = @_;
-    return undef unless defined $score;
+    return unless defined $score;
     return exists $self->{'_gsf_score_hash'}->{$score};
 }
 
@@ -212,7 +212,7 @@ sub each_score_value {
    my ($self, $score) = @_;
    if ( ! exists $self->{'_gsf_score_hash'}->{$score} ) {
        $self->warn("asking for score value that does not exist $score");
-       return undef;
+       return;
    }
    return @{$self->{'_gsf_score_hash'}->{$score}};
 }

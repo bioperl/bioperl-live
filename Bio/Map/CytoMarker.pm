@@ -311,7 +311,7 @@ sub union {
 
 sub get_chr {
     my ($self) = @_;
-    return undef unless $self->position;
+    return unless $self->position;
     return $self->position->chr;
 }
 

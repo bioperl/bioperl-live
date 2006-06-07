@@ -266,7 +266,7 @@ sub reset_retrieval {
 sub get_next {
   my $self = shift;
 
-  return undef unless $self->has_next;
+  return unless $self->has_next;
 
   my $xml = $self->get_by_id( @{ $self->ids }[$self->cursor] );
   $self->cursor( $self->cursor + 1 );

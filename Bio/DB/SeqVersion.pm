@@ -101,7 +101,7 @@ sub new {
 
     $type = "\L$type";	# normalize capitalization to lower case
 
-    return undef unless( $class->_load_seqversion_module($type) );
+    return unless( $class->_load_seqversion_module($type) );
     return "Bio::DB::SeqVersion::$type"->new(@args);
   }
 }

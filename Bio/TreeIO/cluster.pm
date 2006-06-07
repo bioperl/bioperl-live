@@ -120,7 +120,7 @@ sub next_tree {
     my ($self) = @_;
     if( ! $self->{_result} ){
 	$self->warn("Must have provided value 'result' and 'linkdist' and 'labels' when initializing a TreeIO::cluster object");
-	return undef;
+	return;
     }
     $self->_eventHandler->start_document();
 

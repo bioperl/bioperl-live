@@ -147,7 +147,7 @@ sub new {
 sub next_feature {
     my ($self) = @_;
     my $line = $self->_readline;
-    return undef unless defined($line);
+    return unless defined($line);
     chomp($line);
     my($seqname,$location,$mkrname, $rest) = split(/\s+/,$line,4);
     

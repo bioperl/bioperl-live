@@ -96,7 +96,7 @@ sub next_feature {
     $record .= $buf;
     last if $buf =~ m!</protein>!;
   }
-  return undef unless $ok;
+  return unless $ok;
 
   my $dom = $self->xml_parser->parse($record);
 

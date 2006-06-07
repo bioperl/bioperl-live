@@ -140,7 +140,7 @@ sub next_seq {
 	 # record being parsed. 2 indicates the recommended
 	 # trimming mode of the data structure
 	 #I use 1 as I prefer not to descend into size 0 arrays
-	 return undef unless ($value);
+	 return unless ($value);
     my $debug=$self->{_debug};
     $self->{_ann} = Bio::Annotation::Collection->new();
     $self->{_currentann} = Bio::Annotation::Collection->new();
@@ -533,7 +533,7 @@ sub _process_comments {
 
 sub _process_src {
     my $src=shift;
-    return undef unless (exists($src->{src}->{tag}));
+    return unless (exists($src->{src}->{tag}));
     my @ann;
     my $db=$src->{src}->{db};
     delete $src->{src}->{db};
@@ -650,7 +650,7 @@ my $start=shift||0;#In case it is not known: should there be an entry at all?
 my $end=shift||1;
 my $strand=shift||1;
 my (@coords,@uncapt);
-return undef unless (exists($coord->{accession}));
+return unless (exists($coord->{accession}));
 my $transcript=new Bio::SeqFeature::Gene::Transcript(-primary=>$coord->{accession}, #Desc is actually non functional...
                                           -start=>$start,-end=>$end,-strand=>$strand, -desc=>$coord->{type});
 

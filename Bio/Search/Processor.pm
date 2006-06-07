@@ -87,7 +87,7 @@ sub new {
 
     exists $args{'-algorithm'} or do { 
 	print STDERR "Must supply an algorithm!";
-	return undef;
+	return;
     };
 
     $algorithm = $args{'-algorithm'} || $args{'-ALGORITHM'};
@@ -105,7 +105,7 @@ For more information about the Search/Processor system please see the
 Processor docs.  This includes ways of checking for processors at 
 compile time, not run time
 EOF
-	    return undef;
+	    return;
 	}
     }
 

@@ -97,7 +97,7 @@ sub next_psm {
    my $self = shift;
    my $line;
 
-   return undef if ($self->{_end});
+   return if ($self->{_end});
 
    my %args;
    my @ordered_alphabet = @{$self->{_ordered_alphabet}};

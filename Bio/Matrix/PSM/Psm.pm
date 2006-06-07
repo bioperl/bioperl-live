@@ -197,7 +197,7 @@ sub instances {
 
 sub header {
     my $self = shift;
-    return undef if ($self->{end});
+    return  if ($self->{end});
     my %header;
     if (@_) {my $key=shift; return $self->{$key}; }
     foreach my $key (@Bio::Matrix::PSM::Psm::HEADER) {

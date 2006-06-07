@@ -178,7 +178,7 @@ sub header {
 sub next_psm {
     #Parses the next prediction and returns a psm objects
     my $self=shift;
-    return undef if ($self->{end});
+    return if ($self->{end});
     my ($endm,$line,$instances,$tr,$width,$motif_id,$sites,$e_val,$id,$ic,$lA,$lC,$lG,$lT);
     while (defined( $line = $self->_readline) ) {
 #Check if revcom is enabled, not very original check....
@@ -223,14 +223,14 @@ sub next_psm {
 	}
 	if ($line=~"SUMMARY OF MOTIFS") {
 	    $self->{end}=1;
-	    return undef;
+	    return;
 	}
 	$endm=1 if ($line=~/^Time\s/); 
     }
 	if ($endm) { #End of file found, end of current motif too, but not all predictions were made as requested (No summary)
 	    $self->{end}=1;
-		warn "This MEME analysis was terminated prematurely, you may have less motifs than you requested\n";
-	    return undef;
+            warn "This MEME analysis was terminated prematurely, you may have less motifs than you requested\n";
+	    return;
 	}
     $self->throw("Wrong format\n"); # Multiple keywords not found, probably wrong format
 }

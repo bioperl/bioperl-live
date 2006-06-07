@@ -173,7 +173,7 @@ sub map {
            $split->add_sub_Location($match) if $match;
 
        }
-       $split->each_Location ? (return $split) : (return undef) ;
+       $split->each_Location ? (return $split) : return ;
 
    } else {
        return $self->_map($value);
@@ -212,8 +212,8 @@ sub _map {
 
    # strict prevents matches outside stated range
    if ($self->strict) {
-       return undef if $start < 0 and $end < 0;
-       return undef if $start > $self->out->end;
+       return if $start < 0 and $end < 0;
+       return if $start > $self->out->end;
        $start = 1 if $start < 0;
        $end = $self->out->end if $end > $self->out->end;
    }

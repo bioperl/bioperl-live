@@ -137,17 +137,17 @@ sub Fst {
    if( ! defined $populations || 
        ref($populations) !~ /ARRAY/i ) { 
        $self->warn("Must provide a valid arrayref for populations");
-       return undef;
+       return;
    } elsif( ! defined $markernames ||
 	    ref($markernames) !~ /ARRAY/i ) {
        $self->warn("Must provide a valid arrayref for marker names");
-       return undef;
+       return;
    }
    my $num_sub_pops          = scalar @$populations;
 
    if( $num_sub_pops < 2 ) {
        $self->warn("Must provide at least 2 populations for this test, you provided $num_sub_pops");
-       return undef;
+       return;
    }
 
    # This code assumes that pop 1 contains at least one of all the
@@ -188,7 +188,7 @@ sub Fst {
 	       if( ! defined $markerobj ) { 
 		   $self->warn("Could not derive Marker for $marker ".
 			       "from population ". $pop->name);
-		   return undef;
+		   return;
 	       }
 
 	       my $freq_homozygotes = 

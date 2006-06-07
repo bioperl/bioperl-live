@@ -793,7 +793,7 @@ return @regexp;
 sub _compress_array {
 	my ($array,$lm,$direct)=@_;
 	my $str;
-	return undef unless(($array) && ($lm));
+	return  unless(($array) && ($lm));
 	$direct=1 unless ($direct);
 	my $k1= ($direct==1) ? (255/$lm) : (127/$lm);
 	foreach my $c (@{$array}) {
@@ -825,7 +825,7 @@ sub _compress_array {
 sub _uncompress_string {
 	my ($str,$lm,$direct)=@_;
 	my @array;
-	return undef unless(($str) && ($lm));
+	return unless(($str) && ($lm));
 	$direct=1 unless ($direct);
 	my $k1= ($direct==1) ? (255/$lm) : (127/$lm);
 	while (my $c=chop($str)) {
@@ -923,7 +923,7 @@ sub get_compressed_logs {
 
 sub sequence_match_weight {
 my ($self,$seq)=@_;
-return undef unless ($self->{logA});
+return unless ($self->{logA});
 my $width=$self->width;
 $self->throw ("I can calculate the score only for sequence which are exactly my size for $seq, my width is $width\n") unless (length($seq)==@{$self->{logA}});
 my @seq=split(//,$seq);

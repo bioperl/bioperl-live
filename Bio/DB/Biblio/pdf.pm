@@ -180,7 +180,7 @@ sub get_next {
 
   return $self->pdf();
 
-  return undef;
+  return;
 }
 
 =head2 find
@@ -212,7 +212,7 @@ sub find {
 =cut
 
 sub exists {
-  return undef;
+  return;
 
 }
 
@@ -228,7 +228,7 @@ sub exists {
 =cut
 
 sub destroy {
-  return undef;
+  return;
 
 }
 

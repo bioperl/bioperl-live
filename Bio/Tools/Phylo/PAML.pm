@@ -384,7 +384,7 @@ sub next_result {
         $data{'-rst_trees'}    = $self->{'_rst'}->{'trees'};
 	return Bio::Tools::Phylo::PAML::Result->new(%data);
     } else {
-	return undef;
+	return;
     }
 }
 

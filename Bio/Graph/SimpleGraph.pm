@@ -598,7 +598,7 @@ sub has_edges {
     }
     last unless defined $m && defined $n;
     ($m,$n)=($n,$m) if "$n" lt "$m";
-    return undef unless ($edges->{$m,$n});
+    return unless ($edges->{$m,$n});
   }
   return 1;
 }
@@ -612,7 +612,7 @@ sub neighbors {
     $result=$self->_neighbors->{$source};
   } elsif ($what=~/^e/i) {
     my $edge=$self->edge($source);
-    return undef unless $edge;
+    return unless $edge;
     my($m,$n)=@$edge;
     my %edges;
     for my $node (@{$self->_neighbors->{$m}}) {
@@ -695,7 +695,7 @@ sub is_forest {
   my($self)=@_;
   my @components=$self->components;
   for my  $component (@components) {
-    return undef unless $component->is_tree;
+    return unless $component->is_tree;
   }
   return 1;
 }

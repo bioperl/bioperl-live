@@ -233,7 +233,7 @@ sub parse_next_gene {
 	   $self->warn( "unknown line $_\n");
        }
    }
-   return undef unless( @features );
+   return unless( @features );
    return wantarray ? @features : \@features;
 }
 
@@ -313,7 +313,7 @@ sub _parse_gene_struct {
       	   $self->warn( "unknown line $_\n");
        }
    }
-   return undef unless $#exon >=0;
+   return unless $#exon >=0;
    foreach my $e(@exon){
     my @add;
     foreach my $sf(@suppf){

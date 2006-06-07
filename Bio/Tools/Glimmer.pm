@@ -292,7 +292,7 @@ sub _parse_predictions {
 sub _prediction {
     my ($self) = @_;
 
-    return undef unless(exists($self->{'_preds'}) && @{$self->{'_preds'}});
+    return unless(exists($self->{'_preds'}) && @{$self->{'_preds'}});
     return shift(@{$self->{'_preds'}});
 }
 

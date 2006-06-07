@@ -172,7 +172,7 @@ sub seq {
 	# check alphabet
 	if ($seq =~ /[^ACGTUacgtu]/ ) {
 	    warn "Sequence contains illegal characters";
-	    return undef;
+	    return;
 	}
 	else {
 	    $self->{'seq'} = $seq;

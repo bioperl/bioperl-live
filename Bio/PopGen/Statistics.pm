@@ -509,7 +509,7 @@ sub fu_and_li_F_star_counts {
     my ($self,$n,$pi,$seg_sites, $singletons) = @_;
     if( $n <= 1 ) {
 	$self->warn("N must be > 1\n");
-	return undef;
+	return;
     }
     if( $n == 2) { 
 	return 0;

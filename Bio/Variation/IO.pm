@@ -253,7 +253,7 @@ sub new {
              || 'flat';
    $format = "\L$format"; # normalize capitalization to lower case
 
-   return undef unless $class->_load_format_module($format);
+   return unless $class->_load_format_module($format);
    return "Bio::Variation::IO::$format"->new(%param);
 }
 

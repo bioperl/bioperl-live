@@ -261,7 +261,7 @@ sub revision {
 =head2 _check
 
  Title   : _check
- Usage   : if ($self->_check('weights') { #do something} else {return undef;}
+ Usage   : if ($self->_check('weights') { #do something} else {return 0;}
  Function: Checks if the method called is aplicable to the file format
  Throws  :
  Example :

@@ -153,7 +153,7 @@ sub seq_id {
     if (@ls) {
 	return $ls[0]->seq_id;
     } else {
-	return undef;
+	return;
     }
 }
 

@@ -292,7 +292,7 @@ sub next_ontology{
     $self->parse() unless exists($self->{'_ontologies'});
     # return next available ontology
     return shift(@{$self->{'_ontologies'}}) if exists($self->{'_ontologies'});
-    return undef;
+    return;
 }
 
 =head2 _flat_files
@@ -669,7 +669,7 @@ sub _virtual_root{
 
     # don't return anything if not in file_is_root mode, or if we don't
     # have a file to derive the root node from
-    return undef unless $self->file_is_root() && $self->file();
+    return unless $self->file_is_root() && $self->file();
 
     # construct it if we haven't done this before
     if(! $self->{'_virtual_root'}) {

@@ -293,7 +293,7 @@ sub _determine_side
 {
   my $self = shift;
   my $side = $self->option('scale');
-  return undef if $side eq 'none';
+  return if $side eq 'none';
   $side   ||= $self->default_scale();
   return $side;
 }

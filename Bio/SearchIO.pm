@@ -181,7 +181,7 @@ sub new {
     # normalize capitalization to lower case
     $format = "\L$format";
     
-    return undef unless( $class->_load_format_module($format) );
+    return unless( $class->_load_format_module($format) );
     return "Bio::SearchIO::${format}"->new(@args);
   }
 }

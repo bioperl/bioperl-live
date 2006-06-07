@@ -120,7 +120,7 @@ sub next_seq{
 
    my $nextline = $self->_readline();
    chomp($nextline) if defined $nextline;
-   if( !defined $nextline ){ return undef; }
+   return unless defined $nextline;
    if ($nextline =~ /^([^\t]*)\t(.*)/) { 
        my ($id, $seq)=($1, uc($2));
        $seq =~ s/\W//g;

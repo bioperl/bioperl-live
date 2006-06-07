@@ -347,7 +347,7 @@ sub _encode_base64 {
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
     $protocol ||= 'http';
-    return undef unless (  defined $protocol && defined $proxy );
+    return unless (  defined $protocol && defined $proxy );
     $self->authentication($username, $password) 
 	if ($username && $password);
     return $self->{'_proxy'}->{$protocol} = $proxy;

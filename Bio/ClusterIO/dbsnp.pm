@@ -197,7 +197,7 @@ sub next_cluster {
   }
 
   #if we didn't find a start tag
-  return undef if $start;
+  return if $start;
 
   my %parser_args;
   if( defined $tfh ) {

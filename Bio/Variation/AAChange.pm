@@ -234,14 +234,14 @@ sub RNAChange {
   if (defined $value) {
       if( ! $value->isa('Bio::Variation::RNAChange') ) {
 	  $self->throw("Is not a Bio::Variation::RNAChange object but a [$self]");
-	  return (undef);
+	  return;
       }
       else {
 	  $self->{'RNAChange'} = $value;
       }
   }
   unless (exists $self->{'RNAChange'}) {
-      return (undef);
+      return;
   } else {
       return $self->{'RNAChange'};
   }
@@ -349,8 +349,8 @@ sub similarity_score {
     my ($o, $m, $type);
     $o = $self->allele_ori->seq if $self->allele_ori and $self->allele_ori->seq;
     $m = $self->allele_mut->seq if $self->allele_mut and $self->allele_mut->seq;
-    return undef unless $o and $m and length $o == 1 and length $m == 1;
-    return undef unless $o =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i and
+    return unless $o and $m and length $o == 1 and length $m == 1;
+    return unless $o =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i and
 	$m =~ /[ARNDCQEGHILKMFPSTWYVBZX*]/i;
     return $MATRIX->{"\U$o"}->{"\U$m"};
 }

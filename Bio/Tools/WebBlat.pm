@@ -139,7 +139,7 @@ sub create_searchio {
 
     my $html = $response->content;
 
-    return undef unless $html =~ /psLayout/s;
+    return unless $html =~ /psLayout/s;
 
     $html =~ s!^.+<pre>(.+?)</pre>.+$!$1!si;
     $html =~ s!</tt>$!!si; #yes, there is really bad tag nesting in the page

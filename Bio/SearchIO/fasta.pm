@@ -818,7 +818,7 @@ sub next_result{
 	   if( ! $seentop ) {
 	       $self->debug($_);
 	       $self->warn("unrecognized FASTA Family report file!");
-	       return undef;
+	       return;
 	   }
        }
    }

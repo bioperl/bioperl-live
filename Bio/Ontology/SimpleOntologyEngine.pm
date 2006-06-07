@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for SimpleOntologyEngine
+# BioPerl module for Bio::Ontology::SimpleOntologyEngine
 #
 # Cared for by Peter Dimitrov <dimitrov@gnf.org>
 #
@@ -21,7 +21,7 @@
 
 =head1 NAME
 
-SimpleOntologyEngine - Implementation of OntologyEngineI interface
+Bio::Ontology::SimpleOntologyEngine - Implementation of OntologyEngineI interface
 
 =head1 SYNOPSIS
 
@@ -238,7 +238,7 @@ sub add_term{
  Title   : get_term_by_identifier
  Usage   : get_term_by_identifier(String id): TermI
  Function: Retrieves terms from the term store by their identifier
-           field, or undef if not there.
+           field, or an empty list if not there.
  Example : $term = $soe->get_term_by_identifier("IPR000001");
  Returns : An array of zero or more Bio::Ontology::TermI objects.
  Args    : An array of identifier strings
@@ -572,7 +572,7 @@ sub _is_rel_type{
 
 sub _typed_traversal{
 	my ($self, $rel_store, $level, $term_id, @rel_types) = @_;
-	return undef if !defined($rel_store->{$term_id});
+	return if !defined($rel_store->{$term_id});
 	my %parent_entry = %{$rel_store->{$term_id}};
 	my @children = keys %parent_entry;
 
@@ -948,7 +948,7 @@ sub remove_term_by_id{
   }
   else {
 	  $self->warn("Term with id '$id' is not in the term store");
-	  return undef;
+	  return;
   }
 }
 

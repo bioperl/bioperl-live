@@ -839,7 +839,7 @@ sub set_AADistMatrix{
        $self->warn("Must provide a valid Bio::Matrix::MatrixI for set_AADistMatrix");
    }
    $self->{'_AADistMatix'} = $d;
-   return undef;
+   return;
 }
 
 =head2 get_AAMLDistMatrix
@@ -877,7 +877,7 @@ sub set_AAMLDistMatrix{
        $self->warn("Must provide a valid Bio::Matrix::MatrixI for set_AAMLDistMatrix");
    }
    $self->{'_AAMLDistMatix'} = $d;
-   return undef;
+   return;
 }
 
 =head2 add_NSSite_result
@@ -989,7 +989,7 @@ sub set_KappaMatrix{
        $self->warn("Must provide a valid Bio::Matrix::MatrixI for set_NTDistMatrix");
    }
    $self->{'_KappaMatix'} = $d;
-   return undef;
+   return;
 }
 
 
@@ -1028,7 +1028,7 @@ sub set_AlphaMatrix{
        $self->warn("Must provide a valid Bio::Matrix::MatrixI for set_NTDistMatrix");
    }
    $self->{'_AlphaMatix'} = $d;
-   return undef;
+   return;
 }
 
 =head2 set_input_parameter

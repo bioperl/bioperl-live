@@ -316,13 +316,13 @@ sub sequence_profile {
 
     if( ! defined $seq1 || ! $seq1->isa('Bio::PrimarySeqI')) {
         $self->warn("Cannot call sequence_profilewithout specifing one sequence (Bio::PrimarySeqI object)");
-        return undef;
+        return;
     }
 
     # fix Jitterbug #1044
     if( $seq1->length() < 2) {
         $self->warn("cannot create sequence profile with length less than 2");
-        return undef;
+        return;
     }
     # create engine objects
     $seq1->display_id('seq1') unless ( defined $seq1->id() );
@@ -335,7 +335,7 @@ sub sequence_profile {
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
-	return undef;
+	return;
     }
 }
 
@@ -361,12 +361,12 @@ sub pairwise_alignment_score {
     if( ! defined $prof || ! $prof->isa('Bio::Ext::Align::SequenceProfile') || 
         ! defined $seq2 || ! $seq2->isa('Bio::PrimarySeqI') ) {
         $self->warn("Cannot call pairwise_alignment_score without specifing 2 sequences (Bio::PrimarySeqI objects)");
-        return undef;
+        return;
     }
     # fix Jitterbug #1044
     if( $seq2->length() < 2) {
         $self->warn("cannot align sequences with length less than 2");
-        return undef;
+        return;
     }
     $self->set_memory_and_report();
     # create engine objects
@@ -380,7 +380,7 @@ sub pairwise_alignment_score {
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
-	return undef;
+	return;
     }
 }
 
@@ -403,13 +403,13 @@ sub pairwise_alignment {
     if( ! defined $seq1 || ! $seq1->isa('Bio::PrimarySeqI') ||
         ! defined $seq2 || ! $seq2->isa('Bio::PrimarySeqI') ) {
         $self->warn("Cannot call pairwise_alignment without specifing 2 sequences (Bio::PrimarySeqI objects)");
-        return undef;
+        return;
     }
     # fix Jitterbug #1044
     if( $seq1->length() < 2 ||
         $seq2->length() < 2 ) {
         $self->warn("cannot align sequences with length less than 2");
-        return undef;
+        return;
     }
     $self->set_memory_and_report();
     # create engine objects
@@ -424,11 +424,11 @@ sub pairwise_alignment {
     }
     else {
 	croak("There is currently no support for the types of sequences you want to align!\n");
-	return undef;
+	return;
     }
 
     if (not defined $aln or $aln == 0) {
-	return undef;
+	return;
     }
 
     $out = Bio::SimpleAlign->new();
@@ -463,13 +463,13 @@ sub align_and_show {
     if( ! defined $seq1 || ! $seq1->isa('Bio::PrimarySeqI') ||
         ! defined $seq2 || ! $seq2->isa('Bio::PrimarySeqI') ) {
         $self->warn("Cannot call pairwise_alignment without specifing 2 sequences (Bio::PrimarySeqI objects)");
-        return undef;
+        return;
     }
     # fix Jitterbug #1044
     if( $seq1->length() < 2 ||
         $seq2->length() < 2 ) {
         $self->warn("cannot align sequences with length less than 2");
-        return undef;
+        return;
     }
     $self->set_memory_and_report();
     # create engine objects

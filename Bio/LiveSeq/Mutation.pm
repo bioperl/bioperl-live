@@ -252,7 +252,7 @@ sub label {
        $self->{'label'} = $value;
    }
    if ( ! exists $self->{'label'} ) {
-       return undef;
+       return;
    } 
    return $self->{'label'};
 }
@@ -342,7 +342,7 @@ sub prelabel {
        $self->{'prelabel'} = $value;
    }
    if ( ! exists $self->{'prelabel'} ) {
-       return undef;
+       return;
    } 
    return $self->{'prelabel'};
 }
@@ -371,7 +371,7 @@ sub postlabel {
        $self->{'postlabel'} = $value;
    }
    if ( ! exists $self->{'postlabel'} ) {
-       return undef;
+       return;
    } 
    return $self->{'postlabel'};
 }
@@ -400,7 +400,7 @@ sub lastlabel {
        $self->{'lastlabel'} = $value;
    }
    if ( ! exists $self->{'lastlabel'} ) {
-       return undef;
+       return;
    } 
    return $self->{'lastlabel'};
 }

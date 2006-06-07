@@ -251,11 +251,11 @@ sub _next_record{
     }
 
     # we need a valid worksheet to continue
-    return undef unless defined($wsheet);
+    return unless defined($wsheet);
 
     # check whether we are at or beyond the last defined row
     my ($minrow, $maxrow) = $wsheet->RowRange();
-    return undef if $self->{'_row'} >= $maxrow;
+    return if $self->{'_row'} >= $maxrow;
 
     # we don't check for empty rows here as in order to do that we'd
     # have to know in which column to look

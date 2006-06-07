@@ -388,23 +388,23 @@ sub range2value {
     if( defined $value) {
 	if( ! $value->isa('Bio::Range') ) {
 	    $self->throw("Is not a Bio::Range object but a [$value]");
-	    return undef;
+	    return;
 	}
 	if( ! $value->start ) {
 	    $self->throw("Start is not defined in [$value]");
-	    return undef;
+	    return;
 	}
 	if( ! $value->end ) {
 	    $self->throw("End is not defined in [$value]");
-	    return undef;
+	    return;
 	}
 	if( $value->start < 100000 ) {
 	    $self->throw("Start value has to be in millions, not ". $value->start);
-	    return undef;
+	    return;
 	}
 	if( $value->end < 100000 ) {
 	    $self->throw("End value has to be in millions, not ". $value->end);
-	    return undef;
+	    return;
 	}
 
 	my ($chr, $arm, $band) = $value->start =~ /(\d+)(\d)(\d{5})/;	

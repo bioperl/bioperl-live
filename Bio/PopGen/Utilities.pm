@@ -146,11 +146,11 @@ sub aln_to_population{
 					  @args);
    if( ! defined $aln ) { 
        $self->warn("Must provide a valid Bio::SimpleAlign object to run aln_to_population");
-       return undef;
+       return;
    }
    if( ! $aln->is_flush ) {
        $self->warn("Must provide a Bio::SimpleAlign object with aligned sequences to aln_to_population!");
-       return undef;
+       return;
    }
 
    my $population = Bio::PopGen::Population->new(-source => 'alignment');

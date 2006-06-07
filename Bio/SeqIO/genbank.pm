@@ -246,7 +246,7 @@ sub next_seq {
       while(defined($buffer = $self->_readline())) {
 			last if index($buffer,'LOCUS       ') == 0;
       }
-      return undef if( !defined $buffer ); # end of file
+      return unless defined $buffer; # end of file
       $buffer =~ /^LOCUS\s+(\S.*)$/o ||
 		  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
 
@@ -544,7 +544,7 @@ sub next_seq {
 			# Get next line and loop again
 			$buffer = $self->_readline;
       }
-      return undef if(! defined($buffer));
+      return unless defined $buffer;
 
       # add them all at once for efficiency
       $builder->add_slot_value(-accession_number => shift(@acc),

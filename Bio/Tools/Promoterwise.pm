@@ -208,7 +208,7 @@ sub _feature_pairs {
 
 sub _next_result {
   my ($self) = @_;
-  return undef unless (exists($self->{'_feature_pairs'}) && @{$self->{'_feature_pairs'}});
+  return unless (exists($self->{'_feature_pairs'}) && @{$self->{'_feature_pairs'}});
   return shift(@{$self->{'_feature_pairs'}});
 }
 sub _parsed {

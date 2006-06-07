@@ -114,7 +114,7 @@ sub next_seq{
    ## grabbing it should be easy :)
 
    my $nextline = $self->_readline();
-   if( !defined $nextline ){ return undef; }
+   return unless defined $nextline;
 
    my $sequence = uc($nextline);
    $sequence =~ s/\W//g;

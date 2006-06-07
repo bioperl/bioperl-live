@@ -200,7 +200,7 @@ sub get_target {
     }
     else {
 	print_error("Unable to retrieve sequence from GenBank using accession $acc");
-	return undef;
+	return;
     }
 
 }
@@ -225,7 +225,7 @@ sub make_target {
       }
       else {
   	print_error('Please supply a sequence name!');
-  	return undef;
+  	return;
       }
 
       $cds_start = $q->param('cds_start') || 1;

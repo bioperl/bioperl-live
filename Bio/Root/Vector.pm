@@ -950,7 +950,7 @@ sub valid_any {
 	return 1 if $obj->valid();
     } while( $obj = $obj->next());
 
-   return undef;
+   return;
 }
 
 

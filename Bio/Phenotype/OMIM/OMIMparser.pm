@@ -254,7 +254,7 @@ sub next_phenotype {
     }
     
     if ( $self->_done() == TRUE ) {
-        return undef;
+        return;
     }
 
     my $fieldtag          = "";

@@ -285,7 +285,7 @@ sub _load_ruleset {
     if ($@) {
 	#warn join("\n", '@INC contains:', @INC, undef);
 	$self->throw("Unable to load $rule_module: $@");
-	return undef;
+	return;
     }
 
     else {
@@ -565,7 +565,6 @@ sub AUTOLOAD {
 
     unless (exists $self->{$name}) {
 	$self->throw("Attribute $name not defined for ". ref($self));
-  	#return undef;
     }
 
     return $self->{$name};
@@ -574,7 +573,7 @@ sub AUTOLOAD {
 sub _comp {
     my ($self, $char) = @_;
 
-    return undef unless ($char);
+    return unless ($char);
     $char = uc($char);
     return $COMP{ $char };
 }

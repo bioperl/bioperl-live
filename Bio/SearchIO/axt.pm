@@ -232,7 +232,7 @@ sub next_result{
 	$self->end_element({'Name' => 'AXTOutput'});
 	return $self->end_document();
     }
-    return undef;
+    return;
 }
 
 sub _initialize {

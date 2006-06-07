@@ -543,10 +543,6 @@ sub evolve {
     my $transition = 100 - (2*$bin_size);
     my $first_transversion = $transition + $bin_size;
 
-    #my $bin_size = 50/($rate + 1);
-    #my $transition = 100 - (2 * $bin_size);
-    #my $first_transversion = $transition + $bin_size;
-
     # unify the look of sequence strings
     my $string = lc $seq->seq; # lower case
     $string =~ s/u/t/; # simplyfy our life; modules should deal with the change anyway

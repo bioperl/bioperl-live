@@ -189,7 +189,7 @@ sub trace {
           return $self->{trace}->{$base_channel};
      }
      else {
-          return undef;
+          return;
      }
 }
 

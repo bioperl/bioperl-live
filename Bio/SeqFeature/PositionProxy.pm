@@ -288,7 +288,7 @@ sub seq {
    }
 
    if ( ! exists $self->{'_gsf_seq'} ) {
-       return undef;
+       return;
    }
 
    # assumming our seq object is sensible, it should not have to yank
@@ -319,7 +319,7 @@ sub seq {
 sub entire_seq {
    my ($self) = @_;
 
-   return undef unless exists($self->{'_gsf_seq'});
+   return unless exists($self->{'_gsf_seq'});
    return $self->{'_gsf_seq'};
 }
 

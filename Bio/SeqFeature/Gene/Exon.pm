@@ -214,7 +214,7 @@ sub cds {
     my ($self) = @_;
 
     # UTR is not translated
-    return undef if(! $self->is_coding());
+    return if(! $self->is_coding());
 
     my $seq = $self->seq();
     if(defined($seq) && defined($self->frame()) && ($self->frame() != 0)) {

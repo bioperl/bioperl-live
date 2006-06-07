@@ -804,7 +804,7 @@ sub _runblast {
 	my ($blast_obj,$exe);
 	if( ! ($exe = $self->executable($executable)) ) {
 		$self->warn("cannot find path to $executable");
-		return undef;
+		return;
 	}
 	my $commandstring = $exe. $param_string;
 
@@ -866,8 +866,8 @@ sub _runwublast {
 	my ($self,$executable,$param_string) = @_;
 	my ($blast_obj,$exe);
 	if( ! ($exe = $self->executable($self->p))){
-    	$self->warn("cannot find path to $executable");
-		return undef;
+            $self->warn("cannot find path to $executable");
+            return;
 	}
 	my $commandstring = $exe.  " ".$param_string;
 

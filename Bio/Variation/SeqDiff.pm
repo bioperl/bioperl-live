@@ -195,11 +195,8 @@ sub id {
   if (defined $value) {
     $self->{'id'} = $value;
   }
-#  unless (exists $self->{'id'}) {
-#    return "undefined";
-#  }
- else {
-    return $self->{'id'};
+  else {
+      return $self->{'id'};
   }
 }
 
@@ -756,7 +753,7 @@ sub dna_mut {
 sub _set_dnamut {
     my $self = shift;
 
-    return undef unless $self->{'dna_ori'}  && $self->each_Variant;
+    return unless $self->{'dna_ori'}  && $self->each_Variant;
 
     $self->{'dna_mut'} = $self->{'dna_ori'};
     foreach ($self->each_Variant) {

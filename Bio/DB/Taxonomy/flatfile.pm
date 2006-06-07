@@ -245,7 +245,7 @@ sub get_Children_Taxids{
 	   $id = $node->ncbi_taxid;
        } else { 
 	   $self->warn("Don't know how to extract a taxon id from the object of type ".ref($node)."\n");
-	   return undef;
+	   return;
        }
    } else { $id = $node }
    my @vals = $self->{'_parentbtree'}->get_dup($id);

@@ -86,7 +86,7 @@ use Bio::Annotation::Comment;
 
 sub next_seq{
    my ($self,@args) = @_;
-   return undef unless defined($_ = $self->_readline()); # stream is empty! there is no next seq.
+   return unless defined($_ = $self->_readline()); # stream is empty! there is no next seq.
    my $seq =  Bio::Seq::RichSeq->new();
    my $comment = "";
    while (! /\^\^/) {

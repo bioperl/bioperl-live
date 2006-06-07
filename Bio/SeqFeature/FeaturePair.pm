@@ -510,7 +510,7 @@ sub invert {
     
     $self->feature1($self->feature2);
     $self->feature2($tmp);
-    return undef;
+    return;
 }
 
 =head2 feature_factory

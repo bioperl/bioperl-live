@@ -181,7 +181,7 @@ sub next_population{
     while( my $ind = $self->next_individual ) {
 	push @inds, $ind;
     }
-    return undef unless @inds;
+    return unless @inds;
     Bio::PopGen::Population->new(-individuals => \@inds);
 }
 
@@ -224,7 +224,7 @@ sub _parse_prettybase {
     }
     $self->{'_parsed_individiuals'} = [ values %inds ];
     $self->{'_parsed'} = 1;
-    return undef;
+    return;
 }
 
 

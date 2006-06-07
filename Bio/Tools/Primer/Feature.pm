@@ -136,7 +136,7 @@ sub inversion {
 	}
     }
 
-    return undef;
+    return;
 }
 
 1;

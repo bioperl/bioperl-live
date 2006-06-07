@@ -130,7 +130,7 @@ sub analysis_query {
 sub analysis_subject { 
 #---------------
     my ($self) = @_; 
-    return undef;
+    return;
 }
 
 =head2 analysis_subject_version
@@ -148,7 +148,7 @@ sub analysis_subject {
 sub analysis_subject_version { 
 #---------------
     my ($self) = @_; 
-    return undef;
+    return;
 }
 
 

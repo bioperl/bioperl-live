@@ -114,7 +114,7 @@ sub new {
 	}
 	else {
 	    	$self->warn ("Access SeqHound failed due to SeqHoundInit.");  
-		return undef;
+		return;
 	}
 }
 
@@ -193,10 +193,10 @@ sub get_Seq_by_id {
 	}
     	else{
 		$self->warn("[get_Seq_by_id]: invalid input id.");
-		return undef;
+		return;
 	}
 	$self->warn("[get_Seq_by_id]: id $id does not exist");
-	return undef;
+	return;
 }
 						                    
 
@@ -230,7 +230,7 @@ sub get_Seq_by_acc {
 	#exclude $acc is a number, since function does not accept gi as input
 	if ($acc =~ /^\d+$/) {
 		$self->warn ("[get_Seq_by_acc]: id $acc does not exist");
-		return undef;
+		return;
 	}
 	my ($ret, $gi);
 	$gi= $self->_get_gi_from_acc($acc);
@@ -253,7 +253,7 @@ sub get_Seq_by_acc {
 		}
 	}
 	$self->warn("[get_Seq_by_acc]: id $acc does not exist.");
-	return undef;
+	return;
 }
 
 
@@ -353,7 +353,7 @@ sub get_Stream_by_id
 	my (@gilist, @not_exist);
 	if(!defined $id) {
 		$self->warn("[get_Stream_by_id]: undefined input id");
-		return undef;
+		return;
     	}
 	if (ref($id)=~ /array/i){
 		foreach my $i (@$id){
@@ -385,7 +385,7 @@ sub get_Stream_by_id
 		return $seqio;
 	}
 	else {
-		return undef;
+		return;
 	}
 }
 
@@ -530,25 +530,25 @@ sub postprocess_data
 		open (LOG, ">>shoundlog") 
 		and print LOG "$now		$funcname. No reply.\n" if $self->verbose>0;
 		close (LOG) if $self->verbose>0;
-		return undef;
+		return;
 	}
 	elsif ($lcontent =~ /HTTP::Request error/){
 		open (LOG, ">>shoundlog")
 		and print LOG "$now		$funcname. Http::Request error problem.\n" if $self->verbose>0;
 		close (LOG) if $self->verbose>0;
-		return undef;
+		return;
 	}
 	elsif ($lcontent =~ /SEQHOUND_ERROR/){
 		open (LOG, ">>shoundlog")
 		and print LOG "$now	$funcname error. SEQHOUND_ERROR found.\n" if $self->verbose>0;
 		close (LOG) if $self->verbose>0;
-		return undef;
+		return;
 	}
 	elsif ($lcontent =~ /SEQHOUND_NULL/){
         	open (LOG, ">>shoundlog") 
 		and print LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n" if $self->verbose>0;
 		close (LOG) if $self->verbose>0;
-		return undef;
+		return;
       	}
 	else{
     		chomp $lcontent;
@@ -557,13 +557,13 @@ sub postprocess_data
            		open (LOG, ">>shoundlog") 
 			and print LOG "$now	$funcname Value not found in the database. -1 found.\n" if $self->verbose>0;
 			close (LOG) if $self->verbose>0;
-           		return undef;
+           		return;
 		}
         	elsif ($lines[1]  =~ /^0/){
           		open (LOG, ">>shoundlog") 
 			and print LOG "$now	$funcname failed.\n" if $self->verbose>0;
 			close (LOG) if $self->verbose>0;
-	  		return undef;
+	  		return;
          	}
          	else{
            		$result = $lines[1];
@@ -579,7 +579,7 @@ sub postprocess_data
 		if (defined $io && $io ne ''){
 		    return $io;
 		}
-		else { return undef;}
+		else { return;}
    	}	
    	#return a string if outtype is "string"
    	return $result;
@@ -658,7 +658,7 @@ sub _get_Seq_from_gbff
 	my ($self, $gi) = @_;
 	if(!defined $gi) {
 		$self->warn("[_get_Seq_from_gbff]: undefined input gi");
-		return undef;
+		return;
     	}
 	my $lcontent;
 	if (ref($gi) =~ /array/i){

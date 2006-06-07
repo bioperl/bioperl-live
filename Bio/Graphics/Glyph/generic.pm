@@ -148,7 +148,7 @@ sub get_description {
   }
 
   my $tag = $feature->source_tag;
-  return undef if $tag eq '';
+  return if $tag eq '';
   $tag;
 }
 

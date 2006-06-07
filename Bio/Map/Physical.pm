@@ -222,8 +222,8 @@ sub get_cloneobj{
     my ($self,$clone) = @_;
 
     return 0     if(!defined($clone));
-    return undef if($clone eq "");
-    return undef if(!exists($self->{'_clones'}{$clone}));
+    return if($clone eq "");
+    return if(!exists($self->{'_clones'}{$clone}));
 
 
     my ($type,$contig,$bands,$gel,$group,$remark,$fp_number);
@@ -315,8 +315,8 @@ sub get_markerobj {
     my ($self,$marker) = @_;
 
     return 0 if(!defined($marker));
-    return undef if($marker eq "");
-    return undef if(!exists($self->{'_markers'}{$marker}));
+    return if($marker eq "");
+    return if(!exists($self->{'_markers'}{$marker}));
 
     my ($global,$framework,$group,$anchor,$type,$linkage,$subgroup);
     my %mkr = %{$self->{'_markers'}{$marker}};
@@ -383,8 +383,8 @@ sub get_contigobj {
     my ($self,$contig) = @_;
 
     return 0     if(!defined($contig));
-    return undef if($contig eq "");
-    return undef if(!exists($self->{'_contigs'}{$contig}));
+    return if($contig eq "");
+    return if(!exists($self->{'_contigs'}{$contig}));
 
     my ($group,$anchor,$uremark,$tremark,$cremark,$startrange,$endrange,
 	$linkage,$subgroup);

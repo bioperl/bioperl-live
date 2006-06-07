@@ -370,7 +370,7 @@ sub next_result {
 	$self->end_element({'Name' => 'Sim4Output'});
 	return $self->end_document();
     } 
-    return undef;
+    return;
 }
 
 =head2 start_element

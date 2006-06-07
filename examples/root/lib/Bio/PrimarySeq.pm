@@ -234,7 +234,7 @@ sub new {
 sub direct_seq_set {
     my $obj = shift;
     return $obj->{'seq'} = shift if @_;
-    return undef;
+    return;
 }
 
 

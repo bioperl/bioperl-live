@@ -233,7 +233,7 @@ sub next_feature{
    $sbjct = $self->{'_current_sbjct'};
    unless( defined $sbjct ) {
        $sbjct = $self->{'_current_sbjct'} = $self->nextSbjct;
-       return undef unless defined $sbjct;
+       return  unless defined $sbjct;
    }   
    $hsp = $sbjct->nextHSP;
    unless( defined $hsp ) {
@@ -318,7 +318,7 @@ sub database {shift->{'DATABASE'}}
 sub nextSbjct {
   my ($self) = @_;
   
-  $self->_fastForward or return undef;
+  $self->_fastForward or return;
   local $_;
   #######################
   # get all sbjct lines #
@@ -338,7 +338,7 @@ sub nextSbjct {
     }
   }
   if( ! $def ) { 
-      return undef;
+      return;
   }
   $def =~ s/\s+/ /g;
   $def =~ s/\s+$//g;
@@ -347,7 +347,7 @@ sub nextSbjct {
   if( $def =~ s/Length = ([\d,]+)$//g ) {
       $length = $1;
   }
-  return undef unless $def =~ /^>/;
+  return unless $def =~ /^>/;
   $def =~ s/^>//;
 
   ####################

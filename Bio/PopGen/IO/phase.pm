@@ -254,7 +254,7 @@ sub next_individual  {
 	$self->{'_header'} = [split($self->flag('field_delimiter'),$_)];
 	return $self->next_individual; # rerun loop again
     }
-    return undef;
+    return;
 }
 
 =head2 next_population

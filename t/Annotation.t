@@ -218,7 +218,6 @@ ok $ann = $factory->create_object(-name => 'peroxisome',
                                   -tagname => 'cellular component');
 ok ref $ann, 'Bio::Annotation::OntologyTerm';
 
-
 #ok $ann = $factory->create_object(-text => 'this is a comment');
 #ok ref $ann, 'Bio::Annotation::Comment';
 

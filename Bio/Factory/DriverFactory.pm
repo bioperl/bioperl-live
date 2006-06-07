@@ -149,7 +149,7 @@ sub get_driver {
     if(exists($self->driver_table()->{$key})) {
 	return $self->driver_table()->{$key};
     }
-    return undef;
+    return;
 }
 
 =head2 _load_module

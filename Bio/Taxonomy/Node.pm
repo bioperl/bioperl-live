@@ -471,14 +471,14 @@ sub get_Parent_Node {
        ! defined $self->parent_id ) {
        $self->warn("Cannot get the parent node for ".$self->node_name.
 		   " because parent_id or db handle is not defined\n");
-       return undef;
+       return;
    }
 
 
    my $node = $self->db_handle->get_Taxonomy_Node(-taxonid => $self->parent_id);
    unless ( defined $node ) {
        $self->warn("Could not find node for parent id ". $self->parent_id);
-       return undef;
+       return;
    }
    return $node;
 }
@@ -501,7 +501,7 @@ sub get_Children_Nodes{
        ! defined $self->parent_id ) {
        $self->warn("Cannot get the children nodes for ".$self->name('common').
 		   " because the db handle is not defined\n");
-       return undef;
+       return;
    }
    my @nodes = $self->db_handle->get_Children_Taxids($self->object_id);
    my @children;
@@ -533,7 +533,7 @@ sub get_Lineage_Nodes{
    if( ! $self->db_handle ) {
        $self->warn("Cannot get the lineage nodes for ".$self->node_name.
 		   " because db handle is not defined\n");
-       return undef;
+       return;
    }
    my $node = $self;
    my @lineage;

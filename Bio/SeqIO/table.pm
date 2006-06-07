@@ -283,7 +283,7 @@ sub next_seq {
     }
     
     # return if we reached end-of-file
-    return undef unless $line_ok;
+    return unless $line_ok;
 
     # otherwise, parse the record
 
@@ -442,7 +442,7 @@ sub attribute_map{
         $self->{'_attribute_map'} = $attr_map;
     }
     # there may not be a map
-    return undef unless exists($self->{'_attribute_map'});
+    return unless exists($self->{'_attribute_map'});
     # we need to copy in order not to override the stored map!
     my %attr_map = %{$self->{'_attribute_map'}};
     foreach my $key (keys %attr_map) {
@@ -498,7 +498,7 @@ sub annotation_map{
         $self->keep_annotation(1);
     }
     # there may not be a map
-    return undef unless exists($self->{'_annotation_map'});
+    return unless exists($self->{'_annotation_map'});
     # we need to copy in order not to override the stored map!
     my %ann_map = %{$self->{'_annotation_map'}};
     # here we need to sort numerically in reverse order ...

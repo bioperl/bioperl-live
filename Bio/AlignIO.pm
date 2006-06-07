@@ -321,7 +321,7 @@ sub new {
         $class->throw("Unknown format given or could not determine it [$format]")
             unless $format;
 
-	return undef unless( $class->_load_format_module($format) );
+	return unless( $class->_load_format_module($format) );
 	return "Bio::AlignIO::$format"->new(@args);
     }
 }

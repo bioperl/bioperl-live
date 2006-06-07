@@ -99,7 +99,7 @@ sub new {
       $source = "\L$source";	# normalize capitalization to lower case
 
       # normalize capitalization
-      return undef unless( $class->_load_tax_module($source) );
+      return unless( $class->_load_tax_module($source) );
       return "Bio::DB::Taxonomy::$source"->new(@args);
   }
 }
