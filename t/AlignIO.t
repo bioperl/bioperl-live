@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 157;
+	plan tests => 156;
 }
 use Bio::SimpleAlign;
 use Bio::AlignIO;
@@ -209,10 +209,8 @@ print STDERR "METAFASTA tests don't work\n" if $DEBUG;
 $io = Bio::AlignIO->new(-verbose => -1, 
    -file => Bio::Root::IO->catfile("t","data","testaln.metafasta"));
 $aln = $io->next_aln;
-#ok $aln->consensus_string,'CDEFHIJKLMNOPQRSTUVWXYZhydrophobicIOIOIJOIIOOIOOOOUIIXstructuralABAEEIEIJEIIEOAEEAAUIAX', " failed consensus_string on metafasta";
-#ok $aln->percentage_identity,'100', " failed percentage_identity using metafasta";
-#ok $aln->symbol_chars,'39'," failed symbol_chars() using metafasta";
-
+ok $aln->consensus_string,'CDEFHIJKLMNOPQRSTUVWXYZ', " failed consensus_string on metafasta";
+ok $aln->symbol_chars,'23'," failed symbol_chars() using metafasta";
 
 # NEXUS
 $str = Bio::AlignIO->new(

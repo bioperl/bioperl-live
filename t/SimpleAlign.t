@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 68;
+use constant NUMTESTS => 70;
 
 BEGIN {
 	eval { require Test; };
@@ -242,3 +242,26 @@ $s1->seq('aaaaattt--');
 
 $b = $a->remove_gaps(undef, 'all_gaps_only');
 ok $b->consensus_string, "aaaaatttt";
+
+
+
+# testing consensus_string
+
+$s1 = new Bio::LocatableSeq (-id => 'AAA',
+			    -seq => 'aawtat-tn',
+			    -start => 1,
+			    -end => 8,
+  			    -alphabet => 'dna'
+			    );
+$s2 = new Bio::LocatableSeq (-id => 'BBB',
+			    -seq => '-aaaat-tt-',
+			    -start => 1,
+			    -end => 7,
+  			    -alphabet => 'dna'
+			    );
+$a = new Bio::SimpleAlign;
+$a->add_seq($s1);           
+$a->add_seq($s2);
+
+ok $a->consensus_iupac, "aAWWAT-TN-";
+ok $a->consensus_string, "aaaaat?tn?";

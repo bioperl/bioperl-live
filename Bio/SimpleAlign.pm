@@ -1603,21 +1603,24 @@ sub _consensus_aa {
     my $self = shift;
     my $point = shift;
     my $threshold_percent = shift || -1 ;
-    my ($seq,%hash,$count,$letter,$key);
+    my %hash;
     my $gapchar = $self->gap_char;    
-    foreach $seq ( $self->each_seq() ) {
+    foreach my $seq ( $self->each_seq() ) {
+        my $letter;
+        no warnings;
 	$letter = substr($seq->seq,$point,1);
-	$self->throw("--$point-----------") if $letter eq '';
+        use warnings;
+        $letter ||= $gapchar;
+	#$self->throw("--$point-----------") if $letter eq '';
 	($letter eq $gapchar || $letter =~ /\./) && next;
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
     }
     my $number_of_sequences = $self->no_sequences();
     my $threshold = $number_of_sequences * $threshold_percent / 100. ;
-    $count = -1;
-    $letter = '?';
-
-    foreach $key ( sort keys %hash ) {
+    my $count = -1;
+    my $letter = '?';
+    foreach my $key ( sort keys %hash ) {
 	# print "Now at $key $hash{$key}\n";
 	if( $hash{$key} > $count && $hash{$key} >= $threshold) {
 	    $letter = $key;
