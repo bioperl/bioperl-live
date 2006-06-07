@@ -211,7 +211,7 @@ sub score{
 
 sub get_leaf_nodes{
    my ($self) = @_;
-   return grep { $_->is_Leaf() } $self->get_nodes(-sortby => 'creation');
+   return grep { $_->is_Leaf() } $self->get_nodes(-sortby  => 'none');
 }
 
 

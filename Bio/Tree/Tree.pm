@@ -144,7 +144,7 @@ sub get_nodes{
    
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
-   $sortby ||= 'height';
+   $sortby ||= 'none';
    return () unless defined $self->get_root_node;
    if ($order =~ m/^b|(breadth)$/oi) {
        my $node = $self->get_root_node;
@@ -158,7 +158,7 @@ sub get_nodes{
    if ($order =~ m/^d|(depth)$/oi) {
        # this is depth-first search I believe
        my $node = $self->get_root_node;
-       my @children = ($node,$node->get_Descendents($sortby));
+       my @children = ($node,$node->get_all_Descendents($sortby));
        return @children;
    }
 }
@@ -218,7 +218,7 @@ sub total_branch_length {
    my ($self) = @_;
    my $sum = 0;
    if( defined $self->get_root_node ) {
-       for ( $self->get_root_node->get_Descendents() ) {
+       for ( $self->get_root_node->get_all_Descendents('none') ) {
 	   $sum += $_->branch_length || 0;
        }
    }
@@ -283,10 +283,9 @@ sub score{
 
  Title   : number_nodes
  Usage   : my $size = $tree->number_nodes
- Function: Returns the number of nodes
- Example :
- Returns : 
- Args    :
+ Function: Returns the number of nodes in the tree
+ Returns : integer
+ Args    : none
 
 
 =cut
@@ -296,10 +295,11 @@ sub score{
 
 sub cleanup_tree {
     my $self = shift;
-    unless( $self->nodelete ) {
-	foreach my $node ( $self->get_nodes ) {
+    unless( $self->nodelete ) {	
+	for my $node ( $self->get_nodes(-order  => 'b',
+					-sortby => 'none') ) {
 	    $node->ancestor(undef);
-	    $node = undef;	
+	    $node = undef;
 	}
     }
     $self->{'_rootnode'} = undef;

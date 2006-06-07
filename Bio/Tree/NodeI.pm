@@ -111,8 +111,9 @@ package Bio::Tree::NodeI;
 use vars qw(@ISA);
 use strict;
 use Bio::Root::RootI;
-@ISA = qw(Bio::Root::RootI);
+no warnings 'recursion';
 
+@ISA = qw(Bio::Root::RootI);
 
 =head2 add_Descendent
 
@@ -166,7 +167,7 @@ sub each_Descendent{
 
 sub get_all_Descendents{
    my ($self, $sortby) = @_;
-   $sortby ||= 'height';   
+   $sortby ||= 'none';   
    my @nodes;
    foreach my $node ( $self->each_Descendent($sortby) ) {
        push @nodes, ($node,$node->get_all_Descendents($sortby));
