@@ -99,56 +99,63 @@ sub new {
  Usage   : my $r = $rpt_masker->next_result
  Function: Get the next result set from parser data
  Returns : Bio::SeqFeature::FeaturePair
+           Feature1 is the Query coordinates and Feature2 is the Hit
  Args    : none
 
 =cut
 
-sub next_result{
-   my ($self) = @_;
-   while ($_=$self->_readline()) {
-        if (/no repetitive sequences detected/) {
-           $self->warn( "RepeatMasker didn't find any repetitive sequences\n");
-           return ;
-        }
-        if (/\d+/) { #ignore introductory lines
-          my @element = split;
-          # ignore features with negatives
-          next if ($element[11-13] =~ /-/);
-          my (%feat1, %feat2);
-          my ($score, $query_name, $query_start, $query_end, $strand,
-          $repeat_name, $repeat_class ) = (split)[0, 4, 5, 6, 8, 9, 10];
+sub next_result {
+    my ($self) = @_;
+    while (defined($_=$self->_readline()) ) {
+	if (/no repetitive sequences detected/) {
+	    $self->warn( "RepeatMasker didn't find any repetitive sequences\n");
+	    return ;
+	}
+	#ignore introductory lines
+	if (/\d+/) {
+	    my @element = split;
+	    # ignore features with negatives
+	    next if ($element[11-13] =~ /-/);
+	    my (%feat1, %feat2);
+	    my @line = split;
+	    my ($score, $query_name, $query_start, $query_end, $strand,
+		$repeat_name, $repeat_class ) = @line[0, 4, 5, 6, 8, 9, 10];
 
-          my ($hit_start,$hit_end);
-          if ($strand eq '+') {
-            ($hit_start, $hit_end) = (split)[11, 12];
-            $strand = 1;
-          }
-          elsif ($strand eq 'C') {
-            ($hit_start, $hit_end) = (split)[12, 13];
-            $strand = -1;
-          }
-          my $rf = Bio::SeqFeature::Generic->new
-	      (-seq_id      => $query_name,
-	       -score       => $score,
-	       -start       => $query_start,
-	       -end         => $query_end,
-	       -strand      => $strand,
-	       -source_tag  => 'RepeatMasker',
-	       -primary_tag => $repeat_class);
+	    my ($hit_start,$hit_end);
 
-          my $rf2 = Bio::SeqFeature::Generic->new
-	      (-seq_id         => $repeat_name,
-	       -score          => $score,
-	       -start          => $hit_start,
-	       -end            => $hit_end,
-	       -strand         => $strand,
-	       -source_tag     => "RepeatMasker",
-	       -primary_tag    => $repeat_class);
-	  
-          my $fp = Bio::SeqFeature::FeaturePair->new(-feature1=>$rf2,
-                                                     -feature2=>$rf);
-          return $fp;
-        }
+	    if ($strand eq '+') {
+		($hit_start, $hit_end) = @line[11, 12];
+		$strand = 1;
+	    } elsif ($strand eq 'C') {
+		($hit_start, $hit_end) = @line[12, 13];
+		$strand = -1;
+	    }
+	    my $rf = Bio::SeqFeature::Generic->new
+		(-seq_id      => $query_name,
+		 -score       => $score,
+		 -start       => $query_start,
+		 -end         => $query_end,
+		 -strand      => $strand,
+		 -source_tag  => 'RepeatMasker',
+		 -primary_tag => $repeat_class,
+		 -tag => { 'Target'=> [$repeat_name,$hit_start,$hit_end]},
+		);
+
+	    my $rf2 = Bio::SeqFeature::Generic->new
+		(-seq_id         => $repeat_name,
+		 -score          => $score,
+		 -start          => $hit_start,
+		 -end            => $hit_end,
+		 -strand         => $strand,
+		 -source_tag     => "RepeatMasker",
+		 -primary_tag    => $repeat_class,
+		 -tag => { 'Target'=> [$query_name,$query_start,$query_end] },
+		);
+
+	    my $fp = Bio::SeqFeature::FeaturePair->new(-feature1 => $rf,
+						       -feature2 => $rf2);
+	    return $fp;
+	}
     }
 }
 
