@@ -1,0 +1,127 @@
+LOCUS       BC000007                 981 bp    mRNA    linear   PRI 09-DEC-2005
+DEFINITION  Homo sapiens px19-like protein, mRNA (cDNA clone MGC:1082
+            IMAGE:3505068), complete cds.
+ACCESSION   BC000007
+VERSION     BC000007.2  GI:33875090
+KEYWORDS    MGC.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 981)
+  AUTHORS   Strausberg,R.L., Feingold,E.A., Grouse,L.H., Derge,J.G.,
+            Klausner,R.D., Collins,F.S., Wagner,L., Shenmen,C.M., Schuler,G.D.,
+            Altschul,S.F., Zeeberg,B., Buetow,K.H., Schaefer,C.F., Bhat,N.K.,
+            Hopkins,R.F., Jordan,H., Moore,T., Max,S.I., Wang,J., Hsieh,F.,
+            Diatchenko,L., Marusina,K., Farmer,A.A., Rubin,G.M., Hong,L.,
+            Stapleton,M., Soares,M.B., Bonaldo,M.F., Casavant,T.L.,
+            Scheetz,T.E., Brownstein,M.J., Usdin,T.B., Toshiyuki,S.,
+            Carninci,P., Prange,C., Raha,S.S., Loquellano,N.A., Peters,G.J.,
+            Abramson,R.D., Mullahy,S.J., Bosak,S.A., McEwan,P.J.,
+            McKernan,K.J., Malek,J.A., Gunaratne,P.H., Richards,S.,
+            Worley,K.C., Hale,S., Garcia,A.M., Gay,L.J., Hulyk,S.W.,
+            Villalon,D.K., Muzny,D.M., Sodergren,E.J., Lu,X., Gibbs,R.A.,
+            Fahey,J., Helton,E., Ketteman,M., Madan,A., Rodrigues,S.,
+            Sanchez,A., Whiting,M., Madan,A., Young,A.C., Shevchenko,Y.,
+            Bouffard,G.G., Blakesley,R.W., Touchman,J.W., Green,E.D.,
+            Dickson,M.C., Rodriguez,A.C., Grimwood,J., Schmutz,J., Myers,R.M.,
+            Butterfield,Y.S., Krzywinski,M.I., Skalska,U., Smailus,D.E.,
+            Schnerch,A., Schein,J.E., Jones,S.J. and Marra,M.A.
+  CONSRTM   Mammalian Gene Collection Program Team
+  TITLE     Generation and initial analysis of more than 15,000 full-length
+            human and mouse cDNA sequences
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 99 (26), 16899-16903 (2002)
+   PUBMED   12477932
+REFERENCE   2  (bases 1 to 981)
+  CONSRTM   NIH MGC Project
+  TITLE     Direct Submission
+  JOURNAL   Submitted (03-NOV-2000) National Institutes of Health, Mammalian
+            Gene Collection (MGC), Bethesda, MD 20892-2590, USA
+  REMARK    NIH-MGC Project URL: http://mgc.nci.nih.gov
+COMMENT     On Aug 19, 2003 this sequence version replaced gi:12652536.
+            Contact: MGC help desk
+            Email: cgapbs-r@mail.nih.gov
+            Tissue Procurement: ATCC
+            cDNA Library Preparation: Rubin Laboratory
+            cDNA Library Arrayed by: The I.M.A.G.E. Consortium (LLNL)
+            DNA Sequencing by: Institute for Systems Biology
+            http://www.systemsbiology.org
+            contact: amadan@systemsbiology.org
+            Anup Madan, Jessica Fahey, Erin Helton, Mark Ketteman, Anuradha
+            Madan, Stephanie Rodrigues, Amy Sanchez and Michelle Whiting
+            
+            Clone distribution: MGC clone distribution information can be found
+            through the I.M.A.G.E. Consortium/LLNL at: http://image.llnl.gov
+            Series: IRAL Plate: 7 Row: f Column: 3
+            This clone was selected for full length sequencing because it
+            passed the following selection criteria: matched mRNA gi: 31543450.
+            
+            Differences found between this sequence and the human reference
+            genome (build 36) are described in misc_difference features below
+            and these differences were also compared to chimpanzee genomic
+            sequences available as of 09/15/2004.
+FEATURES             Location/Qualifiers
+     source          1..981
+                     /organism="Homo sapiens"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9606"
+                     /clone="MGC:1082 IMAGE:3505068"
+                     /tissue_type="Placenta, choriocarcinoma"
+                     /clone_lib="NIH_MGC_21"
+                     /lab_host="DH10B-R"
+                     /note="Vector: pOTB7"
+     gene            1..981
+                     /gene="PX19"
+                     /note="synonyms: CGI-106, PRELI"
+                     /db_xref="GeneID:27166"
+                     /db_xref="MIM:605733"
+     CDS             174..833
+                     /gene="PX19"
+                     /codon_start=1
+                     /product="PX19 protein"
+                     /protein_id="AAH00007.1"
+                     /db_xref="GI:12652537"
+                     /db_xref="GeneID:27166"
+                     /db_xref="MIM:605733"
+                     /translation="MVKYFLGQSVLRSSWDQVFAAFWQRYPNPYSKHVLTEDIVHREV
+                     TPDQKLLSRRLLTKTNRMPRWAERLFPANVAHSVYVLEDSIVDPQNQTMTTFTWNINH
+                     ARLMVVEERCVYCVNSDNSGWTEIRREAWVSSSLFGVSRAVQEFGLARFKSNVTKTMK
+                     GFEYILAKLQGEAPSKTLVETAKEAKEKAKETALAATEKAKDLASKAATKKQQQQQQF
+                     V"
+     misc_difference 623
+                     /gene="PX19"
+                     /note="'G' in cDNA is 'A' in the human genome; no amino
+                     acid change.  The chimpanzee genome agrees with the cDNA
+                     sequence, suggesting that this difference is unlikely to
+                     be due to an artifact."
+     misc_difference 878
+                     /gene="PX19"
+                     /note="'C' in cDNA is 'T' in the human genome.  The
+                     chimpanzee genome agrees with the cDNA sequence,
+                     suggesting that this difference is unlikely to be due to
+                     an artifact."
+     misc_difference 925..981
+                     /gene="PX19"
+                     /note="polyA tail: 57 bases do not align to the human
+                     genome."
+ORIGIN      
+        1 ctcatggcgg cggcggcggc ggcggcagct gcttgggcgc ggtgcggtgg tgactgagct
+       61 acgagcctgg cggcgggtgt gcgccgagcc ccggcccggc ccggccctcg cgtgcctccc
+      121 aggctccgca cccctgatgc tgcgcgggtg ctgagcccgc ttcggccggg acgatggtga
+      181 agtatttcct gggccagagc gtgctccgga gttcctggga ccaagtgttc gccgccttct
+      241 ggcagcggta cccgaatccc tatagcaaac atgtcttgac ggaagacata gtacaccggg
+      301 aggtgacccc tgaccagaaa ctgctgtccc ggcgactcct gaccaagacc aacaggatgc
+      361 cacgctgggc cgagcgacta tttcctgcca atgttgctca ctcggtgtac gtcctggagg
+      421 actctattgt ggacccacag aatcagacca tgactacctt cacctggaac atcaaccacg
+      481 cccggctgat ggtggtggag gaacgatgtg tttactgtgt gaactctgac aacagtggct
+      541 ggactgaaat ccgccgggaa gcctgggtct cctctagctt atttggtgtc tccagagctg
+      601 tccaggaatt tggtcttgcc cggttcaaaa gcaacgtgac caagactatg aagggttttg
+      661 aatatatctt ggctaagctg caaggcgagg ccccttccaa aacacttgtt gagacagcca
+      721 aggaagccaa ggagaaggca aaggagacgg cactggcagc tacagagaag gccaaggacc
+      781 tcgccagcaa ggcggccacc aagaagcagc agcagcagca acagtttgtg tagccagtct
+      841 accaccacca cagcacccca gacagctagg cttagcccct ctgccctccc ttcattgtac
+      901 tttatcatta aaaatcaact tccaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      961 aaaaaaaaaa aaaaaaaaat a
+//
+
