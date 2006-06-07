@@ -204,7 +204,7 @@ ok ($clu->isa("Bio::AnnotatableI"));
 
 # tests for Bio::Annotation::AnnotationFactory
 
-ok my $factory = new Bio::Annotation::AnnotationFactory();
+ok my $factory = Bio::Annotation::AnnotationFactory->new;
 
 
 # defaults to SimpleValue
@@ -212,11 +212,12 @@ ok $ann = $factory->create_object(-value => 'peroxisome',
                                   -tagname => 'cellular component');
 ok ref $ann, 'Bio::Annotation::SimpleValue';
 
-ok  $factory->type('Bio::Annotation::OntologyTerm');
+ok $factory->type('Bio::Annotation::OntologyTerm');
 
-ok $ann = $factory->create_object(-name => 'peroxisome',
-                                  -tagname => 'cellular component');
-ok ref $ann, 'Bio::Annotation::OntologyTerm';
+$ann = $factory->create_object(-name => 'peroxisome',
+			       -tagname => 'cellular component');
+ok(defined $ann);
+ok ref($ann), 'Bio::Annotation::OntologyTerm';
 
 #ok $ann = $factory->create_object(-text => 'this is a comment');
 #ok ref $ann, 'Bio::Annotation::Comment';
@@ -239,6 +240,6 @@ ok ref $ann, 'Bio::Annotation::Target';
 
 # factory guessing the type: OntologyTerm
 $factory = new Bio::Annotation::AnnotationFactory();
-ok $ann = $factory->create_object(-name => 'peroxisome',
-                                  -tagname => 'cellular component');
+ok(defined ($ann = $factory->create_object(-name => 'peroxisome',
+					  -tagname => 'cellular component')));
 ok ref $ann, 'Bio::Annotation::OntologyTerm';
