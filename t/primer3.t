@@ -6,8 +6,8 @@
 # and Chad Matsalla
 
 use strict;
+use vars qw($NUMTESTS $DEBUG $ERROR $XML_ERROR);
 
-use constant NUMTESTS => 12;
 
 BEGIN {
     eval { require Test; };
@@ -15,11 +15,27 @@ BEGIN {
         use lib 't','..';
     }
     use Test;
+    $NUMTESTS  = 24;
 
-    plan tests => NUMTESTS;
+    plan tests => $NUMTESTS;
+
+    eval {  require Clone; };
+    if ( $@ ) {
+	warn("Clone not installed. " .
+	     " This means that the module is not usable. Skipping tests");
+	$ERROR = 1;
+    }
 }
 
-use Bio::Tools::Primer3;
+END {
+        foreach ( $Test::ntest..$NUMTESTS) {
+	skip("Missing dependencies. Skipping tests",1);
+    }
+}
+
+exit 0 if $ERROR;
+
+require Bio::Tools::Primer3;
 ok(1);
 
 my ($p3, $num, $primer);
