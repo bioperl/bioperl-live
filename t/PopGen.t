@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS);
-    $NTESTS = 85;
+    $NTESTS = 89;
     $error = 0;
 
     use Test;
@@ -433,6 +433,15 @@ while( my $ind = $io->next_individual ) {
 ok(@population, 90);
 ok($population[3]->unique_id, 'NA06994');
 ok($population[3]->get_Genotypes, 34);
+$population = Bio::PopGen::Population->new(-individuals => \@population);
+
+ok(sprintf("%.3f",$stats->pi($population)),12.266);
+ok(sprintf("%.3f",$stats->theta($population)),5.548);
+skip(1,'tjd inconsistency, need to recalculate');
+skip(1,'tjd inconsistency, need to recalculate');
+#ok(sprintf("%.3f",$stats->tajima_D($population)),2.926);
+#ok(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
+
 $io = new Bio::PopGen::IO(-format => 'phase',
 			  -file   => Bio::Root::IO->catfile(qw(t data
 							       example.phase)));
@@ -444,3 +453,7 @@ while( my $ind = $io->next_individual ) {
     push @population, $ind;
 }
 ok(@population, 4);
+
+
+# test diploid data
+
