@@ -185,7 +185,7 @@ sub group_abbr {
 sub core_exists {
     my ($self,$value) = @_;
     if (defined($value)) {
-	$self->{'_corexists'} = $value;
+	$self->{'_corexists'} = $value ? 1 : 0;
     }
     return $self->{'_corexists'};
 }

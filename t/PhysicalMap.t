@@ -52,8 +52,10 @@ ok $phm->group_type(), 'xx';
 ok $phm->group_abbr('xx'), 'xx';
 ok $phm->group_abbr(), 'xx';
 
-ok $phm->core_exists(), 0, 'code holds and returns a string, definition requires a boolean';
+ok $phm->core_exists, undef, 'code holds and returns a string, definition requires a boolean';
+
 ok $phm->core_exists(3), 1, 'code holds and returns a string, definition requires a boolean';
+
 ok $phm->core_exists(1), 1;
 ok $phm->core_exists(), 1;
 
