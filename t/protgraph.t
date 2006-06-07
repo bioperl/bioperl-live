@@ -5,41 +5,42 @@
 use vars qw($NUMTESTS $DEBUG $ERROR $XML_ERROR);
 use strict;
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+use Bio::Root::IO;
 
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test;};
-	$ERROR = $XML_ERROR = 0;
-	if ( $@ ) {
-		use lib 't';
-	}
-	use Test;
-	$NUMTESTS  = 66;
-	plan tests => $NUMTESTS;
-	eval {	require Class::AutoClass;
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test;};
+    $ERROR = $XML_ERROR = 0;
+    if ( $@ ) {
+	use lib 't';
+    }
+    use Test;
+    $NUMTESTS  = 66;
+    plan tests => $NUMTESTS;
+    eval {	require Class::AutoClass;
          	require Clone; };
-	if ( $@ ) {
-		warn("Class::AutoClass or Clone not installed. " .
-			  " This means that the module is not usable. Skipping tests");
-		$ERROR = 1;
-	}
+    if ( $@ ) {
+	warn("Class::AutoClass or Clone not installed. " .
+	     " This means that the module is not usable. Skipping tests");
+	$ERROR = 1;
+    }
 
-	eval {
-		require XML::Twig;
-	};
-	if ($@) {
-		warn "XML::Twig needed for XML format parsing, skipping these tests";
-		$XML_ERROR = 1;
-	}
+    eval {
+	require XML::Twig;
+    };
+    if ($@) {
+	warn "XML::Twig needed for XML format parsing, skipping these tests";
+	$XML_ERROR = 1;
+    }
 }
 
 END {
-        unlink Bio::Root::IO->catfile("t","data","out.mif");
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip("Missing dependencies. Skipping tests",1);
-	}
+    unlink Bio::Root::IO->catfile("t","data","out.mif");
+    foreach ( $Test::ntest..$NUMTESTS) {
+	skip("Missing dependencies. Skipping tests",1);
+    }
 }
 exit 0 if $ERROR ==  1;
 
