@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 121;
+	plan tests => 122;
 }
 
 use Bio::SeqIO;
@@ -353,12 +353,22 @@ $gb = new Bio::SeqIO(-format => 'genbank',
 							(qw(t data O_sat.wgs)));
 $seq = $gb->next_seq;
 
-my @tests = ('WGS' => 'AAAA02000001-AAAA02050231',
-			 'WGS_SCAFLD' => 'CM000126-CM000137',
-			 'WGS_SCAFLD' => 'CH398081-CH401163');
+my @tests = ('WGS'        => 'AAAA02000001-AAAA02050231',
+				  'WGS_SCAFLD' => 'CM000126-CM000137',
+				  'WGS_SCAFLD' => 'CH398081-CH401163');
+
 foreach my $wgs
 (map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD)) {
     my ($tagname, $value) = (shift @tests, shift @tests);
 	ok($wgs->tagname, $tagname);
 	ok($wgs->value, $value);
 }
+
+# make sure we can retrieve a feature with a primary tag of 'misc_difference'
+$gb = new Bio::SeqIO(-format => 'genbank',
+							-file   => Bio::Root::IO->catfile
+							(qw(t data BC000007.gbk)));
+$seq = $gb->next_seq;
+($cds) = grep { $_->primary_tag eq 'misc_difference' } $seq->get_SeqFeatures;
+my @vals = $cds->get_tag_values('gene');
+ok $vals[0], 'PX19';
