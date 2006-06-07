@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Align::DNAStatistics
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-AT-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -278,7 +278,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-AT-bioperl.org
 
 Describe contact details here
 
