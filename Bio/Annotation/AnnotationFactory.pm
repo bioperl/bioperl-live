@@ -139,7 +139,7 @@ sub new {
 sub create_object {
    my ($self,@args) = @_;
 
-   my $type = $self->type(); 
+   my $type = $self->type; 
    if(! $type) {
        # we need to guess this
        $type = $self->_guess_type(@args);

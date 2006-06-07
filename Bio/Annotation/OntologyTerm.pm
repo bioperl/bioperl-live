@@ -124,7 +124,6 @@ sub new{
     my ($class,@args) = @_;
     
     my $self = $class->SUPER::new(@args);
-    
     my ($term,$name,$label,$identifier,$definition,$ont,$tag) =
 	$self->_rearrange([qw(TERM
                           NAME
@@ -142,7 +141,6 @@ sub new{
         $self->definition($definition) if $definition;
     }
     $self->ontology($ont || $tag) if $ont || $tag;
-    
     return $self;
 }
 
