@@ -137,6 +137,10 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
                                       -alphabet => 'DNA',
                                       -accession_number => 'myaccession');
 
+
+
+$verbose = -1 unless $ENV{'BIOPERLDEBUG'};  # silence warnings unless we are debuggin
+
 my $embl = new Bio::SeqIO(-format => 'embl',
                           -verbose => $verbose,
                           -file => ">primaryseq.embl");
