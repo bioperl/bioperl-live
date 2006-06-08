@@ -157,7 +157,7 @@ sub next {
 	    #$self->warn($s);
 	    #exit;
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
-	    $end = $start if not $end ;
+	    $end = $start if not defined $end ;
 	    my ($len) = $end - $start +1; 
 	    $len = 0, $start = $end if defined $sep and $sep eq '^';
 	    my $ismut = 0;
@@ -222,7 +222,7 @@ sub next {
 	    $prevrnaobj->add_Allele($a3);
 	} else {
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
-	    $end = $start if not $end ;
+	    $end = $start if not defined $end ;
 	    my ($len) = $end - $start + 1; 
 	    $len = 0, $start = $end if defined $sep and $sep eq '^'; 
 	    my $ismut;
@@ -297,7 +297,7 @@ sub next {
 	    $prevaaobj->add_Allele($a3);
 	} else {
 	    my ($start, $sep, $end) = $location =~ /(-?\d+)(.)?\D?(-?\d+)?/;
-	    $end = $start if not $end ;
+	    $end = $start if not defined $end ;
 	    my ($len) = $end - $start + 1; 
 	    $len = 0, $start = $end if defined $sep and $sep eq '^'; 
 	    my $ismut;
