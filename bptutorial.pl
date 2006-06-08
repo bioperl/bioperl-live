@@ -3972,7 +3972,7 @@ sub run_examples {
     @_ = ();
     if (scalar(@runlist)==0) {&$display_help;}; # display help if no option
     if( $runlist[0] == -1 ) { return }
-    if ($runlist[0] == 0) {@runlist = (1..22); }; # argument = 0 means run tests 1 thru 22
+    if ($runlist[0] == 0) {@runlist = (1..6,  8..22); }; # argument = 0 means run tests 1 thru 22
     for $n  (@runlist) {
         if ($n ==100) {my $object = $runlist[1]; &$bpinspect1($object); last;}
         if ($n ==1) {&$sequence_manipulations; next;}
@@ -3981,6 +3981,7 @@ sub run_examples {
         if ($n ==4) {&$other_seq_utilities; next;}
         if ($n ==5) {&$run_perl; next;}
         if ($n ==6) {&$searchio_parsing; next;}
+        if ($n ==7) {print "dummy entry, select an other\n"; next;}
         if ($n ==8) {&$hmmer_parsing; next;}
         if ($n ==9) {&$simplealign ; next;}
         if ($n ==10) {&$gene_prediction_parsing; next;}
