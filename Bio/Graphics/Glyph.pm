@@ -102,12 +102,14 @@ sub parts      {
 # screen.
 sub feature_has_subparts {
   my $self = shift;
-  $self->{feature_has_subparts} = shift if @_;
+
+  return $self->{feature_has_subparts} = shift if @_;
 
   # $feature->compound is an artefact from aggregators. Sadly, an aggregated feature can miss
   # parts that are out of the query range - this is a horrible feature. Aggregated features have
   # a compound flag to hack around this.
-  $self->{feature_has_subparts} || eval {$self->feature->compound};;
+  my $feature = $self->feature;
+  $self->{feature_has_subparts} || ($feature->can('compound') && $feature->compound)
 }
 
 sub feature { shift->{feature} }
@@ -1119,10 +1121,11 @@ sub subfeat {
   my $feature = shift;
 
   return $self->_subfeat($feature) unless ref $self;  # protect against class invocation
+
   return if $self->level == 0 && $self->no_subparts;
   return if $self->exceeds_depth;
 
-  return @{$self->{cached_subfeat}{$feature}} if $self->{cached_subfeat}{$feature};
+  return @{$self->{cached_subfeat}{$feature}} if exists $self->{cached_subfeat}{$feature};
   my @ss = $self->_subfeat($feature);
   $self->{cached_subfeat}{$feature} = \@ss;
   @ss;

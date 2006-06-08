@@ -384,19 +384,6 @@ sub draw_point {
   $gd->setPixel($x,$y,$color);
 }
 
-sub _subseq {
-  my $class   = shift;
-  my $feature = shift;
-
-  return $feature->segments                if $feature->can('segments');
-  my @split = eval { my $id   = $feature->location->seq_id;
-		     my @subs = $feature->location->sub_Location;
-		     grep {$id eq $_->seq_id} @subs};
-  return @split if @split;
-  return $feature->sub_SeqFeature          if $feature->can('sub_SeqFeature');
-  return;
-}
-
 sub keyglyph {
   my $self = shift;
 
