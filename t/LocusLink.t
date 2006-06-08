@@ -114,6 +114,6 @@ foreach my $k (@keys) {
 }
 ok (scalar(@goann), 4);
 @goann = sort { $a->as_text() cmp $b->as_text() } @goann;
-ok ($goann[2]->as_text, "cellular component|cytoplasm|GO:0005737");
+ok ($goann[2]->as_text, "cellular component|cytoplasm|");
 
 
