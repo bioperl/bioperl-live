@@ -435,7 +435,11 @@ ok($population[3]->unique_id, 'NA06994');
 ok($population[3]->get_Genotypes, 34);
 $population = Bio::PopGen::Population->new(-individuals => \@population);
 
-ok(sprintf("%.3f",$stats->pi($population)),12.266);
+ok(sprintf("%.3f",$stats->pi($population)),12.335);
+# if forced haploid population is called within pi
+# need to decide about that...
+# ok(sprintf("%.3f",$stats->pi($population)),12.266);
+
 ok(sprintf("%.3f",$stats->theta($population)),5.548);
 skip(1,'tjd inconsistency, need to recalculate');
 skip(1,'tjd inconsistency, need to recalculate');
