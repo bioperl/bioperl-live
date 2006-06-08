@@ -164,12 +164,11 @@ sub write_data {
 	$outstring .= "3rd letter GC ". $cut->get_coding_gc(3). "%\n";
 	$outstring .= "Genetic code " . $cut->genetic_code() ."\n\n\n";
 
-	
-			
 $self->_print ($outstring);
 $self->flush();
 
 }
+
 sub _parse {
 	my $self = shift;
 	my $cdtableobj = Bio::CodonUsage::Table->new();
@@ -178,7 +177,7 @@ sub _parse {
 		$line =~ s/End/Ter/;
 		## now parse in species name, cds number
 
-		if ($line =~ /^(.+?)\[(\w+)\].+?(\d+)/) {
+		if ($line =~ /^(.+?)\s*\[(\w+)\].+?(\d+)/) {
 			$cdtableobj->species($1);
 			$cdtableobj->{'_gb_db'} = $2;
 			$cdtableobj->cds_count($3);
