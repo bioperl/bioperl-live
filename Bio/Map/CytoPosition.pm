@@ -148,7 +148,7 @@ use Bio::Map::Position;
 
 sub cytorange {
     my ($self) = @_;
-    my ($chr, $r, $band, $band2, $arm, $arm2, $lc, $uc, $lcchar, $ucchar) = undef;
+    my ($chr, $r, $band, $band2, $arm, $arm2, $lc, $uc, $lcchar, $ucchar);
 
     return $r if not defined $self->value; # returns undef
     $self->value =~
