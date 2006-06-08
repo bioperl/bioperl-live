@@ -151,7 +151,7 @@ sub to_string {
 				       REFERENCE 
 				       MATCH_TAG HSP_TAG
 				       PREFIX)], @args);
-    warn $reference;
+    warn $reference if $reference;
     $reference ||='hit'; # default is that the hit sequence (db sequence) becomes the reference sequence.  I think this is fairly typical...
     $match_tag ||= $Defaults{'MatchTag'}; # default is the generic 'match' tag.
     $hsp_tag   ||= $Defaults{'HSPTag'}; # default is the generic 'hsp' tag.
