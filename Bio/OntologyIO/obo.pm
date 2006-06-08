@@ -315,7 +315,7 @@ sub parse {
  Function: Get the next available ontology from the parser. This is the
            method prescribed by Bio::OntologyIO.
  Example :
- Returns : An object implementing Bio::Ontology::OntologyI, and undef if
+ Returns : An object implementing Bio::Ontology::OntologyI, and nothing if
            there is no more ontology in the input.
  Args    :
 
@@ -469,7 +469,7 @@ sub _filter_line {
 sub _header {
     my $self                  = shift;
     my $annotation_collection = new Bio::Annotation::Collection();
-    my ( $tag, $value ) = undef;
+    my ( $tag, $value );
     my $line_counter = 0;
     $self->{'_current_line_no'} = 0;
     my $format_version_header_flag = 0;
@@ -533,7 +533,7 @@ sub _header {
 ### Parses each stanza of the file
 sub _next_term {
     my $self             = shift;
-    my $term             = undef;
+    my $term             ;
     my $skip_stanza_flag = 1;
     my $line_counter     = $self->{'_current_line_no'};
 
