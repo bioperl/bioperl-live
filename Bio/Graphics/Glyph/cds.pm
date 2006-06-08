@@ -86,7 +86,8 @@ sub draw {
     next if ($self->option('sub_part') && $type ne $self->option('sub_part'));
 
     my $pos     = $feature->strand >= 0 ? $feature->start : $feature->end;
-    my $phase   = eval {$feature->phase} || 0;
+    my $phase   = eval {$feature->phase};
+    next unless defined $phase;
     my $strand  = $feature->strand;
     my ($frame,$offset) = frame_and_offset($pos,
 					   $strand,
@@ -103,7 +104,7 @@ sub draw {
 
       # do in silico splicing in order to find the codon that
       # arises from the splice
-      my $protein = $part->feature->translate(undef,undef,$phase,$codon_table)->seq;
+      my $protein = $part->feature->seq->translate(undef,undef,$phase,$codon_table)->seq;
       $part->{cds_translation}  = $protein;
 
     BLOCK: {

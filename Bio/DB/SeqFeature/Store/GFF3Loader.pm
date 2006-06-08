@@ -507,15 +507,15 @@ sub handle_feature {
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
-  my @args = (-display_name => $name || undef,
+  my @args = (-display_name => $name,
 	      -seq_id       => $refname,
 	      -start        => $start,
 	      -end          => $end,
 	      -strand       => $strand || 0,
-	      -score        => $score  || undef,
-	      -phase        => $phase  || undef,
+	      -score        => $score,
+	      -phase        => $phase,
 	      -primary_tag  => $method || 'feature',
-	      -source       => $source || undef,
+	      -source       => $source,
 	      -tag          => $unreserved,
 	      -attributes   => $unreserved,
 	     );
@@ -557,8 +557,12 @@ END
   $ld->{CurrentFeature} = $feature;
   $ld->{CurrentID}      = $feature_id;
 
-  $ld->{IndexIt}{$feature_id}++    if $index_it || !@parent_ids || !(defined $reserved->{ID}[0]);
-  $ld->{TopLevel}{$feature_id}++   if !$self->{fast} && !@parent_ids;  # need to track top level features
+  my $top_level = !@parent_ids;
+  my $has_id    = defined $reserved->{ID}[0];
+  $index_it   ||= $top_level;
+
+  $ld->{IndexIt}{$feature_id}++    if $index_it;
+  $ld->{TopLevel}{$feature_id}++   if !$self->{fast} && $top_level;  # need to track top level features
 
   # remember parentage
   for my $parent (@parent_ids) {

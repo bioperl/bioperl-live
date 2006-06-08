@@ -68,17 +68,6 @@ sub triletter_code {
   return $triletter_code;
 }
 
-sub protein_fits {
-  my $self = shift;
-  return unless $self->show_sequence;
-
-  my $pixels_per_residue = $self->pixels_per_residue;
-  my $font               = $self->font;
-  my $font_width         = $font->width;
-
-  return $pixels_per_residue >= $font_width;
-}
-
 sub longprotein_fits {
   my $self = shift;
   return unless $self->show_sequence;
@@ -143,11 +132,12 @@ sub draw_frame {
   my $self = shift;
   my ($feature,$strand,$base_offset,$phase,$gd,$x1,$y1,$x2,$y2) = @_;
 
-  return unless $feature->seq;  # no sequence, arggh.
+  my $seq = $feature->seq or return; # no sequence, arggh.
+  $seq    = $seq->seq if ref $seq;   # old API bug
 
   $strand *= -1 if $self->{flip};
-  my ($seq,$pos) = $strand < 0 ? ($feature->revcom,$feature->end)
-                               : ($feature,$feature->start);
+  my ($seq,$pos) = $strand < 0 ? ($self->reversec($seq),$feature->end)
+                               : ($seq,$feature->start);
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
   # warn "frame=$frame, phase=$phase";
 

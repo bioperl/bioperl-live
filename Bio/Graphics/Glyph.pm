@@ -52,17 +52,17 @@ sub new {
   warn $self if DEBUG;
   warn $feature if DEBUG;
 
-#  @subfeatures = $level == 0
-#    ? $self->subseq($feature)
-#      : grep {$p_start <= $_->end && $p_end >= $_->start} $self->subseq($feature);
-  @subfeatures = grep {$p_start <= $_->end && $p_end >= $_->start} $self->subseq($feature);
+  my @subfeatures         = $self->subfeat($feature);
+  my @visible_subfeatures = grep {$p_start <= $_->end && $p_end >= $_->start} @subfeatures;
 
-  if (@subfeatures) {
+  $self->feature_has_subparts(@subfeatures>0);
+
+  if (@visible_subfeatures) {
     # dynamic glyph resolution
     @subglyphs = map { $_->[0] }
           sort { $a->[1] <=> $b->[1] }
 	    map { [$_, $_->left ] }
-	      $factory->make_glyph($level+1,@subfeatures);
+	      $factory->make_glyph($level+1,@visible_subfeatures);
     $self->{parts}   = \@subglyphs;
   }
 
@@ -94,6 +94,20 @@ sub parts      {
   my $self = shift;
   return unless $self->{parts};
   return wantarray ? @{$self->{parts}} : $self->{parts};
+}
+
+# this is different than parts(). parts() will return subglyphs
+# that are contained within the current viewing range. feature_has_subparts()
+# will return true if the feature has any subparts, even if they are off the
+# screen.
+sub feature_has_subparts {
+  my $self = shift;
+  $self->{feature_has_subparts} = shift if @_;
+
+  # $feature->compound is an artefact from aggregators. Sadly, an aggregated feature can miss
+  # parts that are out of the query range - this is a horrible feature. Aggregated features have
+  # a compound flag to hack around this.
+  $self->{feature_has_subparts} || eval {$self->feature->compound};;
 }
 
 sub feature { shift->{feature} }
@@ -702,10 +716,8 @@ sub draw {
 
   else {  # no part
     $self->draw_connectors($gd,$left,$top)
-      if $connector && $connector ne 'none' && $self->{level} == 0;
-#    $self->draw_component($gd,$left,$top) unless $ig || eval{$self->feature->compound};
-#    $self->draw_component($gd,$left,$top) unless eval{$self->feature->compound};
-    $self->draw_component($gd,$left,$top);
+      if $connector && $connector ne 'none'; # && $self->{level} == 0;
+    $self->draw_component($gd,$left,$top) unless $self->feature_has_subparts;
   }
 
 }
@@ -718,6 +730,7 @@ sub level {
 
 sub draw_connectors {
   my $self = shift;
+
   return if $self->{overbumped};
   my $gd = shift;
   my ($dx,$dy) = @_;
@@ -1100,26 +1113,26 @@ sub exceeds_depth {
   return $current_depth >= $max_depth;
 }
 
-# memoize _subseq -- it's a bottleneck with segments
-sub subseq {
+# memoize _subfeat -- it's a bottleneck with segments
+sub subfeat {
   my $self    = shift;
   my $feature = shift;
 
-  return $self->_subseq($feature) unless ref $self;  # protect against class invocation
+  return $self->_subfeat($feature) unless ref $self;  # protect against class invocation
   return if $self->level == 0 && $self->no_subparts;
   return if $self->exceeds_depth;
 
-  return @{$self->{cached_subseq}{$feature}} if $self->{cached_subseq}{$feature};
-  my @ss = $self->_subseq($feature);
-  $self->{cached_subseq}{$feature} = \@ss;
+  return @{$self->{cached_subfeat}{$feature}} if $self->{cached_subfeat}{$feature};
+  my @ss = $self->_subfeat($feature);
+  $self->{cached_subfeat}{$feature} = \@ss;
   @ss;
 }
 
-sub _subseq {
+sub _subfeat {
   my $class   = shift;
   my $feature = shift;
 
-  return $feature->segments                if $feature->can('segments');
+  return $feature->segments     if $feature->can('segments');
 
   my @split = eval { my $id   = $feature->location->seq_id;
 		     my @subs = $feature->location->sub_Location;

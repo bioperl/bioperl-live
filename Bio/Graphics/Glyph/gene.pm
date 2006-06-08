@@ -45,7 +45,7 @@ sub label_position {
 
 sub label_transcripts {
   my $self = shift;
-  return $self->option('label transcripts');
+  return $self->option('label_transcripts');
 }
 
 sub draw_connectors {
@@ -62,11 +62,11 @@ sub maxdepth {
 }
 
 
-sub _subseq {
+sub _subfeat {
   my $class   = shift;
   my $feature = shift;
   return $feature->get_SeqFeatures('mRNA') if $feature->primary_tag eq 'gene';
-  return $feature->get_SeqFeatures();# 'CDS',"5'_UTR","3'_UTR");
+  return $feature->get_SeqFeatures();# ('CDS',"five_prime_UTR","three_prime_UTR");
 }
 
 1;

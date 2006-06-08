@@ -59,7 +59,7 @@ sub height {
   my $self = shift;
   my $height = $self->SUPER::height;
   return $height unless $self->dna_fits 
-    && ($self->option('draw_target') || $self->option('draw_dna'));
+    && $self->option('draw_target'); # || $self->option('draw_dna'));
   my $fontheight = $self->font->height;
   return $fontheight if $fontheight > $height;
 }
@@ -87,15 +87,15 @@ sub maxdepth {
 
 sub fontcolor {
   my $self = shift;
-  return $self->SUPER::fontcolor unless $self->option('draw_target') || $self->option('draw_dna');
+  return $self->SUPER::fontcolor unless $self->option('draw_target');# || $self->option('draw_dna');
   return $self->SUPER::fontcolor unless $self->dna_fits;
   return $self->bgcolor;
 }
 
 sub draw {
   my $self = shift;
-  my ($draw_dna,$draw_target) = ($self->option('draw_dna'),$self->option('draw_target'));
-  return $self->SUPER::draw(@_) unless $draw_dna || $draw_target;
+  my $draw_target = $self->option('draw_target');
+  return $self->SUPER::draw(@_) unless $draw_target;
   return $self->SUPER::draw(@_) unless $self->dna_fits;
 
   $self->draw_label(@_)       if $self->option('label');
@@ -107,12 +107,6 @@ sub draw {
   if ($self->option('draw_target')) {
     return $self->SUPER::draw(@_) unless eval {$self->feature->hit->seq};
     $drew_sequence = $self->draw_multiple_alignment(@_);
-  }
-
-  elsif ($self->option('draw_dna')) {
-    my $dna = eval {$self->feature->seq};
-    return $self->SUPER::draw(@_) unless $dna;
-    $drew_sequence = $self->draw_dna(@_,$dna);
   }
 
   my ($gd,$x,$y) = @_;
@@ -142,7 +136,7 @@ sub draw_dna {
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
 
-  my @s                     = $self->_subseq($feature);
+  my @s                     = $self->_subfeat($feature);
 
   my (@segments,%strands);
   for my $s (@s) {
@@ -246,7 +240,7 @@ sub draw_multiple_alignment {
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
 
-  my @s                     = $self->_subseq($feature);
+  my @s                     = $self->_subfeat($feature);
 
   my $can_realign = $do_realign && eval { require Bio::Graphics::Browser::Realign; 1 };
 
@@ -315,7 +309,7 @@ sub draw_multiple_alignment {
 
     # add a little rag to the right end - this is complicated because
     # we don't know what the length of the underlying dna is, so we
-    # use the subseq method to find out
+    # use the subfeat method to find out
     my $current_end     = $segments[-1]->[TGT_END];
     $offset_right          = length $segments[-1]->[TARGET]->subseq($current_end+1,$current_end+$ragged_extra)->seq;
     if ($strand >= 0) {
@@ -494,18 +488,18 @@ sub realign {
   return Bio::Graphics::Browser::Realign::align_segs($src,$tgt);
 }
 
-# Override _subseq() method to make it appear that a top-level feature that
+# Override _subfeat() method to make it appear that a top-level feature that
 # has no subfeatures appears as a feature that has a single subfeature.
 # Otherwise at high mags gaps will be drawn as components rather than
 # as connectors.  Because of differing representations of split features
 # in Bio::DB::GFF::Feature and Bio::SeqFeature::Generic, there is
 # some breakage of encapsulation here.
-sub _subseq {
+sub _subfeat {
   my $self    = shift;
   my $feature = shift;
-  my @subseq  = $self->SUPER::_subseq($feature);
-  return @subseq if @subseq;
-  if ($self->level == 0 && !@subseq && !eval{$feature->compound}) {
+  my @subfeat  = $self->SUPER::_subfeat($feature);
+  return @subfeat if @subfeat;
+  if ($self->level == 0 && !@subfeat && !$self->feature_has_subparts) {
     return $self->feature;
   } else {
     return;

@@ -91,56 +91,69 @@ sub draw_dna {
 sub draw_gc_content {
   my $self     = shift;
   my $gd       = shift;
-  my $dna = shift;
+  my $dna      = shift;
   my ($x1,$y1,$x2,$y2) = @_;
 
 # get the options that tell us how to draw the GC content
 
   my $bin_size = length($dna) / ($self->option('gc_bins') || 100);
-  $bin_size = 100 if $bin_size < 100;
+  $bin_size = 10 if $bin_size < 10;
   my $gc_window = $self->option('gc_window');
+  if ($gc_window && $gc_window eq 'auto') {
+    $gc_window = length($dna)/100;
+  }
 
 # Calculate the GC content...
 
   my @bins;
   my @datapoints;
-  my $maxgc;
-  my $mingc;
+  my $maxgc = -1000;
+  my $mingc = +1000;
   if ($gc_window)
   {
 
 # ...using a sliding window...
-      
-      for (my $i=$gc_window/2 + 1; $i < length($dna) - $gc_window/2; $i++)
+    for (my $i=$gc_window/2; $i <= length($dna) - $gc_window/2; $i++)
       {
-	  my $subseq = substr($dna, $i-$gc_window/2, $gc_window);
-	  my $gc = $subseq =~ tr/gcGC/gcGC/;
-	  my $content = $gc / $gc_window;
-	  push @datapoints, $content;
-	  $maxgc = $content if ($content > $maxgc);
-	  $mingc = $content if ($content < $mingc);
+	my $subseq = substr($dna, $i-$gc_window/2, $gc_window);
+	my $gc = $subseq =~ tr/gcGC/gcGC/;
+	my $content = $gc / $gc_window;
+	push @datapoints, $content;
+	$maxgc = $content if ($content > $maxgc);
+	$mingc = $content if ($content < $mingc);
       }
-      push @datapoints, 0.5 unless @datapoints;
+    push @datapoints, 0.5 unless @datapoints;
 
-      my $scale = $maxgc - $mingc;
-      foreach (my $i; $i < @datapoints; $i++)
+    my $scale = $maxgc - $mingc;
+    foreach (my $i; $i < @datapoints; $i++)
       {
-	  $datapoints[$i] = ($datapoints[$i] - $mingc) / $scale;
+	$datapoints[$i] = ($datapoints[$i] - $mingc) / $scale;
       }
-      $maxgc = int($maxgc * 100);
-      $mingc = int($mingc * 100);
+    $maxgc = int($maxgc * 100);
+    $mingc = int($mingc * 100);
   }
   else
   {
 
 # ...or a fixed number of bins.
 
-      for (my $i = 0; $i < length($dna) - $bin_size; $i+= $bin_size) {
-	  my $subseq  = substr($dna,$i,$bin_size);
-	  my $gc      = $subseq =~ tr/gcGC/gcGC/;
-	  my $content = $gc/$bin_size;
-	  push @bins,$content;
+    for (my $i = 0; $i < length($dna) - $bin_size; $i+= $bin_size) {
+      my $subseq  = substr($dna,$i,$bin_size);
+      my $gc      = $subseq =~ tr/gcGC/gcGC/;
+      my $content = $gc/$bin_size;
+      $maxgc = $content if ($content > $maxgc);
+      $mingc = $content if ($content < $mingc);
+      push @bins,$content;
+    }
+
+    my $scale = $maxgc - $mingc;
+    foreach (my $i; $i < @bins; $i++)
+      {
+	$bins[$i] = ($bins[$i] - $mingc) / $scale;
       }
+    $maxgc = int($maxgc * 100);
+    $mingc = int($mingc * 100);
+
   }
 
 # Calculate values that will be used in the layout
@@ -153,7 +166,7 @@ sub draw_gc_content {
   my $axiscolor  = $self->color('axis_color') || $fgcolor;
 
 # Draw the axes
-  
+  my $fontwidth = $self->font->width;
   $gd->line($x1,  $y1,        $x1,  $y2,        $axiscolor);
   $gd->line($x2-2,$y1,        $x2-2,$y2,        $axiscolor);
   $gd->line($x1,  $y1,        $x1+3,$y1,        $axiscolor);
@@ -165,39 +178,38 @@ sub draw_gc_content {
   $gd->line($x1+5,$y2,        $x2-5,$y2,        $bgcolor);
   $gd->line($x1+5,($y2+$y1)/2,$x2-5,($y2+$y1)/2,$bgcolor);
   $gd->line($x1+5,$y1,        $x2-5,$y1,        $bgcolor);
-  $gd->string($self->font,$x1+5,$y1,'% gc',$axiscolor) if $bin_height > $self->font->height*2;
+  $gd->string($self->font,$x1-length('% gc')*$fontwidth,$y1,'% gc',$axiscolor) if $bin_height > $self->font->height*2;
 
 # If we are using a sliding window, the GC graph will be scaled to use the full
 # height of the glyph, so label the right vertical axis to show the scaling that# is in effect
 
-  if ($gc_window)
-  {
-      $gd->string($self->font,$x2-20,$y1,$maxgc,$axiscolor) 
-	  if $bin_height > $self->font->height*2.5;
-      $gd->string($self->font,$x2-20,$y2-$self->font->height,$mingc,$axiscolor) 
-	  if $bin_height > $self->font->height*2.5;
-  }
+  $gd->string($self->font,$x2+3,$y1,"${maxgc}%",$axiscolor) 
+    if $bin_height > $self->font->height*2.5;
+  $gd->string($self->font,$x2+3,$y2-$self->font->height,"${mingc}%",$axiscolor) 
+    if $bin_height > $self->font->height*2.5;
 
 # Draw the GC content graph itself
 
   if ($gc_window)
   {
-      my $graphwidth = $x2 - $x1;
-      my $scale = $graphwidth / @datapoints;
-      for (my $i = 1; $i < @datapoints; $i++)
+    my $graphwidth = $x2 - $x1;
+    my $scale = $graphwidth / @datapoints;
+    my $gc_window_width = $gc_window/2 * $self->panel->scale;
+    for (my $i = 1; $i < @datapoints; $i++)
       {
-	  my $x = $i + $gc_window / 2;
-	  my $xlo = $x1 + ($x - 1) * $scale;
-	  my $xhi = $x1 + $x * $scale;
-	  my $y = $y2 - ($bin_height*$datapoints[$i]);
-	  $gd->line($xlo, $y2 - ($bin_height*$datapoints[$i-1]), 
-		    $xhi, $y, 
-		    $fgcolor);
+	my $x = $i + $gc_window_width;
+	my $xlo = $x1 + ($x - 1) * $scale;
+	my $xhi = $x1 + $x * $scale;
+	last if $xhi >= $self->panel->right-$gc_window_width;
+	my $y = $y2 - ($bin_height*$datapoints[$i]);
+	$gd->line($xlo, $y2 - ($bin_height*$datapoints[$i-1]), 
+		  $xhi, $y, 
+		  $fgcolor);
       }
   }
   else
   {
-      for (my $i = 0; $i < @bins; $i++) 
+    for (my $i = 0; $i < @bins; $i++) 
       {
 	  my $bin_start  = $x1+$i*$bin_width;
 	  my $bin_stop   = $bin_start + $bin_width;
@@ -302,7 +314,10 @@ options are recognized:
 	      calculation.  If this is 
 	      not defined, non-
 	      overlapping bins will be 
-	      used.
+	      used. If this is set to
+              "auto", then the glyph will
+              choose a window equal to
+              1% of the interval.
 
   -gc_bins    Fixed number of intervals   100
               to sample across the
@@ -322,6 +337,11 @@ options are recognized:
               show the reverse complement
               and strandless features will
               show both
+
+NOTE: -gc_window=>'auto' gives nice results and is recommended for
+drawing GC content. The GC content axes draw slightly outside the
+panel, so you may wish to add some extra padding on the right and
+left.
 
 =head1 BUGS
 

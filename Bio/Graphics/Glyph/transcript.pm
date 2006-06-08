@@ -43,20 +43,22 @@ sub draw_connectors {
   my ($left,$top) = @_;
 
   $self->SUPER::draw_connectors($gd,$left,$top);
-  my @parts = $self->parts;
+  my @parts = $self->parts; # or return;
 
   # H'mmm.  No parts.  Must be in an intron, so draw intron
   # spanning entire range
   if (!@parts) {
+    return unless $self->feature_has_subparts;
     my($x1,$y1,$x2,$y2) = $self->bounds(0,0);
     $self->_connector($gd,$left,$top,$x1,$y1,$x1,$y2,$x2,$y1,$x2,$y2);
-    @parts = $self;
+    @parts = ($self);
   }
 
   # flip argument makes this confusing
   # certainly there's a simpler way to express this idea
   my $strand    = $self->feature->strand;
   my ($first,$last) = ($parts[0],$parts[-1]);
+
   ($first,$last) = ($last,$first) if exists $self->{flip};
 
   if ($strand > 0) {
@@ -66,7 +68,9 @@ sub draw_connectors {
 	$self->arrow($gd,$x1,$x1-$self->arrow_length,$center)
       :
 	$self->arrow($gd,$x2,$x2+$self->arrow_length,$center);
-  } elsif ($strand < 0) {
+  }
+
+  elsif ($strand < 0) {
     my($x1,$y1,$x2,$y2) = $first->bounds(@_);
     my $center = ($y2+$y1)/2;
     $self->{flip } ?

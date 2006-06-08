@@ -2,6 +2,7 @@ package Bio::Graphics::Glyph::generic;
 
 use strict;
 use Bio::Graphics::Glyph;
+use Bio::Graphics::Util qw(frame_and_offset);
 use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph';
 
@@ -13,6 +14,17 @@ my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
 # label and description can be flags or coderefs.
 # If a flag, label will be taken from seqname, if it exists or primary_tag().
 #            description will be taken from source_tag().
+
+sub height {
+  my $self = shift;
+  my $h    = $self->SUPER::height;
+  return $h unless
+    $self->option('draw_translation') && $self->protein_fits
+      or
+	$self->option('draw_dna') && $self->dna_fits;
+  my $fh = $self->font->height + 2;
+  return $h > $fh ? $h : $fh;
+}
 
 sub pad_top {
   my $self = shift;
@@ -159,12 +171,104 @@ sub draw {
   local($self->{partno},$self->{total_parts});
   @{$self}{qw(partno total_parts)} = ($partno,$total_parts);
 
+  $self->calculate_cds()      if $self->option('draw_translation') && $self->protein_fits;
+
   $self->SUPER::draw(@_);
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
   $self->draw_part_labels(@_) if $self->option('label') && $self->option('part_labels');
 }
 
+sub draw_component {
+  my $self = shift;
+  $self->SUPER::draw_component(@_);
+  $self->draw_translation(@_) if $self->{cds_translation}; # created earlier by calculate_cds()
+  $self->draw_sequence(@_)    if $self->option('draw_dna') && $self->dna_fits;
+}
+
+# mostly stolen from cds.pm -- draw the protein translation
+sub draw_translation {
+  my $self = shift;
+  my $gd = shift;
+  my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
+
+  my $feature = $self->feature;
+  my $strand = $feature->strand;
+
+  my $font    = $self->font;
+  my $pixels_per_residue = $self->scale * 3;
+
+  my $y         = $y1 + ($self->height - $font->height)/2;
+  my $fontwidth = $font->width;
+  my $color     = $self->fontcolor;
+
+  $strand *= -1 if $self->{flip};
+
+  # have to remap feature start and end into pixel coords in order to:
+  # 1) correctly align the amino acids with the nucleotide seq
+  # 2) correct for the phase offset
+  my $start = $self->map_no_trunc($feature->start + $self->{cds_offset});
+  my $stop  = $self->map_no_trunc($feature->end   + $self->{cds_offset});
+
+  ($start,$stop) = ($stop,$start) if $stop < $start;  # why does this keep happening?
+  my $x_fudge    = $self->{flip} ? 1 : 2;
+  my $right      = $self->panel->right;
+  my $left       = $self->panel->left;
+
+  my @residues = split '',$self->{cds_translation};
+  push @residues,$self->{cds_splice_residue} if $self->{cds_splice_residue};
+  for (my $i=0;$i<@residues;$i++) {
+    my $x = $strand > 0 ? $start + $i * $pixels_per_residue
+                        : $stop  - $i * $pixels_per_residue;
+    next unless ($x >= $x1 && $x <= $x2);
+    $x -= $fontwidth + 1 if $self->{flip}; # align right when flipped
+    last if $x+$fontwidth >= $right;
+    last if $x            <= $left;
+    $gd->char($font,$x+$x_fudge,$y,$residues[$i],$color);
+  }
+}
+
+sub draw_sequence {
+  my $self = shift;
+  my $gd = shift;
+  my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
+
+  my $feature = $self->feature;
+  my $strand = $feature->strand;
+
+  my $font            = $self->font;
+  my $pixels_per_base = $self->scale;
+
+  my $y         = $y1 + ($self->height - $font->height)/2 - 1;
+  my $fontwidth = $font->width;
+  my $color     = $self->fontcolor;
+
+  $strand *= -1 if $self->{flip};
+
+  # have to remap feature start and end into pixel coords in order to:
+  my $start = $self->map_no_trunc($feature->start);
+  my $stop  = $self->map_no_trunc($feature->end);
+
+  ($start,$stop) = ($stop,$start) if $stop < $start;  # why does this keep happening?
+  my $x_fudge    = $self->{flip} ? 1 : 2;
+  my $right      = $self->panel->right;
+  my $left       = $self->panel->left;
+
+  my $seq   = $self->feature->seq;
+  $seq      = $seq->seq if ref $seq;   # compensate for an earlier bug
+
+  my @bases = split '',$seq;
+  for (my $i=0;$i<@bases;$i++) {
+    my $x = $strand > 0 ? $start + $i * $pixels_per_base
+                        : $stop  - $i * $pixels_per_base;
+    next unless ($x >= $x1 && $x <= $x2);
+    $x -= $fontwidth + 1 if $self->{flip}; # align right when flipped
+    last if $x+$fontwidth >= $right;
+    last if $x            <= $left;
+    my $base = $self->{flip} ? $complement{$bases[$i]} : $bases[$i];
+    $gd->char($font,$x+$x_fudge,$y,$base,$color);
+  }
+}
 
 sub min { $_[0] <= $_[1] ? $_[0] : $_[1] }
 sub max { $_[0] >= $_[1] ? $_[0] : $_[1] }
@@ -273,7 +377,6 @@ sub part_label {
   return $self->{partno}+1;
 }
 
-
 sub dna_fits {
   my $self = shift;
 
@@ -282,6 +385,18 @@ sub dna_fits {
   my $font_width      = $font->width;
 
   return $pixels_per_base >= $font_width;
+}
+
+sub protein_fits {
+  my $self = shift;
+  my $font               = $self->font;
+
+  # return unless $font->height <= $self->height;
+
+  my $font_width         = $font->width;
+  my $pixels_per_residue = $self->scale * 3;
+
+  return $pixels_per_residue >= $font_width;
 }
 
 sub arrowhead {
@@ -336,6 +451,65 @@ sub reversec {
   $dna =~ tr/gatcGATC/ctagCTAG/;
   $dna = reverse $dna;
   return $dna;
+}
+
+# this gets invoked if the user has requested that the protein translation
+# gets drawn using the draw_translation option and protein_fits() returns
+# true. It is a rather specialized function and possibly belongs somewhere else,
+# but putting it here makes it possible for any feature to display its protein
+# translation.
+sub calculate_cds {
+  my $self = shift;
+  my @parts = $self->feature_has_subparts ? $self->parts : $self;
+
+  my $codon_table = $self->option('codontable');
+  $codon_table    = 1 unless defined $codon_table;
+  require Bio::Tools::CodonTable unless Bio::Tools::CodonTable->can('new');
+  my $translate_table = Bio::Tools::CodonTable->new(-id=>$codon_table);
+
+  for (my $i=0; $i < @parts; $i++) {
+    my $part    = $parts[$i];
+    my $feature = $part->feature;
+
+    my $pos     = $feature->strand >= 0 ? $feature->start : $feature->end;
+    my $phase   = eval {$feature->phase};
+    next unless defined $phase;
+    my $seq     = $feature->seq;
+    next unless defined $seq;
+
+    my $strand          = $feature->strand;
+    my ($frame,$offset) = frame_and_offset($pos,
+					   $strand,
+					   -$phase);
+    $strand *= -1 if $self->{flip};
+    $part->{cds_frame}     = $frame;
+    $part->{cds_offset}    = $offset;
+
+    # do in silico splicing in order to find the codon that
+    # arises from the splice
+    my $protein = $seq->translate(undef,undef,$phase,$codon_table)->seq;
+    $part->{cds_translation}  = $protein;
+
+  BLOCK: {
+      length $protein >= $feature->length/3           and last BLOCK;
+      ($feature->length - $phase) % 3 == 0            and last BLOCK;
+	
+      my $next_part    = $parts[$i+1]
+	or do {
+	  $part->{cds_splice_residue} = '?';
+	  last BLOCK; };
+
+      my $next_feature = $next_part->feature         or  last BLOCK;
+      my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
+      my $splice_codon = '';
+      my $left_of_splice  = substr($feature->seq,-$next_phase,$next_phase);
+      my $right_of_splice = substr($next_feature->seq,0,3-$next_phase);
+      $splice_codon = $left_of_splice . $right_of_splice;
+      length $splice_codon == 3                      or last BLOCK;
+      my $amino_acid = $translate_table->translate($splice_codon);
+      $part->{cds_splice_residue} = $amino_acid;
+    }
+  }
 }
 
 1;
