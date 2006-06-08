@@ -163,7 +163,7 @@ sub _initialize {
 
 sub next_result{
    my ($self) = @_;
-   my ($lastquery,$lasthit) = undef;
+   my ($lastquery,$lasthit);
    local $/ = "\n";
    local $_;
 
