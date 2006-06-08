@@ -67,35 +67,37 @@ $DTD = 'ftp://ftp.ncbi.nih.gov/snp/specs/NSE.dtd';
 BEGIN {
   %MAPPING = (
 #the ones commented out i haven't written methods for yet... -Allen
-			  'NSE-rs_refsnp-id'               => 'id',
-#			  'NSE-rs_taxid'                   => 'tax_id',
-#			  'NSE-rs_organism'                => 'organism',
-			  'NSE-rs_snp-type'                => {'type' => 'value'},
-			  'NSE-rs_observed'                => 'observed',
-			  'NSE-rs_seq-5_E'                 => 'seq_5',
-			  'NSE-rs_seq-3_E'                 => 'seq_3',
-#			  'NSE-rs_seq-ss-exemplar'         => 'exemplar_subsnp',
-			  'NSE-rs_ncbi-build-id'           => 'ncbi_build',
-			  'NSE-rs_ncbi-num-chr-hits'       => 'ncbi_chr_hits',
-			  'NSE-rs_ncbi-num-ctg-hits'       => 'ncbi_ctg_hits',
-			  'NSE-rs_ncbi-num-seq-loc'        => 'ncbi_seq_loc',
+			  'Rs_rsId'               => 'id',
+#			  'Rs_taxId'                   => 'tax_id',
+#			  'Rs_organism'                => 'organism',
+			  'Rs_snpType'                => {'type' => 'value'},
+			  'Rs_sequence_observed'                => 'observed',
+			  'Rs_sequence_seq5'                 => 'seq_5',
+			  'Rs_sequence_seq3'                 => 'seq_3',
+#			  'Rs_sequence_exemplarSs'         => 'exemplar_subsnp',
+			  'Rs_create_build'           => 'ncbi_build',
+#??			  'Rs_update_build'           => 'ncbi_build',
+#			  'NSE-rs_ncbi-num-chr-hits'       => 'ncbi_chr_hits',
+#			  'NSE-rs_ncbi-num-ctg-hits'       => 'ncbi_ctg_hits',
+#			  'NSE-rs_ncbi-num-seq-loc'        => 'ncbi_seq_loc',
 #			  'NSE-rs_ncbi-mapweight'          => 'ncbi_mapweight',
-			  'NSE-rs_ucsc-build-id'           => 'ucsc_build',
-			  'NSE-rs_ucsc-num-chr-hits'       => 'ucsc_chr_hits',
-			  'NSE-rs_ucsc-num-seq-loc'        => 'ucsc_ctg_hits',
+#			  'NSE-rs_ucsc-build-id'           => 'ucsc_build',
+#			  'NSE-rs_ucsc-num-chr-hits'       => 'ucsc_chr_hits',
+#			  'NSE-rs_ucsc-num-seq-loc'        => 'ucsc_ctg_hits',
 #			  'NSE-rs_ucsc-mapweight'          => 'ucsc_mapweight',
-			  'NSE-rs_het'                     => 'heterozygous',
-			  'NSE-rs_het-SE'                  => 'heterozygous_SE',
-			  'NSE-rs_validated'               => {'validated' => 'value'},
-			  'NSE-rs_genotype'                => {'genotype' => 'value'},
 
-			  'NSE-ss_handle'                  => 'handle',
-			  'NSE-ss_batch-id'                => 'batch_id',
-			  'NSE-ss_subsnp-id'               => 'id',
-#			  'NSE-ss_loc-snp-id'              => 'loc_id',
-#			  'NSE-ss_orient'                  => {'orient' => 'value'},
-#			  'NSE-ss_build-id'                => 'build',
-			  'NSE-ss_method-class'            => {'method' => 'value'},
+			  'Rs_het_value'                     => 'heterozygous',
+			  'Rs_het-stdError'                  => 'heterozygous_SE',
+			  'Rs_validation'               => {'validated' => 'value'}, #??
+#			  'NSE-rs_genotype'                => {'genotype' => 'value'},
+
+			  'Ss_handle'                  => 'handle',
+			  'Ss_batchId'                => 'batch_id',
+			  'Ss_locSnpId'               => 'id',
+#			  'Ss_locSnpId'              => 'loc_id',
+#			  'Ss_orient'                  => {'orient' => 'value'},
+#			  'Ss_buildId'                => 'build',
+			  'Ss_methodClass'            => {'method' => 'value'},
 #			  'NSE-ss_accession_E'             => 'accession',
 #			  'NSE-ss_comment_E'               => 'comment',
 #			  'NSE-ss_genename'                => 'gene_name',
@@ -131,11 +133,11 @@ BEGIN {
 #			  'NSE-rsMaploc_physmap-str'       => 'phys_from',
 #			  'NSE-rsMaploc_physmap-int'       => 'phys_to',
 
-			  'NSE-FxnSet_locusid'             => 'locus_id',
-			  'NSE-FxnSet_symbol'              => 'symbol',
-			  'NSE-FxnSet_mrna-acc'            => 'mrna',
-			  'NSE-FxnSet_prot-acc'            => 'protein',
-			  'NSE-FxnSet_fxn-class-contig'    => {'functional_class' => 'value'},
+			  'FxnSet_geneId'             => 'locus_id',  # does the code realise that there can be multiple of these
+			  'FxnSet_symbol'              => 'symbol',
+			  'FxnSet_mrnaAcc'            => 'mrna',
+			  'FxnSet_protAcc'            => 'protein',
+			  'FxnSet_fxnClass'    => {'functional_class' => 'value'},
 
 			  #...
 			  #...
@@ -179,9 +181,9 @@ sub next_cluster {
   my $start = 1;
   while( defined( $_ = $self->_readline ) ){
 	#skip to beginning of refSNP entry
-	if($_ !~ m!<NSE-rs>! && $start){
+	if($_ !~ m!<Rs>! && $start){
 	  next;
-	} elsif($_ =~ m!<NSE-rs>! && $start){
+	} elsif($_ =~ m!<Rs>! && $start){
 	  $start = 0;
 	} 
 
@@ -193,7 +195,7 @@ sub next_cluster {
 	}
 
 	#and stop at the end of the refSNP entry
-	last if $_ =~ m!</NSE-rs>!;
+	last if $_ =~ m!</Rs>!;
   }
 
   #if we didn't find a start tag
@@ -283,7 +285,7 @@ sub start_element{
   my $nm = $data->{'Name'};
   my $at = $data->{'Attributes'};
 
-  if($nm eq 'NSE-ss'){
+  if($nm eq 'Ss'){
 	$self->refsnp->add_subsnp;
 	return;
   }
@@ -319,9 +321,9 @@ sub end_element {
 
   my $method = $self->{will_handle};
   if($method){
-	if($nm =~ /^NSE-rs/ or $nm =~ /^NSE-SeqLoc/ or $nm =~ /^NSE-FxnSet/){
+	if($nm =~ /^Rs/ or $nm =~ /^NSE-SeqLoc/ or $nm =~ /^FxnSet/){
 	  $self->refsnp->$method($self->{last_data});
-	} elsif ($nm =~ /^NSE-ss/){
+	} elsif ($nm =~ /^Ss/){
 	  $self->refsnp->subsnp->$method($self->{last_data});
 	}
   }
