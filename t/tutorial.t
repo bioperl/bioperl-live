@@ -8,7 +8,7 @@ BEGIN {
     }
     use Test;
     use vars qw($NUMTESTS);
-    $NUMTESTS = 21;
+    $NUMTESTS = 20;
     plan tests => $NUMTESTS;
     @ARGV = (-1);
     require 'bptutorial.pl';
@@ -19,7 +19,7 @@ END {
 }
 
 # run the first 21 tests
-for my $test ( 1..21 ) {
+for my $test ( 1..6, 8..21 ) {
     ok(&run_examples($test));
 }
 
