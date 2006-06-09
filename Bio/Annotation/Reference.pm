@@ -516,4 +516,30 @@ sub consortium{
 
 }
 
+=head2 gb_reference
+
+ Title   : gb_reference
+ Usage   : $obj->gb_reference($newval)
+ Function: Gives the generic GenBank REFERENCE line. This is GenBank-specific.
+           If set, this includes everything on the reference line except
+	   the REFERENCE tag and the reference count.  This is mainly a
+	   fallback for the few instances when REFERENCE lines have unusual
+	   additional information such as split sequence locations, feature
+	   references, etc.  See Bug 2020 in Bugzilla for more information.
+ Example : 
+ Returns : value of gb_reference (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub gb_reference{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'gb_reference'} = $value;
+    }
+    return $self->{'gb_reference'};
+
+}
+
 1;

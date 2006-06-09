@@ -824,11 +824,14 @@ sub write_seq {
 	my $count = 1;
 	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
 	    $temp_line = "REFERENCE   $count";
-	    $temp_line .= sprintf ("  (%s %d to %d)",
-				   ($seq->alphabet() eq "protein" ?
-				    "residues" : "bases"),
-				   $ref->start,$ref->end)
-		if $ref->start;
+	    if ($ref->start) { 
+                $temp_line .= sprintf ("  (%s %d to %d)",
+                                       ($seq->alphabet() eq "protein" ?
+                                        "residues" : "bases"),
+                                       $ref->start,$ref->end);
+            } elsif ($ref->gb_reference) {
+                $temp_line .= sprintf ("  (%s)", $ref->gb_reference);
+            }
 	    $self->_print("$temp_line\n");
 	    $self->_write_line_GenBank_regex("  AUTHORS   ",' 'x12,
 					     $ref->authors,"\\s\+\|\$",80);
@@ -1151,10 +1154,12 @@ sub _read_GenBank_References{
 	   # create the new reference object
 	   $ref = Bio::Annotation::Reference->new();
 	   # check whether start and end base is given
-	   if (/^REFERENCE\s+\d+\s+\([a-z]+ (\d+) to (\d+)/){
+	   if (/^REFERENCE\s+\d+\s+\([a-z]+ (\d+) to (\d+)\)/){
 	       $ref->start($1);
 	       $ref->end($2);
-	   }
+	   } elsif (/^REFERENCE\s+\d+\s+\((.*)\)/) {
+               $ref->gb_reference($1);
+           }
        };
 
        /^(FEATURES)|(COMMENT)/o && last;
