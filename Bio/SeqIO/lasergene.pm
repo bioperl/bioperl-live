@@ -7,9 +7,10 @@
 # _History_
 #
 # This code is based on the Bio::SeqIO::raw module with
-# the necessary minor tweaks necessary to get it to read (only) Lasergene formatted sequences 
+# the necessary minor tweaks necessary to get it to read (only) 
+# Lasergene formatted sequences 
 #
-# Cleaned up by Torsten Seemann 2006-06-08
+# Cleaned up by Torsten Seemann June 2006
 
 # POD documentation - main docs before the code
 
@@ -56,6 +57,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS
 
+  Torsten Seemann <torsten-AT-seemann-DOT-id-DOT-au>
   Malcolm Cook  <mec@stowers-institute.org>
 
 =head1 APPENDIX
@@ -69,11 +71,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::lasergene;
+
 use strict;
 use vars qw(@ISA);
-
-use Bio::SeqIO;
-use Bio::Seq;
 
 @ISA = qw(Bio::SeqIO);
 
@@ -83,34 +83,59 @@ use Bio::Seq;
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
- Args    :
+ Args    : none
 
 =cut
 
+use Bio::Seq;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 
 sub next_seq {
    my ($self) = @_;
-   return unless defined($_ = $self->_readline()); # stream is empty! there is no next seq.
+
+   my $state = 0;
    my @comment;
-   while (! /\^\^/) {
-     chomp;
-     push(@comment, $_);
+   my @sequence;
+   
+   while (my $line = $self->_readline) {
+     $state = 1 if $state == 0;
+     chomp $line;
+     next if $line =~ m/^\s*$/; # skip blank lines
 
-     #could consider populating BioSeq fields here, but I'm not in that business now!!!
-     #my ($att,@val) = split  /\:\w*/  ; #  m/(.*)\:(.*)/;     
-     #print STDERR "att:$att;val:@val\n";
-
-     $_ = $self->_readline() or $self->throw("unexpected end of lasergene file");
+     if ($line eq '^^') {  # end of a comment or sequence
+       $state++;
+       last if $state > 2; # we have comment and sequence so exit
+     }
+     elsif ($state == 1) { # another piece of comment
+       push @comment, $line;
+     }
+     elsif ($state == 2) { # another piece of sequence
+       push @sequence, $line
+     }
+     else {
+       $self->throw("unreachable state reached, probable bug!");
+     }
    }
-   $_ = $self->_readline() or $self->throw("unexpected end of lasergene file"); # this should be all and only sequence.
+   
+   # return quietly if there was nothing in the file
+   return if $state == 0; 
+   
+   # ensure we read some comment and some sequence
+   if ($state < 2) {
+     $self->throw("unexpected end of file");
+   }     
 
-   my $seq = Bio::Seq::RichSeq->new(-seq => $_);
-   my $annotation = Bio::Annotation::Collection->new;
+   my $sequence = join('', @sequence);
+#   print STDERR "SEQ=[[$sequence]]\n";
+   $sequence or $self->throw("empty sequence in lasergene file");
+   my $seq = Bio::Seq->new(-seq => $sequence);
+
    my $comment = join('; ', @comment);
-   $annotation->add_Annotation( 'comment', Bio::Annotation::Comment->new(-text => $comment) );
-   $seq->annotation($annotation);
+#   print STDERR "COM=[[$comment]]\n";
+   my $anno = Bio::Annotation::Collection->new;
+   $anno->add_Annotation('comment', Bio::Annotation::Comment->new(-text => $comment) );
+   $seq->annotation($anno);
 
    return $seq;
 }
@@ -121,12 +146,12 @@ sub next_seq {
  Usage   : $stream->write_seq($seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq object
+ Args    : Array of Bio::PrimarySeqI objects
 
 =cut
 
 sub write_seq {
-  my ($self, $seq) = @_;
+  my ($self, @seq) = @_;
   $self->throw("write_seq() is not implemented for the lasergene format.");
 }
         
