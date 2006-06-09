@@ -1,0 +1,14 @@
+Revision history for Deobfuscator
+
+0.0.1  Fri Apr  7 14:34:50 2006
+       Initial release.
+
+0.0.2  Mon Apr 24 13:27:52 CDT 2006
+       NEW: Laura's cool flowchart added, which shows how the Deobfuscator
+            works. Updated README and deob_help.html to reflect that.
+       FIX: Cryptic "Can't close MODS file" error message rewritten.
+       NEW: Indulged my POD formatting obsession. Again. (Lots of minor
+            updates to the POD)
+       NEW: Added Feedback section to deob_help.html.
+       NEW: Added DOCUMENTATION section to README.
+       FIX: "About the mailing lists" URL changed throughout.
