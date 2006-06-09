@@ -51,7 +51,6 @@ package Bio::Graphics::Glyph::Factory;
 
 use strict;
 use Carp qw(:DEFAULT cluck);
-#use GD;
 use Bio::Root::Version;
 
 my %LOADED_GLYPHS = ();
@@ -381,8 +380,8 @@ sub option {
   return $self->{overriding_options}{$option_name} 
     if exists $self->{overriding_options} && exists $self->{overriding_options}{$option_name};
 
-  if (my $map    = $self->option_map) {
-    if (defined(my $value  = $map->{$option_name})) {
+  if (exists $self->{options} && (my $map    = $self->{options})) {
+    if (exists $map->{$option_name} && defined(my $value  = $map->{$option_name})) {
       my $feature = $glyph->feature;
       return $value unless ref $value eq 'CODE';
       my $val = eval { $value->($feature,$option_name,$partno,$total_parts,$glyph)};
@@ -392,7 +391,7 @@ sub option {
     }
   }
 
-  if (my $ss = $self->stylesheet) {
+  if (exists $self->{stylesheet} && (my $ss = $self->stylesheet)) {
     my($glyph,%options) = $ss->glyph($glyph->feature);
     my $value = $options{$option_name};
     return $value if defined $value;
@@ -404,7 +403,7 @@ sub option {
 sub get_option {
   my $self = shift;
   my $option_name = shift;
-  my $map = $self->option_map or return;
+  my $map = $self->{options} or return;
   $map->{$option_name};
 }
 

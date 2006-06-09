@@ -251,24 +251,24 @@ sub bounds {
 
 sub box {
   my $self = shift;
-  return ($self->left,$self->top,$self->right,$self->bottom);
+  my @result = ($self->left,$self->top,$self->right,$self->bottom);
+  return @result;
 }
 
 sub unfilled_box {
   my $self = shift;
   my $gd   = shift;
-  my ($x1,$y1,$x2,$y2,$fg,$bg) = @_;
-
-  my $linewidth = $self->option('linewidth') || 1;
+  my ($x1,$y1,$x2,$y2,$fg,$bg,$lw) = @_;
+  $lw = $self->linewidth;
 
   unless ($fg) {
       $fg ||= $self->fgcolor;
-  $fg = $self->set_pen($linewidth,$fg) if $linewidth > 1;
+  $fg = $self->set_pen($lw,$fg) if $lw > 1;
   }
 
   unless ($bg) {
       $bg ||= $self->bgcolor;
-      $bg = $self->set_pen($linewidth,$bg) if $linewidth > 1;
+      $bg = $self->set_pen($lw,$bg) if $lw > 1;
   }
 
   # draw a box
@@ -278,17 +278,17 @@ sub unfilled_box {
   # the leftmost line
   my ($width) = $gd->getBounds;
 
-  $gd->line($x1,$y1+$linewidth,$x1,$y2-$linewidth,$bg)
+  $gd->line($x1,$y1+$lw,$x1,$y2-$lw,$bg)
     if $x1 < $self->panel->pad_left;
 
-  $gd->line($x2,$y1+$linewidth,$x2,$y2-$linewidth,$bg)
+  $gd->line($x2,$y1+$lw,$x2,$y2-$lw,$bg)
     if $x2 > $width - $self->panel->pad_right;
 }
-
 
 # return boxes surrounding each part
 sub boxes {
   my $self = shift;
+
   my ($left,$top,$parent) = @_;
   $top  += 0; $left += 0;
   my @result;
@@ -308,6 +308,7 @@ sub boxes {
 		  $left + $x2,$top+$self->top+$self->pad_top+$y2,
 		  $parent];
   }
+
   return wantarray ? @result : \@result;
 }
 
@@ -359,9 +360,9 @@ sub move {
 sub option {
   my $self = shift;
   my $option_name = shift;
-  my $factory = $self->factory;
-  return unless $factory;
-  $factory->option($self,$option_name,@{$self}{qw(partno total_parts)});
+  my @args = $option_name,@{$self}{qw(partno total_parts)};
+  my $factory = $self->{factory} or return;
+  return $factory->option($self,@args)
 }
 
 # get an option that might be a code reference
@@ -938,15 +939,14 @@ sub draw_crossed_connector {
 sub filled_box {
   my $self = shift;
   my $gd = shift;
-  my ($x1,$y1,$x2,$y2,$bg,$fg) = @_;
+  my ($x1,$y1,$x2,$y2,$bg,$fg,$lw) = @_;
 
   $bg ||= $self->bgcolor;
   $fg ||= $self->fgcolor;
-
-  my $linewidth = $self->option('linewidth') || 1;
+  $lw ||= $self->option('linewidth') || 1;
 
   $gd->filledRectangle($x1,$y1,$x2,$y2,$bg);
-  $fg = $self->set_pen($linewidth,$fg) if $linewidth > 1;
+  $fg = $self->set_pen($lw,$fg) if $lw > 1;
 
   # draw a box
   $gd->rectangle($x1,$y1,$x2,$y2,$fg);
@@ -955,27 +955,27 @@ sub filled_box {
   # the leftmost line
   my ($width) = $gd->getBounds;
 
-  $bg = $self->set_pen($linewidth,$bg) if $linewidth > 1;
+  $bg = $self->set_pen($lw,$bg) if $lw > 1;
 
-  $gd->line($x1,$y1+$linewidth,$x1,$y2-$linewidth,$bg)
+  $gd->line($x1,$y1+$lw,$x1,$y2-$lw,$bg)
     if $x1 < $self->panel->pad_left;
 
-  $gd->line($x2,$y1+$linewidth,$x2,$y2-$linewidth,$bg)
+  $gd->line($x2,$y1+$lw,$x2,$y2-$lw,$bg)
     if $x2 > $width - $self->panel->pad_right;
 }
 
 sub filled_oval {
   my $self = shift;
   my $gd = shift;
-  my ($x1,$y1,$x2,$y2,$bg,$fg) = @_;
+  my ($x1,$y1,$x2,$y2,$bg,$fg,$lw) = @_;
   my $cx = ($x1+$x2)/2;
   my $cy = ($y1+$y2)/2;
 
   $fg ||= $self->fgcolor;
   $bg ||= $self->bgcolor;
-  my $linewidth = $self->linewidth;
+  $lw ||= $self->linewidth;
 
-  $fg = $self->set_pen($linewidth) if $linewidth > 1;
+  $fg = $self->set_pen($lw) if $lw > 1;
 
   # Maintain backwards compatability with gd 1.8.4
   # which does not support the ellipse methods.

@@ -16,6 +16,22 @@ my %SYMBOLS = (
 	       point    => \&draw_point,
 	      );
 
+# Default pad_left is recursive through all parts. We certainly
+# don't want to do this for all parts in the graph.
+sub pad_left {
+  my $self = shift;
+  return 0 unless $self->level == 0;
+  return $self->SUPER::pad_left(@_);
+}
+
+# Default pad_left is recursive through all parts. We certainly
+# don't want to do this for all parts in the graph.
+sub pad_right {
+  my $self = shift;
+  return 0 unless $self->level == 0;
+  return $self->SUPER::pad_right(@_);
+}
+
 sub point_radius {
   shift->option('point_radius') || DEFAULT_POINT_RADIUS;
 }
@@ -39,6 +55,7 @@ sub default_scale
 
 sub draw {
   my $self = shift;
+
   my ($gd,$dx,$dy) = @_;
   my ($left,$top,$right,$bottom) = $self->calculate_boundaries($dx,$dy);
 
@@ -91,7 +108,6 @@ sub draw {
   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy,$y_origin);
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
-
 }
 
 sub lookup_draw_method {
@@ -198,6 +214,7 @@ sub _draw_boxes {
   my @parts    = $self->parts;
   my $fgcolor  = $self->fgcolor;
   my $bgcolor  = $self->bgcolor;
+  my $lw       = $self->linewidth;
   my $negative = $self->color('neg_color') || $bgcolor;
   my $height   = $self->height;
 
@@ -206,6 +223,7 @@ sub _draw_boxes {
 
   # draw each of the component lines of the histogram surface
   for (my $i = 0; $i < @parts; $i++) {
+
     my $part = $parts[$i];
     my $next = $parts[$i+1];
 
@@ -221,16 +239,13 @@ sub _draw_boxes {
       $negcolor = $negative;
     }
 
-    my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    # my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    my ($x1,$x2) = ($left+$part->{left},$left+$part->{left}+$part->{width}-1);
     if ($part->{_y_position} < $y_origin) {
-      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$fgcolor);
+      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$fgcolor,$lw);
     } else {
-      $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$fgcolor);
+      $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$fgcolor,$lw);
     }
-    next unless $next;
-    my ($x3,$y3,$x4,$y4) = $next->calculate_boundaries($left,$top);
-    # this isn't necessary because line is already drawn here
-    # $gd->line($x2,$y2,$x3,$y4,$fgcolor) if $x2 < $x3;
   }
 
   # That's it.
@@ -251,7 +266,7 @@ sub _draw_line {
   my $current_y = $first_part->{_y_position};
 
   for my $part (@parts) {
-    my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    my ($x1,$x2) = ($left+$part->{left},$left+$part->{left}+$part->{width}-1);
     my $next_x = ($x1+$x2)/2;
     my $next_y = $part->{_y_position};
     $gd->line($current_x,$current_y,$next_x,$next_y,$fgcolor);
@@ -274,7 +289,7 @@ sub _draw_points {
   my $factory  = $self->factory;
 
   for my $part (@parts) {
-    my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    my ($x1,$x2) = ($left+$part->{left},$left+$part->{left}+$part->{width}-1);
     my $x = ($x1+$x2)/2;
     my $y = $part->{_y_position};
 

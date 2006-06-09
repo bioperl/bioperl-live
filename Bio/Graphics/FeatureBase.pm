@@ -173,7 +173,10 @@ sub add_segment {
   }
   if (@segments) {
     local $^W = 0;  # some warning of an uninitialized variable...
-    $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
+    # this was killing performance!
+    #  $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
+    # this seems much faster and seems to work still
+    $self->{segments} = \@segments;
     $self->{ref}    ||= $self->{segments}[0]->seq_id;
     $self->{start}    = $min_start;
     $self->{stop}     = $max_stop;

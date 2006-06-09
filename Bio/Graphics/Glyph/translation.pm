@@ -134,11 +134,10 @@ sub draw_frame {
   my ($seq,$pos);
 
   $seq = $feature->seq or return; # no sequence, arggh.
-  $seq = $seq->seq if ref $seq;   # old API bug
-
   $strand *= -1 if $self->{flip};
-  ($seq,$pos) = $strand < 0 ? ($self->reversec($seq),$feature->end)
-                            : ($seq,$feature->start);
+
+  $pos = $strand < 0 ? $feature->end : $feature->start;
+
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
   # warn "frame=$frame, phase=$phase";
 
