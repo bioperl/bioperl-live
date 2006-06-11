@@ -113,7 +113,7 @@ sub next_seq {
     $entry =~ s/^>//;
 
     my ($top,$sequence) = split(/\n/,$entry,2);
-    defined $sequence && $sequence =~ s/>//g;
+    defined $sequence && $sequence =~ tr/ \t\n\r//d;
 #    my ($top,$sequence) = $entry =~ /^>?(.+?)\n+([^>]*)/s
 #	or $self->throw("Can't parse fasta entry");
 

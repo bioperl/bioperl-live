@@ -488,9 +488,9 @@ sub _readline {
     # $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
     # Dave Howorth's fix
     if( (!$param{-raw}) && (defined $line) ) {
-       $line =~ s/\015?\012/\n/g;
-       $line =~ s/\015/\n/g unless $ONMAC;
-   }
+        $line =~ s/\015\012/\012/g; # Change all CR/LF pairs to LF
+        $line =~ tr/\015/\n/ unless $ONMAC; # Change all single CRs to NEWLINE
+    }
     return $line;
 }
 
