@@ -53,6 +53,18 @@ sub new {
   warn $feature if DEBUG;
 
   my @subfeatures         = $self->subfeat($feature);
+
+  if ($self->option('ignore_sub_part')) {
+    my @tmparray;
+    foreach (@subfeatures) {
+      my $type = $_->method;
+      unless ($type eq $self->option('ignore_sub_part')) {
+        push @tmparray, $_;
+      }
+    }
+    @subfeatures = @tmparray;
+  }
+
   my @visible_subfeatures = grep {$p_start <= $_->end && $p_end >= $_->start} @subfeatures;
 
   $self->feature_has_subparts(@subfeatures>0);
@@ -1542,6 +1554,9 @@ glyph pages for more options.
   -no_subparts  Set to true to prevent         undef (false)
                 drawing of the subparts
                 of a feature.
+
+  -ignore_sub_part Give the type/method of a   undef
+                subpart to ignore it.
 
   -maxdepth     Specifies the maximum number   undef (unlimited) 
                 child-generations to decend
