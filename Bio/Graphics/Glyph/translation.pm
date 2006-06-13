@@ -113,6 +113,8 @@ sub draw_component {
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
+  warn "($x1,$y1,$x2,$y2)";
+
   my $type   = $self->translation_type;
   my $strand = $self->strand;
 
@@ -140,6 +142,8 @@ sub draw_frame {
 
   my ($frame,$offset) = frame_and_offset($pos,$strand,$phase);
   # warn "frame=$frame, phase=$phase";
+
+  my ($x1_orig,$x2_orig) = ($x1,$x2);  # remember this for arrowheads
 
   ($strand >= 0 ? $x1 : $x2) += $self->pixels_per_base * $offset;
   my $lh;
@@ -171,11 +175,18 @@ sub draw_frame {
   my $color   = $self->color("frame$frame$k") ||
                 $self->color("frame$frame") ||
                 $self->default_color("frame$frame$k") || $self->fgcolor;
+
+  my $awo = 0;
   if ($self->protein_fits) {
     $self->draw_protein(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
+    $awo += $self->font->height/2;
   } else {
     $self->draw_orfs(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   }
+
+  $str > 0 ? $self->arrowhead($gd,$x2_orig+5,$y1+$awo,3,+1)
+           : $self->arrowhead($gd,$x1_orig-5,$y1+$awo,3,-1)
+
 }
 
 sub draw_protein {
@@ -274,8 +285,6 @@ sub draw_orfs {
   }
   $strand *= -1 if $flip;
 
-  $strand > 0 ? $self->arrowhead($gd,$x2-1,$y1,3,+1)
-              : $self->arrowhead($gd,$x1,$y1,3,-1)
 }
 
 sub find_codons {

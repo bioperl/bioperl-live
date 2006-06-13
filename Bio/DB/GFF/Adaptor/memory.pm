@@ -138,7 +138,7 @@ sub get_dna {
   }
   return '' unless $self->{dna};
 
-  return $self->{dna}{$id} if !defined $start || !defined $stop;
+  return $self->{dna}{$id} unless defined $start || defined $stop;
   $start = 1 if !defined $start;
 
   my $reversed = 0;
