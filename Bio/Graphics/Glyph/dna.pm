@@ -55,7 +55,7 @@ sub draw_dna {
   my $pixels_per_base = $self->scale;
   my $feature = $self->feature;
 
-  my $strand = $feature->strand;
+  my $strand = $feature->strand || 1;
   $strand *= -1 if $self->{flip};
 
   my @bases = split '',$strand >= 0 ? $dna : $self->reversec($dna);
