@@ -358,7 +358,7 @@ sub next_result {
 	}
     } elsif ($seqtype eq 'YN00') {
 	while ($_ = $self->_readline) {
-	    if( m/^Estimation by the method/ ) {
+	    if( m/^Estimation by the method|\(B\) Yang & Nielsen \(2000\) method/ ) {
 		$self->_pushback($_);
 		%data = $self->_parse_YN_Pairwise;
 		last;
@@ -497,7 +497,7 @@ sub _parse_codon_freqs {
     my ($okay,$done) = (0,0);
     
     while( defined($_ = $self->_readline ) ) {
-	if( /^Nei/ ) { $self->_pushback($_); last }
+	if( /^Nei|\(A\) Nei/ ) { $self->_pushback($_); last }
 	last if( $done);
 	next if ( /^\s+/);
 	next unless($okay || /^Codon position x base \(3x4\) table\, overall/ );
@@ -515,7 +515,7 @@ sub _parse_codon_freqs {
     }
     $done = 0;
     while( defined( $_ = $self->_readline) ) {
-	if( /^Nei\s\&\sGojobori/ ) { $self->_pushback($_); last }
+	if( /^Nei\s\&\sGojobori|\(A\)\sNei-Gojobori/ ) { $self->_pushback($_); last }
 	last if ( $done );
 	if( /^Codon frequencies under model, for use in evolver:/ ){
 	    while( defined( $_ = $self->_readline) ) {
@@ -707,11 +707,25 @@ sub _parse_codoncts { }
 sub _parse_distmat { 
     my ($self) = @_;
     my @results;
+    my $ver = 3.14;
+    
     while( defined ($_ = $self->_readline) ) {
-	next if/^\s+$/;
-	last;
+        next if/^\s+$/;
+        # Bypass the reference information (4 lines)
+        if (/^\(A\)\sNei-Gojobori\s\(1986\)\smethod/) {
+            $ver = 3.15;
+            $_ = $self->_readline;
+            $_ = $self->_readline;
+            $_ = $self->_readline;
+            $_ = $self->_readline;
+        }
+        last;
     }
+    
     return unless (/^Nei\s*\&\s*Gojobori/);
+    # skip the next line is ver > 3.15
+    $self->_readline if ($ver > 3.14);
+
     # skip the next 3 lines
     if( $self->{'_summary'}->{'seqtype'} eq 'CODONML' ) {
 	$self->_readline;
@@ -823,7 +837,11 @@ sub _parse_YN_Pairwise {
 	    };
 	} elsif( /^\s+$/ ) { 
 	    next; 
+	} elsif( /^\(C\) LWL85, LPB93 & LWLm methods/) {
+	    $self->_pushback($_);
+	    last;
 	}
+	
     }
     return ( -mlmatrix => \@result);
 }
