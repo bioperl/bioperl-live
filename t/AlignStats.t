@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 34; 
+    plan tests => 36; 
 }
 
 if( $error == 1 ) {
@@ -136,5 +136,12 @@ ok($result);
 ok ($result->get_entry('P84139','P814153'),   '0.01443');
 ok ($result->get_entry('P841414','P851414'),  '0.01686');
 ok ($result->get_entry('P84139','P851414'),   '3.58352');
+
+my $seq = Bio::Seq->new(-id=>'NOT3MUL', -seq=>'gatac');
+ok($seq);
+eval { 
+  Bio::Align::DNAStatistics->count_syn_sites($seq); 
+};
+ok($@ =~ m/not integral number of codons/);
 
 
