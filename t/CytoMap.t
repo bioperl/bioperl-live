@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 109;
+    plan tests => 111;
 }
 
 END {
@@ -255,4 +255,13 @@ ok $marker1->overlaps($marker3);
 
 ok ! $marker4->contains($marker3);
 ok $marker1->contains($marker3);
+
+# 
+# Test throw() in some private functions
+#
+
+eval { Bio::Map::CytoPosition::_pad('string', -1, 'x'); };
+ok($@ =~ m/positive integer/);
+eval { Bio::Map::CytoPosition::_pad('string', +1, 'toolong'); };
+ok($@ =~ m/single character/);
 
