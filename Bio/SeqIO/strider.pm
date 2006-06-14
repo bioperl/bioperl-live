@@ -145,7 +145,7 @@ sub next_seq {
   my $fh =  $self->_fh;
   my ($header,$sequence,$fulldesc);
   read $fh,$header,$size_F_HEADER or return ; #don't die here with "could not read header: $@" !!!;
-  die "required $size_F_HEADER bytes while reading strider header in " . $self->{'_file'} . " but found: " . length($header)  
+  $self->throw("required $size_F_HEADER bytes while reading strider header in " . $self->{'_file'} . " but found: " . length($header))  
     unless $size_F_HEADER == length($header);
   my $headerdata = $c->unpack('F_HEADER',$header) or return;
   read $fh,$sequence,$headerdata->{nLength};
