@@ -44,6 +44,10 @@ sub require_subparts {
   $rs;
 }
 
+sub allow_undef_phase {
+  shift->option('allow_empty_phase');
+}
+
 # figure out (in advance) the color of each component
 sub draw {
   my $self = shift;
@@ -77,6 +81,7 @@ sub draw {
   my $codon_table = $self->option('codontable');
   $codon_table    = 1 unless defined $codon_table;
   my $translate_table = Bio::Tools::CodonTable->new(-id=>$codon_table);
+  my $allow_undef_phase = $self->allow_undef_phase;
 
   for (my $i=0; $i < @parts; $i++) {
     my $part    = $parts[$i];
@@ -86,13 +91,14 @@ sub draw {
     next if ($self->option('sub_part') && $type ne $self->option('sub_part'));
 
     my $pos     = $feature->strand >= 0 ? $feature->start : $feature->end;
-    my $phase   = eval {$feature->phase};
-    next unless defined $phase;
+    my $phase   = $feature->can('phase') ? $feature->phase  # bioperl uses "frame" but this is incorrect usage
+                 :$feature->can('frame') ? $feature->frame
+                 :undef;
+    next unless defined($phase) || $allow_undef_phase;
     my $strand  = $feature->strand;
     my ($frame,$offset) = frame_and_offset($pos,
 					   $strand,
 					   -$phase);
-    $strand *= -1 if $self->{flip};
     my $suffix = $strand < 0 ? 'r' : 'f';
     my $key = "frame$frame$suffix";
     $self->{cds_frame2color}{$key} ||= $self->color($key) || $self->default_color($key) || $fill;
@@ -148,6 +154,7 @@ sub draw_component {
     my $height = ($y2-$y1)/$linecount;
     my $offset = $y1 + $height*$frame;
     $offset   += ($y2-$y1)/2 if $self->sixframe && $self->strand < 0;
+    $offset   = $y1 + (($y2-$y1) - ($offset-$y1))-$height if $self->{flip}; # ugh. This works, but I don't know why
     $gd->filledRectangle($x1,$offset,$x2,$offset+2,$color);
     return;
   }
@@ -312,11 +319,20 @@ glyph-specific options:
 
   -codontable   Codon table to use           1 (see Bio::Tools::CodonTable)
 
+  -allow_empty_phase                         false
+                Assume an empty phase field
+                is the same as phase 0
+
 The -require_subparts option is suggested when rendering spliced
 transcripts which contain multiple CDS subparts.  Otherwise, the glyph
 will hickup when zoomed way down onto an intron between two CDSs (a
 phantom reading frame will appear).  For unspliced sequences, do *not*
 use -require_subparts.
+
+The -allow_empty_phase option is required if you wish the CDS glyph to
+render features that return undef when their phase() or frame() method
+is called. This is sometimes the case when features are loaded from
+GFF files in which the phase column is empty.
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 

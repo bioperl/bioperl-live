@@ -132,8 +132,9 @@ sub draw_frame {
   my $self = shift;
   my ($feature,$strand,$base_offset,$phase,$gd,$x1,$y1,$x2,$y2) = @_;
   my ($seq,$pos);
-
   $seq = $feature->seq or return; # no sequence, arggh.
+
+  my $strand0 = $strand;
   $strand *= -1 if $self->{flip};
 
   $pos = $strand < 0 ? $feature->end : $feature->start;
@@ -144,6 +145,7 @@ sub draw_frame {
   my ($x1_orig,$x2_orig) = ($x1,$x2);  # remember this for arrowheads
 
   ($strand >= 0 ? $x1 : $x2) += $self->pixels_per_base * $offset;
+  my $y0 = $y1;
   my $lh;
   if ($self->translation_type eq '6frame') {
     $lh = $self->height / 6;
@@ -153,6 +155,8 @@ sub draw_frame {
     $lh = $self->height / 3;
     $y1 += $lh * $frame;
   }
+
+  $y1  = $y0 + ($self->height - ($y1-$y0)) - $lh if $self->{flip};
 
   $y2 = $y1;
 
@@ -167,10 +171,7 @@ sub draw_frame {
 
   my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
 
-  my $str     = $strand;
-  $str *= -1  if $self->{flip};
-
-  my $k       = $str>=0     ? 'f' : 'r';
+  my $k       = $strand >= 0     ? 'f' : 'r';
 
   my $color   = $self->color("frame$frame$k") ||
                 $self->color("frame$frame") ||
@@ -184,8 +185,8 @@ sub draw_frame {
     $self->draw_orfs(\$protein,$strand,$color,$gd,$x1,$y1,$x2,$y2);
   }
 
-  $str > 0 ? $self->arrowhead($gd,$x2_orig+5,$y1+$awo,3,+1)
-           : $self->arrowhead($gd,$x1_orig-5,$y1+$awo,3,-1)
+  $strand0 > 0 ? $self->arrowhead($gd,$x2_orig+5,$y1+$awo,3,+1)
+               : $self->arrowhead($gd,$x1_orig-5,$y1+$awo,3,-1)
 
 }
 
