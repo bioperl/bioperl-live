@@ -113,7 +113,7 @@ package Bio::PrimarySeq;
 use vars qw(@ISA $MATCHPATTERN);
 use strict;
 
-$MATCHPATTERN = 'A-Za-z\-\.\*\?=';
+$MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
 
 use Bio::Root::Root;
 use Bio::PrimarySeqI;

@@ -47,16 +47,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::fasta;
-use vars qw(@ISA $MATCHPATTERN $WIDTH);
+use vars qw(@ISA $WIDTH);
 use strict;
 
 use Bio::AlignIO;
 
 @ISA = qw(Bio::AlignIO);
-
-# This needs to be changed to something more like how clustalw does matching;
-# shouldn't have to change here AND in Bio::PrimarySeq to work!
-$MATCHPATTERN = '^A-Za-z\.\-\*\?=';
 $WIDTH = 60;
 
 =head2 next_aln
@@ -115,10 +111,9 @@ sub next_aln {
 			$seqchar  = "";
 			next;
 		}
-		$entry =~ s/([$MATCHPATTERN])//g;
-		my $leftover = $1;
+		# removed redundant symbol validation
+		# this is already done in Bio::PrimarySeq
 		$seqchar .= $entry;
-		$self->warn("Unmatched chars :$leftover\n") if $leftover;
 	}
 
 	#  Next two lines are to silence warnings that
