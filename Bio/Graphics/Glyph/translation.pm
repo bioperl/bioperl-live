@@ -113,8 +113,6 @@ sub draw_component {
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->bounds(@_);
 
-  #warn "($x1,$y1,$x2,$y2)";
-
   my $type   = $self->translation_type;
   my $strand = $self->strand;
 
@@ -165,6 +163,8 @@ sub draw_frame {
                   : $seq->can('seq')       ? $seq->seq
 		  : undef;
   return unless $realseq;
+  $realseq    = $seq->revcom if $strand < 0;
+
   my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
 
   my $str     = $strand;
