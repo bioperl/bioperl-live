@@ -353,9 +353,9 @@ sub cytorange {
 
 sub _pad {
     my ($string, $len, $pad_char) = @_;
-    die "function _pad needs a positive integer length, not [$len]" 
+    __PACKAGE__->throw("function _pad needs a positive integer length, not [$len]") 
 	unless $len =~ /^\+?\d+$/;
-    die "function _pad needs a single character pad_char, not [$pad_char]" 
+    __PACKAGE__->throw("function _pad needs a single character pad_char, not [$pad_char]") 
 	unless length $pad_char == 1;
     $string ||= '';
 #    $padded = $text . $pad_char x ( $pad_len - length( $text ) );
