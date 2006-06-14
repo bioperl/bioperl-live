@@ -434,26 +434,23 @@ sub _parse_summary {
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     $self->debug( "seqtype is $seqtype\n");
     if ($seqtype eq "CODONML") {
-	$self->_parse_inputparams(); # settings from the .ctl file 
+        $self->_parse_inputparams(); # settings from the .ctl file 
 	                             # that get printed
-	$self->_parse_patterns();    # codon patterns - not very interesting
-	$self->_parse_seqs();        # the sequences data used for analysis
-	$self->_parse_codoncts();    # counts and distributions of codon/nt
+        $self->_parse_patterns();    # codon patterns - not very interesting
+        $self->_parse_seqs();        # the sequences data used for analysis
+        $self->_parse_codoncts();    # counts and distributions of codon/nt
 	                             # usage
-	$self->_parse_codon_freqs(); # codon frequencies
-	$self->_parse_distmat();     # NG distance matrices
-	
-
+        $self->_parse_codon_freqs(); # codon frequencies
+        $self->_parse_distmat();     # NG distance matrices
     } elsif ($seqtype eq "AAML") {
+        $self->_parse_inputparams;
 
-	$self->_parse_inputparams;
-
-	$self->_parse_patterns();
+        $self->_parse_patterns();
         $self->_parse_seqs();     # the sequences data used for analysis
-	$self->_parse_aa_freqs(); # codon frequencies
+        $self->_parse_aa_freqs(); # codon frequencies
 
 	# get AA distances
-	$self->{'_summary'}->{'aadistmat'} = $self->_parse_aa_dists();
+        $self->{'_summary'}->{'aadistmat'} = $self->_parse_aa_dists();
 
     } elsif ($seqtype eq "CODON2AAML") {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
@@ -485,10 +482,12 @@ sub _parse_inputparams {
 	if(/^((?:Codon frequencies)|(?:Site-class models))\s*:\s+(.+)/ ) {
 	    my ($param,$val) = ($1,$2);	    
 	    $self->{'_summary'}->{'inputparams'}->{$param} = $val;
-	} elsif( /^\s+$/ || /^ns\s+=\s+/ ) {
+	} elsif( /^\s+$/ ) {
+	    next;
+	} elsif( /^ns\s+=\s+/ ) {
 	    $self->_pushback($_);
 	    last;
-	}
+        }
     }
 }
 
@@ -511,21 +510,21 @@ sub _parse_codon_freqs {
 		$self->{'_summary'}->{'codonposition'}->[$pos-1]->{$base} = $freq;
 	    }
 	    $done = 1 if $pos == 3;
-	} 
+        } 
     }
     $done = 0;
     while( defined( $_ = $self->_readline) ) {
-	if( /^Nei\s\&\sGojobori|\(A\)\sNei-Gojobori/ ) { $self->_pushback($_); last }
-	last if ( $done );
-	if( /^Codon frequencies under model, for use in evolver:/ ){
-	    while( defined( $_ = $self->_readline) ) {
-		last if( /^\s+$/ );
+        if( /^Nei\s\&\sGojobori|\(A\)\sNei-Gojobori/ ) { $self->_pushback($_); last }
+        last if ( $done );
+        if( /^Codon frequencies under model, for use in evolver:/ ){
+            while( defined( $_ = $self->_readline) ) {
+                last if( /^\s+$/ );
 		s/^\s+//;
 		s/\s+$//;
 		push @{$self->{'_summary'}->{'codonfreqs'}},[split];
 	    }
 	    $done = 1;
-	}
+        }
     }
 }
 
@@ -648,6 +647,9 @@ sub _parse_patterns {
 	if( /^Codon position/ ) {
 	    $self->_pushback($_);
 	    last;
+	} elsif( /^Codon usage/ ) {
+	    $self->_pushback($_);
+	    last;
 	} elsif( $patternct ) { 
 #	    last unless ( @patterns == $patternct );
 	    last if( /^\s+$/ );
@@ -673,7 +675,7 @@ sub _parse_seqs {
     my ($self) = @_;
     my (@firstseq,@seqs);
     while( defined ($_ = $self->_readline) ) {
-	if( /^(TREE|(Codon position))/ ) { $self->_pushback($_);  last }
+	if( /^(TREE|Codon)/ ) { $self->_pushback($_);  last }
 	last if( /^\s+$/ && @seqs > 0 );
 	next if ( /^\s+$/ );
 	next if( /^\d+\s+$/ );
@@ -728,35 +730,35 @@ sub _parse_distmat {
 
     # skip the next 3 lines
     if( $self->{'_summary'}->{'seqtype'} eq 'CODONML' ) {
-	$self->_readline;
-	$self->_readline;
-	$self->_readline;
+        $self->_readline;
+        $self->_readline;
+        $self->_readline;
     }
     my $seqct = 0;
     my @seqs;
     while( defined ($_ = $self->_readline ) ) {	
-	last if( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
-	next if( /^\s+$/ || /^NOTE:/i );
-	chomp;
-	my ($seq,$rest) = split(/\s+/,$_,2);
-	$rest = '' unless defined $rest; # get rid of empty messages
-	my $j = 0;
-	if( $self->{'_summary'}->{'seqtype'} eq 'YN00') {
-	    push @seqs, Bio::PrimarySeq->new(-display_id => $seq);
-	}
-	while ( $rest && $rest =~ 
-	       /(\-?\d+(\.\d+)?)\s*\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+)?)\)/g ) {
-	    $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = 
-	    { 'omega' => $1,
-	      'dN'    => $3,
-	      'dS'    => $5 };
-	}
-	$seqct++;
+        last if( /^\s+$/ && exists $self->{'_summary'}->{'ngmatrix'} );
+        next if( /^\s+$/ || /^NOTE:/i );
+        chomp;
+        my ($seq,$rest) = split(/\s+/,$_,2);
+        $rest = '' unless defined $rest; # get rid of empty messages
+        my $j = 0;
+        if( $self->{'_summary'}->{'seqtype'} eq 'YN00') {
+            push @seqs, Bio::PrimarySeq->new(-display_id => $seq);
+        }
+        while ( $rest && $rest =~ 
+                /(\-?\d+(\.\d+)?)\s*\(\-?(\d+(\.\d+)?)\s+(\-?\d+(\.\d+)?)\)/g ) {
+            $self->{'_summary'}->{'ngmatrix'}->[$j++]->[$seqct] = 
+                { 'omega' => $1,
+                  'dN'    => $3,
+                  'dS'    => $5 };
+        }
+        $seqct++;
     }
     if($self->{'_summary'}->{'seqtype'} eq 'YN00' && @seqs ){ 
-	$self->{'_summary'}->{'seqs'} = \@seqs;
+        $self->{'_summary'}->{'seqs'} = \@seqs;
     }
-	
+
     1;
 }
 
