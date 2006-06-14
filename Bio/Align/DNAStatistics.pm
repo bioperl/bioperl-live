@@ -1608,7 +1608,7 @@ sub get_syn_changes {
 sub count_syn_sites {
     #counts the number of possible synonymous changes for sequence
     my ($seq, $synsite) = @_;
-    die "not integral number of codons" if length($seq) % 3 != 0;
+    __PACKAGE__->throw("not integral number of codons") if length($seq) % 3 != 0;
     my $S = 0;
     for (my $i = 0; $i< length($seq); $i+=3) {
 	my $cod = substr($seq, $i, 3);
