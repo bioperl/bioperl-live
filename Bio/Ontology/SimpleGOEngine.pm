@@ -42,8 +42,9 @@ SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
 =head1 DESCRIPTION
 
+This class is deprecated and instead Bio::Ontology::OBOEngine should be used.
+
 Needs Graph.pm from CPAN.
-This class is depricated and instead Bio::Ontology::OBOEngine should be used.
 
 =head1 FEEDBACK
 
@@ -99,7 +100,7 @@ use Bio::Ontology::OBOEngine;
 # Internal methods
 # ----------------
 
-## Overirding this method from OBOEngine
+## Overiding this method from OBOEngine
 # Checks the correct format of a GOBO-formatted id
 # Gets the id out of a term or id string
 sub _get_id {
