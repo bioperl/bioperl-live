@@ -88,7 +88,6 @@ sub draw {
 
   $self->{cds_part2color} ||= {};
   my $fill   = $self->bgcolor;
-  my $strand = $self->feature->strand;
 
   # figure out the colors of each part
   # sort minus strand features backward
