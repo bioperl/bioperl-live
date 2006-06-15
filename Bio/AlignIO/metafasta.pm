@@ -69,6 +69,7 @@ use strict;
 
 use Bio::AlignIO;
 use Bio::SimpleAlign;
+use Bio::Seq::Meta;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
 use Bio::Seq::Meta;
@@ -144,6 +145,15 @@ sub next_aln {
         }
 
 	$aln->add_seq($seq);
+	
+	# alignment needs seqs all the same length, pad with gaps
+	my $alnlen = $aln->length;
+	foreach my $seq ( $aln->each_seq ) {
+		if ( $seq->length < $alnlen ) {
+			my ($diff) = ($alnlen - $seq->length);
+			$seq->seq( $seq->seq() . "-" x $diff);
+		}
+	}
     }
     return $aln;
 }
