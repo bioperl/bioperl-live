@@ -39,7 +39,8 @@ directive:
 If this is true, then subfeatures are indexed (the default) so that
 they can be retrieved with a query. See L<Bio::DB::SeqFeature::Store>
 for an explanation of this. If false, then subfeatures can only be
-accessed through their parent feature.
+accessed through their parent feature. The default is to index all
+subfeatures.
 
 Second, the loader recognizes a new attribute tag called Index, which
 if present, controls indexing of the current feature. Example:

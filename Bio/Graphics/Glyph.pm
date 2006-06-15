@@ -1024,7 +1024,9 @@ sub oval {
 
 sub filled_arrow {
   my $self = shift;
-  my ($gd,$orientation,$x1,$y1,$x2,$y2,$fg,$bg)  = @_;
+  my $gd   = shift;
+  my $orientation = shift;
+  my ($x1,$y1,$x2,$y2,$fg,$bg)  = @_;
 
   $orientation *= -1 if $self->{flip};
 

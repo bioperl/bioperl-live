@@ -66,9 +66,157 @@ sub _subfeat {
   my $class   = shift;
   my $feature = shift;
   return $feature->get_SeqFeatures('mRNA') if $feature->primary_tag eq 'gene';
-  return $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR));
+  return $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
 }
 
 1;
 
 __END__
+
+__END__
+
+=head1 NAME
+
+Bio::Graphics::Glyph::gene - A GFF3-compatible gene glyph
+
+=head1 SYNOPSIS
+
+  See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.
+
+=head1 DESCRIPTION
+
+This glyph is used for drawing genes that may have
+alternatively-spliced transcripts. The various isoforms are stacked on
+top of each other and given a single label and description that apply
+to the entire stack. Each individual transcript's name is optionally
+printed to the left of the transcript glyph.
+
+Transcripts (splice isoforms) are drawn using the processed_transcript
+glyph.  CDS features are drawn in the background color, and the UTRs
+are drawn in an alternate color selected by the utr_color option.  In
+addition, you can make the UTRs thinner than the CDS by setting the
+"thin_utr" option.
+
+This glyph is designed to work properly with GFF3-style three-tier
+genes, in which the top level feature has the Sequence Ontology type
+of "gene", the second level feature(s) have the SO type "mRNA", and
+the third level feature(s) have the SO type "CDS", "five_prime_utr"
+and "three_prime_utr." The feature can contain other subparts as well
+(e.g. exon, intron, translation), but they are currently
+ignored. Subparts named "UTR" are also honored.
+
+This glyph is a subclass of processed_transcript, and recognizes the
+same options.
+
+=head2 OPTIONS
+
+The following options are standard among all Glyphs.  See
+L<Bio::Graphics::Glyph> for a full explanation.
+
+  Option      Description                      Default
+  ------      -----------                      -------
+
+  -fgcolor      Foreground color	       black
+
+  -outlinecolor	Synonym for -fgcolor
+
+  -bgcolor      Background color               turquoise
+
+  -fillcolor    Synonym for -bgcolor
+
+  -linewidth    Line width                     1
+
+  -height       Height of glyph		       10
+
+  -font         Glyph font		       gdSmallFont
+
+  -connector    Connector type                 undef (false)
+
+  -connector_color
+                Connector color                black
+
+  -label        Whether to draw a label	       undef (false)
+
+  -description  Whether to draw a description  undef (false)
+
+  -strand_arrow Whether to indicate            undef (false)
+                 strandedness
+
+  -hilite       Highlight color                undef (no color)
+
+In addition, the alignment glyph recognizes the following
+glyph-specific options:
+
+  Option         Description                   Default
+  ------         -----------                   -------
+
+  -label_transcripts                           undef (false)
+                 Flag. If true, then the
+                 display name of each
+                 transcript will be drawn
+                 to the left of the transcript
+                 glyph.
+
+  -thin_utr      Flag.  If true, UTRs will      undef (false)
+                 be drawn at 2/3 of the
+                 height of CDS segments.
+
+  -utr_color     Color of UTR segments.         Gray #D0D0D0
+
+  -decorate_introns
+                 Draw strand with little arrows undef (false)
+                 on the intron.
+
+The B<-adjust_exons> and B<-implied_utrs> options are inherited from
+processed_transcript, but are quietly ignored. Please use the
+processed_transcript glyph for this type of processing.
+
+=head1 BUGS
+
+The SO terms are hard-coded. They should be more flexible and should
+recognize ISA relationships.
+
+=head1 SEE ALSO
+
+
+L<Bio::Graphics::Panel>,
+L<Bio::Graphics::Glyph>,
+L<Bio::Graphics::Glyph::arrow>,
+L<Bio::Graphics::Glyph::cds>,
+L<Bio::Graphics::Glyph::crossbox>,
+L<Bio::Graphics::Glyph::diamond>,
+L<Bio::Graphics::Glyph::dna>,
+L<Bio::Graphics::Glyph::dot>,
+L<Bio::Graphics::Glyph::ellipse>,
+L<Bio::Graphics::Glyph::extending_arrow>,
+L<Bio::Graphics::Glyph::generic>,
+L<Bio::Graphics::Glyph::graded_segments>,
+L<Bio::Graphics::Glyph::heterogeneous_segments>,
+L<Bio::Graphics::Glyph::line>,
+L<Bio::Graphics::Glyph::pinsertion>,
+L<Bio::Graphics::Glyph::primers>,
+L<Bio::Graphics::Glyph::rndrect>,
+L<Bio::Graphics::Glyph::segments>,
+L<Bio::Graphics::Glyph::ruler_arrow>,
+L<Bio::Graphics::Glyph::toomany>,
+L<Bio::Graphics::Glyph::transcript>,
+L<Bio::Graphics::Glyph::transcript2>,
+L<Bio::Graphics::Glyph::translation>,
+L<Bio::Graphics::Glyph::triangle>,
+L<Bio::DB::GFF>,
+L<Bio::SeqI>,
+L<Bio::SeqFeatureI>,
+L<Bio::Das>,
+L<GD>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
+
+Copyright (c) 2001 Cold Spring Harbor Laboratory
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.  See DISCLAIMER.txt for
+disclaimers of warranty.
+
+=cut

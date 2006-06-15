@@ -1139,6 +1139,7 @@ ghostwhite           F8           F8            FF
 gold                 FF           D7            00
 goldenrod            DA           A5            20
 gray                 80           80            80
+grey                 80           80            80
 green                00           80            00
 greenyellow          AD           FF            2F
 honeydew             F0           FF            F0

@@ -76,7 +76,7 @@ sub type {
   my $self = shift;
   my $method = $self->primary_tag;
   my $source = $self->source_tag;
-  return defined $source ? "$method:$source" : $method;
+  return $source ne '' ? "$method:$source" : $method;
 }
 
 # usage:
