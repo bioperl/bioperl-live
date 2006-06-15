@@ -13,7 +13,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 31;
+    plan tests => 34;
 }
 
 use Bio::PrimarySeq;
@@ -240,3 +240,34 @@ $seq = Bio::PrimarySeq->new('-seq'=> 'aaaaaaaaaa',
 
 $util = new Bio::SeqUtils(-verbose => 0);
 ok my $newseq = $util->evolve($seq, 60, 4);
+
+#  annotations
+
+$seq2 = new Bio::Seq(-id => 2, -seq => 'ttttaaaa', -description => 'second');
+$ac3 = new Bio::Annotation::Collection;
+$simple3 = Bio::Annotation::SimpleValue->new(
+                                                -tagname => 'colour',
+                                                -value   => 'red'
+                                                 ), ;
+$ac3->add_Annotation('simple',$simple3);
+$seq2->annotation($ac3);
+$ft2 = new Bio::SeqFeature::Generic ( -start => 1,
+                                      -end => 4,
+                                      -strand => 1,
+                                      -primary => 'source',
+                                       );
+
+
+$ft3 = new Bio::SeqFeature::Generic ( -start => 5,
+                                      -end => 8,
+                                      -strand => 1,
+                                      -primary => 'hotspot',
+                                       );
+$seq2->add_SeqFeature($ft2);
+$seq2->add_SeqFeature($ft3);
+
+my $trunc=Bio::SeqUtils->trunc_with_features($seq2, 2, 7);
+ok $trunc->seq, 'tttaaa';
+my @feat=$trunc->get_SeqFeatures;
+ok $feat[0]->location->to_FTstring, '<1..3';
+ok $feat[1]->location->to_FTstring, '4..>6';

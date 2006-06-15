@@ -441,12 +441,50 @@ sub cat {
 }
 
 
+=head2 trunc_with_features
+
+ Title   : trunc_with_features
+ Usage   : $trunc=Bio::SeqUtils->trunc_with_features($seq, $start, $end);
+ Function: Like Bio::Seq::trunc, but keeps features (adjusting coordinates
+           where necessary. Features that partially overlap the region have
+           their location changed to a Bio::Location::Fuzzy.
+ Returns : A new sequence object
+ Args    : A sequence object, start coordinate, end coordinate (inclusive)
+
+
+=cut
+
+sub trunc_with_features{
+    use Bio::Range;
+    my ($self,$seq,$start,$end) = @_;
+    $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+                 '] should be a Bio::SeqI ')
+    unless $seq->isa('Bio::SeqI');
+    my $trunc=$seq->trunc($start, $end);
+    my $truncrange=Bio::Range->new(-start=>$start, -end=>$end, -strand=>0);
+    #move annotations
+    foreach my $key ( $seq->annotation->get_all_annotation_keys() ) {
+	foreach my $value ( $seq->annotation->get_Annotations($key) ) {
+	    $trunc->annotation->add_Annotation($key, $value);
+	}
+    } 
+    
+    #move features
+    $trunc->add_SeqFeature(grep {$_=$self->_coord_adjust($_, 1-$start, $end+1-$start) if $_->overlaps($truncrange)} $seq->get_SeqFeatures);
+    return $trunc;
+}
+
+
+
 =head2 _coord_adjust
 
   Title   : _coord_adjust
   Usage   : my $newfeat=Bio::SeqUtils->_coord_adjust($feature, 100);
   Function: Recursive subroutine to adjust the coordinates of a feature
-            and all its subfeatures.
+            and all its subfeatures. If a sequence length is specified, then
+            any adjusted features that have locations beyond the boundaries
+            of the sequence are converted to Bio::Location::Fuzzy.
+
   Returns : A Bio::SeqFeatureI compliant object.
   Args    : A Bio::SeqFeatureI compliant object,
             the number of bases to add to the coordinates
@@ -455,20 +493,21 @@ sub cat {
 =cut
 
 sub _coord_adjust {
-    my ($self, $feat, $add)=@_;
+    my ($self, $feat, $add, $length)=@_;
     $self->throw('Object [$feat] '. 'of class ['. ref($feat).
                  '] should be a Bio::SeqFeatureI ')
         unless $feat->isa('Bio::SeqFeatureI');
     my @adjsubfeat;
     for my $subfeat ($feat->remove_SeqFeatures) {
-       push @adjsubfeat, Bio::SeqUtils->_coord_adjust($add, $subfeat);
+        push @adjsubfeat, Bio::SeqUtils->_coordAdjust($add, $subfeat);
     }
     my @loc=$feat->location->each_Location;
     map {
         my @coords=($_->start, $_->end);
-        map s/(\d+)/$add+$1/ge, @coords;
-        $_->start(shift @coords);
-        $_->end(shift @coords);
+        map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"
+} else {$add+$1}/ge, @coords;
+        $_=Bio::Location::Fuzzy->new(-start=>shift @coords,
+                                  -end=>shift @coords);
     } @loc;
     if (@loc==1) {
         $feat->location($loc[0])
