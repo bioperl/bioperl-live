@@ -416,120 +416,127 @@ my ($self,$val,$tag)=@_;
 }
 
 sub _process_comments {
- my $self=shift;
- my $prod=shift;
-  my (%cann,@feat,@uncaptured,@comments,@sfann);
- if ((ref($prod) eq 'HASH') && (exists($prod->{comment}))) {
-    $prod=$prod->{comment};
-}
-    if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
-    else {push @comments,$prod;}
-    for my $i (0..$#comments) {#Each comments is a
-        my ($desc,$nfeat,$add,@ann,@comm);
-        my $comm=$comments[$i];
-       # next unless (exists($comm->{comment}));#Should be more careful when calling _process_comment:To do
-        my $heading=$comm->{heading} || 'description';
-        unless (exists($comm->{comment})) {
-		if (($comm->{type})&&($self->{_current_heading})) {
-			$comm->{type}=$self->{_current_heading};
+	my $self=shift;
+	my $prod=shift;
+	my (%cann,@feat,@uncaptured,@comments,@sfann);
+	if ((ref($prod) eq 'HASH') && (exists($prod->{comment}))) {
+		$prod=$prod->{comment};
+	}
+	if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
+	else {push @comments,$prod;}
+	for my $i (0..$#comments) {#Each comments is a
+		my ($desc,$nfeat,$add,@ann,@comm);
+		my $comm=$comments[$i];
+		# next unless (exists($comm->{comment}));#Should be more careful when calling _process_comment:To do
+		my $heading=$comm->{heading} || 'description';
+		unless (exists($comm->{comment})) {
+			if (($comm->{type})&&($self->{_current_heading})) {
+				$comm->{type}=$self->{_current_heading};
+			}
+			if ((exists($comm->{type})) && (exists($comm->{text}))&& ($comm->{type} ne 'comment')) {
+				my ($uncapt,$annot,$anchor)=_process_src($comm->{source});
+				my $cann=shift (@$annot);
+				if ($cann) {
+					$cann->optional_id($comm->{text});
+					$cann->authority($comm->{type});
+					$cann->version($comm->{version});
+					push @sfann,$cann;
+				}
+			}
+			undef $comm->{comment}; $add=1;#Trick in case we miss something
 		}
-            if ((exists($comm->{type})) && (exists($comm->{text}))&& ($comm->{type} ne 'comment')) {
-                my ($uncapt,$annot,$anchor)=_process_src($comm->{source});
-                my $cann=shift (@$annot);
-                if ($cann) {
-                    $cann->optional_id($comm->{text});
-                    $cann->authority($comm->{type});
-                    $cann->version($comm->{version});
-                    push @sfann,$cann;
-                }
-            }
-            undef $comm->{comment}; $add=1;#Trick in case we miss something
-        }
-        while ((exists($comm->{comment})&&$comm->{comment})) {
-            if ($comm->{source}) {
-               my ($uncapt,$allann,$anchor) = _process_src($comm->{source});
-           if ($allann) {
-            delete $comm->{source};
-            push @uncaptured,$uncapt;
-                    foreach my $annotation (@{$allann}) {
-                         if ($annotation->{_anchor}) {$desc.=$annotation->{_anchor}.' ';}
-                         $annotation->optional_id($heading);
-                    	push @sfann,$annotation;
-                         push @{$cann{'dblink'}},$annotation;
-                    }
-        }
-            }
-            $comm=$comm->{comment};#DOES THIS NEED TO BE REC CYCLE?
-            if (ref($comm) eq 'ARRAY') {
-              @comm=@{$comm};
-            }
-            else {
-                push @comm,$comm;
-            }
-            foreach my $ccomm (@comm) {
-            next unless ($ccomm);
-            if (exists($ccomm->{source})) {
-                my ($uncapt,$allann,$anchor) = _process_src($ccomm->{source});
-               if ($allann) {
-                   @sfann=@{$allann};
-                delete $ccomm->{source};
-                push @uncaptured,$uncapt;
-            }
-            }
-            $ccomm=$ccomm->{comment} if (exists($ccomm->{comment}));#Alice in Wonderland
-            my @loc;
-            if (ref($ccomm) eq 'ARRAY') {
-              @loc=@{$ccomm};
-            }
-            else {
-                push @loc,$ccomm;
-            }
+		while ((exists($comm->{comment})&&$comm->{comment})) {
+			if ($comm->{source}) {
+				my ($uncapt,$allann,$anchor) = _process_src($comm->{source});
+				if ($allann) {
+					delete $comm->{source};
+					push @uncaptured,$uncapt;
+					foreach my $annotation (@{$allann}) {
+						if ($annotation->{_anchor}) {$desc.=$annotation->{_anchor}.' ';}
+						$annotation->optional_id($heading);
+						push @sfann,$annotation;
+						push @{$cann{'dblink'}},$annotation;
+					}
+				}
+			}
+			$comm=$comm->{comment};#DOES THIS NEED TO BE REC CYCLE?
+			if (ref($comm) eq 'ARRAY') {
+				@comm=@{$comm};
+			}
+			else {
+				push @comm,$comm;
+			}
+			foreach my $ccomm (@comm) {
+				next unless ($ccomm);
+				if (exists($ccomm->{source})) {
+					my ($uncapt,$allann,$anchor) = _process_src($ccomm->{source});
+					if ($allann) {
+						@sfann=@{$allann};
+						delete $ccomm->{source};
+						push @uncaptured,$uncapt;
+					}
+				}
+				$ccomm=$ccomm->{comment} if (exists($ccomm->{comment}));#Alice in Wonderland
+				my @loc;
+				if (ref($ccomm) eq 'ARRAY') {
+					@loc=@{$ccomm};
+				}
+				else {
+					push @loc,$ccomm;
+				}
             foreach my $loc (@loc) {
-                if ((exists($loc->{text}))&&($loc->{text}=~/Location/i)){
-                    my ($l1,$rest)=split(/-/,$loc->{text});
-                    $l1=~s/\D//g;
-                    $rest=~s/^\s//;
-                    my ($l2,$scorestr)=split(/\s/,$rest,2);
-                    my ($scoresrc,$score)=split(/:/,$scorestr);
-                    $score=~s/\D//g;
-                    my (%tags,$tag);
-                    unless ($l1) {
-                        next;
-                    }
-                    $nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, -end=>$l2, -strand=>$tags{strand}, -source=>$loc->{type},
-                                -seq_id=>$desc, primary=>$heading, -score=>$score, -tag    => {score_src=>$scoresrc});
-                    my $sfeatann=new Bio::Annotation::Collection;
-                    foreach my $sfann (@sfann) {
-                        $sfeatann->add_Annotation('dblink',$sfann);
-                    }
-                    undef @sfann;
-                    $nfeat->annotation($sfeatann);#Thus the annotation will be available both in the seq and seqfeat?
-                    push @feat,$nfeat;
-                    delete $loc->{text};
-                    delete $loc->{type};
-                }
-                elsif (exists($loc->{label})) {
-                    my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$loc->{label});
-                    delete $loc->{text};
-                    delete $loc->{label};
-                    push @{$cann{'simple'}},$simann;
-                    push @uncaptured,$loc;
-                }
-                elsif (exists($loc->{text})) {
-                    my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$heading);
-                    delete $loc->{text};
-                    push @{$cann{'simple'}},$simann;
-                    push @uncaptured,$loc;
-                }
-                
+					if ((exists($loc->{text}))&&($loc->{text}=~/Location/i)){
+						my ($l1,$rest)=split(/-/,$loc->{text});
+						$l1=~s/\D//g;
+						$rest=~s/^\s//;
+						my ($l2,$scorestr)=split(/\s/,$rest,2);
+						my ($scoresrc,$score)=split(/:/,$scorestr);
+						$score=~s/\D//g;
+						my (%tags,$tag);
+						unless ($l1) {
+							next;
+						}
+						$nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, 
+																		 -end=>$l2, 
+																		 -strand=>$tags{strand}, 
+																		 -source=>$loc->{type},
+																		 -seq_id=>$desc, 
+																		 -primary=>$heading, 
+																		 -score=>$score, 
+																		 -tag    => {score_src=>$scoresrc});
+						my $sfeatann=new Bio::Annotation::Collection;
+						foreach my $sfann (@sfann) {
+							$sfeatann->add_Annotation('dblink',$sfann);
+						}
+						undef @sfann;
+						$nfeat->annotation($sfeatann);#Thus the annotation will be available both in the seq and seqfeat?
+						push @feat,$nfeat;
+						delete $loc->{text};
+						delete $loc->{type};
+					}
+					elsif (exists($loc->{label})) {
+						my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$loc->{label});
+						delete $loc->{text};
+						delete $loc->{label};
+						push @{$cann{'simple'}},$simann;
+						push @uncaptured,$loc;
+					}
+					elsif (exists($loc->{text})) {
+						my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$heading);
+						delete $loc->{text};
+						push @{$cann{'simple'}},$simann;
+						push @uncaptured,$loc;
+					}
+					
             }
-        }#Bit clumsy but that's what we get from the low level parser
-    }
-    }
-    if (@sfann) {push @{$cann{'dblink'}},@sfann;}#Annotation that is not location specific, for example phenotype
-    undef $self->{_current_heading};
-    return \@uncaptured,\%cann,\@feat;
+			}#Bit clumsy but that's what we get from the low level parser
+		}
+	}
+	if (@sfann) {push @{$cann{'dblink'}},@sfann;}#Annotation that is not location specific, for example phenotype
+	undef $self->{_current_heading};
+	return \@uncaptured,\%cann,\@feat;
 }
+
 
 sub _process_src {
     my $src=shift;
