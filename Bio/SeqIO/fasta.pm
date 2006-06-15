@@ -113,7 +113,7 @@ sub next_seq {
     $entry =~ s/^>//;
 
     my ($top,$sequence) = split(/\n/,$entry,2);
-    defined $sequence && $sequence =~ tr/ \t\n\r//d;
+    defined $sequence && $sequence =~ s/>//g;
 #    my ($top,$sequence) = $entry =~ /^>?(.+?)\n+([^>]*)/s
 #	or $self->throw("Can't parse fasta entry");
 
@@ -124,7 +124,7 @@ sub next_seq {
     
     if (defined $id && $id eq '') {$id=$fulldesc;} # FIX incase no space 
                                                    # between > and name \AE
-    defined $sequence && $sequence =~ s/\s//g;	# Remove whitespace
+    defined $sequence && $sequence =~ tr/ \t\n\r//d;	# Remove whitespace
 
     # for empty sequences we need to know the mol.type
     $alphabet = $self->alphabet();
