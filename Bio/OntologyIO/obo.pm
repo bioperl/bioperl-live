@@ -21,13 +21,12 @@ obo - a parser for OBO flat-file format from Gene Ontology Consortium
         ( -format       => "obo",
           -file        =>  "gene_ontology.obo");
 
-while(my $ont = $parser->next_ontology()) {
-print "read ontology ",$ont->name()," with ",
+  while(my $ont = $parser->next_ontology()) {
+  print "read ontology ",$ont->name()," with ",
                scalar($ont->get_root_terms)," root terms, and ",
                scalar($ont->get_all_terms)," total terms, and ",
                scalar($ont->get_leaf_terms)," leaf terms\n";
-
-}
+  }
 
 
 =head1 DESCRIPTION
@@ -73,7 +72,7 @@ Address:
  Hilmar Lapp, hlapp at gmx.net
  Chris Mungall,   cjm at fruitfly.org
 
- =head1 APPENDIX
+=head1 APPENDIX
 
 The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
@@ -182,7 +181,7 @@ sub ontology_name {
            be called automatically upon the first call to
            next_ontology().
 
- Returns : [Bio::Ontology::OntologyEngineI]
+ Returns : Bio::Ontology::OntologyEngineI
  Args    :
 
 =cut
