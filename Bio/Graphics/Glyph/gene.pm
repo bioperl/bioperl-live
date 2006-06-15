@@ -66,7 +66,7 @@ sub _subfeat {
   my $class   = shift;
   my $feature = shift;
   return $feature->get_SeqFeatures('mRNA') if $feature->primary_tag eq 'gene';
-  return $feature->get_SeqFeatures();# ('CDS',"five_prime_UTR","three_prime_UTR");
+  return $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR));
 }
 
 1;

@@ -48,6 +48,10 @@ sub ignore_undef_phase {
   shift->option('ignore_empty_phase');
 }
 
+sub ignore_non_cds {
+  shift->option('cds_only');
+}
+
 # figure out (in advance) the color of each component
 sub draw {
   my $self = shift;
@@ -57,6 +61,7 @@ sub draw {
   @parts    = $self if !@parts && $self->level == 0 && !$self->require_subparts;
 
   my $fits = $self->protein_fits;
+  my $strand = $self->feature->strand || 1;
 
   # draw the staff (musically speaking)
   if ($self->level == 0) {
@@ -67,7 +72,11 @@ sub draw {
     for (0..$line_count-1) {
       my $offset = $y1+$height*$_+1;
       $gd->line($x1,$offset,$x2,$offset,$grid);
-      if ($_ < 3) {
+      # with three-frame translation, the position of the arrows changes depending on
+      # the strand of the feature. With six-frame translation, we draw the first three
+      # staff lines with an arrow to the right, and the second three to the left
+      my $forward = ($line_count == 6) ? ($_ < 3) : ($strand > 0);
+      if ($forward) {
 	$gd->line($x2,$offset,$x2-2,$offset-2,$grid);
 	$gd->line($x2,$offset,$x2-2,$offset+2,$grid);
       } else {
@@ -91,6 +100,7 @@ sub draw {
   $codon_table    = 1 unless defined $codon_table;
   my $translate_table = Bio::Tools::CodonTable->new(-id=>$codon_table);
   my $ignore_undef_phase = $self->ignore_undef_phase;
+  my $ignore_non_cds = $self->ignore_non_cds;
 
   for (my $i=0; $i < @parts; $i++) {
     my $part    = $parts[$i];
@@ -98,6 +108,8 @@ sub draw {
 
     my $type = $feature->method;
     next if ($self->option('sub_part') && $type ne $self->option('sub_part'));
+
+    next if $ignore_non_cds && lc($type) ne 'cds';
 
     my $pos     = $feature->strand >= 0 ? $feature->start : $feature->end;
     my $phase   = $feature->can('phase') ? $feature->phase  # bioperl uses "frame" but this is incorrect usage
@@ -126,12 +138,12 @@ sub draw {
     BLOCK: {
 	length $protein >= $feature->length/3           and last BLOCK;
 	($feature->length - $phase) % 3 == 0            and last BLOCK;
-	
+
 	my $next_part    = $parts[$i+1]
 	  or do {
 	    $part->{cds_splice_residue} = '?';
 	    last BLOCK; };
-	
+
 	my $next_feature = $next_part->feature         or  last BLOCK;
 	my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
 	my $splice_codon = '';
@@ -166,7 +178,6 @@ sub draw_component {
     $offset   += ($y2-$y1)/2 if $self->sixframe && $self->strand < 0;
     $offset   = $y1 + (($y2-$y1) - ($offset-$y1))-$height if $self->{flip}; # ugh. This works, but I don't know why
     $gd->filledRectangle($x1,$offset,$x2,$offset+2,$color);
-#    $self->filled_arrow($gd,$self->strand,$x1,$offset,$x2,$offset+2,$color,$color);
     return;
   }
 
@@ -334,6 +345,9 @@ glyph-specific options:
               Skip features that do not have
               their phase defined.
 
+  -cds_only   Only draw features of type     false
+              'CDS'
+
 The -require_subparts option is suggested when rendering spliced
 transcripts which contain multiple CDS subparts.  Otherwise, the glyph
 will hickup when zoomed way down onto an intron between two CDSs (a
@@ -341,9 +355,12 @@ phantom reading frame will appear).  For unspliced sequences, do *not*
 use -require_subparts.
 
 Set the -ignore_empty_phase option to true if you wish to skip
-features that do not have a defined phase() or frame(). This is useful
+subfeatures that do not have a defined phase() or frame(). This is useful
 if you are rendering exons that have both translated and untranslated
 parts, and you wish to skip the untranslated parts.
+
+Set the -cds_only option to true if you wish to draw the glyph only
+for subfeatures of type 'CDS'. This is recommended.
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
