@@ -513,7 +513,7 @@ o DEPENDENCIES AND Bundle::BioPerl
  Requires Berkeley DB, from Linux RPM or from www.sleepycat.com
 
  Graph::Directed          Generic graph data and algorithms
-                          Bio::Ontology::SimpleOntologyEngine
+                          Bio::Ontology::OBOEngine
 
  Data::Stag::ITextWriter  Structured Tags datastructures
 			                 Bio::SeqIO::chadoitext
