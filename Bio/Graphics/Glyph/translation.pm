@@ -7,7 +7,7 @@ use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Graphics::Glyph::generic);
 
 my %default_colors = qw(
-			frame0f  cyan
+			frame0f  cornflowerblue
 			frame1f  blue
 			frame2f  darkblue
 			frame0r  magenta

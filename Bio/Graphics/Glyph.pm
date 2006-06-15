@@ -1024,11 +1024,9 @@ sub oval {
 
 sub filled_arrow {
   my $self = shift;
-  my $gd  = shift;
-  my $orientation = shift;
-  $orientation *= -1 if $self->{flip};
+  my ($gd,$orientation,$x1,$y1,$x2,$y2,$fg,$bg)  = @_;
 
-  my ($x1,$y1,$x2,$y2) = @_;
+  $orientation *= -1 if $self->{flip};
 
   my ($width) = $gd->getBounds;
   my $indent = $y2-$y1 < $x2-$x1 ? $y2-$y1 : ($x2-$x1)/2;
@@ -1040,8 +1038,8 @@ sub filled_arrow {
 	  or ($indent <= 0)
 	    or ($x2 - $x1 < 3);
 
-  my $fg   = $self->fgcolor;
-  my $bg   = $self->bgcolor;
+  $fg   ||= $self->fgcolor;
+  $bg   ||= $self->bgcolor;
   my $pkg  = $self->polygon_package;
   my $poly = $pkg->new();
   if ($orientation >= 0) {

@@ -9,7 +9,7 @@ use vars qw(@ISA $VERSION);
 @ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 
 my %default_colors = qw(
-			frame0f  cyan
+			frame0f  cornflowerblue
 			frame1f  blue
 			frame2f  darkblue
 			frame0r  magenta
@@ -44,8 +44,8 @@ sub require_subparts {
   $rs;
 }
 
-sub allow_undef_phase {
-  shift->option('allow_empty_phase');
+sub ignore_undef_phase {
+  shift->option('ignore_empty_phase');
 }
 
 # figure out (in advance) the color of each component
@@ -59,13 +59,22 @@ sub draw {
   my $fits = $self->protein_fits;
 
   # draw the staff (musically speaking)
-  my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
-  my $line_count = $self->sixframe ? 6 : 3;
-  my $height = ($y2-$y1)/$line_count;
-  my $grid  = $self->gridcolor;
-  for (0..$line_count-1) {
-    my $offset = $y1+$height*$_+1;
-    $gd->line($x1,$offset,$x2,$offset,$grid);
+  if ($self->level == 0) {
+    my ($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
+    my $line_count = $self->sixframe ? 6 : 3;
+    my $height = ($y2-$y1)/$line_count;
+    my $grid  = $self->gridcolor;
+    for (0..$line_count-1) {
+      my $offset = $y1+$height*$_+1;
+      $gd->line($x1,$offset,$x2,$offset,$grid);
+      if ($_ < 3) {
+	$gd->line($x2,$offset,$x2-2,$offset-2,$grid);
+	$gd->line($x2,$offset,$x2-2,$offset+2,$grid);
+      } else {
+	$gd->line($x1,$offset,$x1+2,$offset-2,$grid);
+	$gd->line($x1,$offset,$x1+2,$offset+2,$grid);
+      }
+    }
   }
 
   $self->{cds_part2color} ||= {};
@@ -81,7 +90,7 @@ sub draw {
   my $codon_table = $self->option('codontable');
   $codon_table    = 1 unless defined $codon_table;
   my $translate_table = Bio::Tools::CodonTable->new(-id=>$codon_table);
-  my $allow_undef_phase = $self->allow_undef_phase;
+  my $ignore_undef_phase = $self->ignore_undef_phase;
 
   for (my $i=0; $i < @parts; $i++) {
     my $part    = $parts[$i];
@@ -94,11 +103,12 @@ sub draw {
     my $phase   = $feature->can('phase') ? $feature->phase  # bioperl uses "frame" but this is incorrect usage
                  :$feature->can('frame') ? $feature->frame
                  :undef;
-    next unless defined($phase) || $allow_undef_phase;
+    next if $ignore_undef_phase && !defined($phase);
+    $phase ||= 0;
     my $strand  = $feature->strand;
     my ($frame,$offset) = frame_and_offset($pos,
 					   $strand,
-					   -$phase);
+					   $phase);
     my $suffix = $strand < 0 ? 'r' : 'f';
     my $key = "frame$frame$suffix";
     $self->{cds_frame2color}{$key} ||= $self->color($key) || $self->default_color($key) || $fill;
@@ -156,6 +166,7 @@ sub draw_component {
     $offset   += ($y2-$y1)/2 if $self->sixframe && $self->strand < 0;
     $offset   = $y1 + (($y2-$y1) - ($offset-$y1))-$height if $self->{flip}; # ugh. This works, but I don't know why
     $gd->filledRectangle($x1,$offset,$x2,$offset+2,$color);
+#    $self->filled_arrow($gd,$self->strand,$x1,$offset,$x2,$offset+2,$color,$color);
     return;
   }
 
@@ -319,9 +330,9 @@ glyph-specific options:
 
   -codontable   Codon table to use           1 (see Bio::Tools::CodonTable)
 
-  -allow_empty_phase                         false
-                Assume an empty phase field
-                is the same as phase 0
+  -ignore_empty_phase                        false
+              Skip features that do not have
+              their phase defined.
 
 The -require_subparts option is suggested when rendering spliced
 transcripts which contain multiple CDS subparts.  Otherwise, the glyph
@@ -329,10 +340,10 @@ will hickup when zoomed way down onto an intron between two CDSs (a
 phantom reading frame will appear).  For unspliced sequences, do *not*
 use -require_subparts.
 
-The -allow_empty_phase option is required if you wish the CDS glyph to
-render features that return undef when their phase() or frame() method
-is called. This is sometimes the case when features are loaded from
-GFF files in which the phase column is empty.
+Set the -ignore_empty_phase option to true if you wish to skip
+features that do not have a defined phase() or frame(). This is useful
+if you are rendering exons that have both translated and untranslated
+parts, and you wish to skip the untranslated parts.
 
 =head1 SUGGESTED STANZA FOR GENOME BROWSER
 
