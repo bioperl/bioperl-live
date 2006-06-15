@@ -1,21 +1,27 @@
-
+# $Id$
+#
+# BioPerl module for Bio::Ontology::OBOEngine
+#
+# POD documentation - main docs before the code
 =head1 NAME
 
-OBOEngine - An Ontology Engine for OBO style flat file format from Gene Ontology Consortium
+OBOEngine - An Ontology Engine for OBO style flat file format from the
+Gene Ontology Consortium
 
 =head1 SYNOPSIS
 
   use Bio::Ontology::OBOEngine;
 
   my $parser = Bio::Ontology::OBOEngine->new
-        ( -file     => "gene_ontology.obo" );
+        ( -file => "gene_ontology.obo" );
 
   my $engine = $parser->parse();
 
 =head1 DESCRIPTION
 
-Needs Graph.pm from CPAN. This class is complete copy of the SImpleGOENgine. SImpleGOENGIne
-is depricated.
+Needs Graph.pm from CPAN.
+
+This module replaces SimpleGOEngine.pm, which is deprecated.
 
 =head1 FEEDBACK
 
@@ -50,12 +56,10 @@ Address:
   676 St. Clair st
   Chicago IL 60611
 
-
 =head2 CONTRIBUTOR
 
  Hilmar Lapp, hlapp at gmx.net
  Chris Mungall,   cjm at fruitfly.org
-
 
 =head1 APPENDIX
 
@@ -203,8 +207,6 @@ sub related_to_relationship {
 
     return $self->{ "_related_to_relationship" };
 } # related_to_relationship
-
-
 
 
 =head2 add_term
