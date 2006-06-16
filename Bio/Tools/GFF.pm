@@ -1025,7 +1025,7 @@ sub _gff3_string {
 # Unescaped quotes are not allowed in GFF3
 #		    $value = '"' . $value . '"';
 		}
-		$value =~ s/([\t\n\=;,])/sprintf("%%%X",ord($1))/ge;
+		$value =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
 	    } else {
 		# if it is completely empty, 
 		# then just make empty double 
@@ -1047,7 +1047,7 @@ sub _gff3_string {
 	$origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
 
         my $target_id = $origfeat->feature1->seq_id;
-        $target_id =~ s/([\t\n\=;,])/sprintf("%%%X",ord($1))/ge;    
+        $target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
      
 	push @groups, sprintf("Target=%s %d %d", 
 			      $target_id,
