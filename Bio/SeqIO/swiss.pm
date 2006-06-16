@@ -217,17 +217,22 @@ sub next_seq {
 	       unless defined $params{'-accession_number'};
 	   push @{$params{'-secondary_accessions'}}, @accs;
        }
-       #version number
-       elsif( /^SV\s+(\S+);?/ ) {
-	   my $sv = $1;
-	   $sv =~ s/\;//;
-	   $params{'-seq_version'} = $sv;
-       }
-       #date
+       #date and sequence version
        elsif( /^DT\s+(.*)/ ) {
-	   my $date = $1;
-	   $date =~ s/\;//;
-	   $date =~ s/\s+$//;
+	    my $line = $1;
+		my ($date, $version) = split(' ', $line, 2);
+		$date =~ tr/,//d; # remove comma if new version	   
+		if ($version =~ /\(Rel\. (\d+), Last sequence update\)/ || # old
+						/sequence version (\d+)\./) { #new
+			my $update = Bio::Annotation::SimpleValue->new(
+										-tagname 	=> 'seq_update',
+										-value 		=> $1
+										);
+			$annotation->add_Annotation($update);
+		} elsif ($version =~ /\(Rel\. (\d+), Last annotation update\)/ || #old
+							 /entry version (\d+)\./) { #new
+			$params{'-version'} = $1;
+		}
 	   push @{$params{'-dates'}}, $date;
        }
        # Organism name and phylogenetic information
@@ -436,12 +441,24 @@ sub write_seq {
 	    # otherwise - cannot print <sigh>
 	}
 
-	# Date lines
-
+	# Date lines and sequence versions (changed 6/15/2006)
+	# This is rebuilt from scratch using the current SwissProt/UniProt format
 	if( $seq->can('get_dates') ) {
-	    foreach my $dt ( $seq->get_dates() ) {
+		my @dates =  $seq->get_dates();
+		my $ct = 1;
+		my $seq_version = $seq->version;
+		my ($update_version) = $seq->get_Annotations("seq_update");
+		foreach my $dt (@dates){
 		$self->_write_line_swissprot_regex("DT   ","DT   ",
-						   $dt,"\\s\+\|\$",80);
+				$dt.', integrated into UniProtKB/Swiss-Prot.',
+				"\\s\+\|\$",80) if $ct == 1;
+		$self->_write_line_swissprot_regex("DT   ","DT   ",
+				$dt.", sequence version $update_version.",
+				"\\s\+\|\$",80) if $ct == 2;
+		$self->_write_line_swissprot_regex("DT   ","DT   ",
+				$dt.", entry version $seq_version.",
+				"\\s\+\|\$",80) if $ct == 3;
+		$ct++;
 	    }
 	}
 
