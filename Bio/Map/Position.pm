@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-Bio::Map::Position - A single position of a Marker in a Map
+Bio::Map::Position - A single position of a Marker, or the range over which
+                      that marker lies, in a Map
 
 =head1 SYNOPSIS
 
@@ -21,13 +22,19 @@ Bio::Map::Position - A single position of a Marker in a Map
 					  -marker => $marker
 					  -value => 100
 					  );
+					  
+	my $position = new Bio::Map::Position(-map => $map, 
+					  -marker => $marker
+					  -start => 100,
+					  -length => 10
+					  );
 
 =head1 DESCRIPTION
 
 This object is an implementation of the PositionI interface that
 handles the specific values of a position.  This allows an element
 (e.g. Marker) to have multiple positions within a map and still be
-treated as a single entity.  
+treated as a single entity.
 
 This does not directly handle the concept of a relative map in which
 no known exact positions exist but markers are just ordered relative
@@ -67,6 +74,7 @@ Describe contact details here
 Lincoln Stein, lstein@cshl.org
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Chad Matsalla, bioinformatics1@dieselwurks.com
+Sendu Bala, bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -87,8 +95,9 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Map::PositionI;
+use Bio::Range;
 
-@ISA = qw(Bio::Root::Root Bio::Map::PositionI );
+@ISA = qw(Bio::Root::Root Bio::Map::PositionI);
 
 =head2 new
 
@@ -98,24 +107,55 @@ use Bio::Map::PositionI;
  Returns : Bio::Map::Position
  Args    : -map     a <Bio::Map::MapI> object
            -marker  a <Bio::Map::MarkerI> object
-           -value   string or number
+           * If this position has no range *
+           -value => scalar             : something that describes the single
+                                          point position of this Position, most
+                                          likely an int
+           
+           * Or if this position has a range, at least two of *
+           -start => int                : value of the start co-ordinate
+           -end => int                  : value of the end co-ordinate
+           -length => int               : length of the range
 
 =cut
 
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-  
-    my ($map, $marker, $value) = 
+	
+    my ($map, $marker, $value, $start, $end, $length) = 
 	$self->_rearrange([qw( MAP 
 			       MARKER 
 			       VALUE
+				   START
+				   END
+				   LENGTH
 			       )], @args);
-
+	
+    my $do_range = defined($start) || defined($end);
+    if ($value && $do_range) {
+        self->warn("-value and (-start|-end|-length) are mutually exclusive, ignoring value");
+		$value = undef;
+    }
+	
     $map     && $self->map($map);
     $marker  && $self->marker($marker);
     $value   && $self->value($value);
-
+	
+    if ($do_range) {
+		$start  && $self->start($start);
+		$end    && $self->end($end);
+		if ($length) {
+			if ($start && ! $end) {
+				$self->end($start + $length - 1);
+			}
+			elsif (! $start) {
+				$self->start($end - $length + 1);
+			}
+		}
+		$self->end || $self->end($start);
+    }
+	
     return $self;
 }
 
@@ -170,11 +210,13 @@ sub marker {
 =cut
 
 sub value {
-   my ($self,$value) = @_;
-   if( defined $value ) {
-       $self->{'_value'} = $value;
-   }
-   return $self->{'_value'};
+	my ($self,$value) = @_;
+	if( defined $value ) {
+		$self->{'_value'} = $value;
+		$self->start($self->numeric) unless $self->start;
+		$self->end($self->numeric) unless $self->end;
+	}
+	return $self->{'_value'};
 }
 
 =head2 numeric
@@ -193,9 +235,89 @@ sub numeric {
    my $num = $self->{'_value'} || 0;
 
    # expand this to cover scientific notation, too!
-   $self->throw("This value [$num] is not numeric!")
-       unless $num && $num =~ /^[+-]?[\d.]+$/;
+   $self->throw("This value [$num] is not numeric!") unless defined($num) && $num =~ /^[+-]?[\d.]+$/;
+   
    return $num;
+}
+
+=head2 start
+
+  Title   : start
+  Usage   : $start = $range->start();
+  Function: get/set the start of this range
+  Returns : the start of this range
+  Args    : optionally allows the start to be set
+            using $range->start($start)
+
+=cut
+
+sub start {
+	my ($self, $value) = @_;
+    if (defined $value) {
+		$self->throw("'$value' is not an integer.\n") unless $value =~ /^[-+]?\d+$/;
+        $self->{'start'} = $value;
+		$self->value($value);
+    }
+    return $self->{'start'} || undef;
+}
+
+=head2 end
+
+  Title   : end
+  Usage   : $end = $range->end();
+  Function: get/set the end of this range
+  Returns : the end of this range
+  Args    : optionally allows the end to be set
+            using $range->end($end)
+
+=cut
+
+sub end {
+	my ($self, $value) = @_;
+    if (defined $value) {
+		$self->throw("'$value' is not an integer.\n") unless $value =~ /^[-+]?\d+$/;
+        $self->{'end'} = $value;
+    }
+    return $self->{'end'} || undef;
+}
+
+=head2 length
+
+  Title   : length
+  Usage   : $length = $range->length();
+  Function: get/set the length of this range
+  Returns : the length of this range
+  Args    : optionally allows the length to be set
+             using $range->length($length)
+
+=cut
+
+sub length {
+	my $self = shift;
+	if (@_) {
+		$self->warn(ref($self)."->length() is read-only");
+	}
+	
+	if ($self->start && $self->end) {
+		return $self->end - $self->start + 1;
+	}
+}
+
+=head2 toString
+
+  Title   : toString
+  Function: stringifies this range
+  Example : print $range->toString(), "\n";
+  Returns : a string representation of this range
+
+=cut
+
+sub toString {
+	my $self = shift;
+	if ($self->start && $self->end) {
+		return $self->start.'..'.$self->end;
+	}
+	return '';
 }
 
 1;

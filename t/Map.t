@@ -16,11 +16,15 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 48;
+    plan tests => 74;
 }
 
 #END {
 #}
+
+#
+# Original set of tests for 1.5.1
+#
 
 #
 # Let's test first the map class : Bio::Map::SimpleMap
@@ -126,3 +130,70 @@ ok ! $marker1->greater_than($marker3);
 ok ! $marker3->less_than($marker1);
 ok $marker3->greater_than($marker1);
 
+#
+# 48 test so far...
+# New set of tests for additions relating to complete implementation of everything suggested by the docs
+#
+
+#
+# Let's try and do everything in the synopsis of Bio::Map::Marker
+#
+my $map1 = new Bio::Map::SimpleMap(-name => 'genethon', -type => 'Genetic');
+my $pos1 =  new Bio::Map::Position(-map => $map1, -value => 100 );
+my $pos2 = new Bio::Map::Position(-map => $map1, -value => 200 );
+ok my $o_usat = new Bio::Map::Marker (-name=>'Chad Super Marker 2', -positions => [ [$map1, 100], [$map1, 200] ] );
+ok my $o_usat2 = new Bio::Map::Marker (-name=>'Chad Super Marker 3', -positions => [ $pos1, $pos2 ] );
+my $marker1 = new Bio::Map::Marker (-name=>'hypervariable1', -map => $map1, -position => 100 );
+my $marker2 = new Bio::Map::Marker (-name=>'hypervariable2');
+$map1->add_element($marker2);
+ok $marker2->position(150);
+ok $marker2->add_position(200);
+my $map2 = new Bio::Map::SimpleMap(-name => 'xyz', -type => 'Genetic');
+ok $marker2->add_position($map2,200);
+ok $marker1->position->value, 100;
+my ($pos1a, $pos2a) = $marker2->each_position($map1);
+ok $pos1a->value == 150 && $pos2a->value == 200;
+
+#
+# 57 tests so far...
+# Now test the methods in Bio::Map::Marker that haven't been tested yet
+#
+
+$marker2->positions([[$map1, 300], [$map2, 400]]);
+my @p = map($_->numeric, $marker2->each_position);
+ok $p[0] == 150 && $p[1] == 200 && $p[2] == 200 && $p[3] == 300 && $p[4] == 400;
+$marker2->purge_positions($map2);
+@p = map($_->numeric, $marker2->each_position);
+ok $p[0] == 150 && $p[1] == 200 && $p[2] == 300;
+@p = map($_->numeric, $marker1->less_than($marker2));
+ok @p == 1 && $p[0] == 100;
+@p = map($_->numeric, $marker2->greater_than($marker1));
+ok @p == 3 && $p[0] == 150 && $p[1] == 200 && $p[2] == 300;
+
+#
+# 59 tests so far...
+# Now test the new range-related things in position and marker
+#
+
+ok my $r_pos1 = new Bio::Map::Position(-map => $map1, -marker => $marker3, -start => 100, -length => 11);
+ok $pos1->numeric, $r_pos1->numeric;
+ok $pos1->start, $r_pos1->start;
+ok $pos1->end, $r_pos1->start;
+ok my $r_pos2 = new Bio::Map::Position(-map => $map1, -marker => $marker3, -start => 115, -end => 125);
+my $r_pos3 = Bio::Map::Position->new(-map => $map, -start => 101, -end => 109);
+my $r_pos4 = Bio::Map::Position->new(-map => $map, -start => 120, -end => 130);
+my $r_pos5 = Bio::Map::Position->new(-map => $map, -start => 140, -end => 150);
+my $marker3 = new Bio::Map::Marker (-name=>'qwe', -positions => [$r_pos1, $r_pos2]);
+my $marker4 = new Bio::Map::Marker (-name=>'iop', -positions => [$r_pos3, $r_pos4, $r_pos5]);
+ok @p = map($_->toString, $marker3->overlaps($marker4));
+ok @p == 2 && $p[0] eq '100..110' && $p[1] eq '115..125';
+ok @p = map($_->toString, $marker3->contains($marker4));
+ok @p == 1 && $p[0] eq '100..110';
+ok my $int = $r_pos2->intersection($r_pos4);
+ok $int->toString eq '120..125';
+my $r_pos6 = Bio::Map::Position->new(-map => $map, -start => 145, -end => 155);
+my $r_pos7 = Bio::Map::Position->new(-map => $map, -start => 148, -end => 160);
+ok $int = Bio::Map::Position->intersection([$r_pos5, $r_pos6, $r_pos7]);
+ok $int->toString eq '148..150';
+ok my $union = Bio::Map::Position->union($r_pos5, $r_pos6, $r_pos7);
+ok $union->toString eq '140..160';
