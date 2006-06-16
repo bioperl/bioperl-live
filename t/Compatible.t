@@ -39,7 +39,11 @@ END {
 
 exit if $error;
 
-use Bio::Tree::Compatible;
+# we have to protect Bio::Tree::Compatible from being compiled because
+# Set::Scalar may not be installed.
+eval { require Bio::Tree::Compatible; };
+die "failed to load Bio::Tree::Compatible: $@\n" if $@;
+
 use Bio::TreeIO;
 my $verbose = 0;
 
@@ -51,7 +55,7 @@ my $in = new Bio::TreeIO(-format => 'newick',
 
 my $t1 = $in->next_tree;
 my $t2 = $in->next_tree;
-my $common = $t1->Bio::Tree::Compatible::common_labels($t2);
+my $common = Bio::Tree::Compatible::common_labels($t1,$t2);
 my $labels = Set::Scalar->new(qw(A B E G));
 ok($common->is_equal($labels));
 
@@ -59,8 +63,8 @@ ok($common->is_equal($labels));
 # ((A,B)H,E,(J,(K)G)I); to their common labels, [A,B,E,G], are,
 # respectively, ((A,B),(E,G)); and ((A,B),E,(G));
 
-$t1->Bio::Tree::Compatible::topological_restriction($common);
-$t2->Bio::Tree::Compatible::topological_restriction($common);
+Bio::Tree::Compatible::topological_restriction($t1,$common);
+Bio::Tree::Compatible::topological_restriction($t2,$common);
 my $t3 = $in->next_tree;
 my $t4 = $in->next_tree;
 # ok($t1->is_equal($t3)); # is_equal method missing in Bio::Tree::Tree
@@ -70,14 +74,14 @@ my $t4 = $in->next_tree;
 # ((A,B)H,E,(J,(K)G)I); to their common labels, [A,B,E,G], are
 # compatible
 
-my ($incompat, $ilabels, $inodes) = $t3->Bio::Tree::Compatible::is_compatible($t4);
+my ($incompat, $ilabels, $inodes) = Bio::Tree::Compatible::is_compatible($t3,$t4);
 ok(!$incompat);
 
 # (((B,A),C),D); and ((A,(D,B)),C); are incompatible
 
 my $t5 = $in->next_tree;
 my $t6 = $in->next_tree;
-($incompat, $ilabels, $inodes) = $t5->Bio::Tree::Compatible::is_compatible($t6);
+($incompat, $ilabels, $inodes) = Bio::Tree::Compatible::is_compatible($t5,$t6);
 ok($incompat);
 
 __DATA__
