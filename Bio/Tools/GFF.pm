@@ -1008,13 +1008,15 @@ sub _gff3_string {
     unshift @all_tags, 'ID' if $feat->has_tag('ID');
 
     for my $tag ( @all_tags ) {
+        next if $tag eq 'Target';
 	my $valuestr;	# a string which will hold one or more values 
                         # for this tag, with quoted free text and 
                         # space-separated individual values.
 	my @v;
 	for my $value ( $feat->each_tag_value($tag) ) {	    
 	    if(  defined $value && length($value) ) { 
-		$value =~ tr/ /+/;
+		#$value =~ tr/ /+/;  #spaces are allowed now
+
 		if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
 		    $value =~ s/\t/\\t/g;	# substitute tab and newline 
                                                 # characters
@@ -1040,11 +1042,15 @@ sub _gff3_string {
 	push @groups, "$tag=".join(",",@v);
     }
 # Add Target information for Feature Pairs
-    if( ! $feat->has_tag('Target') && 
+    if( $feat->has_tag('Target') && 
 	! $feat->has_tag('Group') &&
 	$origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
-	push @groups, sprintf("Target=%s+%d+%d", 
-			      $origfeat->feature1->seq_id,
+
+        my $target_id = $origfeat->feature1->seq_id;
+        $target_id =~ s/([\t\n\=;,])/sprintf("%%%X",ord($1))/ge;    
+     
+	push @groups, sprintf("Target=%s %d %d", 
+			      $target_id,
 			      ( $origfeat->feature1->strand < 0 ? 
 				( $origfeat->feature1->end,
 				  $origfeat->feature1->start) :
