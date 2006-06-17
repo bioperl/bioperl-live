@@ -395,6 +395,9 @@ sub primary_id   {
   $d;
 }
 
+sub target { return }
+sub score  { return }
+
 1;
 
 __END__

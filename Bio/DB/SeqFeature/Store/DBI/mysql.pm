@@ -936,7 +936,7 @@ sub _types_sql {
       $primary_tag = $type->method;
       $source_tag  = $type->source;
     } else {
-      ($primary_tag,$source_tag) = split ':',$type;
+      ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
     if (defined $source_tag) {

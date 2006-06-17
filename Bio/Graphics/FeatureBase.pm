@@ -233,8 +233,8 @@ sub length {
 
 sub seq {
   my $self = shift;
-  my $dna =  exists $self->{seq} ? $self->{seq} : '';
-  return $dna;
+  my $seq =  exists $self->{seq} ? $self->{seq} : '';
+  return $seq;
 }
 
 sub dna {
