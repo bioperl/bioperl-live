@@ -254,8 +254,8 @@ sub draw_sequence {
   my $right      = $self->panel->right;
   my $left       = $self->panel->left;
 
-  my $seq   = $self->feature->seq;
-  $seq      = $seq->seq if ref $seq;   # compensate for an earlier bug
+  my $seq   = $self->get_seq($self->feature->seq);
+  $seq      = $seq->seq if $seq;   # get the dna
 
   my @bases = split '',$seq;
   for (my $i=0;$i<@bases;$i++) {
@@ -502,14 +502,23 @@ sub calculate_cds {
       my $next_feature = $next_part->feature         or  last BLOCK;
       my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
       my $splice_codon = '';
-      my $left_of_splice  = substr($feature->seq,-$next_phase,$next_phase);
-      my $right_of_splice = substr($next_feature->seq,0,3-$next_phase);
+      my $left_of_splice  = substr($self->get_seq($feature->seq),     -$next_phase, $next_phase);
+      my $right_of_splice = substr($self->get_seq($next_feature->seq),0           , 3-$next_phase);
       $splice_codon = $left_of_splice . $right_of_splice;
       length $splice_codon == 3                      or last BLOCK;
       my $amino_acid = $translate_table->translate($splice_codon);
       $part->{cds_splice_residue} = $amino_acid;
     }
   }
+}
+
+# hack around changed feature API
+sub get_seq {
+  my $self = shift;
+  my $seq = shift;
+  return $seq if ref $seq && $seq->can('translate');
+  require Bio::PrimarySeq unless Bio::PrimarySeq->can('new');
+  return Bio::PrimarySeq->new(-seq=>$seq);
 }
 
 1;
