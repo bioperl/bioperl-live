@@ -303,7 +303,8 @@ sub seq {
            lead to an exception if passed to seq().
 
            The implementation provided here does not take alphabet() into
-           account. Allowed are all letters (A-Z) and '-','.', '*' and '?'.
+           account. Allowed are all letters (A-Z) and '-','.','*','?','=',
+           and '~'.
 
  Example :
  Returns : 1 if the supplied sequence string is valid for the object, and
