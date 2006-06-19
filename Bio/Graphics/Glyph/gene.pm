@@ -66,12 +66,24 @@ sub _subfeat {
   my $class   = shift;
   my $feature = shift;
   return $feature->get_SeqFeatures('mRNA') if $feature->primary_tag eq 'gene';
-  return $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
+
+  my @subparts = $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
+
+  # The CDS and UTRs may be represented as a single feature with subparts or as several features
+  # that have different IDs. We handle both cases transparently.
+  my @result;
+  foreach (@subparts) {
+    if ($_->primary_tag =~ /CDS|UTR/i) {
+      my @cds_seg = $_->get_SeqFeatures;
+      if (@cds_seg > 0) { push @result,@cds_seg  } else { push @result,$_ }
+    } else {
+      push @result,$_;
+    }
+  }
+  return @result;
 }
 
 1;
-
-__END__
 
 __END__
 

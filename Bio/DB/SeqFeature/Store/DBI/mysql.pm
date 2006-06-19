@@ -192,7 +192,7 @@ sub init {
 		    'BINSIZE',
 		    ['DUMP_DIR','DUMPDIR','TMP','TMPDIR'],
 		    'USER',
-		    'PASS',
+		    ['PASS','PASSWD','PASSWORD'],
 		    ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
 		    ['WRITE','WRITEABLE'],
 		   ],@_);
@@ -1304,7 +1304,7 @@ sub _update_name_index {
   my $primary_id = $obj->primary_id;
 
   $self->_delete_index($name,$id);
-  my ($names,$aliases) = $self->names($obj);
+  my ($names,$aliases) = $self->feature_names($obj);
 
   my $sth = $self->_prepare("INSERT INTO $name (id,name,display_name) VALUES (?,?,?)");
 
@@ -1396,21 +1396,6 @@ sub _locationid {
 }
 sub _attributeid {
   shift->_genericid('attributelist','tag',shift,1);
-}
-
-sub names {
-  my $self = shift;
-  my $obj  = shift;
-
-  my $primary_id = $obj->primary_id;
-  my @names = $obj->display_name;
-  push @names,eval{$obj->get_tag_values('Name')};
-  push @names,eval{$obj->get_tag_values('ID')};
-  @names = grep {defined $_ && $_ ne $primary_id} @names;
-
-  my @aliases = grep {defined} eval{$obj->get_tag_values('Alias')};
-
-  return (\@names,\@aliases);
 }
 
 sub _delete_index {
@@ -1562,7 +1547,7 @@ sub _dump_update_name_index {
   my ($obj,$id) = @_;
   my $fh      = $self->dump_filehandle('name');
   my $dbh     = $self->dbh;
-  my ($names,$aliases) = $self->names($obj);
+  my ($names,$aliases) = $self->feature_names($obj);
   print $fh join("\t",$id,$dbh->quote($_),1),"\n" foreach @$names;
   print $fh join("\t",$id,$dbh->quote($_),0),"\n" foreach @$aliases;
 }

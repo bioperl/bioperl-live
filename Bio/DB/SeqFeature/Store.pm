@@ -251,7 +251,8 @@ able to search for the gene, its mRNA subfeatures and the exons inside
 each mRNA. It also means when you search the database for all features
 contained within a particular location, you will get the gene, the
 mRNAs and all the exons as individual objects as well as subfeatures
-of each other.
+of each other. NOTE: this option is only honored when working with a
+normalized feature class such as Bio::DB::SeqFeature.
 
 The B<-cache> argument, if true, tells the module to try to create a
 LRU (least-recently-used) object cache using the Tie::Cacher
@@ -317,6 +318,7 @@ sub new {
   $obj->serializer($serializer)               if defined $serializer;
   $obj->index_subfeatures($index_subfeatures) if defined $index_subfeatures;
   $obj->seqfeature_class('Bio::DB::SeqFeature');
+  $obj->post_init($args);
   $obj;
 }
 
@@ -350,6 +352,15 @@ sub init_database {
   $self->_init_database(@_);
 }
 
+=head2 post_init
+
+This method is invoked after init_database for use by certain adaptors
+(currently only the memory adaptor) to do automatic data loading after
+initialization. It is passed a copy of the init_database() args.
+
+=cut
+
+sub post_init { }
 
 =head2 store
 
@@ -926,7 +937,10 @@ All genes and repeats:
 sub features {
   my $self = shift;
   my @args;
-  unless ($_[0] =~/^-/) {
+  if (@_ == 0) {
+    @args = ();
+  }
+  elsif ($_[0] !~/^-/) {
     my @types = @_;
     @args = (-type=>\@types);
   } else {
@@ -2181,6 +2195,40 @@ sub thaw_object {
   };
   $object;
 }
+
+=head2 feature_names
+
+ Title   : feature_names
+ Usage   : ($names,$aliases) = $db->feature_names($feature)
+ Function: get names and aliases for a feature
+ Returns : an array of names and an array of aliases
+ Args    : a Bio::SeqFeatureI object
+ Status  : private
+
+This is an internal utility function which, given a Bio::SeqFeatureI
+object, returns two array refs. The first is a list of official names
+for the feature, and the second is a list of aliases. This is slightly
+skewed towards GFF3 usage, so the official names are the
+display_name(), plus all tag values named 'Name', plus all tag values
+named 'ID'. The aliases are all tag values named 'Alias'.
+
+=cut
+
+sub feature_names {
+  my $self = shift;
+  my $obj  = shift;
+
+  my $primary_id = $obj->primary_id;
+  my @names = $obj->display_name;
+  push @names,$obj->get_tag_values('Name') if $obj->has_tag('Name');
+  push @names,$obj->get_tag_values('ID')   if $obj->has_tag('ID');
+  @names = grep {defined $_ && $_ ne $primary_id} @names;
+
+  my @aliases = grep {defined} $obj->get_tag_values('Alias') if $obj->has_tag('Alias');
+
+  return (\@names,\@aliases);
+}
+
 
 1;
 

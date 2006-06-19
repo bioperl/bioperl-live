@@ -397,6 +397,9 @@ sub primary_id   {
 
 sub target { return }
 sub score  { return }
+sub stop   { shift->end }
+sub absolute { return 1 }
+sub desc   { shift->as_string }
 
 1;
 

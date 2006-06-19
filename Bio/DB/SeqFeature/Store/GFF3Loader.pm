@@ -76,10 +76,15 @@ my %Special_attributes =(
 			 Alias  => 1, ID     => 1,
 			 Index  => 1,
 			);
-my %Strandedness = ( '+' => 1,
-		     '-' => -1,
-		     '.' => 0,
-		     ''  => 0,
+my %Strandedness = ( '+'  => 1,
+		     '-'  => -1,
+		     '.'  => 0,
+		     ''   => 0,
+		     0    => 0,
+		     1    => 1,
+		     -1   => -1,
+		     +1   => 1,
+		     undef => 0,
 		   );
 
 =head2 new
@@ -182,7 +187,7 @@ END
 
   $tmpdir ||= File::Spec->tmpdir();
 
-  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-tmp=>1,-dir=>$tmpdir,-cache=>1,-write=>1)
+  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-temporary=>1,-dir=>$tmpdir,-cache=>1,-write=>1)
     unless $normalized;
 
   return bless {
@@ -346,7 +351,7 @@ sub start_load {
   my $self = shift;
   $self->{load_data}{Parent2Child}     = {};
   $self->{load_data}{Local2GlobalID}   = {};
-  $self->{load_data}{TemporaryID}      = 1;
+  $self->{load_data}{TemporaryID}      = "GFFLoad0000000";
   $self->{load_data}{IndexSubfeatures} = 1;
   $self->{load_data}{CurrentFeature}   = undef;
   $self->{load_data}{CurrentID}        = undef;
@@ -480,7 +485,7 @@ sub handle_feature {
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
   return unless @columns >= 8;
   my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes)      = @columns;
-  $strand = $Strandedness{$strand};
+  $strand = $Strandedness{$strand||0};
 
   my ($reserved,$unreserved) = $self->parse_attributes($attributes);
 
@@ -538,11 +543,12 @@ sub handle_feature {
 ID=$feature_id has been used more than once, but it cannot be found in the database.
 This can happen if you have specified fast loading, but features sharing the same ID
 are not contiguous in the GFF file. This will be loaded as a separate feature.
+Line $.: "$_"
 END
   }
 
   # contiguous feature, so add a segment
-  if ($old_feat) {
+  if (defined $old_feat) {
     $self->add_segment($old_feat,$self->sfclass->new(@args));
     return;
   }
@@ -554,7 +560,7 @@ END
   # now create the new feature
   # (index top-level features only if policy asks us to)
   my $feature = $self->sfclass->new(@args);
-  eval {$feature->object_store($self->store)};  # for lazy table features
+  $feature->object_store($self->store) if $feature->can('object_store');  # for lazy table features
   $ld->{CurrentFeature} = $feature;
   $ld->{CurrentID}      = $feature_id;
 
@@ -586,7 +592,8 @@ sub store_current_feature {
   my $self    = shift;
 
   my $ld   = $self->{load_data};
-  my $f    = $ld->{CurrentFeature} or return;
+  defined $ld->{CurrentFeature} or return;
+  my $f    = $ld->{CurrentFeature};
 
   my $normalized = $self->subfeatures_normalized;
   my $indexed    = $ld->{IndexIt}{$ld->{CurrentID}};
@@ -618,9 +625,9 @@ sub store_current_feature {
   my $id        = $f->primary_id;    # assigned by store()
   $ld->{Local2GlobalID}{$ld->{CurrentID}} = $id;
 
+  undef $ld->{IndexIt}{$ld->{CurrentID}} if $normalized;  # no need to remember this
   undef $ld->{CurrentID};
   undef $ld->{CurrentFeature};
-  undef $ld->{IndexIt}{$ld->{CurrentID}} if $normalized;  # no need to remember this
 }
 
 =item build_object_tree

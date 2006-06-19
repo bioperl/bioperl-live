@@ -504,7 +504,7 @@ sub introns {
   return;
 }
 
-sub has_tag { }
+sub has_tag { exists shift->{attributes}{shift()} }
 
 sub escape {
   my $toencode = shift;
