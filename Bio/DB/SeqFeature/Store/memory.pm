@@ -271,7 +271,6 @@ sub filter_by_attribute {
     my @matching_values;
     my @search_terms = ref($attributes->{$att_name}) && ref($attributes->{$att_name}) eq 'ARRAY'
                            ? @{$attributes->{$att_name}} : $attributes->{$att_name};
-    my $glob_match;
     my @regexp_terms;
     my @terms;
 

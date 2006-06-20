@@ -619,7 +619,7 @@ sub store_current_feature {
   }
 
   else {
-    $self->tmp_store->store($f)
+    $self->tmp_store->store_noindex($f)
   }
 	
   my $id        = $f->primary_id;    # assigned by store()
