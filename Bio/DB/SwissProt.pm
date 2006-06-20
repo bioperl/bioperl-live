@@ -139,7 +139,7 @@ $DEFAULTFORMAT = 'swissprot';
 	       },
 	       'jointype' => ',',
 	       'idvar'    => 'id',
-	       'basevars' => [ 'db'    => 'swall',
+	       'basevars' => [ 'db'    => 'UniProtKB',
 			       'style' => 'raw' ],
 	   }
 	   );
