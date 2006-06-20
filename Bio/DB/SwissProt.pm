@@ -42,18 +42,16 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
 =head1 DESCRIPTION
 
 SwissProt is a curated database of proteins managed by the Swiss
-Bioinformatics Institute.  This is in contrast to EMBL/GenBank/DDBJ
-which are archives of protein information.  Additional tools for
+Bioinformatics Institute. Additional tools for
 parsing and manipulating swissprot files can be found at
 ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/.
 
 Allows the dynamic retrieval of Sequence objects (Bio::Seq) from the
-SwissProt database via an expasy retrieval.  Perhaps through SRS
-later.
+SwissProt database via an Expasy retrieval.
 
 In order to make changes transparent we have host type (currently only
-expasy) and location (default to switzerland) separated out.  This
-allows the user to pick the closest expasy mirror for running their
+expasy) and location (default to Switzerland) separated out.  This
+allows the user to pick the closest Expasy mirror for running their
 queries.
 
 
