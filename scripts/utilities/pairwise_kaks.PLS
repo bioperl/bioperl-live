@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: pairwise_kaks.PLS,v 1.9 2005-04-26 15:03:53 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.10 2006-06-20 01:03:37 jason Exp $
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 
 =head1 NAME
@@ -138,8 +138,9 @@ while( my $seq = $seqin->next_seq ) {
     $seqs{$seq->display_id} = $seq;
     my $protein = $seq->translate();
     my $pseq = $protein->seq();
-    if( $pseq =~ /\*/ && 
-	$pseq !~ /\*$/ ) {
+    
+    $pseq =~ s/\*$//;
+    if( $pseq =~ /\*/ ) {
 	warn("provided a cDNA (".$seq->display_id.") sequence with a stop codon, PAML will choke!");
 	exit(0);
     }
@@ -174,6 +175,12 @@ if( $rc <= 0 ) {
     exit;
 }
 my $result = $parser->next_result;
+
+if ($result->version =~ m/3\.15/) {
+	warn("This script does not work with v3.15 of PAML!  Please use 3.14 instead.");
+	exit(0);
+}
+
 my $MLmatrix = $result->get_MLmatrix();
 
 my @otus = $result->get_seqs();
