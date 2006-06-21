@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::CytoMarker
 #
-# Cared for by Heikki Lehvaslaiho heikki-at-bioperl-dot-org
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Heikki Lehvaslaiho
 #
@@ -52,6 +52,7 @@ Email heikki-at-bioperl-dot-org
 Chad Matsalla      bioinformatics1@dieselwurks.com
 Lincoln Stein      lstein@cshl.org
 Jason Stajich      jason@bioperl.org
+Sendu Bala         bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -67,9 +68,8 @@ use vars qw(@ISA);
 use strict;
 use Bio::Map::Marker;
 use Bio::Map::CytoPosition;
-use Bio::RangeI;
 
-@ISA = qw(Bio::Map::Marker Bio::RangeI  );
+@ISA = qw(Bio::Map::Marker);
 
 
 =head2 Bio::Map::MarkerI methods

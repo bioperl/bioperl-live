@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::CytoPosition
 #
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Heikki Lehvaslaiho
 #
@@ -73,6 +73,10 @@ web:
 
 Email:  heikki-at-bioperl-dot-org
 
+=head1 CONTRIBUTORS
+
+Sendu Bala         bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -85,18 +89,15 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Map::CytoPosition;
 use vars qw(@ISA);
-use Carp qw(confess);
 
 use strict;
 use integer;
 
 # Object preamble - inheritance
 
-use Bio::Variation::VariantI;
-use Bio::RangeI;
 use Bio::Map::Position;
 
-@ISA = qw(  Bio::Map::Position Bio::Variation::VariantI );
+@ISA = qw(Bio::Map::Position);
 
 
 =head2 cytorange
@@ -142,7 +143,7 @@ use Bio::Map::Position;
                range is chromosome + 100,000 - padded range start or end
 
  Example :
- Returns : Bio::RangeI
+ Returns : Bio::Range object or undef
  Args    : none
 
 =cut
