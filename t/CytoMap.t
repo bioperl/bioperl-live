@@ -65,7 +65,7 @@ eval {
 ok $@;
 $a->verbose(0);
 
-ok $a->value('X'), 'X'; 
+ok $a->value('X'), 'X';
 $r = $a->cytorange;
 ok $r->isa('Bio::Range');
 ok $r->start, 100000000;
