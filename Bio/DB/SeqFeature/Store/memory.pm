@@ -194,27 +194,29 @@ sub _features {
     @result = keys %{$self->{_index}{ids}};
   }
 
-  my %found = ();
+  my %found  = ();
+  my $result = 1;
 
   if (defined($name)) {
     # hacky backward compatibility workaround
+    undef $class if $class && $class eq 'Sequence';
     $name     = "$class:$name" if defined $class && length $class > 0;
-    $self->filter_by_name($name,$allow_aliases,\%found);
+    $result &&= $self->filter_by_name($name,$allow_aliases,\%found);
   }
 
   if (defined $seq_id) {
-    $self->filter_by_location($seq_id,$start,$end,$strand,$range_type,\%found);
+    $result &&= $self->filter_by_location($seq_id,$start,$end,$strand,$range_type,\%found);
   }
 
   if (defined $types) {
-    $self->filter_by_type($types,\%found);
+    $result &&= $self->filter_by_type($types,\%found);
   }
 
   if (defined $attributes) {
-    $self->filter_by_attribute($attributes,\%found);
+    $result &&= $self->filter_by_attribute($attributes,\%found);
   }
 
-  push @result,keys %found;
+  push @result,keys %found if $result;
   return $iterator ? Bio::DB::SeqFeature::Store::memory::Iterator->new($self,\@result)
                    : map {$self->fetch($_)} @result;
 }
@@ -265,6 +267,7 @@ sub filter_by_attribute {
   my ($attributes,$filter) = @_;
 
   my $index = $self->{_index}{attribute};
+  my $result;
 
   for my $att_name (keys %$attributes) {
     my @result;
@@ -287,8 +290,10 @@ sub filter_by_attribute {
       push @result,keys %{$index->{lc $att_name}{$v}};
     }
 
-    $self->update_filter($filter,\@result);
+    $result ||= $self->update_filter($filter,\@result);
   }
+
+  $result;
 
 }
 
@@ -376,6 +381,7 @@ sub glob_match {
 sub update_filter {
   my $self = shift;
   my ($filter,$results) = @_;
+  return unless @$results;
 
   if (%$filter) {
     my @filtered = grep {$filter->{$_}} @$results;

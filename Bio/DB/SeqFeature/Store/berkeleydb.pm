@@ -31,7 +31,10 @@ sub init {
 		   [qw(WRITE WRITABLE)],
 		   'CREATE',
 		  ],@_);
-  $directory ||= "$autoindex/indexes";
+  if ($autoindex) {
+    -d $autoindex or $self->throw("Invalid directory $autoindex");
+    $directory ||= "$autoindex/indexes";
+  }
   $directory ||= $is_temporary ? File::Spec->tmpdir : '.';
   $directory = tempdir(__PACKAGE__.'_XXXXXX',TMPDIR=>1,CLEANUP=>1,DIR=>$directory) if $is_temporary;
   mkpath($directory);
@@ -45,24 +48,65 @@ sub init {
   $self->default_settings;
   $self->directory($directory);
   $self->temporary($is_temporary);
-
-  $self->_autoindex($autoindex) if $autoindex;
   $self->_delete_databases()    if $create;
-  $self->_open_databases($write,$create);
+  $self->_open_databases($write,$create,$autoindex);
   return $self;
 }
 
 sub can_store_parentage { 1 }
 
-sub _autoindex {
+sub post_init {
   my $self = shift;
-  my $autoindex_dir = shift;
-  # do something here
+  my ($autodir) = rearrange([['DIR','AUTOINDEX']],@_);
+  return unless $autodir && -d $autodir;
+
+  my $maxtime   = 0;
+
+  opendir (D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
+  my @reindex;
+
+  while (defined (my $node = readdir(D))) {
+    next if $node =~ /^\./;
+    my $path      = "$autodir/$node";
+    next unless -f $path;
+
+    # skip fasta files - the Bio::DB::Fasta module indexes them on its own
+    next if $node =~ /\.(?:fa|fasta|dna)(?:\.gz)?$/;
+
+    # skip index files
+    next if $node =~ /\.(?:bdb|idx|index|stamp)/;
+
+    # skip autosave files, etc
+    next if $node =~ /^\#/;
+    next if $node =~ /~$/;
+
+    my $mtime = _mtime(\*_);  # not a typo
+    $maxtime   = $mtime if $mtime > $maxtime;
+    push @reindex,$path;
+  }
+
+  close D;
+
+  my $timestamp_time  = _mtime($self->_mtime_path) || 0;
+
+  if ($maxtime > $timestamp_time) {
+    warn "Reindexing... this may take a while...";
+    $self->_close_databases();
+    $self->_open_databases(1,1);
+    my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
+							     -sf_class => $self->seqfeature_class) 
+      or $self->throw("Couldn't create GFF3Loader");
+    $loader->load(@reindex);
+    $self->_touch_timestamp;
+  }
+
+  my $dna_db = Bio::DB::Fasta->new($autodir);
+  $self->dna_db($dna_db);
 }
 
 sub _open_databases {
   my $self = shift;
-  my ($write,$create) = @_;
+  my ($write,$create,$ignore_errors) = @_;
 
   my $directory  = $self->directory;
   unless (-d $directory) {  # directory does not exist
@@ -76,8 +120,11 @@ sub _open_databases {
 
   # Create the main database; this is a DB_HASH implementation
   my %h;
-  tie (%h,'DB_File',$self->_features_path,$flags,0666,$DB_HASH) 
-    or $self->throw("Couldn't tie: ".$self->_features_path . $!);
+  my $result = tie (%h,'DB_File',$self->_features_path,$flags,0666,$DB_HASH);
+  unless ($result) {
+    return if $ignore_errors;  # autoindex set, so defer this
+    $self->throw("Couldn't tie: ".$self->_features_path . " $!");
+  }
   if ($create) {
     %h = ();
     $h{'.next_id'} = 1;
@@ -139,10 +186,18 @@ sub _delete_databases {
     unlink $path;
   }
   unlink $self->_parentage_path;
-#  unlink $self->_fasta_path;  # ???
+  unlink $self->_fasta_path;
   unlink $self->_features_path;
+  unlink $self->_mtime_path;
 }
 
+sub _touch_timestamp {
+  my $self = shift;
+  my $tsf = $self->_mtime_path;
+  open (F,">$tsf") or $self->throw("Couldn't open $tsf: $!");
+  print F scalar(localtime);
+  close F;
+}
 
 sub _store {
   my $self    = shift;
@@ -151,7 +206,7 @@ sub _store {
   my $count = 0;
   for my $obj (@_) {
     my $primary_id = $obj->primary_id;
-    $self->_delete_indexes($primary_id) if $indexed && $primary_id;
+    $self->_delete_indexes($obj,$primary_id)  if $indexed && $primary_id;
     $primary_id    = $db->{'.next_id'}++ unless defined $primary_id;
     $db->{$primary_id} = $self->freeze($obj);
     $obj->primary_id($primary_id);
@@ -159,6 +214,17 @@ sub _store {
     $count++;
   }
   $count;
+}
+
+sub _delete_indexes {
+  my $self = shift;
+  my ($obj,$id) = @_;
+  # the additional "1" causes the index to be deleted
+  $self->_update_name_index($obj,$id,1);
+  $self->_update_type_index($obj,$id,1);
+  $self->_update_location_index($obj,$id,1);
+  $self->_update_attribute_index($obj,$id,1);
+  $self->_update_note_index($obj,$id,1);
 }
 
 sub _fetch {
@@ -260,11 +326,11 @@ sub _update_location_index {
   my $start       = $obj->start  || '';
   my $end         = $obj->end    || '';
   my $strand      = $obj->strand;
-  my $bin_min     = sprintf("%06d",int $start/BINSIZE);
-  my $bin_max     = sprintf("%06d",int $end/BINSIZE);
+  my $bin_min     = int $start/BINSIZE;
+  my $bin_max     = int $end/BINSIZE;
 
   for (my $bin = $bin_min; $bin <= $bin_max; $bin++ ) {
-    my $key = "\L$seq_id\E$bin";
+    my $key = sprintf("%s%06d",lc($seq_id),$bin);
     $self->update_or_delete($delete,$db,$key,pack("i4",$id,$start,$end,$strand));
   }
 }
@@ -348,6 +414,12 @@ sub index_db {
 }
 
 
+sub _mtime {
+  my $file = shift;
+  my @stat = stat($file);
+  return $stat[9];
+}
+
 # return names of all the indexes
 sub _index_files {
   return qw(names types locations attributes);
@@ -404,6 +476,10 @@ sub _fasta_path {
   shift->_qualify('sequence.fa');
 }
 
+sub _mtime_path {
+  shift->_qualify('mtime.stamp');
+}
+
 ###########################################
 # searching
 ###########################################
@@ -433,26 +509,28 @@ sub _features {
   }
 
   my %found = ();
+  my $result = 1;
 
   if (defined($name)) {
     # hacky backward compatibility workaround
+    undef $class if $class && $class eq 'Sequence';
     $name     = "$class:$name" if defined $class && length $class > 0;
-    $self->filter_by_name($name,$allow_aliases,\%found);
+    $result &&= $self->filter_by_name($name,$allow_aliases,\%found);
   }
 
   if (defined $seq_id) {
-    $self->filter_by_location($seq_id,$start,$end,$strand,$range_type,\%found);
+    $result &&= $self->filter_by_location($seq_id,$start,$end,$strand,$range_type,\%found);
   }
 
   if (defined $types) {
-    $self->filter_by_type($types,\%found);
+    $result &&= $self->filter_by_type($types,\%found);
   }
 
   if (defined $attributes) {
-    $self->filter_by_attribute($attributes,\%found);
+    $result &&= $self->filter_by_attribute($attributes,\%found);
   }
 
-  push @result,keys %found;
+  push @result,keys %found if $result;
   return $iterator ? Bio::DB::SeqFeature::Store::berkeleydb::Iterator->new($self,\@result)
                    : map {$self->fetch($_)} @result;
 }
@@ -473,7 +551,7 @@ sub filter_by_name {
   my $value;
   my @results;
   for (my $status = $db->seq($key,$value,R_CURSOR);
-       $status == 0 && $key =~ /^$regexp$/io;
+       $status == 0 and $key =~ /^$regexp$/i;
        $status = $db->seq($key,$value,R_NEXT)) {
     push @results,$value;
   }
@@ -591,28 +669,35 @@ sub filter_by_attribute {
 
   my $index = $self->index_db('attributes');
   my $db    = tied(%$index);
+  my $result;
 
-   for my $att_name (keys %$attributes) {
-     my @result;
-     my @search_terms = ref($attributes->{$att_name}) && ref($attributes->{$att_name}) eq 'ARRAY'
+  for my $att_name (keys %$attributes) {
+    my @result;
+    my @search_terms = ref($attributes->{$att_name}) && ref($attributes->{$att_name}) eq 'ARRAY'
                            ? @{$attributes->{$att_name}} : $attributes->{$att_name};
 
-     for my $v (@search_terms) {
-       my ($stem,$regexp) = $self->glob_match($v);
-       $stem   ||= $v;
-       $regexp ||= $v;
-       my $key = "\L${att_name}:${stem}\E";
-       my $value;
-       for (my $status = $db->seq($key,$value,R_CURSOR);
-	    $status == 0 && $key =~ /^$att_name:$regexp$/i;
-	    $status = $db->seq($key,$value,R_NEXT)) {
-	 push @result,$value;
-       }
-     }
-     $self->update_filter($filter,\@result);
-   }
+    for my $v (@search_terms) {
+      my ($stem,$regexp) = $self->glob_match($v);
+      $stem   ||= $v;
+      $regexp ||= $v;
+      my $key = "\L${att_name}:${stem}\E";
+      my $value;
+      for (my $status = $db->seq($key,$value,R_CURSOR);
+	   $status == 0 && $key =~ /^$att_name:$regexp$/i;
+	   $status = $db->seq($key,$value,R_NEXT)) {
+	push @result,$value;
+      }
+    }
+    $result ||= $self->update_filter($filter,\@result);
+  }
+  $result;
 }
 
+sub _search_attributes {
+  my $self = shift;
+  my ($search_string,$limit) = @_;
+  return $self->search_notes($search_string,$limit);
+}
 
 sub search_notes {
   my $self = shift;
@@ -676,6 +761,7 @@ sub glob_match {
 sub update_filter {
   my $self = shift;
   my ($filter,$results) = @_;
+  return unless @$results;
 
   if (%$filter) {
     my @filtered = grep {$filter->{$_}} @$results;

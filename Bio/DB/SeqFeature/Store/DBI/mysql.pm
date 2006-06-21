@@ -753,6 +753,7 @@ sub _features {
 
   if (defined $name) {
     # hacky backward compatibility workaround
+    undef $class if $class && $class eq 'Sequence';
     $name = "$class:$name" if defined $class && length $class > 0;
     my ($from,$where,$group,@a) = $self->_name_sql($name,$allow_aliases,'f.id');
     push @from,$from   if $from;
