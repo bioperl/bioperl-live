@@ -4,11 +4,14 @@ package Bio::DB::SeqFeature::Store::berkeleydb;
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
+use Bio::DB::Fasta;
 use DB_File;
 use Fcntl qw(O_RDWR O_CREAT);
 use File::Temp 'tempdir';
 use File::Path 'rmtree','mkpath';
 use constant BINSIZE => 10_000;
+use constant MININT  => -999_999_999_999;
+use constant MAXINT  => 999_999_999_999;
 
 # this will eventually be renamed bdb.pm, but right now I don't want to break what's already written.
 
@@ -28,14 +31,15 @@ sub init {
 		   [qw(WRITE WRITABLE)],
 		   'CREATE',
 		  ],@_);
-  $directory ||= $autoindex;
+  $directory ||= "$autoindex/indexes";
   $directory ||= $is_temporary ? File::Spec->tmpdir : '.';
   $directory = tempdir(__PACKAGE__.'_XXXXXX',TMPDIR=>1,CLEANUP=>1,DIR=>$directory) if $is_temporary;
+  mkpath($directory);
   -d $directory or $self->throw("Invalid directory $directory");
 
   $create++ if $is_temporary;
   $write ||= $create;
-  $write && -w $directory or $self->throw("Can't write into the directory $directory");
+  $self->throw("Can't write into the directory $directory") if $write && !-w $directory;
 
 
   $self->default_settings;
@@ -43,6 +47,7 @@ sub init {
   $self->temporary($is_temporary);
 
   $self->_autoindex($autoindex) if $autoindex;
+  $self->_delete_databases()    if $create;
   $self->_open_databases($write,$create);
   return $self;
 }
@@ -84,10 +89,11 @@ sub _open_databases {
   local $DB_BTREE->{flags} = R_DUP;
   $DB_BTREE->{compare}     = sub { lc($_[0]) cmp lc($_[1]) };
   for my $idx ($self->_index_files) {
-    my $path = $self->_qualify($idx);
+    my $path = $self->_qualify("$idx.idx");
     my %db;
     tie(%db,'DB_File',$path,$flags,0666,$DB_BTREE)
       or $self->throw("Couldn't tie $path: $!");
+    %db = () if $create;
     $self->index_db($idx=>\%db);
   }
 
@@ -95,9 +101,7 @@ sub _open_databases {
   my %p;
   tie (%p,'DB_File',$self->_parentage_path,$flags,0666,$DB_BTREE)
     or $self->throw("Couldn't tie: ".$self->_parentage_path . $!);
-  if ($create) {
-    %p = ();
-  }
+    %p = () if $create;
   $self->parentage_db(\%p);
 
   if (-e $self->_fasta_path) {
@@ -118,6 +122,25 @@ sub _close_databases {
   $self->db(undef);
   $self->dna_db(undef);
   $self->index_db($_=>undef) foreach $self->_index_files;
+}
+
+sub _init_database {
+  my $self = shift;
+  my $erase = shift;
+  $self->_close_databases();
+  $self->_delete_databases() if $erase;
+  $self->_open_databases(1,1);
+}
+
+sub _delete_databases {
+  my $self = shift;
+  for my $idx ($self->_index_files) {
+    my $path = $self->_qualify("$idx.idx");
+    unlink $path;
+  }
+  unlink $self->_parentage_path;
+#  unlink $self->_fasta_path;  # ???
+  unlink $self->_features_path;
 }
 
 
@@ -156,7 +179,7 @@ sub _add_SeqFeature {
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
     defined $child_id or die "no primary ID known for $child";
-    $p->{$parent_id}={$child_id};
+    $p->{$parent_id} = $child_id;
   }
 }
 
@@ -406,7 +429,7 @@ sub _features {
 
   my @result;
   unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
-    @result = keys %{$self->{_index}{ids}};
+    @result = grep {$_ ne '.next_id' } keys %{$self->db};
   }
 
   my %found = ();
@@ -503,6 +526,9 @@ sub filter_by_location {
 
   my %seenit;
   my @results;
+
+  $start = MININT  if !defined $start;
+  $end   = MAXINT  if !defined $end;
 
   if ($range_type eq 'overlaps' or $range_type eq 'contains') {
     my $key     = "\L$seq_id\E$binstart";
@@ -660,12 +686,43 @@ sub update_filter {
 
 }
 
+# this is ugly
+sub _insert_sequence {
+  my $self = shift;
+  my ($seqid,$seq,$offset) = @_;
+  my $dna_fh = $self->private_fasta_file or return;
+  if ($offset == 0) { # start of the sequence
+    print $dna_fh ">$seqid\n";
+  }
+  print $dna_fh $seq,"\n";
+}
+
+sub _fetch_sequence {
+  my $self = shift;
+  my ($seqid,$start,$end) = @_;
+  my $db = $self->dna_db or return;
+  return $db->seq($seqid,$start,$end);
+}
+
+sub private_fasta_file {
+  my $self = shift;
+  return $self->{fasta_fh} if exists $self->{fasta_fh};
+  $self->{fasta_file}   = $self->_qualify("sequence.fa");
+  return $self->{fasta_fh} = IO::File->new($self->{fasta_file},">");
+}
+
+sub finish_bulk_update {
+  my $self = shift;
+  if (my $fh = $self->{fasta_fh}) {
+    $fh->close;
+    $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
+  }
+}
+
 
 sub DESTROY {
   my $self = shift;
-  my $db   = $self->db;
-  warn "CLEANING UP";
-  untie %$db;
+  $self->_close_databases();
   rmtree($self->directory,0,1) if $self->temporary;
 }
 

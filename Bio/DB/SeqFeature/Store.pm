@@ -244,6 +244,9 @@ This class method creates a new database connection. The following
 
  -cache             Activate LRU caching feature -- size of cache
 
+ -compress          Compresses features before storing them in database
+                    using Compress::Zlib
+
 The B<-index_subfeatures> argument, if true, tells the module to
 create indexes for a feature and all its subfeatures (and its
 subfeatues' subfeatures). Indexing subfeatures means that you will be
@@ -263,6 +266,10 @@ size for the cache. If you pass "1" as the cache value, a reasonable
 default cache size will be chosen. Caching requires the Tie::Cacher
 module to be installed. If the module is not installed, then caching
 will silently be disabled.
+
+The B<-compress> argument, if true, will cause the feature data to be
+compressed before storing it. This will make the database somewhat
+smaller at the cost of decreasing performance.
 
 The new() method of individual adaptors recognize additional
 arguments. The default DBI::mysql adaptor recognizes the following
@@ -295,16 +302,17 @@ ones:
 #
 sub new {
   my $self      = shift;
-  my ($adaptor,$serializer,$index_subfeatures,$cache,$args);
+  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$args);
   if (@_ == 1) {
     $args = {DSN => shift}
   }
   else {
-    ($adaptor,$serializer,$index_subfeatures,$cache,$args) =
+    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$args) =
       rearrange(['ADAPTOR',
 		 'SERIALIZER',
 		 'INDEX_SUBFEATURES',
-		 'CACHE'
+		 'CACHE',
+		 'COMPRESS',
 		],@_);
   }
   $adaptor ||= 'DBI::mysql';
@@ -315,6 +323,7 @@ sub new {
   my $obj = $class->new_instance();
   $obj->init($args);
   $obj->init_cache($cache) if $cache;
+  $obj->do_compress($compress);
   $obj->serializer($serializer)               if defined $serializer;
   $obj->index_subfeatures($index_subfeatures) if defined $index_subfeatures;
   $obj->seqfeature_class('Bio::DB::SeqFeature');
@@ -1366,6 +1375,19 @@ sub serializer {
   $d;
 }
 
+sub do_compress {
+  my $self = shift;
+  if (@_) {
+    my $do_compress = shift;
+    $self->setting(compress => $do_compress);
+  }
+  my $d    = $self->setting('compress');
+  if ($d) {
+    eval "use Compress::Zlib; 1" or croak $@ unless Compress::Zlib->can('compress');
+  }
+  $d;
+}
+
 =head2 index_subfeatures
 
  Title   : index_subfeatures
@@ -2066,6 +2088,7 @@ object. This ensures that all the object's methods are available.
 sub load_class {
   my $self = shift;
   my $obj  = shift;
+  return unless defined $obj;
   return if $self->{class_loaded}{ref $obj}++;
   unless ($obj && $obj->can('primary_id')) {
     my $class = ref $obj;
@@ -2124,6 +2147,7 @@ sub freeze {
     $obj->object_store($store);
   };
 
+  $data = compress($data) if $self->do_compress;
   return $data;
 }
 
@@ -2178,6 +2202,9 @@ sub thaw_object {
 
   my $serializer = $self->serializer;
   my $object;
+
+  $obj = uncompress($obj) if $self->do_compress;
+
   if ($serializer eq 'Data::Dumper') {
     $object = eval $obj;
   } elsif ($serializer eq 'Storable') {
