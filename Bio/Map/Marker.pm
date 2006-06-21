@@ -2,9 +2,9 @@
 #
 # BioPerl module for Bio::Map::Marker
 #
-# Cared for by Chad Matsalla <bioinformatics1@dieselwurks.com>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
-# Copyright Chad Matsalla, Sendu Bala
+# Copyright Chad Matsalla
 # 
 # You may distribute this module under the same terms as perl itself
 
@@ -113,16 +113,16 @@ web:
 
   http://bugzilla.bioperl.org/
 
-=head1 AUTHOR - Chad Matsalla & Sendu Bala
+=head1 AUTHOR - Chad Matsalla
 
 Email bioinformatics1@dieselwurks.com
-Email bix@sendu.me.uk
 
 =head1 CONTRIBUTORS
 
 Heikki Lehvaslaiho heikki-at-bioperl-dot-org
 Lincoln Stein      lstein@cshl.org
 Jason Stajich      jason@bioperl.org
+Sendu Bala         bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -254,7 +254,7 @@ sub get_position_object {
  Function: Get/Set the Bio::Map::PositionI for a mappable element
            in a specific Map
            Adds the marker to a map automatically if Map is given. 
-           Altenaitvely, you can add the marker to the map first 
+           Alternatively, you can add the marker to the map first 
            (L<Bio::Map::Map::add_element>) to set the default map
  Returns : Bio::Map::PositionI
  Args    : $position - Bio::Map::PositionI # Position we want to set

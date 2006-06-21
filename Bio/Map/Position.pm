@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::Position
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Jason Stajich
 #
@@ -19,12 +19,12 @@ Bio::Map::Position - A single position of a Marker, or the range over which
 
     use Bio::Map::Position;
     my $position = new Bio::Map::Position(-map => $map, 
-					  -marker => $marker
+					  -marker => $marker,
 					  -value => 100
 					  );
 					  
-	my $position = new Bio::Map::Position(-map => $map, 
-					  -marker => $marker
+	my $position_with_range = new Bio::Map::Position(-map => $map, 
+					  -marker => $marker,
 					  -start => 100,
 					  -length => 10
 					  );
@@ -67,8 +67,6 @@ web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Lincoln Stein, lstein@cshl.org
@@ -96,6 +94,7 @@ use strict;
 use Bio::Root::Root;
 use Bio::Map::PositionI;
 use Bio::Range;
+use Scalar::Util qw(looks_like_number); # comes with perl 5.8, included in Bundle::Bioperl
 
 @ISA = qw(Bio::Root::Root Bio::Map::PositionI);
 
@@ -140,20 +139,20 @@ sub new {
 	
     $map     && $self->map($map);
     $marker  && $self->marker($marker);
-    $value   && $self->value($value);
+    defined($value)   && $self->value($value);
 	
     if ($do_range) {
-		$start  && $self->start($start);
-		$end    && $self->end($end);
+		defined($start) && $self->start($start);
+		defined($end)   && $self->end($end);
 		if ($length) {
-			if ($start && ! $end) {
+			if (defined($start) && ! defined($end)) {
 				$self->end($start + $length - 1);
 			}
-			elsif (! $start) {
+			elsif (! defined($start)) {
 				$self->start($end - $length + 1);
 			}
 		}
-		$self->end || $self->end($start);
+		defined($self->end) || $self->end($start);
     }
 	
     return $self;
@@ -210,11 +209,11 @@ sub marker {
 =cut
 
 sub value {
-	my ($self,$value) = @_;
-	if( defined $value ) {
+	my ($self, $value) = @_;
+	if (defined $value) {
 		$self->{'_value'} = $value;
-		$self->start($self->numeric) unless $self->start;
-		$self->end($self->numeric) unless $self->end;
+		$self->start($self->numeric) unless defined($self->start);
+		$self->end($self->numeric) unless defined($self->end);
 	}
 	return $self->{'_value'};
 }
@@ -223,21 +222,20 @@ sub value {
 
  Title   : numeric
  Usage   : my $num = $position->numeric;
- Function: Read-only method that is guarantied to return a numeric 
-           representation for this position. 
+ Function: Read-only method that is guaranteed to return a numeric 
+           representation of the start of this position. 
  Returns : numeric (int or real) 
  Args    : none
 
 =cut
 
 sub numeric {
-   my ($self) = @_;
-   my $num = $self->{'_value'} || 0;
-
-   # expand this to cover scientific notation, too!
-   $self->throw("This value [$num] is not numeric!") unless defined($num) && $num =~ /^[+-]?[\d.]+$/;
-   
-   return $num;
+    my ($self) = @_;
+    my $num = $self->{'_value'} || 0;
+    
+    $self->throw("This value [$num] is not numeric!") unless looks_like_number($num);
+    
+    return $num;
 }
 
 =head2 start
@@ -254,9 +252,9 @@ sub numeric {
 sub start {
 	my ($self, $value) = @_;
     if (defined $value) {
-		$self->throw("'$value' is not an integer.\n") unless $value =~ /^[-+]?\d+$/;
+		self->throw("This value [$value] is not numeric!") unless looks_like_number($value);
         $self->{'start'} = $value;
-		$self->value($value);
+		$self->value($value) unless defined($self->value);
     }
     return $self->{'start'} || undef;
 }
@@ -275,7 +273,7 @@ sub start {
 sub end {
 	my ($self, $value) = @_;
     if (defined $value) {
-		$self->throw("'$value' is not an integer.\n") unless $value =~ /^[-+]?\d+$/;
+		self->throw("This value [$value] is not numeric!") unless looks_like_number($value);
         $self->{'end'} = $value;
     }
     return $self->{'end'} || undef;
@@ -285,10 +283,9 @@ sub end {
 
   Title   : length
   Usage   : $length = $range->length();
-  Function: get/set the length of this range
+  Function: get the length of this range
   Returns : the length of this range
-  Args    : optionally allows the length to be set
-             using $range->length($length)
+  Args    : none
 
 =cut
 
@@ -298,7 +295,7 @@ sub length {
 		$self->warn(ref($self)."->length() is read-only");
 	}
 	
-	if ($self->start && $self->end) {
+	if (defined($self->start) && defined($self->end)) {
 		return $self->end - $self->start + 1;
 	}
 }
@@ -314,7 +311,7 @@ sub length {
 
 sub toString {
 	my $self = shift;
-	if ($self->start && $self->end) {
+	if (defined($self->start) && defined($self->end)) {
 		return $self->start.'..'.$self->end;
 	}
 	return '';

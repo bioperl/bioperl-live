@@ -85,6 +85,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Map::CytoPosition;
 use vars qw(@ISA);
+use Carp qw(confess);
 
 use strict;
 use integer;
@@ -140,7 +141,8 @@ use Bio::Map::Position;
                pad char for start is '9', for end '0'
                range is chromosome + 100,000 - padded range start or end
 
- Example : Returns : Bio::Range object or undef
+ Example :
+ Returns : Bio::RangeI
  Args    : none
 
 =cut
@@ -150,11 +152,11 @@ sub cytorange {
     my ($self) = @_;
     my ($chr, $r, $band, $band2, $arm, $arm2, $lc, $uc, $lcchar, $ucchar);
 
-    return $r if not defined $self->value; # returns undef
-    $self->value =~
+    return $r if not defined $self->{_value}; # returns undef
+    $self->{_value} =~
 	#  -----1-----  --------2---------   -----3-----     -------4-------   ---6---
 	m/([XY]|[0-9]+)(cen|qcen|pcen|[pq])?(ter|[.0-9]+)?-?([pq]?(cen|ter)?)?([.0-9]+)?/;
-    $self->warn("Not a valid value: ". $self->value), return $r
+    $self->warn("Not a valid value: ". $self->{_value}), return $r
 	if not defined $1 ; # returns undef
 
     $chr = uc $1;
@@ -324,12 +326,12 @@ sub cytorange {
     # e.g. 10p
     #
     elsif (defined $2 ) { # e.g. 10p
-	if ($2 eq'p' ) {
+	if ($2 eq 'p' ) {
 	    $r = new Bio::Range('-start' => $chr,
 				'-end' => 100000  + $chr
 				);
 	}
-	elsif ($2 eq'q' )  {
+	elsif ($2 eq 'q' )  {
 	    $r = new Bio::Range('-start' => 100000 + $chr,
 				'-end' => 200000 + $chr
 				);
@@ -346,6 +348,11 @@ sub cytorange {
 	$r = new Bio::Range('-start' => $chr,
 			    '-end' => 200000 + $chr
 			    );
+    }
+    
+    if ($r) {
+        $self->start($r->start);
+        $self->end($r->end);
     }
     return $r;
 }
@@ -529,7 +536,7 @@ sub value {
    my ($self,$value) = @_;
    if( defined $value ) {
        $self->{'_value'} = $value;
-       $self->{'_numeric'} = $self->cytorange($value);
+       $self->cytorange;
    }
    return $self->{'_value'};
 }
@@ -539,12 +546,12 @@ sub value {
  Title   : numeric
  Usage   : my $num = $position->numeric;
  Function: Read-only method that is guarantied to return a numeric 
-           representation for this position. 
+           representation of the start of this position. 
 
            This instanse of the method can also be set, but you better
            know what you are doing.
 
- Returns : Bio::RangeI object 
+ Returns : int
  Args    : optional Bio::RangeI object 
 
 See L<Bio::RangeI> for more information.
@@ -557,10 +564,9 @@ sub numeric {
    if ($value) {
        $self->throw("This is not a Bio::RangeI object but a [$value]")
 	   unless $value->isa('Bio::RangeI');
-       $self->{'_numeric'} = $value;
-       $self->{'_value'} = $self->range2value($value);
+       $self->value($self->range2value($value));
    }
-   return $self->{'_numeric'};
+   return $self->start;
 }
 
 
