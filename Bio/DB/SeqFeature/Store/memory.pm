@@ -1,5 +1,106 @@
 package Bio::DB::SeqFeature::Store::memory;
 
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::memory -- In-memory implementation of Bio::DB::SeqFeature::Store
+
+=head1 SYNOPSIS
+
+  use Bio::DB::SeqFeature::Store;
+
+  # Open the sequence database
+  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
+                                                 -dsn     => '/var/databases/test');
+
+  # search... by id
+  my @features = $db->fetch_many(@list_of_ids);
+
+  # ...by name
+  @features = $db->get_features_by_name('ZK909');
+
+  # ...by alias
+  @features = $db->get_features_by_alias('sma-3');
+
+  # ...by type
+  @features = $db->get_features_by_name('gene');
+
+  # ...by location
+  @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);
+
+  # ...by attribute
+  @features = $db->get_features_by_attribute({description => 'protein kinase'})
+
+  # ...by the GFF "Note" field
+  @result_list = $db->search_notes('kinase');
+
+  # ...by arbitrary combinations of selectors
+  @features = $db->features(-name => $name,
+                            -type => $types,
+                            -seq_id => $seqid,
+                            -start  => $start,
+                            -end    => $end,
+                            -attributes => $attributes);
+
+  # ...using an iterator
+  my $iterator = $db->get_seq_stream(-name => $name,
+                                     -type => $types,
+                                     -seq_id => $seqid,
+                                     -start  => $start,
+                                     -end    => $end,
+                                     -attributes => $attributes);
+
+  while (my $feature = $iterator->next_seq) {
+    # do something with the feature
+  }
+
+  # ...limiting the search to a particular region
+  my $segment  = $db->segment('Chr1',5000=>6000);
+  my @features = $segment->features(-type=>['mRNA','match']);
+
+  # getting & storing sequence information
+  # Warning: this returns a string, and not a PrimarySeq object
+  $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
+  my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
+
+  # create a new feature in the database
+  my $feature = $db->new_feature(-primary_tag => 'mRNA',
+                                 -seq_id      => 'chr3',
+                                 -start      => 10000,
+                                 -end        => 11000);
+
+=head1 DESCRIPTION
+
+Bio::DB::SeqFeature::Store::memory is the in-memory adaptor for
+Bio::DB::SeqFeature::Store. You will not create it directly, but
+instead use Bio::DB::SeqFeature::Store->new() to do so.
+
+See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
+
+=head2 Using the memory adaptor
+
+Before using the memory adaptor, populate a readable-directory on the
+file system with annotation and sequence files. The annotation files
+must be in GFF3 format, and must end in the extension .gff or
+.gff3. They may be compressed with "compress", "gzip" or "bzip2" (in
+which case the appropriate compression extension will be present as
+well.) You may include sequence data inline in the GFF3 files, or put
+the sequence data in one or more separate FASTA-format files. These
+files must end with .fa or .fasta and may be compressed.
+
+The adaptor store the annotation data in memory, but the sequence data
+will be indexed on disk using the Bio::DB::Fasta module. If the
+sequence data is included in the GFF3 file, then it will be written
+out to a temporary file located in the system TMP directory, indexed,
+and removed after the script terminates. Since indexing the temporary
+FASTA file is time-consuming, it is more efficient to keep the
+sequence in separate FASTA files.
+
+Initialize the database using the -dsn option. This should point to
+the directory creating the annotation and sequence files, or to a
+single GFF3 file.
+
+=cut
+
 # $Id$
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
@@ -294,7 +395,6 @@ sub filter_by_attribute {
   }
 
   $result;
-
 }
 
 sub filter_by_location {
@@ -391,6 +491,46 @@ sub update_filter {
   }
 
 }
+
+sub _search_attributes {
+  my $self = shift;
+  my ($search_string,$attribute_array,$limit) = @_;
+
+  $search_string =~ tr/*?//d;
+
+  my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
+  my $search = join '|',@words;
+
+  my (%results,%notes);
+
+  my $index  = $self->{_index}{attribute};
+  for my $tag (@$attribute_array) {
+    my $attributes = $index->{lc $tag};
+    for my $value (keys %{$attributes}) {
+      next unless $value =~ /$search/i;
+      my @ids = keys %{$attributes->{$value}};
+      for my $w (@words) {
+	my @hits = $value =~ /($w)/ig or next;
+	$results{$_} += @hits foreach @ids;
+      }
+      $notes{$_} .= "$value " foreach @ids;
+    }
+  }
+
+  my @results;
+  for my $id (keys %results) {
+    my $hits = $results{$id};
+    my $note = $notes{$id};
+    $note =~ s/\s+$//;
+    my $relevance = 10 * $hits;
+    my $feature   = $self->fetch($id);
+    my $name      = $feature->display_name or next;
+    push @results,[$name,$note,$relevance];
+  }
+
+  return @results;
+}
+
 
 # this is ugly
 sub _insert_sequence {

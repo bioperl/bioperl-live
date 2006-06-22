@@ -64,6 +64,7 @@ sub post_init {
 
   opendir (D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
   my @reindex;
+  my $fasta_files_present;
 
   while (defined (my $node = readdir(D))) {
     next if $node =~ /^\./;
@@ -71,7 +72,10 @@ sub post_init {
     next unless -f $path;
 
     # skip fasta files - the Bio::DB::Fasta module indexes them on its own
-    next if $node =~ /\.(?:fa|fasta|dna)(?:\.gz)?$/;
+    if ($node =~ /\.(?:fa|fasta|dna)(?:\.gz)?$/) {
+      $fasta_files_present++;
+      next;
+    }
 
     # skip index files
     next if $node =~ /\.(?:bdb|idx|index|stamp)/;
@@ -93,6 +97,7 @@ sub post_init {
     warn "Reindexing... this may take a while...";
     $self->_close_databases();
     $self->_open_databases(1,1);
+    require Bio::DB::SeqFeature::Store::GFF3Loader unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
     my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
 							     -sf_class => $self->seqfeature_class) 
       or $self->throw("Couldn't create GFF3Loader");
@@ -100,8 +105,10 @@ sub post_init {
     $self->_touch_timestamp;
   }
 
-  my $dna_db = Bio::DB::Fasta->new($autodir);
-  $self->dna_db($dna_db);
+  if ($fasta_files_present) {
+    my $dna_db = Bio::DB::Fasta->new($autodir);
+    $self->dna_db($dna_db);
+  }
 }
 
 sub _open_databases {
@@ -168,6 +175,7 @@ sub _close_databases {
   my $self = shift;
   $self->db(undef);
   $self->dna_db(undef);
+  $self->notes_db(undef);
   $self->index_db($_=>undef) foreach $self->_index_files;
 }
 
@@ -695,8 +703,44 @@ sub filter_by_attribute {
 
 sub _search_attributes {
   my $self = shift;
-  my ($search_string,$limit) = @_;
-  return $self->search_notes($search_string,$limit);
+  my ($search_string,$attribute_array,$limit) = @_;
+  $search_string =~ tr/*?//d;
+  my @words = map {quotemeta($_)} $search_string =~ /(\w+)/g;
+  my $search = join '|',@words;
+
+  my $index = $self->index_db('attributes');
+  my $db    = tied(%$index);
+
+  my (%results,%notes);
+
+  for my $tag (@$attribute_array) {
+    my $id;
+    my $key = "\L$tag:\E";
+    for (my $status = $db->seq($key,$id,R_CURSOR);
+	 $status == 0 and $key =~ /^$tag:(.*)/i;
+	 $status = $db->seq($key,$id,R_NEXT)) {
+      my $text = $1;
+      next unless $text =~ /$search/;
+      for my $w (@words) {
+	my @hits = $text =~ /($w)/ig or next;
+	$results{$id} += @hits;
+      }
+      $notes{$id} .= "$text ";
+    }
+  }
+
+  my @results;
+  for my $id (keys %results) {
+    my $hits = $results{$id};
+    my $note = $notes{$id};
+    $note =~ s/\s+$//;
+    my $relevance = 10 * $hits;
+    my $feature   = $self->fetch($id) or next;
+    my $name      = $feature->display_name or next;
+    push @results,[$name,$note,$relevance];
+  }
+
+  return @results;
 }
 
 sub search_notes {
