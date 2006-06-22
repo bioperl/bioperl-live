@@ -260,7 +260,7 @@ $ft2 = new Bio::SeqFeature::Generic ( -start => 1,
 
 $ft3 = new Bio::SeqFeature::Generic ( -start => 5,
                                       -end => 8,
-                                      -strand => 1,
+                                      -strand => -1,
                                       -primary => 'hotspot',
                                        );
 $seq2->add_SeqFeature($ft2);
@@ -270,4 +270,4 @@ my $trunc=Bio::SeqUtils->trunc_with_features($seq2, 2, 7);
 ok $trunc->seq, 'tttaaa';
 my @feat=$trunc->get_SeqFeatures;
 ok $feat[0]->location->to_FTstring, '<1..3';
-ok $feat[1]->location->to_FTstring, '4..>6';
+ok $feat[1]->location->to_FTstring, 'complement(4..>6)';

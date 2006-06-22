@@ -504,10 +504,12 @@ sub _coord_adjust {
     my @loc=$feat->location->each_Location;
     map {
         my @coords=($_->start, $_->end);
+        my $strand=$_->strand;
         map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"
 } else {$add+$1}/ge, @coords;
         $_=Bio::Location::Fuzzy->new(-start=>shift @coords,
-                                  -end=>shift @coords);
+                                    -end=>shift @coords,
+                                    -strand=>$strand);
     } @loc;
     if (@loc==1) {
         $feat->location($loc[0])
