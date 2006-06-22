@@ -67,8 +67,15 @@ sub _subfeat {
   my $feature = shift;
   return $feature->get_SeqFeatures('mRNA') if $feature->primary_tag eq 'gene';
 
-  my @subparts = $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
+  my @subparts;
+  if ($class->option('sub_part')) {
+    @subparts = $feature->get_SeqFeatures($class->option('sub_part'));
+  }
+  else {
 
+    @subparts = $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
+  }
+ 
   # The CDS and UTRs may be represented as a single feature with subparts or as several features
   # that have different IDs. We handle both cases transparently.
   my @result;
@@ -113,9 +120,13 @@ This glyph is designed to work properly with GFF3-style three-tier
 genes, in which the top level feature has the Sequence Ontology type
 of "gene", the second level feature(s) have the SO type "mRNA", and
 the third level feature(s) have the SO type "CDS", "five_prime_utr"
-and "three_prime_utr." The feature can contain other subparts as well
-(e.g. exon, intron, translation), but they are currently
-ignored. Subparts named "UTR" are also honored.
+and "three_prime_utr."  Subparts named "UTR" are also honored.  The
+feature can contain other subparts as well (e.g. exon, intron,
+translation), but they are currently ignored unless the option
+sub_part is supplied.  If the sub_part option is used that feature 
+type will be used and CDS and UTR features will be excluded.
+This could be used for specifying that exons be used instead,
+for example.
 
 This glyph is a subclass of processed_transcript, and recognizes the
 same options.
