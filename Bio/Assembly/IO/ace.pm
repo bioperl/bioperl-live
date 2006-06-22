@@ -309,19 +309,32 @@ sub next_assembly {
 	# Loading contig tags ('tags' in phrap terminology, but Bioperl calls them features)
 	/^CT\s*\{/ && do {
 	    my ($contigID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
+        my %tags = (source => $source, creation_date => $date);
 	    $contigID =~ s/^Contig//i;
-	    my $extra_info = undef;
+	    my $tag_type = 'extra_info';
 	    while ($_ = $self->_readline) {
-		last if (/\}/);
-		$extra_info .= $_;
+            if (/COMMENT\s*\{/)
+            {
+                $tag_type = 'comment';
+            }
+            elsif (/C\}/)
+            {
+                $tag_type = 'extra_info';
+            }
+            elsif (/\}/)
+            {
+                last;
+            }
+            else
+            {
+                $tags{$tag_type} .= "$_";
+            }
 	    }
 	    my $contig_tag = Bio::SeqFeature::Generic->new(-start=>$start,
 							   -end=>$end,
 							   -primary=>$type,
-							   -tag=>{ 'source' => $source,
-								   'creation_date' => $date,
-								   'extra_info' => $extra_info
-							       });
+							   -tag=>\%tags,
+							       );
 	    $assembly->get_contig_by_id($contigID)->add_features([ $contig_tag ],1);
 	};
 

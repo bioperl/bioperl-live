@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 13;
+    $NUMTESTS = 19;
     plan tests => $NUMTESTS;
     eval { require DB_File };
     if( $@ ) {
@@ -95,3 +95,31 @@ skip "nothing to test", $sc->get_singlet_ids;
 #
 # Testing ContigAnalysis
 #
+
+#
+# Testing Ace 
+#
+
+my $aio = Bio::Assembly::IO->new(
+    -file=>Bio::Root::IO->catfile
+     ("t","data","consed_project","edit_dir","test_project.fasta.screen.ace.2"),
+    -format=>'ace',
+);
+
+my $assembly = $aio->next_assembly();
+my @contigs = $assembly->all_contigs();
+
+my $features =  $contigs[0]->get_features_collection;
+my @contig_features = $features->get_all_features;
+ok(8 == scalar @contig_features);
+
+my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
+ok(2 == scalar @annotations);
+
+my ($feature_with_extra_info, $commented_feature) = @annotations;
+
+ok($feature_with_extra_info->has_tag('extra_info'));
+ok(($feature_with_extra_info->get_tag_values('extra_info'))[0] eq "contig extra\ninfo\n");
+
+ok($commented_feature->has_tag('comment'));
+ok(($commented_feature->get_tag_values('comment'))[0] eq "contig tag\ncomment\n");
