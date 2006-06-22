@@ -58,7 +58,11 @@ sub new {
     my @tmparray;
     foreach (@subfeatures) {
       my $type = $_->method;
-      unless ($type eq $self->option('ignore_sub_part')) {
+
+      my @ignore_list = split /\s+/, $self->option('ignore_sub_part');
+      my $ignore_str  = join('|', @ignore_list);
+
+      unless ($type =~ /$ignore_str/) {
         push @tmparray, $_;
       }
     }
@@ -1555,8 +1559,9 @@ glyph pages for more options.
                 drawing of the subparts
                 of a feature.
 
-  -ignore_sub_part Give the type/method of a   undef
-                subpart to ignore it.
+  -ignore_sub_part Give the types/methods of   undef
+                subparts to ignore (as a 
+                space delimited list).
 
   -maxdepth     Specifies the maximum number   undef (unlimited) 
                 child-generations to decend
