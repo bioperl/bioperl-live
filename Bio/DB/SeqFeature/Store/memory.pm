@@ -79,25 +79,38 @@ See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 =head2 Using the memory adaptor
 
 Before using the memory adaptor, populate a readable-directory on the
-file system with annotation and sequence files. The annotation files
-must be in GFF3 format, and must end in the extension .gff or
+file system with annotation and/or sequence files. The annotation
+files must be in GFF3 format, and shold end in the extension .gff or
 .gff3. They may be compressed with "compress", "gzip" or "bzip2" (in
-which case the appropriate compression extension will be present as
-well.) You may include sequence data inline in the GFF3 files, or put
-the sequence data in one or more separate FASTA-format files. These
-files must end with .fa or .fasta and may be compressed.
+which case the appropriate compression extension must be present as
+well.)
 
-The adaptor store the annotation data in memory, but the sequence data
-will be indexed on disk using the Bio::DB::Fasta module. If the
-sequence data is included in the GFF3 file, then it will be written
-out to a temporary file located in the system TMP directory, indexed,
-and removed after the script terminates. Since indexing the temporary
-FASTA file is time-consuming, it is more efficient to keep the
-sequence in separate FASTA files.
+You may include sequence data inline in the GFF3 files, or put the
+sequence data in one or more separate FASTA-format files. These files
+must end with .fa or .fasta and may be compressed. Because of the way
+the adaptor works, you will get much better performance if you keep
+the sequence data in separate FASTA files.
 
 Initialize the database using the -dsn option. This should point to
 the directory creating the annotation and sequence files, or to a
-single GFF3 file.
+single GFF3 file. Examples:
+
+
+  # load all GFF3 and FASTA files located in /var/databases/test directory
+  $db  = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
+                                          -dsn     => '/var/databases/test');
+
+
+  # load the data in a single compressed GFF3 file located at
+  # /usr/annotations/worm.gf33.gz
+  $db  = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
+                                          -dsn     => '/usr/annotations/worm.gff3.gz');
+
+See L<Bio::DB::SeqFeature::Store> for all the access methods supported
+by this adaptor. The various methods for storing and updating features
+and sequences into the database are supported, including GFF3 loading
+support, but since this is an in-memory adaptor all changes you make
+will be lost when the script exits.
 
 =cut
 
@@ -577,3 +590,32 @@ sub next_seq {
 }
 
 1;
+
+__END__
+
+=head1 BUGS
+
+This is an early version, so there are certainly some bugs. Please
+use the BioPerl bug tracking system to report bugs.
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature>,
+L<Bio::DB::SeqFeature::Store>,
+L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::Store::berkeleydb>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+

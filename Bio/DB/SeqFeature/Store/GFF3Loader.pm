@@ -187,7 +187,11 @@ END
 
   $tmpdir ||= File::Spec->tmpdir();
 
-  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor=>'bdb',-temporary=>1,-dir=>$tmpdir,-cache=>1,-write=>1)
+  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
+						  -temporary=> 1,
+						  -dsn      => $tmpdir,
+						  -cache    => 1,
+						  -write    => 1)
     unless $normalized;
 
   return bless {

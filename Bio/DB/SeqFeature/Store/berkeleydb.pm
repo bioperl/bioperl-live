@@ -1,6 +1,8 @@
 package Bio::DB::SeqFeature::Store::berkeleydb;
 
 # $Id$
+
+
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
@@ -13,7 +15,218 @@ use constant BINSIZE => 10_000;
 use constant MININT  => -999_999_999_999;
 use constant MAXINT  => 999_999_999_999;
 
-# this will eventually be renamed bdb.pm, but right now I don't want to break what's already written.
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence annotation data in Berkeleydb files
+
+=head1 SYNOPSIS
+
+  use Bio::DB::SeqFeature::Store;
+
+  # Create a database from the feature files located in /home/fly4.3 and store
+  # the database index in the same directory:
+  $db =  Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                          -dir     => '/home/fly4.3');
+
+  # Create a database that will monitor the files in /home/fly4.3, but store
+  # the indexes in /var/databases/fly4.3
+  $db      = Bio::DB::SeqFeature::Store->new( -adaptor    => 'berkeleydb',
+                                              -dsn        => '/var/databases/fly4.3',
+                                              -dir        => '/home/fly4.3');
+
+  # Create a feature database from scratch
+  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                             -dsn     => '/var/databases/fly4.3',
+                                             -create  => 1);
+
+  # get a feature from somewhere
+  my $feature = Bio::SeqFeature::Generic->new(...);
+
+  # store it
+  $db->store($feature) or die "Couldn't store!";
+
+  # primary ID of the feature is changed to indicate its primary ID
+  # in the database...
+  my $id = $feature->primary_id;
+
+  # get the feature back out
+  my $f  = $db->fetch($id);
+
+  # change the feature and update it
+  $f->start(100);
+  $db->update($f) or die "Couldn't update!";
+
+  # use the GFF3 loader to do a bulk write:
+  my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store   => $db,
+                                                           -verbose => 1,
+                                                           -fast    => 1);
+  $loader->load('/home/fly4.3/dmel-all.gff');
+
+
+  # searching...
+  # ...by id
+  my @features = $db->fetch_many(@list_of_ids);
+
+  # ...by name
+  @features = $db->get_features_by_name('ZK909');
+
+  # ...by alias
+  @features = $db->get_features_by_alias('sma-3');
+
+  # ...by type
+  @features = $db->get_features_by_name('gene');
+
+  # ...by location
+  @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);
+
+  # ...by attribute
+  @features = $db->get_features_by_attribute({description => 'protein kinase'})
+
+  # ...by the GFF "Note" field
+  @result_list = $db->search_notes('kinase');
+
+  # ...by arbitrary combinations of selectors
+  @features = $db->features(-name => $name,
+                            -type => $types,
+                            -seq_id => $seqid,
+                            -start  => $start,
+                            -end    => $end,
+                            -attributes => $attributes);
+
+  # ...using an iterator
+  my $iterator = $db->get_seq_stream(-name => $name,
+                                     -type => $types,
+                                     -seq_id => $seqid,
+                                     -start  => $start,
+                                     -end    => $end,
+                                     -attributes => $attributes);
+
+  while (my $feature = $iterator->next_seq) {
+    # do something with the feature
+  }
+
+  # ...limiting the search to a particular region
+  my $segment  = $db->segment('Chr1',5000=>6000);
+  my @features = $segment->features(-type=>['mRNA','match']);
+
+  # getting & storing sequence information
+  # Warning: this returns a string, and not a PrimarySeq object
+  $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
+  my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
+
+  # create a new feature in the database
+  my $feature = $db->new_feature(-primary_tag => 'mRNA',
+                                 -seq_id      => 'chr3',
+                                 -start      => 10000,
+                                 -end        => 11000);
+
+=head1 DESCRIPTION
+
+Bio::DB::SeqFeature::Store::berkeleydb is the Berkeleydb adaptor for
+Bio::DB::SeqFeature::Store. You will not create it directly, but
+instead use Bio::DB::SeqFeature::Store->new() to do so.
+
+See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
+
+=head2 Using the berkeleydb adaptor
+
+The Berkeley database consists of a series of Berkeleydb index files,
+and a couple of special purpose indexes. You can create the index
+files from scratch by creating a new database and calling
+new_feature() repeatedly, you can create the database and then bulk
+populate it using the GFF3 loader, or you can monitor a directory of
+preexisting GFF3 and FASTA files and rebuild the indexes whenever one
+or more of the fiels changes. The last mode is probably the most
+convenient.
+
+=over 4
+
+=item The new() constructor
+
+The new() constructor method all the arguments recognized by
+Bio::DB::SeqFeature::Store, and a few additional ones. 
+
+Standard arguments:
+
+ Name               Value
+ ----               -----
+
+ -adaptor           The name of the Adaptor class (default DBI::mysql)
+
+ -serializer        The name of the serializer class (default Storable)
+
+ -index_subfeatures Whether or not to make subfeatures searchable
+                    (default true)
+
+ -cache             Activate LRU caching feature -- size of cache
+
+ -compress          Compresses features before storing them in database
+                    using Compress::Zlib
+
+Adaptor-specific arguments
+
+ Name               Value
+ ----               -----
+
+ -dsn               Where the index files are stored
+
+ -dir               Where the source (GFF3, FASTA) files are stored
+
+ -autoindex         An alias for -dir.
+
+ -write             Pass true to open the index files for writing.
+
+ -create            Pass true to create the index files if they don't exist
+                    (implies -write=>1)
+
+ -temp              Pass true to create temporary index files that will
+                    be deleted once the script exits.
+
+Examples:
+
+To create an empty database which will be populated using calls to
+store() or new_feature(), or which will be bulk-loaded using the GFF3
+loader:
+
+  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                             -dsn     => '/var/databases/fly4.3',
+                                             -create  => 1);
+
+To open a preexisting database in read-only mode:
+
+  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                             -dsn     => '/var/databases/fly4.3');
+
+To open a preexisting database in read/write (update) mode:
+
+  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                             -dsn     => '/var/databases/fly4.3',
+                                             -write   => 1);
+
+To monitor a set of GFF3 and FASTA files located in a directory and
+create/update the database indexes as needed. The indexes will be
+stored in a new subdirectory named "indexes":
+
+  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                             -dir     => '/var/databases/fly4.3');
+
+As above, but store the source files and index files in separate directories:
+
+  $db     = Bio::DB::SeqFeature::Store->new( -adaptor => 'berkeleydb',
+                                             -dsn     => '/var/databases/fly4.3',
+                                             -dir     => '/home/gff3_files/fly4.3');
+
+B<-autoindex> is an alias for B<-dir>.
+
+=back
+
+See L<Bio::DB::SeqFeature::Store> for all the access methods supported
+by this adaptor. The various methods for storing and updating features
+and sequences into the database are supported, but there is no
+locking. If two processes try to update the same database
+simultaneously, the database will likely become corrupted.
+
+=cut
 
 ###
 # object initialization
@@ -36,13 +249,17 @@ sub init {
     $directory ||= "$autoindex/indexes";
   }
   $directory ||= $is_temporary ? File::Spec->tmpdir : '.';
-  $directory = tempdir(__PACKAGE__.'_XXXXXX',TMPDIR=>1,CLEANUP=>1,DIR=>$directory) if $is_temporary;
+  $directory = tempdir(__PACKAGE__.'_XXXXXX',
+		       TMPDIR=>1,
+		       CLEANUP=>1,
+		       DIR=>$directory) if $is_temporary;
   mkpath($directory);
   -d $directory or $self->throw("Invalid directory $directory");
 
   $create++ if $is_temporary;
   $write ||= $create;
-  $self->throw("Can't write into the directory $directory") if $write && !-w $directory;
+  $self->throw("Can't write into the directory $directory") 
+    if $write && !-w $directory;
 
 
   $self->default_settings;
@@ -50,6 +267,7 @@ sub init {
   $self->temporary($is_temporary);
   $self->_delete_databases()    if $create;
   $self->_open_databases($write,$create,$autoindex);
+  $self->_permissions($write,$create);
   return $self;
 }
 
@@ -94,10 +312,12 @@ sub post_init {
   my $timestamp_time  = _mtime($self->_mtime_path) || 0;
 
   if ($maxtime > $timestamp_time) {
-    warn "Reindexing... this may take a while...";
+    warn "Reindexing... this may take a while.";
+    $self->_permissions(1,1);
     $self->_close_databases();
     $self->_open_databases(1,1);
-    require Bio::DB::SeqFeature::Store::GFF3Loader unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
+    require Bio::DB::SeqFeature::Store::GFF3Loader
+      unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
     my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
 							     -sf_class => $self->seqfeature_class) 
       or $self->throw("Couldn't create GFF3Loader");
@@ -137,7 +357,6 @@ sub _open_databases {
     $h{'.next_id'} = 1;
   }
   $self->db(\%h);
-
 
   # Create the index databases; these are DB_BTREE implementations with duplicates allowed.
   local $DB_BTREE->{flags} = R_DUP;
@@ -218,7 +437,7 @@ sub _store {
     $primary_id    = $db->{'.next_id'}++ unless defined $primary_id;
     $db->{$primary_id} = $self->freeze($obj);
     $obj->primary_id($primary_id);
-    $self->_update_indexes($obj)        if $indexed;
+    $self->_update_indexes($obj)              if $indexed;
     $count++;
   }
   $count;
@@ -447,6 +666,16 @@ sub temporary {
   my $d = $self->setting('temporary');
   $self->setting(temporary=>shift) if @_;
   $d;
+}
+
+sub _permissions {
+  my $self = shift;
+  my $d = $self->setting('permissions') or return;
+  if (@_) {
+    my ($write,$create) = @_;
+    $self->setting(permissions=>[$write,$create]);
+  }
+  @$d;
 }
 
 # file name utilities...
@@ -856,6 +1085,58 @@ sub DESTROY {
   rmtree($self->directory,0,1) if $self->temporary;
 }
 
+# TIE interface -- a little annoying because we are storing magic ".variable"
+# meta-variables in the same data structure as the IDs, so these variables
+# must be skipped.
+sub _firstid {
+  my $self  = shift;
+  my $db    = $self->db;
+  my ($key,$value);
+  while ( ($key,$value) = each %{$db}) {
+    last unless $key =~ /^\./;
+  }
+  $key;
+}
+
+sub _nextid {
+  my $self = shift;
+  my $id   = shift;
+  my $db    = $self->db;
+  my ($key,$value);
+  while ( ($key,$value) = each %$db) {
+    last unless $key =~ /^\./;
+  }
+  $key;
+}
+
+sub _existsid {
+  my $self = shift;
+  my $id   = shift;
+  return exists $self->db->{$id};
+}
+
+sub _deleteid {
+  my $self = shift;
+  my $id   = shift;
+  my $obj  = $self->fetch($id) or return;
+  $self->_delete_indexes($obj,$id);
+  delete $self->db->{$id};
+}
+
+sub _clearall {
+  my $self = shift;
+  $self->_close_databases();
+  $self->_delete_databases();
+  my ($write,$create) = $self->_permissions;
+  $self->_open_databases($write,$create);
+}
+
+sub _featurecount {
+  my $self = shift;
+  return scalar %{$self->db};
+}
+
+
 package Bio::DB::SeqFeature::Store::berkeleydb::Iterator;
 
 sub new {
@@ -875,3 +1156,32 @@ sub next_seq {
 }
 
 1;
+
+__END__
+
+=head1 BUGS
+
+This is an early version, so there are certainly some bugs. Please
+use the BioPerl bug tracking system to report bugs.
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature>,
+L<Bio::DB::SeqFeature::Store>,
+L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::Store::memory>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>,
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+

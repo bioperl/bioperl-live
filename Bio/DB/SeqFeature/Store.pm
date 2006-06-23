@@ -10,7 +10,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
   use Bio::DB::SeqFeature::Store;
 
-  # Open the sequence database
+  # Open the feature database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
                                                  -dsn     => 'dbi:mysql:test',
                                                  -write   => 1 );
