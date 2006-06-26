@@ -513,7 +513,6 @@ sub handle_feature {
   $unreserved->{Gap}   = $reserved->{Gap}    if exists $reserved->{Gap};
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
-  $unreserved->{load_id}   = $feature_id    if $has_loadid;
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
@@ -761,10 +760,11 @@ sub add_segment {
   my ($parent,$child) = @_;
 
   if ($parent->can('add_segment')) { # probably a lazy table feature
-    my @segments = $parent->can('denormalized_segments')
-      ? $parent->denormalized_segments 
-      : $parent->segments;
-    unless (@segments) {  # convert into a segmented object
+    my $segment_count =  $parent->can('denormalized_segment_count') ? $parent->denormalized_segment_count
+                       : $parent->can('denormalized_segments ')     ? $parent->denormalized_segments
+		       : $parent->can('segments')                   ? $parent->segments
+		       : 0;
+    unless ($segment_count) {  # convert into a segmented object
       my %clone   = %$parent;
       my $segment = bless \%clone,ref $parent;
       delete $segment->{segments};

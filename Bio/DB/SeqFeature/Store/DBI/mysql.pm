@@ -169,6 +169,8 @@ use constant MIN_INT => -2_147_483_648;
 memoize('_typeid');
 memoize('_locationid');
 memoize('_attributeid');
+memoize('dump_filehandle');
+memoize('dump_path');
 
 ###
 # object initialization

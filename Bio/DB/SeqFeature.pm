@@ -378,6 +378,12 @@ sub denormalized_segments {
   return exists $self->{segments} ? @{$self->{segments}} : ();
 }
 
+sub denormalized_segment_count {
+  my $self = shift;
+  return 0 unless exists $self->{segments};
+  return scalar @{$self->{segments}};
+}
+
 1;
 
 
