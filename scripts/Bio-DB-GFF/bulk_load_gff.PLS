@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.42 2006-04-18 16:18:09 scain Exp $
+# $Id: bulk_load_gff.PLS,v 1.43 2006-06-26 17:40:27 lstein Exp $
 
 
 use strict;
@@ -348,7 +348,7 @@ I could not find a suitable temporary directory to write scratch files into ($tm
 Please select a directory and indicate its location by setting the TMP environment variable, or
 by using the --Temporary switch.
 END
-
+my @fasta_files_to_be_unlinked;
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
   $FH{$_} = IO::File->new(">$tmpdir/$_.$$") or die $_,": $!";
@@ -443,6 +443,7 @@ while (<>) {
     $FH{FASTA}->print("$_\n");
     print STDERR "Preparing embedded sequence $1\n";
     push @fasta, "$tmpdir/$1\.fa";
+    push @fasta_files_to_be_unlinked,"$tmpdir/$1\.fa";
     $tmpfiles{"$tmpdir/$1\.fa"}++;
     next;
   }
@@ -628,6 +629,12 @@ elsif( $use_mysql or $use_mysqlcmap ) {
     exit -1;
   }
 }
+
+foreach (@fasta_files_to_be_unlinked) {
+  unlink "$tmpdir/$_.$$";
+}
+
+exit 0;
 
 sub function_to_table {
     my $function = shift;

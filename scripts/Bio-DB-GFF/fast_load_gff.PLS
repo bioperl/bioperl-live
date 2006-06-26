@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.29 2006-03-16 17:15:09 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.30 2006-06-26 17:40:27 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -234,7 +234,7 @@ Please select a directory and indicate its location by setting the TMP environme
 by using the --Temporary switch.
 END
 
-
+my @fasta_files_to_be_unlinked;
 my @files = (FDATA,FTYPE,FGROUP,FDNA,FATTRIBUTE,FATTRIBUTE_TO_FEATURE);
 foreach (@files) {
   my $file = "$tmpdir/$_.$$";
@@ -314,6 +314,7 @@ while (<>) {
       $FH{FASTA} = IO::File->new(">$tmpdir/$1\.fa") or die "FASTA: $!\n";
       $FH{FASTA}->print("$_\n");
       push @fasta, "$tmpdir/$1\.fa";
+      push @fasta_files_to_be_unlinked,"$tmpdir/$1\.fa";
       print STDERR "Processing embedded sequence $1\n";
       next;
   }
@@ -440,7 +441,7 @@ if ($success) {
 exit 0;
 
 sub cleanup {
-  foreach (@files) {
+  foreach (@files,@fasta_files_to_be_unlinked) {
     unlink "$tmpdir/$_.$$";
   }
 }
