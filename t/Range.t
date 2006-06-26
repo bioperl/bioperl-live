@@ -15,7 +15,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 35;
+	plan tests => 40;
 }
 
 use Bio::Range;
@@ -26,7 +26,7 @@ my $range = Bio::Range->new(-start=>10,
                             -end=>20,
 									 -strand=>1);
 ok(defined $range);
-ok( $range->strand, 1);
+ok($range->strand, 1);
 
 my $range2 = Bio::Range->new(-start=>15,
                              -end=>25,
@@ -51,13 +51,26 @@ ok($r->start, 15);
 ok($r->end, 20);
 ok($r->strand, 1);
 
+# intersection and union can also take lists
+my $range3 = Bio::Range->new(-start=>18,-end=>30);
+$r = $range->intersection([$range2, $range3]);
+ok($r->start == 18 && $r->end == 20);
+$r = Bio::Range->intersection([$range, $range2, $range3]);
+ok($r->start == 18 && $r->end == 20);
+$r = $range->union($range2, $range3);
+ok($r->start == 10 && $r->end == 30);
+$r = Bio::Range->union($range, $range2, $range3);
+ok($r->start == 10 && $r->end == 30);
+$range3->start(21);
+ok(! defined $range->intersection([$range2, $range3]));
+
 ok !($range->contains($range2));
 ok !($range2->contains($range));
 ok ($range->overlaps($range2));
 ok ($range2->overlaps($range));
 
 # testing strand
-my $range3 = Bio::Range->new(-start => 15,
+$range3 = Bio::Range->new(-start => 15,
                              -end => 25,
 									  -strand => 1);
 

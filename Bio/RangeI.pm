@@ -285,63 +285,85 @@ These methods do things to the geometry of ranges, and return
 Bio::RangeI compliant objects or triplets (start, stop, strand) from
 which new ranges could be built.
 
-
 =head2 intersection
 
-  Title   : intersection
-  Usage   : ($start, $stop, $strand) = $r1->intersection($r2) OR
-            my $containing_range = $r1->intersection($r2)
-  Function: gives the range that is contained by both ranges
-  Args    : arg #1 = a range to compare this one to (mandatory)
-            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
-  Returns : undef if they do not overlap OR 
-            a range if they do overlap (in the form of an object 
+ Title   : intersection
+ Usage   : ($start, $stop, $strand) = $r1->intersection($r2); OR
+           ($start, $stop, $strand) = Bio::Range->intersection(\@ranges); OR
+           my $containing_range = $r1->intersection($r2); OR
+           my $containing_range = Bio::Range->intersection(\@ranges);
+ Function: gives the range that is contained by all ranges
+ Returns : undef if they do not overlap, or
+           the range that they do overlap (in the form of an object 
             like the calling one, OR a three element array)
+ Args    : arg #1 = [REQUIRED] a range to compare this one to,
+                    or an array ref of ranges
+           arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
 
 =cut
 
 sub intersection {
-	my ($self, $other, $so) = @_;
-	$self->throw("missing arg: you need to pass in another feature")
-	  unless $other;
-	return unless $self->_testStrand($other, $so);
-
-	$self->throw("start is undefined") unless defined $self->start;
-	$self->throw("end is undefined") unless defined $self->end;
-	$self->throw("Not a Bio::RangeI object: $other") unless ref($other);
-
-	$other->throw("Not a Bio::RangeI object: $other") unless $other->isa('Bio::RangeI');
-	$other->throw("start is undefined") unless defined $other->start;
-	$other->throw("end is undefined") unless defined $other->end;
-
-	my @starts = sort {$a <=> $b} ($self->start(), $other->start());
-	my @ends   = sort {$a <=> $b} ($self->end(),   $other->end());
-
-	my $start = pop @starts; # larger of the 2 starts
-	my $end = shift @ends;   # smaller of the 2 ends
-
-	my $intersect_strand;  # strand for the intersection
-
-	if ( defined($self->strand) && defined($other->strand) &&
-		           $self->strand == $other->strand ) {
-		$intersect_strand = $other->strand;
-	} else {
-		$intersect_strand = 0;
+	my ($self, $given, $so) = @_;
+	$self->throw("missing arg: you need to pass in another feature") unless $given;
+      
+    my @ranges;
+    if ($self eq "Bio::RangeI") {
+		$self = "Bio::Range";
+		$self->warn("calling static methods of an interface is deprecated; use $self instead");
 	}
-
-	if ($start > $end) {
-		return;
-	} else {
-		if( wantarray() ) {
-			return ($start, $end, $intersect_strand);
-		}
-		else {
-			return $self->new(-start  => $start,
-									-end    => $end,
-									-strand => $intersect_strand
-								  );
-		}
+	if (ref $self) {
+		push(@ranges, $self);
 	}
+    ref($given) eq 'ARRAY' ? push(@ranges, @{$given}) : push(@ranges, $given);
+    $self->throw("Need at least 2 ranges") unless @ranges >= 2;
+    
+    my $intersect;
+    while (@ranges > 0) {
+        unless ($intersect) {
+            $intersect = shift(@ranges);
+            $self->throw("Not an object: $intersect") unless ref($intersect);
+            $self->throw("Not a Bio::RangeI object: $intersect") unless $intersect->isa('Bio::RangeI');
+            $self->throw("start is undefined") unless defined $intersect->start;
+            $self->throw("end is undefined") unless defined $intersect->end;
+        }
+        
+        my $compare = shift(@ranges);
+        $self->throw("Not an object: $compare") unless ref($compare);
+        $self->throw("Not a Bio::RangeI object: $compare") unless $compare->isa('Bio::RangeI');
+        $self->throw("start is undefined") unless defined $compare->start;
+        $self->throw("end is undefined") unless defined $compare->end;
+        return unless $compare->_testStrand($intersect, $so);
+        
+        my @starts = sort {$a <=> $b} ($intersect->start(), $compare->start());
+        my @ends   = sort {$a <=> $b} ($intersect->end(), $compare->end());
+        
+        my $start = pop @starts; # larger of the 2 starts
+        my $end = shift @ends;   # smaller of the 2 ends
+        
+        my $intersect_strand;    # strand for the intersection
+        if (defined($intersect->strand) && defined($compare->strand) && $intersect->strand == $compare->strand) {
+            $intersect_strand = $compare->strand;
+        }
+        else {
+            $intersect_strand = 0;
+        }
+        
+        if ($start > $end) {
+            return;
+        }
+        else {
+            $intersect = $self->new(-start  => $start,
+                                    -end    => $end,
+                                    -strand => $intersect_strand);
+        }
+    }
+    
+    if (wantarray()) {
+        return ($intersect->start, $intersect->end, $intersect->strand);
+    }
+    else {
+        return $intersect;
+    }
 }
 
 =head2 union
