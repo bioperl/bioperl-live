@@ -391,7 +391,7 @@ sub option {
     }
   }
 
-  if (exists $self->{stylesheet} && (my $ss = $self->stylesheet)) {
+  if (exists $self->{stylesheet} && (my $ss = $self->{stylesheet})) {
     my($glyph,%options) = $ss->glyph($glyph->feature);
     my $value = $options{$option_name};
     return $value if defined $value;

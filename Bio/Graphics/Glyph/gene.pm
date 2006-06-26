@@ -12,14 +12,27 @@ sub extra_arrow_length {
   return $self->SUPER::extra_arrow_length;
 }
 
+sub pad_left {
+  my $self = shift;
+  return 0 unless $self->{level} < 2; # don't invoke this expensive call on exons
+  $self->SUPER::pad_left;
+}
+
 sub pad_right {
   my $self = shift;
+  return 0 unless $self->{level} < 2; # don't invoke this expensive call on exons
   my $strand = $self->feature->strand;
   $strand *= -1 if $self->{flip};
   my $pad    = $self->SUPER::pad_right;
   return $pad unless defined($strand) && $strand > 0;
   my $al = $self->arrow_length;
   return $al > $pad ? $al : $pad;
+}
+
+sub pad_bottom {
+  my $self = shift;
+  return 0 unless $self->{level} < 2; # don't invoke this expensive call on exons
+  return $self->SUPER::pad_bottom;
 }
 
 sub bump {
@@ -30,7 +43,7 @@ sub bump {
 
 sub label {
   my $self = shift;
-  if ($self->label_transcripts && $self->feature->primary_tag eq 'mRNA') { # the mRNA
+  if ($self->label_transcripts && $self->{feature}->primary_tag eq 'mRNA') { # the mRNA
     return $self->_label;
   } else {
     return $self->SUPER::label;
@@ -44,6 +57,12 @@ sub label_position {
 }
 
 sub label_transcripts {
+  my $self = shift;
+  return $self->{label_transcripts} if exists $self->{label_transcripts};
+  return $self->{label_transcripts} = $self->_label_transcripts;
+}
+
+sub _label_transcripts {
   my $self = shift;
   return $self->option('label_transcripts');
 }

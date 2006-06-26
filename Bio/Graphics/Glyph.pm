@@ -1208,12 +1208,24 @@ sub make_key_name {
 
 sub all_callbacks {
   my $self = shift;
+  return $self->{all_callbacks} if exists $self->{all_callbacks}; # memoize
+  return $self->{all_callbacks} = $self->_all_callbacks;
+}
+
+sub _all_callbacks {
+  my $self = shift;
   my $track_level = $self->option('all_callbacks');
   return $track_level if defined $track_level;
   return $self->panel->all_callbacks;
 }
 
 sub subpart_callbacks {
+  my $self = shift;
+  return $self->{subpart_callbacks} if exists $self->{subpart_callbacks}; # memoize
+  return $self->{subpart_callbacks} = $self->_subpart_callbacks;
+}
+
+sub _subpart_callbacks {
   my $self = shift;
   return 1 if $self->all_callbacks;
   my $do_subparts = $self->option('subpart_callbacks');
