@@ -400,6 +400,8 @@ sub new {
 	my $attr =   shift @args;
     	my $value =  shift @args;
     	next if( $attr eq '-verbose');
+    	# we allow both 'attr' and '-attr' options on the new() call
+    	$attr =~ s/^-//;
     	# the workaround to deal with initializing
 	if($attr =~/^\s*program\s*$|^p$/){
 	    if($value =~/^wu*/){

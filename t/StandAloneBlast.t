@@ -6,7 +6,7 @@
 # ftp://ftp.ncbi.nih.gov/blast/db/FASTA
 
 use strict;
-use constant NUMTESTS => 18;
+use constant NUMTESTS => 28;
 BEGIN { 
 	eval { require Test; };
 	if ( $@ ) {
@@ -34,7 +34,22 @@ use Bio::SearchIO;
 my $verbose = -1;
 my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
+my $evalue = 0.001;
 my ($seq1,$seq2,$seq3,$seq4);
+
+# Tests to check that "-attr" and "attr" and "a" all do the same thing
+# http://bugzilla.open-bio.org/show_bug.cgi?id=1912
+
+for my $p (qw(database db -d -database d)) {
+  my $f = Bio::Tools::Run::StandAloneBlast->new($p => $nt_database);
+  ok $f->d() eq $nt_database;
+}
+for my $p (qw(expect evalue -e -expect e)) {
+  my $f = Bio::Tools::Run::StandAloneBlast->new($p => $evalue);
+  ok $f->e() eq $evalue;
+}
+
+# Let's continue...
 
 my @params = ('program'     => 'blastn',
 				   'database'    => $nt_database , 
