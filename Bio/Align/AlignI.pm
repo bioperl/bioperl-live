@@ -663,7 +663,7 @@ sub percentage_identity{
 
 =head2 overall_percentage_identity
 
- Title   : percentage_identity
+ Title   : overall_percentage_identity
  Usage   : $id = $align->percentage_identity
  Function: The function calculates the percentage identity of 
            the conserved columns
