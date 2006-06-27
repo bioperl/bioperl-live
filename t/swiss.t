@@ -9,20 +9,20 @@ my $error = 0;
 
 use strict;
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	if( $@ ) {
-		use lib 't';
-	}
+    # to handle systems with no installed Test module
+    # we include the t dir (where a copy of Test.pm is located)
+    # as a fallback
+    eval { require Test; };
+    if( $@ ) {
+        use lib 't';
+    }
 
-	use Test;
-	plan tests => 148;
+    use Test;
+    plan tests => 176;
 }
 
 if( $error == 1 ) {
-	exit(0);
+    exit(0);
 }
 
 END {
@@ -35,8 +35,8 @@ my $verbose = $ENV{'BIOPERLDEBUG'};
 ok(1);
 
 my $seqio = new Bio::SeqIO( -verbose => $verbose,
-									 -format => 'swiss',
-									 -file   => Bio::Root::IO->catfile('t','data', 
+                                     -format => 'swiss',
+                                     -file   => Bio::Root::IO->catfile('t','data', 
                                                     'test.swiss'));
 
 ok($seqio);
@@ -44,35 +44,56 @@ my $seq = $seqio->next_seq;
 my @gns = $seq->annotation->get_Annotations('gene_name');
 
 $seqio = new Bio::SeqIO( -verbose => $verbose,
-								 -format => 'swiss',
-								 -file   => Bio::Root::IO->catfile
-								 ('>test.swiss'));
+                                 -format => 'swiss',
+                                 -file   => Bio::Root::IO->catfile
+                                 ('>test.swiss'));
 
 $seqio->write_seq($seq);
 
 # reads it in once again
 $seqio = new Bio::SeqIO( -verbose => $verbose,
-								 -format => 'swiss',
-								 -file => Bio::Root::IO->catfile('test.swiss'));
+                                 -format => 'swiss',
+                                 -file => Bio::Root::IO->catfile('test.swiss'));
 
 $seq = $seqio->next_seq;
 ok($seq->species);
 ok($seq->species->ncbi_taxid eq "6239");
+
+# version, seq_update, dates (5 tests)
+ok($seq->version, 40);
+my ($ann) = $seq->get_Annotations('seq_update');
+ok($ann, 35);
+my @dates = $seq->get_dates;
+my @date_check = qw(01-NOV-1997 01-NOV-1997 16-OCT-2001);
+for my $date (@dates) {
+    ok($date, shift @date_check);
+}
+
 my @gns2 = $seq->annotation->get_Annotations('gene_name');
 # check gene name is preserved (was losing suffix in worm gene names)
 ok($#gns2 == 0 && $gns[0]->value eq $gns2[0]->value);
 
 # test swissprot multiple RP lines
 my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-								  (qw(t data P33897) ));
+                                  (qw(t data P33897) ));
 ok($seq = $str->next_seq);
 my @refs = $seq->annotation->get_Annotations('reference');
 ok( @refs, 23);
 ok($refs[20]->rp, 'VARIANTS X-ALD LEU-98; ASP-99; GLU-217; GLN-518; ASP-608; ILE-633 AND PRO-660, AND VARIANT THR-13.');
 
+# version, seq_update, dates (5 tests)
+ok($seq->version, 44);
+($ann) = $seq->get_Annotations('seq_update');
+ok($ann, 28);
+@dates = $seq->get_dates;
+@date_check = qw(01-FEB-1994 01-FEB-1994 15-JUN-2004);
+for my $date (@dates) {
+    ok($date, shift @date_check);
+}
+
 my $ast = Bio::SeqIO->new(-verbose => $verbose,
-								  -format => 'swiss' ,
-								  -file => Bio::Root::IO->catfile("t","data",                                                          "roa1.swiss"));
+                                  -format => 'swiss' ,
+                                  -file => Bio::Root::IO->catfile("t","data","roa1.swiss"));
 my $as = $ast->next_seq();
 
 ok defined $as->seq;
@@ -82,16 +103,25 @@ ok($as->length, 371);
 ok($as->alphabet, 'protein');
 ok($as->division, 'HUMAN');
 ok(scalar $as->all_SeqFeatures(), 16);
-
 ok(scalar $as->annotation->get_Annotations('reference'), 11);
+
+# version, seq_update, dates (5 tests)
+ok($as->version, 35);
+($ann) = $as->get_Annotations('seq_update');
+ok($ann, 15);
+@dates = $as->get_dates;
+@date_check = qw(01-MAR-1989 01-AUG-1990 01-NOV-1997);
+for my $date (@dates) {
+    ok($date, shift @date_check);
+}
 
 my ($ent,$out) = undef;
 ($as,$seq) = undef;
 
 $seqio = Bio::SeqIO->new(-format => 'swiss' ,
-								 -verbose => $verbose,
-								 -file => Bio::Root::IO->catfile
-								 ("t","data","swiss.dat"));
+                                 -verbose => $verbose,
+                                 -file => Bio::Root::IO->catfile
+                                 ("t","data","swiss.dat"));
 ok(defined( $seq = $seqio->next_seq));
 
 # more tests to verify we are actually parsing correctly
@@ -105,10 +135,20 @@ ok(@f, 2);
 ok($f[1]->primary_tag, 'CHAIN');
 ok(($f[1]->get_tag_values('description'))[0], 'COMPLEMENT COMPONENT 1, Q SUBCOMPONENT BINDING PROTEIN');
 
+# version, seq_update, dates (5 tests)
+ok($seq->version, 40);
+($ann) = $seq->get_Annotations('seq_update');
+ok($ann, 31);
+@dates = $seq->get_dates;
+@date_check = qw(01-FEB-1995 01-FEB-1995 01-OCT-2000);
+for my $date (@dates) {
+    ok($date, shift @date_check);
+}
+
 my @genenames = qw(GC1QBP HABP1 SF2P32 C1QBP);
-my ($ann) = $seq->annotation->get_Annotations('gene_name');
+($ann) = $seq->annotation->get_Annotations('gene_name');
 foreach my $gn ( $ann->get_all_values() ) {
-	ok ($gn, shift(@genenames));
+    ok ($gn, shift(@genenames));
 }
 ok $ann->value(-joins => [" AND "," OR "]), "GC1QBP OR HABP1 OR SF2P32 OR C1QBP";
 
@@ -164,9 +204,9 @@ ok ($ann->value(-joins => [" AND "," OR "]), $flatnames);
 
 # same entry as before, but with the new gene names format
 $seqio = Bio::SeqIO->new(-format => 'swiss',
-								 -verbose => $verbose,
+                                 -verbose => $verbose,
                          -file => Bio::Root::IO->catfile
-								 ("t","data","calm.swiss"));
+                                 ("t","data","calm.swiss"));
 ok (defined( $seq = $seqio->next_seq));
 ($ann) = $seq->annotation->get_Annotations("gene_name");
 my @ann_names2 = $ann->get_all_values();
@@ -222,7 +262,7 @@ my @locs = (
 );
 
 my @positions = (
-	 undef, undef,
+     undef, undef,
     undef, undef,
     undef, undef,
     undef, undef,
@@ -246,4 +286,26 @@ foreach my $litref (@litrefs) {
     ok ($litref->location, shift(@locs));
     ok ($litref->start, shift(@positions));
     ok ($litref->end, shift(@positions));
+}
+
+# new format parsing
+
+$seqio = new Bio::SeqIO( -verbose => $verbose,
+                         -format => 'swiss',
+                         -file   => Bio::Root::IO->catfile('t','data', 
+                                                       'newformat.swiss'));
+
+ok($seqio);
+$seq = $seqio->next_seq;
+ok($seq->species);
+ok($seq->species->ncbi_taxid eq "6239");
+
+# version, seq_update, dates (5 tests)
+ok($seq->version, 44);
+($ann) = $seq->get_Annotations('seq_update');
+ok($ann, 1);
+@dates = $seq->get_dates;
+@date_check = qw(01-NOV-1997 01-NOV-1996 30-MAY-2006 );
+for my $date (@dates) {
+    ok($date, shift @date_check);
 }
