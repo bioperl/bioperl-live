@@ -93,12 +93,14 @@ sub new {
 
   if (@subglyphs) {
       my $l            = $subglyphs[0]->left;
-      $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
+      # this clashes with the pad_left calculation and is unecessary
+      # $self->{left}    = $l if !defined($self->{left}) || $l < $self->{left};
       my $right        = (
 			  sort { $b<=>$a } 
 			  map {$_->right} @subglyphs)[0];
       my $w            = $right - $self->{left} + 1;
-      $self->{width}   = $w if !defined($self->{width}) || $w > $self->{width};
+      # this clashes with the pad_right calculation and is unecessary
+      # $self->{width}   = $w if !defined($self->{width}) || $w > $self->{width};
   }
 
   $self->{point} = $arg{-point} ? $self->height : undef;

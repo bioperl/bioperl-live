@@ -35,6 +35,12 @@ sub pad_bottom {
   return $self->SUPER::pad_bottom;
 }
 
+sub pad_top {
+  my $self = shift;
+  return 0 unless $self->{level} < 2; # don't invoke this expensive call on exons
+  return $self->SUPER::pad_top;
+}
+
 sub bump {
   my $self = shift;
   return 1 if $self->{level} == 0; # top level bumps, other levels don't unless specified in config
@@ -43,6 +49,7 @@ sub bump {
 
 sub label {
   my $self = shift;
+  return unless $self->{level} < 2;
   if ($self->label_transcripts && $self->{feature}->primary_tag eq 'mRNA') { # the mRNA
     return $self->_label;
   } else {

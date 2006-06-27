@@ -56,7 +56,8 @@ sub pad_left {
   my $self = shift;
   my $pad = $self->SUPER::pad_left;
   return $pad unless $self->label_position eq 'left' && $self->label;
-  return $pad + $self->labelwidth;
+  $pad += $self->labelwidth;
+  $pad;
 }
 sub labelfont {
   my $self = shift;
