@@ -445,7 +445,6 @@ sub AUTOLOAD {
     # parameter and should be truncated to its first letter only
     $attr = ($attr_letter eq '_') ? $attr : $attr_letter;
     $self->throw("Unallowed parameter: $attr !") unless $OK_FIELD{$attr};
-#    $self->throw("Unallowed parameter: $attr !") unless $ok_field{$attr_letter};
     $self->{$attr_letter} = shift if @_;
     return $self->{$attr_letter};
 }
@@ -1007,26 +1006,24 @@ sub _setparams {
     my ($self,$executable) = @_;
     my ($attr, $value, @execparams);
 
-    if ($executable eq 'blastall') {@execparams = @BLASTALL_PARAMS; }
-    if ($executable eq 'blastpgp') {@execparams = @BLASTPGP_PARAMS; }
-    if ($executable eq 'rpsblast') {@execparams = @RPSBLAST_PARAMS; }
-    if ($executable eq 'bl2seq')   {@execparams = @BL2SEQ_PARAMS; }
-    if($executable eq 'wublast')   {@execparams = @WUBLAST_PARAMS; }
+    if    ($executable eq 'blastall') { @execparams = @BLASTALL_PARAMS; }
+    elsif ($executable eq 'blastpgp') { @execparams = @BLASTPGP_PARAMS; }
+    elsif ($executable eq 'rpsblast') { @execparams = @RPSBLAST_PARAMS; }
+    elsif ($executable eq 'bl2seq'  ) { @execparams = @BL2SEQ_PARAMS;   }
+    elsif ($executable eq 'wublast' ) { @execparams = @WUBLAST_PARAMS;  }
 
     my $param_string = "";
     for $attr ( @execparams ) {
-	    $value = $self->$attr();
-    	next unless (defined $value);
-      # Need to prepend datadirectory to database name
-      if($executable eq 'wublast'){
-        next if $attr =~ /database|^d$/;
-        next if $attr =~ /input|^i$/;
-        $attr = 'o' if ($attr =~/outfile/);
-      }
+        $value = $self->$attr();
+        next unless (defined $value);
+        # Need to prepend datadirectory to database name
+        if ($executable eq 'wublast') {
+          next if $attr =~ /database|^d$/;
+          next if $attr =~ /input|^i$/;
+          $attr = 'o' if ($attr =~/outfile/);
+        }
 
 	if ($attr  eq 'd' && ($executable ne 'bl2seq')) { 
-# This is added so that you can specify a DB with a full path
-#	    if (! (-e $value.".nin" || -e $value.".pin")){ 
 	    my @dbs = split(/ /, $value);
 	    for (my $i = 0; $i < scalar(@dbs); $i++) {
 		# moved the test for full path db to work with multiple databases
@@ -1042,9 +1039,11 @@ sub _setparams {
 	$param_string .= " $attr  $value ";
     }
 
-    if ($self->quiet()) { $param_string .= '  2>/dev/null';}
-    if($executable eq 'wublast'){
-	foreach my $attr(@WUBLAST_SWITCH){
+    if ($self->quiet()) { 
+      $param_string .= '  2>/dev/null';
+    }
+    if ($executable eq 'wublast') {
+	foreach my $attr (@WUBLAST_SWITCH) {
 	    my $value = $self->$attr();
 	    next unless (defined $value);
 	    my $attr_key = ' -'.(lc $attr);
