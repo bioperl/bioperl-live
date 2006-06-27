@@ -255,12 +255,10 @@ use Bio::Tools::Run::WrapperBase;
 use Bio::Factory::ApplicationFactoryI;
 
 BEGIN {
-	@BLASTALL_PARAMS = qw( p d i e m o F G E X I q r v b f g Q
-			    D a O J M W z K L Y S T l U y Z);
-	@BLASTPGP_PARAMS = qw(d i A f e m o y P F G E X N g S H a I h c
-			   j J Z O M v b C R W z K s Y p k T Q B l U t L);
-	@RPSBLAST_PARAMS = qw(i d p e m o y P F X N G a I J Z O v b z Y T l U L);
-	@BL2SEQ_PARAMS = qw(i j p g o d a G E X W M q r F e S T m);
+        @BLASTALL_PARAMS = qw(A B C D E F G I J K L M O P Q R S T U V W X Y Z a b d e f g i l m n o p q r s t v w y z);
+        @BLASTPGP_PARAMS = qw(A B C E F G H I J K L M N O P Q R S T U W X Y Z a b c d e f h i j k l m o p q s t u v y z);
+        @RPSBLAST_PARAMS = qw(F I J L N O P T U V X Y Z a b d e i l m o p v y z);
+        @BL2SEQ_PARAMS = qw(A D E F G I J M S T U V W X Y a d e g i j m o p q r t);
 	$DEFAULTREADMETHOD = 'BLAST';
 	$BLASTTYPE = 'ncbi';
 	@WUBLAST_PARAMS = 
