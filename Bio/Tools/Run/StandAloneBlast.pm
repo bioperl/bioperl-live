@@ -19,7 +19,7 @@ There is experimental support for WU-Blast and NCBI rpsblast.
  # Local-blast "factory object" creation and blast-parameter
  # initialization:
 
- @params = ('database' => 'swissprot','outfile' => 'blast1.out');
+ @params = (-database => 'swissprot',-outfile => 'blast1.out');
  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
  # Blast a sequence against a database:
@@ -38,20 +38,20 @@ There is experimental support for WU-Blast and NCBI rpsblast.
 
  # Use blast to align 2 sequences against each other:
 
- $factory = Bio::Tools::Run::StandAloneBlast->new('outfile' => 'bl2seq.out');
+ $factory = Bio::Tools::Run::StandAloneBlast->new(-outfile => 'bl2seq.out');
  $factory->bl2seq($input, $input2);
 
  # Experimental support for WU-Blast 2.0
- 
- my $factory = Bio::Tools::Run::StandAloneBlast->new(program =>"wublastp",
-                                                     database =>"swissprot",
-                                                     e => 1e-20); 
+
+ my $factory = Bio::Tools::Run::StandAloneBlast->new(-program =>"wublastp",
+                                                     -database =>"swissprot",
+                                                     -e => 1e-20); 
  my $blast_report = $factory->wublast($seq);
 
  # Experimental support for NCBI rpsblast
 
- my $factory = Bio::Tools::Run::StandAloneBlast->new(db => 'CDD/Cog', 
-                                                     expect => 0.001);
+ my $factory = Bio::Tools::Run::StandAloneBlast->new(-db => 'CDD/Cog', 
+                                                     -expect => 0.001);
  $factory->F('T'); # turn on SEG filtering of query sequence
  my $blast_report = $factory->rpsblast($seq);
 
@@ -94,7 +94,7 @@ local blast "factory object" is created. The constructor may be passed
 an optional array of (non-default) parameters to be used by the
 factory, eg:
 
- @params = (program => 'blastn', database => 'ecoli.nt');
+ @params = (-program => 'blastn', -database => 'ecoli.nt');
  $factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 
 Any parameters not explicitly set will remain as the defaults of the
@@ -174,7 +174,7 @@ locations. So for example:
                            -format => 'msf');
   $aln = $str->next_aln();
   $len = $aln->length_aln();
-  $mask =   '1' x $len;
+  $mask = '1' x $len;
   # simple case where PSSM's to be used at all residues
   $report = $factory->blastpgp("cysprot1.fa", $aln, $mask);
 
@@ -188,8 +188,8 @@ of the two sequences produced by bl2seq as in:
   my $seq4 = $str->next_seq();
 
   # Run bl2seq on them
-  $factory = Bio::Tools::Run::StandAloneBlast->new('program' => 'blastp',
-                                                   'outfile' => 'bl2seq.out');
+  $factory = Bio::Tools::Run::StandAloneBlast->new(-program => 'blastp',
+                                                   -outfile => 'bl2seq.out');
   my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 
   # Use AlignIO.pm to create a SimpleAlign object from the bl2seq report
