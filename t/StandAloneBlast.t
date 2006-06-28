@@ -2,11 +2,9 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 #
-# Note: the swissprot and ecoli.nt data sets may be downloaded from
-# ftp://ftp.ncbi.nih.gov/blast/db/FASTA
 
 use strict;
-use constant NUMTESTS => 28;
+use constant NUMTESTS => 32;
 BEGIN { 
 	eval { require Test; };
 	if ( $@ ) {
@@ -31,6 +29,8 @@ use Bio::Seq;
 use Bio::Root::IO;
 use Bio::SearchIO;
 
+# Note: the swissprot and ecoli.nt data sets may be downloaded from
+# ftp://ftp.ncbi.nih.gov/blast/db/FASTA
 my $verbose = -1;
 my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
