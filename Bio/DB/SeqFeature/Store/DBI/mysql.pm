@@ -528,6 +528,7 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
+    next unless -e $path;  # might happen if for some reason we had no features to load
     my $qualified_table = $self->_qualify($table);
     $dbh->do("LOAD DATA INFILE '$path' REPLACE INTO TABLE $qualified_table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
