@@ -278,7 +278,7 @@ Implementation of Bio::Search::HSP::HSPI methods follow
 
 sub get_aln {
     my ($self) = shift;
-    $self->warn("Innapropriate to build a Bio::SimpleAlign from a HMMER HSP object");
+    $self->warn("Inappropriate to build a Bio::SimpleAlign from a HMMER HSP object");
     return;
 }
 
