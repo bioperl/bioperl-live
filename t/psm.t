@@ -13,7 +13,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 48;
+    plan tests => 46;
 }
 
 use Bio::Matrix::PSM::IO;
@@ -115,13 +115,10 @@ ok !$version;
 
 ok $psmIO->release, '6.4--2002-12-02';
 
-@ids     = $psmIO->hid;
-ok @ids, '1';
-
 $psm     = $psmIO->next_psm;
 ok $psm;
 
-# Lets try to compress and uncompress the log odds and the frequencies, see if
+# Lets try to compress and uncompress the the frequencies, see if
 # there is no considerable loss of data.
 $fA=$psm->get_compressed_freq('A');
 @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
@@ -134,18 +131,6 @@ for (my $i = 0; $i<@check;$i++) {
 }
 $avg=$var/@check;
 ok $avg<0.01; #Loss of data under 1 percent
-
-$lA=$psm->get_compressed_logs('A');
-@check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($lA,1000,2);
-@A=$psm->get_logs_array('A');
-($var,$max) = (0,0);
-for (my $i = 0;$i<@check;$i++) {
-  my $diff=abs(abs($check[$i]||0)-abs($A[$i]||0));
-  $var += $diff;
-  $max=$diff if ($diff>$max);
-}
-$avg=$var/@check;
-ok $avg<10; #Loss of data under 1 percent
 
 %weights = $psmIO->weight;
 ok !$weights{''};
