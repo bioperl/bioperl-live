@@ -111,7 +111,7 @@ BEGIN {
 	    default   => 'swiss',
 	    swissprot => 'swiss',
 	    fasta     => 'fasta',
-	    namespace => 'swall',
+	    namespace => 'uniprot',
 	},
 	'refseq' => {
 	    default   => 'genbank',
@@ -123,7 +123,13 @@ BEGIN {
 	    default   => 'swiss',
 	    swissprot => 'swiss',
 	    fasta     => 'fasta',
-	    namespace => 'swall',
+	    namespace => 'uniprot',
+	},
+    'uniprot' => {
+	    default   => 'swiss',
+	    swissprot => 'swiss',
+	    fasta     => 'fasta',
+	    namespace => 'uniprot',
 	},
 	'genbank' => {
 	    default   => 'genbank',
