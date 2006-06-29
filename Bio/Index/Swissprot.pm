@@ -142,14 +142,20 @@ sub _index_file {
 	my $id_parser = $self->id_parser;
 
 	open SWISSPROT,$file or $self->throw("Can't read file: $file");
-
+    
+    my %done_ids;
 	while (<SWISSPROT>) {
 		if (/^ID\s+\S+/) {
 			$begin = tell(SWISSPROT) - length( $_ );
 		}
 		for my $id (&$id_parser($_)) {
+            next if exists $done_ids{$id};
 			$self->add_record($id, $i, $begin) if $id;
+            $done_ids{$id} = 1;
 		}
+        if (/\/\//) {
+            %done_ids = ();
+        }
 	}
 	close SWISSPROT;
 	1;

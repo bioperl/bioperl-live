@@ -142,13 +142,19 @@ sub _index_file {
     open GENBANK,$file or 
 	$self->throw("Can't open file for read : $file");
 
+    my %done_ids;
     while (<GENBANK>) {
-	if (/^LOCUS/) {
-	    $begin = tell(GENBANK) - length($_);
-	}
-	for my $id (&$id_parser($_)) {
-	    $self->add_record($id, $i, $begin) if $id;
-	}
+        if (/^LOCUS/) {
+            $begin = tell(GENBANK) - length($_);
+        }
+        for my $id (&$id_parser($_)) {
+            next if exists $done_ids{$id};
+            $self->add_record($id, $i, $begin) if $id;
+            $done_ids{$id} = 1;
+        }
+        if (/\/\//) {
+            %done_ids = ();
+        }
     }
     close GENBANK;
     1;
