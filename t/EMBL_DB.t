@@ -66,7 +66,7 @@ eval {
     ok( $seq->length, 408); 
     ok defined ($db->request_format('fasta'));
     ok(defined($seq = $db->get_Seq_by_acc('J02231')));
-    ok( $seq->id, qr/embl.+BUM/);
+    ok( $seq->id, 'embl|J02231|J02231');
     ok( $seq->length, 200); 
     ok( defined($db = new Bio::DB::EMBL(-verbose=>$verbose, 
 					-retrievaltype => 'tempfile')));
