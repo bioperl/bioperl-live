@@ -73,7 +73,7 @@ eval {
     ok(defined($seq = $db->get_Seq_by_acc('J00522')));
     ok( $seq->length, 408);
     ok(defined($seq = $db->get_Seq_by_acc('J02231')));
-    ok $seq->id, 'BUM';
+	ok $seq->id, 'J02231;';
     ok( $seq->length, 200); 
     ok(defined($seqio = $db->get_Stream_by_id(['BUM'])));
     undef $db; # testing to see if we can remove gb
@@ -81,14 +81,13 @@ eval {
     ok( $seq->length, 200);
 
     #swissprot
-    ok defined($db2 = new Bio::DB::BioFetch( -db => 'swall'));
+    ok defined($db2 = new Bio::DB::BioFetch(-db => 'swissprot'));
     ok(defined($seq = $db2->get_Seq_by_id('YNB3_YEAST')));
     ok( $seq->length, 125);
     ok($seq->division, 'YEAST');
     $db2->request_format('fasta');
     ok(defined($seq = $db2->get_Seq_by_acc('P43780')));
     ok($seq->length,103); 
-
 };
 
 if ($@) {
@@ -96,7 +95,7 @@ if ($@) {
 	print STDERR "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n" . $@;
     }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	skip('No network access - could not connect to embl',1);
+	skip('Could not open database, probably no network access',1);
     }
     exit(0);
 }
@@ -109,6 +108,7 @@ eval {
 				 -format => 'fasta',
 				 -verbose => $verbose
 				);
+	$db->db('embl');
     ok( defined($seqio = $db->get_Stream_by_id('J00522 AF303112 J02231')));
     my %seqs;
     # don't assume anything about the order of the sequences
@@ -146,7 +146,7 @@ if ($@) {
 	print STDERR "Warning: Couldn't connect to BioFetch server with Bio::DB::BioFetch.pm!\n" . $@;
     }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	skip('No network aceess - could not connect to embl',1);
+	skip('Could not open database, probably no network access',1);
     }
     exit(0);
 }
