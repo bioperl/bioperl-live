@@ -108,8 +108,10 @@ EUtility object, thus enabling chained queries as demonstrated in the synopsis.
 =head1 TODO
 
 At this time no additional parsing of the returned response is enabled, but it
-is anticipated that parsing of XML for ID's and other common information will
-be added in the very near future.  Any feedback is welcome.
+is anticipated that parsing of XML for ID's and other commonly requested 
+information will be added in the very near future.  Resetting internal parameters
+is also planned so one could feasibly reuse the objects once instantiated.
+Any feedback is welcome.
 
 =head1 FEEDBACK
 
