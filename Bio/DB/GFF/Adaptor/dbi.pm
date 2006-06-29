@@ -1270,6 +1270,8 @@ sub make_features_by_name_where_part {
   my $self = shift;
   my ($class,$name) = @_;
   if ($name =~ /\*/) {
+    $name =~ s/%/\\%/g;
+    $name =~ s/_/\\_/g;
     $name =~ tr/*/%/;
     return ("fgroup.gclass=? AND fgroup.gname LIKE ?",$class,$name);
   } else {
@@ -1282,6 +1284,7 @@ sub make_features_by_alias_where_part {
   my ($class,$name) = @_;
   if ($name =~ /\*/) {
     $name =~ tr/*/%/;
+    $name =~ s/_/\\_/g;
     return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value LIKE ? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name in ('Alias','Name') AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name)
   } else {
     return ("fgroup.gclass=? AND fattribute_to_feature.fattribute_value=? AND fgroup.gid=fdata.gid AND fattribute.fattribute_name in ('Alias','Name') AND fattribute_to_feature.fattribute_id=fattribute.fattribute_id AND fattribute_to_feature.fid=fdata.fid AND ftype.ftypeid=fdata.ftypeid",$class,$name);
@@ -1653,12 +1656,16 @@ sub types_query {
     my ($method,$source) = @$type;
     my ($mlike, $slike) = (0, 0);
     if ($method && $method =~ m/\.\*/) {
-	$method =~ s/\.\*\??/%/g;
-	$mlike++;
+      $method =~ s/%/\\%/g;
+      $method =~ s/_/\\_/g;
+      $method =~ s/\.\*\??/%/g;
+      $mlike++;
     }
     if ($source && $source =~ m/\.\*/) {
-	$source =~ s/\.\*\??/%/g;
-	$slike++;
+      $source =~ s/%/\\%/g;
+      $source =~ s/_/\\_/g;
+      $source =~ s/\.\*\??/%/g;
+      $slike++;
     }
     my @pair;
     if (defined $method && length $method) {
@@ -1906,6 +1913,8 @@ sub make_abscoord_query {
   my $query = $self->getseqcoords_query();
   my $getforcedseqcoords = $self->getforcedseqcoords_query() ;
   if ($name =~ /\*/) {
+    $name =~ s/%/\\%/g;
+    $name =~ s/_/\\_/g;
     $name =~ tr/*/%/;
     $query =~ s/gname=\?/gname LIKE ?/;
   }
@@ -1919,6 +1928,8 @@ sub make_aliasabscoord_query {
   #my $query = GETALIASCOORDS;
   my $query = $self->getaliascoords_query();
   if ($name =~ /\*/) {
+    $name =~ s/%/\\%/g;
+    $name =~ s/_/\\_/g;
     $name =~ tr/*/%/;
     $query =~ s/gname=\?/gname LIKE ?/;
   }
