@@ -167,8 +167,8 @@ sub add_segment {
     } elsif (ref $seg) {
       push @segments,$seg;
 
-      $min_start = $seg->start if $seg->start < $min_start;
-      $max_stop  = $seg->end   if $seg->end   > $max_stop;
+      $min_start = $seg->start if ($seg->start && $seg->start < $min_start);
+      $max_stop  = $seg->end   if ($seg->end && $seg->end > $max_stop);
     }
   }
   if (@segments) {

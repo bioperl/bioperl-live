@@ -544,8 +544,8 @@ sub parse_line {
     if $bounds && !@parts;
 
   foreach (@parts) { # max and min calculation, sigh...
-    $self->{min} = $_->[0] if !defined $self->{min} || $_->[0] < $self->{min};
-    $self->{max} = $_->[1] if !defined $self->{max} || $_->[1] > $self->{max};
+    $self->{min} = $_->[0] if defined $_->[0] && defined $self->{min} ? ($_->[0] < $self->{min}) : 1;
+    $self->{max} = $_->[1] if defined $_->[1] && defined $self->{max} ? ($_->[1] > $self->{max}) : 1;
   }
 
   my $visible = 1;
@@ -565,8 +565,10 @@ sub parse_line {
   # (this is to deal with confusing documentation, actually)
   unless (defined $strand) {
     foreach (@parts) {
-      $strand           ||= $_->[0] <= $_->[1] ? '+' : '-';
-      ($_->[0],$_->[1])   = ($_->[1],$_->[0]) if $_->[0] > $_->[1];
+      if (defined $_ && ref($_) eq 'ARRAY' && defined $_->[0] && defined $_->[1]) {
+        $strand           ||= $_->[0] <= $_->[1] ? '+' : '-';
+        ($_->[0],$_->[1])   = ($_->[1],$_->[0]) if $_->[0] > $_->[1];
+      }
     }
   }
 
