@@ -232,7 +232,7 @@ sub getFH {
   if ($stat_code == 302 || $stat_code == 301) {  # redirect
     my $location = $headers{Location} or 
         __PACKAGE__->throw("invalid redirect: no Location header");
-    return get($location,$proxy,$timeout);  # recursive call
+    return getFH($location,$proxy,$timeout);  # recursive call
   }
 
   elsif ($stat_code == 401) { # auth required
