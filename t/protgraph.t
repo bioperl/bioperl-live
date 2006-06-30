@@ -22,8 +22,7 @@ BEGIN {
     eval {	require Class::AutoClass;
          	require Clone; };
     if ( $@ ) {
-	warn("Class::AutoClass or Clone not installed. " .
-	     " This means that the module is not usable. Skipping tests");
+	warn("Class::AutoClass or Clone not installed. This means that the module is not usable. Skipping tests\n");
 	$ERROR = 1;
     }
 
@@ -31,7 +30,7 @@ BEGIN {
 	require XML::Twig;
     };
     if ($@) {
-	warn "XML::Twig needed for XML format parsing, skipping these tests";
+	warn "XML::Twig needed for XML format parsing, skipping these tests\n";
 	$XML_ERROR = 1;
     }
 }

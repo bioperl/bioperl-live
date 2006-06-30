@@ -21,8 +21,7 @@ BEGIN {
 
     eval {  require Clone; };
     if ( $@ ) {
-	warn("Clone not installed. " .
-	     " This means that the module is not usable. Skipping tests");
+	warn("Clone not installed. This means that the module is not usable. Skipping tests\n");
 	$ERROR = 1;
     }
 }
