@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::MarkerI
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Jason Stajich
 #
@@ -20,7 +20,9 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the interface here
+A Marker is a Bio::Map::Mappable with some properties particular to markers.
+It also offers a number of convienience methods to make dealing with map
+elements easier.
 
 =head1 FEEDBACK
 
@@ -53,6 +55,7 @@ Heikki Lehvaslaiho heikki-at-bioperl-dot-org
 Lincoln Stein      lstein@cshl.org
 Jason Stajich      jason@bioperl.org
 Chad Matsalla      bioinformatics1@dieselwurks.com
+Sendu Bala         bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -72,183 +75,102 @@ use Bio::Map::MappableI;
 
 @ISA = qw(Bio::Map::MappableI);
 
-=head2 name($new_name)
+=head2 name
 
- Title   : name($new_name)
- Usage   : my $name = $o_usat->name($new_name) _or_
-	   my $name = $o_usat->name()
- Function: Get/Set the name for this Marker
+ Title   : name
+ Usage   : my $name = $marker->name();
+           $marker->name($new_name);
+ Function: Get/Set the name for this Marker.
  Returns : A scalar representing the current name of this Marker
- Args    : If provided, the current name of this Marker
-	   will be set to $new_name.
+ Args    : none to get
+           string to set
 
 =cut
 
 sub name {
-    my ($self) = @_;
+    my $self = shift;
     $self->throw_not_implemented();
-}
-
-=head2 add_position
-
- Title   : add_position
- Usage   : $position->add_position($map,'100')
- Function: Add a numeric or string position to the PositionI container
- Returns : none
- Args    : Map - Reference to Bio::Map::MapI 
-           String or Numeric coding for a position on a map
-
-=cut
-
-sub add_position{
-   my ($self,$map,$value) = @_;
-   $self->throw_not_implemented();
-}
-
-
-=head2 each_position
-
- Title   : positions
- Usage   : my @positions = $position->each_position_value('mapname');
- Function: Retrieve a list of positions coded as strings or ints 
- Returns : Array of position values 
- Args    : none
-
-=cut
-
-sub each_position {
-   my ($self,$mapname) = @_;
-   $self->throw_not_implemented();
-}
-
-=head2 purge_positions
-
- Title   : purge_positions
- Usage   : $position->purge_positions
- Function: Remove all the position values stored for a Marker
- Returns : none
- Args    : [optional] only purge values for a given map
-
-=cut
-
-sub purge_position_values{
-   my ($self, $map) = @_;
-   $self->throw_not_implemented();
-}
-
-=head2 known_maps
-
- Title   : known_maps
- Usage   : my @maps = $marker->known_maps
- Function: Returns the list of maps that this position has values for
- Returns : list of Bio::Map::MapI unique ids
- Args    : none
-
-=cut
-
-sub known_maps{
-   my ($self) = @_;
-   $self->throw_not_implemented();
-}
-
-=head2 in_map
-
- Title   : in_map
- Usage   : if ( $position->in_map($map) ) {}
- Function: Tests if a position has values in a specific map
- Returns : boolean
- Args    : a map unique id OR Bio::Map::MapI
-
-
-=cut
-
-sub in_map{
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
 }
 
 =head2 get_position_object
 
  Title   : get_position_class
- Usage   : my $pos = $marker->get_position_object();
+ Usage   : my $position = $marker->get_position_object();
  Function: To get an object of the default Position class
            for this Marker. Subclasses should redefine this method.
-           The Position needs to be L<Bio::Map::PositionI>.
+           The Position returned needs to be a L<Bio::Map::PositionI> with
+		   -element set to self.
  Returns : L<Bio::Map::PositionI>
- Args    : none
+ Args    : none for an 'empty' PositionI object, optionally
+           Bio::Map::MapI and value string to set the Position's -map and -value
+           attributes.
 
 =cut
 
 sub get_position_object {
-    my ($self) = @_;
+    my $self = shift;
     $self->throw_not_implemented();
 }
-
-
-=head2 tuple
-
- Title   : tuple
- Usage   : ($me, $you) = $self->_tuple($compare)
- Function: Utility method to extract numbers and test for missing values.
-           Makes writing subsequent tests easier.
- Returns : a tuple of values or ranges
- Args    : Bio::Map::MappableI or Bio::Map::PositionI
-
-=cut
-
-sub tuple {
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
-}
-
-
-=head2 Bio::Map::MappableI methods
-
-=cut
-
 
 =head2 position
 
  Title   : position
- Usage   : my position_string = $position->position('mapname');
- Function: Get/Set method for single value positions. 
-           Gives a simplified interface when only one map and 
-           one position per marker is used.
- Returns : a position value
- Args    : optional:
-           Map - Reference to Bio::Map::MapI 
-           String or Numeric coding for a position on a map
+ Usage   : my $position = $mappable->position();
+		   $mappable->position($position);
+ Function: Get/Set the Position of this Marker (where it is on which map),
+           purging all other positions before setting.
+ Returns : L<Bio::Map::PositionI>
+ Args    : Bio::Map::PositionI
+            OR
+           Bio::Map::MapI AND
+           scalar
+            OR
+           scalar, but only if the marker has a default map
 
 =cut
 
-sub position{
-   my ($self,$map, $value) = @_;
-   $self->throw_not_implemented();
+sub position {
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
-=head2 equals
+=head2 positions
 
- Title   : equals
- Usage   : if( $mappable->equals($mapable2)) ...
- Function: Test if a position is equal to another position
+ Title   : positions
+ Usage   : $marker->positions([$pos1, $pos2, $pos3]);
+ Function: Add multiple Bio::Map::PositionI to this marker
+ Returns : n/a
+ Args    : array ref of $map/value tuples or array ref of Bio::Map::PositionI
+
+=cut
+
+sub positions {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 default_map
+
+ Title   : default_map
+ Usage   : my $map = $marker->default_map();
+ Function: Get/Set the default map for the marker.
+ Returns : L<Bio::Map::MapI>
+ Args    : [optional] new L<Bio::Map::MapI>
+
+=cut
+
+sub default_map {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 in_map
+
+ Title   : in_map
+ Usage   : if ( $marker->in_map($map) ) {}
+ Function: Tests if this marker is found on a specific map
  Returns : boolean
- Args    : Bio::Map::MappableI
-
-=head2 less_than
-
- Title   : less_than
- Usage   : if( $mappable->less_than($m2) ) ...
- Function: Tests if a position is less than another position
- Returns : boolean
- Args    : Bio::Map::MappableI
-
-=head2 greater_than
-
- Title   : greater_than
- Usage   : if( $mappable->greater_than($m2) ) ...
- Function: Tests if position is greater than another position
- Returns : boolean
- Args    : Bio::Map::MappableI
+ Args    : a map unique id OR Bio::Map::MapI
 
 =cut
 

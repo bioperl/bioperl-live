@@ -1,6 +1,6 @@
 # BioPerl module for Bio::Map::OrderedPosition
 #
-# Cared for by Chad Matsalla <bioinformatics1@dieselwurks.com>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Chad Matsalla
 #
@@ -71,6 +71,7 @@ Email bioinformatics1@dieselwurks.com
 Lincoln Stein, lstein@cshl.org
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Jason Stajich, jason@bioperl.org
+Sendu Bala, bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -104,20 +105,10 @@ use Bio::Map::Position;
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-#    $self->{'_order'} = [];
-  
-    my ($map, $marker, $value, $order) = 
-	$self->_rearrange([qw( MAP 
-			       MARKER 
-			       VALUE
-			       ORDER
-			       )], @args);
-#    print join ("|-|", ($map, $marker, $value, $order)), "\n";
-    $map     && $self->map($map);
-    $marker  && $self->marker($marker);
-    $value   && $self->value($value);
-    $order   && $self->order($order);
-
+    
+    my ($order) = $self->_rearrange([qw(ORDER)], @args);
+    $order && $self->order($order);
+    
     return $self;
 }
 
@@ -127,66 +118,35 @@ sub new {
  Usage   : $o_position->order($new_position) _or_
            $o_position->order()
  Function: get/set the order position of this position in a map
- Returns : 
+ Returns : int, the order of this position
  Args    : If $new_position is provided, the current position of this Position
            will be set to $new_position.
 
 =cut
 
 sub order {
-    my ($self,$order) = @_;
+    my ($self, $order) = @_;
     if ($order) {
-	# no point in keeping the old ones
-	$self->{'_order'} = $order;
+        $self->{'_order'} = $order;
     }
-    return $self->{'_order'};
+    return $self->{'_order'} || return;
 }
 
-=head2 Bio::Map::Position functions
+=head2 sortable
+
+ Title   : sortable
+ Usage   : my $num = $position->sortable();
+ Function: Read-only method that is guaranteed to return a value suitable
+           for correctly sorting this kind of position
+ Returns : numeric
+ Args    : none
 
 =cut
 
-=head2 known_maps
-
- Title   : known_maps
- Usage   : my @maps = $position->known_maps
- Function: Returns the list of maps that this position has values for
- Returns : list of Bio::Map::MapI unique ids
- Args    : none
-
-=head2 in_map
-
- Title   : in_map
- Usage   : if ( $position->in_map($map) ) {}
- Function: Tests if a position has values in a specific map
- Returns : boolean
- Args    : a map unique id OR Bio::Map::MapI
-
-=head2 each_position_value
-
- Title   : positions
- Usage   : my @positions = $position->each_position_value($map);
- Function: Retrieve a list of positions coded as strings or ints 
- Returns : Array of position values for a Map
- Args    : Bio::Map::MapI object to get positions for
-
-=head2 add_position_value
-
- Title   : add_position_value
- Usage   : $position->add_position_value($map,'100');
- Function: Add a numeric or string position to the PositionI container 
-           and assoiciate it with a Bio::Map::MapI
- Returns : none
- Args    : $map - Bio::Map::MapI
-           String or Numeric coding for a position on a map
-
-=head2 purge_position_values
-
- Title   : purge_position_values
- Usage   : $position->purge_position_values
- Function: Remove all the position values stored for a position
- Returns : none
- Args    : [optional] only purge values for a given map
+sub sortable {
+    my $self = shift;
+    return $self->order;
+}
 
 =head2 equals
 
@@ -204,7 +164,7 @@ sub equals{
    return ( $compare->order == $self->order);
 }
 
-# admittedly these are really the best comparisons in the world
+# admittedly these aren't really the best comparisons in the world
 # but it is a first pass we'll need to refine the algorithm or not 
 # provide general comparisions and require these to be implemented
 # by objects closer to the specific type of data
@@ -219,7 +179,6 @@ sub equals{
  Args    : Bio::Map::PositionI
 
 =cut
-
 
 sub less_than{
    my ($self,$compare) = @_;

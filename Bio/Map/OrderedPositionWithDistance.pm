@@ -87,7 +87,6 @@ package Bio::Map::OrderedPositionWithDistance;
 use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Map::Position;
 
 @ISA = qw(Bio::Map::Position);

@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::CytoMap
 #
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Heikki Lehvaslaiho
 #
@@ -60,6 +60,7 @@ Email heikki-at-bioperl-dot-org
 
 Jason Stajich      jason@bioperl.org
 Lincoln Stein      lstein@cshl.org
+Sendu Bala         bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -76,12 +77,9 @@ package Bio::Map::CytoMap;
 use vars qw(@ISA $MAPCOUNT);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
-use Bio::Root::Root;
 use Bio::Map::SimpleMap;
 
-@ISA = qw(Bio::Root::Root Bio::Map::SimpleMap);
+@ISA = qw(Bio::Map::SimpleMap);
 BEGIN { $MAPCOUNT = 1; }
 
 =head2 Modified methods 
@@ -106,31 +104,14 @@ methods have been modified to refelect the needs of cytogenetic maps.
 =cut
 
 sub new {
-    my($class,@args) = @_;
-
+    my ($class, @args) = @_;
+	
     my $self = $class->SUPER::new(@args);
-
-    $self->{'_elements'} = [];
-    $self->{'_name'}     = '';
-    $self->{'_species'}  = '';
-    $self->{'_units'}    = '';
-    $self->{'_type'}    = 'cyto';
+	
     $self->{'_uid'} = $MAPCOUNT++;
-    my ($name, $type,$species, $units,
-	$elements,$uid) = $self->_rearrange([qw(NAME TYPE
-						SPECIES UNITS
-						ELEMENTS UID)], @args);
-    defined $name     && $self->name($name);
-    defined $species  && $self->species($species);
-    defined $units    && $self->units($units);
-    defined $type     && $self->type($type);
-    defined $uid      && $self->unique_id($uid);
-
-    if( $elements && ref($elements) =~ /array/ ) {
-	foreach my $item ( @$elements ) {
-	    $self->add_element($item);
-	}
-    }
+    my ($uid) = $self->_rearrange([qw(UID)], @args);
+    defined $uid && $self->unique_id($uid);
+	
     return $self;
 }
 
@@ -138,15 +119,14 @@ sub new {
 
  Title   : type
  Usage   : my $type = $map->type
- Function: Get hard-coded  Map type
- Returns : String coding map type
- Args    : 
+ Function: Get hard-coded Map type
+ Returns : String coding Map type (always 'cyto')
+ Args    : none
 
 =cut
 
 sub type {
-   my ($self) = @_;
-   return $self->{'_type'};
+   return 'cyto';
 }
 
 
@@ -161,8 +141,7 @@ sub type {
 
 =cut
 
-sub length{
-   my ($self,@args) = @_;
+sub length {
    return;
 }
 

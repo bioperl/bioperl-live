@@ -93,7 +93,6 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Map::PositionI;
-use Bio::Range;
 use Scalar::Util qw(looks_like_number); # comes with perl 5.8, included in Bundle::Bioperl
 
 @ISA = qw(Bio::Root::Root Bio::Map::PositionI);
@@ -133,13 +132,13 @@ sub new {
 	
     my $do_range = defined($start) || defined($end);
     if ($value && $do_range) {
-        self->warn("-value and (-start|-end|-length) are mutually exclusive, ignoring value");
+        $self->warn("-value and (-start|-end|-length) are mutually exclusive, ignoring value");
 		$value = undef;
     }
 	
-    $map     && $self->map($map);
-    $marker  && $self->marker($marker);
-    defined($value)   && $self->value($value);
+    $map            && $self->map($map);
+    $marker         && $self->marker($marker);
+    defined($value) && $self->value($value);
 	
     if ($do_range) {
 		defined($start) && $self->start($start);
@@ -168,35 +167,28 @@ sub new {
 
 =cut
 
-sub map {
-   my ($self,$map) = @_;
-   if( defined $map ) {
-       $self->throw("This is [$map], not a Bio::Map::MapI object")
-	   unless $map->isa('Bio::Map::MapI');
-       $self->{'_map'} = $map;
-   }
-   return $self->{'_map'};
-}
+=head2 element
+
+ Title   : element
+ Usage   : my $element = $position->element();
+           $position->element($element);
+ Function: Get/Set the element this Position is for.
+ Returns : L<Bio::Map::MappableI>
+ Args    : [optional] new L<Bio::Map::MappableI>
+
+=cut
 
 =head2 marker
 
  Title   : marker
- Usage   : my $id = marker->$marker;
- Function: Get/Set the marker the position is in.
- Returns : L<Bio::Map::MarkerI>
- Args    : [optional] new L<Bio::Map::MarkerI>
+ Usage   : my $element = $position->marker();
+           $position->marker($element);
+ Function: Synonym of the element() method.
+ Returns : L<Bio::Map::MappableI>
+ Args    : [optional] new L<Bio::Map::MappableI>
+ Status  : deprecated, will be removed in the next version
 
 =cut
-
-sub marker {
-   my ($self,$marker) = @_;
-   if( defined $marker ) {
-       $self->thow("This is [$marker], not a Bio::Map::MarkerI object")
-	   unless $marker->isa('Bio::Map::MarkerI');
-       $self->{'_marker'} = $marker;
-   }
-   return $self->{'_marker'};
-}
 
 =head2 value
 
@@ -238,10 +230,26 @@ sub numeric {
     return $num;
 }
 
+=head2 sortable
+
+ Title   : sortable
+ Usage   : my $num = $position->sortable();
+ Function: Read-only method that is guaranteed to return a value suitable
+           for correctly sorting this kind of position
+ Returns : numeric
+ Args    : none
+
+=cut
+
+sub sortable {
+    my $self = shift;
+    return $self->numeric;
+}
+
 =head2 start
 
   Title   : start
-  Usage   : $start = $range->start();
+  Usage   : $start = $position->start();
   Function: get/set the start of this range
   Returns : the start of this range
   Args    : optionally allows the start to be set
@@ -262,7 +270,7 @@ sub start {
 =head2 end
 
   Title   : end
-  Usage   : $end = $range->end();
+  Usage   : $end = $position->end();
   Function: get/set the end of this range
   Returns : the end of this range
   Args    : optionally allows the end to be set
@@ -282,7 +290,7 @@ sub end {
 =head2 length
 
   Title   : length
-  Usage   : $length = $range->length();
+  Usage   : $length = $position->length();
   Function: get the length of this range
   Returns : the length of this range
   Args    : none
@@ -303,9 +311,9 @@ sub length {
 =head2 toString
 
   Title   : toString
+  Usage   : print $position->toString(), "\n";
   Function: stringifies this range
-  Example : print $range->toString(), "\n";
-  Returns : a string representation of this range
+  Returns : a string representation of the range of this Position
 
 =cut
 

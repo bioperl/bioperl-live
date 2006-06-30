@@ -1,6 +1,6 @@
 # BioPerl module for Bio::Map::Microsatellite
 #
-# Cared for by Chad Matsalla <bioinformatics1@dieselwurks.com>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Chad Matsalla
 #
@@ -63,6 +63,7 @@ Email bioinformatics1@dieselwurks.com
 Heikki Lehvaslaiho heikki-at-bioperl-dot-org
 Lincoln Stein      lstein@cshl.org
 Jason Stajich      jason@bioperl.org
+Sendu Bala         bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -76,7 +77,6 @@ Internal methods are usually preceded with a _
 package Bio::Map::Microsatellite;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
 use Bio::Map::Marker;
 
 @ISA = qw(Bio::Map::Marker);
@@ -272,7 +272,7 @@ sub repeat_start_position {
 	returned (a scalar).
 	If you provide the string "set" to this method it will set the
 	end position based on the start position, the length of the
-	motif, and the nuimber of repeats.
+	motif, and the number of repeats.
 	If you specify a value the current end position of the repeat
 	will be set to that value. This is a really bad idea. Don't do
 	it.

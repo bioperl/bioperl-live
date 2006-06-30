@@ -79,18 +79,30 @@ use Bio::Map::CytoPosition;
 =head2 get_position_object
 
  Title   : get_position_class
- Usage   : my $pos = $marker->get_position_object();
+ Usage   : my $position = $marker->get_position_object();
  Function: To get an object of the default Position class
            for this Marker. Subclasses should redefine this method.
-           The Position needs to be L<Bio::Map::PositionI>.
- Returns : L<Bio::Map::CytoPosition>
- Args    : none
+           The Position returned needs to be a L<Bio::Map::PositionI> with
+		   -element set to self.
+ Returns : L<Bio::Map::PositionI>
+ Args    : none for an 'empty' PositionI object, optionally
+           Bio::Map::MapI and value string to set the Position's -map and -value
+           attributes.
 
 =cut
 
 sub get_position_object {
-   my ($self) = @_;
-   return new Bio::Map::CytoPosition();
+   my ($self, $map, $value) = @_;
+   $map ||= $self->default_map;
+   if ($value) {
+	  $self->throw("Value better be scalar, not [$value]") unless ref($value) eq '';
+   }
+   
+   my $pos = new Bio::Map::CytoPosition();
+   $pos->map($map) if $map;
+   $pos->value($value) if $value;
+   $pos->element($self);
+   return $pos;
 }
 
 

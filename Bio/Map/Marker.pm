@@ -136,26 +136,25 @@ Internal methods are usually preceded with a _
 package Bio::Map::Marker;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
 use Bio::Map::MarkerI;
+use Bio::Map::Mappable;
 use Bio::Map::Position;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MarkerI);
+@ISA = qw(Bio::Map::Mappable Bio::Map::MarkerI);
 
 =head2 new
 
  Title   : new
- Usage   : $o_marker = new Bio::Map::Marker( -name => 'Whizzy marker',
-	                                         -position => $position);
+ Usage   : my $marker = new Bio::Map::Marker( -name => 'Whizzy marker',
+	                                          -position => $position);
  Function: Builds a new Bio::Map::Marker object
  Returns : Bio::Map::Marker
  Args    :
            -name    => name of this microsatellite 
                        [optional], string,default 'Unknown'
-           -map => the default map for this marker, a Bio::Map::MapI
-           -position => map position for this marker, [optional]
-                Bio::Map::PositionI-inherited obj, no default)
-           -positions => array ref of map positions, as above
+           -default_map => the default map for this marker, a Bio::Map::MapI
+           -position => map position for this marker, a Bio::Map::PositionI
+           -positions => array ref of Bio::Map::PositionI objects
            
            position and positions can also take as values anything the
            corresponding methods can take
@@ -163,11 +162,13 @@ use Bio::Map::Position;
 =cut
 
 sub new {
-    my ($class,@args) = @_;
+    my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    $self->{'_positions'} = [];
-    my ($name, $map, $position, $positions) = 
-	$self->_rearrange([qw(NAME 
+	bless($self, ref $class || $class);
+	
+    my ($name, $default_map, $map, $position, $positions) = 
+	$self->_rearrange([qw(NAME
+				  DEFAULT_MAP
 			      MAP
 			      POSITION
 			      POSITIONS
@@ -176,9 +177,10 @@ sub new {
     if ($name) { $self->name($name); } 
     else {$self->name('Unnamed marker'); }
     
-    $map       && $self->map($map);
-    $position  && $self->position($position); 
-    $positions && $self->positions($positions);
+    $map         && $self->default_map($map);
+	$default_map && $self->default_map($default_map);
+    $position    && $self->position($position); 
+    $positions   && $self->positions($positions);
  
     return $self;
 }
@@ -186,134 +188,111 @@ sub new {
 =head2 name
 
  Title   : name
- Usage   : $o_usat->name($new_name) _or_
-	       my $name = $o_usat->name()
+ Usage   : $marker->name($new_name);
+	       my $name = $marker->name();
  Function: Get/Set the name for this Microsatellite
  Returns : A scalar representing the current name of this marker
- Args    : If provided, the current name of this marker
-	       will be set to $new_name.
+ Args    : none to get
+           string to set
 
 =cut
 
 sub name {
-    my ($self,$name) = @_;
-    my $last = $self->{'_name'};
-    if ($name) {
-	$self->{'_name'} = $name;
-    }
-    return $last;
+    my $self = shift;
+    if (@_) { $self->{_name} = shift }
+    return $self->{_name} || '';
 }
 
-=head2 map
+=head2 default_map
 
- Title   : map
- Usage   : my $mymap = $marker->map();
+ Title   : default_map
+ Usage   : my $map = $marker->default_map();
  Function: Get/Set the default map for the marker.
-           This is set by L<Bio::Map::CytoMap::add_element> method
  Returns : L<Bio::Map::MapI>
  Args    : [optional] new L<Bio::Map::MapI>
 
 =cut
 
-sub map {
-   my ($self,$map) = @_;
-   if( defined $map ) {
-       $self->thow('This is [$map], not Bio::Map::MapI object')
-	   unless $map->isa('Bio::Map::MapI');
-       $self->{'_default_map'} = $map;
-   }
-   return $self->{'_default_map'};
+sub default_map {
+	my ($self, $map) = @_;
+	if (defined $map) {
+		$self->thow("This is [$map], not Bio::Map::MapI object") unless $map->isa('Bio::Map::MapI');
+		$self->{'_default_map'} = $map;
+	}
+	return $self->{'_default_map'} || return;
 }
+
+=head2 map
+
+ Title   : map
+ Function: This is a synonym of the default_map() method
+		   
+		   *** does not actually add this marker to the map! ***
+		   
+ Status  : deprecated, will be removed in next version
+
+=cut
+
+*map = \&default_map;
+*map = \&default_map; # avoid warning
 
 =head2 get_position_object
 
  Title   : get_position_class
- Usage   : my $pos = $marker->get_position_object();
+ Usage   : my $position = $marker->get_position_object();
  Function: To get an object of the default Position class
            for this Marker. Subclasses should redefine this method.
-           The Position needs to be Bio::Map::PositionI.
- Returns : Bio::Map::Position
- Args    : none
-
-See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
+           The Position returned needs to be a L<Bio::Map::PositionI> with
+		   -element set to self.
+ Returns : L<Bio::Map::PositionI>
+ Args    : none for an 'empty' PositionI object, optionally
+           Bio::Map::MapI and value string to set the Position's -map and -value
+           attributes.
 
 =cut
 
 sub get_position_object {
-   my ($self) = @_;
-   return new Bio::Map::Position();
+	my ($self, $map, $value) = @_;
+	$map ||= $self->default_map;
+	if ($value) {
+		$self->throw("Value better be scalar, not [$value]") unless ref($value) eq '';
+	}
+	
+	my $pos = new Bio::Map::Position();
+	$pos->map($map) if $map;
+    $pos->value($value) if $value;
+    $pos->element($self);
+	return $pos;
 }
 
 =head2 position
 
  Title   : position
- Usage   : $position = $mappable->position($map); OR
-           $mappable->position($position); # $position can be  Bio::Map::PositionI
-           $mappable->position(100); # or scalar if the marker has a default map
-           $mappable->position($map, 100); # if not give explicit $map
- Function: Get/Set the Bio::Map::PositionI for a mappable element
-           in a specific Map
-           Adds the marker to a map automatically if Map is given. 
-           Alternatively, you can add the marker to the map first 
-           (L<Bio::Map::Map::add_element>) to set the default map
- Returns : Bio::Map::PositionI
- Args    : $position - Bio::Map::PositionI # Position we want to set
+ Usage   : my $position = $mappable->position();
+		   $mappable->position($position);
+ Function: Get/Set the Position of this Marker (where it is on which map),
+           purging all other positions before setting.
+ Returns : L<Bio::Map::PositionI>
+ Args    : Bio::Map::PositionI
             OR
-           $map  - Bio::Map::MapI AND
+           Bio::Map::MapI AND
            scalar
             OR
-           scalar, but only if the marker has been added to a map
+           scalar, but only if the marker has a default map
 
 =cut
 
 sub position {
-    my ($self, $pos, $secondary_pos) = @_;
-    my ($map);
+    my ($self, $pos, $pos_actual) = @_;
     
-    POS: {
-        if ($pos) {
-            if (ref($pos) eq 'SCALAR' || ref($pos) eq '') {
-                $map = $self->map;
-            }
-            elsif (ref($pos) eq 'ARRAY') {
-                $map = $pos->[0];
-                $pos = $pos->[1];
-            }
-            elsif ($pos->isa('Bio::Map::PositionI')) {
-                $pos->marker($self);
-                
-                $self->purge_positions;
-                $self->add_position($pos);
-                $map = $pos->map;
-                $map->add_element($self) unless defined($self->map) && $self->map eq $map;
-                last POS;
-            }
-            
-            elsif ($pos->isa('Bio::Map::MapI')) {
-                $map = $pos;
-                $pos = $secondary_pos;
-            }
-            else {
-                $map = $self->map;
-            }
-            
-            $self->throw("You need to add a marker to a map before you can set positions without explicit map!" ) unless $map;
-            $self->throw("Position better be scalar, not [$pos=". ref($pos)  ."]") unless ref($pos) eq 'SCALAR' || ref($pos) eq ''; 
-            
-            my $newpos = $self->get_position_object;
-            $newpos->map($map);
-            $newpos->value($pos);
-            $newpos->marker($self);
-            
-            $map->add_element($self) unless defined($self->map) && $self->map eq $map;
-            $self->purge_positions;
-            $self->add_position($newpos)
-        }
-    }
+	if ($pos) {
+		$self->purge_positions;
+		$self->add_position($pos, $pos_actual);
+	}
     
-    my @array = $self->each_position();
-    $self->warn('More than one value is associated with this position') if scalar @array > 1;
-    return $array[0];
+    my @positions = $self->each_position;
+    $self->warn('This marker has more than one Position, returning the most recently added') if scalar @positions > 1;
+    return pop(@positions);
 }
 
 =head2 add_position
@@ -323,40 +302,51 @@ sub position {
  Function: Add a Position to this marker
  Returns : n/a
  Args    : Bio::Map::PositionI
-           * or *
-           {
-             Bio::Map::MapI
-             * AND *
-             scalar
-           }
-           * or *
-           scalar, but only if the marker has been added to a map
+            OR
+           Bio::Map::MapI AND
+           scalar
+            OR
+           scalar, but only if the marker has a default map
 
 =cut
 sub add_position  {
     my ($self, $pos, $pos_actual) = @_;
     $self->throw("Must give a Position") unless defined $pos;
     
-    if (ref($pos) && $pos->isa('Bio::Map::PositionI')) {
-        my $map = $pos->map;
-        $map->add_element($self) unless defined($self->map) && $self->map eq $map;
-    }
-    elsif ($pos_actual && ref($pos_actual) eq '' && ref($pos) && $pos->isa('Bio::Map::MapI')) {
-        my $map = $pos;
-        $map->add_element($self) unless defined($self->map) && $self->map eq $map;
-        $pos = $self->_make_pos($map, $pos_actual);
-    }
-    elsif (ref($pos) eq '' && $pos =~ /^\d+$/) {
-        my $newpos = $self->get_position_object;
-        my $map = $self->map();
-        $map or $self->throw("Must already have a default map set");
-        $pos = $self->_make_pos($map, $pos);
-    }
-    else {
-        $self->throw("Must give a Bio::Map::PositionI or an int, not [". ref($pos) ."]");
-    }
-    
-    push @{$self->{'_positions'}}, $pos;
+    my $map = $self->default_map;
+	my $pos_map;
+	if (ref($pos)) {
+		if (ref($pos) eq 'ARRAY') {
+			($pos, $pos_actual) = @{$pos};
+			unless ($pos && $pos_actual && ref($pos)) {
+				$self->throw("Supplied an array ref but did not contain two values, the first an object");
+			}
+		}
+		
+		if ($pos->isa('Bio::Map::PositionI')) {
+			$pos_map = $pos->map;
+			$self->default_map($pos_map) unless $map;
+			$map = $pos_map if $pos_map;
+		}
+		elsif ($pos->isa('Bio::Map::MapI')) {
+			$self->default_map($pos) unless $map;
+			$map = $pos;
+			$pos = $pos_actual;
+		}
+		else {
+			$self->throw("This is [$pos], not a Bio::Map::PositionI or Bio::Map::MapI object");
+		}
+	}
+	
+	$self->throw("You need to give a marker a default map before you can set positions without explicit map!" ) unless $map;
+	
+	if (ref($pos) && $pos->isa('Bio::Map::PositionI')) {
+		$pos->map($map) unless $pos_map;
+		$self->SUPER::add_position($pos);
+	}
+	else {
+		$self->get_position_object($map, $pos); # adds position to us
+	}
 }
 
 =head2 positions
@@ -391,31 +381,6 @@ sub positions {
            Bio::Map::MapI OR unique_id for positions on the given map
 
 =cut
-sub each_position {
-    my ($self, $map) = @_;
-    
-    if ($map) {
-        my @positions;
-        if (ref($map) && $map->isa('Bio::Map::MapI')) {
-            foreach my $pos (@{$self->{'_positions'}}) {
-                if ($pos->map && $pos->map eq $map) {
-                    push(@positions, $pos);
-                }
-            }
-        }
-        else {
-            foreach my $pos (@{$self->{'_positions'}}) {
-                if ($pos->map && $pos->map()->unique_id eq $map) {
-                    push(@positions, $pos);
-                }
-            }
-        }
-        
-        return @positions;
-    }
-    
-    return @{$self->{'_positions'}};
-}
 
 =head2 purge_positions
 
@@ -427,295 +392,34 @@ sub each_position {
            Bio::Map::MapI OR unique_id to only purge positions on the given map
 
 =cut
-sub purge_positions  {
-    my ($self, $map) = @_;
-    
-    if ($map) {
-        my @dontwant = $self->each_position($map);
-        my %dontwant;
-        foreach my $pos (@dontwant) {
-            $dontwant{$pos} = 1;
-        }
-        
-        my @wanted;
-        foreach my $pos (@{$self->{'_positions'}}) {
-            exists $dontwant{$pos} and next;
-            push(@wanted, $pos);
-        }
-        
-        $self->{'_positions'} = \@wanted;
-        return;
-    }
-    
-    $self->{'_positions'} = [];
-}
-
-=head2 known_maps
-
- Title   : known_maps
- Usage   : my @maps = $marker->known_maps
- Function: Returns the list of maps that this position has values for
- Returns : list of Bio::Map::MapI unique ids
- Args    : none
-
-=cut
-
-sub known_maps{
-   my ($self) = @_;
-   my %hash;
-   foreach my $pos ($self->each_position) {
-       $hash{$pos->map->unique_id} = 1; 
-   }
-   return keys %hash;
-}
 
 =head2 in_map
 
  Title   : in_map
- Usage   : if ( $position->in_map($map) ) {}
- Function: Tests if a position has values in a specific map
+ Usage   : if ( $marker->in_map($map) ) {}
+ Function: Tests if this marker is found on a specific map
  Returns : boolean
  Args    : a map unique id OR Bio::Map::MapI
 
 =cut
 
-sub in_map{
-   my ($self,$map) = @_;
-
-   $self->throw("Need  an argument") unless $map;
-
-   if (ref($map) && $map->isa('Bio::Map::MapI')) {
-       foreach my $pos ($self->each_position) {
-	   return 1 if $pos->map eq $map;
-       }
-   } else { # assuming a scalar
-       foreach my $pos ($self->each_position) {
-	   return 1 if $pos->map->unique_id eq $map;
-       }
-   }
-   return 0;
-}
-
-=head2 Comparison methods
-
-=cut
-
-=head2 tuple
-
- Title   : tuple
- Usage   : Do Not Use!
- Function: tuple was supposed to be a private method; this method no longer
-           does anything
- Returns : warning
- Args    : none
-
-=cut
-
-sub tuple {
-    my $self = shift;
-    $self->warn("The tuple method was supposed to be a private method, don't call it!");
-}
-
-=head2 equals
-
- Title   : equals
- Usage   : if ($marker->equals($other_marker)) {...}
-           my @equal_positions = $marker->equals($comparison_marker);
- Function: Finds the positions in this marker that are equal to any
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
-
-=cut
-sub equals {
-    my $self = shift;
-    return $self->_compare('equals', @_);
-}
-
-=head2 less_than
-
- Title   : less_than
- Usage   : if ($marker->less_than($comparison_marker)) {...}
-           my @lower_positions = $marker->less_than($comparison_marker);
- Function: Finds the positions in this marker that are less than all
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
-
-=cut
-sub less_than {
-    my ($self, $compare, $map) = @_;
-    my ($mine, $yours) = $self->_pre_compare($compare, $map);
+sub in_map {
+	my ($self, $query) = @_;
+	$self->throw("Must supply an argument") unless defined($query);
     
-    (@{$mine} > 0 && @{$yours} > 0) or return ();
-    my $least = ${$yours}[0]->start;
-    
-    my @less;
-    foreach my $pos (@{$mine}) {
-        $pos->end < $least or last;
-        push(@less, $pos);
-    }
-    
-    return @less;
-}
-
-=head2 greater_than
-
- Title   : greater_than
- Usage   : if ($marker->greater_than($comparison_marker)) {...}
-           my @higher_positions = $marker->greater_than($comparison_marker);
- Function: Finds the positions in this marker that are greater than all
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
-
-=cut
-sub greater_than {
-    my ($self, $compare, $map) = @_;
-    my ($mine, $yours) = $self->_pre_compare($compare, $map);
-    
-    (@{$mine} > 0 && @{$yours} > 0) or return ();
-    
-    my $greatest = ${$yours}[-1]->end;
-    
-    my @more;
-    foreach my $pos (@{$mine}) {
-        $pos->start > $greatest or next;
-        push(@more, $pos);
-    }
-    
-    return @more;
-}
-
-=head2 overlaps
-
- Title   : overlaps
- Usage   : if ($marker->overlaps($other_marker)) {...}
-           my @overlapping_positions = $marker->overlaps($comparison_marker);
- Function: Finds the positions in this marker that overlap with any
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
-
-=cut
-sub overlaps {
-    my $self = shift;
-    return $self->_compare('overlaps', @_);
-}
-
-=head2 contains
-
- Title   : contains
- Usage   : if ($marker->overlaps($other_marker)) {...}
-           my @container_positions = $marker->contains($comparison_marker);
- Function: Finds the positions in this marker that contain any comparison
-           positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
-
-=cut
-sub contains {
-    my $self = shift;
-    return $self->_compare('contains', @_);
-}
-
-=head2 _compare
-
- Title   : _compare
- Usage   : my @positions = $marker->_compare($method, $comparison_marker, $map);
- Function: do a RangeI comparison
- Returns : array of Bio::Map::PositionI
- Args    : string, a RangeI comparison method name,
-           AND a Bio::Map::MappableI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
-
-=cut
-
-sub _compare {
-    my ($self, $method, $compare, $map) = @_;
-    my ($mine, $yours) = $self->_pre_compare($compare, $map);
-    
-    (@{$mine} > 0 && @{$yours} > 0) or return ();
-    
-    my @ok;
-    foreach my $my_pos (@{$mine}) {
-        foreach my $your_pos (@{$yours}) {
-            if ($my_pos->$method($your_pos)) {
-                push(@ok, $my_pos);
-                last;
-            }
-        }
-    }
-    
-    return @ok;
-}
-
-=head2 _pre_compare
-
- Title   : _pre_compare
- Usage   : my @positions = $marker->_compare($method, $comparison_marker, $map);
- Function: test for missing values and discover if we have multiple positions so
-           that we can do some kind of comparison later
- Returns : (\@sorted_self_positions, \@sorted_compare_positions)
- Args    : Bio::Map::MappableI OR Bio::Map::PositionI
-
-=cut
-
-sub _pre_compare {
-    my ($self, $compare, $map) = @_;
-    my (@mine, @yours);
-    
-    $self->warn("Trying to compare [". $self->name. "] to nothing or scalar; need object.") && return (\@mine, \@yours) unless (defined $compare && ref($compare));
-    
-    @mine = $self->each_position($map);
-    my $on_this_map = $map ? ' (on the supplied map)' : '';
-    @mine > 0 or ($self->warn("[". $self->name. "] has no positions$on_this_map.") && return (\@mine, \@yours));
-    
-    if ($compare->isa('Bio::Map::PositionI')) {
-        push(@yours, $compare);
-    }
-    elsif ($compare->isa('Bio::Map::MappableI')) {
-        @yours = $compare->each_position($map);
-        @yours > 0 or ($self->warn("[". $compare->name. "] has no positions$on_this_map.") && return (\@mine, \@yours));
-    }
+	if (ref($query) eq '') {
+		foreach my $map ($self->known_maps) {
+			my $uid = $map->unique_id;
+			if ($uid) {
+				($uid eq $query) && return 1;
+			}
+		}
+	}
     else {
-        $self->warn("Can only run a comparison with a Bio::Map::MappableI or Bio::Map::PositionI, not [$compare]");
-        return (\@mine, \@yours);
-    }
+		return $self->SUPER::in_map($query);
+	}
     
-    @mine = sort { $a->numeric <=> $b->numeric } @mine;
-    @yours = sort { $a->numeric <=> $b->numeric } @yours;
-    return (\@mine, \@yours)
-}
-
-=head2 _make_pos
-
- Title   : _make_pos
- Usage   : my $pos = $marker->_make_pos($map, $value);
- Function: make a new Position object on a given map at the given position
- Returns : L<Bio::Map::Position>
- Args    : L<Bio::Map::MapI>, scalar (the position on the map)
-
-=cut
-
-sub _make_pos {
-    my ($self, $map, $value) = @_;
-    my $pos = $self->get_position_object;
-    $pos->map($map);
-    $pos->value($value);
-    $pos->marker($self);
-    
-    return $pos;
+    return 0;
 }
 
 1;

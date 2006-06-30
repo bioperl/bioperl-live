@@ -100,10 +100,6 @@ use Bio::Map::SimpleMap;
 
 =cut
 
-# new provided by SimpleMap
-
-
-
 =head2 length()
 
  Title   : length()
@@ -145,7 +141,7 @@ sub length {
                 RH markers too.
 =cut
 
-#'
+#*** what is this? what calls it? note that it seems to be private
 sub _add_element {
     my ($self,$marker) = @_;
 
@@ -174,72 +170,5 @@ sub _add_element {
     }	
     $self->{'_elements'}[$position] = $marker;
 }
-
-=head2 each_element
-
- Title   : each_element
- Usage   : my @elements = $map->each_element;
- Function: Retrieves all the elements in a map
-           _ordered_.
- Returns : An array containing MappableI objects.
- Args    : None.
- Notes   : This is a useless concept in the context of a linkage map but is
-	included if you want a list of all of the marker names on the map.
-
-=cut
-
-sub each_element {
-    my ($self) = @_;
-    return @{$self->{'_elements'}};
-}
-
-=head2 implemented by Bio::Map::SimpleMap
-
-=cut
-
-=head2 name($new_name)
-
- Title   : name($new_name)
- Usage   : my $name = $map->name($new_name) _or_
-	   my $length = $map->name()
- Function: Get/set the name of the map.
- Returns : The current name of the map.
- Args    : If provided, the name of the map is set to $new_name.
-
-=head2 species
-
- Title   : species
- Usage   : my $species = $map->species;
- Function: Get/Set Species for a map
- Returns : Bio::Species object
- Args    : (optional) Bio::Species
-
-
-=head2 units
-
- Title   : units
- Usage   : $map->units('cM');
- Function: Get/Set units for a map
- Returns : units for a map
- Args    : units for a map (string)
-
-
-=head2 type
-
- Title   : type
- Usage   : my $type = $map->type
- Function: Get/Set Map type
- Returns : String coding map type
- Args    : (optional) string
-
-=head2 unique_id
-
- Title   : unique_id
- Usage   : my $id = $map->unique_id;
- Function: Get/Set the unique ID for this map
- Returns : a unique identifier
- Args    : [optional] new identifier to set
-
-=cut
 
 1;

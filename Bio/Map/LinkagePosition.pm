@@ -1,6 +1,6 @@
 # BioPerl module for Bio::Map::LinkagePosition
 #
-# Cared for by Chad Matsalla <bioinformatics1@dieselwurks.com>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Chad Matsalla
 #
@@ -57,6 +57,7 @@ Email bioinformatics1@dieselwurks.com
 Lincoln Stein, lstein@cshl.org
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Jason Stajich jason@bioperl.org
+Sendu Bala bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -72,7 +73,6 @@ Internal methods are usually preceded with a _
 package Bio::Map::LinkagePosition;
 use vars qw(@ISA);
 use strict;
-require 'dumpvar.pl';
 
 use Bio::Map::OrderedPosition;
 

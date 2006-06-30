@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::PositionI
 #
-# Cared for by Jason Stajich <jason-at-bioperl.org>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Jason Stajich
 #
@@ -62,7 +62,7 @@ Describe contact details here
 
 Lincoln Stein, lstein-at-cshl.org
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
-Sendu Bala, bix-at-sendu-dot-me-dot-uk
+Sendu Bala, bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -88,38 +88,128 @@ use Carp;
 =head2 map
 
  Title   : map
- Usage   : my $id = map->map;
- Function: Get/Set the map the position is in.
+ Usage   : my $map = $position->map();
+           $position->map($map);
+ Function: Get/Set the map the position is in. When setting, notifies the map
+           in question we belong to it, and any previous map that we no longer
+           belong to it.
  Returns : L<Bio::Map::MapI>
- Args    : [optional] new L<Bio::Map::MapI>
+ Args    : none to get
+           new L<Bio::Map::MapI> to set
 
 =cut
 
 sub map {
-   my ($self, $value) = @_;
-   $self->throw_not_implemented();
+    # this is fundamental to coordination of Positions and Maps, so is
+    # implemented at the interface level
+    my ($self, $map) = @_;
+    
+    if (defined $map) {
+        $self->throw("This is [$map], not an object") unless ref($map);
+        $self->throw("This is [$map], not a Bio::Map::MapI object") unless $map->isa('Bio::Map::MapI');
+        
+        if (defined $self->{'_map'} && $self->{'_map'} ne $map) {
+            $self->{'_map'}->purge_positions($self);
+        }
+        $self->{'_map'} = $map;
+        $map->add_position($self);
+    }
+    
+    return $self->{'_map'} || return;
+}
+
+=head2 purge_map
+
+ Title   : purge_map
+ Usage   : $position->purge_map();
+ Function: Disassociate this Position from any map. Notifies any pre-existing
+           map that we are no longer on it.
+ Returns : n/a
+ Args    : none
+
+=cut
+
+sub purge_map {
+    # this is fundamental to coordination of Positions and Maps, so is
+    # implemented at the interface level
+    my $self = shift;
+    
+    if (defined $self->{'_map'}) {
+        $self->{'_map'}->purge_positions($self);
+    }
+    delete $self->{'_map'};
+}
+
+=head2 element
+
+ Title   : element
+ Usage   : my $element = $position->element();
+           $position->element($element);
+ Function: Get/Set the element the position is for. When setting, notifies the
+           element in question we belong to it, and any previous element that we
+           no longer belong to it.
+ Returns : L<Bio::Map::MappableI>
+ Args    : none to get
+           new L<Bio::Map::MappableI> to set
+
+=cut
+
+sub element {
+    # this is fundamental to coordination of Positions and Mappables, so is
+    # implemented at the interface level
+    my ($self, $element) = @_;
+    
+    if (defined $element) {
+        $self->throw("This is [$element], not an object") unless ref($element);
+        $self->throw("This is [$element], not a Bio::Map::MappableI object") unless $element->isa('Bio::Map::MappableI');
+        
+        if (defined $self->{'_element'} && $self->{'_element'} ne $element) {
+            $self->{'_element'}->purge_positions($self);
+        }
+        $self->{'_element'} = $element;
+        $element->add_position($self);
+    }
+    
+    return $self->{'_element'} || return;
+}
+
+=head2 purge_element
+
+ Title   : purge_element
+ Usage   : $position->purge_element();
+ Function: Disassociate this Position from any element. Notifies any
+           pre-existing element that we no longer belong to it.
+ Returns : n/a
+ Args    : none
+
+=cut
+
+sub purge_element {
+    # this is fundamental to coordination of Positions and Mappables, so is
+    # implemented at the interface level
+    my $self = shift;
+    
+    if (defined $self->{'_element'}) {
+        $self->{'_element'}->purge_positions($self);
+    }
+    delete $self->{'_element'};
 }
 
 =head2 marker
 
  Title   : marker
- Usage   : my $id = marker->marker;
- Function: Get/Set the marker the position is in.
- Returns : L<Bio::Map::MarkerI>
- Args    : [optional] new L<Bio::Map::MarkerI>
+ Function: This is a synonym of the element() method
+ Status  : deprecated, will be removed in the next version
 
 =cut
 
-sub marker {
-   my ($self, $value) = @_;
-   $self->throw_not_implemented();
-}
-
+*marker = \&element;
+*marker = \&element; # avoid warning
 
 =head2 value
 
  Title   : value
- Usage   : my $pos = $position->value;
+ Usage   : my $pos = $position->value();
  Function: Get/Set the value for this position
  Returns : scalar, value
  Args    : [optional] new value to set
@@ -127,63 +217,78 @@ sub marker {
 =cut
 
 sub value {
-   my ($self, $value) = @_;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 =head2 numeric
 
  Title   : numeric
- Usage   : my $num = $position->numeric;
- Function: Read-only method that is guarantied to return 
+ Usage   : my $num = $position->numeric();
+ Function: Read-only method that is guaranteed to return 
            representation for this position that can be compared with others
- Returns : numeric (int, real or range)
+ Returns : numeric
  Args    : none
 
 =cut
 
 sub numeric {
-   my ($self) = @_;
-   $self->throw_not_implemented();
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 sortable
+
+ Title   : sortable
+ Usage   : my $num = $position->sortable();
+ Function: Read-only method that is guaranteed to return a value suitable
+           for correctly sorting this kind of position
+ Returns : numeric
+ Args    : none
+
+=cut
+
+sub sortable {
+    my $self = shift;
+    $self->throw_not_implemented();
 }
 
 =head2 start
 
   Title   : start
-  Usage   : $start = $range->start();
-  Function: get/set the start of this range
-  Returns : the start of this range
+  Usage   : $start = $position->start();
+  Function: get/set the start of this position
+  Returns : the start of this position
   Args    : optionally allows the start to be set
-            using $range->start($start)
+            using $position->start($start)
 
 =cut
 
 =head2 end
 
   Title   : end
-  Usage   : $end = $range->end();
-  Function: get/set the end of this range
-  Returns : the end of this range
+  Usage   : $end = $position->end();
+  Function: get/set the end of this position
+  Returns : the end of this position
   Args    : optionally allows the end to be set
-            using $range->end($end)
+            using $position->end($end)
 
 =cut
 
 =head2 length
 
   Title   : length
-  Usage   : $length = $range->length();
-  Function: get/set the length of this range
-  Returns : the length of this range
-  Args    : optionally allows the length to be set
-             using $range->length($length)
+  Usage   : $length = $position->length();
+  Function: get the length of this position
+  Returns : the length of this position
+  Args    : none
 
 =cut
 
 =head2 strand
 
   Title   : strand
-  Usage   : $strand = $range->strand();
+  Usage   : $strand = $position->strand();
   Function: get the strand of this position; it is always 1 (the forward strand)
   Returns : 1, the strandedness
   Args    : none
@@ -191,36 +296,36 @@ sub numeric {
 =cut
 
 sub strand {
-   return 1;
+    return 1;
 }
 
 =head1 Boolean Methods
 
-These range-related methods return true or false. They throw an error if start and
-end are not defined.
+These range-related methods return true or false. They throw an error if start
+and end are not defined.
 
-  $range->overlaps($otherRange) && print "Ranges overlap\n";
 
 =head2 overlaps
 
   Title   : overlaps
-  Usage   : if($r1->overlaps($r2)) { do stuff }
-  Function: tests if $r2 overlaps $r1
-  Args    : arg #1 = a range to compare this one to (mandatory)
-            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
-  Returns : true if the ranges overlap, false otherwise
+  Usage   : if ($p1->overlaps($p2)) {...}
+  Function: tests if $p1 overlaps $p2
+  Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to
+  Returns : true if the positions overlap (regardless of map), false otherwise
+            [*** relative handling ***]
 
 =cut
 
 =head2 contains
 
   Title   : contains
-  Usage   : if($r1->contains($r2) { do stuff }
-  Function: tests whether $r1 totally contains $r2 
-  Args    : arg #1 = a range to compare this one to (mandatory)
-	             alternatively, integer scalar to test
-            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
-  Returns : true if the argument is totally contained within this range
+  Usage   : if ($p1->contains($p2) {...}
+  Function: tests whether $p1 totally contains $p2 
+  Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to.
+	        alternatively, integer scalar to test
+  Returns : true if the argument is totally contained within this position
+            (regardless of map), false otherwise
+            [*** relative handling ***]
 
 =cut
 
@@ -234,98 +339,114 @@ which new positions could be built.
 
  Title   : intersection
  Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
-           ($start, $stop, $strand) = Bio::Map::PositionI->intersection(\@positions);
+           ($start, $stop, $strand) = Bio::Map::Position->intersection(\@positions);
            my $containing_range = $r1->intersection($r2);
-           my $containing_range = Bio::Map::PositionI->intersection(\@positions);
+           my $containing_range = Bio::Map::Position->intersection(\@positions);
  Function: gives the range that is contained by all ranges
  Returns : undef if they do not overlap, or
            the range that they do overlap in an object like the calling one
-           (with map transfered across from self or the first range in the array
-           ref of ranges supplied, as long as the map is shared by all inputs),
+           (with map transfered across from self or a position in the array ref
+           of positions supplied, as long as the map is shared by all inputs),
            OR a three element array
- Args    : arg #1 = [REQUIRED] a position/range to compare this one to,
-                    or an array ref of positions/ranges
-           arg #2 = strand option ('strong', 'weak', 'ignore')
+ Args    : a position/range to compare this one to, or an array ref of
+           positions/ranges
+           [*** relative handling ***]
 
 =cut
 
 sub intersection {
+    # overriding the RangeI implementation so we can transfer map and make the
+    # result a PositionI
     my $self = shift;
     
-    @_ > 0 && $_[0] or return;
-    
-    unless (ref($_[0]) eq 'ARRAY') {
-        if (wantarray()) {
-            return $self->SUPER::intersection(@_);
-        }
-        my $output = $self->SUPER::intersection(@_);
-        $output->map($self->map);
-        return $output;
+    if (wantarray()) {
+        return $self->SUPER::intersection(@_);
     }
     
-    my @input_ranges = @{shift(@_)};
-    @input_ranges > 1 or return;
+    my $range = $self->SUPER::intersection(@_);
+    $range or return;
     
-    my ($output, $map);
-    while (@input_ranges > 1) {
-        unless ($output) {
-            $output = shift(@input_ranges);
-            $map = $output->map;
+    # transfer the map
+    my @things;
+    if ($self eq "Bio::Map::PositionI") {
+        $self = "Bio::Map::Position";
+        $self->warn("calling static methods of an interface is deprecated; use $self instead");
+    }
+    if (ref $self) {
+        push(@things, $self);
+    }
+    my $given = shift;
+    ref($given) eq 'ARRAY' ? push(@things, @{$given}) : push(@things, $given);
+    
+    my $map;
+    foreach my $thing (@things) {
+        if ($thing->isa("Bio::Map::PositionI")) {
+            my $this_map = $thing->map || next;
+            $map ||= $this_map;
+            
+            if ($map ne $this_map) {
+                $map = undef;
+                last;
+            }
         }
-        
-        my $input_range = shift(@input_ranges);
-        if ($map && (my $compare_map = $input_range->map)) {
-            ($compare_map eq $map) or ($map = undef);
-        }
-        $output = $output->SUPER::intersection($input_range, @_);
     }
     
-    $output->map($map);
-    return $output->intersection(shift(@input_ranges), @_);
+    return $self->new(-start => $range->start, -end => $range->end, -map => $map);
 }
 
 =head2 union
 
  Title   : union
  Usage   : ($start, $stop, $strand) = $r1->union($r2);
-           ($start, $stop, $strand) = Bio::Map::PositionI->union(@positions);
-           my $newpos = Bio::Map::PositionI->union(@positions);
+           ($start, $stop, $strand) = Bio::Map::Position->union(@positions);
+           my $newpos = Bio::Map::Position->union(@positions);
  Function: finds the minimal position/range that contains all of the positions
  Returns : the position object containing all of the ranges in an object like
-           the calling one (with map transfered across from self or the first
-           range in the array ref of ranges supplied, as long as the map is
-           shared by all inputs), OR a three element array
+           the calling one (with map transfered across from self or a position
+           in the array ref of positions supplied, as long as the map is shared
+           by all inputs), OR a three element array
  Args    : a range or list of positions/ranges to find the union of
+           [*** relative handling ***]
 
 =cut
 sub union {
+    # overriding the RangeI implementation so we can transfer map and make the
+    # result a PositionI
     my $self = shift;
     
     if (wantarray()) {
         return $self->SUPER::union(@_);
     }
     
-    my $output = $self->SUPER::union(@_);
+    my $range = $self->SUPER::union(@_);
+    $range or return;
+    
+    # transfer the map
+    my @things;
+    if ($self eq "Bio::Map::PositionI") {
+        $self = "Bio::Map::Position";
+        $self->warn("calling static methods of an interface is deprecated; use $self instead");
+    }
+    if (ref $self) {
+        push(@things, $self);
+    }
+    my $given = shift;
+    ref($given) eq 'ARRAY' ? push(@things, @{$given}) : push(@things, $given);
     
     my $map;
-    if (@_ > 1) {
-        my @inputs = @_;
-        $map = shift(@inputs)->map;
-        $map or return $output;
-        
-        foreach my $input (@inputs) {
-            if (my $compare_map = $input->map) {
-                $compare_map ne $map and return $output;
+    foreach my $thing (@things) {
+        if ($thing->isa("Bio::Map::PositionI")) {
+            my $this_map = $thing->map || next;
+            $map ||= $this_map;
+            
+            if ($map ne $this_map) {
+                $map = undef;
+                last;
             }
         }
-        
-        $output->map($map);
-    }
-    else {
-        $output->map($self->map);
     }
     
-    return $output;
+    return $self->new(-start => $range->start, -end => $range->end, -map => $map);
 }
 
 =head2 overlap_extent

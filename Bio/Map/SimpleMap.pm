@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::SimpleMap
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Jason Stajich
 #
@@ -22,7 +22,7 @@ Bio::Map::SimpleMap - A MapI implementation handling the basics of a Map
 				      -units=> 'cM',
 				      -species => $human);
     foreach my $marker ( @markers ) { # get a list of markers somewhere
-	$map->add_element($marker);
+		$map->add_element($marker);
     }
 
 =head1 DESCRIPTION
@@ -61,6 +61,7 @@ Email jason@bioperl.org
 
 Heikki Lehvaslaiho heikki-at-bioperl-dot-org
 Lincoln Stein      lstein@cshl.org
+Sendu Bala         bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -96,8 +97,7 @@ BEGIN { $MAPCOUNT = 1; }
            -units   => map units (string)
            -elements=> elements to initialize with
                        (arrayref of Bio::Map::MappableI objects) [optional]
-
-           -uid     => Unique Id
+           -uid     => Unique Id [defaults to a unique integer]
 
 =cut
 
@@ -186,7 +186,6 @@ sub type {
    return $self->{'_type'};
 }
 
-
 =head2 name
 
  Title   : name
@@ -220,15 +219,15 @@ sub name {
 =cut
 
 sub length {
-   my ($self) = @_;
-   my ($len ) = 0;
-
-   foreach my $marker ($self->each_element) {
-       $len = $marker->position->numeric if  $marker->position->numeric > $len;
-   }
-   return $len;
+	my ($self) = @_;
+	my ($len ) = 0;
+	
+    foreach my $marker ($self->each_element) {
+		#*** needs to look at all positions on the map
+		$len = $marker->position->numeric if  $marker->position->numeric > $len;
+	}
+	return $len;
 }
-
 
 =head2 unique_id
 
@@ -248,45 +247,86 @@ sub unique_id {
    return $self->{'_uid'};
 }
 
-
 =head2 add_element
 
  Title   : add_element
- Usage   : $map->add_element($marker)
- Function: Add a Bio::Map::MappableI object to the Map
+ Usage   : $map->add_element($element)
+ Function: Tell a Bio::Map::MappableI object its default Map is this one; same
+           as calling $element->default_map($map).
+		   
+		   *** does not actually add the element to this map! ***
+		   
  Returns : none
  Args    : Bio::Map::MappableI object
 
 =cut
 
-sub add_element{
-    my ($self,$mapelement) = @_;
-    return unless ( defined $mapelement);
-
-    $self->throw("This is not a Bio::Map::MarkerI object but a [$self]")
-	unless $mapelement->isa('Bio::Map::MarkerI');
-
-    $mapelement->map($self);	# tell the marker its default map
-
-    push @{$self->{'_elements'}}, $mapelement;
-
+sub add_element {
+    my ($self, $element) = @_;
+    return unless $element;
+	
+    $self->throw("This is not a Bio::Map::MarkerI object but a [$element]")
+	unless $element->isa('Bio::Map::MarkerI');
+	
+    $element->default_map($self);
 }
 
 =head2 each_element
 
  Title   : each_element
  Usage   : my @elements = $map->each_element;
- Function: Retrieves all the elements in a map
-           unordered
+ Function: Retrieves all the elements in a map (unordered unless all elements
+           have just 1 position on the map, in which case sorted)
  Returns : Array of Bio::Map::MappableI objects
  Args    : none
 
-
 =cut
 
-sub each_element{
-   my ($self) = @_;
-   return @{$self->{'_elements'}};
+sub each_element {
+	my $self = shift;
+	
+	my %elements;
+	my $only_1 = 1;
+	foreach my $pos ($self->each_position) {
+		my $element = $pos->element;
+		if ($element) {
+			$elements{$element} = $element;
+			
+			my $num_of_pos = $element->each_position($self);
+			if ($num_of_pos && $num_of_pos > 1) {
+				$only_1 = 0;
+			}
+		}
+	}
+	
+	# for backward compatability with MapIO tests, and for 'niceness', when
+	# there is only 1 position per element we will return the elements in
+	# order
+	if ($only_1) {
+		#*** assumes we're dealing with a MarkerI which have position() method
+		return sort { $a->position->sortable <=> $b->position->sortable } values %elements;
+	}
+	
+	return values %elements;
+}
+
+=head2 purge_element
+
+ Title   : purge_element
+ Usage   : $map->purge_element($element)
+ Function: Purge an element from the map; the same as calling
+           $element->purge_positions($map).
+ Returns : none
+ Args    : Bio::Map::MappableI object
+
+=cut
+sub purge_element {
+    my ($self, $element) = @_;
+    $self->throw("Must supply an argument") unless $element;
+    $self->throw("This is [$element], not an object") unless ref($element);
+    $self->throw("This is [$element], not a Bio::Map::MappableI object") unless $element->isa('Bio::Map::MappableI');
+	
+	$element->purge_positions($self);
 }
 
 1;
