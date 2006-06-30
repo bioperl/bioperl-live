@@ -23,7 +23,7 @@ BEGIN {
 	}
 	use Test;
 
-	$NUMTESTS = 15;
+	$NUMTESTS = 14;
 	plan tests => $NUMTESTS;
 	eval { require IO::String;
 			 require LWP::UserAgent;
@@ -47,7 +47,7 @@ if( $error ==  1 ) {
 
 require Bio::DB::SeqHound;
 
-my $verbose = 0;
+my $verbose = -1;
 
 ## End of black magic.
 ##
@@ -61,7 +61,7 @@ my ($db,$seq,$seqio);
 $seq = $seqio = undef;
 
 eval { 
-    ok defined($db = new Bio::DB::SeqHound(-verbose=>$verbose)); 
+    $db = new Bio::DB::SeqHound(-verbose=>$verbose);
     ok(defined($seq = $db->get_Seq_by_acc('J00522')));
     ok( $seq->length, 408); 
     ok defined ($db->request_format('fasta'));
@@ -81,7 +81,7 @@ if ($@) {
 	warn "Warning: Couldn't connect to SeqHound with Bio::DB::SeqHound.pm!\n$@";
     }
     foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to seqhound',1);
+	 skip('Skip could not connect to seqhound',1);
      }
     exit(0);
 }
@@ -103,7 +103,7 @@ if ($@) {
     if( $DEBUG ) {
 	warn "Batch access test failed.\nError: $@\n";
     }
-    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
+    foreach ( $Test::ntest..$NUMTESTS ) { skip('could not connect to seqhound',1); }
 }
 
 
