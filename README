@@ -13,8 +13,8 @@ o Getting Started
  Please see the the INSTALL or INSTALL.WIN documents for installation 
  instructions.
 
- For tutorials see Bioperl's bptutorial.pl in this directory or the
- HOWTO documents and tutorials online at http://bioperl.org. 
+ For tutorials see the Bioperl Tutorial.pl (http://www.bioperl.org/wiki/Bptutorial.pl)
+ or the HOWTO documents and tutorials online at http://bioperl.org. 
  To look at example code browse the scripts/ and examples/ directories
 
  For people starting out with Perl and Bioperl, look at the Bio::Perl
@@ -74,23 +74,10 @@ o Documentation
  This should be the starting point for you to read about what
  bioperl is, how to use it and who wrote it.
 
- The bptutorial.pl file is a POD formatted tutorial document 
- that contains useful information for new and existing Bioperl users.
+ The Bioperl Tutorial (http://www.bioperl.org/wiki/Bptutorial.pl) 
+ contains useful information for new and existing Bioperl users.
  This file also contains a number of useful scripts that the 
  student of Bioperl may want to examine.
-
- Use your favorite pod2* translator turn it into the format of
- choice or view it directly via perldoc.
-
- For example, go 
-
-   perldoc bioperl 
- 
- or in this directory go
- 
-   pod2text bioperl.pod | more
- 
-   pod2text bptutorial.pl | more 
 
  Individual *.pm modules have their own embedded POD documentation
  as well. A complete set of hyperlinked POD, or module, documentation 
@@ -163,7 +150,7 @@ o Caveats, warnings, etc
 
  If you are confused about what modules are appropriate when you try
  and solve a particular issue in bioinformatics we urge you to look at
- the bptutorial or the HOWTO documents first. 
+ the Bioperl Tutorial or the HOWTO documents first. 
 
 o A simple module summary
 
