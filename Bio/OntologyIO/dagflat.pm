@@ -539,8 +539,13 @@ sub _parse_flat_file {
         my $current_term   = $self->_get_first_termid( $termspecs[0] );
         my @syns           = $self->_get_synonyms( $termspecs[0] );
         my @sec_go_ids     = $self->_get_secondary_termids( $termspecs[0] );
-        my @cross_refs     = $self->_get_db_cross_refs( $termspecs[0] );
-
+        my @cross          = $self->_get_db_cross_refs( $termspecs[0] );
+        my @cross_refs;
+        foreach my $cross_ref (@cross) {
+            $cross_ref eq $current_term && next;
+            push(@cross_refs, $cross_ref);
+        }
+        
         # parse out the parents of the focus term
         shift(@termspecs);
         my @isa_parents = ();
