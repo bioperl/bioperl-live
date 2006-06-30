@@ -19,7 +19,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 42;
+    plan tests => 41;
 }
 
 use Bio::Taxonomy::Taxon;
@@ -30,16 +30,15 @@ ok my $taxonL = Bio::Taxonomy::Taxon->new;
 ok $taxonL->description('this could be anything');
 ok $taxonL->taxon('could this be called name?');
 ok $taxonL->id('could this be called taxid?');
-skip  $taxonL->branch_length('should accept only numerical values?'), ' ';
+skip 1, $taxonL->branch_length('should accept only numerical values?');
 ok  $taxonL->branch_length(5);
 
 ok $taxonL->id('could this be called taxid?');
 ok $taxonL->rank('species');
 ok $taxonL->rank, 'species';
-skip(1,"skip me, this is not a sensible method");
 # ok $taxonL->has_rank, 'species'; #why two methods that do mostly the same thing, but work differently?
 
-skip $taxonL->rank('foo is not a rank, class variable @RANK not initialised'), ''; 
+skip 1, $taxonL->rank('foo is not a rank, class variable @RANK not initialised'); 
 ok $taxonL->to_string, '"could this be called taxid?":5';
 
 my $taxonR = new Bio::Taxonomy::Taxon;
