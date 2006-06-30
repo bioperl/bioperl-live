@@ -113,7 +113,6 @@ sub new {
 		return $self;
 	}
 	else {
-	    	$self->warn ("Access SeqHound failed due to SeqHoundInit.");  
 		return;
 	}
 }
@@ -473,7 +472,7 @@ sub get_request {
 		}
 		else {
 			my $result = "HTTP::Request error: ".$res->status_line."\n";
-			print "Alert: $url failed.\nError code: $result\n";
+			$self->warn("$result");
 			return $result;
 		}
 	}
@@ -723,7 +722,7 @@ sub _init_SeqHound
 	my $result = $self->postprocess_data(-lcontent => $ret,
 					-funcname => 'SeqHoundInit',
 					-outtype => 'string');
-	return $result;
+	return $result || 'FALSE';
 
 }
 
