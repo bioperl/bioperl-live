@@ -99,10 +99,8 @@ eval {
     require Spreadsheet::ParseExcel;
 };
 if ($@) {
-    print STDERR "# Spreadsheet::ParseExcel failed to load, probably because it is not installed.\n";
-    print STDERR "# Cannot test Excel format parsing w/o it, hence will skip.\n";
     foreach ((NONEXCELTESTS+1)..NUMTESTS) { 
-        skip ("Skip Excel format test b/c Spreadsheet::ParseExcel not installed",1,1); 
+        skip ("Skip Excel format test because Spreadsheet::ParseExcel not installed",1,1); 
     }
     exit(0);
 }
