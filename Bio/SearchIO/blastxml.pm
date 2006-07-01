@@ -36,7 +36,8 @@ This object implements a NCBI Blast XML parser.  It requires XML::SAX; it is
 also recommended (for faster parsing) that XML::SAX::ExpatXS be installed and
 set as the default parser in ParserDetails.ini.  This file is located in the
 SAX subdirectory of XML in your local perl library (normally in the 'site'
-directory).  Currently, XML::SAX::Expat will NOT work if set as default.
+directory).  Currently, XML::SAX::Expat will NOT work as expected if set as
+default; you must have local copies of the NCBI DTDs if using XML::SAX::Expat.
 
 There is one additional initialization flag from the SearchIO defaults
 - that is the -tempfile flag.  If specified as true, then the parser
@@ -48,6 +49,25 @@ have an additional unecessary RPS-BLAST tag at the top of each report.
 So we currently have implemented the work around by preparsing the
 file (yes it makes the process slower, but it works).
 
+=head1 DEPENDENCIES
+
+In addition to parts of the Bio:: hierarchy, this module uses:
+
+ XML::SAX
+
+It is also recommended that XML::SAX::ExpatXS be installed and made the default
+XML::SAX parser using , along with the
+Expat library () for faster parsing.  XML::SAX::Expat is not recommended; 
+XML::SAX::ExpatXS is considered the current replacement for XML::SAX:Expat
+and is actively being considered to replace XML::SAX::Expat.  XML::SAX::Expat
+will work, but only if you have local copies of the NCBI BLAST DTDs. This is
+due to issues with NCBI's BLAST XML format.  The DTDs and the web address to
+obtain them are:
+
+  NCBI_BlastOutput.dtd	    
+  NCBI_BlastOutput.mod.dtd
+
+  http://www.ncbi.nlm.nih.gov/data_specs/dtd/
 
 =head1 FEEDBACK
 
@@ -94,7 +114,9 @@ use XML::SAX;
 use HTML::Entities;
 use IO::File;
 
-BEGIN { 
+BEGIN {
+    # uncomment only for testing; trying to get XML::SAX::Expat to play nice...
+    $XML::SAX::ParserPackage = 'XML::SAX::Expat';
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('BlastOutput' => 'result',
 		'Hit'         => 'hit',
@@ -191,12 +213,17 @@ BEGIN {
 =cut
 
 sub _initialize{
-   my ($self,@args) = @_;   
-   $self->SUPER::_initialize(@args);
-   my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
-   defined $usetempfile && $self->use_tempfile($usetempfile);
-   $self->{'_xmlparser'} = XML::SAX::ParserFactory->parser(Handler => $self);
-   $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
+    my ($self,@args) = @_;   
+    $self->SUPER::_initialize(@args);
+    my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
+    defined $usetempfile && $self->use_tempfile($usetempfile);
+    $self->{'_xmlparser'} = XML::SAX::ParserFactory->parser(Handler => $self);
+    my $local_parser = ref($self->{'_xmlparser'});
+    if ($local_parser eq 'XML::SAX::Expat') {
+        $self->warn('XML::SAX::Expat not currently supported; '.
+                    'must have local copies of NCBI DTD docs!');
+    }    
+    $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
 }
 
 =head2 next_result
