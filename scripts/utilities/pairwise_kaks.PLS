@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: pairwise_kaks.PLS,v 1.10 2006-06-20 01:03:37 jason Exp $
+# $Id: pairwise_kaks.PLS,v 1.11 2006-07-01 07:28:51 mauricio Exp $
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 
 =head1 NAME
@@ -36,8 +36,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org              - General discussion
-  http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 

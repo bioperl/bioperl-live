@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
 use Carp;
-# $Id: aacomp.PLS,v 1.3 2005-10-09 14:53:26 heikki Exp $
+# $Id: aacomp.PLS,v 1.4 2006-07-01 07:28:51 mauricio Exp $
 
 use Bio::SeqIO;
 use Getopt::Long;
@@ -110,8 +110,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org              - General discussion
-  http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 

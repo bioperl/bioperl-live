@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: remote_blast.PLS,v 1.5 2006-03-17 15:29:11 bosborne Exp $
+# $Id: remote_blast.PLS,v 1.6 2006-07-01 07:28:51 mauricio Exp $
 #
 # BioPerl module for remote_blast.pl
 #
@@ -159,7 +159,7 @@ Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org               - General discussion
-  http://bioperl.org/MailList.shtml   - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists   - About the mailing lists
 
 =head2 Reporting Bugs
 
