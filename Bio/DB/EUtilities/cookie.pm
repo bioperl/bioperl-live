@@ -4,6 +4,7 @@
 package Bio::DB::EUtilities::Cookie;
 use strict;
 use warnings;
+use URI::Escape qw(uri_unescape);
 use Bio::Root::Root;
 use vars '@ISA';
 
@@ -25,7 +26,7 @@ sub new {
         }
         $self->throw("Missing ".$missing);
     }
-    $self->cookie($webenv, $querykey);
+    $self->cookie(uri_unescape($webenv), $querykey);
     # holds description of database, elink, etc if present
     $desc       && $self->description($desc);
     # holds total hits if present (i.e. esearch)

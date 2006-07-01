@@ -34,7 +34,7 @@ sub _initialize {
 	  $self->_rearrange([qw(TERM FIELD RELDATE MINDATE MAXDATE DATETYPE
         RETSTART RETMAX REPORT DBFROM CMD HOLDING VERSION LINKNAME)], @args);
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
     # defaults which can be overridden
     # Note : retmode should be 'xml' for all elink queries except when cmd=prlinks
     $datetype ||= 'mdat';
@@ -68,12 +68,14 @@ sub _initialize {
 =cut
 
 sub parse_response {
+	# to add: parsing for dbfrom/dbto ids, tagging cookies with databases
     my $self    = shift;
     my $response = shift if @_;
     if (!$response || !$response->isa("HTTP::Response")) {
         $self->throw("Need HTTP::Response object");
     }
     my $content = $response->content;
+	$self->debug("Response:\n".$content);
     my $webenv;
     my @querykey;
     # go through to make sure this catches errors

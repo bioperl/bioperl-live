@@ -22,7 +22,7 @@ sub _initialize {
 	  $self->_rearrange([qw(TERM FIELD RELDATE MINDATE MAXDATE DATETYPE RETTYPE
         RETSTART RETMAX REPORT SEQ_START SEQ_STOP STRAND COMPLEXITY)], @args);    
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
     $datetype ||= 'mdat';
     $self->datetype($datetype) if $datetype;
     $retstart       && $self->retstart($retstart);
@@ -46,7 +46,8 @@ sub _initialize {
 
 =cut
 
-# this is NOOP b/c efetch returns raw data to be processed or saved (i.e. no cookies)
+# this is NOOP b/c efetch returns raw data to be processed or saved;
+# errors caught in get_response 
 
 sub parse_response {
 }

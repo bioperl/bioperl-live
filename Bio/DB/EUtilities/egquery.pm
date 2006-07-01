@@ -1,12 +1,10 @@
 
 # Let the code begin...
 
-
 package Bio::DB::EUtilities::egquery;
 use strict;
 use warnings;
 use Bio::DB::EUtilities;
-use URI::Escape qw(uri_unescape);
 
 use vars qw(@ISA $EUTIL);
 
@@ -22,7 +20,7 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
 	my ($term) =  $self->_rearrange([qw(TERM)],@args);	
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
     $term	        && $self->term($term);
 }
 

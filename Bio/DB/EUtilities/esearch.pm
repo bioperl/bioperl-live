@@ -61,7 +61,6 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
-use URI::Escape qw(uri_unescape);
 
 use vars qw(@ISA $EUTIL);
 
@@ -80,7 +79,7 @@ sub _initialize {
         RETSTART RETMAX SORT USEHISTORY)],
 		@args);    
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
     $datetype ||= 'mdat';
     $self->datetype($datetype) if $datetype;
 	$term			&& $self->term($term);
@@ -126,7 +125,7 @@ sub parse_response {
         ($webenv) = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
         ($querykey) = $content =~ m!<QueryKey>(\d+)!g;
 		my $cookie = Bio::DB::EUtilities::Cookie->new(
-										 -webenv    => uri_unescape($webenv),
+										 -webenv    => $webenv,
 										 -querykey  => $querykey,
 										 -eutil     => 'esearch',
 										 -description   => $self->term,

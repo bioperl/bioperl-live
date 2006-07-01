@@ -56,9 +56,15 @@ users and neophytes beware!
 
 The experimental base class is Bio::DB::GenericWebDBI, which as the name
 implies enables access to any web database which will accept parameters.  This
-is akin to the current implementation for WebDBSeqI/NCBIHelper, except that
-GenericWebDBI/EUtilities isn't limited to sequences only.  You can access any
-database available through the NCBI interface:
+was originally born from an idea to replace WebDBSeqI/NCBIHelper with a more
+general web database accession tool so one could access sequence information,
+taxonomy, SNP, PubMed, and so on.  However, this may prove to be better used
+as a replacement for LWP::UserAgent when accessing NCBI-related web tools
+(Entrez Utilitites, or EUtilities).  Using the base class GenericWebDBI, one
+could also build web interfaces to other databases to access anything via
+CGI parameters.
+
+Currently, you can access any database available through the NCBI interface:
 
   http://eutils.ncbi.nlm.nih.gov/
 
@@ -89,28 +95,44 @@ the object method content, like so:
   
   print $efetch->get_response->content;
 
-=head1 COOKIES
+Based on this, if one wanted to retrieve sequences or other raw data but did not
+want to directly use Bio* objects (such as if genome sequences were to be
+retrieved) one could do so by using the proper EUtility object(s) and query(ies)
+and get the raw response back from NCBI through 'efetch'.  
 
-A Note on Cookies:
+B<A Note on Cookies:>
 
 Certain EUtilities (epost, esearch, or elink) are able to retain information on
-the NCBI server.  This information can be retrieved by using a 'cookie.'
-Here, the idea of the 'cookie' is similar to the 'cookie' set on a user's
-computer when browsing the Web.  XML data returned by these EUtilities,
-when applicable, is parsed for the cookie information (the 'WebEnv' and
-'query_key' tags to be specific)  The information along with other identifying
-data, such as the calling eutility, description of query, etc) is stored (as
-Bio::DB::EUtilities::Cookie) in an internal queue.  These can be retrieved
+the NCBI server under certain settings.  This information can be retrieved by
+using a 'cookie.'  Here, the idea of the 'cookie' is similar to the 'cookie' set
+on a user's computer when browsing the Web.  XML data returned by these
+EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
+and 'query_key' tags to be specific)  The information along with other identifying
+data, such as the calling eutility, description of query, etc.) is stored as a
+Bio::DB::EUtilities::Cookie object in an internal queue.  These can be retrieved
 one at a time by using the next_cookie method or all at once in an array using
 get_all_cookies.  Each cookie can then be 'fed', one at a time, to another
-EUtility object, thus enabling chained queries as demonstrated in the synopsis.  
+EUtility object, thus enabling chained queries as demonstrated in the synopsis.
+
+By default, a EUtilities object will retrieve records using a cookie if the
+cookie parameter is set:
+
+my $efetch = Bio::DB::EUtilities->new(-db           => 'taxonomy',
+                                      -cookie       => $elink->next_cookie);
+
+ELink, in particular, is capable of returning multiple cookies based on the
+setting for the database; if db is set to 'all', you will retrieve a cookie for
+each database with related records.  
 
 =head1 TODO
 
 At this time no additional parsing of the returned response is enabled, but it
 is anticipated that parsing of XML for ID's and other commonly requested 
 information will be added in the very near future.  Resetting internal parameters
-is also planned so one could feasibly reuse the objects once instantiated.
+is also planned so one could feasibly reuse the objects once instantiated, such
+as if one were to use this as a replacement for LWP::UserAgent when retrieving
+responses i.e. many of the Bio::DB NCBI-related modules.
+
 Any feedback is welcome.
 
 =head1 FEEDBACK
@@ -210,7 +232,7 @@ BEGIN {
                  'unigene'          => 'xml',
                  'unists'           => 'xml',
                  );
-    @PARAMS = qw(eutil rettype usehistory term field tool reldate mindate
+    @PARAMS = qw(rettype usehistory term field tool reldate mindate
         maxdate datetype retstart retmax sort_results seq_start seq_stop strand
         complexity report dbfrom cmd holding version linkname);
 	for my $method (@PARAMS) {
@@ -241,21 +263,18 @@ sub new {
 
 sub _initialize {
     my ($self, @args) = @_;
-    my ($eutil, $tool, $ids, $retmode, $verbose, $cookie) =
-      $self->_rearrange([qw(EUTIL TOOL ID RETMODE VERBOSE COOKIE)],  @args);
+    my ( $tool, $ids, $retmode, $verbose, $cookie) =
+      $self->_rearrange([qw(TOOL ID RETMODE VERBOSE COOKIE)],  @args);
         # hard code the base address
     $self->url_base_address($HOSTBASE);
     $tool ||= $DEFAULT_TOOL;
     $self->tool($tool);
-    $eutil          && $self->eutil($eutil);
     $ids            && $self->id($ids);
     $verbose        && $self->verbose($verbose);
     $retmode        && $self->return_mode($retmode);
     if ($cookie) {
         $self->add_cookie($cookie);
-        $self->_self_cookie('1');
     }
-    return $self;
 }
 
 =head2 delay_policy
@@ -308,7 +327,8 @@ sub add_cookie {
 
 sub next_cookie {
     my $self = shift;
-    $self->debug('Cookie Jar Total: '.$#{ $self->{'_cookie'} }."\n" );
+    my $total = $#{$self->{'_cookie'} } + 1;
+    $self->debug('Cookie Jar Total: '.$total."\n" );
     if ($self->{'_cookie'}) {
         return shift @{ $self->{'_cookie'} };
     } else {
@@ -376,19 +396,11 @@ sub parse_response {
 
 sub get_response {
     my $self = shift;
-    my $cookie = shift if @_;
-    my $response;
-    $self->throw("Not a cookie object") if
-       defined($cookie) && !$cookie->isa("Bio::DB::EUtilities::Cookie");
-    if ($cookie) {
-        $response = $self->_submit_request($cookie);
-    } else {
-        $response = $self->_submit_request;
-    }
+    my $response = $self->_submit_request;
     if ($response->is_error) {
         $self->throw(ref($self)." Request Error:".$response->as_string);
     }
-    $self->parse_response($response);  # grab cookies and whatnot
+    $self->parse_response($response);  # grab cookies and what not
     return $response;
 }
 
@@ -396,13 +408,14 @@ sub get_response {
 
 sub reset_parameters {
     my $self = shift;
+    my @args = @_;
     for my $method (@PARAMS) {
-        next if $method eq 'eutil';
         if ($self->$method) {
             $self->$method(undef);
         }
     }
-    $self->reset_cookie;
+    $self->reset_cookies;
+    $self->_initialize(@args);
 }
 
 =head2 count
@@ -423,6 +436,24 @@ sub count   {
     return $self->{'_count'};
 }
 
+=head2 _eutil
+
+ Title   : _eutil
+ Usage   : $db->_eutil;
+ Function: sets eutils (will make private)
+ Returns : eutil
+ Args    : eutil
+
+Returns the number of entries that are matched by the query.
+
+=cut
+
+sub _eutil   {
+    my $self = shift;
+    return $self->{'_eutil'} = shift if @_;
+    return $self->{'_eutil'};
+}
+
 =head1 Private methods
 
 =head2 _submit_request
@@ -437,16 +468,14 @@ sub count   {
 
 sub _submit_request {
 	my $self = shift;
-    my $cookie = shift if @_;
-    my %params = ($cookie) ? $self->_get_params($cookie) : $self->_get_params;
-    my $eutil = $params{'eutil'};
+    my %params = $self->_get_params;
+    my $eutil = $self->_eutil;
+    # build id list here
     if ($self->id) {
         my @ids = @{$self->id};
         $params{'id'} = join ',', @ids;
         $self->debug
     }
-    # remove the eutil (not a real parameter, just used for mapping)
-    delete $params{eutil} if $params{eutil};
     my $url = URI->new($HOSTBASE . $CGILOCATION{$eutil}[1]);
     $url->query_form(%params);
     $self->debug("The web address:\n".$url->as_string."\n");
@@ -469,15 +498,12 @@ sub _submit_request {
 
 sub _get_params {
     my $self = shift;
-    my $cookie = shift if @_;
-    if ($self->_self_cookie) {
-        $cookie = $self->next_cookie;
-    }
+    my $cookie = $self->next_cookie;
     my @final;
     # add tests for WebEnv/query_key and id (don't need both)
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
-      qw(eutil db sort_results seq_start seq_stop strand complexity rettype
+      qw(db sort_results seq_start seq_stop strand complexity rettype
         retstart retmax cmd) :
               @PARAMS;
     for my $method (@final) {
@@ -498,7 +524,7 @@ sub _get_params {
     }
     $params{'db'} = $self->db if $self->db;
     unless ($self->return_mode) { # set by user
-        my $format = $CGILOCATION{$self->eutil}[2];  # set by eutil 
+        my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific
             $format = $DATABASE{$self->db};
         }
@@ -506,22 +532,6 @@ sub _get_params {
     }
     $self->debug("Param: $_\tValue: $params{$_}\n") for keys %params;
     return %params;
-}
-
-=head2 _self_cookie
-
- Title   : _self_cookie
- Usage   : $self->_self_cookie
- Function: sets flag to let object know to use internal cookie
- Returns : True
- Args    : Boolean (anything evaluating to true or false)
-
-=cut
-
-sub _self_cookie {
-    my $self = shift;
-    return $self->{'_selfcookie'} = shift if @_;
-    return $self->{'_selfcookie'};
 }
 
 sub _load_eutil_module {

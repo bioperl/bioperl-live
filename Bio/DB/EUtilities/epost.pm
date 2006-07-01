@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
-use URI::Escape qw(uri_unescape);
 
 use vars qw(@ISA $EUTIL $RETMODE);
 
@@ -19,7 +18,7 @@ sub _initialize {
     my ($self, @args) = @_;
     $self->SUPER::_initialize(@args);
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
     $self->return_mode($RETMODE);
 }
 
@@ -50,7 +49,7 @@ sub parse_response {
     }
     my ($webenv)    = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
     my ($querykey)  = $content =~ m!<QueryKey>(\d+)!;
-    my $cookie = Bio::DB::EUtilities::Cookie->new(-webenv   => uri_unescape($webenv),
+    my $cookie = Bio::DB::EUtilities::Cookie->new(-webenv   => $webenv,
                                                   -querykey => $querykey,
                                                   -eutil    => 'epost');
     $self->add_cookie($cookie);

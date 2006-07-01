@@ -18,7 +18,7 @@ sub _initialize {
     my ($self, @args ) = @_;
     $self->SUPER::_initialize(@args);
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
 }
 
 =head2 parse_response

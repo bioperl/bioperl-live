@@ -7,7 +7,6 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use XML::SAX;
-use URI::Escape qw(uri_unescape);
 
 use vars qw(@ISA $EUTIL);
 
@@ -22,7 +21,7 @@ sub _initialize {
     my ($self, @args ) = @_;
     $self->SUPER::_initialize(@args);
     # set by default
-    $self->eutil($EUTIL);
+    $self->_eutil($EUTIL);
 	my ($retstart, $retmax) =  $self->_rearrange([qw(RETSTART RETMAX)],@args);
     $retstart       && $self->retstart($retstart);
     $retmax         && $self->retmax($retmax);
