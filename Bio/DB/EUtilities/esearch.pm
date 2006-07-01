@@ -31,8 +31,8 @@ your comments and suggestions preferably to one
 of the Bioperl mailing lists. Your participation
 is much appreciated.
 
-  bioperl-l@bioperl.org              - General discussion
-  http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
