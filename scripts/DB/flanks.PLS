@@ -1,6 +1,6 @@
 #!perl
 # -*-Perl-*-
-# $Id: flanks.PLS,v 1.4 2005-11-17 09:54:54 heikki Exp $
+# $Id: flanks.PLS,v 1.5 2006-07-01 18:23:05 mauricio Exp $
 #
 # Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 # Finding flanking sequences for a variant.
@@ -297,7 +297,7 @@ Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html     - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists     - About the mailing lists
 
 =head2 Reporting Bugs
 

@@ -70,7 +70,7 @@ preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html     - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists     - About the mailing lists
 
 =head2 Bugs
 

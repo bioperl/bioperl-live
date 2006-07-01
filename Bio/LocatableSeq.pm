@@ -48,7 +48,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                     - General discussion
-  http://bio.perl.org/MailList.html         - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists         - About the mailing lists
 
 The locatable sequence object was developed mainly because the
 SimpleAlign object requires this functionality, and in the rewrite
