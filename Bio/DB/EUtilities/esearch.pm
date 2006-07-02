@@ -61,6 +61,8 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
+use XML::Simple;
+#use Data::Dumper;
 
 use vars qw(@ISA $EUTIL);
 
@@ -111,24 +113,41 @@ sub parse_response {
     if (!$response || !$response->isa("HTTP::Response")) {
         $self->throw("Need HTTP::Response object");
     }
-    my $content = $response->content;
-    my ($webenv, $querykey, $count);
-    if (my ($warning) = $content =~ m!<ERROR>(.+)</ERROR>!s) {
-        $self->warn("Warning(s) from GenBank: $warning\n");
+    my $history = $self->usehistory;
+    my $db = $self->db;
+    my $xs = XML::Simple->new();
+    my $simple = $xs->XMLin($response->content);
+    #$self->debug("Response dumper:\n".Dumper($simple));
+    # check for major and minor errors and warnings
+    if ($simple->{ERROR}) {
+        $self->throw("NCBI esearch nonrecoverable error: ".$simple->{ERROR});
     }
-    if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
-        $self->throw("Error from Genbank: $error");
+    if ($simple->{ErrorList} || $simple->{WarningList}) {
+        my %errorlist = %{ $simple->{ErrorList} };
+        my %warninglist = %{ $simple->{WarningList} };
+        my ($err_warn);
+        for my $key (sort keys %errorlist) {
+            $err_warn .= "Error : $key = $errorlist{$key}\n";
+        }    
+        for my $key (sort keys %warninglist) {
+            $err_warn .= "Warning : $key = $warninglist{$key}\n";
+        }
+        chomp($err_warn);
+        $self->warn("NCBI esearch Errors/Warnings:\n".$err_warn)
     }
-    if ($self->usehistory && $self->usehistory eq 'y') {
-		($count) = $content =~  /<Count>(\d+)/;
+    my $id_ref = $simple->{IdList}->{Id};
+    $self->_add_db_ids($db, $id_ref) if ($db && $id_ref);
+    if ($history && $history eq 'y') {
+		my $count = $simple->{Count};
 		$self->count($count);
-        ($webenv) = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
-        ($querykey) = $content =~ m!<QueryKey>(\d+)!g;
+        my $webenv = $simple->{WebEnv};
+        my $querykey = $simple->{QueryKey};
 		my $cookie = Bio::DB::EUtilities::Cookie->new(
 										 -webenv    => $webenv,
 										 -querykey  => $querykey,
 										 -eutil     => 'esearch',
 										 -description   => $self->term,
+                                         -database  => $db,
 										 -total		=> $count
 										);
         $self->add_cookie($cookie);

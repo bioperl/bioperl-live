@@ -51,26 +51,28 @@ NCBI offers Batch Entrez for this purpose, now accessible here via epost!
 This is a test interface to NCBI's Entrez Utilities.  The main purpose of this
 is to enable access to all of NCBI's databases available through Entrez and
 allow for more complex queries.  It is likely that the API for this module as
-well as the documentation will change dramatically over time, so novice
-users and neophytes beware!
+well as the documentation will change dramatically over time.  It's also a
+possibility that, at some point, the SOAP interface at NCBI may be taken
+advantage of using SOAP::Lite or a similar web services interface.  So,
+novice users and neophytes beware!
 
 The experimental base class is Bio::DB::GenericWebDBI, which as the name
 implies enables access to any web database which will accept parameters.  This
 was originally born from an idea to replace WebDBSeqI/NCBIHelper with a more
 general web database accession tool so one could access sequence information,
-taxonomy, SNP, PubMed, and so on.  However, this may prove to be better used
-as a replacement for LWP::UserAgent when accessing NCBI-related web tools
-(Entrez Utilitites, or EUtilities).  Using the base class GenericWebDBI, one
-could also build web interfaces to other databases to access anything via
-CGI parameters.
+taxonomy, SNP, PubMed, and so on.  However, this may ultimately prove
+to be better used as a replacement for LWP::UserAgent when accessing NCBI-
+related web tools (Entrez Utilitites, or EUtilities).  Using the base class
+GenericWebDBI, one could also build web interfaces to other databases to access
+anything via CGI parameters.
 
-Currently, you can access any database available through the NCBI interface:
+Currently, you can access to any database available through the NCBI interface:
 
   http://eutils.ncbi.nlm.nih.gov/
 
 At this point, Bio::DB::EUtilities uses the EUtilities plugin modules somewhat
 like Bio::SeqIO.  So, one would call the particular EUtility (epost, efetch,
-and so forth) upon instantiating the object:
+and so forth) upon instantiating the object using a set of paraameters:
 
   my $esearch = Bio::DB::EUtilities->new(-eutil      => 'esearch',
                                          -db         => 'pubmed',
@@ -95,8 +97,8 @@ the object method content, like so:
   
   print $efetch->get_response->content;
 
-Based on this, if one wanted to retrieve sequences or other raw data but did not
-want to directly use Bio* objects (such as if genome sequences were to be
+Based on this, if one wanted to retrieve sequences or other raw data but was not
+interested in directly using Bio* objects (such as if genome sequences were to be
 retrieved) one could do so by using the proper EUtility object(s) and query(ies)
 and get the raw response back from NCBI through 'efetch'.  
 
@@ -117,8 +119,8 @@ EUtility object, thus enabling chained queries as demonstrated in the synopsis.
 By default, a EUtilities object will retrieve records using a cookie if the
 cookie parameter is set:
 
-my $efetch = Bio::DB::EUtilities->new(-db           => 'taxonomy',
-                                      -cookie       => $elink->next_cookie);
+  my $efetch = Bio::DB::EUtilities->new(-db           => 'taxonomy',
+                                        -cookie       => $elink->next_cookie);
 
 ELink, in particular, is capable of returning multiple cookies based on the
 setting for the database; if db is set to 'all', you will retrieve a cookie for
@@ -126,12 +128,10 @@ each database with related records.
 
 =head1 TODO
 
-At this time no additional parsing of the returned response is enabled, but it
-is anticipated that parsing of XML for ID's and other commonly requested 
-information will be added in the very near future.  Resetting internal parameters
-is also planned so one could feasibly reuse the objects once instantiated, such
-as if one were to use this as a replacement for LWP::UserAgent when retrieving
-responses i.e. many of the Bio::DB NCBI-related modules.
+Resetting internal parameters is planned so one could feasibly reuse the objects
+once instantiated, such as if one were to use this as a replacement for
+LWP::UserAgent when retrieving responses i.e. when using many of the Bio::DB
+NCBI-related modules.
 
 Any feedback is welcome.
 
@@ -435,6 +435,114 @@ sub count   {
     return $self->{'_count'} = shift if @_;
     return $self->{'_count'};
 }
+    
+=head2 get_db_ids
+
+ Title   : get_db_ids
+ Usage   : $count = $elink->get_db_ids($db);
+           %hash  = $elink->get_db_ids();
+ Function: returns an array ref if a database is the argument, other returns a
+           hash of the database (keys) and id_refs (values)
+ Returns : integer
+ Args    : database string;
+
+Returns the number of entries that are matched by the query.
+
+=cut
+
+sub get_db_id_refs {
+    my $self = shift;
+    my $key = shift if @_;
+    unless ($key) {
+        return %{ $self->{'_db_ids'} } if ($self->{'_db_ids'}
+                                       && ref($self->{'_db_ids'}) eq 'HASH');
+    }
+    if ($key && $self->{'_db_ids'}->{$key}) {
+        return $self->{'_db_ids'}->{$key};
+    }
+}
+
+=head2 get_score
+
+ Title   : get_score
+ Usage   : $score = $db->get_score($id);
+ Function: gets score for ID (if present)
+ Returns : integer (score) 
+ Args    : ID values
+
+Returns the number of entries that are matched by the query.
+
+=cut
+
+sub get_score {
+    my $self = shift;
+    my $id = shift if @_;
+    $self->throw("No ID given") if !$id;
+    return $self->{'_rel_ids'}->{$id} if $self->{'_rel_ids'}->{$id};
+    $self->warn("No score for $id");
+}
+
+=head2 get_ids_by_score
+
+ Title   : get_ids_by_score
+ Usage   : @ids = $db->get_ids_by_score;  # returns IDs
+           @ids = $db->get_ids_by_score($score); # get IDs by score
+ Function: returns ref of array of ids based on relevancy score from elink;
+           To return all ID's above a score, use the normal score value;
+           to return all ID's below a score, append the score with '-';
+ Returns : ref of array of ID's; if array, an array of IDs
+ Args    : integer (score value); returns all if no arg provided
+
+Returns the number of entries that are matched by the query.
+
+=cut
+
+sub get_ids_by_score {
+    my $self = shift;
+    my $score = shift if @_;
+    my @ids;
+    if (!$score) {
+        @ids = sort keys %{ $self->{'_rel_ids'} };
+    }
+    elsif ($score && $score > 0) {
+        for my $id (keys %{ $self->{'_rel_ids'}}) {
+            push @ids, $id if $self->{'_rel_ids'}->{$id} > $score;
+        }
+    }
+    elsif ($score && $score < 0) {
+        for my $id (keys %{ $self->{'_rel_ids'}}) {
+            push @ids, $id if $self->{'_rel_ids'}->{$id} < abs($score);
+        }
+    }
+    if (@ids) {
+        @ids = sort {$self->get_score($b) <=> $self->get_score($a)} @ids;
+        return @ids if wantarray;
+        return \@ids;
+    }
+    # if we get here, there's trouble
+    $self->warn("No returned IDs!");
+}
+
+=head1 Private methods
+
+=cut
+
+=head2 _add_db_ids
+
+ Title   : _add_db_ids
+ Usage   : $self->add_db_ids($db, $ids);
+ Function: sets internal hash of databases with reference to array of IDs
+ Returns : none
+ Args    : String (name of database) and ref to array of ID's 
+
+=cut
+
+sub _add_db_ids {
+    my ($self, $db, $ids) = @_;
+    $self->throw ("Must have db-id pair for hash") unless ($db && $ids);
+    $self->throw ("IDs must be an ARRAY reference") unless ref($ids) eq 'ARRAY';
+    $self->{'_db_ids'}->{$db} = $ids; 
+}
 
 =head2 _eutil
 
@@ -454,7 +562,24 @@ sub _eutil   {
     return $self->{'_eutil'};
 }
 
-=head1 Private methods
+=head2 _add_relevancy_ids
+
+ Title   : _add_relevancy_ids
+ Usage   : $self->add_relancy_ids($db, $ids);
+ Function: sets internal hash of ids with relevancy scores
+ Returns : none
+ Args    : two numbers: id (key) and relevancy score (value)
+
+=cut
+
+sub _add_relevancy_ids {
+    my ($self, $id, $score) = @_;
+    $self->throw ("Must have id-score pair for hash") unless ($id && $score);
+    $self->throw ("ID, score must be scalar") if
+         (ref($id) && ref($score));
+    $self->{'_rel_ids'}->{$id} = $score;
+}
+
 
 =head2 _submit_request
 
@@ -516,14 +641,17 @@ sub _get_params {
         $self->debug("WebEnv:$webenv\tQKey:$qkey\n");
         ($params{'WebEnv'}, $params{'query_key'}) = ($webenv, $qkey);
     }
+    my $db = $self->db;
+    $params{'db'} = $db     ? $db               : 
+                    $cookie ? $cookie->database :
+                    'nucleotide';
     # to get around main function sort
     if ($params{'sort_results'}) {
         $params{'sort'} = $params{'sort_results'};
         delete $params{'sort_results'};
         # sort is broken with 'pub+date', interface doesn't like escaped '+'
     }
-    $params{'db'} = $self->db if $self->db;
-    unless ($self->return_mode) { # set by user
+    unless ($self->rettype) { # set by user
         my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific
             $format = $DATABASE{$self->db};

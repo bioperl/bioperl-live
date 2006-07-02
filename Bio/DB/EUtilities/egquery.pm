@@ -1,3 +1,5 @@
+# $Id$
+# POD to come...
 
 # Let the code begin...
 
@@ -35,20 +37,9 @@ sub _initialize {
 
 =cut
 
+# EGQuery doesn't have error checking, so this is a no-op for now
+
 sub parse_response {
-    my $self    = shift;
-    my $response = shift if @_;
-    if (!$response || !$response->isa("HTTP::Response")) {
-        $self->throw("Need HTTP::Response object");
-    }
-    my $content = $response->content;
-	# go through to make sure this catches errors
-    if (my ($warning) = $content =~ m!<ErrorList>(.+)</ErrorList>!s) {
-        warn "Warning(s) from GenBank: $warning\n";
-    }
-    if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
-        $self->throw("Error from Genbank: $error");
-    }
 }
 
 1;

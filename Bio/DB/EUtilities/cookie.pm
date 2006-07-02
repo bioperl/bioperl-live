@@ -1,5 +1,7 @@
+# $Id$
 
 # simple object to hold NCBI cookie information and descriptions
+# POD to come...
 
 package Bio::DB::EUtilities::Cookie;
 use strict;
@@ -13,8 +15,9 @@ use vars '@ISA';
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($webenv, $querykey, $desc, $eutil, $total) = $self->_rearrange
-      ([qw(WEBENV QUERYKEY DESCRIPTION EUTIL TOTAL)], @args);
+    my ($webenv, $querykey, $database, $dbfrom, $eutil, $total, $desc) =
+      $self->_rearrange
+      ([qw(WEBENV QUERYKEY DATABASE DBFROM EUTIL TOTAL DESCRIPTION)], @args);
     unless ($webenv && $querykey) {
         my $missing;
         if (!$webenv) {
@@ -27,7 +30,11 @@ sub new {
         $self->throw("Missing ".$missing);
     }
     $self->cookie(uri_unescape($webenv), $querykey);
-    # holds description of database, elink, etc if present
+    # holds descriptions of database
+    $database   && $self->database($database);
+    # for elink only
+    $dbfrom     && $self->dbfrom($dbfrom);
+    # for esearch, to hold original search query
     $desc       && $self->description($desc);
     # holds total hits if present (i.e. esearch)
     $total      && $self->total($total);
@@ -53,16 +60,28 @@ sub eutil {
     return $self->{'_eutil'};
 }
 
-sub description {
+sub database {
     my $self = shift;
-    return $self->{'_description'} = shift if @_;
-    return $self->{'_description'};
+    return $self->{'_database'} = shift if @_;
+    return $self->{'_database'};
+}
+
+sub dbfrom {
+    my $self = shift;
+    return $self->{'_dbfrom'} = shift if @_;
+    return $self->{'_dbfrom'};
 }
 
 sub total {
     my $self = shift;
     return $self->{'_total'} = shift if @_;
     return $self->{'_total'};
+}
+
+sub description {
+    my $self = shift;
+    return $self->{'_description'} = shift if @_;
+    return $self->{'_description'};
 }
 
 1;

@@ -1,3 +1,6 @@
+# $Id$
+# POD to come...
+
 # Let the code begin...
 
 package Bio::DB::EUtilities::efetch;
@@ -47,7 +50,7 @@ sub _initialize {
 =cut
 
 # this is NOOP b/c efetch returns raw data to be processed or saved;
-# errors caught in get_response 
+# HTTP errors caught in get_response 
 
 sub parse_response {
 }

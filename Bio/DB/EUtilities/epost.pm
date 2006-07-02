@@ -1,8 +1,15 @@
+# $Id$
+# POD to come...
+
+# Let the code begin...
+
 package Bio::DB::EUtilities::epost;
 use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
+use XML::Simple;
+#use Data::Dumper;
 
 use vars qw(@ISA $EUTIL $RETMODE);
 
@@ -39,19 +46,24 @@ sub parse_response {
     if (!$response || !($response->isa("HTTP::Response"))) {
         $self->throw("Need HTTP::Response object");
     }
-    my $content = $response->content;
-    # go through to make sure this catches errors
-    if (my ($warning) = $content =~ m!<ErrorList>(.+)</ErrorList>!s) {
-        warn "Warning(s) from GenBank: $warning\n";
+    my $xs = XML::Simple->new();
+    my $simple = $xs->XMLin($response->content);
+    #$self->debug("Response dumper:\n".Dumper($simple));
+    # check for errors
+    if ($simple->{ERROR}) {
+        $self->throw("NCBI epost nonrecoverable error: ".$simple->{ERROR});
     }
-    if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
-        $self->throw("Error from Genbank: $error");
+    if ($simple->{InvalidIdList}) {
+        $self->warn("NCBI epost error: Invalid ID List".$simple->{InvalidIdList});
     }
-    my ($webenv)    = $content =~ m!<WebEnv>(\S+)</WebEnv>!;
-    my ($querykey)  = $content =~ m!<QueryKey>(\d+)!;
+    my $db = $self->db;
+    my $webenv    = $simple->{WebEnv};
+    my $querykey  = $simple->{QueryKey};
     my $cookie = Bio::DB::EUtilities::Cookie->new(-webenv   => $webenv,
                                                   -querykey => $querykey,
-                                                  -eutil    => 'epost');
+                                                  -eutil    => 'epost',
+                                                  -database => $db,
+                                                  );
     $self->add_cookie($cookie);
     return $response;
 }

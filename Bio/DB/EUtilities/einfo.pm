@@ -1,3 +1,5 @@
+# $Id$
+# POD to come...
 
 # Let the code begin...
 
@@ -5,6 +7,8 @@ package Bio::DB::EUtilities::einfo;
 use strict;
 use warnings;
 use Bio::DB::EUtilities;
+use XML::Simple;
+#use Data::Dumper;
 
 use vars qw(@ISA $EUTIL);
 
@@ -38,14 +42,13 @@ sub parse_response {
     if (!$response || !$response->isa("HTTP::Response")) {
         $self->throw("Need HTTP::Response object");
     }
-    my $content = $response->content;
-    # go through to make sure this catches errors
-    if (my ($warning) = $content =~ m!<ErrorList>(.+)</ErrorList>!s) {
-        warn "Warning(s) from GenBank: $warning\n";
-    }
-    if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
-        $self->throw("Error from Genbank: $error");
-    }
+    my $xs = XML::Simple->new();
+    my $simple = $xs->XMLin($response->content);
+    #$self->debug("Response dumper:\n".Dumper($simple));
+    # check for errors
+    if ($simple->{ERROR}) {
+        $self->throw("NCBI esummary nonrecoverable error: ".$simple->{ERROR});
+    }  
 }
 
 1;

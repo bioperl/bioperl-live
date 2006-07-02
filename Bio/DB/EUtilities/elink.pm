@@ -1,11 +1,18 @@
+# $Id$
+# POD to come...
+
 # Let the code begin...
 
 package Bio::DB::EUtilities::elink;
+
 use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use URI::Escape qw(uri_unescape);
+use XML::Simple;
+use Data::Dumper;
+
 use vars qw(@ISA $EUTIL $VERSION %CMD);
 
 @ISA = qw(Bio::DB::EUtilities);
@@ -74,36 +81,56 @@ sub parse_response {
     if (!$response || !$response->isa("HTTP::Response")) {
         $self->throw("Need HTTP::Response object");
     }
-    my $content = $response->content;
-	$self->debug("Response:\n".$content);
-    my $webenv;
-    my @querykey;
+    my $xs = XML::Simple->new();
+    my $simple = $xs->XMLin($response->content,
+                            forcearray => [qw(LinkSetDb Link)]);
+    # check for errors
+    if ($simple->{ERROR}) {
+        $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
+    }
+	$self->debug("Response dumper:\n".Dumper($simple));
+    my ($webenv, $dbfrom);
+    my $cmd = $self->cmd;
     # go through to make sure this catches errors
-    if (my ($warning) = $content =~ m!<ErrorList>(.+)</ErrorList>!s) {
-        warn "Warning(s) from GenBank: $warning\n";
-    }
-    if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
-        $self->throw("Error from Genbank: $error");
-    }
-    if ($self->cmd && $self->cmd eq 'neighbor_history') {
-        # use cookie objects here; need to switch to XML parsing
-        # grab descriptions and other info
-        ($webenv)    = ($content =~ m!<WebEnv>(\S+)</WebEnv>!);
-        # for db=all, get multiple query keys!
-        @querykey = ($content =~ m!<QueryKey>(\d+)!g );
-        # if, for some reason, the query key is missing from the XML output,
-        # defaults to 1
-        push @querykey, 1 if !@querykey;
-        for my $qk (@querykey) {
+    $dbfrom = $simple->{LinkSet}->{DbFrom};
+
+    if ($cmd && $cmd eq 'neighbor_history') {
+        $webenv   = $simple->{LinkSet}->{WebEnv};
+        $self->throw("No links!") unless $simple->{LinkSet}->{LinkSetDbHistory};
+        for my $linkset  (@{ $simple->{LinkSet}->{LinkSetDbHistory} }) {
+            my $query_key = $linkset->{QueryKey};
+            my $db = $linkset->{DbTo};
             my $cookie =
             Bio::DB::EUtilities::Cookie->new(
                                              -webenv    => $webenv,
-                                             -querykey  => $qk,
+                                             -querykey  => $query_key,
                                              -eutil     => 'elink',
-                                             -description   => 'test'
+                                             -database  => $db,
+                                             -dbfrom    => $dbfrom,
                                             );
-        $self->add_cookie($cookie);
+            $self->add_cookie($cookie);
         }
+        
+        return;
+    }
+    else { # this sets internal hash of databases and ids
+        for my $linkset  ( @{ $simple->{LinkSet}->{LinkSetDb}}) {
+            my $id_ref = [];
+
+            my $db = $linkset->{DbTo};
+            for my $id (@{ $linkset->{Link} }) {
+                push @{ $id_ref }, $id->{Id};
+                $self->_add_relevancy_ids($id->{Id},$id->{Score})
+                    if ($id->{Score});
+            }
+    
+            $self->throw("Missing database and/or id; something wrong with XML")
+                if (!$db && !$id_ref);
+                
+            $self->_add_db_ids($db, $id_ref);
+        }
+        # toss the dbfrom ids (you should have these already!)
+        return;
     }
 }
 
