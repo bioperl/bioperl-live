@@ -30,8 +30,8 @@ Bio::Tools::Profile - parse Profile output
  Bioperl modules. Send your comments and suggestions preferably to
  the Bioperl mailing list.  Your participation is much appreciated.
 
- bioperl-l@bioperl.org                  - General discussion
- http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 

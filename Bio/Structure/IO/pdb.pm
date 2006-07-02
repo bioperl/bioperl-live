@@ -42,7 +42,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
 to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                 - General discussion
+  bioperl-l@bioperl.org                  - General discussion
   http://www.bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
