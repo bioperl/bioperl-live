@@ -15,12 +15,13 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::elink - interface for handling web queries and data
-retrieval from NCBI's Entrez Utilities.
+Bio::DB::EUtilities::elink - check for and retrieve external or related ID's
+from a list of one or more primary ID's, including relevancy scores.
 
 =head1 SYNOPSIS
 
-B<Do not use this module directly.>  Use it via the L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
+B<Do not use this module directly.>  Use it via the
+L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
 
   use Bio::DB::EUtilities;
 
@@ -39,7 +40,6 @@ B<Do not use this module directly.>  Use it via the L<Bio::DB::EUtilities|Bio::D
   
   my @prot_ids = $elink->get_db_ids('protein'); # retrieves protein UID's
 
-
 =head1 DESCRIPTION
 
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
@@ -48,15 +48,7 @@ The EUtility Elink is used to check for and retrieve external or related ID's
 from a list of one or more primary ID's.  There are some pretty variations on
 what can be returned based on the parameters used.  
 
-I<Some interesting uses> :
-
-=over 3
-
-=item relevancy scores
-
-When the C<db> and C<dbfrom> parameters are set to the same database, one can retrieve
-relevancy scores for each ID.  These are based on several factors; 
-
+=head2 Parameters
 
 The following are a general list of parameters that can be used to take
 advantage of ELink.  Up-to-date help for ELink is available here (all information
@@ -71,20 +63,20 @@ below is from this location):
 one or more database available through EUtilities if set to 'all', will retrieve
 all related ID's from each database (see method get_db_ids to retrieve these).
 
-Below are a list of IDs which can be entered and retrieved:
+=item C<dbfrom>
+
+originating database; useful only if using directly when querying with ID's
+
+=item C<id>
+
+a list of primary ID's
+
+Below are a list of IDs which can be used with ELink:
 
 B<PMID> (pubmed), B<MIM number> (omim), B<GI number> (nucleotide, protein),
 B<Genome ID> (genome), B<Popset ID> (popset), B<SNP cluster ID> (snp),
 B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), <MMDB-ID> (structure),
 B<PSSM-ID> (cdd), B<3D SDI> (domains), B<TAXID> (taxonomy), B<GEO ID> (geo)
-
-=item C<dbfrom>
-
-originating database; useful if using directly when querying with ID's
-
-=item C<id>
-
-a list of primary ID's (see below)
 
 =item C<reldate>
 
@@ -176,15 +168,16 @@ on a user's computer when browsing the Web.  XML data returned by these
 EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
 and 'query_key' tags to be specific)  The information along with other identifying
 data, such as the calling eutility, description of query, etc.) is stored as a
-L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal queue.  These can be retrieved
-one at a time by using the next_cookie method or all at once in an array using
-get_all_cookies.  Each cookie can then be 'fed', one at a time, to another
-EUtility object, thus enabling chained queries as demonstrated in the synopsis.
+L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal
+queue.  These can be retrieved one at a time by using the next_cookie method or
+all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
+one at a time, to another EUtility object, thus enabling chained queries as
+demonstrated in the synopsis.
 
 By default, a EUtilities object will retrieve records using a cookie if the
-cookie parameter is set.  Also, the object will use the database parameter
-stored in the L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object when the parameter isn't set
-upon instantiation:
+cookie parameter is set.  Also, the object will use the database parameter C<db>
+stored in the L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object
+when that parameter isn't set upon instantiation:
 
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -rettype      => 'fasta');
@@ -193,10 +186,31 @@ ELink, in particular, is capable of returning multiple cookies based on the
 setting for the database; if C<db> is set to C<'all'>, you will retrieve a cookie for
 each database with related records.  
 
+=head1 CURRENT USES
+
+=head2 complex queries
+
+Chaining queries for retrieving related data using elink and other EUtilities is
+now possible (see the L</"SYNOPSIS"> for an example).
+
+=head2 Retrieving relevancy scores
+
+Currently, this is supported for only one ID at a time!
+
+When the C<db> and C<dbfrom> parameters are set to the same database, one can
+retrieve relevancy scores for an ID.  These are based on several different
+factors.  For proteins, they are precomputed TBLASTX scores, so this is actually
+a quick way to get the best hits without having to run TBLASTX directly!
+
+=head2 ID groups
+
+These are not completely implemented yet but support is being added in the next
+few weeks.
+
 =head1 TODO
 
-Using multiple ID lists for processing multiple groups and maintaining record-to-record
-correspondence is not implemented.  One can work around this by 
+Using multiple ID lists for processing multiple groups and maintaining
+record-to-record correspondence is not completely implemented.
 
 http://www.ncbi.nlm.nih.gov/books/bv.fcgi?rid=coursework.section.elink-considerations
 
@@ -505,7 +519,7 @@ sub _add_relevancy_ids {
  Usage   : @cookies = $db->get_all_cookies
  Function: retrieves all cookies from the internal cookie queue; this leaves
            the cookies in the queue intact 
- Returns : none
+ Returns : array of Bio::DB::EUtilities::cookie objects
  Args    : none
 
 =cut
