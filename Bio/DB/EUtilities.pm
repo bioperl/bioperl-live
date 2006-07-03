@@ -441,16 +441,17 @@ sub count   {
  Title   : get_db_ids
  Usage   : $count = $elink->get_db_ids($db);
            %hash  = $elink->get_db_ids();
- Function: returns an array ref if a database is the argument, other returns a
-           hash of the database (keys) and id_refs (values)
- Returns : integer
+ Function: returns an array or array ref if a database is the argument,
+           otherwise returns a hash of the database (keys) and id_refs (values)
+ Returns : array or array ref of ids (arg=database) or hash of
+           database-array_refs (no args)
  Args    : database string;
 
 Returns the number of entries that are matched by the query.
 
 =cut
 
-sub get_db_id_refs {
+sub get_db_ids {
     my $self = shift;
     my $key = shift if @_;
     unless ($key) {
@@ -458,6 +459,7 @@ sub get_db_id_refs {
                                        && ref($self->{'_db_ids'}) eq 'HASH');
     }
     if ($key && $self->{'_db_ids'}->{$key}) {
+        return @{$self->{'_db_ids'}->{$key}} if wantarray;
         return $self->{'_db_ids'}->{$key};
     }
 }
