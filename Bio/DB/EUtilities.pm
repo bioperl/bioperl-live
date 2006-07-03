@@ -36,8 +36,7 @@ use Bio::DB::EUtilities;
   
   $elink->get_response; # parse the response, fetch the next cookie
   
-  my $efetch = Bio::DB::EUtilities->new(-db           => 'nucleotide',
-                                        -cookie       => $elink->next_cookie,
+  my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
   
@@ -72,7 +71,7 @@ Currently, you can access to any database available through the NCBI interface:
 
 At this point, Bio::DB::EUtilities uses the EUtilities plugin modules somewhat
 like Bio::SeqIO.  So, one would call the particular EUtility (epost, efetch,
-and so forth) upon instantiating the object using a set of paraameters:
+and so forth) upon instantiating the object using a set of parameters:
 
   my $esearch = Bio::DB::EUtilities->new(-eutil      => 'esearch',
                                          -db         => 'pubmed',
@@ -90,7 +89,7 @@ get_response (which also parses for cookie information, see below).  This
 method returns an HTTP::Response object.  The raw data is accessed by using
 the object method content, like so:
 
-  my $efetch = Bio::DB::EUtilities->new(-db           => 'nucleotide',
+  my $efetch = Bio::DB::EUtilities->new(
                                         -cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
@@ -117,10 +116,12 @@ get_all_cookies.  Each cookie can then be 'fed', one at a time, to another
 EUtility object, thus enabling chained queries as demonstrated in the synopsis.
 
 By default, a EUtilities object will retrieve records using a cookie if the
-cookie parameter is set:
+cookie parameter is set.  Also, the object will use the database parameter
+stored in the Bio::DB::EUtilities::cookie object when the parameter isn't set
+upon instantiation:
 
-  my $efetch = Bio::DB::EUtilities->new(-db           => 'taxonomy',
-                                        -cookie       => $elink->next_cookie);
+  my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
+                                        -rettype      => 'fasta');
 
 ELink, in particular, is capable of returning multiple cookies based on the
 setting for the database; if db is set to 'all', you will retrieve a cookie for
@@ -178,6 +179,8 @@ use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
 use Bio::DB::GenericWebDBI;
 use HTTP::Request::Common;
 use URI;
+use URI::Escape qw(uri_escape uri_unescape);
+use Data::Dumper;
 
 @ISA = qw(Bio::DB::GenericWebDBI);
 
@@ -275,24 +278,6 @@ sub _initialize {
     if ($cookie) {
         $self->add_cookie($cookie);
     }
-}
-
-=head2 delay_policy
-
-  Title   : delay_policy
-  Usage   : $secs = $self->delay_policy
-  Function: return number of seconds to delay between calls to remote db
-  Returns : number of seconds to delay
-  Args    : none
-
-  NOTE: NCBI requests a delay of 3 seconds between requests.  This method
-        implements that policy.
-
-=cut
-
-sub delay_policy {
-  my $self = shift;
-  return 3;
 }
 
 =head2 add_cookie
@@ -404,7 +389,15 @@ sub get_response {
     return $response;
 }
 
-# experimental; so you can send or post more that one request with the same object
+=head2 reset_parameters B<experimental>
+
+ Title   : reset_parameters
+ Usage   : $db->reset_parameters(@args);
+ Function: resets the parameters for a EUtility with args (in @args)
+ Returns : none
+ Args    : array of arguments (arg1 => value, arg2 => value)
+
+=cut
 
 sub reset_parameters {
     my $self = shift;
@@ -414,28 +407,11 @@ sub reset_parameters {
             $self->$method(undef);
         }
     }
-    $self->reset_cookies;
-    $self->_initialize(@args);
+    $self->reset_cookies; # no baggage allowed
+    # resetting the EUtility will not occur even if added asa a parameter;
+    $self->_initialize(@args); 
 }
 
-=head2 count
-
- Title   : count
- Usage   : $count = $db->count;
- Function: return count of number of entries retrieved by query
- Returns : integer
- Args    : none
-
-Returns the number of entries that are matched by the query.
-
-=cut
-
-sub count   {
-    my $self = shift;
-    return $self->{'_count'} = shift if @_;
-    return $self->{'_count'};
-}
-    
 =head2 get_db_ids
 
  Title   : get_db_ids
@@ -446,8 +422,6 @@ sub count   {
  Returns : array or array ref of ids (arg=database) or hash of
            database-array_refs (no args)
  Args    : database string;
-
-Returns the number of entries that are matched by the query.
 
 =cut
 
@@ -464,65 +438,22 @@ sub get_db_ids {
     }
 }
 
-=head2 get_score
+=head2 delay_policy
 
- Title   : get_score
- Usage   : $score = $db->get_score($id);
- Function: gets score for ID (if present)
- Returns : integer (score) 
- Args    : ID values
+  Title   : delay_policy
+  Usage   : $secs = $self->delay_policy
+  Function: return number of seconds to delay between calls to remote db
+  Returns : number of seconds to delay
+  Args    : none
 
-Returns the number of entries that are matched by the query.
-
-=cut
-
-sub get_score {
-    my $self = shift;
-    my $id = shift if @_;
-    $self->throw("No ID given") if !$id;
-    return $self->{'_rel_ids'}->{$id} if $self->{'_rel_ids'}->{$id};
-    $self->warn("No score for $id");
-}
-
-=head2 get_ids_by_score
-
- Title   : get_ids_by_score
- Usage   : @ids = $db->get_ids_by_score;  # returns IDs
-           @ids = $db->get_ids_by_score($score); # get IDs by score
- Function: returns ref of array of ids based on relevancy score from elink;
-           To return all ID's above a score, use the normal score value;
-           to return all ID's below a score, append the score with '-';
- Returns : ref of array of ID's; if array, an array of IDs
- Args    : integer (score value); returns all if no arg provided
-
-Returns the number of entries that are matched by the query.
+  NOTE: NCBI requests a delay of 3 seconds between requests.  This method
+        implements that policy.
 
 =cut
 
-sub get_ids_by_score {
-    my $self = shift;
-    my $score = shift if @_;
-    my @ids;
-    if (!$score) {
-        @ids = sort keys %{ $self->{'_rel_ids'} };
-    }
-    elsif ($score && $score > 0) {
-        for my $id (keys %{ $self->{'_rel_ids'}}) {
-            push @ids, $id if $self->{'_rel_ids'}->{$id} > $score;
-        }
-    }
-    elsif ($score && $score < 0) {
-        for my $id (keys %{ $self->{'_rel_ids'}}) {
-            push @ids, $id if $self->{'_rel_ids'}->{$id} < abs($score);
-        }
-    }
-    if (@ids) {
-        @ids = sort {$self->get_score($b) <=> $self->get_score($a)} @ids;
-        return @ids if wantarray;
-        return \@ids;
-    }
-    # if we get here, there's trouble
-    $self->warn("No returned IDs!");
+sub delay_policy {
+  my $self = shift;
+  return 3;
 }
 
 =head1 Private methods
@@ -538,6 +469,8 @@ sub get_ids_by_score {
  Args    : String (name of database) and ref to array of ID's 
 
 =cut
+
+# used by esearch and elink, hence here
 
 sub _add_db_ids {
     my ($self, $db, $ids) = @_;
@@ -564,25 +497,6 @@ sub _eutil   {
     return $self->{'_eutil'};
 }
 
-=head2 _add_relevancy_ids
-
- Title   : _add_relevancy_ids
- Usage   : $self->add_relancy_ids($db, $ids);
- Function: sets internal hash of ids with relevancy scores
- Returns : none
- Args    : two numbers: id (key) and relevancy score (value)
-
-=cut
-
-sub _add_relevancy_ids {
-    my ($self, $id, $score) = @_;
-    $self->throw ("Must have id-score pair for hash") unless ($id && $score);
-    $self->throw ("ID, score must be scalar") if
-         (ref($id) && ref($score));
-    $self->{'_rel_ids'}->{$id} = $score;
-}
-
-
 =head2 _submit_request
 
  Title   : _submit_request
@@ -598,10 +512,30 @@ sub _submit_request {
     my %params = $self->_get_params;
     my $eutil = $self->_eutil;
     # build id list here
+    my $id_string;
+    # manually build ID list
     if ($self->id) {
-        my @ids = @{$self->id};
-        $params{'id'} = join ',', @ids;
-        $self->debug
+        # this is in case multiple id groups are present
+        if ($self->can('multi_id') && $self->multi_id) {
+            # elink can handle multiple id groups if groups are together in
+            # an array reference and each group is an array ref;
+            # ids and arrays here are flattened into individual groups
+            for my $id_group (@{ $self->id }) {
+                if (ref($id_group) eq 'ARRAY') {
+                    push @{ $params{'id'} }, (join q(,), @{ $id_group });
+                }
+                elsif (!ref($id_group)) {
+                    push @{ $params{'id'} }, $id_group;
+                }
+                else {
+                    $self->throw("Unknown ID type: $id_group");
+                }
+            }
+        }
+        else {
+            my @ids = @{ $self->id };
+            $params{'id'} = join ',', @ids;
+        }
     }
     my $url = URI->new($HOSTBASE . $CGILOCATION{$eutil}[1]);
     $url->query_form(%params);
@@ -622,6 +556,9 @@ sub _submit_request {
  Args    : optional : Bio::DB::EUtilities cookie
 
 =cut
+
+# these get sorted out in a hash originally but end up in an array to
+# deal with multiple id parameters (hash values would kill that)
 
 sub _get_params {
     my $self = shift;
@@ -656,9 +593,10 @@ sub _get_params {
     unless ($self->rettype) { # set by user
         my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific
-            $format = $DATABASE{$self->db};
+            $format = $DATABASE{$params{'db'}} ?
+                      $DATABASE{$params{'db'}} : 'xml'; # have xml as a fallback
         }
-        $params{'retmode'}=$format;
+        $params{'retmode'} = $format;
     }
     $self->debug("Param: $_\tValue: $params{$_}\n") for keys %params;
     return %params;
