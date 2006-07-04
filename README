@@ -44,9 +44,9 @@ o Contact info
  the documentation please write us, it could be undocumented or in process.
 
  Project website     : http://bioperl.org
- Project FTP server : bioperl.org (anonymous FTP ok)
+ Project FTP server  : bioperl.org (anonymous FTP ok)
 
- Bug reports           : http://bugzilla.bioperl.org/
+ Bug reports         : http://bugzilla.bioperl.org/
 
  Please send us bugs, in particular about documentation which you
  think is unclear or problems in installation. We are also very
@@ -59,14 +59,14 @@ o About the directory structure
 
  The bioperl directory structure is organized as follows:
 
- Bio/                - Bioperl modules  
+ Bio/            - Bioperl modules  
  models/         - DIA drawing program generated OO UML for bioperl classes
- t/                   - Perl built-in tests
- t/data/           - Data files used for the tests - provides good data
-	                       examples for those new to bioinformatics data.	     
- scripts/          - Useful production-quality scripts with POD documentation 
- examples/      - Scripts demonstrating the many uses of Bioperl
- maintenance/ - Bioperl housekeeping scripts
+ t/              - Perl built-in tests
+ t/data/         - Data files used for the tests - provides good data
+	           examples for those new to bioinformatics data.	     
+ scripts/        - Useful production-quality scripts with POD documentation 
+ examples/       - Scripts demonstrating the many uses of Bioperl
+ maintenance/    - Bioperl housekeeping scripts
 
 o Documentation
 
@@ -158,16 +158,16 @@ o A simple module summary
  toolkit is laid out:
 
  All modules are in the Bio/ namespace, 
-  - Perl is for newbies and gives a functional interface to the main
-    parts of the package
-  - Seq is for Sequences (protein and DNA).
-    o Bio::PrimarySeq is a plain sequence (sequence data + identifiers)
-    o Bio::Seq is a PrimarySeq plus it has a Bio::Annotation::Collection 
-      and a Bio::SeqFeatureI objects attached.
-    o Bio::Seq::RichSeq is all of the above plus it has slots for
-      extra information specific to GenBank/EMBL/SwissProt files.
-    o Bio::Seq::LargeSeq is for sequences which are too big for
-      fitting into memory.
+ - Perl is for newbies and gives a functional interface to the main
+   parts of the package
+ - Seq is for Sequences (protein and DNA).
+   o Bio::PrimarySeq is a plain sequence (sequence data + identifiers)
+   o Bio::Seq is a PrimarySeq plus it has a Bio::Annotation::Collection 
+     and a Bio::SeqFeatureI objects attached.
+   o Bio::Seq::RichSeq is all of the above plus it has slots for
+     extra information specific to GenBank/EMBL/SwissProt files.
+   o Bio::Seq::LargeSeq is for sequences which are too big for
+     fitting into memory.
  - SeqIO is for reading and writing Sequences, it is a front end
    module for separate driver modules supporting the different
    sequence formats

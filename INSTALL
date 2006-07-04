@@ -397,7 +397,7 @@ o BUILDING THE OPTIONAL bioperl-ext PACKAGE
  - INSTALLATION
 
    Move to the directory bioperl-ext. This is available as a separate
-   package released from ftp://bioperl.org/pub/DIST.  This is where the C
+   package released from ftp://bioperl.org/pub/bioperl/DIST.  This is where the C
    code and XS extension for the bp_sw module is held and execute these
    commands: (possibly after making the change for *BSD and Solaris, as
    detailed above)
@@ -423,129 +423,128 @@ o DEPENDENCIES AND Bundle::BioPerl
    applications or databases: MySQL, Berkeley DB, and expat respectively.
 
 
- Module			  Where it is Used
+ Module	                  Where it is Used
  ------------------------------------------------------------------
  HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
-               	 		  remote http Blast jobs
-		 	                 Bio::DB::*
-			                 Bio::Tools::Run::RemoteBlast
+               	          remote http Blast jobs
+                                         Bio::DB::*
+                                         Bio::Tools::Run::RemoteBlast
 
  LWP::UserAgent           GenBank+GenPept sequence retrieval, 
-	 		                 remote http Blast jobs
-			                 Bio::DB::*
-			                 Bio::Tools::Run::RemoteBlast
+                          remote http Blast jobs
+                                         Bio::DB::*
+                                         Bio::Tools::Run::RemoteBlast
 
- AcePerl	                 Access to ACeDB databases
-			                 Bio::DB::Ace
+ AcePerl                  Access to ACeDB databases
+                                         Bio::DB::Ace
 
  Available at http://stein.cshl.org
-			 
+ 
  IO::String               IO handle to read or write to a string
-               			  Bio::SeqIO
-			                 Bio::Variation::*
-			                 Bio::DB::*
-			                 Bio::Index::Blast
-			                 Bio::Tools::*
-			                 Bio::Biblio::IO
-			                 Bio::Structure::IO
+                                         Bio::SeqIO
+                                         Bio::Variation::*
+                                         Bio::DB::*
+                                         Bio::Index::Blast
+                                         Bio::Tools::*
+                                         Bio::Biblio::IO
+                                         Bio::Structure::IO
 
  XML::Parser              Parsing of XML documents
-			                 Bio::Biblio::IO::medlinexml
+                                         Bio::Biblio::IO::medlinexml
 
  Requires expat from http://sourceforge.net/projects/expat/
-			 			 
+
  XML::Writer              Parsing + writing of XML documents
-	               		  Bio::SeqIO::game
-			                 Bio::Variation::*
+               	                         Bio::SeqIO::game
+                                         Bio::Variation::*
 
  XML::Parser::PerlSAX     Parsing of XML documents
-			                 Bio::SeqIO::game
-			                 Bio::Variation::*
-			                 Bio::SearchIO::blastxml
-			                 Bio::Biblio::IO::medlinexml
+                                         Bio::SeqIO::game
+                                         Bio::Variation::*
+                                         Bio::SearchIO::blastxml
+                                         Bio::Biblio::IO::medlinexml
 
- XML::Twig        	     Parsing of XML documents
-			                 Bio::Variation::IO::xml
-                          Bio/DB/Biblio/eutils
-                          Bio/Graph/IO/psi_xml
+ XML::Twig        	  Parsing of XML documents
+                                         Bio::Variation::IO::xml
+                                         Bio/DB/Biblio/eutils
+                                         Bio/Graph/IO/psi_xml
 
  File::Temp               Temporary File creation
-			                 Bio::DB::FileCache
-			                 Bio::DB::XEMBL
+                                         Bio::DB::FileCache
+                                         Bio::DB::XEMBL
 
  SOAP::Lite               SOAP protocol, XEMBL Services
-			                 Bio::Biblio::*
-			                 Bio::DB::XEMBLService
+                                         Bio::Biblio::*
+                                         Bio::DB::XEMBLService
 
  HTML::Parser             HTML parsing of GDB page
-			                 Bio::DB::GDB
+                                         Bio::DB::GDB
 
  DBD::mysql               Mysql API for loading and querying of Mysql-based 
-			                 GFF feature and BioSQL databases
-			                 Bio::DB::GFF
-			                 bioperl-db external package
-			                 bioperl-pipeline external package
+                                         GFF feature and BioSQL databases
+                                         Bio::DB::GFF
+                                         bioperl-db external package
+                                         bioperl-pipeline external package
 
- Requires Mysql from www.mysql.org
+ Requires MySQL from www.mysql.org
 
- GD			              GD graphical drawing library
-			                 Bio::Graphics
+ GD                       GD graphical drawing library
+                                         Bio::Graphics
 
  Requires GD library from www.boutell.com/gd
 
-
- Storable		           Persistent object storage & retrieval 
-			                 Bio::DB::FileCache
+ Storable                 Persistent object storage & retrieval 
+                                         Bio::DB::FileCache
 
  Text::Shellwords         Text parser
-                          Bio::Graphics::FeatureFile
+                                         Bio::Graphics::FeatureFile
 
- XML::DOM		           XML parser
-			                 Bio::SeqIO::bsml
-                          Bio::SeqIO::interpro
+ XML::DOM                 XML parser
+                                         Bio::SeqIO::bsml
+                                         Bio::SeqIO::interpro
 
  DB_File                  Perl access to Berkeley DB
-                          Bio::DB::Flat
-			                 Bio::DB::Fasta
-                          Bio::SeqFeature::Collection
-			                 Bio::Index::*
+                                         Bio::DB::Flat
+                                         Bio::DB::Fasta
+                                         Bio::SeqFeature::Collection
+                                         Bio::Index::*
 
  Requires Berkeley DB, from Linux RPM or from www.sleepycat.com
 
  Graph::Directed          Generic graph data and algorithms
-                          Bio::Ontology::OBOEngine
+                                         Bio::Ontology::OBOEngine
 
  Data::Stag::ITextWriter  Structured Tags datastructures
-			                 Bio::SeqIO::chadoitext
+                                         Bio::SeqIO::chadoitext
 
  Data::Stag::SxprWriter   Structured Tags datastructures
-			                 Bio::SeqIO::chadosxpr
+                                         Bio::SeqIO::chadosxpr
 
  Data::Stag::XMLWriter    Structured Tags datastructures
-			                 Bio::SeqIO::chadoxml
+                                         Bio::SeqIO::chadoxml
  
  Text::Wrap               Very optional
-                          Bio::SearchIO::Writer::TextResultWriter
+                                         Bio::SearchIO::Writer::TextResultWriter
  
  HTML::Entities           Parse BLAST results in XML
-			                 Bio/SearchIO/blastxml
+                                         Bio::SearchIO::blastxml
 
  Class::AutoClass         Used to create objects
-                          Bio::Graph::SimpleGraph*
+                                         Bio::Graph::SimpleGraph*
 
  Clone                    Used to clone objects
-                          Bio::Graph::ProteinGraph
+                                         Bio::Graph::ProteinGraph
 
- XML::SAX		           New style SAX parser
-                          Bio::SeqIO::bsml_sax
+ XML::SAX                 New style SAX parser
+                                         Bio::SeqIO::bsml_sax
  
- XML::SAX::Base		     New style SAX parser
-                          Bio::SeqIO::tigrxml
-                  
+ XML::SAX::Base	          New style SAX parser
+                                         Bio::SeqIO::tigrxml
+
  XML::SAX::Writer
 
-Convert::Binary::C       Binary Data Conversion using C Types
-                                   Bio/SeqIO/strider
+ Convert::Binary::C       Binary Data Conversion using C Types
+                                         Bio::SeqIO::strider
 
-Spreadsheet::ParseExcel	     Read Microsoft Excel files
-                                            Bio/SeqIO/excel.pm
+ Spreadsheet::ParseExcel  Read Microsoft Excel files
+                                         Bio::SeqIO::excel

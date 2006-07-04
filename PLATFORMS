@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.24 2006-02-04 04:17:26 bosborne Exp $
+# $Id: PLATFORMS,v 1.25 2006-07-04 02:25:10 mauricio Exp $
 
 Perl general comments:
 
@@ -47,9 +47,9 @@ Compiler: gcc
 Perl    : 5.6.0
 Comments: none
 
-Machine : FreeBSD 4.2 i386
+Machine : FreeBSD 6.1 and FreeBSD 5.5 i386
 Compiler: gcc
-Perl    : 5.005_03
+Perl    : 5.6.2_2-5.8.8
 Comments: none
 
 Machine : IRIX64 6.5 SGI

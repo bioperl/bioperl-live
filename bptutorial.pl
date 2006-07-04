@@ -178,7 +178,7 @@ http://bioperl.org/Core/Latest/bioscripts.html).  In addition, the POD
 documentation for many Bioperl modules should contain
 runnable code in the SYNOPSIS section which is meant to illustrate the
 use of a module and its methods. You will also find some interesting
-bits of code in the FAQ ( http://bioperl.org/Core/Latest/faq.html ).
+bits of code in the FAQ ( http://bioperl.org/wiki/FAQ ).
 
 =back
 
@@ -306,7 +306,7 @@ B<Perl - extensions>
 
 For a complete listing of external Perl modules required by bioperl
 please see the INSTALL file in the Bioperl package (or
-http://bioperl.org/Core/Latest/INSTALL ).
+http://bioperl.org/SRC/bioperl-live/INSTALL ).
 
 B<Bioperl auxiliary repositories>
 
@@ -340,7 +340,7 @@ for EMBOSS applications - http://emboss.sourceforge.net/
 =head2  I.4 Installation
 
 For details see Bioperl's INSTALL file  
-( http://bioperl.org/Core/Latest/INSTALL ).
+( http://bioperl.org/SRC/bioperl-live/INSTALL ).
 
 For the external programs (clustal, Tcoffee, ncbi-blast), there is an
 extra step:
@@ -363,7 +363,7 @@ The only likely complication (at least on unix systems) that may occur
 is if you are unable to obtain system level writing privileges.  For
 instructions on modifying the installation in this case and for more
 details on the overall installation procedure, see the INSTALL file 
-(or http://bioperl.org/Core/Latest/INSTALL ) in the Bioperl distribution 
+(or http://bioperl.org/SRC/bioperl-live/INSTALL ) in the Bioperl distribution 
 as well as the README files for the external programs you want to use.
 
 =head2 I.5 Additional comments for non-unix users
@@ -377,7 +377,7 @@ versions of Microsoft Windows.  For many windows users the Perl and
 bioperl distributions from Active State, at http://www.activestate.com
 has been quite helpful.  Other windows users have had success running
 bioperl under Cygwin ( http://www.cygwin.com ). See the package's INSTALL.WIN 
-file for more details (or http://bioperl.org/Core/Latest/INSTALL.WIN ).
+file for more details (or http://bioperl.org/SRC/bioperl-live/INSTALL.WIN ).
 
 Many Bioperl features require the use of CPAN modules, compiled
 extensions or external programs.  These features probably will
@@ -398,9 +398,9 @@ documentation can be found at http://doc.bioperl.org/bioperl-live/.
 This interface lists all Bioperl modules and descriptions of all
 of their methods. In addition, beginner questions can often be
 answered by looking at the FAQ, INSTALL and README files 
-( http://bioperl.org/Core/Latest/faq.html and 
-http://bioperl.org/Core/Latest/INSTALL and 
-http://bioperl.org/Core/Latest/README ) in the top-level directory of 
+( http://bioperl.org/wiki/FAQ and 
+http://bioperl.org/SRC/bioperl-live/INSTALL and 
+http://bioperl.org/SRC/bioperl-live/README ) in the top-level directory of 
 the Bioperl distribution.
 
 One potential problem in locating the correct documentation is that
@@ -422,7 +422,7 @@ and examples/ directories (see bioscripts.pod for a description of
 these scripts, or http://bioperl.org/Core/Latest/bioscripts.html).
 
 Another source of focussed documentation is the HOWTO files, found
-at http://bioperl.open-bio.org/wiki/HOWTOs.
+at http://bioperl.org/wiki/HOWTOs.
 Current topics include OBDA Access, SeqIO, SearchIO, Graphics,
 Features and Annotations, Trees, PAML, and Biopipe.
 
@@ -658,7 +658,7 @@ to know whether the required database is flat-file or relational or
 even whether it is local or accessible only over the net.
 Descriptions of how to set up the necessary registry configuration
 file and access sequence data with the registry in described at
-http://bioperl.open-bio.org/wiki/HOWTO:OBDA.
+http://bioperl.org/wiki/HOWTO:OBDA.
 
 =head2   III.1.1 Accessing remote databases (Bio::DB::GenBank, etc)
 
@@ -879,7 +879,7 @@ there's no suffix available then SeqIO will attempt to guess the format
 based on actual content. If it can't determine the format then it will 
 assume "fasta". A complete list of formats and suffixes can be 
 found in the SeqIO HOWTO 
-( http://bioperl.open-bio.org/wiki/HOWTO:SeqIO ).
+( http://bioperl.org/wiki/HOWTO:SeqIO ).
 
 =for html <A NAME ="iii.2.2"></A>
 
@@ -1012,8 +1012,8 @@ of related, top-level annotation is found in L<Bio::Annotation::Collection>.
 Additional sample code for obtaining sequence features can be found in
 the script gb2features.pl in the subdirectory examples/DB. Finally,
 there's a HOWTO on features and annotations
-( http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation ) and there's a 
-section on features in the FAQ ( http://bioperl.org/Core/Latest/faq.html#5 ).
+( http://bioperl.org/wiki/HOWTO:Feature-Annotation ) and there's a 
+section on features in the FAQ ( http://bioperl.org/wiki/FAQ#Annotations_and_Features ).
 
 The following methods returns new sequence objects, but do not transfer
 the features from the starting object to the resulting feature:
@@ -1493,13 +1493,13 @@ BLAST report might look like this:
   $hsp_start = $hsp->query->start;
 
 For more details there is a good description of how to use
-SearchIO at http://bioperl.open-bio.org/wiki/HOWTO:SearchIO
+SearchIO at http://bioperl.org/wiki/HOWTO:SearchIO
 Additional documentation can be found in L<Bio::SearchIO::blast>,
 L<Bio::SearchIO::psiblast>, L<Bio::SearchIO::blastxml>,
 L<Bio::SearchIO::fasta>, and L<Bio::SearchIO>. There is also sample
 code in the examples/searchio directory which illustrates how to
 use SearchIO. And finally, there is a section with SearchIO questions
-in the FAQ ( http://bioperl.org/Core/Latest/faq.html#3 ).
+in the FAQ ( http://bioperl.org/wiki/FAQ#Sequences ).
 
 =for html <A NAME ="iii.4.3"></A>
 
@@ -1816,7 +1816,7 @@ statements (e.g. "CDS    join(51..142,273..495,1346..1474)"):
 
 See L<Bio::LocationI> and L<Bio::Location::SplitLocationI> for more
 information. Also see the Feature-Annotation HOWTO
-( http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation ).
+( http://bioperl.org/wiki/HOWTO:Feature-Annotation ).
 
 If more detailed information is required than is currently available in Seq
 objects the RichSeq object may be used. It is applicable in particular to
@@ -1855,7 +1855,7 @@ Objects with the "reference" tagname are Bio::Annotation::Reference objects
 and represent scientific articles. See L<Bio::Annotation::Reference> for 
 descriptions of the methods used to access the data in Reference objects.
 There is also a HOWTO on features and annotation 
-( http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation ).
+( http://bioperl.org/wiki/HOWTO:Feature-Annotation ).
 
 =for html <A NAME ="iii.7.3"></A>
 
@@ -2160,7 +2160,7 @@ See L<Bio::TreeIO> and L<Bio::Tree::Tree> for details.
 Using the Bio::Tools::Phylo::PAML module one can also parse the
 results of the PAML tree-building programs codeml, baseml, basemlg,
 codemlsites and yn00. See L<Bio::Tools::Phylo::PAML> or the PAML HOWTO
-( http://bioperl.open-bio.org/wiki/HOWTO:PAML ) for more information.
+( http://bioperl.org/wiki/HOWTO:PAML ) for more information.
 
 =head2 III.9.3 Map objects for manipulating genetic maps (Map::MapI, MapIO)
 
@@ -2207,7 +2207,7 @@ given the SeqFeatures (Section L<"III.7.1">) contained within a Seq object.
 
 These modules contain numerous methods to dictate the sizes, colors,
 labels, and line formats within the image. For information see the
-Graphics HOWTO ( http://bioperl.open-bio.org/wiki/HOWTO:Graphics ).
+Graphics HOWTO ( http://bioperl.org/wiki/HOWTO:Graphics ).
 Additional documentation can be found in
 L<Bio::Graphics>, L<Bio::Graphics::Panel>, and in the scripts in the
 examples/biographics/ and scripts/graphics directories in the Bioperl package.
@@ -2323,7 +2323,7 @@ At present, modules in the auxiliary packages can be obtained only by
 means of the CVS system. To browse through the auxiliary libraries and
 to obtain the download files, go to:
 
-http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
+http://code.open-bio.org/cgi/viewcvs.cgi/?cvsroot=bioperl
 
 Install much like Bioperl:
 
@@ -2592,7 +2592,7 @@ are typically for specialized uses and/or require multiple external
 programs to run and/or are still pretty new and undeveloped. But if
 you have a need for any of these capabailities, it is easy to take a
 look at them at:
-http://cvs.bioperl.org/cgi-bin/viewcvs/viewcvs.cgi/?cvsroot=bioperl
+http://code.open-bio.org/cgi/viewcvs.cgi/?cvsroot=bioperl
 and see if they might be of use to you.
 
 =for html <A NAME ="v.1"></A>

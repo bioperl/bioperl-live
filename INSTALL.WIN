@@ -1,4 +1,4 @@
-# $Id: INSTALL.WIN,v 1.19 2006-04-22 20:59:23 bosborne Exp $
+# $Id: INSTALL.WIN,v 1.20 2006-07-04 02:25:10 mauricio Exp $
 
 Installing Bioperl on Windows
 ===================
@@ -179,18 +179,18 @@ packages are:
 
    bioperl (the core)       Most of the main functionality of Bioperl.
 
-   bioperl-run               Wrappers to a lot of external programs.
+   bioperl-run              Wrappers to a lot of external programs.
 
-   bioperl-ext               Interaction with some alignment functions
-                                    and the Staden package.
+   bioperl-ext              Interaction with some alignment functions
+                            and the Staden package.
 
-   bioperl-db                Using bioperl with BioSQL and local
-                                    relational databases.
+   bioperl-db               Using bioperl with BioSQL and local
+                            relational databases.
 
-   bioperl-microarray   Microarray specific functions.
+   bioperl-microarray       Microarray specific functions.
 
-   bioperl-gui               Some preliminary work on a graphical user
-                                    interface to some Bioperl functions.
+   bioperl-gui              Some preliminary work on a graphical user
+                            interface to some Bioperl functions.
 
 
 The Bioperl core is what most new users will want to start with.  

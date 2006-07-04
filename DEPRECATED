@@ -10,5 +10,5 @@ Bio::Tools::Blast::HTML       1.0      1.1    use Bio::SearchIO::Writer::HTMLWri
 Bio::Tools::WWW               1.1      1.1.1  Just a collection of links
 Bio::UnivAln                  1.0      1.1    use Bio::SimpleAlign
 Bio::Tools::RestrictionEnzyme 1.5      -      use Bio::Restriction
-Bio::Tools::BPlite	   1.5	    -	     use Bio::SearchIO
-Bio::Ontology::SimpleGOEngine	1.5.1	-	use Bio::Ontology::OBOEngine
+Bio::Tools::BPlite            1.5      -      use Bio::SearchIO
+Bio::Ontology::SimpleGOEngine 1.5.1    -      use Bio::Ontology::OBOEngine
