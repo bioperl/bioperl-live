@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
 
-# $Id: filter_search.PLS,v 1.2 2006-07-01 07:28:51 mauricio Exp $
+# $Id: filter_search.PLS,v 1.3 2006-07-04 22:23:29 mauricio Exp $
 
 
 =head1 NAME
@@ -35,7 +35,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
- http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 

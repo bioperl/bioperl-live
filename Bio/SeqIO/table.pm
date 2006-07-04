@@ -71,7 +71,7 @@ the bugs and their resolution.
 
 Bug reports can be submitted via email or the web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Hilmar Lapp
 

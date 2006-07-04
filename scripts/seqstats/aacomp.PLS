@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
 use Carp;
-# $Id: aacomp.PLS,v 1.4 2006-07-01 07:28:51 mauricio Exp $
+# $Id: aacomp.PLS,v 1.5 2006-07-04 22:23:29 mauricio Exp $
 
 use Bio::SeqIO;
 use Getopt::Long;
@@ -119,7 +119,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich
 

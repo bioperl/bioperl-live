@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: unflatten_seq.PLS,v 1.6 2006-07-01 07:28:51 mauricio Exp $
+# $Id: unflatten_seq.PLS,v 1.7 2006-07-04 22:23:29 mauricio Exp $
 # Author Chris Mungall <cjm-at-bioperl.org>
 
 =head1 NAME
@@ -156,7 +156,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
- http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 

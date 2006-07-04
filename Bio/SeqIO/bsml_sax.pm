@@ -56,7 +56,7 @@ Bio::SeqIO::bsml_sax - BSML sequence input/output stream using SAX
  the bugs and their resolution. Bug reports can be submitted via the
  web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich
 

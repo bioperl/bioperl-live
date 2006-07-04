@@ -42,7 +42,7 @@ Bio::Tools::Prints - Parser for FingerPRINTScanII program
  of the bugs and their resolution. Bug reports can be submitted via
  the web:
 
- http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Balamurugan Kumarasamy
 

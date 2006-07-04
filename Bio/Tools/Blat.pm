@@ -40,7 +40,7 @@ Bio::Tools::Blat
  of the bugs and their resolution. Bug reports can be submitted the
  web:
 
- http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Balamurugan Kumarasamy
 

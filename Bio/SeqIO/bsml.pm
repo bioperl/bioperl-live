@@ -83,7 +83,7 @@ Bio::SeqIO::bsml - BSML sequence input/output stream
  the bugs and their resolution.
  Bug reports can be submitted via the web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head2 Things Still to Do
 

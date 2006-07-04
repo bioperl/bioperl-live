@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: pairwise_kaks.PLS,v 1.11 2006-07-01 07:28:51 mauricio Exp $
+# $Id: pairwise_kaks.PLS,v 1.12 2006-07-04 22:23:29 mauricio Exp $
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 
 =head1 NAME
@@ -45,7 +45,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
- http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 

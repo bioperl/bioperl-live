@@ -16,7 +16,7 @@
 #   martin.senger@gmail.com
 #   February 2002
 #
-#   $Id: biblio.PLS,v 1.4 2006-07-01 07:28:51 mauricio Exp $
+#   $Id: biblio.PLS,v 1.5 2006-07-04 22:23:29 mauricio Exp $
 #-----------------------------------------------------------------------------
 
 use strict;
@@ -479,7 +479,7 @@ Report bugs to the Bioperl bug trackingi system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Martin Senger
 

@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: oligo_count.PLS,v 1.3 2006-07-01 07:28:51 mauricio Exp $
+# $Id: oligo_count.PLS,v 1.4 2006-07-04 22:23:29 mauricio Exp $
 #
 # oligomer_freq.pl
 # We use this to determine what primers are useful for frequent priming of
@@ -232,7 +232,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Charles C. Kim
 

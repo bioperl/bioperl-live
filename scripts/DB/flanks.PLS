@@ -1,6 +1,6 @@
 #!perl
 # -*-Perl-*-
-# $Id: flanks.PLS,v 1.6 2006-07-02 05:35:50 mauricio Exp $
+# $Id: flanks.PLS,v 1.7 2006-07-04 22:23:29 mauricio Exp $
 #
 # Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 # Finding flanking sequences for a variant.
@@ -305,7 +305,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
