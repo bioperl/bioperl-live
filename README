@@ -63,7 +63,7 @@ o About the directory structure
  models/         - DIA drawing program generated OO UML for bioperl classes
  t/              - Perl built-in tests
  t/data/         - Data files used for the tests - provides good data
-	           examples for those new to bioinformatics data.	     
+                   examples for those new to bioinformatics data.	     
  scripts/        - Useful production-quality scripts with POD documentation 
  examples/       - Scripts demonstrating the many uses of Bioperl
  maintenance/    - Bioperl housekeeping scripts
