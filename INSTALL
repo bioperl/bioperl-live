@@ -209,15 +209,15 @@ o EXTERNAL PROGRAMS
 	
      Specifies where the NCBI blastall, blastpgp,
      bl2seq, etc.. are located.  A 'data' directory
-	  could also be present in this directory as well, you could put
+     could also be present in this directory as well, you could put
      your blastable databases here.
 
      BLASTDATADIR or BLASTDB
 
      If one does not want to locate the data dir
-	  within the same dir as where the BLASTDIR variable
-	  points, a BLASTDATADIR or BLASTDB variable can be set to 
-	  point to a dir where BLAST database indexes are located.
+     within the same dir as where the BLASTDIR variable
+     points, a BLASTDATADIR or BLASTDB variable can be set to 
+     point to a dir where BLAST database indexes are located.
 
      BLASTMAT
 
