@@ -44,6 +44,8 @@ sub sixframe {
   return $self->{sixframe} = $sixframe;
 }
 
+sub maxdepth { 1 };
+
 sub require_subparts {
   my $self = shift;
   my $rs   = $self->option('require_subparts');

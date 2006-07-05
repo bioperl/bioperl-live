@@ -302,17 +302,18 @@ ones:
 #
 sub new {
   my $self      = shift;
-  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$args);
+  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$args);
   if (@_ == 1) {
     $args = {DSN => shift}
   }
   else {
-    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$args) =
+    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$args) =
       rearrange(['ADAPTOR',
 		 'SERIALIZER',
 		 'INDEX_SUBFEATURES',
 		 'CACHE',
 		 'COMPRESS',
+		 'DEBUG',
 		],@_);
   }
   $adaptor ||= 'DBI::mysql';
@@ -321,6 +322,7 @@ sub new {
   eval "require $class " or croak $@;
   $cache &&= eval "require Tie::Cacher; 1";
   my $obj = $class->new_instance();
+  $obj->debug($debug) if defined $debug;
   $obj->init($args);
   $obj->init_cache($cache) if $cache;
   $obj->do_compress($compress);
@@ -1982,6 +1984,44 @@ sub subfeatures_are_indexed {
   my $d    = $self->setting('subfeatures_are_indexed');
   $self->setting(subfeatures_are_indexed => shift) if @_;
   $d;
+}
+
+=head2 subfeature_types_are_indexed
+
+ Title   : subfeature_types_are_indexed
+ Usage   : $flag = $db->subfeature_types_are_indexed
+ Function: whether subfeatures are indexed by type
+ Returns : a flag indicating that all subfeatures are indexed
+ Args    : none
+ Status  : private
+
+This method returns true if subfeature types are indexed. Default is
+to return the value of subfeatures_are_indexed().
+
+=cut
+
+sub subfeature_types_are_indexed {
+  my $self = shift;
+  return $self->subfeatures_are_indexed;
+}
+
+=head2 subfeature_locations_are_indexed
+
+ Title   : subfeature_locations_are_indexed
+ Usage   : $flag = $db->subfeature_locations_are_indexed
+ Function: whether subfeatures are indexed by type
+ Returns : a flag indicating that all subfeatures are indexed
+ Args    : none
+ Status  : private
+
+This method returns true if subfeature locations are indexed. Default is
+to return the value of subfeatures_are_indexed().
+
+=cut
+
+sub subfeature_locations_are_indexed {
+  my $self = shift;
+  return $self->subfeatures_are_indexed;
 }
 
 =head2 setup_segment_args

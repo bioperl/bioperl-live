@@ -359,7 +359,7 @@ sub get_SeqFeatures {
   my @db_segs;
 
   if ($store && $store->can_store_parentage) {
-    if (!@types || $store->subfeatures_are_indexed) {
+    if (!@types || $store->subfeature_types_are_indexed) {
       @db_segs = $store->fetch_SeqFeatures($self,@types);
     } else {
       @db_segs     = grep {$_->type_match(@types)} $store->fetch_SeqFeatures($self);

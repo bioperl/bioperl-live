@@ -114,7 +114,7 @@ sub maxdepth {
   my $self = shift;
   my $md   = $self->SUPER::maxdepth;
   return $md if defined $md;
-  return 1;
+  return 0;
 }
 
 sub _label {
