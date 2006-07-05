@@ -32,7 +32,7 @@ ok 1;
 ok my $map = new Bio::Map::CytoMap(-name  => 'my');
 ok $map->type, 'cyto'; 
 ok $map->units, ''; 
-ok $map->length, undef;
+ok $map->length, 0;
 ok $map->name, 'my';
 ok $map->species('human'), 'human';
 ok $map->species, 'human';
