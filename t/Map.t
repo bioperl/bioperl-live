@@ -16,15 +16,12 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 74;
+    plan tests => 73;
 }
 
-#END {
-#}
-
-#
+##
 # Original set of tests for 1.5.1
-#
+##
 
 #
 # Let's test first the map class : Bio::Map::SimpleMap
@@ -34,20 +31,18 @@ use Bio::Map::SimpleMap;
 ok 1;
 
 ok my $map = new Bio::Map::SimpleMap(-name  => 'my');
-ok $map->type('cyto'); 
-ok $map->type, 'cyto'; 
-ok $map->units, ''; 
+ok $map->type('cyto');
+ok $map->type, 'cyto';
+ok $map->units, '';
 ok $map->length, 0, "Length is ". $map->length;
 ok $map->name, 'my';
 ok $map->species('human'), 'human';
 ok $map->species, 'human';
 ok $map->unique_id, '1';
 
-
 #
 # Secondly, create Markers for the Map
 #
-
 use Bio::Map::Marker;
 ok 1;
 
@@ -57,8 +52,7 @@ ok 1;
 # 1. position gets a map object and a value as arguments
 
 ok my $marker1 = new Bio::Map::Marker();
-ok $marker1->name('gene1'), 'Unnamed marker' ;
-ok $marker1->name(), 'gene1';
+ok $marker1->name('gene1'), 'gene1' ;
 
 ok $marker1->position($map, 100);
 ok $marker1->position->value, 100;
@@ -78,9 +72,9 @@ ok $pos->map(), $map;
 ok $pos->marker($marker1);
 ok $pos->marker(), $marker1;
 
-ok $pos->value('999');
-ok $pos->value(), '999';
-ok $pos->numeric, 999;
+ok $pos->value('10');
+ok $pos->value(), '10';
+ok $pos->numeric, 10;
 
 # ... and then continue testing the Marker
 
@@ -88,7 +82,7 @@ ok $pos->numeric, 999;
 ok my $marker2 = new Bio::Map::Marker(-name => 'gene2',
 				      -position => [$map, 200]
 				      );
-ok ( $marker2->map, $map);
+ok ($marker2->map, $map);
 ok ($marker2->position->value, 200);
 
 # 3. marker is first added into map, 
@@ -108,16 +102,13 @@ my $cpos2 = $marker3->position($cpos);
 ok $cpos2 eq $cpos;
 ok $marker3->position->value, 500;
 
-
 #
 # Next, what do markers know about Maps?
 #
 
-ok (scalar ($marker3->known_maps), 1); 
+ok (scalar ($marker3->known_maps), 1);
 ok $marker3->in_map(1);
 ok ! $marker3->in_map(2);
-
-
 
 #
 # Lastly, let's test the comparison methods
@@ -130,20 +121,19 @@ ok ! $marker1->greater_than($marker3);
 ok ! $marker3->less_than($marker1);
 ok $marker3->greater_than($marker1);
 
-#
-# 48 test so far...
+##
 # New set of tests for additions relating to complete implementation of everything suggested by the docs
-#
+##
 
 #
 # Let's try and do everything in the synopsis of Bio::Map::Marker
 #
 my $map1 = new Bio::Map::SimpleMap(-name => 'genethon', -type => 'Genetic');
-my $pos1 =  new Bio::Map::Position(-map => $map1, -value => 100 );
-my $pos2 = new Bio::Map::Position(-map => $map1, -value => 200 );
-ok my $o_usat = new Bio::Map::Marker (-name=>'Chad Super Marker 2', -positions => [ [$map1, 100], [$map1, 200] ] );
-ok my $o_usat2 = new Bio::Map::Marker (-name=>'Chad Super Marker 3', -positions => [ $pos1, $pos2 ] );
-$marker1 = new Bio::Map::Marker (-name=>'hypervariable1', -map => $map1, -position => 100 );
+my $pos1 = new Bio::Map::Position(-map => $map1, -value => 100);
+my $pos2 = new Bio::Map::Position(-map => $map1, -value => 200);
+ok my $o_usat = new Bio::Map::Marker (-name=>'Chad Super Marker 2', -positions => [ [$map1, 100], [$map1, 200] ]);
+ok my $o_usat2 = new Bio::Map::Marker (-name=>'Chad Super Marker 3', -positions => [ $pos1, $pos2 ]);
+$marker1 = new Bio::Map::Marker (-name=>'hypervariable1', -map => $map1, -position => 100);
 $marker2 = new Bio::Map::Marker (-name=>'hypervariable2');
 $map1->add_element($marker2);
 ok $marker2->position(150);
@@ -155,7 +145,6 @@ my ($pos1a, $pos2a) = $marker2->each_position($map1);
 ok $pos1a->value == 150 && $pos2a->value == 200;
 
 #
-# 57 tests so far...
 # Now test the methods in Bio::Map::Marker that haven't been tested yet
 #
 
@@ -171,7 +160,6 @@ ok @p == 1 && $p[0] == 100;
 ok @p == 3 && $p[0] == 150 && $p[1] == 200 && $p[2] == 300;
 
 #
-# 59 tests so far...
 # Now test the new range-related things in position and marker
 #
 

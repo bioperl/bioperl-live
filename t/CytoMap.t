@@ -16,7 +16,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 111;
+    plan tests => 110;
 }
 
 END {
@@ -224,8 +224,7 @@ use Bio::Map::CytoMarker;
 ok 1;
 
 ok my $marker1 = new Bio::Map::CytoMarker();
-ok $marker1->name('gene1'), 'Unnamed marker' ;
-ok $marker1->name(), 'gene1';
+ok $marker1->name('gene1'), 'gene1' ;
 ok $marker1->position($map, '10p33.13-q15');
 
 ok my $marker2 = new Bio::Map::CytoMarker(-name => 'gene2' );
