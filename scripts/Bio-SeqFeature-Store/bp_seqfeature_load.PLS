@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.6 2006-06-21 03:17:09 lstein Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.7 2006-07-05 15:53:50 lstein Exp $
 
 use strict;
 
@@ -71,6 +71,9 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $store,
 							 -tmpdir   => $TMP,
 							 -fast     => $FAST)
   or die "Couldn't create GFF3 loader";
+
+# on signals, give objects a chance to call their DESTROY methods
+$SIG{TERM} = $SIG{INT} = sub {  undef $loader; undef $store; die "Aborted..."; };
 
 $loader->load(@ARGV);
 

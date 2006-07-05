@@ -11,7 +11,7 @@ use constant MIN_WIDTH_FOR_ARROW => 8;
 
 sub extra_arrow_length {
   my $self = shift;
-  return 0 unless $self->{level} == 0;
+#  return 0 unless $self->{level} == 0;
   my $strand = $self->feature->strand || 0;
   $strand *= -1 if $self->{flip};
   return 0 unless $strand < 0;
@@ -24,6 +24,7 @@ sub extra_arrow_length {
 
 sub pad_left  {
    my $self = shift;
+#   return 0 unless $self->{level} == 0;
    my $pad = $self->Bio::Graphics::Glyph::generic::pad_left;
    my $extra_arrow_length = $self->extra_arrow_length;
    if ($self->label_position eq 'left' && $self->label) {
@@ -35,6 +36,7 @@ sub pad_left  {
 
 sub pad_right  {
   my $self = shift;
+#  return 0 unless $self->{level} == 0;
   my $pad = $self->Bio::Graphics::Glyph::generic::pad_right;
   return $pad if $self->{level} > 0;
   my $last = ($self->parts)[-1] || $self;

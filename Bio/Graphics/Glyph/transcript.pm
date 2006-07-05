@@ -8,8 +8,8 @@ use vars '@ISA';
 
 sub pad_left  {
   my $self = shift;
+  return 0 unless $self->{level} == 0;
   my $pad  = $self->SUPER::pad_left;
-  return $pad if $self->{level} > 0;
   my $strand = $self->feature->strand;
   return $pad unless defined $strand && $strand < 0;
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;
@@ -17,8 +17,8 @@ sub pad_left  {
 
 sub pad_right {
   my $self = shift;
-  my $pad  = $self->SUPER::pad_right;
-  return $pad if $self->{level} > 0;
+  return 0 unless $self->{level} == 0;
+  my $pad = $self->SUPER::pad_right;
   my $strand = $self->feature->strand;
   return $pad unless defined($strand) && $strand > 0;
   return $self->arrow_length > $pad ? $self->arrow_length : $pad;

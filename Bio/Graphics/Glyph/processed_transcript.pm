@@ -191,6 +191,27 @@ sub connector {
 }
 
 
+sub _subfeat {
+  my $self   = shift;
+  return $self->SUPER::_subfeat(@_) unless ref($self) && $self->{level} == 0 && $self->option('one_cds');
+  my $feature = shift;
+
+  my @subparts = $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
+
+  # The CDS and UTRs may be represented as a single feature with subparts or as several features
+  # that have different IDs. We handle both cases transparently.
+  my @result;
+  foreach (@subparts) {
+    if ($_->primary_tag =~ /CDS|UTR/i) {
+      my @cds_seg = $_->get_SeqFeatures;
+      if (@cds_seg > 0) { push @result,@cds_seg  } else { push @result,$_ }
+    } else {
+      push @result,$_;
+    }
+  }
+  return @result;
+}
+
 1;
 
 __END__
@@ -275,6 +296,11 @@ glyph-specific options:
 
   -implied_utrs  Whether UTRs should be implied undef (false)
                  from exons and CDS features
+
+  -one_cds       Some databases (e.g. FlyBase) represent their
+                 transcripts as having a single CDS that is
+                 broken up into multiple parts. Set this to
+                 true to display this type of feature.
 
 The B<-adjust_exons> option is needed to handle features in which the
 exons (SO type "exon") overlaps with the UTRs (SO types

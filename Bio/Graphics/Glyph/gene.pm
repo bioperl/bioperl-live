@@ -14,7 +14,8 @@ sub extra_arrow_length {
 
 sub pad_left {
   my $self = shift;
-  return 0 unless $self->{level} < 2; # don't invoke this expensive call on exons
+  my $type = $self->feature->primary_tag;
+  return 0 unless $type =~ /gene|mRNA/;
   $self->SUPER::pad_left;
 }
 

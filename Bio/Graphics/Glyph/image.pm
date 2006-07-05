@@ -139,13 +139,6 @@ sub draw_description {
   $self->SUPER::draw_description($gd,$left,$top,$partno,$total_parts);
 }
 
-sub draw_label {
-  my $self = shift;
-  my ($gd,$left,$top,$partno,$total_parts) = @_;
-  $left += $self->pad_left;
-  $self->SUPER::draw_label($gd,$left,$top,$partno,$total_parts);
-}
-
 sub image_dir {
   my $self = shift;
   return $self->option('image_prefix');
@@ -172,9 +165,10 @@ sub draw_component {
   my $bgcolor = $self->bgcolor;
   my $height  = $self->option('height');
   my $half    = 4;
+  my $vs      = $self->vertical_spacing;
 
   my $delta = (($x2-$x1) - $image->width)/2;
-  my($x,$y) = ($x1+$delta,$y1+$self->vertical_spacing+$self->height);
+  my($x,$y) = ($x1+$delta,$y1+$vs+$self->height);
   if ($gd->can('copy')) {
     $gd->copy($image,$x,$y,0,0,$image->width,$image->height) ;
   } else {
@@ -182,12 +176,14 @@ sub draw_component {
     $gd->filledRectangle($x,$y,$x+$image->width,$y+$image->height,$gray);
   }
 
-  $gd->line($x1,$y2+2,$x1,$y2+$half,$fgcolor);
-  $gd->line($x2,$y2+2,$x2,$y2+$half,$fgcolor);
-  $gd->line($x1,$y2+$half,$x,$y-$half,$fgcolor);
-  $gd->line($x2,$y2+$half,$x+$image->width-1,$y-$half,$fgcolor);
-  $gd->line($x,$y-$half,$x,$y-2,$fgcolor);
-  $gd->line($x+$image->width-1,$y-$half,$x+$image->width-1,$y-2,$fgcolor);
+  if ($vs > 0) {
+    $gd->line($x1,$y2+2,$x1,$y2+$half,$fgcolor);
+    $gd->line($x2,$y2+2,$x2,$y2+$half,$fgcolor);
+    $gd->line($x1,$y2+$half,$x,$y-$half,$fgcolor);
+    $gd->line($x2,$y2+$half,$x+$image->width-1,$y-$half,$fgcolor);
+    $gd->line($x,$y-$half,$x,$y-2,$fgcolor);
+    $gd->line($x+$image->width-1,$y-$half,$x+$image->width-1,$y-2,$fgcolor);
+  }
 }
 
 1;
@@ -318,6 +314,9 @@ The following additional options are available to the "image" glyph:
   -glyph_delegate   Glyph to use for the part of      'generic'
                     the glyph that shows the physical
                     span of the feature.
+
+Set B<-vertical_spacing> to 0 to completely suppress the diagonal
+lines that connect the physical span of the feature to the image.
 
 =head2 Specifying the Image
 

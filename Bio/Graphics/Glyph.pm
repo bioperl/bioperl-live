@@ -313,12 +313,14 @@ sub boxes {
 
   $self->layout;
   $parent         ||= $self;
+  my $subparts = $self->option('box_subparts');
 
   for my $part ($self->parts) {
-    my $type = eval{$part->feature->primary_tag} || '';
+    my $type = $part->feature->primary_tag || '';
     if ($type eq 'group' or
-	($part->level == 0 && $self->option('box_subparts'))) {
+	($part->level == 0 && $subparts)) {
       push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$parent);
+      next;
     }
     my ($x1,$y1,$x2,$y2) = $part->box;
     push @result,[$part->feature,

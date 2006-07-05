@@ -379,7 +379,6 @@ sub finish_load {
   delete $self->{load_data};
 }
 
-
 =item do_load
 
   $count = $loader->do_load($fh)

@@ -1606,4 +1606,14 @@ sub time {
   return time();
 }
 
+sub DESTROY {
+  my $self = shift;
+  if ($self->{bulk_update_in_progress}) {  # be sure to remove temp files
+    for my $table ('feature',$self->index_tables) {
+      my $path = $self->dump_path($table);
+      unlink $path;
+    }
+  }
+}
+
 1;
