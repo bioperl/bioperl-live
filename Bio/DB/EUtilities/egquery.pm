@@ -37,7 +37,7 @@ sub _initialize {
 
 =cut
 
-# EGQuery doesn't have error checking, so this is a no-op for now
+# EGQuery doesn't have error checking, so this is NOOP for now
 
 sub parse_response {
 }

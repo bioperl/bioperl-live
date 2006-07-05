@@ -363,7 +363,6 @@ sub parse_response {
 												);
             $self->add_cookie($cookie);
         }
-        
         return;
     }
     else { # this sets internal hash of databases and ids
@@ -375,7 +374,7 @@ sub parse_response {
             my $db = $linkset->{DbTo};
             for my $id (@{ $linkset->{Link} }) {
                 push @{ $id_ref }, $id->{Id};
-                $self->_add_relevancy_ids($id->{Id},$id->{Score})
+                $self->_add_scores($id->{Id},$id->{Score})
                     if ($id->{Score});
             }
             $self->throw("Missing database and/or id; something wrong with XML")
@@ -383,7 +382,6 @@ sub parse_response {
                 
             $self->_add_db_ids($db, $id_ref);
         }
-        # toss the dbfrom ids (you should have these already!)
         return;
     }
 }
@@ -463,17 +461,17 @@ sub get_ids_by_score {
 
 =head1 Private methods
 
-=head2 _add_relevancy_ids
+=head2 _add_scores
 
- Title   : _add_relevancy_ids
- Usage   : $self->add_relancy_ids($db, $ids);
+ Title   : _add_scores
+ Usage   : $self->add_scores($db, $ids);
  Function: sets internal hash of ids with relevancy scores
  Returns : none
  Args    : two numbers: id (key) and relevancy score (value)
 
 =cut
 
-sub _add_relevancy_ids {
+sub _add_scores {
     my ($self, $id, $score) = @_;
     $self->throw ("Must have id-score pair for hash") unless ($id && $score);
     $self->throw ("ID, score must be scalar") if
@@ -556,8 +554,8 @@ B<Experimental method at this time>
  Function: returns an array or array ref if a database is the argument,
            otherwise returns a hash of the database (keys) and id_refs (values)
  Returns : array or array ref of ids (arg=database) or hash of
-           database-array_refs (no args)
- Args    : database string;
+           database-array_refs (no args); relies on wantarray
+ Args    : database (string);
 
 =cut
 
