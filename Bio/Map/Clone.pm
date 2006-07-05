@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::clone
 #
-# Cared for by Gaurav Gupta <gaurav@genome.arizona.edu>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Gaurav Gupta
 #
@@ -16,10 +16,10 @@ Bio::Map::Clone - An central map object representing a clone
 
 =head1 SYNOPSIS
 
-   ## get the clone object of $clone from the Bio::Map::Clone
+   # get the clone object of $clone from the Bio::Map::Clone
    my $cloneobj = $physical->get_cloneobj($clone);
 
-   ## acquire all the markers that hit this clone
+   # acquire all the markers that hit this clone
    foreach my $marker ($cloneobj->each_markerid()) {
        print "   +++$marker\n";
    }
@@ -33,11 +33,53 @@ have a name and a position in a map.
 
 This object is intended to be used by a map parser like fpc.pm.
 
-=head2 Design principles
+=head1 FEEDBACK
 
-A MappableI is a central object in Bio::Map name space. A Map is a holder
-class for objects. A MappableI has a Position in a Map.  A MappableI can be
-compared to an other MappableI using boolean methods.
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR - Gaurav Gupta
+
+Email gaurav@genome.arizona.edu
+
+=head1 CONTRIBUTORS
+
+Sendu Bala  bix@sendu.me.uk
+
+=head1 PROJECT LEADERS
+
+Jamie Hatfield      jamie@genome.arizona.edu
+Dr. Cari Soderlund  cari@genome.arizona.edu
+
+=head1 PROJECT DESCRIPTION
+
+The project was done in Arizona Genomics Computational Laboratory (AGCoL)
+at University of Arizona.
+
+This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
+the Computation and Display of Physical Mapping Data".
+
+For more information on this project, please refer: 
+  http://www.genome.arizona.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
 =cut 
 
@@ -51,7 +93,6 @@ use Bio::Map::MappableI;
 use Bio::Map::Position;
 
 @ISA = qw(Bio::Root::Root Bio::Map::MappableI);
-
 
 =head2 new
 
@@ -141,9 +182,9 @@ These methods let you get and set the member variables
 
  Title   : name
  Usage   : my $name = $cloneobj->name();
- Function: get the name for this Clone
+ Function: Get/set the name for this Clone
  Returns : scalar representing the current name of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -157,9 +198,9 @@ sub name {
 
  Title   : type
  Usage   : my $type = $cloneobj->type();
- Function: get the type for this clone
+ Function: Get/set the type for this clone
  Returns : scalar representing the current type of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -169,19 +210,16 @@ sub type {
     return $self->{'_type'};
 }
 
-
 =head2 range
 
  Title   : range
  Usage   : my $range = $cloneobj->range();
- Function: get the range of the contig that this clone covers
+ Function: Get/set the range of the contig that this clone covers
  Returns : Bio::Range representing the current range of this contig,
            start and end of the contig can be thus found using:
            my $start = $contigobj->range()->start();
            my $end   = $contigobj->range()->end();
- Args    : none
-
-See L<Bio::Range> for more information.
+ Args    : none to get, OR Bio::Range to set
 
 =cut
 
@@ -204,17 +242,21 @@ sub range {
 
 =cut
 
-sub each_match {
-  my ($self,$type) = @_;
-  return $self->match($type);
-}
-
 sub match {
   my ($self,$type) = @_;
 
   $type = "_match" . lc(substr($type, 0, 1));
   return @{$self->{$type} || []};
 }
+
+=head2 each_match
+
+ Title   : each_match
+ Function: Synonym of the match() method.
+
+=cut
+
+*each_match = \&match;
 
 =head2 set_match
 
@@ -225,7 +267,6 @@ sub match {
  Args    : type (one of 'exact' 'approx' 'pseudo')
            array ref of match values
 
-
 =cut
 
 sub set_match{
@@ -234,14 +275,13 @@ sub set_match{
    $self->{$type} = $val;
 }
 
-
 =head2 gel
 
  Title   : gel
  Usage   : $clonegel = $cloneobj->gel();
- Function: get the gel number for this clone
+ Function: Get/set the gel number for this clone
  Returns : scalar representing the gel number of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -251,14 +291,13 @@ sub gel {
     return $self->{'_gel'};
 }
 
-
 =head2 remark
 
  Title   : remark
  Usage   : $cloneremark = $cloneobj->remark();
- Function: get the remark for this clone
+ Function: Get/set the remark for this clone
  Returns : scalar representing the current remark of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -272,9 +311,9 @@ sub remark {
 
  Title   : fp_number
  Usage   : $clonefpnumber = $cloneobj->fp_number();
- Function: get the fp number for this clone
+ Function: Get/set the fp number for this clone
  Returns : scalar representing the fp number of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -284,14 +323,13 @@ sub fp_number {
     return $self->{'_fpnumber'};
 }
 
-
 =head2 sequence_type
 
  Title   : sequence_type
  Usage   : $cloneseqtype = $cloneobj->sequence_type();
- Function: get the sequence type for this clone
+ Function: Get/set the sequence type for this clone
  Returns : scalar representing the sequence type of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -301,14 +339,13 @@ sub sequence_type {
     return $self->{'_sequencetype'};
 }
 
-
 =head2 sequence_status
 
  Title   : sequence_status
  Usage   : $cloneseqstatus = $cloneobj->sequence_status();
- Function: get the sequence status for this clone
+ Function: Get/set the sequence status for this clone
  Returns : scalar representing the sequence status of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -322,9 +359,9 @@ sub sequence_status {
 
  Title   : fpc_remark
  Usage   : $clonefpcremark = $cloneobj->fpc_remark();
- Function: get the fpc remark for this clone
+ Function: Get/set the fpc remark for this clone
  Returns : scalar representing the fpc remark of this clone
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -334,16 +371,15 @@ sub fpc_remark {
     return $self->{'_fpcremark'};
 }
 
-
 =head2 band
 
  Title   : band
  Usage   : @clonebands = $cloneobj->bands();
- Function: get the bands for this clone
+ Function: Get/set the bands for this clone
  Returns : liat representing the band of this clone, if 
            readcor = 1 while creating the MapIO object and the
            .cor exists
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -353,17 +389,15 @@ sub bands {
     return $self->{'_bands'};
 }
 
-
 =head2 group
 
  Title   : group
  Usage   : $cloneobj->group($chrno);
- Function: get the group number for this contig
-           this is a generic term, used for Linkage-Groups
-	   as well as for Chromosomes.
+ Function: Get/set the group number for this clone.
+           This is a generic term, used for Linkage-Groups as well as for
+           Chromosomes.
  Returns : scalar representing the group number of this clone
- Args    : if provided, the group of this clone
-	   will be set to $chrno.
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -373,16 +407,13 @@ sub group {
     return $self->{'_group'};
 }
 
-
 =head2 contigid
 
  Title   : contigid
  Usage   : my $ctg = $cloneobj->contigid();
- Function: get the contig this clone belongs to
+ Function: Get/set the contig this clone belongs to
  Returns : scalar representing the contig
- Args    : none
-
-See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -392,14 +423,16 @@ sub contigid {
     return $self->{'_contig'} || 0;
 }
 
-
 =head2 each_markerid
 
  Title   : each_markerid
  Usage   : @markers = $cloneobj->each_markerid();
  Function: retrieves all the elements in a map unordered
- Returns : list of Bio::Map::MappableI ids (names)
- Args    : type of elements you want (markers)
+ Returns : list of strings (ids)
+ Args    : none
+ 
+ *** This only supplies the ids set with the set_markers method ***
+ *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 
 =cut
 
@@ -408,71 +441,24 @@ sub each_markerid {
   return @{$self->{"_markers"}};
 }
 
-
 =head2 set_markers
 
  Title   : markers
  Usage   : $obj->set_markers($newval)
- Function: Set list of Markers (arrayref)
+ Function: Set list of Marker ids (arrayref)
  Returns : None
- Args    : on set, new value (arrayref or undef, optional)
-
+ Args    : arrayref of strings (ids)
+ 
+ *** This only sets a list of ids ***
+ *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 
 =cut
 
-sub set_markers{
+sub set_markers {
     my ($self,$markers) = @_;
     if( defined $markers && ref($markers) =~ /ARRAY/ ) { 
 	$self->{'_markers'} = $markers;
     }
 }
 
-
 1;
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing list.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via the
-web:
-
-  http://bugzilla.open-bio.org/
-
-=head1 AUTHOR - Gaurav Gupta
-
-Email gaurav@genome.arizona.edu
-
-=head1 PROJECT LEADERS
-
-Jamie Hatfield            jamie@genome.arizona.edu
-
-Dr. Cari Soderlund        cari@genome.arizona.edu
-
-=head1 PROJECT DESCRIPTION
-
-The project was done in Arizona Genomics Computational Laboratory (AGCoL)
-at University of Arizona.
-
-This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
-the Computation and Display of Physical Mapping Data".
-
-For more information on this project, please refer: 
-  http://www.genome.arizona.edu
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
-
-=cut

@@ -69,50 +69,98 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
-# 'Let the code begin...
-
+# Let the code begin...
 
 package Bio::Map::MappableI;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
+use Bio::Map::EntityI;
+use Bio::Map::PositionHandler;
 
-@ISA = qw(Bio::Root::RootI);
+@ISA = qw(Bio::Map::EntityI);
+
+=head2 EntityI methods
+
+ These are fundamental to coordination of Mappables and other entities, so are
+ implemented at the interface level
+
+=cut
+
+=head2 get_position_handler
+
+ Title   : get_position_handler
+ Usage   : my $position_handler = $entity->get_position_handler();
+ Function: Gets a PositionHandlerI that $entity is registered with.
+ Returns : Bio::Map::PositionHandlerI object
+ Args    : none
+
+=cut
+
+sub get_position_handler {
+    my $self = shift;
+    unless (defined $self->{_eh}) {
+        my $ph = Bio::Map::PositionHandler->new($self);
+        $self->{_eh} = $ph;
+        $ph->register;
+    }
+    return $self->{_eh};
+}
+
+=head2 PositionHandlerI-related methods
+
+ These are fundamental to coordination of Mappables and other entities, so are
+ implemented at the interface level
+
+=cut
 
 =head2 add_position
 
  Title   : add_position
  Usage   : $mappable->add_position($position);
- Function: Add a position to this mappable. Notifies the position it belongs
-           to this mappable - same as calling $position->element($mappable);.
+ Function: Add a position to this mappable (defining where on which map it is).
  Returns : n/a
  Args    : L<Bio::Map::PositionI> object
 
 =cut
 
 sub add_position {
-    # this is fundamental to coordination of Positions and Mappables, so is
-    # implemented at the interface level
-    my ($self, $pos) = @_;
-    $self->throw("Must supply an argument") unless $pos;
-    $self->throw("This is [$pos], not an object") unless ref($pos);
-    $self->throw("This is [$pos], not a Bio::Map::PositionI object") unless $pos->isa('Bio::Map::PositionI');
-    
-    $self->{'_positions'}->{$pos} = $pos;
-    
-	my $old_element = $pos->element;
-    unless ($old_element && $old_element eq $self) {
-        $pos->element($self);
-    }
+    my $self = shift;
+	# actually, we allow multiple positions to be set at once
+    $self->get_position_handler->add_positions(@_);
 }
+
+=head2 get_positions
+
+ Title   : get_positions
+ Usage   : my @positions = $mappable->get_positions();
+ Function: Get all the Positions of this Mappable (sorted).
+ Returns : Array of L<Bio::Map::PositionI> objects
+ Args    : none for all, OR
+           L<Bio::Map::MapI> object for positions on the given map
+
+=cut
+
+sub get_positions {
+    my ($self, $map) = @_;
+    my @positions = $self->get_position_handler->get_positions($map);
+	return sort { $a->sortable <=> $b->sortable } @positions;
+}
+
+=head2 each_position
+
+ Title   : each_position
+ Function: Synonym of the get_positions() method.
+ Status  : deprecated, will be removed in next version
+
+=cut
+
+*each_position = \&get_positions;
 
 =head2 purge_positions
 
  Title   : purge_positions
  Usage   : $mappable->purge_positions();
- Function: Remove positions from this mappable. Notifies each position it no
-           longer belongs to this mappable.
+ Function: Remove positions from this mappable.
  Returns : n/a
  Args    : none to remove all positions, OR
            L<Bio::Map::PositionI> object to remove just that Position, OR
@@ -122,69 +170,8 @@ sub add_position {
 =cut
 
 sub purge_positions {
-    # this is fundamental to coordination of Positions and Maps, so is
-    # implemented at the interface level
     my ($self, $thing) = @_;
-    
-	my @positions;
-	if ($thing) {
-		$self->throw("This is [$thing], not an object") unless ref($thing);
-		$self->throw("This is [$thing], not a Bio::Map::PositionI or Bio::Map::MapI object")
-		unless ($thing->isa('Bio::Map::PositionI') || $thing->isa('Bio::Map::MapI'));
-		
-		$thing->isa('Bio::Map::PositionI') ? push(@positions, $thing) : (@positions = $thing->each_position($self));
-	}
-	else {
-		@positions = $self->each_position;
-	}
-	
-	foreach my $pos (@positions) {
-		defined $self->{'_positions'}->{$pos} or next;
-		delete $self->{'_positions'}->{$pos};
-		
-		my $existing_element = $pos->element;
-		if ($existing_element && $existing_element eq $self) {
-			$pos->purge_element;
-		}
-	}
-}
-
-=head2 each_position
-
- Title   : each_position
- Usage   : my @positions = $mappable->each_position()
- Function: get all the Positions of this Mappable (sorted)
- Returns : array of L<Bio::Map::PositionI> objects
- Args    : none for all, OR
-           L<Bio::Map::MapI> object for positions on the given map
-
-=cut
-
-sub each_position {
-    # Positions were added with a method implemented in the interface, so this
-    # accessor is implemented at the interface level as well
-    my ($self, $map) = @_;
-	
-    if (defined $self->{'_positions'}) {
-		my @positions;
-		if ($map) {
-			$self->throw("This is [$map], not an object") unless ref($map);
-			$self->throw("This is [$map], not a Bio::Map::MapI object") unless $map->isa('Bio::Map::MapI');
-			
-			foreach my $pos (values %{$self->{'_positions'}}) {
-				my $existing_map = $pos->map;
-				if ($existing_map && $existing_map eq $map) {
-					push(@positions, $pos);
-				}
-			}
-		}
-		else {
-			@positions = values %{$self->{'_positions'}};
-		}
-		
-        return sort { $a->sortable <=> $b->sortable } @positions;
-    }
-    return;
+    $self->get_position_handler->purge_positions($thing);
 }
 
 =head2 known_maps
@@ -199,8 +186,12 @@ sub each_position {
 
 sub known_maps {
 	my $self = shift;
-	$self->throw_not_implemented();
+	return $self->get_position_handler->get_other_entities;
 }
+
+=head2 MappableI-specific methods
+
+=cut
 
 =head2 in_map
 

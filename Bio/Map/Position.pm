@@ -13,7 +13,7 @@
 =head1 NAME
 
 Bio::Map::Position - A single position of a Marker, or the range over which
-                      that marker lies, in a Map
+                     that marker lies, in a Map
 
 =head1 SYNOPSIS
 
@@ -81,15 +81,11 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::Position;
 use vars qw(@ISA);
 use strict;
-
-# Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
 use Bio::Map::PositionI;
@@ -118,7 +114,7 @@ use Scalar::Util qw(looks_like_number); # comes with perl 5.8, included in Bundl
 =cut
 
 sub new {
-    my($class,@args) = @_;
+    my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 	
     my ($map, $marker, $value, $start, $end, $length) = 
@@ -156,39 +152,6 @@ sub new {
 	
     return $self;
 }
-
-=head2 map
-
- Title   : map
- Usage   : my $id = map->$map;
- Function: Get/Set the map the position is in.
- Returns : L<Bio::Map::MapI>
- Args    : [optional] new L<Bio::Map::MapI>
-
-=cut
-
-=head2 element
-
- Title   : element
- Usage   : my $element = $position->element();
-           $position->element($element);
- Function: Get/Set the element this Position is for.
- Returns : L<Bio::Map::MappableI>
- Args    : [optional] new L<Bio::Map::MappableI>
-
-=cut
-
-=head2 marker
-
- Title   : marker
- Usage   : my $element = $position->marker();
-           $position->marker($element);
- Function: Synonym of the element() method.
- Returns : L<Bio::Map::MappableI>
- Args    : [optional] new L<Bio::Map::MappableI>
- Status  : deprecated, will be removed in the next version
-
-=cut
 
 =head2 value
 

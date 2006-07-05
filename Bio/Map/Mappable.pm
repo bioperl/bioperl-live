@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Map::Marker
+# BioPerl module for Bio::Map::Mappable
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -64,19 +64,14 @@ web:
 
 Email bix@sendu.me.uk
 
-=head1 CONTRIBUTORS
-
-Heikki Lehvaslaiho heikki-at-bioperl-dot-org
-Lincoln Stein      lstein@cshl.org
-Jason Stajich      jason@bioperl.org
-Chad Matsalla      bioinformatics1@dieselwurks.com
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
+
+# Let the code begin...
 
 package Bio::Map::Mappable;
 use vars qw(@ISA);
@@ -100,29 +95,6 @@ sub new {
     my $class = shift;
     my $self = $class->SUPER::new();
     return bless($self, ref $class || $class);
-}
-
-=head2 known_maps
-
- Title   : known_maps
- Usage   : my @maps = $marker->known_maps()
- Function: Returns the maps that this mappable is found on
- Returns : Array of L<Bio::Map::MapI> objects
- Args    : none
-
-=cut
-
-sub known_maps {
-	my $self = shift;
-	my %maps;
-    foreach my $pos ($self->each_position) {
-        my $map = $pos->map;
-        if ($map) {
-            $maps{$map} = $map;
-        }
-    }
-    
-    return values %maps;
 }
 
 =head2 in_map

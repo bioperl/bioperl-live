@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::Contig
 #
-# Cared for by Gaurav Gupta <gaurav@genome.arizona.edu>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright Gaurav Gupta
 #
@@ -12,33 +12,33 @@
 
 =head1 NAME
 
-Bio::Map::Contig - A MapI implementation handling a the contigs of a
+Bio::Map::Contig - A MapI implementation handling the contigs of a
 Physical Map (such as FPC)
 
 =head1 SYNOPSIS
 
-    ## get the contig object of $contig from the Bio::Map::Physical
+    # get the contig object of $contig from the Bio::Map::Physical
     my $ctgobj = $physical->get_contigobj($contig);
 
-    ## acquire all the markers that lie in this contig
+    # acquire all the markers that lie in this contig
     foreach my $marker ($ctgobj->each_markerid()) {
 	print "   +++$marker\n";
     }
 
-    ## find the group of this contig
+    # find the group of this contig
     print "Group: ",$ctgobj->group(),"\n";
 
-    ## find the range of this contig
+    # find the range of this contig
     print "RANGE: start:",$ctgobj->range()->start(),"\tend: ",
            $ctgobj->range()->end(),"\n";
 
-    ## find the position of this contig in $group (chromosome)
+    # find the position of this contig in $group (chromosome)
     print "Position in Group $group"," = ",$ctgobj->position($group),"\n";
 
 
 =head1 DESCRIPTION
 
-This is an implementation of a Bio::Map::MapI.  It handles the
+This is an implementation of Bio::Map::MapI.  It handles the
 essential storage of name, species, type, and units as well as in
 memory representation of the elements of a map.
 
@@ -46,10 +46,57 @@ Bio::Map::Contig has been tailored to work for FPC physical maps, but
 could probably be used for others as well (with the appropriate MapIO
 module).
 
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR - Gaurav Gupta
+
+Email gaurav@genome.arizona.edu
+
+=head1 CONTRIBUTORS
+
+Sendu Bala  bix@sendu.me.uk
+
+=head1 PROJECT LEADERS
+
+Jamie Hatfield      jamie@genome.arizona.edu
+Dr. Cari Soderlund  cari@genome.arizona.edu
+
+=head1 PROJECT DESCRIPTION
+
+The project was done in Arizona Genomics Computational Laboratory (AGCoL)
+at University of Arizona.
+
+This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
+the Computation and Display of Physical Mapping Data".
+
+For more information on this project, please refer: 
+  http://www.genome.arizona.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
 =cut
 
 # Let the code begin...
-
 
 package Bio::Map::Contig;
 use vars qw(@ISA $MAPCOUNT);
@@ -62,7 +109,6 @@ use Bio::Range;
 
 @ISA = qw(Bio::Map::SimpleMap);
 BEGIN { $MAPCOUNT = 1; }
-
 
 =head2 new
 
@@ -98,7 +144,6 @@ BEGIN { $MAPCOUNT = 1; }
 	     -position => position
 	     -range    => L<Bio::Range>
 
-
 =cut
 
 sub new {
@@ -128,25 +173,19 @@ sub new {
    return $self;
 }
 
-=head1 Access Methods
-
-These methods let you get and set the member variables
-
-
 =head2 Modifier methods
 
 All methods present in L<Bio::Map::SimpleMap> are implemented by this class.
 Most of the methods are inherited from SimpleMap.  The following methods
 have been modified to reflect the needs of physical maps.
 
-
 =head2 chr_remark
 
  Title   : chr_remark
  Usage   : my $chrremark = $contigobj->chr_remark();
- Function: get the group remark for this contig
+ Function: Get/set the group remark for this contig
  Returns : scalar representing the current group_remark of this contig
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -160,9 +199,9 @@ sub chr_remark {
 
  Title   : user_remark
  Usage   : my $userremark = $contigobj->user_remark();
- Function: get the user remark for this contig
+ Function: Get/set the user remark for this contig
  Returns : scalar representing the current user_remark of this contig
- Args    : optional value to reset
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -172,14 +211,13 @@ sub user_remark {
     return defined $self->{'_uremark'} ? $self->{'_uremark'} : '';
 }
 
-
 =head2 trace_remark
 
  Title   : trace_remark
  Usage   : my $traceremark = $contigobj->trace_remark();
- Function: get the trace remark for this contig
+ Function: Get/set the trace remark for this contig
  Returns : scalar representing the current trace_remark of this contig
- Args    : optional value to reset
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -189,17 +227,16 @@ sub trace_remark {
     return defined $self->{'_tremark'} ? $self->{'_tremark'} : '';
 }
 
-
 =head2 range
 
  Title   : range
  Usage   : my $range = $contigobj->range();
- Function: get the range for this Contig
+ Function: Get/set the range for this Contig
  Returns : Bio::Range representing the current range of this contig,
            start and end of the contig can be thus found using:
            my $start = $contigobj->range()->start();
            my $end   = $contigobj->range()->end();
- Args    : optional value to reset
+ Args    : none to get, OR Bio::Range to set
 
 =cut
 
@@ -213,9 +250,9 @@ sub range {
 
  Title   : position
  Usage   : $ctgpos = $contigobj->position();
- Function: get the position of the contig in the group
+ Function: Get/set the position of the contig in the group
  Returns : scalar representing the position of the contig in the group
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -225,14 +262,13 @@ sub position {
     return $self->{'_position'} || 0;
 }
 
-
 =head2 anchor
 
  Title   : anchor
  Usage   : $ctganchor = $contig->anchor();
- Function: get the anchor value for this Contig (True | False)
+ Function: Get/set the anchor value for this Contig (True | False)
  Returns : scalar representing the anchor (1 | 0) for this contig
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -242,14 +278,13 @@ sub anchor {
     return $self->{'_anchor'};
 }
 
-
 =head2 group
 
  Title   : group
  Usage   : $groupno = $contigobj->group();
- Function: get the group number for this contig
-           this is a generic term, used for Linkage-Groups
-	   as well as for Chromosomes.	
+ Function: Get/set the group number for this contig.
+           This is a generic term, used for Linkage-Groups as well as for
+           Chromosomes. 
  Returns : scalar representing the group number of this contig
  Args    : none
 
@@ -261,16 +296,14 @@ sub group {
     return $self->{'_group'} || 0;
 }
 
-
 =head2 subgroup
 
  Title   : subgroup
  Usage   : $subgroup = $contig->subgroup();	
- Function: get the subgroup for this contig. This is a
-           generic term: subgroup here could represent subgroup
-	   of a Chromosome or of a Linkage Group.
-	   the user must take care of which subgroup he/she is querying
-	   for.	
+ Function: Get/set the subgroup for this contig. This is a generic term:
+           subgroup here could represent subgroup of a Chromosome or of a
+           Linkage Group. The user must take care of which subgroup he/she is
+           querying for.	
  Returns : A scalar representing the subgroup of this contig
  Args    : none
 
@@ -282,29 +315,43 @@ sub subgroup {
     return $self->{'_subgroup'} || 0;
 }
 
+=head2 each_cloneid
 
-=head2 each_I<E<lt>elementE<gt>>id
-
- Title   : each_<element>id
+ Title   : each_cloneid
  Usage   : my @clones  = $map->each_cloneid();
- 	   my @markers = $map->each_markerid();
- Function: retrieves all the elements in a map unordered
- Returns : list of Bio::Map::MappableI ids (names)
- Args    : type of elements you want (clones, markers)
+ Function: retrieves all the clone ids in a map unordered
+ Returns : list of strings (ids)
+ Args    : none
+
+ *** This only supplies the ids set with the set_clones method ***
+ *** It has nothing to do with actual Bio::Map::MappableI objects ***
 
 =cut
 
-sub each_cloneid{
+sub each_cloneid {
     my ($self) = @_;
     return $self->_each_element('clones');
 }
 
-sub each_markerid{
+=head2 each_markerid
+
+ Title   : each_markerid
+ Usage   : my @markers = $map->each_markerid();
+ Function: retrieves all the marker ids in a map unordered
+ Returns : list of strings (ids)
+ Args    : none
+ 
+ *** This only supplies the ids set with the set_markers method ***
+ *** It has nothing to do with actual Bio::Map::MarkerI objects ***
+
+=cut
+
+sub each_markerid {
     my ($self) = @_;
     return $self->_each_element('markers');
 }
 
-sub _each_element{
+sub _each_element {
     my ($self, $type) = @_;
     $type = 'clones' if (!defined($type));
     $type = lc("_$type");
@@ -317,18 +364,19 @@ sub _each_element{
  Usage   : $marker->set_clones(\%clones)
  Function: Set the clones hashref
  Returns : None
- Args    : Hashref of clone names to clones
+ Args    : Hashref of clone ids
 
+ *** This only sets a hash of ids ***
+ *** It has nothing to do with actual Bio::Map::MappableI objects ***
 
 =cut
 
-sub set_clones{
+sub set_clones {
    my ($self,$clones) = @_;
    if( defined $clones && ref($clones) =~ /HASH/ ) {
        $self->{'_clones'} = $clones;
    }
 }
-
 
 =head2 set_markers
 
@@ -336,12 +384,14 @@ sub set_clones{
  Usage   : $obj->set_markers($newval)
  Function: Set list of Markers (hashref)
  Returns : None
- Args    : on set, new value (hashref or undef, optional)
+ Args    : Hashref of marker ids
 
+ *** This only sets a hash of ids ***
+ *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 
 =cut
 
-sub set_markers{
+sub set_markers {
     my ($self,$markers) = @_;
     if( defined $markers && ref($markers) =~ /HASH/ ) {
 	$self->{'_markers'} = $markers;
@@ -349,50 +399,3 @@ sub set_markers{
 }
 
 1;
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to
-the Bioperl mailing list.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via the
-web:
-
-  http://bugzilla.open-bio.org/
-
-=head1 AUTHOR - Gaurav Gupta
-
-Email gaurav@genome.arizona.edu
-
-=head1 PROJECT LEADERS
-
-Jamie Hatfield            jamie@genome.arizona.edu
-
-Dr. Cari Soderlund        cari@genome.arizona.edu
-
-=head1 PROJECT DESCRIPTION
-
-The project was done in Arizona Genomics Computational Laboratory (AGCoL)
-at University of Arizona.
-
-This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for
-the Computation and Display of Physical Mapping Data".
-
-For more information on this project, please refer:
-  http://www.genome.arizona.edu
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
-
-=cut

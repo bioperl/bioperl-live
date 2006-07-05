@@ -80,9 +80,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::OrderedPosition;
 use vars qw(@ISA);
@@ -98,7 +96,7 @@ use Bio::Map::Position;
  Usage   : my $obj = new Bio::Map::OrderedPosition();
  Function: Builds a new Bio::Map::OrderedPosition object 
  Returns : Bio::Map::OrderedPosition
- Args    : -order - The order of this position
+ Args    : -order : The order of this position
 
 =cut
 
@@ -115,12 +113,11 @@ sub new {
 =head2 order
 
  Title   : order
- Usage   : $o_position->order($new_position) _or_
-           $o_position->order()
- Function: get/set the order position of this position in a map
+ Usage   : $o_position->order($new_order);
+           my $order = $o_position->order();
+ Function: Get/set the order position of this position in a map.
  Returns : int, the order of this position
- Args    : If $new_position is provided, the current position of this Position
-           will be set to $new_position.
+ Args    : none to get, OR int to set
 
 =cut
 
@@ -151,7 +148,7 @@ sub sortable {
 =head2 equals
 
  Title   : equals
- Usage   : if( $mappable->equals($mapable2)) ...
+ Usage   : if ($mappable->equals($mapable2)) {...}
  Function: Test if a position is equal to another position.
  Returns : boolean
  Args    : Bio::Map::PositionI
@@ -160,8 +157,8 @@ sub sortable {
 
 sub equals{
    my ($self,$compare) = @_;
-   return 0 if ( ! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
-   return ( $compare->order == $self->order);
+   return 0 if (! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
+   return ($compare->order == $self->order);
 }
 
 # admittedly these aren't really the best comparisons in the world
@@ -172,7 +169,7 @@ sub equals{
 =head2 less_than
 
  Title   : less_than
- Usage   : if( $mappable->less_than($m2) ) ...
+ Usage   : if ($mappable->less_than($m2)) {...}
  Function: Tests if a position is less than another position
            It is assumed that 2 positions are in the same map.
  Returns : boolean
@@ -180,16 +177,16 @@ sub equals{
 
 =cut
 
-sub less_than{
+sub less_than {
    my ($self,$compare) = @_;
-   return 0 if ( ! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
-   return ( $compare->order < $self->order);
+   return 0 if (! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
+   return ($compare->order < $self->order);
 }
 
 =head2 greater_than
 
  Title   : greater_than
- Usage   : if( $mappable->greater_than($m2) ) ...
+ Usage   : if ($mappable->greater_than($m2)) {...}
  Function: Tests if position is greater than another position.
            It is assumed that 2 positions are in the same map.
  Returns : boolean
@@ -197,10 +194,10 @@ sub less_than{
 
 =cut
 
-sub greater_than{
+sub greater_than {
    my ($self,$compare) = @_;
-   return 0 if ( ! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
-   return ( $compare->order > $self->order);
+   return 0 if (! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
+   return ($compare->order > $self->order);
 }
 
 1;

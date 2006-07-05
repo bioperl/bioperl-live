@@ -234,7 +234,6 @@ sub default_map {
 =cut
 
 *map = \&default_map;
-*map = \&default_map; # avoid warning
 
 =head2 get_position_object
 
@@ -309,6 +308,7 @@ sub position {
            scalar, but only if the marker has a default map
 
 =cut
+
 sub add_position  {
     my ($self, $pos, $pos_actual) = @_;
     $self->throw("Must give a Position") unless defined $pos;
@@ -358,6 +358,7 @@ sub add_position  {
  Args    : array ref of $map/value tuples or array ref of Bio::Map::PositionI
 
 =cut
+
 sub positions {
     my ($self, $args_ref) = @_;
     
@@ -370,28 +371,6 @@ sub positions {
         }
     }
 }
-
-=head2 each_position
-
- Title   : each_position
- Usage   : my @positions = $marker->each_position('map_unique_id');
- Function: Retrieve a list of Positions
- Returns : array of TFBS::Map::Position
- Args    : nothing for all
-           Bio::Map::MapI OR unique_id for positions on the given map
-
-=cut
-
-=head2 purge_positions
-
- Title   : purge_positions
- Usage   : $marker->purge_positions
- Function: remove all the position values stored for a Marker
- Returns : n/a
- Args    : nothing for all
-           Bio::Map::MapI OR unique_id to only purge positions on the given map
-
-=cut
 
 =head2 in_map
 

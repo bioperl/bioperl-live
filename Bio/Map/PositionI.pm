@@ -71,28 +71,57 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::PositionI;
 use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
+use Bio::Map::EntityI;
+use Bio::Map::PositionHandler;
 use Bio::RangeI;
-use Carp;
 
-@ISA = qw(Bio::Root::RootI Bio::RangeI);
+@ISA = qw(Bio::Map::EntityI Bio::RangeI);
 
+=head2 EntityI methods
+
+ These are fundamental to coordination of Positions and other entities, so are
+ implemented at the interface level
+
+=cut
+
+=head2 get_position_handler
+
+ Title   : get_position_handler
+ Usage   : my $position_handler = $entity->get_position_handler();
+ Function: Gets a PositionHandlerI that $entity is registered with.
+ Returns : Bio::Map::PositionHandlerI object
+ Args    : none
+
+=cut
+
+sub get_position_handler {
+    my $self = shift;
+    unless (defined $self->{_eh}) {
+        my $ph = Bio::Map::PositionHandler->new($self);
+        $self->{_eh} = $ph;
+        $ph->register;
+    }
+    return $self->{_eh};
+}
+
+=head2 PositionHandlerI-related methods
+
+ These are fundamental to coordination of Positions and other entities, so are
+ implemented at the interface level
+
+=cut
 
 =head2 map
 
  Title   : map
  Usage   : my $map = $position->map();
            $position->map($map);
- Function: Get/Set the map the position is in. When setting, notifies the map
-           in question we belong to it, and any previous map that we no longer
-           belong to it.
+ Function: Get/Set the map the position is in.
  Returns : L<Bio::Map::MapI>
  Args    : none to get
            new L<Bio::Map::MapI> to set
@@ -100,44 +129,8 @@ use Carp;
 =cut
 
 sub map {
-    # this is fundamental to coordination of Positions and Maps, so is
-    # implemented at the interface level
     my ($self, $map) = @_;
-    
-    if (defined $map) {
-        $self->throw("This is [$map], not an object") unless ref($map);
-        $self->throw("This is [$map], not a Bio::Map::MapI object") unless $map->isa('Bio::Map::MapI');
-        
-        if (defined $self->{'_map'} && $self->{'_map'} ne $map) {
-            $self->{'_map'}->purge_positions($self);
-        }
-        $self->{'_map'} = $map;
-        $map->add_position($self);
-    }
-    
-    return $self->{'_map'} || return;
-}
-
-=head2 purge_map
-
- Title   : purge_map
- Usage   : $position->purge_map();
- Function: Disassociate this Position from any map. Notifies any pre-existing
-           map that we are no longer on it.
- Returns : n/a
- Args    : none
-
-=cut
-
-sub purge_map {
-    # this is fundamental to coordination of Positions and Maps, so is
-    # implemented at the interface level
-    my $self = shift;
-    
-    if (defined $self->{'_map'}) {
-        $self->{'_map'}->purge_positions($self);
-    }
-    delete $self->{'_map'};
+    return $self->get_position_handler->map($map);
 }
 
 =head2 element
@@ -145,9 +138,7 @@ sub purge_map {
  Title   : element
  Usage   : my $element = $position->element();
            $position->element($element);
- Function: Get/Set the element the position is for. When setting, notifies the
-           element in question we belong to it, and any previous element that we
-           no longer belong to it.
+ Function: Get/Set the element the position is for.
  Returns : L<Bio::Map::MappableI>
  Args    : none to get
            new L<Bio::Map::MappableI> to set
@@ -155,44 +146,8 @@ sub purge_map {
 =cut
 
 sub element {
-    # this is fundamental to coordination of Positions and Mappables, so is
-    # implemented at the interface level
     my ($self, $element) = @_;
-    
-    if (defined $element) {
-        $self->throw("This is [$element], not an object") unless ref($element);
-        $self->throw("This is [$element], not a Bio::Map::MappableI object") unless $element->isa('Bio::Map::MappableI');
-        
-        if (defined $self->{'_element'} && $self->{'_element'} ne $element) {
-            $self->{'_element'}->purge_positions($self);
-        }
-        $self->{'_element'} = $element;
-        $element->add_position($self);
-    }
-    
-    return $self->{'_element'} || return;
-}
-
-=head2 purge_element
-
- Title   : purge_element
- Usage   : $position->purge_element();
- Function: Disassociate this Position from any element. Notifies any
-           pre-existing element that we no longer belong to it.
- Returns : n/a
- Args    : none
-
-=cut
-
-sub purge_element {
-    # this is fundamental to coordination of Positions and Mappables, so is
-    # implemented at the interface level
-    my $self = shift;
-    
-    if (defined $self->{'_element'}) {
-        $self->{'_element'}->purge_positions($self);
-    }
-    delete $self->{'_element'};
+    return $self->get_position_handler->element($element);
 }
 
 =head2 marker
@@ -204,7 +159,10 @@ sub purge_element {
 =cut
 
 *marker = \&element;
-*marker = \&element; # avoid warning
+
+=head2 PositionI-specific methods
+
+=cut
 
 =head2 value
 
@@ -252,6 +210,10 @@ sub sortable {
     my $self = shift;
     $self->throw_not_implemented();
 }
+
+=head2 RangeI methods
+
+=cut
 
 =head2 start
 

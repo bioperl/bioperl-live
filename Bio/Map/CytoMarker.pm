@@ -124,7 +124,7 @@ L<Bio::Map::CytoPosition::cytorange> for more details.
  Title   : get_chr
  Usage   : my $mychr = $marker->get_chr();
  Function: Read only method for the  chromosome string of the location.
-           A shotrcut to $marker->position->chr().
+           A shortcut to $marker->position->chr().
  Returns : chromosome value
  Args    : [optional] new chromosome value
 

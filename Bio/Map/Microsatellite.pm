@@ -136,42 +136,15 @@ sub new {
     return $self;
 }
 
-=head2 Bio::Map::Marker methods
+=head2 motif
 
-=cut
-
-=head2 position
-
- Title   : position
- Usage   : my $position = $mappable->position($map); OR
-           $mappable->position($map,$position); OR
- Function: Get/Set the Bio::Map::PositionI for a mappable element
-           in a specific Map
- Returns : Bio::Map::PositionI
- Args    : $map =Bio::Map::MapI # Map we are talking about
-           $position = Bio::Map::PositionI # Position we want to set
-
-
-=head2 name($new_name)
-
- Title   : name($new_name)
- Usage   : $o_usat->name($new_name) _or_
-	   my $name = $o_usat->name()
- Function: Get/Set the name for this Microsatellite
- Returns : A scalar representing the current name of this Microsatellite
- Args    : If provided, the current name of this Microsatellite
-	   will be set to $new_name.
-
-=head2 motif($new_motif)
-
- Title   : motif($new_motif)
- Usage   : my $motif = $o_usat->motif($new_motif) _or_
-	my $motif = $o_usat->motif()
- Function: Get/Set the repeat motif for this Microsatellite
+ Title   : motif
+ Usage   : $o_usat->motif($new_motif);
+	       my $motif = $o_usat->motif();
+ Function: Get/Set the repeat motif for this Microsatellite.
  Returns : A scalar representing the current repeat motif of this
-	Microsatellite.
- Args    : If provided, the current repeat motif of this Microsatellite
-	will be set to $new_motif.
+	       Microsatellite.
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -183,16 +156,15 @@ sub motif {
 	return $self->{'_motif'};	
 }
 
-=head2 sequence($new_sequence)
+=head2 sequence
 
- Title   : sequence($new_sequence)
- Usage   : my $sequence = $o_usat->sequence($new_sequence) _or_
-	my $sequence = $o_usat->sequence()
- Function: Get/Set the sequence for this Microsatellite
+ Title   : sequence
+ Usage   : $o_usat->sequence($new_sequence);
+	       my $sequence = $o_usat->sequence();
+ Function: Get/Set the sequence for this Microsatellite.
  Returns : A scalar representing the current sequence of this
-	Microsatellite.
- Args    : If provided, the current sequence of this Microsatellite
-	will be set to $new_sequence.
+	       Microsatellite.
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -204,16 +176,15 @@ sub sequence {
 	return $self->{'_sequence'};	
 }
 
-=head2 repeats($new_repeats)
+=head2 repeats
 
- Title   : repeats($new_repeats)
- Usage   : my $repeats = $o_usat->repeats($new_repeats) _or_
-	my $repeats = $o_usat->repeats()
- Function: Get/Set the repeat repeats for this Microsatellite
+ Title   : repeats
+ Usage   : $o_usat->repeats($new_repeats);
+	       my $repeats = $o_usat->repeats()
+ Function: Get/Set the repeat repeats for this Microsatellite.
  Returns : A scalar representing the current number of repeats of this
-	Microsatellite.
- Args    : If provided, the current number of repeats of this
-	Microsatellite will be set to $new_repeats.
+	       Microsatellite.
+ Args    : none to get, OR int to set
 
 =cut
 
@@ -225,22 +196,20 @@ sub repeats {
 	return $self->{'_repeats'};	
 }
 
-=head2 repeat_start_position($new_repeat_start_position)
+=head2 repeat_start_position
 
- Title   : repeat_start_position($new_repeat_start_position)
- Usage   : my $repeat_start_position =
-	$o_usat->repeat_start_position($new_repeat_start_position) _or_
-	my $repeat_start_position = $o_usat->repeat_start_position()
+ Title   : repeat_start_position
+ Usage   : $o_usat->repeat_start_position($new_repeat_start_position);
+	       my $repeat_start_position = $o_usat->repeat_start_position();
  Function: Get/Set the repeat repeat_start_position for this
-	Microsatellite
+	       Microsatellite
  Returns : A scalar representing the repeat start position for this 
-	Microsatellite.
- Args    : If provided, the current repeat start position of this
-	Microsatellite will be set to $new_repeat_start_position.
-	This method will also try to set the repeat end position. This
-	depends on having information for the motif and the number of
-	repeats. If you want to use methods like get_trailing_flank or
-	get_leading flank, be careful to include the right information.
+	       Microsatellite.
+ Args    : none to get, OR string to set
+	       This method will also try to set the repeat end position. This
+	       depends on having information for the motif and the number of
+	       repeats. If you want to use methods like get_trailing_flank or
+	       get_leading flank, be careful to include the right information.
 
 =cut
 
@@ -253,33 +222,30 @@ sub repeat_start_position {
 	return $self->{'_repeat_start_position'};	
 }
 
-=head2 repeat_end_position($value)
+=head2 repeat_end_position
 
- Title   : repeat_end_position($set)
- Usage   : $new_repeat_end_position =
-		$o_usat->repeat_end_position("set"); _or_
-	$new_repeat_end_position =
-		$o_usat->repeat_end_position($value); _or_
-	$current_repeat_end_position = $o_usat->repeat_end_position();
- Function: get/set the end position of the repeat in this sequence
+ Title   : repeat_end_position
+ Usage   : $o_usat->repeat_end_position("set");
+	       $o_usat->repeat_end_position($value);
+	       $current_repeat_end_position = $o_usat->repeat_end_position();
+ Function: Get/set the end position of the repeat in this sequence.
  Returns : A scalar representing the base index of the end of the
-	repeat in this Microsatellite. The first base in the sequence
-	is base 1.
+	       repeat in this Microsatellite. The first base in the sequence
+	       is base 1.
  Args    : A scalar representing a value, the string "set", or no
-	argument (see Notes).
+	       argument (see Notes).
  Notes   : If you do not provide an argument to this method, the current
-	end position of the repeat in this Microsatellite will be
-	returned (a scalar).
-	If you provide the string "set" to this method it will set the
-	end position based on the start position, the length of the
-	motif, and the number of repeats.
-	If you specify a value the current end position of the repeat
-	will be set to that value. This is a really bad idea. Don't do
-	it.
+           end position of the repeat in this Microsatellite will be
+           returned (a scalar).
+           If you provide the string "set" to this method it will set the
+           end position based on the start position, the length of the
+           motif, and the number of repeats.
+           If you specify a value the current end position of the repeat
+           will be set to that value. This is a really bad idea. Don't do
+           it.
 
 =cut
 
-#'
 sub repeat_end_position {
     my ($self,$caller) = @_;
     if( defined $caller ) { 
@@ -298,7 +264,7 @@ sub repeat_end_position {
 =head2 equals
 
  Title   : equals
- Usage   : if( $mappable->equals($mapable2)) ...
+ Usage   : if ($mappable->equals($mapable2)) {...}
  Function: Test if a position is equal to another position
  Returns : boolean
  Args    : Bio::Map::MappableI
@@ -307,14 +273,14 @@ sub repeat_end_position {
 
 sub equals {
 	my ($self,@args) = @_;
-	$self->warn("equals is not yet implemented in ".
+	$self->throw("equals is not yet implemented in ".
 		    ref($self)." yet. Check back real soon!");
 }
 
 =head2 less_than
 
  Title   : less_than
- Usage   : if( $mappable->less_than($m2) ) ...
+ Usage   : if ($mappable->less_than($m2)) {...}
  Function: Tests if a position is less than another position
  Returns : boolean
  Args    : Bio::Map::MappableI
@@ -323,14 +289,14 @@ sub equals {
 
 sub less_than {
 	my ($self,@args) = @_;
-	$self->warn("less_then is not yet implemented in ".
+	$self->throw("less_then is not yet implemented in ".
 		    ref($self)." yet. Check back real soon!");
 }
 
 =head2 greater_than
 
  Title   : greater_than
- Usage   : if( $mappable->greater_than($m2) ) ...
+ Usage   : if ($mappable->greater_than($m2)) {...}
  Function: Tests if position is greater than another position
  Returns : boolean
  Args    : Bio::Map::MappableI
@@ -339,33 +305,32 @@ sub less_than {
 
 sub greater_than {
 	my ($self,@args) = @_;
-	$self->warn("greater_then is not yet implemented in ".
+	$self->throw("greater_then is not yet implemented in ".
 		    ref($self)." yet. Check back real soon!");
 }
 
-=head2 get_leading_flank()
+=head2 get_leading_flank
 
- Title   : get_leading_flank()
+ Title   : get_leading_flank
  Usage   : $leading_sequence = $o_usat->get_leading_flank();
  Returns : A scalar representing the sequence before the repeats in this
-	Microsatellite.
- Args    : None.
+	       Microsatellite.
+ Args    : none
 
 =cut
 
 sub get_leading_flank {
 	my $self = shift;
 	return substr $self->sequence(),0,$self->repeat_start_position-1;
-
 }
 
-=head2 get_trailing_flank()
+=head2 get_trailing_flank
 
- Title   : get_trailing_flank()
+ Title   : get_trailing_flank
  Usage   : $trailing_flank = $o_usat->get_trailing_flank();
  Returns : A scalar representing the sequence after the repeats in this
-	Microsatellite.
- Args    : None.
+	       Microsatellite.
+ Args    : none
 
 =cut
 
@@ -374,7 +339,4 @@ sub get_trailing_flank {
 	return substr $self->sequence(),$self->repeat_end_position()-1;
 }
 
-
 1;
-
-

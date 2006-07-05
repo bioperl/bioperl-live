@@ -69,10 +69,6 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
-# Let the code begin...
-
-
 package Bio::Map::CytoMap;
 use vars qw(@ISA $MAPCOUNT);
 use strict;
@@ -81,12 +77,6 @@ use Bio::Map::SimpleMap;
 
 @ISA = qw(Bio::Map::SimpleMap);
 BEGIN { $MAPCOUNT = 1; }
-
-=head2 Modified methods 
-
-All methods present in L<Bio::Map::SimpleMap> are implemted by this
-class. Most of the methods are inherited from SimpleMap. The following
-methods have been modified to refelect the needs of cytogenetic maps.
 
 =head2 new
 
@@ -129,81 +119,18 @@ sub type {
    return 'cyto';
 }
 
-
 =head2 length
 
  Title   : length
  Usage   : my $length = $map->length();
  Function: Retrieves the length of the map,
- Returns : undef since length is not calculatable for 
-           cytogenetic maps
+ Returns : 0 since length is not calculatable for cytogenetic maps
  Args    : none
 
 =cut
 
 sub length {
-   return;
+   return 0;
 }
-
-=head2 Methods inherited from L<Bio::Map::SimpleMap>
-
-=cut
-
-=head2 species
-
- Title   : species
- Usage   : my $species = $map->species;
- Function: Get/Set Species for a map
- Returns : Bio::Species object or string
- Args    : (optional) Bio::Species or string
-
-=cut
-
-=head2 units
-
- Title   : units
- Usage   : $map->units('cM');
- Function: Get/Set units for a map
- Returns : units for a map
- Args    : units for a map (string)
-
-=cut
-
-=head2 name
-
- Title   : name
- Usage   : my $name = $map->name
- Function: Get/Set Map name
- Returns : Map name
- Args    : (optional) string
-
-=cut
-
-=head2 unique_id
-
- Title   : unique_id
- Usage   : my $id = $map->unique_id;
- Function: Get/Set the unique ID for this map
- Returns : a unique identifier
- Args    : [optional] new identifier to set
-
-=cut
-
-=head2 each_element
-
- Title   : each_element
- Usage   : my @elements = $map->each_element;
- Function: Retrieves all the elements in a map
-           unordered
- Returns : Array of Bio::Map::MappableI objects
- Args    : none
-
-
-=cut
-
-=head2 New methods
-
-=cut
-
 
 1;

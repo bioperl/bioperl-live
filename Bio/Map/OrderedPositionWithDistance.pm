@@ -1,3 +1,5 @@
+### TO BE DELETED ###
+
 # BioPerl module for Bio::Map::OrderedPositionWithDistance
 #
 # Cared for by Chad Matsalla <bioinformatics1@dieselwurks.com>

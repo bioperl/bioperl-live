@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Map::Physical
 #
-# Cared for by Gaurav Gupta <gaurav@genome.arizona.edu>
+# Cared for by Sendu Bala <bix@sendu.me.uk>
 #
 # Copyright AGCoL
 #
@@ -18,20 +18,20 @@ Bio::Map::Physical - A class for handling a Physical Map (such as FPC)
 
     use Bio::MapIO;
 
-    ## accquire a Bio::Map::Physical using Bio::MapIO::fpc
+    # accquire a Bio::Map::Physical using Bio::MapIO::fpc
     my $mapio = new Bio::MapIO(-format => "fpc",-file => "rice.fpc",
                                -readcor => 0);
 
     my $physical = $mapio->next_map();
 
-    ## get all the markers ids
+    # get all the markers ids
     foreach my $marker ( $physical->each_markerid() ) {
       print "Marker $marker\n";
 
-      ## acquire the marker object using Bio::Map::FPCMarker
+      # acquire the marker object using Bio::Map::FPCMarker
       my $markerobj = $physical->get_markerobj($marker);
 
-      ## get all the clones hit by this marker
+      # get all the clones hit by this marker
       foreach my $clone ($markerobj->each_cloneid() ) {
           print " +++$clone\n";
       }
@@ -67,18 +67,63 @@ This class also has some methods with specific functionalities:
 For faster access and better optimization, the data is stored internally in
 hashes. The corresponding objects are created on request.
 
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR - Gaurav Gupta
+
+Email gaurav@genome.arizona.edu
+
+=head1 CONTRIBUTORS
+
+Sendu Bala  bix@sendu.me.uk
+
+=head1 PROJECT LEADERS
+
+Jamie Hatfield      jamie@genome.arizona.edu
+Dr. Cari Soderlund  cari@genome.arizona.edu
+
+=head1 PROJECT DESCRIPTION
+
+The project was done in Arizona Genomics Computational Laboratory (AGCoL)
+at University of Arizona.
+
+This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
+the Computation and Display of Physical Mapping Data".
+
+For more information on this project, please refer: 
+  http://www.genome.arizona.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::Physical;
 use vars qw(@ISA $MAPCOUNT);
 use strict;
 use POSIX;
 
-# Object preamble - inherits from Bio::Root::Root
 use Bio::Map::SimpleMap;
 use Bio::Map::Clone;
 use Bio::Map::Contig;
@@ -95,10 +140,10 @@ These methods let you get and set the member variables
 
  Title   : version
  Usage   : my $version = $map->version();
- Function: returns the version of the program used to
+ Function: Get/set the version of the program used to
            generate this map
  Returns : scalar representing the version
- Args    : scalar representing the version
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -114,9 +159,9 @@ sub version {
 
  Title   : modification_user
  Usage   : my $modification_user = $map->modification_user();
- Function: returns the name of the user who last modified this map
+ Function: Get/set the name of the user who last modified this map
  Returns : scalar representing the username
- Args    : [optional] scalar representing the username
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -128,16 +173,14 @@ sub modification_user {
     return $self->{'_modification_user'};
 }
 
-
 =head2 group_type
 
  Title   : group_type
- Usage   : $map->group_type($grptype); _or_
-	   my $grptype = $map->group_type();
- Function: get/set the group type of this map
+ Usage   : $map->group_type($grptype);
+	       my $grptype = $map->group_type();
+ Function: Get/set the group type of this map
  Returns : scalar representing the group type
- Args    : if provided, the current group type of this map
-	   will be set to $grptype.
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -149,16 +192,14 @@ sub group_type {
     return $self->{'_grouptype'};
 }
 
-
 =head2 group_abbr
 
  Title   : group_abbr
- Usage   : $map->group_abbr($grpabbr); _or_
-	   my $grpabbr = $map->group_abbr();
+ Usage   : $map->group_abbr($grpabbr);
+	       my $grpabbr = $map->group_abbr();
  Function: get/set the group abbrev of this map
  Returns : string representing the group abbrev
- Args    : if provided, the current group abbrev of this map
-	   will be set to $grpabbr.
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -170,15 +211,13 @@ sub group_abbr {
     return $self->{'_groupabbr'};
 }
 
-
 =head2 core_exists
 
  Title   : core_exists
  Usage   : my $core_exists = $map->core_exists();
- Function: returns true if the FPC file is accompanied by COR file,
-           else false
- Returns : 1 / 0 depending on whether the COR file is present or not.
- Args    : 1 / 0 indicating the presence of COR file
+ Function: Get/set if the FPC file is accompanied by COR file
+ Returns : boolean
+ Args    : none to get, OR 1|0 to set
 
 =cut
 
@@ -190,7 +229,6 @@ sub core_exists {
     return $self->{'_corexists'};
 }
 
-
 =head2 each_cloneid
 
  Title   : each_cloneid
@@ -201,11 +239,10 @@ sub core_exists {
 
 =cut
 
-sub each_cloneid{
+sub each_cloneid {
     my ($self) = @_;
     return keys %{$self->{'_clones'}};
 }
-
 
 =head2 get_cloneobj
 
@@ -217,14 +254,12 @@ sub each_cloneid{
 
 =cut
 
-
-sub get_cloneobj{
+sub get_cloneobj {
     my ($self,$clone) = @_;
 
     return 0     if(!defined($clone));
     return if($clone eq "");
     return if(!exists($self->{'_clones'}{$clone}));
-
 
     my ($type,$contig,$bands,$gel,$group,$remark,$fp_number);
     my ($sequence_type,$sequence_status,$fpc_remark,@amatch,@pmatch,@ematch,
@@ -261,6 +296,7 @@ sub get_cloneobj{
     $endrange   =  $clones{'range'}{'end'}
         if (exists($clones{'range'}{'end'}));
 
+    #*** why doesn't it call Bio::Map::Clone->new ? Seems dangerous...
     my $cloneobj = bless( {
 	_name       => $clone,
 	_markers    => \@markers,
@@ -285,7 +321,6 @@ sub get_cloneobj{
     return $cloneobj;
 }
 
-
 =head2 each_markerid
 
  Title   : each_markerid
@@ -296,7 +331,7 @@ sub get_cloneobj{
 
 =cut
 
-sub each_markerid{
+sub each_markerid {
    my ($self) = @_;
    return keys (%{$self->{'_markers'}});
 }
@@ -335,12 +370,13 @@ sub get_markerobj {
 
     my %markerpos = %{$mkr{'posincontig'}} if(exists($mkr{'posincontig'}));
 
+    #*** why doesn't it call Bio::Map::FPCMarker->new ? Seems dangerous...
     my $markerobj = bless( {
 	_name    => $marker,
 	_type    => $type,
 	_global  => $global,
 	_frame   => $framework,
-        _group   => $group,
+    _group   => $group,
 	_subgroup   => $subgroup,
 	_anchor     => $anchor,
 	_clones     => \%clones,
@@ -352,7 +388,6 @@ sub get_markerobj {
     return $markerobj;
 }
 
-
 =head2 each_contigid
 
  Title   : each_contigid
@@ -363,11 +398,10 @@ sub get_markerobj {
 
 =cut
 
-sub each_contigid{
+sub each_contigid {
     my ($self) = @_;
     return keys (%{$self->{'_contigs'}});
 }
-
 
 =head2 get_contigobj
 
@@ -410,6 +444,7 @@ sub get_contigobj {
 
     my $pos       =  $ctg{'position'};
 
+    #*** why doesn't it call Bio::Map::Contig->new ? Seems dangerous...
     my $contigobj = bless( {
 	_group      => $group,
 	_subgroup   => $subgroup,
@@ -428,7 +463,6 @@ sub get_contigobj {
     $self->{'_contigs'}{$contig}{'contig'} = $contigobj;
     return $contigobj;
 }
-
 
 =head2 matching_bands
 
@@ -477,7 +511,6 @@ sub matching_bands {
     return $match;
 }
 
-
 =head2 coincidence_score
 
  Title   : coincidence_score
@@ -490,7 +523,6 @@ sub matching_bands {
            [Default tol=7 gellen=3300.0]
 
 =cut
-
 
 sub coincidence_score {
     my($self,$cloneA,$cloneB,$tol,$gellen) = @_;
@@ -543,7 +575,6 @@ sub coincidence_score {
     $score = sprintf("%.e",$t);
     return $score;
 }
-
 
 =head2 print_contiglist
 
@@ -634,7 +665,6 @@ sub print_contiglist{
     }
 }
 
-
 =head2 print_markerlist
 
  Title    : print_markerlist
@@ -645,7 +675,6 @@ sub print_contiglist{
  Args     : none
 
 =cut
-
 
 sub print_markerlist {
     my ($self) = @_;
@@ -683,7 +712,6 @@ sub print_markerlist {
     }
 }
 
-
 =head2 print_gffstyle
 
  Title    : print_gffstyle
@@ -694,7 +722,6 @@ sub print_markerlist {
                               1 groupwise (chromosome-wise).
 
 =cut
-
 
 sub print_gffstyle {
     my ($self,$style) = @_;
@@ -1037,7 +1064,6 @@ sub print_gffstyle {
     }
 }
 
-
 =head2 _calc_markerposition
 
  Title   : _calc_markerposition
@@ -1048,7 +1074,7 @@ sub print_gffstyle {
 
 =cut
 
-sub _calc_markerposition{
+sub _calc_markerposition {
     my ($self) = @_;
     my %_contigs = %{$self->{'_contigs'}};
     my %_markers = %{$self->{'_markers'}};
@@ -1061,7 +1087,6 @@ sub _calc_markerposition{
     my ($k, $j, $s);
     my $pos;
     my $contig;
-
 
     # Calculate the position for the marker in the contig
 
@@ -1170,7 +1195,6 @@ sub _calc_markerposition{
     }
 }
 
-
 =head2 _calc_contigposition
 
  Title   : _calc_contigposition
@@ -1235,7 +1259,6 @@ sub _calc_contigposition{
     }
 }
 
-
 =head2 _calc_contiggroup
 
  Title   : _calc_contiggroup
@@ -1256,7 +1279,6 @@ sub _calc_contiggroup {
 		$_contig{$ctg}{'group'} = $chr;
     }
 }
-
 
 =head2 _setI<E<lt>TypeE<gt>>Ref
 
@@ -1289,53 +1311,3 @@ sub _setContigRef {
 }
 
 1;
-
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to
-the Bioperl mailing list.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via the
-web:
-
-  http://bugzilla.open-bio.org/
-
-=head1 AUTHOR - Gaurav Gupta
-
-Email gaurav@genome.arizona.edu
-
-=head1 PROJECT LEADERS
-
-Jamie Hatfield            jamie@genome.arizona.edu
-
-Dr. Cari Soderlund        cari@genome.arizona.edu
-
-=head1 PROJECT DESCRIPTION
-
-The project was done in Arizona Genomics Computational Laboratory (AGCoL)
-at University of Arizona.
-
-This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for
-the Computation and Display of Physical Mapping Data".
-
-For more information on this project, please refer:
-  http://www.genome.arizona.edu
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
-
-=cut
-
-

@@ -16,19 +16,19 @@ Bio::Map::FPCMarker - An central map object representing a marker
 
 =head1 SYNOPSIS
 
-   ## get the marker object of $marker from the Bio::Map::FPCMarker
+   # get the marker object of $marker from the Bio::Map::FPCMarker
    my $markerobj = $physical->get_markerobj($marker);
 
-   ## acquire all the clones that hit this marker
+   # acquire all the clones that hit this marker
    foreach my $clone ($markerobj->each_cloneid()) {
        print "   +++$clone\n";
    }
 
-   ## find the position of this marker in $contig
+   # find the position of this marker in $contig
    print "Position in contig $contig"," = ",$markerobj->position($contig),
          "\n";
 
-   ## find the group of the marker
+   # find the group of the marker
    print "Group : ",$markerobj->group();
 
 
@@ -37,17 +37,57 @@ See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
 =head1 DESCRIPTION
 
 This object handles the notion of a marker.
-
 This object is intended to be used by a map parser like fpc.pm.
 
-=head2 Design principles
+=head1 FEEDBACK
 
-A MappableI is a central object in Bio::Map name space. A Map is a holder
-class for objects. A MappableI has a Position in a Map.  A MappableI can be
-compared to an other MappableI using boolean methods.
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR - Gaurav Gupta
+
+Email gaurav@genome.arizona.edu
+
+=head1 CONTRIBUTORS
+
+Sendu Bala  bix@sendu.me.uk
+
+=head1 PROJECT LEADERS
+
+Jamie Hatfield      jamie@genome.arizona.edu
+Dr. Cari Soderlund  cari@genome.arizona.edu
+
+=head1 PROJECT DESCRIPTION
+
+The project was done in Arizona Genomics Computational Laboratory (AGCoL)
+at University of Arizona.
+
+This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for 
+the Computation and Display of Physical Mapping Data".
+
+For more information on this project, please refer: 
+  http://www.genome.arizona.edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
 
 =cut
-
 
 # Let the code begin...
 
@@ -60,7 +100,6 @@ use Bio::Map::Position;
 use Time::Local;
 
 @ISA = qw(Bio::Root::Root Bio::Map::MappableI);
-
 
 =head2 new
 
@@ -128,9 +167,9 @@ These methods let you get and set the member variables
 
  Title   : name
  Usage   : my $name = $markerobj->name();
- Function: get the name for this marker
+ Function: Get/set the name for this marker
  Returns : scalar representing the current name of this marker
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -144,9 +183,9 @@ sub name {
 
  Title   : type
  Usage   : my $type = $markerobj->type();
- Function: get the type for this marker
+ Function: Get/set the type for this marker
  Returns : scalar representing the current type of this marker
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -156,17 +195,15 @@ sub type {
     return $self->{'_type'};
 }
 
-
 =head2 global
 
  Title   : global
  Usage   : my $type = $markerobj->global();
- Function: get the global position for this marker
+ Function: Get/set the global position for this marker
  Returns : scalar representing the current global position of this marker
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
-
 
 sub global {
     my ($self) = shift;
@@ -180,7 +217,7 @@ sub global {
  Usage   : my $anchor = $markerobj->anchor();
  Function: indicate if the Marker is anchored or not (True | False)
  Returns : scalar representing the anchor (1 | 0) for this marker
- Args    : none
+ Args    : none to get, OR 1|0 to set
 
 =cut
 
@@ -190,7 +227,6 @@ sub anchor {
     return $self->{'_anchor'};
 }
 
-
 =head2 framework
 
  Title   : framework
@@ -198,7 +234,7 @@ sub anchor {
  Function: indicate if the Marker is framework or placement (1 | 0)
  Returns : scalar representing if the marker is framework
            (1 if framework, 0 if placement)
- Args    : none
+ Args    : none to get, OR 1|0 to set
 
 =cut
 
@@ -208,19 +244,16 @@ sub framework {
     return $self->{'_frame'};
 }
 
-
 =head2 group
 
  Title   : group
  Usage   : $grpno = $markerobj->group();
- Function: get the group number for this marker. This is a
-           generic term, used for Linkage-Groups as well as
-	   for Chromosomes.
+ Function: Get/set the group number for this marker. This is a generic term,
+           used for Linkage-Groups as well as for Chromosomes.
  Returns : scalar representing the group number of this marker
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
-
 
 sub group {
     my ($self) = shift;
@@ -232,13 +265,12 @@ sub group {
 
  Title   : subgroup
  Usage   : $subgroup = $marker->subgroup();	
- Function: get the subgroup for this marker. This is a
-           generic term: subgroup here could represent subgroup
-	   of a Chromosome or of a Linkage Group
-	   The user must take care of which subgroup he/she is
+ Function: Get/set the subgroup for this marker. This is a generic term:
+           subgroup here could represent subgroup of a Chromosome or of a
+           Linkage Group. The user must take care of which subgroup he/she is
            querying for.	
  Returns : scalar representing the subgroup of this marker
- Args    : none
+ Args    : none to get, OR string to set
 
 =cut
 
@@ -247,8 +279,6 @@ sub subgroup {
     $self->{'_subgroup'} = shift if @_;
     return $self->{'_subgroup'} || 0;
 }
-
-
 
 =head2 position
 
@@ -259,6 +289,8 @@ sub subgroup {
            the contig
  Args    : $ctg is necessary to look for the position of the marker
            in that contig.
+           
+ *** This has nothing to do with an actual Bio::Map::PositionI object ***
 
 =cut
 
@@ -266,28 +298,43 @@ sub position {
     my ($self,$ctg) = @_;
     return 0 unless defined $ctg;
 
-    return 0 unless( defined defined $self->{'_position'} &&
+    return 0 unless( defined $self->{'_position'} &&
 		     defined $self->{'_position'}{$ctg});
     return $self->{'_position'}{$ctg};
 }
 
-=head2 each_I<E<lt>elementE<gt>>id
+=head2 each_cloneid
 
- Title   : each_<element>id
- Usage   : my @clones  = $markerobj->each_cloneid();
- 	   my @contigs = $markerobj->each_contigid();
- Function: retrieves all the elements in a map unordered
- Returns : list of Bio::Map::MappableI ids (names)
- Args    : type of elements you want (clones, contigs)
+ Title   : each_cloneid
+ Usage   : my @clones  = $map->each_cloneid();
+ Function: retrieves all the clone ids in a map unordered
+ Returns : list of strings (ids)
+ Args    : none
+
+ *** This only supplies the ids set with the set_clones method ***
+ *** It has nothing to do with actual Bio::Map::MappableI objects ***
 
 =cut
 
-sub each_cloneid{
+sub each_cloneid {
     my ($self) = @_;
     return $self->_each_element('clones');
 }
 
-sub each_contigid{
+=head2 each_contigid
+
+ Title   : each_contigid
+ Usage   : my @contigs = $map->each_contigid();
+ Function: retrieves all the contig ids in a map unordered
+ Returns : list of strings (ids)
+ Args    : none
+ 
+ *** This only supplies the ids set with the set_contigs method ***
+ *** It has nothing to do with actual Bio::Map::MapI objects ***
+
+=cut
+
+sub each_contigid {
     my ($self) = @_;
     return $self->_each_element('contigs');
 }
@@ -305,10 +352,12 @@ sub _each_element{
 
  Title   : set_clones
  Usage   : $marker->set_clones(\%clones)
- Function: Set the clones hashref
+ Function: Set the clone ids hashref
  Returns : None
- Args    : Hashref of clone names to clones
+ Args    : Hashref of clone ids
 
+ *** This only sets a hash of ids ***
+ *** It has nothing to do with actual Bio::Map::MappableI objects ***
 
 =cut
 
@@ -323,10 +372,12 @@ sub set_clones{
 
  Title   : set_contigs
  Usage   : $marker->set_contigs(\%contigs)
- Function: Set the contigs hashref
+ Function: Set the contig ids hashref
  Returns : None
- Args    : Hashref of contig names to contigs
+ Args    : Hashref of contig ids
 
+ *** This only sets a hash of ids ***
+ *** It has nothing to do with actual Bio::Map::MapI objects ***
 
 =cut
 
@@ -345,6 +396,8 @@ sub set_contigs{
  Returns : None
  Args    : Hashref of marker positions
 
+ *** This only sets a hash of numbers ***
+ *** It has nothing to do with actual Bio::Map::PositionI objects ***
 
 =cut
 
@@ -356,51 +409,3 @@ sub set_positions{
 }
 
 1;
-
-
-=head1 FEEDBACK
-
-=head2 Mailing Lists
-
-User feedback is an integral part of the evolution of this and other
-Bioperl modules. Send your comments and suggestions preferably to the
-Bioperl mailing list.  Your participation is much appreciated.
-
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
-
-=head2 Reporting Bugs
-
-Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted via the
-web:
-
-  http://bugzilla.open-bio.org/
-
-=head1 AUTHOR - Gaurav Gupta
-
-Email gaurav@genome.arizona.edu
-
-=head1 PROJECT LEADERS
-
-Jamie Hatfield            jamie@genome.arizona.edu
-
-Dr. Cari Soderlund        cari@genome.arizona.edu
-
-=head1 PROJECT DESCRIPTION
-
-The project was done in Arizona Genomics Computational Laboratory (AGCoL)
-at University of Arizona.
-
-This work was funded by USDA-IFAFS grant #11180 titled "Web Resources for
-the Computation and Display of Physical Mapping Data".
-
-For more information on this project, please refer:
-  http://www.genome.arizona.edu
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods.
-Internal methods are usually preceded with a _
-
-=cut

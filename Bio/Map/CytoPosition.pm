@@ -75,7 +75,7 @@ Email:  heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Sendu Bala         bix@sendu.me.uk
+Sendu Bala  bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -84,7 +84,6 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
 
 package Bio::Map::CytoPosition;
@@ -92,20 +91,15 @@ use vars qw(@ISA);
 
 use strict;
 use integer;
-
-# Object preamble - inheritance
-
 use Bio::Map::Position;
 
 @ISA = qw(Bio::Map::Position);
 
-
 =head2 cytorange
 
  Title   : cytorange
- Usage   : $obj->cytorange();
+ Usage   : my $range = $obj->cytorange();
  Function:
-
             Converts cytogenetic location set by value method into
             an integer range. The chromosome number determines the
             "millions" in the values.  Human X and Y chromosome
@@ -142,12 +136,10 @@ use Bio::Map::Position;
                pad char for start is '9', for end '0'
                range is chromosome + 100,000 - padded range start or end
 
- Example :
  Returns : Bio::Range object or undef
  Args    : none
 
 =cut
-
 
 sub cytorange {
     my ($self) = @_;
@@ -180,8 +172,9 @@ sub cytorange {
 	$arm2 = $2 if $4 eq ''; # it is not necessary to repeat the arm [p|q]
 	$band2 = $6;
 	$band2 =~ tr/\.//d;
+    
 	#find the correct order
-#	print STDERR "-|$&|----2|$2|-----3|$band|---4|$4|--------arm2|$arm2|-------------\n";
+    #print STDERR "-|$&|----2|$2|-----3|$band|---4|$4|--------arm2|$arm2|-------------\n";
 	if ($band ne '' and (defined $arm2 and $2 ne $arm2 and $arm2 eq 'q') ) {
 	    $lc = 'start'; $lcchar = '9';
 	    $uc = 'end'; $ucchar = '9';
@@ -366,26 +359,15 @@ sub _pad {
     __PACKAGE__->throw("function _pad needs a single character pad_char, not [$pad_char]") 
 	unless length $pad_char == 1;
     $string ||= '';
-#    $padded = $text . $pad_char x ( $pad_len - length( $text ) );
     return $string . $pad_char x ( $len - length( $string ) );
-
-#    my $slen = length $string;
-#    my $add = $len - $slen;
-#    return $string if $add <= 0;
-#    return $string .= $char x $add;
 }
-
 
 =head2 range2value
 
  Title   : range2value
- Usage   : $obj->range2value();
- Function:
-
-            Sets and returns the value string based on start and end
-            values of the Bio::Range object passes as an argument.
-
- Example :
+ Usage   : my $value = $obj->range2value($range);
+ Function: Sets and returns the value string based on start and end values of
+           the Bio::Range object passes as an argument.
  Returns : string or false
  Args    : Bio::Range object
 
@@ -417,9 +399,6 @@ sub range2value {
 
 	my ($chr, $arm, $band) = $value->start =~ /(\d+)(\d)(\d{5})/;	
 	my ($chr2, $arm2, $band2) = $value->end =~ /(\d+)(\d)(\d{5})/;	
-
-	#print STDERR join ("\t", $value->start, $value->end ),"\n";
-	#print STDERR join ("\t", $chr, $arm, $band, $chr2, $arm2, $band2), "\n";
 
 	my ($chrS, $armS, $bandS, $arm2S, $band2S, $sep) = ('', '', '', '', '', '' );
       LOC: {
@@ -529,7 +508,7 @@ sub range2value {
  Usage   : my $pos = $position->value;
  Function: Get/Set the value for this postion
  Returns : scalar, value
- Args    : [optional] new value to set
+ Args    : none to get, OR scalar to set
 
 =cut
 
@@ -552,10 +531,8 @@ sub value {
            This instanse of the method can also be set, but you better
            know what you are doing.
 
- Returns : int
+ Returns : int (the start of the range)
  Args    : optional Bio::RangeI object 
-
-See L<Bio::RangeI> for more information.
 
 =cut
 
@@ -570,14 +547,13 @@ sub numeric {
    return $self->start;
 }
 
-
 =head2 chr
 
  Title   : chr
  Usage   : my $mychr = $position->chr();
  Function: Get/Set method for the chromosome string of the location.
  Returns : chromosome value
- Args    : [optional] new chromosome value
+ Args    : none to get, OR scalar to set
 
 =cut
 

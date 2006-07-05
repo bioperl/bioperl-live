@@ -11,15 +11,15 @@
 =head1 NAME
 
 Bio::Map::LinkagePosition - Create a Position for a Marker that will be placed
-	on a Bio::Map::LinkageMap
+	                        on a Bio::Map::LinkageMap
 
 =head1 SYNOPSIS
 
     use Bio::Map::Position;
     my $position = new Bio::Map::LinkagePosition(-positions => 1,
 						 -distance => 22.1 );
-
-	    # can get listing of positions
+    
+	# can get listing of positions
     my @positions = $position->each_position;
 
 
@@ -66,9 +66,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::LinkagePosition;
 use vars qw(@ISA);
@@ -82,11 +80,11 @@ use Bio::Map::OrderedPosition;
 
  Title   : new
  Usage   : my $obj = new Bio::Map::LinkagePosition(-positions => $position,
-				-distance => $distance );
+				                                   -distance => $distance);
  Function: Builds a new Bio::Map::LinkagePosition object
  Returns : Bio::Map::LinkagePosition
  Args    : -order => the relative order of this marker on a linkage map
- 	   -positions => positions on a map
+ 	       -positions => positions on a map
 
 =cut
 
@@ -97,12 +95,11 @@ use Bio::Map::OrderedPosition;
 =head2 order
 
  Title   : order
- Usage   : $o_position->order($new_position) _or_
-           $o_position->order()
+ Usage   : $o_position->order($order)
+           my $order = $o_position->order()
  Function: get/set the order position of this position in a map
- Returns :
- Args    : If $new_position is provided, the current position of this Position
-           will be set to $new_position.
+ Returns : int
+ Args    : none to get, int to set
 
 =cut
 

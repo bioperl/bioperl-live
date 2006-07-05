@@ -70,15 +70,11 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Map::SimpleMap;
 use vars qw(@ISA $MAPCOUNT);
 use strict;
-
-# Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
 use Bio::Map::MapI;
@@ -208,10 +204,9 @@ sub name {
 
  Title   : length
  Usage   : my $length = $map->length();
- Function: Retrieves the length of the map,
-           It is possible for the length to be unknown
-           for maps such as Restriction Enzyme, will return undef
-           in that case
+ Function: Retrieves the length of the map.
+           It is possible for the length to be unknown for maps such as
+           Restriction Enzyme, will return 0 in that case.
  Returns : integer representing length of map in current units
            will return undef if length is not calculateable
  Args    : none
@@ -219,13 +214,14 @@ sub name {
 =cut
 
 sub length {
-	my ($self) = @_;
-	my ($len ) = 0;
-	
-    foreach my $marker ($self->each_element) {
-		#*** needs to look at all positions on the map
-		$len = $marker->position->numeric if  $marker->position->numeric > $len;
+	my $self = shift;
+    
+	my $len = 0;
+    foreach my $element ($self->get_elements) {
+		#*** needs to look at all positions on the map, and use ->end ?
+		$len = $element->position->numeric if $element->position->numeric > $len;
 	}
+    
 	return $len;
 }
 
@@ -258,6 +254,7 @@ sub unique_id {
 		   
  Returns : none
  Args    : Bio::Map::MappableI object
+ Status  : Deprecated, will be removed in next version
 
 =cut
 
@@ -271,62 +268,67 @@ sub add_element {
     $element->default_map($self);
 }
 
-=head2 each_element
+=head2 get_elements
 
- Title   : each_element
- Usage   : my @elements = $map->each_element;
- Function: Retrieves all the elements in a map (unordered unless all elements
+ Title   : get_elements
+ Usage   : my @elements = $map->get_elements;
+ Function: Retrieves all the elements on a map (unordered unless all elements
            have just 1 position on the map, in which case sorted)
- Returns : Array of Bio::Map::MappableI objects
+ Returns : Array of Map elements (L<Bio::Map::MappableI>)
  Args    : none
 
 =cut
 
-sub each_element {
+sub get_elements {
 	my $self = shift;
 	
-	my %elements;
-	my $only_1 = 1;
-	foreach my $pos ($self->each_position) {
-		my $element = $pos->element;
-		if ($element) {
-			$elements{$element} = $element;
-			
-			my $num_of_pos = $element->each_position($self);
-			if ($num_of_pos && $num_of_pos > 1) {
-				$only_1 = 0;
-			}
-		}
-	}
-	
+    my @elements = $self->SUPER::get_elements;
+    
 	# for backward compatability with MapIO tests, and for 'niceness', when
 	# there is only 1 position per element we will return the elements in
 	# order
+    my $only_1 = 1;
+    foreach my $element (@elements) {
+        my $num_of_pos = $element->get_positions($self);
+        if ($num_of_pos && $num_of_pos > 1) {
+            $only_1 = 0;
+        }
+    }
 	if ($only_1) {
 		#*** assumes we're dealing with a MarkerI which have position() method
-		return sort { $a->position->sortable <=> $b->position->sortable } values %elements;
+		return sort { $a->position->sortable <=> $b->position->sortable } @elements;
 	}
 	
-	return values %elements;
+	return @elements;
 }
+
+=head2 each_element
+
+ Title   : each_element
+ Function: Synonym of the get_elements() method.
+ Status  : deprecated, will be removed in the next version
+
+=cut
+
+*each_element = \&get_elements;
 
 =head2 purge_element
 
  Title   : purge_element
  Usage   : $map->purge_element($element)
- Function: Purge an element from the map; the same as calling
-           $element->purge_positions($map).
+ Function: Purge an element from the map.
  Returns : none
  Args    : Bio::Map::MappableI object
 
 =cut
+
 sub purge_element {
     my ($self, $element) = @_;
     $self->throw("Must supply an argument") unless $element;
     $self->throw("This is [$element], not an object") unless ref($element);
     $self->throw("This is [$element], not a Bio::Map::MappableI object") unless $element->isa('Bio::Map::MappableI');
 	
-	$element->purge_positions($self);
+	$self->purge_positions($element);
 }
 
 1;
