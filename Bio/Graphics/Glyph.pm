@@ -315,6 +315,8 @@ sub boxes {
   $parent         ||= $self;
   my $subparts = $self->option('box_subparts');
 
+  my $subparts = $self->box_subparts;
+
   for my $part ($self->parts) {
     my $type = $part->feature->primary_tag || '';
     if ($type eq 'group' or
@@ -331,6 +333,14 @@ sub boxes {
 
   return wantarray ? @result : \@result;
 }
+
+sub box_subparts {
+  my $self = shift;
+  return $self->{box_subparts} if exists $self->{box_subparts};
+  return $self->{box_subparts} = $self->_box_subparts;
+}
+
+sub _box_subparts { shift->option('box_subparts') }
 
 # this should be overridden for labels, etc.
 # allows glyph to make itself thicker or thinner depending on
