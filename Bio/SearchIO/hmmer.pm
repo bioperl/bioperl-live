@@ -741,9 +741,7 @@ sub next_result {
                         if ( $self->in_element('hit') ) {
                             $self->end_element( { 'Name' => 'Hit' } );
                         }
-                        $self->end_element( { 'Name' => 'HMMER_Output' } );
-                        if (/^Query sequence/o) { $self->_pushback($_); }
-                        return $self->end_document();
+                        $self->_pushback($_);
                         last;
                     }
                     chomp;
