@@ -43,9 +43,9 @@ use vars '@ISA';
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($webenv, $querykey, $database, $dbfrom, $eutil, $total, $desc) =
-      $self->_rearrange
-      ([qw(WEBENV QUERYKEY DATABASE DBFROM EUTIL TOTAL DESCRIPTION)], @args);
+    my ($webenv, $querykey, $database, $dbfrom, $query_ids, $eutil,
+      $total, $term, $linkname) = $self->_rearrange ([qw(WEBENV QUERYKEY
+      DATABASE DBFROM QUERY_IDS EUTIL TOTAL TERM LINKNAME)], @args);
     unless ($webenv && $querykey) {
         my $missing;
         if (!$webenv) {
@@ -58,16 +58,20 @@ sub new {
         $self->throw("Missing ".$missing);
     }
     $self->cookie(uri_unescape($webenv), $querykey);
-    # holds descriptions of database
+    # holds descriptions of database being queried
     $database   && $self->database($database);
-    # for elink only
+    # for elink only, originating database
     $dbfrom     && $self->dbfrom($dbfrom);
     # for esearch, to hold original search query
-    $desc       && $self->description($desc);
+    $term       && $self->esearch_query($term);
     # holds total hits if present (i.e. esearch)
     $total      && $self->total($total);
     # holds originating eutil
     $eutil      && $self->eutil($eutil);
+    # holds elink dbfrom ID's used for querys
+    $query_ids  && $self->query_ids($query_ids);
+    # holds elink linkname; information can be found using einfo
+    $linkname  && $self->linkname($linkname);    
     return $self;
 }
 
@@ -106,10 +110,22 @@ sub total {
     return $self->{'_total'};
 }
 
-sub description {
+sub esearch_query {
     my $self = shift;
-    return $self->{'_description'} = shift if @_;
-    return $self->{'_description'};
+    return $self->{'_esearch_query'} = shift if @_;
+    return $self->{'_esearch_query'};
+}
+
+sub query_ids {
+    my $self = shift;
+    return $self->{'_query_ids'} = shift if @_;
+    return $self->{'_query_ids'};
+}
+
+sub linkname {
+    my $self = shift;
+    return $self->{'_linkname'} = shift if @_;
+    return $self->{'_linkname'};
 }
 
 1;

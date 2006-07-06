@@ -337,52 +337,46 @@ sub parse_response {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
 	$self->debug("Response dumper:\n".Dumper($simple));
-    my ($webenv, $dbfrom);
+
     my $cmd = $self->cmd;
     if ($self->multi_id) {
         $self->warn("Not implemented yet for multiple ID groups\n".
                     "No scores or IDs retained");
         return;
     }
-    # go through to make sure this catches errors
-    $dbfrom = $simple->{LinkSet}->{DbFrom};
-
+    # process possible cookies first
     if ($cmd && $cmd eq 'neighbor_history') {
-        $webenv   = $simple->{LinkSet}->{WebEnv};
-        $self->throw("No links; make sure you are retrieving the cookie correctly")
-		    unless $simple->{LinkSet}->{LinkSetDbHistory};
-        for my $linkset  (@{ $simple->{LinkSet}->{LinkSetDbHistory} }) {
-            my $query_key = $linkset->{QueryKey};
-            my $db = $linkset->{DbTo};
-            my $cookie = Bio::DB::EUtilities::Cookie->new(
-												 -webenv    => $webenv,
-												 -querykey  => $query_key,
-												 -eutil     => 'elink',
-												 -database  => $db,
-												 -dbfrom    => $dbfrom,
-												);
-            $self->add_cookie($cookie);
+        # process each LinkSet hash, one at at time;  
+        # No scores when using history (only ids)
+        $self->warn('No link history') unless
+           $simple->{LinkSet}->{LinkSetDbHistory};
+        for my $linkset (@{ $simple->{LinkSet} }) {
+            my $webenv = $linkset->{WebEnv};
+            my $dbfrom =  $linkset->{DbFrom};
+            my $from_ids = $linkset->{IdList}->{Id};
+            for my $history (@{ $linkset->{LinkSetDbHistory} }) {
+                my $query_key = $history->{QueryKey};
+                next if (!$query_key || ($history->{Info} eq 'Empty result') );
+                my $lname = $history->{LinkName};
+                my $db = $history->{DbTo};
+                my $cookie = Bio::DB::EUtilities::Cookie->new(
+                                                     -webenv    => $webenv,
+                                                     -querykey  => $query_key,
+                                                     -eutil     => 'elink',
+                                                     -database  => $db,
+                                                     -dbfrom    => $dbfrom,
+                                                     -query_ids => $from_ids,
+                                                     -linkname  => $lname,
+                                                    );
+                $self->add_cookie($cookie);
+            }
         }
         return;
     }
-    else { # this sets internal hash of databases and ids
-		# need to rethink how to handle scores and so on with multiple IDs;
-		# maybe do something like with get_db_ids (hash of id and id-score pairs? Oi!!)
-		# will ned to rethink get_scores and get_ids_by_score based on same priciple
-        for my $linkset  ( @{ $simple->{LinkSet}->{LinkSetDb} } ) {
-            my $id_ref = [];
-            my $db = $linkset->{DbTo};
-            for my $id (@{ $linkset->{Link} }) {
-                push @{ $id_ref }, $id->{Id};
-                $self->_add_scores($id->{Id},$id->{Score})
-                    if ($id->{Score});
-            }
-            $self->throw("Missing database and/or id; something wrong with XML")
-                if (!$db && !$id_ref);
-                
-            $self->_add_db_ids($db, $id_ref);
-        }
-        return;
+    else { # only parsing cmd=neighbor or cmd=neighbor_history for now
+        $self->warn('No returned links.') unless $simple->{LinkSet}->{LinkSet};
+        for my $linkset (@{ $simple->{LinkSet} }) {
+            
     }
 }
 
