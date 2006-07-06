@@ -31,10 +31,10 @@ sub draw {
   $self->{source2color} ||= {};
   my $fill = $self->bgcolor;
   for my $part (@parts) {
-    if ($self->option('merge_parts')) {
-      $part->{partcolor} = $fill;
-      next;
-    }  
+#    if ($self->option('merge_parts')) {
+#      $part->{partcolor} = $fill;
+#      next;
+#    }  
     my $s = eval { $part->feature->source_tag } or next;
     $self->{source2color}{$s} ||= $self->color(lc($s)."_color") || $fill;
     $part->{partcolor} = $self->{source2color}{$s};
