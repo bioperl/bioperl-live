@@ -291,6 +291,61 @@ sub as_string {
   return "$label:$start..$end";
 }
 
+=head2 rel2abs
+
+ Title   : rel2abs
+ Usage   : @coords = $s->rel2abs(@coords)
+ Function: convert relative coordinates into absolute coordinates
+ Returns : a list of absolute coordinates
+ Args    : a list of relative coordinates
+ Status  : Public
+
+This function takes a list of positions in relative coordinates to the
+segment, and converts them into absolute coordinates.
+
+=cut
+
+sub rel2abs {
+  my $self = shift;
+  my @result;
+
+  my ($start,$strand) = ($self->start,$self->strand);
+  @result = $strand < 0 ? map { $start - $_ + 1 } @_
+                        : map { $_ + $start - 1 } @_;
+  # if called with a single argument, caller will expect a single scalar reply
+  # not the size of the returned array!
+  return $result[0] if @result == 1 and !wantarray;
+  @result;
+}
+
+=head2 abs2rel
+
+ Title   : abs2rel
+ Usage   : @rel_coords = $s->abs2rel(@abs_coords)
+ Function: convert absolute coordinates into relative coordinates
+ Returns : a list of relative coordinates
+ Args    : a list of absolute coordinates
+ Status  : Public
+
+This function takes a list of positions in absolute coordinates
+and returns a list expressed in relative coordinates.
+
+=cut
+
+sub abs2rel {
+  my $self = shift;
+  my @result;
+
+  my ($start,$strand) = ($self->start,$self->abs_strand);
+  @result = $strand < 0 ? map { $start - $_ + 1 } @_
+                        : map { $_ - $start + 1 } @_;
+
+  # if called with a single argument, caller will expect a single scalar reply
+  # not the size of the returned array!
+  return $result[0] if @result == 1 and !wantarray;
+  @result;
+}
+
 
 
 =head2 Bio::SeqFeatureI compatibility methods

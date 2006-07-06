@@ -1169,14 +1169,14 @@ END
     my $seqid  = $f->seq_id;
     my $strand = $f->strand;
     my ($start,$end);
-    $rel_end = $f->end - $f->start + 1 unless defined $rel_end;
+    my $re = defined $rel_end ? $rel_end : $f->end - $f->start + 1;
 
     if ($strand >= 0) {
       $start = $f->start + $rel_start - 1;
-      $end   = $f->start + $rel_end   - 1;
+      $end   = $f->start + $re   - 1;
     }
     else {
-      $start = $f->end - $rel_end   + 1;
+      $start = $f->end - $re   + 1;
       $end   = $f->end - $rel_start + 1;
     }
     push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand);
