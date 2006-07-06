@@ -208,7 +208,7 @@ sub name {
            It is possible for the length to be unknown for maps such as
            Restriction Enzyme, will return 0 in that case.
  Returns : integer representing length of map in current units
-           will return undef if length is not calculateable
+           will return 0 if length is not calculateable
  Args    : none
 
 =cut
@@ -262,8 +262,8 @@ sub add_element {
     my ($self, $element) = @_;
     return unless $element;
 	
-    $self->throw("This is not a Bio::Map::MarkerI object but a [$element]")
-	unless $element->isa('Bio::Map::MarkerI');
+    $self->throw("This is not a Bio::Map::MappableI object but a [$element]")
+	unless $element->isa('Bio::Map::MappableI');
 	
     $element->default_map($self);
 }

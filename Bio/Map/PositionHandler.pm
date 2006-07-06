@@ -1,4 +1,4 @@
-#
+# $Id:
 #
 # BioPerl module for Bio::Map::PositionHandler
 #
@@ -16,7 +16,35 @@ Bio::Map::PositionHandler - A Position Handler Implementation
 
 =head1 SYNOPSIS
 
-    # 
+    # This is used by modules when they want to implement being a
+    # Position or being something that has Positions (when they are
+    # a L<Bio::Map::EntityI>)
+    
+    # Make a PositionHandler that knows about you
+    my $ph = new Bio::Map::PositionHandler($self);
+    
+    # Register with it so that it handles your Position-related needs
+    $ph->register;
+    
+    # If you are a position, get/set the map you are on and the marker you are
+    # for
+    $ph->map($map);
+    $ph->element($marker);
+    my $map = $ph->map;
+    my $marker = $ph->element;
+    
+    # If you are a marker, add a new position to yourself
+    $ph->add_positions($pos);
+    
+    # And then get all your positions on a particular map
+    foreach my $pos ($ph->get_positions($map)) {
+        # do something with this Bio::Map::PositionI
+    }
+    
+    # Or find out what maps you exist on
+    my @maps = $ph->get_other_entities;
+    
+    # The same applies if you were a map
 
 =head1 DESCRIPTION
 
@@ -78,18 +106,21 @@ my $RELATIONS = {};
 =head2 new
 
  Title   : new
- Usage   : my $position_handler = new Bio::Map::PositionHandler($self);
+ Usage   : my $position_handler = new Bio::Map::PositionHandler(-self => $self);
  Function: Get a Bio::Map::PositionHandler that knows who you are.
  Returns : Bio::Map::PositionHandler object
- Args    : Bio::Map::EntityI that is you
+ Args    : -self => Bio::Map::EntityI that is you
  
 =cut
 
 sub new {
-    my ($class, $you) = @_;
-    my $self = $class->SUPER::new();
-    $self->throw('Must supply an argument') unless $you;
-    $self->throw('Must supply an object') unless ref($you);
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    
+    my ($you) = $self->_rearrange([qw(SELF)], @args);
+    
+    $self->throw('Must supply -self') unless $you;
+    $self->throw('-self must be a reference (object)') unless ref($you);
     $self->throw('This is [$you], not a Bio::Map::EntityI object') unless $you->isa('Bio::Map::EntityI');
     $self->{_who} = $you;
     $self->{_rel} = $RELATIONS;

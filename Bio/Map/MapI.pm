@@ -94,7 +94,7 @@ use Bio::Map::PositionHandler;
 sub get_position_handler {
     my $self = shift;
     unless (defined $self->{_eh}) {
-        my $ph = Bio::Map::PositionHandler->new($self);
+        my $ph = Bio::Map::PositionHandler->new(-self => $self);
         $self->{_eh} = $ph;
         $ph->register;
     }
@@ -158,8 +158,7 @@ sub purge_positions {
 
  Title   : get_elements
  Usage   : my @elements = $map->get_elements;
- Function: Retrieves all the elements on a map (unordered unless all elements
-           have just 1 position on the map, in which case sorted)
+ Function: Retrieves all the elements on a map (unordered)
  Returns : Array of Map elements (L<Bio::Map::MappableI>)
  Args    : none
 

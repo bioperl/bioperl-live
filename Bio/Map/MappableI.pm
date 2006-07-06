@@ -99,7 +99,7 @@ use Bio::Map::PositionHandler;
 sub get_position_handler {
     my $self = shift;
     unless (defined $self->{_eh}) {
-        my $ph = Bio::Map::PositionHandler->new($self);
+        my $ph = Bio::Map::PositionHandler->new(-self => $self);
         $self->{_eh} = $ph;
         $ph->register;
     }

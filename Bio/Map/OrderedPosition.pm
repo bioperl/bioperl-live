@@ -155,7 +155,7 @@ sub sortable {
 
 =cut
 
-sub equals{
+sub equals {
    my ($self,$compare) = @_;
    return 0 if (! defined $compare || ! $compare->isa('Bio::Map::OrderedPosition'));
    return ($compare->order == $self->order);

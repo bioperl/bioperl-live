@@ -92,9 +92,9 @@ use Bio::Map::MappableI;
 =cut
 
 sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new();
-    return bless($self, ref $class || $class);
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    return $self;
 }
 
 =head2 in_map

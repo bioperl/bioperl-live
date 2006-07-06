@@ -24,7 +24,8 @@ This interface describes the basic methods required for entities. An Entity is a
 kind of Bio::Map object that holds instance-specific data but relies on
 registering itself with a PositionHandler to handle its relationships with
 other entities. These relationships between objects are based around shared
-Positions, so Bio::Map::PositionI objects are a special kind of EntityI.
+Positions, so Bio::Map::PositionI objects are a special kind of EntityI, along
+with Bio::Map::MappableI and Bio::Map::MapI objects.
 
 =head1 FEEDBACK
 
