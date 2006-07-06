@@ -1103,7 +1103,14 @@ REBASE
 sub isoschizomers {
     my ($self) = shift;
     push @{$self->{_isoschizomers}}, @_ if @_;
-    return @{$self->{_isoschizomers}};
+          # make sure that you don't dereference if null
+          # chad believes quite strongly that you should return
+          # a reference to an array anyway. don't bother dereferencing.
+          # i'll post that to the list.
+     if ($self->{'_isoschizomers'}) {
+         return @{$self->{_isoschizomers}};
+     }
+     
 }
 
 
