@@ -187,7 +187,16 @@ All "confirmed" mRNAs that overlap the current segment:
 
 sub features {
   my $self = shift;
-  my @args = @_ == 1 ? (-type=>shift) : @_;
+  my @args;
+  if (@_ == 0) {
+    @args = ();
+  }
+  elsif ($_[0] !~/^-/) {
+    my @types = @_;
+    @args = (-type=>\@types);
+  } else {
+    @args = @_;
+  }
   $self->{store}->features(@args,-seqid=>$self->{seqid},-start=>$self->{start},-end=>$self->{end});
 }
 
