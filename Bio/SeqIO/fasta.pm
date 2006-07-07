@@ -167,10 +167,9 @@ sub next_seq {
 
  Title   : write_seq
  Usage   : $stream->write_seq(@seq)
- Function: writes the $seq object into the stream
+ Function: Writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : array of 1 to n Bio::PrimarySeqI objects
-
+ Args    : Array of 1 or more Bio::PrimarySeqI objects
 
 =cut
 
@@ -178,47 +177,46 @@ sub write_seq {
    my ($self,@seq) = @_;
    my $width = $self->width;
    foreach my $seq (@seq) {
-       $self->throw("Did not provide a valid Bio::PrimarySeqI object") 
-	   unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
+		$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+		  unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 
-       my $str = $seq->seq;
-       my $top;
+		my $str = $seq->seq;
+		my $top;
 
-       # Allow for different ids 
-       my $id_type = $self->preferred_id_type;
-       if( $id_type =~ /^acc/i ) {
-	   $top = $seq->accession_number();
-	   if( $id_type =~ /vers/i ) {
-	       $top .= "." . $seq->version();
-	   }
-       } elsif($id_type =~ /^displ/i ) {
-	   
-           $self->warn("No whitespace allowed in FASTA ID [". $seq->display_id. "]")
-               if defined $seq->display_id && $seq->display_id =~ /\s/;
+		# Allow for different ids 
+		my $id_type = $self->preferred_id_type;
+		if( $id_type =~ /^acc/i ) {
+			$top = $seq->accession_number();
+			if( $id_type =~ /vers/i ) {
+				$top .= "." . $seq->version();
+			}
+		} elsif($id_type =~ /^displ/i ) { 
+			$self->warn("No whitespace allowed in FASTA ID [". $seq->display_id. "]")
+			  if defined $seq->display_id && $seq->display_id =~ /\s/;
+			$top = $seq->display_id();
+			$top = '' unless defined $top;
+			$self->warn("No whitespace allowed in FASTA ID [". $top. "]")
+			  if defined $top && $top =~ /\s/;
+		} elsif($id_type =~ /^pri/i ) {
+			$top = $seq->primary_id();
+		}
 
-	   $top = $seq->display_id();
-	   $top = '' unless defined $top;
-	   $self->warn("No whitespace allowed in FASTA ID [". $top. "]")
-	       if defined $top && $top =~ /\s/;
-       } elsif($id_type =~ /^pri/i ) {
-	   $top = $seq->primary_id();
-       }
-
-       if ($seq->can('desc') and my $desc = $seq->desc()) {
-	   $desc =~ s/\n//g;
-	   $top .= " $desc";
-       }
-       if(defined $str && length($str) > 0) {
-	   $str =~ s/(.{1,$width})/$1\n/g;
-       } else {
-	   $str = "\n";
-       }
-       $self->_print (">",$top,"\n",$str) or return;
+		if ($seq->can('desc') and my $desc = $seq->desc()) {
+			$desc =~ s/\n//g;
+			$top .= " $desc";
+		}
+		if(defined $str && length($str) > 0) {
+			$str =~ s/(.{1,$width})/$1\n/g;
+		} else {
+			$str = "\n";
+		}
+		$self->_print (">",$top,"\n",$str) or return;
    }
 
    $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
 }
+
 
 =head2 width
 
