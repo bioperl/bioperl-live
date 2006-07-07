@@ -1,12 +1,16 @@
 # $Id$
 
-# simple object to hold NCBI score information, other odds and end from
-# elink queries; API to change dramatically
+# simple object to hold NCBI score information, links, booleans, and other info
+# from elink queries; API to change dramatically
+
+# this should hold all the linksets for one group of IDs and should
+# accomodate all cmd types.
 
 package Bio::DB::EUtilities::ElinkData;
 use strict;
 use warnings;
 use Bio::Root::Root;
+use Data::Dumper;
 use vars '@ISA';
 
 @ISA = 'Bio::Root::Root';
@@ -14,97 +18,86 @@ use vars '@ISA';
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($query_id) =  $self->_rearrange ([qw(QUERY_ID)], @args);
-    $query_id     && $self->_set_query_id($query_id);
+    my ($command) = $self->_rearrange([qw(COMMAND)], @args);
+    $command    && $self->command($command);
     return $self;
 }
 
-sub _set_query_id {
+sub _add_set {
     my $self = shift;
-    $self->{'_query_id'} = shift if @_;
-    return;
-}
-
-=head2 get_score
-
- Title   : get_score
- Usage   : $score = $db->get_score($id);
- Function: gets score for ID (if present)
- Returns : integer (score) 
- Args    : ID values
-
-=cut
-
-sub get_score {
-    my $self = shift;
-    my $id = shift if @_;
-    $self->throw("No ID given") if !$id;
-    return $self->{'_rel_ids'}->{$id} if $self->{'_score'}->{$id};
-    $self->warn("No score for $id");
-} 
-
-=head2 get_ids_by_score
-
- Title   : get_ids_by_score
- Usage   : @ids = $db->get_ids_by_score;  # returns IDs
-           @ids = $db->get_ids_by_score($score); # get IDs by score
- Function: returns ref of array of ids based on relevancy score from elink;
-           To return all ID's above a score, use the normal score value;
-           to return all ID's below a score, append the score with '-';
- Returns : ref of array of ID's; if array, an array of IDs
- Args    : integer (score value); returns all if no arg provided
-
-=cut
-
-sub get_ids_by_score {
-    my $self = shift;
-    my $score = shift if @_;
-    my @ids;
-    if (!$score) {
-        @ids = sort keys %{ $self->{'_scores'} };
-    }
-    elsif ($score && $score > 0) {
-        for my $id (keys %{ $self->{'_scores'}}) {
-            push @ids, $id if $self->{'_scores'}->{$id} > $score;
+    $self->throw('No linkset!') unless my $ls = shift;
+    my $dbfrom = $ls->{DbFrom};
+    $self->dbfrom($dbfrom);
+    my $query_id = $ls->{IdList}->{Id};
+    $self->query_id($query_id);
+    for my $ls_db (@{ $ls->{LinkSetDb} }) {
+        my $dbto = $ls_db->{DbTo};
+        my $linkname = $ls_db->{LinkName};
+        if ( $ls_db->{Info} || $ls->{ERROR} || !($ls_db->{Link})) {
+            my $err_msg = $ls_db->{Info} || $ls->{ERROR} || 'No Links!';
+            my $ids = (ref($query_id) =~ /array/i) ?
+                            join q(,), @{$query_id}: $query_id;
+            $self->warn("ELink Error for $dbto and ids $ids: $err_msg");
+            next;
         }
-    }
-    elsif ($score && $score < 0) {
-        for my $id (keys %{ $self->{'_scores'}}) {
-            push @ids, $id if $self->{'_scores'}->{$id} < abs($score);
+        my @ids;
+        for my $id_ref (@{ $ls_db->{Link} } ) {
+            my $id = $id_ref->{Id};
+            my $score = $id_ref->{Score} ? $id_ref->{Score} : undef;
+            push @ids, $id;
+            if ($score) {
+                $self->{'_scores'}->{$id} = $score;
+                if (!($self->{'_has_scores'})) {
+                    $self->{'_has_scores'} = $dbto;
+                }
+            }
         }
+        my $linkset = {
+                       'LinkName' => $linkname,
+                       'DbTo'     => $dbto,
+                       'Id'       => \@ids,
+                      };
+        $self->debug('Linkset:',Dumper($linkset));
+        push @{ $self->{'_linksetdb'}}, $linkset;    
     }
-    if (@ids) {
-        @ids = sort {$self->get_score($b) <=> $self->get_score($a)} @ids;
-        return @ids if wantarray;
-        return \@ids;
-    }
-    # if we get here, there's trouble
-    $self->warn("No returned IDs!");
 }
 
-=head2 get_all_ids
-
- Title   : get_all_ids
- Usage   : @ids = $db->get_all_ids;  # returns IDs
- Function: returns ref of array of all ids
- Returns : ref of array of ID's; if wantarray, an array of IDs
- Args    : integer (score value); returns all if no arg provided
- Note    : This is just an alias for get_ids_by_score, called with no args
-
-=cut
-
-sub get_all_ids {
+sub dbfrom {
     my $self = shift;
-    return my @arr = $self->get_ids_by_score if wantarray;
-    return my $id_ref = $self->get_ids_by_score;
+    return $self->{'_dbfrom'} = shift if @_;
+    return $self->{'_dbfrom'};
 }
 
-sub _add_scores {
-    my ($self, $id, $score) = @_;
-    $self->throw ("Must have id-score pair for hash") unless ($id && $score);
-    $self->throw ("ID, score must be scalar") if
-         (ref($id) && ref($score));
-    $self->{'_scores'}->{$id} = $score;
+sub query_id {
+    my $self = shift;
+    return $self->{'_query_id'} = shift if @_;
+    return $self->{'_query_id'};
+}
+
+sub command {
+    my $self = shift;
+    return $self->{'_command'} = shift if @_;
+    return $self->{'_command'};
+}
+
+sub has_scores {
+    my $self = shift;
+    return $self->{'_has_scores'};
+}
+
+# remodel these to be something along the lines of next_cookie, but use closure
+
+sub get_linksets {
+    my $self = shift;
+    return @{ $self->{'_linksetdb'}} if wantarray;
+    return $self->{'_linksetdb'}->[0];
+}
+
+sub get_scores {
+    my $self = shift;
+    if ($self->has_scores) {
+        return %{ $self->{'_scores'}};
+    }
 }
 
 1;

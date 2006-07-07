@@ -349,7 +349,7 @@ sub reset_cookies {
 
 sub get_all_cookies {
     my $self = shift;
-    return @{ $self->{'_cookie'} };
+    return @{ $self->{'_cookie'} } if $self->{'_cookie'};
 }
 
 =head2 parse_response
@@ -562,7 +562,7 @@ sub _submit_request {
 
 sub _get_params {
     my $self = shift;
-    my $cookie = $self->next_cookie;
+    my $cookie = $self->get_all_cookies? $self->next_cookies : 0;
     my @final;
     # add tests for WebEnv/query_key and id (don't need both)
     my %params;

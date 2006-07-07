@@ -43,9 +43,9 @@ use vars '@ISA';
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($webenv, $querykey, $database, $dbfrom, $query_ids, $eutil,
+    my ($webenv, $querykey, $database, $dbfrom, $query_id, $eutil,
       $total, $term, $linkname) = $self->_rearrange ([qw(WEBENV QUERYKEY
-      DATABASE DBFROM QUERY_IDS EUTIL TOTAL TERM LINKNAME)], @args);
+      DATABASE DBFROM QUERY_ID EUTIL TOTAL TERM LINKNAME)], @args);
     unless ($webenv && $querykey) {
         my $missing;
         if (!$webenv) {
@@ -69,7 +69,7 @@ sub new {
     # holds originating eutil
     $eutil      && $self->eutil($eutil);
     # holds elink dbfrom ID's used for querys
-    $query_ids  && $self->query_ids($query_ids);
+    $query_id  && $self->query_id($query_id);
     # holds elink linkname; information can be found using einfo
     $linkname  && $self->linkname($linkname);    
     return $self;
@@ -116,10 +116,10 @@ sub esearch_query {
     return $self->{'_esearch_query'};
 }
 
-sub query_ids {
+sub query_id {
     my $self = shift;
-    return $self->{'_query_ids'} = shift if @_;
-    return $self->{'_query_ids'};
+    return $self->{'_query_id'} = shift if @_;
+    return $self->{'_query_id'};
 }
 
 sub linkname {

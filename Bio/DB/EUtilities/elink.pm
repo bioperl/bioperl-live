@@ -255,6 +255,7 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
+use Bio::DB::EUtilities::ElinkData;
 use URI::Escape qw(uri_unescape);
 use XML::Simple;
 use Data::Dumper;
@@ -336,20 +337,17 @@ sub parse_response {
     if ($simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
-	$self->debug("Response dumper:\n".Dumper($simple));
+	#$self->debug("Response dumper:\n".Dumper($simple));
 
     my $cmd = $self->cmd;
-    if ($self->multi_id) {
-        $self->warn("Not implemented yet for multiple ID groups\n".
-                    "No scores or IDs retained");
-        return;
-    }
     # process possible cookies first
     if ($cmd && $cmd eq 'neighbor_history') {
         # process each LinkSet hash, one at at time;  
         # No scores when using history (only ids)
-        $self->warn('No link history') unless
-           $simple->{LinkSet}->{LinkSetDbHistory};
+        if (! $simple->{LinkSet}->{LinkSetDbHistory} ) {
+            $self->warn('No link history');
+            return;
+        }
         for my $linkset (@{ $simple->{LinkSet} }) {
             my $webenv = $linkset->{WebEnv};
             my $dbfrom =  $linkset->{DbFrom};
@@ -365,7 +363,7 @@ sub parse_response {
                                                      -eutil     => 'elink',
                                                      -database  => $db,
                                                      -dbfrom    => $dbfrom,
-                                                     -query_ids => $from_ids,
+                                                     -query_id  => $from_ids,
                                                      -linkname  => $lname,
                                                     );
                 $self->add_cookie($cookie);
@@ -373,10 +371,22 @@ sub parse_response {
         }
         return;
     }
-    else { # only parsing cmd=neighbor or cmd=neighbor_history for now
-        $self->warn('No returned links.') unless $simple->{LinkSet}->{LinkSet};
+    elsif ($cmd eq 'neighbor' || !$cmd) { # only parsing cmd=neighbor or cmd=neighbor_history for now
+        if (!$simple->{LinkSet}) {
+            $self->warn('No returned links.');
+            return;
+        }
         for my $linkset (@{ $simple->{LinkSet} }) {
-            
+            my $linkobj = Bio::DB::EUtilities::ElinkData->new(-verbose => $self->verbose,
+                                                              -command =>$cmd);
+            $linkobj->_add_set($linkset);
+            $self->_add_linkset($linkobj);
+        }
+    } else {
+        $self->warn("$cmd not yet supported; no parsing occurred");
+        return;
+        # need to add a few things for cmd=llinks
+        
     }
 }
 
@@ -396,81 +406,26 @@ sub multi_id {
 	return $self->{'_multi_id'};
 }
 
-=head2 get_score
-
- Title   : get_score
- Usage   : $score = $db->get_score($id);
- Function: gets score for ID (if present)
- Returns : integer (score) 
- Args    : ID values
-
-=cut
-
-sub get_score {
+sub _add_linkset {
     my $self = shift;
-    my $id = shift if @_;
-    $self->throw("No ID given") if !$id;
-    return $self->{'_rel_ids'}->{$id} if $self->{'_rel_ids'}->{$id};
-    $self->warn("No score for $id");
+    if (@_) {
+        my $data_links = shift;
+        $self->throw("Expecting a Bio::DB::EUtilities::ElinkData, got $data_links.")
+          unless $data_links->isa("Bio::DB::EUtilities::ElinkData");
+        push @{ $self->{'_linksets'} }, $data_links;
+    }
 }
 
-=head2 get_ids_by_score
-
- Title   : get_ids_by_score
- Usage   : @ids = $db->get_ids_by_score;  # returns IDs
-           @ids = $db->get_ids_by_score($score); # get IDs by score
- Function: returns ref of array of ids based on relevancy score from elink;
-           To return all ID's above a score, use the normal score value;
-           to return all ID's below a score, append the score with '-';
- Returns : ref of array of ID's; if array, an array of IDs
- Args    : integer (score value); returns all if no arg provided
-
-=cut
-
-sub get_ids_by_score {
+sub next_linkset {
     my $self = shift;
-    my $score = shift if @_;
-    my @ids;
-    if (!$score) {
-        @ids = sort keys %{ $self->{'_rel_ids'} };
+    if ($self->{'_linksets'}) {
+        return shift @{ $self->{'_linksets'} };
     }
-    elsif ($score && $score > 0) {
-        for my $id (keys %{ $self->{'_rel_ids'}}) {
-            push @ids, $id if $self->{'_rel_ids'}->{$id} > $score;
-        }
-    }
-    elsif ($score && $score < 0) {
-        for my $id (keys %{ $self->{'_rel_ids'}}) {
-            push @ids, $id if $self->{'_rel_ids'}->{$id} < abs($score);
-        }
-    }
-    if (@ids) {
-        @ids = sort {$self->get_score($b) <=> $self->get_score($a)} @ids;
-        return @ids if wantarray;
-        return \@ids;
-    }
-    # if we get here, there's trouble
-    $self->warn("No returned IDs!");
 }
 
-=head1 Private methods
-
-=head2 _add_scores
-
- Title   : _add_scores
- Usage   : $self->add_scores($db, $ids);
- Function: sets internal hash of ids with relevancy scores
- Returns : none
- Args    : two numbers: id (key) and relevancy score (value)
-
-=cut
-
-sub _add_scores {
-    my ($self, $id, $score) = @_;
-    $self->throw ("Must have id-score pair for hash") unless ($id && $score);
-    $self->throw ("ID, score must be scalar") if
-         (ref($id) && ref($score));
-    $self->{'_rel_ids'}->{$id} = $score;
+sub get_all_linksets {
+    my $self = shift;
+    return @{ $self->{'_linksets'} };
 }
 
 =head2 Methods inherited from L<Bio::DB::EUtilities|Bio::DB::EUtilities>
