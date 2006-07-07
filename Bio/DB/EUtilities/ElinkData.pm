@@ -23,6 +23,8 @@ sub new {
     return $self;
 }
 
+# this makes a deep copy of the XML data
+
 sub _add_set {
     my $self = shift;
     $self->throw('No linkset!') unless my $ls = shift;
@@ -32,6 +34,7 @@ sub _add_set {
     $self->query_id($query_id);
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
         my $dbto = $ls_db->{DbTo};
+        push @{ $self->{'_databases'}}, $dbto;
         my $linkname = $ls_db->{LinkName};
         if ( $ls_db->{Info} || $ls->{ERROR} || !($ls_db->{Link})) {
             my $err_msg = $ls_db->{Info} || $ls->{ERROR} || 'No Links!';
@@ -87,17 +90,39 @@ sub has_scores {
 
 # remodel these to be something along the lines of next_cookie, but use closure
 
-sub get_linksets {
+sub get_LinkIds_by_db {
     my $self = shift;
-    return @{ $self->{'_linksetdb'}} if wantarray;
-    return $self->{'_linksetdb'}->[0];
+    my $db = shift if @_;
+    $self->throw("Must use database to access IDs") if !$db;
+    for my $linkset (@{ $self->{'_linksetdb'}}) {
+        my $dbto = $linkset->{DbTo};
+        if ($dbto == $db) {
+            return @{ $linkset->{DbTo} } if wantarray;
+            return $linkset->{DbTo};
+        }
+    }
+    $self->warn("Couldn't find ids for database $db");
 }
 
-sub get_scores {
+sub get_databases {
     my $self = shift;
-    if ($self->has_scores) {
-        return %{ $self->{'_scores'}};
+    return @{ $self->{'_databases'} };
+}
+
+sub get_score {
+    my $self = shift;
+    my $id = shift if @_;
+    $self->warn("No scores!") if !$self->has_scores;
+    $self->warn("Must use ID to access scores") if !$id;
+    if ($self->{'_scores'}->{$id} ) {
+        return $self->{'_scores'}->{$id};
     }
+}
+
+sub get_score_hash {
+    my $self = shift;
+    $self->warn("No scores!") if !$self->has_scores;
+    return %{ $self->{'_scores'} };
 }
 
 1;

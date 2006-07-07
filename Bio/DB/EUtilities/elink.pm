@@ -428,6 +428,11 @@ sub get_all_linksets {
     return @{ $self->{'_linksets'} };
 }
 
+sub reset_linksets{
+    my $self = shift;
+    $self->{'_linksets'} = [];
+}
+
 =head2 Methods inherited from L<Bio::DB::EUtilities|Bio::DB::EUtilities>
 
 =head3 add_cookie
