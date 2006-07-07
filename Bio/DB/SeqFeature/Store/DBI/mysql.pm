@@ -128,9 +128,6 @@ additional arguments are as follows:
                    reindexed every time they change. This is the default.
 
 
- -binsize          An integer in bases. Used to speed up location searches.
-                   The default size of 10,000 bases seems to work well.
-
  -tmpdir           Directory in which to place temporary files during "fast" loading.
                    Defaults to File::Spec->tmpdir(). (synonyms -dump_dir, -dumpdir, -tmp)
 
@@ -158,18 +155,18 @@ use Memoize;
 use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use File::Spec;
-use constant BINSIZE => 10_000;  # most features should be smaller than this
 use constant DEBUG=>0;
 
 # from the MySQL documentation...
 # WARNING: if your sequence uses coordinates greater than 2 GB, you are out of luck!
 use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
+use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
+use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
 
 memoize('_typeid');
 memoize('_locationid');
 memoize('_attributeid');
-memoize('dump_filehandle');
 memoize('dump_path');
 
 ###
@@ -181,17 +178,15 @@ sub init {
       $is_temporary,
       $autoindex,
       $namespace,
-      $binsize,
       $dump_dir,
       $user,
       $pass,
       $dbi_options,
-      $writeable
+      $writeable,
      ) = rearrange(['DSN',
 		    ['TEMP','TEMPORARY'],
 		    'AUTOINDEX',
 		    'NAMESPACE',
-		    'BINSIZE',
 		    ['DUMP_DIR','DUMPDIR','TMP','TMPDIR'],
 		    'USER',
 		    ['PASS','PASSWD','PASSWORD'],
@@ -216,7 +211,6 @@ sub init {
   $self->{writeable} = $writeable;
 
   $self->default_settings;
-  $self->binsize($binsize)                       if $binsize;
   $self->autoindex($autoindex)                   if defined $autoindex;
   $self->dumpdir($dump_dir)                      if $dump_dir;
   $self->init_tmp_database()                     if $self->is_temp;
@@ -231,21 +225,18 @@ sub table_definitions {
   return {
 	  feature => <<END,
 (
-  id         int(10) auto_increment primary key,
-  indexed    tinyint default 1,
-  object     MEDIUMBLOB not null
-)
-END
-	  location => <<END,
-(
-  id       int(10)      not null,
+  id       int(10) auto_increment primary key,
+  typeid   int(10)      not null,
   seqid    int(10)      not null,
   start    int          not null,
   end      int          not null,
   strand   tinyint      default 0,
+  tier     tinyint      not null,
   bin      int          not null,
-  index(id),
-  index(seqid,bin,start,end)
+  indexed  tinyint default 1,
+  object     MEDIUMBLOB not null,
+  index(seqid,tier,bin,typeid),
+  index(typeid)
 )
 END
 
@@ -254,14 +245,6 @@ END
   id         int(10)       auto_increment primary key,
   seqname    varchar(50)   not null,
   index(seqname)
-)
-END
-
-	  type => <<END,
-(
-  id       int(10)      primary key,
-  typeid   int(10)      not null,
-  index(typeid)
 )
 END
 
@@ -331,7 +314,6 @@ sub default_settings {
   my $self = shift;
   $self->maybe_create_meta();
   $self->SUPER::default_settings;
-  $self->binsize(BINSIZE);
   $self->autoindex(1);
   $self->dumpdir(File::Spec->tmpdir);
 }
@@ -344,16 +326,6 @@ sub dbh {
   my $self = shift;
   my $d    = $self->{dbh};
   $self->{dbh} = shift if @_;
-  $d;
-}
-
-###
-# get/set binsize
-#
-sub binsize {
-  my $self = shift;
-  my $d = $self->setting('binsize');
-  $self->setting(binsize=>shift) if @_;
   $d;
 }
 
@@ -394,6 +366,7 @@ sub dump_filehandle {
   my $table = shift;
   eval "require IO::File" unless IO::File->can('new');
   my $path  = $self->dump_path($table);
+  warn "creating $path" unless exists $self->{filehandles}{$path};
   my $fh = $self->{filehandles}{$path} ||= IO::File->new(">$path");
   $fh;
 }
@@ -528,10 +501,10 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
-    next unless -e $path;  # might happen if for some reason we had no features to load
     my $qualified_table = $self->_qualify($table);
     $dbh->do("LOAD DATA INFILE '$path' REPLACE INTO TABLE $qualified_table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
+    warn "unlinking $path";
     unlink $path;
   }
   delete $self->{bulk_update_in_progress};
@@ -599,7 +572,7 @@ sub _fetch_SeqFeatures {
   my @args  = $parent_id;
 
   if (@types) {
-    my ($from,$where,undef,@a) = $self->_types_sql(\@types,'c.child');
+    my ($from,$where,undef,@a) = $self->_types_sql(\@types,'f');
     push @from,$from   if $from;
     push @where,$where if $where;
     push @args,@a;
@@ -608,12 +581,15 @@ sub _fetch_SeqFeatures {
   my $from  = join ', ',@from;
   my $where = join ' AND ',@where;
 
-
-  my $sth = $self->_prepare(<<END) or $self->throw($self->dbh->errstr);
+  my $query = <<END;
 SELECT f.id,f.object
   FROM $from
   WHERE $where
 END
+
+  $self->_print_query($query,@args) if DEBUG || $self->debug;
+
+  my $sth = $self->_prepare($query) or $self->throw($self->dbh->errstr);
 
   $sth->execute(@args) or $self->throw($sth->errstr);
   return $self->_sth2objs($sth);
@@ -758,6 +734,7 @@ sub _features {
     # hacky backward compatibility workaround
     undef $class if $class && $class eq 'Sequence';
     $name = "$class:$name" if defined $class && length $class > 0;
+    # last argument is the join field
     my ($from,$where,$group,@a) = $self->_name_sql($name,$allow_aliases,'f.id');
     push @from,$from   if $from;
     push @where,$where if $where;
@@ -766,7 +743,8 @@ sub _features {
   }
 
   if (defined $seq_id) {
-    my ($from,$where,$group,@a) = $self->_location_sql($seq_id,$start,$end,$range_type,$strand,'f.id');
+    # last argument is the name of the features table
+    my ($from,$where,$group,@a) = $self->_location_sql($seq_id,$start,$end,$range_type,$strand,'f');
     push @from,$from   if $from;
     push @where,$where if $where;
     push @group,$group if $group;
@@ -774,7 +752,8 @@ sub _features {
   }
 
   if (defined($types)) {
-    my ($from,$where,$group,@a) = $self->_types_sql($types,'f.id');
+    # last argument is the name of the features table
+    my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
     push @from,$from   if $from;
     push @where,$where if $where;
     push @group,$group if $group;
@@ -782,6 +761,7 @@ sub _features {
   }
 
   if (defined $attributes) {
+    # last argument is the join field
     my ($from,$where,$group,@a) = $self->_attributes_sql($attributes,'f.id');
     push @from,$from    if $from;
     push @where,$where  if $where;
@@ -790,6 +770,7 @@ sub _features {
   }
 
   if (defined $fromtable) {
+    # last argument is the join field
     my ($from,$where,$group,@a) = $self->_from_table_sql($fromtable,'f.id');
     push @from,$from    if $from;
     push @where,$where  if $where;
@@ -807,7 +788,7 @@ sub _features {
   $group    = "GROUP BY $group" if @group;
 
   my $query = <<END;
-SELECT DISTINCT f.id,f.object
+SELECT f.id,f.object
   FROM $from
   WHERE $where
   $group
@@ -921,16 +902,18 @@ END
   return ($from,$where,$group,@args);
 }
 
+sub subfeature_types_are_indexed     { 1 }
+sub subfeature_locations_are_indexed { 1 }
+
 sub _types_sql {
   my $self  = shift;
-  my ($types,$join) = @_;
+  my ($types,$type_table) = @_;
   my ($primary_tag,$source_tag);
 
   my @types = ref $types eq 'ARRAY' ?  @$types : $types;
 
-  my $type_table    = $self->_type_table;
   my $typelist      = $self->_typelist_table;
-  my $from = "$type_table AS t,$typelist AS tl";
+  my $from = "$typelist AS tl";
 
   my (@matches,@args);
 
@@ -953,10 +936,8 @@ sub _types_sql {
   }
   my $matches = join ' OR ',@matches;
 
-  # the join table is named "f"
   my $where = <<END;
-   t.id=$join
-   AND   tl.id=t.typeid
+   tl.id=$type_table.typeid
    AND   ($matches)
 END
 
@@ -965,35 +946,27 @@ END
 
 sub _location_sql {
   my $self = shift;
-  my ($seq_id,$start,$end,$range_type,$strand,$join) = @_;
-
-  my $location_table = $self->_location_table;
-  my $location_list  = $self->_locationlist_table;
+  my ($seq_id,$start,$end,$range_type,$strand,$location) = @_;
 
   # the additional join on the location_list table badly impacts performance
   # so we build a copy of the table in memory
   my $seqid = $self->_locationid($seq_id) || 0; # zero is an invalid primary ID, so will return empty
 
-# using a join (slow)
-#  my $from = "$location_table as l,$location_list as ll";
-  my $from  = "$location_table as l";
-
   $start = MIN_INT unless defined $start;
   $end   = MAX_INT unless defined $end;
 
-  my $bin_min = int $start/BINSIZE;
-  my $bin_max = int $end/BINSIZE;
+  my ($bin_where,@bin_args) = $self->bin_where($start,$end,$location);
 
   my ($range,@range_args);
   if ($range_type eq 'overlaps') {
-    $range = 'bin BETWEEN ? AND ? AND start<=? AND end>=?';
-    @range_args = ($bin_min,$bin_max,$end,$start);
+    $range = "$location.end>=? AND $location.start<=? AND ($bin_where)";
+    @range_args = ($start,$end,@bin_args);
   } elsif ($range_type eq 'contains') {
-    $range = 'bin BETWEEN ? AND ? AND start>=? AND end<=?';
-    @range_args = ($bin_min,$bin_max,$start,$end);
+    $range = "$location.start>=? AND $location.end<=? AND ($bin_where)";
+    @range_args = ($start,$end,@bin_args);
   } elsif ($range_type eq 'contained_in') {
-    $range = 'bin<=? OR bin>=? AND start<=? AND end>=?';
-    @range_args = ($bin_min,$bin_max,$start,$end);
+    $range = "$location.start<=? AND $location.end>=?";
+    @range_args = ($start,$end);
   } else {
     $self->throw("range_type must be one of 'overlaps', 'contains' or 'contained_in'");
   }
@@ -1003,27 +976,13 @@ sub _location_sql {
     push @range_args,$strand;
   }
 
-
-# using a join (slow)
-#  my $where = <<END;
-#   l.id=$join
-#   AND   ll.seqname=?
-#   AND   ll.id=l.seqid
-#   AND   $range
-#END
-
   my $where = <<END;
-   l.id=$join
-   AND   l.seqid=?
+   $location.seqid=?
    AND   $range
 END
 
-  # setting up the group this way avoids a select distinct and more importantly
-  # fixes issues when combining location queries with attribute queries
-  my $group = 'f.id,l.bin';
-
-# using a join (slow)
-#  my @args  = ($seq_id,@range_args);
+  my $from  = '';
+  my $group = '';
 
   my @args  = ($seqid,@range_args);
   return ($from,$where,$group,@args);
@@ -1097,7 +1056,7 @@ sub all_tables {
 
 sub index_tables {
   my $self = shift;
-  return map {$self->_qualify($_)} qw(location type name attribute parent2child)
+  return map {$self->_qualify($_)} qw(name attribute parent2child)
 }
 
 sub _firstid {
@@ -1226,11 +1185,21 @@ sub replace {
   my $features = $self->_feature_table;
 
   my $sth = $self->_prepare(<<END);
-REPLACE INTO $features (id,object,indexed) VALUES (?,?,?)
+REPLACE INTO $features (id,object,indexed,seqid,start,end,strand,tier,bin,typeid) VALUES (?,?,?,?,?,?,?,?,?,?)
 END
-  $sth->execute($id,$self->freeze($object),$index_flag||0) or $self->throw($sth->errstr);
+
+  my @location = $self->_get_location_and_bin($object);
+
+  my $primary_tag = $object->primary_tag;
+  my $source_tag  = $object->source_tag || '';
+  $primary_tag    .= ":$source_tag";
+  my $typeid   = $self->_typeid($primary_tag,1);
+
+  $sth->execute($id,$self->freeze($object),$index_flag||0,@location,$typeid) or $self->throw($sth->errstr);
+
   my $dbh = $self->dbh;
   $object->primary_id($dbh->{mysql_insertid}) unless defined $id;
+
   $self->flag_for_indexing($dbh->{mysql_insertid}) if $self->{bulk_update_in_progress};
 }
 
@@ -1290,13 +1259,9 @@ sub _update_indexes {
 
   if ($self->{bulk_update_in_progress}) {
     $self->_dump_update_name_index($obj,$id);
-    $self->_dump_update_type_index($obj,$id);
-    $self->_dump_update_location_index($obj,$id);
     $self->_dump_update_attribute_index($obj,$id);
   } else {
     $self->_update_name_index($obj,$id);
-    $self->_update_type_index($obj,$id);
-    $self->_update_location_index($obj,$id);
     $self->_update_attribute_index($obj,$id);
   }
 }
@@ -1317,43 +1282,6 @@ sub _update_name_index {
   $sth->finish;
 }
 
-sub _update_type_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-  my $type    = $self->_type_table;
-  $self->_delete_index($type,$id);
-
-  my $primary_tag = $obj->primary_tag;
-  my $source_tag  = $obj->source_tag || '';
-  return unless defined $primary_tag;
-
-  $primary_tag    .= ":$source_tag";
-  my $sth = $self->_prepare("INSERT INTO $type (id,typeid) VALUES (?,?)");
-  my $typeid = $self->_typeid($primary_tag,1);
-  $sth->execute($id,$typeid) or $self->throw($sth->errstr);
-  $sth->finish;
-}
-
-sub _update_location_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-  my $location    = $self->_location_table;
-  $self->_delete_index($location,$id);
-
-  my $seqname     = $obj->seq_id || '';
-  my $start       = $obj->start  || '';
-  my $end         = $obj->end    || '';
-  my $strand      = $obj->strand;
-  my $bin_min     = int $start/BINSIZE;
-  my $bin_max     = int $end/BINSIZE;
-  my $sth         = $self->_prepare("INSERT INTO $location (id,seqid,start,end,strand,bin) VALUES (?,?,?,?,?,?)");
-  my $seqid       = $self->_locationid($seqname,1);
-  for (my $bin=$bin_min; $bin<=$bin_max; $bin++) {
-    $sth->execute($id,$seqid,$start,$end,$strand,$bin) or $self->throw($sth->errstr);
-  }
-  $sth->finish;
-}
-
 sub _update_attribute_index {
   my $self = shift;
   my ($obj,$id) = @_;
@@ -1369,7 +1297,6 @@ sub _update_attribute_index {
   }
   $sth->finish;
 }
-
 
 sub _genericid {
   my $self = shift;
@@ -1401,6 +1328,53 @@ sub _locationid {
 sub _attributeid {
   shift->_genericid('attributelist','tag',shift,1);
 }
+
+sub _get_location_and_bin {
+  my $self = shift;
+  my $feature = shift;
+  my $seqid   = $self->_locationid($feature->seq_id);
+  my $start   = $feature->start;
+  my $end     = $feature->end;
+  my $strand  = $feature->strand || 0;
+  my ($tier,$bin) = $self->get_bin($start,$end);
+  return ($seqid,$start,$end,$strand,$tier,$bin);
+}
+
+sub get_bin {
+  my $self = shift;
+  my ($start,$end) = @_;
+  my $binsize = MIN_BIN;
+  my ($bin_start,$bin_end,$tier);
+  $tier = 0;
+  while (1) {
+    $bin_start = int $start/$binsize;
+    $bin_end   = int $end/$binsize;
+    last if $bin_start == $bin_end;
+    $binsize *= 10;
+    $tier++;
+  }
+  return ($tier,$bin_start);
+}
+
+sub bin_where {
+  my $self = shift;
+  my ($start,$end,$f) = @_;
+  my (@bins,@args);
+
+  my $tier         = 0;
+  my $binsize      = MIN_BIN;
+  while ($binsize <= MAX_BIN) {
+    my $bin_start = int($start/$binsize);
+    my $bin_end   = int($end/$binsize);
+    push @bins,"($f.tier=? AND $f.bin between ? AND ?)";
+    push @args,($tier,$bin_start,$bin_end);
+    $binsize *= 10;
+    $tier++;
+  }
+  my $query = join ("\n\t OR ",@bins);
+  return wantarray ? ($query,@args) : substitute($query,@args);
+}
+
 
 sub _delete_index {
   my $self = shift;
@@ -1451,7 +1425,7 @@ sub _prepare {
 sub _feature_table       {  shift->_qualify('feature')  }
 sub _location_table      {  shift->_qualify('location') }
 sub _locationlist_table  {  shift->_qualify('locationlist') }
-sub _type_table          {  shift->_qualify('type')     }
+sub _type_table          {  shift->_qualify('feature')     }
 sub _typelist_table      {  shift->_qualify('typelist') }
 sub _name_table          {  shift->_qualify('name')     }
 sub _attribute_table     {  shift->_qualify('attribute')}
@@ -1515,7 +1489,13 @@ sub _dump_store {
 
   for my $obj (@_) {
     my $id       = $self->next_id;
-    print $store_fh join("\t",$id,$indexed,$dbh->quote($self->freeze($obj))),"\n";
+    my ($seqid,$start,$end,$strand,$tier,$bin) = $self->_get_location_and_bin($obj);
+    my $primary_tag = $obj->primary_tag;
+    my $source_tag  = $obj->source_tag || '';
+    $primary_tag    .= ":$source_tag";
+    my $typeid   = $self->_typeid($primary_tag,1);
+
+    print $store_fh join("\t",$id,$typeid,$seqid,$start,$end,$strand,$tier,$bin,$indexed,$dbh->quote($self->freeze($obj))),"\n";
     $obj->primary_id($id);
     $self->_update_indexes($obj) if $indexed && $autoindex;
     $count++;
@@ -1554,38 +1534,6 @@ sub _dump_update_name_index {
   my ($names,$aliases) = $self->feature_names($obj);
   print $fh join("\t",$id,$dbh->quote($_),1),"\n" foreach @$names;
   print $fh join("\t",$id,$dbh->quote($_),0),"\n" foreach @$aliases;
-}
-
-sub _dump_update_type_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
-  my $primary_tag = $obj->primary_tag;
-  my $source_tag  = $obj->source_tag || '';
-  return unless defined $primary_tag;
-  my $dbh         = $self->dbh;
-
-  $primary_tag    .= ":$source_tag";
-  my $fh  = $self->dump_filehandle('type');
-  my $typeid = $self->_typeid($primary_tag,1);
-  print $fh join ("\t",$id,$typeid),"\n";
-}
-
-sub _dump_update_location_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
-  my $seqname     = $obj->seq_id || '';
-  my $start       = $obj->start  || '';
-  my $end         = $obj->end    || '';
-  my $strand      = $obj->strand;
-  my $bin_min     = int $start/BINSIZE;
-  my $bin_max     = int $end/BINSIZE;
-  my $fh          = $self->dump_filehandle('location');
-  my $seqid       = $self->_locationid($seqname,1);
-  for (my $bin=$bin_min; $bin<=$bin_max; $bin++) {
-    print $fh join("\t",$id,$seqid,$start,$end,$strand,$bin),"\n";
-  }
 }
 
 sub _dump_update_attribute_index {
