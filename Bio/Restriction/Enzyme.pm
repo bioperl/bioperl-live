@@ -1250,7 +1250,9 @@ Added for compatibility to REBASE
 sub vendors {
     my $self = shift;
     push @{$self->{_vendors}}, @_ if @_;
-    return @{$self->{'_vendors'}};
+    if ($self->{'_vendors'}) {
+         return @{$self->{'_vendors'}};
+    }
 }
 
 

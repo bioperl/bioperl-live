@@ -541,13 +541,20 @@ sub fragment_maps {
 
     my $start=1; my $stop; my %seq; my %stop;
     foreach $stop (@cuts) {
+        print("cut start is $start and stop is $stop\n");                   
         $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
         $stop{$start}=$stop;
         $start=$stop+1;
     }
     $stop=$self->{'_seq'}->length;
-    $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
-    $stop{$start}=$stop;
+    if ($start > $stop) {
+        # borderline case. The enzyme cleaved at the end of the sequence
+        # what do I do now?
+    }
+    else {
+         $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
+         $stop{$start}=$stop;
+    }
 
     if ($self->{'_seq'}->is_circular) {
         # join the first and last fragments
