@@ -541,7 +541,6 @@ sub fragment_maps {
 
     my $start=1; my $stop; my %seq; my %stop;
     foreach $stop (@cuts) {
-        print("cut start is $start and stop is $stop\n");                   
         $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
         $stop{$start}=$stop;
         $start=$stop+1;
