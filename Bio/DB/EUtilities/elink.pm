@@ -23,6 +23,8 @@ from a list of one or more primary ID's, including relevancy scores.
 B<Do not use this module directly.>  Use it via the
 L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
 
+  # chain EUtilities for complex queries
+
   use Bio::DB::EUtilities;
 
   my $esearch = Bio::DB::EUtilities->new(-eutil      => 'esearch',
@@ -33,26 +35,81 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
   $esearch->get_response; # parse the response, fetch a cookie
   
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
-                                       -db           => 'protein',
+                                       -db           => 'protein,taxonomy',
                                        -dbfrom       => 'pubmed',
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor');
   
-  my @prot_ids = $elink->get_db_ids('protein'); # retrieves protein UID's
+  # this retrieves the Bio::DB::EUtilities::ElinkData object
+  my ($linkset) = $elink->next_linkset;
+  
+  my @ids;
+  
+  # step through IDs for each linked database in the ElinkData object
+  
+  for my $db ($linkset->get_databases) {   
+    @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
+    # do something here
+  }
+  
+  # multiple ID groups (for one-to-one-correspondence of IDs)
 
+  my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
+                                       -db           => 'all',
+                                       -dbfrom       => 'protein',
+                                       -id           => [\@id1, @ids2],
+                                       -multi_id     => 1,
+                                       -cmd          => 'neighbor');
+
+  for my $linkset ($elink->get_all_linksets) {
+    for my $db ($linkset->get_databases) {
+      my @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
+      # do something here
+    }
+  }
+  
+  # to retrieve scores for a linkset
+
+  for my $linkset ($elink->get_all_linksets) {
+    my @score_dbs = $linkset->has_scores; # retrieve databases with score values
+    for my $db (@score_dbs) {
+      my @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
+      $linkset->set_score_db($db);  # to current database containing scores
+      for my $id (@ids) {
+         my $score = get_score($id);  
+         # do something here, like screen for IDs based on score
+      }
+    }
+  }
+  
+  # or just receive a hash containing ID-score key-value pairs
+  
+  for my $linkset ($elink->get_all_linksets) {
+    my @score_dbs = $linkset->has_scores; 
+    for my $db (@score_dbs) {
+      $linkset->set_score_db($db);
+      %scores = $linkset->get_score_hash;
+    }
+  }
+  
 =head1 DESCRIPTION
 
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
 
 The EUtility Elink is used to check for and retrieve external or related ID's
-from a list of one or more primary ID's.  There are some pretty variations on
-what can be returned based on the parameters used.  
+from a list of one or more primary ID's.  Using the C<cmd> parameter, one can
+vary the returned data.  See the below command options for explanations on
+returned XML output.  For certain command options one can retrieve one or more
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> objects to be used in
+other EUtility searches or efetch primary IDs.  Other will return the ID
+information and relevancy scores in one or more
+L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData> objects.
 
 =head2 Parameters
 
 The following are a general list of parameters that can be used to take
-advantage of ELink.  Up-to-date help for ELink is available here (all information
-below is from this location):
+advantage of ELink.  Up-to-date help for ELink is available at this URL
+(the information below is a summary of the options found there):
 
   http://eutils.ncbi.nlm.nih.gov/entrez/query/static/elink_help.html
 
@@ -60,8 +117,13 @@ below is from this location):
 
 =item C<db>
 
-one or more database available through EUtilities if set to 'all', will retrieve
-all related ID's from each database (see method get_db_ids to retrieve these).
+One or more database available through EUtilities. If set to 'all', will
+retrieve all relelvant information from each database based on the C<cmd>
+parameter (the default setting is to retrieve related primary ID's).  One
+interesting behaviour is when C<db> and C<dbfrom> are set to the same database;
+related IDs from database are retrieved along with a relevancy score.  This
+score differs from database to database; if protein-protein elinks are sought,
+the scores are generated from BLASTP
 
 =item C<dbfrom>
 
@@ -148,6 +210,9 @@ e.g., Related Articles in PubMed.
 =item C<neighbor>
 
 The default setting. Display neighbors and their scores within a database.
+This module will parse XML output from an ELink query and will return a
+L<Bio::DB::EUtilities::ElinkData> object, which contains IDs for every database
+liked to using C<db> (see C<id> and C<db> for more details).  
 
 =item C<neighbor_history>
 
@@ -406,16 +471,6 @@ sub multi_id {
 	return $self->{'_multi_id'};
 }
 
-sub _add_linkset {
-    my $self = shift;
-    if (@_) {
-        my $data_links = shift;
-        $self->throw("Expecting a Bio::DB::EUtilities::ElinkData, got $data_links.")
-          unless $data_links->isa("Bio::DB::EUtilities::ElinkData");
-        push @{ $self->{'_linksets'} }, $data_links;
-    }
-}
-
 sub next_linkset {
     my $self = shift;
     if ($self->{'_linksets'}) {
@@ -431,6 +486,16 @@ sub get_all_linksets {
 sub reset_linksets{
     my $self = shift;
     $self->{'_linksets'} = [];
+}
+
+sub _add_linkset {
+    my $self = shift;
+    if (@_) {
+        my $data_links = shift;
+        $self->throw("Expecting a Bio::DB::EUtilities::ElinkData, got $data_links.")
+          unless $data_links->isa("Bio::DB::EUtilities::ElinkData");
+        push @{ $self->{'_linksets'} }, $data_links;
+    }
 }
 
 =head2 Methods inherited from L<Bio::DB::EUtilities|Bio::DB::EUtilities>
@@ -494,8 +559,6 @@ sub reset_linksets{
  Function: resets the parameters for a EUtility with args (in @args)
  Returns : none
  Args    : array of arguments (arg1 => value, arg2 => value)
-
-B<Experimental method at this time>
 
 =cut
 

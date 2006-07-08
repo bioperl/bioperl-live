@@ -48,10 +48,11 @@ sub _add_set {
             my $id = $id_ref->{Id};
             my $score = $id_ref->{Score} ? $id_ref->{Score} : undef;
             push @ids, $id;
+            # set up in case there are multiple databases that return scores
             if ($score) {
-                $self->{'_scores'}->{$id} = $score;
+                $self->{'_scores'}->{$dbto}->{$id} = $score;
                 if (!($self->{'_has_scores'})) {
-                    $self->{'_has_scores'} = $dbto;
+                    push @{ $self->{'_has_scores'} }, $dbto;
                 }
             }
         }
@@ -85,7 +86,8 @@ sub command {
 
 sub has_scores {
     my $self = shift;
-    return $self->{'_has_scores'};
+    return @{ $self->{'_has_scores'} } if wantarray;
+    return $self->{'_has_scores'}->[0];
 }
 
 # remodel these to be something along the lines of next_cookie, but use closure
@@ -112,17 +114,34 @@ sub get_databases {
 sub get_score {
     my $self = shift;
     my $id = shift if @_;
-    $self->warn("No scores!") if !$self->has_scores;
-    $self->warn("Must use ID to access scores") if !$id;
-    if ($self->{'_scores'}->{$id} ) {
-        return $self->{'_scores'}->{$id};
+    if (!$self->has_scores) {
+        $self->warn("No scores!");
+        return;
+    }
+    if (!$id) {
+        $self->warn("Must use ID to access scores");
+    }
+    my $db = $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->has_scores;
+    if ( $self->{'_scores'}->{$db}->{$id} ) {
+        return $self->{'_scores'}->{$db}->{$id};
     }
 }
 
 sub get_score_hash {
     my $self = shift;
     $self->warn("No scores!") if !$self->has_scores;
-    return %{ $self->{'_scores'} };
+    my $db = $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->has_scores;
+    if ($self->{'_scores'}->{$db}) {
+        return %{ $self->{'_scores'}->{$db} };
+    }
+}
+
+sub set_score_db {
+    my $self = shift;
+    my $db = shift if @_;
+    if ($db && grep {$_ eq $db} $self->has_scores) {
+        $self->{'_scoredb'} = shift;
+    }
 }
 
 1;
