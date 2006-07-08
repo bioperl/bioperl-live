@@ -98,9 +98,9 @@ sub get_LinkIds_by_db {
     $self->throw("Must use database to access IDs") if !$db;
     for my $linkset (@{ $self->{'_linksetdb'}}) {
         my $dbto = $linkset->{DbTo};
-        if ($dbto == $db) {
-            return @{ $linkset->{DbTo} } if wantarray;
-            return $linkset->{DbTo};
+        if ($dbto eq $db) {
+            return @{ $linkset->{Id} } if wantarray;
+            return $linkset->{Id};
         }
     }
     $self->warn("Couldn't find ids for database $db");

@@ -41,8 +41,8 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
                                        -cmd          => 'neighbor');
   
   # this retrieves the Bio::DB::EUtilities::ElinkData object
-  my ($linkset) = $elink->next_linkset;
   
+  my ($linkset) = $elink->next_linkset;
   my @ids;
   
   # step through IDs for each linked database in the ElinkData object
