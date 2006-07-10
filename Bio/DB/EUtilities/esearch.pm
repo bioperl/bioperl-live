@@ -136,7 +136,7 @@ sub parse_response {
         $self->warn("NCBI esearch Errors/Warnings:\n".$err_warn)
     }
     my $id_ref = $simple->{IdList}->{Id};
-    $self->_add_db_ids($db, $id_ref) if ($db && $id_ref);
+    $self->_add_db_ids($id_ref) if ($id_ref);
     if ($history && $history eq 'y') {
 		my $count = $simple->{Count};
 		$self->count($count);

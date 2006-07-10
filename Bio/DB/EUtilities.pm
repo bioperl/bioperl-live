@@ -236,7 +236,7 @@ BEGIN {
                  'unists'           => 'xml',
                  );
     @PARAMS = qw(rettype usehistory term field tool reldate mindate
-        maxdate datetype retstart retmax sort_results seq_start seq_stop strand
+        maxdate datetype retstart retmax sort seq_start seq_stop strand
         complexity report dbfrom cmd holding version linkname);
 	for my $method (@PARAMS) {
 		eval <<END;
@@ -518,15 +518,11 @@ sub _submit_request {
 	my $self = shift;
     my %params = $self->_get_params;
     my $eutil = $self->_eutil;
-    # build id list here
-    my $id_string;
-    # manually build ID list
     if ($self->id) {
         # this is in case multiple id groups are present
         if ($self->can('multi_id') && $self->multi_id) {
-            # elink can handle multiple id groups if groups are together in
-            # an array reference and each group is an array ref;
-            # ids and arrays here are flattened into individual groups
+            # multiple id groups if groups are together in an array reference
+            # ids and arrays are flattened into individual groups
             for my $id_group (@{ $self->id }) {
                 if (ref($id_group) eq 'ARRAY') {
                     push @{ $params{'id'} }, (join q(,), @{ $id_group });
@@ -574,7 +570,7 @@ sub _get_params {
     # add tests for WebEnv/query_key and id (don't need both)
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
-      qw(db sort_results seq_start seq_stop strand complexity rettype
+      qw(db sort seq_start seq_stop strand complexity rettype
         retstart retmax cmd linkname) :
               @PARAMS;
     for my $method (@final) {
@@ -592,11 +588,6 @@ sub _get_params {
                     $cookie ? $cookie->database :
                     'nucleotide';
     # to get around main function sort
-    if ($params{'sort_results'}) {
-        $params{'sort'} = $params{'sort_results'};
-        delete $params{'sort_results'};
-        # sort is broken with 'pub+date', interface doesn't like escaped '+'
-    }
     unless ($self->rettype) { # set by user
         my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific
