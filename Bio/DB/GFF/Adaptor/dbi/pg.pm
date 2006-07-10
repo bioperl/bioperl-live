@@ -91,7 +91,7 @@ SELECT fref,
        fstrand,
        gname
   FROM fdata,fgroup
-  WHERE fgroup.gname=?
+  WHERE lower(fgroup.gname) = lower(?)
     AND fgroup.gclass=?
     AND fgroup.gid=fdata.gid
     GROUP BY fref,fstrand,gclass,gname
@@ -142,9 +142,9 @@ SELECT fref,
        max(fstop),
        fstrand
   FROM fdata,fgroup
-  WHERE fgroup.gname=?
+  WHERE lower(fgroup.gname) = lower(?)
     AND fgroup.gclass=?
-    AND fdata.fref=?
+    AND lower(fdata.fref) = lower(?)
     AND fgroup.gid=fdata.gid
     GROUP BY fref,fstrand,gclass
 END
@@ -552,7 +552,7 @@ sub setup_load {
   my $insert_type = $dbh->prepare_delayed('INSERT INTO ftype (fmethod,fsource) VALUES (?,?)');
   my $insertid_type = $dbh->prepare_delayed("SELECT currval('ftype_ftypeid_seq')");
 
-  my $lookup_group = $dbh->prepare_delayed('SELECT gid FROM fgroup WHERE gname=? AND gclass=?');
+  my $lookup_group = $dbh->prepare_delayed('SELECT gid FROM fgroup WHERE lower(gname)=lower(?) AND gclass=?');
   my $insert_group = $dbh->prepare_delayed('INSERT INTO fgroup (gname,gclass) VALUES (?,?)');
   my $insertid_group = $dbh->prepare_delayed("SELECT currval('fgroup_gid_seq')");
 
@@ -1200,6 +1200,155 @@ sub make_features_by_name_where_part {
     $name =~ tr/*/%/;
     return ("fgroup.gclass=? AND lower(fgroup.gname) LIKE lower(?)",$class,$name);
   }
+}
+
+#
+# Methods from dbi.pm that need to be overridden to make
+# searching for fref case insensitive
+#
+#
+sub get_dna {
+  my $self = shift;
+  my ($ref,$start,$stop,$class) = @_;
+
+  my ($offset_start,$offset_stop);
+
+  my $has_start = defined $start;
+  my $has_stop  = defined $stop;
+
+  my $reversed;
+  if ($has_start && $has_stop && $start > $stop) {
+    $reversed++;
+    ($start,$stop) = ($stop,$start);
+  }
+
+  # turn start and stop into 0-based offsets
+  my $cs = $self->dna_chunk_size;
+  $start -= 1;  $stop -= 1;
+  $offset_start = int($start/$cs)*$cs;
+  $offset_stop  = int($stop/$cs)*$cs;
+
+  my $sth;
+  # special case, get it all
+  if (!($has_start || $has_stop)) {
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where lower(fref)=lower(?) order by foffset',$ref);
+  }
+
+  elsif (!$has_stop) {
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where lower(fref)=lower(?) and foffset>=? order by foffset',
+                                $ref,$offset_start);
+  }
+
+  else {  # both start and stop defined
+    $sth = $self->dbh->do_query('select fdna,foffset from fdna where lower(fref)=lower(?) and foffset>=? and foffset<=? order by foffset',
+                                $ref,$offset_start,$offset_stop);
+  }
+
+  my $dna = '';
+  while (my($frag,$offset) = $sth->fetchrow_array) {
+      substr($frag,0,$start-$offset) = '' if $has_start && $start > $offset;
+      $dna .= $frag;
+  }
+  substr($dna,$stop-$start+1) = '' if $has_stop && $stop-$start+1 < length($dna);
+  if ($reversed) {
+    $dna = reverse $dna;
+    $dna =~ tr/gatcGATC/ctagCTAG/;
+  }
+
+  $sth->finish;
+  $dna;
+}
+
+
+sub refseq_query {
+  my $self = shift;
+  my ($refseq,$refclass) = @_;
+  my $query = "lower(fdata.fref)=lower(?)";
+  return wantarray ? ($query,$refseq) : $self->dbh->dbi_quote($query,$refseq);
+}
+
+sub make_types_where_part {
+  my $self = shift;
+  my ($srcseq,$start,$stop,$want_count,$typelist) = @_;
+  my (@query,@args);
+  if (defined($srcseq)) {
+    push @query,'lower(fdata.fref)=lower(?)';
+    push @args,$srcseq;
+    if (defined $start or defined $stop) {
+      $start = 1           unless defined $start;
+      $stop  = MAX_SEGMENT unless defined $stop;
+      my ($q,@a) = $self->overlap_query($start,$stop);
+      push @query,"($q)";
+      push @args,@a;
+    }
+  }
+  if (defined $typelist && @$typelist) {
+    my ($q,@a) = $self->types_query($typelist);
+    push @query,($q);
+    push @args,@a;
+  }
+  my $query = @query ? join(' AND ',@query) : '1=1';
+  return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+}
+
+sub get_feature_id {
+  my $self = shift;
+  my ($ref,$start,$stop,$typeid,$groupid) = @_;
+  my $s = $self->{load_stuff};
+  unless ($s->{get_feature_id}) {
+    my $dbh = $self->features_db;
+    $s->{get_feature_id} =
+      $dbh->prepare_delayed('SELECT fid FROM fdata WHERE lower(fref)=lower(?) AND fstart=? AND fstop=? AND ftypeid=? AND gid=?');
+  }
+  my $sth = $s->{get_feature_id} or return;
+  $sth->execute($ref,$start,$stop,$typeid,$groupid) or return;
+  my ($fid) = $sth->fetchrow_array;
+  return $fid;
+}
+
+sub _delete {
+  my $self = shift;
+  my $delete_spec = shift;
+  my $ranges      = $delete_spec->{segments} || [];
+  my $types       = $delete_spec->{types}    || [];
+  my $force       = $delete_spec->{force};
+  my $range_type  = $delete_spec->{range_type};
+  my $dbh         = $self->features_db;
+
+  my $query = 'delete from fdata';
+  my @where;
+
+  my @range_part;
+  for my $segment (@$ranges) {
+    my $ref   = $dbh->quote($segment->abs_ref);
+    my $start = $segment->abs_start;
+    my $stop  = $segment->abs_stop;
+    my $range =  $range_type eq 'overlaps'     ? $self->overlap_query($start,$stop)
+               : $range_type eq 'contains'     ? $self->contains_query($start,$stop)
+               : $range_type eq 'contained_in' ? $self->contained_in_query($start,$stop)
+               : $self->throw("Invalid range type '$range_type'");
+    push @range_part,"(lower(fref)=lower($ref) AND $range)";
+  }
+  push @where,'('. join(' OR ',@range_part).')' if @range_part;
+
+  # get all the types
+  if (@$types) {
+    my $types_where = $self->types_query($types);
+    my $types_query = "select ftypeid from ftype where $types_where";
+    my $result      = $dbh->selectall_arrayref($types_query);
+    my @typeids     = map {$_->[0]} @$result;
+    my $typelist    = join ',',map{$dbh->quote($_)} @typeids;
+    $typelist ||= "0"; # don't cause DBI to die with invalid SQL when
+                       # unknown feature types were requested.
+    push @where,"(ftypeid in ($typelist))";
+  }
+  $self->throw("This operation would delete all feature data and -force not specified")
+    unless @where || $force;
+  $query .= " where ".join(' and ',@where) if @where;
+  warn "$query\n" if $self->debug;
+  my $result = $dbh->do($query);
+  defined $result or $self->throw($dbh->errstr);
+  $result;
 }
 
 
