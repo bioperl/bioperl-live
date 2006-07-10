@@ -1351,6 +1351,36 @@ sub _delete {
   $result;
 }
 
+sub make_abscoord_query {
+  my $self = shift;
+  my ($name,$class,$refseq) = @_;
+  #my $query = GETSEQCOORDS;
+  my $query = $self->getseqcoords_query();
+  my $getforcedseqcoords = $self->getforcedseqcoords_query() ;
+  if ($name =~ /\*/) {
+    $name =~ s/%/\\%/g;
+    $name =~ s/_/\\_/g;
+    $name =~ tr/*/%/;
+    $query =~ s/gname\) = lower/gname) LIKE lower/;
+  }
+  defined $refseq 
+    ? $self->dbh->do_query($getforcedseqcoords,$name,$class,$refseq)
+    : $self->dbh->do_query($query,$name,$class);
+}
+
+sub make_aliasabscoord_query {
+  my $self = shift;
+  my ($name,$class) = @_;
+  #my $query = GETALIASCOORDS;
+  my $query = $self->getaliascoords_query();
+  if ($name =~ /\*/) {
+    $name =~ s/%/\\%/g;
+    $name =~ s/_/\\_/g;
+    $name =~ tr/*/%/;
+    $query =~ s/gname\) = lower/gname) LIKE lower/;
+  }
+  $self->dbh->do_query($query,$name,$class);
+}
 
 
 1;
