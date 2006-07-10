@@ -26,7 +26,7 @@ use Bio::DB::EUtilities;
                                          -term       => 'hutP',
                                          -usehistory => 'y');
   
-  $esearch->get_response; # parse the response, fetch a cookie
+  $esearch->post_request; # parse the response, fetch a cookie
   
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
                                        -db           => 'protein',
@@ -34,7 +34,7 @@ use Bio::DB::EUtilities;
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor_history');
   
-  $elink->get_response; # parse the response, fetch the next cookie
+  $elink->post_request; # parse the response, fetch the next cookie
   
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -retmax       => 10,
@@ -372,17 +372,16 @@ sub parse_response {
 
  Title   : get_response
  Usage   : $db->get_response($content)
- Function: main method to retrieve data stream; parses out response for cookie
+ Function: main method to submit request and retrieves a response
  Returns : HTTP::Response object
- Args    : optional : Bio::DB::EUtilities::cookie from a previous search
- Throws  : 'not a cookie' exception, response errors (via HTTP::Response)
+ Args    : None
 
 =cut
 
 sub get_response {
     my $self = shift;
     my $response = $self->_submit_request;
-    if ($response->is_error) {
+    if (!$response->is_success) {
         $self->throw(ref($self)." Request Error:".$response->as_string);
     }
     $self->parse_response($response);  # grab cookies and what not
@@ -417,24 +416,33 @@ sub reset_parameters {
  Title   : get_db_ids
  Usage   : $count = $elink->get_db_ids($db);
            %hash  = $elink->get_db_ids();
- Function: returns an array or array ref if a database is the argument,
-           otherwise returns a hash of the database (keys) and id_refs (values)
- Returns : array or array ref of ids (arg=database) or hash of
-           database-array_refs (no args)
- Args    : database string;
+ Function: returns an array or array ref of IDs,
+ Returns : array or array ref of ids 
+ Args    : database string if elink used (only for single linksets!)
 
 =cut
 
 sub get_db_ids {
     my $self = shift;
-    my $key = shift if @_;
-    unless ($key) {
-        return %{ $self->{'_db_ids'} } if ($self->{'_db_ids'}
-                                       && ref($self->{'_db_ids'}) eq 'HASH');
+    my $user_db = shift if @_;
+    if ($self->can('next_linkset')) {
+        my $db = $self->db;
+        if (!$user_db && ($db eq 'all' || $db =~ /,/) ) {
+            $self->throw(q(Multiple databases searched; use a specific).
+                         q(database as an argument) );
+        }
+        if ($self->total_linksets == 1) {
+            my $linkset = $self->next_linkset;
+            my ($db) = $user_db ? $user_db : $linkset->get_databases;
+            $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
+        }
+        else {
+            $self->throw(q(Multiple linksets present));
+        }
     }
-    if ($key && $self->{'_db_ids'}->{$key}) {
-        return @{$self->{'_db_ids'}->{$key}} if wantarray;
-        return $self->{'_db_ids'}->{$key};
+    if ($self->{'_db_ids'}) {
+        return @{$self->{'_db_ids'}} if wantarray;
+        return $self->{'_db_ids'};
     }
 }
 
@@ -473,10 +481,9 @@ sub delay_policy {
 # used by esearch and elink, hence here
 
 sub _add_db_ids {
-    my ($self, $db, $ids) = @_;
-    $self->throw ("Must have db-id pair for hash") unless ($db && $ids);
-    $self->throw ("IDs must be an ARRAY reference") unless ref($ids) eq 'ARRAY';
-    $self->{'_db_ids'}->{$db} = $ids; 
+    my ($self, $ids) = @_;
+    $self->throw ("IDs must be an ARRAY reference") unless ref($ids) =~ /ARRAY/i;
+    $self->{'_db_ids'} = $ids; 
 }
 
 =head2 _eutil
@@ -562,13 +569,13 @@ sub _submit_request {
 
 sub _get_params {
     my $self = shift;
-    my $cookie = $self->get_all_cookies? $self->next_cookies : 0;
+    my $cookie = $self->get_all_cookies? $self->next_cookie : 0;
     my @final;
     # add tests for WebEnv/query_key and id (don't need both)
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
       qw(db sort_results seq_start seq_stop strand complexity rettype
-        retstart retmax cmd) :
+        retstart retmax cmd linkname) :
               @PARAMS;
     for my $method (@final) {
         if ($self->$method) {

@@ -397,19 +397,18 @@ sub parse_response {
     }
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content,
-                            forcearray => [qw(LinkSetDb LinkSetDbHistory Link)]);
+                            forcearray => [qw(LinkSet LinkSetDb LinkSetDbHistory)]);
     # check for errors
     if ($simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
-	#$self->debug("Response dumper:\n".Dumper($simple));
-
-    my $cmd = $self->cmd;
+	$self->debug("Response dumper:\n".Dumper($simple));
+    my $cmd = $self->cmd ? $self->cmd : 'neighbor'; # set default cmd
     # process possible cookies first
-    if ($cmd && $cmd eq 'neighbor_history') {
+    if (defined($cmd) && $cmd eq 'neighbor_history') {
         # process each LinkSet hash, one at at time;  
         # No scores when using history (only ids)
-        if (! $simple->{LinkSet}->{LinkSetDbHistory} ) {
+        if (! $simple->{LinkSet} ) {
             $self->warn('No link history');
             return;
         }
@@ -423,27 +422,29 @@ sub parse_response {
                 my $lname = $history->{LinkName};
                 my $db = $history->{DbTo};
                 my $cookie = Bio::DB::EUtilities::Cookie->new(
-                                                     -webenv    => $webenv,
-                                                     -querykey  => $query_key,
-                                                     -eutil     => 'elink',
-                                                     -database  => $db,
-                                                     -dbfrom    => $dbfrom,
-                                                     -query_id  => $from_ids,
-                                                     -linkname  => $lname,
-                                                    );
+                                        -verbose   => $self->verbose,
+                                        -webenv    => $webenv,
+                                        -querykey  => $query_key,
+                                        -eutil     => 'elink',
+                                        -database  => $db,
+                                        -dbfrom    => $dbfrom,
+                                        -query_id  => $from_ids,
+                                        -linkname  => $lname,
+                                        );
                 $self->add_cookie($cookie);
             }
         }
         return;
     }
-    elsif ($cmd eq 'neighbor' || !$cmd) { # only parsing cmd=neighbor or cmd=neighbor_history for now
+    elsif ($cmd eq 'neighbor' || !$cmd) {
         if (!$simple->{LinkSet}) {
             $self->warn('No returned links.');
             return;
         }
         for my $linkset (@{ $simple->{LinkSet} }) {
-            my $linkobj = Bio::DB::EUtilities::ElinkData->new(-verbose => $self->verbose,
-                                                              -command =>$cmd);
+            my $linkobj = Bio::DB::EUtilities::ElinkData->new
+                                (-verbose => $self->verbose,
+                                 -command =>$cmd);
             $linkobj->_add_set($linkset);
             $self->_add_linkset($linkobj);
         }
@@ -451,7 +452,6 @@ sub parse_response {
         $self->warn("$cmd not yet supported; no parsing occurred");
         return;
         # need to add a few things for cmd=llinks
-        
     }
 }
 
@@ -476,6 +476,7 @@ sub next_linkset {
     if ($self->{'_linksets'}) {
         return shift @{ $self->{'_linksets'} };
     }
+    $self->{'_tot_linksets'}--;
 }
 
 sub get_all_linksets {
@@ -486,6 +487,12 @@ sub get_all_linksets {
 sub reset_linksets{
     my $self = shift;
     $self->{'_linksets'} = [];
+    $self->{'_tot_linksets'} = 0;
+}
+
+sub total_linksets {
+    my $self = shift;
+    return $self->{'_tot_linksets'};
 }
 
 sub _add_linkset {
@@ -495,6 +502,7 @@ sub _add_linkset {
         $self->throw("Expecting a Bio::DB::EUtilities::ElinkData, got $data_links.")
           unless $data_links->isa("Bio::DB::EUtilities::ElinkData");
         push @{ $self->{'_linksets'} }, $data_links;
+        $self->{'_tot_linksets'}++;
     }
 }
 
