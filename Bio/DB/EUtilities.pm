@@ -26,7 +26,7 @@ use Bio::DB::EUtilities;
                                          -term       => 'hutP',
                                          -usehistory => 'y');
   
-  $esearch->post_request; # parse the response, fetch a cookie
+  $esearch->get_response; # parse the response, fetch a cookie
   
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
                                        -db           => 'protein',
@@ -34,7 +34,7 @@ use Bio::DB::EUtilities;
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor_history');
   
-  $elink->post_request; # parse the response, fetch the next cookie
+  $elink->get_response; # parse the response, fetch the next cookie
   
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -retmax       => 10,
@@ -65,7 +65,7 @@ related web tools (Entrez Utilitites, or EUtilities).  Using the base class
 GenericWebDBI, one could also build web interfaces to other databases to access
 anything via CGI parameters.
 
-Currently, you can access to any database available through the NCBI interface:
+Currently, you can access any database available through the NCBI interface:
 
   http://eutils.ncbi.nlm.nih.gov/
 
@@ -85,8 +85,8 @@ the NCBI Entrez Utilities page:
   http://eutils.ncbi.nlm.nih.gov/entrez/query/static/eutils_help.html
 
 At this time, retrieving the response is accomplished by using the method
-get_response (which also parses for cookie information, see below).  This
-method returns an HTTP::Response object.  The raw data is accessed by using
+get_response (which also parses for cookies and other information, see below).
+This method returns an HTTP::Response object.  The raw data is accessed by using
 the object method content, like so:
 
   my $efetch = Bio::DB::EUtilities->new(
@@ -110,10 +110,11 @@ on a user's computer when browsing the Web.  XML data returned by these
 EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
 and 'query_key' tags to be specific)  The information along with other identifying
 data, such as the calling eutility, description of query, etc.) is stored as a
-Bio::DB::EUtilities::Cookie object in an internal queue.  These can be retrieved
-one at a time by using the next_cookie method or all at once in an array using
-get_all_cookies.  Each cookie can then be 'fed', one at a time, to another
-EUtility object, thus enabling chained queries as demonstrated in the synopsis.
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> object in an internal
+queue.  These can be retrieved one at a time by using the next_cookie method or
+all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
+one at a time, to another EUtility object, thus enabling chained queries as
+demonstrated in the synopsis.
 
 By default, a EUtilities object will retrieve records using a cookie if the
 cookie parameter is set.  Also, the object will use the database parameter
@@ -122,10 +123,6 @@ upon instantiation:
 
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -rettype      => 'fasta');
-
-ELink, in particular, is capable of returning multiple cookies based on the
-setting for the database; if db is set to 'all', you will retrieve a cookie for
-each database with related records.  
 
 =head1 TODO
 
@@ -177,15 +174,12 @@ use strict;
 use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
             $DEFAULT_TOOL);
 use Bio::DB::GenericWebDBI;
-use HTTP::Request::Common;
 use URI;
-use URI::Escape qw(uri_escape uri_unescape);
 use Data::Dumper;
 
 @ISA = qw(Bio::DB::GenericWebDBI);
 
 BEGIN {
-    $MAX_ENTRIES = 19000;
     $DEFAULT_TOOL = 'bioperl';
     # default host base
     $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
@@ -278,6 +272,7 @@ sub _initialize {
     if ($cookie) {
         $self->add_cookie($cookie);
     }
+    $self->{'_cookieindex'} = 0;
 }
 
 =head2 add_cookie
@@ -312,10 +307,9 @@ sub add_cookie {
 
 sub next_cookie {
     my $self = shift;
-    my $total = $#{$self->{'_cookie'} } + 1;
-    $self->debug('Cookie Jar Total: '.$total."\n" );
+    my $index = $self->_next_cookie_index;
     if ($self->{'_cookie'}) {
-        return shift @{ $self->{'_cookie'} };
+        return $self->{'_cookie'}->[$index];
     } else {
         $self->warn("No cookies left in the jar!");
     }
@@ -334,6 +328,7 @@ sub next_cookie {
 sub reset_cookies {
     my $self = shift;
     $self->{'_cookie'} = [];
+    $self->{'_cookieindex'} = 0;
 }
 
 =head2 get_all_cookies
@@ -407,37 +402,39 @@ sub reset_parameters {
         }
     }
     $self->reset_cookies; # no baggage allowed
-    # resetting the EUtility will not occur even if added asa a parameter;
+    # resetting the EUtility will not occur even if added as a a parameter;
     $self->_initialize(@args); 
 }
 
-=head2 get_db_ids
+=head2 get_ids
 
- Title   : get_db_ids
- Usage   : $count = $elink->get_db_ids($db);
-           %hash  = $elink->get_db_ids();
+ Title   : get_ids
+ Usage   : $count = $elink->get_ids($db);   # array ref of specific db ids (elink only)
+           @ids   = $esearch->get_ids(); # array
+           $ids   = $esearch->get_ids(); # array ref
  Function: returns an array or array ref of IDs,
  Returns : array or array ref of ids 
  Args    : database string if elink used (only for single linksets!)
 
 =cut
 
-sub get_db_ids {
+sub get_ids {
     my $self = shift;
     my $user_db = shift if @_;
     if ($self->can('next_linkset')) {
         my $db = $self->db;
         if (!$user_db && ($db eq 'all' || $db =~ /,/) ) {
-            $self->throw(q(Multiple databases searched; use a specific).
-                         q(database as an argument) );
+            $self->throw(q(Multiple databases searched; use a specific ).
+                         q(database as an argument.) );
         }
-        if ($self->total_linksets == 1) {
+        if ($self->total_linksets == 1 && !$self->multi_id) {
             my $linkset = $self->next_linkset;
             my ($db) = $user_db ? $user_db : $linkset->get_databases;
             $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
         }
         else {
-            $self->throw(q(Multiple linksets present));
+            $self->throw( q(Multiple linkset objects present; can't use get_ids.).
+                 qq(\nUse get_all_linksets/get_databases/get_LinkIds_by_db ));
         }
     }
     if ($self->{'_db_ids'}) {
@@ -618,6 +615,11 @@ END
   ;
   }
   return $ok;
+}
+
+sub _next_cookie_index {
+    my $self = shift;
+    return $self->{'_cookieindex'}++;
 }
 
 1;

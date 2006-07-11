@@ -61,7 +61,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
                                        -multi_id     => 1,
                                        -cmd          => 'neighbor');
 
-  for my $linkset ($elink->get_all_linksets) {
+  while (my $linkset = $elink->next_linkset) {
     for my $db ($linkset->get_databases) {
       my @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
       # do something here
@@ -70,7 +70,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
   
   # to retrieve scores for a linkset
 
-  for my $linkset ($elink->get_all_linksets) {
+  while (my $linkset = $elink->next_linkset) {
     my @score_dbs = $linkset->has_scores; # retrieve databases with score values
     for my $db (@score_dbs) {
       my @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
@@ -84,7 +84,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
   
   # or just receive a hash containing ID-score key-value pairs
   
-  for my $linkset ($elink->get_all_linksets) {
+  while (my $linkset = $elink->next_linkset) {
     my @score_dbs = $linkset->has_scores; 
     for my $db (@score_dbs) {
       $linkset->set_score_db($db);
@@ -118,7 +118,7 @@ advantage of ELink.  Up-to-date help for ELink is available at this URL
 =item C<db>
 
 One or more database available through EUtilities. If set to 'all', will
-retrieve all relelvant information from each database based on the C<cmd>
+retrieve all relevant information from each database based on the C<cmd>
 parameter (the default setting is to retrieve related primary ID's).  One
 interesting behaviour is when C<db> and C<dbfrom> are set to the same database;
 related IDs from database are retrieved along with a relevancy score.  This
@@ -374,6 +374,7 @@ sub _initialize {
     $holding    && $self->holding($holding);
     $linkname   && $self->linkname($linkname);
 	$multi_id	&& $self->multi_id($multi_id);
+    $self->{'_linksetindex'} = 0;
 }
 
 =head2 parse_response
@@ -397,7 +398,7 @@ sub parse_response {
     }
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content,
-                            forcearray => [qw(LinkSet LinkSetDb LinkSetDbHistory)]);
+            forcearray => [qw(LinkSet LinkSetDb LinkSetDbHistory Link)]);
     # check for errors
     if ($simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
@@ -473,10 +474,10 @@ sub multi_id {
 
 sub next_linkset {
     my $self = shift;
+    my $index = $self->_next_linkset_index;
     if ($self->{'_linksets'}) {
-        return shift @{ $self->{'_linksets'} };
+        return $self->{'_linksets'}->[$index] ;
     }
-    $self->{'_tot_linksets'}--;
 }
 
 sub get_all_linksets {
@@ -495,6 +496,11 @@ sub total_linksets {
     return $self->{'_tot_linksets'};
 }
 
+sub _next_linkset_index {
+    my $self = shift;
+    return $self->{'_linksetindex'}++;
+}
+
 sub _add_linkset {
     my $self = shift;
     if (@_) {
@@ -508,81 +514,6 @@ sub _add_linkset {
 
 =head2 Methods inherited from L<Bio::DB::EUtilities|Bio::DB::EUtilities>
 
-=head3 add_cookie
-
- Title   : cookie
- Usage   : $db->add_cookie($cookie)
- Function: adds an NCBI query cookie to the internal cookie queue
- Returns : none
- Args    : a Bio::DB::EUtilities::Cookie object
-
-=cut
-
-=head3 next_cookie
-
- Title   : next_cookie
- Usage   : $cookie = $db->next_cookie
- Function: return a cookie from the internal cookie queue
- Returns : a Bio::DB::EUtilities::Cookie object
- Args    : none
-
-=cut
-
-=head3 reset_cookies
-
- Title   : reset_cookie
- Usage   : $db->reset_cookie
- Function: resets the internal cookie queue
- Returns : none
- Args    : none
-
-=cut
-
-=head3 get_all_cookies
-
- Title   : get_all_cookies
- Usage   : @cookies = $db->get_all_cookies
- Function: retrieves all cookies from the internal cookie queue; this leaves
-           the cookies in the queue intact 
- Returns : array of Bio::DB::EUtilities::cookie objects
- Args    : none
-
-=cut
-
-=head3 get_response
-
- Title   : get_response
- Usage   : $db->get_response($content)
- Function: main method to retrieve data stream; parses out response for cookie
- Returns : HTTP::Response object
- Args    : optional : Bio::DB::EUtilities::cookie from a previous search
- Throws  : 'not a cookie' exception, response errors (via HTTP::Response)
-
-=cut
-
-=head3 reset_parameters 
-
- Title   : reset_parameters
- Usage   : $db->reset_parameters(@args);
- Function: resets the parameters for a EUtility with args (in @args)
- Returns : none
- Args    : array of arguments (arg1 => value, arg2 => value)
-
-=cut
-
-=head3 get_db_ids
-
- Title   : get_db_ids
- Usage   : $count = $elink->get_db_ids($db); # gets array ref of IDs
-           @count = $elink->get_db_ids($db); # gets array of IDs
-           %hash  = $elink->get_db_ids(); # hash of databases (keys) and array_refs(value)
- Function: returns an array or array ref if a database is the argument,
-           otherwise returns a hash of the database (keys) and id_refs (values)
- Returns : array or array ref of ids (arg=database) or hash of
-           database-array_refs (no args); relies on wantarray
- Args    : database (string);
-
-=cut
 
 1;
 __END__
