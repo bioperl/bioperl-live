@@ -50,20 +50,19 @@ NCBI offers Batch Entrez for this purpose, now accessible here via epost!
 This is a test interface to NCBI's Entrez Utilities.  The main purpose of this
 is to enable access to all of NCBI's databases available through Entrez and
 allow for more complex queries.  It is likely that the API for this module as
-well as the documentation will change dramatically over time.  It's also a
-possibility that, at some point, the SOAP interface at NCBI may be taken
-advantage of using SOAP::Lite or a similar web services interface.  So,
-novice users and neophytes beware!
+well as the documentation will change dramatically over time. So, novice users
+and neophytes beware!
 
-The experimental base class is Bio::DB::GenericWebDBI, which as the name
-implies enables access to any web database which will accept parameters.  This
-was originally born from an idea to replace WebDBSeqI/NCBIHelper with a more
-general web database accession tool so one could access sequence information,
+The experimental base class is L<Bio::DB::GenericWebDBI|Bio::DB::GenericWebDBI>,
+which as the name implies enables access to any web database which will accept
+parameters.  This was originally born from an idea to replace
+WebDBSeqI/NCBIHelper with a more general web database accession tool so one
+could access sequence information, 
 taxonomy, SNP, PubMed, and so on.  However, this may ultimately prove
-to be better used as a replacement for LWP::UserAgent when accessing NCBI-
-related web tools (Entrez Utilitites, or EUtilities).  Using the base class
-GenericWebDBI, one could also build web interfaces to other databases to access
-anything via CGI parameters.
+to be better used as a replacement for L<LWP::UserAgent|LWP::UserAgent> when 
+ccessing NCBI-related web tools (Entrez Utilitites, or EUtilities).  Using the
+base class GenericWebDBI, one could also build web interfaces to other databases
+to access anything via CGI parameters.
 
 Currently, you can access any database available through the NCBI interface:
 
@@ -78,7 +77,7 @@ and so forth) upon instantiating the object using a set of parameters:
                                          -term       => 'dihydroorotase',
                                          -usehistory => 'y');
 
-The default EUtility (when -eutil is left out) is 'efetch'.  For specifics on
+The default EUtility (when C<eutil> is left out) is 'efetch'.  For specifics on
 each EUtility, see their respective POD (**these are incomplete**) or
 the NCBI Entrez Utilities page:
 
@@ -87,7 +86,7 @@ the NCBI Entrez Utilities page:
 At this time, retrieving the response is accomplished by using the method
 get_response (which also parses for cookies and other information, see below).
 This method returns an HTTP::Response object.  The raw data is accessed by using
-the object method content, like so:
+the object method C<content>, like so:
 
   my $efetch = Bio::DB::EUtilities->new(
                                         -cookie       => $elink->next_cookie,
@@ -101,28 +100,26 @@ interested in directly using Bio* objects (such as if genome sequences were to b
 retrieved) one could do so by using the proper EUtility object(s) and query(ies)
 and get the raw response back from NCBI through 'efetch'.  
 
-B<A Note on Cookies:>
+A great deal of the documentation here will likely end up in the form of a HOWTO
+at some future point.
 
-Certain EUtilities (epost, esearch, or elink) are able to retain information on
+=head2 Cookies
+
+Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
 the NCBI server under certain settings.  This information can be retrieved by
-using a 'cookie.'  Here, the idea of the 'cookie' is similar to the 'cookie' set
+using a B<cookie>.  Here, the idea of the 'cookie' is similar to the 'cookie' set
 on a user's computer when browsing the Web.  XML data returned by these
 EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
 and 'query_key' tags to be specific)  The information along with other identifying
 data, such as the calling eutility, description of query, etc.) is stored as a
-L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> object in an internal
+L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal
 queue.  These can be retrieved one at a time by using the next_cookie method or
 all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
 one at a time, to another EUtility object, thus enabling chained queries as
 demonstrated in the synopsis.
 
-By default, a EUtilities object will retrieve records using a cookie if the
-cookie parameter is set.  Also, the object will use the database parameter
-stored in the Bio::DB::EUtilities::cookie object when the parameter isn't set
-upon instantiation:
-
-  my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
-                                        -rettype      => 'fasta');
+For more information, see the POD documentation for
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie>.
 
 =head1 TODO
 
@@ -175,7 +172,7 @@ use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
             $DEFAULT_TOOL);
 use Bio::DB::GenericWebDBI;
 use URI;
-use Data::Dumper;
+#use Data::Dumper;
 
 @ISA = qw(Bio::DB::GenericWebDBI);
 
@@ -273,6 +270,7 @@ sub _initialize {
         $self->add_cookie($cookie);
     }
     $self->{'_cookieindex'} = 0;
+    $self->{'_cookie'} = [];
 }
 
 =head2 add_cookie
@@ -319,7 +317,7 @@ sub next_cookie {
 
  Title   : reset_cookie
  Usage   : $db->reset_cookie
- Function: resets the internal cookie queue
+ Function: resets (empties) the internal cookie queue
  Returns : none
  Args    : none
 
@@ -345,6 +343,21 @@ sub reset_cookies {
 sub get_all_cookies {
     my $self = shift;
     return @{ $self->{'_cookie'} } if $self->{'_cookie'};
+}
+
+=head2 rewind_cookies
+
+ Title   : rewind_cookies
+ Usage   : $elink->rewind_cookies;
+ Function: resets cookie index to 0 (starts over)
+ Returns : None
+ Args    : None
+
+=cut
+
+sub rewind_cookies{
+    my $self = shift;
+    $self->{'_cookieindex'} = 0;
 }
 
 =head2 parse_response
@@ -383,7 +396,7 @@ sub get_response {
     return $response;
 }
 
-=head2 reset_parameters B<experimental>
+=head2 reset_parameters
 
  Title   : reset_parameters
  Usage   : $db->reset_parameters(@args);
@@ -396,12 +409,10 @@ sub get_response {
 sub reset_parameters {
     my $self = shift;
     my @args = @_;
-    for my $method (@PARAMS) {
-        if ($self->$method) {
-            $self->$method(undef);
-        }
-    }
     $self->reset_cookies; # no baggage allowed
+    if ($self->can('next_linkset')) {
+        $self->reset_linksets;
+    }
     # resetting the EUtility will not occur even if added as a a parameter;
     $self->_initialize(@args); 
 }
@@ -409,12 +420,14 @@ sub reset_parameters {
 =head2 get_ids
 
  Title   : get_ids
- Usage   : $count = $elink->get_ids($db);   # array ref of specific db ids (elink only)
+ Usage   : $count = $elink->get_ids($db); # array ref of specific db ids
            @ids   = $esearch->get_ids(); # array
            $ids   = $esearch->get_ids(); # array ref
- Function: returns an array or array ref of IDs,
+ Function: returns an array or array ref of IDs.
  Returns : array or array ref of ids 
- Args    : database string if elink used (only for single linksets!)
+ Args    : Optional : database string if elink used (required arg if searching
+           multiple databases for related IDs)
+           Currently implemented only for elink object with single linksets
 
 =cut
 
@@ -424,10 +437,10 @@ sub get_ids {
     if ($self->can('next_linkset')) {
         my $db = $self->db;
         if (!$user_db && ($db eq 'all' || $db =~ /,/) ) {
-            $self->throw(q(Multiple databases searched; use a specific ).
+            $self->throw(q(Multiple databases searched; must use a specific ).
                          q(database as an argument.) );
         }
-        if ($self->total_linksets == 1 && !$self->multi_id) {
+        if (scalar($self->get_all_linksets) == 1 && !$self->multi_id) {
             my $linkset = $self->next_linkset;
             my ($db) = $user_db ? $user_db : $linkset->get_databases;
             $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
@@ -465,15 +478,15 @@ sub delay_policy {
 
 =cut
 
-=head2 _add_db_ids
-
- Title   : _add_db_ids
- Usage   : $self->add_db_ids($db, $ids);
- Function: sets internal hash of databases with reference to array of IDs
- Returns : none
- Args    : String (name of database) and ref to array of ID's 
-
-=cut
+#=head2 _add_db_ids
+#
+# Title   : _add_db_ids
+# Usage   : $self->add_db_ids($db, $ids);
+# Function: sets internal hash of databases with reference to array of IDs
+# Returns : none
+# Args    : String (name of database) and ref to array of ID's 
+#
+#=cut
 
 # used by esearch and elink, hence here
 
@@ -501,15 +514,17 @@ sub _eutil   {
     return $self->{'_eutil'};
 }
 
-=head2 _submit_request
+#=head2 _submit_request
+#
+# Title   : _submit_request
+# Usage   : my $url = $self->get_request
+# Function: builds request object based on set parameters
+# Returns : HTTP::Request
+# Args    : optional : Bio::DB::EUtilities cookie
+#
+#=cut
 
- Title   : _submit_request
- Usage   : my $url = $self->get_request
- Function: builds request object based on set parameters
- Returns : HTTP::Request
- Args    : optional : Bio::DB::EUtilities cookie
-
-=cut
+# as the name implies....
 
 sub _submit_request {
 	my $self = shift;
@@ -547,24 +562,20 @@ sub _submit_request {
     }
 }
 
-=head2 _get_params
-
- Title   : _get_params
- Usage   : my $url = $self->_get_params
- Function: builds parameter list for web request
- Returns : hash of parameter-value paris
- Args    : optional : Bio::DB::EUtilities cookie
-
-=cut
-
-# these get sorted out in a hash originally but end up in an array to
-# deal with multiple id parameters (hash values would kill that)
+#=head2 _get_params
+#
+# Title   : _get_params
+# Usage   : my $url = $self->_get_params
+# Function: builds parameter list for web request
+# Returns : hash of parameter-value paris
+# Args    : optional : Bio::DB::EUtilities cookie
+#
+#=cut
 
 sub _get_params {
     my $self = shift;
     my $cookie = $self->get_all_cookies? $self->next_cookie : 0;
-    my @final;
-    # add tests for WebEnv/query_key and id (don't need both)
+    my @final;  # final parameter list; this changes dep. on presence of cookie
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
       qw(db sort seq_start seq_stop strand complexity rettype
@@ -596,6 +607,8 @@ sub _get_params {
     $self->debug("Param: $_\tValue: $params{$_}\n") for keys %params;
     return %params;
 }
+
+# enable dynamic loading of proper module at run time
 
 sub _load_eutil_module {
   my ($self,$eutil) = @_;

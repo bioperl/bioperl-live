@@ -224,7 +224,7 @@ Lists Entrez databases links for multiple IDs from a single database.
 
 =back
 
-=head2 Cookies
+=head2 COOKIES
 
 Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
 the NCBI server under certain settings.  This information can be retrieved by
@@ -239,45 +239,109 @@ all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
 one at a time, to another EUtility object, thus enabling chained queries as
 demonstrated in the synopsis.
 
-By default, a EUtilities object will retrieve records using a cookie if the
-cookie parameter is set.  Also, the object will use the database parameter C<db>
-stored in the L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object
-when that parameter isn't set upon instantiation:
+For more information, see the POD documentation for
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie>.
 
-  my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
-                                        -rettype      => 'fasta');
+=head2 ELINKDATA OBJECTS
 
-ELink, in particular, is capable of returning multiple cookies based on the
-setting for the database; if C<db> is set to C<'all'>, you will retrieve a cookie for
-each database with related records.  
+Due to the diversity of information that can be returned via elink, a special
+object (ElinkData) has been created to hold data parsed from the XML output. This
+object holds returned IDs, scores, and potentially additional data as the need
+arises.  ElinkData objects are stored in an internal queue much like for Cookie
+objects; similarly, they can be accessed using L<next_linkset> and
+L<get_all_linksets>.  If a simple search is initiated, where one database is
+queried using one set of IDs, the default EUtilities method C<get_ids> can be
+used to retrieve the IDs.  If more than one database is specified for a single
+set of IDs, (such as when C<db> is set to 'all' or a comma-separated list, like
+'protein,taxonomy'), the database must be passed explicitly to C<get_ids> as an
+argument to retrieve the relevant IDs.
+
+The most complicated sitation comes when using multiple ID groups (see below).
+This requires that each ID group have a separate set of data (a linkset), each
+with potential multiple databases, multiple IDs, and so on.  In order to retrieve
+data from these, you B<MUST> use the following:
+
+
+
+
+As each ELink database search can encompass more than one
+queried database, ELinkData objects 
+
+For more information, see the POD documentation for
+L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData>.
 
 =head1 CURRENT USES
 
-=head2 complex queries
+=head2 Complex queries
 
 Chaining queries for retrieving related data using elink and other EUtilities is
-now possible (see the L</"SYNOPSIS"> for an example).
+now possible (see the L</"SYNOPSIS"> for an example).  For instance, one can
+grab a large number of taxon IDs using protein/nucleotide IDs; these can be
+retrieved directly or saved on the server (setting C<cmd> to 'neighbor_history'),
+and the cookie passed on to efetch.
 
 =head2 Retrieving relevancy scores
 
-Currently, this is supported for only one ID at a time!
-
 When the C<db> and C<dbfrom> parameters are set to the same database, one can
-retrieve relevancy scores for an ID.  These are based on several different
-factors.  For proteins, they are precomputed TBLASTX scores, so this is actually
-a quick way to get the best hits without having to run TBLASTX directly!
+retrieve relevancy scores for a single ID.  These are based on several different
+factors.  For proteins, they are precomputed BLASTP scores, so this is actually
+a quick way to get the best hits without having to run BLASTP directly!
+Similarly, scores returned for nucleotide-nucleotide are based on BLASTN scores.
 
-=head2 ID groups
+=head2 Multiple ID groups
 
-These are not completely implemented yet but support is being added in the next
-few weeks.
+When C<multi_id> flag is set to a TRUE value, the id list is built based on
+different set of factors.  The default method for submitting an ID list for
+a query request for any EUtility is by having the C<id> parameter set to
+an array reference (multiple IDs) or pass a single ID as a scalar, like this:
 
-=head1 TODO
+  -id  => \@ids,
+  -id  => '1621261',
 
-Using multiple ID lists for processing multiple groups and maintaining
-record-to-record correspondence is not completely implemented.
+L<Bio::DB::EUtilities::elink|Bio::DB::EUtilities::elink> has the additional
+capability to submit ID groups where searches are performed on each ID group
+independently.  This is accomplished by setting the C<multi_id> flag to true,
+which indicates that the ID list will be evaluated as an array reference, with
+each ID group represented by another array reference or a single ID.  So, with
+C<multi_id> set to TRUE:
+ 
+  -id  => \@ids,  # evaluates each ID in the array independently
+  ...
+  -id  => [@ids], # same as above
+  ...
+  -id  => [\@ids, $id], # IDs in @ids are grouped together for one search
+                        # while single ID in scalar is searched independently
 
-http://www.ncbi.nlm.nih.gov/books/bv.fcgi?rid=coursework.section.elink-considerations
+It can get tricky:
+
+  -id  => [\@ids, $id1, @ids2], # @ids ID grouped together; IDs in $id1 and @id2
+                                # are flattened and evaluated independently
+
+This enables one-to-one correspondence with the returned data, so that one
+can determine, per ID, what the matching ELink ID is.  The default is to
+return them all as a group (no one-to-one correspondence).  Using a small ID
+array, C<multi_id> set to TRUE, '-id => \@ids', and this loop:
+
+while (my $linkset = $elink->next_linkset) {
+    print "Query ID : ",join q(,), $linkset->query_id,"\n";
+    print "\tTax ID : ",join q(,), $linkset->get_LinkIds_by_db('taxonomy'),"\n";
+}
+
+gets this result:
+
+    Query ID : 1621261,
+            Tax ID : 83332,
+    Query ID : 31618162,
+            Tax ID : 233413,
+    Query ID : 31792573,
+            Tax ID : 233413,
+  
+Setting C<multi_id> to FALSE or not setting, using all other conditions above,
+gets this result:
+
+Query ID : 31792573,31618162,1621261,
+        Tax ID : 233413,83332,
+        
 
 =head1 FEEDBACK
 
@@ -318,12 +382,12 @@ package Bio::DB::EUtilities::elink;
 
 use strict;
 use warnings;
+
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use Bio::DB::EUtilities::ElinkData;
-use URI::Escape qw(uri_unescape);
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 use vars qw(@ISA $EUTIL $VERSION %CMD);
 
@@ -375,12 +439,13 @@ sub _initialize {
     $linkname   && $self->linkname($linkname);
 	$multi_id	&& $self->multi_id($multi_id);
     $self->{'_linksetindex'} = 0;
+    $self->{'_linksets'} = [];
 }
 
 =head2 parse_response
 
  Title   : parse_response
- Usage   : $db->parse_response($content)
+ Usage   : $elink->parse_response($content)
  Function: parse out response for cookie and/or id's
  Returns : none
  Args    : HTTP::Response object
@@ -403,7 +468,7 @@ sub parse_response {
     if ($simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
-	$self->debug("Response dumper:\n".Dumper($simple));
+	#$self->debug("Response dumper:\n".Dumper($simple));
     my $cmd = $self->cmd ? $self->cmd : 'neighbor'; # set default cmd
     # process possible cookies first
     if (defined($cmd) && $cmd eq 'neighbor_history') {
@@ -450,7 +515,7 @@ sub parse_response {
             $self->_add_linkset($linkobj);
         }
     } else {
-        $self->warn("$cmd not yet supported; no parsing occurred");
+        $self->debug("$cmd not yet supported; no parsing occurred");
         return;
         # need to add a few things for cmd=llinks
     }
@@ -459,10 +524,10 @@ sub parse_response {
 =head2 multi_id
 
  Title   : multi_id
- Usage   : $db->multi_id(1);
+ Usage   : $elink->multi_id(1);
  Function: gets/sets value (switch for using multiple ids)
- Returns : value evaluating to true or false
- Args    : value evaluating to true or false
+ Returns : Boolean (value evaluating to true or false)
+ Args    : Boolean (value evaluating to true or false)
 
 =cut
 
@@ -472,34 +537,78 @@ sub multi_id {
 	return $self->{'_multi_id'};
 }
 
+=head2 next_linkset
+
+ Title   : next_linkset
+ Usage   : $ls = $elink->next_linkset;
+ Function: returns next linkset in internal cache of 
+         : Bio::DB::EUtilities::ElinkData objects
+ Returns : Boolean (value evaluating to true or false)
+ Args    : Boolean (value evaluating to true or false)
+
+=cut
+
 sub next_linkset {
     my $self = shift;
     my $index = $self->_next_linkset_index;
-    if ($self->{'_linksets'}) {
-        return $self->{'_linksets'}->[$index] ;
-    }
+    return if ($index > scalar($self->{'_linksets'}));
+    return $self->{'_linksets'}->[$index] ;
 }
+
+=head2 get_all_linksets
+
+ Title   : get_all_linksets
+ Usage   : @ls = $elink->get_all_linksets;
+ Function: returns array of Bio::DB::EUtilities::ElinkData objects
+ Returns : array of Bio::DB::EUtilities::ElinkData objects
+ Args    : None
+
+=cut
 
 sub get_all_linksets {
     my $self = shift;
     return @{ $self->{'_linksets'} };
 }
 
+=head2 reset_linksets
+
+ Title   : reset_linksets
+ Usage   : $elink->reset_linksets;
+ Function: resets (empties) internal cache of Linkset objects
+ Returns : None
+ Args    : None
+
+=cut
+
 sub reset_linksets{
     my $self = shift;
     $self->{'_linksets'} = [];
-    $self->{'_tot_linksets'} = 0;
+    $self->rewind_linksets;
 }
 
-sub total_linksets {
+=head2 rewind_linksets
+
+ Title   : rewind_linksets
+ Usage   : $elink->rewind_linksets;
+ Function: resets linkset index to 0 (starts over)
+ Returns : None
+ Args    : None
+
+=cut
+
+sub rewind_linksets{
     my $self = shift;
-    return $self->{'_tot_linksets'};
+    $self->{'_linksetindex'} = 0;
 }
+
+# holds and changes linkset index for next_linkset
 
 sub _next_linkset_index {
     my $self = shift;
     return $self->{'_linksetindex'}++;
 }
+
+# private method : parse linkset data and add ElinkData objects to linkset cache
 
 sub _add_linkset {
     my $self = shift;
