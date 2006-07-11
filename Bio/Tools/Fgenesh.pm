@@ -138,7 +138,7 @@ sub _initialize_state {
 sub analysis_method { 
 #-------------
     my ($self, $method) = @_;  
-    if($method && ($method !~ /genscan/i)) {
+    if($method && ($method !~ /fgenesh/i)) {
 	$self->throw("method $method not supported in " . ref($self));
     }
     return $self->SUPER::analysis_method($method);
@@ -260,7 +260,6 @@ sub next_prediction {
  Returns : 
 
 =cut
-
 sub _parse_predictions {
     my ($self) = @_;
     my $gene;
@@ -303,13 +302,20 @@ sub _parse_predictions {
 	    # set common fields
 	    $predobj->source_tag('Fgenesh');
 	    $predobj->strand($strand);
-	    if($predobj->strand() == 1) {
+
+# Following tactical commenting-out made by
+# malcolm.cook@stowers-institute.org since coordinate reversal is
+# apparently vestigal copy/paste detritus from Genscan.pm origins of
+# this module and this is NOT needed for fgenesh (at least in v
+# 2.1.4).
+
+#	    if($predobj->strand() == 1) {
 		$predobj->start($start);
 		$predobj->end($end);
-	    } else {
-		$predobj->end($start);
-		$predobj->start($end);
-	    }
+#	    } else {
+#		$predobj->end($start);
+#		$predobj->start($end);
+#	    }
 
             # print STDERR "start $start end $end\n";
 	    # add to gene structure (should be done only when start and end
