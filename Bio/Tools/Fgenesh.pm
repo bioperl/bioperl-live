@@ -305,7 +305,7 @@ sub _parse_predictions {
 
 # Following tactical commenting-out made by
 # malcolm.cook@stowers-institute.org since coordinate reversal is
-# apparently vestigal copy/paste detritus from Genscan.pm origins of
+# apparently vestigial copy/paste detritus from Genscan.pm origins of
 # this module and this is NOT needed for fgenesh (at least in v
 # 2.1.4).
 
