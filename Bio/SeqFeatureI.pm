@@ -347,17 +347,41 @@ but can be validly overwritten by subclasses
             Implementing classes are free to override this method with their
             own magic if they have a better idea what the user wants.
 
-  Args    : [optional] A L<Bio::DB::RandomAccessI> compliant object if 
+  Args    : [optional]
+            -db        A L<Bio::DB::RandomAccessI> compliant object if 
                        one needs to retrieve remote seqs. 
-            [optional] boolean if the locations should not be sorted 
-                       by start location.
+            -nosort    boolean if the locations should not be sorted 
+                       by start location.  This may occur, for instance,
+                       in a circular sequence where a gene span starts
+                       before the end of the sequence and ends after the
+                       sequence start. Example : join(15685..16260,1..207)
   Returns : A L<Bio::PrimarySeqI> object
 
 =cut
 
 sub spliced_seq {
-    my ($self,$db,$nosort) = @_;
-   
+    my $self = shift;
+	my @args = @_;
+	my ($db,$nosort) = $self->_rearrange([qw(DB NOSORT)], @args);
+	
+	# (added 7/7/06 to allow use old API (with warnings)
+	my $old_api = (!(grep {$_ =~ /(?:nosort|db)/} @args)) ? 1 : 0;
+	if (@args && $old_api) {
+		$self->warn(q(API has changed; please use '-db' or '-nosort' ).
+                     qq(for args. See POD for more details.));
+		$db = shift @args if @args;
+		$nosort = shift @args if @args;
+	};
+
+	if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
+        $self->warn("Must pass in a valid Bio::DB::RandomAccessI object".
+                    " for access to remote locations for spliced_seq");
+        $db = undef;
+    } elsif( defined $db && $HasInMemory &&
+            $db->isa('Bio::DB::InMemoryCache') ) {
+        $db = new Bio::DB::InMemoryCache(-seqdb => $db);
+    }
+	
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
     }
@@ -377,13 +401,7 @@ sub spliced_seq {
     # (can I mention how much fun this is NOT! --jason)
     
     my ($mixed,$mixedloc, $fstrand) = (0);
-    if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
-	$self->warn("Must pass in a valid Bio::DB::RandomAccessI object for access to remote locations for spliced_seq");
-	$db = undef;
-    } elsif( defined $db && $HasInMemory && 
-	     ! $db->isa('Bio::DB::InMemoryCache') ) {
-	$db = new Bio::DB::InMemoryCache(-seqdb => $db);
-    }
+  
     if( $self->isa('Bio::Das::SegmentI') &&
 	! $self->absolute ) { 
 	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");

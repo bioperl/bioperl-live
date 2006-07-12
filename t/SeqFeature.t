@@ -340,7 +340,7 @@ my $db;
 unless( $skipdbtests ) {
  $db = new Bio::DB::GenBank(-verbose=> $ENV{BIOPERLDEBUG});
  $CDS->verbose(-1);
- my $cdsseq = $CDS->spliced_seq($db,1);
+ my $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);
  
  ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATC'.
 		    'TAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
@@ -357,7 +357,7 @@ ok  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
 ok $geneseq = $seqio->next_seq();
 ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
 unless ($skipdbtests ) {
-    my $cdsseq = $CDS->spliced_seq($db,1);
+    my $cdsseq = $CDS->spliced_seq( -db => $db, -nosort => 1);
     ok($cdsseq->subseq(1,60, 'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTG'.
 		       'TCTGGCCTGGAGGCTATCCAGCATG'));
     ok($cdsseq->translate->seq, 'MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFL'.
@@ -376,7 +376,7 @@ ok( $seqio = Bio::SeqIO->new(-format => 'genbank',
 my $genome = $seqio->next_seq;
 
 foreach my $cds (grep { $_->primary_tag eq 'CDS' } $genome->get_SeqFeatures) {
-   my $spliced = $cds->spliced_seq(undef,1)->translate->seq;
+   my $spliced = $cds->spliced_seq(-nosort => 1)->translate->seq;
    chop($spliced); # remove stop codon
    ok($spliced,($cds->get_tag_values('translation'))[0],'spliced seq translation matches expected');
 }
