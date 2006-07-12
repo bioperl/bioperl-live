@@ -511,18 +511,19 @@ sub _cleanup_methods {
 
 sub throw_not_implemented {
     my $self = shift;
-    # Checking if Error.pm is available in case the object isn't decended from
-    # Bio::Root::Root, which knows how to check for Error.pm.
 
-    # EB - this wasn't working and I couldn't figure out!
-    # SC - OK, since most RootI objects will be Root.pm-based,
-    #      and Root.pm can deal with Error.pm. 
-    #      Still, I'd like to know why it wasn't working...
+    # Bio::Root::Root::throw() knows how to check for Error.pm and will
+    # throw an Error-derived object of the specified class (Bio::Root::NotImplemented),
+    # which is defined in Bio::Root::Exception.
+    # If Error.pm is not available, the name of the class is just included in the
+    # error message.
+
     my $message = $self->_not_implemented_msg;
 
     if( $self->can('throw') ) {
-	    $self->throw($message);
-    }else {
+	    $self->throw(-text=>$message,
+                         -class=>'Bio::Root::NotImplemented');
+    } else {
 	    confess $message ;
     }
 }
