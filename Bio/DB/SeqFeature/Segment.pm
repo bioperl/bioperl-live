@@ -464,6 +464,10 @@ sub score  { return }
 sub stop   { shift->end }
 sub absolute { return 1 }
 sub desc   { shift->as_string }
+sub display_id { shift->display_name }
+sub primary_seq { shift->seq }
+sub accession_number { return undef }  # intended return undef
+sub alphabet { return undef }          # intended return undef
 
 1;
 

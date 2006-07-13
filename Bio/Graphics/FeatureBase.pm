@@ -396,6 +396,22 @@ sub location {
    $location;
 }
 
+sub each_Location {
+  my $self = shift;
+  require Bio::Location::Simple unless Bio::Location::Simple->can('new');
+  if (my @segments = $self->segments) {
+    return map {
+	Bio::Location::Simple->new(-start  => $_->start,
+				   -end    => $_->end,
+				   -strand => $_->strand);
+      } @segments;
+  } else {
+    return Bio::Location::Simple->new(-start  => $self->start,
+				      -end    => $self->end,
+				      -strand => $self->strand);
+  }
+}
+
 =head2 location_string
 
  Title   : location_string
