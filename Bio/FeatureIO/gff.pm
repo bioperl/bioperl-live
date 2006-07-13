@@ -34,8 +34,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org              - General discussion
-  http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                 - General discussion
+  http://bioperl.org/wiki/Mailing_list  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -43,7 +43,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 
@@ -145,13 +145,13 @@ sub next_feature {
     last;
   }
 
-  return undef unless $gff_string;
+  return unless $gff_string;
 
   # looks like we went into FASTA mode without a directive.
   if($gff_string =~ /^>/){
     $self->_pushback($gff_string);
     $self->fasta_mode(1);
-    return undef;
+    return;
   }
 
   # got a directive
@@ -237,7 +237,7 @@ will return undef if not all features in the stream have been handled
 
 sub next_seq() {
   my $self = shift;
-  return undef unless $self->fasta_mode();
+  return unless $self->fasta_mode();
 
   #first time next_seq has been called.  initialize Bio::SeqIO instance
   if(!$self->seqio){
@@ -336,7 +336,7 @@ sub sequence_region {
     return $self->{'sequence-region'}{$k};
   }
   else {
-    return undef;
+    return;
   }
 }
 
@@ -423,7 +423,7 @@ sub _buffer_feature {
     return shift @{ $self->{'buffer'} };
   }
   else {
-    return undef;
+    return;
   }
 }
 
@@ -485,7 +485,7 @@ sub _handle_directive {
   elsif($directive eq 'FASTA' or $directive =~ /^>/){
     #next_seq() will take care of this.
     $self->fasta_mode(1);
-    return undef;
+    return;
   }
 
   elsif($directive eq '#'){
@@ -647,7 +647,11 @@ sub _handle_feature {
 
   #Handle Gap attributes
   if($attr{Gap}){
-    $self->warn("Warning for line:\n$feature_string\nGap attribute handling not yet implemented, skipping it");
+     for my $value (@{ $attr{Gap} }) {
+       my $a = Bio::Annotation::SimpleValue->new();
+       $a->value($value);
+       $feat->add_Annotation('Gap',$a);
+     }
   }
 
   #Handle Target attributes
@@ -655,7 +659,14 @@ sub _handle_feature {
     my $target_collection = Bio::Annotation::Collection->new();
 
     foreach my $target_string (@{ $attr{Target} } ) {
-      $target_string =~ s/\+/ /g; 
+
+      #only replace + for space if + has been used in place of it
+      #that is, + could also mean plus strand, and we don't want
+      #to accidentally remove it
+ 
+      #presumably you can't use + for space and + for strand in the same string.      
+      $target_string =~ s/\+/ /g unless $target_string =~ / /; 
+
       my ($t_id,$tstart,$tend,$strand,$extra) = split /\s+/, $target_string; 
       if (!$tend || $extra) { # too much or too little stuff in the string
         $self->throw("The value in the Target string, $target_string, does not conform to the GFF3 specification");
@@ -710,7 +721,7 @@ sub _handle_feature {
     $feat->add_Annotation('Name',$a);
   }
 
-  foreach my $other_canonical (qw(Alias Parent Note)){
+  foreach my $other_canonical (qw(Alias Parent Note Derives_from)){
     if($attr{$other_canonical}){
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
