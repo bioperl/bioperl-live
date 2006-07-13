@@ -895,8 +895,12 @@ sub translate_color {
 sub colorClosest {
   my ($self,$gd,@c) = @_;
   return $self->{closestcache}{"@c"} if exists $self->{closestcache}{"@c"};
-  return $self->{closestcache}{"@c"} = $gd->colorClosest(@c) if $GD::VERSION < 2.04;
-  my ($value,$index);
+  return $self->{closestcache}{"@c"} = $gd->colorResolve(@c) if $GD::VERSION < 2.04;
+
+  my $index = $gd->colorResolve(@c);
+  return $self->{closestcache}{"@c"} = $index if $index >= 0;
+
+  my $value;
   for (keys %COLORS) {
     my ($r,$g,$b) = @{$COLORS{$_}};
     my $dist = ($r-$c[0])**2 + ($g-$c[1])**2 + ($b-$c[2])**2;
