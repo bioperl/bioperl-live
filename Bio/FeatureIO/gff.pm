@@ -34,8 +34,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -43,7 +43,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR
 
@@ -94,12 +94,16 @@ sub _initialize {
   $self->version( $arg{-version}        || DEFAULT_VERSION);
   $self->validate($arg{-validate_terms} || 0);
 
-  #read headers
-  my $directive;
-  while(($directive = $self->_readline()) && ( $directive =~ /^##/ || $directive =~ /^>/)){
-    $self->_handle_directive($directive);
+  if ($arg{-file} =~ /^>.*/ ) {
+    $self->_print("##gff-version " . $self->version() . "\n");
   }
-  $self->_pushback($directive);
+  else {
+    my $directive;
+    while(($directive = $self->_readline()) && ( $directive =~ /^##/ || $directive =~ /^>/)){
+      $self->_handle_directive($directive);
+    }
+    $self->_pushback($directive);
+  }
 
   if ($arg{-file} =~ /^>.*/ ) {
     $self->_print("##gff-version " . $self->version() . "\n");
@@ -131,7 +135,7 @@ sub next_feature {
     return $f;
   }
 
-  return if $self->fasta_mode();
+  return undef if $self->fasta_mode();
 
   # be graceful about empty lines or comments, and make sure we return undef
   # if the input is consumed
@@ -141,13 +145,13 @@ sub next_feature {
     last;
   }
 
-  return unless $gff_string;
+  return undef unless $gff_string;
 
   # looks like we went into FASTA mode without a directive.
   if($gff_string =~ /^>/){
     $self->_pushback($gff_string);
     $self->fasta_mode(1);
-    return;
+    return undef;
   }
 
   # got a directive
@@ -233,7 +237,7 @@ will return undef if not all features in the stream have been handled
 
 sub next_seq() {
   my $self = shift;
-  return unless $self->fasta_mode();
+  return undef unless $self->fasta_mode();
 
   #first time next_seq has been called.  initialize Bio::SeqIO instance
   if(!$self->seqio){
@@ -332,7 +336,7 @@ sub sequence_region {
     return $self->{'sequence-region'}{$k};
   }
   else {
-    return;
+    return undef;
   }
 }
 
@@ -384,7 +388,7 @@ sub version {
   my $self = shift;
   my $val = shift;
   my %valid = map {$_=>1} (1, 2, 2.5, 3);
-  if($valid{$val}){
+  if(defined $val && $valid{$val}){
     return $self->{'version'} = $val;
   }
   elsif(defined($val)){
@@ -419,7 +423,7 @@ sub _buffer_feature {
     return shift @{ $self->{'buffer'} };
   }
   else {
-    return;
+    return undef;
   }
 }
 
@@ -481,7 +485,7 @@ sub _handle_directive {
   elsif($directive eq 'FASTA' or $directive =~ /^>/){
     #next_seq() will take care of this.
     $self->fasta_mode(1);
-    return;
+    return undef;
   }
 
   elsif($directive eq '#'){
@@ -583,23 +587,26 @@ sub _handle_feature {
 
   my %attr = ();
   chomp $attribute_string;
-  my @attributes = split ';', $attribute_string;
-  foreach my $attribute (@attributes){
-    my($key,$values) = split '=', $attribute;
 
-    # remove leading and trailing quotes from values
-    $values =~ s/^["']//;
-    $values =~ s/["']$//;
+  unless ( $attribute_string eq '.' ) {
+    my @attributes = split ';', $attribute_string;
+    foreach my $attribute (@attributes){
+      my($key,$values) = split '=', $attribute;
 
-    my @values = map{uri_unescape($_)} split ',', $values;
+      # remove leading and trailing quotes from values
+      $values =~ s/^["']//;
+      $values =~ s/["']$//;
 
-   #minor hack to allow for multiple instances of the same tag
-    if ($attr{$key}) {
-      my @tmparray = @{$attr{$key}};
-      push @tmparray, @values;
-      $attr{$key} = [@tmparray];
-    } else {
-      $attr{$key} = [@values];
+      my @values = map{uri_unescape($_)} split ',', $values;
+
+     #minor hack to allow for multiple instances of the same tag
+      if ($attr{$key}) {
+        my @tmparray = @{$attr{$key}};
+        push @tmparray, @values;
+        $attr{$key} = [@tmparray];
+      } else {
+        $attr{$key} = [@values];
+      }
     }
   }
 
@@ -640,11 +647,7 @@ sub _handle_feature {
 
   #Handle Gap attributes
   if($attr{Gap}){
-    for my $value (@{ $attr{Gap} }) {
-      my $a = Bio::Annotation::SimpleValue->new();
-      $a->value($value);
-      $feat->add_Annotation('Gap',$a);
-    }
+    $self->warn("Warning for line:\n$feature_string\nGap attribute handling not yet implemented, skipping it");
   }
 
   #Handle Target attributes
@@ -652,15 +655,7 @@ sub _handle_feature {
     my $target_collection = Bio::Annotation::Collection->new();
 
     foreach my $target_string (@{ $attr{Target} } ) {
-
-      #only replace + for space if + has been used in place of it
-      #that is, + could also mean plus strand, and we don't want
-      #to accidentally remove it
-
-      #presumably you can't use + for space and + for strand in the same string.      
-      $target_string =~ s/\+/ /g unless $target_string =~ / /; 
-
-
+      $target_string =~ s/\+/ /g; 
       my ($t_id,$tstart,$tend,$strand,$extra) = split /\s+/, $target_string; 
       if (!$tend || $extra) { # too much or too little stuff in the string
         $self->throw("The value in the Target string, $target_string, does not conform to the GFF3 specification");
@@ -715,7 +710,7 @@ sub _handle_feature {
     $feat->add_Annotation('Name',$a);
   }
 
-  foreach my $other_canonical (qw(Alias Parent Note Derives_from)){
+  foreach my $other_canonical (qw(Alias Parent Note)){
     if($attr{$other_canonical}){
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
@@ -875,7 +870,7 @@ sub _write_feature_3 {
     push @attr, "Note=$vstring";
   }
   if(my @v = ($feature->get_Annotations('Target'))){
-    my $vstring = join ',', map {uri_escape($_->target_id).' '.$_->start.' '.$_->end.($_->strand =~ /^[\+\-]$/ ? ' '.$_->strand : '')} @v;
+    my $vstring = join ',', map {uri_escape($_->target_id).' '.$_->start.' '.$_->end.((defined $_->strand && $_->strand =~ /^[\+\-]$/) ? ' '.$_->strand : '')} @v;
     push @attr, "Target=$vstring";
   }
 
