@@ -366,7 +366,6 @@ sub dump_filehandle {
   my $table = shift;
   eval "require IO::File" unless IO::File->can('new');
   my $path  = $self->dump_path($table);
-  warn "creating $path" unless exists $self->{filehandles}{$path};
   my $fh = $self->{filehandles}{$path} ||= IO::File->new(">$path");
   $fh;
 }
@@ -504,7 +503,6 @@ sub _finish_bulk_update {
     my $qualified_table = $self->_qualify($table);
     $dbh->do("LOAD DATA INFILE '$path' REPLACE INTO TABLE $qualified_table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
-    warn "unlinking $path";
     unlink $path;
   }
   delete $self->{bulk_update_in_progress};
