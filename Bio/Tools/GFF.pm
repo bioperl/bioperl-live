@@ -222,6 +222,7 @@ sub _parse_header{
 		-id    => unescape($seqid),
 		-start => $start,
 		-end   => $end,
+                -length => ($end - $start + 1),  ## make the length explicit
 		);
 	   $handled = 1;
 	 } elsif($line =~ /^(\#\#feature-ontology)/) {
