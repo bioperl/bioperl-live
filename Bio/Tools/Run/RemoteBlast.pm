@@ -4,6 +4,8 @@
 #
 # FORMERLY Cared for by Jason Stajich, Mat Wiepert
 #
+# Somewhat cared for by Roger Hall, Chris Fields (when they have time)
+#
 # Copyright Jason Stajich, Bioperl
 #
 # You may distribute this module under the same terms as perl itself
@@ -249,9 +251,8 @@ sub new {
 	my $self = $caller->SUPER::new(@args);
 	# so that tempfiles are cleaned up
 	$self->_initialize_io();
-	my ($prog, $data,
-		 $readmethod) = $self->_rearrange([qw(PROG DATA
-						      READMETHOD)],
+	my ($prog, $data, $readmethod, $url_base) =
+        $self->_rearrange([qw(PROG DATA READMETHOD URL_BASE)],
 					 @args);
 	# Use these two parameters for backward-compatibility. 
 	# Overridden by PROGRAM and DATABASE if supplied.
@@ -278,7 +279,9 @@ sub new {
 		$self->retrieve_parameter($getName,$getNames{$getName});
 	}
         # private variable to keep track of total rids
-        $self->{'_total_rids'} = 0;
+    $self->{'_total_rids'} = 0;
+    $url_base ||= $URLBASE;  # default to regular NCBI BLAST URL
+    $self->set_url_base($url_base);
 	return $self;
 }
 
@@ -495,6 +498,7 @@ sub each_rid {
 sub submit_blast {
     my ($self, $input) = @_;
     my @seqs = $self->_load_input($input);
+    my $url_base = $self->get_url_base;
     return 0 unless ( @seqs );
     my $tcount = 0;
     my %header = $self->header;
@@ -502,7 +506,7 @@ sub submit_blast {
 	#If query has a fasta header, the output has the query line.
 	$header{'QUERY'} = ">".(defined $seq->display_id() ? $seq->display_id() : "").
 		" ".(defined $seq->desc() ? $seq->desc() : "")."\n".$seq->seq();
-	my $request = POST $URLBASE, [%header];
+	my $request = POST $url_base, [%header];
 	$self->warn($request->as_string) if ( $self->verbose > 0);
 	my $response = $self->ua->request( $request);
 
@@ -548,9 +552,10 @@ sub retrieve_blast {
     my($self, $rid) = @_;
     my ($fh,$tempfile) = $self->tempfile();
     close $fh;			#explicit close
+    my $url_base = $self->get_url_base;
     my %hdr = %RETRIEVALHEADER;
     $hdr{'RID'} = $rid;
-    my $req = POST $URLBASE, [%hdr];
+    my $req = POST $url_base, [%hdr];
     if( $self->verbose > 0 ) {
 	$self->warn("retrieve request is " . $req->as_string());
     }
@@ -720,5 +725,37 @@ sub _load_input {
 }
 
 1;
+
+=head2 set_url_base
+
+ Title   : set_url_base
+ Usage   : $self->set_url_base($url)
+ Function: Method to override the default NCBI BLAST database
+ Returns : None
+ Args    : string (database url like
+ NOTE    : This is highly experimental; we cannot maintain support on
+           databases other than the default NCBI database at this time
+
+=cut
+
+sub set_url_base {
+    my $self = shift;
+    $self->{'_urlbase'} = shift if @_;
+}
+
+=head2 get_url_base
+
+ Title   : get_url_base
+ Usage   : my $url = $self->set_url_base
+ Function: Get the current URL for BLAST database searching
+ Returns : string (URL used for remote blast searches)
+ Args    : None
+
+=cut
+
+sub get_url_base {
+    my $self = shift;
+    return $self->{'_urlbase'};
+}
 
 __END__
