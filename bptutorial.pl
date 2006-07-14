@@ -3198,7 +3198,7 @@ $run_remoteblast = sub {
 	  $r = $remote_blast_object->submit_blast( $blast_file);
       };
       if (($r < 0) || $@)  {
-	  warn "\n\n**Warning**: Couldn't connect to NCBI with Bio::Tools::Run::StandAloneBlast.pm!\nProbably no network access.\nSkipping Test\n";
+	  warn "\n\n**Warning**: Couldn't connect to NCBI with Bio::Tools::Run::RemoteBlast.pm!\nProbably no network access.\nSkipping Test\n";
 	  return 0;
       }
       print $outputfh "submitted Blast job\n";
