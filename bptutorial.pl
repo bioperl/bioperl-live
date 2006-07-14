@@ -3215,10 +3215,11 @@ $run_remoteblast = sub {
 		  sleep 5;
 	      } else {
             $remote_blast_object->remove_rid($rid);
-            # test		
-            while ( my $sbjct = $rc->nextSbjct ) {
-              print $outputfh "sbjct name is ", $sbjct->name, "\n";
-              while ( my $hsp = $sbjct->nextHSP ) {
+            # test
+            my $result = $rc->next_result;
+            while ( my $hit = $result->next_hit ) {
+              print $outputfh "sbjct name is ", $hit->description, "\n";
+              while ( my $hsp = $hit->next_hsp ) {
                 print $outputfh "score is ", $hsp->score, "\n"; 
               }
             }
