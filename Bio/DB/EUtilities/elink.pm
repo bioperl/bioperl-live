@@ -465,7 +465,7 @@ sub parse_response {
     my $simple = $xs->XMLin($response->content,
             forcearray => [qw(LinkSet LinkSetDb LinkSetDbHistory Link)]);
     # check for errors
-    if ($simple->{ERROR}) {
+    if (exists $simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
 	#$self->debug("Response dumper:\n".Dumper($simple));
@@ -474,7 +474,7 @@ sub parse_response {
     if (defined($cmd) && $cmd eq 'neighbor_history') {
         # process each LinkSet hash, one at at time;  
         # No scores when using history (only ids)
-        if (! $simple->{LinkSet} ) {
+        if (!exists $simple->{LinkSet} ) {
             $self->warn('No link history');
             return;
         }
@@ -503,7 +503,7 @@ sub parse_response {
         return;
     }
     elsif ($cmd eq 'neighbor' || !$cmd) {
-        if (!$simple->{LinkSet}) {
+        if (!exists $simple->{LinkSet}) {
             $self->warn('No returned links.');
             return;
         }

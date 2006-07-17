@@ -15,8 +15,7 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::esummary - interface for handling web queries and data
-retrieval from NCBI's Entrez Utilities.
+Bio::DB::EUtilities::esummary - retrieval of NCBI DocSum data
 
 =head1 SYNOPSIS
 
@@ -34,7 +33,7 @@ B<Do not use this module directly.>  Use it via the L<Bio::DB::EUtilities|Bio::D
   my $esummary = Bio::DB::EUtilities->new(-eutil        => 'esummary',
                                        -cookie       => $esearch->next_cookie);
   
-  print $esearch->get_response-content; # prints XML output, yippee!
+  print $esearch->get_response-content; # prints XML output
 
 =head1 DESCRIPTION
 

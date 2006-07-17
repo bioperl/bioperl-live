@@ -1,10 +1,59 @@
 # $Id$
+#
+# BioPerl module for Bio::DB::EUtilities::ElinkData
+#
+# Cared for by Chris Fields
+#
+# Copyright Chris Fields
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+# 
+# Part of the EUtilities BioPerl package
 
-# object to hold NCBI score information, links, booleans, and other info
-# from elink queries; API to change dramatically
+=head1 NAME
 
-# this should hold all the linksets for one group of IDs and should
-# eventually accomodate all cmd types.
+Bio::DB::EUtilities::ElinkData 
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the
+evolution of this and other Bioperl modules. Send
+your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation
+is much appreciated.
+
+  bioperl-l@lists.open-bio.org               - General discussion
+  http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to
+help us keep track the bugs and their resolution.
+Bug reports can be submitted via the web.
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR 
+
+Email cjfields at uiuc dot edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the
+object methods. Internal methods are usually
+preceded with a _
+
+=cut
+
+# Let the code begin...
 
 package Bio::DB::EUtilities::ElinkData;
 use strict;
@@ -44,7 +93,7 @@ sub _add_set {
         my $dbto = $ls_db->{DbTo};
         push @{ $self->{'_databases'}}, $dbto;
         my $linkname = $ls_db->{LinkName};
-        if ( $ls_db->{Info} || $ls->{ERROR} || !($ls_db->{Link})) {
+        if (exists $ls_db->{Info} || exists $ls->{ERROR} || !exists $ls_db->{Link}) {
             my $err_msg = $ls_db->{Info} || $ls->{ERROR} || 'No Links!';
             my $ids = (ref($query_ids) =~ /array/i) ?
                             join q(,), @{$query_ids}: $query_ids;
@@ -54,7 +103,7 @@ sub _add_set {
         my @ids;
         for my $id_ref (@{ $ls_db->{Link} } ) {
             my $id = $id_ref->{Id};
-            my $score = $id_ref->{Score} ? $id_ref->{Score} : undef;
+            my $score = exists $id_ref->{Score} ? $id_ref->{Score} : undef;
             push @ids, $id;
             # set up in case there are multiple databases that return scores
             if ($score) {
@@ -238,8 +287,8 @@ sub get_score {
     if (!$id) {
         $self->warn("Must use ID to access scores");
     }
-    my ($db) = $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->get_all_scoredbs;
-    if ( $self->{'_scores'}->{$db}->{$id} ) {
+    my $db = exists $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->has_scores;
+    if ( exists $self->{'_scores'}->{$db}->{$id} ) {
         return $self->{'_scores'}->{$db}->{$id};
     }
 }
@@ -258,8 +307,8 @@ sub get_score {
 sub get_score_hash {
     my $self = shift;
     $self->warn("No scores!") if !$self->has_scores;
-    my $db = $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->get_all_scoredbs;
-    if ($self->{'_scores'}->{$db}) {
+    my $db = exists $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->has_scores;
+    if (exists $self->{'_scores'}->{$db}) {
         return %{ $self->{'_scores'}->{$db} };
     }
 }
@@ -327,4 +376,5 @@ sub _next_scoredb_index {
 
 
 1;
+
 __END__
