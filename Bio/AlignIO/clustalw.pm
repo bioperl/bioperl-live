@@ -135,8 +135,9 @@ sub next_aln {
     my ($first_block, $seen_block) = (0,0);
     while ( defined( $_ = $self->_readline ) ) {
         next if (/^\s+$/ && !$first_block);
-        if (/^\s{30}/) {  # line contains no description
+        if (/^\s$/) {  # line contains no description
             $seen_block = 1;
+            next;
         }
         $first_block = 1;
         # break the loop if we come to the end of the current alignment
