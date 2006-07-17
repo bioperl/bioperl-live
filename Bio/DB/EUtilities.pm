@@ -474,6 +474,28 @@ sub delay_policy {
   return 3;
 }
 
+sub get_entrezdbs {
+    my $self = shift;
+    my $info = $self->new(-eutil => 'einfo');
+    my $data = $info->get_response->content;
+    my @databases = $data =~ m{<DbName>(.*?)</DbName>}gxms;
+    return @databases;
+}
+
+sub get_entrezdb_fields {
+    my $self = shift;
+    my $db = shift;
+    $self->throw('Must specify database or use einfo directly') if ($self->_eutil ne 'einfo');
+    
+}
+
+sub get_entrezdb_links {
+    my $self = shift;
+    my $db = shift;
+    $self->throw('Must specify database or use einfo directly') if ($self->_eutil ne 'einfo');
+
+}
+
 =head1 Private methods
 
 =cut
@@ -500,11 +522,9 @@ sub _add_db_ids {
 
  Title   : _eutil
  Usage   : $db->_eutil;
- Function: sets eutils (will make private)
+ Function: sets eutils 
  Returns : eutil
  Args    : eutil
-
-Returns the number of entries that are matched by the query.
 
 =cut
 
@@ -514,16 +534,15 @@ sub _eutil   {
     return $self->{'_eutil'};
 }
 
-#=head2 _submit_request
-#
-# Title   : _submit_request
-# Usage   : my $url = $self->get_request
-# Function: builds request object based on set parameters
-# Returns : HTTP::Request
-# Args    : optional : Bio::DB::EUtilities cookie
-#
-#=cut
+# _submit_request
 
+ #Title   : _submit_request
+ #Usage   : my $url = $self->get_request
+ #Function: builds request object based on set parameters
+ #Returns : HTTP::Request
+ #Args    : optional : Bio::DB::EUtilities cookie
+
+#
 # as the name implies....
 
 sub _submit_request {
@@ -562,15 +581,16 @@ sub _submit_request {
     }
 }
 
-#=head2 _get_params
-#
+# _get_params
+
 # Title   : _get_params
 # Usage   : my $url = $self->_get_params
 # Function: builds parameter list for web request
 # Returns : hash of parameter-value paris
 # Args    : optional : Bio::DB::EUtilities cookie
-#
-#=cut
+
+# these get sorted out in a hash originally but end up in an array to
+# deal with multiple id parameters (hash values would kill that)
 
 sub _get_params {
     my $self = shift;
@@ -592,9 +612,13 @@ sub _get_params {
         ($params{'WebEnv'}, $params{'query_key'}) = ($webenv, $qkey);
     }
     my $db = $self->db;
-    $params{'db'} = $db     ? $db               : 
-                    $cookie ? $cookie->database :
+    $params{'db'} = $db         ? $db               : 
+                    $cookie     ? $cookie->database :
                     'nucleotide';
+    # einfo db exception (db is optional)
+    if (!$db && $self->_eutil eq 'einfo') {
+        delete $params{'db'};
+    }
     # to get around main function sort
     unless ($self->rettype) { # set by user
         my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
