@@ -32,14 +32,14 @@ Bio::Map::Position - A single position of a Marker, or the range over which
 =head1 DESCRIPTION
 
 This object is an implementation of the PositionI interface that
-handles the specific values of a position.  This allows an element
+handles the specific values of a position. This allows a map element
 (e.g. Marker) to have multiple positions within a map and still be
 treated as a single entity.
 
-This does not directly handle the concept of a relative map in which
-no known exact positions exist but markers are just ordered relative
-to one another - in that case arbitrary values must be assigned for
-position values.
+This handles the concept of a relative map in which the order of
+elements and the distance between them is known, but does not
+directly handle the case when distances are unknown - in that case
+arbitrary values must be assigned for position values.
 
 No units are assumed here - units are handled by context of which Map
 a position is placed in or the subclass of this Position.
@@ -89,7 +89,8 @@ use strict;
 
 use Bio::Root::Root;
 use Bio::Map::PositionI;
-use Scalar::Util qw(looks_like_number); # comes with perl 5.8, included in Bundle::Bioperl
+use Scalar::Util qw(looks_like_number);
+use Bio::Map::Relative;
 
 @ISA = qw(Bio::Root::Root Bio::Map::PositionI);
 
@@ -99,12 +100,15 @@ use Scalar::Util qw(looks_like_number); # comes with perl 5.8, included in Bundl
  Usage   : my $obj = new Bio::Map::Position();
  Function: Builds a new Bio::Map::Position object 
  Returns : Bio::Map::Position
- Args    : -map     a <Bio::Map::MapI> object
-           -marker  a <Bio::Map::MarkerI> object
-           * If this position has no range *
+ Args    : -map      => Bio::Map::MapI object
+           -element  => Bio::Map::MappableI object
+           -relative => Bio::Map::RelativeI object
+           
+           * If this position has no range, or if a single value can describe
+             the range *
            -value => scalar             : something that describes the single
-                                          point position of this Position, most
-                                          likely an int
+                                          point position or range of this
+                                          Position, most likely an int
            
            * Or if this position has a range, at least two of *
            -start => int                : value of the start co-ordinate
@@ -117,13 +121,15 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 	
-    my ($map, $marker, $value, $start, $end, $length) = 
-	$self->_rearrange([qw( MAP 
-			       MARKER 
+    my ($map, $marker, $element, $value, $start, $end, $length, $relative) = 
+	$self->_rearrange([qw( MAP
+			       MARKER
+                   ELEMENT
 			       VALUE
 				   START
 				   END
 				   LENGTH
+                   RELATIVE
 			       )], @args);
 	
     my $do_range = defined($start) || defined($end);
@@ -133,7 +139,9 @@ sub new {
     }
 	
     $map            && $self->map($map);
-    $marker         && $self->marker($marker);
+    $marker         && $self->element($marker); # backwards compatibility
+    $element        && $self->element($element);
+    $relative       && $self->relative($relative);
     defined($value) && $self->value($value);
 	
     if ($do_range) {
@@ -151,6 +159,61 @@ sub new {
     }
 	
     return $self;
+}
+
+=head2 relative
+
+  Title   : relative
+  Usage   : my $relative = $position->relative();
+            $position->relative($relative);
+  Function: Get/set the thing this Position's coordinates (numerical(), start(),
+            end()) are relative to, as described by a Relative object.
+  Returns : Bio::Map::RelativeI (default is one describing "relative to the
+            start of the Position's map")
+  Args    : none to get, OR
+            Bio::Map::RelativeI to set
+
+=cut
+
+sub relative {
+    my ($self, $relative) = @_;
+    if ($relative) {
+        $self->throw("Must supply an object") unless ref($relative);
+        $self->throw("This is [$relative], not a Bio::Map::RelativeI") unless $relative->isa('Bio::Map::RelativeI');
+        $self->{_relative_not_implicit} = 1;
+        $self->{_relative} = $relative;
+    }
+    return $self->{_relative} || $self->_absolute_relative;
+}
+
+=head2 absolute
+
+  Title   : absolute
+  Usage   : my $absolute = $position->absolute();
+            $position->absolute($absolute);
+  Function: Get/set how this Position's co-ordinates (numerical(), start(),
+            end()) are reported. When absolute is off, co-ordinates are
+            relative to the thing described by relative(). Ie. the value
+            returned by start() will be the same as the value you set start()
+            to. When absolute is on, co-ordinates are converted to be relative
+            to the start of the map.
+            
+            So if relative() currently points to a Relative object describing
+            "relative to another position which is 100 bp from the start of
+            the map", this Position's start() had been set to 50 and absolute()
+            returns 1, $position->start() will return 150. If absolute() returns
+            0 in the same situation, $position->start() would return 50.
+            
+  Returns : boolean (default 0)
+  Args    : none to get, OR
+            boolean to set
+
+=cut
+
+sub absolute {
+    my $self = shift;
+    if (@_) { $self->{_absolute} = shift }
+    return $self->{_absolute} || 0;
 }
 
 =head2 value
@@ -179,75 +242,112 @@ sub value {
  Usage   : my $num = $position->numeric;
  Function: Read-only method that is guaranteed to return a numeric 
            representation of the start of this position. 
- Returns : numeric (int or real) 
- Args    : none
+ Returns : scalar numeric
+ Args    : none to get the co-ordinate normally (see absolute() method), OR
+           Bio::Map::RelativeI to get the co-ordinate converted to be
+           relative to what this Relative describes.
 
 =cut
 
 sub numeric {
-    my ($self) = @_;
-    my $num = $self->{'_value'} || 0;
+    my ($self, $value) = @_;
+    my $num = $self->{'_value'};
+    $self->throw("The value has not been set, can't convert to numeric") unless defined($num);
+    $self->throw("This value [$num] is not numeric") unless looks_like_number($num);
     
-    $self->throw("This value [$num] is not numeric!") unless looks_like_number($num);
+    if (ref($value) && $value->isa('Bio::Map::RelativeI')) {
+        # get the value after co-ordinate conversion
+        my $raw = $num;
+        my ($abs_start, $rel_start) = $self->_relative_handler($value);
+        return $abs_start + $raw - $rel_start;
+    }
+    
+    # get the value as per absolute
+    if ($self->{_relative_not_implicit} && $self->absolute) {
+        # this actually returns the start, but should be the same thing...
+        return $self->relative->absolute_conversion($self);
+    }
     
     return $num;
-}
-
-=head2 sortable
-
- Title   : sortable
- Usage   : my $num = $position->sortable();
- Function: Read-only method that is guaranteed to return a value suitable
-           for correctly sorting this kind of position
- Returns : numeric
- Args    : none
-
-=cut
-
-sub sortable {
-    my $self = shift;
-    return $self->numeric;
 }
 
 =head2 start
 
   Title   : start
-  Usage   : $start = $position->start();
-  Function: get/set the start of this range
-  Returns : the start of this range
-  Args    : optionally allows the start to be set
-            using $range->start($start)
+  Usage   : my $start = $position->start();
+            $position->start($start);
+  Function: Get/set the start co-ordinate of this position.
+  Returns : the start of this position
+  Args    : scalar numeric to set, OR
+            none to get the co-ordinate normally (see absolute() method), OR
+            Bio::Map::RelativeI to get the co-ordinate converted to be
+            relative to what this Relative describes.
 
 =cut
 
 sub start {
 	my ($self, $value) = @_;
     if (defined $value) {
-		self->throw("This value [$value] is not numeric!") unless looks_like_number($value);
-        $self->{'start'} = $value;
-		$self->value($value) unless defined($self->value);
+        if (ref($value) && $value->isa('Bio::Map::RelativeI')) {
+            # get the value after co-ordinate conversion
+            my $raw = $self->{start} || return;
+            my ($abs_start, $rel_start) = $self->_relative_handler($value);
+            return $abs_start + $raw - $rel_start;
+        }
+        else {
+            # set the value
+            $self->throw("This is [$value], not a number") unless looks_like_number($value);
+            $self->{start} = $value;
+            $self->value($value) unless defined($self->value);
+        }
     }
-    return $self->{'start'} || undef;
+    
+    # get the value as per absolute
+    if ($self->{_relative_not_implicit} && $self->absolute) {
+        return $self->relative->absolute_conversion($self);
+    }
+    
+    return $self->{start} || return;
 }
 
 =head2 end
 
   Title   : end
-  Usage   : $end = $position->end();
-  Function: get/set the end of this range
-  Returns : the end of this range
-  Args    : optionally allows the end to be set
-            using $range->end($end)
+  Usage   : my $end = $position->end();
+            $position->end($end);
+  Function: Get/set the end co-ordinate of this position.
+  Returns : the end of this position
+  Args    : scalar numeric to set, OR
+            none to get the co-ordinate normally (see absolute() method), OR
+            Bio::Map::RelativeI to get the co-ordinate converted to be
+            relative to what this Relative describes.
 
 =cut
 
 sub end {
 	my ($self, $value) = @_;
     if (defined $value) {
-		self->throw("This value [$value] is not numeric!") unless looks_like_number($value);
-        $self->{'end'} = $value;
+        if (ref($value) && $value->isa('Bio::Map::RelativeI')) {
+            # get the value after co-ordinate conversion
+            my $raw = $self->{end} || return;
+            my ($abs_start, $rel_start) = $self->_relative_handler($value);
+            return $abs_start + $raw - $rel_start;
+        }
+        else {
+            # set the value
+            $self->throw("This value [$value] is not numeric!") unless looks_like_number($value);
+            $self->{end} = $value;
+        }
     }
-    return $self->{'end'} || undef;
+    
+    # get the value as per absolute
+    if ($self->{_relative_not_implicit} && $self->absolute) {
+        my $raw = $self->{end} || return;
+        my $abs_start = $self->relative->absolute_conversion($self) || return;
+        return $abs_start + ($raw - $self->{start});
+    }
+    
+    return $self->{end} || return;
 }
 
 =head2 length
@@ -269,6 +369,29 @@ sub length {
 	if (defined($self->start) && defined($self->end)) {
 		return $self->end - $self->start + 1;
 	}
+    return;
+}
+
+=head2 sortable
+
+ Title   : sortable
+ Usage   : my $num = $position->sortable();
+ Function: Read-only method that is guaranteed to return a value suitable
+           for correctly sorting this kind of position amongst other positions
+           of the same kind on the same map. Note that sorting different kinds
+           of position together is unlikely to give sane results.
+ Returns : numeric
+ Args    : none
+
+=cut
+
+sub sortable {
+    my $self = shift;
+    my $prior_abs = $self->absolute;
+    $self->absolute(1) unless $prior_abs;
+    my $answer = $self->numeric;
+    $self->absolute(0) unless $prior_abs;
+    return $answer;
 }
 
 =head2 toString
@@ -277,15 +400,44 @@ sub length {
   Usage   : print $position->toString(), "\n";
   Function: stringifies this range
   Returns : a string representation of the range of this Position
+  Args    : optional Bio::Map::RelativeI to have the co-ordinates reported
+            relative to the thing described by that Relative
 
 =cut
 
 sub toString {
-	my $self = shift;
+	my ($self, $rel) = @_;
 	if (defined($self->start) && defined($self->end)) {
-		return $self->start.'..'.$self->end;
+		return $self->start($rel).'..'.$self->end($rel);
 	}
 	return '';
+}
+
+# return a Relative that is for the start of the map
+sub _absolute_relative {
+    return Bio::Map::Relative->new(-map => 0);
+}
+
+# get our own absolute start and that of the thing we want as a frame of
+# reference
+sub _relative_handler {
+    my ($self, $value) = @_;
+    
+    my $own_relative = $self->relative;
+    
+    # if the requested relative position is the same as the actual
+    # relative, the current co-ordinate values are correct so shortcut
+    my ($own_type, $req_type) = ($own_relative->type, $value->type);
+    if ($own_type && $req_type && $own_type eq $req_type && $own_relative->$own_type eq $value->$req_type) {
+        return (0, 0);
+    }
+    
+    my $abs_start = $own_relative->absolute_conversion($self);
+    my $rel_start = $value->absolute_conversion($self);
+    $self->throw("Unable to resolve co-ordinate because relative to something that ultimately isn't relative to the map start")
+    unless defined($abs_start) && defined($rel_start);
+    
+    return ($abs_start, $rel_start);
 }
 
 1;

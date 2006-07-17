@@ -69,30 +69,9 @@ See L<Bio::Map::Position> and L<Bio::Map::PositionI> for more information.
 
 =head1 DESCRIPTION
 
-This object handles the notion of a generic marker. This marker will
-have a name and a position in a map.
-
-This object is intended to be used by a marker parser like Mapmaker.pm
-and then blessed into the proper type of marker (ie Microsatellite) by
-the calling script.
-
-=head2 Design principles
-
-A Marker is a central object in Bio::Map name space. A Map is a holder
-class for objects. A Marker has a Position in a Map.  A Marker can be
-compared to an other Markers using boolean methods. Positions can have
-non-numeric values or other methods to store the locations, so they
-have a method numeric() which does the conversion. 
-
-A Marker has a convinience method position() which is able to create
-Positions of required class from scalars by calling method
-get_position_object().
-
-For more complex situations, a Marker can have multiple positions in
-multiple Maps. It is therefore possible to extract Positions (all or
-belonging to certain Map) and compare Markers to them. It is up to the
-programmer to make sure position values and Maps they belong to can be
-sensibly compared.
+A Marker is a Bio::Map::Mappable with some properties particular to markers.
+It also offers a number of convienience methods to make dealing with map
+elements easier.
 
 =head1 FEEDBACK
 

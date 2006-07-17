@@ -16,18 +16,21 @@ Bio::Map::PositionI - Abstracts the notion of a position having a value in the c
 
 =head1 SYNOPSIS
 
-    # do not use directly
-    my $marker_position = $position->value;
-    my $map             = $position->map;
-    my $marker          = $position->marker;
+    # do not use this module directly
+    # See Bio::Map::Position for an example of
+    # implementation.
 
 =head1 DESCRIPTION
 
 This object stores one of the postions that a mappable object
 (e.g. Marker) may have in a map.
 
-The method numeric() returns the position in a form that can be
-compared between other positions of the same type.
+Positions can have non-numeric values or other methods to store the locations,
+so they have a method numeric() which does the conversion. numeric()
+returns the position in a form that can be compared between other positions of
+the same type. It is not necessarily a value suitable for sorting positions (it
+may be the distance from the previous position); for that purpose the result of
+sortable() should be used.
 
 A 'position', in addition to being a single point, can also be an area and so
 can be imagined as a range and compared with other positions on the basis of
@@ -79,6 +82,7 @@ use strict;
 use Bio::Map::EntityI;
 use Bio::Map::PositionHandler;
 use Bio::RangeI;
+use Scalar::Util qw(looks_like_number);
 
 @ISA = qw(Bio::Map::EntityI Bio::RangeI);
 
@@ -182,11 +186,13 @@ sub value {
 =head2 numeric
 
  Title   : numeric
- Usage   : my $num = $position->numeric();
- Function: Read-only method that is guaranteed to return 
-           representation for this position that can be compared with others
- Returns : numeric
- Args    : none
+ Usage   : my $num = $position->numeric;
+ Function: Read-only method that is guaranteed to return a numeric 
+           representation of the start of this position. 
+ Returns : scalar numeric
+ Args    : none to get the co-ordinate normally (see absolute() method), OR
+           Bio::Map::RelativeI to get the co-ordinate converted to be
+           relative to what this Relative describes.
 
 =cut
 
@@ -200,7 +206,9 @@ sub numeric {
  Title   : sortable
  Usage   : my $num = $position->sortable();
  Function: Read-only method that is guaranteed to return a value suitable
-           for correctly sorting this kind of position
+           for correctly sorting this kind of position amongst other positions
+           of the same kind on the same map. Note that sorting different kinds
+           of position together is unlikely to give sane results.
  Returns : numeric
  Args    : none
 
@@ -211,29 +219,83 @@ sub sortable {
     $self->throw_not_implemented();
 }
 
-=head2 RangeI methods
+=head2 relative
+
+  Title   : relative
+  Usage   : my $relative = $position->relative();
+            $position->relative($relative);
+  Function: Get/set the thing this Position's coordinates (numerical(), start(),
+            end()) are relative to, as described by a Relative object.
+  Returns : Bio::Map::RelativeI (default is one describing "relative to the
+            start of the Position's map")
+  Args    : none to get, OR
+            Bio::Map::RelativeI to set
+
+=cut
+
+sub relative {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 absolute
+
+  Title   : absolute
+  Usage   : my $absolute = $position->absolute();
+            $position->absolute($absolute);
+  Function: Get/set how this Position's co-ordinates (numerical(), start(),
+            end()) are reported. When absolute is off, co-ordinates are
+            relative to the thing described by relative(). Ie. the value
+            returned by start() will be the same as the value you set start()
+            to. When absolute is on, co-ordinates are converted to be relative
+            to the start of the map.
+            
+            So if relative() currently points to a Relative object describing
+            "relative to another position which is 100 bp from the start of
+            the map", this Position's start() had been set to 50 and absolute()
+            returns 1, $position->start() will return 150. If absolute() returns
+            0 in the same situation, $position->start() would return 50.
+            
+  Returns : boolean (default 0)
+  Args    : none to get, OR
+            boolean to set
+
+=cut
+
+sub absolute {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 RangeI-based methods
 
 =cut
 
 =head2 start
 
   Title   : start
-  Usage   : $start = $position->start();
-  Function: get/set the start of this position
+  Usage   : my $start = $position->start();
+            $position->start($start);
+  Function: Get/set the start co-ordinate of this position.
   Returns : the start of this position
-  Args    : optionally allows the start to be set
-            using $position->start($start)
+  Args    : scalar numeric to set, OR
+            none to get the co-ordinate normally (see absolute() method), OR
+            Bio::Map::RelativeI to get the co-ordinate converted to be
+            relative to what this Relative describes.
 
 =cut
 
 =head2 end
 
   Title   : end
-  Usage   : $end = $position->end();
-  Function: get/set the end of this position
+  Usage   : my $end = $position->end();
+            $position->end($end);
+  Function: Get/set the end co-ordinate of this position.
   Returns : the end of this position
-  Args    : optionally allows the end to be set
-            using $position->end($end)
+  Args    : scalar numeric to set, OR
+            none to get the co-ordinate normally (see absolute() method), OR
+            Bio::Map::RelativeI to get the co-ordinate converted to be
+            relative to what this Relative describes.
 
 =cut
 
@@ -241,7 +303,7 @@ sub sortable {
 
   Title   : length
   Usage   : $length = $position->length();
-  Function: get the length of this position
+  Function: Get the length of this position.
   Returns : the length of this position
   Args    : none
 
@@ -251,8 +313,9 @@ sub sortable {
 
   Title   : strand
   Usage   : $strand = $position->strand();
-  Function: get the strand of this position; it is always 1 (the forward strand)
-  Returns : 1, the strandedness
+  Function: Get the strand of this position; it is always 1 since maps to not
+            have strands.
+  Returns : 1
   Args    : none
 
 =cut
@@ -261,154 +324,366 @@ sub strand {
     return 1;
 }
 
-=head1 Boolean Methods
+=head2 toString
 
-These range-related methods return true or false. They throw an error if start
-and end are not defined.
+  Title   : toString
+  Usage   : print $position->toString(), "\n";
+  Function: stringifies this range
+  Returns : a string representation of the range of this Position
+  Args    : optional Bio::Map::RelativeI to have the co-ordinates reported
+            relative to the thing described by that Relative
 
+=cut
+
+sub toString {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head1 RangeI-related methods
+
+These methods work by considering only the values of start() and end(), as
+modified by considering every such co-ordinate relative to the start of the map
+(ie. absolute(1) is set temporarily during the calculation), or any supplied
+Relative. For the boolean methods, when the comparison Position is on the same
+map as the calling Position, there is no point supplying a Relative since the
+answer will be the same as without. Relative is most useful when comparing
+Positions on different maps and you have a Relative that describes some special
+place on each map like 'the start of the gene', where the actual start of the
+gene relative to the start of the map is different for each map.
+
+The methods do not consider maps during their calculations - things on different
+maps can overlap/contain/intersect/etc. each other.
+
+The geometrical methods (intersect, union etc.) do things to the geometry of
+ranges, and return Bio::Map::PositionI compliant objects or triplets (start,
+stop, strand) from which new positions could be built. When a PositionI is made
+it will have a map transferred to it if all the arguments shared the same map.
+If a Relative was supplied the result will have that same Relative.
+
+Note that the strand-testing args are there for compatability with the RangeI
+interface. They have no meaning when only using PositionI objects since maps do
+not have strands. Typically you will just set the argument to undef if you want
+to supply the argument after it.
+
+=head2 equals
+
+  Title   : equals
+  Usage   : if ($p1->equals($p2)) {...}
+  Function: Test whether $p1 has the same start, end, length as $p2.
+  Returns : true if they are describing the same position (regardless of map)
+  Args    : arg #1 = a Bio::RangeI (eg. a Bio::Map::Position) to compare this
+                     one to (mandatory)
+            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
+            arg #3 = optional Bio::Map::RelativeI to ask if the Positions
+                     equal in terms of their relative position to the thing
+                     described by that Relative
+
+=cut
+
+sub equals {
+    # overriding the RangeI implementation so we can handle Relative
+    my ($self, $other, $so, $rel) = @_;
+    
+    my ($own_start, $own_end) = $self->_pre_rangei($self, $rel);
+    my ($other_start, $other_end) = $self->_pre_rangei($other, $rel);
+    
+    return ($self->_testStrand($other, $so) and
+            $own_start == $other_start and $own_end == $other_end);
+}
+
+
+=head2 less_than
+
+ Title   : less_than
+ Usage   : if ($position->less_than($other_position)) {...}
+ Function: Ask if this Position ends before another starts.
+ Returns : boolean
+ Args    : arg #1 = a Bio::RangeI (eg. a Bio::Map::Position) to compare this
+                    one to (mandatory)
+           arg #2 = optional Bio::Map::RelativeI to ask if the Position is less
+                    in terms of their relative position to the thing described
+                    by that Relative
+
+=cut
+
+sub less_than {
+    my ($self, $other, $rel) = @_;
+    
+    my ($own_start, $own_end) = $self->_pre_rangei($self, $rel);
+    my ($other_start, $other_end) = $self->_pre_rangei($other, $rel);
+    
+    return $own_end < $other_start;
+}
+
+=head2 greater_than
+
+ Title   : greater_than
+ Usage   : if ($position->greater_than($other_position)) {...}
+ Function: Ask if this Position starts after another ends.
+ Returns : boolean
+ Args    : arg #1 = a Bio::RangeI (eg. a Bio::Map::Position) to compare this
+                    one to (mandatory)
+           arg #2 = optional Bio::Map::RelativeI to ask if the Position is
+                    greater in terms of their relative position to the thing
+                    described by that Relative
+
+=cut
+
+sub greater_than {
+    my ($self, $other, $rel) = @_;
+    
+    my ($own_start, $own_end) = $self->_pre_rangei($self, $rel);
+    my ($other_start, $other_end) = $self->_pre_rangei($other, $rel);
+    
+    return $own_start > $other_end;
+}
 
 =head2 overlaps
 
   Title   : overlaps
   Usage   : if ($p1->overlaps($p2)) {...}
-  Function: tests if $p1 overlaps $p2
-  Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to
-  Returns : true if the positions overlap (regardless of map), false otherwise
-            [*** relative handling ***]
+  Function: Tests if $p1 overlaps $p2.
+  Returns : True if the positions overlap (regardless of map), false otherwise
+  Args    : arg #1 = a Bio::RangeI (eg. a Bio::Map::Position) to compare this
+                     one to (mandatory)
+            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
+            arg #3 = optional Bio::Map::RelativeI to ask if the Positions
+                     overlap in terms of their relative position to the thing
+                     described by that Relative
 
 =cut
+
+sub overlaps {
+    # overriding the RangeI implementation so we can handle Relative
+    my ($self, $other, $so, $rel) = @_;
+    
+    my ($own_start, $own_end) = $self->_pre_rangei($self, $rel);
+    my ($other_start, $other_end) = $self->_pre_rangei($other, $rel);
+    
+    return ($self->_testStrand($other, $so) and not
+            (($own_start > $other_end or $own_end < $other_start)));
+}
 
 =head2 contains
 
   Title   : contains
-  Usage   : if ($p1->contains($p2) {...}
-  Function: tests whether $p1 totally contains $p2 
-  Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to.
-	        alternatively, integer scalar to test
+  Usage   : if ($p1->contains($p2)) {...}
+  Function: Tests whether $p1 totally contains $p2.
   Returns : true if the argument is totally contained within this position
             (regardless of map), false otherwise
-            [*** relative handling ***]
+  Args    : arg #1 = a Bio::RangeI (eg. a Bio::Map::Position) to compare this
+                     one to, or scalar number (mandatory)
+            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
+            arg #3 = optional Bio::Map::RelativeI to ask if the Position
+                     is contained in terms of their relative position to the
+                     thing described by that Relative
 
 =cut
 
-=head1 Geometrical methods
-
-These methods do things to the geometry of ranges, and return
-Bio::Map::PositionI compliant objects or triplets (start, stop, strand) from
-which new positions could be built.
+sub contains {
+    # overriding the RangeI implementation so we can handle Relative
+    my ($self, $other, $so, $rel) = @_;
+    
+    my ($own_start, $own_end) = $self->_pre_rangei($self, $rel);
+    my ($other_start, $other_end) = $self->_pre_rangei($other, $rel);
+    
+    return ($self->_testStrand($other, $so) and
+			$other_start >= $own_start and $other_end <= $own_end);
+}
 
 =head2 intersection
 
  Title   : intersection
- Usage   : ($start, $stop, $strand) = $r1->intersection($r2)
+ Usage   : ($start, $stop, $strand) = $p1->intersection($p2)
            ($start, $stop, $strand) = Bio::Map::Position->intersection(\@positions);
-           my $containing_range = $r1->intersection($r2);
-           my $containing_range = Bio::Map::Position->intersection(\@positions);
+           my $containing_pos = $p1->intersection($p2);
+           my $containing_pos = Bio::Map::Position->intersection(\@positions);
  Function: gives the range that is contained by all ranges
  Returns : undef if they do not overlap, or
            the range that they do overlap in an object like the calling one
            (with map transfered across from self or a position in the array ref
            of positions supplied, as long as the map is shared by all inputs),
            OR a three element array
- Args    : a position/range to compare this one to, or an array ref of
-           positions/ranges
-           [*** relative handling ***]
+ Args    : arg #1 = [REQUIRED] a Bio::RangeI (eg. a Bio::Map::Position) to
+                    compare this one to, or an array ref of Bio::RangeI
+           arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
+           arg #3 = optional Bio::Map::RelativeI to ask how the Positions
+                    intersect in terms of their relative position to the thing
+                    described by that Relative
 
 =cut
 
 sub intersection {
-    # overriding the RangeI implementation so we can transfer map and make the
-    # result a PositionI
-    my $self = shift;
+    # overriding the RangeI implementation so we can transfer map and handle
+    # Relative
+    my ($self, $given, $so, $rel) = @_;
+	$self->throw("missing arg: you need to pass in another argument") unless $given;
     
-    if (wantarray()) {
-        return $self->SUPER::intersection(@_);
-    }
-    
-    my $range = $self->SUPER::intersection(@_);
-    $range or return;
-    
-    # transfer the map
-    my @things;
+    my @positions;
     if ($self eq "Bio::Map::PositionI") {
-        $self = "Bio::Map::Position";
-        $self->warn("calling static methods of an interface is deprecated; use $self instead");
-    }
-    if (ref $self) {
-        push(@things, $self);
-    }
-    my $given = shift;
-    ref($given) eq 'ARRAY' ? push(@things, @{$given}) : push(@things, $given);
+		$self = "Bio::Map::Position";
+		$self->warn("calling static methods of an interface is deprecated; use $self instead");
+	}
+	if (ref $self) {
+		push(@positions, $self);
+	}
+    ref($given) eq 'ARRAY' ? push(@positions, @{$given}) : push(@positions, $given);
+    $self->throw("Need at least 2 Positions") unless @positions >= 2;
     
-    my $map;
-    foreach my $thing (@things) {
-        if ($thing->isa("Bio::Map::PositionI")) {
-            my $this_map = $thing->map || next;
+    my ($intersect, $i_start, $i_end, $c_start, $c_end, $map);
+    while (@positions > 0) {
+        unless ($intersect) {
+            $intersect = shift(@positions);
+            ($i_start, $i_end) = $self->_pre_rangei($intersect, $rel);
+            $map = $intersect->map;
+        }
+        
+        my $compare = shift(@positions);
+        ($c_start, $c_end) = $self->_pre_rangei($compare, $rel);
+        return unless $compare->_testStrand($intersect, $so);
+        if ($compare->isa('Bio::Map::PositionI')) {
+            my $this_map = $compare->map;
             $map ||= $this_map;
             
             if ($map ne $this_map) {
-                $map = undef;
-                last;
+                $map = 'notsame';
             }
+        }
+        
+        my @starts = sort {$a <=> $b} ($i_start, $c_start);
+        my @ends   = sort {$a <=> $b} ($i_end, $c_end);
+        
+        my $start = pop @starts; # larger of the 2 starts
+        my $end = shift @ends;   # smaller of the 2 ends
+        
+        my $intersect_strand;    # strand for the intersection
+        if (defined($intersect->strand) && defined($compare->strand) && $intersect->strand == $compare->strand) {
+            $intersect_strand = $compare->strand;
+        }
+        else {
+            $intersect_strand = 0;
+        }
+        
+        if ($start > $end) {
+            return;
+        }
+        else {
+            $intersect = $self->new(-start  => $start,
+                                    -end    => $end,
+                                    -strand => $intersect_strand);
         }
     }
     
-    return $self->new(-start => $range->start, -end => $range->end, -map => $map);
+    if (wantarray()) {
+        return ($intersect->start, $intersect->end, $intersect->strand);
+    }
+    else {
+        if ($map && $map ne 'notsame') {
+            $intersect->map($map);
+        }
+        $intersect->relative($rel) if $rel;
+        return $intersect;
+    }
 }
 
 =head2 union
 
  Title   : union
- Usage   : ($start, $stop, $strand) = $r1->union($r2);
+ Usage   : ($start, $stop, $strand) = $p1->union($p2);
            ($start, $stop, $strand) = Bio::Map::Position->union(@positions);
+           my $newpos = $p1->union($p2);
            my $newpos = Bio::Map::Position->union(@positions);
  Function: finds the minimal position/range that contains all of the positions
  Returns : the position object containing all of the ranges in an object like
            the calling one (with map transfered across from self or a position
            in the array ref of positions supplied, as long as the map is shared
            by all inputs), OR a three element array
- Args    : a range or list of positions/ranges to find the union of
-           [*** relative handling ***]
+ Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to, or a
+           list of Bio::RangeI
+           OR
+           a single Bio::RangeI or array ref of Bio::RangeI AND a
+           Bio::Map::RelativeI to ask for the Position's union in terms of their
+           relative position to the thing described by that Relative
 
 =cut
+
 sub union {
-    # overriding the RangeI implementation so we can transfer map and make the
-    # result a PositionI
-    my $self = shift;
+    # overriding the RangeI implementation so we can transfer map and handle
+    # Relative
+    my ($self, @args) = @_;
+    $self->throw("Not enough arguments") unless @args >= 1;
     
-    if (wantarray()) {
-        return $self->SUPER::union(@_);
-    }
-    
-    my $range = $self->SUPER::union(@_);
-    $range or return;
-    
-    # transfer the map
-    my @things;
+    my @positions;
+    my $rel;
     if ($self eq "Bio::Map::PositionI") {
-        $self = "Bio::Map::Position";
-        $self->warn("calling static methods of an interface is deprecated; use $self instead");
+		$self = "Bio::Map::Position";
+		$self->warn("calling static methods of an interface is deprecated; use $self instead");
+	}
+	if (ref $self) {
+		push(@positions, $self);
+	}
+    if (ref $args[0] eq 'ARRAY') {
+        push(@positions, @{shift(@args)});
     }
-    if (ref $self) {
-        push(@things, $self);
+    else {
+        push(@positions, shift(@args));
     }
-    my $given = shift;
-    ref($given) eq 'ARRAY' ? push(@things, @{$given}) : push(@things, $given);
+    if ($args[0] && $args[0]->isa('Bio::Map::RelativeI')) {
+        $rel = shift(@args);
+    }
+    foreach my $arg (@args) {
+        # avoid pushind undefined values into @positions
+        push(@positions, $arg) if $arg;
+    }
+    $self->throw("Need at least 2 Positions") unless @positions >= 2;
     
-    my $map;
-    foreach my $thing (@things) {
-        if ($thing->isa("Bio::Map::PositionI")) {
-            my $this_map = $thing->map || next;
+    my (@starts, @ends, $map, $union_strand);
+    foreach my $compare (@positions) {
+        # RangeI union allows start or end to be undefined; however _pre_rangei
+        # will throw
+        my ($start, $end) = $self->_pre_rangei($compare, $rel);
+        
+        if ($compare->isa('Bio::Map::PositionI')) {
+            my $this_map = $compare->map;
             $map ||= $this_map;
             
             if ($map ne $this_map) {
-                $map = undef;
-                last;
+                $map = 'notsame';
             }
         }
+        
+        if (! defined $union_strand) {
+			$union_strand = $compare->strand;
+		}
+        else {
+			if (! defined $compare->strand or $union_strand ne $compare->strand) {
+				$union_strand = 0;
+			}
+		}
+        
+        push(@starts, $start);
+        push(@ends, $end);
     }
     
-    return $self->new(-start => $range->start, -end => $range->end, -map => $map);
+	@starts = sort { $a <=> $b } @starts;
+	@ends   = sort { $a <=> $b } @ends;
+	my $start = shift @starts;
+	my $end = pop @ends;
+    
+	if (wantarray()) {
+		return ($start, $end, $union_strand);
+	}
+    else {
+		my $pos = $self->new(-start => $start,
+				    		 -end => $end,
+						     -strand => $union_strand);
+        if ($map && $map ne 'notsame') {
+            $pos->map($map);
+        }
+        $pos->relative($rel) if $rel;
+        return $pos;
+	}
 }
 
 =head2 overlap_extent
@@ -429,17 +704,117 @@ sub union {
 
 =head2 disconnected_ranges
 
-    Title   : disconnected_ranges
-    Usage   : my @disc_ranges = Bio::Range->disconnected_ranges(@ranges);
-    Function: finds the minimal set of ranges such that each input range
-              is fully contained by at least one output range, and none of
-              the output ranges overlap
-    Args    : a list of ranges
-    Returns : a list of objects of the same type as the input 
-              (conforms to RangeI)
+ Title   : disconnected_ranges
+ Usage   : my @disc_ranges = Bio::Map::Position->disconnected_ranges(@ranges);
+ Function: Finds the minimal set of ranges such that each input range is fully
+           contained by at least one output range, and none of the output ranges
+           overlap.
+ Returns : array of Bio::Map::PositionI objects
+ Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to, or a
+           list of Bio::RangeI
+           OR
+           a single Bio::RangeI or array ref of Bio::RangeI AND a
+           Bio::Map::RelativeI to consider all Position's co-ordinates in terms
+           of their relative position to the thing described by that Relative
 
 =cut
 
-#*** this should be overridden from RangeI
+sub disconnected_ranges {
+    # overriding the RangeI implementation so we can transfer map and handle
+    # Relative
+    my ($self, @args) = @_;
+    $self->throw("Not enough arguments") unless @args >= 1;
+    
+    my @positions;
+    my $rel;
+    if ($self eq "Bio::Map::PositionI") {
+		$self = "Bio::Map::Position";
+		$self->warn("calling static methods of an interface is deprecated; use $self instead");
+	}
+	if (ref $self) {
+		push(@positions, $self);
+	}
+    if (ref $args[0] eq 'ARRAY') {
+        push(@positions, @{shift(@args)});
+    }
+    else {
+        push(@positions, shift(@args));
+    }
+    if ($args[0] && $args[0]->isa('Bio::Map::RelativeI')) {
+        $rel = shift(@args);
+    }
+    foreach my $arg (@args) {
+        # avoid pushind undefined values into @positions
+        push(@positions, $arg) if $arg;
+    }
+    $self->throw("Need at least 2 Positions") unless @positions >= 2;
+    
+    my @outranges = ();
+    
+    foreach my $inrange (@positions) {
+        my @outranges_new = ();
+        my @overlapping_ranges = ();
+        
+        for (my $i=0; $i<@outranges; $i++) {
+            my $outrange = $outranges[$i];
+            if ($inrange->overlaps($outrange, undef, $rel)) {
+                my $union = $inrange->union($outrange, $rel);
+                push(@overlapping_ranges, $union);
+            }
+            else {
+                push(@outranges_new, $outrange);
+            }
+        }
+        @outranges = @outranges_new;
+        
+        if (@overlapping_ranges) {
+            if (@overlapping_ranges > 1) {
+                my $merged_range = $self->union(@overlapping_ranges, $rel);
+                push(@outranges, $merged_range);
+            }
+            else {
+                push(@outranges, @overlapping_ranges);
+            }
+        }
+        else {
+            push(@outranges, $self->new(-start => $inrange->start($rel), -end => $inrange->end($rel), -strand => $inrange->strand, -map => $inrange->map, -relative => $rel));
+        }
+    }
+    
+    @outranges = sort { $a->sortable <=> $b->sortable } @outranges;
+    
+    return @outranges;
+}
+
+# get start & end suitable for rangeI methods, taking relative into account
+sub _pre_rangei {
+    my ($self, $other, $rel) = @_;
+    $self->throw("Must supply an object") unless $other;
+    if ($rel) {
+        $self->throw("Must supply an object for the Relative argument") unless ref($rel);
+        $self->throw("This is [$rel], not a Bio::Map::RelativeI") unless $rel->isa('Bio::Map::RelativeI');
+    }
+    
+    my ($other_start, $other_end);
+    if (ref($other)) {
+        $self->throw("This is [$other], not a Bio::RangeI object") unless defined $other && $other->isa('Bio::RangeI');
+        
+        my $prior_abs2;
+        $other->isa('Bio::Map::PositionI') ? ($prior_abs2 = $other->absolute) : ($rel = undef);
+        $other->absolute(1) if (defined $prior_abs2 && ! $prior_abs2);
+        $other_start = $other->start($rel);
+        $other_end = $other->end($rel);
+        $other->absolute(0) if (defined $prior_abs2 && ! $prior_abs2);
+    }
+    else {
+        $self->throw("not a number") unless looks_like_number($other);
+        $other_start = $other_end = $other;
+    }
+    
+	$other->throw("start is undefined") unless defined $other_start;
+	$other->throw("end is undefined") unless defined $other_end;
+    
+    return ($other_start, $other_end);
+}
 
 1;

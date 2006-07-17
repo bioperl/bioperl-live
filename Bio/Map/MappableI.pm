@@ -16,14 +16,9 @@ Bio::Map::MappableI - An object that can be placed in a map
 
 =head1 SYNOPSIS
 
-    # get a Bio::Map::MappableI somehow
-    my $position = $element->position();
-    # these methods will be important for building sorted lists
-    if( $position->equals($p2) ) {
-	# do something
-    } elsif( $position->less_tha($p2) ) {} 
-      elsif( $position->greater_than($p2) ) { }    
-
+    # do not use this module directly
+    # See Bio::Map::Mappable for an example of
+    # implementation.
 
 =head1 DESCRIPTION
 
@@ -31,7 +26,7 @@ This object handles the generic notion of an element placed on a
 (linear) Map. A Mappable can have multiple positions in multiple maps, such as
 is the case of Restriction enzyme cut sites on sequence maps. For exact
 information about a mappable's position in a map one must query the associate
-PositionI objects which are accessible through the each_position() method.
+PositionI objects which are accessible through the get_positions() method.
 
 =head1 FEEDBACK
 
@@ -221,16 +216,21 @@ Mappables supplied.
  Usage   : if ($mappable->equals($other_mappable)) {...}
            my @equal_positions = $mappable->equals($other_mappable);
  Function: Finds the positions in this mappable that are equal to any
-           comparison positions, optionally only considering a particular map.
+           comparison positions.
  Returns : array of L<Bio::Map::PositionI> objects
- Args    : L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> [REQUIRED], and
-           optionally a L<Bio::Map::MapI> object to only consider positions on
-		   the given map.
-		   [*** relative handling ***]
-		   
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, the key => value pairs below
+		   -map => Bio::Map::MapI           : optionally a Map to only consider
+		                                      positions on the given map
+		   -relative => Bio::Map::RelativeI : optionally a Relative to ask if
+											  the Positions equal in terms of
+											  their relative position to the
+											  thing described by that Relative
+
 =cut
 
-sub equals{
+sub equals {
     my $self = shift;
     $self->throw_not_implemented();
 }
@@ -241,12 +241,17 @@ sub equals{
  Usage   : if ($mappable->overlaps($other_mappable)) {...}
            my @overlapping_positions = $mappable->overlaps($other_mappable);
  Function: Finds the positions in this mappable that overlap with any
-           comparison positions, optionally only considering a particular map.
+           comparison positions.
  Returns : array of L<Bio::Map::PositionI> objects
- Args    : L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> [REQUIRED], and
-           optionally a L<Bio::Map::MapI> object to only consider positions on
-		   the given map.
-		   [*** relative handling ***]
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, the key => value pairs below
+		   -map => Bio::Map::MapI           : optionally a Map to only consider
+		                                      positions on the given map
+		   -relative => Bio::Map::RelativeI : optionally a Relative to ask if
+                                              the Positions overlap in terms of
+                                              their relative position to the
+                                              thing described by that Relative
 
 =cut
 
@@ -261,56 +266,21 @@ sub overlaps {
  Usage   : if ($mappable->contains($other_mappable)) {...}
            my @container_positions = $mappable->contains($other_mappable);
  Function: Finds the positions in this mappable that contain any comparison
-           positions, optionally only considering a particular map.
+           positions.
  Returns : array of L<Bio::Map::PositionI> objects
- Args    : L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> [REQUIRED], and
-           optionally a L<Bio::Map::MapI> object to only consider positions on
-		   the given map.
-		   [*** relative handling ***]
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, the key => value pairs below
+		   -map => Bio::Map::MapI           : optionally a Map to only consider
+		                                      positions on the given map
+		   -relative => Bio::Map::RelativeI : optionally a Relative to ask if
+                                              the Positions contains in terms of
+                                              their relative position to the
+                                              thing described by that Relative
 
 =cut
 
 sub contains {
-    my $self = shift;
-    $self->throw_not_implemented();
-}
-
-=head2 less_than
-
- Title   : less_than
- Usage   : if ($mappable->less_than($other_mappable)) {...}
-           my @lower_positions = $mappable->less_than($other_mappable);
- Function: Finds the positions in this mappable that are less than all
-           comparison positions, optionally only considering a particular map.
- Returns : array of L<Bio::Map::PositionI> objects
- Args    : L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> [REQUIRED], and
-           optionally a L<Bio::Map::MapI> object to only consider positions on
-		   the given map.
-		   [*** relative handling ***]
-
-=cut
-
-sub less_than {
-    my $self = shift;
-    $self->throw_not_implemented();
-}
-
-=head2 greater_than
-
- Title   : greater_than
- Usage   : if ($mappable->greater_than($other_mappable)) {...}
-           my @higher_positions = $mappable->greater_than($other_mappable);
- Function: Finds the positions in this mappable that are greater than all
-           comparison positions, optionally only considering a particular map.
- Returns : array of L<Bio::Map::PositionI> objects
- Args    : L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> [REQUIRED], and
-           optionally a L<Bio::Map::MapI> object to only consider positions on
-		   the given map.
-		   [*** relative handling ***]
-
-=cut
-
-sub greater_than {
     my $self = shift;
     $self->throw_not_implemented();
 }
@@ -323,10 +293,16 @@ sub greater_than {
  Function: Make the position that is at the intersection of all positions of all
            supplied mappables.
  Returns : L<Bio::Map::PositionI> object or undef (if not all positions overlap)
- Args    : arg #1 = [REQUIRED] a L<Bio::Map::MappableI> OR
-					L<Bio::Map::PositionI> to compare this one to, or an array
-					ref of such objects
-           arg #2 = [*** relative handling ***]
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
+                    this one to, or an array ref of such objects (mandatory)
+           arg #2 = optionally, the key => value pairs below
+		   -map => Bio::Map::MapI           : optionally a Map to only consider
+		                                      positions on the given map
+		   -relative => Bio::Map::RelativeI : optionally a Relative to to ask
+											  how the Positions intersect in
+											  terms of their relative position
+											  to the thing described by that
+											  Relative
 
 =cut
 
@@ -343,10 +319,16 @@ sub intersection {
  Function: Make the minimal position that contains all of the positions of all
            supplied mappables.
  Returns : L<Bio::Map::PositionI> object or undef (if not all positions overlap)
- Args    : arg #1 = [REQUIRED] a L<Bio::Map::MappableI> OR
-					L<Bio::Map::PositionI> to compare this one to, or an array
-					of such objects
-           arg #2 = [*** relative handling ***]
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
+                    this one to, or an array ref of such objects (mandatory)
+           arg #2 = optionally, the key => value pairs below
+		   -map => Bio::Map::MapI           : optionally a Map to only consider
+		                                      positions on the given map
+		   -relative => Bio::Map::RelativeI : optionally a Relative to to ask
+											  if the union of the Positions in
+											  terms of their relative position
+											  to the thing described by that
+											  Relative
 
 =cut
 

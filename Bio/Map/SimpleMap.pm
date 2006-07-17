@@ -17,19 +17,27 @@ Bio::Map::SimpleMap - A MapI implementation handling the basics of a Map
 =head1 SYNOPSIS
 
     use Bio::Map::SimpleMap;
+    
     my $map = new Bio::Map::SimpleMap(-name => 'genethon',
 				      -type => 'Genetic',
 				      -units=> 'cM',
 				      -species => $human);
+    
     foreach my $marker ( @markers ) { # get a list of markers somewhere
 		$map->add_element($marker);
+    }
+    
+    foreach my $marker ($map->get_elements) {
+        # do something with this Bio::Map::MappableI
     }
 
 =head1 DESCRIPTION
 
-This is the basic implementation of a Bio::Map::MapI.  It handles the
-essential storage of name, species, type, and units as well as in
-memory representation of the elements of a map.
+This is the basic implementation of a Bio::Map::MapI. It handles the
+essential storage of name, species, type, and units.
+
+It knows which map elements (mappables) belong to it, and their
+position.
 
 Subclasses might need to redefine or hardcode type(), length() and
 units().
@@ -218,8 +226,11 @@ sub length {
     
 	my $len = 0;
     foreach my $element ($self->get_elements) {
-		#*** needs to look at all positions on the map, and use ->end ?
-		$len = $element->position->numeric if $element->position->numeric > $len;
+        foreach my $pos ($element->get_positions($self)) {
+            if ($pos->value) {
+                $len = $pos->end if $pos->end > $len;
+            }
+        }
 	}
     
 	return $len;
@@ -286,17 +297,16 @@ sub get_elements {
     
 	# for backward compatability with MapIO tests, and for 'niceness', when
 	# there is only 1 position per element we will return the elements in
-	# order
+	# order, as long as the positions have values set
     my $only_1 = 1;
     foreach my $element (@elements) {
-        my $num_of_pos = $element->get_positions($self);
-        if ($num_of_pos && $num_of_pos > 1) {
+        my @positions = $element->get_positions($self);
+        if (@positions > 1 || (@positions == 1 && ! $positions[0]->value)) {
             $only_1 = 0;
         }
     }
 	if ($only_1) {
-		#*** assumes we're dealing with a MarkerI which have position() method
-		return sort { $a->position->sortable <=> $b->position->sortable } @elements;
+		return sort { ${[$a->get_positions($self)]}[0]->sortable <=> ${[$b->get_positions($self)]}[0]->sortable } @elements;
 	}
 	
 	return @elements;
@@ -329,6 +339,25 @@ sub purge_element {
     $self->throw("This is [$element], not a Bio::Map::MappableI object") unless $element->isa('Bio::Map::MappableI');
 	
 	$self->purge_positions($element);
+}
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $map->annotation($an_col);
+           my $an_col = $map->annotation();
+ Function: Get the annotation collection (see Bio::AnnotationCollectionI)
+           for this annotatable object.
+ Returns : a Bio::AnnotationCollectionI implementing object, or undef
+ Args    : none to get, OR
+           a Bio::AnnotationCollectionI implementing object to set
+
+=cut
+
+sub annotation {
+    my $self = shift;
+    if (@_) { $self->{_annotation} = shift }
+    return $self->{_annotation} || return;
 }
 
 1;

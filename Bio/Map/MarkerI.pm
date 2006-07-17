@@ -16,7 +16,9 @@ Bio::Map::MarkerI - Interface for basic marker functionality
 
 =head1 SYNOPSIS
 
-Give standard usage here
+    # do not use this module directly
+    # See Bio::Map::Marker for an example of
+    # implementation.
 
 =head1 DESCRIPTION
 

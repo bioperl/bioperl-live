@@ -134,7 +134,9 @@ sub order {
  Title   : sortable
  Usage   : my $num = $position->sortable();
  Function: Read-only method that is guaranteed to return a value suitable
-           for correctly sorting this kind of position
+           for correctly sorting this kind of position amongst other positions
+           of the same kind on the same map. Note that sorting different kinds
+           of position together is unlikely to give sane results.
  Returns : numeric
  Args    : none
 

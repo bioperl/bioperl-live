@@ -16,7 +16,7 @@ Bio::Map::MapI - Interface for describing Map objects in bioperl
 
 =head1 SYNOPSIS
 
-    # get a MapI somehowe
+    # get a MapI somehow
     my $name   = $map->name();     # string
     my $length = $map->length();   # integer
     my $species= $map->species;    # Bio::Species
@@ -25,7 +25,7 @@ Bio::Map::MapI - Interface for describing Map objects in bioperl
 =head1 DESCRIPTION
 
 This object describes the basic functionality of a Map in bioperl.
-Maps are anything from Genetic Map to Sequence Map to and Assembly Map
+Maps are anything from Genetic Map to Sequence Map to Assembly Map
 to Restriction Enzyme to FPC.
 
 =head1 FEEDBACK
@@ -70,9 +70,10 @@ package Bio::Map::MapI;
 use vars qw(@ISA);
 use strict;
 use Bio::Map::EntityI;
+use Bio::AnnotatableI;
 use Bio::Map::PositionHandler;
 
-@ISA = qw(Bio::Map::EntityI);
+@ISA = qw(Bio::Map::EntityI Bio::AnnotatableI);
 
 =head2 EntityI methods
 
@@ -177,6 +178,81 @@ sub get_elements {
 
 =cut
 
+=head2 common_elements
+
+ Title   : common_elements
+ Usage   : my @common_elements = $map->common_elements(@other_maps);
+           my @common_elements = Bio::Map::SimpleMap->common_elements(@maps);
+ Function: Find the elements that are common to multiple maps.
+ Returns : array of Bio::Map::MappableI
+ Args    : arg #1 = L<Bio::Map::MapI> to compare this one to, or an array ref
+                    of such objects (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+           -min_num => int        : the minimum number of input maps an element
+                                    must be found on before before returned
+                                    [default is 1]
+           -min_percent => number : as above, but the minimum percentage of
+                                    input maps [default is 100 - note that this
+                                    will effectively override all other options]
+           -require_self => 1|0   : require that all output elements at least
+                                    be on the calling map [default is 0, has no
+                                    effect when the second usage form is used]
+           -required => \@maps    : require that all output elements be on at
+                                    least all the maps supplied here
+
+=cut
+
+sub common_elements {
+    my ($self, $maps_ref, @extra_args) = @_;
+    $self->throw("Must supply a reference first argument") unless ref($maps_ref);
+    my @maps;
+    if (ref($maps_ref) eq 'ARRAY') {
+        @maps = @{$maps_ref};
+    }
+    elsif ($maps_ref->isa('Bio::Map::MapI')) {
+        @maps = ($maps_ref);
+    }
+    if (ref($self)) {
+        unshift(@maps, $self);
+    }
+    $self->throw("Need at least 2 maps") unless @maps >= 2;
+    
+    my %args = (-min_num => 1, -min_percent => 100, -require_self => 0, -required => undef, @extra_args);
+    my $min_num = $args{-min_num};
+    if ($args{-min_percent}) {
+        my $mn = @maps / 100 * $args{-min_percent};
+        if ($mn > $min_num) {
+            $min_num = $mn;
+        }
+    }
+    my %required = map { $_ => 1 } $args{-required} ? @{$args{-required}} : ();
+    $required{$self} = 1 if ref($self) && $args{-require_self};
+    my @required = keys %required;
+    
+    my %map_elements;
+    my %elements;
+    my %count;
+    foreach my $map (@maps) {
+        $map_elements{$map} = {};
+        foreach my $element ($map->get_elements) {
+            $map_elements{$map}->{$element} = 1;
+            $elements{$element} = $element;
+            $count{$element}++;
+        }
+    }
+    
+    my @elements;
+    ELEMENT: while (my ($key, $value) = each %elements) {
+        $count{$key} >= $min_num or next;
+        foreach my $required (@required) {
+            exists $map_elements{$required}->{$key} or next ELEMENT;
+        }
+        
+        push(@elements, $value);
+    }
+    return @elements;
+}
+
 =head2 MapI-specific methods
 
 =cut
@@ -255,21 +331,6 @@ sub name {
 =cut
 
 sub length {
-    my $self = shift;
-    $self->throw_not_implemented();
-}
-
-=head2 unique_id
-
- Title   : unique_id
- Usage   : my $id = $map->unique_id;
- Function: Get/Set the unique ID for this map
- Returns : a unique identifier
- Args    : [optional] new identifier to set 
-
-=cut
-
-sub unique_id {
     my $self = shift;
     $self->throw_not_implemented();
 }

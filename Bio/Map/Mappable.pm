@@ -29,7 +29,7 @@ that can have multiple locations in several maps.
   $mappable->add_position($position3);
 
   # get all the places our map element is found, on a particular map of interest
-  foreach $pos ($mappable->each_position($map1)) {
+  foreach $pos ($mappable->get_positions($map1)) {
      print $pos->value, "\n";
   }
 
@@ -38,8 +38,9 @@ that can have multiple locations in several maps.
 This object handles the notion of a generic map element. Mappables are
 entities with one or more positions on one or more maps.
 
-This object is a pure perl implementation of L<Bio::Map::MappableI> with a
-convienience method positions() to add multiple positions at once.
+This object is a pure perl implementation of L<Bio::Map::MappableI>. That
+interface implements some of its own methods so check the docs there for
+those.
 
 =head1 FEEDBACK
 
@@ -78,6 +79,7 @@ use vars qw(@ISA);
 use strict;
 use Bio::Root::Root;
 use Bio::Map::MappableI;
+use Bio::Map::Relative;
 
 @ISA = qw(Bio::Root::Root Bio::Map::MappableI);
 
@@ -127,16 +129,22 @@ sub in_map {
 =head2 equals
 
  Title   : equals
- Usage   : if ($marker->equals($other_marker)) {...}
-           my @equal_positions = $marker->equals($comparison_marker);
- Function: Finds the positions in this marker that are equal to any
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
+ Usage   : if ($mappable->equals($other_mappable)) {...}
+           my @equal_positions = $mappable->equals($other_mappable);
+ Function: Finds the positions in this mappable that are equal to any
+           comparison positions.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
 
 =cut
+
 sub equals {
     my $self = shift;
     return $self->_compare('equals', @_);
@@ -145,74 +153,70 @@ sub equals {
 =head2 less_than
 
  Title   : less_than
- Usage   : if ($marker->less_than($comparison_marker)) {...}
-           my @lower_positions = $marker->less_than($comparison_marker);
- Function: Finds the positions in this marker that are less than all
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
+ Usage   : if ($mappable->less_than($other_mappable)) {...}
+           my @lesser_positions = $mappable->less_than($other_mappable);
+ Function: Finds the positions in this mappable that are less than all
+           comparison positions.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
 
 =cut
+
 sub less_than {
-    my ($self, $compare, $map) = @_;
-    my ($mine, $yours) = $self->_pre_compare($compare, $map);
-    
-    (@{$mine} > 0 && @{$yours} > 0) or return;
-    my $least = ${$yours}[0]->start;
-    
-    my @less;
-    foreach my $pos (@{$mine}) {
-        $pos->end < $least or last;
-        push(@less, $pos);
-    }
-    
-    return @less;
+    my $self = shift;
+    return $self->_compare('less_than', @_);
 }
 
 =head2 greater_than
 
  Title   : greater_than
- Usage   : if ($marker->greater_than($comparison_marker)) {...}
-           my @higher_positions = $marker->greater_than($comparison_marker);
- Function: Finds the positions in this marker that are greater than all
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
+ Usage   : if ($mappable->greater_than($other_mappable)) {...}
+           my @greater_positions = $mappable->greater_than($other_mappable);
+ Function: Finds the positions in this mappable that are greater than all
+           comparison positions.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
 
 =cut
+
 sub greater_than {
-    my ($self, $compare, $map) = @_;
-    my ($mine, $yours) = $self->_pre_compare($compare, $map);
-    
-    (@{$mine} > 0 && @{$yours} > 0) or return ();
-    my $greatest = ${$yours}[-1]->end;
-    
-    my @more;
-    foreach my $pos (@{$mine}) {
-        $pos->start > $greatest or next;
-        push(@more, $pos);
-    }
-    
-    return @more;
+    my $self = shift;
+    return $self->_compare('greater_than', @_);
 }
 
 =head2 overlaps
 
  Title   : overlaps
- Usage   : if ($marker->overlaps($other_marker)) {...}
-           my @overlapping_positions = $marker->overlaps($comparison_marker);
- Function: Finds the positions in this marker that overlap with any
-           comparison positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
+ Usage   : if ($mappable->overlaps($other_mappable)) {...}
+           my @overlapping_positions = $mappable->overlaps($other_mappable);
+ Function: Finds the positions in this mappable that overlap with any
+           comparison positions.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
 
 =cut
+
 sub overlaps {
     my $self = shift;
     return $self->_compare('overlaps', @_);
@@ -221,88 +225,286 @@ sub overlaps {
 =head2 contains
 
  Title   : contains
- Usage   : if ($marker->overlaps($other_marker)) {...}
-           my @container_positions = $marker->contains($comparison_marker);
- Function: Finds the positions in this marker that contain any comparison
-           positions, optionally only considering a particular map.
- Returns : array of those Bio::Map::PositionI objects in self that satisfy the
-           above criteria
- Args    : Bio::Map::MappableI or Bio::Map::PositionI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
+ Usage   : if ($mappable->contains($other_mappable)) {...}
+           my @container_positions = $mappable->contains($other_mappable);
+ Function: Finds the positions in this mappable that contain any comparison
+           positions.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to compare
+                    this one to (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
 
 =cut
+
 sub contains {
     my $self = shift;
     return $self->_compare('contains', @_);
 }
 
-=head2 _compare
+=head2 overlapping_groups
 
- Title   : _compare
- Usage   : my @positions = $marker->_compare($method, $comparison_marker, $map);
- Function: do a RangeI comparison
- Returns : array of Bio::Map::PositionI
- Args    : string, a RangeI comparison method name,
-           AND a Bio::Map::MappableI [REQUIRED]
-           Bio::Map::MapI (to only consider positions on this map)
+ Title   : overlapping_groups
+ Usage   : my @groups = $mappable->overlapping_groups($other_mappable);
+           my @groups = Bio::Map::Mappable->overlapping_groups(\@mappables);
+ Function: Look at all the positions of all the supplied mappables and group
+           them according to overlap.
+ Returns : array of array refs, each ref containing the Bio::Map::PositionI
+           objects that overlap with each other
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
+                    this one to, or an array ref of such objects (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
+           -min_pos_num => int    : the minimum number of positions that must
+                                    be in a group before it will be returned
+                                    [default is 1]
+           -min_num => int        : the minimum number of different mappables
+                                    represented by the positions in a group
+                                    before it will be returned [default is 1]
+           -min_percent => number : as above, but the minimum percentage of
+                                    input mappables [default is 0]
+           -require_self => 1|0   : require that at least one of the calling
+                                    object's positions be in each group [default
+                                    is 1, has no effect when the second usage
+                                    form is used]
+           -required => \@mappbls : require that at least one position for each
+                                    mappable supplied in this array ref be in
+                                    each group
 
 =cut
 
+sub overlapping_groups {
+    my $self = shift;
+    return $self->_compare('overlapping_groups', @_);
+}
+
+=head2 disconnected_intersections
+
+ Title   : disconnected_intersections
+ Usage   : @positions = $mappable->disconnected_intersections($other_mappable);
+           @positions = Bio::Map::Mappable->disconnected_intersections(\@mappables);
+ Function: Make the positions that are at the intersection of each group of
+           overlapping positions, considering all the positions of the supplied
+           mappables.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
+                    this one to, or an array ref of such objects (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
+           -min_pos_num => int    : the minimum number of positions that must
+                                    be in a group before the intersection will
+                                    be calculated and returned [default is 1]
+           -min_num => int        : the minimum number of different mappables
+                                    represented by the positions in a group
+                                    before the intersection will be calculated
+                                    and returned [default is 1]
+           -min_percent => number : as above, but the minimum percentage of
+                                    input mappables [default is 0]
+           -require_self => 1|0   : require that at least one of the calling
+                                    object's positions be in each group [default
+                                    is 1, has no effect when the second usage
+                                    form is used]
+           -required => \@mappbls : require that at least one position for each
+                                    mappable supplied in this array ref be in
+                                    each group
+
+=cut
+
+sub disconnected_intersections {
+    my $self = shift;
+    return $self->_compare('intersection', @_);
+}
+
+=head2 disconnected_unions
+
+ Title   : disconnected_unions
+ Usage   : my @positions = $mappable->disconnected_unions($other_mappable);
+           my @positions = Bio::Map::Mappable->disconnected_unions(\@mappables);
+ Function: Make the positions that are the union of each group of overlapping
+           positions, considering all the positions of the supplied mappables.
+ Returns : array of L<Bio::Map::PositionI> objects
+ Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
+                    this one to, or an array ref of such objects (mandatory)
+           arg #2 = optionally, one or more of the key => value pairs below
+		   -map => MapI           : a Bio::Map::MapI to only consider positions
+		                            on the given map
+		   -relative => RelativeI : a Bio::Map::RelativeI to calculate in terms
+                                    of each Position's relative position to the
+                                    thing described by that Relative
+           -min_pos_num => int    : the minimum number of positions that must
+                                    be in a group before the union will be
+                                    calculated and returned [default is 1]
+           -min_num => int        : the minimum number of different mappables
+                                    represented by the positions in a group
+                                    before the union will be calculated and
+                                    returned [default is 1]
+           -min_percent => number : as above, but the minimum percentage of
+                                    input mappables [default is 0]
+           -require_self => 1|0   : require that at least one of the calling
+                                    object's positions be in each group [default
+                                    is 0, has no effect when the second usage
+                                    form is used]
+           -required => \@mappbls : require that at least one position for each
+                                    mappable supplied in this array ref be in
+                                    each group
+
+=cut
+
+sub disconnected_unions {
+    my $self = shift;
+    return $self->_compare('union', @_);
+}
+
+# do a RangeI-related comparison by calling the corresponding PositionI method
+# on all the requested Positions of our Mappables
 sub _compare {
-    my ($self, $method, $compare, $map) = @_;
-    my ($mine, $yours) = $self->_pre_compare($compare, $map);
+    my ($self, $method, $input, @extra_args) = @_;
+    $self->throw("Must supply an object or array ref of them") unless ref($input);
+    $self->throw("Wrong number of extra args (should be key => value pairs)") unless @extra_args % 2 == 0;
+    my @compares = ref($input) eq 'ARRAY' ? @{$input} : ($input);
     
-    (@{$mine} > 0 && @{$yours} > 0) or return;
+    my %args = (-map => undef, -relative => undef, -min_pos_num => 1, -min_num => 1,
+                -min_percent => 0, -require_self => 0, -required => undef, @extra_args);
+    my $map = $args{-map};
+    my $rel = $args{-relative};
+    my $min_pos_num = $args{-min_pos_num};
+    my $min_num = $args{-min_num};
+    if ($args{-min_percent}) {
+        my $mn = (@compares + (ref($self) ? 1 : 0)) / 100 * $args{-min_percent};
+        if ($mn > $min_num) {
+            $min_num = $mn;
+        }
+    }
+    my %required = map { $_ => 1 } $args{-required} ? @{$args{-required}} : ();
+    my (@mine, @yours);
+    
+    if (ref($self)) {
+        @mine = $self->get_positions($map);
+        if ($args{-require_self}) {
+            @mine > 0 or return;
+            $required{$self} = 1;
+        }
+    }
+    my @required = keys %required;
+    
+    foreach my $compare (@compares) {
+        if ($compare->isa('Bio::Map::PositionI')) {
+            push(@yours, $compare);
+        }
+        elsif ($compare->isa('Bio::Map::MappableI')) {
+            push(@yours, $compare->get_positions($map));
+        }
+        else {
+            $self->throw("This is [$compare], not a Bio::Map::MappableI or Bio::Map::PositionI");
+        }
+    }
+    @yours > 0 or return;
     
     my @ok;
-    foreach my $my_pos (@{$mine}) {
-        foreach my $your_pos (@{$yours}) {
-            if ($my_pos->$method($your_pos)) {
-                push(@ok, $my_pos);
-                last;
+    SWITCH: for ($method) {
+        /equals|overlaps|contains/ && do {
+            @mine > 0 or return;
+            foreach my $my_pos (@mine) {
+                foreach my $your_pos (@yours) {
+                    if ($my_pos->$method($your_pos, undef, $rel)) {
+                        push(@ok, $my_pos);
+                        last;
+                    }
+                }
             }
-        }
+            last SWITCH;
+        };
+        /less_than|greater_than/ && do {
+            @mine > 0 or return;
+            if ($method eq 'greater_than') {
+                my $map_start = new Bio::Map::Relative(-map => 0);
+                @mine = sort { $b->end($map_start) <=> $a->end($map_start) } @mine;
+                @yours = sort { $b->end($map_start) <=> $a->end($map_start) } @yours;
+            }
+            my $test_pos = shift(@yours);
+            
+            foreach my $my_pos (@mine) {
+                if ($my_pos->$method($test_pos, $rel)) {
+                    push(@ok, $my_pos);
+                }
+                else {
+                    last;
+                }
+            }
+            
+            if ($method eq 'greater_than') {
+                @ok = sort { $a->sortable <=> $b->sortable } @ok;
+            }
+            
+            last SWITCH;
+        };
+        /overlapping_groups|intersection|union/ && do {
+            my @positions = (@mine, @yours);
+            my $start_pos = shift(@positions);
+            my @disconnected_ranges = $start_pos->disconnected_ranges(\@positions, $rel);
+            @disconnected_ranges > 0 or return;
+            
+            my @all_groups;
+            for my $i (0..$#disconnected_ranges) {
+                my $range = $disconnected_ranges[$i];
+                foreach my $pos ($start_pos, @positions) {
+                    if ($pos->overlaps($range, undef, $rel)) {
+                        push(@{$all_groups[$i]}, $pos);
+                    }
+                }
+            }
+            
+            my @groups;
+            GROUPS: foreach my $group (@all_groups) {
+                @{$group} >= $min_pos_num or next;
+                @{$group} >= $min_num or next;
+                
+                my %mappables;
+                foreach my $pos (@{$group}) {
+                    my $mappable = $pos->element || next;
+                    $mappables{$mappable} = 1;
+                }
+                keys %mappables >= $min_num or next;
+                
+                foreach my $required (@required) {
+                    exists $mappables{$required} or next GROUPS;
+                }
+                
+                my @sorted = sort { $a->sortable <=> $b->sortable } @{$group};
+                push(@groups, \@sorted);
+            }
+            
+            if ($method eq 'overlapping_groups') {
+                return @groups;
+            }
+            else {
+                foreach my $group (@groups) {
+                    my $start_pos = shift(@{$group});
+                    my @rel_arg = $method eq 'intersection' ? (undef, $rel) : ($rel);
+                    my $result = $start_pos->$method($group, @rel_arg);
+                    push(@ok, $result);
+                }
+            }
+            
+            last SWITCH;
+        };
+        
+        $self->throw("Unknown method '$method'");
     }
     
     return @ok;
-}
-
-=head2 _pre_compare
-
- Title   : _pre_compare
- Usage   : my @positions = $marker->_compare($method, $comparison_marker, $map);
- Function: test for missing values and discover if we have multiple positions so
-           that we can do some kind of comparison later
- Returns : (\@sorted_self_positions, \@sorted_compare_positions)
- Args    : Bio::Map::MappableI OR Bio::Map::PositionI
-
-=cut
-
-sub _pre_compare {
-    my ($self, $compare, $map) = @_;
-    my (@mine, @yours);
-    
-    $self->warn("Trying to compare [". $self->name. "] to nothing or scalar; need object.") && return (\@mine, \@yours) unless (defined $compare && ref($compare));
-    
-    @mine = $self->each_position($map);
-    my $on_this_map = $map ? ' (on the supplied map)' : '';
-    @mine > 0 or ($self->warn("[". $self->name. "] has no positions$on_this_map.") && return (\@mine, \@yours));
-    
-    if ($compare->isa('Bio::Map::PositionI')) {
-        push(@yours, $compare);
-    }
-    elsif ($compare->isa('Bio::Map::MappableI')) {
-        @yours = $compare->each_position($map);
-        @yours > 0 or ($self->warn("[". $compare->name. "] has no positions$on_this_map.") && return (\@mine, \@yours));
-    }
-    else {
-        $self->warn("Can only run a comparison with a Bio::Map::MappableI or Bio::Map::PositionI, not [$compare]");
-        return (\@mine, \@yours);
-    }
-    
-    @mine = sort { $a->numeric <=> $b->numeric } @mine;
-    @yours = sort { $a->numeric <=> $b->numeric } @yours;
-    return (\@mine, \@yours)
 }
 
 =head2 tuple
