@@ -20,7 +20,7 @@ BEGIN {
 	use lib 't';
     }
     use vars qw($NTESTS $SKIPERROR);
-    $NTESTS = 7;
+    $NTESTS = 8;
     $error = 0;
 
     use Test;
