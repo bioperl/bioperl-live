@@ -706,7 +706,7 @@ sub calculate_offsets {
   my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
   binmode $fh;
   warn "indexing $file\n" if $self->{debug};
-  my ($offset,$id,$linelength,$type,$firstline,$count,$termination_length,%offsets);
+  my ($offset,$id,$linelength,$type,$firstline,$count,$termination_length,$seq_lines,$last_line,%offsets);
   while (<$fh>) {		# don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1;  # account for crlf-terminated Windows files
     if (/^>(\S+)/) {
@@ -714,8 +714,8 @@ sub calculate_offsets {
 	if $self->{debug} && (++$count%1000) == 0;
       my $pos = tell($fh);
       if ($id) {
-	my $seqlength    = $pos - $offset - length($_) - 1;
-	$seqlength      -= $termination_length * int($seqlength/$linelength);
+	my $seqlength    = $pos - $offset - length($_);
+	$seqlength      -= $termination_length * $seq_lines;
 	$offsets->{$id}  = $self->_pack($offset,$seqlength,
 					$linelength,$firstline,
 					$type,$base);
@@ -723,22 +723,28 @@ sub calculate_offsets {
       $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
       ($offset,$firstline,$linelength) = ($pos,length($_),0);
       $self->_check_linelength($linelength);
+      $seq_lines = 0;
     } else {
       $linelength ||= length($_);
       $type       ||= $self->_type($_);
+      $seq_lines++;
     }
+    $last_line = $_;
   }
 
   $self->_check_linelength($linelength);
   # deal with last entry
   if ($id) {
     my $pos = tell($fh);
-    my $seqlength   = $pos - $offset  - 1;
+    my $seqlength   = $pos - $offset;
 
     if ($linelength == 0) { # yet another pesky empty chr_random.fa file
       $seqlength = 0;
     } else {
-      $seqlength -= $termination_length * int($seqlength/$linelength);
+      if ($last_line !~ /\s$/) {
+        $seq_lines--;
+      }
+      $seqlength -= $termination_length * $seq_lines;
     };
     $offsets->{$id} = $self->_pack($offset,$seqlength,
 				   $linelength,$firstline,
