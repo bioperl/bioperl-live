@@ -435,14 +435,14 @@ sub get_ids {
     my $self = shift;
     my $user_db = shift if @_;
     if ($self->can('next_linkset')) {
-        my $db = $self->db;
-        if (!$user_db && ($db eq 'all' || $db =~ /,/) ) {
+        my $querydb = $self->db;
+        if (!$user_db && ($querydb eq 'all' || $querydb =~ /,/) ) {
             $self->throw(q(Multiple databases searched; must use a specific ).
                          q(database as an argument.) );
         }
         if (scalar($self->get_all_linksets) == 1 && !$self->multi_id) {
-            my $linkset = $self->next_linkset;
-            my ($db) = $user_db ? $user_db : $linkset->get_databases;
+            my ($linkset) = $self->get_all_linksets;
+            my ($db) = $user_db ? $user_db : $linkset->get_all_databases;
             $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
         }
         else {
@@ -477,23 +477,27 @@ sub delay_policy {
 sub get_entrezdbs {
     my $self = shift;
     my $info = $self->new(-eutil => 'einfo');
-    my $data = $info->get_response->content;
-    my @databases = $data =~ m{<DbName>(.*?)</DbName>}gxms;
+    $info->get_response;
+    my @databases = $info->entrezdbs;
     return @databases;
 }
 
 sub get_entrezdb_fields {
     my $self = shift;
-    my $db = shift;
-    $self->throw('Must specify database or use einfo directly') if ($self->_eutil ne 'einfo');
-    
+    my $db = @_ ? shift : $self->db;
+    $self->throw("Must have database set or pass as argument") if !$db;
+    my $info = $self->new(-eutil => 'einfo', -db => $db);
+    $info->get_response;
+    return ($info->entrezdb_field_info);
 }
 
 sub get_entrezdb_links {
     my $self = shift;
-    my $db = shift;
-    $self->throw('Must specify database or use einfo directly') if ($self->_eutil ne 'einfo');
-
+    my $db = @_ ? shift : $self->db;
+    $self->throw("Must have database set or pass as argument") if !$db;
+    my $info = $self->new(-eutil => 'einfo', -db => $db);
+    $info->get_response;
+    return ($info->entrezdb_link_info);
 }
 
 =head1 Private methods

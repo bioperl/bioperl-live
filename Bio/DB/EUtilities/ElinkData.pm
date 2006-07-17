@@ -287,7 +287,8 @@ sub get_score {
     if (!$id) {
         $self->warn("Must use ID to access scores");
     }
-    my $db = exists $self->{'_scoredb'} ? $self->{'_scoredb'} : $self->has_scores;
+    my $db = exists $self->{'_scoredb'} ? $self->{'_scoredb'} :
+             $self->get_all_scoredbs;
     if ( exists $self->{'_scores'}->{$db}->{$id} ) {
         return $self->{'_scores'}->{$db}->{$id};
     }

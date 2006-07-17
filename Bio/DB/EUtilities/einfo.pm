@@ -128,12 +128,71 @@ sub parse_response {
     }
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content);
-    $self->debug("Response dumper:\n".Dumper($simple));
+    #$self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
-        $self->throw("NCBI esummary nonrecoverable error: ".$simple->{ERROR});
+        my $error = $simple->{ERROR} ? $simple->{ERROR} : 'No data returned';
+        $self->throw("NCBI einfo nonrecoverable error: ".$error);
+    }
+    if (exists $simple->{DbList}->{DbName}) {
+        $self->{'_einfo_dbname'} = $simple->{DbList}->{DbName};
+        return;
+    }
+    # start setting internal variables
+    for my $key (sort keys %{ $simple->{DbInfo} }) {
+        my $data = $self->_set_einfo_data($key, $simple->{DbInfo}->{$key});
     }
 }
+
+sub entrezdbs {
+    my $self = shift;
+    if (wantarray) {
+        if( ref($self->{'_einfo_dbname'} eq 'array' ) ) {
+            return @{ $self->{'_einfo_dbname'} };
+        }
+        else {
+            return $self->{'_einfo_dbname'};
+        }
+    }
+    return $self->{'_einfo_dbname'};
+}
+
+sub entrezdb_field_info {
+    my $self = shift;
+    return $self->{'_einfo_fieldlist'};
+}
+
+sub entrezdb_link_info {
+    my $self = shift;
+    return $self->{'_einfo_linklist'};
+}
+
+sub last_update {
+    my $self = shift;
+    return $self->{'_einfo_lastupdate'};
+}
+
+sub entrezdb_desc {
+    my $self = shift;
+    return $self->{'_einfo_description'};
+}
+
+sub entrezdb_count {
+    my $self = shift;
+    return $self->{'_einfo_count'};
+}
+
+# no methods for MenuName
+
+sub _set_einfo_data {
+    my ($self, $key, $data) = @_;
+    $self->throw('No data') if (!$data || !$key);
+    my $info_key = '_einfo_'.lc($key);
+    $self->{$info_key} = $data;
+    return;
+}
+    
+    
 
 1;
 __END__
