@@ -132,7 +132,7 @@ sub next_aln {
     my $order = 0;
     my %order;
     $self->{_lastline} = '';
-    my ($first_block, $seen_block) = 0;
+    my ($first_block, $seen_block) = (0,0);
     while ( defined( $_ = $self->_readline ) ) {
         next if (/^\s+$/ && !$first_block);
         if (/^\s{30}/) {  # line contains no description
@@ -166,7 +166,7 @@ sub next_aln {
             next;
         }
 
-        if ( $seen_block == 0) {
+        if ( !$seen_block ) {
             if (exists $order{$seqname}) {
                 $self->warn("Duplicate sequence : $seqname\n".
                             "Can't guarantee alignment quality");
