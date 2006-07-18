@@ -270,7 +270,6 @@ sub _initialize {
         $self->add_cookie($cookie);
     }
     $self->{'_cookieindex'} = 0;
-    $self->{'_cookie'} = [];
 }
 
 =head2 add_cookie

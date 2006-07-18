@@ -476,7 +476,6 @@ sub parse_response {
         # No scores when using history (only ids)
         if (!exists $simple->{LinkSet} ) {
             $self->warn('No link history');
-            return;
         }
         for my $linkset (@{ $simple->{LinkSet} }) {
             my $webenv = $linkset->{WebEnv};
@@ -484,7 +483,7 @@ sub parse_response {
             my $from_ids = $linkset->{IdList}->{Id};
             for my $history (@{ $linkset->{LinkSetDbHistory} }) {
                 my $query_key = $history->{QueryKey};
-                next if (!$query_key || ($history->{Info} eq 'Empty result') );
+                next if (!$query_key || (exists $history->{Info} eq 'Empty result') );
                 my $lname = $history->{LinkName};
                 my $db = $history->{DbTo};
                 my $cookie = Bio::DB::EUtilities::Cookie->new(
@@ -509,7 +508,7 @@ sub parse_response {
         }
         for my $linkset (@{ $simple->{LinkSet} }) {
             my $linkobj = Bio::DB::EUtilities::ElinkData->new
-                                (-verbose => $self->verbose,
+                                (
                                  -command =>$cmd);
             $linkobj->_add_set($linkset);
             $self->_add_linkset($linkobj);
