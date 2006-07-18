@@ -8,6 +8,7 @@
 #
 # You may distribute this module under the same terms as perl itself
 
+
 =head1 NAME
 
 obo - a parser for OBO flat-file format from Gene Ontology Consortium
@@ -216,12 +217,16 @@ sub parse {
         $_->ontology($ont);
     }
 
+##################################
+    $self->_add_ontology($ont);
+##################################
+
     ### Adding new terms
     while ( my $term = $self->_next_term() ) {
 
         ### CHeck if the terms has a valid ID and NAME otherwise ignore the term
         if ( !$term->identifier() || !$term->name() ) {
-            $self->warn( "OBO File Format Error on line "
+            $self->throw( "OBO File Format Error on line "
                   . $self->{'_current_line_no'}
                   . " \nThe term does not have a id/name tag. This term will be ignored.\n"
             );
@@ -230,15 +235,6 @@ sub parse {
 
         my $new_ontology_flag    = 1;
         my $ontologies_array_ref = $self->{'_ontologies'};
-        if (defined($ontologies_array_ref) && !defined($term->namespace)) {
-            if (@$ontologies_array_ref != 1) {
-                $self->throw("namespace of term ".$term->name." is undefined"
-                             ." and have ".scalar(@$ontologies_array_ref)
-                             ." ontologies to choose from");
-            } else {
-                $term->namespace($ontologies_array_ref->[0]);
-            }
-        }
         foreach my $ontology (@$ontologies_array_ref) {
             if ( $ontology->name() eq $term->namespace() ) {
                 ### No nned to create new ontology
@@ -256,6 +252,7 @@ sub parse {
             $self->_add_ontology($new_ont);
             $ont = $new_ont;
         }
+
 
         $self->_add_term( $term, $ont );
 
@@ -592,7 +589,7 @@ sub _next_term {
             }
 
             my $qh;
-            ( $val, $qh ) = $self->_extract_quals($val);
+            my ( $val, $qh ) = $self->_extract_quals($val);
             my $val2 = $val;
             $val2 =~ s/\\,/,/g;
             $tag = uc($tag);
@@ -624,6 +621,7 @@ sub _next_term {
                 $term->add_dblink(@$parts);
             }
             elsif ( $tag =~ /(\w*)synonym/i ) {
+                $val =~ s/['"\[\]]//g;
                 $term->add_synonym($val);
             }
             elsif ( $tag eq "ALT_ID" ) {
@@ -663,6 +661,7 @@ sub _next_term {
             }
         }
     }
+    return $term;
 }
 
 # Creates a Bio::Ontology::OBOterm object
