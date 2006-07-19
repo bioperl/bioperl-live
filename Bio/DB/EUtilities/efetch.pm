@@ -18,7 +18,39 @@ Bio::DB::EUtilities::efetch
 
 =head1 SYNOPSIS
 
+my $efetch = Bio::DB::EUtilities->new(
+                                      -verbose => 1,
+                                      -cookie   => $esearch->next_cookie,
+                                      -retmax   => $retmax,
+                                      -rettype  => 'fasta'
+                                      );
+
+print $efetch->get_response->content;
+
 =head1 DESCRIPTION
+
+L<EFetch|Bio::DB::EUtilities::efetch> retrieve data records from a list of ID's
+from the user environment.  This can be accomplished directly (using C<id>) or
+indirectly (by using a L<Cookie|Bio::DB::EUtilities::Cookie>.
+
+=head2 Parameters
+
+The following are a general list of parameters that can be used to take
+advantage of EFetch.  Up-to-date help for EFetch is available at this URL
+(the information below is a summary of the options found there):
+
+  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/efetch_help.html
+
+=over 3
+
+=item C<db>
+
+Database parameter.  This should be set at all times; the only exception is
+when setting a C<cookie>.
+
+others to follow...
+
+=back
 
 =head1 FEEDBACK
 
@@ -80,7 +112,7 @@ sub _initialize {
     $self->_eutil($EUTIL);
     $datetype ||= 'mdat';
     $self->datetype($datetype) if $datetype;
-    $retstart       && $self->retstart($retstart);
+    defined($retstart)       && $self->retstart($retstart);
     $retmax         && $self->retmax($retmax);
     $rettype        && $self->rettype($rettype);
     $seq_start      && $self->seq_start($seq_start);

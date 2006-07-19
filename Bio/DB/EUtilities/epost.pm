@@ -14,11 +14,65 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::epost
+Bio::DB::EUtilities::epost - posting IDs on the remote NCBI server for batch
+retrieval and chained queries
 
 =head1 SYNOPSIS
 
+    my $epost = Bio::DB::EUtilities->new(
+                                          -eutil    => 'epost',
+                                          -id       => \@ids,
+                                          -db       => 'protein',
+                                          );
+    
+    $epost->get_response;
+
 =head1 DESCRIPTION
+
+B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
+
+The EUtility EPost is used to post a list of primary IDs to the NCBI EUtilities
+server for retrieval by L<EFetch:Bio::DB::EUtilities::efetch> or for using in
+futher searches using L<ELink|Bio::DB::EUtilities::elink> or
+L<ESearch|Bio::DB::EUtilities::esearch>.  The data is posted using:
+
+    $epost->get_response;
+
+When not used in void context, this will also return a
+L<HTTP::Response|HTTP::Response> object for further processing.  This is not
+necessary, as any posts made will automatically generate a
+L<Cookie|Bio::DB::EUtilities::Cookie>,
+which can be used to retrieve the posted information using
+L<EFetch|Bio::DB::EUtilities::efetch>.
+
+Using EPost is recommended for retrieving large lists of primary IDs and is
+capable, when used repeatedly and in combination with EFetch, of retrieving
+thousands of database entries.  
+
+=head2 Parameters
+
+The following are a general list of parameters that can be used to take
+advantage of EPost.  Up-to-date help for EPost is available at this URL
+(the information below is a summary of the options found there):
+
+  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/epost_help.html
+
+=over 3
+
+=item C<db>
+
+The name of an Entrez database available through EUtilities. 
+
+=item C<id>
+
+a list of primary ID's
+
+Below are a list of IDs which can be used with EPost:
+
+B<PMID> (pubmed), <MEDLINE UI> (NIH MedLine), B<MIM number> (omim),
+B<GI number> (nucleotide, protein), <MMDB-ID> (structure),B<TAXID> (taxonomy)
+
+=back
 
 =head1 FEEDBACK
 
@@ -61,7 +115,7 @@ use warnings;
 use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 use vars qw(@ISA $EUTIL $RETMODE);
 
@@ -100,7 +154,7 @@ sub parse_response {
     }
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content);
-    $self->debug("Response dumper:\n".Dumper($simple));
+    #$self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
         $self->throw("NCBI epost nonrecoverable error: ".$simple->{ERROR});

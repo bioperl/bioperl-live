@@ -1,4 +1,82 @@
 # $Id$
+# $Id$
+#
+# BioPerl module for Bio::DB::EUtilities
+#
+# Cared for by Chris Fields <cjfields at uiuc dot edu>
+#
+# Copyright Chris Fields
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+# 
+# Interfaces with new GenericWebDBI interface 
+
+=head1 NAME
+
+Bio::DB::GenericWebDBI - abstract interface for parameter-based remote
+database access
+
+=head1 SYNOPSIS
+
+  #
+  # grab data from HTTP::Response object using concrete class
+  #
+
+  $data = $db->get_response->content;
+
+  #
+  # $data is the raw data output from the HTTP::Response object;
+  # this data may be preparsed using the private method _parse_response
+
+=head1 DESCRIPTION
+
+WARNING: Please do B<NOT> spam the web servers with multiple requests.
+
+This class acts as a user agent interface for any generic web database, but
+is specifically geared towards CGI-based databases which accept parameters.
+
+=head1 TODO
+
+File and filehandle support to be added
+
+Any feedback is welcome.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the 
+evolution of this and other Bioperl modules. Send
+your comments and suggestions preferably to one
+of the Bioperl mailing lists. Your participation
+is much appreciated.
+
+  bioperl-l@lists.open-bio.org               - General discussion
+  http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to
+help us keep track the bugs and their resolution.
+Bug reports can be submitted via the web.
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR 
+
+Email cjfields at uiuc dot edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the
+object methods. Internal methods are usually
+preceded with a _
+
+=cut
+
+# Let the code begin...
 
 package Bio::DB::GenericWebDBI;
 use strict;
@@ -24,20 +102,19 @@ BEGIN {
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($url_base, $retrieval, $retmode, $delay, $db) =
-        $self->_rearrange([qw(URL_BASE RETRIEVALTYPE RETMODE DELAY DB)],
+    my ($url_base, $retmode, $delay, $db) =
+        $self->_rearrange([qw(URL_BASE RETMODE DELAY DB)],
         @args);
     # from LWP::UserAgent; set agent and env proxy
     $self->agent(ref($self)."/$Bio::Root::Root::VERSION");
     $self->env_proxy;
     $db             && $self->db($db);
-    $retrieval = $DEFAULT_RETRIEVAL_TYPE unless ($retrieval);
-    $retrieval      && $self->retrieval_type($retrieval);
     # these will likely be overridden in base classes
     $retmode        && $self->return_mode($retmode);
     $url_base       && $self->url_base_address($url_base);
-    $delay = $self->delay_policy unless defined $delay;
-    $self->delay_policy($delay);
+    # delay policy needs to be worked out; not set up correctly
+    $delay = defined($delay) ? $delay: $self->delay_policy;
+    $self->delay($delay);
     return $self;
 }
 
@@ -155,11 +232,12 @@ sub return_mode {
 	return $self->{'_retmode'};
 }
 
-=head2 get_request
+=head2 get_response
 
- Title   : get_request
- Usage   : $agent->get_request;
- Function: get the request based on set object parameters
+ Title   : get_response
+ Usage   : $agent->get_response;
+ Function: get the request based on set object parameters, retrieved using
+           the private method _get_params
  Returns : HTTP::Response object
  Args    : none
  
@@ -167,78 +245,10 @@ sub return_mode {
 
 =cut
 
-sub get_request {
+sub get_response {
     my ($self) = @_;
-    my $msg = "Implementing class must define method get_request in class GenericWebDBI";
+    my $msg = "Implementing class must define method get_response in class GenericWebDBI";
     $self->throw($msg);
-}
-
-=head2 request_format
-
- Title   : request_format
- Usage   : my ($req_format, $ioformat) = $self->request_format;
-           $self->request_format("genbank");
-           $self->request_format("fasta");
- Function: Get/Set sequence format retrieval. The get-form will normally not
-           be used outside of this and derived modules.
- Returns : Array of two strings, the first representing the format for
-           retrieval, and the second specifying the corresponding SeqIO format.
- Args    : $format = sequence format
-
-=cut
-
-sub request_format {
-    my ($self, $value) = @_;
-    if( defined $value ) {
-	$self->{'_format'} = [ $value, $value];
-    }
-    return @{$self->{'_format'}};
-}
-
-=head2 retrieval_type
-
- Title   : retrieval_type
- Usage   : $self->retrieval_type($type);
-           my $type = $self->retrieval_type
- Function: Get/Set a proxy for retrieval_type (pipeline, io_string or tempfile)
- Returns : string representing retrieval type
- Args    : $value - the value to store
-
-This setting affects how the data stream from the remote web server is
-processed and passed to the Bio::SeqIO layer. Three types of retrieval
-types are currently allowed:
-
-   pipeline  Perform a fork in an attempt to begin streaming
-             while the data is still downloading from the remote
-             server.  Disk, memory and speed efficient, but will
-             not work on Windows or MacOS 9 platforms.
-
-   io_string Store downloaded database entry(s) in memory.  Can be
-             problematic for batch downloads because entire set
-             of entries must fit in memory.  Alll entries must be
-             downloaded before processing can begin.
-
-   tempfile  Store downloaded database entry(s) in a temporary file.
-             All entries must be downloaded before processing can
-             begin.
-
-The default is pipeline, with automatic fallback to io_string if
-pipelining is not available.
-
-=cut
-
-sub retrieval_type {
-    my ($self, $value) = @_;
-    if( defined $value ) {
-    $value = lc $value;
-    if( ! $RETRIEVAL_TYPES{$value} ) {
-        $self->warn("invalid retrieval type $value must be one of (" . 
-            join(",", keys %RETRIEVAL_TYPES), ")"); 
-        $value = $DEFAULT_RETRIEVAL_TYPE;
-    }
-    $self->{'_retrieval_type'} = $value;
-    }
-    return $self->{'_retrieval_type'};
 }
 
 =head2 delay
@@ -257,9 +267,8 @@ This can be overridden by calling this method, or by passing the
 
 sub delay {
    my $self = shift;
-   my $d = $self->{'_delay'};
-   $self->{'_delay'} = shift if @_;
-   $d;
+   return $self->{'_delay'} = shift if @_;
+   return $self->{'_delay'};
 }
 
 =head2 delay_policy
@@ -281,6 +290,41 @@ sub delay_policy {
    return 0;
 }
 
+=head2 _submit_request
+
+  Title   : _submit_request
+  Usage   : my $url = $self->get_request
+  Function: builds request object based on set parameters
+  Returns : HTTP::Request
+  Args    : optional : Bio::DB::EUtilities cookie
+
+=cut
+
+sub _submit_request {
+    my ($self) = @_;
+    my $msg = "Implementing class must define method _submit_request in class GenericWebDBI";
+    $self->throw($msg);
+}
+
+=head2 _get_params
+
+  Title   : _get_params
+  Usage   : my $url = $self->_get_params
+  Function: builds parameter list for web request
+  Returns : hash of parameter-value paris
+  Args    : optional : Bio::DB::EUtilities cookie
+
+=cut
+
+# these get sorted out in a hash originally but end up in an array to
+# deal with multiple id parameters (hash values would kill that)
+
+sub _get_params {
+    my ($self) = @_;
+    my $msg = "Implementing class must define method _get_params in class GenericWebDBI";
+    $self->throw($msg);
+}
+
 =head2 _sleep
 
  Title   : _sleep
@@ -300,7 +344,7 @@ sub _sleep {
    my $last_invocation = $LAST_INVOCATION_TIME;
    if (time - $LAST_INVOCATION_TIME < $self->delay) {
       my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
-      warn "sleeping for $delay seconds\n" if $self->verbose;
+      $self->debug("sleeping for $delay seconds\n");
       sleep $delay;
    }
    $LAST_INVOCATION_TIME = time;

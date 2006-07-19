@@ -128,6 +128,8 @@ once instantiated, such as if one were to use this as a replacement for
 LWP::UserAgent when retrieving responses i.e. when using many of the Bio::DB
 NCBI-related modules.
 
+File and filehandle support to be added
+
 Any feedback is welcome.
 
 =head1 FEEDBACK
@@ -257,8 +259,8 @@ sub new {
 
 sub _initialize {
     my ($self, @args) = @_;
-    my ( $tool, $ids, $retmode, $verbose, $cookie) =
-      $self->_rearrange([qw(TOOL ID RETMODE VERBOSE COOKIE)],  @args);
+    my ( $tool, $ids, $retmode, $verbose, $cookie, $retain_cookie) =
+      $self->_rearrange([qw(TOOL ID RETMODE VERBOSE COOKIE RETAIN_COOKIE)],  @args);
         # hard code the base address
     $self->url_base_address($HOSTBASE);
     $tool ||= $DEFAULT_TOOL;
@@ -266,6 +268,7 @@ sub _initialize {
     $ids            && $self->id($ids);
     $verbose        && $self->verbose($verbose);
     $retmode        && $self->return_mode($retmode);
+    $retain_cookie  && $self->retain_cookie($retain_cookie);
     if ($cookie) {
         $self->add_cookie($cookie);
     }
@@ -334,14 +337,15 @@ sub reset_cookies {
  Usage   : @cookies = $db->get_all_cookies
  Function: retrieves all cookies from the internal cookie queue; this leaves
            the cookies in the queue intact 
- Returns : none
+ Returns : array of cookies (if wantarray) of first cookie
  Args    : none
 
 =cut
 
 sub get_all_cookies {
     my $self = shift;
-    return @{ $self->{'_cookie'} } if $self->{'_cookie'};
+    return @{ $self->{'_cookie'} } if $self->{'_cookie'} && wantarray;
+    return $self->{'_cookie'}->[0] if $self->{'_cookie'} 
 }
 
 =head2 rewind_cookies
@@ -387,6 +391,7 @@ sub parse_response {
 
 sub get_response {
     my $self = shift;
+    $self->_sleep; # institute delay policy
     my $response = $self->_submit_request;
     if (!$response->is_success) {
         $self->throw(ref($self)." Request Error:".$response->as_string);
@@ -455,6 +460,8 @@ sub get_ids {
     }
 }
 
+# carried over from NCBIHelper/WebDBSeqI
+
 =head2 delay_policy
 
   Title   : delay_policy
@@ -473,30 +480,23 @@ sub delay_policy {
   return 3;
 }
 
+=head2 get_entrezdbs
+
+  Title   : get_entrezdbs
+  Usage   : @dbs = $self->get_entrezdbs;
+  Function: return list of all Entrez databases 
+  Returns : array or array ref (based on wantarray) of databases 
+  Args    : none
+
+=cut
+
 sub get_entrezdbs {
     my $self = shift;
-    my $info = $self->new(-eutil => 'einfo');
+    my $info = Bio::DB::EUtilities->new(-eutil => 'einfo');
     $info->get_response;
-    my @databases = $info->entrezdbs;
+    # copy list, not ref of list (so einfo obj doesn't stick around)
+    my @databases = @{ $info->entrezdbs };
     return @databases;
-}
-
-sub get_entrezdb_fields {
-    my $self = shift;
-    my $db = @_ ? shift : $self->db;
-    $self->throw("Must have database set or pass as argument") if !$db;
-    my $info = $self->new(-eutil => 'einfo', -db => $db);
-    $info->get_response;
-    return ($info->entrezdb_field_info);
-}
-
-sub get_entrezdb_links {
-    my $self = shift;
-    my $db = @_ ? shift : $self->db;
-    $self->throw("Must have database set or pass as argument") if !$db;
-    my $info = $self->new(-eutil => 'einfo', -db => $db);
-    $info->get_response;
-    return ($info->entrezdb_link_info);
 }
 
 =head1 Private methods
@@ -597,7 +597,7 @@ sub _submit_request {
 
 sub _get_params {
     my $self = shift;
-    my $cookie = $self->get_all_cookies? $self->next_cookie : 0;
+    my $cookie = $self->get_all_cookies ? $self->next_cookie : 0;
     my @final;  # final parameter list; this changes dep. on presence of cookie
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?

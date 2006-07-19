@@ -258,14 +258,14 @@ argument to retrieve the relevant IDs.
 
 The most complicated sitation comes when using multiple ID groups (see below).
 This requires that each ID group have a separate set of data (a linkset), each
-with potential multiple databases, multiple IDs, and so on.  In order to retrieve
-data from these, you B<MUST> use the following:
+with potential multiple databases, multiple IDs, and so on.  Linkset data is
+stored in a special object
+(L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData>).
+
+In order to retrieve data from these objects, you B<MUST> use the following:
 
 
 
-
-As each ELink database search can encompass more than one
-queried database, ELinkData objects 
 
 For more information, see the POD documentation for
 L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData>.
@@ -508,7 +508,7 @@ sub parse_response {
         }
         for my $linkset (@{ $simple->{LinkSet} }) {
             my $linkobj = Bio::DB::EUtilities::ElinkData->new
-                                (
+                                (-verbose => $self->verbose,
                                  -command =>$cmd);
             $linkobj->_add_set($linkset);
             $self->_add_linkset($linkobj);

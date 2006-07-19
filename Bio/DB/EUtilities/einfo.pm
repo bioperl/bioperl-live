@@ -27,7 +27,7 @@ print $einfo->get_response->content;
 
 =head1 DESCRIPTION
 
-L<Bio::DB::EUtilities::einfo|Bio::DB::EUtilities::einfo> queries provide
+L<EInfo|Bio::DB::EUtilities::einfo> queries provide
 information about NCBI databases.  At this time no data is postprocessed
 for further information; this is currently implemented to complete access
 to the NCBI EUtilities suite of web tools.  Using the base URL with no
@@ -92,7 +92,7 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 use vars qw(@ISA $EUTIL);
 
@@ -188,11 +188,10 @@ sub _set_einfo_data {
     my ($self, $key, $data) = @_;
     $self->throw('No data') if (!$data || !$key);
     my $info_key = '_einfo_'.lc($key);
+    # fix to make a deep copy of data
     $self->{$info_key} = $data;
     return;
-}
-    
-    
+}    
 
 1;
 __END__
