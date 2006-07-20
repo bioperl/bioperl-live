@@ -8,10 +8,9 @@
 #
 # You may distribute this module under the same terms as perl itself
 #
-# You may distribute this module under the same terms as perl itself
-#
 # POD documentation - main docs before the code
 # 
+# Part of the EUtilities BioPerl package
 
 =head1 NAME
 
@@ -105,7 +104,7 @@ other EUtility searches or efetch primary IDs.  Other will return the ID
 information and relevancy scores in one or more
 L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData> objects.
 
-=head2 Parameters
+=head2 NCBI ELink Parameters
 
 The following are a general list of parameters that can be used to take
 advantage of ELink.  Up-to-date help for ELink is available at this URL
@@ -157,10 +156,6 @@ database)
 
 set to XML, but can be changed to ref when needed
 
-=item C<cookie>
-
-a Bio::DB::EUtilities::cookie object (see below)
-
 =item C<cmd>
 
 command values (see below)
@@ -169,6 +164,31 @@ command values (see below)
 
 list LinkOut URLs for specified holding provider; used with C<cmd=llinks>
 or C<cmd=llinkslib> (rarely used)
+
+=back
+
+=head2 Additional (Bioperl-related) Parameters
+
+The following are a general list of parameters that can be used to take
+advantage of ELink.  Up-to-date help for ELink is available at this URL
+(the information below is a summary of the options found there):
+
+  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/elink_help.html
+
+=over 3
+
+=item C<eutil>
+
+The relevant EUtility to be used (elink).  
+
+=item C<cookie>
+
+Uses a L<Cookie|Bio::DB::EUtilities::Cookie>-based search (see below)
+
+=item C<multi_id>
+
+Sets a flag to treat the ID data (C<id> parameter) as multiple ID groups (see
+below).
 
 =back
 
@@ -224,7 +244,7 @@ Lists Entrez databases links for multiple IDs from a single database.
 
 =back
 
-=head2 COOKIES
+=head2 Cookies
 
 Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
 the NCBI server under certain settings.  This information can be retrieved by
@@ -242,7 +262,7 @@ demonstrated in the synopsis.
 For more information, see the POD documentation for
 L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie>.
 
-=head2 ELINKDATA OBJECTS
+=head2 ElinkData Objects
 
 Due to the diversity of information that can be returned via elink, a special
 object (ElinkData) has been created to hold data parsed from the XML output. This
@@ -261,11 +281,6 @@ This requires that each ID group have a separate set of data (a linkset), each
 with potential multiple databases, multiple IDs, and so on.  Linkset data is
 stored in a special object
 (L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData>).
-
-In order to retrieve data from these objects, you B<MUST> use the following:
-
-
-
 
 For more information, see the POD documentation for
 L<Bio::DB::EUtilities::ElinkData|Bio::DB::EUtilities::ElinkData>.
@@ -341,7 +356,6 @@ gets this result:
 
 Query ID : 31792573,31618162,1621261,
         Tax ID : 233413,83332,
-        
 
 =head1 FEEDBACK
 
@@ -619,9 +633,6 @@ sub _add_linkset {
         $self->{'_tot_linksets'}++;
     }
 }
-
-=head2 Methods inherited from L<Bio::DB::EUtilities|Bio::DB::EUtilities>
-
 
 1;
 __END__

@@ -14,29 +14,30 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::efetch
+Bio::DB::EUtilities::efetch - retrieval of records from a list of IDs or the
+user's environment.
 
 =head1 SYNOPSIS
 
-my $efetch = Bio::DB::EUtilities->new(
-                                      -verbose => 1,
-                                      -cookie   => $esearch->next_cookie,
-                                      -retmax   => $retmax,
-                                      -rettype  => 'fasta'
-                                      );
-
-print $efetch->get_response->content;
+  my $efetch = Bio::DB::EUtilities->new(
+                                       -verbose => 1,
+                                       -cookie   => $esearch->next_cookie,
+                                       -retmax   => $retmax,
+                                       -rettype  => 'fasta'
+                                        );
+    
+  print $efetch->get_response->content;
 
 =head1 DESCRIPTION
 
-L<EFetch|Bio::DB::EUtilities::efetch> retrieve data records from a list of ID's
-from the user environment.  This can be accomplished directly (using C<id>) or
-indirectly (by using a L<Cookie|Bio::DB::EUtilities::Cookie>.
+L<EFetch|Bio::DB::EUtilities::efetch> retrieves data records from a list of
+ID's.  This can be accomplished directly (using C<id>) or indirectly
+(by using a L<Cookie|Bio::DB::EUtilities::Cookie>.
 
-=head2 Parameters
+=head2 NCBI Efetch Parameters
 
 The following are a general list of parameters that can be used to take
-advantage of EFetch.  Up-to-date help for EFetch is available at this URL
+advantage of Efetch.  Up-to-date help for Efetch is available at this URL
 (the information below is a summary of the options found there):
 
   http://eutils.ncbi.nlm.nih.gov/entrez/query/static/efetch_help.html
@@ -45,12 +46,122 @@ advantage of EFetch.  Up-to-date help for EFetch is available at this URL
 
 =item C<db>
 
-Database parameter.  This should be set at all times; the only exception is
-when setting a C<cookie>.
+One or more database available through EUtilities.  EFetch currently only
+supports database retrieval from the following databases:
 
-others to follow...
+B<pubmed>, B<pmc> (PubMed Central), B<journals>, B<omim>, B<nucleotide>,
+B<protein>, B<genome>, B<gene>, B<snp> (dbSBP), B<popset>, and B<taxonomy>.
+
+Also supported are B<sequences> (nucleotide, protein, popset and genome), and
+the three subsets of nucleotide: B<nuccore>, B<nucest>, B<nucgss>
+
+=item C<id>
+
+a list of primary ID's
+
+Below are a list of IDs which can be used with EFetch:
+
+For sequence databases:
+
+B<NCBI sequence number> (GI), B<accession>, B<accession.version>, B<fasta>,
+B<GeneID>, B<genome ID>, B<seqid>
+
+All other databases:
+
+B<PMID> (pubmed), B<MIM number> (omim), B<GI number> (nucleotide, protein),
+B<Genome ID> (genome), B<Popset ID> (popset), B<SNP cluster ID> (snp),
+B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), <MMDB-ID> (structure),
+B<PSSM-ID> (cdd), B<3D SDI> (domains), B<TAXID> (taxonomy), B<GEO ID> (geo)
+
+=item C<mindate>, C<maxdate>
+
+limits results by dates (C<yyyy/mm/dd> format, or by year)
+
+=item C<rettype>
+
+Output type based on the database.  Not all return types are compatible with
+all return modes (-C<retmode>).  For more information, see the specific
+literature or sequence database links at URL above.
+
+Literature databases have the below return types:
+
+B<uilist> (all databases),
+B<abstract>, B<citation>, B<medline> (not omim),
+B<full> (journals and omim)
+
+Literature databases have the below return types:
+
+B<native> (full record, all databases),
+B<fasta>, B<seqid>, B<acc> (nucleotide or protein),
+B<gb>, B<gbc>, B<gbwithparts> (nucleotide only),
+B<est> (dbEST only),
+B<gss> (dbGSS only),
+B<gp>, B<gpc> (protein only),
+B<chr>, B<flt>, B<rsr>, B<brief>, B<docset> (dbSNP only)
+
+=item C<retmode>
+
+EFetch is set, by default, to return a specific format for each Entrez database;
+this is set in the %DATABASE hash in L<Bio::DB::EUtilities>.  To override this
+format, you can set -C<retmode>.  The normal return modes are text, HTML, XML,
+and ASN1.  Error checking for the set return mode is currently not
+implemented.
+
+=item C<report>
+
+Used for the output format for Taxonomy; set to B<uilist>, B<brief>, B<docsum>,
+B<xml>
+
+=item C<strand> - I<sequence only>
+
+The strand of DNA to show: 1=plus, 2=minus
+
+=item C<seq_start>, C<seq_stop> - I<sequence only>
+
+the start and end coordinates of the sequence to display
+
+=item C<complexity> - I<sequence only>
+
+The GI is often part of a biological blob containing other GIs
+
+    * 0 - get the whole blob
+    * 1 - get the bioseq for gi of interest (default in Entrez)
+    * 2 - get the minimal bioseq-set containing the gi of interest
+    * 3 - get the minimal nuc-prot containing the gi of interest
+    * 4 - get the minimal pub-set containing the gi of interest
 
 =back
+
+=head2 Additional (Bioperl-related) Parameters
+
+These are Bioperl-related settings and are not used as CGI parameters when
+
+=over 3
+
+=item C<eutil>
+
+The relevant EUtility to be used (efetch).  
+
+=item C<cookie>
+
+Uses a L<Cookie|Bio::DB::EUtilities::Cookie>-based search (see below)
+
+=back
+
+=head2 Cookies
+
+Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
+the NCBI server under certain settings.  This information can be retrieved by
+using a B<cookie>.  Here, the idea of the 'cookie' is similar to the 'cookie' set
+on a user's computer when browsing the Web.  XML data returned by these
+EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
+and 'query_key' tags to be specific)  The information along with other identifying
+data, such as the calling eutility, description of query, etc.) is stored as a
+L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal
+queue.  These can be retrieved one at a time by using the next_cookie method or
+all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
+one at a time, to another EUtility object, thus enabling chained queries as
+demonstrated in the synopsis.
 
 =head1 FEEDBACK
 
@@ -104,9 +215,9 @@ BEGIN {
 sub _initialize {
     my ($self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-	my ($term, $field, $reldate, $mindate, $maxdate, $datetype, $rettype, $retstart, 
+    my ($term, $field, $reldate, $mindate, $maxdate, $datetype, $rettype, $retstart, 
         $retmax, $report, $seq_start, $seq_stop, $strand, $complexity) = 
-	  $self->_rearrange([qw(TERM FIELD RELDATE MINDATE MAXDATE DATETYPE RETTYPE
+      $self->_rearrange([qw(TERM FIELD RELDATE MINDATE MAXDATE DATETYPE RETTYPE
         RETSTART RETMAX REPORT SEQ_START SEQ_STOP STRAND COMPLEXITY)], @args);    
     # set by default
     $self->_eutil($EUTIL);

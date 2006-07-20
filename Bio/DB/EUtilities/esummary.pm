@@ -15,7 +15,8 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::esummary - retrieval of NCBI DocSum data
+Bio::DB::EUtilities::esummary - retrieval of NCBI DocSum data from a list
+of primary IDs or a Cookie
 
 =head1 SYNOPSIS
 
@@ -40,9 +41,9 @@ B<Do not use this module directly.>  Use it via the L<Bio::DB::EUtilities|Bio::D
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
 
 The EUtility ESummary is used to retrieve ducument summaries from a list of
-primary ID's 
-
-  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/elink_help.html
+primary IDs or the user's history (stored on the remote server and accessible
+using a L<Cookie|Bio::DB::EUtilities::Cookie>.  The returned data is processed
+for errors, but no further processing is done at this time.
 
 =over 3
 
@@ -50,10 +51,6 @@ primary ID's
 
 one or more database available through EUtilities if set to 'all', will retrieve
 all related ID's from each database (see method get_db_ids to retrieve these)
-
-=item C<dbfrom>
-
-originating database; useful if using directly when querying with ID's
 
 =item C<id>
 

@@ -171,7 +171,7 @@ package Bio::DB::EUtilities;
 use strict;
 
 use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
-            $DEFAULT_TOOL);
+            $DEFAULT_TOOL @COOKIE_PARAMS);
 use Bio::DB::GenericWebDBI;
 use URI;
 #use Data::Dumper;
@@ -231,6 +231,8 @@ BEGIN {
     @PARAMS = qw(rettype usehistory term field tool reldate mindate
         maxdate datetype retstart retmax sort seq_start seq_stop strand
         complexity report dbfrom cmd holding version linkname);
+    @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
+        retstart retmax cmd linkname);
 	for my $method (@PARAMS) {
 		eval <<END;
 sub $method {
@@ -597,13 +599,11 @@ sub _submit_request {
 
 sub _get_params {
     my $self = shift;
-    my $cookie = $self->get_all_cookies ? $self->next_cookie : 0;
+    my $cookie = $self->get_all_cookies ? $self->get_all_cookies : 0;
     my @final;  # final parameter list; this changes dep. on presence of cookie
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
-      qw(db sort seq_start seq_stop strand complexity rettype
-        retstart retmax cmd linkname) :
-              @PARAMS;
+              @COOKIE_PARAMS : @PARAMS;
     for my $method (@final) {
         if ($self->$method) {
             $params{$method} = $self->$method;
@@ -622,7 +622,6 @@ sub _get_params {
     if (!$db && $self->_eutil eq 'einfo') {
         delete $params{'db'};
     }
-    # to get around main function sort
     unless ($self->rettype) { # set by user
         my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific

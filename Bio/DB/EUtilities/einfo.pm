@@ -28,9 +28,10 @@ print $einfo->get_response->content;
 =head1 DESCRIPTION
 
 L<EInfo|Bio::DB::EUtilities::einfo> queries provide
-information about NCBI databases.  At this time no data is postprocessed
-for further information; this is currently implemented to complete access
-to the NCBI EUtilities suite of web tools.  Using the base URL with no
+information about NCBI databases.  At this time, data is postprocessed
+for a complete list of Entrez databases (when '-C<db>' is not set) or for
+specific database information, number of entries, date of the last update, or
+Field or Link information.  Using the base URL with no
 parameters returns a list of all Entrez databases.
 
 =head2 Parameters
@@ -92,7 +93,7 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities;
 use XML::Simple;
-#use Data::Dumper;
+use Data::Dumper;
 
 use vars qw(@ISA $EUTIL);
 
@@ -128,7 +129,7 @@ sub parse_response {
     }
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content);
-    #$self->debug("Response dumper:\n".Dumper($simple));
+    $self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
         my $error = $simple->{ERROR} ? $simple->{ERROR} : 'No data returned';
@@ -140,7 +141,11 @@ sub parse_response {
     }
     # start setting internal variables
     for my $key (sort keys %{ $simple->{DbInfo} }) {
-        my $data = $self->_set_einfo_data($key, $simple->{DbInfo}->{$key});
+        my $data =
+        ($key eq 'FieldList') ? $simple->{DbInfo}->{$key}->{Field} :
+        ($key eq 'LinkList' ) ? $simple->{DbInfo}->{$key}->{Link}  :
+        $simple->{DbInfo}->{$key};
+        $self->_set_einfo_data($key, $data);
     }
 }
 
@@ -157,25 +162,77 @@ sub entrezdbs {
     return $self->{'_einfo_dbname'};
 }
 
+=head2 entrezdb_field_info
+
+ Title   : entrezdb_field_info
+ Usage   : @fields = $info->entrezdb_field_info;
+ Function: gets array of hashes with field information
+ Returns : An array or array reference (based on wantarray) of hashes
+           with information about each field 
+ Args    : None (this is set using the _set_einfo_data method)
+
+=cut
+
 sub entrezdb_field_info {
     my $self = shift;
     return $self->{'_einfo_fieldlist'};
 }
+
+=head2 entrezdb_link_info
+
+ Title   : entrezdb_link_info
+ Usage   : @links = $info->entrezdb_link_info;
+ Function: gets array of hashes with link information
+ Returns : An array or array reference (based on wantarray) of hashes
+           with information about each link 
+ Args    : None (this is set using the _set_einfo_data method)
+
+=cut
 
 sub entrezdb_link_info {
     my $self = shift;
     return $self->{'_einfo_linklist'};
 }
 
+=head2 last_update
+
+ Title   : last_update
+ Usage   : $date = $info->last_update;
+ Function: returns last date database was updated
+ Returns : String containing date
+ Args    : None (this is set using the _set_einfo_data method)
+
+=cut
+
 sub last_update {
     my $self = shift;
     return $self->{'_einfo_lastupdate'};
 }
 
+=head2 entrezdb_desc
+
+ Title   : entrezdb_desc
+ Usage   : $desc = $info->entrezdb_desc;
+ Function: returns database description
+ Returns : String containing descriptions
+ Args    : None (this is set using the _set_einfo_data method)
+
+=cut
+
 sub entrezdb_desc {
     my $self = shift;
     return $self->{'_einfo_description'};
 }
+
+=head2 entrezdb_count
+
+ Title   : entrezdb_count
+ Usage   : $count = $info->entrezdb_count;
+ Function: returns database record count
+ Returns : Integer (number of database records)
+ Args    : None (this is set using the _set_einfo_data method)
+
+=cut
 
 sub entrezdb_count {
     my $self = shift;
@@ -183,6 +240,8 @@ sub entrezdb_count {
 }
 
 # no methods for MenuName
+
+# set method
 
 sub _set_einfo_data {
     my ($self, $key, $data) = @_;

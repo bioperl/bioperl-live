@@ -14,11 +14,40 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::egquery
+Bio::DB::EUtilities::egquery - counts for a global query of Entrez databases
 
 =head1 SYNOPSIS
 
+my $egquery = Bio::DB::EUtilities->new(
+                                     -eutil    => 'egquery',
+                                     -term     => 'dihydroorotase'
+                                      );
+
+print $egquery->get_response->content;
+
 =head1 DESCRIPTION
+
+L<EGQuery|Bio::DB::EUtilities::egquery> provides Entrez database counts
+in XML for a single search using NCBI's Global Query.  No further parsing of
+the XML data is processed at this time.
+
+=head2 NCBI EGQuery Parameters
+
+The following are a general list of parameters that can be used to take
+advantage of EGQuery.  Up-to-date help for EGQuery is available at this URL
+(the information below is a summary of the options found there):
+
+  http://eutils.ncbi.nlm.nih.gov/entrez/query/static/egquery_help.html
+
+=over 3
+
+=item C<term>
+
+Search term or phrase with or without Boolean operators.  This can use search
+field descriptions and tags (Note: these may be database specific and are
+better used with L<ESearch|Bio::DB::EUtilities::esearch>.
+
+=back
 
 =head1 FEEDBACK
 
