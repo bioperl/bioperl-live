@@ -110,7 +110,7 @@ sub new {
     $self->env_proxy;
     $db             && $self->db($db);
     # these will likely be overridden in base classes
-    $retmode        && $self->return_mode($retmode);
+    $retmode        && $self->retmode($retmode);
     $url_base       && $self->url_base_address($url_base);
     # delay policy needs to be worked out; not set up correctly
     $delay = defined($delay) ? $delay: $self->delay_policy;
@@ -216,17 +216,17 @@ sub id {
 	return $self->{'_ids'};
 }
 
-=head2 return_mode
+=head2 retmode
 
- Title   : return_mode
- Usage   : $agent->return_mode($mode)
+ Title   : retmode
+ Usage   : $agent->retmode($mode)
  Function: Get/Set return mode for query (text, xml, html, asn.1, etc)
  Returns : string for return mode
  Args    : optional string 
 
 =cut
 
-sub return_mode {
+sub retmode {
 	my $self = shift;
 	return $self->{'_retmode'} = shift if @_;
 	return $self->{'_retmode'};

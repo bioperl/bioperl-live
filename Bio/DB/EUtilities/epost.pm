@@ -132,7 +132,7 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
     # set by default
     $self->_eutil($EUTIL);
-    $self->return_mode($RETMODE);
+    $self->retmode($RETMODE);
 }
 
 =head2 parse_response

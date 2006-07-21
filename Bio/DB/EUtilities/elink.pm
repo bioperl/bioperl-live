@@ -190,6 +190,11 @@ Uses a L<Cookie|Bio::DB::EUtilities::Cookie>-based search (see below)
 Sets a flag to treat the ID data (C<id> parameter) as multiple ID groups (see
 below).
 
+=item C<keep_cookies>
+
+Sets a flag to retain the cookie queue (this is normally cleared
+before 
+
 =back
 
 =head2 Command Values

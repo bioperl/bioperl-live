@@ -233,15 +233,15 @@ BEGIN {
         complexity report dbfrom cmd holding version linkname);
     @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
         retstart retmax cmd linkname);
-	for my $method (@PARAMS) {
-		eval <<END;
+    for my $method (@PARAMS) {
+        eval <<END;
 sub $method {
-	my \$self = shift;
+    my \$self = shift;
     return \$self->{'_$method'} = shift if \@_;
     return \$self->{'_$method'};
 }
 END
-	}
+    }
 }
 
 sub new {
@@ -261,17 +261,18 @@ sub new {
 
 sub _initialize {
     my ($self, @args) = @_;
-    my ( $tool, $ids, $retmode, $verbose, $cookie, $retain_cookie) =
-      $self->_rearrange([qw(TOOL ID RETMODE VERBOSE COOKIE RETAIN_COOKIE)],  @args);
+    my ( $tool, $ids, $retmode, $verbose, $cookie, $keep_cookies) =
+      $self->_rearrange([qw(TOOL ID RETMODE VERBOSE COOKIE KEEP_COOKIES)],  @args);
         # hard code the base address
     $self->url_base_address($HOSTBASE);
     $tool ||= $DEFAULT_TOOL;
     $self->tool($tool);
     $ids            && $self->id($ids);
     $verbose        && $self->verbose($verbose);
-    $retmode        && $self->return_mode($retmode);
-    $retain_cookie  && $self->retain_cookie($retain_cookie);
-    if ($cookie) {
+    $retmode        && $self->retmode($retmode);
+    $keep_cookies   && $self->keep_cookies($keep_cookies);
+    if ($cookie && ref($cookie) =~ m{cookie}i) {
+        $self->db($cookie->database) if !($self->db);
         $self->add_cookie($cookie);
     }
     $self->{'_cookieindex'} = 0;
@@ -319,8 +320,8 @@ sub next_cookie {
 
 =head2 reset_cookies
 
- Title   : reset_cookie
- Usage   : $db->reset_cookie
+ Title   : reset_cookies
+ Usage   : $db->reset_cookies
  Function: resets (empties) the internal cookie queue
  Returns : none
  Args    : none
@@ -360,9 +361,27 @@ sub get_all_cookies {
 
 =cut
 
-sub rewind_cookies{
+sub rewind_cookies {
     my $self = shift;
     $self->{'_cookieindex'} = 0;
+}
+
+=head2 retain_cookies
+
+ Title   : retain_cookies
+ Usage   : $db->retain_cookie(1)
+ Function: Flag to retain the internal cookie queue;
+           this is normally emptied upon using get_response
+ Returns : none
+ Args    : Boolean - value that evaluates to TRUE or FALSE
+
+=cut
+
+sub keep_cookies {
+    my $self = shift;
+    $self->debug("Keeping cookies : $ARGV[0]\n") if @_;
+    return $self->{'_keep_cookies'} = shift if @_;
+    return $self->{'_keep_cookies'};
 }
 
 =head2 parse_response
@@ -398,30 +417,31 @@ sub get_response {
     if (!$response->is_success) {
         $self->throw(ref($self)." Request Error:".$response->as_string);
     }
+    $self->reset_cookies if !($self->keep_cookies);
     $self->parse_response($response);  # grab cookies and what not
     return $response;
 }
 
-=head2 reset_parameters
+#=head2 reset_parameters
+#
+# Title   : reset_parameters
+# Usage   : $db->reset_parameters(@args);
+# Function: resets the parameters for a EUtility with args (in @args)
+# Returns : none
+# Args    : array of arguments (arg1 => value, arg2 => value)
+#
+#=cut
 
- Title   : reset_parameters
- Usage   : $db->reset_parameters(@args);
- Function: resets the parameters for a EUtility with args (in @args)
- Returns : none
- Args    : array of arguments (arg1 => value, arg2 => value)
-
-=cut
-
-sub reset_parameters {
-    my $self = shift;
-    my @args = @_;
-    $self->reset_cookies; # no baggage allowed
-    if ($self->can('next_linkset')) {
-        $self->reset_linksets;
-    }
-    # resetting the EUtility will not occur even if added as a a parameter;
-    $self->_initialize(@args); 
-}
+#sub reset_parameters {
+#    my $self = shift;
+#    my @args = @_;
+#    $self->reset_cookies; # no baggage allowed
+#    if ($self->can('next_linkset')) {
+#        $self->reset_linksets;
+#    }
+#    # resetting the EUtility will not occur even if added as a parameter;
+#    $self->_initialize(@args); 
+#}
 
 =head2 get_ids
 
@@ -446,7 +466,15 @@ sub get_ids {
             $self->throw(q(Multiple databases searched; must use a specific ).
                          q(database as an argument.) );
         }
-        if (scalar($self->get_all_linksets) == 1 && !$self->multi_id) {
+        
+        # get_all_linksets returns the first linkset on scalar; trick it into
+        # getting the total linksets
+        my $count = my @arr = $self->get_all_linksets ;
+        print STDERR "Count: $count\n";
+        if ($count == 0) {
+            $self->throw( q(No linksets!) );
+        }
+        elsif ($count == 1) {
             my ($linkset) = $self->get_all_linksets;
             my ($db) = $user_db ? $user_db : $linkset->get_all_databases;
             $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
@@ -551,7 +579,7 @@ sub _eutil   {
 # as the name implies....
 
 sub _submit_request {
-	my $self = shift;
+    my $self = shift;
     my %params = $self->_get_params;
     my $eutil = $self->_eutil;
     if ($self->id) {
@@ -579,10 +607,10 @@ sub _submit_request {
     my $url = URI->new($HOSTBASE . $CGILOCATION{$eutil}[1]);
     $url->query_form(%params);
     $self->debug("The web address:\n".$url->as_string."\n");
-	if ($CGILOCATION{$eutil}[0] eq 'post') {    # epost request
-		return $self->post($url);
-    } else {                                    # other requests
-		return $self->get($url);
+    if ($CGILOCATION{$eutil}[0] eq 'post') {    # epost request
+        return $self->post($url);
+    } else {                                    # all other requests
+        return $self->get($url);
     }
 }
 
@@ -604,16 +632,20 @@ sub _get_params {
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
               @COOKIE_PARAMS : @PARAMS;
+              
+    # build parameter hash based on final parameter list
     for my $method (@final) {
         if ($self->$method) {
             $params{$method} = $self->$method;
         }
     }
+    
     if ($cookie) {
         my ($webenv, $qkey) = @{$cookie->cookie};
         $self->debug("WebEnv:$webenv\tQKey:$qkey\n");
         ($params{'WebEnv'}, $params{'query_key'}) = ($webenv, $qkey);
     }
+    
     my $db = $self->db;
     $params{'db'} = $db         ? $db               : 
                     $cookie     ? $cookie->database :
@@ -622,7 +654,7 @@ sub _get_params {
     if (!$db && $self->_eutil eq 'einfo') {
         delete $params{'db'};
     }
-    unless ($self->rettype) { # set by user
+    unless (exists $params{'retmode'}) { # set by user
         my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific
             $format = $DATABASE{$params{'db'}} ?

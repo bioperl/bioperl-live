@@ -117,7 +117,7 @@ sub parse_response {
     my $db = $self->db;
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content);
-    $self->debug("Response dumper:\n".Dumper($simple));
+    #$self->debug("Response dumper:\n".Dumper($simple));
     # check for major and minor errors and warnings
     if ($simple->{ERROR}) {
         $self->throw("NCBI esearch nonrecoverable error: ".$simple->{ERROR});
