@@ -557,93 +557,93 @@ sub retrieve_blast {
     $hdr{'RID'} = $rid;
     my $req = POST $url_base, [%hdr];
     if( $self->verbose > 0 ) {
-	$self->warn("retrieve request is " . $req->as_string());
+        $self->warn("retrieve request is " . $req->as_string());
     }
     my $response = $self->ua->request($req, $tempfile);
     if( $response->is_success ) {
     	if( $self->verbose > 0 ) {
 	    #print content of reply if verbose > 1
-	    open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-	    while(<TMP>) { print $_; }
-	    close TMP;
-	}   
-	## if proper reply 
-	open(TMP, $tempfile) || $self->throw("Error opening $tempfile");
-	my $waiting = 1;
-	my $s = 0;
-    my $got_content = 0;
-	while(<TMP>) {
-        if (/./) {
-            $got_content = 1;
+            open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
+            while(<TMP>) { print $_; }
+            close TMP;
+    	}   
+        ## if proper reply 
+        open(TMP, $tempfile) || $self->throw("Error opening $tempfile");
+        my $waiting = 1;
+        my $s = 0;
+        my $got_content = 0;
+        while(<TMP>) {
+            if (/./) {
+                $got_content = 1;
+            }
+            if( /<\?xml version=/ ) { # xml time
+                $waiting = 0;
+                last;
+            }
+            if( /QBlastInfoBegin/i ) {
+                $s = 1;
+            } elsif( $s ) {
+                if( /Status=(WAITING|ERROR|READY)/i ) {
+                    if( $1 eq 'WAITING' ) {
+                        $waiting = 1;
+                    } elsif( $1 eq 'ERROR' ) {
+                        close(TMP);
+                        open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
+                        $self->warn(join("", <ERR>));
+                        close ERR;
+                        return -1;
+                    } elsif( $1 eq 'READY' ) {
+                        $waiting = 0;
+                        last;
+                    } else {
+                        $self->warn("Unknown status $1:\n");
+                        last;
+                    }
+                }
+            }
         }
-	    if( /<\?xml version=/ ) { # xml time
-		$waiting = 0;
-		last;
-	    }
-	    if( /QBlastInfoBegin/i ) {
-		$s = 1;
-	    } elsif( $s ) {
-		if( /Status=(WAITING|ERROR|READY)/i ) {
-		    if( $1 eq 'WAITING' ) {
-			$waiting = 1;
-		    } elsif( $1 eq 'ERROR' ) {
-			close(TMP);
-			open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
-			$self->warn(join("", <ERR>));
-			close ERR;
-			return -1;
-		    } elsif( $1 eq 'READY' ) {
-			$waiting = 0;
-			last;
-		    } else {
-			$self->warn("Unknown status $1:\n");
-			last;
-		    }
-		}
-	    }
-	}
-	close(TMP);
-	if( ! $waiting ) {
-	    my $blastobj;
-	    my $mthd = $self->readmethod;
-	    if( $mthd =~ /BPlite/i ) {
-		$blastobj = new Bio::Tools::BPlite(-file => $tempfile);
-	    } elsif( $mthd =~ /blasttable/i ) {
-		# pre-process
-		my ($fh2,$tempfile2) = $self->tempfile();
-		open(TMP,$tempfile) || $self->throw($!);
-		my $s = 0;
-		while(<TMP>) {
-		    if(/\<PRE\>/i ) {
-			$s = 1;
-		    } elsif( /\<\/PRE\>/i ) {
-			$s = 0;
-			last;
-		    } elsif( $s ) {
-			print $fh2 $_;
-		    }
-		} 
-		close($fh2);
-		$blastobj = new Bio::SearchIO( -file => $tempfile2,
-					       -format => 'blasttable');
-	    } elsif( $mthd =~ /xml/ ) {
-		$blastobj = new Bio::SearchIO( -file => $tempfile,
-					       -format => 'blastxml');
-	    } else {
-		$blastobj = new Bio::SearchIO( -file => $tempfile,
-					       -format => 'blast');
-	    } 
-	    
-	    ## store filename in object ##
-	    $self->file($tempfile);
-	    return $blastobj;
-    } elsif (!$got_content) {
-        # server returned no content, can't be good
-        $self->warn("Server failed to return any data");
-        return -1
-	} else {		# still working
-	    return 0;
-	}
+        close(TMP);
+        if( ! $waiting ) {
+            my $blastobj;
+            my $mthd = $self->readmethod;
+            if( $mthd =~ /BPlite/i ) {
+                $blastobj = new Bio::Tools::BPlite(-file => $tempfile);
+            } elsif( $mthd =~ /blasttable/i ) {
+            # pre-process
+            my ($fh2,$tempfile2) = $self->tempfile();
+            open(TMP,$tempfile) || $self->throw($!);
+            my $s = 0;
+            while(<TMP>) {
+                if(/\<PRE\>/i ) {
+                $s = 1;
+                } elsif( /\<\/PRE\>/i ) {
+                $s = 0;
+                last;
+                } elsif( $s ) {
+                print $fh2 $_;
+                }
+            } 
+            close($fh2);
+            $blastobj = new Bio::SearchIO( -file => $tempfile2,
+                               -format => 'blasttable');
+            } elsif( $mthd =~ /xml/ ) {
+            $blastobj = new Bio::SearchIO( -file => $tempfile,
+                               -format => 'blastxml');
+            } else {
+            $blastobj = new Bio::SearchIO( -file => $tempfile,
+                               -format => 'blast');
+            } 
+            
+            ## store filename in object ##
+            $self->file($tempfile);
+            return $blastobj;
+        } elsif (!$got_content) {
+            # server returned no content, can't be good
+            $self->warn("Server failed to return any data");
+            return -1
+        } else {		# still working
+            return 0;
+        }
 	
     } else {
 	$self->warn($response->error_as_HTML);
