@@ -55,8 +55,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -64,7 +64,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -72,8 +72,9 @@ Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Juguang Xiao, juguang@tll.org.sg
+Juguang Xiao,     juguang@tll.org.sg
 Gabriel Valiente, valiente@lsi.upc.edu
+Sendu Bala,       bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -81,7 +82,6 @@ The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
-
 
 package Bio::Taxonomy::Node;
 use vars qw(@ISA);
@@ -91,7 +91,7 @@ use Bio::Root::Root;
 use Bio::IdentifiableI;
 use Bio::DB::Taxonomy;
 
-@ISA = qw(Bio::Root::Root Bio::IdentifiableI  );
+@ISA = qw(Bio::Root::Root Bio::IdentifiableI);
 
 =head2 new
 
@@ -99,43 +99,43 @@ use Bio::DB::Taxonomy;
  Usage   : my $obj = new Bio::Taxonomy::Node();
  Function: Builds a new Bio::Taxonomy::Node object 
  Returns : an instance of Bio::Taxonomy::Node
- Args    : -dbh       => a reference to a Bio::DB::Taxonomy object
-           -name      => a string representing the node name
-           -object_id => unique identifier - typically NCBI Taxid
-           -parent_id => parent id (unique identifier for parent)
-           -rank      => node rank (one of 'species', 'genus', etc)
-           -division  => 'primates', 'rodents', or 'inv', etc
-           -factory   => Bio::Taxonomy::FactoryI object for creating new nodes
+ Args    : -dbh        => a reference to a Bio::DB::Taxonomy object [defaults to
+                          one using -source => 'entrez']
+           -name       => a string representing the node name
+           -object_id  => unique identifier - typically NCBI Taxid
+           -ncbi_taxid => alias for -object_id, only use one of these
+           -parent_id  => parent id (unique identifier for parent)
+           -rank       => node rank (one of 'species', 'genus', etc)
            -classification => Arrayref of full lineage classification
-           -ncbi_taxid  => alias for -object_id, only use one of these
-           -common_name => genbank common name for an organism
-           -organelle   => organelle type where appropriate
-           -sub_species => if this is a subspecies, provide that as well,
-                           most relavent for virii and others
-           -variant     => provide variant info
-           -genetic_code=> genetic code table number
+           -common_names   => array ref of all common names
+           -genetic_code   => genetic code table number
            -mito_genetic_code => mitochondrial genetic code table number
            -create_date       => date created (where available)
            -update_date       => date last updated
-           -pub_date          => date published 
+           -pub_date          => date published
+           
+           #*** deprecated?
+           -organelle      => organelle type where appropriate
+           -division       => 'primates', 'rodents', or 'inv', etc
+           -sub_species    => if this is a subspecies, provide that as well,
+                              most relavent for virii and others
+           -variant        => provide variant info
 
 =cut
 
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($name,$uniqueid,$parentid,
-	$rank,$div,$dbh, 
-	$factory,
-	$classification, $ncbitaxid, $commonname,
-	$organelle, $sub_species,$variant,$gcode,$mitocode,
-	$createdate,$updatedate,$pubdate) = 
+    my ($name, $uniqueid, $parentid,
+	$rank, $div, $dbh, $classification, $ncbitaxid, $commonname, $commonnames,
+	$organelle, $sub_species, $variant, $gcode, $mitocode,
+	$createdate, $updatedate, $pubdate) = 
 	    $self->_rearrange([ qw ( NAME OBJECT_ID PARENT_ID RANK DIVISION
-				     DBH 
-				     FACTORY
+				     DBH
 				     CLASSIFICATION
 				     NCBI_TAXID
 				     COMMON_NAME
+                     COMMON_NAMES
 				     ORGANELLE
 				     SUB_SPECIES
 				     VARIANT
@@ -146,48 +146,52 @@ sub new {
 				     PUB_DATE
 				     )],
 			      @args);
+    
     if( defined $ncbitaxid && defined $uniqueid && $ncbitaxid ne $uniqueid  ) {
 	$self->warn("Only provide one of -object_id or -ncbi_taxid, using $uniqueid\n");
     } elsif( ! defined $uniqueid && defined $ncbitaxid ) { 
 	$uniqueid = $ncbitaxid;
     }
     $uniqueid && $self->object_id($uniqueid);
-
-    if( defined $name && defined $commonname && $commonname ne $name ) { 
-	$self->warn("Only provide one of -name or -common_name to $class, using -name value\n");
-    } elsif( ! defined $name && defined $commonname ) { 
-	$name = $commonname;
-    }
-
-    defined $name && $self->node_name($name);
-    defined $rank && $self->rank($rank);
-    defined $div  && $self->division($div);
-
-    defined $gcode    && $self->genetic_code($gcode);
-    defined $mitocode && $self->mitochondrial_genetic_code($mitocode);
-    defined $createdate    && $self->create_date($createdate);
-    defined $updatedate    && $self->update_date($updatedate);
-    defined $pubdate       && $self->pub_date($pubdate);
-
-#unless(defined $factory ){
-    $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
-#  } else { 
-#      $self->factory($factory);
-#  }
-
     defined $parentid && $self->parent_id($parentid);
-    if( defined $classification ) {
-	if( ref($classification) !~ /ARRAY/ ) {
-	    $self->warn("Classification can only be initialize with an arrayref\n");
-	}
-	$self->classification(@$classification);
+    
+    defined $rank && $self->rank($rank);
+    defined $name && $self->node_name($name);
+    
+    my @common_names;
+    if ($commonnames) {
+        $self->throw("-common_names takes only an array reference") unless ref($commonnames) eq 'ARRAY';
+        @common_names = @{$commonnames};
+        if ($commonname) {
+            my %c_names = map { $_ => 1 } @common_names;
+            unless (exists $c_names{$commonname}) {
+                unshift(@common_names, $commonname);
+            }
+        }
     }
+    @common_names > 0 && $self->common_names(@common_names);
+    
+    defined $gcode      && $self->genetic_code($gcode);
+    defined $mitocode   && $self->mitochondrial_genetic_code($mitocode);
+    defined $createdate && $self->create_date($createdate);
+    defined $updatedate && $self->update_date($updatedate);
+    defined $pubdate    && $self->pub_date($pubdate);
+    
+    $self->db_handle($dbh || Bio::DB::Taxonomy->new(-source => 'entrez'));
+    
+    if( defined $classification ) {
+    if( ref($classification) !~ /ARRAY/ ) {
+        $self->warn("Classification can only be initialize with an arrayref\n");
+    }
+    $self->classification(@$classification);
+    }
+    
+    #*** deprecated?
     defined $organelle && $self->name('organelle', $organelle);
+    defined $div  && $self->division($div);
     defined $sub_species && $self->name('sub_species', $sub_species);
-
     defined $variant && $self->name('variant',$variant);
-
-
+    
     return $self;
 }
 
@@ -204,12 +208,10 @@ Also see L<Bio::IdentifiableI>
  Returns : value of version (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub version{
+sub version {
     my $self = shift;
-
     return $self->{'version'} = shift if @_;
     return $self->{'version'};
 }
@@ -223,16 +225,13 @@ sub version{
  Returns : value of authority (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub authority{
+sub authority {
     my $self = shift;
-
     return $self->{'authority'} = shift if @_;
     return $self->{'authority'};
 }
-
 
 =head2 namespace
 
@@ -243,12 +242,10 @@ sub authority{
  Returns : value of namespace (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub namespace{
+sub namespace {
     my $self = shift;
-
     return $self->{'namespace'} = shift if @_;
     return $self->{'namespace'};
 }
@@ -280,30 +277,6 @@ sub db_handle {
     return $self->{'db_handle'};
 }
 
-=head2 factory
-
-  Title:    factory
-  Usage:    $factory->factory($newval);
-  Function: Get/Set Bio::Taxonomy::FactoryI implementation
-  Returns:  Bio:;Taxonomy::FactoryI
-  Args:     Bio::Taxonomy::FactoryI
-
-Also see L<Bio::Taxonomy::FactoryI>
-
-=cut
-
-sub factory {
-    my $self = shift;
-    if(@_){
-        my $v = shift;
-        unless(ref($v) || $v->isa('Bio::Taxonomy::FactoryI')){
-            $self->throw('A Bio::Taxonomy::FactoryI object required');
-        }
-        $self->{_factory} = $v;
-    }
-    return $self->{_factory};
-}
-
 =head2 rank
 
  Title   : rank
@@ -312,12 +285,10 @@ sub factory {
  Returns : value of rank (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub rank{
+sub rank {
     my $self = shift;
-
     return $self->{'rank'} = shift if @_;
     return $self->{'rank'};
 }
@@ -326,16 +297,15 @@ sub rank{
 
  Title   : object_id
  Usage   : $obj->object_id($newval)
- Function: Get/Set object id (NCBI Taxonomy ID in most cases)
+ Function: Get/Set object id (NCBI Taxonomy ID in most cases); ncbi_taxid() is
+           a synonym of this method.
  Returns : value of object_id (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
 sub object_id {
     my $self = shift;
-
     return $self->{'_object_id'} = shift if @_;
     return $self->{'_object_id'};
 }
@@ -346,19 +316,20 @@ sub object_id {
 
  Title   : parent_id
  Usage   : $obj->parent_id($newval)
- Function: Get/Set parent ID
+ Function: Get/Set parent ID, (NCBI Taxonomy ID in most cases);
+           parent_taxon_id() is a synonym of this method.
  Returns : value of parent_id (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub parent_id{
+sub parent_id {
     my $self = shift;
-
     return $self->{'parent_id'} = shift if @_;
     return $self->{'parent_id'};
 }
+
+*parent_taxon_id = \&parent_id;
 
 =head2 genetic_code
 
@@ -368,12 +339,10 @@ sub parent_id{
  Returns : value of genetic_code (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub genetic_code{
+sub genetic_code {
     my $self = shift;
-
     return $self->{'genetic_code'} = shift if @_;
     return $self->{'genetic_code'};
 }
@@ -386,16 +355,13 @@ sub genetic_code{
  Returns : value of mitochondrial_genetic_code (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub mitochondrial_genetic_code{
+sub mitochondrial_genetic_code {
     my $self = shift;
-
     return $self->{'mitochondrial_genetic_code'} = shift if @_;
     return $self->{'mitochondrial_genetic_code'};
 }
-
 
 =head2 create_date
 
@@ -405,16 +371,13 @@ sub mitochondrial_genetic_code{
  Returns : value of create_date (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub create_date{
+sub create_date {
     my $self = shift;
-
     return $self->{'create_date'} = shift if @_;
     return $self->{'create_date'};
 }
-
 
 =head2 update_date
 
@@ -424,31 +387,26 @@ sub create_date{
  Returns : value of update_date (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub update_date{
+sub update_date {
     my $self = shift;
-
     return $self->{'update_date'} = shift if @_;
     return $self->{'update_date'};
 }
-
 
 =head2 pub_date
 
  Title   : pub_date
  Usage   : $obj->pub_date($newval)
- Function: Get/Set Date this node was pubd (in the database)
+ Function: Get/Set Date this node was published (in the database)
  Returns : value of pub_date (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-
 =cut
 
-sub pub_date{
+sub pub_date {
     my $self = shift;
-
     return $self->{'pub_date'} = shift if @_;
     return $self->{'pub_date'};
 }
@@ -460,7 +418,6 @@ sub pub_date{
  Function: Retrieve the full Parent node from the database
  Returns : Bio::Taxonomy::Node
  Args    : none
-
 
 =cut
 
@@ -474,7 +431,6 @@ sub get_Parent_Node {
        return;
    }
 
-
    my $node = $self->db_handle->get_Taxonomy_Node(-taxonid => $self->parent_id);
    unless ( defined $node ) {
        $self->warn("Could not find node for parent id ". $self->parent_id);
@@ -482,7 +438,6 @@ sub get_Parent_Node {
    }
    return $node;
 }
-
 
 =head2 get_Children_Nodes
 
@@ -492,15 +447,14 @@ sub get_Parent_Node {
  Returns : Array of L<Bio::Taxonomy::Node> objects
  Args    : none
 
-
 =cut
 
-sub get_Children_Nodes{
+sub get_Children_Nodes {
    my ($self) = @_;
    if( ! $self->db_handle ||
-       ! defined $self->parent_id ) {
+       ! defined $self->object_id ) {
        $self->warn("Cannot get the children nodes for ".$self->name('common').
-		   " because the db handle is not defined\n");
+		   " because object_id or db handle is not defined\n");
        return;
    }
    my @nodes = $self->db_handle->get_Children_Taxids($self->object_id);
@@ -508,8 +462,7 @@ sub get_Children_Nodes{
    for my $n ( @nodes ) {
        my $node = $self->db_handle->get_Taxonomy_Node(-taxonid => $n);
        unless( defined $node ) {
-	   $self->warn("Could not find node for id $n child  of ".
-		       $self->object_id);
+	   $self->warn("Could not find node for id $n child of ".$self->object_id);
        } else {
 	   push @children, $node;
        }
@@ -525,10 +478,9 @@ sub get_Children_Nodes{
  Returns : Array of L<Bio::Taxonomy::Node> objects
  Args    : none
 
-
 =cut
 
-sub get_Lineage_Nodes{
+sub get_Lineage_Nodes {
    my ($self) = @_;
    if( ! $self->db_handle ) {
        $self->warn("Cannot get the lineage nodes for ".$self->node_name.
@@ -537,8 +489,9 @@ sub get_Lineage_Nodes{
    }
    my $node = $self;
    my @lineage;
-   while ($node->node_name ne "root") {
+   while ($node->node_name ? $node->node_name ne "root" : 1) {
       $node = $node->get_Parent_Node;
+      $node || last;
       unshift @lineage, $node;
    }
    return @lineage;
@@ -552,12 +505,11 @@ sub get_Lineage_Nodes{
  Returns : L<Bio::Taxonomy::Node> object
  Args    : Bio::Taxonomy::Node object
 
-
 =cut
 
-sub get_LCA_Node{
+sub get_LCA_Node {
    my ($self, $node) = @_;
-   if ($self eq $node) {
+   if ($self eq $node || ($self->object_id && $node->object_id && $self->object_id == $node->object_id)) {
       return $self;
    } else {
       my @PATH1 = $self->get_Lineage_Nodes;
@@ -566,43 +518,139 @@ sub get_LCA_Node{
       do {
          $root1 = shift @PATH1;
          $root2 = shift @PATH2;
-         $lca = $root1 if $root1->node_name eq $root2->node_name;
-      } while ($root1->node_name eq $root2->node_name);
+         
+         # node_name isn't necessarily unique in the taxonomy, so must compare
+         # on object_id
+         my ($r1_oid, $r2_oid) = ($root1->object_id, $root2->object_id);
+         unless (defined $r1_oid && defined $r2_oid) {
+            $self->warn("One of the lineages had a node with no object_id, can't calculate the common ancestor");
+            last;
+         }
+         $lca = $root1 if $root1->object_id eq $root2->object_id;
+      } while ($root1->object_id eq $root2->object_id);
       return $lca;
    }
+}
+
+=head2 name
+
+  Title:    name
+  Usage:    $obj->name('scientific', 'Homo sapiens');
+            $obj->name('common', 'human', 'man');
+            my @names = @{$obj->name('common')};
+  Function: Get/set the names. node_name(), scientific_name() and common_names()
+            are shorthands to name('scientific'), name('scientific') and
+            name('common') respectively.
+  Returns:  names (a array reference)
+  Args:     Arg1 => the name_class. You can assign any text, but the words
+                'scientific' and 'common' have the special meaning, as
+                scientific name and common name, respectively. 'scientific' is
+                treated specially, allowing only the first value in the Arg2
+                list to be set.
+            Arg2 .. => list of names
+
+=cut
+
+sub name {
+    my ($self, $name_class, @names) = @_;
+    $self->throw('No name class specified') unless defined $name_class;
+    
+    if (@names) {
+        if ($name_class =~ /scientific/i) {
+            delete $self->{'_names_hash'}->{$name_class};
+            @names = (shift(@names));
+        }
+        push @{$self->{'_names_hash'}->{$name_class}}, @names;
+    }
+    return $self->{'_names_hash'}->{$name_class} || return;
 }
 
 =head2 node_name
 
  Title   : node_name
  Usage   : $obj->node_name($newval)
- Function: 
- Example : 
+ Function: Get/set the name of this node, typically the scientific name of the
+           node, eg. 'Primate' or 'Homo'; scientific_name() is a synonym of this
+           method.
  Returns : value of node_name (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
+=cut
+
+sub node_name {
+    my $self = shift;
+    my @v = @{$self->name('scientific', @_) || []};
+    return shift @v;
+}
+
+*scientific_name = \&node_name;
+
+=head2 binomial
+
+ Title   : binomial
+ Usage   : $binomial = $self->binomial();
+           $binomial = $self->binomial('FULL');
+ Function: Returns a string "Genus species", or "Genus species subspecies",
+           if the first argument is 'FULL' (and the species has a subspecies).
+ Args    : Optionally the string 'FULL' to get the full name including
+           the subspecies.
 
 =cut
 
-sub node_name{
+sub binomial {
+    my( $self, $full ) = @_;
+    my $rank = $self->rank || '';
+    if( $rank ne 'species' ) {
+        $self->warn("Asking for binomial for a $rank node which is not a species, you may not get what you are expecting (genus, species is not available)\n");
+    }
+    
+    # do we already have the binomial?
+    my $sci_name = $self->scientific_name || '';
+    if ($rank eq 'species' && $sci_name =~ /\w+\s+\w+/) {
+        return $sci_name;
+    }
+    
+    my( $species, $genus ) = $self->classification();
+    unless( defined $species) {
+        $species = 'sp.';
+        $self->warn("requested binomial but classification was not set");
+    }
+    $genus = ''   unless( defined $genus);
+    my $bi = "$genus $species";
+    if (defined($full) && $full =~ /full/i) { 
+        my $ssp = $self->sub_species;
+        $bi .= " $ssp" if $ssp;
+    }
+    return $bi;
+}
+
+=head2 common_names
+
+ Title   : common_names
+ Usage   : $obj->common_names($newval)
+ Function: Get/set the other names of this node, typically the genbank common
+           name and others, eg. 'Human' and 'man'. common_name() is a synonym
+           of this method.
+ Returns : array of names
+ Args    : on set, new list of names (scalars, optional)
+
+=cut
+
+sub common_names {
     my $self = shift;
-    my @v = @{$self->name('common',@_) || []};
+    my @v = @{$self->name('common', @_) || []};
     return ( wantarray ) ? @v : shift @v;
 }
 
-*common_name = \&node_name;
+*common_name = \&common_names;
 
 =head2 classification
 
  Title   : classification
  Usage   : $self->classification(@class_array);
            @classification = $self->classification();
- Function: Fills Returns the classification list in
-           the object.  The array provided must be in
-           the order SPECIES, GENUS ---> KINGDOM.
-           Checks are made that species is in lower case,
-           and all other elements are in title case.
- Returns : Classification array
+ Function: Fills/returns the classification list in the object.
+ Returns : Classification array (scalars)
  Args    : [optional] array of vals to set classification to
 
 =cut
@@ -615,37 +663,16 @@ sub classification {
        return @vals;
    } elsif ( defined $self->{'_classification'} ) {
        return @{$self->{'_classification'}};
-   } else { 
-       if( defined($p = $self->get_Parent_Node()) &&
-	   $p->object_id != 1  ) {
-	   # okay this won't really work - need to do proper recursion
-	   push @vals, $p->classification;
-       }
-       if( $self->show_all || $self->rank ne 'no rank') {
-	   push @vals,$self->node_name();
+   } else {
+       foreach my $node ($self->get_Lineage_Nodes, $self) {
+            my $name = $node->node_name || next;
+            if (($self->rank && $self->rank ne 'no rank') || $self->show_all) {
+                unshift(@vals, $name);
+            }
        }
        $self->{'_classification'} = \@vals;
    }
    return @vals;
-}
-
-
-=head2 division
-
- Title   : division
- Usage   : $obj->division($newval)
- Function: 
- Example : 
- Returns : value of division (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-
-=cut
-
-sub division {
-    my $self = shift;
-    my @v = @{$self->name('division',@_) || []};
-    return wantarray ? @v : shift @v;
 }
 
 =head2 show_all
@@ -654,9 +681,8 @@ sub division {
  Usage   : $obj->show_all($newval)
  Function: Boolean flag whether or not we should show all intermediete
            nodes that do not have actual ranks.
- Returns : value of show_all (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
+ Returns : boolean
+ Args    : boolean
 
 =cut
 
@@ -666,90 +692,44 @@ sub show_all{
     return $self->{'show_all'};
 }
 
-=head2 name
+=head2 division
 
-  Title:    name
-  Usage:    $obj->name('scientific', 'sapiens');
-            $obj->name('common', 'human', 'man');
-            my @names = @{$obj->name('common')};
-  Function: Get and set the names
-  Returns:  names (a array reference)
-  Args:     Arg1 => the name_class. You can assign any text, but the words
-                'scientific' and 'common' have the special meaning, as
-                scientific name and common name, respectively.
-            Arg2 .. => the names
+ Title   : division
+ Usage   : $obj->division($newval)
+ Function: Get/set the division this node belongs to, eg. 'Primates' or
+           'Bacteria'.
+ Returns : value of division (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
 
 =cut
 
-sub name {
-    my ($self, $name_class, @names) = @_;
-    $self->throw('No name class specified') unless defined $name_class;
-    # scientific name should be special, because of its uniqueness.
-    return [$self->scientific_name(@names)] if $name_class =~ /scientific/i;
-    $self->{'_names_hash'} = {} unless exists $self->{'_names_hash'};
-    if(@names){
-        $self->{'_names_hash'}->{$name_class} = [] 
-            unless exists $self->{'_names_hash'}->{$name_class};
-        push @{$self->{'_names_hash'}->{$name_class}}, @names;
-    }
-    return $self->{'_names_hash'}->{$name_class};
-}
-
-=head2 scientific_name
-
-  Title:    scientific_name
-  Usage:    my $new_val = $obj->scientific_name($newval);
-  Function: Get/Set the scientific name
-  Returns:  a scalar text value
-  Args:     a scalar text value
-
-=cut
-
-sub scientific_name {
+sub division {
     my $self = shift;
-    if( @_ ) { 
-	$self->warn("Scientfic name must be set through classification");
-    }
-    $self->binomial;
+    my @v = @{$self->name('division',@_) || []};
+    return wantarray ? @v : shift @v;
 }
-
-=head2 parent_taxon_id
-
-  Title   : parent_taxon_id
-  Usage   : $self->parent_taxon_id($newval);
-            $val = $self->parent_taxon_id;
-  Function: Get/Set for parent_taxon_id
-  Return  : 
-  Args    :    
-
-=cut
-
-sub parent_taxon_id {
-    my $self = shift;
-    return $self->{'_parent_taxon_id'} = shift if @_;
-    return $self->{'_parent_taxon_id'};
-}
-
 
 =head2 species
 
  Title   : species
- Usage   : $self->species( $species );
+ Usage   : $self->species($species);
            $species = $self->species();
- Function: Get or set the scientific species name.  The species
-           name must be in lower case.
- Example : $self->species( 'sapiens' );
+ Function: Get or set the scientific species name.
+ Example : $self->species('Homo sapiens');
  Returns : Scientific species name as string
  Args    : Scientific species name as string
 
 =cut
 
-
 sub species {
     my($self, $species) = @_;
-
+    
+    my $rank = $self->rank || '';
+    if ($rank ne 'species') {
+        $self->warn("Getting or setting species for a '$rank' node which is not a species will probably result in a messed up classification()");
+    }
+    
     if (defined $species) {
-        $self->validate_species_name( $species );
         $self->{'_classification'}[0] = $species;
     }
     return $self->{'_classification'}[0];
@@ -760,17 +740,21 @@ sub species {
  Title   : genus
  Usage   : $self->genus( $genus );
            $genus = $self->genus();
- Function: Get or set the scientific genus name.  The genus
-           must be in title case.
+ Function: Get or set the scientific genus name.
  Example : $self->genus( 'Homo' );
  Returns : Scientific genus name as string
  Args    : Scientific genus name as string
 
 =cut
 
-
 sub genus {
     my($self, $genus) = @_;
+    
+    my $rank = $self->rank || '';
+    if ($rank ne 'species') {
+        $self->warn("Getting or setting genus for a '$rank' node which is not a species will probably result in a messed up classification()");
+    }
+    
     if (defined $genus) {
         $self->{'_classification'}[1] = $genus;
     }
@@ -785,7 +769,6 @@ sub genus {
  Returns : value of sub_species
  Args    : newvalue (optional)
 
-
 =cut
 
 sub sub_species {
@@ -793,40 +776,6 @@ sub sub_species {
     my @v = @{$self->name('sub_species', @_) || []};
     return wantarray ? @v : shift @v;
 }
-
-=head2 binomial
-
- Title   : binomial
- Usage   : $binomial = $self->binomial();
-           $binomial = $self->binomial('FULL');
- Function: Returns a string "Genus species", or "Genus species subspecies",
-           if the first argument is 'FULL' (and the species has a subspecies).
- Args    : Optionally the string 'FULL' to get the full name including
-           the subspecies.
-
-=cut
-
-
-sub binomial {
-    my( $self, $full ) = @_;
-    my $rank = $self->rank;
-    if( $rank ne 'species' ) {
-	$self->warn("Asking for binomial for a $rank node which is not a species, you may not get what you are expecting (genus, species is not available)\n");
-    }
-    my( $species, $genus ) = $self->classification();
-    unless( defined $species) {
-	$species = 'sp.';
-	$self->warn("requested binomial but classification was not set");
-    }
-    $genus = ''   unless( defined $genus);
-    my $bi = "$genus $species";
-    if (defined($full) && $full =~ /full/i) { 
-	my $ssp = $self->sub_species;
-        $bi .= " $ssp" if $ssp;
-    }
-    return $bi;
-}
-
 
 =head2 organelle
 
@@ -864,23 +813,5 @@ sub variant{
     my @v = @{$self->name('variant',@_) || []};
     return wantarray ? @v : shift @v;
 }
-
-sub validate_species_name {
-    my( $self, $string ) = @_;
-
-    return 1 if $string eq "sp.";
-    return 1 if $string =~ /^[a-z][\w\s]+$/i;
-    $self->throw("Invalid species name '$string'");
-}
-
-sub validate_name {
-    return 1; # checking is disabled as there is really not much we can
-              # enforce HL 2002/10/03
-#     my( $self, $string ) = @_;
-
-#     return 1 if $string =~ /^[\w\s\-\,\.]+$/ or
-#         $self->throw("Invalid name '$string'");
-}
-
 
 1;

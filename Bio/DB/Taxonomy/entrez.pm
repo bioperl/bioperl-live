@@ -45,7 +45,7 @@ Bio::DB::Taxonomy::entrez - Taxonomy Entrez driver
 
 It is not currently possibly to query a node for its children so we
 cannot completely replace the advantage of the flatfile
-Bio::DB::Taxonomy::source module.
+Bio::DB::Taxonomy::flatfile module.
 
 
 =head1 DESCRIPTION
@@ -60,8 +60,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  bioperl-l@bioperl.org              - General discussion
+  http://bioperl.org/MailList.shtml  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -69,7 +69,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  http://bugzilla.bioperl.org/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -77,7 +77,7 @@ Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Sendu Bala: bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -86,9 +86,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::DB::Taxonomy::entrez;
 use vars qw(@ISA $EntrezLocation $UrlParamSeparatorValue %EntrezParams
@@ -115,13 +113,13 @@ $EntrezFetch    = 'efetch.fcgi';
 $EntrezSummary  = 'esummary.fcgi';
 
 %EntrezParams = ( 'db'     => 'taxonomy', 
-		  'report' => 'xml',
-		  'retmode'=> 'xml',
-		  'tool'   => 'Bioperl');
+                  'report' => 'xml',
+                  'retmode'=> 'xml',
+                  'tool'   => 'Bioperl');
 
-%SequenceParams = ( 'db'     => 'nucleotide', # or protein
-		    'retmode'=> 'xml',
-		    'tool'   => 'Bioperl', );
+%SequenceParams = ( 'db'      => 'nucleotide', # or protein
+		            'retmode' => 'xml',
+		            'tool'    => 'Bioperl');
 
 $UrlParamSeparatorValue = '&';
 
@@ -144,7 +142,6 @@ sub _initialize {
 
   my ($location,$params) = $self->_rearrange([qw(LOCATION PARAMS)],@_);
 
-  $self->entrez_url($location || $EntrezLocation );
   if( $params ) {
       if( ref($params) !~ /HASH/i ) {
 	  $self->warn("Must have provided a valid HASHref for -params");
@@ -204,16 +201,15 @@ sub get_Taxonomy_Node{
 	   $p{'db'} = $db if defined $db;
 	   my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
 	   my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezSummary,$params);
-	   $self->debug("url is $url\n")  if( $self->verbose > 0);
+	   $self->debug("url is $url\n");
 	   my $response;
 	   eval {
 	       $response = $self->get($url);
 	   };
 	   if( $@ ) {
-	       $self->warn("Can't query website: $@");
-	       return;
+	       $self->throw("Can't query website: $@");
 	   }
-	   $self->debug( "resp is $response\n") if( $self->verbose > 0);
+	   $self->debug("resp is $response\n");
 	   my $twig = XML::Twig->new;
 	   $twig->parse($response);
 	   my $root = $twig->root;
@@ -239,19 +235,18 @@ sub get_Taxonomy_Node{
        $taxonid = join(',', @$taxonid);
    }
    $p{'id'}      = $taxonid;
-   
+   $self->debug("id is $taxonid\n");
    my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
    my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezFetch,$params);
-   $self->debug("url is $url\n")  if( $self->verbose > 0);
+   $self->debug("url is $url\n");
    my $response;
    eval {
        $response = $self->get($url);
    };
    if( $@ ) {
-       $self->warn("Can't query website: $@");
-       return;
+       $self->throw("Can't query website: $@");
    }
-   $self->debug( "resp is $response\n") if( $self->verbose > 0);
+   $self->debug("resp is $response\n");
    my $twig = XML::Twig->new;
    $twig->parse($response);
    my $root = $twig->root;        
@@ -260,12 +255,11 @@ sub get_Taxonomy_Node{
        my %init = ('-dbh'            => $self,
 		   '-rank'           => '',
 		   '-classification' => []);
-       my ($species_seen,$scientfic_name);
+       
        for my $child ( $taxon->children ) {
 	   my $name = uc ($child->gi);
 	   if( $name eq 'OTHERNAMES' ) {
-	       my ($first_name) = map {$_->text } $child->children('GenbankCommonName');
-	       $init{'-name'} = $first_name;
+	       $init{'-common_names'} = [$child->children_text()];
 	   } elsif( $name eq 'TAXID' ) {
 	       $init{'-object_id'} = $child->text;
 	   } elsif( $name eq 'PARENTTAXID' ) {
@@ -292,80 +286,83 @@ sub get_Taxonomy_Node{
 		   my ($sname) = map { $_->text } $taxon->children('ScientificName');
 		   my ($rank) = map { $_->text } $taxon->children('Rank');
 		   next if( $rank eq 'no rank' );
-		   if( $rank eq 'species') {
-		       # this is workaround hack for sub-species and specific 
-		       # strain linking to a taxonid
-		       $species_seen = 1;
-		       my ($genus,$species) = split(/\s+/,$sname);
-		       unshift @{$init{'-classification'}}, $species;
-		   } else {		       
-		       unshift @{$init{'-classification'}}, $sname;
-		   }
+		   unshift @{$init{'-classification'}}, $sname;
 	       }
 	   } elsif( $name eq 'SCIENTIFICNAME' ) {
-	       $scientfic_name = $child->text;
+           my $sci_name = $child->text;
+           my $orig_sci_name = $sci_name;
+           $sci_name =~ s/ \(class\)$//;
+           push(@{$init{'-common_names'}}, $orig_sci_name) if $orig_sci_name ne $sci_name;
+           $init{'-name'} = $sci_name;
 	   } 
        }
+       
        if( ! $init{'-object_id'} ) { 
 	   $self->warn("Could not find any value for $taxonid");
 	   return;
        }
-       if( $init{'-rank'} eq 'species' ) {
-	   my ($genus,$species) = split(/\s+/,$scientfic_name);
-	   unshift @{$init{'-classification'}}, $species;	   
-       } elsif( ! $species_seen ) {
-	   unshift @{$init{'-classification'}}, $scientfic_name;
-       } else {
-	   my ($genus,$species,$subsp) = split(/\s+/,$scientfic_name,3);
-	   $init{'-sub_species'} = $subsp;
-	   $init{'-rank'} = 'species';
+       
+       unless ($init{'-rank'} eq 'no rank') {
+            unshift @{$init{'-classification'}}, $init{'-name'};	   
        }
+       
        push @results, Bio::Taxonomy::Node->new(%init);
    }
    ( wantarray ) ? @results : shift @results;
 }
 
 
-=head2 get_taxonid
+=head2 get_taxonids
 
- Title   : get_taxonid
- Usage   : my $taxonid = $db->get_taxonid('Homo sapiens');
- Function: Searches for a taxonid (typically ncbi_taxon_id)
-           based on a query string
- Returns : Integer ID
- Args    : Array of Strings representing species/node name
-
+ Title   : get_taxonids
+ Usage   : my $taxonid = $db->get_taxonids('Homo sapiens');
+ Function: Searches for a taxonid (typically ncbi_taxon_id) based on a query
+           string. Note that since multiple taxonids can match to the same
+           supplied name, a list of ids is always returned.
+ Returns : array of integer ids in list context, one of these in scalar context
+ Args    : string representing taxanomic (node) name 
 
 =cut
 
-sub get_taxonid {
-   my ($self,$query) = @_;
-   my %p = $self->entrez_params;
-   $query        =~ s/\s/\+/g;
-   $p{'term'}      = $query;
-   my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-   my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
-   my $response;
-   eval {
-       $response = $self->get($url);
-   };
-   if( $@ ) {
-       $self->warn("Can't query website: $@");
-       return;
-   }
-   $self->debug( "response is $response\n") if( $self->verbose > 0);
-   my $twig = XML::Twig->new;
-   $twig->parse($response);
-   my $root = $twig->root;
-   my $list = $root->first_child('IdList');
-   my @data = map { $_->text } $list->children('Id');
-   ( wantarray ) ? @data : shift @data;
+sub get_taxonids {
+    my ($self,$query) = @_;
+    my %p = $self->entrez_params;
+    
+    # queries don't work correctly with special characters, so get rid of them.
+    if ($query =~ /<.+>/) {
+        # queries with <something> will fail, so shortcut
+        # (removing them is an option, but will result in the wrong answer;
+        # the user wants a specific one when he supples <>, so no point in
+        # changing his query and providing multiple ids)
+        return;
+    }
+    $query =~ s/[\"\(\)]//g; # not an exhaustive list; these are just the ones I know cause problems
+    $query =~ s/\s/+/g;
+    
+    $p{'term'} = $query;
+    my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
+    my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
+    my $response;
+    eval {
+        $response = $self->get($url);
+    };
+    if( $@ ) {
+        $self->throw("Can't query website: $@");
+    }
+    $self->debug("response is $response\n");
+    my $twig = XML::Twig->new;
+    $twig->parse($response);
+    my $root = $twig->root;
+    my $list = $root->first_child('IdList');
+    my @data = map { $_->text } $list->children('Id');
+    ( wantarray ) ? @data : shift @data;
 }
+
+*get_taxonid = \&get_taxonids;
 
 =head2 Some Get/Setter methods
 
 =cut
-
 
 =head2 entrez_url
 
@@ -374,7 +371,6 @@ sub get_taxonid {
  Function: Get/set entrez URL
  Returns : value of entrez url (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
 
 =cut
 
@@ -392,7 +388,6 @@ sub entrez_url{
  Function: Get/set entrez params
  Returns : value of entrez_params (a hashref)
  Args    : on set, new value Hashref
-
 
 =cut
 
@@ -419,7 +414,6 @@ sub entrez_params{
  Returns : string
  Args    : protocol ('http' or 'ftp'), default 'http'
 
-
 =head2 proxy
 
  Title   : proxy
@@ -432,7 +426,6 @@ sub entrez_params{
            $username : username (if proxy requires authentication)
            $password : password (if proxy requires authentication)
 
-
 =head2 authentication
 
  Title   : authentication
@@ -440,7 +433,6 @@ sub entrez_params{
  Function: Get/Set authentication credentials
  Returns : Array of user/pass
  Args    : Array or user/pass
-
 
 =cut
 
