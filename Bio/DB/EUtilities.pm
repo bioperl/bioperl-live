@@ -171,7 +171,7 @@ package Bio::DB::EUtilities;
 use strict;
 
 use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
-            $DEFAULT_TOOL @COOKIE_PARAMS);
+            $DEFAULT_TOOL @COOKIE_PARAMS @METHODS);
 use Bio::DB::GenericWebDBI;
 use URI;
 #use Data::Dumper;
@@ -230,10 +230,13 @@ BEGIN {
                  );
     @PARAMS = qw(rettype usehistory term field tool reldate mindate
         maxdate datetype retstart retmax sort seq_start seq_stop strand
-        complexity report dbfrom cmd holding version linkname);
+        complexity report dbfrom cmd holding version linkname retmode);
     @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
-        retstart retmax cmd linkname);
-    for my $method (@PARAMS) {
+        retstart retmax cmd linkname retmode);
+    @METHODS = qw(rettype usehistory term field tool reldate mindate
+        maxdate datetype retstart retmax sort seq_start seq_stop strand
+        complexity report dbfrom cmd holding version linkname);
+    for my $method (@METHODS) {
         eval <<END;
 sub $method {
     my \$self = shift;

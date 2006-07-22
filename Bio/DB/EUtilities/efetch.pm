@@ -215,15 +215,16 @@ BEGIN {
 sub _initialize {
     my ($self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    my ($term, $field, $reldate, $mindate, $maxdate, $datetype, $rettype, $retstart, 
+    my ($retmode, $reldate, $mindate, $maxdate, $datetype, $rettype, $retstart, 
         $retmax, $report, $seq_start, $seq_stop, $strand, $complexity) = 
-      $self->_rearrange([qw(TERM FIELD RELDATE MINDATE MAXDATE DATETYPE RETTYPE
+      $self->_rearrange([qw(RETMODE RELDATE MINDATE MAXDATE DATETYPE RETTYPE
         RETSTART RETMAX REPORT SEQ_START SEQ_STOP STRAND COMPLEXITY)], @args);    
     # set by default
     $self->_eutil($EUTIL);
     $datetype ||= 'mdat';
     $self->datetype($datetype) if $datetype;
     defined($retstart)       && $self->retstart($retstart);
+    $retmode        && $self->retmode($retmode);
     $retmax         && $self->retmax($retmax);
     $rettype        && $self->rettype($rettype);
     $seq_start      && $self->seq_start($seq_start);
