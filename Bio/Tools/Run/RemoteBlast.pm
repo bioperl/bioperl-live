@@ -676,7 +676,8 @@ sub save_output {
 		next if (/<pre>/);
 		if(/^(?:[T]?BLAST[NPX])\s*.+$/i ||
            /^RPS-BLAST\s*.+$/i ||
-           /<\?xml\sversion=/ ) {
+           /<\?xml\sversion=/ ||
+           /^#\s+(?:[T]?BLAST[NPX])\s*.+$/) {
 			$seentop=1;
 		} 
         next if !$seentop;
