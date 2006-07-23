@@ -20,7 +20,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$NUMTESTS = 194;
+	$NUMTESTS = 211;
 	plan tests => $NUMTESTS;
 
 	eval { 
@@ -382,15 +382,59 @@ foreach my $cds (grep { $_->primary_tag eq 'CDS' } $genome->get_SeqFeatures) {
 }
 
 my $sfa = Bio::SeqFeature::Annotated->new(-start => 1,
-														-end => 5,
-														-strand => "+",
-														-frame => 2,
-														-phase => 2,
-														-score => 12,
-														-display_name => 'test.annot',
-														-seq_id => 'test.displayname' );
+					  -end => 5,
+					  -strand => "+",
+					  -frame => 2,
+					  -phase => 2,
+					  -score => 12,
+					  -display_name => 'test.annot',
+					  -seq_id => 'test.displayname' );
 
 ok (defined $sfa);
 my $loc = $sfa->location;
 ok $loc->isa("Bio::Location::Simple");
 
+ok $sfa->display_name eq 'test.annot';
+
+
+#test bsfa::from_feature
+{
+  my $sfg = Bio::SeqFeature::Generic->new ( -start => 400,
+					    -end => 440,
+					    -strand => 1,
+					    -primary => 'nucleotide_motif',
+					    -source  => 'program_a',
+					    -tag => {
+						     silly => 20,
+						     new => 1
+						    }
+					  );
+
+  my $sfa2 = Bio::SeqFeature::Annotated->new(-feature => $sfg);
+  ok $sfa2->type->name,'nucleotide_motif';
+  ok $sfa2->primary_tag, 'nucleotide_motif';
+  ok $sfa2->source,'program_a';
+  ok $sfa2->strand,1;
+  ok $sfa2->start,400;
+  ok $sfa2->end,440;
+  ok $sfa2->get_Annotations('silly')->value,20;
+  ok $sfa2->get_Annotations('new')->value,1;
+
+  my $sfa3 = Bio::SeqFeature::Annotated->new( -start => 1,
+					      -end => 5,
+					      -strand => "+",
+					      -frame => 2,
+					      -phase => 2,
+					      -score => 12,
+					      -display_name => 'test.annot',
+					      -seq_id => 'test.displayname' );
+  $sfa3->from_feature($sfg);
+  ok $sfa3->type->name,'nucleotide_motif';
+  ok $sfa3->primary_tag, 'nucleotide_motif';
+  ok $sfa3->source,'program_a';
+  ok $sfa3->strand,1;
+  ok $sfa3->start,400;
+  ok $sfa3->end,440;
+  ok $sfa3->get_Annotations('silly')->value,20;
+  ok $sfa3->get_Annotations('new')->value,1;
+}

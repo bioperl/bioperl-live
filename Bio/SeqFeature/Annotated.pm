@@ -81,8 +81,11 @@ use Bio::SeqFeatureI;
 use Bio::AnnotatableI;
 use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
+use Bio::Annotation::OntologyTerm;
+use Bio::Annotation::Target;
 use Bio::LocatableSeq;
 use Bio::Location::Simple;
+use Bio::Ontology::OntologyStore;
 use Bio::Tools::GFF;
 
 use URI::Escape;
@@ -125,7 +128,7 @@ sub _initialize {
   my ($start, $end, $strand, $frame, $phase, $score,
       $name, $annot, $location,
       $display_name, # deprecate
-      $seq_id, $type,$source
+      $seq_id, $type,$source,$feature
      ) =
         $self->_rearrange([qw(START
                               END
@@ -140,6 +143,7 @@ sub _initialize {
                               SEQ_ID
                               TYPE
                               SOURCE
+			      FEATURE
                              )], @args);
   defined $start        && $self->start($start);
   defined $end          && $self->end($end);
@@ -151,6 +155,7 @@ sub _initialize {
   defined $type         && $self->type($type);
   defined $location     && $self->location($location);
   defined $annot        && $self->annotation($annot);
+  defined $feature      && $self->from_feature($feature);
 
   if( defined($display_name) && defined($name) ){
 	  $self->throw('Cannot define (-id and -seq_id) or (-name and -display_name) attributes');
@@ -162,6 +167,101 @@ sub _initialize {
 =head1 ATTRIBUTE ACCESSORS FOR Bio::SeqFeature::Annotated
 
 =cut
+
+=head2 from_feature
+
+  Usage: $obj->from_feature($myfeature);
+  Desc : initialize this object with the contents of another feature
+         object.  Useful for converting objects like
+         L<Bio::SeqFeature::Generic> to this class
+  Ret  : nothing meaningful
+  Args : a single object of some other feature type,
+  Side Effects: throws error on failure
+  Example:
+
+=cut
+
+sub from_feature {
+  my ($self,$feat,%opts) = @_;
+
+  ref($feat) && ($feat->isa('Bio::AnnotationCollectionI') || $feat->isa('Bio::SeqFeatureI'))
+    or $self->throw('invalid arguments to from_feature');
+
+  #TODO: add overrides in opts for these values, so people don't have to screw up their feature object
+  #if they don't want to
+
+  ### set most of the data
+  foreach my $fieldname (qw/ start end strand frame score location seq_id source_tag primary_tag/) {
+    no strict 'refs'; #using symbolic refs
+    $self->$fieldname( $feat->$fieldname );
+  }
+
+  ### now pick up the annotations/tags of the other feature
+  #for Bio::AnnotationCollectionI features
+  if ( $feat->isa('Bio::AnnotatableI') ) {
+    foreach my $key ( $feat->annotation->get_all_annotation_keys() ) {
+      my @values = $feat->annotation->get_Annotations($key);
+      @values = _aggregate_scalar_annotations(\%opts,$key,@values);
+      foreach my $val (@values) {
+	$self->add_Annotation($key,$val)
+      }
+    }
+  }
+}
+#given a key and its values, make the values into
+#Bio::Annotation::\w+ objects
+sub _aggregate_scalar_annotations {
+  my ($opts,$key,@values) = @_;
+
+  #anything that's not an object, make it a SimpleValue
+  @values = map { ref($_) ? $_ : Bio::Annotation::SimpleValue->new(-value => $_) } @values;
+
+  #try to make Target objects
+  if($key eq 'Target' && (@values == 3 || @values == 4)
+     && @values == grep {$_->isa('Bio::Annotation::SimpleValue')} @values
+    ) {
+    @values = map {$_->value} @values;
+    #make a strand if it doesn't have one, enforcing start <= end
+    if(@values == 3) {
+      if($values[1] <= $values[2]) {
+	$values[3] = '+';
+      } else {
+	@values[1,2] = @values[2,1];
+	$values[3] = '-';
+      }
+    }
+    return ( Bio::Annotation::Target->new( -target_id => $values[0],
+					   -start     => $values[1],
+					   -end       => $values[2],
+					   -strand    => $values[3],
+					 )
+	   );
+  }
+  #try to make DBLink objects
+  elsif($key eq 'dblink' || $key eq 'Dbxref') {
+    return map {
+      if( /:/ ) { #convert to a DBLink if it has a colon in it
+	my ($db,$id) = split /:/,$_->value;
+	Bio::Annotation::DBLink->new( -database   => $db,
+				      -primary_id => $id,
+				    );
+      } else { #otherwise leave as a SimpleValue
+	$_
+      }
+    } @values;
+  }
+  #make OntologyTerm objects
+  elsif($key eq 'Ontology_term') {
+    return map { Bio::Annotation::OntologyTerm->new(-identifier => $_->value) } @values
+  }
+  #make Comment objects
+  elsif($key eq 'comment') {
+    return map { Bio::Annotation::Comment->new( -text => $_->value ) } @values;
+  }
+
+  return @values;
+}
+
 
 =head2 seq_id()
 
@@ -219,6 +319,7 @@ sub name {
 
 =cut
 
+use constant MAX_TYPE_CACHE_MEMBERS => 20;
 sub type {
   my($self,$val) = @_;
   if(defined($val)){
@@ -227,19 +328,30 @@ sub type {
 
     if(!ref($val)){
       #we have a plain text annotation coming in.  try to map it to SOFA.
-      if($val =~ /^\D+:\d+$/){
-        #looks like an identifier
-        ($term) = $self->so->find_terms(-identifier => $val);
-      } else {
-        #looks like a name
-        # sorry, but chad noticed that so() is not a method of this class 
-        # is this a work in progress? scain? grossman?
-        # ($term) = $self->so->find_terms(-name => $val);
+
+      our %__type_cache; #a little cache of plaintext types we've already seen
+
+      #clear our cache if it gets too big
+      if(scalar(keys %__type_cache) > MAX_TYPE_CACHE_MEMBERS) {
+	%__type_cache = ();
       }
 
-      # if(!$term){
-      #  $self->throw("couldn't find ontology term for '$val'.");
-      # }
+      #set $term to either a cached value, or look up a new one, throwing
+      #up if not found
+      $term = $__type_cache{$val} ||= do {
+	my $sofa = Bio::Ontology::OntologyStore->get_instance->get_ontology('Sequence Ontology Feature Annotation');
+	my ($soterm) = $val =~ /^\D+:\d+$/ #does it look like an ident?
+	  ? ($sofa->find_terms(-identifier => $val))[0] #yes, lookup by ident
+	  : ($sofa->find_terms(-name => $val))[0];      #no, lookup by name
+	
+	#throw up if it's not in SOFA
+	unless($soterm){
+	  $self->throw("couldn't find a SOFA term matching type '$val'.");
+	}
+	my $newterm = Bio::Annotation::OntologyTerm->new;
+	$newterm->term($soterm);
+	$newterm;
+      };
     }
     elsif(ref($val) && $val->isa('Bio::Annotation::OntologyTerm')){
       $term = $val;
@@ -461,8 +573,8 @@ sub primary_tag {
 
   #1.6
   #$self->warn('primary_tag() is deprecated, use type()');
-
-  return $self->type(@_);
+  my $t = $self->type(@_);
+  return ref($t) ? $t->name : $t;
 }
 
 =head2 source_tag()
@@ -548,23 +660,27 @@ sub entire_seq {
 
 =head2 has_tag()
 
- See Bio::AnnotationCollectionI::has_tag().
+ See Bio::AnnotatableI::has_tag().
 
 =cut
 
-sub has_tag {
-  return shift->annotation->has_tag(@_);
-}
+#implemented in Bio::AnnotatableI
+
+# sub has_tag {
+#   return shift->annotation->has_tag(@_);
+# }
 
 =head2 add_tag_value()
 
- See Bio::AnnotationCollectionI::add_tag_value().
+ See Bio::AnnotatableI::add_tag_value().
 
 =cut
 
-sub add_tag_value {
-  return shift->annotation->add_tag_value(@_);
-}
+#implemented in Bio::AnnotatableI
+
+# sub add_tag_value {
+#   return shift->annotation->add_tag_value(@_);
+# }
 
 =head2 get_tag_values()
 
@@ -572,9 +688,11 @@ sub add_tag_value {
 
 =cut
 
-sub get_tag_values {
-  return shift->annotation->get_tag_values(@_);
-}
+#implemented in Bio::AnnotatableI
+
+# sub get_tag_values {
+#   return shift->annotation->get_tag_values(@_);
+# }
 
 =head2 get_all_tags()
 
@@ -582,9 +700,11 @@ sub get_tag_values {
 
 =cut
 
-sub get_all_tags {
-  return shift->annotation->get_all_annotation_keys(@_);
-}
+#implemented in Bio::AnnotatableI
+
+# sub get_all_tags {
+#   return shift->annotation->get_all_annotation_keys(@_);
+# }
 
 =head2 remove_tag()
 
@@ -592,9 +712,11 @@ sub get_all_tags {
 
 =cut
 
-sub remove_tag {
-  return shift->annotation->remove_tag(@_);
-}
+#implemented in Bio::AnnotatableI
+
+# sub remove_tag {
+#   return shift->annotation->remove_tag(@_);
+# }
 
 
 ############################################################
