@@ -80,7 +80,7 @@ ok $sc->id('test'), "test";
 
 ok $sc->annotation;
 skip "no annotations in Annotation collection?", $sc->annotation->get_all_annotation_keys, 0;
-skip "should return a number", $sc->get_nof_contigs, undef ; 
+ok $sc->get_nof_contigs, 1;
 ok $sc->get_nof_sequences_in_contigs, 2;
 skip "should return a number", $sc->get_nof_singlets, 0;
 skip $sc->get_seq_ids, 2;

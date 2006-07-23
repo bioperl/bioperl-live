@@ -165,7 +165,7 @@ sub annotation {
 
 sub get_nof_contigs {
     my $self = shift;
-    return scalar( @{[$self->get_contig_ids()]} );
+    return scalar( $self->get_contig_ids() );
 }
 
 =head2 get_nof_sequences_in_contigs
@@ -246,7 +246,9 @@ sub get_seq_ids {
 sub get_contig_ids {
     my $self = shift;
 
-    return sort keys %{$self->{'_contigs'}};
+    return wantarray
+        ? sort keys %{$self->{'_contigs'}}
+        : scalar keys %{$self->{'_contigs'}};
 }
 
 =head2 get_singlet_ids
@@ -263,7 +265,9 @@ sub get_contig_ids {
 sub get_singlet_ids {
     my $self = shift;
 
-    return sort keys %{$self->{'_singlets'}};
+    return wantarray
+        ? sort keys %{$self->{'_singlets'}}
+        : scalar keys %{$self->{'_singlets'}};
 }
 
 =head2 get_seq_by_id
