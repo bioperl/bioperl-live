@@ -8,7 +8,7 @@ $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
-   $NUMTESTS = 47;
+   $NUMTESTS = 48;
    if ( $@ ) {
       use lib 't';
    }
@@ -92,6 +92,8 @@ $seq = $ind->fetch('HSMETOO');
 ok($seq->length,134);
 $seq = $ind->fetch('MMWHISK');
 ok($seq->length,62);
+$seq = $ind->fetch('NONEXISTENT_SEQ');
+ok(! defined $seq);
 
 $ind = Bio::Index::SwissPfam->new(-filename => 'Wibbl2',
 											 -write_flag =>1);

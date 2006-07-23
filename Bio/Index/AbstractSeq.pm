@@ -146,9 +146,11 @@ sub fetch {
 
     # we essentially assumme that the primary_id for the database
     # is the display_id
-    if( $seq->primary_id =~ /^\D+$/ ) {
-	$seq->primary_id($seq->display_id()) if( defined $seq && ref($seq) &&
-						 $seq->isa('Bio::PrimarySeqI') );
+    if (ref($seq) &&
+        $seq->isa('Bio::PrimarySeqI') &&
+        $seq->primary_id =~ /^\D+$/)
+    {
+        $seq->primary_id( $seq->display_id() );
     }
     return $seq;
 }
