@@ -52,7 +52,7 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Sendu Bala: bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -61,9 +61,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::DB::Taxonomy;
 use vars qw(@ISA $DefaultSource);
@@ -78,7 +76,7 @@ $DefaultSource = 'entrez';
 
  Title   : new
  Usage   : my $obj = new Bio::DB::Taxonomy(-source => 'entrez');
- Function: Builds a new Bio::DB::Taxonomy object
+ Function: Builds a new Bio::DB::Taxonomy object.
  Returns : an instance of Bio::DB::Taxonomy
  Args    : -source => which database source 'entrez' or 'flatfile'
 
@@ -107,12 +105,11 @@ sub new {
 # empty for now
 sub _initialize { }
 
-
 =head2 get_Taxonomy_Node
 
  Title   : get_Taxonomy_Node
  Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
- Function: Get a Bio::Taxonomy::Taxon object for a taxonid
+ Function: Get a Bio::Taxonomy::Taxon object for a taxonid.
  Returns : Bio::Taxonomy::Taxon object
  Args    : -taxonid => taxonomy id (to query by taxonid)
             OR
@@ -121,55 +118,34 @@ sub _initialize { }
 
 =cut
 
-sub get_Taxonomy_Node{
-   my ($self) = @_;
-
-	$self->throw_not_implemented();
-}
-
-
-=head2 get_taxonid
-
- Title   : get_taxonid
- Usage   : my $taxonid = $db->get_taxonid('Homo sapiens');
- Function: Searches for a taxonid (typically ncbi_taxon_id) 
-           based on a query string 
- Returns : Integer ID
- Args    : String representing species/node name 
-
-
-=cut
-
-*get_taxaid = \&get_taxonid;
-
-sub get_taxonid {
-   my ($self) = @_;
-
-	$self->throw_not_implemented();
-}
-
-=head2 get_Children_Taxids
-
- Title   : get_Children_Taxids
- Usage   : my @childrenids = $db->get_Children_Taxids 
- Function: Get the children of a node in the taxonomy
- Returns : Array of Ids
- Args    : Bio::Taxonomy::Node or a taxon_id
-
-=cut
-
-sub get_Children_Taxids{
+sub get_Taxonomy_Node {
     shift->throw_not_implemented();
 }
+
+=head2 get_taxonids
+
+ Title   : get_taxonids
+ Usage   : my @taxonids = $db->get_taxonids('Homo sapiens');
+ Function: Searches for a taxonid (typically ncbi_taxon_id) based on a query
+           string. Note that multiple taxonids can match to the same supplied
+           name.
+ Returns : array of integer ids in list context, one of these in scalar context
+ Args    : string representing taxanomic (node) name
+
+=cut
+
+sub get_taxonids {
+    shift->throw_not_implemented();
+}
+
+*get_taxonid = \&get_taxonids;
+*get_taxaid = \&get_taxonids;
 
 =head2 _load_tax_module
 
  Title   : _load_tax_module
  Usage   : *INTERNAL Bio::DB::Taxonomy stuff*
  Function: Loads up (like use) a module at run time on demand
- Example :
- Returns :
- Args    :
 
 =cut
 

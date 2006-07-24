@@ -82,6 +82,7 @@ foreach my $db ($db_entrez, $db_flatfile) {
     ok exists $common_names{human};
     ok exists $common_names{man};
     
+    ok $n->division, 'Primates';
     ok $n->genetic_code, 1;
     ok $n->mitochondrial_genetic_code, 2;
     # these are entrez-only, data not available in dmp files
@@ -92,7 +93,6 @@ foreach my $db ($db_entrez, $db_flatfile) {
     }
     
     #*** deprecated?
-    ok $n->division, 'Primates';
     ok $n->genus, 'Homo';
     ok $n->species, 'Homo sapiens';
     ok ! $n->sub_species;
@@ -122,6 +122,6 @@ foreach my $db ($db_entrez, $db_flatfile) {
     @ids = $db->get_taxonids('Rhodotorula');
     ok @ids, 8;
     @ids = $db->get_taxonids('Rhodotorula <Microbotryomycetidae>');
-    $db eq $db_entrez ? (ok @ids, 0) : (ok @ids, 1);
-    $db eq $db_entrez ? (ok 1) : (ok $ids[0], 231509);
+    ok @ids, 1;
+    ok $ids[0], 231509;
 }

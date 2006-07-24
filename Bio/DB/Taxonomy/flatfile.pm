@@ -39,8 +39,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org              - General discussion
-  http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -48,7 +48,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -67,9 +67,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::DB::Taxonomy::flatfile;
 use vars qw(@ISA $DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX 
@@ -206,10 +204,10 @@ sub get_Taxonomy_Node {
  Title   : get_taxonids
  Usage   : my @taxonids = $db->get_taxonids('Homo sapiens');
  Function: Searches for a taxonid (typically ncbi_taxon_id) based on a query
-           string. Note that since multiple taxonids can match to the same
-           supplied name, a list of ids is always returned.
+           string. Note that multiple taxonids can match to the same supplied
+           name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxanomic (node) name 
+ Args    : string representing taxanomic (node) name
 
 =cut
 

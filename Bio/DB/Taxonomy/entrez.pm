@@ -60,8 +60,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org              - General discussion
-  http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -69,7 +69,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -175,7 +175,7 @@ sub _initialize {
 
 =cut
 
-sub get_Taxonomy_Node{
+sub get_Taxonomy_Node {
    my ($self) = shift;
    if( ! $XMLTWIG ) {
        $self->throw("Need to have installed XML::Twig");
@@ -317,10 +317,10 @@ sub get_Taxonomy_Node{
  Title   : get_taxonids
  Usage   : my $taxonid = $db->get_taxonids('Homo sapiens');
  Function: Searches for a taxonid (typically ncbi_taxon_id) based on a query
-           string. Note that since multiple taxonids can match to the same
-           supplied name, a list of ids is always returned.
+           string. Note that multiple taxonids can match to the same supplied
+           name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxanomic (node) name 
+ Args    : string representing taxanomic (node) name
 
 =cut
 
@@ -330,10 +330,38 @@ sub get_taxonids {
     
     # queries don't work correctly with special characters, so get rid of them.
     if ($query =~ /<.+>/) {
-        # queries with <something> will fail, so shortcut
-        # (removing them is an option, but will result in the wrong answer;
-        # the user wants a specific one when he supples <>, so no point in
-        # changing his query and providing multiple ids)
+        # queries with <something> will fail, so workaround by removing, doing
+        # the query, getting multiple taxonids, then picking the one id that
+        # has a parent node with a scientific_name() or common_names()
+        # case-insensitive matching to the word(s) within <>
+        $query =~ s/ <(.+?)>//;
+        my $desired_parent_name = lc($1);
+        
+        ID: foreach my $start_id ($self->get_taxonids($query)) {
+            my $node = $self->get_Taxonomy_Node($start_id) || next ID;
+            
+            # walk up the parents until we hit a node with a named rank
+            while (1) {
+                my $parent_id = $node->parent_id || next ID;
+                my $parent_node = $self->get_Taxonomy_Node($parent_id) || next ID;
+                my $parent_sci_name = $parent_node->scientific_name || next ID;
+                my @parent_common_names = $parent_node->common_names;
+                
+                foreach my $name ($parent_sci_name, @parent_common_names) {
+                    if (lc($name) eq $desired_parent_name) {
+                        return wantarray() ? ($start_id) : $start_id;
+                    }
+                }
+                
+                my $parent_rank = $parent_node->rank || '';
+                if ($parent_rank && $parent_rank ne 'no rank') {
+                    last;
+                }
+                else {
+                    $node = $parent_node;
+                }
+            }
+        }
         return;
     }
     $query =~ s/[\"\(\)]//g; # not an exhaustive list; these are just the ones I know cause problems
