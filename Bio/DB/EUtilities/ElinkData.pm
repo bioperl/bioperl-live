@@ -72,7 +72,10 @@ sub new {
     $command    && $self->command($command);
     $self->{'_dbindex'} = 0;
     $self->{'_scoreindex'} = 0;
+    $self->{'_linkcount'} = 0;
     $self->{'_scoredb_key'} = '';
+    $self->{'_databases'} = [];
+    $self->{'_linksetdb'} = [];
     return $self;
 }
 
@@ -91,7 +94,9 @@ sub _add_set {
         $query_ids = [$tempid];
     }
     $self->query_ids($query_ids);
+    
     my $ct = 0;
+    
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
         $ct++;
         my $dbto = $ls_db->{DbTo} ;
@@ -125,7 +130,10 @@ sub _add_set {
         #$self->debug('Linkset:',Dumper($linkset));
         push @{ $self->{'_linksetdb'}}, $linkset;    
     }
-    $self->throw('No linkset data!') if !$ct;
+    
+    if (!$ct) {
+        $self->warn('No databases returned; empty linkset');
+    }
 }
 
 =head2 dbfrom
