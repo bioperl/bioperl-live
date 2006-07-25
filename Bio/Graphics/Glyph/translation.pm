@@ -163,9 +163,10 @@ sub draw_frame {
   my $codon_table = $self->option('codontable') || 1;
 
   # the dreaded difference between a Bio::SeqFeature and a Bio::Seq
+
   my $realseq  = $self->get_seq($seq);
   return unless $realseq;
-  $realseq    = $seq->revcom if $strand < 0;
+  $realseq    = $realseq->revcom if $strand < 0;
 
   my $protein = $realseq->translate(undef,undef,$base_offset,$codon_table)->seq;
 
