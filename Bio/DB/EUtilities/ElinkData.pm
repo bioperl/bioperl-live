@@ -79,8 +79,10 @@ sub new {
 # this should make a deep copy of the XML data for each ElinkData Linkset
 
 sub _add_set {
-    my $self = shift;
-    $self->throw('No linkset!') unless my $ls = shift;
+    my ($self, $ls) = @_;
+    if (!$ls) {
+        $self->throw('No linkset data!');
+    }
     my $dbfrom = $ls->{DbFrom};
     $self->dbfrom($dbfrom);
     my $query_ids = $ls->{IdList}->{Id};
@@ -89,8 +91,10 @@ sub _add_set {
         $query_ids = [$tempid];
     }
     $self->query_ids($query_ids);
+    my $ct = 0;
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
-        my $dbto = $ls_db->{DbTo};
+        $ct++;
+        my $dbto = $ls_db->{DbTo} ;
         push @{ $self->{'_databases'}}, $dbto;
         my $linkname = $ls_db->{LinkName};
         if (exists $ls_db->{Info} || exists $ls->{ERROR} || !exists $ls_db->{Link}) {
@@ -121,6 +125,7 @@ sub _add_set {
         #$self->debug('Linkset:',Dumper($linkset));
         push @{ $self->{'_linksetdb'}}, $linkset;    
     }
+    $self->throw('No linkset data!') if !$ct;
 }
 
 =head2 dbfrom

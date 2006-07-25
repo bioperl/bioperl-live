@@ -406,7 +406,7 @@ use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use Bio::DB::EUtilities::ElinkData;
 use XML::Simple;
-#use Data::Dumper;
+use Data::Dumper;
 
 use vars qw(@ISA $EUTIL $VERSION %CMD);
 
@@ -487,7 +487,7 @@ sub parse_response {
     if (exists $simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
-	#$self->debug("Response dumper:\n".Dumper($simple));
+	$self->debug("Response dumper:\n".Dumper($simple));
     my $cmd = $self->cmd ? $self->cmd : 'neighbor'; # set default cmd
     # process possible cookies first
     if (defined($cmd) && $cmd eq 'neighbor_history') {
