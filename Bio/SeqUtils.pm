@@ -207,16 +207,16 @@ sub seq3in {
    my ($self, $seq, $string, $stop, $unknown) = @_;
 
    $seq->isa('Bio::PrimarySeqI') ||
-	  $self->throw('Not a Bio::PrimarySeqI object but [$self]');
+	  $self->throw("Not a Bio::PrimarySeqI object but [$self]");
    $seq->alphabet eq 'protein' ||
 	  $self->throw('Not a protein sequence');
 
    if (defined $stop) {
-		length $stop != 1 and $self->throw('One character stop needed, not [$stop]');
+		length $stop != 1 and $self->throw("One character stop needed, not [$stop]");
 		$ONECODE{'Ter'} = $stop;
    }
    if (defined $unknown) {
-		length $unknown != 1 and $self->throw('One character stop needed, not [$unknown]');
+		length $unknown != 1 and $self->throw("One character stop needed, not [$unknown]");
 		$ONECODE{'Xaa'} = $unknown;
    }
 
@@ -226,7 +226,7 @@ sub seq3in {
 		$aa3 = substr($string, $i, 3);
 		$aa3 = ucfirst(lc($aa3)); 
 		$ONECODE{$aa3} and $aas .= $ONECODE{$aa3}, next;
-		$aas .= 'X';
+		$aas .= $ONECODE{'Xaa'};
    }
    $seq->seq($aas);
    return $seq;
