@@ -109,8 +109,8 @@ sub _initialize { }
 
  Title   : get_Taxonomy_Node
  Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
- Function: Get a Bio::Taxonomy::Taxon object for a taxonid.
- Returns : Bio::Taxonomy::Taxon object
+ Function: Get a Bio::Taxonomy::Node object for a taxonid.
+ Returns : Bio::Taxonomy::Node object
  Args    : -taxonid => taxonomy id (to query by taxonid)
             OR
            -name   => string (to query by a taxonomy name: common name, 

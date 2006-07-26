@@ -154,14 +154,13 @@ sub _initialize {
   $self->entrez_url($location || $EntrezLocation );
 }
 
-
 =head2 get_Taxonomy_Node
 
  Title   : get_Taxonomy_Node
  Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
- Function: Get a Bio::Taxonomy::Taxon object
- Returns : Bio::Taxonomy::Taxon object(s) [more than one will be returned
-                                           as an array ]
+ Function: Get a Bio::Taxonomy::Node object
+ Returns : Bio::Taxonomy::Node object(s) - in list context will return an array,
+           in scalar context will return one of the Nodes.
  Args    : -taxonid => taxonomy id (to query by taxonid)
             OR
            -name   => string (to query by a taxonomy name: common name,
@@ -310,7 +309,6 @@ sub get_Taxonomy_Node {
    }
    ( wantarray ) ? @results : shift @results;
 }
-
 
 =head2 get_taxonids
 

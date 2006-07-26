@@ -29,7 +29,8 @@ This is an implementation which uses local flat files and the DB_File
 module RECNO data structures to manage a local copy of the NCBI
 Taxonomy database.
 
-File can be obtained from ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
+Required database files can be obtained from
+ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
 =head1 FEEDBACK
 
@@ -144,8 +145,8 @@ sub new {
 
  Title   : get_Taxonomy_Node
  Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxaid)
- Function: Get a Bio::Taxonomy::Taxon object for a taxonid
- Returns : Bio::Taxonomy::Taxon object
+ Function: Get a Bio::Taxonomy::Node object for a taxonid
+ Returns : Bio::Taxonomy::Node object
  Args    : -taxonid => taxonomy id (to query by taxonid)
             OR
            -name   => string (to query by a taxonomy name: common name, 
@@ -397,6 +398,8 @@ sub _db_connect {
 =head2 index_directory
 
  Title   : index_directory
+ Funtion : Get/set the location that index files are stored. (this module
+           will index the supplied database)
  Usage   : $obj->index_directory($newval)
  Returns : value of index_directory (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
