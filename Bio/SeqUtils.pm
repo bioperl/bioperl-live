@@ -147,9 +147,7 @@ BEGIN {
 
  Title   : seq3
  Usage   : $string = Bio::SeqUtils->seq3($seq)
- Function:
-
-           Read only method that returns the amino acid sequence as a
+ Function: Read only method that returns the amino acid sequence as a
            string of three letter codes. alphabet has to be
            'protein'. Output follows the IUPAC standard plus 'Ter' for
            terminator. Any unknown character, including the default
@@ -189,20 +187,19 @@ sub seq3 {
 =head2 seq3in
 
  Title   : seq3in
- Usage   : $string = Bio::SeqUtils->seq3in($seq, 'MetGlyTer')
- Function:
-
-           Method for in-place changing of the sequence of a
+ Usage   : $seq = Bio::SeqUtils->seq3in($seq, 'MetGlyTer')
+ Function: Method for changing of the sequence of a
            Bio::PrimarySeqI sequence object. The three letter amino
            acid input string is converted into one letter code.  Any
            unknown character triplet, including the default 'Xaa', is
            converted into 'X'.
 
- Returns : Bio::PrimarySeq object;
- Args    : character to be used for stop in the protein seqence,
-              optional, defaults to '*'
-           character to be used for unknown in the protein seqence,
-              optional, defaults to 'X'
+ Returns : Bio::PrimarySeq object
+ Args    : sequence string
+           optional character to be used for stop in the protein sequence,
+              defaults to '*'
+           optional character to be used for unknown in the protein sequence,
+              defaults to 'X'
 
 =cut
 
@@ -210,25 +207,26 @@ sub seq3in {
    my ($self, $seq, $string, $stop, $unknown) = @_;
 
    $seq->isa('Bio::PrimarySeqI') ||
-       $self->throw('Not a Bio::PrimarySeqI object but [$self]');
+	  $self->throw('Not a Bio::PrimarySeqI object but [$self]');
    $seq->alphabet eq 'protein' ||
-       $self->throw('Not a protein sequence');
+	  $self->throw('Not a protein sequence');
 
    if (defined $stop) {
-       length $stop != 1 and $self->throw('One character stop needed, not [$stop]');
-       $ONECODE{'Ter'} = $stop;
+		length $stop != 1 and $self->throw('One character stop needed, not [$stop]');
+		$ONECODE{'Ter'} = $stop;
    }
    if (defined $unknown) {
-       length $unknown != 1 and $self->throw('One character stop needed, not [$unknown]');
-       $ONECODE{'Xaa'} = $unknown;
+		length $unknown != 1 and $self->throw('One character stop needed, not [$unknown]');
+		$ONECODE{'Xaa'} = $unknown;
    }
 
    my ($aas, $aa3);
    my $length = (length $string) - 2;
    for (my $i = 0 ; $i < $length ; $i += 3)  {
-       $aa3 = substr($string, $i, 3);
-       $ONECODE{$aa3} and $aas .= $ONECODE{$aa3}, next;
-       $aas .= 'X';
+		$aa3 = substr($string, $i, 3);
+		$aa3 = ucfirst(lc($aa3)); 
+		$ONECODE{$aa3} and $aas .= $ONECODE{$aa3}, next;
+		$aas .= 'X';
    }
    $seq->seq($aas);
    return $seq;
@@ -342,9 +340,7 @@ sub valid_aa{
 
  Title   : mutate
  Usage   : Bio::SeqUtils->mutate($seq,$mutation1, $mutation2);
- Function: 
-
-           Inplace editing of the sequence.
+ Function: Inplace editing of the sequence.
 
            The second argument can be a Bio::LiveSeq::Mutation object
            or an array of them. The mutations are applied sequentially
