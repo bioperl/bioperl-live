@@ -30,9 +30,13 @@ Bio::Taxonomy::Taxon - Generic Taxonomic Entity object
 
 Makes a taxonomic unit suitable for use in a taxonomic tree
 
-=head1 CONTACT
+=head1 AUTHOR
 
 Dan Kortschak email B<kortschak@rsbs.anu.edu.au>
+
+=head1 CONTRIBUTORS
+
+Sendu Bala: bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -40,7 +44,6 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
-
 
 # code begins...
 
@@ -51,11 +54,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Object, Bio::Tree::NodeI, Bio::Species and Bio::Taxonomy
 use Bio::Root::Root;
 use Bio::Tree::NodeI;
-use Bio::Taxonomy;
 use Bio::Species;
-
-# import rank information from Bio::Taxonomy.pm
-use vars qw(@RANK %RANK);
 
 @ISA = qw(Bio::Root::Root Bio::Tree::NodeI);
 
@@ -121,7 +120,6 @@ sub new {
            location reference in this implementation).  default is false and 
            will throw an error if you try and overwrite an existing node.
 
-
 =cut
 
 sub add_Descendent{
@@ -146,7 +144,6 @@ sub add_Descendent{
    return scalar keys %{$self->{'_desc'}};
 }
 
-
 =head2 each_Descendent
 
  Title   : each_Descendent($sortby)
@@ -156,7 +153,6 @@ sub add_Descendent{
  Returns : Array of Bio::Taxonomy::Taxon objects
  Args    : $sortby [optional] "height", "creation" or coderef to be used
            to sort the order of children taxa.
-
 
 =cut
 
@@ -212,7 +208,6 @@ sub remove_Descendent{
    1;
 }
 
-
 =head2 remove_all_Descendents
 
  Title   : remove_all_Descendents
@@ -223,7 +218,6 @@ sub remove_Descendent{
            a get_nodes from the Tree object would be a safe thing to do first
  Returns : nothing
  Args    : none
-
 
 =cut
 
@@ -278,7 +272,6 @@ sub ancestor {
  Returns : value of branch_length
  Args    : newvalue (optional)
 
-
 =cut
 
 sub branch_length {
@@ -294,10 +287,8 @@ sub branch_length {
  Title   : description
  Usage   : $obj->description($newval)
  Function:
- Example :
  Returns : value of description
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -309,32 +300,23 @@ sub description {
    return $self->{'_description'};
 }
 
-
 =head2 rank
 
  Title   : rank
  Usage   : $obj->rank($newval)
  Function: Set the taxonomic rank
- Example :
  Returns : taxonomic rank of taxon
  Args    : newvalue (optional)
-
 
 =cut
 
 sub rank {
    my ($self,$value) = @_;
    if (defined $value) {
-      my $ranks=join("|",@RANK);
-      if ($value=~/$ranks/) {
-         $self->{'_rank'} = $value;
-      } else {
-         $self->throw("Attempted to set unknown taxonomic rank: $value.\n");
-      }
+      $self->{'_rank'} = $value;
    }
    return $self->{'_rank'};
 }
-
 
 =head2 taxon
 
@@ -344,7 +326,6 @@ sub rank {
  Example :
  Returns : name of taxon
  Args    : newtaxon (optional)
-
 
 =cut
 
@@ -357,7 +338,6 @@ sub taxon {
    return $self->{'_taxon'};
 }
 
-
 =head2 id
 
  Title   : id
@@ -366,7 +346,6 @@ sub taxon {
  Example :
  Returns : value of id
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -377,8 +356,6 @@ sub id {
    }
    return $self->{'_id'};
 }
-
-
 
 sub DESTROY {
     my ($self) = @_;
@@ -412,7 +389,6 @@ sub internal_id {
    return $_[0]->_creation_id;
 }
 
-
 =head2 _creation_id
 
  Title   : _creation_id
@@ -431,7 +407,6 @@ sub _creation_id {
     }
     return $self->{'_creation_id'} || 0;
 }
-
 
 # The following methods are implemented by NodeI decorated interface
 
@@ -494,7 +469,6 @@ sub height {
    return ($self->{'_height'} = $max + ($self->branch_length || 1));
 }
 
-
 =head2 invalidate_height
 
  Title   : invalidate_height
@@ -504,7 +478,6 @@ sub height {
  Args    : none
 
 =cut
-
 
 sub invalidate_height { 
     my ($self) = @_;
@@ -522,8 +495,7 @@ sub invalidate_height {
  Function: a method to return the classification of a species
  Returns : name of taxon and ancestor's taxon recursively
  Args    : boolean to specify whether we want all taxa not just ranked 
-levels
-
+           levels
 
 =cut
 
@@ -541,7 +513,6 @@ sub classify {
    return (@classification);
 }
 
-
 =head2 has_rank
 
  Title   : has_rank
@@ -549,7 +520,6 @@ sub classify {
  Function: a method to query ancestors' rank
  Returns : boolean
  Args    : $rank
-
 
 =cut
 
@@ -566,7 +536,6 @@ sub has_rank {
    return;
 }
 
-
 =head2 has_taxon
 
  Title   : has_taxon
@@ -574,7 +543,6 @@ sub has_rank {
  Function: a method to query ancestors' taxa
  Returns : boolean
  Args    : Bio::Taxonomy::Taxon object
-
 
 =cut
 
@@ -596,7 +564,6 @@ sub has_taxon {
    return;
 }
 
-
 =head2 distance_to_root
 
  Title   : distance_to_root
@@ -604,7 +571,6 @@ sub has_taxon {
  Function: a method to query ancestors' taxa
  Returns : number of links to root
  Args    :
-
 
 =cut
 
@@ -621,7 +587,6 @@ sub distance_to_root {
    return $count;
 }
 
-
 =head2 recent_common_ancestor
 
  Title   : recent_common_ancestor
@@ -629,7 +594,6 @@ sub distance_to_root {
  Function: a method to query find common ancestors
  Returns : Bio::Taxonomy::Taxon of query or undef if no ancestor of rank
  Args    : Bio::Taxonomy::Taxon
-
 
 =cut
 
