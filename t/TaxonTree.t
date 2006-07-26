@@ -101,6 +101,7 @@ skip(1, 'Skip this weird function');
 
 use Bio::Species;
 use Bio::Taxonomy::Tree;
+use Bio::Taxonomy;
 
 my $human=new Bio::Species;
 my $chimp=new Bio::Species;
@@ -149,5 +150,3 @@ ok $tree1->add_species($bonobo,$taxonomy);
 ok join (", ", map {$_->taxon} $tree1->get_leaves), 'Homo sapiens, Pan troglodytes, Pan paniscus';
 ok $tree1->remove_branch($homo_sapiens);
 ok join (", ", map {$_->taxon} $tree1->get_leaves), 'Pan troglodytes, Pan paniscus';
-
-
