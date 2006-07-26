@@ -132,7 +132,7 @@ sub _add_set {
     }
     
     if (!$ct) {
-        $self->warn('No databases returned; empty linkset');
+        $self->warn('No databases returned; no IDs found');
     }
 }
 
@@ -198,6 +198,8 @@ sub command {
 sub get_LinkIds_by_db {
     my $self = shift;
     my $db = shift if @_;
+    my $ct = scalar(@{ $self->{'_linksetdb'} });
+    return [] if $ct == 0; # no linksets, blank anon array
     $self->throw("Must use database to access IDs") if !$db;
     for my $linkset (@{ $self->{'_linksetdb'}}) {
         my $dbto = $linkset->{DbTo};

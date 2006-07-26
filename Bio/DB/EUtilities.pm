@@ -549,7 +549,7 @@ sub get_entrezdbs {
 
 sub _add_db_ids {
     my ($self, $ids) = @_;
-    $self->throw ("IDs must be an ARRAY reference") unless ref($ids) =~ /ARRAY/i;
+    $self->throw ("IDs must be an ARRAY reference") unless ref($ids) =~ m{ARRAY}i;
     $self->{'_db_ids'} = $ids; 
 }
 
