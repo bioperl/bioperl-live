@@ -473,7 +473,6 @@ sub get_ids {
         # get_all_linksets returns the first linkset on scalar; trick it into
         # getting the total linksets
         my $count = my @arr = $self->get_all_linksets ;
-        print STDERR "Count: $count\n";
         if ($count == 0) {
             $self->throw( q(No linksets!) );
         }
