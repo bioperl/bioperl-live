@@ -24,7 +24,7 @@ rather go through the Bio::Structure::IO handler system. Go:
     $stream = Bio::Structure::IO->new(-file => $filename, 
                                       -format => 'PDB');
 
-    while ( (my $structure = $stream->next_structure()) ) {
+    while (my $structure = $stream->next_structure) {
 	    # do something with $structure
     }
 
@@ -727,7 +727,7 @@ sub write_structure {
 		for my $chain ($struc->get_chains($model)) {
 			my ($residue, $atom, $resname, $resnum, $atom_line, $atom_serial, $atom_icode, $chain_id);
 			my ($prev_resname, $prev_resnum, $prev_atomicode); # need these for TER record
-			my $last_record; # Used to spot an ATOM -> HETATM change within a chain
+			my $last_record = ""; # Used to spot an ATOM -> HETATM change within a chain
 			$chain_id = $chain->id;
 			if ( $chain_id eq "default" ) {
 				$chain_id = " "; 
@@ -737,7 +737,7 @@ sub write_structure {
 				($resname, $resnum) = split /-/, $residue->id;
 				for $atom ($struc->get_atoms($residue)) {
 					if ($het_res{$resname}) {  # HETATM
-						if ( $last_record eq "ATOM  " && $resname ne "HOH" ) {
+						if ( $resname ne "HOH" && $last_record eq "ATOM  " ) {
 							# going from ATOM -> HETATM, we have to write TER
 							my $ter_line = "TER   ";
 							$ter_line .= sprintf("%5d", $atom_serial + 1);
