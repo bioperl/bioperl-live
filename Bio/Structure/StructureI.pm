@@ -1,7 +1,4 @@
 # $Id$
-# placeholder for Bio::Structure::StructureI
-
-# $Id$
 #
 # BioPerl module for Bio::Structure::StructureI
 #
