@@ -810,8 +810,6 @@ sub DESTROY {
 	%{ $self->{'c_p'} } = ();
 }
 
-# copied from Bio::Seq.pm
-#
 =head2 annotation
 
  Title   : annotation
@@ -821,7 +819,6 @@ sub DESTROY {
  Returns : value of annotation
  Args    : newvalue (optional)
 
-
 =cut
 
 sub annotation {
@@ -830,7 +827,6 @@ sub annotation {
       $obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};
-
 }
 
 
