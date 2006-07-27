@@ -2,10 +2,6 @@
 #
 # BioPerl module for Bio::Structure::IO
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
-#       and Lincoln Stein  <lstein@cshl.org>
-#       and Kris Boulez	   <kris.boulez@algonomics.com>
-#
 # Copyright 2001, 2002 Kris Boulez
 #
 # You may distribute this module under the same terms as perl itself
@@ -27,47 +23,27 @@ Bio::Structure::IO - Handler for Structure Formats
     use Bio::Structure::IO;
 
     $in  = Bio::Structure::IO->new(-file => "inputfilename",
-                                   '-format' => 'pdb');
-    $out = Bio::Structure::IO->new(-file => ">outputfilename",
-                                  '-format' => 'pdb');
-    # note: we quote -format to keep older perl's from complaining.
+                                   -format => 'pdb');
 
     while ( my $struc = $in->next_structure() ) {
-	$out->write_structure($struc);
-    }
-
-  # now, to actually get at the structure object, use the standard
-  # Bio::Structure methods (look at L<Bio::Structure> if you don't
-  # know what they are)
-
-    use Bio::Structure::IO;
-
-    $in  = Bio::Structure::IO->new(-file => "inputfilename",
-                                   '-format' => 'pdb');
-
-    while ( my $struc = $in->next_structure() ) {
-       print "Structure ",$struc->id," number of models: ",
+       print "Structure ", $struc->id, " number of models: ",
              scalar $struc->model,"\n";
     }
 
 =head1 DESCRIPTION
 
-[ The following description is a copy-paste from the Bio::SeqIO
-description.  This is not surprising as the code is also mostly a
-copy. ]
-
 Bio::Structure::IO is a handler module for the formats in the
-Structure::IO set (eg, Bio::Structure::IO::pdb). It is the officially
+Structure::IO set (e.g. L<Bio::Structure::IO::pdb>). It is the officially
 sanctioned way of getting at the format objects, which most people
 should use.
 
 The Bio::Structure::IO system can be thought of like biological file
 handles.  They are attached to filehandles with smart formatting rules
-(eg, PDB format) and can either read or write structure objects
+(e.g. PDB format) and can either read or write structure objects
 (Bio::Structure objects, or more correctly, Bio::Structure::StructureI
 implementing objects, of which Bio::Structure is one such object). If
 you want to know what to do with a Bio::Structure object, read
-L<Bio::Structure>
+L<Bio::Structure>.
 
 The idea is that you request a stream object for a particular format.
 All the stream objects have a notion of an internal file that is read
@@ -143,35 +119,11 @@ If neither a filehandle nor a filename is specified, then the module
 will read from the @ARGV array or STDIN, using the familiar E<lt>E<gt>
 semantics.
 
-A string filehandle is handy if you want to modify the output in the
-memory, before printing it out. The following program reads in EMBL
-formatted entries from a file and prints them out in fasta format with
-some HTML tags:
-[ not relevant for Bio::Structure::IO as only one format is supported
-  at the moment ]
-
-  use Bio::SeqIO;
-  use IO::String;
-  my $in  = Bio::SeqIO->new('-file' => "emblfile" , 
-  			    '-format' => 'EMBL');
-  while ( my $seq = $in->next_seq() ) {
-      # the output handle is reset for every file
-      my $stringio = IO::String->new($string);
-      my $out = Bio::SeqIO->new('-fh' => $stringio,
-  			        '-format' => 'fasta');
-      # output goes into $string
-      $out->write_seq($seq);
-      # modify $string
-      $string =~ s|(>)(\w+)|$1<font color="Red">$2</font>|g;
-      # print into STDOUT
-      print $string;
-  }
-
 =item -format
 
 Specify the format of the file.  Supported formats include:
 
-   PDB         Protein Data Bank format
+   pdb         Protein Data Bank format
 
 If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename.  If this is unsuccessful,
