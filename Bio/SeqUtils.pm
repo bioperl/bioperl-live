@@ -475,15 +475,16 @@ sub trunc_with_features{
 =head2 _coord_adjust
 
   Title   : _coord_adjust
-  Usage   : my $newfeat=Bio::SeqUtils->_coord_adjust($feature, 100);
+  Usage   : my $newfeat=Bio::SeqUtils->_coord_adjust($feature, 100, $seq->length);
   Function: Recursive subroutine to adjust the coordinates of a feature
             and all its subfeatures. If a sequence length is specified, then
             any adjusted features that have locations beyond the boundaries
-            of the sequence are converted to Bio::Location::Fuzzy.
+            of the sequence are converted to Bio::Location::Fuzzy objects.
 
   Returns : A Bio::SeqFeatureI compliant object.
   Args    : A Bio::SeqFeatureI compliant object,
             the number of bases to add to the coordinates
+            (optional) the length of the parent sequence
 
 
 =cut
@@ -495,31 +496,157 @@ sub _coord_adjust {
         unless $feat->isa('Bio::SeqFeatureI');
     my @adjsubfeat;
     for my $subfeat ($feat->remove_SeqFeatures) {
-        push @adjsubfeat, Bio::SeqUtils->_coordAdjust($add, $subfeat);
+        push @adjsubfeat, $self->_coord_adjust($subfeat, $add, $length);
     }
-    my @loc=$feat->location->each_Location;
-    map {
+    my @loc;
+    for ($feat->location->each_Location) {
         my @coords=($_->start, $_->end);
         my $strand=$_->strand;
-        map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"
-} else {$add+$1}/ge, @coords;
-        $_=Bio::Location::Fuzzy->new(-start=>shift @coords,
-                                    -end=>shift @coords,
-                                    -strand=>$strand);
-    } @loc;
+	my $type=$_->location_type;
+        map s/(\d+)/if ($add+$1<1) {'<1'} elsif (defined $length and $add+$1>$length) {">$length"} else {$add+$1}/ge, @coords;
+	my($newstart,$newend)=@coords;
+	unless ($type eq 'IN-BETWEEN') {
+	    push @loc, Bio::Location::Fuzzy->new(-start=>$newstart,
+						 -end=>$newend,
+						 -strand=>$strand,
+						 -location_type=>$type
+						);
+	} else {
+	    push @loc, Bio::Location::Simple->new(-start=>$newstart,
+					  -end=>$newend,
+					  -strand=>$strand,
+					  -location_type=>$type
+					 );
+	}
+    }
+    my $newfeat=Bio::SeqFeature::Generic->new(-primary=>$feat->primary_tag);
+    foreach my $key ( $feat->annotation->get_all_annotation_keys() ) {
+	foreach my $value ( $feat->annotation->get_Annotations($key) ) {
+	    $newfeat->annotation->add_Annotation($key, $value);
+	}
+    } 
     if (@loc==1) {
-        $feat->location($loc[0])
+        $newfeat->location($loc[0])
     } else {
         my $loc=Bio::Location::Split->new;
         $loc->add_sub_Location(@loc);
-        $feat->location($loc);
+        $newfeat->location($loc);
     }
-    $feat->add_SeqFeature($_) for @adjsubfeat;
-    return $feat;
+    $newfeat->add_SeqFeature($_) for @adjsubfeat;
+    return $newfeat;
 }
 
 
+=head2 revcom_with_features
 
+ Title   : revcom_with_features
+ Usage   : $revcom=Bio::SeqUtils->trunc_with_features($seq, $start, $end);
+ Function: Like Bio::Seq::revcom, but keeps features (adjusting coordinates
+           as appropriate.
+ Returns : A new sequence object
+ Args    : A sequence object
+
+
+=cut
+
+sub revcom_with_features{
+    my ($self,$seq) = @_;
+    $self->throw('Object [$seq] '. 'of class ['. ref($seq).
+                 '] should be a Bio::SeqI ')
+    unless $seq->isa('Bio::SeqI');
+    my $revcom=$seq->revcom;
+    
+    #move annotations
+    foreach my $key ( $seq->annotation->get_all_annotation_keys() ) {
+	foreach my $value ( $seq->annotation->get_Annotations($key) ) {
+	    $revcom->annotation->add_Annotation($key, $value);
+	}
+    } 
+
+    #move features
+    $revcom->add_SeqFeature(map {$self->_feature_revcom($_, $seq->length)} $seq->get_SeqFeatures);
+    return $revcom;
+}
+
+=head2 _feature_revcom
+
+  Title   : _feature_revcom
+  Usage   : my $newfeat=Bio::SeqUtils->_feature_revcom($feature, $seq->length);
+  Function: Recursive subroutine to reverse complement a feature and
+            all its subfeatures. The length of the parent sequence must be
+            specified.
+
+  Returns : A Bio::SeqFeatureI compliant object.
+  Args    : A Bio::SeqFeatureI compliant object,
+            the length of the parent sequence
+
+
+=cut
+
+sub _feature_revcom {
+    my ($self, $feat, $length)=@_;
+    $self->throw('Object [$feat] '. 'of class ['. ref($feat).
+                 '] should be a Bio::SeqFeatureI ')
+        unless $feat->isa('Bio::SeqFeatureI');
+    my @adjsubfeat;
+    for my $subfeat ($feat->remove_SeqFeatures) {
+        push @adjsubfeat, $self->_feature_revcom($subfeat, $length);
+    }
+    my @loc;
+    for ($feat->location->each_Location) {
+	my $type=$_->location_type;
+        my $strand;
+	if ($_->strand==-1) {$strand=1}
+	elsif ($_->strand==1) {$strand=-1}
+	else {$strand=$_->strand}
+	my $newend=$self->_coord_revcom($_->start,
+					$_->start_pos_type,
+					$length);
+	my $newstart=$self->_coord_revcom($_->end,
+					  $_->end_pos_type,
+					  $length);
+	unless ($type eq 'IN-BETWEEN') {
+	    push @loc, Bio::Location::Fuzzy->new(-start=>$newstart,
+						 -end=>$newend,
+						 -strand=>$strand,
+						 -location_type=>$type
+						);
+	} else {
+	    push @loc, Bio::Location::Simple->new(-start=>$newstart,
+						  -end=>$newend,
+						  -strand=>$strand,
+						  -location_type=>$type
+						 );
+	}
+    }
+    my $newfeat=Bio::SeqFeature::Generic->new(-primary=>$feat->primary_tag);
+    foreach my $key ( $feat->annotation->get_all_annotation_keys() ) {
+	foreach my $value ( $feat->annotation->get_Annotations($key) ) {
+	    $newfeat->annotation->add_Annotation($key, $value);
+	}
+    } 
+    if (@loc==1) {
+        $newfeat->location($loc[0])
+    } else {
+        my $loc=Bio::Location::Split->new;
+        $loc->add_sub_Location(@loc);
+        $newfeat->location($loc);
+    }
+    $newfeat->add_SeqFeature($_) for @adjsubfeat;
+    return $newfeat;
+}
+
+sub _coord_revcom {
+    my ($self, $coord, $type, $length)=@_;
+    if ($type eq 'BETWEEN' or $type eq 'WITHIN') {
+	$coord=~s/(\d+)(.*)(\d+)/$length+1-$3.$2.$length+1-$1/ge;
+    } else {
+	$coord=~s/(\d+)/$length+1-$1/ge;
+	$coord='>'.$coord if $type eq 'BEFORE';
+	$coord='<'.$coord if $type eq 'AFTER';
+    }
+    return $coord;
+}
 
 =head2 evolve
 

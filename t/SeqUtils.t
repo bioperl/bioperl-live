@@ -243,7 +243,7 @@ ok my $newseq = $util->evolve($seq, 60, 4);
 
 #  annotations
 
-$seq2 = new Bio::Seq(-id => 2, -seq => 'ttttaaaa', -description => 'second');
+$seq2 = new Bio::Seq(-id => 2, -seq => 'ggttaaaa', -description => 'second');
 $ac3 = new Bio::Annotation::Collection;
 $simple3 = Bio::Annotation::SimpleValue->new(
                                                 -tagname => 'colour',
@@ -267,7 +267,13 @@ $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
 
 my $trunc=Bio::SeqUtils->trunc_with_features($seq2, 2, 7);
-ok $trunc->seq, 'tttaaa';
+ok $trunc->seq, 'gttaaa';
 my @feat=$trunc->get_SeqFeatures;
 ok $feat[0]->location->to_FTstring, '<1..3';
 ok $feat[1]->location->to_FTstring, 'complement(4..>6)';
+
+my $revcom=Bio::SeqUtils->revcom_with_features($seq2);
+ok $revcom->seq, 'ttttaacc';
+my @revfeat=$revcom->get_SeqFeatures;
+ok $revfeat[0]->location->to_FTstring, 'complement(5..8)';
+ok $revfeat[1]->location->to_FTstring, '1..4';
