@@ -20,11 +20,12 @@ Bio::Structure::Entry - Bioperl structure Object, describes the whole entry
 
 =head1 DESCRIPTION
 
-This object stores a whole Bio::Structure entry. It can consist of one or
-more models (Bio::Structure::Model), which in turn consist of one or more
-chains (Bio::Structure::Chain). A chain is composed of residues 
-(Bio::Structure::Residue) and a residue consists of atoms (Bio::Structure::Atom)
-If no specific model or chain is chosen, the first one is chosen.
+This object stores a whole Bio::Structure entry. It can consist of one
+or more models (L<Bio::Structure::Model>), which in turn consist of one 
+or more chains (L<Bio::Structure::Chain>). A chain is composed of residues 
+(L<Bio::Structure::Residue>) and a residue consists of atoms 
+(L<Bio::Structure::Atom>). If no specific model or chain is chosen, the 
+first one is chosen.
 
 =head1 FEEDBACK
 
@@ -70,7 +71,6 @@ use Bio::Annotation::Collection;
 use Tie::RefHash;
 
 @ISA = qw(Bio::Root::Root Bio::Structure::StructureI);
-
 
 =head2 new()
 
@@ -796,16 +796,6 @@ sub parent {
 sub DESTROY {
 	my $self = shift;
 
-	#print STDERR "DESTROY on $self being called\n";
-
-##	for my $pc (keys %{ $self->{'p_c'} } ) {
-##		next unless ( defined ${ $self->{'p_c'} }{$pc} );
-##		delete ${$self->{'p_c'}}{$pc};
-##	}
-##	for my $cp (keys %{ $self->{'c_p'} } ) {
-##		next unless ( defined ${ $self->{'c_p'} }{$cp} );
-##		delete ${$self->{'c_p'}}{$cp};
-##	}
 	%{ $self->{'p_c'} } = ();
 	%{ $self->{'c_p'} } = ();
 }
@@ -974,8 +964,6 @@ sub _child {
 	}
 	return  ${$self->{'p_c'}}{$key}; 
 }
-
-
 
 =head2 _remove_from_graph()
 
