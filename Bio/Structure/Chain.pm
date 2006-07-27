@@ -46,7 +46,8 @@ Email kris.boulez@algonomics.com
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
@@ -67,17 +68,15 @@ use Bio::Structure::Model;
 
  Title   : new()
  Usage   : $struc = Bio::Structure::Chain->new( 
-                                           -id  => 'human_id',
-                                           -accession_number => 'AL000012',
+                           -id  => 'human_id',
+                           -accession_number => 'AL000012',
                                            );
 
  Function: Returns a new Bio::Structure::Chain object from basic 
-	constructors. Probably most called from Bio::Structure::IO.
+	        constructors. Usually called from Bio::Structure::IO.
  Returns : a new Bio::Structure::Chain object
 
 =cut
-
-
 
 sub new {
     my ($class, @args) = @_;
@@ -91,13 +90,9 @@ sub new {
                           @args);
 
     $id      && $self->id($id);
-
     $self->{'residue'} = [];
-
     # the 'smallest' item that can be added to a chain is a residue. 
-
     $residue && $self->throw("use a method based on an Entry object for now");
-
     return $self;
 }
 
@@ -107,7 +102,7 @@ sub new {
 
  Title   : residue 
  Usage   : 
- Function:  nothing usefull untill I get symbolic references to do what I want
+ Function:  nothing useful until I get symbolic references to do what I want
  Returns : 
  Args    : 
 
@@ -124,7 +119,7 @@ sub residue {
 
  Title   : add_residue
  Usage   : 
- Function: nothing usefull untill I get symbolic references to do what I want
+ Function: nothing useful until I get symbolic references to do what I want
  Returns : 
  Args    : 
 
@@ -140,7 +135,7 @@ sub add_residue {
 
  Title   : model
  Usage   : 
- Function: nothing usefull untill I get symbolic references to do what I want
+ Function: nothing useful until I get symbolic references to do what I want
  Returns : 
  Args    : 
 
@@ -238,6 +233,5 @@ sub _grandparent {
 	}
 	return $self->{'grandparent'};
 }
-
 
 1;
