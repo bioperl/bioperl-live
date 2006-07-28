@@ -72,7 +72,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => Bio::Root::IO->catfile("t","data",
                                                        "NC_006346.gb"));
 $as = $ast->next_seq;
-ok $as->species->binomial,'Bolitoglossa n. sp.';
+ok $as->species->binomial,'Bolitoglossa n. sp. RLM-2004';
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
 ok($as->species->common_name,'mitochondrion Bolitoglossa n. sp. RLM-2004 (mushroomtongue salamander)');
@@ -404,7 +404,6 @@ foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346
 		if ($check) {
 			if ($_ ne $in[$line]) {
 				$ok = 0;
-				#warn "$_ -vs-\n$in[$line]";
 				last;
 			}
 		}
@@ -413,8 +412,9 @@ foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346
 			last;
 		}
 	} continue { $line++ }
+	close(RESULT);
 	
-	ok $ok; # 3 failures will result here; fix to follow
+	ok $ok;
 	
 	unlink($outfile);
 }
