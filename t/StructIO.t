@@ -16,18 +16,18 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 10;
+	plan tests => 14;
 }
+
 use Bio::Structure::Entry;
 use Bio::Structure::IO;
 use Bio::Root::IO;
 ok(1);
 
 # test reading PDB format
-
 my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); # BPTI
 my $structin = Bio::Structure::IO->new(-file => $pdb_file, 
-													-format => 'PDB');
+													-format => 'pdb');
 ok(1);
 my $struc = $structin->next_structure;
 ok(1);
@@ -42,12 +42,34 @@ ok($struc->parent($atom)->id, "LYS-46");
 my ($ann) = $struc->annotation->get_Annotations("author");
 ok($ann->as_text,
 	"Value: D.HOUSSET,A.WLODAWER,F.TAO,J.FUCHS,C.WOODWARD              ");
+($ann) = $struc->annotation->get_Annotations("header");
+ok($ann->as_text,
+	"Value: PROTEINASE INHIBITOR (TRYPSIN)          11-DEC-91   1BPT");
 my $pseq = $struc->seqres;
 ok($pseq->subseq(1,20), "RPDFCLEPPYTGPCKARIIR");
 
+# test polypeptide entry, PDB format
+$pdb_file = Bio::Root::IO->catfile("t","data","1A3I.pdb");
+$structin = Bio::Structure::IO->new(-file => $pdb_file, 
+												-format => 'pdb');
+$struc = $structin->next_structure;
+
+my ($chaincount,$rescount,$atomcount);
+for my $chain ($struc->get_chains) {
+	$chaincount++;
+   for my $res ($struc->get_residues($chain)) {
+		$rescount++;
+      for my $atom ($struc->get_atoms($res)) {
+			$atomcount++;
+		}
+   }
+}
+
+ok($chaincount, 4);  # 3 polypeptides and a group of hetero-atoms
+ok($rescount, 60);   # amino acid residues and solvent molecules
+ok($atomcount, 171); # ATOM and HETATM
 
 # test writing PDB format
-
 my $out_file = Bio::Root::IO->catfile("t","data","temp-pdb1bpt.ent");
 my $structout = Bio::Structure::IO->new(-file => ">$out_file", 
                                         -format => 'PDB');
