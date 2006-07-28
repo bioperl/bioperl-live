@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 122;
+	plan tests => 126;
 }
 
 use Bio::SeqIO;
@@ -21,6 +21,7 @@ my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 END {
 	unlink "tmp_revcomp_mrna.gb" if -e "tmp_revcomp_mrna.gb";
+	unlink 'testsource.gb';
 }
 
 my $ast = Bio::SeqIO->new(-format => 'GenBank' ,
@@ -53,8 +54,7 @@ ok(($cds->get_tag_values('transl_except'))[1],
 # test for a DBSOURCE line
 $ast = Bio::SeqIO->new(-format => 'genbank',
 							  -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile("t","data",
-																		 "BAB68554.gb"));
+                       -file => Bio::Root::IO->catfile("t","data","BAB68554.gb"));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
 ok $as->molecule, 'linear';
@@ -372,3 +372,52 @@ $seq = $gb->next_seq;
 ($cds) = grep { $_->primary_tag eq 'misc_difference' } $seq->get_SeqFeatures;
 my @vals = $cds->get_tag_values('gene');
 ok $vals[0], 'PX19';
+
+# Check that the source,organism section is identical between input and output.
+# - test an easy one where organism is species, then two different formats of
+# subspecies, and finally a species with a format that used to be mistaken for
+# subspecies.
+my $outfile = 'testsource.gb';
+foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb') {
+	$str = new Bio::SeqIO(-format =>'genbank',
+						  -verbose => $verbose,
+						  -file => Bio::Root::IO->catfile("t/data/$infile"));
+	$seq = $str->next_seq;
+	
+	$out = new Bio::SeqIO(-file => ">$outfile", -format => 'genbank');
+	$out->write_seq($seq);
+	$out->close();
+	
+	open (IN, "t/data/$infile");
+	my @in = <IN>;
+	close(IN);
+	open (RESULT, "$outfile");
+	my $line = 0;
+	my $check = 0;
+	my $ok = 1;
+	while (<RESULT>) {
+		if (/^KEYWORDS/) {
+			$check = 1;
+			next;
+		}
+		
+		if ($check) {
+			if ($_ ne $in[$line]) {
+				$ok = 0;
+				#warn "$_ -vs-\n$in[$line]";
+				last;
+			}
+		}
+		
+		if (/^REFERENCE/) {
+			last;
+		}
+	} continue { $line++ }
+	
+	ok $ok; # 3 failures will result here; fix to follow
+	
+	unlink($outfile);
+}
+
+# NB: there should probably be full testing on all lines to ensure that output
+# matches input.
