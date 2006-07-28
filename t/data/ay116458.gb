@@ -1,0 +1,48 @@
+LOCUS       AY116458                 229 bp    DNA     linear   PLN 09-APR-2003
+DEFINITION  Eucalyptus globulus subsp. bicostata isolate EgRT12 Ty1-copia
+            retrotransposon reverse transcriptase-like (RT) gene, partial
+            sequence.
+ACCESSION   AY116458
+VERSION     AY116458.1  GI:22858882
+KEYWORDS    .
+SOURCE      Eucalyptus globulus subsp. bicostata
+  ORGANISM  Eucalyptus globulus subsp. bicostata
+            Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+            Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
+            rosids; Myrtales; Myrtaceae; Eucalyptus.
+REFERENCE   1  (bases 1 to 229)
+  AUTHORS   Diez,J., Beguiristain,T., Le Tacon,F., Casacuberta,J.M. and Tagu,D.
+  TITLE     Identification of Ty1- copia retrotransposons in three
+            ectomycorrhizal basidiomycetes: evolutionary relationships and use
+            as molecular markers
+  JOURNAL   Curr. Genet. 43 (1), 34-44 (2003)
+   PUBMED   12684843
+REFERENCE   2  (bases 1 to 229)
+  AUTHORS   Beguiristain,T., Diez,J., Le Tacon,F., Casacuberta,J. and Tagu,D.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (29-MAY-2002) UMR 1136 IaM Interactions
+            Arbres/Micro-Organismes, INRA-Nancy, Champenoux 54280, France
+FEATURES             Location/Qualifiers
+     source          1..229
+                     /organism="Eucalyptus globulus subsp. bicostata"
+                     /mol_type="genomic DNA"
+                     /isolate="EgRT12"
+                     /sub_species="bicostata"
+                     /db_xref="taxon:71272"
+     gene            <1..>229
+                     /gene="RT"
+                     /note="EgRT"
+     misc_feature    <1..>229
+                     /gene="RT"
+                     /note="similar to reverse transcriptase; unknown if
+                     correctly expressed due to presence of premature
+                     stopcodons and frameshifts"
+     repeat_region   <1..>229
+                     /transposon="Ty1-copia retrotransposon"
+ORIGIN      
+        1 aatgggaatt tagaggaaga ggtttatatg gaccaacccg aaggctttcc agttatagga
+       61 aaggaacaca tggtatgtaa attaaagaag tcaatatatg gacttaaaca agcttcccga
+      121 caatggtatc ttaagttaaa cgataccata acttcatttg gatttaagga aaacactgtt
+      181 gatcggtgta tatatatgaa gattagtggg agcaagttta tttttctag
+//
+

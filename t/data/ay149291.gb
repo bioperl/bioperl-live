@@ -1,0 +1,44 @@
+LOCUS       AY149291                 357 bp    DNA     linear   PRI 25-FEB-2003
+DEFINITION  Homo sapiens neanderthalsensis mitochondrial D-loop hypervariable
+            region I, partial sequence.
+ACCESSION   AY149291
+VERSION     AY149291.1  GI:28557455
+KEYWORDS    .
+SOURCE      mitochondrion Homo sapiens neanderthalensis
+  ORGANISM  Homo sapiens neanderthalensis
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 357)
+  AUTHORS   Schmitz,R.W., Serre,D., Bonani,G., Feine,S., Hillgruber,F.,
+            Krainitzki,H., Paabo,S. and Smith,F.H.
+  TITLE     The Neandertal type site revisited: interdisciplinary
+            investigations of skeletal remains from the Neander Valley, Germany
+  JOURNAL   Proc. Natl. Acad. Sci. U.S.A. 99 (20), 13342-13347 (2002)
+   PUBMED   12232049
+REFERENCE   2  (bases 1 to 357)
+  AUTHORS   Serre,D. and Paabo,S.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (05-SEP-2002) Department of Evolutionary Genetics, Max
+            Planck Institute for Evolutionary Anthropology, Inselstrasse,
+            Leipzig D-04103, Germany
+FEATURES             Location/Qualifiers
+     source          1..357
+                     /organism="Homo sapiens neanderthalensis"
+                     /organelle="mitochondrion"
+                     /mol_type="genomic DNA"
+                     /isolate="Neandertal 2"
+                     /sub_species="neanderthalensis"
+                     /db_xref="taxon:63221"
+                     /country="Germany: Neandertal"
+     D-loop          <1..>357
+                     /note="hypervariable region I"
+ORIGIN      
+        1 gttctttcat gggggagcag atttgggtac cacccaagta ttgactcacc catcagcaac
+       61 cgctatgtat ttcgtacatt actgccagcc accatgaata ttgtacagta ccataattac
+      121 ttgactacct gcagtacata aaaacctaat ccacatcaac cccccccccc catgcttaca
+      181 agcaagcaca gcaatcaacc ttcaactgtc atacatcaac tacaactcca aagacaccct
+      241 tacacccact aggatatcaa caaacctacc cacccttgac agtacatagc acataaagtc
+      301 atttaccgta catagcacat tacagtcaaa tcccttctcg cccccatgga tgacccc
+//
+
