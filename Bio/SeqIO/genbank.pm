@@ -811,7 +811,7 @@ sub write_seq {
 	    if (my $ssp = $spec->sub_species) {
 		$OS .= " $ssp";
 	    }
-	    $self->_print("SOURCE      $OS\n");
+        $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $OS, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ",
 			  ($spec->organelle() ? $spec->organelle()." " : ""),
 			  "$genus $species", "\n");
