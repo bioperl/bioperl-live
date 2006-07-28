@@ -809,7 +809,7 @@ sub write_seq {
 		$OS = "$genus $species";
 	    }
 	    if (my $ssp = $spec->sub_species) {
-		$OS .= " $ssp";
+		$species .= " $ssp";
 	    }
         $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $OS, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ",
@@ -1216,8 +1216,9 @@ sub _add_ref_to_array {
 
            ORGANISM  Drosophila sp. 'white tip scutellum'
            $genus = Drosophila
-           $species = sp.
-           $subspecies = white tip scutellum
+           $species = sp. 'white tip scutellum'
+           (yes, this really is a species and that is its name)
+           $subspecies = undef
 
            ORGANISM  Ajellomyces capsulatus var. farciminosus
            $genus = Ajellomyces
@@ -1243,8 +1244,8 @@ sub _read_GenBank_Species {
 
 	$_ = $$buffer;
 
-	my( $sub_species, $species, $genus, $common, $organelle, @class,
-		 $ns_name, $source_flag );
+	my( $sub_species, $species, $genus, $sci_name, $common, $organelle, @class,
+        $source_flag );
 	# upon first entering the loop, we must not read a new line -- the SOURCE
 	# line is already in the buffer (HL 05/10/2000)
 	while (defined($_) || defined($_ = $self->_readline())) {
@@ -1257,50 +1258,7 @@ sub _read_GenBank_Species {
 			$source_flag = 1;
 		} elsif ( /^\s{2}ORGANISM/o ) {
 			$source_flag = 0;
-			my @spflds = split(' ', $_);
-			($ns_name) = $_ =~ /\w+\s+(.*)/o;
-			shift(@spflds); # ORGANISM
-			# does the next term start with uppercase?
-			# yes: valid genus; no then unconventional
-			# e.g. leaf litter basidiomycete sp. Collb2-39
-			if ($spflds[0] =~ m/^[A-Z]/)	{
-				$genus = shift(@spflds);
-			} else { undef $genus; }
-			# populate species tag
-			if (@spflds)	{
-				while (my $fld = shift @spflds)	{
-					$species .= "$fld ";
-					# does it have subspecies or varieties?
-					last if ($fld =~ m/(sp\.|var\.)/);
-				}
-				chop $species;	# last space
-				$sub_species = join ' ',@spflds if(@spflds);
-			}
-			else { $species = 'sp.'; }
-			# does ORGANISM start with any words which make its genus undefined?
-			# these are in @unkn_genus	
-			# this in case species starts with uppercase so isn't caught above. 
-			# alter common name if required
-			my $unconv = 0; # is it unconventional species name?
-			foreach (@unkn_genus)	{
-				if ($genus && $genus =~ m/$_/i)	{
-					$species = $genus . " " . $species;
-					undef $genus;
-					$unconv = 1;
-					last;
-				}
-				elsif ($species =~ m/$_/i)	{
-					$unconv = 1;
-					last;
-				}
-			}
-			if (!$unconv && !$sub_species && $species =~ s/^(\w+)\s(\w+)$/$1/)	{
-				# need to extract subspecies from conventional ORGANISM format.  
-				# Will the 'word' in a two element species name
-				# e.g. $species = 'thummi thummi' => $species='thummi' & 
-				# $sub_species='thummi'
-				$sub_species = $2;
-			}
+			($sci_name) = $_ =~ /\w+\s+(.*)/o;
 		} elsif ($source_flag) {
 			$common .= $_;
 			$common =~ s/\n//g;
@@ -1319,29 +1277,39 @@ sub _read_GenBank_Species {
 		$_ = undef; # Empty $_ to trigger read of next line
 	}
 	$$buffer = $_;
-
+    
+    # do we have a genus?
+    my $possible_genus = $class[-1];
+    if ($sci_name =~ /^$possible_genus/) {
+        $genus = $possible_genus;
+        ($species) = $sci_name =~ /^$genus\s+(.+)/;
+    }
+    else {
+        $species = $sci_name;
+    }
+    
+    # is this organism of rank species or is it lower?
+    # (we don't catch everything lower than species, but it doesn't matter -
+    # this is just so we abide by previous behaviour whilst not calling a
+    # species a subspecies)
+    if ($species =~ /subsp\.|var\./) {
+        ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
+    }
+    
 	# Don't make a species object if it's empty or "Unknown" or "None"
 	# return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
 	# Don't make a species object if it belongs to taxid 32644
 	my $unkn = grep { $_ =~ /^\Q$common\E$/; } @unkn_names;
 	return unless ($species || $genus) and $unkn == 0;
+    
 	# Bio::Species array needs array in Species -> Kingdom direction
-	if ($class[0] eq 'Viruses') {
-		push( @class, $ns_name );
-	}
-	elsif ($genus && $class[$#class] eq $genus) {
-		push( @class, $species );
-	} else {
-		push( @class, $genus, $species );
-	}
+	push(@class, $species);
 	@class = reverse @class;
 
 	my $make = Bio::Species->new();
 	$make->classification( \@class, "FORCE" ); # no name validation please
 	$make->common_name( $common ) if $common;
-	unless ($class[-1] eq 'Viruses') {
-		$make->sub_species( $sub_species ) if $sub_species;
-	}
+	$make->sub_species( $sub_species ) if $sub_species;
 	$make->organelle($organelle) if $organelle;
 	return $make;
 }
