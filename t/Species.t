@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 21;
+    plan tests => 9;
 }
 
 use Bio::Species;
