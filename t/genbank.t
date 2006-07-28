@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 126;
+	plan tests => 128;
 }
 
 use Bio::SeqIO;
@@ -375,10 +375,10 @@ ok $vals[0], 'PX19';
 
 # Check that the source,organism section is identical between input and output.
 # - test an easy one where organism is species, then two different formats of
-# subspecies, and finally a species with a format that used to be mistaken for
-# subspecies.
+# subspecies, then a species with a format that used to be mistaken for
+# subspecies, then a bacteria with no genus, and finally a virus with a genus.
 my $outfile = 'testsource.gb';
-foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb') {
+foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
 	$str = new Bio::SeqIO(-format =>'genbank',
 						  -verbose => $verbose,
 						  -file => Bio::Root::IO->catfile("t/data/$infile"));
@@ -404,6 +404,7 @@ foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346
 		if ($check) {
 			if ($_ ne $in[$line]) {
 				$ok = 0;
+				#warn "$_ -vs-\n$in[$line]\n";
 				last;
 			}
 		}
@@ -414,7 +415,7 @@ foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346
 	} continue { $line++ }
 	close(RESULT);
 	
-	ok $ok;
+	ok $ok; # last 2 will fail; these are unresolvable problems with original Bio::Species
 	
 	unlink($outfile);
 }
