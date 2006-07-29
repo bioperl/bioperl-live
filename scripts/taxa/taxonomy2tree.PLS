@@ -61,6 +61,19 @@ for my $name (@species) {
   }
 }
 
+# simple paths are contracted by removing degree one nodes
+
+for my $node (@{$tree->Bio::Tree::Compatible::postorder_traversal}) {
+  my $parent = $node->ancestor;
+  if ($parent and $parent->ancestor) {
+    if (scalar($parent->each_Descendent) == 1) {
+      $parent->ancestor->add_Descendent($node);
+      $parent->ancestor->remove_Descendent($parent);
+      $node->branch_length(undef);
+    }
+  }
+}
+
 # the tree is output in Newick format
 
 my $output = new Bio::TreeIO(-format => 'newick');
