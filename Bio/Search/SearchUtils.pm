@@ -17,6 +17,10 @@ a collection of methods, not an object.
 
 Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
+=head1 CONTRIBUTORS
+
+Sendu Bala, bix@sendu.me.uk
+
 =cut
 
 #'
@@ -244,16 +248,17 @@ sub tile_hsps {
     #           save the most significant one.
     my (%qctg_dat);
     foreach (@qcontigs) {
-	($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
-	
-	if( $v > 0 ) {
-	    #$sbjct->debug(sprintf( "$frame/$strand len is getting %d for %d..%d\n", 
-	    #			   ($_->{'stop'} - $_->{'start'} + 1), $_->{'start'}, $_->{'stop'}));
-	}
-	$qctg_dat{ "$frame$strand" }->{'length_aln_query'} += $_->{'stop'} - $_->{'start'} + 1;
-	$qctg_dat{ "$frame$strand" }->{'totalIdentical'}   += $_->{'iden'};
-	$qctg_dat{ "$frame$strand" }->{'totalConserved'}   += $_->{'cons'};
-	$qctg_dat{ "$frame$strand" }->{'qstrand'}   = $strand;
+        ($frame, $strand) = ($_->{'frame'}, $_->{'strand'});
+        
+        if( $v > 0 ) {
+            #$sbjct->debug(sprintf( "$frame/$strand len is getting %d for %d..%d\n", 
+            #			   ($_->{'stop'} - $_->{'start'} + 1), $_->{'start'}, $_->{'stop'}));
+        }
+        
+        $qctg_dat{ "$frame$strand" }->{'length_aln_query'} += $_->{'stop'} - $_->{'start'} + 1;
+        $qctg_dat{ "$frame$strand" }->{'totalIdentical'}   += $_->{'iden'};
+        $qctg_dat{ "$frame$strand" }->{'totalConserved'}   += $_->{'cons'};
+        $qctg_dat{ "$frame$strand" }->{'qstrand'}   = $strand;
     }
 
     # Find longest contig.
@@ -390,72 +395,93 @@ sub _adjust_contigs {
     my $overlap = 0;
     my ($numID, $numCons);
 
-    
-    foreach ( @$contigs_ref) {
-
-	# Don't merge things unless they have matching strand/frame.
-	next unless ($_->{'frame'} == $frame && 
-		     $_->{'strand'} == $strand);
-	
-	## Test special case of a nested HSP. Skip it.
-	if( $start >= $_->{'start'} && $stop <= $_->{'stop'}) { 
-	    # print SDTERR ( "----> Nested HSP. Skipping.\n");
-	    $overlap = 1; 
-	    next;
-	}
-
-	## Test for overlap at beginning of contig.
-	# to find left most
-	if($start < $_->{'start'} && 
-	   $stop > ($_->{'start'} + $max_overlap) ) { 
-	    # print STDERR "----> Overlaps beg: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
-	    # Collect stats over the non-overlapping region.
-	    eval {
-		($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
-						   -START =>$start, 
-						   -STOP  =>$_->{'start'}-1); 
-	    };
-	    if($@) { warn "\a\n$@\n"; }
-	    else {
-		$_->{'start'} = $start;	# Assign a new start coordinate to the contig
-		$_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
-		$_->{'cons'} += $numCons;
-		$overlap     = 1; 
-	    }
-	}
-
-	## Test for overlap at end of contig.
-	if($stop > $_->{'stop'} and 
-	   $start < ($_->{'stop'} - $max_overlap)) { 
-#	    print STDERR "----> Overlaps end: existing beg,end: $_->{'start'},$_->{'stop'}, new beg,end: $start,$stop\n";
-	    # Collect stats over the non-overlapping region.
-	    eval {
-		($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
-						  -START =>$_->{'stop'}, 
-						  -STOP  =>$stop); 
-	    };
-	    if($@) { warn "\a\n$@\n"; }
-	    else {
-		$_->{'stop'}  = $stop; # Assign a new stop coordinate to the contig
-		$_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
-		$_->{'cons'} += $numCons;
-		$overlap    = 1; 
-	    }
-	}
-	$overlap && do {
-#		print STDERR " New Contig data:\n";
-#		print STDERR "  Contig: $_->{'start'} - $_->{'stop'}, iden= $_->{'iden'}, cons= $_->{'cons'}\n";
-	    last;
-	};
+    my $i = -1;
+    foreach (@$contigs_ref) {
+        $i++;
+        # Don't merge things unless they have matching strand/frame.
+        next unless ($_->{'frame'} == $frame && 
+                 $_->{'strand'} == $strand);
+        
+        ## Test special case of a nested HSP. Skip it.
+        if( $start >= $_->{'start'} && $stop <= $_->{'stop'}) {
+            $overlap = 1; 
+            next;
+        }
+        
+        ## Test for overlap at beginning of contig.
+        # to find left most
+        if($start < $_->{'start'} && 
+            $stop > ($_->{'start'} + $max_overlap) ) {
+            eval {
+                ($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
+                               -START =>$start, 
+                               -STOP  =>$_->{'start'}-1); 
+            };
+            if($@) { warn "\a\n$@\n"; }
+            else {
+                $_->{'start'} = $start;	# Assign a new start coordinate to the contig
+                $_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
+                $_->{'cons'} += $numCons;
+                $overlap     = 1; 
+            }
+        }
+        
+        ## Test for overlap at end of contig.
+        if($stop > $_->{'stop'} and 
+            $start < ($_->{'stop'} - $max_overlap)) { 
+            eval {
+                ($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
+                              -START =>$_->{'stop'}, 
+                              -STOP  =>$stop); 
+            };
+            if($@) { warn "\a\n$@\n"; }
+            else {
+                $_->{'stop'}  = $stop; # Assign a new stop coordinate to the contig
+                $_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
+                $_->{'cons'} += $numCons;
+                $overlap    = 1; 
+            }
+        }
+        
+        last if $overlap;
     }
-    ## If there is no overlap, add the complete HSP data.
-    ! $overlap && do {
-	($numID,$numCons) = $hsp->matches(-SEQ=>$seqType); 
-	push @$contigs_ref, {'start' =>$start, 'stop' =>$stop,
+    
+    if ($overlap && @$contigs_ref > 1) {
+        ## Merge any contigs that now overlap
+        my $max = $#{$contigs_ref};
+        for my $i (0..$max) {
+            ${$contigs_ref}[$i] || next;
+            for my $u ($i+1..$max) {
+                ${$contigs_ref}[$u] || next;
+                my ($start, $stop) = (${$contigs_ref}[$u]->{start}, ${$contigs_ref}[$u]->{stop});
+                
+                if (($start < ${$contigs_ref}[$i]->{start} && $stop > (${$contigs_ref}[$i]->{start} + $max_overlap)) ||
+                    ($stop > ${$contigs_ref}[$i]->{stop} and $start < (${$contigs_ref}[$i]->{stop} - $max_overlap))) {
+                    ${$contigs_ref}[$i]->{start} = $start if $start < ${$contigs_ref}[$i]->{start};
+                    ${$contigs_ref}[$i]->{stop} = $stop if $stop > ${$contigs_ref}[$i]->{stop};
+                    ${$contigs_ref}[$i]->{iden} += ${$contigs_ref}[$u]->{iden}; # sane?
+                    ${$contigs_ref}[$i]->{cons} += ${$contigs_ref}[$u]->{cons}; # sane?
+                    
+                    ${$contigs_ref}[$u] = undef;
+                }
+            }
+        }
+        
+        my @merged;
+        foreach (@$contigs_ref) {
+            push(@merged, $_ || next);
+        }
+        $contigs_ref = \@merged;
+    }
+    elsif (! $overlap) {
+        ## If there is no overlap, add the complete HSP data.
+        ($numID,$numCons) = $hsp->matches(-SEQ=>$seqType); 
+        push @$contigs_ref, {'start' =>$start, 'stop' =>$stop,
 			     'iden'  =>$numID, 'cons' =>$numCons,
 			     'strand'=>$strand,'frame'=>$frame};
-    };
-    $overlap;
+    }
+    
+    return $overlap;
 }
 
 =head2 get_exponent
