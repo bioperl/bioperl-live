@@ -1,0 +1,103 @@
+Reference:  Gish, W. (1996-2004) http://blast.wustl.edu
+
+Query=  AT1G70100.2 | Symbol: None | expressed protein | chr1:26406799-26409760
+    FORWARD | Aliases: None
+        (483 letters; record 9)
+
+Database:  AraRicMaiMedVir
+           151,652 sequences; 63,865,049 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+AT5G55660.1 | Symbol: None | expressed protein, similar t...   104  0.019     1
+
+
+
+
+>AT5G55660.1 | Symbol: None | expressed protein, similar to unknown protein
+            (pir::T08929) | chr5:22556601-22560700 FORWARD | Aliases: MDF20.10,
+            MDF20_10
+        Length = 779
+
+ Score = 104 (41.7 bits), Expect = 0.019, P = 0.019
+ Identities = 58/240 (24%), Positives = 106/240 (44%)
+
+Query: 115 - 350
+Sbjct: 159 - 380
+
+ Score = 93 (37.8 bits), Expect = 0.29, P = 0.26
+ Identities = 45/211 (21%), Positives = 82/211 (38%)
+
+Query: 182 - 389
+Sbjct: 527 - 730
+
+ Score = 88 (36.0 bits), Expect = 1.0, P = 0.64
+ Identities = 54/229 (23%), Positives = 91/229 (39%)
+
+Query: 175 - 398
+Sbjct: 444 - 642
+
+ Score = 83 (34.3 bits), Expect = 3.6, P = 0.97
+ Identities = 85/386 (22%), Positives = 150/386 (38%)
+
+Query: 115 - 473
+Sbjct: 159 - 534
+
+ Score = 78 (32.5 bits), Expect = 0.43, Sum P(2) = 0.35
+ Identities = 50/253 (19%), Positives = 112/253 (44%)
+
+Query: 36 - 280
+Sbjct: 24 - 261
+
+ Score = 59 (25.8 bits), Expect = 0.43, Sum P(2) = 0.35
+ Identities = 45/225 (20%), Positives = 83/225 (36%)
+
+Query: 267 - 478
+Sbjct: 445 - 662
+
+ Score = 57 (25.1 bits), Expect = 0.68, Sum P(2) = 0.50
+ Identities = 43/212 (20%), Positives = 89/212 (41%)
+
+Query: 276 - 481
+Sbjct: 479 - 678
+
+
+
+Parameters:
+  gi
+  noseqs
+  stats
+  wordmask=seg+xnu
+  qrecmin=1
+  qrecmax=10110
+  E=10
+  V=10000
+  B=10000
+  postsw
+
+  ctxfactor=1.00
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +0      0   BLOSUM62        0.306   0.122   0.320    same    same    same
+               Q=9,R=2         0.244   0.0300  0.180     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W   T  X   E2     S2
+   +0      0      483       483       10.  78 3  10 23  0.19    35
+                                                    35  0.22    37
+
+
+Statistics:
+  Query          Expected          Observed           HSPs
+  Frame  MatID  High Score        High Score       Reportable
+   +0      0    71 (31.4 bits)  2415 (1066.8 bits)   1089
+
+  Query         Neighborhd  Word      Excluded    Failed   Successful  Overlaps
+  Frame  MatID   Words      Hits        Hits    Extensions Extensions  Excluded
+   +0      0     14620    91959369    23132921    68703395   123053      3666
+

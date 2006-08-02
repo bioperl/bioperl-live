@@ -872,6 +872,18 @@ while( my $hit = $result->next_hit ) {
     last if( $count++ > @valid );
 } 
 
+#Trickier WU-Blast
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','tricky.wublast'));
+$result = $searchio->next_result;
+while (my $hit = $result->next_hit) {
+	# frac_aligned_hit used to be over 1, frac_identical & frac_conserved are still too wrong
+	#ok(sprintf("%.3f",$hit->frac_identical), '0.852');
+    #ok(sprintf("%.3f",$hit->frac_conserved), '1.599');
+    ok(sprintf("%.2f",$hit->frac_aligned_query), '0.92');
+    ok(sprintf("%.2f",$hit->frac_aligned_hit), '0.91');
+}
+
 #WU-TBlastN test
 
 $searchio = new Bio::SearchIO('-format' => 'blast',
