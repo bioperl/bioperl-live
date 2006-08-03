@@ -23,14 +23,10 @@ Sendu Bala, bix@sendu.me.uk
 
 =cut
 
-#'
-
 package Bio::Search::SearchUtils;
 use Bio::Root::Version;
 
 use strict;
-use vars qw($DEBUG);
-$DEBUG = 1;
 
 =head2 tile_hsps
 
@@ -386,32 +382,26 @@ sub logical_length {
 #
 #=cut
 
-#-------------------
 sub _adjust_contigs {
-#-------------------
     my ($seqType, $hsp, $start, $stop, $contigs_ref, 
 	$max_overlap, $frame, $strand) = @_;
-
     my $overlap = 0;
     my ($numID, $numCons);
-
-    my $i = -1;
+    
     foreach (@$contigs_ref) {
-        $i++;
         # Don't merge things unless they have matching strand/frame.
-        next unless ($_->{'frame'} == $frame && 
-                 $_->{'strand'} == $strand);
+        next unless ($_->{'frame'} == $frame && $_->{'strand'} == $strand);
         
-        ## Test special case of a nested HSP. Skip it.
-        if( $start >= $_->{'start'} && $stop <= $_->{'stop'}) {
+        # Test special case of a nested HSP. Skip it.
+        if ($start >= $_->{'start'} && $stop <= $_->{'stop'}) {
             $overlap = 1; 
             next;
         }
         
         ## Test for overlap at beginning of contig.
         # to find left most
-        if($start < $_->{'start'} && 
-            $stop > ($_->{'start'} + $max_overlap) ) {
+        if ($start < $_->{'start'} && 
+            $stop > ($_->{'start'} + $max_overlap)) {
             eval {
                 ($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
                                -START =>$start, 
@@ -427,7 +417,7 @@ sub _adjust_contigs {
         }
         
         ## Test for overlap at end of contig.
-        if($stop > $_->{'stop'} and 
+        if ($stop > $_->{'stop'} and 
             $start < ($_->{'stop'} - $max_overlap)) { 
             eval {
                 ($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
@@ -471,11 +461,11 @@ sub _adjust_contigs {
         foreach (@$contigs_ref) {
             push(@merged, $_ || next);
         }
-        $contigs_ref = \@merged;
+        @{$contigs_ref} = @merged;
     }
     elsif (! $overlap) {
         ## If there is no overlap, add the complete HSP data.
-        ($numID,$numCons) = $hsp->matches(-SEQ=>$seqType); 
+        ($numID,$numCons) = $hsp->matches(-SEQ=>$seqType);
         push @$contigs_ref, {'start' =>$start, 'stop' =>$stop,
 			     'iden'  =>$numID, 'cons' =>$numCons,
 			     'strand'=>$strand,'frame'=>$frame};
@@ -502,9 +492,7 @@ sub _adjust_contigs {
 
 =cut
 
-#------------------
 sub get_exponent {
-#------------------
     my $data = shift;
 
     my($num, $exp) = split /[eE]/, $data;
@@ -553,9 +541,7 @@ See Also   : L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit
 
 =cut
 
-#------------------
 sub collapse_nums {
-#------------------
 # This is probably not the slickest connectivity algorithm, but will do for now.
     my @a = @_;
     my ($from, $to, $i, @ca, $consec);
@@ -622,9 +608,7 @@ See Also   : B<Bio::Search::Processor::BlastIO::new()>
 
 =cut
 
-#--------------------
 sub strip_blast_html {
-#--------------------
       # This may not best way to remove html tags. However, it is simple.
       # it won't work under following conditions:
       #    1) if quoted > appears in a tag  (does this ever happen?)
@@ -654,8 +638,6 @@ sub strip_blast_html {
     $stripped;
 }
 
-
-
 sub _warn_about_no_hsps {
     my $hit = shift;
     my $prev_func=(caller(1))[3];
@@ -669,9 +651,6 @@ sub _warn_about_no_hsps {
                "-b option (or equivalent if not using blastall) to increase the number\n".
                "of alignments.\n"
               );
-
 }
 
 1;
-
-
