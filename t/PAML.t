@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 174;
+    $NUMTESTS = 178;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -250,6 +250,18 @@ ok($firstsite->[0], 15);
 ok($firstsite->[1], 'L');
 ok($firstsite->[2], 0.6588);
 
+# codeml NSSites parsing
+# for M0 model
+
+my $codeml_m0 = new Bio::Tools::Phylo::PAML
+    (-file => Bio::Root::IO->catfile(qw/t data M0.mlc/));
+ok($codeml_m0);
+my $result_m0 = $codeml_m0->next_result;
+my ($nssite_m0) = $result_m0->get_NSSite_results;
+ok($nssite_m0->num_site_classes,q/1/);
+my $class_m0 = $nssite_m0->dnds_site_classes;
+ok($class_m0->{q/p/}->[0],1.00000);
+ok($class_m0->{q/w/}->[0],0.09213);
 
 # test BASEML
 # pairwise first

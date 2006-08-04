@@ -947,6 +947,15 @@ sub _parse_NSsitesBatch {
 		scalar @{$data{'-trees'}} ) {
 		$data{'-likelihood'}= $data{'-trees'}->[0]->score;
 	    }
+            $okay = 1;
+	} elsif ( /^omega\s+\(dn\/ds\)\s+\=\s+(\S+)/i ) {
+            # for M0 (single ratio for the entire tree)
+            my @p = (1); # since there is only one class
+            my @w = $1;
+            $data{'-dnds_site_classes'} = { 'p' => \@p,
+                                            'w' => \@w};
+            # since no K=X is provided, put 1 here
+            $data{q/-num_site_classes/} = 1;
 	} elsif( /^(Naive Empirical Bayes)|(Bayes Empirical Bayes)|(Positively\sselected\ssites)/i ) {
 	    $self->_pushback($_);
 	    my ($sites,$neb,$beb) = $self->_parse_Pos_selected_sites;
