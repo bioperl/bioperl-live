@@ -80,7 +80,7 @@ and other Bioperl modules. Send your comments and suggestions
 preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
+  bioperl-l@bioperl.org                 - General discussion
   http://www.bioperl.org/MailList.shtml - About the mailing lists
 
 =head2 Reporting Bugs
@@ -189,30 +189,29 @@ sub next_seq {
    $self->throw("EMBL stream with no ID. Not embl in my book") 
 	  unless $line =~ /^ID\s+\S+/;
 
-   #if( $line =~ /^ID\s+(\S+)\s+\S+\;\s+([^;]+)\;\s+(\S+)\;/ ) {
-   #    ($name,$mol,$div) = ($1,$2,$3);
-   #}
-
-	#($name, $mol, $div) =
-	#  ($line =~ /^ID\s+(\S+).*;\s+([^;]+);\s+(\S+);/);
-
-   ($name, $mol, $div) = 
-     ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/);
-
-   unless( defined $name && length($name) ) {
-		$name = "unknown_id";
-   }
-
-   my $alphabet;
-
-	# this is important to have the id for display in e.g. FTHelper, 
-	# otherwise you won't know which entry caused an error
-   if($mol) {
-		if ( $mol =~ /circular/ ) {
-			$params{'-is_circular'} = 1;
-			$mol =~  s|circular ||;
-		}
-		if (defined $mol ) {
+	# At this point we are sure that $line contains an ID header line
+	my $alphabet;
+    if ( $line =~ tr/;/;/ == 6) {   # New style headers contain exactly six semicolons.
+    
+    	# New style header (EMBL Release >= 87, after June 2006)
+    	my $topology;
+    	my $sv;
+    	
+    	# ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
+		# This regexp comes from the new2old.pl conversion script, from EBI
+    	$line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./;
+    	($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6); 
+    	
+    	if (defined($sv)) {
+ 			$params{'-seq_version'} = $sv;
+			$params{'-version'} = $sv; 
+    	} 	
+    	
+    	if ($topology eq "circular") {
+    		$params{'-is_circular'} = 1;
+    	}
+    	
+   		if (defined $mol ) {
 			if ($mol =~ /DNA/) {
 				$alphabet='dna';
 			}
@@ -222,8 +221,36 @@ sub next_seq {
 			elsif ($mol =~ /AA/) {
 				$alphabet='protein';
 			}
+		} 	
+    }
+    else {
+    	
+    	# Old style header (EMBL Release < 87, before June 2006)
+    	($name, $mol, $div) = ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/);
+
+	   	if($mol) {
+			if ( $mol =~ /circular/ ) {
+				$params{'-is_circular'} = 1;
+				$mol =~  s|circular ||;
+			}
+			if (defined $mol ) {
+				if ($mol =~ /DNA/) {
+					$alphabet='dna';
+				}
+				elsif ($mol =~ /RNA/) {
+					$alphabet='rna';
+				}
+				elsif ($mol =~ /AA/) {
+					$alphabet='protein';
+				}
+			}
 		}
+    }
+    
+   unless( defined $name && length($name) ) {
+		$name = "unknown_id";
    }
+
 	# $self->warn("not parsing upper annotation in EMBL file yet!");
    my $buffer = $line;
    local $_;
@@ -393,6 +420,155 @@ sub next_seq {
    return $seq;
 }
 
+
+
+=head2 _write_ID_line
+
+ Title   : _write_ID_line
+ Usage   : $self->_write_ID_line($seq);
+ Function: Writes the EMBL Release 87 format ID line to the stream, unless
+         : there is a user-supplied ID line generation function in which
+         : case that is used instead.
+         : ( See Bio::SeqIO::embl::_id_generation_function(). )
+ Returns : nothing
+ Args    : Bio::Seq object
+
+=cut
+
+sub _write_ID_line {
+	
+	my ($self, $seq) = @_;
+	
+	my $id_line;
+	# If there is a user-supplied ID generation function, use it.
+	if( $self->_id_generation_func ) {
+		$id_line = "ID   " . &{$self->_id_generation_func}($seq) . "\nXX\n";	
+	} 
+	# Otherwise, generate a standard EMBL release 87 (June 2006) ID line.
+	else {
+		
+		# The sequence name is supposed to be the primary accession number,
+		my $name = $seq->accession();
+		if (!$name) {
+			# but if it is not present, use the sequence ID.
+			$name = $seq->id();
+		}
+		
+		$self->warn("No whitespace allowed in EMBL id [". $name. "]") if $name =~ /\s/;
+
+		# Use the sequence version, or default to 1.
+		my $version = $seq->version() || 1;
+
+		my $len = $seq->length();
+	 
+	 	# Taxonomic division.
+	 	my $div;
+		if ( $seq->can('division') && defined($seq->division) && $self->_is_valid_division($seq->division) ) {
+			$div = $seq->division();
+		}
+		else {
+			$div ||= 'UNC';			# 'UNC' is the EMBL division code for 'unclassified'. 
+		}
+		
+		my $mol;
+		# If the molecule type is a valid EMBL type, use it.
+		if (  $seq->can('molecule') 
+		      && defined($seq->molecule) 
+		      && $self->_is_valid_molecule_type($seq->molecule)
+		    )
+		{ 	
+			$mol = $seq->molecule();
+		}
+		# Otherwise, choose unassigned DNA or RNA based on the alphabet.
+		elsif ($seq->can('primary_seq') && defined $seq->primary_seq->alphabet) {
+			my $alphabet =$seq->primary_seq->alphabet;
+			if ($alphabet eq 'dna') {
+				$mol ='unassigned DNA';
+			}
+			elsif ($alphabet eq 'rna') {
+				$mol='unassigned RNA';
+			}
+			elsif ($alphabet eq 'protein') {
+				$self->warn("Protein sequence found; EMBL is a nucleotide format.");
+				$mol='AA';	# AA is not a valid EMBL molecule type.
+			}
+		}
+
+		my $topology = 'linear';
+		if ($seq->is_circular) {
+			$topology = 'circular';
+		}
+		
+		$id_line = "ID   $name; SV $version; $topology; $mol; STD; $div; $len BP.\nXX\n";
+		$self->_print($id_line);
+	}
+}
+
+=head2 _is_valid_division
+
+ Title   : _is_valid_division
+ Usage   : $self->_is_valid_division($div)
+ Function: tests division code for validity
+ Returns : true if $div is a valid EMBL release 87 taxonomic division.
+ Args    : taxonomic division code string
+
+=cut
+
+sub _is_valid_division {
+	my ($self, $division) = @_;
+	
+	my %EMBL_divisions = (
+		"PHG"    => 1, 			# Bacteriophage
+		"ENV"    => 1, 			# Environmental Sample
+		"FUN"    => 1, 			# Fungal
+		"HUM"    => 1,  		# Human
+		"INV"    => 1,  		# Invertebrate
+		"MAM"    => 1,  		# Other Mammal 
+		"VRT"    => 1,  		# Other Vertebrate 
+		"MUS"    => 1,  		# Mus musculus
+		"PLN"    => 1,  		# Plant
+		"PRO"    => 1, 			# Prokaryote
+	    "ROD"    => 1, 			# Other Rodent
+	    "SYN"    => 1, 			# Synthetic
+	    "UNC"    => 1, 			# Unclassified 
+	    "VRL"    => 1 			# Viral
+	);
+	
+	return exists($EMBL_divisions{$division});
+}
+
+=head2 _is_valid_molecule_type
+
+ Title   : _is_valid_molecule_type
+ Usage   : $self->_is_valid_molecule_type($mol)
+ Function: tests molecule type for validity
+ Returns : true if $mol is a valid EMBL release 87 molecule type.
+ Args    : molecule type string
+
+=cut
+
+sub _is_valid_molecule_type {
+	my ($self, $moltype) = @_;
+	
+	my %EMBL_molecule_types = (
+		"genomic DNA"    => 1, 
+		"genomic RNA"    => 1, 
+		"mRNA"           => 1, 
+		"tRNA"           => 1, 
+		"rRNA"           => 1, 
+		"snoRNA"         => 1, 
+		"snRNA"          => 1, 
+		"scRNA"          => 1, 
+		"pre-RNA"        => 1, 
+		"other RNA"      => 1,
+	    "other DNA"      => 1,
+	    "unassigned DNA" => 1,
+	    "unassigned RNA" => 1
+	);
+	
+	return exists($EMBL_molecule_types{$moltype});
+}
+
 =head2 write_seq
 
  Title   : write_seq
@@ -417,46 +593,10 @@ sub write_seq {
 			}
 		}
 		my $str = $seq->seq || '';
-
-		my $mol;
-		my $div;
-		my $len = $seq->length();
-
-		if ($seq->can('division') && defined $seq->division) {
-			$div = $seq->division();
-		}
-		$div ||= 'UNK';
-
-		if ($seq->can('molecule')) {
-			$mol = $seq->molecule();
-			$mol = 'RNA' if defined $mol && $mol =~ /RNA/; # no 'mRNA' 
-		}
-		elsif ($seq->can('primary_seq') && defined $seq->primary_seq->alphabet) {
-			my $alphabet =$seq->primary_seq->alphabet;
-			if ($alphabet eq 'dna') {
-				$mol ='DNA';
-			}
-			elsif ($alphabet eq 'rna') {
-				$mol='RNA';
-			}
-			elsif ($alphabet eq 'protein') {
-				$mol='AA';
-			}
-		}
-		$mol ||= 'XXX';
-		$mol = "circular $mol" if $seq->is_circular;
-
-		my $temp_line;
-
-		if( $self->_id_generation_func ) {
-			$temp_line = &{$self->_id_generation_func}($seq);
-		} else {
-			$self->warn("No whitespace allowed in EMBL id [". $seq->id. "]")
-			  if $seq->id =~ /\s/;
-			$temp_line = sprintf("%-10s standard; $mol; $div; %d BP.", $seq->id(), $len);
-		}
-
-		$self->_print( "ID   $temp_line\n","XX\n");
+		
+		# Write the ID line.
+		$self->_write_ID_line($seq);
+		
 
 		# Write the accession line if present
 		my( $acc );
@@ -474,22 +614,6 @@ sub write_seq {
 			if (defined $acc) {
 				$self->_print("AC   $acc;\n",
 								  "XX\n") || return;
-			}
-		}
-
-		# Write the sv line if present
-		{
-			my( $sv );
-			if (my $func = $self->_sv_generation_func) {
-				$sv = &{$func}($seq);
-			} elsif($seq->isa('Bio::Seq::RichSeqI') && 
-					  defined($seq->seq_version)) {
-				my ($prim_acc) = $acc =~ /([^;]+)/;
-				$sv = "$prim_acc.". $seq->seq_version();
-			}
-			if (defined $sv) {
-				$self->_print( "SV   $sv\n",
-									"XX\n") || return;
 			}
 		}
 
@@ -658,8 +782,9 @@ sub write_seq {
 		my $clen = $str =~ tr/c/c/;
 		my $glen = $str =~ tr/g/g/;
 		my $tlen = $str =~ tr/t/t/;
-
-		my $olen = $len - ($alen + $tlen + $clen + $glen);
+		
+		my $len = $seq->length();
+		my $olen = $seq->length() - ($alen + $tlen + $clen + $glen);
 		if( $olen < 0 ) {
 			$self->warn("Weird. More atgc than bases. Problem!");
 		}
