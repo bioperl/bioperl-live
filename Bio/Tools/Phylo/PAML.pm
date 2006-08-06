@@ -246,6 +246,7 @@ sub next_result {
     # OK, depending on seqtype and runmode now, one of a few things can happen:
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
+        my $has_model_line = 0;
 	while (defined ($_ = $self->_readline)) {
 	    if ($seqtype eq 'CODONML' && 
 		m/^pairwise comparison, codon frequencies:/) {
@@ -260,10 +261,13 @@ sub next_result {
 		# $self->_pushback($_);
 		# %data = $self->_parse_PairwiseAA;
 		# last;	    
-	    } elsif (m/^Model\s+(\d+)/ ) { 
+	    } elsif (m/^Model\s+(\d+)/ ||
+                     ((!$has_model_line && m/^TREE/) &&
+                     $seqtype eq 'CODONML')) {
 		$self->_pushback($_);
 		my $model = $self->_parse_NSsitesBatch;
 		push @{$data{'-NSsitesresults'}}, $model;
+                $has_model_line = 1;
 	    } elsif ( m/for each branch/ ) {
 		my %branch_dnds = $self->_parse_branch_dnds;
 		if( ! defined $data{'-trees'} ) {
@@ -922,7 +926,7 @@ sub _parse_NSsitesBatch {
 	last if $done;
 	next if /^\s+$/;
 	
-	next unless( $okay || /^Model\s+\d+/ );
+	next unless( $okay || /^Model\s+\d+/ || /^TREE/);
 	if( /^Model\s+(\d+)/ ) {
 	    if( $okay ) {
 		# this only happens if $okay was already 1 and 

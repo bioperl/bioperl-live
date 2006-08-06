@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 178;
+    $NUMTESTS = 182;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -294,6 +294,17 @@ ok($alphaM->get_entry($otus[0],$otus[1]),
 ok($alphaM->get_entry($otus[1],$otus[2]), '1.1101');
 ok($alphaM->get_entry($otus[0],$otus[2]), '33.1197');
 
+# codeml NSSites parsing
+# for only 1 model
+
+my $codeml_single = new Bio::Tools::Phylo::PAML
+    (-file => Bio::Root::IO->catfile(qw/t data singleNSsite.mlc/));
+ok($codeml_single);
+my $result_single = $codeml_single->next_result;
+my ($nssite_single) = $result_single->get_NSSite_results;
+ok($nssite_single->num_site_classes,q/3/);
+ok($nssite_single->kappa, q/5.28487/);
+ok($nssite_single->likelihood,q/-30.819156/);
 
 ok($baseml->get_stat('loglikelihood'),-110.532715);
 ok($baseml->get_stat('constant_sites'),46);
