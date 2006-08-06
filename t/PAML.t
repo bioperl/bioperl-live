@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 182;
+    $NUMTESTS = 187;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -320,6 +320,19 @@ $baseml = $baseml_p->next_result;
 ok(@trees, 1);
 ok($trees[0]->score, -129.328757);
 
+# codeml NSSites parsing
+# for branch site model/clade model
+
+my $codeml_bs = new Bio::Tools::Phylo::PAML
+    (-file => Bio::Root::IO->catfile(qw/t data branchSite.mlc/));
+ok($codeml_bs);
+my $result_bs = $codeml_bs->next_result;
+my ($nssite_bs) = $result_bs->get_NSSite_results;
+ok($nssite_bs->num_site_classes,q/4/);
+my $class_bs = $nssite_bs->dnds_site_classes;
+ok($class_bs->{q/p/}->[1],q/0.65968/);
+ok($class_bs->{q/w/}->[1]->{q/background/},q/0.00000/);
+ok($class_bs->{q/w/}->[2]->{q/foreground/},q/999.00000/);
 
 # Let's parse the RST file
 

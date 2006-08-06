@@ -975,12 +975,31 @@ sub _parse_NSsitesBatch {
                         last;
                     }
                 }
+                if ( /^site class/ ) {
+                    $self->_readline;
+                    my @p = split /\s+/, $self->_readline;
+                    my @b_w = split /\s+/, $self->_readline;
+                    my @f_w = split /\s+/, $self->_readline;
+                    shift @p;
+                    foreach (\@b_w, \@f_w) {
+                        shift @{$_};
+                        shift @{$_};
+                    }
+                    my @w;
+                    foreach my $i (0..$#b_w) {
+                        push @w, { q/background/ => $b_w[$i],
+                                   q/foreground/ => $f_w[$i] };
+                    }
+                    $data{'-dnds_site_classes'} = { q/p/ => \@p,
+                                                    q/w/ => \@w };
+                } else {
 		my @p = split(/\s+/,$self->_readline);
 		my @w = split(/\s+/,$self->_readline);
 		shift @p;
 		shift @w;
 		$data{'-dnds_site_classes'} = { 'p' => \@p,
 						'w' => \@w};
+                }
 	    } elsif( /for each branch/ ) {
 		my %branch_dnds = $self->_parse_branch_dnds;
 		if( ! defined $data{'-trees'} ) {
