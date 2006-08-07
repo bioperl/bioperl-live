@@ -56,12 +56,12 @@ accessed using the following syntax:
 
 Added tags are : 
 
-   Descline     - entire description line (in case the regex used for
+   descline     - entire description line (in case the regex used for
                   sequence ID doesn't adequately catch the name
-   Descfile     - name of the descriptor file (may include path to file)
-   Secstrucure  - contains structural information from the descriptor
+   descfile     - name of the descriptor file (may include path to file)
+   secstrucure  - contains structural information from the descriptor
                   used as a query
-   Sequence     - sequence of motif, separated by spaces according to
+   sequence     - sequence of motif, separated by spaces according to
                   matches to the structure in the descriptor (in
                   SecStructure).
 

@@ -39,17 +39,17 @@ accessed using the following syntax:
   my ($entry) = $feature->get_Annotations('SecStructure');
 
 Added tags are : 
-   Tset         - training set used for the sequence
-   Tsetdesc     - training set description line
-   Cutoff       - cutoff value used
-   Database     - name of database
-   Dbdesc       - description of database
-   Dbratios     - nucleotide ratios of database (used to calculate evalue)
-   Descline     - entire description line (in case the regex used for
+   tset         - training set used for the sequence
+   tsetdesc     - training set description line
+   cutoff       - cutoff value used
+   database     - name of database
+   dbdesc       - description of database
+   dbratios     - nucleotide ratios of database (used to calculate evalue)
+   descline     - entire description line (in case the regex used for
                   sequence ID doesn't adequately catch the name
-   Accession    - accession number of sequence (if present)
-   Logodds      - logodds score value
-   Sequence     - sequence from hit, separated based on training set
+   accession    - accession number of sequence (if present)
+   logodds      - logodds score value
+   sequence     - sequence from hit, separated based on training set
 
 See t/ERPIN.t for example usage.
 
