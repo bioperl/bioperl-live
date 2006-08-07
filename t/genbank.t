@@ -278,7 +278,7 @@ ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
 my $spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
-ok ($spec_obj->species, 'musculus');
+ok ($spec_obj->species, 'Mus musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
 $ac = $seq->annotation;
@@ -310,7 +310,7 @@ ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
 $spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
-ok ($spec_obj->species, 'musculus');
+ok ($spec_obj->species, 'Mus musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
 $ac = $seq->annotation;
@@ -378,20 +378,22 @@ ok $vals[0], 'PX19';
 # subspecies, then a species with a format that used to be mistaken for
 # subspecies, then a bacteria with no genus, and finally a virus with a genus.
 my $outfile = 'testsource.gb';
-foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
+foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
+    my $infile =  Bio::Root::IO->catfile("t","data",$in);
+    
 	$str = new Bio::SeqIO(-format =>'genbank',
 						  -verbose => $verbose,
-						  -file => Bio::Root::IO->catfile("t/data/$infile"));
+						  -file => $infile);
 	$seq = $str->next_seq;
 	
 	$out = new Bio::SeqIO(-file => ">$outfile", -format => 'genbank');
 	$out->write_seq($seq);
 	$out->close();
 	
-	open (IN, "t/data/$infile");
+	open (IN, $infile);
 	my @in = <IN>;
 	close(IN);
-	open (RESULT, "$outfile");
+	open (RESULT, $outfile);
 	my $line = 0;
 	my $check = 0;
 	my $ok = 1;
@@ -404,8 +406,8 @@ foreach my $infile ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346
 		if ($check) {
 			if ($_ ne $in[$line]) {
 				$ok = 0;
-				#warn "$_ -vs-\n$in[$line]\n";
-				last;
+				warn "$_ -vs-\n$in[$line]\n";
+				#last;
 			}
 		}
 		
