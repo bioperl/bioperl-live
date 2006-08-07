@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 19;
+    $NUMTESTS = 20;
     plan tests => $NUMTESTS;
     eval { require DB_File };
     if( $@ ) {
@@ -108,6 +108,9 @@ my $aio = Bio::Assembly::IO->new(
 
 my $assembly = $aio->next_assembly();
 my @contigs = $assembly->all_contigs();
+
+my $direction = $contigs[0]->strand;
+ok(1 == $direction);
 
 my $features =  $contigs[0]->get_features_collection;
 my @contig_features = $features->get_all_features;

@@ -333,10 +333,13 @@ sub strand {
     my $self = shift;
     my $ori = shift;
 
+	if (defined $ori) {
     $self->throw("Contig strand must be either 1, -1 or 0")
-	unless (defined $ori && ($ori == 1 || $ori == 0 || $ori == -1));
+            unless $ori == 1 || $ori == 0 || $ori == -1;
 
     $self->{'_strand'} = $ori;
+    }
+
     return $self->{'_strand'};
 }
 
