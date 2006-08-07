@@ -171,7 +171,7 @@ sub _initialize {
                                                                   DESCTAG
                                                                   SRCTAG
                                  )],
-							      @args);
+                                  @args);
   $self->motif_tag(defined $motiftag ? $motiftag : $MotifTag);
   $self->source_tag(defined $srctag ? $srctag : $SrcTag);
   $self->desc_tag(defined $desctag ? $desctag : $DescTag);
@@ -262,7 +262,7 @@ sub analysis_method {
 #-------------
     my ($self, $method) = @_;  
     if($method && ($method !~ /RNAMotif/i)) {
-	$self->throw("method $method not supported in " . ref($self));
+    $self->throw("method $method not supported in " . ref($self));
     }
     return $self->SUPER::analysis_method($method);
 }
@@ -308,8 +308,8 @@ sub next_feature {
 sub next_prediction {
     my ($self) = @_;
     my ($motiftag,$srctag,$desctag) = ( $self->motif_tag,
-				       $self->source_tag,
-				       $self->desc_tag);
+                       $self->source_tag,
+                       $self->desc_tag);
     my ($score, $strand, $start, $length, $sequence, $end, $seqid, $description)=0;
     while($_ = $self->_readline) {
         while($_ =~ /^#RM/) { # header line
@@ -365,10 +365,10 @@ sub next_prediction {
                                                       -source_tag  => $srctag,
                                                       -display_name => $desctag,
                                                       -tag     => {
-                                                        'Descline'       => $description,
-                                                        'Descfile'      => $self->{'_dfile'},
-                                                        'Secstructure'  => $self->{'_sec_structure'},
-                                                        'Sequence'       => $sequence});
+                                                        'descline'       => $description,
+                                                        'descfile'      => $self->{'_dfile'},
+                                                        'secstructure'  => $self->{'_sec_structure'},
+                                                        'sequence'       => $sequence});
             return $gene;
         }
     }
@@ -378,11 +378,10 @@ sub next_prediction {
 
  Title   : next_prediction
  Usage   : @list = $obj->clean_features(-10);
- Function: Returns array of SeqFeatures when called.   
+ Function: Cleans (reduces redundant hits) based on score, position
  Returns : a Bio::SeqFeature::Collection object
  Args    : Pos./Neg. integer (for highest/lowest scoring seqfeature within x bp).
- Throws  : Error unless digit is entered.  You could enter in something weird that
-           gets around the regex but, really, why would you do that?
+ Throws  : Error unless digit is entered.  
 
 =cut
 

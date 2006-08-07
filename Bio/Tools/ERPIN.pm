@@ -215,7 +215,7 @@ sub analysis_method {
 #-------------
     my ($self, $method) = @_;  
     if($method && ($method !~ /ERPIN/i)) {
-	$self->throw("method $method not supported in " . ref($self));
+    $self->throw("method $method not supported in " . ref($self));
     }
     return $self->SUPER::analysis_method($method);
 }
@@ -261,8 +261,8 @@ sub next_feature {
 sub next_prediction {
     my ($self) = @_;
     my ($motiftag,$srctag,$desctag) = ( $self->motif_tag,
-				       $self->source_tag,
-				       $self->desc_tag);
+                       $self->source_tag,
+                       $self->desc_tag);
     # hit vars
     my ($strand, $start, $end, $sequence, $logodds, $score)=0;
     while($_ = $self->_readline) {
@@ -271,43 +271,33 @@ sub next_prediction {
         # parse header; there's probably a better way to do this, perhaps by
         # mapping, but this works for now...
         if(/^Training set:\s+\"(.*)\":$/) {
-            $self->debug("Caught training set: $1 \n");
             $self->{'_tset'}=$1;
         }
         elsif(/\s+(\d+ sequences of length \d+)/){
-            $self->debug("Caught db desc: $1 \n");
             $self->{'_tset_descr'}=$1;
         }
         elsif(/^Cutoff:\s+(\S+)\s+$/) {
-            $self->debug("Caught cutoff: $1 \n");
             $self->{'_cutoff'}=$1;
         }
         elsif(/^Database:\s+\"(.*)\"$/) {
-            $self->debug("Caught database: $1 \n");
             $self->{'_db'}=$1;
         }
         elsif(/^\s+(\d+ nucleotides to be processed in \d+ sequence)$/) {
-            $self->debug("Caught database descr: $1 \n");
             $self->{'_db_desc'}=$1;
         }
         elsif(/^\s+ATGC ratios:\s(\d.\d+)\s+(\d.\d+)\s+(\d.\d+)\s+(\d.\d+)$/) {
-            $self->debug("ATGC ratios: A=$1, T=$2, G=$3, C=$4\n");
             my $atgc=sprintf("A=%0.3f T=%0.3f G=%0.3f C=%0.3f", $1, $2, $3, $4);
             $self->{'_db_ratios'}=$atgc;
         }
         elsif(/^E-value at cutoff \S+ for \S+(?:G|M|k)?b double strand data: (\S+)/) {
-            $self->debug("Caught eval cutoff: $1 \n");
             $self->{'_eval_cutoff'}=$1;
         }
         # catch hit, store in private hash keys
         elsif (/^>(.*)/) {
-        	$self->debug("caught hit seq description: \n\t$1\n");
             $self->{_seq_desc} = $1;
             if($self->{_seq_desc} =~
                /(?:P<db>gb|gi|emb|dbj|sp|pdb|bbs|ref|lcl)\|(\d+)((?:\:|\|)\w+\|(\S*.\d+)\|)?/) { 
                 $self->{_seqid} = $1; # pulls out gid
-                $self->debug("Genbank gid: $1\n");
-                $self->debug("Genbank acc: $3\n");
                 $self->{_seq_acc} = $3;
             } else {
                 $self->{_seqid} = $self->{_seq_desc};
@@ -316,7 +306,6 @@ sub next_prediction {
         }
         # parse next hit
         elsif (/^(FW|RC)\s+\d+\s+(\d+)..(\d+)\s+(\d+.\d+)\s+(.*)/) {
-            $self->debug("caught hit information:\n");
             ($strand, $start, $end, $logodds, $score)=($1, $2, $3, $4, $5);
             chomp ($sequence = $self->_readline); # grab next line, which is the sequence hit
             my $gene = Bio::SeqFeature::Generic->new(-seq_id => $self->{_seqid},
@@ -328,16 +317,16 @@ sub next_prediction {
                                                       -source_tag  => $srctag,
                                                       -display_name => $desctag,
                                                       -tag     => {
-                                                        'Tset'          => $self->{_tset},
-                                                        'Tsetdesc'      => $self->{_tset_descr},
-                                                        'Cutoff'        => $self->{_cutoff},
-                                                        'Database'      => $self->{_db},
-                                                        'Dbdesc'        => $self->{_db_desc},
-                                                        'Dbratios'      => $self->{_db_ratios},
-                                                        'Descline'      => $self->{_seq_desc},
-                                                        'Accession'     => $self->{_seq_acc},
-                                                        'Logodds'       => $logodds,
-                                                        'Sequence'      => $sequence}
+                                                        'tset'          => $self->{_tset},
+                                                        'tsetdesc'      => $self->{_tset_descr},
+                                                        'cutoff'        => $self->{_cutoff},
+                                                        'database'      => $self->{_db},
+                                                        'dbdesc'        => $self->{_db_desc},
+                                                        'dbratios'      => $self->{_db_ratios},
+                                                        'descline'      => $self->{_seq_desc},
+                                                        'accession'     => $self->{_seq_acc},
+                                                        'logodds'       => $logodds,
+                                                        'sequence'      => $sequence}
                                                     );
             return $gene;
         }
