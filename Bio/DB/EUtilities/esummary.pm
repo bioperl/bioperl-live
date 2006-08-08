@@ -20,7 +20,8 @@ of primary IDs or a Cookie
 
 =head1 SYNOPSIS
 
-B<Do not use this module directly.>  Use it via the L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
+B<Do not use this module directly.>
+Use it via the L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
 
   use Bio::DB::EUtilities;
 

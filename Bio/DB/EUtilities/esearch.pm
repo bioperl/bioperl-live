@@ -14,8 +14,9 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::esearch - Base interface class for handling web queries and data
-retrieval from Entrez Utilities from NCBI.  You shouldn't use this class directly.
+Bio::DB::EUtilities::esearch - Base interface class for handling web
+queries and data retrieval from Entrez Utilities from NCBI.
+You shouldn't use this class directly.
 
 =head1 SYNOPSIS
 

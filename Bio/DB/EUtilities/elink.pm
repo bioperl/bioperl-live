@@ -453,7 +453,8 @@ sub _initialize {
     $retmax     && $self->retmax($retmax);
     $report     && $self->report($report);
     $dbfrom     && $self->dbfrom($dbfrom);
-    $cmd        && $self->cmd($cmd);
+    # validate cmd, otherwise don't set
+    $cmd        && exists $CMD{$cmd}  &&  $self->cmd($cmd);
     $holding    && $self->holding($holding);
     $linkname   && $self->linkname($linkname);
 	$multi_id	&& $self->multi_id($multi_id);

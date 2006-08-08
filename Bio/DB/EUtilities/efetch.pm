@@ -148,21 +148,6 @@ Uses a L<Cookie|Bio::DB::EUtilities::Cookie>-based search (see below)
 
 =back
 
-=head2 Cookies
-
-Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
-the NCBI server under certain settings.  This information can be retrieved by
-using a B<cookie>.  Here, the idea of the 'cookie' is similar to the 'cookie' set
-on a user's computer when browsing the Web.  XML data returned by these
-EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
-and 'query_key' tags to be specific)  The information along with other identifying
-data, such as the calling eutility, description of query, etc.) is stored as a
-L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal
-queue.  These can be retrieved one at a time by using the next_cookie method or
-all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
-one at a time, to another EUtility object, thus enabling chained queries as
-demonstrated in the synopsis.
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists

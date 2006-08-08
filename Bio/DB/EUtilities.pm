@@ -57,12 +57,12 @@ The experimental base class is L<Bio::DB::GenericWebDBI|Bio::DB::GenericWebDBI>,
 which as the name implies enables access to any web database which will accept
 parameters.  This was originally born from an idea to replace
 WebDBSeqI/NCBIHelper with a more general web database accession tool so one
-could access sequence information, 
-taxonomy, SNP, PubMed, and so on.  However, this may ultimately prove
-to be better used as a replacement for L<LWP::UserAgent|LWP::UserAgent> when 
-ccessing NCBI-related web tools (Entrez Utilitites, or EUtilities).  Using the
-base class GenericWebDBI, one could also build web interfaces to other databases
-to access anything via CGI parameters.
+could access sequence information, taxonomy, SNP, PubMed, and so on.
+However, this may ultimately prove to be better used as a replacement for
+L<LWP::UserAgent|LWP::UserAgent> when ccessing NCBI-related web tools
+(Entrez Utilitites, or EUtilities).  Using the base class GenericWebDBI,
+one could also build web interfaces to other databases to access anything
+via CGI parameters.
 
 Currently, you can access any database available through the NCBI interface:
 
@@ -95,40 +95,46 @@ the object method C<content>, like so:
   
   print $efetch->get_response->content;
 
-Based on this, if one wanted to retrieve sequences or other raw data but was not
-interested in directly using Bio* objects (such as if genome sequences were to be
-retrieved) one could do so by using the proper EUtility object(s) and query(ies)
-and get the raw response back from NCBI through 'efetch'.  
+Based on this, if one wanted to retrieve sequences or other raw data
+but was not interested in directly using Bio* objects (such as if
+genome sequences were to be retrieved) one could do so by using the
+proper EUtility object(s) and query(ies) and get the raw response back
+from NCBI through 'efetch'.  
 
-A great deal of the documentation here will likely end up in the form of a HOWTO
-at some future point.
+A great deal of the documentation here will likely end up in the form
+of a HOWTO at some future point, focusing on getting data into Bioperl
+objects.
 
 =head2 Cookies
 
-Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
+Some EUtilities (C<epost>, C<esearch>, or C<elink>) retain information on
 the NCBI server under certain settings.  This information can be retrieved by
-using a B<cookie>.  Here, the idea of the 'cookie' is similar to the 'cookie' set
-on a user's computer when browsing the Web.  XML data returned by these
-EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
-and 'query_key' tags to be specific)  The information along with other identifying
-data, such as the calling eutility, description of query, etc.) is stored as a
-L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal
-queue.  These can be retrieved one at a time by using the next_cookie method or
-all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
-one at a time, to another EUtility object, thus enabling chained queries as
-demonstrated in the synopsis.
+using a B<cookie>.  Here, the idea of the 'cookie' is similar to the '
+cookie' set on a user's computer when browsing the Web.  XML data returned
+by these EUtilities, when applicable, is parsed for the cookie information
+(the 'WebEnv' and 'query_key' tags to be specific)  The information along
+with other identifying data, such as the calling eutility, description
+of query, etc.) is stored as a
+L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object
+in an internal queue.  These can be retrieved one at a time by using
+the next_cookie method or all at once in an array using get_all_cookies.
+Each cookie can then be 'fed', one at a time, to another EUtility object,
+thus enabling chained queries as demonstrated in the synopsis.
 
 For more information, see the POD documentation for
 L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie>.
 
 =head1 TODO
 
-Resetting internal parameters is planned so one could feasibly reuse the objects
-once instantiated, such as if one were to use this as a replacement for
-LWP::UserAgent when retrieving responses i.e. when using many of the Bio::DB
-NCBI-related modules.
+Resetting internal parameters is planned so one could feasibly reuse
+the objects once instantiated, such as if one were to use this as a
+replacement for LWP::UserAgent when retrieving responses i.e. when
+using many of the Bio::DB* NCBI-related modules.
 
-File and filehandle support to be added
+File and filehandle support to be added.
+
+Switch over XML parsing in most EUtilities to XML::SAX (currently
+use XML::Simple)
 
 Any feedback is welcome.
 
@@ -369,10 +375,10 @@ sub rewind_cookies {
     $self->{'_cookieindex'} = 0;
 }
 
-=head2 retain_cookies
+=head2 keep_cookies
 
- Title   : retain_cookies
- Usage   : $db->retain_cookie(1)
+ Title   : keep_cookies
+ Usage   : $db->keep_cookie(1)
  Function: Flag to retain the internal cookie queue;
            this is normally emptied upon using get_response
  Returns : none
@@ -425,6 +431,7 @@ sub get_response {
     return $response;
 }
 
+# not implemented yet
 #=head2 reset_parameters
 #
 # Title   : reset_parameters
@@ -452,7 +459,7 @@ sub get_response {
  Usage   : $count = $elink->get_ids($db); # array ref of specific db ids
            @ids   = $esearch->get_ids(); # array
            $ids   = $esearch->get_ids(); # array ref
- Function: returns an array or array ref of IDs.
+ Function: returns an array or array ref of unique IDs.
  Returns : array or array ref of ids 
  Args    : Optional : database string if elink used (required arg if searching
            multiple databases for related IDs)
@@ -557,7 +564,7 @@ sub _add_db_ids {
 
  Title   : _eutil
  Usage   : $db->_eutil;
- Function: sets eutils 
+ Function: sets eutil 
  Returns : eutil
  Args    : eutil
 

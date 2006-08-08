@@ -204,7 +204,7 @@ sub entrezdb_link_info {
 
 =cut
 
-sub last_update {
+sub entrezdb_last_update {
     my $self = shift;
     return $self->{'_einfo_lastupdate'};
 }
