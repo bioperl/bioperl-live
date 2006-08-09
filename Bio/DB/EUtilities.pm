@@ -470,16 +470,14 @@ sub get_response {
 sub get_ids {
     my $self = shift;
     my $user_db = shift if @_;
-    if ($self->can('next_linkset')) {
+    if ($self->can('get_all_linksets')) {
         my $querydb = $self->db;
-        if (!$user_db && ($querydb eq 'all' || $querydb =~ /,/) ) {
+        if (!$user_db && ($querydb eq 'all' || $querydb =~ m{,}) ) {
             $self->throw(q(Multiple databases searched; must use a specific ).
                          q(database as an argument.) );
         }
         
-        # get_all_linksets returns the first linkset on scalar; trick it into
-        # getting the total linksets
-        my $count = my @arr = $self->get_all_linksets ;
+        my $count = $self->get_linkset_count;
         if ($count == 0) {
             $self->throw( q(No linksets!) );
         }

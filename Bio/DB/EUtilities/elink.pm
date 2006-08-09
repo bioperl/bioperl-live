@@ -460,6 +460,7 @@ sub _initialize {
 	$multi_id	&& $self->multi_id($multi_id);
     $self->{'_linksetindex'} = 0;
     $self->{'_linksets'} = [];
+    $self->{'_ls_ct'} = 0;
 }
 
 =head2 parse_response
@@ -579,14 +580,16 @@ sub next_linkset {
  Title   : get_all_linksets
  Usage   : @ls = $elink->get_all_linksets;
  Function: returns array of Bio::DB::EUtilities::ElinkData objects
- Returns : array of Bio::DB::EUtilities::ElinkData objects
+ Returns : array or array ref of Bio::DB::EUtilities::ElinkData objects
+           based on wantarray
  Args    : None
 
 =cut
 
 sub get_all_linksets {
     my $self = shift;
-    return @{ $self->{'_linksets'} };
+    return @{ $self->{'_linksets'} } if wantarray;
+    return $self->{'_linksets'};
 }
 
 =head2 reset_linksets
@@ -603,6 +606,7 @@ sub reset_linksets{
     my $self = shift;
     $self->{'_linksets'} = [];
     $self->rewind_linksets;
+    $self->{'_ls_ct'} = 0;
 }
 
 =head2 rewind_linksets
@@ -618,6 +622,21 @@ sub reset_linksets{
 sub rewind_linksets{
     my $self = shift;
     $self->{'_linksetindex'} = 0;
+}
+
+=head2 get_linkset_count
+
+ Title   : get_linkset_count
+ Usage   : $ct = $elink->get_linkset_count;
+ Function: returns total # of linksets in Elink object
+ Returns : Integer (# linksets)
+ Args    : None
+
+=cut
+
+sub get_linkset_count {
+    my $self = shift;
+    return $self->{'_ls_ct'};
 }
 
 # holds and changes linkset index for next_linkset
@@ -636,7 +655,7 @@ sub _add_linkset {
         $self->throw("Expecting a Bio::DB::EUtilities::ElinkData, got $data_links.")
           unless $data_links->isa("Bio::DB::EUtilities::ElinkData");
         push @{ $self->{'_linksets'} }, $data_links;
-        $self->{'_tot_linksets'}++;
+        $self->{'_ls_ct'}++;
     }
 }
 
