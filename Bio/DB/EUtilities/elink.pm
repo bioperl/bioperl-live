@@ -530,8 +530,8 @@ sub parse_response {
             my $linkobj = Bio::DB::EUtilities::ElinkData->new
                                 (-verbose => $self->verbose,
                                  -command =>$cmd);
-            $linkobj->_add_set($linkset);
-            $self->_add_linkset($linkobj);
+            my $status = $linkobj->_add_set($linkset);
+            $self->_add_linkset($linkobj) if $status;
         }
     } else {
         $self->debug("$cmd not yet supported; no parsing occurred");

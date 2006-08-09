@@ -86,6 +86,8 @@ sub _add_set {
     if (!$ls) {
         $self->throw('No linkset data!');
     }
+    # is there any data returned
+    return 0 unless exists $ls->{LinkSetDb};
     my $dbfrom = $ls->{DbFrom};
     $self->dbfrom($dbfrom);
     my $query_ids = $ls->{IdList}->{Id};
@@ -96,7 +98,6 @@ sub _add_set {
     $self->query_ids($query_ids);
     
     my $ct = 0;
-    
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
         $ct++;
         my $dbto = $ls_db->{DbTo} ;
@@ -128,11 +129,8 @@ sub _add_set {
                        'Id'       => \@ids,
                       };
         #$self->debug('Linkset:',Dumper($linkset));
-        push @{ $self->{'_linksetdb'}}, $linkset;    
-    }
-    
-    if (!$ct) {
-        $self->warn('No databases returned; no IDs found');
+        push @{ $self->{'_linksetdb'}}, $linkset;
+        return 1; # good linkset
     }
 }
 

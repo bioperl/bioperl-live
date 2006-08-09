@@ -490,7 +490,8 @@ sub get_ids {
         }
         else {
             $self->throw( q(Multiple linkset objects present; can't use get_ids.).
-                 qq(\nUse get_all_linksets/get_databases/get_LinkIds_by_db ));
+                 qq(\nUse get_all_linksets/get_databases/get_LinkIds_by_db ).
+                 qq(\n$count total linksets ));
         }
     }
     if ($self->{'_db_ids'}) {
