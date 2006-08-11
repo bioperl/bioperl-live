@@ -105,10 +105,17 @@ See L<Bio::Factory::ObjectFactoryI> for more information
 sub new { 
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($hspF,$hitF,$resultF) = $self->_rearrange([qw(HIT_FACTORY
+    my ($hitF,$resultF) = $self->_rearrange([qw(HIT_FACTORY
 						      RESULT_FACTORY)],@args);
-    $self->register_factory('hit', $hitF || Bio::Search::Hit::HitFactory->new());
-    $self->register_factory('result', $resultF || Bio::Search::Result::ResultFactory->new());
+    $self->register_factory('hit', $hitF ||
+                            Bio::Factory::ObjectFactory->new(
+                                      -type      => 'Bio::Search::Hit::GenericHit',
+                                      -interface => 'Bio::Search::Hit::HitI'));
+
+    $self->register_factory('result', $resultF ||
+                            Bio::Factory::ObjectFactory->new(
+                                      -type      => 'Bio::Search::Result::GenericResult',
+                                      -interface => 'Bio::Search::Result::ResultI'));
 
     return $self;
 }
