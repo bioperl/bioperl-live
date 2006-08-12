@@ -18,7 +18,7 @@ BEGIN {
     }
     use Test;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 25;
+    $TESTCOUNT = 29;
     plan tests => $TESTCOUNT;
 }
 
@@ -192,6 +192,24 @@ my $BFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'b')));
 ok($BFSorder, '0,1,3,2,C,D,E,F,G,H,A,B');
 my $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 ok($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H');
+
+
+# test some Bio::Tree::TreeFunctionI methods
+#find_node tested extensively already
+$tree->remove_Node('H');
+$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+ok($DFSorder, '0,1,2,A,B,C,D,3,E,F,G');
+#get_lineage_nodes tested during get_lca
+$tree->splice(-remove_id => 'G');
+$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+ok($DFSorder, '0,1,2,A,B,C,D,3,E,F');
+$tree->splice(-remove_id => [('E', 'F')], -keep_id => 'F');
+$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+ok($DFSorder, '0,1,2,A,B,C,D,F');
+$tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
+$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+ok($DFSorder, '0,1,2,A,B,C,D');
+#get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
 
 __DATA__
 (D,(C,(A,B)));
