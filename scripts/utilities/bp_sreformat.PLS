@@ -5,16 +5,12 @@
 #          you have to specify the input format rather than letting
 #          the application guess.
 
-# TODO - support STDIN/STDOUT piping?
-#      - finish POD
-#      - stress test
-
 use strict;
 use Bio::SeqIO;
 use Bio::AlignIO;
 use Getopt::Long;
 
-my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
+my $USAGE = "bp_sreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
 
 -h/--help               Print this help
 -if/--informat          Specify the input format
@@ -28,9 +24,9 @@ my $USAGE = "bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
                         Comma or space separated please.
                         These include:
                         nointerleaved   -- for phylip,non-interleaved format
-                        idlinebreak       -- for phylip, makes it molphy format
+                        idlinebreak     -- for phylip, makes it molphy format
                         percentages     -- for clustalw, show % id per line
-	                flat            -- don't show start-end in seqid
+                        flat            -- don't show start-end in seqid
                         linelength      -- line length for clustalw
 ";
 
