@@ -1,7 +1,7 @@
 # These are modules which are deprecated and later removed from the toolkit
                           Version    Version 
 Deprecated Modules       Deprecated  Removed Comment
--------------------------------------------------------------
+--------------------------------------------------------------------------------
 Bio::Annotation               1.0      1.1    use Bio::Annotation::Collection
 Bio::Tools::Blast             1.0      1.1    use Bio::SearchIO
 Bio::Tools::Blast::HSP        1.0      1.1    use Bio::Search::HSP::GenericHSP
@@ -12,3 +12,8 @@ Bio::UnivAln                  1.0      1.1    use Bio::SimpleAlign
 Bio::Tools::RestrictionEnzyme 1.5      -      use Bio::Restriction
 Bio::Tools::BPlite            1.5      -      use Bio::SearchIO
 Bio::Ontology::SimpleGOEngine 1.5.1    -      use Bio::Ontology::OBOEngine
+Bio::Taxonomy                 1.5.1    -      use Bio::Taxon & Bio::Tree::Tree
+Bio::Taxonomy::Node           1.5.1    -      renamed Bio::Taxon
+Bio::Taxonomy::Taxon          1.5.1    -      use Bio::Taxon
+Bio::Taxonomy::Tree           1.5.1    -      use Bio::Taxon & Bio::Tree::Tree
+Bio::Taxonomy::FactoryI       1.5.1    -      Redundant, no implementors
