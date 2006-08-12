@@ -145,6 +145,7 @@ if (Bio::DB::FileCache->can('new')) {
    $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
 												-keep  => 1,
 												-file  => 'filecache.idx');
+   # problem:
    my $seq = $cache->get_Seq_by_id('AI129902');
    ok ( $seq);
    ok ( $seq->length, 37);

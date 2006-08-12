@@ -22,8 +22,8 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-
-    plan tests => 9;
+    
+    plan tests => 13;
 }
 
 use Bio::Species;
@@ -59,3 +59,10 @@ my $species = new Bio::Species( -classification =>
 				      Chordata Metazoa Eukaryota) ] );
 ok( $species);
 ok $species->binomial(), 'Homo sapiens';
+ok $species->species, 'sapiens';
+ok $species->genus, 'Homo';
+
+
+# A Bio::Species isa Bio::Taxon, so test some things from there briefly
+ok $species->scientific_name, 'sapiens';
+ok $species->rank, 'species';

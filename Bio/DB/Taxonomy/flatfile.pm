@@ -55,8 +55,6 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Sendu Bala: bix@sendu.me.uk
@@ -77,8 +75,7 @@ use vars qw(@ISA $DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX
 	    $NCBI_TAXONOMY_FILE @DIVISIONS);
 use strict;
 use Bio::DB::Taxonomy;
-use Bio::Taxonomy::Node;
-use Bio::Species;
+use Bio::Taxon;
 use DB_File;
 
 use constant SEPARATOR => ':';
@@ -106,7 +103,7 @@ $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
                 [qw(VRT Vertebrates)],
                 [qw(ENV 'Environmental samples')]);
 
-@ISA = qw( Bio::DB::Taxonomy );
+@ISA = qw(Bio::DB::Taxonomy);
 
 =head2 new
 
@@ -141,64 +138,61 @@ sub new {
 
 =cut
 
-=head2 get_Taxonomy_Node
+=head2 get_taxon
 
- Title   : get_Taxonomy_Node
- Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxaid)
- Function: Get a Bio::Taxonomy::Node object for a taxonid
- Returns : Bio::Taxonomy::Node object
- Args    : -taxonid => taxonomy id (to query by taxonid)
+ Title   : get_taxon
+ Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
+ Function: Get a Bio::Taxon object from the database.
+ Returns : Bio::Taxon object
+ Args    : just a single value which is the database id, OR named args:
+           -taxonid => taxonomy id (to query by taxonid)
             OR
-           -name   => string (to query by a taxonomy name: common name, 
-                              species, genus, etc)
-
-See L<Bio::Taxonomy::Taxon>
+           -name    => string (to query by a taxonomy name: common name, 
+                               scientific name, etc)
 
 =cut
 
-sub get_Taxonomy_Node {
-   my ($self) = shift;
-   my (%item,$taxonid,$name);
-
-   if( @_ > 1 ) {
-       ($taxonid,$name) = $self->_rearrange([qw(TAXONID NAME)],@_);
-       if ($name) {
-            ($taxonid, my @others) = $self->get_taxonid($name);
+sub get_taxon {
+    my ($self) = shift;
+    my ($taxonid, $name);
+ 
+    if (@_ > 1) {
+        ($taxonid, $name) = $self->_rearrange([qw(TAXONID NAME)],@_);
+        if ($name) {
+            ($taxonid, my @others) = $self->get_taxonids($name);
             $self->warn("There were multiple ids ($taxonid @others) matching '$name', using '$taxonid'") if @others > 0;
-       }
-   } else {  
-       $taxonid = shift;
-   }
-   
-   my (@fields,$node,$taxonnode);
-   my $first = 1;
-   my @classification;
-   while( defined ($node = $self->{'_nodes'}->[$taxonid]) && length($node) ) {
-       my ($taxid,$parent,$rank,$code,$divid,$gen_code,$mito) = split(SEPARATOR,$node);
-       my ($taxon_names) = $self->{'_id2name'}->[$taxid];
-       my ($sci_name, @common_names) = split(SEPARATOR, $taxon_names);
-       
-       if ($first) {
-	   $taxonnode = new Bio::Taxonomy::Node(-dbh       => $self,
-						-name      => $sci_name,
+        }
+    }
+    else {  
+        $taxonid = shift;
+    }
+    
+    $taxonid =~ /^\d+$/ || return;
+    my $node = $self->{'_nodes'}->[$taxonid];
+    length($node) || return;
+    my ($taxid, undef, $rank, $code, $divid, $gen_code, $mito) = split(SEPARATOR,$node);
+    last unless defined $taxid;
+    my ($taxon_names) = $self->{'_id2name'}->[$taxid];
+    my ($sci_name, @common_names) = split(SEPARATOR, $taxon_names);
+    
+    my $taxon = new Bio::Taxon(
+                        -name         => $sci_name,
                         -common_names => [@common_names],
-						-object_id => $taxid,
-						-parent_id => $parent,
-						-rank      => $rank,
-						-division  => $DIVISIONS[$divid]->[1],
+                        -object_id    => $taxid,
+                        -rank         => $rank,
+                        -division     => $DIVISIONS[$divid]->[1],
                         -genetic_code => $gen_code,
                         -mito_genetic_code => $mito );
-	   $first = 0;
-       }
-       
-       push @fields, $sci_name if ($rank && $rank ne 'no rank');
-       last if ! defined $parent || $parent == 1 || ! $taxid;
-       $taxonid = $parent;
-   }
-   $taxonnode->classification(@fields) if defined $taxonnode;
-   
-   return $taxonnode;
+    # we can't use -dbh or the db_handle() method ourselves or we'll go
+    # infinite on the merge attempt
+    $taxon->{'db_handle'} = $self;
+    
+    $self->_handle_internal_id($taxon);
+    
+    return $taxon;
 }
+
+*get_Taxonomy_Node = \&get_taxon;
 
 =head2 get_taxonids
 
@@ -208,7 +202,7 @@ sub get_Taxonomy_Node {
            string. Note that multiple taxonids can match to the same supplied
            name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxanomic (node) name
+ Args    : string representing taxon's name
 
 =cut
 
@@ -225,16 +219,16 @@ sub get_taxonids {
 
  Title   : get_Children_Taxids
  Usage   : my @childrenids = $db->get_Children_Taxids 
- Function: Get the children of a node in the taxonomy
+ Function: Get the ids of the children of a node in the taxonomy
  Returns : Array of Ids
- Args    : Bio::Taxonomy::Node or a taxon_id
-
-See L<Bio::Taxonomy::Node>
+ Args    : Bio::Taxon or a taxon_id
+ Status  : deprecated (use each_Descendent())
 
 =cut
 
 sub get_Children_Taxids {
    my ($self,$node) = @_;
+   $self->warn("get_Children_Taxids is deprecated, use each_Descendent instead");
    my $id;
    if( ref($node) ) {
        if( $node->can('object_id') ) {
@@ -248,6 +242,58 @@ sub get_Children_Taxids {
    } else { $id = $node }
    my @vals = $self->{'_parentbtree'}->get_dup($id);
    return @vals;
+}
+
+=head2 ancestor
+
+ Title   : ancestor
+ Usage   : my $ancestor_taxon = $db->ancestor($taxon)
+ Function: Retrieve the full ancestor taxon of a supplied Taxon from the
+           database. 
+ Returns : Bio::Taxon
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub ancestor {
+    my ($self, $taxon) = @_;
+    $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
+    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
+    
+    my $node = $self->{'_nodes'}->[$id];
+    if (length($node)) {
+        my (undef, $parent_id) = split(SEPARATOR,$node);
+        $parent_id || return;
+		$parent_id eq $id && return; # one of the roots
+        return $self->get_taxon($parent_id);
+    }
+    return;
+}
+
+=head2 each_Descendent
+
+ Title   : each_Descendent
+ Usage   : my @taxa = $db->each_Descendent($taxon);
+ Function: Get all the descendents of the supplied Taxon (but not their
+           descendents, ie. not a recursive fetchall).
+ Returns : Array of Bio::Taxon objects
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub each_Descendent {
+    my ($self, $taxon) = @_;
+    $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
+    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
+	
+    my @desc_ids = $self->{'_parentbtree'}->get_dup($id);
+    my @descs;
+    foreach my $desc_id (@desc_ids) {
+        push(@descs, $self->get_taxon($desc_id) || next);
+    }
+	return @descs;
 }
 
 =head2 Helper methods 
@@ -283,6 +329,12 @@ sub _build_index {
         while (<NODES>) {
             chomp;
             my ($taxid,$parent,$rank,$code,$divid,undef,$gen_code,undef,$mito) = split(/\t\|\t/,$_);
+			# don't include the fake root node 'root' with id 1; we essentially have multiple roots here
+			next if $taxid == 1;
+			if ($parent == 1) {
+				$parent = $taxid;
+			}
+			
             # keep this stringified
             $nodes[$taxid] = join(SEPARATOR, ($taxid,$parent,$rank,$code,$divid,$gen_code,$mito));
             $btree->put($parent,$taxid);
@@ -309,6 +361,9 @@ sub _build_index {
         while (<NAMES>) {
             chomp;	    
             my ($taxid, $name, $unique_name, $class) = split(/\t\|\t/,$_);
+			# don't include the fake root node 'root' or 'all' with id 1
+			next if $taxid == 1;
+			
             $class =~ s/\s+\|\s*$//;
             my $lc_name = lc($name);
             my $orig_name = $name;

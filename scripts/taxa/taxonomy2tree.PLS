@@ -9,6 +9,11 @@ taxonomy2tree - Building a taxonomic tree based on the full lineages of a set of
 taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s Human
 taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s "Homo Sapiens"
 
+Can also provide -d to specific the directory to store index files in, -o to
+specific the location of your nodes file, and -a for the names file.
+Or the option -e to use the web-based entrez taxonomy database if you don't
+have the flatfiles installed.
+
 This script requires that the bioperl-run pkg be also installed.
 
 Providing the nodes.dmp and names.dmp files from the NCBI Taxonomy
@@ -18,9 +23,10 @@ take quite a long time.  However once created, these indexes will
 allow fast access for species to taxon id OR taxon id to species name
 lookups.
 
-=head1 AUTHOR - Gabriel Valiente
+=head1 AUTHOR - Gabriel Valiente, reimplemented by Sendu Bala
 
 Email valiente@lsi.upc.edu
+Email bix@sendu.me.uk
 
 =cut
 
@@ -31,80 +37,49 @@ use Bio::Tree::Compatible;
 use Getopt::Long;
 
 my @species;
-
-# the input to the script is an array of species names
-
-GetOptions('s|species=s' => \@species);
-
+my $index_dir = "./db/";
 my $nodesfile = "nodes.dmp";
 my $namesfile = "names.dmp";
-my $db = new Bio::DB::Taxonomy(-source => 'flatfile',
-                               -directory => "./db/",
+my $use_entrez = 0;
+
+# the input to the script is an array of species names
+GetOptions('s|species=s' => \@species, 'd|dir:s' => \$index_dir, 'o|nodesfile:s' => \$nodesfile, 'a|namesfile:s' => \$namesfile, 'e|entrez' => \$use_entrez);
+
+
+my $db = new Bio::DB::Taxonomy(-source => $use_entrez ? 'entrez' : 'flatfile',
+                               -directory => $index_dir,
                                -nodesfile => $nodesfile,
                                -namesfile => $namesfile);
 
-my $root = new Bio::Tree::Node(-id => "root");
-my $tree = new Bio::Tree::Tree(-root => $root);
-
-# the full lineages of the species are merged into a tree
-
+# the full lineages of the species are merged into a single tree
+my $tree;
 for my $name (@species) {
   my $ncbi_id = $db->get_taxonid($name);
   if ($ncbi_id) {
-    my $node = $db->get_Taxonomy_Node(-taxonid => $ncbi_id);
-    my @lineage = $node->get_Lineage_Nodes;
-    shift @lineage; # discard root
-    push @lineage, $node;
-    merge_path($root, \@lineage);
-  } else {
+    my $node = $db->get_taxon(-taxonid => $ncbi_id);
+    
+    if ($tree) {
+      $tree->merge_lineage($node);
+    }
+    else {
+      $tree = new Bio::Tree::Tree(-node => $node);
+    }
+  }
+  else {
     warn "no NCBI Taxonomy node for species ",$name,"\n";
   }
 }
 
 # simple paths are contracted by removing degree one nodes
+$tree->contract_linear_paths;
 
-for my $node (@{$tree->Bio::Tree::Compatible::postorder_traversal}) {
-  my $parent = $node->ancestor;
-  if ($parent and $parent->ancestor) {
-    if (scalar($parent->each_Descendent) == 1) {
-      $parent->ancestor->add_Descendent($node);
-      $parent->ancestor->remove_Descendent($parent);
-      $node->branch_length(undef);
-    }
-  }
+# convert tree ids to their names for nice output with TreeIO
+foreach my $node ($tree->get_nodes) {
+  $node->id($node->node_name);
 }
 
 # the tree is output in Newick format
-
 my $output = new Bio::TreeIO(-format => 'newick');
 $output->write_tree($tree);
-
-# the actual merging of full lineages is performed by a recursive method
-
-sub merge_path {
-  my $root = shift;
-  my $path = shift;
-  my @path = @{$path};
-  if (@path) {
-    my $top = shift @path;
-    my @children = grep { $_->id eq $top->node_name } $root->each_Descendent;
-    if (@children) {
-      # $root has a $child with id eq $top name
-      my $child = shift @children;
-      merge_path($child,\@path);
-    } else {
-      # add $top and @path below $root
-      my $node = $root;
-      unshift @path, $top;
-      while (@path) {
-        my $top = shift @path;
-        my $name = $top->node_name;
-        my $child = new Bio::Tree::Node(-id => "$name");
-        $node->add_Descendent($child);
-        $node = $child;
-      }
-    }
-  }
-}
 
 1;

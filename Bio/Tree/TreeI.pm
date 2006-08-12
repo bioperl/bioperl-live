@@ -55,8 +55,9 @@ Email jason@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Aaron Mackey amackey@virginia.edu
-Elia Stupka, elia@fugu-sg.org
+Aaron Mackey, amackey@virginia.edu
+Elia Stupka,  elia@fugu-sg.org
+Sendu Bala,   bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -112,11 +113,9 @@ sub get_root_node{
 
  Title   : number_nodes
  Usage   : my $size = $tree->number_nodes
- Function: Returns the number of nodes
- Example :
- Returns : 
- Args    :
-
+ Function: Find the number of nodes in the tree.
+ Returns : int
+ Args    : none
 
 =cut
 
@@ -124,7 +123,7 @@ sub number_nodes{
    my ($self) = @_;
    my $root = $self->get_root_node;
    if( defined $root && $root->isa('Bio::Tree::NodeI'))  {
-       return $root->descendent_count;
+       return ($root->descendent_count + 1);
    }
    return 0;
 }

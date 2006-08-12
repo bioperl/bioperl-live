@@ -14,6 +14,9 @@ Bio::Taxonomy - representing Taxonomy.
 
 =head1 SYNOPSIS
 
+  NB: This module is deprecated. Use Bio::Taxon in combination with
+  Bio::Tree::Tree methods instead.
+
   use Bio::Taxonomy;
 
   # CREATION: You can either create an instance by assigning it, 
@@ -172,6 +175,7 @@ sub new {
    my ($class,@args) = @_;
 
    my $self = $class->SUPER::new(@args);
+   $self->warn("Bio::Taxonomy is deprecated. Use Bio::Taxon in combination with Bio::Tree::Tree instead.");
 
    $self->{'_method'}='none';
    $self->{'_ranks'}=[];

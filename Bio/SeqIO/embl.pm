@@ -448,7 +448,7 @@ sub _write_ID_line {
 	else {
 		
 		# The sequence name is supposed to be the primary accession number,
-		my $name = $seq->accession();
+		my $name = $seq->accession_number();
 		if (!$name) {
 			# but if it is not present, use the sequence ID.
 			$name = $seq->id();
@@ -499,6 +499,7 @@ sub _write_ID_line {
 			$topology = 'circular';
 		}
 		
+        $mol ||= '';# 'unassigned'; ?
 		$id_line = "ID   $name; SV $version; $topology; $mol; STD; $div; $len BP.\nXX\n";
 		$self->_print($id_line);
 	}
@@ -1009,6 +1010,9 @@ sub _read_EMBL_Species {
     }
     elsif ($class[$#class] eq $genus) {
         push( @class, $species );
+    }
+    elsif ($class[$#class] eq "$genus $species") {
+        # no nothing    
     } else {
         push( @class, $genus, $species );
     }

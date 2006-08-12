@@ -14,6 +14,9 @@ Bio::Taxonomy::Tree - An Organism Level Implementation of TreeI interface.
 
 =head1 SYNOPSIS
 
+    NB: This module is deprecated. Use Bio::Taxon in combination with
+    Bio::Tree::Tree instead
+
     # like from a TreeIO
     my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
     my $tree = $treeio->next_tree;
@@ -140,6 +143,8 @@ sub new {
   my($class,@args) = @_;
   
   my $self = $class->SUPER::new(@args);
+  $self->warn("Bio::Taxonomy::Tree is deprecated. Use Bio::Taxon in combination with Bio::Tree::Tree instead.");
+  
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
 

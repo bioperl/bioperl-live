@@ -91,12 +91,12 @@ Internal methods are usually preceded with a _
 package Bio::DB::Taxonomy::entrez;
 use vars qw(@ISA $EntrezLocation $UrlParamSeparatorValue %EntrezParams
 	    $EntrezGet $EntrezSummary $EntrezFetch %SequenceParams
-	    $XMLTWIG);
+	    $XMLTWIG $DATA_CACHE $RELATIONS);
 use strict;
 
 use Bio::DB::Taxonomy;
 use Bio::Root::HTTPget;
-use Bio::Taxonomy::Node;
+use Bio::Taxon;
 
 eval {
     require XML::Twig;
@@ -111,6 +111,9 @@ $EntrezLocation = 'http://www.ncbi.nih.gov/entrez/eutils/';
 $EntrezGet      = 'esearch.fcgi';
 $EntrezFetch    = 'efetch.fcgi';
 $EntrezSummary  = 'esummary.fcgi';
+
+$DATA_CACHE = {};
+$RELATIONS  = {};
 
 %EntrezParams = ( 'db'     => 'taxonomy', 
                   'report' => 'xml',
@@ -154,161 +157,221 @@ sub _initialize {
   $self->entrez_url($location || $EntrezLocation );
 }
 
-=head2 get_Taxonomy_Node
+=head2 get_taxon
 
- Title   : get_Taxonomy_Node
- Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
- Function: Get a Bio::Taxonomy::Node object
- Returns : Bio::Taxonomy::Node object(s) - in list context will return an array,
-           in scalar context will return one of the Nodes.
- Args    : -taxonid => taxonomy id (to query by taxonid)
+ Title   : get_taxon
+ Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
+ Function: Get a Bio::Taxon object from the database.
+ Returns : Bio::Taxon object
+ Args    : just a single value which is the database id, OR named args:
+           -taxonid => taxonomy id (to query by taxonid)
             OR
-           -name   => string (to query by a taxonomy name: common name,
-                              species, genus, etc)
-           or just a single value which is the taxid.
-
-           To retrieve a taxonomy node for a GI number
-           provide the -gi option with the gi number
-            and -db with either 'nucleotide' or 'protein'
-            to define the db 
+           -name    => string (to query by a taxonomy name: common name, 
+                               scientific name, etc)
+            OR
+           To retrieve a taxonomy node for a GI number provide the -gi option
+           with the gi number and -db with either 'nucleotide' or 'protein' to
+           define the db.
+            AND optionally,
+           -full    => 1 (to force retrieval of full information - sometimes
+                          minimal information about your taxon may have been
+                          cached, which is normally used to save database
+                          accesses)
 
 =cut
 
-sub get_Taxonomy_Node {
-   my ($self) = shift;
-   if( ! $XMLTWIG ) {
-       $self->throw("Need to have installed XML::Twig");
-   }
-
-   my %p = $self->entrez_params;
-   my $taxonid;
-   if( @_ > 1 ) {
-       my %params = @_;
-       if( $params{'-taxonid'} ) {
-	   $taxonid = $params{'-taxonid'};
-       } elsif( $params{'-gi'} ) {
-	   my $db = $params{'-db'};
-	   # we're going to do all the work here and then redirect
-	   # the call based on the TaxId
-	   my %p = %SequenceParams;
-	   my %items;
-	   if( ref($params{'-gi'}) =~ /ARRAY/i ) {	       
-	       $p{'id'} = join(',', @{$params{'-gi'}});
-	   } else { 
-	       $p{'id'} = $params{'-gi'}; 
-	   }
-	   $p{'db'} = $db if defined $db;
-	   my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-	   my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezSummary,$params);
-	   $self->debug("url is $url\n");
-	   my $response;
-	   eval {
-	       $response = $self->get($url);
-	   };
-	   if( $@ ) {
-	       $self->throw("Can't query website: $@");
-	   }
-	   $self->debug("resp is $response\n");
-	   my $twig = XML::Twig->new;
-	   $twig->parse($response);
-	   my $root = $twig->root;
-	   my @ids;
-	   for my $topnode ( $root->children('DocSum') ) {
-	       for my $child ( $topnode->children('Item') ) {
-		   if( uc($child->{att}->{'Name'}) eq 'TAXID' ) {
-		       push @ids, $child->text;
-		   }
-	       }
-	   }
-	   return $self->get_Taxonomy_Node(-taxonid => \@ids);
-       } elsif( $params{'-name'} ) {
-	   my @taxaids = $self->get_taxonid($params{'-name'});
-	   $taxonid = join(",", @taxaids);
-       } else { 
-	   $self->warn("Need to have provided either a -taxonid or -name value to get_Taxonomy_Node");
-       } 
-   } else { 
-       $taxonid= shift;
-   }
-   if( ref($taxonid) =~ /ARRAY/i ) {
-       $taxonid = join(',', @$taxonid);
-   }
-   $p{'id'}      = $taxonid;
-   $self->debug("id is $taxonid\n");
-   my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-   my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezFetch,$params);
-   $self->debug("url is $url\n");
-   my $response;
-   eval {
-       $response = $self->get($url);
-   };
-   if( $@ ) {
-       $self->throw("Can't query website: $@");
-   }
-   $self->debug("resp is $response\n");
-   my $twig = XML::Twig->new;
-   $twig->parse($response);
-   my $root = $twig->root;        
-   my @results;
-   for my $taxon ( $root->children('Taxon') ) {
-       my %init = ('-dbh'            => $self,
-		   '-rank'           => '',
-		   '-classification' => []);
-       
-       for my $child ( $taxon->children ) {
-	   my $name = uc ($child->gi);
-	   if( $name eq 'OTHERNAMES' ) {
-	       $init{'-common_names'} = [$child->children_text()];
-	   } elsif( $name eq 'TAXID' ) {
-	       $init{'-object_id'} = $child->text;
-	   } elsif( $name eq 'PARENTTAXID' ) {
-	       $init{'-parent_id'} = $child->text;
-	   } elsif( $name eq 'DIVISION' ) {
-	       $init{'-division'} = $child->text;
-	   } elsif( $name eq 'RANK' ) {
-	       $init{'-rank'} = $child->text;
-	   } elsif( $name eq 'GENETICCODE' ) {
-	       ($init{'-genetic_code'}) = ( map { $_->text } 
-					    $child->children('GCId'));
-	   } elsif( $name eq 'MITOGENETICCODE' ) {
-	       ($init{'-mito_genetic_code'}) = ( map { $_->text } 
-						 $child->children('MGCId'));
-	   } elsif( $name eq 'CREATEDATE' ) {
-	       $init{'-create_date'} = $child->text;
-	   } elsif( $name eq 'UPDATEDATE' ) {
-	       $init{'-update_date'} = $child->text;
-	   } elsif( $name eq 'PUBDATE' ) {
-	       $init{'-pub_date'} = $child->text;
-	   } elsif( $name eq 'LINEAGEEX' ) {
-	       for my $taxon ( $child->children('Taxon') ) {
-		   my ($id) = map { $_->text } $taxon->children('TaxId');
-		   my ($sname) = map { $_->text } $taxon->children('ScientificName');
-		   my ($rank) = map { $_->text } $taxon->children('Rank');
-		   next if( $rank eq 'no rank' );
-		   unshift @{$init{'-classification'}}, $sname;
-	       }
-	   } elsif( $name eq 'SCIENTIFICNAME' ) {
-           my $sci_name = $child->text;
-           my $orig_sci_name = $sci_name;
-           $sci_name =~ s/ \(class\)$//;
-           push(@{$init{'-common_names'}}, $orig_sci_name) if $orig_sci_name ne $sci_name;
-           $init{'-name'} = $sci_name;
-	   } 
-       }
-       
-       if( ! $init{'-object_id'} ) { 
-	   $self->warn("Could not find any value for $taxonid");
-	   return;
-       }
-       
-       unless ($init{'-rank'} eq 'no rank') {
-            unshift @{$init{'-classification'}}, $init{'-name'};	   
-       }
-       
-       push @results, Bio::Taxonomy::Node->new(%init);
-   }
-   ( wantarray ) ? @results : shift @results;
+sub get_taxon {
+    my $self = shift;
+    if (! $XMLTWIG) {
+        $self->throw("Need to have installed XML::Twig");
+    }
+    
+    my %p = $self->entrez_params;
+    
+    # convert input request to one or more ids
+    my (@taxonids, $taxonid, $want_full);
+    if (@_ > 1) {
+        my %params = @_;
+        if ($params{'-taxonid'}) {
+            $taxonid = $params{'-taxonid'};
+        }
+        elsif ($params{'-gi'}) {
+            my $db = $params{'-db'};
+            # we're going to do all the work here and then redirect
+            # the call based on the TaxId
+            my %p = %SequenceParams;
+            my %items;
+            if( ref($params{'-gi'}) =~ /ARRAY/i ) {	       
+                $p{'id'} = join(',', @{$params{'-gi'}});
+            } else { 
+                $p{'id'} = $params{'-gi'}; 
+            }
+            $p{'db'} = $db if defined $db;
+            my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
+            my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezSummary,$params);
+            $self->debug("url is $url\n");
+            
+            my @ids;
+            if (exists $DATA_CACHE->{gi_to_ids}->{$url}) {
+                @ids = @{$DATA_CACHE->{gi_to_ids}->{$url}};
+            }
+            else {
+                my $response;
+                eval {
+                    $response = $self->get($url);
+                };
+                if( $@ ) {
+                    $self->throw("Can't query website: $@");
+                }
+                $self->debug("resp is $response\n");
+                my $twig = XML::Twig->new;
+                $twig->parse($response);
+                my $root = $twig->root;
+                
+                for my $topnode ( $root->children('DocSum') ) {
+                    for my $child ( $topnode->children('Item') ) {
+                        if( uc($child->{att}->{'Name'}) eq 'TAXID' ) {
+                            push @ids, $child->text;
+                        }
+                    }
+                }
+                
+                $DATA_CACHE->{gi_to_ids}->{$url} = \@ids;
+            }
+            
+            return $self->get_taxon(-taxonid => \@ids);
+        }
+        elsif ($params{'-name'}) {
+            @taxonids = $self->get_taxonid($params{'-name'});
+        }
+        else { 
+            $self->warn("Need to have provided either a -taxonid or -name value to get_taxon");
+        }
+        
+        if ($params{'-full'}) {
+            $want_full = 1;
+        }
+    }
+    else {
+        $taxonid = shift;
+    }
+    
+    if (ref($taxonid) =~ /ARRAY/i ) {
+        @taxonids = @{$taxonid};
+    }
+    else {
+        push(@taxonids, $taxonid) if $taxonid;
+    }
+    
+    # return answer(s) from the cache if possible
+    my @results;
+    my @uncached;
+    foreach my $taxonid (@taxonids) {
+        $taxonid || $self->throw("In taxonids list one was undef! '@taxonids'\n");
+        if (defined $DATA_CACHE->{full_info}->{$taxonid}) {
+            push(@results, $self->_make_taxon($DATA_CACHE->{full_info}->{$taxonid}));
+        }
+        elsif (! $want_full && defined $DATA_CACHE->{minimal_info}->{$taxonid}) {
+            push(@results, $self->_make_taxon($DATA_CACHE->{minimal_info}->{$taxonid}));
+        }
+        else {
+            push(@uncached, $taxonid);
+        }
+    }
+    
+    if (@uncached > 0) {
+        $taxonid = join(',', @uncached);
+        
+        $p{'id'}      = $taxonid;
+        $self->debug("id is $taxonid\n");
+        my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
+        
+        my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezFetch,$params);
+        $self->debug("url is $url\n");
+        my $response;
+        eval {
+            $response = $self->get($url);
+        };
+        if( $@ ) {
+            $self->throw("Can't query website: $@");
+        }
+        $self->debug("resp is $response\n");
+        
+        my $twig = XML::Twig->new;
+        $twig->parse($response);
+        
+        my $root = $twig->root;
+        for my $taxon ( $root->children('Taxon') ) {
+            my $taxid = $taxon->first_child_text('TaxId');
+            $self->throw("Got a result with no TaxId!") unless $taxid;
+            
+            my $data = {};
+            if (exists $DATA_CACHE->{minimal_info}->{$taxid}) {
+                $data = $DATA_CACHE->{minimal_info}->{$taxid};
+            }
+            
+            $data->{id} = $taxid;
+            $data->{rank} = $taxon->first_child_text('Rank');
+            
+            my $other_names = $taxon->first_child('OtherNames');
+            my @other_names = $other_names->children_text() if $other_names;
+            my $sci_name = $taxon->first_child_text('ScientificName');
+            my $orig_sci_name = $sci_name;
+            $sci_name =~ s/ \(class\)$//;
+            push(@other_names, $orig_sci_name) if $orig_sci_name ne $sci_name;
+            $data->{scientific_name} = $sci_name;
+            $data->{common_names} = \@other_names;
+            
+            $data->{division} = $taxon->first_child_text('Division');
+            $data->{genetic_code} = $taxon->first_child('GeneticCode')->first_child_text('GCId');
+            $data->{mitochondrial_genetic_code} = $taxon->first_child('MitoGeneticCode')->first_child_text('MGCId');
+            $data->{create_date} = $taxon->first_child_text('CreateDate');
+            $data->{update_date} = $taxon->first_child_text('UpdateDate');
+            $data->{pub_date} = $taxon->first_child_text('PubDate');
+            
+            # since we have some information about all the ancestors of our
+            # requested node, we may as well cache data for the ancestors to
+            # reduce the number of accesses to website in future
+            my $lineage_ex = $taxon->first_child('LineageEx');
+            my ($ancestor, $lineage_data, @taxa);
+            foreach my $lineage_taxon ($lineage_ex->children) {
+                my $lineage_taxid = $lineage_taxon->first_child_text('TaxId');
+                
+                if (exists $DATA_CACHE->{minimal_info}->{$lineage_taxid} || exists $DATA_CACHE->{full_info}->{$lineage_taxid}) {
+                    $lineage_data = $DATA_CACHE->{minimal_info}->{$lineage_taxid} || $DATA_CACHE->{full_info}->{$lineage_taxid};
+                    next;
+                }
+                else {
+                    $lineage_data = {};
+                }
+                
+                $lineage_data->{id} = $lineage_taxid;
+                $lineage_data->{scientific_name} = $lineage_taxon->first_child_text('ScientificName');
+                $lineage_data->{rank} = $lineage_taxon->first_child_text('Rank');
+                
+                $RELATIONS->{ancestors}->{$lineage_taxid} = $ancestor->{id} if $ancestor;
+                
+                $DATA_CACHE->{minimal_info}->{$lineage_taxid} = $lineage_data;
+            } continue { $ancestor = $lineage_data; unshift(@taxa, $lineage_data); }
+            
+            $RELATIONS->{ancestors}->{$taxid} = $ancestor->{id} if $ancestor;
+            
+            # go through the lineage in reverse so we can remember the children
+            my $child = $data;
+            foreach my $lineage_data (@taxa) {
+                $RELATIONS->{children}->{$lineage_data->{id}}->{$child->{id}} = 1;
+            } continue { $child = $lineage_data; }
+            
+            delete $DATA_CACHE->{minimal_info}->{$taxid};
+            $DATA_CACHE->{full_info}->{$taxid} = $data;
+            push(@results, $self->_make_taxon($data));
+        }
+    }
+    
+    wantarray() ? @results : shift @results;
 }
+
+*get_Taxonomy_Node = \&get_taxon;
 
 =head2 get_taxonids
 
@@ -318,7 +381,7 @@ sub get_Taxonomy_Node {
            string. Note that multiple taxonids can match to the same supplied
            name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxanomic (node) name
+ Args    : string representing taxon's name
 
 =cut
 
@@ -336,12 +399,11 @@ sub get_taxonids {
         my $desired_parent_name = lc($1);
         
         ID: foreach my $start_id ($self->get_taxonids($query)) {
-            my $node = $self->get_Taxonomy_Node($start_id) || next ID;
+            my $node = $self->get_taxon($start_id) || next ID;
             
             # walk up the parents until we hit a node with a named rank
             while (1) {
-                my $parent_id = $node->parent_id || next ID;
-                my $parent_node = $self->get_Taxonomy_Node($parent_id) || next ID;
+                my $parent_node = $self->ancestor($node) || next ID;
                 my $parent_sci_name = $parent_node->scientific_name || next ID;
                 my @parent_common_names = $parent_node->common_names;
                 
@@ -351,8 +413,8 @@ sub get_taxonids {
                     }
                 }
                 
-                my $parent_rank = $parent_node->rank || '';
-                if ($parent_rank && $parent_rank ne 'no rank') {
+                my $parent_rank = $parent_node->rank || 'no rank';
+                if ($parent_rank ne 'no rank') {
                     last;
                 }
                 else {
@@ -365,26 +427,91 @@ sub get_taxonids {
     $query =~ s/[\"\(\)]//g; # not an exhaustive list; these are just the ones I know cause problems
     $query =~ s/\s/+/g;
     
-    $p{'term'} = $query;
-    my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
-    my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
-    my $response;
-    eval {
-        $response = $self->get($url);
-    };
-    if( $@ ) {
-        $self->throw("Can't query website: $@");
+    my @data;
+    if (defined $DATA_CACHE->{name_to_id}->{$query}) {
+        @data = @{$DATA_CACHE->{name_to_id}->{$query}};
     }
-    $self->debug("response is $response\n");
-    my $twig = XML::Twig->new;
-    $twig->parse($response);
-    my $root = $twig->root;
-    my $list = $root->first_child('IdList');
-    my @data = map { $_->text } $list->children('Id');
-    ( wantarray ) ? @data : shift @data;
+    else {
+        $p{'term'} = $query;
+        my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
+        my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
+        my $response;
+        eval {
+            $response = $self->get($url);
+        };
+        if( $@ ) {
+            $self->throw("Can't query website: $@");
+        }
+        $self->debug("response is $response\n");
+        my $twig = XML::Twig->new;
+        $twig->parse($response);
+        my $root = $twig->root;
+        my $list = $root->first_child('IdList');
+        @data = map { $_->text } $list->children('Id');
+        
+        $DATA_CACHE->{name_to_id}->{$query} = [@data];
+    }
+    
+    wantarray() ? @data : shift @data;
 }
 
 *get_taxonid = \&get_taxonids;
+
+=head2 ancestor
+
+ Title   : ancestor
+ Usage   : my $ancestor_taxon = $db->ancestor($taxon)
+ Function: Retrieve the ancestor taxon of a supplied Taxon from the database.
+           
+           Note that unless the ancestor has previously been directly
+           requested with get_taxon(), the returned Taxon object will only have
+           a minimal amount of information.
+           
+ Returns : Bio::Taxon
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub ancestor {
+    my ($self, $taxon) = @_;
+    $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
+    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
+    
+    my $ancestor_id = $RELATIONS->{ancestors}->{$id} || return;
+    return $self->_make_taxon($DATA_CACHE->{full_info}->{$ancestor_id} || $DATA_CACHE->{minimal_info}->{$ancestor_id});
+}
+
+=head2 each_Descendent
+
+ Title   : each_Descendent
+ Usage   : my @taxa = $db->each_Descendent($taxon);
+ Function: Get all the descendents of the supplied Taxon (but not their
+           descendents, ie. not a recursive fetchall).
+           
+           Note that this implementation is unable to return a taxon that
+           hasn't previously been directly fetched with get_taxon(), or wasn't
+           an ancestor of such a fetch.
+           
+ Returns : Array of Bio::Taxon objects
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub each_Descendent {
+    my ($self, $taxon) = @_;
+    $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
+    $self->throw("The supplied Taxon must belong to this database") unless $taxon->db_handle && $taxon->db_handle eq $self;
+    my $id = $taxon->id || $self->throw("The supplied Taxon is missing its id!");
+    
+    my @children_ids = keys %{$RELATIONS->{children}->{$id} || {}};
+    my @children;
+    foreach my $child_id (@children_ids) {
+        push(@children, $self->_make_taxon($DATA_CACHE->{full_info}->{$child_id} || $DATA_CACHE->{minimal_info}->{$child_id}));
+    }
+    
+    return @children;
+}
 
 =head2 Some Get/Setter methods
 
@@ -461,5 +588,28 @@ sub entrez_params{
  Args    : Array or user/pass
 
 =cut
+
+# make a Taxon object from data hash ref
+sub _make_taxon {
+    my ($self, $data) = @_;
+    
+    my $taxon = new Bio::Taxon();
+    
+    my $taxid;
+    while (my ($method, $value) = each %{$data}) {
+        if ($method eq 'id') {
+            $taxid = $value;
+        }
+        $taxon->$method(ref($value) eq 'ARRAY' ? @{$value} : $value);
+    }
+    
+    # we can't use -dbh or the db_handle() method ourselves or we'll go
+    # infinite on the merge attempt
+    $taxon->{'db_handle'} = $self;
+    
+    $self->_handle_internal_id($taxon);
+    
+    return $taxon;
+}
 
 1;

@@ -20,6 +20,9 @@ Bio::DB::Taxonomy - Access to a taxonomy database
   my $db = new Bio::DB::Taxonomy(-source => 'entrez');
   # use NCBI Entrez over HTTP
   my $taxonid = $db->get_taxonid('Homo sapiens');
+  
+  # get a taxon
+  my $taxon = $db->get_taxon(-taxonid => $taxonid);
 
 =head1 DESCRIPTION
 
@@ -64,13 +67,15 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy;
-use vars qw(@ISA $DefaultSource);
+use vars qw(@ISA $DefaultSource $TAXON_IIDS);
 use strict;
 
-use Bio::Root::HTTPget;
-$DefaultSource = 'entrez';
+use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::HTTPget);
+@ISA = qw(Bio::Root::Root);
+
+$DefaultSource = 'entrez';
+$TAXON_IIDS = {};
 
 =head2 new
 
@@ -78,7 +83,7 @@ $DefaultSource = 'entrez';
  Usage   : my $obj = new Bio::DB::Taxonomy(-source => 'entrez');
  Function: Builds a new Bio::DB::Taxonomy object.
  Returns : an instance of Bio::DB::Taxonomy
- Args    : -source => which database source 'entrez' or 'flatfile'
+ Args    : -source => which database source 'entrez' or 'flatfile' or 'list'
 
 =cut
 
@@ -105,22 +110,25 @@ sub new {
 # empty for now
 sub _initialize { }
 
-=head2 get_Taxonomy_Node
+=head2 get_taxon
 
- Title   : get_Taxonomy_Node
- Usage   : my $species = $db->get_Taxonomy_Node(-taxonid => $taxonid)
- Function: Get a Bio::Taxonomy::Node object for a taxonid.
- Returns : Bio::Taxonomy::Node object
- Args    : -taxonid => taxonomy id (to query by taxonid)
+ Title   : get_taxon
+ Usage   : my $taxon = $db->get_taxon(-taxonid => $taxonid)
+ Function: Get a Bio::Taxon object from the database.
+ Returns : Bio::Taxon object
+ Args    : just a single value which is the database id, OR named args:
+           -taxonid => taxonomy id (to query by taxonid)
             OR
-           -name   => string (to query by a taxonomy name: common name, 
-                              species, genus, etc)
+           -name    => string (to query by a taxonomy name: common name, 
+                               scientific name, etc)
 
 =cut
 
-sub get_Taxonomy_Node {
+sub get_taxon {
     shift->throw_not_implemented();
 }
+
+*get_Taxonomy_Node = \&get_taxon;
 
 =head2 get_taxonids
 
@@ -130,7 +138,7 @@ sub get_Taxonomy_Node {
            string. Note that multiple taxonids can match to the same supplied
            name.
  Returns : array of integer ids in list context, one of these in scalar context
- Args    : string representing taxanomic (node) name
+ Args    : string representing taxon's name
 
 =cut
 
@@ -140,6 +148,36 @@ sub get_taxonids {
 
 *get_taxonid = \&get_taxonids;
 *get_taxaid = \&get_taxonids;
+
+=head2 ancestor
+
+ Title   : ancestor
+ Usage   : my $ancestor_taxon = $db->ancestor($taxon)
+ Function: Retrieve the full ancestor taxon of a supplied Taxon from the
+           database. 
+ Returns : Bio::Taxon
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub ancestor {
+    shift->throw_not_implemented();
+}
+
+=head2 each_Descendent
+
+ Title   : each_Descendent
+ Usage   : my @taxa = $db->each_Descendent($taxon);
+ Function: Get all the descendents of the supplied Taxon (but not their
+           descendents, ie. not a recursive fetchall).
+ Returns : Array of Bio::Taxon objects
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub each_Descendent {
+    shift->throw_not_implemented();
+}
 
 =head2 _load_tax_module
 
@@ -167,6 +205,47 @@ END
   ;
     }
     return $ok;
+}
+
+=head2 _handle_internal_id
+
+ Title   : _handle_internal_id
+ Usage   : *INTERNAL Bio::DB::Taxonomy stuff*
+ Function: Tries to ensure that when a taxon is requested from any database,
+           the Taxon object returned will have the same internal id regardless
+           of database.
+ Args    : Bio::Taxon, and optionally true value to try and do the job using
+           scientific name & rank if your ids aren't comparable to other dbs.
+
+=cut
+
+sub _handle_internal_id {
+    my ($self, $taxon, $try_name) = @_;
+    $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa('Bio::Taxon');
+    my $taxid = $taxon->id || return;
+    my $sci_name = $taxon->scientific_name || '';
+    my $rank = $taxon->rank || 'no rank';
+    
+    if ($try_name && $sci_name && defined $TAXON_IIDS->{names}->{$sci_name}) {
+        if (defined $TAXON_IIDS->{names}->{$sci_name}->{$rank}) {
+            $TAXON_IIDS->{taxids}->{$taxid} = $TAXON_IIDS->{names}->{$sci_name}->{$rank};
+        }
+        elsif ($rank eq 'no rank') {
+            # pick the internal id of one named rank taxa at random
+            my ($iid) = values %{$TAXON_IIDS->{names}->{$sci_name}};
+            $TAXON_IIDS->{taxids}->{$taxid} = $iid;
+        }
+    }
+    
+    if (defined $TAXON_IIDS->{taxids}->{$taxid}) {
+        # a little dangerous to use this internal method of Bio::Tree::Node;
+        # but it is how internal_id() is set
+        $taxon->_creation_id($TAXON_IIDS->{taxids}->{$taxid});
+    }
+    else {
+        $TAXON_IIDS->{taxids}->{$taxid} = $taxon->internal_id;
+        $TAXON_IIDS->{names}->{$sci_name}->{$rank} = $taxon->internal_id if $sci_name;
+    }
 }
 
 1;

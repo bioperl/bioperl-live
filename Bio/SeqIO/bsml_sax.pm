@@ -185,8 +185,7 @@ sub start_element {
 					       -classification => 
 					       [$species,$genus]));
 	} elsif( $name eq 'organism-classification' ) {
-	    my (@class) =(split(/\s*;\s*/,$content),$curseq->species->genus,
-			  $curseq->species->species);
+	    my (@class) =(split(/\s*;\s*/,$content),$curseq->species->species);
 	    $curseq->species->classification([reverse @class]);
 	} elsif( $name eq 'database-xref' ) {
 	    my ($db,$id) = split(/:/,$content);

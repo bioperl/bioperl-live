@@ -594,7 +594,8 @@ sub next_seq {
 														 $display_id);
 				# add taxon_id from source if available
 				if($species && ($feat->primary_tag eq 'source') &&
-					$feat->has_tag('db_xref') && (! $species->ncbi_taxid())) {
+					$feat->has_tag('db_xref') && (! $species->ncbi_taxid() ||
+                    ($species->ncbi_taxid && $species->ncbi_taxid =~ /^list/))) {
 					foreach my $tagval ($feat->get_tag_values('db_xref')) {
 						if(index($tagval,"taxon:") == 0) {
 							$species->ncbi_taxid(substr($tagval,6));
@@ -801,21 +802,11 @@ sub write_seq {
 
 	# Organism lines
 	if (my $spec = $seq->species) {
-	    my ($species, $genus, @class) = $spec->classification();
-	    my $OS;
-	    if( $spec->common_name ) {
-		$OS = $spec->common_name;
-	    } else { 
-		$OS = "$genus $species";
-	    }
-	    if (my $ssp = $spec->sub_species) {
-		$species .= " $ssp";
-	    }
-        $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $OS, "\\s\+\|\$",80);
-	    $self->_print("  ORGANISM  ",
-			  ($spec->organelle() ? $spec->organelle()." " : ""),
-			  "$genus $species", "\n");
-	    my $OC = join('; ', (reverse(@class), $genus)) .'.';
+        $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $spec->common_name, "\\s\+\|\$",80);
+	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
+        my @classification = $spec->classification;
+        shift(@classification);
+	    my $OC = join('; ', (reverse(@classification))) .'.';
 	    $self->_write_line_GenBank_regex(' 'x12,' 'x12,
 					     $OC,"\\s\+\|\$",80);
 	}
@@ -1222,8 +1213,13 @@ sub _add_ref_to_array {
 
            ORGANISM  Ajellomyces capsulatus var. farciminosus
            $genus = Ajellomyces
-           $species = capsulatus var.
-           $subspecies = farciminosus
+           $species = capsulatus
+           $subspecies = var. farciminosus
+           
+           ORGANISM  Hepatitis delta virus
+           $genus = undef (though this virus has a genus in its lineage, we
+                           can't know that without a database lookup)
+           $species = Hepatitis delta virus
 
  Returns : A Bio::Species object
  Args    : A reference to the current line buffer
@@ -1231,10 +1227,8 @@ sub _add_ref_to_array {
 =cut
 
 sub _read_GenBank_Species {
-	my( $self,$buffer) = @_;
-	my @organell_names = ("chloroplast", "mitochondr"); 
-	# only those carrying DNA, apart from the nucleus
-
+	my ($self, $buffer) = @_;
+	
 	my @unkn_names = ('other', 'unknown organism', 'not specified', 'not shown',
 							 'Unspecified', 'Unknown', 'None', 'unclassified',
 							 'unidentified organism', 'not supplied');
@@ -1244,7 +1238,7 @@ sub _read_GenBank_Species {
 
 	$_ = $$buffer;
 
-	my( $sub_species, $species, $genus, $sci_name, $common, $organelle, @class,
+	my( $sub_species, $species, $genus, $sci_name, $common, @class,
         $source_flag );
 	# upon first entering the loop, we must not read a new line -- the SOURCE
 	# line is already in the buffer (HL 05/10/2000)
@@ -1303,14 +1297,14 @@ sub _read_GenBank_Species {
 	return unless ($species || $genus) and $unkn == 0;
     
 	# Bio::Species array needs array in Species -> Kingdom direction
-	push(@class, $species);
+	push(@class, $sci_name);
 	@class = reverse @class;
 
 	my $make = Bio::Species->new();
-	$make->classification( \@class, "FORCE" ); # no name validation please
+    $make->scientific_name($sci_name) if $sci_name;
+	$make->classification(@class) if @class > 0;
 	$make->common_name( $common ) if $common;
-	$make->sub_species( $sub_species ) if $sub_species;
-	$make->organelle($organelle) if $organelle;
+	#$make->sub_species( $sub_species ) if $sub_species;
 	return $make;
 }
 

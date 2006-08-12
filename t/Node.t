@@ -14,7 +14,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 17;
+    plan tests => 21;
 }
 
 use Bio::Tree::Node;
@@ -44,6 +44,11 @@ ok($phylo_node->ancestor, $node1);
 ok($phylo_node->id, 'ADH_BOV');
 ok($phylo_node->bootstrap, 0.25);
 ok($phylo_node->description, 'Taxon 1');
+
+ok $phylo_node->ancestor($node2), $node2;
+ok $node1->is_Leaf;
+ok my @descs = $node2->each_Descendent, 1;
+ok $descs[0], $phylo_node;
 
 my $allele_node = new Bio::Tree::AlleleNode();
 $allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm1',

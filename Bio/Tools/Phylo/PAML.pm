@@ -145,6 +145,7 @@ Email amackey-at-virginia.edu
 =head1 CONTRIBUTORS
 
 Albert Vilella avilella-AT-gmail-DOT-com
+Sendu Bala     bix@sendu.me.uk
 
 =head1 TODO
 
@@ -285,15 +286,8 @@ sub next_result {
 		    # we can probably do better by caching at some point
 		    my @nodes;
 		    for my $id ( split(/\.\./,$k ) ) {
-			my @nodes_L = map { $tree->find_node(-id => $_) }
-			@{$idlookup->{$id}};
-			while( @nodes_L > 1 ) {
-			    my $lca = $tree->get_lca
-				(-nodes => [shift @nodes_L,
-					    shift @nodes_L]);
-			    push @nodes_L, $lca;
-			}
-			my $n = shift @nodes_L;
+			my @nodes_L = map { $tree->find_node(-id => $_) } @{$idlookup->{$id}};
+			my $n = @nodes_L < 2 ? shift(@nodes_L) : $tree->get_lca(@nodes_L);
 			if( ! $n ) {
 			    warn("no node for $n\n");
 			}
@@ -1017,17 +1011,10 @@ sub _parse_NSsitesBatch {
 		    # we can probably do better by caching at some point
 		    my @nodes;
 		    for my $id ( split(/\.\./,$k ) ) {
-			my @nodes_L = map { $tree->find_node(-id => $_) }
-			@{$idlookup->{$id}};
-			while( @nodes_L > 1 ) {
-			    my $lca = $tree->get_lca
-				(-nodes => [shift @nodes_L,
-					    shift @nodes_L]);
-			    push @nodes_L, $lca;
-			}
-			my $n = shift @nodes_L;
+            my @nodes_L = map { $tree->find_node(-id => $_) } @{$idlookup->{$id}};
+            my $n = @nodes_L < 2 ? shift(@nodes_L) : $tree->get_lca(@nodes_L);
 			if( ! $n ) {
-			    warn("no node for $n\n");
+			    $self->warn("no node could be found for $id (no lca?)");
 			}
 			unless( $n->is_Leaf && $n->id) { 
 			    $n->id($id);

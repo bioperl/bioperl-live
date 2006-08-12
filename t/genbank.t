@@ -278,7 +278,7 @@ ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
 my $spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
-ok ($spec_obj->species, 'Mus musculus');
+ok ($spec_obj->species, 'musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
 $ac = $seq->annotation;
@@ -310,7 +310,7 @@ ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
 $spec_obj = $seq->species;
 ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
-ok ($spec_obj->species, 'Mus musculus');
+ok ($spec_obj->species, 'musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
 $ac = $seq->annotation;
@@ -406,8 +406,7 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
 		if ($check) {
 			if ($_ ne $in[$line]) {
 				$ok = 0;
-				warn "$_ -vs-\n$in[$line]\n";
-				#last;
+				last;
 			}
 		}
 		
@@ -417,7 +416,7 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
 	} continue { $line++ }
 	close(RESULT);
 	
-	ok $ok; # last 2 will fail; these are unresolvable problems with original Bio::Species
+	ok $ok;
 	
 	unlink($outfile);
 }

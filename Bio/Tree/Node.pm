@@ -56,7 +56,8 @@ Email jason-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Aaron Mackey amackey-at-virginia-dot-edu
+Aaron Mackey, amackey-at-virginia-dot-edu
+Sendu Bala,   bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -80,7 +81,6 @@ use Bio::Tree::NodeI;
 BEGIN { 
     $CREATIONORDER = 0;
 }
-
 
 =head2 new
 
@@ -160,19 +160,20 @@ sub add_Descendent{
        $self->throw("Trying to add a Descendent who is not a Bio::Tree::NodeI");
        return -1;
    }
-   # do we care about order?
-   $node->ancestor($self);
+   
+   $self->{_adding_descendent} = 1;
+   $node->ancestor($self) unless $node->{_setting_ancestor}; # avoid infinite recurse
+   $self->{_adding_descendent} = 0;
+   
    if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
        $self->throw("Going to overwrite a node which is $node that is already stored here, set the ignore overwrite flag (parameter 2) to true to ignore this in the future");
    }
-   
    $self->{'_desc'}->{$node->internal_id} = $node; # is this safely unique - we've tested before at any rate??
    
    $self->invalidate_height();
    
    return scalar keys %{$self->{'_desc'}};
 }
-
 
 =head2 each_Descendent
 
@@ -252,7 +253,9 @@ sub remove_Descendent{
    my $c= 0;
    foreach my $n ( @nodes ) { 
        if( $self->{'_desc'}->{$n->internal_id} ) {
-	   $n->ancestor(undef);
+        $self->{_removing_descendent} = 1;
+        $n->ancestor(undef);
+        $self->{_removing_descendent} = 0;
 	   # should be redundant
 	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
 	   delete $self->{'_desc'}->{$n->internal_id};
@@ -264,6 +267,7 @@ sub remove_Descendent{
 	   }
        }
    }
+   
    # remove unecessary nodes if we have removed the part 
    # which branches.
    my $a1 = $self->ancestor;   
@@ -272,7 +276,7 @@ sub remove_Descendent{
        my @d = $self->each_Descendent;
        if (scalar @d == 1) {
 	   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
-	   $a1->add_Descendent($d[0]);	       
+	   $a1->add_Descendent($d[0]);
 	   $a1->remove_Descendent($self);
        }
    }
@@ -289,7 +293,6 @@ sub remove_Descendent{
            a get_nodes from the Tree object would be a safe thing to do first
  Returns : nothing
  Args    : none
-
 
 =cut
 
@@ -322,15 +325,37 @@ sub remove_all_Descendents{
  Title   : ancestor
  Usage   : $obj->ancestor($newval)
  Function: Set the Ancestor
- Returns : value of ancestor
+ Returns : ancestral node
  Args    : newvalue (optional)
 
 =cut
 
-sub ancestor{
-   my $self = shift;
-   $self->{'_ancestor'} = shift @_ if @_;   
-   return $self->{'_ancestor'};
+sub ancestor {
+    my $self = shift;
+    
+    if (@_) {
+        my $new_ancestor = shift;
+        
+        # we can set ancestor to undef
+        if ($new_ancestor) {
+            $self->throw("This is [$new_ancestor], not a Bio::Tree::NodeI") unless $new_ancestor->isa('Bio::Tree::NodeI');
+        }
+        
+        my $old_ancestor = $self->{'_ancestor'} || '';
+        if (!$old_ancestor || ($old_ancestor && (!$new_ancestor || $new_ancestor ne $old_ancestor))) {
+            $old_ancestor->remove_Descendent($self) if $old_ancestor && ! $old_ancestor->{_removing_descendent};
+            
+            if ($new_ancestor && ! $new_ancestor->{_adding_descendent}) { # avoid infinite recurse
+                $self->{_setting_ancestor} = 1;
+                $new_ancestor->add_Descendent($self, 1);
+                $self->{_setting_ancestor} = 0;
+            }
+        }
+        
+        $self->{'_ancestor'} = $new_ancestor;
+    }
+    
+    return $self->{'_ancestor'};
 }
 
 =head2 branch_length
@@ -340,7 +365,6 @@ sub ancestor{
  Function: Get/Set the branch length
  Returns : value of branch_length
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -357,7 +381,6 @@ sub branch_length{
     return $self->{'_branch_length'};
 }
 
-
 =head2 bootstrap
 
  Title   : bootstrap
@@ -365,7 +388,6 @@ sub branch_length{
  Function: Get/Set the bootstrap value
  Returns : value of bootstrap
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -387,7 +409,6 @@ sub bootstrap {
  Function: Get/Set the description string
  Returns : value of description
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -445,7 +466,6 @@ sub id{
  Returns : $id string if $node->id has a value
  Args    : none
 
-
 =cut
 
 # implemented in NodeI interface 
@@ -467,7 +487,6 @@ sub internal_id{
    return $_[0]->_creation_id;
 }
 
-
 =head2 _creation_id
 
  Title   : _creation_id
@@ -475,7 +494,6 @@ sub internal_id{
  Function: a private method signifying the internal creation order
  Returns : value of _creation_id
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -569,7 +587,6 @@ sub invalidate_height {
  Args    : $tag   - tag name
            $value - value to store for the tag
 
-
 =cut
 
 sub add_tag_value{
@@ -610,7 +627,6 @@ sub remove_tag {
  Returns : None
  Args    : None
 
-
 =cut
 
 sub remove_all_tags{
@@ -627,7 +643,6 @@ sub remove_all_tags{
  Returns : Array of tagnames
  Args    : None
 
-
 =cut
 
 sub get_all_tags{
@@ -642,7 +657,6 @@ sub get_all_tags{
  Function: Gets the values for given tag ($tag)
  Returns : Array of values or empty list if tag does not exist
  Args    : $tag - tag name
-
 
 =cut
 
@@ -659,7 +673,6 @@ sub get_tag_values{
  Function: Boolean test if tag exists in the Node
  Returns : Boolean
  Args    : $tag - tagname
-
 
 =cut
 

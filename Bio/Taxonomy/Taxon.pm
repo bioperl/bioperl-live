@@ -15,6 +15,8 @@ Bio::Taxonomy::Taxon - Generic Taxonomic Entity object
 
 =head1 SYNOPSIS
 
+    NB: This module is deprecated. Use Bio::Taxon instead.
+
     use Bio::Taxonomy::Taxon;
     my $taxonA = new Bio::Taxonomy::Taxon();
     my $taxonL = new Bio::Taxonomy::Taxon();
@@ -80,6 +82,8 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+  $self->warn("Bio::Taxonomy::Taxon is deprecated. Use Bio::Taxon instead.");
+  
   my ($children,$branchlen,$id,$taxon,$rank,$desc) = 
 
                       $self->_rearrange([qw(DESCENDENTS

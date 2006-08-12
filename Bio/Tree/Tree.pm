@@ -53,6 +53,7 @@ Email jason@bioperl.org
 =head1 CONTRIBUTORS
 
 Aaron Mackey amackey@virginia.edu
+Sendu Bala   bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -84,6 +85,10 @@ use Bio::Tree::TreeI;
  Function: Builds a new Bio::Tree::Tree object 
  Returns : Bio::Tree::Tree
  Args    : -root     => L<Bio::Tree::NodeI> object which is the root
+             OR
+           -node     => L<Bio::Tree::NodeI> object from which the root will be
+                        determined
+           
            -nodelete => boolean, whether or not to try and cleanup all
                                  the nodes when this this tree goes out
                                  of scope.
@@ -99,9 +104,28 @@ sub new {
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
   $self->_register_for_cleanup(\&cleanup_tree);
-  my ($root,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODELETE 
+  my ($root,$node,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODE NODELETE 
 						      ID SCORE)], @args);
-  if( $root ) { $self->set_root_node($root); }
+  
+  if ($node && ! $root) {
+    $self->throw("Must supply a Bio::Tree::NodeI") unless ref($node) && $node->isa('Bio::Tree::NodeI');
+    my @lineage = $self->get_lineage_nodes($node);
+    $root = shift(@lineage) || $node;
+    
+    # to stop us pulling in entire database of a Bio::Taxon when we later do
+    # get_nodes() or similar, specifically set ancestor() for each node
+    if ($node->isa('Bio::Taxon')) {
+      push(@lineage, $node) unless $node eq $root;
+      my $ancestor = $root;
+      foreach my $lineage_node (@lineage) {
+        $lineage_node->ancestor($ancestor);
+      } continue { $ancestor = $lineage_node; }
+    }
+  }
+  if ($root) {
+    $self->set_root_node($root);
+  }
+  
   $self->nodelete($nodel || 0);
   $self->id($id)       if defined $id;
   $self->score($score) if defined $score;

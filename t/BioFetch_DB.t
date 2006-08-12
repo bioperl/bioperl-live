@@ -73,7 +73,7 @@ eval {
     ok(defined($seq = $db->get_Seq_by_acc('J00522')));
     ok( $seq->length, 408);
     ok(defined($seq = $db->get_Seq_by_acc('J02231')));
-	ok $seq->id, 'J02231;';
+	ok $seq->id, 'J02231';
     ok( $seq->length, 200); 
     ok(defined($seqio = $db->get_Stream_by_id(['BUM'])));
     undef $db; # testing to see if we can remove gb
