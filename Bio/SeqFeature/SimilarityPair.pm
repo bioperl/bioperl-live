@@ -101,14 +101,7 @@ use Bio::Factory::ObjectFactory;
 
 sub new {
     my($class,@args) = @_;
-
-    if(! grep { lc($_) eq "-feature_factory"; } @args) {
-	# if no overriding factory is provided, provide our preferred one
-	my $fact = Bio::Factory::ObjectFactory->new(
-                                    -type => "Bio::SeqFeature::Similarity",
-				    -interface => "Bio::SeqFeatureI");
-	push(@args, '-feature_factory', $fact);
-    }
+    
     my $self = $class->SUPER::new(@args);
 
     my ($primary, $hit, $query, $fea1, $source,$sbjct) =
@@ -130,6 +123,7 @@ sub new {
     }
 
     # set the query and subject feature if provided
+    #*** feature1 never set!
     $self->query( $query) if $query && ! $fea1;
     $hit && $self->hit($hit);
 

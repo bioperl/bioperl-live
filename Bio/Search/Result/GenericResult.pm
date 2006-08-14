@@ -110,7 +110,7 @@ Email sac@bioperl.org
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Sendu Bala, bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -157,6 +157,8 @@ use Bio::Tools::Run::GenericParameters;
            -algorithm         => program name (blastx)
            -algorithm_version   => version of the algorithm (2.1.2)
            -algorithm_reference => literature reference string for this algorithm
+           -hit_factory      => Bio::Factory::ObjectFactoryI capable of making
+                                Bio::Search::Hit::HitI objects
 
 =cut
 
@@ -173,7 +175,7 @@ sub new {
   my ($qname,$qacc,$qdesc,$qlen,
       $dbname,$dblet,$dbent,$params,   
       $stats, $hits, $algo, $algo_v,
-      $prog_ref, $algo_r) = $self->_rearrange([qw(QUERY_NAME
+      $prog_ref, $algo_r, $hit_factory) = $self->_rearrange([qw(QUERY_NAME
                                                   QUERY_ACCESSION
                                                   QUERY_DESCRIPTION
                                                   QUERY_LENGTH
@@ -187,6 +189,7 @@ sub new {
                                                   ALGORITHM_VERSION
                                                   PROGRAM_REFERENCE
                                                   ALGORITHM_REFERENCE
+                                                  HIT_FACTORY
                                                  )],@args);
 
   $algo_r ||= $prog_ref;         
@@ -201,6 +204,8 @@ sub new {
   defined $dbname && $self->database_name($dbname);
   defined $dblet  && $self->database_letters($dblet);
   defined $dbent  && $self->database_entries($dbent);
+  
+  defined $hit_factory && $self->hit_factory($hit_factory);
 
   if( defined $params ) {
       if( ref($params) !~ /hash/i ) {
@@ -292,7 +297,15 @@ sub next_hit {
     my ($self,@args) = @_;
     my $index = $self->_nexthitindex;
     return if $index > scalar @{$self->{'_hits'}};
-    return $self->{'_hits'}->[$index];    
+    
+    my $hit = $self->{'_hits'}->[$index];
+    if (ref($hit) eq 'HASH') {
+        my $factory = $self->hit_factory || $self->throw("Tried to get a Hit, but it was a hash ref and we have no hit factory");
+        $hit = $factory->create_object(%{$hit});
+        $self->{'_hits'}->[$index] = $hit;
+        delete $self->{_hashes}->{$index};
+    }
+    return $hit;    
 }
 
 =head2 query_name
@@ -524,15 +537,34 @@ Bio::Search::Result::GenericResult specific methods
 
 sub add_hit {
     my ($self,$s) = @_;
-    if( $s->isa('Bio::Search::Hit::HitI') ) { 
+    if (ref($s) eq 'HASH' || $s->isa('Bio::Search::Hit::HitI') ) { 
         push @{$self->{'_hits'}}, $s;
-    } else { 
-        $self->throw("Passed in " .ref($s). 
-                     " as a Hit which is not a Bio::Search::HitI.");
+    }
+    else { 
+        $self->throw("Passed in " .ref($s)." as a Hit which is not a Bio::Search::HitI.");
+    }
+    
+    if (ref($s) eq 'HASH') {
+        $self->{_hashes}->{$#{$self->{'_hits'}}} = 1;
     }
     return scalar @{$self->{'_hits'}};
 }
 
+=head2 hit_factory
+
+ Title   : hit_factory
+ Usage   : $hit->hit_factory($hit_factory)
+ Function: Get/set the factory used to build HitI objects if necessary.
+ Returns : Bio::Factory::ObjectFactoryI
+ Args    : Bio::Factory::ObjectFactoryI
+
+=cut
+
+sub hit_factory {
+    my $self = shift;
+    if (@_) { $self->{_hit_factory} = shift }
+    return $self->{_hit_factory} || return;
+}
 
 =head2 rewind
 
@@ -631,11 +663,18 @@ sub num_hits{
 =cut
 
 sub hits{
-   my ($self) = shift;
-   my @hits = ();
-   if( ref $self->{'_hits'}) {
-       @hits = @{$self->{'_hits'}};
-   }
+    my ($self) = shift;
+   
+    foreach my $i (keys %{$self->{_hashes} || {}}) {
+        my $factory = $self->hit_factory || $self->throw("Tried to get a Hit, but it was a hash ref and we have no hit factory");
+        $self->{'_hits'}->[$i] = $factory->create_object(%{$self->{'_hits'}->[$i]});
+        delete $self->{_hashes}->{$i};
+    }
+   
+    my @hits = ();
+    if( ref $self->{'_hits'}) {
+        @hits = @{$self->{'_hits'}};
+    }
     return @hits;   
 }
 

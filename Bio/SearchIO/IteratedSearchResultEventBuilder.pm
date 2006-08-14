@@ -55,6 +55,8 @@ Email sac-at-bioperl.org
 Parts of code based on SearchResultEventBuilder by Jason Stajich
 jason@bioperl.org
 
+Sendu Bala, bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -255,6 +257,7 @@ sub end_result {
     $args{'-iterations'} = $self->{'_iterations'};
 
     my $result = $self->factory('result')->create_object(%args);
+    $result->hit_factory($self->factory('hit'));
     $self->{'_iterations'} = [];
     return $result;
 }
@@ -267,8 +270,8 @@ sub end_result {
 sub _add_hit {
     my ($self, $hit) = @_;
 
-    my $hit_name = uc($hit->name);
-    my $hit_signif = $hit->significance;
+    my $hit_name = uc($hit->{-name});
+    my $hit_signif = $hit->{-significance};
     my $ithresh = $self->{'_inclusion_threshold'};
 
 #    print STDERR "_add_hit():name=$hit_name, thresh=$ithresh, signif=$hit_signif.\n";
@@ -279,6 +282,9 @@ sub _add_hit {
     my $hit_filter = $self->{'_hit_filter'};
 
     if($hit_filter) {
+        # since &hit_filter is out of our control and would expect a HitI object,
+        # we're forced to make one for it
+        $hit = $self->factory('hit')->create_object(%{$hit});
         $add_hit = 0 unless &$hit_filter($hit);
 
     } else {
@@ -286,11 +292,11 @@ sub _add_hit {
             $add_hit = 0 unless $hit_signif <= $self->{'_max_significance'};
         }
         if($self->{'_confirm_score'}) {
-            my $hit_score  = $hit->score;
+            my $hit_score = $hit->{-score} || $hit->{-hsps}->[0]->{-score};
             $add_hit = 0 unless $hit_score >= $self->{'_min_score'};
         }
         if($self->{'_confirm_bits'}) {
-            my $hit_bits  = $hit->bits;
+            my $hit_bits = $hit->{-bits} || $hit->{-hsps}->[0]->{-bits};
             $add_hit = 0 unless $hit_bits >= $self->{'_min_bits'};
         }
     }
@@ -406,7 +412,7 @@ sub end_iteration {
     $args{'-oldhits_not_below'} = $self->{'_oldhits_not_below'};
     $args{'-newhits_below'} = $self->{'_newhits_below'};
     $args{'-newhits_not_below'} = $self->{'_newhits_not_below'};
-
+    $args{'-hit_factory'} = $self->factory('hit');
     my $it = $self->factory('iteration')->create_object(%args);
     push @{$self->{'_iterations'}}, $it;
     return $it;

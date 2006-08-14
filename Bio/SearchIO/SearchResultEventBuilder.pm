@@ -49,7 +49,7 @@ Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Sendu Bala, bix@sendu.me.uk
 
 =head1 APPENDIX
 
@@ -58,9 +58,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SearchIO::SearchResultEventBuilder;
 use vars qw(@ISA %KNOWNEVENTS);
@@ -194,6 +192,7 @@ sub end_result {
                                $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hits'}      =  $self->{'_hits'};
     my $result = $self->factory('result')->create_object(%args);
+    $result->hit_factory($self->factory('hit'));
     $self->{'_hits'} = [];
     return $result;
 }
@@ -297,12 +296,13 @@ sub end_hsp {
     $args{'-hit_name'} = $data->{'HIT-name'};
     my ($rank) = scalar @{$self->{'_hsps'} || []} + 1;
     $args{'-rank'} = $rank;
-
-    my $hsp = $self->factory('hsp')->create_object(%args);
+    $args{'-hit_desc'} = $data->{'HIT-description'};
+    $args{'-query_desc'} = $data->{'RESULT-query_description'};
+    
+    my $bits = $args{'-bits'};
+    my $hsp = \%args;
     push @{$self->{'_hsps'}}, $hsp;
-    $hsp->hit->seqdesc($data->{'HIT-description'});
-#    warn('desc is ', $data->{'RESULT-query_description'}, "\n");
-    $hsp->query->seqdesc($data->{'RESULT-query_description'});
+    
     return $hsp;
 }
 
@@ -339,7 +339,6 @@ sub start_hit{
 sub end_hit{
     my ($self,$type,$data) = @_;   
     my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
-    #print STDERR "SREB: end_hit\n";
 
     # I hate special cases, but this is here because NCBI BLAST XML
     # doesn't play nice and is undergoing mutation -jason
@@ -354,10 +353,11 @@ sub end_hit{
     unless( defined $args{'-significance'} ) {
 	if( defined $args{'-hsps'} && 
 	    $args{'-hsps'}->[0] ) {
-	    $args{'-significance'} = $args{'-hsps'}->[0]->evalue;
+	    $args{'-significance'} = $args{'-hsps'}->[0]->{'-evalue'};
 	}
     }
-    my $hit = $self->factory('hit')->create_object(%args);
+    my $hit = \%args;
+    $hit->{'-hsp_factory'} = $self->factory('hsp');
     $self->_add_hit($hit);
     $self->{'_hsps'} = [];
     return $hit;
