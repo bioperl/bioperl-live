@@ -198,8 +198,9 @@ sub analysis_method {
            next_prediction() at present.
 
  Example :
- Returns : A Bio::Tools::Prediction::Gene object.
+ Returns : A Bio::SeqFeature::Generic object.
  Args    :
+See also : L<Bio::SeqFeature::Generic>
 
 =cut
 
@@ -221,8 +222,9 @@ sub next_feature {
            file. Call this method repeatedly until FALSE is returned.
 
  Example :
- Returns : A Bio::Tools::Prediction::Gene object.
+ Returns : A Bio::SeqFeature::Generic object.
  Args    :
+See also : L<Bio::SeqFeature::Generic>
 
 =cut
 
