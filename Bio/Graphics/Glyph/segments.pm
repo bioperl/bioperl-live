@@ -104,7 +104,7 @@ sub draw {
 
   my $drew_sequence;
 
-  if ($self->option('draw_target')) {
+  if ($draw_target) {
     return $self->SUPER::draw(@_) unless eval {$self->feature->hit->seq};
     $drew_sequence = $self->draw_multiple_alignment(@_);
   }
@@ -219,6 +219,7 @@ sub draw_multiple_alignment {
   my $gd   = shift;
   my ($left,$top,$partno,$total_parts) = @_;
 
+
   my $flipped              = $self->flip;
   my $ragged_extra         = $self->option('ragged_start') 
                                ? RAGGED_START_FUZZ : $self->option('ragged_extra');
@@ -268,7 +269,6 @@ sub draw_multiple_alignment {
     else {  # unfortunately if this isn't the case, then we have to realign the segment a bit
       warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n" if DEBUG;
       my ($sdna,$tdna) = ($s->dna,$target->dna);
-      warn   $sdna,"\n",$tdna,"\n" if DEBUG;
       my @result = $self->realign($sdna,$tdna);
       foreach (@result) {
 	next unless $_->[1]+$src_start >= $abs_start && $_->[0]+$src_start <= $abs_end;
@@ -327,8 +327,15 @@ sub draw_multiple_alignment {
 
   # get the DNAs now - a little complicated by the necessity of using
   # the subseq() method
-  my $ref_dna = lc $feature->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
-  my $tgt_dna = lc $feature->hit->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
+  my $ref_dna = $feature->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
+  my $tgt_dna = $feature->hit->subseq(1-$offset_left,$feature->length+$offset_right)->seq;
+
+  # work around changes in the API
+  $ref_dna    = $ref_dna->seq if ref $ref_dna and $ref_dna->can('seq');
+  $tgt_dna    = $tgt_dna->seq if ref $tgt_dna and $tgt_dna->can('seq');
+
+  $ref_dna    = lc $ref_dna;
+  $tgt_dna    = lc $tgt_dna;
 
   # sanity check.  Let's see if they look like they're lining up
   warn "$feature dna sanity check:\n$ref_dna\n$tgt_dna\n" if DEBUG;

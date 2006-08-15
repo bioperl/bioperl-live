@@ -422,14 +422,17 @@ compatibility.
  Title   : target
  Usage   : $target = $f->target([$new_target])
  Function: get or set the feature target
- Returns : a Bio::DB::GFF::Featname object
+ Returns : a Bio::DB::GFF::Homol object
  Args    : a new group (optional)
  Status  : Public
 
 This method works like group(), but only returns the group if it
 implements the start() method.  This is typical for
-similarity/assembly features, where the target encodes the start and stop
-location of the alignment.
+similarity/assembly features, where the target encodes the start and
+stop location of the alignment.
+
+The returned object is of type Bio::DB::GFF::Homol, which is a
+subclass of Bio::DB::GFF::Segment.
 
 =cut
 

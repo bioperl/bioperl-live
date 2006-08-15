@@ -122,6 +122,7 @@ sub _label {
 
   # allow caller to specify the label
   my $label = $self->option('label');
+
   return unless defined $label;
   return "1"    if $label eq '1 '; # 1 with a space
   return $label unless $label eq '1';
