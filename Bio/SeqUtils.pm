@@ -121,7 +121,7 @@ use Bio::Root::Root;
 # new inherited from RootI
 
 BEGIN {
-
+    # Note : Ambiguity code 'J' = I/L (used for ambiguities in mass-spec data)
     %ONECODE =
     ('Ala' => 'A', 'Asx' => 'B', 'Cys' => 'C', 'Asp' => 'D',
      'Glu' => 'E', 'Phe' => 'F', 'Gly' => 'G', 'His' => 'H',
@@ -129,7 +129,7 @@ BEGIN {
      'Asn' => 'N', 'Pro' => 'P', 'Gln' => 'Q', 'Arg' => 'R',
      'Ser' => 'S', 'Thr' => 'T', 'Val' => 'V', 'Trp' => 'W',
      'Xaa' => 'X', 'Tyr' => 'Y', 'Glx' => 'Z', 'Ter' => '*',
-     'Sec' => 'U'
+     'Sec' => 'U', 'Pyl' => 'O', 'Xle' => 'J'
      );
 
     %THREECODE =
@@ -139,7 +139,7 @@ BEGIN {
      'N' => 'Asn', 'P' => 'Pro', 'Q' => 'Gln', 'R' => 'Arg',
      'S' => 'Ser', 'T' => 'Thr', 'V' => 'Val', 'W' => 'Trp',
      'Y' => 'Tyr', 'Z' => 'Glx', 'X' => 'Xaa', '*' => 'Ter',
-     'U' => 'Sec'
+     'U' => 'Sec', 'O' => 'Pyl', 'J' => 'Xle'
      );
 }
 
