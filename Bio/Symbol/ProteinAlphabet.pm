@@ -97,7 +97,6 @@ sub new {
   my @left;
   
   foreach my $let ( keys %codes  ) {  
-      next if( $let eq 'U');
       if( scalar @{$codes{$let}} != 1) { push @left, $let; next; }
       $symbols{$let} = new Bio::Symbol::Symbol(-name => $aa{$let},
 					       -token => $let);      

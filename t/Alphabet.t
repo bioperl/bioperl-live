@@ -14,7 +14,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 90;
+    plan tests => 96;
 }
 
 use Bio::Symbol::Alphabet;
@@ -52,20 +52,15 @@ foreach my $s ( sort { $a->name cmp $b->name } $dna->symbols ) {
 my $prot = new Bio::Symbol::ProteinAlphabet();
 ok($prot->isa('Bio::Symbol::AlphabetI'));
 
-my @protsymbols = sort qw( * A B C D E F G H I K L M N P Q R S T V W X Y Z);
+my @protsymbols = sort qw( * A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);
 my %h = (
-	 'Ala' => 'A',     'Asx' => 'B',
-	 'Cys' => 'C',     'Asp' => 'D',
-	 'Glu' => 'E',     'Phe' => 'F',
-	 'Gly' => 'G',     'His' => 'H',
-	 'Ile' => 'I',     'Lys' => 'K',
-	 'Leu' => 'L',     'Met' => 'M',
-	 'Asn' => 'N',     'Pro' => 'P',
-	 'Gln' => 'Q',     'Arg' => 'R',
-	 'Ser' => 'S',     'Thr' => 'T',
-	 'Val' => 'V',     'Trp' => 'W',
-	 'Tyr' => 'Y',     'Ter' => '*',
-	 'Xaa' => 'X',     'Glx' => 'Z'    
+	 'Ala' => 'A',     'Asx' => 'B',     'Cys' => 'C',     'Asp' => 'D',
+	 'Glu' => 'E',     'Phe' => 'F',     'Gly' => 'G',     'His' => 'H',
+	 'Ile' => 'I',     'Lys' => 'K',     'Leu' => 'L',     'Met' => 'M',
+	 'Asn' => 'N',     'Pro' => 'P',     'Gln' => 'Q',     'Arg' => 'R',
+	 'Ser' => 'S',     'Thr' => 'T',     'Val' => 'V',     'Trp' => 'W',
+	 'Xaa' => 'X',     'Tyr' => 'Y',     'Glx' => 'Z',     'Ter' => '*',     
+	 'Sec' => 'U',     'Pyl' => 'O',     'Xle' => 'J',     
 	 );
 my @protnms = sort { $h{$a} cmp $h{$b} } keys %h;
 $count = 0;
