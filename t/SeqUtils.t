@@ -23,12 +23,12 @@ ok 1;
 
 my ($seq, $util, $ascii, $ascii_aa, $ascii3);
 
-#                     !    !          
+# Entire alphabet now IUPAC-endorsed and used in GenBank (Oct 2006)          
 $ascii =    'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-$ascii_aa = 'ABCDEFGHIXKLMNXPQRSTUVWXYZ';
+$ascii_aa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 $ascii3 = 
-    'AlaAsxCysAspGluPheGlyHisIleXaaLysLeuMetAsnXaaProGlnArgSerThrSecValTrpXaaTyrGlx';
+    'AlaAsxCysAspGluPheGlyHisIleXleLysLeuMetAsnPylProGlnArgSerThrSecValTrpXaaTyrGlx';
 
 $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
 			    '-alphabet'=>'protein', 
@@ -41,12 +41,12 @@ ok $util->seq3($seq), $ascii3;
 #using anonymous hash
 ok (Bio::SeqUtils->seq3($seq), $ascii3); 
 ok (Bio::SeqUtils->seq3($seq, undef, ','), 
-    'Ala,Asx,Cys,Asp,Glu,Phe,Gly,His,Ile,Xaa,Lys,'.
-    'Leu,Met,Asn,Xaa,Pro,Gln,Arg,Ser,Thr,Sec,Val,Trp,Xaa,Tyr,Glx');
+    'Ala,Asx,Cys,Asp,Glu,Phe,Gly,His,Ile,Xle,Lys,'.
+    'Leu,Met,Asn,Pyl,Pro,Gln,Arg,Ser,Thr,Sec,Val,Trp,Xaa,Tyr,Glx');
 
 $seq->seq('asd-KJJK-');
 ok (Bio::SeqUtils->seq3($seq, '-', ':'), 
-    'Ala:Ser:Asp:Ter:Lys:Xaa:Xaa:Lys:Ter');
+    'Ala:Ser:Asp:Ter:Lys:Xle:Xle:Lys:Ter');
 
 # three letter amino acid code to one letter code
 ok (Bio::SeqUtils->seq3in($seq, 'AlaPYHCysAspGlu')), 
@@ -79,15 +79,15 @@ ok scalar @a, 6;
 #
 
 my @valid_aa = sort Bio::SeqUtils->valid_aa;
-ok(@valid_aa, 25);
+ok(@valid_aa, 27);
 ok ($valid_aa[1], 'A');
 
 @valid_aa = sort Bio::SeqUtils->valid_aa(1);
-ok(@valid_aa, 25);
+ok(@valid_aa, 27);
 ok ($valid_aa[1], 'Arg');
 
 my %valid_aa = Bio::SeqUtils->valid_aa(2);
-ok keys %valid_aa, 50;
+ok keys %valid_aa, 54;
 ok($valid_aa{'C'}, 'Cys');
 ok( $valid_aa{'Cys'}, 'C');
 
