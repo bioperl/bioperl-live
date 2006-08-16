@@ -32,7 +32,7 @@ IUPAC is a tool that produces a stream of unique, "strict"-satisfying Seq
 objects from an ambiquous Seq object (containing non-standard characters given
 the meaning shown below)
 
-        Extended Dna / Rna alphabet :
+        Extended DNA / RNA alphabet :
         (includes symbols for nucleotide ambiguity)
         ------------------------------------------
         Symbol       Meaning      Nucleic Acid
@@ -73,15 +73,18 @@ the meaning shown below)
         G        Glycine
         H        Histidine
         I        Isoleucine
+        J        Isoleucine/Leucine
         K        Lysine
         L        Leucine
         M        Methionine
         N        Asparagine
+        O        Pyrrolysine
         P        Proline
         Q        Glutamine
         R        Arginine
         S        Serine
         T        Threonine
+        U        Selenocysteine
         V        Valine
         W        Tryptophan
         X        Unknown
@@ -179,10 +182,12 @@ BEGIN {
 	    G => [qw(G)],
 	    H => [qw(H)],
 	    I => [qw(I)],
+        J => [qw(I L)],
 	    K => [qw(K)],
 	    L => [qw(L)],
 	    M => [qw(M)],
 	    N => [qw(N)],
+        O => [qw(O)],
 	    P => [qw(P)],
 	    Q => [qw(Q)],
 	    R => [qw(R)],

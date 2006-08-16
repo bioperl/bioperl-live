@@ -17,7 +17,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 48;
+    plan tests => 51;
 }
 use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
@@ -107,8 +107,10 @@ ok $test;
 
 # reverse translate amino acids 
 
-ok $myCodonTable->revtranslate('J'), 0;
-
+ok $myCodonTable->revtranslate('U'), 0;
+ok $myCodonTable->revtranslate('O'), 0;
+ok $myCodonTable->revtranslate('J'), 9;
+ok $myCodonTable->revtranslate('I'), 3;
 
 @ii = qw(A l ACN Thr sER ter Glx);
 @res = (
