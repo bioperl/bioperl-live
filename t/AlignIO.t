@@ -205,7 +205,7 @@ ok $status, 1, "  failed phylip output test";
 
 
 # METAFASTA (tests 37-39)
-print STDERR "METAFASTA tests don't work\n" if $DEBUG;
+print STDERR "Better Metafasta tests needed\n" if $DEBUG;
 $io = Bio::AlignIO->new(-verbose => -1, 
    -file => Bio::Root::IO->catfile("t","data","testaln.metafasta"));
 $aln = $io->next_aln;
