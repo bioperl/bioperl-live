@@ -330,7 +330,7 @@ if( $DEBUG ) {
 		# test dbsource stuff
 		# small chance this might change but hopefully not
 		my @annot = $seq->annotation->get_Annotations('dblink');
-		ok(scalar @annot, 30);	#
+		ok(scalar @annot, 31);	# changed 16-Aug-06
 		ok($annot[0]->database, 'swissprot');
 		ok($annot[0]->primary_id, '2AAA_YEAST');
 		ok( ($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
@@ -476,7 +476,7 @@ if( $DEBUG ) {
 		ok $t->id, "D012851";
 	};
 	if ($@) {
-		if( $DEBUG ) { 
+		if( 1 ) { 
 			print STDERR "Warning: Couldn't connect to MeSH with Bio::DB::MeSH!\n$@";
 		}
 		foreach ( $Test::ntest..$NUMTESTS) { 
