@@ -110,19 +110,19 @@ my $assembly = $aio->next_assembly();
 my @contigs = $assembly->all_contigs();
 
 my $direction = $contigs[0]->strand;
-ok(1 == $direction);
+ok $direction, 1;
 
 my $features =  $contigs[0]->get_features_collection;
 my @contig_features = $features->get_all_features;
-ok(8 == scalar @contig_features);
+ok @contig_features, 8;
 
 my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
-ok(2 == scalar @annotations);
+ok @annotations, 2;
 
 my ($feature_with_extra_info, $commented_feature) = @annotations;
 
-ok($feature_with_extra_info->has_tag('extra_info'));
-ok(($feature_with_extra_info->get_tag_values('extra_info'))[0] eq "contig extra\ninfo\n");
+ok $feature_with_extra_info->has_tag('extra_info'), 1;
+ok (($feature_with_extra_info->get_tag_values('extra_info'))[0], "contig extra\ninfo\n");
 
-ok($commented_feature->has_tag('comment'));
-ok(($commented_feature->get_tag_values('comment'))[0] eq "contig tag\ncomment\n");
+ok $commented_feature->has_tag('comment'), 1;
+ok (($commented_feature->get_tag_values('comment'))[0], "contig tag\ncomment\n");
