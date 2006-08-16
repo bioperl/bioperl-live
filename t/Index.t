@@ -3,11 +3,10 @@
 
 use strict;
 use vars qw($exit $DEBUG);
-$DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
-
 BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
+   $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
    $NUMTESTS = 48;
    if ( $@ ) {
       use lib 't';
@@ -34,7 +33,7 @@ BEGIN {
 
 END {
 	foreach ( $Test::ntest..$NUMTESTS) {
-		skip("Cannot complete Index.t tests, skipping",1);
+	  skip("Cannot complete Index.t tests, skipping",1);
 	}
 }
 
