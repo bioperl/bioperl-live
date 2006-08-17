@@ -456,6 +456,167 @@ sub sort_alphabetically {
     1;
 }
 
+=head2 set_new_reference
+
+ Title     : set_new_reference
+ Usage     : $aln->set_new_reference(3 or 'B31'):  Select the 3rd sequence, or 
+             the sequence whoes name is "B31" (full, exact, and case-sensitive), 
+             as the reference (1st) sequence
+ Function  : Change/Set a new reference (i.e., the first) sequence
+ Returns   : a new Bio::SimpleAlign object.  
+             Throws an exception if designated sequence not found
+ Argument  : a positive integer of sequence order, or a sequence name 
+             in the original alignment
+
+=cut
+
+sub set_new_reference {
+    my ($self, $seqid) = @_;
+    my $aln = $self->new;
+    my (@seq, @ids, @new_seq); 
+    my $is_num=0;
+    foreach my $seq ( $self->each_seq() ) {
+	push @seq, $seq;
+	push @ids, $seq->display_id;
+    }
+
+    if ($seqid =~ /^\d+$/) { # argument is seq position
+	$is_num=1;
+	$self->throw("The new reference sequence number has to be a positive integer >1 and <= no_sequences ") if ($seqid <= 1 || $seqid > $self->no_sequences);
+    } else { # argument is a seq name
+	$self->throw("The new reference sequence not in alignment ") unless &_in_aln($seqid, \@ids);
+    }
+
+    for (my $i=0; $i<=$#seq; $i++) {
+	my $pos=$i+1;
+        if ( ($is_num && $pos == $seqid) || ($seqid eq $seq[$i]->display_id) ) {
+	    unshift @new_seq, $seq[$i];
+	} else {
+	    push @new_seq, $seq[$i];
+	}
+    }
+    foreach (@new_seq) { $aln->add_seq($_);  }
+    return $aln;
+}
+
+sub _in_aln {  # check if input name exists in the alignment
+    my ($str, $ref) = @_;
+    foreach (@$ref) {
+	return 1 if $str eq $_;
+    }
+    return 0;
+}
+
+
+=head2 uniq_seq
+
+ Title     : uniq_seq
+ Usage     : $aln->uniq_seq():  Remove identical sequences in 
+             in the alignment.  Ambiguous base ("N", "n") and
+             leading and ending gaps ("-") are NOT counted as
+             differences.
+ Function  : Make a new alignment of unique sequence types (STs)
+ Returns   : 1. a new Bio::SimpleAlign object (all sequences renamed as "ST")  
+             2. ST of each sequence in STDERR
+ Argument  : None
+
+=cut
+
+sub uniq_seq {
+    my ($self, $seqid) = @_;
+    my $aln = $self->new;
+    my (%member, %order, @seq, @uniq_str);
+    my $order=0; 
+    my $len = $self->length();
+    foreach my $seq ( $self->each_seq() ) {
+	my $str = $seq->seq();
+
+# it's necessary to ignore "n", "N", leading gaps and ending gaps in 
+# comparing two sequence strings
+
+# 1st, convert "n", "N" to "?" (for DNA sequence only):
+	$str =~ s/n/\?/gi if $str =~ /^[atcgn-]+$/i;
+# 2nd, convert leading and ending gaps to "?":
+	$str = &_convert_leading_ending_gaps($str, '-', '?');
+	my $new = new Bio::LocatableSeq(-id=>$seq->id(), 
+					-seq=>$str, 
+					-start=>1, 
+					-end=>$len);
+	push @seq, $new;
+    }
+
+    foreach my $seq (@seq) {
+	my $str = $seq->seq();
+	my ($seen, $key) = &_check_uniq($str, \@uniq_str, $len); 
+	if ($seen) { # seen before
+	    my @memb = @{$member{$key}};
+	    push @memb, $seq;
+	    $member{$key} = \@memb;
+	} else {  # not seen
+	    push @uniq_str, $key;
+	    $order++;
+	    $member{$key} = [ ($seq) ];
+	    $order{$key} = $order;	    
+	}	
+    }
+
+    foreach my $str (sort {$order{$a} <=> $order{$b}} keys %order) { # sort by input order
+# convert leading/ending "?" back into "-" ("?" throws errors by SimpleAlign):
+	my $str2 = &_convert_leading_ending_gaps($str, '?', '-'); 
+# convert middle "?" back into "N" ("?" throws errors by SimpleAlign):
+	$str2 =~ s/\?/N/g if $str2 =~ /^[atcg\-\?]+$/i;
+	my $new = new Bio::LocatableSeq(-id=>"ST".$order{$str}, 
+					-seq=>$str2, 
+					-start=>1, 
+					-end=>length($str));
+	$aln->add_seq($new);
+#	print STDERR "ST".$order{$str}, "\t=>";
+	foreach (@{$member{$str}}) {
+        $self->debug($_->id(), "\t", "ST", $order{$str}, "\n");
+    }
+#	print STDERR "\n";
+    }
+    return $aln;
+}
+
+sub _check_uniq {  # check if same seq exists in the alignment
+    my ($str1, $ref, $length) = @_;
+    my @char1=split //, $str1;
+    my @array=@$ref;
+
+    return (0, $str1) if @array==0; # not seen (1st sequence)
+
+    foreach my $str2 (@array) {
+	my $diff=0;
+	my @char2=split //, $str2;
+	for (my $i=0; $i<=$length-1; $i++) {
+	    next if $char1[$i] eq '?';
+	    next if $char2[$i] eq '?';
+	    $diff++ if $char1[$i] ne $char2[$i];
+	}
+	return (1, $str2) if $diff == 0;  # seen before
+    }
+
+    return (0, $str1); # not seen
+}
+
+sub _convert_leading_ending_gaps {
+    my $s=shift;
+    my $sym1=shift;
+    my $sym2=shift;
+    my @array=split //, $s;
+# convert leading char:
+    for (my $i=0; $i<=$#array; $i++) { 
+	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last); 
+    }
+# convert ending char:
+    for (my $i = $#array; $i>= 0; $i--) { 
+	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
+    }
+    my $s_new=join '', @array;
+    return $s_new;
+}
+
 =head1 Sequence selection methods
 
 Methods returning one or more sequences objects.
@@ -2253,5 +2414,6 @@ sub source{
     }
     return $self->{'_source'};
 }
+
 
 1;

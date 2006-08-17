@@ -2,7 +2,9 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 68;
+use constant NUMTESTS => 71;
+use vars qw($DEBUG);
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
 	eval { require Test; };
@@ -242,3 +244,23 @@ $s1->seq('aaaaattt--');
 
 $b = $a->remove_gaps(undef, 'all_gaps_only');
 ok $b->consensus_string, "aaaaatttt";
+
+# test set_new_reference:
+$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
+                        "t","data","testaln.aln"));
+$aln=$str->next_aln();
+my $new_aln=$aln->set_new_reference(3);
+$a=$new_aln->get_seq_by_pos(1)->display_id;
+$new_aln=$aln->set_new_reference('P851414');
+$b=$new_aln->get_seq_by_pos(1)->display_id;
+ok $a, 'P851414';
+ok $b, 'P851414';
+
+# test uniq_seq:
+$str = Bio::AlignIO->new(-verbose => $DEBUG,
+						 -file=> Bio::Root::IO->catfile(
+                        "t","data","testaln2.fasta"));
+$aln=$str->next_aln();
+$new_aln=$aln->uniq_seq();
+$a=$new_aln->no_sequences;
+ok $a, 11;
