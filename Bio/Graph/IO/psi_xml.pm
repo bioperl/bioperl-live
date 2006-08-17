@@ -123,9 +123,10 @@ sub _proteinInteractor {
 		my $full       =  $org->first_child('names')->first_child('fullName')->text;
 		my ($gen, $sp) = $full =~ /(\S+)\s+(.+)/;
 		my $sp_obj     = Bio::Species->new(-ncbi_taxid     => $taxid,
-													  -classification => [$sp, $gen],
-													  -common_name    => $common
-													 );
+											-classification => [$sp, $gen],
+											-common_name    => $common
+										   );
+		$sp_obj->name('scientific', $full);
 		$species{$taxid} = $sp_obj;
         print "species parse error $@" if $@;
       }
