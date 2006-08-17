@@ -106,7 +106,7 @@ dN/dS for site classes (K=4)
 site class             0        1       2a       2b
 proportion       0.00000  0.65968  0.00000  0.34032
 background w     0.00000  0.00000  0.00000  0.00000
-foreground w     0.00000  0.00000 999.00000 999.00000
+foreground w     0.00000  0.00000999.00000 999.00000
 
 
 Naive Empirical Bayes (NEB) analysis (please use the BEB results.)

@@ -948,7 +948,9 @@ sub _parse_NSsitesBatch {
             $okay = 1;
 	} elsif ( /^omega\s+\(dn\/ds\)\s+\=\s+(\S+)/i ) {
             # for M0 (single ratio for the entire tree)
-            my @p = (1); # since there is only one class
+            # explicitly put '1.00000' rather than '1', because \d+\.\d{5}
+            # is reported in all other cases.
+            my @p = (q/1.00000/); # since there is only one class,
             my @w = $1;
             $data{'-dnds_site_classes'} = { 'p' => \@p,
                                             'w' => \@w};
@@ -971,14 +973,9 @@ sub _parse_NSsitesBatch {
                 }
                 if ( /^site class/ ) {
                     $self->_readline;
-                    my @p = split /\s+/, $self->_readline;
-                    my @b_w = split /\s+/, $self->_readline;
-                    my @f_w = split /\s+/, $self->_readline;
-                    shift @p;
-                    foreach (\@b_w, \@f_w) {
-                        shift @{$_};
-                        shift @{$_};
-                    }
+                    my @p = $self->_readline =~ /(\d+\.\d{5})/g;
+                    my @b_w = $self->_readline =~ /(\d+\.\d{5})/g;
+                    my @f_w = $self->_readline =~ /(\d+\.\d{5})/g;
                     my @w;
                     foreach my $i (0..$#b_w) {
                         push @w, { q/background/ => $b_w[$i],
@@ -987,10 +984,8 @@ sub _parse_NSsitesBatch {
                     $data{'-dnds_site_classes'} = { q/p/ => \@p,
                                                     q/w/ => \@w };
                 } else {
-		my @p = split(/\s+/,$self->_readline);
-		my @w = split(/\s+/,$self->_readline);
-		shift @p;
-		shift @w;
+		my @p = $self->_readline =~ /(\d+\.\d{5})/g;
+		my @w = $self->_readline =~ /(\d+\.\d{5})/g;
 		$data{'-dnds_site_classes'} = { 'p' => \@p,
 						'w' => \@w};
                 }

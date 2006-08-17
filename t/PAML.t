@@ -258,9 +258,9 @@ my $codeml_m0 = new Bio::Tools::Phylo::PAML
 ok($codeml_m0);
 my $result_m0 = $codeml_m0->next_result;
 my ($nssite_m0) = $result_m0->get_NSSite_results;
-ok($nssite_m0->num_site_classes,q/1/);
+ok($nssite_m0->num_site_classes,1);
 my $class_m0 = $nssite_m0->dnds_site_classes;
-ok($class_m0->{q/p/}->[0],1.00000);
+ok($class_m0->{q/p/}->[0],q/1.00000/);
 ok($class_m0->{q/w/}->[0],0.09213);
 
 # test BASEML
