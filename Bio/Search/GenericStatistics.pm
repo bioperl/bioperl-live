@@ -46,6 +46,10 @@ web:
 
 Email bioinformatics1 at dieselwurks dot com
 
+=head1 CONTRIBUTORS
+
+Sendu Bala, bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -53,30 +57,22 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Search::GenericStatistics;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Search::StatisticsI;
 
-@ISA = qw(Bio::Root::RootI Bio::Search::StatisticsI);
-
+@ISA = qw(Bio::Root::Root Bio::Search::StatisticsI);
 
 sub new {
-     my ($class) = shift;
-     my $self = {};
-     bless ($self,$class);
-     return $self;
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    return $self;
 }
-
-
 
 =head2 get_statistic
 
@@ -89,10 +85,9 @@ sub new {
 =cut
 
 sub get_statistic {
-   my ($self,$arg) = @_;
-     return $self->{$arg};
+    my ($self,$arg) = @_;
+    return $self->{stats}->{$arg};
 }
-
 
 =head2 set_statistic
 
@@ -105,11 +100,23 @@ sub get_statistic {
 =cut
 
 sub set_statistic {
-   my ($self,$name,$value) = @_;
-     $self->{$name} = $value;
-     
+    my ($self,$name,$value) = @_;
+    $self->{stats}->{$name} = $value;
 }
 
+=head2 available_statistics
 
+ Title   : available_statistics
+ Usage   : my @statnames = $statistic_object->available_statistics
+ Function: Returns the names of the available statistics
+ Returns : list of available statistic names
+ Args    : none
+
+=cut
+
+sub available_statistics {
+    my $self = shift;
+    return keys %{$self->{stats}};
+}
 
 1;

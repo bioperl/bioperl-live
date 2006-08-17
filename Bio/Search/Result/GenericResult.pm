@@ -456,9 +456,9 @@ sub database_entries {
 
 =cut
 
-sub get_parameter{
+sub get_parameter {
    my ($self,$name) = @_;
-   return $self->{'_parameters'}->{$name};
+   return $self->{'_parameters'}->get_parameter($name);
 }
 
 =head2 available_parameters
@@ -473,7 +473,7 @@ sub get_parameter{
 
 sub available_parameters{
    my ($self) = @_;
-   return keys %{$self->{'_parameters'}};
+   return $self->{'_parameters'}->available_parameters;
 }
 
 
@@ -490,7 +490,7 @@ sub available_parameters{
 
 sub get_statistic{
    my ($self,$key) = @_;
-   return $self->{'_statistics'}->{$key};
+   return $self->{'_statistics'}->get_statistic($key);
 }
 
 =head2 available_statistics
@@ -505,7 +505,7 @@ sub get_statistic{
 
 sub available_statistics{
    my ($self) = @_;
-   return keys %{$self->{'_statistics'}};
+   return $self->{'_statistics'}->available_statistics;
 }
 
 =head2 Bio::Search::Report 
@@ -594,7 +594,7 @@ sub add_parameter {
 
 sub add_statistic {
    my ($self,$key,$value) = @_;
-   $self->{'_statistics'}->{$key} = $value;
+   $self->{'_statistics'}->set_statistic($key => $value);
    return;
 }
 

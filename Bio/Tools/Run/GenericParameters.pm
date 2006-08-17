@@ -48,6 +48,10 @@ web:
 
 Email bioinformatics1 at dieselwurks dot com
 
+=head1 CONTRIBUTORS
+
+Sendu Bala, bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -55,27 +59,21 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Tools::Run::GenericParameters;
 use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
-use Bio::Root::RootI;
+use Bio::Root::Root;
 use Bio::Tools::Run::ParametersI;
-@ISA = qw(Bio::Root::RootI Bio::Tools::Run::ParametersI);
+@ISA = qw(Bio::Root::Root Bio::Tools::Run::ParametersI);
 
 sub new {
-     my ($class) = shift;
-     my $self = {};
-     bless ($self,$class);
-     return $self;
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    return $self;
 }
-
 
 =head2 get_parameter
 
@@ -88,10 +86,9 @@ sub new {
 =cut
 
 sub get_parameter {
-   my ($self,$arg) = @_;
-   return $self->{$arg};
+    my ($self,$arg) = @_;
+    return $self->{params}->{$arg};
 }
-
 
 =head2 set_parameter
 
@@ -104,10 +101,23 @@ sub get_parameter {
 =cut
 
 sub set_parameter {
-   my ($self,$name,$value) = @_;
-     $self->{$name} = $value;
+    my ($self,$name,$value) = @_;
+    $self->{params}->{$name} = $value;
 }
 
+=head2 available_parameters
 
+ Title   : available_parameters
+ Usage   : my @paramnames = $parameter_object->available_parameters
+ Function: Returns the names of the available parameters
+ Returns : list of available parameter names
+ Args    : none
+
+=cut
+
+sub available_parameters {
+    my $self = shift;
+    return keys %{$self->{params}};
+}
 
 1;
