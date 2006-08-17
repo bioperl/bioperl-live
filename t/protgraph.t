@@ -263,7 +263,7 @@ unless( $XML_ERROR ) {
 	ok $g->node_count, 4;
 	#my @rts =$g->articulation_points();
 	my $n = $g->nodes_by_id(207153);
-	ok $n->species->binomial,"Helicobacter pylori 26695";
+	ok $n->species->node_name,"Helicobacter pylori 26695";
 	ok $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
 
 	# PSI XML from IntAct
