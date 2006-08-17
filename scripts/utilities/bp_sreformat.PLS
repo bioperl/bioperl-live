@@ -16,9 +16,9 @@ my $USAGE = "bp_sreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMA
 -if/--informat          Specify the input format
 -of/--outformat         Specify the output format
 -i/--input              Specify the input file name
-                        (to pass in data on STDIN omit this flag)
+                        (to pass in data on STDIN use minus sign as filename)
 -o/--output             Specify the output file name
-                        (to pass data out on STDOUT omit this flag
+                        (to pass data out on STDOUT use minus sign as filename)
 --msa                   Specify this is multiple sequence alignment data
 --special=specialparams Specify special params supported by some formats
                         Comma or space separated please.
@@ -136,7 +136,7 @@ This script uses the SeqIO system that allows conversion of sequence
 formats either sequence data or multiple sequence alignment data.  The
 name comes from the fact that Sean Eddy's program sreformat (part of
 the HMMER pkg) already does this.  Sean's program tries to guess the
-input formats in our code we currently require your to specify what
+input formats while in our code we currently require your to specify what
 the input and output formats are and if the data is from a multiple
 sequence alignment or from straight sequence files.
 
@@ -151,10 +151,9 @@ bpsreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMAT
   -of/--outformat  Specify the output format
 
   -i/--input       Specify the input file name
-                   (to pass in data on STDIN omit this flag)
-
+                   (to pass in data on STDIN use minus sign as filename)
   -o/--output      Specify the output file name
-                   (to pass data out on STDOUT omit this flag
+                   (to pass data out on STDOUT use minus sign as filename)
 
   --msa            Specify this is multiple sequence alignment data
 
