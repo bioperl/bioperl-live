@@ -505,11 +505,11 @@ sub contract_linear_paths {
     my $self = shift;
     my @remove;
     foreach my $node ($self->get_nodes) {
-      if ($node->ancestor && $node->each_Descendent == 1) {
-        push(@remove, $node);
-      }
+        if ($node->ancestor && $node->each_Descendent == 1) {
+            push(@remove, $node);
+        }
     }
-    $self->splice(@remove);
+    $self->splice(@remove) if @remove;
 }
 
 =head2 distance
