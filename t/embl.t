@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 44;
+	plan tests => 55;
 }
 
 use Bio::Seq;
@@ -34,6 +34,28 @@ ok($as->seq_version, 1);
 ok($as->version, 1);
 ok($as->desc, 'H.sapiens mRNA for hnRNPcore protein A1');
 ok($as->molecule, 'RNA');
+ok($as->alphabet, 'rna');
+ok(scalar $as->all_SeqFeatures(), 4);
+ok($as->length, 1198);
+ok($as->species->binomial(), 'Homo sapiens');
+
+# EMBL Release 87 changes (8-17-06)
+
+$ast = Bio::SeqIO->new( -format => 'embl',
+			   -verbose => $verbose,
+			   -file => Bio::Root::IO->catfile
+			   ("t","data","roa1_v2.dat"));
+$ast->verbose($verbose);
+$as = $ast->next_seq();
+ok defined $as->seq;
+# accession # same as display name now
+ok($as->display_id, 'X79536'); 
+ok($as->accession_number, 'X79536');
+ok($as->seq_version, 1);
+ok($as->version, 1);
+ok($as->desc, 'H.sapiens mRNA for hnRNPcore protein A1');
+# mRNA instead of RNA
+ok($as->molecule, 'mRNA');
 ok($as->alphabet, 'rna');
 ok(scalar $as->all_SeqFeatures(), 4);
 ok($as->length, 1198);
