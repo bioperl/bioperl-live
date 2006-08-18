@@ -456,7 +456,7 @@ sub _parse_response {
   my $self    = shift;
   my $content = shift;
   if (my ($warning) = $content =~ m!<ErrorList>(.+)</ErrorList>!s) {
-    warn "Warning(s) from GenBank: $warning\n";
+    $self->warn("Warning(s) from GenBank: $warning\n");
   }
   if (my ($error) = $content =~ /<OutputMessage>([^<]+)/) {
     $self->throw("Error from Genbank: $error");
