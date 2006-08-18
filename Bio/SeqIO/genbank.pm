@@ -1238,7 +1238,7 @@ sub _read_GenBank_Species {
 
 	$_ = $$buffer;
 
-	my( $sub_species, $species, $genus, $sci_name, $common, @class,
+	my( $sub_species, $species, $genus, $sci_name, $common, $class_lines,
         $source_flag );
 	# upon first entering the loop, we must not read a new line -- the SOURCE
 	# line is already in the buffer (HL 05/10/2000)
@@ -1260,10 +1260,14 @@ sub _read_GenBank_Species {
 			$source_flag = 0;
 		} elsif ( /^\s+(.+)/o ) {
 			my $line = $1;
-			# only split on ';' or '.' so that classification that is 2 words will 
-			# still get matched, use map() to remove trailing/leading spaces
-			push(@class, map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/, $line)
-			  if ( $line =~ /(;|\.)/ );
+            # if first line doesn't end in ; or ., it is part of a long
+            # organism line
+            if ($line !~ /[;\.]$/) {
+                $sci_name .= ' '.$line;
+            }
+            else {
+                $class_lines .= $line;
+            }
 		} else {
 			last;
 		}
@@ -1271,6 +1275,11 @@ sub _read_GenBank_Species {
 		$_ = undef; # Empty $_ to trigger read of next line
 	}
 	$$buffer = $_;
+    
+    # Convert data in classification lines into classification array.
+    # only split on ';' or '.' so that classification that is 2 or more words will 
+	# still get matched, use map() to remove trailing/leading/intervening spaces
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
     
     # do we have a genus?
     my $possible_genus = $class[-1];

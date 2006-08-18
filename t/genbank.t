@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 128;
+	plan tests => 129;
 }
 
 use Bio::SeqIO;
@@ -344,6 +344,7 @@ $gb = new Bio::SeqIO(-format => 'genbank',
 							(qw(t data NC_006511-short.gbk)));
 $seq = $gb->next_seq;
 ok $seq->species->common_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
+ok $seq->species->scientific_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
 @class = $seq->species->classification;
 ok $class[$#class], "Bacteria";
 
