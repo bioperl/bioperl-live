@@ -469,6 +469,18 @@ sub spliced_seq {
 	    $called_seq = $self->entire_seq;
 	}
 	
+    # does the called sequence make sense? Bug 1780
+    if ($called_seq->length < $loc->end) {
+        my $accession = $called_seq->accession;
+        my $end = $loc->end; 
+        my $length = $called_seq->length;
+        my $orig_id = $self->seq_id; # originating sequence
+        my ($locus) = $self->get_tagset_values("locus_tag");
+        $self->throw("Location end ($end) exceeds length ($length) of ".
+                     "called sequence $accession.\nCheck sequence version used in ".
+                     "$locus locus-tagged SeqFeature in $orig_id.");
+    }
+    
 	if( $self->isa('Bio::Das::SegmentI') ) {
 	    my ($s,$e) = ($loc->start,$loc->end);	    
 	    $seqstr .= $called_seq->subseq($s,$e)->seq();
