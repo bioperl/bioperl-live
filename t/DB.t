@@ -21,7 +21,7 @@ BEGIN {
       use lib 't';
    }
    use Test;
-   $NUMTESTS = 121;
+   $NUMTESTS = 124;
    plan tests => $NUMTESTS;
 
    eval { require IO::String;
