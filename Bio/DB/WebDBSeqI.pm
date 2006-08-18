@@ -445,7 +445,8 @@ sub get_seq_stream {
 		# If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
 
 		# fork and pipe: _stream_request()=><STREAM>
-		my $result =  eval { open(STREAM,"-|") };
+        my $stream;
+		my $result =  eval { open($stream,"-|") };
 
 		if (defined $result) {
 			$DB::fork_TTY = '/dev/null'; # prevents complaints from debugger
@@ -457,7 +458,7 @@ sub get_seq_stream {
 			else {
 				return Bio::SeqIO->new('-verbose' => $self->verbose,
 											  '-format'  => $ioformat,
-											  '-fh'      => \*STREAM);
+											  '-fh'      => $stream);
 			}
 		}
 		else {
