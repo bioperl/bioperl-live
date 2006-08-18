@@ -269,13 +269,11 @@ if( $DEBUG ) {
    
 	my $seqin = $gb->get_Stream_by_acc("5");
 	my @result = (1136, 'dna', 342, 'protein');
-	my $ct = 0;
 	while ($seq = $seqin->next_seq) {
-	  ok($seq->length,$result[$ct]);
-	  $ct++;
-	  ok($seq->alphabet,$result[$ct]);
-	  $ct++;
+	  ok($seq->length,shift(@result));
+	  ok($seq->alphabet,shift(@result));
 	}
+    ok @result, 0;
 	#
 	# Real batch retrieval using epost/efetch 
 	# these tests may change if integrated further into Bio::DB::Gen*
@@ -286,26 +284,23 @@ if( $DEBUG ) {
    $seqin = $gb->get_seq_stream(-uids 	=> [4887706 ,431229, 147460],
 								-mode	=> 'batch');
    @result = ('M59757', 12611 ,'X76083', 3140, 'J01670', 1593);
-   $ct = 0;
    while ($seq = $seqin->next_seq) {
-	  ok($seq->accession,$result[$ct]);
-	  $ct++;
-	  ok($seq->length,$result[$ct]);
-	  $ct++;
+	  ok($seq->accession,shift(@result));
+	  ok($seq->length,shift(@result));
    }
+   ok @result, 0;
    
    $gb = Bio::DB::GenPept->new();
    
    $seqin = $gb->get_seq_stream(-uids 	=> [2981015, 1621261, 195055],
 								-mode	=> 'batch');
    @result = ('AAC06201', 353, 'CAB02640', 193, 'AAD15290', 136);
-   $ct = 0;
    while ($seq = $seqin->next_seq) {
-	  ok($seq->accession,$result[$ct]);
-	  $ct++;
-	  ok($seq->length,$result[$ct]);
-	  $ct++;
+	  ok($seq->accession,shift(@result));
+	  ok($seq->length,shift(@result));
    }
+   ok @result, 0;
+   
 	#
 	# Bio::DB::GenPept
 	#
