@@ -35,7 +35,7 @@
     'LWP::UserAgent'            => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
     'XML::Parser'               => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
     'XML::Parser::PerlSAX'      => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
-    'XML::Twig'         	    => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
+    'XML::Twig'                 => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
     'XML::Writer'               => '0.0/Parsing + writing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
     'Set::Scalar'               => '0.0/Bio::Tree::Compatible/proper operation/Bio::Tree::Compatible',
     'SOAP::Lite'                => '0.0/SOAP protocol/XEMBL Services (also Bibliographic queries in Biblio::) /Bio::DB::XEMBLService',
@@ -54,8 +54,8 @@ sub check_package {
     my ($name,$str) = @_;
     my ($ver,$desc,$expl,$module) = split( /\// , $str);
     if( !eval "require($name)") {
-	print "External Module $name, $desc,\n is not installed on this computer.\n  The $module in Bioperl needs it for $expl\n\n";
-	return 1;
+    print "External Module $name, $desc,\n is not installed on this computer.\n  The $module in Bioperl needs it for $expl\n\n";
+    return 1;
     }
 
     return 0;
@@ -99,14 +99,14 @@ sub prompt_for_biodbgff {
       my $cfg = {dbd_driver => 'mysql'};
       GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
       if (open T,">t/do_biodbgff.tests") {
-	foreach (keys %$cfg) {
-	  print T $_,"\t",$cfg->{$_},"\n";
-	}
-	close T;
+    foreach (keys %$cfg) {
+      print T $_,"\t",$cfg->{$_},"\n";
+    }
+    close T;
       }
     } else {
       if( -e "t/do_biodbgff.tests" ) {
-	unlink "t/do_biodbgff.tests";
+    unlink "t/do_biodbgff.tests";
       }
     }
   }
@@ -181,7 +181,7 @@ sub install_contents {
     while (<$in>) {
       next if $doneit;
       if (s/^\#\!\S+/$bangline/) {
-	$doneit++;
+    $doneit++;
       }
     } continue {
       print $out $_;
@@ -218,7 +218,7 @@ sub GFFQueryDb {
   my $prompt = $options->{'prompt'};
 
   $driver  = prompt("Which database driver should I use for testing BioDBGFF (mysql,Pg,Oracle)?",
-		    $driver) if $prompt;
+            $driver) if $prompt;
 
   my $d = lc $driver;
   $cfg->{'dbd_driver'} = $driver;
@@ -272,11 +272,11 @@ sub GFFQueryDb {
   if ($options->{'verbose'}) {
     local $^W=0;  # some uninitialized variable warning coming through
     print("Driver $driver is using the following settings for tests:\n",
-	  "    Database $test_db\n",
-	  "    Host     $test_host\n",
-	  "    DSN      $test_dsn\n",
-	  "    User     $test_user\n",
-	  "    Password $test_pass\n");
+      "    Database $test_db\n",
+      "    Host     $test_host\n",
+      "    DSN      $test_dsn\n",
+      "    User     $test_user\n",
+      "    Password $test_pass\n");
   }
 }
 
@@ -325,7 +325,7 @@ $error = 0;
 print "\n";
 foreach $name ( keys %packages ) {
     if( &check_package($name,$packages{$name}) == 1 ) {
-	$error = 1;
+    $error = 1;
     }
 }
 
@@ -350,28 +350,28 @@ QQ_ERROR_QQ
 }
 
 WriteMakefile(
-    NAME	=> $NAME,
-    DISTNAME    => $DISTNAME,
+    NAME         => $NAME,
+    DISTNAME     => $DISTNAME,
     VERSION_FROM => "Bio/Root/Version.pm",
-    'dist'      => {  COMPRESS     => 'gzip -9f',
+    'dist'       => { COMPRESS     => 'gzip -9f',
                       SUFFIX       => '.gz',
                       DIST_DEFAULT => 'all tardist',
-                   },
-    ($] ge '5.005')  ? (
-     'AUTHOR'   => 'Bioperl Team (bioperl-l@bioperl.org)',
-     'ABSTRACT' => 'Bioinformatics Toolkit',
+                    },
+    ($] ge '5.005') ? (
+        'AUTHOR'   => 'Bioperl Team (bioperl-l@bioperl.org)',
+        'ABSTRACT' => 'Bioinformatics Toolkit',
     ) : (),
-    'realclean' => {  FILES        => join(' ',@BACKUP_FILES) },
+    'realclean' => { FILES => join(' ', @BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
     EXE_FILES   => \@scripts_to_install,
-    PL_FILES	=> {'maintenance/symlink_scripts.PLS' => 'maintenance/symlink_scripts.pl' },
+    PL_FILES    => {'maintenance/symlink_scripts.PLS' => 'maintenance/symlink_scripts.pl' },
     PREREQ_PM   => {
-	'IO::String'       => 0,
-    'File::Temp'       => 0,
-	'File::Spec'       => 0,
-	'HTML::Entities'   => 0,
-	'DB_File'          => 0,
-	'IO::Scalar'       => 0,
+        'IO::String'     => 0,
+        'File::Temp'     => 0,
+        'File::Spec'     => 0,
+        'HTML::Entities' => 0,
+        'DB_File'        => 0,
+        'IO::Scalar'     => 0,
     },
 );
 
@@ -390,6 +390,6 @@ sub MY::manifypods {
 sub MY::clean {
   package MY;
   return shift->SUPER::clean(@_) . <<END;
-	-rm -rf scripts_temp
+    -rm -rf scripts_temp
 END
 }
