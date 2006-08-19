@@ -315,23 +315,17 @@ sub next_prediction {
         while($_ =~ /^#RM/) { # header line
             if(/^#RM\sdescr\s(.*)$/) { # contains sec structure
                 $self->{'_sec_structure'}=$1;
-                $self->debug("Found descriptor: $self->{'_sec_structure'}\n");
             }
             if(/^#RM\sdfile\s(.*)$/) { # contains dfile
                 $self->{'_dfile'}=$1;
-                $self->debug("Found dfile : $self->{'_dfile'}\n");
             }
             $_ = $self->_readline;
         }
         if(m/^>((\S*)\s.*)$/) {
-            $self->debug("Found a description: $1\n");
             $seqid = $2;
             $description = $1; # contains entire description line if needed
-            # try to get accession from FASTA-like header (if from Genbank) otherwise punt
-            # Thanks to J. Stajich for this idea, which is part of SeqIO now
             if($seqid =~  /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|/) {
                 $seqid = $2; # pulls out gid
-                $self->debug("Genbank gid: $seqid\n");
             }
         }
         # start pulling out hit information...
@@ -351,10 +345,6 @@ sub next_prediction {
             } else {
                 $end = $start - $length + 1;
                 ($start, $end, $strand) = ($end, $start, -1);
-            }
-            if($score =~ /[a-zA-Z\s]/) { #probably containing extra data from sprintf()
-                $self->debug
-                ("packing sprintf() data into score!\n");
             }
             my $gene = Bio::SeqFeature::Generic->new(-seq_id => $seqid,
                                                       -start  => $start,
