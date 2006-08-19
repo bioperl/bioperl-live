@@ -12,46 +12,43 @@
 
 # All Bioperl dependencies on external modules are defined here
 %packages = (
-	     'Set::Scalar'              => '0.0/Bio::Tree::Compatible/proper operation/Bio::Tree::Compatible',
-	     'HTTP::Request::Common'    => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
-	     'LWP::UserAgent'           => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
-	     'HTML::Entities'           => '0.0/To parse POST request URL formas/Remote Analysis POST submissions/Bio::Tools::Run::Analysis::*',
-	     'HTML::Parser'             => '3.0/Parse HTML documents/screen scraping www.gdb.org/Bio::DB::GDB',
-	     'Ace'                      => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace',
-#	     'IO::Scalar'               => '0.0/IO handle to read or write to a scalar/remote http Blast jobs/Bio::Tools::Blast::Run::Webblast',
-	     'IO::String'               => '0.0/IO handle to read or write to a string/GenBank+GenPept sequence retrieval, Variation code/Bio::DB::*,Bio::Variation::*,Bio::Tools::Blast::Run::Webblast, Bio::Index::Blast',
-	     'XML::Parser'              => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
-	     'XML::Writer'              => '0.0/Parsing + writing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
-	     'XML::Parser::PerlSAX'     => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
-	     'XML::Twig'         	     => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
-	     'File::Temp'               => '0.0/Temporary File creation/Bio::Root::IO uses if present/Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq',
-	     'SOAP::Lite'               => '0.0/SOAP protocol/XEMBL Services (also Bibliographic queries in Biblio::) /Bio::DB::XEMBLService',
-	     'HTML::Parser'             => '0.0/HTML parsing/HTML parsing of GDB page/Bio::DB::GDB',
-	     'DBD::mysql'               => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
-	     'GD'                       => '1.3/Graphical Drawing Toolkit/rendering Sequences and Features/Bio::Graphics',
-	     'Text::Shellwords'         => '0.0/Execute shell commands/test scripts/Bio::Graphics',
-	     'SVG'                      => '2.26/Generate optional SVG output/Bio::Graphics/Bio::Graphics::Pictogram',
-	     'SVG::Graph'               => '0.01/Generate optional SVG output/creating SVG images/Bio::TreeIO::svggraph',
-	     'GD::SVG'                  => '0.0/Generate optional SVG output/creating SVG images/Bio::Graphics::Panel',
-	     'Storable'                 => '0.0/Persistent object storage and retrieval/storing sequence objects in local file cache/Bio::DB::FileCache',
-	     'DB_File'                  => '0.0/Persistent object storage and retrieval/Bio::DB::GFF::Adaptor::berkeleydb',
-	     'Graph::Directed'          => '0.0/Generic Graph data structure and algorithms/ontology engine implementation for the GO parser/Bio::Ontology::OBOEngine',
-	     'Class::AutoClass'         => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph',
-	     'Clone'                    => '0.0/Recursively copy Perl datatypes/cloning ProteinGraph objects/Bio::Graph::ProteinGraph',
-	     'XML::SAX'                 => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-	     'XML::SAX::Base'           => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-	     'XML::SAX::Writer'         => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-	     'XML::DOM::XPath'          => '0.0/XML parser/Bio::SeqIO::interpro',
-
- 	     'Bio::ASN1::EntrezGene'    => '0.0/Entrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene',
- 	     'Convert::Binary::C'       => '0.0/Binary Data Conversion using C Types/Parsers/Bio::SeqIO::strider',
- 	     'Spreadsheet::ParseExcel'  => '0.0/Excel parser/Test suite',
-             'Data::Stag::Writer'       => '0.0/XML writer/Bio::SeqIO::chaosxml',
+    'Ace'                       => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace',
+    'Bio::ASN1::EntrezGene'     => '0.0/Entrez Gene Bioperl Parser/Parsers/Bio::SeqIO::entrezgene',
+    'Class::AutoClass'          => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph',
+    'Clone'                     => '0.0/Recursively copy Perl datatypes/cloning ProteinGraph objects/Bio::Graph::ProteinGraph',
+    'Convert::Binary::C'        => '0.0/Binary Data Conversion using C Types/Parsers/Bio::SeqIO::strider',
+    'Data::Stag::Writer'        => '0.0/XML writer/Bio::SeqIO::chaosxml',
+    'DB_File'                   => '0.0/Persistent object storage and retrieval/Bio::DB::GFF::Adaptor::berkeleydb',
+    'DBD::mysql'                => '0.0/Mysql driver/loading and querying of Mysql-based GFF feature databases/Bio::DB::GFF',
 # Bio::Microarray is not in core bioperl yet
-#	     'enum'                     => '0.0/C style enumerated types and bitmask flags 
+#    'enum'                      => '0.0/C style enumerated types and bitmask flags
 # in Perl/Bio::Microarray::Affymetrix::*',
-
-	    );
+    'File::Temp'                => '0.0/Temporary File creation/Bio::Root::IO uses if present/Bio::DB::WebDBSeqI, Bio::Seq::LargePrimarySeq',
+    'GD'                        => '1.3/Graphical Drawing Toolkit/rendering Sequences and Features/Bio::Graphics',
+    'GD::SVG'                   => '0.0/Generate optional SVG output/creating SVG images/Bio::Graphics::Panel',
+    'Graph::Directed'           => '0.0/Generic Graph data structure and algorithms/ontology engine implementation for the GO parser/Bio::Ontology::OBOEngine',
+    'HTML::Entities'            => '0.0/To parse POST request URL formas/Remote Analysis POST submissions/Bio::Tools::Run::Analysis::*',
+    'HTML::Parser'              => '3.0/Parse HTML documents/screen scraping www.gdb.org/Bio::DB::GDB',
+    'HTTP::Request::Common'     => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
+#    'IO::Scalar'                => '0.0/IO handle to read or write to a scalar/remote http Blast jobs/Bio::Tools::Blast::Run::Webblast',
+    'IO::String'                => '0.0/IO handle to read or write to a string/GenBank+GenPept sequence retrieval, Variation code/Bio::DB::*,Bio::Variation::*,Bio::Tools::Blast::Run::Webblast, Bio::Index::Blast',
+    'LWP::UserAgent'            => '0.0/Part of the LWP package/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast',
+    'XML::Parser'               => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
+    'XML::Parser::PerlSAX'      => '0.0/Parsing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
+    'XML::Twig'         	    => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
+    'XML::Writer'               => '0.0/Parsing + writing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
+    'Set::Scalar'               => '0.0/Bio::Tree::Compatible/proper operation/Bio::Tree::Compatible',
+    'SOAP::Lite'                => '0.0/SOAP protocol/XEMBL Services (also Bibliographic queries in Biblio::) /Bio::DB::XEMBLService',
+    'Storable'                  => '0.0/Persistent object storage and retrieval/storing sequence objects in local file cache/Bio::DB::FileCache',
+    'Spreadsheet::ParseExcel'   => '0.0/Excel parser/Test suite',
+    'SVG'                       => '2.26/Generate optional SVG output/Bio::Graphics/Bio::Graphics::Pictogram',
+    'SVG::Graph'                => '0.01/Generate optional SVG output/creating SVG images/Bio::TreeIO::svggraph',
+    'Text::Shellwords'          => '0.0/Execute shell commands/test scripts/Bio::Graphics',
+    'XML::SAX'                  => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+    'XML::SAX::Base'            => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+    'XML::SAX::Writer'          => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+    'XML::DOM::XPath'           => '0.0/XML parser/Bio::SeqIO::interpro',
+);
 
 sub check_package {
     my ($name,$str) = @_;
@@ -262,7 +259,7 @@ sub GFFQueryDb {
     $test_host = '';
   }
   if ($d eq 'pg') {
-    $test_dsn = "dbi:$driver:dbname=$test_db"; 
+    $test_dsn = "dbi:$driver:dbname=$test_db";
   } else {
     $test_dsn = "dbi:$driver:database=$test_db";
   }
@@ -283,7 +280,7 @@ sub GFFQueryDb {
   }
 }
 
-				           
+
 #
 # Talk to Ewan (<birney@ebi.ac.uk>) or bioperl-l@bioperl.org for more info.
 #
@@ -357,7 +354,7 @@ WriteMakefile(
     DISTNAME    => $DISTNAME,
     VERSION_FROM => "Bio/Root/Version.pm",
     'dist'      => {  COMPRESS     => 'gzip -9f',
-                      SUFFIX       => '.gz', 
+                      SUFFIX       => '.gz',
                       DIST_DEFAULT => 'all tardist',
                    },
     ($] ge '5.005')  ? (
@@ -370,7 +367,7 @@ WriteMakefile(
     PL_FILES	=> {'maintenance/symlink_scripts.PLS' => 'maintenance/symlink_scripts.pl' },
     PREREQ_PM   => {
 	'IO::String'       => 0,
-    	'File::Temp'       => 0,
+    'File::Temp'       => 0,
 	'File::Spec'       => 0,
 	'HTML::Entities'   => 0,
 	'DB_File'          => 0,
