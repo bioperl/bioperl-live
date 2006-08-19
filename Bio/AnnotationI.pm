@@ -24,11 +24,11 @@ Bio::AnnotationI - Annotation interface
        foreach $value ( @values ) {
           # value is an Bio::AnnotationI, and defines a "as_text" method
           print "Annotation ",$key," stringified value ",$value->as_text,"\n";
-          # you can also use a generic hash_tree method for getting 
+          # you can also use a generic hash_tree method for getting
           # stuff out say into XML format
           $hash_tree = $value->hash_tree();
        }
-   } 
+   }
 
 
 =head1 DESCRIPTION
@@ -80,7 +80,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org
+  bioperl-l@bioperl.org
 
 =head2 Reporting Bugs
 
@@ -165,7 +165,7 @@ sub hash_tree{
            under which it was stored unless the object has a tag
            stored already.
 
- Example : 
+ Example :
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
 

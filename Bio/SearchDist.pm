@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::SearchDist
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -64,7 +64,7 @@ The original code this was based on comes from the histogram module as
 part of the HMMer2 package. Look at http://hmmer.wustl.edu/
 
 Its use in Bioperl is via the Compiled XS extension which is cared for
-by Ewan Birney (birney@sanger.ac.uk). Please contact Ewan first about
+by Ewan Birney (birney@ebi.ac.uk). Please contact Ewan first about
 the use of this module
 
 =head1 FEEDBACK
@@ -120,7 +120,7 @@ print $@;
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
-  my($min, $max, $lump) = 
+  my($min, $max, $lump) =
 	$self->_rearrange([qw(MIN MAX LUMP)], @args);
 
   if( !  $min ) {
@@ -146,7 +146,7 @@ sub new {
  Usage   : $dis->add_score(300);
  Function: Adds a single score to the distribution
  Returns : nothing
- Args    : 
+ Args    :
 
 
 =cut
@@ -182,7 +182,7 @@ sub fit_evd{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -203,8 +203,8 @@ sub fit_Gaussian{
 
  Title   : evalue
  Usage   : $eval = $dis->evalue($score)
- Function: Returns the evalue of this score 
- Returns : float 
+ Function: Returns the evalue of this score
+ Returns : float
  Args    :
 
 

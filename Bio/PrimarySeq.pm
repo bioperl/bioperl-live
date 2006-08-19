@@ -2,7 +2,7 @@
 #
 # bioperl module for Bio::PrimarySeq
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -30,7 +30,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
                                    -accession_number => 'X78121',
                                    -alphabet => 'dna',
                                    -is_circular => 1 );
-  print "Sequence ", $seqobj->id(), " with accession ", 
+  print "Sequence ", $seqobj->id(), " with accession ",
     $seqobj->accession_number, "\n";
 
   # read from file
@@ -42,7 +42,7 @@ Bio::PrimarySeq - Bioperl lightweight Sequence Object
 
   # to get out parts of the sequence.
 
-  print "Sequence ", $seqobj->id(), " with accession ", 
+  print "Sequence ", $seqobj->id(), " with accession ",
     $seqobj->accession_number, " and desc ", $seqobj->desc, "\n";
 
   $string  = $seqobj->seq();
@@ -96,7 +96,7 @@ web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -147,7 +147,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            values.
  Returns : a new Bio::PrimarySeq object
  Args    : -seq         => sequence string
-           -display_id  => display id of the sequence (locus name) 
+           -display_id  => display id of the sequence (locus name)
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
            -namespace   => the namespace for the accession
@@ -203,7 +203,7 @@ sub new {
     $alphabet && $self->alphabet($alphabet);
 
     # if there is an alphabet, and direct is passed in, assumme the alphabet
-    # and sequence is ok 
+    # and sequence is ok
 
     if( $direct && $ref_to_seq) {
 		 $self->{'seq'} = $$ref_to_seq;
@@ -295,7 +295,7 @@ sub seq {
 
  Title   : validate_seq
  Usage   : if(! $seq->validate_seq($seq_str) ) {
-                print "sequence $seq_str is not valid for an object of 
+                print "sequence $seq_str is not valid for an object of
                 alphabet ",$seq->alphabet, "\n";
 	   }
  Function: Validates a given sequence string. A validating sequence string
@@ -317,8 +317,8 @@ sub seq {
 sub validate_seq {
 	my ($self,$seqstr) = @_;
 	if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-	return 0 unless( defined $seqstr); 
-	if((CORE::length($seqstr) > 0) && 
+	return 0 unless( defined $seqstr);
+	if((CORE::length($seqstr) > 0) &&
 	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
 	    $self->warn("seq doesn't validate, mismatch is " .
 			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
@@ -477,7 +477,7 @@ sub display_id {
 
            [Note this method name is likely to change in 1.3]
 
-           With the new Bio::IdentifiableI interface, this is aliased 
+           With the new Bio::IdentifiableI interface, this is aliased
            to object_id
 
  Returns : A string
@@ -682,7 +682,7 @@ sub version{
  Title   : authority
  Usage   : $authority    = $obj->authority()
  Function: A string which represents the organisation which
-           granted the namespace, written as the DNS name for  
+           granted the namespace, written as the DNS name for
            organisation (eg, wormbase.org).
 
  Returns : A scalar
@@ -731,7 +731,7 @@ This comprises of display_name and description.
  Function: A string which is what should be displayed to the user.
            The string should have no spaces (ideally, though a cautious
            user of this interface would not assumme this) and should be
-           less than thirty characters (though again, double checking 
+           less than thirty characters (though again, double checking
            this is a good idea).
 
            This is aliased to display_id().
@@ -747,7 +747,7 @@ sub display_name {
 
  Title   : description
  Usage   : $string    = $obj->description()
- Function: A text string suitable for displaying to the user a 
+ Function: A text string suitable for displaying to the user a
            description. This string is likely to have spaces, but
            should not have any newlines or formatting - just plain
            text. The string should not be greater than 255 characters

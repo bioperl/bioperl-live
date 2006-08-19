@@ -84,7 +84,7 @@ web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
 
 =head1 APPENDIX

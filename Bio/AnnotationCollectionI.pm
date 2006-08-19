@@ -30,7 +30,7 @@ Bio::AnnotationCollectionI - Interface for annotation collections
           # access into this object
           $hash = $value->hash_tree();
        }
-   } 
+   }
 
 =head1 DESCRIPTION
 
@@ -40,7 +40,7 @@ Annotation (this differs from a Sequence Feature, which is called
 a Sequence Feature and may or may not have an Annotation Collection).
 
 A benefit of this approach is that all sorts of simple, interesting
-observations can be collected, the possibility is endless. 
+observations can be collected, the possibility is endless.
 
 The Bioperl approach is that the "interesting facts" are represented by
 Bio::AnnotationI objects. The interface Bio::AnnotationI guarantees
@@ -92,7 +92,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org
+  bioperl-l@bioperl.org
 
 =head2 Reporting Bugs
 
@@ -110,7 +110,7 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods 
+The rest of the documentation details each of the object methods. Internal methods
 are usually preceded with a _
 
 =cut
@@ -207,7 +207,7 @@ sub remove_Annotations{
 =head2 get_num_of_annotations()
 
  Usage   : my $count = $collection->get_num_of_annotations()
- Function: Returns the count of all annotations stored in this collection 
+ Function: Returns the count of all annotations stored in this collection
  Returns : integer
  Args    : none
 

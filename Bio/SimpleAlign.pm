@@ -62,20 +62,20 @@ See the module documentation for details and more methods.
 =head1 DESCRIPTION
 
 SimpleAlign is an object that handles a multiple sequence alignment
-(MSA). It is very permissive of types (it does not insist on sequences 
-being all same length, for example). Think of it as a set of sequences 
-with a whole series of built-in manipulations and methods for reading and 
+(MSA). It is very permissive of types (it does not insist on sequences
+being all same length, for example). Think of it as a set of sequences
+with a whole series of built-in manipulations and methods for reading and
 writing alignments.
 
 SimpleAlign uses L<Bio::LocatableSeq>, a subclass of L<Bio::PrimarySeq>,
-to store its sequences. These are subsequences with a start and end 
-positions in the parent reference sequence. Each sequence in the 
+to store its sequences. These are subsequences with a start and end
+positions in the parent reference sequence. Each sequence in the
 SimpleAlign object is a Bio::LocatableSeq.
 
-SimpleAlign expects the combination of name, start, and end for a 
-given sequence to be unique in the alignment, and this is the key for the 
-internal hashes (name, start, end are abbreviated 'nse' in the code). 
-However, in some cases people do not want the name/start-end to be displayed: 
+SimpleAlign expects the combination of name, start, and end for a
+given sequence to be unique in the alignment, and this is the key for the
+internal hashes (name, start, end are abbreviated 'nse' in the code).
+However, in some cases people do not want the name/start-end to be displayed:
 either multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
 'displayname', and generally is what is used to print out the
@@ -114,17 +114,17 @@ web:
 
 =head1 AUTHOR
 
-Ewan Birney, birney@sanger.ac.uk
+Ewan Birney, birney@ebi.ac.uk
 
 =head1 CONTRIBUTORS
 
 Allen Day, allenday-at-ucla.edu,
-Richard Adams, Richard.Adams-at-ed.ac.uk, 
-David J. Evans, David.Evans-at-vir.gla.ac.uk, 
-Heikki Lehvaslaiho, heikki-at-bioperl-dot-org, 
-Allen Smith, allens-at-cpan.org, 
-Jason Stajich, jason-at-bioperl.org, 
-Anthony Underwood, aunderwood-at-phls.org.uk, 
+Richard Adams, Richard.Adams-at-ed.ac.uk,
+David J. Evans, David.Evans-at-vir.gla.ac.uk,
+Heikki Lehvaslaiho, heikki-at-bioperl-dot-org,
+Allen Smith, allens-at-cpan.org,
+Jason Stajich, jason-at-bioperl.org,
+Anthony Underwood, aunderwood-at-phls.org.uk,
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 Brian Osborne, osborne1 at optonline.net
 
@@ -159,7 +159,7 @@ BEGIN {
     # Gonnet Pam250 matrix. The strong and weak groups are
     # defined as strong score >0.5 and weak score =<0.5 respectively.
 
-    %CONSERVATION_GROUPS = ( 
+    %CONSERVATION_GROUPS = (
             'strong' => [ qw(
 						 STA
 						 NEQK
@@ -430,8 +430,8 @@ sub purge {
  Usage     : $ali->sort_alphabetically
  Function  : Changes the order of the alignemnt to alphabetical on name
              followed by numerical by number.
- Returns   : 
- Argument  : 
+ Returns   :
+ Argument  :
 
 =cut
 
@@ -459,13 +459,13 @@ sub sort_alphabetically {
 =head2 set_new_reference
 
  Title     : set_new_reference
- Usage     : $aln->set_new_reference(3 or 'B31'):  Select the 3rd sequence, or 
-             the sequence whoes name is "B31" (full, exact, and case-sensitive), 
+ Usage     : $aln->set_new_reference(3 or 'B31'):  Select the 3rd sequence, or
+             the sequence whoes name is "B31" (full, exact, and case-sensitive),
              as the reference (1st) sequence
  Function  : Change/Set a new reference (i.e., the first) sequence
- Returns   : a new Bio::SimpleAlign object.  
+ Returns   : a new Bio::SimpleAlign object.
              Throws an exception if designated sequence not found
- Argument  : a positive integer of sequence order, or a sequence name 
+ Argument  : a positive integer of sequence order, or a sequence name
              in the original alignment
 
 =cut
@@ -473,7 +473,7 @@ sub sort_alphabetically {
 sub set_new_reference {
     my ($self, $seqid) = @_;
     my $aln = $self->new;
-    my (@seq, @ids, @new_seq); 
+    my (@seq, @ids, @new_seq);
     my $is_num=0;
     foreach my $seq ( $self->each_seq() ) {
 	push @seq, $seq;
@@ -511,12 +511,12 @@ sub _in_aln {  # check if input name exists in the alignment
 =head2 uniq_seq
 
  Title     : uniq_seq
- Usage     : $aln->uniq_seq():  Remove identical sequences in 
+ Usage     : $aln->uniq_seq():  Remove identical sequences in
              in the alignment.  Ambiguous base ("N", "n") and
              leading and ending gaps ("-") are NOT counted as
              differences.
  Function  : Make a new alignment of unique sequence types (STs)
- Returns   : 1. a new Bio::SimpleAlign object (all sequences renamed as "ST")  
+ Returns   : 1. a new Bio::SimpleAlign object (all sequences renamed as "ST")
              2. ST of each sequence in STDERR
  Argument  : None
 
@@ -526,28 +526,28 @@ sub uniq_seq {
     my ($self, $seqid) = @_;
     my $aln = $self->new;
     my (%member, %order, @seq, @uniq_str);
-    my $order=0; 
+    my $order=0;
     my $len = $self->length();
     foreach my $seq ( $self->each_seq() ) {
 	my $str = $seq->seq();
 
-# it's necessary to ignore "n", "N", leading gaps and ending gaps in 
+# it's necessary to ignore "n", "N", leading gaps and ending gaps in
 # comparing two sequence strings
 
 # 1st, convert "n", "N" to "?" (for DNA sequence only):
 	$str =~ s/n/\?/gi if $str =~ /^[atcgn-]+$/i;
 # 2nd, convert leading and ending gaps to "?":
 	$str = &_convert_leading_ending_gaps($str, '-', '?');
-	my $new = new Bio::LocatableSeq(-id=>$seq->id(), 
-					-seq=>$str, 
-					-start=>1, 
+	my $new = new Bio::LocatableSeq(-id=>$seq->id(),
+					-seq=>$str,
+					-start=>1,
 					-end=>$len);
 	push @seq, $new;
     }
 
     foreach my $seq (@seq) {
 	my $str = $seq->seq();
-	my ($seen, $key) = &_check_uniq($str, \@uniq_str, $len); 
+	my ($seen, $key) = &_check_uniq($str, \@uniq_str, $len);
 	if ($seen) { # seen before
 	    my @memb = @{$member{$key}};
 	    push @memb, $seq;
@@ -556,18 +556,18 @@ sub uniq_seq {
 	    push @uniq_str, $key;
 	    $order++;
 	    $member{$key} = [ ($seq) ];
-	    $order{$key} = $order;	    
-	}	
+	    $order{$key} = $order;
+	}
     }
 
     foreach my $str (sort {$order{$a} <=> $order{$b}} keys %order) { # sort by input order
 # convert leading/ending "?" back into "-" ("?" throws errors by SimpleAlign):
-	my $str2 = &_convert_leading_ending_gaps($str, '?', '-'); 
+	my $str2 = &_convert_leading_ending_gaps($str, '?', '-');
 # convert middle "?" back into "N" ("?" throws errors by SimpleAlign):
 	$str2 =~ s/\?/N/g if $str2 =~ /^[atcg\-\?]+$/i;
-	my $new = new Bio::LocatableSeq(-id=>"ST".$order{$str}, 
-					-seq=>$str2, 
-					-start=>1, 
+	my $new = new Bio::LocatableSeq(-id=>"ST".$order{$str},
+					-seq=>$str2,
+					-start=>1,
 					-end=>length($str));
 	$aln->add_seq($new);
 #	print STDERR "ST".$order{$str}, "\t=>";
@@ -606,11 +606,11 @@ sub _convert_leading_ending_gaps {
     my $sym2=shift;
     my @array=split //, $s;
 # convert leading char:
-    for (my $i=0; $i<=$#array; $i++) { 
-	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last); 
+    for (my $i=0; $i<=$#array; $i++) {
+	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
     }
 # convert ending char:
-    for (my $i = $#array; $i>= 0; $i--) { 
+    for (my $i = $#array; $i>= 0; $i--) {
 	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
     }
     my $s_new=join '', @array;
@@ -624,10 +624,10 @@ Methods returning one or more sequences objects.
 =head2 each_seq
 
  Title     : each_seq
- Usage     : foreach $seq ( $align->each_seq() ) 
+ Usage     : foreach $seq ( $align->each_seq() )
  Function  : Gets a Seq object from the alignment
  Returns   : Seq object
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -658,7 +658,7 @@ sub each_seq {
              in alphabetically sorted order.
              Does not change the order of the alignment.
  Returns   : Seq object
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -694,8 +694,8 @@ sub _alpha_startend {
 
  Title     : each_seq_with_id
  Usage     : foreach $seq ( $align->each_seq_with_id() )
- Function  : Gets a Seq objects from the alignment, the contents 
-             being those sequences with the given name (there may be 
+ Function  : Gets a Seq objects from the alignment, the contents
+             being those sequences with the given name (there may be
              more than one)
  Returns   : Seq object
  Argument  : a seq name
@@ -864,7 +864,7 @@ sub select {
     foreach my $pos ($start .. $end) {
 	$aln->add_seq($self->get_seq_by_pos($pos));
     }
-    $aln->id($self->id);	
+    $aln->id($self->id);
     return $aln;
 }
 
@@ -904,11 +904,11 @@ sub select_noncont {
  Function  : Creates a slice from the alignment inclusive of start and
              end columns, and the first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
-             new alignment and a warning is printed. Slice beyond the length of 
+             new alignment and a warning is printed. Slice beyond the length of
              the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
  Args      : Positive integer for start column, positive integer for end column,
-             optional boolean which if true will keep gap-only columns in the newly 
+             optional boolean which if true will keep gap-only columns in the newly
              created slice. Example:
 
              $aln2 = $aln->slice(20,30,1)
@@ -937,7 +937,7 @@ sub slice {
 		# seq
 		my $seq_end = $end;
 		$seq_end = $seq->length if( $end > $seq->length );
-	
+
 		my $slice_seq = $seq->subseq($start, $seq_end);
 		$new_seq->seq( $slice_seq );
 
@@ -953,7 +953,7 @@ sub slice {
 		# end
 		$slice_seq =~ s/\W//g;
 		$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
-	
+
 		if ($new_seq->start and $new_seq->end >= $new_seq->start) {
 			$aln->add_seq($new_seq);
 		} else {
@@ -972,7 +972,7 @@ sub slice {
 
 =head2 remove_columns
 
- Title     : remove_columns 
+ Title     : remove_columns
  Usage     : $aln2 = $aln->remove_columns(['mismatch','weak']) or
              $aln2 = $aln->remove_columns([0,0],[6,8])
  Function  : Creates an aligment with columns removed corresponding to
@@ -980,8 +980,8 @@ sub slice {
  Returns   : Bio::SimpleAlign object
  Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch'|'gaps'|
              'all_gaps_columns') or array ref where the referenced array
-             contains a pair of integers that specify a range. 
-             The first column is 0, 
+             contains a pair of integers that specify a range.
+             The first column is 0,
 
 =cut
 
@@ -1005,10 +1005,10 @@ sub remove_columns {
 
  Title     : remove_gaps
  Usage     : $aln2 = $aln->remove_gaps
- Function  : Creates an aligment with gaps removed 
+ Function  : Creates an aligment with gaps removed
  Returns   : a Bio::SimpleAlign object
- Args      : a gap character(optional) if none specified taken 
-                from $self->gap_char, 
+ Args      : a gap character(optional) if none specified taken
+                from $self->gap_char,
              [optional] $all_gaps_columns flag (1 or 0, default is 0)
                         indicates that only all-gaps columns should be deleted
 
@@ -1036,7 +1036,7 @@ sub remove_gaps {
         $gap_line=~/\G[$del_char]+/gc;
         my $end = pos($gap_line)-1;
 
-        #have to offset the start and end for subsequent removes  
+        #have to offset the start and end for subsequent removes
         $start-=$length;
         $end  -=$length;
         $length += ($end-$start+1);
@@ -1103,7 +1103,7 @@ sub _remove_columns_by_type {
                        'weak'             => '\.',
                        'strong'           => ':',
                        'mismatch'         => ' ',
-                       'gaps'             => '', 
+                       'gaps'             => '',
                        'all_gaps_columns' => ''
                      );
 	# get the characters to delete against
@@ -1120,7 +1120,7 @@ sub _remove_columns_by_type {
 			my $start = pos($match_line)-1;
 			$match_line=~/\G[$del_char]+/gc;
 			my $end = pos($match_line)-1;
-			
+
 			#have to offset the start and end for subsequent removes
 			$start-=$length;
 			$end  -=$length;
@@ -1128,7 +1128,7 @@ sub _remove_columns_by_type {
 			push @remove, [$start,$end];
 		}
 	}
-	
+
 	# remove the segments
 	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
 	$aln = $aln->remove_gaps() if $gap;
@@ -1141,7 +1141,7 @@ sub _remove_columns_by_type {
 sub _remove_columns_by_num {
 	my ($self,$positions) = @_;
 	my $aln = $self->new;
-	
+
 	# sort the positions to remove columns at the end 1st
 	@$positions = sort { $b->[0] <=> $a->[0] } @$positions;
 	$aln = $self->_remove_col($aln,$positions);
@@ -1202,7 +1202,7 @@ sub splice_by_seq_pos{
              Notice that the from (arg1) is interpretted as a regex,
              so be careful about quoting meta characters (eg
              $ali->map_chars('.','-') wont do what you want)
- Returns   : 
+ Returns   :
  Argument  : 'from' rexexp
              'to' string
 
@@ -1214,7 +1214,7 @@ sub map_chars {
     my $to   = shift;
     my ($seq,$temp);
 
-    $self->throw("Need exactly two arguments") 
+    $self->throw("Need exactly two arguments")
 	unless defined $from and defined $to;
 
     foreach $seq ( $self->each_seq() ) {
@@ -1231,8 +1231,8 @@ sub map_chars {
  Title     : uppercase()
  Usage     : $ali->uppercase()
  Function  : Sets all the sequences to uppercase
- Returns   : 
- Argument  : 
+ Returns   :
+ Argument  :
 
 =cut
 
@@ -1254,10 +1254,10 @@ sub uppercase {
 
  Title    : cigar_line()
  Usage    : %cigars = $align->cigar_line()
- Function : Generates a "cigar" (Compact Idiosyncratic Gapped Alignment 
+ Function : Generates a "cigar" (Compact Idiosyncratic Gapped Alignment
             Report) line for each sequence in the alignment. Examples are
-            "1,60" or "5,10:12,58", where the numbers refer to conserved 
-            positions within the alignment. The keys of the hash are the 
+            "1,60" or "5,10:12,58", where the numbers refer to conserved
+            positions within the alignment. The keys of the hash are the
             NSEs (name/start/end) assigned to each sequence.
  Args     : none
  Returns  : Hash of strings (cigar lines)
@@ -1291,7 +1291,7 @@ sub cigar_line {
 		splice @{$cigars{$name}}, 1, 0, ${$cigars{$name}}[0] if
 		  ( ${$cigars{$name}}[0] + 1 < ${$cigars{$name}}[1] );
       push @{$cigars{$name}}, ${$cigars{$name}}[$#{$cigars{$name}}] if
-           ( ${$cigars{$name}}[($#{$cigars{$name}} - 1)] + 1 < 
+           ( ${$cigars{$name}}[($#{$cigars{$name}} - 1)] + 1 <
 		          ${$cigars{$name}}[$#{$cigars{$name}}] );
 		for ( my $x = 1 ; $x < $#{$cigars{$name}} - 1 ; $x++) {
 			if (${$cigars{$name}}[$x - 1] + 1 < ${$cigars{$name}}[$x]  &&
@@ -1304,24 +1304,24 @@ sub cigar_line {
   for my $name (keys %cigars) {
 	  my @remove;
 	  for ( my $x = 0 ; $x < $#{$cigars{$name}} ; $x++) {
-		   if ( ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x - 1)] + 1 && 
+		   if ( ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x - 1)] + 1 &&
 			     ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x + 1)] - 1 ) {
 		      unshift @remove,$x;
 	      }
 	   }
       for my $pos (@remove) {
 		  	splice @{$cigars{$name}}, $pos, 1;
-	   }     
+	   }
    }
    # join and punctuate
    for my $name (keys %cigars) {
- 	  my ($start,$end,$str) = "";  
+ 	  my ($start,$end,$str) = "";
  	  while ( ($start,$end) = splice @{$cigars{$name}}, 0, 2 ) {
  		  $str .= ($start . "," . $end . ":");
  	  }
  	  $str =~ s/:$//;
       $cigars{$name} = $str;
-   } 
+   }
    %cigars;
 }
 
@@ -1344,7 +1344,7 @@ sub match_line {
 	my %matchchars = ('match'    => $matchlinechar || '*',
 							  'weak'     => $weak          || '.',
 							  'strong'   => $strong        || ':',
-							  'mismatch' => ' ', 
+							  'mismatch' => ' ',
 						  );
 
 	my @seqchars;
@@ -1356,11 +1356,11 @@ sub match_line {
 	my $refseq = shift @seqchars;
 	# let's just march down the columns
 	my $matchline;
- POS: 
+ POS:
 	foreach my $pos ( 0..$self->length ) {
 		my $refchar = $refseq->[$pos];
 		my $char = $matchchars{'mismatch'};
-		unless( defined $refchar ) {  
+		unless( defined $refchar ) {
 			last if $pos == $self->length; # short circuit on last residue
 			# this in place to handle jason's soon-to-be-committed
 			# intron mapping code
@@ -1370,7 +1370,7 @@ sub match_line {
 		my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
 		foreach my $seq ( @seqchars ) {
 			next if $pos >= scalar @$seq;
-			$dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' || 
+			$dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' ||
 							  $seq->[$pos] eq ' ' );
 			$col{$seq->[$pos]}++ if defined $seq->[$pos];
 		}
@@ -1381,19 +1381,19 @@ sub match_line {
 		elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
 		elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
 			# matches for protein seqs
-	    TYPE: 
+	    TYPE:
 			foreach my $type ( qw(strong weak) ) {
 				# iterate through categories
 				my %groups;
 				# iterate through each of the aa in the col
 				# look to see which groups it is in
 				foreach my $c ( @colresidues ) {
-					foreach my $f ( grep /\Q$c/, 
+					foreach my $f ( grep /\Q$c/,
 										 @{$CONSERVATION_GROUPS{$type}} ) {
 						push @{$groups{$f}},$c;
 					}
 				}
-			 GRP: 
+			 GRP:
 				foreach my $cols ( values %groups ) {
 					@$cols = sort @$cols;
 					# now we are just testing to see if two arrays
@@ -1421,7 +1421,7 @@ sub match_line {
  Title    : gap_line()
  Usage    : $line = $align->gap_line()
  Function : Generates a gap line - much like consensus string
-            except that a line where '-' represents gap  
+            except that a line where '-' represents gap
  Args     : (optional) gap line characters ('-' by default)
  Returns  : string
 
@@ -1433,7 +1433,7 @@ sub gap_line {
     my %gap_hsh; # column gaps vector
     foreach my $seq ( $self->each_seq ) {
 		my $i = 0;
-    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar} 
+    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar}
 		  map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
@@ -1461,7 +1461,7 @@ sub all_gap_line {
     my @seqs = $self->each_seq;
     foreach my $seq ( @seqs ) {
 	my $i = 0;
-    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar} 
+    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar}
 	map {[$i++, $_]} split(//, uc ($seq->seq));
     }
     my $gap_line;
@@ -1482,7 +1482,7 @@ sub all_gap_line {
  Usage    : my $cols = $align->gap_col_matrix()
  Function : Generates an array of hashes where
             each entry in the array is a hash reference
-            with keys of all the sequence names and 
+            with keys of all the sequence names and
             and value of 1 or 0 if the sequence has a gap at that column
  Args     : (optional) gap line characters ($aln->gap_char or '-' by default)
 
@@ -1529,7 +1529,7 @@ sub match {
 
     $match ||= '.';
     my ($matching_char) = $match;
-    $matching_char = "\\$match" if $match =~ /[\^.$|()\[\]]/ ;  #'; 
+    $matching_char = "\\$match" if $match =~ /[\^.$|()\[\]]/ ;  #';
     $self->map_chars($matching_char, '-');
 
     my @seqs = $self->each_seq();
@@ -1580,7 +1580,7 @@ sub unmatch {
     foreach my $seq ( @seqs ) {
 	my @varseq = split //, $seq->seq();
 	for ( my $i=0; $i < scalar @varseq; $i++) {
-	    $varseq[$i] = $refseq[$i] if defined $refseq[$i] && 
+	    $varseq[$i] = $refseq[$i] if defined $refseq[$i] &&
 		( $refseq[$i] =~ /[A-Za-z\*]/ ||
 		  $refseq[$i] =~ /$gapchar/ ) &&
 		      $varseq[$i] eq $match;
@@ -1697,8 +1697,8 @@ sub gap_char {
 sub symbol_chars{
    my ($self,$includeextra) = @_;
 
-   unless ($self->{'_symbols'}) { 
-       foreach my $seq ($self->each_seq) { 
+   unless ($self->{'_symbols'}) {
+       foreach my $seq ($self->each_seq) {
            map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
        }
    }
@@ -1765,7 +1765,7 @@ sub _consensus_aa {
     my $point = shift;
     my $threshold_percent = shift || -1 ;
     my ($seq,%hash,$count,$letter,$key);
-    my $gapchar = $self->gap_char;    
+    my $gapchar = $self->gap_char;
     foreach $seq ( $self->each_seq() ) {
 	$letter = substr($seq->seq,$point,1);
 	$self->throw("--$point-----------") if $letter eq '';
@@ -1835,14 +1835,14 @@ sub _consensus_iupac {
     $string = uc $string;
 
     # quick exit if there's an N in the string
-    if ($string =~ /N/) {	
+    if ($string =~ /N/) {
 	$string =~ /\W/ ? return 'n' : return 'N';
     }
     # ... or if there are only gap characters
     return '-' if $string =~ /^\W+$/;
 
     # treat RNA as DNA in regexps
-    if ($string =~ /U/) {	
+    if ($string =~ /U/) {
 	$string =~ s/U/T/;
 	$rna = 1;
     }
@@ -1919,10 +1919,10 @@ sub _consensus_iupac {
 
  Title     : is_flush
  Usage     : if ( $ali->is_flush() )
- Function  : Tells you whether the alignment 
+ Function  : Tells you whether the alignment
            : is flush, i.e. all of the same length
  Returns   : 1 or 0
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -1960,7 +1960,7 @@ sub is_flush {
  Function  : Returns the maximum length of the alignment.
              To be sure the alignment is a block, use is_flush
  Returns   : Integer
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -1998,7 +1998,7 @@ sub length {
  Function  : Gets the maximum length of the displayname in the
              alignment. Used in writing out various MSA formats.
  Returns   : integer
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -2038,7 +2038,7 @@ sub maxdisplayname_length {
  Usage     : $no = $ali->no_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -2061,7 +2061,7 @@ sub no_residues {
  Usage     : $depth = $ali->no_sequences
  Function  : number of sequence in the sequence alignment
  Returns   : integer
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -2261,7 +2261,7 @@ sub column_from_residue_number {
 	eval {
 	    $col = $seq->column_from_residue_number($resnumber);
 	};
-	next if $@;		
+	next if $@;
 	return $col;
     }
 
@@ -2323,7 +2323,7 @@ sub displayname {
  Function  : Sets the names to be name_# where # is the number of
              times this name has been used.
  Returns   : 1, on success
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -2359,7 +2359,7 @@ sub set_displayname_count {
  Function  : Makes all the sequences be displayed as just their name,
              not name/start-end
  Returns   : 1
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -2380,7 +2380,7 @@ sub set_displayname_flat {
  Usage     : $ali->set_displayname_normal()
  Function  : Makes all the sequences be displayed as name/start-end
  Returns   : 1, on success
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -2400,7 +2400,7 @@ sub set_displayname_normal {
  Title   : source
  Usage   : $obj->source($newval)
  Function: sets the Alignment source program
- Example : 
+ Example :
  Returns : value of source
  Args    : newvalue (optional)
 

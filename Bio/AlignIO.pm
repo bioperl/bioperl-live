@@ -3,7 +3,7 @@
 # BioPerl module for Bio::AlignIO
 #
 #	based on the Bio::SeqIO module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 # Copyright Peter Schattner
@@ -182,8 +182,8 @@ all supported.
 
 This constructor behaves like new(), but returns a tied filehandle
 rather than a Bio::AlignIO object.  You can read sequences from this
-object using the familiar E<lt>E<gt> operator, and write to it using 
-print(). The usual array and $_ semantics work.  For example, you can 
+object using the familiar E<lt>E<gt> operator, and write to it using
+print(). The usual array and $_ semantics work.  For example, you can
 read all sequence objects into an array like this:
 
   @sequences = <$fh>;
@@ -282,12 +282,12 @@ use Bio::Tools::GuessSeqFormat;
  Usage   : $stream = Bio::AlignIO->new(-file => $filename,
                                        -format => 'Format')
  Function: Returns a new seqstream
- Returns : A Bio::AlignIO::Handler initialised with 
+ Returns : A Bio::AlignIO::Handler initialised with
            the appropriate format
- Args    : -file => $filename 
+ Args    : -file => $filename
            -format => format
            -fh => filehandle to attach to
-           -displayname_flat => 1 [optional] 
+           -displayname_flat => 1 [optional]
                                 to force the displayname to not show start/end
                                 information
 
@@ -300,14 +300,14 @@ sub new {
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::AlignIO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);	
+	my ($self) = $class->SUPER::new(@args);
 	$self->_initialize(@args);
 	return $self;
-    } else { 
+    } else {
 
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $format = $param{'-format'} || 
+	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
         unless ($format) {
             if ($param{-file}) {
@@ -385,7 +385,7 @@ sub _initialize {
  Usage   : *INTERNAL AlignIO stuff*
  Function: Loads up (like use) a module at run time on demand
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -394,7 +394,7 @@ sub _load_format_module {
   my ($self,$format) = @_;
   my $module = "Bio::AlignIO::" . $format;
   my $ok;
-  
+
   eval {
       $ok = $self->_load_module($module);
   };
@@ -417,7 +417,7 @@ END
  Usage   : $aln = stream->next_aln
  Function: reads the next $aln object from the stream
  Returns : a Bio::Align::AlignI compliant object
- Args    : 
+ Args    :
 
 =cut
 
@@ -445,10 +445,10 @@ sub write_aln {
 
  Title   : _guess_format
  Usage   : $obj->_guess_format($filename)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : guessed format of filename (lower case)
- Args    : 
+ Args    :
 
 =cut
 
@@ -498,8 +498,8 @@ sub PRINT {
 
  Title   : force_displayname_flat
  Usage   : $obj->force_displayname_flat($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of force_displayname_flat (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 

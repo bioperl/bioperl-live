@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::PrimarySeqI
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -17,7 +17,7 @@ Bio::PrimarySeqI - Interface definition for a Bio::PrimarySeq
 =head1 SYNOPSIS
 
     # Bio::PrimarySeqI is the interface class for sequences.
-    # If you are a newcomer to bioperl, you might want to start with 
+    # If you are a newcomer to bioperl, you might want to start with
     # Bio::Seq documentation.
 
     # Test if this is a seq object
@@ -96,7 +96,7 @@ web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -129,7 +129,7 @@ define.
  Function: Returns the sequence as a string of letters. The
            case of the letters is left up to the implementer.
            Suggested cases are upper case for proteins and lower case for
-           DNA sequence (IUPAC standard), but implementations are suggested to 
+           DNA sequence (IUPAC standard), but implementations are suggested to
            keep an open mind about case (some users... want mixed case!)
  Returns : A scalar
  Status  : Virtual
@@ -166,7 +166,7 @@ sub subseq{
 
  Title   : display_id
  Usage   : $id_string = $obj->display_id();
- Function: Returns the display id, also known as the common name of the Sequence 
+ Function: Returns the display id, also known as the common name of the Sequence
            object.
 
            The semantics of this is that it is the most likely string
@@ -499,10 +499,10 @@ sub trunc{
  Notes   : The -start argument only applies when -orf is set to 1. By default
            all initiation codons found in the given codon table are used
            but when "start" is set to some codon this codon will be used
-           exclusively as the initiation codon. Note that the default codon 
+           exclusively as the initiation codon. Note that the default codon
            table (NCBI "Standard") has 3 initiation codons!
 
-           By default translate() translates termination codons to 
+           By default translate() translates termination codons to
            the some character (default is *), both internal and trailing
            codons. Setting "-complete" to 1 tells translate() to remove
            the trailing character.
@@ -525,18 +525,18 @@ For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 
 sub translate {
 	 my ($self,@args) = @_;
-	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, 
+	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
 		  $codonTable, $orf, $start_codon);
-	 
+
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
-		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw, 
+		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
 		  $codonTable, $orf, $start_codon) =
-			 $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID 
+			 $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID
 										  COMPLETE THROW CODONTABLE ORF START)], @args);
 	 ## old API, 1.5.1 and preceding versions
 	 } else {
-		 ($terminator, $unknown, $frame, $codonTableId, 
+		 ($terminator, $unknown, $frame, $codonTableId,
 		  $complete, $throw, $codonTable) = @args;
 	 }
 
@@ -551,7 +551,7 @@ sub translate {
 		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
 			unless $codonTable->isa('Bio::Tools::CodonTable');
     } else {
-		 $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);		 
+		 $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
 	 }
 
     ## Error if alphabet is "protein"
@@ -560,7 +560,7 @@ sub translate {
 
     ## Error if -start parameter isn't a valid codon
 	 if ($start_codon) {
-		 $self->throw("Invalid start codon: $start_codon.") if 
+		 $self->throw("Invalid start codon: $start_codon.") if
 			( $start_codon !~ /^[A-Z]{3}$/i );
 	 }
 
@@ -571,7 +571,7 @@ sub translate {
 		 $seq = $self->_find_orf($seq,$codonTable,$start_codon);
 	 } else {
 	 ## use frame, error if frame is not 0, 1 or 2
-		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.") 
+		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.")
 			unless ($frame == 0 or $frame == 1 or $frame == 2);
 		 $seq = substr($seq,$frame);
     }
@@ -581,7 +581,7 @@ sub translate {
     # Use user-input terminator/unknown
     $output =~ s/\*/$terminator/g;
     $output =~ s/X/$unknown/g;
-	
+
     ## Only if we are expecting to translate a complete coding region
     if ($complete) {
 		 my $id = $self->display_id;
@@ -650,7 +650,7 @@ sub  id {
 
  Title   : length
  Usage   : $len = $seq->length()
- Function: 
+ Function:
  Returns : Integer representing the length of the sequence.
  Args    :
 
@@ -704,19 +704,19 @@ need to implement these functions
            The ORF is not required to have a termination codon.
  Example :
  Returns : A nucleotide sequence or nothing, if no initiation codon is found.
- Args    : Nucleotide sequence, CodonTable object, alternative initiation 
+ Args    : Nucleotide sequence, CodonTable object, alternative initiation
            codon (optional).
 
 =cut
 
 sub _find_orf {
 	my ($self,$sequence,$codonTable,$start_codon) = @_;
-	
+
 	# find initiation codon and remove leading sequence
 	while ($sequence) {
 		my $codon = substr($sequence,0,3);
 		if ($start_codon) {
-			last if ( $codon =~ /$start_codon/i );	
+			last if ( $codon =~ /$start_codon/i );
 		} else {
 			last if ($codonTable->is_start_codon($codon));
 		}

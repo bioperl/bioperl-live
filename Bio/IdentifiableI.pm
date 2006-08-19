@@ -12,7 +12,7 @@ Bio::IdentifiableI - interface for objects with identifiers
 
     # to test this is an identifiable object
 
-    $obj->isa("Bio::IdentifiableI") || 
+    $obj->isa("Bio::IdentifiableI") ||
       $obj->throw("$obj does not implement the Bio::IdentifiableI interface");
 
     # Accessors
@@ -22,16 +22,16 @@ Bio::IdentifiableI - interface for objects with identifiers
     $authority = $obj->authority();
     $version   = $obj->version();
     # Gets authority:namespace:object_id
-    $lsid = $obj->lsid_string();      
+    $lsid = $obj->lsid_string();
     # Gets namespace:object_id.version
-    $ns_string = $obj->namespace_string(); 
+    $ns_string = $obj->namespace_string();
 
 =head1 DESCRIPTION
 
 This interface describes methods expected on identifiable objects, i.e.
 ones which have identifiers expected to make sense across a number of
 instances and/or domains. This interface is modeled after pretty much
-ubiquitous ideas for names in bioinformatics being 
+ubiquitous ideas for names in bioinformatics being
 
  databasename:object_id.version
 
@@ -51,7 +51,7 @@ Helper functions are provided to make useful strings:
 
   lsid_string - string complying to the LSID standard
 
-  namespace_string - string complying to the usual convention of 
+  namespace_string - string complying to the usual convention of
                      namespace:object_id.version
 
 =head1 FEEDBACK
@@ -75,7 +75,7 @@ web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
 =cut
 
@@ -133,7 +133,7 @@ sub version {
  Title   : authority
  Usage   : $authority    = $obj->authority()
  Function: a string which represents the organisation which
-           granted the namespace, written as the DNS name for  
+           granted the namespace, written as the DNS name for
            organisation (eg, wormbase.org)
  Returns : A scalar
  Status  : Virtual
@@ -152,7 +152,7 @@ sub authority {
  Usage   : $string    = $obj->namespace()
  Function: A string representing the name space this identifier
            is valid in, often the database name or the name
-           describing the collection 
+           describing the collection
  Returns : A scalar
  Status  : Virtual
 

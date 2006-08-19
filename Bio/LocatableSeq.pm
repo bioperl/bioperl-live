@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::LocatableSeq
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -13,7 +13,7 @@
 =head1 NAME
 
 Bio::LocatableSeq - A Sequence object with start/end points on it
-that can be projected into a MSA or have coordinates relative to 
+that can be projected into a MSA or have coordinates relative to
 another seq.
 
 =head1 SYNOPSIS
@@ -300,7 +300,7 @@ sub column_from_residue_number {
 	}
 	# $i now holds the index of the column.
         # The actual column number is this index + 1
-	
+
 	return $i+1;
     }
 
@@ -359,9 +359,9 @@ sub location_from_column {
     my ($loc);
     my $s = $self->subseq(1,$column);
     $s =~ s/[^a-zA-Z\*]//g;
-    
+
     my $pos = CORE::length $s;
-    
+
     my $start = $self->start || 0 ;
     my $strand = $self->strand() || 1;
     my $relative_pos = ($strand == -1)

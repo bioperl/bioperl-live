@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Perl
 #
-# Cared for by Ewan Birney <bioperl-l@bio.perl.org>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -76,7 +76,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org
+  bioperl-l@bioperl.org
 
 =head2 Reporting Bugs
 
@@ -87,7 +87,7 @@ the bugs and their resolution. Bug reports can be submitted via the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email bioperl-l@bio.perl.org
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -126,9 +126,9 @@ BEGIN {
 
 @ISA = qw(Exporter);
 
-@EXPORT = qw(read_sequence read_all_sequences write_sequence 
-	     new_sequence get_sequence translate translate_as_string 
-	     reverse_complement revcom revcom_as_string 
+@EXPORT = qw(read_sequence read_all_sequences write_sequence
+	     new_sequence get_sequence translate translate_as_string
+	     reverse_complement revcom revcom_as_string
 	     reverse_complement_as_string blast_sequence write_blast);
 
 @EXPORT_OK = @EXPORT;
@@ -297,13 +297,13 @@ sub write_sequence{
  Title   : new_sequence
  Usage   : $seq_obj = new_sequence("GATTACA", "kino-enzyme");
 
- Function: Construct a sequency object from sequence string 
+ Function: Construct a sequency object from sequence string
  Returns : A Bio::Seq object
 
  Args    : sequence string
            name string (optional, default "no-name-for-sequence")
            accession - accession number (optional, no default)
-           
+
 =cut
 
 sub new_sequence{
@@ -447,7 +447,7 @@ sub write_blast {
 
  Returns : A Bio::Seq object
 
- Args    : database type - one of swiss, embl, genbank, genpept, or 
+ Args    : database type - one of swiss, embl, genbank, genpept, or
            refseq
 
 =cut
@@ -477,7 +477,7 @@ sub get_sequence{
    if( $db_type =~ /genpept/ ) {
        if( !defined $genpept_db ) {
 	   $genpept_db = Bio::DB::GenPept->new();
-       } 
+       }
        $db = $genpept_db;
    }
 
@@ -495,7 +495,7 @@ sub get_sequence{
        $db = $embl_db;
    }
 
-   if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and 
+   if( $db_type =~ /refseq/ or ($db_type !~ /swiss/ and
 				$identifier =~ /^\s*N\S+_/)) {
        if( !defined $refseq_db ) {
 	   $refseq_db = Bio::DB::RefSeq->new();

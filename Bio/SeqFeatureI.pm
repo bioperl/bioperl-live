@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::SeqFeatureI
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -19,8 +19,8 @@ Bio::SeqFeatureI - Abstract interface of a Sequence Feature
     # get a seqfeature somehow, eg, from a Sequence with Features attached
 
     foreach $feat ( $seq->get_SeqFeatures() ) {
-       print "Feature from ", $feat->start, "to ", 
-	       $feat->end, " Primary tag  ", $feat->primary_tag, 
+       print "Feature from ", $feat->start, "to ",
+	       $feat->end, " Primary tag  ", $feat->primary_tag,
 	          ", produced by ", $feat->source_tag(), "\n";
 
        if( $feat->strand == 0 ) {
@@ -130,7 +130,7 @@ sub get_SeqFeatures{
 
 =cut
 
-sub display_name { 
+sub display_name {
     shift->throw_not_implemented();
 }
 
@@ -140,7 +140,7 @@ sub display_name {
  Usage   : $tag = $feat->primary_tag()
  Function: Returns the primary tag for a feature,
            eg 'exon'
- Returns : a string 
+ Returns : a string
  Args    : none
 
 
@@ -158,8 +158,8 @@ sub primary_tag{
  Title   : source_tag
  Usage   : $tag = $feat->source_tag()
  Function: Returns the source tag for a feature,
-           eg, 'genscan' 
- Returns : a string 
+           eg, 'genscan'
+ Returns : a string
  Args    : none
 
 
@@ -183,13 +183,13 @@ sub source_tag{
            Note that it is not guaranteed that if you obtain a feature from
            an object in bioperl, it will have a sequence attached. Also,
            implementors of this interface can choose to provide an empty
-           implementation of this method. I.e., there is also no guarantee 
+           implementation of this method. I.e., there is also no guarantee
            that if you do attach a sequence, seq() or entire_seq() will not
            return undef.
 
            The reason that this method is here on the interface is to enable
            you to call it on every SeqFeatureI compliant object, and
-           that it will be implemented in a useful way and set to a useful 
+           that it will be implemented in a useful way and set to a useful
            value for the great majority of use cases. Implementors who choose
            to ignore the call are encouraged to specifically state this in
            their documentation.
@@ -209,7 +209,7 @@ sub attach_seq {
 
  Title   : seq
  Usage   : $tseq = $sf->seq()
- Function: returns the truncated sequence (if there is a sequence attached) 
+ Function: returns the truncated sequence (if there is a sequence attached)
            for this feature
  Example :
  Returns : sub seq (a Bio::PrimarySeqI compliant object) on attached sequence
@@ -299,7 +299,7 @@ my $static_gff_formatter = undef;
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -348,9 +348,9 @@ but can be validly overwritten by subclasses
             own magic if they have a better idea what the user wants.
 
   Args    : [optional]
-            -db        A L<Bio::DB::RandomAccessI> compliant object if 
-                       one needs to retrieve remote seqs. 
-            -nosort    boolean if the locations should not be sorted 
+            -db        A L<Bio::DB::RandomAccessI> compliant object if
+                       one needs to retrieve remote seqs.
+            -nosort    boolean if the locations should not be sorted
                        by start location.  This may occur, for instance,
                        in a circular sequence where a gene span starts
                        before the end of the sequence and ends after the
@@ -363,7 +363,7 @@ sub spliced_seq {
     my $self = shift;
 	my @args = @_;
 	my ($db,$nosort) = $self->_rearrange([qw(DB NOSORT)], @args);
-	
+
 	# (added 7/7/06 to allow use old API (with warnings)
 	my $old_api = (!(grep {$_ =~ /(?:nosort|db)/} @args)) ? 1 : 0;
 	if (@args && $old_api) {
@@ -381,7 +381,7 @@ sub spliced_seq {
             $db->isa('Bio::DB::InMemoryCache') ) {
         $db = new Bio::DB::InMemoryCache(-seqdb => $db);
     }
-	
+
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	return $self->seq(); # nice and easy!
     }
@@ -397,16 +397,16 @@ sub spliced_seq {
     # so we are really sorting features 5' -> 3' on their strand
     # i.e. rev strand features will be sorted largest to smallest
     # as this how revcom CDSes seem to be annotated in genbank.
-    # Might need to eventually allow this to be programable?    
+    # Might need to eventually allow this to be programable?
     # (can I mention how much fun this is NOT! --jason)
-    
+
     my ($mixed,$mixedloc, $fstrand) = (0);
-  
+
     if( $self->isa('Bio::Das::SegmentI') &&
-	! $self->absolute ) { 
+	! $self->absolute ) {
 	$self->warn("Calling spliced_seq with a Bio::Das::SegmentI which does have absolute set to 1 -- be warned you may not be getting things on the correct strand");
     }
-    
+
     my @locset = $self->location->each_Location;
     my @locs;
     if( ! $nosort ) {
@@ -416,24 +416,24 @@ sub spliced_seq {
 	# rather than they way most are input which is on the fwd strand
 
 	sort { $a->[1] <=> $b->[1] } # Yes Tim, Schwartzian transformation
-	map { 
+	map {
 	    $fstrand = $_->strand unless defined $fstrand;
 	    $mixed = 1 if defined $_->strand && $fstrand != $_->strand;
 	    if( defined $_->seq_id ) {
 		$mixedloc = 1 if( $_->seq_id ne $seqid );
 	    }
-	    [ $_, $_->start * ($_->strand || 1)];	    
-	} @locset; 
+	    [ $_, $_->start * ($_->strand || 1)];
+	} @locset;
 
-	if ( $mixed ) { 
-	    $self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");    
+	if ( $mixed ) {
+	    $self->warn("Mixed strand locations, spliced seq using the input order rather than trying to sort");
 	    @locs = @locset;
 	}
-    } else { 
+    } else {
 	# use the original order instead of trying to sort
 	@locs = @locset;
 	$fstrand = $locs[0]->strand;
-    } 
+    }
 
     foreach my $loc ( @locs ) {
 	if( ! $loc->isa("Bio::Location::Atomic") ) {
@@ -445,7 +445,7 @@ sub spliced_seq {
 	}
 	# deal with remote sequences
 
-	if( defined $loc->seq_id && 
+	if( defined $loc->seq_id &&
 	    $loc->seq_id ne $seqid ) {
 	    if( defined $db ) {
 		my $sid = $loc->seq_id;
@@ -468,11 +468,11 @@ sub spliced_seq {
 	} else {
 	    $called_seq = $self->entire_seq;
 	}
-	
+
     # does the called sequence make sense? Bug 1780
     if ($called_seq->length < $loc->end) {
         my $accession = $called_seq->accession;
-        my $end = $loc->end; 
+        my $end = $loc->end;
         my $length = $called_seq->length;
         my $orig_id = $self->seq_id; # originating sequence
         my ($locus) = $self->get_tagset_values("locus_tag");
@@ -480,11 +480,11 @@ sub spliced_seq {
                      "called sequence $accession.\nCheck sequence version used in ".
                      "$locus locus-tagged SeqFeature in $orig_id.");
     }
-    
+
 	if( $self->isa('Bio::Das::SegmentI') ) {
-	    my ($s,$e) = ($loc->start,$loc->end);	    
+	    my ($s,$e) = ($loc->start,$loc->end);
 	    $seqstr .= $called_seq->subseq($s,$e)->seq();
-	} else { 
+	} else {
 	    # This is dumb, subseq should work on locations...
 	    if( $loc->strand == 1 ) {
 		$seqstr .= $called_seq->subseq($loc->start,$loc->end);
@@ -497,10 +497,10 @@ sub spliced_seq {
 	    }
 	}
     }
-    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id 
+    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id
 			            . "_spliced_feat",
 			     -seq => $seqstr);
-    
+
     return $out;
 }
 
@@ -508,8 +508,8 @@ sub spliced_seq {
 
  Title   : location
  Usage   : my $location = $seqfeature->location()
- Function: returns a location object suitable for identifying location 
-	   of feature on sequence or parent feature  
+ Function: returns a location object suitable for identifying location
+	   of feature on sequence or parent feature
  Returns : Bio::LocationI object
  Args    : none
 
@@ -527,8 +527,8 @@ sub location {
 
  Title   : primary_id
  Usage   : $obj->primary_id($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of primary_id (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -568,7 +568,7 @@ sub generate_unique_persistent_id {
 =head1 Bio::RangeI methods
 
 These methods are inherited from RangeI and can be used
-directly from a SeqFeatureI interface. Remember that a 
+directly from a SeqFeatureI interface. Remember that a
 SeqFeature is-a RangeI, and so wherever you see RangeI you
 can use a feature ($r in the below documentation).
 
