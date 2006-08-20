@@ -173,12 +173,7 @@ sub throw{
 sub warn{
     my ($self,$string) = @_;
     
-    my $verbose;
-    if( $self->can('verbose') ) {
-	$verbose = $self->verbose;
-    } else {
-	$verbose = 0;
-    }
+    my $verbose = $self->verbose;
 
     if( $verbose >= 2 ) {
 	$self->throw($string);
