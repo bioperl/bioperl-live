@@ -236,8 +236,10 @@ sub parse {
         my $new_ontology_flag    = 1;
         my $ontologies_array_ref = $self->{'_ontologies'};
         foreach my $ontology (@$ontologies_array_ref) {
-            if ( $ontology->name() eq $term->namespace() ) {
-                ### No nned to create new ontology
+            my ($oname, $t_ns) = ($ontology->name(), $term->namespace() );
+            next unless (defined($oname) && defined($t_ns));
+            if ( $oname eq $t_ns ) {
+                ### No need to create new ontology
                 $new_ontology_flag = 0;
                 $ont               = $ontology;
             }
@@ -589,7 +591,7 @@ sub _next_term {
             }
 
             my $qh;
-            my ( $val, $qh ) = $self->_extract_quals($val);
+            ( $val, $qh ) = $self->_extract_quals($val);
             my $val2 = $val;
             $val2 =~ s/\\,/,/g;
             $tag = uc($tag);
