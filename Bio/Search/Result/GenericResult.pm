@@ -204,7 +204,7 @@ sub new {
 
   if( defined $params ) {
       if( ref($params) !~ /hash/i ) {
-          $self->throw("Must specify a hash reference with the the parameter '-parameters");
+          $self->throw("Must specify a hash reference with the parameter '-parameters");
       }
       while( my ($key,$value) = each %{$params} ) {
           $self->{'_parameters'}->set_parameter($key   =>   $value);
@@ -213,7 +213,7 @@ sub new {
   }
   if( defined $stats ) {
       if( ref($stats) !~ /hash/i ) {
-          $self->throw("Must specify a hash reference with the the parameter '-statistics");
+          $self->throw("Must specify a hash reference with the parameter '-statistics");
       }
       while( my ($key,$value) = each %{$stats} ) {
           $self->{'_statistics'}->set_statistic($key   =>   $value); 
