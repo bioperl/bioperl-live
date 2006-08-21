@@ -157,10 +157,11 @@ sub _discover_hit_table {
 	my $no_hit = 1;
 	while ($table =~ /^(\S+)\s+(\S.+?)?\s+(\S+)\s+(\S+)\s+(\d+)\n/gm) {
 		$no_hit = 0;
-		next if ($evalue_cutoff && $4 > $evalue_cutoff);
+		my $evalue = abs($4); # consistency for tests under Windows
+		next if ($evalue_cutoff && $evalue > $evalue_cutoff);
 		next if ($score_cutoff && $3 < $score_cutoff);
 		next if ($hsps_cutoff && $5 < $hsps_cutoff);
-		push(@table, [$1, $2, $3, $4, $5]);
+		push(@table, [$1, $2, $3, $evalue, $5]);
 	}
 	$self->_fields->{hit_table} = \@table;
 	$self->{_next_hit_index} = @table > 0 ? 0 : -1;
@@ -182,7 +183,8 @@ sub _discover_hsp_table {
 	# its length, so may as well just do all the work here
 	while ($table =~ /^(\S+)\s+(\d+)\/\d+\s+(\d+)\s+(\d+)\s+\S\S\s+(\d+)\s+(\d+)\s+\S(\S)\s+(\S+)\s+(\S+)/gm) {
 		# rank query_start query_end hit_start hit_end score evalue
-		push(@{$table{$1}->{hsp_data}}, [$2, $3, $4, $5, $6, $8, $9]);
+		my $evalue = abs($9); # consistency for tests under Windows
+		push(@{$table{$1}->{hsp_data}}, [$2, $3, $4, $5, $6, $8, $evalue]);
 		if ($7 eq ']') {
 			$table{$1}->{hit_length} = $6;
 		}
