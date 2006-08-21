@@ -390,6 +390,6 @@ sub MY::manifypods {
 sub MY::clean {
   package MY;
   return shift->SUPER::clean(@_) . <<END;
-    -rm -rf scripts_temp
+\t-rm -rf scripts_temp
 END
 }
