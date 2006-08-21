@@ -99,7 +99,7 @@ use Bio::PullParserI;
            
            -piped_behaviour defines what the parser should do if the input is
             an unseekable filehandle (eg. piped input), see
-            Bio::PullParserI::chunk for details. Default is 'memory'.
+            Bio::PullParserI::chunk for details. Default is 'sequential_read'.
 
 =cut
 
@@ -145,7 +145,7 @@ sub _initialize {
                               sequence_database => 'header' ) } );
     
     $self->chunk($file || $fh || $self->throw("-file or -fh must be supplied"),
-                 -piped_behaviour => $piped_behaviour || 'memory');
+                 -piped_behaviour => $piped_behaviour || 'sequential_read');
 }
 
 sub _discover_header {
