@@ -676,13 +676,12 @@ sub find_terms{
 =head2 find_similar_terms
 
  Title   : find_similar_terms
- Usage   : ($term) = $oe->find_similar_terms(-name => "muscle");
- Function: Find term instances where name or exact synonym  matches the query.
+ Usage   : ($term) = $oe->find_similar_terms($term0);
+ Function: Find term instances where name or synonym, or part of one,
+           matches the query.
  Example :
  Returns : an array of zero or more Bio::Ontology::TermI objects
- Args    : Named parameters.
-
-              -name          query by the given name
+ Args    : a Bio::Ontology::TermI object
 
 =cut
 

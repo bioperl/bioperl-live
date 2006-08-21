@@ -398,7 +398,7 @@ sub _add_relationship_simple{
 		$parent_id = $rel->object_term->identifier;
 		$child_id = $rel->subject_term->identifier;
    }
-   if((defined $store->{$parent_id}->{$child_id}) &&
+   if(defined $store->{$parent_id} && (defined $store->{$parent_id}->{$child_id}) &&
       ($store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name)){
 		$self->throw("relationship ".Dumper($rel->predicate_term).
 						 " between ".$parent_id." and ".$child_id.

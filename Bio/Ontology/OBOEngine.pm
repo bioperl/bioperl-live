@@ -719,7 +719,7 @@ sub find_terms{
 =head2 find_similar_terms
 
  Title   : find_similar_terms
- Usage   : ($term) = $oe->find_similar_terms(-name => "muscle");
+ Usage   : ($term) = $oe->find_similar_terms($term0);
  Function: Find term instances where name or synonym, or part of one,
            matches the query.
  Example :
