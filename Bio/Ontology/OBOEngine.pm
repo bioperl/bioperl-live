@@ -716,6 +716,40 @@ sub find_terms{
     return @terms;
 }
 
+=head2 find_similar_terms
+
+ Title   : find_similar_terms
+ Usage   : ($term) = $oe->find_similar_terms(-name => "muscle");
+ Function: Find term instances where name or synonym, or part of one,
+           matches the query.
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_similar_terms{
+    my ($self,$qterm) = @_;
+    $self->throw("Argument doesn't implement Bio::Ontology::TermI. " . "Bummer." )
+        unless defined $qterm and $qterm->isa("Bio::Ontology::TermI");
+
+    my %matching_terms;
+
+    foreach my $qstring ($qterm->name, $qterm->each_synonym) {
+        foreach my $term ($self->get_all_terms) {
+            #my $name = $term->name;
+            #push @passed_terms, $term and next if $name =~ /$qstring/ or $qstring =~ /$name/;
+
+            foreach my $string ( $term->name, $term->each_synonym() ) {
+                $matching_terms{$term->identifier} = $term and next
+                    if $string =~ /$qstring/ or $qstring =~ /$string/;
+            }
+        }
+    }
+    return values %matching_terms;
+}
+
+
 =head2 relationship_factory
 
  Title   : relationship_factory
