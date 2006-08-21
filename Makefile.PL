@@ -46,6 +46,7 @@
     'XML::SAX'                  => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
     'XML::SAX::Base'            => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
     'XML::SAX::Writer'          => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+    'XML::Simple'               => '0.0/Simple XML parser/Parsers/Bio::DB::EUtilities',
     'XML::Twig'                 => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
     'XML::Writer'               => '0.0/Parsing + writing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
 );
