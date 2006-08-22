@@ -123,6 +123,8 @@ sub next_psm {
 	    ($sites)=split(/\s/,$ba);
 	}
    if ($line=~/^RN/) { #Adding a reference as Bio::Annotation object (self)
+    # not interested in RN line itself, since has only transfac-specific
+    # reference id? - no push back of line
     my $ref=_parse_ref($self);
     push @refs,$ref
   }
@@ -220,7 +222,6 @@ my ($authors,$title,$loc,@refs,$tr,$db,$dbid);
           if ($field=~/RX/) {  #DB Reference
               $refline=~s/[;\.]//g;
               ($tr, $db, $dbid)=split(/\s+/,$refline);
-              undef $dbid unless ($db eq 'MEDLINE');
               last REF;
           }
          if ($field=~/RT/) {   #Title
@@ -238,7 +239,14 @@ my ($authors,$title,$loc,@refs,$tr,$db,$dbid);
         }
      }
      my $reference=new Bio::Annotation::Reference (-authors=>$authors, -title=>$title,
-                                                    -location=>$loc, -medline=>$dbid);
+                                                    -location=>$loc);
+     if ($db eq 'MEDLINE') {
+        # does it ever equal medline?
+        $reference->medline($dbid);
+     }
+     elsif ($dbid) {
+        $reference->pubmed($dbid);
+     }
      return $reference;
 }
 
