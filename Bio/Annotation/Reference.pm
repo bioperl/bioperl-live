@@ -71,8 +71,8 @@ use Bio::AnnotationI;
  Function:
  Example :
  Returns : a new Bio::Annotation::Reference object
- Args    : a hash with optional title, authors, location, medline, start and end
-           attributes
+ Args    : a hash with optional title, authors, location, medline, pubmed,
+           start, end, consortium, rp and rg attributes
 
 
 =cut
@@ -91,9 +91,9 @@ sub new{
 			      LOCATION
 			      TITLE
 			      MEDLINE
-                              PUBMED
-                              RP
-                              RG
+				  PUBMED
+				  RP
+				  RG
 			      )],@args);
 
     defined $start    && $self->start($start);
@@ -147,21 +147,24 @@ sub as_text{
 =cut
 
 sub hash_tree{
-   my ($self) = @_;
-   
-   my $h = {};
-   $h->{'title'}   = $self->title;
-   $h->{'authors'} = $self->authors;
-   $h->{'location'} = $self->location;
-   if( defined $self->start ) {
-       $h->{'start'}   = $self->start;
-   }
-   if( defined $self->end ) {
-       $h->{'end'} = $self->end;
-   }
-   $h->{'medline'} = $self->medline;
-
-   return $h;
+	my ($self) = @_;
+	
+	my $h = {};
+	$h->{'title'}   = $self->title;
+	$h->{'authors'} = $self->authors;
+	$h->{'location'} = $self->location;
+	if (defined $self->start) {
+		$h->{'start'}   = $self->start;
+	}
+	if (defined $self->end) {
+		$h->{'end'} = $self->end;
+	}
+	$h->{'medline'} = $self->medline;
+	if (defined $self->pubmed) {
+		$h->{'pubmed'} = $self->pubmed;
+	}
+	
+	return $h;
 }
 
 =head2 tagname
@@ -380,8 +383,9 @@ sub pubmed {
 
  Title   : database
  Usage   :
- Function: Overrides DBLink database to be hard coded to 'MEDLINE', unless
-           the database has been set explicitely before.
+ Function: Overrides DBLink database to be hard coded to 'MEDLINE' (or 'PUBMED'
+		   if only pubmed id has been supplied), unless the database has been
+		   set explicitely before.
  Example :
  Returns : 
  Args    :
@@ -390,16 +394,20 @@ sub pubmed {
 =cut
 
 sub database{
-   my ($self, @args) = @_;
-
-   return $self->SUPER::database(@args) || 'MEDLINE';
+	my ($self, @args) = @_;
+	my $default = 'MEDLINE';
+	if (! defined $self->medline && defined $self->pubmed) {
+		$default = 'PUBMED';
+	}
+	return $self->SUPER::database(@args) || $default;
 }
 
 =head2 primary_id
 
  Title   : primary_id
  Usage   :
- Function: Overrides DBLink primary_id to provide medline number
+ Function: Overrides DBLink primary_id to provide medline number, or pubmed
+           number if only that has been defined
  Example :
  Returns : 
  Args    :
@@ -408,9 +416,14 @@ sub database{
 =cut
 
 sub primary_id{
-   my ($self, @args) = @_;
-
-   return $self->medline(@args);
+	my ($self, @args) = @_;
+	if (@args) {
+		$self->medline(@args);
+	}
+	if (! defined $self->medline && defined $self->pubmed) {
+		return $self->pubmed;
+	}
+	return $self->medline;
 }
 
 =head2 optional_id
