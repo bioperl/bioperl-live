@@ -1,4 +1,5 @@
 # -*-Perl-*-
+# $Id$
 ## Bioperl Test Harness Script for Modules
 ##
 
