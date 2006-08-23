@@ -18,7 +18,7 @@ BEGIN {
 	}
 
 	use Test;
-	plan tests => 41; 
+	plan tests => 51; 
 }
 
 if( $error == 1 ) {
@@ -63,3 +63,50 @@ foreach my $marker ( $map->each_element ) {
 	ok($marker->position->order,$count);
 }
 ok $count,13;
+
+ok $mapio = Bio::MapIO->new(-format => 'fpc',
+									-file   => Bio::Root::IO->catfile
+									('t','data','ctgdemo.fpc'));
+
+$map = $mapio->next_map;
+
+ok($map->length, 0);
+ok($map->version, 7.2);
+ok($map->modification_user, 'cari');
+ok($map->group_type, 'Chromosome');
+ok($map->group_abbr, 'Chr');
+ok($map->core_exists, 0);
+
+$count = 0;
+foreach my $marker ($map->each_markerid) {
+	$count++;
+}
+
+ok($count,150);
+
+# add tests for get_markerobj
+
+$count = 0;
+foreach my $clone ($map->each_cloneid) {
+	$count++;
+}
+
+ok($count,618);
+
+# add tests for get_cloneobj
+
+$count = 0;
+foreach my $contig ($map->each_contigid) {
+	$count++;
+}
+
+ok($count,2);
+
+# add tests for get_contigobj
+
+# need tests for
+# matching_bands
+# coincidence_score
+# print_contiglist
+# print_markerlist
+# print_gffstyle
