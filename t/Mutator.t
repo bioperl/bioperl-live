@@ -16,7 +16,7 @@ BEGIN {
     }
     $error=0;
     use Test;
-    $NUMTESTS=13;
+    $NUMTESTS=25;
     plan tests => $NUMTESTS;
     eval { require IO::String; };
     if( $@ ) {
@@ -65,6 +65,38 @@ ok $a->gene($gene);
 my $results = $a->change_gene();
 ok($results);
 
+# bug 1701 - mutations on intron/exon boundaries where codon is split 
+
+$loader = Bio::LiveSeq::IO::BioPerl->load( -db   => 'EMBL',
+                                -file => Bio::Root::IO->catfile('t','data','ssp160.embl.1')
+					    );
+
+my @positions = (3128..3130,3187..3189);
+my @bases = (qw(C C C C T T));
+my @expected = (qw(T683T T684P),'','',
+                qw(T684I T684T));
+my $ct = 0;
+
+for my $pos (@positions) {
+    # reset gene
+    my $gene = $loader->gene2liveseq( -gene_name => 'ssp160');
+    my $mutation = Bio::LiveSeq::Mutation->new( -seq => $bases[$ct],
+                                                -pos => $pos,
+                                                -verbose => -1
+                          );
+    $mutation->verbose(-1);
+    my $mutate = Bio::LiveSeq::Mutator->new( -gene      => $gene,
+                                             -numbering => 'entry',
+                                             -verbose => -1
+                           );
+    $mutate->add_Mutation( $mutation );
+
+    my $results = $mutate->change_gene();
+    
+	ok(defined($results));
+	ok($expected[$ct] eq $results->trivname);
+    $ct++;
+}
 
 eval { require IO::String };
 if( $@ ) {
