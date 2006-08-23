@@ -703,7 +703,7 @@ sub change_gene {
     #
     # Recording the state: SeqDiff object creation  ?? transcript no.??
     #
-    my $seqDiff = Bio::Variation::SeqDiff->new();
+    my $seqDiff = Bio::Variation::SeqDiff->new(-verbose => $self->verbose);
     $seqDiff->alphabet($self->gene->get_DNA->alphabet);
     $seqDiff->numbering($self->numbering);
     my ($DNAobj, $RNAobj);
@@ -1067,12 +1067,19 @@ sub _rnaAffected {
 			 last;
 		     } 
 		     #proximity test for exon mutations
+		     #proximity test for exon mutations
 		     elsif ( ( $strand == 1 and 
-			       $exons[$i]->start <= $self->mutation->prelabel and 
-			       $exons[$i]->end >= $self->mutation->postlabel) or 
+			       $exons[$i]->start < $self->mutation->prelabel and 
+			       $exons[$i]->end > $self->mutation->prelabel) or 
+			     ( $strand == 1 and 
+			       $exons[$i]->start < $self->mutation->postlabel and 
+			       $exons[$i]->end > $self->mutation->postlabel) or 
 			     ( $strand == -1 and 
-			       $exons[$i]->start >= $self->mutation->prelabel and 
-			       $exons[$i]->end <= $self->mutation->postlabel) ) {
+			       $exons[$i]->start > $self->mutation->prelabel and 
+			       $exons[$i]->end < $self->mutation->prelabel) or
+			     ( $strand == -1 and 
+			       $exons[$i]->start > $self->mutation->postlabel and 
+			       $exons[$i]->end < $self->mutation->postlabel) ) {
 			 $rnaAffected = 1;
 
 			 my $afterdist = $self->mutation->prelabel - $exons[$i]->start;
