@@ -10,6 +10,7 @@
 use strict;
 my $error;
 use vars qw($NUMTESTS);
+
 BEGIN { 
     eval { require Test; };
     if( $@ ) {
@@ -17,7 +18,7 @@ BEGIN {
     }
     $error=0;
     use Test;
-    $NUMTESTS=25;
+    $NUMTESTS=21;
     plan tests => $NUMTESTS;
     eval { require IO::String; };
     if( $@ ) {
@@ -71,11 +72,10 @@ ok($results);
 $loader = Bio::LiveSeq::IO::BioPerl->load( -db   => 'EMBL',
                                 -file => Bio::Root::IO->catfile('t','data','ssp160.embl.1')
 					    );
-
-my @positions = (3128..3130,3187..3189);
-my @bases = (qw(C C C C T T));
-my @expected = (qw(T683T T684P),'','',
-                qw(T684I T684T));
+# move across intron/exon boundaries, check expected mutations
+my @positions = (3128..3129,3188..3189);
+my @bases = (qw(C C T T));
+my @expected = (qw(T683T T684P T684I T684T));
 my $ct = 0;
 
 for my $pos (@positions) {
@@ -83,13 +83,11 @@ for my $pos (@positions) {
     my $gene = $loader->gene2liveseq( -gene_name => 'ssp160');
     my $mutation = Bio::LiveSeq::Mutation->new( -seq => $bases[$ct],
                                                 -pos => $pos,
-                                                -verbose => -1
                           );
-    $mutation->verbose(-1);
     my $mutate = Bio::LiveSeq::Mutator->new( -gene      => $gene,
                                              -numbering => 'entry',
-                                             -verbose => -1
                            );
+	
     $mutate->add_Mutation( $mutation );
 
     my $results = $mutate->change_gene();
