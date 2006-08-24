@@ -1073,7 +1073,7 @@ sub next_result {
             elsif ( $reporttype eq 'TBLASTN' ) {
                 ( $hitframe, $queryframe ) = ( $1, 0 );
             }
-            elsif ( $reporttype eq 'BLASTX' ) {
+            elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST') {
                 ( $queryframe, $hitframe ) = ( $1, 0 );
             }
             $self->element(
