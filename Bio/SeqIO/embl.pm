@@ -651,20 +651,21 @@ sub write_seq {
 		# Organism lines
 
 		if ($seq->can('species') && (my $spec = $seq->species)) {
-			my($species, @class) = $spec->classification();
-			my $genus = $class[0];
-			my $OS = "$genus $species";
-			if (my $ssp = $spec->sub_species) {
-				$OS .= " $ssp";
-			}
-			if (my $common = $spec->common_name) {
-				$OS .= " ($common)";
-			}
+			my @class = $spec->classification();
+            shift @class; # get rid of species name. Some embl files include
+                          # the species name in the OC lines, but this seems
+                          # more like an error than something we need to
+                          # emulate
+			my $OS = $spec->scientific_name;
+            if ($spec->common_name) {
+                $OS .= ' ('.$spec->common_name.')';
+            }
+            print "OS line is 'OS   $OS'\n";
 			$self->_print("OS   $OS\n") || return;
 			my $OC = join('; ', reverse(@class)) .'.';
-			$self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return; #'
+			$self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return;
 			if ($spec->organelle) {
-				$self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return; #'
+				$self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return;
 			}
 			$self->_print("XX\n") || return;
 		}
@@ -971,60 +972,78 @@ sub _read_EMBL_Species {
     my $org;
 
     $_ = $$buffer;
-    my( $sub_species, $species, $genus, $common, @class, $ns_name );
+    my( $sub_species, $species, $genus, $common, $sci_name, $class_lines );
     while (defined( $_ ||= $self->_readline )) {
-
-        if (/^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?)/) {
-            $ns_name = $1;
-            $genus   = $2;
-	    $species = $3 || 'sp.';
-	    $sub_species = $4 if $4;
-            $common      = $5 if $5;
+        if (/^OS\s+(.+)/) {
+            $sci_name = $1;
         }
-        elsif (s/^OC\s+//) {
-	    # only split on ';' or '.' so that 
-	    # classification that is 2 words will 
-	    # still get matched
-	    # use map to remove trailing/leading spaces
-	    chomp;
-            push(@class,  map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/);
+        elsif (s/^OC\s+(.+)$//) {
+            $class_lines .= $1;
         }
-	elsif (/^OG\s+(.*)/) {
-	    $org = $1;
-	}
+        elsif (/^OG\s+(.*)/) {
+            $org = $1;
+        }
         else {
             last;
         }
-
+        
         $_ = undef; # Empty $_ to trigger read of next line
     }
 
     $$buffer = $_;
-
+    
+    # Convert data in classification lines into classification array.
+    # only split on ';' or '.' so that classification that is 2 or more words
+    # will still get matched, use map() to remove trailing/leading/intervening
+    # spaces
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
+    
+    # do we have a genus?
+    my $possible_genus = $class[-1];
+    if ($sci_name =~ /^$possible_genus/) {
+        $genus = $possible_genus;
+        ($species) = $sci_name =~ /^$genus\s+(.+)/;
+    }
+    else {
+        $species = $sci_name;
+    }
+    
     # Don't make a species object if it is "Unknown" or "None"
-    return if $genus =~ /^(Unknown|None)$/i;
-
+    if ($genus) {
+        return if $genus =~ /^(Unknown|None)$/i;
+    }
+    
+    # is this organism of rank species or is it lower?
+    # (doesn't catch everything, but at least the guess isn't dangerous)
+    if ($species =~ /subsp\.|var\./) {
+        ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
+    }
+    
+    # sometimes things have common name in brackets, like
+    # Schizosaccharomyces pombe (fission yeast), so get rid of the common
+    # name bit. Probably dangerous if real scientific species name ends in
+    # bracketed bit.
+    unless ($class[-1] eq 'Viruses') {
+        ($species, $common) = $species =~ /^(.+)\s+\((.+)\)$/;
+        $sci_name =~ s/\s+\(.+\)$// if $common;
+    }
+     
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($class[0] eq 'Viruses') {
-        push( @class, $ns_name );
-    }
-    elsif ($class[$#class] eq $genus) {
-        push( @class, $species );
-    }
-    elsif ($class[$#class] eq "$genus $species") {
-        # no nothing    
-    } else {
-        push( @class, $genus, $species );
+    unless ($class[-1] eq $sci_name) {
+        push(@class, $sci_name);
     }
     @class = reverse @class;
 
     my $make = Bio::Species->new();
-    $make->classification( \@class, "FORCE" );  # no name validation please
-    $make->common_name( $common      ) if $common;
+    $make->scientific_name($sci_name);
+    $make->classification(@class);
     unless ($class[-1] eq 'Viruses') {
-        $make->sub_species( $sub_species ) if $sub_species;
+        $make->genus($genus) if $genus;
+        $make->species($species) if $species;
+        $make->sub_species($sub_species) if $sub_species;
+        $make->common_name($common) if $common;
     }
-    $make->organelle  ( $org         ) if $org;
+    $make->organelle($org) if $org;
     return $make;
 }
 
