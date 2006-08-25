@@ -42,6 +42,9 @@ position scoring matrix (or position weight matrix) and log-odds
   my $count=grep($regexp,$seq);
   my $count=($seq=~ s/$regexp/$1/eg);
   print "Motif $mid is present $count times in this sequence\n";
+  
+
+  
 
 =head1 DESCRIPTION
 
@@ -191,7 +194,6 @@ sub new {
 	return $self unless (defined($input{pA}) && defined($input{pC}) && defined($input{pG}) && defined($input{pT}));
 #This should go to _initialize?
 #Check for input type- no mixing alllowed, throw ex
-    
     if (ref($input{pA}) =~ /ARRAY/i ) {
 	$self->throw("Mixing matrix data types not allowed: C is not reference") unless(ref($input{pC}));
 	$self->throw("Mixing matrix data types not allowed: G is not reference") unless (ref($input{pG}));
@@ -828,11 +830,11 @@ sub _uncompress_string {
 	return unless(($str) && ($lm));
 	$direct=1 unless ($direct);
 	my $k1= ($direct==1) ? (255/$lm) : (127/$lm);
-	while (my $c=chop($str)) {
+	foreach my $c (split(//,$str)) {
 		my $byte=ord($c);
-    $byte=$byte-127 if ($direct !=1);#Clumsy, should be really shift the bits
-    my $num=$byte/$k1;
-    unshift @array,$num;
+		$byte=$byte-127 if ($direct !=1);#Clumsy, should be really shift the bits
+		my $num=$byte/$k1;
+		push @array,$num;
 	}
 	return @array;
 }
