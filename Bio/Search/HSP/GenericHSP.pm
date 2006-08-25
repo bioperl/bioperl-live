@@ -217,9 +217,8 @@ sub new {
 	$hitfactor = 1;
 	$queryfactor = 1;
     } elsif( $algo =~ /^RPS-BLAST/ ) {
-	    $queryfactor = ( $algo =~ /^RPS-BLASTX/ ) ? 1 : 0;
+	    $queryfactor = ( $algo =~ /^RPS-BLAST\(BLASTX\)/ ) ? 1 : 0;
         $hframe = 0;
-        $self->algorithm('RPS-BLAST'); # reset to normal RPS-BLAST
     }
     # Store the aligned query as sequence feature
     my $strand;

@@ -464,6 +464,9 @@ sub next_result {
             }
             $self->_start_blastoutput;
             $reporttype = $1;
+            if ($reporttype =~ /RPS-BLAST/) {
+                $reporttype .= '(BLASTP)'; # default RPS-BLAST type
+            }
             $reportline = $_;   # to fix the fact that RPS-BLAST output is wrong
             $self->element(
                 {
@@ -1073,15 +1076,15 @@ sub next_result {
             elsif ( $reporttype eq 'TBLASTN' ) {
                 ( $hitframe, $queryframe ) = ( $1, 0 );
             }
-            elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST') {
+            elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST(BLASTP)') {
                 ( $queryframe, $hitframe ) = ( $1, 0 );
                 # though NCBI doesn't report it, this is a special BLASTX-like
                 # RPS-BLAST; should be handled differently
-                if ($reporttype eq 'RPS-BLAST') {
+                if ($reporttype eq 'RPS-BLAST(BLASTP)') {
                     $self->element(
                         {
                             'Name' => 'BlastOutput_program',
-                            'Data' => $reporttype.'X'
+                            'Data' => 'RPS-BLAST(BLASTX)'
                         }
                     );
                 }

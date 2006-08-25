@@ -497,27 +497,4 @@ sub inclusion_threshold {
     return $self->{'_inclusion_threshold'};
 }
 
-# overload algorithm() to take care of RPS-BLAST duality
-
-=head2 algorithm
-
- Title   : algorithm
- Usage   : my $r_type = $hsp->algorithm
- Function: Obtain the name of the algorithm used to obtain the Result
- Returns : string (e.g., BLASTP)
- Args    : [optional] scalar string to set value
-
-=cut
-
-sub algorithm{
-    my ($self,$value) = @_;
-    $value = 'RPS-BLAST' if ($value eq 'RPS-BLASTX');
-    my $previous = $self->{'_algorithm'};
-    if( defined $value || ! defined $previous ) { 
-        $value = $previous = '' unless defined $value;
-        $self->{'_algorithm'} = $value;
-    } 
-    return $previous;   
-}
-
 1;
