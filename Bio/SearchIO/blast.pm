@@ -1075,6 +1075,16 @@ sub next_result {
             }
             elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST') {
                 ( $queryframe, $hitframe ) = ( $1, 0 );
+                # though NCBI doesn't report it, this is a special BLASTX-like
+                # RPS-BLAST; should be handled differently
+                if ($reporttype eq 'RPS-BLAST') {
+                    $self->element(
+                        {
+                            'Name' => 'BlastOutput_program',
+                            'Data' => $reporttype.'X'
+                        }
+                    );
+                }
             }
             $self->element(
                 {
