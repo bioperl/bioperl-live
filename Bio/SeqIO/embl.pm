@@ -660,7 +660,6 @@ sub write_seq {
             if ($spec->common_name) {
                 $OS .= ' ('.$spec->common_name.')';
             }
-            print "OS line is 'OS   $OS'\n";
 			$self->_print("OS   $OS\n") || return;
 			my $OC = join('; ', reverse(@class)) .'.';
 			$self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return;
