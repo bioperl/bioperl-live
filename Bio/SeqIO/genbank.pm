@@ -1239,7 +1239,7 @@ sub _read_GenBank_Species {
 	$_ = $$buffer;
 
 	my( $sub_species, $species, $genus, $sci_name, $common, $class_lines,
-        $source_flag );
+        $source_flag, $abbr_name, $organelle, $sl );
 	# upon first entering the loop, we must not read a new line -- the SOURCE
 	# line is already in the buffer (HL 05/10/2000)
 	while (defined($_) || defined($_ = $self->_readline())) {
@@ -1247,16 +1247,16 @@ sub _read_GenBank_Species {
 		# escaped '>', so a simple-minded approach suffices)
 		s/<[^>]+>//g;
 		if ( /^SOURCE\s+(.*)/o ) {
-			$common = $1;
-			$common =~ s/\.$//; # remove trailing dot
+			$sl = $1;
+			$sl =~ s/\.$//; # remove trailing dot
 			$source_flag = 1;
 		} elsif ( /^\s{2}ORGANISM/o ) {
 			$source_flag = 0;
 			($sci_name) = $_ =~ /\w+\s+(.*)/o;
 		} elsif ($source_flag) {
-			$common .= $_;
-			$common =~ s/\n//g;
-			$common =~ s/\s+/ /g;
+			$sl .= $_;
+			$sl =~ s/\n//g;
+			$sl =~ s/\s+/ /g;
 			$source_flag = 0;
 		} elsif ( /^\s+(.+)/o ) {
 			my $line = $1;
@@ -1275,6 +1275,16 @@ sub _read_GenBank_Species {
 		$_ = undef; # Empty $_ to trigger read of next line
 	}
 	$$buffer = $_;
+    
+    # parse out organelle, common name, abbreviated name if present
+    if ($sl =~ m{^(mitochondrion|chloroplast|plastid)?\s+(.*?)\s\((.*?)\)\.?$}xms) {
+        $organelle = $1;
+        $abbr_name = $2;
+        $common = $3;
+        $self->debug("Caught organelle: $organelle\n") if $organelle;
+        $self->debug("Caught common name: $common\n") if $common;
+        $self->debug("Caught abbreviated name: $abbr_name\n") if $abbr_name;
+    }
     
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will 
@@ -1302,7 +1312,7 @@ sub _read_GenBank_Species {
 	# Don't make a species object if it's empty or "Unknown" or "None"
 	# return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
 	# Don't make a species object if it belongs to taxid 32644
-	my $unkn = grep { $_ =~ /^\Q$common\E$/; } @unkn_names;
+	my $unkn = grep { $_ =~ /^\Q$sl\E$/; } @unkn_names;
 	return unless ($species || $genus) and $unkn == 0;
     
 	# Bio::Species array needs array in Species -> Kingdom direction
@@ -1312,7 +1322,9 @@ sub _read_GenBank_Species {
 	my $make = Bio::Species->new();
     $make->scientific_name($sci_name) if $sci_name;
 	$make->classification(@class) if @class > 0;
-	$make->common_name( $common ) if $common;
+	$make->common_name( $sl ) if $sl;
+    $make->name('abbreviated', $abbr_name) if $abbr_name;
+    $make->organelle($organelle) if $organelle;
 	#$make->sub_species( $sub_species ) if $sub_species;
 	return $make;
 }
