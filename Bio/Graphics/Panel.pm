@@ -102,6 +102,7 @@ sub new {
 		image_package => $image_class . '::Image',     # Accessors
 		polygon_package => $image_class . '::Polygon',
 		add_category_labels => $add_categories,
+		key_boxes  => {},
 	       },$class;
 }
 
@@ -614,6 +615,7 @@ sub draw_between_key {
   # Key color hard-coded. Should be configurable for the control freaks.
   my $color = $self->translate_color('black');
   $gd->string($self->{key_font},$x,$offset,$key,$color);
+  $self->add_key_box($key,$x,$offset);
   return $self->{key_font}->height;
 }
 
@@ -629,6 +631,7 @@ sub draw_side_key {
 		 $pos+$self->{key_font}->width*CORE::length($key),$offset,#-$self->{key_font}->height)/2,
 		 $self->bgcolor);
   $gd->string($self->{key_font},$pos,$offset,$key,$color);
+  $self->add_key_box($key,$pos,$offset);
   return $self->{key_font}->height;
 }
 
@@ -643,7 +646,6 @@ sub draw_bottom_key {
   my $text_color = $self->translate_color('black');
   $gd->string($self->{key_font},$left,KEYPADTOP+$top,"KEY:",$text_color);
   $top += $self->{key_font}->height + KEYPADTOP;
-
   $_->draw($gd,$left,$top) foreach @$key_glyphs;
 }
 
@@ -741,6 +743,17 @@ sub format_key {
   else {  # no known key style, neither "between" nor "bottom"
     return $self->{key_height} = 0;
   }
+}
+
+sub add_key_box {
+  my $self = shift;
+  my ($label,$x,$y) = @_;
+  my @box = ($x,$y,$x+$self->{key_font}->width*CORE::length($label),$y+$self->{key_font}->height);
+  $self->{key_boxes}{$label} = \@box;
+}
+
+sub key_boxes {
+  return shift->{key_boxes};
 }
 
 sub add_category_labels {
@@ -1888,6 +1901,14 @@ Bio::SeqFeatureI object.  The coordinates are the topleft and
 bottomright corners of the glyph, including any space allocated for
 labels. The track is the Bio::Graphics::Glyph object corresponding to
 the track that the feature is rendered inside.
+
+=item $keyhash = $panel->E<gt>key_boxes
+
+Returns the positions of the track keys as a hashref. The keys of the
+hashrefs are the track key strings, and the values are arrayrefs
+corresponding to the rectangle surrounding the keys in the format
+[left,top,right,bottom]. Only valid for key positions of type "left",
+"right" and "between" (i.e. not "below").
 
 =item $position = $panel-E<gt>track_position($track)
 
