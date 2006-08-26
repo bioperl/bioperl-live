@@ -802,7 +802,17 @@ sub write_seq {
 
 	# Organism lines
 	if (my $spec = $seq->species) {
-        $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $spec->common_name, "\\s\+\|\$",80);
+		#my ($on, $sn, $cn) = ($spec->organelle,
+		#					  $spec->scientific_name,
+		#					  $spec->common_name);
+		#my $abname = $spec->name('abbreviated') ? # from genbank file
+		#             $spec->name('abbreviated')->[0] : $sn;
+		#my $sl = $on ? "$on "            : '';
+		#$sl   .= $cn ? $abname." ($cn)." : "$abname.";
+		my $sl = $spec->name('source_line') ? $spec->name('source_line')->[0] :
+		         $spec->common_name         ? $spec->common_name              :
+				 $spec->scientific_name;
+        $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
         my @classification = $spec->classification;
         shift(@classification);
@@ -1286,6 +1296,8 @@ sub _read_GenBank_Species {
         $self->debug("Caught abbreviated name: $abbr_name\n") if $abbr_name;
     }
     
+	$common = $common || $abbr_name || $sl;
+	
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will 
 	# still get matched, use map() to remove trailing/leading/intervening spaces
@@ -1322,8 +1334,9 @@ sub _read_GenBank_Species {
 	my $make = Bio::Species->new();
     $make->scientific_name($sci_name) if $sci_name;
 	$make->classification(@class) if @class > 0;
-	$make->common_name( $sl ) if $sl;
+	$make->common_name( $common ) if $common;
     $make->name('abbreviated', $abbr_name) if $abbr_name;
+	$make->name('source_line', $sl) if $sl;
     $make->organelle($organelle) if $organelle;
 	#$make->sub_species( $sub_species ) if $sub_species;
 	return $make;

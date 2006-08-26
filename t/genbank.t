@@ -75,7 +75,7 @@ $as = $ast->next_seq;
 ok $as->species->binomial,'Bolitoglossa n. sp. RLM-2004';
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
-ok($as->species->common_name,'mitochondrion Bolitoglossa n. sp. RLM-2004 (mushroomtongue salamander)');
+ok($as->species->common_name,'mushroomtongue salamander');
 
 $ast = Bio::SeqIO->new(-format => 'genbank',
 							  -verbose => $verbose,
@@ -84,7 +84,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
 $as = $ast->next_seq;
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
-ok $as->species->common_name,'mitochondrion Desmognathus quadramaculatus (black-bellied salamander)';
+ok $as->species->common_name,'black-bellied salamander';
 
 # test for unusual common name
 $ast = Bio::SeqIO->new(-format => 'genbank',
