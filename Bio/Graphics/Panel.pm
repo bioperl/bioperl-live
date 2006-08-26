@@ -102,7 +102,7 @@ sub new {
 		image_package => $image_class . '::Image',     # Accessors
 		polygon_package => $image_class . '::Polygon',
 		add_category_labels => $add_categories,
-		key_boxes  => {},
+		key_boxes  => [],
 	       },$class;
 }
 
@@ -615,7 +615,7 @@ sub draw_between_key {
   # Key color hard-coded. Should be configurable for the control freaks.
   my $color = $self->translate_color('black');
   $gd->string($self->{key_font},$x,$offset,$key,$color);
-  $self->add_key_box($key,$x,$offset);
+  $self->add_key_box($track,$key,$x,$offset);
   return $self->{key_font}->height;
 }
 
@@ -631,7 +631,7 @@ sub draw_side_key {
 		 $pos+$self->{key_font}->width*CORE::length($key),$offset,#-$self->{key_font}->height)/2,
 		 $self->bgcolor);
   $gd->string($self->{key_font},$pos,$offset,$key,$color);
-  $self->add_key_box($key,$pos,$offset);
+  $self->add_key_box($track,$key,$pos,$offset);
   return $self->{key_font}->height;
 }
 
@@ -747,13 +747,14 @@ sub format_key {
 
 sub add_key_box {
   my $self = shift;
-  my ($label,$x,$y) = @_;
-  my @box = ($x,$y,$x+$self->{key_font}->width*CORE::length($label),$y+$self->{key_font}->height);
-  $self->{key_boxes}{$label} = \@box;
+  my ($track,$label,$x,$y) = @_;
+  my $value = [$label,$x,$y,$x+$self->{key_font}->width*CORE::length($label),$y+$self->{key_font}->height,$track];
+  push @{$self->{key_boxes}},$value;
 }
 
 sub key_boxes {
-  return shift->{key_boxes};
+  my $ref  = shift->{key_boxes};
+  return wantarray ? @$ref : $ref;
 }
 
 sub add_category_labels {
@@ -1902,13 +1903,14 @@ bottomright corners of the glyph, including any space allocated for
 labels. The track is the Bio::Graphics::Glyph object corresponding to
 the track that the feature is rendered inside.
 
-=item $keyhash = $panel->E<gt>key_boxes
+=item $boxes = $panel->E<gt>key_boxes
 
-Returns the positions of the track keys as a hashref. The keys of the
-hashrefs are the track key strings, and the values are arrayrefs
-corresponding to the rectangle surrounding the keys in the format
-[left,top,right,bottom]. Only valid for key positions of type "left",
-"right" and "between" (i.e. not "below").
+=item @boxes = $panel->E<gt>key_boxes
+
+Returns the positions of the track keys as an arrayref or a list,
+depending on context. Each value in the list is an arrayref of format:
+
+ [ $key_text, $x1, $y1, $x2, $y2, $track ]
 
 =item $position = $panel-E<gt>track_position($track)
 
