@@ -802,16 +802,15 @@ sub write_seq {
 
 	# Organism lines
 	if (my $spec = $seq->species) {
-		#my ($on, $sn, $cn) = ($spec->organelle,
-		#					  $spec->scientific_name,
-		#					  $spec->common_name);
-		#my $abname = $spec->name('abbreviated') ? # from genbank file
-		#             $spec->name('abbreviated')->[0] : $sn;
-		#my $sl = $on ? "$on "            : '';
-		#$sl   .= $cn ? $abname." ($cn)." : "$abname.";
-		my $sl = $spec->name('source_line') ? $spec->name('source_line')->[0] :
-		         $spec->common_name         ? $spec->common_name              :
-				 $spec->scientific_name;
+		my ($on, $sn, $cn) = ($spec->organelle,
+							  $spec->scientific_name,
+							  $spec->common_name);
+		
+        my $abname = $spec->name('abbreviated') ? # from genbank file
+		             $spec->name('abbreviated')->[0] : $sn;
+		my $sl = $on ? "$on "            : '';
+		$sl   .= $cn ? $abname." ($cn)." : "$abname.";
+        
         $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
         my @classification = $spec->classification;
@@ -1286,17 +1285,18 @@ sub _read_GenBank_Species {
 	}
 	$$buffer = $_;
     
-    # parse out organelle, common name, abbreviated name if present
-    if ($sl =~ m{^(mitochondrion|chloroplast|plastid)?\s+(.*?)\s\((.*?)\)\.?$}xms) {
-        $organelle = $1;
-        $abbr_name = $2;
-        $common = $3;
-        $self->debug("Caught organelle: $organelle\n") if $organelle;
-        $self->debug("Caught common name: $common\n") if $common;
-        $self->debug("Caught abbreviated name: $abbr_name\n") if $abbr_name;
+    # parse out organelle, common name, abbreviated name if present;
+    # this should catch everything, but falls back to
+    # entire SOURCE line just in case
+    if ($sl =~ m{^
+                 (mitochondrion|chloroplast|plastid)?
+                 \s*(.*?)
+                 \s*(?: \( (.*?) \) )?\.?
+                 $}xms) {
+        ($organelle, $abbr_name, $common) = ($1, $2, $3); # optional
+    } else {
+        $abbr_name = $sl; # nothing caught; this is a backup!
     }
-    
-	$common = $common || $abbr_name || $sl;
 	
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will 
@@ -1336,7 +1336,6 @@ sub _read_GenBank_Species {
 	$make->classification(@class) if @class > 0;
 	$make->common_name( $common ) if $common;
     $make->name('abbreviated', $abbr_name) if $abbr_name;
-	$make->name('source_line', $sl) if $sl;
     $make->organelle($organelle) if $organelle;
 	#$make->sub_species( $sub_species ) if $sub_species;
 	return $make;

@@ -1193,13 +1193,15 @@ sub _read_FTHelper_EMBL {
             if (substr($value, 0, 1) eq '"') {
                 # Keep adding to value until we find the trailing quote
                 # and the quotes are balanced
+                QUOTES:
                 while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) { #"
                     $i++;
                     my $next = $qual[$i];
                     unless (defined($next)) {
                         warn("Unbalanced quote in:\n", map("$_\n", @qual),
-                            "No further qualifiers will be added for this feature");
-                        last QUAL;
+                            "Adding quote to close...");
+                        $value .= '"';
+                        last QUOTES;
                     }
 
                     # Join to value with space if value or next line contains a space
