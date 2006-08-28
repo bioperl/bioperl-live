@@ -139,7 +139,6 @@ my $colors;    # use colors to color edges
 my %Rcolor;    # red color for each node
 my %Gcolor;    # green color for each node
 my %Bcolor;    # blue color for each node
-my $inherit;   # inherit color from children
 
 =head2 new
 
@@ -160,7 +159,6 @@ my $inherit;   # inherit color from children
            -compact => ignore branch lengths [boolean] (optional)
            -ratio => horizontal to vertical ratio [integer] (optional)
            -colors => use colors to color edges [boolean] (optional)
-           -inherit => inherit color from children [boolean] (optional)
 
 =cut
 
@@ -183,7 +181,6 @@ sub new {
   $compact ||= 0;
   $ratio ||= 1 / 1.6180339887;
   $colors ||= 0;
-  $inherit ||= 1;
 
   # Roughly, a cladogram is set according to the following parameters.
 
