@@ -325,6 +325,7 @@ sub boxes {
       next;
     }
     my ($x1,$y1,$x2,$y2) = $part->box;
+    $x2++ if $x1==$x2;
     push @result,[$part->feature,
 		  $left + $x1,$top+$self->top+$self->pad_top+$y1,
 		  $left + $x2,$top+$self->top+$self->pad_top+$y2,
