@@ -2,13 +2,13 @@
 #
 # BioPerl module for Bio::AlignIO::bl2seq
 
-#	based on the Bio::SeqIO modules
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO modules
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
-#	the Bio::Tools::BPlite modules by
-#	Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf),
-#	Lorenz Pollak (lorenz@ist.org, bioperl port)
+#   the Bio::Tools::BPlite modules by
+#   Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf),
+#   Lorenz Pollak (lorenz@ist.org, bioperl port)
 #
 #       and the SimpleAlign.pm module of Ewan Birney
 #
@@ -29,9 +29,9 @@ Do not use this module directly.  Use it via the L<Bio::AlignIO> class, as in:
 
     use Bio::AlignIO;
 
-    $in  = Bio::AlignIO->new(-file   => "inputfilename" , 
+    $in  = Bio::AlignIO->new(-file   => "inputfilename" ,
                              -format => "bl2seq",
-			     -report_type => "blastn");
+                             -report_type => "blastn");
     $aln = $in->next_aln();
 
 
@@ -51,8 +51,8 @@ manipulated using any SimpleAlign.pm methods, eg:
    my $seq4 = $str->next_seq();
 
    # Run bl2seq on them
-   $factory = Bio::Tools::StandAloneBlast->new('program' => 'blastp', 
-					       'outfile' => 'bl2seq.out');
+   $factory = Bio::Tools::StandAloneBlast->new('program' => 'blastp',
+                                               'outfile' => 'bl2seq.out');
    my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
    # Note that report is a Bio::SearchIO object
 
@@ -109,7 +109,7 @@ use Bio::SearchIO;
  Usage   : my $alignio = Bio::SimpleAlign->new(-format => 'bl2seq',
                                                -file   => 'filename',
                                                -report_type => 'blastx');
- Function: Get a L<Bio::SimpleAlign> 
+ Function: Get a L<Bio::SimpleAlign>
  Returns : L<Bio::SimpleAlign> object
  Args    : -report_type => report type (blastn,blastx,tblastx,tblastn,blastp)
 
@@ -117,7 +117,7 @@ use Bio::SearchIO;
 =cut
 
 
-sub new { 
+sub new {
     my ($class) = shift;
     my $self = $class->SUPER::new(@_);
     my ($rt) = $self->_rearrange([qw(REPORT_TYPE)],@_);
@@ -140,16 +140,16 @@ sub next_aln {
     my $self = shift;
     my ($start,$end,$name,$seqname,$seq,$seqchar,$strand);
     my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
-    $self->{'bl2seqobj'} = $self->{'bl2seqobj'} || 
+    $self->{'bl2seqobj'} = $self->{'bl2seqobj'} ||
 	Bio::SearchIO->new(-fh => $self->_fh,
 			   -format => 'blast');
     my $bl2seqobj = $self->{'bl2seqobj'};
     my $result = $self->{'_result'} || $bl2seqobj->next_result;
     $self->{'result'} = undef, return unless defined $result;
-    
+
     my $hit = $self->{'_hit'} || $result->next_hit;
     $self->{'_hit'} = undef, return unless defined $hit;
-    
+
     my $hsp  = $hit->next_hsp;
     return unless defined $hsp;
     return $hsp->get_aln;
@@ -158,11 +158,11 @@ sub next_aln {
 #     $start   = $hsp->query->start;
 #     $end     = $hsp->query->end;
 #      # Query name typically not present in bl2seq report
-#     $seqname = $hsp->query->seq_id || 'Query-sequence'; 
+#     $seqname = $hsp->query->seq_id || 'Query-sequence';
 #     $strand  = $hsp->query->strand;
-    
-#     #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
-#     unless ($seqchar && $start && $end ) {return 0} ;	
+
+#     #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;
+#     unless ($seqchar && $start && $end ) {return 0} ;
 
 #     $seq = new Bio::LocatableSeq('-seq'   =>$seqchar,
 # 				 '-id'    =>$seqname,
@@ -179,7 +179,7 @@ sub next_aln {
 #     $seqname  = $hsp->hit->seq_id;
 #     $strand   = $hsp->hit->strand;
 
-#     unless ($seqchar && $start && $end  && $seqname) {return 0} ;	
+#     unless ($seqchar && $start && $end  && $seqname) {return 0} ;
 
 #     $seq = new Bio::LocatableSeq('-seq'   =>$seqchar,
 # 				 '-id'    =>$seqname,
@@ -190,7 +190,7 @@ sub next_aln {
 #     $aln->add_seq($seq);
 #     return $aln;
 }
-	
+
 
 =head2 write_aln
 

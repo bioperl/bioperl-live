@@ -2,8 +2,8 @@
 #
 # BioPerl module for Bio::AlignIO::prodom
 
-#	based on the Bio::SeqIO::prodom module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO::prodom module
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
@@ -88,7 +88,7 @@ sub next_aln {
 	   $start=$3;
 	   $end=$4;
 	   $seq=$5;
-	
+
 	   $names{'fake_id'} = $fake_id;
 
 	   $add = new Bio::LocatableSeq('-seq'=>$seq,
@@ -96,7 +96,7 @@ sub next_aln {
 			       '-start'=>$start,
 			       '-end'=>$end,
 			       );
-	
+
 	   $aln->add_seq($add);
        }
        elsif ($entry =~ /^CO/) {

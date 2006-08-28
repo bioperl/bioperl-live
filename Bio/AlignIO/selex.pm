@@ -2,8 +2,8 @@
 #
 # BioPerl module for Bio::AlignIO::selex
 
-#	based on the Bio::SeqIO::selex module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO::selex module
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
@@ -112,7 +112,7 @@ sub next_aln {
     # ok... now we can make the sequences
 
     foreach my $name ( @c2name ) {
-	
+
 	if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
 	    $seqname = $1;
 	    $start = $2;
@@ -130,7 +130,7 @@ sub next_aln {
 	     '-description'      => $desc{$name},
 	     '-accession_number' => $accession{$name},
 	     );
-	
+
 	$aln->add_seq($seq);
     }
 

@@ -1,8 +1,8 @@
 #
 # BioPerl module for Bio::AlignIO::largemultifasta
 
-#	based on the Bio::SeqIO::largefasta module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO::largefasta module
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
@@ -76,7 +76,7 @@ sub _initialize {
   $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
-			      (-verbose => $self->verbose(), 
+			      (-verbose => $self->verbose(),
 			       -type => 'Bio::Seq::LargeLocatableSeq'));
   }
 }
@@ -170,7 +170,7 @@ sub write_aln {
     my ($seq,$desc,$rseq,$name,$count,$length,$seqsub);
 
     foreach my $aln (@aln) {
-	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+	if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
 	    $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
 	    next;
 	}
@@ -178,7 +178,7 @@ sub write_aln {
 	    $name = $aln->displayname($rseq->get_nse());
 	    $seq  = $rseq->seq();
 	    $desc = $rseq->description || '';
-	    $self->_print (">$name $desc\n") or return ;	
+	    $self->_print (">$name $desc\n") or return ;
 	    $count =0;
 	    $length = length($seq);
 	    while( ($count * 60 ) < $length ) {

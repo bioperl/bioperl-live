@@ -3,7 +3,7 @@
 # BioPerl module for Bio::AlignIO::clustalw
 #
 #   based on the Bio::SeqIO modules
-#       by Ewan Birney <birney@sanger.ac.uk>
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #       and the Bio::SimpleAlign module of Ewan Birney
 #
@@ -73,13 +73,13 @@ $CLUSTALPRINTVERSION = '1.81';
 =head2 new
 
  Title   : new
- Usage   : $alignio = new Bio::AlignIO(-format => 'clustalw', 
+ Usage   : $alignio = new Bio::AlignIO(-format => 'clustalw',
                        -file => 'filename');
  Function: returns a new Bio::AlignIO object to handle clustalw files
  Returns : Bio::AlignIO::clustalw object
  Args    : -verbose => verbosity setting (-1, 0, 1, 2)
            -file    => name of file to read in or to write, with ">"
-           -fh      => alternative to -file param - provide a filehandle 
+           -fh      => alternative to -file param - provide a filehandle
                        to read from or write to
            -format  => alignment format to process or produce
            -percentages => display a percentage of identity
@@ -179,7 +179,7 @@ sub next_aln {
 
         $alignments{$seqname} .= $aln_line;
     }
-    
+
     my ( $sname, $start, $end );
     foreach my $name ( sort { $order{$a} <=> $order{$b} } keys %alignments ) {
         if ( $name =~ /(\S+):(\d+)-(\d+)/ ) {
@@ -308,7 +308,7 @@ sub write_aln {
 
  Title   : percentages
  Usage   : $obj->percentages($newval)
- Function: Set the percentages flag - whether or not to show percentages in 
+ Function: Set the percentages flag - whether or not to show percentages in
            each output line
  Returns : value of percentages
  Args    : newvalue (optional)

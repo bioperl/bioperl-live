@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::AlignIO::po
 
-#	based on the Bio::AlignIO::fasta module
+#   based on the Bio::AlignIO::fasta module
 #       by Peter Schattner (and others?)
 #
 #       and the SimpleAlign.pm module of Ewan Birney

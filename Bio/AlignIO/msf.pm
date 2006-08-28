@@ -1,8 +1,8 @@
 # $Id$
 #
 # BioPerl module for Bio::AlignIO::msf
-#	based on the Bio::SeqIO::msf module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO::msf module
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
@@ -24,7 +24,7 @@ Do not use this module directly.  Use it via the L<Bio::AlignIO> class.
 
 =head1 DESCRIPTION
 
-This object can transform L<Bio::Align::AlignI> objects to and from msf 
+This object can transform L<Bio::Align::AlignI> objects to and from msf
 flat file databases.
 
 =head1 FEEDBACK
@@ -168,7 +168,7 @@ sub write_aln {
 	my $maxname;
 	my ($length,$date,$name,$seq,$miss,$pad,%hash,@arr,$tempcount,$index);
 	foreach my $aln (@aln) {
-		if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+		if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
 			$self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
 			next;
 		}
@@ -182,7 +182,7 @@ sub write_aln {
 			$name = "Align";
 		}
 
-		$self->_print (sprintf("\n%s   MSF: %d  Type: %s  %s  Check: 00 ..\n\n", 
+		$self->_print (sprintf("\n%s   MSF: %d  Type: %s  %s  Check: 00 ..\n\n",
 			       $name,  $aln->no_sequences, $type, $date));
 
 		foreach $seq ( $aln->each_seq() ) {

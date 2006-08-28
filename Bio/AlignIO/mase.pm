@@ -2,8 +2,8 @@
 #
 # BioPerl module for Bio::AlignIO::mase
 
-#	based on the Bio::SeqIO::mase module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO::mase module
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
