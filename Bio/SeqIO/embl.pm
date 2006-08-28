@@ -284,10 +284,31 @@ sub next_seq {
 			 }
 
 			 #date (NOTE: takes last date line)
-			 if( /^DT\s+(.+)$/ ) {
-				 my $date = $1;
-				 push @{$params{'-dates'}},$date;
-			 }
+             if( /^DT\s+(.+)$/ ) {
+                 my $line = $1;
+                 my ($date, $version) = split(' ', $line, 2);
+                 $date =~ tr/,//d; # remove comma if new version      
+                 if ($version =~ /\(Rel\. (\d+), Created\)/xms ) { 
+                    my $release = Bio::Annotation::SimpleValue->new(
+                                                -tagname    => 'creation_release',
+                                                -value      => $1
+                                                );
+                    $annotation->add_Annotation($release);
+                 } elsif ($version =~ /\(Rel\. (\d+), Last updated, Version (\d+)\)/xms ) {
+                    my $release = Bio::Annotation::SimpleValue->new(
+                            -tagname    => 'update_release',
+                            -value      => $1
+                            );
+                    $annotation->add_Annotation($release);
+                    
+                    my $update = Bio::Annotation::SimpleValue->new(
+                            -tagname    => 'update_version',
+                            -value      => $2
+                            );
+                    $annotation->add_Annotation($update);
+                 }
+                 push @{$params{'-dates'}}, $date;                 
+             }
 
 			 #keywords
 			 if( /^KW   (.*)\S*$/ ) {
@@ -621,10 +642,32 @@ sub write_seq {
 		# Date lines
 		my $switch=0;
 		if( $seq->can('get_dates') ) {
-			foreach my $dt ( $seq->get_dates() ) {
-				$self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80) || return; #'
-				$switch=1;
-			}
+            my @dates =  $seq->get_dates();
+            my $ct = 1;
+            my $date_flag = 0;
+            my ($cr) = $seq->get_Annotations("creation_release");
+            my ($ur) = $seq->get_Annotations("update_release");
+            my ($uv) = $seq->get_Annotations("update_version");
+            
+            unless ($cr && $ur && $ur) {
+                $date_flag = 1;
+            }
+            
+            foreach my $dt (@dates){
+                if (!$date_flag) {
+                    $self->_write_line_EMBL_regex("DT   ","DT   ",
+                            $dt." (Rel. $cr, Created)",
+                            '\s+|$',80) if $ct == 1;                    
+                    $self->_write_line_EMBL_regex("DT   ","DT   ",
+                            $dt." (Rel. $ur, Last updated, Version $uv)",
+                            '\s+|$',80) if $ct == 2;
+                } else { # other formats?
+                    $self->_write_line_EMBL_regex("DT   ","DT   ",
+                            $dt,'\s+|$',80);
+                }
+                $switch =1;
+                $ct++;
+            }
 			if ($switch == 1) {
 				$self->_print("XX\n") || return;
 			}
