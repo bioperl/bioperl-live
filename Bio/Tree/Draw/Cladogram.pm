@@ -139,6 +139,7 @@ my $colors;    # use colors to color edges
 my %Rcolor;    # red color for each node
 my %Gcolor;    # green color for each node
 my %Bcolor;    # blue color for each node
+my $inherit;   # inherit color from children
 
 =head2 new
 
@@ -159,6 +160,7 @@ my %Bcolor;    # blue color for each node
            -compact => ignore branch lengths [boolean] (optional)
            -ratio => horizontal to vertical ratio [integer] (optional)
            -colors => use colors to color edges [boolean] (optional)
+           -inherit => inherit color from children [boolean] (optional)
 
 =cut
 
@@ -169,7 +171,7 @@ sub new {
   ($t1, $t2, $font, $size, my $top, my $bottom, my $left, my $right,
     $tip, my $column, $compact, $ratio, $colors) = $self->_rearrange([qw(TREE
     SECOND FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN
-    COMPACT RATIO COLORS)], @args);
+    COMPACT RATIO COLORS INHERIT)], @args);
   $font ||= "Helvetica-Narrow";
   $size ||= 12;
   $top ||= 10;
@@ -181,6 +183,7 @@ sub new {
   $compact ||= 0;
   $ratio ||= 1 / 1.6180339887;
   $colors ||= 0;
+  $inherit ||= 1;
 
   # Roughly, a cladogram is set according to the following parameters.
 
@@ -448,7 +451,7 @@ sub print {
       # print $xx{$node}, " ", $yy{$node}, " lineto\n";
       if ($colors) {
 	print INFO "stroke\n";
-	print INFO $Rcolor{$node}, " ", $Gcolor{$node}, " ", $Bcolor{$node}, " setrgbcolor\n";
+	print INFO $Rcolor{$node->ancestor}, " ", $Gcolor{$node->ancestor}, " ", $Bcolor{$node->ancestor}, " setrgbcolor\n";
       }
       print INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
       print INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
