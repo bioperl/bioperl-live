@@ -738,6 +738,15 @@ sub _handle_feature {
     }
   }
 
+  my @illegal_tags = grep 
+ {!/(ID|Name|Alias|Parent|Target|Gap|Derives_from|Note|Dbxref|Ontology_term)/} 
+ grep {/^[A-Z]/} keys %attr;
+
+  if (@illegal_tags > 0) {
+      my $tags = join(", ", @illegal_tags);
+      $self->throw("The following tag(s) are illegal and are causing this parser to die: $tags");
+  }
+
   return $feat;
 }
 
