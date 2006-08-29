@@ -935,13 +935,13 @@ sub getSeq {
 	    push( @frags, $pot_chain );
 	}
     }
-
+    
     # if that didn't work, just get the first one
     if ( !( @frags ) ) {
 	$chain = $contSegs_pnt->[ 0 ]->[ 2 ];
 	foreach $pot_chain ( @{ $contSegs_pnt } ) {
 	    if ( $pot_chain->[ 2 ] eq $chain ) {
-		push( @frags, $chain );
+		push( @frags, $pot_chain );
 	    }
 	}
     }
