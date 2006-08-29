@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Annotation::Target 
+Bio::Annotation::Target
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Bio::Annotation::Target
                                           -start      => 1,
                                           -end        => 200,
                                           -strand     => 1,   # or -1
-					 );
+                                         );
 
    # or
 
@@ -75,12 +75,12 @@ sub new {
   my $self = $class->SUPER::new(@args);
 
   my ($target_id, $tstart, $tend, $tstrand) =
-      $self->_rearrange([ qw( 
-                              TARGET_ID 
-                              START 
-                              END 
+      $self->_rearrange([ qw(
+                              TARGET_ID
+                              START
+                              END
                               STRAND ) ], @args);
-  
+
   $target_id    && $self->target_id($target_id);
   $tstart       && $self->start($tstart);
   $tend         && $self->end($tend);
@@ -100,7 +100,7 @@ sub new {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -130,7 +130,7 @@ sub as_text{
            under which it was stored unless the object has a tag
            stored already.
 
- Example : 
+ Example :
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
 

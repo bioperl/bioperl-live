@@ -13,7 +13,7 @@
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-# 
+#
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -32,12 +32,12 @@ information
    use Bio::Annotation::Collection;
 
    my $col = new Bio::Annotation::Collection;
-   my $sv = new Bio::Annotation::StructuredValue(-value => 'someval');   
+   my $sv = new Bio::Annotation::StructuredValue(-value => 'someval');
    $col->add_Annotation('tagname', $sv);
 
 =head1 DESCRIPTION
 
-Scalar value annotation object 
+Scalar value annotation object
 
 =head1 FEEDBACK
 
@@ -58,9 +58,9 @@ or the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - bioperl
+=head1 AUTHOR - Hilmar Lapp
 
-Email bioperl-l@bio.perl.org
+Email <hlapp at gmx.net>
 
 Describe contact details here
 
@@ -121,7 +121,7 @@ sub new{
 
  Title   : as_text
  Usage   : my $text = $obj->as_text
- Function: return the string "Value: $v" where $v is the value 
+ Function: return the string "Value: $v" where $v is the value
  Returns : string
  Args    : none
 
@@ -148,7 +148,7 @@ sub as_text{
 
 sub hash_tree{
    my ($self) = @_;
-   
+
    my $h = {};
    $h->{'value'} = $self->value;
 }
@@ -161,7 +161,7 @@ sub hash_tree{
 
            Setting this is optional. If set, it obviates the need to provide
            a tag to AnnotationCollection when adding this object.
- Example : 
+ Example :
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
 
@@ -188,7 +188,7 @@ sub tagname{
  Function: Get/set the value for this annotation.
 
            Set mode is here only to retain compatibility with
-           SimpleValue. It is equivalent to calling 
+           SimpleValue. It is equivalent to calling
            add_value([0], $newval).
 
            In get mode, this implementation allows to pass additional
@@ -261,7 +261,7 @@ sub _to_text{
  Function: Get the top-level array of values. Each of the elements will
            recursively be a reference to an array or a scalar, depending
            on the depth of this structured value annotation.
- Example : 
+ Example :
  Returns : an array
  Args    : none
 
@@ -347,7 +347,7 @@ sub add_value{
     } else {
 	$tree->[$lastidx] = [@values];
     }
-    
+
 }
 
 1;

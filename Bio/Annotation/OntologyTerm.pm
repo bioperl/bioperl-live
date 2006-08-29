@@ -8,7 +8,7 @@
 #
 # You may distribute this module under the same terms as perl itself
 
-# 
+#
 # (c) Hilmar Lapp, hlapp at gmx.net, 2002.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
 #
@@ -16,7 +16,7 @@
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-# 
+#
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -54,7 +54,7 @@ Bio::Annotation::OntologyTerm - An ontology term adapted to AnnotationI
 
 =head1 DESCRIPTION
 
-Ontology term annotation object 
+Ontology term annotation object
 
 =head1 FEEDBACK
 
@@ -77,13 +77,12 @@ the web:
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email bioperl-l@bio.perl.org
 Email hlapp at gmx.net
 
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
+The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
@@ -122,7 +121,7 @@ use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
 sub new{
     my ($class,@args) = @_;
-    
+
     my $self = $class->SUPER::new(@args);
     my ($term,$name,$label,$identifier,$definition,$ont,$tag) =
 	$self->_rearrange([qw(TERM
@@ -184,7 +183,7 @@ sub as_text{
 
 sub hash_tree{
    my ($self) = @_;
-   
+
    my $h = {};
    $h->{'name'} = $self->name();
    $h->{'identifier'} = $self->identifier();
@@ -203,7 +202,7 @@ sub hash_tree{
            a tag to AnnotationCollection when adding this object.
 
            This is aliased to ontology() here.
- Example : 
+ Example :
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
 
@@ -231,7 +230,7 @@ sub tagname{
 
            We implement TermI by composition, and this method sets/gets the
            object we delegate to.
- Example : 
+ Example :
  Returns : value of term (a Bio::Ontology::TermI compliant object)
  Args    : new value (a Bio::Ontology::TermI compliant object, optional)
 
@@ -302,7 +301,7 @@ sub definition {
 
  Title   : ontology
  Usage   : $term->ontology( $top );
-           or 
+           or
            $top = $term->ontology();
  Function: Set/get for a relationship between this Term and
            another Term (e.g. the top level of the ontology).
@@ -336,7 +335,7 @@ sub is_obsolete {
 
  Title   : comment
  Usage   : $term->comment( "Consider the term ..." );
-           or 
+           or
            print $term->comment();
  Function: Set/get for an arbitrary comment about this Term.
  Returns : A comment.
@@ -351,7 +350,7 @@ sub comment {
 =head2 get_synonyms
 
  Title   : get_synonyms()
- Usage   : @aliases = $term->get_synonyms();                 
+ Usage   : @aliases = $term->get_synonyms();
  Function: Returns a list of aliases of this Term.
  Returns : A list of aliases [array of [scalar]].
  Args    :
@@ -367,9 +366,9 @@ sub get_synonyms {
  Title   : add_synonym
  Usage   : $term->add_synonym( @asynonyms );
            or
-           $term->add_synonym( $synonym );                  
+           $term->add_synonym( $synonym );
  Function: Pushes one or more synonyms into the list of synonyms.
- Returns : 
+ Returns :
  Args    : One synonym [scalar] or a list of synonyms [array of [scalar]].
 
 =cut
@@ -413,10 +412,10 @@ sub get_dblinks {
  Title   : add_dblink
  Usage   : $term->add_dblink( @dbls );
            or
-           $term->add_dblink( $dbl );                  
+           $term->add_dblink( $dbl );
  Function: Pushes one or more dblinks
            into the list of dblinks.
- Returns : 
+ Returns :
  Args    : One  dblink [scalar] or a list of
             dblinks [array of [scalars]].
 
@@ -465,9 +464,9 @@ sub get_secondary_ids {
  Title   : add_secondary_id
  Usage   : $term->add_secondary_id( @ids );
            or
-           $term->add_secondary_id( $id );                  
+           $term->add_secondary_id( $id );
  Function: Adds one or more secondary identifiers to this term.
- Returns : 
+ Returns :
  Args    : One or more secondary identifiers [scalars]
 
 =cut

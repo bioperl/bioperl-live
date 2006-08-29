@@ -24,7 +24,7 @@ Bio::Annotation::TypeManager - Manages types for annotation collections
     print "The type for $key is ",$tm->type_for_key($key),"\n";
 
     if( !$tm->is_valid($key,$object) ) {
-	      $self->throw("Invalid object for key $key");
+        $self->throw("Invalid object for key $key");
     }
 
 =head1 DESCRIPTION
@@ -40,7 +40,7 @@ and other Bioperl modules. Send your comments and suggestions preferably
  to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org
+  bioperl-l@bioperl.org
 
 =head2 Reporting Bugs
 
@@ -84,7 +84,7 @@ use Bio::Root::Root;
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -111,7 +111,7 @@ sub new{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -131,7 +131,7 @@ sub type_for_key{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -158,7 +158,7 @@ sub is_valid{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -166,7 +166,7 @@ sub is_valid{
 
 sub _add_type_map{
    my ($self,$key,$type) = @_;
-   
+
    $key = $key->name() if ref($key) && $key->isa("Bio::Ontology::TermI");
    $self->{'_type'}->{$key} = $type;
 }
