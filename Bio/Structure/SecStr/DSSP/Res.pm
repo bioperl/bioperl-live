@@ -398,7 +398,7 @@ sub pdbSource {
  Title         : resAA
  Usage         : fetches the 1 char amino acid code, given an id
  Function      :
- Example       : $aa = $dssp_obj->aminoAcid( '20:A' ); # pdb id as arg
+ Example       : $aa = $dssp_obj->resAA( '20:A' ); # pdb id as arg
  Returns       : 1 character scalar string
  Args          : RESIDUE_ID
 
