@@ -114,7 +114,7 @@ Divergence Dates and Nested Taxa. Bioinformatics B<20>(15), 2355-2360
 
 =item * Merce Llabres, Jairo Rocha, Francesc Rossello, and Gabriel
 Valiente: On the Ancestral Compatibility of Two Phylogenetic Trees
-with Nested Taxa. Manuscript (2005).
+with Nested Taxa. J. Math. Biol. B<53>(3), 340-364 (2006).
 
 =back
 
@@ -225,8 +225,8 @@ sub cluster_representation {
 =head2 common_labels
 
  Title   : common_labels
- Usage   : my @labels = @{ $tree1->common_labels($tree2) }
- Function: Return list of common node labels
+ Usage   : my $labels = $tree1->common_labels($tree2);
+ Function: Return set of common node labels
  Returns : Set::Scalar
  Args    : Bio::Tree::Tree
 
