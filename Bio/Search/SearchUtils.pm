@@ -135,7 +135,7 @@ sub tile_hsps {
 
     if( $sbjct->num_hsps == 0 || $sbjct->n == 0 ) { 		
 	#print STDERR "_tile_hsps(): no hsps, nothing to tile! (", $sbjct->num_hsps, ")\n";
-        _warn_about_no_hsp($sbjct);
+        _warn_about_no_hsps($sbjct);
         return (undef, undef);
 
     } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
