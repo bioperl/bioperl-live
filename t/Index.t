@@ -7,7 +7,7 @@ BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
    $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
-   $NUMTESTS = 48;
+   $NUMTESTS = 50;
    if ( $@ ) {
       use lib 't';
    }
@@ -160,7 +160,8 @@ if (Bio::DB::FileCache->can('new')) {
    ok( $species->genus(), 'Homo');
    # changes in GenBank file SOURCE line
    # this is now the abbreviated name
-   ok ($species->common_name(), 'human');
+   ok defined($species->name('abbreviated'));
+   ok ($species->name('abbreviated')->[0], 'human');
 
    $cache = undef;
    $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
@@ -179,7 +180,10 @@ if (Bio::DB::FileCache->can('new')) {
    ok( $species->binomial, 'Homo sapiens');
    ok( $species->species(), 'sapiens');
    ok( $species->genus(), 'Homo');
-   ok ($species->common_name(), 'human');
+   # changes in GenBank file SOURCE line
+   # this is now the abbreviated name
+   ok defined($species->name('abbreviated'));
+   ok ($species->name('abbreviated')->[0], 'human');
 } else {
    skip('Bio::DB::FileCache not loaded because one or more of Storable, Fcntl, DB_File or File::Temp not installed',1);
 }
