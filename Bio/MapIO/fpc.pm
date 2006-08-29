@@ -1,4 +1,4 @@
-# $Id$
+# fpc.pm,v 1.2.2.1 2005/10/09 15:16:27 jason Exp
 #
 # BioPerl module for Bio::MapIO::fpc
 #
@@ -20,6 +20,15 @@ Bio::MapIO::fpc - A FPC Map reader
 
     use Bio::MapIO;
 
+     -format  : specifies the format of the file format is "fpc",
+     -file    : specifies the name of the .fpc file
+     -readcor : boolean argument, indicating if .cor is to be read
+                 or not. It looks for the .cor file in the same path
+                 as .fpc file.
+                 0 : doesn't read .cor file
+                 1 : reads the .cor file
+                 [default 0]
+     -verbose : indicates the process of loading of fpc file
     my $mapio = new Bio::MapIO(-format  => "fpc",
                                -file    => "rice.fpc",
                                -readcor => 0,
@@ -28,20 +37,10 @@ Bio::MapIO::fpc - A FPC Map reader
     my $map = $mapio->next_map();
 
     foreach my $marker ( $map->each_markerid() ) {
-          # loop through the markers associated with the map
+         # loop through the markers associated with the map
+         # likewise for contigs, clones, etc.
     }
 
-=head2 Options
-
-    -format  : specifies the format of the file format is "fpc",
-    -file    : specifies the name of the .fpc file
-    -readcor : boolean argument, indicating if .cor is to be read
-               or not. It looks for the .cor file in the same path
-               as .fpc file.
-               0 : does not read .cor file
-               1 : reads the .cor file
-               [default 0]
-    -verbose : indicates the process of loading of fpc file
 
 =head1 DESCRIPTION
 
@@ -276,7 +275,8 @@ sub next_map{
                 $_clones{$name}{'gel'} = $1;
             }
             elsif ($line =~ /^Remark\s+"(.+)"/)  {
-                $_clones{$name}{'remark'} = $1;
+                $_clones{$name}{'remark'} .= $1;
+                $_clones{$name}{'remark'} .= "\n";
                 if($seqclone == 1 ) {
                     if( $1 =~ /\,\s+Chr(\d+)\s+/){
                         $_clones{$name}{'group'} = $1;
@@ -291,7 +291,8 @@ sub next_map{
                 $_clones{$name}{'sequence_status'} = $2;
             }
             elsif ($line =~ /^Fpc_remark\s+"(.+)"/) {
-                $_clones{$name}{'fpc_remark'} = $1;
+                $_clones{$name}{'fpc_remark'} .= $1;
+                $_clones{$name}{'fpc_remark'} .= "\n";
             }
         }
 
@@ -360,6 +361,10 @@ sub next_map{
             elsif ($line =~ /^anchor$/) {
                 $_markers{$name}{'anchor'} = 1;
             }
+            elsif ($line =~ /^Remark\s+"(.+)"/)  {
+                $_markers{$name}{'remark'} .= $1;
+                $_markers{$name}{'remark'} .= "\n";
+            }
         }
         $curMarker++;
         print "Adding Marker $curMarker...\n"
@@ -390,7 +395,7 @@ sub next_map{
                 }
             }
         }
-        elsif ($line =~ /^Chr_remark\s+"(-|\+|Chr(\d+))\s+(.+)"/) {
+        elsif ($line =~ /^Chr_remark\s+"(-|\+|Chr(\d+))\s+(.+)"$/) {
 
             $_contigs{$ctgname}{'anchor'}     = 1;
             $_contigs{$ctgname}{'chr_remark'} = $3 if(defined($3));

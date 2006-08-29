@@ -115,7 +115,8 @@ use Time::Local;
 		       -anchor  => $anchor,
 		       -clones  => \%clones,
 		       -contigs => \%contigs,
-		       -position => \%markerpos
+		       -position => \%markerpos,
+               -remark => $remark
 		       );
 
  Function: Initialize a new Bio::Map::FPCMarker object
@@ -132,7 +133,7 @@ use Time::Local;
 	      -clones  => all the clone elements in map (hashref),
 	      -contigs => all the contig elements (hasref),
 	      -position => mapping of marker names to map position (hasref),
-
+          -remark => remarks, separated by newlines
 =cut
 
 sub new {
@@ -141,9 +142,9 @@ sub new {
 
    my ($name,$type,$global,$frame,$group,
        $subgroup, $anchor, $clones,$contigs,
-       $positions) = $self->_rearrange([qw(NAME TYPE FRAME
+       $positions, $remark) = $self->_rearrange([qw(NAME TYPE GLOBAL FRAME
 					   GROUP SUBGROUP ANCHOR
-					   CLONES CONTIGS POSITIONS)],@args);
+					   CLONES CONTIGS POSITIONS REMARK)],@args);
 
    $self->name($name)                  if defined $name;
    $self->type($type)                  if defined $type;
@@ -151,6 +152,7 @@ sub new {
    $self->group($group)                if defined $group;
    $self->subgroup($group)             if defined $subgroup;
    $self->anchor($anchor)              if defined $anchor;
+   $self->remark($remark)              if defined $remark;
 
    $self->set_clones($clones)          if defined $clones;
    $self->set_contigs($contigs)        if defined $contigs;
@@ -301,6 +303,22 @@ sub position {
     return 0 unless( defined $self->{'_position'} &&
 		     defined $self->{'_position'}{$ctg});
     return $self->{'_position'}{$ctg};
+}
+
+=head2 remark
+
+ Title   : remark
+ Usage   : $markerremark = $markerobj->remark();
+ Function: get the remarks for this marker
+ Returns : scalar of newline-separated markers
+ Args    : none
+
+=cut
+
+sub remark {
+    my ($self) = shift;
+    return $self->{'_remark'} = shift if @_;
+    return $self->{'_remark'};
 }
 
 =head2 each_cloneid
