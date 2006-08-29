@@ -183,6 +183,7 @@ sub init {
       $pass,
       $dbi_options,
       $writeable,
+      $create,
      ) = rearrange(['DSN',
 		    ['TEMP','TEMPORARY'],
 		    'AUTOINDEX',
@@ -192,6 +193,7 @@ sub init {
 		    ['PASS','PASSWD','PASSWORD'],
 		    ['OPTIONS','DBI_OPTIONS','DBI_ATTR'],
 		    ['WRITE','WRITEABLE'],
+		    'CREATE',
 		   ],@_);
   $dbi_options  ||= {};
   $writeable    = 1 if $is_temporary or $dump_dir;
@@ -213,7 +215,11 @@ sub init {
   $self->default_settings;
   $self->autoindex($autoindex)                   if defined $autoindex;
   $self->dumpdir($dump_dir)                      if $dump_dir;
-  $self->init_tmp_database()                     if $self->is_temp;
+  if ($self->is_temp) {
+    $self->init_tmp_database();
+  } elsif ($create) {
+    $self->init_database('erase');
+  }
 }
 
 sub writeable { shift->{writeable} }
@@ -227,12 +233,12 @@ sub table_definitions {
 (
   id       int(10) auto_increment primary key,
   typeid   int(10)      not null,
-  seqid    int(10)      not null,
-  start    int          not null,
-  end      int          not null,
+  seqid    int(10),
+  start    int,
+  end      int,
   strand   tinyint      default 0,
-  tier     tinyint      not null,
-  bin      int          not null,
+  tier     tinyint,
+  bin      int,
   indexed  tinyint default 1,
   object     MEDIUMBLOB not null,
   index(seqid,tier,bin,typeid),
@@ -836,6 +842,7 @@ SELECT name,attribute_value
     AND ($sql_regexp)
 END
   $sql .= "LIMIT $limit" if defined $limit;
+  $self->_print_query($sql,@tags,@words) if DEBUG || $self->debug;
   my $sth = $self->_prepare($sql);
   $sth->execute(@tags,@words) or $self->throw($sth->errstr);
 
@@ -1186,7 +1193,7 @@ sub replace {
 REPLACE INTO $features (id,object,indexed,seqid,start,end,strand,tier,bin,typeid) VALUES (?,?,?,?,?,?,?,?,?,?)
 END
 
-  my @location = $self->_get_location_and_bin($object);
+  my @location = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
 
   my $primary_tag = $object->primary_tag;
   my $source_tag  = $object->source_tag || '';
@@ -1487,7 +1494,7 @@ sub _dump_store {
 
   for my $obj (@_) {
     my $id       = $self->next_id;
-    my ($seqid,$start,$end,$strand,$tier,$bin) = $self->_get_location_and_bin($obj);
+    my ($seqid,$start,$end,$strand,$tier,$bin) = $indexed ? $self->_get_location_and_bin($obj) : (undef)x6;
     my $primary_tag = $obj->primary_tag;
     my $source_tag  = $obj->source_tag || '';
     $primary_tag    .= ":$source_tag";

@@ -390,6 +390,16 @@ sub _open_databases {
   $self->notes_db(\*F);
 }
 
+sub commit { # reindex fasta files
+  my $self = shift;
+  if (my $fh = $self->{fasta_fh}) {
+    $fh->close;
+    $self->dna_db(Bio::DB::Fasta->new($self->{fasta_file}));
+  } elsif (-d $self->directory) {
+    $self->dna_db(Bio::DB::Fasta->new($self->directory));
+  }
+}
+
 sub _close_databases {
   my $self = shift;
   $self->db(undef);
@@ -398,13 +408,7 @@ sub _close_databases {
   $self->index_db($_=>undef) foreach $self->_index_files;
 }
 
-sub _init_database {
-  my $self = shift;
-  my $erase = shift;
-  $self->_close_databases();
-  $self->_delete_databases() if $erase;
-  $self->_open_databases(1,1);
-}
+sub _init_database { shift->init }
 
 sub _delete_databases {
   my $self = shift;
@@ -782,7 +786,7 @@ sub filter_by_name {
   my ($stem,$regexp) = $self->glob_match($name);
   $stem   ||= $name;
   $regexp ||= $name;
-  $regexp ||= "(?:_2)?" if $allow_aliases;
+  $regexp .= "(?:_2)?" if $allow_aliases;
 
   my $key   = $stem;
   my $value;
