@@ -1434,7 +1434,9 @@ sub _read_FTHelper_GenBank {
 
 					# add to value with a space unless the value appears
 					# to be a sequence (translation for example)
-					if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
+					# if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
+					# changed to explicitly look for translation tag - cjf 06/8/29
+					if ($qualifier ne 'translation') {
 						$value .= " ";
 					}
 					$value .= $next;
