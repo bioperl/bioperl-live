@@ -33,28 +33,28 @@ Bio::Assembly::Contig - Perl module to hold and manipulate
     # OR, if you want to build the contig yourself,
 
     use Bio::Assembly::Contig;
-    $c = Bio::Assembly::Contig->new(-id=>"1"); 
+    $c = Bio::Assembly::Contig->new(-id=>"1");
 
     $ls  = Bio::LocatableSeq->new(-seq=>"ACCG-T",
-				  -id=>"r1",
-				  -alphabet=>'dna');
+                                  -id=>"r1",
+                                  -alphabet=>'dna');
     $ls2 = Bio::LocatableSeq->new(-seq=>"ACA-CG-T",
-				  -id=>"r2",
-				  -alphabet=>'dna');
+                                  -id=>"r2",
+                                  -alphabet=>'dna');
 
     $ls_coord = Bio::SeqFeature::Generic->new(-start=>3,
-	   				      -end=>8,
+                                              -end=>8,
                                               -strand=>1);
     $ls2_coord = Bio::SeqFeature::Generic->new(-start=>1,
-					       -end=>8,
-					       -strand=>1);
+                                               -end=>8,
+                                               -strand=>1);
     $c->add_seq($ls);
     $c->add_seq($ls2);
     $c->set_seq_coord($ls_coord,$ls);
     $c->set_seq_coord($ls2_coord,$ls2);
 
     $con = Bio::LocatableSeq->new(-seq=>"ACACCG-T",
-				  -alphabet=>'dna');
+                                  -alphabet=>'dna');
     $c->set_consensus_sequence($con);
 
     $l = $c->change_coord('unaligned r2','ungapped consensus',6);
@@ -349,7 +349,7 @@ sub strand {
  Usage     : $contig->upstream_neighbor($contig);
  Function  : Get/Set a contig neighbor for the current contig when
              building a scaffold. The upstream neighbor is
-             located before $contig first base 
+             located before $contig first base
  Returns   : nothing
  Argument  : Bio::Assembly::Contig
 
@@ -394,7 +394,7 @@ sub downstream_neighbor {
 
  Title     : add_features
  Usage     : $contig->add_features($feat,$flag)
- Function  : 
+ Function  :
 
              Add an array of features to the contig feature
              collection. The consensus sequence may be attached to the
@@ -412,7 +412,7 @@ sub downstream_neighbor {
              method.
 
  Returns   : number of features added.
- Argument  : 
+ Argument  :
              $feat : A reference to an array of Bio::SeqFeatureI
              $flag : boolean - true if consensus sequence object
                      should be attached to this feature, false if
@@ -501,7 +501,7 @@ See L<Coordinate_Systems> above.
 
  Title     : change_coord
  Usage     : $contig->change_coord($in,$out,$query)
- Function  : 
+ Function  :
 
              Change coordinate system for $query.  This method
              transforms locations between coordinate systems described
@@ -515,7 +515,7 @@ See L<Coordinate_Systems> above.
              if sequence locations were not set with set_seq_coord().
 
  Returns   : integer
- Argument  : 
+ Argument  :
              $in    : [string]  input coordinate system
              $out   : [string]  output coordinate system
              $query : [integer] a position in a sequence
@@ -529,7 +529,7 @@ sub change_coord {
     my $query    = shift;
 
     # Parsing arguments
-    # Loading read objects (these calls will throw exceptions whether $read_in or 
+    # Loading read objects (these calls will throw exceptions whether $read_in or
     # $read_out is not found
     my ($read_in,$read_out) = (undef,undef);
     my $in_ID  = ( split(' ',$type_in)  )[1];
@@ -537,7 +537,7 @@ sub change_coord {
 
     if ($in_ID  ne 'consensus') {
 	$read_in  = $self->get_seq_coord( $self->get_seq_by_name($in_ID)  );
-	$self->throw("Can't change coordinates without sequence location for $in_ID") 
+	$self->throw("Can't change coordinates without sequence location for $in_ID")
 	    unless (defined $read_in);
     }
     if ($out_ID ne 'consensus') {
@@ -582,7 +582,7 @@ sub change_coord {
 	   $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
 	   last SWITCH1;
        };
-      (($type_in =~ /^aligned /) && defined($read_in) && 
+      (($type_in =~ /^aligned /) && defined($read_in) &&
        ($type_out eq 'ungapped consensus')) && do {
 	   $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
 	   $query = $self->change_coord('gapped consensus','ungapped consensus',$query);
@@ -614,7 +614,7 @@ sub change_coord {
 	   }
 	   last SWITCH1;
        };
-      (defined($read_in)  && ($type_in  =~ /^unaligned /) && 
+      (defined($read_in)  && ($type_in  =~ /^unaligned /) &&
        defined($read_out) && ($type_out =~ /^aligned /))  && do {
 	   my $list_in = $self->{'_elem'}{$in_ID}{'_gaps'};
 	   # Changing read orientation if read was reverse complemented when aligned
@@ -709,7 +709,7 @@ sub get_seq_coord {
 
  Title     : set_seq_coord
  Usage     : $contig->set_seq_coord($feat,$seq);
- Function  : 
+ Function  :
 
              Set "gapped consensus" location for an aligned
              sequence. If the sequence was previously added using
@@ -718,10 +718,10 @@ sub get_seq_coord {
              contig.
 
  Returns   : Bio::SeqFeature::Generic for old coordinates or undef.
- Argument  : 
+ Argument  :
              $feat  : a Bio::SeqFeature::Generic object
                       representing a location for the
-                      aligned sequence, in "gapped 
+                      aligned sequence, in "gapped
                       consensus" coordinates.
 
              Note: the original feature primary tag will
@@ -955,7 +955,7 @@ sub set_seq_qual {
 sub get_seq_ids {
     my ($self, @args) = @_;
 
-    my ($type,$start,$end) = 
+    my ($type,$start,$end) =
 	$self->_rearrange([qw(TYPE START END)], @args);
 
     if (defined($start) && defined($end)) {
@@ -982,10 +982,10 @@ sub get_seq_ids {
 
  Title     : get_seq_feat_by_tag
  Usage     : $seq = $contig->get_seq_feat_by_tag($seq,"_aligned_coord:$seqID")
- Function  : 
+ Function  :
 
              Get a sequence feature based on its primary_tag.
-             When you add 
+             When you add
 
  Returns   : a Bio::SeqFeature object
  Argument  : a Bio::LocatableSeq and a string (feature primary tag)
@@ -1066,8 +1066,8 @@ sequences.
  Usage     : $contig->add_seq($newseq);
  Function  :
 
-             Adds a sequence to the contig. *Does* 
-             *not* align it - just adds it to the 
+             Adds a sequence to the contig. *Does*
+             *not* align it - just adds it to the
              hashes.
 
  Returns   : nothing
@@ -1157,7 +1157,7 @@ sub remove_seq {
     }
 
     # Updating residue count
-    $self->{'_nof_residues'} -= $seq->length() + 
+    $self->{'_nof_residues'} -= $seq->length() +
 	&_nof_gaps( $self->{'_elem'}{$seqID}{'_gaps'}, $seq->length );
 
     # Remove all references to features of this sequence
@@ -1198,13 +1198,13 @@ sub purge {
 
  Title     : sort_alphabetically
  Usage     : $contig->sort_alphabetically
- Function  : 
+ Function  :
 
-             Changes the order of the alignemnt to alphabetical on name 
+             Changes the order of the alignemnt to alphabetical on name
              followed by numerical by number.
 
- Returns   : 
- Argument  : 
+ Returns   :
+ Argument  :
 
 =cut
 
@@ -1220,10 +1220,10 @@ Methods returning one or more sequences objects.
 =head2 each_seq
 
  Title     : each_seq
- Usage     : foreach $seq ( $contig->each_seq() ) 
+ Usage     : foreach $seq ( $contig->each_seq() )
  Function  : Gets an array of Seq objects from the alignment
  Returns   : an array
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -1245,12 +1245,12 @@ sub each_seq {
  Usage     : foreach $seq ( $contig->each_alphabetically() )
  Function  :
 
-             Returns an array of sequence object sorted alphabetically 
+             Returns an array of sequence object sorted alphabetically
              by name and then by start point.
              Does not change the order of the alignment
 
- Returns   : 
- Argument  : 
+ Returns   :
+ Argument  :
 
 =cut
 
@@ -1262,8 +1262,8 @@ sub each_alphabetically {
 =head2 each_seq_with_id
 
  Title     : each_seq_with_id
- Usage     : foreach $seq ( $contig->each_seq_with_id() ) 
- Function  : 
+ Usage     : foreach $seq ( $contig->each_seq_with_id() )
+ Function  :
 
              Gets an array of Seq objects from the
              alignment, the contents being those sequences
@@ -1283,7 +1283,7 @@ sub each_seq_with_id {
 
  Title     : get_seq_by_pos
  Usage     : $seq = $contig->get_seq_by_pos(3)
- Function  : 
+ Function  :
 
              Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
@@ -1316,7 +1316,7 @@ current MSE.
 
  Title     : select
  Usage     : $contig2 = $contig->select(1, 3) # three first sequences
- Function  : 
+ Function  :
 
              Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
@@ -1338,7 +1338,7 @@ sub select {
 
  Title     : select_noncont
  Usage     : $contig2 = $contig->select_noncont(1, 3) # first and 3rd sequences
- Function  : 
+ Function  :
 
              Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
@@ -1358,7 +1358,7 @@ sub select_noncont {
 
  Title     : slice
  Usage     : $contig2 = $contig->slice(20, 30)
- Function  : 
+ Function  :
 
              Creates a slice from the alignment inclusive of start and
              end columns.  Sequences with no residues in the slice are
@@ -1367,8 +1367,8 @@ sub select_noncont {
              padding.
 
  Returns   : a Bio::Assembly::Contig object
- Argument  : positive integer for start column 
-             positive integer for end column 
+ Argument  : positive integer for start column
+             positive integer for end column
 
 =cut
 
@@ -1387,7 +1387,7 @@ alignment.
 
  Title     : map_chars
  Usage     : $contig->map_chars('\.','-')
- Function  : 
+ Function  :
 
              Does a s/$arg1/$arg2/ on the sequences. Useful for gap
              characters
@@ -1396,7 +1396,7 @@ alignment.
              so be careful about quoting meta characters (eg
              $contig->map_chars('.','-') wont do what you want)
 
- Returns   : 
+ Returns   :
  Argument  : 'from' rexexp
              'to' string
 
@@ -1412,8 +1412,8 @@ sub map_chars {
  Title     : uppercase()
  Usage     : $contig->uppercase()
  Function  : Sets all the sequences to uppercase
- Returns   : 
- Argument  : 
+ Returns   :
+ Argument  :
 
 =cut
 
@@ -1443,7 +1443,7 @@ sub match_line {
 
  Title     : match()
  Usage     : $contig->match()
- Function  : 
+ Function  :
 
              Goes through all columns and changes residues that are
              identical to residue in first sequence to match '.'
@@ -1468,7 +1468,7 @@ sub match {
 
  Title     : unmatch()
  Usage     : $contig->unmatch()
- Function  : 
+ Function  :
 
              Undoes the effect of method match. Unsets match_char.
 
@@ -1516,8 +1516,8 @@ sub id {
  Title     : missing_char
  Usage     : $contig->missing_char("?")
  Function  : Gets/sets the missing_char attribute of the alignment
-             It is generally recommended to set it to 'n' or 'N' 
-             for nucleotides and to 'X' for protein. 
+             It is generally recommended to set it to 'n' or 'N'
+             for nucleotides and to 'X' for protein.
  Returns   : An missing_char string,
  Argument  : An missing_char string (optional)
 
@@ -1575,15 +1575,15 @@ sub symbol_chars{
 
 =head2 Alignment descriptors
 
-These read only methods describe the MSE in various ways. 
+These read only methods describe the MSE in various ways.
 
 
 =head2 consensus_string
 
  Title     : consensus_string
  Usage     : $str = $contig->consensus_string($threshold_percent)
- Function  : Makes a strict consensus 
- Returns   : 
+ Function  : Makes a strict consensus
+ Returns   :
  Argument  : Optional treshold ranging from 0 to 100.
              The consensus residue has to appear at least threshold %
              of the sequences at a given location, otherwise a '?'
@@ -1601,7 +1601,7 @@ sub consensus_string {
 
  Title     : consensus_iupac
  Usage     : $str = $contig->consensus_iupac()
- Function  : 
+ Function  :
 
              Makes a consensus using IUPAC ambiguity codes from DNA
              and RNA. The output is in upper case except when gaps in
@@ -1628,14 +1628,14 @@ sub consensus_iupac {
 
  Title     : is_flush
  Usage     : if( $contig->is_flush() )
-           : 
            :
- Function  : Tells you whether the alignment 
+           :
+ Function  : Tells you whether the alignment
            : is flush, ie all of the same length
-           : 
+           :
            :
  Returns   : 1 or 0
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -1647,11 +1647,11 @@ sub is_flush {
 =head2 length
 
  Title     : length()
- Usage     : $len = $contig->length() 
+ Usage     : $len = $contig->length()
  Function  : Returns the maximum length of the alignment.
              To be sure the alignment is a block, use is_flush
- Returns   : 
- Argument  : 
+ Returns   :
+ Argument  :
 
 =cut
 
@@ -1665,13 +1665,13 @@ sub length {
 
  Title     : maxdisplayname_length
  Usage     : $contig->maxdisplayname_length()
- Function  : 
+ Function  :
 
              Gets the maximum length of the displayname in the
              alignment. Used in writing out various MSE formats.
 
  Returns   : integer
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -1686,7 +1686,7 @@ sub maxname_length {
  Usage     : $no = $contig->no_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
- Argument  : 
+ Argument  :
 
 =cut
 
@@ -1717,7 +1717,7 @@ sub no_sequences {
  Title   : percentage_identity
  Usage   : $id = $contig->percentage_identity
  Function: The function calculates the percentage identity of the alignment
- Returns : The percentage identity of the alignment (as defined by the 
+ Returns : The percentage identity of the alignment (as defined by the
 						     implementation)
  Argument: None
 
@@ -1733,7 +1733,7 @@ sub percentage_identity{
 
  Title   : percentage_identity
  Usage   : $id = $contig->percentage_identity
- Function: The function calculates the percentage identity of 
+ Function: The function calculates the percentage identity of
            the conserved columns
  Returns : The percentage identity of the conserved columns
  Args    : None
@@ -1750,7 +1750,7 @@ sub overall_percentage_identity{
 
  Title   : average_percentage_identity
  Usage   : $id = $contig->average_percentage_identity
- Function: The function uses a fast method to calculate the average 
+ Function: The function uses a fast method to calculate the average
            percentage identity of the alignment
  Returns : The average percentage identity of the alignment
  Args    : None
@@ -1840,12 +1840,12 @@ sub displayname { # Do nothing
 
  Title     : set_displayname_count
  Usage     : $contig->set_displayname_count
- Function  : 
+ Function  :
 
              Sets the names to be name_# where # is the number of
              times this name has been used.
 
- Returns   : None 
+ Returns   : None
  Argument  : None
 
 =cut
@@ -1872,7 +1872,7 @@ sub set_displayname_flat { # Do nothing!
 =head2 set_displayname_normal
 
  Title     : set_displayname_normal
- Usage     : $contig->set_displayname_normal() 
+ Usage     : $contig->set_displayname_normal()
  Function  : Makes all the sequences be displayed as name/start-end
  Returns   : None
  Argument  : None
@@ -1888,7 +1888,7 @@ sub set_displayname_normal { # Do nothing!
 
  Title     : _binary_search
  Usage     : _binary_search($list,$query)
- Function  : 
+ Function  :
 
              Find a number in a sorted list of numbers.  Return values
              may be on or two integers. One positive integer or zero
@@ -1902,7 +1902,7 @@ sub set_displayname_normal { # Do nothing!
              -2: $query is greater than greatest element in list
 
  Returns   : array of integers
- Argument  : 
+ Argument  :
              $list  : array reference
              $query : integer
 
@@ -1955,9 +1955,9 @@ sub _compare {
     Usage   : _nof_gaps($array_ref, $query)
     Function: number of gaps found before position $query
     Returns : integer
-    Args    : 
+    Args    :
               $array_ref : gap registry reference
-              $query     : [integer] a position in a sequence 
+              $query     : [integer] a position in a sequence
 
 =cut
 
@@ -1987,14 +1987,14 @@ sub _nof_gaps {
 
     Title   : _padded_unpadded
     Usage   : _padded_unpadded($array_ref, $query)
-    Function: 
+    Function:
 
               Returns a coordinate corresponding to
-              position $query after gaps were 
+              position $query after gaps were
               removed from a sequence.
 
     Returns : integer
-    Args    : 
+    Args    :
               $array_ref : reference to this gap registry
               $query     : [integer] coordionate to change
 
@@ -2015,13 +2015,13 @@ sub _padded_unpadded {
 
     Title   : _unpadded_padded
     Usage   : _unpadded_padded($array_ref, $query)
-    Function: 
+    Function:
 
-              Returns the value corresponding to 
+              Returns the value corresponding to
               ungapped position $query when gaps are
               counted as valid sites in a sequence
 
-    Returns : 
+    Returns :
     Args    : $array_ref = a reference to this sequence's gap registry
               $query = [integer] location to change
 
@@ -2054,7 +2054,7 @@ sub _unpadded_padded {
     Usage   : $self->_register_gaps($seq, $array_ref)
     Function: stores gap locations for a sequence
     Returns : number of gaps found
-    Args    : 
+    Args    :
               $seq       : sequence string
               $array_ref : a reference to an array,
                            where gap locations will

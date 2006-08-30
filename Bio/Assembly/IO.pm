@@ -3,7 +3,7 @@
 # BioPerl module for Bio::Assembly::IO
 #
 #   based on the Bio::SeqIO module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 # Copyright Robson Francisco de Souza
@@ -23,9 +23,9 @@ Bio::Assembly::IO - Handler for Assembly::IO Formats
     use Bio::Assembly::IO;
 
     $in  = Bio::Assembly::IO->new(-file=>"<inputfilename",
-                                -format=>'phrap');
+                                  -format=>'phrap');
     $out = Bio::Assembly::IO->new(-file=>">outputfilename",
-                                -format=>'phrap');
+                                  -format=>'phrap');
 
     while ( my $seq = $in->next_seq() ) {
        $out->write_seq($seq);
@@ -87,7 +87,7 @@ use vars qw(@ISA);
  Title   : new
  Usage   : Bio::Assembly::IO->new(-file =>$filename,-format=>'format')
  Function: Returns a new assembly stream
- Returns : A Bio::Assembly::IO::Handler initialised 
+ Returns : A Bio::Assembly::IO::Handler initialised
            with the appropriate format
  Args    : -file => $filename
            -format => format
@@ -97,14 +97,14 @@ use vars qw(@ISA);
 sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
-    
+
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::Assembly::IO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);	
+	my ($self) = $class->SUPER::new(@args);
 	$self->_initialize(@args);
 	return $self;
-    } else { 
+    } else {
 
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
@@ -112,7 +112,7 @@ sub new {
 	$class->throw("Need at least a file name to proceed!")
 	    unless (defined $param{'-file'} || defined $ARGV[0]);
 
-	my $format = $param{'-format'} || 
+	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
 	$format = "\L$format";	# normalize capitalization to lower case
 
