@@ -2118,7 +2118,11 @@ retrieve the rectangles surrounding the glyphs (which you need to do
 to create clickable imagemaps, for example), the rectangles will
 surround the top level features.  If you wish for the rectangles to
 surround subpieces of the glyph, such as the exons in a transcript,
-set box_subparts to a true value.
+set box_subparts to a true numeric value. The value you specify will
+control the number of levels of subfeatures that the boxes will
+descend into. For example, if using the "gene" glyph, set
+-box_subparts to 2 to create boxes for the whole gene (level 0), the
+mRNAs (level 1) and the exons (level 2).
 
 B<part_labels:> If set to true, each subpart of a multipart feature
 will be labeled with a number starting with 1 at the 5'-most

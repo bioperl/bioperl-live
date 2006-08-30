@@ -307,22 +307,23 @@ sub unfilled_box {
 sub boxes {
   my $self = shift;
 
+  warn "boxes for ",$self->feature;
+
   my ($left,$top,$parent) = @_;
   $top  += 0; $left += 0;
   my @result;
 
   $self->layout;
   $parent         ||= $self;
-  my $subparts = $self->option('box_subparts');
-
   my $subparts = $self->box_subparts;
 
   for my $part ($self->parts) {
     my $type = $part->feature->primary_tag || '';
-    if ($type eq 'group' or
-	($part->level == 0 && $subparts)) {
+#    if ($type eq 'group' or
+#	($part->level == 0 && $subparts)) {
+    if ($type eq 'group' or $subparts > $part->level) {
 #      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$parent);
-      push @result,$part->boxes($left,$top+$self->top,$parent);
+      push @result,$part->boxes($left,$top+$self->top+$self->pad_top,$parent);
       next if $type eq 'group';
     }
     my ($x1,$y1,$x2,$y2) = $part->box;
