@@ -160,7 +160,7 @@ sub draw_frame {
 
   $y2 = $y1;
 
-  my $codon_table = $self->option('codontable') || 1;
+  my $codon_table = $self->option('codontable') || $self->option('geneticcode') || 1;
 
   # the dreaded difference between a Bio::SeqFeature and a Bio::Seq
 

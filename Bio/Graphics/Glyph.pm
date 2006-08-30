@@ -313,7 +313,7 @@ sub boxes {
 
   $self->layout;
   $parent         ||= $self;
-  my $subparts = $self->box_subparts;
+  my $subparts = $self->box_subparts || 0;
 
   for my $part ($self->parts) {
     my $type = $part->feature->primary_tag || '';
