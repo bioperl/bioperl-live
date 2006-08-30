@@ -19,7 +19,7 @@ Bio::Biblio::TechReport - Representation of a technical report
                        new Bio::Biblio::Person (-lastname => 'Jagr'),
                        new Bio::Biblio::Organisation (-name => 'NHL'),
                                ]
-		   -title => 'Pinned in the corner');
+                   -title => 'Pinned in the corner');
 
 =head1 DESCRIPTION
 

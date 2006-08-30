@@ -16,9 +16,9 @@ Bio::Biblio::PubmedArticle - Representation of a PUBMED article
     $obj = new Bio::Biblio::PubmedArticle
                   (-pubmed_history_list =>
                        [ { 'pub_status' => 'pubmed',
-			   'date' => '2001-12-1T10:0:00Z' },
-			 { 'pub_status' => 'medline',
-			   'date' => '2002-1-5T10:1:00Z' } ],
+                           'date' => '2001-12-1T10:0:00Z' },
+                         { 'pub_status' => 'medline',
+                           'date' => '2002-1-5T10:1:00Z' } ],
                    -pubmed_status => 'ppublish');
   #--- OR ---
 

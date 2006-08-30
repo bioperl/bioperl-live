@@ -15,7 +15,7 @@ Bio::Biblio::WebResource - Representation of a web resource
 
     $obj = new Bio::Biblio::WebResource
                   (-url  => 'http://resources/best.html',
-		   -estimated_size => 45000);
+                   -estimated_size => 45000);
   # --- OR ---
 
     $obj = new Bio::Biblio::WebResource;

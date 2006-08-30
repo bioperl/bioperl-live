@@ -14,8 +14,8 @@ Bio::Biblio::Article - Representation of a general article
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::Article (-identifier => '123abc',
-				     -first_page => 23,
-				     -last_page  => 68);
+                                     -first_page => 23,
+                                     -last_page  => 68);
   #--- OR ---
 
     $obj = new Bio::Biblio::Article;

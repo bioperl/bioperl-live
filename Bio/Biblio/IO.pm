@@ -17,18 +17,18 @@ Bio::Biblio::IO - Handling the bibliographic references
 
     # getting citations from a file
     $in = Bio::Biblio::IO->new ('-file' => 'myfile.xml' ,
-				'-format' => 'medlinexml');
+                                '-format' => 'medlinexml');
   # --- OR ---
 
     # getting citations from a string
     $in = Bio::Biblio::IO->new ('-data' => '<MedlineCitation>...</MedlineCitation>' ,
-				'-format' => 'medlinexml');
+                                '-format' => 'medlinexml');
   #--- OR ---
 
     # getting citations from a string if IO::String is installed
     use IO::String;
     $in = Bio::Biblio::IO->new ('-fh' => IO::String->new ($citation),
-				'-format' => 'medlinexml');
+                                '-format' => 'medlinexml');
 
     $in = Bio::Biblio::IO->new(-fh => $io_handle , '-format' => 'medlinexml');
 
@@ -36,12 +36,12 @@ Bio::Biblio::IO - Handling the bibliographic references
 
     # getting citations from any IO handler
     $in = Bio::Biblio::IO->new('-fh' => $io_handle ,
-			       '-format' => 'medlinexml');
+                               '-format' => 'medlinexml');
 
 
     # now, having $in, we can read all citations
     while ( my $citation = $in->next_bibref() ) {
-	&do_something_with_citation ($citation);
+        &do_something_with_citation ($citation);
     }
 
   #--- OR ---
@@ -50,11 +50,11 @@ Bio::Biblio::IO - Handling the bibliographic references
     # code is used (note that the reading starts already when new()
     # is called)
     $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
-			       '-file'     => $testfile,
-			       '-callback' => \&callback);
+                               '-file'     => $testfile,
+                               '-callback' => \&callback);
     sub callback {
         my $citation = shift;
-	print $citation->{'_identifier'} . "\n";
+        print $citation->{'_identifier'} . "\n";
     }
 
   #Now, to actually get a citation in an XML format,
@@ -64,7 +64,7 @@ Bio::Biblio::IO - Handling the bibliographic references
     use Bio::Biblio::IO;
     my $xml = new Bio::Biblio->get_by_id ('12368254');
     my $reader = Bio::Biblio::IO->new ('-data' => $xml,
-				       '-format' => 'medlinexml');
+                                       '-format' => 'medlinexml');
 
     while (my $citation = $reader->next_bibref()) {
        #... do something here with $citation
@@ -74,16 +74,16 @@ Bio::Biblio::IO - Handling the bibliographic references
   #output formats:
 
     $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
-			       '-result' => 'raw');
+                               '-result' => 'raw');
   #--- OR ---
 
     $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
-			       '-result' => 'medline2ref');
+                               '-result' => 'medline2ref');
 
   #--- OR ---
 
     $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
-			       '-result' => 'pubmed2ref');
+                               '-result' => 'pubmed2ref');
 
 =head1 DESCRIPTION
 
@@ -130,13 +130,13 @@ Another result format available is for PUBMED citations (which is a
 super-set of the MEDLINE citations having few more tags):
 
     $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
-			       '-result' => 'pubmed2ref',
-			       '-data'   => $citation);
+                               '-result' => 'pubmed2ref',
+                               '-data'   => $citation);
 
 Or, because C<pubmed2ref> is a default one for PUBMED citations, you can say just:
 
     $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
-			       '-data'   => $citation);
+                               '-data'   => $citation);
 
 Both C<medline2ref> and C<pubmed2ref> results are objects defined in
 the directory C<Bio::Biblio>.
@@ -223,12 +223,12 @@ my $entry = 0;
 sub new {
     my ($caller, @args) = @_;
     my $class = ref ($caller) || $caller;
-    
+
     # if $caller is an object, or if it is an underlying
     # 'real-work-doing' class (e.g. Bio::Biblio::IO::medlinexml) then
     # we want to call SUPER to create and bless an object
     if( $class =~ /Bio::Biblio::IO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new (@args);	
+	my ($self) = $class->SUPER::new (@args);
 	$self->_initialize (@args);
 	return $self;
 
@@ -236,10 +236,10 @@ sub new {
     # Bio::Biblio::IO (...)', and it actually loads a 'real-work-doing'
     # module and call this new() method again (unless the loaded
     # module has its own new() method)
-    } else { 
+    } else {
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $format = $param{'-format'} || 
+	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] ) ||
 		'medlinexml';
 	$format = "\L$format";	# normalize capitalization to lower case

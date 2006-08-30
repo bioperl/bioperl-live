@@ -14,7 +14,7 @@ Bio::Biblio::Ref - Representation of a bibliographic reference
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::Ref (-type  => 'Letter',
-				 -title => 'Onegin to Tatiana');
+                                 -title => 'Onegin to Tatiana');
   #--- OR ---
 
     $obj = new Bio::Biblio::Ref;
@@ -28,7 +28,7 @@ http://www.ebi.ac.uk/~senger/openbqs/images/bibobjects_perl.gif
 
 =head2 Attributes
 
-The following attributes are specific to this class, 
+The following attributes are specific to this class,
 and they are inherited by all citation types.
 
   author_list_complete            values: 'Y'  (default) or 'N'
