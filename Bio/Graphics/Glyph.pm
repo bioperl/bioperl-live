@@ -307,8 +307,6 @@ sub unfilled_box {
 sub boxes {
   my $self = shift;
 
-  warn "boxes for ",$self->feature;
-
   my ($left,$top,$parent) = @_;
   $top  += 0; $left += 0;
   my @result;
