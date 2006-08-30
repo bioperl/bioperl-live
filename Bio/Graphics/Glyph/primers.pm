@@ -1,4 +1,5 @@
 package Bio::Graphics::Glyph::primers;
+#$Id$
 # package to use for drawing something that looks like
 # primer pairs.
 
@@ -7,26 +8,22 @@ use vars '@ISA';
 @ISA = 'Bio::Graphics::Glyph::generic';
 use Bio::Graphics::Glyph::generic;
 
-use constant HEIGHT => 4;
-
-# we do not need the default amount of room
-#sub calculate_height {
-#  my $self = shift;
-#  return $self->option('label') ? HEIGHT + $self->labelheight + 2 : HEIGHT;
-#}
+use constant HEIGHT => 8;
 
 # override draw method
 sub draw_component {
   my $self = shift;
   my $gd = shift;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries(@_);
+  my $height = $self->option('height') || $self->option('size') || HEIGHT;
 
   my $fg = $self->fgcolor;
-  my $a2 = HEIGHT/2;
+  my $a2 = $height/2;
   my $center = $y1 + $a2;
 
+
   # just draw us as a solid line -- very simple
-  if ($x2-$x1 < HEIGHT*2) {
+  if ($x2-$x1 < $height*2) {
     $gd->line($x1,$center,$x2,$center,$fg);
     return;
   }
@@ -37,22 +34,26 @@ sub draw_component {
   my $trunc_right = $x2 > $self->panel->right;
 
   unless ($trunc_left) { 
-    $gd->line($x1,$center,$x1 + HEIGHT,$center,$fg);
-    $gd->line($x1 + HEIGHT,$center,$x1 + HEIGHT - $a2,$center-$a2,$fg);
-    $gd->line($x1 + HEIGHT,$center,$x1 + HEIGHT - $a2,$center+$a2,$fg);
+    $gd->setThickness(2) if $height > 6;
+    $gd->line($x1,$center,$x1 + $height,$center,$fg);
+    $gd->line($x1 + $height,$center,$x1 + $height - $a2,$center-$a2,$fg);
+    $gd->line($x1 + $height,$center,$x1 + $height - $a2,$center+$a2,$fg);
+    $gd->setThickness(1);
   }
 
   unless ($trunc_right) {
-    $gd->line($x2,$center,$x2 - HEIGHT,$center,$fg);
-    $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center+$a2,$fg);
-    $gd->line($x2 - HEIGHT,$center,$x2 - HEIGHT + $a2,$center-$a2,$fg);
+    $gd->setThickness(2) if $height > 6;
+    $gd->line($x2,$center,$x2 - $height,$center,$fg);
+    $gd->line($x2 - $height,$center,$x2 - $height + $a2,$center+$a2,$fg);
+    $gd->line($x2 - $height,$center,$x2 - $height + $a2,$center-$a2,$fg);
+    $gd->setThickness(1);
   }
 
   # connect the dots if requested
   if ($self->connect) {
     my $c = $self->color('connect_color') || $self->bgcolor;
-    $gd->line($x1 + ($trunc_left  ? 0 : HEIGHT + 2),$center,
-	      $x2 - ($trunc_right ? 0 : HEIGHT + 2),$center,
+    $gd->line($x1 + ($trunc_left  ? 0 : $height + 2),$center,
+	      $x2 - ($trunc_right ? 0 : $height + 2),$center,
 	      $c);
   }
 
