@@ -321,8 +321,9 @@ sub boxes {
     my $type = $part->feature->primary_tag || '';
     if ($type eq 'group' or
 	($part->level == 0 && $subparts)) {
-      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$parent);
-      next;
+#      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$parent);
+      push @result,$part->boxes($left,$top+$self->top,$parent);
+      next if $type eq 'group';
     }
     my ($x1,$y1,$x2,$y2) = $part->box;
     $x2++ if $x1==$x2;
