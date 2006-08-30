@@ -38,7 +38,7 @@ while (my $site=$mio->next_matrix) {
 	push @cons,$site->consensus;	
 	$carry=$site if ($site->id eq 'm1logs');
 } 
-ok $cons[0],'CAGAAAAATNNAATNCCCACCNCCC';
+ok $cons[0],'CAGAAAAATNGAATNCCCACCCCCC';
 ok $cons[1],'CAGAAAAATAGAATCCCCACCCCCC';
 ok $cons[2],'CAGAAAAATNNAATNCCCACCNCCC';
 

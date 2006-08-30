@@ -183,14 +183,11 @@ sub new {
     $self->{sites}  = $input{sites};
     $self->{width}  = $input{width};
     $self->{accession_number}=$input{accession_number};
-    $self->{_correction}   =  defined($input{correction}) ? 
-	$input{correction} : 1 ; # Correction might be unwanted- supply your own
-    # No id provided, null for the sake of rel db
 	$self->{logA}   = $input{lA};
 	$self->{logC}   = $input{lC};
 	$self->{logG}   = $input{lG};
 	$self->{logT}   = $input{lT};
-    $self->{id}= defined($input{id}) ? $input{id} : 'null'; 
+    $self->{id}= defined($input{id}) ? $input{id} : 'null';
 	return $self unless (defined($input{pA}) && defined($input{pC}) && defined($input{pG}) && defined($input{pT}));
 #This should go to _initialize?
 #Check for input type- no mixing alllowed, throw ex
@@ -227,22 +224,11 @@ sub new {
 # If this is MEME like output(probabilities, rather than count) 
 # here is the place for a check
     }
-#Check for position with 0 for all bases, throw exception if so
-#Correct 0 positions- inc by 1
+    #Check for position with 0 for all bases, throw exception if so
     for (my $i=0;$i <= $#{$self->{probA}}; $i++) {
 	if ((${$self->{probA}}[$i] + ${$self->{probC}}[$i] + 
 	     ${$self->{probG}}[$i] + ${$self->{probT}}[$i]) ==0 ) {
 	    $self->throw("Position meaningless-all frequencies are 0");
-	}
-	$self->{_corrected}= ((${$self->{probA}}[$i]==0) || 
-			      (${$self->{probG}}[$i]==0) || 
-			      (${$self->{probC}}[$i]==0) || 
-			      (${$self->{probT}}[$i]==0));
-	if ($self->{_corrected}) {
-	    ${$self->{probA}}[$i] += $self->{_correction};
-	    ${$self->{probC}}[$i] += $self->{_correction};
-	    ${$self->{probG}}[$i] += $self->{_correction};
-	    ${$self->{probT}}[$i] += $self->{_correction};
 	}
 	my $div= ${$self->{probA}}[$i]+ ${$self->{probC}}[$i]+ ${$self->{probG}}[$i]+ ${$self->{probT}}[$i];
 	${$self->{probA}}[$i]=${$self->{probA}}[$i]/$div;
@@ -279,8 +265,8 @@ sub _calculate_consensus {
     $self->throw("Probability matrix is damaged for T: $len vs $lt") if ($len != $lt);
     $self->throw("Probability matrix is damaged for G: $len vs $lg") if ($len != $lg);
     for (my $i=0; $i<$len+1; $i++) {
-	(${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i],$thresh);
-	(${$self->{seq}}[$i],${$self->{seqp}}[$i])=_to_cons(${$self->{probA}}[$i],${$self->{probC}}[$i],${$self->{probG}}[$i],${$self->{probT}}[$i],$thresh);
+        ${$self->{IUPAC}}[$i] = _to_IUPAC(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i], $thresh);
+        (${$self->{seq}}[$i], ${$self->{seqp}}[$i]) = _to_cons(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i], $thresh);
     }
     return $self;
 }
@@ -443,10 +429,9 @@ sub accession_number {
  Title   : consensus
  Usage   :
  Function: Returns the consensus
- Throws  : if supplied with thresold outisde 5..10 range
  Example :
  Returns : string
- Args    : (optional) threshold value 5 to 10
+ Args    : (optional) threshold value 1 to 10
 
 =cut
 
@@ -506,90 +491,85 @@ return $iupac;
 
  Title   : _to_IUPAC
  Usage   :
- Function: Converts a single position to IUPAC compliant symbol and returns its probability.
-            For rules see the implementation
+ Function: Converts a single position to IUPAC compliant symbol.
+           For rules see the implementation
  Throws  :
  Example :
- Returns : char, real number
+ Returns : char
  Args    : real numbers for A,C,G,T (positional)
 
 =cut
 
 sub _to_IUPAC {
-	my $A=shift;
-	my $C=shift;
-	my $G=shift;
-	my $T=shift;
-	my $all=$A+$G+$C+$T;
-	my $a=$A/$all;
-	my $g=$G/$all;
-	my $c=$C/$all;
-	my $t=$T/$all;
-	my $single=0.7*$all;
-	my $double=0.8*$all;
-	my $triple=0.9*$all;
-	return 'A',$a if ($a>$single);
-	return 'G',$g if ($g>$single);
-	return 'C',$c if ($c>$single);
-	return 'T',$t if ($t>$single);
+	my ($a, $c, $g, $t) = @_;
+	return 'A' if ($a == 1);
+	return 'G' if ($g == 1);
+	return 'C' if ($c == 1);
+	return 'T' if ($t == 1);
 	my $r=$g+$a;
-	return 'R',$r if ($r>$double);
+	return 'R' if ($r == 1);
 	my $y=$t+$c;
-	return 'Y',$y if ($y>$double);
+	return 'Y' if ($y == 1);
 	my $m=$a+$c;
-	return 'M',$m if ($m>$double);
+	return 'M' if ($m == 1);
 	my $k=$g+$t;
-	return 'K',$k if ($k>$double);
+	return 'K' if ($k == 1);
 	my $s=$g+$c;
-	return 'S',$s if ($s>$double);
+	return 'S' if ($s == 1);
 	my $w=$a+$t;
-	return 'W',$w if ($w>$double);
+	return 'W' if ($w == 1);
 	my $d=$r+$t;
-	return 'D',$d if ($d>$triple);
+	return 'D' if ($d == 1);
 	my $v=$r+$c;
-	return 'V',$v if ($v>$triple);
+	return 'V' if ($v == 1);
 	my $b=$y+$g;
-	return 'B',$b if ($b>$triple);
+	return 'B' if ($b == 1);
 	my $h=$y+$a;
-	return 'H',$h if ($h>$triple);
-	return 'N',0;
+	return 'H' if ($h == 1);
+	return 'N';
 }
 
 =head2 _to_cons
 
  Title   : _to_cons
  Usage   :
- Function: Converts a single position to simple consensus character and returns its probability.
-            For rules see the implementation
+ Function: Converts a single position to simple consensus character and returns
+           its probability. For rules see the implementation
  Throws  :
  Example :
  Returns : char, real number
- Args    : real numbers for A,C,G,T (positional)
+ Args    : real numbers for A,C,G,T (positional), and optional 5th argument of
+           threshold (as a number between 1 and 10, where 5 is default and
+           means the returned character had a 50% or higher presence at this
+           position)
 
 =cut
 
 sub _to_cons {
-	my $A=shift;
-	my $C=shift;
-	my $G=shift;
-	my $T=shift;
-  my $thresh=shift;
-	my $all=$A+$G+$C+$T;
-	my $a=$A*10/$all;
-	my $g=$G*10/$all;
-	my $c=$C*10/$all;
-	my $t=$T*10/$all;
- #Check for user supplied threshold
-  $thresh=5 unless ($thresh);  #default threshold
-  return 'N',10 if (($a<$thresh) &&  ($c<$thresh) &&  ($g<$thresh) && ($t<$thresh));
-	return 'A',$a if ($a>$thresh);
-	return 'G',$g if ($g>$thresh);
-	return 'C',$c if ($c>$thresh);
-	return 'T',$t if ($t>$thresh);
+	my ($A, $C, $G, $T, $thresh) = @_;
+    $thresh ||= 5;
+    
+    # this multiplication by 10 is just to satisfy the thresh range of 1-10
+	my $a = $A * 10;
+	my $c = $C * 10;
+	my $g = $G * 10;
+	my $t = $T * 10;
+    
+    return 'N',10 if (($a<$thresh) && ($c<$thresh) && ($g<$thresh) && ($t<$thresh));
 	return 'N',10 if (($a==$t) && ($a==$c) && ($a==$g));
-	return 'A',$a if (($a>$t) &&($a>$c) && ($a>$g)); #Is this a good idea?
-	return 'C',$c if (($c>$t) &&($c>$a) && ($c>$g));
-	return 'G',$g if (($g>$t) &&($g>$c) && ($g>$a));
+    
+    # threshold could be lower than 50%, so must check is not only over
+    # threshold, but also the highest frequency
+	return 'A',$a if (($a>$thresh) && ($a>$t) && ($a>$c) && ($a>$g));
+	return 'C',$c if (($c>$thresh) && ($c>$t) && ($c>$a) && ($c>$g));
+	return 'G',$g if (($g>$thresh) && ($g>$t) && ($g>$c) && ($g>$a));
+	return 'T',$t if (($t>$thresh) && ($t>$g) && ($t>$c) && ($t>$a));
+    
+    # failing that, just pick the most frequent
+	return 'A',$a if (($a>$t) && ($a>$c) && ($a>$g));
+	return 'C',$c if (($c>$t) && ($c>$a) && ($c>$g));
+	return 'G',$g if (($g>$t) && ($g>$c) && ($g>$a));
+	return 'T',$t if (($t>$g) && ($t>$c) && ($t>$a));
 	return 'N',10;
 }
 

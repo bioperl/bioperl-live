@@ -35,7 +35,7 @@ my $matrix=new Bio::Matrix::PSM::SiteMatrix(%param);
 ok $matrix;
 
 #Simple methods here
-ok $matrix->IUPAC,'ATMCK';
+ok $matrix->IUPAC,'ABVCD';
 
 ok $matrix->consensus,'ATACT';
 
@@ -66,7 +66,7 @@ ok $matrix->e_val(0.0001);
 ok $matrix->e_val,0.0001;
 
 #Now some PSM specific methods like regexp and matrix info
-ok $matrix->regexp,'[Aa][Tt][AaCc][Cc][GgTt]';
+ok $matrix->regexp,'[Aa][CcGgTt][AaCcGg][Cc][AaGgTt]';
 my $regexp=$matrix->regexp;
 ok 'ATCCT',"/$regexp/";
 

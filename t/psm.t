@@ -13,7 +13,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 46;
+    plan tests => 47;
 }
 
 use Bio::Matrix::PSM::IO;
@@ -87,9 +87,10 @@ ok $psm_header{e_val},'1.2e-002';
 
 #Quick check if returned object works
 my $IUPAC=$psm->IUPAC;
-ok $IUPAC,'CAGAAAAATWVAATYCCCACCHCCC';
+ok $IUPAC,'NNNNNNNNNNNNNNNNNNNNNNNNN';
 ok $IUPAC,$psm2->IUPAC;
 ok $IUPAC,$matrix->IUPAC;
+ok $psm->consensus, 'CAGAAAAATNNAATNCCCACCNCCC';
 
 my $instances=$psm->instances;
 ok $instances;
@@ -140,7 +141,7 @@ ok scalar keys %seq, 0;
 
 #Quick check if returned object works
 $IUPAC   = $psm->IUPAC;
-ok $IUPAC,'NNNNNNNNNNNN';
+ok $IUPAC,'VVDCAKSTGBYD';
 
 #Now we are going to try mast
 $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
