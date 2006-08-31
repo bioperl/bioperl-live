@@ -1240,9 +1240,9 @@ sub _read_FTHelper_EMBL {
                 while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) { #"
                     $i++;
                     my $next = $qual[$i];
-                    unless (defined($next)) {
-                        $self->warn("Unbalanced quote in:\n", map("$_\n", @qual),
-                            "Adding quote to close...".
+                    if (!defined($next)) {
+                        $self->warn("Unbalanced quote in:\n".join("\n", @qual).
+                            "\nAdding quote to close...".
                             "Check sequence quality!");
                         $value .= '"';
                         last QUOTES;
