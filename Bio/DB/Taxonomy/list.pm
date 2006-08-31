@@ -182,8 +182,11 @@ sub add_lineage {
         
         if ($ancestor_node_id) {
             if ($self->{db}->{ancestors}->{$node_id} && $self->{db}->{ancestors}->{$node_id} ne $ancestor_node_id) {
-                my %names = map { $_ => 1 } @names;
-                if (exists $names{$name}) {
+                my %names;
+                foreach my $name (@names) {
+                    $names{$name}++;
+                }
+                if ($names{$name} > 1) {
                     $self->throw("The lineage '".join(', ', @names)."' had two nodes with the same name. Can't cope!");
                 }
                 else {
