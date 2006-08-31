@@ -161,8 +161,11 @@ sub add_lineage {
         my $name = $names[$i];
         my $rank = $ranks[$i];
         
-        my $db_name = $name; # can't allow case insensitivity by using lc() here since we must allow lineages like (Rattus, rattus)
-        unless (exists $self->{db}->{name_to_id}->{$db_name}) {
+        # this is a new node with a new id if we haven't seen this name before,
+        # or if the ancestor of this node in this supplied lineage has the
+        # same name as this node (like '... Pinus, Pinus, Pinus densiflora').
+        my $db_name = $name eq $names[$i - 1] ? $name.'_'.$rank : $name;
+        if (! exists $self->{db}->{name_to_id}->{$db_name} || $name eq $names[$i - 1]) {
             my $next_num = ++$self->{db}->{node_ids};
             $self->{db}->{name_to_id}->{$db_name} = 'list'.$next_num; # so definitely not confused with ncbi taxonomy ids
         }
@@ -179,7 +182,13 @@ sub add_lineage {
         
         if ($ancestor_node_id) {
             if ($self->{db}->{ancestors}->{$node_id} && $self->{db}->{ancestors}->{$node_id} ne $ancestor_node_id) {
-                $self->throw("The same lineage was described in different depths? Can't cope!");
+                my %names = map { $_ => 1 } @names;
+                if (exists $names{$name}) {
+                    $self->throw("The lineage '".join(', ', @names)."' had two nodes with the same name. Can't cope!");
+                }
+                else {
+                    $self->throw("This lineage (".join(', ', @names).") and a previously computed lineage share a node name but have different ancestries for that node. Can't cope!");
+                }
             }
             $self->{db}->{ancestors}->{$node_id} = $ancestor_node_id;
         }
