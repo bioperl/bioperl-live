@@ -1241,8 +1241,9 @@ sub _read_FTHelper_EMBL {
                     $i++;
                     my $next = $qual[$i];
                     unless (defined($next)) {
-                        warn("Unbalanced quote in:\n", map("$_\n", @qual),
-                            "Adding quote to close...");
+                        $self->warn("Unbalanced quote in:\n", map("$_\n", @qual),
+                            "Adding quote to close...".
+                            "Check sequence quality!");
                         $value .= '"';
                         last QUOTES;
                     }
