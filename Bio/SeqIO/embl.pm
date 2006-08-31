@@ -185,7 +185,6 @@ sub next_seq {
        }
    }
    # EOF or no ID as 1st non-blank line, need short circuit and exit routine
-   return unless( defined $line && $line =~ /^ID\s/ ); 
    $self->throw("EMBL stream with no ID. Not embl in my book") 
 	  unless $line =~ /^ID\s+\S+/;
 
