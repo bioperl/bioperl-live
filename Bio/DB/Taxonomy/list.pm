@@ -155,6 +155,16 @@ sub add_lineage {
     
     # All that said, let's just do the trivial implementation now and see how
     # bad it is! (assume names are unique, always have the same ancestor)
+    
+    my %names;
+    foreach my $i (0..$#names) {
+        my $name = $names[$i];
+        $names{$name}++;
+        if ($names{$name} > 1 && $name ne $names[$i - 1]) {
+            $self->throw("The lineage '".join(', ', @names)."' had two non-consecutive nodes with the same name. Can't cope!");
+        }
+    }
+    
     my $ancestor_node_id;
     my @node_ids;
     for my $i (0..$#names) {
@@ -182,16 +192,7 @@ sub add_lineage {
         
         if ($ancestor_node_id) {
             if ($self->{db}->{ancestors}->{$node_id} && $self->{db}->{ancestors}->{$node_id} ne $ancestor_node_id) {
-                my %names;
-                foreach my $name (@names) {
-                    $names{$name}++;
-                }
-                if ($names{$name} > 1) {
-                    $self->throw("The lineage '".join(', ', @names)."' had two nodes with the same name. Can't cope!");
-                }
-                else {
-                    $self->throw("This lineage (".join(', ', @names).") and a previously computed lineage share a node name but have different ancestries for that node. Can't cope!");
-                }
+                $self->throw("This lineage (".join(', ', @names).") and a previously computed lineage share a node name but have different ancestries for that node. Can't cope!");
             }
             $self->{db}->{ancestors}->{$node_id} = $ancestor_node_id;
         }
