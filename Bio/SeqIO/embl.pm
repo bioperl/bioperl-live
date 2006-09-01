@@ -317,7 +317,8 @@ sub next_seq {
 
 			 # Organism name and phylogenetic information
 			 elsif (/^O[SC]/) {
-				 my $species = $self->_read_EMBL_Species(\$buffer);
+                 # pass the accession number so we can give an informative throw message if necessary
+				 my $species = $self->_read_EMBL_Species(\$buffer, $params{'-accession_number'});
 				 $params{'-species'}= $species;
 			 }
 
@@ -1004,12 +1005,12 @@ sub _read_EMBL_References {
            lines.
  Example :
  Returns : A Bio::Species object
- Args    : a reference to the current line buffer
+ Args    : a reference to the current line buffer, accession number
 
 =cut
 
 sub _read_EMBL_Species {
-    my( $self, $buffer ) = @_;
+    my( $self, $buffer, $acc ) = @_;
     my $org;
 
     $_ = $$buffer;
@@ -1074,7 +1075,20 @@ sub _read_EMBL_Species {
         push(@class, $sci_name);
     }
     @class = reverse @class;
-
+    
+    # do minimal sanity checks before we hand off to Bio::Species which won't
+    # be able to give informative throw messages if it has to throw because
+    # of problems here
+    $self->throw("$acc seems to be missing its OS line: invalid.") unless $sci_name;
+    my %names;
+    foreach my $i (0..$#class) {
+        my $name = $class[$i];
+        $names{$name}++;
+        if ($names{$name} > 1 && $name ne $class[$i - 1]) {
+            $self->throw("$acc seems to have an invalid species classification.");
+        }
+    }
+    
     my $make = Bio::Species->new();
     $make->scientific_name($sci_name);
     $make->classification(@class);
