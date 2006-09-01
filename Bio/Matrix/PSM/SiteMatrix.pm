@@ -34,10 +34,22 @@ position scoring matrix (or position weight matrix) and log-odds
   }
 
   # Get a simple consensus, where alphabet is {A,C,G,T,N}, 
-  # choosing the highest probability or N if prob is too low
+  # choosing the character that both satisfies a supplied or default threshold
+  # frequency and is the most frequenct character at each position, or N.
+  # So for the position with A, C, G, T frequencies of 0.5, 0.25, 0.10, 0.15,
+  # the simple consensus character will be 'A', whilst for 0.5, 0.5, 0, 0 it
+  # would be 'N'.
   my $consensus=$site->consensus;
+  
+  # Get the IUPAC ambiguity code representation of the data in the matrix.
+  # Because the frequencies may have been pseudo-count corrected, insignificant
+  # frequences (below 0.05 by default) are ignored. So a position with
+  # A, C, G, T frequencies of 0.5, 0.5, 0.01, 0.01 will get the IUPAC code 'M',
+  # while 0.97, 0.01, 0.01, 0.01 will get the code 'A' and
+  # 0.25, 0.25, 0.25, 0.25 would get 'N'.
+  my $iupac=$site->IUPAC;
 
-  #Getting/using regular expression
+  # Getting/using regular expression (a representation of the IUPAC string)
   my $regexp=$site->regexp;
   my $count=grep($regexp,$seq);
   my $count=($seq=~ s/$regexp/$1/eg);
@@ -172,10 +184,6 @@ use strict;
                            psuedo count correction (default 0: no correction)
                            NB: do not use correction when your input is
                            frequences!
-            -threshold  => number, 1..10, the threshold to use when calculating
-                           consensus, IUPAC or regex strings (where the number
-                           is the minimal frequency to consider x 10, defaults
-                           differ for the different methods)
             -accession_number => string, an accession number
             
             Vectors can be strings of the frequencies where the frequencies are
@@ -278,11 +286,11 @@ sub new {
     
     # Calculate the logs
     if ((!defined($self->{logA})) && ($input{model})) {
-        $self=calc_weight($self, $input{model});
+        $self->calc_weight($input{model});
     }
     
     # Make consensus, throw if any one of the vectors is shorter
-    $self=_calculate_consensus($self, $self->{threshold});
+    $self->_calculate_consensus;
     return $self;
 }
 
@@ -295,7 +303,6 @@ sub new {
 
 sub _calculate_consensus {
     my $self=shift;
-    my $thresh=shift;
     my ($lc,$lt,$lg)=($#{$self->{probC}},$#{$self->{probT}},$#{$self->{probG}});
     my $len=$#{$self->{probA}};
     $self->throw("Probability matrix is damaged for C: $len vs $lc") if ($len != $lc);
@@ -303,8 +310,8 @@ sub _calculate_consensus {
     $self->throw("Probability matrix is damaged for G: $len vs $lg") if ($len != $lg);
     for (my $i=0; $i<$len+1; $i++) {
         #*** IUPACp values not actually used (eg. by next_pos)
-        (${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i], $thresh);
-        (${$self->{seq}}[$i], ${$self->{seqp}}[$i]) = _to_cons(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i], $thresh);
+        (${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i]);
+        (${$self->{seq}}[$i], ${$self->{seqp}}[$i]) = _to_cons(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i]);
     }
     return $self;
 }
@@ -455,13 +462,19 @@ sub accession_number {
  Function: Returns the consensus
  Returns : string
  Args    : (optional) threshold value 1 to 10, default 5
+           '5' means the returned characters had a 50% or higher presence at
+           their position
 
 =cut
 
 sub consensus {
-    my $self = shift;
-    my $thresh = shift;
-    _calculate_consensus($self, $thresh) if ($thresh); # Change of threshold
+    my ($self, $thresh) = @_;
+    if ($thresh) {
+        my $len=$#{$self->{probA}};
+        for (my $i=0; $i<$len+1; $i++) {
+            (${$self->{seq}}[$i], ${$self->{seqp}}[$i]) = _to_cons(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i], $thresh);
+        }
+    }
     my $consensus='';
     foreach my $letter (@{$self->{seq}}) {
         $consensus .= $letter;
@@ -492,15 +505,21 @@ sub width {
  Usage   :
  Function: Returns IUPAC compliant consensus
  Returns : string
- Args    : (optional) optional threshold value for the number of decimal places
-           in the frequencies to consider before rounding (default 3).
+ Args    : optionally, also supply a whole number (int) of 1 or higher to set
+           the significance level when considering the frequencies. 1 (the
+           default) means a 0.05 significance level: frequencies lower than
+           0.05 will be ignored. 2 Means a 0.005 level, and so on.
 
 =cut
 
 sub IUPAC {
-	my $self = shift;
-    my $thresh = shift;
-    _calculate_consensus($self, $thresh) if ($thresh); # Change of threshold
+	my ($self, $thresh) = @_;
+    if ($thresh) {
+        my $len=$#{$self->{probA}};
+        for (my $i=0; $i<$len+1; $i++) {
+            (${$self->{IUPAC}}[$i],${$self->{IUPACp}}[$i])=_to_IUPAC(${$self->{probA}}[$i], ${$self->{probC}}[$i], ${$self->{probG}}[$i], ${$self->{probT}}[$i], $thresh);
+        }
+    }
 	my $iu=$self->{IUPAC};
 	my $iupac='';
 	foreach my $let (@{$iu}) {
@@ -516,15 +535,18 @@ sub IUPAC {
  Function: Converts a single position to IUPAC compliant symbol.
            For rules see the implementation
  Returns : char, real number
- Args    : real numbers for frequencies of A,C,G,T (positional), optional
-           threshold value (int) for the number of decimal places in the
-           frequencies to consider before rounding (default 2).
+ Args    : real numbers for frequencies of A,C,G,T (positional)
+ 
+           optionally, also supply a whole number (int) of 1 or higher to set
+           the significance level when considering the frequencies. 1 (the
+           default) means a 0.05 significance level: frequencies lower than
+           0.05 will be ignored. 2 Means a 0.005 level, and so on.
 
 =cut
 
 sub _to_IUPAC {
 	my ($a, $c, $g, $t, $thresh) = @_;
-    $thresh ||= 2;
+    $thresh ||= 1;
     $thresh = int($thresh);
     $a = sprintf ("%.${thresh}f", $a);
     $c = sprintf ("%.${thresh}f", $c);
