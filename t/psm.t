@@ -13,7 +13,7 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 47;
+    plan tests => 46;
 }
 
 use Bio::Matrix::PSM::IO;
@@ -87,10 +87,9 @@ ok $psm_header{e_val},'1.2e-002';
 
 #Quick check if returned object works
 my $IUPAC=$psm->IUPAC;
-ok $IUPAC,'NNNNNNNNNNNNNNNNNNNNNNNNN';
+ok $IUPAC,'CMKWMAAAKWVAWTYCMCASCHCCM';
 ok $IUPAC,$psm2->IUPAC;
 ok $IUPAC,$matrix->IUPAC;
-ok $psm->consensus, 'CAGAAAAATNNAATNCCCACCNCCC';
 
 my $instances=$psm->instances;
 ok $instances;
