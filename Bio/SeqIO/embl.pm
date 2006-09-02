@@ -165,33 +165,37 @@ sub _initialize {
 =cut
 
 sub next_seq {
-   my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
-       $date, $comment, @date_arr);
+    my ($self,@args) = @_;
+    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
+        $date, $comment, @date_arr);
+ 
+    my ($annotation, %params, @features) = 
+       new Bio::Annotation::Collection;
 
-   my ($annotation, %params, @features) = 
-	  new Bio::Annotation::Collection;
-
-   $line = $self->_readline;
-	# This needs to be before the first eof() test
-
-   if( !defined $line ) {
-       return; # no throws - end of file
-   }
-
-   if( $line =~ /^\s+$/ ) {
-       while( defined ($line = $self->_readline) ) {
-	   $line =~/^\S/ && last;
-       }
-   }
-   # EOF or no ID as 1st non-blank line, need short circuit and exit routine
-   $self->throw("EMBL stream with no ID. Not embl in my book") 
-	  unless $line =~ /^ID\s+\S+/;
-
+    $line = $self->_readline;
+    # This needs to be before the first eof() test
+ 
+    if( !defined $line ) {
+        return; # no throws - end of file
+    }
+ 
+    if( $line =~ /^\s+$/ ) {
+        while( defined ($line = $self->_readline) ) {
+            $line =~/^\S/ && last;
+        }
+        # return without error if the whole next sequence was just a single
+        # blank line and then eof
+        return unless $line;
+    }
+    
+    # no ID as 1st non-blank line, need short circuit and exit routine
+    $self->throw("EMBL stream with no ID. Not embl in my book") 
+       unless $line =~ /^ID\s+\S+/;
+    
 	# At this point we are sure that $line contains an ID header line
 	my $alphabet;
     if ( $line =~ tr/;/;/ == 6) {   # New style headers contain exactly six semicolons.
-    
+        
     	# New style header (EMBL Release >= 87, after June 2006)
     	my $topology;
     	my $sv;
@@ -437,7 +441,6 @@ sub next_seq {
 		-alphabet => $alphabet,
 		-features => \@features,
 		%params);
-
    return $seq;
 }
 
