@@ -257,49 +257,71 @@ if( $DEBUG ) {
 	$seq = $seqio = undef;
 
 	# bug 1405
-	$gb = Bio::DB::GenBank->new(-format     => 'Fasta',
-										 -seq_start  => 2,
-										 -seq_stop   => 7 );
-
-	$seq = $gb->get_Seq_by_acc("A11111");
-	ok($seq->length,6);
-	# complexity tests
-	$gb = Bio::DB::GenBank->new(-format     => 'Fasta',
-										 -complexity  => 0);
-   
-	my $seqin = $gb->get_Stream_by_acc("5");
-	my @result = (1136, 'dna', 342, 'protein');
-	while ($seq = $seqin->next_seq) {
-	  ok($seq->length,shift(@result));
-	  ok($seq->alphabet,shift(@result));
+    my $seqin;
+    my @result;
+    eval {
+      $gb = Bio::DB::GenBank->new(-format     => 'Fasta',
+                                           -seq_start  => 2,
+                                           -seq_stop   => 7 );
+  
+      $seq = $gb->get_Seq_by_acc("A11111");
+      ok($seq->length,6);
+      # complexity tests
+      $gb = Bio::DB::GenBank->new(-format     => 'Fasta',
+                                           -complexity  => 0);
+     
+      $seqin = $gb->get_Stream_by_acc("5");
+      @result = (1136, 'dna', 342, 'protein');
+      while ($seq = $seqin->next_seq) {
+        ok($seq->length,shift(@result));
+        ok($seq->alphabet,shift(@result));
+      }
+      ok @result, 0;
+      #
+      # Real batch retrieval using epost/efetch 
+      # these tests may change if integrated further into Bio::DB::Gen*
+      # Currently only useful for retrieving GI's via get_seq_stream
+      #
+     $gb = Bio::DB::GenBank->new();
+     
+     $seqin = $gb->get_seq_stream(-uids 	=> [4887706 ,431229, 147460],
+                                  -mode	=> 'batch');
+     @result = ('M59757', 12611 ,'X76083', 3140, 'J01670', 1593);
+     while ($seq = $seqin->next_seq) {
+        ok($seq->accession,shift(@result));
+        ok($seq->length,shift(@result));
+     }
+     ok @result, 0;
+    };
+    if ($@) {
+		if( $DEBUG ) {
+			warn "Warning: Couldn't connect to complete GenBank tests!\n $@\n";
+		}
+		foreach ( $Test::ntest..$NUMTESTS ) { 
+			skip('could not connect to Genbank',1); 
+		}
 	}
-    ok @result, 0;
-	#
-	# Real batch retrieval using epost/efetch 
-	# these tests may change if integrated further into Bio::DB::Gen*
-	# Currently only useful for retrieving GI's via get_seq_stream
-	#
-   $gb = Bio::DB::GenBank->new();
-   
-   $seqin = $gb->get_seq_stream(-uids 	=> [4887706 ,431229, 147460],
-								-mode	=> 'batch');
-   @result = ('M59757', 12611 ,'X76083', 3140, 'J01670', 1593);
-   while ($seq = $seqin->next_seq) {
-	  ok($seq->accession,shift(@result));
-	  ok($seq->length,shift(@result));
-   }
-   ok @result, 0;
-   
-   $gb = Bio::DB::GenPept->new();
-   
-   $seqin = $gb->get_seq_stream(-uids 	=> [2981015, 1621261, 195055],
-								-mode	=> 'batch');
-   @result = ('AAC06201', 353, 'CAB02640', 193, 'AAD15290', 136);
-   while ($seq = $seqin->next_seq) {
-	  ok($seq->accession,shift(@result));
-	  ok($seq->length,shift(@result));
-   }
-   ok @result, 0;
+     
+   eval {
+      $gb = Bio::DB::GenPept->new();
+      
+      $seqin = $gb->get_seq_stream(-uids 	=> [2981015, 1621261, 195055],
+                                   -mode	=> 'batch');
+      @result = ('AAC06201', 353, 'CAB02640', 193, 'AAD15290', 136);
+      while ($seq = $seqin->next_seq) {
+         ok($seq->accession,shift(@result));
+         ok($seq->length,shift(@result));
+      }
+      ok @result, 0;
+   };
+   if ($@) {
+		if( $DEBUG ) {
+			warn "Warning: Couldn't connect to complete GenPept tests!\n $@\n";
+		}
+		foreach ( $Test::ntest..$NUMTESTS ) { 
+			skip('could not connect to GenPept',1); 
+		}
+	}
    
 	#
 	# Bio::DB::GenPept
@@ -421,10 +443,21 @@ if( $DEBUG ) {
 	#
 	# Bio::DB::GDB
 	#
-	my $gdb = new Bio::DB::GDB;  
-	my $info = $gdb->get_info(-type => 'marker', 
-									  -id => 'D1S243'); 
-	ok $info->{gdbid},'GDB:188393';
+    eval {
+      my $gdb = new Bio::DB::GDB;  
+      my $info = $gdb->get_info(-type => 'marker', 
+                                        -id => 'D1S243'); 
+      ok $info->{gdbid},'GDB:188393';
+    };
+    if ($@) {
+      if ($DEBUG) {
+         print STDERR "Couldn't connect to GDB with Bio::DB::GDB.pm!\n$@";
+      }
+      foreach ( $Test::ntest..$NUMTESTS) { 
+           skip('Could not connect to GDB',1);
+       }
+       exit(0);
+    }
 
 	#
 	# Bio::DB::EntrezGene
