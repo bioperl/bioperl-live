@@ -177,7 +177,7 @@ sub _load_registry {
       }
       eval "require $class";
       if ($@) {
-			$self->verbose && $self->warn("Couldn't load $class");
+			$self->warn("Couldn't load $class");
 			next;
       } else {
 	  eval {
