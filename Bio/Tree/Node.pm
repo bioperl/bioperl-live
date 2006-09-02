@@ -377,6 +377,7 @@ sub branch_length{
 	    $self->bootstrap($1);
 	}
 	$self->{'_branch_length'} = $bl;
+    $self->invalidate_height();
     }
     return $self->{'_branch_length'};
 }
