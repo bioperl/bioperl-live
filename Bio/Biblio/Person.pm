@@ -14,7 +14,7 @@ Bio::Biblio::Person - Representation of a person
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::Person (-lastname => 'Capek',
-				    -firstname => 'Karel');
+                                    -firstname => 'Karel');
   #--- OR ---
 
     $obj = new Bio::Biblio::Person;

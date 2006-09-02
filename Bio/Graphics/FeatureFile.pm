@@ -495,7 +495,6 @@ sub parse_line {
 
   # conventional GFF file, with check for numeric start/end
   if (@tokens >= 8 && $tokens[3]=~ /^-?\d+$/ && $tokens[4]=~ /^-?\d+$/) {
-    warn "HERE I AM, LINE = $_";
     my ($r,$source,$method,$start,$stop,$scor,$s,$phase,@rest) = @tokens;
     # sanity checks
     my $group = join ' ',@rest;

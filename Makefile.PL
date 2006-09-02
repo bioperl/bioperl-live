@@ -46,6 +46,7 @@
     'XML::SAX'                  => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
     'XML::SAX::Base'            => '0.0/New style SAX parser/Parsers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
     'XML::SAX::Writer'          => '0.0/New style SAX parser/Writers/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+    'XML::Simple'               => '0.0/Simple XML parser/Parsers/Bio::DB::EUtilities',
     'XML::Twig'                 => '0.0/Available on CPAN/parsing of XML documents/Module Bio::Variation::IO::xml.pm',
     'XML::Writer'               => '0.0/Parsing + writing of XML documents/Bio::Variation code, GAME parser/Bio::SeqIO::game,Bio::Variation::*',
 );
@@ -110,6 +111,29 @@ sub prompt_for_biodbgff {
       }
     }
   }
+}
+
+sub setup_bioseqfeaturestore {
+  if ( eval "require DB_File; 1" ) {
+    warn "I see you have Berkeleydb installed. I will create the BDB tests for Bio::DB::SeqFeature::Store...\n";
+    open F,">t/BioDBSeqFeature_BDB.t";
+    print F <<END;
+system "perl t/BioDBSeqFeature.t -adaptor berkeleydb -create 1 -temp 1";
+END
+    close F;
+  }
+
+  if(  eval { require DBI } && grep {/mysql/} DBI->available_drivers) {
+    if (DBI->connect('dbi:mysql:test',undef,undef,{RaiseError=>0,PrintError=>0})) {
+      warn "I see you have mysql running and have a connectable 'test' database. I will create the mysql tests for Bio::DB::SeqFeature::Store...\n";
+      open F,">t/BioDBSeqFeature_mysql.t";
+      print F <<END;
+system "perl t/BioDBSeqFeature.t -adaptor DBI::mysql -create 1 -temp 1 -dsn test";
+END
+      close F;
+    }
+  }
+
 }
 
 sub MY::install {
@@ -296,6 +320,7 @@ use Cwd;
 
 my @scripts_to_install = eval {get_scripts_to_install()};
 prompt_for_biodbgff();
+setup_bioseqfeaturestore();
 
 
 $do_autoload_finesse = 0;
@@ -390,6 +415,6 @@ sub MY::manifypods {
 sub MY::clean {
   package MY;
   return shift->SUPER::clean(@_) . <<END;
-    -rm -rf scripts_temp
+\t-rm -rf scripts_temp
 END
 }

@@ -14,7 +14,7 @@ Bio::Biblio::JournalArticle - Representation of a journal article
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::JournalArticle (-title => 'Come to grief',
-					    -journal => new Bio::Biblio::Journal);
+                                            -journal => new Bio::Biblio::Journal);
   #--- OR ---
 
     $obj = new Bio::Biblio::JournalArticle;

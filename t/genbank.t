@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 129;
+	plan tests => 131;
 }
 
 use Bio::SeqIO;
@@ -59,7 +59,13 @@ $ast->verbose($verbose);
 $as = $ast->next_seq();
 ok $as->molecule, 'linear';
 ok $as->alphabet, 'protein';
-ok $as->species->common_name, 'Aldabra giant tortoise';
+# Though older GenBank releases indicate SOURCE contains only the common name,
+# this is no longer true.  In general, this line will contain an abbreviated
+# form of the full organism name (but may contain the full length name),
+# as well as the optional common name and organelle.  There is no get/set
+# for the abbreviated name but it is accessible via name()
+ok defined($as->species->name('abbreviated')->[0]);
+ok $as->species->name('abbreviated')->[0], 'Aldabra giant tortoise';
 ok($as->primary_id, 15824047);
 my $ac = $as->annotation;
 ok defined $ac;
@@ -75,7 +81,7 @@ $as = $ast->next_seq;
 ok $as->species->binomial,'Bolitoglossa n. sp. RLM-2004';
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
-ok($as->species->common_name,'mitochondrion Bolitoglossa n. sp. RLM-2004 (mushroomtongue salamander)');
+ok($as->species->common_name,'mushroomtongue salamander');
 
 $ast = Bio::SeqIO->new(-format => 'genbank',
 							  -verbose => $verbose,
@@ -84,7 +90,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
 $as = $ast->next_seq;
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
-ok $as->species->common_name,'mitochondrion Desmognathus quadramaculatus (black-bellied salamander)';
+ok $as->species->common_name,'black-bellied salamander';
 
 # test for unusual common name
 $ast = Bio::SeqIO->new(-format => 'genbank',
@@ -92,7 +98,9 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => Bio::Root::IO->catfile("t","data",
                                                        "AB077698.gb"));
 $as = $ast->next_seq;
-ok $as->species->common_name,'Homo sapiens cDNA to mRNA';
+# again, this is not a common name but is in name('abbreviated')
+ok defined($as->species->name('abbreviated')->[0]);
+ok $as->species->name('abbreviated')->[0],'Homo sapiens cDNA to mRNA';
 
 # test for common name with parentheses
 $ast = Bio::SeqIO->new(-format => 'genbank',
@@ -100,7 +108,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => Bio::Root::IO->catfile("t","data",
                                                        "DQ018368.gb"));
 $as = $ast->next_seq;
-ok $as->species->common_name,'(Populus tomentosa x P. bolleana) x P. tomentosa var. truncata';
+ok $as->species->scientific_name,'(Populus tomentosa x P. bolleana) x P. tomentosa var. truncata';
 
 # test secondary accessions
 my $seqio = new Bio::SeqIO(-format => 'genbank',
@@ -277,7 +285,7 @@ ok($seq->desc, 'TPA: Mus musculus pantothenate kinase 4 mRNA, partial cds.');
 ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
 my $spec_obj = $seq->species;
-ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
+ok ($spec_obj->common_name, 'house mouse');
 ok ($spec_obj->species, 'musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
@@ -309,7 +317,7 @@ ok($seq->desc, 'TPA: Mus musculus pantothenate kinase 4 mRNA, partial cds.');
 ok($seq->seq_version, 1);
 ok($seq->feature_count, 2);
 $spec_obj = $seq->species;
-ok ($spec_obj->common_name, 'Mus musculus (house mouse)');
+ok ($spec_obj->common_name, 'house mouse');
 ok ($spec_obj->species, 'musculus');
 ok ($spec_obj->genus, 'Mus');
 ok ($spec_obj->binomial, 'Mus musculus');
@@ -343,7 +351,7 @@ $gb = new Bio::SeqIO(-format => 'genbank',
 							-file   => Bio::Root::IO->catfile
 							(qw(t data NC_006511-short.gbk)));
 $seq = $gb->next_seq;
-ok $seq->species->common_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
+ok $seq->species->common_name, undef;
 ok $seq->species->scientific_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
 @class = $seq->species->classification;
 ok $class[$#class], "Bacteria";
@@ -378,7 +386,16 @@ ok $vals[0], 'PX19';
 # - test an easy one where organism is species, then two different formats of
 # subspecies, then a species with a format that used to be mistaken for
 # subspecies, then a bacteria with no genus, and finally a virus with a genus.
+
+# These tests are now somewhat out-of-date since we are moving to a Bio::Taxon-
+# based system for verifying taxonomic information.  Right now they just verify
+# changes so are really useless; I will change them to verify common name,
+# organelle, scientific name, etc.
+
 my $outfile = 'testsource.gb';
+
+# output always adds a period (GenBank std), but two of these files do not use them.
+
 foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
     my $infile =  Bio::Root::IO->catfile("t","data",$in);
     
@@ -398,22 +415,31 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
 	my $line = 0;
 	my $check = 0;
 	my $ok = 1;
-	while (<RESULT>) {
-		if (/^KEYWORDS/) {
+    
+    FILECHECK:
+	while (my $result = <RESULT>) {
+		if ($result =~ /^KEYWORDS/) {
 			$check = 1;
 			next;
 		}
-		
+
+		if ($result =~ /^REFERENCE/) {
+			last FILECHECK;
+		}
+
 		if ($check) {
-			if ($_ ne $in[$line]) {
+            
+            # end periods don't count (not all input files have them)
+            $result =~ s{\.$}{};
+            $in[$line] =~ s{\.$}{};
+            
+			if ($result ne $in[$line]) {
 				$ok = 0;
 				last;
 			}
 		}
 		
-		if (/^REFERENCE/) {
-			last;
-		}
+
 	} continue { $line++ }
 	close(RESULT);
 	
@@ -424,3 +450,4 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
 
 # NB: there should probably be full testing on all lines to ensure that output
 # matches input.
+

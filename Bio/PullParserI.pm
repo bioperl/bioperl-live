@@ -23,7 +23,7 @@ Bio::PullParserI - A base module for fast 'pull' parsing
 
 If you are writing a module to parse some new format, you may wish to use
 a 'pull' approach whereby you only do work (reading file data, parsing it,
-turning the parsed data in a module) when absolutely necessary.
+turning the parsed data in an object) when absolutely necessary.
 
 PullParserI provides a system for doing exactly that. As a PullParser you
 need a chunk. A chunk is just a Bio::Root::IO that contains all the raw data
@@ -35,7 +35,7 @@ The methods _chunk_seek() and _chunk_tell() provide seeks and tells that are
 relative to the start and end of your chunk, not the whole file.
 
 The other thing you will need to decide when making a chunk is how to handle
-piped input. A PullParser needs seekable data to parse, so if your
+piped input. A PullParser typically needs seekable data to parse, so if your
 data is piped in and unseekable, you must decide between creating a temp file
 or reading the input into memory, which will be done before the chunk becomes
 usable and you can begin any parsing. Alternatively you can choose to force
@@ -56,7 +56,7 @@ first if not. So for the system to work you need to define a _discover_*()
 method for every field in the fields hash, and ensure that the method stores an
 answer in the fields hash.
 
-How you implement your _discover_* methods is up to you, though you shoul never
+How you implement your _discover_* methods is up to you, though you should never
 call a _discover_* method directly yourself; always use ->get_field, since
 get_field will deal with calling dependant methods for you if a forced
 sequenctial read is in progress due to piped input. You will almost certainly
@@ -248,12 +248,12 @@ sub parent {
                               first, then set the chunk to that string.
             'temp_file'       means read all the piped input and output it to
                               a temp file, then set the chunk to that temp file.
-            'sequential_read' means that the piped input will be read
-                              sequentially and your parsing code cope with not
-                              being able to seek.
-           The default is 'memory', which is the fastest but uses the most
-           memory. 'temp_file' and 'sequential_read' can be slow, with
-           'temp_file' being the most memory efficient but requiring disc space.
+            'sequential_read' means that the piped input should be read
+                              sequentially and your parsing code must cope with
+                              not being able to seek.
+           'memory' is the fastest but uses the most memory. 'temp_file' and
+           'sequential_read' can be slow, with 'temp_file' being the most memory
+           efficient but requiring disc space. The default is 'sequential_read'.
 
 =cut
 
@@ -288,7 +288,7 @@ sub chunk {
             ($piped_behaviour, $start, $end) =
                 $self->_rearrange([qw(PIPED_BEHAVIOUR START END)], @_);
         }
-        $piped_behaviour ||= 'memory';
+        $piped_behaviour ||= 'sequential_read';
         $start ||= 0;
         $self->_chunk_true_start($start);
         $self->_chunk_true_end($end);
@@ -317,7 +317,6 @@ sub chunk {
                 $self->chunk($handle);
             }
             elsif ($piped_behaviour eq 'sequential_read') {
-                #$self->throw("sequential_read mode not yet implemented");
                 $self->{_chunk}->_pushback($first_line);
                 $self->_sequential(1);
             }
@@ -348,7 +347,8 @@ sub chunk {
  Function: Ask if we have to do operations such that the input is read
            sequentially.
  Returns : boolean
- Args    : none to get, OR boolean to set
+ Args    : none to get, OR boolean to set (typically, you should never set this
+           yourself)
 
 =cut
 
@@ -392,7 +392,7 @@ sub _dependencies {
  Function: Get/set the true start position of the chunk within the filehandle
            it is part of.
  Returns : int
- Args    : none to get, OR int to set
+ Args    : none to get, OR int to set (typically, you won't set this yourself)
 
 =cut
 
@@ -411,7 +411,7 @@ sub _chunk_true_start {
  Function: Get/set for the true end position of the chunk within the filehandle
            it is part of.
  Returns : int
- Args    : none to get, OR int to set
+ Args    : none to get, OR int to set (typically, you won't set this yourself)
 
 =cut
 
@@ -429,7 +429,8 @@ sub _chunk_true_end {
  Usage   : my $line_ending = $obj->_line_ending;
  Function: Get/set for the line ending for the chunk.
  Returns : string
- Args    : none to get, OR string to set
+ Args    : none to get, OR string to set (typically, you won't set this
+           yourself)
 
 =cut
 
@@ -505,6 +506,8 @@ sub _get_chunk_by_nol {
     my ($self, $nol) = @_;
     $nol > 0 || $self->throw("Can't request a chunk of fewer than 1 lines");
     
+    # hope that $/ is \n
+    
     my ($line, $count);
     while (defined($_ = $self->chunk->_readline)) {
         $line .= $_;
@@ -563,6 +566,8 @@ sub _get_chunk_by_end {
 
 sub _find_chunk_by_end {
     my ($self, $chunk_ending) = @_;
+    return if $self->_sequential;
+    
     my $line_ending = $self->_line_ending;
     $chunk_ending =~ s/\n/$line_ending/g;
     local $/ = $chunk_ending || '';

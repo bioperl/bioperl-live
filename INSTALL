@@ -532,6 +532,8 @@ o DEPENDENCIES AND Bundle::BioPerl
  Class::AutoClass         Used to create objects
                                          Bio::Graph::SimpleGraph*
 
+ Requires Class::AutoClass v 1.01
+
  Clone                    Used to clone objects
                                          Bio::Graph::ProteinGraph
 

@@ -1,4 +1,5 @@
 # $Id$
+#
 # BioPerl module for SimpleAlign
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>

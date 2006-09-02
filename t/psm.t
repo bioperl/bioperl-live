@@ -87,7 +87,7 @@ ok $psm_header{e_val},'1.2e-002';
 
 #Quick check if returned object works
 my $IUPAC=$psm->IUPAC;
-ok $IUPAC,'CAGAAAAATWVAATYCCCACCHCCC';
+ok $IUPAC,'CMKWMAAAKWVAWTYCMCASCHCCM';
 ok $IUPAC,$psm2->IUPAC;
 ok $IUPAC,$matrix->IUPAC;
 
@@ -140,7 +140,7 @@ ok scalar keys %seq, 0;
 
 #Quick check if returned object works
 $IUPAC   = $psm->IUPAC;
-ok $IUPAC,'NNNNNNNNNNNN';
+ok $IUPAC,'VVDCAKSTGBYD';
 
 #Now we are going to try mast
 $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 

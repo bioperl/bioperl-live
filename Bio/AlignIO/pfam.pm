@@ -2,8 +2,8 @@
 #
 # BioPerl module for Bio::AlignIO::pfam
 
-#	based on the Bio::SeqIO:: modules
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO:: modules
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
@@ -104,7 +104,7 @@ sub next_aln {
 			    );
 
 	$aln->add_seq($add);
-	
+
     }
 
 #  If $end <= 0, we have either reached the end of
@@ -132,14 +132,14 @@ sub write_aln {
    my ($self,@aln) = @_;
    if( @aln > 1 ) { $self->warn("Only the 1st pfam alignment will be output since the format does not support multiple alignments in the same file"); }
    my $aln = shift @aln;
-   if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+   if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
        $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
        next;
    }
    my ($namestr,$seq,$add);
    my ($maxn);
    $maxn = $aln->maxdisplayname_length();
-   
+
    foreach $seq ( $aln->each_seq() ) {
        $namestr = $aln->displayname($seq->get_nse());
        $add = $maxn - length($namestr) + 2;

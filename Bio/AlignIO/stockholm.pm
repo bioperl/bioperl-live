@@ -2,8 +2,8 @@
 #
 # BioPerl module for Bio::AlignIO::stockholm
 
-#	based on the Bio::SeqIO::stockholm module
-#       by Ewan Birney <birney@sanger.ac.uk>
+#   based on the Bio::SeqIO::stockholm module
+#       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #       and the SimpleAlign.pm module of Ewan Birney
@@ -99,7 +99,7 @@ sub next_aln {
 
     while( defined($entry = $self->_readline) ) {
         next unless $entry =~ /\w+/;
-	
+
 	if ($entry =~ /^#\s*STOCKHOLM\s+/) {
 	    last;
 	} else {
@@ -155,7 +155,7 @@ sub next_aln {
 	     '-description'      => $desc{$name},
 	     '-accession_number' => $accession{$name},
 	     );
-	
+
 	$aln->add_seq($seq);
     }
 

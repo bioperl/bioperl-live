@@ -20,9 +20,9 @@ Bio::AlignIO::emboss - Parse EMBOSS alignment output (from applications water an
     use Bio::AlignIO;
     # read in an alignment from the EMBOSS program water
     my $in = new Bio::AlignIO(-format => 'emboss',
-			      -file   => 'seq.water');
+                              -file   => 'seq.water');
     while( my $aln = $in->next_aln ) {
-	# do something with the alignment
+    # do something with the alignment
     }
 
 =head1 DESCRIPTION
@@ -79,7 +79,7 @@ use Bio::LocatableSeq;
 
 @ISA = qw(Bio::AlignIO );
 
-BEGIN { 
+BEGIN {
     $EMBOSSTitleLen    = 13;
     $EMBOSSLineLen     = 50;
 }
@@ -104,18 +104,18 @@ sub _initialize {
 sub next_aln {
     my ($self) = @_;
     my $seenbegin = 0;
-    my %data = ( 'seq1' => { 
+    my %data = ( 'seq1' => {
 		     'start'=> undef,
-		     'end'=> undef,		
+		     'end'=> undef,
 		     'name' => '',
 		     'data' => '' },
-		 'seq2' => { 
+		 'seq2' => {
 		     'start'=> undef,
 		     'end'=> undef,
 		     'name' => '',
 		     'data' => '' },
 		 'align' => '',
-		 'type'  => $self->{'_type'},  # to restore type from 
+		 'type'  => $self->{'_type'},  # to restore type from
 		                                     # previous aln if possible
 		 );
     my %names;
@@ -130,16 +130,16 @@ sub next_aln {
 	    if( ! defined $name1 ) { # Handle EMBOSS 2.2.X
 		$data{'type'} = $1;
 		$name1 = $name2 = '';
-	    } else { 
+	    } else {
 		$data{'type'} = $1 eq 'Local' ? 'water' : 'needle';
-	    }	    
+	    }
 	    $data{'seq1'}->{'name'} = $name1;
 	    $data{'seq2'}->{'name'} = $name2;
 
 	    $self->{'_type'} = $data{'type'};
 
 	} elsif( /Score:\s+(\S+)/ ) {
-	    $data{'score'} = $1;		
+	    $data{'score'} = $1;
 	} elsif( /^\#\s+(1|2):\s+(\S+)/ && !  $data{"seq$1"}->{'name'} ) {
 	    my $nm = $2;
 	    $nm = substr($nm,0,$EMBOSSTitleLen); # emboss has a max seq length
@@ -147,7 +147,7 @@ sub next_aln {
 		$nm .= "-". $names{$nm};
 	    }
 	    $names{$nm}++;
-	    $data{"seq$1"}->{'name'} = $nm;	
+	    $data{"seq$1"}->{'name'} = $nm;
 	} elsif( $data{'seq1'}->{'name'} &&
 		 /^\Q$data{'seq1'}->{'name'}/ ) {
 	    my $count = 0;
@@ -155,26 +155,26 @@ sub next_aln {
 	    my @current;
 	    while( defined ($_) ) {
 		my $align_other = '';
-		my $delayed;		
+		my $delayed;
 		if($count == 0 || $count == 2 ) {
 		    my @l = split;
 		    my ($seq,$align,$start,$end);
 		    if( $count == 2 && $data{'seq2'}->{'name'} eq '' ) {
-			# weird boundary condition 
+			# weird boundary condition
 			($start,$align,$end) = @l;
 		    } elsif( @l == 3 ) {
 			$align = '';
 			($seq,$start,$end) = @l
-		    } else { 
+		    } else {
 			($seq,$start,$align,$end) = @l;
  		    }
 
-		    my $seqname = sprintf("seq%d", ($count == 0) ? '1' : '2'); 
+		    my $seqname = sprintf("seq%d", ($count == 0) ? '1' : '2');
 		    $data{$seqname}->{'data'} .= $align;
 		    $data{$seqname}->{'start'} ||= $start;
 		    $data{$seqname}->{'end'} = $end;
 		    $current[$count] = [ $start,$align || ''];
-		} else { 
+		} else {
 		    s/^\s+//;
 		    s/\s+$//;
 		    $data{'align'} .= $_;
@@ -186,40 +186,40 @@ sub next_aln {
 	    }
 
 	    if( $data{'type'} eq 'needle' ) {
-		# which ever one is shorter we want to bring it up to 
+		# which ever one is shorter we want to bring it up to
 		# length.  Man this stinks.
 		my ($s1,$s2) =  ($data{'seq1'}, $data{'seq2'});
-		
+
 		my $d = length($current[0]->[1]) - length($current[2]->[1]);
 		if( $d < 0 ) { # s1 is smaller, need to add some
 		    # compare the starting points for this alignment line
 		    if( $current[0]->[0] <= 1 ) {
 			$s1->{'data'} = ('-' x abs($d)) . $s1->{'data'};
 			$data{'align'} = (' 'x abs($d)).$data{'align'};
-		    } else { 
+		    } else {
 			$s1->{'data'} .= '-' x abs($d);
 			$data{'align'} .= ' 'x abs($d);
 		    }
-		} elsif( $d > 0) { # s2 is smaller, need to add some  
-		    if( $current[2]->[0] <= 1 ) { 
+		} elsif( $d > 0) { # s2 is smaller, need to add some
+		    if( $current[2]->[0] <= 1 ) {
 			$s2->{'data'} = ('-' x abs($d)) . $s2->{'data'};
 			$data{'align'} = (' 'x abs($d)).$data{'align'};
-		    } else { 
+		    } else {
 			$s2->{'data'} .= '-' x abs($d);
 			$data{'align'} .= ' 'x abs($d);
 		    }
 		}
 	    }
-	    
+
 	}
     }
     return unless $seenbegin;
     my $aln =  Bio::SimpleAlign->new(-verbose => $self->verbose(),
 				     -score   => $data{'score'},
 				     -source => "EMBOSS-".$data{'type'});
-    
-    foreach my $seqname ( qw(seq1 seq2) ) { 
-	return unless ( defined $data{$seqname} );	
+
+    foreach my $seqname ( qw(seq1 seq2) ) {
+	return unless ( defined $data{$seqname} );
 	$data{$seqname}->{'name'} ||= $seqname;
 	my $seq = new Bio::LocatableSeq('-seq' => $data{$seqname}->{'data'},
 					'-id'  => $data{$seqname}->{'name'},

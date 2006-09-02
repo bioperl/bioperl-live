@@ -495,6 +495,7 @@ sub trunc{
            -orf           - find 1st ORF                    default is 0
            -start         - alternative initiation codon
            -codontable    - Bio::Tools::CodonTable object
+		   -offset        - offset for fuzzy locations      default is 0
 
  Notes   : The -start argument only applies when -orf is set to 1. By default
            all initiation codons found in the given codon table are used
@@ -506,6 +507,11 @@ sub trunc{
            the some character (default is *), both internal and trailing
            codons. Setting "-complete" to 1 tells translate() to remove
            the trailing character.
+		   
+		   -offset is used for seqfeatures which contain the the \codon_start
+		   tag and can be set to 1, 2, or 3.  This is the offset by which the
+		   sequence translation starts relative to the first base of the
+		   feature
 
 For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 
@@ -526,7 +532,7 @@ For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 sub translate {
 	 my ($self,@args) = @_;
 	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-		  $codonTable, $orf, $start_codon);
+		  $codonTable, $orf, $start_codon, $offset);
 
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
@@ -534,10 +540,22 @@ sub translate {
 		  $codonTable, $orf, $start_codon) =
 			 $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID
 										  COMPLETE THROW CODONTABLE ORF START)], @args);
+		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
+		  $codonTable, $orf, $start_codon, $offset) =
+			 $self->_rearrange([qw(TERMINATOR
+								UNKNOWN
+								FRAME
+								CODONTABLE_ID
+								COMPLETE
+								THROW
+								CODONTABLE
+								ORF
+								START
+								OFFSET)], @args);
 	 ## old API, 1.5.1 and preceding versions
 	 } else {
 		 ($terminator, $unknown, $frame, $codonTableId,
-		  $complete, $throw, $codonTable) = @args;
+		  $complete, $throw, $codonTable, $offset) = @args;
 	 }
 
     ## Initialize termination codon, unknown codon, codon table id, frame
@@ -563,8 +581,17 @@ sub translate {
 		 $self->throw("Invalid start codon: $start_codon.") if
 			( $start_codon !~ /^[A-Z]{3}$/i );
 	 }
-
-    my ($seq) = $self->seq();
+	 
+	 my $seq;
+	 
+	 if ($offset) {
+		$self->throw("Offset must be 1, 2, or 3.") if
+		    ( $offset !~ /^[123]$/ );
+		my ($start, $end) = ($offset, $self->length);
+		($seq) = $self->subseq($start, $end);
+	 } else {
+		($seq) = $self->seq();
+	 }
 
     ## ignore frame if an ORF is supposed to be found
 	 if ($orf) {

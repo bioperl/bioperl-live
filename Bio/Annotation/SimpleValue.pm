@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Annotation::SimpleValue
 #
-# Cared for by bioperl <bioperl-l@bio.perl.org>
+# Cared for by bioperl <bioperl-l@bioperl.org>
 #
 # Copyright bioperl
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Annotation::SimpleValue - A simple scalar 
+Bio::Annotation::SimpleValue - A simple scalar
 
 =head1 SYNOPSIS
 
@@ -25,7 +25,7 @@ Bio::Annotation::SimpleValue - A simple scalar
 
 =head1 DESCRIPTION
 
-Scalar value annotation object 
+Scalar value annotation object
 
 =head1 FEEDBACK
 
@@ -48,7 +48,7 @@ the web:
 
 =head1 AUTHOR - bioperl
 
-Email bioperl-l@bio.perl.org
+Email bioperl-l@bioperl.org
 
 Describe contact details here
 
@@ -113,7 +113,7 @@ sub new{
 
  Title   : as_text
  Usage   : my $text = $obj->as_text
- Function: return the string "Value: $v" where $v is the value 
+ Function: return the string "Value: $v" where $v is the value
  Returns : string
  Args    : none
 
@@ -140,7 +140,7 @@ sub as_text{
 
 sub hash_tree{
     my $self = shift;
-    
+
     my $h = {};
     $h->{'value'} = $self->value;
     return $h;
@@ -156,7 +156,7 @@ sub hash_tree{
            provide a tag to AnnotationCollection when adding this
            object.
 
- Example : 
+ Example :
  Returns : value of tagname (a scalar)
  Args    : new value (a scalar, optional)
 
@@ -195,7 +195,7 @@ sub tagname{
 
 sub value{
    my ($self,$value) = @_;
-   
+
    if( defined $value) {
       $self->{'value'} = $value;
     }
@@ -221,7 +221,7 @@ sub value{
            is not needed. Once it is set to a valid value, tagname()
            will actually delegate to the name() of this term.
 
- Example : 
+ Example :
  Returns : a L<Bio::Ontology::TermI> compliant object, or undef
  Args    : on set, new value (a L<Bio::Ontology::TermI> compliant
            object or undef, optional)

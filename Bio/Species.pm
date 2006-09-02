@@ -182,6 +182,9 @@ sub classification {
         $self->{tree} = new Bio::Tree::Tree(-node => $self);
         # some things want to freeze/thaw Bio::Species objects, but tree's
         # _root_cleanup_methods contains a CODE ref, delete it.
+        #*** even if we don't delete the cleanup methods, we still get memory
+        #    leak-like symtoms, and the actual cleanup causes a mass of
+        #    warnings... needs investigation!
         delete $self->{tree}->{_root_cleanup_methods};
     }
     

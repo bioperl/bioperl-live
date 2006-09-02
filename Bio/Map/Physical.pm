@@ -353,7 +353,7 @@ sub get_markerobj {
     return if($marker eq "");
     return if(!exists($self->{'_markers'}{$marker}));
 
-    my ($global,$framework,$group,$anchor,$type,$linkage,$subgroup);
+    my ($global,$framework,$group,$anchor,$remark,$type,$linkage,$subgroup);
     my %mkr = %{$self->{'_markers'}{$marker}};
 
     return $mkr{'marker'} if (ref($mkr{'marker'}) eq 'Bio::Map::FPCMarker');
@@ -364,6 +364,7 @@ sub get_markerobj {
     $anchor     = $mkr{'anchor'}     if(exists($mkr{'anchor'}));
     $group      = $mkr{'group'}      if(exists($mkr{'group'}));
     $subgroup   =  $mkr{'subgroup'}  if(exists($mkr{'subgroup'}));
+    $remark     =  $mkr{'remark'}    if(exists($mkr{'remark'}));
 
     my %clones  = %{$mkr{'clones'}};
     my %contigs = %{$mkr{'contigs'}};
@@ -379,6 +380,7 @@ sub get_markerobj {
     _group   => $group,
 	_subgroup   => $subgroup,
 	_anchor     => $anchor,
+    _remark     => $remark,
 	_clones     => \%clones,
 	_contigs    => \%contigs,
 	_position   => \%markerpos,	

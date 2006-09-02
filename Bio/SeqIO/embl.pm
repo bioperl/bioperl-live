@@ -165,34 +165,37 @@ sub _initialize {
 =cut
 
 sub next_seq {
-   my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
-       $date, $comment, @date_arr);
+    my ($self,@args) = @_;
+    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, 
+        $date, $comment, @date_arr);
+ 
+    my ($annotation, %params, @features) = 
+       new Bio::Annotation::Collection;
 
-   my ($annotation, %params, @features) = 
-	  new Bio::Annotation::Collection;
-
-   $line = $self->_readline;
-	# This needs to be before the first eof() test
-
-   if( !defined $line ) {
-       return; # no throws - end of file
-   }
-
-   if( $line =~ /^\s+$/ ) {
-       while( defined ($line = $self->_readline) ) {
-	   $line =~/^\S/ && last;
-       }
-   }
-   # EOF or no ID as 1st non-blank line, need short circuit and exit routine
-   return unless( defined $line && $line =~ /^ID\s/ ); 
-   $self->throw("EMBL stream with no ID. Not embl in my book") 
-	  unless $line =~ /^ID\s+\S+/;
-
+    $line = $self->_readline;
+    # This needs to be before the first eof() test
+ 
+    if( !defined $line ) {
+        return; # no throws - end of file
+    }
+ 
+    if( $line =~ /^\s+$/ ) {
+        while( defined ($line = $self->_readline) ) {
+            $line =~/^\S/ && last;
+        }
+        # return without error if the whole next sequence was just a single
+        # blank line and then eof
+        return unless $line;
+    }
+    
+    # no ID as 1st non-blank line, need short circuit and exit routine
+    $self->throw("EMBL stream with no ID. Not embl in my book") 
+       unless $line =~ /^ID\s+\S+/;
+    
 	# At this point we are sure that $line contains an ID header line
 	my $alphabet;
     if ( $line =~ tr/;/;/ == 6) {   # New style headers contain exactly six semicolons.
-    
+        
     	# New style header (EMBL Release >= 87, after June 2006)
     	my $topology;
     	my $sv;
@@ -284,10 +287,31 @@ sub next_seq {
 			 }
 
 			 #date (NOTE: takes last date line)
-			 if( /^DT\s+(.+)$/ ) {
-				 my $date = $1;
-				 push @{$params{'-dates'}},$date;
-			 }
+             if( /^DT\s+(.+)$/ ) {
+                 my $line = $1;
+                 my ($date, $version) = split(' ', $line, 2);
+                 $date =~ tr/,//d; # remove comma if new version      
+                 if ($version =~ /\(Rel\. (\d+), Created\)/xms ) { 
+                    my $release = Bio::Annotation::SimpleValue->new(
+                                                -tagname    => 'creation_release',
+                                                -value      => $1
+                                                );
+                    $annotation->add_Annotation($release);
+                 } elsif ($version =~ /\(Rel\. (\d+), Last updated, Version (\d+)\)/xms ) {
+                    my $release = Bio::Annotation::SimpleValue->new(
+                            -tagname    => 'update_release',
+                            -value      => $1
+                            );
+                    $annotation->add_Annotation($release);
+                    
+                    my $update = Bio::Annotation::SimpleValue->new(
+                            -tagname    => 'update_version',
+                            -value      => $2
+                            );
+                    $annotation->add_Annotation($update);
+                 }
+                 push @{$params{'-dates'}}, $date;                 
+             }
 
 			 #keywords
 			 if( /^KW   (.*)\S*$/ ) {
@@ -297,7 +321,8 @@ sub next_seq {
 
 			 # Organism name and phylogenetic information
 			 elsif (/^O[SC]/) {
-				 my $species = $self->_read_EMBL_Species(\$buffer);
+                 # pass the accession number so we can give an informative throw message if necessary
+				 my $species = $self->_read_EMBL_Species(\$buffer, $params{'-accession_number'});
 				 $params{'-species'}= $species;
 			 }
 
@@ -416,7 +441,6 @@ sub next_seq {
 		-alphabet => $alphabet,
 		-features => \@features,
 		%params);
-
    return $seq;
 }
 
@@ -621,10 +645,32 @@ sub write_seq {
 		# Date lines
 		my $switch=0;
 		if( $seq->can('get_dates') ) {
-			foreach my $dt ( $seq->get_dates() ) {
-				$self->_write_line_EMBL_regex("DT   ","DT   ",$dt,'\s+|$',80) || return; #'
-				$switch=1;
-			}
+            my @dates =  $seq->get_dates();
+            my $ct = 1;
+            my $date_flag = 0;
+            my ($cr) = $seq->get_Annotations("creation_release");
+            my ($ur) = $seq->get_Annotations("update_release");
+            my ($uv) = $seq->get_Annotations("update_version");
+            
+            unless ($cr && $ur && $ur) {
+                $date_flag = 1;
+            }
+            
+            foreach my $dt (@dates){
+                if (!$date_flag) {
+                    $self->_write_line_EMBL_regex("DT   ","DT   ",
+                            $dt." (Rel. $cr, Created)",
+                            '\s+|$',80) if $ct == 1;                    
+                    $self->_write_line_EMBL_regex("DT   ","DT   ",
+                            $dt." (Rel. $ur, Last updated, Version $uv)",
+                            '\s+|$',80) if $ct == 2;
+                } else { # other formats?
+                    $self->_write_line_EMBL_regex("DT   ","DT   ",
+                            $dt,'\s+|$',80);
+                }
+                $switch =1;
+                $ct++;
+            }
 			if ($switch == 1) {
 				$self->_print("XX\n") || return;
 			}
@@ -651,20 +697,20 @@ sub write_seq {
 		# Organism lines
 
 		if ($seq->can('species') && (my $spec = $seq->species)) {
-			my($species, @class) = $spec->classification();
-			my $genus = $class[0];
-			my $OS = "$genus $species";
-			if (my $ssp = $spec->sub_species) {
-				$OS .= " $ssp";
-			}
-			if (my $common = $spec->common_name) {
-				$OS .= " ($common)";
-			}
+			my @class = $spec->classification();
+            shift @class; # get rid of species name. Some embl files include
+                          # the species name in the OC lines, but this seems
+                          # more like an error than something we need to
+                          # emulate
+			my $OS = $spec->scientific_name;
+            if ($spec->common_name) {
+                $OS .= ' ('.$spec->common_name.')';
+            }
 			$self->_print("OS   $OS\n") || return;
 			my $OC = join('; ', reverse(@class)) .'.';
-			$self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return; #'
+			$self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return;
 			if ($spec->organelle) {
-				$self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return; #'
+				$self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return;
 			}
 			$self->_print("XX\n") || return;
 		}
@@ -962,69 +1008,100 @@ sub _read_EMBL_References {
            lines.
  Example :
  Returns : A Bio::Species object
- Args    : a reference to the current line buffer
+ Args    : a reference to the current line buffer, accession number
 
 =cut
 
 sub _read_EMBL_Species {
-    my( $self, $buffer ) = @_;
+    my( $self, $buffer, $acc ) = @_;
     my $org;
 
     $_ = $$buffer;
-    my( $sub_species, $species, $genus, $common, @class, $ns_name );
+    my( $sub_species, $species, $genus, $common, $sci_name, $class_lines );
     while (defined( $_ ||= $self->_readline )) {
-
-        if (/^OS\s+((\S+)(?:\s+([^\(]\S*))?(?:\s+([^\(]\S*))?(?:\s+\((.*)\))?)/) {
-            $ns_name = $1;
-            $genus   = $2;
-	    $species = $3 || 'sp.';
-	    $sub_species = $4 if $4;
-            $common      = $5 if $5;
+        if (/^OS\s+(.+)/) {
+            $sci_name = $1;
         }
-        elsif (s/^OC\s+//) {
-	    # only split on ';' or '.' so that 
-	    # classification that is 2 words will 
-	    # still get matched
-	    # use map to remove trailing/leading spaces
-	    chomp;
-            push(@class,  map { s/^\s+//; s/\s+$//; $_; } split /[;\.]+/);
+        elsif (s/^OC\s+(.+)$//) {
+            $class_lines .= $1;
         }
-	elsif (/^OG\s+(.*)/) {
-	    $org = $1;
-	}
+        elsif (/^OG\s+(.*)/) {
+            $org = $1;
+        }
         else {
             last;
         }
-
+        
         $_ = undef; # Empty $_ to trigger read of next line
     }
 
     $$buffer = $_;
-
+    
+    # Convert data in classification lines into classification array.
+    # only split on ';' or '.' so that classification that is 2 or more words
+    # will still get matched, use map() to remove trailing/leading/intervening
+    # spaces
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
+    
+    # do we have a genus?
+    my $possible_genus = $class[-1];
+    if ($sci_name =~ /^$possible_genus/) {
+        $genus = $possible_genus;
+        ($species) = $sci_name =~ /^$genus\s+(.+)/;
+    }
+    else {
+        $species = $sci_name;
+    }
+    
     # Don't make a species object if it is "Unknown" or "None"
-    return if $genus =~ /^(Unknown|None)$/i;
-
+    if ($genus) {
+        return if $genus =~ /^(Unknown|None)$/i;
+    }
+    
+    # is this organism of rank species or is it lower?
+    # (doesn't catch everything, but at least the guess isn't dangerous)
+    if ($species =~ /subsp\.|var\./) {
+        ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
+    }
+    
+    # sometimes things have common name in brackets, like
+    # Schizosaccharomyces pombe (fission yeast), so get rid of the common
+    # name bit. Probably dangerous if real scientific species name ends in
+    # bracketed bit.
+    unless ($class[-1] eq 'Viruses') {
+        ($species, $common) = $species =~ /^(.+)\s+\((.+)\)$/;
+        $sci_name =~ s/\s+\(.+\)$// if $common;
+    }
+     
     # Bio::Species array needs array in Species -> Kingdom direction
-    if ($class[0] eq 'Viruses') {
-        push( @class, $ns_name );
-    }
-    elsif ($class[$#class] eq $genus) {
-        push( @class, $species );
-    }
-    elsif ($class[$#class] eq "$genus $species") {
-        # no nothing    
-    } else {
-        push( @class, $genus, $species );
+    unless ($class[-1] eq $sci_name) {
+        push(@class, $sci_name);
     }
     @class = reverse @class;
-
-    my $make = Bio::Species->new();
-    $make->classification( \@class, "FORCE" );  # no name validation please
-    $make->common_name( $common      ) if $common;
-    unless ($class[-1] eq 'Viruses') {
-        $make->sub_species( $sub_species ) if $sub_species;
+    
+    # do minimal sanity checks before we hand off to Bio::Species which won't
+    # be able to give informative throw messages if it has to throw because
+    # of problems here
+    $self->throw("$acc seems to be missing its OS line: invalid.") unless $sci_name;
+    my %names;
+    foreach my $i (0..$#class) {
+        my $name = $class[$i];
+        $names{$name}++;
+        if ($names{$name} > 1 && $name ne $class[$i - 1]) {
+            $self->throw("$acc seems to have an invalid species classification.");
+        }
     }
-    $make->organelle  ( $org         ) if $org;
+    
+    my $make = Bio::Species->new();
+    $make->scientific_name($sci_name);
+    $make->classification(@class);
+    unless ($class[-1] eq 'Viruses') {
+        $make->genus($genus) if $genus;
+        $make->species($species) if $species;
+        $make->sub_species($sub_species) if $sub_species;
+        $make->common_name($common) if $common;
+    }
+    $make->organelle($org) if $org;
     return $make;
 }
 
@@ -1175,13 +1252,16 @@ sub _read_FTHelper_EMBL {
             if (substr($value, 0, 1) eq '"') {
                 # Keep adding to value until we find the trailing quote
                 # and the quotes are balanced
+                QUOTES:
                 while ($value !~ /"$/ or $value =~ tr/"/"/ % 2) { #"
                     $i++;
                     my $next = $qual[$i];
-                    unless (defined($next)) {
-                        warn("Unbalanced quote in:\n", map("$_\n", @qual),
-                            "No further qualifiers will be added for this feature");
-                        last QUAL;
+                    if (!defined($next)) {
+                        $self->warn("Unbalanced quote in:\n".join("\n", @qual).
+                            "\nAdding quote to close...".
+                            "Check sequence quality!");
+                        $value .= '"';
+                        last QUOTES;
                     }
 
                     # Join to value with space if value or next line contains a space

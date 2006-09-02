@@ -738,6 +738,15 @@ sub _handle_feature {
     }
   }
 
+  my @illegal_tags = grep 
+ {!/(ID|Name|Alias|Parent|Target|Gap|Derives_from|Note|Dbxref|Ontology_term)/} 
+ grep {/^[A-Z]/} keys %attr;
+
+  if (@illegal_tags > 0) {
+      my $tags = join(", ", @illegal_tags);
+      $self->throw("The following tag(s) are illegal and are causing this parser to die: $tags");
+  }
+
   return $feat;
 }
 
@@ -881,7 +890,10 @@ sub _write_feature_3 {
     push @attr, "Note=$vstring";
   }
   if(my @v = ($feature->get_Annotations('Target'))){
-    my $vstring = join ',', map {uri_escape($_->target_id).' '.$_->start.' '.$_->end.((defined $_->strand && $_->strand =~ /^[\+\-]$/) ? ' '.$_->strand : '')} @v;
+    my %strand_map = ( 1=>'+', 0=>'', -1=>'-', '+' => '+', '-' => '-' );
+    my $vstring = join ',', map {
+      uri_escape($_->target_id).' '.$_->start.' '.$_->end.(defined $_->strand ? ' '.$strand_map{$_->strand} : '')
+    } @v;
     push @attr, "Target=$vstring";
   }
 

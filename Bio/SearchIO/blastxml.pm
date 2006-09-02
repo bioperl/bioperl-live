@@ -252,7 +252,7 @@ sub next_result {
     my ($sawxmlheader,$okaytoprocess,$sawdoctype);
     while( defined( $_ = $self->_readline) ) {
 	if( /^RPS-BLAST/i ) {
-	    $self->{'_type'} = 'RPSBLAST';
+	    $self->{'_type'} = 'RPS-BLAST';
 	    next;
 	}
 	if( /^<\?xml version/ ) {
@@ -417,7 +417,7 @@ sub end_element{
     } elsif( $nm eq 'Iteration' || $nm eq 'Hit_hsps' || $nm eq 'Parameters' ||
 	     $nm eq 'BlastOutput_param' || $nm eq 'Iteration_hits' || 
 	     $nm eq 'Statistics' || $nm eq 'BlastOutput_iterations' ){
-    
+        # ignores these elements for now; no iteration parsing
     } else { 	
 	
 	$self->debug("ignoring unrecognized element type $nm\n");

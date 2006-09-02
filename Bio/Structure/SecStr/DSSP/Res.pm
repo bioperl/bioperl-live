@@ -398,7 +398,7 @@ sub pdbSource {
  Title         : resAA
  Usage         : fetches the 1 char amino acid code, given an id
  Function      :
- Example       : $aa = $dssp_obj->aminoAcid( '20:A' ); # pdb id as arg
+ Example       : $aa = $dssp_obj->resAA( '20:A' ); # pdb id as arg
  Returns       : 1 character scalar string
  Args          : RESIDUE_ID
 
@@ -935,13 +935,13 @@ sub getSeq {
 	    push( @frags, $pot_chain );
 	}
     }
-
+    
     # if that didn't work, just get the first one
     if ( !( @frags ) ) {
 	$chain = $contSegs_pnt->[ 0 ]->[ 2 ];
 	foreach $pot_chain ( @{ $contSegs_pnt } ) {
 	    if ( $pot_chain->[ 2 ] eq $chain ) {
-		push( @frags, $chain );
+		push( @frags, $pot_chain );
 	    }
 	}
     }

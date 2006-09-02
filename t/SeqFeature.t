@@ -409,8 +409,14 @@ ok $sfa->display_name eq 'test.annot';
 						     new => 1
 						    }
 					  );
-
-  my $sfa2 = Bio::SeqFeature::Annotated->new(-feature => $sfg);
+	my $sfa2;
+	eval {
+		$sfa2 = Bio::SeqFeature::Annotated->new(-feature => $sfg);
+	};
+	if ($@) {
+		foreach ( $Test::ntest..$NUMTESTS ) { skip('Could not get sofa definitions from external server',1); }
+		exit(0);
+	}
   ok $sfa2->type->name,'nucleotide_motif';
   ok $sfa2->primary_tag, 'nucleotide_motif';
   ok $sfa2->source,'program_a';
@@ -428,7 +434,13 @@ ok $sfa->display_name eq 'test.annot';
 					      -score => 12,
 					      -display_name => 'test.annot',
 					      -seq_id => 'test.displayname' );
-  $sfa3->from_feature($sfg);
+  eval {
+	$sfa3->from_feature($sfg);
+  };
+  if ($@) {
+	foreach ( $Test::ntest..$NUMTESTS ) { skip('Could not get sofa definitions from external server',1); }
+	exit(0);
+  }
   ok $sfa3->type->name,'nucleotide_motif';
   ok $sfa3->primary_tag, 'nucleotide_motif';
   ok $sfa3->source,'program_a';

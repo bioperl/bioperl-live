@@ -17,16 +17,16 @@ Bio::Biblio::PubmedJournalArticle - Representation of a PUBMED journal article
 
                   # some attributes from MedlineJournalArticle
                   -title => 'Thermal adaptation analyzed by comparison of protein sequences from mesophilic and extremely thermophilic Methanococcus species.',
-		  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
-		  -volume => 96,
-		  -issue => 7,
+                  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
+                  -volume => 96,
+                  -issue => 7,
 
                   # and some from PubmedArticle
                   -pubmed_history_list =>
                        [ { 'pub_status' => 'pubmed',
-			   'date' => '2001-12-1T10:0:00Z' },
-			 { 'pub_status' => 'medline',
-			   'date' => '2002-1-5T10:1:00Z' } ],
+                           'date' => '2001-12-1T10:0:00Z' },
+                         { 'pub_status' => 'medline',
+                           'date' => '2002-1-5T10:1:00Z' } ],
                    -pubmed_status => 'ppublish');
   #--- OR ---
 

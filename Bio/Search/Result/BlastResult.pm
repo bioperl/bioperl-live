@@ -497,5 +497,4 @@ sub inclusion_threshold {
     return $self->{'_inclusion_threshold'};
 }
 
-
 1;

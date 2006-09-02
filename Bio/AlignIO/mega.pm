@@ -18,10 +18,10 @@ Bio::AlignIO::mega - Parse and Create MEGA format data files
 
     use Bio::AlignIO;
     my $alignio = new Bio::AlignIO(-format => 'mega',
-				  -file   => 't/data/hemoglobinA.meg');
+                                   -file   => 't/data/hemoglobinA.meg');
 
     while( my $aln = $alignio->next_aln ) {
-	# process each alignment or convert to another format like NEXUS
+    # process each alignment or convert to another format like NEXUS
     }
 
 =head1 DESCRIPTION
@@ -76,7 +76,7 @@ use Bio::AlignIO;
 use Bio::SimpleAlign;
 use Bio::LocatableSeq;
 
-BEGIN { 
+BEGIN {
   $MEGANAMELEN = 10;
   $LINELEN = 60;
   $BLOCKLEN = 10;
@@ -92,9 +92,9 @@ BEGIN {
  Function: returns the next alignment in the stream.
            Supports the following MEGA format features:
            - The file has to start with '#mega'
-           - Reads in the name of the alignment from a comment 
-             (anything after '!TITLE: ') .  
-           - Reads in the format parameters datatype 
+           - Reads in the name of the alignment from a comment
+             (anything after '!TITLE: ') .
+           - Reads in the format parameters datatype
 
  Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
 	    or on error
@@ -107,14 +107,14 @@ sub next_aln{
    my ($self) = @_;
    my $entry;
    my ($alphabet,%seqs);
-   
+
    my $aln = Bio::SimpleAlign->new(-source => 'mega');
-   
+
    while( defined($entry = $self->_readline()) && ($entry =~ /^\s+$/) ) {}
-   
-   $self->throw("Not a valid MEGA file! [#mega] not starting the file!") 
-       unless $entry =~ /^#mega/i;  
-   
+
+   $self->throw("Not a valid MEGA file! [#mega] not starting the file!")
+       unless $entry =~ /^#mega/i;
+
    while( defined($entry = $self->_readline() ) ) {
        local($_) = $entry;
        if(/\!Title:\s*([^\;]+)\s*/i) { $aln->id($1)}
@@ -122,7 +122,7 @@ sub next_aln{
 	   my (@fields) = split(/\s+/,$1);
 	   foreach my $f ( @fields ) {
 	       my ($name,$value) = split(/\=/,$f);
-	       if( $name eq 'datatype' ) { 
+	       if( $name eq 'datatype' ) {
 		   $alphabet = $value;
 	       } elsif( $name eq 'identical' ) {
 		   $aln->match_char($value);
@@ -132,7 +132,7 @@ sub next_aln{
 	   }
        } elsif( /^\#/ ) {
 	   last;
-       }   
+       }
    }
    my @order;
    while( defined($entry) ) {
@@ -157,7 +157,7 @@ sub next_aln{
 				       -seq => $seqs{$seqname},
 				       -start => 1,
 				       -end   => $end);
-       
+
        $aln->add_seq($seq);
    }
    $aln->unmatch;
@@ -179,13 +179,13 @@ sub write_aln{
    my $count = 0;
    my $wrapped = 0;
    my $maxname;
-   
+
    foreach my $aln ( @aln ) {
-       if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+       if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) {
 	   $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
 	   return 0;
        } elsif( ! $aln->is_flush($self->verbose) ) {
-	   $self->warn("All Sequences in the alignment must be the same length");	   
+	   $self->warn("All Sequences in the alignment must be the same length");
 	   return 0;
        }
        $aln->match();
@@ -193,7 +193,7 @@ sub write_aln{
        my $format = sprintf('datatype=%s identical=%s indel=%s;',
 			    $aln->get_seq_by_pos(1)->alphabet(),
 			    $aln->match_char, $aln->gap_char);
-			    
+
        $self->_print(sprintf("#mega\n!Title: %s;\n!Format %s\n\n\n",
 			     $aln->id, $format));
 
@@ -212,8 +212,8 @@ sub write_aln{
 	       $self->_print(sprintf("#%-".($MEGANAMELEN-1)."s%s\n",
 				     substr($aln->displayname($seq->get_nse()),
 					    0,$MEGANAMELEN-2),
-				     join(' ', @blocks)));	       
-	   }	   
+				     join(' ', @blocks)));
+	   }
 	   $self->_print("\n");
 	   $count += $LINELEN;
        }

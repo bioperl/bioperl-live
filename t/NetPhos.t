@@ -35,7 +35,7 @@ BEGIN {
 
 END {
 	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Unable to run NetPhos tests',1);
+		skip('Unable to run NetPhos tests (server down?)',1);
 	}
 }
 
@@ -66,6 +66,7 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
                                -seq=>'ABCDEFGHIJKLLKJFHSAKNDJFPSINCSJNDSKNSN');
 
 ok $tool = Bio::Tools::Analysis::Protein::NetPhos->new(-verbose =>$verbose);
+$tool->timeout(15);
 ok $tool->run ( {seq=>$seq, threshold=>0.9} );
 exit if $tool->status eq 'TERMINATED_BY_ERROR';
 ok my @res = $tool->result('Bio::SeqFeatureI');

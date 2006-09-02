@@ -15,9 +15,9 @@ Bio::Biblio::MedlineJournalArticle - Representation of a MEDLINE journal article
 
     $obj = new Bio::Biblio::MedlineJournalArticle (
                   -title => 'Thermal adaptation analyzed by comparison of protein sequences from mesophilic and extremely thermophilic Methanococcus species.',
-		  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
-		  -volume => 96,
-		  -issue => 7);
+                  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
+                  -volume => 96,
+                  -issue => 7);
   #--- OR ---
 
     $obj = new Bio::Biblio::MedlineJournalArticle;

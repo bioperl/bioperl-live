@@ -89,6 +89,14 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
                                  -start      => 10000,
                                  -end        => 11000);
 
+  # load an entire GFF3 file, using the GFF3 loader...
+  my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $db,
+							   -verbose  => 1,
+							   -fast     => 1);
+
+  $loader->load('./my_genome.gff3');
+
+
 
 =head1 DESCRIPTION
 
@@ -182,8 +190,8 @@ available; otherwise Data::Dumper.
 
 =head2 Loaders and Normalized Features
 
-The Bio::DB::SeqFeature::GFF3Loader parses a GFF3-format file and
-loads the annotations and sequence data into the database of your
+The Bio::DB::SeqFeature::Store::GFF3Loader parses a GFF3-format file
+and loads the annotations and sequence data into the database of your
 choice. The script bp_seqfeature_load.pl (found in the
 scripts/Bio-SeqFeature-Store/ subdirectory) is a thin front end to the
 GFF3Loader. Other loaders may be written later.
@@ -291,7 +299,7 @@ ones:
 
  -dumpdir           The path to a temporary directory that will be
                     used during "fast" loading. See
-		    L<Bio::DB::SeqFeature::GFF3Loader> for a
+		    L<Bio::DB::SeqFeature::Store::GFF3Loader> for a
 		    description of this. Default is the current
                     directory.
 
@@ -302,21 +310,24 @@ ones:
 #
 sub new {
   my $self      = shift;
-  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$args);
+  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$create,$args);
   if (@_ == 1) {
     $args = {DSN => shift}
   }
   else {
-    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$args) =
+    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$create,$args) =
       rearrange(['ADAPTOR',
 		 'SERIALIZER',
 		 'INDEX_SUBFEATURES',
 		 'CACHE',
 		 'COMPRESS',
 		 'DEBUG',
+		 'CREATE',
 		],@_);
   }
   $adaptor ||= 'DBI::mysql';
+  $args->{WRITE}++  if $create;
+  $args->{CREATE}++ if $create;
 
   my $class = "Bio::DB::SeqFeature::Store::$adaptor";
   eval "require $class " or croak $@;
@@ -1264,7 +1275,7 @@ With some adaptors (currently only the DBI::mysql adaptor), these
 methods signal the adaptor that a large number of insertions or
 updates are to be performed, and activate certain optimizations. These
 methods are called automatically by the
-Bio::DB::SeqFeature::GFF3Loader module.
+Bio::DB::SeqFeature::Store::GFF3Loader module.
 
 Example:
 
@@ -2309,8 +2320,8 @@ use the BioPerl bug tracking system to report bugs.
 =head1 SEE ALSO
 
 L<bioperl>,
-L<Bio::DB::SeqFeature::GFF3Loader>,
 L<Bio::DB::SeqFeature>,
+L<Bio::DB::SeqFeature::Store::GFF3Loader>,
 L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
 L<Bio::DB::SeqFeature::Store::bdb>

@@ -14,9 +14,9 @@ Bio::Biblio::Book - Representation of a book
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::Book (-identifier => '123abc',
-				  -editor => new Bio::Biblio::Person
-				                (-lastname => 'Loukides'),
-				  -isbn  => '0-596-00068-5');
+                                  -editor => new Bio::Biblio::Person
+                                            (-lastname => 'Loukides'),
+                                  -isbn  => '0-596-00068-5');
   #--- OR ---
 
     $obj = new Bio::Biblio::Book;

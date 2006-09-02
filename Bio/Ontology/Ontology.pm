@@ -31,13 +31,14 @@ Bio::Ontology::Ontology - standard implementation of an Ontology
 =head1 SYNOPSIS
 
     use Bio::Ontology::Ontology;
+    use Bio::Ontology::Term;
 
     # create ontology object
     my $ont = Bio::Ontology::Ontology->new(-name => "OBF");
 
     # add terms, relationships ...
-    my $bp = Bio::Ontology::Term->new(-name => "Bioperl");
-    my $obf = Bio::Ontology::Term->new(-name => "OBF");
+    my $bp = Bio::Ontology::Term->new(-identifier => '02', -name => "Bioperl");
+    my $obf = Bio::Ontology::Term->new(-identifier => '01', -name => "OBF");
     my $partof = Bio::Ontology::RelationshipType->get_instance("PART_OF");
     $ont->add_term($bp);
     $ont->add_term($obf);
@@ -597,7 +598,7 @@ sub get_leaf_terms{
  Title   : get_root_terms
  Usage   : get_root_terms(): TermI
  Function: Retrieves all root terms from the ontology. Root term is a
-           term w/o descendants.
+           term w/o parents.
 
  Example : @root_terms = $obj->get_root_terms()
  Returns : Array of TermI objects.
@@ -669,6 +670,27 @@ sub find_terms{
     return grep { $_->ontology->name eq $self->name;
               } $self->engine->find_terms(@_);
 }
+
+
+
+=head2 find_similar_terms
+
+ Title   : find_similar_terms
+ Usage   : ($term) = $oe->find_similar_terms($term0);
+ Function: Find term instances where name or synonym, or part of one,
+           matches the query.
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_similar_terms{
+    my $self = shift;
+    return grep { $_->ontology->name eq $self->name;
+              } $self->engine->find_similar_terms(@_);
+}
+
 
 =head1 Factory for relationships and terms
 

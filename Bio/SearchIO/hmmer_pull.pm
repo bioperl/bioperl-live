@@ -99,7 +99,7 @@ use Bio::PullParserI;
            
            -piped_behaviour defines what the parser should do if the input is
             an unseekable filehandle (eg. piped input), see
-            Bio::PullParserI::chunk for details. Default is 'memory'.
+            Bio::PullParserI::chunk for details. Default is 'sequential_read'.
 
 =cut
 
@@ -145,7 +145,7 @@ sub _initialize {
                               sequence_database => 'header' ) } );
     
     $self->chunk($file || $fh || $self->throw("-file or -fh must be supplied"),
-                 -piped_behaviour => $piped_behaviour || 'memory');
+                 -piped_behaviour => $piped_behaviour || 'sequential_read');
 }
 
 sub _discover_header {
@@ -188,12 +188,7 @@ sub _discover_next_result {
         use Bio::Search::Result::HmmpfamResult;
         
         unless ($self->_sequential) {
-            if (defined $self->{_end_of_previous_result}) {
-                $self->_chunk_seek($self->{_end_of_previous_result});
-            }
-            else {
-                $self->_chunk_seek($self->{_after_header});
-            }
+            $self->_chunk_seek($self->{_end_of_previous_result} || $self->{_after_header});
             
             my ($start, $end) = $self->_find_chunk_by_end("//\n");
             return if $start == $end;
@@ -203,6 +198,9 @@ sub _discover_next_result {
             $self->{_end_of_previous_result} = $end;
         }
         else {
+            # deliberatly don't cache these, which means rewind won't work;
+            # if we cached we may as well have used 'memory' option to
+            # -piped_behaviour
             my $chunk = $self->_get_chunk_by_end("//\n");
             $chunk || return;
             $self->_fields->{next_result} = new Bio::Search::Result::HmmpfamResult(-chunk => [$chunk],
@@ -271,6 +269,9 @@ sub result_count {
 
 sub rewind {
 	my $self = shift;
+    if ($self->_sequential) {
+        $self->warn("rewind has no effect on piped input when you have chosen 'sequential_read' mode");
+    }
 	delete $self->{_end_of_previous_result};
 }
 

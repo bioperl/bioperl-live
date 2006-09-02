@@ -194,7 +194,8 @@ sub next_psm {
 	    push @mdata,$line;
 	    $self->{_mtype}=3;
 	} else {
-	    $line=~s/[a-zA-Z]//g; #Well we may wanna do a hash and auto check for letter order if there is a really boring talk...
+		# do not strip 'e's since they are part of number notation for small/big numbers
+	    $line=~s/[a-df-zA-DF-Z]//g; #Well we may wanna do a hash and auto check for letter order if there is a really boring talk...
 	    $line=~s/^[\s\t]+//;
 	    $line=~s/[\s\t]+/\t/g;
 	    my @data=split(/[\s\t]+/,$line);

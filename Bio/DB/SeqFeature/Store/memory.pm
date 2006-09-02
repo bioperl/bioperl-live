@@ -141,6 +141,8 @@ sub init {
 sub post_init {
   my $self = shift;
   my ($file_or_dir) = rearrange([['DIR','DSN','FILE']],@_);
+  return unless $file_or_dir;
+
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
 							   -sf_class => $self->seqfeature_class) 
     or $self->throw("Couldn't create GFF3Loader");
@@ -153,12 +155,18 @@ sub post_init {
   } else {
     @argv = $file_or_dir;
   }
+  local $self->{file_or_dir} = $file_or_dir;
   $loader->load(@argv);
+}
+
+sub commit { # reindex fasta files
+  my $self = shift;
+
   if (my $fh = $self->{fasta_fh}) {
     $fh->close;
     $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
-  } else {
-    $self->{fasta_db} = Bio::DB::Fasta->new($file_or_dir);
+  } elsif (exists $self->{file_or_dir}) {
+    $self->{fasta_db} = Bio::DB::Fasta->new($self->{file_or_dir});
   }
 }
 
@@ -168,6 +176,8 @@ sub can_store_parentage { 1 }
 sub data {
   shift->{_data};
 }
+
+sub _init_database { shift->init }
 
 sub _store {
   my $self    = shift;

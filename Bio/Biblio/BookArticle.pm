@@ -14,7 +14,7 @@ Bio::Biblio::BookArticle - Representation of a book article
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::BookArticle (-identifier => '123abc',
-					 -book => new Bio::Biblio::Book);
+                                         -book => new Bio::Biblio::Book);
   #--- OR ---
 
     $obj = new Bio::Biblio::BookArticle;

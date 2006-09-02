@@ -376,6 +376,7 @@ sub finish_load {
     $self->store->finish_bulk_update;
     $self->msg(sprintf "%5.2fs\n",$self->time()-$start);
   }
+  eval {$self->store->commit};
   delete $self->{load_data};
 }
 

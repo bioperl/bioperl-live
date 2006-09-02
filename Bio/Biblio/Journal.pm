@@ -14,7 +14,7 @@ Bio::Biblio::Journal - Representation of a journal
 =head1 SYNOPSIS
 
     $obj = new Bio::Biblio::Journal (-name => 'The Perl Journal',
-				     -issn  => '1087-903X');
+                                     -issn  => '1087-903X');
   #--- OR ---
 
     $obj = new Bio::Biblio::Journal;

@@ -169,7 +169,7 @@ sub new {
   ($t1, $t2, $font, $size, my $top, my $bottom, my $left, my $right,
     $tip, my $column, $compact, $ratio, $colors) = $self->_rearrange([qw(TREE
     SECOND FONT SIZE TOP BOTTOM LEFT RIGHT TIP COLUMN
-    COMPACT RATIO COLORS)], @args);
+    COMPACT RATIO COLORS INHERIT)], @args);
   $font ||= "Helvetica-Narrow";
   $size ||= 12;
   $top ||= 10;
@@ -448,7 +448,7 @@ sub print {
       # print $xx{$node}, " ", $yy{$node}, " lineto\n";
       if ($colors) {
 	print INFO "stroke\n";
-	print INFO $Rcolor{$node}, " ", $Gcolor{$node}, " ", $Bcolor{$node}, " setrgbcolor\n";
+	print INFO $Rcolor{$node->ancestor}, " ", $Gcolor{$node->ancestor}, " ", $Bcolor{$node->ancestor}, " setrgbcolor\n";
       }
       print INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
       print INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
