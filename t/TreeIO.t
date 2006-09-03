@@ -18,7 +18,7 @@ BEGIN {
 	}
 
 	use Test;
-	$NUMTESTS = 58;
+	$NUMTESTS = 60;
 	plan tests => $NUMTESTS;
 }
 
@@ -283,5 +283,15 @@ $tree = $treeio->next_tree;
 ok($tree);
 ok($tree->find_node('TRXHomo'));
 
+
+# parse trees with scores
+
+$treeio = Bio::TreeIO->new(-format => 'newick',
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data puzzle.tre)));
+$tree = $treeio->next_tree;
+ok($tree);
+ok($tree->score, '-2673.059726');
+							     
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
