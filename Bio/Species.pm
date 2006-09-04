@@ -179,9 +179,6 @@ sub classification {
         }
         
         $self->db_handle($db);
-        #print "will drop empty tree from scope\n";
-        $self->{tree} = undef;
-        #print "will store new classification tree\n";
         $self->{tree} = new Bio::Tree::Tree(-node => $self);
         # some things want to freeze/thaw Bio::Species objects, but tree's
         # _root_cleanup_methods contains a CODE ref, delete it.
