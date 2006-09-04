@@ -179,6 +179,9 @@ sub classification {
         }
         
         $self->db_handle($db);
+        #print "will drop empty tree from scope\n";
+        $self->{tree} = undef;
+        #print "will store new classification tree\n";
         $self->{tree} = new Bio::Tree::Tree(-node => $self);
         # some things want to freeze/thaw Bio::Species objects, but tree's
         # _root_cleanup_methods contains a CODE ref, delete it.
@@ -263,7 +266,12 @@ sub species {
 		#
 		
 		my $root = $self->{tree}->get_root_node;
-		
+		unless ($root) {
+            $self->{tree} = new Bio::Tree::Tree(-node => $species_taxon);
+            delete $self->{tree}->{_root_cleanup_methods};
+            $root = $self->{tree}->get_root_node;
+        }
+        
 		my @spflds = split(' ', $species);
 		if (@spflds > 1 && $root->node_name ne 'Viruses') {
 			$species = undef;
@@ -437,7 +445,7 @@ sub binomial {
     
     # do we already have the binomial?
     my $sci_name = $self->scientific_name || '';
-    if (($rank eq 'species' || $rank eq 'no rank') && $sci_name =~ /\w+\s+\w+/) {
+    if (($rank eq 'species' || $rank eq 'no rank') && $sci_name =~ /^\w+\s+\w+$/) {
         return $sci_name;
     }
     
@@ -446,7 +454,7 @@ sub binomial {
         return $sci_name;
     }
     
-    my ($species, $genus) = $self->classification();
+    my ($species, $genus) = ($self->species, $self->genus);
     unless (defined $species) {
         $species = 'sp.';
         $self->warn("requested binomial but classification was not set");

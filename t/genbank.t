@@ -78,7 +78,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => Bio::Root::IO->catfile("t","data",
                                                        "NC_006346.gb"));
 $as = $ast->next_seq;
-ok $as->species->binomial,'Bolitoglossa n. sp. RLM-2004';
+ok $as->species->binomial('FULL'), 'Bolitoglossa n. sp. RLM-2004';
 @class = $as->species->classification;
 ok($class[$#class],'Eukaryota');
 ok($as->species->common_name,'mushroomtongue salamander');
