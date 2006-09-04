@@ -23,11 +23,11 @@ BEGIN {
     }
     use Test;
     
-    plan tests => 13;
+    plan tests => 18;
 }
 
 use Bio::Species;
-use Bio::Taxonomy::Node;
+use Bio::DB::Taxonomy;
 
 ok(1);
 
@@ -66,3 +66,13 @@ ok $species->genus, 'Homo';
 # A Bio::Species isa Bio::Taxon, so test some things from there briefly
 ok $species->scientific_name, 'sapiens';
 ok $species->rank, 'species';
+
+# We can make a species object from just an id an db handle
+$species = new Bio::Species(-id => 51351);
+my $taxdb = new Bio::DB::Taxonomy(-source => 'entrez');
+$species->db_handle($taxdb);
+ok $species->binomial, 'Brassica rapa subsp.';
+ok $species->binomial('FULL'), 'Brassica rapa subsp. pekinensis';
+ok $species->genus, 'Brassica';
+ok $species->species, 'rapa subsp.';
+ok $species->sub_species, 'pekinensis';
