@@ -136,14 +136,15 @@ sub parse_response {
         chomp($err_warn);
         $self->warn("NCBI esearch Errors/Warnings:\n".$err_warn)
     }
+	my $count = $simple->{Count};
+	$self->esearch_count($count);
     my $id_ref = $simple->{IdList}->{Id};
     $self->_add_db_ids($id_ref) if ($id_ref);
     if ($history && $history eq 'y') {
-		my $count = $simple->{Count};
-		$self->count($count);
         my $webenv = $simple->{WebEnv};
         my $querykey = $simple->{QueryKey};
 		my $cookie = Bio::DB::EUtilities::Cookie->new(
+										 -term 		=> $self->term,
 										 -webenv    => $webenv,
 										 -querykey  => $querykey,
 										 -eutil     => 'esearch',
