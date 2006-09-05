@@ -58,20 +58,23 @@ sub new {
         $self->throw("Missing ".$missing);
     }
     $self->cookie(uri_unescape($webenv), $querykey);
-    # holds descriptions of database being queried
-    $database   && $self->database($database);
-    # for elink only, originating database
-    $dbfrom     && $self->dbfrom($dbfrom);
-    # for esearch, to hold original search query
-    $term       && $self->esearch_query($term);
-    # holds total hits if present (i.e. esearch)
-    $total      && $self->total($total);
     # holds originating eutil
     $eutil      && $self->eutil($eutil);
+    # holds descriptions of database being queried
+    $database   && $self->database($database);
+    
+    # for elink only, originating database
+    $dbfrom     && $self->elink_dbfrom($dbfrom);
     # holds elink dbfrom ID's used for querys
-    $query_id  && $self->query_id($query_id);
+    $query_id   && $self->elink_queryid($query_id);
     # holds elink linkname; information can be found using einfo
-    $linkname  && $self->linkname($linkname);    
+    $linkname   && $self->elink_linkname($linkname);    
+
+    # for esearch, to hold original search query
+    $term       && $self->esearch_query($term);
+    # for esearch, holds total hits if present
+    $total      && $self->esearch_total($total);
+
     return $self;
 }
 
@@ -98,16 +101,10 @@ sub database {
     return $self->{'_database'};
 }
 
-sub dbfrom {
+sub esearch_total {
     my $self = shift;
-    return $self->{'_dbfrom'} = shift if @_;
-    return $self->{'_dbfrom'};
-}
-
-sub total {
-    my $self = shift;
-    return $self->{'_total'} = shift if @_;
-    return $self->{'_total'};
+    return $self->{'_esearch_total'} = shift if @_;
+    return $self->{'_esearch_total'};
 }
 
 sub esearch_query {
@@ -116,16 +113,23 @@ sub esearch_query {
     return $self->{'_esearch_query'};
 }
 
-sub query_id {
+sub elink_dbfrom {
     my $self = shift;
-    return $self->{'_query_id'} = shift if @_;
-    return $self->{'_query_id'};
+    return $self->{'_elink_dbfrom'} = shift if @_;
+    return $self->{'_elink_dbfrom'};
 }
 
-sub linkname {
+sub elink_queryids {
     my $self = shift;
-    return $self->{'_linkname'} = shift if @_;
-    return $self->{'_linkname'};
+    return $self->{'_query_ids'} = shift if @_;
+    return @{ $self->{'_query_ids'} } if wantarray;
+    return $self->{'_query_ids'};
+}
+
+sub elink_linkname {
+    my $self = shift;
+    return $self->{'_elink_linkname'} = shift if @_;
+    return $self->{'_elink_linkname'};
 }
 
 1;

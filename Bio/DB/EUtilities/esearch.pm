@@ -155,20 +155,20 @@ sub parse_response {
 	}
 }
 
-=head2 count
+=head2 esearch_count
 
- Title   : count
- Usage   : $count = $db->count;
+ Title   : esearch_count
+ Usage   : $count = $db->esearch_count;
  Function: return count of number of entries retrieved by query
  Returns : integer
  Args    : none
 
 =cut
 
-sub count   {
+sub esearch_count   {
     my $self = shift;
-    return $self->{'_count'} = shift if @_;
-    return $self->{'_count'};
+    return $self->{'_esearch_count'} = shift if @_;
+    return $self->{'_esearch_count'};
 }
 
 1;

@@ -149,7 +149,7 @@ sub parse_response {
     }
 }
 
-sub entrezdbs {
+sub einfo_dbs {
     my $self = shift;
     if (wantarray) {
         if( ref($self->{'_einfo_dbname'} eq 'array' ) ) {
@@ -162,10 +162,10 @@ sub entrezdbs {
     return $self->{'_einfo_dbname'};
 }
 
-=head2 entrezdb_field_info
+=head2 einfo_dbfield_info
 
- Title   : entrezdb_field_info
- Usage   : @fields = $info->entrezdb_field_info;
+ Title   : einfo_dbfield_info
+ Usage   : @fields = $info->einfo_dbfield_info;
  Function: gets array of hashes with field information
  Returns : An array or array reference (based on wantarray) of hashes
            with information about each field 
@@ -173,15 +173,15 @@ sub entrezdbs {
 
 =cut
 
-sub entrezdb_field_info {
+sub einfo_dbfield_info {
     my $self = shift;
     return $self->{'_einfo_fieldlist'};
 }
 
-=head2 entrezdb_link_info
+=head2 einfo_dblink_info
 
- Title   : entrezdb_link_info
- Usage   : @links = $info->entrezdb_link_info;
+ Title   : einfo_dblink_info
+ Usage   : @links = $info->einfo_dblink_info;
  Function: gets array of hashes with link information
  Returns : An array or array reference (based on wantarray) of hashes
            with information about each link 
@@ -189,52 +189,52 @@ sub entrezdb_field_info {
 
 =cut
 
-sub entrezdb_link_info {
+sub einfo_dblink_info {
     my $self = shift;
     return $self->{'_einfo_linklist'};
 }
 
-=head2 last_update
+=head2 einfo_db_lastupdate
 
- Title   : last_update
- Usage   : $date = $info->last_update;
+ Title   : einfo_db_last_update
+ Usage   : $date = $info->einfo_db_lastupdate;
  Function: returns last date database was updated
  Returns : String containing date
  Args    : None (this is set using the _set_einfo_data method)
 
 =cut
 
-sub entrezdb_last_update {
+sub einfo_db_lastupdate {
     my $self = shift;
     return $self->{'_einfo_lastupdate'};
 }
 
-=head2 entrezdb_desc
+=head2 einf_db_desc
 
- Title   : entrezdb_desc
- Usage   : $desc = $info->entrezdb_desc;
+ Title   : einfo_db_desc
+ Usage   : $desc = $info->einfo_db_desc;
  Function: returns database description
  Returns : String containing descriptions
  Args    : None (this is set using the _set_einfo_data method)
 
 =cut
 
-sub entrezdb_desc {
+sub einfo_db_desc {
     my $self = shift;
     return $self->{'_einfo_description'};
 }
 
-=head2 entrezdb_count
+=head2 einfo_db_count
 
- Title   : entrezdb_count
- Usage   : $count = $info->entrezdb_count;
+ Title   : einfo_db_count
+ Usage   : $count = $info->einfo_db_count;
  Function: returns database record count
  Returns : Integer (number of database records)
  Args    : None (this is set using the _set_einfo_data method)
 
 =cut
 
-sub entrezdb_count {
+sub einfo_db_count {
     my $self = shift;
     return $self->{'_einfo_count'};
 }

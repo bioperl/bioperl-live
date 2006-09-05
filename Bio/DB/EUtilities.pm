@@ -483,7 +483,7 @@ sub get_ids {
         }
         elsif ($count == 1) {
             my ($linkset) = $self->get_all_linksets;
-            my ($db) = $user_db ? $user_db : $linkset->get_all_databases;
+            my ($db) = $user_db ? $user_db : $linkset->get_all_linkdbs;
             $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
         }
         else {
