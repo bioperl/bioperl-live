@@ -148,7 +148,6 @@ sub parse_response {
 										 -webenv    => $webenv,
 										 -querykey  => $querykey,
 										 -eutil     => 'esearch',
-										 -description   => $self->term,
                                          -database  => $db,
 										 -total		=> $count
 										);
