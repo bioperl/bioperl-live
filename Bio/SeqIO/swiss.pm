@@ -479,32 +479,26 @@ sub write_seq {
 
 	# Organism lines
 	if ($seq->can('species') && (my $spec = $seq->species)) {
-	    my($species, @class) = $spec->classification();
-	    my $genus = $class[0];
-	    my $OS = "$genus $species";
-            if ($class[-1] eq 'Viruses') {
-                $OS = $species;
-                $OS .=  " ". $spec->sub_species if $spec->sub_species;
-            } else {
-                if ($class[$#class] =~ /viruses/i) {
-                    # different OS / OC syntax for viruses LP 09/16/2000
-                    shift @class;
-                }
-                if (my $ssp = $spec->sub_species) {
-                    $OS .= " $ssp";
-                }
-                foreach (($spec->variant, $spec->common_name)) {
-                    $OS .= " ($_)" if $_;
-                }
-            }
+	    my @class = $spec->classification();
+        shift(@class);
+        my $species = $spec->species;
+	    my $genus = $spec->genus;
+	    my $OS = $spec->scientific_name;
+        if ($class[-1] =~ /viruses/i) {
+            $OS = $species;
+            $OS .=  " ". $spec->sub_species if $spec->sub_species;
+        }
+        foreach (($spec->variant, $spec->common_name)) {
+            $OS .= " ($_)" if $_;
+        }
 	    $self->_print( "OS   $OS.\n");
 	    my $OC = join('; ', reverse(@class)) .'.';
 	    $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
 	    if ($spec->organelle) {
-		$self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+            $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
 	    }
 	    if ($spec->ncbi_taxid) {
-		$self->_print("OX   NCBI_TaxID=".$spec->ncbi_taxid.";\n");
+            $self->_print("OX   NCBI_TaxID=".$spec->ncbi_taxid.";\n");
 	    }
 	}
 
@@ -947,112 +941,117 @@ sub _read_swissprot_Species {
     my $org;
     local $_ = $line;
 
-    my( $subspecies, $species, $genus, $common, $variant, $ncbi_taxid, $ns_name );
-    my (@class,@spflds);
-    my ($binomial, $descr);
+    my( $sub_species, $species, $genus, $common, $variant, $ncbi_taxid, $sci_name, $class_lines, $descr );
     my $osline = "";
-
     while ( defined $_ ) {
-	last unless /^O[SCGX]/;
-	# believe it or not, but OS may come multiple times -- at this time
-	# we can't capture multiple species
-	if(/^OS\s+(\S.+)/ && (! defined($binomial))) {
-	    $osline .= " " if $osline;
-	    $osline .= $1;
-	    if($osline =~ s/(,|, and|\.)$//) {
-		($binomial, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
-		($ns_name) = $binomial;
-                $ns_name =~ s/\s+$//; #####
-
-		#binomial could contain more than a three words.
-		@spflds = split(' ',$binomial);
-
-		#if first term a conventional uppercase genus?
-		unless ( (grep { /^\Q$spflds[0]/i } @Unknown_genus) || 
-			 ($spflds[0] =~ m/^[^A-Z]/) ) {
-		    $genus = shift @spflds;
-		} else	{ undef $genus; }
-
-		if (@spflds)	{
-		    while (my $fld = shift @spflds)	{
-			$species.="$fld ";
-			last if ($fld =~ m/(sp\.|var\.)/);
-		    }
-		    chop $species; #last space
-		    $subspecies = join ' ',@spflds if(@spflds);
-		}
-		else { $species = 'sp.'; }
-		while($descr =~ /\(([^\)]+)\)/g) {
-		    my $item = $1;
-		    # strain etc may not necessarily come first (yes, swissprot
-		    # is messy)
-		    if((! defined($variant)) &&
-		       (($item =~ /(^|[^\(\w])([Ss]train|isolate|serogroup|serotype|subtype|clone)\b/) ||
-			($item =~ /^(biovar|pv\.|type\s+)/))) {
-			$variant = $item;
-		    } elsif($item =~ s/^subsp\.\s+//) {
-			if(! $subspecies) {
-			    $subspecies = $item;
-			} elsif(! $variant) {
-			    $variant = $item;
-			}
-		    } elsif(! defined($common)) {
-			# we're only interested in the first common name
-			$common = $item;
-			if((index($common, '(') >= 0) &&
-			   (index($common, ')') < 0)) {
-			    $common .= ')';
-			}
-		    }
-		}
-	    }
-        } elsif (s/^OC\s+//) {
-            push(@class, split /[\;\.]\s*/);
-	    if($class[0] =~ /viruses/i) { 
-		# viruses have different OS/OC syntax
-		my @virusnames = split(/\s+/, $binomial);
-		$species = (@virusnames > 1) ? pop(@virusnames) : '';
-		$genus = join(" ", @virusnames);
-		$subspecies = $descr;
-	    }
+        last unless /^O[SCGX]/;
+        # believe it or not, but OS may come multiple times -- at this time
+        # we can't capture multiple species
+        if(/^OS\s+(\S.+)/ && (! defined($sci_name))) {
+            $osline .= " " if $osline;
+            $osline .= $1;
+            if($osline =~ s/(,|, and|\.)$//) {
+                ($sci_name, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
+                $sci_name =~ s/\s+$//;
+                
+                while($descr =~ /\(([^\)]+)\)/g) {
+                    my $item = $1;
+                    # strain etc may not necessarily come first (yes, swissprot
+                    # is messy)
+                    if((! defined($variant)) &&
+                        (($item =~ /(^|[^\(\w])([Ss]train|isolate|serogroup|serotype|subtype|clone)\b/) ||
+                        ($item =~ /^(biovar|pv\.|type\s+)/))) {
+                        $variant = $item;
+                    }
+                    elsif($item =~ s/^subsp\.\s+//) {
+                        if(! $sub_species) {
+                            $sub_species = $item;
+                        }
+                        elsif(! $variant) {
+                            $variant = $item;
+                        }
+                    }
+                    elsif(! defined($common)) {
+                        # we're only interested in the first common name
+                        $common = $item;
+                        if((index($common, '(') >= 0) &&
+                           (index($common, ')') < 0)) {
+                            $common .= ')';
+                        }
+                    }
+                }
+            }
         }
-	elsif (/^OG\s+(.*)/) {
-	    $org = $1;
-	}
-	elsif (/^OX\s+(.*)/ && (! defined($ncbi_taxid))) {
+        elsif (s/^OC\s+(\S.+)$//) {
+            $class_lines .= $1;
+        }
+        elsif (/^OG\s+(.*)/) {
+            $org = $1;
+        }
+        elsif (/^OX\s+(.*)/ && (! defined($ncbi_taxid))) {
             my $taxstring = $1;
-	    # we only keep the first one and ignore all others
+            # we only keep the first one and ignore all others
             if ($taxstring =~ /NCBI_TaxID=([\w\d]+)/) {
                 $ncbi_taxid = $1;
-            } else {
+            }
+            else {
                 $self->throw("$taxstring doesn't look like NCBI_TaxID");
             }
-	}
-	$_ = $self->_readline;
+        }
+        $_ = $self->_readline;
     }
     $self->_pushback($_); # pushback the last line because we need it
     
     #if the organism belongs to taxid 32644 then no Bio::Species object.
-    return if grep { /^\Q$binomial$/ } @Unknown_names;
-    if (@class) { 
-	if ($class[0] eq 'Viruses') {
-            push( @class, $ns_name );
-        } elsif (defined($genus) && ($class[-1] eq $genus)) {
-            push( @class, $species );
-        } else {
-            push( @class, $genus, $species );
+    return if grep { /^\Q$sci_name$/ } @Unknown_names;
+    
+    # Convert data in classification lines into classification array.
+    # only split on ';' or '.' so that classification that is 2 or more words
+    # will still get matched, use map() to remove trailing/leading/intervening
+    # spaces
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
+    
+    if ($class[0] =~ /viruses/i) {
+        # viruses have different OS/OC syntax
+        my @virusnames = split(/\s+/, $sci_name);
+        $species = (@virusnames > 1) ? pop(@virusnames) : '';
+        $genus = join(" ", @virusnames);
+        $sub_species = $descr;
+    }
+    else {
+        # do we have a genus?
+        my $possible_genus = $class[-1];
+        $possible_genus .= "|$class[-2]" if $class[-2];
+        if ($sci_name =~ /^($possible_genus)/) {
+            $genus = $1;
+            ($species) = $sci_name =~ /^$genus\s+(.+)/;
         }
+        else {
+            $species = $sci_name;
+        }
+        
+        # is this organism of rank species or is it lower?
+        # (doesn't catch everything, but at least the guess isn't dangerous)
+        if ($species =~ /subsp\.|var\./) {
+            ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
+        }
+    }
+    
+    # Bio::Species array needs array in Species -> Kingdom direction
+    unless ($class[-1] eq $sci_name) {
+        push(@class, $sci_name);
     }
     @class = reverse @class;
     
     my $taxon = Bio::Species->new();
-    $taxon->classification( \@class, "FORCE" ); # no name validation please
-    $taxon->common_name( $common      ) if $common;
-    $taxon->sub_species( $subspecies ) if $subspecies;
-    $taxon->organelle  ( $org         ) if $org;
-    $taxon->ncbi_taxid ( $ncbi_taxid  ) if $ncbi_taxid;
-    $taxon->variant($variant)           if $variant;
-
+    $taxon->scientific_name($sci_name);
+    $taxon->classification(@class);
+    $taxon->common_name($common) if $common;
+    $taxon->sub_species($sub_species) if $sub_species;
+    $taxon->organelle($org) if $org;
+    $taxon->ncbi_taxid($ncbi_taxid) if $ncbi_taxid;
+    $taxon->variant($variant) if $variant;
+    
     # done
     return $taxon;
 }

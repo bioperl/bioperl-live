@@ -1045,8 +1045,9 @@ sub _read_EMBL_Species {
     
     # do we have a genus?
     my $possible_genus = $class[-1];
-    if ($sci_name =~ /^$possible_genus/) {
-        $genus = $possible_genus;
+    $possible_genus .= "|$class[-2]" if $class[-2];
+    if ($sci_name =~ /^($possible_genus)/) {
+        $genus = $1;
         ($species) = $sci_name =~ /^$genus\s+(.+)/;
     }
     else {
