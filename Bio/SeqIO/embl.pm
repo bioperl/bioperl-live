@@ -1037,6 +1037,8 @@ sub _read_EMBL_Species {
 
     $$buffer = $_;
     
+    $sci_name || return;
+    
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words
     # will still get matched, use map() to remove trailing/leading/intervening

@@ -1002,6 +1002,8 @@ sub _read_swissprot_Species {
     }
     $self->_pushback($_); # pushback the last line because we need it
     
+    $sci_name || return;
+    
     #if the organism belongs to taxid 32644 then no Bio::Species object.
     return if grep { /^\Q$sci_name$/ } @Unknown_names;
     

@@ -1298,6 +1298,8 @@ sub _read_GenBank_Species {
         $abbr_name = $sl; # nothing caught; this is a backup!
     }
 	
+    $sci_name || return;
+    
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will 
 	# still get matched, use map() to remove trailing/leading/intervening spaces
@@ -1333,7 +1335,7 @@ sub _read_GenBank_Species {
 	@class = reverse @class;
 
 	my $make = Bio::Species->new();
-    $make->scientific_name($sci_name) if $sci_name;
+    $make->scientific_name($sci_name);
 	$make->classification(@class) if @class > 0;
 	$make->common_name( $common ) if $common;
     $make->name('abbreviated', $abbr_name) if $abbr_name;
