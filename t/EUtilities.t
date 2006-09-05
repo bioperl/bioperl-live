@@ -18,13 +18,17 @@ BEGIN {
 	$error = 0;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0; 
 
-    eval {use Test::More;};
+    eval {require Test::More;};
 
 	if ($@) {
-		print STDERR 'Test::More is required for EUtilities.t, skipping...';
+		print STDERR 'Test::More is required for EUtilities.t, skipping...\n';
 		use lib 't';
-		require Test;
+		use Test;
 		$error = 1;
+		foreach ( 1..$NUMTESTS) {
+		   skip('Unable to run all of the DB tests',1);
+		}
+		exit(0);
 	}
 	
 	if (!$DEBUG) {
