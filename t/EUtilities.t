@@ -66,7 +66,7 @@ SKIP: {
 									-rettype 	=> 'fasta'
                                       );
 		  
-	isa_ok($efetch, 'Bio::DB::EUtilities::efetch');
+	isa_ok($efetch, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $efetch->get_response; };
 	skip("EFetch HTTP error: $@", 2) if $@;
@@ -81,7 +81,7 @@ SKIP: {
 	skip("EFetch HTTP error: $@", 2) if $@;
 	isa_ok($response, 'HTTP::Response');
 	$content = $response->content;
-	like($content, qr(^LOCUS\s+AAY95024),'EFetch: Fasta format');
+	like($content, qr(^LOCUS\s+AAY95024),'EFetch: GenBank format');
 }
 
 # EPost->EFetch with History (Cookie)
@@ -93,35 +93,36 @@ SKIP: {
                                     -id         => \@ids,
                                       );
 		  
-	isa_ok($epost, 'Bio::DB::EUtilities::epost');
+	isa_ok($epost, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $epost->get_response; };
-	skip("EPost HTTP error: $@", 13) if $@;
+	skip("EPost HTTP error: $@", 12) if $@;
 	isa_ok($response, 'HTTP::Response');
 	my $cookie = $epost->next_cookie;
 	isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
 	
 	# set for epost, esearch, elink
-	is($cookie->eutil, 'epost', 'eutil');
-	is($cookie->database, 'protein', 'database');
+	is($cookie->eutil, 'epost', 'eutil()');
+	is($cookie->database, 'protein', 'database()');
 	
 	# these are not set using epost
-	is($cookie->elink_dbfrom, undef, 'dbfrom');
-	is($cookie->esearch_total, undef, 'total');
-	is($cookie->esearch_query, undef, 'query');
-	is($cookie->elink_queryids, undef, 'queryids');
-	is($cookie->elink_linkname, undef, 'linkname');
+	is($cookie->elink_dbfrom, undef, 'elink_dbfrom()');
+	is($cookie->esearch_total, undef, 'esearch_total()');
+	is($cookie->esearch_query, undef, 'esearch_query()');
+	is($cookie->elink_queryids, undef, 'elink_queryids()');
+	is($cookie->elink_linkname, undef, 'elink_linkname()');
 	
 	# check the actual cookie
 	my ($webenv, $key) = @{ $cookie->cookie };
-	like($webenv, qr{^\S{50}}, 'cookie WebEnv');
-	like($key, qr{^\d+}, 'cookie query key');
+	like($webenv, qr{^\S{50}}, 'cookie() WebEnv');
+	like($key, qr{^\d+}, 'cookie() query key');
 	
 	# can we fetch the sequences using the cookie
 	my $efetch = Bio::DB::EUtilities->new(
 								-cookie		=> $cookie,
 								-rettype  	=> 'fasta'
 								  );
+	# look for fasta headers
 	my $total = grep(m{^>.*$}, split "\n", $efetch->get_response->content);
 	is($total, 4, 'EPost->EFetch');
 }
@@ -136,10 +137,10 @@ SKIP: {
 									-retmax		=> 100
                                       );
 		  
-	isa_ok($esearch, 'Bio::DB::EUtilities::esearch');
+	isa_ok($esearch, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $esearch->get_response; };
-	skip("ESearch HTTP error:$@", 11) if $@;
+	skip("ESearch HTTP error:$@", 3) if $@;
 	isa_ok($response, 'HTTP::Response');
 	
 	my @ids = $esearch->get_ids;
@@ -159,20 +160,20 @@ SKIP: {
 	skip("ESearch HTTP error:$@", 11) if $@;
 	my $cookie = $esearch->next_cookie;
 	isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
-	is($cookie->eutil, 'esearch', 'eutil');
-	is($cookie->database, 'protein', 'database');
-	cmp_ok($cookie->esearch_total, '>', 117, 'total');
-	is($cookie->esearch_query, $term, 'query');
+	is($cookie->eutil, 'esearch', 'eutil()');
+	is($cookie->database, 'protein', 'database()');
+	cmp_ok($cookie->esearch_total, '>', 117, 'esearch_total()');
+	is($cookie->esearch_query, $term, 'esearch_query()');
 	
 	## these are not set using esearch
-	is($cookie->elink_dbfrom, undef, 'dbfrom');
-	is($cookie->elink_queryids, undef, 'queryids');
-	is($cookie->elink_linkname, undef, 'linkname');
+	is($cookie->elink_dbfrom, undef, 'elink_dbfrom()');
+	is($cookie->elink_queryids, undef, 'elink_queryids()');
+	is($cookie->elink_linkname, undef, 'elink_linkname()');
 	
 	## check the actual cookie
 	my ($webenv, $key) = @{ $cookie->cookie };
-	like($webenv, qr{^\S{50}}, 'cookie WebEnv');
-	like($key, qr{^\d+}, 'cookie query key');
+	like($webenv, qr{^\S{50}}, 'cookie() WebEnv');
+	like($key, qr{^\d+}, 'cookie() query key');
 	
 	# can we fetch the sequences using the cookie?
 	my $efetch = Bio::DB::EUtilities->new(
@@ -185,9 +186,50 @@ SKIP: {
 	is($total, 5, 'ESearch->EFetch'); 
 }
 
-# To be added:
-
 # EInfo
+
+SKIP: {
+	my $eutil = Bio::DB::EUtilities->new(
+                                    -eutil      => 'einfo',
+                                    -db  		=> 'protein',
+                                      );
+		  
+	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
+	my $response;
+	eval {$response = $eutil->get_response; };
+	skip("EInfo HTTP error:$@", 4) if $@;
+	isa_ok($response, 'HTTP::Response');
+	like($response->content, qr(<eInfoResult>), 'EInfo response');
+	is($eutil->einfo_dbs, 'protein', 'einfo_dbs()');
+	like($eutil->einfo_db_lastupdate, qr(\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}),
+		 'einfo_db_lastupdate()');
+	
+	# need tests for einfo_db_desc, einfo_db_count,
+	# einfo_dbfield_info, einfo_dblink_info 
+	
+	# all databases
+#	$eutil = Bio::DB::EUtilities->new(
+#                                    -eutil      => 'einfo',
+#                                    -db  		=> 'protein',
+#                                      );
+#	
+#	eval {$response = $eutil->get_response; };
+#	skip("EInfo HTTP error:$@", 5) if $@;
+#	
+#	my @db = qw(pubmed  protein  nucleotide  nuccore  nucgss  nucest  structure
+#	genome  books  cancerchromosomes  cdd  domains  gene  genomeprj  gensat
+#	geo  gds  homologene  journals  mesh  ncbisearch  nlmcatalog  omia  omim
+#	pmc  popset  probe  pcassay  pccompound  pcsubstance  snp  taxonomy
+#	unigene  unists);
+#	
+#	my @einfo_dbs = $eutil->einfo_dbs;
+#	
+#	for my $db (@db) {
+#		is(grep(m{$db eq $_}, @einfo_dbs), 1, "DB: $db");
+#	}
+}
+
+# To be added:
 
 # ELink (normal) 
 
@@ -209,7 +251,7 @@ SKIP: {
                                     -id		    => \@ids,
                                       );
 		  
-	isa_ok($eutil, 'Bio::DB::EUtilities::esummary');
+	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $eutil->get_response; };
 	skip("ESummary HTTP error:$@", 11) if $@;
@@ -221,20 +263,9 @@ SKIP: {
                                     -term		=> $term,
                                       );
 		  
-	isa_ok($eutil, 'Bio::DB::EUtilities::egquery');
+	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	eval {$response = $eutil->get_response; };
 	skip("EGQuery HTTP error:$@", 11) if $@;
 	isa_ok($response, 'HTTP::Response');
 	like($response->content, qr(<eGQueryResult>), 'EGQuery response');
-	
-	$eutil = Bio::DB::EUtilities->new(
-                                    -eutil      => 'einfo',
-                                    -db  		=> 'protein',
-                                      );
-		  
-	isa_ok($eutil, 'Bio::DB::EUtilities::einfo');
-	eval {$response = $eutil->get_response; };
-	skip("EInfo HTTP error:$@", 11) if $@;
-	isa_ok($response, 'HTTP::Response');
-	like($response->content, qr(<eInfoResult>), 'EInfo response');
 }
