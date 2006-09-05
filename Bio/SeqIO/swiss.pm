@@ -2,8 +2,6 @@
 #
 # BioPerl module for Bio::SeqIO::swiss
 #
-# Cared for by Elia Stupka <elia@tll.org.sg>
-#
 # Copyright Elia Stupka
 #
 # You may distribute this module under the same terms as perl itself
@@ -17,9 +15,12 @@ Bio::SeqIO::swiss - Swissprot sequence input/output stream
 =head1 SYNOPSIS
 
 It is probably best not to use this object directly, but
-rather go through the SeqIO handler system. Go:
+rather go through the SeqIO handler system:
 
-    $stream = Bio::SeqIO->new(-file => $filename, -format => 'swiss');
+    use Bio::SeqIO;
+
+    $stream = Bio::SeqIO->new(-file => $filename, 
+                              -format => 'swiss');
 
     while ( my $seq = $stream->next_seq() ) {
 	   # do something with $seq
@@ -27,11 +28,11 @@ rather go through the SeqIO handler system. Go:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to and from swissprot flat
+This object can transform Bio::Seq objects to and from Swissprot flat
 file databases.
 
-There is a lot of flexibility here about how to dump things which I need
-to document fully.
+There is a lot of flexibility here about how to dump things which needs
+to be documented.
 
 
 =head2 Optional functions
@@ -56,17 +57,17 @@ This is function which is called as
 To generate the ID line. If it is not there, it generates a sensible ID
 line using a number of tools.
 
-If you want to output annotations in swissprot format they need to be
+If you want to output annotations in Swissprot format they need to be
 stored in a Bio::Annotation::Collection object which is accessible
 through the Bio::SeqI interface method L<annotation()|annotation>.  
 
 The following are the names of the keys which are polled from a
 L<Bio::Annotation::Collection> object.
 
- reference       - Should contain Bio::Annotation::Reference objects
- comment         - Should contain Bio::Annotation::Comment objects
- dblink          - Should contain Bio::Annotation::DBLink objects
- gene_name       - Should contain Bio::Annotation::SimpleValue object
+ reference   - Should contain Bio::Annotation::Reference objects
+ comment     - Should contain Bio::Annotation::Comment objects
+ dblink      - Should contain Bio::Annotation::DBLink objects
+ gene_name   - Should contain Bio::Annotation::SimpleValue object
 
 =back
 
@@ -75,8 +76,8 @@ L<Bio::Annotation::Collection> object.
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
+and other Bioperl modules. Send your comments and suggestions, 
+preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
@@ -85,8 +86,8 @@ Your participation is much appreciated.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via the web:
+the bugs and their resolution.
+Bug reports can be submitted via the web:
 
   http://bugzilla.open-bio.org/
 
@@ -98,13 +99,12 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqIO::swiss;
 use vars qw(@ISA @Unknown_names @Unknown_genus);
@@ -126,11 +126,11 @@ use Bio::Annotation::StructuredValue;
 
 # this is for doing species name parsing
 @Unknown_names=('other', 'unidentified',
-		'unknown organism', 'not specified', 
-		'not shown', 'Unspecified', 'Unknown', 
-		'None', 'unclassified', 'unidentified organism', 
-		'not supplied'
-	       );
+					 'unknown organism', 'not specified', 
+					 'not shown', 'Unspecified', 'Unknown', 
+					 'None', 'unclassified', 'unidentified organism', 
+					 'not supplied'
+					);
 # dictionary of synonyms for taxid 32644
 # all above can be part of valid species name
 @Unknown_genus = qw(unknown unclassified uncultured unidentified);
@@ -156,7 +156,6 @@ sub _initialize {
  Function: returns the next sequence in the stream
  Returns : Bio::Seq object
  Args    :
-
 
 =cut
 
@@ -928,9 +927,9 @@ sub _read_swissprot_References{
  Usage   :
  Function: Reads the swissprot Organism species and classification
            lines.
-		   Able to deal with unconventional species names.
+		     Able to deal with unconventional species names.
  Example : OS Unknown prokaryotic organism
- 		   $genus = undef ; $species = Unknown prokaryotic organism
+ 		     $genus = undef ; $species = Unknown prokaryotic organism
  Returns : A Bio::Species object
  Args    :
 
