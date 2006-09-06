@@ -60,7 +60,7 @@ use strict;
 use warnings;
 
 use Bio::Root::Root;
-#use Data::Dumper;
+use Data::Dumper;
 use vars '@ISA';
 
 @ISA = 'Bio::Root::Root';
@@ -98,6 +98,8 @@ sub _add_set {
     $self->elink_queryids($query_ids);
     
     my $ct = 0;
+    
+    # each linkset database
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
         $ct++;
         my $dbto = $ls_db->{DbTo} ;
@@ -128,10 +130,10 @@ sub _add_set {
                        'DbTo'     => $dbto,
                        'Id'       => \@ids,
                       };
-        #$self->debug('Linkset:',Dumper($linkset));
+        $self->debug('Linkset:',Dumper($linkset));
         push @{ $self->{'_linksetdb'}}, $linkset;
-        return 1; # good linkset
     }
+    return 1; # good linkset
 }
 
 =head2 elink_dbfrom

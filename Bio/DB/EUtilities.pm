@@ -285,6 +285,7 @@ sub _initialize {
         $self->add_cookie($cookie);
     }
     $self->{'_cookieindex'} = 0;
+    $self->{'_cookiecount'} = 0;
 }
 
 =head2 add_cookie
@@ -305,6 +306,7 @@ sub add_cookie {
           unless $cookie->isa("Bio::DB::EUtilities::Cookie");
         push @{$self->{'_cookie'}}, $cookie;
     }
+    $self->{'_cookiecount'}++;
 }
 
 =head2 next_cookie
@@ -341,6 +343,7 @@ sub reset_cookies {
     my $self = shift;
     $self->{'_cookie'} = [];
     $self->{'_cookieindex'} = 0;
+    $self->{'_cookiecount'} = 0;
 }
 
 =head2 get_all_cookies
@@ -360,6 +363,21 @@ sub get_all_cookies {
     return $self->{'_cookie'}->[0] if $self->{'_cookie'} 
 }
 
+=head2 get_cookie_count
+
+ Title   : get_cookie_count
+ Usage   : $ct = $db->get_cookie_count
+ Function: returns # cookies in internal queue
+ Returns : integer 
+ Args    : none
+
+=cut
+
+sub get_cookie_count {
+    my $self = shift;
+    return $self->{'_cookiecount'};
+}
+
 =head2 rewind_cookies
 
  Title   : rewind_cookies
@@ -375,6 +393,7 @@ sub rewind_cookies {
     $self->{'_cookieindex'} = 0;
 }
 
+
 =head2 keep_cookies
 
  Title   : keep_cookies
@@ -388,7 +407,6 @@ sub rewind_cookies {
 
 sub keep_cookies {
     my $self = shift;
-    $self->debug("Keeping cookies : $ARGV[0]\n") if @_;
     return $self->{'_keep_cookies'} = shift if @_;
     return $self->{'_keep_cookies'};
 }

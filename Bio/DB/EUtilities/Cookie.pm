@@ -66,7 +66,7 @@ sub new {
     # for elink only, originating database
     $dbfrom     && $self->elink_dbfrom($dbfrom);
     # holds elink dbfrom ID's used for querys
-    $query_id   && $self->elink_queryid($query_id);
+    $query_id   && $self->elink_queryids($query_id);
     # holds elink linkname; information can be found using einfo
     $linkname   && $self->elink_linkname($linkname);    
 

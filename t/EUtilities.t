@@ -14,7 +14,7 @@ use lib '..','.','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
-	$NUMTESTS = 90;
+	$NUMTESTS = 212;
 	$error = 0;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	# this seems to work for perl 5.6 and perl 5.8
@@ -52,8 +52,10 @@ require_ok('XML::Simple');
 
 # protein acc
 my @acc = qw(MUSIGHBA1 P18584 CH402638);
+
 # protein GI
-my @ids = qw(1621261 89318838 68536103 20807972 730439);
+my @ids = sort qw(1621261 89318838 68536103 20807972 730439);
+
 # test search term
 my $term = 'dihydroorotase AND human';
 
@@ -76,14 +78,14 @@ SKIP: {
 	like($content, qr(PYRR \[Mycobacterium tuberculosis H37Rv\]),
 		 'EFetch: Fasta format');
 	
-	# reuse the webagent
+	# reuse the EUtilities webagent
 	$eutil->id($ids[1]);
 	$eutil->rettype('gb');
 	eval {$response = $eutil->get_response; };
 	skip("EFetch HTTP error: $@", 2) if $@;
 	isa_ok($response, 'HTTP::Response');
 	$content = $response->content;
-	like($content, qr(^LOCUS\s+EAS10332),'EFetch: GenBank format');
+	like($content, qr(^LOCUS\s+NP_623143),'EFetch: GenBank format');
 }
 
 # EPost->EFetch with History (Cookie)
@@ -196,7 +198,7 @@ SKIP: {
                                       );
 	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	eval {$response = $eutil->get_response; };
-	skip("EInfo HTTP error:$@", 4) if $@;
+	skip("EInfo HTTP error:$@", 10) if $@;
 	isa_ok($response, 'HTTP::Response');
 	like($response->content, qr(<eInfoResult>), 'EInfo response');
 	is($eutil->einfo_dbs->[0], 'protein', '$einfo->einfo_dbs()');
@@ -224,8 +226,6 @@ SKIP: {
 	eq_hash($fields[1], \%field, '$einfo->einfo_dbfield_info()');
 	eq_hash($links[1], \%link, '$einfo->einfo_dblink_info()');
 	
-	# einfo_dbfield_info, einfo_dblink_info 
-	
 	# all databases (list)
 	$eutil = Bio::DB::EUtilities->new(
                                     -eutil      => 'einfo',
@@ -244,7 +244,7 @@ SKIP: {
 	is_deeply(\@einfo_dbs, \@db, 'All EInfo databases');
 }
 
-# ELink (normal; one db, one dbfrom) - ElinkData tests
+# ELink - normal (single ID array) - single db - ElinkData tests
 
 SKIP: {
 	my $eutil = Bio::DB::EUtilities->new(
@@ -257,7 +257,7 @@ SKIP: {
 	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $eutil->get_response; };
-	skip("ELink HTTP error:$@", 4) if $@;
+	skip("ELink HTTP error:$@", 10) if $@;
 	isa_ok($response, 'HTTP::Response');
 	like($response->content, qr(<eLinkResult>), 'ELink response');
 	my @ids2 = qw(350054 306537 273068 83332 1394);
@@ -277,13 +277,127 @@ SKIP: {
 			  [sort @ids2], '$linkdata->get_LinkIds_by_db($db)');	
 }
 
-# To be added:
+# ELink - normal (single ID array), multiple dbs 
 
-# ELink (normal, multiple db) 
+SKIP: {
+	# can use 'all' for db, but takes a long time; use named dbs instead
+	my $eutil = Bio::DB::EUtilities->new(
+                                    -eutil      => 'elink',
+                                    -db  		=> 'taxonomy,nucleotide,pubmed',
+									-dbfrom		=> 'protein',
+									-id			=> \@ids,
+                                      );
+	
+	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
+	my $response;
+	eval {$response = $eutil->get_response; };
+	skip("ELink HTTP error:$@", 4) if $@;
+	isa_ok($response, 'HTTP::Response');
+	like($response->content, qr(<eLinkResult>), 'ELink response');;
+	
+	# This is designed to fail; grabbing IDs w/o knowing which DB
+	# they belong to in a multiple DB search is fatal
+	my @ids2;
+	eval {@ids2 = $eutil->get_ids;};
+	ok($@,'$elink->get_ids()');
+	
+	# Must grab the linkset first...
+	is($eutil->get_linkset_count, 1, '$elink->get_linkset_count()');
+	my $linkobj = $eutil->next_linkset;
+	isa_ok($linkobj, 'Bio::DB::EUtilities::ElinkData');
+	
+	# then iterate through each database, grabbing the IDs for each database
+	my %ids = (
+			'taxonomy' => [sort qw(350054 306537 273068 83332 1394)],
+			'nucleotide' => [sort qw(89318678 68535062 38490250 20806542)],
+			'pubmed' => [sort qw(15968079 12368430 11997336 9634230 8206848)],
+		   );
+	
+	while (my $db = $linkobj->next_linkdb) {
+		ok(exists $ids{$db}, "ElinkData database: $db");
+		@ids2 = sort $linkobj->get_LinkIds_by_db($db);
+		is_deeply($ids{$db}, \@ids2, "ElinkData database IDs: $db")
+	}
+	
+	# other ElinkData methods
+	is($linkobj->elink_dbfrom, 'protein', '$linkdata->elink_dbfrom()');
+	is_deeply([sort $linkobj->elink_queryids],
+			  [sort @ids], '$linkdata->elink_queryids()');
+	is($linkobj->elink_command, 'neighbor', '$linkdata->elink_command()');
+}
 
-# ELink (normal, multiple db, cookies)
+# ELink - normal (single ID array), multiple dbs, cookies)
 
-# ELink (multi_id)
+SKIP: {
+	# can use 'all' for db, but takes a long time; use named dbs instead
+	# this retrieves cookies instead (no ElinkData objects are stored)
+	my $eutil = Bio::DB::EUtilities->new(
+                                    -eutil      => 'elink',
+                                    -db  		=> 'taxonomy,nucleotide,pubmed',
+									-dbfrom		=> 'protein',
+									-id			=> \@ids,
+									-cmd		=> 'neighbor_history'
+                                      );
+	
+	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
+	my $response;
+	eval {$response = $eutil->get_response; };
+	skip("ELink HTTP error:$@", 4) if $@;
+	isa_ok($response, 'HTTP::Response');
+	like($response->content, qr(<eLinkResult>), 'ELink response');;
+	
+	# This is designed to fail; grabbing IDs w/o knowing which DB
+	# they belong to in a multiple DB search is fatal
+	my @ids2;
+	eval {@ids2 = $eutil->get_ids;};
+	ok($@,'$elink->get_ids()');
+	
+	# No ElinkData objs
+	is($eutil->get_linkset_count, 0, '$elink->get_linkset_count()');
+	
+	# There are ELink cookies instead
+	is($eutil->get_cookie_count, 4, '$elink->get_cookie_count()');
+	
+	my %dbs = (taxonomy => 1,
+			   nucleotide =>1,
+			   pubmed => 1);
+	my %links = (protein_taxonomy => 1,
+				 protein_nucleotide => 1,
+				 protein_nucleotide_wgs => 1,
+				 protein_pubmed => 1
+				 );
+	
+	while (my $cookie = $eutil->next_cookie) {
+		isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
+		is($cookie->eutil, 'elink', '$elink->cookie->eutil()');
+		ok(exists $dbs{$cookie->database},  '$elink->cookie->database()');
+		is($cookie->elink_dbfrom, 'protein', '$elink->cookie->elink_dbfrom()');
+		@ids2 = sort $cookie->elink_queryids;
+		is_deeply(\@ids2, \@ids, '$elink->cookie->elink_queryids()');
+		ok(exists $links{$cookie->elink_linkname}, '$elink->cookie->elink_linkname()');
+		
+		# these are not set using elink
+		is($cookie->esearch_query, undef, '$elink->cookie->esearch_query()');
+		is($cookie->esearch_total, undef, '$elink->cookie->esearch_total()');
+		
+		# check the actual cookie data
+		my ($webenv, $key) = @{ $cookie->cookie };
+		like($webenv, qr{^\S{50}}, '$esearch->cookie->cookie() WebEnv');
+		like($key, qr{^\d+}, '$esearch->cookie->cookie() query key');
+		
+		# can we retrieve the data via efetch?  Test one...
+		# Note the cookie has all the information contained to
+		# retrieve data; no additional parameters needed
+		if($cookie->database eq 'taxonomy') {
+			my $efetch = Bio::DB::EUtilities->new(-cookie => $cookie);
+			my $content = $efetch->get_response->content;
+			like($content, qr(<TaxaSet>), 'ELink to EFetch : taxonomy');
+		}
+	}
+}
+
+# ELink (multi_id), single db
+# this is a flag set to get one-to-one correspondence for ELink data
 
 SKIP: {
 	my $eutil = Bio::DB::EUtilities->new(
@@ -297,10 +411,15 @@ SKIP: {
 	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $eutil->get_response; };
-	skip("ELink HTTP error:$@", 4) if $@;
+	
+	# check this number, likely wrong
+	skip("ELink HTTP error:$@", 20) if $@;
 	isa_ok($response, 'HTTP::Response');
 	like($response->content, qr(<eLinkResult>), 'ELink response');
 	my @ids2 = qw(350054 306537 273068 83332 1394);
+	
+	# This is designed to fail; IDs present in individual ElinkData objects
+	# for one-to-one correspondence with ID groups
 	eval{$eutil->get_ids;};
 	ok($@,'$elink->get_ids()');
 	
@@ -324,9 +443,103 @@ SKIP: {
 	is_deeply([sort @retids], [sort @ids2], '$linkdata->get_LinkIds_by_db($db)');
 }
 
+# To be added:
+
 # ELink (multi_id, cookies)
 
+# these need to be cleaned up
+
+SKIP: {
+	my $eutil = Bio::DB::EUtilities->new(
+                                    -eutil      => 'elink',
+                                    -db  		=> 'taxonomy',
+									-dbfrom		=> 'protein',
+									-multi_id 	=> 1,
+									-id			=> \@ids,
+									-cmd		=> 'neighbor_history'
+                                      );
+		  
+	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
+	my $response;
+	eval {$response = $eutil->get_response; };
+	
+	# check this number, likely wrong
+	skip("ELink HTTP error:$@", 20) if $@;
+	isa_ok($response, 'HTTP::Response');
+	like($response->content, qr(<eLinkResult>), 'ELink response');
+	my @ids2 = qw(350054 306537 273068 83332 1394);
+	
+	# This is designed to fail; IDs present in individual ElinkData objects
+	# for one-to-one correspondence with ID groups
+	eval{$eutil->get_ids;};
+	ok($@,'$elink->get_ids()');
+	
+	# Linkset tests
+	is($eutil->get_linkset_count, 0, '$elink->get_linkset_count()');
+	my $ct = 0;
+	my @qids;
+	my @retids;
+	# ids may not be returned in same order as array, so need to grab and sort
+	#while (	my $linkobj = $eutil->next_linkset) {
+	#	isa_ok($linkobj, 'Bio::DB::EUtilities::ElinkData');
+	#	is($linkobj->elink_dbfrom, 'protein', '$linkdata->elink_dbfrom()');
+	#	is($linkobj->elink_command, 'neighbor', '$linkdata->elink_command()');
+	#	push @qids, $linkobj->elink_queryids;
+	#	while (	my $db = $linkobj->next_linkdb) {
+	#		is($db, 'taxonomy', '$linkdata->next_linkdb()');
+	#		push @retids, $linkobj->get_LinkIds_by_db($db);
+	#	}
+	#}
+	#is_deeply([sort @qids], [sort @ids], '$linkdata->elink_queryids()');
+	#is_deeply([sort @retids], [sort @ids2], '$linkdata->get_LinkIds_by_db($db)');
+	
+	my %dbs = (taxonomy => 1,
+			   nucleotide =>1,
+			   pubmed => 1);
+	my %links = (protein_taxonomy => 1,
+				 protein_nucleotide => 1,
+				 protein_nucleotide_wgs => 1,
+				 protein_pubmed => 1
+				 );
+	
+	while (my $cookie = $eutil->next_cookie) {
+		isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
+		is($cookie->eutil, 'elink', '$elink->cookie->eutil()');
+		ok(exists $dbs{$cookie->database},  '$elink->cookie->database()');
+		is($cookie->elink_dbfrom, 'protein', '$elink->cookie->elink_dbfrom()');
+		@ids2 = $cookie->elink_queryids;
+		
+		# should be single IDs, one per ElinkData obj
+		is(scalar(@ids2), 1, '$elink->cookie->elink_queryids()');
+		ok(exists $links{$cookie->elink_linkname}, '$elink->cookie->elink_linkname()');
+		
+		# these are not set using elink
+		is($cookie->esearch_query, undef, '$elink->cookie->esearch_query()');
+		is($cookie->esearch_total, undef, '$elink->cookie->esearch_total()');
+		
+		# check the actual cookie data
+		my ($webenv, $key) = @{ $cookie->cookie };
+		like($webenv, qr{^\S{50}}, '$esearch->cookie->cookie() WebEnv');
+		like($key, qr{^\d+}, '$esearch->cookie->cookie() query key');
+		
+		# can we retrieve the data via efetch?  Test one...
+		# Note the cookie has all the information contained to
+		# retrieve data; no additional parameters needed
+		if($cookie->database eq 'taxonomy') {
+			my $efetch = Bio::DB::EUtilities->new(-cookie => $cookie);
+			my $content = $efetch->get_response->content;
+			like($content, qr(<TaxaSet>), 'ELink to EFetch : taxonomy');
+		}
+	}
+}
+
+# ELink (multi_id, multidb)?
+
+# ELink (multi_id, multidb, cookies)?
+
 # ELink (scores)
+
+# etc????
 
 # Although the other EUtilities are available, no postprocessing is done on the
 # returned XML yet
@@ -341,7 +554,7 @@ SKIP: {
 	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	my $response;
 	eval {$response = $eutil->get_response; };
-	skip("ESummary HTTP error:$@", 11) if $@;
+	skip("ESummary HTTP error:$@", 2) if $@;
 	isa_ok($response, 'HTTP::Response');
 	like($response->content, qr(<eSummaryResult>), 'ESummary response');
 	
@@ -352,7 +565,7 @@ SKIP: {
 		  
 	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
 	eval {$response = $eutil->get_response; };
-	skip("EGQuery HTTP error:$@", 11) if $@;
+	skip("EGQuery HTTP error:$@", 2) if $@;
 	isa_ok($response, 'HTTP::Response');
 	like($response->content, qr(<eGQueryResult>), 'EGQuery response');
 }
