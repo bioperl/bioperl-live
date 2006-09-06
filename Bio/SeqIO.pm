@@ -637,6 +637,12 @@ sub _guess_format {
    return 'raw'     if /\.(txt)$/i;
    return 'scf'     if /\.scf$/i;
    return 'swiss'   if /\.(swiss|sp)$/i;
+
+   # from Strider 1.4 Release Notes: The file name extensions used by
+   # Strider 1.4 are ".xdna", ".xdgn", ".xrna" and ".xprt" for DNA,
+   # DNA Degenerate, RNA and Protein Sequence Files, respectively
+   return 'strider' if /\.(xdna|xdgn|xrna|xprt)$/i;
+
    return 'ztr'     if /\.ztr$/i;
 }
 
