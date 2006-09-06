@@ -128,7 +128,8 @@ sub parse_response {
         $self->throw("Need HTTP::Response object");
     }
     my $xs = XML::Simple->new();
-    my $simple = $xs->XMLin($response->content);
+    my $simple = $xs->XMLin($response->content,
+                            forcearray => [qw(DbName Field Link)]);
     $self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
@@ -152,11 +153,8 @@ sub parse_response {
 sub einfo_dbs {
     my $self = shift;
     if (wantarray) {
-        if( ref($self->{'_einfo_dbname'} eq 'array' ) ) {
+        if( ref($self->{'_einfo_dbname'} ) =~ m{ARRAY}i  ) {
             return @{ $self->{'_einfo_dbname'} };
-        }
-        else {
-            return $self->{'_einfo_dbname'};
         }
     }
     return $self->{'_einfo_dbname'};
@@ -175,6 +173,7 @@ sub einfo_dbs {
 
 sub einfo_dbfield_info {
     my $self = shift;
+    return @{ $self->{'_einfo_fieldlist'} } if wantarray;
     return $self->{'_einfo_fieldlist'};
 }
 
@@ -191,6 +190,7 @@ sub einfo_dbfield_info {
 
 sub einfo_dblink_info {
     my $self = shift;
+    return @{ $self->{'_einfo_linklist'} } if wantarray;
     return $self->{'_einfo_linklist'};
 }
 

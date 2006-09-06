@@ -69,7 +69,7 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     my ($command) = $self->_rearrange([qw(COMMAND)], @args);
-    $command    && $self->command($command);
+    $command    && $self->elink_command($command);
     $self->{'_dbindex'} = 0;
     $self->{'_scoreindex'} = 0;
     $self->{'_linkcount'} = 0;
@@ -89,13 +89,13 @@ sub _add_set {
     # is there any data returned
     return 0 unless exists $ls->{LinkSetDb};
     my $dbfrom = $ls->{DbFrom};
-    $self->dbfrom($dbfrom);
+    $self->elink_dbfrom($dbfrom);
     my $query_ids = $ls->{IdList}->{Id};
     if (!ref($query_ids)) {
         my $tempid = $query_ids;
         $query_ids = [$tempid];
     }
-    $self->query_ids($query_ids);
+    $self->elink_queryids($query_ids);
     
     my $ct = 0;
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
@@ -388,8 +388,6 @@ sub _next_scoredb_index {
     my $self = shift;
     return $self->{'_scoreindex'}++;
 }
-
-
 
 1;
 

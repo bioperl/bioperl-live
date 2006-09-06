@@ -522,7 +522,7 @@ sub delay_policy {
 
   Title   : get_entrezdbs
   Usage   : @dbs = $self->get_entrezdbs;
-  Function: return list of all Entrez databases 
+  Function: return list of all Entrez databases; convenience method
   Returns : array or array ref (based on wantarray) of databases 
   Args    : none
 
@@ -533,7 +533,7 @@ sub get_entrezdbs {
     my $info = Bio::DB::EUtilities->new(-eutil => 'einfo');
     $info->get_response;
     # copy list, not ref of list (so einfo obj doesn't stick around)
-    my @databases = @{ $info->entrezdbs };
+    my @databases = $info->einfo_dbs;
     return @databases;
 }
 
