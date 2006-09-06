@@ -193,7 +193,7 @@ sub write_seq {
 
 __DATA__
 
-//The following was taken from the strider manual Appendix A (with
+//The following was taken from the strider 1.4 release notes Appendix (with
 //some comments gleaned from other parts of manual)
 
 struct F_HEADER
