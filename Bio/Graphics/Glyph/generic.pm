@@ -259,15 +259,22 @@ sub draw_sequence {
   my $seq   = $self->get_seq($self->feature->seq);
   $seq      = $seq->seq if $seq;   # get the dna
 
+  my $canonical = $self->option('canonical_strand');
+
   my @bases = split '',$seq;
   for (my $i=0;$i<@bases;$i++) {
-    my $x = $strand > 0 ? $start + $i * $pixels_per_base
-                        : $stop  - $i * $pixels_per_base;
+    my $x = $strand >= 0 ? $start + $i * $pixels_per_base
+                         : $stop  - $i * $pixels_per_base;
     next unless ($x >= $x1 && $x <= $x2);
     $x -= $fontwidth + 1 if $self->{flip}; # align right when flipped
-    last if $x+$fontwidth >= $right;
-    last if $x            <= $left;
+    if ($strand >= 0) {
+      last if $x + $fontwidth > $right;
+    } else {
+      next if $x >= $right;
+      last if $x < $left;
+    }
     my $base = $self->{flip} ? $complement{$bases[$i]} : $bases[$i];
+    $base    = $complement{$base} if $canonical && $strand < 0;
     $gd->char($font,$x+$x_fudge,$y,$base,$color);
   }
 }
@@ -585,6 +592,15 @@ L<Bio::Graphics::Glyph> for a full explanation.
                  strandedness
 
   -hilite       Highlight color                undef (no color)
+
+  -draw_dna     If true, draw the dna residues        0 (false)
+                 when magnification level
+                 allows.
+
+  -canonical_strand If true, draw the dna residues        0 (false)
+                 as they appear on the plus strand
+                 even if the feature is on the minus
+                 strand.
 
 -pad_top and -pad_bottom allow you to insert some blank space between
 the glyph's boundary and its contents.  This is useful if you are

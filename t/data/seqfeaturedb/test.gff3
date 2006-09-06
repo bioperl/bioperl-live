@@ -35,7 +35,9 @@ Contig3	confirmed	CDS	34000	34500	.	+	.	Parent=trans-8
 Contig3	confirmed	CDS	34600	34900	.	+	.	Parent=trans-8
 Contig3	confirmed	UTR	34901	35000	.	+	.	Parent=trans-8
 
-# preferred group assignments
+# associative attributes
+# these are not intended to have any implied parent/child relationship, but their attributes can be
+# used to group them arbitrarily.
 Contig4	clone	assembly_component	1	50000	.	.	.	ID=ABC123
 Contig4	confirmed	gene	32000	35000	.	+	.	ID=thing1;gene=gene-9
 Contig4	confirmed	mRNA	32000	35000	.	+	.	ID=thing2;mRNA=trans-9;gene=gene-9

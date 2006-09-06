@@ -35,7 +35,7 @@ sub pad_left {
     : $self->option('ragged_extra');
 
   return $self->SUPER::pad_left 
-    unless $self->option('draw_target') && $ragged && $self->dna_fits;
+    unless $self->draw_target && $ragged && $self->dna_fits;
   my $target = eval {$self->feature->hit} or return $self->SUPER::pad_left;
 
   return $self->SUPER::pad_left unless $target->start<$target->end && $target->start < $ragged;
@@ -49,17 +49,22 @@ sub pad_right {
     ? RAGGED_START_FUZZ 
     : $self->option('ragged_extra');
   return $self->SUPER::pad_right 
-    unless $self->option('draw_target') && $ragged && $self->dna_fits;
+    unless $self->draw_target && $ragged && $self->dna_fits;
   my $target = eval {$self->feature->hit} or return $self->SUPER::pad_right;
   return $self->SUPER::pad_right unless $target->end < $target->start && $target->start < $ragged;
   return ($target->end-1) * $self->scale;
 }
 
+sub draw_target {
+  my $self = shift;
+  return if $self->option('draw_dna');
+  return $self->option('draw_target');
+}
+
 sub height {
   my $self = shift;
   my $height = $self->SUPER::height;
-  return $height unless $self->dna_fits 
-    && $self->option('draw_target'); # || $self->option('draw_dna'));
+  return $height unless $self->dna_fits && $self->draw_target; # || $self->option('draw_dna'));
   my $fontheight = $self->font->height;
   return $fontheight if $fontheight > $height;
 }
@@ -87,14 +92,14 @@ sub maxdepth {
 
 sub fontcolor {
   my $self = shift;
-  return $self->SUPER::fontcolor unless $self->option('draw_target');# || $self->option('draw_dna');
+  return $self->SUPER::fontcolor unless $self->draw_target;# || $self->option('draw_dna');
   return $self->SUPER::fontcolor unless $self->dna_fits;
   return $self->bgcolor;
 }
 
 sub draw {
   my $self = shift;
-  my $draw_target = $self->option('draw_target');
+  my $draw_target = $self->draw_target;
   return $self->SUPER::draw(@_) unless $draw_target;
   return $self->SUPER::draw(@_) unless $self->dna_fits;
 
@@ -115,105 +120,6 @@ sub draw {
   $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
 
 }
-
-sub draw_dna {
-  my $self = shift;
-  my $gd   = shift;
-  my ($left,$top,$partno,$total_parts,$ref_dna) = @_;
-  my $flipped              = $self->flip;
-  my $pixels_per_base      = $self->scale;
-  my $feature              = $self->feature;
-  my $panel                = $self->panel;
-  my ($abs_start,$abs_end)     = ($feature->start,$feature->end);
-  my ($tgt_start,$tgt_end)     = ($feature->hit->start,$feature->hit->end);
-  my ($panel_start,$panel_end) = ($self->panel->start,$self->panel->end);
-  my $strand               = $feature->strand;
-  my $panel_left           = $self->panel->left;
-  my $panel_right          = $self->panel->right;
-  my $true_target          = $self->option('true_target');
-  my $drew_sequence;
-
-  my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
-  $top = $bt;
-
-  my @s                     = $self->_subfeat($feature);
-
-  my (@segments,%strands);
-  for my $s (@s) {
-    my ($src_start,$src_end) = ($s->start,$s->end);
-    next if $src_end < $panel_start or $src_start > $panel_end;
-    push @segments,[$s,$src_start,$src_end];
-  }
-
-  $ref_dna = lc ref($ref_dna) ? $ref_dna->seq : $ref_dna;
-  $ref_dna = $self->reversec($ref_dna) if $strand < 0;
-
-  for my $seg (@segments) {
-    # left clipping
-    if ( (my $delta = $seg->[SRC_START] - $panel_start) < 0 ) {
-      $seg->[SRC_START] = $panel_start;
-    }
-
-    # right clipping
-    if ( (my $delta = $panel_end - $seg->[SRC_END]) < 0) {
-      $seg->[SRC_END] = $panel_end;
-    }
-    warn "Clipping gives [@$seg]\n" if DEBUG;
-
-    $seg->[SRC_START] -= $abs_start - 1;
-    $seg->[SRC_END]   -= $abs_start - 1;
-
-    warn "Coordinate translation gives [@$seg]\n" if DEBUG;
-  }
-
-  # draw
-  my $color = $self->fgcolor;
-  my $font  = $self->font;
-  my $lineheight = $font->height;
-  my $fontwidth  = $font->width;
-
-  my $pink  = $self->factory->translate_color('lightpink');
-  my $grey  = $self->factory->translate_color('gray');
-
-  my $base2pixel = 
-    $self->flip ?
-      sub {
-	my ($src,$tgt) = @_;
-	my $a = $fontwidth + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
-	$panel_right - $a;
-      }
-      : sub {
-	my ($src,$tgt) = @_;
-	$fontwidth/2 + $left + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
-      };
-
-  my $src_last_end;
-  for my $seg (@segments) {
-
-    my $y = $top;
-
-    for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
-
-      my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
-      my $x = $base2pixel->($seg->[SRC_START],$i);
-      $gd->char($font,$x,$y,$src_base,$src_base =~ /[nN]/ ? $grey : $color);
-    }
-
-    # add dashes to fill src alignment gaps
-    if ( defined $src_last_end && (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
-      for (my $i=0;$i<$delta-1;$i++) {
-	my $x = $base2pixel->($src_last_end,$i+1);
-	$gd->char($font,$x,$y,'-',$color);
-      }
-    }
-
-    $src_last_end  = $seg->[SRC_END];
-    $drew_sequence++;
-  }
-
-  return $drew_sequence;
-}
-
 sub draw_multiple_alignment {
   my $self = shift;
   my $gd   = shift;
@@ -239,6 +145,7 @@ sub draw_multiple_alignment {
   my $drew_sequence;
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
+  warn "top = $top, bt = $bt, labelheight = ",$self->labelheight;
   $top = $bt;
 
   my @s                     = $self->_subfeat($feature);
@@ -623,7 +530,8 @@ In addition, the following glyph-specific options are recognized:
 
 If the -draw_dna flag is set to a true value, then when the
 magnification is high enough, the underlying DNA sequence will be
-shown.  This option is mutually exclusive with -draw_target.
+shown.  This option is mutually exclusive with -draw_target. See
+Bio::Graphics::Glyph::generic for more details.
 
 The -draw_target, -ragged_extra, and -show_mismatch options only work
 with seqfeatures that implement the hit() method
@@ -640,6 +548,10 @@ shown as their reverse complement (so that the match has the same
 sequence as the plus strand of the source dna).  If you prefer to see
 the actual sequence of the target as it appears on the minus strand,
 then set -true_target to true.
+
+Note that -true_target has the opposite meaning from
+-canonical_strand, which is used in conjunction with -draw_dna to draw
+minus strand features as if they appear on the plus strand.
 
 =head2 Displaying Alignments
 
