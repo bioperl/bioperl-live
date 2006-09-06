@@ -512,15 +512,15 @@ sub TIEHANDLE {
 
 sub READLINE {
   my $self = shift;
-  return $self->{'featio'}->next_seq() unless wantarray;
+  return $self->{'featio'}->next_feature() unless wantarray;
   my (@list, $obj);
-  push @list, $obj while $obj = $self->{'featio'}->next_seq();
+  push @list, $obj while $obj = $self->{'featio'}->next_feature();
   return @list;
 }
 
 sub PRINT {
   my $self = shift;
-  $self->{'featio'}->write_seq(@_);
+  $self->{'featio'}->write_feature(@_);
 }
 
 1;
