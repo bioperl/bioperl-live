@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 176;
+    plan tests => 179;
 }
 
 if( $error == 1 ) {
@@ -308,4 +308,17 @@ ok($ann, 1);
 @date_check = qw(01-NOV-1997 01-NOV-1996 30-MAY-2006 );
 for my $date (@dates) {
     ok($date, shift @date_check);
+}
+
+# TrEMBL/SwissProt sequence differentiation with namespace()
+
+$seqio = new Bio::SeqIO( -verbose => $verbose,
+                         -format => 'swiss',
+                         -file   => Bio::Root::IO->catfile('t','data', 
+                                                       'newformat.swiss'));
+
+my @namespaces = qw(Swiss-Prot TrEMBL TrEMBL);
+
+while (my $seq = $seqio->next_seq) {
+    ok($seq->namespace, shift @namespaces);
 }
