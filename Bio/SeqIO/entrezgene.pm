@@ -22,8 +22,8 @@ Bio::SeqIO::entrezgene - Entrez Gene ASN1 parser
 
 This is EntrezGene ASN bioperl parser. It is built on top of 
 Bio::ASN1::EntrezGene, a low level ASN parser built by Mingyi Liu 
-(sourceforge.net/projects/egparser). The easiest way to use it is 
-shown above.
+(L<http://sourceforge.net/projects/egparser>). The easiest way to 
+use it is shown above.
 
 You will get most of the Entrez Gene annotation such as gene symbol, 
 gene name and description, accession numbers associated 
@@ -37,10 +37,13 @@ If you need all the data do:
                                -debug => 'on' );
    my ($gene,$genestructure,$uncaptured) = $seqio->next_seq;
 
-The $genestructure is a Bio::Cluster::SequenceFamily object. It 
-contains all Refseqs and the genomic contigs that are associated with 
-the particular gene. You can also modify the output to allow back 
-compatibility with old LocusLink parser:
+The second variable returned, $genestructure, is a Bio::Cluster::SequenceFamily 
+object. It contains all Refseqs and the genomic contigs that are associated 
+with the particular gene. The third variable, $uncaptured, is a reference 
+to a plain array.
+
+You can also modify the output to allow back compatibility with old 
+LocusLink parser:
 
    my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
                                -file => $file,
