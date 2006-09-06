@@ -164,8 +164,8 @@ ok(@f == 2);
 @f = $db->get_features_by_location(-seq_id=>'Contig3');
 ok(@f == 2);
 
-# find all top-level features on Contig3 of type 'Component'
-@f = $db->features(-seq_id=>'Contig3',-type=>'Component');
+# find all top-level features on Contig3 of type 'assembly_component'
+@f = $db->features(-seq_id=>'Contig3',-type=>'assembly_component');
 ok(@f==1);
 
 # test iteration

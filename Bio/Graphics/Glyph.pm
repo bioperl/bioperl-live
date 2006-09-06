@@ -724,7 +724,6 @@ sub draw {
   my $gd = shift;
   my ($left,$top,$partno,$total_parts) = @_;
 
-
   my $connector = $self->connector;
 
   if (my @parts = $self->parts) {
@@ -1170,7 +1169,8 @@ sub _subfeat {
 
   my @split = eval { my $id   = $feature->location->seq_id;
 		     my @subs = $feature->location->sub_Location;
-		     grep {$id eq $_->seq_id} @subs};
+		     grep {$id eq $_->seq_id} @subs;
+		   };
 
   return @split if @split;
 

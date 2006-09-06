@@ -34,7 +34,10 @@ The GFF3 file format has been extended very slightly to accomodate
 Bio::DB::SeqFeature::Store. First, the loader recognizes is a new
 directive:
 
-  ##index-subfeatures [0|1]
+  # #index-subfeatures [0|1]
+
+Note that you can place a space between the two #'s in order to
+prevent GFF3 validators from complaining.
 
 If this is true, then subfeatures are indexed (the default) so that
 they can be retrieved with a query. See L<Bio::DB::SeqFeature::Store>
@@ -42,10 +45,10 @@ for an explanation of this. If false, then subfeatures can only be
 accessed through their parent feature. The default is to index all
 subfeatures.
 
-Second, the loader recognizes a new attribute tag called Index, which
+Second, the loader recognizes a new attribute tag called index, which
 if present, controls indexing of the current feature. Example:
 
- ctg123	. TF_binding_site 1000 1012 . + . ID=tfbs00001;Index=1
+ ctg123	. TF_binding_site 1000 1012 . + . ID=tfbs00001;index=1
 
 You can use this to turn indexing on and off, overriding the default
 for a particular feature.
@@ -74,7 +77,7 @@ my %Special_attributes =(
 			 Gap    => 1, Target => 1,
 			 Parent => 1, Name   => 1,
 			 Alias  => 1, ID     => 1,
-			 Index  => 1,
+			 index  => 1, Index  => 1,
 			);
 my %Strandedness = ( '+'  => 1,
 		     '-'  => -1,
@@ -403,7 +406,7 @@ sub do_load {
     next unless /^\S/;     # blank line
     $mode = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
 
-    if (/^\#\#\s*(.+)/) {  ## meta instruction
+    if (/^\#\s?\#\s*(.+)/) {  ## meta instruction
       $mode = 'gff';
       $self->handle_meta($1);
 
@@ -501,8 +504,8 @@ sub handle_feature {
   my @parent_ids  = @{$reserved->{Parent}} if $reserved->{Parent};
 
   my $index_it = $ld->{IndexSubfeatures};
-  if (exists $reserved->{Index}) {
-    $index_it = $reserved->{Index}[0];
+  if (exists $reserved->{Index} || exists $reserved->{index}) {
+    $index_it = $reserved->{Index}[0] || $reserved->{index}[0];
   }
 
   # Everything in the unreserved hash becomes an attribute, so we copy
