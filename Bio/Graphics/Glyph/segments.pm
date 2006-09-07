@@ -117,7 +117,8 @@ sub draw {
   my ($gd,$x,$y) = @_;
   $y  += $self->top + $self->pad_top if $drew_sequence;  # something is wrong - this is a hack/workaround
   my $connector     =  $self->connector;
-  $self->draw_connectors($gd,$x,$y) if $connector && $connector ne 'none';
+  $self->draw_connectors($gd,$x,$y)
+    if $connector && $connector ne 'none' && $self->level == 0;
 
 }
 sub draw_multiple_alignment {
@@ -145,10 +146,16 @@ sub draw_multiple_alignment {
   my $drew_sequence;
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
-  warn "top = $top, bt = $bt, labelheight = ",$self->labelheight;
   $top = $bt;
 
   my @s                     = $self->_subfeat($feature);
+  # workaround for features in which top level featuare does not have a hit but
+  # subfeatures do. There is total breakage of encapsulation here because sometimes
+  # a chado alignment places the aligned segment in the top-level feature, and sometimes
+  # in the child feature.
+  if (!@s && $feature->isa('Bio::DB::Das::Chado::Segment::Feature')) {
+    @s = ($feature);
+  }
 
   my $can_realign = $do_realign && eval { require Bio::Graphics::Browser::Realign; 1 };
 
@@ -251,6 +258,7 @@ sub draw_multiple_alignment {
   # of the left and right panel coordinates
   my %clip;
   for my $seg (@segments) {
+
     my $target = $seg->[TARGET];
     warn "preclip [@$seg]\n" if DEBUG;
 
@@ -324,7 +332,7 @@ sub draw_multiple_alignment {
   my ($tgt_last_end,$src_last_end);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
 
-    my $y = $top;
+    my $y = $top-1;
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
 
