@@ -198,9 +198,9 @@ sub elink_command {
 sub get_LinkIds_by_db {
     my $self = shift;
     my $db = shift if @_;
+    $self->throw("Must use database to access IDs") if !$db;
     my $ct = scalar(@{ $self->{'_linksetdb'} });
     return [] if $ct == 0; # no linksets, blank anon array
-    $self->throw("Must use database to access IDs") if !$db;
     for my $linkset (@{ $self->{'_linksetdb'}}) {
         my $dbto = $linkset->{DbTo};
         if ($dbto eq $db) {
