@@ -134,7 +134,7 @@ sub _load_registry {
          }
 			next if( /^#/ );
 			next if( /^\s/ );
-			if ( /^\[(\w+)\]/ ) {
+			if ( /^\[(\S+)\]/ ) {
 				$db = $1;
 				next;
 			}
