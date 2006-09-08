@@ -236,8 +236,8 @@ sub _get_ini_files {
 			push @ini_files,$file;
       }
    }
-   push @ini_files,"$HOME/$PRIVATE_DIR/REGISTRY" 
-     if ( $HOME && -e "$HOME/$PRIVATE_DIR/REGISTRY" );
+   push @ini_files,"$HOME/$PRIVATE_DIR/$REGISTRY" 
+     if ( $HOME && -e "$HOME/$PRIVATE_DIR/$REGISTRY" );
    push @ini_files, "$PUBLIC_DIR/$REGISTRY"
      if ( -e "$PUBLIC_DIR/$REGISTRY" );
    @ini_files;
@@ -260,8 +260,8 @@ sub _make_private_registry {
 	my $nor_in = $OBDA_SEARCH_PATH ? "nor in directory specified by\n$OBDA_SEARCH_PATH" : 
 	  "and environment variable OBDA_SEARCH_PATH wasn't set";
 
-	$self->warn("No $REGISTRY file found in ~/$PRIVATE_DIR/\n" . 
-					"nor in $HOME/$PUBLIC_DIR $nor_in.\n" .
+	$self->warn("No $REGISTRY file found in $HOME/$PRIVATE_DIR/\n" . 
+					"nor in $PUBLIC_DIR $nor_in.\n" .
 					"Using web to get registry from\n$FALLBACK_REGISTRY");
 
 	# Last gasp. Try to use HTTPget module to retrieve the registry from
