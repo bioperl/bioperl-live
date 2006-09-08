@@ -5,7 +5,8 @@
 
 =head1 NAME
 
-Bio::DB::Failover - A Bio::DB::RandomAccessI compliant class which wraps a priority list of DBs
+Bio::DB::Failover - A Bio::DB::RandomAccessI compliant class which 
+wraps a prioritized list of DBs
 
 =head1 SYNOPSIS
 
@@ -22,8 +23,8 @@ Bio::DB::Failover - A Bio::DB::RandomAccessI compliant class which wraps a prior
 
 =head1 DESCRIPTION
 
-This module provides fail over access to a set of Bio::DB::RandomAccessI objects
-
+This module provides fail over access to a set of Bio::DB::RandomAccessI 
+objects.
 
 =head1 CONTACT
 
@@ -95,30 +96,32 @@ sub add_database {
  Function: Gets a Bio::Seq object by its name
  Returns : a Bio::Seq object
  Args    : the id (as a string) of a sequence
- Throws  : "id does not exist" exception
-
+ Throws  : "no id" exception
 
 =cut
 
 sub get_Seq_by_id {
-    my ($self,$id) = @_;
+	my ($self,$id) = @_;
 
-    if( !defined $id ) {
-	$self->throw("no id is given!");
-    }
-
-    foreach my $db ( @{$self->{'_database'}} ) {
-	my $seq;
-
-	eval {
-	    $seq = $db->get_Seq_by_id($id);
-	};
-	if( defined $seq ) {
-	    return $seq;
+	if( !defined $id ) {
+		$self->throw("no id is given!");
 	}
-    }
 
-    return;
+	foreach my $db ( @{$self->{'_database'}} ) {
+		my $seq;
+
+		eval {
+			$seq = $db->get_Seq_by_id($id);
+		};
+		$self->warn($@) if $@;
+		if ( defined $seq ) {
+			return $seq;
+		} else {
+			$self->warn("No sequence retrieved by database " . ref($db));
+		}
+	}
+
+	return;
 }
 
 =head2 get_Seq_by_acc
@@ -128,61 +131,64 @@ sub get_Seq_by_id {
  Function: Gets a Bio::Seq object by accession number
  Returns : A Bio::Seq object
  Args    : accession number (as a string)
- Throws  : "acc does not exist" exception
-
+ Throws  : "no id" exception
 
 =cut
 
 sub get_Seq_by_acc {
-    my ($self,$id) = @_;
+	my ($self,$id) = @_;
 
-    if( !defined $id ) {
-	$self->throw("no id is given!");
-    }
-
-    foreach my $db ( @{$self->{'_database'}} ) {
-	my $seq;
-	eval {
-	    $seq = $db->get_Seq_by_acc($id);
-	};
-	if( defined $seq ) {
-	    return $seq;
+	if( !defined $id ) {
+		$self->throw("no id is given!");
 	}
-    }
-    return;
+
+	foreach my $db ( @{$self->{'_database'}} ) {
+		my $seq;
+		eval {
+			$seq = $db->get_Seq_by_acc($id);
+		};
+		$self->warn($@) if $@;
+		if ( defined $seq ) {
+			return $seq;
+		} else {
+			$self->warn("No sequence retrieved by database " . ref($db));
+		}
+	}
+	return;
 }
 
-=head2 get_Seq_by_acc
+=head2 get_Seq_by_version
 
- Title   : get_Seq_by_acc
- Usage   : $seq = $db->get_Seq_by_acc('X77802');
- Function: Gets a Bio::Seq object by accession number
+ Title   : get_Seq_by_version
+ Usage   : $seq = $db->get_Seq_by_acc('X77802.2');
+ Function: Gets a Bio::Seq object by versioned accession number
  Returns : A Bio::Seq object
  Args    : accession number (as a string)
  Throws  : "acc does not exist" exception
 
-
 =cut
 
 sub get_Seq_by_version {
-    my ($self,$id) = @_;
+	my ($self,$id) = @_;
 
-    if( !defined $id ) {
-	$self->throw("no id is given!");
-    }
-
-    foreach my $db ( @{$self->{'_database'}} ) {
-	my $seq;
-	eval {
-	    $seq = $db->get_Seq_by_version($id);
-	};
-	if( defined $seq ) {
-	    return $seq;
+	if( !defined $id ) {
+		$self->throw("no acc is given!");
 	}
-    }
-    return;
-}
 
+	foreach my $db ( @{$self->{'_database'}} ) {
+		my $seq;
+		eval {
+			$seq = $db->get_Seq_by_version($id);
+		};
+		$self->warn($@) if $@;
+		if ( defined $seq ) {
+			return $seq;
+		} else {
+			$self->warn("No sequence retrieved by database " . ref($db));
+		}
+	}
+	return;
+}
 
 ## End of Package
 
