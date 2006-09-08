@@ -1020,7 +1020,7 @@ sub _read_EMBL_Species {
     my( $sub_species, $species, $genus, $common, $sci_name, $class_lines );
     while (defined( $_ ||= $self->_readline )) {
         if (/^OS\s+(.+)/) {
-            $sci_name = $1;
+            $sci_name .= ($sci_name) ? ' '.$1 : $1;
         }
         elsif (s/^OC\s+(.+)$//) {
             $class_lines .= $1;
