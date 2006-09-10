@@ -124,6 +124,7 @@ sub new {
     $self->desc($args{desc});
     $self->{score}=$args{score};
     $self->{relpos}=$args{relpos};
+    $self->{frame}=$args{frame};
     $self->{anchor}=$args{anchor};
     return $self;
 }
@@ -290,5 +291,25 @@ sub species {
     }
 }
 
+
+=head2 frame
+
+ Title   : frame
+ Usage   : my $frane=$instance->frame;
+ Function: Get/Set the frame of a DNA instance with respect to a protein motif used.
+            Returns undef if the motif was not protein or the DB is protein.
+ Throws  :
+ Example :
+ Returns : integer
+ Args    : integer (0, 1, 2)
+
+=cut
+
+sub frame {
+    my $self = shift;
+    my $prev = $self->{frame};
+    if (@_) { $self->{frame} = shift; $self->throw("This is not a legitimate frame") unless (grep(/$self->{frame}/,qw[0 1 2])); }
+    return $prev;
+}
 
 1;
