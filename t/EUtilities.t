@@ -10,7 +10,7 @@
 # this test suite
 
 use strict;
-use lib '..','.','./blib/lib';
+use lib '..','.','./lib','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
@@ -627,7 +627,7 @@ SKIP: {
 	
 	# only one linkset, so this actually works (not recommended)
 	my @ids2 = $eutil->get_ids;
-	is(scalar(@ids2), 765 ,'$elink->get_ids()');
+	cmp_ok(scalar(@ids2), '>' ,765 ,'$elink->get_ids()');
 	
 	# Linkset tests (there aren't any)
 	is($eutil->get_linkset_count, 1, '$elink->get_linkset_count()');
@@ -642,7 +642,7 @@ SKIP: {
 		while (	my $db = $linkobj->next_scoredb) {
 			is($db,'protein', '$linkdata->next_scoredb()');
 			my @ids2 = $linkobj->get_LinkIds_by_db($db);
-			is(scalar(@ids2), 765, '$linkdata->get_LinkIds_by_db($db)');
+			cmp_ok(scalar(@ids2), '>', 765, '$linkdata->get_LinkIds_by_db($db)');
 			for my $id (@ids) {
 				is($linkobj->get_score($id), $scores{$id}, '$linkdata->get_score()');
 			}
