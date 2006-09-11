@@ -193,16 +193,16 @@ ok $psmIO->version, '3.0';
 
 my $mmastIO=new Bio::Matrix::PSM::IO(-format=>'mast',-file=>Bio::Root::IO->catfile(qw(t data mixedmast.dat)));
 
- my $psm = $mmastIO->next_psm; 
-    my $lastinstances = $psm -> instances () ;
+$psm = $mmastIO->next_psm; 
+my $lastinstances = $psm->instances();
 my $i=0;
-    foreach my $hit (@$lastinstances) {
-        $hit -> end ( $hit-> start () + length ($hit->seq) - 1 ) ; # fix an old bug in InstanceSite.pm
-   	my $d=join("\t",$hit->{accession_number},$hit -> start () , $hit-> end (),$hit -> score (),
-   	$hit -> strand == 1 ? '+' : '-' , $hit -> frame,  $hit -> desc ( ));
-   	ok $d,$mmt[$i];
-   	$i++;
-   	last if ($hit -> start == 1652447);
-    }
+foreach my $hit (@$lastinstances) {
+    $hit -> end ( $hit-> start () + length ($hit->seq) - 1 ) ; # fix an old bug in InstanceSite.pm
+    my $d=join("\t",$hit->{accession_number},$hit -> start () , $hit-> end (),$hit -> score (),
+    $hit -> strand == 1 ? '+' : '-' , $hit -> frame,  $hit -> desc ( ));
+    ok $d,$mmt[$i];
+    $i++;
+    last if ($hit -> start == 1652447);
+}
 
 
