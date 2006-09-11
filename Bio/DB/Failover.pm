@@ -1,7 +1,6 @@
-# POD documentation - main docs before the code
-
 # $Id$
 
+# POD documentation - main docs before the code
 
 =head1 NAME
 
@@ -45,7 +44,6 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
 
 package Bio::DB::Failover;
@@ -70,22 +68,24 @@ sub new {
 
  Title   : add_database
  Usage   : add_database(%db)
- Function: Adds a database to the 
- Returns : count of number of databases
- Args    : hash of db resource name to Bio::DB::SeqI object
+ Function: Adds a database to the Failover object 
+ Returns : Count of number of databases
+ Args    : Array of db resources
+ Throws  : Not a RandomAccessI exception
 
 =cut
 
 sub add_database {
-    my ($self,@db) = @_;
-    foreach my $db ( @db ) {
-	if( !ref $db || !$db->isa('Bio::DB::RandomAccessI') ) {
-	    $self->throw("Database objects $db is a not a Bio::DB::RandomAccessI");
-	    next;
+	my ($self,@db) = @_;
+	for my $db ( @db ) {
+		if ( !ref $db || !$db->isa('Bio::DB::RandomAccessI') ) {
+			$self->throw("Database object $db is a not a Bio::DB::RandomAccessI");
+			next;
+		}
+		
+		push(@{$self->{'_database'}},$db);
 	}
-
-	push(@{$self->{'_database'}},$db);
-    }    
+	scalar @{$self->{'_database'}};
 }
 
 
@@ -195,4 +195,3 @@ sub get_Seq_by_version {
 1;
 
 __END__
-
