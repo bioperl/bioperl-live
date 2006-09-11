@@ -487,7 +487,7 @@ sub consensus {
 
  Title   : width
  Usage   :
- Function: Returns the length of the site
+ Function: Returns the length of the sites in used to make this matrix
  Returns : int
  Args    : none
 
@@ -497,6 +497,22 @@ sub width {
     my $self = shift;
     my $width=@{$self->{probA}};
     return $width;
+}
+
+=head2 sites
+
+ Title   : sites
+ Usage   :
+ Function: Get/set the number of sites that were used to make this matrix
+ Returns : int
+ Args    : none to get, int to set
+
+=cut
+
+sub sites {
+    my $self = shift;
+    if (@_) { $self->{sites} = shift }
+    return $self->{sites} || return;
 }
 
 =head2 IUPAC
