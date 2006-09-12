@@ -163,7 +163,8 @@ sub classification {
         # make sure the lineage contains us as first or second element
         # (lineage may have subspeces, species, genus ...)
         my $name = $self->node_name;
-        if ($name && ($name ne $vals[0] && $name ne $vals[1])) {
+        if ($name && ($name ne $vals[0] && $name ne $vals[1]) &&
+			       $name ne "$vals[1] $vals[0]") {
             $self->throw("The supplied lineage does not start near '$name'");
         }
         
