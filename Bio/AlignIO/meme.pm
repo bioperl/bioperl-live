@@ -103,7 +103,8 @@ sub next_aln {
 			# Check for the meme header
 			if ($line =~ /^\s*MEME\s+version\s+(\S+)/ ){
 				$self->{'meme_vers'} = $1;
-				$self->throw($MEME_VERS_ERR) unless ($self->{'meme_vers'} >= 3.0);
+                my ($vers) = $self->{'meme_vers'} =~ /^(\d)/;
+				$self->throw($MEME_VERS_ERR) unless ($vers >= 3);
 				$self->{'seen_header'} = 1;
 	      }
 			# Check if they've output the HTML version
