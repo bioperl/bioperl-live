@@ -482,7 +482,6 @@ sub consensus {
     return $consensus;
 }
 
-
 =head2 width
 
  Title   : width
@@ -745,23 +744,23 @@ sub regexp {
 	foreach my $letter (@{$self->{IUPAC}}) {
 		my $reg;
 		LETTER: {
-			if ($letter eq 'A') { $reg='Aa'; last LETTER; }
-			if ($letter eq 'C') { $reg='Cc'; last LETTER; }
-			if ($letter eq 'G') { $reg='Gg'; last LETTER; }
-			if ($letter eq 'T') { $reg='Tt'; last LETTER; }
-			if ($letter eq 'M') { $reg='AaCc'; last LETTER; }
-			if ($letter eq 'R') { $reg='AaGg'; last LETTER; }
-			if ($letter eq 'W') { $reg='AaTt'; last LETTER; }
-			if ($letter eq 'S') { $reg='CcGg'; last LETTER; }
-			if ($letter eq 'Y') { $reg='CcTt'; last LETTER; }
-			if ($letter eq 'K') { $reg='GgTt'; last LETTER; }
-			if ($letter eq 'V') { $reg='AaCcGg'; last LETTER; }
-			if ($letter eq 'H') { $reg='AaCcTt'; last LETTER; }
-			if ($letter eq 'D') { $reg='AaGgTt'; last LETTER; }
-			if ($letter eq 'B') { $reg='CcGgTt'; last LETTER; }
-			$reg="\.";
+			if ($letter eq 'A') { $reg='[Aa]'; last LETTER; }
+			if ($letter eq 'C') { $reg='[Cc]'; last LETTER; }
+			if ($letter eq 'G') { $reg='[Gg]'; last LETTER; }
+			if ($letter eq 'T') { $reg='[Tt]'; last LETTER; }
+			if ($letter eq 'M') { $reg='[AaCcMm]'; last LETTER; }
+			if ($letter eq 'R') { $reg='[AaGgRr]'; last LETTER; }
+			if ($letter eq 'W') { $reg='[AaTtWw]'; last LETTER; }
+			if ($letter eq 'S') { $reg='[CcGgSs]'; last LETTER; }
+			if ($letter eq 'Y') { $reg='[CcTtYy]'; last LETTER; }
+			if ($letter eq 'K') { $reg='[GgTtKk]'; last LETTER; }
+			if ($letter eq 'V') { $reg='[AaCcGgVv]'; last LETTER; }
+			if ($letter eq 'H') { $reg='[AaCcTtHh]'; last LETTER; }
+			if ($letter eq 'D') { $reg='[AaGgTtDd]'; last LETTER; }
+			if ($letter eq 'B') { $reg='[CcGgTtBb]'; last LETTER; }
+			$reg='\S';
 		}
-		$regexp .= "[$reg]";
+		$regexp .= $reg;
 	}
     return $regexp;
 }
@@ -785,21 +784,21 @@ sub regexp_array {
 	foreach my $letter (@{$self->{IUPAC}}) {
 		my $reg;
 		LETTER: {
-			if ($letter eq 'A') { $reg='Aa'; last LETTER; }
-			if ($letter eq 'C') { $reg='Cc'; last LETTER; }
-			if ($letter eq 'G') { $reg='Gg'; last LETTER; }
-			if ($letter eq 'T') { $reg='Tt'; last LETTER; }
-			if ($letter eq 'M') { $reg='AaCc'; last LETTER; }
-			if ($letter eq 'R') { $reg='AaGg'; last LETTER; }
-			if ($letter eq 'W') { $reg='AaTt'; last LETTER; }
-			if ($letter eq 'S') { $reg='CcGg'; last LETTER; }
-			if ($letter eq 'Y') { $reg='CcTt'; last LETTER; }
-			if ($letter eq 'K') { $reg='GgTt'; last LETTER; }
-			if ($letter eq 'V') { $reg='AaCcGg'; last LETTER; }
-			if ($letter eq 'H') { $reg='AaCcTt'; last LETTER; }
-			if ($letter eq 'D') { $reg='AaGgTt'; last LETTER; }
-			if ($letter eq 'B') { $reg='CcGgTt'; last LETTER; }
-			$reg="\."; 
+			if ($letter eq 'A') { $reg='[Aa]'; last LETTER; }
+			if ($letter eq 'C') { $reg='[Cc]'; last LETTER; }
+			if ($letter eq 'G') { $reg='[Gg]'; last LETTER; }
+			if ($letter eq 'T') { $reg='[Tt]'; last LETTER; }
+			if ($letter eq 'M') { $reg='[AaCcMm]'; last LETTER; }
+			if ($letter eq 'R') { $reg='[AaGgRr]'; last LETTER; }
+			if ($letter eq 'W') { $reg='[AaTtWw]'; last LETTER; }
+			if ($letter eq 'S') { $reg='[CcGgSs]'; last LETTER; }
+			if ($letter eq 'Y') { $reg='[CcTtYy]'; last LETTER; }
+			if ($letter eq 'K') { $reg='[GgTtKk]'; last LETTER; }
+			if ($letter eq 'V') { $reg='[AaCcGgVv]'; last LETTER; }
+			if ($letter eq 'H') { $reg='[AaCcTtHh]'; last LETTER; }
+			if ($letter eq 'D') { $reg='[AaGgTtDd]'; last LETTER; }
+			if ($letter eq 'B') { $reg='[CcGgTtBb]'; last LETTER; }
+			$reg='\S';
 		}
 		push @regexp,$reg;
 	}
@@ -953,12 +952,14 @@ sub sequence_match_weight {
     return unless ($self->{logA});
     my $width=$self->width;
     $self->throw ("I can calculate the score only for sequence which are exactly my size for $seq, my width is $width\n") unless (length($seq)==@{$self->{logA}});
+    $seq = uc($seq);
     my @seq=split(//,$seq);
-    my $score;
+    my $score = 0;
     my $i=0;
     foreach my $pos (@seq) {
-        my $tv='log' . $pos;
-        $score+=$self->{$tv}->[$i];
+        my $tv = 'log'.$pos;
+        $self->warn("Position ".($i+1)." of input sequence has unknown (ambiguity?) character '$pos': scores will be wrong") unless defined $self->{$tv};
+        $score += defined $self->{$tv} ? $self->{$tv}->[$i] : 0;
         $i++;
     }
     return $score;

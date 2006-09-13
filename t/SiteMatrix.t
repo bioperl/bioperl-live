@@ -66,7 +66,7 @@ ok $matrix->e_val(0.0001);
 ok $matrix->e_val,0.0001;
 
 #Now some PSM specific methods like regexp and matrix info
-ok $matrix->regexp,'[Aa][CcGgTt][AaCcGg][Cc][AaGgTt]';
+ok $matrix->regexp,'[Aa][CcGgTtBb][AaCcGgVv][Cc][AaGgTtDd]';
 my $regexp=$matrix->regexp;
 ok 'ATCCT',"/$regexp/";
 
