@@ -91,7 +91,7 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::biofetch;
-use vars qw(@ISA %HOSTS  %FORMATMAP  $DEFAULTFORMAT 
+use vars qw(@ISA %HOSTS  %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
 	    $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
@@ -116,12 +116,11 @@ BEGIN {
 	      );
     %FORMATMAP = ( 'default' => 'medlinexml'
 		   );
-    $DEFAULTFORMAT = 'default';
+    $DEFAULTFORMAT = 'medlinexml';
 
     $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
-
+	 $DEFAULTRETRIEVAL_TYPE = 'tempfile';
 }
-
 
 sub new {
     my ($class, @args ) = @_;
@@ -132,6 +131,7 @@ sub new {
 
     $self->hosts(\%HOSTS);
     $self->formatmap(\%FORMATMAP);
+	 $self->retrieval_type($DEFAULTRETRIEVAL_TYPE);
     $self->{'_default_format'} = $DEFAULTFORMAT;
 
     return $self;
@@ -177,7 +177,7 @@ sub get_all {
 =head2 get_seq_stream
 
  Title   : get_seq_stream
- Usage   : my $seqio = $self->get_seq_sream(%qualifiers)
+ Usage   : my $seqio = $self->get_seq_stream(%qualifiers)
  Function: builds a url and queries a web db
  Returns : a Bio::SeqIO stream capable of producing sequence
  Args    : %qualifiers = a hash qualifiers that the implementing class 
@@ -186,57 +186,57 @@ sub get_all {
 =cut
 
 sub get_seq_stream {
-    my ($self, %qualifiers) = @_;
-    my ($rformat, $ioformat) = $self->request_format();
-    my $seen = 0;
-    foreach my $key ( keys %qualifiers ) {
-	if( $key =~ /format/i ) {
-	    $rformat = $qualifiers{$key};
-	    $seen = 1;
+	my ($self, %qualifiers) = @_;
+	my ($rformat, $ioformat) = $self->request_format();
+	my $seen = 0;
+	foreach my $key ( keys %qualifiers ) {
+		if( $key =~ /format/i ) {
+			$rformat = $qualifiers{$key};
+			$seen = 1;
+		}
 	}
-    }
-    $qualifiers{'-format'} = $rformat if( !$seen);
-    ($rformat, $ioformat) = $self->request_format($rformat);
+	$qualifiers{'-format'} = $rformat if( !$seen);
+	($rformat, $ioformat) = $self->request_format($rformat);
     
-    my $request = $self->get_request(%qualifiers);
-    my ($stream,$resp);
-    if( $self->retrieval_type =~ /temp/i ) {
-	my $dir = $self->io()->tempdir( CLEANUP => 1);
-	my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
-	close $fh;
-	my ($resp) = $self->_request($request, $tmpfile);		
-	if( ! -e $tmpfile || -z $tmpfile || ! $resp->is_success() ) {
-            $self->throw("WebDBSeqI Error - check query sequences!\n");
+	my $request = $self->get_request(%qualifiers);
+	my ($stream,$resp);
+	if ( $self->retrieval_type =~ /temp/i ) {
+		my $dir = $self->io()->tempdir( CLEANUP => 1);
+		my ( $fh, $tmpfile) = $self->io()->tempfile( DIR => $dir );
+		close $fh;
+		my ($resp) = $self->_request($request, $tmpfile);		
+		if( ! -e $tmpfile || -z $tmpfile || ! $resp->is_success() ) {
+			$self->throw("WebDBSeqI Error - check query sequences!\n");
+		}
+		$self->postprocess_data('type' => 'file',
+										'location' => $tmpfile);	
+		# this may get reset when requesting batch mode
+		($rformat,$ioformat) = $self->request_format();
+		if ( $self->verbose > 0 ) {
+			open(ERR, "<$tmpfile");
+			while(<ERR>) { $self->debug($_);}
+		} 
+		$stream = new Bio::Biblio::IO('-format' => $ioformat,
+												'-file'   => $tmpfile);
+	} elsif ( $self->retrieval_type =~ /io_string/i ) {
+		my ($resp) = $self->_request($request);
+		my $content = $resp->content_ref;
+		$self->debug( "content is $$content\n");
+		if( ! $resp->is_success() || length(${$resp->content_ref()}) == 0 ) {
+			$self->throw("WebDBSeqI Error - check query sequences!\n");	
+		}  
+		($rformat,$ioformat) = $self->request_format();
+		$self->postprocess_data('type'=> 'string',
+										'location' => $content);
+		$stream = new Bio::Biblio::IO('-format' => $ioformat,
+			# '-data'   => "<tag>". $$content. "</tag>");
+												'-data'   => $$content
+											  );
+	} else { 
+		$self->throw("retrieval type " . $self->retrieval_type . 
+						 " unsupported\n");
 	}
-	$self->postprocess_data('type' => 'file',
-				'location' => $tmpfile);	
-	# this may get reset when requesting batch mode
-	($rformat,$ioformat) = $self->request_format();
-	if( $self->verbose > 0 ) {
-	    open(ERR, "<$tmpfile");
-	    while(<ERR>) { $self->debug($_);}
-	} 
-	$stream = new Bio::Biblio::IO('-format' => $ioformat,
-				      '-file'   => $tmpfile);
-    } elsif( $self->retrieval_type =~ /io_string/i ) {
-	my ($resp) = $self->_request($request);
-        my $content = $resp->content_ref;
-	$self->debug( "content is $$content\n");
-	if( ! $resp->is_success() || length(${$resp->content_ref()}) == 0 ) {
-	    $self->throw("WebDBSeqI Error - check query sequences!\n");	
-        }  
-	($rformat,$ioformat) = $self->request_format();
-	$self->postprocess_data('type'=> 'string',
-				'location' => $content);
-	$stream = new Bio::Biblio::IO('-format' => $ioformat,
-#				      '-data'   => "<tag>". $$content. "</tag>");
-				      '-data'   => $$content
-				      );
-    } else { 
-	$self->throw("retrieval type " . $self->retrieval_type . 
-		     " unsupported\n");
-    }
-    return $stream;
+	return $stream;
 }
 
 
@@ -257,37 +257,31 @@ sub get_seq_stream {
 # override it with their own method.
 
 sub postprocess_data {    
-    my ($self, %args) = @_;
-    my $data;
-    my $type = uc $args{'type'};
-    my $location = $args{'location'};
-    if( !defined $type || $type eq '' || !defined $location) {
-	return;
-    } elsif( $type eq 'STRING' ) {
-	$data = $$location; 
-    } elsif ( $type eq 'FILE' ) {
-	open(TMP, $location) or $self->throw("could not open file $location");
-	my @in = <TMP>;
-	close TMP;
-	$data = join("", @in);
-    }
+	my ($self, %args) = @_;
+	my $data;
+	my $type = uc $args{'type'};
+	my $location = $args{'location'};
+	if( !defined $type || $type eq '' || !defined $location) {
+		return;
+	} elsif( $type eq 'STRING' ) {
+		$data = $$location; 
+	} elsif ( $type eq 'FILE' ) {
+		open(TMP, $location) or $self->throw("could not open file $location");
+		my @in = <TMP>;
+		close TMP;
+		$data = join("", @in);
+	}
 
-    $data = "<tag>". $data. "</tag>";
+	if( $type eq 'FILE'  ) {
+		open(TMP, ">$location") or $self->throw("could overwrite file $location");
+		print TMP $data;
+		close TMP;
+	} elsif ( $type eq 'STRING' ) {
+		${$args{'location'}} = $data;
+	}
     
-    if( $type eq 'FILE'  ) {
-	open(TMP, ">$location") or $self->throw("could overwrite file $location");
-	print TMP $data;
-	close TMP;
-    } elsif ( $type eq 'STRING' ) {
-	${$args{'location'}} = $data;
-    }
-    
-    $self->debug("format is ". $self->request_format(). " data is $data\n");
-
+	$self->debug("format is ". $self->request_format(). " data is $data\n");
 }
-
-
-
 
 =head2 VERSION and Revision
 
