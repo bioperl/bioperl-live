@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test::More;
-    plan tests => 101;
+    plan tests => 104;
 }
 
 use_ok('Bio::Location::Simple');
@@ -257,7 +257,7 @@ is $f->start, 40, 'Default coodinate policy';
 is $f->end, 100;
 is $f->length, 61;
 is $f->to_FTstring, '(40.60)..(80.100)';
-is  ref $f->coordinate_policy, 'Bio::Location::WidestCoordPolicy';
+isa_ok($f->coordinate_policy, 'Bio::Location::WidestCoordPolicy');
 
 # this gives an odd location string; is it legal?
 $f->coordinate_policy(new Bio::Location::NarrowestCoordPolicy);
@@ -265,6 +265,7 @@ is $f->start, 60, 'Narrowest coodinate policy';
 is $f->end, 80;
 is $f->length, 21;
 is $f->to_FTstring, '(60.60)..(80.80)';
+isa_ok($f->coordinate_policy, 'Bio::Location::NarrowestCoordPolicy');
 
 # this gives an odd location string
 $f->coordinate_policy(new Bio::Location::AvWithinCoordPolicy);
@@ -272,6 +273,7 @@ is $f->start, 50, 'Average coodinate policy';
 is $f->end, 90;
 is $f->length, 41;
 is $f->to_FTstring, '(50.60)..(80.90)';
+isa_ok($f->coordinate_policy, 'Bio::Location::AvWithinCoordPolicy');
 
 # to complete the circle
 $f->coordinate_policy(new Bio::Location::WidestCoordPolicy);
@@ -279,5 +281,5 @@ is $f->start, 40, 'Widest coodinate policy';
 is $f->end, 100;
 is $f->length, 61;
 is $f->to_FTstring, '(40.60)..(80.100)';
-
+isa_ok($f->coordinate_policy, 'Bio::Location::WidestCoordPolicy');
 
