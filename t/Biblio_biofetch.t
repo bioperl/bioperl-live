@@ -70,7 +70,8 @@ $ref = $refio = undef;
 
 eval { 
 	ok ($db = new Bio::Biblio (-access => 'biofetch',
-										-verbose => $verbose ));
+										# -verbose => $verbose,
+									  ));
 	ok(defined($ref = $db->get_by_id('10592273')));
 	ok $ref->identifier, '10592273';
 };
@@ -86,14 +87,13 @@ $ref = $refio = undef;
 
 eval {
 	ok defined($db = new Bio::Biblio(-access => 'biofetch',
-												-verbose => $verbose,
-												-retrievaltype => 'tempfile'
-											  )); 
+												# -verbose => $verbose,
+											   )); 
 
 	my $ids = ['10592273', '9613206'];
 	ok(defined($refio = $db->get_all($ids)));
-	ok($refio->next_bibref->identifier, '10592273');
 	ok($refio->next_bibref->identifier, '9613206');
+	ok($refio->next_bibref->identifier, '10592273');
 };
 
 if ($@) {    
@@ -104,12 +104,12 @@ if ($@) {
 
 eval {
 	ok defined($db = new Bio::Biblio(-access => 'biofetch',
-												-verbose =>$verbose
+												# -verbose => $verbose,
 											  )); 
 
 	ok(defined($refio = $db->get_Stream_by_id(['10592273', '9613206'])));
-	ok($refio->next_bibref->identifier, '10592273');
 	ok($refio->next_bibref->identifier, '9613206');
+	ok($refio->next_bibref->identifier, '10592273');
 };
 
 if ($@) {    
