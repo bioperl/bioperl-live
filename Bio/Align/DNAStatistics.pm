@@ -1603,7 +1603,23 @@ sub get_syn_changes {
 	}
     }
     return %results;
-}			
+}
+
+=head2 dnds_pattern_number
+
+ Title   : dnds_pattern_number
+ Usage   : my $patterns = $stats->dnds_pattern_number($alnobj);
+ Function: Counts the number of codons with no gaps in the MSA
+ Returns : Number of codons with no gaps ('patterns' in PAML notation)
+ Args    : A Bio::Align::AlignI compliant object such as a
+            Bio::SimpleAlign object.
+
+=cut
+
+sub dnds_pattern_number{
+    my ($self, $aln) = @_;
+    return ($aln->remove_gaps->length)/3;
+}
 
 sub count_syn_sites {
     #counts the number of possible synonymous changes for sequence
