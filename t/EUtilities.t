@@ -14,7 +14,7 @@ use lib '..','.','./lib','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
-	$NUMTESTS = 427;
+	$NUMTESTS = 453;
 	$error = 0;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	# this seems to work for perl 5.6 and perl 5.8
@@ -67,7 +67,8 @@ my %dbs = (taxonomy => 1,
 my %links = (protein_taxonomy => 1,
 			 protein_nucleotide => 1,
 			 protein_nucleotide_wgs => 1,
-			 protein_pubmed => 1
+			 protein_pubmed => 1,
+			 protein_pubmed_refseq => 1
 			 );
 my %scores = (   1621261 =>   2147483647,
 				20807972 =>          423,
@@ -222,7 +223,7 @@ SKIP: {
 	is($eutil->einfo_db_desc, 'Protein sequence record', '$einfo->einfo_db_desc()');
 	my @links = $eutil->einfo_dblink_info;
 	my @fields = $eutil->einfo_dbfield_info;
-	is(scalar(@links), 30, '$einfo->einfo_dblink_info()');
+	cmp_ok(scalar(@links), '>',30, '$einfo->einfo_dblink_info()');
 	is(scalar(@fields), 24, '$einfo->einfo_dbfield_info()');
 
 	my %field = ('SingleToken' => 'Y',
@@ -366,8 +367,8 @@ SKIP: {
 	is($eutil->get_linkset_count, 0, '$elink->get_linkset_count()');
 	
 	# There are ELink cookies instead
-	is($eutil->get_cookie_count, 4, '$elink->get_cookie_count()');
-	
+	is($eutil->get_cookie_count, 5, '$elink->get_cookie_count()');
+	my $ct = 0;
 	while (my $cookie = $eutil->next_cookie) {
 		isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
 		is($cookie->eutil, 'elink', '$elink->cookie->eutil()');
@@ -394,6 +395,8 @@ SKIP: {
 			my $content = $efetch->get_response->content;
 			like($content, qr(<TaxaSet>), 'ELink to EFetch : taxonomy');
 		}
+		last if $ct == 5;
+		$ct++;
 	}
 }
 
@@ -424,9 +427,9 @@ SKIP: {
 	
 	# Linkset tests
 	is($eutil->get_linkset_count, 5, '$elink->get_linkset_count()');
-	my $ct = 0;
 	my @qids;
 	my @retids;
+	my $ct = 0;
 	# ids may not be returned in same order as array, so need to grab and sort
 	while (	my $linkobj = $eutil->next_linkset) {
 		isa_ok($linkobj, 'Bio::DB::EUtilities::ElinkData');
@@ -437,6 +440,8 @@ SKIP: {
 			is($db, 'taxonomy', '$linkdata->next_linkdb()');
 			push @retids, $linkobj->get_LinkIds_by_db($db);
 		}
+		last if $ct == 5;
+		$ct++
 	}
 	is_deeply([sort @qids], [sort @ids], '$linkdata->elink_queryids()');
 	is_deeply([sort @retids], [sort @ids2], '$linkdata->get_LinkIds_by_db($db)');
@@ -475,7 +480,7 @@ SKIP: {
 	is($eutil->get_cookie_count, 5, '$elink->get_cookie_count()');
 	
 	my $efetch = Bio::DB::EUtilities->new();
-	
+	my $ct = 0;
 	while (my $cookie = $eutil->next_cookie) {
 		isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
 		is($cookie->eutil, 'elink', '$elink->cookie->eutil()');
@@ -505,6 +510,8 @@ SKIP: {
 			my $content = $efetch->get_response->content;
 			like($content, qr(<TaxaSet>), 'ELink to EFetch : taxonomy');
 		}
+		last if $ct ==5;
+		$ct++;
 	}
 }
 
@@ -540,6 +547,7 @@ SKIP: {
 	is($eutil->get_cookie_count, 0, '$elink->get_cookie_count()');
 	
 	# Linkset tests
+	my $ct = 0;
 	while (	my $linkobj = $eutil->next_linkset) {
 		isa_ok($linkobj, 'Bio::DB::EUtilities::ElinkData');
 		is($linkobj->elink_dbfrom, 'protein', '$linkdata->elink_dbfrom()');
@@ -551,6 +559,8 @@ SKIP: {
 			my @ids2 = $linkobj->get_LinkIds_by_db($db);
 			cmp_ok(scalar(@ids2), '>=', 1, '$linkdata->get_LinkIds_by_db($db)');
 		}
+		last if $ct == 5;
+		$ct++;
 	}
 }
 
@@ -582,8 +592,8 @@ SKIP: {
 	
 	# Linkset tests (there aren't any)
 	is($eutil->get_linkset_count, 0, '$elink->get_linkset_count()');
-	is($eutil->get_cookie_count, 14, '$elink->get_cookie_count()');
-
+	cmp_ok($eutil->get_cookie_count, '>', 15, '$elink->get_cookie_count()');
+	my $ct = 0;
 	while (my $cookie = $eutil->next_cookie) {
 		isa_ok($cookie, 'Bio::DB::EUtilities::Cookie');
 		is($cookie->eutil, 'elink', '$elink->cookie->eutil()');
@@ -603,6 +613,8 @@ SKIP: {
 		my ($webenv, $key) = @{ $cookie->cookie };
 		like($webenv, qr{^\S{50}}, '$elink->cookie->cookie() WebEnv');
 		like($key, qr{^\d+}, '$elink->cookie->cookie() query key');
+		last if $ct == 14;
+		$ct++;
 	}
 }
 
