@@ -693,7 +693,7 @@ sub matches {
                           int(($beg-$start)/3), int(($end-$beg+1)/3));
         } else {
             $seq = substr($self->seq_str('match'), 
-                          $beg-$start, ($end-$beg));
+                          $beg-$start, ($end-$beg+1));
         }
         ## ML: End of fix for  substr out of range error -----------------
 
