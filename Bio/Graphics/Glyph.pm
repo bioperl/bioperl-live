@@ -52,7 +52,7 @@ sub new {
   warn $self if DEBUG;
   warn $feature if DEBUG;
 
-  my @subfeatures         = $self->subfeat($feature);
+  @subfeatures         = $self->subfeat($feature);
 
   if ($self->option('ignore_sub_part')) {
     my @tmparray;
@@ -317,10 +317,7 @@ sub boxes {
 
   for my $part ($self->parts) {
     my $type = $part->feature->primary_tag || '';
-#    if ($type eq 'group' or
-#	($part->level == 0 && $subparts)) {
     if ($type eq 'group' or $subparts > $part->level) {
-#      push @result,$part->boxes($left+$self->left+$self->pad_left,$top+$self->top+$self->pad_top,$parent);
       push @result,$part->boxes($left,$top+$self->top+$self->pad_top,$parent);
       next if $type eq 'group';
     }
