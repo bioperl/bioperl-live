@@ -395,7 +395,7 @@ SKIP: {
 			my $content = $efetch->get_response->content;
 			like($content, qr(<TaxaSet>), 'ELink to EFetch : taxonomy');
 		}
-		last if $ct == 5;
+		last if $ct == 4;
 		$ct++;
 	}
 }
@@ -440,7 +440,7 @@ SKIP: {
 			is($db, 'taxonomy', '$linkdata->next_linkdb()');
 			push @retids, $linkobj->get_LinkIds_by_db($db);
 		}
-		last if $ct == 5;
+		last if $ct == 4;
 		$ct++
 	}
 	is_deeply([sort @qids], [sort @ids], '$linkdata->elink_queryids()');
@@ -510,7 +510,7 @@ SKIP: {
 			my $content = $efetch->get_response->content;
 			like($content, qr(<TaxaSet>), 'ELink to EFetch : taxonomy');
 		}
-		last if $ct ==5;
+		last if $ct ==4;
 		$ct++;
 	}
 }
@@ -559,7 +559,7 @@ SKIP: {
 			my @ids2 = $linkobj->get_LinkIds_by_db($db);
 			cmp_ok(scalar(@ids2), '>=', 1, '$linkdata->get_LinkIds_by_db($db)');
 		}
-		last if $ct == 5;
+		last if $ct == 4;
 		$ct++;
 	}
 }
