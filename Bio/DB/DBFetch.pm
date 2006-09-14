@@ -1,4 +1,3 @@
-#
 # $Id$
 #
 # BioPerl module for Bio::DB::DBFetch
@@ -67,7 +66,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::DBFetch;
 use strict;
 use vars qw(@ISA $MODVERSION $DEFAULTFORMAT $DEFAULTLOCATION
-	    $DEFAULTSERVERTYPE);
+	         $DEFAULTSERVERTYPE);
 
 $MODVERSION = '0.1';
 use HTTP::Request::Common;
@@ -97,28 +96,28 @@ BEGIN {
 =cut
 
 sub get_request {
-    my ($self, @qualifiers) = @_;
-    my ($uids, $format) = $self->_rearrange([qw(UIDS FORMAT)],
-					    @qualifiers);
+	my ($self, @qualifiers) = @_;
+	my ($uids, $format) = $self->_rearrange([qw(UIDS FORMAT)],
+														 @qualifiers);
 
-    $self->throw("Must specify a value for UIDs to fetch")
-	unless defined $uids;
-    my $tmp;
-    my $format_string = '';
-    $format ||= $self->default_format;
-    ($format, $tmp) = $self->request_format($format);
-    $format_string = "&format=$format" if $format ne $self->default_format;
-    my $url = $self->location_url();
-    my $uid;
-    if( ref($uids) =~ /ARRAY/i ) {
-	$uid = join (',', @$uids);
-	$self->warn ('The server will accept maximum of 50 entries in a request. The rest are ignored.')
-	    if scalar @$uids >50;
-    } else {
-	$uid = $uids;
-    }
+	$self->throw("Must specify a value for UIDs to fetch")
+	  unless defined $uids;
+	my $tmp;
+	my $format_string = '';
+	$format ||= $self->default_format;
+	($format, $tmp) = $self->request_format($format);
+	$format_string = "&format=$format"; 
+	my $url = $self->location_url();
+	my $uid;
+	if( ref($uids) =~ /ARRAY/i ) {
+		$uid = join (',', @$uids);
+		$self->warn ('The server will accept maximum of 50 entries in a request. The rest are ignored.')
+		  if scalar @$uids >50;
+	} else {
+		$uid = $uids;
+	}
 
-    return GET $url. $format_string. '&id='. $uid;
+	return GET $url. $format_string. '&id='. $uid;
 }
 
 
