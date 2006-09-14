@@ -7,7 +7,6 @@
 # Copyright Hilmar Lapp
 #
 # You may distribute this module under the same terms as perl itself
-
 #
 # (c) Hilmar Lapp, hlapp at gnf.org, 2002.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
@@ -65,6 +64,7 @@ Email hlapp at gmx.net
 =head1 CONTRIBUTORS
 
 Jason Stajich, jason-at-bioperl-dot-org
+Chris Fields, cjfields-at-uiuc-dot-edu
 
 =head1 APPENDIX
 
@@ -76,9 +76,8 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Factory::FTLocationFactory;
-use vars qw(@ISA);
+use vars qw(@ISA $LOCREG);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
@@ -91,6 +90,19 @@ use Bio::Location::Fuzzy;
 
 
 @ISA = qw(Bio::Root::Root Bio::Factory::LocationFactoryI);
+
+BEGIN {
+    # the below is an optimized regex obj. from J. Freidl's Mastering Reg Exp.
+    $LOCREG = qr{
+                (?>
+                [^()]+
+                |
+                \(
+                (??{$LOCREG})
+                \)
+                )*
+                }x;     
+}
 
 =head2 new
 
@@ -117,86 +129,88 @@ use Bio::Location::Fuzzy;
 
 =cut
 
-sub from_string{
-    # the third parameter is purely optional and indicates a recursive
-    # call if set
-    my ($self,$locstr,$is_rec) = @_;
+sub from_string {
+    my ($self,$locstr,$op) = @_;
     my $loc;
     
-    # there is no place in FT-formatted location strings where whitespace 
-    # carries meaning, so strip it off entirely upfront
-    $locstr =~ s/\s+//g if ! $is_rec;
-    # does it contain an operator?
-    if($locstr =~ /^(\w+)\((.*)\)$/) {  
-        # yes:
-        my $op = lc($1);    
-        my $oparg = $2;
-        if($op eq "complement") {
-            # parse the argument recursively, then set the strand to -1
-            $loc = $self->from_string($oparg, 1);
-            $loc->strand(-1);
-        } elsif($op eq "join" || $op eq "order" || $op eq "bond" ) {
-            # This is a split location. Split into components and parse each
-            # one recursively, then gather into a SplitLocationI instance.
-            #
-            # Note: The following code will /not/ work with nested
-            # joins (you want to have grammar-based parsing for that).
-            $loc = Bio::Location::Split->new(-verbose   => $self->verbose,
-                                                        -splittype => $op);
+    #$self->debug("$locstr\n");
+    
+    # $op for operator (error handling)
+    
+    # run on first pass only
+    # Note : These location types are now deprecated in GenBank (Oct. 2006)
+    if (!defined($op)) {
+        # convert all (X.Y) to [X.Y]
+        $locstr =~ s{\((\d+\.\d+)\)}{\[$1\]}g;
+        # convert ABC123:(X..Y) to ABC123:[X..Y]
+        # we should never see the above
+        $locstr =~ s{:\((\d+\.{2}\d+)\)}{:\[$1\]}g;
+    }
+    
+    if ($locstr =~ m{(.*?)\(($LOCREG)\)(.*)}o) { # any matching parentheses?
 
-            # have to do this to capture nested joins, something like this
-            # join(11..21,join(100..300,complement(150..230)))
-            # This fixes bug #1674
-            my $re;
-            $re = qr{
-                        \(                 # <<--- paired parens required
-                        (?:
-                        (?> [^()]+ )    # Non-parens without backtracking
-                        |
-                        (??{ $re })     # Group with matching parens
-                      )*
-                        \)                 # ---->> paired parens required
-                    }x;
-            my $oparg_orig = $oparg;
-            my @sections;
-            # lets capture and remove all the sections which
-            # are groups        
-            while( $oparg =~ s/(join|complement|bond|order)$re//ig ) {
-                # oh man this is SUUUCCCH a hack
-                # I don't know what else to do though
-                # s// seems to be dropping the whole 
-                # warn("rematch is $&   $` $'\n");
-                # the code use to just be this line
-                push @sections, $&;
-                # but I recognized join(...,complement(join(..)))
-                # was failling
-                my $before = $`;
-                if( $oparg ne $before . $') { #'
-                    $oparg = $before . $'; # '
+        my ($beg, $mid, $end) = ($1, $2, $3);
+        my (@sublocs) = (split(q(,),$beg), $mid, split(q(,),$end));
+        
+        my @loc_objs;
+        my $loc_obj;
+        
+        SUBLOCS:
+        while (@sublocs) {
+            my $subloc = shift @sublocs;
+            next if !$subloc;
+            my $oparg = ($subloc eq 'join'   || $subloc eq 'bond' ||
+                         $subloc eq 'order'  || $subloc eq 'complement') ? $subloc : undef;
+
+            # has operator, requires further work (recurse)
+            if ($oparg) {
+                my $sub = shift @sublocs;
+                if (($oparg eq 'join' || $oparg eq 'order' || $oparg eq 'bond' )
+                     && $sub !~ m{$oparg}) {
+                    my @splitlocs = split(q(,), $sub);
+                    $loc_obj = Bio::Location::Split->new();
+                    while (my $splitloc = shift @splitlocs) {
+                        next unless $splitloc;
+                        #$loc_obj->add_sub_Location($self->from_string($splitloc, 1));
+                        # this should work but doesn't
+                        my $sobj;
+                        if ($splitloc =~ m{\(($LOCREG)\)}) {
+                            my $comploc = $1;
+                            $sobj = $self->_parse_location($comploc);
+                            $sobj->strand(-1);
+                        } else {
+                            $sobj = $self->_parse_location($splitloc);
+                        }
+                        $loc_obj->add_sub_Location($sobj);
+                    }
+                } else {
+                    $loc_obj = $self->from_string($sub, $oparg);
                 }
             }
-            push @sections, split(/,/,$oparg) if length($oparg);
-            # because we don't necessarily process the string in-order
-            # as we are pulling the data from the string out for
-            # groups first, then pulling out data, comma delimited
-            # I am re-sorting the sections based on their position
-            # in the original string, using the index function to figure
-            # out their position in the string
-            # --jason
-            # resort based on input order, schwartzian style!
-            @sections = map { shift @$_ } sort { $a->[1] <=> $b->[1] }
-                        map { [$_, index($oparg_orig, $_)] } @sections;
-            # end of fix for bug #1674
-            foreach my $s (@sections) {
-                next unless length($s);     
-                $loc->add_sub_Location($self->from_string($s, 1));
-            }       
-        } else {
-        $self->throw("operator \"$op\" unrecognized by parser");
+            # no operator, simple or fuzzy 
+            else {
+                $loc_obj = $self->from_string($subloc,1);
+            }
+            $loc_obj->strand(-1) if ($op && $op eq 'complement');
+            push @loc_objs, $loc_obj;
         }
-    } else {
-    # no operator, parse away
-    $loc = $self->_parse_location($locstr);
+        my $ct = @loc_objs;
+        if ($op && !($op eq 'join' || $op eq 'order' || $op eq 'bond')
+                && $ct > 1 ) {
+            $self->throw("Bad operator $op: had multiple locations ".
+                         scalar(@loc_objs).", should be SplitLocationI");
+        }
+        if ($ct > 1) {
+            $loc = Bio::Location::Split->new();
+            $loc->add_sub_Location(shift @loc_objs) while (@loc_objs);
+            return $loc;
+        } else {
+            $loc = shift @loc_objs;
+            return $loc;
+        }
+    } else { # simple location(s)
+        $loc = $self->_parse_location($locstr);
+        $loc->strand(-1) if ($op && $op eq 'complement');
     }
     return $loc;
 }
@@ -217,10 +231,9 @@ sub from_string{
 sub _parse_location {
     my ($self, $locstr) = @_;
     my ($loc, $seqid);
-    
     #$self->debug( "Location parse, processing $locstr\n");
     # 'remote' location?
-    if($locstr =~ /^(\S+):(.*)$/) {
+    if($locstr =~ m{^(\S+):(.*)$}o) {
         # yes; memorize remote ID and strip from location string
         $seqid = $1;
         $locstr = $2;
@@ -231,19 +244,15 @@ sub _parse_location {
     # remove enclosing parentheses if any; note that because of parentheses
     # possibly surrounding the entire location the parentheses around start
     # and/or may be asymmetrical
-    $start =~ s/^\(+//;
-    $start =~ s/\)+$//;
-    $end   =~ s/^\(+// if $end;
-    $end   =~ s/\)+$// if $end;
+    # Note: these are from X.Y fuzzy locations, which are deprecated!
+    $start =~ s/(?:^\[+|\]+$)//g if $start;
+    $end   =~ s/(?:^\[+|\]+$)//g if $end;
 
     # Is this a simple (exact) or a fuzzy location? Simples have exact start
     # and end, or is between two adjacent bases. Everything else is fuzzy.
     my $loctype = ".."; # exact with start and end as default
 
-    $loctype = '?' if ( ($locstr =~ /\?/) &&
-                              ($locstr !~ /\?\d+/) );
-    $loctype = '?' if ( ($locstr =~ /\?/) &&
-                              ($locstr !~ /\?\d+/) );
+    $loctype = '?' if ( ($locstr =~ /\?/) && ($locstr !~ /\?\d+/) );
 
     my $locclass = "Bio::Location::Simple";
     if(! defined($end)) {
