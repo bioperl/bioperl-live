@@ -1318,7 +1318,8 @@ sub unflatten_seq{
 			$_->has_tag($group_tag)} @flat_seq_features);
        my $n_cdss =
 	 scalar(grep {$_->primary_tag eq 'CDS'} @flat_seq_features);
-	   
+       my $n_rnas =
+	 scalar(grep {$_->primary_tag =~ /RNA/} @flat_seq_features);  
        # Are there any CDS features in the record?
        if ($n_cdss > 0) {
            # YES
@@ -1376,6 +1377,9 @@ sub unflatten_seq{
        }
        else {
 	   # this doesn't seem to be any kind of protein coding gene model
+	   if ( $n_rnas > 0 ) {
+	       $need_to_infer_exons = 1;
+	   }
        }
 
        if ($need_to_infer_exons) {
@@ -2457,7 +2461,6 @@ sub feature_from_splitloc{
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
        $sf->isa("Bio::FeatureHolderI") || $self->throw("$sf NOT A FeatureHolderI");
 
-       # so far, we only infer exons from mRNA
        my $type = $sf->primary_tag;
        next unless $type eq 'mRNA' or $type =~ /RNA/;
 
