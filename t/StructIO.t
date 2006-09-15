@@ -23,9 +23,10 @@ use Bio::Structure::Entry;
 use Bio::Structure::IO;
 use Bio::Root::IO;
 ok(1);
-
-# test reading PDB format
-my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); # BPTI
+#
+# test reading PDB format - single model, single chain
+#
+my $pdb_file = Bio::Root::IO->catfile("t","data","1BPT.pdb");
 my $structin = Bio::Structure::IO->new(-file => $pdb_file, 
 													-format => 'pdb');
 ok(1);
@@ -48,7 +49,9 @@ ok($ann->as_text,
 my $pseq = $struc->seqres;
 ok($pseq->subseq(1,20), "RPDFCLEPPYTGPCKARIIR");
 
-# test polypeptide entry, PDB format
+#
+# test reading PDB format - single model, multiple chains
+#
 $pdb_file = Bio::Root::IO->catfile("t","data","1A3I.pdb");
 $structin = Bio::Structure::IO->new(-file => $pdb_file, 
 												-format => 'pdb');
@@ -69,7 +72,19 @@ ok($chaincount, 4);  # 3 polypeptides and a group of hetero-atoms
 ok($rescount, 60);   # amino acid residues and solvent molecules
 ok($atomcount, 171); # ATOM and HETATM
 
+#
+# test reading PDB format - multiple models, single chain
+#
+$pdb_file = Bio::Root::IO->catfile("t","data","1A11.pdb");
+
+#
+# test reading PDB format - chains with ATOMs plus HETATMs
+#
+$pdb_file = Bio::Root::IO->catfile("t","data","8HVP.pdb");
+
+#
 # test writing PDB format
+#
 my $out_file = Bio::Root::IO->catfile("t","data","temp-pdb1bpt.ent");
 my $structout = Bio::Structure::IO->new(-file => ">$out_file", 
                                         -format => 'PDB');
