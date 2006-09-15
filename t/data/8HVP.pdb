@@ -1,0 +1,1864 @@
+HEADER    HYDROLASE(ACID PROTEINASE)              26-OCT-90   8HVP      8HVP   2
+COMPND    HIV-1 PROTEASE (HIV-1 PR) COMPLEX WITH INHIBITOR              8HVP   3
+COMPND   2 VAL-SER-GLN-ASN-LEU-PSI(CH(OH)-CH2)-VAL-ILE-VAL (U-85548E)   8HVP   4
+SOURCE    SYNTHETIC, BASED ON SEQUENCE FROM HUMAN (HOMO SAPIENS)        8HVP   5
+SOURCE   2 IMMUNODEFICIENCY VIRUS TYPE 1 PROTEASE                       8HVP   6
+AUTHOR    M.JASKOLSKI,M.MILLER,A.G.TOMASSELLI,T.K.SAWYER,D.G.STAPLES,   8HVP   7
+AUTHOR   2 R.L.HEINRIKSON,J.SCHNEIDER,S.B.H.KENT,A.WLODAWER             8HVP   8
+REVDAT   1   31-OCT-93 8HVP    0                                        8HVP   9
+JRNL        AUTH   M.JASKOLSKI,A.G.TOMASSELLI,T.K.SAWYER,D.G.STAPLES,   8HVP  10
+JRNL        AUTH 2 R.L.HEINRIKSON,J.SCHNEIDER,S.B.H.KENT,A.WLODAWER     8HVP  11
+JRNL        TITL   STRUCTURE AT 2.5-*ANGSTROMS RESOLUTION OF            8HVP  12
+JRNL        TITL 2 CHEMICALLY SYNTHESIZED HUMAN IMMUNODEFICIENCY VIRUS  8HVP  13
+JRNL        TITL 3 TYPE 1 PROTEASE COMPLEXED WITH A                     8HVP  14
+JRNL        TITL 4 HYDROXYETHYLENE*-BASED INHIBITOR                     8HVP  15
+JRNL        REF    BIOCHEMISTRY                  V.  30  1600 1991      8HVP  16
+JRNL        REFN   ASTM BICHAW  US ISSN 0006-2960                  033  8HVP  17
+REMARK   1                                                              8HVP  18
+REMARK   1 REFERENCE 1                                                  8HVP  19
+REMARK   1  AUTH   A.WLODAWER,M.MILLER,M.JASKOLSKI,B.K.SATHYANARAYANA,  8HVP  20
+REMARK   1  AUTH 2 E.BALDWIN,I.T.WEBER,L.M.SELK,L.CLAWSON,J.SCHNEIDER,  8HVP  21
+REMARK   1  AUTH 3 S.B.H.KENT                                           8HVP  22
+REMARK   1  TITL   CONSERVED FOLDING IN RETROVIRAL PROTEASES. CRYSTAL   8HVP  23
+REMARK   1  TITL 2 STRUCTURE OF A SYNTHETIC /HIV$-1 PROTEASE            8HVP  24
+REMARK   1  REF    SCIENCE                       V. 245   616 1989      8HVP  25
+REMARK   1  REFN   ASTM SCIEAS  US ISSN 0036-8075                  038  8HVP  26
+REMARK   1 REFERENCE 2                                                  8HVP  27
+REMARK   1  AUTH   I.T.WEBER,M.MILLER,M.JASKOLSKI,J.LEIS,A.M.SKALKA,    8HVP  28
+REMARK   1  AUTH 2 A.WLODAWER                                           8HVP  29
+REMARK   1  TITL   MOLECULAR MODELING OF THE /HIV$-1 PROTEASE AND ITS   8HVP  30
+REMARK   1  TITL 2 SUBSTRATE BINDING SITE                               8HVP  31
+REMARK   1  REF    SCIENCE                       V. 243   928 1989      8HVP  32
+REMARK   1  REFN   ASTM SCIEAS  US ISSN 0036-8075                  038  8HVP  33
+REMARK   1 REFERENCE 3                                                  8HVP  34
+REMARK   1  AUTH   M.MILLER,M.JASKOLSKI,J.K.M.RAO,J.LEIS,A.WLODAWER     8HVP  35
+REMARK   1  TITL   CRYSTAL STRUCTURE OF A RETROVIRAL PROTEASE PROVES    8HVP  36
+REMARK   1  TITL 2 RELATIONSHIP TO ASPARTIC PROTEASE FAMILY             8HVP  37
+REMARK   1  REF    NATURE                        V. 337   576 1989      8HVP  38
+REMARK   1  REFN   ASTM NATUAS  UK ISSN 0028-0836                  006  8HVP  39
+REMARK   1 REFERENCE 4                                                  8HVP  40
+REMARK   1  AUTH   J.SCHNEIDER,S.B.H.KENT                               8HVP  41
+REMARK   1  TITL   ENZYMATIC ACTIVITY OF A SYNTHETIC 99 RESIDUE         8HVP  42
+REMARK   1  TITL 2 PROTEIN CORRESPONDING TO THE PUTATIVE /HIV$-1        8HVP  43
+REMARK   1  TITL 3 PROTEASE                                             8HVP  44
+REMARK   1  REF    CELL(CAMBRIDGE,MASS.)         V.  54   363 1988      8HVP  45
+REMARK   1  REFN   ASTM CELLB5  US ISSN 0092-8674                  998  8HVP  46
+REMARK   2                                                              8HVP  47
+REMARK   2 RESOLUTION. 2.5  ANGSTROMS.                                  8HVP  48
+REMARK   3                                                              8HVP  49
+REMARK   3 REFINEMENT. REFINEMENT BY THE                                8HVP  50
+REMARK   3  RESTRAINED LEAST-SQUARES PROCEDURE OF J. KONNERT AND W.     8HVP  51
+REMARK   3  HENDRICKSON (PROGRAM *PROFFT*).  THE R VALUE IS 0.138 FOR   8HVP  52
+REMARK   3  4768 REFLECTIONS IN THE RESOLUTION RANGE 10 TO 2.5          8HVP  53
+REMARK   3  ANGSTROMS.                                                  8HVP  54
+REMARK   3                                                              8HVP  55
+REMARK   3  RMS DEVIATIONS FROM IDEAL VALUES (THE VALUES OF             8HVP  56
+REMARK   3      SIGMA, IN PARENTHESES, ARE THE INPUT ESTIMATED          8HVP  57
+REMARK   3      STANDARD DEVIATIONS THAT DETERMINE THE RELATIVE         8HVP  58
+REMARK   3      WEIGHTS OF THE CORRESPONDING RESTRAINTS)                8HVP  59
+REMARK   3    DISTANCE RESTRAINTS (ANGSTROMS)                           8HVP  60
+REMARK   3      BOND DISTANCE                            0.014(0.018)   8HVP  61
+REMARK   3      ANGLE DISTANCE                           0.053(0.035)   8HVP  62
+REMARK   3      PLANAR 1-4 DISTANCE                      0.067(0.050)   8HVP  63
+REMARK   3    PLANE RESTRAINT (ANGSTROMS)                0.020(0.025)   8HVP  64
+REMARK   3    CHIRAL-CENTER RESTRAINT (ANGSTROMS**3)     0.179(0.150)   8HVP  65
+REMARK   3    NON-BONDED CONTACT RESTRAINTS (ANGSTROMS)                 8HVP  66
+REMARK   3      SINGLE TORSION CONTACT                   0.217(0.300)   8HVP  67
+REMARK   3      MULTIPLE TORSION CONTACT                 0.264(0.300)   8HVP  68
+REMARK   3      POSSIBLE HYDROGEN BOND                   0.306(0.300)   8HVP  69
+REMARK   3    CONFORMATIONAL TORSION ANGLE RESTRAINT (DEGREES)          8HVP  70
+REMARK   3      PLANAR (OMEGA)                             3.7(4.0)     8HVP  71
+REMARK   3      STAGGERED                                 20.0(10.0)    8HVP  72
+REMARK   3      ORTHONORMAL                               18.2(20.0)    8HVP  73
+REMARK   3    ISOTROPIC THERMAL FACTOR RESTRAINTS (ANGSTROMS**2)        8HVP  74
+REMARK   3      MAIN-CHAIN BOND                          2.449(3.000)   8HVP  75
+REMARK   3      MAIN-CHAIN ANGLE                         3.577(3.500)   8HVP  76
+REMARK   3      SIDE-CHAIN BOND                          6.239(5.000)   8HVP  77
+REMARK   3      SIDE-CHAIN ANGLE                         8.633(8.000)   8HVP  78
+REMARK   3      HYDROGEN BOND                           12.014(25.000)  8HVP  79
+REMARK   4                                                              8HVP  80
+REMARK   4 THE DIMER INTERFACE IS COMPOSED OF INTERDIGITATED N- AND     8HVP  81
+REMARK   4 C-TERMINI FROM BOTH SUBUNITS FORMING A FOUR-STRANDED         8HVP  82
+REMARK   4 ANTIPARALLEL BETA-SHEET.                                     8HVP  83
+REMARK   5                                                              8HVP  84
+REMARK   5 THE PEPTIDE BOND BETWEEN RESIDUES LEU I 5 AND VAL I 6 HAS    8HVP  85
+REMARK   5 BEEN REPLACED BY A HYDROXYETHYLENE GROUP CH(OH)-CH2.  THESE  8HVP  86
+REMARK   5 RESIDUES HAVE BEEN RENAMED AS LOV I 5 TO DENOTE THIS         8HVP  87
+REMARK   5 MODIFICATION.                                                8HVP  88
+SEQRES   1 A   99  PRO GLN ILE THR LEU TRP GLN ARG PRO LEU VAL THR ILE  8HVP  89
+SEQRES   2 A   99  ARG ILE GLY GLY GLN LEU LYS GLU ALA LEU LEU ASP THR  8HVP  90
+SEQRES   3 A   99  GLY ALA ASP ASP THR VAL LEU GLU GLU MET ASN LEU PRO  8HVP  91
+SEQRES   4 A   99  GLY LYS TRP LYS PRO LYS MET ILE GLY GLY ILE GLY GLY  8HVP  92
+SEQRES   5 A   99  PHE ILE LYS VAL ARG GLN TYR ASP GLN ILE PRO VAL GLU  8HVP  93
+SEQRES   6 A   99  ILE ABA GLY HIS LYS ALA ILE GLY THR VAL LEU VAL GLY  8HVP  94
+SEQRES   7 A   99  PRO THR PRO VAL ASN ILE ILE GLY ARG ASN LEU LEU THR  8HVP  95
+SEQRES   8 A   99  GLN ILE GLY ABA THR LEU ASN PHE                      8HVP  96
+SEQRES   1 B   99  PRO GLN ILE THR LEU TRP GLN ARG PRO LEU VAL THR ILE  8HVP  97
+SEQRES   2 B   99  ARG ILE GLY GLY GLN LEU LYS GLU ALA LEU LEU ASP THR  8HVP  98
+SEQRES   3 B   99  GLY ALA ASP ASP THR VAL LEU GLU GLU MET ASN LEU PRO  8HVP  99
+SEQRES   4 B   99  GLY LYS TRP LYS PRO LYS MET ILE GLY GLY ILE GLY GLY  8HVP 100
+SEQRES   5 B   99  PHE ILE LYS VAL ARG GLN TYR ASP GLN ILE PRO VAL GLU  8HVP 101
+SEQRES   6 B   99  ILE ABA GLY HIS LYS ALA ILE GLY THR VAL LEU VAL GLY  8HVP 102
+SEQRES   7 B   99  PRO THR PRO VAL ASN ILE ILE GLY ARG ASN LEU LEU THR  8HVP 103
+SEQRES   8 B   99  GLN ILE GLY ABA THR LEU ASN PHE                      8HVP 104
+SEQRES   1 I    7  VAL SER GLN ASN LOV ILE VAL                          8HVP 105
+FTNOTE   1                                                              8HVP 106
+FTNOTE   1 THE INHIBITOR RESIDUE LOV I 5 IS LEU-VAL WITH THE PEPTIDE    8HVP 107
+FTNOTE   1 BOND REPLACED BY CHOH-CH2.                                   8HVP 108
+HET    ABA  A  67       6     ALPHA-AMINO-N-BUTYRIC ACID                8HVP 109
+HET    ABA  A  95       6     ALPHA-AMINO-N-BUTYRIC ACID                8HVP 110
+HET    ABA  B  67       6     ALPHA-AMINO-N-BUTYRIC ACID                8HVP 111
+HET    ABA  B  95       6     ALPHA-AMINO-N-BUTYRIC ACID                8HVP 112
+HET    LOV  I   5      15     LEU-PSI(CHOH-CH2)-VAL                     8HVP 113
+FORMUL   1  ABA    2(C4 H9 N1 O2)                                       8HVP 114
+FORMUL   2  ABA    2(C4 H9 N1 O2)                                       8HVP 115
+FORMUL   3  LOV    C12 H21 N1 O2                                        8HVP 116
+FORMUL   4  HOH   *80(H2 O1)                                            8HVP 117
+HELIX    1  HA GLY A   86  GLY A   94  1                                8HVP 118
+HELIX    2  HB GLY B   86  GLY B   94  1                                8HVP 119
+SHEET    1 COA 8 LYS A  43  GLY A  49  0                                8HVP 120
+SHEET    2 COA 8 GLY A  52  ILE A  66 -1                                8HVP 121
+SHEET    3 COA 8 HIS A  69  GLY A  78 -1                                8HVP 122
+SHEET    4 COA 8 THR A  31  GLU A  34  1                                8HVP 123
+SHEET    5 COA 8 ASN A  83  ILE A  85 -1                                8HVP 124
+SHEET    6 COA 8 GLN A  18  ASP A  25  1                                8HVP 125
+SHEET    7 COA 8 PRO A   9  ILE A  15 -1                                8HVP 126
+SHEET    8 COA 8 GLU A  65  ILE A  66 -1                                8HVP 127
+SHEET    1 COB 8 LYS B  43  GLY B  49  0                                8HVP 128
+SHEET    2 COB 8 GLY B  52  ILE B  66 -1                                8HVP 129
+SHEET    3 COB 8 HIS B  69  GLY B  78 -1                                8HVP 130
+SHEET    4 COB 8 THR B  31  GLU B  34  1                                8HVP 131
+SHEET    5 COB 8 ASN B  83  ILE B  85 -1                                8HVP 132
+SHEET    6 COB 8 GLN B  18  ASP B  25  1                                8HVP 133
+SHEET    7 COB 8 PRO B   9  ILE B  15 -1                                8HVP 134
+SHEET    8 COB 8 GLU B  65  ILE B  66 -1                                8HVP 135
+SHEET    1 INT 4 PRO A   1  THR A   4  0                                8HVP 136
+SHEET    2 INT 4 THR B  96  PHE B  99 -1                                8HVP 137
+SHEET    3 INT 4 THR A  96  PHE A  99 -1                                8HVP 138
+SHEET    4 INT 4 PRO B   1  THR B   4 -1                                8HVP 139
+TURN     1 S1A GLY A  16  GLN A  18     SURFACE                         8HVP 140
+TURN     2 FLA ILE A  50  GLY A  52     FLAP                            8HVP 141
+TURN     3 S2A ILE A  66  HIS A  69     SURFACE                         8HVP 142
+TURN     4 S1B GLY B  16  GLN B  18     SURFACE                         8HVP 143
+TURN     5 FLB ILE B  50  GLY B  52     FLAP                            8HVP 144
+TURN     6 S2B ILE B  66  HIS B  69     SURFACE                         8HVP 145
+SITE     1 DTA  3 ASP A  25  THR A  26  GLY A  27                       8HVP 146
+SITE     1 DTB  3 ASP B  25  THR B  26  GLY B  27                       8HVP 147
+CRYST1   51.650   58.760   61.620  90.00  90.00  90.00 P 21 21 21    4  8HVP 148
+ORIGX1      1.000000  0.000000  0.000000        0.00000                 8HVP 149
+ORIGX2      0.000000  1.000000  0.000000        0.00000                 8HVP 150
+ORIGX3      0.000000  0.000000  1.000000        0.00000                 8HVP 151
+SCALE1      0.019361  0.000000  0.000000        0.00000                 8HVP 152
+SCALE2      0.000000  0.017018  0.000000        0.00000                 8HVP 153
+SCALE3      0.000000  0.000000  0.016228        0.00000                 8HVP 154
+ATOM      1  N   PRO A   1      -2.473   7.901  33.687  1.00  4.25      8HVP 155
+ATOM      2  CA  PRO A   1      -1.739   6.714  34.100  1.00  4.33      8HVP 156
+ATOM      3  C   PRO A   1      -0.269   6.799  33.769  1.00  9.25      8HVP 157
+ATOM      4  O   PRO A   1      -0.005   7.325  32.661  1.00 12.86      8HVP 158
+ATOM      5  CB  PRO A   1      -2.443   5.724  33.177  1.00  2.00      8HVP 159
+ATOM      6  CG  PRO A   1      -3.860   6.187  32.991  1.00  2.00      8HVP 160
+ATOM      7  CD  PRO A   1      -3.897   7.440  33.874  1.00  5.50      8HVP 161
+ATOM      8  N   GLN A   2       0.530   6.256  34.695  1.00 10.03      8HVP 162
+ATOM      9  CA  GLN A   2       1.979   6.233  34.355  1.00 13.56      8HVP 163
+ATOM     10  C   GLN A   2       2.193   4.743  34.046  1.00 13.76      8HVP 164
+ATOM     11  O   GLN A   2       1.946   3.952  34.978  1.00 18.02      8HVP 165
+ATOM     12  CB  GLN A   2       2.943   6.797  35.362  1.00 16.19      8HVP 166
+ATOM     13  CG  GLN A   2       4.417   6.732  34.939  1.00 23.62      8HVP 167
+ATOM     14  CD  GLN A   2       5.358   7.151  36.052  1.00 25.05      8HVP 168
+ATOM     15  OE1 GLN A   2       5.681   8.310  36.371  1.00 26.46      8HVP 169
+ATOM     16  NE2 GLN A   2       5.839   6.106  36.720  1.00  9.24      8HVP 170
+ATOM     17  N   ILE A   3       2.514   4.430  32.820  1.00  9.51      8HVP 171
+ATOM     18  CA  ILE A   3       2.669   3.034  32.417  1.00  3.63      8HVP 172
+ATOM     19  C   ILE A   3       4.120   2.826  31.951  1.00  2.00      8HVP 173
+ATOM     20  O   ILE A   3       4.386   3.445  30.877  1.00  2.00      8HVP 174
+ATOM     21  CB  ILE A   3       1.767   2.617  31.198  1.00  3.69      8HVP 175
+ATOM     22  CG1 ILE A   3       0.258   2.901  31.456  1.00 10.88      8HVP 176
+ATOM     23  CG2 ILE A   3       1.934   1.127  30.775  1.00  2.00      8HVP 177
+ATOM     24  CD1 ILE A   3      -0.505   2.898  30.060  1.00  2.00      8HVP 178
+ATOM     25  N   THR A   4       4.824   1.984  32.617  1.00  2.00      8HVP 179
+ATOM     26  CA  THR A   4       6.176   1.497  32.422  1.00  2.00      8HVP 180
+ATOM     27  C   THR A   4       6.348   0.565  31.229  1.00  2.00      8HVP 181
+ATOM     28  O   THR A   4       5.347  -0.027  30.769  1.00  2.00      8HVP 182
+ATOM     29  CB  THR A   4       6.444   0.709  33.777  1.00  8.70      8HVP 183
+ATOM     30  OG1 THR A   4       5.107   0.099  33.936  1.00 16.25      8HVP 184
+ATOM     31  CG2 THR A   4       6.918   1.568  34.954  1.00 15.09      8HVP 185
+ATOM     32  N   LEU A   5       7.603   0.350  30.815  1.00  2.00      8HVP 186
+ATOM     33  CA  LEU A   5       7.782  -0.501  29.624  1.00  2.00      8HVP 187
+ATOM     34  C   LEU A   5       8.206  -1.934  29.728  1.00  2.00      8HVP 188
+ATOM     35  O   LEU A   5       8.198  -2.583  28.652  1.00  2.00      8HVP 189
+ATOM     36  CB  LEU A   5       8.554   0.400  28.653  1.00  2.11      8HVP 190
+ATOM     37  CG  LEU A   5       7.838   1.671  28.247  1.00 13.00      8HVP 191
+ATOM     38  CD1 LEU A   5       8.765   2.681  27.561  1.00 15.68      8HVP 192
+ATOM     39  CD2 LEU A   5       6.655   1.336  27.358  1.00  9.29      8HVP 193
+ATOM     40  N   TRP A   6       8.464  -2.513  30.877  1.00  2.00      8HVP 194
+ATOM     41  CA  TRP A   6       8.824  -3.837  31.313  1.00  2.00      8HVP 195
+ATOM     42  C   TRP A   6       7.847  -4.872  30.752  1.00  2.00      8HVP 196
+ATOM     43  O   TRP A   6       8.306  -6.024  30.814  1.00  2.00      8HVP 197
+ATOM     44  CB  TRP A   6       8.899  -4.179  32.830  1.00 12.98      8HVP 198
+ATOM     45  CG  TRP A   6       9.272  -3.021  33.684  1.00 21.96      8HVP 199
+ATOM     46  CD1 TRP A   6       8.422  -2.112  34.276  1.00 30.51      8HVP 200
+ATOM     47  CD2 TRP A   6      10.596  -2.571  33.963  1.00 18.88      8HVP 201
+ATOM     48  NE1 TRP A   6       9.134  -1.114  34.904  1.00 33.17      8HVP 202
+ATOM     49  CE2 TRP A   6      10.473  -1.376  34.713  1.00 28.60      8HVP 203
+ATOM     50  CE3 TRP A   6      11.850  -3.073  33.668  1.00 17.70      8HVP 204
+ATOM     51  CZ2 TRP A   6      11.587  -0.673  35.140  1.00 25.35      8HVP 205
+ATOM     52  CZ3 TRP A   6      12.971  -2.388  34.070  1.00 16.22      8HVP 206
+ATOM     53  CH2 TRP A   6      12.816  -1.205  34.770  1.00 24.66      8HVP 207
+ATOM     54  N   GLN A   7       6.701  -4.474  30.281  1.00  3.35      8HVP 208
+ATOM     55  CA  GLN A   7       5.777  -5.391  29.605  1.00  4.83      8HVP 209
+ATOM     56  C   GLN A   7       5.131  -4.473  28.544  1.00  6.60      8HVP 210
+ATOM     57  O   GLN A   7       5.124  -3.274  28.779  1.00 10.09      8HVP 211
+ATOM     58  CB  GLN A   7       4.599  -5.998  30.279  1.00 15.11      8HVP 212
+ATOM     59  CG  GLN A   7       4.607  -7.028  31.358  1.00 25.54      8HVP 213
+ATOM     60  CD  GLN A   7       3.219  -7.169  31.970  1.00 27.66      8HVP 214
+ATOM     61  OE1 GLN A   7       2.758  -6.275  32.677  1.00 34.29      8HVP 215
+ATOM     62  NE2 GLN A   7       2.530  -8.274  31.717  1.00 33.00      8HVP 216
+ATOM     63  N   ARG A   8       4.599  -5.119  27.534  1.00 10.31      8HVP 217
+ATOM     64  CA  ARG A   8       3.859  -4.416  26.470  1.00  7.99      8HVP 218
+ATOM     65  C   ARG A   8       2.767  -3.614  27.169  1.00  9.42      8HVP 219
+ATOM     66  O   ARG A   8       2.109  -4.182  28.074  1.00 10.32      8HVP 220
+ATOM     67  CB  ARG A   8       3.114  -5.384  25.554  1.00  2.44      8HVP 221
+ATOM     68  CG  ARG A   8       4.035  -6.115  24.616  1.00  7.69      8HVP 222
+ATOM     69  CD  ARG A   8       3.548  -7.457  24.224  1.00 10.72      8HVP 223
+ATOM     70  NE  ARG A   8       4.459  -7.893  23.140  1.00 17.94      8HVP 224
+ATOM     71  CZ  ARG A   8       4.365  -9.137  22.652  1.00 24.69      8HVP 225
+ATOM     72  NH1 ARG A   8       3.648 -10.046  23.327  1.00 28.41      8HVP 226
+ATOM     73  NH2 ARG A   8       4.780  -9.377  21.409  1.00 16.19      8HVP 227
+ATOM     74  N   PRO A   9       2.644  -2.399  26.655  1.00  8.38      8HVP 228
+ATOM     75  CA  PRO A   9       1.582  -1.480  27.170  1.00  4.47      8HVP 229
+ATOM     76  C   PRO A   9       0.252  -1.823  26.524  1.00  6.26      8HVP 230
+ATOM     77  O   PRO A   9      -0.263  -1.296  25.504  1.00  5.60      8HVP 231
+ATOM     78  CB  PRO A   9       2.282  -0.150  26.990  1.00  2.17      8HVP 232
+ATOM     79  CG  PRO A   9       3.222  -0.285  25.805  1.00  2.00      8HVP 233
+ATOM     80  CD  PRO A   9       3.440  -1.777  25.604  1.00  2.00      8HVP 234
+ATOM     81  N   LEU A  10      -0.348  -2.883  27.099  1.00  6.46      8HVP 235
+ATOM     82  CA  LEU A  10      -1.701  -3.352  26.712  1.00 10.06      8HVP 236
+ATOM     83  C   LEU A  10      -2.741  -2.850  27.746  1.00  6.81      8HVP 237
+ATOM     84  O   LEU A  10      -2.726  -3.162  28.930  1.00  8.01      8HVP 238
+ATOM     85  CB  LEU A  10      -1.805  -4.859  26.486  1.00 11.47      8HVP 239
+ATOM     86  CG  LEU A  10      -1.168  -5.664  25.387  1.00  6.53      8HVP 240
+ATOM     87  CD1 LEU A  10      -1.627  -7.116  25.317  1.00  3.53      8HVP 241
+ATOM     88  CD2 LEU A  10      -1.448  -5.076  24.022  1.00  3.83      8HVP 242
+ATOM     89  N   VAL A  11      -3.704  -2.079  27.315  1.00 10.23      8HVP 243
+ATOM     90  CA  VAL A  11      -4.870  -1.494  28.000  1.00 10.17      8HVP 244
+ATOM     91  C   VAL A  11      -6.200  -1.883  27.305  1.00 10.78      8HVP 245
+ATOM     92  O   VAL A  11      -6.155  -2.128  26.085  1.00  8.04      8HVP 246
+ATOM     93  CB  VAL A  11      -4.647   0.027  28.000  1.00  2.00      8HVP 247
+ATOM     94  CG1 VAL A  11      -3.356   0.398  28.688  1.00  2.00      8HVP 248
+ATOM     95  CG2 VAL A  11      -4.777   0.526  26.562  1.00  2.00      8HVP 249
+ATOM     96  N   THR A  12      -7.321  -1.952  28.016  1.00  9.58      8HVP 250
+ATOM     97  CA  THR A  12      -8.636  -2.332  27.473  1.00  9.66      8HVP 251
+ATOM     98  C   THR A  12      -9.284  -1.117  26.787  1.00  6.66      8HVP 252
+ATOM     99  O   THR A  12      -9.279  -0.073  27.455  1.00  7.20      8HVP 253
+ATOM    100  CB  THR A  12      -9.705  -2.879  28.514  1.00  4.40      8HVP 254
+ATOM    101  OG1 THR A  12      -9.016  -3.028  29.802  1.00  6.88      8HVP 255
+ATOM    102  CG2 THR A  12     -10.282  -4.234  28.065  1.00  2.00      8HVP 256
+ATOM    103  N   ILE A  13      -9.821  -1.318  25.613  1.00  6.50      8HVP 257
+ATOM    104  CA  ILE A  13     -10.428  -0.306  24.756  1.00  5.69      8HVP 258
+ATOM    105  C   ILE A  13     -11.897  -0.668  24.616  1.00  6.09      8HVP 259
+ATOM    106  O   ILE A  13     -12.166  -1.865  24.447  1.00 11.04      8HVP 260
+ATOM    107  CB  ILE A  13      -9.658  -0.150  23.397  1.00  6.87      8HVP 261
+ATOM    108  CG1 ILE A  13     -10.082  -0.976  22.187  1.00  2.00      8HVP 262
+ATOM    109  CG2 ILE A  13      -8.149  -0.446  23.606  1.00  2.63      8HVP 263
+ATOM    110  CD1 ILE A  13      -9.521  -0.698  20.775  1.00  2.00      8HVP 264
+ATOM    111  N   ARG A  14     -12.800   0.270  24.732  1.00  4.95      8HVP 265
+ATOM    112  CA  ARG A  14     -14.234   0.099  24.650  1.00  2.00      8HVP 266
+ATOM    113  C   ARG A  14     -14.585   0.804  23.314  1.00  2.00      8HVP 267
+ATOM    114  O   ARG A  14     -14.408   2.018  23.365  1.00  7.49      8HVP 268
+ATOM    115  CB  ARG A  14     -15.240   0.751  25.610  1.00  2.00      8HVP 269
+ATOM    116  CG  ARG A  14     -16.495  -0.153  25.613  1.00 13.07      8HVP 270
+ATOM    117  CD  ARG A  14     -17.390   0.154  26.767  1.00 25.60      8HVP 271
+ATOM    118  NE  ARG A  14     -17.828   1.546  26.751  1.00 36.29      8HVP 272
+ATOM    119  CZ  ARG A  14     -18.341   2.165  25.680  1.00 36.27      8HVP 273
+ATOM    120  NH1 ARG A  14     -18.644   1.522  24.555  1.00 34.49      8HVP 274
+ATOM    121  NH2 ARG A  14     -18.324   3.505  25.698  1.00 36.80      8HVP 275
+ATOM    122  N   ILE A  15     -14.972  -0.035  22.412  1.00  8.77      8HVP 276
+ATOM    123  CA  ILE A  15     -15.300   0.406  21.054  1.00  3.96      8HVP 277
+ATOM    124  C   ILE A  15     -16.698  -0.064  20.662  1.00  8.76      8HVP 278
+ATOM    125  O   ILE A  15     -16.961  -1.125  20.072  1.00  8.48      8HVP 279
+ATOM    126  CB  ILE A  15     -14.189  -0.175  20.117  1.00  4.59      8HVP 280
+ATOM    127  CG1 ILE A  15     -14.445   0.353  18.694  1.00  2.67      8HVP 281
+ATOM    128  CG2 ILE A  15     -14.116  -1.716  20.057  1.00  8.19      8HVP 282
+ATOM    129  CD1 ILE A  15     -13.982   1.820  18.564  1.00 19.57      8HVP 283
+ATOM    130  N   GLY A  16     -17.652   0.774  21.052  1.00 11.70      8HVP 284
+ATOM    131  CA  GLY A  16     -19.075   0.587  20.773  1.00 12.24      8HVP 285
+ATOM    132  C   GLY A  16     -19.543  -0.807  21.211  1.00 11.42      8HVP 286
+ATOM    133  O   GLY A  16     -19.625  -1.776  20.426  1.00 13.44      8HVP 287
+ATOM    134  N   GLY A  17     -19.839  -0.786  22.503  1.00  7.14      8HVP 288
+ATOM    135  CA  GLY A  17     -20.345  -1.959  23.199  1.00  7.99      8HVP 289
+ATOM    136  C   GLY A  17     -19.544  -3.205  22.882  1.00  7.25      8HVP 290
+ATOM    137  O   GLY A  17     -20.097  -4.287  22.977  1.00  8.85      8HVP 291
+ATOM    138  N   GLN A  18     -18.286  -3.052  22.572  1.00  9.70      8HVP 292
+ATOM    139  CA  GLN A  18     -17.295  -4.100  22.321  1.00  8.42      8HVP 293
+ATOM    140  C   GLN A  18     -16.040  -3.785  23.133  1.00  2.58      8HVP 294
+ATOM    141  O   GLN A  18     -15.570  -2.635  23.044  1.00  7.27      8HVP 295
+ATOM    142  CB  GLN A  18     -16.983  -4.271  20.825  1.00 15.99      8HVP 296
+ATOM    143  CG  GLN A  18     -18.009  -5.084  20.044  1.00 18.33      8HVP 297
+ATOM    144  CD  GLN A  18     -18.240  -6.375  20.808  1.00 30.10      8HVP 298
+ATOM    145  OE1 GLN A  18     -17.295  -6.798  21.495  1.00 33.38      8HVP 299
+ATOM    146  NE2 GLN A  18     -19.461  -6.908  20.792  1.00 30.23      8HVP 300
+ATOM    147  N   LEU A  19     -15.525  -4.704  23.914  1.00  2.00      8HVP 301
+ATOM    148  CA  LEU A  19     -14.294  -4.432  24.669  1.00  2.00      8HVP 302
+ATOM    149  C   LEU A  19     -13.078  -5.133  24.062  1.00  3.47      8HVP 303
+ATOM    150  O   LEU A  19     -13.214  -6.341  23.784  1.00  6.90      8HVP 304
+ATOM    151  CB  LEU A  19     -14.544  -4.830  26.126  1.00  5.54      8HVP 305
+ATOM    152  CG  LEU A  19     -15.446  -3.905  26.934  1.00 12.65      8HVP 306
+ATOM    153  CD1 LEU A  19     -15.808  -4.594  28.261  1.00 11.26      8HVP 307
+ATOM    154  CD2 LEU A  19     -14.638  -2.638  27.230  1.00 11.67      8HVP 308
+ATOM    155  N   LYS A  20     -11.926  -4.503  23.901  1.00  3.26      8HVP 309
+ATOM    156  CA  LYS A  20     -10.754  -5.222  23.378  1.00  4.92      8HVP 310
+ATOM    157  C   LYS A  20      -9.509  -4.758  24.142  1.00  7.51      8HVP 311
+ATOM    158  O   LYS A  20      -9.547  -3.736  24.811  1.00  9.95      8HVP 312
+ATOM    159  CB  LYS A  20     -10.492  -5.064  21.911  1.00  2.00      8HVP 313
+ATOM    160  CG  LYS A  20     -11.596  -4.904  20.908  1.00  2.81      8HVP 314
+ATOM    161  CD  LYS A  20     -12.439  -6.133  20.701  1.00 14.45      8HVP 315
+ATOM    162  CE  LYS A  20     -13.681  -5.897  19.858  1.00 20.29      8HVP 316
+ATOM    163  NZ  LYS A  20     -14.671  -6.960  20.258  1.00 13.89      8HVP 317
+ATOM    164  N   GLU A  21      -8.450  -5.528  24.023  1.00 11.23      8HVP 318
+ATOM    165  CA  GLU A  21      -7.121  -5.258  24.584  1.00 11.12      8HVP 319
+ATOM    166  C   GLU A  21      -6.306  -4.595  23.490  1.00  7.90      8HVP 320
+ATOM    167  O   GLU A  21      -6.198  -5.254  22.433  1.00 14.97      8HVP 321
+ATOM    168  CB  GLU A  21      -6.396  -6.524  25.010  1.00 22.94      8HVP 322
+ATOM    169  CG  GLU A  21      -6.511  -6.993  26.451  1.00 45.49      8HVP 323
+ATOM    170  CD  GLU A  21      -6.037  -6.153  27.597  1.00 59.44      8HVP 324
+ATOM    171  OE1 GLU A  21      -5.411  -5.103  27.298  1.00 66.60      8HVP 325
+ATOM    172  OE2 GLU A  21      -6.236  -6.426  28.782  1.00 64.09      8HVP 326
+ATOM    173  N   ALA A  22      -5.842  -3.384  23.557  1.00  4.69      8HVP 327
+ATOM    174  CA  ALA A  22      -5.083  -2.822  22.433  1.00  2.00      8HVP 328
+ATOM    175  C   ALA A  22      -3.771  -2.331  23.023  1.00  2.00      8HVP 329
+ATOM    176  O   ALA A  22      -3.717  -2.079  24.211  1.00  2.00      8HVP 330
+ATOM    177  CB  ALA A  22      -5.778  -1.670  21.762  1.00  2.00      8HVP 331
+ATOM    178  N   LEU A  23      -2.856  -2.120  22.138  1.00  2.17      8HVP 332
+ATOM    179  CA  LEU A  23      -1.487  -1.667  22.382  1.00  6.32      8HVP 333
+ATOM    180  C   LEU A  23      -1.200  -0.210  22.007  1.00  2.87      8HVP 334
+ATOM    181  O   LEU A  23      -1.368   0.186  20.853  1.00  2.00      8HVP 335
+ATOM    182  CB  LEU A  23      -0.598  -2.622  21.548  1.00  5.69      8HVP 336
+ATOM    183  CG  LEU A  23       0.896  -2.607  21.807  1.00 12.05      8HVP 337
+ATOM    184  CD1 LEU A  23       1.271  -3.607  22.904  1.00  7.79      8HVP 338
+ATOM    185  CD2 LEU A  23       1.656  -2.921  20.509  1.00  2.00      8HVP 339
+ATOM    186  N   LEU A  24      -0.718   0.497  23.015  1.00  3.16      8HVP 340
+ATOM    187  CA  LEU A  24      -0.279   1.898  22.890  1.00  3.72      8HVP 341
+ATOM    188  C   LEU A  24       1.112   1.953  22.222  1.00  3.04      8HVP 342
+ATOM    189  O   LEU A  24       2.176   1.939  22.804  1.00  2.00      8HVP 343
+ATOM    190  CB  LEU A  24      -0.197   2.459  24.308  1.00  2.00      8HVP 344
+ATOM    191  CG  LEU A  24      -1.339   2.182  25.232  1.00  2.07      8HVP 345
+ATOM    192  CD1 LEU A  24      -0.927   2.514  26.671  1.00  4.92      8HVP 346
+ATOM    193  CD2 LEU A  24      -2.489   2.999  24.687  1.00  2.00      8HVP 347
+ATOM    194  N   ASP A  25       1.103   1.961  20.945  1.00  2.09      8HVP 348
+ATOM    195  CA  ASP A  25       2.174   1.976  19.989  1.00  2.00      8HVP 349
+ATOM    196  C   ASP A  25       2.377   3.416  19.493  1.00  3.53      8HVP 350
+ATOM    197  O   ASP A  25       1.640   3.918  18.627  1.00  2.00      8HVP 351
+ATOM    198  CB  ASP A  25       1.836   0.942  18.934  1.00  2.00      8HVP 352
+ATOM    199  CG  ASP A  25       2.875   0.696  17.889  1.00 15.58      8HVP 353
+ATOM    200  OD1 ASP A  25       4.067   1.036  18.055  1.00 20.52      8HVP 354
+ATOM    201  OD2 ASP A  25       2.571   0.117  16.827  1.00 21.05      8HVP 355
+ATOM    202  N   THR A  26       3.380   4.060  20.113  1.00  2.00      8HVP 356
+ATOM    203  CA  THR A  26       3.768   5.394  19.656  1.00  5.15      8HVP 357
+ATOM    204  C   THR A  26       4.638   5.366  18.381  1.00  6.87      8HVP 358
+ATOM    205  O   THR A  26       5.138   6.438  17.990  1.00  7.76      8HVP 359
+ATOM    206  CB  THR A  26       4.647   6.055  20.772  1.00  2.00      8HVP 360
+ATOM    207  OG1 THR A  26       5.776   5.124  20.726  1.00 17.12      8HVP 361
+ATOM    208  CG2 THR A  26       3.999   6.139  22.139  1.00  3.59      8HVP 362
+ATOM    209  N   GLY A  27       4.828   4.213  17.743  1.00  5.41      8HVP 363
+ATOM    210  CA  GLY A  27       5.606   4.072  16.516  1.00  2.00      8HVP 364
+ATOM    211  C   GLY A  27       4.672   3.955  15.314  1.00  2.00      8HVP 365
+ATOM    212  O   GLY A  27       5.098   3.911  14.154  1.00  2.00      8HVP 366
+ATOM    213  N   ALA A  28       3.413   3.936  15.597  1.00  2.00      8HVP 367
+ATOM    214  CA  ALA A  28       2.284   3.786  14.690  1.00  2.00      8HVP 368
+ATOM    215  C   ALA A  28       1.672   5.159  14.463  1.00  2.00      8HVP 369
+ATOM    216  O   ALA A  28       1.406   5.901  15.423  1.00  2.25      8HVP 370
+ATOM    217  CB  ALA A  28       1.255   2.844  15.307  1.00  2.00      8HVP 371
+ATOM    218  N   ASP A  29       1.436   5.455  13.207  1.00  2.00      8HVP 372
+ATOM    219  CA  ASP A  29       0.844   6.762  12.826  1.00  2.00      8HVP 373
+ATOM    220  C   ASP A  29      -0.661   6.737  13.095  1.00  2.61      8HVP 374
+ATOM    221  O   ASP A  29      -1.276   7.740  13.500  1.00  3.70      8HVP 375
+ATOM    222  CB  ASP A  29       1.148   6.901  11.319  1.00  2.00      8HVP 376
+ATOM    223  CG  ASP A  29       2.630   7.176  11.147  1.00  9.16      8HVP 377
+ATOM    224  OD1 ASP A  29       3.604   6.862  11.837  1.00 11.36      8HVP 378
+ATOM    225  OD2 ASP A  29       2.799   7.898  10.186  1.00  2.00      8HVP 379
+ATOM    226  N   ASP A  30      -1.221   5.573  12.797  1.00  2.00      8HVP 380
+ATOM    227  CA  ASP A  30      -2.617   5.259  12.873  1.00  3.29      8HVP 381
+ATOM    228  C   ASP A  30      -2.903   4.122  13.882  1.00  3.40      8HVP 382
+ATOM    229  O   ASP A  30      -1.955   3.505  14.335  1.00  2.00      8HVP 383
+ATOM    230  CB  ASP A  30      -3.141   4.849  11.482  1.00 14.10      8HVP 384
+ATOM    231  CG  ASP A  30      -3.037   5.898  10.398  1.00  5.79      8HVP 385
+ATOM    232  OD1 ASP A  30      -3.903   6.799  10.369  1.00 15.54      8HVP 386
+ATOM    233  OD2 ASP A  30      -2.104   5.769   9.590  1.00  4.06      8HVP 387
+ATOM    234  N   THR A  31      -4.207   3.934  14.032  1.00  2.00      8HVP 388
+ATOM    235  CA  THR A  31      -4.872   2.952  14.847  1.00  2.00      8HVP 389
+ATOM    236  C   THR A  31      -5.409   1.865  13.930  1.00  3.56      8HVP 390
+ATOM    237  O   THR A  31      -6.279   2.174  13.098  1.00  2.00      8HVP 391
+ATOM    238  CB  THR A  31      -6.027   3.608  15.691  1.00  2.00      8HVP 392
+ATOM    239  OG1 THR A  31      -5.350   4.649  16.454  1.00  4.30      8HVP 393
+ATOM    240  CG2 THR A  31      -6.747   2.629  16.643  1.00  4.26      8HVP 394
+ATOM    241  N   VAL A  32      -4.846   0.678  14.061  1.00  3.84      8HVP 395
+ATOM    242  CA  VAL A  32      -5.180  -0.486  13.241  1.00  3.65      8HVP 396
+ATOM    243  C   VAL A  32      -5.806  -1.599  14.089  1.00  5.26      8HVP 397
+ATOM    244  O   VAL A  32      -5.175  -2.213  14.958  1.00  8.26      8HVP 398
+ATOM    245  CB  VAL A  32      -3.978  -1.037  12.451  1.00  2.00      8HVP 399
+ATOM    246  CG1 VAL A  32      -4.397  -2.340  11.729  1.00  2.00      8HVP 400
+ATOM    247  CG2 VAL A  32      -3.290  -0.152  11.453  1.00  2.00      8HVP 401
+ATOM    248  N   LEU A  33      -7.055  -1.927  13.825  1.00  8.12      8HVP 402
+ATOM    249  CA  LEU A  33      -7.689  -3.029  14.570  1.00  9.44      8HVP 403
+ATOM    250  C   LEU A  33      -7.695  -4.318  13.767  1.00 11.79      8HVP 404
+ATOM    251  O   LEU A  33      -7.567  -4.386  12.525  1.00 13.91      8HVP 405
+ATOM    252  CB  LEU A  33      -8.986  -2.441  15.102  1.00 13.84      8HVP 406
+ATOM    253  CG  LEU A  33      -8.958  -1.273  16.070  1.00 10.78      8HVP 407
+ATOM    254  CD1 LEU A  33      -9.958  -1.540  17.202  1.00 14.10      8HVP 408
+ATOM    255  CD2 LEU A  33      -7.596  -1.040  16.703  1.00  8.06      8HVP 409
+ATOM    256  N   GLU A  34      -7.755  -5.399  14.526  1.00 13.04      8HVP 410
+ATOM    257  CA  GLU A  34      -7.818  -6.752  13.935  1.00 20.97      8HVP 411
+ATOM    258  C   GLU A  34      -9.196  -6.789  13.246  1.00 26.23      8HVP 412
+ATOM    259  O   GLU A  34     -10.068  -6.058  13.775  1.00 26.64      8HVP 413
+ATOM    260  CB  GLU A  34      -7.809  -7.851  14.958  1.00 24.11      8HVP 414
+ATOM    261  CG  GLU A  34      -6.716  -8.047  15.995  1.00 33.56      8HVP 415
+ATOM    262  CD  GLU A  34      -7.117  -8.936  17.145  1.00 39.68      8HVP 416
+ATOM    263  OE1 GLU A  34      -8.277  -9.103  17.521  1.00 50.11      8HVP 417
+ATOM    264  OE2 GLU A  34      -6.154  -9.480  17.715  1.00 38.53      8HVP 418
+ATOM    265  N   GLU A  35      -9.368  -7.573  12.190  1.00 29.97      8HVP 419
+ATOM    266  CA  GLU A  35     -10.640  -7.631  11.456  1.00 30.84      8HVP 420
+ATOM    267  C   GLU A  35     -11.838  -7.488  12.388  1.00 33.78      8HVP 421
+ATOM    268  O   GLU A  35     -11.952  -8.112  13.465  1.00 35.01      8HVP 422
+ATOM    269  CB  GLU A  35     -10.787  -8.899  10.639  1.00 37.69      8HVP 423
+ATOM    270  CG  GLU A  35     -12.124  -9.032   9.878  1.00 47.54      8HVP 424
+ATOM    271  CD  GLU A  35     -12.190  -8.046   8.737  1.00 54.43      8HVP 425
+ATOM    272  OE1 GLU A  35     -11.147  -7.728   8.170  1.00 59.79      8HVP 426
+ATOM    273  OE2 GLU A  35     -13.347  -7.647   8.490  1.00 51.62      8HVP 427
+ATOM    274  N   MET A  36     -12.742  -6.600  11.998  1.00 35.17      8HVP 428
+ATOM    275  CA  MET A  36     -13.938  -6.213  12.769  1.00 34.80      8HVP 429
+ATOM    276  C   MET A  36     -14.900  -5.424  11.884  1.00 33.96      8HVP 430
+ATOM    277  O   MET A  36     -14.593  -4.843  10.834  1.00 35.00      8HVP 431
+ATOM    278  CB  MET A  36     -13.557  -5.476  14.052  1.00 39.18      8HVP 432
+ATOM    279  CG  MET A  36     -14.633  -4.659  14.686  1.00 43.69      8HVP 433
+ATOM    280  SD  MET A  36     -14.210  -4.109  16.366  1.00 42.64      8HVP 434
+ATOM    281  CE  MET A  36     -13.318  -2.583  16.030  1.00 43.05      8HVP 435
+ATOM    282  N   ASN A  37     -16.139  -5.505  12.341  1.00 33.16      8HVP 436
+ATOM    283  CA  ASN A  37     -17.299  -4.872  11.708  1.00 30.97      8HVP 437
+ATOM    284  C   ASN A  37     -17.597  -3.625  12.537  1.00 25.69      8HVP 438
+ATOM    285  O   ASN A  37     -17.679  -3.665  13.758  1.00 24.78      8HVP 439
+ATOM    286  CB  ASN A  37     -18.481  -5.810  11.509  1.00 39.66      8HVP 440
+ATOM    287  CG  ASN A  37     -18.341  -6.766  10.331  1.00 47.27      8HVP 441
+ATOM    288  OD1 ASN A  37     -18.080  -7.975  10.496  1.00 45.86      8HVP 442
+ATOM    289  ND2 ASN A  37     -18.535  -6.233   9.113  1.00 51.14      8HVP 443
+ATOM    290  N   LEU A  38     -17.615  -2.544  11.789  1.00 24.97      8HVP 444
+ATOM    291  CA  LEU A  38     -17.905  -1.242  12.405  1.00 24.99      8HVP 445
+ATOM    292  C   LEU A  38     -19.052  -0.710  11.559  1.00 26.54      8HVP 446
+ATOM    293  O   LEU A  38     -19.182  -1.171  10.426  1.00 27.63      8HVP 447
+ATOM    294  CB  LEU A  38     -16.654  -0.412  12.533  1.00  9.19      8HVP 448
+ATOM    295  CG  LEU A  38     -15.633  -0.869  13.564  1.00  7.97      8HVP 449
+ATOM    296  CD1 LEU A  38     -14.307  -0.141  13.325  1.00  3.35      8HVP 450
+ATOM    297  CD2 LEU A  38     -16.116  -0.603  14.984  1.00  2.00      8HVP 451
+ATOM    298  N   PRO A  39     -19.822   0.125  12.205  1.00 28.28      8HVP 452
+ATOM    299  CA  PRO A  39     -20.957   0.755  11.496  1.00 31.06      8HVP 453
+ATOM    300  C   PRO A  39     -20.293   1.736  10.537  1.00 31.57      8HVP 454
+ATOM    301  O   PRO A  39     -19.269   2.307  10.965  1.00 34.27      8HVP 455
+ATOM    302  CB  PRO A  39     -21.788   1.345  12.625  1.00 29.25      8HVP 456
+ATOM    303  CG  PRO A  39     -21.118   1.006  13.920  1.00 28.19      8HVP 457
+ATOM    304  CD  PRO A  39     -19.672   0.683  13.557  1.00 28.38      8HVP 458
+ATOM    305  N   GLY A  40     -20.732   1.877   9.307  1.00 32.44      8HVP 459
+ATOM    306  CA  GLY A  40     -20.110   2.849   8.410  1.00 33.97      8HVP 460
+ATOM    307  C   GLY A  40     -19.616   2.402   7.052  1.00 34.68      8HVP 461
+ATOM    308  O   GLY A  40     -19.398   1.219   6.758  1.00 35.21      8HVP 462
+ATOM    309  N   LYS A  41     -19.469   3.412   6.198  1.00 35.81      8HVP 463
+ATOM    310  CA  LYS A  41     -18.925   3.262   4.838  1.00 36.30      8HVP 464
+ATOM    311  C   LYS A  41     -17.386   3.281   4.987  1.00 33.40      8HVP 465
+ATOM    312  O   LYS A  41     -16.797   4.227   5.542  1.00 35.77      8HVP 466
+ATOM    313  CB  LYS A  41     -19.254   4.390   3.899  1.00 49.20      8HVP 467
+ATOM    314  CG  LYS A  41     -20.408   4.437   2.919  1.00 58.64      8HVP 468
+ATOM    315  CD  LYS A  41     -20.336   5.775   2.162  1.00 64.83      8HVP 469
+ATOM    316  CE  LYS A  41     -21.688   6.194   1.630  1.00 72.01      8HVP 470
+ATOM    317  NZ  LYS A  41     -21.910   7.657   1.792  1.00 73.29      8HVP 471
+ATOM    318  N   TRP A  42     -16.732   2.248   4.522  1.00 29.59      8HVP 472
+ATOM    319  CA  TRP A  42     -15.253   2.248   4.608  1.00 22.94      8HVP 473
+ATOM    320  C   TRP A  42     -14.773   2.518   3.176  1.00 20.11      8HVP 474
+ATOM    321  O   TRP A  42     -15.536   2.544   2.183  1.00 14.17      8HVP 475
+ATOM    322  CB  TRP A  42     -14.842   0.942   5.282  1.00 28.31      8HVP 476
+ATOM    323  CG  TRP A  42     -15.282  -0.273   4.525  1.00 33.50      8HVP 477
+ATOM    324  CD1 TRP A  42     -16.362  -1.083   4.754  1.00 32.54      8HVP 478
+ATOM    325  CD2 TRP A  42     -14.651  -0.797   3.348  1.00 33.46      8HVP 479
+ATOM    326  NE1 TRP A  42     -16.448  -2.076   3.808  1.00 20.81      8HVP 480
+ATOM    327  CE2 TRP A  42     -15.404  -1.915   2.937  1.00 33.44      8HVP 481
+ATOM    328  CE3 TRP A  42     -13.563  -0.401   2.582  1.00 41.85      8HVP 482
+ATOM    329  CZ2 TRP A  42     -15.056  -2.635   1.800  1.00 39.65      8HVP 483
+ATOM    330  CZ3 TRP A  42     -13.247  -1.112   1.437  1.00 42.57      8HVP 484
+ATOM    331  CH2 TRP A  42     -13.974  -2.224   1.039  1.00 34.13      8HVP 485
+ATOM    332  N   LYS A  43     -13.475   2.752   3.099  1.00 15.53      8HVP 486
+ATOM    333  CA  LYS A  43     -12.789   2.960   1.779  1.00 12.02      8HVP 487
+ATOM    334  C   LYS A  43     -11.555   2.127   2.029  1.00  7.46      8HVP 488
+ATOM    335  O   LYS A  43     -11.421   1.942   3.270  1.00  3.03      8HVP 489
+ATOM    336  CB  LYS A  43     -12.666   4.432   1.446  1.00 28.19      8HVP 490
+ATOM    337  CG  LYS A  43     -14.101   4.997   1.265  1.00 40.71      8HVP 491
+ATOM    338  CD  LYS A  43     -14.354   6.419   1.710  1.00 44.03      8HVP 492
+ATOM    339  CE  LYS A  43     -15.819   6.760   1.913  1.00 40.79      8HVP 493
+ATOM    340  NZ  LYS A  43     -16.296   6.538   3.299  1.00 31.16      8HVP 494
+ATOM    341  N   PRO A  44     -10.964   1.530   1.017  1.00  2.00      8HVP 495
+ATOM    342  CA  PRO A  44      -9.809   0.651   1.204  1.00  2.00      8HVP 496
+ATOM    343  C   PRO A  44      -8.531   1.468   1.232  1.00  2.00      8HVP 497
+ATOM    344  O   PRO A  44      -8.449   2.240   0.235  1.00  3.68      8HVP 498
+ATOM    345  CB  PRO A  44      -9.677  -0.160  -0.080  1.00  2.00      8HVP 499
+ATOM    346  CG  PRO A  44     -10.913   0.196  -0.881  1.00  2.00      8HVP 500
+ATOM    347  CD  PRO A  44     -11.263   1.632  -0.429  1.00  5.60      8HVP 501
+ATOM    348  N   LYS A  45      -7.634   1.190   2.136  1.00  2.35      8HVP 502
+ATOM    349  CA  LYS A  45      -6.334   1.863   2.191  1.00  2.00      8HVP 503
+ATOM    350  C   LYS A  45      -5.187   0.879   2.204  1.00  2.00      8HVP 504
+ATOM    351  O   LYS A  45      -5.554  -0.283   2.399  1.00  7.09      8HVP 505
+ATOM    352  CB  LYS A  45      -6.290   2.747   3.456  1.00  2.00      8HVP 506
+ATOM    353  CG  LYS A  45      -7.303   3.866   3.198  1.00 13.15      8HVP 507
+ATOM    354  CD  LYS A  45      -6.860   4.811   2.087  1.00 22.65      8HVP 508
+ATOM    355  CE  LYS A  45      -6.052   5.987   2.595  1.00 35.40      8HVP 509
+ATOM    356  NZ  LYS A  45      -6.802   6.967   3.422  1.00 34.17      8HVP 510
+ATOM    357  N   MET A  46      -3.938   1.263   2.040  1.00  2.93      8HVP 511
+ATOM    358  CA  MET A  46      -2.761   0.436   2.137  1.00  2.00      8HVP 512
+ATOM    359  C   MET A  46      -1.770   1.228   3.060  1.00  4.68      8HVP 513
+ATOM    360  O   MET A  46      -1.271   2.308   2.692  1.00  2.00      8HVP 514
+ATOM    361  CB  MET A  46      -1.897   0.104   0.967  1.00  2.00      8HVP 515
+ATOM    362  CG  MET A  46      -2.491   0.275  -0.400  1.00 15.83      8HVP 516
+ATOM    363  SD  MET A  46      -1.717  -1.122  -1.330  1.00 17.98      8HVP 517
+ATOM    364  CE  MET A  46      -2.553  -2.456  -0.465  1.00 19.37      8HVP 518
+ATOM    365  N   ILE A  47      -1.468   0.467   4.116  1.00  5.17      8HVP 519
+ATOM    366  CA  ILE A  47      -0.489   1.037   5.099  1.00  4.11      8HVP 520
+ATOM    367  C   ILE A  47       0.681   0.049   5.176  1.00  2.00      8HVP 521
+ATOM    368  O   ILE A  47       0.362  -1.114   4.842  1.00  2.00      8HVP 522
+ATOM    369  CB  ILE A  47      -1.228   1.212   6.477  1.00  5.25      8HVP 523
+ATOM    370  CG1 ILE A  47      -1.328  -0.200   7.109  1.00  2.75      8HVP 524
+ATOM    371  CG2 ILE A  47      -2.625   1.852   6.260  1.00  2.00      8HVP 525
+ATOM    372  CD1 ILE A  47      -1.695  -0.199   8.619  1.00  2.00      8HVP 526
+ATOM    373  N   GLY A  48       1.771   0.502   5.750  1.00  2.00      8HVP 527
+ATOM    374  CA  GLY A  48       2.986  -0.256   5.916  1.00  2.00      8HVP 528
+ATOM    375  C   GLY A  48       3.429  -0.381   7.358  1.00  2.00      8HVP 529
+ATOM    376  O   GLY A  48       3.114   0.432   8.206  1.00  2.00      8HVP 530
+ATOM    377  N   GLY A  49       4.183  -1.399   7.611  1.00  2.62      8HVP 531
+ATOM    378  CA  GLY A  49       4.834  -2.034   8.737  1.00  5.23      8HVP 532
+ATOM    379  C   GLY A  49       6.290  -2.440   8.424  1.00  5.87      8HVP 533
+ATOM    380  O   GLY A  49       6.831  -2.026   7.383  1.00  2.00      8HVP 534
+ATOM    381  N   ILE A  50       6.948  -3.231   9.277  1.00  7.18      8HVP 535
+ATOM    382  CA  ILE A  50       8.337  -3.622   9.004  1.00  8.75      8HVP 536
+ATOM    383  C   ILE A  50       8.353  -4.671   7.862  1.00 10.38      8HVP 537
+ATOM    384  O   ILE A  50       9.457  -4.857   7.293  1.00 14.18      8HVP 538
+ATOM    385  CB  ILE A  50       9.222  -4.290  10.104  1.00  3.20      8HVP 539
+ATOM    386  CG1 ILE A  50       8.369  -5.376  10.819  1.00  7.88      8HVP 540
+ATOM    387  CG2 ILE A  50      10.011  -3.433  11.122  1.00  2.00      8HVP 541
+ATOM    388  CD1 ILE A  50       9.330  -6.431  11.442  1.00  7.33      8HVP 542
+ATOM    389  N   GLY A  51       7.241  -5.358   7.718  1.00  5.35      8HVP 543
+ATOM    390  CA  GLY A  51       7.196  -6.459   6.747  1.00  7.47      8HVP 544
+ATOM    391  C   GLY A  51       6.899  -6.022   5.330  1.00  5.78      8HVP 545
+ATOM    392  O   GLY A  51       7.236  -6.807   4.460  1.00  5.82      8HVP 546
+ATOM    393  N   GLY A  52       6.242  -4.902   5.158  1.00  9.54      8HVP 547
+ATOM    394  CA  GLY A  52       5.832  -4.260   3.901  1.00  9.17      8HVP 548
+ATOM    395  C   GLY A  52       4.413  -3.690   4.108  1.00 14.31      8HVP 549
+ATOM    396  O   GLY A  52       3.987  -3.499   5.276  1.00 11.31      8HVP 550
+ATOM    397  N   PHE A  53       3.704  -3.538   2.983  1.00 13.41      8HVP 551
+ATOM    398  CA  PHE A  53       2.331  -3.040   2.907  1.00  7.22      8HVP 552
+ATOM    399  C   PHE A  53       1.207  -4.078   2.933  1.00  5.57      8HVP 553
+ATOM    400  O   PHE A  53       1.265  -5.145   2.325  1.00  2.00      8HVP 554
+ATOM    401  CB  PHE A  53       2.177  -2.160   1.660  1.00 14.11      8HVP 555
+ATOM    402  CG  PHE A  53       2.851  -0.839   1.755  1.00 13.69      8HVP 556
+ATOM    403  CD1 PHE A  53       4.229  -0.754   1.952  1.00 22.88      8HVP 557
+ATOM    404  CD2 PHE A  53       2.103   0.330   1.689  1.00 18.71      8HVP 558
+ATOM    405  CE1 PHE A  53       4.887   0.484   2.043  1.00 14.77      8HVP 559
+ATOM    406  CE2 PHE A  53       2.697   1.573   1.833  1.00 21.08      8HVP 560
+ATOM    407  CZ  PHE A  53       4.082   1.649   1.998  1.00 23.64      8HVP 561
+ATOM    408  N   ILE A  54       0.140  -3.688   3.614  1.00  4.36      8HVP 562
+ATOM    409  CA  ILE A  54      -1.133  -4.337   3.819  1.00  3.22      8HVP 563
+ATOM    410  C   ILE A  54      -2.253  -3.369   3.329  1.00  2.00      8HVP 564
+ATOM    411  O   ILE A  54      -2.125  -2.159   3.486  1.00  2.00      8HVP 565
+ATOM    412  CB  ILE A  54      -1.614  -4.762   5.245  1.00  5.34      8HVP 566
+ATOM    413  CG1 ILE A  54      -1.592  -3.583   6.253  1.00  2.80      8HVP 567
+ATOM    414  CG2 ILE A  54      -1.058  -6.054   5.886  1.00  2.77      8HVP 568
+ATOM    415  CD1 ILE A  54      -2.307  -3.981   7.605  1.00  2.00      8HVP 569
+ATOM    416  N   LYS A  55      -3.275  -3.967   2.753  1.00  2.00      8HVP 570
+ATOM    417  CA  LYS A  55      -4.444  -3.221   2.267  1.00  2.00      8HVP 571
+ATOM    418  C   LYS A  55      -5.389  -3.178   3.475  1.00  2.00      8HVP 572
+ATOM    419  O   LYS A  55      -5.530  -4.334   3.882  1.00  2.00      8HVP 573
+ATOM    420  CB  LYS A  55      -5.247  -3.838   1.121  1.00  2.00      8HVP 574
+ATOM    421  CG  LYS A  55      -6.371  -2.871   0.727  1.00 19.34      8HVP 575
+ATOM    422  CD  LYS A  55      -7.458  -3.479  -0.139  1.00 31.54      8HVP 576
+ATOM    423  CE  LYS A  55      -7.086  -3.526  -1.608  1.00 41.63      8HVP 577
+ATOM    424  NZ  LYS A  55      -6.541  -2.204  -2.039  1.00 43.89      8HVP 578
+ATOM    425  N   VAL A  56      -5.863  -2.045   3.935  1.00  2.00      8HVP 579
+ATOM    426  CA  VAL A  56      -6.766  -1.944   5.091  1.00  3.51      8HVP 580
+ATOM    427  C   VAL A  56      -8.103  -1.307   4.731  1.00  2.00      8HVP 581
+ATOM    428  O   VAL A  56      -8.239  -0.704   3.640  1.00  2.00      8HVP 582
+ATOM    429  CB  VAL A  56      -6.058  -1.152   6.206  1.00 13.97      8HVP 583
+ATOM    430  CG1 VAL A  56      -4.901  -1.905   6.855  1.00 20.53      8HVP 584
+ATOM    431  CG2 VAL A  56      -5.578   0.210   5.724  1.00 20.25      8HVP 585
+ATOM    432  N   ARG A  57      -9.117  -1.478   5.563  1.00  2.00      8HVP 586
+ATOM    433  CA  ARG A  57     -10.425  -0.817   5.243  1.00  2.00      8HVP 587
+ATOM    434  C   ARG A  57     -10.705   0.111   6.440  1.00  2.00      8HVP 588
+ATOM    435  O   ARG A  57     -10.834  -0.364   7.571  1.00  2.00      8HVP 589
+ATOM    436  CB  ARG A  57     -11.596  -1.712   4.948  1.00 10.35      8HVP 590
+ATOM    437  CG  ARG A  57     -12.503  -2.169   6.043  1.00 21.42      8HVP 591
+ATOM    438  CD  ARG A  57     -13.604  -3.058   5.659  1.00 33.04      8HVP 592
+ATOM    439  NE  ARG A  57     -13.279  -4.410   5.254  1.00 46.89      8HVP 593
+ATOM    440  CZ  ARG A  57     -14.189  -5.376   5.028  1.00 58.68      8HVP 594
+ATOM    441  NH1 ARG A  57     -15.506  -5.234   5.228  1.00 63.21      8HVP 595
+ATOM    442  NH2 ARG A  57     -13.791  -6.553   4.522  1.00 60.66      8HVP 596
+ATOM    443  N   GLN A  58     -10.744   1.371   6.167  1.00  2.00      8HVP 597
+ATOM    444  CA  GLN A  58     -10.864   2.541   6.987  1.00  6.11      8HVP 598
+ATOM    445  C   GLN A  58     -12.217   3.163   7.270  1.00  6.18      8HVP 599
+ATOM    446  O   GLN A  58     -13.067   3.354   6.382  1.00  8.69      8HVP 600
+ATOM    447  CB  GLN A  58     -10.075   3.622   6.187  1.00  2.00      8HVP 601
+ATOM    448  CG  GLN A  58     -10.251   5.006   6.805  1.00  2.00      8HVP 602
+ATOM    449  CD  GLN A  58      -9.557   6.086   6.013  1.00  7.49      8HVP 603
+ATOM    450  OE1 GLN A  58      -8.836   5.872   5.041  1.00  2.00      8HVP 604
+ATOM    451  NE2 GLN A  58      -9.815   7.325   6.445  1.00 13.29      8HVP 605
+ATOM    452  N   TYR A  59     -12.355   3.582   8.522  1.00  7.47      8HVP 606
+ATOM    453  CA  TYR A  59     -13.547   4.225   9.066  1.00  4.02      8HVP 607
+ATOM    454  C   TYR A  59     -13.052   5.500   9.761  1.00  6.05      8HVP 608
+ATOM    455  O   TYR A  59     -12.153   5.352  10.594  1.00  7.99      8HVP 609
+ATOM    456  CB  TYR A  59     -14.302   3.395  10.112  1.00  3.56      8HVP 610
+ATOM    457  CG  TYR A  59     -14.644   1.994   9.688  1.00  3.34      8HVP 611
+ATOM    458  CD1 TYR A  59     -15.789   1.814   8.903  1.00  4.20      8HVP 612
+ATOM    459  CD2 TYR A  59     -13.841   0.884   9.984  1.00  8.25      8HVP 613
+ATOM    460  CE1 TYR A  59     -16.103   0.554   8.425  1.00  2.00      8HVP 614
+ATOM    461  CE2 TYR A  59     -14.175  -0.394   9.527  1.00  5.59      8HVP 615
+ATOM    462  CZ  TYR A  59     -15.329  -0.548   8.767  1.00  2.59      8HVP 616
+ATOM    463  OH  TYR A  59     -15.798  -1.764   8.361  1.00  3.97      8HVP 617
+ATOM    464  N   ASP A  60     -13.652   6.572   9.380  1.00  5.89      8HVP 618
+ATOM    465  CA  ASP A  60     -13.507   7.951   9.779  1.00  6.71      8HVP 619
+ATOM    466  C   ASP A  60     -14.482   8.235  10.951  1.00  7.90      8HVP 620
+ATOM    467  O   ASP A  60     -15.503   7.548  11.133  1.00  8.18      8HVP 621
+ATOM    468  CB  ASP A  60     -13.742   8.895   8.611  1.00  9.56      8HVP 622
+ATOM    469  CG  ASP A  60     -13.156   8.619   7.249  1.00 22.85      8HVP 623
+ATOM    470  OD1 ASP A  60     -13.378   7.490   6.734  1.00 32.24      8HVP 624
+ATOM    471  OD2 ASP A  60     -12.560   9.477   6.558  1.00 19.65      8HVP 625
+ATOM    472  N   GLN A  61     -14.164   9.259  11.713  1.00  5.23      8HVP 626
+ATOM    473  CA  GLN A  61     -14.911   9.652  12.914  1.00  8.26      8HVP 627
+ATOM    474  C   GLN A  61     -15.543   8.417  13.566  1.00  7.43      8HVP 628
+ATOM    475  O   GLN A  61     -16.629   8.040  13.126  1.00 11.00      8HVP 629
+ATOM    476  CB  GLN A  61     -15.890  10.784  12.685  1.00 12.02      8HVP 630
+ATOM    477  CG  GLN A  61     -15.524  12.023  11.914  1.00 22.18      8HVP 631
+ATOM    478  CD  GLN A  61     -16.578  13.116  11.902  1.00 31.81      8HVP 632
+ATOM    479  OE1 GLN A  61     -16.590  14.122  11.172  1.00 32.58      8HVP 633
+ATOM    480  NE2 GLN A  61     -17.559  12.972  12.808  1.00 33.12      8HVP 634
+ATOM    481  N   ILE A  62     -14.984   7.777  14.564  1.00  7.95      8HVP 635
+ATOM    482  CA  ILE A  62     -15.452   6.605  15.301  1.00  3.16      8HVP 636
+ATOM    483  C   ILE A  62     -14.889   6.781  16.720  1.00  5.26      8HVP 637
+ATOM    484  O   ILE A  62     -13.654   6.804  16.818  1.00  6.64      8HVP 638
+ATOM    485  CB  ILE A  62     -14.904   5.234  14.757  1.00  2.00      8HVP 639
+ATOM    486  CG1 ILE A  62     -15.353   4.874  13.323  1.00  7.65      8HVP 640
+ATOM    487  CG2 ILE A  62     -15.263   4.060  15.735  1.00  2.00      8HVP 641
+ATOM    488  CD1 ILE A  62     -16.862   4.480  13.149  1.00  2.00      8HVP 642
+ATOM    489  N   PRO A  63     -15.727   6.880  17.728  1.00  7.38      8HVP 643
+ATOM    490  CA  PRO A  63     -15.324   7.094  19.130  1.00  3.35      8HVP 644
+ATOM    491  C   PRO A  63     -14.771   5.819  19.712  1.00  3.57      8HVP 645
+ATOM    492  O   PRO A  63     -15.206   4.705  19.380  1.00  2.00      8HVP 646
+ATOM    493  CB  PRO A  63     -16.544   7.574  19.883  1.00  3.75      8HVP 647
+ATOM    494  CG  PRO A  63     -17.642   7.706  18.862  1.00  7.00      8HVP 648
+ATOM    495  CD  PRO A  63     -17.205   6.901  17.626  1.00  8.19      8HVP 649
+ATOM    496  N   VAL A  64     -13.778   6.036  20.575  1.00  3.62      8HVP 650
+ATOM    497  CA  VAL A  64     -13.112   4.851  21.174  1.00  2.00      8HVP 651
+ATOM    498  C   VAL A  64     -12.778   5.200  22.592  1.00  2.00      8HVP 652
+ATOM    499  O   VAL A  64     -12.370   6.340  22.771  1.00  2.00      8HVP 653
+ATOM    500  CB  VAL A  64     -11.862   4.551  20.328  1.00  4.74      8HVP 654
+ATOM    501  CG1 VAL A  64     -11.044   3.381  20.852  1.00  7.63      8HVP 655
+ATOM    502  CG2 VAL A  64     -12.216   4.410  18.854  1.00  3.77      8HVP 656
+ATOM    503  N   GLU A  65     -12.940   4.276  23.508  1.00  2.00      8HVP 657
+ATOM    504  CA  GLU A  65     -12.593   4.737  24.880  1.00  4.11      8HVP 658
+ATOM    505  C   GLU A  65     -11.357   4.018  25.366  1.00  2.94      8HVP 659
+ATOM    506  O   GLU A  65     -11.406   2.812  25.550  1.00  3.01      8HVP 660
+ATOM    507  CB  GLU A  65     -13.809   4.650  25.764  1.00 10.50      8HVP 661
+ATOM    508  CG  GLU A  65     -13.607   5.129  27.203  1.00 20.47      8HVP 662
+ATOM    509  CD  GLU A  65     -14.912   5.221  27.953  1.00 26.07      8HVP 663
+ATOM    510  OE1 GLU A  65     -15.671   6.055  27.394  1.00 24.43      8HVP 664
+ATOM    511  OE2 GLU A  65     -15.121   4.544  28.944  1.00 26.09      8HVP 665
+ATOM    512  N   ILE A  66     -10.262   4.769  25.350  1.00  4.40      8HVP 666
+ATOM    513  CA  ILE A  66      -8.950   4.279  25.736  1.00  2.43      8HVP 667
+ATOM    514  C   ILE A  66      -8.793   4.502  27.245  1.00  3.70      8HVP 668
+ATOM    515  O   ILE A  66      -8.297   5.504  27.736  1.00  2.15      8HVP 669
+ATOM    516  CB  ILE A  66      -7.662   4.768  25.027  1.00  5.92      8HVP 670
+ATOM    517  CG1 ILE A  66      -7.599   4.255  23.562  1.00 15.82      8HVP 671
+ATOM    518  CG2 ILE A  66      -6.359   4.383  25.791  1.00  2.00      8HVP 672
+ATOM    519  CD1 ILE A  66      -8.540   5.033  22.584  1.00 21.51      8HVP 673
+HETATM  520  N   ABA A  67      -9.180   3.408  27.866  1.00  2.00      8HVP 674
+HETATM  521  CA  ABA A  67      -9.148   3.211  29.308  1.00  2.00      8HVP 675
+HETATM  522  C   ABA A  67      -9.795   4.420  29.938  1.00  2.00      8HVP 676
+HETATM  523  O   ABA A  67      -9.344   5.181  30.820  1.00  2.00      8HVP 677
+HETATM  524  CB  ABA A  67      -7.885   2.703  29.913  1.00  2.00      8HVP 678
+HETATM  525  CG  ABA A  67      -6.489   3.137  29.574  1.00  2.00      8HVP 679
+ATOM    526  N   GLY A  68     -11.010   4.625  29.439  1.00  2.00      8HVP 680
+ATOM    527  CA  GLY A  68     -11.923   5.629  29.949  1.00  2.00      8HVP 681
+ATOM    528  C   GLY A  68     -11.592   7.068  29.742  1.00  2.00      8HVP 682
+ATOM    529  O   GLY A  68     -11.979   7.847  30.699  1.00  2.00      8HVP 683
+ATOM    530  N   HIS A  69     -10.964   7.281  28.598  1.00  2.00      8HVP 684
+ATOM    531  CA  HIS A  69     -10.611   8.538  27.948  1.00  2.00      8HVP 685
+ATOM    532  C   HIS A  69     -11.134   8.384  26.498  1.00  2.67      8HVP 686
+ATOM    533  O   HIS A  69     -10.822   7.471  25.750  1.00  2.00      8HVP 687
+ATOM    534  CB  HIS A  69      -9.162   9.000  27.663  1.00  2.00      8HVP 688
+ATOM    535  CG  HIS A  69      -8.434   9.125  28.962  1.00  4.09      8HVP 689
+ATOM    536  ND1 HIS A  69      -8.028  10.287  29.581  1.00  2.00      8HVP 690
+ATOM    537  CD2 HIS A  69      -8.278   8.108  29.849  1.00  2.00      8HVP 691
+ATOM    538  CE1 HIS A  69      -7.573  10.005  30.777  1.00  2.00      8HVP 692
+ATOM    539  NE2 HIS A  69      -7.627   8.709  30.902  1.00  2.00      8HVP 693
+ATOM    540  N   LYS A  70     -11.904   9.346  26.079  1.00  6.44      8HVP 694
+ATOM    541  CA  LYS A  70     -12.526   9.291  24.767  1.00  8.83      8HVP 695
+ATOM    542  C   LYS A  70     -11.741   9.907  23.623  1.00  7.79      8HVP 696
+ATOM    543  O   LYS A  70     -11.516  11.125  23.688  1.00 10.27      8HVP 697
+ATOM    544  CB  LYS A  70     -13.843  10.049  24.944  1.00 22.25      8HVP 698
+ATOM    545  CG  LYS A  70     -14.883   9.579  25.948  1.00 29.40      8HVP 699
+ATOM    546  CD  LYS A  70     -15.966   8.698  25.354  1.00 37.56      8HVP 700
+ATOM    547  CE  LYS A  70     -16.817   9.292  24.261  1.00 37.79      8HVP 701
+ATOM    548  NZ  LYS A  70     -16.128   9.251  22.942  1.00 41.52      8HVP 702
+ATOM    549  N   ALA A  71     -11.503   9.158  22.563  1.00  3.86      8HVP 703
+ATOM    550  CA  ALA A  71     -10.970   9.668  21.300  1.00  2.78      8HVP 704
+ATOM    551  C   ALA A  71     -12.079   9.535  20.237  1.00  2.59      8HVP 705
+ATOM    552  O   ALA A  71     -13.038   8.782  20.491  1.00  4.78      8HVP 706
+ATOM    553  CB  ALA A  71      -9.727   8.913  20.899  1.00  4.57      8HVP 707
+ATOM    554  N   ILE A  72     -12.030  10.206  19.107  1.00  2.00      8HVP 708
+ATOM    555  CA  ILE A  72     -12.956  10.132  17.989  1.00  2.00      8HVP 709
+ATOM    556  C   ILE A  72     -12.213  10.270  16.652  1.00  2.52      8HVP 710
+ATOM    557  O   ILE A  72     -11.966  11.415  16.204  1.00  5.79      8HVP 711
+ATOM    558  CB  ILE A  72     -14.141  11.152  18.026  1.00  6.76      8HVP 712
+ATOM    559  CG1 ILE A  72     -15.012  10.896  19.279  1.00  3.79      8HVP 713
+ATOM    560  CG2 ILE A  72     -15.063  11.154  16.767  1.00  2.00      8HVP 714
+ATOM    561  CD1 ILE A  72     -15.934  12.133  19.516  1.00  8.03      8HVP 715
+ATOM    562  N   GLY A  73     -11.986   9.137  15.984  1.00  2.00      8HVP 716
+ATOM    563  CA  GLY A  73     -11.254   9.270  14.752  1.00  3.83      8HVP 717
+ATOM    564  C   GLY A  73     -11.100   8.060  13.882  1.00  8.34      8HVP 718
+ATOM    565  O   GLY A  73     -11.824   7.096  14.087  1.00  9.36      8HVP 719
+ATOM    566  N   THR A  74     -10.204   8.214  12.900  1.00 10.69      8HVP 720
+ATOM    567  CA  THR A  74      -9.923   7.185  11.888  1.00 12.72      8HVP 721
+ATOM    568  C   THR A  74      -9.556   5.963  12.729  1.00 11.88      8HVP 722
+ATOM    569  O   THR A  74      -9.029   6.181  13.819  1.00 15.49      8HVP 723
+ATOM    570  CB  THR A  74      -8.837   7.541  10.804  1.00  7.19      8HVP 724
+ATOM    571  OG1 THR A  74      -9.107   8.917  10.330  1.00  2.00      8HVP 725
+ATOM    572  CG2 THR A  74      -8.823   6.625   9.549  1.00  2.00      8HVP 726
+ATOM    573  N   VAL A  75      -9.883   4.817  12.264  1.00 12.35      8HVP 727
+ATOM    574  CA  VAL A  75      -9.637   3.501  12.863  1.00  9.52      8HVP 728
+ATOM    575  C   VAL A  75      -9.761   2.580  11.630  1.00  9.87      8HVP 729
+ATOM    576  O   VAL A  75     -10.825   2.592  10.989  1.00 11.30      8HVP 730
+ATOM    577  CB  VAL A  75     -10.642   3.268  13.978  1.00  2.00      8HVP 731
+ATOM    578  CG1 VAL A  75     -10.584   1.893  14.631  1.00  5.44      8HVP 732
+ATOM    579  CG2 VAL A  75     -10.617   4.277  15.098  1.00  2.00      8HVP 733
+ATOM    580  N   LEU A  76      -8.698   1.941  11.264  1.00  8.47      8HVP 734
+ATOM    581  CA  LEU A  76      -8.485   1.037  10.143  1.00  8.80      8HVP 735
+ATOM    582  C   LEU A  76      -8.671  -0.403  10.608  1.00  6.70      8HVP 736
+ATOM    583  O   LEU A  76      -8.303  -0.703  11.759  1.00  5.67      8HVP 737
+ATOM    584  CB  LEU A  76      -7.063   1.316   9.584  1.00 10.20      8HVP 738
+ATOM    585  CG  LEU A  76      -6.536   2.738   9.571  1.00 12.70      8HVP 739
+ATOM    586  CD1 LEU A  76      -5.017   2.742   9.427  1.00 20.05      8HVP 740
+ATOM    587  CD2 LEU A  76      -7.172   3.539   8.442  1.00 10.50      8HVP 741
+ATOM    588  N   VAL A  77      -9.237  -1.283   9.797  1.00  7.51      8HVP 742
+ATOM    589  CA  VAL A  77      -9.467  -2.667  10.311  1.00  8.48      8HVP 743
+ATOM    590  C   VAL A  77      -8.655  -3.482   9.296  1.00  8.66      8HVP 744
+ATOM    591  O   VAL A  77      -8.707  -3.060   8.148  1.00  3.51      8HVP 745
+ATOM    592  CB  VAL A  77     -10.848  -3.182  10.711  1.00  2.00      8HVP 746
+ATOM    593  CG1 VAL A  77     -11.601  -2.130  11.543  1.00  2.00      8HVP 747
+ATOM    594  CG2 VAL A  77     -11.772  -3.758   9.676  1.00  2.00      8HVP 748
+ATOM    595  N   GLY A  78      -7.917  -4.370   9.966  1.00  9.07      8HVP 749
+ATOM    596  CA  GLY A  78      -7.027  -5.213   9.216  1.00 10.45      8HVP 750
+ATOM    597  C   GLY A  78      -6.278  -6.298   9.987  1.00 13.11      8HVP 751
+ATOM    598  O   GLY A  78      -6.391  -6.475  11.207  1.00  8.30      8HVP 752
+ATOM    599  N   PRO A  79      -5.496  -6.967   9.126  1.00 13.87      8HVP 753
+ATOM    600  CA  PRO A  79      -4.648  -8.082   9.501  1.00 16.71      8HVP 754
+ATOM    601  C   PRO A  79      -3.373  -7.754  10.248  1.00 16.35      8HVP 755
+ATOM    602  O   PRO A  79      -2.271  -8.046   9.729  1.00 21.24      8HVP 756
+ATOM    603  CB  PRO A  79      -4.357  -8.828   8.183  1.00 15.48      8HVP 757
+ATOM    604  CG  PRO A  79      -4.513  -7.802   7.104  1.00 17.22      8HVP 758
+ATOM    605  CD  PRO A  79      -5.426  -6.726   7.664  1.00 15.67      8HVP 759
+ATOM    606  N   THR A  80      -3.508  -7.329  11.491  1.00 13.99      8HVP 760
+ATOM    607  CA  THR A  80      -2.388  -7.007  12.382  1.00  7.93      8HVP 761
+ATOM    608  C   THR A  80      -2.093  -8.073  13.416  1.00  7.15      8HVP 762
+ATOM    609  O   THR A  80      -2.972  -8.837  13.836  1.00  7.15      8HVP 763
+ATOM    610  CB  THR A  80      -2.810  -5.655  13.104  1.00  3.57      8HVP 764
+ATOM    611  OG1 THR A  80      -1.958  -5.424  14.269  1.00  3.18      8HVP 765
+ATOM    612  CG2 THR A  80      -4.299  -5.646  13.443  1.00  3.91      8HVP 766
+ATOM    613  N   PRO A  81      -0.864  -8.073  13.929  1.00  7.89      8HVP 767
+ATOM    614  CA  PRO A  81      -0.489  -8.998  15.016  1.00  5.91      8HVP 768
+ATOM    615  C   PRO A  81      -1.384  -8.738  16.238  1.00  4.90      8HVP 769
+ATOM    616  O   PRO A  81      -1.567  -9.712  17.002  1.00  2.72      8HVP 770
+ATOM    617  CB  PRO A  81       0.999  -8.797  15.310  1.00  2.00      8HVP 771
+ATOM    618  CG  PRO A  81       1.464  -7.910  14.202  1.00  5.30      8HVP 772
+ATOM    619  CD  PRO A  81       0.284  -7.232  13.546  1.00  4.56      8HVP 773
+ATOM    620  N   VAL A  82      -1.821  -7.500  16.368  1.00  2.00      8HVP 774
+ATOM    621  CA  VAL A  82      -2.634  -7.088  17.513  1.00  2.23      8HVP 775
+ATOM    622  C   VAL A  82      -3.237  -5.715  17.207  1.00  4.19      8HVP 776
+ATOM    623  O   VAL A  82      -3.001  -5.045  16.193  1.00  7.31      8HVP 777
+ATOM    624  CB  VAL A  82      -1.794  -7.114  18.814  1.00  7.05      8HVP 778
+ATOM    625  CG1 VAL A  82      -0.584  -6.170  18.866  1.00  2.42      8HVP 779
+ATOM    626  CG2 VAL A  82      -2.637  -6.925  20.078  1.00  2.00      8HVP 780
+ATOM    627  N   ASN A  83      -4.043  -5.282  18.137  1.00  2.00      8HVP 781
+ATOM    628  CA  ASN A  83      -4.725  -4.010  18.139  1.00  2.00      8HVP 782
+ATOM    629  C   ASN A  83      -3.712  -2.932  18.472  1.00  2.00      8HVP 783
+ATOM    630  O   ASN A  83      -3.102  -3.058  19.533  1.00  2.00      8HVP 784
+ATOM    631  CB  ASN A  83      -5.890  -4.091  19.148  1.00  2.77      8HVP 785
+ATOM    632  CG  ASN A  83      -6.999  -5.034  18.701  1.00  3.99      8HVP 786
+ATOM    633  OD1 ASN A  83      -7.292  -5.238  17.505  1.00  2.00      8HVP 787
+ATOM    634  ND2 ASN A  83      -7.656  -5.622  19.696  1.00  3.16      8HVP 788
+ATOM    635  N   ILE A  84      -3.572  -1.899  17.667  1.00  2.00      8HVP 789
+ATOM    636  CA  ILE A  84      -2.627  -0.855  18.109  1.00  2.00      8HVP 790
+ATOM    637  C   ILE A  84      -3.331   0.495  18.104  1.00  2.00      8HVP 791
+ATOM    638  O   ILE A  84      -4.139   0.805  17.202  1.00  3.31      8HVP 792
+ATOM    639  CB  ILE A  84      -1.337  -0.942  17.265  1.00  5.68      8HVP 793
+ATOM    640  CG1 ILE A  84      -1.582  -0.361  15.856  1.00  2.00      8HVP 794
+ATOM    641  CG2 ILE A  84      -0.704  -2.369  17.165  1.00  2.00      8HVP 795
+ATOM    642  CD1 ILE A  84      -0.535  -0.914  14.813  1.00 14.28      8HVP 796
+ATOM    643  N   ILE A  85      -3.119   1.204  19.200  1.00  2.00      8HVP 797
+ATOM    644  CA  ILE A  85      -3.629   2.562  19.300  1.00  2.00      8HVP 798
+ATOM    645  C   ILE A  85      -2.456   3.427  18.810  1.00  5.58      8HVP 799
+ATOM    646  O   ILE A  85      -1.316   3.339  19.342  1.00  6.20      8HVP 800
+ATOM    647  CB  ILE A  85      -4.238   2.871  20.688  1.00  5.40      8HVP 801
+ATOM    648  CG1 ILE A  85      -5.468   2.004  21.077  1.00  5.42      8HVP 802
+ATOM    649  CG2 ILE A  85      -4.563   4.413  20.787  1.00 10.10      8HVP 803
+ATOM    650  CD1 ILE A  85      -6.502   1.744  19.986  1.00  2.00      8HVP 804
+ATOM    651  N   GLY A  86      -2.685   4.160  17.715  1.00  5.21      8HVP 805
+ATOM    652  CA  GLY A  86      -1.546   4.956  17.199  1.00  3.26      8HVP 806
+ATOM    653  C   GLY A  86      -1.677   6.387  17.647  1.00  2.00      8HVP 807
+ATOM    654  O   GLY A  86      -2.687   6.774  18.224  1.00  4.46      8HVP 808
+ATOM    655  N   ARG A  87      -0.753   7.212  17.229  1.00  4.56      8HVP 809
+ATOM    656  CA  ARG A  87      -0.726   8.647  17.515  1.00  4.66      8HVP 810
+ATOM    657  C   ARG A  87      -1.927   9.421  17.003  1.00  5.62      8HVP 811
+ATOM    658  O   ARG A  87      -1.997  10.624  17.295  1.00  6.22      8HVP 812
+ATOM    659  CB  ARG A  87       0.560   9.251  16.954  1.00  3.84      8HVP 813
+ATOM    660  CG  ARG A  87       1.799   8.465  17.393  1.00  5.19      8HVP 814
+ATOM    661  CD  ARG A  87       3.062   9.249  17.176  1.00  5.47      8HVP 815
+ATOM    662  NE  ARG A  87       3.301   9.385  15.743  1.00  2.00      8HVP 816
+ATOM    663  CZ  ARG A  87       2.800  10.279  14.915  1.00  7.29      8HVP 817
+ATOM    664  NH1 ARG A  87       2.082  11.345  15.275  1.00  2.00      8HVP 818
+ATOM    665  NH2 ARG A  87       2.986  10.036  13.612  1.00  2.00      8HVP 819
+ATOM    666  N   ASN A  88      -2.856   8.785  16.310  1.00  7.72      8HVP 820
+ATOM    667  CA  ASN A  88      -4.072   9.472  15.825  1.00  3.58      8HVP 821
+ATOM    668  C   ASN A  88      -5.002   9.692  17.029  1.00  3.98      8HVP 822
+ATOM    669  O   ASN A  88      -5.394  10.821  17.322  1.00  2.18      8HVP 823
+ATOM    670  CB  ASN A  88      -4.685   8.771  14.638  1.00  2.00      8HVP 824
+ATOM    671  CG  ASN A  88      -5.413   7.486  14.820  1.00  2.00      8HVP 825
+ATOM    672  OD1 ASN A  88      -4.900   6.432  15.179  1.00  4.63      8HVP 826
+ATOM    673  ND2 ASN A  88      -6.741   7.466  14.648  1.00  9.19      8HVP 827
+ATOM    674  N   LEU A  89      -5.319   8.597  17.694  1.00  3.27      8HVP 828
+ATOM    675  CA  LEU A  89      -6.191   8.594  18.868  1.00  2.44      8HVP 829
+ATOM    676  C   LEU A  89      -5.324   8.934  20.075  1.00  2.55      8HVP 830
+ATOM    677  O   LEU A  89      -5.871   9.591  20.952  1.00  3.74      8HVP 831
+ATOM    678  CB  LEU A  89      -6.970   7.280  19.019  1.00  2.00      8HVP 832
+ATOM    679  CG  LEU A  89      -7.632   6.620  17.823  1.00  2.00      8HVP 833
+ATOM    680  CD1 LEU A  89      -8.393   5.334  18.111  1.00  2.00      8HVP 834
+ATOM    681  CD2 LEU A  89      -8.555   7.677  17.200  1.00  2.00      8HVP 835
+ATOM    682  N   LEU A  90      -4.090   8.493  20.116  1.00  4.39      8HVP 836
+ATOM    683  CA  LEU A  90      -3.089   8.713  21.163  1.00  3.40      8HVP 837
+ATOM    684  C   LEU A  90      -2.852  10.152  21.590  1.00  3.55      8HVP 838
+ATOM    685  O   LEU A  90      -2.420  10.305  22.734  1.00  7.46      8HVP 839
+ATOM    686  CB  LEU A  90      -1.762   8.046  20.789  1.00  2.00      8HVP 840
+ATOM    687  CG  LEU A  90      -1.440   6.613  21.147  1.00  2.96      8HVP 841
+ATOM    688  CD1 LEU A  90       0.014   6.252  20.880  1.00  2.00      8HVP 842
+ATOM    689  CD2 LEU A  90      -1.605   6.435  22.661  1.00  5.53      8HVP 843
+ATOM    690  N   THR A  91      -3.069  11.165  20.783  1.00  2.00      8HVP 844
+ATOM    691  CA  THR A  91      -2.847  12.561  21.080  1.00  2.00      8HVP 845
+ATOM    692  C   THR A  91      -4.221  13.159  21.410  1.00  2.00      8HVP 846
+ATOM    693  O   THR A  91      -4.409  14.271  21.937  1.00  3.25      8HVP 847
+ATOM    694  CB  THR A  91      -2.236  13.400  19.903  1.00  4.96      8HVP 848
+ATOM    695  OG1 THR A  91      -3.365  13.663  18.960  1.00 17.62      8HVP 849
+ATOM    696  CG2 THR A  91      -1.080  12.973  19.042  1.00  2.00      8HVP 850
+ATOM    697  N   GLN A  92      -5.294  12.504  21.000  1.00  2.02      8HVP 851
+ATOM    698  CA  GLN A  92      -6.596  13.066  21.374  1.00  3.23      8HVP 852
+ATOM    699  C   GLN A  92      -6.603  12.983  22.917  1.00  5.73      8HVP 853
+ATOM    700  O   GLN A  92      -6.911  13.969  23.600  1.00  5.39      8HVP 854
+ATOM    701  CB  GLN A  92      -7.860  12.421  20.850  1.00  7.97      8HVP 855
+ATOM    702  CG  GLN A  92      -7.866  11.997  19.398  1.00  4.65      8HVP 856
+ATOM    703  CD  GLN A  92      -9.225  12.013  18.760  1.00  5.71      8HVP 857
+ATOM    704  OE1 GLN A  92     -10.220  11.988  19.488  1.00 16.81      8HVP 858
+ATOM    705  NE2 GLN A  92      -9.287  12.137  17.436  1.00  2.61      8HVP 859
+ATOM    706  N   ILE A  93      -6.271  11.804  23.441  1.00  5.24      8HVP 860
+ATOM    707  CA  ILE A  93      -6.314  11.492  24.869  1.00  3.10      8HVP 861
+ATOM    708  C   ILE A  93      -5.177  12.056  25.735  1.00  4.44      8HVP 862
+ATOM    709  O   ILE A  93      -5.169  11.736  26.956  1.00  3.21      8HVP 863
+ATOM    710  CB  ILE A  93      -6.503   9.960  25.137  1.00  2.00      8HVP 864
+ATOM    711  CG1 ILE A  93      -5.111   9.269  25.304  1.00  2.32      8HVP 865
+ATOM    712  CG2 ILE A  93      -7.287   9.152  24.091  1.00  2.00      8HVP 866
+ATOM    713  CD1 ILE A  93      -5.310   7.869  25.962  1.00  2.00      8HVP 867
+ATOM    714  N   GLY A  94      -4.273  12.804  25.180  1.00  3.49      8HVP 868
+ATOM    715  CA  GLY A  94      -3.074  13.462  25.609  1.00  3.23      8HVP 869
+ATOM    716  C   GLY A  94      -1.929  12.631  26.127  1.00  5.18      8HVP 870
+ATOM    717  O   GLY A  94      -1.345  13.046  27.151  1.00  6.47      8HVP 871
+HETATM  718  N   ABA A  95      -1.543  11.513  25.567  1.00  6.81      8HVP 872
+HETATM  719  CA  ABA A  95      -0.435  10.616  26.015  1.00  7.01      8HVP 873
+HETATM  720  C   ABA A  95       0.920  11.278  25.762  1.00  7.48      8HVP 874
+HETATM  721  O   ABA A  95       1.150  11.979  24.750  1.00  8.83      8HVP 875
+HETATM  722  CB  ABA A  95      -0.535   9.266  25.311  1.00  4.08      8HVP 876
+HETATM  723  CG  ABA A  95       0.190   7.994  25.563  1.00  2.00      8HVP 877
+ATOM    724  N   THR A  96       1.891  11.127  26.657  1.00  8.14      8HVP 878
+ATOM    725  CA  THR A  96       3.209  11.673  26.385  1.00  6.16      8HVP 879
+ATOM    726  C   THR A  96       4.297  10.662  26.760  1.00  8.82      8HVP 880
+ATOM    727  O   THR A  96       4.046   9.894  27.710  1.00 10.15      8HVP 881
+ATOM    728  CB  THR A  96       3.586  12.991  27.148  1.00  2.00      8HVP 882
+ATOM    729  OG1 THR A  96       3.868  12.461  28.475  1.00  2.00      8HVP 883
+ATOM    730  CG2 THR A  96       2.600  14.110  27.001  1.00  2.00      8HVP 884
+ATOM    731  N   LEU A  97       5.429  10.771  26.063  1.00  4.92      8HVP 885
+ATOM    732  CA  LEU A  97       6.537   9.909  26.444  1.00  3.00      8HVP 886
+ATOM    733  C   LEU A  97       7.472  10.829  27.262  1.00  4.93      8HVP 887
+ATOM    734  O   LEU A  97       8.019  11.760  26.678  1.00  2.00      8HVP 888
+ATOM    735  CB  LEU A  97       7.413   9.402  25.337  1.00  5.81      8HVP 889
+ATOM    736  CG  LEU A  97       6.810   8.527  24.265  1.00 17.78      8HVP 890
+ATOM    737  CD1 LEU A  97       7.531   8.868  22.950  1.00 15.15      8HVP 891
+ATOM    738  CD2 LEU A  97       6.989   7.069  24.694  1.00  2.00      8HVP 892
+ATOM    739  N   ASN A  98       7.600  10.406  28.472  1.00  2.00      8HVP 893
+ATOM    740  CA  ASN A  98       8.451  10.928  29.503  1.00  2.00      8HVP 894
+ATOM    741  C   ASN A  98       9.592   9.944  29.781  1.00  2.00      8HVP 895
+ATOM    742  O   ASN A  98       9.567   8.718  29.800  1.00  2.00      8HVP 896
+ATOM    743  CB  ASN A  98       7.683  11.180  30.790  1.00  2.00      8HVP 897
+ATOM    744  CG  ASN A  98       6.342  11.853  30.762  1.00  2.00      8HVP 898
+ATOM    745  OD1 ASN A  98       6.256  13.075  30.810  1.00  2.00      8HVP 899
+ATOM    746  ND2 ASN A  98       5.257  11.097  30.774  1.00  2.00      8HVP 900
+ATOM    747  N   PHE A  99      10.683  10.600  30.112  1.00  2.30      8HVP 901
+ATOM    748  CA  PHE A  99      12.018  10.064  30.493  1.00  2.00      8HVP 902
+ATOM    749  C   PHE A  99      13.022  11.183  30.820  1.00  2.00      8HVP 903
+ATOM    750  O   PHE A  99      14.206  10.802  30.941  1.00  2.00      8HVP 904
+ATOM    751  CB  PHE A  99      12.574   9.271  29.336  1.00  5.09      8HVP 905
+ATOM    752  CG  PHE A  99      13.135   9.982  28.143  1.00  3.95      8HVP 906
+ATOM    753  CD1 PHE A  99      14.475  10.327  28.094  1.00 13.06      8HVP 907
+ATOM    754  CD2 PHE A  99      12.355  10.142  26.995  1.00 13.99      8HVP 908
+ATOM    755  CE1 PHE A  99      15.075  10.890  26.971  1.00 15.26      8HVP 909
+ATOM    756  CE2 PHE A  99      12.936  10.661  25.858  1.00 16.96      8HVP 910
+ATOM    757  CZ  PHE A  99      14.267  11.058  25.842  1.00 18.46      8HVP 911
+ATOM    758  OXT PHE A  99      12.728  12.395  30.861  1.00  8.17      8HVP 912
+TER     759      PHE A  99                                              8HVP 913
+ATOM    760  N   PRO B   1      13.362  14.768  29.011  1.00 22.23      8HVP 914
+ATOM    761  CA  PRO B   1      12.150  15.030  28.252  1.00 19.96      8HVP 915
+ATOM    762  C   PRO B   1      10.839  14.677  28.948  1.00 20.06      8HVP 916
+ATOM    763  O   PRO B   1      10.645  14.321  30.108  1.00 17.36      8HVP 917
+ATOM    764  CB  PRO B   1      12.333  14.144  27.001  1.00 21.73      8HVP 918
+ATOM    765  CG  PRO B   1      13.829  14.070  26.828  1.00 20.36      8HVP 919
+ATOM    766  CD  PRO B   1      14.266  13.841  28.287  1.00 22.67      8HVP 920
+ATOM    767  N   GLN B   2       9.851  14.769  28.117  1.00 21.74      8HVP 921
+ATOM    768  CA  GLN B   2       8.434  14.690  27.889  1.00 20.96      8HVP 922
+ATOM    769  C   GLN B   2       8.208  14.858  26.363  1.00 19.81      8HVP 923
+ATOM    770  O   GLN B   2       8.087  16.028  25.925  1.00 20.13      8HVP 924
+ATOM    771  CB  GLN B   2       7.647  15.813  28.601  1.00 11.77      8HVP 925
+ATOM    772  CG  GLN B   2       6.163  15.754  28.480  1.00 21.59      8HVP 926
+ATOM    773  CD  GLN B   2       5.211  16.418  29.425  1.00 29.24      8HVP 927
+ATOM    774  OE1 GLN B   2       4.849  15.901  30.495  1.00 30.58      8HVP 928
+ATOM    775  NE2 GLN B   2       4.626  17.557  29.014  1.00 33.48      8HVP 929
+ATOM    776  N   ILE B   3       8.245  13.802  25.569  1.00 18.52      8HVP 930
+ATOM    777  CA  ILE B   3       8.062  13.949  24.104  1.00 15.36      8HVP 931
+ATOM    778  C   ILE B   3       6.545  13.969  23.859  1.00 15.34      8HVP 932
+ATOM    779  O   ILE B   3       5.743  13.463  24.671  1.00 14.19      8HVP 933
+ATOM    780  CB  ILE B   3       8.794  12.957  23.149  1.00  4.31      8HVP 934
+ATOM    781  CG1 ILE B   3      10.325  13.000  23.437  1.00  2.00      8HVP 935
+ATOM    782  CG2 ILE B   3       8.554  13.117  21.635  1.00  7.74      8HVP 936
+ATOM    783  CD1 ILE B   3      10.587  12.109  24.687  1.00  2.00      8HVP 937
+ATOM    784  N   THR B   4       6.286  14.583  22.716  1.00 13.82      8HVP 938
+ATOM    785  CA  THR B   4       4.895  14.834  22.268  1.00 11.46      8HVP 939
+ATOM    786  C   THR B   4       4.650  13.952  21.069  1.00  7.87      8HVP 940
+ATOM    787  O   THR B   4       5.597  13.673  20.332  1.00  6.67      8HVP 941
+ATOM    788  CB  THR B   4       4.683  16.389  22.049  1.00 14.61      8HVP 942
+ATOM    789  OG1 THR B   4       3.283  16.733  22.322  1.00  2.27      8HVP 943
+ATOM    790  CG2 THR B   4       5.274  16.924  20.736  1.00  9.91      8HVP 944
+ATOM    791  N   LEU B   5       3.394  13.552  20.937  1.00  7.96      8HVP 945
+ATOM    792  CA  LEU B   5       3.055  12.678  19.798  1.00  8.46      8HVP 946
+ATOM    793  C   LEU B   5       2.487  13.354  18.578  1.00  6.62      8HVP 947
+ATOM    794  O   LEU B   5       2.051  12.623  17.675  1.00  5.80      8HVP 948
+ATOM    795  CB  LEU B   5       2.218  11.576  20.479  1.00 14.06      8HVP 949
+ATOM    796  CG  LEU B   5       2.985  10.781  21.553  1.00 13.25      8HVP 950
+ATOM    797  CD1 LEU B   5       2.022   9.789  22.194  1.00  2.00      8HVP 951
+ATOM    798  CD2 LEU B   5       4.211  10.126  20.907  1.00  2.00      8HVP 952
+ATOM    799  N   TRP B   6       2.529  14.670  18.435  1.00  8.33      8HVP 953
+ATOM    800  CA  TRP B   6       1.928  15.413  17.312  1.00  6.13      8HVP 954
+ATOM    801  C   TRP B   6       2.582  14.965  15.991  1.00  7.83      8HVP 955
+ATOM    802  O   TRP B   6       2.001  14.765  14.926  1.00  5.80      8HVP 956
+ATOM    803  CB  TRP B   6       1.974  16.899  17.526  1.00  2.70      8HVP 957
+ATOM    804  CG  TRP B   6       1.085  17.568  18.496  1.00  8.01      8HVP 958
+ATOM    805  CD1 TRP B   6       1.502  18.226  19.617  1.00  4.80      8HVP 959
+ATOM    806  CD2 TRP B   6      -0.353  17.645  18.504  1.00 12.18      8HVP 960
+ATOM    807  NE1 TRP B   6       0.424  18.693  20.322  1.00 13.10      8HVP 961
+ATOM    808  CE2 TRP B   6      -0.728  18.360  19.666  1.00 12.26      8HVP 962
+ATOM    809  CE3 TRP B   6      -1.349  17.193  17.640  1.00  9.93      8HVP 963
+ATOM    810  CZ2 TRP B   6      -2.052  18.623  20.007  1.00  5.70      8HVP 964
+ATOM    811  CZ3 TRP B   6      -2.669  17.461  17.968  1.00 11.20      8HVP 965
+ATOM    812  CH2 TRP B   6      -3.007  18.182  19.115  1.00  4.84      8HVP 966
+ATOM    813  N   GLN B   7       3.860  14.795  16.175  1.00  9.46      8HVP 967
+ATOM    814  CA  GLN B   7       4.910  14.331  15.306  1.00  6.51      8HVP 968
+ATOM    815  C   GLN B   7       5.473  13.072  15.957  1.00  6.44      8HVP 969
+ATOM    816  O   GLN B   7       5.491  12.888  17.193  1.00 14.42      8HVP 970
+ATOM    817  CB  GLN B   7       6.018  15.376  15.205  1.00 10.65      8HVP 971
+ATOM    818  CG  GLN B   7       5.548  16.697  14.609  1.00 11.70      8HVP 972
+ATOM    819  CD  GLN B   7       4.947  17.582  15.683  1.00 18.36      8HVP 973
+ATOM    820  OE1 GLN B   7       5.412  17.694  16.813  1.00 18.82      8HVP 974
+ATOM    821  NE2 GLN B   7       3.842  18.206  15.310  1.00 16.66      8HVP 975
+ATOM    822  N   ARG B   8       5.926  12.182  15.138  1.00  2.00      8HVP 976
+ATOM    823  CA  ARG B   8       6.531  10.933  15.569  1.00  2.47      8HVP 977
+ATOM    824  C   ARG B   8       7.555  11.268  16.617  1.00  2.00      8HVP 978
+ATOM    825  O   ARG B   8       8.108  12.376  16.572  1.00  4.59      8HVP 979
+ATOM    826  CB  ARG B   8       7.357  10.413  14.377  1.00  2.00      8HVP 980
+ATOM    827  CG  ARG B   8       6.402  10.086  13.256  1.00  4.99      8HVP 981
+ATOM    828  CD  ARG B   8       7.280   9.765  12.065  1.00 11.69      8HVP 982
+ATOM    829  NE  ARG B   8       6.366   9.124  11.145  1.00 18.34      8HVP 983
+ATOM    830  CZ  ARG B   8       6.534   8.935   9.847  1.00 20.17      8HVP 984
+ATOM    831  NH1 ARG B   8       7.634   9.201   9.166  1.00 29.34      8HVP 985
+ATOM    832  NH2 ARG B   8       5.440   8.519   9.212  1.00 18.36      8HVP 986
+ATOM    833  N   PRO B   9       7.902  10.289  17.418  1.00  4.14      8HVP 987
+ATOM    834  CA  PRO B   9       8.905  10.504  18.481  1.00  2.00      8HVP 988
+ATOM    835  C   PRO B   9      10.327  10.229  18.002  1.00  3.36      8HVP 989
+ATOM    836  O   PRO B   9      11.066   9.312  18.449  1.00  4.57      8HVP 990
+ATOM    837  CB  PRO B   9       8.345   9.633  19.605  1.00  2.00      8HVP 991
+ATOM    838  CG  PRO B   9       7.101   8.985  19.042  1.00  2.00      8HVP 992
+ATOM    839  CD  PRO B   9       7.321   8.943  17.528  1.00  2.00      8HVP 993
+ATOM    840  N   LEU B  10      10.819  11.046  17.082  1.00  2.00      8HVP 994
+ATOM    841  CA  LEU B  10      12.209  10.938  16.611  1.00  2.00      8HVP 995
+ATOM    842  C   LEU B  10      13.190  11.593  17.589  1.00  2.00      8HVP 996
+ATOM    843  O   LEU B  10      13.077  12.784  17.952  1.00  2.00      8HVP 997
+ATOM    844  CB  LEU B  10      12.381  11.504  15.230  1.00  2.00      8HVP 998
+ATOM    845  CG  LEU B  10      12.146  10.576  14.064  1.00  2.00      8HVP 999
+ATOM    846  CD1 LEU B  10      12.269  11.376  12.775  1.00  8.81      8HVP1000
+ATOM    847  CD2 LEU B  10      13.183   9.464  14.152  1.00 12.85      8HVP1001
+ATOM    848  N   VAL B  11      14.234  10.887  17.891  1.00  2.00      8HVP1002
+ATOM    849  CA  VAL B  11      15.287  11.363  18.798  1.00  6.05      8HVP1003
+ATOM    850  C   VAL B  11      16.641  11.041  18.188  1.00  4.35      8HVP1004
+ATOM    851  O   VAL B  11      16.652  10.633  17.020  1.00 10.00      8HVP1005
+ATOM    852  CB  VAL B  11      15.046  10.704  20.164  1.00  2.00      8HVP1006
+ATOM    853  CG1 VAL B  11      13.763  11.201  20.825  1.00  2.00      8HVP1007
+ATOM    854  CG2 VAL B  11      15.103   9.194  20.040  1.00  2.00      8HVP1008
+ATOM    855  N   THR B  12      17.661  11.184  18.991  1.00  3.92      8HVP1009
+ATOM    856  CA  THR B  12      19.029  10.968  18.446  1.00  6.27      8HVP1010
+ATOM    857  C   THR B  12      19.788  10.030  19.346  1.00  7.20      8HVP1011
+ATOM    858  O   THR B  12      19.728  10.174  20.565  1.00  2.07      8HVP1012
+ATOM    859  CB  THR B  12      19.610  12.432  18.259  1.00  2.00      8HVP1013
+ATOM    860  OG1 THR B  12      20.461  12.429  17.101  1.00  5.09      8HVP1014
+ATOM    861  CG2 THR B  12      20.265  12.929  19.561  1.00  2.00      8HVP1015
+ATOM    862  N   ILE B  13      20.471   9.059  18.789  1.00 11.31      8HVP1016
+ATOM    863  CA  ILE B  13      21.235   8.044  19.558  1.00 16.39      8HVP1017
+ATOM    864  C   ILE B  13      22.720   8.005  19.256  1.00 17.43      8HVP1018
+ATOM    865  O   ILE B  13      23.115   8.508  18.157  1.00 16.05      8HVP1019
+ATOM    866  CB  ILE B  13      20.491   6.678  19.202  1.00 17.54      8HVP1020
+ATOM    867  CG1 ILE B  13      20.494   6.535  17.660  1.00 18.07      8HVP1021
+ATOM    868  CG2 ILE B  13      19.058   6.601  19.789  1.00 11.02      8HVP1022
+ATOM    869  CD1 ILE B  13      20.418   5.094  17.098  1.00 19.66      8HVP1023
+ATOM    870  N   ARG B  14      23.576   7.463  20.130  1.00 19.20      8HVP1024
+ATOM    871  CA  ARG B  14      25.006   7.365  19.723  1.00 25.30      8HVP1025
+ATOM    872  C   ARG B  14      25.243   5.828  19.659  1.00 26.26      8HVP1026
+ATOM    873  O   ARG B  14      24.886   5.226  20.683  1.00 28.15      8HVP1027
+ATOM    874  CB  ARG B  14      26.194   7.762  20.539  1.00 34.20      8HVP1028
+ATOM    875  CG  ARG B  14      26.381   8.789  21.594  1.00 46.14      8HVP1029
+ATOM    876  CD  ARG B  14      27.682   8.861  22.313  1.00 43.75      8HVP1030
+ATOM    877  NE  ARG B  14      28.833   9.135  21.480  1.00 43.33      8HVP1031
+ATOM    878  CZ  ARG B  14      29.471   8.225  20.734  1.00 45.45      8HVP1032
+ATOM    879  NH1 ARG B  14      29.249   6.920  20.723  1.00 38.71      8HVP1033
+ATOM    880  NH2 ARG B  14      30.324   8.673  19.806  1.00 51.01      8HVP1034
+ATOM    881  N   ILE B  15      25.820   5.334  18.598  1.00 28.90      8HVP1035
+ATOM    882  CA  ILE B  15      26.161   3.902  18.521  1.00 31.28      8HVP1036
+ATOM    883  C   ILE B  15      27.548   3.841  17.877  1.00 31.86      8HVP1037
+ATOM    884  O   ILE B  15      27.550   4.139  16.675  1.00 34.27      8HVP1038
+ATOM    885  CB  ILE B  15      25.242   2.986  17.647  1.00 27.40      8HVP1039
+ATOM    886  CG1 ILE B  15      23.801   3.550  17.659  1.00 30.83      8HVP1040
+ATOM    887  CG2 ILE B  15      25.353   1.501  18.118  1.00 23.72      8HVP1041
+ATOM    888  CD1 ILE B  15      23.181   3.677  16.232  1.00 31.58      8HVP1042
+ATOM    889  N   GLY B  16      28.579   3.493  18.599  1.00 33.66      8HVP1043
+ATOM    890  CA  GLY B  16      29.920   3.439  17.998  1.00 36.17      8HVP1044
+ATOM    891  C   GLY B  16      30.272   4.691  17.191  1.00 38.23      8HVP1045
+ATOM    892  O   GLY B  16      30.783   4.588  16.042  1.00 38.72      8HVP1046
+ATOM    893  N   GLY B  17      30.023   5.875  17.760  1.00 37.56      8HVP1047
+ATOM    894  CA  GLY B  17      30.371   7.125  17.058  1.00 36.56      8HVP1048
+ATOM    895  C   GLY B  17      29.469   7.488  15.882  1.00 34.87      8HVP1049
+ATOM    896  O   GLY B  17      29.718   8.398  15.074  1.00 32.49      8HVP1050
+ATOM    897  N   GLN B  18      28.403   6.723  15.803  1.00 31.88      8HVP1051
+ATOM    898  CA  GLN B  18      27.332   7.006  14.853  1.00 32.64      8HVP1052
+ATOM    899  C   GLN B  18      26.368   7.826  15.739  1.00 31.59      8HVP1053
+ATOM    900  O   GLN B  18      26.015   7.341  16.831  1.00 29.27      8HVP1054
+ATOM    901  CB  GLN B  18      26.622   5.781  14.308  1.00 47.57      8HVP1055
+ATOM    902  CG  GLN B  18      27.596   4.851  13.567  1.00 57.60      8HVP1056
+ATOM    903  CD  GLN B  18      27.932   5.467  12.218  1.00 61.19      8HVP1057
+ATOM    904  OE1 GLN B  18      28.763   6.373  12.162  1.00 64.28      8HVP1058
+ATOM    905  NE2 GLN B  18      27.207   4.959  11.223  1.00 59.60      8HVP1059
+ATOM    906  N   LEU B  19      26.148   9.042  15.302  1.00 29.82      8HVP1060
+ATOM    907  CA  LEU B  19      25.149   9.917  15.979  1.00 29.89      8HVP1061
+ATOM    908  C   LEU B  19      23.936   9.593  15.112  1.00 27.07      8HVP1062
+ATOM    909  O   LEU B  19      24.220   9.604  13.892  1.00 30.34      8HVP1063
+ATOM    910  CB  LEU B  19      25.656  11.339  16.015  1.00 29.62      8HVP1064
+ATOM    911  CG  LEU B  19      26.168  11.974  17.294  1.00 32.57      8HVP1065
+ATOM    912  CD1 LEU B  19      25.019  12.444  18.202  1.00 26.91      8HVP1066
+ATOM    913  CD2 LEU B  19      27.095  11.019  18.059  1.00 31.34      8HVP1067
+ATOM    914  N   LYS B  20      22.804   9.170  15.621  1.00 26.45      8HVP1068
+ATOM    915  CA  LYS B  20      21.700   8.810  14.674  1.00 22.28      8HVP1069
+ATOM    916  C   LYS B  20      20.315   9.136  15.205  1.00 20.11      8HVP1070
+ATOM    917  O   LYS B  20      20.097   9.503  16.388  1.00 16.11      8HVP1071
+ATOM    918  CB  LYS B  20      21.865   7.380  14.163  1.00 19.56      8HVP1072
+ATOM    919  CG  LYS B  20      21.341   7.177  12.725  1.00 27.74      8HVP1073
+ATOM    920  CD  LYS B  20      22.260   6.479  11.751  1.00 26.62      8HVP1074
+ATOM    921  CE  LYS B  20      23.498   5.759  12.178  1.00 18.42      8HVP1075
+ATOM    922  NZ  LYS B  20      23.364   4.515  12.946  1.00 16.64      8HVP1076
+ATOM    923  N   GLU B  21      19.343   9.036  14.287  1.00 17.43      8HVP1077
+ATOM    924  CA  GLU B  21      17.937   9.319  14.635  1.00 13.51      8HVP1078
+ATOM    925  C   GLU B  21      17.078   8.089  14.826  1.00  8.57      8HVP1079
+ATOM    926  O   GLU B  21      17.075   7.126  14.079  1.00  3.48      8HVP1080
+ATOM    927  CB  GLU B  21      17.226  10.239  13.644  1.00 26.89      8HVP1081
+ATOM    928  CG  GLU B  21      17.343  11.745  13.974  1.00 33.60      8HVP1082
+ATOM    929  CD  GLU B  21      16.331  12.542  13.170  1.00 40.53      8HVP1083
+ATOM    930  OE1 GLU B  21      15.879  11.992  12.167  1.00 35.62      8HVP1084
+ATOM    931  OE2 GLU B  21      16.073  13.654  13.684  1.00 34.83      8HVP1085
+ATOM    932  N   ALA B  22      16.282   8.155  15.875  1.00  8.69      8HVP1086
+ATOM    933  CA  ALA B  22      15.408   7.042  16.232  1.00  8.62      8HVP1087
+ATOM    934  C   ALA B  22      14.029   7.471  16.690  1.00  7.93      8HVP1088
+ATOM    935  O   ALA B  22      13.780   8.599  17.108  1.00  4.79      8HVP1089
+ATOM    936  CB  ALA B  22      16.186   6.273  17.291  1.00  2.50      8HVP1090
+ATOM    937  N   LEU B  23      13.131   6.527  16.570  1.00  8.97      8HVP1091
+ATOM    938  CA  LEU B  23      11.715   6.576  16.855  1.00  6.82      8HVP1092
+ATOM    939  C   LEU B  23      11.585   5.806  18.182  1.00 10.95      8HVP1093
+ATOM    940  O   LEU B  23      11.945   4.613  18.112  1.00 10.10      8HVP1094
+ATOM    941  CB  LEU B  23      11.013   5.782  15.759  1.00  2.00      8HVP1095
+ATOM    942  CG  LEU B  23       9.562   5.834  15.401  1.00  2.00      8HVP1096
+ATOM    943  CD1 LEU B  23       9.296   7.140  14.617  1.00  2.00      8HVP1097
+ATOM    944  CD2 LEU B  23       9.141   4.802  14.364  1.00  2.16      8HVP1098
+ATOM    945  N   LEU B  24      11.191   6.493  19.227  1.00 10.43      8HVP1099
+ATOM    946  CA  LEU B  24      10.892   5.811  20.501  1.00 12.28      8HVP1100
+ATOM    947  C   LEU B  24       9.608   5.010  20.194  1.00  9.36      8HVP1101
+ATOM    948  O   LEU B  24       8.578   5.662  19.993  1.00 12.60      8HVP1102
+ATOM    949  CB  LEU B  24      10.632   6.813  21.639  1.00  7.17      8HVP1103
+ATOM    950  CG  LEU B  24      11.653   7.929  21.812  1.00  5.54      8HVP1104
+ATOM    951  CD1 LEU B  24      11.357   8.652  23.109  1.00  9.55      8HVP1105
+ATOM    952  CD2 LEU B  24      13.056   7.317  21.731  1.00  2.00      8HVP1106
+ATOM    953  N   ASP B  25       9.701   3.708  20.205  1.00  8.50      8HVP1107
+ATOM    954  CA  ASP B  25       8.569   2.830  19.890  1.00  5.50      8HVP1108
+ATOM    955  C   ASP B  25       7.962   2.057  21.057  1.00  2.68      8HVP1109
+ATOM    956  O   ASP B  25       8.249   0.858  21.174  1.00  2.00      8HVP1110
+ATOM    957  CB  ASP B  25       9.094   1.887  18.758  1.00  2.00      8HVP1111
+ATOM    958  CG  ASP B  25       7.855   1.344  18.064  1.00 12.58      8HVP1112
+ATOM    959  OD1 ASP B  25       6.760   1.311  18.713  1.00  2.00      8HVP1113
+ATOM    960  OD2 ASP B  25       7.891   1.001  16.863  1.00  2.00      8HVP1114
+ATOM    961  N   THR B  26       7.021   2.612  21.812  1.00  2.88      8HVP1115
+ATOM    962  CA  THR B  26       6.460   1.826  22.933  1.00  4.04      8HVP1116
+ATOM    963  C   THR B  26       5.802   0.529  22.459  1.00  4.48      8HVP1117
+ATOM    964  O   THR B  26       5.428  -0.322  23.290  1.00  2.00      8HVP1118
+ATOM    965  CB  THR B  26       5.410   2.570  23.847  1.00  2.00      8HVP1119
+ATOM    966  OG1 THR B  26       4.403   3.014  22.912  1.00  2.00      8HVP1120
+ATOM    967  CG2 THR B  26       6.022   3.695  24.670  1.00  2.00      8HVP1121
+ATOM    968  N   GLY B  27       5.722   0.437  21.144  1.00  2.00      8HVP1122
+ATOM    969  CA  GLY B  27       5.087  -0.711  20.511  1.00  2.00      8HVP1123
+ATOM    970  C   GLY B  27       6.094  -1.684  19.944  1.00  3.33      8HVP1124
+ATOM    971  O   GLY B  27       5.613  -2.651  19.311  1.00  7.98      8HVP1125
+ATOM    972  N   ALA B  28       7.374  -1.463  20.157  1.00  3.25      8HVP1126
+ATOM    973  CA  ALA B  28       8.441  -2.340  19.672  1.00  2.00      8HVP1127
+ATOM    974  C   ALA B  28       9.025  -3.158  20.823  1.00  2.00      8HVP1128
+ATOM    975  O   ALA B  28       9.481  -2.652  21.845  1.00  2.00      8HVP1129
+ATOM    976  CB  ALA B  28       9.618  -1.683  19.001  1.00  2.00      8HVP1130
+ATOM    977  N   ASP B  29       8.954  -4.439  20.553  1.00  2.00      8HVP1131
+ATOM    978  CA  ASP B  29       9.483  -5.475  21.428  1.00  4.80      8HVP1132
+ATOM    979  C   ASP B  29      11.009  -5.367  21.606  1.00  5.96      8HVP1133
+ATOM    980  O   ASP B  29      11.496  -5.585  22.727  1.00  5.93      8HVP1134
+ATOM    981  CB  ASP B  29       9.022  -6.840  20.899  1.00  7.65      8HVP1135
+ATOM    982  CG  ASP B  29       7.845  -7.432  21.624  1.00 16.24      8HVP1136
+ATOM    983  OD1 ASP B  29       6.883  -6.685  21.858  1.00 26.97      8HVP1137
+ATOM    984  OD2 ASP B  29       7.868  -8.631  21.991  1.00 19.75      8HVP1138
+ATOM    985  N   ASP B  30      11.716  -5.174  20.516  1.00  7.34      8HVP1139
+ATOM    986  CA  ASP B  30      13.124  -5.121  20.191  1.00  4.67      8HVP1140
+ATOM    987  C   ASP B  30      13.557  -3.784  19.597  1.00  2.00      8HVP1141
+ATOM    988  O   ASP B  30      12.700  -2.963  19.244  1.00  2.00      8HVP1142
+ATOM    989  CB  ASP B  30      13.428  -6.156  19.051  1.00  2.00      8HVP1143
+ATOM    990  CG  ASP B  30      12.960  -7.523  19.518  1.00 19.35      8HVP1144
+ATOM    991  OD1 ASP B  30      13.301  -7.714  20.722  1.00 28.54      8HVP1145
+ATOM    992  OD2 ASP B  30      12.257  -8.296  18.837  1.00 18.48      8HVP1146
+ATOM    993  N   THR B  31      14.855  -3.654  19.335  1.00  6.35      8HVP1147
+ATOM    994  CA  THR B  31      15.480  -2.459  18.741  1.00  2.45      8HVP1148
+ATOM    995  C   THR B  31      16.107  -2.874  17.421  1.00  2.57      8HVP1149
+ATOM    996  O   THR B  31      16.989  -3.703  17.343  1.00  2.38      8HVP1150
+ATOM    997  CB  THR B  31      16.541  -1.792  19.696  1.00  8.53      8HVP1151
+ATOM    998  OG1 THR B  31      15.856  -1.705  20.992  1.00  2.64      8HVP1152
+ATOM    999  CG2 THR B  31      17.128  -0.445  19.245  1.00  2.00      8HVP1153
+ATOM   1000  N   VAL B  32      15.639  -2.267  16.360  1.00  3.43      8HVP1154
+ATOM   1001  CA  VAL B  32      16.019  -2.557  14.989  1.00  2.00      8HVP1155
+ATOM   1002  C   VAL B  32      16.527  -1.268  14.365  1.00  3.55      8HVP1156
+ATOM   1003  O   VAL B  32      15.737  -0.339  14.189  1.00  5.13      8HVP1157
+ATOM   1004  CB  VAL B  32      14.832  -3.093  14.175  1.00  3.44      8HVP1158
+ATOM   1005  CG1 VAL B  32      15.292  -3.729  12.866  1.00  2.00      8HVP1159
+ATOM   1006  CG2 VAL B  32      13.975  -4.061  15.009  1.00  2.00      8HVP1160
+ATOM   1007  N   LEU B  33      17.793  -1.326  14.034  1.00  2.00      8HVP1161
+ATOM   1008  CA  LEU B  33      18.476  -0.151  13.433  1.00  4.39      8HVP1162
+ATOM   1009  C   LEU B  33      18.702  -0.677  12.018  1.00  2.00      8HVP1163
+ATOM   1010  O   LEU B  33      18.716  -1.893  11.949  1.00  2.00      8HVP1164
+ATOM   1011  CB  LEU B  33      19.648   0.118  14.374  1.00  2.00      8HVP1165
+ATOM   1012  CG  LEU B  33      19.431   0.854  15.671  1.00  2.00      8HVP1166
+ATOM   1013  CD1 LEU B  33      19.625  -0.019  16.915  1.00  2.00      8HVP1167
+ATOM   1014  CD2 LEU B  33      20.578   1.874  15.710  1.00 13.97      8HVP1168
+ATOM   1015  N   GLU B  34      18.668   0.153  11.026  1.00 11.86      8HVP1169
+ATOM   1016  CA  GLU B  34      18.921  -0.217   9.609  1.00 19.66      8HVP1170
+ATOM   1017  C   GLU B  34      20.269  -0.927   9.455  1.00 21.70      8HVP1171
+ATOM   1018  O   GLU B  34      20.770  -1.586  10.388  1.00 23.50      8HVP1172
+ATOM   1019  CB  GLU B  34      19.178   1.123   8.828  1.00 24.09      8HVP1173
+ATOM   1020  CG  GLU B  34      20.154   1.911   9.701  1.00 41.99      8HVP1174
+ATOM   1021  CD  GLU B  34      21.007   3.034   9.293  1.00 54.75      8HVP1175
+ATOM   1022  OE1 GLU B  34      20.792   3.376   8.110  1.00 66.31      8HVP1176
+ATOM   1023  OE2 GLU B  34      21.836   3.539  10.050  1.00 60.98      8HVP1177
+ATOM   1024  N   GLU B  35      20.890  -0.735   8.281  1.00 23.86      8HVP1178
+ATOM   1025  CA  GLU B  35      22.198  -1.316   8.006  1.00 25.01      8HVP1179
+ATOM   1026  C   GLU B  35      23.404  -0.584   8.615  1.00 24.91      8HVP1180
+ATOM   1027  O   GLU B  35      23.690   0.564   8.213  1.00 24.28      8HVP1181
+ATOM   1028  CB  GLU B  35      22.593  -1.469   6.535  1.00 30.71      8HVP1182
+ATOM   1029  CG  GLU B  35      21.865  -2.546   5.752  1.00 26.17      8HVP1183
+ATOM   1030  CD  GLU B  35      21.271  -3.614   6.626  1.00 30.32      8HVP1184
+ATOM   1031  OE1 GLU B  35      22.050  -4.030   7.510  1.00 30.03      8HVP1185
+ATOM   1032  OE2 GLU B  35      20.109  -3.919   6.410  1.00 30.07      8HVP1186
+ATOM   1033  N   MET B  36      24.050  -1.359   9.474  1.00 20.99      8HVP1187
+ATOM   1034  CA  MET B  36      25.262  -0.922  10.165  1.00 21.40      8HVP1188
+ATOM   1035  C   MET B  36      26.132  -2.128  10.553  1.00 21.96      8HVP1189
+ATOM   1036  O   MET B  36      25.723  -3.207  11.032  1.00 18.06      8HVP1190
+ATOM   1037  CB  MET B  36      24.977   0.070  11.272  1.00 12.31      8HVP1191
+ATOM   1038  CG  MET B  36      24.552  -0.590  12.536  1.00 20.81      8HVP1192
+ATOM   1039  SD  MET B  36      24.155   0.798  13.659  1.00 41.04      8HVP1193
+ATOM   1040  CE  MET B  36      25.800   1.572  13.710  1.00 21.74      8HVP1194
+ATOM   1041  N   ASN B  37      27.413  -1.843  10.318  1.00 22.96      8HVP1195
+ATOM   1042  CA  ASN B  37      28.526  -2.803  10.481  1.00 26.45      8HVP1196
+ATOM   1043  C   ASN B  37      29.058  -3.002  11.889  1.00 24.22      8HVP1197
+ATOM   1044  O   ASN B  37      30.257  -2.750  12.146  1.00 27.66      8HVP1198
+ATOM   1045  CB  ASN B  37      29.608  -2.306   9.499  1.00 35.13      8HVP1199
+ATOM   1046  CG  ASN B  37      30.495  -3.456   9.064  1.00 43.47      8HVP1200
+ATOM   1047  OD1 ASN B  37      30.062  -4.594   9.339  1.00 51.18      8HVP1201
+ATOM   1048  ND2 ASN B  37      31.615  -3.120   8.422  1.00 42.91      8HVP1202
+ATOM   1049  N   LEU B  38      28.241  -3.500  12.795  1.00 22.53      8HVP1203
+ATOM   1050  CA  LEU B  38      28.712  -3.604  14.184  1.00 21.71      8HVP1204
+ATOM   1051  C   LEU B  38      29.813  -4.653  14.215  1.00 21.57      8HVP1205
+ATOM   1052  O   LEU B  38      29.954  -5.430  13.278  1.00 20.06      8HVP1206
+ATOM   1053  CB  LEU B  38      27.544  -3.677  15.174  1.00 22.38      8HVP1207
+ATOM   1054  CG  LEU B  38      26.588  -2.485  15.107  1.00 17.47      8HVP1208
+ATOM   1055  CD1 LEU B  38      25.171  -2.817  15.535  1.00 18.42      8HVP1209
+ATOM   1056  CD2 LEU B  38      27.118  -1.340  15.949  1.00 13.96      8HVP1210
+ATOM   1057  N   PRO B  39      30.589  -4.547  15.271  1.00 23.87      8HVP1211
+ATOM   1058  CA  PRO B  39      31.705  -5.450  15.533  1.00 24.03      8HVP1212
+ATOM   1059  C   PRO B  39      31.177  -6.642  16.331  1.00 22.54      8HVP1213
+ATOM   1060  O   PRO B  39      30.523  -6.397  17.364  1.00 18.45      8HVP1214
+ATOM   1061  CB  PRO B  39      32.671  -4.638  16.389  1.00 24.63      8HVP1215
+ATOM   1062  CG  PRO B  39      31.828  -3.570  17.034  1.00 24.98      8HVP1216
+ATOM   1063  CD  PRO B  39      30.461  -3.575  16.383  1.00 24.62      8HVP1217
+ATOM   1064  N   GLY B  40      31.474  -7.812  15.802  1.00 20.94      8HVP1218
+ATOM   1065  CA  GLY B  40      31.097  -9.019  16.495  1.00 28.11      8HVP1219
+ATOM   1066  C   GLY B  40      30.325 -10.166  15.898  1.00 29.39      8HVP1220
+ATOM   1067  O   GLY B  40      30.129 -10.333  14.677  1.00 33.81      8HVP1221
+ATOM   1068  N   LYS B  41      29.914 -10.980  16.864  1.00 28.89      8HVP1222
+ATOM   1069  CA  LYS B  41      29.099 -12.177  16.775  1.00 27.88      8HVP1223
+ATOM   1070  C   LYS B  41      27.619 -11.718  16.829  1.00 27.43      8HVP1224
+ATOM   1071  O   LYS B  41      27.198 -10.864  17.628  1.00 28.52      8HVP1225
+ATOM   1072  CB  LYS B  41      29.182 -13.120  17.945  1.00 36.31      8HVP1226
+ATOM   1073  CG  LYS B  41      30.254 -13.963  18.544  1.00 30.73      8HVP1227
+ATOM   1074  CD  LYS B  41      30.984 -14.877  17.594  1.00 29.28      8HVP1228
+ATOM   1075  CE  LYS B  41      30.202 -15.339  16.383  1.00 31.88      8HVP1229
+ATOM   1076  NZ  LYS B  41      30.925 -16.450  15.716  1.00 27.56      8HVP1230
+ATOM   1077  N   TRP B  42      26.882 -12.441  16.040  1.00 27.58      8HVP1231
+ATOM   1078  CA  TRP B  42      25.433 -12.279  15.901  1.00 28.24      8HVP1232
+ATOM   1079  C   TRP B  42      24.929 -13.670  15.533  1.00 27.17      8HVP1233
+ATOM   1080  O   TRP B  42      25.696 -14.610  15.362  1.00 25.95      8HVP1234
+ATOM   1081  CB  TRP B  42      25.069 -11.149  14.956  1.00 37.00      8HVP1235
+ATOM   1082  CG  TRP B  42      25.665 -11.312  13.604  1.00 46.23      8HVP1236
+ATOM   1083  CD1 TRP B  42      26.672 -10.578  13.038  1.00 49.04      8HVP1237
+ATOM   1084  CD2 TRP B  42      25.321 -12.335  12.655  1.00 49.52      8HVP1238
+ATOM   1085  NE1 TRP B  42      26.965 -11.059  11.780  1.00 49.97      8HVP1239
+ATOM   1086  CE2 TRP B  42      26.160 -12.136  11.531  1.00 52.47      8HVP1240
+ATOM   1087  CE3 TRP B  42      24.387 -13.359  12.630  1.00 47.48      8HVP1241
+ATOM   1088  CZ2 TRP B  42      26.077 -12.948  10.410  1.00 56.71      8HVP1242
+ATOM   1089  CZ3 TRP B  42      24.320 -14.162  11.521  1.00 51.28      8HVP1243
+ATOM   1090  CH2 TRP B  42      25.135 -13.968  10.417  1.00 54.84      8HVP1244
+ATOM   1091  N   LYS B  43      23.640 -13.766  15.434  1.00 29.09      8HVP1245
+ATOM   1092  CA  LYS B  43      22.759 -14.900  15.205  1.00 26.73      8HVP1246
+ATOM   1093  C   LYS B  43      21.470 -14.400  14.572  1.00 26.40      8HVP1247
+ATOM   1094  O   LYS B  43      20.741 -13.573  15.156  1.00 25.74      8HVP1248
+ATOM   1095  CB  LYS B  43      22.374 -15.506  16.587  1.00 28.42      8HVP1249
+ATOM   1096  CG  LYS B  43      22.805 -14.615  17.747  1.00 30.96      8HVP1250
+ATOM   1097  CD  LYS B  43      22.046 -14.565  19.021  1.00 33.44      8HVP1251
+ATOM   1098  CE  LYS B  43      22.143 -15.700  19.992  1.00 33.13      8HVP1252
+ATOM   1099  NZ  LYS B  43      21.336 -15.432  21.218  1.00 27.94      8HVP1253
+ATOM   1100  N   PRO B  44      21.198 -14.885  13.376  1.00 27.94      8HVP1254
+ATOM   1101  CA  PRO B  44      19.947 -14.533  12.677  1.00 27.06      8HVP1255
+ATOM   1102  C   PRO B  44      18.740 -14.831  13.575  1.00 23.74      8HVP1256
+ATOM   1103  O   PRO B  44      18.699 -15.616  14.543  1.00 23.37      8HVP1257
+ATOM   1104  CB  PRO B  44      19.990 -15.297  11.359  1.00 27.32      8HVP1258
+ATOM   1105  CG  PRO B  44      20.901 -16.460  11.652  1.00 28.58      8HVP1259
+ATOM   1106  CD  PRO B  44      21.943 -15.906  12.624  1.00 28.32      8HVP1260
+ATOM   1107  N   LYS B  45      17.710 -14.060  13.249  1.00 18.28      8HVP1261
+ATOM   1108  CA  LYS B  45      16.424 -14.073  13.919  1.00 10.05      8HVP1262
+ATOM   1109  C   LYS B  45      15.410 -13.403  12.980  1.00  5.88      8HVP1263
+ATOM   1110  O   LYS B  45      15.736 -12.676  12.016  1.00  3.74      8HVP1264
+ATOM   1111  CB  LYS B  45      16.469 -13.321  15.250  1.00  5.89      8HVP1265
+ATOM   1112  CG  LYS B  45      15.077 -13.238  15.847  1.00  3.10      8HVP1266
+ATOM   1113  CD  LYS B  45      14.828 -12.229  16.904  1.00  3.91      8HVP1267
+ATOM   1114  CE  LYS B  45      15.080 -12.795  18.299  1.00  3.48      8HVP1268
+ATOM   1115  NZ  LYS B  45      14.644 -11.709  19.238  1.00  2.00      8HVP1269
+ATOM   1116  N   MET B  46      14.172 -13.713  13.353  1.00  2.04      8HVP1270
+ATOM   1117  CA  MET B  46      13.017 -13.163  12.665  1.00  2.00      8HVP1271
+ATOM   1118  C   MET B  46      12.014 -12.324  13.423  1.00  2.00      8HVP1272
+ATOM   1119  O   MET B  46      11.701 -12.644  14.579  1.00  2.00      8HVP1273
+ATOM   1120  CB  MET B  46      12.370 -14.279  11.814  1.00  3.38      8HVP1274
+ATOM   1121  CG  MET B  46      13.015 -14.194  10.454  1.00  2.00      8HVP1275
+ATOM   1122  SD  MET B  46      12.190 -15.349   9.346  1.00 12.32      8HVP1276
+ATOM   1123  CE  MET B  46      13.204 -15.043   7.890  1.00  2.00      8HVP1277
+ATOM   1124  N   ILE B  47      11.642 -11.224  12.801  1.00  2.00      8HVP1278
+ATOM   1125  CA  ILE B  47      10.647 -10.378  13.456  1.00  4.30      8HVP1279
+ATOM   1126  C   ILE B  47       9.698  -9.929  12.362  1.00  4.03      8HVP1280
+ATOM   1127  O   ILE B  47      10.103  -9.976  11.206  1.00  3.63      8HVP1281
+ATOM   1128  CB  ILE B  47      11.266  -9.238  14.339  1.00  9.07      8HVP1282
+ATOM   1129  CG1 ILE B  47      11.967  -8.226  13.478  1.00  2.00      8HVP1283
+ATOM   1130  CG2 ILE B  47      12.234  -9.803  15.421  1.00  2.00      8HVP1284
+ATOM   1131  CD1 ILE B  47      12.567  -6.882  13.575  1.00  2.00      8HVP1285
+ATOM   1132  N   GLY B  48       8.520  -9.579  12.813  1.00  9.14      8HVP1286
+ATOM   1133  CA  GLY B  48       7.495  -9.090  11.877  1.00 10.44      8HVP1287
+ATOM   1134  C   GLY B  48       6.462  -8.295  12.687  1.00 11.81      8HVP1288
+ATOM   1135  O   GLY B  48       6.614  -8.152  13.908  1.00  9.14      8HVP1289
+ATOM   1136  N   GLY B  49       5.420  -7.962  11.938  1.00 10.82      8HVP1290
+ATOM   1137  CA  GLY B  49       4.259  -7.215  12.439  1.00  9.96      8HVP1291
+ATOM   1138  C   GLY B  49       3.348  -6.879  11.271  1.00  8.95      8HVP1292
+ATOM   1139  O   GLY B  49       2.977  -7.831  10.575  1.00 10.25      8HVP1293
+ATOM   1140  N   ILE B  50       2.977  -5.625  11.070  1.00 10.74      8HVP1294
+ATOM   1141  CA  ILE B  50       2.065  -5.320   9.923  1.00  8.35      8HVP1295
+ATOM   1142  C   ILE B  50       2.934  -5.730   8.761  1.00 10.18      8HVP1296
+ATOM   1143  O   ILE B  50       4.071  -5.215   8.934  1.00 16.59      8HVP1297
+ATOM   1144  CB  ILE B  50       1.691  -3.801   9.905  1.00  2.25      8HVP1298
+ATOM   1145  CG1 ILE B  50       0.659  -3.526  11.033  1.00  2.00      8HVP1299
+ATOM   1146  CG2 ILE B  50       1.104  -3.143   8.635  1.00  2.00      8HVP1300
+ATOM   1147  CD1 ILE B  50      -0.606  -4.427  10.901  1.00  3.68      8HVP1301
+ATOM   1148  N   GLY B  51       2.549  -6.448   7.743  1.00  9.92      8HVP1302
+ATOM   1149  CA  GLY B  51       3.517  -6.626   6.624  1.00  7.18      8HVP1303
+ATOM   1150  C   GLY B  51       3.983  -8.042   6.403  1.00  9.03      8HVP1304
+ATOM   1151  O   GLY B  51       3.886  -8.678   5.324  1.00  7.91      8HVP1305
+ATOM   1152  N   GLY B  52       4.516  -8.536   7.516  1.00 12.04      8HVP1306
+ATOM   1153  CA  GLY B  52       5.046  -9.907   7.691  1.00  8.63      8HVP1307
+ATOM   1154  C   GLY B  52       6.357  -9.841   8.450  1.00  2.00      8HVP1308
+ATOM   1155  O   GLY B  52       6.654  -8.801   9.024  1.00  3.66      8HVP1309
+ATOM   1156  N   PHE B  53       7.168 -10.849   8.266  1.00  5.97      8HVP1310
+ATOM   1157  CA  PHE B  53       8.486 -11.020   8.918  1.00  2.93      8HVP1311
+ATOM   1158  C   PHE B  53       9.600 -10.612   7.988  1.00  6.45      8HVP1312
+ATOM   1159  O   PHE B  53       9.330 -10.629   6.780  1.00 10.93      8HVP1313
+ATOM   1160  CB  PHE B  53       8.731 -12.469   9.389  1.00  4.32      8HVP1314
+ATOM   1161  CG  PHE B  53       7.829 -12.804  10.557  1.00  6.51      8HVP1315
+ATOM   1162  CD1 PHE B  53       6.449 -12.738  10.377  1.00 10.36      8HVP1316
+ATOM   1163  CD2 PHE B  53       8.304 -13.121  11.813  1.00  8.98      8HVP1317
+ATOM   1164  CE1 PHE B  53       5.561 -13.038  11.367  1.00  2.00      8HVP1318
+ATOM   1165  CE2 PHE B  53       7.401 -13.420  12.840  1.00 12.75      8HVP1319
+ATOM   1166  CZ  PHE B  53       6.017 -13.366  12.645  1.00  2.00      8HVP1320
+ATOM   1167  N   ILE B  54      10.745 -10.320   8.523  1.00  7.04      8HVP1321
+ATOM   1168  CA  ILE B  54      11.958  -9.948   7.787  1.00  7.76      8HVP1322
+ATOM   1169  C   ILE B  54      13.116 -10.492   8.653  1.00  7.51      8HVP1323
+ATOM   1170  O   ILE B  54      12.882 -10.557   9.868  1.00  3.94      8HVP1324
+ATOM   1171  CB  ILE B  54      12.079  -8.397   7.617  1.00  2.00      8HVP1325
+ATOM   1172  CG1 ILE B  54      12.250  -7.836   9.045  1.00  2.00      8HVP1326
+ATOM   1173  CG2 ILE B  54      10.884  -7.810   6.871  1.00  2.00      8HVP1327
+ATOM   1174  CD1 ILE B  54      13.120  -6.569   9.130  1.00  2.00      8HVP1328
+ATOM   1175  N   LYS B  55      14.226 -10.783   8.026  1.00  4.94      8HVP1329
+ATOM   1176  CA  LYS B  55      15.310 -11.368   8.834  1.00  9.23      8HVP1330
+ATOM   1177  C   LYS B  55      16.257 -10.246   9.271  1.00  9.31      8HVP1331
+ATOM   1178  O   LYS B  55      16.554  -9.326   8.485  1.00  6.93      8HVP1332
+ATOM   1179  CB  LYS B  55      16.077 -12.445   8.077  1.00 24.98      8HVP1333
+ATOM   1180  CG  LYS B  55      17.423 -12.772   8.729  1.00 43.02      8HVP1334
+ATOM   1181  CD  LYS B  55      18.300 -13.675   7.872  1.00 53.33      8HVP1335
+ATOM   1182  CE  LYS B  55      19.689 -13.826   8.488  1.00 57.93      8HVP1336
+ATOM   1183  NZ  LYS B  55      20.300 -15.107   8.046  1.00 57.35      8HVP1337
+ATOM   1184  N   VAL B  56      16.739 -10.399  10.488  1.00  2.00      8HVP1338
+ATOM   1185  CA  VAL B  56      17.636  -9.397  11.048  1.00  2.00      8HVP1339
+ATOM   1186  C   VAL B  56      18.747 -10.115  11.799  1.00  3.32      8HVP1340
+ATOM   1187  O   VAL B  56      18.425 -11.224  12.256  1.00  6.46      8HVP1341
+ATOM   1188  CB  VAL B  56      16.915  -8.401  11.980  1.00  7.22      8HVP1342
+ATOM   1189  CG1 VAL B  56      15.835  -7.629  11.242  1.00  9.44      8HVP1343
+ATOM   1190  CG2 VAL B  56      16.426  -9.056  13.283  1.00  2.54      8HVP1344
+ATOM   1191  N   ARG B  57      19.878  -9.457  11.914  1.00  2.00      8HVP1345
+ATOM   1192  CA  ARG B  57      20.953 -10.051  12.721  1.00  4.67      8HVP1346
+ATOM   1193  C   ARG B  57      20.907  -9.356  14.096  1.00  5.22      8HVP1347
+ATOM   1194  O   ARG B  57      20.774  -8.130  14.141  1.00  4.28      8HVP1348
+ATOM   1195  CB  ARG B  57      22.321  -9.885  12.141  1.00 12.84      8HVP1349
+ATOM   1196  CG  ARG B  57      22.619 -10.531  10.797  1.00 12.46      8HVP1350
+ATOM   1197  CD  ARG B  57      23.827  -9.835  10.266  1.00 21.00      8HVP1351
+ATOM   1198  NE  ARG B  57      23.544  -8.448   9.903  1.00 35.91      8HVP1352
+ATOM   1199  CZ  ARG B  57      24.355  -7.415  10.205  1.00 41.63      8HVP1353
+ATOM   1200  NH1 ARG B  57      25.344  -7.628  11.082  1.00 36.55      8HVP1354
+ATOM   1201  NH2 ARG B  57      24.147  -6.171   9.742  1.00 42.40      8HVP1355
+ATOM   1202  N   GLN B  58      20.958 -10.164  15.132  1.00  4.24      8HVP1356
+ATOM   1203  CA  GLN B  58      20.929  -9.868  16.548  1.00  2.00      8HVP1357
+ATOM   1204  C   GLN B  58      22.342  -9.804  17.176  1.00  2.00      8HVP1358
+ATOM   1205  O   GLN B  58      22.962 -10.910  17.183  1.00  2.00      8HVP1359
+ATOM   1206  CB  GLN B  58      20.304 -11.052  17.328  1.00  2.00      8HVP1360
+ATOM   1207  CG  GLN B  58      20.132 -10.685  18.794  1.00 10.91      8HVP1361
+ATOM   1208  CD  GLN B  58      19.611 -11.801  19.668  1.00 14.93      8HVP1362
+ATOM   1209  OE1 GLN B  58      20.247 -12.176  20.650  1.00 21.50      8HVP1363
+ATOM   1210  NE2 GLN B  58      18.463 -12.419  19.366  1.00  8.34      8HVP1364
+ATOM   1211  N   TYR B  59      22.711  -8.672  17.773  1.00  2.46      8HVP1365
+ATOM   1212  CA  TYR B  59      23.981  -8.488  18.487  1.00  2.00      8HVP1366
+ATOM   1213  C   TYR B  59      23.860  -8.440  20.013  1.00  2.00      8HVP1367
+ATOM   1214  O   TYR B  59      22.999  -7.699  20.501  1.00  2.00      8HVP1368
+ATOM   1215  CB  TYR B  59      24.663  -7.193  17.998  1.00  2.00      8HVP1369
+ATOM   1216  CG  TYR B  59      25.115  -7.295  16.566  1.00  6.62      8HVP1370
+ATOM   1217  CD1 TYR B  59      24.334  -6.931  15.475  1.00  2.00      8HVP1371
+ATOM   1218  CD2 TYR B  59      26.472  -7.625  16.426  1.00  7.16      8HVP1372
+ATOM   1219  CE1 TYR B  59      24.924  -7.013  14.197  1.00 13.21      8HVP1373
+ATOM   1220  CE2 TYR B  59      27.053  -7.668  15.184  1.00  2.00      8HVP1374
+ATOM   1221  CZ  TYR B  59      26.266  -7.379  14.061  1.00 10.93      8HVP1375
+ATOM   1222  OH  TYR B  59      26.862  -7.420  12.834  1.00 18.08      8HVP1376
+ATOM   1223  N   ASP B  60      24.633  -9.148  20.812  1.00  2.88      8HVP1377
+ATOM   1224  CA  ASP B  60      24.403  -8.973  22.274  1.00 10.69      8HVP1378
+ATOM   1225  C   ASP B  60      25.131  -7.704  22.730  1.00 12.02      8HVP1379
+ATOM   1226  O   ASP B  60      25.650  -6.906  21.932  1.00 11.21      8HVP1380
+ATOM   1227  CB  ASP B  60      24.563 -10.226  23.106  1.00 23.41      8HVP1381
+ATOM   1228  CG  ASP B  60      23.408 -11.152  22.704  1.00 35.13      8HVP1382
+ATOM   1229  OD1 ASP B  60      22.330 -10.514  22.641  1.00 39.29      8HVP1383
+ATOM   1230  OD2 ASP B  60      23.547 -12.357  22.451  1.00 40.70      8HVP1384
+ATOM   1231  N   GLN B  61      25.017  -7.501  24.024  1.00  9.58      8HVP1385
+ATOM   1232  CA  GLN B  61      25.528  -6.383  24.782  1.00  8.24      8HVP1386
+ATOM   1233  C   GLN B  61      26.170  -5.216  24.081  1.00  6.58      8HVP1387
+ATOM   1234  O   GLN B  61      27.297  -4.831  24.407  1.00  9.84      8HVP1388
+ATOM   1235  CB  GLN B  61      26.343  -6.903  25.975  1.00 16.61      8HVP1389
+ATOM   1236  CG  GLN B  61      25.415  -7.298  27.125  1.00 26.01      8HVP1390
+ATOM   1237  CD  GLN B  61      26.090  -7.394  28.471  1.00 32.51      8HVP1391
+ATOM   1238  OE1 GLN B  61      25.901  -6.537  29.345  1.00 38.87      8HVP1392
+ATOM   1239  NE2 GLN B  61      26.890  -8.447  28.635  1.00 31.15      8HVP1393
+ATOM   1240  N   ILE B  62      25.451  -4.465  23.264  1.00  4.26      8HVP1394
+ATOM   1241  CA  ILE B  62      25.901  -3.266  22.573  1.00  4.05      8HVP1395
+ATOM   1242  C   ILE B  62      25.487  -2.015  23.327  1.00  4.67      8HVP1396
+ATOM   1243  O   ILE B  62      24.297  -1.891  23.661  1.00  8.81      8HVP1397
+ATOM   1244  CB  ILE B  62      25.358  -3.272  21.084  1.00  8.11      8HVP1398
+ATOM   1245  CG1 ILE B  62      26.214  -4.274  20.264  1.00  9.08      8HVP1399
+ATOM   1246  CG2 ILE B  62      25.307  -1.837  20.493  1.00  2.00      8HVP1400
+ATOM   1247  CD1 ILE B  62      25.909  -4.298  18.753  1.00  5.72      8HVP1401
+ATOM   1248  N   PRO B  63      26.441  -1.145  23.610  1.00  6.99      8HVP1402
+ATOM   1249  CA  PRO B  63      26.257   0.127  24.321  1.00  6.15      8HVP1403
+ATOM   1250  C   PRO B  63      25.557   1.142  23.435  1.00 10.75      8HVP1404
+ATOM   1251  O   PRO B  63      25.783   1.158  22.192  1.00 18.39      8HVP1405
+ATOM   1252  CB  PRO B  63      27.658   0.603  24.697  1.00  4.93      8HVP1406
+ATOM   1253  CG  PRO B  63      28.565  -0.542  24.385  1.00  5.11      8HVP1407
+ATOM   1254  CD  PRO B  63      27.881  -1.296  23.236  1.00  7.62      8HVP1408
+ATOM   1255  N   VAL B  64      24.704   1.984  23.980  1.00  9.55      8HVP1409
+ATOM   1256  CA  VAL B  64      24.008   2.929  23.077  1.00 11.32      8HVP1410
+ATOM   1257  C   VAL B  64      23.721   4.095  24.018  1.00 16.28      8HVP1411
+ATOM   1258  O   VAL B  64      23.720   3.938  25.259  1.00 12.69      8HVP1412
+ATOM   1259  CB  VAL B  64      22.849   2.191  22.397  1.00 19.36      8HVP1413
+ATOM   1260  CG1 VAL B  64      21.563   3.000  22.225  1.00 23.40      8HVP1414
+ATOM   1261  CG2 VAL B  64      23.047   1.598  20.998  1.00  8.04      8HVP1415
+ATOM   1262  N   GLU B  65      23.494   5.231  23.349  1.00 17.51      8HVP1416
+ATOM   1263  CA  GLU B  65      23.096   6.447  24.099  1.00 16.89      8HVP1417
+ATOM   1264  C   GLU B  65      21.817   7.080  23.554  1.00 12.66      8HVP1418
+ATOM   1265  O   GLU B  65      21.791   7.691  22.462  1.00  9.45      8HVP1419
+ATOM   1266  CB  GLU B  65      24.275   7.407  24.126  1.00 24.37      8HVP1420
+ATOM   1267  CG  GLU B  65      24.133   8.725  24.886  1.00 30.75      8HVP1421
+ATOM   1268  CD  GLU B  65      25.488   9.323  25.173  1.00 39.91      8HVP1422
+ATOM   1269  OE1 GLU B  65      26.063   8.614  26.038  1.00 44.11      8HVP1423
+ATOM   1270  OE2 GLU B  65      25.943  10.307  24.621  1.00 37.32      8HVP1424
+ATOM   1271  N   ILE B  66      20.735   6.933  24.320  1.00 11.61      8HVP1425
+ATOM   1272  CA  ILE B  66      19.445   7.540  23.954  1.00 13.42      8HVP1426
+ATOM   1273  C   ILE B  66      19.282   8.909  24.610  1.00 11.36      8HVP1427
+ATOM   1274  O   ILE B  66      18.767   9.003  25.728  1.00 15.10      8HVP1428
+ATOM   1275  CB  ILE B  66      18.189   6.630  24.167  1.00  9.27      8HVP1429
+ATOM   1276  CG1 ILE B  66      18.336   5.338  23.325  1.00  2.00      8HVP1430
+ATOM   1277  CG2 ILE B  66      16.862   7.369  23.809  1.00  8.85      8HVP1431
+ATOM   1278  CD1 ILE B  66      19.244   4.315  24.056  1.00  7.34      8HVP1432
+HETATM 1279  N   ABA B  67      19.675   9.925  23.907  1.00 13.30      8HVP1433
+HETATM 1280  CA  ABA B  67      19.686  11.326  24.264  1.00 17.39      8HVP1434
+HETATM 1281  C   ABA B  67      20.287  11.692  25.627  1.00 21.03      8HVP1435
+HETATM 1282  O   ABA B  67      19.628  12.392  26.429  1.00 22.00      8HVP1436
+HETATM 1283  CB  ABA B  67      18.331  12.009  24.095  1.00 17.35      8HVP1437
+HETATM 1284  CG  ABA B  67      17.117  11.103  24.237  1.00  2.14      8HVP1438
+ATOM   1285  N   GLY B  68      21.561  11.352  25.809  1.00 20.94      8HVP1439
+ATOM   1286  CA  GLY B  68      22.410  11.595  26.957  1.00 19.29      8HVP1440
+ATOM   1287  C   GLY B  68      22.128  10.707  28.162  1.00 21.25      8HVP1441
+ATOM   1288  O   GLY B  68      22.270  11.054  29.350  1.00 19.60      8HVP1442
+ATOM   1289  N   HIS B  69      21.648   9.524  27.841  1.00 21.09      8HVP1443
+ATOM   1290  CA  HIS B  69      21.241   8.476  28.776  1.00 19.62      8HVP1444
+ATOM   1291  C   HIS B  69      21.902   7.215  28.214  1.00 22.76      8HVP1445
+ATOM   1292  O   HIS B  69      21.499   6.919  27.070  1.00 26.88      8HVP1446
+ATOM   1293  CB  HIS B  69      19.712   8.249  28.887  1.00  6.31      8HVP1447
+ATOM   1294  CG  HIS B  69      18.965   9.364  29.578  1.00  6.71      8HVP1448
+ATOM   1295  ND1 HIS B  69      18.239   9.336  30.775  1.00  2.00      8HVP1449
+ATOM   1296  CD2 HIS B  69      18.872  10.645  29.079  1.00  4.67      8HVP1450
+ATOM   1297  CE1 HIS B  69      17.797  10.537  30.965  1.00  2.00      8HVP1451
+ATOM   1298  NE2 HIS B  69      18.136  11.362  29.966  1.00  2.00      8HVP1452
+ATOM   1299  N   LYS B  70      22.882   6.618  28.881  1.00 21.04      8HVP1453
+ATOM   1300  CA  LYS B  70      23.479   5.386  28.360  1.00 15.05      8HVP1454
+ATOM   1301  C   LYS B  70      22.499   4.241  28.662  1.00 14.48      8HVP1455
+ATOM   1302  O   LYS B  70      21.698   4.282  29.589  1.00 17.68      8HVP1456
+ATOM   1303  CB  LYS B  70      24.764   4.931  28.983  1.00 19.55      8HVP1457
+ATOM   1304  CG  LYS B  70      26.061   5.280  28.284  1.00 26.69      8HVP1458
+ATOM   1305  CD  LYS B  70      27.064   5.766  29.331  1.00 32.24      8HVP1459
+ATOM   1306  CE  LYS B  70      26.499   6.941  30.115  1.00 37.76      8HVP1460
+ATOM   1307  NZ  LYS B  70      25.683   7.818  29.224  1.00 41.20      8HVP1461
+ATOM   1308  N   ALA B  71      22.681   3.244  27.867  1.00 11.10      8HVP1462
+ATOM   1309  CA  ALA B  71      21.983   1.964  27.880  1.00  9.54      8HVP1463
+ATOM   1310  C   ALA B  71      22.726   1.051  26.855  1.00  7.05      8HVP1464
+ATOM   1311  O   ALA B  71      23.279   1.503  25.829  1.00  2.34      8HVP1465
+ATOM   1312  CB  ALA B  71      20.501   2.157  27.721  1.00 11.33      8HVP1466
+ATOM   1313  N   ILE B  72      22.740  -0.219  27.216  1.00  2.00      8HVP1467
+ATOM   1314  CA  ILE B  72      23.436  -1.261  26.493  1.00  5.49      8HVP1468
+ATOM   1315  C   ILE B  72      22.535  -2.468  26.329  1.00  6.66      8HVP1469
+ATOM   1316  O   ILE B  72      22.105  -2.907  27.440  1.00  8.44      8HVP1470
+ATOM   1317  CB  ILE B  72      24.713  -1.760  27.296  1.00 16.05      8HVP1471
+ATOM   1318  CG1 ILE B  72      25.370  -2.891  26.447  1.00 22.97      8HVP1472
+ATOM   1319  CG2 ILE B  72      24.456  -2.172  28.756  1.00  4.00      8HVP1473
+ATOM   1320  CD1 ILE B  72      26.364  -3.766  27.265  1.00 29.98      8HVP1474
+ATOM   1321  N   GLY B  73      22.338  -2.923  25.093  1.00  2.00      8HVP1475
+ATOM   1322  CA  GLY B  73      21.437  -4.104  25.069  1.00  2.00      8HVP1476
+ATOM   1323  C   GLY B  73      21.562  -4.865  23.788  1.00  2.00      8HVP1477
+ATOM   1324  O   GLY B  73      22.599  -4.727  23.158  1.00  2.00      8HVP1478
+ATOM   1325  N   THR B  74      20.498  -5.596  23.498  1.00  5.86      8HVP1479
+ATOM   1326  CA  THR B  74      20.407  -6.405  22.281  1.00  4.20      8HVP1480
+ATOM   1327  C   THR B  74      19.924  -5.357  21.268  1.00 10.15      8HVP1481
+ATOM   1328  O   THR B  74      19.176  -4.428  21.619  1.00 13.28      8HVP1482
+ATOM   1329  CB  THR B  74      19.452  -7.629  22.317  1.00  6.75      8HVP1483
+ATOM   1330  OG1 THR B  74      19.460  -8.272  23.630  1.00  6.45      8HVP1484
+ATOM   1331  CG2 THR B  74      19.772  -8.692  21.245  1.00  8.22      8HVP1485
+ATOM   1332  N   VAL B  75      20.406  -5.565  20.074  1.00 10.13      8HVP1486
+ATOM   1333  CA  VAL B  75      20.079  -4.601  18.997  1.00 10.03      8HVP1487
+ATOM   1334  C   VAL B  75      20.060  -5.449  17.734  1.00 11.32      8HVP1488
+ATOM   1335  O   VAL B  75      21.000  -6.240  17.598  1.00 11.34      8HVP1489
+ATOM   1336  CB  VAL B  75      21.142  -3.496  19.106  1.00 13.15      8HVP1490
+ATOM   1337  CG1 VAL B  75      21.682  -3.092  17.736  1.00  2.00      8HVP1491
+ATOM   1338  CG2 VAL B  75      20.687  -2.271  19.902  1.00  4.38      8HVP1492
+ATOM   1339  N   LEU B  76      19.015  -5.307  16.930  1.00 14.07      8HVP1493
+ATOM   1340  CA  LEU B  76      18.838  -6.041  15.685  1.00  9.94      8HVP1494
+ATOM   1341  C   LEU B  76      19.164  -5.080  14.518  1.00 10.85      8HVP1495
+ATOM   1342  O   LEU B  76      18.576  -3.981  14.537  1.00 11.91      8HVP1496
+ATOM   1343  CB  LEU B  76      17.392  -6.465  15.439  1.00  2.00      8HVP1497
+ATOM   1344  CG  LEU B  76      16.542  -7.066  16.480  1.00  2.00      8HVP1498
+ATOM   1345  CD1 LEU B  76      15.141  -7.466  16.026  1.00  9.50      8HVP1499
+ATOM   1346  CD2 LEU B  76      17.233  -8.266  17.113  1.00  2.00      8HVP1500
+ATOM   1347  N   VAL B  77      19.930  -5.635  13.604  1.00  7.40      8HVP1501
+ATOM   1348  CA  VAL B  77      20.229  -4.897  12.378  1.00  7.40      8HVP1502
+ATOM   1349  C   VAL B  77      19.442  -5.598  11.245  1.00  8.21      8HVP1503
+ATOM   1350  O   VAL B  77      19.282  -6.837  11.310  1.00  7.68      8HVP1504
+ATOM   1351  CB  VAL B  77      21.701  -4.837  12.004  1.00 13.92      8HVP1505
+ATOM   1352  CG1 VAL B  77      21.869  -4.214  10.605  1.00 11.45      8HVP1506
+ATOM   1353  CG2 VAL B  77      22.529  -4.150  13.037  1.00  2.00      8HVP1507
+ATOM   1354  N   GLY B  78      19.006  -4.810  10.277  1.00  2.90      8HVP1508
+ATOM   1355  CA  GLY B  78      18.214  -5.472   9.211  1.00  4.68      8HVP1509
+ATOM   1356  C   GLY B  78      17.538  -4.397   8.411  1.00  6.60      8HVP1510
+ATOM   1357  O   GLY B  78      17.738  -3.235   8.784  1.00  7.71      8HVP1511
+ATOM   1358  N   PRO B  79      16.748  -4.834   7.447  1.00 10.98      8HVP1512
+ATOM   1359  CA  PRO B  79      16.106  -3.946   6.482  1.00 11.80      8HVP1513
+ATOM   1360  C   PRO B  79      14.924  -3.116   6.916  1.00 12.03      8HVP1514
+ATOM   1361  O   PRO B  79      13.925  -3.134   6.146  1.00 16.48      8HVP1515
+ATOM   1362  CB  PRO B  79      15.733  -4.828   5.284  1.00 12.17      8HVP1516
+ATOM   1363  CG  PRO B  79      15.721  -6.236   5.798  1.00 13.14      8HVP1517
+ATOM   1364  CD  PRO B  79      16.530  -6.238   7.088  1.00 13.32      8HVP1518
+ATOM   1365  N   THR B  80      15.064  -2.344   7.971  1.00  7.91      8HVP1519
+ATOM   1366  CA  THR B  80      14.035  -1.456   8.479  1.00  2.64      8HVP1520
+ATOM   1367  C   THR B  80      14.090  -0.056   7.858  1.00  3.39      8HVP1521
+ATOM   1368  O   THR B  80      15.170   0.550   7.674  1.00  3.04      8HVP1522
+ATOM   1369  CB  THR B  80      14.154  -1.226  10.073  1.00  2.00      8HVP1523
+ATOM   1370  OG1 THR B  80      13.256  -0.108  10.331  1.00  2.00      8HVP1524
+ATOM   1371  CG2 THR B  80      15.609  -0.947  10.440  1.00  4.77      8HVP1525
+ATOM   1372  N   PRO B  81      12.872   0.473   7.706  1.00  2.00      8HVP1526
+ATOM   1373  CA  PRO B  81      12.720   1.836   7.182  1.00  2.97      8HVP1527
+ATOM   1374  C   PRO B  81      12.849   2.875   8.255  1.00  5.81      8HVP1528
+ATOM   1375  O   PRO B  81      12.603   4.034   7.866  1.00 12.28      8HVP1529
+ATOM   1376  CB  PRO B  81      11.315   1.919   6.596  1.00  4.46      8HVP1530
+ATOM   1377  CG  PRO B  81      10.562   0.987   7.528  1.00  2.00      8HVP1531
+ATOM   1378  CD  PRO B  81      11.549  -0.103   7.918  1.00  2.00      8HVP1532
+ATOM   1379  N   VAL B  82      13.092   2.533   9.501  1.00  5.50      8HVP1533
+ATOM   1380  CA  VAL B  82      13.253   3.579  10.533  1.00  6.56      8HVP1534
+ATOM   1381  C   VAL B  82      14.035   2.859  11.635  1.00  4.46      8HVP1535
+ATOM   1382  O   VAL B  82      13.744   1.691  11.882  1.00  5.73      8HVP1536
+ATOM   1383  CB  VAL B  82      12.044   4.308  11.099  1.00  2.00      8HVP1537
+ATOM   1384  CG1 VAL B  82      12.390   5.643  11.816  1.00  2.00      8HVP1538
+ATOM   1385  CG2 VAL B  82      10.922   4.609  10.118  1.00 10.74      8HVP1539
+ATOM   1386  N   ASN B  83      15.039   3.560  12.122  1.00  4.25      8HVP1540
+ATOM   1387  CA  ASN B  83      15.747   2.886  13.236  1.00  3.60      8HVP1541
+ATOM   1388  C   ASN B  83      14.616   3.030  14.285  1.00  5.95      8HVP1542
+ATOM   1389  O   ASN B  83      13.973   4.099  14.278  1.00  4.66      8HVP1543
+ATOM   1390  CB  ASN B  83      16.995   3.589  13.654  1.00 12.96      8HVP1544
+ATOM   1391  CG  ASN B  83      17.932   3.864  12.499  1.00 11.76      8HVP1545
+ATOM   1392  OD1 ASN B  83      17.831   3.133  11.507  1.00 27.72      8HVP1546
+ATOM   1393  ND2 ASN B  83      18.820   4.811  12.706  1.00  2.00      8HVP1547
+ATOM   1394  N   ILE B  84      14.506   2.010  15.091  1.00  2.00      8HVP1548
+ATOM   1395  CA  ILE B  84      13.469   1.945  16.101  1.00  2.00      8HVP1549
+ATOM   1396  C   ILE B  84      14.169   1.483  17.373  1.00  2.00      8HVP1550
+ATOM   1397  O   ILE B  84      14.819   0.450  17.231  1.00  2.00      8HVP1551
+ATOM   1398  CB  ILE B  84      12.560   0.805  15.520  1.00  2.00      8HVP1552
+ATOM   1399  CG1 ILE B  84      11.828   1.260  14.244  1.00  2.00      8HVP1553
+ATOM   1400  CG2 ILE B  84      11.560   0.129  16.485  1.00  9.06      8HVP1554
+ATOM   1401  CD1 ILE B  84      11.228  -0.085  13.628  1.00  2.00      8HVP1555
+ATOM   1402  N   ILE B  85      13.901   2.146  18.451  1.00  2.34      8HVP1556
+ATOM   1403  CA  ILE B  85      14.252   1.917  19.851  1.00  2.00      8HVP1557
+ATOM   1404  C   ILE B  85      12.981   1.300  20.488  1.00  2.00      8HVP1558
+ATOM   1405  O   ILE B  85      11.935   1.937  20.654  1.00  2.00      8HVP1559
+ATOM   1406  CB  ILE B  85      14.685   3.237  20.568  1.00  3.01      8HVP1560
+ATOM   1407  CG1 ILE B  85      15.613   3.980  19.566  1.00  2.00      8HVP1561
+ATOM   1408  CG2 ILE B  85      15.401   3.184  21.944  1.00  2.00      8HVP1562
+ATOM   1409  CD1 ILE B  85      17.057   3.398  19.444  1.00  2.00      8HVP1563
+ATOM   1410  N   GLY B  86      12.996   0.016  20.615  1.00  2.00      8HVP1564
+ATOM   1411  CA  GLY B  86      12.066  -0.875  21.226  1.00  2.00      8HVP1565
+ATOM   1412  C   GLY B  86      12.290  -0.728  22.764  1.00  2.00      8HVP1566
+ATOM   1413  O   GLY B  86      13.261  -0.115  23.155  1.00  2.00      8HVP1567
+ATOM   1414  N   ARG B  87      11.345  -1.332  23.437  1.00  2.00      8HVP1568
+ATOM   1415  CA  ARG B  87      11.186  -1.347  24.865  1.00  2.00      8HVP1569
+ATOM   1416  C   ARG B  87      12.359  -1.917  25.601  1.00  2.00      8HVP1570
+ATOM   1417  O   ARG B  87      12.493  -1.592  26.770  1.00  4.46      8HVP1571
+ATOM   1418  CB  ARG B  87      10.035  -2.294  25.221  1.00  2.00      8HVP1572
+ATOM   1419  CG  ARG B  87       8.742  -1.723  24.711  1.00  5.98      8HVP1573
+ATOM   1420  CD  ARG B  87       7.604  -2.374  25.417  1.00 11.70      8HVP1574
+ATOM   1421  NE  ARG B  87       7.475  -3.756  24.962  1.00 15.15      8HVP1575
+ATOM   1422  CZ  ARG B  87       7.955  -4.754  25.720  1.00 20.65      8HVP1576
+ATOM   1423  NH1 ARG B  87       8.651  -4.475  26.828  1.00 28.10      8HVP1577
+ATOM   1424  NH2 ARG B  87       7.624  -6.024  25.457  1.00 15.02      8HVP1578
+ATOM   1425  N   ASN B  88      13.093  -2.801  24.933  1.00  5.56      8HVP1579
+ATOM   1426  CA  ASN B  88      14.222  -3.463  25.659  1.00  4.96      8HVP1580
+ATOM   1427  C   ASN B  88      15.090  -2.404  26.326  1.00  6.07      8HVP1581
+ATOM   1428  O   ASN B  88      15.400  -2.392  27.534  1.00  5.28      8HVP1582
+ATOM   1429  CB  ASN B  88      14.893  -4.460  24.738  1.00  2.00      8HVP1583
+ATOM   1430  CG  ASN B  88      15.562  -3.844  23.543  1.00  2.00      8HVP1584
+ATOM   1431  OD1 ASN B  88      15.159  -2.730  23.191  1.00  5.31      8HVP1585
+ATOM   1432  ND2 ASN B  88      16.597  -4.483  23.018  1.00  2.22      8HVP1586
+ATOM   1433  N   LEU B  89      15.549  -1.503  25.477  1.00  7.26      8HVP1587
+ATOM   1434  CA  LEU B  89      16.385  -0.373  25.908  1.00  7.41      8HVP1588
+ATOM   1435  C   LEU B  89      15.470   0.724  26.462  1.00  7.21      8HVP1589
+ATOM   1436  O   LEU B  89      15.891   1.509  27.298  1.00  5.18      8HVP1590
+ATOM   1437  CB  LEU B  89      17.200   0.132  24.722  1.00 14.09      8HVP1591
+ATOM   1438  CG  LEU B  89      18.234  -0.671  23.985  1.00 12.91      8HVP1592
+ATOM   1439  CD1 LEU B  89      19.037   0.253  23.055  1.00 15.14      8HVP1593
+ATOM   1440  CD2 LEU B  89      19.172  -1.343  24.974  1.00  7.63      8HVP1594
+ATOM   1441  N   LEU B  90      14.248   0.749  25.906  1.00 10.04      8HVP1595
+ATOM   1442  CA  LEU B  90      13.308   1.791  26.357  1.00 12.16      8HVP1596
+ATOM   1443  C   LEU B  90      13.197   1.796  27.879  1.00 10.68      8HVP1597
+ATOM   1444  O   LEU B  90      13.085   2.850  28.500  1.00 10.90      8HVP1598
+ATOM   1445  CB  LEU B  90      11.996   1.662  25.574  1.00 14.64      8HVP1599
+ATOM   1446  CG  LEU B  90      11.977   2.391  24.240  1.00  7.36      8HVP1600
+ATOM   1447  CD1 LEU B  90      10.753   2.062  23.390  1.00  3.51      8HVP1601
+ATOM   1448  CD2 LEU B  90      12.061   3.867  24.584  1.00  2.00      8HVP1602
+ATOM   1449  N   THR B  91      13.183   0.608  28.426  1.00  8.44      8HVP1603
+ATOM   1450  CA  THR B  91      13.022   0.350  29.861  1.00  3.22      8HVP1604
+ATOM   1451  C   THR B  91      14.275   0.740  30.603  1.00  9.25      8HVP1605
+ATOM   1452  O   THR B  91      14.263   0.702  31.862  1.00 14.93      8HVP1606
+ATOM   1453  CB  THR B  91      12.746  -1.177  29.952  1.00  2.00      8HVP1607
+ATOM   1454  OG1 THR B  91      11.985  -1.448  28.683  1.00  5.45      8HVP1608
+ATOM   1455  CG2 THR B  91      11.729  -1.671  30.939  1.00  2.00      8HVP1609
+ATOM   1456  N   GLN B  92      15.364   1.062  29.885  1.00  2.00      8HVP1610
+ATOM   1457  CA  GLN B  92      16.575   1.395  30.670  1.00  2.00      8HVP1611
+ATOM   1458  C   GLN B  92      16.828   2.837  30.989  1.00  2.00      8HVP1612
+ATOM   1459  O   GLN B  92      17.685   3.073  31.889  1.00  3.27      8HVP1613
+ATOM   1460  CB  GLN B  92      17.800   0.851  29.928  1.00  9.30      8HVP1614
+ATOM   1461  CG  GLN B  92      17.766  -0.674  29.945  1.00  9.24      8HVP1615
+ATOM   1462  CD  GLN B  92      19.084  -1.220  29.396  1.00 17.32      8HVP1616
+ATOM   1463  OE1 GLN B  92      19.908  -0.523  28.794  1.00 18.99      8HVP1617
+ATOM   1464  NE2 GLN B  92      19.167  -2.526  29.698  1.00  2.00      8HVP1618
+ATOM   1465  N   ILE B  93      16.165   3.783  30.406  1.00  2.00      8HVP1619
+ATOM   1466  CA  ILE B  93      16.302   5.224  30.521  1.00  2.00      8HVP1620
+ATOM   1467  C   ILE B  93      15.160   5.863  31.278  1.00  2.00      8HVP1621
+ATOM   1468  O   ILE B  93      15.193   7.088  31.545  1.00  2.00      8HVP1622
+ATOM   1469  CB  ILE B  93      16.471   5.800  29.054  1.00  2.81      8HVP1623
+ATOM   1470  CG1 ILE B  93      15.196   5.560  28.201  1.00 10.61      8HVP1624
+ATOM   1471  CG2 ILE B  93      17.720   5.198  28.360  1.00  5.18      8HVP1625
+ATOM   1472  CD1 ILE B  93      14.935   6.429  26.938  1.00  7.21      8HVP1626
+ATOM   1473  N   GLY B  94      14.276   4.993  31.747  1.00  2.00      8HVP1627
+ATOM   1474  CA  GLY B  94      13.153   5.380  32.551  1.00  2.98      8HVP1628
+ATOM   1475  C   GLY B  94      11.954   5.851  31.761  1.00  4.43      8HVP1629
+ATOM   1476  O   GLY B  94      11.159   6.610  32.386  1.00 12.15      8HVP1630
+HETATM 1477  N   ABA B  95      11.749   5.424  30.513  1.00  3.99      8HVP1631
+HETATM 1478  CA  ABA B  95      10.532   5.892  29.810  1.00  2.00      8HVP1632
+HETATM 1479  C   ABA B  95       9.235   5.310  30.389  1.00  2.00      8HVP1633
+HETATM 1480  O   ABA B  95       8.950   4.191  30.772  1.00  2.00      8HVP1634
+HETATM 1481  CB  ABA B  95      10.573   5.581  28.338  1.00 10.70      8HVP1635
+HETATM 1482  CG  ABA B  95       9.913   6.570  27.369  1.00  2.00      8HVP1636
+ATOM   1483  N   THR B  96       8.263   6.208  30.504  1.00  2.00      8HVP1637
+ATOM   1484  CA  THR B  96       6.873   5.955  30.799  1.00  2.00      8HVP1638
+ATOM   1485  C   THR B  96       6.069   6.697  29.685  1.00  2.00      8HVP1639
+ATOM   1486  O   THR B  96       6.618   7.581  29.045  1.00  2.00      8HVP1640
+ATOM   1487  CB  THR B  96       6.405   6.322  32.261  1.00  2.00      8HVP1641
+ATOM   1488  OG1 THR B  96       6.686   7.717  32.450  1.00  2.00      8HVP1642
+ATOM   1489  CG2 THR B  96       7.012   5.382  33.287  1.00  2.00      8HVP1643
+ATOM   1490  N   LEU B  97       4.837   6.299  29.600  1.00  2.00      8HVP1644
+ATOM   1491  CA  LEU B  97       3.747   6.890  28.809  1.00  2.76      8HVP1645
+ATOM   1492  C   LEU B  97       2.804   7.571  29.829  1.00  2.00      8HVP1646
+ATOM   1493  O   LEU B  97       2.468   6.848  30.824  1.00  2.00      8HVP1647
+ATOM   1494  CB  LEU B  97       3.007   5.780  28.010  1.00  7.78      8HVP1648
+ATOM   1495  CG  LEU B  97       3.760   5.169  26.836  1.00  9.06      8HVP1649
+ATOM   1496  CD1 LEU B  97       2.939   4.176  26.020  1.00  4.90      8HVP1650
+ATOM   1497  CD2 LEU B  97       4.171   6.292  25.876  1.00  5.54      8HVP1651
+ATOM   1498  N   ASN B  98       2.345   8.784  29.722  1.00  2.00      8HVP1652
+ATOM   1499  CA  ASN B  98       1.395   9.239  30.747  1.00  2.00      8HVP1653
+ATOM   1500  C   ASN B  98       0.195   9.892  30.048  1.00  2.00      8HVP1654
+ATOM   1501  O   ASN B  98       0.433  10.583  29.061  1.00  2.00      8HVP1655
+ATOM   1502  CB  ASN B  98       1.901  10.240  31.788  1.00  2.00      8HVP1656
+ATOM   1503  CG  ASN B  98       3.196   9.814  32.407  1.00  7.17      8HVP1657
+ATOM   1504  OD1 ASN B  98       4.049   9.299  31.687  1.00  2.00      8HVP1658
+ATOM   1505  ND2 ASN B  98       3.267  10.027  33.722  1.00 14.16      8HVP1659
+ATOM   1506  N   PHE B  99      -0.920   9.629  30.739  1.00  2.00      8HVP1660
+ATOM   1507  CA  PHE B  99      -2.145  10.323  30.261  1.00  2.68      8HVP1661
+ATOM   1508  C   PHE B  99      -3.092  10.586  31.440  1.00  6.92      8HVP1662
+ATOM   1509  O   PHE B  99      -3.744  11.659  31.306  1.00 14.80      8HVP1663
+ATOM   1510  CB  PHE B  99      -2.816   9.806  29.052  1.00  2.00      8HVP1664
+ATOM   1511  CG  PHE B  99      -3.328   8.440  29.015  1.00  2.45      8HVP1665
+ATOM   1512  CD1 PHE B  99      -2.473   7.420  28.560  1.00  2.00      8HVP1666
+ATOM   1513  CD2 PHE B  99      -4.636   8.153  29.387  1.00  3.88      8HVP1667
+ATOM   1514  CE1 PHE B  99      -2.895   6.105  28.428  1.00  2.00      8HVP1668
+ATOM   1515  CE2 PHE B  99      -5.101   6.833  29.243  1.00  7.55      8HVP1669
+ATOM   1516  CZ  PHE B  99      -4.222   5.848  28.780  1.00  2.00      8HVP1670
+ATOM   1517  OXT PHE B  99      -3.162   9.808  32.396  1.00  2.00      8HVP1671
+TER    1518      PHE B  99                                              8HVP1672
+ATOM   1519  N   VAL I   1       1.002   5.256   2.453  1.00 33.69      8HVP1673
+ATOM   1520  CA  VAL I   1       1.982   6.316   2.835  1.00 33.44      8HVP1674
+ATOM   1521  C   VAL I   1       1.924   6.584   4.348  1.00 28.16      8HVP1675
+ATOM   1522  O   VAL I   1       2.567   7.494   4.904  1.00 27.53      8HVP1676
+ATOM   1523  CB  VAL I   1       1.922   7.494   1.842  1.00 41.97      8HVP1677
+ATOM   1524  CG1 VAL I   1       0.853   8.555   2.110  1.00 45.29      8HVP1678
+ATOM   1525  CG2 VAL I   1       3.267   8.164   1.591  1.00 41.45      8HVP1679
+ATOM   1526  N   SER I   2       1.230   5.717   5.055  1.00 22.94      8HVP1680
+ATOM   1527  CA  SER I   2       1.138   5.731   6.519  1.00 18.94      8HVP1681
+ATOM   1528  C   SER I   2       1.996   4.575   7.075  1.00 18.27      8HVP1682
+ATOM   1529  O   SER I   2       1.709   3.452   6.587  1.00 18.68      8HVP1683
+ATOM   1530  CB  SER I   2      -0.342   5.585   6.864  1.00  4.46      8HVP1684
+ATOM   1531  OG  SER I   2      -0.461   4.626   7.920  1.00 10.63      8HVP1685
+ATOM   1532  N   GLN I   3       2.962   4.735   7.985  1.00 12.32      8HVP1686
+ATOM   1533  CA  GLN I   3       3.735   3.601   8.529  1.00 11.88      8HVP1687
+ATOM   1534  C   GLN I   3       3.378   3.262   9.996  1.00  7.48      8HVP1688
+ATOM   1535  O   GLN I   3       3.068   4.175  10.740  1.00  4.65      8HVP1689
+ATOM   1536  CB  GLN I   3       5.258   3.756   8.428  1.00 10.50      8HVP1690
+ATOM   1537  CG  GLN I   3       5.755   4.804   9.360  1.00 18.97      8HVP1691
+ATOM   1538  CD  GLN I   3       7.152   4.776   9.912  1.00 28.03      8HVP1692
+ATOM   1539  OE1 GLN I   3       7.500   5.754  10.608  1.00 22.68      8HVP1693
+ATOM   1540  NE2 GLN I   3       7.906   3.701   9.651  1.00 26.36      8HVP1694
+ATOM   1541  N   ASN I   4       3.464   1.991  10.356  1.00  6.40      8HVP1695
+ATOM   1542  CA  ASN I   4       3.154   1.352  11.620  1.00  5.82      8HVP1696
+ATOM   1543  C   ASN I   4       4.079   0.279  12.181  1.00  3.93      8HVP1697
+ATOM   1544  O   ASN I   4       3.939  -0.926  11.913  1.00  3.17      8HVP1698
+ATOM   1545  CB  ASN I   4       1.783   0.611  11.539  1.00  2.00      8HVP1699
+ATOM   1546  CG  ASN I   4       0.795   1.717  11.224  1.00 17.75      8HVP1700
+ATOM   1547  OD1 ASN I   4       0.393   1.852  10.076  1.00  2.00      8HVP1701
+ATOM   1548  ND2 ASN I   4       0.596   2.492  12.300  1.00 23.43      8HVP1702
+HETATM 1549  CD1 LOV I   5       6.990   1.440  11.323  1.00  2.00   1  8HVP1703
+HETATM 1550  CD2 LOV I   5       9.002   1.876  12.515  1.00 11.48   1  8HVP1704
+HETATM 1551  C1G LOV I   5       7.861   0.862  12.418  1.00  3.76   1  8HVP1705
+HETATM 1552  C1B LOV I   5       7.163   0.772  13.787  1.00  4.12   1  8HVP1706
+HETATM 1553  C1A LOV I   5       5.904  -0.101  13.814  1.00  2.00   1  8HVP1707
+HETATM 1554  CS  LOV I   5       5.465  -0.675  15.137  1.00  2.00   1  8HVP1708
+HETATM 1555  N   LOV I   5       4.881   0.722  13.126  1.00  6.07   1  8HVP1709
+HETATM 1556  OS  LOV I   5       5.369   0.252  16.190  1.00  2.00   1  8HVP1710
+HETATM 1557  CT  LOV I   5       4.310  -1.642  15.109  1.00  2.00   1  8HVP1711
+HETATM 1558  CA  LOV I   5       4.567  -2.908  15.940  1.00  5.81   1  8HVP1712
+HETATM 1559  CB  LOV I   5       3.269  -3.761  15.889  1.00  5.21   1  8HVP1713
+HETATM 1560  CG1 LOV I   5       3.478  -5.277  15.902  1.00  4.64   1  8HVP1714
+HETATM 1561  CG2 LOV I   5       2.342  -3.457  17.047  1.00 12.50   1  8HVP1715
+HETATM 1562  C   LOV I   5       5.830  -3.684  15.551  1.00  7.18   1  8HVP1716
+HETATM 1563  O   LOV I   5       6.281  -3.728  14.374  1.00 10.72   1  8HVP1717
+ATOM   1564  N   ILE I   7       6.427  -4.343  16.512  1.00  3.60      8HVP1718
+ATOM   1565  CA  ILE I   7       7.551  -5.249  16.261  1.00  6.98      8HVP1719
+ATOM   1566  C   ILE I   7       7.249  -6.445  17.181  1.00  7.58      8HVP1720
+ATOM   1567  O   ILE I   7       7.022  -6.186  18.373  1.00 10.06      8HVP1721
+ATOM   1568  CB  ILE I   7       9.010  -4.748  16.351  1.00  3.23      8HVP1722
+ATOM   1569  CG1 ILE I   7      10.003  -5.658  15.565  1.00  2.00      8HVP1723
+ATOM   1570  CG2 ILE I   7       9.628  -4.887  17.793  1.00  2.11      8HVP1724
+ATOM   1571  CD1 ILE I   7       9.341  -6.707  14.634  1.00 17.88      8HVP1725
+ATOM   1572  N   VAL I   8       7.164  -7.651  16.671  1.00  8.36      8HVP1726
+ATOM   1573  CA  VAL I   8       6.932  -8.756  17.647  1.00 14.10      8HVP1727
+ATOM   1574  C   VAL I   8       8.045  -9.788  17.397  1.00 17.57      8HVP1728
+ATOM   1575  O   VAL I   8       8.550  -9.863  16.247  1.00 18.47      8HVP1729
+ATOM   1576  CB  VAL I   8       5.477  -9.194  17.710  1.00 21.86      8HVP1730
+ATOM   1577  CG1 VAL I   8       4.575  -8.212  18.485  1.00 19.23      8HVP1731
+ATOM   1578  CG2 VAL I   8       4.801  -9.569  16.397  1.00 22.28      8HVP1732
+ATOM   1579  OXT VAL I   8       8.299 -10.540  18.365  1.00 10.36      8HVP1733
+TER    1580      VAL I   8                                              8HVP1734
+HETATM 1581  O   HOH A   1       5.216  -3.028  12.131  1.00  2.00      8HVP1735
+HETATM 1582  O   HOH A   2      10.614   1.714  32.700  1.00 39.80      8HVP1736
+HETATM 1583  O   HOH A   3      12.751  11.193  35.699  1.00 26.47      8HVP1737
+HETATM 1584  O   HOH A   4       5.396  -4.251  21.781  1.00  2.00      8HVP1738
+HETATM 1585  O   HOH A   5       5.258   7.699  15.004  1.00 40.55      8HVP1739
+HETATM 1586  O   HOH A   6      15.785  -6.670  20.952  1.00 20.52      8HVP1740
+HETATM 1587  O   HOH A   7      -5.291  -9.959  12.451  1.00  2.62      8HVP1741
+HETATM 1588  O   HOH A   8       0.869 -10.774  29.130  1.00 30.76      8HVP1742
+HETATM 1589  O   HOH A   9      -7.945 -10.283  10.294  1.00  9.96      8HVP1743
+HETATM 1590  O   HOH A  10      12.572   7.951  34.543  1.00  7.75      8HVP1744
+HETATM 1591  O   HOH A  11      25.971 -12.456  20.059  1.00  3.45      8HVP1745
+HETATM 1592  O   HOH A  12      -4.522  -6.762   2.552  1.00 22.74      8HVP1746
+HETATM 1593  O   HOH A  13       4.817  12.754  11.271  1.00 28.72      8HVP1747
+HETATM 1594  O   HOH A  14      22.399   1.048   5.265  1.00 18.11      8HVP1748
+HETATM 1595  O   HOH A  15       9.276  10.929  33.431  1.00 20.98      8HVP1749
+HETATM 1596  O   HOH A  16       5.249  -8.716  27.053  1.00  3.47      8HVP1750
+HETATM 1597  O   HOH A  17     -19.140   7.249  24.019  1.00 25.75      8HVP1751
+HETATM 1598  O   HOH A  18      11.323  -9.792  22.237  1.00 47.47      8HVP1752
+HETATM 1599  O   HOH A  19      12.200  -6.659  25.388  1.00 45.69      8HVP1753
+HETATM 1600  O   HOH A  20     -12.130   2.034  28.265  1.00 13.33      8HVP1754
+HETATM 1601  O   HOH A  21      19.984  -7.962   8.693  1.00 36.85      8HVP1755
+HETATM 1602  O   HOH A  22     -17.280   5.660  23.688  1.00  8.42      8HVP1756
+HETATM 1603  O   HOH A  23      18.021 -17.711  15.693  1.00  8.89      8HVP1757
+HETATM 1604  O   HOH A  24      -3.849  14.080  15.702  1.00 23.80      8HVP1758
+HETATM 1605  O   HOH A  25      -7.116  -7.821  21.203  1.00 31.21      8HVP1759
+HETATM 1606  O   HOH A  26      -6.504   5.609  11.945  1.00  2.67      8HVP1760
+HETATM 1607  O   HOH A  27      -7.990  10.695  13.759  1.00  2.00      8HVP1761
+HETATM 1608  O   HOH A  28     -23.308   0.870  21.029  1.00 32.65      8HVP1762
+HETATM 1609  O   HOH A  29      11.743  14.669  35.485  1.00 30.26      8HVP1763
+HETATM 1610  O   HOH A  30       9.104  -9.450   4.424  1.00 12.53      8HVP1764
+HETATM 1611  O   HOH A  31       5.681   5.771  12.682  1.00 11.19      8HVP1765
+HETATM 1612  O   HOH A  32     -12.526  12.035  28.606  1.00 15.53      8HVP1766
+HETATM 1613  O   HOH A  33       3.280  -7.615   1.460  1.00 27.88      8HVP1767
+HETATM 1614  O   HOH A  34      12.685  15.267  15.689  1.00 21.25      8HVP1768
+HETATM 1615  O   HOH A  35     -21.369   4.254  23.436  1.00 21.59      8HVP1769
+HETATM 1616  O   HOH A  36     -16.670   6.393   7.864  1.00  8.51      8HVP1770
+HETATM 1617  O   HOH A  37      18.486  -6.156  25.609  1.00 17.82      8HVP1771
+HETATM 1618  O   HOH A  38      17.557  14.261  29.659  1.00 10.62      8HVP1772
+HETATM 1619  O   HOH A  39      -8.192 -12.788  12.929  1.00 16.07      8HVP1773
+HETATM 1620  O   HOH A  40      -8.920  -9.751  22.041  1.00 17.34      8HVP1774
+HETATM 1621  O   HOH A  41      -4.431   3.460  -1.908  1.00 38.28      8HVP1775
+HETATM 1622  O   HOH A  42      -5.066   7.197  37.048  1.00 17.03      8HVP1776
+HETATM 1623  O   HOH A  43       9.683 -12.586  18.588  1.00 25.99      8HVP1777
+HETATM 1624  O   HOH A  44       0.851  13.123  31.812  1.00  2.00      8HVP1778
+HETATM 1625  O   HOH A  45      34.321  -8.096  15.559  1.00  2.00      8HVP1779
+HETATM 1626  O   HOH A  46     -13.318   4.972   4.869  1.00  2.00      8HVP1780
+HETATM 1627  O   HOH A  47      -5.729  16.438  24.228  1.00  2.00      8HVP1781
+HETATM 1628  O   HOH A  48      27.210   9.667  11.528  1.00  2.00      8HVP1782
+HETATM 1629  O   HOH A  49     -15.949   0.283   0.917  1.00  2.00      8HVP1783
+HETATM 1630  O   HOH A  50      -7.424   8.402  35.088  1.00  6.93      8HVP1784
+HETATM 1631  O   HOH A  51       3.081  15.236  11.693  1.00  7.66      8HVP1785
+HETATM 1632  O   HOH A  52     -20.129   3.488  21.314  1.00  8.95      8HVP1786
+HETATM 1633  O   HOH A  53       2.983  -9.210  35.762  1.00 12.16      8HVP1787
+HETATM 1634  O   HOH A  54      22.227  -8.499  25.853  1.00 12.87      8HVP1788
+HETATM 1635  O   HOH A  55      10.098   8.441   9.848  1.00 14.24      8HVP1789
+HETATM 1636  O   HOH A  56       6.471 -10.064  28.863  1.00 16.97      8HVP1790
+HETATM 1637  O   HOH A  57       3.437 -11.087  26.858  1.00 17.91      8HVP1791
+HETATM 1638  O   HOH A  58      11.363  14.729  19.108  1.00 19.73      8HVP1792
+HETATM 1639  O   HOH A  59      -6.962  11.176  11.506  1.00 20.82      8HVP1793
+HETATM 1640  O   HOH A  60       6.623  16.089  10.621  1.00 22.95      8HVP1794
+HETATM 1641  O   HOH A  61       6.668 -11.009  25.008  1.00 22.95      8HVP1795
+HETATM 1642  O   HOH A  62       9.364  14.464  14.156  1.00 23.28      8HVP1796
+HETATM 1643  O   HOH A  63      -2.980   4.497   0.672  1.00 24.40      8HVP1797
+HETATM 1644  O   HOH A  64      22.290  10.937  22.020  1.00 24.99      8HVP1798
+HETATM 1645  O   HOH A  65      23.350   9.385  11.027  1.00 25.21      8HVP1799
+HETATM 1646  O   HOH A  66     -18.687  10.603   9.135  1.00 25.85      8HVP1800
+HETATM 1647  O   HOH A  67      25.618   7.811  33.389  1.00 26.92      8HVP1801
+HETATM 1648  O   HOH A  68      28.885  -6.845  11.462  1.00 28.02      8HVP1802
+HETATM 1649  O   HOH A  69     -23.158   4.537  25.077  1.00 29.77      8HVP1803
+HETATM 1650  O   HOH A  70      -2.599  14.244  31.864  1.00 32.04      8HVP1804
+HETATM 1651  O   HOH A  71      -0.659   9.877  12.451  1.00 34.04      8HVP1805
+HETATM 1652  O   HOH A  72       7.949  12.768  10.878  1.00 34.69      8HVP1806
+HETATM 1653  O   HOH A  73      10.081  15.243   9.186  1.00 37.44      8HVP1807
+HETATM 1654  O   HOH A  74     -19.436   8.318  11.246  1.00 38.80      8HVP1808
+HETATM 1655  O   HOH A  75       2.184  -8.186  27.493  1.00 42.83      8HVP1809
+HETATM 1656  O   HOH A  76      22.220 -16.223   7.085  1.00 44.72      8HVP1810
+HETATM 1657  O   HOH A  77     -23.272   4.114  21.546  1.00 47.20      8HVP1811
+HETATM 1658  O   HOH A  78      22.039 -14.292  24.350  1.00 52.48      8HVP1812
+HETATM 1659  O   HOH A  79       0.071  -8.208  34.109  1.00 56.14      8HVP1813
+HETATM 1660  O   HOH A  80      11.280  -7.333  31.371  1.00 59.48      8HVP1814
+CONECT  514  513  515  520                                              8HVP1815
+CONECT  520  514  521                                                   8HVP1816
+CONECT  521  520  522  524                                              8HVP1817
+CONECT  522  521  523  526                                              8HVP1818
+CONECT  523  522                                                        8HVP1819
+CONECT  524  521                                                        8HVP1820
+CONECT  525  524                                                        8HVP1821
+CONECT  526  522  527                                                   8HVP1822
+CONECT  716  715  717  718                                              8HVP1823
+CONECT  718  716  719                                                   8HVP1824
+CONECT  719  718  720  722                                              8HVP1825
+CONECT  720  719  721  724                                              8HVP1826
+CONECT  721  720                                                        8HVP1827
+CONECT  722  719                                                        8HVP1828
+CONECT  723  722                                                        8HVP1829
+CONECT  724  720  725                                                   8HVP1830
+CONECT 1273 1272 1274 1279                                              8HVP1831
+CONECT 1279 1273 1280                                                   8HVP1832
+CONECT 1280 1279 1281 1283                                              8HVP1833
+CONECT 1281 1280 1282 1285                                              8HVP1834
+CONECT 1282 1281                                                        8HVP1835
+CONECT 1283 1280                                                        8HVP1836
+CONECT 1284 1283                                                        8HVP1837
+CONECT 1285 1281 1286                                                   8HVP1838
+CONECT 1475 1474 1476 1477                                              8HVP1839
+CONECT 1477 1475 1478                                                   8HVP1840
+CONECT 1478 1477 1479 1481                                              8HVP1841
+CONECT 1479 1478 1480 1483                                              8HVP1842
+CONECT 1480 1479                                                        8HVP1843
+CONECT 1481 1478                                                        8HVP1844
+CONECT 1482 1481                                                        8HVP1845
+CONECT 1483 1479 1484                                                   8HVP1846
+CONECT 1543 1542 1544 1555                                              8HVP1847
+CONECT 1549 1551                                                        8HVP1848
+CONECT 1550 1551                                                        8HVP1849
+CONECT 1551 1549 1550 1552                                              8HVP1850
+CONECT 1552 1551 1553                                                   8HVP1851
+CONECT 1553 1552 1554 1555                                              8HVP1852
+CONECT 1554 1553 1556 1557                                              8HVP1853
+CONECT 1555 1543 1553                                                   8HVP1854
+CONECT 1556 1554                                                        8HVP1855
+CONECT 1557 1554 1558                                                   8HVP1856
+CONECT 1558 1557 1559 1562                                              8HVP1857
+CONECT 1559 1558 1560 1561                                              8HVP1858
+CONECT 1560 1559                                                        8HVP1859
+CONECT 1561 1559                                                        8HVP1860
+CONECT 1562 1558 1563 1564                                              8HVP1861
+CONECT 1563 1562                                                        8HVP1862
+CONECT 1564 1562 1565                                                   8HVP1863
+MASTER       71    3    5    2   20    6    2    6 1657    3   49   17  8HVP1864
+END                                                                     8HVP1865

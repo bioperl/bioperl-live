@@ -1,0 +1,2369 @@
+********************************************************************************
+MAST - Motif Alignment and Search Tool
+********************************************************************************
+	MAST version 3.5.3 (Release date: 2006-04-30 01:41:24 -0700 (Sun, 30 Apr 2006))
+
+	For further information on how to interpret these results or to get
+	a copy of the MAST software please access http://meme.nbcr.net.
+********************************************************************************
+
+
+********************************************************************************
+REFERENCE
+********************************************************************************
+	If you use this program in your research, please cite:
+
+	Timothy L. Bailey and Michael Gribskov,
+	"Combining evidence using p-values: application to sequence homology
+	searches", Bioinformatics, 14(48-54), 1998.
+********************************************************************************
+
+
+********************************************************************************
+DATABASE AND MOTIFS
+********************************************************************************
+	DATABASE /home/struckma/XXXXX/xxxxx.seq.fasta (nucleotide)
+	Last updated on Tue Jul 11 18:30:00 2006
+	Database contains 4390 sequences, 173499994 residues
+
+	Scores for positive and reverse complement strands are combined.
+
+	MOTIFS test2.fasta.meme.out (peptide)
+	MOTIF WIDTH BEST POSSIBLE MATCH
+	----- ----- -------------------
+	  1    15   SQTTICRFEALQLSF
+	  2    15   LEKEVVRVWFCNRRQ
+	  3    15   FKQRRIKLGFTQADV
+	  4    15   KNMCKLKPLLQKWLE
+
+	PAIRWISE MOTIF CORRELATIONS:
+	MOTIF     1     2     3
+	----- ----- ----- -----
+	   2   0.12
+	   3   0.15  0.14
+	   4   0.21  0.19  0.17
+	No overly similar pairs (correlation > 0.60) found.
+
+	Random model letter frequencies (from non-redundant database):
+	A 0.070 C 0.024 D 0.040 E 0.052 F 0.040 G 0.074 H 0.029 I 0.041 K 0.052 
+	L 0.096 M 0.017 N 0.032 P 0.065 Q 0.042 R 0.067 S 0.084 T 0.052 V 0.059 
+	W 0.016 Y 0.022 
+********************************************************************************
+
+
+********************************************************************************
+SECTION I: HIGH-SCORING SEQUENCES
+********************************************************************************
+SEQUENCE NAME                      DESCRIPTION           FRAME   E-VALUE  LENGTH
+-------------                      -----------           -----   -------- ------
+chr04q                                                       c    3.3e-26 6776397
+chr02q                                                       b    9.1e-20 8059593
+
+********************************************************************************
+
+
+
+********************************************************************************
+SECTION II: MOTIF DIAGRAMS
+********************************************************************************
+SEQUENCE NAME                      E-VALUE   MOTIF DIAGRAM
+-------------                      --------  -------------
+chr04q                              3.3e-26  170163_[-3a]_45546_[+4a]_316730_
+                                             [+2c]_6917_[-1b]_46576_[+2c]_
+                                             112087_[-4a]_106122_[-3a]_54413_
+                                             [-3c]_2646_[-3c]_55292_[-1b]_
+                                             229973_[-1a]_168811_[+1b]_320302_
+                                             [+3c]_36_[+1c]_192_[+4c]_879_
+                                             [+2c]_15041_[+4b]_12578_[+2a]_
+                                             15085_[-2b]_34466_[-2a]_3572_
+                                             [-3c]_106732_[-4a]_100884_[-1a]_
+                                             150814_[+2b]_50394_[-2b]_2709_
+                                             [+1b]_80737_[-2c]_9981_[+4c]_
+                                             134258_[+2b]_5742_[+2b]_9723_
+                                             [-1b]_120512_[-2a]_180_[+2a]_
+                                             53270_[-4c]_17749_[-2a]_105178_
+                                             [-1b]_47045_[-2a]_86702_[+2c]_
+                                             6448_[-4a]_10586_[-2c]_30988_
+                                             [-2a]_125990_[-2c]_69247_[-4a]_
+                                             250534_[-2b]_143429_[-2a]_41053_
+                                             [-4b]_167542_[-1c]_126920_[-2b]_
+                                             79648_[-2c]_41344_[-1a]_34611_
+                                             [-1a]_32643_[-2a]_69929_[+1c]_
+                                             20774_[+1b]_62113_[+2c]_23189_
+                                             [-4b]_9299_[-4a]_39496_[+1b]_
+                                             43277_[-2a]_116690_[+4c]_6861_
+                                             [+4c]_71133_[+2c]_143200_[-2a]_
+                                             382714_[+1b]_15009_[+3b]_167995_
+                                             [-3c]_11445_[+3c]_85905_[-2c]_
+                                             116003_[+2b]_62888_[-3a]_64899_
+                                             [+2a]_49005_[+2a]_56736_[+3a]_
+                                             14883_[+2a]_6123_[-2a]_24729_
+                                             [-2a]_75491_[-2c]_33025_[+2a]_
+                                             223953_[+2a]_3536_[+2c]_57658_
+                                             [+1a]_321010_[-2b]_99474_[+4b]_
+                                             14568_[+4b]_14260_[-2c]_151646_
+                                             [-4b]_91790_[-2a]_60756
+chr02q                              9.1e-20  181586_[+1c]_84138_[-3c]_15167_
+                                             [-2b]_135571_[-4c]_325471_[+4a]_
+                                             12798_[-4a]_4700_[-2c]_182142_
+                                             [-1c]_7912_[-1a]_80644_[-2b]_
+                                             143591_[-2a]_5286_[-1a]_17554_
+                                             [-4b]_104512_[+2c]_75992_[-2b]_
+                                             1994_[+2a]_7759_[-2b]_11678_[+4a]_
+                                             544_[+2b]_15348_[+2b]_53558_[+2a]_
+                                             756_[-2a]_132170_[-3c]_6820_[+1a]_
+                                             226852_[+2b]_107962_[+1c]_5949_
+                                             [-2c]_138458_[-4b]_133762_[+1c]_
+                                             126753_[-2c]_69234_[+1c]_33_[+1c]_
+                                             72_[+1c]_150_[+1c]_33_[+1c]_72_
+                                             [+1c]_267_[+1c]_33_[+1c]_15489_
+                                             [-1c]_21704_[+1b]_72_[+1b]_346_
+                                             [+1c]_96059_[-4b]_36498_[-2b]_
+                                             335_[-4a]_[-1a]_155_[-3c]_18189_
+                                             [-1c]_174870_[-2c]_38785_[+1a]_
+                                             40123_[+2b]_147684_[-1b]_122397_
+                                             [+2b]_45479_[+4a]_74846_[+1c]_
+                                             23231_[+3b]_38245_[-4c]_152196_
+                                             [-2c]_304660_[+2a]_165655_[-4b]_
+                                             38440_[-4c]_21816_[+1c]_25500_
+                                             [-2c]_336004_[+3a]_323232_[-4a]_
+                                             7268_[+2c]_47044_[+4a]_41451_
+                                             [-2a]_66303_[+2a]_30342_[+1a]_
+                                             40657_[-4b]_180301_[-2c]_35205_
+                                             [-2c]_59610_[-2c]_2222_[+1b]_
+                                             1400_[-2a]_53171_[-2c]_175866_
+                                             [-2c]_162426_[-2c]_70915_[+2a]_
+                                             33010_[-1b]_139023_[+1b]_248403_
+                                             [-2b]_102258_[+2b]_13294_[-4c]_
+                                             85097_[+2b]_13395_[-4b]_217923_
+                                             [-2b]_252830_[-2a]_40346_[-3c]_
+                                             9779_[+1b]_15798_[-1b]_16835_
+                                             [+1a]_31854_[-2a]_3867_[+2a]_
+                                             28000_[+1b]_14934_[+2b]_18632_
+                                             [+4a]_54520_[+2b]_53902_[+1c]_
+                                             198948_[-2c]_10079_[+1b]_162971_
+                                             [-2a]_106411_[+2b]_74994_[-4b]_
+                                             11202_[-4b]_165552_[+2b]_7010_
+                                             [-2a]_12481_[-2b]_23349_[+1b]_
+                                             102412_[+2c]_100606_[-4a]_31326
+
+********************************************************************************
+
+
+
+********************************************************************************
+SECTION III: ANNOTATED SEQUENCES
+********************************************************************************
+
+
+chr04q
+  
+  LENGTH = 6776397  COMBINED P-VALUE = 7.48e-30  E-VALUE =  3.3e-26
+  DIAGRAM: 170163_[-3a]_45546_[+4a]_316730_[+2c]_6917_[-1b]_46576_[+2c]_112087_
+           [-4a]_106122_[-3a]_54413_[-3c]_2646_[-3c]_55292_[-1b]_229973_[-1a]_
+           168811_[+1b]_320302_[+3c]_36_[+1c]_192_[+4c]_879_[+2c]_15041_[+4b]_
+           12578_[+2a]_15085_[-2b]_34466_[-2a]_3572_[-3c]_106732_[-4a]_100884_
+           [-1a]_150814_[+2b]_50394_[-2b]_2709_[+1b]_80737_[-2c]_9981_[+4c]_
+           134258_[+2b]_5742_[+2b]_9723_[-1b]_120512_[-2a]_180_[+2a]_53270_
+           [-4c]_17749_[-2a]_105178_[-1b]_47045_[-2a]_86702_[+2c]_6448_[-4a]_
+           10586_[-2c]_30988_[-2a]_125990_[-2c]_69247_[-4a]_250534_[-2b]_143429_
+           [-2a]_41053_[-4b]_167542_[-1c]_126920_[-2b]_79648_[-2c]_41344_[-1a]_
+           34611_[-1a]_32643_[-2a]_69929_[+1c]_20774_[+1b]_62113_[+2c]_23189_
+           [-4b]_9299_[-4a]_39496_[+1b]_43277_[-2a]_116690_[+4c]_6861_[+4c]_
+           71133_[+2c]_143200_[-2a]_382714_[+1b]_15009_[+3b]_167995_[-3c]_
+           11445_[+3c]_85905_[-2c]_116003_[+2b]_62888_[-3a]_64899_[+2a]_49005_
+           [+2a]_56736_[+3a]_14883_[+2a]_6123_[-2a]_24729_[-2a]_75491_[-2c]_
+           33025_[+2a]_223953_[+2a]_3536_[+2c]_57658_[+1a]_321010_[-2b]_99474_
+           [+4b]_14568_[+4b]_14260_[-2c]_151646_[-4b]_91790_[-2a]_60756
+
+
+                                   [-3a]
+                                   3.3e-07
+                                   ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                                        +  +  +  +  +     +     +     +        +
+                                   ..T..D..T..Q..T..V..N..L..*..I..P..R..A..Q..F
+170137  CAGAAAAATCGAAGACGAGTATAAAATTGTGTCAGTCTGAGTAACATTCAGCTAAATAGGTCTAGCTTGAAA
+
+                                                  [+4a]
+                                                  5.6e-07
+                                                  K..N..M..C..K..L..K..P..L..L..
+                                                  +        +     +  +     +  +
+                                                  N..*..L..I..T..L..K..S..I..L..
+215713  TGTGTGAAAGGATATGGCCTATGGCATCAATAGGACTGAATCAACTAGCTAATCACATTAAAAAGTATTCTA
+
+        
+        
+        Q..K..W..L..E..
+        +        +
+        N..*..T..V..H..
+215785  AATTAAACAGTACACAACACTGACAAATGCAAGCGAATTTATAGAATGTGTGAGCACTGAGCAGGATGTATA
+
+                         [+2c]
+                         6.2e-07
+                         L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                               +     +  +        +  +     +  +
+                         V..H..K..K..V..V..K..C..W..F..S..N..R..N..N..
+532513  AATCCTATTTATCGCATGTCCACAAAAAAGTTGTAAAATGTTGGTTTAGTAATAGAAACAACAAAGCTCTTT
+
+                                                                           [-1b]
+                                                                           8.7e-
+                                                                           ..F..
+        
+                                                                           ..Y..
+539425  TTTATTTTCTTTCAACTTGAGACGCTAATAGGAACACCGAGTGCTTATTGAAGAAACGTTCGAGTATGTATG
+
+        
+        07
+        S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+        +  +        +     +     +  +  +  +     +
+        T..I..K..T..S..S..F..N..S..I..A..T..Y..S
+539497  TTATTTTAGTTGATGAGAAATTACTGATTGCAGTATATGACCTACTTCACATGTTATGCACCTATTATGTCA
+
+                                        [+2c]
+                                        9.6e-07
+                                        L..E..K..E..V..V..R..V..W..F..C..N..R..R
+                                           +  +     +  +  +        +  +     +
+                                        R..K..K..K..V..V..R..R..D..F..C..G..R..E
+586081  ACACACAAAGATATACGTCATAATCGTGAGAACGTAAGAAAAAGGTAGTAAGACGCGATTTCTGTGGTCGCG
+
+        
+        
+        ..Q..
+        
+        ..R..
+586153  AACGTTTAGTTTCTATTCCATTTTGGCAGAAGTTTAGAATTGTGATCTTACTAAGTATAACGGCAATCTTGT
+
+                                                                    [-4a]
+                                                                    8.5e-07
+                                                                    ..E..L..W..K
+                                                                      +        +
+                                                                    ..N..T..L..K
+698185  AGACGGAATGTCTCAGAATGCATCTTCGCACTAGTGCATACTTTTATATATATATATAGAGTTAGTCAGTTT
+
+        
+        
+        ..Q..L..L..P..K..L..K..C..M..N..K
+          +  +  +        +  +  +  +     +
+        ..Q..L..I..V..M..L..K..I..A..Q..K
+698257  TTGTAGTATCACCATCAGCTTTATGGCTTGTTTTTATTGTATGTACATTATACATGATATTTTATTGTAATG
+
+                                   [-3a]
+                                   3.8e-07
+                                   ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                                        +  +  +     +  +     +     +  +     +
+                                   ..L..N..T..Q..K..V..G..*..K..G..R..R..L..K..G
+804385  AATAAAATTATTAAATTACAACAAAAATAAATTTGTTTGTTTTACACCTCACTTACCTCTGCGTAACTTTCC
+
+                                                             [-3c]
+                                                             8.2e-08
+                                                             ..V..D..A..Q..T..F.
+                                                               +  +  +     +  +
+                                                             ..V..Q..G..V..T..Y.
+858817  CAACACACCTAAAAAAGTTATTTCTAGACATCTAGTGGTTTGTATAACCTATGTACCTGTCCTACAGTATAT
+
+        
+        
+        .G..L..K..I..R..R..Q..K..F
+         +     +     +           +
+        .G..S..T..L..R..Y..L..*..F
+858889  CCACTGGTAAGCCTGTATAACTAAAATAGAATGCGGAACAATTTTCATGGATGTACTTACTACATAGCTACC
+
+                [-3c]
+                3.6e-07
+                ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                     +     +     +  +     +  +  +  +        +
+                ..Y..N..P..Q..Q..Y..G..F..T..I..R..K..R..H..F
+861553  GTAAGGGTATAGTTTGGTTGCTGATAGCCGAAAGTAATTCTTTTGCGGTGGAAGTCGTAGTTTAGAAGCAAC
+
+                                                         [-1b]
+                                                         1.1e-07
+                                                         ..F..S..L..Q..L..A..E..
+                                                              +  +  +  +  +  +
+                                                         ..L..S..L..D..L..A..E..
+916849  ATTCCCATTGGCAGGAGCCAAGTATATCGAGTGTGTCGAGTTTAGATGATAAACTAAGGTCAAGTGCTTCTG
+
+        
+        
+        F..R..C..I..T..T..Q..S
+              +        +     +
+        A..S..S..S..N..T..R..S
+916921  CTGAAGAAGAATTAGTGCGTGATGTGTTATATTCTACAAGGCAAAATATCAACATTGTCCATGAGATGTTTC
+
+                                   [-1a]
+                                   5.7e-07
+                                   ..F..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+                                     +  +  +           +  +        +     +     +
+                                   ..P..S..I..K..R..T..E..F..S..P..I..*..T..R..S
+1146889 CTTAATGAGCTTTGAATGACCGAAACTAGGAGATATTTTGCGGGTTTCGAAACTCGGAATTCACGTGCGTGA
+
+                                                   [+1b]
+                                                   3.7e-07
+                                                   S..Q..T..T..I..C..R..F..E..A.
+                                                   +     +     +     +  +     +
+                                                   S..F..T..S..I..V..R..F..T..N.
+1315729 GAACGATTAAACTAGATAAACAACAGCTGACGTGAAATTCTGTTCTTTCACTTCGATCGTAAGATTCACTAA
+
+        
+        
+        .L..Q..L..S..F..
+            +     +  +
+        .Y..D..A..T..F..
+1315801 CTATGACGCAACTTTCTTCTTCGGTTTTGATTGGCTTGATTTCATGAAACGGAAATTACATCAAAAAATGGC
+
+                                                                      [+3c]
+                                                                      1.1e-16
+                                                                      F..K..Q..R
+                                                                      +  +  +  +
+                                                                      F..K..Q..K
+1636057 TTGATGTGGCTTTTTAGGAAGAAGCAAAGCAGTTGGAGCAGCTGGAACTTTTCGCGAAGGATTTCAAGCAGA
+
+                                                                               [
+                                                                               6
+        ..R..I..K..L..G..F..T..Q..A..D..V..                                    S
+          +  +  +     +  +  +  +  +  +  +                                      +
+        ..R..I..K..M..G..F..T..Q..G..D..V..                                    S
+1636129 AGCGAATTAAGATGGGGTTTACTCAGGGTGATGTTGGACAAGCAATGGGTTGTCTGTATGGCAATGATTTCA
+
+        +1c]
+        .3e-15
+        ..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+          +  +  +  +  +  +  +  +  +  +  +  +     +
+        ..Q..T..T..I..S..R..F..E..A..L..N..L..R..F..
+1636201 GTCAAACCACCATTTCAAGATTTGAAGCACTGAACTTGAGGTTTGTTTGTTCAGTTGGAGTCTTAGTTTTGT
+
+                            [+4c]
+                            1.8e-13
+                            K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                            +  +  +  +  +  +  +  +     +  +  +  +  +
+                            K..N..M..I..K..L..K..P..M..L..E..R..W..L..L..
+1636417 ATTGATCATTACACAGCTTTAAAAATATGATCAAGCTGAAGCCCATGCTAGAAAGATGGTTGCTGGATGCTA
+
+                [+2c]
+                2.1e-20
+                L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                +  +  +  +  +  +  +  +  +  +  +  +  +  +  +
+                M..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+1637353 AATGTAAAATGGAGAAGGAGGTAGTTCGTGTTTGGTTTTGCAACCGACGGCAAAAGCAAAAGAGAATATCGC
+
+                                                      [+4b]
+                                                      6.1e-07
+                                                      K..N..M..C..K..L..K..P..L.
+                                                      +  +  +     +           +
+                                                      N..S..A..*..K..I..I..C..L.
+1652401 TATAAATGGCACATTTTAAAAGTTAACAGATTATCATAAAAAATAGAATTCTGCTTGAAAAATAATATGTTT
+
+        
+        
+        .L..Q..K..W..L..E..
+            +  +  +  +  +
+        .T..S..K..W..V..E..
+1652473 GACATCAAAGTGGGTTGAGTTTTTAGGCACACTTTTGTTTGTATTAGAGGATTAACTTAATGATATTTAAAC
+
+                                                                             [+2
+                                                                             6.2
+                                                                             L..
+                                                                             +
+                                                                             Y..
+1665001 CAATTCGCCCCGCACCCTATATATAAATATAACGCATTAACTTACGTGCATGAAATAAATTTCTTATGCTAT
+
+        a]
+        e-07
+        E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+           +     +  +     +     +     +  +
+        *..R..L..V..I..A..V..C..F..F..N..R..A..V..
+1665073 TGAAGGCTCGTTATAGCAGTATGTTTTTTCAATCGAGCTGTGGCGGTTTTCGACAAAACTATATATACTGCA
+
+               [-2b]
+               2.7e-08
+               ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                          +     +  +  +  +  +  +  +
+               ..N..S..S..N..Y..F..W..V..R..V..V..E..M..F..R
+1680193 AAAGAACATTCGAAGAATTATAAAACCATACCCTCACGACTTCCATAAACCGTTGTTTATTGTTTAAAACTT
+
+                                      [-2a]
+                                      1.4e-07
+                                      ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E
+                                                 +     +  +     +  +  +  +
+                                      ..N..S..S..N..Y..F..W..I..R..V..V..E..M..F
+1714681 TCACGTTCCATTTGGTAGTAAACAAAGAACATTCGAAGAATTATAAAACCATATCCTCACGACTTCCATAAA
+
+        
+        
+        ..L
+        
+        ..R
+1714753 CCGTTGTTTATTGTTTAAAACTTGATTAGGATATTTGAATATTAGGTTTCCCATCTTCCCCCACAGTACTAT
+
+                                                       [-3c]
+                                                       3.4e-07
+                                                       ..V..D..A..Q..T..F..G..L.
+                                                            +     +  +  +     +
+                                                       ..I..D..R..Q..T..V..N..L.
+1718281 GATGACCTTGAAAATGAAACCTTGACGTGACAGATTTATTCTTATTGTATGTCTCGTTGTGTAACATTAAGT
+
+        
+        
+        .K..I..R..R..Q..K..F
+         +  +     +
+        .K..I..*..K..V..R..I
+1718353 TTTATTTATTTAACCCTAATTTTAGCATTGTTGTACTCAAGGATTTTTACATTTTATTATTACTTAGTTGCG
+
+                                                        [-4a]
+                                                        4.4e-07
+                                                        ..E..L..W..K..Q..L..L..P
+                                                             +     +  +  +  +  +
+                                                        ..R..V..R..K..S..L..V..P
+1825057 AGACGTACAATGGGAAGCTTATAGAAACATTTAATTGGATGACCGTGTTCTCACACGTTTGCTTAAGACGGG
+
+        
+        
+        ..K..L..K..C..M..N..K
+             +     +  +     +
+        ..D..L..T..V..M..R..N
+1825129 ATCTAAGGTTACCATTCTATTCGAACGAAATTATTTATCAATTGAATCAGCCCTCGGAACTAAACAAACTGA
+
+                                         [-1a]
+                                         1.6e-07
+                                         ..F..S..L..Q..L..A..E..F..R..C..I..T..T
+                                              +  +  +        +  +     +  +     +
+                                         ..S..S..L..N..Q..K..E..F..L..C..I..N..S
+1926001 ACACTGCGTGTATGTCAAACAGATCTAAGTTTATGAACTCAAATTTTGTTTTTCAAATAGGCAAATATTTGA
+
+        
+        
+        ..Q..S
+        
+        ..L..W
+1926073 TAACCAAAATTTCTCTTTTTAGGGTGGCAAAGGAGAGAAAGACAAAGGAAAAAAGAAGATTGGTGGAAGAGA
+
+                                                            [+2b]
+                                                            8.8e-07
+                                                            L..E..K..E..V..V..R.
+                                                                        +  +  +
+                                                            R..S..M..G..V..V..R.
+2076841 TTGAGCACAACATAATATTAAATTATCCTGATTGTGCTTAAACCATTAATAACGGTCTATGGGAGTCGTGAG
+
+        
+        
+        .V..W..F..C..N..R..R..Q..
+            +  +     +
+        .I..W..F..Y..N..S..L..N..
+2076913 AATATGGTTTTATAATTCATTAAATGTTTTTTGTTTACTACCAAATGGGACGAAAAAATAGGATGAAAAGGT
+
+                           [-2b]
+                           6.8e-07
+                           ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                      +     +     +  +  +  +           +
+                           ..F..L..S..N..Y..F..*..V..R..V..V..G..M..S..L
+2127313 TTAGTAGTATACAAAGAACAAACAAAGAATTATAAAACTATACCCTCACTACTCCCATAGACAGTAGTTAAT
+
+                                             [+1b]
+                                             2.9e-07
+                                             S..Q..T..T..I..C..R..F..E..A..L..Q.
+                                                   +     +  +     +     +  +  +
+                                             F..F..T..F..I..S..C..F..T..S..L..T.
+2130049 TACAGCTTCAACTTTGATCTCCGGTTGATTTTCTTCTTTTTTCACCTTTATCTCTTGTTTTACTTCTTTAAC
+
+        
+        
+        .L..S..F..
+         +  +
+        .L..S..L..
+2130121 TTTATCTTTGGTTTGTTCATTTTCCACTTTTTTGGCAGTTTCTATATCAGGTTTACTTGTTTGTTGTTCTTC
+
+                                           [-2c]
+                                           3.7e-07
+                                           ..Q..R..R..N..C..F..W..V..R..V..V..E.
+                                                   +  +        +     +  +
+                                           ..T..L..R..N..K..K..W..N..R..V..L..V.
+2210833 AGAAGAGCGCAAGAAATTGCAAGATCTCAAACTAAAGTAAGCCGATTTTTTTTCCAATTCCGTACTAGAACC
+
+        
+        
+        .K..E..L
+         +  +  +
+        .K..K..Y
+2210905 TTCTTGTAGATATAGCTATTGCTGTCGAAATATGTACAAAACTCTTATTTAAACGGTACATTTTCCAGCAGA
+
+                                                             [+4c]
+                                                             5.1e-07
+                                                             K..N..M..C..K..L..K
+                                                             +        +     +  +
+                                                             N..D..T..I..T..L..R
+2220841 ATTATGTTTCTTTCCCTTTAAACTTCTTCAATATACAGTGTACGATACGCACGAATGACACAATAACACTGC
+
+        
+        
+        ..P..L..L..Q..K..W..L..E..
+             +  +  +     +
+        ..L..L..L..A..H..W..S..K..
+2220913 GACTATTATTGGCTCACTGGTCAAAATATTTTAGAATCTAAAACTTACATACAGAAACAATACAATAGCAGC
+
+            [+2b]
+            1.7e-08
+            L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                  +  +  +  +  +        +  +  +
+            R..S..K..E..V..V..R..I..R..F..C..N..S..L..Y..
+2355193 ACAACGGTCTAAGGAAGTCGTGAGGATACGATTTTGTAATTCTTTGTATGTTCTTTGTTTACTACCAAATGG
+
+                                       [+2b]
+                                       6.8e-07
+                                       L..E..K..E..V..V..R..V..W..F..C..N..R..R.
+                                       +  +     +  +        +  +  +
+                                       L..K..G..E..V..L..S..V..W..F..A..R..S..I.
+2360953 ACCAAAACCGCAAGCGGAATTCGCCTTCGGCTTGAAAGGGGAGGTTTTGTCGGTTTGGTTCGCAAGATCTAT
+
+        
+        
+        .Q..
+        
+        .S..
+2361025 TAGCGCGCTTTTAGGCTTTAGTTAATTCGATCAGCAGTTTTAATAAAATAAGCCCATTGCGAATTATACGCC
+
+               [-1b]
+               9.9e-07
+               ..F..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+                 +  +        +  +     +     +  +  +  +
+               ..H..T..Q..E..L..S..N..F..V..C..I..A..S..S..A
+2370745 CAACGTCGTGTGTTTGCTCAAGGGAATTGAATACGCATATCGCAGACGAAGCTAAACAATGTCTGCCCTATA
+
+                                            [-2a]
+                                            8.7e-08
+                                            ..Q..R..R..N..C..F..W..V..R..V..V..E
+                                                       +     +  +  +  +  +  +
+                                            ..N..S..S..N..Y..F..W..V..R..V..V..*
+2491273 CTATTTTTTCGCTCCATTTGGTAGTAAACAGAGAGCATTCGAAGAATTATAAAACCATACTCTCACGACTCA
+
+        
+        
+        ..K..E..L
+        
+        ..G..V..S
+2491345 TCCCACAGACCGTTGTTAATTGTTTAAAACACAATCAGGATATTTCAACACTATGTGCTATAAAGGCGTCTC
+
+                                                     [+2a]
+                                                     8.7e-08
+                                                     L..E..K..E..V..V..R..V..W..
+                                                                 +  +  +  +  +
+                                                     S..V..G..*..V..V..R..V..W..
+2491489 ATAGTGTTGAAATATCCTGATTGTGTTTTAAACAATTAACAACGGTCTGTGGGATGAGTCGTGAGAGTATGG
+
+        
+        
+        F..C..N..R..R..Q..
+        +     +
+        F..Y..N..S..S..N..
+2491561 TTTTATAATTCTTCGAATGCTCTCTGTTTACTACCAAATGGAGCGAAAAAATAGAATAAAGGGGTGTCCGAT
+
+                [-4c]
+                3.8e-07
+                ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+                  +        +     +  +           +     +  +
+                ..E..M..K..K..*..L..I..S..V..I..K..N..M..N..*
+2544841 AATTGCAATTCCATCTTCTTTTACAAAATTGACACGATTTTGTTCATGTTTTAGACATGAAAACTTTAATAT
+
+                          [-2a]
+                          9.6e-07
+                          ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                           +  +  +     +  +        +  +
+                          ..N..S..I..S..I..F..W..V..Y..V..V..K..D..K..L
+2562625 ACAGCTATACAAAAGATGGTTGCTTATTGATATAAACCATACATAAACAACTTTGTCTTTCAAATTAAAGCG
+
+                                                         [-1b]
+                                                         4.4e-07
+                                                         ..F..S..L..Q..L..A..E..
+                                                              +     +  +     +
+                                                         ..Y..S..T..Q..L..C..E..
+2667817 ACTTCAAATGTGGGCGATTTATTGCCTGTTTAGTCTTGTGTTGGATAACATACGAAGTCTGCAAGCACTCAA
+
+        
+        
+        F..R..C..I..T..T..Q..S
+        +  +           +
+        F..R..H..F..C..T..M..N
+2667889 AGCGATGGAAACAAGTCATATTTTCATGGCAGTGGAAAATAACTGGTCTGGCTTTCGCCATAACTACGCTGA
+
+                                                           [-2a]
+                                                           2.1e-07
+                                                           ..Q..R..R..N..C..F..W
+                                                                      +  +  +
+                                                           ..L..S..S..N..C..F..G
+2714905 CACCTTTTTCTTTTAATTTCTAGTCACATTTAGAAGTAAACAGAGAACATTCAATGAAGAATTACAAAACCC
+
+        
+        
+        ..V..R..V..V..E..K..E..L
+             +  +  +           +
+        ..I..R..V..V..G..M..P..L
+2714977 TATCCTCACGACTCCCATAGGCAGTTGTTAATTGTTTAAAACACGATCAGGATATTTCGATATTATGTGTTA
+
+                                              [+2c]
+                                              9.6e-07
+                                              L..E..K..E..V..V..R..V..W..F..C..N
+                                                       +  +  +  +  +     +     +
+                                              R..S..M..E..V..V..R..V..R..F..Y..N
+2801665 TATTCAAATATCATGATCGTGTTTTAATCAATTACCAACGGTCTATGGAAGTCGTAAGGGTTCGGTTTTATA
+
+        
+        
+        ..R..R..Q..
+        
+        ..S..L..N..
+2801737 ATTCTTTGAACGTTTTTTGTTTACTAGCAAATGGGACGAGAAAATGTAACGAAAATGTGTCCCATCTTTACT
+
+                                                           [-4a]
+                                                           4.6e-07
+                                                           ..E..L..W..K..Q..L..L
+                                                                   +     +  +  +
+                                                           ..L..S..W..L..S..L..V
+2808145 GAAGATCAAATGCGAACTGCTTTGCTTTATGGTGAAATCTACAACGCTTGTTAAACTCCACAAACTTAACAC
+
+        
+        
+        ..P..K..L..K..C..M..N..K
+          +  +  +        +     +
+        ..P..K..L..S..S..A..L..K
+2808217 CGGCTTGAGCGAGCTTGCTAACTTTGGTGCCGCAGTTGTAATAGTCTCGATGTGACGGGCGCCACGGCTGCA
+
+                                  [-2c]
+                                  7.4e-07
+                                  ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                             +     +  +     +  +  +
+                                  ..N..L..S..N..Y..F..W..I..R..V..V..G..L..S..R
+2818801 CCAATTTGTTCGTGAACAAAAAAAACATTCAAAGAATTATAAAACCATATTCTCACAACTCCCAAAGACCGT
+
+                                   [-2a]
+                                   4.3e-08
+                                   ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                              +     +  +     +  +  +  +
+                                   ..N..L..S..N..Y..F..W..I..R..V..V..E..M..Y..F
+2849833 CATGTTATTTGGTAGTAAACAAAGAACATTCAAAGAATTATAAAACCATATCCTCACGACTTCCATATAGAA
+
+                                                                      [-2c]
+                                                                      6.0e-07
+                                                                      ..Q..R..R.
+        
+                                                                      ..E..E..K.
+2975833 TCCAGCACAACACACATGCCCAGGACAAGTTATTCACCAGAATTGCTGATAGTTACATTGCTCTCTTCTTTA
+
+        
+        
+        .N..C..F..W..V..R..V..V..E..K..E..L
+            +     +  +        +     +  +  +
+        .T..C..M..W..V..Y..S..V..F..K..E..L
+2975905 GTGCACATCCAGACATAAGAGACAAATTTTTCAAGGTAAATTTTTGGCTTGAAACTGTCAAATAAAAGTACA
+
+                          [-4a]
+                          6.1e-07
+                          ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+                               +  +  +     +  +  +  +        +        +
+                          ..V..V..W..K..R..L..I..A..R..T..S..C..C..E..N
+3045169 TTCTATTCTTACACAACCTACCACCCATTTTCTTAATATAGCCCGAGTAGAACAACATTCGTTCTGTTGTTG
+
+                                             [-2b]
+                                             3.7e-07
+                                             ..Q..R..R..N..C..F..W..V..R..V..V..
+                                                        +     +  +     +  +
+                                             ..N..S..Y..N..Y..F..W..I..R..V..L..
+3295729 TTCCTTTTCTTGTCCCAATGGGTAGTAAACAAAGAGCATTCGAATAATTATAAAACCATATCCTCACGAGTC
+
+        
+        
+        E..K..E..L
+                 +
+        G..M..Y..L
+3295801 CCATATACAGTTGTTAATTGTTTATATCATGATCAGCATATTTGGATATTATGTACTAAAGGTGTCCCATCT
+
+                       [-2a]
+                       2.8e-07
+                       ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                     +  +  +  +  +  +           +  +
+                       ..C..G..*..C..C..F..W..V..R..V..C..Q..S..D..Y
+3439225 TTGTTTTAGCCAAAAACAACCTTAACAACAAAACCATACCCTAACACACTGTGAATCATACATAATAATGCA
+
+         [-4b]
+         9.8e-07
+         ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+              +  +     +     +  +           +  +  +  +
+         ..K..L..W..L..Q..G..V..A..G..V..T..C..M..S..N
+3480337 TTTTAAGCCACAGTTGACCTACTGCCCCCACTGTACACATGCTATTTATGGCGGATAGTTATTTGAGCCATT
+
+                                                    [-1c]
+                                                    5.5e-07
+                                                    ..F..S..L..Q..L..A..E..F..R.
+                                                      +  +        +        +
+                                                    ..H..T..N..L..L..K..A..F..G.
+3647881 CGCCACCGTTAGATTCCGATCTATATACCTAGGATTTGCCATAAATGTGTGTTTAGAAGTTTCGCGAAACCG
+
+        
+        
+        .C..I..T..T..Q..S
+         +  +  +        +
+        .C..I..T..H..T..S
+3647953 CAAATCGTGTGTGTAGATGCGTATCCCAATCCCCTGCTCTTTATCTCAAGATCCAGCGCTCGCTTGTCAATC
+
+         [-2b]
+         1.9e-07
+         ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                    +     +  +     +  +  +  +
+         ..N..L..S..N..Y..F..W..I..R..V..V..E..M..F..R
+3774889 CATTTAAAGAATTATAAAACCATATCCTTACGACTTCCATAAACCGTTGTTTATTGTTTAAAACTTGATCAG
+
+                                                                      [-2c]
+                                                                      2.6e-07
+                                                                      ..Q..R..R.
+        
+                                                                      ..N..L..S.
+3854521 GGGAGAAGATGGGACACATTTTCATTCCATTTTCTTTGTACGTTTTGTTGTAAACAAAAGACATTCAAAGAA
+
+        
+        
+        .N..C..F..W..V..R..V..V..E..K..E..L
+         +     +        +  +  +  +  +
+        .N..Y..F..Q..I..R..V..V..E..R..S..R
+3854593 TTATAAAACTGTATCCTCACGACTTCCCTAGACCGTTGTTAATTGTTTAGAAACCAATCAGGAAGTTTAAAT
+
+                                                           [-1a]
+                                                           4.3e-07
+                                                           ..F..S..L..Q..L..A..E
+                                                                +  +     +     +
+                                                           ..S..S..I..K..L..D..E
+3895921 TACGGTATGGCTGACAACTTAAACAATCCATATGGAAGGCTACTGTGTTGGAGAACTTATTTTTAAGTCTTC
+
+        
+        
+        ..F..R..C..I..T..T..Q..S
+          +  +     +           +
+        ..F..R..T..I..C..I..*..S
+3895993 AAATCTTGTAATGCAGATCTACGACACCGAACTTGAGAATGCGAACGAGTTTTCAGGTTTTAACGACCTTTT
+
+           [-1a]
+           6.4e-08
+           ..F..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+                +  +  +  +  +     +  +  +     +
+           ..V..S..L..N..L..N..G..F..R..C..V..T..N..*..*
+3930625 ACGAACCGATAAGTTCAAGTTTCCGAAACGACAAACGGTATTTTATCAACAATAGATAAACGACTAAAAACA
+
+           [-2a]
+           8.4e-07
+           ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                      +  +  +              +     +  +  +
+           ..I..L..A..N..C..F..N..G..S..Y..V..Q..K..E..L
+3963313 ACTGATTAATGCATTGCAGAAATTTCCAGAGTATACCTGTTTCTCTAAAATGAGGACTTGTGATTGTCATAA
+
+                                                                         [+1c]
+                                                                         1.2e-08
+                                                                         S..Q..T
+                                                                         +     +
+                                                                         S..H..S
+4033225 AAACCCAAAAAGAAATGCACTTGTAGTACTGTGGGGTAAGATGGATGTCGATATAGCACATTTTATCCCATT
+
+        
+        
+        ..T..I..C..R..F..E..A..L..Q..L..S..F..
+                +  +  +     +     +  +  +  +
+        ..S..*..S..R..F..N..N..*..Q..L..S..F..
+4033297 CTTCATAATCGCGTTTTAACAATTAACAACTCTCTTTTACAATCGTGAGGTAACGGTTATATAATTCTGTAA
+
+            [+1b]
+            1.2e-08
+            S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+            +     +        +  +  +     +     +  +  +  +
+            S..H..S..S..*..S..R..F..N..N..*..Q..L..S..F..
+4054105 TTTATCCCATTCTTCATAATCGCGTTTTAACAATTAACAACTCTCTTTTACAATCGTGAGGTAACGGTTATA
+
+                                  [+2c]
+                                  8.4e-07
+                                  L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                                  +     +        +        +  +     +
+                                  L..Y..R..S..L..V..K..I..W..F..Y..N..S..L..V..
+4116241 TTATGTTTTAAACAATTAACAACGGTCTATATAGGAGTCTCGTGAAAATATGGTTTTATAATTCTTTGGTTG
+
+            [-4b]
+            1.7e-07
+            ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+                 +        +  +  +     +  +  +  +  +     +
+            ..L..L..G..L..S..L..V..L..K..L..K..I..A..T..K
+4139497 TGGACAATAATCCCAGACTGAGGACTAACTTCAATTTGATTGCGGTTTTCATCTTTCTAATAAGAACAAAGA
+
+                                                                    [-4a]
+                                                                    9.3e-07
+                                                                    ..E..L..W..K
+                                                                      +     +  +
+                                                                    ..E..R..W..A
+4148785 TTTGGTTATTAGGAGAATGAAGGTATAATAAAAATAGTATTCAAAACTAAAAAAATGATATTCACGCCATGC
+
+        
+        
+        ..Q..L..L..P..K..L..K..C..M..N..K
+             +     +        +        +  +
+        ..*..L..*..A..Q..*..K..N..I..N..K
+4148857 TTATAACTATGCTTGTCATTTATTGATGTTTTTTATTTGTATTAGGTAAATGAACAAAATCCTCAAGTGTTT
+
+         [+1b]
+         8.0e-07
+         S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+         +           +  +     +        +  +  +  +  +
+         S..*..P..G..I..S..T..F..Q..*..L..D..I..S..H..
+4188385 ATCCTGACCTGGAATCTCAACTTTTCAATAACTTGACATCAGCCATACAATTACTACAAGGTAAGATAATGT
+
+                                                           [-2a]
+                                                           8.0e-08
+                                                           ..Q..R..R..N..C..F..W
+                                                                      +  +  +  +
+                                                           ..H..L..F..N..C..F..W
+4231657 GGACATCATTTCATTTTATTTACTCGTCTCACTTGGTAGTAAAAAAAGAAAATGCAAAAAATTACAAAACCA
+
+        
+        
+        ..V..R..V..V..E..K..E..L
+             +  +  +
+        ..I..R..V..V..G..T..S..R
+4231729 TATCCTCACAACTCCCGTAGACCGTTGTTAATTGTTCAAATCACAATCAAGATGTTTGGAGATTATGAGCTA
+
+          [+4c]
+          3.3e-07
+          K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+          +           +     +  +  +  +  +  +     +
+          N..L..L..K..K..I..K..P..I..L..Q..K..F..V..H..
+4348441 AAAACCTTCTTAAAAAGATCAAACCAATCTTGCAGAAGTTTGTCCACGATGACACCAACTTACAACTACATG
+
+                                                                            [+4c
+                                                                            9.3e
+                                                                            K..N
+                                                                            +  +
+                                                                            N..S
+4355281 TAAATTTTGAACGTATATATACTGTGTTTTGTAAATTTTGAACATATTCAGTTTTTAAACATCTACAAAATT
+
+        ]
+        -07
+        ..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                +     +  +  +  +     +
+        ..Q..N..A..I..K..P..I..L..I..K..Y..*..L..
+4355353 CCCAAAATGCAATTAAACCCATACTTATAAAATATTAATTACAAGTCGCATTAATTAATTTGGCAAATACAC
+
+                                              [+2c]
+                                              1.9e-07
+                                              L..E..K..E..V..V..R..V..W..F..C..N
+                                                          +  +  +  +  +  +     +
+                                              R..S..M..G..V..V..R..V..W..F..Y..N
+4426489 AATCCAAATATTCTGATCATGTTTTAAACAATTCACAACGGTCTATGGGAGTTGTAAGGGTATGGTTTTATA
+
+        
+        
+        ..R..R..Q..
+        
+        ..T..L..N..
+4426561 ATACTTTGAATGTTCTTTGTTTACTACCAAATGGGACAAAAATAATTAAAGGGTGTCCCATCTTTCCCTACC
+
+           [-2a]
+           4.6e-07
+           ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                +           +           +  +     +  +  +
+           ..M..R..*..V..Y..F..F..I..S..V..V..S..R..K..L
+4569769 TCCCATTCGCTAAACATAAAAGAAAATTGAAACTACGCTGCGTTTTAATAGTGTATATACGGCCATAGATAC
+
+                  [+1b]
+                  7.1e-07
+                  S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                  +     +        +     +  +        +  +  +
+                  S..L..T..S..L..S..P..F..E..L..G..T..I..S..L..
+4952521 TAGCGATCAAAGTTTGACGAGCCTCTCTCCTTTTGAACTTGGCACAATTTCTCTTACTTGTTGGTTTAATAT
+
+                        [+3b]
+                        7.8e-07
+                        F..K..Q..R..R..I..K..L..G..F..T..Q..A..D..V..
+                              +  +        +  +        +  +  +  +  +
+                        E..R..I..R..N..C..K..L..S..K..T..Q..G..N..V..
+4967569 GGAAATTGTGGTTTCTGAAAGGATAAGAAACTGCAAATTATCTAAAACTCAGGGAAACGTTTAAAATCATGT
+
+                [-3c]
+                3.8e-07
+                ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                  +     +     +  +  +        +     +        +
+                ..V..S..A..T..T..V..G..I..I..I..N..R..R..R..F
+5135617 CAGATGGTTACAGAAGCAGTGGTAACACCAATGATAATGTTGCGCCTTCTAAACAGAGCAAAGAATCTTGTA
+
+                                                          [+3c]
+                                                          7.8e-07
+                                                          F..K..Q..R..R..I..K..L
+                                                          +     +     +     +  +
+                                                          F..I..Q..C..R..E..S..L
+5147065 ACTTAATTGCCCCCCAAAAAATAATTAATTACATTTTCCGAAATGGTTGCTTTATACAGTGTAGAGAAAGTC
+
+        
+        
+        ..G..F..T..Q..A..D..V..
+          +           +     +
+        ..G..L..S..L..A..Y..V..
+5147137 TTGGCCTAAGTTTAGCTTATGTGTCACAATTTGACATTACAATTATCATTATAATACAATTTAAATAGTTTG
+
+                                        [-2c]
+                                        5.7e-07
+                                        ..Q..R..R..N..C..F..W..V..R..V..V..E..K.
+                                             +     +     +     +     +        +
+                                        ..F..R..I..N..Y..F..F..V..Q..V..C..Q..K.
+5233033 ATTATATGATGCAAAAATTATATGATGCTTAAAAACCTAATGTTGTAGAAAAATACCTGAACACATTGTTTT
+
+        
+        
+        .E..L
+            +
+        .R..Y
+5233105 CTATAGAGTTTGTGAGTTCAGTAAGACTGAGTGCTTTTGCGCATGATTTGACTACAAATTTCACGGCTTCAA
+
+                        [+2b]
+                        4.0e-07
+                        L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                        +     +  +  +  +  +        +     +
+                        L..F..K..E..V..V..R..P..L..F..D..N..L..I..I..
+5349097 GGAACCTGTAAGACCTTTGTTTAAGGAAGTTGTAAGACCTTTGTTTGATAACTTAATAATAGTTGTCACATG
+
+                             [-3a]
+                             4.7e-07
+                             ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                                  +  +  +     +     +  +  +  +  +     +
+                             ..R..N..T..Q..W..F..S..L..S..I..R..R..L..K..G
+5412025 TATGCTTTGCTAAATCAACTGTCTGTTTGTTTGCCAAAACGACAAACTAATGCGGCGCAATTTACCCTGCGA
+
+                             [+2a]
+                             2.6e-07
+                             L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                             +     +  +  +        +           +  +     +
+                             L..Q..R..N..V..C..S..V..S..R..*..N..R..T..Q..
+5476969 TTTATATCAACTTGTATTTTTTTACAAAGAAATGTGTGTTCTGTAAGTCGTTAAAACCGAACACAAAACGTG
+
+                                               [+2a]
+                                               6.8e-07
+                                               L..E..K..E..V..V..R..V..W..F..C..
+                                                        +  +  +  +        +  +
+                                               Q..S..M..E..V..V..R..I..Q..F..C..
+5526001 GACACTATCTTGATCGTTGTTTTTAAAAACAATTAGCATCAGTCTATGGAAGTTGTAAGGATACAGTTTTGC
+
+        
+        
+        N..R..R..Q..
+        +
+        N..S..L..N..
+5526073 AATTCTTTGAATGTCTTTGTTTACCACCAAATACGACGAGAAAATAGAATGAAAAGGTGTCCTATCTTTCCC
+
+                    [+3a]
+                    8.2e-07
+                    F..K..Q..R..R..I..K..L..G..F..T..Q..A..D..V..
+                    +  +        +     +     +  +  +     +     +
+                    L..K..E..S..R..N..K..R..G..V..T..F..T..T..V..
+5582809 AGGAAGTACTCGCTAAAAGAGTCGCGAAATAAACGTGGTGTCACATTTACTACCGTTGCGCGGGTGGTAAAG
+
+                                            [+2a]
+                                            4.1e-08
+                                            L..E..K..E..V..V..R..V..W..F..C..N..
+                                            +           +  +  +     +  +     +
+                                            L..S..M..G..V..V..R..I..W..F..Y..N..
+5597713 TACAAATATCCTGATCTTGTTTTAAACAGTTAACAACTGTCTATGGGAGTCGTGAGGATATGGTTTTATAAT
+
+        
+        
+        R..R..Q..
+        
+        S..L..N..
+5597785 TCTTTAAATGTTCTTTATTTACTACCAAGTGGGACAAGAAAATAGAACTAAAAGGTGTCCCATCTTCTCGCA
+
+                    [-2a]
+                    6.5e-07
+                    ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                               +  +  +     +     +     +  +
+                    ..Y..K..K..N..C..F..S..V..S..V..K..D..K..T..S
+5603905 AGTATAATTTCTATACTTTTTATTGCAGAAAGAAACAGAAACTTTATCTTTTGTTGAAAAACTTCTGACACA
+
+                          [-2a]
+                          8.8e-07
+                          ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                     +     +  +     +  +  +
+                          ..I..L..S..N..Y..F..W..I..R..V..V..G..I..S..R
+5628673 TTTTAGTAAACAAAGAACAATCAAAGAATTATAAAACCATATCCTCACGACTCCTATAGACCTTTGTTGATT
+
+                                  [-2c]
+                                  7.7e-07
+                                  ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                          +        +  +     +  +        +  +
+                                  ..P..Y..R..T..A..F..W..L..R..V..K..G..K..E..R
+5704201 GTTCCAGTCTATTATGGTGTGGTGTATGGATAGCGAGTAGCGAACCAGAGTCTCACTTTCCCTTTTTCTCGC
+
+                                                        [+2a]
+                                                        2.1e-07
+                                                        L..E..K..E..V..V..R..V..
+                                                        +        +  +     +
+                                                        Y..Q..V..N..V..K..R..I..
+5737249 CGACAAGAGAATGTTCGGAACTTGTGGTTGAGGCCACTTACAAGACGATACCAAGTTAATGTGAAACGAATT
+
+        
+        
+        W..F..C..N..R..R..Q..
+           +     +  +     +
+        R..F..R..N..R..A..Q..
+5737321 CGTTTTCGAAACCGAGCACAGAACTTTACTAATGACCAAACACAGGTTAATACAGTTTAAATATTTCGTTTT
+
+                                                              [+2a]
+                                                              4.4e-07
+                                                              L..E..K..E..V..V..
+                                                                       +  +  +
+                                                              R..F..V..E..V..V..
+5961241 NNCCTTTAACAGATAGTTTTCAAATAGCCTGATCGTGTTTTAAAGAATTAACAACGGTTTGTGGAAGTCGTA
+
+        
+        
+        R..V..W..F..C..N..R..R..Q..
+        +     +  +     +
+        R..I..W..F..H..N..S..L..D..
+5961313 AGGATATGGTTTCATAATTCTTTGGATGTTCTTTGTTTACTACCAAATGGAAAGAGAAAACTAAATGAAAAG
+
+                                           [+2c]
+                                           1.9e-07
+                                           L..E..K..E..V..V..R..V..W..F..C..N..R
+                                                    +  +  +  +     +  +     +
+                                           R..S..V..E..V..V..R..I..W..F..H..N..S
+5964841 CCAAATAGCCTGATCGTGTTTTAAAGAATTAACAACGGTCTGTGGAAGTCGTAAGGATATGGTTTCATAACT
+
+        
+        
+        ..R..Q..
+        
+        ..L..D..
+5964913 CTTTGGATGTTCTTTGTTTACTTCCAAATGGAAAGAGAAAACAAAATGAAAAGGTGTCCCATCTTCCCCCAT
+
+                                                                          [+1a]
+                                                                          1.5e-0
+                                                                          S..Q..
+        
+                                                                          H..L..
+6022513 ATCCAAAATAACACTTTTGCAAATTGAAAGAACTTTTTTTTTCAAATTTAAACATTTTTAAAATTGCACCTT
+
+        
+        7
+        T..T..I..C..R..F..E..A..L..Q..L..S..F..
+              +  +     +     +  +  +  +  +  +
+        F..*..I..C..T..F..L..S..L..N..L..S..F..
+6022585 TTTTAAATTTGCACCTTTTTAAGTTTAAACCTGTCTTTTAATGCTGGCTATTTTTAGTCACCACTGTGGCCT
+
+         [-2b]
+         7.1e-07
+         ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                    +     +  +     +  +  +
+         ..N..L..S..N..Y..F..W..I..R..V..V..G..L..S..Q
+6343633 CATTCAAAGAATTATAAAACCATATCCTTACGACTCCCAAAGACTGTTGTTAATTGTTTAAAACATGATCAG
+
+                        [+4b]
+                        1.9e-07
+                        K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                        +  +  +  +  +                 +  +  +  +  +
+                        N..N..A..C..K..Y..S..L..F..T..N..K..W..V..E..
+6443137 TCGTGTTTCAACAATTAACAACGCTTGTAAATATTCTTTGTTTACTAATAAATGGGTCGAATAAAAAATTGG
+
+                     [+4b]
+                     5.9e-07
+                     K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                     +  +  +  +  +           +  +  +        +  +
+                     N..S..A..V..K..I..V..K..I..L..N..M..K..L..E..
+6457753 CTCGCGACTCTGAAATAGCGCTGTTAAAATTGTTAAAATCTTGAATATGAAACTCGAGTATTATCTGTAACC
+
+                                                                      [-2c]
+                                                                      4.6e-07
+                                                                      ..Q..R..R.
+        
+                                                                      ..C..L..V.
+6472009 GAGTGGGTTAAAGATGCGACGAAGTCACATTCATTCTATTTTCTTGTCCAATTTGGTAGTAAACAAAGAACA
+
+        
+        
+        .N..C..F..W..V..R..V..V..E..K..E..L
+         +     +     +  +  +  +     +
+        .N..F..F..Q..V..R..V..V..G..K..S..W
+6472081 TTAAAAAACTGTACCCTCACGACTCCCTTAGACCATTGTTAATTGTTTAAACACAATCAGGATATTTTGGAT
+
+                                                         [-4b]
+                                                         3.8e-07
+                                                         ..E..L..W..K..Q..L..L..
+                                                              +     +     +  +
+                                                         ..K..L..E..R..H..L..L..
+6623713 GGAGCAGAATAATGCTTTGATTGTGAAAGAAATGACTTTCCAGGTCGCTTTTTAGTTCTCGGTGTAAAAGGT
+
+        
+        
+        P..K..L..K..C..M..N..K
+           +  +  +  +        +
+        N..R..L..K..I..S..D..K
+6623785 TTCTCAGTTTTATTGAATCTTTCTTCATGTCTTTCCAGATAATCCCCGTTATAAGTTACATCCATAACTTGT
+
+                    [-2a]
+                    2.2e-08
+                    ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                               +     +  +     +  +  +     +
+                    ..L..*..S..N..Y..F..W..I..R..V..V..K..K..S..R
+6715585 TTAGTAAACGAAAAGCTAAGAATTATAAAACCATATCCTCACGACTTTCTTAGACCGTTTAATAATTGTTTA
+
+
+chr02q
+  
+  LENGTH = 8059593  COMBINED P-VALUE = 2.06e-23  E-VALUE =  9.1e-20
+  DIAGRAM: 181586_[+1c]_84138_[-3c]_15167_[-2b]_135571_[-4c]_325471_[+4a]_
+           12798_[-4a]_4700_[-2c]_182142_[-1c]_7912_[-1a]_80644_[-2b]_143591_
+           [-2a]_5286_[-1a]_17554_[-4b]_104512_[+2c]_75992_[-2b]_1994_[+2a]_
+           7759_[-2b]_11678_[+4a]_544_[+2b]_15348_[+2b]_53558_[+2a]_756_[-2a]_
+           132170_[-3c]_6820_[+1a]_226852_[+2b]_107962_[+1c]_5949_[-2c]_138458_
+           [-4b]_133762_[+1c]_126753_[-2c]_69234_[+1c]_33_[+1c]_72_[+1c]_150_
+           [+1c]_33_[+1c]_72_[+1c]_267_[+1c]_33_[+1c]_15489_[-1c]_21704_[+1b]_
+           72_[+1b]_346_[+1c]_96059_[-4b]_36498_[-2b]_335_[-4a]_[-1a]_155_
+           [-3c]_18189_[-1c]_174870_[-2c]_38785_[+1a]_40123_[+2b]_147684_[-1b]_
+           122397_[+2b]_45479_[+4a]_74846_[+1c]_23231_[+3b]_38245_[-4c]_152196_
+           [-2c]_304660_[+2a]_165655_[-4b]_38440_[-4c]_21816_[+1c]_25500_[-2c]_
+           336004_[+3a]_323232_[-4a]_7268_[+2c]_47044_[+4a]_41451_[-2a]_66303_
+           [+2a]_30342_[+1a]_40657_[-4b]_180301_[-2c]_35205_[-2c]_59610_[-2c]_
+           2222_[+1b]_1400_[-2a]_53171_[-2c]_175866_[-2c]_162426_[-2c]_70915_
+           [+2a]_33010_[-1b]_139023_[+1b]_248403_[-2b]_102258_[+2b]_13294_
+           [-4c]_85097_[+2b]_13395_[-4b]_217923_[-2b]_252830_[-2a]_40346_[-3c]_
+           9779_[+1b]_15798_[-1b]_16835_[+1a]_31854_[-2a]_3867_[+2a]_28000_
+           [+1b]_14934_[+2b]_18632_[+4a]_54520_[+2b]_53902_[+1c]_198948_[-2c]_
+           10079_[+1b]_162971_[-2a]_106411_[+2b]_74994_[-4b]_11202_[-4b]_165552_
+           [+2b]_7010_[-2a]_12481_[-2b]_23349_[+1b]_102412_[+2c]_100606_[-4a]_
+           31326
+
+
+          [+1c]
+          5.5e-07
+          S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+          +              +  +     +  +  +     +  +  +
+          S..S..P..S..L..S..R..N..E..S..L..R..I..T..F..
+181585  CATCAAGTCCGTCATTATCGAGAAACGAATCGTTGAGAATTACCTTCTTCTCTTCTTCTCTCAAGCGAGTTT
+
+                         [-3c]
+                         1.9e-07
+                         ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                           +        +  +  +  +  +     +           +  +
+                         ..V..L..S..Q..T..V..G..L..L..I..N..V..F..K..L
+265753  AGCCAAATAAAACACAGGACCAAACTCTGGGTAACACCTAAAAGTATGTTAACAAACTTCAAGGGGAAATTG
+
+                                             [-2b]
+                                             8.4e-07
+                                             ..Q..R..R..N..C..F..W..V..R..V..V..
+                                                        +     +  +        +
+                                             ..Y..*..N..N..Y..F..W..Q..*..I..F..
+280945  AAAAAAACATGACATATACAGTGTGTTAAGGCTGGTAATACTAGTTGTTGTAAAACCATTGCTAAATAAACT
+
+        
+        
+        E..K..E..L
+        +  +     +
+        E..K..M..L
+281017  CTTTCATTAAAACTAGAACTAAAATAATGTGACAGAAAATATACTTACTGCATTGATAATATATGATGAATA
+
+             [-4c]
+             2.3e-07
+             ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+               +  +  +     +  +  +  +  +              +  +
+             ..N..L..W..S..Q..L..V..P..K..G..I..A..E..S..N
+416593  ATGGAATTTAGCCAAGATTGCAGAACAGGTTTGCCTATTGCTTCAGAATTATGATTGTTACGCCTAGATGAA
+
+                 [+4a]
+                 8.5e-07
+                 K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                 +  +        +  +        +  +        +  +
+                 N..S..F..Y..K..L..V..*..L..L..I..S..W..L..*..
+742105  TGGCAAAGTAACAGTTTTTATAAATTAGTTTAGCTTCTTATATCTTGGCTATAAACTTAAAAATTCATTATA
+
+                                            [-4a]
+                                            5.3e-07
+                                            ..E..L..W..K..Q..L..L..P..K..L..K..C
+                                                       +     +     +  +     +  +
+                                            ..I..G..Q..K..F..L..*..P..K..I..K..V
+754921  TTCACTGTGAGTTAACCAAAAACTCCAGACATGCAGTATACCTTGTTTAAATAGTTACGGCTTTATTTTGAC
+
+        
+        
+        ..M..N..K
+          +  +  +
+        ..A..N..N
+754993  AGCATTGTTTTATCGTTAAACCCATATGTTTGCCAACAAATTACTTTTATTTGTTTAACTTTTTGCACTTTT
+
+                                     [-2c]
+                                     4.8e-07
+                                     ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E.
+                                       +        +     +           +  +  +  +
+                                     ..Q..W..V..N..G..F..D..F..Y..I..V..N..K..Q.
+759673  TGGGGGAAGATGGGACACTTAAACATATATTGCCAAACATTTCCAAAATCAAAATAGATGACGTTTTTTTGG
+
+        
+        
+        .L
+         +
+        .Y
+759745  TAATACCACGAAGTAGTACTACTATTCCTTTATTAATTGACAACGATTTAATAATATAAATATAATAAAACA
+
+                                                                [-1c]
+                                                                6.2e-07
+                                                                ..F..S..L..Q..L.
+                                                                     +  +
+                                                                ..L..S..L..S..Y.
+941833  TATGTTTAATATTCAAAATTGATTAGCAACAAGTTAGGGTATCTGTTTGCGATTTTGAGGCTTAAAGAATAT
+
+        
+        
+        .A..E..F..R..C..I..T..T..Q..S
+            +  +  +     +
+        .K..E..F..R..N..I..S..K..H..T
+941905  TTTTCAAATCTATTTATTGATTTGTGTGTTTGAGGGAAATATTAGTTCTCTGTTTTGAATTAAAATATATTA
+
+                             [-1a]
+                             6.2e-07
+                             ..F..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+                                  +  +           +  +  +     +
+                             ..L..S..L..S..Y..K..E..F..R..N..I..S..K..H..T
+949825  AGGGTATCCATTTGCGATTTTGAGGCTTAAAGAATATTTTTCAAATCTATTTATTGATTTGTGTGTTTGAGG
+
+                                                                              [-
+                                                                              8.
+                                                                              ..
+        
+                                                                              ..
+1030465 GTATTGCATTGGTGCGATGTATAGTAGAGTGGGGGAATTTTCTCGACTCATTTGATAGTAAATATAAAACAT
+
+        2b]
+        0e-08
+        Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                 +     +  +     +  +  +  +
+        N..L..S..N..Y..F..W..I..R..V..V..E..M..S..R
+1030537 TCAAAGAATTATAAAACCATATCCTCACGACTTCCATAGACCGTTGGTAAATATTTAAAACACGATCAGAGT
+
+                                                                          [-2a]
+                                                                          5.5e-0
+                                                                          ..Q..R
+        
+                                                                          ..V..*
+1174105 TTGGTGGGGGAAGATGGGACACCTTTTTATTCTATTTTCTTGTGTCATTCGGTAGTAAACAAAGAACACTCA
+
+        
+        7
+        ..R..N..C..F..W..V..R..V..V..E..K..E..L
+             +     +     +  +  +  +           +
+        ..F..N..Y..F..R..V..R..V..V..G..A..T..L
+1174177 AAAATTATAAAACCGTACCCTCACGACTCCCGCCGTTAGTAGTTGTTAAAAACAAGATCAAGATGTTTGGAC
+
+                                                                             [-1
+                                                                             2.4
+                                                                             ..F
+                                                                               +
+                                                                             ..F
+1179433 TATCAATTTATTATACAATCATATACTGTGGGTAACATGTTAAAAACCATAGCAGTAGGGCAGGACAAAAAA
+
+        a]
+        e-08
+        ..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+          +  +     +  +  +  +  +     +        +
+        ..T..L..I..L..N..E..F..R..K..I..N..N..Q..*
+1179505 TGTTAAAATTAGATTTTCAAACCGTTTAATATTATTTTGTTAAGTTTACGTGTATTTCTAATAATAAATTCA
+
+                                    [-4b]
+                                    4.4e-07
+                                    ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..
+                                      +        +     +  +        +     +  +  +
+                                    ..N..K..V..K..K..L..V..S..F..L..Y..C..M..N..
+1197073 TGTCGCAAATCAACCGCTTCTAATTCTAATTTTTGACTTTTTTTAACACAGAAAACAAATAACACATGTTTT
+
+        
+        
+        K
+        +
+        K
+1197145 TTACATTTTTCAACCTTTAAATTTGTTTTTAGGCCCAAGTTTTTCTGTAATTTACCGAAAAACATACATTTT
+
+                                                 [+2c]
+                                                 1.4e-07
+                                                 L..E..K..E..V..V..R..V..W..F..C
+                                                             +  +  +  +  +  +
+                                                 R..S..M..*..V..V..R..V..W..F..Y
+1301617 TAATATCCAAATATCCTGATCGTGTTTTATACAGCCACCAACGGTCTATGTGAGTCGTGAGGGTGTGGTTTT
+
+        
+        
+        ..N..R..R..Q..
+          +
+        ..N..S..S..N..
+1301689 ATAATTCCTCGAATGCTCTTTGTTTACTACCAAATTGGACGAGAAAATAGAATGAAAAGATGTCCCATCTTC
+
+                                                      [-2b]
+                                                      6.2e-07
+                                                      ..Q..R..R..N..C..F..W..V..
+                                                        +        +     +
+                                                      ..Q..L..I..N..*..F..R..L..
+1377649 ATTATTCTATCGTTGAGTGGAGTTAGAGGGGACATTTATGCACATATTGAAGAATATTTTAAAATCTTAAAT
+
+        
+        
+        R..V..V..E..K..E..L
+           +  +     +  +  +
+        D..I..V..S..R..E..L
+1377721 CTATAACGCTTCGTTCGAGCATCTCTAGCTACAAAATATTTTGAATTCCTGTTAACTTTTAATGCTAAATAT
+
+                                                                             [+2
+                                                                             2.5
+                                                                             L..
+        
+                                                                             Q..
+1379665 TTTCGTACTGTAGGACACCTTTAGCACATAATATCGAAATATTCTGATCGTATTTTAAACAATTAACAGCAG
+
+        a]
+        e-07
+        E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                 +  +  +  +  +  +     +
+        S..M..A..V..V..R..V..W..F..Y..N..F..L..N..
+1379737 TCTATGGCAGTCGTCAGGGTGTGGTTTTATAATTTTTTGAATGTTCTTTGTTTACTAATAAATAGGACGAGA
+
+                                 [-2b]
+                                 1.8e-07
+                                 ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                            +     +        +  +  +  +  +
+                                 ..H..L..S..N..Y..F..R..I..R..V..V..E..R..P..R
+1387513 CCCAATTTGGTAGTAAACAAATAAAATGCAAAGAATTATAAAAGCGTATCCTAACGACTTCCCTAGGCCGTT
+
+                    [+4a]
+                    4.6e-07
+                    K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                    +  +  +  +        +  +  +  +
+                    N..N..A..C..C..I..K..A..I..L..G..T..F..M..I..
+1399249 CGGGTAAACAATAATAACGCGTGCTGTATCAAAGCTATTCTTGGAACATTCATGATCCATCTATTTCTAAGT
+
+                                 [+2b]
+                                 8.8e-07
+                                 L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                                 +  +  +  +     +           +           +
+                                 L..E..K..N..L..V..F..I..S..F..K..*..N..R..*..
+1399825 CTGGTAAGCATATGCAAGATTCCTCTTGGAAAAAAATCTTGTGTTTATCTCATTTAAGTGAAACCGATAATG
+
+                  [+2b]
+                  4.3e-08
+                  L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                           +  +  +  +     +  +     +
+                  V..S..M..E..V..V..R..I..W..F..Y..N..S..S..N..
+1415233 AAATTAACAAGTGTCTATGGAAGTCGTGAGAATATGGTTTTATAATTCTTCGAATTTTCTTTGTTTACTACT
+
+                                                     [+2a]
+                                                     2.4e-07
+                                                     L..E..K..E..V..V..R..V..W..
+                                                     +        +  +  +  +
+                                                     L..S..M..E..V..V..R..I..L..
+1468801 GCACATAATTTCCAAATATCCTGATCGTCTTTTAAACAATTAAAACTGTCTATGGAAGTCGTAAGGATACTG
+
+        
+        
+        F..C..N..R..R..Q..
+        +     +
+        F..Y..N..S..L..N..
+1468873 TTTTATAATTCCTTGAATGTTCTTTGTTTACTACCAAATGCAATGAAAAAGTAGAATAAAAGGGTGTCCCAT
+
+                                                              [-2a]
+                                                              5.7e-07
+                                                              ..Q..R..R..N..C..F
+                                                                         +     +
+                                                              ..V..S..N..N..T..F
+1469593 ACTTTGCATCATGTTGAGGCTCTGGTGCTTGGAAATTAACCTCTTCCACTAACAAACGCTGTTGTTCGTAAA
+
+        
+        
+        ..W..V..R..V..V..E..K..E..L
+             +        +  +  +     +
+        ..S..V..I..*..V..E..K..S..L
+1469665 ACTAACAATTCACACTTCTTTGCTTAAGCATGGGCAGGAAATGTCAGAATGTCATTTTGAGATCGCTCTCAC
+
+             [-3c]
+             9.0e-07
+             ..V..D..A..Q..T..F..G..L..K..I..R..R..Q..K..F
+                     +     +     +  +  +  +  +  +     +  +
+             ..C..K..A..T..T..A..G..L..K..I..R..K..N..K..L
+1601857 GTAAAACATTTCGCCGTAGTGGCACCGAGTTTAATGCGCTTGTTTTTTAACCAGAGAACATGTGGTGTAAAT
+
+                                      [+1a]
+                                      7.4e-07
+                                      S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..
+                                      +        +     +     +  +     +     +  +
+                                      S..R..L..T..P..S..V..F..E..K..L..H..L..S..
+1608697 TTAATCCGAATTAACAAGAATTTATAACTGTCTCGACTTACCCCGTCTGTTTTCGAAAAATTACACCTGTCA
+
+        
+        
+        F..
+        
+        S..
+1608769 AGCGAACCGCTAAATAACTCGTGTGTTTTATTATATTTTTTGACCAATAGAGTTATCAACTAATAAAGGTAT
+
+                                                               [+2b]
+                                                               9.1e-08
+                                                               L..E..K..E..V..V.
+                                                                     +        +
+                                                               D..R..K..G..H..I.
+1835569 AGGGAACGCGGAAGTTGGTGGGGCATGTTTTGCTTGGGAGGAGTTCCCATACAAAGATCGTAAAGGCCACAT
+
+        
+        
+        .R..V..W..F..C..N..R..R..Q..
+            +  +  +     +  +  +
+        .Q..V..W..F..R..N..R..R..G..
+1835641 TCAAGTGTGGTTTCGAAACAGACGCGGTGAAGGCGTCATTTTCTCCTGCGTATATCGTCAGGATTGTATGAA
+
+                                                                      [+1c]
+                                                                      5.1e-07
+                                                                      S..Q..T..T
+                                                                            +
+                                                                      K..L..T..S
+1943569 GTACGACCTGGGACCAAACCGGCCACTTCAAACCTTTAACCCTGATCATATGAGTGTAGAAAAAGCTTACGT
+
+        
+        
+        ..I..C..R..F..E..A..L..Q..L..S..F..
+          +  +  +     +  +  +     +  +
+        ..I..C..R..S..E..A..L..W..L..T..Q..
+1943641 CAATCTGCAGAAGCGAGGCTCTATGGTTAACCCAGCAGATGAACCCAAACTTGGATATGCCGCACATCCCCA
+
+                [-2c]
+                8.8e-07
+                ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                           +     +  +     +  +  +
+                ..N..L..S..N..Y..F..W..I..R..V..V..G..M..S..R
+1949617 CAAAGAGTGTTCAAAGAATTATAAAACCATATCCTCACGACTCCCATAGACCGTTGTTAATTGTTTAAAACA
+
+                                                               [-4b]
+                                                               6.7e-07
+                                                               ..E..L..W..K..Q..
+                                                                    +     +
+                                                               ..L..L..E..K..*..
+2088073 CTGGTGGCTGACTCTGATGAAGACGGAACAATATCTTTTCGTGAATTTCTGGACATAATAGTTCTTTTTACA
+
+        
+        
+        L..L..P..K..L..K..C..M..N..K
+        +  +     +  +  +        +  +
+        L..L..H..K..L..K..K..N..N..K
+2088145 AAAGGTGCTTCAACTTTTTGTTATTTTTTTTTCCTATTTAATTATTTTTACAATTTGTGACATATTGCAATT
+
+                      [+1c]
+                      6.0e-07
+                      S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                      +           +  +        +     +     +  +
+                      S..T..A..N..I..C..A..Q..E..V..L..*..L..S..L..
+2221921 TATAATGGCGTCTTTCCACAGCGAACATATGCGCACAGGAGGTCTTATAATTAAGCTTAATTGAGCTTTTGT
+
+                            [-2c]
+                            3.4e-07
+                            ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                             +  +     +  +  +  +        +
+                            ..N..L..S..I..Y..F..W..I..R..I..V..E..V..S..L
+2348713 TTTGGCAGTAAACAAAGGATATTCAAAGAAATATAAAACCATATTCTTATAACTTCCACTGACAGCTGTTAG
+
+                                           [+1c]
+                                           5.7e-07
+                                           S..Q..T..T..I..C..R..F..E..A..L..Q..L
+                                           +        +     +     +  +  +  +
+                                           S..L..D..A..A..S..S..F..E..S..L..P..V
+2417977 TAGATGCAGCATCCTCTTTTGGATTATTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGCTTCCAG
+
+                                                 [+1c]
+                                                 5.7e-07
+        ..S..F..                                 S..Q..T..T..I..C..R..F..E..A..L
+          +                                      +        +     +     +  +  +  +
+        ..S..L..                                 S..L..D..A..A..S..S..F..E..S..L
+2418049 TTTCACTAGATGCAGCATCCTCTTTTGGATCGTTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGC
+
+        
+        
+        ..Q..L..S..F..
+                +
+        ..P..V..S..L..
+2418121 TTCCAGTTTCACTAGACGCAGCATCCTCTTTTGGATTATTTCCAGTTTCACTAGATGCAGCATCCCCCTCTG
+
+                      [+1c]
+                      5.7e-07
+                      S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                      +        +     +     +  +  +  +        +
+                      S..L..D..A..A..S..S..F..E..S..L..P..V..S..L..
+2418193 AATCGTTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGCTTCCAGTTTCACTAGATGCAGCATCCT
+
+                                                                         [+1c]
+                                                                         5.7e-07
+                                                                         S..Q..T
+                                                                         +
+                                                                         S..L..D
+2418337 CATCCCCCTCTGAATCGCTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGGATTATTTCTAGTTTCACTAG
+
+                                                                               [
+                                                                               5
+        ..T..I..C..R..F..E..A..L..Q..L..S..F..                                 S
+          +     +     +  +  +  +        +                                      +
+        ..A..A..S..S..F..E..S..L..P..V..S..L..                                 S
+2418409 ATGCAGCATCCTCTTTTGAATCGCTTCCAGTTTCACTATACGCAGCATCCTCTTTTGGATTATTTCCAGTTT
+
+        +1c]
+        .7e-07
+        ..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                +     +     +  +  +  +        +
+        ..L..D..A..A..S..S..F..E..S..L..P..V..S..L..
+2418481 CACTAGATGCAGCATCCTCTTTTGAATCGCTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGGATTATTTC
+
+                                                    [+1c]
+                                                    5.7e-07
+                                                    S..Q..T..T..I..C..R..F..E..A
+                                                    +        +     +     +  +  +
+                                                    S..L..D..A..A..S..S..F..E..S
+2418553 CAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGTTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAAT
+
+        
+        
+        ..L..Q..L..S..F..
+          +        +
+        ..L..P..V..S..L..
+2418625 CGCTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGTTTCCAGTTTCACTAGATGCAGCATCCTCTT
+
+                                                                            [+1c
+                                                                            5.7e
+                                                                            S..Q
+                                                                            +
+                                                                            S..L
+2418841 CAGCATCCTCTTTTGAATTATTTCCAGTTTCACTAGATGCAGCATCCCCCTCTGAATCGCTTCCAGTTTCAC
+
+        ]
+        -07
+        ..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+             +     +     +  +  +  +        +
+        ..D..A..A..S..S..F..E..S..L..P..V..S..L..
+2418913 TAGATGCAGCATCCTCTTTTGAATCGCTTCCAGTTTCACTAGATGCAGCATCCCCCTCTGAATCGTTTCCAG
+
+          [+1c]
+          5.7e-07
+          S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+          +        +     +     +  +  +  +        +
+          S..L..D..A..A..S..S..F..E..S..L..P..V..S..L..
+2418985 TTTCACTAGATGCAGCATCCTCTTTTGAATCGCTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGC
+
+                                                                [-1c]
+                                                                2.0e-07
+                                                                ..F..S..L..Q..L.
+                                                                  +  +  +  +
+                                                                ..H..S..L..Q..M.
+2434465 AGTTTTAGATGTAAAGTTGATTTTTACGATAATAGTTTTTACCACATCCATGTTAAATGGCTTAATTGCATT
+
+        
+        
+        .A..E..F..R..C..I..T..T..Q..S
+         +     +  +     +  +
+        .S..I..F..R..F..I..T..V..T..Y
+2434537 GAAATAAATCTGAAAATTGTAACTGTATATTATTAAATACAGTATTAGAAACCATATTCTGTATAATTTAGA
+
+                                                                     [+1b]
+                                                                     5.7e-07
+                                                                     S..Q..T..T.
+                                                                     +        +
+                                                                     S..L..D..A.
+2456209 TNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNATTTCTAGTTTCACTAGATGC
+
+        
+        
+        .I..C..R..F..E..A..L..Q..L..S..F..
+            +     +  +  +  +        +
+        .A..S..S..F..E..S..L..P..V..S..L..
+2456281 AGCATCCTCTTTTGAATCGCTTCCAGTTTCACTAGACGCAGCATCCTCTTTTGGATTATTTCCAGTTTCACT
+
+                                          [+1b]
+                                          5.7e-07
+                                          S..Q..T..T..I..C..R..F..E..A..L..Q..L.
+                                          +        +     +     +  +  +  +
+                                          S..L..D..A..A..S..S..F..E..S..L..P..V.
+2456353 AGATGCAGCATCCCCCTCTGAATCGTTTCCAGTTTCACTAGATGCAGCATCCTCTTTTGAATCGCTTCCAGT
+
+        
+        
+        .S..F..
+         +
+        .S..L..
+2456425 TTCACTAGATGCAGCATTCTCTCTTGGATTATTTCCAGTTTCACTAGATGCAGCATTCTCTTTTGAATTATT
+
+                                                                         [+1c]
+                                                                         4.2e-08
+                                                                         S..Q..T
+                                                                         +
+                                                                         S..L..D
+2456713 ATCCTCTTTTGAATCGCTTCCAGATTTCACTAGATGCAGCATCCTCTTTTGAATCGCTTCCAGTTTCACTAG
+
+        
+        
+        ..T..I..C..R..F..E..A..L..Q..L..S..F..
+          +     +     +  +  +  +     +  +
+        ..A..A..S..S..F..E..S..L..S..L..S..L..
+2456785 ATGCAGCATCCTCTTTTGAATCGCTTTCACTTTCACTAGTTGCAGCATCCCCTTTTGAATCGTTTCCAGTTT
+
+                                                         [-4b]
+                                                         4.6e-07
+                                                         ..E..L..W..K..Q..L..L..
+                                                           +        +     +  +
+                                                         ..D..P..I..K..I..L..I..
+2552833 ATTTTTATTAAGAATTAATTTGTTTTGGATAATAAAATTAAAATTGTTAGTCTGGAATCTTAATCAATATAC
+
+        
+        
+        P..K..L..K..C..M..N..K
+           +  +  +        +  +
+        G..K..L..K..W..F..N..K
+2552905 CTTTCAACTTCCAAAAGTTTTTTTTCTAAATTCTCTTTTTCTGCAGAAATCGCCTACAATGTAAAATAATGT
+
+                        [-2b]
+                        4.7e-19
+                        ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                          +  +  +  +  +  +  +  +  +  +  +  +  +  +  +
+                        ..Q..R..Q..N..C..F..W..V..R..V..V..N..K..K..L
+2589409 TCATTCTCTTTTGTTTCTGCCTTTGATTGCAAAACCACACACGCACGACGTTTTTCTTTAAGTCGAGCTTTT
+
+                                            [-4a]
+                                            5.3e-14
+                                            ..E..L..W..K..Q..L..L..P..K..L..K..C
+                                              +  +  +        +  +  +  +  +  +  +
+                                            ..E..L..W..T..I..L..I..P..K..L..A..V
+2589769 ATTCTCCATCTTCCTCCTGTGCTCTTCCTCCGCTTTTTCTAACCACGTGATCAAGATTGGTTTCAAGGCGAC
+
+                 [-1a]
+                 9.3e-09
+        ..M..N..K..F..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+          +  +  +  +  +  +  +  +  +  +  +  +           +
+        ..M..N..N..H..S..L..T..L..S..E..F..R..H..V..C..S..*..I
+2589841 CATGTTGTTGTGACTGAGTGTCAAGGACTCAAACCTGTGCACACAACTTTATATTAAGCACATTATACTTCA
+
+                                                                         [-3c]
+                                                                         3.3e-17
+                                                                         ..V..D.
+                                                                           +  +
+                                                                         ..V..D.
+2589985 CTGCAAATTGTGCTTTGGCTCAGCGATCCAACACCCGGTAGCTTGAGGTTGGCAAGAGCTTGCCCAACATCA
+
+        
+        
+        .A..Q..T..F..G..L..K..I..R..R..Q..K..F
+            +  +  +  +  +  +  +  +  +  +  +  +
+        .N..Q..T..V..G..L..K..I..R..R..Q..K..F
+2590057 TTCTGCGTCACTCCAAGTTTAATGCGTCGCTGCTTGAATCTGAAACAATATTGATCCTGGGTAAGTGGCTGT
+
+                   [-1c]
+                   5.6e-08
+                   ..F..S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+                        +  +     +  +     +  +  +  +           +
+                   ..Y..T..L..*..L..A..V..F..R..S..I..P..I..T..S
+2608273 AATCAACCACAGTACGTTAACTACAAAGCCACAAACCTCGAAATCGGAATCGTTGATAAGGTCAGTGATACC
+
+                                              [-2c]
+                                              6.2e-07
+                                              ..Q..R..R..N..C..F..W..V..R..V..V.
+                                                   +           +     +  +  +
+                                              ..R..R..K..P..T..F..R..V..R..I..P.
+2783161 TCTGTCTCTTCATGCTCACTGGAAGAGTATGTCCTCACTCTCCTCTTTGGAGTAAATCTCACTCTTATAGGC
+
+        
+        
+        .E..K..E..L
+            +  +  +
+        .M..K..K..L
+2783233 ATCTTTTTTAACCGTTCTTTCTTGATTGAAGAAACATCTGTAGAACCTCCAGCAGAGACATTTAAACTGGCC
+
+                                                                    [+1a]
+                                                                    4.3e-07
+                                                                    S..Q..T..T..
+                                                                    +     +
+                                                                    S..N..T..Y..
+2821969 CGTAATATTTGATAAGCCCTGAGGTACAAATTATTGAATTAAAATCAGACCCTTTTTTTTTCAAACACATAT
+
+        
+        
+        I..C..R..F..E..A..L..Q..L..S..F..
+        +  +     +     +     +  +  +
+        I..S..L..F..F..S..Q..N..L..S..S..
+2822041 ATATCTCTGTTTTTTTCACAAAACTTAAGCTCATTTCATCAGAAAAAATCCAACTCTGCGAAATGTTTCAAC
+
+                                                            [+2b]
+                                                            5.7e-07
+                                                            L..E..K..E..V..V..R.
+                                                            +     +        +  +
+                                                            M..*..R..F..F..I..R.
+2862145 CCTAAATCGAGCTGTCTGAACGTTACAGCAACAGACACAATGTCTTAAAGGCATGTGACGTTTCTTTATACG
+
+        
+        
+        .V..W..F..C..N..R..R..Q..
+               +  +  +        +
+        .L..S..F..C..N..N..K..Q..
+2862217 GTTGTCTTTCTGCAACAACAAGCAAGTCGAGCGTGGTGCCGGTGTTAGCTGGGATGTCCTACACCAAATATG
+
+                                             [-1b]
+                                             1.5e-07
+                                             ..F..S..L..Q..L..A..E..F..R..C..I..
+                                               +  +  +  +        +  +  +
+                                             ..F..S..L..N..Y..Y..E..F..R..*..R..
+3009889 TATTCATTGCTGTATGACCTATGCACCTATGGAATTTAAAAGAAAGGTTGTAATATTCAAACCTTCATCTTG
+
+        
+        
+        T..T..Q..S
+           +  +
+        S..T..Q..L
+3009961 AGGTCTGCAACATCGGCCATAAATTCTCCAGCGACAGTCTCAAGTGCCATTGCATTTGCGAGTCCATTCATT
+
+               [+2b]
+               6.0e-07
+               L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+               +           +     +     +  +     +
+               M..V..Q..G..V..L..R..I..W..F..Y..N..S..L..N..
+3132361 ATTAACAATGGTTCAGGGAGTTCTGAGGATTTGGTTTTATAATTCTTTGAATGTTCTCTGTTTACTATCGAA
+
+                                   [+4a]
+                                   9.3e-07
+                                   K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                                   +     +  +        +     +  +     +     +  +
+                                   K..V..M..I..N..I..K..I..L..L..M..K..I..L..N..
+3177865 AATTGAAAACCTTAAGGTGTTAACATAAAGGTCATGATAAACATAAAAATCCTATTAATGAAAATATTAAAT
+
+                                              [+1c]
+                                              8.0e-07
+                                              S..Q..T..T..I..C..R..F..E..A..L..Q
+                                                    +  +  +  +  +  +
+                                              V..L..T..T..I..C..R..F..D..D..I..*
+3252745 TTATAGCAACACTATAGCAACGTTGTTATTGCTTTGTTGTGCTGACTACTATATGTCGTTTTGATGACATTT
+
+        
+        
+        ..L..S..F..
+          +     +
+        ..L..E..F..
+3252817 AATTGGAATTTTGTAAATTCTAAGAAATCGCGTAATCTGTAAAGTGTTTTGATAAATCAGTTTTGCACCCGT
+
+                                                                  [+3b]
+                                                                  6.8e-07
+                                                                  F..K..Q..R..R.
+                                                                  +  +  +  +
+                                                                  F..K..Q..R..K.
+3276001 CCTGAACGCGAAACTACAGTTTCGTATTTTGTCTGGCTTTTGAACACGTCCACGAGGTTTTAAACAACGTAA
+
+        
+        
+        .I..K..L..G..F..T..Q..A..D..V..
+         +  +        +     +     +
+        .I..K..R..F..F..*..Q..*..D..S..
+3276073 GATTAAAAGATTTTTTTAACAGTAGGATTCTGCAACTTGCAGTTAATTATCTACCGAAATTAATCGACTGTG
+
+                                                    [-4c]
+                                                    1.7e-07
+                                                    ..E..L..W..K..Q..L..L..P..K.
+                                                      +     +     +  +  +
+                                                    ..N..*..W..T..E..L..V..I..T.
+3314305 TTAAGTAAACTATATATGCCACATACACATACAACAACATATTTATTCTACCATGTTTCTAACACAATAGTT
+
+        
+        
+        .L..K..C..M..N..K
+         +  +     +  +
+        .L..K..Y..M..N..D
+3314377 AACTTATACATGTTATCAACTAACAACCTATAATATACCTTAACCTATCATATCCAGGTCAAAAAGTAGGAT
+
+             [-2c]
+             8.8e-07
+             ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                     +  +  +        +  +  +     +  +
+             ..W..K..R..N..C..V..L..V..R..V..F..E..K..C..H
+3466585 AGCTCCCACTTACGGTTACAAACTAAAACACGAACGAATTCCTTACAGTGAGAGAGAGAGAGAGAGAGCGAT
+
+              [+2a]
+              1.4e-07
+              L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                          +  +  +     +  +  +  +
+              R..P..I..G..V..V..R..I..W..F..C..N..S..L..I..
+3771289 TAACAACGGCCTATAGGAGTTGTAAGGATATGGTTTTGTAATTCTTTGATTTTTTGTTTACCACAAAATGGG
+
+                                          [-4b]
+                                          3.5e-07
+                                          ..E..L..W..K..Q..L..L..P..K..L..K..C..
+                                            +  +  +     +  +  +        +  +  +
+                                          ..N..V..W..S..S..L..L..N..S..L..K..I..
+3936961 TGACAACGCCGACGAGCTGCACAAAATTAAACGAATTCACCCAACTGGAAAGTAAATTACTCAGTTTAATTT
+
+        
+        
+        M..N..K
+              +
+        E..Q..K
+3937033 CTTGCTTCCGTCATTTTGAAATGAATTCTTTGTATGTGGCAGGTTACTCCTGCGATTACGGGTAGAATACTG
+
+                                                                               [
+                                                                               8
+                                                                               .
+        
+                                                                               .
+3975409 TTAATACAATATCTAGTTAACCACTTGTATGTGTTTCATTATTGTCACCTAGTTTTCTTATTTCACTCCCCC
+
+        -4c]
+        .5e-07
+        .E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+            +        +  +  +  +  +  +     +
+        .V..L..P..S..A..L..L..P..K..L..T..Q..S..G..S
+3975481 ACCAGTGGCGAAGCCAGAAGGGGCTTTAAGGTTTGCGACCCACTTTAAAAAAAAGTTGTTGTTTTTTTGTAA
+
+                                                    [+1c]
+                                                    9.9e-07
+                                                    S..Q..T..T..I..C..R..F..E..A
+                                                    +        +  +  +     +     +
+                                                    S..V..K..A..I..C..E..F..T..S
+3997297 AATGGGCATGGTAACTAATTTGGACAATAATATAGAACAAGGGTTCTGTAAAAGCAATATGTGAATTCACCT
+
+        
+        
+        ..L..Q..L..S..F..
+          +  +        +
+        ..L..N..R..A..F..
+3997369 CATTAAATCGAGCATTCAAACGACTTCTTGACCCACCTGAAACATTCGTTCCTTTTTGTACTTCTTGCCTGT
+
+                                     [-2c]
+                                     6.8e-07
+                                     ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E.
+                                                +     +  +     +  +  +
+                                     ..R..K..F..N..S..F..W..I..R..V..V..G..I..S.
+4022857 TTTTCGTCCCATTTGATAGTAAGCAAAAAACGTTTAAAATTAGAAAACCATATCCTCACGACTCCAATAGAC
+
+        
+        
+        .L
+        
+        .R
+4022929 CGCTAATAACTGTTTACAACACGATCAGAATATTTGGATATCATGTTCCAAAGGTGTTCCGTCTCCCCCCAT
+
+                                                              [+3a]
+                                                              7.1e-07
+                                                              F..K..Q..R..R..I..
+                                                                    +  +
+                                                              *..L..I..K..K..M..
+4358881 TCAGTCATGCCAAAAAAGACGCAAAACAAACAATCACCATCAAAGTTCCATGAGTAACTTATAAAAAAGATG
+
+        
+        
+        K..L..G..F..T..Q..A..D..V..
+        +  +     +  +     +  +  +
+        K..L..C..F..T..T..T..D..V..
+4358953 AAATTGTGTTTTACAACTACTGACGTTGCCCAGTAACCCAAGGTTATATAAATGTCATTCATTTATGCAATC
+
+                                                           [-4a]
+                                                           9.8e-07
+                                                           ..E..L..W..K..Q..L..L
+                                                             +     +  +  +     +
+                                                           ..E..K..W..K..A..R..L
+4682161 CATTTGAAAAAAGTCTACTTTAAACCGCTTGTAATGTTTTCATTCTCTTTCCTCTTTCCATTTGGCCCGGAG
+
+        
+        
+        ..P..K..L..K..C..M..N..K
+                +     +     +  +
+        ..G..F..L..T..I..L..N..N
+4682233 TCCAAAAAGCGTTATTAAATTGTTTAAAACATGATCAGCAGGAAATAGCAGATTTAGGTGCTAAGGGAATAT
+
+                            [+2c]
+                            2.2e-07
+                            L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                            +        +  +  +  +        +     +
+                            L..N..M..E..V..V..R..I..R..F..Y..N..S..L..N..
+4689505 TATCTAAATATCTTCGAATTTTAAACATGGAGGTTGTGAGGATCCGGTTTTACAACTCTTTGAATGTTCTTT
+
+                             [+4a]
+                             9.3e-07
+                             K..N..M..C..K..L..K..P..L..L..Q..K..W..L..E..
+                             +  +     +  +           +  +     +  +  +
+                             N..S..T..V..A..M..N..Q..L..L..K..R..W..L..H..
+4736593 CACTAGAAGCTTTGGTGCGTCAACTCAACTGTTGCCATGAACCAACTCTTAAAGCGATGGTTACACAGCTCA
+
+                                                     [-2a]
+                                                     3.0e-07
+                                                     ..Q..R..R..N..C..F..W..V..R
+                                                             +  +  +  +  +
+                                                     ..S..Y..R..N..C..F..W..I..S
+4778065 AAAGCTAACAGGCAAACATATCATTGCCTACATAGTTTTATAAATGGAGTAACGATTACAGAACCAGATGCT
+
+        
+        
+        ..V..V..E..K..E..L
+             +  +
+        ..S..V..D..I..Y..H
+4778137 GCTAACATCGATATAATGTAGATGTTTTTGGGTCCAAACACTTCAACGGCTCCAAATGAAATTAGATAAGCA
+
+                 [+2a]
+                 7.4e-07
+                 L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                 +     +  +  +              +  +        +
+                 Y..Q..K..N..V..K..N..I..K..F..C..S..K..R..K..
+4844449 ATATGAAAATACCAAAAAAATGTGAAAAATATAAAATTCTGTTCTAAACGAAAATACAAAAAAATATTAAAA
+
+                    [+1a]
+                    8.0e-07
+                    S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                    +           +  +     +     +     +  +  +  +
+                    S..L..F..S..I..S..F..F..L..A..E..N..I..S..F..
+4874833 TATCTCAAAATCTCTCTCTTTAGCATTAGCTTTTTCCTTGCTGAAAATATCTCATTTTCTTTTGCAGGTTAA
+
+                                          [-4b]
+                                          4.6e-07
+                                          ..E..L..W..K..Q..L..L..P..K..L..K..C..
+                                            +  +  +     +  +           +  +
+                                          ..D..L..W..L..E..L..A..Q..A..L..A..D..
+4915513 GTGACTTCTGGTTTAAAAGTTGGGGTGACATGCGATCAAGCCAGAGCTCTAAAGCTTGTGCCAGAGCGTCTG
+
+        
+        
+        M..N..K
+        +  +  +
+        A..N..K
+4915585 CATTTTTGACTCCTGTCATTTGGCGTAAAGTAAAGACAGCGTCGAGTCATATGCAATTGCTATAATGTTGCA
+
+                            [-2c]
+                            3.4e-07
+                            ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                 +     +     +  +     +  +  +
+                            ..M..R..S..N..Y..F..W..I..R..I..V..R..N..I..T
+5095873 TGGTAGTAAACAATAAAGAACATACGAGAATTGTAAAACCATATCCTAATGACCCTGTTAATTGTTTAAAAC
+
+                                                                      [-2c]
+                                                                      2.6e-07
+                                                                      ..Q..R..R.
+        
+                                                                      ..L..S..S.
+5131081 TAGGGTGGGGGAAGGTGGGACACATTTTCCTTCTATATTATCTCCACCCATTCGGTAGTAAACAAAGAAGAA
+
+        
+        
+        .N..C..F..W..V..R..V..V..E..K..E..L
+         +     +  +     +  +  +           +
+        .N..Y..F..W..S..R..V..V..K..M..S..L
+5131153 TTATAAAACCATGATCTCACGACTTTCATAGACAGTTGTTAATGATTTAAAACACGATCAGGATATTTAGAC
+
+                                     [-2c]
+                                     1.6e-07
+                                     ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E.
+                                                +  +  +  +     +  +     +
+                                     ..N..L..S..N..C..F..W..I..R..V..A..E..M..S.
+5190769 TCATTTGGTGAACACAGTCAAAACAGAACATTCAAAGAATTGCAAAACCATATCCTCACGGCTTCCATAGAC
+
+        
+        
+        .L
+        
+        .R
+5190841 CGTTGTACTACAATCAGGATATTTGCATATTATTTGCTAAAGGTGCTTGTTTTACCTCAACCTACTGTATAT
+
+                                                                        [+1b]
+                                                                        8.4e-07
+                                                                        S..Q..T.
+                                                                              +
+                                                                        Y..N..T.
+5193001 TGGATGTTGTGTTGACTGCTTGCATGATAACTGTGTTTGTAACCCGACACAACACTGAGCAAAATACAATAC
+
+        
+        
+        .T..I..C..R..F..E..A..L..Q..L..S..F..
+         +  +  +     +  +  +  +           +
+        .T..I..S..L..F..E..N..L..L..K..I..F..
+5193073 AACAATCTCATTATTTGAAAATCTATTAAAAATATTTTTTGTTAATTCTTTCCAAGTACACTGACTGAAAAC
+
+                                                                             [-2
+                                                                             5.5
+                                                                             ..Q
+        
+                                                                             ..T
+5194441 TTTGTGAAGTATTGCTGTAATTTTTTATCAGTCACGTTTCTGTACTAGTCAAAGTTTAGGAATAGGAATTGT
+
+        a]
+        e-07
+        ..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                +     +        +  +        +     +
+        ..E..P..N..T..F..I..I..R..V..T..K..K..Q..M
+5194513 TTCTGGGTTTGTAAAAATAATTCTGACTGTTTTTTTTTGCATTTGATGGTGCAGCTATTATTAGGTTTGCAT
+
+             [-2c]
+             6.3e-08
+             ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                              +  +  +  +  +  +  +        +
+             ..N..F..Y..E..Y..F..W..V..R..V..V..E..T..T..L
+5247721 AGAACATTAAAATATTCATAAAACCACACCCTTACGACTTCGGTTGTTAACTTTTTTAAACACGACTAGGCT
+
+                            [-2c]
+                            8.8e-07
+                            ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                       +     +  +     +  +  +
+                            ..N..L..S..N..Y..F..W..I..R..V..V..G..M..S..R
+5423617 TTTTGTAGTAAACAAAGAACATTCAACGAATTATAAAACCATATTCTCACGACTCCCATAGACCGTTGTTAA
+
+                                                                   [-2c]
+                                                                   4.0e-07
+                                                                   ..Q..R..R..N.
+                                                                              +
+                                                                   ..Y..L..S..N.
+5586049 AGGGCGGGGGAAGATGGGACACCTTTTTATTCTATTCCATTTGGCCGTACACAAAGAATGTACAAAGAATTA
+
+        
+        
+        .C..F..W..V..R..V..V..E..K..E..L
+            +  +  +  +  +  +
+        .Y..F..W..V..R..V..V..R..M..P..R
+5586121 TAAAACCAAACCCTCACAACTCTCATAGGCCGTTGTCAATTGTTTAAAACATGATCAGGGTATGTGAACTTT
+
+                                   [+2a]
+                                   1.6e-08
+                                   L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                                   +  +           +  +     +  +     +
+                                   L..E..L..*..L..V..R..I..W..F..Y..N..S..L..N..
+5657041 GTGTTTTAAACAAATAACAACAGTCTATTAGAGTTGTGACTTGTGAGGATATGGTTTTATAATTCTTTGAAT
+
+                                          [-1b]
+                                          4.1e-07
+                                          ..F..S..L..Q..L..A..E..F..R..C..I..T..
+                                            +  +  +  +     +  +     +  +  +
+                                          ..F..S..I..D..A..N..E..T..R..C..I..S..
+5690089 AAATAATCCACAAAAACAAGTTGAACTTTAGCACGAATGAAATATCCGCGTTTTCAGTTCGACATATACTAC
+
+        
+        
+        T..Q..S
+        
+        R..P..C
+5690161 GTGGACAGCGGTGACAAATACATTTTGCTAATTTGTTGCGTAAACAAAAATATCTCTATAGTAGATATCGGT
+
+                                                                              [+
+                                                                              2.
+                                                                              S.
+        
+                                                                              I.
+5829121 CCTATATATACCCTTTAATTCAATAAGTGTAGTCAATATAAAATATATAAAAACTTTGTAATTTGAACAGAT
+
+        1b]
+        9e-08
+        .Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+            +  +  +  +     +     +  +  +     +  +
+        .A..T..A..I..S..S..F..S..S..L..N..P..S..F..
+5829193 CGCGACGGCAATTTCGTCATTTAGTTCCCTGAATCCATCGTTTCGAAAAATTAAAAATCAAAGGAAACTACC
+
+                                                      [-2b]
+                                                      4.8e-08
+                                                      ..Q..R..R..N..C..F..W..V..
+                                                                 +     +  +
+                                                      ..K..Q..S..N..Y..F..W..I..
+6077593 AAAATGTGACACCTTTTTGTTCGATTTTCTTGTCCCGTTTTTAATTTTTTTGTGAATTATAAAACCATATTC
+
+        
+        
+        R..V..V..E..K..E..L
+        +  +  +           +
+        R..V..V..G..I..S..Y
+6077665 TAACGACTCCTATGGAGTAGTATTAATTGTTTGAAACACGATTAATACATTTGAATATTATACAATAAATGT
+
+                                             [+2b]
+                                             4.8e-07
+                                             L..E..K..E..V..V..R..V..W..F..C..N.
+                                                +  +     +  +  +        +     +
+                                             *..E..K..L..V..V..R..L..*..F..T..N.
+6179905 AACAAATATATCAAACCTTTTTGCAACAACTTAATATTAAGAAAAATTAGTAGTAAGGCTTTAGTTTACCAA
+
+        
+        
+        .R..R..Q..
+        
+        .K..N..L..
+6179977 CAAAAACTTATTATTTTAAAGTTGAAATAAGATTACTTACTGTAAACAATTTAAAAAAAGGAACGAATAATT
+
+                                                                [-4c]
+                                                                2.9e-07
+                                                                ..E..L..W..K..Q.
+                                                                     +  +  +  +
+                                                                ..L..L..W..A..E.
+6193225 CAGTATATGGTTAAACTTGAACAAACATAAATGGCTCGTTGTTTGTCTTCTAGGTGTAGCAACCACGCTTCT
+
+        
+        
+        .L..L..P..K..L..K..C..M..N..K
+                  +  +        +  +  +
+        .K..K..L..K..L..Q..F..M..N..K
+6193297 TTTTTTAACTTTAATTGAAACATGTTTTTACCTGTAAGCGCTTTAACAACCGTTATTTTAGTGCTACATTCT
+
+                              [+2b]
+                              4.6e-08
+                              L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                              +     +  +           +  +  +        +  +
+                              L..T..R..N..F..A..T..V..W..F..T..T..Q..R..H..
+6278401 AATTAATGCGCACGTATTTGCTTTGACAAGAAATTTCGCAACCGTGTGGTTCACTACCCAGCGTCACTTCCC
+
+                                                                              [-
+                                                                              2.
+                                                                              ..
+        
+                                                                              ..
+6291793 ATAATTGTTTTCCAGGCTGCTTGCAAACTTGTGAAAACTGTAGACACCAAATCTTTGACATCAATCTTCTAT
+
+        4b]
+        3e-07
+        E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+              +     +  +  +        +  +  +     +
+        H..Q..W..*..E..L..L..S..G..L..K..C..L..S..H
+6291865 GCTGCCACTACTCAAGCAGAGATCCCAGCTTGCAAAGTGAGTGCCTTTTTCTTGAGTCACTTAATCCCCACA
+
+                              [-2b]
+                              1.3e-07
+                              ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                         +        +     +  +     +  +  +  +
+                              ..N..V..S..N..*..L..W..I..R..I..A..N..R..K..L
+6509809 TATTCGGTAGTGGACATAGAACATTTACAGAGTTTTACAACCATATCCTTATGGCATTTCTTTTCAAATCAC
+
+                                         [-2a]
+                                         9.6e-07
+                                         ..Q..R..R..N..C..F..W..V..R..V..V..E..K
+                                           +  +     +  +  +                 +  +
+                                         ..Q..R..F..N..C..F..F..L..*..Y..*..N..K
+6762673 AACAAAAAGAAAAAAAAGAGGGAACACTAACTACTGTCTAAAGTTACAAAAAAACAACTAATATTAATTTTT
+
+        
+        
+        ..E..L
+          +
+        ..K..F
+6762745 TTTAAAAGGAAACACTTTCCGCTTGACCACACACTGAGGTAATATGATATCCCATTGTGATGGAATAAACCT
+
+                                        [-3c]
+                                        7.1e-07
+                                        ..V..D..A..Q..T..F..G..L..K..I..R..R..Q.
+                                          +        +  +  +     +  +        +
+                                        ..V..R..*..Q..T..V..I..L..K..F..L..K..L.
+6803065 AGTATTTTGATTAACCCTTAGAAGTTGTGCTTAACTCTTCACTGTGTAACAATCAATTTAAATAATTTAAGT
+
+        
+        
+        .K..F
+         +  +
+        .K..L
+6803137 TTTAGACCTCTTTGTCAATCGCTTAAATAATGCTATTTGTTTATTTATAATGTAATATATATAATATGTTAT
+
+                                                                        [+1b]
+                                                                        9.5e-07
+                                                                        S..Q..T.
+                                                                           +
+                                                                        Y..Q..L.
+6812857 GGTCAAATCCTGATAGTGATACATTATAAAGTAAGTTTCCTGTTTCTTTCATTAATATTTATGGTATCAATT
+
+        
+        
+        .T..I..C..R..F..E..A..L..Q..L..S..F..
+            +     +  +        +  +  +     +
+        .*..I..N..R..F..D..K..L..Q..I..*..F..
+6812929 ATGAATAAATCGATTTGATAAGCTTCAAATATAATTCAACTATGGCAGATAAATTTAATTATGTACTTGTGA
+
+                                                                           [-1b]
+                                                                           9.9e-
+                                                                           ..F..
+                                                                             +
+                                                                           ..F..
+6828697 CTAAGGATGCATTATTACTTTAATTTCAATTATGTCTTACTTAAAGCTATAACACGTCGTATACCCTAAAAA
+
+        
+        07
+        S..L..Q..L..A..E..F..R..C..I..T..T..Q..S
+              +     +     +  +  +  +     +
+        F..C..N..*..A..L..F..R..C..I..Q..T..N..N
+6828769 AACAATTCTACGCCAAAAATCGACATATCTGCGTGTTATTTTATCCAATGCTTATTTGTAAACAAAACTATC
+
+                                   [+1a]
+                                   2.0e-07
+                                   S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                                               +  +     +     +     +  +  +  +
+                                   N..L..A..R..I..C..N..F..C..S..Q..Q..L..S..F..
+6845617 TGCACGCATGGCCTGTAATGTAAACCAAATTTAGCTCGAATTTGTAATTTTTGTTCACAACAGCTTAGTTTT
+
+                                      [-2a]
+                                      6.2e-07
+                                      ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E
+                                                 +     +        +  +  +  +
+                                      ..N..L..F..N..Y..F..Q..I..R..V..V..E..V..F
+6877513 TCTAGTCCCATTTGGTGGTACACAAACAACATTCAAAAAATTATAAAACTGTATTCTCACGACTTCAACAAA
+
+        
+        
+        ..L
+          +
+        ..L
+6877585 CAGTTGTTAATTGTTTAAAACTTGATCACAATATTTGAATATGATGTGCTAACGGTGTCCCATCTTACCCCA
+
+                                                              [+2a]
+                                                              8.8e-07
+                                                              L..E..K..E..V..V..
+                                                                          +  +
+                                                              R..S..M..G..V..V..
+6881401 ATTAAAAAAAATTCTTGCCAAAGAGCCAAAATGCATCCTGATAACATTTACCAAAGGTCTATGGGAGTAGTA
+
+        
+        
+        R..V..W..F..C..N..R..R..Q..
+        +     +  +     +
+        R..I..W..F..Y..N..S..L..N..
+6881473 AGGATATGGTTTTATAATTCTTTAAATATTCTTTGTTTACTTCCAAATGGGAGGAGAAAATACAATGAAAAG
+
+                           [+1b]
+                           6.5e-07
+                           S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                           +     +  +     +  +  +        +        +
+                           S..*..S..T..D..C..R..F..V..K..L..*..Y..T..V..
+6909481 AACTAGATATTAGATTAGGTCATGAAGTACTGACTGTAGATTTGTGAAGCTGTGATACACGGTGAAAGTTGT
+
+                              [+2b]
+                              9.2e-07
+                              L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                              +        +     +  +        +     +
+                              M..A..M..E..L..V..R..I..R..F..Y..N..S..L..K..
+6924457 ACATCGTTTTTTACAATTAACAATGGCTATGGAACTCGTGAGGATACGGTTTTATAATTCTTTGAAGTTTCT
+
+                                                           [+4a]
+                                                           6.1e-07
+                                                           K..N..M..C..K..L..K..
+                                                           +     +        +
+                                                           K..L..A..S..*..L..A..
+6943105 TTTTTTTAATTAGTACCCTTTTTTTACTTTTTAAAACTGTTTTATTCCTAAAAACTAGCTTCCTAGCTGGCA
+
+        
+        
+        P..L..L..Q..K..W..L..E..
+           +  +        +  +  +
+        S..L..L..H..I..W..L..E..
+6943177 TCACTGCTACATATCTGGTTGGAAACACTGTATTTTTCCTTTTTAATCTTCCTAGGAACAACATGTTTTTCA
+
+                                                [+2b]
+                                                8.0e-08
+                                                L..E..K..E..V..V..R..V..W..F..C.
+                                                +        +     +     +  +
+                                                L..*..M..N..I..V..S..V..W..V..Y.
+6997681 AACTTCTAAACCAGTGAGGAAAACAGTTGAAAGGATTAAATTATAGATGAATATTGTGTCTGTTTGGGTATA
+
+        
+        
+        .N..R..R..Q..
+         +  +  +
+        .N..R..R..K..
+6997753 TAATCGAAGAAAAGCAATGTTTTACGGTTTATTATTGTATATTTTTACAAAGAGAGCGTTTTTTACTAAGAC
+
+                                                                   [+1c]
+                                                                   2.3e-07
+                                                                   S..Q..T..T..I
+                                                                   +        +  +
+                                                                   S..A..A..A..I
+7051609 TTTTAACGTATCAACTTCAATGCAACCCCAAAGGATCGTTTATTCAATAAAACTAGTTCAGCGCGGCCGCCA
+
+        
+        
+        ..C..R..F..E..A..L..Q..L..S..F..
+          +     +        +  +     +
+        ..C..S..F..*..K..L..Q..F..T..M..
+7051681 TATGTTCGTTTTAAAAACTTCAATTTACAATGAAATGGTTTTCCCTTCATTACCACAATACCCTTGTGCCAA
+
+                                                    [-2c]
+                                                    2.2e-07
+                                                    ..Q..R..R..N..C..F..W..V..R.
+                                                               +     +  +  +
+                                                    ..N..L..S..N..*..F..W..V..S.
+7250617 TTTTTATTCTGTTTTCTCGTCCTATTTAATAGTAAACAAAGAACATTCAAAGAATTTTAAAACCATACGCTC
+
+        
+        
+        .V..V..E..K..E..L
+         +  +  +
+        .V..V..E..M..S..R
+7250689 ACGACTTCCATAGACCGTTGTTAATTGTTTAAACACGATCAGATTATTCAGATATTATGTGCCAAAAGTGTC
+
+                        [+1b]
+                        6.0e-07
+                        S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                                    +  +  +  +     +     +     +  +
+                        D..*..A..*..I..C..R..F..T..S..T..N..D..S..H..
+7260769 GGAAACTGAAACCGCAGATTAGGCTTAAATTTGTCGTTTTACTTCAACAAACGACTCGCATGGCGATAAAAA
+
+                                [-2a]
+                                6.2e-07
+                                ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                           +  +  +        +  +  +  +
+                                ..N..L..S..N..C..F..R..I..R..V..V..E..M..S..R
+7423777 CCCATTTGGTGGTAAACACGAAACATTCAAAGAATTACAAAACCGTATCCTCACGACTTCCATAGACCGTTG
+
+                                                                        [+2b]
+                                                                        1.4e-07
+                                                                        L..E..K.
+                                                                        +     +
+                                                                        Y..Q..K.
+7530193 AAGAAGTCCTTGCCAACTCCCTCCATTGCTCAGTCTCCGGAACAAAATGAAAACGAAAATCCGATATCAAAA
+
+        
+        
+        .E..V..V..R..V..W..F..C..N..R..R..Q..
+               +  +     +  +        +  +
+        .K..M..I..R..*..W..F..S..K..Q..R..K..
+7530265 GAAGATGATCAGATGATGGTTCTCGAAACAAAGAAAGCTGTTCAGAAAAGTCCAAGGCCCAACATCAAGGCT
+
+               [-4b]
+               6.4e-07
+               ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+                    +           +  +  +  +     +  +     +  +
+               ..Y..L..T..*..K..L..V..P..K..Y..A..I..L..N..N
+7605289 CACCACTGTATAGTGTTTATTTTAAGACAGGTTTGTAAGCTATTAAATTGTTTTTATTTATACTGAGTAGTT
+
+                              [-4b]
+                              6.4e-07
+                              ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+                                   +           +  +  +  +     +  +     +  +
+                              ..Y..L..T..*..K..L..V..P..K..Y..A..I..L..N..N
+7616521 TGATCCTTGCACTATCACCACTGTATAGTGTTTATTTTAAGACAGGTTTGTAAGCTATTAAATTGTTTTCAT
+
+                           [+2b]
+                           8.8e-07
+                           L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                                       +  +  +     +  +     +
+                           R..S..M..G..V..V..R..I..W..F..Y..N..S..X..X..
+7782121 TGTTTTAAACAATTAACAACGGTCTATGGGGGTCGTGAGGATATGGTTTTATAATTCTNNNNNNNNNNNNNN
+
+                          [-2a]
+                          8.1e-07
+                          ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                     +     +  +     +  +  +
+                          ..N..L..Y..N..Y..F..W..I..R..V..V..G..I..S..R
+7789177 TGGTAGTAAACAAAGAACATTCAAATAATTATAAAACCATATCCTCACGACGCCTATAGACCGTTGTTAATT
+
+                        [-2b]
+                        8.3e-08
+                        ..Q..R..R..N..C..F..W..V..R..V..V..E..K..E..L
+                                   +     +  +     +  +  +  +
+                        ..N..*..L..N..Y..F..W..I..R..V..V..E..M..S..Q
+7801705 GTAGTAAGCAAAGAACATTTTATAAATTATAAAACCATATCCTCACGACTTCCATAGACTGTTGTTAATTAT
+
+                  [+1b]
+                  1.8e-07
+                  S..Q..T..T..I..C..R..F..E..A..L..Q..L..S..F..
+                  +        +  +        +  +  +     +  +  +
+                  S..L..A..T..I..Y..Y..F..E..S..H..Q..L..S..A..
+7825105 GGGGGATTCTTCACTAGCAACCATATATTATTTTGAATCACACCAATTGTCTGCAATATTCTAGCAAAAACA
+
+                   [+2c]
+                   8.8e-07
+                   L..E..K..E..V..V..R..V..W..F..C..N..R..R..Q..
+                               +  +  +     +  +     +
+                   R..S..I..G..V..V..R..I..W..F..Y..N..S..L..I..
+7927561 ACAATTGACAACGGTCTATAGGAGTCGTGAGGATATGGTTTTATAATTCTTTAATTGTCCTTTTTTTACTCT
+
+              [-4a]
+              8.1e-07
+              ..E..L..W..K..Q..L..L..P..K..L..K..C..M..N..K
+                         +  +  +           +  +     +  +  +
+              ..H..K..F..K..N..L..F..L..N..L..K..S..A..N..K
+8028217 CGTTTTGTGTTTAAACTTGTTTAAAAATAAATTTAATTTTGATGCATTTTTTAGTTTCTTTTTTTATATAAA
+
+********************************************************************************
+
+
+CPU: ubuntu
+Time 470.725418 secs.
+
+mast.bin test2.fasta.meme.out -nostatus -mt 1e-06 -ev 2e-02 -dna -brief -d /home/struckma/XXXXX/xxxxx.seq.fasta -text -stdout
