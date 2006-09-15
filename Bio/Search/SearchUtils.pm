@@ -387,7 +387,6 @@ sub _adjust_contigs {
 	$max_overlap, $frame, $strand) = @_;
     my $overlap = 0;
     my ($numID, $numCons);
-    my $debug = $seqType eq 'query';
     
     foreach (@$contigs_ref) {
         # Don't merge things unless they have matching strand/frame.
