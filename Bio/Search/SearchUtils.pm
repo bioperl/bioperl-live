@@ -387,6 +387,7 @@ sub _adjust_contigs {
 	$max_overlap, $frame, $strand) = @_;
     my $overlap = 0;
     my ($numID, $numCons);
+    my $debug = $seqType eq 'query';
     
     foreach (@$contigs_ref) {
         # Don't merge things unless they have matching strand/frame.
@@ -398,37 +399,36 @@ sub _adjust_contigs {
             next;
         }
         
-        ## Test for overlap at beginning of contig.
-        # to find left most
-        if ($start < $_->{'start'} && 
-            $stop > ($_->{'start'} + $max_overlap)) {
+        # Test for overlap at beginning of contig, or precedes consecutively
+        if ($start < $_->{'start'} && $stop >= ($_->{'start'} + $max_overlap - 1)) {
             eval {
                 ($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
-                               -START =>$start, 
-                               -STOP  =>$_->{'start'}-1); 
+                               -START => $start, 
+                               -STOP  => $_->{'start'} - 1); 
             };
             if($@) { warn "\a\n$@\n"; }
             else {
                 $_->{'start'} = $start;	# Assign a new start coordinate to the contig
                 $_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
                 $_->{'cons'} += $numCons;
+                push(@{$_->{hsps}}, $hsp);
                 $overlap     = 1; 
             }
         }
         
-        ## Test for overlap at end of contig.
-        if ($stop > $_->{'stop'} and 
-            $start < ($_->{'stop'} - $max_overlap)) { 
+        # Test for overlap at end of contig, or follows consecutively
+        if ($stop > $_->{'stop'} and $start <= ($_->{'stop'} - $max_overlap + 1)) {
             eval {
                 ($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
-                              -START =>$_->{'stop'}, 
-                              -STOP  =>$stop); 
+                              -START => $_->{'stop'} + 1, 
+                              -STOP  => $stop); 
             };
             if($@) { warn "\a\n$@\n"; }
             else {
                 $_->{'stop'}  = $stop; # Assign a new stop coordinate to the contig
                 $_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
                 $_->{'cons'} += $numCons;
+                push(@{$_->{hsps}}, $hsp);
                 $overlap    = 1; 
             }
         }
@@ -447,12 +447,12 @@ sub _adjust_contigs {
                 ${$contigs_ref}[$u] || next;
                 my ($u_start, $u_stop) = (${$contigs_ref}[$u]->{start}, ${$contigs_ref}[$u]->{stop});
                 
-                if ($u_start < $i_start && $u_stop > ($i_start + $max_overlap)) {
+                if ($u_start < $i_start && $u_stop >= ($i_start + $max_overlap - 1)) {
                     # find the hsps within the contig that have sequence
                     # extending before $i_start
                     my ($ids, $cons) = (0, 0);
                     my $use_start = $i_start;
-                    foreach my $hsp (@{${$contigs_ref}[$u]->{hsps}}) {
+                    foreach my $hsp (sort { $b->end <=> $a->end } @{${$contigs_ref}[$u]->{hsps}}) {
                         my $hsp_start = $hsp->start;
                         $hsp_start < $use_start || next;
                         
@@ -476,12 +476,12 @@ sub _adjust_contigs {
                     
                     ${$contigs_ref}[$u] = undef;
                 }
-                elsif ($u_stop > $i_stop && $u_start < ($i_stop - $max_overlap)) {
+                elsif ($u_stop > $i_stop && $u_start <= ($i_stop - $max_overlap + 1)) {
                     # find the hsps within the contig that have sequence
                     # extending beyond $i_stop
                     my ($ids, $cons) = (0, 0);
                     my $use_stop = $i_stop;
-                    foreach my $hsp (@{${$contigs_ref}[$u]->{hsps}}) {
+                    foreach my $hsp (sort { $a->start <=> $b->start } @{${$contigs_ref}[$u]->{hsps}}) {
                         my $hsp_end = $hsp->end;
                         $hsp_end > $use_stop || next;
                         
