@@ -1522,6 +1522,23 @@ the GD::Image object.
 Draw the label for the glyph onto the provided GD::Image object,
 optionally offsetting by the amounts indicated in $left and $right.
 
+=item $glyph-E<gt>maxdepth()
+
+This returns the maximum number of levels of feature subparts that the
+glyph will recurse through. For example, returning 0 indicates that
+the glyph will only draw the top-level feature. Returning 1 indicates
+that it will only draw the top-level feature and one level of
+subfeatures. Returning 2 will descend down two levels. Overriding this
+method will speed up rendering by avoiding creating of a bunch of
+subglyphs that will never be drawn.
+
+The default behavior is to return undef (unlimited levels of descent)
+unless the -maxdepth option is passed, in which case this number is
+returned.
+
+Note that Bio::Graphics::Glyph::generic overrides maxdepth() to return
+0, meaning no descent into subparts will be performed.
+
 =back
 
 These methods are useful utility routines:
@@ -1542,6 +1559,11 @@ the provided rectangle coordinates.
 =item $glyph-E<gt>filled_oval($gd,$x1,$y1,$x2,$y2)
 
 As above, but draws an oval inscribed on the rectangle.
+
+=item $glyph->E<gt>exceeds_depth
+
+Returns true if descending into another level of subfeatures will
+exceed the value returned by maxdepth().
 
 =back
 

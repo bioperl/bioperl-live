@@ -99,6 +99,7 @@ sub fontcolor {
 
 sub draw {
   my $self = shift;
+
   my $draw_target = $self->draw_target;
   return $self->SUPER::draw(@_) unless $draw_target;
   return $self->SUPER::draw(@_) unless $self->dna_fits;
@@ -465,6 +466,13 @@ Bio::Graphics::Glyph::segments - The "segments" glyph
 This glyph is used for drawing features that consist of discontinuous
 segments.  Unlike "graded_segments" or "alignment", the segments are a
 uniform color and not dependent on the score of the segment.
+
+=head2 METHODS
+
+This module overrides the maxdepth() method to return 1 unless
+explicitly specified by the -maxdepth option. This means that modules
+inheriting from segments will only be presented with one level of
+subfeatures. Override the maxdepth() method to get more levels.
 
 =head2 OPTIONS
 

@@ -547,6 +547,41 @@ subparts of features that contain subfeatures.  The subparts are not
 connected -- use the "segments" glyph for that.  "Generic" is the
 default glyph used when not otherwise specified.
 
+=head2 METHODS
+
+This module overrides the maxdepth() method to return 0 unless the
+-maxdepth option is provided explicitly. This means that any module
+that inherits from generic will need to override maxdepth() again in
+order to draw subfeatures. In general, those implementing
+multi-segmented feature glyphs should inherit from
+Bio::Graphics::Glyph::segments, which allows for one level of descent.
+
+In addition, the following new methods are implemented:
+
+=over 4
+
+=item labelfont(), descfont(), labelwidth(), descriptionwidth()
+
+Return the font, width for the label or description.
+
+=item label()
+
+Return the glyph label text (printed above the glyph).
+
+=item description()
+
+Return the glyph description text (printed below the glyph).
+
+=item draw_translation()
+
+Draw the protein translation of the feature (assumes that the feature is attached to a DNA sequence).
+
+=item draw_sequence()
+
+Draw the sequence of the feature (either DNA or protein).
+
+=back
+
 =head2 OPTIONS
 
 The following options are standard among all Glyphs.  See
@@ -644,7 +679,7 @@ L<Bio::Das>,
 L<GD>
 
 =head1 AUTHOR
-
+p
 Allen Day E<lt>day@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory
