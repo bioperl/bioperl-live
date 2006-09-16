@@ -117,8 +117,8 @@ sub next_aln {
 				$in_align_sec = 1;
 			}
 		} elsif ($line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
-                       (\S+)\s+([.ACTGX-]*)\s+([ACTGX-]+)\s+
-                       ([.ACTGX-]*)/xi ) {
+                       (\S+)\s+([.ACTGX\-]*)\s+([ACTGX\-]+)\s+
+                       ([.ACTGX\-]*)/xi ) {
 			# Got a sequence line
 			my $seq_name = $1;
 			my $strand = ($2 eq '-') ? -1 : 1;
