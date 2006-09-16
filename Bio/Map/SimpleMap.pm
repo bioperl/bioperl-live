@@ -99,8 +99,6 @@ BEGIN { $MAPCOUNT = 1; }
  Args    : -name    => name of map (string)
            -species => species for this map (Bio::Species) [optional]
            -units   => map units (string)
-           -elements=> elements to initialize with
-                       (arrayref of Bio::Map::MappableI objects) [optional]
            -uid     => Unique Id [defaults to a unique integer]
 
 =cut
@@ -110,27 +108,20 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  $self->{'_elements'} = [];
   $self->{'_name'}     = '';
   $self->{'_species'}  = '';
   $self->{'_units'}    = '';
   $self->{'_type'}    = '';
   $self->{'_uid'} = $MAPCOUNT++;
-  my ($name, $type,$species, $units,
-      $elements,$uid) = $self->_rearrange([qw(NAME TYPE
+  my ($name, $type,$species, $units,$uid) = $self->_rearrange([qw(NAME TYPE
 					      SPECIES UNITS
-					      ELEMENTS UID)], @args);
+					      UID)], @args);
   defined $name     && $self->name($name);
   defined $species  && $self->species($species);
   defined $units    && $self->units($units);
   defined $type     && $self->type($type);
   defined $uid      && $self->unique_id($uid);
-
-  if( $elements && ref($elements) =~ /array/ ) {
-      foreach my $item ( @$elements ) {
-	  $self->add_element($item);
-      }
-  }
+    
   return $self;
 }
 
@@ -139,8 +130,8 @@ sub new {
  Title   : species
  Usage   : my $species = $map->species;
  Function: Get/Set Species for a map
- Returns : Bio::Species object or string
- Args    : (optional) Bio::Species or string
+ Returns : Bio::Taxon object or string
+ Args    : (optional) Bio::Taxon or string
 
 =cut
 

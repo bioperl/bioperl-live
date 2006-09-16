@@ -19,8 +19,8 @@ that can have multiple locations in several maps.
 
   # a map element in two different positions on the same map
   $map1 = new Bio::Map::SimpleMap ();
-  $position1 = new Bio::Map::Position (-map => $map1, $value => 100);
-  $position2 = new Bio::Map::Position (-map => $map1, $value => 200);
+  $position1 = new Bio::Map::Position (-map => $map1, -value => 100);
+  $position2 = new Bio::Map::Position (-map => $map1, -value => 200);
   $mappable = new Bio::Map::Mappable (-positions => [$position1, $position2] );
 
   # add another position on a different map
@@ -99,10 +99,46 @@ sub new {
     return $self;
 }
 
+=head2 name
+
+ Title   : name
+ Usage   : $mappable->name($new_name);
+	       my $name = $mappable->name();
+ Function: Get/Set the name for this Mappable
+ Returns : A scalar representing the current name of this Mappable
+ Args    : none to get
+           string to set
+
+=cut
+
+sub name {
+    my $self = shift;
+    if (@_) { $self->{_name} = shift }
+    return $self->{_name} || '';
+}
+
+=head2 id
+
+ Title   : id
+ Usage   : my $id = $mappable->id();
+           $mappable->id($new_id);
+ Function: Get/Set the id for this Mappable.
+ Returns : A scalar representing the current id of this Mappable
+ Args    : none to get
+           string to set
+
+=cut
+
+sub id {
+    my $self = shift;
+    if (@_) { $self->{_id} = shift }
+    return $self->{_id} || return;
+}
+
 =head2 in_map
 
  Title   : in_map
- Usage   : if ($marker->in_map($map)) {...}
+ Usage   : if ($mappable->in_map($map)) {...}
  Function: Tests if this mappable is found on a specific map
  Returns : boolean
  Args    : L<Bio::Map::MapI>
@@ -522,6 +558,25 @@ sub _compare {
 sub tuple {
     my $self = shift;
     $self->warn("The tuple method was supposed to be a private method, don't call it!");
+}
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $mappable->annotation($an_col);
+           my $an_col = $mappable->annotation();
+ Function: Get the annotation collection (see Bio::AnnotationCollectionI)
+           for this annotatable object.
+ Returns : a Bio::AnnotationCollectionI implementing object, or undef
+ Args    : none to get, OR
+           a Bio::AnnotationCollectionI implementing object to set
+
+=cut
+
+sub annotation {
+    my $self = shift;
+    if (@_) { $self->{_annotation} = shift }
+    return $self->{_annotation} || return;
 }
 
 1;

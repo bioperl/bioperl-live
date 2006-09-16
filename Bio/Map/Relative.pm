@@ -109,6 +109,9 @@ use Bio::Map::RelativeI;
            -position => Position : or relative to this other Position (a
                                    Bio::Map::PositionI, fails if the other
                                    Position is on a different map to this map)
+           
+           -description => string: Free text description of what this relative
+                                   describes
                                   
            (To say a Position is relative to something and upstream of it,
             the Position's start() co-ordinate should be set negative)
@@ -119,8 +122,8 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     
-    my ($map, $element, $position) = 
-	$self->_rearrange([qw( MAP ELEMENT POSITION )], @args);
+    my ($map, $element, $position, $desc) = 
+	$self->_rearrange([qw( MAP ELEMENT POSITION DESCRIPTION )], @args);
     
     if (defined($map) + defined($element) + defined($position) > 1) {
         $self->throw("-map, -element and -position are mutually exclusive");
@@ -129,6 +132,7 @@ sub new {
     defined($map) && $self->map($map);
     $element && $self->element($element);
     $position && $self->position($position);
+    $desc && $self->description($desc);
     
     return $self;
 }
@@ -273,6 +277,24 @@ sub position {
         $self->{_position} = $pos;
     }
     return $self->{_position} || return;
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : my $description = $relative->description();
+           $relative->description($description);
+ Function: Get/set a textual description of what this relative describes.
+ Returns : string
+ Args    : none to get, OR
+           string to set
+
+=cut
+
+sub description {
+    my $self = shift;
+    if (@_) { $self->{desc} = shift }
+    return $self->{desc} || '';
 }
 
 1;

@@ -161,4 +161,21 @@ sub position {
     $self->throw_not_implemented();
 }
 
+=head2 description
+
+ Title   : description
+ Usage   : my $description = $relative->description();
+           $relative->description($description);
+ Function: Get/set a textual description of what this relative describes.
+ Returns : string
+ Args    : none to get, OR
+           string to set
+
+=cut
+
+sub description {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
 1;

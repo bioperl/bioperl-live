@@ -73,23 +73,6 @@ use Bio::Map::MappableI;
 
 @ISA = qw(Bio::Map::MappableI);
 
-=head2 name
-
- Title   : name
- Usage   : my $name = $marker->name();
-           $marker->name($new_name);
- Function: Get/Set the name for this Marker.
- Returns : A scalar representing the current name of this Marker
- Args    : none to get
-           string to set
-
-=cut
-
-sub name {
-    my $self = shift;
-    $self->throw_not_implemented();
-}
-
 =head2 get_position_object
 
  Title   : get_position_class
