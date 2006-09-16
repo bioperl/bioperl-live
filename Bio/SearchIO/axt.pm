@@ -30,7 +30,7 @@ Bio::SearchIO::axt - a parser for axt format reports
 
 This is a parser and event-generator for AXT format reports.  BLASTZ
 reports (Schwartz et al,(2003) Genome Research, 13:103-107) are normally
-in LAV format but are commonly post-processed to AXT format; precomputed
+in LAV format but are commonly post-processed to AXT format; many precomputed
 BLASTZ reports, such as those found in the UCSC Genome
 Browser, are in AXT format.   This parser will also parse any
 AXT format produced from any lav report and directly out of BLAT.
