@@ -20,7 +20,7 @@ BEGIN {
 	}
 	use Test;
 
-	$NUMTESTS = 32;
+	$NUMTESTS = 31;
 	plan tests => $NUMTESTS;
 
 	eval {
@@ -97,7 +97,7 @@ if( $DEBUG ) {
 		$cdtable = $db->get_request(-sp =>'Pan troglodytes');
 	};
 	if ($@) {
-		foreach ( $Test::ntest..$NUMTESTS) { 
+		foreach ($Test::ntest..$NUMTESTS) { 
 			skip('Could not connect to server, skipping tests requiring remote servers',1);
 		}
 		exit(0);
@@ -111,11 +111,19 @@ if( $DEBUG ) {
     
 	## now lets enter a non-existent species ans check handling..
 	## should default to human...
-	my $db2 =  Bio::DB::CUTG->new();
-	ok $cut2 = $db2->get_request(-sp =>'Wookie magnus');
+	my $db2 = Bio::DB::CUTG->new();
+	eval {
+		ok $cut2 = $db2->get_request(-sp =>'Wookie magnus');
+	};
+	if ($@) {
+		foreach ($Test::ntest..$NUMTESTS) { 
+			skip('Could not connect to server, skipping tests requiring remote servers',1);
+		}
+		exit(0);
+    }
 	ok $cut2->species(), 'Homo sapiens';
-	ok 1 ;
-} else { 
+}
+else { 
    for ( $Test::ntest..$NUMTESTS) {
 		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
 	}
