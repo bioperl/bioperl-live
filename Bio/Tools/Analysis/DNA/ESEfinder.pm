@@ -234,8 +234,7 @@ sub _run {
     my $ua2 = LWP::UserAgent->new(env_proxy => 1);
     my $content2 = $ua2->request($rq2);
     if( $content2->is_error  ) {
-	$self->warn(ref($self)." Request Error:\n".$content2->as_string);
-	return;
+	$self->throw(ref($self)." Request Error:\n".$content2->as_string);
     }
 
     my $text2 = $content2->content;
