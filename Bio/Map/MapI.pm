@@ -181,8 +181,8 @@ sub get_elements {
 =head2 common_elements
 
  Title   : common_elements
- Usage   : my @common_elements = $map->common_elements(@other_maps);
-           my @common_elements = Bio::Map::SimpleMap->common_elements(@maps);
+ Usage   : my @common_elements = $map->common_elements(\@other_maps);
+           my @common_elements = Bio::Map::SimpleMap->common_elements(\@maps);
  Function: Find the elements that are common to multiple maps.
  Returns : array of Bio::Map::MappableI
  Args    : arg #1 = L<Bio::Map::MapI> to compare this one to, or an array ref

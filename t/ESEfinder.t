@@ -72,17 +72,23 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
 
 ok $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
 if( $DEBUG ) {
-    ok $tool->run ( );
+	eval {
+		ok $tool->run;
+	};
+	if ($@) {
+		foreach ( $Test::ntest..$NUMTESTS) { 
+			skip('Could not connect to ESEfinder server', 1);
+		}
+		exit(0);
+	}
+	
     ok my @res = $tool->result('Bio::SeqFeatureI');
+	ok @res > 0;
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
     ok my $meta = $tool->result('all');
     ok ($parsed->[0][1], 41);
-    if (scalar @res > 0) {
-	ok 1;
-    } else {
-	skip('No network access - could not connect to ESEfinder server', 1);
-    }
+	
     if (!$METAERROR) {              #if Bio::Seq::Meta::Array available
 	ok($meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt" );
 	ok( $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223");

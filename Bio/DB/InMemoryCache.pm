@@ -30,12 +30,12 @@ Bio::DB::InMemoryCache - Abstract interface for a sequence database
 
 =head1 DESCRIPTION
 
-This is a memory cache system which saves the objects returned by 
+This is a memory cache system which saves the objects returned by
 Bio::DB::RandomAccessI in memory to a hard limit of sequences.
 
 =head1 CONTACT
 
-Ewan Birney
+Ewan Birney <birney@ebi.ac.uk>
 
 =head2 Reporting Bugs
 
@@ -73,10 +73,10 @@ sub new {
     my $self = Bio::Root::Root->new();
     bless $self,$class;
 
-    my ($seqdb,$number,$agr) = 
+    my ($seqdb,$number,$agr) =
 		$self->_rearrange([qw(SEQDB NUMBER AGRESSION)],@args);
 
-    if( !defined $seqdb || !ref $seqdb || 
+    if( !defined $seqdb || !ref $seqdb ||
 		  !$seqdb->isa('Bio::DB::RandomAccessI') ) {
        $self->throw("Must be a RandomAccess database not a [$seqdb]");
     }
@@ -191,7 +191,7 @@ sub _load_Seq {
   } else {
     $self->throw("Bad internal error. Don't understand $type");
   }
-  if( ! $seq ) { 
+  if( ! $seq ) {
       # warding off bug #1628
       $self->debug("could not find seq $id in seqdb\n");
       return;
@@ -216,8 +216,8 @@ sub _load_Seq {
 
   if( $self->_number_free < 1 ) {
     # remove the latest thing from the hash
-    my @accs = sort { $self->{'_cache_number_hash'}->{$a} <=> 
-								$self->{'_cache_number_hash'}->{$b} } 
+    my @accs = sort { $self->{'_cache_number_hash'}->{$a} <=>
+								$self->{'_cache_number_hash'}->{$b} }
                           keys %{$self->{'_cache_number_hash'}};
 
     my $acc = shift @accs;

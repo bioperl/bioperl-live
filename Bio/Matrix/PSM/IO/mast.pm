@@ -81,9 +81,10 @@ use vars qw(@ISA);
 sub new {
     my($class, @args)=@_;
     my $self = $class->SUPER::new(@args);
-    my (%instances,@header);
+    my (%instances,@header,$n);
     my ($file)=$self->_rearrange(['FILE'], @args);
     $self->{file} = $file;
+    $self->{_factor}=1;
     $self->_initialize_io(@args) || warn "Did you intend to use STDIN?"; #Read only for now
     $self->{_end}=0;
     undef $self->{hid};
@@ -93,6 +94,27 @@ sub new {
     # this should probably be moved to its own function
     while ( defined($buf=$self->_readline)) {
 	chomp($buf);
+	if ($buf=~/DATABASE AND MOTIFS/) {
+		while ($buf=$self->_readline) {
+			if ($buf=~/DATABASE/) {
+					$buf=~s/^[\s\t]+//;
+					chomp $buf;
+					($n,$self->{_dbname},$self->{_dbtype})=split(/\s/,$buf);
+					$self->{_dbtype}=~s/[\(\)]//g;
+			}
+			if ($buf=~/MOTIFS/) {
+					$buf=~s/^[\s\t]+//;
+					chomp $buf;
+					($n,$self->{_mrsc},$self->{_msrctype})=split(/\s/,$buf);
+					$self->{_msrctype}=~s/[\(\)]//g;
+					last;
+			}
+		}
+		if ($self->{_msrctype} ne $self->{_dbtype}) {#Assume we have protein motifs, nuc DB (not handling opp.)
+			$self->{_factor}=3;
+			$self->{_mixquery}=1;
+		}
+	}
 	if ($buf=~m/MOTIF WIDTH BEST POSSIBLE MATCH/) {
 	    $self->_readline;
 	    while (defined($buf=$self->_readline)) {
@@ -213,11 +235,19 @@ sub next_psm {
 	}
         my $id=$next;
 	my $score= $id=~m/\[/ ? 'strong' : 'weak' ;
+	my $frame;
+	my $strand = $id =~ m/\-\d/ ? -1 : 1 ;
+	if ($self->{_mixquery}) {
+		$frame = 0 if $id =~ m/\d+a/ ;
+		$frame = 1 if $id =~ m/\d+b/ ;
+		$frame = 2 if $id =~ m/\d+c/ ;
+	}
 	$id=~s/\D+//g;
+
 	my @s;
 	my $width=$index{$id};
     #We don't know the sequence, but we know the length
-	my $seq='N' x $width; #Future version will have to parse Section tree nad get the real seq
+	my $seq='N' x ($width*$self->{_factor}); #Future version will have to parse Section tree nad get the real seq
 	my $instance=new Bio::Matrix::PSM::InstanceSite 
 	    ( -id=>"$id\@$sid", 
 	      -mid=>$id, 
@@ -226,9 +256,11 @@ sub next_psm {
 	      -score=>$score, 
 	      -seq=>$seq,
 		  -alphabet => 'dna', 
-	      -start=>$pos);
+	      -start=>$pos,
+	      -strand=>$strand);
+	  $instance->frame($frame) if ($self->{_mixquery});
 	push @instances,$instance;
-	$pos+=$index{$id};
+	$pos+=$index{$id}*$self->{_factor};
     }
     my $psm= new Bio::Matrix::PSM::Psm (-instances=> \@instances, 
 					-e_val    => $eval, 

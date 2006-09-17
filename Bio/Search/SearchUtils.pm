@@ -398,37 +398,36 @@ sub _adjust_contigs {
             next;
         }
         
-        ## Test for overlap at beginning of contig.
-        # to find left most
-        if ($start < $_->{'start'} && 
-            $stop > ($_->{'start'} + $max_overlap)) {
+        # Test for overlap at beginning of contig, or precedes consecutively
+        if ($start < $_->{'start'} && $stop >= ($_->{'start'} + $max_overlap - 1)) {
             eval {
                 ($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
-                               -START =>$start, 
-                               -STOP  =>$_->{'start'}-1); 
+                               -START => $start, 
+                               -STOP  => $_->{'start'} - 1); 
             };
             if($@) { warn "\a\n$@\n"; }
             else {
                 $_->{'start'} = $start;	# Assign a new start coordinate to the contig
                 $_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
                 $_->{'cons'} += $numCons;
+                push(@{$_->{hsps}}, $hsp);
                 $overlap     = 1; 
             }
         }
         
-        ## Test for overlap at end of contig.
-        if ($stop > $_->{'stop'} and 
-            $start < ($_->{'stop'} - $max_overlap)) { 
+        # Test for overlap at end of contig, or follows consecutively
+        if ($stop > $_->{'stop'} and $start <= ($_->{'stop'} - $max_overlap + 1)) {
             eval {
                 ($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
-                              -START =>$_->{'stop'}, 
-                              -STOP  =>$stop); 
+                              -START => $_->{'stop'} + 1, 
+                              -STOP  => $stop); 
             };
             if($@) { warn "\a\n$@\n"; }
             else {
                 $_->{'stop'}  = $stop; # Assign a new stop coordinate to the contig
                 $_->{'iden'} += $numID;	# and add new data to #identical, #conserved.
                 $_->{'cons'} += $numCons;
+                push(@{$_->{hsps}}, $hsp);
                 $overlap    = 1; 
             }
         }
@@ -441,16 +440,67 @@ sub _adjust_contigs {
         my $max = $#{$contigs_ref};
         for my $i (0..$max) {
             ${$contigs_ref}[$i] || next;
+            my ($i_start, $i_stop) = (${$contigs_ref}[$i]->{start}, ${$contigs_ref}[$i]->{stop});
+            
             for my $u ($i+1..$max) {
                 ${$contigs_ref}[$u] || next;
-                my ($start, $stop) = (${$contigs_ref}[$u]->{start}, ${$contigs_ref}[$u]->{stop});
+                my ($u_start, $u_stop) = (${$contigs_ref}[$u]->{start}, ${$contigs_ref}[$u]->{stop});
                 
-                if (($start < ${$contigs_ref}[$i]->{start} && $stop > (${$contigs_ref}[$i]->{start} + $max_overlap)) ||
-                    ($stop > ${$contigs_ref}[$i]->{stop} and $start < (${$contigs_ref}[$i]->{stop} - $max_overlap))) {
-                    ${$contigs_ref}[$i]->{start} = $start if $start < ${$contigs_ref}[$i]->{start};
-                    ${$contigs_ref}[$i]->{stop} = $stop if $stop > ${$contigs_ref}[$i]->{stop};
-                    ${$contigs_ref}[$i]->{iden} += ${$contigs_ref}[$u]->{iden}; # sane?
-                    ${$contigs_ref}[$i]->{cons} += ${$contigs_ref}[$u]->{cons}; # sane?
+                if ($u_start < $i_start && $u_stop >= ($i_start + $max_overlap - 1)) {
+                    # find the hsps within the contig that have sequence
+                    # extending before $i_start
+                    my ($ids, $cons) = (0, 0);
+                    my $use_start = $i_start;
+                    foreach my $hsp (sort { $b->end <=> $a->end } @{${$contigs_ref}[$u]->{hsps}}) {
+                        my $hsp_start = $hsp->start;
+                        $hsp_start < $use_start || next;
+                        
+                        my ($these_ids, $these_cons);
+                        eval {
+                            ($these_ids, $these_cons) = $hsp->matches(-SEQ => $seqType, -START => $hsp_start, -STOP => $use_start - 1);
+                        };
+                        if($@) { warn "\a\n$@\n"; }
+                        else {
+                            $ids  += $these_ids;
+                            $cons += $these_cons;
+                        }
+                        
+                        last if $hsp_start == $u_start;
+                        $use_start = $hsp_start;
+                    }
+                    ${$contigs_ref}[$i]->{start} = $u_start;
+                    ${$contigs_ref}[$i]->{'iden'} += $ids;
+                    ${$contigs_ref}[$i]->{'cons'} += $cons;
+                    push(@{${$contigs_ref}[$i]->{hsps}}, @{${$contigs_ref}[$u]->{hsps}});
+                    
+                    ${$contigs_ref}[$u] = undef;
+                }
+                elsif ($u_stop > $i_stop && $u_start <= ($i_stop - $max_overlap + 1)) {
+                    # find the hsps within the contig that have sequence
+                    # extending beyond $i_stop
+                    my ($ids, $cons) = (0, 0);
+                    my $use_stop = $i_stop;
+                    foreach my $hsp (sort { $a->start <=> $b->start } @{${$contigs_ref}[$u]->{hsps}}) {
+                        my $hsp_end = $hsp->end;
+                        $hsp_end > $use_stop || next;
+                        
+                        my ($these_ids, $these_cons);
+                        eval {
+                            ($these_ids, $these_cons) = $hsp->matches(-SEQ => $seqType, -START => $use_stop + 1, -STOP => $hsp_end);
+                        };
+                        if($@) { warn "\a\n$@\n"; }
+                        else {
+                            $ids  += $these_ids;
+                            $cons += $these_cons;
+                        }
+                        
+                        last if $hsp_end == $u_stop;
+                        $use_stop = $hsp_end;
+                    }
+                    ${$contigs_ref}[$i]->{'stop'}  = $u_stop;
+                    ${$contigs_ref}[$i]->{'iden'} += $ids;
+                    ${$contigs_ref}[$i]->{'cons'} += $cons;
+                    push(@{${$contigs_ref}[$i]->{hsps}}, @{${$contigs_ref}[$u]->{hsps}});
                     
                     ${$contigs_ref}[$u] = undef;
                 }
@@ -468,7 +518,7 @@ sub _adjust_contigs {
         ($numID,$numCons) = $hsp->matches(-SEQ=>$seqType);
         push @$contigs_ref, {'start' =>$start, 'stop' =>$stop,
 			     'iden'  =>$numID, 'cons' =>$numCons,
-			     'strand'=>$strand,'frame'=>$frame};
+			     'strand'=>$strand,'frame'=>$frame,'hsps'=>[$hsp]};
     }
     
     return $overlap;

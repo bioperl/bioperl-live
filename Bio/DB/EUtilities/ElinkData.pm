@@ -60,7 +60,7 @@ use strict;
 use warnings;
 
 use Bio::Root::Root;
-#use Data::Dumper;
+use Data::Dumper;
 use vars '@ISA';
 
 @ISA = 'Bio::Root::Root';
@@ -69,7 +69,7 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     my ($command) = $self->_rearrange([qw(COMMAND)], @args);
-    $command    && $self->command($command);
+    $command    && $self->elink_command($command);
     $self->{'_dbindex'} = 0;
     $self->{'_scoreindex'} = 0;
     $self->{'_linkcount'} = 0;
@@ -89,15 +89,17 @@ sub _add_set {
     # is there any data returned
     return 0 unless exists $ls->{LinkSetDb};
     my $dbfrom = $ls->{DbFrom};
-    $self->dbfrom($dbfrom);
+    $self->elink_dbfrom($dbfrom);
     my $query_ids = $ls->{IdList}->{Id};
     if (!ref($query_ids)) {
         my $tempid = $query_ids;
         $query_ids = [$tempid];
     }
-    $self->query_ids($query_ids);
+    $self->elink_queryids($query_ids);
     
     my $ct = 0;
+    
+    # each linkset database
     for my $ls_db (@{ $ls->{LinkSetDb} }) {
         $ct++;
         my $dbto = $ls_db->{DbTo} ;
@@ -128,59 +130,59 @@ sub _add_set {
                        'DbTo'     => $dbto,
                        'Id'       => \@ids,
                       };
-        #$self->debug('Linkset:',Dumper($linkset));
+        $self->debug('Linkset:',Dumper($linkset));
         push @{ $self->{'_linksetdb'}}, $linkset;
-        return 1; # good linkset
     }
+    return 1; # good linkset
 }
 
-=head2 dbfrom
+=head2 elink_dbfrom
 
- Title   : dbfrom
- Usage   : $dbfrom = $linkset->dbfrom;
+ Title   : elink_dbfrom
+ Usage   : $dbfrom = $linkset->elink_dbfrom;
  Function: gets/sets dbfrom value
  Returns : originating database
  Args    : originating database
 
 =cut
 
-sub dbfrom {
+sub elink_dbfrom {
     my $self = shift;
-    return $self->{'_dbfrom'} = shift if @_;
-    return $self->{'_dbfrom'};
+    return $self->{'_elink_dbfrom'} = shift if @_;
+    return $self->{'_elink_dbfrom'};
 }
 
-=head2 query_ids
+=head2 elink_queryids
 
- Title   : query_ids
- Usage   : @ids = $linkset->query_ids;
+ Title   : elink_queryids
+ Usage   : @ids = $linkset->elink_queryids;
  Function: gets/sets original query ID values (ref to array)
  Returns : array or array ref of IDs (based on wantarray)
  Args    : array ref of IDs
 
 =cut
 
-sub query_ids {
+sub elink_queryids {
     my $self = shift;
-    return $self->{'_query_ids'} = shift if @_;
-    return @{ $self->{'_query_ids'} } if wantarray;
-    return $self->{'_query_ids'};
+    return $self->{'_elink_queryids'} = shift if @_;
+    return @{ $self->{'_elink_queryids'} } if wantarray;
+    return $self->{'_elink_queryids'};
 }
 
-=head2 command
+=head2 elink_command
 
- Title   : command
- Usage   : $cmd = $linkset->command;
+ Title   : elink_command
+ Usage   : $cmd = $linkset->elink_command;
  Function: gets/sets cmd used for elink query
  Returns : string (cmd parameter)
  Args    : string (cmd parameter)
 
 =cut
 
-sub command {
+sub elink_command {
     my $self = shift;
-    return $self->{'_command'} = shift if @_;
-    return $self->{'_command'};
+    return $self->{'_elink_command'} = shift if @_;
+    return $self->{'_elink_command'};
 }
 
 =head2 get_LinkIds_by_db
@@ -196,47 +198,48 @@ sub command {
 sub get_LinkIds_by_db {
     my $self = shift;
     my $db = shift if @_;
+    $self->throw("Must use database to access IDs") if !$db;
     my $ct = scalar(@{ $self->{'_linksetdb'} });
     return [] if $ct == 0; # no linksets, blank anon array
-    $self->throw("Must use database to access IDs") if !$db;
     for my $linkset (@{ $self->{'_linksetdb'}}) {
         my $dbto = $linkset->{DbTo};
         if ($dbto eq $db) {
             return @{ $linkset->{Id} } if wantarray;
             return $linkset->{Id};
+            
         }
     }
     $self->warn("Couldn't find ids for database $db");
 }
 
-=head2 next_database
+=head2 next_linkdb
 
- Title   : next_database
- Usage   : while (my $db = $linkset->next_database) {
+ Title   : next_linkdb
+ Usage   : while (my $db = $linkset->next_linkdb) {
  Function: iterates through list of database names in internal queue
  Returns : String (name of database)
  Args    : None
 
 =cut
 
-sub next_database {
+sub next_linkdb {
     my $self = shift;
     my $index = $self->_next_db_index;
     return if ($index > scalar($self->{'_databases'}));
     return $self->{'_databases'}->[$index] ;
 }
 
-=head2 get_all_databases
+=head2 get_all_linkdbs
 
- Title   : get_all_databases
- Usage   : @dbs = $linkset->get_all_databases;
+ Title   : get_all_linkdbs
+ Usage   : @dbs = $linkset->get_all_linkdbs;
  Function: returns all database names which contain IDs
  Returns : array or array ref of databases (based on wantarray)
  Args    : None
 
 =cut
 
-sub get_all_databases {
+sub get_all_linkdbs {
     my $self = shift;
     return @{ $self->{'_databases'} } if wantarray;
     return $self->{'_databases'};
@@ -298,7 +301,8 @@ sub get_score {
         return;
     }
     if (!$id) {
-        $self->warn("Must use ID to access scores");
+        $self->throw("Must use ID to access scores");
+        return;
     }
     my $db = exists $self->{'_scoredb'} ? $self->{'_scoredb'} :
              $self->get_all_scoredbs;
@@ -342,17 +346,17 @@ sub set_scoredb {
     $self->{'_scoredb'} if $key;
 }
 
-=head2 rewind_databases
+=head2 rewind_linkdbs
 
- Title   : rewind_databases
- Usage   : $linkset->rewind_databases;
+ Title   : rewind_linkdbs
+ Usage   : $linkset->rewind_linkdbs;
  Function: resets the iterator for next_database
  Returns : None
  Args    : None
 
 =cut
 
-sub rewind_databases {
+sub rewind_linkdbs {
     my $self = shift;
     $self->{'_dbindex'} = 0;
 }
@@ -386,8 +390,6 @@ sub _next_scoredb_index {
     my $self = shift;
     return $self->{'_scoreindex'}++;
 }
-
-
 
 1;
 

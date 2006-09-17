@@ -21,7 +21,7 @@ BEGIN {
 		$error = 1;
 		warn "Unable to run tests because XML::Twig is not installed\n";
 	}
-	$NUMTESTS = 96;
+	$NUMTESTS = 97;
 	$error = 0;
 	plan tests => $NUMTESTS;
 }
@@ -226,3 +226,9 @@ ok $tree->get_nodes, 30;
 $tree->contract_linear_paths;
 my $ids = join(",", map { $_->id } $tree->get_nodes);
 ok $ids, '131567,9606';
+
+# we can recursively fetch all descendents of a taxon
+$db_entrez->get_taxon(10090);
+my $lca = $db_entrez->get_taxon(314146);
+my @descs = $db_entrez->get_all_Descendents($lca);
+ok @descs, 17;

@@ -1,4 +1,5 @@
 # $Id$
+
 #
 # BioPerl module for Bio::AnnotationI
 #

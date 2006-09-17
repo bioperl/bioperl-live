@@ -20,7 +20,7 @@ BEGIN {
 	}
 	use Test;
 
-	$NUMTESTS = 32;
+	$NUMTESTS = 31;
 	plan tests => $NUMTESTS;
 
 	eval {
@@ -83,7 +83,7 @@ ok $cut->get_coding_gc(1), "39.70";
 ok my $ref = $cut->probable_codons(20);
 
 # requiring Internet access, set env BIOPERLDEBUG to 1 to run
-if( $DEBUG ) { 
+if( $DEBUG ) {
 	ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 	ok $tool->sleep;
 	ok $tool->delay(1), 1;
@@ -92,8 +92,17 @@ if( $DEBUG ) {
 	# get CUT from web
 	ok my $db = Bio::DB::CUTG->new();
 	ok $db->verbose(1);
-	my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
-	exit unless $cdtable;
+	my $cdtable;
+	eval {
+		$cdtable = $db->get_request(-sp =>'Pan troglodytes');
+	};
+	if ($@) {
+		foreach ($Test::ntest..$NUMTESTS) { 
+			skip('Could not connect to server, skipping tests requiring remote servers',1);
+		}
+		exit(0);
+    }
+	
 	# tests for Table.pm
 	ok $cdtable->cds_count(), 617; # new value at CUD
 	ok int($cdtable->aa_frequency('LEU')), 10;
@@ -102,11 +111,19 @@ if( $DEBUG ) {
     
 	## now lets enter a non-existent species ans check handling..
 	## should default to human...
-	my $db2 =  Bio::DB::CUTG->new();
-	ok $cut2 = $db2->get_request(-sp =>'Wookie magnus');
+	my $db2 = Bio::DB::CUTG->new();
+	eval {
+		ok $cut2 = $db2->get_request(-sp =>'Wookie magnus');
+	};
+	if ($@) {
+		foreach ($Test::ntest..$NUMTESTS) { 
+			skip('Could not connect to server, skipping tests requiring remote servers',1);
+		}
+		exit(0);
+    }
 	ok $cut2->species(), 'Homo sapiens';
-	ok 1 ;
-} else { 
+}
+else { 
    for ( $Test::ntest..$NUMTESTS) {
 		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
 	}

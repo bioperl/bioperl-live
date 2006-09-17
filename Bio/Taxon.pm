@@ -656,7 +656,7 @@ sub _merge_taxa {
     $self->throw("Must supply a Bio::Taxon object") unless ref($taxon) && $taxon->isa('Bio::Taxon');
     return if ($taxon eq $self);
     
-    foreach my $attrib (qw(version authority namespace genetic_code mitochondrial_genetic_code create_date update_date pub_date division id)) {
+    foreach my $attrib (qw(scientific_name version authority namespace genetic_code mitochondrial_genetic_code create_date update_date pub_date division id)) {
         my $own = $self->$attrib();
         my $his = $taxon->$attrib();
         if (!$own && $his) {

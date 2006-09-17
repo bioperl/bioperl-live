@@ -384,6 +384,9 @@ sub denormalized_segment_count {
   return scalar @{$self->{segments}};
 }
 
+# for Bio::LocationI compatibility
+sub is_remote { return }
+
 1;
 
 

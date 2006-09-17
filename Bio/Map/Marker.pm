@@ -164,24 +164,6 @@ sub new {
     return $self;
 }
 
-=head2 name
-
- Title   : name
- Usage   : $marker->name($new_name);
-	       my $name = $marker->name();
- Function: Get/Set the name for this Microsatellite
- Returns : A scalar representing the current name of this marker
- Args    : none to get
-           string to set
-
-=cut
-
-sub name {
-    my $self = shift;
-    if (@_) { $self->{_name} = shift }
-    return $self->{_name} || '';
-}
-
 =head2 default_map
 
  Title   : default_map

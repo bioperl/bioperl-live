@@ -349,12 +349,19 @@ sub _parse_predictions {
                 # print STDERR "  frame is " . $predobj->frame() . "\n";
 		# then add to gene structure object
 		$gene->add_exon($predobj, $ExonTags{$flds[1]});		
-	    } elsif($flds[1] eq 'PolA') {
+	    } elsif($flds[3] eq 'PolA') {
 		$predobj->primary_tag("PolyAsite");
 		$gene->poly_A_site($predobj);
-	    } elsif($flds[1] eq 'TSS') {
-		$predobj->primary_tag("Promoter");
+	    } elsif($flds[3] eq 'TSS') {
+	        $predobj->primary_tag("Promoter"); # (hey! a TSS is NOT a promoter... what's going on here?...
 		$gene->add_promoter($predobj);
+                #I'd like to do this (for now):
+		#$predobj->primary_tag("TSS"); #this is not the right model, but, it IS a feature at least.
+                #but the followg errs out
+		#$gene->add_SeqFeature($predobj); #err: MSG: start is undefined when bounds at Bio::SeqFeature::Generic::add_SeqFeature 671 check since gene has no start yet
+	    }
+	    else {
+	      $self->throw("unrecognized prediction line: " . $line);
 	    }
 	    next;
 	}
@@ -495,7 +502,7 @@ sub _read_fasta_seq {
          # print STDERR "  this is a predicted gene\n";
          $id  = "_predicted_protein_" . $1;
       } elsif ($entry =~ /^>FGENESH:\[mRNA\]\s+(\d+)/) {
-         print STDERR "  this is an mRNA\n";
+	# print STDERR "  this is an mRNA\n";
          $id  = "_predicted_mrna_" . $1;
       } elsif ($entry =~ /^>FGENESH:\[exon\]\s+Gene:\s+(\d+)/) {
          $id  = "_predicted_cds_"  . $1;

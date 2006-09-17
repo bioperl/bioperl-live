@@ -218,7 +218,9 @@ sub get_request {
 					. $nameparts . "&c=s";
 	my $rq = HTTP::Request->new(GET=>$search_url);
 	my $reply = $self->request($rq);
-
+    if ($reply->is_error) {
+        $self->throw($reply->as_string()."\nError getting for url $search_url!\n");
+    }
 	my $content = $reply->content;
         return 0 unless $content;
     $self->debug (" reply from query is \n  $content");
@@ -232,7 +234,7 @@ sub get_request {
 
 	
 	else {
-		 my @names = $content =~ /(species)/g;
+		my @names = $content =~ /(species)/g;
 		### get 1st species data from report ####
 		my ($sp, $db)  = $content =~ /species=(.*)\+\[(\w+)\]"/;
 		
@@ -251,22 +253,26 @@ sub get_request {
 	######## now get codon table , all defaults established now
 
 	##construct URL##
-	 $nameparts =  join "+", $self->sp =~ /(\w+)/g;
+	$nameparts =  join "+", $self->sp =~ /(\w+)/g;
 	my $CT_url = $self->url . "/codon/cgi-bin/showcodon.cgi?species="
 				. $nameparts . "+%5B" . $self->_db . "%5D&aa=" . $self->gc . "&style=GCG";
 
 	## retrieve data in html##
 	my $rq2 = HTTP::Request->new(GET=>$CT_url);
-	my $content2 = $self->request($rq2)->content;
+    $reply = $self->request($rq2);
+    if ($reply->is_error) {
+        $self->throw($reply->as_string()."\nError getting for url $CT_url!\n");
+    }
+	my $content2 = $reply->content;
 
 	## strip html tags, basic but works here
-	 $content2 =~ s/<[^>]+>//sg;
+	$content2 =~ s/<[^>]+>//sg;
 	$content2 =~ s/Format.*//sg;
-    $self->debug ("raw DDB table  is :\n $content2");
+    $self->debug ("raw DDB table is :\n $content2");
 
 	### and pass to Bio::CodonUsage::IO for parsing
 	my $iostr = IO::String->new($content2);
-	 my $io = Bio::CodonUsage::IO->new (-fh=>$iostr);
+	my $io = Bio::CodonUsage::IO->new (-fh=>$iostr);
 
 	##return object ##
 	return $io->next_data;

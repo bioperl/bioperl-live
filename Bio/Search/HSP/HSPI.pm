@@ -668,18 +668,12 @@ sub matches {
         $beg ||= 0;
         $end ||= 0;
         my($start,$stop) = $self->range($seqType);
-        if($beg == 0) { $beg = $start; $end = $beg+$end; }
-        elsif($end == 0) { $end = $stop; $beg = $end-$beg; }
-
-        if($end >= $stop) { $end = $stop; } ##ML changed from if (end >stop)
-        else { $end += 1;}   ##ML moved from commented position below, makes
-                             ##more sense here
-#        if($end > $stop) { $end = $stop; }
+        if($beg == 0) { $beg = $start; $end = $beg+$end; } # sane?
+        elsif($end == 0) { $end = $stop; $beg = $end-$beg; } # sane?
+        
+        if($end > $stop) { $end = $stop; }
         if($beg < $start) { $beg = $start; }
-#        else { $end += 1;}
-
-#        my $seq = substr($self->seq_str('match'), $beg-$start, ($end-$beg));
-
+        
         ## ML: START fix for substr out of range error ------------------
         my $seq = "";
         if (($self->algorithm =~ /TBLAST[NX]/) && ($seqType eq 'sbjct'))
@@ -693,36 +687,19 @@ sub matches {
                           int(($beg-$start)/3), int(($end-$beg+1)/3));
         } else {
             $seq = substr($self->seq_str('match'), 
-                          $beg-$start, ($end-$beg));
+                          $beg-$start, ($end-$beg+1));
         }
         ## ML: End of fix for  substr out of range error -----------------
-
         
-        ## ML: debugging code
-        ## This is where we get our exception.  Try printing out the values going
-        ## into this:
-        ##
-#         print STDERR 
-#             qq(*------------MY EXCEPTION --------------------\nSeq: ") , 
-#             $self->seq_str("$seqType"), qq("\n),$self->rank,",(  index:";
-#         print STDERR  $beg-$start, ", len: ", $end-$beg," ), (HSPRealLen:", 
-#             CORE::length $self->seq_str("$seqType");
-#         print STDERR ", HSPCalcLen: ", $stop - $start +1 ," ), 
-#             ( beg: $beg, end: $end ), ( start: $start, stop: stop )\n";
-         ## ML: END DEBUGGING CODE----------
-
         if(!CORE::length $seq) {
             $self->throw("Undefined sub-sequence ($beg,$end). Valid range = $start - $stop");
         }
-        ## Get data for a substring.
-#        printf "Collecting HSP subsection data: beg,end = %d,%d; start,stop = %d,%d\n%s<---\n", $beg, $end, $start, $stop, $seq;
-#        printf "Original match seq:\n%s\n",$self->seq_str('match');
+        
         $seq =~ s/ //g;  # remove space (no info).
         my $len_cons = CORE::length $seq;
         $seq =~ s/\+//g;  # remove '+' characters (conservative substitutions)
         my $len_id = CORE::length $seq;
         push @data, ($len_id, $len_cons);
-#        printf "  HSP = %s\n  id = %d; cons = %d\n", $self->rank, $len_id, $len_cons; <STDIN>;
     }
     @data;
 }

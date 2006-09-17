@@ -502,6 +502,10 @@ sub parse_response {
             my $webenv = $linkset->{WebEnv};
             my $dbfrom =  $linkset->{DbFrom};
             my $from_ids = $linkset->{IdList}->{Id};
+            if (!ref($from_ids)) {
+                my $tmp = $from_ids;
+                $from_ids = [$tmp];
+            }
             for my $history (@{ $linkset->{LinkSetDbHistory} }) {
                 my $query_key = $history->{QueryKey};
                 next if (!$query_key || (exists $history->{Info} eq 'Empty result') );

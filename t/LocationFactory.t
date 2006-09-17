@@ -10,19 +10,19 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if ( $@ ) {
 		 use lib 't';
     }
-    use Test;
-    plan tests => 270;
+    use Test::More;
+    plan tests => 275;
 }
 
-use Bio::Factory::FTLocationFactory;
-use Bio::Factory::LocationFactoryI;
-use Bio::Location::Simple;
-use Bio::Location::Split;
-use Bio::Location::Fuzzy;
+use_ok('Bio::Factory::FTLocationFactory');
+use_ok('Bio::Factory::LocationFactoryI');
+use_ok('Bio::Location::Simple');
+use_ok('Bio::Location::Split');
+use_ok('Bio::Location::Fuzzy');
 
 my $simple_impl = "Bio::Location::Simple";
 my $fuzzy_impl = "Bio::Location::Fuzzy";
@@ -93,7 +93,7 @@ my %testcases = (
 		 );
 
 my $locfac = Bio::Factory::FTLocationFactory->new();
-ok($locfac->isa("Bio::Factory::LocationFactoryI"));
+isa_ok($locfac,'Bio::Factory::LocationFactoryI');
 
 # sorting is to keep the order constant from one run to the next
 foreach my $locstr (keys %testcases) { 
@@ -102,24 +102,26 @@ foreach my $locstr (keys %testcases) {
 		$loc->seq_id("AY016295.1");
 	}
 	my @res = @{$testcases{$locstr}};
-	ok(ref($loc), $res[0]);
-	ok($loc->min_start(), $res[1]);
-	ok($loc->max_start(), $res[2]);
-	ok($loc->start_pos_type(), $res[3]);
-	ok($loc->min_end(), $res[4]);
-	ok($loc->max_end(), $res[5]);
-	ok($loc->end_pos_type(), $res[6]);
-	ok($loc->location_type(), $res[7]);
+	is(ref($loc), $res[0], $res[0]);
+	is($loc->min_start(), $res[1]);
+	is($loc->max_start(), $res[2]);
+	is($loc->start_pos_type(), $res[3]);
+	is($loc->min_end(), $res[4]);
+	is($loc->max_end(), $res[5]);
+	is($loc->end_pos_type(), $res[6]);
+	is($loc->location_type(), $res[7]);
 	my @locs = $loc->each_Location();
-	ok(@locs, $res[8]);
+	is(@locs, $res[8]);
 	my $ftstr = $loc->to_FTstring();
 	# this is a somewhat ugly hack, but we want clean output from to_FTstring()
+	# Umm, then these should really fail, correct?
+	# Should we be engineering workarounds for tests?
 	$locstr = "J00194:100..202" if $locstr eq "J00194:(100..202)";
 	$locstr = "(122.133)..(204.221)" if $locstr eq "((122.133)..(204.221))";
 	# now test
-	ok($ftstr, $locstr);
+	is($ftstr, $locstr, "Location String: $locstr");
 	# test strand production
-	ok($loc->strand(), $res[9]);
+	is($loc->strand(), $res[9]);
 }
 
 if ($^V gt v5.6.0) {
@@ -147,7 +149,7 @@ if ($^V gt v5.6.0) {
 						) {
 		my $loc = $locfac->from_string($locstr);
 		my $ftstr = $loc->to_FTstring();
-		ok($ftstr, shift @expected);
+		is($ftstr, shift @expected);
 	}
 } else {
 	foreach (1..3) {

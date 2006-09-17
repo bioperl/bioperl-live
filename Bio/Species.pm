@@ -163,7 +163,8 @@ sub classification {
         # make sure the lineage contains us as first or second element
         # (lineage may have subspeces, species, genus ...)
         my $name = $self->node_name;
-        if ($name && ($name ne $vals[0] && $name ne $vals[1])) {
+        if ($name && ($name ne $vals[0] && $name ne $vals[1]) &&
+			       $name ne "$vals[1] $vals[0]") {
             $self->throw("The supplied lineage does not start near '$name'");
         }
         
@@ -263,7 +264,12 @@ sub species {
 		#
 		
 		my $root = $self->{tree}->get_root_node;
-		
+		unless ($root) {
+            $self->{tree} = new Bio::Tree::Tree(-node => $species_taxon);
+            delete $self->{tree}->{_root_cleanup_methods};
+            $root = $self->{tree}->get_root_node;
+        }
+        
 		my @spflds = split(' ', $species);
 		if (@spflds > 1 && $root->node_name ne 'Viruses') {
 			$species = undef;
@@ -437,7 +443,7 @@ sub binomial {
     
     # do we already have the binomial?
     my $sci_name = $self->scientific_name || '';
-    if (($rank eq 'species' || $rank eq 'no rank') && $sci_name =~ /\w+\s+\w+/) {
+    if (($rank eq 'species' || $rank eq 'no rank') && $sci_name =~ /^\w+\s+\w+$/) {
         return $sci_name;
     }
     
@@ -446,7 +452,7 @@ sub binomial {
         return $sci_name;
     }
     
-    my ($species, $genus) = $self->classification();
+    my ($species, $genus) = ($self->species, $self->genus);
     unless (defined $species) {
         $species = 'sp.';
         $self->warn("requested binomial but classification was not set");

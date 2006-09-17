@@ -46,7 +46,7 @@ web:
 
 =head1 AUTHORS - Albert Vilella, Heikki Lehvaslaiho
 
-Email: avilella-AT-gmail-DOT-com, heikki-at-bioperl-dot-org
+Email: avilella-at-gmail-dot-com, heikki-at-bioperl-dot-org
 
 
 =head1 APPENDIX

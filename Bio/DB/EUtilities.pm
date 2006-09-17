@@ -285,6 +285,7 @@ sub _initialize {
         $self->add_cookie($cookie);
     }
     $self->{'_cookieindex'} = 0;
+    $self->{'_cookiecount'} = 0;
 }
 
 =head2 add_cookie
@@ -305,6 +306,7 @@ sub add_cookie {
           unless $cookie->isa("Bio::DB::EUtilities::Cookie");
         push @{$self->{'_cookie'}}, $cookie;
     }
+    $self->{'_cookiecount'}++;
 }
 
 =head2 next_cookie
@@ -341,6 +343,7 @@ sub reset_cookies {
     my $self = shift;
     $self->{'_cookie'} = [];
     $self->{'_cookieindex'} = 0;
+    $self->{'_cookiecount'} = 0;
 }
 
 =head2 get_all_cookies
@@ -360,6 +363,21 @@ sub get_all_cookies {
     return $self->{'_cookie'}->[0] if $self->{'_cookie'} 
 }
 
+=head2 get_cookie_count
+
+ Title   : get_cookie_count
+ Usage   : $ct = $db->get_cookie_count
+ Function: returns # cookies in internal queue
+ Returns : integer 
+ Args    : none
+
+=cut
+
+sub get_cookie_count {
+    my $self = shift;
+    return $self->{'_cookiecount'};
+}
+
 =head2 rewind_cookies
 
  Title   : rewind_cookies
@@ -375,6 +393,7 @@ sub rewind_cookies {
     $self->{'_cookieindex'} = 0;
 }
 
+
 =head2 keep_cookies
 
  Title   : keep_cookies
@@ -388,7 +407,6 @@ sub rewind_cookies {
 
 sub keep_cookies {
     my $self = shift;
-    $self->debug("Keeping cookies : $ARGV[0]\n") if @_;
     return $self->{'_keep_cookies'} = shift if @_;
     return $self->{'_keep_cookies'};
 }
@@ -483,7 +501,7 @@ sub get_ids {
         }
         elsif ($count == 1) {
             my ($linkset) = $self->get_all_linksets;
-            my ($db) = $user_db ? $user_db : $linkset->get_all_databases;
+            my ($db) = $user_db ? $user_db : $linkset->get_all_linkdbs;
             $self->_add_db_ids( scalar( $linkset->get_LinkIds_by_db($db) ) );
         }
         else {
@@ -522,7 +540,7 @@ sub delay_policy {
 
   Title   : get_entrezdbs
   Usage   : @dbs = $self->get_entrezdbs;
-  Function: return list of all Entrez databases 
+  Function: return list of all Entrez databases; convenience method
   Returns : array or array ref (based on wantarray) of databases 
   Args    : none
 
@@ -533,7 +551,7 @@ sub get_entrezdbs {
     my $info = Bio::DB::EUtilities->new(-eutil => 'einfo');
     $info->get_response;
     # copy list, not ref of list (so einfo obj doesn't stick around)
-    my @databases = @{ $info->entrezdbs };
+    my @databases = $info->einfo_dbs;
     return @databases;
 }
 
@@ -556,7 +574,8 @@ sub get_entrezdbs {
 sub _add_db_ids {
     my ($self, $ids) = @_;
     $self->throw ("IDs must be an ARRAY reference") unless ref($ids) =~ m{ARRAY}i;
-    $self->{'_db_ids'} = $ids; 
+    my @ids = @{ $ids}; # deep copy
+    $self->{'_db_ids'} = \@ids; 
 }
 
 =head2 _eutil

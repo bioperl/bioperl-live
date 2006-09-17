@@ -13,16 +13,36 @@ BEGIN {
     }
     use Test;
 
-    plan tests => 46;
+    plan tests => 63;
 }
 
 use Bio::Matrix::PSM::IO;
+
+
+my $mmt= "chr04q	170164	170208	strong	-	0	Motif 3 occurrance in chr04q
+chr04q	215755	215799	strong	+	0	Motif 4 occurrance in chr04q
+chr04q	532530	532574	strong	+	2	Motif 2 occurrance in chr04q
+chr04q	539492	539536	strong	-	1	Motif 1 occurrance in chr04q
+chr04q	586113	586157	strong	+	2	Motif 2 occurrance in chr04q
+chr04q	698245	698289	strong	-	0	Motif 4 occurrance in chr04q
+chr04q	804412	804456	strong	-	0	Motif 3 occurrance in chr04q
+chr04q	858870	858914	strong	-	2	Motif 3 occurrance in chr04q
+chr04q	861561	861605	strong	-	2	Motif 3 occurrance in chr04q
+chr04q	916898	916942	strong	-	1	Motif 1 occurrance in chr04q
+chr04q	1146916	1146960	strong	-	0	Motif 1 occurrance in chr04q
+chr04q	1315772	1315816	strong	+	1	Motif 1 occurrance in chr04q
+chr04q	1636119	1636163	strong	+	2	Motif 3 occurrance in chr04q
+chr04q	1636200	1636244	strong	+	2	Motif 1 occurrance in chr04q
+chr04q	1636437	1636481	strong	+	2	Motif 4 occurrance in chr04q
+chr04q	1637361	1637405	strong	+	2	Motif 2 occurrance in chr04q
+chr04q	1652447	1652491	strong	+	1	Motif 4 occurrance in chr04q";
+my @mmt=split(/\n/,$mmt);
 
 ok(1);
 
 #Let's try meme here
 my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
-				      -file=>Bio::Root::IO->catfile(qw(t data meme.dat)));
+	     -file=>Bio::Root::IO->catfile(qw(t data meme.dat)));
 ok $psmIO;
 
 my @inputfile=grep(/datafile/i,$psmIO->unstructured);
@@ -58,6 +78,7 @@ for (my $i = 0; $i<@check;$i++) {
 }
 my $avg=$var/@check;
 ok $avg<0.01; #Loss of data under 1 percent
+#print $avg,"\n";
 ok $psm->sequence_match_weight('CAGAAAAATAAAATGGCCACCACCC'),2015;
 
 my $lA=$psm->get_compressed_logs('A');
@@ -107,7 +128,7 @@ ok $psm->header('e_val');
 #Now we are going to try transfac
 
 $psmIO =  new Bio::Matrix::PSM::IO(-format=>'transfac', 
-				   -file=> Bio::Root::IO->catfile(qw(t data transfac.dat)));
+	  -file=> Bio::Root::IO->catfile(qw(t data transfac.dat)));
 ok $psmIO;
 
 my $version=$psmIO->version;
@@ -144,7 +165,7 @@ ok $IUPAC,'VVDCAKSTGBYD';
 
 #Now we are going to try mast
 $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
-				   -file=>Bio::Root::IO->catfile(qw(t data mast.dat)));
+	  -file=>Bio::Root::IO->catfile(qw(t data mast.dat)));
 ok $psmIO;
 
 @inputfile = grep(/datafile/i,$psmIO->unstructured);
@@ -169,5 +190,19 @@ my %instances=$psmIO->instances;
 ok %instances;
 
 ok $psmIO->version, '3.0';
+
+my $mmastIO=new Bio::Matrix::PSM::IO(-format=>'mast',-file=>Bio::Root::IO->catfile(qw(t data mixedmast.dat)));
+
+$psm = $mmastIO->next_psm; 
+my $lastinstances = $psm->instances();
+my $i=0;
+foreach my $hit (@$lastinstances) {
+    $hit -> end ( $hit-> start () + length ($hit->seq) - 1 ) ; # fix an old bug in InstanceSite.pm
+    my $d=join("\t",$hit->{accession_number},$hit -> start () , $hit-> end (),$hit -> score (),
+    $hit -> strand == 1 ? '+' : '-' , $hit -> frame,  $hit -> desc ( ));
+    ok $d,$mmt[$i];
+    $i++;
+    last if ($hit -> start == 1652447);
+}
 
 

@@ -69,3 +69,128 @@ SQ   SEQUENCE   409 AA;  44964 MW;  4D06241FB6768069 CRC64;
      AQNQLMQLKM ADMLTEISLG LQGCLRVSRL KDEGKVQSEQ ISIIKRNSCG KALEVARKAR
      DMLGGNGIVD EYHIMRHMVN LETVNTYEGT HDVHALILGR AITGLNGFC
 //
+ID   Q41V66_FERAC   PRELIMINARY;   PRT;   607 AA.
+AC   Q41V66;
+DT   27-SEP-2005, integrated into UniProtKB/TrEMBL.
+DT   27-SEP-2005, sequence version 1.
+DT   30-MAY-2006, entry version 5.
+DE   Glycoside hydrolase, family 15.
+GN   ORFNames=FaciDRAFT_1685;
+OS   Ferroplasma acidarmanus Fer1.
+OC   Archaea; Euryarchaeota; Thermoplasmata; Thermoplasmatales;
+OC   Ferroplasmaceae; Ferroplasma.
+OX   NCBI_TaxID=333146;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE.
+RC   STRAIN=Fer1;
+RG   US DOE Joint Genome Institute (JGI-PGF);
+RA   Copeland A., Lucas S., Lapidus A., Barry K., Detter C., Glavina T.,
+RA   Hammon N., Israni S., Pitluck S., Richardson P.;
+RT   "Sequencing of the draft genome and assembly of Ferroplasma
+RT   acidarmanus fer1.";
+RL   Submitted (JUN-2005) to the EMBL/GenBank/DDBJ databases.
+RN   [2]
+RP   NUCLEOTIDE SEQUENCE.
+RC   STRAIN=Fer1;
+RG   US DOE Joint Genome Institute (JGI-ORNL);
+RA   Larimer F., Land M.;
+RT   "Annotation of the draft genome assembly of Ferroplasma acidarmanus
+RT   fer1.";
+RL   Submitted (JUN-2005) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   NUCLEOTIDE SEQUENCE.
+RC   STRAIN=Fer1;
+RG   US DOE Joint Genome Institute (JGI-PGF);
+RA   Copeland A., Lucas S., Lapidus A., Barry K., Detter C., Glavina T.,
+RA   Hammon N., Israni S., Pitluck S., Richardson P.;
+RL   Submitted (JUN-2005) to the EMBL/GenBank/DDBJ databases.
+CC   -!- CAUTION: The sequence shown here is derived from an
+CC       EMBL/GenBank/DDBJ whole genome shotgun (WGS) entry which is
+CC       preliminary data.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; AABC04000001; EAM94575.1; -; Genomic_DNA.
+DR   GO; GO:0004339; F:glucan 1,4-alpha-glucosidase activity; IEA.
+DR   GO; GO:0016787; F:hydrolase activity; IEA.
+DR   GO; GO:0005976; P:polysaccharide metabolism; IEA.
+DR   InterPro; IPR008928; 6hp_glycosidase.
+DR   InterPro; IPR011613; Glyco_hydro_15_rel.
+DR   InterPro; IPR012343; Glyco_trans_sub.
+DR   Pfam; PF00723; Glyco_hydro_15; 1.
+KW   Hydrolase.
+SQ   SEQUENCE   607 AA;  69495 MW;  8AC6297BA16ED500 CRC64;
+     MGTYRGLYDL HDAYRSDYLK IANHGFIANN RTAALVGIDG TIDWACLPNF NSNPVFDSIL
+     DARNGGYFKT SPVMESNVNQ YYEESTNILI TEFVNNNQVI LRLTDFLPTS SYSTITFPEI
+     HRLIEAPYSD VEVSIDIKSH FNFGSGKTNI TRDRNGYIFS CTDDTLGIST NLKLKKGNGN
+     VYSRIKVEKG SHEWIVVLSG VRQIGNVRQY ESYTRLEETR NYWSAWAGKI NYSGLYYDHV
+     IRSALTLRGL FYDPTGMMVA APTTSLPEII GGERNWDYRY TWIRDTAYVV EALSLIGLND
+     VATKFLYDIM SIVQKDKKVK TIYPVNGDSK LEEKKVNLSG YMDSIPVRIG NEASEQLQID
+     QYGSIVNAVF RFHEAGGLVT TYLWDFLIEI LDTLKDIWKL PDSSIWEFRS EPKHYLYSKL
+     ISWSAFNRAI KMGRELGYSA PYRTWHKIRE EIKNEIMEKG YNPDVKAFTQ YYGSDQMDAS
+     VLRMPLTGII SAKDPRFVST LARVEAELKN PCGMFIRYHS DDGLKGHDNA FLLLSFWYVE
+     DLILSGRIME AKETFENILD HSNHLMLFSE EINFNDCREM LGNFPQAITH LGVIRAAIKL
+     DEALRGK
+//
+ID   Q41US7_FERAC   PRELIMINARY;   PRT;   270 AA.
+AC   Q41US7;
+DT   27-SEP-2005, integrated into UniProtKB/TrEMBL.
+DT   27-SEP-2005, sequence version 1.
+DT   30-MAY-2006, entry version 4.
+DE   Potassium channel protein.
+GN   ORFNames=FaciDRAFT_1443;
+OS   Ferroplasma acidarmanus Fer1.
+OC   Archaea; Euryarchaeota; Thermoplasmata; Thermoplasmatales;
+OC   Ferroplasmaceae; Ferroplasma.
+OX   NCBI_TaxID=333146;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE.
+RC   STRAIN=Fer1;
+RG   US DOE Joint Genome Institute (JGI-PGF);
+RA   Copeland A., Lucas S., Lapidus A., Barry K., Detter C., Glavina T.,
+RA   Hammon N., Israni S., Pitluck S., Richardson P.;
+RT   "Sequencing of the draft genome and assembly of Ferroplasma
+RT   acidarmanus fer1.";
+RL   Submitted (JUN-2005) to the EMBL/GenBank/DDBJ databases.
+RN   [2]
+RP   NUCLEOTIDE SEQUENCE.
+RC   STRAIN=Fer1;
+RG   US DOE Joint Genome Institute (JGI-ORNL);
+RA   Larimer F., Land M.;
+RT   "Annotation of the draft genome assembly of Ferroplasma acidarmanus
+RT   fer1.";
+RL   Submitted (JUN-2005) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   NUCLEOTIDE SEQUENCE.
+RC   STRAIN=Fer1;
+RG   US DOE Joint Genome Institute (JGI-PGF);
+RA   Copeland A., Lucas S., Lapidus A., Barry K., Detter C., Glavina T.,
+RA   Hammon N., Israni S., Pitluck S., Richardson P.;
+RL   Submitted (JUN-2005) to the EMBL/GenBank/DDBJ databases.
+CC   -!- CAUTION: The sequence shown here is derived from an
+CC       EMBL/GenBank/DDBJ whole genome shotgun (WGS) entry which is
+CC       preliminary data.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; AABC04000002; EAM94333.1; -; Genomic_DNA.
+DR   GO; GO:0016020; C:membrane; IEA.
+DR   GO; GO:0005216; F:ion channel activity; IEA.
+DR   GO; GO:0005267; F:potassium channel activity; IEA.
+DR   GO; GO:0006813; P:potassium ion transport; IEA.
+DR   InterPro; IPR013099; Ion_trans_2_bac.
+DR   InterPro; IPR001622; K+channel_pore.
+DR   InterPro; IPR003148; TrkA_N.
+DR   Pfam; PF07885; Ion_trans_2; 1.
+DR   Pfam; PF02254; TrkA_N; 1.
+KW   Ionic channel.
+SQ   SEQUENCE   270 AA;  30497 MW;  528C4EA75C41DF75 CRC64;
+     MQTITTVGYG DTPVYGLAGR ANGMLIMVIG IGSLGYLMAG LTSMLIDIRL SSKLGERMAA
+     EKKHIVLCNY NESTKKVLDK IKYDGIDIVI LNENEVKGDN EYTYIKGSFL RENDLIRAGI
+     KKASSVIIFS RSEDKEQMAM DAESILSAMI IRKLNPEIRI IGEILNPDSR EHASSFMDDI
+     IIKGDVSSML IYSSIMIPGI PEFINDLLMS NSISEEDIDK KYASNTYREF ISNMEKENRI
+     VLAFRKQDKI YLRENSDKKI DVDSYIFIKN
+//
+

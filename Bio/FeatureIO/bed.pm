@@ -160,7 +160,7 @@ sub write_feature {
 
   my $chrom       = $feature->seq_id || '';
   my $chrom_start = $feature->start  || 0;
-  my $chrom_end   = $feature->stop   || 0;
+  my $chrom_end   = $feature->end   || 0;
 
   #try to make a reasonable name
   my $name        = undef;

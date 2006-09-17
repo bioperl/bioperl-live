@@ -70,9 +70,10 @@ package Bio::Map::MappableI;
 use vars qw(@ISA);
 use strict;
 use Bio::Map::EntityI;
+use Bio::AnnotatableI;
 use Bio::Map::PositionHandler;
 
-@ISA = qw(Bio::Map::EntityI);
+@ISA = qw(Bio::Map::EntityI Bio::AnnotatableI);
 
 =head2 EntityI methods
 
@@ -187,6 +188,40 @@ sub known_maps {
 =head2 MappableI-specific methods
 
 =cut
+
+=head2 name
+
+ Title   : name
+ Usage   : my $name = $marker->name();
+           $marker->name($new_name);
+ Function: Get/Set the name for this Mappable.
+ Returns : A scalar representing the current name of this Mappable
+ Args    : none to get
+           string to set
+
+=cut
+
+sub name {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
+=head2 id
+
+ Title   : id
+ Usage   : my $id = $marker->id();
+           $marker->id($new_id);
+ Function: Get/Set the id for this Mappable.
+ Returns : A scalar representing the current id of this Mappable
+ Args    : none to get
+           string to set
+
+=cut
+
+sub id {
+    my $self = shift;
+    $self->throw_not_implemented();
+}
 
 =head2 in_map
 

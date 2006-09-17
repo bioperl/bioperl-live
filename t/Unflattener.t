@@ -9,7 +9,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    $TESTCOUNT = 7;
+    $TESTCOUNT = 8;
     plan tests => $TESTCOUNT;
 }
 
@@ -152,6 +152,26 @@ if( $verbosity > 0 ) {
     warn sprintf "PROCESSED:%d\n", scalar(@sfs);
 }
 ok(@sfs == 7);
+
+# try again; this sequence has no CDSs but rRNA present
+
+$seq = getseq("t","data","no_cds_example.gb");
+
+# UNFLATTEN
+@sfs = $unflattener->unflatten_seq(-seq=>$seq,
+                                 use_magic=>1
+                                );
+if( $verbosity > 0 ) {
+    warn "\n\nPOST PROCESSING:\n";
+    write_hier(@sfs);
+    warn sprintf "PROCESSED:%d\n", scalar(@sfs);
+}
+
+my @all_sfs = $seq->get_all_SeqFeatures;
+
+my @exons = grep { $_-> primary_tag eq 'exon' }  @all_sfs ; 
+
+ok(@exons == 2);
 
 
 

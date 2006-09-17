@@ -1,7 +1,6 @@
-# POD documentation - main docs before the code
-
 # $Id$
-
+#
+# POD documentation - main docs before the code
 
 =head1 NAME
 
@@ -31,19 +30,15 @@ they may be local, indexed flatfile databases.
 If the user or system administrator has not installed the default init 
 file, seqdatabase.ini, in /etc/bioinformatics or ${HOME}/.bioinformatics 
 then creating the first Registry object copies the default settings from 
-the net. The Registry object will attempt to store these settings in
-${HOME}/.bioinformatics/seqdatabase.ini.
+the www.open-bio.org. The Registry object will attempt to store these 
+settings in a new file, ${HOME}/.bioinformatics/seqdatabase.ini.
 
 Users can specify one or more custom locations for the init file by 
 setting $OBDA_SEARCH_PATH to those directories, where multiple 
 directories should be separated by ';'.
 
 Please see the OBDA Access HOWTO for more information
-(http://bioperl.open-bio.org/wiki/HOWTO:OBDA).
-
-=head1 CONTACT
-
-Ewan Birney originally wrote this class.
+(L<http://bioperl.open-bio.org/wiki/HOWTO:OBDA>).
 
 =head2 Reporting Bugs
 
@@ -60,32 +55,38 @@ methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH);
+use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH
+			   $HOME $PRIVATE_DIR $PUBLIC_DIR $REGISTRY 
+			   $FALLBACK_REGISTRY);
 use strict;
 
 use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
 use Bio::DB::Failover;
 use Bio::Root::HTTPget;
+@ISA = qw(Bio::Root::Root);
 
 BEGIN {
-    $OBDA_SPEC_VERSION = 1.0;
-    if (defined $ENV{OBDA_SEARCH_PATH}) {
-        $OBDA_SEARCH_PATH = $ENV{OBDA_SEARCH_PATH} || '';
-    }
+   $OBDA_SPEC_VERSION = 1.0;
+	$HOME = $ENV{HOME} if (defined $ENV{HOME});
+	if (defined $ENV{OBDA_SEARCH_PATH}) {
+		$OBDA_SEARCH_PATH = $ENV{OBDA_SEARCH_PATH} || '';
+   }
 }
 
-my %implement = ('biocorba'         => 'Bio::CorbaClient::SeqDB',
-		 'flat'             => 'Bio::DB::Flat',
-		 'biosql'           => 'Bio::DB::BioSQL::BioDatabaseAdaptor',
-		 'biofetch'         => 'Bio::DB::BioFetch' );
+my %implement = ('flat'     => 'Bio::DB::Flat',
+					   'biosql'   => 'Bio::DB::BioSQL::OBDA',
+					   'biofetch' => 'Bio::DB::BioFetch'
+					   # 'biocorba' => 'Bio::CorbaClient::SeqDB',
+					   );
 
-my $fallbackRegistryURL = 'http://www.open-bio.org/registry/seqdatabase.ini';
+$FALLBACK_REGISTRY = 'http://www.open-bio.org/registry/seqdatabase.ini';
+$PRIVATE_DIR = '.bioinformatics';
+$PUBLIC_DIR = '/etc/bioinformatics';
+$REGISTRY = 'seqdatabase.ini';
 
 sub new {
     my ($class,@args) = shift;
@@ -102,44 +103,24 @@ sub new {
  Usage   :
  Function: Looks for seqdatabase.ini files in the expected locations and
            in the directories specified by $OBDA_SEARCH_PATH. If no files
-           are found it downloads a default file from www.open-bio.org
+           are found download a default file from www.open-bio.org
  Returns : nothing
  Args    : none
 
 =cut
 
 sub _load_registry {
-   my ($self) = @_;
-   my $home = "";
-	$home = $ENV{"HOME"} if defined $ENV{"HOME"};
-	eval {$home = (getpwuid($>))[7];} unless $home;
+   my $self = shift;
+	eval { $HOME = (getpwuid($>))[7]; } unless $HOME;
 	if ($@) {
-		warn "This Perl doesn't implement function getpwuid(). Skipping...\n"
+		$self->warn("This Perl doesn't implement function getpwuid(), no $HOME");
 	}
-	my @ini_files = _get_ini_files($home);
+	my @ini_files = $self->_get_ini_files();
 
-   unless (@ini_files) {
-	  my $nor_in = $OBDA_SEARCH_PATH ? "nor in directory specified by\n$OBDA_SEARCH_PATH" : "and environment variable\nOBDA_SEARCH_PATH wasn't set";
-	  $self->warn("No seqdatabase.ini file found in ~/.bioinformatics/\nnor in /etc/bioinformatics/ $nor_in.\nUsing web to get database registry from\n$fallbackRegistryURL");
-
-      # Last gasp. Try to use HTTPget module to retrieve the registry from
-      # the web...
-      my $f = Bio::Root::HTTPget::getFH($fallbackRegistryURL);
-
-      # store the default registry file
-      mkdir "$home/.bioinformatics" unless -e "$home/.bioinformatics";
-      open(F,">$home/.bioinformatics/seqdatabase.ini");
-      print F while (<$f>);
-      close F;
-
-      $self->warn("Stored the default registry configuration in\n" .
-		  "$home/.bioinformatics/seqdatabase.ini");
-
-      push @ini_files,"$home/.bioinformatics/seqdatabase.ini";
-   }
+	@ini_files = $self->_make_private_registry() unless (@ini_files);
 
    my ($db,$hash) = ();
-   foreach my $file (@ini_files) {
+   for my $file (@ini_files) {
       open FH,"$file";
       while( <FH> ) {
 			if (/^VERSION=([\d\.]+)/) {
@@ -151,7 +132,7 @@ sub _load_registry {
          }
 			next if( /^#/ );
 			next if( /^\s/ );
-			if ( /^\[(\w+)\]/ ) {
+			if ( /^\[(\S+)\]/ ) {
 				$db = $1;
 				next;
 			}
@@ -162,7 +143,7 @@ sub _load_registry {
       }
    }
 
-   foreach my $db( keys %{$hash} ) {
+   for my $db ( keys %{$hash} ) {
       if ( !exists $self->{'_dbs'}->{$db} ) {
 			my $failover = Bio::DB::Failover->new();
 			$self->{'_dbs'}->{$db} = $failover;
@@ -177,18 +158,20 @@ sub _load_registry {
       }
       eval "require $class";
       if ($@) {
-			$self->verbose && $self->warn("Couldn't load $class");
+			$self->warn("Couldn't load $class");
 			next;
       } else {
-	  eval {
-	      my $randi = $class->new_from_registry( %{$hash->{$db}} );
-	      $self->{'_dbs'}->{$db}->add_database($randi); };
-	  if ($@) {
-	      $self->warn("Couldn't call new_from_registry on [$class]\n$@");
-	  }
+			eval {
+				my $randi = $class->new_from_registry( %{$hash->{$db}} );
+				$self->{'_dbs'}->{$db}->add_database($randi); 
+			};
+			if ($@) {
+				$self->warn("Couldn't call new_from_registry() on [$class]\n$@");
+			}
       }
    }
 }
+
 
 =head2 get_database
 
@@ -235,33 +218,73 @@ sub services {
 =head2 _get_ini_files
 
  Title   : _get_ini_files
- Usage   :
+ Usage   : my @files = $self->_get_ini_files
  Function: To find all the seqdatabase.ini files
  Returns : list of seqdatabase.ini paths
- Args    : $home
+ Args    : None
 
 =cut
 
 sub _get_ini_files {
-   my $home = shift;
+	my $self = shift;
    my @ini_files = ();
    if ( $OBDA_SEARCH_PATH ) {
-      foreach my $dir ( split /;/,$OBDA_SEARCH_PATH ) {
-			my $file = $dir . "/" . "seqdatabase.ini";
+      foreach my $dir ( split /;/, $OBDA_SEARCH_PATH ) {
+			my $file = $dir . "/" . $REGISTRY;
 			next unless -e $file;
 			push @ini_files,$file;
       }
    }
-   push @ini_files,"$home/.bioinformatics/seqdatabase.ini" 
-     if ( $home && -e "$home/.bioinformatics/seqdatabase.ini" );
-   push @ini_files,"/etc/bioinformatics/seqdatabase.ini"
-     if ( $home && -e "/etc/bioinformatics/seqdatabase.ini" );
+   push @ini_files,"$HOME/$PRIVATE_DIR/$REGISTRY" 
+     if ( $HOME && -e "$HOME/$PRIVATE_DIR/$REGISTRY" );
+   push @ini_files, "$PUBLIC_DIR/$REGISTRY"
+     if ( -e "$PUBLIC_DIR/$REGISTRY" );
    @ini_files;
 }
 
-## End of Package
+=head2 _make_private_registry
+
+ Title   : _make_private_registry
+ Usage   :
+ Function: Make private registry in file in $HOME
+ Returns : Path to private registry file
+ Args    : None
+
+=cut
+
+sub _make_private_registry {
+	my $self = shift;
+   my @ini_file;
+
+	my $nor_in = $OBDA_SEARCH_PATH ? 
+	  "nor in directory specified by\n$OBDA_SEARCH_PATH" : 
+	  "and environment variable OBDA_SEARCH_PATH wasn't set";
+
+	$self->warn("No $REGISTRY file found in $HOME/$PRIVATE_DIR/\n" . 
+					"nor in $PUBLIC_DIR $nor_in.\n" .
+					"Using web to get registry from\n$FALLBACK_REGISTRY");
+
+	# Last gasp. Try to use HTTPget module to retrieve the registry from
+	# the web...
+	my $f = Bio::Root::HTTPget::getFH($FALLBACK_REGISTRY);
+
+	# store the default registry file
+	eval {
+		mkdir "$HOME/$PRIVATE_DIR" unless -e "$HOME/$PRIVATE_DIR";
+	};
+	$self->throw("Could not make directory $HOME/$PRIVATE_DIR, " .
+					 "no $REGISTRY file available") if $@;
+
+	open(F,">$HOME/$PRIVATE_DIR/$REGISTRY");
+	print F while (<$f>);
+	close F;
+
+	$self->warn("Stored $REGISTRY file in $HOME/$PRIVATE_DIR");
+
+	push @ini_file,"$HOME/$PRIVATE_DIR/$REGISTRY";
+	@ini_file;
+}
 
 1;
 
 __END__
-

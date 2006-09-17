@@ -72,27 +72,28 @@ use strict;
 
 use Bio::Location::FuzzyLocationI;
 use Bio::Location::Atomic;
+use Data::Dumper;
 
 @ISA = qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI );
 
 BEGIN {
     use vars qw( %FUZZYCODES %FUZZYPOINTENCODE %FUZZYRANGEENCODE 
-		 @LOCATIONCODESBSANE );
+         @LOCATIONCODESBSANE );
 
     @LOCATIONCODESBSANE = (undef, 'EXACT', 'WITHIN', 'BETWEEN', 'UNCERTAIN',
-			'BEFORE', 'AFTER');
+            'BEFORE', 'AFTER');
 
     %FUZZYCODES = ( 'EXACT' => '..', # Position is 'exact
    # Exact position is unknown, but is within the range specified, ((1.2)..100)
-		    'WITHIN' => '.', 
-		    # 1^2
-		    'BETWEEN'    => '^',
-		    'IN-BETWEEN' => '^',
-		    'UNCERTAIN'  => '?',
-		    # <100
-		    'BEFORE'  => '<',
-		    # >10
-		    'AFTER'   => '>');   
+            'WITHIN' => '.', 
+            # 1^2
+            'BETWEEN'    => '^',
+            'IN-BETWEEN' => '^',
+            'UNCERTAIN'  => '?',
+            # <100
+            'BEFORE'  => '<',
+            # >10
+            'AFTER'   => '>');   
    
     # The following regular expressions map to fuzzy location types. Every
     # expression must match the complete encoded point string, and must
@@ -100,19 +101,19 @@ BEGIN {
     # converted to undef, except for 'EXACT', for which max is set to equal
     # min.
     %FUZZYPOINTENCODE = ( 
-			  '\>(\d+)(.{0})' => 'AFTER',
-			  '\<(.{0})(\d+)' => 'BEFORE',
-			  '(\d+)'         => 'EXACT',
-			  '\?(\d*)'       => 'UNCERTAIN',
-			  '(\d+)(.{0})\>' => 'AFTER',
-			  '(.{0})(\d+)\<' => 'BEFORE',
-			  '(\d+)\.(\d+)'  => 'WITHIN',
-			  '(\d+)\^(\d+)'  => 'BETWEEN',
-		     );
+              '\>(\d+)(.{0})' => 'AFTER',
+              '\<(.{0})(\d+)' => 'BEFORE',
+              '(\d+)'         => 'EXACT',
+              '\?(\d*)'       => 'UNCERTAIN',
+              '(\d+)(.{0})\>' => 'AFTER',
+              '(.{0})(\d+)\<' => 'BEFORE',
+              '(\d+)\.(\d+)'  => 'WITHIN',
+              '(\d+)\^(\d+)'  => 'BETWEEN',
+             );
     
     %FUZZYRANGEENCODE  = ( '\.'   => 'WITHIN',
                               '\.\.' => 'EXACT',
-									   '\^'   => 'IN-BETWEEN' );
+                                       '\^'   => 'IN-BETWEEN' );
 }
 
 =head2 new
@@ -143,9 +144,9 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     my ($location_type, $start_ext, $start_fuz, $end_ext, $end_fuz) = 
-		$self->_rearrange([ qw(LOCATION_TYPE START_EXT START_FUZ 
-			       END_EXT END_FUZ )
-			    ], @args);
+        $self->_rearrange([ qw(LOCATION_TYPE START_EXT START_FUZ 
+                   END_EXT END_FUZ )
+                ], @args);
 
     $location_type  && $self->location_type($location_type);
     $start_ext && $self->max_start($self->min_start + $start_ext);
@@ -167,29 +168,31 @@ sub new {
 =cut
 
 sub location_type {
-	my ($self,$value) = @_;
-	if( defined $value || ! defined $self->{'_location_type'} ) {
-		$value = 'EXACT' unless defined $value;
-		if(! defined $FUZZYCODES{$value} )  {
-			$value = uc($value);
-			if( $value =~ /\.\./ ) {
-				$value = 'EXACT';
-			} elsif( $value =~ /^\.$/ ) {
-				$value = 'WITHIN';
-			} elsif( $value =~ /\^/ ) {
-				$value = 'IN-BETWEEN';
-				$self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->start. "] and [". $self->end. "]")
-				  if defined $self->start && defined $self->end && ($self->end - 1 == $self->start);
-			} elsif( $value =~ /\?/ ) {
-				$value = 'UNCERTAIN';
-			} elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
-						$value ne 'IN-BETWEEN' ) {
-				$self->throw("Did not specify a valid location type");
-			}
-		}
-		$self->{'_location_type'} = $value;
-	}
-	return $self->{'_location_type'};
+    my ($self,$value) = @_;
+    if( defined $value || ! defined $self->{'_location_type'} ) {
+        $value = 'EXACT' unless defined $value;
+        if(! defined $FUZZYCODES{$value} )  {
+            $value = uc($value);
+            if( $value =~ /\.\./ ) {
+                $value = 'EXACT';
+            } elsif( $value =~ /^\.$/ ) {
+                $value = 'WITHIN';
+            } elsif( $value =~ /\^/ ) {
+                $value = 'IN-BETWEEN';
+                $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [".
+                             $self->start. "] and [". $self->end. "]")
+                  if defined $self->start && defined $self->end &&
+                            ($self->end - 1 == $self->start);
+            } elsif( $value =~ /\?/ ) {
+                $value = 'UNCERTAIN';
+            } elsif( $value ne 'EXACT' && $value ne 'WITHIN' && 
+                        $value ne 'IN-BETWEEN' ) {
+                $self->throw("Did not specify a valid location type");
+            }
+        }
+        $self->{'_location_type'} = $value;
+    }
+    return $self->{'_location_type'};
 }
 
 =head1 LocationI methods
@@ -229,14 +232,16 @@ sub location_type {
 sub start {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode,$min,$max) = $self->_fuzzypointdecode($value);
-	$self->start_pos_type($encode);
-	$self->min_start($min);
-	$self->max_start($max);
+    my ($encode,$min,$max) = $self->_fuzzypointdecode($value);
+    $self->start_pos_type($encode);
+    $self->min_start($min);
+    $self->max_start($max);
     }
 
-    $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->SUPER::start. "] and [". $self->SUPER::end. "]")
-	if $self->location_type eq 'IN-BETWEEN'  && defined $self->SUPER::end && ($self->SUPER::end - 1 == $self->SUPER::start);
+    $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations ["
+                 . $self->SUPER::start. "] and [". $self->SUPER::end. "]")
+    if $self->location_type eq 'IN-BETWEEN'  && defined $self->SUPER::end &&
+                  ($self->SUPER::end - 1 == $self->SUPER::start);
 
     return $self->SUPER::start();
 }
@@ -254,14 +259,16 @@ sub start {
 sub end {
     my($self,$value) = @_;
     if( defined $value ) {
-	my ($encode,$min,$max) = $self->_fuzzypointdecode($value);
-	$self->end_pos_type($encode);
-	$self->min_end($min);
-	$self->max_end($max);
+    my ($encode,$min,$max) = $self->_fuzzypointdecode($value);
+    $self->end_pos_type($encode);
+    $self->min_end($min);
+    $self->max_end($max);
     }
 
-    $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [". $self->SUPER::start. "] and [". $self->SUPER::end. "]")
-	if $self->location_type eq 'IN-BETWEEN' && defined $self->SUPER::start && ($self->SUPER::end - 1 == $self->SUPER::start);
+    $self->throw("Use Bio::Location::Simple for IN-BETWEEN locations [".
+                 $self->SUPER::start. "] and [". $self->SUPER::end. "]")
+    if $self->location_type eq 'IN-BETWEEN' && defined $self->SUPER::start &&
+                ($self->SUPER::end - 1 == $self->SUPER::start);
 
     return $self->SUPER::end();
 }
@@ -280,7 +287,7 @@ sub min_start {
     my ($self,@args) = @_;
 
     if(@args) {
-	$self->{'_min_start'} = $args[0]; # the value may be undef!
+    $self->{'_min_start'} = $args[0]; # the value may be undef!
     }
     return $self->{'_min_start'};
 }
@@ -296,12 +303,12 @@ sub min_start {
 =cut
 
 sub max_start {
-	my ($self,@args) = @_;
+    my ($self,@args) = @_;
 
-	if(@args) {
-		$self->{'_max_start'} = $args[0]; # the value may be undef!
-	}
-	return $self->{'_max_start'};
+    if(@args) {
+        $self->{'_max_start'} = $args[0]; # the value may be undef!
+    }
+    return $self->{'_max_start'};
 }
 
 =head2 start_pos_type
@@ -316,22 +323,23 @@ sub max_start {
 =cut
 
 sub start_pos_type {
-	my ($self,$value) = @_;
-	if(defined $value &&  $value =~ /^\d+$/ ) {
-		if( $value == 0 ) { $value = 'EXACT'; }
-		else { 
-			my $v = $LOCATIONCODESBSANE[$value];
-			if( ! defined $v ) {
-				$self->warn("Provided value $value which I don't understand, reverting to 'EXACT'");
-				$v = 'EXACT';
-			}
-			$value = $v;
-		}
-	}
-	if(defined($value)) {
-		$self->{'_start_pos_type'} = $value;
-	}
-	return $self->{'_start_pos_type'};
+    my ($self,$value) = @_;
+    if(defined $value &&  $value =~ /^\d+$/ ) {
+        if( $value == 0 ) { $value = 'EXACT'; }
+        else { 
+            my $v = $LOCATIONCODESBSANE[$value];
+            if( ! defined $v ) {
+                $self->warn("Provided value $value which I don't understand,".
+                            " reverting to 'EXACT'");
+                $v = 'EXACT';
+            }
+            $value = $v;
+        }
+    }
+    if(defined($value)) {
+        $self->{'_start_pos_type'} = $value;
+    }
+    return $self->{'_start_pos_type'};
 }
 
 =head2 min_end
@@ -345,12 +353,12 @@ sub start_pos_type {
 =cut
 
 sub min_end {
-	my ($self,@args) = @_;
+    my ($self,@args) = @_;
 
-	if(@args) {
-		$self->{'_min_end'} = $args[0]; # the value may be undef!
-	}
-	return $self->{'_min_end'};
+    if(@args) {
+        $self->{'_min_end'} = $args[0]; # the value may be undef!
+    }
+    return $self->{'_min_end'};
 }
 
 =head2 max_end
@@ -364,12 +372,12 @@ sub min_end {
 =cut
 
 sub max_end {
-	my ($self,@args) = @_;
+    my ($self,@args) = @_;
 
-	if(@args) {
-		$self->{'_max_end'} = $args[0]; # the value may be undef!
-	}
-	return $self->{'_max_end'};
+    if(@args) {
+        $self->{'_max_end'} = $args[0]; # the value may be undef!
+    }
+    return $self->{'_max_end'};
 }
 
 =head2 end_pos_type
@@ -384,23 +392,24 @@ sub max_end {
 =cut
 
 sub end_pos_type {
-	my ($self,$value) = @_;
-	if( defined $value && $value =~ /^\d+$/ ) {
-		if( $value == 0 ) { $value = 'EXACT'; }
-		else { 
-			my $v = $LOCATIONCODESBSANE[$value];
-			if( ! defined $v ) {
-				$self->warn("Provided value $value which I don't understand, reverting to 'EXACT'");
-				$v = 'EXACT';
-			}
-			$value = $v;
-		}
-	}
+    my ($self,$value) = @_;
+    if( defined $value && $value =~ /^\d+$/ ) {
+        if( $value == 0 ) { $value = 'EXACT'; }
+        else { 
+            my $v = $LOCATIONCODESBSANE[$value];
+            if( ! defined $v ) {
+                $self->warn("Provided value $value which I don't understand,".
+                            " reverting to 'EXACT'");
+                $v = 'EXACT';
+            }
+            $value = $v;
+        }
+    }
 
-	if(defined($value)) {
-		$self->{'_end_pos_type'} = $value;
-	}
-	return $self->{'_end_pos_type'};
+    if(defined($value)) {
+        $self->{'_end_pos_type'} = $value;
+    }
+    return $self->{'_end_pos_type'};
 }
 
 =head2 seq_id
@@ -454,80 +463,88 @@ See L<Bio::Location::CoordinatePolicyI>
 =cut
 
 sub to_FTstring {
-    my ($self) = @_;
+    my ($self) = @_;    
     my (%vals) = ( 'start' => $self->start,
-		   'min_start' => $self->min_start,
-		   'max_start' => $self->max_start,
-		   'start_code' => $self->start_pos_type,
-		   'end' => $self->end,
-		   'min_end' => $self->min_end,
-		   'max_end' => $self->max_end,
-		   'end_code' => $self->end_pos_type );
-    
+           'min_start' => $self->min_start,
+           'max_start' => $self->max_start,
+           'start_code' => $self->start_pos_type,
+           'end' => $self->end,
+           'min_end' => $self->min_end,
+           'max_end' => $self->max_end,
+           'end_code' => $self->end_pos_type );
+
     my (%strs) = ( 'start' => '',
-		   'end'   => '');
+           'end'   => '');
     my ($delimiter) = $FUZZYCODES{$self->location_type};
     $delimiter = $FUZZYCODES{'EXACT'} if ($self->location_type eq 'UNCERTAIN');
+    
+    my $policy = ref($self->coordinate_policy);
+    
     # I'm lazy, lets do this in a loop since behaviour will be the same for 
     # start and end
+    # The CoordinatePolicy now dictates start/end data here (bug 992) - cjf
     foreach my $point ( qw(start end) ) {
-	if( ($vals{$point."_code"} ne 'EXACT') &&
-	    ($vals{$point."_code"} ne 'UNCERTAIN') ) {
-	    
-	    if( (!defined $vals{"min_$point"} ||
-		 !defined $vals{"max_$point"})
-		&& ( $vals{$point."_code"} eq 'WITHIN' || 
-		     $vals{$point."_code"} eq 'BETWEEN')
-		     ) {
-		$vals{"min_$point"} = '' unless defined $vals{"min_$point"};
-		$vals{"max_$point"} = '' unless defined $vals{"max_$point"};
-		
-		$self->warn("Fuzzy codes for start are in a strange state, (".
-			    join(",", ($vals{"min_$point"}, 
-				       $vals{"max_$point"},
-				       $vals{$point."_code"})). ")");
-		return '';
-	    }
-	    if( defined $vals{$point."_code"} && 
-		($vals{$point."_code"} eq 'BEFORE' ||
-		 $vals{$point."_code"} eq 'AFTER')
-		) {
-		$strs{$point} .= $FUZZYCODES{$vals{$point."_code"}};
-	    } 
-	    if( defined $vals{"min_$point"} ) {
-		$strs{$point} .= $vals{"min_$point"};
-	    }
-	    if( defined $vals{$point."_code"} && 
-		($vals{$point."_code"} eq 'WITHIN' ||
-		 $vals{$point."_code"} eq 'BETWEEN')
-		) {
-		$strs{$point} .= $FUZZYCODES{$vals{$point."_code"}};
-	    }
-	    if( defined $vals{"max_$point"} ) {
-		$strs{$point} .= $vals{"max_$point"};
-	    }
-	    if(($vals{$point."_code"} eq 'WITHIN') || 
-	       ($vals{$point."_code"} eq 'BETWEEN')) {
-		$strs{$point} = "(".$strs{$point}.")";
-	    }
-	} elsif ($vals{$point."_code"} eq 'UNCERTAIN') { 
-	    $strs{$point}  = $FUZZYCODES{$vals{$point."_code"}};
-	    $strs{$point} .= $vals{$point} if defined $vals{$point};
+        if( ($vals{$point."_code"} ne 'EXACT') &&
+            ($vals{$point."_code"} ne 'UNCERTAIN') ) {
+            
+            # must have max and min defined to use 'WITHIN', 'BETWEEN'
+            if ((!defined $vals{"min_$point"} ||
+                 !defined $vals{"max_$point"}) && 
+                ( $vals{$point."_code"} eq 'WITHIN' || 
+                  $vals{$point."_code"} eq 'BETWEEN'))
+            {
+                $vals{"min_$point"} = '' unless defined $vals{"min_$point"};
+                $vals{"max_$point"} = '' unless defined $vals{"max_$point"};
+                
+                $self->warn("Fuzzy codes for start are in a strange state, (".
+                        join(",", ($vals{"min_$point"}, 
+                               $vals{"max_$point"},
+                               $vals{$point."_code"})). ")");
+                return '';
+            }
+            
+            if (defined $vals{$point."_code"} && 
+               ($vals{$point."_code"} eq 'BEFORE' ||
+                $vals{$point."_code"} eq 'AFTER'))
+            {
+                $strs{$point} .= $FUZZYCODES{$vals{$point."_code"}};
+                $strs{$point} .= $vals{"$point"};
+            }
+ 
+            if( defined $vals{$point."_code"} && 
+              ($vals{$point."_code"} eq 'WITHIN' ||
+               $vals{$point."_code"} eq 'BETWEEN'))
+            {
+                # Expect odd results with anything but WidestCoordPolicy for now
+                $strs{$point} .= ($point eq 'start') ?
+                        $vals{"$point"}.
+                        $FUZZYCODES{$vals{$point."_code"}}.
+                        $vals{'max_'.$point}
+                        :
+                        $vals{'min_'.$point}.
+                        $FUZZYCODES{$vals{$point."_code"}}.
+                        $vals{"$point"};
+                $strs{$point} = "(".$strs{$point}.")";
+            }
+            
+        } elsif ($vals{$point."_code"} eq 'UNCERTAIN') {
+            $strs{$point}  = $FUZZYCODES{$vals{$point."_code"}};
+            $strs{$point} .= $vals{$point} if defined $vals{$point};
         } else {
-	    $strs{$point} = $vals{$point};
-	}
-	
+            $strs{$point} = $vals{$point};
+        }
     }
+    
     my $str = $strs{'start'} . $delimiter . $strs{'end'};
     if($self->is_remote() && $self->seq_id()) {
-	$str = $self->seq_id() . ":" . $str;
+    $str = $self->seq_id() . ":" . $str;
     }
     if( defined $self->strand && 
-	$self->strand == -1 &&
-	$self->location_type() ne "UNCERTAIN") {
-	$str = "complement(" . $str . ")";
+    $self->strand == -1 &&
+    $self->location_type() ne "UNCERTAIN") {
+    $str = "complement(" . $str . ")";
     } elsif($self->location_type() eq "WITHIN") {
-	$str = "(".$str.")";
+    $str = "(".$str.")";
     }
     return $str;
 }
@@ -547,28 +564,28 @@ sub to_FTstring {
 =cut
 
 sub _fuzzypointdecode {
-	my ($self, $string) = @_;
-	return () if( !defined $string);
-	# strip off leading and trailing space
-	$string =~ s/^\s*(\S+)\s*/$1/;
-	foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
-		if( $string =~ /^$pattern$/ ) {
-			my ($min,$max) = ($1,$2) unless (($1 eq '') && (!defined $2));
-			if( ($FUZZYPOINTENCODE{$pattern} eq 'EXACT') ||
-				 ($FUZZYPOINTENCODE{$pattern} eq 'UNCERTAIN')
-			  ) {
-				$max = $min;
-			} else {
-				$max = undef if((defined $max) && (length($max) == 0));
-				$min = undef if((defined $min) && (length($min) == 0));
-			}
-			return ($FUZZYPOINTENCODE{$pattern},$min,$max);
-		}
-	}
-	if( $self->verbose >= 1 ) {
-		$self->warn("could not find a valid fuzzy encoding for $string");
-	}
-	return ();
+    my ($self, $string) = @_;
+    return () if( !defined $string);
+    # strip off leading and trailing space
+    $string =~ s/^\s*(\S+)\s*/$1/;
+    foreach my $pattern ( keys %FUZZYPOINTENCODE ) {
+        if( $string =~ /^$pattern$/ ) {
+            my ($min,$max) = ($1,$2) unless (($1 eq '') && (!defined $2));
+            if( ($FUZZYPOINTENCODE{$pattern} eq 'EXACT') ||
+                 ($FUZZYPOINTENCODE{$pattern} eq 'UNCERTAIN')
+              ) {
+                $max = $min;
+            } else {
+                $max = undef if((defined $max) && (length($max) == 0));
+                $min = undef if((defined $min) && (length($min) == 0));
+            }
+            return ($FUZZYPOINTENCODE{$pattern},$min,$max);
+        }
+    }
+    if( $self->verbose >= 1 ) {
+        $self->warn("could not find a valid fuzzy encoding for $string");
+    }
+    return ();
 }
 
 1;

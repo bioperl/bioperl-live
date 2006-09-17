@@ -3,7 +3,7 @@
 #
 # BioPerl module for Bio::DB::Ace
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
 #
@@ -71,7 +71,7 @@ web:
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney@sanger.ac.uk
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -149,7 +149,7 @@ sub get_Seq_by_id {
   # get out the sequence somehow!
 
   $dna = $seq->asDNA();
-  
+
   $dna =~ s/^>.*\n//;
   $dna =~ s/\n//g;
 
@@ -173,7 +173,7 @@ sub get_Seq_by_acc {
 
   my $self = shift;
   my $acc = shift or $self->throw("Must supply an accesion number!\n");
-  
+
   return $self->get_Seq_by_id($acc);
 }
 
@@ -181,7 +181,7 @@ sub get_Seq_by_acc {
 
   Title   : _aceobj
   Usage   : $ace = $db->_aceobj();
-  Function: Get/Set on the acedb object 
+  Function: Get/Set on the acedb object
   Returns : Ace object
   Args    : New value of the ace object
 
@@ -192,7 +192,7 @@ sub _aceobj {
 
   if( $arg ) {
     $self->{'_aceobj'} = $arg;
-  } 
+  }
 
   return $self->{'_aceobj'};
 }

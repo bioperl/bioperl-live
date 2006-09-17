@@ -3685,7 +3685,7 @@ $run_struct = sub {
   } else {
     print $outputfh "\nBeginning Structure object example... \n";
     # testing PDB format
-    my $pdb_file = Bio::Root::IO->catfile("t","data","pdb1bpt.ent"); 
+    my $pdb_file = Bio::Root::IO->catfile("t","data","1BPT.pdb"); 
     my $structio = Bio::Structure::IO->new(-file  => $pdb_file,
                                            -format=> 'PDB');
     my $struc = $structio->next_structure;

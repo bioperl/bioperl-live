@@ -492,6 +492,7 @@ sub next_result {
         elsif (/^(Searching|Results from round)/) { 
             next unless $1 =~ /Results from round/; 
             $self->debug("blast.pm: Possible psi blast iterations found...\n");
+            
             $self->in_element('hsp')
               && $self->end_element( { 'Name' => 'Hsp' } );
             $self->in_element('hit')
@@ -625,7 +626,7 @@ sub next_result {
 
                     # This to handle no-HSP case
                     my @line = split;
-
+                    
                     # we want to throw away the score, evalue
                     pop @line, pop @line;
 
@@ -637,6 +638,7 @@ sub next_result {
                     # a minimal Hit object at the end of the day
                     push @hit_signifs,
                       [ $evalue, $score, shift @line, join( ' ', @line ) ];
+                    
                 }
                 elsif (/^CONVERGED/i) {
                     $self->element(
@@ -646,7 +648,7 @@ sub next_result {
                         }
                     );
                 }
-
+                @hit_signifs = sort {$a->[0] <=> $b->[0]} @hit_signifs;
             }
         }
         elsif (/Sequences producing High-scoring Segment Pairs:/) {
@@ -672,6 +674,7 @@ sub next_result {
                 push @hit_signifs,
                   [ pop @line, pop @line, shift @line, join( ' ', @line ) ];
             }
+            
         }
         elsif (/^Database:\s*(.+)$/) {
 
@@ -759,7 +762,8 @@ sub next_result {
                     'Data' => $acc
                 }
             );
-
+ 
+            # add hit significance (from the hit table)
             my $v = shift @hit_signifs;
             if ( defined $v ) {
                 $self->element(
@@ -1420,7 +1424,6 @@ sub next_result {
                             }
                             else {
 
-                                #print STDERR "fields are @fields\n";
                                 for my $type (
                                     qw(length
                                     efflength
@@ -1972,6 +1975,7 @@ sub start_element {
 
 sub end_element {
     my ( $self, $data ) = @_;
+    
     my $nm   = $data->{'Name'};
     my $type = $MODEMAP{$nm};
     my $rc;

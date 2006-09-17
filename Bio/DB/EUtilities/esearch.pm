@@ -136,18 +136,18 @@ sub parse_response {
         chomp($err_warn);
         $self->warn("NCBI esearch Errors/Warnings:\n".$err_warn)
     }
+	my $count = $simple->{Count};
+	$self->esearch_count($count);
     my $id_ref = $simple->{IdList}->{Id};
     $self->_add_db_ids($id_ref) if ($id_ref);
     if ($history && $history eq 'y') {
-		my $count = $simple->{Count};
-		$self->count($count);
         my $webenv = $simple->{WebEnv};
         my $querykey = $simple->{QueryKey};
 		my $cookie = Bio::DB::EUtilities::Cookie->new(
+										 -term 		=> $self->term,
 										 -webenv    => $webenv,
 										 -querykey  => $querykey,
 										 -eutil     => 'esearch',
-										 -description   => $self->term,
                                          -database  => $db,
 										 -total		=> $count
 										);
@@ -155,20 +155,20 @@ sub parse_response {
 	}
 }
 
-=head2 count
+=head2 esearch_count
 
- Title   : count
- Usage   : $count = $db->count;
+ Title   : esearch_count
+ Usage   : $count = $db->esearch_count;
  Function: return count of number of entries retrieved by query
  Returns : integer
  Args    : none
 
 =cut
 
-sub count   {
+sub esearch_count   {
     my $self = shift;
-    return $self->{'_count'} = shift if @_;
-    return $self->{'_count'};
+    return $self->{'_esearch_count'} = shift if @_;
+    return $self->{'_esearch_count'};
 }
 
 1;

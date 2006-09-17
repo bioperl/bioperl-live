@@ -22,7 +22,7 @@ BEGIN {
 		use lib 't';
 	}
 	use vars qw($NTESTS);
-	$NTESTS = 1334;
+	$NTESTS = 1337;
 	$LASTXMLTEST = 67;
 	$error = 0;
 
@@ -930,6 +930,16 @@ while (my $hit = $result->next_hit) {
 }
 ok $hits_left, 0;
 
+# More frac_ method testing, this time on ncbi blastn
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems.blast'));
+my @expected = ("1.000", "0.943");
+while (my $result = $searchio->next_result) {
+    my $hit = $result->next_hit;
+    ok $hit->frac_identical, shift @expected;
+}
+ok @expected, 0;
+
 #WU-TBlastN test
 
 $searchio = new Bio::SearchIO('-format' => 'blast',
@@ -1106,7 +1116,7 @@ ok $count, 2;
 $searchio = new Bio::SearchIO ('-format' => 'blast',
 			       '-file'   => Bio::Root::IO->catfile('t','data','multi_blast.bls'));
 
-my @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
+@expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
 my $results_left = 4;
 while( my $result = $searchio->next_result ) {
     ok($result->query_name, shift @expected, "Multiblast query test");

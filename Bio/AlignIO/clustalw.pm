@@ -120,7 +120,7 @@ sub next_aln {
     if ( defined( $first_line = $self->_readline )
         && $first_line !~ /CLUSTAL/ )
     {
-        $self->warn(
+        $self->throw(
             "trying to parse a file which does not start with a CLUSTAL header"
         );
     }

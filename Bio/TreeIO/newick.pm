@@ -121,9 +121,18 @@ sub next_tree{
    local $/ = ";\n";
    return unless $_ = $self->_readline;
    s/[\r\n]//gs;
+   my $score;
    my $despace = sub {my $dirty = shift; $dirty =~ s/\s+//gs; return $dirty};
    my $dequote = sub {my $dirty = shift; $dirty =~ s/^"?\s*(.+?)\s*"?$/$1/; return $dirty};
    s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
+   if( s/^\s*\[([^\]]+)\]// ) {
+       my $match = $1;
+       $match =~ s/\s//g;
+       $match =~ s/lh\=//;
+       if( $match =~ /([-\d\.+]+)/ ) {
+	   $score = $1;
+       }
+   }
 
    $self->debug("entry is $_\n");
 #   my $empty = chr(20);
@@ -140,7 +149,9 @@ sub next_tree{
    my ($prev_event,$lastevent,$id) = ('','','');
    foreach my $ch ( split(//,$_) ) {
        if( $ch eq ';' ) {
-	   return $self->_eventHandler->end_document($chars);
+	   my $tree = $self->_eventHandler->end_document($chars);
+	   $tree->score($score) if defined $score;
+	   return $tree;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
 	   $self->_eventHandler->start_element( {'Name' => 'tree'} );

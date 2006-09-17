@@ -537,10 +537,6 @@ sub translate {
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
 		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-		  $codonTable, $orf, $start_codon) =
-			 $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID
-										  COMPLETE THROW CODONTABLE ORF START)], @args);
-		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
 		  $codonTable, $orf, $start_codon, $offset) =
 			 $self->_rearrange([qw(TERMINATOR
 								UNKNOWN

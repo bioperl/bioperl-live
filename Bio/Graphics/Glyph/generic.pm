@@ -259,15 +259,22 @@ sub draw_sequence {
   my $seq   = $self->get_seq($self->feature->seq);
   $seq      = $seq->seq if $seq;   # get the dna
 
+  my $canonical = $self->option('canonical_strand');
+
   my @bases = split '',$seq;
   for (my $i=0;$i<@bases;$i++) {
-    my $x = $strand > 0 ? $start + $i * $pixels_per_base
-                        : $stop  - $i * $pixels_per_base;
+    my $x = $strand >= 0 ? $start + $i * $pixels_per_base
+                         : $stop  - $i * $pixels_per_base;
     next unless ($x >= $x1 && $x <= $x2);
     $x -= $fontwidth + 1 if $self->{flip}; # align right when flipped
-    last if $x+$fontwidth >= $right;
-    last if $x            <= $left;
+    if ($strand >= 0) {
+      last if $x + $fontwidth > $right;
+    } else {
+      next if $x >= $right;
+      last if $x < $left;
+    }
     my $base = $self->{flip} ? $complement{$bases[$i]} : $bases[$i];
+    $base    = $complement{$base} if $canonical && $strand < 0;
     $gd->char($font,$x+$x_fudge,$y,$base,$color);
   }
 }
@@ -540,6 +547,41 @@ subparts of features that contain subfeatures.  The subparts are not
 connected -- use the "segments" glyph for that.  "Generic" is the
 default glyph used when not otherwise specified.
 
+=head2 METHODS
+
+This module overrides the maxdepth() method to return 0 unless the
+-maxdepth option is provided explicitly. This means that any module
+that inherits from generic will need to override maxdepth() again in
+order to draw subfeatures. In general, those implementing
+multi-segmented feature glyphs should inherit from
+Bio::Graphics::Glyph::segments, which allows for one level of descent.
+
+In addition, the following new methods are implemented:
+
+=over 4
+
+=item labelfont(), descfont(), labelwidth(), descriptionwidth()
+
+Return the font, width for the label or description.
+
+=item label()
+
+Return the glyph label text (printed above the glyph).
+
+=item description()
+
+Return the glyph description text (printed below the glyph).
+
+=item draw_translation()
+
+Draw the protein translation of the feature (assumes that the feature is attached to a DNA sequence).
+
+=item draw_sequence()
+
+Draw the sequence of the feature (either DNA or protein).
+
+=back
+
 =head2 OPTIONS
 
 The following options are standard among all Glyphs.  See
@@ -586,6 +628,15 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -hilite       Highlight color                undef (no color)
 
+  -draw_dna     If true, draw the dna residues        0 (false)
+                 when magnification level
+                 allows.
+
+  -canonical_strand If true, draw the dna residues        0 (false)
+                 as they appear on the plus strand
+                 even if the feature is on the minus
+                 strand.
+
 -pad_top and -pad_bottom allow you to insert some blank space between
 the glyph's boundary and its contents.  This is useful if you are
 changing the glyph's height dynamically based on its feature's score.
@@ -628,7 +679,7 @@ L<Bio::Das>,
 L<GD>
 
 =head1 AUTHOR
-
+p
 Allen Day E<lt>day@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory

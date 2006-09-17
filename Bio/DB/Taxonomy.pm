@@ -179,6 +179,25 @@ sub each_Descendent {
     shift->throw_not_implemented();
 }
 
+=head2 get_all_Descendents
+
+ Title   : get_all_Descendents
+ Usage   : my @taxa = $db->get_all_Descendents($taxon);
+ Function: Like each_Descendent(), but do a recursive fetchall
+ Returns : Array of Bio::Taxon objects
+ Args    : Bio::Taxon (that was retrieved from this database)
+
+=cut
+
+sub get_all_Descendents {
+    my ($self, $taxon) = @_;
+    my @taxa;
+    foreach my $desc_taxon ($self->each_Descendent($taxon)) {
+      push @taxa, ($desc_taxon, $self->get_all_Descendents($desc_taxon));
+    }
+    return @taxa;
+}
+
 =head2 _load_tax_module
 
  Title   : _load_tax_module
