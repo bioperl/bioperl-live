@@ -78,7 +78,7 @@ when you call get_field() and the requested field isn't in your leaf's fields
 hash, the leaf's parent will be asked for the field instead, and so on till
 root.
 
-See Bio::SearchIO::generic_hmmer for an example of implementing a parser using
+See Bio::SearchIO::hmmer_pull for an example of implementing a parser using
 PullParserI.
 
 =head1 FEEDBACK
