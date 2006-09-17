@@ -41,7 +41,7 @@ This module requires DB_File and Storable.
 
 =head1 CONTACT
 
-Lincoln Stein
+Lincoln Stein <lstein@cshl.org>
 
 =head2 Reporting Bugs
 
@@ -110,10 +110,10 @@ sub new {
     my $self = Bio::Root::Root->new();
     bless $self,$class;
 
-    my ($seqdb,$file_name,$keep) = $self->_rearrange([qw(SEQDB FILE 
+    my ($seqdb,$file_name,$keep) = $self->_rearrange([qw(SEQDB FILE
 							 KEEP)],@args);
 
-    if( !defined $seqdb || !ref $seqdb || 
+    if( !defined $seqdb || !ref $seqdb ||
 	! $seqdb->isa('Bio::DB::RandomAccessI') ) {
        $self->throw("Must be a randomaccess database not a [$seqdb]");
     }
@@ -286,7 +286,7 @@ sub _get {
 sub _store {
   my $self = shift;
   my ($type,$id,$obj) = @_;
-  if( ! defined $obj ) { 
+  if( ! defined $obj ) {
       # bug #1628
       $self->debug("tried to store an undefined value for $id, skipping");
       return;

@@ -4,7 +4,7 @@
 
 =head1 NAME
 
-Bio::DB::Failover - A Bio::DB::RandomAccessI compliant class which 
+Bio::DB::Failover - A Bio::DB::RandomAccessI compliant class which
 wraps a prioritized list of DBs
 
 =head1 SYNOPSIS
@@ -22,12 +22,12 @@ wraps a prioritized list of DBs
 
 =head1 DESCRIPTION
 
-This module provides fail over access to a set of Bio::DB::RandomAccessI 
+This module provides fail over access to a set of Bio::DB::RandomAccessI
 objects.
 
 =head1 CONTACT
 
-Ewan Birney originally wrote this class.
+Ewan Birney <birney@ebi.ac.uk> originally wrote this class.
 
 =head2 Reporting Bugs
 
@@ -35,7 +35,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/           
+  http://bugzilla.open-bio.org/
 
 =head1 APPENDIX
 
@@ -68,7 +68,7 @@ sub new {
 
  Title   : add_database
  Usage   : add_database(%db)
- Function: Adds a database to the Failover object 
+ Function: Adds a database to the Failover object
  Returns : Count of number of databases
  Args    : Array of db resources
  Throws  : Not a RandomAccessI exception
@@ -82,7 +82,7 @@ sub add_database {
 			$self->throw("Database object $db is a not a Bio::DB::RandomAccessI");
 			next;
 		}
-		
+
 		push(@{$self->{'_database'}},$db);
 	}
 	scalar @{$self->{'_database'}};

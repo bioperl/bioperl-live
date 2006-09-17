@@ -22,7 +22,7 @@ Bio::DB::RandomAccessI - Abstract interface for a sequence database
 =head1 DESCRIPTION
 
 This is a pure interface class - in other words, all this does is define
-methods which other (concrete) classes will actually implement. 
+methods which other (concrete) classes will actually implement.
 
 The Bio::DB::RandomAccessI class defines what methods a generic database class
 should have. At the moment it is just the ability to make Bio::Seq objects
@@ -30,7 +30,7 @@ from a name (id) or a accession number.
 
 =head1 CONTACT
 
-Ewan Birney originally wrote this class.
+Ewan Birney <birney@ebi.ac.uk> originally wrote this class.
 
 =head2 Reporting Bugs
 
