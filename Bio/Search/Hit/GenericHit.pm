@@ -67,6 +67,10 @@ web:
 Email jason-at-bioperl-dot-org
 Email sac-at-bioperl-dot-org
 
+=head1 CONTRIBUTORS
+
+Sendu Bala, bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -105,6 +109,8 @@ require Bio::Search::SearchUtils;
            -hsps         => Array ref of HSPs for this Hit. 
            -found_again  => boolean, true if hit appears in a 
                             "previously found" section of a PSI-Blast report.
+           -hsp_factory  => Bio::Factory::ObjectFactoryI able to create HSPI
+                            objects.
 
 =cut
 
@@ -114,7 +120,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$query_len,$desc, $acc, $locus, $length,
       $score,$algo,$signif,$bits,
-      $rank) = $self->_rearrange([qw(HSPS 
+      $rank, $hsp_factory) = $self->_rearrange([qw(HSPS
                                      NAME 
                                      QUERY_LEN
                                      DESCRIPTION
@@ -122,7 +128,8 @@ sub new {
                                      LOCUS
                                      LENGTH SCORE ALGORITHM 
                                      SIGNIFICANCE BITS
-                                     RANK )], @args);
+                                     RANK
+                                     HSP_FACTORY)], @args);
   
   defined $query_len && $self->query_length($query_len);
 
@@ -132,15 +139,16 @@ sub new {
       $self->name($name);
   }  
 
-  defined $acc    && $self->accession($acc);
-  defined $locus  && $self->locus($locus);
-  defined $desc   && $self->description($desc);
-  defined $length && $self->length($length);
-  defined $algo   && $self->algorithm($algo);
-  defined $signif && $self->significance($signif);
-  defined $score  && $self->raw_score($score);
-  defined $bits   && $self->bits($bits);
-  defined $rank   && $self->rank($rank);
+  defined $acc         && $self->accession($acc);
+  defined $locus       && $self->locus($locus);
+  defined $desc        && $self->description($desc);
+  defined $length      && $self->length($length);
+  defined $algo        && $self->algorithm($algo);
+  defined $signif      && $self->significance($signif);
+  defined $score       && $self->raw_score($score);
+  defined $bits        && $self->bits($bits);
+  defined $rank        && $self->rank($rank);
+  defined $hsp_factory && $self->hsp_factory($hsp_factory);
 
   $self->{'_iterator'} = 0;
   if( defined $hsps  ) {
@@ -168,23 +176,40 @@ sub new {
  Usage   : $hit->add_hsp($hsp)
  Function: Add a HSP to the collection of HSPs for a Hit
  Returns : number of HSPs in the Hit
- Args    : Bio::Search::HSP::HSPI object
-
+ Args    : Bio::Search::HSP::HSPI object, OR hash ref containing data suitable
+           for creating a HSPI object (&hsp_factory must be set to get it back)
 
 =cut
 
 sub add_hsp {
    my ($self,$hsp) = @_;
-   if( !defined $hsp || ! $hsp->isa('Bio::Search::HSP::HSPI') ) { 
-       $self->throw("Must provide a valid Bio::Search::HSP::HSPI object to object: $self method: add_hsp value: $hsp");
+   if (!defined $hsp || (ref($hsp) ne 'HASH' && !$hsp->isa('Bio::Search::HSP::HSPI'))) { 
+       $self->throw("Must provide a valid Bio::Search::HSP::HSPI object or hash ref to object: $self method: add_hsp value: $hsp");
        return;
    }
-#   print STDERR "GenericHit::add_hsp()\n";
+   
    push @{$self->{'_hsps'}}, $hsp;
+   if (ref($hsp) eq 'HASH') {
+       $self->{_hashes}->{$#{$self->{'_hsps'}}} = 1;
+   }
    return scalar @{$self->{'_hsps'}};
 }
 
+=head2 hsp_factory
 
+ Title   : hsp_factory
+ Usage   : $hit->hsp_factory($hsp_factory)
+ Function: Get/set the factory used to build HSPI objects if necessary.
+ Returns : Bio::Factory::ObjectFactoryI
+ Args    : Bio::Factory::ObjectFactoryI
+
+=cut
+
+sub hsp_factory {
+    my $self = shift;
+    if (@_) { $self->{_hsp_factory} = shift }
+    return $self->{_hsp_factory} || return;
+}
 
 =head2 Bio::Search::Hit::HitI methods
 
@@ -368,15 +393,13 @@ See Also   : L<score()|score>
 
 =cut
 
-#---------
-sub bits { 
-#---------
+sub bits {
     my ($self,$value) = @_; 
     my $previous = $self->{'_bits'};
     if( defined $value ) { 
         $self->{'_bits'} = $value;
     } elsif ( ! defined $previous ) {
-        # Set the significance of the Hit to that of the top HSP.
+        # Set the bits of the Hit to that of the top HSP.
 	unless( defined $self->{'_hsps'}->[0] ) {
 	    $self->warn("No HSPs for this Hit (".$self->name.")");
 	    return;
@@ -403,7 +426,16 @@ sub next_hsp {
     return unless
         defined($self->{'_hsps'}) 
         && $self->{'_iterator'} <= scalar @{$self->{'_hsps'}};
-    return $self->{'_hsps'}->[$self->{'_iterator'}++];    
+    
+    my $iterator = $self->{'_iterator'}++;
+    my $hsp = $self->{'_hsps'}->[$iterator] || return;
+    if (ref($hsp) eq 'HASH') {
+        my $factory = $self->hsp_factory || $self->throw("Tried to get a HSP, but it was a hash ref and we have no hsp factory");
+        $hsp = $factory->create_object(%{$hsp});
+        $self->{'_hsps'}->[$iterator] = $hsp;
+        delete $self->{_hashes}->{$iterator};
+    }
+    return $hsp;  
 }
 
 
@@ -424,44 +456,36 @@ See Also   : L<hsp()|hsp>, L<num_hsps()|num_hsps>
 
 =cut
 
-#---------
 sub hsps {
-#---------
-   my $self = shift;
-   
-   return wantarray 
-       #  returning list containing all HSPs.
-       ? @{$self->{'_hsps'} || []}
-   #  returning number of HSPs.
-   : scalar(@{$self->{'_hsps'} || []});
+    my $self = shift;
+    foreach my $i (keys %{$self->{_hashes} || {}}) {
+        my $factory = $self->hsp_factory || $self->throw("Tried to get a HSP, but it was a hash ref and we have no hsp factory");
+        $self->{'_hsps'}->[$i] = $factory->create_object(%{$self->{'_hsps'}->[$i]});
+        delete $self->{_hashes}->{$i};
+    }
+    
+    return wantarray() ? @{$self->{'_hsps'} || []} : scalar(@{$self->{'_hsps'} || []});
 }
 
 =head2 num_hsps
 
  Usage     : $hit_object->num_hsps();
- Purpose   : Get the number of HSPs for the present Blast hit.
+ Purpose   : Get the number of HSPs for the present hit.
  Example   : $nhsps = $hit_object->num_hsps();
- Returns   : Integer
+ Returns   : Integer or '-' if HSPs have not been callected
  Argument  : n/a
- Throws    : Exception if the HSPs have not been collected.
 
 See Also   : L<hsps()|hsps>
 
 =cut
 
-#-------------
 sub num_hsps {
     my $self = shift;
     
     unless ($self->{'_hsps'}) {
-        #return wantarray ? ('-','-') : '-';
         return '-';
     }
-
-#    if (not defined $self->{'_hsps'}) {
-#        $self->throw("Can't get HSPs: data not collected.");
-#    }
-
+    
     return scalar(@{$self->{'_hsps'}});
 }
 
@@ -502,9 +526,7 @@ sub rewind{
 
 =cut
 
-#--------------------
-sub ambiguous_aln { 
-#--------------------
+sub ambiguous_aln {
     my $self = shift;
     if(@_) { $self->{'_ambiguous_aln'} = shift; }
     $self->{'_ambiguous_aln'} || '-';
@@ -516,9 +538,7 @@ See documentation in L<Bio::Search::Hit::HitI::overlap()|Bio::Search::Hit::HitI>
 
 =cut
 
-#-------------
-sub overlap { 
-#-------------
+sub overlap {
     my $self = shift; 
     if(@_) { $self->{'_overlap'} = shift; }
     defined $self->{'_overlap'} ? $self->{'_overlap'} : 0;
@@ -547,9 +567,7 @@ See Also   : L<num_hsps()|num_hsps>
 
 =cut
 
-#-----
-sub n { 
-#-----
+sub n {
     my $self = shift; 
 
     # The check for $self->{'_n'} is a remnant from the 'query' mode days
@@ -596,9 +614,7 @@ See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::SearchUtils:
 
 =cut
 
-#--------
-sub p { 
-#--------
+sub p {
 # Some duplication of logic for p(), expect() and signif() for the sake of performance.
     my ($self, $fmt) = @_;
 
@@ -640,9 +656,7 @@ See Also   : L<hsps()|hsps>, L<num_hsps>()
 
 =cut
 
-#----------
 sub hsp {
-#----------
     my( $self, $option ) = @_;
     $option ||= 'best';
     
@@ -650,7 +664,7 @@ sub hsp {
         $self->throw("Can't get HSPs: data not collected.");
     }
 
-    my @hsps = @{$self->{'_hsps'}};
+    my @hsps = $self->hsps;
     
     return $hsps[0]      if $option =~ /best|first|1/i;
     return $hsps[$#hsps] if $option =~ /worst|last/i;
@@ -688,9 +702,7 @@ See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<f
 
 =cut
 
-#--------------------
 sub logical_length {
-#--------------------
     my $self = shift;
     my $seqType = shift || 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -736,9 +748,7 @@ See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<f
 
 =cut
 
-#---------------'
 sub length_aln {
-#---------------
     my( $self, $seqType, $num ) = @_;
 
     $seqType ||= 'query';
@@ -801,9 +811,7 @@ See Also   : L<length_aln()|length_aln>
 
 =cut
 
-#----------
 sub gaps {
-#----------
     my( $self, $seqType, $num ) = @_;
 
     $seqType ||= (wantarray ? 'list' : 'total');
@@ -841,9 +849,7 @@ See documentation in L<Bio::Search::Hit::HitI::matches()|Bio::Search::Hit::HitI>
 
 =cut
 
-#---------------
 sub matches {
-#---------------
     my( $self, $arg1, $arg2) = @_;
     my(@data,$data);
 
@@ -909,9 +915,7 @@ See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>,
 
 =cut
 
-#----------
 sub start {
-#----------
     my ($self, $seqType, $num) = @_;
 
     unless ($self->{'_hsps'}) {
@@ -972,9 +976,7 @@ See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
 
 =cut
 
-#----------
 sub end {
-#----------
     my ($self, $seqType, $num) = @_;
 
     unless ($self->{'_hsps'}) {
@@ -1020,9 +1022,7 @@ See Also   : L<start()|start>, L<end()|end>
 
 =cut
 
-#----------
 sub range {
-#----------
     my ($self, $seqType) = @_;
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -1079,9 +1079,7 @@ See Also   : L<frac_conserved()|frac_conserved>, L<frac_aligned_query()|frac_ali
 
 =cut
 
-#------------------
 sub frac_identical {
-#------------------
     my ($self, $seqType) = @_;
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -1157,9 +1155,7 @@ See Also   : L<frac_identical()|frac_identical>, L<matches()|matches>, L<Bio::Se
 
 =cut
 
-#--------------------
 sub frac_conserved {
-#--------------------
     my ($self, $seqType) = @_;
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -1207,9 +1203,7 @@ See Also   : L<frac_aligned_hit()|frac_aligned_hit>, L<logical_length()|logical_
 
 =cut
 
-#----------------------
 sub frac_aligned_query {
-#----------------------
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
@@ -1245,9 +1239,7 @@ See Also   : L<frac_aligned_query()|frac_aligned_query>, L<matches()|matches>, ,
 
 =cut
 
-#--------------------
 sub frac_aligned_hit {
-#--------------------
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
@@ -1301,9 +1293,7 @@ See Also   : L<num_unaligned_query()|num_unaligned_query>,  L<Bio::Search::Searc
 
 =cut
 
-#---------------------
 sub num_unaligned_hit {
-#---------------------
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
@@ -1339,9 +1329,7 @@ See Also   : L<num_unaligned_hit()|num_unaligned_hit>, L<frac_aligned_query()|fr
 
 =cut
 
-#-----------------------
 sub num_unaligned_query {
-#-----------------------
     my $self = shift;
 
     unless ($self->{'_hsps'}) {
@@ -1383,9 +1371,7 @@ See Also   : L<Bio::Search::HSP::BlastHSP::seq_inds()|Bio::Search::HSP::BlastHSP
 
 =cut
 
-#-------------
 sub seq_inds {
-#-------------
     my ($self, $seqType, $class, $collapse) = @_;
 
     $seqType  ||= 'query';
@@ -1416,9 +1402,7 @@ See documentation in L<Bio::Search::Hit::HitI::strand()|Bio::Search::Hit::HitI>
 
 =cut
 
-#----------'
 sub strand {
-#----------
     my ($self, $seqType, $strnd) = @_;
 
     unless ($self->{'_hsps'}) {
@@ -1480,9 +1464,7 @@ See documentation in L<Bio::Search::Hit::HitI::frame()|Bio::Search::Hit::HitI>
 
 =cut
 
-#----------'
-sub frame { 
-#----------
+sub frame {
     my( $self, $frm ) = @_;
 
     unless ($self->{'_hsps'}) {
@@ -1521,7 +1503,7 @@ sub frame {
 
 =cut
 
-sub rank{
+sub rank {
     my $self = shift;
     return $self->{'_rank'} = shift if @_;
     return $self->{'_rank'} || 1;
@@ -1630,7 +1612,7 @@ sub tiled_hsps {
 
 =cut
 
-sub query_length{
+sub query_length {
     my $self = shift;
 
     return $self->{'_query_length'} = shift if @_;
