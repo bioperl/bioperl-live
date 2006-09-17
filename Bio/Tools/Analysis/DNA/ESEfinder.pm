@@ -220,8 +220,7 @@ sub _run {
                         ];
     my $content = $self->request($request);
     if( $content->is_error  ) {
-	$self->warn(ref($self)." Request Error:\n".$content->as_string);
-	return;
+	$self->throw(ref($self)." Request Error:\n".$content->as_string);
     }
 
     my $text = $content->content; #1st reponse
