@@ -23,7 +23,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 20;
+    $NUMTESTS = 19;
     plan tests => $NUMTESTS;
     eval { require DB_File };
     if( $@ ) {
@@ -118,11 +118,15 @@ ok @contig_features, 8;
 
 my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
 ok @annotations, 2;
-
-my ($feature_with_extra_info, $commented_feature) = @annotations;
-
-ok $feature_with_extra_info->has_tag('extra_info'), 1;
-ok (($feature_with_extra_info->get_tag_values('extra_info'))[0], "contig extra\ninfo\n");
-
-ok $commented_feature->has_tag('comment'), 1;
-ok (($commented_feature->get_tag_values('comment'))[0], "contig tag\ncomment\n");
+my $had_tag = 0;
+foreach my $an (@annotations) {
+	if ($an->has_tag('extra_info')) {
+		$had_tag++;
+		ok (($an->get_tag_values('extra_info'))[0], "contig extra\ninfo\n");
+	}
+	elsif ($an->has_tag('comment')){
+		$had_tag++;
+		ok (($an->get_tag_values('comment'))[0], "contig tag\ncomment\n");
+	}
+}
+ok $had_tag, 2;
