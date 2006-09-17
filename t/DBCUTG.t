@@ -83,7 +83,7 @@ ok $cut->get_coding_gc(1), "39.70";
 ok my $ref = $cut->probable_codons(20);
 
 # requiring Internet access, set env BIOPERLDEBUG to 1 to run
-if( $DEBUG ) { 
+if( $DEBUG ) {
 	ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 	ok $tool->sleep;
 	ok $tool->delay(1), 1;
@@ -92,8 +92,17 @@ if( $DEBUG ) {
 	# get CUT from web
 	ok my $db = Bio::DB::CUTG->new();
 	ok $db->verbose(1);
-	my $cdtable =  $db->get_request(-sp =>'Pan troglodytes');
-	exit unless $cdtable;
+	my $cdtable;
+	eval {
+		$cdtable = $db->get_request(-sp =>'Pan troglodytes');
+	};
+	if ($@) {
+		foreach ( $Test::ntest..$NUMTESTS) { 
+			skip('Could not connect to server, skipping tests requiring remote servers',1);
+		}
+		exit(0);
+    }
+	
 	# tests for Table.pm
 	ok $cdtable->cds_count(), 617; # new value at CUD
 	ok int($cdtable->aa_frequency('LEU')), 10;
