@@ -1,0 +1,370 @@
+Leptospira interrogans serovar Lai str. 56601 chromosome II, complete sequence - 0..358943
+367 proteins
+Location	Strand	Length	PID	Gene	Synonym	Code	COG	Product
+15..2531	+	838	24217062	-	LB001	-	-	hypothetical protein
+2491..3423	+	310	24217063	metF	LB002	-	COG0685E	5,10-methylenetetrahydrofolate reductase
+3716..3823	-	35	24217064	-	LB004	-	-	hypothetical protein
+3779..3886	+	35	24217065	-	LB003	-	-	hypothetical protein
+4066..4890	-	274	24217066	-	LB005	-	COG2107R	hypothetical protein
+4975..5085	+	36	24217067	-	LB006	-	-	hypothetical protein
+5239..5754	+	171	24217068	-	LB007	-	COG0561R	hypothetical protein
+5762..6112	+	116	24217069	-	LB008	-	COG0561R	hypothetical protein
+6083..6373	-	96	24217070	-	LB009	-	-	hypothetical protein
+6410..7279	+	289	24217071	hemA	LB010	-	COG0373H	glutamyl-tRNA reductase
+7249..8892	+	547	24217072	hemC	LB011	-	-	porphobilinogen deaminase
+8861..9814	+	317	24217073	hemB	LB012	-	-	delta-aminolevulinic acid dehydratase
+9811..11142	+	443	24217074	hemL	LB013	-	COG0001H	glutamate-1-semialdehyde aminotransferase
+11142..12059	+	305	24217075	-	LB014	-	COG0642T	two-component hybrid sensor and regulator
+12056..12748	+	230	24217076	-	LB015	-	COG0745TK	two-component response regulator
+12708..13760	+	350	24217077	hemE	LB016	-	COG0407H	uroporphyrinogen decarboxylase
+13667..15106	+	479	24217078	hemF	LB017	-	COG0635H	coproporphyrinogen III oxidase
+15186..16169	+	327	24217079	-	LB018	-	-	hypothetical protein
+16244..16384	+	46	24217080	-	LB019	-	-	hypothetical protein
+16381..17664	+	427	24217081	hemG	LB020	-	COG1232H	protoporphyrinogen oxidase
+17941..18075	-	44	24217082	-	LB021	-	-	hypothetical protein
+18395..19468	+	357	24217083	-	LB022	-	COG3547L	transposase
+19839..20135	-	98	24217084	-	LB023	-	-	ferrochelatase
+20176..20748	-	190	24217085	-	LB024	-	-	ferrochelatase
+21008..22150	-	380	24217086	-	LB025	-	-	hypothetical protein
+22312..23229	+	305	24217087	parA3	LB026	-	COG1192D	ParA protein
+23222..23929	+	235	24217088	parB3	LB027	-	COG1475K	ParB protein
+24029..24631	+	200	24217089	-	LB028	-	COG0431R	putative reductase
+24684..24791	-	35	24217090	-	LB029	-	-	hypothetical protein
+25233..26396	-	387	24217091	-	LB030	-	COG3274S	probable intercellular adhesion protein C
+26476..26817	-	113	24217092	-	LB032	-	-	hypothetical protein
+26492..26851	+	119	24217093	-	LB031	-	COG0664T	cyclic nucleotide dependent protein kinase
+26903..27112	-	69	24217094	-	LB033	-	-	unknown protein confirmed by proteomics
+27247..28002	+	251	24217095	-	LB034	-	COG1028IQR	3-oxoacyl-(acyl carrier protein) reductase
+27978..28529	+	183	24217096	amsI	LB035	-	COG0394T	low molecular weight phosphotyrosine protein phosphatase
+28559..29827	+	422	24217097	ndh	LB036	-	COG1252C	NADH dehydrogenase
+29824..30282	+	152	24217098	-	LB037	-	-	putative sucrose/H+ symporter
+30314..30475	-	53	24217099	-	LB038	-	-	hypothetical protein
+30707..31315	-	202	24217100	-	LB039	-	-	hypothetical protein
+31361..31627	-	88	24217101	-	LB040	-	-	hypothetical protein
+31683..32507	+	274	24217102	-	LB041	-	COG1028IQR	3-oxoacyl-(acyl carrier protein) reductase
+32517..32939	+	140	24217103	-	LB042	-	COG3832S	hypothetical protein
+33001..33372	+	123	24217104	-	LB043	-	-	unknown protein confirmed by proteomics
+33697..34767	+	356	24217105	-	LB044	-	-	hypothetical protein
+35199..35384	-	61	24217106	-	LB045	-	-	hypothetical protein
+35388..35525	-	45	24217107	-	LB046	-	-	hypothetical protein
+36004..37326	+	440	24217108	-	LB047	-	COG2849S	hypothetical protein
+37916..38989	+	357	24217109	-	LB048	-	COG3547L	putative transposase
+39952..40101	+	49	24217110	-	LB049	-	-	hypothetical protein
+40098..40712	+	204	24217111	-	LB050	-	-	hypothetical protein
+40773..41846	+	357	24217112	-	LB051	-	COG0714R	magnesium chelatase, putative
+41853..42683	+	276	24217113	-	LB052	-	COG1721R	hypothetical protein
+42680..43549	+	289	24217114	-	LB053	-	-	hypothetical protein
+43522..44484	+	320	24217115	vwa1	LB054	-	-	von Willebrand factor type A domain containing protein
+44481..45524	+	347	24217116	vwa2	LB055	-	-	von Willebrand factor type A domain containing protein
+45467..46210	+	247	24217117	-	LB056	-	-	TPR-repeat-containing protein
+46207..47850	+	547	24217118	batD	LB057	-	-	BatD
+47847..49670	+	607	24217119	htpG2	LB058	-	COG0326O	heat shock protein 90
+49688..50257	+	189	24217120	-	LB059	-	-	hypothetical protein
+50238..50729	-	163	24217121	-	LB060	-	-	hypothetical protein
+50959..52557	+	532	24217122	-	LB061	-	COG3211R	hypothetical protein
+52565..52909	-	114	24217123	-	LB062	-	COG1366T	anti-anti-sigma factor
+52906..53925	-	339	24217124	-	LB063	-	COG0061G	hypothetical protein
+53937..54044	-	35	24217125	-	LB064	-	-	hypothetical protein
+54100..54918	+	272	24217126	-	LB065	-	-	hypothetical protein
+54915..55394	+	159	24217127	-	LB066	-	-	hypothetical protein
+55509..55622	+	37	24217128	-	LB067	-	-	hypothetical protein
+55772..56593	+	273	24217129	-	LB068	-	COG1398I	fatty acid desaturase
+57309..57893	+	194	24217130	-	LB069	-	-	hypothetical protein
+59172..59822	+	216	24217131	-	LB070	-	COG2085R	hypothetical protein
+60390..60638	+	82	24217132	-	LB071	-	-	hypothetical protein
+61294..61851	+	185	24217133	-	LB072	-	-	hypothetical protein
+61981..62949	-	322	24217134	-	LB073	-	COG1703E	lysine arginine ornithine transport system kinase
+62957..64969	-	670	24217135	mcm2	LB074	-	COG2185I	methylmalonyl-CoA mutase
+65000..65104	-	34	24217136	-	LB076	-	-	hypothetical protein
+65076..66413	+	445	24217137	-	LB075	-	-	hypothetical protein
+67553..68245	+	230	24217138	-	LB077	-	-	hypothetical protein
+68865..69938	-	357	24217139	-	LB078	-	COG4232OC	TPR-repeat-containing protein
+70067..70345	+	92	24217140	hisE	LB079	-	COG0140E	phosphoribosyl-ATP pyrophosphohydrolase
+70349..72280	+	643	24217141	-	LB080	-	-	hypothetical protein
+72258..72386	+	42	24217142	-	LB081	-	-	hypothetical protein
+72749..73513	+	254	24217143	-	LB082	-	COG1028IQR	3-ketoacyl-acyl carrier protein reductase
+74006..74239	+	77	24217144	acp	LB083	-	COG0236IQ	acyl carrier protein
+74293..75036	+	247	24217145	-	LB084	-	COG0571K	ribonuclease III
+75411..75998	+	195	24217146	-	LB085	-	COG1051F,COG0494LR	MutT/nudix family protein
+75995..77080	+	361	24217147	aroB	LB086	-	COG0337E	3-dehydroquinate synthase
+77080..77961	+	293	24217148	-	LB087	-	COG0668M	hypothetical protein
+78288..78662	+	124	24217149	-	LB088	-	-	hypothetical protein
+79179..80735	+	518	24217150	-	LB089	-	COG2509R	Uncharacterized FAD-dependent dehydrogenase
+80785..81324	+	179	24217151	-	LB090	-	-	hypothetical protein
+81632..81871	-	79	24217152	-	LB091	-	-	hypothetical protein
+81925..82335	-	136	24217153	-	LB092	-	-	hypothetical protein
+82392..84329	-	645	24217154	fadD	LB093	-	COG1022I	probable long-chain-fatty-acid--CoA ligase
+84491..87430	+	979	24217155	cyaA17	LB094	-	COG2114T,COG0840NT	adenylate cyclase
+87459..87566	-	35	24217156	-	LB095	-	-	hypothetical protein
+87988..88740	-	250	24217157	-	LB096	-	COG0500QR	hypothetical protein
+88780..90210	-	476	24217158	-	LB098	-	-	Predicted xylanase/chitin deacetilase
+90205..90318	+	37	24217159	-	LB097	-	-	hypothetical protein
+90403..90918	-	171	24217160	-	LB099	-	-	hypothetical protein
+91165..91323	+	52	24217161	-	LB100	-	-	hypothetical protein
+91526..91648	-	40	24217162	-	LB101	-	-	hypothetical protein
+91672..92481	+	269	24217163	-	LB102	-	COG0647G	phospholysine phosphohistidine inorganic pyrophosphate phosphatase
+92488..92916	-	142	24217164	-	LB103	-	COG0824R	hypothetical protein
+93181..93759	-	192	24217165	-	LB104	-	COG1309K	putative TetR-family transcriptional regulator
+94594..95610	+	338	24217166	-	LB105	-	COG0640K,COG0500QR	transcriptional regulator, ArsR family
+95612..96922	+	436	24217167	-	LB106	-	COG0499H	S-adenosyl-L-homocysteine hydrolase
+96995..97294	+	99	24217168	-	LB107	-	-	ferredoxin
+97341..101084	+	1247	24217169	metH	LB108	-	COG0646E,COG1410E	B12-dependent homocysteine-N5-methyltetrahydrofolate transmethylase
+101193..101531	+	112	24217170	-	LB109	-	-	hypothetical protein
+101979..102911	-	310	24217171	-	LB110	-	-	putative outermembrane protein
+103023..104318	+	431	24217172	-	LB111	-	COG0205G	diphosphate--fructose-6-phosphate 1-phosphotransferase
+104517..106262	-	581	24217173	-	LB112	-	COG2203T,COG2208TK	putative regulatory protein contains GAF domain
+106440..107324	-	294	24217174	argB	LB114	-	COG0548E	acetylglutamate kinase
+107290..108132	+	280	24217175	-	LB113	-	COG1028IQR	3-oxoacyl-(acyl carrier protein) reductase
+108927..109031	-	34	24217176	-	LB115	-	-	hypothetical protein
+109072..110814	-	580	24217177	-	LB116	-	COG3975R	hypothetical protein
+110807..111298	-	163	24217178	-	LB117	-	COG1225O	bacterioferritin comigratory protein
+111451..113616	+	721	24217179	cyaA18	LB118	-	COG2114T	adenylate cyclase
+114803..115147	+	114	24217180	-	LB119	-	-	hypothetical protein
+115194..116291	+	365	24217181	-	LB120	-	-	hypothetical protein
+116308..117120	+	270	24217182	-	LB121	-	COG1028IQR	3-oxoacyl-(acyl carrier protein) reductase
+117169..118068	-	299	24217183	-	LB122	-	COG0582L	site-specific integrase/recombinase XerD related protein
+118184..118723	-	179	24217184	aroK	LB123	-	COG0703E	shikimic acid kinase I
+118720..119571	-	283	24217185	-	LB124	-	COG1639T	HD-GYP domain (HD superfamily hydrolase)
+119577..120128	-	183	24217186	cheD2	LB125	-	COG1871NT	chemotaxis protein
+120255..121481	+	408	24217187	traB	LB126	-	COG1916S	pheromone shutdown protein
+121805..122368	+	187	24217188	-	LB127	-	-	hypothetical protein
+122598..122750	-	50	24217189	-	LB129	-	-	hypothetical protein
+122743..122871	+	42	24217190	-	LB128	-	-	hypothetical protein
+123146..124291	-	381	24217191	-	LB130	-	-	transcriptional regulator, AraC family
+124576..125685	-	369	24217192	-	LB131	-	-	putative transcriptional regulator, araC family protein
+126389..126511	+	40	24217193	-	LB132	-	-	hypothetical protein
+126928..128532	+	534	24217194	-	LB133	-	-	probable protein containing EAL domain
+129379..129828	+	149	24217195	-	LB134	-	-	hypothetical protein
+130629..130736	-	35	24217196	-	LB135	-	-	hypothetical protein
+130768..131166	-	132	24217197	-	LB136	-	COG1366T	anti-sigma factor antagonist
+131177..132175	-	332	24217198	-	LB137	-	-	hypothetical protein
+132172..133629	-	485	24217199	-	LB138	-	-	hypothetical protein
+133632..135125	-	497	24217200	-	LB139	-	COG2208TK	putative regulation protein contains HAMP domain
+136387..136539	+	50	24217201	-	LB140	-	-	hypothetical protein
+136739..137446	-	235	24217202	-	LB141	-	-	similar to putative lipoprotein qlp42
+137699..138250	-	183	24217203	-	LB142	-	-	hypothetical protein
+138314..139405	-	363	24217204	-	LB143	-	COG4254S	similar to putative lipoprotein qlp42
+139426..139947	-	173	24217205	-	LB144	-	COG1595K	RNA polymerase ECF-type sigma factor
+140082..140189	+	35	24217206	-	LB145	-	-	hypothetical protein
+141064..141711	+	215	24217207	-	LB146	-	-	hypothetical protein
+141831..142478	+	215	24217208	-	LB147	-	-	conserved hyperthetical protein
+142975..143316	-	113	24217209	-	LB148	-	-	hypothetical protein
+143870..144493	-	207	24217210	pmgA	LB149	-	COG0406G	phosphoglycerate mutase
+144510..145457	-	315	24217211	cbiB	LB150	-	COG1270H	cobalamin biosynthesis protein B
+145461..146933	-	490	24217212	cbiP	LB151	-	COG1492H	cobyric acid synthase
+148052..148672	-	206	24217213	cobP	LB152	-	COG2087H	cobinamide kinase
+148612..149349	-	245	24217214	-	LB153	-	COG1865S	hypothetical protein
+149292..150656	-	454	24217215	cbiA	LB154	-	COG1797H	cobyrinic acid-diamide synthase
+150656..151192	-	178	24217216	cobA	LB155	-	COG2109H	cob(I)alamin adenosyltransferase
+151189..151953	-	254	24217217	cbiF	LB156	-	COG2875H	precorrin-3 methylase
+151967..153460	-	497	24217218	cbiH	LB157	-	COG1010H	precorrin methylase
+153457..154614	-	385	24217219	cbiG	LB158	-	COG2073H	cobalamin biosynthesis protein
+154601..155365	-	254	24217220	cobI	LB159	-	COG2243H	precorrin-2 methyltransferase
+155362..156597	-	411	24217221	cbiE	LB160	-	COG2241H,COG2242H	precorrin-6Y methylase
+156594..157265	-	223	24217222	cbiC	LB161	-	-	cobalamin biosynthesis precorrin isomerase
+157262..158365	-	367	24217223	cbiD	LB162	-	-	cobalt-precorrin-6A synthase
+158369..159118	-	249	24217224	-	LB163	-	COG1018C	Oxidoreductase FAD-binding family protein
+159124..159495	-	123	24217225	-	LB164	-	-	unknown protein confirmed by proteomics
+159516..160685	-	389	24217226	cbiX	LB165	-	COG2138S,COG3411C	putative cbiX protein
+161652..161771	+	39	24217227	-	LB166	-	-	hypothetical protein
+162903..163043	-	46	24217228	-	LB168	-	-	hypothetical protein
+163042..165165	+	707	24217229	-	LB167	-	-	hypothetical protein
+165171..165743	-	190	24217230	-	LB169	-	-	hypothetical protein
+165785..167674	+	629	24217231	-	LB170	-	COG1086MG	similar to capsular polysaccharide biosynthesis protein
+167667..168137	+	156	24217232	-	LB171	-	-	hypothetical protein
+168134..169744	+	536	24217233	-	LB172	-	COG2252R	hypothetical protein
+169746..169901	+	51	24217234	-	LB173	-	-	hypothetical protein
+170186..171073	+	295	24217235	htpX	LB174	-	COG0501O	heat shock protein HtpX
+171180..171356	-	58	24217236	-	LB175	-	-	hypothetical protein
+171595..172128	+	177	24217237	-	LB176	-	COG0503F	adenine phosphoribosyltransferase
+172166..173680	+	504	24217238	-	LB177	-	COG0265O	putative serine protease
+173695..175278	+	527	24217239	-	LB178	-	COG0265O	putative serine protease
+175702..175815	-	37	24217240	-	LB179	-	-	hypothetical protein
+175960..176091	-	43	24217241	-	LB180	-	-	hypothetical protein
+176650..177882	-	410	24217242	-	LB181	-	-	hypothetical protein
+177879..179456	-	525	24217243	-	LB182	-	-	hypothetical protein
+179453..179845	-	130	24217244	-	LB183	-	COG0735P	transcriptional regulator (Fur family)
+180591..180731	-	46	24217245	-	LB184	-	-	hypothetical protein
+181088..181198	-	36	24217246	-	LB185	-	-	hypothetical protein
+181530..182207	+	225	24217247	-	LB186	-	COG5398P	heme oxygenase
+182182..183390	+	402	24217248	-	LB187	-	-	hypothetical protein
+183377..183514	-	45	24217249	-	LB188	-	-	hypothetical protein
+183575..184105	-	176	24217250	-	LB190	-	-	hypothetical protein
+184098..184205	+	35	24217251	-	LB189	-	-	hypothetical protein
+184996..187128	-	710	24217252	-	LB191	-	COG4771P,COG1629P	putative TonB-dependent outer membrane receptor protein
+187107..187517	-	136	24217253	-	LB192	-	-	hypothetical protein
+187719..187829	+	36	24217254	-	LB193	-	-	hypothetical protein
+187833..188411	-	192	24217255	-	LB194	-	-	unknown protein confirmed by proteomics
+188742..188870	+	42	24217256	-	LB195	-	-	hypothetical protein
+189081..189608	+	175	24217257	-	LB196	-	-	putative LRR repeat family protein
+189621..190394	-	257	24217258	-	LB197	-	-	hypothetical protein
+190812..191117	-	101	24217259	-	LB198	-	COG0718S	hypothetical protein
+191222..192577	-	451	24217260	-	LB199	-	-	putative outermembrane protein
+192685..192810	-	41	24217261	-	LB200	-	-	hypothetical protein
+192835..194457	-	540	24217262	lonA	LB201	-	COG1067O	putative ATP-dependent protease LA
+194483..195541	-	352	24217263	-	LB202	-	-	queuosine biosynthesis protein
+195737..197182	+	481	24217264	-	LB203	-	-	hypothetical protein
+197202..198344	+	380	24217265	mtfA	LB204	-	COG0438M	mannosyltransferase A
+198307..198921	+	204	24217266	-	LB205	-	-	hypothetical protein
+199150..199296	+	48	24217267	-	LB206	-	-	hypothetical protein
+199351..200739	+	462	24217268	-	LB207	-	-	hypothetical protein
+200811..202223	+	470	24217269	-	LB208	-	COG1696M	alginate o-acetyltransferase
+202238..203398	+	386	24217270	-	LB209	-	-	hypothetical protein
+203395..204792	+	465	24217271	-	LB210	-	COG1696M	alginate o-acetyltransferase
+204799..205869	+	356	24217272	-	LB211	-	-	hypothetical protein
+205866..206210	+	114	24217273	-	LB212	-	COG1694R	hypothetical protein
+206966..207379	-	137	24217274	exbD2	LB213	-	COG0848U	putative biopolymer transport protein
+207376..207903	-	175	24217275	-	LB214	-	COG0811U	MotA/ExbB proton channel family protein
+208518..209267	+	249	24217276	ubiE	LB215	-	COG2226H	ubiquinone/menaquinone biosynthesis methlytransferase
+209350..211110	+	586	24217277	-	LB216	-	-	hypothetical protein
+211107..211502	+	131	24217278	-	LB217	-	-	hypothetical protein
+211547..212938	+	463	24217279	-	LB218	-	COG2339S	hypothetical protein
+212921..213655	-	244	24217280	-	LB219	-	-	hypothetical protein
+213749..214984	-	411	24217281	-	LB220	-	-	hypothetical protein
+215512..215634	+	40	24217282	-	LB221	-	-	hypothetical protein
+216332..216784	-	150	24217283	-	LB222	-	COG1734T	hypothetical protein
+217221..218072	-	283	24217284	-	LB223	-	COG2801L	putative transposase
+218069..218374	-	101	24217285	-	LB224	-	COG2963L	putative transposase
+219779..222361	+	860	24217286	-	LB225	-	-	hypothetical protein
+222462..222995	+	177	24217287	-	LB226	-	-	Fimh-like protein
+224010..224129	+	39	24217288	-	LB227	-	-	hypothetical protein
+224104..225336	+	410	24217289	-	LB228	-	-	Putative AraC-type Regulator
+225796..225906	-	36	24217290	-	LB229	-	-	hypothetical protein
+226283..226582	+	99	24217291	-	LB230	-	COG2963L	putative transposase
+226579..227424	+	281	24217292	-	LB231	-	COG2801L	putative transposase
+228469..228888	-	139	24217293	-	LB232	-	-	hypothetical protein
+229573..229791	-	72	24217294	-	LB233	-	-	hypothetical protein
+229900..230004	-	34	24217295	-	LB234	-	-	hypothetical protein
+230358..232076	-	572	24217296	-	LB235	-	COG5001T	probable protein contain EAL family signaling protein
+232421..232525	-	34	24217297	-	LB236	-	-	hypothetical protein
+232542..233129	-	195	24217298	-	LB237	-	-	GGDEF family protein
+233172..234227	-	351	24217299	-	LB238	-	-	putative CACHE family protein
+234316..234507	+	63	24217300	-	LB239	-	-	hypothetical protein
+234521..236095	-	524	24217301	-	LB240	-	-	GGDEF family protein
+236543..239152	+	869	24217302	-	LB241	-	COG0642T	two-component hybrid sensor and regulator
+239627..240328	-	233	24217303	-	LB242	-	-	hypothetical protein
+240371..240778	-	135	24217304	-	LB243	-	-	hypothetical protein
+241061..242065	-	334	24217305	-	LB244	-	-	hypothetical protein
+242934..244322	-	462	24217306	-	LB245	-	COG0591ER	probable sodium:solute symporter
+244678..244803	-	41	24217307	-	LB246	-	-	hypothetical protein
+245062..245250	-	62	24217308	-	LB247	-	-	hypothetical protein
+245365..246822	+	485	24217309	-	LB248	-	-	hypothetical protein
+246884..246997	-	37	24217310	-	LB249	-	-	hypothetical protein
+247072..247353	-	93	24217311	-	LB250	-	-	hypothetical protein
+247350..249314	-	654	24217312	-	LB251	-	-	hypothetical protein
+249442..250320	-	292	24217313	-	LB252	-	COG1752R	hypothetical protein
+250333..250566	-	77	24217314	-	LB253	-	-	hypothetical protein
+250911..252125	-	404	24217315	-	LB254	-	COG2814G	putative sugar transport protein
+252638..253927	+	429	24217316	-	LB255	-	COG0427C	4-Hydroxybutyrate CoA-transferase
+253999..254133	+	44	24217317	-	LB256	-	-	hypothetical protein
+254196..254714	+	172	24217318	-	LB257	-	-	hypothetical protein
+254727..257126	+	799	24217319	-	LB258	-	COG4870O	Cysteine protease
+257127..257249	+	40	24217320	-	LB259	-	-	hypothetical protein
+257596..257706	-	36	24217321	-	LB260	-	-	hypothetical protein
+257787..259139	-	450	24217322	-	LB261	-	-	hypothetical protein
+259245..260663	-	472	24217323	galF	LB262	-	-	UDP-glucose pyrophosphorylase
+260651..261100	-	149	24217324	-	LB263	-	-	hypothetical protein
+261110..262027	+	305	24217325	-	LB264	-	-	hypothetical protein
+262747..263928	+	393	24217326	-	LB265	-	COG0596R	hypothetical protein
+264495..265445	-	316	24217327	-	LB266	-	COG0385R	hypothetical protein
+266337..267488	-	383	24217328	-	LB267	-	COG0520E	aminotransferase
+267499..268368	-	289	24217329	-	LB268	-	COG1633S	hypothetical protein
+268431..269057	-	208	24217330	-	LB269	-	COG3714S	hypothetical protein
+269054..269176	-	40	24217331	-	LB270	-	-	hypothetical protein
+269322..269507	+	61	24217332	-	LB271	-	COG0861P	hypothetical protein
+269486..270124	+	212	24217333	-	LB272	-	COG0861P	hypothetical protein
+270216..272096	+	626	24217334	mcm2	LB273	-	COG2185I	methylmalonyl-CoA mutase
+272093..274291	+	732	24217335	mcm3	LB274	-	COG2185I	methylmalonyl-CoA mutase
+274304..275359	+	351	24217336	argK	LB275	-	COG1703E	arginine/ornithine transport system ATPase
+276450..276827	+	125	24217337	-	LB276	-	-	hypothetical protein
+276984..277673	+	229	24217338	-	LB277	-	-	hypothetical protein
+277675..278124	+	149	24217339	-	LB278	-	-	hypothetical protein
+278133..280793	+	886	24217340	-	LB279	-	-	hypothetical protein
+280793..281308	+	171	24217341	-	LB280	-	-	hypothetical protein
+281387..282001	+	204	24217342	exbB	LB281	-	COG0811U	transport protein ExbB
+282091..282495	+	134	24217343	exbD3	LB282	-	COG0848U	transport protein ExbD
+282505..283155	+	216	24217344	-	LB283	-	COG0810M	TonB protein
+284176..284292	+	38	24217345	-	LB284	-	-	hypothetical protein
+284338..285132	+	264	24217346	-	LB285	-	COG2908S	hypothetical protein
+285144..286796	+	550	24217347	gltB2	LB286	-	COG0069E	glutamate synthase
+287132..287860	+	242	24217348	-	LB287	-	-	hypothetical protein
+287857..288297	+	146	24217349	-	LB288	-	COG0824R	hypothetical protein
+288431..288862	+	143	24217350	-	LB289	-	-	hypothetical protein
+289090..291633	+	847	24217351	-	LB290	-	COG0642T,COG2202T	two-component hybrid sensor and regulator
+291637..292335	-	232	24217352	-	LB291	-	COG1028IQR	3-oxoacyl-[acyl-carrier protein] reductase
+292348..293097	-	249	24217353	-	LB292	-	COG0235G	probable sugar aldolase
+293099..293632	-	177	24217354	-	LB293	-	COG1791S	probable ARD family methionine salvage pathway enzyme
+293655..294371	-	238	24217355	-	LB294	-	COG0231J	elongation factor P
+294557..295630	+	357	24217356	-	LB295	-	COG3547L	putative transposase
+296868..297005	+	45	24217357	-	LB296	-	-	hypothetical protein
+297444..298343	+	299	24217358	pstS	LB297	-	COG0226P	phosphate-binding protein PstS
+298418..299515	+	365	24217359	-	LB298	-	COG1509E	L-lysine 2,3-aminomutase
+299490..300128	+	212	24217360	-	LB299	-	-	receptor tyrosine kinase
+300168..300389	+	73	24217361	-	LB300	-	-	hypothetical protein
+300382..301155	+	257	24217362	-	LB301	-	-	hypothetical protein
+301358..301474	-	38	24217363	-	LB302	-	-	hypothetical protein
+301790..302635	-	281	24217364	-	LB303	-	COG2801L	putative transposase
+302632..302937	-	101	24217365	-	LB304	-	-	putative transposase
+303419..303913	-	164	24217366	-	LB305	-	COG3216S	hypothetical protein
+304190..304294	-	34	24217367	-	LB306	-	-	hypothetical protein
+304360..304818	-	152	24217368	-	LB307	-	COG1238S	hypothetical protein
+304824..304964	-	46	24217369	-	LB308	-	-	hypothetical protein
+305503..306762	+	419	24217370	-	LB309	-	-	similar to Fimh-like protein
+306995..307822	-	275	24217371	pyrF	LB310	-	COG0284F	orotidine-5'-monophosphate decarboxylase
+307834..308679	-	281	24217372	speE2	LB311	-	COG0421E	spermidine synthase
+308686..309552	-	288	24217373	-	LB312	-	-	hypothetical protein
+309558..309662	-	34	24217374	-	LB314	-	-	hypothetical protein
+309639..309782	+	47	24217375	-	LB313	-	-	hypothetical protein
+310349..310483	+	44	24217376	-	LB315	-	-	hypothetical protein
+310505..311047	-	180	24217377	-	LB316	-	-	unknown protein confirmed by proteomics
+311077..312246	+	389	24217378	-	LB317	-	COG0787M	alanine racemase
+312297..313442	+	381	24217379	-	LB318	-	-	hypothetical protein
+313463..314374	+	303	24217380	-	LB319	-	-	hypothetical protein
+314371..315162	+	263	24217381	-	LB320	-	-	hypothetical protein
+316118..316777	-	219	24217382	-	LB321	-	-	hypothetical protein
+316778..319093	-	771	24217383	-	LB322	-	COG0642T	two-component hybrid sensor and regulator
+319149..319766	+	205	24217384	-	LB323	-	COG0741M	lytic transglycosylase
+319842..319994	-	50	24217385	-	LB324	-	-	hypothetical protein
+320145..320873	+	242	24217386	-	LB325	-	COG1309K	transcriptional regulator, TetR family
+321371..321490	+	39	24217387	-	LB326	-	-	hypothetical protein
+321518..323791	-	757	24217388	acn	LB327	-	COG1048C	aconitate hydratase
+324060..325211	-	383	24217389	ompA	LB328	-	COG1360N,COG2885M	outer membrane protein OmpA
+325387..326403	-	338	24217390	lysS2	LB329	-	COG2269J	lysyl-tRNA synthetase
+326504..326608	-	34	24217391	-	LB331	-	-	hypothetical protein
+326607..326936	+	109	24217392	-	LB330	-	-	hypothetical protein
+327256..327666	-	136	24217393	-	LB332	-	-	hypothetical protein
+327874..328605	+	243	24217394	-	LB333	-	COG0745TK	two-component response regulator
+329173..329832	-	219	24217395	-	LB334	-	-	hypothetical protein
+329835..330245	-	136	24217396	phhB	LB335	-	-	pterin-4-alpha-carbinolamine dehydratase
+330224..330352	-	42	24217397	-	LB336	-	-	hypothetical protein
+330565..331380	+	271	24217398	-	LB337	-	-	hypothetical protein
+331365..331493	+	42	24217399	-	LB338	-	-	hypothetical protein
+331510..331692	+	60	24217400	-	LB339	-	-	hypothetical protein
+332599..333030	-	143	24217401	-	LB340	-	-	hypothetical protein
+333122..333505	+	127	24217402	-	LB341	-	-	hypothetical protein
+333502..333771	+	89	24217403	-	LB342	-	-	hypothetical protein
+333876..334343	+	155	24217404	-	LB343	-	-	cytochrome-c oxidase chain III
+334727..334846	-	39	24217405	-	LB344	-	-	hypothetical protein
+334894..335967	-	357	24217406	-	LB345	-	COG3547L	putative transposase
+336410..336715	+	101	24217407	-	LB346	-	COG2963L	putative transposase
+337384..337512	+	42	24217408	-	LB347	-	-	hypothetical protein
+337515..337955	+	146	24217409	-	LB348	-	-	hypothetical protein
+338085..338201	+	38	24217410	-	LB349	-	-	hypothetical protein
+339199..339609	-	136	24217411	-	LB350	-	-	hypothetical protein
+339811..340188	-	125	24217412	-	LB351	-	-	putative outermembrane protein
+340238..340336	-	32	24217413	-	LB352	-	-	unknown protein confirmed by proteomics
+340442..341902	-	486	24217414	pyk2	LB353	-	-	pyruvate kinase
+341941..343902	-	653	24217415	-	LB354	-	-	hypothetical protein
+343915..344964	-	349	24217416	asd	LB355	-	COG0136E	aspartate-semialdehyde dehydrogenase
+345016..346608	-	530	24217417	-	LB356	-	-	hypothetical protein
+346596..346715	-	39	24217418	-	LB357	-	-	hypothetical protein
+347158..348723	+	521	24217419	-	LB358	-	-	hypothetical protein
+348694..350157	-	487	24217420	-	LB359	-	COG1696M	alginate O-acetylation protein
+350989..351204	-	71	24217421	-	LB360	-	-	hypothetical protein
+351865..352251	-	128	24217422	-	LB361	-	-	hypothetical protein
+352294..353268	-	324	24217423	-	LB362	-	-	hypothetical protein
+353351..354448	-	365	24217424	-	LB363	-	-	hypothetical protein
+354363..355733	-	456	24217425	-	LB364	-	COG2204T	transcriptional regulator (FIS family)
+355978..356730	+	250	24217426	parA4	LB365	-	COG1192D	ParA protein
+356714..357559	+	281	24217427	parB4	LB366	-	COG1475K	ParB family protein
+357993..358931	+	312	24217428	-	LB367	-	-	hypothetical protein
