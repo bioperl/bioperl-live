@@ -1222,7 +1222,6 @@ sub _pre_seq_feature {
     elsif ($algo =~ /^RPS-BLAST/) {
         $queryfactor = ($algo =~ /^RPS-BLAST\(BLASTX\)/) ? 1 : 0;
         $hitfactor = 0;
-        $self->{QUERY_FRAME} = $self->{HIT_FRAME} = 0;
     }
     $self->{_query_factor} = $queryfactor;
     $self->{_hit_factor} = $hitfactor;
