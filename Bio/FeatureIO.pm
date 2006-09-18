@@ -51,6 +51,7 @@ An I/O iterator subsystem for genomic sequence features.
  GFF                          gff.pm
  GTF                          gtf.pm
  InterPro (IPRScan 4.0)  interpro.pm
+ PTT (NCBI protein table)     ptt.pm
 
   #Bio::FeatureIO is a handler module for the formats in the FeatureIO set (eg,
   #Bio::FeatureIO::GFF). It is the officially sanctioned way of getting at
@@ -495,13 +496,13 @@ sub _guess_format {
    return 'gff'     if /\.gff3?$/i;
    return 'gff'     if /\.gtf$/i;
    return 'bed'     if /\.bed$/i;
+   return 'ptt'     if /\.ptt$/i;
 
    return 'gff'; #the default
 }
 
 sub DESTROY {
     my $self = shift;
-
     $self->close();
 }
 
