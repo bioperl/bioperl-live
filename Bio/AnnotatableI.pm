@@ -146,7 +146,7 @@ B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
  Args    : tag name
  Note    : DEPRECATED
 
-Use L</get_Annotations()> instead.
+Use L<get_Annotations()> instead.
 
 =cut
 
