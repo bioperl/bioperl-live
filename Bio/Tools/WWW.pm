@@ -2,13 +2,13 @@
 # PACKAGE : Bio::Tools::WWW
 # PURPOSE : To encapsulate commonly used URLs for web key websites in bioinformatics.
 # AUTHOR  : Steve Chervitz
-# CREATED : 27 Aug 1996 
+# CREATED : 27 Aug 1996
 # REVISION: $Id$
 #
-# For documentation, run this module through pod2html 
+# For documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
-# MODIFIED: 
+# MODIFIED:
 #  0.014, sac --- Mon Aug 31 19:41:44 1998
 #      * Updated and added a few URLs.
 #      * Added method strip_html().
@@ -17,10 +17,10 @@
 #-----------------------------------------------------------------------------
 
 package Bio::Tools::WWW;
-use strict;  
+use strict;
 use Bio::Root::Root;
 use Exporter      ();
-use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID  $BioWWW $Revision 
+use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS $ID  $BioWWW $Revision
 	    $AUTHORITY);
 $AUTHORITY = 'nobody@localhost';
 @ISA         = qw( Bio::Root::Root Exporter);
@@ -70,34 +70,34 @@ This module is included with the central Bioperl distribution:
 You also need to define URLs for the following variables in this package:
 
   $Not_found_url : Generic page to show in place of a 404 error.
-  $Tmp_url       : Web-accessible site that is Used for scripts that 
+  $Tmp_url       : Web-accessible site that is Used for scripts that
                    need to generate temporary, web-accessible files.
-                   The files need not necessarily be HTML files, but 
-                   being on the same disk as the server will permit 
+                   The files need not necessarily be HTML files, but
+                   being on the same disk as the server will permit
                    faster IO from server scripts.
 
 =head1 DESCRIPTION
 
-Bio::Tools::WWW is primarily a URL broker for a select set 
-of sites related to bioinformatics/genome analysis. It 
+Bio::Tools::WWW is primarily a URL broker for a select set
+of sites related to bioinformatics/genome analysis. It
 definitely represents a biased, unexhaustive set.
-It might be more accurate to call this module 
+It might be more accurate to call this module
 "Bio::Tools::URL.pm". But this module does handle some non-URL
 things and it may do more of this in the future. Having one
 module to cover all biologically relevant web utilities
 makes it more convenient, especially at this early stage
-of development. 
+of development.
 
-Maintaining accurate URLs over time can be challenging as 
+Maintaining accurate URLs over time can be challenging as
 new web sites spring up and old sites are re-organized. Because
 of this fact, the URLs in this module are not guaranteed to be
 correct or exhaustive and will require periodic updating.
 
 =head2 URL Management
 
-By keeping URL management within Bio::Tools::WWW.pm, other generic 
-modules can easily access a variety of different web sites without 
-having to know about a potential multitude of specific modules 
+By keeping URL management within Bio::Tools::WWW.pm, other generic
+modules can easily access a variety of different web sites without
+having to know about a potential multitude of specific modules
 specialized for one database or another. An alternative approach would
 be to have addresses defined within modules specialized for different
 web sites. This, however, may create maintenance headaches when updating
@@ -109,12 +109,12 @@ Websites with complex datasets may require special treatment
 within this module. As an example,
 URLs for the Saccharomyces Genome Database are clustered
 separately in this module, due to (1) the different ways to
-access information at this database and (2) the familiarity 
+access information at this database and (2) the familiarity
 of the developer with this database. The Bio::SGD::WWW.pm inherits from
 Bio::Tools::WWW.pm to permit access to the URLs provided by Bio::Tools::WWW.pm
-and to SGD-specific HTML and images. 
+and to SGD-specific HTML and images.
 
-The organization of Bio::Tools::WWW.pm is expected to evolve as 
+The organization of Bio::Tools::WWW.pm is expected to evolve as
 websites get born, die, and mutate their APIs.
 
 =head1 SEE ALSO
@@ -124,14 +124,14 @@ websites get born, die, and mutate their APIs.
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this and other Bioperl modules.
-Send your comments and suggestions preferably to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -151,7 +151,7 @@ Bio::Tools::WWW.pm, 0.014
 =head1 COPYRIGHT
 
 Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 
@@ -211,8 +211,8 @@ my %Home_url =
      );
 
 ### Database access CGI stems. (For some DBs the home URL can be used as the CGI stem)
-my %Stem_url = 
-    ( 
+my %Stem_url =
+    (
       'emotif'      =>'http://dna.Stanford.EDU/cgi-bin/emotif/',
       'entrez'      =>'http://www3.ncbi.nlm.nih.gov/htbin-post/Entrez/query?',
       'pdb'         =>'http://www.pdb.bnl.gov/pdb-bin/',
@@ -223,7 +223,7 @@ my %Stem_url =
 
 
 ### Database access stems/links.
-my %Search_url = 
+my %Search_url =
     ( #'3db'       =>'http://pdb.pdb.bnl.gov/cgi-bin/pdbids?3DB_ID=',   # Former stem
       '3db'          =>$Stem_url{'pdb'}.'opdbshort?oPDBid=',  # New stem (aug 1997)
       'embl'         =>$Home_url{'ebi'}.'htbin/emblfetch?',
@@ -231,7 +231,7 @@ my %Search_url =
       'cath'         =>$Home_url{'bsm'}.'cath/CATHSrch.pl?type=PDB&query=',
       'cog_seq'      =>$Home_url{'ncbi'}.'cgi-bin/COG/nph-cognitor?seq=', # add sequence
       # To cog_orf, append ORF name ('YAL005c'). Case-sensitive! YAL005C won't work!
-      'cog_orf'      =>$Home_url{'ncbi'}.'cgi-bin/COG/cogeseq?', 
+      'cog_orf'      =>$Home_url{'ncbi'}.'cgi-bin/COG/cogeseq?',
       'ec1'          =>$Home_url{'gdb'}.'bin/bio/wais_q-bio?object_class_key=30&jhu_id=',
       'ec2'          =>$Home_url{'bsm'}.'enzymes/',
       'ec3'          =>$Home_url{'expasy'}.'cgi-bin/get-enzyme-entry?',
@@ -264,7 +264,7 @@ my %Search_url =
       'swpr'         =>$Home_url{'expasy'}.'cgi-bin/get-sprot-entry?',
       'swModel'      =>$Home_url{'expasy'}.'cgi-bin/sprot-swmodel-sub?',
       'swprSearch'   =>$Home_url{'expasy'}.'cgi-bin/sprot-search-ful?',
-      
+
       ###  SCOP tlev options can be appended to the stem after adding a PDB ID.
       ###  tlev options are: 'dm'(domain), 'sf'(superfamily), 'fa'(family), 'cf'(common fold), 'cl'(class)
       ###  E.g., search.cgi?pdb=1ARD;tlev=dm
@@ -276,13 +276,13 @@ my %Search_url =
       ## Search URLs for SGD/Sacch3D are contained %SGD_url and %S3d_url (below).
 
       # For wormpep, the query string MUST end with "&keyword=" (after appending a sequence ID)
-      'wormpep'        =>'http://www.sanger.ac.uk/cgi-bin/wormpep_fetch.pl?entry=', 
+      'wormpep'        =>'http://www.sanger.ac.uk/cgi-bin/wormpep_fetch.pl?entry=',
       'wormace'        =>'http://webace.sanger.ac.uk/cgi-bin/webace?db=wormace&class=Sequence&text=yes&object=',
 
       ### YPD: You must use a valid gene name or ORF name (IFF there is no gene name).
       ###      For this reason it is most convenient to use SGD's Protein_Info link
       ###      which can accept either and will provide a proper link to YPD.
-      'ypd'          =>'http://quest7.proteome.com/YPD/',  
+      'ypd'          =>'http://quest7.proteome.com/YPD/',
       );
 
 
@@ -290,20 +290,20 @@ my %Search_url =
 ### CGI stems for SGD and Sacch3D.
 my %SGD_stem_url =
     ('stanford'      =>'http://genome-www.stanford.edu/',
-     'sgd'           =>'http://genome-www.stanford.edu/cgi-bin/SGD/',  
-     'sgd2'          =>'http://genome-www2.stanford.edu/cgi-bin/SGD/', 
-     's3d'           =>'http://genome-www.stanford.edu/cgi-bin/SGD/Sacch3D/',  
-     's3d2'          =>'http://genome-www2.stanford.edu/cgi-bin/SGD/Sacch3D/',  
-     's3d3'          =>'http://genome-www3.stanford.edu/cgi-bin/SGD/Sacch3D/',  
-     'sacchdb'       =>'http://genome-www.stanford.edu/cgi-bin/dbrun/SacchDB?',  
+     'sgd'           =>'http://genome-www.stanford.edu/cgi-bin/SGD/',
+     'sgd2'          =>'http://genome-www2.stanford.edu/cgi-bin/SGD/',
+     's3d'           =>'http://genome-www.stanford.edu/cgi-bin/SGD/Sacch3D/',
+     's3d2'          =>'http://genome-www2.stanford.edu/cgi-bin/SGD/Sacch3D/',
+     's3d3'          =>'http://genome-www3.stanford.edu/cgi-bin/SGD/Sacch3D/',
+     'sacchdb'       =>'http://genome-www.stanford.edu/cgi-bin/dbrun/SacchDB?',
      );
 
 ### SGD stems and links.
-my %SGD_url = 
+my %SGD_url =
     ('home'         =>$Home_url{'sgd'},
      'help'         =>$Home_url{'sgd'}.'help/',
-     'mammal'       =>$Home_url{'sgd'}.'mammal/',  
-     'worm'         =>$Home_url{'sgd'}.'worm/',  
+     'mammal'       =>$Home_url{'sgd'}.'mammal/',
+     'worm'         =>$Home_url{'sgd'}.'worm/',
      'gene'         =>$SGD_stem_url{'sacchdb'}.'find+Locus+',
      'locus'        =>$SGD_stem_url{'sacchdb'}.'find+Locus+',
      'orf'          =>$SGD_stem_url{'sacchdb'}.'find+Locus+',
@@ -335,14 +335,14 @@ my %S3d_url =
      'search'        =>$Home_url{'sacch3d'}.'search.html',
      'help'          =>$Home_url{'sacch3d'}.'help/',
      'new'           =>$Home_url{'sacch3d'}.'new/',
-     'chrm'          =>$Home_url{'sacch3d'}.'data/chr',  
-     'domains'       =>$Home_url{'sacch3d'}.'domains/',  
-     'genequiz'      =>$Home_url{'sacch3d'}.'genequiz/',  
-     'analysis'      =>$Home_url{'sacch3d'}.'analysis/',  
-     'scop'          =>$SGD_stem_url{'s3d3'}.'getscop?data=',  
-     'scop_fold'     =>$SGD_stem_url{'s3d3'}.'getscop?type=fold&data=',  
-     'scop_class'    =>$SGD_stem_url{'s3d3'}.'getscop?type=class&data=',  
-     'scop_gene'     =>$SGD_stem_url{'s3d3'}.'getscop?type=gene&data=',  
+     'chrm'          =>$Home_url{'sacch3d'}.'data/chr',
+     'domains'       =>$Home_url{'sacch3d'}.'domains/',
+     'genequiz'      =>$Home_url{'sacch3d'}.'genequiz/',
+     'analysis'      =>$Home_url{'sacch3d'}.'analysis/',
+     'scop'          =>$SGD_stem_url{'s3d3'}.'getscop?data=',
+     'scop_fold'     =>$SGD_stem_url{'s3d3'}.'getscop?type=fold&data=',
+     'scop_class'    =>$SGD_stem_url{'s3d3'}.'getscop?type=class&data=',
+     'scop_gene'     =>$SGD_stem_url{'s3d3'}.'getscop?type=gene&data=',
      'gene'          =>$SGD_stem_url{'s3d'}.'get?class=gene&item=',
      'orf'           =>$SGD_stem_url{'s3d'}.'get?class=orf&item=',
      'text'          =>$SGD_stem_url{'s3d'}.'get?class=text&item=',
@@ -368,11 +368,11 @@ my %S3d_url =
 
 
 ### 3D viewer stems.
-my %Viewer_url = 
+my %Viewer_url =
 #    ('java'     =>$SGD_stem_url{'sgd'}.'Sacch3D/pdbViewer.pl?pdbCode=PDB&orf=',
     (
      'java'     =>$SGD_stem_url{'sgd'}.'Sacch3D/pdbViewer.pl?pdbCode=',  # Default java viewer
-     'webmol'   =>$SGD_stem_url{'sgd'}.'Sacch3D/pdbViewer.pl?pdbCode=', 
+     'webmol'   =>$SGD_stem_url{'sgd'}.'Sacch3D/pdbViewer.pl?pdbCode=',
      'codebase' =>$SGD_stem_url{'stanford'}.'structure/webmol/lib',
      'rasmol'   =>$Stem_url{'pdb'}.'send-ras?filename=',
      'chime'    =>$Stem_url{'pdb'}.'ccpeek?id=',
@@ -382,10 +382,10 @@ my %Viewer_url =
 
 
 ### Stock HTML
-# The error reporting HTML strings represent some experiments in human psychology: 
+# The error reporting HTML strings represent some experiments in human psychology:
 # how do you induce users to report errors that you should know about yet not
 # get flooded with trivial problems caused by novices?
-my %Html = 
+my %Html =
     ('authority'  =>qq|<A HREF="mailto:$AUTHORITY"><b>$AUTHORITY</b></A>|,
      'trouble'    => <<"QQ_TROUBLE_QQ",
 <p>If this problem persists, <A HREF="mailto:$AUTHORITY"><b>please notify us.</b></A>
@@ -424,7 +424,7 @@ for documentation purposes only.
 =cut
 
 #########################################################################
-##                          ACCESSOR METHODS                            
+##                          ACCESSOR METHODS
 #########################################################################
 
 
@@ -435,8 +435,8 @@ for documentation purposes only.
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments are:
-           :    bioperl  bioperl-schema  biomoo  bsm  ebi  emotif  entrez 
-           :    expasy  mips  mmdb  ncbi  pir  pfam  pdb  geneQuiz  
+           :    bioperl  bioperl-schema  biomoo  bsm  ebi  emotif  entrez
+           :    expasy  mips  mmdb  ncbi  pir  pfam  pdb  geneQuiz
            :    molMov  pubmed  sacch3d  sgd  scop  swissProt  webmol  ypd
  Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : The URLs listed here do not represent a complete list.
@@ -447,12 +447,12 @@ See Also   : L<search_url>()
 =cut
 
 #-------------
-sub home_url { 
+sub home_url {
 #-------------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %Home_url;
-    (exists $Home_url{$arg}) ? $Home_url{$arg} 
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+    (exists $Home_url{$arg}) ? $Home_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
@@ -461,14 +461,14 @@ sub home_url {
 =head2 search_url
 
  Usage     : $BioWWW->search_url(<string>)
- Purpose   : To provide a URL stem for a search engine at a biological database 
+ Purpose   : To provide a URL stem for a search engine at a biological database
            : or resource.
  Returns   : String containing the URL (including "http://")
  Argument  : String
            : Currently acceptable arguments are:
-           :   3db  embl  cath  ec1  ec2  ec3  emotif_id  entrez  gb1  gb2  
-           :   gb3  gb4  gb5  pdb  medline  mmdb  pdb  pdb_coord  pfam  pir_acc  
-           :   pdbSum  molMov  swpr  swModel  swprSearch  scop  scop_pdb  scop_data 
+           :   3db  embl  cath  ec1  ec2  ec3  emotif_id  entrez  gb1  gb2
+           :   gb3  gb4  gb5  pdb  medline  mmdb  pdb  pdb_coord  pfam  pir_acc
+           :   pdbSum  molMov  swpr  swModel  swprSearch  scop  scop_pdb  scop_data
            :   ypd
  Throws    : Warns if argument cannot be resolved to a URL.
  Comments  : Unlike the homepage URLs, this method does not return a complete
@@ -477,13 +477,13 @@ sub home_url {
            : depends on the specific URL; typically, it is a database ID or
            : other unique identifier.
            : The requirements for each URL will be described here eventually.
-           : 
+           :
            : The URLs listed here do not represent a complete list.
            : Expect this to evolve and grow with time.
            :
            : Given this complexity, it may be useful to provide special methods
-           : for these different URLs. This would however result in an 
-           : explosion of methods that might make this module less 
+           : for these different URLs. This would however result in an
+           : explosion of methods that might make this module less
            : maintainable and harder to use.
 
 See Also   : L<home_url>()
@@ -491,12 +491,12 @@ See Also   : L<home_url>()
 =cut
 
 #--------------
-sub search_url { 
+sub search_url {
 #--------------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %Search_url;
-    (exists $Search_url{$arg}) ? $Search_url{$arg} 
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+    (exists $Search_url{$arg}) ? $Search_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
@@ -522,14 +522,14 @@ See Also   : L<search_url>()
 #--------------
 sub stem_url {
 #--------------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %Stem_url;
     (exists $Stem_url{$arg}) ? $Stem_url{$arg}
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
-	      
+
 
 =head2 viewer_url
 
@@ -548,12 +548,12 @@ sub stem_url {
 =cut
 
 #---------------
-sub viewer_url { 
+sub viewer_url {
 #---------------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %Viewer_url;
-    (exists $Viewer_url{$arg}) ? $Viewer_url{$arg} 
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+    (exists $Viewer_url{$arg}) ? $Viewer_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
@@ -608,9 +608,9 @@ See Also   : L<search_url>()
 =cut
 
 #---------------
-sub search_link { 
+sub search_link {
 #---------------
-    my($self,$arg,$value,$text) = @_; 
+    my($self,$arg,$value,$text) = @_;
     my $url = $self->search_url($arg);
     $text ||= $value;
     qq|<A HREF="$url$value">$text</A>|;
@@ -634,9 +634,9 @@ See Also   : L<viewer_url>()
 =cut
 
 #----------------
-sub viewer_link { 
+sub viewer_link {
 #----------------
-    my($self,$arg,$value,$text) = @_; 
+    my($self,$arg,$value,$text) = @_;
     my $url = $self->viewer_url($arg);
     $text ||= $value;
     qq|<A HREF="$url$value">$text</A>|;
@@ -664,9 +664,9 @@ sub viewer_link {
 =cut
 
 #----------
-sub html { 
+sub html {
 #----------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %Html;
     (exists $Html{$arg}) ? $Html{$arg} : "<pre>(missing HTML for \"$arg\")</pre>";
 }
@@ -675,7 +675,7 @@ sub html {
 ###
 ### Below are accessors specialized for the Saccharomyces Genome Database
 ### It is possible that they will be moved to Bio::SGD::WWW.pm in the future.
-### 
+###
 
 
 =head2 sgd_url
@@ -694,12 +694,12 @@ See Also   : L<search_url>()
 =cut
 
 #------------
-sub sgd_url { 
+sub sgd_url {
 #------------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %SGD_url;
-    (exists $SGD_url{$arg}) ? $SGD_url{$arg} 
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+    (exists $SGD_url{$arg}) ? $SGD_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
@@ -721,12 +721,12 @@ See Also   : L<search_url>()
 =cut
 
 #-----------
-sub s3d_url { 
+sub s3d_url {
 #-----------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %S3d_url;
-    (exists $S3d_url{$arg}) ? $S3d_url{$arg} 
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+    (exists $S3d_url{$arg}) ? $S3d_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
@@ -748,12 +748,12 @@ See Also   : L<search_url>()
 =cut
 
 #-----------------
-sub sgd_stem_url { 
+sub sgd_stem_url {
 #-----------------
-    my($self,$arg) = @_; 
+    my($self,$arg) = @_;
     $arg eq 'all' and return %SGD_stem_url;
-    (exists $SGD_stem_url{$arg}) ? $SGD_stem_url{$arg} 
-                             : ($self->warn("Can't resolve argument to URL: $arg"), 
+    (exists $SGD_stem_url{$arg}) ? $SGD_stem_url{$arg}
+                             : ($self->warn("Can't resolve argument to URL: $arg"),
 				$Not_found_url);
 }
 
@@ -777,14 +777,14 @@ See Also   : L<s3d_url>(), L<sgd_link>()
 =cut
 
 #--------------
-sub s3d_link { 
+sub s3d_link {
 #--------------
-    my($self,$arg,$value,$text) = @_; 
+    my($self,$arg,$value,$text) = @_;
     my $url = $self->s3d_url($arg);
     $text ||= $value;
     qq|<A HREF="$url$value">$text</A>|;
 }
-	      
+
 
 
 =head2 sgd_link
@@ -805,9 +805,9 @@ See Also   : L<sgd_url>(), L<s3d_link>()
 =cut
 
 #--------------
-sub sgd_link { 
+sub sgd_link {
 #--------------
-    my($self,$arg,$value,$text) = @_; 
+    my($self,$arg,$value,$text) = @_;
     my $url = $self->sgd_url($arg);
     $text ||= $value;
     qq|<A HREF="$url$value">$text</A>|;
@@ -815,10 +815,10 @@ sub sgd_link {
 
 
 #########################################################################
-##                        INSTANCE METHODS                              
+##                        INSTANCE METHODS
 #########################################################################
 
-## Note that similar functions to those presented below are also availble 
+## Note that similar functions to those presented below are also availble
 ## via L. Stein's CGI.pm. These are more experimental versions.
 
 =head2 start_html
@@ -837,9 +837,9 @@ sub sgd_link {
 =cut
 
 #---------------'
-sub start_html { 
+sub start_html {
 #---------------
-    my $self=shift; 
+    my $self=shift;
     if(!$self->{'_started_html'}) {
 	print "Content-type: text/html\n\n<HTML>\n";
 	$self->{'_started_html'} = 1;
@@ -850,7 +850,7 @@ sub start_html {
 =head2 redirect
 
  Usage     : $BioWWW->redirect(<string>)
- Purpose   : Prints the header needed to redirect a web browser to a supplied URL. 
+ Purpose   : Prints the header needed to redirect a web browser to a supplied URL.
  Returns   : n/a; Prints the redirection header.
  Argument  : String containing the URL to be redirected to.
  Throws    : n/a
@@ -864,7 +864,7 @@ sub redirect {
     my($self,$url) = @_;
 
     print "Location: $url\n";
-    print "Content-type: text/html\n\n"; 
+    print "Content-type: text/html\n\n";
 }
 
 
@@ -881,9 +881,9 @@ sub redirect {
 =cut
 
 #--------
-sub pre { 
+sub pre {
 #--------
-    my $self = shift; 
+    my $self = shift;
     "<PRE>\n".shift()."\n</PRE>";
 }
 
@@ -891,23 +891,23 @@ sub pre {
 #----------------
 sub html_footer {
 #----------------
-    my( $self, @param ) = @_;  
+    my( $self, @param ) = @_;
 
-    my( $linkTo, $linkText, $modified, $mail, $mailText, $top) = 
+    my( $linkTo, $linkText, $modified, $mail, $mailText, $top) =
 	$self->_rearrange([qw(LINKTO LINKTEXT MODIFIED MAIL MAILTEXT TOP)], @param);
 
-    $modified = (scalar $modified) 
-	? qq|<center><small><b>Last modified: $modified </b></small></center>| 
+    $modified = (scalar $modified)
+	? qq|<center><small><b>Last modified: $modified </b></small></center>|
         : '';
 
     $linkTo ||= '';
 
 #    $top = (defined $top) ? qq|<a href="top">Top</a><br>| : '';
-    $top = qq|<a href="#top">Top</a>|;  ## Utilizing the HTML bug/feature wherein 
-                                          ## a bogus name anchor defaults to the 
-                                          ## top of the page. 
+    $top = qq|<a href="#top">Top</a>|;  ## Utilizing the HTML bug/feature wherein
+                                          ## a bogus name anchor defaults to the
+                                          ## top of the page.
 
-    return <<"HTML";	
+    return <<"HTML";
 <p>
 <hr size=3 noshade width=95%>
 $top | <a href="$linkTo"> $linkText</a><br>
@@ -924,15 +924,15 @@ HTML
  Usage     : $boolean = &strip_html( string_ref, [fast] );
  Purpose   : Removes HTML formatting from a supplied string.
  Returns   : Boolean: true if string was stripped, false if not.
- Argument  : string_ref = reference to a string containing the whole 
+ Argument  : string_ref = reference to a string containing the whole
            :              web page to be stripped.
-           : fast = a non-zero value. Optional. If set, a faster 
+           : fast = a non-zero value. Optional. If set, a faster
            :        but perhaps less thorough procedure is used for
            :        stripping. Default = not fast.
  Throws    : Exception if the argument is not a scalar reference.
  Comments  : Based on code originally written by Alex Dong Li
            : (ali@genet.sickkids.on.ca).
-           : This is a more generic version of the function that appears 
+           : This is a more generic version of the function that appears
            : in Bio::Tools::Blast::HTML.pm
            : This version does not perform any Blast-specific stripping.
            :
@@ -955,7 +955,7 @@ sub strip_html {
 #---------------
     my ($self, $string_ref, $fast) = @_;
 
-    ref $string_ref eq 'SCALAR' or 
+    ref $string_ref eq 'SCALAR' or
 	$self->throw("Can't strip HTML: ".
 		     "Argument is should be a SCALAR reference not a ${\ref $string_ref}");
 
@@ -966,12 +966,12 @@ sub strip_html {
 	# MULTI-STRING-MODE: Much faster than single-string mode
 	# but will miss tags that span multiple lines.
 	# This is fine if you know the HTML to be "well-behaved".
-	
+
 	my @lines = split("\n", $str);
 	foreach (@lines) {
 	    s/<[^>]+>|&nbsp//gi and $stripped = 1;
 	}
-	
+
 	# This regexp likely won't work properly in this mode.
 	foreach (@lines) {
 	    s/(\A|\n)>\s+/\n\n>/gi and $stripped = 1;
@@ -981,13 +981,13 @@ sub strip_html {
     } else {
 
 	# SINGLE-STRING-MODE: Can be very slow for long strings with many substitutions.
-	
-	# Removing all "<>" tags. 
+
+	# Removing all "<>" tags.
 	$str =~ s/<[^>]+>|&nbsp//sgi and $stripped = 1;
-	
+
 	# Re-uniting any lone '>' characters. Not really necessary for functional HTML
 	$str =~ s/(\A|\n)>\s+/\n\n>/sgi and $stripped = 1;
-	
+
 	$$string_ref = $str;
     }
     $stripped;
@@ -998,7 +998,7 @@ sub strip_html {
 __END__
 
 ########################################################################
-##                            END OF CLASS                             
+##                            END OF CLASS
 ########################################################################
 
 =head1 FOR DEVELOPERS ONLY

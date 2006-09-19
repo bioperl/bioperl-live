@@ -148,7 +148,7 @@ read all structure objects into an array like this:
 
   @structures = <$fh>;
 
-Other operations, such as read(), sysread(), write(), close(), and printf() 
+Other operations, such as read(), sysread(), write(), close(), and printf()
 are not supported.
 
 =head1 OBJECT METHODS
@@ -171,10 +171,9 @@ These provide the tie interface.  See L<perltie> for more details.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
@@ -231,18 +230,18 @@ my $entry = 0;
 sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
-    
+
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::Structure::IO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);	
+	my ($self) = $class->SUPER::new(@args);
 	$self->_initialize(@args);
 	return $self;
-    } else { 
+    } else {
 
 	my %param = @args;
 	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $format = $param{'-format'} || 
+	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] ) ||
 		'pdb';
 	$format = "\L$format";	# normalize capitalization to lower case
@@ -299,10 +298,10 @@ sub fh {
 
 sub _initialize {
     my($self, @args) = @_;
-    
+
     # not really necessary unless we put more in RootI
     $self->SUPER::_initialize(@args);
-    
+
     # initialize the IO part
     $self->_initialize_io(@args);
 }
@@ -335,7 +334,7 @@ sub next_structure {
 }
 
 # Do we want people to read out the sequence directly from a $structIO stream
-# 
+#
 ##=head2 next_primary_seq
 ##
 ## Title   : next_primary_seq
@@ -431,8 +430,8 @@ sub _load_format_module {
     print STDERR <<END;
 $load: $format cannot be found
 Exception $@
-For more information about the Structure::IO system please see the 
-Bio::Structure::IO docs.  This includes ways of checking for formats at 
+For more information about the Structure::IO system please see the
+Bio::Structure::IO docs.  This includes ways of checking for formats at
 compile time, not run time
 END
   ;

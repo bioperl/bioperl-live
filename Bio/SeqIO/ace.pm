@@ -36,13 +36,12 @@ considered necessary.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -78,9 +77,9 @@ use Bio::Seq::SeqFactory;
 
 sub _initialize {
   my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);   
+  $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::PrimarySeq'));      
+      $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::PrimarySeq'));
   }
 }
 
@@ -99,7 +98,7 @@ sub _initialize {
         'dna'       => 'dna',
         'peptide'   => 'protein',
     );
-    
+
     sub next_seq {
         my( $self ) = @_;
         local $/ = "";  # Split input on blank lines
@@ -115,14 +114,14 @@ sub _initialize {
         }
         # Return if there weren't any DNA or peptide objects
         return unless $type;
-        
+
         # Choose the molecule type
         my $mol_type = $bio_mol_type{lc $type}
             or $self->throw("Can't get Bio::Seq molecule type for '$type'");
 
         # Remove quotes from $id
         $id =~ s/^"|"$//g;
-        
+
         # Un-escape forward slashes, double quotes, percent signs,
         # semi-colons, tabs, and backslashes (if you're mad enough
         # to have any of these as part of object names in your acedb
@@ -135,7 +134,7 @@ sub _initialize {
 					       -primary_id => $id,
 					       -display_id => $id,
 					       -alphabet    => $mol_type,
-					       );        
+					       );
     }
 }
 
@@ -152,19 +151,19 @@ sub _initialize {
 
 sub write_seq {
     my ($self, @seq) = @_;
-    
+
     foreach my $seq (@seq) {
-	$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+	$self->throw("Did not provide a valid Bio::PrimarySeqI object")
 	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
         my $mol_type = $seq->alphabet;
         my $id = $seq->display_id;
-        
+
         # Escape special charachers in id
         $id =~ s/([\/"%;\t\\])/\\$1/g;
-#"        
+#"
         # Print header for DNA or Protein object
         if ($mol_type eq 'dna') {
-            $self->_print( 
+            $self->_print(
                 qq{\nSequence : "$id"\nDNA "$id"\n},
                 qq{\nDNA : "$id"\n},
             );

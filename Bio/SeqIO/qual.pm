@@ -37,7 +37,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -194,9 +194,9 @@ sub next_primary_qual {
  Notes   : If no -header is provided, $obj->id() will be used where
 	        $obj is a reference to either a Quality object or a
 	        PrimaryQual object. If $source->id() fails, "unknown" will be
-	        the header. If the Quality object has $source->length() 
-           of "DIFFERENT" (read the pod, luke), write_seq will use the 
-           length of the PrimaryQual object within the Quality 
+	        the header. If the Quality object has $source->length()
+           of "DIFFERENT" (read the pod, luke), write_seq will use the
+           length of the PrimaryQual object within the Quality
            object.
 
 =cut

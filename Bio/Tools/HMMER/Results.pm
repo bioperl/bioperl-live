@@ -13,7 +13,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 =head1 SYNOPSIS
 
    # parse a hmmsearch file (can also parse a hmmpfam file)
-   $res = new Bio::Tools::HMMER::Results( -file => 'output.hmm' , 
+   $res = new Bio::Tools::HMMER::Results( -file => 'output.hmm' ,
                                           -type => 'hmmsearch');
 
    # print out the results for each sequence
@@ -25,7 +25,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
        }
    }
 
-   # new result object on a sequence/domain cutoff of 
+   # new result object on a sequence/domain cutoff of
    # 25 bits sequence, 15 bits domain
    $newresult = $res->filter_on_cutoff(25,15);
 
@@ -57,7 +57,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.html - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -118,9 +118,9 @@ sub new {
 	  $self->_parse_hmmpfam($self->_fh());
       } else {
 	  $self->throw("Did not recoginise type $parsetype");
-      } 
+      }
   }
-  
+
   return $self; # success - we hope!
 }
 
@@ -131,7 +131,7 @@ sub new {
  Usage   : while( my $feat = $res->next_feature ) { # do something }
  Function: SeqAnalysisParserI implementing function
  Example :
- Returns : A Bio::SeqFeatureI compliant object, in this case, 
+ Returns : A Bio::SeqFeatureI compliant object, in this case,
            each DomainUnit object, ie, flattening the Sequence
            aspect of this.
  Args    : None
@@ -156,7 +156,7 @@ sub next_feature{
        $self->{'_next_feature_array'} = \@array;
        return $res;
    }
-   
+
    $self->throw("Should not reach here! Error!");
 }
 
@@ -175,7 +175,7 @@ sub number {
     my $ref;
     $ref = $self->{'domain'};
 
-   
+
     @val = @{$self->{'domain'}};
     return scalar @val;
 }
@@ -184,8 +184,8 @@ sub number {
 
  Title   : seqfile
  Usage   : $obj->seqfile($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of seqfile
  Args    : newvalue (optional)
 
@@ -205,8 +205,8 @@ sub seqfile{
 
  Title   : hmmfile
  Usage   : $obj->hmmfile($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of hmmfile
  Args    : newvalue (optional)
 
@@ -281,9 +281,9 @@ sub each_Domain {
             if( 25 is between these two points) return 25
             else return the midpoint.
 
-           This logic tries to ensure that with large signal to 
+           This logic tries to ensure that with large signal to
            noise separation one still has sensible 25 bit cutoff
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -296,8 +296,8 @@ sub domain_bits_cutoff_from_evalue {
     @doms = $self->each_Domain;
 
 
-    @doms = map { $_->[0] } 
-            sort { $b->[1] <=> $a->[1] } 
+    @doms = map { $_->[0] }
+            sort { $b->[1] <=> $a->[1] }
             map { [ $_, $_->bits] } @doms;
     $seen = 0;
     foreach $_ ( @doms ) {
@@ -305,17 +305,17 @@ sub domain_bits_cutoff_from_evalue {
 	    $seen = 1;
 	    $dom = $_;
 	    last;
-	} 
+	}
 	$prev = $_;
     }
-    
+
     if( ! defined $prev || $seen == 0) {
 	$self->throw("Evalue is either above or below the list...");
 	return;
     }
 
     $sep = $prev->bits - $dom->bits ;
-    
+
     if( $sep < 1 ) {
 	return $prev->bits();
     }
@@ -324,7 +324,7 @@ sub domain_bits_cutoff_from_evalue {
     }
 
     return int( $dom->bits + $sep/2 ) ;
-    
+
 }
 
 
@@ -333,10 +333,10 @@ sub dictate_hmm_acc {
     my $acc = shift;
     my ($unit);
 
-	
+
     foreach $unit ( $self->eachHMMUnit() ) {
 	$unit->hmmacc($acc);
-    }	   
+    }
 }
 
 =head2 write_FT_output
@@ -344,7 +344,7 @@ sub dictate_hmm_acc {
  Title   : write_FT_output
  Usage   : $res->write_FT_output(\*STDOUT,'DOMAIN')
  Function: writes feature table output ala swissprot
- Returns : 
+ Returns :
  Args    :
 
 
@@ -375,7 +375,7 @@ sub write_FT_output {
  Title   : filter_on_cutoff
  Usage   : $newresults = $results->filter_on_cutoff(25,15);
  Function: Produces a new HMMER::Results module which has
-           been trimmed at the cutoff. 
+           been trimmed at the cutoff.
  Returns : a Bio::Tools::HMMER::Results module
  Args    : sequence cutoff and domain cutoff. in bits score
            if you want one cutoff, simply use same number both places
@@ -401,7 +401,7 @@ sub filter_on_cutoff {
 	    next if( $unit->bits() < $domthr );
 	    $new->add_Domain($unit);
 	}
-    }    
+    }
     $new;
 }
 
@@ -409,9 +409,9 @@ sub filter_on_cutoff {
 
  Title   : write_ascii_out
  Usage   : $res->write_ascii_out(\*STDOUT)
- Function: writes as 
+ Function: writes as
            seq seq_start seq_end model-acc model_start model_end model_name
- Returns : 
+ Returns :
  Args    :
 
   FIXME: Now that we have no modelacc, this is probably a bad thing.
@@ -438,7 +438,7 @@ sub write_ascii_out {
 			      $unit->bits,$unit->evalue,$unit->hmmname);
 	}
     }
-	    
+
 }
 
 =head2 write_GDF_bits
@@ -446,7 +446,7 @@ sub write_ascii_out {
  Title   : write_GDF_bits
  Usage   : $res->write_GDF_bits(25,15,\*STDOUT)
  Function: writes GDF format with a sequence,domain threshold
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -480,16 +480,16 @@ sub write_GDF_bits {
 
     }
 
-    @narray = sort { my ($aa,$bb,$st_a,$st_b); 
-		     $aa = $a->seq_id(); 
-		     $bb = $b->seq_id(); 
+    @narray = sort { my ($aa,$bb,$st_a,$st_b);
+		     $aa = $a->seq_id();
+		     $bb = $b->seq_id();
 		     if ( $aa eq $bb) {
 			 $st_a = $a->start();
 			 $st_b = $b->start();
 			 return $st_a <=> $st_b;
-			 } 
+			 }
 		     else {
-			 return $aa cmp $bb; 
+			 return $aa cmp $bb;
 		     } } @array;
 
     foreach $unit ( @narray ) {
@@ -527,10 +527,10 @@ sub write_scores_bits {
 
     }
 
-    @narray = sort { my ($aa,$bb,$st_a,$st_b); 
-		     $aa = $a->bits(); 
-		     $bb = $b->bits(); 
-		     return $aa <=> $bb; 
+    @narray = sort { my ($aa,$bb,$st_a,$st_b);
+		     $aa = $a->bits();
+		     $bb = $b->bits();
+		     return $aa <=> $bb;
 		     } @array;
 
     foreach $unit ( @narray ) {
@@ -552,7 +552,7 @@ sub write_GDF {
     foreach $unit ( $self->eachHMMUnit() ) {
 	print $file sprintf("%-24s\t%6d\t%6d\t%15s\t%.1f\t%g\n",$unit->get_nse(),$unit->start(),$unit->end(),$unit->seq_id(),$unit->bits(),$unit->evalue);
     }
-    
+
 }
 
 sub highest_noise {
@@ -562,7 +562,7 @@ sub highest_noise {
     my ($seq,$unit,$hseq,$hdom,$noiseseq,$noisedom);
 
     $hseq = $hdom = -100000;
-    
+
     foreach $seq ( $self->eachHMMSequence()) {
 	if( $seq->bits() < $seqt && $seq->bits() > $hseq  ) {
 	    $hseq = $seq->bits();
@@ -578,7 +578,7 @@ sub highest_noise {
 
 
     return ($noiseseq,$noisedom);
-   
+
 }
 
 
@@ -596,7 +596,7 @@ sub lowest_true {
     $lowseq = $lowdom = 100000;
 
     foreach $seq ( $self->eachHMMSequence()) {
-	
+
 	if( $seq->bits() >= $seqt && $seq->bits() < $lowseq  ) {
 	    $lowseq = $seq->bits();
 	    $trueseq = $seq;
@@ -615,7 +615,7 @@ sub lowest_true {
 
 
     return ($trueseq,$truedom);
-    
+
 }
 
 
@@ -625,7 +625,7 @@ sub lowest_true {
  Title   : add_Set
  Usage   : Mainly internal function
  Function:
- Returns : 
+ Returns :
  Args    :
 
 
@@ -648,9 +648,9 @@ sub add_Set {
 =head2 each_Set
 
  Title   : each_Set
- Usage   : 
+ Usage   :
  Function:
- Returns : 
+ Returns :
  Args    :
 
 
@@ -692,7 +692,7 @@ sub get_Set {
  Title   : _parse_hmmpfam
  Usage   : $res->_parse_hmmpfam($filehandle)
  Function:
- Returns : 
+ Returns :
  Args    :
 
 
@@ -701,7 +701,7 @@ sub get_Set {
 sub _parse_hmmpfam {
     my $self = shift;
     my $file = shift;
-    
+
     my ($id,$sqfrom,$sqto,$hmmf,$hmmt,$sc,$ev,
 	$unit,$nd,$seq,$name,$seqname,$from,
 	$to,%hash,%acc,$acc);
@@ -709,36 +709,36 @@ sub _parse_hmmpfam {
 
     while(<$file>) {
         if( /^HMM file:\s+(\S+)/ ) { $self->hmmfile($1); next; }
-	elsif( /^Sequence file:\s+(\S+)/ ) { $self->seqfile($1); next }   
+	elsif( /^Sequence file:\s+(\S+)/ ) { $self->seqfile($1); next }
 	elsif( /^Query(\s+sequence)?:\s+(\S+)/ ) {
-	    
+
 	    $seqname = $2;
-	    
+
 	    $seq     = Bio::Tools::HMMER::Set->new();
 
 	    $seq ->name($seqname);
 	    $self->add_Set($seq);
 	    %hash = ();
-	    
+
 	    while(<$file>){
 
 		if( /Accession:\s+(\S+)/ ) { $seq->accession($1); next }
-		elsif( s/^Description:\s+// ) { chomp; $seq->desc($_); next } 
+		elsif( s/^Description:\s+// ) { chomp; $seq->desc($_); next }
 		/^Parsed for domains/ && last;
-		
+
 		# This is to parse out the accession numbers in old Pfam format.
 		# now not support due to changes in HMMER.
 
 		if( (($id,$acc, $sc, $ev, $nd) = /^\s*(\S+)\s+(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/)) {
-		    $hash{$id} = $sc; # we need this for the sequence 
+		    $hash{$id} = $sc; # we need this for the sequence
 		                      # core of the domains below!
 		    $acc {$id} = $acc;
 
 		    # this is the more common parsing routine
-		} elsif ( (($id,$sc, $ev, $nd) = 
+		} elsif ( (($id,$sc, $ev, $nd) =
 			   /^\s*(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/) ) {
-		    
-		    $hash{$id} = $sc; # we need this for the 
+
+		    $hash{$id} = $sc; # we need this for the
 		                      # sequence score of hte domains below!
 
 		}
@@ -753,7 +753,7 @@ sub _parse_hmmpfam {
 		#-------- ------- ----- -----    ----- -----      -----  -------
 		#PF00621    1/1     198   372 ..     1   207 []   281.6    1e-80
 
-		if( (($id, $sqfrom, $sqto, $hmmf,$hmmt,$sc, $ev) = 
+		if( (($id, $sqfrom, $sqto, $hmmf,$hmmt,$sc, $ev) =
 		     /(\S+)\s+\S+\s+(\d+)\s+(\d+).+?(\d+)\s+(\d+)\s+\S+\s+(\S+)\s+(\S+)\s*$/)) {
 		    $unit = Bio::Tools::HMMER::Domain->new();
 		    $unit->seq_id  ($seqname);
@@ -770,7 +770,7 @@ sub _parse_hmmpfam {
 		    }
 
 		    $unit->seqbits($hash{$id});
-	    
+
 		    if( defined $acc{$id} ) {
 			$unit->hmmacc($acc{$id});
 		    }
@@ -780,7 +780,7 @@ sub _parse_hmmpfam {
 		}
 	    }
 	    if( /^\/\// ) { next; }
-	    
+
 	    $_ = <$file>;
 	    # parses alignment lines. Icky as we have to break on the same line
 	    # that we need to read to place the alignment lines with the unit.
@@ -791,7 +791,7 @@ sub _parse_hmmpfam {
 		# matches:
 		# PF00621: domain 1 of 1, from 198 to 372
 		if( /^\s*(\S+):.*from\s+(\d+)\s+to\s+(\d+)/ ) {
-		    
+
 		    $name = $1;
 		    $from = $2;
 		    $to   = $3;
@@ -829,7 +829,7 @@ sub get_unit_nse {
     my $end     = shift;
 
     my($seq,$unit);
-    
+
     $seq = $self->get_Set($seqname);
 
     if( !defined $seq ) {
@@ -851,7 +851,7 @@ sub get_unit_nse {
  Title   : _parse_hmmsearch
  Usage   : $res->_parse_hmmsearch($filehandle)
  Function:
- Returns : 
+ Returns :
  Args    :
 
 
@@ -863,17 +863,17 @@ sub _parse_hmmsearch {
     my ($id,$sqfrom,$sqto,$sc,$ev,$unit,$nd,$seq,$hmmf,$hmmt,
 	$hmmfname,$hmmacc, $hmmid, %seqh);
     my $count = 0;
-    
+
     while(<$file>) {
         /^HMM file:\s+(\S+)/ and do { $self->hmmfile($1); $hmmfname = $1 };
 	/^Accession:\s+(\S+)/ and do { $hmmacc = $1 };
-	/^Query HMM:\s+(\S+)/ and do { $hmmid = $1 };	
+	/^Query HMM:\s+(\S+)/ and do { $hmmid = $1 };
 	/^Sequence database:\s+(\S+)/ and do { $self->seqfile($1) };
         /^Scores for complete sequences/ && last;
     }
-    
-    $hmmfname = "given" if not $hmmfname;  
-    
+
+    $hmmfname = "given" if not $hmmfname;
+
     while(<$file>) {
 	/^Parsed for domains/ && last;
 	if( (($id, $sc, $ev, $nd) = /(\S+).+?\s(\S+)\s+(\S+)\s+(\d+)\s*$/)) {
@@ -911,10 +911,10 @@ sub _parse_hmmsearch {
     ## Recognize and store domain alignments
 
     while(1) {
-	if( !defined $_ ) { 
-	    last; 
+	if( !defined $_ ) {
+	    last;
 	}
-        /^Histogram of all scores/ && last;      
+        /^Histogram of all scores/ && last;
 
         # matches:
         # PF00621: domain 1 of 1, from 198 to 372
@@ -948,7 +948,7 @@ sub _parse_hmmsearch {
 
  Title   : parsetype
  Usage   : $obj->parsetype($newval)
- Function: 
+ Function:
  Returns : value of parsetype
  Args    : newvalue (optional)
 

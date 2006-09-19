@@ -3,12 +3,12 @@
 # AUTHOR  : Malcolm Cook <mec@stowers-institute.org>
 # CREATED : Feb 16 1999
 # REVISION: $Id$
-#            
+#
 # _History_
 #
 # This code is based on the Bio::SeqIO::raw module with
-# the necessary minor tweaks necessary to get it to read (only) 
-# Lasergene formatted sequences 
+# the necessary minor tweaks necessary to get it to read (only)
+# Lasergene formatted sequences
 #
 # Cleaned up by Torsten Seemann June 2006
 
@@ -38,13 +38,12 @@ IT DOES NOT WRITE THESE FILES EITHER.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -62,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
+The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
@@ -97,7 +96,7 @@ sub next_seq {
    my $state = 0;
    my @comment;
    my @sequence;
-   
+
    while (my $line = $self->_readline) {
      $state = 1 if $state == 0;
      chomp $line;
@@ -117,14 +116,14 @@ sub next_seq {
        $self->throw("unreachable state reached, probable bug!");
      }
    }
-   
+
    # return quietly if there was nothing in the file
-   return if $state == 0; 
-   
+   return if $state == 0;
+
    # ensure we read some comment and some sequence
    if ($state < 2) {
      $self->throw("unexpected end of file");
-   }     
+   }
 
    my $sequence = join('', @sequence);
 #   print STDERR "SEQ=[[$sequence]]\n";
@@ -154,7 +153,7 @@ sub write_seq {
   my ($self, @seq) = @_;
   $self->throw("write_seq() is not implemented for the lasergene format.");
 }
-        
+
 
 1;
 

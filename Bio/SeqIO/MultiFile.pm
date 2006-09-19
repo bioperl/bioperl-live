@@ -31,13 +31,12 @@ set of identically formatted sequence input files as a single stream.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -107,7 +106,7 @@ sub _initialize {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -126,7 +125,7 @@ sub next_seq{
    } else {
        return $seq;
    }
-   
+
 }
 
 =head2 next_primary_seq
@@ -135,7 +134,7 @@ sub next_seq{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -163,7 +162,7 @@ sub next_primary_seq{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -192,7 +191,7 @@ sub _load_file{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -202,15 +201,15 @@ sub _set_file{
    my ($self,@files) = @_;
 
    push(@{$self->{'_file_array'}},@files);
-   
+
 }
 
 =head2 _current_seqio
 
  Title   : _current_seqio
  Usage   : $obj->_current_seqio($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of _current_seqio
  Args    : newvalue (optional)
 
@@ -230,8 +229,8 @@ sub _current_seqio{
 
  Title   : _format
  Usage   : $obj->_format($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of _format
  Args    : newvalue (optional)
 

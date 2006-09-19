@@ -40,7 +40,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.html - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -112,7 +112,7 @@ sub add_Domain{
 =head2 each_Domain
 
  Title   : each_Domain
- Usage   : foreach $domain ( $set->each_Domain() ) 
+ Usage   : foreach $domain ( $set->each_Domain() )
  Function: returns an array of domain objects in this set
  Returns : array
  Args    : none
@@ -130,8 +130,8 @@ sub each_Domain{
 
  Title   : name
  Usage   : $obj->name($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of name
  Args    : newvalue (optional)
 
@@ -151,8 +151,8 @@ sub name{
 
  Title   : desc
  Usage   : $obj->desc($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of desc
  Args    : newvalue (optional)
 
@@ -171,8 +171,8 @@ sub desc{
 
  Title   : accession
  Usage   : $obj->accession($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of accession
  Args    : newvalue (optional)
 
@@ -192,8 +192,8 @@ sub accession{
 
  Title   : bits
  Usage   : $obj->bits($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of bits
  Args    : newvalue (optional)
 
@@ -214,8 +214,8 @@ sub bits{
 
  Title   : evalue
  Usage   : $obj->evalue($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of evalue
  Args    : newvalue (optional)
 
