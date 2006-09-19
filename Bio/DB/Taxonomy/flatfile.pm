@@ -169,6 +169,7 @@ sub get_taxon {
     
     $taxonid =~ /^\d+$/ || return;
     my $node = $self->{'_nodes'}->[$taxonid];
+    $node || $self->throw("no node for $taxonid");
     length($node) || return;
     my ($taxid, undef, $rank, $code, $divid, $gen_code, $mito) = split(SEPARATOR,$node);
     last unless defined $taxid;
