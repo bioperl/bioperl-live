@@ -325,43 +325,6 @@ sub make_features_from_part {
                                 : "fdata${index},ftype,cmap_feature\n";
 }
 
-=head2 search_notes
-
- Title   : search_notes
- Usage   : @search_results = $db->search_notes("full text search string",$limit)
- Function: Search the notes for a text string, using mysql full-text search
- Returns : array of results
- Args    : full text search string, and an optional row limit
- Status  : public
-
-This is a mysql-specific method.  Given a search string, it performs a
-full-text search of the notes table and returns an array of results.
-Each row of the returned array is a arrayref containing the following fields:
-
-  column 1     A Bio::DB::GFF::Featname object, suitable for passing to segment()
-  column 2     The text of the note
-  column 3     A relevance score.
-
-=cut
-
-# sub search_notes {
-#   my $self = shift;
-#   my ($search_string,$limit) = @_;
-#   my $query = FULLTEXTSEARCH;
-#   $query .= " limit $limit" if defined $limit;
-#   my $sth = $self->dbh->do_query($query,$search_string,$search_string);
-#   my @results;
-#   while (my ($class,$name,$note,$relevance) = $sth->fetchrow_array) {
-#      next unless $class && $name;    # sorry, ignore NULL objects
-#      $relevance = sprintf("%.2f",$relevance);  # trim long floats
-#      my $featname = Bio::DB::GFF::Featname->new($class=>$name);
-#      push @results,[$featname,$note,$relevance];
-#   }
-#   @results;
-# }
-
-
-
 ################################ loading and initialization ##################################
 
 =head2 schema
@@ -1093,6 +1056,22 @@ END
   }
   @results;
 }
+
+# sub search_notes {
+#   my $self = shift;
+#   my ($search_string,$limit) = @_;
+#   my $query = FULLTEXTSEARCH;
+#   $query .= " limit $limit" if defined $limit;
+#   my $sth = $self->dbh->do_query($query,$search_string,$search_string);
+#   my @results;
+#   while (my ($class,$name,$note,$relevance) = $sth->fetchrow_array) {
+#      next unless $class && $name;    # sorry, ignore NULL objects
+#      $relevance = sprintf("%.2f",$relevance);  # trim long floats
+#      my $featname = Bio::DB::GFF::Featname->new($class=>$name);
+#      push @results,[$featname,$note,$relevance];
+#   }
+#   @results;
+# }
 
 =head2 make_features_order_by_part
 

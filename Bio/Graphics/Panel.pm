@@ -2474,11 +2474,17 @@ There are three ways to specify the link destination:
 
 =over 4
 
-=item 1. By configuring one or more tracks with a -link argument.
+=item 1.
 
-=item 2. By configuring the panel with a -link argument.
+By configuring one or more tracks with a -link argument.
 
-=item 3. By passing a -link argument in the call to image_and_map().
+=item 2.
+
+By configuring the panel with a -link argument.
+
+=item 3.
+
+By passing a -link argument in the call to image_and_map().
 
 =back
 

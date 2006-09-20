@@ -57,19 +57,6 @@ And be sure to run VACUUM FULL ANALYZE after creating the indexes.
 
 =back
 
-=head2 search_notes
-
-This PostgreSQL adaptor does not implement the search notes method
-because it can be very slow (although the code for the method is
-contained in this method but commented out).
-There is, however, a PostgreSQL adaptor that does implement it in
-a more efficient way: L<Bio::DB::GFF::Adaptor::dbi::pg_fts>,
-which inherits from this adaptor and uses the optional PostgreSQL
-module TSearch2 for full text indexing.  See that adaptor's
-documentation for more information.
-
-See also L<Bio::DB::GFF>
-
 =cut
 
 # a simple postgres adaptor
@@ -940,13 +927,18 @@ sub pg_make_features_order_by_part {
   return "gname";
 }
 
-
-
 =head2 search_notes
 
-This method is not available by default--if you have a small
-database or very powerful hardware, you can uncomment the 
-method to use it.
+This PostgreSQL adaptor does not implement the search notes method
+because it can be very slow (although the code for the method is
+contained in this method but commented out).
+There is, however, a PostgreSQL adaptor that does implement it in
+a more efficient way: L<Bio::DB::GFF::Adaptor::dbi::pg_fts>,
+which inherits from this adaptor and uses the optional PostgreSQL
+module TSearch2 for full text indexing.  See that adaptor's
+documentation for more information.
+
+See also L<Bio::DB::GFF>
 
  Title   : search_notes
  Usage   : @search_results = $db->search_notes("full text search string",$limit)

@@ -108,27 +108,14 @@ sub new {
   return shift->get_instance(@_);
 }
 
-=head2 get_instance()
+=head2 get_instance
 
-=over
-
-=item Usage
-
-  my $singleton = Bio::Ontology::DocumentRegistry->get_instance();
-
-=item Function
-
-constructor
-
-=item Returns
-
-The Bio::Ontology::DocumentRegistry singleton.
-
-=item Arguments
-
-None
-
-=back
+ Title   : get_instance
+ Usage   : my $singleton = Bio::Ontology::DocumentRegistry->get_instance();
+ Function: constructor
+ Returns : The Bio::Ontology::DocumentRegistry singleton.
+ Args    : None
+ Usage
 
 =cut
 
@@ -136,33 +123,18 @@ sub get_instance {
   return $instance;
 }
 
-=head2 documents()
+=head2 documents
 
-=over
-
-=item Usage
-
-  my($ontology_url, $definitions_url, $format) = $obj->documents('Sequence Ontology');
-
-=item Function
-
-Maps an ontology name to a list of (local or) remote URIs where the files 
-can be located.
-
-=item Returns
-
-A 3-item list:
-
-    (1) URI for the ontology file
-    (2) URI for the ontology definitions file
-    (3) format of the files (dagedit, obo, etc)
-
-=item Arguments
-
-Name of an ontology, e.g. 'Sequence Ontology', or 'Cellular Component 
-(Gene Ontology)'
-
-=back
+ Title   : documents
+ Usage   : my($ontology_url, $definitions_url, $format) = $obj->documents('Sequence Ontology');
+ Function: Maps an ontology name to a list of (local or) remote URIs where the
+           files can be located.
+ Returns : A 3-item list:
+           (1) URI for the ontology file
+           (2) URI for the ontology definitions file
+           (3) format of the files (dagedit, obo, etc)
+ Args    : Name of an ontology, e.g. 'Sequence Ontology', or 'Cellular Component 
+           (Gene Ontology)'
 
 =cut
 

@@ -346,7 +346,7 @@ program with the option "-" as in blastall -
   -B  Multiple alignment file for PSI-BLAST "jump start mode"  Optional
   -Q  Output File for PSI-BLAST Matrix in ASCII [File Out]  Optional
 
-=head2 rpsblast
+=head2 E<lt>rpsblastE<gt>
 
   -d  Database [String] default = (none - you must specify a database)
         The database specified must first be formatted with formatdb.

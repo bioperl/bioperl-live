@@ -71,7 +71,7 @@ in brackets are the pattern which will match
 
 =over 3
 
-=item  JukesCantor [jc|jukes|jukescantor|jukes-cantor]
+=item JukesCantor [jc|jukes|jukescantor|jukes-cantor]
 
 =item Uncorrected [jcuncor|uncorrected]
 
@@ -184,8 +184,6 @@ calculation of z value.Positive value indicates D_n E<gt> D_s,
 negative value indicates D_s E<gt> D_n.
 
 =back
-
-=head1 calc_average_KaKs
 
 The statistics returned by calc_average_KaKs are:
 
