@@ -104,7 +104,7 @@ is $aln->no_sequences, 4, 'purge';
 
 SKIP:{
 	eval { require IO::String };
-	skip("IO::String not installed. Skipping tests.\n", 21) if $@;
+	skip("IO::String not installed. Skipping tests.\n", 22) if $@;
 
 	my $string;
 	my $out = IO::String->new($string);
