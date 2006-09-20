@@ -3,6 +3,12 @@ package Bio::Graphics::Util;
 # $Id$
 # Non object-oriented utilities used here-and-there in Bio::Graphics modules
 
+=head1 NAME
+
+Bio::Graphics::Util
+
+=cut
+
 use strict;
 require Exporter;
 use vars '@ISA','@EXPORT','@EXPORT_OK';
