@@ -20,7 +20,11 @@ You shouldn't use this class directly.
 
 =head1 SYNOPSIS
 
+*** Give standard usage here
+
 =head1 DESCRIPTION
+
+*** Describe the object here
 
 =head1 FEEDBACK
 

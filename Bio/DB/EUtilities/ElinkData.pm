@@ -18,7 +18,11 @@ Bio::DB::EUtilities::ElinkData
 
 =head1 SYNOPSIS
 
+*** Give standard usage here
+
 =head1 DESCRIPTION
+
+*** Describe the object here
 
 =head1 FEEDBACK
 
