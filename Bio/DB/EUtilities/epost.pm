@@ -32,7 +32,7 @@ retrieval and chained queries
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
 
 The EUtility EPost is used to post a list of primary IDs to the NCBI EUtilities
-server for retrieval by L<EFetch:Bio::DB::EUtilities::efetch> or for using in
+server for retrieval by L<EFetch|Bio::DB::EUtilities::efetch> or for using in
 futher searches using L<ELink|Bio::DB::EUtilities::elink> or
 L<ESearch|Bio::DB::EUtilities::esearch>.  The data is posted using:
 

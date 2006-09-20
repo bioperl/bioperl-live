@@ -71,7 +71,7 @@ true on success
 
 =item Arguments
 
-Arguments passed to L</new()>
+Arguments passed to new()
 
 =back
 

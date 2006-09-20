@@ -116,7 +116,7 @@ in a GFF database.
 =head1 BUGS
 
 Please report bugs to the BioPerl and/or GBrowse mailing lists
-(L<bioperl-l@lists.open-bio.org> and L<gmod-gbrowse@lists.sourceforge.net>
+(L<mailto:bioperl-l@lists.open-bio.org> and L<mailto:gmod-gbrowse@lists.sourceforge.net>
 respectively).
 
 =head1 SEE ALSO
