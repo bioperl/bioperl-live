@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::GenBank - GenBank sequence input/output stream
+Bio::SeqIO::genBank - GenBank sequence input/output stream
 
 =head1 SYNOPSIS
 

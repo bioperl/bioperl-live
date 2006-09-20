@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::Qual - .qual file input/output stream
+Bio::SeqIO::qual - .qual file input/output stream
 
 =head1 SYNOPSIS
 
