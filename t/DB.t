@@ -160,6 +160,7 @@ if( $DEBUG ) {
 		foreach ( $Test::ntest..$NUMTESTS ) { 
 			skip('could not connect to Genbank',1); 
 		}
+        exit(0);
 	}
 	$seq = $seqio = undef;
 
@@ -190,6 +191,7 @@ if( $DEBUG ) {
 		foreach ( $Test::ntest..$NUMTESTS ) { 
 			skip('could not connect to Genbank',1); 
 		}
+        exit(0);
 	}
 	$seq = $seqio = undef;
 
@@ -222,6 +224,7 @@ if( $DEBUG ) {
 		foreach ( $Test::ntest..$NUMTESTS ) { 
 			skip('could not connect to Genbank',1); 
 		}
+        exit(0);
 	}
 	$seq = $seqio = undef;
 
@@ -253,6 +256,7 @@ if( $DEBUG ) {
 		foreach ( $Test::ntest..$NUMTESTS ) { 
 			skip('could not connect to Genbank',1); 
 		}
+        exit(0);
 	}
 	$seq = $seqio = undef;
 
@@ -300,6 +304,7 @@ if( $DEBUG ) {
 		foreach ( $Test::ntest..$NUMTESTS ) { 
 			skip('could not connect to Genbank',1); 
 		}
+        exit(0);
 	}
      
    eval {
@@ -321,6 +326,7 @@ if( $DEBUG ) {
 		foreach ( $Test::ntest..$NUMTESTS ) { 
 			skip('could not connect to GenPept',1); 
 		}
+        exit(0);
 	}
    
 	#
@@ -504,7 +510,7 @@ if( $DEBUG ) {
 		ok $t->id, "D012851";
 	};
 	if ($@) {
-		if( 1 ) { 
+		if( $DEBUG ) { 
 			print STDERR "Warning: Couldn't connect to MeSH with Bio::DB::MeSH!\n$@";
 		}
 		foreach ( $Test::ntest..$NUMTESTS) { 
