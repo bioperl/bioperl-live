@@ -397,6 +397,7 @@ sub get_NEB_pos_selected_sites{
            $pvalue - float from 0->1 represent probability site is under selection according to this model
            $signif - significance (coded as either empty, '*', or '**'
            $postmean - post mean for w
+
 =cut
 
 sub add_NEB_pos_selected_site{
@@ -423,7 +424,6 @@ sub add_NEB_pos_selected_site{
  Returns : Array
  Args    : none
 
-
 =cut
 
 sub get_BEB_pos_selected_sites{
@@ -442,6 +442,7 @@ sub get_BEB_pos_selected_sites{
            $signif - significance (coded as either empty, '*', or '**'
            $postmean - post mean for w
            $SE       - Standard Error for w
+
 =cut
 
 sub add_BEB_pos_selected_site{

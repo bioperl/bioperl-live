@@ -56,9 +56,9 @@ first tree can be connected to more than one taxon of the second tree,
 and vice versa.
 
 The branch from the parent to a child $node, as well as the child
-label, can be colored by setting $node->add_tag_value('Rcolor',$r),
-$node->add_tag_value('Gcolor',$g), and
-$node->add_tag_value('Bcolor',$b), where $r, $g, and $b are the
+label, can be colored by setting $node-E<gt>add_tag_value('Rcolor',$r),
+$node-E<gt>add_tag_value('Gcolor',$g), and
+$node-E<gt>add_tag_value('Bcolor',$b), where $r, $g, and $b are the
 desired values for red, green, and blue (zero for lowest, one for
 highest intensity).
 

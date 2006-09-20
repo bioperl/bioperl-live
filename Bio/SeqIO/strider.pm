@@ -61,8 +61,8 @@ Email: mec@stowers-institute.org
 
 =head1 CONTRIBUTORS
 
-Modelled after Bio::SeqIO::fasta by Ewan Birney <birney@ebi.ac.uk> and
-Lincoln Stein <lstein@cshl.org>
+Modelled after Bio::SeqIO::fasta by Ewan Birney E<lt>birney@ebi.ac.ukE<gt> and
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 =head1 APPENDIX
 

@@ -258,6 +258,7 @@ sub next_prediction {
  Returns : 
 
 =cut
+
 sub _parse_predictions {
     my ($self) = @_;
     my $gene;
