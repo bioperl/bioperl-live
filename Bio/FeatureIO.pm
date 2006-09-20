@@ -66,8 +66,6 @@ Each stream object has functions:
   $stream->next_feature();
   $stream->write_feature($feature);
 
-=back
-
 =head1 SUPPORTED FORMATS
 
  name                         module

@@ -69,8 +69,8 @@ a list of primary ID's
 
 Below are a list of IDs which can be used with EPost:
 
-B<PMID> (pubmed), <MEDLINE UI> (NIH MedLine), B<MIM number> (omim),
-B<GI number> (nucleotide, protein), <MMDB-ID> (structure),B<TAXID> (taxonomy)
+B<PMID> (pubmed), B<MEDLINE UI> (NIH MedLine), B<MIM number> (omim),
+B<GI number> (nucleotide, protein), B<MMDB-ID> (structure), B<TAXID> (taxonomy)
 
 =back
 

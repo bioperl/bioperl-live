@@ -100,7 +100,7 @@ my %Strandedness = ( '+'  => 1,
  Status  : public
 
 This method creates a new GFF3 loader and establishes its connection
-with a Bio::DB::SeqFeature::Store database. Arguments are -name=>$value
+with a Bio::DB::SeqFeature::Store database. Arguments are -name=E<gt>$value
 pairs as described in this table:
 
  Name               Value
@@ -143,7 +143,7 @@ database in which to cache features until all their parts and subparts
 have been seen. This temporary databases uses the "bdb" adaptor. The
 -tmp option specifies the directory in which that database will be
 created. If not present, it defaults to the system default tmp
-directory specified by File::Spec->tmpdir().
+directory specified by File::Spec-E<gt>tmpdir().
 
 The -chunk_size option allows you to tune the representation of
 DNA/Protein sequence in the Store database. By default, sequences are
@@ -226,7 +226,7 @@ load them into the database. Compressed files ending with .gz, .Z and
 beginning with http: or ftp: are treated as URLs and opened using the
 LWP GET program (which must be on your path).
 
-FASTA files are recognized by their initial ">" character. Do not feed
+FASTA files are recognized by their initial "E<gt>" character. Do not feed
 the loader a file that is neither GFF3 nor FASTA; I don't know what
 will happen, but it will probably not be what you expect.
 
@@ -480,7 +480,7 @@ sub handle_meta {
   $loader->handle_feature($gff3_line)
 
 This method is called to process a single GFF3 line. It manipulates
-information stored a data structure called $self->{load_data}.
+information stored a data structure called $self-E<gt>{load_data}.
 
 =cut
 
@@ -589,7 +589,7 @@ END
   $loader->store_current_feature()
 
 This method is called to store the currently active feature in the
-database. It uses a data structure stored in $self->{load_data}.
+database. It uses a data structure stored in $self-E<gt>{load_data}.
 
 =cut
 

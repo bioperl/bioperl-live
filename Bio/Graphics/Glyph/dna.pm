@@ -338,7 +338,7 @@ options are recognized:
               and strandless features will
               show both
 
-NOTE: -gc_window=>'auto' gives nice results and is recommended for
+NOTE: -gc_window=E<gt>'auto' gives nice results and is recommended for
 drawing GC content. The GC content axes draw slightly outside the
 panel, so you may wish to add some extra padding on the right and
 left.

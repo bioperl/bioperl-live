@@ -91,7 +91,7 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
 
 Bio::DB::SeqFeature::Store::mysql is the Mysql adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
-instead use Bio::DB::SeqFeature::Store->new() to do so.
+instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
@@ -103,7 +103,7 @@ permission. In order to use "fast" loading, the user account must have
 "file" privileges.
 
 To establish a connection to the database, call
-Bio::DB::SeqFeature::Store->new(-adaptor=>'DBI::mysql',@more_args). The
+Bio::DB::SeqFeature::Store-E<gt>new(-adaptor=E<gt>'DBI::mysql',@more_args). The
 additional arguments are as follows:
 
   Argument name       Description

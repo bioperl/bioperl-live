@@ -1560,7 +1560,7 @@ the provided rectangle coordinates.
 
 As above, but draws an oval inscribed on the rectangle.
 
-=item $glyph->E<gt>exceeds_depth
+=item $glyph-E<gt>exceeds_depth
 
 Returns true if descending into another level of subfeatures will
 exceed the value returned by maxdepth().

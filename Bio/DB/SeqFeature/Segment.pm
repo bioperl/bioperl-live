@@ -132,7 +132,7 @@ sub new {
  Status  : Public
 
 This is the workhorse for feature query and retrieval. It takes a
-series of -name=>$value arguments filter arguments. Features that
+series of -name=E<gt>$value arguments filter arguments. Features that
 match all the filters are returned.
 
   Argument       Value
@@ -159,7 +159,7 @@ match all the filters are returned.
                     can be matched by providing an array reference.
   -attribute     synonym for -attributes
 
-This is identical to the Bio::DB::SeqFeature::Store->features()
+This is identical to the Bio::DB::SeqFeature::Store-E<gt>features()
 method, except that the -seq_id, -start, and -end arguments are
 provided by the segment object. If a simple list of arguments is
 provided, then the list is taken to be the set of feature types
@@ -209,7 +209,7 @@ sub features {
  Args    : (optional) the feature() method
  Status  : public
 
-This is identical to Bio::DB::SeqFeature::Store->get_seq_stream()
+This is identical to Bio::DB::SeqFeature::Store-E<gt>get_seq_stream()
 except that the location filter is always automatically applied so
 that the iterator you receive returns features that overlap the segment's region.
 
@@ -225,7 +225,7 @@ step through them (in no particular order):
 
 You can select a subset of features by passing a series of filter
 arguments. The arguments are identical to those accepted by
-$segment->features().
+$segment-E<gt>features().
 
 get_feature_stream() ican be used as a synonym for this method.
 
@@ -354,7 +354,7 @@ For convenience, segments are interchangeable with Bio::SeqFeature
 objects in many cases. This means that segments can be passed to
 BioPerl modules that expect Bio::SeqFeature objects and they should
 work as expected. The primary tag of segment objects is "region"
-(SO:0000001 "Continous sequence >=1 base pair").
+(SO:0000001 "Continous sequence E<gt>=1 base pair").
 
 All these methods are read-only except for the primary_id, which can
 be get or set.

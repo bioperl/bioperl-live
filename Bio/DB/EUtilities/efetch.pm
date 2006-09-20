@@ -70,7 +70,7 @@ All other databases:
 
 B<PMID> (pubmed), B<MIM number> (omim), B<GI number> (nucleotide, protein),
 B<Genome ID> (genome), B<Popset ID> (popset), B<SNP cluster ID> (snp),
-B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), <MMDB-ID> (structure),
+B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), B<MMDB-ID> (structure),
 B<PSSM-ID> (cdd), B<3D SDI> (domains), B<TAXID> (taxonomy), B<GEO ID> (geo)
 
 =item C<mindate>, C<maxdate>

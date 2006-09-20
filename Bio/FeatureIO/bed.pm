@@ -6,10 +6,10 @@ Bio::FeatureIO::bed - write features from UCSC BED format
 
 =head1 SYNOPSIS
 
-my $out = Bio::FeatureIO(-format=>'bed');
-for my $feat ($seq->get_seqFeatures) {
-  $out->write_feature($feat);
-}
+  my $out = Bio::FeatureIO(-format=>'bed');
+  for my $feat ($seq->get_seqFeatures) {
+    $out->write_feature($feat);
+  }
 
 =head1 DESCRIPTION
 

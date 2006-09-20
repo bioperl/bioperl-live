@@ -41,7 +41,7 @@ This module requires DB_File and Storable.
 
 =head1 CONTACT
 
-Lincoln Stein <lstein@cshl.org>
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 =head2 Reporting Bugs
 

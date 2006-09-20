@@ -46,8 +46,8 @@ Bio::Map::Relative - Represents what a Position's coordiantes are relative to.
 
 =head1 DESCRIPTION
 
-A Relative object is used to describe what the co-ordinates (->numerical(),
-->start(), ->end()) of a Position are relative to. By default they are
+A Relative object is used to describe what the co-ordinates (numerical(),
+start(), end()) of a Position are relative to. By default they are
 implicitly assumed to be relative to the start of the map the Position is on.
 But setting the ->relative() of a Position to one of these objects lets us
 define otherwise.

@@ -30,7 +30,7 @@ from a name (id) or a accession number.
 
 =head1 CONTACT
 
-Ewan Birney <birney@ebi.ac.uk> originally wrote this class.
+Ewan Birney E<lt>birney@ebi.ac.ukE<gt> originally wrote this class.
 
 =head2 Reporting Bugs
 

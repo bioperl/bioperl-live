@@ -1903,9 +1903,9 @@ bottomright corners of the glyph, including any space allocated for
 labels. The track is the Bio::Graphics::Glyph object corresponding to
 the track that the feature is rendered inside.
 
-=item $boxes = $panel->E<gt>key_boxes
+=item $boxes = $panel-E<gt>key_boxes
 
-=item @boxes = $panel->E<gt>key_boxes
+=item @boxes = $panel-E<gt>key_boxes
 
 Returns the positions of the track keys as an arrayref or a list,
 depending on context. Each value in the list is an arrayref of format:

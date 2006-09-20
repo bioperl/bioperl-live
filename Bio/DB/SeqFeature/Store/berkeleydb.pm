@@ -124,7 +124,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
 Bio::DB::SeqFeature::Store::berkeleydb is the Berkeleydb adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
-instead use Bio::DB::SeqFeature::Store->new() to do so.
+instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 

@@ -18,12 +18,12 @@ Bio::DB::EUtilities::egquery - counts for a global query of Entrez databases
 
 =head1 SYNOPSIS
 
-my $egquery = Bio::DB::EUtilities->new(
+    my $egquery = Bio::DB::EUtilities->new(
                                      -eutil    => 'egquery',
                                      -term     => 'dihydroorotase'
                                       );
 
-print $egquery->get_response->content;
+    print $egquery->get_response->content;
 
 =head1 DESCRIPTION
 

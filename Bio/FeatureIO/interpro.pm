@@ -5,10 +5,10 @@ Bio::FeatureIO::interpro - read features from InterPro XML
 
 =head1 SYNOPSIS
 
-my $in = Bio::FeatureIO(-format=>'interpro');
-while (my $feat = $in->next_feature) {
-  # do something with the Bio::SeqFeatureI object
-}
+  my $in = Bio::FeatureIO(-format=>'interpro');
+  while (my $feat = $in->next_feature) {
+    # do something with the Bio::SeqFeatureI object
+  }
 
 =head1 DESCRIPTION
 

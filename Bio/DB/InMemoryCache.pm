@@ -35,7 +35,7 @@ Bio::DB::RandomAccessI in memory to a hard limit of sequences.
 
 =head1 CONTACT
 
-Ewan Birney <birney@ebi.ac.uk>
+Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 
 =head2 Reporting Bugs
 

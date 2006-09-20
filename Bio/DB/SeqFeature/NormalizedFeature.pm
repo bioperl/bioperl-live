@@ -41,9 +41,9 @@ does speed up access somewhat.
 
 To use this class, pass the name of the class to the
 Bio::DB::SeqFeature::Store object's seqfeature_class() method. After
-this, $db->new_feature() will create objects of type
+this, $db-E<gt>new_feature() will create objects of type
 Bio::DB::SeqFeature::NormalizedFeature. If you are using the GFF3
-loader, pass Bio::DB::SeqFeature::Store::GFF3Loader->new() the
+loader, pass Bio::DB::SeqFeature::Store::GFF3Loader-E<gt>new() the
 -seqfeature_class argument:
 
   use Bio::DB::SeqFeature::Store::GFF3Loader;
@@ -53,6 +53,7 @@ loader, pass Bio::DB::SeqFeature::Store::GFF3Loader->new() the
                 -store=>$db,
                 -seqfeature_class => 'Bio::DB::SeqFeature::NormalizedFeature'
                );
+
 =cut
 
 use strict;
@@ -86,8 +87,8 @@ This method creates and, if possible stores into a database, a new
 Bio::DB::SeqFeature::NormalizedFeature object using the specialized
 Bio::DB::SeqFeature class.
 
-The arguments are the same to Bio::SeqFeature::Generic->new() and
-Bio::Graphics::Feature->new(). The most important difference is the
+The arguments are the same to Bio::SeqFeature::Generic-E<gt>new() and
+Bio::Graphics::Feature-E<gt>new(). The most important difference is the
 B<-store> option, which if present creates the object in a
 Bio::DB::SeqFeature::Store database, and he B<-index> option, which
 controls whether the feature will be indexed for retrieval (default is
@@ -353,7 +354,7 @@ sub segment  {
 If you use an unknown method that begins with a capital letter, then
 the feature autogenerates a call to get_SeqFeatures() using the
 lower-cased method name as the primary_tag. In other words
-$feature->Exon is equivalent to:
+$feature-E<gt>Exon is equivalent to:
 
  @subfeature s= $feature->get_SeqFeatures('exon')
 
@@ -613,11 +614,11 @@ sub target {
 
 =over 4
 
-=item $feature->as_string()
+=item $feature-E<gt>as_string()
 
 Internal method used to implement overloaded stringification.
 
-=item $boolean = $feature->type_match(@list_of_types)
+=item $boolean = $feature-E<gt>type_match(@list_of_types)
 
 Internal method that will return true if the feature's primary_tag and
 source_tag match any of the list of types (in primary_tag:source_tag

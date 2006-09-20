@@ -123,17 +123,18 @@ use Time::Local;
            Most people will not use this directly but get Markers
            through L<Bio::MapIO::fpc>
  Returns : L<Bio::Map::FPCMarker> object
- Args    :    -name => marker name string,
-	      -type    => type string,
-	      -global  => global position for marker,
-	      -frame   => boolean if marker is framework or placement,
-	      -group   => group number for marker,
-	      -subgroup=> subgroup number of marker,
-	      -anchor  => boolean if marker is anchored,
-	      -clones  => all the clone elements in map (hashref),
-	      -contigs => all the contig elements (hasref),
-	      -position => mapping of marker names to map position (hasref),
-          -remark => remarks, separated by newlines
+ Args    : -name     => marker name string,
+	       -type     => type string,
+	       -global   => global position for marker,
+	       -frame    => boolean if marker is framework or placement,
+	       -group    => group number for marker,
+	       -subgroup => subgroup number of marker,
+	       -anchor   => boolean if marker is anchored,
+	       -clones   => all the clone elements in map (hashref),
+	       -contigs  => all the contig elements (hasref),
+	       -position => mapping of marker names to map position (hasref),
+           -remark   => remarks, separated by newlines
+
 =cut
 
 sub new {

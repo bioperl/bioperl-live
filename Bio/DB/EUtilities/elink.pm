@@ -136,7 +136,7 @@ Below are a list of IDs which can be used with ELink:
 
 B<PMID> (pubmed), B<MIM number> (omim), B<GI number> (nucleotide, protein),
 B<Genome ID> (genome), B<Popset ID> (popset), B<SNP cluster ID> (snp),
-B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), <MMDB-ID> (structure),
+B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), B<MMDB-ID> (structure),
 B<PSSM-ID> (cdd), B<3D SDI> (domains), B<TAXID> (taxonomy), B<GEO ID> (geo)
 
 =item C<reldate>
@@ -340,12 +340,12 @@ It can get tricky:
 This enables one-to-one correspondence with the returned data, so that one
 can determine, per ID, what the matching ELink ID is.  The default is to
 return them all as a group (no one-to-one correspondence).  Using a small ID
-array, C<multi_id> set to TRUE, '-id => \@ids', and this loop:
+array, C<multi_id> set to TRUE, '-id =E<gt> \@ids', and this loop:
 
-while (my $linkset = $elink->next_linkset) {
+  while (my $linkset = $elink->next_linkset) {
     print "Query ID : ",join q(,), $linkset->query_id,"\n";
     print "\tTax ID : ",join q(,), $linkset->get_LinkIds_by_db('taxonomy'),"\n";
-}
+  }
 
 gets this result:
 
