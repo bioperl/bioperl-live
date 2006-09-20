@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-OntologyEngineI - Interface a minimal Ontology implementation should satisfy
+Bio::Ontology::OntologyEngineI - Interface a minimal Ontology implementation should satisfy
 
 =head1 SYNOPSIS
 

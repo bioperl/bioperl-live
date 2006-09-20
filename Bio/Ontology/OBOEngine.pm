@@ -3,10 +3,11 @@
 # BioPerl module for Bio::Ontology::OBOEngine
 #
 # POD documentation - main docs before the code
+
 =head1 NAME
 
-OBOEngine - An Ontology Engine for OBO style flat file format from the
-Gene Ontology Consortium
+Bio::Ontology::OBOEngine - An Ontology Engine for OBO style flat file
+format from the Gene Ontology Consortium
 
 =head1 SYNOPSIS
 

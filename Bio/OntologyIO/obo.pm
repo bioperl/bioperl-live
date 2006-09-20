@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-obo - a parser for OBO flat-file format from Gene Ontology Consortium
+Bio::OntologyIO::obo - a parser for OBO flat-file format from Gene Ontology Consortium
 
 =head1 SYNOPSIS
 

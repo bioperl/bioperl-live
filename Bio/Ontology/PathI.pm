@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-PathI - Interface for a path between ontology terms
+Bio::Ontology::PathI - Interface for a path between ontology terms
 
 =head1 SYNOPSIS
 

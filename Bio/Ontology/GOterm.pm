@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-GOterm - representation of GO terms 
+Bio::Ontology::GOterm - representation of GO terms 
 
 =head1 SYNOPSIS
 

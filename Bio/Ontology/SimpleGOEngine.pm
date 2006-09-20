@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
+Bio::Ontology::SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
 =head1 SYNOPSIS
 

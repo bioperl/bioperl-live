@@ -21,7 +21,7 @@
 
 =head1 NAME
 
-InterProHandler - XML handler class for InterProParser
+Bio::OntologyIO::Handlers::InterProHandler - XML handler class for InterProParser
 
 =head1 SYNOPSIS
 

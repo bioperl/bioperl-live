@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-dagflat - a base class parser for GO flat-file type formats
+Bio::OntologyIO::dagflat - a base class parser for GO flat-file type formats
 
 =head1 SYNOPSIS
 

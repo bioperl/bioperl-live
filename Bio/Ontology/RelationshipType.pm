@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-RelationshipType - a relationship type for an ontology
+Bio::Ontology::RelationshipType  - a relationship type for an ontology
 
 =head1 SYNOPSIS
 

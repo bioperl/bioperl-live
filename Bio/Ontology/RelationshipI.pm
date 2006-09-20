@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-RelationshipI - Interface for a relationship between ontology terms
+Bio::Ontology::RelationshipI - Interface for a relationship between ontology terms
 
 =head1 SYNOPSIS
 

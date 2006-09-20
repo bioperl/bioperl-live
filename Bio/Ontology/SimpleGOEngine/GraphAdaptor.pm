@@ -22,7 +22,8 @@
 
 =head1 NAME
 
-GraphAdaptor - Graph adaptor for Bio::Ontology::SimpleGOEngine
+Bio::Ontology::SimpleGOEngine::GraphAdaptor - Graph adaptor for
+Bio::Ontology::SimpleGOEngine
 
 =head1 SYNOPSIS
 

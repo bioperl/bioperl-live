@@ -21,7 +21,7 @@
 
 =head1 NAME
 
-InterProTerm - Implementation of InterProI term interface
+Bio::Ontology::InterProTerm - Implementation of InterProI term interface
 
 =head1 SYNOPSIS
 

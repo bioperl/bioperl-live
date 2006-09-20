@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-Term - implementation of the interface for ontology terms
+Bio::Ontology::Term - implementation of the interface for ontology terms
 
 =head1 SYNOPSIS
 

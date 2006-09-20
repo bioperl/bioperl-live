@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-Relationship - a relationship for an ontology
+Bio::Ontology::Relationship - a relationship for an ontology
 
 =head1 SYNOPSIS
 

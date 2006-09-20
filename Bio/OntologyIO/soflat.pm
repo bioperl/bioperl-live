@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-soflat - a parser for the Sequence Ontology flat-file format
+Bio::OntologyIO::soflat - a parser for the Sequence Ontology flat-file format
 
 =head1 SYNOPSIS
 

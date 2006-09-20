@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-goflat - a parser for the Gene Ontology flat-file format
+Bio::OntologyIO::goflat - a parser for the Gene Ontology flat-file format
 
 =head1 SYNOPSIS
 

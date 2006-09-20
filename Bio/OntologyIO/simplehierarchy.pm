@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-simplehierarchy - a base class parser for simple hierarchy-by-indentation
+Bio::OntologyIO::simplehierarchy - a base class parser for simple hierarchy-by-indentation
                   type formats
 
 =head1 SYNOPSIS

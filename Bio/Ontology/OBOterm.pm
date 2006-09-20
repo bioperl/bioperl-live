@@ -1,7 +1,8 @@
+# $Id$
 
 =head1 NAME
 
-OBOterm - representation of OBO terms
+Bio::Ontology::OBOterm - representation of OBO terms
 
 =head1 SYNOPSIS
 

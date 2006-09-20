@@ -21,7 +21,7 @@
 
 =head1 NAME
 
-InterProParser - Parser for InterPro xml files.
+Bio::OntologyIO::InterProParser - Parser for InterPro xml files.
 
 =head1 SYNOPSIS
 

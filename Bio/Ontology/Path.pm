@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-Path - a path for an ontology term graph
+Bio::Ontology::Path - a path for an ontology term graph
 
 =head1 SYNOPSIS
 
