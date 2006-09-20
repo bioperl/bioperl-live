@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 56;
+    plan tests => 79;
 }
 
 use Bio::Tools::Genscan;
@@ -118,6 +118,7 @@ while($gmgene = $genemark->next_prediction()) {
     }
 }
 
+# Glimmer testing (GlimmerM)
 my $glimmer = new Bio::Tools::Glimmer('-file' => Bio::Root::IO->catfile(qw(t data glimmer.out)));
 my $glimmergene = $glimmer->next_prediction;
 
@@ -146,4 +147,29 @@ while($glimmergene = $glimmer->next_prediction()) {
 	ok $glim_exons[1]->strand, -1;
     }
 }
+
+# Glimmer testing (GlimmerM)
+my $ghmm = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data GlimmerHMM.out)));
+my $ghmmgene = $ghmm->next_prediction;
+
+ok($ghmmgene);
+ok($ghmmgene->seq_id, 'gi|23613028|ref|NC_004326.1|');
+ok($ghmmgene->source_tag, 'GlimmerHMM');
+ok($ghmmgene->primary_tag, 'transcript');
+ok($ghmmgene->exons == 1);
+
+@num_exons = qw(0 1 2 4 2 2 1 1 1 2 2 2 10 4 1 1); # only first few tested
+$i = 1;
+while ($ghmmgene = $ghmm->next_prediction) {
+  $i++;
+  my @ghmm_exons = $ghmmgene->exons;    
+  ok(scalar(@ghmm_exons), $num_exons[$i]) if $i <= $#num_exons;
+  if ($i == 9) {
+    ok( $ghmm_exons[1]->start, 5538 );
+    ok( $ghmm_exons[1]->end,   5647 );
+    ok( $ghmm_exons[1]->strand > 0  );
+  }
+}
+ok($i, 44);
+
 
