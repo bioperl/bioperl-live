@@ -10,8 +10,8 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
   use Bio::DB::SeqFeature::Store;
 
   # Open the sequence database
-  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
-                                                 -dsn     => 'dbi:mysql:test');
+  my $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'DBI::mysql',
+                                          -dsn     => 'dbi:mysql:test');
 
   # get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
