@@ -480,10 +480,10 @@ sub retrieve{
     eval{ $stored_obj = $self->_thaw( $state_str ) };
     if( ! $@ ){ $success=1; last }
     my $package;
-    if( $@ =~ /Cannot restore overloading/i ){
-      my $postmatch = $'; #'
+    if( $@ =~ /Cannot restore overloading(.*)/i ){
+      my $postmatch = $1; #'
       if( $postmatch =~ /\(package +([\w\:]+)\)/ ) {
-	$package = $1;
+        $package = $1;
       }
     }
     if( $package ){
