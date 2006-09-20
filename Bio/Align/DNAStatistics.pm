@@ -280,11 +280,8 @@ web:
 
 Email jason-AT-bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
 Richard Adams, richard.adams@ed.ac.uk
 
 =head1 APPENDIX

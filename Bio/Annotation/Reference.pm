@@ -37,9 +37,9 @@ without losing data, we keep them as strings. Feel free to post the
 list for a better solution, but in general this gets very messy very
 fast...
 
-=head1 CONTACT
+=head1 AUTHOR - Ewan Birney 
 
-Describe contact details here
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 

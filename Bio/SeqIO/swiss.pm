@@ -95,8 +95,6 @@ Bug reports can be submitted via the web:
 
 Email elia@tll.org.sg
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. 

@@ -51,8 +51,6 @@ the web:
 
 Email jason-at-bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Sendu Bala: bix@sendu.me.uk

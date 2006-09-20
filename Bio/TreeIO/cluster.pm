@@ -57,8 +57,6 @@ the web:
 
 Email Guillaume-dot-Rousse-at-inria-dot-fr
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Jason Stajich - jason-at-bioperl-dot-org

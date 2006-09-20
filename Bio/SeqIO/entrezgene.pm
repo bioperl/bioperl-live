@@ -74,8 +74,6 @@ the web:
 
 Email skirov at utk.edu
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Hilmar Lapp, hlapp at gmx.net

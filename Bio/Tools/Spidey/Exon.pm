@@ -77,8 +77,6 @@ web:
 
 Email golharam@umdnj.edu
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. 

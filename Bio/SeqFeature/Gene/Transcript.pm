@@ -45,8 +45,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email hlapp@gmx.net
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _

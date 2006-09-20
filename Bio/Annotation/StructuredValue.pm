@@ -37,7 +37,7 @@ information
 
 =head1 DESCRIPTION
 
-Scalar value annotation object
+Scalar value annotation object.
 
 =head1 FEEDBACK
 
@@ -60,9 +60,7 @@ or the web:
 
 =head1 AUTHOR - Hilmar Lapp
 
-Email <hlapp at gmx.net>
-
-Describe contact details here
+Email hlapp-at-gmx.net
 
 =head1 APPENDIX
 

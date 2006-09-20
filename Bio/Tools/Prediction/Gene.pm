@@ -56,8 +56,6 @@ web:
 
 Email hlapp-at-gmx.net or hilmar.lapp-at-pharma.novartis.com
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object

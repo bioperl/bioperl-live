@@ -49,8 +49,6 @@ web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Heikki Lehvaslaiho heikki-at-bioperl-dot-org

@@ -27,9 +27,9 @@ Bio::Annotation::Comment - A comment object, holding text
 A holder for comments in annotations, just plain text. This is a very simple
 object, and justifiably so.
 
-=head1 CONTACT
+=head1 AUTHOR - Ewan Birney 
 
-Describe contact details here
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 

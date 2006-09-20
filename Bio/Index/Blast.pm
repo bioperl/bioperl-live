@@ -79,9 +79,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@cgt.mc.duke.edu
-
-Describe contact details here
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 

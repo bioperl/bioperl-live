@@ -62,11 +62,7 @@ web:
 
 Email hlapp at gmx.net
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 Steffen Grossmann [SG], grossman-at-molgen.mpg.de
 

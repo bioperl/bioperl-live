@@ -109,10 +109,8 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason-at-bioperl .dot. org
-Email amackey-at-virginia-dot-edu
-
-Describe contact details here
+ Email jason-at-bioperl-dot-org
+ Email amackey-at-virginia-dot-edu
 
 =head1 CONTRIBUTORS
 

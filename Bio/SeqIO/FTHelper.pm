@@ -49,8 +49,6 @@ the bugs and their resolution.  Bug reports can be submitted via the web:
 
 Email birney@ebi.ac.uk
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Jason Stajich jason@bioperl.org

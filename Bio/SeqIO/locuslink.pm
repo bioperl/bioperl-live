@@ -74,8 +74,6 @@ the web:
 
 Email kching at gnf.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Hilmar Lapp, hlapp at gmx.net

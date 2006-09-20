@@ -59,8 +59,6 @@ web:
 
 Email jason-at-bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Lincoln Stein, lstein-at-cshl.org

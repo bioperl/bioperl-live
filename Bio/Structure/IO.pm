@@ -186,11 +186,10 @@ Bug reports can be submitted via the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Ewan Birney, Lincoln Stein, Kris Boulez
+=head1 AUTHORS - Ewan Birney, Lincoln Stein, Kris Boulez
 
-Email birney@ebi.ac.uk, kris.boulez@algonomics.com
+Email birney@ebi.ac.uk, lstein@cshl.org, kris.boulez@algonomics.com
 
-Describe contact details here
 
 =head1 APPENDIX
 

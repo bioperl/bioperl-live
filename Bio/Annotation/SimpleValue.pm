@@ -46,11 +46,9 @@ the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - bioperl
+=head1 AUTHOR  - Ewan Birney 
 
-Email bioperl-l@bioperl.org
-
-Describe contact details here
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
