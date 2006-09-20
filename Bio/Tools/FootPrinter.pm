@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-Bio::Tools::FootPrinter - DESCRIPTION of Object
+Bio::Tools::FootPrinter - write sequence features in FootPrinter format
 
 =head1 SYNOPSIS
 
@@ -27,7 +27,8 @@ Bio::Tools::FootPrinter - DESCRIPTION of Object
 
 =head1 DESCRIPTION
 
-A parser for FootPrinter  output 
+This module writes sequence features in FootPrinter format. 
+See L<http://bio.cs.washington.edu/software.html> for more details.
 
 =head1 FEEDBACK
 
@@ -51,12 +52,6 @@ web:
 =head1 AUTHOR - Shawn Hoon 
 
 Email shawnh@fugu-sg.org 
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

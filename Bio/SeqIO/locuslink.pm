@@ -26,7 +26,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::locuslink - DESCRIPTION of Object
+Bio::SeqIO::locuslink - LocusLink input/output stream
 
 =head1 SYNOPSIS
 
@@ -43,7 +43,7 @@ will not work.
 
 The way the current implementation populates the object is rather a
 draft work than a finished work of art. Note that at this stage the
-locuslink entries cannot be round-tripped, because the parser loses
+LocusLink entries cannot be round-tripped, because the parser loses
 certain information. For instance, most of the alternative transcript
 descriptions are not retained. The parser also misses any element
 that deals with visual representation (e.g., 'button') except for the

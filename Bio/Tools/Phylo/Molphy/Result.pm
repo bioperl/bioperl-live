@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::Molphy::Result - DESCRIPTION of Object
+Bio::Tools::Phylo::Molphy::Result - container for data parsed from a ProtML run
 
 =head1 SYNOPSIS
 

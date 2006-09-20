@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::Molphy - DESCRIPTION of Object
+Bio::Tools::Phylo::Molphy - parser for Molphy output
 
 =head1 SYNOPSIS
 
@@ -85,10 +85,6 @@ web:
 =head1 AUTHOR - Jason Stajich
 
 Email jason-at-bioperl.org
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

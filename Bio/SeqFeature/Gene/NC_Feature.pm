@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::NC_Feature.pm - DESCRIPTION of Object
+Bio::SeqFeature::Gene::NC_Feature.pm - superclass for non-coding features
 
 =head1 SYNOPSIS
 

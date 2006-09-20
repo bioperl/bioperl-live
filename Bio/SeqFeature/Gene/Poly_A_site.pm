@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::poly_A_site - DESCRIPTION of Object
+Bio::SeqFeature::Gene::poly_A_site - poly A feature
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the object here
+Inherits from L<Bio::SeqFeature::Gene::NC_Feature>.
 
 =head1 FEEDBACK
 

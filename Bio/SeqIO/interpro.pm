@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-interpro - DESCRIPTION of Object
+interpro - InterProScan XML input/output stream 
 
 =head1 SYNOPSIS
 

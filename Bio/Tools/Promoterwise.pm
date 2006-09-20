@@ -11,10 +11,9 @@
 
 =head1 NAME
 
-Bio::Tools::Promoterwise - DESCRIPTION of Object
+Bio::Tools::Promoterwise - parser for Promoterwise tab format output
 
 =head1 SYNOPSIS
-
 
   use Bio::Tools::Promoterwise;
 
@@ -40,8 +39,8 @@ Promoteriwise is an alignment algorithm that relaxes the constraint
 that local alignments have to be co-linear. Otherwise it provides a
 similar model to DBA, which is designed for promoter sequence
 alignments.  Promoterwise is written by Ewan Birney.  It is part of
-the wise2 package available at:
-ftp://ftp.ebi.ac.uk/pub/software/unix/wise2/
+the wise2 package available at
+L<ftp://ftp.ebi.ac.uk/pub/software/unix/wise2/>
 
 This module is the parser for the Promoterwise output in tab format.
 

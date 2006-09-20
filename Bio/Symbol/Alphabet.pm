@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Symbol::Alphabet - DESCRIPTION of Object
+Bio::Symbol::Alphabet - BSANE/BioCORBA compliant symbol list alphabet
 
 =head1 SYNOPSIS
 
@@ -58,12 +58,6 @@ web:
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

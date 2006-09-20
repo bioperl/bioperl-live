@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Annotation::DBLink - DESCRIPTION of Object
+Bio::Annotation::DBLink - untyped links between databases
 
 =head1 SYNOPSIS
 

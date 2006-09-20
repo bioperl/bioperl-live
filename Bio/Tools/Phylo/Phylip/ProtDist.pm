@@ -11,14 +11,14 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::Phylip::ProtDist - DESCRIPTION of Object
+Bio::Tools::Phylo::Phylip::ProtDist - parser for ProtDist output
 
 =head1 SYNOPSIS
 
     use Bio::Tools::Phylo::Phylip::ProtDist;
     my $parser = new Bio::Tools::Phylo::Phylip::ProtDist(-file => 'outfile');
     while( my $result = $parser->next_matrix) {
-
+      # do something with it
     }
 
 =head1 DESCRIPTION
