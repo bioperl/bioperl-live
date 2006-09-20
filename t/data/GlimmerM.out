@@ -1,0 +1,53 @@
+GlimmerM (Version 3.0)
+Sequence name: gi|23613028|ref|NC_004326.1|
+Sequence length: 69930 bp
+
+Predicted genes/exons
+
+Gene Exon Strand  Exon            Exon Range      Exon
+   #    #         Type                           Length
+
+   1    1  -  Single          461        523       63
+
+   2    1  +  Initial        1095       1103        9
+   2    2  +  Internal       1167       1208       42
+   2    3  +  Terminal       1404       1445       42
+
+   3    1  -  Single         7055       7162      108
+
+   4    1  +  Initial        7273       7356       84
+   4    2  +  Internal       7434       7598      165
+   4    3  +  Internal       7861       7898       38
+   4    4  +  Terminal       7957       7975       19
+
+   5    1  +  Initial       20929      23815     2887
+   5    2  +  Terminal      23910      23956       47
+
+   6    1  +  Initial       24046      26310     2265
+   6    2  +  Internal      27215      28399     1185
+   6    3  +  Internal      28848      28855        8
+   6    4  +  Internal      29246      29309       64
+   6    5  +  Terminal      29502      29516       15
+
+   7    2  -  Terminal      29593      29600        8
+   7    1  -  Initial       29919      30636      718
+
+   8    8  -  Terminal      30737      30744        8
+   8    7  -  Internal      31124      31150       27
+   8    6  -  Internal      31814      31883       70
+   8    5  -  Internal      32469      32515       47
+   8    4  -  Internal      33199      34126      928
+   8    3  -  Internal      34647      34688       42
+   8    2  -  Internal      35216      35334      119
+   8    1  -  Initial       36613      36853      241
+
+   9    1  +  Initial       36912      37101      190
+   9    2  +  Internal      37285      37300       16
+   9    3  +  Terminal      37999      38005        7
+
+  10    5  -  Terminal      42047      42104       58
+  10    4  -  Internal      42781      42795       15
+  10    3  -  Internal      42864      42888       25
+  10    2  -  Internal      43211      43217        7
+  10    1  -  Initial       43372      46329     2958
+

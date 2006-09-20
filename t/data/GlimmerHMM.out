@@ -1,0 +1,257 @@
+GlimmerHMM
+Sequence name: gi|23613028|ref|NC_004326.1|
+Sequence length: 69930 bp
+
+Predicted genes/exons
+
+Gene Exon Strand  Exon            Exon Range      Exon
+   #    #         Type                           Length
+
+
+   1    1  +  Terminal       2235       2284       50
+
+   2    1  -  Terminal       2324       2340       17
+   2    2  -  Initial        2413       2434       22
+
+   3    1  +  Initial        2461       2667      207
+   3    2  +  Internal       2937       2989       53
+   3    3  +  Internal       4203       4216       14
+   3    4  +  Terminal       4587       4627       41
+
+   4    1  +  Initial        4628       4669       42
+   4    2  +  Terminal       5063       5083       21
+
+   5    1  -  Terminal       5095       5102        8
+   5    2  -  Initial        5108       5129       22
+
+   6    1  -  Single         5138       5152       15
+
+   7    1  -  Single         5158       5205       48
+
+   8    1  +  Single         5214       5252       39
+
+   9    1  +  Initial        5262       5469      208
+   9    2  +  Terminal       5538       5647      110
+
+  10    1  +  Initial        5663       5665        3
+  10    2  +  Terminal       5712       5942      231
+
+  11    1  +  Initial        5952       6159      208
+  11    2  +  Terminal       6228       6337      110
+
+  12    1  +  Initial        6353       6355        3
+  12    2  +  Internal       6402       6431       30
+  12    3  +  Internal       6463       6489       27
+  12    4  +  Internal       6563       6707      145
+  12    5  +  Internal       6911       6960       50
+  12    6  +  Internal       7252       7399      148
+  12    7  +  Internal       7672       7860      189
+  12    8  +  Internal       7915       7967       53
+  12    9  +  Internal       8030       8198      169
+  12   10  +  Terminal       8204       8322      119
+
+  13    1  +  Initial        8329       8385       57
+  13    2  +  Internal       8721       8748       28
+  13    3  +  Internal       8820       8976      157
+  13    4  +  Terminal      11310      11361       52
+
+  14    1  -  Single        11364      11375       12
+
+  15    1  -  Single        11378      11386        9
+
+  16    1  -  Terminal      11411      11413        3
+  16    2  -  Initial       11522      11533       12
+
+  17    1  +  Initial       11541      11595       55
+  17    2  +  Internal      11926      11967       42
+  17    3  +  Internal      12472      12483       12
+  17    4  +  Terminal      12641      12921      281
+
+  18    1  +  Initial       12928      13035      108
+  18    2  +  Internal      13334      13350       17
+  18    3  +  Internal      13376      13383        8
+  18    4  +  Internal      13397      13455       59
+  18    5  +  Internal      13481      13497       17
+  18    6  +  Internal      13502      13530       29
+  18    7  +  Internal      13603      13615       13
+  18    8  +  Internal      13649      13656        8
+  18    9  +  Internal      13776      13960      185
+  18   10  +  Internal      13965      13972        8
+  18   11  +  Internal      14173      14189       17
+  18   12  +  Internal      14236      14252       17
+  18   13  +  Internal      14277      14293       17
+  18   14  +  Internal      14487      14515       29
+  18   15  +  Internal      14844      14860       17
+  18   16  +  Internal      15281      15309       29
+  18   17  +  Internal      15470      15477        8
+  18   18  +  Internal      15743      15750        8
+  18   19  +  Internal      15764      15771        8
+  18   20  +  Internal      15785      15792        8
+  18   21  +  Internal      16122      16128        7
+  18   22  +  Internal      16478      16506       29
+  18   23  +  Terminal      17424      17662      239
+
+  19    1  +  Initial       17669      17741       73
+  19    2  +  Internal      17907      18091      185
+  19    3  +  Internal      18139      18146        8
+  19    4  +  Internal      18159      18237       79
+  19    5  +  Internal      18275      18292       18
+  19    6  +  Internal      18431      18532      102
+  19    7  +  Internal      18813      18839       27
+  19    8  +  Internal      18933      18943       11
+  19    9  +  Internal      19248      19269       22
+  19   10  +  Internal      19423      19486       64
+  19   11  +  Internal      19520      19551       32
+  19   12  +  Internal      19671      19744       74
+  19   13  +  Internal      19799      19944      146
+  19   14  +  Internal      20356      20421       66
+  19   15  +  Internal      20912      26376     5465
+  19   16  +  Internal      27215      28172      958
+  19   17  +  Internal      28378      28381        4
+  19   18  +  Internal      28440      28617      178
+  19   19  +  Internal      28980      29244      265
+  19   20  +  Internal      29259      29330       72
+  19   21  +  Internal      30135      30187       53
+  19   22  +  Terminal      30442      30486       45
+
+  20    1  -  Terminal      30483      30503       21
+  20    2  -  Initial       30573      30587       15
+
+  21    1  +  Single        30600      30701      102
+
+  22    1  -  Single        30707      30715        9
+
+  23    1  +  Initial       30723      30768       46
+  23    2  +  Internal      30950      30951        2
+  23    3  +  Internal      31436      31516       81
+  23    4  +  Internal      31862      31887       26
+  23    5  +  Internal      31902      31915       14
+  23    6  +  Internal      32005      32075       71
+  23    7  +  Terminal      32357      32401       45
+
+  24    1  -  Single        32408      32413        6
+
+  25    1  -  Single        32450      32470       21
+
+  26    1  +  Initial       32485      32526       42
+  26    2  +  Internal      32809      32817        9
+  26    3  +  Internal      33416      33470       55
+  26    4  +  Terminal      33601      33956      356
+
+  27    1  +  Initial       33967      34133      167
+  27    2  +  Internal      34240      34252       13
+  27    3  +  Internal      34368      34389       22
+  27    4  +  Internal      34917      34929       13
+  27    5  +  Internal      35211      35289       79
+  27    6  +  Internal      35408      35416        9
+  27    7  +  Internal      35421      35516       96
+  27    8  +  Internal      35827      35964      138
+  27    9  +  Internal      36797      36800        4
+  27   10  +  Internal      36871      36886       16
+  27   11  +  Internal      37250      37352      103
+  27   12  +  Internal      38015      38087       73
+  27   13  +  Internal      38193      38242       50
+  27   14  +  Internal      38538      38540        3
+  27   15  +  Internal      38865      38911       47
+  27   16  +  Internal      38966      38992       27
+  27   17  +  Internal      39553      39567       15
+  27   18  +  Internal      39607      39728      122
+  27   19  +  Internal      39785      39797       13
+  27   20  +  Internal      40060      40090       31
+  27   21  +  Internal      40686      40694        9
+  27   22  +  Internal      41048      41114       67
+  27   23  +  Terminal      41274      41317       44
+
+  28    1  +  Initial       41321      41383       63
+  28    2  +  Internal      41895      41924       30
+  28    3  +  Internal      42145      42158       14
+  28    4  +  Terminal      42273      42366       94
+
+  29    1  +  Initial       42378      42407       30
+  29    2  +  Terminal      43154      43186       33
+
+  30    1  -  Single        43188      43208       21
+
+  31    1  -  Terminal      43211      43217        7
+  31    2  -  Initial       43239      43255       17
+
+  32    1  -  Terminal      43260      43358       99
+  32    2  -  Initial       43372      43650      279
+
+  33    1  +  Initial       43659      43669       11
+  33    2  +  Internal      43827      44543      717
+  33    3  +  Internal      45352      45895      544
+  33    4  +  Internal      47453      47470       18
+  33    5  +  Internal      47477      47501       25
+  33    6  +  Internal      47897      47903        7
+  33    7  +  Internal      48413      48433       21
+  33    8  +  Internal      48698      48711       14
+  33    9  +  Internal      49405      49430       26
+  33   10  +  Internal      49635      49678       44
+  33   11  +  Internal      50184      50212       29
+  33   12  +  Internal      50480      50504       25
+  33   13  +  Internal      50871      50875        5
+  33   14  +  Internal      51003      51079       77
+  33   15  +  Internal      51396      51416       21
+  33   16  +  Internal      51762      51808       47
+  33   17  +  Internal      52597      52652       56
+  33   18  +  Internal      52671      52672        2
+  33   19  +  Internal      53093      53095        3
+  33   20  +  Internal      53262      53308       47
+  33   21  +  Internal      53469      53531       63
+  33   22  +  Internal      55819      56055      237
+  33   23  +  Internal      57050      57132       83
+  33   24  +  Terminal      57138      57181       44
+
+  34    1  +  Single        57193      57207       15
+
+  35    1  +  Single        57208      57216        9
+
+  36    1  +  Initial       57240      57338       99
+  36    2  +  Internal      57510      57543       34
+  36    3  +  Internal      57950      58055      106
+  36    4  +  Terminal      58384      58390        7
+
+  37    1  +  Initial       58406      58463       58
+  37    2  +  Internal      58550      58656      107
+  37    3  +  Internal      59051      59123       73
+  37    4  +  Internal      59168      59226       59
+  37    5  +  Internal      59407      59451       45
+  37    6  +  Internal      59627      59649       23
+  37    7  +  Internal      59680      59705       26
+  37    8  +  Internal      59968      59977       10
+  37    9  +  Internal      60747      60750        4
+  37   10  +  Internal      60942      60947        6
+  37   11  +  Internal      61442      61464       23
+  37   12  +  Internal      61991      62137      147
+  37   13  +  Internal      62413      62425       13
+  37   14  +  Internal      62508      62522       15
+  37   15  +  Terminal      62830      62838        9
+
+  38    1  +  Initial       62839      62850       12
+  38    2  +  Internal      63403      63410        8
+  38    3  +  Internal      63916      63931       16
+  38    4  +  Terminal      63992      64009       18
+
+  39    1  -  Single        64040      64066       27
+
+  40    1  +  Single        64123      64137       15
+
+  41    1  +  Initial       64145      64179       35
+  41    2  +  Internal      64194      64266       73
+  41    3  +  Internal      64332      65390     1059
+  41    4  +  Internal      65945      65955       11
+  41    5  +  Internal      66065      66070        6
+  41    6  +  Internal      66469      66485       17
+  41    7  +  Terminal      66697      66704        8
+
+  42    1  +  Initial       66704      66716       13
+  42    2  +  Internal      66964      67005       42
+  42    3  +  Internal      68146      68190       45
+  42    4  +  Internal      68458      68600      143
+  42    5  +  Terminal      68895      68924       30
+
+  43    1  +  Initial       68930      69670      741
+  43    2  +  Terminal      69839      69868       30
+
+  44    1  -  Terminal      69866      69929       64
