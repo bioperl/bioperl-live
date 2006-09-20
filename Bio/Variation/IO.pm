@@ -20,7 +20,8 @@ Bio::Variation::IO - Handler for sequence variation IO Formats
 
     $in  = Bio::Variation::IO->new(-file => "inputfilename" , 
                                    -format => 'flat');
-    $out = Bio::Variation::IO->new(-file => ">outputfilename" ,                                                    -format => 'xml');
+    $out = Bio::Variation::IO->new(-file => ">outputfilename" ,
+                                   -format => 'xml');
 
     while ( my $seq = $in->next() ) {
 	   $out->write($seq);
