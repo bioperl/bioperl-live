@@ -544,7 +544,7 @@ sub url_base_address {
 
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
-    return undef if ( !defined $self->ua || !defined $protocol 
+    return if ( !defined $self->ua || !defined $protocol 
 		      || !defined $proxy );
     $self->authentication($username, $password) 	
 	if ($username && $password);

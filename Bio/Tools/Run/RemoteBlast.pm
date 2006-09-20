@@ -453,7 +453,7 @@ sub ua {
 
 sub proxy {
     my ($self,$protocol,$proxy) = @_;
-    return undef if ( !defined $self->ua || !defined $protocol
+    return if ( !defined $self->ua || !defined $protocol
 		      || !defined $proxy );
     return $self->ua->proxy($protocol,$proxy);
 }

@@ -133,7 +133,7 @@ sub next_feature {
     return $f;
   }
 
-  return undef if $self->fasta_mode();
+  return if $self->fasta_mode();
 
   # be graceful about empty lines or comments, and make sure we return undef
   # if the input is consumed

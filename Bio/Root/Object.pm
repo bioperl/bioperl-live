@@ -962,7 +962,7 @@ sub err {
 #----------
     my( $self, $data, $delimit) = @_;
 
-    return undef unless defined $self->{'_err'};
+    return unless defined $self->{'_err'};
     
     $data    ||= 'member';
 #    $delimit ||= (wantarray ? 'list' : "\n");

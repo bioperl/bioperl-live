@@ -1043,7 +1043,7 @@ sub delete_file {
 	$file = $self->{'_file'};
 	$myfile = 1;
     }
-    return undef unless -e $file;
+    return unless -e $file;
 
     -o $file or
 	$self->throw("Can't delete file $file: Not owner.");
