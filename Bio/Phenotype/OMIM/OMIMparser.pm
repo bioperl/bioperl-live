@@ -701,8 +701,8 @@ sub _create_allelic_variant {
          $symbol = $symbol_mut_line;
     }
     
-    if ( ! defined( $description ) ) { die( "undef desc" ); }
-    if ( ! defined( $mutation ) )   { die( "undef mutation" ); }
+    if ( ! defined( $description ) ) { $self->throw("undef desc"); }
+    if ( ! defined( $mutation ) )   { $self->throw("undef mutation"); }
   
     
     my $allelic_variant = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new();
