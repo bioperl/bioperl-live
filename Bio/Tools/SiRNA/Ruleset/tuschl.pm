@@ -169,8 +169,8 @@ sub _get_oligos {
 # 	my $targstart = $targregion->start;
 	my ($seq, $targstart) = $self->_get_targetregion();
 
-	while ( $seq =~ /$regex/gi ) {
-	    my $target = $1;
+	while ( $seq =~ /(.*?)$regex/gi ) {
+	    my $target = $2;
 
 	    # check for too many Gs (or Cs on the other strand)
 	    next if ( $target =~ /G{ $self->gstring,}/io );
@@ -178,7 +178,7 @@ sub _get_oligos {
 # 	skip Ns (for filtering)
 	    next if ( $target =~ /N/i);
 
-	    my $start = length($`) + $targstart;
+	    my $start = length($1) + $targstart;
 	    my $stop = $start + length($target) -1;
 
 	    my @gc = ( $target =~ /G|C/gi);

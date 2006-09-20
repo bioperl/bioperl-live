@@ -297,8 +297,8 @@ sub alphabet_ok {
     }
 
     # Untaint pattern (makes code taint-safe).
-    $pat  =~ /[$Regexp_chars]+/io; 
-    $self->setseq(uc($&));
+    $pat  =~ /([$Regexp_chars]+)/io; 
+    $self->setseq(uc($1));
 #    print STDERR "\npattern ok: $pat\n";
     1;
 }
