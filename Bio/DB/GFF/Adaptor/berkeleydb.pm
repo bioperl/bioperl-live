@@ -4,7 +4,7 @@ package Bio::DB::GFF::Adaptor::berkeleydb;
 
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::memory -- Bio::DB::GFF database adaptor for in-memory databases
+Bio::DB::GFF::Adaptor::berkeleydb -- Bio::DB::GFF database adaptor for in-memory databases
 
 =head1 SYNOPSIS
 

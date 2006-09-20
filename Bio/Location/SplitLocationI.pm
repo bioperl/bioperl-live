@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::SplitLocationI - Abstract interface of a Location on a Sequence
+Bio::Location::SplitLocationI - Abstract interface of a Location on a Sequence
 which has multiple locations (start/end points)
 
 =head1 SYNOPSIS

@@ -1,6 +1,14 @@
 # Let the code begin...
 package Bio::Expression::FeatureSet::FeatureSetMas50;
 
+# $Id$
+
+=head1 NAME
+
+Bio::Expression::FeatureSet::FeatureSetMas50
+
+=cut
+
 use strict;
 
 use base qw(Bio::Expression::FeatureSet);

@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::Search::Result::PullResult - Bio::Search::Result::ResultI interface for
+Bio::Search::Result::PullResultI - Bio::Search::Result::ResultI interface for
                                   'pull' parsers
 
 =head1 SYNOPSIS

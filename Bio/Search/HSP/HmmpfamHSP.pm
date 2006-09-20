@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::Search::HSP::HmmpfamHSP- A parser and HSP object for hmmpfam hsps
+Bio::Search::HSP::HmmpfamHSP- A parser and HSP object for hmmpfam hsps
 
 =head1 SYNOPSIS
 

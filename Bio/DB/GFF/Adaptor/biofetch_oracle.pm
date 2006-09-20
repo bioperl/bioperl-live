@@ -1,8 +1,10 @@
 package Bio::DB::GFF::Adaptor::biofetch_oracle;
+
 #$Id$
+
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::biofetch -- Cache BioFetch objects in a Bio::DB::GFF database
+Bio::DB::GFF::Adaptor::biofetch_oracle -- Cache BioFetch objects in a Bio::DB::GFF database
 
 =head1 SYNOPSIS
 

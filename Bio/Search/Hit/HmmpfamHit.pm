@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::Search::Hit::HmmpfamHit - A parser and hit object for hmmpfam hits
+Bio::Search::Hit::HmmpfamHit - A parser and hit object for hmmpfam hits
 
 =head1 SYNOPSIS
 

@@ -5,7 +5,7 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::Cookies
+Bio::DB::EUtilities::Cookie
 
 =head1 DESCRIPTION
 
