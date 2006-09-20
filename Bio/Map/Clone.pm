@@ -430,7 +430,7 @@ sub contigid {
  Function: retrieves all the elements in a map unordered
  Returns : list of strings (ids)
  Args    : none
- 
+
  *** This only supplies the ids set with the set_markers method ***
  *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 
@@ -448,7 +448,7 @@ sub each_markerid {
  Function: Set list of Marker ids (arrayref)
  Returns : None
  Args    : arrayref of strings (ids)
- 
+
  *** This only sets a list of ids ***
  *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 

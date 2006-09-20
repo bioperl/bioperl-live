@@ -22,7 +22,7 @@ Bio::Map::Position - A single position of a Marker, or the range over which
 					  -marker => $marker,
 					  -value => 100
 					  );
-					  
+
 	my $position_with_range = new Bio::Map::Position(-map => $map, 
 					  -marker => $marker,
 					  -start => 100,
@@ -103,13 +103,13 @@ use Bio::Map::Relative;
  Args    : -map      => Bio::Map::MapI object
            -element  => Bio::Map::MappableI object
            -relative => Bio::Map::RelativeI object
-           
+
            * If this position has no range, or if a single value can describe
              the range *
            -value => scalar             : something that describes the single
                                           point position or range of this
                                           Position, most likely an int
-           
+
            * Or if this position has a range, at least two of *
            -start => int                : value of the start co-ordinate
            -end => int                  : value of the end co-ordinate
@@ -197,13 +197,13 @@ sub relative {
             returned by start() will be the same as the value you set start()
             to. When absolute is on, co-ordinates are converted to be relative
             to the start of the map.
-            
+
             So if relative() currently points to a Relative object describing
             "relative to another position which is 100 bp from the start of
             the map", this Position's start() had been set to 50 and absolute()
             returns 1, $position->start() will return 150. If absolute() returns
             0 in the same situation, $position->start() would return 50.
-            
+
   Returns : boolean (default 0)
   Args    : none to get, OR
             boolean to set
@@ -415,7 +415,7 @@ sub toString {
 
 # return a Relative that is for the start of the map
 sub _absolute_relative {
-    return Bio::Map::Relative->new(-map => 0);
+    return Bio::Map::Relative->new(-map => 0, -description => 'start of map');
 }
 
 # get our own absolute start and that of the thing we want as a frame of

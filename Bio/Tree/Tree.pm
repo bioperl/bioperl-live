@@ -88,7 +88,7 @@ use Bio::Tree::TreeI;
              OR
            -node     => L<Bio::Tree::NodeI> object from which the root will be
                         determined
-           
+
            -nodelete => boolean, whether or not to try and cleanup all
                                  the nodes when this this tree goes out
                                  of scope.
@@ -169,19 +169,17 @@ sub get_nodes{
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
    $sortby ||= 'none';
-   return () unless defined $self->get_root_node;
+   my $node = $self->get_root_node || return;
    if ($order =~ m/^b|(breadth)$/oi) {
-       my $node = $self->get_root_node;
        my @children = ($node);
        for (@children) {
-	   push @children, $_->each_Descendent($sortby);
+        push @children, $_->each_Descendent($sortby);
        }
        return @children;
    }
 
    if ($order =~ m/^d|(depth)$/oi) {
        # this is depth-first search I believe
-       my $node = $self->get_root_node;
        my @children = ($node,$node->get_all_Descendents($sortby));
        return @children;
    }
@@ -319,12 +317,13 @@ sub score{
 
 sub cleanup_tree {
     my $self = shift;
-    unless( $self->nodelete ) {	
-	for my $node ( $self->get_nodes(-order  => 'b',
-					-sortby => 'none') ) {
-	    $node->ancestor(undef);
-	    $node = undef;
-	}
+    unless( $self->nodelete ) {
+        for my $node ($self->get_nodes(-order  => 'b', -sortby => 'none')) {
+            #$node->ancestor(undef);
+            #$node = undef;
+            $node->node_cleanup;
+            undef $node;
+        }
     }
     $self->{'_rootnode'} = undef;
 }

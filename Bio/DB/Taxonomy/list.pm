@@ -23,7 +23,7 @@ that accepts lists of words to build a database
   my @ranks = qw(superkingdom class genus species);
   my $db = new Bio::DB::Taxonomy(-source => 'list', -names => \@names,
                                                     -ranks => \@ranks);
-  
+
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
   $db->add_lineage(-names => \@names, -ranks => \@ranks);
 

@@ -291,7 +291,7 @@ sub subgroup {
            the contig
  Args    : $ctg is necessary to look for the position of the marker
            in that contig.
-           
+
  *** This has nothing to do with an actual Bio::Map::PositionI object ***
 
 =cut
@@ -346,7 +346,7 @@ sub each_cloneid {
  Function: retrieves all the contig ids in a map unordered
  Returns : list of strings (ids)
  Args    : none
- 
+
  *** This only supplies the ids set with the set_contigs method ***
  *** It has nothing to do with actual Bio::Map::MapI objects ***
 

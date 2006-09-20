@@ -17,16 +17,16 @@ Bio::Map::SimpleMap - A MapI implementation handling the basics of a Map
 =head1 SYNOPSIS
 
     use Bio::Map::SimpleMap;
-    
+
     my $map = new Bio::Map::SimpleMap(-name => 'genethon',
 				      -type => 'Genetic',
 				      -units=> 'cM',
 				      -species => $human);
-    
+
     foreach my $marker ( @markers ) { # get a list of markers somewhere
 		$map->add_element($marker);
     }
-    
+
     foreach my $marker ($map->get_elements) {
         # do something with this Bio::Map::MappableI
     }
@@ -251,9 +251,9 @@ sub unique_id {
  Usage   : $map->add_element($element)
  Function: Tell a Bio::Map::MappableI object its default Map is this one; same
            as calling $element->default_map($map).
-		   
+
 		   *** does not actually add the element to this map! ***
-		   
+
  Returns : none
  Args    : Bio::Map::MappableI object
  Status  : Deprecated, will be removed in next version

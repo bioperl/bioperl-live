@@ -130,9 +130,10 @@ use Bio::Search::Iteration::IterationI;
            -oldhits_not_below => array reference to hits that were found in a
                         previous iteration above threshold that and are still above
                         the inclusion threshold threshold.
-           
+
            -hit_factory => Bio::Factory::ObjectFactoryI capable of making
                         Bio::Search::Hit::HitI objects
+
 =cut
 
 sub new {

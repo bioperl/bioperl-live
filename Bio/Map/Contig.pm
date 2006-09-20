@@ -340,7 +340,7 @@ sub each_cloneid {
  Function: retrieves all the marker ids in a map unordered
  Returns : list of strings (ids)
  Args    : none
- 
+
  *** This only supplies the ids set with the set_markers method ***
  *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 

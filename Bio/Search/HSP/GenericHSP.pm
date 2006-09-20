@@ -863,8 +863,8 @@ sub hit {
  Function: Get/Set the significance value
  Returns : numeric
  Args    : [optional] new value to set
- 
- 
+
+
 =head2 score
 
  Title   : score

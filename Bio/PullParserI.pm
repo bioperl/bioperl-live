@@ -241,7 +241,7 @@ sub parent {
            -end   => int : the byte position to consider as the end (default
                            true end)
            -piped_behaviour => 'memory'|'temp_file'|'sequential_read'
-           
+
            The last option comes into effect when the first argument is
            something that cannot be seeked (eg. piped input filehandle).
             'memory'          means read all the piped input into a string
@@ -448,9 +448,9 @@ sub _line_ending {
  Usage   : $obj->_chunk_seek($pos);
  Function: seek() the chunk to the provided position in bytes, relative to the
            defined start of the chunk within its filehandle.
-           
+
            In _sequential() mode, this function does nothing.
-           
+
  Returns : n/a
  Args    : int
 
@@ -475,9 +475,9 @@ sub _chunk_seek {
  Usage   : my $pos = $obj->_chunk_tell;
  Function: Get the current tell() position within the chunk, relative to the
            defined start of the chunk within its filehandle.
-           
+
            In _sequential() mode, this function does nothing.
-           
+
  Returns : int
  Args    : none
 
@@ -555,9 +555,9 @@ sub _get_chunk_by_end {
  Function: Get the start and end of what would be a chunk of chunk() from the
            current position onward till the end of the line, as defined by the
            supplied argument.
-           
+
            In _sequential() mode, this function does nothing.
-           
+
  Returns : _chunk_tell values for start and end in 2 element list
  Args    : string (line ending - if you want the line ending to include a new
            line, always use \n)

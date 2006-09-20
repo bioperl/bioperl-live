@@ -91,10 +91,10 @@ sub absolute_conversion {
  Function: Get the type of thing we are relative to. The types correspond
            to a method name, so the value of what we are relative to can
            subsequently be found by $value = $relative->$type;
-           
+
            Note that type is set by the last method that was set, or during
            new().
-           
+
  Returns : the string 'map', 'element' or 'position', or undef
  Args    : none
 

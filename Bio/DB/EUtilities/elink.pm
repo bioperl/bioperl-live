@@ -30,27 +30,27 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
                                          -db         => 'pubmed',
                                          -term       => 'hutP',
                                          -usehistory => 'y');
-  
+
   $esearch->get_response; # parse the response, fetch a cookie
-  
+
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
                                        -db           => 'protein,taxonomy',
                                        -dbfrom       => 'pubmed',
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor');
-  
+
   # this retrieves the Bio::DB::EUtilities::ElinkData object
-  
+
   my ($linkset) = $elink->next_linkset;
   my @ids;
-  
+
   # step through IDs for each linked database in the ElinkData object
-  
+
   for my $db ($linkset->get_databases) {   
     @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
     # do something here
   }
-  
+
   # multiple ID groups (for one-to-one-correspondence of IDs)
 
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
@@ -66,7 +66,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
       # do something here
     }
   }
-  
+
   # to retrieve scores for a linkset
 
   while (my $linkset = $elink->next_linkset) {
@@ -80,9 +80,9 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
       }
     }
   }
-  
+
   # or just receive a hash containing ID-score key-value pairs
-  
+
   while (my $linkset = $elink->next_linkset) {
     my @score_dbs = $linkset->has_scores; 
     for my $db (@score_dbs) {
@@ -90,7 +90,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
       %scores = $linkset->get_score_hash;
     }
   }
-  
+
 =head1 DESCRIPTION
 
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
@@ -324,7 +324,7 @@ independently.  This is accomplished by setting the C<multi_id> flag to true,
 which indicates that the ID list will be evaluated as an array reference, with
 each ID group represented by another array reference or a single ID.  So, with
 C<multi_id> set to TRUE:
- 
+
   -id  => \@ids,  # evaluates each ID in the array independently
   ...
   -id  => [@ids], # same as above
@@ -355,7 +355,7 @@ gets this result:
             Tax ID : 233413,
     Query ID : 31792573,
             Tax ID : 233413,
-  
+
 Setting C<multi_id> to FALSE or not setting, using all other conditions above,
 gets this result:
 

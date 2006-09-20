@@ -134,7 +134,7 @@ use Bio::Map::Position;
            -default_map => the default map for this marker, a Bio::Map::MapI
            -position => map position for this marker, a Bio::Map::PositionI
            -positions => array ref of Bio::Map::PositionI objects
-           
+
            position and positions can also take as values anything the
            corresponding methods can take
 
@@ -187,9 +187,9 @@ sub default_map {
 
  Title   : map
  Function: This is a synonym of the default_map() method
-		   
+
 		   *** does not actually add this marker to the map! ***
-		   
+
  Status  : deprecated, will be removed in next version
 
 =cut

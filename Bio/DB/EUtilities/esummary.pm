@@ -29,12 +29,12 @@ Use it via the L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
                                          -db         => 'pubmed',
                                          -term       => 'hutP',
                                          -usehistory => 'y');
-  
+
   $esearch->get_response; # parse the response, fetch a cookie
-  
+
   my $esummary = Bio::DB::EUtilities->new(-eutil        => 'esummary',
                                        -cookie       => $esearch->next_cookie);
-  
+
   print $esearch->get_response-content; # prints XML output
 
 =head1 DESCRIPTION

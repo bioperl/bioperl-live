@@ -240,7 +240,7 @@ sub retmode {
            the private method _get_params
  Returns : HTTP::Response object
  Args    : none
- 
+
  This is implemented by the derived class
 
 =cut

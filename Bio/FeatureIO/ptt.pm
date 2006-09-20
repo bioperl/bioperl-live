@@ -32,7 +32,7 @@ It has the following format:
 
 Description of sequence to which the features belong
  eg. "Leptospira interrogans chromosome II, complete sequence - 0..358943"
- 
+
 It is usually equivalent to the DEFINITION line of a Genbank file,
 with the length of the sequence appended. It is unclear why "0" is 
 used as a starting range, it should be "1".

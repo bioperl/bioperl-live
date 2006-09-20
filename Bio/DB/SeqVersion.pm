@@ -18,7 +18,7 @@ versions
 =head1 SYNOPSIS
 
   use Bio::DB::SeqVersion;
- 
+
   my $query = Bio::DB::SeqVersion->new(-type => 'gi');
 
   my @all_gis = $query->get_all(2);
@@ -84,7 +84,7 @@ $MODVERSION = $Bio::Root::Version::VERSION;
  Function: Create a Bio::DB::SeqVersion object 
  Returns : An instance of Bio::DB::SeqVersion
  Args    : -type      Identifier namespace, default is 'gi' 
-                      
+
 =cut
 
 sub new {

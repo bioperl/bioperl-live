@@ -20,13 +20,13 @@ Bio::Search::Search::HSP::HmmpfamHSP- A parser and HSP object for hmmpfam hsps
     use Bio::SearchIO;
     my $in = new Bio::SearchIO(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
-	
+
     while (my $result = $in->next_result) {
 		while (my $hit = $result->next_hit) {
 			print $hit->name, "\n";
 			print $hit->score, "\n";
 			print $hit->significance, "\n";
-			
+
 			while (my $hsp = $hit->next_hsp) {
 				# process HSPI objects
 			}
@@ -93,12 +93,13 @@ use Bio::Search::HSP::PullHSPI;
            -parent => Bio::PullParserI object (required if no -chunk)
            -hsp_data => array ref with [rank query_start query_end hit_start
 										hit_end score evalue]
-           
+
            where the array ref provided to -chunk contains an IO object
            for a filehandle to something representing the raw data of the
            hsp, and $start and $end define the tell() position within the
            filehandle that the hsp data starts and ends (optional; defaults
            to start and end of the entire thing described by the filehandle)
+
 =cut
 
 sub new {

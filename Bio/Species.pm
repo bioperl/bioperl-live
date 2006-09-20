@@ -114,20 +114,22 @@ sub new {
 					       SUB_SPECIES
 					       VARIANT
 					       CLASSIFICATION)], @args);
-    if( defined $classification &&
-        (ref($classification) eq "ARRAY") ) {
+    
+    if (defined $classification && (ref($classification) eq "ARRAY") ) {
         $self->classification(@$classification);
     }
+    else {
+        # store a tree on ourselves so we can use Tree methods
+        $self->{tree} = new Bio::Tree::Tree();
+        
+        # some things want to freeze/thaw Bio::Species objects, but
+        # _root_cleanup_methods contains a CODE ref, delete it.
+        delete $self->{tree}->{_root_cleanup_methods};
+    }
+    
     defined $org && $self->organelle($org);
     defined $sp  && $self->sub_species($sp); 
     defined $var && $self->variant($var);
-    
-    # store a tree on ourselves so we can use Tree methods
-    $self->{tree} = new Bio::Tree::Tree();
-    
-    # some things want to freeze/thaw Bio::Species objects, but
-    # _root_cleanup_methods contains a CODE ref, delete it.
-    delete $self->{tree}->{_root_cleanup_methods};
     
     return $self;
 }
@@ -489,7 +491,7 @@ sub binomial {
 
 sub validate_species_name {
     my( $self, $string ) = @_;
-    
+
     return 1 if $string eq "sp.";
 	return 1 if $string =~ /strain/;
     return 1 if $string =~ /^[a-z][\w\s-]+$/i;
@@ -516,6 +518,13 @@ sub organelle {
     my($self) = shift;
     return $self->{'_organelle'} = shift if @_;
     return $self->{'_organelle'};
+}
+
+sub dont_DESTROY {
+    my $self = shift;
+    $self->{tree}->cleanup_tree if $self->{tree};
+    delete $self->{tree};
+    $self->node_cleanup;
 }
 
 1;

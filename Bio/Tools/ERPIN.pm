@@ -24,7 +24,7 @@ Bio::Tools::ERPIN -  a parser for ERPIN output
   while( my $motif = $parser->next_prediction) {
     # do something here
   }
-  
+
 =head1 DESCRIPTION
 
 Parses raw ERPIN output.

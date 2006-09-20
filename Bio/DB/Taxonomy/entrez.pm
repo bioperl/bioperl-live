@@ -462,11 +462,11 @@ sub get_taxonids {
  Title   : ancestor
  Usage   : my $ancestor_taxon = $db->ancestor($taxon)
  Function: Retrieve the ancestor taxon of a supplied Taxon from the database.
-           
+
            Note that unless the ancestor has previously been directly
            requested with get_taxon(), the returned Taxon object will only have
            a minimal amount of information.
-           
+
  Returns : Bio::Taxon
  Args    : Bio::Taxon (that was retrieved from this database)
 
@@ -488,11 +488,11 @@ sub ancestor {
  Usage   : my @taxa = $db->each_Descendent($taxon);
  Function: Get all the descendents of the supplied Taxon (but not their
            descendents, ie. not a recursive fetchall).
-           
+
            Note that this implementation is unable to return a taxon that
            hasn't previously been directly fetched with get_taxon(), or wasn't
            an ancestor of such a fetch.
-           
+
  Returns : Array of Bio::Taxon objects
  Args    : Bio::Taxon (that was retrieved from this database)
 

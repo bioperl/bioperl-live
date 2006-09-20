@@ -25,21 +25,21 @@ use Bio::DB::EUtilities;
                                          -db         => 'pubmed',
                                          -term       => 'hutP',
                                          -usehistory => 'y');
-  
+
   $esearch->get_response; # parse the response, fetch a cookie
-  
+
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
                                        -db           => 'protein',
                                        -dbfrom       => 'pubmed',
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor_history');
-  
+
   $elink->get_response; # parse the response, fetch the next cookie
-  
+
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
-  
+
   print $efetch->get_response->content;
 
 =head1 DESCRIPTION
@@ -92,7 +92,7 @@ the object method C<content>, like so:
                                         -cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
-  
+
   print $efetch->get_response->content;
 
 Based on this, if one wanted to retrieve sequences or other raw data

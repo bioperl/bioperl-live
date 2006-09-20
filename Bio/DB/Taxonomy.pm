@@ -20,7 +20,7 @@ Bio::DB::Taxonomy - Access to a taxonomy database
   my $db = new Bio::DB::Taxonomy(-source => 'entrez');
   # use NCBI Entrez over HTTP
   my $taxonid = $db->get_taxonid('Homo sapiens');
-  
+
   # get a taxon
   my $taxon = $db->get_taxon(-taxonid => $taxonid);
 

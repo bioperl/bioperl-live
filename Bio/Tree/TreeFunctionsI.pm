@@ -24,7 +24,7 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
   my @nodes = $tree->find_node('id1');
 
   if( $tree->is_monophyletic(-nodes => \@nodes, -outgroup => $outnode) ){
-
+   #...
   }
 
 =head1 DESCRIPTION
@@ -218,7 +218,7 @@ sub get_lineage_nodes {
            followed by an underscore, followed by a fieldname (like for the
            method find_node). Value should be a scalar or an array ref of
            scalars (again, like you might supply to find_node).
-           
+
            So (-remove_id => [1, 2]) will remove all nodes from the tree that
            have an id() of '1' or '2', while
            (-remove_id => [1, 2], -keep_id => [2]) will remove all nodes with
@@ -407,21 +407,21 @@ sub get_lca {
  Returns : n/a
  Args    : Bio::Tree::TreeI with only one leaf, OR
            Bio::Tree::NodeI which has an ancestor
- 
+
  For example, if we are the tree $tree:
- 
+
  +---B
  |
  A
  |
  +---C
- 
+
  and we want to merge the lineage $other_tree:
- 
+
  A---C---D
- 
+
  After calling $tree->merge_lineage($other_tree), $tree looks like:
- 
+
  +---B
  |
  A
@@ -482,17 +482,17 @@ sub merge_lineage {
            descendent.
  Returns : n/a
  Args    : none
- 
+
  For example, if we are the tree $tree:
- 
+
              +---E
              |
  A---B---C---D
              |
              +---F
- 
+
  After calling $tree->contract_linear_paths(), $tree looks like:
- 
+
      +---E
      |
  A---D

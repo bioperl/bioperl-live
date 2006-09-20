@@ -247,13 +247,13 @@ sub relative {
             returned by start() will be the same as the value you set start()
             to. When absolute is on, co-ordinates are converted to be relative
             to the start of the map.
-            
+
             So if relative() currently points to a Relative object describing
             "relative to another position which is 100 bp from the start of
             the map", this Position's start() had been set to 50 and absolute()
             returns 1, $position->start() will return 150. If absolute() returns
             0 in the same situation, $position->start() would return 50.
-            
+
   Returns : boolean (default 0)
   Args    : none to get, OR
             boolean to set

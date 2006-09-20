@@ -3,7 +3,11 @@
 # simple object to hold NCBI cookie information and descriptions
 # POD to come...
 
-=head2 Cookies
+=head1 NAME
+
+Bio::DB::EUtilities::Cookies
+
+=head1 DESCRIPTION
 
 Some EUtilities (C<epost>, C<esearch>, or C<elink>) are able to retain information on
 the NCBI server under certain settings.  This information can be retrieved by
