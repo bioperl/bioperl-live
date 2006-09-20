@@ -74,7 +74,6 @@ use Bio::DB::Taxonomy;
  Returns : an instance of Bio::Expression::Platform
  Args    :
 
-
 =cut
 
 sub new {
@@ -87,25 +86,10 @@ sub new {
 
 =head2 _initialize()
 
-=over
-
-=item Usage
-
-  $obj->_initialize(%arg);
-
-=item Function
-
-Internal method to initialize a new Bio::Expression::Platform object
-
-=item Returns
-
-true on success
-
-=item Arguments
-
-Arguments passed to L</new()>
-
-=back
+ Usage   : $obj->_initialize(%arg);
+ Function: Internal method to initialize a new Bio::Expression::Platform object
+ Returns : true on success
+ Args    : passed through to new()
 
 =cut
 
@@ -132,7 +116,6 @@ sub _initialize {
  Returns : 
  Args    :
 
-
 =cut
 
 sub get_datasets {
@@ -143,19 +126,6 @@ sub get_datasets {
 
   return @datasets;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 =head2 accession()
 
