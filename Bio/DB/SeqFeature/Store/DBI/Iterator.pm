@@ -1,5 +1,13 @@
 package Bio::DB::SeqFeature::Store::DBI::Iterator;
 
+# $Id$
+
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::DBI::Iterator
+
+=cut
+
 sub new {
   my $class          = shift;
   my ($sth,$store)   = @_;

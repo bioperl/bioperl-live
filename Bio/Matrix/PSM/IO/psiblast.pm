@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::psiblast - PSM psiblast parser
+Bio::Matrix::PSM::IO::psiblast - PSM psiblast parser
 
 =head1 SYNOPSIS
 

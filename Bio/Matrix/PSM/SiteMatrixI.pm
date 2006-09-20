@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a
+Bio::Matrix::PSM::SiteMatrixI - SiteMatrixI implementation, holds a
 position scoring matrix (or position weight matrix) and log-odds
 
 =head1 SYNOPSIS

@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::meme - PSM meme parser implementation
+Bio::Matrix::PSM::IO::meme - PSM meme parser implementation
 
 =head1 SYNOPSIS
 

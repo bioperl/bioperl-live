@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::transfac - PSM transfac parser
+Bio::Matrix::PSM::IO::transfac - PSM transfac parser
 
 =head1 SYNOPSIS
 

@@ -5,7 +5,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::Psm - handle combination of site matricies
+Bio::Matrix::PSM::ProtPsm - handle combination of site matricies
 
 =head1 SYNOPSIS
 

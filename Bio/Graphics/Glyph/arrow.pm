@@ -1,6 +1,15 @@
 package Bio::Graphics::Glyph::arrow;
 # package to use for drawing an arrow
 
+# $Id$
+# Non object-oriented utilities used here-and-there in Bio::Graphics modules
+
+=head1 NAME
+
+Bio::Graphics::Glyph::arrow
+
+=cut
+
 use strict;
 use vars '@ISA';
 use Bio::Graphics::Glyph::generic;
