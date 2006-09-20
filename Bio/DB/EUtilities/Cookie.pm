@@ -5,7 +5,7 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::Cookie
+Bio::DB::EUtilities::Cookie - simple object to hold NCBI cookie information and descriptions
 
 =head1 DESCRIPTION
 
