@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-pICalculator
+Bio::Tools::pICalculator
 
 =head1 DESCRIPTION
 

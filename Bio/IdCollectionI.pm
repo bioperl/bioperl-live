@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::IdcollectionI - interface for objects with multiple identifiers
+Bio::IdCollectionI - interface for objects with multiple identifiers
 
 =head1 SYNOPSIS
 

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::poly_A_site - poly A feature
+Bio::SeqFeature::Gene::Poly_A_site - poly A feature
 
 =head1 SYNOPSIS
 

@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-ECnumber - representation of EC numbers
+Bio::Tools::ECnumber - representation of EC numbers
 
 =head1 SYNOPSIS
 
