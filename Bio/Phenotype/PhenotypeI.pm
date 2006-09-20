@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-PhenotypeI - An interface for classes modeling phenotypes
+Bio::Phenotype::PhenotypeI - An interface for classes modeling phenotypes
 
 =head1 SYNOPSIS
 

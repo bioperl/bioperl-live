@@ -22,7 +22,8 @@
 
 =head1 NAME
 
-OMIMentry - represents OMIM (Online Mendelian Inheritance in Man) database entries
+Bio::Phenotype::OMIM::OMIMentry - represents OMIM (Online Mendelian
+Inheritance in Man) database entries
 
 =head1 SYNOPSIS
 

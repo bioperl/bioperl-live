@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-Measure - Representation of context/value(-range)/unit triplets
+Bio::Phenotype::Measure - Representation of context/value(-range)/unit triplets
 
 =head1 SYNOPSIS
 

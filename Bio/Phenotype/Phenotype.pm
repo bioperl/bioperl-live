@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-Phenotype - A class for modeling phenotypes
+Bio::Phenotype::Phenotype - A class for modeling phenotypes
 
 =head1 SYNOPSIS
 

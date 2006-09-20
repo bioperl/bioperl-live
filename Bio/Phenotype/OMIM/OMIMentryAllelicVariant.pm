@@ -20,10 +20,10 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-OMIMentryAllelicVariant - Representation of a allelic variant of the OMIM database
+Bio::Phenotype::OMIM::OMIMentryAllelicVariant - Representation of a allelic
+variant of the OMIM database
 
 =head1 SYNOPSIS
 

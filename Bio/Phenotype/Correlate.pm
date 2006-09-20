@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-Correlate - Representation of a correlating phenotype in a given species
+Bio::Phenotype::Correlate - Representation of a correlating phenotype in a given species
 
 =head1 SYNOPSIS
 

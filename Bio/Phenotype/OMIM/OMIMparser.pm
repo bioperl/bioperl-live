@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-OMIMparser - parser for the OMIM database
+Bio::Phenotype::OMIM::OMIMparser - parser for the OMIM database
 
 =head1 SYNOPSIS
 

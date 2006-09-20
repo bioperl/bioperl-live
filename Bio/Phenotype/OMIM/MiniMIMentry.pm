@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-MiniMIMentry - Representation of a Mini MIM entry
+Bio::Phenotype::OMIM::MiniMIMentry - Representation of a Mini MIM entry
 
 =head1 SYNOPSIS
 
