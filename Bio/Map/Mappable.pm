@@ -89,13 +89,19 @@ use Bio::Map::Relative;
  Usage   : my $mappable = new Bio::Map::Mappable();
  Function: Builds a new Bio::Map::Mappable object
  Returns : Bio::Map::Mappable
- Args    : none
+ Args    : -name => string : name of the mappable element
+           -id   => string : id of the mappable element
 
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    
+    my ($name, $id) = $self->_rearrange([qw(NAME ID)], @args);
+    $self->name($name) if $name;
+    $self->id($id) if $id;
+    
     return $self;
 }
 
