@@ -115,7 +115,7 @@ use Bio::Map::RelativeI;
 
            (To say a Position is relative to something and upstream of it,
             the Position's start() co-ordinate should be set negative)
- 
+
 =cut
 
 sub new {
