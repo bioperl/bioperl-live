@@ -507,7 +507,7 @@ sub trunc{
            the some character (default is *), both internal and trailing
            codons. Setting "-complete" to 1 tells translate() to remove
            the trailing character.
-		   
+
 		   -offset is used for seqfeatures which contain the the \codon_start
 		   tag and can be set to 1, 2, or 3.  This is the offset by which the
 		   sequence translation starts relative to the first base of the
