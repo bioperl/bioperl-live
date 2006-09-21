@@ -12,7 +12,7 @@
 
 Bio::Assembly::IO::phrap - driver to load phrap.out files.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Building an input stream
     use Bio::Assembly::IO;

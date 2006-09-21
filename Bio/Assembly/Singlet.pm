@@ -15,7 +15,7 @@
 Bio::Assembly::Singlet - Perl module to hold and manipulate
                      singlets from sequence assembly contigs.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Module loading
     use Bio::Assembly::IO;

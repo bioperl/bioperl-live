@@ -6,7 +6,7 @@ package Bio::DB::GFF::Adaptor::dbi::pg_fts;
 
 Bio::DB::GFF::Adaptor::dbi::pg_fts -- Database adaptor for a specific postgres schema with a TSearch2 implementation
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     #create new GFF database connection
     my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::pg_fts',

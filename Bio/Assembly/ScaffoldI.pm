@@ -12,7 +12,7 @@
 
 Bio::Assembly::ScaffoldI - Abstract Inteface of Sequence Assemblies
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # get a Bio::Assembly::ScaffoldI object somehow
 
