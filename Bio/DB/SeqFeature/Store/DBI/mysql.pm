@@ -1238,7 +1238,7 @@ sub _insert_sequence {
   my $id = $self->_locationid($seqid);
   my $seqtable = $self->_sequence_table;
   my $sth = $self->_prepare(<<END);
-INSERT INTO $seqtable (id,offset,sequence) VALUES (?,?,?)
+REPLACE INTO $seqtable (id,offset,sequence) VALUES (?,?,?)
 END
   $sth->execute($id,$offset,$seq) or $self->throw($sth->errstr);
 }

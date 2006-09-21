@@ -54,7 +54,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $db->update($f) or $self->throw("Couldn't update!");
 
   # use the GFF3 loader to do a bulk write:
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store   => $db,
@@ -475,7 +475,7 @@ sub _add_SeqFeature {
   my $p = $self->parentage_db;
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or die "no primary ID known for $child";
+    defined $child_id or $self->throw("no primary ID known for $child");
     $p->{$parent_id} = $child_id;
   }
 }

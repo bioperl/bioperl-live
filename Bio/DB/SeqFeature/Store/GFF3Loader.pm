@@ -519,6 +519,17 @@ sub handle_feature {
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
+  # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES
+  # THIS IS TO ALLOW FOR TARGET-BASED LOOKUPS
+  if (exists $reserved->{Target}) {
+    my %aliases = map {$_=>1} @{$unreserved->{Alias}};
+    for my $t (@{$reserved->{Target}}) {
+      $t =~ s/\s+.*$//;  # get rid of coordinates
+      $name ||= $t;
+      push @{$unreserved->{Alias}},$t unless $name eq $t || $aliases{$t};
+    }
+  }
+
   my @args = (-display_name => $name,
 	      -seq_id       => $refname,
 	      -start        => $start,
@@ -668,7 +679,7 @@ sub build_object_tree_in_tables {
   my $ld    = $self->{load_data};
 
   while (my ($load_id,$children) = each %{$ld->{Parent2Child}}) {
-    my $parent_id = $ld->{Local2GlobalID}{$load_id} or die "$load_id doesn't have a primary id";
+    my $parent_id = $ld->{Local2GlobalID}{$load_id} or $self->throw("$load_id doesn't have a primary id");
     my @children  = map {$ld->{Local2GlobalID}{$_}} @$children;
 
     # this updates the table that keeps track of parent/child relationships,

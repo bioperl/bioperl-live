@@ -211,7 +211,7 @@ sub _add_SeqFeature {
     or $self->throw("$parent should have a primary_id");
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or die "no primary ID known for $child";
+    defined $child_id or $self->throw("no primary ID known for $child");
     $self->{_children}{$parent_id}{$child_id}++;
   }
 }
