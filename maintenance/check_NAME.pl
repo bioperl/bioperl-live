@@ -20,7 +20,6 @@ correctly render the module documentation.
 =cut
 
 use strict;
-use Data::Dumper;
 use File::Find;
 use Getopt::Long;
 
@@ -39,24 +38,17 @@ GetOptions(
 # globals
 #
 
-my %URL;
+my $num_found = 0;
 
 #
 # find all modules
 #
 
+print STDERR "Searching for incorrect NAME POD section of all modules in: $dir\n";
 find( \&find_modules, $dir );
+print STDERR "$num_found found.\n";
 
-#
-# validate unique URLs and print fail cases to stdout
-#
-
-
-print STDERR Dumper(\%URL) if $verbose;
-
-#
 # this is where the action is
-#Bio::Ontology::GOterm
 
 sub find_modules {
     # only want files with .pm
@@ -77,6 +69,7 @@ sub find_modules {
     # check if the NAME section has the _full_ module name in it
     if ($text !~ m/^=head1\s+NAME.*?^$pm/xms) {
       print "$pm\n";
+      $num_found++;
     }
 }
 
