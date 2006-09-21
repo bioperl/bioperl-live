@@ -63,13 +63,7 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 
-=over
-
-=item *
-
-http://www.ebi.ac.uk/soaplab/Perl_Client.html
-
-=back
+L<http://www.ebi.ac.uk/soaplab/Perl_Client.html>.
 
 =head1 APPENDIX
 
