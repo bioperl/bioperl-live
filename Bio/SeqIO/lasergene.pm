@@ -56,8 +56,8 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 =head1 AUTHORS
 
-  Torsten Seemann <torsten-AT-seemann-DOT-id-DOT-au>
-  Malcolm Cook  <mec@stowers-institute.org>
+  Torsten Seemann - torsten.seemann AT infotech.monash.edu.au
+  Malcolm Cook  - mec AT stowers-institute.org
 
 =head1 APPENDIX
 

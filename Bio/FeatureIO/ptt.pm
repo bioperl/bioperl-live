@@ -86,7 +86,7 @@ the web:
 
 =head1 AUTHOR - Torsten Seemann
 
-Email torsten DOT seemann AT infotech DOT monash DOT edit DOT au
+Email torsten.seemann AT infotech.monash.edu.au
 
 =head1 CONTRIBUTORS
 

@@ -188,11 +188,11 @@ the bugs and their resolution.  Bug reports can be submitted the web:
 
 =head1 AUTHOR - Peter Schattner
 
-Email schattner at alum.mit.edu
+Email schattner AT alum.mit.edu
 
-=head1 CONTRIBUTOR  - Torsten Seemann
+=head1 CONTRIBUTOR - Torsten Seemann 
 
-Email torsten.seemann at infotech.monash.edu.au
+Email torsten.seemann AT infotech.monash.edu.au
 
 =head1 APPENDIX
 
