@@ -83,7 +83,7 @@ __END__
 
 =head1 NAME
 
-Bio::Graphics::Glyph::merge_parts
+Bio::Graphics::Glyph::merge_parts - a base class which suppors semantic zooming of scored alignment features
 
 =head1 SYNOPSIS
 

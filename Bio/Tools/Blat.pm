@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Tools::Blat
+Bio::Tools::Blat - parser for Blat program
 
 =head1 SYNOPSIS
 

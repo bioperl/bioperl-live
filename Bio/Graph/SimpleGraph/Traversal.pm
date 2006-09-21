@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::Graph::SimpleGraph::Traversal;
+Bio::Graph::SimpleGraph::Traversal - graph traversal operations for Bio::Graph::SimpleGraph and Bio::Graph::Protein::Graph objects 
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ Bio::Graph::SimpleGraph::Traversal;
                                                           -start=>$start,
                                                           -order=>$order,
                                                           -what =>$what);
- ##cycle through nodes one at a time
+ ## cycle through nodes one at a time
  while ($traversal->has_next() ) {
         my $node = $traversal->get_next();
       }
@@ -36,7 +36,7 @@ Bio::Graph::SimpleGraph::Traversal;
 
 This is a helper class for performing graph traversal operations for
 Bio::Graph::SimpleGraph objects and Bio::Graph::Protein::Graph
-objects. The documentation ocnerning the use of this class is
+objects. The documentation concerning the use of this class is
 described in the "Graph algorithms" section of the
 Bio::Graph::SimpleGraph modules. Only the methods are documented here.
 

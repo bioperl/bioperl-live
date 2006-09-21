@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-Bio::Tools::pICalculator
+Bio::Tools::pICalculator - calculate the isoelectric point of a protein
 
 =head1 DESCRIPTION
 

@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::Graph::SimpleGraph
+Bio::Graph::SimpleGraph - create and manipulate undirected graphs
 
 =head1 SYNOPSIS
 

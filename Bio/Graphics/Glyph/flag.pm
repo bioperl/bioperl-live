@@ -5,7 +5,7 @@ package Bio::Graphics::Glyph::flag;
 
 =head1 NAME
 
-Bio::Graphics::Glyph::flag
+Bio::Graphics::Glyph::flag - the "flag" glyph
 
 =cut
 

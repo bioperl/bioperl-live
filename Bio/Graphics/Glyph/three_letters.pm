@@ -6,7 +6,7 @@ package Bio::Graphics::Glyph::three_letters;
 
 =head1 NAME
 
-Bio::Graphics::Glyph::three_letters
+Bio::Graphics::Glyph::three_letters - DAS-compatible package to use for drawing a line of groups of three letters
 
 =cut
 

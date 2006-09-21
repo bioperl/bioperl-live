@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::Graph::IO::psi_xml
+Bio::Graph::IO::psi_xml - access and manipulate PSI XML graphs
 
 =head1 SYNOPSIS
 

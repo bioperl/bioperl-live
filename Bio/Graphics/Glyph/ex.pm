@@ -5,7 +5,7 @@ package Bio::Graphics::Glyph::ex;
 
 =head1 NAME
 
-Bio::Graphics::Glyph::ex
+Bio::Graphics::Glyph::ex - the "ex", or "crossed box" glyph
 
 =cut
 

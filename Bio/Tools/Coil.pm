@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Coil
+Bio::Tools::Coil - parser for Coil output
 
 =head1 SYNOPSIS
 

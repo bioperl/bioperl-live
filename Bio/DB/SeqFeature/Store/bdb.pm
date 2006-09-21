@@ -4,7 +4,7 @@ package Bio::DB::SeqFeature::Store::bdb;
 
 =head1 NAME
 
-Bio::DB::SeqFeature::Store::bdb
+Bio::DB::SeqFeature::Store::bdb - fetch and store objects from a BerkeleyDB
 
 =cut
 

@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Tools::Signalp
+Bio::Tools::Signalp - parser for Signalp output
 
 =head1 SYNOPSIS
 

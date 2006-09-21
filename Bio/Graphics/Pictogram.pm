@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::Graphics::Pictogram 
+Bio::Graphics::Pictogram - generate SVG output of Pictogram display for consensus motifs
 
 =head1 SYNOPSIS
 

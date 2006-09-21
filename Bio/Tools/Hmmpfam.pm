@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Tools::Hmmpfam  
+Bio::Tools::Hmmpfam - Parser for Hmmpfam program
 
 =head1 SYNOPSIS
 

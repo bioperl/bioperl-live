@@ -12,7 +12,7 @@
 
 =head1     NAME
 
-Bio::Tools::Analysis::Protein::ELM
+Bio::Tools::Analysis::Protein::ELM - a wrapper around the ELM server which predicts short functional motifs on amino acid sequences
 
 =head1     SYNOPSIS
 

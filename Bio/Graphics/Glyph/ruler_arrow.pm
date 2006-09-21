@@ -6,7 +6,7 @@ package Bio::Graphics::Glyph::ruler_arrow;
 
 =head1 NAME
 
-Bio::Graphics::Glyph::ruler_arrow
+Bio::Graphics::Glyph::ruler_arrow - glyph for drawing an arrow as ruler (5' and 3' are marked as label)
 
 =cut
 

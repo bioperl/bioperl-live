@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Annotation::Target
+Bio::Annotation::Target - Provides an object which represents a target (ie, a  similarity hit) from one object to something in another database
 
 =head1 SYNOPSIS
 

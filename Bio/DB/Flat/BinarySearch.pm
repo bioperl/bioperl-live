@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::DB::Flat::BinarySearch
+Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for sequence files
 
 =head1 SYNOPSIS
 

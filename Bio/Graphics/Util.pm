@@ -5,7 +5,7 @@ package Bio::Graphics::Util;
 
 =head1 NAME
 
-Bio::Graphics::Util
+Bio::Graphics::Util - non-object-oriented utilities used in Bio::Graphics modules
 
 =cut
 

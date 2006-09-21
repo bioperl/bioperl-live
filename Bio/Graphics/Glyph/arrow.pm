@@ -6,7 +6,7 @@ package Bio::Graphics::Glyph::arrow;
 
 =head1 NAME
 
-Bio::Graphics::Glyph::arrow
+Bio::Graphics::Glyph::arrow - the "arrow" glyph
 
 =cut
 

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler
+Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler - parse an InterPro XML file and persist the resulting terms to a Biosql database
 
 =head1 SYNOPSIS
 

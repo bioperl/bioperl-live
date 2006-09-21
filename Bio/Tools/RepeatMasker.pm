@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::RepeatMasker
+Bio::Tools::RepeatMasker - a parser for RepeatMasker output
 
 =head1 SYNOPSIS
 
