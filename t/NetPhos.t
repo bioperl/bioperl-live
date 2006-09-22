@@ -20,7 +20,7 @@ BEGIN {
 	}
 	use Test;
 
-	$NUMTESTS = 14;
+	$NUMTESTS = 12;
 	plan tests => $NUMTESTS;
 
 	eval {
@@ -55,7 +55,7 @@ $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
-if( $DEBUG ) {
+if ($DEBUG) {
 	ok $tool->sleep;
 	ok $tool->delay(1), 1;
 	ok $tool->sleep;
@@ -70,20 +70,25 @@ if( $DEBUG ) {
 	$tool->timeout(15);
 	ok $tool->run ( {seq=>$seq, threshold=>0.9} );
 	if ($tool->status eq 'TERMINATED_BY_ERROR') {
-		for ( $Test::ntest..$NUMTESTS) {
+		for ($Test::ntest..$NUMTESTS) {
 			skip("Running of the tool was terminated by an error, probably network/ NetPhos server error",1);
 		}
 		exit(0);
 	}
-	ok my @res = $tool->result('Bio::SeqFeatureI');
-	ok @res > 0;
+	my @res = $tool->result('Bio::SeqFeatureI');
+	unless (@res) {
+		for ($Test::ntest..$NUMTESTS) {
+			skip("Didn't get any results from NetPhos server, probable network/server error",1);
+		}
+		exit(0);
+	}
 	#new tests her in v 1.2
 	ok my $raw = $tool->result('');
 	ok my $parsed = $tool->result('parsed');
 	ok($parsed->[0][1], '0.934');
 }
 else {
-    for ( $Test::ntest..$NUMTESTS) {
+    for ($Test::ntest..$NUMTESTS) {
         skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
     }
 	exit(0);
