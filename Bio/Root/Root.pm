@@ -281,10 +281,13 @@ sub _cleanup_methods {
                  -class => Bio::Root::Exception
  Comments : If Error.pm is installed, and you don't want to use it
             for some reason, you can block the use of Error.pm by
-           Bio::Root::Root::throw() by defining a scalar named
-           $main::DONT_USE_ERROR (define it in your main script
-           and you don't need the main:: part) and setting it to 
-           a true value; you must do this within a BEGIN subroutine.
+            Bio::Root::Root::throw() by defining a scalar named
+            $main::DONT_USE_ERROR (define it in your main script
+            and you don't need the main:: part) and setting it to 
+            a true value; you must do this within a BEGIN subroutine.
+            
+            Also note that if you use the string form, the string cannot
+            start with a dash, or the resulting throw message will be empty.
 
 =cut
 

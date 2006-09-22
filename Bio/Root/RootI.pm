@@ -283,8 +283,8 @@ sub stack_trace{
  Purpose   : Rearranges named parameters to requested order.
  Example   : $self->_rearrange([qw(SEQUENCE ID DESC)],@param);
            : Where @param = (-sequence => $s,
-	   :	                -desc     => $d,
-	   :                    -id       => $i);
+	       :                 -desc     => $d,
+	       :                 -id       => $i);
  Returns   : @params - an array of parameters in the requested order.
            : The above example would return ($s, $i, $d).
            : Unspecified parameters will return undef. For example, if
@@ -297,7 +297,7 @@ sub stack_trace{
            :          or as an associative array with hyphenated tags
            :          (in which case the function sorts the values 
            :          according to @{$order} and returns that new array.)
-	   :	      The tags can be upper, lower, or mixed case
+	       :	      The tags can be upper, lower, or mixed case
            :          but they must start with a hyphen (at least the
            :          first one should be hyphenated.)
  Source    : This function was taken from CGI.pm, written by Dr. Lincoln
@@ -319,17 +319,17 @@ sub stack_trace{
            : indicate that named parameters are being used.
            : Therefore, the ('me', 'blue') list will be returned as-is.
            :
-	   : Note that Perl will confuse unquoted, hyphenated tags as 
+	       : Note that Perl will confuse unquoted, hyphenated tags as 
            : function calls if there is a function of the same name 
            : in the current namespace:
            :    -name => 'foo' is interpreted as -&name => 'foo'
-	   :
+	       :
            : For ultimate safety, put single quotes around the tag:
-	   :    ('-name'=>'me', '-color' =>'blue');
+	       : ('-name'=>'me', '-color' =>'blue');
            : This can be a bit cumbersome and I find not as readable
            : as using all uppercase, which is also fairly safe:
-	   :    (-NAME=>'me', -COLOR =>'blue');
-	   :
+	       : (-NAME=>'me', -COLOR =>'blue');
+	       :
            : Personal note (SAC): I have found all uppercase tags to
            : be more managable: it involves less single-quoting,
            : the key names stand out better, and there are no method naming 
@@ -338,7 +338,12 @@ sub stack_trace{
            : and lots of uppercase can be hard to read.
            :
            : Regardless of the style, it greatly helps to line
-	   : the parameters up vertically for long/complex lists.
+	       : the parameters up vertically for long/complex lists.
+           :
+           : Note that if @param is a single string that happens to start with
+           : a dash, it will be treated as a hash key and probably fail to
+           : match anything in the array_ref, so not be returned as normally
+           : happens when @param is a simple list and not an associative array.
 
 =cut
 
