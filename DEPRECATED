@@ -17,3 +17,4 @@ Bio::Taxonomy::Node           1.5.1    -      renamed Bio::Taxon
 Bio::Taxonomy::Taxon          1.5.1    -      use Bio::Taxon
 Bio::Taxonomy::Tree           1.5.1    -      use Bio::Taxon & Bio::Tree::Tree
 Bio::Taxonomy::FactoryI       1.5.1    -      Redundant, no implementors
+Bio::Search::Processor        1.5.1    -      Superseded by Bio::SearchIO
