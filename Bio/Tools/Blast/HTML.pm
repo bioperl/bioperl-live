@@ -5,7 +5,7 @@
 # CREATED : 28 Apr 1998
 # STATUS  : Alpha
 # REVISION: $Id$
-# 
+#
 # For the latest version and documentation, visit the distribution site:
 #    http://bio.perl.org/Projects/Blast/
 #
@@ -19,7 +19,7 @@
 #   your reports.
 #
 # Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
+#           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #-------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ package Bio::Tools::Blast::HTML;
 use strict;
 use Exporter;
 
-use Bio::Tools::WWW  qw(:obj); 
+use Bio::Tools::WWW  qw(:obj);
 
 use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
              $ID %DbUrl %SGDUrl $Revision
@@ -90,7 +90,7 @@ formatting from a raw Blast sequence analysis report. Hypertext links
 to the appropriate database are added for each hit sequence (GenBank,
 Swiss-Prot, PIR, PDB, SGD).
 
-This module is intended for use by Bio::Tools::Blast.pm and related modules, 
+This module is intended for use by Bio::Tools::Blast.pm and related modules,
 which provides a front-end to the methods in Bio::Tools::Blast::HTML.pm.
 
 =head1 DEPENDENCIES
@@ -110,13 +110,12 @@ incorrect database links (L<FEEDBACK | FEEDBACK>). Thanks!
  Bio::Tools::Blast.pm    - Blast object.
  Bio::Tools::WWW.pm      - URL repository.
 
- http://bio.perl.org/Projects/modules.html  - Online module documentation
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
+ http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules.  Send your comments and suggestions preferably to one
@@ -131,7 +130,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/           
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 
@@ -140,7 +139,7 @@ Steve Chervitz, E<lt>sac@bioperl.orgE<gt>
 =head1 COPYRIGHT
 
 Copyright (c) 1998-2000 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 
@@ -174,8 +173,8 @@ for documentation purposes only.
  Purpose   : Provides a function that adds HTML formatting to a
            : raw Blast report line-by-line.
            : Utility method used by to_html() in Bio::Tools::Blast.pm.
- Returns   : Reference to an anonymous function to be used while reading in  
-           : the raw report. 
+ Returns   : Reference to an anonymous function to be used while reading in
+           : the raw report.
            : The function itself operates on the Blast report line-by-line
            : HTML-ifying it and printing it to STDOUT (or saving in the supplied
            : array ref) as it goes:
@@ -183,9 +182,9 @@ for documentation purposes only.
  Argument  : array ref (optional) for storing the HTML-formatted report.
            : If no argument is supplied, HTML output is sent to STDOUT.
  Throws    : Croaks if an argument is supplied and is not an array ref.
-           : The anonymous function returned by this method croaks if 
+           : The anonymous function returned by this method croaks if
            : the Blast output appears to be HTML-formatted already.
- Comments  : Adapted from a script by Keith Robison  November 1993 
+ Comments  : Adapted from a script by Keith Robison  November 1993
            : krobison@nucleus.harvard.edu; http://golgi.harvard.edu/gilbert.html
            : Modified extensively by Steve Chervitz and Mike Cherry.
            : Some modifications are customizations for BLAST reports served up
@@ -206,10 +205,10 @@ sub get_html_func {
     my $found_table = 0;  # Located the table at top of report (a.k.a. 'descriptions').
     my $found_data  = 0;  # Nothing is done until this is true
     my $skip        = 0;  # Skipping various items in the report header
-    my $ref_skip    = 0;  # so we can include nice HTML versions 
-                          # (e.g., references for the BLAST program). 
-    my $getNote     = 0; 
-    my $getGenBankAlert = 0; 
+    my $ref_skip    = 0;  # so we can include nice HTML versions
+                          # (e.g., references for the BLAST program).
+    my $getNote     = 0;
+    my $getGenBankAlert = 0;
     my $str = '';
     my $gi_link = \$_gi_link;
     my $prog = '';
@@ -233,7 +232,7 @@ sub get_html_func {
 		# Replacing an reference data with special HTML.
 		$ref_skip = 0 if /^\s+$/;
 	    }
-	    if($getNote) { 
+	    if($getNote) {
 		## SAC: created this test since we are no longer reading from STDIN.
 		$out_aref ? push(@$out_aref, $_) : print $_;
 		$getNote = 0 if m/^\s+$/;
@@ -250,7 +249,7 @@ sub get_html_func {
 		$skip = 1;
 		$prog = $2;
 		if($prog =~ /BLASTN/) {
-		    ## Prevent the error at Entrez when you ask for a nucl 
+		    ## Prevent the error at Entrez when you ask for a nucl
 		    ## entry with a protein GI number.
 		    $$gi_link = $DbUrl{'gb_n'};  # nucleotide
 		}  else {
@@ -267,8 +266,8 @@ sub get_html_func {
 	    } elsif ( /^Database:/ ) {
 		&_markup_database(\$_);
 		$out_aref ? push(@$out_aref, $_) : print $_;
-		if ( /non-redundant genbank/i and $prog =~ /TBLAST[NX]/i) { 
-		    $getGenBankAlert = 1; 
+		if ( /non-redundant genbank/i and $prog =~ /TBLAST[NX]/i) {
+		    $getGenBankAlert = 1;
 		}
 		$skip = 1;
 	    } elsif ( /sequences;/ ) {
@@ -285,10 +284,10 @@ sub get_html_func {
 		# Put the last HTML-formatted lines before the main body of report.
 		$found_table = 1;
 		$skip = 0;
-		$out_aref ? push(@$out_aref, $refs) : print $refs; 
-		if($getGenBankAlert) { 
+		$out_aref ? push(@$out_aref, $refs) : print $refs;
+		if($getGenBankAlert) {
 		    $str = &_genbank_alert;
-		    $out_aref ? push(@$out_aref, $str) : print $str; 
+		    $out_aref ? push(@$out_aref, $str) : print $str;
 		}
 		$str = "\n<p><pre>";
 		$out_aref ? push(@$out_aref, $str) : print $str;
@@ -314,7 +313,7 @@ sub get_html_func {
  Purpose   : Sets various hashes and regexps used for adding HTML
            : to raw Blast output.
  Returns   : n/a
- Comments  : These items need be set only once. 
+ Comments  : These items need be set only once.
 
 See Also   : L<get_html_func()|get_html_func>
 
@@ -326,13 +325,13 @@ sub _set_markup_data {
     %DbUrl      = $BioWWW->search_url('all');
     %SGDUrl     = $BioWWW->sgd_url('all');
 
-    $Signif  = '[\de.-]{3,}';        # Regexp for a P-value or Expect value. 
+    $Signif  = '[\de.-]{3,}';        # Regexp for a P-value or Expect value.
     $Int     = ' *\d\d*';            # Regexp for an integer.
     $Descrip = ' +.* {2,}?';         # Regexp for a description line.
     $Acc     = '[A-Z][\d.]+';        # Regexp for GB/EMBL/DDJB/SP accession number
     $Pir_acc = '[A-Z][A-Z0-9]{5,}';  # Regexp for PIR accession number
     $Word    = '[\w_.]+';            # Regexp for a word. Include dot for version.
-    
+
     $_set_markup = 1;
 }
 
@@ -344,7 +343,7 @@ sub _set_markup_data {
  Returns   : n/a
  Comments  : This is used for converting local database IDs into
            : understandable terms. At present, it only recognizes
-           : databases used locally at SGD. 
+           : databases used locally at SGD.
 
 See Also   : L<get_html_func()|get_html_func>
 
@@ -377,8 +376,8 @@ sub _markup_database {
            : produced by NCBI and SGD. Feel free to modify this function
            : to accomodate reports produced by other servers/sites.
            :
-           : This function is simply a collection of substitution regexps 
-           : that recognize and modify the relevant lines of the Blast report. 
+           : This function is simply a collection of substitution regexps
+           : that recognize and modify the relevant lines of the Blast report.
            : All non-header lines of the report are passed through this function,
            : only the ones that match will get modified.
            :
@@ -395,7 +394,7 @@ sub _markup_database {
            :
            : For the alignment sections in the body of the report:
            :
-           : DB:SEQUENCE_ID  (Back | Top) DESCRIPTION 
+           : DB:SEQUENCE_ID  (Back | Top) DESCRIPTION
            :        DB          = links to the indicated database (if not Gen/Embl/Ddbj).
            :        SEQUENCE_ID = links to GenBank entry for the sequence.
            :        SIGNIF_VAL  = internal link to alignment section.
@@ -412,7 +411,7 @@ sub _markup_database {
            : slow, however, since the HTML must be removed prior to parsing.
            : Parsing HTML-formatted reports is dependent on the specific structure
            : of the HTML and is generally not recommended.
-           : 
+           :
            : Note that since URLs can change without notice, links will need updating.
            : The links are obtained from Bio::Tools::WWW.pm updating that module
            : will update this as well.
@@ -432,18 +431,18 @@ sub _markup_report {
     my $line_ref = shift;
     local $_ = $$line_ref;
 ##
-## REGEXPS FOR ALIGNMENT SECTIONS (within the body of the report, 
+## REGEXPS FOR ALIGNMENT SECTIONS (within the body of the report,
 ##                                 the text above the list of HSPs).
 ##
 ## If the HSP alignment sections don't start with a '>' we have no way
-## of finding them. This occurs with reports saved from HTML-formatted 
+## of finding them. This occurs with reports saved from HTML-formatted
 ## web pages, which we shouldn't be processing here anyway.
 
 ## To facilitate parsing of HTML-formatted reports by Bio::Tools::Blast.pm,
-## the <a name=...> anchors should be added at the BEGINNING of the HSP 
+## the <a name=...> anchors should be added at the BEGINNING of the HSP
 ## alignment section lines and at the END of the description section lines.
 
-    # Removing " ! " addded by GCG. 
+    # Removing " ! " addded by GCG.
     s/ ! / /;
 
     ### NCBI-specific markups for HSP alignment section lines:
@@ -523,7 +522,7 @@ sub _markup_report {
 ## (table of sequence id, description, score, P/Expect value, n)
 ##
 ## Not using bold face to highlight the sequence id's since this can throw off
-## off formatting of the line when the IDs are different lengths. This lead to 
+## off formatting of the line when the IDs are different lengths. This lead to
 ## the scores and P/Expect values not lining up properly.
 
     ### NCBI-specific markups for description lines:
@@ -568,7 +567,7 @@ sub _markup_report {
 
     ## Mike Cherry's markups. SAC note: added back database name to allow
     ## the HTML-formatted version to be parsable by Blast.pm.
-    
+
   s#^ ?(GB_$Word:)($Word)( *)($Acc)($Descrip)($Int)  ( *$Signif) ( *\d*)$#GenBank\|<a href="$_gi_link$4">$2</A>\|$4 $3$5$6 <a href="\#$2_$4_A">$7</A> $8<a name="$2_$4_H"></A>#o;
 
 # Mike's version:
@@ -593,7 +592,7 @@ sub _markup_report {
 
   s#^ ?(UTR5_SC_[0-9]*:)(\S*)($Descrip)($Int)  ($Signif) ($Int)$#UTR5:$2 $3  $4 <a href="\#$2_A">$5</a> $6<a name="$2_H"></a>#o;
 
-  # Hits without a db identifier. 
+  # Hits without a db identifier.
   s@^ ?($Word)($Descrip)($Int)  ($Signif)(.*)$@$1$2$3  <A href="\#$1_A">$4</a>$5<a name="$1_H"></a>@o;
 
     $$line_ref = $_;
@@ -618,15 +617,15 @@ sub _prog_ref_html {
     return <<"QQ_REF_QQ";
 <p>
 <small>
-<b>References:</b> 
+<b>References:</b>
 <ol>
-<li>Altschul, Stephen F., Warren Gish, Webb Miller, Eugene W. Myers, and David J. Lipman (1990). 
+<li>Altschul, Stephen F., Warren Gish, Webb Miller, Eugene W. Myers, and David J. Lipman (1990).
 Basic local alignment search tool.
 <a href="http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=2231712&form=6&db=m&Dopt=r">J. Mol. Biol. 215: 403-10</a>.
-<li>Altschul et al. (1997), Gapped BLAST and PSI-BLAST: 
-a new generation of protein database search programs. 
+<li>Altschul et al. (1997), Gapped BLAST and PSI-BLAST:
+a new generation of protein database search programs.
 <a href="http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=9254694&form=6&db=m&Dopt=r">Nucl. Acids Res. 25: 3389-3402</a>.
-<li><b>Program Descriptions</b>: 
+<li><b>Program Descriptions</b>:
 <a href="http://www.ncbi.nlm.nih.gov/BLAST/newblast.html">BLAST2</a> |
 <a href="http://blast.wustl.edu/">WU-BLAST2</a> |
 <a href="http://www.ncbi.nlm.nih.gov/BLAST/blast_help.html">Help Manual</a>
@@ -640,7 +639,7 @@ HTML formatting provided by the <a href="${\$BioWWW->home_url('bioperl')}Project
 QQ_REF_QQ
 
 # Not really a reference for the Blast algorithm itself but an interesting usage.
-#<li>Gish, Warren, and David J. States (1993). Identification of protein coding regions by database similarity search. 
+#<li>Gish, Warren, and David J. States (1993). Identification of protein coding regions by database similarity search.
 #<a href="http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=8485583&form=6&db=m&Dopt=r">Nature Genetics 3:266-72</a>.
 
 }
@@ -660,12 +659,12 @@ See Also   : L<get_html_func()|get_html_func>
 sub _genbank_alert {
 #------------------
     return << "QQ_GENBANK_QQ";
-<p><b><font color="red">CAUTION: Hits reported on this page may be derived from DNA sequences 
-         that contain more than one gene. 
+<p><b><font color="red">CAUTION: Hits reported on this page may be derived from DNA sequences
+         that contain more than one gene.
          </font>To avoid mis-interpretation, always check database entries
-         for any sequence of interest to verify that the similarity 
+         for any sequence of interest to verify that the similarity
          occurs within the described sequence. (E.g., A DNA sequence
-         for gene X as reported in GenBank may contain a 5' or 3' 
+         for gene X as reported in GenBank may contain a 5' or 3'
          fragment of coding sequence for a neighboring gene Y, yet will
          be listed as gene X, since gene Y had not yet been identified). </b>
 QQ_GENBANK_QQ
@@ -686,17 +685,17 @@ QQ_GENBANK_QQ
  Throws    : Croaks if the argument is not a scalar reference.
  Comments  : Based on code originally written by Alex Dong Li
            : (ali@genet.sickkids.on.ca).
-           : This method does some Blast-specific stripping 
-           : (adds back a '>' character in front of each HSP 
+           : This method does some Blast-specific stripping
+           : (adds back a '>' character in front of each HSP
            : alignment listing).
-           :   
+           :
            : THIS METHOD IS HIGHLY ERROR-PRONE!
            :
            : Removal of the HTML tags and accurate reconstitution of the
            : non-HTML-formatted report is highly dependent on structure of
-           : the HTML-formatted version. For example, it assumes that first 
+           : the HTML-formatted version. For example, it assumes that first
            : line of each alignment section (HSP listing) starts with a
-           : <a name=..> anchor tag. This permits the reconstruction of the 
+           : <a name=..> anchor tag. This permits the reconstruction of the
            : original report in which these lines begin with a ">".
            : This is required for parsing.
            :
@@ -718,21 +717,21 @@ sub strip_html {
       #    1) if quoted > appears in a tag  (does this ever happen?)
       #    2) if a tag is split over multiple lines and this method is
       #       used to process one line at a time.
-      
+
     my $string_ref = shift;
 
-    ref $string_ref eq 'SCALAR' or 
+    ref $string_ref eq 'SCALAR' or
 	croak ("Can't strip HTML: ".
 	       "Argument is should be a SCALAR reference not a ${\ref $string_ref}");
 
     my $str = $$string_ref;
     my $stripped = 0;
 
-    # Removing "<a name =...>" and adding the '>' character for 
+    # Removing "<a name =...>" and adding the '>' character for
     # HSP alignment listings.
     $str =~ s/(\A|\n)<a name ?=[^>]+> ?/>/sgi and $stripped = 1;
 
-    # Removing all "<>" tags. 
+    # Removing all "<>" tags.
     $str =~ s/<[^>]+>|&nbsp//sgi and $stripped = 1;
 
     # Re-uniting any lone '>' characters.

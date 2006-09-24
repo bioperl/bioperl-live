@@ -179,7 +179,6 @@ Bio::Root::Err.pm, 0.041
   Bio::Root::Vector.pm    - Vector object
   Bio::Root::Global.pm    - Manages global variables/constants
 
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
   http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head2 Other Exception Modules
@@ -466,7 +465,7 @@ sub _set_type {
 sub _set_list_data {
 #-------------------
     my( $self, $member, $data ) = @_;
-	
+
     # Sensitive to data member name changes.
     $member = "_\l$member";
 

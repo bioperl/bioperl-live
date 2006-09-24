@@ -84,7 +84,7 @@ This is not necessarily ideal and is expected to change.
 
 =head1 USAGE
 
-For a usage demo of Bio::Root::Vector.pm see the scripts in the 
+For a usage demo of Bio::Root::Vector.pm see the scripts in the
 examples/root_object/vector directory.
 
 
@@ -126,7 +126,7 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz  E<lt>sac@bioperl.orgE<gt>
 
@@ -155,7 +155,6 @@ from both Object.pm and Vector.pm, you could create a Vector.pm object.
   Bio::Root::Err.pm       - Error/Exception object
   Bio::Root::Global.pm    - Manages global variables/constants
 
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
   http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 ACKNOWLEDGEMENTS
@@ -246,7 +245,7 @@ sub set_rank {
     $self->{'_master'}->{'_rankBy'} = ($rank_by || undef);
     if( defined $self->{'_rank'} and not defined $self->{'_master'}->{'_rankBy'} ) {
 	return $self->master->warn('Rank defined without ranking criteria.');
-    }	
+    }
     1;
 }
 
@@ -526,7 +525,7 @@ sub get {
 ## No longer needed since master indexes all objects.
 #	 do{
 #	     if($obj->name eq $name) { return $obj; }
-#	
+#
 #	 } while($obj = $current->prev());
 
 

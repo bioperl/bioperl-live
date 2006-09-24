@@ -118,7 +118,6 @@ compression/uncompression/deletion.
   Bio::Root::Utilities.pm    - Generic utilty object
   Bio::Root::Global.pm       - Manages global variables/constants
 
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
   http://bio.perl.org/                       - Bioperl Project Homepage
 
  FileHandle.pm (included in the Perl distribution or CPAN).
@@ -147,7 +146,7 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
@@ -229,7 +228,7 @@ sub file {
 	my $file = $_[0];
 	if(not ref $file and not -s $file) {
 	    $self->throw("File is empty or non-existent: $file");
-	}	
+	}
 	$self->{'_file'} = $file;
     }
     $self->{'_file'};
@@ -380,7 +379,7 @@ sub _close_fh {
 	close $self->{'_fh'};
 	undef $self->{'_fh'};
     }
-}	
+}
 
 
 =head2 set_display
@@ -441,7 +440,7 @@ sub set_display {
 #	print "setting file handle object\n";
 	$self->set_fh(-PATH =>$where,
 		      -PRE  =>$mode);
-    } elsif( not defined $self->{'_fh'} or $where =~ /STDOUT/)  {	
+    } elsif( not defined $self->{'_fh'} or $where =~ /STDOUT/)  {
 	return \*STDOUT;
     } else  {
 #	print STDERR "filehandle already set for this object: ${\$self->fh('name')}\n";
@@ -488,7 +487,7 @@ sub set_read {
 #	print "setting file handle object\n";
 	$self->set_fh(-PATH =>$where,
 		      -PRE  =>$mode);
-    } elsif( not defined $self->{'_fh'} or $where =~ /STDIN/)  {	
+    } elsif( not defined $self->{'_fh'} or $where =~ /STDIN/)  {
 	return \*STDIN;
     } else  {
 #	print STDERR "filehandle already set for this object: ${\$self->fh('name')}\n";
@@ -528,7 +527,7 @@ sub set_display_err {
 #	print "setting file handle object\n";
 	$self->set_fh(-PATH =>$where,
 		      -PRE  =>$mode);
-    } elsif( not defined $self->{'_fherr'} or $where =~ /STDERR/)  {	
+    } elsif( not defined $self->{'_fherr'} or $where =~ /STDERR/)  {
 	return \*STDERR;
     } else  {
 #	print STDERR "filehandle already set for this object: ${\$self->fh('name')}\n";
@@ -741,7 +740,7 @@ sub read {
 	    # If &$func_ref returns false, exit this while loop.
 	    # Uncomment to skip lines with only white space or record separators
 #	    next if m@^(\s*|$/*)$@;
-	
+
 	    $lines++;
             $alarm_available and alarm(0);  # Deactivate the alarm as soon as we start reading.
 	    my($result);

@@ -3,12 +3,12 @@
 # AUTHOR  : Steve Chervitz (sac@bioperl.org)
 # CREATED : 8 May 1997
 # REVISION: $Id$
-# STATUS  : Pre-Alpha 
+# STATUS  : Pre-Alpha
 #
 # WARNING: This is considered an experimental module.
 #
 # Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
+#           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #-----------------------------------------------------------------------------
 
@@ -78,12 +78,11 @@ B<The API for this module is not complete since the module is under development.
   Bio::Root::Object.pm       - Core object
   Bio::Root::Global.pm       - Manages global variables/constants
 
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
-  http://bio.perl.org/                       - Bioperl Project Homepage 
+  http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -98,9 +97,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/           
+  http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
@@ -113,7 +112,7 @@ Bio::Root::Xref.pm, 0.01 pre-alpha
 =head1 COPYRIGHT
 
 Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 
@@ -141,7 +140,7 @@ sub _initialize {
     my( $self, %param ) = @_;
 
     $self->SUPER::_initialize(%param);
-    
+
     $self->{'_obj'} = ($param{-OBJ} || undef);
 
     ## By default, all Xrefs are symmetric.
@@ -151,7 +150,7 @@ sub _initialize {
 	$self->{'_type'} = 'sym';
     } else {
 	$self->{'_type'} = 'asym';
-    }	
+    }
 }
 
 
@@ -162,14 +161,14 @@ sub _initialize {
 sub obj {my ($self) = shift; return $self->{'_obj'}; }
 sub desc {my ($self) = shift; return $self->{'_desc'}; }
 sub type {my ($self) = shift; return $self->{'_type'}; }
-    
-sub set_desc {my ($self,$desc) = @_; 
+
+sub set_desc {my ($self,$desc) = @_;
 	     $self->{'_desc'} = $desc;
 	 }
 
 sub clear {
 ## Not implemented. Need to do this carefully.
-## Not sure if this method is needed.    
+## Not sure if this method is needed.
     my ($self) = @_;
 }
 
@@ -180,7 +179,7 @@ __END__
 #                                  END OF CLASS                                     #
 #####################################################################################
 
-=head1 DATA MEMBERS 
+=head1 DATA MEMBERS
 
  _obj   : The object being cross-referenced to the parent.
  _type  : Symmetric or asymmetric

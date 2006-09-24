@@ -4,14 +4,14 @@
 # CREATED : 23 July 1996
 # REVISION: $Id$
 # STATUS  : Alpha
-#            
-# For documentation, run this module through pod2html 
+#
+# For documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
 # MODIFICATION NOTES: See bottom of file.
 #
 # Copyright (c) 1996-2000 Steve Chervitz. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
+#           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #           Retain this notice and note any modifications made.
 #-----------------------------------------------------------------------------
@@ -25,11 +25,11 @@ use Bio::Root::Root;
 
 use Exporter ();
 
-#use AutoLoader; 
+#use AutoLoader;
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
 use vars qw(@EXPORT_OK %EXPORT_TAGS);
-@EXPORT_OK = qw(&find_object &stack_trace &containment &_rearrange);  
+@EXPORT_OK = qw(&find_object &stack_trace &containment &_rearrange);
 %EXPORT_TAGS = ( std => [qw(&stack_trace &containment)] );
 
 use vars qw($ID %Objects_created $Revision @ISA);
@@ -58,7 +58,7 @@ Bio::Root::Object - A core Perl 5 object.
     require Bio::Root::Object;
 
     $dad = new Bio::Root::Object();
-    $son = new Bio::Root::Object(-name    => 'Junior', 
+    $son = new Bio::Root::Object(-name    => 'Junior',
 			         -parent  => $dad,
 			         -make    => 'full');
 
@@ -92,9 +92,9 @@ See L<the APPENDIX section | APPENDIX> for some other handy methods.
 =head2 Fault-Tolerant Objects
 
 A major motivation for this module was to promote the creation of robust,
-fault-tolerant Perl5 objects. The L<Bio::Root::Root::throw()|Bio::Root::Root> method relies on Perl's built-in 
+fault-tolerant Perl5 objects. The L<Bio::Root::Root::throw()|Bio::Root::Root> method relies on Perl's built-in
 C<eval{}/die> exception mechanism to generate fatal exceptions.
-The data comprising an exception is managed by the B<Bio::Root::Err.pm> 
+The data comprising an exception is managed by the B<Bio::Root::Err.pm>
 module, which essentially allows the data thrown by a C<die()> event to be
 wrapped into an object that can be easily examined and possibly re-thrown.
 
@@ -102,9 +102,9 @@ The intent here is three-fold:
 
 =over 4
 
-=item 1 Detailed error reporting. 
+=item 1 Detailed error reporting.
 
-Allow objects to report detailed information about the error condition 
+Allow objects to report detailed information about the error condition
 (who, what, where, why, how).
 
 =item 2 Handle complex errors in objects.
@@ -119,20 +119,20 @@ handling complex errors within complex objects, but it is improving.
 To enable robust exception handling without incurring a significant
 performance penalty in the resulting code. Ideally, exception handling
 code should be transparent to the cpu until and unless an exception
-arises. 
+arises.
 
 =back
 
-These goals may at times be at odds and we are not claiming 
+These goals may at times be at odds and we are not claiming
 to have achieved the perfect balance. Ultimately, we want self-
-sufficient object-oriented systems able to deal with their own errors. 
-This area should improve as the module, and Perl, evolve. 
+sufficient object-oriented systems able to deal with their own errors.
+This area should improve as the module, and Perl, evolve.
 One possible modification might be to utilize Graham Barr's B<Error.pm>
-module or Torsten Ekedahl's B<Experimental::Exception.pm> module 
+module or Torsten Ekedahl's B<Experimental::Exception.pm> module
 (see L<Other Exception Modules>).
 Technologies such as these may eventually be
-incorporated into future releases of Perl. The exception handling 
-used by B<Bio::Root::Object.pm> can be expected to change as Perl's 
+incorporated into future releases of Perl. The exception handling
+used by B<Bio::Root::Object.pm> can be expected to change as Perl's
 exception handling mechanism evolves.
 
 B<TERMINOLOGY NOTE:> In this discussion and elsewhere in this module,
@@ -151,7 +151,7 @@ crashing the script and attempt to recover gracefully:
     # Package Foo.pm IS-A Bio::Root::Object.pm
 
     $obj = eval { new Foo(@data) };  # ending semicolon required.
-    if($@) { 
+    if($@) {
         print STDERR "\nTrouble creating Foo object: $@\n";
         recover_gracefully($@);
     }
@@ -181,7 +181,7 @@ Post-mortem reporting, logging, or analysis of the problems ensues:
         foreach(@errs) { print "$err->[1]\n";}
     }
 
-New with B<Perl 5.005> is the ability to C<die()> with an object 
+New with B<Perl 5.005> is the ability to C<die()> with an object
 reference in C<$@> instead of just a string. This feature is not yet
 exploited in Bio::Root::Object.pm but may be in future versions.
 Bio::Root::Err.pm objects can be reconstructed from the contents of C<$@>:
@@ -220,11 +220,11 @@ typically wants to set these properties globally for a given
 script. While this sacrifices some flexibility, it saves time and
 memory when working with lots of objects. For instance, child objects
 don't have to worry about checking their parents to determine their
-strictness/verbosity levels. Strictness and verbosity are 
+strictness/verbosity levels. Strictness and verbosity are
 globally-defined values, but different classes of objects can be
 differentially sensitive to these values depending on design criteria.
 
-Strictness and verbosity can be positive or negative. Negative 
+Strictness and verbosity can be positive or negative. Negative
 verbosity equals terseness; negative strictness equals permissiveness.
 In B<Bio::Root::Object> only the Bio::Root::Root::throw() and
 Bio::Root::Root::warn() methods (see L<Bio::Root::Root>) are sensitive to
@@ -236,12 +236,12 @@ these values as indicated in the tables below:
                    -1             0            1
     s           ----------   -----------   ----------
     t
-    r   -2   --     throw() converted into warn()    
-    i         
+    r   -2   --     throw() converted into warn()
+    i
     c   -1   |   Exception    Exception      Exception
     t    0   |_  printed      printed        printed
     n    1   |   without      with           with stack
-    e    2   |   stack trace  stack trace    trace and 
+    e    2   |   stack trace  stack trace    trace and
     s        |                               sysbeep
     s
 
@@ -251,17 +251,17 @@ these values as indicated in the tables below:
     +---------+ --------------------------------------
                    -1             0            1
     s           ----------   -----------   -----------
-    t          
+    t
     r   -2   |   Warning      Warning        Warning
     i   -1   |_  not          printed        printed
     c    0   |   printed      without        with stack
-    t    1   |   but          stack trace    trace and 
+    t    1   |   but          stack trace    trace and
     n        |   attached*                   sysbeep
     e
-    s    2   --      warn() converted into throw()   
-    s      
+    s    2   --      warn() converted into throw()
+    s
 
-     (*) Warnings will be attached to an object if the 
+     (*) Warnings will be attached to an object if the
      -record_err =>1 flag is set when constructing the object
      or if $object->record_err(1) is called subsequent to creation.
 
@@ -272,8 +272,8 @@ L<Bio::Root::Root> for more details.
 
 =head1 DEPENDENCIES
 
-As the B<Bio::Root::Object> does not inherit from any modules 
-but wraps (i.e., provides an interface and delegates 
+As the B<Bio::Root::Object> does not inherit from any modules
+but wraps (i.e., provides an interface and delegates
 functionality to) other modules in the Bio::Root:: hierarchy:
 
    Module                    Purpose
@@ -289,13 +289,13 @@ utilized via delegation, which permits them to be developed and utilized
 independently of B<Bio::Root::Object>.
 
 Since this module is at the root of potentially many different objects
-in a particular application, efficiency is important. Bio::Root::Object.pm is 
+in a particular application, efficiency is important. Bio::Root::Object.pm is
 intended to be a lightweight, lean and mean module.
 
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -310,9 +310,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/           
+  http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
@@ -329,7 +329,7 @@ Bio::Root::Object.pm, 0.041
 
 =item * Experiment with other Exception classes.
 
-Consider incorporating a more widely-used Error/Exception module 
+Consider incorporating a more widely-used Error/Exception module
 (see L<Other Exception Modules>).
 
 =item * Think about integration with Data::Dumper.pm for persisting objects.
@@ -344,8 +344,7 @@ L<Bio::Root::Vector>    - Manages dynamic lists of objects
 L<Bio::Root::Xref>      - Cross-reference object
 L<Bio::Root::Global>    - Manages global variables/constants
 
-http://bio.perl.org/Projects/modules.html  - Online module documentation
-http://bio.perl.org/                       - Bioperl Project Homepage 
+http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head2 Other Exception Modules
 
@@ -353,7 +352,7 @@ Experimental::Exception.pm   - ftp://ftp.matematik.su.se/pub/teke/
 Error.pm                     - http://www.cpan.org/authors/id/GBARR/
 Throwable.pm                 - mailto:kstevens@globeandmail.ca
 
-http://genome-www.stanford.edu/perlOOP/exceptions.html 
+http://genome-www.stanford.edu/perlOOP/exceptions.html
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -368,19 +367,19 @@ Chris Dagdigian, Georg Fuellen, and Steven Brenner.
 =head1 COPYRIGHT
 
 Copyright (c) 1996-98 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
 
 
-# 
-## 
-### 
+#
+##
+###
 #### END of main POD documentation. '
 ###
 ##
-# 
+#
 
 
 =head1 APPENDIX
@@ -426,13 +425,13 @@ my @inheriting_modules = ('Bio::Tools::Blast', 'Bio::Root::Object',
            :  -MAKE       => string to specify special constructor option.
            :  -OBJ        => object reference for an object to be cloned.
            :  -RECORD_ERR => boolean (if true, attach all Err.pm objects generated by
-	   :                 warn() or throw() calls to the present object; 
+	   :                 warn() or throw() calls to the present object;
 	   :		     default = false).
            :
            : The use of STRICT and VERBOSE in constructors is no longer
            : necessary since there is no object-specific strict or verbose setting.
-           : Use the strictness() and verbosity() functions exported by 
-           : Bio::Root::Global.pm. These options are still provided 
+           : Use the strictness() and verbosity() functions exported by
+           : Bio::Root::Global.pm. These options are still provided
            : in the constructor but the will affect *all* objects within a
            : given process.
            :
@@ -442,7 +441,7 @@ my @inheriting_modules = ('Bio::Tools::Blast', 'Bio::Root::Object',
            :                 an object should do generally. In this module,
            :                 verbosity affects the behavior of throw() and warn()
            :                 only.
-           :                 
+           :
            :
  Comments  : This method creates blessed HASH references.
            : An object is free to define its own strict, and verbose
@@ -469,7 +468,7 @@ sub new {
  Purpose   : Initializes key Bio::Root::Object.pm data (name, parent, make, strict).
            : Called by new().
  Usage     : n/a; automatically called by Bio::Root::Object::new()
- Returns   : String containing the -MAKE constructor option or 'default' 
+ Returns   : String containing the -MAKE constructor option or 'default'
            : if none defined (if a -MAKE parameter is defined, the value
            : returned will be that obtained from the make() method.)
            : This return value saves any subclass from having to call
@@ -481,7 +480,7 @@ sub new {
            :  (PARAMETER TAGS CAN BE ALL UPPER OR ALL LOWER CASE).
  Comments  : This method calls name(), make(), parent(), strict(), index()
            : and thus enables polymorphism on these methods. To save on method
-           : call overhead, these methods are called only if the data need 
+           : call overhead, these methods are called only if the data need
            : to be set.
            :
            : The _set_clone() method is called if the -MAKE option includes
@@ -498,10 +497,10 @@ sub new {
            : as well as handling tagged or un-tagged parameters.
            : _initialize() does not currently call _rearrange() since
            : there is a concern about performance when setting many objects.
-           : One issue is that _rearrange() could be called with many elements 
-           : yet the caller is interested in only a few. Also, derived objects 
-           : typically invoke _rearrange() in their constructors as well. 
-           : This could particularly degrade performance when creating lots 
+           : One issue is that _rearrange() could be called with many elements
+           : yet the caller is interested in only a few. Also, derived objects
+           : typically invoke _rearrange() in their constructors as well.
+           : This could particularly degrade performance when creating lots
            : of objects with extended inheritance hierarchies and lots of tagged
            : parameters which are passes along the inheritance hierarchy.
            :
@@ -527,7 +526,7 @@ sub _initialize {
 		    "Try changing your inheritance to Bio::Root::Root.");
     }
     my($name, $parent, $make, $strict, $verbose, $obj, $record_err) = (
-	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}), 
+	($param{-NAME}||$param{'-name'}), ($param{-PARENT}||$param{'-parent'}),
 	($param{-MAKE}||$param{'-make'}), ($param{-STRICT}||$param{'-strict'}),
 	($param{-VERBOSE}||$param{'-verbose'}),
         ($param{-OBJ}||$param{'-obj'}, $param{-RECORD_ERR}||$param{'-record_err'})
@@ -538,7 +537,7 @@ sub _initialize {
 
     $DEBUG and do{ print STDERR ">>>> Initializing $ID (${\ref($self)}) ",$name||'anon';<STDIN>};
 
-    if(defined($make) and $make =~ /clone/i) { 
+    if(defined($make) and $make =~ /clone/i) {
 	$self->_set_clone($obj);
 
     } else {
@@ -546,8 +545,8 @@ sub _initialize {
 
 	## Another performance issue: calling name(), parent(), strict(), make()
 	## Any speed diff with conditionals to avoid method calls?
-	
-	$self->name($name) if $name; 
+
+	$self->name($name) if $name;
 	$self->parent($parent) if $parent;
 	$self->{'_strict'}  = $strict  || undef;
 	$self->{'_verbose'} = $verbose || undef;
@@ -555,11 +554,11 @@ sub _initialize {
 
 	if($make) {
 	    $make = $self->make($make);
-	
+
 	    # Index the Object in the global object hash only if requested.
-	    # This feature is not used much. If desired, an object can always 
+	    # This feature is not used much. If desired, an object can always
 	    # call Bio::Root::Object::index()  any time after construction.
-	    $self->index() if $make =~ /index/; 
+	    $self->index() if $make =~ /index/;
 	}
     }
 
@@ -576,27 +575,27 @@ sub _initialize {
 
  Purpose   : Provides indication that the object is being reclaimed
            : by the GC for debugging purposes only.
- Usage     : n/a; automatically called by Perl when the ref count 
+ Usage     : n/a; automatically called by Perl when the ref count
            : on the object drops to zero.
  Argument  : n/a
  Comments  : Setting the global $DEBUG to 2 will print messages upon
            : object destruction.
-           : Subclasses should override this method to 
+           : Subclasses should override this method to
            : clean up any resources (open file handles, etc.)
-           : The overridden method should end with a call to 
+           : The overridden method should end with a call to
            : SUPER::DESTROY;
 
-See Also   : L<destroy()|destroy> 
+See Also   : L<destroy()|destroy>
 
 =cut
 
 #-----------
-sub DESTROY { 
+sub DESTROY {
 #-----------
-    my $self=shift; 
+    my $self=shift;
 
     $DEBUG==2 && print STDERR "DESTROY called in $ID for ${\$self->to_string} ($self)\n";
-}  
+}
 
 
 =head2 destroy
@@ -608,7 +607,7 @@ sub DESTROY {
            : This method breaks links to any Err, IOManager, and Xref objects
            : and drops the present object as a child from any parent objects.
  Usage     : $object->destroy(); undef $object;
-           : undef-ing the object reference signals the GC to reclaim 
+           : undef-ing the object reference signals the GC to reclaim
            : the object's memory.
  Returns   : undef
  Argument  : n/a
@@ -620,7 +619,7 @@ sub DESTROY {
            : Subclasses should override this method to call destroy()
            : on any contained child objects. The overridden method
            : should end with a call to SUPER::destroy().
- Bugs      : Bio::Root::Xref.pm objects have not been tested and 
+ Bugs      : Bio::Root::Xref.pm objects have not been tested and
            : may not be handled properly here.
            : Bio::Root::Vector.pm objects are also not yet handled
            : properly so beware of crunching lots of Vector objects.
@@ -630,7 +629,7 @@ sub DESTROY {
 #-------------'
 sub destroy {
 #-------------
-## Note: Cannot delete parent and xref object refs since they are not 
+## Note: Cannot delete parent and xref object refs since they are not
 ##       owned by this object, merely associated with it.
     my $self = shift;
 
@@ -642,7 +641,7 @@ sub destroy {
     if(ref($self->{'_io'})) {
 	$self->{'_io'}->destroy;
 	undef $self->{'_io'};
-    } 
+    }
 
     if(ref($self->{'_err'})) {
 	$self->{'_err'}->remove_all;
@@ -652,7 +651,7 @@ sub destroy {
     if(ref($self->{'_xref'})) {
 	$self->{'_xref'}->remove_all;
 	undef $self->{'_xref'};
-    } 
+    }
 
     $self->_remove_from_index if scalar %Objects_created;
 }
@@ -674,7 +673,7 @@ sub destroy {
  Throws    : Exception if an object ref is not provided as an argument.
  Comments  : This is a simplistic version that systematically checks every
            : data member, searching all top-level array, hash, and scalar
-           : data members. 
+           : data members.
            : It does not recurse through all levels of complex data members.
            : Subclasses could override this method to handle complex child
            : data members for more optimal child searching. However, the
@@ -708,7 +707,7 @@ sub _drop_child {
 		    undef $self->{$member}->[$i];
 		    $found = 1; last;
 		}
-	    } 
+	    }
 	} elsif(ref($self->{$member}) eq 'HASH') {
 	    foreach(keys %{$self->{$member}}) {
 		if ($self->{$member}->{$_} eq $child) {
@@ -716,7 +715,7 @@ sub _drop_child {
 		    undef $self->{$member}->{$_};
 		    $found = 1; last;
 		}
-	    } 
+	    }
 	} else {
 	    if ($self->{$member} eq $child) {
 		$DEBUG==2 && print STDERR "Removing child $child\n";
@@ -743,13 +742,13 @@ sub _drop_child {
 =head2 name
 
  Usage     : $object->name([string]);
- Purpose   : Set/Get an object's common name. 
+ Purpose   : Set/Get an object's common name.
  Example   : $myName = $myObj->name;
            : $myObj->name('fred');
- Returns   : String consisting of the object's name or 
+ Returns   : String consisting of the object's name or
            : "anonymous <CLASSNAME>" if name is not set.
            : Thus, this method ALWAYS returns some string.
- Argument  : String to be used as the common name of the object. 
+ Argument  : String to be used as the common name of the object.
            : Should be unique within its class.
 
 See also   : L<has_name()|has_name>
@@ -773,7 +772,7 @@ sub name {
  Usage     : $object->to_string();
  Purpose   : Get an object as a simple string useful for debugging purposes.
  Example   : print $myObj->to_string;  # prints: Object <PACKAGE NAME> "<OBJECT NAME>"
- Returns   : String consisting of the package name + object's name 
+ Returns   : String consisting of the package name + object's name
            : Object's name is obtained by calling the name() method.
  Argument  : n/a
  Throws    : n/a
@@ -793,8 +792,8 @@ sub to_string {
 =head2 parent
 
  Usage     : $object->parent([object | 'null']);
- Purpose   : Set/Get the current object's source object. 
-           : An object's source object (parent) is defined as the object 
+ Purpose   : Set/Get the current object's source object.
+           : An object's source object (parent) is defined as the object
            : that is responsible for creating the current object (child).
            : The parent object may also have a special mechanism for
            : destroying the child object. This should be included
@@ -805,7 +804,7 @@ sub to_string {
  Argument  : Blessed object reference (optional) or the string 'null'.
            :  'null' = sets the object's _parent field to undef,
            :           breaking the child object's link to its parent.
- Throws    : Exception if argument is not an object reference or 'null'. 
+ Throws    : Exception if argument is not an object reference or 'null'.
  Comments  : This method may be renamed 'parent' in the near future.
            : When and if this happens, parent() will still be supported but
            : will be deprecated.
@@ -819,7 +818,7 @@ sub parent {
 #------------
     my ($self) = shift;
     if (@_) {
-	my $arg = shift; 
+	my $arg = shift;
 	if(ref $arg) {
 	    $self->{'_parent'} = $arg;
 	} elsif($arg =~ /null/i) {
@@ -858,11 +857,11 @@ sub src_obj {
  Returns   : True (1) if the object's {'Name'} data member is defined.
            : False otherwise.
  Comments  : One may argue, why not just use the name() method as a
-           : combination setter/getter? has_name() is necessary for 
+           : combination setter/getter? has_name() is necessary for
            : the following reasons:
-           :   (1) If an object's name is not defined, name() returns 
+           :   (1) If an object's name is not defined, name() returns
            :        "anonymous <CLASSNAME>".
-           :   (2) If an object's name is 0 (zero) or '' (empty string), 
+           :   (2) If an object's name is 0 (zero) or '' (empty string),
            : conditionals that simply check name() would fail incorrectly.
 
 See also   : L<name()|name>
@@ -880,7 +879,7 @@ sub has_name { my $self = shift; return defined $self->{'_name'}; }
  Usage     : $object->make([string]);
  Purpose   : Set/Get an object's constructor option.
            : make() is intended for use during object construction
-           : to essentially permit alternate constructors since 
+           : to essentially permit alternate constructors since
            : Perl doesn't have a built-in mechanism for this.
  Example   : $make = $object->make();
            : $object->make('optionA');
@@ -897,11 +896,11 @@ See also   : L<_initialize()|_initialize>, L<clone()|clone>
 =cut
 
 #----------'
-sub make { 
+sub make {
 #----------
     my $self = shift;
     if(@_) { $self->{'_make'} = shift; }
-    $self->{'_make'} || 'default'; 
+    $self->{'_make'} || 'default';
 }
 
 
@@ -916,18 +915,18 @@ sub make {
            : @errNotes = $self->err('note');
  Returns   : One of the following:
            :   1. If no arguments are given
-           :          a. If the object has an error, the err data member is 
+           :          a. If the object has an error, the err data member is
            :             returned (this is an Bio::Root::Err.pm object),
            :          b. otherwise, undef is returned.
            :   2. The number of Errs in the object's err data member (if $data eq 'count').
            :   3. A string containing data from a specific field from an object's err member.
            :      -- If the object contains multiple errors, data for all errors will be
-           :         strung together in reverse chronological order with each error's data 
+           :         strung together in reverse chronological order with each error's data
            :         preceeded by "Error #n\n" and followed by two delimiters.
            :   4. A list containing data from a specific field from an object's err member.
            :      -- If the object contains multiple errors, data for all errors will be
-           :         added in reverse chronological order as separate elements in the list 
-           :         with NO "Error #n\n" identifier. Individual err list data 
+           :         added in reverse chronological order as separate elements in the list
+           :         with NO "Error #n\n" identifier. Individual err list data
            :         (note,tech,stack) will be tab-delimited.
  Arguments : $data    = The name of a specific Err data member (see %Bio::Root::Err::ERR_FIELDS)
            :            OR 'count'.
@@ -937,17 +936,17 @@ sub make {
            :            If wantarray is true or delimiter is 'list', data from multiple
            :            errors will be returned as a list
            :
- Comments  : Since Err objects are now fatal and are not attached to the object by default, 
-           : this method is largely moot. It is a relic from the former 
+ Comments  : Since Err objects are now fatal and are not attached to the object by default,
+           : this method is largely moot. It is a relic from the former
            : error "polling" days.
            : It is handy for accessing non-fatal warnings thrown by the object,
            : or in situations where fatal errors are converted to warnings
            : as when $self->strict is -1 or $WARN_ON_FATAL is true.
-           : (Note: an object now only attaches Err objects to itself when 
+           : (Note: an object now only attaches Err objects to itself when
 	   : constructed with -RECORD_ERR =>1 or if the global $RECORD_ERR is true).
            :
            : This method is intended mainly to test whether or not an object
-           : has any Err objects associated with it and if so, obtaining the 
+           : has any Err objects associated with it and if so, obtaining the
            : Err object or specific data about it.
            : For obtaining ALL data about an error, use err_string().
            : For more detailed manipulations with the Err data, retrieve the
@@ -963,16 +962,16 @@ sub err {
     my( $self, $data, $delimit) = @_;
 
     return unless defined $self->{'_err'};
-    
+
     $data    ||= 'member';
 #    $delimit ||= (wantarray ? 'list' : "\n");
     $delimit ||= "\n";
 
-    $data eq 'member' and return $self->{'_err'}; 
+    $data eq 'member' and return $self->{'_err'};
     $data eq 'count'  and return $self->{'_err'}->size();
 
     return $self->{'_err'}->get_all($data, $delimit );
-}	
+}
 
 
 =head2 record_err
@@ -985,7 +984,7 @@ sub err {
  Returns   : Boolean (0|1)
  Argument  : Boolean (0|1)
  Comments  : Record_err is generally useful only for examining
-           : warnings produced by an object, since calls to throw() 
+           : warnings produced by an object, since calls to throw()
            : are normally fatal (unless strictness is set to -2).
            : To turn on recording of errors for all objects in a process,
            : use Bio::Root::Global::record_err().
@@ -1016,11 +1015,11 @@ sub record_err {
 =cut
 
 #-------------'
-sub err_state { 
+sub err_state {
 #-------------
-    my $self = shift; 
+    my $self = shift;
     return 'OKAY' if not defined $self->{'_err'};
-    $self->{'_errState'} || 'OKAY'; 
+    $self->{'_errState'} || 'OKAY';
 }
 
 
@@ -1048,7 +1047,7 @@ sub clear_err {
 
  Usage     : $aref = $object->containment();
            : Since this method can be exported, the following can be used:
-           : $aref = containment($object);  
+           : $aref = containment($object);
  Purpose   : To determine the containment hierarchy of a object.
  Returns   : An array reference in which each element is a string
            : containing the class and name of
@@ -1073,7 +1072,7 @@ sub containment {
     my(@hierarchy);
 
 #    print "$ID: getting err hierarchy.\n";
-    push @hierarchy, $self->to_string; 
+    push @hierarchy, $self->to_string;
     my $obj = $self;
     my $count = 0;
 
@@ -1105,18 +1104,18 @@ sub containment {
            : interface. The leading underscore helps flag the members
            : as private and also prevents inadvertant clobbering.
 
-=cut    
+=cut
 
 #--------------'
-sub set_stats {  
+sub set_stats {
 #--------------
     my( $self, %param ) = @_;
-    
+
     my ($val);
-    foreach (keys %param) { 
+    foreach (keys %param) {
 	$val = $param{$_};;
-	s/^(\w)/_\l$1/; 
-	$self->{$_} = $val;  
+	s/^(\w)/_\l$1/;
+	$self->{$_} = $val;
     }
 }
 
@@ -1136,9 +1135,9 @@ sub set_stats {
            : the following functionality:
            :   1. Setting strict to 2 or -2 leads to more dramatic strictness
            :      or permissiveness, respectively. With 2, all calls to warn()
-           :      become calls to throw() and are therefore fatal. With -2, 
+           :      become calls to throw() and are therefore fatal. With -2,
            :      the opposite is true and calls to throw become non-fatal.
-           :      A strict value of 2 is thus an object-level version of 
+           :      A strict value of 2 is thus an object-level version of
            :      Perl's "use strict" pragma.
            :
            :   2. Setting strict to 1 or -1 does not affect the behavior of
@@ -1169,22 +1168,22 @@ sub strict {
 	return &strictness(@_);
     }
     else {
-        # Object-specific strictness 
+        # Object-specific strictness
         if (@_) { $self->{'_strict'} = shift; }
-        defined($self->{'_strict'}) 
+        defined($self->{'_strict'})
             ? return $self->{'_strict'}
             : (ref $self->{'_parent'} ? $self->{'_parent'}->strict : 0);
     }
 }
 
-=head2 use_global_strictness 
+=head2 use_global_strictness
 
  Usage     : $object->use_global_strictnness( [1|0] );
  Purpose   : Set/Get accessor for a flag indicating whether or not
            : to use the global strictness setting or to instead use
            : object-specific strictness.
  Returns   : Boolean
- Comments  : 
+ Comments  :
  Status    : Experimental
 
 See also   : L<strict()|strict>, L<STRICTNESS & VERBOSITY>, strictness() in L<Bio::Root::Global>
@@ -1205,17 +1204,17 @@ sub use_global_strictness {
 =head2 clone
 
  Purpose   : To deeply copy an object.
-           : Creates a new object reference containing an exact 
+           : Creates a new object reference containing an exact
            : copy of an existing object and all its data members.
  Usage     : $myClone = $myObj->clone;
- Comments  : This method only clones the Bio::Root::Object data members. 
-           : To fully clone an object that has data members beyond 
-           : those inherited from Bio::Root::Object, you must provide a 
+ Comments  : This method only clones the Bio::Root::Object data members.
+           : To fully clone an object that has data members beyond
+           : those inherited from Bio::Root::Object, you must provide a
            : constructor in your class to copy all data of an object
            : data into the clone. For an example, see how _set_clone()
            : is called by _initialize() in this class.
            :
-           : clone() will pass the named parameters {-MAKE=>'clone'} 
+           : clone() will pass the named parameters {-MAKE=>'clone'}
            : and {-OBJ=>$self} to the object's constructor. The
            : constructor should then either check the -MAKE parameter
            : directly or should check the return value from
@@ -1233,15 +1232,15 @@ See Also   : L<_set_clone()|_set_clone>, L<_initialize()|_initialize>
 #-------------'
 sub clone {
 #-------------
-    my($self) = shift; 
+    my($self) = shift;
 
 #    warn sprintf "\nCloning %s \"%s\"\n\n", ref($self),$self->name;
 
-    my $clone = $self->new(-MAKE    =>'clone', 
-			   -OBJ     =>$self);  
-    if($self->err()) { $clone->err($self->err); } 
-    $clone; 
-} 
+    my $clone = $self->new(-MAKE    =>'clone',
+			   -OBJ     =>$self);
+    if($self->err()) { $clone->err($self->err); }
+    $clone;
+}
 
 
 
@@ -1250,10 +1249,10 @@ sub clone {
  Usage     : n/a; internal method used by _initialize()
            : $self->_set_clone($object_to_be_cloned)
  Purpose   : Deep copy all Bio::Root::Object.pm data members
-           : into a new object reference. 
+           : into a new object reference.
            : (This is basically a copy constructor).
  Argument  : object ref for object to be cloned.
- Throws    : Exception if argument is not an object reference. 
+ Throws    : Exception if argument is not an object reference.
  Comments  : Data members which are objects are cloned (parent, io, err).
            : Cloning of objects has not been extensively tested.
            : USE WITH CAUTION.
@@ -1298,7 +1297,7 @@ sub _set_clone {
            : level but rather the global $VERBOSITY variable
            : defined in Bio::Root::Global.pm and accessed via the
            : verbosity() method exported by that package.
-           : Thus, all objects share the same verbosity which 
+           : Thus, all objects share the same verbosity which
            : is generally more convenient.
  Status    : Experimental
 
@@ -1307,16 +1306,16 @@ See Also   : L<strict()|strict>, L<STRICTNESS & VERBOSITY>, verbosity() in L<Bio
 =cut
 
 #------------
-sub verbose { 
+sub verbose {
 #------------
-    my $self = shift; 
+    my $self = shift;
 
     # Using global verbosity
     return &verbosity(@_);
 
     # Object-specific verbosity (not used unless above code is commented out)
     if(@_) { $self->{'_verbose'} = shift; }
-    defined($self->{'_verbose'}) 
+    defined($self->{'_verbose'})
 	? return $self->{'_verbose'}
 	: (ref $self->{'_parent'} ? $self->{'_parent'}->verbose : 0);
 }
@@ -1353,10 +1352,10 @@ See also   : L<display()|display>, L<read()|read>, L<file()|file>
 sub _set_io {
 #------------
     my $self = shift;
-    
+
     require Bio::Root::IOManager;
 
-# See PR#192. 
+# See PR#192.
 #    $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self, @_);
     $self->{'_io'} = new Bio::Root::IOManager(-PARENT=>$self);
 }
@@ -1384,7 +1383,7 @@ See also   : set_display() in L<Bio::Root::IOManager>
 sub set_display {
 #----------------
     my($self, @param) = @_;
-    
+
     $self->_set_io(@param) if !ref($self->{'_io'});
 
     eval { $self->{'_io'}->set_display(@param);  };
@@ -1412,17 +1411,17 @@ sub set_display {
            : The motivation behind the display() method and IOManager.pm
            : is to allow for flexible control over output of an
            : object's data to/from filehandles, pipes, or STDIN/STDOUT,
-           : and for passing file handles between objects. Currently, 
+           : and for passing file handles between objects. Currently,
            : it is used mainly for output to STDOUT.
-           :  
+           :
            : There is some concern whether this much functionality is
            : actually necessary, hence the "Experimental" status of this
            : method.
-           : 
+           :
            : -------
            : It might be worthwhile to also have a string() method
            : that will put an object's data into a string that can be
-           : further processed as desired. Stringification for persistence 
+           : further processed as desired. Stringification for persistence
            : issues might be best handled by Data::Dumper.pm.
            :
            : When overriding this method, use the following syntax:
@@ -1436,13 +1435,13 @@ sub set_display {
            : }
            : Now $OUT holds a filhandle reference (or the string 'STDOUT')
            : which can be passed to other methods to display different
-           : data for the object. 
+           : data for the object.
            : _set_display() is automatically called with $OUT as the sole
            : argument (after $self) by IOManager.pm::display()
            : if the -SHOW parameter is set to 'stats' or 'default'.
            :
  Bugs      : Because the $OUT variable can be a FileHandle or a string,
-           : it is necessary to include the line before using $OUT in 
+           : it is necessary to include the line before using $OUT in
            : print statements:
            : I am considering a cleaner way of dealing with this.
            : Setting $OUT to a glob (*main::STDOUT) was unsuccessful.
@@ -1454,11 +1453,11 @@ See also   : display() in L<Bio::Root::IOManager>
 =cut
 
 #-------------
-sub display { 
+sub display {
 #-------------
-    my( $self, @param ) = @_; 
+    my( $self, @param ) = @_;
     $self->{'_io'} || $self->set_display(@param);
-    $self->{'_io'}->display(@param); 
+    $self->{'_io'}->display(@param);
 }
 
 
@@ -1480,7 +1479,7 @@ See also   : L<display()|display>
 sub _display_stats {
 #-------------------
     my($self, $OUT) = @_;
-    
+
 
     printf ( $OUT "%-15s: %s\n","NAME", $self->name());
     printf ( $OUT "%-15s: %s\n","MAKE", $self->make());
@@ -1508,7 +1507,7 @@ sub _display_stats {
            : See the comments for the display() method for some comments
            : about IO issues for objects.
            : Note that the read() method uses a different strategy than
-           : the display() method. 
+           : the display() method.
            : IO issues are considered experimental.
 
 See also   : L<display()|display>, read() in L<Bio::Root::IOManager>
@@ -1516,13 +1515,13 @@ See also   : L<display()|display>, read() in L<Bio::Root::IOManager>
 =cut
 
 #--------
-sub read { 
+sub read {
 #--------
-    my $self = shift; 
+    my $self = shift;
 
     $self->_set_io(@_) if not defined $self->{'_io'};
-	
-    $self->{'_io'}->read(@_); 
+
+    $self->{'_io'}->read(@_);
 }
 
 
@@ -1541,11 +1540,11 @@ See also   : fh() in L<Bio::Root::IOManager>
 =cut
 
 #--------'
-sub fh      { 
+sub fh      {
 #--------
-    my $self = shift; 
+    my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->fh(@_); 
+    $self->{'_io'}->fh(@_);
 }
 
 
@@ -1564,11 +1563,11 @@ See also   : show() in L<Bio::Root::IOManager>, set_display() in L<Bio::Root::IO
 =cut
 
 #-----------
-sub show    { 
+sub show    {
 #-----------
-    my $self = shift; 
+    my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->show; 
+    $self->{'_io'}->show;
 }
 
 
@@ -1587,11 +1586,11 @@ See also   : file() in L<Bio::Root::IOManager>
 =cut
 
 #---------
-sub file    {   
+sub file    {
 #---------
-    my $self = shift;  
+    my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->file(@_); 
+    $self->{'_io'}->file(@_);
 }
 
 
@@ -1610,11 +1609,11 @@ See also   : L<file()|file>, compress_file() in L<Bio::Root::IOManager>
 =cut
 
 #-------------------
-sub compress_file { 
+sub compress_file {
 #-------------------
     my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->compress_file(@_); 
+    $self->{'_io'}->compress_file(@_);
 }
 
 
@@ -1633,11 +1632,11 @@ See also   : L<file()|file>, uncompress_file() in L<Bio::Root::IOManager>
 =cut
 
 #--------------------
-sub uncompress_file { 
+sub uncompress_file {
 #--------------------
-    my $self = shift;  
+    my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->uncompress_file(@_); 
+    $self->{'_io'}->uncompress_file(@_);
 }
 
 
@@ -1656,11 +1655,11 @@ See also   : L<file()|file>, delete_file() in L<Bio::Root::IOManager>
 =cut
 
 #-----------------
-sub delete_file { 
+sub delete_file {
 #-----------------
     my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->delete_file(@_); 
+    $self->{'_io'}->delete_file(@_);
 }
 
 
@@ -1680,28 +1679,28 @@ See also   : L<file()|file>, file_date() in L<Bio::Root::IOManager>
 =cut
 
 #---------------
-sub file_date { 
+sub file_date {
 #---------------
-    my $self = shift;  
+    my $self = shift;
     $self->_set_io(@_) if !defined $self->{'_io'};
-    $self->{'_io'}->file_date(@_); 
+    $self->{'_io'}->file_date(@_);
 }
 
 
 
-=head1 EXPERIMENTAL METHODS 
+=head1 EXPERIMENTAL METHODS
 
 
 =head2 xref
 
  Usage     : $object->xref([object | 'null']);
- Purpose   : Sets/Gets an object(s) cross-referenced 
-           : to the current object. 
+ Purpose   : Sets/Gets an object(s) cross-referenced
+           : to the current object.
  Example   : $myObj->xref('null');       #remove all xrefs
            : $myObj->xref($otherObject); #add a cross referenced object
  Argument  : Object reference or 'null' ('undef' also accepted).
  Returns   : Object reference or undef if the object has no xref set.
- Throws    : fatal error if argument is not an object reference or 'null'. 
+ Throws    : fatal error if argument is not an object reference or 'null'.
  Comments  : An Xref.pm object is a vectorized wrapper for an object.
            : Thus, the number of objects cross-referenced can grow
            : and shrink at will.
@@ -1713,14 +1712,14 @@ See Also   : L<Bio::Root::Xref>
 =cut
 
 #---------
-sub xref  { 
+sub xref  {
 #---------
-    my $self = shift; 
-    if(@_) { 
+    my $self = shift;
+    if(@_) {
 	my $arg = shift;
 	if(ref $arg) {
 	    require Bio::Root::Xref;
-	    
+
 	    if( !defined $self->{'_xref'}) {
 		$self->{'_xref'} = new Bio::Root::Xref(-PARENT =>$self,
 						       -OBJ     =>$arg);
@@ -1733,8 +1732,8 @@ sub xref  {
 	    $self->throw("Can't set Xref using $arg: Not an object");
 	}
     }
-    
-    $self->{'_xref'}; 
+
+    $self->{'_xref'};
 }
 
 
@@ -1761,13 +1760,13 @@ sub index {
     my $self    = shift;
     my $class   = ref $self;
     my $objName = $self->{'_name'};
-    
+
     if( not defined $objName ) {
 	$self->throw("Can't index $class object \"$objName\".");
     }
-    
+
     $DEBUG and do{ print STDERR "$ID: Indexing $class object \"$objName\"."; <STDIN>; };
-    
+
     $Objects_created{ $class }->{ $objName } = $self;
 }
 
@@ -1777,7 +1776,7 @@ sub _remove_from_index {
     my $self    = shift;
     my $class   = ref $self;
     my $objName = $self->{'_name'};
-    
+
     undef $Objects_created{$class}->{$objName} if exists $Objects_created{$class}->{$objName};
 }
 
@@ -1789,7 +1788,7 @@ sub _remove_from_index {
            : within its class.
  Usage     : $myObj = &find_object('fred');
            : No need to specify the class (package) name of the object.
- Comments  : To use this method, the object must be previously 
+ Comments  : To use this method, the object must be previously
            : indexed by Bio::Root::Object.pm. This can be accomplished
            : by including 'index' in the -MAKE parameter during object
            : construction OR by calling the index() method on the
@@ -1807,7 +1806,7 @@ sub find_object {
     my $name   = shift;   # Assumes name has been validated.
     my $class  = undef;
     my $object = undef;
-    
+
     foreach $class ( keys %Objects_created ) {
 	if( exists $Objects_created{ $class }->{ $name } ) {
 	    $object = $Objects_created{ $class }->{ $name };
@@ -1823,8 +1822,8 @@ sub find_object {
 
  Purpose   : Test whether or not an object has a non-fatal error (warning).
  Usage     : $self->has_warning;
- Comments  : This method is not usually needed. Checking err() is 
-           : sufficient since throw()ing an exception is a fatal event 
+ Comments  : This method is not usually needed. Checking err() is
+           : sufficient since throw()ing an exception is a fatal event
            : and must be handled when it occurs.
  Status    : Experimental
 
@@ -1833,9 +1832,9 @@ See also   : L<err()|err>, warn() in L<Bio::Root::Root>, throw() in L<Bio::Root:
 =cut
 
 #----------------
-sub has_warning { 
+sub has_warning {
 #----------------
-    my $self = shift; 
+    my $self = shift;
     my $errData = $self->err('type');
     return 1 if $errData =~ /WARNING/;
     0;
@@ -1864,7 +1863,7 @@ See also   : L<err_string()|err_string>, L<strict()|strict>
 sub print_err {
 #-------------
     my( $self, %param ) = @_;
-    
+
 #    print "$ID: print_err()\n";
 
     my $OUT = $self->set_display(%param);
@@ -1872,7 +1871,7 @@ sub print_err {
 #    print "$ID: OUT = $OUT\n";
 
     print $OUT $self->err_string( %param );
-    
+
 #    print "$ID: done print_err()\n";
 }
 
@@ -1904,7 +1903,7 @@ sub err_string {
 
 #    print "$ID: err_string(): count = $errCount\n";
 
-    if( $errCount) { 
+    if( $errCount) {
 	$out = sprintf("\n%d error%s in %s \"%s\"\n",
 		       $errCount, $errCount>1?'s':'', ref($self), $self->name);
 	$out .= $self->err->string( %param );
@@ -1930,12 +1929,12 @@ sub err_string {
  Argument  : Boolean (0|1)
  Returns   : Boolean (0|1)
  Comments  : This method is for reducing the amount of reporting
-           : an object will do. 
+           : an object will do.
            : terse can be set during object construction with the
            : -TERSE => 1 flag.
            : Not putting this method in IOManager.pm since that class
            : is concerned with "where" to report, not "what" or "how much".
- Status    : Deprecated  
+ Status    : Deprecated
            : Use verbose() with a negative value instead.
 
 See also   : L<verbose()|verbose>
@@ -1943,9 +1942,9 @@ See also   : L<verbose()|verbose>
 =cut
 
 #----------
-sub terse { 
+sub terse {
 #----------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_verbose'} = -1 * shift; }
 
     $self->warn("Deprecated method 'terse()'. Use verbose(-1) instead.");
@@ -1975,10 +1974,10 @@ See Also   : set() in L<Bio::Root::Err>
 =cut
 
 #-----------------
-sub set_err_data { 
+sub set_err_data {
 #-----------------
     my( $self, $field, $data) = @_;
-    
+
     $self->throw("Object has no errors.") if !$self->{'_err'};
 
 #    print "$ID: set_err_data($field)  with data = $data\n  in object ${\$self->name}:\n", $self->err->last->string(-CURRENT=>1); <STDIN>;
@@ -1999,10 +1998,10 @@ See also   : set_read() in L<Bio::Root::IOManager>
 =cut
 
 #--------------
-sub set_read { 
+sub set_read {
 #--------------
     my($self,%param) = @_;
-    
+
     $self->_set_io(%param) if !defined $self->{'_io'};
 
     $self->{'_io'}->set_read(%param);
@@ -2027,7 +2026,7 @@ See also   : set_log_err() in L<Bio::Root::IOManager>
 sub set_log_err {
 #---------------
     my($self,%param) = @_;
-    
+
     $self->_set_io(%param) if !defined $self->{'_io'};
 
     $self->{'_io'}->set_log_err(%param);
@@ -2046,20 +2045,20 @@ __END__
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided for those
+wishing to modify or understand the code. Two things to bear in mind:
 
 =over 4
 
-=item 1 Do NOT rely on these in any code outside of this module. 
+=item 1 Do NOT rely on these in any code outside of this module.
 
 All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
+Always use accessor methods. If the accessor doesn't exist or is inadequate,
+create or modify an accessor (and let me know, too!).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for this documentation to become obsolete as this module is still evolving. 
+It is easy for this documentation to become obsolete as this module is still evolving.
 Always double check this info and search for members not described here.
 
 =back
@@ -2069,7 +2068,7 @@ all or some of the following fields:
 
  FIELD          VALUE
  ------------------------------------------------------------------------
-  _name         Common name for an object useful for indexing. 
+  _name         Common name for an object useful for indexing.
  	        Should be unique within its class.
 
   _parent       The object which created and is responsible for this object.
@@ -2080,24 +2079,24 @@ all or some of the following fields:
  	        If object has multiple errors, err becomes a linked
  	        list of Err objects and the err member always points to latest err.
  	        In theory, an object should care only about whether or not it HAS
- 	        an Err not how many it has. I've tried to make the management of 
+ 	        an Err not how many it has. I've tried to make the management of
  	        multiple errors as opaque as possible to Bio::Root::Object.
 
  _errState      One of @Bio::Root::Err::ERR_TYPES. Allows an object to quickly determine the
- 	        the type of error it has (if any) without having to examine 
- 	        potentially multiple Err object(s). 
+ 	        the type of error it has (if any) without having to examine
+ 	        potentially multiple Err object(s).
 
   _xref         Bio::Root::Xref object (Vector) for tracking other object(s) related to the
  	        present object not by inheritance or composition but by some arbitrary
  	        criteria. This is a new, experimental feature and is not fully implemented.
 
-  _make         Used as a switch for custom object initialization. Provides a 
- 	        mechanism for alternate constructors. This is somewhat experimental. 
+  _make         Used as a switch for custom object initialization. Provides a
+ 	        mechanism for alternate constructors. This is somewhat experimental.
  	        It may be useful for contruction of complex objects and may be of
  	        use for determining how an object was constructed post facto.
 
-  _io           Bio::Root::IOManager.pm object reference. Used primarily for handling the 
-	        display of an object's data. 
+  _io           Bio::Root::IOManager.pm object reference. Used primarily for handling the
+	        display of an object's data.
 
   _strict       Integer flag to set the sensitivity to exceptions/warnings
  	        for a given object.
@@ -2136,10 +2135,10 @@ MODIFICATION NOTES:
 
 0.03, 16 Aug 1998, sac:
   * Calls to warn() or throw() now no longer result in Err.pm objects
-    being attached to the current object. For discussion about this 
+    being attached to the current object. For discussion about this
     descision, see comments under err().
-  * Added the -RECORD_ERR constructor option and Global::record_err() 
-    method to enable the attachment of Err.pm object to the current 
+  * Added the -RECORD_ERR constructor option and Global::record_err()
+    method to enable the attachment of Err.pm object to the current
     object.
   * Minor bug fixes with parameter handling (%param -> @param).
   * Added note about AUTOLOADing.

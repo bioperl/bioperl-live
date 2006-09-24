@@ -231,7 +231,7 @@ the L<the DEMO SCRIPTS section | DEMO> section.
 As a part of the incipient Bioperl framework, the Bio::Tools::Blast.pm
 module inherits from B<Bio::Tools::SeqAnal.pm>, which provides some
 generic functionality for biological sequence analysis. See the
-documentation for that module for details 
+documentation for that module for details
 (L<Links to related modules>).
 
 =head2 The BLAST Program
@@ -345,12 +345,12 @@ this module or modify B<Bio::Root::Utilities.pm> to your liking.
 
 Blast objects can be generated either by direct instantiation as in:
 
- use Bio::Tools::Blast;		
+ use Bio::Tools::Blast;
  $blast = new Bio::Tools::Blast (%parameters);
 
 =head2 Using the Static $Blast Object
 
- use Bio::Tools::Blast qw(:obj);		
+ use Bio::Tools::Blast qw(:obj);
 
 This exports the static $Blast object into your namespace. "Static"
 refers to the fact that it has class scope and there is one of these
@@ -392,16 +392,16 @@ additional examples.
 To run a Blast, create a new Blast object with a C<-run =E<gt>
 \%runParams> parameter.  Remote Blasts are performed by including a
 C<-method =E<gt> 'remote'> parameter; local Blasts are performed by
-including a C<-method =E<gt> 'local'> parameter.  See 
+including a C<-method =E<gt> 'local'> parameter.  See
 L<Running Blast reports> as well as the
-L<the DEMO SCRIPTS section | DEMO> for examples.  
+L<the DEMO SCRIPTS section | DEMO> for examples.
 Note that running local Blasts is not yet supported, see below.
 
 Note that the C<-seqs =E<gt> [ $seqs ]> run parameter must contain a
-reference to an array of B<Bio::Seq.pm> objects 
-(L<Links to related modules>). Encapsulating the sequence in an 
-object makes sequence information much easier to handle as it can 
-be supplied in a variety of formats. Bio::Seq.pm is included with 
+reference to an array of B<Bio::Seq.pm> objects
+(L<Links to related modules>). Encapsulating the sequence in an
+object makes sequence information much easier to handle as it can
+be supplied in a variety of formats. Bio::Seq.pm is included with
 this distribution (L<INSTALLATION | INSTALLATION>).
 
 Remote Blasts are implemented using the
@@ -714,7 +714,7 @@ Sample Scripts are included in the central bioperl distribution in the
 =head2 Blast Modes
 
 A BLAST object may be created using one of three different modes as
-defined by the B<Bio::Tools::SeqAnal.pm> package 
+defined by the B<Bio::Tools::SeqAnal.pm> package
 (See L<Links to related modules>):
 
  -- parse - Load a BLAST report and parse it, storing parsed data in
@@ -899,7 +899,7 @@ command-line argument of
 
  -filt_func '$hit->signif <= 1e-5'
 
-For more information, see L<parse()|parse> and the section 
+For more information, see L<parse()|parse> and the section
 L<Screening hits using arbitrary criteria>.
 
 =back
@@ -1022,7 +1022,6 @@ under the same terms as Perl itself.
  Bio::Root::Object.pm
       http://bio.perl.org/Core/POD/Root/Object.html
 
- http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
@@ -1067,7 +1066,7 @@ documentation purposes only.
 ##############################################################################
 
 
-sub new { 
+sub new {
 	my ($class,@args) = @_;
 	$class->warn("Bio::Tools::BLAST is deprecated, use Bio::SearchIO");
 return	$class->SUPER::new(@args);
@@ -1169,7 +1168,7 @@ sub run {
     my (@files);
     if($method =~ /loc/i) {
 	@files = $self->_run_local(%param);
-	
+
     } else {
 	@files = $self->_run_remote(%param);
     }
@@ -1468,7 +1467,7 @@ sub parse {
 		       );
 
     my $count = $self->_parse_blast_stream(@param);
-	
+
 #    print STDERR "\nDONE PARSING STREAM.\n";
 
     if($Blast->{'_blast_errs'}) {
@@ -1764,7 +1763,7 @@ sub _get_parse_blast_func {
 
 #	    print STDERR "CURRENT BLAST = ", $current_blast->name, "\n";
 	    $current_blast->_parse_header($data);
-	
+
 	    # If there were any descriptions in the header,
 	    # we know if there are any significant hits.
 	    # No longer throwing exception if there were no significant hits
@@ -1791,7 +1790,7 @@ sub _get_parse_blast_func {
      #           push @{$self->{'_blast_errs'}}, $@;
             }
 	}
-	
+
 	# If the current Blast object has been completely parsed
 	# (occurs with a single Blast stream), or if there is a previous
 	# Blast object (occurs with a multi Blast stream),
@@ -1799,7 +1798,7 @@ sub _get_parse_blast_func {
 
 	if( defined $prev_blast or $current_blast->{'_found_params'}) {
 	  my $finished_blast = defined($prev_blast) ? $prev_blast : $current_blast;
-	
+
 	  $finished_blast->_report_errors();
 #	  print STDERR "\nNEW BLAST OBJECT: ${\$finished_blast->name}\n";
 
@@ -1912,7 +1911,7 @@ sub _parse_header {
 #	 Bio::Tools::Blast::HTML->import(&strip_html);
 #	 &strip_html(\$data);
     }
-	
+
     $data =~ /WARNING: (.+?)$Newline$Newline/so and $self->warn("$1") if $self->strict;
     $data =~ /FATAL: (.+?)$Newline$Newline/so and $self->throw("FATAL BLAST ERROR = $1");
     # No longer throwing exception when no hits were found. Still reporting it.
@@ -2429,7 +2428,7 @@ sub _set_blast1_stats {
 	$self->{'_lambda'} = $lu || 'UNKNOWN';
 	$self->{'_k'} = $ku || 'UNKNOWN';
 	$self->{'_h'} = $hu || 'UNKNOWN';
-	
+
     } elsif($data =~ /Lambda +K +H$Newline +(.+?)$Newline/so) {
 	## NCBI-Blast1.
 	my ($l, $k, $h) = split(/\s+/, $1);
@@ -3020,7 +3019,7 @@ sub hit {
     return $hits[0]      if $option =~ /^(best|first|1)$/i;
     return $hits[$#hits] if $option =~ /^(worst|last)$/i;
 
-    # Get hit by name.	
+    # Get hit by name.
     foreach ( @hits ) {
 	return $_ if $_->name() =~ /$option/i;
     }
@@ -3832,7 +3831,7 @@ sub _display_stats {
 
     printf( $OUT "%-15s: %d$Newline", "SIGNIF HITS", $num_hits);
     # Blast1: signif = P-value, Blast2: signif = Expect value.
-	
+
     printf( $OUT "%-15s: %s ($signif_str-VALUE)$Newline", "SIGNIF CUTOFF", $self->signif);
     printf( $OUT "%-15s: %s$Newline", "LOWEST $signif_str", $self->lowest_signif());
     printf( $OUT "%-15s: %s$Newline", "HIGHEST $signif_str", $self->highest_signif());
@@ -3894,7 +3893,7 @@ sub _display_hits {
 	print "${Newline}DISPLAY FULL HSP DATA? (y/n): [n] ";
 	chomp( $reply = <STDIN> );
 	$reply =~ /^y.*/i;
-	
+
 	my $count = 0;
 	foreach ( @hits ) {
 	    $count++;
@@ -4003,7 +4002,7 @@ sub to_html {
 	    }
 	} else {
 	    # Otherwise, read it, processing as we go.
-	
+
   	    $self->read(-FUNC => $func, @param);
 	}
 	$out_aref ? push(@$out_aref, "$Newline</pre></body></html>") : print "$Newline</pre></body></html>";

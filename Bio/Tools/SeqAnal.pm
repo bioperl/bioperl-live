@@ -200,7 +200,6 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
- http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
@@ -274,7 +273,7 @@ sub _initialize {
 				    );
 
 #	$self->_rearrange([qw(READ PARSE RUN)], @param);
-	
+
     # Issue: How to keep all the arguments for running the analysis
     # separate from other arguments needed for parsing the results, etc?
     # Solution: place all the run arguments in a separate hash.

@@ -23,7 +23,7 @@
 # MODIFICATIONS: See bottom of file.
 #
 # Copyright (c) 1996-2000 Steve Chervitz. All Rights Reserved.
-#          This module is free software; you can redistribute it and/or 
+#          This module is free software; you can redistribute it and/or
 #          modify it under the same terms as Perl itself.
 #
 #-----------------------------------------------------------------------------
@@ -55,13 +55,13 @@ use vars qw($ID $Util $GNU_PATH $DEFAULT_NEWLINE);
 
 $ID        = 'Bio::Root::Utilities';
 
-# $GNU_PATH points to the directory containing the gzip and gunzip 
-# executables. It may be required for executing gzip/gunzip 
+# $GNU_PATH points to the directory containing the gzip and gunzip
+# executables. It may be required for executing gzip/gunzip
 # in some situations (e.g., when $ENV{PATH} doesn't contain this dir.
 # Customize $GNU_PATH for your site if the compress() or
 # uncompress() functions are generating exceptions.
-$GNU_PATH  = ''; 
-#$GNU_PATH  = '/tools/gnu/bin/'; 
+$GNU_PATH  = '';
+#$GNU_PATH  = '/tools/gnu/bin/';
 
 $DEFAULT_NEWLINE = "\012";  # \n  (used if get_newline() fails for some reason)
 
@@ -124,14 +124,13 @@ It also relies on the GNU gzip program for file compression/uncompression.
   Bio::Root::Object.pm       - Core object
   Bio::Root::Global.pm       - Manages global variables/constants
 
-  http://bio.perl.org/Projects/modules.html  - Online module documentation
-  http://bio.perl.org/                       - Bioperl Project Homepage 
+  http://bio.perl.org/                       - Bioperl Project Homepage
 
   FileHandle.pm (included in the Perl distribution or CPAN).
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other Bioperl modules.
 Send your comments and suggestions preferably to one of the Bioperl mailing lists.
@@ -146,9 +145,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/           
+  http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
@@ -167,7 +166,7 @@ Database:
 =head1 COPYRIGHT
 
 Copyright (c) 1997-98 Steve Chervitz. All Rights Reserved.
-This module is free software; you can redistribute it and/or 
+This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
@@ -198,7 +197,7 @@ for documentation purposes only.
 =head2 date_format
 
  Title     : date_format
- Usage     : $Util->date_format( [FMT], [DATE]) 
+ Usage     : $Util->date_format( [FMT], [DATE])
  Purpose   : -- Get a string containing the formated date or time
            :    taken when this routine is invoked.
            : -- Provides a way to avoid using `date`.
@@ -211,8 +210,8 @@ for documentation purposes only.
            : $date = $Util->date_format('yyyy-mmm-dd', '11/22/92');
  Returns   : String (unless 'list' is provided as argument, see below)
            :
-           :   'yyyy-mm-dd'  = 1996-05-03    # default format. 
-           :   'yyyy-dd-mm'  = 1996-03-05   
+           :   'yyyy-mm-dd'  = 1996-05-03    # default format.
+           :   'yyyy-dd-mm'  = 1996-03-05
            :   'yyyy-mmm-dd' = 1996-May-03
            :   'd-m-y'       = 3-May-1996
            :   'd m y'       = 3 May 1996
@@ -227,22 +226,22 @@ for documentation purposes only.
            :   'list'          = the contents of localtime(time) in an array.
  Argument  : (all are optional)
            : FMT  = yyyy-mm-dd | yyyy-dd-mm | yyyy-mmm-dd |
-           :        mdy | ymd | md | d-m-y | hms | hm 
-           :        ('hms' may be appended to any of these to 
+           :        mdy | ymd | md | d-m-y | hms | hm
+           :        ('hms' may be appended to any of these to
 	   :        add a time stamp)
            :
            : DATE = String containing date to be converted.
            :        Acceptable input formats:
            :           12/1/97 (for 1 December 1997)
-           :           1997-12-01 
+           :           1997-12-01
            :           1997-Dec-01
- Throws    : 
+ Throws    :
  Comments  : Relies on the $BASE_YEAR constant exported by Bio:Root::Global.pm.
            :
            : If you don't care about formatting or using backticks, you can
            : always use: $date = `date`;
            :
-           : For more features, use Date::Manip.pm, (which I should 
+           : For more features, use Date::Manip.pm, (which I should
            : probably switch to...)
 
 See Also   : L<file_date>(), L<month2num>()
@@ -266,7 +265,7 @@ sub date_format {
     # Load a supplied date for conversion:
     if(defined($date) && ($date =~ /[\D-]+/)) {
 	if( $date =~ /\//) {
-	    ($mon,$mday,$year) = split(/\//, $date); 
+	    ($mon,$mday,$year) = split(/\//, $date);
 	} elsif($date =~ /(\d{4})-(\d{1,2})-(\d{1,2})/) {
 	    ($year,$mon,$mday) = ($1, $2, $3);
 	} elsif($date =~ /(\d{4})-(\w{3,})-(\d{1,2})/) {
@@ -285,7 +284,7 @@ sub date_format {
     $month_txt = $MONTHS[$mon];
     $day_txt   = $DAYS[$wday] if defined $wday;
     $month_num = $mon+1;
-    $fullYear = $BASE_YEAR+$year; 
+    $fullYear = $BASE_YEAR+$year;
 
 #    print "sec: $sec, min: $min, hour: $hour, month: $mon, m-day: $mday, year: $year\nwday: $wday, yday: $yday, dst: $isdst";<STDIN>;
 
@@ -316,7 +315,7 @@ sub date_format {
     } elsif($option and $option !~ /hms/i) {
 	print STDERR "\n*** Unrecognized date format request: $option\n";
     }
-    
+
     if( $option =~ /hms/i) {
 	$date .= " $hour:$min:$sec" if $date;
 	$date ||= "$hour:$min:$sec";
@@ -348,7 +347,7 @@ sub month2num {
     $str = substr($str, 0, 3);
     for(0..$#MONTHS) {
 	return $_+1 if $str =~ /$MONTHS[$_]/i;
-    } 
+    }
     $self->throw("Invalid month name: $str");
 }
 
@@ -381,7 +380,7 @@ sub num2month {
  Argument  : filename = String (name of file to be compressed, full path).
            :            If the supplied filename ends with '.gz' or '.Z',
            :            that extension will be removed before attempting to compress.
-           : tmp = boolean, 
+           : tmp = boolean,
            :    If true, (or if user is not the owner of the file)
            :         the file is compressed to a tmp file
            :    If false, file is clobbered with the compressed version.
@@ -405,8 +404,8 @@ See Also   : L<uncompress>()
 sub compress {
 #------------
     my $self = shift;
-    my $fileName = shift;  
-    my $tmp = shift || 0;  
+    my $fileName = shift;
+    my $tmp = shift || 0;
 
     if($fileName =~ /(\.gz|\.Z)$/) { $fileName =~ s/$1$//; };
     $DEBUG && print STDERR "gzipping file $fileName";
@@ -422,7 +421,7 @@ sub compress {
 	$compressed .= ".tmp.bioperl";
 	$compressed .= '.gz';
 	@args = ($GNU_PATH."gzip -f < $fileName > $compressed");
-	not $tmp and 
+	not $tmp and
 	    $self->warn("Not owner of file $fileName\nCompressing to tmp file $compressed.");
 	$tmp = 1;
     } else {
@@ -437,8 +436,8 @@ sub compress {
 	    @args = ("/usr/bin/compress -f < $fileName > $compressed");
 	} else {
 	    @args = ('/usr/bin/compress', '-f', $fileName);
-	}	    
-	system(@args) == 0 or 
+	}
+	system(@args) == 0 or
 	    $self->throw("Failed to gzip/compress file $fileName: $!",
 			 "Confirm current \$GNU_PATH: $GNU_PATH",
 			 "Edit \$GNU_PATH in Bio::Root::Utilities.pm if necessary.");
@@ -458,7 +457,7 @@ sub compress {
  Argument  : filename = String (name of file to be uncompressed, full path).
            :           If the supplied filename does not end with '.gz' or '.Z'
            :           a '.gz' will be appended before attempting to uncompress.
-           : tmp = boolean, 
+           : tmp = boolean,
            :    If true, (or if user is not the owner of the file)
            :         the file is uncompressed to a tmp file
            :    If false, file is clobbered with the uncompressed version.
@@ -482,8 +481,8 @@ See Also   : L<compress>()
 sub uncompress {
 #---------------
     my $self = shift;
-    my $fileName = shift;  
-    my $tmp = shift || 0;  
+    my $fileName = shift;
+    my $tmp = shift || 0;
 
     if(not $fileName =~ /(\.gz|\.Z)$/) { $fileName .= '.gz'; }
     $DEBUG && print STDERR "gunzipping file $fileName";
@@ -515,13 +514,13 @@ sub uncompress {
 	    @args = ("/usr/bin/uncompress -f < $fileName > $uncompressed");
 	} else {
 	    @args = ('/usr/bin/uncompress', '-f', $fileName);
-	}	    
+	}
 	system(@args) == 0 or
 	    $self->throw("Failed to gunzip/uncompress file $fileName: $!",
 			 "Confirm current \$GNU_PATH: $GNU_PATH",
-			 "Edit \$GNU_PATH in Bio::Root::Utilities.pm if necessary."); 
+			 "Edit \$GNU_PATH in Bio::Root::Utilities.pm if necessary.");
     }
-    
+
     return $uncompressed;
 }
 
@@ -566,12 +565,12 @@ sub file_date {
          :  If $relax is true  = "-\w.', ()\/=%:^<>*"
  Usage   : $Util->untaint($value, $relax)
  Returns : String containing the untained data.
- Argument: $value = string 
+ Argument: $value = string
          : $relax = boolean
  Comments:
      This general untaint() function may not be appropriate for every situation.
-     To allow only a more restricted subset of special characters 
-     (for example, untainting a regular expression), then using a custom 
+     To allow only a more restricted subset of special characters
+     (for example, untainting a regular expression), then using a custom
      untainting mechanism would permit more control.
 
      Note that special trusted vars (like $0) require untainting.
@@ -580,13 +579,13 @@ sub file_date {
 
 #------------`
 sub untaint {
-#------------	
+#------------
     my($self,$value,$relax) = @_;
     $relax ||= 0;
     my $untainted;
 
     $DEBUG and print STDERR "\nUNTAINT: $value\n";
-    
+
     defined $value || return;
 
     if( $relax ) {
@@ -664,10 +663,10 @@ sub count_files {
     my( $name, @fileLine);
     my $dir = $$href{-DIR} || './';
     my $print = $$href{-PRINT} || 0;
-    
+
     ### Make sure $dir ends with /
     $dir !~ /\/$/ and do{ $dir .=  '/'; $$href{-DIR} = $dir; };
-    
+
     open ( PIPE, "ls -1 $dir |" ) || $self->throw("Can't open input pipe: $!");
 
     ### Initialize the hash data.
@@ -687,7 +686,7 @@ sub count_files {
 	    $$href{-NUM_DIRS}++; push @{$$href{-DIR_NAMES}}, $_; }
     }
     close PIPE;
-    
+
     if( $print) {
 	printf( "\n%4d %s\n", $$href{-TOTAL}, "total files+dirs in $dir");
 	printf( "%4d %s\n", $$href{-NUM_TEXT_FILES}, "text files");
@@ -699,7 +698,7 @@ sub count_files {
 
 #=head2 file_info
 #
-# Title   : file_info 
+# Title   : file_info
 # Purpose : Obtains a variety of date for a given file.
 #	  : Provides an interface to Perl's stat().
 # Status  : Under development. Not ready. Don't use!
@@ -734,17 +733,17 @@ sub file_info {
 
 
 #------------
-sub delete { 
+sub delete {
 #------------
-  my $self = shift; 
+  my $self = shift;
   my $fileName = shift;
   if(not -e $fileName) {
-    $self->throw("Can't delete file $fileName: Does not exist."); 
+    $self->throw("Can't delete file $fileName: Does not exist.");
   } elsif(not -o $fileName) {
-    $self->throw("Can't delete file $fileName: Not owner."); 
-  } 
+    $self->throw("Can't delete file $fileName: Not owner.");
+  }
   my $ulval = unlink($fileName) > 0 or
-    $self->throw("Failed to delete file $fileName: $!"); 
+    $self->throw("Failed to delete file $fileName: $!");
 }
 
 
@@ -762,14 +761,14 @@ sub delete {
            :    -FILE    => string (full path to file) or a reference
            :                to a FileHandle object or typeglob. This is an
            :                optional parameter (if not defined, STDIN is used).
- Returns   : Reference to a FileHandle object.   
+ Returns   : Reference to a FileHandle object.
  Throws    : Exception if cannot open a supplied file or if supplied with a
            : reference that is not a FileHandle ref.
  Comments  : If given a FileHandle reference, this method simply returns it.
            : This method assumes the user wants to read ascii data. So, if
            : the file is binary, it will be treated as a compressed (gzipped)
            : file and access it using gzip -ce. The problem here is that not
-           : all binary files are necessarily compressed. Therefore, 
+           : all binary files are necessarily compressed. Therefore,
            : this method should probably have a -mode parameter to
            : specify ascii or binary.
 
@@ -793,7 +792,7 @@ sub create_filehandle {
     my $FH;
 
     my ($handle_ref);
-    
+
     if($handle_ref = ref($file)) {
       if($handle_ref eq 'FileHandle') {
 	$FH = $file;
@@ -827,7 +826,7 @@ sub create_filehandle {
       $self->verbose > 0 and printf STDERR "$ID: reading data from STDIN\n";
       $client->{'_input_type'} = "STDIN";
     }
-    
+
     return $FH;
   }
 
@@ -839,7 +838,7 @@ sub create_filehandle {
  Example   : $data = $object->get_newline(-CLIENT => $anObj,
            :                                   -FILE =>'usr/people/me/data.txt')
  Argument  : Same arguemnts as for create_filehandle().
- Returns   : Reference to a FileHandle object.   
+ Returns   : Reference to a FileHandle object.
  Throws    : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
 
 See Also : L<taste_file>(), L<create_filehandle>()
@@ -862,22 +861,22 @@ sub get_newline {
 
     if($client->{'_input_type'} =~ /STDIN|Glob|compressed/) {
       # Can't taste from STDIN since we can't seek 0 on it.
-      # Are other non special Glob refs seek-able? 
+      # Are other non special Glob refs seek-able?
       # Attempt to guess newline based on platform.
       # Not robust since we could be reading Unix files on a Mac, e.g.
       if(defined $ENV{'MACPERL'}) {
 	$NEWLINE = "\015";  # \r
       } else {
 	$NEWLINE = "\012";  # \n
-      }	
+      }
     } else {
       $NEWLINE = $self->taste_file($FH);
     }
 
-    close ($FH) unless ($client->{'_input_type'} eq 'STDIN' || 
+    close ($FH) unless ($client->{'_input_type'} eq 'STDIN' ||
                         $client->{'_input_type'} eq 'FileHandle' ||
                         $client->{'_input_type'} eq 'Glob' );
-    
+
     delete $client->{'_input_type'};
 
     return $NEWLINE || $DEFAULT_NEWLINE;
@@ -907,11 +906,11 @@ See Also : L<get_newline>()
 #---------------
 sub taste_file {
 #---------------
-  my ($self, $FH) = @_; 
+  my ($self, $FH) = @_;
   my $BUFSIZ = 256;   # Number of bytes read from the file handle.
   my ($buffer, $octal, $str, $irs, $i);
   my $wait = $TIMEOUT_SECS;
-  
+
   ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
 
   $buffer = '';
@@ -935,8 +934,8 @@ sub taste_file {
     $alarm_available && alarm(0);
   };
   if($@ =~ /Timed out!/) {
-    $self->throw("Timed out while waiting for input.", 
-		 "Timeout period = $wait seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");	
+    $self->throw("Timed out while waiting for input.",
+		 "Timeout period = $wait seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
 
   } elsif(not $result) {
     my $err = $@;
@@ -1006,7 +1005,7 @@ See Also : L<get_newline>(),  L<taste_file>()
 #---------------
 sub file_flavor {
 #---------------
-    my ($self, $file) = @_; 
+    my ($self, $file) = @_;
     my %flavors=("\012"    =>'unix (\n or 012 or ^J)',
                  "\015\012" =>'dos (\r\n or 015,012 or ^M^J)',
                  "\015"     =>'mac (\r or 015 or ^M)'
@@ -1033,7 +1032,7 @@ See Also  : L<send_mail>()
 =cut
 
 sub mail_authority {
-    
+
     my( $self, $message ) = @_;
     my $script = $self->untaint($0,1);
 
@@ -1046,7 +1045,7 @@ sub mail_authority {
 
  Title    : send_mail
  Usage    : $Util->send_mail( named_parameters )
- Purpose  : Provides an interface to /usr/lib/sendmail  
+ Purpose  : Provides an interface to /usr/lib/sendmail
  Returns  : n/a
  Argument : Named parameters:  (case-insensitive)
           :  -TO   => e-mail address to send to
@@ -1059,9 +1058,9 @@ sub mail_authority {
           :
           : Using default 'From:' information.
           :   sendmail options used:
-          :      -t: ignore the address given on the command line and 
+          :      -t: ignore the address given on the command line and
           :          get To:address from the e-mail header.
-          :     -oi: prevents send_mail from ending the message if it 
+          :     -oi: prevents send_mail from ending the message if it
           :          finds a period at the start of a line.
 
 See Also  : L<mail_authority>()
@@ -1075,12 +1074,12 @@ sub send_mail {
     my( $self, @param) = @_;
     my($recipient,$subj,$message,$cc) = $self->_rearrange([qw(TO SUBJ MSG CC)],@param);
 
-    $self->throw("Invalid or missing e-mail address: $recipient") 
+    $self->throw("Invalid or missing e-mail address: $recipient")
 	if not $recipient =~ /\S+\@\S+/;
 
     $cc ||= ''; $subj ||= ''; $message ||= '';
 
-    open (SENDMAIL, "|/usr/lib/sendmail -oi -t") || 
+    open (SENDMAIL, "|/usr/lib/sendmail -oi -t") ||
 	$self->throw("Can't send mail: sendmail cannot fork: $!");
 
 print SENDMAIL <<QQ_EOF_QQ;
@@ -1109,7 +1108,7 @@ QQ_EOF_QQ
  Purpose : To test an STDIN input value for affirmation.
  Example : print +( $Util->yes_reply('Are you ok') ? "great!\n" : "sorry.\n" );
          : $Util->yes_reply('Continue') || die;
- Returns : Boolean, true (1) if input string begins with 'y' or 'Y' 
+ Returns : Boolean, true (1) if input string begins with 'y' or 'Y'
  Argument: query_string = string to be used to prompt user (optional)
          : If not provided, 'Yes or no' will be used.
          : Question mark is automatically appended.
@@ -1136,7 +1135,7 @@ sub yes_reply {
  Usage   : $Util->request_data( [value_name]);
  Purpose : To request data from a user to be entered via keyboard (STDIN).
  Example : $name = $Util->request_data('Name');
-         : # User will see: % Enter Name: 
+         : # User will see: % Enter Name:
  Returns : String, (data entered from keyboard, sans terminal newline.)
  Argument: value_name = string to be used to prompt user.
          : If not provided, 'data' will be used, (not very helpful).
@@ -1156,7 +1155,7 @@ sub request_data {
 }
 
 sub quit_reply {
-# Not much used since you can use request_data() 
+# Not much used since you can use request_data()
 # and test for an empty string.
     my $self = shift;
     my $reply;
@@ -1178,8 +1177,8 @@ sub verify_version {
 #------------------
     my $self = shift;
     my $reqVersion  = shift;
-    
-    $] < $reqVersion and do { 
+
+    $] < $reqVersion and do {
 	printf STDERR ( "\a\n%s %0.3f.\n", "** Sorry. This Perl script requires at least version", $reqVersion);
 	printf STDERR ( "%s %0.3f %s\n\n", "You are running Perl version", $], "Please update your Perl!\n\n" );
 	exit(1);
@@ -1193,8 +1192,8 @@ sub verify_version {
 sub _get_pseudo_tmpnam {
 
     my $date = localtime(time());
-    
-    my $tmpnam = 'tmpnam'; 
+
+    my $tmpnam = 'tmpnam';
 
     if( $date =~ /([\d:]+)\s+(\d+)\s*$/ ) {
     	$tmpnam = $2. '_' . $1;
@@ -1226,7 +1225,7 @@ MODIFICATION NOTES:
   * Modified compress(), uncompress(), and delete() to properly
     deal with file ownership issues.
 
-3 Jun 1998, sac: 
+3 Jun 1998, sac:
     * Improved file_date() to be less reliant on the output of ls.
       (Note the word 'less'; it still relies on ls).
 

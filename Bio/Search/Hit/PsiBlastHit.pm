@@ -64,7 +64,7 @@ L<frac_aligned_query()|frac_aligned_query>, L<frac_aligned_hit()|frac_aligned_hi
 L<num_unaligned_query()|num_unaligned_query>, L<num_unaligned_hit()|num_unaligned_hit>.
 
 It also permits the assessment of an "ambiguous alignment" if the
-query (or sbjct) sequences from different HSPs overlap 
+query (or sbjct) sequences from different HSPs overlap
 (see L<ambiguous_aln()|ambiguous_aln>). The existence
 of an overlap could indicate a biologically interesting region in the
 sequence, such as a repeated domain.  The PsiBlastHit object uses the
@@ -78,17 +78,17 @@ contig and counted as an overlap. See the L<BUGS | BUGS> section below for
 The results of the HSP tiling is reported with the following ambiguity codes:
 
    'q' = Query sequence contains multiple sub-sequences matching
-         a single region in the sbjct sequence. 
+         a single region in the sbjct sequence.
 
    's' = Subject (PsiBlastHit) sequence contains multiple sub-sequences matching
-         a single region in the query sequence. 
+         a single region in the query sequence.
 
    'qs' = Both query and sbjct sequences contain more than one
           sub-sequence with similarity to the other sequence.
 
 
 For addition information about ambiguous BLAST alignments, see
-L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils> and 
+L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils> and
 
  http://www-genome.stanford.edu/Sacch3D/help/ambig_aln.html
 
@@ -107,7 +107,7 @@ etc. may report misleading numbers when C<-OVERLAP> is set to a large
 number.  For example, say we have two HSPs and the query sequence tile
 as follows:
 
-            1      8             22      30        40             60 
+            1      8             22      30        40             60
  Full seq:  ------------------------------------------------------------
                     *  ** *   **
  HSP1:             ---------------                    (6 identical matches)
@@ -144,14 +144,13 @@ Links:
 
  http://bio.perl.org/Core/POD/Search/Hit/Blast/BlastHSP.pm.html
 
- http://bio.perl.org/Projects/modules.html  - Online module documentation
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
+ http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules.  Send your comments and suggestions preferably to one
@@ -168,7 +167,7 @@ web:
 
     http://bugzilla.bio.perl.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
@@ -206,7 +205,7 @@ use Bio::Root::Root;
 require Bio::Search::BlastUtils;
 use vars qw( @ISA %SUMMARY_OFFSET $Revision);
 
-use overload 
+use overload
     '""' => \&to_string;
 
 @ISA = qw( Bio::Root::Root Bio::Search::Hit::HitI );
@@ -217,17 +216,17 @@ $Revision = '$Id$';  #'
 =head2 new
 
  Usage     : $hit = Bio::Search::Hit::PsiBlastHit->new( %named_params );
-           : Bio::Search::Hit::PsiBlastHit.pm objects are constructed 
-           : automatically by Bio::SearchIO::PsiBlastHitFactory.pm, 
+           : Bio::Search::Hit::PsiBlastHit.pm objects are constructed
+           : automatically by Bio::SearchIO::PsiBlastHitFactory.pm,
            : so there is no need for direct instantiation.
- Purpose   : Constructs a new PsiBlastHit object and Initializes key variables 
+ Purpose   : Constructs a new PsiBlastHit object and Initializes key variables
            : for the hit.
  Returns   : A Bio::Search::Hit::PsiBlastHit object
  Argument  : Named Parameters:
            : Parameter keys are case-insensitive.
-           :     -RAW_DATA   => array reference holding raw BLAST report data 
-           :                    for a single hit. This includes all lines 
-           :                    within the HSP alignment listing section of a 
+           :     -RAW_DATA   => array reference holding raw BLAST report data
+           :                    for a single hit. This includes all lines
+           :                    within the HSP alignment listing section of a
            :                    traditional BLAST or PSI-BLAST (non-XML) report,
            :                    starting at (or just after) the leading '>'.
            :         -HOLD_RAW_DATA => boolean, should -RAW_DATA be saved within the object.
@@ -240,10 +239,10 @@ $Revision = '$Id$';  #'
            :         -IS_PVAL    => boolean, true if -SIGNIF contains a P-value
            :         -SCORE      => raw BLAST score
            :         -FOUND_AGAIN   => boolean, true if this was a hit from the
-           :                       section of a PSI-BLAST with iteration > 1 
-           :                       containing sequences that were also found 
+           :                       section of a PSI-BLAST with iteration > 1
+           :                       containing sequences that were also found
            :                       in iteration 1.
- Comments  : This object accepts raw Blast report data not because it 
+ Comments  : This object accepts raw Blast report data not because it
            : is required for parsing, but in order to retrieve it
            : (only available if -HOLD_RAW_DATA is set to true).
 
@@ -260,8 +259,8 @@ sub new {
     my ($raw_data, $signif, $is_pval, $hold_raw);
 
     ($self->{'_blast_program'}, $self->{'_query_length'}, $raw_data, $hold_raw,
-     $self->{'_overlap'}, $self->{'_iteration'}, $signif, $is_pval, 
-     $self->{'_score'}, $self->{'_found_again'} ) = 
+     $self->{'_overlap'}, $self->{'_iteration'}, $signif, $is_pval,
+     $self->{'_score'}, $self->{'_found_again'} ) =
        $self->_rearrange( [qw(PROGRAM
                               QUERY_LEN
                               RAW_DATA
@@ -290,7 +289,7 @@ sub new {
 }
 
 sub DESTROY {
-    my $self=shift; 
+    my $self=shift;
     #print STDERR "-->DESTROYING $self\n";
 }
 
@@ -304,11 +303,11 @@ sub DESTROY {
  Title   : algorithm
  Usage   : $alg = $hit->algorithm();
  Function: Gets the algorithm specification that was used to obtain the hit
-           For BLAST, the algorithm denotes what type of sequence was aligned 
-           against what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated 
-           dna-prt, TBLASTN prt-translated dna, TBLASTX translated 
+           For BLAST, the algorithm denotes what type of sequence was aligned
+           against what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated
+           dna-prt, TBLASTN prt-translated dna, TBLASTX translated
            dna-translated dna).
- Returns : a scalar string 
+ Returns : a scalar string
  Args    : none
 
 =cut
@@ -327,7 +326,7 @@ sub algorithm {
  Example   : $name = $hit->name;
            : $hit->name('M81707');
  Returns   : String consisting of the hit's name or undef if not set.
- Comments  : The name is parsed out of the "Query=" line as the first chunk of 
+ Comments  : The name is parsed out of the "Query=" line as the first chunk of
              non-whitespace text. If you want the rest of the line, use
              $hit->description().
 
@@ -341,7 +340,7 @@ See Also: L<accession()|accession>
 sub name {
 #----------------
     my $self = shift;
-    if (@_) { 
+    if (@_) {
         my $name = shift;
         $name =~ s/^\s+|(\s+|,)$//g;
         $self->{'_name'} = $name;
@@ -353,7 +352,7 @@ sub name {
 
  Usage     : $hit_object->description( [integer] );
  Purpose   : Set/Get a description string for the hit.
-             This is parsed out of the "Query=" line as everything after 
+             This is parsed out of the "Query=" line as everything after
              the first chunk of non-whitespace text. Use $hit->name()
              to get the first chunk (the ID of the sequence).
  Example   : $description = $hit->description;
@@ -369,9 +368,9 @@ sub name {
 #----------------
 sub description {
 #----------------
-    my( $self, $len ) = @_; 
+    my( $self, $len ) = @_;
     $len = (defined $len) ? $len : (CORE::length $self->{'_description'});
-    return substr( $self->{'_description'}, 0 ,$len ); 
+    return substr( $self->{'_description'}, 0 ,$len );
 }
 
 =head2 accession
@@ -411,9 +410,9 @@ See Also   : L<bits()|bits>
 =cut
 
 #----------
-sub raw_score { 
+sub raw_score {
 #----------
-    my $self = shift;  
+    my $self = shift;
 
     # The check for $self->{'_score'} is a remnant from the 'query' mode days
     # in which the sbjct object would collect data from the description line only.
@@ -422,8 +421,8 @@ sub raw_score {
     if(not defined($self->{'_score'})) {
         $score = $self->hsp->score;
     } else {
-        $score = $self->{'_score'}; 
-    } 
+        $score = $self->{'_score'};
+    }
     return $score;
 }
 
@@ -433,7 +432,7 @@ sub raw_score {
  Usage     : $hit_object->length();
  Purpose   : Get the total length of the hit sequence.
  Example   : $len = $hit_object->length();
- Returns   : Integer 
+ Returns   : Integer
  Argument  : n/a
  Throws    : n/a
  Comments  : Developer note: when using the built-in length function within
@@ -447,7 +446,7 @@ See Also   : L<logical_length()|logical_length>,  L<length_aln()|length_aln>
 sub length {
 #-----------
     my $self = shift;
-    return $self->{'_length'}; 
+    return $self->{'_length'};
 }
 
 =head2 significance
@@ -466,7 +465,7 @@ sub significance { shift->signif( @_ ); }
  Title    : next_hsp
  Usage    : $hsp = $obj->next_hsp();
  Function : returns the next available High Scoring Pair object
- Example  : 
+ Example  :
  Returns  : Bio::Search::HSP::BlastHSP or undef if finished
  Args     : none
 
@@ -500,7 +499,7 @@ sub hit_name {
 
 # Older method Delegates to description()
 #----------------
-sub desc { 
+sub desc {
 #----------------
     my $self = shift;
     return $self->description( @_ );
@@ -509,7 +508,7 @@ sub desc {
 # Providing a more explicit method for getting description of hit
 # (corresponds with column name in HitTableWriter)
 #----------------
-sub hit_description { 
+sub hit_description {
 #----------------
     my $self = shift;
     return $self->description( @_ );
@@ -555,16 +554,16 @@ sub hit_length { shift->length( @_ ); }
  Argument  : format: string of 'raw' | 'exp' | 'parts'
            :    'raw' returns value given in report. Default. (1.2e-34)
            :    'exp' returns exponent value only (34)
-           :    'parts' returns the decimal and exponent as a 
+           :    'parts' returns the decimal and exponent as a
            :            2-element list (1.2, -34)  (see Comments).
  Throws    : n/a
  Comments  : The signif() method provides a way to deal with the fact that
-           : Blast1 and Blast2 formats (and WU- vs. NCBI-BLAST) differ in 
-           : what is reported in the description lines of each hit in the 
-           : Blast report. The signif() method frees any client code from 
-           : having to know if this is a P-value or an Expect value, 
-           : making it easier to write code that can process both 
-           : Blast1 and Blast2 reports. This is not necessarily a good thing, 
+           : Blast1 and Blast2 formats (and WU- vs. NCBI-BLAST) differ in
+           : what is reported in the description lines of each hit in the
+           : Blast report. The signif() method frees any client code from
+           : having to know if this is a P-value or an Expect value,
+           : making it easier to write code that can process both
+           : Blast1 and Blast2 reports. This is not necessarily a good thing,
            : since one should always know when one is working with P-values or
            : Expect values (hence the deprecated status).
            : Use of expect() is recommended since all hits will have an Expect value.
@@ -653,11 +652,11 @@ sub _set_description {
 #--------------
     my( $self, @desc ) = @_;
     my( $desc);
-    
+
 #    print STDERR "PsiBlastHit: RAW DESC:\n@desc\n";
-    
+
     $desc = join(" ", @desc);
-    
+
     my $name = $self->name;
 
     if($desc) {
@@ -750,13 +749,13 @@ sub _set_id {
  Purpose   : Sets/Gets ambiguity code data member.
  Example   : (see usage)
  Returns   : String = 'q', 's', 'qs', '-'
-           :   'q'  = query sequence contains overlapping sub-sequences 
+           :   'q'  = query sequence contains overlapping sub-sequences
            :          while sbjct does not.
-           :   's'  = sbjct sequence contains overlapping sub-sequences 
+           :   's'  = sbjct sequence contains overlapping sub-sequences
            :          while query does not.
            :   'qs' = query and sbjct sequence contains overlapping sub-sequences
            :          relative to each other.
-           :   '-'  = query and sbjct sequence do not contains multiple domains 
+           :   '-'  = query and sbjct sequence do not contains multiple domains
            :          relative to each other OR both contain the same distribution
            :          of similar domains.
  Argument  : n/a
@@ -768,7 +767,7 @@ See Also   : L<Bio::Search::BlastUtils::tile_hsps>, L<HSP Tiling and Ambiguous A
 =cut
 
 #--------------------
-sub ambiguous_aln { 
+sub ambiguous_aln {
 #--------------------
     my $self = shift;
     if(@_) { $self->{'_ambiguous_aln'} = shift; }
@@ -796,9 +795,9 @@ See Also   : L<Bio::Search::BlastUtils::_adjust_contigs()|Bio::Search::BlastUtil
 =cut
 
 #-------------
-sub overlap { 
+sub overlap {
 #-------------
-    my $self = shift; 
+    my $self = shift;
     if(@_) { $self->{'_overlap'} = shift; }
     defined $self->{'_overlap'} ? $self->{'_overlap'} : 0;
 }
@@ -823,9 +822,9 @@ See Also   : L<score()|score>
 =cut
 
 #---------
-sub bits { 
+sub bits {
 #---------
-    my $self = shift; 
+    my $self = shift;
 
     # The check for $self->{'_bits'} is a remnant from the 'query' mode days
     # in which the sbjct object would collect data from the description line only.
@@ -834,8 +833,8 @@ sub bits {
     if(not defined($self->{'_bits'})) {
         $bits = $self->hsp->bits;
     } else {
-        $bits = $self->{'_bits'}; 
-    } 
+        $bits = $self->{'_bits'};
+    }
     return $bits;
 }
 
@@ -864,9 +863,9 @@ See Also   : L<num_hsps()|num_hsps>
 =cut
 
 #-----
-sub n { 
+sub n {
 #-----
-    my $self = shift; 
+    my $self = shift;
 
     # The check for $self->{'_n'} is a remnant from the 'query' mode days
     # in which the sbjct object would collect data from the description line only.
@@ -875,8 +874,8 @@ sub n {
     if(not defined($self->{'_n'})) {
         $n = $self->hsp->n;
     } else {
-        $n = $self->{'_n'}; 
-    } 
+        $n = $self->{'_n'};
+    }
     $n ||= $self->num_hsps;
 
     return $n;
@@ -903,9 +902,9 @@ See Also   : L<hsps()|hsps>
 =cut
 
 #----------'
-sub frame { 
+sub frame {
 #----------
-    my $self = shift; 
+    my $self = shift;
 
     Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
@@ -916,8 +915,8 @@ sub frame {
     if(not defined($self->{'_frame'})) {
         $frame = $self->hsp->frame;
     } else {
-        $frame = $self->{'_frame'}; 
-    } 
+        $frame = $self->{'_frame'};
+    }
     return $frame;
 }
 
@@ -940,7 +939,7 @@ sub frame {
  Argument  : format: string of 'raw' | 'exp' | 'parts'
            :    'raw' returns value given in report. Default. (1.2e-34)
            :    'exp' returns exponent value only (34)
-           :    'parts' returns the decimal and exponent as a 
+           :    'parts' returns the decimal and exponent as a
            :            2-element list (1.2, -34) (See Comments).
  Throws    : Warns if no P-value is defined. Uses expect instead.
  Comments  : Using the 'parts' argument is not recommended since it will not
@@ -953,7 +952,7 @@ See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::BlastUtils::
 =cut
 
 #--------
-sub p { 
+sub p {
 #--------
 # Some duplication of logic for p(), expect() and signif() for the sake of performance.
     my ($self, $fmt) = @_;
@@ -988,12 +987,12 @@ sub p {
            : ($num, $exp) = $sbjct->expect('parts');  # split sci notation into parts
  Returns   : Float or scientific notation number (the raw expect value, DEFAULT).
            : Integer if format == 'exp' (the magnitude of the base 10 exponent).
-           : 2-element list (float, int) if format == 'parts' and Expect 
+           : 2-element list (float, int) if format == 'parts' and Expect
            :                is in scientific notation (see Comments).
  Argument  : format: string of 'raw' | 'exp' | 'parts'
            :    'raw' returns value given in report. Default. (1.2e-34)
            :    'exp' returns exponent value only (34)
-           :    'parts' returns the decimal and exponent as a 
+           :    'parts' returns the decimal and exponent as a
            :            2-element list (1.2, -34)  (see Comments).
  Throws    : Exception if the Expect value is not defined.
  Comments  : Using the 'parts' argument is not recommended since it will not
@@ -1006,7 +1005,7 @@ See Also   : L<p()|p>, L<signif()|signif>, L<Bio::Search::BlastUtils::get_expone
 =cut
 
 #-----------
-sub expect { 
+sub expect {
 #-----------
 # Some duplication of logic for p(), expect() and signif() for the sake of performance.
     my ($self, $fmt) = @_;
@@ -1020,7 +1019,7 @@ sub expect {
         if( defined $self->{'_hsps'}) {
             $self->{'_expect'} = $val = $self->hsp->expect;
         } else {
-            # If _expect is not set and _hsps are not set, 
+            # If _expect is not set and _hsps are not set,
             # then this must be a P-value-based report that was
             # run without setting the HSPs (shallow parsing).
             $self->throw("Can't get expect value. HSPs have not been set.");
@@ -1068,7 +1067,7 @@ sub hsps {
         $self->throw("Can't get HSPs: data not collected.");
     }
 
-    return wantarray 
+    return wantarray
         #  returning list containing all HSPs.
         ? @{$self->{'_hsps'}}
         #  returning number of HSPs.
@@ -1101,13 +1100,13 @@ sub hsp {
 #----------
     my( $self, $option ) = @_;
     $option ||= 'best';
-    
+
     if (not ref $self->{'_hsps'}) {
         $self->throw("Can't get HSPs: data not collected.");
     }
 
     my @hsps = @{$self->{'_hsps'}};
-    
+
     return $hsps[0]      if $option =~ /best|first|1/i;
     return $hsps[$#hsps] if $option =~ /worst|last/i;
 
@@ -1134,7 +1133,7 @@ See Also   : L<hsps()|hsps>
 sub num_hsps {
 #-------------
     my $self = shift;
-    
+
     if (not defined $self->{'_hsps'}) {
         $self->throw("Can't get HSPs: data not collected.");
     }
@@ -1150,11 +1149,11 @@ sub num_hsps {
            : (mostly intended for internal use).
  Purpose   : Get the logical length of the hit sequence.
            : For query sequence of BLASTX and TBLASTX reports and the hit
-           : sequence of TBLASTN and TBLASTX reports, the returned length 
+           : sequence of TBLASTN and TBLASTX reports, the returned length
            : is the length of the would-be amino acid sequence (length/3).
            : For all other BLAST flavors, this function is the same as length().
  Example   : $len = $hit_object->logical_length();
- Returns   : Integer 
+ Returns   : Integer
  Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
@@ -1199,14 +1198,14 @@ sub logical_length {
            : This number will include all HSPs
  Example   : $len    = $hit_object->length_aln(); # default = query
            : $lenAln = $hit_object->length_aln('query');
- Returns   : Integer 
+ Returns   : Integer
  Argument  : seq_Type = 'query' or 'hit' or 'sbjct' (Default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : Exception if the argument is not recognized.
  Comments  : This method will report the logical length of the alignment,
            : meaning that for TBLAST[NX] reports, the length is reported
            : using amino acid coordinate space (i.e., nucleotides / 3).
-           : 
+           :
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically..
            : If you don't want the tiled data, iterate through each HSP
@@ -1220,21 +1219,21 @@ See Also   : L<length()|length>, L<frac_aligned_query()|frac_aligned_query>, L<f
 sub length_aln {
 #---------------
     my( $self, $seqType ) = @_;
-    
+
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
 
     Bio::Search::BlastUtils::tile_hsps($self) if not $self->{'_tile_hsps'};
 
     my $data = $self->{'_length_aln_'.$seqType};
-    
+
     ## If we don't have data, figure out what went wrong.
     if(!$data) {
-        $self->throw("Can't get length aln for sequence type \"$seqType\"" . 
+        $self->throw("Can't get length aln for sequence type \"$seqType\"" .
                      "Valid types are 'query', 'hit', 'sbjct' ('sbjct' = 'hit')");
-    }                
+    }
     $data;
-}    
+}
 
 
 =head2 gaps
@@ -1246,14 +1245,14 @@ sub length_aln {
            : $hgaps = $hit_object->gaps('hit');
            : $tgaps = $hit_object->gaps();    # default = total (query + hit)
  Returns   : scalar context: integer
-           : array context without args: two-element list of integers  
+           : array context without args: two-element list of integers
            :    (queryGaps, sbjctGaps)
            : Array context can be forced by providing an argument of 'list' or 'array'.
            :
            : CAUTION: Calling this method within printf or sprintf is arrray context.
            : So this function may not give you what you expect. For example:
            :          printf "Total gaps: %d", $hit->gaps();
-           : Actually returns a two-element array, so what gets printed 
+           : Actually returns a two-element array, so what gets printed
            : is the number of gaps in the query, not the total
            :
  Argument  : seq_type: 'query' | 'hit' or 'sbjct' | 'total' | 'list'  (default = 'total')
@@ -1263,8 +1262,8 @@ sub length_aln {
            : through each HSP object.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically..
-           : Not relying on wantarray since that will fail in situations 
-           : such as printf "%d", $hit->gaps() in which you might expect to 
+           : Not relying on wantarray since that will fail in situations
+           : such as printf "%d", $hit->gaps() in which you might expect to
            : be printing the total gaps, but evaluates to array context.
 
 See Also   : L<length_aln()|length_aln>
@@ -1292,27 +1291,27 @@ sub gaps {
     } else {
         return $self->{'_gaps_'.$seqType} || 0;
     }
-}    
+}
 
 
 
 =head2 matches
 
  Usage     : $hit_object->matches( [class] );
- Purpose   : Get the total number of identical or conserved matches 
+ Purpose   : Get the total number of identical or conserved matches
            : (or both) across all HSPs.
-           : (Note: 'conservative' matches are indicated as 'positives' 
+           : (Note: 'conservative' matches are indicated as 'positives'
            :         in the Blast report.)
  Example   : ($id,$cons) = $hit_object->matches(); # no argument
            : $id = $hit_object->matches('id');
-           : $cons = $hit_object->matches('cons'); 
- Returns   : Integer or a 2-element array of integers 
- Argument  : class = 'id' | 'cons' OR none. 
-           : If no argument is provided, both identical and conservative 
+           : $cons = $hit_object->matches('cons');
+ Returns   : Integer or a 2-element array of integers
+ Argument  : class = 'id' | 'cons' OR none.
+           : If no argument is provided, both identical and conservative
            : numbers are returned in a two element list.
            : (Other terms can be used to refer to the conservative
            :  matches, e.g., 'positive'. All that is checked is whether or
-           :  not the supplied string starts with 'id'. If not, the 
+           :  not the supplied string starts with 'id'. If not, the
            : conservative matches are returned.)
  Throws    : Exception if the requested data cannot be obtained.
  Comments  : If you need data for each HSP, use hsps() and then interate
@@ -1337,14 +1336,14 @@ sub matches {
 
     } else {
 
-        if($arg =~ /^id/i) { 
+        if($arg =~ /^id/i) {
             $data = $self->{'_totalIdentical'};
         } else {
             $data = $self->{'_totalConserved'};
         }
         return $data if $data;
     }
-    
+
     ## Something went wrong if we make it to here.
     $self->throw("Can't get identical or conserved data: no data.");
 }
@@ -1359,7 +1358,7 @@ sub matches {
  Example   : $qbeg = $sbjct->start('query');
            : $sbeg = $sbjct->start('hit');
            : ($qbeg, $sbeg) = $sbjct->start();
- Returns   : scalar context: integer 
+ Returns   : scalar context: integer
            : array context without args: list of two integers (queryStart, sbjctStart)
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
@@ -1367,7 +1366,7 @@ sub matches {
  Throws    : n/a
  Comments  : This method requires that all HSPs be tiled. If there is more than one
            : HSP and they have not already been tiled, they will be tiled first automatically..
-           : Remember that the start and end coordinates of all HSPs are 
+           : Remember that the start and end coordinates of all HSPs are
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
 
@@ -1416,7 +1415,7 @@ sub start {
  Throws    : n/a
  Comments  : This method requires that all HSPs be tiled. If there is more than one
            : HSP and they have not already been tiled, they will be tiled first automatically..
-           : Remember that the start and end coordinates of all HSPs are 
+           : Remember that the start and end coordinates of all HSPs are
            : normalized so that start < end. Strand information can be
            : obtained by calling $hit->strand().
 
@@ -1454,7 +1453,7 @@ sub end {
            : in the HSP alignment.
  Example   : ($qbeg, $qend) = $sbjct->range('query');
            : ($sbeg, $send) = $sbjct->range('hit');
- Returns   : Two-element array of integers 
+ Returns   : Two-element array of integers
  Argument  : seq_type = string, 'query' or 'hit' or 'sbjct'  (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
@@ -1498,7 +1497,7 @@ sub range {
            : tiling, so it should not be used.
            :
            : To get the fraction identical among only the aligned residues,
-           : ignoring the gaps, call this method without an argument or 
+           : ignoring the gaps, call this method without an argument or
            : with an argument of 'query' or 'hit'.
            :
            : If you need data for each HSP, use hsps() and then iterate
@@ -1552,7 +1551,7 @@ sub frac_identical {
            : tiling, so it should not be used.
            :
            : To get the fraction conserved among only the aligned residues,
-           : ignoring the gaps, call this method without an argument or 
+           : ignoring the gaps, call this method without an argument or
            : with an argument of 'query' or 'hit'.
            :
            : If you need data for each HSP, use hsps() and then interate
@@ -1595,9 +1594,9 @@ sub frac_conserved {
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
            : To compute the fraction aligned, the logical length of the query
-           : sequence is used, meaning that for [T]BLASTX reports, the 
+           : sequence is used, meaning that for [T]BLASTX reports, the
            : full length of the query sequence is converted into amino acids
-           : by dividing by 3. This is necessary because of the way 
+           : by dividing by 3. This is necessary because of the way
            : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
@@ -1631,9 +1630,9 @@ sub frac_aligned_query {
  Comments  : If you need data for each HSP, use hsps() and then interate
            : through the HSP objects.
            : To compute the fraction aligned, the logical length of the sbjct
-           : sequence is used, meaning that for TBLAST[NX] reports, the 
+           : sequence is used, meaning that for TBLAST[NX] reports, the
            : full length of the sbjct sequence is converted into amino acids
-           : by dividing by 3. This is necessary because of the way 
+           : by dividing by 3. This is necessary because of the way
            : the lengths of aligned sequences are computed.
            : This method requires that all HSPs be tiled. If they have not
            : already been tiled, they will be tiled first automatically.
@@ -1653,7 +1652,7 @@ sub frac_aligned_hit {
 }
 
 
-## These methods are being maintained for backward compatibility. 
+## These methods are being maintained for backward compatibility.
 
 =head2 frac_aligned_sbjct
 
@@ -1750,7 +1749,7 @@ sub num_unaligned_query {
  Example   : @s_ind = $hit->seq_inds('query', 'identical');
            : @h_ind = $hit->seq_inds('hit', 'conserved');
            : @h_ind = $hit->seq_inds('hit', 'conserved', 1);
- Returns   : Array of integers 
+ Returns   : Array of integers
            : May include ranges if collapse is non-zero.
  Argument  : [0] seq_type  = 'query' or 'hit' or 'sbjct'  (default = 'query')
            :                 ('sbjct' is synonymous with 'hit')
@@ -1758,13 +1757,13 @@ sub num_unaligned_query {
            :              (can be shortened to 'id' or 'cons')
            :              (actually, anything not 'id' will evaluate to 'conserved').
            : [2] collapse  = boolean, if non-zero, consecutive positions are merged
-           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
-           :             collapses to "1-5 7 9-11". This is useful for 
+           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11"
+           :             collapses to "1-5 7 9-11". This is useful for
            :             consolidating long lists. Default = no collapse.
  Throws    : n/a.
- Comments  : Note that HSPs are not tiled for this. This could be a problem 
-           : for hits containing mutually exclusive HSPs. 
-           : TODO: Consider tiling and then reporting seq_inds for the 
+ Comments  : Note that HSPs are not tiled for this. This could be a problem
+           : for hits containing mutually exclusive HSPs.
+           : TODO: Consider tiling and then reporting seq_inds for the
            : best HSP contig.
 
 See Also   : L<Bio::Search::HSP::BlastHSP::seq_inds()|Bio::Search::HSP::BlastHSP>
@@ -1787,14 +1786,14 @@ sub seq_inds {
         # This will merge data for all HSPs together.
         push @inds, $hsp->seq_inds($seqType, $class);
     }
-    
+
     # Need to remove duplicates and sort the merged positions.
     if(@inds) {
         my %tmp = map { $_, 1 } @inds;
         @inds = sort {$a <=> $b} keys %tmp;
     }
 
-    $collapse ?  &Bio::Search::BlastUtils::collapse_nums(@inds) : @inds; 
+    $collapse ?  &Bio::Search::BlastUtils::collapse_nums(@inds) : @inds;
 }
 
 
@@ -1825,7 +1824,7 @@ sub iteration { shift->{'_iteration'} }
              been found in a previous iteration.
              This is only applicable to PSI-BLAST reports.
 
-              This method indicates if the hit was reported in the 
+              This method indicates if the hit was reported in the
               "Sequences used in model and found again" section of the
               PSI-BLAST report or if it was reported in the
               "Sequences not found previously or not previously below threshold"
@@ -1877,8 +1876,8 @@ sub found_again { shift->{'_found_again'} }
            : you should be iterating through the HSPs using methods on the
            : HSP objects.
            :
-           : A possible use case where knowing whether a hit has HSPs 
-           : on both strands would be when filtering via SearchIO for hits with 
+           : A possible use case where knowing whether a hit has HSPs
+           : on both strands would be when filtering via SearchIO for hits with
            : this property. However, in this case it would be better to have a
            : dedicated method such as $hit->hsps_on_both_strands(). Similarly
            : for frame. This could be provided if there is interest.
@@ -1901,7 +1900,7 @@ sub strand {
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
         return $self->hsp->strand($seqType);
-    } 
+    }
     elsif( defined $self->{'_qstrand'}) {
         # Get the data computed during hsp tiling.
         $qstr = $self->{'_qstrand'};
@@ -1944,24 +1943,24 @@ __END__
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided for those
+wishing to modify or understand the code. Two things to bear in mind:
 
 =over 4
 
-=item 1 Do NOT rely on these in any code outside of this module. 
+=item 1 Do NOT rely on these in any code outside of this module.
 
 All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
+Always use accessor methods. If the accessor doesn't exist or is inadequate,
 create or modify an accessor (and let me know, too!). (An exception to this might
 be for BlastHSP.pm which is more tightly coupled to PsiBlastHit.pm and
-may access PsiBlastHit data members directly for efficiency purposes, but probably 
+may access PsiBlastHit data members directly for efficiency purposes, but probably
 should not).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for these data member descriptions to become obsolete as 
-this module is still evolving. Always double check this info and search 
+It is easy for these data member descriptions to become obsolete as
+this module is still evolving. Always double check this info and search
 for members not described here.
 
 =back
@@ -1977,7 +1976,7 @@ all or some of the following fields:
                 :
  _desc          : Description data for the hit from the summary line.
                 :
- _length        : Total length of the hit sequence. 
+ _length        : Total length of the hit sequence.
                 :
  _score         : BLAST score.
                 :
@@ -1996,7 +1995,7 @@ all or some of the following fields:
  _totalConserved: Total number of conserved aligned monomers (a.k.a. "positives").
                 :
  _overlap       : Maximum number of overlapping residues between adjacent HSPs
-                : before considering the alignment to be ambiguous. 
+                : before considering the alignment to be ambiguous.
                 :
  _ambiguous_aln : Boolean. True if the alignment of all HSPs is ambiguous.
                 :

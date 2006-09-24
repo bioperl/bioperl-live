@@ -119,7 +119,6 @@ websites get born, die, and mutate their APIs.
 
 =head1 SEE ALSO
 
- http://bio.perl.org/Projects/modules.html  - Online module documentation
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 FEEDBACK
