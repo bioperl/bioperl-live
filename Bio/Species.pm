@@ -443,17 +443,6 @@ sub binomial {
     my ($self, $full) = @_;
     my $rank = $self->rank || 'no rank';
     
-    # do we already have the binomial?
-    my $sci_name = $self->scientific_name || '';
-    if (($rank eq 'species' || $rank eq 'no rank') && $sci_name =~ /^\w+\s+\w+$/) {
-        return $sci_name;
-    }
-    
-    # did the user effectively ask for the trinomial?
-    if ($full && ($rank eq 'subspecies' || $rank eq 'variant' || $rank eq 'no rank') && $sci_name =~ /\w+\s+\w+\s+\w+/) {
-        return $sci_name;
-    }
-    
     my ($species, $genus) = ($self->species, $self->genus);
     unless (defined $species) {
         $species = 'sp.';
