@@ -249,7 +249,12 @@ sub init {
     $directory ||= "$autoindex/indexes";
   }
   $directory ||= $is_temporary ? File::Spec->tmpdir : '.';
-  $directory = tempdir(__PACKAGE__.'_XXXXXX',
+  # 
+  my $pacname = __PACKAGE__;
+  if ($^O =~ //) {
+    $pacname =~ s/:+/_/g;
+  }
+  $directory = tempdir($pacname.'_XXXXXX',
 		       TMPDIR=>1,
 		       CLEANUP=>1,
 		       DIR=>$directory) if $is_temporary;
