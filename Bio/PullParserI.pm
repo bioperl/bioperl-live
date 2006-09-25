@@ -131,14 +131,8 @@ BEGIN {
     # chunk() needs perl 5.8 feature for modes other than temp_file, so will
     # workaround by forcing temp_file mode in <5.8. Could also rewrite using
     # IO::String, but don't want to.
-    eval {
-        require 5.008;
-    };
-    if ($@) {
+    if ($] < 5.008) {
         $FORCE_TEMP_FILE = 1;
-    }
-    else {
-        $FORCE_TEMP_FILE = 0;
     }
 }
 
