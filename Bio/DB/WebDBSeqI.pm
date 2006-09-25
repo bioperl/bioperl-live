@@ -77,9 +77,11 @@ use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
 use Bio::Root::IO;
 use LWP::UserAgent;
+use POSIX 'setsid';
 use HTTP::Request::Common;
 use HTTP::Response;
 use File::Spec;
+use IO::Pipe;
 use IO::String;
 use Bio::Root::Root;
 
@@ -445,15 +447,13 @@ sub get_seq_stream {
 		# If this fails (Windows, MacOS 9), we fall back to non-pipelined access.
 
 		# fork and pipe: _stream_request()=><STREAM>
-        my $stream;
-		my $result =  eval { open($stream,"-|") };
+		my ($result,$stream) = $self->_open_pipe();
 
 		if (defined $result) {
-			$DB::fork_TTY = '/dev/null'; # prevents complaints from debugger
-			if (!$result) {	# in child process
-				$self->_stream_request($request); 
-				kill 9=>$$; # to prevent END{} blocks from executing in forked children
-				exit 0;
+			$DB::fork_TTY = '/dev/null'; # prevents complaints from debugge
+			if (!$result) { # in child process
+			        $self->_stream_request($request,$stream);
+			        POSIX::_exit(0); #prevent END blocks from executing in this forked child
 			}
 			else {
 				return Bio::SeqIO->new('-verbose' => $self->verbose,
@@ -689,47 +689,80 @@ sub _request {
 	return $resp;
 }
 
-# send web request to stdout for streaming purposes
+#mod_perl-safe replacement for the open(BLEH,'-|') call.  if running
+#under mod_perl, detects it and closes the child's STDIN and STDOUT
+#handles
+sub _open_pipe {
+  my ($self) = @_;
+
+  if($ENV{MOD_PERL} and ! our $loaded_apache_sp) {
+    eval 'use Apache::SubProcess';
+    $@ and $self->throw("$@\nApache::SubProcess module required for running under mod_perl");
+    $loaded_apache_sp = 1;
+  }
+
+  my $pipe = IO::Pipe->new();
+
+  $SIG{CHLD} = 'IGNORE';
+  defined(my $pid = fork)
+    or $self->throw("Couldn't fork: $!");
+
+  unless($pid) {
+    #CHILD
+    $pipe->writer();
+
+    #if we're running under mod_perl, clean up some things after this fork
+    if ($ENV{MOD_PERL} and my $r = eval{Apache->request} ) {
+      $r->cleanup_for_exec;
+      #don't read or write the mod_perl parent's tied filehandles
+      close STDIN; close STDOUT;
+      setsid() or $self->throw('Could not detach from parent');
+    }
+  } else {
+    #PARENT
+    $pipe->reader();
+  }
+  return ( $pid, $pipe );
+}
+
+# send web request to specified filehandle, or stdout, for streaming purposes
 sub _stream_request {
   my $self    = shift;
   my $request = shift;
+  my $dest_fh = shift || \*STDOUT;
 
   # fork so as to pipe output of fetch process through to
   # postprocess_data method call.
-  my $child = open (FETCH,"-|");
-  $self->throw("Couldn't fork: $!") unless defined $child;
+  my ($child,$fetch) = $self->_open_pipe();
 
   if ($child) {
+    #PARENT
     local ($/) = "//\n";  # assume genbank/swiss format
     $| = 1;
     my $records = 0;
-    while (my $record = <FETCH>) {
+    while (my $record = <$fetch>) {
       $records++;
       $self->postprocess_data('type'     => 'string',
 			      'location' => \$record);
-      print STDOUT $record;
+      print $dest_fh $record;
     }
     $/ = "\n"; # reset to be safe;
-    close(FETCH);
-    close STDOUT; 
-    close STDERR;
-    kill 9=>$$;  # to prevent END{} blocks from executing in forked children
-    sleep;
+    close $dest_fh; #must explicitly close here, because the hard
+                    #exits don't cloes them for us
   }
   else {
+    #CHILD
     $| = 1;
     my $resp =  $self->ua->request($request,
-				   sub { print shift }
+				   sub { print $fetch $_[0] }
 				   );
     if( $resp->is_error  ) {
       $self->throw("WebDBSeqI Request Error:\n".$resp->as_string);
     }
-
-    close STDOUT; close STDERR;
-    kill 9=>$$;  # to prevent END{} blocks from executing in forked children
-    sleep;
+    close $fetch; #must explicitly close here, because the hard exists
+                  #don't close them for us
+    POSIX::_exit(0);
   }
-  exit 0;
 }
 
 sub io {
