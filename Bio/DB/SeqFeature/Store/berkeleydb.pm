@@ -251,7 +251,7 @@ sub init {
   $directory ||= $is_temporary ? File::Spec->tmpdir : '.';
   # 
   my $pacname = __PACKAGE__;
-  if ($^O =~ //) {
+  if ($^O =~ /mswin/i) {
     $pacname =~ s/:+/_/g;
   }
   $directory = tempdir($pacname.'_XXXXXX',
