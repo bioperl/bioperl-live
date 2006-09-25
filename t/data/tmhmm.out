@@ -1,0 +1,12 @@
+# my_sequence_id Length: 178
+# my_sequence_id Number of predicted TMHs:  3
+# my_sequence_id Exp number of AAs in TMHs: 69.58306
+# my_sequence_id Exp number, first 60 AAs:  8.42188
+# my_sequence_id Total prob of N-in:        0.07306
+my_sequence_id	TMHMM2.0	outside	     1    53
+my_sequence_id	TMHMM2.0	TMhelix	    54    76
+my_sequence_id	TMHMM2.0	inside	    77   115
+my_sequence_id	TMHMM2.0	TMhelix	   116   138
+my_sequence_id	TMHMM2.0	outside	   139   150
+my_sequence_id	TMHMM2.0	TMhelix	   151   173
+my_sequence_id	TMHMM2.0	inside	   174   178    

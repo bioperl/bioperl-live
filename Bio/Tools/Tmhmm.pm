@@ -2,24 +2,20 @@
 #
 # BioPerl module for Bio::Tools::Tmhmm
 #
-# Copyright Balamurugan Kumarasamy
+# Original copyright Balamurugan Kumarasamy
+# Re-written cleanly by Torsten Seemann, Sep 2006
 #
-# You may distribute this module under the same terms as perl itself
-#
-# POD documentation - main docs before the code
-#
-# Copyright 
-#
-# You may distribute this module under the same terms as perl itself
+# Copyright:
+# You may distribute this module under the same terms as Perl itself
 
 =head1 NAME
 
-Bio::Tools::Tmhmm - parse TmHMM output (transmembrane HMM)
+Bio::Tools::Tmhmm - parse TMHMM output (TransMembrane HMM)
 
 =head1 SYNOPSIS
 
   use Bio::Tools::Tmhmm;
-  my $parser = new Bio::Tools::Tmhmm(-fh => $filehandle );
+  my $parser = Bio::Tools::Tmhmm->new(-fh => $filehandle );
   while ( my $tmhmm_feat = $parser->next_result ) {
      # do something, e.g.
      push @tmhmm_feat, $tmhmm_feat;
@@ -27,13 +23,21 @@ Bio::Tools::Tmhmm - parse TmHMM output (transmembrane HMM)
 
 =head1 DESCRIPTION
 
-Parser for Tmhmm output
+TMHMM is software for the prediction of transmembrane helices in proteins.
+See  L<http://www.cbs.dtu.dk/services/TMHMM/> for more details.
+
+This module parses the "long output" format of TMHMM 2.0 and
+creates a Bio:SeqFeature::Generic object for each C<TMHelix> feature found
+from lines like this:
+
+  my_sequence_id  TMHMM2.0  TMhelix     54    76
+
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-user feedback is an integral part of the evolution of this and other
+User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
@@ -48,7 +52,11 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Bala
+=head1 AUTHOR - Torsten Seemann
+
+Email torsten.seemann AT infotech.monash.edu.au
+
+=head1 CONTRIBUTOR - Bala
 
 Email savikalpa@fugu-sg.org
 
@@ -60,36 +68,35 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::Tmhmm;
-use vars qw(@ISA);
+
 use strict;
 
 use Bio::Tools::AnalysisResult;
 use Bio::Root::Root;
-use Bio::SeqFeature::FeaturePair;
 use Bio::Root::IO;
-use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Tools::AnalysisResult);
 
+use base qw(Bio::Root::Root Bio::Root::IO Bio::Tools::AnalysisResult);
+
+use Bio::SeqFeature::Generic;
 
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Tmhmm();
+ Usage   : my $obj = Bio::Tools::Tmhmm->new();
  Function: Builds a new Bio::Tools::Tmhmm object
  Returns : Bio::Tools::Tmhmm
- Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
-
-
+ Args    : Either of the following as per L<Bio::Root::IO> interface
+             -fh => $filehandle 
+             -file => $filename
+           
 =cut
 
 sub new {
-      my($class,@args) = @_;
-
-      my $self = $class->SUPER::new(@args);
-      $self->_initialize_io(@args);
-
-      return $self;
+  my($class,@args) = @_;
+  my $self = $class->SUPER::new(@args);
+  $self->_initialize_io(@args);
+  return $self;
 }
 
 
@@ -101,109 +108,28 @@ sub new {
  Returns : Bio::SeqFeature::Generic
  Args    : none
 
-
 =cut
 
 sub next_result {
-        my ($self) = @_;
+  my $self = shift;
 
-        my $line;
+  # # my_sequence_id Length: 178
+  # my_sequence_id  TMHMM2.0  outside      1    53
+  # my_sequence_id  TMHMM2.0  TMhelix     54    76
+  # my_sequence_id  TMHMM2.0  inside      77   115
 
-        # parse
-        my $id;
-        while ($_=$self->_readline()) { 
-           $line = $_;
-           chomp $line;
-
-
-           next if /^$/;
-           if ($line=~/^#\s+(\S+)/) { 
-                   #if the line starts with a '#' for example in # 13 Length: 522 
-                   #assign 13 as the id.
-
-                    $id = $1;
-                    my ($junk, $values) = split /:/;
-                   $self->_seqname($id);
-                    next;
-           }
-
-           elsif ($line=~/^(\S+)\s+(\S+)\s+(\w+)\s+(\d+)\s+(\d+)/) {
-
-                    # Example :-  13      TMHMM2.0        inside       1   120
-                    # assign $orien(inside) $start(1) and $end(120)
-
-
-                    my $orien = $3;
-                    my $start = $4;
-                    my $end = $5;
-                    $orien = uc ($orien);
-
-                    if ($orien eq "TMHELIX") {
-                         my (%feature);
-                         $feature{name} = $self->_seqname;
-                         $feature{start} = $start;
-                         $feature{end} = $end;
-                         $feature{source} ='tmhmm';
-                         $feature{primary}= 'transmembrane';
-                         $feature{program} ='tmhmm';
-                         $feature{logic_name} = 'TMHelix';
-                         my $new_feat= $self->create_feature(\%feature);
-                         return $new_feat;
-                    }
-                    next;
-           }
-           next;
-        }
-}
-
-=head2 create_feature
-
- Title   : create_feature
- Usage   : obj->create_feature(\%feature)
- Function: Internal(not to be used directly)
- Returns : A Bio::SeqFeature::Generic object
- Args    :
-
-=cut
-
-sub create_feature {
-       my ($self, $feat) = @_;
-
-
-       # create feature object
-       my $feature = Bio::SeqFeature::Generic->new(-seq_id => $feat->{name},
-                                                 -start    => $feat->{start},
-                                                 -end      => $feat->{end},
-                                                 -score    => $feat->{score},
-                                                 -source   => $feat->{source},
-                                                 -primary  => $feat->{primary},
-                                                 -logic_name  => $feat->{logic_name}, 
-                                               );
-       return $feature;
-   }
-
-=head2 _seqname
-
- Title   :   _seqname
- Usage   :   obj->_seqname($seqname)
- Function:   Internal(not to be used directly)
- Returns :
- Args    :   seqname
-
-=cut
-
-sub _seqname{
-    my ($self,$seqname)=@_;
-
-    if (defined $seqname){
-
-        $self->{'seqname'}=$seqname;
+  while (my $line = $self->_readline) { 
+    if ( $line =~ m/^(\S+)\s+(\S+)\s+(TMhelix)\s+(\d+)\s+(\d+)$/i ) {
+       return Bio::SeqFeature::Generic->new(
+	 -primary => 'transmembrane',
+         -seq_id  => $1,
+	 -source  => $2,
+	 -start   => $4,
+	 -end     => $5,
+       );
     }
-
-    return $self->{'seqname'};
-
+  }
 }
-
 
 1;
 
