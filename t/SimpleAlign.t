@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 73;
+use constant NUMTESTS => 75;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -104,7 +104,7 @@ is $aln->no_sequences, 4, 'purge';
 
 SKIP:{
 	eval { require IO::String };
-	skip("IO::String not installed. Skipping tests.\n", 22) if $@;
+	skip("IO::String not installed. Skipping tests.\n", 24) if $@;
 
 	my $string;
 	my $out = IO::String->new($string);
@@ -271,4 +271,36 @@ SKIP:{
 	$new_aln=$aln->uniq_seq();
 	$a=$new_aln->no_sequences;
 	is $a, 11,'uniq_seq';
+		
+	# check if slice works well with a LocateableSeq in its negative strand
+	my $seq1 = Bio::LocatableSeq->new(
+	  -SEQ    => "ATGCTG-ATG",
+	  -START  => 1,
+	  -END    => 9,
+	  -ID     => "test1",
+	  -STRAND => -1
+	);
+	
+	my $seq2 = Bio::LocatableSeq->new(
+	  -SEQ    => "A-GCTGCATG",
+	  -START  => 1,
+	  -END    => 9,
+	  -ID     => "test2",
+	  -STRAND => 1
+	);
+	
+	$string ='';
+	my $aln_negative = Bio::SimpleAlign->new();
+	$aln_negative->add_seq($seq1);
+	$aln_negative->add_seq($seq2);
+	my $start_column =
+	   $aln_negative->column_from_residue_number($aln_negative->get_seq_by_pos(1)->display_id,2);
+	my $end_column =
+	   $aln_negative->column_from_residue_number($aln_negative->get_seq_by_pos(1)->display_id,5);
+	$aln_negative = $aln_negative->slice($end_column,$start_column);
+	my $seq_negative = $aln_negative->get_seq_by_pos(1);
+	is($seq_negative->start,2,"bug 2099");
+	is($seq_negative->end,5,"bug 2099");
 }
+
+1;

@@ -941,17 +941,21 @@ sub slice {
 		my $slice_seq = $seq->subseq($start, $seq_end);
 		$new_seq->seq( $slice_seq );
 
-		# start
+		$slice_seq =~ s/\W//g;
+		
 		if ($start > 1) {
 			my $pre_start_seq = $seq->subseq(1, $start - 1);
 			$pre_start_seq =~ s/\W//g;
+			if (!defined($seq->strand)) {
+				$new_seq->start( $seq->start + CORE::length($pre_start_seq) );
+			} elsif ($seq->strand < 0){
+				$new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
+			} else {
 			$new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
+			}
 		} else {
 			$new_seq->start( $seq->start);
 		}
-
-		# end
-		$slice_seq =~ s/\W//g;
 		$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
 
 		if ($new_seq->start and $new_seq->end >= $new_seq->start) {
@@ -990,7 +994,7 @@ sub remove_columns {
 	@args || return $self;
    my $aln;
 
-	if ($args[0][0] =~ /^[a-z_]+$/i) {
+	if ($args[0][0] =~ /^[a-z]+$/i) {
 		 $aln = $self->_remove_columns_by_type($args[0]);
 	} elsif ($args[0][0] =~ /^\d+$/) {
        $aln = $self->_remove_columns_by_num(\@args);
