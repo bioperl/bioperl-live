@@ -119,13 +119,28 @@ Internal methods are usually preceded with a _
 
 package Bio::PullParserI;
 
-use vars qw(@ISA $AUTOLOAD);
+use vars qw(@ISA $AUTOLOAD $FORCE_TEMP_FILE);
 use strict;
 
 use Bio::Root::RootI;
 use Bio::Root::IO;
 
 @ISA = qw(Bio::Root::RootI);
+
+BEGIN {
+    # chunk() needs perl 5.8 feature for modes other than temp_file, so will
+    # workaround by forcing temp_file mode in <5.8. Could also rewrite using
+    # IO::String, but don't want to.
+    eval {
+        require 5.008;
+    };
+    if ($@) {
+        $FORCE_TEMP_FILE = 1;
+    }
+    else {
+        $FORCE_TEMP_FILE = 0;
+    }
+}
 
 =head2 _fields
 
@@ -254,6 +269,8 @@ sub parent {
            'memory' is the fastest but uses the most memory. 'temp_file' and
            'sequential_read' can be slow, with 'temp_file' being the most memory
            efficient but requiring disc space. The default is 'sequential_read'.
+           Note that in versions of perl earlier than 5.8 only temp_file works
+           and will be used regardless of what value is supplied here.
 
 =cut
 
@@ -270,10 +287,17 @@ sub chunk {
                 $self->{_chunk} = new Bio::Root::IO(-file => $thing);
             }
             else {
-                # treat a string as a filehandle
-                my $fake_fh;
-                open($fake_fh, "+<", \$thing); # requires perl 5.8
-                $self->{_chunk} = new Bio::Root::IO(-fh => $fake_fh);
+                unless ($FORCE_TEMP_FILE) {
+                    # treat a string as a filehandle
+                    my $fake_fh;
+                    open($fake_fh, "+<", \$thing); # requires perl 5.8
+                    $self->{_chunk} = new Bio::Root::IO(-fh => $fake_fh);
+                }
+                else {
+                    my ($handle) = $self->{_chunk}->tempfile();
+                    print $handle $thing;
+                    $self->{_chunk} = new Bio::Root::IO(-fh => $handle);
+                }
             }
         }
         elsif ($thing->isa('Bio::Root::IO')) {
@@ -289,6 +313,7 @@ sub chunk {
                 $self->_rearrange([qw(PIPED_BEHAVIOUR START END)], @_);
         }
         $piped_behaviour ||= 'sequential_read';
+        $FORCE_TEMP_FILE && ($piped_behaviour = 'temp_file');
         $start ||= 0;
         $self->_chunk_true_start($start);
         $self->_chunk_true_end($end);
