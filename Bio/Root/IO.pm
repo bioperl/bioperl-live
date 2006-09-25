@@ -375,38 +375,26 @@ sub mode {
     #test for a readable filehandle;
     $iotest->fdopen( dup(fileno($obj->_fh)) , 'r' );
     if($iotest->error == 0){
-
-      # note the hack here, we actually have to try to read the line
-      # and if we get something, pushback() it into the readbuffer.
-      # this is because solaris and windows xp (others?) don't set
-      # IO::Handle::error.  for non-linux the r/w testing is done
-      # inside this read-test, instead of the write test below.  ugh.
-
-      if($^O eq 'linux'){
-        $obj->{'_mode'} = 'r';
-        my $line = $iotest->getline;
-        $obj->_pushback($line) if defined $line;
+        # note the hack here, we actually have to try to read the line
+        # and if we get something, pushback() it into the readbuffer.
+        # this is because solaris and windows xp (others?) don't set
+        # IO::Handle::error.  for non-linux the r/w testing is done
+        # inside this read-test, instead of the write test below.  ugh.
+        my $line = $obj->_readline;
+        $obj->_pushback($line) if $line;
         $obj->{'_mode'} = defined $line ? 'r' : 'w';
         return $obj->{'_mode'};
-      } else {
-        my $line = $iotest->getline;
-        $obj->_pushback($line) if defined $line;
-        $obj->{'_mode'} = defined $line ? 'r' : 'w';
-	return $obj->{'_mode'};
-      }
     }
     $iotest->clearerr;
 
     #test for a writeable filehandle;
     $iotest->fdopen( dup(fileno($obj->_fh)) , 'w' );
     if($iotest->error == 0){
-      $obj->{'_mode'} = 'w';
-#      return $obj->{'_mode'};
+        $obj->{'_mode'} = 'w';
+        return 'w';
     }
 
-    #wtf type of filehandle is this?
-#    $obj->{'_mode'} = '?';
-    return $obj->{'_mode'};
+    return '?';
 }
 
 =head2 file
