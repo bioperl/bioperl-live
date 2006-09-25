@@ -24,10 +24,10 @@ my $dir = $ARGV[0];
 foreach my $target ( keys ( %symlink_scripts ) ) {
     unlink "$dir/".$symlink_scripts{$target} if -e "$dir/".$symlink_scripts{$target};
     # place symlink in eval to catch error on systems that don't allow symlinks
-    eval { symlink( "$dir/$target", "$dir/".$symlink_scripts{$target} ); 1} 
+    eval { symlink( "$dir/$target", "$dir/".$symlink_scripts{$target} ); 1}
         or print STDERR "Cannot create symbolic link named $dir/"
             . $symlink_scripts{$target}
-            . " on you system for $dir/$target\n";
+            . " on your system for $dir/$target\n";
 }
 
 !NO!SUBS!
