@@ -1725,8 +1725,7 @@ sub no_sequences {
 
 sub percentage_identity{
     my ($self) = @_;
-
-    $self->throw_not_implemeneted();
+    $self->throw_not_implemented();
 }
 
 =head2 overall_percentage_identity
