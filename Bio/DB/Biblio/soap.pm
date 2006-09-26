@@ -17,7 +17,7 @@ Do not use this object directly, it is recommended to access it and use
 it through the I<Bio::Biblio> module:
 
   use Bio::Biblio;
-  my $biblio = new Bio::Biblio (-access => 'soap');
+  my $biblio = Bio::Biblio->new (-access => 'soap');
 
 =head1 DESCRIPTION
 
@@ -99,7 +99,7 @@ package Bio::DB::Biblio::soap;
 use vars qw(@ISA $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
-use Bio::Biblio;  # TBD: ?? WHY SHOULD I DO THIS ??
+use Bio::Biblio;
 use SOAP::Lite
     on_fault => sub {
 	my $soap = shift;
@@ -448,11 +448,11 @@ sub get_more {
    $self->throw ($self->_no_id_msg) unless $collection_id;
 
    unless (defined ($how_many) and $how_many =~ /^\d+$/) {
-       warn ("Method 'get_more' expects a numeric argument. Changing to 1.\n");
+       $self->warn ("Method 'get_more' expects a numeric argument. Changing to 1.\n");
        $how_many = 1;
    }
    unless ($how_many > 0) {
-       warn ("Method 'get_more' expects a positive argument. Changing to 1.\n");
+       $self->warn ("Method 'get_more' expects a positive argument. Changing to 1.\n");
        $how_many = 1;
    }
 
