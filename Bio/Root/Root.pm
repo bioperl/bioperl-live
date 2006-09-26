@@ -119,10 +119,31 @@ other pre-defined exception types:
    };  
    # the ending semicolon is essential!
 
+=head1 FEEDBACK
 
-=head1 CONTACT
+=head2 Mailing Lists
 
-Functions originally from Steve Chervitz. Refactored by Ewan Birney.
+User feedback is an integral part of the evolution of this
+and other Bioperl modules. Send your comments and suggestions preferably
+to one of the Bioperl mailing lists.
+
+Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution.  Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR
+
+Functions originally from Steve Chervitz. 
+Refactored by Ewan Birney.
 Re-refactored by Lincoln Stein.
 
 =head1 APPENDIX
@@ -358,10 +379,9 @@ sub throw{
 
 sub debug{
    my ($self,@msgs) = @_;
-   
-   if( defined $self->verbose &&
-       $self->verbose > 0 ) { 
-       print STDERR join("", @msgs);
+
+   if( defined $self->verbose && $self->verbose > 0 ) { 
+       print STDERR @msgs;
    }   
 }
 
@@ -372,7 +392,6 @@ sub debug{
  Function: Loads up (like use) the specified module at run time on demand.
  Example : 
  Returns : TRUE on success. Throws an exception upon failure.
-.
  Args    : The module to load (_without_ the trailing .pm).
 
 =cut
