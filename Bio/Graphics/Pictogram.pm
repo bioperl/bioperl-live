@@ -119,10 +119,8 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Graphics::Pictogram;
 use strict;
 use SVG 2.26;
-use Bio::Root::Root;
 use Bio::SeqIO;
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 use constant MAXBITS => 2;
 

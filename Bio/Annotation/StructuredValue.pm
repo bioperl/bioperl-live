@@ -73,17 +73,15 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Annotation::StructuredValue;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::AnnotationI;
-use Bio::Annotation::SimpleValue;
 use overload '""' => sub { $_[0]->value || ''};
 use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
-@ISA = qw(Bio::Annotation::SimpleValue);
+use base qw(Bio::Annotation::SimpleValue);
 
 =head2 new
 

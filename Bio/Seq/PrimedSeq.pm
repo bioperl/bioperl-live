@@ -143,12 +143,11 @@ methods. Internal methods are usually preceded with a _
 package Bio::Seq::PrimedSeq;
 
 use strict;
-use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Primer;
 
-use vars qw ($AUTOLOAD @RES %OK_FIELD @ISA $ID);
+use vars qw ($AUTOLOAD @RES %OK_FIELD $ID);
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeature::Generic);
+use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
 
 BEGIN {
  @RES = qw(); # nothing here yet, not sure what we want!

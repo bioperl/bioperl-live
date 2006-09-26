@@ -67,13 +67,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::ace;
 use strict;
-use vars qw(@ISA);
 
-use Bio::SeqIO;
 use Bio::Seq;
 use Bio::Seq::SeqFactory;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
   my($self,@args) = @_;

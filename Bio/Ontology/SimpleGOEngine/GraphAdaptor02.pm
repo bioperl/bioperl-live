@@ -75,12 +75,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Ontology::SimpleGOEngine::GraphAdaptor02;
 
-use Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 
-use vars qw( @ISA );
 use strict;
 
-@ISA = qw( Bio::Ontology::SimpleGOEngine::GraphAdaptor );
+use base qw(Bio::Ontology::SimpleGOEngine::GraphAdaptor);
 
 # edges
 #   v0.2x returns (u0,v0, u1,v1, ...)

@@ -12,13 +12,12 @@
 
 package Bio::Tools::SeqAnal;
 
-use Bio::Root::Object ();
 use Bio::Root::Global qw(:std);
 
 use strict;
-use vars qw($ID @ISA);
+use vars qw($ID);
 
-@ISA        = qw( Bio::Root::Object );
+use base qw(Bio::Root::Object);
 $ID = 'Bio::Tools::SeqAnal';
 
 

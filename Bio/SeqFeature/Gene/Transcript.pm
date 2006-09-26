@@ -55,16 +55,13 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::SeqFeature::Gene::Transcript;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqFeature::Gene::TranscriptI;
-use Bio::SeqFeature::Generic;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::TranscriptI);
+use base qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::TranscriptI);
 
 sub new {
     my ($caller, @args) = @_;

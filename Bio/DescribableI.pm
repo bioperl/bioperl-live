@@ -54,12 +54,10 @@ Email birney@sanger.ac.uk
 =cut
 
 package Bio::DescribableI;
-use vars qw(@ISA );
 use strict;
-use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 

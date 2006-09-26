@@ -84,11 +84,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::AnalysisResultI;
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 
 =head2 analysis_query

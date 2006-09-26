@@ -19,9 +19,7 @@ Bio::Index::AbstractSeq - Base class for AbstractSeq s
   # Make a new sequence file indexing package
 
   package MyShinyNewIndexer;
-  use Bio::Index::AbstractSeq;
-
-  @ISA = ('Bio::Index::AbstractSeq');
+  use base qw(Bio::Index::AbstractSeq);
 
   # Now provide the necessary methods...
 
@@ -73,15 +71,12 @@ not necessarily sequence files).
 
 
 package Bio::Index::AbstractSeq;
-use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO::MultiFile;
-use Bio::Index::Abstract;
-use Bio::DB::SeqI;
 
 
-@ISA = qw(Bio::Index::Abstract Bio::DB::SeqI);
+use base qw(Bio::Index::Abstract Bio::DB::SeqI);
 
 sub new {
     my ($class, @args) = @_;

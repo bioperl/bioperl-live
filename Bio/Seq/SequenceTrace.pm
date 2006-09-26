@@ -54,21 +54,17 @@ Internal methods are usually preceded with a _
 
 package Bio::Seq::SequenceTrace;
 
-use vars qw(@ISA);
 
 use strict;
-use Bio::Root::Root;
 use Bio::Seq::QualI;
 use Bio::PrimarySeqI;
 use Bio::PrimarySeq;
 use Bio::Seq::PrimaryQual;
-use Bio::Seq::TraceI;
-use Bio::Seq::Quality;
 use Dumpvalue();
 
 my $dumper = new Dumpvalue();
 
-@ISA = qw(Bio::Root::Root Bio::Seq::Quality Bio::Seq::TraceI);
+use base qw(Bio::Root::Root Bio::Seq::Quality Bio::Seq::TraceI);
 
 =head2 new()
 

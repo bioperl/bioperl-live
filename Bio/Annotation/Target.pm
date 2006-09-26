@@ -57,16 +57,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Annotation::Target;
-use vars qw(@ISA);
 use strict;
 use overload '""' => sub { $_[0]->as_text || ''};
 use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
-use Bio::Root::Root;
-use Bio::AnnotationI;
-use Bio::Range;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::Range);
+use base qw(Bio::Root::Root Bio::AnnotationI Bio::Range);
 
 
 sub new {

@@ -58,13 +58,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::GeneStructureI;
-use vars qw(@ISA);
 use strict;
 
 use Carp;
-use Bio::SeqFeatureI;
 
-@ISA = qw(Bio::SeqFeatureI);
+use base qw(Bio::SeqFeatureI);
 
 =head2 transcripts
 

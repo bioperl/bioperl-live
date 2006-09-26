@@ -81,13 +81,12 @@ package Bio::SeqIO::tinyseq::tinyseqHandler;
 use strict;
 use warnings;
 
-use Bio::Root::Root;
 
-use vars qw($VERSION %ATTMAP @ISA);
+use vars qw($VERSION %ATTMAP);
 
 $VERSION = '0.01';
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # %ATTMAP defines correspondence between TSeq elements, PrimarySeq attributes
 # Format: element_name => { xml_attname => pseq_attname }

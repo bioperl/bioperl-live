@@ -75,11 +75,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Microsatellite;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::Marker;
 
-@ISA = qw(Bio::Map::Marker);
+use base qw(Bio::Map::Marker);
 
 =head2 new
 

@@ -74,14 +74,13 @@ with an underscore _.
 
 
 package Bio::Biblio::IO::pubmedxml;
-use vars qw(@ISA $Revision);
+use vars qw($Revision);
 use vars qw(%PCDATA_NAMES %SIMPLE_TREATMENT %POP_DATA_AND_PEEK_OBJ %POP_AND_ADD_DATA_ELEMENT);
 
 use strict;
 
-use Bio::Biblio::IO::medlinexml;
 
-@ISA = qw(Bio::Biblio::IO::medlinexml);
+use base qw(Bio::Biblio::IO::medlinexml);
 
 BEGIN {
     $Revision = q[$Id$];

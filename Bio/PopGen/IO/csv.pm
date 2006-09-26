@@ -86,20 +86,19 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::IO::csv;
-use vars qw(@ISA $FieldDelim $AlleleDelim $NoHeader);
+use vars qw($FieldDelim $AlleleDelim $NoHeader);
 use strict;
 
 ($FieldDelim,$AlleleDelim,$NoHeader) =( ',', '\s+',0);
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::PopGen::IO;
 
 use Bio::PopGen::Individual;
 use Bio::PopGen::Population;
 use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::PopGen::IO );
+use base qw(Bio::PopGen::IO);
 
 =head2 new
 

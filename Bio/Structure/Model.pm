@@ -54,13 +54,11 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::Structure::Model;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Structure::Entry;
 use Bio::Structure::Chain;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 =head2 new()

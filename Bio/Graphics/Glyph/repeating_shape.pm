@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::repeating_shape;
 # DAS-compatible package to use for drawing a line of repeating shapes
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub default_width
 {

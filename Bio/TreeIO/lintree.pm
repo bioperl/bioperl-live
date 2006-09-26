@@ -109,12 +109,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::lintree;
-use vars qw(@ISA %Defaults);
+use vars qw(%Defaults);
 use strict;
 
-use Bio::TreeIO;
 
-@ISA = qw(Bio::TreeIO);
+use base qw(Bio::TreeIO);
 $Defaults{'NodeType'} = "Bio::Tree::Node";
 
 =head2 new

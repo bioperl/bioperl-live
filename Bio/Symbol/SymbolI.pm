@@ -75,9 +75,7 @@ Internal methods are usually preceded with a _
 
 package Bio::Symbol::SymbolI;
 use strict;
-use Bio::Root::RootI;
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 Bio::Symbol::SymbolI interface methods
 

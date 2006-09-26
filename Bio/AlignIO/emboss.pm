@@ -65,13 +65,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::emboss;
-use vars qw(@ISA $EMBOSSTitleLen $EMBOSSLineLen);
+use vars qw($EMBOSSTitleLen $EMBOSSLineLen);
 use strict;
 
-use Bio::AlignIO;
 use Bio::LocatableSeq;
 
-@ISA = qw(Bio::AlignIO );
+use base qw(Bio::AlignIO);
 
 BEGIN {
     $EMBOSSTitleLen    = 13;

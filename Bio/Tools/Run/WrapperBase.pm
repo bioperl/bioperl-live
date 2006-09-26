@@ -69,15 +69,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Run::WrapperBase;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
 use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 run
 

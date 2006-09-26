@@ -84,17 +84,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::HMMER::Results;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Tools::HMMER::Domain;
 use Bio::Tools::HMMER::Set;
-use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::SeqAnalysisParserI);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::SeqAnalysisParserI);
 
 sub new {
   my($class,@args) = @_;

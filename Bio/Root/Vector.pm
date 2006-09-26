@@ -26,7 +26,7 @@ package Bio::Root::Vector;
 use Bio::Root::Global qw(:devel);
 use Bio::Root::Object ();
 
-# @ISA = qw(Bio::Root::Object);  # Eventually perhaps...
+# use base qw(Bio::Root::Object);  # Eventually perhaps...
 
 use vars qw($ID );
 $ID = 'Bio::Root::Vector';

@@ -73,11 +73,10 @@ BEGIN {
     $CGI = 1 if $ENV{REMOTE_ADDR} || $ENV{REMOTE_HOST};
 }
 use Bio::Root::Version;
-use Exporter ();
 use vars qw($BASE_YEAR @DAYS @MONTHS);
 
-use vars qw(@ISA @EXPORT_OK %EXPORT_TAGS);
-@ISA       = qw( Exporter );
+use vars qw(@EXPORT_OK %EXPORT_TAGS);
+use base qw(Exporter);
 @EXPORT_OK = qw($AUTHORITY $NEWLINE
 		$DEBUG $MONITOR $TESTING 
 		$DONT_WARN $WARN_ON_FATAL $FATAL_ON_WARN $RECORD_ERR

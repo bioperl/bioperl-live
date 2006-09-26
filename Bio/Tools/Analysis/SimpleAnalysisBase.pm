@@ -70,17 +70,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Analysis::SimpleAnalysisBase;
 
-use vars qw(@ISA);
 use strict;
 use Data::Dumper;
-use Bio::SimpleAnalysisI;
-use Bio::WebAgent;
 
 my $FLOAT = '[+-]?\d*\.\d*';
 
 my %STATUS =  map { $_ => 1 } qw(CREATED COMPLETED TERMINATED_BY_ERROR);
 
-@ISA = qw(Bio::WebAgent Bio::SimpleAnalysisI );
+use base qw(Bio::WebAgent Bio::SimpleAnalysisI);
 
 =head2 new
 
@@ -269,3 +266,4 @@ sub _process_arguments {
 
 sub _run { shift->throw_not_implemented();}
 	
+1;

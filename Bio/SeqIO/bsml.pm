@@ -130,10 +130,8 @@ for many of the subroutines that are common to SeqIO modules.
 =cut
 
 package Bio::SeqIO::bsml;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use XML::DOM;
@@ -143,7 +141,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 my $idcounter = {};  # Used to generate unique id values
 my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed

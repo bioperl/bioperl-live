@@ -89,9 +89,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::IO::ace;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
 use Bio::Assembly::Singlet;
@@ -104,7 +102,7 @@ use Dumpvalue();
 my $dumper = new Dumpvalue();
 $dumper->veryCompact(1);
 
-@ISA = qw(Bio::Assembly::IO);
+use base qw(Bio::Assembly::IO);
 
 =head1 Parser methods
 

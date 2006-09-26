@@ -72,14 +72,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::Split;
-use vars qw(@ISA @CORBALOCATIONOPERATOR);
+use vars qw(@CORBALOCATIONOPERATOR);
 use strict;
 
 use Bio::Root::Root;
-use Bio::Location::SplitLocationI;
-use Bio::Location::Atomic;
 
-@ISA = qw(Bio::Location::Atomic Bio::Location::SplitLocationI );
+use base qw(Bio::Location::Atomic Bio::Location::SplitLocationI);
 
 BEGIN { 
     # as defined by BSANE 0.03

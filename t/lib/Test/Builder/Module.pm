@@ -3,7 +3,7 @@ package Test::Builder::Module;
 use Test::Builder;
 
 require Exporter;
-@ISA = qw(Exporter);
+use base qw(Exporter);
 
 $VERSION = '0.03';
 

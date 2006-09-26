@@ -131,12 +131,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::ClusterIO;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 
 

@@ -93,14 +93,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::bl2seq;
-use vars qw(@ISA);
 use strict;
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::AlignIO;
 use Bio::SearchIO;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 new
 

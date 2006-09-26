@@ -77,15 +77,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::BaseSeqProcessor;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Factory::SequenceProcessorI;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::SequenceProcessorI);
+use base qw(Bio::Root::Root Bio::Factory::SequenceProcessorI);
 
 =head2 new
 

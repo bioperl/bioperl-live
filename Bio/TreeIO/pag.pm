@@ -65,13 +65,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::pag;
-use vars qw(@ISA $TaxonNameLen);
+use vars qw($TaxonNameLen);
 use strict;
-use Bio::TreeIO;
 
 $TaxonNameLen = 10;
 
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 =head2 new
 

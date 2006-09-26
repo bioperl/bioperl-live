@@ -4,9 +4,7 @@ package Bio::Graphics::Glyph::pinsertion;
 
 use strict;
 use GD;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub box {
   my $self = shift;

@@ -66,11 +66,10 @@ Email natg@shore.net, richard.adams@ed.ac.uk
 =cut
 
 package Bio::Graph::SimpleGraph::Traversal;
-use vars qw(@ISA @AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
-use Class::AutoClass;
+use vars qw(@AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
 use Bio::Graph::SimpleGraph;
 use strict;
-@ISA = qw(Class::AutoClass); # AutoClass must be first!!
+use base qw(Class::AutoClass);
 
 @AUTO_ATTRIBUTES=qw(order what graph start is_initialized
 		    _past _present _future);

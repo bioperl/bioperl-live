@@ -86,18 +86,17 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tree::DistanceFactory;
-use vars qw(@ISA $DefaultMethod $Precision);
+use vars qw($DefaultMethod $Precision);
 use strict;
 
 # some defaults
 $DefaultMethod = 'UPGMA';
 $Precision = 5;
 
-use Bio::Root::Root;
 use Bio::Tree::Node;
 use Bio::Tree::Tree;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 

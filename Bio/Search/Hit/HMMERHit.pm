@@ -62,12 +62,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Hit::HMMERHit;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Search::Hit::GenericHit;
 
-@ISA = qw(Bio::Search::Hit::GenericHit );
+use base qw(Bio::Search::Hit::GenericHit);
 
 =head2 new
 

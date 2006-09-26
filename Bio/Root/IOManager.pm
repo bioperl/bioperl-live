@@ -18,11 +18,10 @@
 package Bio::Root::IOManager;
 
 use Bio::Root::Global     qw(:devel $CGI $TIMEOUT_SECS);
-use Bio::Root::Object     ();
 use Bio::Root::Utilities  qw(:obj);
 use FileHandle            ();
 
-@ISA   = qw(Bio::Root::Object);
+use base qw(Bio::Root::Object);
 
 use strict;
 use vars qw($ID $revision);

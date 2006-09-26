@@ -74,11 +74,9 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin
 
 package Bio::CodonUsage::IO;
-use Bio::Root::IO;
 use Bio::CodonUsage::Table;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::IO);
+use base qw(Bio::Root::IO);
 
 =head2  new
 

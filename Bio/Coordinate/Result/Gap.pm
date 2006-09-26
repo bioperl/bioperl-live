@@ -60,13 +60,10 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 package Bio::Coordinate::Result::Gap;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Location::Simple;
-use Bio::Coordinate::ResultI;
 
-@ISA = qw(Bio::Location::Simple Bio::Coordinate::ResultI);
+use base qw(Bio::Location::Simple Bio::Coordinate::ResultI);
 
 
 1;

@@ -63,14 +63,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::ClusterIO::unigene;
-use vars qw(@ISA);
 use strict;
 
-use Bio::ClusterIO;
 use Bio::Cluster::UniGene;
 use Bio::Cluster::ClusterFactory;
 
-@ISA = qw(Bio::ClusterIO);
+use base qw(Bio::ClusterIO);
 
 my %line_is = (
 		ID			=>	q/ID\s+(\w{2,3}\.\d+)/,

@@ -101,10 +101,8 @@ Email skirov@utk.edu
 
 package Bio::Matrix::PSM::SiteMatrixI;
 
-use Bio::Root::RootI;
-use vars qw(@ISA);
 # use strict;
-@ISA=qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 calc_weight
 

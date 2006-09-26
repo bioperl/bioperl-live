@@ -565,11 +565,8 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Aggregator;
-use Bio::DasI;
-use Bio::Root::Root;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root Bio::DasI);
+use base qw(Bio::Root::Root Bio::DasI);
 
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
@@ -3638,9 +3635,7 @@ sub unescape {
 package Bio::DB::GFF::ID_Iterator;
 use strict;
 
-use Bio::Root::Root;
-use vars '@ISA';
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 sub new {
   my $class            = shift;

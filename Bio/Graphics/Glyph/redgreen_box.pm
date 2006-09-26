@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::redgreen_box;
 #$Id$
 
 use strict;
-use Bio::Graphics::Glyph::generic;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub bgcolor {
   my $self = shift;

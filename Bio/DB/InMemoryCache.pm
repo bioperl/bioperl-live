@@ -57,15 +57,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::InMemoryCache;
 
-use Bio::DB::SeqI;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Seq;
 
-@ISA = qw(Bio::Root::Root Bio::DB::SeqI);
+use base qw(Bio::Root::Root Bio::DB::SeqI);
 
 sub new {
     my ($class,@args) = @_;

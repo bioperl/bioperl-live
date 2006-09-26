@@ -67,12 +67,10 @@ underscore.
 # Let the code begin...
 
 package Bio::AlignIO::meme;
-use vars qw(@ISA);
 use strict;
-use Bio::AlignIO;
 use Bio::LocatableSeq;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 # Constants
 my $MEME_VERS_ERR =

@@ -65,14 +65,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::DBFetch;
 use strict;
-use vars qw(@ISA $MODVERSION $DEFAULTFORMAT $DEFAULTLOCATION
+use vars qw($MODVERSION $DEFAULTFORMAT $DEFAULTLOCATION
 	         $DEFAULTSERVERTYPE);
 
 $MODVERSION = '0.1';
 use HTTP::Request::Common;
-use Bio::DB::WebDBSeqI;
 
-@ISA = qw(Bio::DB::WebDBSeqI);
+use base qw(Bio::DB::WebDBSeqI);
 
 # the new way to make modules a little more lightweight
 

@@ -78,13 +78,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Cluster::ClusterFactory;
-use vars qw(@ISA);
 use strict;
 
 use Bio::Root::Root;
-use Bio::Factory::ObjectFactory;
 
-@ISA = qw(Bio::Factory::ObjectFactory);
+use base qw(Bio::Factory::ObjectFactory);
 
 =head2 new
 

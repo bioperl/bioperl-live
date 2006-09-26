@@ -58,18 +58,16 @@ too much overhead.
 # Let the code begin...
 
 package Bio::MapIO::fpc;
-use vars qw(@ISA);
 use strict;
 use POSIX;
 
-use Bio::MapIO;
 use Bio::Map::Physical;
 use Bio::Map::Clone;
 use Bio::Map::Contig;
 use Bio::Map::FPCMarker;
 use Bio::Range;
 
-@ISA = qw(Bio::MapIO);
+use base qw(Bio::MapIO);
 
 my $_readcor;
 

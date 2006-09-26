@@ -91,13 +91,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Index::EMBL;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 sub _type_stamp {
     return '__EMBL_FLAT__'; # What kind of index are we?

@@ -140,7 +140,6 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::ECnumber;
-use vars qw( @ISA );
 use strict;
 use Bio::Root::Object;
 
@@ -148,7 +147,7 @@ use constant DEFAULT => "-";
 use constant TRUE    => 1;
 use constant FALSE   => 0;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 

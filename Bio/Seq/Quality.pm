@@ -153,14 +153,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::Quality;
-use vars qw(@ISA $DEFAULT_NAME $GAP $META_GAP);
+use vars qw($DEFAULT_NAME $GAP $META_GAP);
 use strict;
-use Bio::LocatableSeq;
-use Bio::Seq::Meta::Array;
 
 #use overload '""' => \&to_string;
 
-@ISA = qw( Bio::LocatableSeq Bio::Seq::Meta::Array );
+use base qw(Bio::LocatableSeq Bio::Seq::Meta::Array);
 
 
 BEGIN {

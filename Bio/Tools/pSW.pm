@@ -114,7 +114,6 @@ methods. Internal methods are usually preceded with an underscore "_".
 # Let the code begin...
 
 package Bio::Tools::pSW;
-use vars qw(@ISA);
 use strict;
 no strict ( 'refs');
 
@@ -128,11 +127,10 @@ BEGIN {
     }
 }
 
-use Bio::Tools::AlignFactory;
 use Bio::SimpleAlign;
 
 
-@ISA = qw(Bio::Tools::AlignFactory);
+use base qw(Bio::Tools::AlignFactory);
 
 
 
@@ -416,5 +414,4 @@ sub ext {
     return $self->{'ext'};
 }
 
-    
-
+1;

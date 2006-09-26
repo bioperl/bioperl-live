@@ -60,17 +60,14 @@ methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Structure::Entry;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Structure::StructureI;
 use Bio::Structure::Model;
 use Bio::Structure::Chain;
 use Bio::Annotation::Collection;
 use Tie::RefHash;
 
-@ISA = qw(Bio::Root::Root Bio::Structure::StructureI);
+use base qw(Bio::Root::Root Bio::Structure::StructureI);
 
 =head2 new()
 

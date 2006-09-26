@@ -72,9 +72,8 @@ Internal methods are usually preceded with a _
 package Bio::SeqIO::lasergene;
 
 use strict;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 =head2 next_seq
 

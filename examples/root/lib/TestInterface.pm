@@ -15,9 +15,8 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 package TestInterface;
 
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 sub data {
     my $self = shift;

@@ -105,9 +105,8 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::swiss;
-use vars qw(@ISA @Unknown_names @Unknown_genus);
+use vars qw(@Unknown_names @Unknown_genus);
 use strict;
-use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
@@ -120,7 +119,7 @@ use Bio::Annotation::DBLink;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::StructuredValue;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 # this is for doing species name parsing
 @Unknown_names=('other', 'unidentified',

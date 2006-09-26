@@ -79,12 +79,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::OntologyI;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Ontology::OntologyEngineI;
 
-@ISA = qw( Bio::Ontology::OntologyEngineI );
+use base qw(Bio::Ontology::OntologyEngineI);
 
 =head1  Methods defined in this interface.
 

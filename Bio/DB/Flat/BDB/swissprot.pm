@@ -55,10 +55,8 @@ Email - lstein@cshl.org
 package Bio::DB::Flat::BDB::swissprot;
 
 use strict;
-use Bio::DB::Flat::BDB;
-use vars '@ISA';
 
-@ISA = qw(Bio::DB::Flat::BDB);
+use base qw(Bio::DB::Flat::BDB);
 
 sub default_file_format { "swiss" }
 

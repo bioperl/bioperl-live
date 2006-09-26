@@ -27,10 +27,8 @@ L<Bio::DB::GFF::Aggregator::transcript>
 package Bio::DB::GFF::Aggregator::ucsc_acembly;
 
 use strict;
-use Bio::DB::GFF::Aggregator;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 
 =head2 method

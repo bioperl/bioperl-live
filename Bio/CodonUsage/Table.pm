@@ -102,11 +102,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::CodonUsage::Table;
 use strict;
-use vars qw(@ISA %STRICTAA @AA);
+use vars qw(%STRICTAA @AA);
 use Bio::SeqUtils;
 use Bio::Tools::CodonTable;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 BEGIN{
  @AA = qw(A C D E F G H I K L M N P Q R S T V W Y *);

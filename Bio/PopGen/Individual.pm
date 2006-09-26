@@ -65,16 +65,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Individual;
-use vars qw(@ISA $UIDCOUNTER);
+use vars qw($UIDCOUNTER);
 use strict;
 BEGIN { $UIDCOUNTER = 1 }
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::PopGen::IndividualI;
 
-@ISA = qw(Bio::Root::Root Bio::PopGen::IndividualI);
+use base qw(Bio::Root::Root Bio::PopGen::IndividualI);
 
 =head2 new
 

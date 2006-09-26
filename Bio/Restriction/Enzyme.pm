@@ -256,14 +256,12 @@ purposes only.
 package Bio::Restriction::Enzyme;
 use strict;
 
-use Bio::Root::Root;
 use Bio::PrimarySeq;
-use Bio::Restriction::EnzymeI;
 
 use Data::Dumper;
 
-use vars qw (@ISA %TYPE );
-@ISA = qw(Bio::Root::Root Bio::Restriction::EnzymeI);
+use vars qw (%TYPE);
+use base qw(Bio::Root::Root Bio::Restriction::EnzymeI);
 
 BEGIN {
     my %TYPE = (I => 1, II => 1, III => 1);

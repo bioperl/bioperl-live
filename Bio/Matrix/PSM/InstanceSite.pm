@@ -75,12 +75,9 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::InstanceSite;
-use Bio::Matrix::PSM::InstanceSiteI;
-use Bio::LocatableSeq;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::LocatableSeq Bio::Matrix::PSM::InstanceSiteI);
+use base qw(Bio::LocatableSeq Bio::Matrix::PSM::InstanceSiteI);
 
 =head2 new
 

@@ -243,11 +243,9 @@ web:
 
 use strict;
 package Bio::Graph::ProteinGraph;
-use Bio::Graph::SimpleGraph;
 use Bio::Graph::Edge;
 use Clone qw(clone);
-use vars  qw(@ISA);
-our @ISA = qw(Bio::Graph::SimpleGraph);
+use base qw(Bio::Graph::SimpleGraph);
 
 =head2  has_node
 

@@ -200,15 +200,13 @@ Internal methods are usually preceded with a _
 package Bio::Search::Hit::PsiBlastHit;
 
 use strict;
-use Bio::Search::Hit::HitI;
-use Bio::Root::Root;
 require Bio::Search::BlastUtils;
-use vars qw( @ISA %SUMMARY_OFFSET $Revision);
+use vars qw(%SUMMARY_OFFSET $Revision);
 
 use overload
     '""' => \&to_string;
 
-@ISA = qw( Bio::Root::Root Bio::Search::Hit::HitI );
+use base qw(Bio::Root::Root Bio::Search::Hit::HitI);
 
 $Revision = '$Id$';  #'
 

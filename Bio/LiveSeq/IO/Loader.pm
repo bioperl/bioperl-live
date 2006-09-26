@@ -41,7 +41,6 @@ package Bio::LiveSeq::IO::Loader;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw(@ISA);
 use Bio::LiveSeq::DNA;
 use Bio::LiveSeq::Exon;
 use Bio::LiveSeq::Transcript ;
@@ -53,8 +52,6 @@ use Bio::LiveSeq::Repeat_Region;
 use Bio::LiveSeq::Repeat_Unit;
 use Bio::LiveSeq::AARange;
 use Bio::Tools::CodonTable;
-
-#@ISA=qw(Bio::LiveSeq::); # not useful now
 
 =head2 entry2liveseq
 

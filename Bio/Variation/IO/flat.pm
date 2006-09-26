@@ -63,11 +63,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Variation::IO::flat;
 
-use vars qw(@ISA);
 use strict;
 
 use Text::Wrap;
-use Bio::Variation::IO;
 use Bio::Variation::SeqDiff;
 use Bio::Variation::DNAMutation;
 use Bio::Variation::RNAChange;
@@ -75,7 +73,7 @@ use Bio::Variation::AAChange;
 use Bio::Variation::Allele;
 
 
-@ISA = qw(Bio::Variation::IO);
+use base qw(Bio::Variation::IO);
 
 sub new {
     my($class, @args) = @_;

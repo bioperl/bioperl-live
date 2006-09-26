@@ -70,12 +70,11 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Map::CytoMap;
-use vars qw(@ISA $MAPCOUNT);
+use vars qw($MAPCOUNT);
 use strict;
 
-use Bio::Map::SimpleMap;
 
-@ISA = qw(Bio::Map::SimpleMap);
+use base qw(Bio::Map::SimpleMap);
 BEGIN { $MAPCOUNT = 1; }
 
 =head2 new

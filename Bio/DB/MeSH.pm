@@ -72,14 +72,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::DB::MeSH;
-use vars qw( @ISA );
 use strict;
 
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 use Bio::Phenotype::MeSH::Term;
 use Bio::Phenotype::MeSH::Twig;
 
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase );
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 
 my $URL = 'http://www.nlm.nih.gov/mesh/MBrowser.html';

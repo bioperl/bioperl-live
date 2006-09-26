@@ -19,10 +19,9 @@
 package Bio::Tools::Blast::HSP;
 
 use Bio::Root::Global qw(:devel);
-use Bio::Root::Object ();
 #use Bio::Root::Err   qw(:std);
 
-@ISA = qw( Bio::Root::Object);
+use base qw(Bio::Root::Object);
 
 use strict;
 use vars qw($ID $GAP_SYMBOL @SCORE_CUTOFFS $Revision %STRAND_SYMBOL);

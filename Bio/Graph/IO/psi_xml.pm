@@ -48,13 +48,11 @@ use XML::Twig;
 use Bio::Seq::SeqFactory;
 use Bio::Graph::ProteinGraph;
 use Bio::Graph::Edge;
-use Bio::Graph::IO;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
 use Bio::Species;
-use Bio::Root::Object;
-use vars qw(@ISA  %species $g $c $fac);
-@ISA = qw(Bio::Graph::IO Bio::Root::Object);
+use vars qw(%species $g $c $fac);
+use base qw(Bio::Graph::IO Bio::Root::Object);
 
 BEGIN{
 	$fac  = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq::RichSeq');

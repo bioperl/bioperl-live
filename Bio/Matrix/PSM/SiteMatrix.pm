@@ -146,12 +146,9 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 package Bio::Matrix::PSM::SiteMatrix;
-use Bio::Matrix::PSM::SiteMatrixI;
-use Bio::Root::Root;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
+use base qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
 
 =head2 new
 

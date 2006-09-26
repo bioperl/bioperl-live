@@ -76,15 +76,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::PositionProxy;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SeqFeatureI;
 use Bio::Tools::GFF;
 
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI);
+use base qw(Bio::Root::Root Bio::SeqFeatureI);
 
 sub new {
     my ($caller, @args) = @_;
@@ -446,3 +443,5 @@ sub all_tags{
 
    return $self->parent->all_tags();
 }
+
+1;

@@ -70,19 +70,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Root::IO;
-use Bio::Event::EventGeneratorI;
 use Bio::TreeIO::TreeEventBuilder;
-use Bio::Factory::TreeFactoryI;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO 
-	Bio::Event::EventGeneratorI Bio::Factory::TreeFactoryI);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::Event::EventGeneratorI Bio::Factory::TreeFactoryI);
 
 =head2 new
 

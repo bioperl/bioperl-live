@@ -3,9 +3,7 @@ package Bio::Graphics::Glyph::processed_transcript;
 # $Id$
 
 use strict;
-use Bio::Graphics::Glyph::transcript2;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::transcript2';
+use base qw(Bio::Graphics::Glyph::transcript2);
 use constant DEFAULT_UTR_COLOR => '#D0D0D0';
 
 sub new {

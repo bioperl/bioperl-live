@@ -117,15 +117,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::SeqBuilder;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Factory::ObjectBuilderI;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::ObjectBuilderI);
+use base qw(Bio::Root::Root Bio::Factory::ObjectBuilderI);
 
 my %slot_param_map = ("add_SeqFeature" => "features",
 		      );

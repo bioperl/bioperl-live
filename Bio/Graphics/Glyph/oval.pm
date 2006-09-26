@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::oval;
 
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::ellipse;
-@ISA = 'Bio::Graphics::Glyph::ellipse';
+use base qw(Bio::Graphics::Glyph::ellipse);
 
 1;
 

@@ -55,12 +55,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::game::gameHandler;
 
-use Bio::SeqIO::game::gameSubs;
 use Bio::SeqIO::game::seqHandler;
 use strict;
-use vars qw { @ISA };
+use vars qw {};
 
-@ISA = qw{ Bio::SeqIO::game::gameSubs };
+use base qw(Bio::SeqIO::game::gameSubs);
 
 =head2 start_document
 

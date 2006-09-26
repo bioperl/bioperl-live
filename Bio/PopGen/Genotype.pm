@@ -72,7 +72,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Genotype;
-use vars qw(@ISA $BlankAlleles);
+use vars qw($BlankAlleles);
 use strict;
 
 $BlankAlleles = '[\s\-N\?]';
@@ -80,11 +80,9 @@ $BlankAlleles = '[\s\-N\?]';
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::PopGen::GenotypeI;
-use Bio::Root::Root;
 
 
-@ISA = qw(Bio::Root::Root  Bio::PopGen::GenotypeI);
+use base qw(Bio::Root::Root Bio::PopGen::GenotypeI);
 
 =head2 new
 

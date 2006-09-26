@@ -11,9 +11,7 @@ Bio::Graphics::Glyph::three_letters - DAS-compatible package to use for drawing 
 =cut
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::repeating_shape';
-use Bio::Graphics::Glyph::repeating_shape;
+use base qw(Bio::Graphics::Glyph::repeating_shape);
 
 sub pad_top {
   my $self = shift;

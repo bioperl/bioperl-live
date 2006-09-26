@@ -91,12 +91,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Phenotype::MeSH::Twig;
-use vars qw( @ISA );
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 sub new {

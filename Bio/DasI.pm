@@ -103,12 +103,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::DasI;
 use strict;
 
-use vars qw(@ISA);
-use Bio::Root::RootI;
 use Bio::Das::SegmentI;
-use Bio::SeqFeature::CollectionI;
 # Object preamble - inherits from Bio::Root::Root;
-@ISA = qw(Bio::Root::RootI Bio::SeqFeature::CollectionI);
+use base qw(Bio::Root::RootI Bio::SeqFeature::CollectionI);
 
 =head2 new
 

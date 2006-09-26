@@ -67,14 +67,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Location::Fuzzy;
-use vars qw(@ISA );
 use strict;
 
-use Bio::Location::FuzzyLocationI;
-use Bio::Location::Atomic;
 use Data::Dumper;
 
-@ISA = qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI );
+use base qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI);
 
 BEGIN {
     use vars qw( %FUZZYCODES %FUZZYPOINTENCODE %FUZZYRANGEENCODE 

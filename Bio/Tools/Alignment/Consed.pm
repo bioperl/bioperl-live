@@ -98,14 +98,12 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Alignment::Consed;
 
 use strict;
-use vars qw(@ISA $Contigs %DEFAULTS);
+use vars qw($Contigs %DEFAULTS);
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
-use Bio::Root::Root;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 
 BEGIN {

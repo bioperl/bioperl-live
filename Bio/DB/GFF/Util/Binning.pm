@@ -27,8 +27,8 @@ package Bio::DB::GFF::Util::Binning;
 
 use strict;
 require Exporter;
-use vars qw(@ISA @EXPORT @EXPORT_OK);
-@ISA = 'Exporter';
+use vars qw(@EXPORT @EXPORT_OK);
+use base qw(Exporter);
 @EXPORT_OK = qw(bin bin_bot bin_top);
 @EXPORT = @EXPORT_OK;
 use Bio::Root::Version;

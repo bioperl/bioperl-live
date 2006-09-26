@@ -110,18 +110,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw(@ISA $MATCHPATTERN);
+use vars qw($MATCHPATTERN);
 use strict;
 
 $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
 
-use Bio::Root::Root;
-use Bio::PrimarySeqI;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
-
-@ISA = qw(Bio::Root::Root Bio::PrimarySeqI
-	  Bio::IdentifiableI Bio::DescribableI);
+use base qw(Bio::Root::Root Bio::PrimarySeqI Bio::IdentifiableI Bio::DescribableI);
 
 #
 # setup the allowed values for alphabet()

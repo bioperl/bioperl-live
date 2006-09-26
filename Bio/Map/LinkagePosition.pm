@@ -69,12 +69,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::LinkagePosition;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Map::OrderedPosition;
 
-@ISA = qw(Bio::Map::OrderedPosition);
+use base qw(Bio::Map::OrderedPosition);
 
 =head2 new
 

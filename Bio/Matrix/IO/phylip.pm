@@ -60,15 +60,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Matrix::IO::phylip;
-use vars qw(@ISA $DEFAULTPROGRAM);
+use vars qw($DEFAULTPROGRAM);
 use strict;
 
 $DEFAULTPROGRAM = 'phylipdist';
 
-use Bio::Matrix::IO;
 use Bio::Matrix::PhylipDist;
 
-@ISA = qw( Bio::Matrix::IO );
+use base qw(Bio::Matrix::IO);
 
 =head2 new
 

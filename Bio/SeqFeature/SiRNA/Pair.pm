@@ -88,9 +88,8 @@ require 5.005_62;
 use strict;
 use warnings;
 
-use Bio::SeqFeature::Generic;
 
-our @ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 # arguments to new().  Taken from Bio::SeqFeature Generic.
 # Omit frame (not relevant), GFF_STRING and GFF1_STRING 

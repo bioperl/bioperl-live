@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::group;
 
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::segmented_keyglyph;
-@ISA = 'Bio::Graphics::Glyph::segmented_keyglyph';
+use base qw(Bio::Graphics::Glyph::segmented_keyglyph);
 
 # group sets connector to 'dashed'
 sub connector {

@@ -51,13 +51,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::RandomAccessI;
 
-use vars qw(@ISA);
 use strict;
 
 use Bio::Root::RootI;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 get_Seq_by_id
 

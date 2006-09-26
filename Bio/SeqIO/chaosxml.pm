@@ -73,13 +73,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::chaosxml;
-use Bio::SeqIO::chaos;
-use vars qw(@ISA);
 use strict;
 
 use Data::Stag::XMLWriter;
 
-@ISA = qw(Bio::SeqIO::chaos);
+use base qw(Bio::SeqIO::chaos);
 
 sub default_handler_class {
     return Data::Stag->getformathandler('xml');

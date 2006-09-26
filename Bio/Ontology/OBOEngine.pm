@@ -73,12 +73,9 @@ package Bio::Ontology::OBOEngine;
 
 use Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Root;
 use Bio::Ontology::RelationshipType;
 use Bio::Ontology::RelationshipFactory;
-use Bio::Ontology::OntologyEngineI;
 use Data::Dumper;
 
 use constant TRUE       => 1;
@@ -90,8 +87,7 @@ use constant TERM       => "TERM";
 use constant TYPE       => "TYPE";
 use constant ONTOLOGY   => "ONTOLOGY";
 
-@ISA = qw( Bio::Root::Root
-           Bio::Ontology::OntologyEngineI );
+use base qw(Bio::Root::Root Bio::Ontology::OntologyEngineI);
 
 
 

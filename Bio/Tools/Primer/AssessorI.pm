@@ -63,11 +63,9 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Primer::AssessorI;
 
-use Bio::Root::RootI;
 
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 sub assess {
     my ($self) = shift;

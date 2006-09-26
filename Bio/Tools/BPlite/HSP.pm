@@ -107,7 +107,6 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::BPlite::HSP;
 
-use vars qw(@ISA);
 use strict;
 
 # to disable overloading comment this out:
@@ -115,10 +114,9 @@ use strict;
 
 # Object preamble - inheriets from Bio::SeqFeature::SimilarityPair
 
-use Bio::SeqFeature::SimilarityPair;
 use Bio::SeqFeature::Similarity;
 
-@ISA = qw(Bio::SeqFeature::SimilarityPair);
+use base qw(Bio::SeqFeature::SimilarityPair);
 
 sub new {
     my ($class, @args) = @_;

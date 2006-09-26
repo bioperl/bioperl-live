@@ -82,10 +82,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::EntrezGene;
 use strict;
-use vars qw(@ISA $DEFAULTFORMAT $DEFAULTMODE %PARAMSTRING );
-use Bio::DB::NCBIHelper;
+use vars qw($DEFAULTFORMAT $DEFAULTMODE %PARAMSTRING);
 
-@ISA = qw(Bio::DB::NCBIHelper);
+use base qw(Bio::DB::NCBIHelper);
 BEGIN { 
     $DEFAULTMODE   = 'single';
     $DEFAULTFORMAT = 'asn.1';	    

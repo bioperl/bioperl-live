@@ -17,8 +17,7 @@ use Data::Dumper;
 use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
+use base qw(Bio::DB::GFF::Adaptor::dbi::mysql);
 require Bio::DB::GFF::Adaptor::dbi::mysql;
 
 use constant GETSEQCOORDS =><<END;

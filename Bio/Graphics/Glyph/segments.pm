@@ -3,9 +3,6 @@ package Bio::Graphics::Glyph::segments;
 
 use strict;
 use Bio::Location::Simple;
-use Bio::Graphics::Glyph::generic;
-use Bio::Graphics::Glyph::segmented_keyglyph;
-use vars '@ISA';
 
 use constant INSERTION_CHARACTER => '!'; # what to draw to show an insertion
 use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
@@ -20,9 +17,7 @@ use constant SRC_END   => 2;
 use constant TGT_START => 3;
 use constant TGT_END   => 4;
 
-@ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
-	   Bio::Graphics::Glyph::generic
-	 );
+use base qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::generic);
 
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');

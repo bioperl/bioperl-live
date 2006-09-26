@@ -1,11 +1,11 @@
 use strict;
 package Test;
 use Carp;
-use vars (qw($VERSION @ISA @EXPORT @EXPORT_OK $ntest $TestLevel), #public-ish
+use vars (qw($VERSION @EXPORT @EXPORT_OK $ntest $TestLevel), #public-ish
 	  qw($TESTOUT $ONFAIL %todo %history $planned @FAILDETAIL)); #private-ish
 $VERSION = '1.15';
 require Exporter;
-@ISA=('Exporter');
+use base qw(Exporter);
 @EXPORT=qw(&plan &ok &skip);
 @EXPORT_OK=qw($ntest $TESTOUT);
 

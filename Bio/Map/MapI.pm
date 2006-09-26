@@ -67,13 +67,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::MapI;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::EntityI;
-use Bio::AnnotatableI;
 use Bio::Map::PositionHandler;
 
-@ISA = qw(Bio::Map::EntityI Bio::AnnotatableI);
+use base qw(Bio::Map::EntityI Bio::AnnotatableI);
 
 =head2 EntityI methods
 

@@ -65,7 +65,6 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::FTHelper;
-use vars qw(@ISA);
 use strict;
 
 use Bio::SeqFeature::Generic;
@@ -74,9 +73,8 @@ use Bio::Location::Fuzzy;
 use Bio::Location::Split;
 
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;

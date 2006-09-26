@@ -188,12 +188,11 @@ purposes only.
 
 package Bio::Restriction::Analysis;
 use Bio::Restriction::EnzymeCollection;
-use Bio::Root::Root;
 use strict;
 use Data::Dumper;
 
-use vars qw (@ISA);
-@ISA = qw(Bio::Root::Root);
+use vars qw ();
+use base qw(Bio::Root::Root);
 
 =head1 new
 

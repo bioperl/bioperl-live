@@ -84,12 +84,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::WebAgent;
-use vars qw(@ISA  $Revision $LAST_INVOCATION_TIME);
+use vars qw($Revision $LAST_INVOCATION_TIME);
 use strict;
-use LWP::UserAgent;
-use Bio::Root::Root;
 
-@ISA = qw(LWP::UserAgent Bio::Root::Root);
+use base qw(LWP::UserAgent Bio::Root::Root);
 
 BEGIN {
     $Revision = q[$Id$];

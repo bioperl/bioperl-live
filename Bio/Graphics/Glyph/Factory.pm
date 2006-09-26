@@ -52,9 +52,7 @@ package Bio::Graphics::Glyph::Factory;
 use strict;
 use Carp qw(:DEFAULT cluck);
 use Bio::Root::Version;
-use Bio::Root::Root;
-use vars '@ISA';
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 my %LOADED_GLYPHS = ();
 my %GENERIC_OPTIONS = (

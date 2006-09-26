@@ -197,8 +197,7 @@ modify it under the same terms as Perl itself.
 
 package Bio::Tools::SeqPattern;
 
-use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 use strict;
 use vars qw ($ID);
 $ID  = 'Bio::Tools::SeqPattern';

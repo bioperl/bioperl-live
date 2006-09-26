@@ -73,14 +73,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::SimilarityPair;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Similarity;
 use Bio::Factory::ObjectFactory;
 
-@ISA = qw(Bio::SeqFeature::FeaturePair);
+use base qw(Bio::SeqFeature::FeaturePair);
 
 =head2 new
 

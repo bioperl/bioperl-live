@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::crossbox;
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 # override draw_component to draw a crossed box rather than empty
 sub draw_component {

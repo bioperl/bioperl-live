@@ -103,10 +103,9 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::exonerate;
 use strict;
-use vars qw(@ISA @STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
-use Bio::SearchIO;
+use vars qw(@STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 %MODEMAP = ( 'ExonerateOutput' => 'result',
     'Hit'             => 'hit',

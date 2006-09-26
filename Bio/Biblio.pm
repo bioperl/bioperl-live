@@ -185,13 +185,11 @@ with an underscore _.
 
 
 package Bio::Biblio;
-use vars qw(@ISA $Revision);
+use vars qw($Revision);
 use strict;
 
-use Bio::Root::Root;
-use Bio::DB::BiblioI;
 
-@ISA = qw(Bio::Root::Root Bio::DB::BiblioI);
+use base qw(Bio::Root::Root Bio::DB::BiblioI);
 
 
 BEGIN {

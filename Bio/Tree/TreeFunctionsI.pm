@@ -76,11 +76,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tree::TreeFunctionsI;
-use vars qw(@ISA);
 use strict;
-use  Bio::Tree::TreeI;
 
-@ISA = qw(Bio::Tree::TreeI);
+use base qw(Bio::Tree::TreeI);
 
 =head2 find_node
 

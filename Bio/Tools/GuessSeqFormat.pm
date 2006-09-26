@@ -224,10 +224,8 @@ package Bio::Tools::GuessSeqFormat;
 use strict;
 use warnings;
 
-use Bio::Root::Root;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head1 METHODS
 

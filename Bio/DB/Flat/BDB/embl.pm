@@ -55,10 +55,8 @@ L<Bio::DB::Flat>,
 package Bio::DB::Flat::BDB::embl;
 
 use strict;
-use Bio::DB::Flat::BDB;
-use vars '@ISA';
 
-@ISA = qw(Bio::DB::Flat::BDB);
+use base qw(Bio::DB::Flat::BDB);
 
 sub seq_to_ids {
   my $self = shift;

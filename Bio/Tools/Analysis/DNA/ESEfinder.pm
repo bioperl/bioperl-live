@@ -137,14 +137,12 @@ use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use HTML::HeadParser;
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 use Bio::Seq::Meta::Array;
 use Bio::WebAgent;
 use strict;
 
-use vars qw(@ISA );
 #inherits directly from SimpleAnalysisBase
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 
 #global vars are now file-scoped lexicals

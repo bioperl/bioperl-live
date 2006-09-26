@@ -86,13 +86,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Clone;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::MappableI;
 use Bio::Map::Position;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MappableI);
+use base qw(Bio::Root::Root Bio::Map::MappableI);
 
 =head2 new
 

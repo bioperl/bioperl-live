@@ -149,13 +149,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Taxonomy;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root Object
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 =head2 new

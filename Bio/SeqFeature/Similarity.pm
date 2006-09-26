@@ -65,12 +65,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Similarity;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 sub new {
     my ( $caller, @args) = @_;

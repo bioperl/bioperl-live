@@ -176,13 +176,12 @@ preceded with a _
 package Bio::DB::EUtilities;
 use strict;
 
-use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
+use vars qw($HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
             $DEFAULT_TOOL @COOKIE_PARAMS @METHODS);
-use Bio::DB::GenericWebDBI;
 use URI;
 #use Data::Dumper;
 
-@ISA = qw(Bio::DB::GenericWebDBI);
+use base qw(Bio::DB::GenericWebDBI);
 
 BEGIN {
     $DEFAULT_TOOL = 'bioperl';

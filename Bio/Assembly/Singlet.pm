@@ -67,17 +67,13 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::Singlet;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Align::AlignI;
 use Bio::SeqFeature::Collection;
 use Bio::Seq::PrimaryQual;
-use Bio::Assembly::Contig;
 use Dumpvalue();
 my $dumper = new Dumpvalue();
 $dumper->veryCompact(1);
-@ISA = qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI Bio::Assembly::Contig);
+use base qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI Bio::Assembly::Contig);
 
 
 sub new {

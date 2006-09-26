@@ -128,12 +128,11 @@ use vars qw($AUTOLOAD);
 
 use Bio::Seq::RichSeq;
 use Bio::SeqFeature::Generic;
-use Bio::Root::Root;
 use Bio::SeqFeature::SiRNA::Oligo;
 use Bio::SeqFeature::SiRNA::Pair;
 
 
-our @ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 our %COMP = ( A => 'T',

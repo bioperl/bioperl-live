@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::tic_tac_toe;
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub default_mode
 {

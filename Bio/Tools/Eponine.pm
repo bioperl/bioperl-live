@@ -77,14 +77,12 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Eponine;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 sub _initialize_state {
     my($self,@args) = @_;

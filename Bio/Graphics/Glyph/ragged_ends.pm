@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::ragged_ends;
 
 use strict;
-use Bio::Graphics::Glyph::generic;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub draw_component {
   my $self = shift;

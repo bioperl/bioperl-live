@@ -79,13 +79,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Simulation::GeneticDrift;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::PopGen::Population;
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 

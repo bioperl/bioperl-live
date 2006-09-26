@@ -123,12 +123,11 @@ methods. Internal methods are preceded with a _
 
 package Bio::Biblio::Ref;
 use strict;
-use vars qw(@ISA $AUTOLOAD);
+use vars qw($AUTOLOAD);
 
-use Bio::Biblio::BiblioBase;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::Biblio::BiblioBase);
+use base qw(Bio::Biblio::BiblioBase);
 
 #
 # a closure with a list of allowed attribute names (these names

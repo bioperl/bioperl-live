@@ -33,10 +33,8 @@ named "untranslated_region," "five_prime_untranslated_region,"
 package Bio::DB::GFF::Aggregator::processed_transcript;
 
 use strict;
-use Bio::DB::GFF::Aggregator;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 =head2 method
 

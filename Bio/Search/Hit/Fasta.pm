@@ -64,14 +64,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Search::Hit::Fasta;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::Search::Hit::HitI;
 
-@ISA = qw(Bio::Search::Hit::HitI);
+use base qw(Bio::Search::Hit::HitI);
 
 my @AUTOLOAD_OK = qw(        _ID
                              _DESC

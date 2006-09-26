@@ -69,16 +69,14 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::hmmer;
 
-use vars qw(@ISA);
 use strict;
 
 use Bio::Factory::ObjectFactory;
 
-use vars qw(@ISA %MAPPING %MODEMAP
+use vars qw(%MAPPING %MODEMAP
 );
-use Bio::SearchIO;
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 BEGIN {
 

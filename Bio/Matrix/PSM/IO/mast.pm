@@ -53,13 +53,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::Matrix::PSM::IO::mast;
 use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::Psm;
-use Bio::Matrix::PSM::IO;
-use Bio::Matrix::PSM::PsmHeader;
 use Bio::Root::Root;
 use strict;
-use vars qw(@ISA);
 
-@ISA=qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
+use base qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 
 =head2 new
 

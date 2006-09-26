@@ -101,14 +101,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqI;
 use strict;
 
-use vars qw(@ISA);
-use Bio::PrimarySeqI;
-use Bio::AnnotatableI;
-use Bio::FeatureHolderI;
 
 # Object preamble - inheriets from Bio::PrimarySeqI
 
-@ISA = qw(Bio::PrimarySeqI Bio::AnnotatableI Bio::FeatureHolderI);
+use base qw(Bio::PrimarySeqI Bio::AnnotatableI Bio::FeatureHolderI);
 
 =head2 get_SeqFeatures
 

@@ -78,16 +78,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqHound;
 use strict;
-use vars qw(@ISA $HOSTBASE $CGILOCATION );
+use vars qw($HOSTBASE $CGILOCATION);
 
-use Bio::DB::WebDBSeqI;
 use Bio::Root::IO;
-use Bio::Root::Root;
 use Bio::SeqIO;
 use IO::String;
 use POSIX qw(strftime);
 
-@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 BEGIN {    
     $HOSTBASE = 'http://seqhound.blueprint.org';
     $CGILOCATION='/cgi-bin/seqrem?fnct=';

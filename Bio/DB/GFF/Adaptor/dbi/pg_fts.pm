@@ -138,9 +138,7 @@ Scott Cain, cain@cshl.edu
 # a simple postgres adaptor
 use strict;
 use Bio::DB::GFF::Adaptor::dbi;
-use Bio::DB::GFF::Adaptor::dbi::pg;
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::pg);
+use base qw(Bio::DB::GFF::Adaptor::dbi::pg);
 
 use constant FULLTEXTSEARCH => <<END;
 SELECT distinct gclass,gname,fattribute_value

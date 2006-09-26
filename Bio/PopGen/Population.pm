@@ -87,17 +87,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Population;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::PopGen::PopulationI;
 use Bio::PopGen::Marker;
 use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::Root::Root Bio::PopGen::PopulationI );
+use base qw(Bio::Root::Root Bio::PopGen::PopulationI);
 
 =head2 new
 

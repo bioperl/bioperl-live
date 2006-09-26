@@ -31,15 +31,13 @@ Juguang Xiao, juguang@tll.org.sg
 # Let the code begin...
 
 package Bio::Tools::PrositeScan;
-use vars qw(@ISA @FORMATS);
+use vars qw(@FORMATS);
 use strict;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 @FORMATS = qw(SCAN FASTA PSA MSA PFF MATCHLIST);
 
 =head2 new

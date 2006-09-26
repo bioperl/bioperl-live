@@ -64,15 +64,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::BSMLResultWriter;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SearchIO::SearchWriterI;
 use XML::Writer;
 use IO::String;
 
-@ISA = qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
+use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
 
 =head2 new

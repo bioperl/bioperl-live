@@ -129,7 +129,7 @@ package Bio::SearchIO::blast;
 
 use Bio::SearchIO::IteratedSearchResultEventBuilder;
 use strict;
-use vars qw(@ISA %MAPPING %MODEMAP
+use vars qw(%MAPPING %MODEMAP
   $DEFAULT_BLAST_WRITER_CLASS
   $MAX_HSP_OVERLAP
   $DEFAULT_SIGNIF
@@ -137,9 +137,8 @@ use vars qw(@ISA %MAPPING %MODEMAP
   $DEFAULTREPORTTYPE
 );
 
-use Bio::SearchIO;
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 BEGIN {
 

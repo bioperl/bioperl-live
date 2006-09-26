@@ -140,12 +140,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::RemoteBlast;
 
-use vars qw($AUTOLOAD @ISA $URLBASE %HEADER %RETRIEVALHEADER
+use vars qw($AUTOLOAD $URLBASE %HEADER %RETRIEVALHEADER
 	    $RIDLINE $MODVERSION %PUTPARAMS %GETPARAMS);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::SeqIO;
 use IO::String;
 use Bio::Tools::BPlite;
@@ -153,7 +151,7 @@ use Bio::SearchIO;
 use LWP;
 use HTTP::Request::Common;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 BEGIN {
     $MODVERSION = $Bio::Root::Version::VERSION;

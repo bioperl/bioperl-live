@@ -73,13 +73,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::MarkerI;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
-use Bio::AnnotatableI;
 
-@ISA = qw( Bio::Root::RootI Bio::AnnotatableI);
+use base qw(Bio::Root::RootI Bio::AnnotatableI);
 
 
 =head2 name

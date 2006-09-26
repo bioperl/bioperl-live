@@ -98,16 +98,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::Molphy;
-use vars qw(@ISA);
 use strict;
 
 use Bio::Tools::Phylo::Molphy::Result;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::TreeIO;
 use IO::String;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

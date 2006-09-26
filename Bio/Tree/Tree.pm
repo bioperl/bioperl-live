@@ -67,16 +67,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tree::Tree;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Tree::TreeFunctionsI;
-use Bio::Tree::TreeI;
 
-@ISA = qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI   );
+use base qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI);
 
 =head2 new
 

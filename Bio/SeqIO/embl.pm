@@ -106,7 +106,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::embl;
-use vars qw(@ISA %FTQUAL_NO_QUOTE);
+use vars qw(%FTQUAL_NO_QUOTE);
 use strict;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
@@ -117,7 +117,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 %FTQUAL_NO_QUOTE=(
   'anticodon'=>1,

@@ -64,13 +64,11 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-use vars qw(@ISA);
 
-use Bio::Root::Root;
 
 package Bio::Tools::Primer::Pair;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my ( $caller, @args) = @_;   

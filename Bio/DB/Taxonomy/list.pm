@@ -72,12 +72,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy::list;
-use vars qw(@ISA);
 use strict;
-use Bio::DB::Taxonomy;
 use Bio::Taxon;
 
-@ISA = qw(Bio::DB::Taxonomy);
+use base qw(Bio::DB::Taxonomy);
 
 =head2 new
 

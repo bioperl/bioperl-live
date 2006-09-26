@@ -92,16 +92,9 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::AnalysisResult;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
-use Bio::SeqAnalysisParserI;
-use Bio::AnalysisResultI;
-
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI
-	Bio::AnalysisResultI Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::AnalysisResultI Bio::Root::IO);
 
 sub new {
     my ($class, @args) = @_;

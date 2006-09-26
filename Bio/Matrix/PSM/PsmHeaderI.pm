@@ -76,8 +76,7 @@ use Bio::Matrix::PSM::InstanceSite;
 use Bio::Matrix::PSM::Psm;
 use Bio::Matrix::PSM::IO;
 use strict;
-use vars qw(@ISA);
-@ISA=qw(Bio::Matrix::PSM::PsmI);
+use base qw(Bio::Matrix::PSM::PsmI);
 
 #Accessor methods, based on the driver
 @Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release 

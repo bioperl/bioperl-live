@@ -166,11 +166,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Phenotype::OMIM::OMIMparser;
 
-use vars qw( @ISA );
 use strict;
 
 use Bio::Root::IO;
-use Bio::Root::Root;
 use Bio::Species;
 use Bio::Annotation::Reference;
 use Bio::Map::CytoPosition;
@@ -178,7 +176,7 @@ use Bio::Phenotype::OMIM::OMIMentry;
 use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
 use Bio::Phenotype::Correlate;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 use constant DEFAULT_STATE               => 0;

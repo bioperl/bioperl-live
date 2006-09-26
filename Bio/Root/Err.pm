@@ -18,12 +18,10 @@ package Bio::Root::Err;
 use strict;
 
 use Bio::Root::Global  qw(:devel $CGI);
-use Bio::Root::Vector  ();
 use Bio::Root::Object;#  qw(:std);
-use Exporter           ();
 
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-@ISA         = qw( Bio::Root::Object Bio::Root::Vector Exporter );
+use vars qw(@EXPORT @EXPORT_OK %EXPORT_TAGS);
+use base qw(Bio::Root::Object Bio::Root::Vector Exporter);
 @EXPORT      = qw();
 @EXPORT_OK   = qw( %ERR_FIELDS @ERR_TYPES &format_stack_entry &throw &warning);
 %EXPORT_TAGS = (

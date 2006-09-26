@@ -115,16 +115,13 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Primer3;
 
-use vars qw(@ISA);
 use strict;
 use Bio::Seq;
 use Bio::Seq::PrimedSeq;
 use Bio::SeqFeature::Primer;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Clone qw(clone);
 
-use vars qw($AUTOLOAD @PRIMER3_PARAMS @ISA %OK_FIELD $ID);
+use vars qw($AUTOLOAD @PRIMER3_PARAMS %OK_FIELD $ID);
 
 BEGIN {
  @PRIMER3_PARAMS=qw(results seqobject);
@@ -133,7 +130,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 
 sub AUTOLOAD {

@@ -130,18 +130,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::AnnotationAdaptor;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::AnnotatableI;
-use Bio::AnnotationCollectionI;
 use Bio::Annotation::SimpleValue;
 use Data::Dumper;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationCollectionI Bio::AnnotatableI);
+use base qw(Bio::Root::Root Bio::AnnotationCollectionI Bio::AnnotatableI);
 
 =head2 new
 

@@ -20,9 +20,7 @@ package Bio::Graphics::Glyph::merged_alignment;
 
 
 use strict;
-use Bio::Graphics::Glyph::graded_segments;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::graded_segments';
+use base qw(Bio::Graphics::Glyph::graded_segments);
 
 use constant COLORS => "lightgrey powderblue cornflowerblue blue";
 

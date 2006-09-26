@@ -128,21 +128,16 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Generic;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SeqFeatureI;
 use Bio::AnnotatableI;
-use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Location::Split;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI
-           Bio::FeatureHolderI );
+use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::FeatureHolderI);
 
 sub new {
     my ( $caller, @args) = @_;

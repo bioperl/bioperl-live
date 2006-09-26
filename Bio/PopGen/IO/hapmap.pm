@@ -71,17 +71,16 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::PopGen::IO::hapmap;
-use vars qw(@ISA $FieldDelim $AlleleDelim $NoHeader $StartingCol);
+use vars qw($FieldDelim $AlleleDelim $NoHeader $StartingCol);
 use strict;
 
 ($FieldDelim,$AlleleDelim,$NoHeader,$StartingCol) =( '\s+','',0,11);
 
-use Bio::PopGen::IO;
 use Bio::PopGen::Individual;
 use Bio::PopGen::Population;
 use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::PopGen::IO );
+use base qw(Bio::PopGen::IO);
 
 
 =head2 new

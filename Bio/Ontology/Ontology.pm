@@ -101,17 +101,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::Ontology;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Ontology::OntologyI;
-use Bio::AnnotatableI;
 #use Bio::Ontology::SimpleOntologyEngine; # loaded dynamically now!
 
-@ISA = qw(Bio::Root::Root Bio::Ontology::OntologyI Bio::AnnotatableI);
+use base qw(Bio::Root::Root Bio::Ontology::OntologyI Bio::AnnotatableI);
 
 =head2 new
 

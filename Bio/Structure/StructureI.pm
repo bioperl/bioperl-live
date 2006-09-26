@@ -57,10 +57,8 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Structure::StructureI;
-use Bio::Root::RootI;
-use vars qw(@ISA);
 use strict;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 1;

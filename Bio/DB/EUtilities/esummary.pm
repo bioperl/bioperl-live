@@ -176,12 +176,11 @@ preceded with a _
 package Bio::DB::EUtilities::esummary;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 use XML::Simple;
 #use Data::Dumper;
-use vars qw(@ISA $EUTIL);
+use vars qw($EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
 BEGIN {
     #set as default

@@ -71,13 +71,11 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-use vars qw(@ISA);
 
-use Bio::SeqFeature::Generic;
 
 package Bio::Tools::Primer::Feature;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 
 

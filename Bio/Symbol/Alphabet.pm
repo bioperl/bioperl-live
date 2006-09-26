@@ -71,15 +71,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Symbol::Alphabet;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Symbol::AlphabetI;
 
-@ISA = qw(Bio::Root::Root Bio::Symbol::AlphabetI );
+use base qw(Bio::Root::Root Bio::Symbol::AlphabetI);
 
 =head2 new
 

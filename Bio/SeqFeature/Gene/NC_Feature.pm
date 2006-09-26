@@ -56,14 +56,12 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqFeature::Gene::NC_Feature;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 sub new {
     my($class,@args) = @_;

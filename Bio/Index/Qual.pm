@@ -110,13 +110,11 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::Qual;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 #
 # Suggested fix by Michael G Schwern <schwern@pobox.com> to

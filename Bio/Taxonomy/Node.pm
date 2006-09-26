@@ -60,12 +60,10 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Taxonomy::Node;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Taxon;
 
-@ISA = qw(Bio::Taxon);
+use base qw(Bio::Taxon);
 
 sub new {
     my ($class, @args) = @_;

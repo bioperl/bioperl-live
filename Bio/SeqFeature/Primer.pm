@@ -128,13 +128,11 @@ Chad Matsalla, bioinformatics1@dieselwurks.com
 package Bio::SeqFeature::Primer;
 use strict;
 
-use Bio::Root::Root;
-use Bio::SeqFeature::Generic;
 use Bio::Seq;
 use Bio::Tools::SeqStats;
 
 
-use vars qw ($AUTOLOAD @RES %OK_FIELD @ISA $ID);
+use vars qw ($AUTOLOAD @RES %OK_FIELD $ID);
 
 BEGIN {
  @RES=qw(); # nothing here yet, not sure what we want!
@@ -142,7 +140,7 @@ BEGIN {
  foreach my $attr (@RES) {$OK_FIELD{$attr}++}
 }
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeature::Generic);
+use base qw(Bio::Root::Root Bio::SeqFeature::Generic);
 
 $ID = 'Bio::SeqFeature::Primer';
 

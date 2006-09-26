@@ -79,11 +79,10 @@ message. You need to call them on a C<Bio::Tools::Run::Analysis> object instead.
 # Let the code begin...
 
 package Bio::AnalysisI;
-use vars qw(@ISA  $Revision);
+use vars qw($Revision);
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 BEGIN {
     $Revision = q[$Id$];
@@ -429,11 +428,8 @@ C<Bio::Tools::Run::Analysis::Job> object:
 
 =cut
 
-use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
-
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 # -----------------------------------------------------------------------------
 

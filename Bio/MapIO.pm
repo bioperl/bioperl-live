@@ -65,14 +65,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::MapIO;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
-use Bio::Factory::MapFactoryI;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::MapFactoryI);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::MapFactoryI);
 
 =head2 new
 

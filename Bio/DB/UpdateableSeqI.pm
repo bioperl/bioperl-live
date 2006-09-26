@@ -64,11 +64,9 @@ package Bio::DB::UpdateableSeqI;
 
 use strict;
 
-use vars qw( @ISA );
 
-use Bio::DB::SeqI;
 
-@ISA = qw(Bio::DB::SeqI);
+use base qw(Bio::DB::SeqI);
 
 =head2 write_seq
 

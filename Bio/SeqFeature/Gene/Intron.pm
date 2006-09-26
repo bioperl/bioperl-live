@@ -57,13 +57,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::Intron;
-use vars qw(@ISA);
 use strict;
 
 use Bio::SeqFeature::Gene::Exon;
-use Bio::SeqFeature::Gene::NC_Feature;
 
-@ISA = qw(Bio::SeqFeature::Gene::NC_Feature);
+use base qw(Bio::SeqFeature::Gene::NC_Feature);
 
 sub new {
     my($class,@args) = @_;

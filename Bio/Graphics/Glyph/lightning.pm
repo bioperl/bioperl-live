@@ -3,9 +3,7 @@ package Bio::Graphics::Glyph::lightning;
 # A lightning bolt glyph to add some pizazz to your displays. Yeow!
 
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::generic;
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub draw_component {
   my $self = shift;

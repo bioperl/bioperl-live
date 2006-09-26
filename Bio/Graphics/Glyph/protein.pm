@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::protein;
 
 use strict;
-use Bio::Graphics::Glyph::generic;
-use vars '@ISA';
-@ISA = qw(Bio::Graphics::Glyph::generic);
+use base qw(Bio::Graphics::Glyph::generic);
 
 # turn off description
 sub description { 0 }

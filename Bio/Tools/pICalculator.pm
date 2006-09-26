@@ -102,12 +102,10 @@ Private methods are usually preceded by a _.
 # Let the code begin...
 
 package Bio::Tools::pICalculator;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # pK values from the DTASelect program from Scripps
 # http://fields.scripps.edu/DTASelect

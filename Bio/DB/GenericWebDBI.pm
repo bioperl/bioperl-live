@@ -80,12 +80,10 @@ preceded with a _
 package Bio::DB::GenericWebDBI;
 use strict;
 use warnings;
-use vars qw(@ISA $MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
+use vars qw($MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
          $DEFAULT_RETURN_FORMAT $LAST_INVOCATION_TIME);
-use LWP::UserAgent;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root LWP::UserAgent);
+use base qw(Bio::Root::Root LWP::UserAgent);
 
 BEGIN {
     $MODVERSION = '0.8';

@@ -171,25 +171,15 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Cluster::UniGene;
-use vars qw(@ISA);
 use strict;
 
-
-use Bio::Root::Root;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
-use Bio::AnnotatableI;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::SimpleValue;
 use Bio::Species;
-use Bio::Factory::SequenceStreamI;
 use Bio::Seq::SeqFactory;
-use Bio::Cluster::UniGeneI;
 
-@ISA = qw(Bio::Root::Root Bio::Cluster::UniGeneI
-	  Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI
-	  Bio::Factory::SequenceStreamI);
+use base qw(Bio::Root::Root Bio::Cluster::UniGeneI Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI Bio::Factory::SequenceStreamI);
 
 my %species_map = (
 		   'Aga' => "Anopheles gambiae",

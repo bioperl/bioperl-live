@@ -195,19 +195,17 @@ methods are usually preceded with an "_" (underscore).
 package Bio::DB::Flat::BinarySearch;
 
 use strict;
-use vars qw(@ISA);
 
 use Fcntl qw(SEEK_END SEEK_CUR);
 # rather than using tell which might be buffered
 sub systell{ sysseek($_[0], 0, SEEK_CUR) }
 sub syseof{ sysseek($_[0], 0, SEEK_END) }
 
-use Bio::DB::RandomAccessI;
 use Bio::Root::RootI;
 use Bio::SeqIO;
 use Bio::Seq;
 
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 
 use constant CONFIG_FILE_NAME => 'config.dat';
 use constant HEADER_SIZE      => 4;

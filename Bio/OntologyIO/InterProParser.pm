@@ -77,16 +77,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::OntologyIO::InterProParser;
-use vars qw(@ISA);
 use strict;
 #use Carp;
 use XML::Parser::PerlSAX;
 use Bio::Ontology::SimpleOntologyEngine;
 use Bio::Ontology::TermFactory;
-use Bio::OntologyIO;
 use Bio::OntologyIO::Handlers::InterProHandler;
 
-@ISA = qw( Bio::OntologyIO );
+use base qw(Bio::OntologyIO);
 
 =head2 new
 

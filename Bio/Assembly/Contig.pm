@@ -206,14 +206,11 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::Contig;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Align::AlignI;
 use Bio::SeqFeature::Collection;
 use Bio::Seq::PrimaryQual;
 
-@ISA = qw(Bio::Root::Root Bio::Align::AlignI);
+use base qw(Bio::Root::Root Bio::Align::AlignI);
 
 =head1 Object creator
 

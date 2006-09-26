@@ -299,12 +299,11 @@ package Bio::PopGen::HtSNP;
 use Data::Dumper;
 use Storable qw(dclone);
 
-use vars qw (@ISA);
+use vars qw ();
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 my $USAGE = 'Usage:
 

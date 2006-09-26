@@ -82,15 +82,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::isPcr;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 =head2 new

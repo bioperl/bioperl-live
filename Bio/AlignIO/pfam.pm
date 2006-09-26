@@ -53,12 +53,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::pfam;
-use vars qw(@ISA);
 use strict;
 
-use Bio::AlignIO;
 use Bio::SimpleAlign;
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 next_aln
 

@@ -96,17 +96,15 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Genemark;
-use vars qw(@ISA);
 use strict;
 use Symbol;
 
 use Bio::Root::Root;
-use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 use Bio::Seq;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 sub _initialize_state {
     my ($self,@args) = @_;

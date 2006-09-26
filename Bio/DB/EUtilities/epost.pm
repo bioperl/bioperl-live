@@ -112,14 +112,13 @@ preceded with a _
 package Bio::DB::EUtilities::epost;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
 #use Data::Dumper;
 
-use vars qw(@ISA $EUTIL $RETMODE);
+use vars qw($EUTIL $RETMODE);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
 BEGIN {
     #set as default

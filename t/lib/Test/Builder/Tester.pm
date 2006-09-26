@@ -1,7 +1,7 @@
 package Test::Builder::Tester;
 
 use strict;
-use vars qw(@EXPORT $VERSION @ISA);
+use vars qw(@EXPORT $VERSION);
 $VERSION = "1.04";
 
 use Test::Builder;
@@ -55,8 +55,7 @@ my $t = Test::Builder->new;
 # make us an exporter
 ###
 
-use Exporter;
-@ISA = qw(Exporter);
+use base qw(Exporter);
 
 @EXPORT = qw(test_out test_err test_fail test_diag test_test line_num);
 

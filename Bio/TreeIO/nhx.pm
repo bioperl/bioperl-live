@@ -65,18 +65,16 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::nhx;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::TreeIO;
 use Bio::Tree::NodeNHX;
 use Bio::Event::EventGeneratorI;
 #use XML::Handler::Subs;
 
 
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 sub _initialize {
   my($self, %args) = @_;

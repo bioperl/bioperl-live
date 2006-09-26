@@ -81,7 +81,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeatureI;
-use vars qw(@ISA $HasInMemory);
+use vars qw($HasInMemory);
 use strict;
 
 BEGIN {
@@ -90,13 +90,11 @@ BEGIN {
     else { $HasInMemory = 1 }
 }
 
-use Bio::AnnotatableI;
-use Bio::RangeI;
 use Bio::Seq;
 
 use Carp;
 
-@ISA = qw(Bio::RangeI Bio::AnnotatableI);
+use base qw(Bio::RangeI Bio::AnnotatableI);
 
 =head1 Bio::SeqFeatureI specific methods
 

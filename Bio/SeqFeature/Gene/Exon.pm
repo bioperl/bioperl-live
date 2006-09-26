@@ -68,13 +68,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::Exon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::Gene::ExonI;
 
-@ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::ExonI);
+use base qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::ExonI);
 
 #
 # A list of allowed exon types. See primary_tag().

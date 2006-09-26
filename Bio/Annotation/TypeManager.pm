@@ -65,15 +65,13 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Annotation::TypeManager;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 # new() can be inherited from Bio::Root::Root
 
 =head2 new
@@ -169,4 +167,4 @@ sub _add_type_map{
    $self->{'_type'}->{$key} = $type;
 }
 
-
+1;

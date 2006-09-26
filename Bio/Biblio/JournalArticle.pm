@@ -94,11 +94,9 @@ This software is provided "as is" without warranty of any kind.
 
 package Bio::Biblio::JournalArticle;
 use strict;
-use vars qw(@ISA);
 
-use Bio::Biblio::Article;
 
-@ISA = qw(Bio::Biblio::Article);
+use base qw(Bio::Biblio::Article);
 
 #
 # a closure with a list of allowed attribute names (these names

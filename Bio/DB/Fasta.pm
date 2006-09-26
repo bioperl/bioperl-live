@@ -408,11 +408,8 @@ use IO::File;
 use AnyDBM_File;
 use Fcntl;
 use File::Basename qw(basename dirname);
-use Bio::DB::SeqI;
-use Bio::Root::Root;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::DB::SeqI Bio::Root::Root);
+use base qw(Bio::DB::SeqI Bio::Root::Root);
 
 *seq = *sequence = \&subseq;
 *ids = \&get_all_ids;
@@ -1045,11 +1042,7 @@ sub DESTROY {
 package Bio::PrimarySeq::Fasta;
 use overload '""' => 'display_id';
 
-use vars '@ISA';
-eval {
-  require Bio::PrimarySeqI;
-  require Bio::Root::Root;
-} && (@ISA = ('Bio::Root::Root','Bio::PrimarySeqI'));
+use base qw(Bio::Root::Root Bio::PrimarySeqI);
 
 sub new {
   my $class = shift;
@@ -1138,12 +1131,7 @@ sub description  {
 # stream-based access to the database
 #
 package Bio::DB::Fasta::Stream;
-use Tie::Handle;
-use vars qw(@ISA);
-@ISA = qw(Tie::Handle);
-eval {
-  require Bio::DB::SeqI;
-} && (push @ISA,'Bio::DB::SeqI');
+use base qw(Tie::Handle Bio::DB::SeqI);
 
 
 sub new {

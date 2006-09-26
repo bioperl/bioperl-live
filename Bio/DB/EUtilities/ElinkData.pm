@@ -63,11 +63,9 @@ package Bio::DB::EUtilities::ElinkData;
 use strict;
 use warnings;
 
-use Bio::Root::Root;
 use Data::Dumper;
-use vars '@ISA';
 
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;

@@ -93,7 +93,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::HTMLResultWriter;
-use vars qw(@ISA %RemoteURLDefault
+use vars qw(%RemoteURLDefault
             $MaxDescLen $DATE $AlignmentLineWidth $Revision);
 use strict;
 $Revision = '$Id$'; #'
@@ -110,10 +110,8 @@ BEGIN {
     $AlignmentLineWidth = 60;
 }
 
-use Bio::Root::Root;
-use Bio::SearchIO::SearchWriterI;
 
-@ISA = qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
+use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
 =head2 new
 

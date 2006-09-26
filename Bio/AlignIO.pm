@@ -266,15 +266,12 @@ methods. Internal methods are usually preceded with a _
 package Bio::AlignIO;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
 use Bio::Seq;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
-use Bio::Root::IO;
 use Bio::Tools::GuessSeqFormat;
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

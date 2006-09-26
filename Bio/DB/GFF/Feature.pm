@@ -66,18 +66,14 @@ package Bio::DB::GFF::Feature;
 use strict;
 
 use Bio::DB::GFF::Util::Rearrange;
-use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Featname;
 use Bio::DB::GFF::Typename;
 use Bio::DB::GFF::Homol;
-use Bio::SeqFeatureI;
-use Bio::Root::Root;
 use Bio::LocationI;
 use Data::Dumper;
 
-use vars qw(@ISA $AUTOLOAD);
-@ISA = qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI 
-	  Bio::Root::Root);
+use vars qw($AUTOLOAD);
+use base qw(Bio::DB::GFF::RelSegment Bio::SeqFeatureI Bio::Root::Root);
 
 #' 
 

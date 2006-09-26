@@ -92,14 +92,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::FPCMarker;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::MappableI;
 use Bio::Map::Position;
 use Time::Local;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MappableI);
+use base qw(Bio::Root::Root Bio::Map::MappableI);
 
 =head2 new
 

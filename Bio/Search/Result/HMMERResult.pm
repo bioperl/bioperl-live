@@ -71,13 +71,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Result::HMMERResult;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Search::Result::GenericResult;
 
 
-@ISA = qw(Bio::Search::Result::GenericResult );
+use base qw(Bio::Search::Result::GenericResult);
 
 =head2 new
 

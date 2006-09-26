@@ -96,17 +96,15 @@ methods. Internal methods are usually preceded with a _
 
 package  Bio::OntologyIO::soflat;
 
-use vars qw( @ISA );
 use strict;
 
 use Bio::Ontology::TermFactory;
-use Bio::OntologyIO::dagflat;
 
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
 
-@ISA = qw( Bio::OntologyIO::dagflat );
+use base qw(Bio::OntologyIO::dagflat);
 
 
 =head2 new

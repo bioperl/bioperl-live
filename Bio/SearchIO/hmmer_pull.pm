@@ -74,13 +74,10 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::hmmer_pull;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::SearchIO;
-use Bio::PullParserI;
 
-@ISA = qw(Bio::SearchIO Bio::PullParserI);
+use base qw(Bio::SearchIO Bio::PullParserI);
 
 =head2 new
 

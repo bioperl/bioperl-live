@@ -57,14 +57,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::PSLHSP;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Search::HSP::GenericHSP;
 
-@ISA = qw(Bio::Search::HSP::GenericHSP );
+use base qw(Bio::Search::HSP::GenericHSP);
 
 =head2 new
 

@@ -72,11 +72,9 @@ use strict;
 use IO::String;
 use XML::Writer;
 use Bio::SeqFeature::Generic;
-use Bio::SeqIO::game::gameSubs;
 use Bio::SeqFeature::Tools::Unflattener;
 
-use vars '@ISA';
-@ISA = qw/Bio::SeqIO::game::gameSubs/;
+use base qw(Bio::SeqIO::game::gameSubs);
 
 =head2 new
 

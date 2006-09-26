@@ -66,15 +66,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::SeqFastaSpeedFactory;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Factory::SequenceFactoryI;
 use Bio::Seq;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
+use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
 =head2 new
 

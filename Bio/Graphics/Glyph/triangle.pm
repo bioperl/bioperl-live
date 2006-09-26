@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::triangle;
 # DAS-compatible package to use for drawing a triangle
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub pad_left {
   my $self = shift;

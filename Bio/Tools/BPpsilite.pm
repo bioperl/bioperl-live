@@ -142,14 +142,11 @@ This software is provided "as is" without warranty of any kind.
 package Bio::Tools::BPpsilite;
 
 use strict;
-use vars qw(@ISA);
 use Bio::Tools::BPlite::Iteration; #
 use Bio::Tools::BPlite::Sbjct; #   Debug code
-use Bio::Root::Root; # root interface to inherit from
-use Bio::Root::IO;
 use Bio::Tools::BPlite; 
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 sub new {
   my ($class, @args) = @_; 

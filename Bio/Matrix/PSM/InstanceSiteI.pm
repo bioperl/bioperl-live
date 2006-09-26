@@ -67,11 +67,9 @@ L<Bio::Matrix::PSM::SiteMatrix>, L<Bio::Matrix::PSM::Psm>, L<Bio::Matrix::PSM::I
 
 # Let the code begin...
 package Bio::Matrix::PSM::InstanceSiteI;
-use Bio::Root::RootI;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 mid
 

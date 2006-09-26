@@ -48,12 +48,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Failover;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::DB::RandomAccessI;
-@ISA = qw(Bio::Root::Root Bio::DB::RandomAccessI );
+use base qw(Bio::Root::Root Bio::DB::RandomAccessI);
 
 sub new {
     my ($class,@args) = @_;

@@ -140,13 +140,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Coordinate::GeneMapper;
-use vars qw(@ISA %COORDINATE_SYSTEMS  %COORDINATE_INTS $TRANSLATION $DAG
+use vars qw(%COORDINATE_SYSTEMS %COORDINATE_INTS $TRANSLATION $DAG
             $NOZERO_VALUES $NOZERO_KEYS);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 use Bio::Coordinate::Result;
 use Bio::Location::Simple;
 use Bio::Coordinate::Graph;
@@ -154,7 +153,7 @@ use Bio::Coordinate::Collection;
 use Bio::Coordinate::Pair;
 use Bio::Coordinate::ExtrapolatingPair;
 
-@ISA = qw(Bio::Root::Root Bio::Coordinate::MapperI);
+use base qw(Bio::Root::Root Bio::Coordinate::MapperI);
 
 # first set internal values for all translation tables
 

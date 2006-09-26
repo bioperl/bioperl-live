@@ -41,9 +41,7 @@ package Bio::LiveSeq::Repeat_Region;
 
 
 use strict;
-use vars qw(@ISA);
-use Bio::LiveSeq::Range; # uses Range, inherits from it
-@ISA=qw(Bio::LiveSeq::Range);
+use base qw(Bio::LiveSeq::Range);
 
 =head2 new
 

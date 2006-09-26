@@ -22,14 +22,9 @@ module.
 package Bio::DB::GFF::Segment;
 
 use strict;
-use Bio::Root::Root;
 use Bio::Annotation::Collection;
-use Bio::RangeI;
-use Bio::Das::SegmentI;
-use Bio::SeqI;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root Bio::RangeI Bio::SeqI Bio::Das::SegmentI);
+use base qw(Bio::Root::Root Bio::RangeI Bio::SeqI Bio::Das::SegmentI);
 
 use overload 
   '""'     => 'asString',

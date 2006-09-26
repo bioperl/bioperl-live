@@ -68,9 +68,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Structure::IO::pdb;
-use vars qw(@ISA);
 use strict;
-use Bio::Structure::IO;
 use Bio::Structure::Entry;
 #use Bio::Structure::Model;
 #use Bio::Structure::Chain;
@@ -79,7 +77,7 @@ use Bio::Structure::Atom;
 use Bio::SeqFeature::Generic;
 use Bio::Annotation::Reference;
 
-@ISA = qw(Bio::Structure::IO);
+use base qw(Bio::Structure::IO);
 
 sub _initialize {
   my($self,@args) = @_;

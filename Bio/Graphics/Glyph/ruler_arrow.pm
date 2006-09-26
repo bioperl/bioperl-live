@@ -11,9 +11,7 @@ Bio::Graphics::Glyph::ruler_arrow - glyph for drawing an arrow as ruler (5' and 
 =cut
 
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::generic;
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 my %UNITS = (K => 1000,
 	     M => 1_000_000,

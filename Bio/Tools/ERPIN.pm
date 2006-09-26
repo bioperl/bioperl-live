@@ -92,13 +92,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::ERPIN;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Tools::AnalysisResult );
+use base qw(Bio::Tools::AnalysisResult);
 
 use vars qw($MotifTag $SrcTag $DescTag);
 ($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);

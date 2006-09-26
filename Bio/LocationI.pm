@@ -60,13 +60,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LocationI;
-use vars qw(@ISA);
 use strict;
 
-use Bio::RangeI;
 use Carp;
 
-@ISA = qw(Bio::RangeI);
+use base qw(Bio::RangeI);
 
 =head2 location_type
 

@@ -67,12 +67,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::svggraph;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::TreeIO;
 use SVG::Graph;
 use SVG::Graph::Data;
 use SVG::Graph::Data::Tree;
@@ -82,7 +80,7 @@ use Bio::Tree::Node;
 use Tree::DAG_Node;
 
 
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 =head2 new
 

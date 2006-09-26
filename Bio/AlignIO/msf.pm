@@ -52,14 +52,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::msf;
-use vars qw(@ISA %valid_type);
+use vars qw(%valid_type);
 use strict;
 
-use Bio::AlignIO;
 use Bio::SeqIO::gcg; # for GCG_checksum()
 use Bio::SimpleAlign;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 BEGIN {
 	%valid_type = qw( dna N rna N protein P );

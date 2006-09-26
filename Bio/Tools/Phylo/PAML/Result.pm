@@ -128,13 +128,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::PAML::Result;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::AnalysisResultI;
 
-@ISA = qw(Bio::Root::Root Bio::AnalysisResultI);
+use base qw(Bio::Root::Root Bio::AnalysisResultI);
 
 =head2 new
 

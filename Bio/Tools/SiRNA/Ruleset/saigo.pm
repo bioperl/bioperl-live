@@ -119,9 +119,8 @@ package Bio::Tools::SiRNA::Ruleset::saigo;
 use 5.006;
 use strict;
 
-use Bio::Tools::SiRNA;
 
-our @ISA = qw(Bio::Tools::SiRNA);
+use base qw(Bio::Tools::SiRNA);
 
 
 =head2 new

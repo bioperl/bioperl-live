@@ -65,9 +65,8 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::scf;
-use vars qw(@ISA $DEFAULT_QUALITY);
+use vars qw($DEFAULT_QUALITY);
 use strict;
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SequenceTrace;
 use Dumpvalue();
@@ -79,7 +78,7 @@ BEGIN {
     $DEFAULT_QUALITY= 10;
 }
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
   my($self,@args) = @_;

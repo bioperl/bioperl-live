@@ -39,10 +39,8 @@ package Bio::DB::EUtilities::Cookie;
 use strict;
 use warnings;
 use URI::Escape qw(uri_unescape);
-use Bio::Root::Root;
-use vars '@ISA';
 
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;

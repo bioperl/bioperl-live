@@ -28,15 +28,14 @@ it under the same terms as Perl itself.
 
 use strict;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
-use Bio::DB::GFF::Adaptor::dbi::mysql;
 use Bio::DB::BioFetch;
 use Bio::SeqIO;
 
-use vars qw(@ISA %preferred_tags);
+use vars qw(%preferred_tags);
 
 # THIS IS WRONG: biofetch should delegate to an underlying
 # database adaptor, and not inherit from one.
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql);
+use base qw(Bio::DB::GFF::Adaptor::dbi::mysql);
 
 # priority for choosing names of CDS tags, higher is higher priority
 %preferred_tags = (

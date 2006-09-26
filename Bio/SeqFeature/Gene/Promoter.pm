@@ -57,14 +57,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::Promoter;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SeqFeature::Gene::NC_Feature;
 
-@ISA = qw(Bio::SeqFeature::Gene::NC_Feature);
+use base qw(Bio::SeqFeature::Gene::NC_Feature);
 
 sub new {
   my($class,@args) = @_;

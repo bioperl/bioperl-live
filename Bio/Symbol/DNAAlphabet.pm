@@ -61,14 +61,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Symbol::DNAAlphabet;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Symbol::Alphabet;
 use Bio::Symbol::Symbol;
 use Bio::Tools::IUPAC;
 
-@ISA = qw(Bio::Symbol::Alphabet);
+use base qw(Bio::Symbol::Alphabet);
 
 =head2 new
 

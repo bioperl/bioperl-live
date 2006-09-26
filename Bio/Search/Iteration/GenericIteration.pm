@@ -94,13 +94,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Iteration::GenericIteration;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Search::Iteration::IterationI;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Iteration::IterationI);
+use base qw(Bio::Root::Root Bio::Search::Iteration::IterationI);
 
 =head2 new
 

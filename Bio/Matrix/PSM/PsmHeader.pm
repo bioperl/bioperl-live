@@ -46,12 +46,9 @@ Email skirov@utk.edu
 package Bio::Matrix::PSM::PsmHeader;
 
 use Bio::Matrix::PSM::InstanceSite;
-use Bio::Matrix::PSM::PsmHeaderI;
-use Bio::Root::Root;
 
 use strict;
-use vars qw(@ISA);
-@ISA=qw( Bio::Root::Root Bio::Matrix::PSM::PsmHeaderI);
+use base qw(Bio::Root::Root Bio::Matrix::PSM::PsmHeaderI);
 
 #These define what structures within the
 @Bio::Matrix::PSM::PsmHeader::MASTHEADER=qw(html version release seq hid 

@@ -84,14 +84,12 @@ methods. Internal methods are usually preceded with a _
 #' Let the code begin...
 
 package Bio::Species;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Taxon;
 use Bio::DB::Taxonomy;
 use Bio::Tree::Tree;
 
-@ISA = qw(Bio::Taxon);
+use base qw(Bio::Taxon);
 
 =head2 new
 

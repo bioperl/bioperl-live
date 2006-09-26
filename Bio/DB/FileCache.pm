@@ -67,14 +67,11 @@ use Storable qw(freeze thaw);
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use File::Temp 'tmpnam';
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root Bio::DB::SeqI);
+use base qw(Bio::Root::Root Bio::DB::SeqI);
 
-use Bio::DB::SeqI;
 use Bio::Seq::RichSeq;
 use Bio::Location::Split;
 use Bio::Location::Fuzzy;

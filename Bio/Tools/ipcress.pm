@@ -82,13 +82,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::ipcress;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 

@@ -96,10 +96,9 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::soap;
-use vars qw(@ISA $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
+use vars qw($Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
-use Bio::Biblio;
 use SOAP::Lite
     on_fault => sub {
 	my $soap = shift;
@@ -111,7 +110,7 @@ use SOAP::Lite
     }
 ;
 
-@ISA = qw(Bio::Biblio);
+use base qw(Bio::Biblio);
 
 BEGIN {
     $Revision = q[$Id$];

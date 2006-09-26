@@ -226,11 +226,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Variation::IO;
 
 use strict;
-use vars '@ISA';
 
-use Bio::SeqIO;
 
-@ISA = 'Bio::SeqIO';
+use base qw(Bio::SeqIO);
 
 =head2 new
 

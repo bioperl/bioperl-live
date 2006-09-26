@@ -77,19 +77,17 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Factory::FTLocationFactory;
-use vars qw(@ISA $LOCREG);
+use vars qw($LOCREG);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Factory::LocationFactoryI;
 use Bio::Location::Simple;
 use Bio::Location::Split;
 use Bio::Location::Fuzzy;
 
 
-@ISA = qw(Bio::Root::Root Bio::Factory::LocationFactoryI);
+use base qw(Bio::Root::Root Bio::Factory::LocationFactoryI);
 
 BEGIN {
     # the below is an optimized regex obj. from J. Freidl's Mastering Reg Exp.

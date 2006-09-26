@@ -85,11 +85,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Root::HTTPget;
 
 use strict;
-use Bio::Root::Root;
 use IO::Socket qw(:DEFAULT :crlf);
-use vars '@ISA';
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 =head2 get

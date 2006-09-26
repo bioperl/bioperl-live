@@ -96,7 +96,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Root::IO;
-use vars qw(@ISA $FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
+use vars qw($FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
 	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE $ONMAC
             $HAS_LWP
            );
@@ -105,10 +105,9 @@ use strict;
 use Symbol;
 use POSIX qw(dup);
 use IO::Handle;
-use Bio::Root::Root;
 use Bio::Root::HTTPget;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 my $TEMPCOUNTER;
 my $HAS_WIN32 = 0;

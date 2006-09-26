@@ -169,12 +169,10 @@ for documentation purposes only.
 package Bio::Tools::RestrictionEnzyme;
 use strict;
 
-use Bio::Root::Root;
-use Exporter;
 
-use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID  @RE_available $Revision);
+use vars qw (@EXPORT_OK %EXPORT_TAGS $ID @RE_available $Revision);
 
-@ISA         = qw(Bio::Root::Root Exporter);
+use base qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw(@RE_available);
 %EXPORT_TAGS = ( std => [qw(@RE_available)] );
 

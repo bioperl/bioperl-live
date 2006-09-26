@@ -94,12 +94,11 @@ methods.
 # Let the code begin...
 
 package Bio::Phenotype::Correlate;
-use vars qw( @ISA );
 use strict;
 use Bio::Root::Object;
 use Bio::Species;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 =head2 new

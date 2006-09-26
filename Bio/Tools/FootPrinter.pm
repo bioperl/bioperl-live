@@ -65,15 +65,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::FootPrinter;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::SeqFeature::Generic;
 use Bio::PrimarySeq;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

@@ -89,13 +89,11 @@ package Bio::Root::Storable;
 use strict;
 use Data::Dumper qw( Dumper );
 
-use vars qw(@ISA);
 
-use Bio::Root::Root;
 use Bio::Root::IO;
 
 use vars qw( $BINARY );
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 BEGIN{
   if( eval "require Storable" ){

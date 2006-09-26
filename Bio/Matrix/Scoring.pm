@@ -58,12 +58,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Matrix::Scoring;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Matrix::Generic;
 
-@ISA = qw(Bio::Matrix::Generic);
+use base qw(Bio::Matrix::Generic);
 
 =head2 new
 

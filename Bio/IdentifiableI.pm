@@ -80,12 +80,10 @@ Email birney@ebi.ac.uk
 =cut
 
 package Bio::IdentifiableI;
-use vars qw(@ISA );
 use strict;
-use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 

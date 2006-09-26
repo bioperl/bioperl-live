@@ -62,17 +62,16 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Restriction::IO::withrefm;
 
-use vars qw(@ISA %WITH_REFM_FIELD);
+use vars qw(%WITH_REFM_FIELD);
 use strict;
 
 #use Bio::Restriction::IO;
-use Bio::Restriction::IO::base;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::EnzymeCollection;
 
 use Data::Dumper;
 
-@ISA = qw(Bio::Restriction::IO::base);
+use base qw(Bio::Restriction::IO::base);
 
 
 sub new {

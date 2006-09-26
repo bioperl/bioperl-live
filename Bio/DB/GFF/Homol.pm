@@ -23,9 +23,7 @@ Bio::DB::GFF::Feature-E<gt>target() method.
 package Bio::DB::GFF::Homol;
 use strict;
 
-use Bio::DB::GFF::Segment;
-use vars qw(@ISA);
-@ISA = 'Bio::DB::GFF::Segment';
+use base qw(Bio::DB::GFF::Segment);
 
 =head2 name
 

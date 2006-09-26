@@ -89,12 +89,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::PositionHandler;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::PositionHandlerI;
 
-@ISA = qw(Bio::Root::Root Bio::Map::PositionHandlerI);
+use base qw(Bio::Root::Root Bio::Map::PositionHandlerI);
 
 # globally accessible hash, via private instance methods
 my $RELATIONS = {};

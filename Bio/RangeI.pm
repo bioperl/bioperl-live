@@ -76,12 +76,10 @@ package Bio::RangeI;
 
 use strict;
 use Carp;
-use Bio::Root::RootI;
-use vars qw(@ISA);
 use integer;
-use vars qw( @ISA %STRAND_OPTIONS );
+use vars qw(%STRAND_OPTIONS);
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand-testing options

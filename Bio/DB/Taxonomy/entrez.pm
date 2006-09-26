@@ -89,13 +89,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy::entrez;
-use vars qw(@ISA $EntrezLocation $UrlParamSeparatorValue %EntrezParams
+use vars qw($EntrezLocation $UrlParamSeparatorValue %EntrezParams
 	    $EntrezGet $EntrezSummary $EntrezFetch %SequenceParams
 	    $XMLTWIG $DATA_CACHE $RELATIONS);
 use strict;
 
-use Bio::DB::Taxonomy;
-use Bio::Root::HTTPget;
 use Bio::Taxon;
 
 eval {
@@ -105,7 +103,7 @@ eval {
 if( $@ ) {
     $XMLTWIG = 0;
 }
-@ISA = qw(Bio::DB::Taxonomy Bio::Root::HTTPget);
+use base qw(Bio::DB::Taxonomy Bio::Root::HTTPget);
 
 $EntrezLocation = 'http://www.ncbi.nih.gov/entrez/eutils/';
 $EntrezGet      = 'esearch.fcgi';

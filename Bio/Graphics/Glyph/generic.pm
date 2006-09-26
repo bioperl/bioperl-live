@@ -1,10 +1,8 @@
 package Bio::Graphics::Glyph::generic;
 
 use strict;
-use Bio::Graphics::Glyph;
 use Bio::Graphics::Util qw(frame_and_offset);
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph';
+use base qw(Bio::Graphics::Glyph);
 
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',
 		  G=>'C',A=>'T',T=>'A',C=>'G');

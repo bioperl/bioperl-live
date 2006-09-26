@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::redgreen_segment;
 #$Id$
 
 use strict;
-use Bio::Graphics::Glyph::graded_segments;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::graded_segments';
+use base qw(Bio::Graphics::Glyph::graded_segments);
 
 sub calculate_color {
   my $self = shift;

@@ -140,14 +140,13 @@ purposes only.
 package Bio::Restriction::EnzymeCollection;
 use strict;
 
-use Bio::Root::Root;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::IO;
 
 use Data::Dumper;
 
-use vars qw (@ISA);
-@ISA = qw(Bio::Root::Root);
+use vars qw ();
+use base qw(Bio::Root::Root);
 
 
 =head2 new

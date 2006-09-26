@@ -83,15 +83,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::OntologyIO;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 #
 # Maps from format name to driver suitable for the format.

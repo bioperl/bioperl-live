@@ -86,12 +86,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Map::OrderedPositionWithDistance;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Map::Position;
 
-@ISA = qw(Bio::Map::Position);
+use base qw(Bio::Map::Position);
 
 =head2 new
 

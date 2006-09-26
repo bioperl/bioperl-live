@@ -80,9 +80,7 @@ Email richard.adams@ed.ac.uk
 
 use strict;
 package Bio::Graph::IO;
-use vars qw(@ISA);
-use Bio::Root::IO;
-@ISA = qw(Bio::Root::IO);
+use base qw(Bio::Root::IO);
 
 =head2  new
 

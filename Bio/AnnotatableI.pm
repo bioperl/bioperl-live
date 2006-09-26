@@ -73,10 +73,8 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AnnotatableI;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::RootI;
 
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
@@ -105,7 +103,7 @@ our %tag2text = (
 
 );
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 annotation
 

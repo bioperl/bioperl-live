@@ -85,13 +85,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Relative;
-use vars qw(@ISA);
 use strict;
 use Scalar::Util qw(looks_like_number);
-use Bio::Root::Root;
-use Bio::Map::RelativeI;
 
-@ISA = qw(Bio::Root::Root Bio::Map::RelativeI);
+use base qw(Bio::Root::Root Bio::Map::RelativeI);
 
 =head2 new
 

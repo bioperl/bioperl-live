@@ -66,13 +66,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::SplitLocationI;
-use vars qw(@ISA);
 use strict;
 
-use Bio::LocationI;
 use Carp;
 
-@ISA = qw(Bio::LocationI);
+use base qw(Bio::LocationI);
 
 
 =head2 sub_Location

@@ -101,7 +101,7 @@ package Bio::Tools::SiRNA::Ruleset::tuschl;
 use 5.006;
 use strict;
 
-our @ISA = qw(Bio::Tools::SiRNA);
+use base qw(Bio::Tools::SiRNA);
 
 our %PATTERNS = ( 1 	=> '(AA.{19}TT)',
 		  2 	=> '(AA.{19}[ACG][ACG])',

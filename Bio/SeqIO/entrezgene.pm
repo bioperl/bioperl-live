@@ -90,7 +90,6 @@ Internal methods are usually preceded with a _
 package Bio::SeqIO::entrezgene;
 
 use strict;
-use vars qw(@ISA);
 use Bio::ASN1::EntrezGene;
 use Bio::Seq;
 use Bio::Species;
@@ -106,9 +105,8 @@ use Bio::Cluster::SequenceFamily;
 #use Bio::Ontology::Ontology; Relationships.... later
 use Bio::Ontology::Term;
 use Bio::Annotation::OntologyTerm;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 %main::eg_to_ll =('Official Full Name' => 'OFFICIAL_GENE_NAME',
 						  'chromosome' => 'CHR',

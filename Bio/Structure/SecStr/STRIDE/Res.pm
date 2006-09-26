@@ -123,12 +123,10 @@ Internal methods are preceded with a _.
 
 package Bio::Structure::SecStr::STRIDE::Res;
 use strict;
-use vars qw(@ISA);
-use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 our %ASGTable = ( 'aa'         =>  0,
 		  'resNum'     =>  1,

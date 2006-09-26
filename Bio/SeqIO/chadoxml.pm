@@ -198,7 +198,6 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::chadoxml;
-use vars qw(@ISA);
 use strict;
 use English;
 
@@ -208,7 +207,6 @@ use IO::File;
 use IO::Handle;
 use Bio::Seq;
 use Bio::Seq::RichSeq;
-use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
@@ -271,7 +269,7 @@ my %feattype_args2so = (
 
 undef(my %organism);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
 

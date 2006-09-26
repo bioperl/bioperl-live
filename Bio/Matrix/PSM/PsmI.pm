@@ -116,10 +116,9 @@ This software is provided "as is" without warranty of any kind.
 package Bio::Matrix::PSM::PsmI;
 use Bio::Matrix::PSM::SiteMatrix;
 use Bio::Matrix::PSM::InstanceSite;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::SiteMatrixI );
+use base qw(Bio::Matrix::PSM::SiteMatrixI);
 
 =head2 new
 

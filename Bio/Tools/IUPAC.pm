@@ -133,7 +133,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::IUPAC;
 
 use strict;
-use vars qw(@ISA %IUP %IUB %REV_IUB $AUTOLOAD);
+use vars qw(%IUP %IUB %REV_IUB $AUTOLOAD);
 
 BEGIN {
     %IUB = ( A => [qw(A)],
@@ -203,8 +203,7 @@ BEGIN {
 	    );
 
 }
-use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 

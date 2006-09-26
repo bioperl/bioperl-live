@@ -138,12 +138,10 @@ Internal methods are preceded with a _
 
 package Bio::Structure::SecStr::DSSP::Res;
 use strict;
-use vars qw(@ISA);
-use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # Would be a class variable if Perl had them
 
@@ -1390,5 +1388,5 @@ sub _parseResLine() {
     return \%elements;
 }
 
-return 1; #just because
+1;
 

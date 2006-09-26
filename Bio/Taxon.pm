@@ -135,14 +135,11 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Taxon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::IdentifiableI;
-use Bio::Tree::Node;
 use Bio::DB::Taxonomy;
 
-@ISA = qw(Bio::Tree::Node Bio::IdentifiableI);
+use base qw(Bio::Tree::Node Bio::IdentifiableI);
 
 =head2 new
 

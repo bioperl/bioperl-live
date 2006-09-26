@@ -142,12 +142,10 @@ methods. Internal methods are usually preceded with a _
 # 'Let the code begin...
 
 package Bio::SimpleAlign;
-use vars qw(@ISA %CONSERVATION_GROUPS);
+use vars qw(%CONSERVATION_GROUPS);
 use strict;
 
-use Bio::Root::Root;
 use Bio::LocatableSeq;  # uses Seq's as list
-use Bio::Align::AlignI;
 
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
@@ -184,7 +182,7 @@ BEGIN {
 					       HFY )],);
 }
 
-@ISA = qw(Bio::Root::Root Bio::Align::AlignI);
+use base qw(Bio::Root::Root Bio::Align::AlignI);
 
 =head2 new
 

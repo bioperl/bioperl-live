@@ -103,14 +103,13 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::HSP::GenericHSP;
-use vars qw(@ISA $GAP_SYMBOL);
+use vars qw($GAP_SYMBOL);
 use strict;
 
 use Bio::Root::Root;
 use Bio::SeqFeature::Similarity;
-use Bio::Search::HSP::HSPI;
 
-@ISA = qw(Bio::Search::HSP::HSPI);
+use base qw(Bio::Search::HSP::HSPI);
 
 BEGIN {
     $GAP_SYMBOL = '-';

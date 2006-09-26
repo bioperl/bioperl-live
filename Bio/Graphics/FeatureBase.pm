@@ -19,14 +19,8 @@ L<Bio::Graphics::Feature> for full documentation.
 =cut
 
 use strict;
-use Bio::Root::Root;
-use Bio::SeqFeatureI;
-use Bio::SeqI;
-use Bio::LocationI;
-use Bio::RangeI;
 
-use vars '@ISA';
-@ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::RangeI);
+use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::RangeI);
 
 *stop        = \&end;
 *info        = \&name;

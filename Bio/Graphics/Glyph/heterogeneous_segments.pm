@@ -10,9 +10,7 @@ package Bio::Graphics::Glyph::heterogeneous_segments;
 # $Id$
 
 use strict;
-use Bio::Graphics::Glyph::graded_segments;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::graded_segments';
+use base qw(Bio::Graphics::Glyph::graded_segments);
 
 # override draw method to calculate the min and max values for the components
 sub draw {

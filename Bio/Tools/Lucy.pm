@@ -154,13 +154,11 @@ and should not be called directly.
 
 package Bio::Tools::Lucy;
 
-use vars qw($AUTOLOAD @ISA @ATTR %OK_FIELD);
+use vars qw($AUTOLOAD @ATTR %OK_FIELD);
 use strict;
 use Bio::PrimarySeq;
-use Bio::Root::Root;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 @ATTR = qw(seqfile qualfile stderrfile infofile lucy_verbose fwd_desig rev_desig adv_stderr); 
 foreach my $attr (@ATTR) {
     $OK_FIELD{$attr}++

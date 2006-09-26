@@ -60,15 +60,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Matrix::IO::scoring;
-use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Root
-
-use Bio::Matrix::IO;
-use Bio::Matrix::Scoring
-
-@ISA = qw(Bio::Matrix::IO);
+use Bio::Matrix::Scoring;
+use base qw(Bio::Matrix::IO);
 
 =head2 new
 

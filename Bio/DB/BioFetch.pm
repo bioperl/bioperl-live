@@ -13,7 +13,6 @@
 
 package Bio::DB::BioFetch;
 use strict;
-use Bio::DB::WebDBSeqI;
 use HTTP::Request::Common 'POST';
 
 =head1 NAME
@@ -91,9 +90,8 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-use vars qw(@ISA %FORMATMAP );
-use Bio::Root::Root;
-@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+use vars qw(%FORMATMAP);
+use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
 # warning: names used here must map into Bio::SeqIO::* space
 use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';

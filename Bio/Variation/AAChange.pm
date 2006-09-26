@@ -89,13 +89,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Variation::AAChange;
 
-use vars qw(@ISA $MATRIX);
+use vars qw($MATRIX);
 use strict;
 
 # Object preamble - inheritance
-use Bio::Variation::VariantI;
 
-@ISA = qw( Bio::Variation::VariantI );
+use base qw(Bio::Variation::VariantI);
 
 BEGIN {
 

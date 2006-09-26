@@ -80,15 +80,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::InterProTerm;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Ontology::Term;
 use Bio::Annotation::Reference;
 
 use constant INTERPRO_ID_DEFAULT => "IPR000000";
 
-@ISA = qw( Bio::Ontology::Term );
+use base qw(Bio::Ontology::Term);
 
 =head2 new
 

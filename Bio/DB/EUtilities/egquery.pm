@@ -87,11 +87,10 @@ preceded with a _
 package Bio::DB::EUtilities::egquery;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 
-use vars qw(@ISA $EUTIL);
+use vars qw($EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
 BEGIN {
     #set as default

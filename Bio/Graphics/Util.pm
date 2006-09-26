@@ -11,8 +11,8 @@ Bio::Graphics::Util - non-object-oriented utilities used in Bio::Graphics module
 
 use strict;
 require Exporter;
-use vars '@ISA','@EXPORT','@EXPORT_OK';
-@ISA = 'Exporter';
+use base qw(Exporter);
+use vars '@EXPORT','@EXPORT_OK';
 @EXPORT = 'frame_and_offset';
 use Bio::Root::Version;
 

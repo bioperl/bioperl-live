@@ -66,13 +66,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Variation::IO::xml;
 
-use vars qw(@ISA $seqdiff $var $prevdnaobj $prevrnaobj $prevaaobj);
+use vars qw($seqdiff $var $prevdnaobj $prevrnaobj $prevaaobj);
 use strict;
 
 use XML::Twig;
 use XML::Writer 0.4;
 use IO::String;
-use Bio::Variation::IO;
 use Bio::Variation::SeqDiff;
 use Bio::Variation::DNAMutation;
 use Bio::Variation::RNAChange;
@@ -80,7 +79,7 @@ use Bio::Variation::AAChange;
 use Bio::Variation::Allele;
 
 # new() is inherited from Bio::Root::Object
-@ISA = qw( Bio::Variation::IO );
+use base qw(Bio::Variation::IO);
 
 # _initialize is where the heavy stuff will happen when new is called
 

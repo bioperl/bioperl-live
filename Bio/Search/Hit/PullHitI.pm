@@ -102,14 +102,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Search::Hit::PullHitI;
 
-use Bio::PullParserI;
-use Bio::Search::Hit::HitI;
 use Bio::Search::SearchUtils;
 
-use vars qw(@ISA);
 use strict;
 
-@ISA = qw(Bio::PullParserI Bio::Search::Hit::HitI);
+use base qw(Bio::PullParserI Bio::Search::Hit::HitI);
 
 =head2 _setup
 

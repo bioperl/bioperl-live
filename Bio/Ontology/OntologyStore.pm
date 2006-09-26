@@ -90,19 +90,17 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::OntologyStore;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 use Bio::Ontology::DocumentRegistry;
 use Bio::OntologyIO;
 use FileHandle;
 use File::Spec::Functions;
 
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # these are the static ontology stores by name and by identifier - there is
 # only one of each in any application

@@ -63,15 +63,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::tabtree;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::TreeIO;
 
 
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 =head2 new
 

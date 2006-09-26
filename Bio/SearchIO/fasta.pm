@@ -71,12 +71,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::fasta;
-use vars qw(@ISA %MODEMAP %MAPPING $IDLENGTH);
+use vars qw(%MODEMAP %MAPPING $IDLENGTH);
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
 
-use Bio::SearchIO;
 use Bio::Factory::ObjectFactory;
 use POSIX;
 
@@ -155,7 +154,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 =head2 new
 

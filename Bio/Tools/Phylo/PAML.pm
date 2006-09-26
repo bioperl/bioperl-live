@@ -165,16 +165,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::PAML;
-use vars qw(@ISA $RSTFILENAME);
+use vars qw($RSTFILENAME);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::AnalysisParserI;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::AnalysisParserI);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::AnalysisParserI);
 
 BEGIN {
   $RSTFILENAME = 'rst'; # where to get the RST data from

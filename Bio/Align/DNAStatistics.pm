@@ -294,12 +294,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::DNAStatistics;
-use vars qw(@ISA %DNAChanges @Nucleotides %NucleotideIndexes
+use vars qw(%DNAChanges @Nucleotides %NucleotideIndexes
 	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods
             $CODONS %synchanges $synsites $Precision $GCChhars);
 use strict;
 use Bio::Align::PairwiseStatistics;
-use Bio::Root::Root;
 use Bio::Matrix::PhylipDist;
 use Bio::Tools::IUPAC;
 
@@ -359,7 +358,7 @@ BEGIN {
 			 'jinnei|jin\-nei'       => 'JinNei');
 
 }
-@ISA = qw( Bio::Root::Root Bio::Align::StatisticsI );
+use base qw(Bio::Root::Root Bio::Align::StatisticsI);
 
 ## generate look up hashes for Nei_Gojobori methods##
 $CODONS = get_codons();

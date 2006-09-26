@@ -91,14 +91,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Variation::VariantI;
-use vars qw(@ISA);
 use strict;
-use  Bio::Root::Root;
-use  Bio::DBLinkContainerI;
 # Object preamble - inheritance
 
-use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::SeqFeature::Generic Bio::DBLinkContainerI );
+use base qw(Bio::Root::Root Bio::SeqFeature::Generic Bio::DBLinkContainerI);
 
 =head2 id
 

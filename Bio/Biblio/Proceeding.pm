@@ -94,11 +94,9 @@ this will be changed in the future.
 
 package Bio::Biblio::Proceeding;
 use strict;
-use vars qw(@ISA);
 
-use Bio::Biblio::Ref;
 
-@ISA = qw( Bio::Biblio::Ref);
+use base qw(Bio::Biblio::Ref);
 
 #
 # a closure with a list of allowed attribute names (these names

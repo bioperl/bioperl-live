@@ -69,17 +69,15 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::IteratedSearchResultEventBuilder;
-use vars qw(@ISA %KNOWNEVENTS 
-            $DEFAULT_INCLUSION_THRESHOLD
+use vars qw(%KNOWNEVENTS             $DEFAULT_INCLUSION_THRESHOLD
             $MAX_HSP_OVERLAP
 );
 
 use strict;
 
-use Bio::SearchIO::SearchResultEventBuilder;
 use Bio::Factory::ObjectFactory;
 
-@ISA = qw(Bio::SearchIO::SearchResultEventBuilder);
+use base qw(Bio::SearchIO::SearchResultEventBuilder);
 
 # e-value threshold for inclusion in the PSI-BLAST score matrix model (blastpgp)
 # NOTE: Executing `blastpgp -` incorrectly reports that the default is 0.005.

@@ -26,12 +26,9 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-use Bio::DB::GFF::Adaptor::dbi::mysql;
-use Bio::DB::GFF::Adaptor::ace;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 
-use vars '@ISA';
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysql Bio::DB::GFF::Adaptor::ace);
+use base qw(Bio::DB::GFF::Adaptor::dbi::mysql Bio::DB::GFF::Adaptor::ace);
 
 # Create a new Bio::DB::GFF::Adaptor::dbi object
 sub new {

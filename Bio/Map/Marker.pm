@@ -113,13 +113,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Marker;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::MarkerI;
-use Bio::Map::Mappable;
 use Bio::Map::Position;
 
-@ISA = qw(Bio::Map::Mappable Bio::Map::MarkerI);
+use base qw(Bio::Map::Mappable Bio::Map::MarkerI);
 
 =head2 new
 

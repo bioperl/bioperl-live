@@ -108,15 +108,13 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tree::Draw::Cladogram;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 use PostScript::TextBlock;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # The following private package variables are set by the new method
 # and used by the print method.

@@ -53,10 +53,7 @@ Email richard.adams@ed.ac.uk
 
 use strict;
 package Bio::Graph::Edge;
-use Bio::Root::Root;
-use Bio::IdentifiableI;
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root Bio::IdentifiableI);
+use base qw(Bio::Root::Root Bio::IdentifiableI);
 
 
 =head2 new
@@ -148,3 +145,5 @@ sub nodes {
 		}
 	return ($self->[0], $self->[1]);
 }
+
+1;

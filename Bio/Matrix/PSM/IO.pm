@@ -98,11 +98,10 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO;
-use Bio::Root::IO;
-use vars qw(@ISA @PSMFORMATS);
+use vars qw(@PSMFORMATS);
 use strict;
 
-@ISA=qw(Bio::Root::IO);
+use base qw(Bio::Root::IO);
 
 @PSMFORMATS = qw(meme transfac mast psiblast masta);
 

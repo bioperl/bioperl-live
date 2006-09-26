@@ -65,11 +65,9 @@ purposes only.
 package Bio::Restriction::EnzymeI;
 use strict;
 
-use Bio::Root::RootI;
 
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 sub name {  shift->throw_not_implemented; }
 sub site {  shift->throw_not_implemented; }

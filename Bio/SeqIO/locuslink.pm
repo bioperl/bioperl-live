@@ -88,9 +88,7 @@ Internal methods are usually preceded with a _
 package Bio::SeqIO::locuslink;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Bio::Species;
 use Bio::Annotation::DBLink;
@@ -100,7 +98,7 @@ use Bio::Annotation::SimpleValue;
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::Collection;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 # list of all the field names in locuslink
 my @locuslink_keys = qw(

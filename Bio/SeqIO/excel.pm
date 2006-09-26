@@ -92,15 +92,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::excel;
-use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO;
-use Bio::SeqIO::table;
 use Spreadsheet::ParseExcel;
 #use Spreadsheet::ParseExcel::Workbook;
 
-@ISA = qw(Bio::SeqIO::table);
+use base qw(Bio::SeqIO::table);
 
 =head2 new
 

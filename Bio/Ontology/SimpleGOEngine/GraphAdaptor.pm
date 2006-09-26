@@ -117,12 +117,10 @@ package Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 
 use Graph::Directed;
 
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Root;
 use Bio::Ontology::SimpleGOEngine::GraphAdaptor02;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 

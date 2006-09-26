@@ -65,12 +65,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy;
-use vars qw(@ISA $DefaultSource $TAXON_IIDS);
+use vars qw($DefaultSource $TAXON_IIDS);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 $DefaultSource = 'entrez';
 $TAXON_IIDS = {};

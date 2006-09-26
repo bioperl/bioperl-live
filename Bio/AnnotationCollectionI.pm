@@ -117,14 +117,12 @@ are usually preceded with a _
 # Let the code begin...
 
 package Bio::AnnotationCollectionI;
-use vars qw(@ISA);
 use strict;
 
 # Interface preamble - inherits from Bio::Root::RootI
 
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 ACCESSOR METHODS
 

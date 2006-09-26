@@ -119,13 +119,12 @@ Internal methods are usually preceded with a _
 
 package Bio::PullParserI;
 
-use vars qw(@ISA $AUTOLOAD $FORCE_TEMP_FILE);
+use vars qw($AUTOLOAD $FORCE_TEMP_FILE);
 use strict;
 
-use Bio::Root::RootI;
 use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 BEGIN {
     # chunk() needs perl 5.8 feature for modes other than temp_file, so will

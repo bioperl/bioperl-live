@@ -80,13 +80,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::Utilities;
-use vars qw(@ISA @EXPORT @EXPORT_OK $GAP $CODONGAP %EXPORT_TAGS);
+use vars qw(@EXPORT @EXPORT_OK $GAP $CODONGAP %EXPORT_TAGS);
 use strict;
 use Carp;
 use Bio::Root::Version;
 require Exporter;
 
-@ISA = qw(Exporter);
+use base qw(Exporter);
 
 @EXPORT = qw();
 @EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates);

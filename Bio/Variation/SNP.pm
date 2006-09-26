@@ -53,12 +53,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::Variation::SNP;
 
 use strict;
-use vars qw( @ISA $AUTOLOAD);
+use vars qw($AUTOLOAD);
 use Bio::Root::Root;
-use Bio::Variation::SeqDiff;
-use Bio::Variation::Allele;
 
-@ISA = qw( Bio::Variation::SeqDiff Bio::Variation::Allele);
+use base qw(Bio::Variation::SeqDiff Bio::Variation::Allele);
 
 =head2 get/set-able methods
 

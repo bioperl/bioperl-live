@@ -88,11 +88,9 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::TermI;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 
 

@@ -78,12 +78,9 @@ package Bio::Search::Hit::HmmpfamHit;
 
 use strict;
 
-use vars qw(@ISA);
-use Bio::Root::Root;
-use Bio::Search::Hit::PullHitI;
 use Bio::Search::HSP::HmmpfamHSP;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Hit::PullHitI);
+use base qw(Bio::Root::Root Bio::Search::Hit::PullHitI);
 
 =head2 new
 

@@ -61,7 +61,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::GeneStructure;
-use vars qw(@ISA $WeakRefs);
+use vars qw($WeakRefs);
 use strict;
 
 BEGIN {
@@ -71,10 +71,8 @@ BEGIN {
     } else { $Bio::SeqFeature::Gene::GeneStructure::WeakRefs = 1; }
 }
 
-use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::Gene::GeneStructureI;
 
-@ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::GeneStructureI);
+use base qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::GeneStructureI);
 
 
 sub new {

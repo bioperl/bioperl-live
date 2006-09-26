@@ -114,13 +114,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Index::Fasta;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 #
 # Suggested fix by Michael G Schwern <schwern@pobox.com> to

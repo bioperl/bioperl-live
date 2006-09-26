@@ -74,14 +74,12 @@ use DB_File;
 use IO::File;
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use File::Spec;
-use Bio::DB::Flat;
 use Bio::SeqIO;
 use Bio::DB::RandomAccessI;
 use Bio::Root::Root;
 use Bio::Root::IO;
-use vars '@ISA';
 
-@ISA = qw(Bio::DB::Flat);
+use base qw(Bio::DB::Flat);
 
 sub _initialize {
   my $self = shift;

@@ -59,15 +59,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH
+use vars qw($OBDA_SPEC_VERSION $OBDA_SEARCH_PATH
 			   $HOME $PRIVATE_DIR $PUBLIC_DIR $REGISTRY 
 			   $FALLBACK_REGISTRY);
 use strict;
 
-use Bio::Root::Root;
 use Bio::DB::Failover;
 use Bio::Root::HTTPget;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 BEGIN {
    $OBDA_SPEC_VERSION = 1.0;

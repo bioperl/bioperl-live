@@ -73,17 +73,15 @@ Internal methods are usually preceded with a _
 
 
 package Bio::OntologyIO::Handlers::InterProHandler;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::Root;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::RelationshipType;
 use Bio::Ontology::SimpleOntologyEngine;
 use Bio::Annotation::Reference;
 use Data::Dumper;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 my ($record_count, $processed_count, $is_a_rel, $contains_rel, $found_in_rel);
 

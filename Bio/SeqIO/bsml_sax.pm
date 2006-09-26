@@ -64,21 +64,19 @@ Email jason-at-bioperl-dot-org
 =cut
 
 package Bio::SeqIO::bsml_sax;
-use vars qw(@ISA $Default_Source);
+use vars qw($Default_Source);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use XML::SAX;
-use XML::SAX::Base;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO XML::SAX::Base);
+use base qw(Bio::SeqIO XML::SAX::Base);
 
 $Default_Source = 'BSML';
 

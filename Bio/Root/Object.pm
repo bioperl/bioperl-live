@@ -21,7 +21,6 @@ use strict;
 
 require 5.002;
 use Bio::Root::Global qw(:devel $AUTHORITY $CGI);
-use Bio::Root::Root;
 
 use Exporter ();
 
@@ -32,9 +31,9 @@ use vars qw(@EXPORT_OK %EXPORT_TAGS);
 @EXPORT_OK = qw(&find_object &stack_trace &containment &_rearrange);
 %EXPORT_TAGS = ( std => [qw(&stack_trace &containment)] );
 
-use vars qw($ID %Objects_created $Revision @ISA);
+use vars qw($ID %Objects_created $Revision);
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 # %Objects_created can be used for tracking all objects created.

@@ -40,7 +40,7 @@ Bio::Root::RootI - Abstract interface to root object code
   # Using throw_not_implemented() within a RootI-based interface module:
 
   package Foo;
-  @ISA = qw( Bio::Root::RootI );
+  use base qw(Bio::Root::RootI);
 
   sub foo {
       my $self = shift;

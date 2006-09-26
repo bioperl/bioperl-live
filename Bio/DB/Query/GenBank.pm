@@ -82,7 +82,6 @@ preceded with a _
 
 package Bio::DB::Query::GenBank;
 use strict;
-use Bio::DB::Query::WebQuery;
 use URI::Escape 'uri_unescape';
 
 use constant EPOST               => 'http://www.ncbi.nih.gov/entrez/eutils/epost.fcgi';
@@ -90,9 +89,9 @@ use constant ESEARCH             => 'http://www.ncbi.nih.gov/entrez/eutils/esear
 use constant DEFAULT_DB          => 'protein';
 use constant MAXENTRY            => 100;
 
-use vars qw(@ISA @ATTRIBUTES);
+use vars qw(@ATTRIBUTES);
 
-@ISA     = 'Bio::DB::Query::WebQuery';
+use base qw(Bio::DB::Query::WebQuery);
 
 BEGIN {
   @ATTRIBUTES = qw(db reldate mindate maxdate datetype maxids);

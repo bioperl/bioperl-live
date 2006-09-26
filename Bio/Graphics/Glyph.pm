@@ -6,10 +6,8 @@ use strict;
 use Carp 'croak','cluck';
 use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
 use Bio::Root::Version;
-use Bio::Root::Root;
 
-use vars '@ISA';
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 my %LAYOUT_COUNT;
 
@@ -1740,8 +1738,7 @@ with a preamble like this one:
  package Bio::Graphics::Glyph::crossbox;
 
  use strict;
- use vars '@ISA';
- @ISA = 'Bio::Graphics::Glyph';
+ use base qw(Bio::Graphics::Glyph);
 
 Then override the methods you need to.  Typically, just the draw()
 method will need to be overridden.  However, if you need additional

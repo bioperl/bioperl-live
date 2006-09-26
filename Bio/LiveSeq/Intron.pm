@@ -40,9 +40,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::LiveSeq::Intron;
 
 use strict;
-use vars qw(@ISA);
-use Bio::LiveSeq::Range; # uses Range, inherits from it
-@ISA=qw(Bio::LiveSeq::Range);
+use base qw(Bio::LiveSeq::Range);
 
 =head2 new
 

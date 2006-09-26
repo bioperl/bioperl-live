@@ -65,11 +65,9 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Map::MarkerI;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::MappableI;
 
-@ISA = qw(Bio::Map::MappableI);
+use base qw(Bio::Map::MappableI);
 
 =head2 get_position_object
 

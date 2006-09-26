@@ -70,12 +70,9 @@ methods are usually preceded with an "_" (underscore).
 # Let the code begin...
 package Bio::DB::Flat;
 
-use Bio::DB::RandomAccessI;
-use Bio::Root::Root;
 use Bio::Root::IO;
-use vars '@ISA';
 
-@ISA = qw(Bio::Root::Root Bio::DB::RandomAccessI);
+use base qw(Bio::Root::Root Bio::DB::RandomAccessI);
 
 use constant CONFIG_FILE_NAME => 'config.dat';
 

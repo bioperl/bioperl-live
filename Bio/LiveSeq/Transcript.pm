@@ -41,10 +41,8 @@ package Bio::LiveSeq::Transcript;
 
 use strict;
 # use Carp qw(carp cluck);
-use vars qw(@ISA);
-use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 use Bio::LiveSeq::Exon; # uses Exon to create new exon in case of deletion
-@ISA=qw(Bio::LiveSeq::SeqI);
+use base qw(Bio::LiveSeq::SeqI);
 
 =head2 new
 

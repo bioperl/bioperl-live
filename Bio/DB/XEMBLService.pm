@@ -72,12 +72,10 @@ my %methods = (
   },
 );
 use Bio::Root::Version;
-use SOAP::Lite;
-use Exporter;
 use Carp ();
 
-use vars qw(@ISA $AUTOLOAD @EXPORT_OK %EXPORT_TAGS);
-@ISA = qw(Exporter SOAP::Lite);
+use vars qw($AUTOLOAD @EXPORT_OK %EXPORT_TAGS);
+use base qw(Exporter SOAP::Lite);
 @EXPORT_OK = (keys %methods);
 %EXPORT_TAGS = ('all' => [@EXPORT_OK]);
 

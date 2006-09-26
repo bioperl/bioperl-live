@@ -74,15 +74,14 @@ package Bio::Index::Abstract;
 use strict;
 use Fcntl qw( O_RDWR O_CREAT O_RDONLY );
 use vars qw( $TYPE_AND_VERSION_KEY
-             @ISA $USE_DBM_TYPE $DB_HASH );
+             $USE_DBM_TYPE $DB_HASH );
 
 # Object preamble - inheriets from Bio::Root::Object
 
-use Bio::Root::Root;
 use Bio::Root::IO;
 use Symbol();
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # Generate accessor methods for simple object fields
 BEGIN {

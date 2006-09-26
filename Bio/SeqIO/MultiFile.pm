@@ -62,10 +62,8 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::SeqIO::MultiFile;
 use strict;
-use vars qw(@ISA);
-use Bio::SeqIO;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 
 # _initialize is where the heavy stuff will happen when new is called

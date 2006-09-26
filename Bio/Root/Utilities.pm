@@ -41,12 +41,11 @@ BEGIN {
 
 use Bio::Root::Global  qw(:data :std $TIMEOUT_SECS);
 use Bio::Root::Object  ();
-use Exporter           ();
 #use AutoLoader;
 #*AUTOLOAD = \&AutoLoader::AUTOLOAD;
 
-use vars qw( @ISA @EXPORT_OK %EXPORT_TAGS );
-@ISA         = qw( Bio::Root::Root Exporter);
+use vars qw(@EXPORT_OK %EXPORT_TAGS);
+use base qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw($Util);
 %EXPORT_TAGS = ( obj => [qw($Util)],
 		 std => [qw($Util)],);

@@ -86,13 +86,11 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::SwissPfam;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::Abstract;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract);
+use base qw(Bio::Index::Abstract);
 
 sub _version {
     return 0.1;

@@ -101,9 +101,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::Restriction::IO;
 
 use strict;
-use vars qw(@ISA %FORMAT);
-use Bio::SeqIO;
-@ISA = 'Bio::SeqIO';
+use vars qw(%FORMAT);
+use base qw(Bio::SeqIO);
 
 %FORMAT = (
             'itype2'    => 'itype2',

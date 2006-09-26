@@ -93,12 +93,9 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Cluster::SequenceFamily;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Cluster::FamilyI;
 
-@ISA = qw(Bio::Root::Root Bio::Cluster::FamilyI);
+use base qw(Bio::Root::Root Bio::Cluster::FamilyI);
 
 
 =head2 new

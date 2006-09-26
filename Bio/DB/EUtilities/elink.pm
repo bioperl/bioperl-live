@@ -402,15 +402,14 @@ package Bio::DB::EUtilities::elink;
 use strict;
 use warnings;
 
-use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use Bio::DB::EUtilities::ElinkData;
 use XML::Simple;
 use Data::Dumper;
 
-use vars qw(@ISA $EUTIL $VERSION %CMD);
+use vars qw($EUTIL $VERSION %CMD);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
 BEGIN {
     #set as default

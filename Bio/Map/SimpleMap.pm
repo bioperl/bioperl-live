@@ -81,13 +81,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::SimpleMap;
-use vars qw(@ISA $MAPCOUNT);
+use vars qw($MAPCOUNT);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Map::MapI;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MapI);
+use base qw(Bio::Root::Root Bio::Map::MapI);
 BEGIN { $MAPCOUNT = 1; }
 
 =head2 new

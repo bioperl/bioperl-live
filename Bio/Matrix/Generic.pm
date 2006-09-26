@@ -69,13 +69,10 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Matrix::Generic;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Matrix::MatrixI;
 
-@ISA = qw(Bio::Root::Root Bio::Matrix::MatrixI  );
+use base qw(Bio::Root::Root Bio::Matrix::MatrixI);
 
 =head2 new
 

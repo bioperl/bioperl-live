@@ -102,14 +102,10 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO;
 use strict;
-use vars qw(@ISA);
 
 # Object preamble - inherits from Bio::Root::IO
 
-use Bio::Root::IO;
-use Bio::Event::EventGeneratorI;
 use Bio::SearchIO::SearchResultEventBuilder;
-use Bio::AnalysisParserI;
 
 # Special exception class for exceptions during parsing.
 # End users should not ever see these.
@@ -118,7 +114,7 @@ use Bio::AnalysisParserI;
 
 use Symbol();
 
-@ISA = qw( Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
+use base qw(Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
 
 =head2 new
 

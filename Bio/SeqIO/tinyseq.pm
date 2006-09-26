@@ -88,9 +88,9 @@ use Bio::SeqIO::tinyseq::tinyseqHandler;
 use XML::Parser::PerlSAX;
 use XML::Writer;
 
-use vars qw(@ISA $VERSION );
+use vars qw($VERSION);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 $VERSION = '0.01';
 

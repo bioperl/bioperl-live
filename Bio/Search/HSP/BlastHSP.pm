@@ -150,18 +150,16 @@ Internal methods are usually preceded with a _
 package Bio::Search::HSP::BlastHSP;
 
 use strict;
-use Bio::SeqFeature::SimilarityPair;
 use Bio::SeqFeature::Similarity;
-use Bio::Search::HSP::HSPI;
 
-use vars qw( @ISA $GAP_SYMBOL $Revision %STRAND_SYMBOL );
+use vars qw($GAP_SYMBOL $Revision %STRAND_SYMBOL);
 
 use overload
     '""' => \&to_string;
 
 $Revision = '$Id$';  #'
 
-@ISA = qw(Bio::SeqFeature::SimilarityPair Bio::Search::HSP::HSPI);
+use base qw(Bio::SeqFeature::SimilarityPair Bio::Search::HSP::HSPI);
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
 %STRAND_SYMBOL = ('Plus' => 1, 'Minus' => -1 );

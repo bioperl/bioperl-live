@@ -20,18 +20,16 @@
 
 package Bio::Tools::Blast;
 use strict;
-use Exporter;
 
-use Bio::Tools::SeqAnal;
 use Bio::Root::Global     qw(:std);
 use Bio::Root::Utilities  qw(:obj);
 
 require 5.002;
 
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
+use vars qw(@EXPORT @EXPORT_OK %EXPORT_TAGS
             $ID $Blast @Blast_programs $Revision $Newline);
 
-@ISA        = qw( Bio::Tools::SeqAnal Exporter);
+use base qw(Bio::Tools::SeqAnal Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw($Blast);
 %EXPORT_TAGS = ( obj => [qw($Blast)],

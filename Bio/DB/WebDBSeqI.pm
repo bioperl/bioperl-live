@@ -70,10 +70,9 @@ preceded with a _
 
 package Bio::DB::WebDBSeqI;
 use strict;
-use vars qw(@ISA $MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
+use vars qw($MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
 	    $DEFAULTFORMAT $LAST_INVOCATION_TIME @ATTRIBUTES);
 
-use Bio::DB::RandomAccessI;
 use Bio::SeqIO;
 use Bio::Root::IO;
 use LWP::UserAgent;
@@ -85,7 +84,7 @@ use IO::Pipe;
 use IO::String;
 use Bio::Root::Root;
 
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 
 BEGIN {
 	$MODVERSION = '0.8';

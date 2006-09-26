@@ -70,13 +70,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DBLinkContainerI;
-use vars qw(@ISA);
 use strict;
 
 use Carp;
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 each_DBLink
 

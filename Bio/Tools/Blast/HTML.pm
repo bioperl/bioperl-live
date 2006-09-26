@@ -25,15 +25,14 @@
 
 package Bio::Tools::Blast::HTML;
 use strict;
-use Exporter;
 
 use Bio::Tools::WWW  qw(:obj);
 
-use vars qw( @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS
+use vars qw(@EXPORT @EXPORT_OK %EXPORT_TAGS
              $ID %DbUrl %SGDUrl $Revision
 	     $Acc $Pir_acc $Word $Signif $Int $Descrip);
 
-@ISA        = qw(Exporter);
+use base qw(Exporter);
 @EXPORT     = qw();
 @EXPORT_OK  = qw(&get_html_func &strip_html);
 %EXPORT_TAGS = ( std => [qw(&get_html_func  &strip_html)] );

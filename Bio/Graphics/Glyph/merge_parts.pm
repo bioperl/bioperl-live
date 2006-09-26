@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::merge_parts;
 
 use strict;
-use Bio::Graphics::Glyph;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph';
+use base qw(Bio::Graphics::Glyph);
 
 sub merge_parts {
     my ($self,@parts)  = @_;

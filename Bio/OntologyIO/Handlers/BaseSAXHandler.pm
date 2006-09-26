@@ -75,9 +75,7 @@ Interal methods are usually preceded with a _
 
 package Bio::OntologyIO::Handlers::BaseSAXHandler;
 use strict;
-use vars qw(@ISA);
-use Bio::Root::Root;
-@ISA=qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 sub new {

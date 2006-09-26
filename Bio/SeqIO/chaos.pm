@@ -117,10 +117,8 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::SeqIO::chaos;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
@@ -133,7 +131,7 @@ use Bio::SeqFeature::Tools::FeatureNamer;
 use Bio::SeqFeature::Tools::IDHandler;
 use Data::Stag qw(:all);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 our $TM = 'Bio::SeqFeature::Tools::TypeMapper';
 our $FNAMER = 'Bio::SeqFeature::Tools::FeatureNamer';

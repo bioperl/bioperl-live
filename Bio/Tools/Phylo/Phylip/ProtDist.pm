@@ -61,15 +61,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::Phylip::ProtDist;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Matrix::PhylipDist;
 
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

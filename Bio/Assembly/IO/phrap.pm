@@ -140,16 +140,14 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::IO::phrap;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
 use Bio::LocatableSeq;
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Assembly::IO);
+use base qw(Bio::Assembly::IO);
 
 =head2 next_assembly
 

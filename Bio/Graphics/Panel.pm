@@ -1,7 +1,6 @@
 package Bio::Graphics::Panel;
 
 use strict;
-use Bio::Root::Root;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
 
@@ -16,8 +15,7 @@ use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
 
-use vars '@ISA';
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 my %COLORS;  # translation table for symbolic color names to RGB triple
 my $IMAGEMAP = 'bgmap00001';

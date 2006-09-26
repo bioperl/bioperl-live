@@ -62,12 +62,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::ObjectFactoryI;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 create
 

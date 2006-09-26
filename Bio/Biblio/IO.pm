@@ -210,13 +210,10 @@ methods. Internal methods are preceded with a _
 package Bio::Biblio::IO;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Symbol();
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 my $entry = 0;
 

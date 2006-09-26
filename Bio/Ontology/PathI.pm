@@ -78,11 +78,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::PathI;
-use vars qw(@ISA);
 use strict;
-use Bio::Ontology::RelationshipI;
 
-@ISA = qw( Bio::Ontology::RelationshipI );
+use base qw(Bio::Ontology::RelationshipI);
 
 
 =head2 distance

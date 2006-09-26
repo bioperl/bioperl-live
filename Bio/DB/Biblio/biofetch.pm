@@ -91,15 +91,13 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::biofetch;
-use vars qw(@ISA %HOSTS  %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
+use vars qw(%HOSTS %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
 	    $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
-use Bio::Biblio;
-use Bio::DB::DBFetch;
 use Bio::Biblio::IO;
 
-@ISA = qw( Bio::DB::DBFetch Bio::Biblio);
+use base qw(Bio::DB::DBFetch Bio::Biblio);
 
 BEGIN {
 

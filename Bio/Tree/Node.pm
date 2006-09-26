@@ -70,13 +70,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tree::Node;
-use vars qw(@ISA $CREATIONORDER);
+use vars qw($CREATIONORDER);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Tree::NodeI;
 
-@ISA = qw(Bio::Root::Root Bio::Tree::NodeI);
+use base qw(Bio::Root::Root Bio::Tree::NodeI);
 
 BEGIN { 
     $CREATIONORDER = 0;

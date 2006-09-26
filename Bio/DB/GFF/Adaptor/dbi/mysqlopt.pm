@@ -26,8 +26,6 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-use Bio::DB::GFF::Adaptor::dbi::mysql;
-use vars '@ISA';
-@ISA = 'Bio::DB::GFF::Adaptor::dbi::mysql';
+use base qw(Bio::DB::GFF::Adaptor::dbi::mysql);
 
 1;

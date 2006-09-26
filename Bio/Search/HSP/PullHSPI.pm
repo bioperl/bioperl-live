@@ -106,14 +106,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::HSP::PullHSPI;
-use vars qw(@ISA);
 
-use Bio::Search::HSP::HSPI;
-use Bio::PullParserI;
 
 use strict;
 
-@ISA = qw(Bio::Search::HSP::HSPI Bio::PullParserI);
+use base qw(Bio::Search::HSP::HSPI Bio::PullParserI);
 
 =head2 _setup
 

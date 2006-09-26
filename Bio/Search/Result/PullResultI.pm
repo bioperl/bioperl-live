@@ -98,14 +98,11 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Search::Result::PullResultI;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::PullParserI;
-use Bio::Search::Result::ResultI;
 use Bio::Search::GenericStatistics;
 use Bio::Tools::Run::GenericParameters;
 
-@ISA = qw(Bio::PullParserI Bio::Search::Result::ResultI);
+use base qw(Bio::PullParserI Bio::Search::Result::ResultI);
 
 =head2 _setup
 

@@ -112,15 +112,9 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::PrimarySeqI;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
-
-@ISA = qw(Bio::Root::Root Bio::PrimarySeqI
+use base qw(Bio::Root::Root Bio::PrimarySeqI
 	  Bio::IdentifiableI Bio::DescribableI);
 
 #

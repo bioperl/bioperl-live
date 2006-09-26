@@ -141,11 +141,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Seq::EncodedSeq;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::LocatableSeq;
 
-@ISA = qw(Bio::LocatableSeq);
+use base qw(Bio::LocatableSeq);
 
 =head2 new
 
@@ -591,3 +589,5 @@ sub trunc {
     $new->encoding($enc);
     return $new;
 }
+
+1;

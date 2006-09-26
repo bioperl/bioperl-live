@@ -64,12 +64,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Matrix::IO;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::IO
 
-@ISA = qw(Bio::Root::IO );
+use base qw(Bio::Root::IO);
 
 =head2 new
 

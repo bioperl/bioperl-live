@@ -88,13 +88,12 @@ purposes only.
 =cut
 
 package Bio::Restriction::Enzyme::MultiSite;
-use Bio::Restriction::Enzyme;
 use strict;
 
 use Data::Dumper;
 
-use vars qw (@ISA);
-@ISA = qw(Bio::Restriction::Enzyme);
+use vars qw ();
+use base qw(Bio::Restriction::Enzyme);
 
 =head2 new
 

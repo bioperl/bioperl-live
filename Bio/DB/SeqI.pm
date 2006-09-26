@@ -68,13 +68,11 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::DB::SeqI;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::DB::RandomAccessI;
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 
 =head1 Methods inherieted from Bio::DB::RandomAccessI
 

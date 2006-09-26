@@ -114,8 +114,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Das::FeatureTypeI;
 use strict;
 
-use vars qw(@ISA);
-use Bio::Root::RootI;
 use overload '""'     => 'name',
              eq       => 'match',
              fallback => 1;
@@ -128,7 +126,7 @@ this is somehow FUBAR, implementation classes cannot successfully inherit from B
 
 =cut
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 name
 

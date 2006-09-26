@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::track;
 
 use strict;
-use Bio::Graphics::Glyph;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph';
+use base qw(Bio::Graphics::Glyph);
 
 # track sets connector to empty
 sub connector {

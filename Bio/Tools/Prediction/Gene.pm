@@ -68,13 +68,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Prediction::Gene;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Gene::Transcript;
 
 
-@ISA = qw(Bio::SeqFeature::Gene::Transcript);
+use base qw(Bio::SeqFeature::Gene::Transcript);
 
 sub new {
     my($class,@args) = @_;
