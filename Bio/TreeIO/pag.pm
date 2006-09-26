@@ -223,7 +223,7 @@ sub write_tree {
 
 sub next_tree{
    my ($self,@args) = @_;
-   $self->throw("parsing not implemented yet");
+   $self->throw_not_implemented();
 }
 
 

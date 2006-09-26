@@ -278,7 +278,7 @@ sub classify {
       # be given to the taxonomy object to act as an DB interface
       # (I'm not sure how useful this is though - if you have a DB of
       # taxonomy - why would you be doing things this way?)
-      $self->throw("Not yet implemented");
+      $self->throw_not_implemented();
    }
 
    return @ranks;

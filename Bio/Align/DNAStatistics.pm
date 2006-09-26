@@ -857,7 +857,7 @@ sub D_Tamura {
 sub D_F84 {
    my ($self,$aln,$gappenalty) = @_;
    return 0 unless $self->_check_arg($aln);
-   $self->throw("not implemented\n");
+   $self->throw_not_implemented();
    # ambiguities ignored at this point
    my (@seqs,@names,@values,%dist);
    my $seqct = 0;

@@ -180,8 +180,7 @@ sub next_aln {
 
 sub write_aln {
     my ($self,@aln) = @_;
-
-    $self->throw("Sorry: stockholm-format output, not yet implemented! /n");
+    $self->throw_not_implemented();
 }
 
 1;
