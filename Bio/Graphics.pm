@@ -53,7 +53,7 @@ Bio::Graphics - Generate GD images of Bio::Seq objects
  		  -double=>1,
  		  -tick => 2);
 
- $panel->add_track($seq,
+ $panel->add_track($wholeseq,
  		  -glyph  => 'generic',
  		  -bgcolor => 'blue',
  		  -label  => 1,
