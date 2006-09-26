@@ -270,7 +270,7 @@ sub write_individual {
     # data from hapmap is output, not input, so 
     # we don't need a method for writing and input file
 
-    $self->throw('writing to hapmap format is not implemented');
+    $self->throw_not_implemented();
 }
 
 =head2 write_population
@@ -289,7 +289,7 @@ See L<Bio::PopGen::PopulationI>
 
 sub write_population {
     my ($self,@inds) = @_;
-    $self->throw('writing to hapmap format is not implemented');
+    $self->throw_not_implemented();
 }
 
 
