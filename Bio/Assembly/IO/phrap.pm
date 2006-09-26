@@ -291,7 +291,7 @@ sub next_assembly {
     return $Assembly;
 }
 
-=head2 write_assembly
+=head2 write_assembly (NOT IMPLEMENTED)
 
     Title   : write_assembly
     Usage   : $ass_io->write_assembly($assembly)
@@ -303,8 +303,7 @@ sub next_assembly {
 
 sub write_assemebly {
     my $self = shift;
-
-    $self->throw("Writing phrap.out files is not implemented yet! Sorry...");
+    $self->throw_not_implemented();   
 }
 
 1;

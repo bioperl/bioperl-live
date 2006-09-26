@@ -432,8 +432,7 @@ sub next_assembly {
 
 sub write_assembly {
     my $self = shift;
-
-    $self->throw("Writing phrap ACE files is not implemented yet! Sorry...");
+    $self->throw_not_implemented();
 }
 
 
