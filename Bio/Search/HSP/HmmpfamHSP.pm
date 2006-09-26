@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::HSP::HmmpfamHSP- A parser and HSP object for hmmpfam hsps
+Bio::Search::HSP::HmmpfamHSP - A parser and HSP object for hmmpfam hsps
 
 =head1 SYNOPSIS
 
@@ -77,11 +77,7 @@ Internal methods are usually preceded with a _
 package Bio::Search::HSP::HmmpfamHSP;
 
 use strict;
-
-use vars qw(@ISA);
-use Bio::Search::HSP::PullHSPI;
-
-@ISA = qw(Bio::Search::HSP::PullHSPI);
+use base qw(Bio::Search::HSP::PullHSPI);
 
 =head2 new
 
