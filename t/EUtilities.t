@@ -256,7 +256,7 @@ SKIP: {
 	unigene  unists);
 	
 	my @einfo_dbs = sort $eutil->einfo_dbs;
-	is_deeply(\@einfo_dbs, \@db, 'All EInfo databases');
+	cmp_ok(scalar(@einfo_dbs), '>=', scalar(@db), 'All EInfo databases');
 }
 
 # ELink - normal (single ID array) - single db - ElinkData tests
