@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Fgenesh - Results of one Fgenesh run
+Bio::Tools::Fgenesh - parse results of one Fgenesh run
 
 =head1 SYNOPSIS
 
@@ -54,8 +54,8 @@ The Fgenesh module provides a parser for Fgenesh (version 2) gene structure
 prediction output. It parses one gene prediction into a 
 Bio::SeqFeature::Gene::Transcript- derived object.
 
-This module also implements the Bio::SeqAnalysisParserI interface, and thus
-can be used wherever such an object fits. See L<Bio::SeqAnalysisParserI>.
+This module also implements the L<Bio::SeqAnalysisParserI> interface, and thus
+can be used wherever such an object fits. 
 
 =head1 FEEDBACK
 
@@ -173,12 +173,9 @@ sub next_feature {
 =head2 next_prediction
 
  Title   : next_prediction
- Usage   : while($gene = $fgenesh->next_prediction()) {
-                  # do something
-           }
+ Usage   : while($gene = $fgenesh->next_prediction()) { ... }
  Function: Returns the next gene structure prediction of the Genscan result
            file. Call this method repeatedly until FALSE is returned.
-
  Example :
  Returns : A Bio::Tools::Prediction::Gene object.
  Args    :
@@ -480,7 +477,7 @@ sub _has_cds {
            $self->_readline() to retrieve input, and is able to strip off
            the traling description lines.
  Example :
- Returns : An array of two elements.
+ Returns : An array of two elements: fasta_id & sequence
 
 =cut
 
