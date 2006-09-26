@@ -85,7 +85,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::HMMER::Results;
 
 use vars qw(@ISA);
-use Carp;
 use strict;
 
 use Bio::Root::Root;
@@ -508,7 +507,7 @@ sub write_scores_bits {
     my (@array,@narray);
 
     if( !defined $file ) {
-	carp("Attempting to use write_scores_bits without passing in correct arguments!");
+	$self->warn("Attempting to use write_scores_bits without passing in correct arguments!");
 	return;
     }
 
@@ -589,7 +588,7 @@ sub lowest_true {
     my ($seq,$unit,$lowseq,$lowdom,$trueseq,$truedom);
 
     if( ! defined $domt ) {
-	carp "lowest true needs at least a domain threshold cut-off";
+	$self->warn("lowest true needs at least a domain threshold cut-off");
 	return (0,0);
     }
 
