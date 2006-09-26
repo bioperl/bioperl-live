@@ -45,7 +45,7 @@ residue-based meta information
                              -end=>2443,
                              -strand=>1,
                              -meta=>'1234567890',
-                             -varbose=>1, # to see warnings
+                             -verbose=>1, # to see warnings
                             );
 
   # accessors
@@ -157,6 +157,7 @@ Email heikki-at-bioperl-dot-org
 =head1 CONTRIBUTORS
 
 Chad Matsalla, bioinformatics@dieselwurks.com
+
 Aaron Mackey, amackey@virginia.edu
 
 =head1 APPENDIX
