@@ -52,6 +52,9 @@ package Bio::Graphics::Glyph::Factory;
 use strict;
 use Carp qw(:DEFAULT cluck);
 use Bio::Root::Version;
+use Bio::Root::Root;
+use vars '@ISA';
+@ISA = 'Bio::Root::Root';
 
 my %LOADED_GLYPHS = ();
 my %GENERIC_OPTIONS = (
@@ -308,7 +311,7 @@ sub make_glyph {
     $glyphclass .= "\:\:\L$type";
 
     unless ($LOADED_GLYPHS{$glyphclass}++) {
-      carp("The requested glyph class, ``$type'' is not available: $@")
+      $self->throw("The requested glyph class, ``$type'' is not available: $@")
         unless (eval "require $glyphclass");
     }
 

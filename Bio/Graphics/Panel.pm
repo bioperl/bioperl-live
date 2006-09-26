@@ -1,6 +1,7 @@
 package Bio::Graphics::Panel;
 
 use strict;
+use Bio::Root::Root;
 use Bio::Graphics::Glyph::Factory;
 use Bio::Graphics::Feature;
 
@@ -14,6 +15,9 @@ use constant KEYALIGN     => 'left';
 use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
+
+use vars '@ISA';
+@ISA = 'Bio::Root::Root';
 
 my %COLORS;  # translation table for symbolic color names to RGB triple
 my $IMAGEMAP = 'bgmap00001';
@@ -67,7 +71,7 @@ sub new {
      if defined $options{-start} && defined $options{-stop};
 
   # bring in the image generator class, since we will need it soon anyway
-  eval "require $image_class; 1" or die $@;
+  eval "require $image_class; 1" or $class->throw($@);
 
   return bless {
 		tracks => [],
@@ -471,7 +475,7 @@ sub gd {
 
   unless ($existing_gd) {
     my $image_class = $self->image_class;
-    eval "require $image_class; 1" or die $@;
+    eval "require $image_class; 1" or $self->throw($@);
   }
 
   my $height = $self->height;
@@ -990,12 +994,12 @@ sub create_web_image {
   my $path = $1;
   unless (-d $path) {
     require File::Path unless defined &File::Path::mkpath;
-    File::Path::mkpath($path,0,0777) or die "Couldn't create temporary image directory $path: $!";
+    File::Path::mkpath($path,0,0777) or $self->throw("Couldn't create temporary image directory $path: $!");
   }
 
   unless (defined &Digest::MD5::md5_hex) {
     eval "require Digest::MD5; 1"
-      or die "Sorry, but the image_and_map() method requires the Digest::MD5 module.";
+      or $self->throw("Sorry, but the image_and_map() method requires the Digest::MD5 module.");
   }
   my $data      = $self->png;
   my $signature = Digest::MD5::md5_hex($data);
@@ -1008,7 +1012,7 @@ sub create_web_image {
   my $url         = sprintf("%s/%s.%s",$tmpurl,$signature,$extension);
   my $imagefile   = sprintf("%s/%s.%s",$tmpdir,$signature,$extension);
 
-  open (F,">$imagefile") || die("Can't open image file $imagefile for writing: $!\n");
+  open (F,">$imagefile") || $self->throw("Can't open image file $imagefile for writing: $!\n");
   binmode(F);
   print F $data;
   close F;

@@ -8,6 +8,9 @@ use constant BUMP_SPACING => 2; # vertical distance between bumped glyphs
 use Bio::Root::Version;
 use Bio::Root::Root;
 
+use vars '@ISA';
+@ISA = 'Bio::Root::Root';
+
 my %LAYOUT_COUNT;
 
 # the CM1 and CM2 constants control the size of the hash used to
@@ -30,7 +33,7 @@ sub new {
   my $class = shift;
   my %arg = @_;
 
-  my $feature = $arg{-feature} or die "No feature $class";
+  my $feature = $arg{-feature} or $class->throw("No feature $class");
   my $factory = $arg{-factory} || $class->default_factory;
   my $level   = $arg{-level} || 0;
   my $flip    = $arg{-flip};
@@ -532,7 +535,7 @@ sub layout_sort {
     if (!$opt) {
        $sortfunc = sub { $a->left <=> $b->left };
     } elsif (ref $opt eq 'CODE') {
-      Bio::Root::Root->throw('sort_order subroutines must use the $$ prototype') unless prototype($opt) eq '$$';
+      $self->throw('sort_order subroutines must use the $$ prototype') unless prototype($opt) eq '$$';
       $sortfunc = $opt;
     } elsif ($opt =~ /^sub\s+\{/o) {
        $sortfunc = eval $opt;
