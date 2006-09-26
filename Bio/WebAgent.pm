@@ -75,7 +75,8 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
 
-This is actually the main documentation...
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -197,7 +198,7 @@ sub sleep {
    $LAST_INVOCATION_TIME ||=  0;
    if (time - $LAST_INVOCATION_TIME < $self->delay) {
       my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
-      warn "sleeping for $delay seconds\n" if $self->verbose > 0;
+      $self->warn("sleeping for $delay seconds\n");
       sleep $delay;
    }
    $LAST_INVOCATION_TIME = time;
