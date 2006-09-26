@@ -1086,7 +1086,7 @@ sub next_result {
                 ( $queryframe, $hitframe ) = ( $1, $2 );
                 $hitframe =~ s/\/\s*//g;
             }
-            elsif ( $reporttype eq 'TBLASTN' ) {
+            elsif ( $reporttype eq 'TBLASTN' || $reporttype eq 'PSITBLASTN') {
                 ( $hitframe, $queryframe ) = ( $1, 0 );
             }
             elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST(BLASTP)') {
