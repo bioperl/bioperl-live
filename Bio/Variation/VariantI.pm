@@ -399,7 +399,7 @@ sub dnStreamSeq {
 
 sub label {
     my ($self,$value) = @_;
-    $self->throw("[$self] has not implemeted method 'label'");
+    $self->throw_not_implemented();
 }
 
 
