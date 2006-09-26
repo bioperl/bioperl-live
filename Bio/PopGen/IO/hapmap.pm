@@ -215,7 +215,7 @@ sub next_individual  {
 
 	my @alleles = split($self->flag('allele_delimiter'), $m);
 	if( @alleles != 2 ) { 
-	    warn("$m for $samp\n");
+	    $self->warn("$m for $samp\n");
 	} else { 
 	    $m = new Bio::PopGen::Genotype(-alleles      => \@alleles,
 					   -marker_name  => $markername,
