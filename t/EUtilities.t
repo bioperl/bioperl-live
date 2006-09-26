@@ -252,7 +252,7 @@ SKIP: {
 	my @db = sort qw(pubmed  protein  nucleotide  nuccore  nucgss  nucest  structure
 	genome  books  cancerchromosomes  cdd  domains  gene  genomeprj  gensat
 	geo  gds  homologene  journals  mesh  ncbisearch  nlmcatalog  omia  omim
-	pmc  popset  probe  pcassay  pccompound  pcsubstance  snp  taxonomy
+	pmc  popset  probe  pcassay  pccompound  pcsubstance  snp  taxonomy toolkit
 	unigene  unists);
 	
 	my @einfo_dbs = sort $eutil->einfo_dbs;
