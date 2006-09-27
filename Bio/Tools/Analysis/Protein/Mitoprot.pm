@@ -46,9 +46,8 @@ server
 
 This class is a wrapper around the Mitoprot web server which
 calculates the probability of a sequence containing a mitochondrial
-targetting peptide. See
-http://www.mips.biochem.mpg.de/cgi-bin/proj/medgen/mitofilter for more
-details.
+targetting peptide. See http://mips.gsf.de/cgi-bin/proj/medgen/mitofilter
+for more details.
 
 The results can be obtained in 3 formats:
 
@@ -259,7 +258,7 @@ sub result {
                          cleavage_site => $results{'cleavage_site'},
                         },
                 );
-            return @fts;        #return Bioseqfeature array 
+            return @fts;        #return Bioseqfeature array
         }
         ## convert parsed data into a meta array format
         else  {

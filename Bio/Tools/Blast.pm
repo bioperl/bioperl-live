@@ -7,9 +7,6 @@
 # REVISION: $Id$
 # STATUS  : Alpha
 #
-# For the latest version and documentation, visit:
-#    http://bio.perl.org/Projects/Blast
-#
 # To generate documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
@@ -163,7 +160,6 @@ parameter is supplied. See L<to_html()|to_html> for details.
 
 This module is included with the central Bioperl distribution:
 
-   http://bio.perl.org/Core/Latest
    ftp://bio.perl.org/pub/DIST
 
 Follow the installation instructions included in the README file.
@@ -213,11 +209,7 @@ sequences.
 If you have Bio::Seq.pm and Bio::UnivAln.pm installed on your system,
 they can be used for working with high-scoring segment pair (HSP)
 sequences in the Blast alignment.  (A new version of Bio::Seq.pm is
-included in the distribution, see L<INSTALLATION | INSTALLATION>).  For more
-information about them, see:
-
-    http://bio.perl.org/Projects/Sequence/
-    http://bio.perl.org/Projects/SeqAlign/
+included in the distribution, see L<INSTALLATION | INSTALLATION>).
 
 =back
 
@@ -287,27 +279,27 @@ B<PUBLICATIONS:> (with PubMed links)
      Altschul S.F., Gish W., Miller W., Myers E.W., Lipman D.J. (1990).
      "Basic local alignment search tool", J Mol Biol 215: 403-410.
 
-http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=2231712&form=6&db=m&Dopt=r
+http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=2231712
 
      Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
      Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997).
      "Gapped BLAST and PSI-BLAST: a new generation of protein database
      search programs", Nucleic Acids Res. 25:3389-3402.
 
-http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=9254694&form=6&db=m&Dopt=r
+http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=9254694
 
      Karlin, Samuel and Stephen F. Altschul (1990).  Methods  for
      assessing the statistical significance of molecular sequence
      features by using general scoring schemes. Proc. Natl. Acad.
      Sci. USA 87:2264-68.
 
-http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=2315319&form=6&db=m&Dopt=b
+http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=2315319
 
      Karlin, Samuel and Stephen F. Altschul (1993).  Applications
      and statistics for multiple high-scoring segments in molecu-
      lar sequences. Proc. Natl. Acad. Sci. USA 90:5873-7.
 
-http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=8390686&form=6&db=m&Dopt=b
+http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=8390686
 
 =head1 USAGE
 
@@ -993,34 +985,23 @@ under the same terms as Perl itself.
 =head2 Links to related modules
 
  Bio::Tools::SeqAnal.pm
-      http://bio.perl.org/Core/POD/Bio/Tools/SeqAnal.html
+      http://doc.bioperl.org/bioperl-live/Bio/Tools/SeqAnal.html
 
  Bio::Tools::Blast::Sbjct.pm
-      http://bio.perl.org/Core/POD/Bio/Tools/Blast/Sbjct.html
+      http://doc.bioperl.org/bioperl-live/Bio/Tools/Blast/Sbjct.html
 
  Bio::Tools::Blast::HSP.pm
-      http://bio.perl.org/Core/POD/Bio/Tools/Blast/HSP.html
+      http://doc.bioperl.org/bioperl-live/Bio/Tools/Blast/HSP.html
 
  Bio::Tools::Blast::HTML.pm
-      http://bio.perl.org/Core/POD/Bio/Tools/Blast/HTML.html
-
- Bio::Tools::Blast::Run::Webblast.pm
-      http://bio.perl.org/Core/POD/Bio/Tools/Blast/Run/Webblast.html
-
- Bio::Tools::Blast::Run::LocalBlast.pm
-      http://bio.perl.org/Core/POD/Bio/Tools/Blast/Run/LocalBlast.html
+      http://doc.bioperl.org/bioperl-live/Bio/Tools/Blast/HTML.html
 
  Bio::Seq.pm
-      http://bio.perl.org/Core/POD/Seq.html
-
- Bio::UnivAln.pm
-      http://bio.perl.org/Projects/SeqAlign/
-      Europe:  http://www.techfak.uni-bielefeld.de/bcd/Perl/Bio/#univaln
+      http://doc.bioperl.org/bioperl-live/Bio/Seq.html
 
  Bio::Root::Object.pm
-      http://bio.perl.org/Core/POD/Root/Object.html
+      http://doc.bioperl.org/bioperl-live/Bio/Root/Object.html
 
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 L<References & Information about the BLAST program>.

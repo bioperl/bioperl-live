@@ -6,9 +6,6 @@
 # STATUS  : Alpha
 # REVISION: $Id$
 #
-# For the latest version and documentation, visit the distribution site:
-#    http://bio.perl.org/Projects/Blast/
-#
 # To generate documentation, run this module through pod2html
 # (preferably from Perl v5.004 or better).
 #
@@ -109,7 +106,6 @@ incorrect database links (L<FEEDBACK | FEEDBACK>). Thanks!
  Bio::Tools::Blast.pm    - Blast object.
  Bio::Tools::WWW.pm      - URL repository.
 
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 FEEDBACK
@@ -184,7 +180,7 @@ for documentation purposes only.
            : The anonymous function returned by this method croaks if
            : the Blast output appears to be HTML-formatted already.
  Comments  : Adapted from a script by Keith Robison  November 1993
-           : krobison@nucleus.harvard.edu; http://golgi.harvard.edu/gilbert.html
+           : krobison@nucleus.harvard.edu
            : Modified extensively by Steve Chervitz and Mike Cherry.
            : Some modifications are customizations for BLAST reports served up
            : by the Saccharomyces Genome Database.
@@ -620,17 +616,17 @@ sub _prog_ref_html {
 <ol>
 <li>Altschul, Stephen F., Warren Gish, Webb Miller, Eugene W. Myers, and David J. Lipman (1990).
 Basic local alignment search tool.
-<a href="http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=2231712&form=6&db=m&Dopt=r">J. Mol. Biol. 215: 403-10</a>.
+<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=2231712">J. Mol. Biol. 215: 403-10</a>.
 <li>Altschul et al. (1997), Gapped BLAST and PSI-BLAST:
 a new generation of protein database search programs.
-<a href="http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=9254694&form=6&db=m&Dopt=r">Nucl. Acids Res. 25: 3389-3402</a>.
+<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=9254694">Nucl. Acids Res. 25: 3389-3402</a>.
 <li><b>Program Descriptions</b>:
-<a href="http://www.ncbi.nlm.nih.gov/BLAST/newblast.html">BLAST2</a> |
+<a href="http://www.ncbi.nlm.nih.gov/BLAST/">BLAST2</a> |
 <a href="http://blast.wustl.edu/">WU-BLAST2</a> |
 <a href="http://www.ncbi.nlm.nih.gov/BLAST/blast_help.html">Help Manual</a>
 </ol>
 <small>
-HTML formatting provided by the <a href="${\$BioWWW->home_url('bioperl')}Projects/Blast/">Bioperl Blast module</a>.
+HTML formatting provided by the <i>Bioperl Blast module</i>.
 </small>
 </small>
 <p>
@@ -639,7 +635,7 @@ QQ_REF_QQ
 
 # Not really a reference for the Blast algorithm itself but an interesting usage.
 #<li>Gish, Warren, and David J. States (1993). Identification of protein coding regions by database similarity search.
-#<a href="http://www.ncbi.nlm.nih.gov/htbin-post/Entrez/query?uid=8485583&form=6&db=m&Dopt=r">Nature Genetics 3:266-72</a>.
+#<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=PubMed&cmd=search&term=8485583">Nature Genetics 3:266-72</a>.
 
 }
 

@@ -144,9 +144,6 @@ Steve Chervitz, E<lt>sac-at-bioperl.orgE<gt>
 
 =head2 Links:
 
- http://bio.perl.org/Core/POD/Tools/Blast/Sbjct.pm.html
-
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 COPYRIGHT
