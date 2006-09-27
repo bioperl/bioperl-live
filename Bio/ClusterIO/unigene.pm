@@ -97,7 +97,7 @@ my %line_is = (
 		SEQTYPE		=>	q/SEQTYPE=\s*(\S.*)/,
 		TRACE			=>	q/TRACE=\s*(\S.*)/,
 		PERIPHERAL		=>	q/PERIPHERAL=\s*(\S.*)/,
-		DELIMITER		=>	q/^\/\//
+		DELIMITER		=>	q{^//},
 );
 
 # we set the right factory here

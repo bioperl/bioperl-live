@@ -1222,7 +1222,7 @@ sub read_config_file {
 	my $version;
 
 	# This is hard coded as we only index flatfiles here
-	if ($line =~ /index\tflat\/(\d+)/) {
+	if ($line =~ m{index\tflat/(\d+)}) {
 		$version = $1;
 	} else {
 		$self->throw("First line not compatible with flat file index.  Should be something like\n\nindex\tflat/1");
@@ -1470,7 +1470,7 @@ sub index_directory {
     my ($self,$arg) = @_;
 
     if (defined($arg)) {
-	if ($arg !~ /\/$/) {
+	if ($arg !~ m{/$}) {
 	    $arg .= "/";
 	}
 	$self->{_index_directory} = $arg;

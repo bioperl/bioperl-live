@@ -560,7 +560,7 @@ sub _possibly_codata
     my ($line, $lineno) = (shift, shift);
     return (($lineno == 1 && $line =~ /^ENTRY/) ||
             ($lineno == 2 && $line =~ /^SEQUENCE/) ||
-            $line =~ /^(?:ENTRY|SEQUENCE|\/\/\/)/);
+            $line =~ m{^(?:ENTRY|SEQUENCE|///)});
 }
 
 =head2 _possibly_embl
@@ -779,7 +779,7 @@ Contradiction at
 sub _possibly_msf
 {
     my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^\/\// ||
+    return ($line =~ m{^//} ||
             $line =~ /MSF:.*Type:.*Check:|Name:.*Len:/);
 }
 
@@ -821,7 +821,7 @@ From bioperl test data.
 sub _possibly_pfam
 {
     my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^\w+\/\d+-\d+\s+[A-IK-NP-Z.]+/i);
+    return ($line =~ m{^\w+/\d+-\d+\s+[A-IK-NP-Z.]+}i);
 }
 
 =head2 _possibly_phylip

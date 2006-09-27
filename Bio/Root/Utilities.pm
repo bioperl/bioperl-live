@@ -263,8 +263,8 @@ sub date_format {
 
     # Load a supplied date for conversion:
     if(defined($date) && ($date =~ /[\D-]+/)) {
-	if( $date =~ /\//) {
-	    ($mon,$mday,$year) = split(/\//, $date);
+	if( $date =~ m{/}) {
+	    ($mon,$mday,$year) = split(m{/}, $date);
 	} elsif($date =~ /(\d{4})-(\d{1,2})-(\d{1,2})/) {
 	    ($year,$mon,$mday) = ($1, $2, $3);
 	} elsif($date =~ /(\d{4})-(\w{3,})-(\d{1,2})/) {
@@ -660,11 +660,11 @@ sub count_files {
     my $self = shift;
     my $href = shift;   # Reference to an empty hash.
     my( $name, @fileLine);
-    my $dir = $$href{-DIR} || './';
+    my $dir = $$href{-DIR} || './'; # THIS IS UNIX SPECIFIC? FIXME/TODO
     my $print = $$href{-PRINT} || 0;
 
     ### Make sure $dir ends with /
-    $dir !~ /\/$/ and do{ $dir .=  '/'; $$href{-DIR} = $dir; };
+    $dir !~ m{/$} and do{ $dir .=  '/'; $$href{-DIR} = $dir; };
 
     open ( PIPE, "ls -1 $dir |" ) || $self->throw("Can't open input pipe: $!");
 

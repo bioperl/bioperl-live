@@ -135,8 +135,8 @@ sub new {
     my $self = $class->SUPER::new(%args);
 
     $self->{'filename'} = $args{'-acefile'};
-	# this is special to UNIX and should probably use catfile
-    if (!($self->{'filename'} =~ /\//)) { 
+	# this is special to UNIX and should probably use catfile : FIXME/TODO
+    if (!($self->{'filename'} =~ m{/})) { 
 	$self->{'filename'} = "./".$self->{'filename'}; 
     } 
     $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;

@@ -75,7 +75,7 @@ sub new {
     do {
 	$line=$self->_readline;
 	chomp $line;
-	push @{$self->{unstructured}},$line if (length($line)>2); } until ($line =~ /^\/\//) || (!defined($line)); #Unstructured header
+	push @{$self->{unstructured}},$line if (length($line)>2); } until ($line =~ m{^//}) || (!defined($line)); #Unstructured header
     $self->_initialize;
     return $self;
 }
@@ -125,7 +125,7 @@ sub next_psm {
     my $ref=_parse_ref($self);
     push @refs,$ref
   }
-	last if ($line=~/^\/\//);
+	last if ($line=~m{^//});
     }
     # We have the frequencies, let's create a SiteMatrix object
     my %matrix = &_make_matrix($self,\@a,\@c,\@g,\@t,$id, $accn);

@@ -266,7 +266,7 @@ sub result {
             #parse line
             if ($line =~ /^Protein/) {
                 ($current_SR) = $line =~/:\s+(\S+)/;
-                $current_SR =~ s/\//_/; # remove unallowed charcters from hash
+                $current_SR =~ s{/}{_}; # remove unallowed charcters from hash
             }
             if ( $line =~/^\d+/ && $value ne 'all') {
                 push @sig_pdctns, [$current_SR, split /\s+/, $line] ;

@@ -83,8 +83,8 @@ sub next_aln {
 
     while( $entry = $self->_readline) {
 	chomp $entry;
-	$entry =~ /^\/\// && last;
-	if($entry !~ /^(\S+)\/(\d+)-(\d+)\s+(\S+)\s*/ ) {
+	$entry =~ m{^//} && last;
+	if($entry !~ m{^(\S+)/(\d+)-(\d+)\s+(\S+)\s*} ) {
 	    $self->throw("Found a bad line [$_] in the pfam format alignment");
 	    next;
 	}

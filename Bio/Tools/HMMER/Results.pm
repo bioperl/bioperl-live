@@ -741,7 +741,7 @@ sub _parse_hmmpfam {
 
 	    while(<$file>) {
 		/^Align/ && last;
-		/^\/\// && last;
+		m{^//} && last;
 		# this is meant to match
 
 		#Sequence Domain  seq-f seq-t    hmm-f hmm-t      score  E-value
@@ -774,14 +774,14 @@ sub _parse_hmmpfam {
 		    $self->add_Domain($unit);
 		}
 	    }
-	    if( /^\/\// ) { next; }
+	    if( m{^//} ) { next; }
 
 	    $_ = <$file>;
 	    # parses alignment lines. Icky as we have to break on the same line
 	    # that we need to read to place the alignment lines with the unit.
 
 	    while(1) {
-		(!defined $_ || /^\/\//) && last;
+		(!defined $_ || m{^//}) && last;
 
 		# matches:
 		# PF00621: domain 1 of 1, from 198 to 372
@@ -800,7 +800,7 @@ sub _parse_hmmpfam {
 			next;
 		    }
 		    while(<$file>) {
-			/^\/\// && last;
+			m{^//} && last;
 			/^\s*\S+:.*from\s+\d+\s+to\s+\d+/ && last;
 			$unit->add_alignment_line($_);
 		    }

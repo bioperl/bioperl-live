@@ -422,7 +422,7 @@ sub next_seq {
    }
    $seqc = "";
    while( defined ($_ = $self->_readline) ) {
-		/^\/\// && last;
+		m{^//} && last;
 		$_ = uc($_);
 		s/[^A-Za-z]//g;
 		$seqc .= $_;

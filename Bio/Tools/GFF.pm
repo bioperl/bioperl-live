@@ -357,7 +357,7 @@ sub next_feature {
             # all forward refs have been seen; TODO
         }
         next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
-                $gff_string =~ /^\/\//);
+                $gff_string =~ m{^//});
 
         while ($gff_string =~ /^\>(.+)/) {
             # fasta can be in header or footer

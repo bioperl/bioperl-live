@@ -341,7 +341,7 @@ sub next_seq {
    }
    $seqc = "";  
    while( defined ($_ = $self->_readline) ) {
-       last if /^\/\//;
+       last if m{^//};
        s/[^A-Za-z]//g;       
        $seqc .= uc($_);
    }

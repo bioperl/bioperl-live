@@ -609,7 +609,7 @@ sub next_seq {
       if( defined ($_) ) {
 	  if( /^CONTIG/o ) {
 	      my @contig;
-	      while($_ !~ /^\/\//) { # end of file
+	      while($_ !~ m{^//}) { # end of file
 		  $_ =~ /^(?:CONTIG)?\s+(.*)/;
 		  $annotation->add_Annotation(
 					      Bio::Annotation::SimpleValue->new(-value   => $1,
@@ -625,9 +625,9 @@ sub next_seq {
 										-tagname => $1));
 		  $_ = $self->_readline;
 	      }
-	  } elsif(! /^(ORIGIN|\/\/)/ ) { # advance to the sequence, if any
+	  } elsif(! m{^(ORIGIN|//)} ) { # advance to the sequence, if any
 	      while (defined( $_ = $self->_readline) ) {
-		  last if /^(ORIGIN|\/\/)/;
+		  last if m{^(ORIGIN|//)};
 	      }
 	  }
       }
@@ -646,7 +646,7 @@ sub next_seq {
 				}
 				my $seqc = '';
 				while( defined($_ = $self->_readline) ) {
-					/^\/\// && last;
+					m{^//} && last;
 					$_ = uc($_);
 					s/[^A-Za-z]//g;
 					$seqc .= $_;

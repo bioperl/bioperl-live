@@ -85,7 +85,7 @@ sub next_aln {
 	my $aln =  Bio::SimpleAlign->new(-source => 'gcg' );
 
 	while( $entry = $self->_readline) {
-		$entry =~ /\/\// && last; # move to alignment section
+		$entry =~ m{//} && last; # move to alignment section
 		$entry =~ /Name:\s+(\S+)/ && do { $name = $1;
 					  $hash{$name} = ""; # blank line
 					  push(@names,$name); # we need it ordered!
@@ -118,7 +118,7 @@ sub next_aln {
    # now got this as a name - sequence hash. Let's make some sequences!
 
    foreach $name ( @names ) {
-		if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+		if( $name =~ m{(\S+)/(\d+)-(\d+)} ) {
 			$seqname = $1;
 			$start = $2;
 			$end = $3;

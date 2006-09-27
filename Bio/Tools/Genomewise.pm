@@ -164,7 +164,7 @@ sub next_prediction {
     my $genes;
     while ($_ = $self->_readline) {
 	$self->debug( $_ ) if( $self->verbose > 0);
-	last if( /^\/\//);
+	last if m{^//};
 
 	if( /^Gene\s+\d+\s*$/ ) {
 	    $genes = new Bio::SeqFeature::Gene::GeneStructure
