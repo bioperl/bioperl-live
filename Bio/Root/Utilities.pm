@@ -1053,7 +1053,7 @@ sub mail_authority {
           :  -CC   => cc: e-mail address   (optional)
  Thows    : Exception if TO: address appears bad or is missing
  Comments : Based on  TomC's tip at:
-          :   http://www.perl.com/CPAN-local/doc/FMTEYEWTK/safe_shellings
+          :   http://www.perl.com/CPAN/doc/FMTEYEWTK/safe_shellings
           :
           : Using default 'From:' information.
           :   sendmail options used:

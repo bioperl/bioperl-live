@@ -142,9 +142,6 @@ HSPs since all HSPs will appear to overlap.
 
 Links:
 
- http://bio.perl.org/Core/POD/Search/Hit/Blast/BlastHSP.pm.html
-
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 
@@ -165,7 +162,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-    http://bugzilla.bio.perl.org/
+    http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 

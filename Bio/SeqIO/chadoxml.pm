@@ -27,7 +27,7 @@ rather go through the SeqIO handler system:
 
 This object can transform Bio::Seq objects to chadoxml flat
 file databases (for chadoxml DTD, see
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd).
+http://gmod.cvs.sourceforge.net/gmod/schema/chado/dat/chado.dtd).
 
 This is currently a write-only module.
 
@@ -51,7 +51,7 @@ This is currently a write-only module.
 
 The chadoxml output of Bio::SeqIO::chadoxml-E<gt>write_seq() method can be
 passed to the loader utility in XORT package
-(http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/XMLTools/XORT/)
+(http://gmod.cvs.sourceforge.net/gmod/schema/XMLTools/XORT/)
 to be loaded into chado.
 
 This object is currently implemented to work with sequence and

@@ -30,7 +30,7 @@ in the NCBI TinySeq XML format.  A TinySeq is a lightweight XML file
 of sequence information on one or more sequences, analgous to FASTA
 format.
 
-See http://www.ncbi.nih.gov/dtd/NCBI_TSeq.mod for the DTD.
+See http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd for the DTD.
 
 =head2 EXPORT
 
@@ -103,7 +103,7 @@ use base qw(Bio::Root::Root);
 
   Title		: new
   Usage		: $handler = Bio::SeqIO::tinyseq::tinyseqHandler->new()
-  Function	: instantiates a tinyseqHandler for use by 
+  Function	: instantiates a tinyseqHandler for use by
                   XML::Parser::PerlSAX
   Returns	: Bio::SeqIO::tinyseq::tinyseqHandler object
   Args		: NONE
@@ -161,7 +161,7 @@ sub start_document {
 
 sub end_document {
     my ($self) = @_;
-    return $self->{'_seqatts'}; 
+    return $self->{'_seqatts'};
 }
 
 =head2 start_element
@@ -249,7 +249,7 @@ sub TSeq {
 
 	while(my($element_att, $pseq_att) = each %$conversion) {
 	    $seqatts{$pseq_att} = $element->{$element_att};
-	}				 
+	}
     }
 
     push(@{ $self->{'_seqatts'} }, \%seqatts);
