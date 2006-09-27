@@ -449,7 +449,7 @@ sub get_seq_stream {
 		my ($result,$stream) = $self->_open_pipe();
 
 		if (defined $result) {
-			$DB::fork_TTY = '/dev/null'; # prevents complaints from debugge
+			$DB::fork_TTY = File::Spec->devnull; # prevents complaints from debugge
 			if (!$result) { # in child process
 			        $self->_stream_request($request,$stream);
 			        POSIX::_exit(0); #prevent END blocks from executing in this forked child

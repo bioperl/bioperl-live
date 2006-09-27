@@ -251,6 +251,7 @@ use Bio::SeqIO;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::SearchIO;
+use File::Spec;
 
 use base qw(Bio::Root::Root Bio::Tools::Run::WrapperBase Bio::Factory::ApplicationFactoryI);
 
@@ -1039,7 +1040,7 @@ sub _setparams {
     }
 
     if ($self->quiet()) { 
-      $param_string .= '  2>/dev/null';
+      $param_string .= '  2> '.File::Spec->devnull;
     }
     if ($executable eq 'wublast') {
 	foreach my $attr (@WUBLAST_SWITCH) {
