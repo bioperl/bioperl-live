@@ -649,11 +649,12 @@ sub _file_handle {
 	my( $self, $i ) = @_;
 
 	unless ($self->{'_filehandle'}[$i]) {
-		my $fh = Symbol::gensym();
 		my @rec = $self->unpack_record($self->db->{"__FILE_$i"})
 		  or $self->throw("Can't get filename for index : $i");
 		my $file = $rec[0];
-		open $fh, $file or $self->throw("Can't read file '$file' : $!");
+#		my $fh = Symbol::gensym();
+#		open $fh, '<', $file or $self->throw("Can't read file '$file' : $!");
+		open my $fh, '<', $file or $self->throw("Can't read file '$file' : $!");
 		$self->{'_filehandle'}[$i] = $fh; # Cache filehandle
 	}
 	return $self->{'_filehandle'}[$i];

@@ -242,13 +242,13 @@ sub _index_file {
 		          # of the last found record.
 	  );
 
-	open(BLAST, "<$file") or $self->throw("cannot open file $file\n");
+	open(my $BLAST, '<', $file) or $self->throw("cannot open file $file\n");
 
 	my (@data, @records);
 	my $indexpoint = 0;
 	my $lastline = 0;
 
-	while(<BLAST> ) {	
+	while( <$BLAST> ) {	
 		if( /(T)?BLAST[PNX]/ ) {
 			if( @data ) { 
 				# if we have already read a report
@@ -265,7 +265,7 @@ sub _index_file {
 			@data = ();
 		}
 		push @data, $_;
-		$lastline = tell(BLAST);
+		$lastline = tell $BLAST;
 	}
 	# handle fencepost problem (end)
 	if( @data ) {

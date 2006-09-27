@@ -168,13 +168,13 @@ sub _index_file {
 
 	my $id_parser = $self->id_parser;
 
-	open QUAL, $file or $self->throw("Can't open file for read : $file");
+	open my $QUAL, '<', $file or $self->throw("Can't open file for read : $file");
 
 	# Main indexing loop
-	while (<QUAL>) {
+	while (<$QUAL>) {
 		if (/^>/) {
 			# $begin is the position of the first character after the '>'
-			my $begin = tell(QUAL) - length( $_ ) + 1;
+			my $begin = tell($QUAL) - length( $_ ) + 1;
 
 			foreach my $id (&$id_parser($_)) {
 				$self->add_record($id, $i, $begin);
@@ -182,7 +182,7 @@ sub _index_file {
 		}
 	}
 
-	close QUAL;
+	close $QUAL;
 	return 1;
 }
 
