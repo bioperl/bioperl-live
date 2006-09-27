@@ -142,6 +142,8 @@ sub draw_multiple_alignment {
   my $drew_sequence;
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
+  $self->filled_box($gd,$bl,$bt,$br,$bb,$self->bgcolor,$self->bgcolor);
+
   $top = $bt;
 
   my @s                     = $self->_subfeat($feature);
@@ -310,8 +312,8 @@ sub draw_multiple_alignment {
   my $lineheight = $font->height;
   my $fontwidth  = $font->width;
 
-  my $pink = $self->factory->translate_color('lightpink');
-  my $grey  = $self->factory->translate_color('gray');
+  my $mismatch = $self->factory->translate_color($self->option('mismatch_color') || 'lightgrey');
+  my $grey     = $self->factory->translate_color('gray');
 
   my $base2pixel = 
     $self->flip ?
@@ -338,7 +340,7 @@ sub draw_multiple_alignment {
 
       next unless $tgt_base && $x >= $panel_left && $x <= $panel_right;
 
-      $self->filled_box($gd,$x,$y+3,$x+$fontwidth-1,$y+$lineheight-2,$pink,$pink) 
+      $self->filled_box($gd,$x-$pixels_per_base/2+2,$y+1,$x+$pixels_per_base/2+1,$y+$lineheight,$mismatch,$mismatch)
 	if $show_mismatch && $tgt_base && $src_base ne $tgt_base && $tgt_base !~ /[nN]/;
       $tgt_base = $complement{$tgt_base} if $true_target && $strand < 0;
       $gd->char($font,$x,$y,$tgt_base,$tgt_base =~ /[nN]/ ? $grey : $color);
@@ -354,25 +356,37 @@ sub draw_multiple_alignment {
 	my $gap_left  = $fontwidth + $base2pixel->($src_last_end,0);
 	my $gap_right = $base2pixel->($seg->[SRC_START],0);
 	($gap_left,$gap_right) = ($gap_right+$fontwidth,$gap_left-$fontwidth) if $self->flip;
-	warn "delta=$delta, gap_left=$gap_left, gap_right=$gap_right"  if DEBUG;
+	warn "delta=$delta, gap_left=$gap_left, gap_right=$gap_right" if DEBUG;
+
+	if ($delta == $src_delta) {
+	  $gap_left  += $pixels_per_base/2-2;
+	  $gap_right -= $pixels_per_base/2-2;
+	}
+
+	$self->filled_box($gd,$gap_left,$y+1,
+			      $gap_right-2,$y+$lineheight,$mismatch,$mismatch) if $show_mismatch && $gap_left >= $panel_left;
+
 
 	my $gap_distance             = $gap_right - $gap_left + 1;
 	my $pixels_per_inserted_base = $gap_distance/($delta-1);
 
  	if ($pixels_per_inserted_base >= $fontwidth) {  # Squeeze the insertion in
  	  for (my $i = 0; $i<$delta-1; $i++) {
- 	    my $x = $gap_left + (1 + $pixels_per_inserted_base-$fontwidth)/2 + $pixels_per_inserted_base * $i;
+ 	    my $x = $gap_left + ($pixels_per_inserted_base-$fontwidth)/2 + $pixels_per_inserted_base * $i;
  	    my $bp = $self->_subsequence($tgt_dna,$tgt_last_end+$i+1,$tgt_last_end+$i+1);
- 	    $gd->char($font,$x,$y,$bp,$grey) unless $x < $panel_left;
+	    next if $x < $panel_left;
+ 	    $gd->char($font,$x,$y,$bp,$color);
  	  }
  	} else {  # doesn't fit, so stick in a blob
 	  $self->_draw_insertion_point($gd,($gap_left+$gap_right)/2,$y+3,$color);
  	}
-      } 
+      }
       # deal with gaps in the alignment
       elsif ( (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
 	for (my $i=0;$i<$delta-1;$i++) {
 	  my $x = $base2pixel->($src_last_end,$i+1);
+	  $self->filled_box($gd,$x-$pixels_per_base/2+2,$y,$x+$pixels_per_base/2+1,$y+$lineheight,$mismatch,$mismatch)
+	    if $show_mismatch;
 	  $gd->char($font,$x,$y,'-',$color);
 	}
 	
@@ -528,7 +542,10 @@ In addition, the following glyph-specific options are recognized:
 
   -show_mismatch When combined with -draw_target,     0 (false)
                  highlights mismatched bases in
-                 pink.  See "Displaying Alignments".
+                 the mismatch color.  
+                 See "Displaying Alignments".
+
+  -mismatch_color The mismatch color to use           'lightgrey'
 
   -true_target   Show the target DNA in its native    0 (false)
                  (plus strand) orientation, even if
@@ -552,7 +569,8 @@ to allow individual bases to be drawn. The -ragged_extra option will
 cause the alignment to be extended at the extreme ends by the
 indicated number of bases, and is useful for looking for polyAs and
 cloning sites at the ends of ESTs and cDNAs. -show_mismatch will cause
-mismatched bases to be highlighted in pink.
+mismatched bases to be highlighted in with the color indicated by
+-mismatch_color (default lightgray).
 
 At high magnifications, minus strand matches will automatically be
 shown as their reverse complement (so that the match has the same
