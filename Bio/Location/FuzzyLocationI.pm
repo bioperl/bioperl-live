@@ -63,8 +63,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Location::FuzzyLocationI;
 use strict;
 
-use Carp;
-
 use base qw(Bio::LocationI);
 
 =head1 LocationI methods

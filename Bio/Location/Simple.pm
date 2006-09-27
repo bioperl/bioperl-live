@@ -69,19 +69,13 @@ methods. Internal methods are usually preceded with a _
 package Bio::Location::Simple;
 use strict;
 
-
 use base qw(Bio::Location::Atomic);
 
-BEGIN {
-    use vars qw(  %RANGEENCODE  %RANGEDECODE  );
-
-    %RANGEENCODE  = ('\.\.' => 'EXACT',
+our %RANGEENCODE  = ('\.\.' => 'EXACT',
 		     '\^'   => 'IN-BETWEEN' );
 
-    %RANGEDECODE  = ('EXACT'      => '..',
+our %RANGEDECODE  = ('EXACT'      => '..',
 		     'IN-BETWEEN' => '^' );
-
-}
 
 sub new { 
     my ($class, @args) = @_;

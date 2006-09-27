@@ -72,17 +72,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::Split;
-use vars qw(@CORBALOCATIONOPERATOR);
-use strict;
+
+# as defined by BSANE 0.03
+our @CORBALOCATIONOPERATOR = ('NONE','JOIN', undef, 'ORDER');;
 
 use Bio::Root::Root;
 
 use base qw(Bio::Location::Atomic Bio::Location::SplitLocationI);
 
-BEGIN { 
-    # as defined by BSANE 0.03
-    @CORBALOCATIONOPERATOR= ('NONE','JOIN', undef, 'ORDER');  
-}
 
 sub new {
     my ($class, @args) = @_;
@@ -301,7 +298,7 @@ sub strand{
 	$self->{'strand'} = $value;
 	# propagate to all sublocs
 	foreach my $loc ($self->sub_Location(0)) {
-	    $loc->strand($value) if ! $loc->is_remote();
+	    $loc->strand($value);
 	}
     } else {
 	my ($strand, $lstrand);
