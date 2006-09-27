@@ -92,15 +92,13 @@ package Bio::DB::EUtilities::einfo;
 use strict;
 use warnings;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 use vars qw($EUTIL);
 
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    $EUTIL = 'einfo';
-}
+our $EUTIL = 'einfo';
 
 sub _initialize {
     my ($self, @args ) = @_;
@@ -129,7 +127,7 @@ sub parse_response {
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content,
                             forcearray => [qw(DbName Field Link)]);
-    $self->debug("Response dumper:\n".Dumper($simple));
+    #$self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
         my $error = $simple->{ERROR} ? $simple->{ERROR} : 'No data returned';

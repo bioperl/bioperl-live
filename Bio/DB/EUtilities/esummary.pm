@@ -178,14 +178,10 @@ use strict;
 use warnings;
 use XML::Simple;
 #use Data::Dumper;
-use vars qw($EUTIL);
 
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    #set as default
-    $EUTIL = 'esummary';
-}
+our $EUTIL = 'esummary';
 
 sub _initialize {
     my ($self, @args ) = @_;

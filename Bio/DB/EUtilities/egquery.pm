@@ -92,10 +92,7 @@ use vars qw($EUTIL);
 
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    #set as default
-    $EUTIL = 'egquery';
-}
+our $EUTIL = 'egquery';
 
 sub _initialize {
     my ($self, @args ) = @_;

@@ -63,7 +63,7 @@ package Bio::DB::EUtilities::ElinkData;
 use strict;
 use warnings;
 
-use Data::Dumper;
+#use Data::Dumper;
 
 use base qw(Bio::Root::Root);
 
@@ -132,7 +132,7 @@ sub _add_set {
                        'DbTo'     => $dbto,
                        'Id'       => \@ids,
                       };
-        $self->debug('Linkset:',Dumper($linkset));
+        #$self->debug('Linkset:',Dumper($linkset));
         push @{ $self->{'_linksetdb'}}, $linkset;
     }
     return 1; # good linkset

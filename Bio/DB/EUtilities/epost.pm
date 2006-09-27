@@ -116,15 +116,10 @@ use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
 #use Data::Dumper;
 
-use vars qw($EUTIL $RETMODE);
-
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    #set as default
-    $EUTIL = 'epost';
-    $RETMODE = 'xml';
-}
+our $EUTIL = 'epost';
+our $RETMODE = 'xml';
 
 sub _initialize {
     my ($self, @args) = @_;

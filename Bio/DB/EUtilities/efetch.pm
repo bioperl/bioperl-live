@@ -186,15 +186,12 @@ preceded with a _
 package Bio::DB::EUtilities::efetch;
 use strict;
 use warnings;
-use URI::Escape qw(uri_unescape);
 
 use vars qw($EUTIL);
 
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    $EUTIL = 'efetch';
-}
+our $EUTIL = 'efetch';
 
 sub _initialize {
     my ($self, @args ) = @_;

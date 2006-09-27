@@ -66,15 +66,13 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 use vars qw($EUTIL);
 
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    $EUTIL = 'esearch';
-}
+our $EUTIL = 'esearch';
 
 sub _initialize {
     my ($self, @args ) = @_;

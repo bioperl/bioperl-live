@@ -183,12 +183,11 @@ use URI;
 
 use base qw(Bio::DB::GenericWebDBI);
 
-BEGIN {
-    $DEFAULT_TOOL = 'bioperl';
+our $DEFAULT_TOOL = 'bioperl';
     # default host base
-    $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
+our $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
     # map eutility to location
-    %CGILOCATION = (
+our %CGILOCATION = (
             'einfo'     => ['get'  => '/entrez/eutils/einfo.fcgi', 'xml'],
             'epost'     => ['post' => '/entrez/eutils/epost.fcgi', 'xml'],
             'efetch'    => ['get'  => '/entrez/eutils/efetch.fcgi', 'dbspec'],
@@ -198,7 +197,7 @@ BEGIN {
             'egquery'   => ['get'  => '/entrez/eutils/egquery.fcgi', 'xml']
              );
     # map database to return mode
-    %DATABASE = ('pubmed'           => 'xml',
+our %DATABASE = ('pubmed'           => 'xml',
                  'protein'          => 'text',
                  'nucleotide'       => 'text',
                  'nuccore'          => 'text',
@@ -233,12 +232,14 @@ BEGIN {
                  'unigene'          => 'xml',
                  'unists'           => 'xml',
                  );
-    @PARAMS = qw(rettype usehistory term field tool reldate mindate
-        maxdate datetype retstart retmax sort seq_start seq_stop strand
-        complexity report dbfrom cmd holding version linkname retmode);
-    @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
-        retstart retmax cmd linkname retmode);
-    @METHODS = qw(rettype usehistory term field tool reldate mindate
+
+    our @PARAMS = qw(rettype usehistory term field tool reldate mindate
+            maxdate datetype retstart retmax sort seq_start seq_stop strand
+            complexity report dbfrom cmd holding version linkname retmode);
+    our @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
+            retstart retmax cmd linkname retmode);
+BEGIN {
+    our @METHODS = qw(rettype usehistory term field tool reldate mindate
         maxdate datetype retstart retmax sort seq_start seq_stop strand
         complexity report dbfrom cmd holding version linkname);
     for my $method (@METHODS) {

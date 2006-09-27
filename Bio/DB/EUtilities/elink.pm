@@ -405,18 +405,15 @@ use warnings;
 use Bio::DB::EUtilities::Cookie;
 use Bio::DB::EUtilities::ElinkData;
 use XML::Simple;
-use Data::Dumper;
-
-use vars qw($EUTIL $VERSION %CMD);
+#use Data::Dumper;
 
 use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    #set as default
-    $EUTIL = 'elink';
-    $VERSION = '1';
+our $EUTIL = 'elink';
+our $VERSION = '1';
     # cmd parameter options; these haven't been mapped yet
-    %CMD = ('prlinks'   => 1,
+
+our %CMD = ('prlinks'   => 1,
             'llinks'    => 1,
             'llinkslib' => 1,
             'lcheck'    => 1,
@@ -425,7 +422,6 @@ BEGIN {
             'neighbor_history'  => 1,
             'acheck'    => 1,
            );
-}
 
 sub _initialize {
     my ($self, @args ) = @_;
@@ -488,7 +484,7 @@ sub parse_response {
     if (exists $simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
-	$self->debug("Response dumper:\n".Dumper($simple));
+	#$self->debug("Response dumper:\n".Dumper($simple));
     my $cmd = $self->cmd ? $self->cmd : 'neighbor'; # set default cmd
     # process possible cookies first
     if (defined($cmd) && $cmd eq 'neighbor_history') {
