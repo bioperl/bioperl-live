@@ -1,5 +1,5 @@
 # $Id$
-# Bio::Tools::Alignment::Consed.pm
+# Bio::Tools::Alignment::Consed
 #
 # Cared for by Chad Matsalla
 #
@@ -33,10 +33,9 @@ Bio::Tools::Alignment::Consed - A module to work with objects from consed .ace f
 
 =head1 DESCRIPTION
 
-Bio::Tools::Alignment::Consed provides methods and objects to deal
-with the output from the Consed package of programs. Specifically,
-Bio::Tools::Alignment::Consed takes in the name of in .ace file and
-provides objects for the results.
+L<Bio::Tools::Alignment::Consed> provides methods and objects to deal
+with the output from the Consed software suite. Specifically,
+takes an C<.ace> file and provides objects for the results.
 
 A word about doublets: This module was written to accomodate a large
 EST sequencing operation. In this case, EST's were sequenced from the
@@ -51,16 +50,16 @@ clone chad1.
 
 Doublets are good!
 
-This module parses .ace and related files. A detailed list of methods
+This module parses C<.ace> and related files. A detailed list of methods
 can be found at the end of this document.
 
 I wrote a detailed rationale for design that may explain the reasons
 why some things were done the way they were done. That document is
 beyond the scope of this pod and can probably be found in the
 directory from which this module was 'made' or at
-http://www.dieselwurks.com/bioinformatics/consedpm_documentation.pdf
+L<http://www.dieselwurks.com/bioinformatics/consedpm_documentation.pdf>.
 
-Note that the pod in that document might be old but the original
+Note that the POD in that document might be old but the original
 rationale still stands.
 
 =head1 FEEDBACK
@@ -84,7 +83,7 @@ web:
 
 =head1 AUTHOR - Chad Matsalla
 
-chad-at-dieselwurks.com
+Email chad-at-dieselwurks.com
 
 =head1 APPENDIX
 
@@ -98,18 +97,16 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Alignment::Consed;
 
 use strict;
-use vars qw($Contigs %DEFAULTS);
+
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
+use File::Spec;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
 
-
-BEGIN {
-    %DEFAULTS = ( 'f_designator' => 'f',
+our %DEFAULTS = ( 'f_designator' => 'f',
 		  'r_designator' => 'r');
-}
 
 =head2 new()
 
@@ -135,12 +132,17 @@ sub new {
     my $self = $class->SUPER::new(%args);
 
     $self->{'filename'} = $args{'-acefile'};
-	# this is special to UNIX and should probably use catfile : FIXME/TODO
-    if (!($self->{'filename'} =~ m{/})) { 
-	$self->{'filename'} = "./".$self->{'filename'}; 
-    } 
-    $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;
-    $self->{'path'} = $1;
+
+    # this is special to UNIX and should probably use catfile : FIXME/TODO
+#    if (!($self->{'filename'} =~ m{/})) { 
+#	$self->{'filename'} = "./".$self->{'filename'}; 
+#    } 
+#    $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;
+#    $self->{'path'} = $1;
+
+    # this is more generic and should work on most systems   
+    (undef, $self->{'path'}, undef) = File::Spec->splitpath($self->{'filename'});
+
     $self->_initialize_io('-file'=>$self->{'filename'});
     $self->{'o_trim'} = new Bio::Tools::Alignment::Trim(-verbose => $self->verbose());
     $self->set_forward_designator($DEFAULTS{'f_designator'});
@@ -1831,13 +1833,5 @@ sub show_missing_sequence() {
 }
 
 
-# Autoload methods go after =cut, and are processed by the autosplit program.
-
 1;
-__END__
 
-=head1 SEE ALSO
-
-perl(1).
-
-=cut
