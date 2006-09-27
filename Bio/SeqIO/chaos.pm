@@ -664,7 +664,7 @@ sub get_chaos_feature_id {
                 $id = $IDH->generate_unique_persistent_id($ob);
             };
             if ($@) {
-                print STDERR $@;
+                $self->warn($@);
                 $id = "$ob"; # last resort - use memory pointer ref
                 # will not be persistent, but will be unique
             }
