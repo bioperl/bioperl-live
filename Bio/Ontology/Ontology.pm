@@ -667,6 +667,23 @@ sub find_terms{
               } $self->engine->find_terms(@_);
 }
 
+=head2 find_identical_terms
+
+ Title   : find_identical_terms
+ Usage   : ($term) = $oe->find_identical_terms($term0);
+ Function: Find term instances where name or synonym
+           matches the query exactly
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_identical_terms{
+    my $self = shift;
+    return grep { $_->ontology->name eq $self->name;
+              } $self->engine->find_identical_terms(@_);
+}
 
 
 =head2 find_similar_terms
@@ -687,6 +704,23 @@ sub find_similar_terms{
               } $self->engine->find_similar_terms(@_);
 }
 
+=head2 find_identically_named_terms
+
+ Title   : find_identically_named_terms
+ Usage   : ($term) = $oe->find_identically_named_terms($term0);
+ Function: Find term instances where names match the query term
+           name exactly
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_identically_named_terms{
+    my $self = shift;
+    return grep { $_->ontology->name eq $self->name
+              } $self->engine->find_identically_named_terms(@_);
+}
 
 =head1 Factory for relationships and terms
 
