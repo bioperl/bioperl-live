@@ -370,8 +370,8 @@ sub subseq {
 	   return substr( $self->seq(), $start, ($end-$start));
        }
    } else {
-       $self->warn("Incorrect parameters to subseq - must be two integers ".
-		   "or a Bio::LocationI object not ($start,$end)");
+       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object");
+       return;
    }
 }
 
