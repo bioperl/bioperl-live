@@ -779,8 +779,13 @@ sub add_segment {
 		       : $parent->can('segments')                   ? $parent->segments
 		       : 0;
     unless ($segment_count) {  # convert into a segmented object
-      my %clone   = %$parent;
-      my $segment = bless \%clone,ref $parent;
+      my $segment;
+      if ($parent->can('clone')) {
+	$segment = $parent->clone;
+      } else {
+	my %clone   = %$parent;
+	$segment = bless \%clone,ref $parent;
+      }
       delete $segment->{segments};
       eval {$segment->object_store(undef) };
       $segment->primary_id(undef);
@@ -790,6 +795,7 @@ sub add_segment {
       $parent->add_segment($segment);
     }
     $parent->add_segment($child);
+    1; # for debugging
   }
 
   # a conventional Bio::SeqFeature::Generic object - create a split location
