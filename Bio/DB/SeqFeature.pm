@@ -319,21 +319,13 @@ sub _add_segment {
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
-  my $min_start = $self->start ||  999_999_999_999;
-  my $max_stop  = $self->end   || -999_999_999_999;
-
-  for my $seg (@segments) {
-    $min_start     = $seg->start if $seg->start < $min_start;
-    $max_stop      = $seg->end   if $seg->end   > $max_stop;
-  }
-
-  # adjust our boundaries, etc.
-  $self->start($min_start) if $min_start < $self->start;
-  $self->end($max_stop)    if $max_stop  > $self->end;
-  $self->{ref}        ||= $segments[0]->seq_id;
-  $self->{strand}     ||= $segments[0]->strand;
-
   my $pos = "@{$self}{'start','end','ref','strand'}";
+
+  # fix boundaries
+  $self->_fix_boundaries(\@segments);
+
+  # freakish fixing of our non-standard Target attribute
+  $self->_fix_target(\@segments);
 
   # write our children out
   if ($normalized) {

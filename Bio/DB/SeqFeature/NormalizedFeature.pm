@@ -408,24 +408,56 @@ sub _add_segment {
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
+  # fix boundaries
+  $self->_fix_boundaries(\@segments,$normalized);
+
+  # freakish fixing of our non-standard Target attribute
+  $self->_fix_target(\@segments);
+
+  $self->update if $self->primary_id; # write us back to disk
+}
+
+sub _fix_boundaries {
+  my $self     = shift;
+  my ($segments,$normalized) = @_;
+
   my $min_start = $self->start ||  999_999_999_999;
   my $max_stop  = $self->end   || -999_999_999_999;
 
-  for my $seg (@segments) {
+  for my $seg (@$segments) {
     $min_start     = $seg->start if $seg->start < $min_start;
     $max_stop      = $seg->end   if $seg->end   > $max_stop;
     my $id_or_seg  = $normalized ? $seg->primary_id : $seg;
-    defined $id_or_seg or croak "No primary ID when there should be";
+    defined $id_or_seg or $self->throw("No primary ID when there should be");
     push @{$self->{segments}},$id_or_seg;
   }
 
   # adjust our boundaries, etc.
   $self->start($min_start) if $min_start < $self->start;
   $self->end($max_stop)    if $max_stop  > $self->end;
-  $self->{ref}           ||= $segments[0]->seq_id;
-  $self->{strand}        ||= $segments[0]->strand;
+  $self->{ref}           ||= $segments->[0]->seq_id;
+  $self->{strand}        ||= $segments->[0]->strand;
+}
 
-  $self->update if $self->primary_id; # write us back to disk
+sub _fix_target {
+  my $self = shift;
+  my $segs = shift;
+
+  # freakish fixing of our non-standard Target attribute
+  if (my $t = ($self->attributes('Target'))[0]) {
+    my ($seqid,$tstart,$tend,$strand) = split /\s+/,$t;
+    my $min_tstart = $tstart;
+    my $max_tend   = $tend;
+    for my $seg (@$segs) {
+      my $st = ($seg->attributes('Target'))[0] or next;
+      (undef,$tstart,$tend) = split /\s+/,$st;
+      $min_tstart     = $tstart if $tstart < $min_tstart;
+      $max_tend       = $tend   if $tend   > $max_tend;
+    }
+    if ($min_tstart < $tstart or $max_tend > $tend) {
+      $self->{attributes}{Target}[0] = join "\t",($seqid,$min_tstart,$max_tend,$strand||'');
+    }
+  }
 }
 
 sub _create_subfeatures {

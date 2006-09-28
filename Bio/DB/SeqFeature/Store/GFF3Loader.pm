@@ -524,9 +524,9 @@ sub handle_feature {
   if (exists $reserved->{Target}) {
     my %aliases = map {$_=>1} @{$unreserved->{Alias}};
     for my $t (@{$reserved->{Target}}) {
-      $t =~ s/\s+.*$//;  # get rid of coordinates
-      $name ||= $t;
-      push @{$unreserved->{Alias}},$t unless $name eq $t || $aliases{$t};
+      (my $tc = $t) =~ s/\s+.*$//;  # get rid of coordinates
+      $name ||= $tc;
+      push @{$unreserved->{Alias}},$tc unless $name eq $tc || $aliases{$tc};
     }
   }
 

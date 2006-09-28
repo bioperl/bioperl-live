@@ -122,7 +122,6 @@ sub draw_multiple_alignment {
   my $gd   = shift;
   my ($left,$top,$partno,$total_parts) = @_;
 
-
   my $flipped              = $self->flip;
   my $ragged_extra         = $self->option('ragged_start') 
                                ? RAGGED_START_FUZZ : $self->option('ragged_extra');
@@ -141,13 +140,20 @@ sub draw_multiple_alignment {
   my $panel_right          = $self->panel->right;
   my $drew_sequence;
 
-  my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
-  $self->filled_box($gd,$bl,$bt,$br,$bb,$self->bgcolor,$self->bgcolor);
+  warn "TGT_START..TGT_END = $tgt_start..$tgt_end" if DEBUG;
 
+  my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
 
+  for my $p ($self->parts) {
+    my @bounds = $p->bounds($left,$top);
+    $self->filled_box($gd,@bounds,$self->bgcolor,$self->bgcolor);
+  }
+
   my @s                     = $self->_subfeat($feature);
-  # workaround for features in which top level featuare does not have a hit but
+
+  # FIX ME
+  # workaround for features in which top level feature does not have a hit but
   # subfeatures do. There is total breakage of encapsulation here because sometimes
   # a chado alignment places the aligned segment in the top-level feature, and sometimes
   # in the child feature.
@@ -164,6 +170,7 @@ sub draw_multiple_alignment {
     next unless $src_start <= $panel_end && $src_end >= $panel_start;
 
     my ($tgt_start,$tgt_end) = ($target->start,$target->end);
+
     unless (exists $strands{$target}) {
       my $strand = $feature->strand;
       if ($tgt_start > $tgt_end) { #correct for data problems
@@ -282,7 +289,7 @@ sub draw_multiple_alignment {
       }
     }
 
-    warn "Clipping gives [@$seg]\n"if DEBUG;
+    warn "Clipping gives [@$seg], tgt_start = $tgt_start\n" if DEBUG;
   }
 
   # relativize coordinates
@@ -296,6 +303,8 @@ sub draw_multiple_alignment {
     $seg->[SRC_END]   -= $abs_start - 1;
     $seg->[TGT_START] -= $tgt_start - 1;
     $seg->[TGT_END]   -= $tgt_start - 1;
+
+    warn $seg->[TGT_START],"..",$seg->[TGT_END] if DEBUG;
     if ($strand < 0) {
       ($seg->[TGT_START],$seg->[TGT_END]) = (length($tgt_dna)-$seg->[TGT_END]+1,length($tgt_dna)-$seg->[TGT_START]+1);
     }
@@ -329,13 +338,13 @@ sub draw_multiple_alignment {
 
   my ($tgt_last_end,$src_last_end);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
-
     my $y = $top-1;
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
 
       my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
       my $tgt_base = $self->_subsequence($tgt_dna,$seg->[TGT_START]+$i,$seg->[TGT_START]+$i);
+      # warn $seg->[TGT_START]+$i,' ',$seg->[TGT_START]+$i;
       my $x = $base2pixel->($seg->[SRC_START],$i);
 
       next unless $tgt_base && $x >= $panel_left && $x <= $panel_right;
@@ -364,7 +373,8 @@ sub draw_multiple_alignment {
 	}
 
 	$self->filled_box($gd,$gap_left,$y+1,
-			      $gap_right-2,$y+$lineheight,$mismatch,$mismatch) if $show_mismatch && $gap_left >= $panel_left;
+			      $gap_right-2,$y+$lineheight,$mismatch,$mismatch) if 
+				$show_mismatch && $gap_left >= $panel_left && $gap_right <= $panel_right;
 
 
 	my $gap_distance             = $gap_right - $gap_left + 1;
