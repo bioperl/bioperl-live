@@ -295,7 +295,7 @@ sub get_elements {
         }
     }
 	if ($only_1) {
-		return sort { ${[$a->get_positions($self)]}[0]->sortable <=> ${[$b->get_positions($self)]}[0]->sortable } @elements;
+		@elements = sort { ${[$a->get_positions($self)]}[0]->sortable <=> ${[$b->get_positions($self)]}[0]->sortable } @elements;
 	}
 	
 	return @elements;

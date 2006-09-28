@@ -120,7 +120,8 @@ sub get_position_handler {
 sub get_positions {
     my ($self, $mappable) = @_;
 	my @positions = $self->get_position_handler->get_positions($mappable);
-	return sort { $a->sortable <=> $b->sortable } @positions;
+	@positions = sort { $a->sortable <=> $b->sortable } @positions;
+    return @positions;
 }
 
 =head2 each_position
