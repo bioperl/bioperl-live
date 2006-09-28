@@ -290,7 +290,7 @@ sub purge_positions {
     if ($thing) {
         $self->throw("Must supply an object") unless ref($thing);
         if ($thing->isa("Bio::Map::PositionI")) {
-            @pos_indices = ($thing);
+            @pos_indices = ($self->_get_other_index($thing));
         }
         else {
             my $entity_index = $self->_get_other_index($thing);
@@ -412,7 +412,6 @@ sub _pos_set {
 # disassociate position from one of its current entities
 sub _purge_pos_entity {
     my ($self, $pos_index, $entity_index, $kind) = @_;
-    
     delete $self->{_rel}->{has}->{$entity_index}->{$pos_index};
     delete $self->{_rel}->{$kind}->{$pos_index};
 }
