@@ -129,14 +129,24 @@ sub add_position {
  Function: Get all the Positions of this Mappable (sorted).
  Returns : Array of L<Bio::Map::PositionI> objects
  Args    : none for all, OR
-           L<Bio::Map::MapI> object for positions on the given map
+           L<Bio::Map::MapI> object for positions on the given map, AND/OR some
+           other true value to avoid sorting
 
 =cut
 
 sub get_positions {
-    my ($self, $map) = @_;
+    my ($self, $thing, $no_sort) = @_;
+    my $map;
+    if (ref($thing) && $thing->isa('Bio::Map::MapI')) {
+        $map = $thing;
+    }
+    else {
+        $no_sort = $thing;
+    }
     my @positions = $self->get_position_handler->get_positions($map);
-	return sort { $a->sortable <=> $b->sortable } @positions;
+    
+	@positions = sort { $a->sortable <=> $b->sortable } @positions unless $no_sort;
+    return @positions;
 }
 
 =head2 each_position
