@@ -146,8 +146,7 @@ use Bio::SeqFeature::Collection;
 
 use base qw(Bio::Tools::AnalysisResult);
 
-use vars qw($MotifTag $SrcTag $DescTag);
-($MotifTag,$SrcTag,$DescTag) = qw(misc_binding RNAMotif rnamotif);
+our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding RNAMotif rnamotif);
 
 =head2 new
 

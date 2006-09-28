@@ -98,8 +98,7 @@ use Bio::SeqFeature::Generic;
 
 use base qw(Bio::Tools::AnalysisResult);
 
-use vars qw($MotifTag $SrcTag $DescTag);
-($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);
+our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);
 
 =head2 new
 
