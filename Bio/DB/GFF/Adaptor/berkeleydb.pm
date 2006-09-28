@@ -182,9 +182,9 @@ sub _autoindex {
   my $maxtime   = 0;
   my $maxfatime = 0;
 
-  opendir (D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
+  opendir (my $D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
 
-  while (defined (my $node = readdir(D))) {
+  while (defined (my $node = readdir($D))) {
     next if $node =~ /^\./;
     my $path      = "$dir/$node";
     next if $ignore{$path};
@@ -194,7 +194,7 @@ sub _autoindex {
     $maxfatime = $mtime if $mtime > $maxfatime && $node =~ /\.(?:fa|fasta|dna)(?:\.gz)?$/;
   }
 
-  close D;
+  close $D;
 
   my $timestamp_time  = _mtime($self->_timestamp_file) || 0;
   my $all_files_exist = -e $self->_index_file && -e $self->_data_file && (-e $self->_fasta_file || !$maxfatime);
@@ -247,8 +247,8 @@ sub _open_databases {
             : $create ? "+>"
             : "<";
 
-  open (F,$mode,$self->_notes_file) or $self->throw($self->_notes_file.": $!");
-  $self->{notes} = \*F;
+  open (my $F,$mode,$self->_notes_file) or $self->throw($self->_notes_file.": $!");
+  $self->{notes} = $F;
 }
 
 sub _close_databases {
@@ -365,10 +365,10 @@ sub load_sequence {
   my $file = $self->_fasta_file;
   my $loaded = 0;
 
-  open (F,">>$file") or $self->throw("Couldn't open $file for writing: $!");
+  open (my $F,">>$file") or $self->throw("Couldn't open $file for writing: $!");
 
   if (defined $id) {
-    print F ">$id\n";
+    print $F ">$id\n";
     $loaded++;
   }
 
@@ -491,9 +491,8 @@ sub finish_load {
 sub _touch_timestamp {
   my $self = shift;
   my $tsf = $self->_timestamp_file;
-  open (F,">$tsf") or $self->throw("Couldn't open $tsf: $!");
-  print F scalar(localtime);
-  close F;
+  open (my $F,">$tsf") or $self->throw("Couldn't open $tsf: $!");
+  print $F scalar(localtime);
 }
 
 
@@ -1021,9 +1020,9 @@ sub new {
             : $write   ? "+>>"
             : "<";
 
-  open (F,$mode,$dbname) or $class->throw("$dbname: $!");
+  open (my $F,$mode,$dbname) or $class->throw("$dbname: $!");
   my $self = bless {
-		    fh        => \*F,
+		    fh        => $F,
 		    next_idx  => 0,
 		    last_id   => 0,
 		   },$class;

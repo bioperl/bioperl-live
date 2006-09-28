@@ -23,7 +23,7 @@ of a PSIBLAST report
 
    use Bio::Tools::BPpsilite;
 
-   open FH, "t/psiblastreport.out";
+   open my $FH, "t/psiblastreport.out";
    $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 
    # determine number of iterations executed by psiblast

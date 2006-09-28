@@ -283,7 +283,7 @@ sub chunk {
                 unless ($FORCE_TEMP_FILE) {
                     # treat a string as a filehandle
                     my $fake_fh;
-                    open($fake_fh, "+<", \$thing); # requires perl 5.8
+                    open(my $fake_fh, "+<", \$thing); # requires perl 5.8
                     $self->{_chunk} = new Bio::Root::IO(-fh => $fake_fh);
                 }
                 else {

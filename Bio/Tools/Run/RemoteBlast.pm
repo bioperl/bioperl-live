@@ -561,16 +561,15 @@ sub retrieve_blast {
     if( $response->is_success ) {
     	if( $self->verbose > 0 ) {
 	    #print content of reply if verbose > 1
-            open(TMP, $tempfile) or $self->throw("cannot open $tempfile");
-            while(<TMP>) { print $_; }
-            close TMP;
+            open(my $TMP, $tempfile) or $self->throw("cannot open $tempfile");
+            while(<$TMP>) { print $_; }
     	}   
         ## if proper reply 
-        open(TMP, $tempfile) || $self->throw("Error opening $tempfile");
+        open(my $TMP, $tempfile) || $self->throw("Error opening $tempfile");
         my $waiting = 1;
         my $s = 0;
         my $got_content = 0;
-        while(<TMP>) {
+        while(<$TMP>) {
             if (/./) {
                 $got_content = 1;
             }
@@ -585,10 +584,9 @@ sub retrieve_blast {
                     if( $1 eq 'WAITING' ) {
                         $waiting = 1;
                     } elsif( $1 eq 'ERROR' ) {
-                        close(TMP);
-                        open(ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
-                        $self->warn(join("", <ERR>));
-                        close ERR;
+                        close($TMP);
+                        open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
+                        $self->warn(join("", <$ERR>));
                         return -1;
                     } elsif( $1 eq 'READY' ) {
                         $waiting = 0;
@@ -600,7 +598,7 @@ sub retrieve_blast {
                 }
             }
         }
-        close(TMP);
+        close($TMP);
         if( ! $waiting ) {
             my $blastobj;
             my $mthd = $self->readmethod;
@@ -609,9 +607,9 @@ sub retrieve_blast {
             } elsif( $mthd =~ /blasttable/i ) {
             # pre-process
             my ($fh2,$tempfile2) = $self->tempfile();
-            open(TMP,$tempfile) || $self->throw($!);
+            open(my $TMP,$tempfile) || $self->throw($!);
             my $s = 0;
-            while(<TMP>) {
+            while(<$TMP>) {
                 if(/\<PRE\>/i ) {
                 $s = 1;
                 } elsif( /\<\/PRE\>/i ) {
@@ -666,11 +664,11 @@ sub save_output {
 	}
 	my $blastfile = $self->file;
 	#open temp file and output file, have to filter out some HTML
-	open(TMP, $blastfile) or $self->throw("cannot open $blastfile");
+	open(my $TMP, $blastfile) or $self->throw("cannot open $blastfile");
 
-	open(SAVEOUT, ">$filename") or $self->throw("cannot open $filename");
+	open(my $SAVEOUT, ">", $filename) or $self->throw("cannot open $filename");
 	my $seentop = 0;
-	while(<TMP>) {
+	while(<$TMP>) {
 		next if (/<pre>/);
 		if(/^(?:[T]?BLAST[NPX])\s*.+$/i ||
            /^RPS-BLAST\s*.+$/i ||
@@ -680,11 +678,9 @@ sub save_output {
 		} 
         next if !$seentop;
 		if( $seentop ) {
-			print SAVEOUT $_;
+			print $SAVEOUT $_;
 		}
 	}
-	close TMP;
-	close SAVEOUT;
 	return 1;
 }
 

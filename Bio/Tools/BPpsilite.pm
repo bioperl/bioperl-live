@@ -20,8 +20,8 @@ Bio::Tools::BPpsilite - Lightweight BLAST parser for (iterated) psiblast reports
 =head1 SYNOPSIS
 
   use Bio::Tools::BPpsilite;
-  open FH, "t/psiblastreport.out";
-  $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+  open my $FH, "t/psiblastreport.out";
+  $report = Bio::Tools::BPpsilite->new(-fh=>$FH);
 
   # determine number of iterations executed by psiblast
   $total_iterations = $report->number_of_iterations;
@@ -326,30 +326,30 @@ sub _preprocess {
     $round = 1;
     $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
 					  "iteration$round.tmp");
-    open (FILEHANDLE, ">$currentfile") || 
+    open (my $FILEHANDLE, ">$currentfile") || 
 	$self->throw("cannot open filehandle to write to file $currentfile");
 
     while(defined ($currentline = $self->_readline()) ) {
 	if ($currentline =~ /^Results from round\s+(\d+)/) {
-	    if ($oldround) { close (FILEHANDLE) ;}
+	    if ($oldround) { close ($FILEHANDLE) ;}
 	    $round = $1;
 	    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
 						  "iteration$round.tmp");
 
-	    close FILEHANDLE;
-	    open (FILEHANDLE, ">$currentfile") || 
+	    close $FILEHANDLE;
+	    open (my $FILEHANDLE, ">$currentfile") || 
 		$self->throw("cannot open filehandle to write to file $currentfile");
 	    $oldround = $round;
 	}elsif ($currentline =~ /CONVERGED/){ # This is a fix for psiblast parsing with -m 6 /AE
 	    $round--;
 	}
-	print FILEHANDLE $currentline ;
+	print $FILEHANDLE $currentline ;
 	
     }
     $self->{'TOTAL_ITERATION_NUMBER'}= $round;
 # It is necessary to close filehandle otherwise the whole
 # file will not be read later !!
-    close FILEHANDLE;
+    close $FILEHANDLE;
 }
 
 1;

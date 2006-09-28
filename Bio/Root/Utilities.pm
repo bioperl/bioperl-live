@@ -666,7 +666,7 @@ sub count_files {
     ### Make sure $dir ends with /
     $dir !~ m{/$} and do{ $dir .=  '/'; $$href{-DIR} = $dir; };
 
-    open ( PIPE, "ls -1 $dir |" ) || $self->throw("Can't open input pipe: $!");
+    open ( my $PIPE, "ls -1 $dir |" ) || $self->throw("Can't open input pipe: $!");
 
     ### Initialize the hash data.
     $$href{-TOTAL} = 0;
@@ -674,7 +674,7 @@ sub count_files {
     $$href{-T_FILE_NAMES} = [];
     $$href{-B_FILE_NAMES} = [];
     $$href{-DIR_NAMES} = [];
-    while( <PIPE> ) {
+    while( <$PIPE> ) {
 	chomp();
 	$$href{-TOTAL}++;
 	if( -T $dir.$_ ) {
@@ -684,7 +684,7 @@ sub count_files {
 	if( -d $dir.$_ ) {
 	    $$href{-NUM_DIRS}++; push @{$$href{-DIR_NAMES}}, $_; }
     }
-    close PIPE;
+    close $PIPE;
 
     if( $print) {
 	printf( "\n%4d %s\n", $$href{-TOTAL}, "total files+dirs in $dir");

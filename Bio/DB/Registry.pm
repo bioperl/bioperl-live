@@ -120,8 +120,8 @@ sub _load_registry {
 
    my ($db,$hash) = ();
    for my $file (@ini_files) {
-      open FH,"$file";
-      while( <FH> ) {
+      open my $FH,"$file";
+      while( <$FH> ) {
 			if (/^VERSION=([\d\.]+)/) {
 				if ($1 > $OBDA_SPEC_VERSION or !$1) {
 					$self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION");
@@ -274,9 +274,9 @@ sub _make_private_registry {
 	$self->throw("Could not make directory $HOME/$PRIVATE_DIR, " .
 					 "no $REGISTRY file available") if $@;
 
-	open(F,">$HOME/$PRIVATE_DIR/$REGISTRY");
-	print F while (<$f>);
-	close F;
+	open(my $F,">$HOME/$PRIVATE_DIR/$REGISTRY");
+	print $F while (<$F>);
+	close $F;
 
 	$self->warn("Stored $REGISTRY file in $HOME/$PRIVATE_DIR");
 

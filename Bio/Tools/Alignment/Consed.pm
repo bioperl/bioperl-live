@@ -224,17 +224,17 @@ sub count_sequences_with_grep {
     # Tom Christiansen's 'tcgrep'
     # http://www.cpan.org/modules/by-authors/id/TOMC/scripts/tcgrep.gz
 
-    open(FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
+    open(my $FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
     my $counter =0;
-    while(<FILE>) { $counter++ if(/^AF/); }
+    while(<$FILE>) { $counter++ if(/^AF/); }
 
-    close FILE;
-    opendir(SINGLETS,$self->{'path'});
-    foreach my $f ( readdir(SINGLETS) ) {
+    close $FILE;
+    opendir(my $SINGLETS,$self->{'path'});
+    foreach my $f ( readdir($SINGLETS) ) {
 	next unless ($f =~ /\.singlets$/); 
-	open(FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
-	while(<FILE>) { $counter++ if(/^>/) }
-	close FILE;
+	open(my $FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
+	while(<$FILE>) { $counter++ if(/^>/) }
+	close $FILE;
     }
     return $counter;
 }
@@ -371,14 +371,13 @@ sub freeze_hash {
         my %contigs = %{$self->{'contigs'}};
         my $frozen = freeze(%contigs);
         umask 0001;
-        open (FREEZE,">$filename") or do {
+        open (my $FREEZE,">$filename") or do {
             $self->warn( "Bio::Tools::Alignment::Consed could not ".
                          "freeze the contig hash because the file ".
                          "($filename) could not be opened: $!\n");
             return 1;
         };
-        print FREEZE $frozen;
-        close FREEZE;
+        print $FREEZE $frozen;
         return 0;
     }
 }

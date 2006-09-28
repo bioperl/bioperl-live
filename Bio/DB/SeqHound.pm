@@ -519,56 +519,52 @@ sub postprocess_data
 	}
 
 	#set up verbosity level if need record in the log file
-	#$self->verbose(1);
-	open (LOG, ">>shoundlog") 
-	and print STDERR "Writing into the log file shoundlog\n" if $self->verbose > 0;
-	my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
-	if ($lcontent eq ""){
-		open (LOG, ">>shoundlog") 
-		and print LOG "$now		$funcname. No reply.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+	$self->verbose(1);
+
+
+        if ($self->verbose>0) {
+            my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
+            if ($lcontent eq "") {
+                print STDERR "Writing into the log file shoundlog\n";
+		open (my $LOG, ">>shoundlog");
+		print $LOG "$now		$funcname. No reply.\n";
 		return;
-	}
-	elsif ($lcontent =~ /HTTP::Request error/){
-		open (LOG, ">>shoundlog")
-		and print LOG "$now		$funcname. Http::Request error problem.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+            } elsif ($lcontent =~ /HTTP::Request error/) {
+                print STDERR "Writing into the log file shoundlog\n";
+		open (my $LOG, ">>shoundlog");
+		print $LOG "$now		$funcname. Http::Request error problem.\n";
 		return;
-	}
-	elsif ($lcontent =~ /SEQHOUND_ERROR/){
-		open (LOG, ">>shoundlog")
-		and print LOG "$now	$funcname error. SEQHOUND_ERROR found.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+            } elsif ($lcontent =~ /SEQHOUND_ERROR/) {
+                print STDERR "Writing into the log file shoundlog\n";
+		open (my $LOG, ">>shoundlog");
+		print $LOG "$now	$funcname error. SEQHOUND_ERROR found.\n";
 		return;
-	}
-	elsif ($lcontent =~ /SEQHOUND_NULL/){
-        	open (LOG, ">>shoundlog") 
-		and print LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+            } elsif ($lcontent =~ /SEQHOUND_NULL/) {
+                print STDERR "Writing into the log file shoundlog\n";
+        	open (my $LOG, ">>shoundlog");
+		print $LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n";
 		return;
-      	}
-	else{
+            } else {
     		chomp $lcontent;
       		my @lines = split(/\n/, $lcontent, 2);
-     	 	if ($lines[1] =~ /^-1/){
-           		open (LOG, ">>shoundlog") 
-			and print LOG "$now	$funcname Value not found in the database. -1 found.\n" if $self->verbose>0;
-			close (LOG) if $self->verbose>0;
-           		return;
-		}
-        	elsif ($lines[1]  =~ /^0/){
-          		open (LOG, ">>shoundlog") 
-			and print LOG "$now	$funcname failed.\n" if $self->verbose>0;
-			close (LOG) if $self->verbose>0;
-	  		return;
-         	}
-         	else{
-           		$result = $lines[1];
+     	 	if ($lines[1] =~ /^-1/) {
+                    print STDERR "Writing into the log file shoundlog\n";
+                    open (my $LOG, ">>shoundlog");
+                    print $LOG "$now	$funcname Value not found in the database. -1 found.\n";
+                    return;
+		} elsif ($lines[1]  =~ /^0/) {
+                    print STDERR "Writing into the log file shoundlog\n";
+                    open (my $LOG, ">>shoundlog");
+                    print $LOG "$now	$funcname failed.\n";
+                    return;
+         	} else {
+                    $result = $lines[1];
          	}
       		
-   	}
-   	close (LOG) if $self->verbose>0 ;
- 
+            }
+
+        }
+
 	#a list of functions in SeqHound which can wrap into Bio::seqIO object
 	if ($outtype eq 'Bio::SeqIO'){
 		my $buf = IO::String->new($result);

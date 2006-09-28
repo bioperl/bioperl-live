@@ -478,8 +478,8 @@ sub get_seq_stream {
 		# this may get reset when requesting batch mode
 		($rformat,$ioformat) = $self->request_format();
 		if( $self->verbose > 0 ) {
-			open(ERR, "<$tmpfile");
-			while(<ERR>) { $self->debug($_);}
+			open(my $ERR, "<", $tmpfile);
+			while(<$ERR>) { $self->debug($_);}
 		}
 
 		return Bio::SeqIO->new('-verbose' => $self->verbose,

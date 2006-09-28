@@ -1010,10 +1010,9 @@ sub create_web_image {
   my $url         = sprintf("%s/%s.%s",$tmpurl,$signature,$extension);
   my $imagefile   = sprintf("%s/%s.%s",$tmpdir,$signature,$extension);
 
-  open (F,">$imagefile") || $self->throw("Can't open image file $imagefile for writing: $!\n");
-  binmode(F);
-  print F $data;
-  close F;
+  open (my $F,">", $imagefile) || $self->throw("Can't open image file $imagefile for writing: $!\n");
+  binmode($F);
+  print $F $data;
 
   return $url;
 }

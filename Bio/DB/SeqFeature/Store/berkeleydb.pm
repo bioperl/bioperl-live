@@ -285,11 +285,11 @@ sub post_init {
 
   my $maxtime   = 0;
 
-  opendir (D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
+  opendir (my $D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
   my @reindex;
   my $fasta_files_present;
 
-  while (defined (my $node = readdir(D))) {
+  while (defined (my $node = readdir($D))) {
     next if $node =~ /^\./;
     my $path      = "$autodir/$node";
     next unless -f $path;
@@ -312,7 +312,7 @@ sub post_init {
     push @reindex,$path;
   }
 
-  close D;
+  close $D;
 
   my $timestamp_time  = _mtime($self->_mtime_path) || 0;
 
@@ -391,8 +391,8 @@ sub _open_databases {
             : $create ? "+>"
             : "<";
 
-  open (F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
-  $self->notes_db(\*F);
+  open (my $F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
+  $self->notes_db($F);
 }
 
 sub commit { # reindex fasta files

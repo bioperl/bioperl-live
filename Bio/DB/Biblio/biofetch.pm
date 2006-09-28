@@ -211,8 +211,8 @@ sub get_seq_stream {
 		# this may get reset when requesting batch mode
 		($rformat,$ioformat) = $self->request_format();
 		if ( $self->verbose > 0 ) {
-			open(ERR, "<$tmpfile");
-			while(<ERR>) { $self->debug($_);}
+			open(my $ERR, "<", $tmpfile);
+			while(<$ERR>) { $self->debug($_);}
 		} 
 		$stream = new Bio::Biblio::IO('-format' => $ioformat,
 												'-file'   => $tmpfile);
@@ -264,16 +264,14 @@ sub postprocess_data {
 	} elsif( $type eq 'STRING' ) {
 		$data = $$location; 
 	} elsif ( $type eq 'FILE' ) {
-		open(TMP, $location) or $self->throw("could not open file $location");
-		my @in = <TMP>;
-		close TMP;
+		open(my $TMP, "<", $location) or $self->throw("could not open file $location");
+		my @in = <$TMP>;
 		$data = join("", @in);
 	}
 
 	if( $type eq 'FILE'  ) {
-		open(TMP, ">$location") or $self->throw("could overwrite file $location");
-		print TMP $data;
-		close TMP;
+		open(my $TMP, ">", $location") or $self->throw("could overwrite file $location");
+		print $TMP $data;
 	} elsif ( $type eq 'STRING' ) {
 		${$args{'location'}} = $data;
 	}
