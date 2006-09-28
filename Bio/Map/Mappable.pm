@@ -468,9 +468,13 @@ sub _compare {
         /less_than|greater_than/ && do {
             @mine > 0 or return;
             if ($method eq 'greater_than') {
-                my $map_start = new Bio::Map::Relative(-map => 0);
-                @mine = sort { $b->end($map_start) <=> $a->end($map_start) } @mine;
-                @yours = sort { $b->end($map_start) <=> $a->end($map_start) } @yours;
+                @mine =  map { $_->[1] }
+                         sort { $b->[0] <=> $a->[0] }
+                         map { [$_->end($_->absolute_relative), $_] }
+                         @mine;
+                @yours = map { $_->[1] }
+                         sort { $b->[0] <=> $a->[0] }
+                         map { [$_->end($_->absolute_relative), $_] } @yours;
             }
             my $test_pos = shift(@yours);
             
@@ -484,7 +488,10 @@ sub _compare {
             }
             
             if ($method eq 'greater_than') {
-                @ok = sort { $a->sortable <=> $b->sortable } @ok;
+                @ok = map { $_->[1] }
+                      sort { $a->[0] <=> $b->[0] }
+                      map { [$_->sortable, $_] }
+                      @ok;
             }
             
             last SWITCH;
@@ -521,7 +528,9 @@ sub _compare {
                     exists $mappables{$required} or next GROUPS;
                 }
                 
-                my @sorted = sort { $a->sortable <=> $b->sortable } @{$group};
+                my @sorted = map { $_->[1] }
+                             sort { $a->[0] <=> $b->[0] }
+                             map { [$_->sortable, $_] } @{$group};
                 push(@groups, \@sorted);
             }
             

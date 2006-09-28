@@ -120,7 +120,11 @@ sub get_position_handler {
 sub get_positions {
     my ($self, $mappable) = @_;
 	my @positions = $self->get_position_handler->get_positions($mappable);
-	@positions = sort { $a->sortable <=> $b->sortable } @positions;
+    # precompute sortable for effieciency and to avoid bugs
+    @positions = map { $_->[1] }
+                 sort { $a->[0] <=> $b->[0] }
+                 map { [$_->sortable, $_] }
+                 @positions;
     return @positions;
 }
 

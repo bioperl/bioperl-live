@@ -144,8 +144,19 @@ sub get_positions {
         $no_sort = $thing;
     }
     my @positions = $self->get_position_handler->get_positions($map);
+    return @positions if @positions == 1;
     
-	@positions = sort { $a->sortable <=> $b->sortable } @positions unless $no_sort;
+    unless ($no_sort) {
+        # don't do
+        # @positions = sort { $a->sortable <=> $b->sortable } @positions;
+        # directly since sortable() can result in the call of another sort
+        # routine and cause problems; pre-compute sortable values instead
+        # (which is also more efficient)
+        @positions = map { $_->[1] }
+                     sort { $a->[0] <=> $b->[0] }
+                     map  { [$_->sortable, $_] }
+                     @positions;
+    }
     return @positions;
 }
 

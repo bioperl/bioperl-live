@@ -776,7 +776,10 @@ sub disconnected_ranges {
         }
     }
     
-    @outranges = sort { $a->sortable <=> $b->sortable } @outranges;
+    @outranges = map { $_->[1] }
+                 sort { $a->[0] <=> $b->[0] }
+                 map { [$_->sortable, $_] }
+                 @outranges;
     
     return @outranges;
 }

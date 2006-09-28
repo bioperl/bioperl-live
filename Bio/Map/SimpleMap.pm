@@ -295,7 +295,10 @@ sub get_elements {
         }
     }
 	if ($only_1) {
-		@elements = sort { ${[$a->get_positions($self)]}[0]->sortable <=> ${[$b->get_positions($self)]}[0]->sortable } @elements;
+		@elements = map { $_->[1] }
+                    sort { $a->[0] <=> $b->[0] }
+                    map { [${[$_->get_positions($self)]}[0]->sortable, $_] }
+                    @elements;
 	}
 	
 	return @elements;
