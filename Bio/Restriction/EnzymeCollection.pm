@@ -265,7 +265,8 @@ sub get_enzyme {
 
 sub available_list {
     my ($self, $size)=@_;
-    return sort keys %{$self->{'_enzymes'}};
+    my @keys = sort keys %{$self->{'_enzymes'}};
+    return @keys;
 }
 
 =head2 longest_cutter

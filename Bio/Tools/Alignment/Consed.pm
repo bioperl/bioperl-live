@@ -271,7 +271,8 @@ in the Consed acefile they are simply Contig1, Contig2, ...
 
 sub get_contigs {
     my ($self,$contig) = @_;
-    return sort keys %{$self->{'contigs'}};
+    my @contigs = sort keys %{$self->{'contigs'}};
+    return @contigs;
 }
 
 =head2 get_class($contig_keyname)

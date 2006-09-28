@@ -335,7 +335,8 @@ sub classes {
     my ($class) = $key =~ /^__class__(.+)/ or last;
     $classes{$class}++ if $value > 0;
   }
-  return sort keys %classes;
+  my @classes = sort keys %classes;
+  return @classes;
 }
 
 sub do_initialize {

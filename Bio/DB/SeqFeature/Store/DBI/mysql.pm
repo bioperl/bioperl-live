@@ -854,7 +854,8 @@ END
     push @results,[$name,$value,$score];
   }
   $sth->finish;
-  return sort {$b->[2]<=>$a->[2]} @results;
+  @results = sort {$b->[2]<=>$a->[2]} @results;
+  return @results;
 }
 
 sub _match_sql {

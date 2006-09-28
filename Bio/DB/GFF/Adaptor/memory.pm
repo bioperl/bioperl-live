@@ -581,7 +581,8 @@ sub classes {
   for my $feature (@{$self->{data}}) {
     $classes{$feature->{gclass}}++;
   }
-  return sort keys %classes;
+  my @classes = sort keys %classes;
+  return @classes;
 }
 
 # Internal method that performs a search on the features array, 

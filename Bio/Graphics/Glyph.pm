@@ -576,7 +576,8 @@ sub layout_sort {
     # cache this
     # $self->factory->set_option(sort_order => $sortfunc);
 
-    return sort $sortfunc @_;
+    my @things = sort $sortfunc @_;
+    return @things;
 }
 
 # handle collision detection

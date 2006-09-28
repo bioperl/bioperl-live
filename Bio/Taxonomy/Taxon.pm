@@ -165,7 +165,8 @@ sub each_Descendent{
    $sortby ||= 'height';
 
    if (ref $sortby eq 'CODE') {
-       return sort $sortby values %{$self->{'_desc'}};
+       my @values = sort $sortby values %{$self->{'_desc'}};
+       return @values;
    } else  {
        if ($sortby eq 'height') {
 	   return map { $_->[0] }
