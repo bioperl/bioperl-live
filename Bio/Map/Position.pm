@@ -19,12 +19,12 @@ Bio::Map::Position - A single position of a Marker, or the range over which
 
     use Bio::Map::Position;
     my $position = new Bio::Map::Position(-map => $map, 
-					  -marker => $marker,
+					  -element => $marker,
 					  -value => 100
 					  );
 
 	my $position_with_range = new Bio::Map::Position(-map => $map, 
-					  -marker => $marker,
+					  -element => $marker,
 					  -start => 100,
 					  -length => 10
 					  );
@@ -180,7 +180,7 @@ sub relative {
         $self->{_relative_not_implicit} = 1;
         $self->{_relative} = $relative;
     }
-    return $self->{_relative} || $self->_absolute_relative;
+    return $self->{_relative} || $self->absolute_relative;
 }
 
 =head2 absolute
@@ -287,7 +287,8 @@ sub start {
     if (defined $value) {
         if (ref($value) && $value->isa('Bio::Map::RelativeI')) {
             # get the value after co-ordinate conversion
-            my $raw = $self->{start} || return;
+            my $raw = $self->{start};
+            defined $raw || return;
             my ($abs_start, $rel_start) = $self->_relative_handler($value);
             return $abs_start + $raw - $rel_start;
         }
@@ -304,7 +305,7 @@ sub start {
         return $self->relative->absolute_conversion($self);
     }
     
-    return $self->{start} || return;
+    return defined($self->{start}) ? $self->{start} : return;
 }
 
 =head2 end
@@ -326,7 +327,8 @@ sub end {
     if (defined $value) {
         if (ref($value) && $value->isa('Bio::Map::RelativeI')) {
             # get the value after co-ordinate conversion
-            my $raw = $self->{end} || return;
+            my $raw = $self->{end};
+            defined $raw || return;
             my ($abs_start, $rel_start) = $self->_relative_handler($value);
             return $abs_start + $raw - $rel_start;
         }
@@ -344,23 +346,28 @@ sub end {
         return $abs_start + ($raw - $self->{start});
     }
     
-    return $self->{end} || return;
+    return defined($self->{end}) ? $self->{end} : return;
 }
 
 =head2 length
 
   Title   : length
   Usage   : $length = $position->length();
-  Function: get the length of this range
+  Function: Get/set the length of this position's range, changing the end() if
+            necessary. Getting and even setting the length will fail if both
+            start() and end() are not already defined.
   Returns : the length of this range
-  Args    : none
+  Args    : none to get, OR scalar numeric (>0) to set.
 
 =cut
 
 sub length {
-	my $self = shift;
-	if (@_) {
-		$self->warn(ref($self)."->length() is read-only");
+	my ($self, $length) = @_;
+	if ($length) {
+        $length > 0 || return;
+		my $existing_length = $self->length || return;
+        return $length if $existing_length == $length;
+        $self->end($self->{start} + $length - 1);
 	}
 	
 	if (defined($self->start) && defined($self->end)) {
@@ -384,10 +391,7 @@ sub length {
 
 sub sortable {
     my $self = shift;
-    my $prior_abs = $self->absolute;
-    $self->absolute(1) unless $prior_abs;
-    my $answer = $self->numeric;
-    $self->absolute(0) unless $prior_abs;
+    my $answer = $self->numeric($self->absolute_relative);
     return $answer;
 }
 
@@ -410,8 +414,19 @@ sub toString {
 	return '';
 }
 
-# return a Relative that is for the start of the map
-sub _absolute_relative {
+=head2 absolute_relative
+
+ Title   : absolute_relative
+ Usage   : my $rel = $position->absolute_relative();
+ Function: Get a relative describing the start of the map. This is useful for
+           supplying to the coordinate methods (start(), end() etc.) to get
+           the temporary effect of having set absolute(1).
+ Returns : Bio::Map::Relative
+ Args    : none
+
+=cut
+
+sub absolute_relative {
     return Bio::Map::Relative->new(-map => 0, -description => 'start of map');
 }
 
