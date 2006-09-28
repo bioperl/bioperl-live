@@ -76,7 +76,7 @@ set to XML, but can be changed to ref when needed
 
 =item C<cookie>
 
-a Bio::DB::EUtilities::cookie object (see below)
+a Bio::DB::EUtilities::Cookie object (see below)
 
 =item C<cmd>
 
@@ -268,7 +268,7 @@ sub parse_response {
  Usage   : $db->get_response($content)
  Function: main method to retrieve data stream; parses out response for cookie
  Returns : HTTP::Response object
- Args    : optional : Bio::DB::EUtilities::cookie from a previous search
+ Args    : optional : Bio::DB::EUtilities::Cookie from a previous search
  Throws  : 'not a cookie' exception, response errors (via HTTP::Response)
 
 =cut

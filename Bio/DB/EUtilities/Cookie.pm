@@ -16,14 +16,14 @@ on a user's computer when browsing the Web.  XML data returned by these
 EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
 and 'query_key' tags to be specific)  The information along with other identifying
 data, such as the calling eutility, description of query, etc.) is stored as a
-L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal queue.  These can be retrieved
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> object in an internal queue.  These can be retrieved
 one at a time by using the next_cookie method or all at once in an array using
 get_all_cookies.  Each cookie can then be 'fed', one at a time, to another
 EUtility object, thus enabling chained queries as demonstrated in the synopsis.
 
 By default, a EUtilities object will retrieve records using a cookie if the
 cookie parameter is set.  Also, the object will use the database parameter
-stored in the L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object when the parameter isn't set
+stored in the L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> object when the parameter isn't set
 upon instantiation:
 
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
