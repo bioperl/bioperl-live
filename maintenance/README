@@ -7,3 +7,13 @@ operating systems.
 
 Run them from this directory.
 
+Dependencies (not required for bioperl):
+========================================
+
+Module                         Script
+------------------------------------------------
+Data::Dumper                   authors.pl
+                               modules.pl
+Regexp::Common                 check_URLs.pl
+Pod::Checker                   pod.pl
+
