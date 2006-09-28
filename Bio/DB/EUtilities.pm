@@ -286,6 +286,7 @@ sub _initialize {
     }
     $self->{'_cookieindex'} = 0;
     $self->{'_cookiecount'} = 0;
+    $self->{'_authentication'} = [];
 }
 
 =head2 add_cookie
@@ -440,13 +441,16 @@ sub parse_response {
 sub get_response {
     my $self = shift;
     $self->_sleep; # institute delay policy
-    my $response = $self->_submit_request;
-    if (!$response->is_success) {
-        $self->throw(ref($self)." Request Error:".$response->as_string);
+    my $request = $self->_submit_request;
+	if ($self->authentication) {
+        $request->proxy_authorization_basic($self->authentication)
+    }
+    if (!$request->is_success) {
+        $self->throw(ref($self)." Request Error:".$request->as_string);
     }
     $self->reset_cookies if !($self->keep_cookies);
-    $self->parse_response($response);  # grab cookies and what not
-    return $response;
+    $self->parse_response($request);  # grab cookies and what not
+    return $request;
 }
 
 # not implemented yet
@@ -597,10 +601,10 @@ sub _eutil   {
 # _submit_request
 
  #Title   : _submit_request
- #Usage   : my $url = $self->get_request
+ #Usage   : my $url = $self->_submit_request
  #Function: builds request object based on set parameters
  #Returns : HTTP::Request
- #Args    : optional : Bio::DB::EUtilities cookie
+ #Args    : None
 
 #
 # as the name implies....
@@ -647,7 +651,7 @@ sub _submit_request {
 # Usage   : my $url = $self->_get_params
 # Function: builds parameter list for web request
 # Returns : hash of parameter-value paris
-# Args    : optional : Bio::DB::EUtilities cookie
+# Args    : None
 
 # these get sorted out in a hash originally but end up in an array to
 # deal with multiple id parameters (hash values would kill that)
