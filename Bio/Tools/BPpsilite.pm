@@ -316,40 +316,42 @@ sub _parseHeader {
 
 #'
 sub _preprocess {
-    my $self = shift;
-#	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
+	my $self = shift;
+	#	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
 
-    my  $oldround = 0;
-    my ($currentline, $currentfile, $round);
+	my  $oldround = 0;
+	my ($currentline, $currentfile, $round);
 
-# open output file for data from iteration round #1
-    $round = 1;
-    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+	# open output file for data from iteration round #1
+	$round = 1;
+	$currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
 					  "iteration$round.tmp");
-    open (my $FILEHANDLE, ">$currentfile") || 
-	$self->throw("cannot open filehandle to write to file $currentfile");
+	open (my $FILEHANDLE, ">$currentfile") || 
+	  $self->throw("cannot open filehandle to write to file $currentfile");
 
-    while(defined ($currentline = $self->_readline()) ) {
-	if ($currentline =~ /^Results from round\s+(\d+)/) {
-	    if ($oldround) { close ($FILEHANDLE) ;}
-	    $round = $1;
-	    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
-						  "iteration$round.tmp");
+	while(defined ($currentline = $self->_readline()) ) {
+		if ($currentline =~ /^Results from round\s+(\d+)/) {
+			if ($oldround) { 
+				close ($FILEHANDLE);
+			}
+			$round = $1;
+			$currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+															  "iteration$round.tmp");
 
-	    close $FILEHANDLE;
-	    open (my $FILEHANDLE, ">$currentfile") || 
-		$self->throw("cannot open filehandle to write to file $currentfile");
-	    $oldround = $round;
-	}elsif ($currentline =~ /CONVERGED/){ # This is a fix for psiblast parsing with -m 6 /AE
-	    $round--;
+			close $FILEHANDLE;
+			open ($FILEHANDLE, ">$currentfile") || 
+			  $self->throw("cannot open filehandle to write to file $currentfile");
+			$oldround = $round;
+		} elsif ($currentline =~ /CONVERGED/){ 
+			# This is a fix for psiblast parsing with -m 6 /AE
+			$round--;
+		}
+		print $FILEHANDLE $currentline ;
 	}
-	print $FILEHANDLE $currentline ;
-	
-    }
-    $self->{'TOTAL_ITERATION_NUMBER'}= $round;
-# It is necessary to close filehandle otherwise the whole
-# file will not be read later !!
-    close $FILEHANDLE;
+	$self->{'TOTAL_ITERATION_NUMBER'}= $round;
+	# It is necessary to close filehandle otherwise the whole
+	# file will not be read later !!
+	close $FILEHANDLE;
 }
 
 1;
