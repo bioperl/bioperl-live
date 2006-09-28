@@ -46,11 +46,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.Bug reports can be submitted via the
-web: http://bugzila.open-bio.org/
+web: http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney-at-sanger.ac.uk
+Email birney-at-ebi.ac.uk
 
 =head1 APPENDIX
 
