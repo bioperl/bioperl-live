@@ -48,7 +48,7 @@ at a given pH. Can use built-in sets of pK values or custom pK sets.
 =head1 SEE ALSO
 
 http://fields.scripps.edu/DTASelect/20010710-pI-Algorithm.pdf
-http://emboss.sourceforge.net/apps/iep.html
+http://emboss.sourceforge.net/apps/cvs/iep.html
 http://us.expasy.org/tools/pi_tool.html
 
 =head1 LIMITATIONS
@@ -121,7 +121,7 @@ my $DTASelect_pK = {  N_term   =>  8.0,
                     };
 
 # pK values from the iep program from EMBOSS
-# http://emboss.sourceforge.net/apps/iep.html
+# http://emboss.sourceforge.net/apps/cvs/iep.html
 my $Emboss_pK  = { N_term   =>  8.6,
                    K        => 10.8, # Lys
                    R        => 12.5, # Arg

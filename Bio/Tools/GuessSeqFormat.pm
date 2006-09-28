@@ -617,8 +617,6 @@ sub _possibly_game
 =head2 _possibly_gcg
 
 From bioperl, Bio::SeqIO::gcg.
-Example at
-"http://bioweb.cgb.indiana.edu/seqanal/formats/examples.html#gcg".
 
 =cut
 
@@ -771,9 +769,6 @@ sub _possibly_mega
 
 From "http://www.ebi.ac.uk/help/formats.html".
 
-Contradiction at
-"http://bioweb.cgb.indiana.edu/seqanal/formats/examples.html#msf".
-
 =cut
 
 sub _possibly_msf
@@ -785,7 +780,7 @@ sub _possibly_msf
 
 =head2 _possibly_phrap
 
-From "http://www.ccgb.umn.edu/biodata/docs/contigimage.html".
+From "http://biodata.ccgb.umn.edu/docs/contigimage.html".
 From "http://genetics.gene.cwru.edu/gene508/Lec6.htm".
 From bioperl test data ("*.ace.1" files).
 
@@ -882,9 +877,7 @@ sub _possibly_rsf
 
 =head2 _possibly_selex
 
-From
-"http://www-ccmr-nmr.bioc.cam.ac.uk/private/arcr1/hmmer-html/node35.html"
-and "http://www.ebc.ee/WWW/hmmer2-html/node27.html".
+From "http://www.ebc.ee/WWW/hmmer2-html/node27.html".
 
 Assuming precense of Selex file header.  Data exported by
 Bioperl on Pfam and Selex formats are identical, but Pfam file

@@ -324,7 +324,7 @@ sub _point_type_label {
            'systematic name' of the mutation. Systematic name is
            specified in Antonorakis & MDI Nomenclature Working Group:
            Human Mutation 11:1-3, 1998. 
-           http://www.interscience.wiley.com/jpages/1059-7794/nomenclature.html
+           http://www3.interscience.wiley.com/cgi-bin/abstract/5001291/ABSTRACT
  Returns : string
 
 =cut
