@@ -94,7 +94,6 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::AlignIO::bl2seq;
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::SearchIO;
 

@@ -84,7 +84,6 @@ package Bio::Seq::RichSeq;
 use vars qw($AUTOLOAD);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
 
 use base qw(Bio::Seq Bio::Seq::RichSeqI);

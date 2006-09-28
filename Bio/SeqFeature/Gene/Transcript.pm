@@ -57,7 +57,6 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::SeqFeature::Gene::Transcript;
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::PrimarySeq;
 

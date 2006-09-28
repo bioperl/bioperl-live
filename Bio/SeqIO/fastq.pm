@@ -74,7 +74,6 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::fastq;
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Seq::SeqFactory;
 

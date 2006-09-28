@@ -53,7 +53,6 @@ package Bio::Taxonomy::Taxon;
 use vars qw($CREATIONORDER);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object, Bio::Tree::NodeI, Bio::Species and Bio::Taxonomy
 use Bio::Species;
 
 use base qw(Bio::Root::Root Bio::Tree::NodeI);

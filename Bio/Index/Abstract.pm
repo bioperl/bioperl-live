@@ -76,7 +76,6 @@ use Fcntl qw( O_RDWR O_CREAT O_RDONLY );
 use vars qw( $TYPE_AND_VERSION_KEY
              $USE_DBM_TYPE $DB_HASH );
 
-# Object preamble - inheriets from Bio::Root::Object
 
 use Bio::Root::IO;
 use Symbol();

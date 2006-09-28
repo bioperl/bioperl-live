@@ -67,7 +67,6 @@ package Bio::Search::Hit::Fasta;
 use vars qw($AUTOLOAD);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
 
 use base qw(Bio::Search::Hit::HitI);

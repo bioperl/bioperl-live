@@ -72,7 +72,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO::largefasta;
 use vars qw($FASTALINELEN);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Seq::SeqFactory;
 

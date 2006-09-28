@@ -115,7 +115,6 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Tools::Sim4::Results;
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
 use File::Basename;
 use Bio::Root::Root;

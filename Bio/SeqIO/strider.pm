@@ -77,7 +77,6 @@ package Bio::SeqIO::strider;
 use strict;
 use warnings;
 
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::Seq::SeqFactory;
 use Convert::Binary::C;

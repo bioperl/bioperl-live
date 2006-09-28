@@ -57,7 +57,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO::alf;
 use vars qw(@ISA $READ_AVAIL);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
 use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
