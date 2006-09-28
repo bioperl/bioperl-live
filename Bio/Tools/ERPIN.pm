@@ -305,6 +305,7 @@ sub next_prediction {
         # parse next hit
         elsif (/^(FW|RC)\s+\d+\s+(\d+)..(\d+)\s+(\d+.\d+)\s+(.*)/) {
             ($strand, $start, $end, $logodds, $score)=($1, $2, $3, $4, $5);
+            $score =~ s/^e/1e/i;
             chomp ($sequence = $self->_readline); # grab next line, which is the sequence hit
             my $gene = Bio::SeqFeature::Generic->new(-seq_id => $self->{_seqid},
                                                       -start  => $start,
@@ -328,9 +329,9 @@ sub next_prediction {
                                                     );
             return $gene;
         }
-        else {
-            $self->debug("unrecognized line: $_");
-        }
+        #else {
+        #    $self->debug("unrecognized line: $_");
+        #}
     }
 }
 
