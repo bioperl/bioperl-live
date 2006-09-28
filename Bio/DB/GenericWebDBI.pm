@@ -151,7 +151,7 @@ sub proxy {
     return undef if ( !defined $protocol || !defined $proxy );
     $self->authentication($username, $password)
     if ($username && $password);
-    return $self->proxy($protocol,$proxy);
+    return $self->SUPER::proxy($protocol,$proxy);
 }
 
 =head2 authentication
