@@ -395,7 +395,7 @@ for documentation purposes only.
 # modules depend on it as a legacy. We issue a deprecation warning for all
 # other modules.
 #
-my @inheriting_modules = ('Bio::Tools::Blast', 'Bio::Root::Object',
+my @inheriting_modules = ('Bio::Root::Object',
 			  'Bio::Root::IOManager');
 
 

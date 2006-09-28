@@ -93,7 +93,7 @@ You do not have to make these modifications to use this module.
   }
 
   Get all the sequences as Bio::PrimarySeq objects (eg., for use with
-  Bio::Tools::Blast to perform BLAST).
+  Bio::Tools::Run::StandaloneBlast to perform BLAST).
 
   @seqObjs = $lucyObj->get_Seq_Objs();
 
