@@ -13,7 +13,7 @@ BEGIN {
     # as a fallback
     eval { require Test::More; };
     if( $@ ) {
-    use lib 't\lib';
+    use lib 't/lib';
     }
 
     use Test::More;
@@ -101,13 +101,17 @@ is($genes[4]->source_tag, 'RNAMotif','RNAMotif::source_tag()');
 
 my @erpinstats = (
 ['30260185','5181155','5181183',1,'CTTT.aacc--.CAACC.CCGTGA.GGTTG.a.GAAG',0,
- 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',0,'1.68e-05'],
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'1.68e-05'],
 ['30260185','3709092','3709121',-1,'CTTT.taatt-.CAGTC.CTGTGA.GACCG.g.AAAG',0,
- 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',0,'5.61e-05'],
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'5.61e-05'],
 ['30260185','3710524','3710553',-1,'TTTT.aaatg-.TAGTC.CTGTGA.GGCTG.c.CAAA',0,
- 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',0,'1.31e-04'],
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'1.31e-04'],
 ['30260185','3711223','3711251',-1,'CTTT.aaca--.CAGCC.CCGTGA.GGTTG.a.GAAG',0,
- 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',0,'4.44e-06']
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'4.44e-06']
 );
 
 $parser = Bio::Tools::ERPIN->new(
@@ -124,10 +128,14 @@ while( my $gene = $parser->next_prediction ) {
 	is($gene->start, shift @stats,'ERPIN::start()');
 	is($gene->end, shift @stats,'ERPIN::end()');
 	is($gene->strand, shift @stats,'ERPIN::strand()');
-	is($gene->get_Annotations('sequence'), shift @stats,"ERPIN::get_Annotations('sequence')");
-	is($gene->get_Annotations('descfile'), shift @stats,"ERPIN::get_Annotations('descfile')");
-	is($gene->get_Annotations('descline'), shift @stats,"ERPIN::get_Annotations('descline')");
-	is($gene->get_Annotations('secstructure'), shift @stats,"ERPIN::get_Annotations('secstructure')");
+	is($gene->get_Annotations('sequence'), shift @stats,
+	   "ERPIN::get_Annotations('sequence')");
+	is($gene->get_Annotations('descfile'), shift @stats,
+	   "ERPIN::get_Annotations('descfile')");
+	is($gene->get_Annotations('descline'), shift @stats,
+	   "ERPIN::get_Annotations('descline')");
+	is($gene->get_Annotations('secstructure'), shift @stats,
+	   "ERPIN::get_Annotations('secstructure')");
 	is($gene->score, shift @stats,'ERPIN::score()');
 	is($gene->source_tag, 'ERPIN','ERPIN::source_tag()');
 }
