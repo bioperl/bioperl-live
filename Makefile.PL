@@ -367,7 +367,7 @@ Information:
    can read more about bioperl external dependencies in the INSTALL
    file or at:
 
-   http://bioperl.org/Core/Latest/INSTALL
+   http://bioperl.org/wiki/Installing_BioPerl
 
    Enjoy the rest of bioperl, which you can use after going 'make install'
 
