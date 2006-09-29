@@ -333,7 +333,8 @@ sub _encode_base64 {
  Title   : proxy
  Usage   : $httpproxy = $db->proxy('http')  or 
            $db->proxy(['http','ftp'], 'http://myproxy' )
- Function: Get/Set a proxy for use of proxy
+ Function: Get/Set a proxy for use of proxy. Defaults to environment variable
+           http_proxy if present.
  Returns : a string indicating the proxy
  Args    : $protocol : an array ref of the protocol(s) to set/get
            $proxyurl : url of the proxy to use for the specified protocol
@@ -345,7 +346,16 @@ sub _encode_base64 {
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
     $protocol ||= 'http';
-    return unless (  defined $protocol && defined $proxy );
+    unless ($proxy) {
+        if (defined $ENV{http_proxy}) {
+            $proxy = $ENV{http_proxy};
+            if ($proxy =~ /\@/) {
+                ($username, $password, $proxy) = $proxy =~ m{http://(\S+):(\S+)\@(\S+)};
+                $proxy = 'http://'.$proxy;
+            }
+        }
+    }
+    return unless (defined $proxy);
     $self->authentication($username, $password) 
 	if ($username && $password);
     return $self->{'_proxy'}->{$protocol} = $proxy;
