@@ -140,13 +140,14 @@ sub postprocess_data {
     ${$args{location}} =~ s/^\s+//;  # get rid of leading whitespace
   }
   elsif ($args{type} eq 'file') {
-    open my $F,"<", $args{location} or $self->throw("Cannot open $args{location}: $!");
+    my $F;
+    open $F,"<", $args{location} or $self->throw("Cannot open $args{location}: $!");
     my @data = <$F>;
     for (@data) {
       last unless /^\s+$/;
       shift @data;
     }
-    open my $F,">", $args{location} or $self->throw("Cannot write to $args{location}: $!");
+    open $F,">", $args{location} or $self->throw("Cannot write to $args{location}: $!");
     print $F @data;
     close $F;
   }
