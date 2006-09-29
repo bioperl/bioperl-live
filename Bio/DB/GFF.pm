@@ -1819,10 +1819,10 @@ sub load_fasta {
                                                      && tied *$file_or_directory;
 
   my $tied = tied(*STDIN);
-  open SAVEIN,"<&STDIN" unless $tied;
+  open my $SAVEIN, "<&STDIN" unless $tied;
   local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
   my $result = $self->load_sequence('ARGV');
-  open STDIN,"<&SAVEIN" unless $tied;  # restore STDIN
+  open STDIN,"<", $SAVEIN unless $tied;  # restore STDIN
   return $result;
 }
 
