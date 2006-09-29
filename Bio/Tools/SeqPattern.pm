@@ -12,28 +12,25 @@
 
 =head1 NAME
 
-Bio::Tools::SeqPattern - Bioperl object for a sequence pattern or motif
+Bio::Tools::SeqPattern - represent a sequence pattern or motif
 
 =head1 SYNOPSIS
 
-=head2 Object Creation
+ use Bio::Tools::SeqPattern;
 
-    use Bio::Tools::SeqPattern ();
+ my $pat1     = 'T[GA]AA...TAAT';
+ my $pattern1 = Bio::Tools::SeqPattern->new(-SEQ =>$pat1, -TYPE =>'Dna');
 
-    $pat1     = 'T[GA]AA...TAAT';
-    $pattern1 = new Bio::Tools::SeqPattern(-SEQ =>$pattern, -TYPE =>'Dna');
-
-    $pat2     = '[VILM]R(GXX){3,2}...[^PG]';
-    $pattern2 = new Bio::Tools::SeqPattern(-SEQ =>$pattern, -TYPE =>'Amino');
+ my $pat2     = '[VILM]R(GXX){3,2}...[^PG]';
+ my $pattern2 = Bio::Tools::SeqPattern->new(-SEQ =>$pat2, -TYPE =>'Amino');
 
 =head1 DESCRIPTION
 
-The Bio::Tools::SeqPattern.pm module encapsulates generic data and
+L<Bio::Tools::SeqPattern> module encapsulates generic data and
 methods for manipulating regular expressions describing nucleic or
 amino acid sequence patterns (a.k.a, "motifs").
 
-Bio::Tools::SeqPattern.pm is a concrete class that inherits from
-B<Bio::Seq.pm>.
+L<Bio::Tools::SeqPattern> is a concrete class that inherits from L<Bio::Seq>.
 
 This class grew out of a need to have a standard module for doing routine
 tasks with sequence patterns such as:
@@ -50,7 +47,7 @@ Other features to look for in the future:
 
 =head1 MOTIVATIONS
 
-A key motivation for Bio::Tools::SeqPattern.pm is to have a way to
+A key motivation for L<Bio::Tools::SeqPattern> is to have a way to
 generate a reverse complement of a nucleotide sequence pattern.
 This makes possible simultaneous pattern matching on both sense and
 anti-sense strands of a query sequence.
@@ -79,8 +76,8 @@ send me some email (sac@bioperl.org). Thanks.
 =head2 Extended Alphabet Support
 
 This module supports the same set of ambiguity codes for nucleotide
-sequences as supported by B<Bio::Seq.pm>. These ambiguity codes
-define the behavior or the expand() method.
+sequences as supported by L<Bio::Seq>. These ambiguity codes
+define the behavior or the L<expand()> method.
 
  ------------------------------------------
  Symbol       Meaning      Nucleic Acid
@@ -136,7 +133,7 @@ define the behavior or the expand() method.
  .        Any amino acid
 
 
-=head2   Multiple Format Support
+=head2 Multiple Format Support
 
 Ultimately, this module should be able to build SeqPattern.pm objects
 using a variety of pattern formats such as ProSite, Blocks, Prints, GCG, etc.
@@ -149,10 +146,7 @@ directory of the central Bioperl distribution.
 
 =head1 SEE ALSO
 
-L<Bio::Root::Object>   - Base class.
-L<Bio::Seq>            - Lightweight sequence object.
-
-http://bio.perl.org/                       - Bioperl Project Homepage
+L<Bio::Seq> - Lightweight sequence object.
 
 =head1 FEEDBACK
 
@@ -230,8 +224,8 @@ my (%Processed_braces, %Processed_asterics);
  Comments  : The process of creating a new SeqPattern.pm object
            : ensures that the pattern string is untained.
 
-See Also   : B<Bio::Root::Root::new()>,
-             B<Bio::Seq::_initialize()>
+See Also   : L<Bio::Root::Root::new()>,
+             L<Bio::Seq::_initialize()>
 
 =cut
 
@@ -312,7 +306,7 @@ sub alphabet_ok {
  Throws    : Exception if sequence type is not recognized
            : (i.e., is not one of [DR]NA, Amino)
 
-See Also   : B<Extended Alphabet Support>, L<_expand_pep>(), L<_expand_nuc>()
+See Also   : L<Extended Alphabet Support>, L<_expand_pep>(), L<_expand_nuc>()
 
 =cut
 
@@ -460,7 +454,7 @@ sub _expand_nuc {
            : Overrides Bio::Seq::revcom() and calls it first thing.
            : The order of _fixpat() calls is critical.
 
-See Also   : B<Bio::Seq::revcom()>, L<_fixpat_1>(), L<_fixpat_2>(), L<_fixpat_3>(), L<_fixpat_4>(), L<_fixpat_5>()
+See Also   : L<Bio::Seq::revcom()>, L<_fixpat_1>(), L<_fixpat_2>(), L<_fixpat_3>(), L<_fixpat_4>(), L<_fixpat_5>()
 
 =cut
 
