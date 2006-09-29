@@ -1768,8 +1768,7 @@ sub next_result {
                 }
                 $last = $_;
             }
-        }
-        elsif ( $self->in_element('hsp') ) {
+        } elsif ( $self->in_element('hsp') ) {
             $self->debug("blast.pm: Processing HSP\n");
             # let's read 3 lines at a time;
             # bl2seq hackiness... Not sure I like
@@ -1781,9 +1780,9 @@ sub next_result {
             );
             my $len;
             for ( my $i = 0 ; defined($_) && $i < 3 ; $i++ ) {
-                #$self->debug("$i: $_") if $v;
-                if ( ( $i == 0 && /^\s+$/ )
-                    || /^\s*Lambda/i )
+                # $self->debug("$i: $_") if $v;
+                if ( ( $i == 0 && /^\s+$/) || 
+		     /^\s*(?:Lambda|Minus|Plus|Score)/i )
                 {
                     $self->_pushback($_) if defined $_;
                     $self->end_element( { 'Name' => 'Hsp' } );
@@ -1793,6 +1792,7 @@ sub next_result {
                 if (/^((Query|Sbjct):?\s+(\-?\d+)\s*)(\S+)\s+(\-?\d+)/) {
                     my ( $full, $type, $start, $str, $end ) =
                       ( $1, $2, $3, $4, $5 );
+
                     if ( $str eq '-' ) {
                         $i = 3 if $type eq 'Sbjct';
                     }
