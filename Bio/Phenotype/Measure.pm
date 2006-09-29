@@ -93,7 +93,6 @@ methods.
 
 package Bio::Phenotype::Measure;
 use strict;
-use Bio::Root::Object;
 
 use base qw(Bio::Root::Root);
 
