@@ -117,7 +117,6 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::ECnumber;
 use strict;
-use Bio::Root::Object;
 
 use constant DEFAULT => "-";
 use constant TRUE    => 1;
