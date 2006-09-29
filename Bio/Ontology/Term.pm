@@ -91,7 +91,6 @@ methods.
 
 package Bio::Ontology::Term;
 use strict;
-use Bio::Root::Object;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::OntologyStore;
 
