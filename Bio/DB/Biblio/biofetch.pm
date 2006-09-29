@@ -256,7 +256,7 @@ sub get_seq_stream {
 
 sub postprocess_data {    
 	my ($self, %args) = @_;
-	my $data;
+	my ($data, $TMP);
 	my $type = uc $args{'type'};
 	my $location = $args{'location'};
 	if( !defined $type || $type eq '' || !defined $location) {
@@ -264,13 +264,13 @@ sub postprocess_data {
 	} elsif( $type eq 'STRING' ) {
 		$data = $$location; 
 	} elsif ( $type eq 'FILE' ) {
-		open(my $TMP, "<", $location) or $self->throw("could not open file $location");
+		open($TMP, "<", $location) or $self->throw("could not open file $location");
 		my @in = <$TMP>;
 		$data = join("", @in);
 	}
 
 	if( $type eq 'FILE'  ) {
-		open(my $TMP, ">", $location") or $self->throw("could overwrite file $location");
+		open($TMP, ">", $location) or $self->throw("could overwrite file $location");
 		print $TMP $data;
 	} elsif ( $type eq 'STRING' ) {
 		${$args{'location'}} = $data;
