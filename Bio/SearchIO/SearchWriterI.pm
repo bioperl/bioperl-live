@@ -25,7 +25,7 @@ you can do the following things with it:
 =head1 DESCRIPTION
 
 This module defines abstract methods that all subclasses must implement
-to be used for outputting results from B<Bio::Search::Result::ResultI>
+to be used for outputting results from L<Bio::Search::Result::ResultI>
 objects.
 
 =head1 AUTHOR

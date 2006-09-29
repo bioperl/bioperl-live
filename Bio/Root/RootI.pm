@@ -54,7 +54,7 @@ This is just a set of methods which do not assume B<anything> about the object
 they are on. The methods provide the ability to throw exceptions with nice
 stack traces.
 
-This is what should be inherited by all bioperl compliant interfaces, even
+This is what should be inherited by all Bioperl compliant interfaces, even
 if they are exotic XS/CORBA/Other perl systems.
 
 =head2 Using throw_not_implemented()
@@ -77,13 +77,13 @@ following:
 
 So, if an implementer of C<FooI> forgets to implement C<foo()>
 and a user of the implementation calls C<foo()>, a
-B<Bio::Exception::NotImplemented> exception will result.
+L<Bio::Exception::NotImplemented> exception will result.
 
 Unfortunately, failure to implement a method can only be determined at
 run time (i.e., you can't verify that an implementation is complete by
 running C<perl -wc> on it). So it should be standard practice for a test
 of an implementation to check each method and verify that it doesn't
-throw a B<Bio::Exception::NotImplemented>.
+throw a L<Bio::Exception::NotImplemented>.
 
 =head1 CONTACT
 

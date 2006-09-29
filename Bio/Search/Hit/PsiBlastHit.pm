@@ -26,8 +26,8 @@ The Bio::Search::Hit::PsiBlastHit.pm module encapsulates data and
 methods for manipulating "hits" from a BLAST report. A BLAST hit is a
 collection of HSPs along with other metadata such as sequence name and
 score information. Hit objects are accessed via
-B<Bio::Search::Result::BlastResult> objects after parsing a BLAST
-report using the B<Bio::SearchIO> system.
+L<Bio::Search::Result::BlastResult> objects after parsing a BLAST
+report using the L<Bio::SearchIO> system.
 
 In Blast lingo, the "sbjct" sequences are all the sequences in a
 target database which were compared against a "query" sequence.  The
@@ -40,14 +40,14 @@ and PSI-BLAST.
 
 The construction of PsiBlastHit objects is performed by
 Bio::SearchIO::blast::PsiBlastHitFactory in a process that is
-orchestrated by the Blast parser (B<Bio::SearchIO::blast::blast>).
+orchestrated by the Blast parser (L<Bio::SearchIO::blast>).
 The resulting PsiBlastHits are then accessed via
-B<Bio::Search::Result::BlastResult>). Therefore, you do not need to
-use B<Bio::Search::Hit::PsiBlastHit>) directly. If you need to
-construct PsiBlastHits directly, see the new() function for details.
+L<Bio::Search::Result::BlastResult>). Therefore, you do not need to
+use L<Bio::Search::Hit::PsiBlastHit>) directly. If you need to
+construct PsiBlastHits directly, see the C<new()> function for details.
 
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+For L<Bio::SearchIO> BLAST parsing usage examples, see the
+C<examples/search-blast> directory of the Bioperl distribution.
 
 
 =head2 HSP Tiling and Ambiguous Alignments
@@ -95,8 +95,8 @@ L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils> and
 =head1 DEPENDENCIES
 
 Bio::Search::Hit::PsiBlastHit.pm is a concrete class that inherits from
-B<Bio::Root::Root> and B<Bio::Search::Hit::HitI>.  and relies on
-B<Bio::Search::HSP::BlastHSP>.
+L<Bio::Root::Root> and L<Bio::Search::Hit::HitI>.  and relies on
+L<Bio::Search::HSP::BlastHSP>.
 
 
 =head1 BUGS
@@ -1877,7 +1877,7 @@ sub found_again { shift->{'_found_again'} }
            : dedicated method such as $hit->hsps_on_both_strands(). Similarly
            : for frame. This could be provided if there is interest.
 
-See Also   : B<Bio::Search::HSP::BlastHSP::strand>()
+See Also   : L<Bio::Search::HSP::BlastHSP::strand>()
 
 =cut
 

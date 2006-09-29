@@ -46,14 +46,14 @@ here.
 
 One of the functionalities that Bio::Root::RootI provides is the
 ability to throw() exceptions with pretty stack traces. Bio::Root::Root
-enhances this with the ability to use B<Error.pm> (available from CPAN)
+enhances this with the ability to use L<Error> (available from CPAN)
 if it has also been installed. 
 
 If Error.pm has been installed, throw() will use it. This causes an
 Error.pm-derived object to be thrown. This can be caught within a
 C<catch{}> block, from wich you can extract useful bits of
 information. If Error.pm is not installed, it will use the 
-Bio::Root::RootI-based exception throwing facilty.
+L<Bio::Root::RootI>-based exception throwing facilty.
 
 =head2 Typed Exception Syntax 
 
@@ -69,9 +69,9 @@ as named parameters in the throw() call. Here are the parameters:
 =item -class
 
 name of the class of the exception.
-This should be one of the classes defined in B<Bio::Root::Exception>,
+This should be one of the classes defined in L<Bio::Root::Exception>,
 or a custom error of yours that extends one of the exceptions
-defined in B<Bio::Root::Exception>.
+defined in L<Bio::Root::Exception>.
 
 =item -text
 
@@ -90,11 +90,11 @@ via Bio::Root::Root::throw(), since Bio::Root::Root imports it.
 =head2 Try-Catch-Finally Support
 
 In addition to using an eval{} block to handle exceptions, you can
-also use a try-catch-finally block structure if B<Error.pm> has been
+also use a try-catch-finally block structure if L<Error> has been
 installed in your system (available from CPAN).  See the documentation
 for Error for more details.
 
-Here's an example. See the B<Bio::Root::Exception> module for 
+Here's an example. See the L<Bio::Root::Exception> module for 
 other pre-defined exception types:
 
    try {

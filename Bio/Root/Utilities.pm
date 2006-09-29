@@ -115,7 +115,7 @@ this package with the C<:obj> tag.
 
 =head1 DEPENDENCIES
 
-B<Bio::Root::Utilities.pm> inherits from B<Bio::Root::Object.pm>.
+L<Bio::Root::Utilities> inherits from L<Bio::Root::Object>.
 It also relies on the GNU gzip program for file compression/uncompression.
 
 =head1 SEE ALSO

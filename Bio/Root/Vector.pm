@@ -42,25 +42,11 @@ Bio::Root::Vector - Interface for managing linked lists of Perl5 objects.
 
 =head1 SYNOPSIS
 
-=head2 Object Creation
-
 B<At present, Vector objects cannot be instantiated.> This
 package is currently designed to be inherited along with another class
-that provides a constructor (e.g., B<Bio::Root::Object.pm>).
+that provides a constructor (e.g., L<Bio::Root::Object>).
 The Vector provides a set of methods that can then be used for managing
 sets of objects.
-
-See L<the USAGE section | USAGE>.
-
-=head1 INSTALLATION
-
-This module is included with the central Bioperl distribution:
-
-   http://bio.perl.org/Core/Latest
-   ftp://bio.perl.org/pub/DIST
-
-Follow the installation instructions included in the README file.
-
 
 =head1 DESCRIPTION
 
@@ -90,7 +76,7 @@ examples/root_object/vector directory.
 
 =head1 DEPENDENCIES
 
-Bio::Root::Vector.pm does not directly inherit from B<Bio::Root::Object.pm> but
+Bio::Root::Vector.pm does not directly inherit from L<Bio::Root::Object> but
 creates an manager object which does.
 
 =head1 BUGS/FEATURES
@@ -935,7 +921,7 @@ sub _sort_by_name { my $aName = $a->name(); my $bName = $b->name(); $aName cmp $
  Comments : A non-valid object should throw an exception that must be
           : be caught an dealt with on the spot.
 
-See Also  : B<Bio::Root::Object::valid()>
+See Also  : L<Bio::Root::Object::valid()>
 
 =cut
 
@@ -960,7 +946,7 @@ sub valid_any {
  Comments : A non-valid object should throw an exception that must be
           : be caught an dealt with on the spot.
 
-See Also  : B<Bio::Root::Object::valid()>
+See Also  : L<Bio::Root::Object::valid()>
 
 =cut
 

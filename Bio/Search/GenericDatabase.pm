@@ -30,7 +30,7 @@ Bio::Search::GenericDatabase - Generic implementation of Bio::Search::DatabaseI
 
 =head1 DESCRIPTION
 
-This module provides a basic implementation of B<Bio::Search::DatabaseI>.
+This module provides a basic implementation of L<Bio::Search::DatabaseI>.
 See documentation in that module for more information.
 
 =head1 FEEDBACK

@@ -27,20 +27,20 @@ obtained in a single alignment section of a Blast report (known as a
 "High-scoring Segment Pair"). This is essentially a pairwise
 alignment with score information.
 
-BlastHSP objects are accessed via B<Bio::Search::Hit::BlastHit>
-objects after parsing a BLAST report using the B<Bio::SearchIO>
+BlastHSP objects are accessed via L<Bio::Search::Hit::BlastHit>
+objects after parsing a BLAST report using the L<Bio::SearchIO>
 system.
 
 The construction of BlastHSP objects is performed by
 Bio::Factory::BlastHitFactory in a process that is
-orchestrated by the Blast parser (B<Bio::SearchIO::psiblast>).
+orchestrated by the Blast parser (L<Bio::SearchIO::psiblast>).
 The resulting BlastHSPs are then accessed via
-B<Bio::Search::Hit::BlastHit>). Therefore, you do not need to
-use B<Bio::Search::HSP::BlastHSP>) directly. If you need to construct
+L<Bio::Search::Hit::BlastHit>). Therefore, you do not need to
+use L<Bio::Search::HSP::BlastHSP>) directly. If you need to construct
 BlastHSPs directly, see the new() function for details.
 
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+For L<Bio::SearchIO> BLAST parsing usage examples, see the
+C<examples/search-blast> directory of the Bioperl distribution.
 
 =head2 Start and End coordinates
 
@@ -66,15 +66,15 @@ the BlastHSP.pm object is used.
 =head1 DEPENDENCIES
 
 Bio::Search::HSP::BlastHSP.pm is a concrete class that inherits from
-B<Bio::SeqFeature::SimilarityPair> and B<Bio::Search::HSP::HSPI>.
-B<Bio::Seq> and B<Bio::SimpleAlign> are employed for creating
+L<Bio::SeqFeature::SimilarityPair> and L<Bio::Search::HSP::HSPI>.
+L<Bio::Seq> and L<Bio::SimpleAlign> are employed for creating
 sequence and alignment objects, respectively.
 
 =head2 Relationship to SimpleAlign.pm & Seq.pm
 
-BlastHSP.pm can provide the query or sbjct sequence as a B<Bio::Seq>
+BlastHSP.pm can provide the query or sbjct sequence as a L<Bio::Seq>
 object via the L<seq()|seq> method. The BlastHSP.pm object can also create a
-two-sequence B<Bio::SimpleAlign> alignment object using the the query
+two-sequence L<Bio::SimpleAlign> alignment object using the the query
 and sbjct sequences via the L<get_aln()|get_aln> method. Creation of alignment
 objects is not automatic when constructing the BlastHSP.pm object since
 this level of functionality is not always required and would generate
@@ -191,7 +191,7 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            : This parsing code will likely be relocated and more initialization
            : parameters will be added to new().
            :
-See Also   : B<Bio::SeqFeature::SimilarityPair::new()>, B<Bio::SeqFeature::Similarity::new()>
+See Also   : L<Bio::SeqFeature::SimilarityPair::new()>, L<Bio::SeqFeature::Similarity::new()>
 
 =cut
 
@@ -1423,7 +1423,7 @@ sub end {
            :  ('sbjct' is synonymous with 'hit')
  Throws    : n/a
 
-See Also   : B<_set_seq()>, B<_set_match_stats()>
+See Also   : L<_set_seq()>, L<_set_match_stats()>
 
 =cut
 
@@ -1484,7 +1484,7 @@ sub strand {
            : to the strings in the original format of the Blast alignment.
            : (i.e., same spacing).
 
-See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, B<Bio::Seq>
+See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<Bio::Seq>
 
 =cut
 
@@ -1518,7 +1518,7 @@ sub seq {
  Comments  : Calls _set_seq_data() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, B<_set_match_seq()>
+See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, L<_set_match_seq()>
 
 =cut
 
@@ -1578,7 +1578,7 @@ sub seq_str {
  Comments  : Calls _set_residues() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq()|seq>, B<_set_residues()>, L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
+See Also   : L<seq()|seq>, L<_set_residues()>, L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
 
 =cut
 

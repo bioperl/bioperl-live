@@ -549,7 +549,7 @@ sub end {
            : to the strings in the original format of the Blast alignment.
            : (i.e., same spacing).
 
-See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, B<Bio::Seq>
+See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<Bio::Seq>
 
 =cut
 
@@ -588,7 +588,7 @@ sub seq {
  Throws    : Exception if the argument does not match an accepted seq_type.
  Comments  : 
 
-See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, B<_set_match_seq()>
+See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, L<_set_match_seq()>
 
 =cut
 

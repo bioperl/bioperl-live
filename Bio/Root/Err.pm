@@ -48,11 +48,10 @@ Bio::Root::Err -  Exception class for Perl 5 objects
 
 =head2 Object Creation
 
-B<Bio::Root::Object.pm> is a wrapper for Bio::Root::Err.pm objects so clients
+L<Bio::Root::Object> is a wrapper for L<Bio::Root::Err> objects so clients
 do not have to create these objects directly. Please see
-B<Bio::Root::Object::throw()> as well as L<_initialize>()
-for a more complete treatment
-of how to create Bio::Root::Err.pm objects.
+L<Bio::Root::Object::throw()> as well as L<_initialize>()
+for a more complete treatment of how to create L<Bio::Root::Err> objects.
 
   use Bio::Root::Err;
 
@@ -99,12 +98,12 @@ can arise during their construction or manipulation. For example:
      a web-user needs different information than does the
      software engineer.
 
-Bio::Root::Err.pm, along with B<Bio::Root::Object.pm>, attempt to make such
+Bio::Root::Err.pm, along with L<Bio::Root::Object>, attempt to make such
 problems tractable. Please see the L<Bio::Root::Object> documentation for more
 about my error handling philosophy.
 
-A B<Bio::Root::Err.pm> object is an example of a Vector-Object: This module
-inherits both from B<Bio::Root::Object.pm> and B<Bio::Root::Vector.pm>. This
+A L<Bio::Root::Err> object is an example of a Vector-Object: This module
+inherits both from L<Bio::Root::Object> and L<Bio::Root::Vector>. This
 permits a single Err object to exist within a linked list of Err objects OR
 alone. See the L<Bio::Root::Vector> documentation for more about Vector-Objects.
 
@@ -113,7 +112,7 @@ B<The API for this module is not complete since the module is under development.
 =head2 Other Exception Strategies
 
 Exception handling with Perl 5 objects is currently not as evolved as one
-would like. The error handling used by B<Bio::Root::Object.pm> and Bio::Root::Err.pm
+would like. The error handling used by L<Bio::Root::Object> and L<Bio::Root::Err>
 relies on Perl's built-in error/exception handling with eval/die,
 which is not very object-aware. What I've attempted to do with these
 modules is to make eval/die more object-savvy, as well as make Perl 5
@@ -124,8 +123,8 @@ This would permit more intelligent and easy to write exception handlers.
 For now the Err.pm object is reconstructed from the output of L<string>().
 
 There are some other third-party Exception classes such as
-Torsten Ekedahl's B<Experimental::Exception.pm> or Ken Steven's Throwable.pm or
-Graham Barr's Error.pm (see L<Other Exception Modules>). These modules
+Torsten Ekedahl's L<Experimental::Exception>, Ken Steven's L<Throwable> or
+Graham Barr's L<Error> (see L<Other Exception Modules>). These modules
 attempt to introduce a traditional "try-catch-throw" exception handling mechanism
 into Perl. Future version of my modules (and perhaps Perl itself) may utilize one
 of these.
@@ -138,7 +137,7 @@ examples/root_object/error.pl.
 
 =head1 DEPENDENCIES
 
-Bio::Root::Err.pm inherits from B<Bio::Root::Object.pm> and B<Bio::Root::Vector.pm>.
+Bio::Root::Err.pm inherits from L<Bio::Root::Object> and L<Bio::Root::Vector>.
 
 
 =head1 FEEDBACK
@@ -883,7 +882,7 @@ sub print {
  Argument  : Named parameters (optional) passed to
            : Bio::Root::IOManager::set_display().
 
-See Also   : L<print>(), L<_build_from_string>(), B<Bio::Root::IOManager::set_display()>
+See Also   : L<print>(), L<_build_from_string>(), L<Bio::Root::IOManager::set_display()>
 
 =cut
 
@@ -977,7 +976,7 @@ sub is_fatal { my $self = shift; $self->{'_type'} eq 'FATAL'; }
            : This method is an alternative to Bio::Root::Object::throw()
            : and is not as well developed or documented as that method.
 
-See Also   : L<warning>(), B<Bio::Root::Object::throw()> B<Bio::Root::Global::strictness>()
+See Also   : L<warning>(), L<Bio::Root::Object::throw()> L<Bio::Root::Global::strictness>()
 
 =cut
 
@@ -1026,7 +1025,7 @@ sub throw {
            : This method is an alternative to Bio::Root::Object::warn()
            : and is not as well developed or documented as that method.
 
-See Also   : L<throw>, B<Bio::Root::Object::warn()>, B<Bio::Root::Global::strictness()>
+See Also   : L<throw>, L<Bio::Root::Object::warn()>, L<Bio::Root::Global::strictness()>
 
 =cut
 

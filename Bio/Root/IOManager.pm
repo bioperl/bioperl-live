@@ -74,8 +74,8 @@ Perl objects and provide an object-oriented way to do I/O things such as:
 
 =back
 
-Subclasses of B<Bio::Root::Object.pm> have access to all methods defined in
-IOManager.pm since B<Bio::Root::Object.pm> employs Bio::Root::IOManager.pm
+Subclasses of L<Bio::Root::Object> have access to all methods defined in
+IOManager.pm since L<Bio::Root::Object> employs L<Bio::Root::IOManager>
 by a delegation mechanism.
 
 It is not clear yet how much objects really need to do the fancy I/O gymnastics as
@@ -107,8 +107,8 @@ The L<read()|read> method provided permits the following:
 
 =head1 DEPENDENCIES
 
-Bio::Root::IOManager.pm inherits from B<Bio::Root::Object.pm> and uses B<FileHandle.pm>.
-B<Bio::Root::Utilities.pm> is also used for routine file manipulations
+Bio::Root::IOManager.pm inherits from L<Bio::Root::Object> and uses L<FileHandle>.
+L<Bio::Root::Utilities> is also used for routine file manipulations
 compression/uncompression/deletion.
 
 =head1 SEE ALSO
@@ -123,8 +123,8 @@ compression/uncompression/deletion.
 
 =head1 TODO
 
-Experiment with using the newer B<IO.pm> included in the Perl distribution,
-instead of FileHandle.pm.
+Experiment with using the newer L<IO> included in the Perl distribution,
+instead of L<FileHandle>.
 
 =head1 FEEDBACK
 

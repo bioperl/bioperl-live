@@ -29,9 +29,9 @@ $ID = 'Bio::Root::Xref';
 
 Bio::Root::Xref - A generic cross-reference object.
 
-B<WARNING: This module is still in the experimental phase and has not been tested.>
-
 =head1 SYNOPSIS
+
+B<WARNING: This module is still in the experimental phase and has not been tested.>
 
 =head2 Object Creation
 
@@ -54,10 +54,10 @@ B<WARNING: This module is still in the experimental phase and has not been teste
 
 =head1 DESCRIPTION
 
-An instance of B<Bio::Root::Xref.pm> manages sets of objects not
+An instance of L<Bio::Root::Xref> manages sets of objects not
 necessarily related by inheritance or composition, but by an arbitrary
 criterion defined by the client. Currently, Bio::Root::Xref inherits
-from both B<Bio::Root::Object.pm> and B<Bio::Root::Vector.pm>. An Xref
+from both L<Bio::Root::Object> and L<Bio::Root::Vector>. An Xref
 object is an example of a heterogeneous Vector object since different
 objects in the vector need not all derive from the same base class.
 
@@ -67,18 +67,17 @@ to the other object. This relationship is not necessarily transitive,
 however: if A is an xref of B and B is an xref of C, A is not
 necessarily an xref of C. Assymetric Xrefs are also possible.
 
-The establishment of cross-references is managed by B<Bio::Root::Object.pm>.
+The establishment of cross-references is managed by L<Bio::Root::Object>.
 See the xref() method in that module.
 
-B<The API for this module is not complete since the module is under development. Caveat emptor.>
+B<The API for this module is not complete since the module is under development.>
+I<Caveat emptor.>
 
 
 =head1 SEE ALSO
 
-  Bio::Root::Object.pm       - Core object
-  Bio::Root::Global.pm       - Manages global variables/constants
-
-  http://bio.perl.org/                       - Bioperl Project Homepage
+ L<Bio::Root::Object>         - Core object
+ L<Bio::Root::Global>         - Manages global variables/constants
 
 =head1 FEEDBACK
 
@@ -114,11 +113,6 @@ Bio::Root::Xref.pm, 0.01 pre-alpha
 Copyright (c) 1997-8 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
-
-
-=head1 TODO
-
-Update documentation to work with pod2html from Perl 5.004.
 
 =cut
 

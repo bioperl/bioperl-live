@@ -67,16 +67,16 @@ See also L<the USAGE section | USAGE>.
 
 =head1 DESCRIPTION
 
-B<Bio::Root::Object> attempts to encapsulate the "core" Perl5
+L<Bio::Root::Object> attempts to encapsulate the "core" Perl5
 object: What are the key data and behaviors ALL (or at least most) Perl5
 objects should have?
 
 =head2 Rationale
 
-Use of B<Bio::Root::Object.pm> within the Bioperl framework facilitates
+Use of L<Bio::Root::Object> within the Bioperl framework facilitates
 operational consistency across the different modules defined within
-the B<Bio::> namespace.  Not all objects need to derive from
-B<Bio::Root::Object.pm>. However, when generating lots of different types
+the C<Bio::> namespace.  Not all objects need to derive from
+L<Bio::Root::Object>. However, when generating lots of different types
 of potentially complex objects which should all conform to a set of
 basic expectations, this module may be handy.
 
@@ -93,7 +93,7 @@ See L<the APPENDIX section | APPENDIX> for some other handy methods.
 A major motivation for this module was to promote the creation of robust,
 fault-tolerant Perl5 objects. The L<Bio::Root::Root::throw()|Bio::Root::Root> method relies on Perl's built-in
 C<eval{}/die> exception mechanism to generate fatal exceptions.
-The data comprising an exception is managed by the B<Bio::Root::Err.pm>
+The data comprising an exception is managed by the L<Bio::Root::Err>
 module, which essentially allows the data thrown by a C<die()> event to be
 wrapped into an object that can be easily examined and possibly re-thrown.
 
@@ -126,12 +126,12 @@ These goals may at times be at odds and we are not claiming
 to have achieved the perfect balance. Ultimately, we want self-
 sufficient object-oriented systems able to deal with their own errors.
 This area should improve as the module, and Perl, evolve.
-One possible modification might be to utilize Graham Barr's B<Error.pm>
-module or Torsten Ekedahl's B<Experimental::Exception.pm> module
+One possible modification might be to utilize Graham Barr's L<Error>
+module or Torsten Ekedahl's L<Experimental::Exception> module
 (see L<Other Exception Modules>).
 Technologies such as these may eventually be
 incorporated into future releases of Perl. The exception handling
-used by B<Bio::Root::Object.pm> can be expected to change as Perl's
+used by L<Bio::Root::Object> can be expected to change as Perl's
 exception handling mechanism evolves.
 
 B<TERMINOLOGY NOTE:> In this discussion and elsewhere in this module,
@@ -180,7 +180,7 @@ Post-mortem reporting, logging, or analysis of the problems ensues:
         foreach(@errs) { print "$err->[1]\n";}
     }
 
-New with B<Perl 5.005> is the ability to C<die()> with an object
+New with C<Perl 5.005> is the ability to C<die()> with an object
 reference in C<$@> instead of just a string. This feature is not yet
 exploited in Bio::Root::Object.pm but may be in future versions.
 Bio::Root::Err.pm objects can be reconstructed from the contents of C<$@>:
@@ -211,7 +211,7 @@ Bio::Root::Global (see L<Bio::Root::Global>).
   $VERBOSITY   - Regulates the amount of reporting by an object.
 
 
-The L<strict()|strict> and L<verbose()|verbose> methods of B<Bio::Root::Object>
+The L<strict()|strict> and L<verbose()|verbose> methods of L<Bio::Root::Object>
 originally operated at the the object level, to permit individual
 strictness and verbosity levels for different objects. This level of
 control is not usually required and can often be inconvenient; one
@@ -225,7 +225,7 @@ differentially sensitive to these values depending on design criteria.
 
 Strictness and verbosity can be positive or negative. Negative
 verbosity equals terseness; negative strictness equals permissiveness.
-In B<Bio::Root::Object> only the Bio::Root::Root::throw() and
+In L<Bio::Root::Object> only the Bio::Root::Root::throw() and
 Bio::Root::Root::warn() methods (see L<Bio::Root::Root>) are sensitive to
 these values as indicated in the tables below:
 
@@ -271,7 +271,7 @@ L<Bio::Root::Root> for more details.
 
 =head1 DEPENDENCIES
 
-As the B<Bio::Root::Object> does not inherit from any modules
+As the L<Bio::Root::Object> does not inherit from any modules
 but wraps (i.e., provides an interface and delegates
 functionality to) other modules in the Bio::Root:: hierarchy:
 
@@ -282,10 +282,10 @@ functionality to) other modules in the Bio::Root:: hierarchy:
    Bio::Root::Xref.pm        Arbitrary links between objects
 
 All of these modules are loaded only when necessary.
-B<Bio::Root::Err> is an object representing an exception.
-B<Bio::Root::IOManager> and B<Bio::Root::Xref> are more experimental. They are
+L<Bio::Root::Err> is an object representing an exception.
+L<Bio::Root::IOManager> and B<Bio::Root::Xref> are more experimental. They are
 utilized via delegation, which permits them to be developed and utilized
-independently of B<Bio::Root::Object>.
+independently of L<Bio::Root::Object>.
 
 Since this module is at the root of potentially many different objects
 in a particular application, efficiency is important. Bio::Root::Object.pm is
@@ -1321,7 +1321,7 @@ sub verbose {
 
 
 
-=head1 I/O-RELATED METHODS (Delegated to B<Bio::Root::IOManager>)
+=head1 I/O-RELATED METHODS (Delegated to L<Bio::Root::IOManager>)
 
 =head2 _io
 

@@ -106,8 +106,8 @@ See the script examples/restriction.pl in the Bioperl distribution.
 
 =head1 DEPENDENCIES 
 
-Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from 
-B<Bio::Root::Root> and uses by delegation B<Bio::PrimarySeq>.
+Bio::Tools::RestrictionEnzyme is a concrete class that inherits from 
+L<Bio::Root::Root> and uses by delegation L<Bio::PrimarySeq>.
 
 =head1 FEEDBACK
 
@@ -730,7 +730,7 @@ my %RE = (
  Comments  : A RestrictionEnzyme object manages its recognition sequence
            : as a Bio::PrimarySeq object.
 
-See Also   : L<_make_custom>(), L<_make_standard>(), B<Bio::PrimarySeq.pm::_initialize()>
+See Also   : L<_make_custom>(), L<_make_standard>(), L<Bio::PrimarySeq.pm::_initialize()>
 
 =cut
 
