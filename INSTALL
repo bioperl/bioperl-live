@@ -2,26 +2,26 @@
 
                           Installing Bioperl for Unix
 
-     * 1 BIOPERL INSTALLATION
-     * 2 SYSTEM REQUIREMENTS
-     * 3 OPTIONAL
-     * 4 ADDITIONAL INSTALLATION INFORMATION
-     * 5 THE BIOPERL BUNDLE
-     * 6 INSTALLING BIOPERL THE EASY WAY USING CPAN
-     * 7 INSTALLING BIOPERL THE EASY WAY USING GNU 'make'
-     * 8 WHERE ARE THE MAN PAGES?
-     * 9 EXTERNAL PROGRAMS
-          * 9.1 Environment Variables
-     * 10 INSTALLING BIOPERL SCRIPTS
-     * 11 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-     * 12 INSTALLING BIOPERL MODULES THE HARD WAY
-     * 13 USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-     * 14 THE TEST SYSTEM
-     * 15 BUILDING THE OPTIONAL bioperl-ext PACKAGE
-          * 15.1 CONFIGURING for BSD and Solaris boxes
-          * 15.2 INSTALLATION
-     * 16 DEPENDENCIES AND Bundle::BioPerl
-     * 17 Notes
+     *  BIOPERL INSTALLATION
+     *  SYSTEM REQUIREMENTS
+     *  OPTIONAL
+     *  ADDITIONAL INSTALLATION INFORMATION
+     *  THE BIOPERL BUNDLE
+     *  INSTALLING BIOPERL THE EASY WAY USING CPAN
+     *  INSTALLING BIOPERL THE EASY WAY USING GNU 'make'
+     *  WHERE ARE THE MAN PAGES?
+     *  EXTERNAL PROGRAMS
+          *  Environment Variables
+     *  INSTALLING BIOPERL SCRIPTS
+     *  INSTALLING BIOPERL IN A PERSONAL MODULE AREA
+     *  INSTALLING BIOPERL MODULES THE HARD WAY
+     *  USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
+     *  THE TEST SYSTEM
+     *  BUILDING THE OPTIONAL bioperl-ext PACKAGE
+          *  CONFIGURING for BSD and Solaris boxes
+          *  INSTALLATION
+     *  DEPENDENCIES AND Bundle::BioPerl
+     *  Notes
 
 BIOPERL INSTALLATION
 
@@ -518,4 +518,6 @@ Notes
        earlier versions give very different results. 
     9. This module is optional but recommended for speeding up parsing over
        the default XML::SAX::PurePerl. XML::SAX::Expat currently
-       does not work. 
+       does not work.
+       
+       
