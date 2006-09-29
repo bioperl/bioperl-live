@@ -95,7 +95,6 @@ methods.
 
 package Bio::Phenotype::Correlate;
 use strict;
-use Bio::Root::Object;
 use Bio::Species;
 
 use base qw(Bio::Root::Root);

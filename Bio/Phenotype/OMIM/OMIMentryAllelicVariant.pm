@@ -90,11 +90,8 @@ methods.
 
 package Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
 use strict;
-use Bio::Root::Object;
 
 use base qw(Bio::Root::Root);
-
-
 
 =head2 new
 
