@@ -20,17 +20,17 @@ Do not use this module directly.  Use it via the Bio::Variation::IO class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Variation::SeqDiff objects to and from XML
+This object can transform L<Bio::Variation::SeqDiff> objects to and from XML
 file databases.
 
 The XML format, although consistent, is still evolving. The current
-DTD for it is at L<http:E<sol>E<sol>www.ebi.ac.ukE<sol>mutationsE<sol>DTDE<sol>seqDiff.dtd>.
+DTD for it is at L<http://www.ebi.ac.uk/mutations/DTDE/seqDiff.dtd>.
 
 =head1 REQUIREMENTS
 
-To use this code you need the module XML::Twig which creates an
-interface to XML::Parser to read XML and modules XML::Writer and
-IO::String to write XML out.
+To use this code you need the module L<XML::Twig> which creates an
+interface to L<XML::Parser> to read XML and modules L<XML::Writer> and
+L<IO::String> to write XML out.
 
 =head1 FEEDBACK
 
@@ -78,7 +78,6 @@ use Bio::Variation::RNAChange;
 use Bio::Variation::AAChange;
 use Bio::Variation::Allele;
 
-# new() is inherited from Bio::Root::Object
 use base qw(Bio::Variation::IO);
 
 # _initialize is where the heavy stuff will happen when new is called
