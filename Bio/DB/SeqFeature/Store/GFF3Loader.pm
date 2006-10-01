@@ -510,10 +510,11 @@ sub handle_feature {
 
   # Everything in the unreserved hash becomes an attribute, so we copy
   # some attributes over
-  $unreserved->{Note}  = $reserved->{Note}   if exists $reserved->{Note};
-  $unreserved->{Alias} = $reserved->{Alias}  if exists $reserved->{Alias};
-  $unreserved->{Target}= $reserved->{Target} if exists $reserved->{Target};
-  $unreserved->{Gap}   = $reserved->{Gap}    if exists $reserved->{Gap};
+  $unreserved->{Note}   = $reserved->{Note}   if exists $reserved->{Note};
+  $unreserved->{Alias}  = $reserved->{Alias}  if exists $reserved->{Alias};
+  $unreserved->{Target} = $reserved->{Target} if exists $reserved->{Target};
+  $unreserved->{Gap}    = $reserved->{Gap}    if exists $reserved->{Gap};
+  $unreserved->{load_id}= $reserved->{ID}     if exists $reserved->{ID};
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid;

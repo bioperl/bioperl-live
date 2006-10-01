@@ -346,6 +346,7 @@ sub get_SeqFeatures {
   my @types        = @_;
 
   my @inline_segs  = exists $self->{segments} ? @{$self->{segments}} : ();
+  @inline_segs     = grep {$_->type_match(@types)} @inline_segs if @types;
   my $store        = $self->object_store;
 
   my @db_segs;

@@ -564,7 +564,7 @@ future versions of the module.
 =cut
 
 sub load_id {
-  return shift->attributes('load_id');
+  return (shift->attributes('load_id'))[0];
 }
 
 
