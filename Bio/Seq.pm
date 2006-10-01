@@ -52,7 +52,7 @@ Bio::Seq - Sequence object, with features
     # sequences may have a species
 
     if( defined $seq->species ) {
-	print "Sequence is from ",$species->binomial_name," [",$species->common_name,"]\n";
+	print "Sequence is from ",$species->binomial," [",$species->common_name,"]\n";
     }
 
     # annotation objects are Bio::AnnotationCollectionI's
