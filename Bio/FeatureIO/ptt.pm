@@ -164,8 +164,9 @@ sub _initialize {
 
 sub next_feature {
   my $self = shift;
-
-  my $line = $self->_readline() or return;
+  $self->mode eq 'r' || return; # returns if can't read next_feature when we're in write mode
+  
+  my $line = $self->_readline() or return; # returns if end of file, no more features?
   chomp $line;
   my @col = split m/\t/, $line;
   @col==$NUM_COL or $self->throw("Too many columns for PTT line");
