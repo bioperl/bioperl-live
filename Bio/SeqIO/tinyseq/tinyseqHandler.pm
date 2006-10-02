@@ -10,8 +10,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::tinyseq::tinyseqHandler - Perl extension for XML event
-handlers to support NCBI TinySeq XML parsint
+Bio::SeqIO::tinyseq::tinyseqHandler - XML event handlers to support NCBI TinySeq XML parsing
 
 =head1 SYNOPSIS
 
@@ -30,11 +29,7 @@ in the NCBI TinySeq XML format.  A TinySeq is a lightweight XML file
 of sequence information on one or more sequences, analgous to FASTA
 format.
 
-See http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd for the DTD.
-
-=head2 EXPORT
-
-None by default.
+See L<http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd> for the DTD.
 
 =head1 FEEDBACK
 
@@ -55,19 +50,13 @@ the web:
 
   http://bugzilla.open-bio.org/
 
-
 =head1 SEE ALSO
 
-L<Bio::SeqIO>, L<Bio::Seq>, L<perl>.
+L<Bio::SeqIO>, L<Bio::Seq>.
 
 =head1 AUTHOR
 
 Donald Jackson, E<lt>donald.jackson@bms.comE<gt>
-
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

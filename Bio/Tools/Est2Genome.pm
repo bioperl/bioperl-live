@@ -29,15 +29,12 @@ Bio::Tools::Est2Genome - Parse est2genome output, makes simple Bio::SeqFeature::
 
 =head1 DESCRIPTION
 
-This module is a parser for est2genome [EMBOSS] alignments of est/cdna
+This module is a parser for C<est2genome> [EMBOSS] alignments of est/cdna
 sequence to genomic DNA.  This is generally accepted as the best
-program for predicting splice sites based on est/cdnas*.
+program for predicting splice sites based on est/dnas (as far as I know).
 
 This module currently does not try pull out the ungapped alignments
 (Segment) but may in the future.
-
-
-* AFAIK
 
 =head1 FEEDBACK
 
@@ -61,10 +58,6 @@ web:
 =head1 AUTHOR - Jason Stajich
 
 Email jason-at-bioperl.org
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

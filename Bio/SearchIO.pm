@@ -85,10 +85,6 @@ web:
 Email jason-at-bioperl.org
 Email sac-at-bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.

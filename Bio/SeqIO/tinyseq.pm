@@ -10,8 +10,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::tinyseq - Perl extension for reading/writing sequences in
-NCBI TinySeq format
+Bio::SeqIO::tinyseq - reading/writing sequences in NCBI TinySeq format
 
 =head1 SYNOPSIS
 
@@ -29,11 +28,7 @@ This object reads and writes Bio::Seq objects to and from TinySeq XML
 format.  A TinySeq is a lightweight XML file of sequence information,
 analgous to FASTA format.
 
-See http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd for the DTD.
-
-=head2 EXPORT
-
-None by default.
+See L<http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd> for the DTD.
 
 =head1 FEEDBACK
 
@@ -56,19 +51,14 @@ the web:
 
 =head1 SEE ALSO
 
-L<Bio::SeqIO>, L<Bio::Seq>, L<perl>.
+L<Bio::SeqIO>, L<Bio::Seq>.
 
 =head1 AUTHOR
 
 Donald Jackson, E<lt>donald.jackson@bms.comE<gt>
 
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 Parts of this module and the test script were patterned after Sheldon
-McKay's Bio::SeqIO::game.  If it breaks, however, it's my fault not
+McKay's L<Bio::SeqIO::game>.  If it breaks, however, it's my fault not
 his ;).
 
 =head1 APPENDIX

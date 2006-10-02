@@ -52,14 +52,10 @@ transcribed by pol3:
 
     A[A,G]N17[C,T]
 
-=head2 EXPORT
-
-None.
-
 =head1 SEE ALSO
 
 L<Bio::Tools::SiRNA>, L<Bio::SeqFeature::SiRNA::Pair>,
-L<Bio::SeqFeature::SiRNA::Oligo>, L<perl>.
+L<Bio::SeqFeature::SiRNA::Oligo>.
 
 =head1 FEEDBACK
 
@@ -83,10 +79,6 @@ the web:
 =head1 AUTHOR
 
 Donald Jackson (donald.jackson@bms.com)
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

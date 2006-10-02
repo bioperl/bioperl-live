@@ -35,8 +35,7 @@ Bio::OntologyIO::InterProParser - Parser for InterPro xml files.
   Use InterProParser to parse InterPro files in xml format. Typical
   use is the interpro.xml file published by EBI. The xml records
   should follow the format described in interpro.dtd, although the dtd
-  file is not needed, and the XML file will not be validated against
-  it.
+  file is not needed, and the XML file will not be validated against it.
 
 =head1 FEEDBACK
 
@@ -60,10 +59,6 @@ web:
 =head1 AUTHOR - Peter Dimitrov
 
 Email dimitrov@gnf.org
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

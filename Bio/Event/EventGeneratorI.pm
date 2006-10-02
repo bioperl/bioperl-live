@@ -25,7 +25,6 @@ generator class.
 This object describes the basic event generator system.  It basically
 allows one to attach one or many event handlers.
 
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -48,10 +47,6 @@ web:
 =head1 AUTHOR - Jason Stajich
 
 Email jason@bioperl.org
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

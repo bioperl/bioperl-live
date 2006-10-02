@@ -15,21 +15,18 @@ Bio::Cluster::FamilyI - Family Interface
 
 =head1 SYNOPSIS
 
-# see the implementations of this interface for details but
-# basically
+    # see the implementations of this interface for details
 
     my $cluster= $cluster->new(-description=>"POLYUBIQUITIN",
                                -members    =>[$seq1,$seq2]);
     my @members = $cluster->get_members();
     my @sub_members = $cluster->get_members(-species=>"homo sapiens");
 
-
-
 =head1 DESCRIPTION
 
 This interface if for a Family object representing a family of 
 biological objects. A generic implementation for this may be
-found a Bio::Cluster::Family.
+found a L<Bio::Cluster::Family>.
 
 
 =head1 FEEDBACK
@@ -54,11 +51,6 @@ web:
 =head1 AUTHOR - Shawn Hoon
 
 Email shawnh@fugu-sg.org
-
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
