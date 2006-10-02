@@ -116,7 +116,7 @@ Allen Smith, allens-at-cpan.org,
 Jason Stajich, jason-at-bioperl.org,
 Anthony Underwood, aunderwood-at-phls.org.uk,
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
-Brian Osborne, osborne1 at optonline.net
+Brian Osborne, bosborne at alum.mit.edu
 
 =head1 SEE ALSO
 

@@ -152,7 +152,7 @@ Heikki Lehvaslaiho, heikki at ebi.ac.uk
 Hilmar Lapp, hlapp at gmx.net
 Donald G. Jackson, donald.jackson at bms.com
 James Wasmuth, james.wasmuth at ed.ac.uk
-Brian Osborne, osborne1 at optonline.net
+Brian Osborne, bosborne at alum.mit.edu
 
 =head1 APPENDIX
 

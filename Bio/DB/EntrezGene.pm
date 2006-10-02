@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::EntrezGene
 #
-# Cared for by Brian Osborne osborne1 at optonline.net
+# Cared for by Brian Osborne bosborne at alum.mit.edu
 #
 # Copyright Brian Osborne
 #
@@ -69,7 +69,7 @@ web:
 
 =head1 AUTHOR - Brian Osborne
 
-Email osborne1@optonline.net
+Email bosborne at alum.mit.edu
 
 =head1 APPENDIX
 

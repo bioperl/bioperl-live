@@ -1,7 +1,6 @@
-#
 # $Id$
 #
-# BioPerl module for Bio::Index::Abstract
+# BioPerl module for Bio::Index::Swissprot
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -90,7 +89,7 @@ the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Also lorenz@ist.org, osborne1@optonline.net
+Also lorenz@ist.org, bosborne at alum.mit.edu
 
 =head1 APPENDIX
 

@@ -102,7 +102,7 @@ the bugs and their resolution.  Bug reports can be submitted via the web:
 
 =head1 CONTRIBUTORS
 
-  Brian Osborne osborne1 at optonline.net
+  Brian Osborne bosborne at alum.mit.edu
 
 =head1 APPENDIX
 

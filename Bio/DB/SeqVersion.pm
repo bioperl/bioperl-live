@@ -50,7 +50,7 @@ the web:
 
 =head1 AUTHOR - Brian Osborne
 
-Email osborne1@optonline.net
+Email bosborne at alum.mit.edu
 
 =head1 APPENDIX
 
