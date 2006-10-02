@@ -359,41 +359,30 @@ sub mode {
     my ($obj, @arg) = @_;
 	my %param = @arg;
     return $obj->{'_mode'} if defined $obj->{'_mode'} and !$param{-force};
-
-    print STDERR "testing mode... " if $obj->verbose;
-
-    # we need to dup() the original filehandle because
-    # doing fdopen() calls on an already open handle causes
-    # the handle to go stale. is this going to work for non-unix
-    # filehandles? -allen
-
-    my $fh = Symbol::gensym();
-
-    my $iotest = new IO::Handle;
-
-    #test for a readable filehandle;
-    $iotest->fdopen( dup(fileno($obj->_fh)) , 'r' );
-    if($iotest->error == 0){
-        # note the hack here, we actually have to try to read the line
-        # and if we get something, pushback() it into the readbuffer.
-        # this is because solaris and windows xp (others?) don't set
-        # IO::Handle::error.  for non-linux the r/w testing is done
-        # inside this read-test, instead of the write test below.  ugh.
-        my $line = $obj->_readline;
-        $obj->_pushback($line) if $line;
-        $obj->{'_mode'} = defined $line ? 'r' : 'w';
-        return $obj->{'_mode'};
+    
+    # Previous system of:
+    #  my $iotest = new IO::Handle;
+    #  $iotest->fdopen( dup(fileno($fh)) , 'r' );
+    #  if ($iotest->error == 0) { ... }
+    # didn't actually seem to work under any platform, since there would no
+    # no error if the filehandle had been opened writable only. Couldn't be
+    # hacked around when dealing with unseekable (piped) filehandles.
+    #
+    # Just try and do a simple readline, turning io warnings off, instead:
+    
+    my $fh = $obj->_fh || return '?';
+    
+    no warnings "io"; # we expect a warning if this is writable only
+    my $line = <$fh>;
+    if (defined $line) {
+        $obj->_pushback($line);
+        $obj->{'_mode'} = 'r';
     }
-    $iotest->clearerr;
-
-    #test for a writeable filehandle;
-    $iotest->fdopen( dup(fileno($obj->_fh)) , 'w' );
-    if($iotest->error == 0){
+    else {
         $obj->{'_mode'} = 'w';
-        return 'w';
     }
-
-    return '?';
+    
+    return $obj->{'_mode'};
 }
 
 =head2 file
@@ -493,7 +482,6 @@ sub _readline {
 
 sub _pushback {
     my ($obj, $value) = @_;
-    $obj->{'_readbuffer'} ||= [];
     return unless $value;
     push @{$obj->{'_readbuffer'}}, $value;
 }
