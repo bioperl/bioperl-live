@@ -1,5 +1,3 @@
-#
-#
 # BioPerl module for Bio::Tools::SiRNA::Ruleset::saigo
 #
 # Cared for by Donald Jackson, donald.jackson@bms.com
@@ -77,8 +75,9 @@ None.
 
 =head1 SEE ALSO
 
-L<Bio::Tools::SiRNA>, L<Bio::SeqFeature::SiRNA::Pair>,
-L<Bio::SeqFeature::SiRNA::Oligo>, L<perl>.
+L<Bio::Tools::SiRNA>, 
+L<Bio::SeqFeature::SiRNA::Pair>,
+L<Bio::SeqFeature::SiRNA::Oligo>.
 
 =head1 FEEDBACK
 
@@ -103,10 +102,6 @@ the web:
 
 Donald Jackson (donald.jackson@bms.com)
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -116,17 +111,14 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::SiRNA::Ruleset::saigo;
 
-use 5.006;
 use strict;
 
-
 use base qw(Bio::Tools::SiRNA);
-
 
 =head2 new
 
   Title	: new
-  Usage	: Do not call directly - use Bio::Tools::SiRNA->new instead.
+  Usage  : Do not call directly - use Bio::Tools::SiRNA->new instead.
   Returns : Bio::Tools::SiRNA::Ruleset::saigo object
   Args	: none
 
@@ -143,13 +135,11 @@ sub new {
 
 sub _get_oligos {
     my ($self) = @_;
-    
 
     my ($targseq, $targstart) = $self->_get_targetregion;
 
     foreach my $i (0 .. (length($targseq) - 23)) {
-	my $testseq = substr($targseq, $i, 23);	
-	
+	my $testseq = substr($targseq, $i, 23);		
 	$self->add_oligos($testseq, $targstart + $i + 1) if ($self->_oligo_ok($testseq));
     }
 }
@@ -185,44 +175,44 @@ sub _get_anti {
 sub _oligo_ok {
     my ($self, $testseq) = @_;
 
-    print STDERR "Testing $testseq... \t" if ($self->debug);
+    $self->debug("Testing $testseq...\n");
 
     my @testseq = split(//, $testseq);
     # is 5p end of sense strand a G/C?
     unless ($testseq[2] =~ /[GC]/i) {
-	print STDERR "No G/C at sense 5' end\n" if ($self->debug);
+	$self->debug("No G/C at sense 5' end\n");
 	return 0;
     }
     # is 5p end of antisense strand an A/T?
     unless ($testseq[20] =~ /[AT]/i) {
-	print STDERR "No A/T at antisense 5' end\n" if ($self->debug);
+	$self->debug("No A/T at antisense 5' end\n");
 	return 0;
     }
 
     # are 4 of the last 7 bases in the duplex A/T?
     my $atcount_3p = grep { /[AT]/i } @testseq[14 .. 20];
     unless ($atcount_3p >= 4) {
-	print STDERR "Found $atcount_3p A/T in last 7 bases of duplex\n" if ($self->debug);
+	$self->debug("Found $atcount_3p A/T in last 7 bases of duplex\n");
 	return 0;
     }
     # what is gc fraction in rest of duplex? Target: 33 to 66 pct gc (4-8 of 12)
     my $gccount_5p = grep { /[GC]/i } @testseq[2 .. 13];
     if ($gccount_5p < 4) {
-	print STDERR "Found only $gccount_5p GCs in 5p end of duplex\n" if ($self->debug);
+	$self->debug("Found only $gccount_5p GCs in 5p end of duplex\n");
 	return 0;
     }
     if ($gccount_5p > 8) {
-	print STDERR "Found only $gccount_5p GCs in 5p end of duplex\n" if ($self->debug);
+	$self->debug("Found only $gccount_5p GCs in 5p end of duplex\n");
 	return 0;
     }
     
     # no more than 9 consecutive GC
     if ($testseq =~ /[GC]{9,}?/i) {
-	print STDERR "Found more than 9 consecutive GCs\n" if ($self->debug);
+	$self->debug("Found more than 9 consecutive GCs\n");
 	return 0;
     }
 
-    print STDERR "Oligo passed \n" if ($self->debug);
+    $self->debug("Oligo passed \n");
     return 1;
 }
 
