@@ -223,9 +223,11 @@ Some environment variables include:
 |---------------+--------------------------------------------------------|
 |               |If you access the internet via a proxy server then you  |
 |               |can tell the Bioperl modules which require network      |
-|HTTP_PROXY     |access about this by using the HTTP_PROXY environment   |
-|               |variable. The value set includes the proxy address and  |
-|               |the port used (e.g. http://www.cache.example.com:8080). |
+|               |access about this by using the http_proxy environment   |
+|http_proxy     |variable. The value set includes the proxy address and  |
+|               |the port, with optional username/password for           |
+|               |authentication purposes                                 |
+|               |(e.g. http://USERNAME:PASSWORD@proxy.example.com:8080). |
 +------------------------------------------------------------------------+
 
 INSTALLING BIOPERL SCRIPTS
@@ -311,7 +313,7 @@ Lib module which comes standard with perl.
  #!/usr/bin/perl
  use lib "/home/users/dag/My_Local_Perl_Modules/";
  use Bio::Seq;
- <...insert whizzy perl code here...>
+ #<...insert whizzy perl code here...>
 
 Or, you can set the environmental variable PERL5LIB:
 
@@ -459,13 +461,13 @@ or databases: MySQL, Berkeley DB, and expat respectively.
 |Graph::Directed       |Generic graph data and |Bio::Ontology::               |
 |                      |algorithms             |     SimpleOntologyEngine     |
 |----------------------+-----------------------+------------------------------|
-|Data::Stag::          |Structured Tags        |Bio::SeqIO::chadoitext [7]    |
+|Data::Stag::          |Structured Tags,       |Bio::SeqIO::chadoitext [7]    |
 |    ITextWriter       |datastructures         |                              |
 |----------------------+-----------------------+------------------------------|
-|Data::Stag::          |Structured Tags        |Bio::SeqIO::chadosxpr [7]     |
+|Data::Stag::          |Structured Tags,       |Bio::SeqIO::chadosxpr [7]     |
 |    SxprWriter        |datastructures         |                              |
 |----------------------+-----------------------+------------------------------|
-|Data::Stag::XMLWriter |Structured Tags        |Bio::SeqIO::chadoxml          |
+|Data::Stag::XMLWriter |Structured Tags,       |Bio::SeqIO::chadoxml          |
 |                      |datastructures         |                              |
 |----------------------+-----------------------+------------------------------|
 |Text::Wrap            |Very optional          |Bio::SearchIO::Writer::       |
@@ -486,8 +488,8 @@ or databases: MySQL, Berkeley DB, and expat respectively.
 |----------------------+-----------------------+------------------------------|
 |XML::SAX::Writer      |                       |                              |
 |----------------------+-----------------------+------------------------------|
-|XML::SAX::ExpatXS [2] |New style SAX parser   |Bio::SearchIO::blastxml       |
-|                  [9] |                       |                              |
+|XML::SAX::ExpatXS     |New style SAX parser   |Bio::SearchIO::blastxml       |
+|[2][9]                |                       |                              |
 |----------------------+-----------------------+------------------------------|
 |XML::Simple [2]       |Simple XML parsing     |Bio::DB::EUtilities           |
 |----------------------+-----------------------+------------------------------|
@@ -517,7 +519,7 @@ Notes
     8. Bio::Graph::SimpleGraph requires Class::AutoClass v. 1.01;
        earlier versions give very different results. 
     9. This module is optional but recommended for speeding up parsing over
-       the default XML::SAX::PurePerl. XML::SAX::Expat currently
-       does not work.
+       the default XML::SAX::PurePerl. If installed, XML::SAX::Expat currently
+       does not work correctly due to DTD problems.
        
        
