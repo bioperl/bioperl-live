@@ -56,10 +56,23 @@ sub draw_target {
   return $self->option('draw_target');
 }
 
+sub draw_protein_target {
+  my $self = shift;
+  return if $self->option('draw_protein');
+  return $self->option('draw_protein_target');
+  return $self->option('draw_target');
+}
+
 sub height {
   my $self = shift;
   my $height = $self->SUPER::height;
-  return $height unless $self->dna_fits && $self->draw_target; # || $self->option('draw_dna'));
+  return $height unless $self->draw_target || $self->draw_protein_target;
+  if ($self->draw_target) {
+    return $height unless $self->dna_fits;
+  }
+  if ($self->draw_protein_target) {
+    return $height unless $self->protein_fits;
+  }
   my $fontheight = $self->font->height;
   return $fontheight if $fontheight > $height;
 }
@@ -95,7 +108,7 @@ sub fontcolor {
 sub draw {
   my $self = shift;
 
-  my $draw_target = $self->draw_target;
+  my $draw_target         = $self->draw_target;
   return $self->SUPER::draw(@_) unless $draw_target;
   return $self->SUPER::draw(@_) unless $self->dna_fits;
 
@@ -117,6 +130,46 @@ sub draw {
     if $connector && $connector ne 'none' && $self->level == 0;
 
 }
+
+sub draw_component {
+  my $self = shift;
+  my ($gd,$l,$t) = @_;
+  $self->SUPER::draw_component(@_);
+  return unless $self->option('draw_protein_target') && $self->protein_fits;
+  my $hit      = eval {$self->feature->hit} or return;
+  my $protein  = uc eval {$hit->seq->seq} or return;
+  my ($left,$top,$right,$bottom) = $self->bounds($l,$t);
+
+  my $scale = $self->scale;
+  warn "scale = $scale";
+  my @letters = split '',$protein;
+  my $color = $self->fgcolor;
+  my $font  = $self->font;
+  my $fw    = $font->width;
+  my $strand = $self->feature->strand || 0;
+
+  my $panel_left           = $self->panel->left;
+  my $panel_right          = $self->panel->right;
+
+  my ($x1,$x2)                    = $self->map_no_trunc($self->feature->start,$self->feature->end);
+
+  if ($strand >= 0) {  # + strand features
+    for (0..@letters-1) {
+      next if $x1 < $panel_left or $x1 > $panel_right;
+      $gd->char($font,$x1+1,$top,$letters[$_],$color);
+    } continue {
+      $x1 += $scale * 3;
+    }
+  } else {             # - strand features
+    for (0..@letters-1) {
+      next if $x2 < $panel_left or $x2 > $panel_right;
+      $gd->char($font,$x2+1,$top,$letters[$_],$color);
+    } continue {
+      $x2 -= $scale * 3;
+    }
+  }
+}
+
 sub draw_multiple_alignment {
   my $self = shift;
   my $gd   = shift;
@@ -540,6 +593,11 @@ In addition, the following glyph-specific options are recognized:
                  magnification level allows.
                  See "Displaying Alignments".
 
+  -draw_protein_target  If true, draw the protein residues        0 (false)
+                 of the TARGET sequence when
+                 magnification level allows.
+                 See "Displaying Alignments".
+
   -ragged_extra When combined with -draw_target,      0 (false)
                 draw extra bases beyond the end
                 of the alignment. The value is
@@ -624,6 +682,12 @@ a Perl-based version of the algorithm that is 10-100 times slower.
 The display of alignments can be tweaked using the -ragged_extra,
 -show_mismatch, -true_target, and -realign options.  See the options
 section for further details.
+
+There is also a B<-draw_protein_target> option, which is designed for
+protein to nucleotide alignments. It draws the target sequence every
+third base pair and is supposed to align correctly with the forward
+and reverse translation glyphs. This option is experimental at the
+moment, and may not work correctly, to use with care.
 
 =head1 BUGS
 
