@@ -37,7 +37,7 @@ web:
 
 =head1 AUTHOR
 
-Brian Osborne, osborne1 at optonline.net
+Brian Osborne, bosborne at alum.mit.edu
 
 =cut
 
