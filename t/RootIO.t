@@ -7,21 +7,14 @@
 
 use strict;
 
-
 BEGIN {
     my $NUMTESTS = 27;
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't', '.';
-    }
     use Test;    
     plan tests => $NUMTESTS;
 
 }
 
+my $DEBUG = $ENV{BIOPERLDEBUG};
 $| = 1;
 
 use Bio::Root::IO;
@@ -110,18 +103,8 @@ ok close(O);
 ##############################################
 
 #with LWP (if available)
-eval {
-  $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
-};
 
-if($@){
-  skip("couldn't get google.com, network down? $@",1);  
-} else {
-  ok(1);
-}
-
-if($Bio::Root::IO::HAS_LWP == 1){
-  $Bio::Root::IO::HAS_LWP = 0;
+if ($DEBUG) {
   eval {
     $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
   };
@@ -131,8 +114,29 @@ if($Bio::Root::IO::HAS_LWP == 1){
   } else {
     ok(1);
   }
-} else {
-  skip("didn't have LWP, no reason to test w/o it.",1);
+}
+else {
+  skip("skipping -url test, enable BIOPERLDEBUG to test", 1);
+}
+
+if ($DEBUG) {
+  if($Bio::Root::IO::HAS_LWP == 1){
+    $Bio::Root::IO::HAS_LWP = 0;
+    eval {
+      $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
+    };
+
+    if($@){
+      skip("couldn't get google.com, network down? $@",1);  
+    } else {
+      ok(1);
+    }
+  } else {
+    skip("didn't have LWP, no reason to test w/o it.",1);
+  }
+}
+else {
+  skip("skipping LWP test - enable BIOPERLDEBUG to test", 1);
 }
 
 ##############################################
