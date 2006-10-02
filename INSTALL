@@ -29,22 +29,23 @@ Bioperl has been installed on many forms of Unix,
 Win9X/NT/2000/XP, and on Mac OS X (see the PLATFORMS file for more
 details). Following are instructions for installing Bioperl for
 Unix/Linux/Mac OS X; Windows installation instructions can be found
-in INSTALL.WIN. For installing Bioperl for Mac OS X using Fink, see
-Getting BioPerl.
+in INSTALL.WIN. For installing Bioperl for Mac OS X using Fink, see:
+
+http://www.bioperl.org/wiki/Getting_BioPerl#Mac_OS_X_using_fink
 
 SYSTEM REQUIREMENTS
 
-     * Perl 5.6.1 or later; version 5.8 and greater are recommended. Note
-       that most modules will work with earlier versions of Perl. The only
-       ones that will not are Bio::SimpleAlign and the Bio::Index::*
-       modules. If you don't need these modules and you want to install
-       Bioperl using an earlier version of Perl, edit the "require 5.005;"
-       line in Makefile.PL as necessary.
+    * Perl 5.6.1 or later; version 5.8 and greater are recommended. Note
+      that most modules will work with earlier versions of Perl. The only
+      ones that will not are Bio::SimpleAlign and the Bio::Index::*
+      modules. If you don't need these modules and you want to install
+      Bioperl using an earlier version of Perl, edit the "require 5.005;"
+      line in Makefile.PL as necessary.
 
-     * External modules: Bioperl uses functionality provided in other
-       Perl modules. Some of these are included in the standard perl package
-       but some need to be obtained from the CPAN site. The list of external
-       modules is included at the bottom of this document.
+    * External modules: Bioperl uses functionality provided in other
+      Perl modules. Some of these are included in the standard perl package
+      but some need to be obtained from the CPAN site. The list of external
+      modules is included at the bottom of this document.
 
 The CPAN Bioperl Bundle (Bundle::BioPerl) makes installation of these
 external modules easy. Simply install the bundle using your CPAN shell and
