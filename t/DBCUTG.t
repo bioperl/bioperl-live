@@ -6,57 +6,44 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR $verbose $outfile);
+use vars qw($NUMTESTS $DEBUG);
 
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	$ERROR = 0;
-	if( $@ ) {
+	$NUMTESTS = 34;
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	
+	eval {require Test::More;};
+	if ($@) {
 		use lib 't';
 	}
-	use Test;
-
-	$NUMTESTS = 31;
-	plan tests => $NUMTESTS;
-
+	use Test::More;
+	
 	eval {
 		require IO::String; 
 		require LWP::UserAgent;
-	}; 
-	if( $@ ) {
-		warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
-		$ERROR = 1;
+	};
+	if ($@) {
+		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
 	}
+	else {
+		plan tests => $NUMTESTS;
+	}
+	
+	use_ok('Bio::DB::CUTG');
+	use_ok('Bio::CodonUsage::Table');
+	use_ok('Bio::CodonUsage::IO');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Tools::SeqStats');
 }
 
-END {
-	unlink $outfile if (-e $outfile);
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('unable to complete DBCUTG tests',1);
-	}
-}
-
-exit 0 if $ERROR ==  1;
-
-require Bio::DB::CUTG;
-require Bio::CodonUsage::Table;
-require Bio::CodonUsage::IO;
-require Bio::SeqIO;
-require Bio::Tools::SeqStats;
-ok 1;
-
-$outfile = "t/data/cutg.out";
-$verbose = 1 if $DEBUG;
+my $outfile = "t/data/cutg.out";
+my $verbose = 1 if $DEBUG;
 
 # try reading from file
 ok my $io = Bio::CodonUsage::IO->new
   (-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
 ok  my $cut2 = $io->next_data();
-ok int($cut2->aa_frequency('LEU')), 10;
+is int($cut2->aa_frequency('LEU')), 10;
 
 # write
 ok $io = Bio::CodonUsage::IO->new(-file => ">$outfile");
@@ -66,65 +53,47 @@ ok -e $outfile;
 # can we read what we've written?
 ok $io = Bio::CodonUsage::IO->new(-file => "$outfile");
 ok $cut2 = $io->next_data();
-ok int($cut2->aa_frequency('LEU')), 10;
+is int($cut2->aa_frequency('LEU')), 10;
 
 # now try making a user defined CUT from a sequence
 ok my $seqobj = Bio::SeqIO->new (-file =>
 			 Bio::Root::IO->catfile("t", "data", "HUMBETGLOA.fa"),
 				                        -format => 'fasta')->next_seq;
-ok $seqobj->subseq(10,20), 'TTGACACCACT';
+is $seqobj->subseq(10,20), 'TTGACACCACT';
 ok my $codcont_Ref = Bio::Tools::SeqStats->count_codons($seqobj);
-ok $codcont_Ref->{'TGA'}, 16;
+is $codcont_Ref->{'TGA'}, 16;
 ok my $cut = Bio::CodonUsage::Table->new(-data=>$codcont_Ref);
-ok $cut->codon_rel_frequency('CTG'), 0.18;
-ok $cut->codon_abs_frequency('CTG'), 2.6;
-ok $cut->codon_count('CTG'), 26;
-ok $cut->get_coding_gc(1), "39.70";
+is $cut->codon_rel_frequency('CTG'), 0.18;
+is $cut->codon_abs_frequency('CTG'), 2.6;
+is $cut->codon_count('CTG'), 26;
+is $cut->get_coding_gc(1), "39.70";
 ok my $ref = $cut->probable_codons(20);
 
 # requiring Internet access, set env BIOPERLDEBUG to 1 to run
-if( $DEBUG ) {
+SKIP: {
+	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 11 unless $DEBUG;
 	ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 	ok $tool->sleep;
-	ok $tool->delay(1), 1;
+	is $tool->delay(1), 1;
 	ok $tool->sleep;
 
 	# get CUT from web
 	ok my $db = Bio::DB::CUTG->new();
 	ok $db->verbose(1);
 	my $cdtable;
-	eval {
-		$cdtable = $db->get_request(-sp =>'Pan troglodytes');
-	};
-	if ($@) {
-		foreach ($Test::ntest..$NUMTESTS) { 
-			skip('Could not connect to server, skipping tests requiring remote servers',1);
-		}
-		exit(0);
-    }
+	eval {$cdtable = $db->get_request(-sp =>'Pan troglodytes');};
+	skip "Could not connect to server, server/network problems? Skipping those tests", 5 if $@;
 	
 	# tests for Table.pm
-	ok $cdtable->cds_count(), 617; # new value at CUD
-	ok int($cdtable->aa_frequency('LEU')), 10;
+	is $cdtable->cds_count(), 617; # new value at CUD
+	is int($cdtable->aa_frequency('LEU')), 10;
 	ok $cdtable->get_coding_gc('all');
-	ok $cdtable->codon_rel_frequency('ttc'), "0.61"; 
+	is $cdtable->codon_rel_frequency('ttc'), "0.61"; 
     
 	## now lets enter a non-existent species ans check handling..
 	## should default to human...
 	my $db2 = Bio::DB::CUTG->new();
-	eval {
-		ok $cut2 = $db2->get_request(-sp =>'Wookie magnus');
-	};
-	if ($@) {
-		foreach ($Test::ntest..$NUMTESTS) { 
-			skip('Could not connect to server, skipping tests requiring remote servers',1);
-		}
-		exit(0);
-    }
-	ok $cut2->species(), 'Homo sapiens';
-}
-else { 
-   for ( $Test::ntest..$NUMTESTS) {
-		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
-	}
+	eval {$cut2 = $db2->get_request(-sp =>'Wookie magnus');};
+	skip "Could not connect to server, server/network problems? Skipping those tests", 1 if $@;
+	is $cut2->species(), 'Homo sapiens';
 }
