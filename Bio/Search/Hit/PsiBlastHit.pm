@@ -198,14 +198,12 @@ package Bio::Search::Hit::PsiBlastHit;
 
 use strict;
 use Bio::Search::BlastUtils;
-use vars qw(%SUMMARY_OFFSET $Revision);
+use vars qw(%SUMMARY_OFFSET);
 
 use overload
     '""' => \&to_string;
 
 use base qw(Bio::Root::Root Bio::Search::Hit::HitI);
-
-$Revision = '$Id$';  #'
 
 
 =head2 new

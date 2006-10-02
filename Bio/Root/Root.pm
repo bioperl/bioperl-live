@@ -155,7 +155,7 @@ methods. Internal methods are usually preceded with a _
 
 #'
 
-use vars qw($DEBUG $ID $Revision $VERBOSITY $ERRORLOADED);
+use vars qw($DEBUG $ID $VERBOSITY $ERRORLOADED);
 use strict;
 use Bio::Root::IO;
 
@@ -164,7 +164,6 @@ use base qw(Bio::Root::RootI);
 BEGIN { 
 
     $ID        = 'Bio::Root::Root';
-    $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
     $ERRORLOADED = 0;

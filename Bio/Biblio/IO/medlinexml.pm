@@ -74,7 +74,6 @@ with an underscore _.
 
 
 package Bio::Biblio::IO::medlinexml;
-use vars qw($Revision);
 use vars qw(@Citations $Callback $Convert @ObjectStack @PCDataStack);
 use vars qw(%PCDATA_NAMES %SIMPLE_TREATMENT %POP_DATA_AND_PEEK_OBJ %POP_OBJ_AND_PEEK_OBJ);
 use vars qw(%POP_AND_ADD_ELEMENT %POP_AND_ADD_DATA_ELEMENT);
@@ -84,10 +83,6 @@ use strict;
 use XML::Parser;
 
 use base qw(Bio::Biblio::IO);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
 
 # -----------------------------------------------------------------------------
 

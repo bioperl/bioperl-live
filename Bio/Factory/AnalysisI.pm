@@ -85,14 +85,9 @@ C<Bio::Tools::Run::AnalysisFactory> object instead.
 # Let the code begin...
 
 package Bio::Factory::AnalysisI;
-use vars qw($Revision);
 use strict;
 
 use base qw(Bio::Root::RootI);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
 
 
 # -----------------------------------------------------------------------------

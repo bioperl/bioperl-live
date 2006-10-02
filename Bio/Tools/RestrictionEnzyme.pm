@@ -152,7 +152,7 @@ for documentation purposes only.
 package Bio::Tools::RestrictionEnzyme;
 use strict;
 
-use vars qw (@EXPORT_OK %EXPORT_TAGS @RE_available $Revision);
+use vars qw (@EXPORT_OK %EXPORT_TAGS @RE_available);
 
 use base qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw(@RE_available);

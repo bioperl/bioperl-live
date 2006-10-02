@@ -67,7 +67,6 @@ with an underscore _.
 package Bio::Biblio::IO::medline2ref;
 
 use strict;
-use vars qw($Revision);
 
 use Bio::Biblio::MedlineJournal;
 use Bio::Biblio::MedlineBook;
@@ -76,10 +75,6 @@ use Bio::Biblio::Person;
 use Bio::Biblio::Organisation;
 
 use base qw(Bio::Root::Root);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
 
 # -----------------------------------------------------------------------------
 sub new {

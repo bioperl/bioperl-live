@@ -31,7 +31,7 @@ use vars qw(@EXPORT_OK %EXPORT_TAGS);
 @EXPORT_OK = qw(&find_object &stack_trace &containment &_rearrange);
 %EXPORT_TAGS = ( std => [qw(&stack_trace &containment)] );
 
-use vars qw($ID %Objects_created $Revision);
+use vars qw($ID %Objects_created);
 
 use base qw(Bio::Root::Root);
 
@@ -40,7 +40,6 @@ use base qw(Bio::Root::Root);
 # See _initialize() for details.
 
 $ID       = 'Bio::Root::Object';
-$Revision = '$Id$';  #'
 
 ### POD Documentation:
 

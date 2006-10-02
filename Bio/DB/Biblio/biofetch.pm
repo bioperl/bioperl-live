@@ -92,7 +92,7 @@ with an underscore _.
 
 package Bio::DB::Biblio::biofetch;
 use vars qw(%HOSTS %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
-	    $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
+	    $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
 use Bio::Biblio::IO;
@@ -100,8 +100,6 @@ use Bio::Biblio::IO;
 use base qw(Bio::DB::DBFetch Bio::Biblio);
 
 BEGIN {
-
-    $Revision = q[$Id$];
 
     # you can add your own here theoretically.
     %HOSTS = (

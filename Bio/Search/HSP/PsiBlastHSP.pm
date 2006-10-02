@@ -150,12 +150,10 @@ package Bio::Search::HSP::PsiBlastHSP;
 use strict;
 use Bio::SeqFeature::Similarity;
 
-use vars qw($GAP_SYMBOL $Revision %STRAND_SYMBOL);
+use vars qw($GAP_SYMBOL %STRAND_SYMBOL);
 
 use overload
     '""' => \&to_string;
-
-$Revision = '$Id$';  #'
 
 use base qw(Bio::SeqFeature::SimilarityPair Bio::Search::HSP::HSPI);
 

@@ -79,14 +79,9 @@ message. You need to call them on a Bio::Biblio object.
 # Let the code begin...
 
 package Bio::DB::BiblioI;
-use vars qw($Revision);
 use strict;
 
 use base qw(Bio::Root::RootI);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
 
 # -----------------------------------------------------------------------------
 

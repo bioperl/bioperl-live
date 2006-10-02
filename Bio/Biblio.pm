@@ -185,16 +185,9 @@ with an underscore _.
 
 
 package Bio::Biblio;
-use vars qw($Revision);
 use strict;
 
-
 use base qw(Bio::Root::Root Bio::DB::BiblioI);
-
-
-BEGIN {
-    $Revision = q[$Id$];
-}
 
 # -----------------------------------------------------------------------------
 

@@ -96,7 +96,7 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::soap;
-use vars qw($Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
+use vars qw($DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
 use SOAP::Lite
@@ -113,8 +113,6 @@ use SOAP::Lite
 use base qw(Bio::Biblio);
 
 BEGIN {
-    $Revision = q[$Id$];
-
     # where to go...
     $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS';
 
