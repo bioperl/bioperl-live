@@ -1,4 +1,4 @@
-# $Id: INSTALL.WIN,v 1.20 2006-07-04 02:25:10 mauricio Exp $
+# $Id: INSTALL.WIN,v 1.21 2006-10-02 22:35:55 sendu Exp $
 
 Installing Bioperl on Windows
 ===================
@@ -128,8 +128,7 @@ The most common and easiest is to get the most recent build from
 ActiveState.  ActiveState is a software company
 (http://www.activestate.com) that provides free builds of Perl for 
 Windows users.  The current (December 2004) build is ActivePerl 
-5.8.4.810 (ActivePerl 5.6.1.638 is also available and should
-work just fine).  To install ActivePerl on Windows:
+5.8.4.810.  To install ActivePerl on Windows:
 
       Download the ActivePerl MSI from 
       http://www.activestate.com/Products/ActivePerl/
