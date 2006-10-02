@@ -455,9 +455,32 @@ sub _fix_target {
       $max_tend       = $tend   if $tend   > $max_tend;
     }
     if ($min_tstart < $tstart or $max_tend > $tend) {
-      $self->{attributes}{Target}[0] = join "\t",($seqid,$min_tstart,$max_tend,$strand||'');
+      $self->{attributes}{Target}[0] = join ' ',($seqid,$min_tstart,$max_tend,$strand||'');
     }
   }
+}
+
+# undo the load_id and Target hacks on the way out
+sub format_attributes {
+  my $self   = shift;
+  my $parent = shift;
+  my $load_id   = $self->load_id || '';
+  my ($target)  = split /\s+/,($self->attributes('Target'))[0];
+  $target ||= '';
+  my @tags = $self->all_tags;
+  my @result;
+  for my $t (@tags) {
+    my @values = $self->each_tag_value($t);
+    @values = grep {$_ ne $load_id && $_ ne $target} @values if $t eq 'Alias';
+    next if defined($load_id) && $t eq 'load_id';
+    push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
+  }
+  my $id   = $self->load_id || $self->primary_id;
+  my $name = $self->display_name;
+  push @result,"ID=".$self->escape($id)                     if defined $id;
+  push @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
+  push @result,"Name=".$self->escape($name)                 if defined $name;
+  return join ';',@result;
 }
 
 sub _create_subfeatures {
