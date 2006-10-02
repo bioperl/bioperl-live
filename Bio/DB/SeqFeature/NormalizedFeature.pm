@@ -472,14 +472,16 @@ sub format_attributes {
   for my $t (@tags) {
     my @values = $self->each_tag_value($t);
     @values = grep {$_ ne $load_id && $_ ne $target} @values if $t eq 'Alias';
-    next if defined($load_id) && $t eq 'load_id';
+    # these are hacks, which we don't want to appear in the file
+    next if $t eq 'load_id';
     next if $t eq 'parent_id';
+
     push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
   }
-  my $id   = $self->load_id || $self->primary_id;
+  my $id   = $self->primary_id;
   my $name = $self->display_name;
   push @result,"ID=".$self->escape($id)                     if defined $id;
-  push @result,"Parent=".$self->escape($parent->load_id || $parent->primary_id) if defined $parent;
+  push @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
   push @result,"Name=".$self->escape($name)                 if defined $name;
   return join ';',@result;
 }
