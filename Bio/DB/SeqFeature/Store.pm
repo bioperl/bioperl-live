@@ -1079,6 +1079,7 @@ sub insert_sequence {
   $self->_insert_sequence($seqid,$seq,$offset);
 }
 
+
 =head2 fetch_sequence
 
  Title   : fetch_sequence
@@ -1099,6 +1100,8 @@ This method retrieves a portion of the indicated sequence. The arguments are:
   -end           End of range
   -class         Obsolete argument used for Bio::DB::GFF compatibility. If
                   specified will qualify the seq_id as "$class:$seq_id".
+  -bioseq        Boolean flag; if true, returns a Bio::PrimarySeq object instead
+                  of a sequence string.
 
 You can call fetch_sequence using the following shortcuts:
 
@@ -1116,9 +1119,14 @@ You can call fetch_sequence using the following shortcuts:
 #
 sub fetch_sequence {
   my $self = shift;
-  my ($seqid,$start,$end,$class) = rearrange([['NAME','SEQID','SEQ_ID'],'START',['END','STOP'],'CLASS'],@_);
+  my ($seqid,$start,$end,$class,$bioseq) = rearrange([['NAME','SEQID','SEQ_ID'],'START',['END','STOP'],'CLASS','BIOSEQ'],@_);
   $seqid = "$seqid:$class" if defined $class;
-  $self->_fetch_sequence($seqid,$start,$end);
+  my $seq = $self->_fetch_sequence($seqid,$start,$end);
+  return $seq unless $bioseq;
+
+  require Bio::Seq unless Bio::Seq->can('new');
+  my $display_id = defined $start ? "$seqid:$start..$end" : $seqid;
+  return Bio::Seq->new(-display_id=>$display_id,-seq=>$seq);
 }
 
 =head2 segment
