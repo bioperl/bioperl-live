@@ -194,7 +194,8 @@ use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
-
+    $self->warning("Use of Bio::Tools::BPlite is deprecated".
+                   "Use Bio::SearchIO classes instead");
   # initialize IO
   $self->_initialize_io(@args);
 
