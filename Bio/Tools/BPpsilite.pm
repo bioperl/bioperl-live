@@ -151,7 +151,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
-    $self->warning("Use of Bio::Tools::BPpsilite is deprecated".
+    $self->warn("Use of Bio::Tools::BPpsilite is deprecated".
                    "Use Bio::SearchIO classes instead");
   # initialize IO
   $self->_initialize_io(@args);

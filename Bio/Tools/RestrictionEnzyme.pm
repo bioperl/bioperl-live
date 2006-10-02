@@ -718,7 +718,7 @@ sub new {
 #---------------
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    $self->warning("Use of Bio::Tools::RestrictionEnzyme is deprecated".
+    $self->warn("Use of Bio::Tools::RestrictionEnzyme is deprecated".
                    "Use Bio::Restriction classes instead");
     my ($name,$make) = $self->_rearrange([qw(NAME MAKE)],@args);
 
