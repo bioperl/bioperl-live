@@ -97,7 +97,7 @@ sub draw_gc_content {
   my $bin_size = length($dna) / ($self->option('gc_bins') || 100);
   $bin_size = 10 if $bin_size < 10;
   my $gc_window = $self->option('gc_window');
-  if ($gc_window && $gc_window eq 'auto') {
+  if ($gc_window && $gc_window eq 'auto' or $gc_window <= length($dna)) {
     $gc_window = length($dna)/100;
   }
 

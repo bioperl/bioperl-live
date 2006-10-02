@@ -157,7 +157,7 @@ sub draw_multiple_alignment {
   # subfeatures do. There is total breakage of encapsulation here because sometimes
   # a chado alignment places the aligned segment in the top-level feature, and sometimes
   # in the child feature.
-  if (!@s && $feature->isa('Bio::DB::Das::Chado::Segment::Feature')) {
+  unless (@s || $feature->isa('Bio::DB::GFF::Feature')) {
     @s = ($feature);
   }
 
