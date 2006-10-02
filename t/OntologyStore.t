@@ -4,49 +4,41 @@
 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+use vars qw($NUMTESTS $DEBUG);
+
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-
-    eval { require 'Graph.pm' };
-    if( $@ ) {
-	    print STDERR "\nGraph.pm doesn't seem to be installed on this system -- the GO Parser needs it...\n\n";
-	    plan tests => 1;
-	    ok( 1 );
-	    exit( 0 );
-    }
-
-    plan tests => 6;
+	$NUMTESTS = 7;
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	
+	eval {require Test::More;};
+	if ($@) {
+		use lib 't';
+	}
+	use Test::More;
+	
+	eval {
+		require Graph;
+	};
+	if ($@) {
+		plan skip_all => 'Graph not installed. This means that the module is not usable. Skipping tests';
+	}
+	else {
+		plan tests => $NUMTESTS;
+	}
+	
+	use_ok('Bio::Ontology::OntologyStore');
 }
 
-
-use Bio::Ontology::OntologyStore;
-
-my $store = Bio::Ontology::OntologyStore->get_instance;
-ok($store);
+ok my $store = Bio::Ontology::OntologyStore->get_instance;
 
 my $ontology;
-eval {
-  $ontology = $store->get_ontology(-name => 'Sequence Ontology');
-};
+eval {$ontology = $store->get_ontology(-name => 'Sequence Ontology');};
+skip "Couldn't get sequence ontology, network problems? Skipping these tests", 5 if $@;
 
-if($@){
-  skip("couldn't get sequence ontology, network down? $@",5);  
-} else {
-  ok('got file okay');
-  ok(scalar($ontology->get_root_terms()) == 1);
-
-
-  my($txt) = $ontology->find_terms(-name => 'transcript');
-  ok($txt->identifier eq 'SO:0000673');
-  ok($txt->name eq 'transcript');
-  ok($txt->definition eq 'An RNA synthesized on a DNA or RNA template by an RNA polymerase.');
-}
+ok('got file okay');
+ok(scalar($ontology->get_root_terms()) == 1);
+my($txt) = $ontology->find_terms(-name => 'transcript');
+is $txt->identifier, 'SO:0000673';
+is $txt->name, 'transcript';
+is $txt->definition, 'An RNA synthesized on a DNA or RNA template by an RNA polymerase.';
