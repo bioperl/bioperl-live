@@ -468,7 +468,7 @@ sub handle_meta {
     return;
   }
 
-  if ($instruction =~/index-subfeatures\s+(\S+)/) {
+  if ($instruction =~/index-subfeatures\s+(\S+)/i) {
     $self->{load_data}{IndexSubfeatures} = $1;
     $self->store->index_subfeatures($1);
     return;
