@@ -1,4 +1,6 @@
 # These are modules which are deprecated and later removed from the toolkit
+# See http://www.bioperl.org/wiki/Deprecated_modules for the latest details
+
                           Version    Version 
 Deprecated Modules       Deprecated  Removed Comment
 --------------------------------------------------------------------------------
@@ -19,3 +21,4 @@ Bio::Taxonomy::Taxon          1.5.1    -      use Bio::Taxon
 Bio::Taxonomy::Tree           1.5.1    -      use Bio::Taxon & Bio::Tree::Tree
 Bio::Taxonomy::FactoryI       1.5.1    -      Redundant, no implementors
 Bio::Search::Processor        1.5.1    -      Superseded by Bio::SearchIO
+Bio::Tools::RestrictionEnyzme
