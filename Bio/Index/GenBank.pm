@@ -100,13 +100,11 @@ Internal methods are usually preceded with a _
 
 package Bio::Index::GenBank;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 sub _type_stamp {
     return '__GenBank_FLAT__'; # What kind of index are we?
@@ -139,25 +137,25 @@ sub _index_file {
 
     my $id_parser = $self->id_parser;
 
-    open GENBANK,$file or 
+    open my $GENBANK, '<', $file or 
 	$self->throw("Can't open file for read : $file");
 
     my %done_ids;
-    while (<GENBANK>) {
+    while (<$GENBANK>) {
         if (/^LOCUS/) {
-            $begin = tell(GENBANK) - length($_);
+            $begin = tell($GENBANK) - length($_);
         }
         for my $id (&$id_parser($_)) {
             next if exists $done_ids{$id};
             $self->add_record($id, $i, $begin) if $id;
             $done_ids{$id} = 1;
         }
-        if (/\/\//) {
+        if (m{//}) {
             %done_ids = ();
         }
     }
-    close GENBANK;
-    1;
+    close $GENBANK;
+    return 1;
 }
 
 =head2 id_parser

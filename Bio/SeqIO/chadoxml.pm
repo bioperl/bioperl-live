@@ -17,7 +17,7 @@ Bio::SeqIO::chadoxml - chadoxml sequence output stream
 It is probably best not to use this object directly, but
 rather go through the SeqIO handler system:
 
-    $writer = Bio::SeqIO->new(-file => ">chado.xml", 
+    $writer = Bio::SeqIO->new(-file => ">chado.xml",
                               -format => 'chadoxml');
 
     # assume you already have a Sequence object
@@ -27,31 +27,31 @@ rather go through the SeqIO handler system:
 
 This object can transform Bio::Seq objects to chadoxml flat
 file databases (for chadoxml DTD, see
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/chado/dat/chado.dtd).
+http://gmod.cvs.sourceforge.net/gmod/schema/chado/dat/chado.dtd).
 
 This is currently a write-only module.
 
-    $seqio = Bio::SeqIO->new(-file => '>outfile.xml', 
+    $seqio = Bio::SeqIO->new(-file => '>outfile.xml',
                              -format => 'chadoxml');
 
-    # we have a Bio::Seq object $seq which is a gene located on 
+    # we have a Bio::Seq object $seq which is a gene located on
     # chromosome arm 'X', to be written out to chadoxml
-    # before converting to chadoxml, $seq object B<must> be transformed 
-    # so that all the coordinates in $seq are against the source 
-    # feature to be passed into Bio::SeqIO::chadoxml->write_seq() 
+    # before converting to chadoxml, $seq object B<must> be transformed
+    # so that all the coordinates in $seq are against the source
+    # feature to be passed into Bio::SeqIO::chadoxml->write_seq()
     # -- chromosome arm X in the example below.
 
-    $seqio->write_seq(-seq=>$seq, 
+    $seqio->write_seq(-seq=>$seq,
                       -seq_so_type=>'gene',
-                      -src_feature=>'X', 
+                      -src_feature=>'X',
                       -src_feat_type=>'chromosome_arm',
-		                -nounflatten=>1, 
-                      -is_analysis=>'true', 
+		                -nounflatten=>1,
+                      -is_analysis=>'true',
                       -data_source=>'GenBank');
 
 The chadoxml output of Bio::SeqIO::chadoxml-E<gt>write_seq() method can be
 passed to the loader utility in XORT package
-(http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gmod/schema/XMLTools/XORT/)
+(http://gmod.cvs.sourceforge.net/gmod/schema/XMLTools/XORT/)
 to be loaded into chado.
 
 This object is currently implemented to work with sequence and
@@ -68,7 +68,7 @@ contained in the subject Bio::Seq object, to build gene model
 containment hierarchy conforming to chado central dogma model: gene
 --E<gt> mRNA --E<gt> exons and protein.
 
-Destination of data in the subject Bio::Seq object $seq is as following: 
+Destination of data in the subject Bio::Seq object $seq is as following:
 
 	*$seq->display_id:  name of the top-level feature;
 
@@ -110,9 +110,9 @@ Destination of data in the subject Bio::Seq object $seq is as following:
 	*gene model: feature_relationship built based on the
                      containment hierarchy;
 
-	*feature span: featureloc; 
+	*feature span: featureloc;
 
-	*feature accession numbers: feature_dbxref; 
+	*feature accession numbers: feature_dbxref;
 
 	*feature tags (except db_xref, symbol and gene): featureprop;
 
@@ -150,7 +150,7 @@ Things to watch out for:
                         case. please modify to work according to your
                         rules.
 
-	*chado initialization for loading: 
+	*chado initialization for loading:
 
 		cv & cvterm: in the output chadoxml, all cv's and
                              cvterm's are lookup only. Therefore,
@@ -174,7 +174,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -198,7 +198,6 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::chadoxml;
-use vars qw(@ISA);
 use strict;
 use English;
 
@@ -208,7 +207,6 @@ use IO::File;
 use IO::Handle;
 use Bio::Seq;
 use Bio::Seq::RichSeq;
-use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
@@ -271,16 +269,16 @@ my %feattype_args2so = (
 
 undef(my %organism);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
 
     my($self,@args) = @_;
-    
-    $self->SUPER::_initialize(@args); 
+
+    $self->SUPER::_initialize(@args);
     unless( defined $self->sequence_factory ) {
         $self->sequence_factory(new Bio::Seq::SeqFactory
-                                (-verbose => $self->verbose(), 
+                                (-verbose => $self->verbose(),
                                  -type => 'Bio::Seq::RichSeq'));
     }
 
@@ -289,20 +287,20 @@ sub _initialize {
 =head2 write_seq
 
  Title   : write_seq
- Usage   : $stream->write_seq(-seq=>$seq, -seq_so_type=>$seqSOtype, 
-			      -src_feature=>$srcfeature, 
+ Usage   : $stream->write_seq(-seq=>$seq, -seq_so_type=>$seqSOtype,
+			      -src_feature=>$srcfeature,
 			      -src_feat_type=>$srcfeattype,
 			      -nounflatten=>0 or 1,
 			      -is_analysis=>'true' or 'false',
 			      -data_source=>$datasource)
  Function: writes the $seq object (must be seq) into chadoxml.
 	   Current implementation:
-	   1. for non-mRNA records, 
-	   a top-level feature of type $seq->alphabet is 
-	   generated for the whole GenBank record, features listed 
-           are unflattened for DNA records to build gene model 
-	   feature graph, and for the other types of records all 
-	   features in $seq are treated as subfeatures of the top-level 
+	   1. for non-mRNA records,
+	   a top-level feature of type $seq->alphabet is
+	   generated for the whole GenBank record, features listed
+           are unflattened for DNA records to build gene model
+	   feature graph, and for the other types of records all
+	   features in $seq are treated as subfeatures of the top-level
 	   feature.
 	   2. for mRNA records,
 	   if a 'gene' feature is present, it B<must> have a /symbol
@@ -315,23 +313,23 @@ sub _initialize {
 
 
  Args     : A Bio::Seq object $seq, optional $seqSOtype, $srcfeature,
-	         $srcfeattype, $nounflatten, $is_analysis and $data_source.  
-           when $srcfeature (a string, the uniquename of the source 
-           feature) is given, the location and strand information of 
-           the top-level feature against the source feature will be 
-           derived from the sequence feature called 'source' of the 
+	         $srcfeattype, $nounflatten, $is_analysis and $data_source.
+           when $srcfeature (a string, the uniquename of the source
+           feature) is given, the location and strand information of
+           the top-level feature against the source feature will be
+           derived from the sequence feature called 'source' of the
            $seq object, a featureloc record is generated for the top
-           -level feature on $srcfeature. when $srcfeature is given, 
-           $srcfeattype must also be present. All feature coordinates 
-           in $seq should be against $srcfeature.  $seqSOtype is the 
-           optional SO term to use as the type of the top-level feature. 
-           For example, a GenBank data file for a Drosophila melanogaster 
-           genome scaffold has the molecule type of "DNA", when 
-           converting to chadoxml, a $seqSOtype argument of 
-           "golden_path_region" can be supplied to save the scaffold 
-           as a feature of type "golden_path_region" in chadoxml, instead 
-           of "DNA".  a feature with primary tag of 'source' must be 
-           present in the sequence feature list of $seq, to decribe the 
+           -level feature on $srcfeature. when $srcfeature is given,
+           $srcfeattype must also be present. All feature coordinates
+           in $seq should be against $srcfeature.  $seqSOtype is the
+           optional SO term to use as the type of the top-level feature.
+           For example, a GenBank data file for a Drosophila melanogaster
+           genome scaffold has the molecule type of "DNA", when
+           converting to chadoxml, a $seqSOtype argument of
+           "golden_path_region" can be supplied to save the scaffold
+           as a feature of type "golden_path_region" in chadoxml, instead
+           of "DNA".  a feature with primary tag of 'source' must be
+           present in the sequence feature list of $seq, to decribe the
            whole sequence record.
 
 
@@ -340,18 +338,18 @@ sub _initialize {
 sub write_seq {
 	my $usage = <<EOUSAGE;
 Bio::SeqIO::chadoxml->write_seq()
-Usage   : \$stream->write_seq(-seq=>\$seq, 
-			      -seq_so_type=>\$SOtype, 
-			      -src_feature=>\$srcfeature, 
+Usage   : \$stream->write_seq(-seq=>\$seq,
+			      -seq_so_type=>\$SOtype,
+			      -src_feature=>\$srcfeature,
 			      -src_feat_type=>\$srcfeattype,
 			      -nounflatten=>0 or 1,
                               -is_analysis=>'true' or 'false',
                               -data_source=>\$datasource)
-Args    : \$seq		: a Bio::Seq object 
-	  \$SOtype	: the SO term to use as the feature type of 
+Args    : \$seq		: a Bio::Seq object
+	  \$SOtype	: the SO term to use as the feature type of
 	                  the \$seq record, optional
-	  \$srcfeature	: unique name of the source feature, a string 
-			  containing at least one alphabetical letter 
+	  \$srcfeature	: unique name of the source feature, a string
+			  containing at least one alphabetical letter
 			  (a-z, A-Z), optional
 	  \$srcfeattype	: feature type of \$srcfeature. one of SO terms.
 			  optional
@@ -373,19 +371,19 @@ EOUSAGE
 				 )],
 			      @args);
 	#print "$seq_so_type, $srcfeature, $srcfeattype\n";
-	
+
 	if( !defined $seq ) {
 	    $self->throw("Attempting to write with no seq!");
 	}
-	
+
 	if( ! ref $seq || ! $seq->isa('Bio::Seq::RichSeqI') ) {
 	    $self->warn(" $seq is not a RichSeqI compliant module. Attempting to dump, but may fail!");
 	}
-	
+
 	#$srcfeature, when provided, should contain at least one alphabetical letter
 	if (defined $srcfeature)
 	{
-	    if ($srcfeature =~ /[a-zA-Z]/) 
+	    if ($srcfeature =~ /[a-zA-Z]/)
 	    {
 		chomp($srcfeature);
 	    } else {
@@ -470,7 +468,7 @@ EOUSAGE
 	}
 
 	my %ftype_hash = ( "name" => $ftype, "cv_id" => {"name" => 'SO'});
-		
+
 	my $spec = $seq->species();
 	if (!defined $spec) {
 		$self->throw("$seq does not know what organism it is from, which is required by chado. cannot proceed!\n");
@@ -512,14 +510,14 @@ EOUSAGE
 		#sequence topology as feature_cvterm
 		if ($seq->is_circular) {
 			%sthash = (
-				"cvterm_id"	=> {'name' => 'circular', 
+				"cvterm_id"	=> {'name' => 'circular',
 						    'cv_id' => {
 							'name' => 'sequence topology',
 						    },
 						},
-				   "pub_id"	=> {'uniquename' => 'nullpub', 
+				   "pub_id"	=> {'uniquename' => 'nullpub',
 						    'type_id' => {
-							'name' => 'null pub', 
+							'name' => 'null pub',
 							'cv_id' => {
 							    'name'=> 'pub type',
 							},
@@ -528,14 +526,14 @@ EOUSAGE
 				);
 		} else {
 			%sthash = (
-				"cvterm_id"	=> { 'name' => 'linear', 
+				"cvterm_id"	=> { 'name' => 'linear',
 						     'cv_id' => {
 							 'name' => 'sequence topology',
 						     }
 						 },
-				"pub_id"	=> {'uniquename' => 'nullpub', 
+				"pub_id"	=> {'uniquename' => 'nullpub',
 						    'type_id' => {
-							'name' => 'null pub', 
+							'name' => 'null pub',
 							'cv_id' => {
 							    'name'=> 'pub type',
 							},
@@ -549,12 +547,12 @@ EOUSAGE
        		if ($seq->can('division') && defined $seq->division()) {
        		 	$div = $seq->division();
 			%dvhash = (
-				"cvterm_id"	=> {'name' => $div, 
+				"cvterm_id"	=> {'name' => $div,
 						    'cv_id' => {
 							'name' => 'GenBank division'}},
-				"pub_id"	=> {'uniquename' => 'nullpub', 
+				"pub_id"	=> {'uniquename' => 'nullpub',
 						    'type_id' => {
-							'name' => 'null pub', 
+							'name' => 'null pub',
 							'cv_id' => {
 							    'name'=> 'pub type'},
 						    	}},
@@ -569,9 +567,9 @@ EOUSAGE
 	#DEFINITION
 	if ($seq->can('desc') && defined $seq->desc()) {
 		$temp = $seq->desc();
-		
+
 		my %prophash = (
-			"type_id" 	=> {'name' => 'description', 
+			"type_id" 	=> {'name' => 'description',
 					    'cv_id' => {
 						'name' => 'property type'}},
 			"value"		=> $temp,
@@ -586,8 +584,8 @@ EOUSAGE
 
 	    if (defined $temp && $temp ne '.' && $temp ne '') {
 		my %prophash = (
-				"type_id"       => {'name' => 'keywords', 
-						    'cv_id' => 
+				"type_id"       => {'name' => 'keywords',
+						    'cv_id' =>
 						    {'name' => 'property type'}
 						},
 				"value"          => $temp,
@@ -604,8 +602,8 @@ EOUSAGE
 			$temp = $comment->as_text();
 			#print "fcomment: $temp\n";
 			my %prophash = (
-				"type_id"	=> {'name' => 'comment', 
-						    'cv_id' => 
+				"type_id"	=> {'name' => 'comment',
+						    'cv_id' =>
 						    {'name' => 'property type'}},
 				"value"		=> $temp,
 				);
@@ -644,7 +642,7 @@ EOUSAGE
 	if( $seq->isa('Bio::Seq::RichSeqI') && defined ($seq->pid)) {
 		my $id = $seq->pid;
 		#print "reftype: ", ref($id), "\n";
-		
+
 		#if (ref($id) eq 'HASH') {
 		my %acchash = (
 			"db_id"		=> {'name' => 'GI'},
@@ -749,17 +747,17 @@ EOUSAGE
 				"pub_relationship" => {
 				    'obj_pub_id' => {
 					'uniquename' => $journal,
-					'title' => $journal, 
-					#'miniref' => substr($journal, 0, 255), 
-					'type_id' =>{'name' => 'journal', 
-						     'cv_id' => 
+					'title' => $journal,
+					#'miniref' => substr($journal, 0, 255),
+					'type_id' =>{'name' => 'journal',
+						     'cv_id' =>
 						     {'name' => 'pub type'
 						      },
 						 },
 						     #'pubprop' =>{'value'=> $journal,
 						     #	     'type_id'=>{'name' => 'abbreviation', 'cv_id' => {'name' => 'pubprop type'}},
 						     #	    },
-						 }, 
+						 },
 					   'type_id' => {
 					       'name' => 'published_in',
 					       'cv_id' => {
@@ -768,7 +766,7 @@ EOUSAGE
 				},
 				);
 		}
-		
+
 		#other references
 		else {
 		    $pubtype = 'other';
@@ -776,12 +774,12 @@ EOUSAGE
 				"title"		=> $ref->title || $refhash->{'title'},
 				#"miniref"	=> $fbrf,
 				"type_id"	=> {
-				    'name' => $pubtype, 
+				    'name' => $pubtype,
 				    'cv_id' => {'name' =>'pub type'}
 				}
 				);
 		}
-		
+
 		#pub_author
 		my $autref = $self->_getRefAuthors($ref);
 		if (defined $autref) {
@@ -797,13 +795,13 @@ EOUSAGE
 		    }
 		}
 
-		#$ref->comment as pubprop 
+		#$ref->comment as pubprop
 		#print "ref comment: ", $ref->comment, "\n";
 		#print "ref comment: ", $refhash->{'comment'}, "\n";
 		if (defined $ref->comment || defined $refhash->{'comment'}) {
 		    my $comnt = $ref->comment || $refhash->{'comment'};
 				#print "remark: ", $comnt, "\n";
-		    $pubhash{'pubprop'} = { 
+		    $pubhash{'pubprop'} = {
 			"type_id"       => {'name' => 'comment', 'cv_id' => {'name' => 'pubprop type'}},
 			"value"		=> $comnt,
 		    };
@@ -841,7 +839,7 @@ EOUSAGE
 		#if the pub covers the entire sequence of the top-level feature, add it to feature_pubs
 		if (($ref->start == 1 && $ref->end == $len) || (!defined $ref->start && !defined $ref->end)) {
 		    push(@feature_pubs, {"pub_id" => \%pubhash});
-		} 
+		}
 		#the pub is about a sub-sequence of the top-level feature
 		#create a feature for the sub-sequence and add pub as its feature_pub
 		#featureloc of this sub-sequence is against the top-level feature, in interbase coordinates.
@@ -874,8 +872,8 @@ EOUSAGE
 
 	##construct srcfeature hash for use in featureloc
 	if (defined $srcfeature) {
-		%srcfhash = ('uniquename' 	=> $srcfeature, 
-				'organism_id'   => \%organism, 
+		%srcfhash = ('uniquename' 	=> $srcfeature,
+				'organism_id'   => \%organism,
 				'type_id' 	=> {'name' => $srcfeattype, 'cv_id' => {'name' => 'SO'}},
 			);
 
@@ -1030,8 +1028,8 @@ sub _hash2xml {
     #print "ult: $ult\n";
     if (!defined $writer) {
 	$root = 1;
-	$writer = new XML::Writer(OUTPUT => $self->_fh, 
-				  DATA_MODE => 1, 
+	$writer = new XML::Writer(OUTPUT => $self->_fh,
+				  DATA_MODE => 1,
 				  DATA_INDENT => 3);
 
 	#print header
@@ -1060,9 +1058,9 @@ sub _hash2xml {
     }
 
     #if cvterm or cv, lookup only
-    elsif (($ult eq 'cvterm') || ($ult eq 'cv')) { 
+    elsif (($ult eq 'cvterm') || ($ult eq 'cv')) {
 	$writer->startTag($ult, 'op' => 'lookup');
-    } 
+    }
 
     #if nested tables of match table, match too
     elsif ($isMatch) {
@@ -1074,12 +1072,12 @@ sub _hash2xml {
     }
 
     #first loop to produce xml for all the table columns
-    foreach $key (keys %mh) 
+    foreach $key (keys %mh)
     {
 	#print "key: $key\n";
 	$xx = ' ' . $key;
 	$yy = $key . ' ';
-	if (index($chadotables, $xx) < 0 && index($chadotables, $yy) < 0) 
+	if (index($chadotables, $xx) < 0 && index($chadotables, $yy) < 0)
 	{
 	    if ($isMatch) {
 		$writer->startTag($key, 'op' => 'match');
@@ -1089,12 +1087,12 @@ sub _hash2xml {
 
 	    my $x = $ult . '.' . $key;
 	    #the column is a foreign key
-	    if (defined $fkey{$x}) 
+	    if (defined $fkey{$x})
 	    {
 		$nt = $fkey{$x};
 		$sh = $mh{$key};
 		$self->_hash2xml($isMatch, $nt, $sh, $writer, 0);
-	    } else 
+	    } else
 	    {
 		#print "$key: $mh{$key}\n";
 		$writer->characters($mh{$key});
@@ -1104,13 +1102,13 @@ sub _hash2xml {
     }
 
     #second loop to produce xml for all the nested tables
-    foreach $key (keys %mh) 
+    foreach $key (keys %mh)
     {
 	#print "key: $key\n";
 	$xx = ' ' . $key;
 	$yy = $key . ' ';
 	#a nested table
-	if (index($chadotables, $xx) > 0 || index($chadotables, $yy) > 0) 
+	if (index($chadotables, $xx) > 0 || index($chadotables, $yy) > 0)
 	{
 	    #$writer->startTag($key);
 	    $ntref = $mh{$key};
@@ -1415,7 +1413,7 @@ sub _getRefAuthors {
 				);
 			push(@aut, {author_id => \%au, arank => $i});
 		}
-	
+
 		return \@aut;
 	}
 

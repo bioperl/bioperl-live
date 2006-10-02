@@ -60,16 +60,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Restriction::IO::itype2;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Restriction::IO::base;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::EnzymeCollection;
 
 use Data::Dumper;
 
-@ISA = qw(Bio::Restriction::IO::base);
+use base qw(Bio::Restriction::IO::base);
 
 
 

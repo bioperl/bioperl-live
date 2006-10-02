@@ -69,12 +69,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Genewise;
-use vars qw(@ISA $Srctag);
+use vars qw($Srctag);
 use strict;
 use Symbol;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Gene::Exon;
@@ -82,7 +80,7 @@ use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::GeneStructure;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 $Srctag = 'genewise';
 
 =head2 new

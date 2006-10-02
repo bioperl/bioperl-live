@@ -49,12 +49,6 @@ web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -67,15 +61,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Symbol::ProteinAlphabet;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Symbol::Alphabet;
 use Bio::Symbol::Symbol;
 use Bio::Tools::IUPAC;
 use Bio::SeqUtils;
 
-@ISA = qw(Bio::Symbol::Alphabet);
+use base qw(Bio::Symbol::Alphabet);
 
 =head2 new
 

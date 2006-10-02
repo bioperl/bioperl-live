@@ -62,11 +62,7 @@ web:
 
 Email hlapp at gmx.net
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 Steffen Grossmann [SG], grossman-at-molgen.mpg.de
 
@@ -83,12 +79,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::FeatureHolderI;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 get_SeqFeatures()
 

@@ -140,14 +140,13 @@ purposes only.
 package Bio::Restriction::EnzymeCollection;
 use strict;
 
-use Bio::Root::Root;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::IO;
 
 use Data::Dumper;
 
-use vars qw (@ISA);
-@ISA = qw(Bio::Root::Root);
+use vars qw ();
+use base qw(Bio::Root::Root);
 
 
 =head2 new
@@ -266,7 +265,8 @@ sub get_enzyme {
 
 sub available_list {
     my ($self, $size)=@_;
-    return sort keys %{$self->{'_enzymes'}};
+    my @keys = sort keys %{$self->{'_enzymes'}};
+    return @keys;
 }
 
 =head2 longest_cutter

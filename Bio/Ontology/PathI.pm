@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-PathI - Interface for a path between ontology terms
+Bio::Ontology::PathI - Interface for a path between ontology terms
 
 =head1 SYNOPSIS
 
@@ -62,10 +62,6 @@ the web:
 
 Email hlapp at gmx.net
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -78,11 +74,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::PathI;
-use vars qw(@ISA);
 use strict;
-use Bio::Ontology::RelationshipI;
 
-@ISA = qw( Bio::Ontology::RelationshipI );
+use base qw(Bio::Ontology::RelationshipI);
 
 
 =head2 distance

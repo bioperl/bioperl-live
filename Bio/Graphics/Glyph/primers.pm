@@ -4,9 +4,7 @@ package Bio::Graphics::Glyph::primers;
 # primer pairs.
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 use constant HEIGHT => 8;
 

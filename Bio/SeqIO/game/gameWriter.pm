@@ -72,11 +72,9 @@ use strict;
 use IO::String;
 use XML::Writer;
 use Bio::SeqFeature::Generic;
-use Bio::SeqIO::game::gameSubs;
 use Bio::SeqFeature::Tools::Unflattener;
 
-use vars '@ISA';
-@ISA = qw/Bio::SeqIO::game::gameSubs/;
+use base qw(Bio::SeqIO::game::gameSubs);
 
 =head2 new
 
@@ -590,7 +588,7 @@ EOM
         $self->_element('description', "\n     $desc\n    ");
 
 	my $aa = $h{residues};
-	$aa =~ s/\w{60}/$&\n      /g;
+	$aa =~ s/(\w{60})/$1\n      /g;
 	$aa =~ s/\n\s+$//m;
 	$aa = "\n      " . $aa . "\n    ";
 	$self->_element('residues', $aa);
@@ -1235,7 +1233,7 @@ sub _seq {
     # nicer xml formatting/indentation
     my $sp  = (' ' x 6);
     my $dna = $seq->seq;
-    $dna =~ s/\w{60}/$&\n$sp/g;
+    $dna =~ s/(\w{60})/$1\n$sp/g;
     $dna = "\n$sp" . $dna . "\n    ";
     
     if ( $seq->species && !$self->{has_organism}) {

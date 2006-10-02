@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::dna;
 
 use strict;
-use Bio::Graphics::Glyph::generic;
-use vars '@ISA';
-@ISA = qw(Bio::Graphics::Glyph::generic);
+use base qw(Bio::Graphics::Glyph::generic);
 
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
@@ -99,7 +97,7 @@ sub draw_gc_content {
   my $bin_size = length($dna) / ($self->option('gc_bins') || 100);
   $bin_size = 10 if $bin_size < 10;
   my $gc_window = $self->option('gc_window');
-  if ($gc_window && $gc_window eq 'auto') {
+  if ($gc_window && $gc_window eq 'auto' or $gc_window <= length($dna)) {
     $gc_window = length($dna)/100;
   }
 
@@ -338,7 +336,7 @@ options are recognized:
               and strandless features will
               show both
 
-NOTE: -gc_window=>'auto' gives nice results and is recommended for
+NOTE: -gc_window=E<gt>'auto' gives nice results and is recommended for
 drawing GC content. The GC content axes draw slightly outside the
 panel, so you may wish to add some extra padding on the right and
 left.

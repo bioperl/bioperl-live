@@ -67,23 +67,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Location::Fuzzy;
-use vars qw(@ISA );
 use strict;
 
-use Bio::Location::FuzzyLocationI;
-use Bio::Location::Atomic;
-use Data::Dumper;
+use base qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI);
 
-@ISA = qw(Bio::Location::Atomic Bio::Location::FuzzyLocationI );
-
-BEGIN {
-    use vars qw( %FUZZYCODES %FUZZYPOINTENCODE %FUZZYRANGEENCODE 
-         @LOCATIONCODESBSANE );
-
-    @LOCATIONCODESBSANE = (undef, 'EXACT', 'WITHIN', 'BETWEEN', 'UNCERTAIN',
+our @LOCATIONCODESBSANE = (undef, 'EXACT', 'WITHIN', 'BETWEEN', 'UNCERTAIN',
             'BEFORE', 'AFTER');
 
-    %FUZZYCODES = ( 'EXACT' => '..', # Position is 'exact
+our %FUZZYCODES = ( 'EXACT' => '..', # Position is 'exact
    # Exact position is unknown, but is within the range specified, ((1.2)..100)
             'WITHIN' => '.', 
             # 1^2
@@ -100,21 +91,21 @@ BEGIN {
     # contain two groups identifying min and max. Empty matches are automatic.
     # converted to undef, except for 'EXACT', for which max is set to equal
     # min.
-    %FUZZYPOINTENCODE = ( 
-              '\>(\d+)(.{0})' => 'AFTER',
-              '\<(.{0})(\d+)' => 'BEFORE',
-              '(\d+)'         => 'EXACT',
-              '\?(\d*)'       => 'UNCERTAIN',
-              '(\d+)(.{0})\>' => 'AFTER',
-              '(.{0})(\d+)\<' => 'BEFORE',
-              '(\d+)\.(\d+)'  => 'WITHIN',
-              '(\d+)\^(\d+)'  => 'BETWEEN',
-             );
     
-    %FUZZYRANGEENCODE  = ( '\.'   => 'WITHIN',
-                              '\.\.' => 'EXACT',
-                                       '\^'   => 'IN-BETWEEN' );
-}
+our %FUZZYPOINTENCODE = ( 
+    '\>(\d+)(.{0})' => 'AFTER',
+    '\<(.{0})(\d+)' => 'BEFORE',
+    '(\d+)'         => 'EXACT',
+    '\?(\d*)'       => 'UNCERTAIN',
+    '(\d+)(.{0})\>' => 'AFTER',
+    '(.{0})(\d+)\<' => 'BEFORE',
+    '(\d+)\.(\d+)'  => 'WITHIN',
+    '(\d+)\^(\d+)'  => 'BETWEEN',
+   );
+    
+our %FUZZYRANGEENCODE  = (  '\.'   => 'WITHIN',
+                            '\.\.' => 'EXACT',
+                            '\^'   => 'IN-BETWEEN' );
 
 =head2 new
 

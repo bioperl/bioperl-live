@@ -31,10 +31,8 @@ if this isn't the case.
 package Bio::DB::GFF::Aggregator::coding;
 
 use strict;
-use Bio::DB::GFF::Aggregator;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 =head2 method
 

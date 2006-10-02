@@ -162,10 +162,8 @@ This software is provided "as is" without warranty of any kind.
 package Bio::SearchIO::Writer::HSPTableWriter;
 
 use strict;
-use Bio::SearchIO::Writer::ResultTableWriter;
 
-use vars qw( @ISA );
-@ISA = qw( Bio::SearchIO::Writer::ResultTableWriter );
+use base qw(Bio::SearchIO::Writer::ResultTableWriter);
 
 
 # Array fields: column, object, method[/argument], printf format, column label

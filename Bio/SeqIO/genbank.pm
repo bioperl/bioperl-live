@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::GenBank - GenBank sequence input/output stream
+Bio::SeqIO::genbank - GenBank sequence input/output stream
 
 =head1 SYNOPSIS
 
@@ -50,7 +50,7 @@ before printing
 
 =item _id_generation_func()
 
-This is function which is called as 
+This is function which is called as
 
    print "ID   ", $func($seq), "\n";
 
@@ -114,22 +114,20 @@ sequence object.
 
  Sequence             PrimarySeq seq()
 
-There is more information in the Feature-Annotation HOWTO about each 
-field and how it is mapped to the Sequence object 
+There is more information in the Feature-Annotation HOWTO about each
+field and how it is mapped to the Sequence object
 L<http://bioperl.open-bio.org/wiki/HOWTO:Feature-Annotation>.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions 
-preferably to one of the Bioperl mailing lists.
-
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -154,7 +152,7 @@ Heikki Lehvaslaiho, heikki at ebi.ac.uk
 Hilmar Lapp, hlapp at gmx.net
 Donald G. Jackson, donald.jackson at bms.com
 James Wasmuth, james.wasmuth at ed.ac.uk
-Brian Osborne, osborne1 at optonline.net
+Brian Osborne, bosborne at alum.mit.edu
 
 =head1 APPENDIX
 
@@ -166,10 +164,9 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::genbank;
-use vars qw(@ISA %FTQUAL_NO_QUOTE);
+use vars qw(%FTQUAL_NO_QUOTE);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqIO::FTHelper;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
@@ -179,7 +176,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 %FTQUAL_NO_QUOTE=(
 		  'anticodon'    => 1,
@@ -204,11 +201,11 @@ sub _initialize {
 
 	$self->SUPER::_initialize(@args);
 	# hash for functions for decoding keys.
-	$self->{'_func_ftunit_hash'} = {}; 
+	$self->{'_func_ftunit_hash'} = {};
 	$self->_show_dna(1); # sets this to one by default. People can change it
 	if( ! defined $self->sequence_factory ) {
 		$self->sequence_factory(new Bio::Seq::SeqFactory
-										(-verbose => $self->verbose(), 
+										(-verbose => $self->verbose(),
 										 -type => 'Bio::Seq::RichSeq'));
 	}
 }
@@ -296,13 +293,13 @@ sub next_seq {
 	      if( length($y) == 2 ) {
 		  if( $y > 60 ) { # arbitrarily guess that '60' means 1960
 		      $y = "19$y";
-		  } else { 
+		  } else {
 		      $y = "20$y";
 		  }
 		  $self->warn("Date was malformed, guessing the century for $date to be $y\n");
 	      }
 	      $params{'-dates'} = [join('-',$d,$m,$y)];
-	  } else { 
+	  } else {
 	      $params{'-dates'} = [$date];
 	  }
       }
@@ -338,7 +335,7 @@ sub next_seq {
 			# accession number (there can be multiple accessions)
 			if( /^ACCESSION\s+(\S.*\S)/ ) {
 				push(@acc, split(/\s+/,$1));
-				while( defined($_ = $self->_readline) ) { 
+				while( defined($_ = $self->_readline) ) {
 					/^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
 					last;
 				}
@@ -363,7 +360,7 @@ sub next_seq {
 			# Keywords
 			elsif( /^KEYWORDS\s+(.*)/ ) {
 				my @kw = split(/\s*\;\s*/,$1);
-				while( defined($_ = $self->_readline) ) { 
+				while( defined($_ = $self->_readline) ) {
 					chomp;
 					/^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
 					last;
@@ -406,7 +403,7 @@ sub next_seq {
 					my $comment = $1;
 					while (defined($_ = $self->_readline)) {
 						last if (/^\S/);
-						$comment .= $_; 
+						$comment .= $_;
 					}
 					$comment =~ s/\n/ /g;
 					$comment =~ s/  +/ /g;
@@ -454,9 +451,9 @@ sub next_seq {
 				    if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
 					# will use $i to determine even or odd
 					# for swissprot the accessions are paired
-					my $i = 0; 
+					my $i = 0;
 					for my $dbsrc ( split(/,\s+/,$1) ) {
-					    if( $dbsrc =~ /(\S+)\.(\d+)/ || 
+					    if( $dbsrc =~ /(\S+)\.(\d+)/ ||
 						$dbsrc =~ /(\S+)/ ) {
 						my ($id,$version) = ($1,$2);
 						$version ='' unless defined $version;
@@ -496,8 +493,8 @@ sub next_seq {
 						     (-primary_id => $acc,
 						      -database => $db,
 						      -tagname => 'dblink'));
-					} 
-				    } else { 
+					}
+				    } else {
 					$self->debug("Cannot match $dbsource\n");
 				    }
 				    if( $dbsource =~ s/xrefs\s+\(non\-sequence\s+databases\):\s+
@@ -517,7 +514,7 @@ sub next_seq {
 						  -tagname => 'dblink'));
 					}
 				    }
-					
+
 				} else {
 				    if( $dbsource =~ /(\S+)\.(\d+)/ ) {
 					my ($id,$version) = ($1,$2);
@@ -527,10 +524,10 @@ sub next_seq {
 					     (-primary_id => $id . "." . $version,
 					      -version => $version,
 					      -database => 'GenBank',
-					      -tagname => 'dblink'));	
+					      -tagname => 'dblink'));
 				    }
 				}
-				
+
 				$buffer = $_;
 			    } else {
 				while(defined($buffer = $self->_readline())) {
@@ -572,7 +569,7 @@ sub next_seq {
 				# slurp in one feature at a time -- at return, the start of
 				# the next feature will have been read already, so we need
 				# to pass a reference, and the called method must set this
-				# to the last line read before returning 
+				# to the last line read before returning
 
 				my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
 
@@ -581,7 +578,7 @@ sub next_seq {
 				if( !defined $ftunit ) {
 					# GRRRR. We have fallen over. Try to recover
 					$self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
-					unless( ($buffer =~ /^\s{5,5}\S+/o) or 
+					unless( ($buffer =~ /^\s{5,5}\S+/o) or
 							  ($buffer =~ /^\S+/o)) {
 						$buffer = $self->_readline();
 					}
@@ -612,7 +609,7 @@ sub next_seq {
       if( defined ($_) ) {
 	  if( /^CONTIG/o ) {
 	      my @contig;
-	      while($_ !~ /^\/\//) { # end of file
+	      while($_ !~ m{^//}) { # end of file
 		  $_ =~ /^(?:CONTIG)?\s+(.*)/;
 		  $annotation->add_Annotation(
 					      Bio::Annotation::SimpleValue->new(-value   => $1,
@@ -628,9 +625,9 @@ sub next_seq {
 										-tagname => $1));
 		  $_ = $self->_readline;
 	      }
-	  } elsif(! /^(ORIGIN|\/\/)/ ) { # advance to the sequence, if any
+	  } elsif(! m{^(ORIGIN|//)} ) { # advance to the sequence, if any
 	      while (defined( $_ = $self->_readline) ) {
-		  last if /^(ORIGIN|\/\/)/;
+		  last if m{^(ORIGIN|//)};
 	      }
 	  }
       }
@@ -649,7 +646,7 @@ sub next_seq {
 				}
 				my $seqc = '';
 				while( defined($_ = $self->_readline) ) {
-					/^\/\// && last;
+					m{^//} && last;
 					$_ = uc($_);
 					s/[^A-Za-z]//g;
 					$seqc .= $_;
@@ -726,9 +723,9 @@ sub write_seq {
 	    $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
 		if $seq->display_id =~ /\s/;
 
-	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s", 
+	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s",
 				  'LOCUS', $seq->id(),$len,
-				  (lc($alpha) eq 'protein') ? ('aa','', '') : 
+				  (lc($alpha) eq 'protein') ? ('aa','', '') :
 				  ('bp', '',$mol),$circular,
 				  $div,$date);
 	}
@@ -762,7 +759,7 @@ sub write_seq {
 	if( defined $self->_sv_generation_func() ) {
 	    $temp_line = &{$self->_sv_generation_func}($seq);
 	    if( $temp_line ) {
-		$self->_print("VERSION     $temp_line\n");   
+		$self->_print("VERSION     $temp_line\n");
 	    }
 	} else {
 	    if($seq->isa('Bio::Seq::RichSeqI') && defined($seq->seq_version)) {
@@ -805,12 +802,12 @@ sub write_seq {
 		my ($on, $sn, $cn) = ($spec->organelle,
 							  $spec->scientific_name,
 							  $spec->common_name);
-		
+
         my $abname = $spec->name('abbreviated') ? # from genbank file
 		             $spec->name('abbreviated')->[0] : $sn;
 		my $sl = $on ? "$on "            : '';
 		$sl   .= $cn ? $abname." ($cn)." : "$abname.";
-        
+
         $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
         my @classification = $spec->classification;
@@ -824,7 +821,7 @@ sub write_seq {
 	my $count = 1;
 	foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
 	    $temp_line = "REFERENCE   $count";
-	    if ($ref->start) { 
+	    if ($ref->start) {
                 $temp_line .= sprintf ("  (%s %d to %d)",
                                        ($seq->alphabet() eq "protein" ?
                                         "residues" : "bases"),
@@ -946,7 +943,7 @@ sub write_seq {
 
 	    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
 				     $alen,$clen,$glen,$tlen,
-				     ( $olen > 0 ) ? 
+				     ( $olen > 0 ) ?
 				     sprintf("%6s others",$olen) : '');
 	    $self->_print($base_count);
 	}
@@ -981,7 +978,7 @@ sub write_seq {
 	    my $blocks = pack $out_pat,
 	    unpack($last_pat, $last);
 	    $blocks =~ s/ +$//;
-	    $self->_print(sprintf("%9d $blocks\n", 
+	    $self->_print(sprintf("%9d $blocks\n",
 				  $length - $last_len + 1));
 	}
 
@@ -998,7 +995,7 @@ sub write_seq {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -1006,9 +1003,9 @@ sub write_seq {
 
 sub _print_GenBank_FTHelper {
    my ($self,$fth) = @_;
-   
+
    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");   
+       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
    }
    $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
                  " "x21,
@@ -1045,7 +1042,7 @@ sub _print_GenBank_FTHelper {
  Title   : _read_GenBank_References
  Usage   :
  Function: Reads references from GenBank format. Internal function really
- Returns : 
+ Returns :
  Args    :
 
 
@@ -1055,7 +1052,7 @@ sub _read_GenBank_References{
    my ($self,$buffer) = @_;
    my (@refs);
    my $ref;
-   
+
    # assumme things are starting with RN
 
    if( $$buffer !~ /^REFERENCE/ ) {
@@ -1067,23 +1064,23 @@ sub _read_GenBank_References{
    my (@title,@loc,@authors,@consort,@com,@medline,@pubmed);
 
    REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
-       if (/^\s{2}AUTHORS\s+(.*)/o) { 
-	   push (@authors, $1);   
+       if (/^\s{2}AUTHORS\s+(.*)/o) {
+	   push (@authors, $1);
 	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{9,}(.*)/o && do { push (@authors, $1);next;};
 	       last;
 	   }
 	   $ref->authors(join(' ', @authors));
        }
-       if (/^\s{2}CONSRTM\s+(.*)/o) { 
-	   push (@consort, $1);   
+       if (/^\s{2}CONSRTM\s+(.*)/o) {
+	   push (@consort, $1);
 	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{9,}(.*)/o && do { push (@consort, $1);next;};
 	       last;
 	   }
 	   $ref->consortium(join(' ', @consort));
        }
-       if (/^\s{2}TITLE\s+(.*)/o)  { 
+       if (/^\s{2}TITLE\s+(.*)/o)  {
 	   push (@title, $1);
 	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{9,}(.*)/o && do { push (@title, $1);
@@ -1093,12 +1090,12 @@ sub _read_GenBank_References{
 	   }
 	   $ref->title(join(' ', @title));
        }
-       if (/^\s{2}JOURNAL\s+(.*)/o) { 
+       if (/^\s{2}JOURNAL\s+(.*)/o) {
 	   push(@loc, $1);
 	   while ( defined($_ = $self->_readline) ) {
 	       # we only match when there are at least 4 spaces
 	       # there is probably a better way to match this
-	       # as it assumes that the describing tag is short enough 
+	       # as it assumes that the describing tag is short enough
 	       /^\s{9,}(.*)/o && do { push(@loc, $1);
 				      next;
 				 };
@@ -1107,9 +1104,9 @@ sub _read_GenBank_References{
 	   $ref->location(join(' ', @loc));
 	   redo REFLOOP;
        }
-       if (/^\s{2}REMARK\s+(.*)/o) { 
+       if (/^\s{2}REMARK\s+(.*)/o) {
 	   push (@com, $1);
-	   while ( defined($_ = $self->_readline) ) {	       
+	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{9,}(.*)/o && do { push(@com, $1);
 				      next;
 				  };
@@ -1120,7 +1117,7 @@ sub _read_GenBank_References{
        }
        if( /^\s{2}MEDLINE\s+(.*)/ ) {
 	   push(@medline,$1);
-	   while ( defined($_ = $self->_readline) ) {	       
+	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{9,}(.*)/ && do { push(@medline, $1);
 				     next;
 				 };
@@ -1131,7 +1128,7 @@ sub _read_GenBank_References{
        }
        if( /^\s{3}PUBMED\s+(.*)/ ) {
 	   push(@pubmed,$1);
-	   while ( defined($_ = $self->_readline) ) {	       
+	   while ( defined($_ = $self->_readline) ) {
 	       /^\s{9,}(.*)/ && do { push(@pubmed, $1);
 				     next;
 				 };
@@ -1140,7 +1137,7 @@ sub _read_GenBank_References{
 	   $ref->pubmed(join(' ', @pubmed));
 	   redo REFLOOP;
        }
-       
+
        /^REFERENCE/o && do {
 	   # store current reference
 	   $self->_add_ref_to_array(\@refs,$ref) if $ref;
@@ -1224,7 +1221,7 @@ sub _add_ref_to_array {
            $genus = Ajellomyces
            $species = capsulatus
            $subspecies = var. farciminosus
-           
+
            ORGANISM  Hepatitis delta virus
            $genus = undef (though this virus has a genus in its lineage, we
                            can't know that without a database lookup)
@@ -1237,7 +1234,7 @@ sub _add_ref_to_array {
 
 sub _read_GenBank_Species {
 	my ($self, $buffer) = @_;
-	
+
 	my @unkn_names = ('other', 'unknown organism', 'not specified', 'not shown',
 							 'Unspecified', 'Unknown', 'None', 'unclassified',
 							 'unidentified organism', 'not supplied');
@@ -1284,7 +1281,7 @@ sub _read_GenBank_Species {
 		$_ = undef; # Empty $_ to trigger read of next line
 	}
 	$$buffer = $_;
-    
+
     # parse out organelle, common name, abbreviated name if present;
     # this should catch everything, but falls back to
     # entire SOURCE line just in case
@@ -1297,14 +1294,14 @@ sub _read_GenBank_Species {
     } else {
         $abbr_name = $sl; # nothing caught; this is a backup!
     }
-	
+
     $sci_name || return;
-    
+
     # Convert data in classification lines into classification array.
-    # only split on ';' or '.' so that classification that is 2 or more words will 
+    # only split on ';' or '.' so that classification that is 2 or more words will
 	# still get matched, use map() to remove trailing/leading/intervening spaces
     my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
-    
+
     # do we have a genus?
     my $possible_genus = $class[-1];
     $possible_genus .= "|$class[-2]" if $class[-2];
@@ -1315,7 +1312,7 @@ sub _read_GenBank_Species {
     else {
         $species = $sci_name;
     }
-    
+
     # is this organism of rank species or is it lower?
     # (we don't catch everything lower than species, but it doesn't matter -
     # this is just so we abide by previous behaviour whilst not calling a
@@ -1323,13 +1320,13 @@ sub _read_GenBank_Species {
     if ($species =~ /subsp\.|var\./) {
         ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
     }
-    
+
 	# Don't make a species object if it's empty or "Unknown" or "None"
 	# return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
 	# Don't make a species object if it belongs to taxid 32644
 	my $unkn = grep { $_ =~ /^\Q$sl\E$/; } @unkn_names;
 	return unless ($species || $genus) and $unkn == 0;
-    
+
 	# Bio::Species array needs array in Species -> Kingdom direction
 	push(@class, $sci_name);
 	@class = reverse @class;
@@ -1350,19 +1347,19 @@ sub _read_GenBank_Species {
  Usage   : _read_FTHelper_GenBank($buffer)
  Function: reads the next FT key line
  Example :
- Returns : Bio::SeqIO::FTHelper object 
+ Returns : Bio::SeqIO::FTHelper object
  Args    : filehandle and reference to a scalar
 
 =cut
 
 sub _read_FTHelper_GenBank {
 	my ($self,$buffer) = @_;
-    
+
 	my ($key,   # The key of the feature
 		 $loc    # The location line from the feature
 		);
 	my @qual = (); # An array of lines making up the qualifiers
-    
+
 	if ($$buffer =~ /^\s{5}(\S+)\s+(.+?)\s*$/o) {
 		$key = $1;
 		$loc = $2;
@@ -1393,13 +1390,13 @@ sub _read_FTHelper_GenBank {
 	} else {
 		# No feature key
 		$self->debug("no feature key!\n");
-		# change suggested by JDiggans to avoid infinite loop- 
+		# change suggested by JDiggans to avoid infinite loop-
 		# see bugreport 1062.
 		# reset buffer to prevent infinite loop
 		$$buffer = $self->_readline();
 		return;
-	} 
-    
+	}
+
 	# Put the first line of the next feature into the buffer
 	$$buffer = $_;
 
@@ -1411,7 +1408,7 @@ sub _read_FTHelper_GenBank {
 
 	# Now parse and add any qualifiers.  (@qual is kept
 	# intact to provide informative error messages.)
- QUAL: 
+ QUAL:
 	for (my $i = 0; $i < @qual; $i++) {
 		$_ = $qual[$i];
 		my( $qualifier, $value ) = (m{^/([^=]+)(?:=(.+))?})
@@ -1460,10 +1457,10 @@ sub _read_FTHelper_GenBank {
 										join("\n", @qual).
 										"\nNo further qualifiers will ".
 										"be added for this feature");
-						last QUAL; 
+						last QUAL;
 					}
 					$i++;
-					my $next = $qual[$i];		    
+					my $next = $qual[$i];
 					$value .= $next;
 					$left += ($next =~ tr/\(/\(/);
 								 $right += ($next =~ tr/\)/\)/);
@@ -1475,7 +1472,7 @@ sub _read_FTHelper_GenBank {
 			# Store the qualifier
 			$out->field->{$qualifier} ||= [];
 			push(@{$out->field->{$qualifier}},$value);
-		}       
+		}
 	return $out;
 }
 
@@ -1485,7 +1482,7 @@ sub _read_FTHelper_GenBank {
  Usage   :
  Function: internal function
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -1514,7 +1511,7 @@ sub _write_line_GenBank{
  Title   : _write_line_GenBank_regex
  Usage   :
  Function: internal function for writing lines of specified
-           length, with different first and the next line 
+           length, with different first and the next line
            left hand headers and split at specific points in the
            text
  Example :
@@ -1526,7 +1523,7 @@ sub _write_line_GenBank{
 
 sub _write_line_GenBank_regex {
    my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
-   
+
    #print STDOUT "Going to print with $line!\n";
 
    $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
@@ -1536,11 +1533,11 @@ sub _write_line_GenBank_regex {
 
    CHUNK: while($line) {
        foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
-	   if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {	
+	   if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {
 	       my $l = $1.$2;
 	       my $newl = $3;
 	       $line = substr($line,length($l));
-	       # be strict about not padding spaces according to 
+	       # be strict about not padding spaces according to
 	       # genbank format
 	       $l =~ s/\s+$//;
 	       push(@lines, $l);
@@ -1564,7 +1561,7 @@ sub _write_line_GenBank_regex {
 
  Title   : _post_sort
  Usage   : $obj->_post_sort($newval)
- Function: 
+ Function:
  Returns : value of _post_sort
  Args    : newvalue (optional)
 
@@ -1583,7 +1580,7 @@ sub _post_sort{
 
  Title   : _show_dna
  Usage   : $obj->_show_dna($newval)
- Function: 
+ Function:
  Returns : value of _show_dna
  Args    : newvalue (optional)
 
@@ -1602,7 +1599,7 @@ sub _show_dna{
 
  Title   : _id_generation_func
  Usage   : $obj->_id_generation_func($newval)
- Function: 
+ Function:
  Returns : value of _id_generation_func
  Args    : newvalue (optional)
 
@@ -1621,7 +1618,7 @@ sub _id_generation_func{
 
  Title   : _ac_generation_func
  Usage   : $obj->_ac_generation_func($newval)
- Function: 
+ Function:
  Returns : value of _ac_generation_func
  Args    : newvalue (optional)
 
@@ -1640,7 +1637,7 @@ sub _ac_generation_func{
 
  Title   : _sv_generation_func
  Usage   : $obj->_sv_generation_func($newval)
- Function: 
+ Function:
  Returns : value of _sv_generation_func
  Args    : newvalue (optional)
 
@@ -1649,7 +1646,7 @@ sub _ac_generation_func{
 
 sub _sv_generation_func{
    my ($obj,$value) = @_;
-   if( defined $value ) {      
+   if( defined $value ) {
       $obj->{'_sv_generation_func'} = $value;
     }
     return $obj->{'_sv_generation_func'};
@@ -1660,7 +1657,7 @@ sub _sv_generation_func{
 
  Title   : _kw_generation_func
  Usage   : $obj->_kw_generation_func($newval)
- Function: 
+ Function:
  Returns : value of _kw_generation_func
  Args    : newvalue (optional)
 

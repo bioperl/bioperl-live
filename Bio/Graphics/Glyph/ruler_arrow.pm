@@ -1,10 +1,17 @@
 package Bio::Graphics::Glyph::ruler_arrow;
 # package to use for drawing an arrow as ruler (5' and 3' are marked as label)
 
+# $Id$
+# Non object-oriented utilities used here-and-there in Bio::Graphics modules
+
+=head1 NAME
+
+Bio::Graphics::Glyph::ruler_arrow - glyph for drawing an arrow as ruler (5' and 3' are marked as label)
+
+=cut
+
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::generic;
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 my %UNITS = (K => 1000,
 	     M => 1_000_000,

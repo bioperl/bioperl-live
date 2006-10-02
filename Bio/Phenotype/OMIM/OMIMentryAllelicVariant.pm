@@ -20,10 +20,10 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-OMIMentryAllelicVariant - Representation of a allelic variant of the OMIM database
+Bio::Phenotype::OMIM::OMIMentryAllelicVariant - Representation of a allelic
+variant of the OMIM database
 
 =head1 SYNOPSIS
 
@@ -89,13 +89,9 @@ methods.
 
 
 package Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
 
-@ISA = qw( Bio::Root::Root );
-
-
+use base qw(Bio::Root::Root);
 
 =head2 new
 

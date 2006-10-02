@@ -107,11 +107,9 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Search::Result::ResultI;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::AnalysisResultI;
 
-@ISA = qw( Bio::AnalysisResultI );
+use base qw(Bio::AnalysisResultI);
 
 
 =head2 next_hit

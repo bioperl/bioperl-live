@@ -59,7 +59,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Search::Processor;
 
 use strict;
-use vars qw(@ISA);
 
 use Bio::Root::Version;
 

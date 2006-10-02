@@ -41,9 +41,9 @@ does speed up access somewhat.
 
 To use this class, pass the name of the class to the
 Bio::DB::SeqFeature::Store object's seqfeature_class() method. After
-this, $db->new_feature() will create objects of type
+this, $db-E<gt>new_feature() will create objects of type
 Bio::DB::SeqFeature::NormalizedFeature. If you are using the GFF3
-loader, pass Bio::DB::SeqFeature::Store::GFF3Loader->new() the
+loader, pass Bio::DB::SeqFeature::Store::GFF3Loader-E<gt>new() the
 -seqfeature_class argument:
 
   use Bio::DB::SeqFeature::Store::GFF3Loader;
@@ -53,6 +53,7 @@ loader, pass Bio::DB::SeqFeature::Store::GFF3Loader->new() the
                 -store=>$db,
                 -seqfeature_class => 'Bio::DB::SeqFeature::NormalizedFeature'
                );
+
 =cut
 
 use strict;
@@ -86,8 +87,8 @@ This method creates and, if possible stores into a database, a new
 Bio::DB::SeqFeature::NormalizedFeature object using the specialized
 Bio::DB::SeqFeature class.
 
-The arguments are the same to Bio::SeqFeature::Generic->new() and
-Bio::Graphics::Feature->new(). The most important difference is the
+The arguments are the same to Bio::SeqFeature::Generic-E<gt>new() and
+Bio::Graphics::Feature-E<gt>new(). The most important difference is the
 B<-store> option, which if present creates the object in a
 Bio::DB::SeqFeature::Store database, and he B<-index> option, which
 controls whether the feature will be indexed for retrieval (default is
@@ -353,7 +354,7 @@ sub segment  {
 If you use an unknown method that begins with a capital letter, then
 the feature autogenerates a call to get_SeqFeatures() using the
 lower-cased method name as the primary_tag. In other words
-$feature->Exon is equivalent to:
+$feature-E<gt>Exon is equivalent to:
 
  @subfeature s= $feature->get_SeqFeatures('exon')
 
@@ -407,24 +408,82 @@ sub _add_segment {
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
+  # fix boundaries
+  $self->_fix_boundaries(\@segments,$normalized);
+
+  # freakish fixing of our non-standard Target attribute
+  $self->_fix_target(\@segments);
+
+  $self->update if $self->primary_id; # write us back to disk
+}
+
+sub _fix_boundaries {
+  my $self     = shift;
+  my ($segments,$normalized) = @_;
+
   my $min_start = $self->start ||  999_999_999_999;
   my $max_stop  = $self->end   || -999_999_999_999;
 
-  for my $seg (@segments) {
+  for my $seg (@$segments) {
     $min_start     = $seg->start if $seg->start < $min_start;
     $max_stop      = $seg->end   if $seg->end   > $max_stop;
     my $id_or_seg  = $normalized ? $seg->primary_id : $seg;
-    defined $id_or_seg or croak "No primary ID when there should be";
+    defined $id_or_seg or $self->throw("No primary ID when there should be");
     push @{$self->{segments}},$id_or_seg;
   }
 
   # adjust our boundaries, etc.
   $self->start($min_start) if $min_start < $self->start;
   $self->end($max_stop)    if $max_stop  > $self->end;
-  $self->{ref}           ||= $segments[0]->seq_id;
-  $self->{strand}        ||= $segments[0]->strand;
+  $self->{ref}           ||= $segments->[0]->seq_id;
+  $self->{strand}        ||= $segments->[0]->strand;
+}
 
-  $self->update if $self->primary_id; # write us back to disk
+sub _fix_target {
+  my $self = shift;
+  my $segs = shift;
+
+  # freakish fixing of our non-standard Target attribute
+  if (my $t = ($self->attributes('Target'))[0]) {
+    my ($seqid,$tstart,$tend,$strand) = split /\s+/,$t;
+    my $min_tstart = $tstart;
+    my $max_tend   = $tend;
+    for my $seg (@$segs) {
+      my $st = ($seg->attributes('Target'))[0] or next;
+      (undef,$tstart,$tend) = split /\s+/,$st;
+      $min_tstart     = $tstart if $tstart < $min_tstart;
+      $max_tend       = $tend   if $tend   > $max_tend;
+    }
+    if ($min_tstart < $tstart or $max_tend > $tend) {
+      $self->{attributes}{Target}[0] = join ' ',($seqid,$min_tstart,$max_tend,$strand||'');
+    }
+  }
+}
+
+# undo the load_id and Target hacks on the way out
+sub format_attributes {
+  my $self   = shift;
+  my $parent = shift;
+  my $load_id   = $self->load_id || '';
+  my ($target)  = split /\s+/,($self->attributes('Target'))[0];
+  $target ||= '';
+  my @tags = $self->all_tags;
+  my @result;
+  for my $t (@tags) {
+    my @values = $self->each_tag_value($t);
+    @values = grep {$_ ne $load_id && $_ ne $target} @values if $t eq 'Alias';
+    # these are hacks, which we don't want to appear in the file
+    next if $t eq 'load_id';
+    next if $t eq 'parent_id';
+
+    push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
+  }
+  my $id   = $self->primary_id;
+  my $name = $self->display_name;
+  push @result,"ID=".$self->escape($id)                     if defined $id;
+  push @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
+  push @result,"Name=".$self->escape($name)                 if defined $name;
+  return join ';',@result;
 }
 
 sub _create_subfeatures {
@@ -531,7 +590,7 @@ future versions of the module.
 =cut
 
 sub load_id {
-  return shift->attributes('load_id');
+  return (shift->attributes('load_id'))[0];
 }
 
 
@@ -613,11 +672,11 @@ sub target {
 
 =over 4
 
-=item $feature->as_string()
+=item $feature-E<gt>as_string()
 
 Internal method used to implement overloaded stringification.
 
-=item $boolean = $feature->type_match(@list_of_types)
+=item $boolean = $feature-E<gt>type_match(@list_of_types)
 
 Internal method that will return true if the feature's primary_tag and
 source_tag match any of the list of types (in primary_tag:source_tag

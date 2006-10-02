@@ -62,13 +62,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::WidestCoordPolicy;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Location::CoordinatePolicyI;
 
-@ISA = qw(Bio::Root::Root Bio::Location::CoordinatePolicyI);
+use base qw(Bio::Root::Root Bio::Location::CoordinatePolicyI);
 
 sub new { 
     my ($class, @args) = @_;

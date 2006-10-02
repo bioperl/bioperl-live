@@ -52,8 +52,6 @@ web:
 
 Email hlapp-at-gmx.net
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -65,12 +63,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Prediction::Exon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Gene::Exon;
 
-@ISA = qw(Bio::SeqFeature::Gene::Exon);
+use base qw(Bio::SeqFeature::Gene::Exon);
 
 sub new {
     my($class,@args) = @_;

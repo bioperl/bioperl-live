@@ -16,17 +16,24 @@ Bio::Search::Hit::Fasta - Hit object specific for Fasta-generated hits
 
 =head1 SYNOPSIS
 
-  # These objects are generated automatically by
-  # Bio::Search::Processor::Fasta, and shouldn't be used directly.
+  # You wouldn't normally create these manually; 
+  # instead they would be produced by Bio::SearchIO::fasta
 
-See L<Bio::Search::Processor::Fasta>.
+  use Bio::Search::Hit::Fasta;
+  my $hit = Bio::Search::Hit::Fasta->new(id=>'LBL_6321', desc=>'lipoprotein', e_val=>0.01);
 
 =head1 DESCRIPTION
 
-    Bio::Search::Hit::* objects are data structures that contain information
+L<Bio::Search::Hit::HitI> objects are data structures that contain information
 about specific hits obtained during a library search.  Some information will
 be algorithm-specific, but others will be generally defined, such as the
 ability to obtain alignment objects corresponding to each hit.
+
+=head1 SEE ALSO
+
+L<Bio::Search::Hit::HitI>,
+L<Bio::Search::Hit::GenericHit>,
+L<Bio::SearchIO::fasta>.
 
 =head1 FEEDBACK
 
@@ -64,31 +71,21 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Search::Hit::Fasta;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
+use base qw(Bio::Search::Hit::HitI);
 
-use Bio::Search::Hit::HitI;
-
-@ISA = qw(Bio::Search::Hit::HitI);
-
-my @AUTOLOAD_OK = qw(        _ID
-                             _DESC
-                             _SIZE
-                             _INITN
-                             _INIT1
-                             _OPT
-                             _ZSC
-                             _E_VAL
-                    );
+my @AUTOLOAD_OK = qw(_ID _DESC _SIZE _INITN _INIT1 _OPT _ZSC _E_VAL);
 
 my %AUTOLOAD_OK = ();
 @AUTOLOAD_OK{@AUTOLOAD_OK} = (1) x @AUTOLOAD_OK;
 
-# new() is inherited from Bio::Root::Object
+=head2 _initialize
 
-# _initialize is where the heavy stuff will happen when new is called
+ Function: where the heavy stuff will happen when new is called
+
+=cut
 
 sub _initialize {
     my($self, %args) = @_;
@@ -102,6 +99,12 @@ sub _initialize {
 
     return $make; # success - we hope!
 }
+
+=head2 AUTOLOAD
+
+ Function: Provide getter/setters for ID,DESC,SIZE,INITN,INIT1,OPT,ZSC,E_VAL
+
+=cut
 
 sub AUTOLOAD {
     my ($self, $val) = @_;
@@ -118,4 +121,3 @@ sub AUTOLOAD {
 
 1;
 
-__END__

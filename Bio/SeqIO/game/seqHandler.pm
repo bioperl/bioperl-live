@@ -59,15 +59,14 @@ package Bio::SeqIO::game::seqHandler;
 use Data::Dumper;
 
 use Bio::SeqIO::game::featHandler;
-use Bio::SeqIO::game::gameSubs;
 use Bio::SeqFeature::Generic;
 use Bio::Seq::RichSeq;
 use Bio::Species;
 use strict;
 
-use vars qw { @ISA };
+use vars qw {};
 
-@ISA = qw{ Bio::SeqIO::game::gameSubs };
+use base qw(Bio::SeqIO::game::gameSubs);
 
 =head2 new
 

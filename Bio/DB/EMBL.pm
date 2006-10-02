@@ -96,13 +96,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::EMBL;
 use strict;
-use vars qw(@ISA $MODVERSION %HOSTS  %FORMATMAP  $DEFAULTFORMAT);
+use vars qw($MODVERSION %HOSTS %FORMATMAP  $DEFAULTFORMAT);
 
 $MODVERSION = '0.2';
-use Bio::DB::DBFetch;
 use Bio::DB::RefSeq;
 
-@ISA = qw(Bio::DB::DBFetch);
+use base qw(Bio::DB::DBFetch);
 
 BEGIN {
     # you can add your own here theoretically.

@@ -64,12 +64,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::CytoMarker;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::Marker;
 use Bio::Map::CytoPosition;
 
-@ISA = qw(Bio::Map::Marker);
+use base qw(Bio::Map::Marker);
 
 
 =head2 Bio::Map::MarkerI methods

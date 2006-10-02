@@ -67,11 +67,9 @@ The rest of the documentation details each of the object methods.
 package Bio::Factory::ResultFactoryI;
 
 use strict;
-use Bio::Root::RootI;
 
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::RootI); 
+use base qw(Bio::Root::RootI);
 
 =head2 create_result
 

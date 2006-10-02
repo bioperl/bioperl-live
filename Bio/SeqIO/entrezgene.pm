@@ -21,14 +21,13 @@ Bio::SeqIO::entrezgene - Entrez Gene ASN1 parser
 =head1 DESCRIPTION
 
 This is EntrezGene ASN bioperl parser. It is built on top of 
-Bio::ASN1::EntrezGene, a low level ASN parser built by Mingyi Liu 
+L<Bio::ASN1::EntrezGene>, a low level ASN parser built by Mingyi Liu 
 (L<http://sourceforge.net/projects/egparser>). The easiest way to 
 use it is shown above.
 
 You will get most of the Entrez Gene annotation such as gene symbol, 
 gene name and description, accession numbers associated 
-with the gene, etc. Almost all of these are given as Annotation objects.
-A comprehensive list of those objects will be available here later.
+with the gene, etc. Almost all of these are given as  L<Bio::AnnotationI> objects.
 
 If you need all the data do:
 
@@ -37,19 +36,19 @@ If you need all the data do:
                                -debug => 'on' );
    my ($gene,$genestructure,$uncaptured) = $seqio->next_seq;
 
-The second variable returned, $genestructure, is a Bio::Cluster::SequenceFamily 
+The second variable returned, C<$genestructure>, is a L<Bio::Cluster::SequenceFamily>
 object. It contains all Refseqs and the genomic contigs that are associated 
-with the particular gene. The third variable, $uncaptured, is a reference 
+with the particular gene. The third variable, C<$uncaptured>, is a reference 
 to a plain array.
 
-You can also modify the output to allow back compatibility with old 
+You can also modify the output to allow back compatibility with the old 
 LocusLink parser:
 
    my $seqio = Bio::SeqIO->new(-format => 'entrezgene',
                                -file => $file,
                                -locuslink => 'convert');
 
-The -debug and -locuslink options slow down the parser.
+The C<-debug> and C<-locuslink> options slow down the parser.
 
 =head1 FEEDBACK
 
@@ -74,8 +73,6 @@ the web:
 
 Email skirov at utk.edu
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Hilmar Lapp, hlapp at gmx.net
@@ -92,7 +89,6 @@ Internal methods are usually preceded with a _
 package Bio::SeqIO::entrezgene;
 
 use strict;
-use vars qw(@ISA);
 use Bio::ASN1::EntrezGene;
 use Bio::Seq;
 use Bio::Species;
@@ -108,9 +104,8 @@ use Bio::Cluster::SequenceFamily;
 #use Bio::Ontology::Ontology; Relationships.... later
 use Bio::Ontology::Term;
 use Bio::Annotation::OntologyTerm;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 %main::eg_to_ll =('Official Full Name' => 'OFFICIAL_GENE_NAME',
 						  'chromosome' => 'CHR',
@@ -897,6 +892,7 @@ my $category=shift;
     $term->namespace($category);
 return $term;
 }
+
 
 sub _backcomp_ll {
 my $ann=shift;

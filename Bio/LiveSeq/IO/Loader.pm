@@ -41,7 +41,6 @@ package Bio::LiveSeq::IO::Loader;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw(@ISA);
 use Bio::LiveSeq::DNA;
 use Bio::LiveSeq::Exon;
 use Bio::LiveSeq::Transcript ;
@@ -53,8 +52,6 @@ use Bio::LiveSeq::Repeat_Region;
 use Bio::LiveSeq::Repeat_Unit;
 use Bio::LiveSeq::AARange;
 use Bio::Tools::CodonTable;
-
-#@ISA=qw(Bio::LiveSeq::); # not useful now
 
 =head2 entry2liveseq
 
@@ -879,12 +876,12 @@ sub _get_alignment {
   my $fastafile2="/tmp/tmpfastafile2";
   my $grepcut='egrep -v "[[:digit:]]|^ *$|sequences" | cut -c8-'; # grep/cut
   my $alignprogram="/usr/local/etc/bioinfo/fasta2/align -s /usr/local/etc/bioinfo/fasta2/idnaa.mat $fastafile1 $fastafile2 2>/dev/null | $grepcut"; # ALIGN
-  open TMPFASTAFILE1,">$fastafile1" || croak "Cannot write into $fastafile1 for aa alignment";
-  open TMPFASTAFILE2,">$fastafile2" || croak "Cannot write into $fastafile1 for aa alignment";
-  print TMPFASTAFILE1 ">firstseq\n$seq1\n";
-  print TMPFASTAFILE2 ">secondseq\n$seq2\n";
-  close TMPFASTAFILE1;
-  close TMPFASTAFILE2;
+  open my $TMPFASTAFILE1,">$fastafile1" || croak "Cannot write into $fastafile1 for aa alignment";
+  open my $TMPFASTAFILE2,">$fastafile2" || croak "Cannot write into $fastafile1 for aa alignment";
+  print $TMPFASTAFILE1 ">firstseq\n$seq1\n";
+  print $TMPFASTAFILE2 ">secondseq\n$seq2\n";
+  close $TMPFASTAFILE1;
+  close $TMPFASTAFILE2;
   my $alignment=`$alignprogram`;
   my @alignlines=split(/\n/,$alignment);
   my ($linecount,$seq1_aligned,$seq2_aligned,$codes);

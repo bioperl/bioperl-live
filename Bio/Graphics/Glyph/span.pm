@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::span;
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::anchored_arrow';
-use Bio::Graphics::Glyph::anchored_arrow;
+use base qw(Bio::Graphics::Glyph::anchored_arrow);
 
 sub no_trunc { 0 }
 

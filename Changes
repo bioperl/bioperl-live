@@ -4,15 +4,57 @@ Revision history for Bioperl core modules
 
 Main trunk
 
-    o Bio::TreeIO
-      - fixed nexus writer bug that was not properly pushing the node IDs out
-        in the tree stanza (merged to 1.5.1 branch post 1.5.1 release).
-    
-    o Bio::Factory::FTLocationFactory
-      - bug #1754, handle UNCERTAIN values
+    n/a
 
 1.5 series - these releases represent the pre-1.6 releases, the 1.6 series
     will be branches from the last 1.5.x release. 
+
+1.5.2 Developer release
+    Full details of changes since 1.5.1 are available online at:
+    http://www.bioperl.org/wiki/Change_log
+    The following represents a brief overview of the most important changes.
+
+    o Bio::Map
+      - Overhaul. Brand new system fully allows markers to have multiple
+        positions on multiple maps, and to have relative positions. Should be
+        backward compatible.
+    
+    o Bio::Taxonomy
+      - This module and all the modules in the Taxonomy directory now
+        deprecated in favour of Bio::Taxon and Bio::Tree::Tree
+    
+    o Bio::DB::Taxonomy
+      
+      - Taxonomy.pm
+        * get_Taxonomy_Node() eventually to be deprecated, renamed get_taxon().
+        
+        * New methods ancestor(), each_Descendent() and _handle_internal_id().
+        
+        * Allows for different database modules to create Bio::Taxon objects
+          with the same internal id when the same taxon is requested from each.
+    
+      - flatfile.pm
+        * get_Children_Taxids() is deprecated, superceded by each_Descendent().
+        
+        * No longer includes the fake root node 'root'; there are multiple roots
+          now (10239, 12884, 12908, 29384 and 131567). Consistent with entrez.pm
+    
+      - entrez.pm
+        * get_node() has new option -full
+        
+        * Caches data retrieved from website
+    
+    o Bio::Species
+      - Now a Bio::Taxon. Carries out the species name -> specific name munging
+        that Bio::DB::Taxonomy modules and SeqIO modules used to do, for
+        backward compatability in species() method.
+    
+    o Bio::Search and Bio::SearchIO
+      - Overhaul. The existing system has been sped up via some minor changes
+        (mostly gain-of-function to the API). Bio::PullParserI is introduced
+        as a potential eventual replacment for the existing system, though as
+        yet only a Hmmpfam parser exists written using it.
+
 
 1.5.1 Developer release
 
@@ -85,7 +127,6 @@ Main trunk
       - Node height and depth now properly calculated
 
       - fix tree pruning algorithm so that node with 1 child gets merged
-
 
     o Graphics tweaks.  Glyph::xyplot improved.  Many other small-medium sized
       bugs and improvements were added, see Gbrowse mailing list for most of 

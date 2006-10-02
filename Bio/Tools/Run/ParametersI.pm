@@ -61,14 +61,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Run::ParametersI;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 get_parameter
 

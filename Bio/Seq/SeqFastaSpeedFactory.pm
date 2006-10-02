@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Seq::SeqFactory
+# BioPerl module for Bio::Seq::SeqFastaSpeedFactory
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -12,19 +12,19 @@
 
 =head1 NAME
 
-Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
+Bio::Seq::SeqFastaSpeedFactory - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
 
 =head1 SYNOPSIS
 
-    use Bio::Seq::SeqFactory;
-    my $factory = new Bio::Seq::SeqFactory;
+    use Bio::Seq::SeqFastaSpeedFactory;
+    my $factory = new Bio::Seq::SeqFastaSpeedFactory;
     my $seq = $factory->create(-seq => 'WYRAVLC',
 			       -id  => 'name');
 
     # If you want the factory to create Bio::Seq objects instead
     # of the default Bio::PrimarySeq objects, use the -type parameter:
 
-    my $factory = new Bio::Seq::SeqFactory(-type => 'Bio::Seq');
+    my $factory = new Bio::Seq::SeqFastaSpeedFactory(-type => 'Bio::Seq');
 
 
 =head1 DESCRIPTION
@@ -54,12 +54,6 @@ web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -72,22 +66,19 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::SeqFastaSpeedFactory;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Factory::SequenceFactoryI;
 use Bio::Seq;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
+use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::SeqFactory();
- Function: Builds a new Bio::Seq::SeqFactory object 
- Returns : Bio::Seq::SeqFactory
+ Usage   : my $obj = new Bio::Seq::SeqFastaSpeedFactory();
+ Function: Builds a new Bio::Seq::SeqFastaSpeedFactory object 
+ Returns : Bio::Seq::SeqFastaSpeedFactory
  Args    : -type => string, name of a PrimarySeqI derived class
                     This is optional. Default=Bio::PrimarySeq.
 

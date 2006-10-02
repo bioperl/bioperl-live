@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::merge_parts;
 
 use strict;
-use Bio::Graphics::Glyph;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph';
+use base qw(Bio::Graphics::Glyph);
 
 sub merge_parts {
     my ($self,@parts)  = @_;
@@ -83,7 +81,7 @@ __END__
 
 =head1 NAME
 
-Bio::Graphics::Glyph::merge_parts
+Bio::Graphics::Glyph::merge_parts - a base class which suppors semantic zooming of scored alignment features
 
 =head1 SYNOPSIS
 

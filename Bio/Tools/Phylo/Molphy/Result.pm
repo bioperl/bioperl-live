@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::Molphy::Result - DESCRIPTION of Object
+Bio::Tools::Phylo::Molphy::Result - container for data parsed from a ProtML run
 
 =head1 SYNOPSIS
 
@@ -102,15 +102,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::Molphy::Result;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 

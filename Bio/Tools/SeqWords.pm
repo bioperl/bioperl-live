@@ -120,12 +120,10 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::SeqWords;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my($class,@args) = @_;

@@ -33,20 +33,15 @@ Bio::SeqFeature::SiRNA::Pair - Perl object for small inhibitory RNA
 
 =head1 DESCRIPTION
 
-Object methods for (complementary) pairs of SiRNA::Oligo objects -
-inherits Bio::SeqFeature::Generic.  See that package for information
+Object methods for (complementary) pairs of L<Bio::SeqFeature::SiRNA::Oligo> 
+objects - inherits L<Bio::SeqFeature::Generic>. See that package for information
 on inherited methods.
 
-DOES NOT include methods for designing SiRNAs -- see
-L<Bio::Tools::SiRNA>
-
-=head2 EXPORT
-
-None by default.
+Does B<not> include methods for designing SiRNAs -- see L<Bio::Tools::SiRNA>
 
 =head1 SEE ALSO
 
-L<Bio::SeqFeature::Oligo>, L<Bio::Tools::SiRNA>, L<perl>.
+L<Bio::SeqFeature::Oligo>, L<Bio::Tools::SiRNA>.
 
 =head1 FEEDBACK
 
@@ -71,10 +66,6 @@ the web:
 
 Donald Jackson (donald.jackson@bms.com)
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -88,9 +79,8 @@ require 5.005_62;
 use strict;
 use warnings;
 
-use Bio::SeqFeature::Generic;
 
-our @ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 # arguments to new().  Taken from Bio::SeqFeature Generic.
 # Omit frame (not relevant), GFF_STRING and GFF1_STRING 

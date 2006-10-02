@@ -22,7 +22,8 @@
 
 =head1 NAME
 
-OMIMentry - represents OMIM (Online Mendelian Inheritance in Man) database entries
+Bio::Phenotype::OMIM::OMIMentry - represents OMIM (Online Mendelian
+Inheritance in Man) database entries
 
 =head1 SYNOPSIS
 
@@ -81,10 +82,8 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Phenotype::OMIM::OMIMentry;
-use vars qw( @ISA );
 use strict;
 
-use Bio::Phenotype::Phenotype;
 use Bio::Phenotype::OMIM::MiniMIMentry;
 use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
 
@@ -92,7 +91,7 @@ use constant TRUE              => 1;
 use constant FALSE             => 0;
 use constant DEFAULT_MIM_NUMER => 0;
 
-@ISA = qw( Bio::Phenotype::Phenotype );
+use base qw(Bio::Phenotype::Phenotype);
 
 
 

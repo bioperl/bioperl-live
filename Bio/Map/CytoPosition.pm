@@ -87,13 +87,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::CytoPosition;
-use vars qw(@ISA);
 
 use strict;
 use integer;
-use Bio::Map::Position;
 
-@ISA = qw(Bio::Map::Position);
+use base qw(Bio::Map::Position);
 
 =head2 cytorange
 
@@ -526,25 +524,15 @@ sub value {
  Title   : numeric
  Usage   : my $num = $position->numeric;
  Function: Read-only method that is guarantied to return a numeric 
-           representation of the start of this position. 
-
-           This instanse of the method can also be set, but you better
-           know what you are doing.
-
+           representation of the start of this position.
  Returns : int (the start of the range)
  Args    : optional Bio::RangeI object 
 
 =cut
 
 sub numeric {
-   my ($self, $value) = @_;
-
-   if ($value) {
-       $self->throw("This is not a Bio::RangeI object but a [$value]")
-	   unless $value->isa('Bio::RangeI');
-       $self->value($self->range2value($value));
-   }
-   return $self->start;
+   my $self = shift;
+   return $self->start(@_);
 }
 
 =head2 chr

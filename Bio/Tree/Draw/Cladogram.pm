@@ -56,9 +56,9 @@ first tree can be connected to more than one taxon of the second tree,
 and vice versa.
 
 The branch from the parent to a child $node, as well as the child
-label, can be colored by setting $node->add_tag_value('Rcolor',$r),
-$node->add_tag_value('Gcolor',$g), and
-$node->add_tag_value('Bcolor',$b), where $r, $g, and $b are the
+label, can be colored by setting $node-E<gt>add_tag_value('Rcolor',$r),
+$node-E<gt>add_tag_value('Gcolor',$g), and
+$node-E<gt>add_tag_value('Bcolor',$b), where $r, $g, and $b are the
 desired values for red, green, and blue (zero for lowest, one for
 highest intensity).
 
@@ -108,15 +108,13 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tree::Draw::Cladogram;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 use PostScript::TextBlock;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # The following private package variables are set by the new method
 # and used by the print method.
@@ -423,22 +421,22 @@ sub print {
   my ($file) = $self->_rearrange([qw(FILE)], @args);
   $file ||= "output.eps"; # stdout
 
-  open(INFO,">$file");
-  print INFO "%!PS-Adobe-\n";
-  print INFO "%%BoundingBox: 0 0 ", $width, " ", $height, "\n";
-  print INFO "1 setlinewidth\n";
-  print INFO "/$font findfont\n";
-  print INFO "$size scalefont\n";
-  print INFO "setfont\n";
+  open(my $INFO,">", $file);
+  print $INFO "%!PS-Adobe-\n";
+  print $INFO "%%BoundingBox: 0 0 ", $width, " ", $height, "\n";
+  print $INFO "1 setlinewidth\n";
+  print $INFO "/$font findfont\n";
+  print $INFO "$size scalefont\n";
+  print $INFO "setfont\n";
 
   # taxa labels are centered to 1/3 the font size
 
   for my $taxon (reverse $t1->get_leaf_nodes) {
     if ($colors) {
-      print INFO $Rcolor{$taxon}, " ", $Gcolor{$taxon}, " ", $Bcolor{$taxon}, " setrgbcolor\n";
+      print $INFO $Rcolor{$taxon}, " ", $Gcolor{$taxon}, " ", $Bcolor{$taxon}, " setrgbcolor\n";
     }
-    print INFO $xx{$taxon} + $tip, " ", $yy{$taxon} - $size / 3, " moveto\n";
-    print INFO "(", $taxon->id, ") show\n";
+    print $INFO $xx{$taxon} + $tip, " ", $yy{$taxon} - $size / 3, " moveto\n";
+    print $INFO "(", $taxon->id, ") show\n";
   }
 
   my $root1 = $t1->get_root_node;
@@ -447,12 +445,12 @@ sub print {
       # print $xx{$node->ancestor}, " ", $yy{$node->ancestor}, " moveto\n";
       # print $xx{$node}, " ", $yy{$node}, " lineto\n";
       if ($colors) {
-	print INFO "stroke\n";
-	print INFO $Rcolor{$node->ancestor}, " ", $Gcolor{$node->ancestor}, " ", $Bcolor{$node->ancestor}, " setrgbcolor\n";
+	print $INFO "stroke\n";
+	print $INFO $Rcolor{$node->ancestor}, " ", $Gcolor{$node->ancestor}, " ", $Bcolor{$node->ancestor}, " setrgbcolor\n";
       }
-      print INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
-      print INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
-      print INFO $xx{$node->ancestor}, " ", $yy{$node->ancestor}, " lineto\n";
+      print $INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
+      print $INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
+      print $INFO $xx{$node->ancestor}, " ", $yy{$node->ancestor}, " lineto\n";
     }
   }
   my $ymin = $yy{$root1};
@@ -463,26 +461,26 @@ sub print {
   }
   my $zz = ($ymin + $ymax)/2;
   if ($colors) {
-    print INFO "stroke\n";
-    print INFO $Rcolor{$root1}, " ", $Gcolor{$root1}, " ", $Bcolor{$root1}, " setrgbcolor\n";
+    print $INFO "stroke\n";
+    print $INFO $Rcolor{$root1}, " ", $Gcolor{$root1}, " ", $Bcolor{$root1}, " setrgbcolor\n";
   }
-  print INFO $xx{$root1}, " ", $zz, " moveto\n";
-  print INFO $xx{$root1} - $xstep, " ", $zz, " lineto\n";
+  print $INFO $xx{$root1}, " ", $zz, " moveto\n";
+  print $INFO $xx{$root1} - $xstep, " ", $zz, " lineto\n";
 
   if ($t2) {
 
     for my $taxon (reverse $t2->get_leaf_nodes) {
       my $tiplen2 = PostScript::Metrics::stringwidth($taxon->id,$font,$size);
-      print INFO $xx{$taxon} - $tiplen2 - $tip, " ",
+      print $INFO $xx{$taxon} - $tiplen2 - $tip, " ",
         $yy{$taxon} - $size / 3, " moveto\n";
-      printf INFO "(%s) show\n", $taxon->id;
+      printf $INFO "(%s) show\n", $taxon->id;
     }
 
     for my $node ($t2->get_nodes) {
       if ($node->ancestor) {
-        print INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
-        print INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
-        print INFO $xx{$node->ancestor}, " ",
+        print $INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
+        print $INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
+        print $INFO $xx{$node->ancestor}, " ",
           $yy{$node->ancestor}, " lineto\n";
       }
     }
@@ -495,8 +493,8 @@ sub print {
       $ymin = $yy{$child2} if $yy{$child2} < $ymin;
     }
     my $zz = ($ymin + $ymax)/2;
-    print INFO $xx{$root2}, " ", $zz, " moveto\n";
-    print INFO $xx{$root2} + $xstep, " ", $zz, " lineto\n";
+    print $INFO $xx{$root2}, " ", $zz, " moveto\n";
+    print $INFO $xx{$root2} + $xstep, " ", $zz, " lineto\n";
 
     my @taxa1 = $t1->get_leaf_nodes;
     my @taxa2 = $t2->get_leaf_nodes;
@@ -515,8 +513,8 @@ sub print {
 
     # draw connection lines between $t1 and $t2 taxa
 
-    print INFO "stroke\n";
-    print INFO "0.5 setgray\n";
+    print $INFO "stroke\n";
+    print $INFO "0.5 setgray\n";
 
     foreach my $taxon1 (@taxa1) {
       my @match = $taxon1->get_tag_values('connection');
@@ -529,18 +527,17 @@ sub print {
         my $x3 = $xx{$taxon2} - $tip
 	  - PostScript::Metrics::stringwidth($taxon2->id,$font,$size) - $tip;
         my $y2 = $yy{$taxon2};
-        print INFO $x0, " ", $y1, " moveto\n";
-        print INFO $x1, " ", $y1, " lineto\n";
-        print INFO $x2, " ", $y2, " lineto\n";
-        print INFO $x3, " ", $y2, " lineto\n";
+        print $INFO $x0, " ", $y1, " moveto\n";
+        print $INFO $x1, " ", $y1, " lineto\n";
+        print $INFO $x2, " ", $y2, " lineto\n";
+        print $INFO $x3, " ", $y2, " lineto\n";
       }
     }
 
   }
 
-  print INFO "stroke\n";
-  print INFO "showpage\n";
-  close(INFO);
+  print $INFO "stroke\n";
+  print $INFO "showpage\n";
 }
 
 1;

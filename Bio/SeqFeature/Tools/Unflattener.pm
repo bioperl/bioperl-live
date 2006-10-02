@@ -609,17 +609,15 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqFeature::Tools::Unflattener;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
-use Bio::Root::Root;
 use Bio::Location::Simple;
 use Bio::SeqFeature::Generic;
 use Bio::Range;
 
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 
@@ -2797,3 +2795,4 @@ sub find_best_pairs {
     
 }
 
+1;

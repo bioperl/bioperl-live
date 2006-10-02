@@ -64,12 +64,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::tigrxml;
-use vars qw(@ISA $Default_Source);
+use vars qw($Default_Source);
 use strict;
-use Bio::SeqIO;
 use XML::SAX;
 use XML::SAX::Writer;
-use XML::SAX::Base;
 use Data::Dumper;
 use Bio::Seq::SeqFactory;
 use Bio::Species;
@@ -79,7 +77,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
 use List::Util qw(min max);
 
-@ISA = qw( Bio::SeqIO XML::SAX::Base);
+use base qw(Bio::SeqIO XML::SAX::Base);
 
 
 $Default_Source = 'TIGR';

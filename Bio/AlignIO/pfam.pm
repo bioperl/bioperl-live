@@ -53,12 +53,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::pfam;
-use vars qw(@ISA);
 use strict;
 
-use Bio::AlignIO;
 use Bio::SimpleAlign;
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 next_aln
 
@@ -85,8 +83,8 @@ sub next_aln {
 
     while( $entry = $self->_readline) {
 	chomp $entry;
-	$entry =~ /^\/\// && last;
-	if($entry !~ /^(\S+)\/(\d+)-(\d+)\s+(\S+)\s*/ ) {
+	$entry =~ m{^//} && last;
+	if($entry !~ m{^(\S+)/(\d+)-(\d+)\s+(\S+)\s*} ) {
 	    $self->throw("Found a bad line [$_] in the pfam format alignment");
 	    next;
 	}

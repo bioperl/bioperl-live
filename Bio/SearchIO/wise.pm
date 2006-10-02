@@ -63,13 +63,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::wise;
-use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS);
+use vars qw(%MAPPING %MODEMAP $DEFAULT_WRITER_CLASS);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SearchIO;
-@ISA = qw(Bio::SearchIO);
+use base qw(Bio::SearchIO);
 
 %MODEMAP = ('WiseOutput' => 'result',
 	    'Hit'             => 'hit',

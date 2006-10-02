@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2003 bioperl, Rob Edwards. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or
-#           modify it under the same terms as Perl itself. 
+#           modify it under the same terms as Perl itself.
 #
 # Copyright Rob Edwards
 #
@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Tools::Primer3 - Create input for and work with the output from 
+Bio::Tools::Primer3 - Create input for and work with the output from
 the program primer3
 
 =head1 SYNOPSIS
@@ -45,7 +45,7 @@ the program primer3
 
  # get the results as a Bio::Seq::PrimedSeq stream
  my $primer = $p3->next_primer;
- print "The left primer in the stream is ", 
+ print "The left primer in the stream is ",
    $primer->get_primer('-left_primer')->seq->seq, "\n";
 
 =head1 DESCRIPTION
@@ -53,11 +53,11 @@ the program primer3
 Bio::Tools::Primer3 creates the input files needed to design primers using
 primer3 and provides mechanisms to access data in the primer3 output files.
 
-This module provides a bioperl interface to the program primer3. See 
+This module provides a bioperl interface to the program primer3. See
 http://www-genome.wi.mit.edu/genome_software/other/primer3.html
 for details and to download the software.
 
-This module is based on one written by Chad Matsalla 
+This module is based on one written by Chad Matsalla
 (bioinformatics1@dieselwurks.com)
 
 I have ripped some of his code, and added a lot of my own. I hope he
@@ -65,8 +65,8 @@ is not mad at me!
 
 This is probably best run in one of the two following ways:
 
-  i. To parse the output from Bio::Tools::Run::Primer3. 
-     You will most likely just use next_primer to get the results from 
+  i. To parse the output from Bio::Tools::Run::Primer3.
+     You will most likely just use next_primer to get the results from
      Bio::Tools::Run::Primer3.
   ii. To parse the output of primer3 handed to it as a file name.
 
@@ -79,7 +79,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-    http://www.bioperl.org/MailList.html    - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -88,13 +88,13 @@ the bugs and their resolution.  Bug reports can be submitted via the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - 
+=head1 AUTHOR -
 
   Rob Edwards
 
   redwards@utmem.edu
 
-  Based heavily on work of 
+  Based heavily on work of
 
   Chad Matsalla
 
@@ -102,11 +102,11 @@ the bugs and their resolution.  Bug reports can be submitted via the web:
 
 =head1 CONTRIBUTORS
 
-  Brian Osborne osborne1 at optonline.net
+  Brian Osborne bosborne at alum.mit.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
+The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
@@ -115,16 +115,13 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Primer3;
 
-use vars qw(@ISA);
 use strict;
 use Bio::Seq;
 use Bio::Seq::PrimedSeq;
 use Bio::SeqFeature::Primer;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Clone qw(clone);
 
-use vars qw($AUTOLOAD @PRIMER3_PARAMS @ISA %OK_FIELD $ID);
+use vars qw($AUTOLOAD @PRIMER3_PARAMS %OK_FIELD $ID);
 
 BEGIN {
  @PRIMER3_PARAMS=qw(results seqobject);
@@ -133,7 +130,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 
 sub AUTOLOAD {
@@ -150,14 +147,14 @@ $ID = 'Bio::Tools::Primer3';
 =head2 new
 
   Title   : new()
-  Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file) 
+  Usage   : my $primer3 = Bio::Tools::Primer3->new(-file=>$file)
             to read a primer3 output file.
   Function: Parse primer3 output
-  Returns : Does not return anything. If called with a filename will 
+  Returns : Does not return anything. If called with a filename will
             allow you to retrieve the results
-  Args    : -file (optional) file of primer3 results to parse -verbose 
+  Args    : -file (optional) file of primer3 results to parse -verbose
             (optional) set verbose output
-  Notes   : 
+  Notes   :
 
 =cut
 
@@ -179,9 +176,9 @@ sub new {
   Function: Retrieve the number of primers returned from Primer3.
   Returns : A scalar
   Args    : None
-  Notes   : This returns the count of the primers returned by Primer3 
-             (aka how many of them there are). 
-             This is one more than the maximum offset into the zero 
+  Notes   : This returns the count of the primers returned by Primer3
+             (aka how many of them there are).
+             This is one more than the maximum offset into the zero
              based list of primers that is accessed by primer_results().
 
 =cut
@@ -195,8 +192,8 @@ sub number_of_results {
 =head2 all_results
 
   Title   : all_results()
-  Usage   : $primer3->all_results() to print all results or 
-            $primer3->all_results('primer3 result name', 
+  Usage   : $primer3->all_results() to print all results or
+            $primer3->all_results('primer3 result name',
             'other results') to return a specific result
   Function: Retrieve the results returned from Primer3.
   Returns : A reference to a hash
@@ -223,7 +220,7 @@ sub all_results {
 =head2 primer_results
 
   Title   : primer_results()
-  Usage   : $primer3->primer_results(2) to print results for the third 
+  Usage   : $primer3->primer_results(2) to print results for the third
             choice primer (indexed on 0)
   Function: Retrieve the results returned from Primer3 for specific primer pairs.
   Returns : A reference to a hash
@@ -249,7 +246,7 @@ sub primer_results {
   Function: An internal function that reads a file and sets up the results
   Returns : Nothing.
   Args    : None
-  Notes   : 
+  Notes   :
 
 =cut
 
@@ -284,7 +281,7 @@ sub _readfile {
   Function: Retrieve the primed sequence and a primer pair, one at a time
   Returns : Returns a Bio::Seq::PrimedSeq feature, one at a time
   Args    : None
-  Notes   : Use $primed_seq->annotated_seq to get an annotated sequence 
+  Notes   : Use $primed_seq->annotated_seq to get an annotated sequence
             object you can write out.
 
 =cut
@@ -296,24 +293,24 @@ sub next_primer {
 	# the problem at the moment is that PrimedSeq can only take one sequence/primer pair, and
 	# yet for each sequence we can have lots of primer pairs. We need a way to overcome this.
 	# at the moment we can do this as a stream, I guess.
- 
+
 	$self->warn("No primers were found for: ".$self->{'seqobject'}->{'primary_id'})
 	  if (! $self->number_of_results);
- 
+
 	$self->{'next_to_return'} = 0 unless ($self->{'next_to_return'});
 	return if ($self->{'next_to_return'} >= $self->{'maximum_primers_returned'});
 	my $results = $self->primer_results($self->{'next_to_return'});
 
-	$self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'}); 
+	$self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'});
 	$self->throw("No right primer sequence") unless (${$results}{'PRIMER_RIGHT_SEQUENCE'});
 	$self->throw("No target sequence") unless ($self->{'seqobject'});
 
 	my $left_seq  = Bio::SeqFeature::Primer->new(
-                                   -primer_sequence_id => "left_primer", 
+                                   -primer_sequence_id => "left_primer",
 											  -sequence => ${$results}{'PRIMER_LEFT_SEQUENCE'},
 											  -display_id => ($self->{'next_to_return'} + 1) );
 	my $right_seq = Bio::SeqFeature::Primer->new(
-											  -primer_sequence_id => "right_primer", 
+											  -primer_sequence_id => "right_primer",
 											  -sequence => ${$results}{'PRIMER_RIGHT_SEQUENCE'},
 											  -display_id => ($self->{'next_to_return'} + 1) );
 
@@ -325,11 +322,11 @@ sub next_primer {
 			$left_seq->add_tag_value($key, $$results{$key});
 		} elsif ($key =~ /PRIMER_RIGHT/i) {
 			$right_seq->add_tag_value($key, $$results{$key});
-		} 
+		}
 	}
 
-	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => clone($self->{'seqobject'}), 
-															-left_primer => $left_seq, 
+	my $primed_seq = Bio::Seq::PrimedSeq->new(-target_sequence => clone($self->{'seqobject'}),
+															-left_primer => $left_seq,
 															-right_primer => $right_seq);
 
 	# add data to the the PrimedSeq object that's not specific to the Primers
@@ -337,7 +334,7 @@ sub next_primer {
 		next if ($key =~ /PRIMER_(LEFT|RIGHT)/i );
 			$primed_seq->add_tag_value($key, $$results{$key});
 	}
- 
+
 	$self->{'next_to_return'}++;
 	return $primed_seq;
 }
@@ -364,11 +361,11 @@ sub primer_stream {
 
   Title   : _separate()
   Usage   : $self->_separate();
-  Function: An internal function that groups the results by number 
+  Function: An internal function that groups the results by number
             (e.g. primer pair 1, etc)
   Returns : Nothing.
   Args    : None
-  Notes   : 
+  Notes   :
 
 =cut
 
@@ -381,13 +378,13 @@ sub _separate {
 
 		my $location; # the number of the primer pair
 		# names will have values like
-		# PRIMER_RIGHT_SEQUENCE, PRIMER_RIGHT_2_SEQUENCE, PRIMER_PRODUCT_SIZE, and 
+		# PRIMER_RIGHT_SEQUENCE, PRIMER_RIGHT_2_SEQUENCE, PRIMER_PRODUCT_SIZE, and
 		# PRIMER_PRODUCT_SIZE_3 hence we need to find and remove the number
 		my $tempkey=$key;
 		if ($tempkey =~ s/_(\d+)//) {
 			$location=$1;
 			if ($location > $maxlocation) {$maxlocation = $location}
-		} elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)/ ) {  
+		} elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)/ ) {
 			# first primers reported without a number, therefore set $location to 0
 			$location = 0;
 			if ($location > $maxlocation) {$maxlocation = $location}

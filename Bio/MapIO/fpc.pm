@@ -58,18 +58,16 @@ too much overhead.
 # Let the code begin...
 
 package Bio::MapIO::fpc;
-use vars qw(@ISA);
 use strict;
 use POSIX;
 
-use Bio::MapIO;
 use Bio::Map::Physical;
 use Bio::Map::Clone;
 use Bio::Map::Contig;
 use Bio::Map::FPCMarker;
 use Bio::Range;
 
-@ISA = qw(Bio::MapIO);
+use base qw(Bio::MapIO);
 
 my $_readcor;
 
@@ -155,21 +153,21 @@ sub next_map{
     while (defined($line = <$fh>)) {
         chomp($line);
 
-        if ($line =~ /^\/\/\s+fpc\s+project\s+(.+)/) { $map->name($1); }
-        if ($line =~ /^\/\/\s+([\d.]+)/) {
+        if ($line =~ m{^//\s+fpc\s+project\s+(.+)}) { $map->name($1); }
+        if ($line =~ m{^//\s+([\d.]+)}) {
             my $version = $1;
             $version =~ /((\d+)\.(\d+))(.*)/;
             $map->version($1);
             if ($line =~ /User:\s+(.+)/) { $map->modification_user($1); }
         }
 
-        if ($line =~ /^\/\/\s+Framework\s+(\w+)\s+(\w+)\s+([-\w]+)\s+(\w+)\s+(\w+)\s+(.+)$/)
+        if ($line =~ m{^//\s+Framework\s+(\w+)\s+(\w+)\s+([-\w]+)\s+(\w+)\s+(\w+)\s+(.+)$})
         {
             $map->group_type($3) if ($2 eq "Label");
             $map->group_abbr($5) if ($4 eq "Abbrev");
         }
 
-        last unless ($line =~ /^\/\//);
+        last unless ($line =~ m{^//});
     }
 
     if (!defined($map->group_type()) || !defined($map->group_abbr()) ) {

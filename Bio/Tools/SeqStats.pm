@@ -188,11 +188,11 @@ the bugs and their resolution.  Bug reports can be submitted the web:
 
 =head1 AUTHOR - Peter Schattner
 
-Email schattner at alum.mit.edu
+Email schattner AT alum.mit.edu
 
-=head1 CONTRIBUTOR  - Torsten Seemann
+=head1 CONTRIBUTOR - Torsten Seemann 
 
-Email torsten.seemann at infotech.monash.edu.au
+Email torsten.seemann AT infotech.monash.edu.au
 
 =head1 APPENDIX
 
@@ -204,11 +204,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::SeqStats;
 use strict;
-use vars qw(@ISA %Alphabets %Alphabets_strict $amino_weights
+use vars qw(%Alphabets %Alphabets_strict $amino_weights
 	    $rna_weights $dna_weights %Weights $amino_hydropathicity);
 use Bio::Seq;
-use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 BEGIN {
 	%Alphabets =   (
@@ -872,3 +871,5 @@ sub _print_data {
 
     return 1;
 }
+
+1;

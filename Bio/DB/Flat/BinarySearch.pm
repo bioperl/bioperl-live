@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::DB::Flat::BinarySearch
+Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for sequence files
 
 =head1 SYNOPSIS
 
@@ -195,19 +195,17 @@ methods are usually preceded with an "_" (underscore).
 package Bio::DB::Flat::BinarySearch;
 
 use strict;
-use vars qw(@ISA);
 
 use Fcntl qw(SEEK_END SEEK_CUR);
 # rather than using tell which might be buffered
 sub systell{ sysseek($_[0], 0, SEEK_CUR) }
 sub syseof{ sysseek($_[0], 0, SEEK_END) }
 
-use Bio::DB::RandomAccessI;
 use Bio::Root::RootI;
 use Bio::SeqIO;
 use Bio::Seq;
 
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 
 use constant CONFIG_FILE_NAME => 'config.dat';
 use constant HEADER_SIZE      => 4;
@@ -415,14 +413,13 @@ sub get_stream_by_id {
     my $fh = $self->get_filehandle_by_fileid($fileid);
     my $file = $self->{_file}{$fileid};
 
-    open (IN,"<$file");
-    $fh = \*IN;
+    open (my $IN,"<$file");
 
     my $entry;
     
-    sysseek($fh,$pos,0);
+    sysseek($IN,$pos,0);
 
-    return ($fh,$length);
+    return ($IN,$length);
 }
 
 =head2 get_Seq_by_acc
@@ -783,7 +780,7 @@ sub build_index {
 sub _index_file {
     my ($self,$file) = @_;
     my $v = $self->verbose;
-    open(FILE,"<$file") || $self->throw("Can't open file [$file]");
+    open(my $FILE,"<", $file) || $self->throw("Can't open file [$file]");
 
     my $recstart = 0;
     my $fileid = $self->get_fileid_by_filename($file);
@@ -800,7 +797,7 @@ sub _index_file {
 
     my $length;
     #my $pos = 0;
-    my $fh = \*FILE;
+    my $fh = $FILE;
 
     my $done = -1;
 
@@ -908,7 +905,7 @@ sub write_primary_index {
 
     @ids = sort {$a cmp $b} @ids;
 
-    open (INDEX,">" . $self->primary_index_file) || 
+    open (my $INDEX,">" . $self->primary_index_file) || 
 	$self->throw("Can't open primary index file [" . 
 		     $self->primary_index_file . "]");
 
@@ -918,7 +915,7 @@ sub write_primary_index {
    		       $self->{_maxlengthlength} + 3;
 	
     
-    print INDEX sprintf("%4d",$recordlength);
+    print $INDEX sprintf("%4d",$recordlength);
 
     foreach my $id (@ids) {
 
@@ -937,10 +934,9 @@ sub write_primary_index {
 	    $self->{_id}{$id}{_pos}    . "\t" .
 	    $self->{_id}{$id}{_length};
 
-	print INDEX sprintf("%-${recordlength}s",$record);
+	print $INDEX sprintf("%-${recordlength}s",$record);
 
     }
-    close(INDEX);
 }
 
 =head2 write_secondary_indices
@@ -1028,8 +1024,7 @@ sub new_secondary_filehandle {
 
     my $secindex = Bio::Root::IO->catfile($indexdir,"id_$name.index");
 
-    my $fh;
-    open($fh,">$secindex") || $self->throw($!);
+    open(my $fh,">", $secindex) || $self->throw($!);
     return $fh;
 }
 
@@ -1057,8 +1052,7 @@ sub open_secondary_index {
 	    $self->throw("Index is not present for namespace [$name]\n");
 	}
 
-        my $newfh;
-	open($newfh,"<$secindex") || $self->throw($!);
+	open(my $newfh,"<", $secindex) || $self->throw($!);
 	my $reclen = $self->read_header($newfh);
 
 	$self->{_secondary_filehandle} {$name} = $newfh;
@@ -1143,10 +1137,10 @@ sub make_config_file {
 
     my $configfile = $self->_config_file;
 
-    open(CON,">$configfile") || $self->throw("Can't create config file [$configfile]");
+    open(my $CON,">", $configfile) || $self->throw("Can't create config file [$configfile]");
 
     # First line must be the type of index - in this case flat
-    print CON "index\tflat/1\n";
+    print $CON "index\tflat/1\n";
 
     # Now the fileids
 
@@ -1156,10 +1150,10 @@ sub make_config_file {
 
 	my $size = -s $file;
 
-	print CON "fileid_$count\t$file\t$size\n";
+	print $CON "fileid_$count\t$file\t$size\n";
 
 	my $fh;
-	open($fh,"<$file") || $self->throw($!);
+	open($fh,"<", $file) || $self->throw($!);
 	$self->{_fileid}{$count}   = $fh;
 	$self->{_file}  {$count}   = $file;
 	$self->{_dbfile}{$file}    = $count;
@@ -1170,7 +1164,7 @@ sub make_config_file {
 
     # Now the namespaces
 
-    print CON "primary_namespace\t" .$self->primary_namespace. "\n";
+    print $CON "primary_namespace\t" .$self->primary_namespace. "\n";
     
     # Needs fixing for the secondary stuff
 
@@ -1179,12 +1173,12 @@ sub make_config_file {
     my @second = keys %$second_patterns;
 
     if ((@second))  {
-	print CON "secondary_namespaces";
+	print $CON "secondary_namespaces";
 
 	foreach my $second (@second) {
-	    print CON "\t$second";
+	    print $CON "\t$second";
 	}
-        print CON "\n";
+        print $CON "\n";
     }
 
     # Now the config format
@@ -1195,9 +1189,9 @@ sub make_config_file {
 	my $format = $self->format;
 	my $alphabet = $self->alphabet;
 	my $alpha    = $alphabet ? "/$alphabet" : '';
-	print CON "format\t" . "$format\n";
+	print $CON "format\t" . "$format\n";
      }
-    close(CON);
+    close($CON);
 }
 
 =head2 read_config_file
@@ -1216,15 +1210,15 @@ sub read_config_file {
 	my $configfile = $self->_config_file;
 	return unless -e $configfile;
 
-	open(CON,"<$configfile") || $self->throw("Can't open configfile [$configfile]");
+	open(my $CON,"<", $configfile) || $self->throw("Can't open configfile [$configfile]");
 
 	# First line must be type
-	my $line = <CON>; 
+	my $line = <$CON>; 
 	chomp($line);
 	my $version;
 
 	# This is hard coded as we only index flatfiles here
-	if ($line =~ /index\tflat\/(\d+)/) {
+	if ($line =~ m{index\tflat/(\d+)}) {
 		$version = $1;
 	} else {
 		$self->throw("First line not compatible with flat file index.  Should be something like\n\nindex\tflat/1");
@@ -1233,7 +1227,7 @@ sub read_config_file {
 	$self->index_type("flat");
 	$self->index_version($version);
 
-	while (<CON>) {
+	while (<$CON>) {
 		chomp;
 
 		# Look for fileid lines
@@ -1250,7 +1244,7 @@ sub read_config_file {
 			}
 		
 			my $fh;
-			open($fh,"<$filename") || $self->throw($!);
+			open($fh,"<", $filename) || $self->throw($!);
 			close $fh;
 
 			$self->{_fileid}{$fileid}   = $fh;
@@ -1285,7 +1279,7 @@ sub read_config_file {
 	    }
     }
     
-    close(CON);
+    close($CON);
 
     # Now check we have all that we need
 
@@ -1472,7 +1466,7 @@ sub index_directory {
     my ($self,$arg) = @_;
 
     if (defined($arg)) {
-	if ($arg !~ /\/$/) {
+	if ($arg !~ m{/$}) {
 	    $arg .= "/";
 	}
 	$self->{_index_directory} = $arg;

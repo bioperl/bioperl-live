@@ -3,9 +3,7 @@ package Bio::Graphics::Glyph::so_transcript;
 # $Id$
 
 use strict;
-use Bio::Graphics::Glyph::processed_transcript;
-use vars '@ISA','$VERSION';
-@ISA = 'Bio::Graphics::Glyph::processed_transcript';
+use base qw(Bio::Graphics::Glyph::processed_transcript);
 $VERSION = '1.0';
 
 1;

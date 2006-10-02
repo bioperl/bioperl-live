@@ -12,7 +12,7 @@
 
 =head1     NAME
 
-Bio::Tools::Analysis::Protein::ELM
+Bio::Tools::Analysis::Protein::ELM - a wrapper around the ELM server which predicts short functional motifs on amino acid sequences
 
 =head1     SYNOPSIS
 
@@ -77,13 +77,12 @@ methods. Internal methods are usually preceded with a _
 
 use strict;
 package Bio::Tools::Analysis::Protein::ELM;
-use vars qw(@ISA %cc);
-use Bio::Tools::Analysis::SimpleAnalysisBase;
+use vars qw(%cc);
 use HTML::HeadParser;
 use Bio::SeqFeature::Generic;
 use HTTP::Request::Common qw(POST);
 use IO::String;
-@ISA = qw( Bio::Tools::Analysis::SimpleAnalysisBase  );
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 ## valid cell compartments ##
 %cc = (

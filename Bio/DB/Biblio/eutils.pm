@@ -423,7 +423,7 @@ sub get_all {
 =cut
 
 sub exists {
-  return undef;
+  return;
 
 }
 
@@ -439,7 +439,7 @@ sub exists {
 =cut
 
 sub destroy {
-  return undef;
+  return;
 
 }
 
@@ -470,7 +470,7 @@ sub get_vocabulary_names {
 =cut
 
 sub contains {
-  return undef;
+  return;
 }
 
 =head2 get_entry_description
@@ -485,7 +485,7 @@ sub contains {
 =cut
 
 sub get_entry_description {
-  return undef;
+  return;
 }
 
 =head2 get_all_values
@@ -500,7 +500,7 @@ sub get_entry_description {
 =cut
 
 sub get_all_values {
-  return undef;
+  return;
 }
 
 =head2 get_all_entries
@@ -515,7 +515,7 @@ sub get_all_values {
 =cut
 
 sub get_all_entries {
-  return undef;
+  return;
 }
 
 =head1 Internal methods unrelated to Bio::DB::BiblioI

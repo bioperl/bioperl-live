@@ -99,10 +99,6 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -115,15 +111,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::QRNA;
-use vars qw(@ISA @Models);
+use vars qw(@Models);
 use strict;
 
-use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
-use Bio::SeqAnalysisParserI;
 
-@ISA = qw(Bio::Root::IO Bio::SeqAnalysisParserI);
+use base qw(Bio::Root::IO Bio::SeqAnalysisParserI);
 @Models = qw(OTH COD RNA);
 
 =head2 new

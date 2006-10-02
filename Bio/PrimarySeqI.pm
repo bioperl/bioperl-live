@@ -110,12 +110,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeqI;
-use vars qw(@ISA );
 use strict;
-use Bio::Root::RootI;
 use Bio::Tools::CodonTable;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 
@@ -507,7 +505,7 @@ sub trunc{
            the some character (default is *), both internal and trailing
            codons. Setting "-complete" to 1 tells translate() to remove
            the trailing character.
-		   
+
 		   -offset is used for seqfeatures which contain the the \codon_start
 		   tag and can be set to 1, 2, or 3.  This is the offset by which the
 		   sequence translation starts relative to the first base of the

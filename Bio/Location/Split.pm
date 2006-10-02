@@ -72,19 +72,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Location::Split;
-use vars qw(@ISA @CORBALOCATIONOPERATOR);
-use strict;
+
+# as defined by BSANE 0.03
+our @CORBALOCATIONOPERATOR = ('NONE','JOIN', undef, 'ORDER');;
 
 use Bio::Root::Root;
-use Bio::Location::SplitLocationI;
-use Bio::Location::Atomic;
 
-@ISA = qw(Bio::Location::Atomic Bio::Location::SplitLocationI );
+use base qw(Bio::Location::Atomic Bio::Location::SplitLocationI);
 
-BEGIN { 
-    # as defined by BSANE 0.03
-    @CORBALOCATIONOPERATOR= ('NONE','JOIN', undef, 'ORDER');  
-}
 
 sub new {
     my ($class, @args) = @_;
@@ -303,7 +298,7 @@ sub strand{
 	$self->{'strand'} = $value;
 	# propagate to all sublocs
 	foreach my $loc ($self->sub_Location(0)) {
-	    $loc->strand($value) if ! $loc->is_remote();
+	    $loc->strand($value);
 	}
     } else {
 	my ($strand, $lstrand);
@@ -573,35 +568,40 @@ sub to_FTstring {
     my ($self) = @_;
     my @strs;
     my $strand;
+	#print STDERR "Strand: $strand\n:";
+	# Note:
+	# join(complement(A..B),complement(C..D),complement(E..F)) is not the
+	# same as complement(join(A..B,C..D,E..F)).  The first would have locations
+	# in the order BADCFE, whereas the second would have the order FEDCBA.
+	# See bug 1953
     if( ($strand = ($self->strand || 0)) < 0 ) {
-	$self->flip_strand; # this will recursively set the strand
-	                    # to +1 for all the sub locations
+		$self->flip_strand; # this will recursively set the strand
+							# to +1 for all the sub locations
     }
     foreach my $loc ( $self->sub_Location()  ) {		
-	my $str = $loc->to_FTstring();
-	# we only append the remote seq_id if it hasn't been done already
-	# by the sub-location (which it should if it knows it's remote)
-	# (and of course only if it's necessary)
-	if( (! $loc->is_remote) &&
-	    defined($self->seq_id) && defined($loc->seq_id) &&
-	    ($loc->seq_id ne $self->seq_id) ) {
-	    $str = sprintf("%s:%s", $loc->seq_id, $str);
-	} 
-	push @strs, $str;
-    }
-    $self->flip_strand if $strand < 0;
-    my $str;
-    if( @strs == 1 ) {
-	($str) = @strs;
-    } elsif( @strs == 0 ) {
-	$self->warn("no Sublocations for this splitloc, so not returning anything\n");
-
-    } else { 
-	$str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
-      }
-    if( $strand < 0 ) {  # wrap this in a complement if it was unrolled
-      $str = sprintf("%s(%s)",'complement',$str);
-    }
+		my $str = $loc->to_FTstring();
+		# we only append the remote seq_id if it hasn't been done already
+		# by the sub-location (which it should if it knows it's remote)
+		# (and of course only if it's necessary)
+		if( (! $loc->is_remote) &&
+			defined($self->seq_id) && defined($loc->seq_id) &&
+			($loc->seq_id ne $self->seq_id) ) {
+			$str = sprintf("%s:%s", $loc->seq_id, $str);
+		} 
+		push @strs, $str;
+	}
+	$self->flip_strand if $strand < 0;
+	my $str;
+	if( @strs == 1 ) {
+		($str) = @strs;
+	} elsif( @strs == 0 ) {
+		$self->warn("no Sublocations for this splitloc, so not returning anything\n");
+	} else { 
+		$str = sprintf("%s(%s)",lc $self->splittype, join(",", @strs));
+	}
+	if( $strand < 0 ) {  # wrap this in a complement if it was unrolled
+		$str = sprintf("%s(%s)",'complement',$str);
+	}
 
     return $str;
 }

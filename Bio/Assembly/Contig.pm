@@ -16,7 +16,7 @@
 Bio::Assembly::Contig - Perl module to hold and manipulate
                      sequence assembly contigs.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Module loading
     use Bio::Assembly::IO;
@@ -206,14 +206,11 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::Contig;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Align::AlignI;
 use Bio::SeqFeature::Collection;
 use Bio::Seq::PrimaryQual;
 
-@ISA = qw(Bio::Root::Root Bio::Align::AlignI);
+use base qw(Bio::Root::Root Bio::Align::AlignI);
 
 =head1 Object creator
 
@@ -1725,8 +1722,7 @@ sub no_sequences {
 
 sub percentage_identity{
     my ($self) = @_;
-
-    $self->throw_not_implemeneted();
+    $self->throw_not_implemented();
 }
 
 =head2 overall_percentage_identity

@@ -73,13 +73,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqFeature::Annotated;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SeqFeatureI;
-use Bio::AnnotatableI;
-use Bio::FeatureHolderI;
 use Bio::Annotation::Collection;
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::Target;
@@ -90,8 +85,7 @@ use Bio::Tools::GFF;
 
 use URI::Escape;
 
-@ISA = qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI 
-			  Bio::FeatureHolderI);
+use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::AnnotatableI Bio::FeatureHolderI);
 
 ######################################
 #get_SeqFeatures

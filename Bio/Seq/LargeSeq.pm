@@ -41,7 +41,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.html      - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -67,15 +67,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Seq::LargeSeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD);
 use strict;
 
 # Object preamble
 
 use Bio::Seq::LargePrimarySeq;
-use Bio::Seq;
 
-@ISA = qw(Bio::Seq Bio::Seq::LargeSeqI);
+use base qw(Bio::Seq Bio::Seq::LargeSeqI);
 
 
 sub new {

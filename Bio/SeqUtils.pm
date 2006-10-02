@@ -112,12 +112,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqUtils;
-use vars qw(@ISA %ONECODE %THREECODE);
+use vars qw(%ONECODE %THREECODE);
 use strict;
 use Carp;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 # new inherited from RootI
 
 BEGIN {
@@ -737,7 +736,7 @@ sub evolve {
         # do the change
         substr $string, $loc-1, 1 , $newnuc;
 
-        print STDERR "$loc$oldnuc>$newnuc\n" if $self->verbose > 0;
+        $self->debug("$loc$oldnuc>$newnuc\n");
 
         # stop evolving if the limit has been reached
         last if $self->_get_similarity($oristring, $string) <= $sim;

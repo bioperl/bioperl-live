@@ -3,9 +3,7 @@ package Bio::Graphics::Glyph::transcript2;
 # $Id$
 
 use strict;
-use Bio::Graphics::Glyph::transcript;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::transcript';
+use base qw(Bio::Graphics::Glyph::transcript);
 
 use constant MIN_WIDTH_FOR_ARROW => 8;
 

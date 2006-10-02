@@ -106,7 +106,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.html - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -133,7 +133,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::IUPAC;
 
 use strict;
-use vars qw(@ISA %IUP %IUB %REV_IUB $AUTOLOAD);
+use vars qw(%IUP %IUB %REV_IUB $AUTOLOAD);
 
 BEGIN {
     %IUB = ( A => [qw(A)],
@@ -170,8 +170,8 @@ BEGIN {
 				CGT	=> 'B',
 				ACGT=> 'N',
 				N	=> 'N'
-				);					
-	
+				);
+
 
     %IUP = (A => [qw(A)],
 	    B => [qw(D N)],
@@ -201,10 +201,9 @@ BEGIN {
 	    Z => [qw(E Q)],
 	    '*' => ['*']
 	    );
-    
+
 }
-use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 
@@ -221,23 +220,23 @@ use Bio::Root::Root;
 
 sub new {
     my($class,@args) = @_;
-    my $self = $class->SUPER::new(@args);    
+    my $self = $class->SUPER::new(@args);
 
     my ($seq) = $self->_rearrange([qw(SEQ)],@args);
     if((! defined($seq)) && @args && ref($args[0])) {
 	# parameter not passed as named parameter?
 	$seq = $args[0];
     }
-    $seq->isa('Bio::Seq') or 
+    $seq->isa('Bio::Seq') or
 	$self->throw("Must supply a Seq.pm object to IUPAC!");
     $self->{'_SeqObj'} = $seq;
-    if ($self->{'_SeqObj'}->alphabet() =~ m/^[dr]na$/i ) { 
+    if ($self->{'_SeqObj'}->alphabet() =~ m/^[dr]na$/i ) {
         # nucleotide seq object
-	$self->{'_alpha'} = [ map { $IUB{uc($_)} } 
+	$self->{'_alpha'} = [ map { $IUB{uc($_)} }
 			      split('', $self->{'_SeqObj'}->seq()) ];
-    } elsif ($self->{'_SeqObj'}->alphabet() =~ m/^protein$/i ) { 
+    } elsif ($self->{'_SeqObj'}->alphabet() =~ m/^protein$/i ) {
         # amino acid seq object
-	$self->{'_alpha'} = [ map { $IUP{uc($_)} } 
+	$self->{'_alpha'} = [ map { $IUP{uc($_)} }
 			       split('', $self->{'_SeqObj'}->seq()) ];
     } else { # unknown type: we could make a guess, but let's not.
 	$self->throw("You must specify the 'type' of sequence provided to IUPAC");
@@ -322,7 +321,7 @@ sub iupac_iub{
  Title   : iupac_rev_iub
  Usage   : my %dnasymbols = $iupac->iupac_rev_iub
  Function: Returns a hash of nucleotide combinations -> IUPAC code
-           (a reverse of the iupac_iub hash).  
+           (a reverse of the iupac_iub hash).
  Returns : Hash
  Args    : none
 

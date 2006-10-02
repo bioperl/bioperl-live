@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-dagflat - a base class parser for GO flat-file type formats
+Bio::OntologyIO::dagflat - a base class parser for GO flat-file type formats
 
 =head1 SYNOPSIS
 
@@ -98,7 +98,6 @@ methods. Internal methods are usually preceded with a _
 
 package  Bio::OntologyIO::dagflat;
 
-use vars qw( @ISA );
 use strict;
 
 use Bio::Root::IO;
@@ -106,13 +105,12 @@ use Bio::Ontology::OBOEngine;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::OntologyStore;
 use Bio::Ontology::TermFactory;
-use Bio::OntologyIO;
 
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
 
-@ISA = qw( Bio::OntologyIO );
+use base qw(Bio::OntologyIO);
 
 
 =head2 new

@@ -46,10 +46,6 @@ web:
 
 Email:  heikki-at-bioperl-dot-org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -61,13 +57,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Coordinate::MapperI;
-use vars qw(@ISA );
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 
 

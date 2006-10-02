@@ -94,12 +94,10 @@ package Bio::Tools::BPlite::Sbjct;
 
 use strict;
 
-use Bio::Root::Root;        # root object to inherit from
 use Bio::Tools::BPlite::HSP; # we want to use HSP
 #use overload '""' => 'name';
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;

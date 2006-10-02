@@ -70,15 +70,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::largefasta;
-use vars qw(@ISA $FASTALINELEN);
+use vars qw($FASTALINELEN);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 
 $FASTALINELEN = 60;
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
   my($self,@args) = @_;

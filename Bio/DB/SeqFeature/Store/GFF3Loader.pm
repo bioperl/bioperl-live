@@ -67,7 +67,6 @@ use Carp 'croak';
 use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Store;
-use CGI::Util 'unescape';
 use File::Spec;
 use base 'Bio::Root::Root';
 
@@ -100,7 +99,7 @@ my %Strandedness = ( '+'  => 1,
  Status  : public
 
 This method creates a new GFF3 loader and establishes its connection
-with a Bio::DB::SeqFeature::Store database. Arguments are -name=>$value
+with a Bio::DB::SeqFeature::Store database. Arguments are -name=E<gt>$value
 pairs as described in this table:
 
  Name               Value
@@ -143,7 +142,7 @@ database in which to cache features until all their parts and subparts
 have been seen. This temporary databases uses the "bdb" adaptor. The
 -tmp option specifies the directory in which that database will be
 created. If not present, it defaults to the system default tmp
-directory specified by File::Spec->tmpdir().
+directory specified by File::Spec-E<gt>tmpdir().
 
 The -chunk_size option allows you to tune the representation of
 DNA/Protein sequence in the Store database. By default, sequences are
@@ -226,7 +225,7 @@ load them into the database. Compressed files ending with .gz, .Z and
 beginning with http: or ftp: are treated as URLs and opened using the
 LWP GET program (which must be on your path).
 
-FASTA files are recognized by their initial ">" character. Do not feed
+FASTA files are recognized by their initial "E<gt>" character. Do not feed
 the loader a file that is neither GFF3 nor FASTA; I don't know what
 will happen, but it will probably not be what you expect.
 
@@ -468,7 +467,7 @@ sub handle_meta {
     return;
   }
 
-  if ($instruction =~/index-subfeatures\s+(\S+)/) {
+  if ($instruction =~/index-subfeatures\s+(\S+)/i) {
     $self->{load_data}{IndexSubfeatures} = $1;
     $self->store->index_subfeatures($1);
     return;
@@ -480,7 +479,7 @@ sub handle_meta {
   $loader->handle_feature($gff3_line)
 
 This method is called to process a single GFF3 line. It manipulates
-information stored a data structure called $self->{load_data}.
+information stored a data structure called $self-E<gt>{load_data}.
 
 =cut
 
@@ -510,14 +509,26 @@ sub handle_feature {
 
   # Everything in the unreserved hash becomes an attribute, so we copy
   # some attributes over
-  $unreserved->{Note}  = $reserved->{Note}   if exists $reserved->{Note};
-  $unreserved->{Alias} = $reserved->{Alias}  if exists $reserved->{Alias};
-  $unreserved->{Target}= $reserved->{Target} if exists $reserved->{Target};
-  $unreserved->{Gap}   = $reserved->{Gap}    if exists $reserved->{Gap};
+  $unreserved->{Note}   = $reserved->{Note}   if exists $reserved->{Note};
+  $unreserved->{Alias}  = $reserved->{Alias}  if exists $reserved->{Alias};
+  $unreserved->{Target} = $reserved->{Target} if exists $reserved->{Target};
+  $unreserved->{Gap}    = $reserved->{Gap}    if exists $reserved->{Gap};
+  $unreserved->{load_id}= $reserved->{ID}     if exists $reserved->{ID};
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
+
+  # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES
+  # THIS IS TO ALLOW FOR TARGET-BASED LOOKUPS
+  if (exists $reserved->{Target}) {
+    my %aliases = map {$_=>1} @{$unreserved->{Alias}};
+    for my $t (@{$reserved->{Target}}) {
+      (my $tc = $t) =~ s/\s+.*$//;  # get rid of coordinates
+      $name ||= $tc;
+      push @{$unreserved->{Alias}},$tc unless $name eq $tc || $aliases{$tc};
+    }
+  }
 
   my @args = (-display_name => $name,
 	      -seq_id       => $refname,
@@ -589,7 +600,7 @@ END
   $loader->store_current_feature()
 
 This method is called to store the currently active feature in the
-database. It uses a data structure stored in $self->{load_data}.
+database. It uses a data structure stored in $self-E<gt>{load_data}.
 
 =cut
 
@@ -668,7 +679,7 @@ sub build_object_tree_in_tables {
   my $ld    = $self->{load_data};
 
   while (my ($load_id,$children) = each %{$ld->{Parent2Child}}) {
-    my $parent_id = $ld->{Local2GlobalID}{$load_id} or die "$load_id doesn't have a primary id";
+    my $parent_id = $ld->{Local2GlobalID}{$load_id} or $self->throw("$load_id doesn't have a primary id");
     my @children  = map {$ld->{Local2GlobalID}{$_}} @$children;
 
     # this updates the table that keeps track of parent/child relationships,
@@ -768,8 +779,13 @@ sub add_segment {
 		       : $parent->can('segments')                   ? $parent->segments
 		       : 0;
     unless ($segment_count) {  # convert into a segmented object
-      my %clone   = %$parent;
-      my $segment = bless \%clone,ref $parent;
+      my $segment;
+      if ($parent->can('clone')) {
+	$segment = $parent->clone;
+      } else {
+	my %clone   = %$parent;
+	$segment = bless \%clone,ref $parent;
+      }
       delete $segment->{segments};
       eval {$segment->object_store(undef) };
       $segment->primary_id(undef);
@@ -779,6 +795,7 @@ sub add_segment {
       $parent->add_segment($segment);
     }
     $parent->add_segment($child);
+    1; # for debugging
   }
 
   # a conventional Bio::SeqFeature::Generic object - create a split location
@@ -915,6 +932,21 @@ This method returns the current time in seconds, using Time::HiRes if available.
 sub time {
   return Time::HiRes::time() if Time::HiRes->can('time');
   return time();
+}
+
+=item escape
+
+ my $unescaped = GFF3Loader::unescape($escaped)
+
+This is an internal utility.  It is the same as CGI::Util::unescape,
+but don't change pluses into spaces and ignores unicode escapes.
+
+=cut
+
+sub unescape {
+  my $todecode = shift;
+  $todecode =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
+  return $todecode;
 }
 
 1;

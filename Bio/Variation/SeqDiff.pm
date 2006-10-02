@@ -94,12 +94,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::Variation::SeqDiff;
 
 use strict;
-use vars qw(@ISA);
-use Bio::Root::Root;
 use Bio::Tools::CodonTable;
 use Bio::PrimarySeq;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 =head2 new

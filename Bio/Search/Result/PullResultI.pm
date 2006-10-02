@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::Search::Result::PullResult - Bio::Search::Result::ResultI interface for
+Bio::Search::Result::PullResultI - Bio::Search::Result::ResultI interface for
                                   'pull' parsers
 
 =head1 SYNOPSIS
@@ -21,31 +21,22 @@ Bio::Search::Result::PullResult - Bio::Search::Result::ResultI interface for
     use Bio::SearchIO;
     my $io = new Bio::SearchIO(-format => 'hmmer_pull',
                                 -file   => 't/data/hmmpfam.out');
-    
+
     my $result = $io->next_result;
-    
+
     while( $hit = $result->next_hit()) {
         # enter code here for hit processing
     }
 
     my $id = $result->query_name();
-
     my $desc = $result->query_description();
-
     my $dbname = $result->database_name();
-
     my $size = $result->database_letters();
-
     my $num_entries = $result->database_entries();
-
     my $gap_ext = $result->get_parameter('gapext');
-
     my @params = $result->available_parameters;
-
     my $kappa = $result->get_statistic('kappa');
-
     my @statnames = $result->available_statistics;
-
 
 =head1 DESCRIPTION
 
@@ -107,14 +98,11 @@ The rest of the documentation details each of the object methods. Internal metho
 package Bio::Search::Result::PullResultI;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::PullParserI;
-use Bio::Search::Result::ResultI;
 use Bio::Search::GenericStatistics;
 use Bio::Tools::Run::GenericParameters;
 
-@ISA = qw(Bio::PullParserI Bio::Search::Result::ResultI);
+use base qw(Bio::PullParserI Bio::Search::Result::ResultI);
 
 =head2 _setup
 
@@ -405,12 +393,12 @@ sub hits {
  Usage     : $nohits = $blast->no_hits_found();
  Function  : Get boolean indicator indicating whether or not any hits
              were present in the report.
-             
+
              This is NOT the same as determining the number of hits via
              the hits() method, which will return zero hits if there were no
              hits in the report or if all hits were filtered out during the
              parse.
-             
+
              Thus, this method can be used to distinguish these possibilities
              for hitless reports generated when filtering.
 

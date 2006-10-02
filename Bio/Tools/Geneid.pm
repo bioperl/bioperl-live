@@ -74,18 +74,16 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Geneid;
 
-use vars qw(@ISA $SOURCE_TAG);
+use vars qw($SOURCE_TAG);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::GeneStructure;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 $SOURCE_TAG = 'geneid';
 
 =head2 new

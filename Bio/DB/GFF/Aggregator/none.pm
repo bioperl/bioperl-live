@@ -25,10 +25,8 @@ aggregate() so that they do exactly nothing.
 package Bio::DB::GFF::Aggregator::none;
 
 use strict;
-use Bio::DB::GFF::Aggregator;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 sub disaggregate {
   my $self  = shift;

@@ -82,12 +82,10 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::DB::Ace;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::DB::RandomAccessI
 
-use Bio::DB::RandomAccessI;
 use Bio::Seq;
 
 BEGIN {
@@ -98,7 +96,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 
 # new() is inherited from Bio::DB::Abstract
 

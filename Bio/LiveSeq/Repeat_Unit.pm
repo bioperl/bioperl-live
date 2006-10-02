@@ -40,9 +40,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::LiveSeq::Repeat_Unit;
 
 use strict;
-use vars qw(@ISA);
-use Bio::LiveSeq::Repeat_Region; # uses Repeat_Region, inherits from it
-@ISA=qw(Bio::LiveSeq::Repeat_Region);
+use base qw(Bio::LiveSeq::Repeat_Region);
 
 =head2 new
 

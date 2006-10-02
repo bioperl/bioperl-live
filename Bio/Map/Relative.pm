@@ -18,27 +18,27 @@ Bio::Map::Relative - Represents what a Position's coordiantes are relative to.
 
     # Get a Bio::Map::PositionI somehow
     my $pos = new Bio::Map::Position(-value => 100);
-    
+
     # its co-ordinates are implicitly relative to the start of its map
     my $implicit_relative = $pos->relative;
     my $type = $implicit_relative->type; # $type eq 'map'
     my $value = $implicit_relative->$type(); # $value == 0
-    
+
     # make its co-ordinates relative to another Position
     my $pos_we_are_relative_to = new Bio::Map::Position(-value => 200);
     my $relative = new Bio::Map::Relative(-position => $pos_we_are_relative_to);
     $pos->relative($relative);
-    
+
     # Get the start co-ordinate of $pos relative to $pos_we_are_relative_to
     my $start = $pos->start; # $start == 100
-    
+
     # Get the start co-ordinate of $pos relative to the start of the map
     my $abs_start = $relative->absolute_conversion($pos); # $abs_start == 300
     # - or -
     $pos->absolute(1);
     my $abs_start = $pos->start; # $abs_start == 300
     $pos->absolute(0);
-    
+
     # Get the start co-ordinate of $pos relative to a third Position
     my $pos_frame_of_reference = new Bio::Map::Position(-value => 10);
     my $relative2 = new Bio::Map::Relative(-position => $pos_frame_of_reference);
@@ -46,10 +46,10 @@ Bio::Map::Relative - Represents what a Position's coordiantes are relative to.
 
 =head1 DESCRIPTION
 
-A Relative object is used to describe what the co-ordinates (->numerical(),
-->start(), ->end()) of a Position are relative to. By default they are
+A Relative object is used to describe what the co-ordinates (numerical(),
+start(), end()) of a Position are relative to. By default they are
 implicitly assumed to be relative to the start of the map the Position is on.
-But setting the ->relative() of a Position to one of these objects lets us
+But setting the relative() of a Position to one of these objects lets us
 define otherwise.
 
 =head1 FEEDBACK
@@ -85,13 +85,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Relative;
-use vars qw(@ISA);
 use strict;
 use Scalar::Util qw(looks_like_number);
-use Bio::Root::Root;
-use Bio::Map::RelativeI;
 
-@ISA = qw(Bio::Root::Root Bio::Map::RelativeI);
+use base qw(Bio::Root::Root Bio::Map::RelativeI);
 
 =head2 new
 
@@ -109,13 +106,13 @@ use Bio::Map::RelativeI;
            -position => Position : or relative to this other Position (a
                                    Bio::Map::PositionI, fails if the other
                                    Position is on a different map to this map)
-           
+
            -description => string: Free text description of what this relative
                                    describes
-                                  
+
            (To say a Position is relative to something and upstream of it,
             the Position's start() co-ordinate should be set negative)
- 
+
 =cut
 
 sub new {
@@ -192,10 +189,10 @@ sub absolute_conversion {
  Function: Get the type of thing we are relative to. The types correspond
            to a method name, so the value of what we are relative to can
            subsequently be found by $value = $relative->$type;
-           
+
            Note that type is set by the last method that was set, or during
            new().
-           
+
  Returns : the string 'map', 'element' or 'position', or undef
  Args    : none
 

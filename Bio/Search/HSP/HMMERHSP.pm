@@ -58,11 +58,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::HMMERHSP;
-use vars qw(@ISA);
 use strict;
-use Bio::Search::HSP::GenericHSP;
 
-@ISA = qw(Bio::Search::HSP::GenericHSP);
+use base qw(Bio::Search::HSP::GenericHSP);
 
 =head2 new
 

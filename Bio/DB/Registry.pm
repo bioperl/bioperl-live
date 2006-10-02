@@ -59,15 +59,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::Registry;
 
-use vars qw(@ISA $OBDA_SPEC_VERSION $OBDA_SEARCH_PATH
+use vars qw($OBDA_SPEC_VERSION $OBDA_SEARCH_PATH
 			   $HOME $PRIVATE_DIR $PUBLIC_DIR $REGISTRY 
 			   $FALLBACK_REGISTRY);
 use strict;
 
-use Bio::Root::Root;
 use Bio::DB::Failover;
 use Bio::Root::HTTPget;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 BEGIN {
    $OBDA_SPEC_VERSION = 1.0;
@@ -121,8 +120,8 @@ sub _load_registry {
 
    my ($db,$hash) = ();
    for my $file (@ini_files) {
-      open FH,"$file";
-      while( <FH> ) {
+      open my $FH,"$file";
+      while( <$FH> ) {
 			if (/^VERSION=([\d\.]+)/) {
 				if ($1 > $OBDA_SPEC_VERSION or !$1) {
 					$self->throw("Do not know about this version [$1] > $OBDA_SPEC_VERSION");
@@ -275,9 +274,9 @@ sub _make_private_registry {
 	$self->throw("Could not make directory $HOME/$PRIVATE_DIR, " .
 					 "no $REGISTRY file available") if $@;
 
-	open(F,">$HOME/$PRIVATE_DIR/$REGISTRY");
-	print F while (<$f>);
-	close F;
+	open(my $F,">$HOME/$PRIVATE_DIR/$REGISTRY");
+	print $F while (<$F>);
+	close $F;
 
 	$self->warn("Stored $REGISTRY file in $HOME/$PRIVATE_DIR");
 

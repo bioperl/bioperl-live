@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-RelationshipI - Interface for a relationship between ontology terms
+Bio::Ontology::RelationshipI - Interface for a relationship between ontology terms
 
 =head1 SYNOPSIS
 
@@ -89,11 +89,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::RelationshipI;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 identifier
 

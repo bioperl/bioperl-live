@@ -124,15 +124,11 @@ Jason Stajich, jason-at-bioperl.org
 package Bio::Tools::BPbl2seq;
 
 use strict;
-use vars qw(@ISA);
 use Bio::Tools::BPlite;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
-use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
 #@ISA = qw(Bio::Tools::BPlite);
 
@@ -151,6 +147,8 @@ use Symbol;
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    $self->warn("Use of Bio::Tools::BPbl2seq is deprecated".
+                   "Use Bio::SearchIO classes instead");
     # initialize IO
     $self->_initialize_io(@args);
 

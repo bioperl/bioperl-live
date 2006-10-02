@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Fgenesh - Results of one Fgenesh run
+Bio::Tools::Fgenesh - parse results of one Fgenesh run
 
 =head1 SYNOPSIS
 
@@ -54,8 +54,8 @@ The Fgenesh module provides a parser for Fgenesh (version 2) gene structure
 prediction output. It parses one gene prediction into a 
 Bio::SeqFeature::Gene::Transcript- derived object.
 
-This module also implements the Bio::SeqAnalysisParserI interface, and thus
-can be used wherever such an object fits. See L<Bio::SeqAnalysisParserI>.
+This module also implements the L<Bio::SeqAnalysisParserI> interface, and thus
+can be used wherever such an object fits. 
 
 =head1 FEEDBACK
 
@@ -80,8 +80,6 @@ web:
 
 Email chris-at-dwan.org
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -93,16 +91,14 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Fgenesh;
-use vars qw(@ISA);
 use strict;
 use Symbol;
 
 use Bio::Root::Root;
-use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 my %ExonTags = ('CDSf' => 'Initial',
 		'CDSi' => 'Internal',
@@ -175,12 +171,9 @@ sub next_feature {
 =head2 next_prediction
 
  Title   : next_prediction
- Usage   : while($gene = $fgenesh->next_prediction()) {
-                  # do something
-           }
+ Usage   : while($gene = $fgenesh->next_prediction()) { ... }
  Function: Returns the next gene structure prediction of the Genscan result
            file. Call this method repeatedly until FALSE is returned.
-
  Example :
  Returns : A Bio::Tools::Prediction::Gene object.
  Args    :
@@ -260,6 +253,7 @@ sub next_prediction {
  Returns : 
 
 =cut
+
 sub _parse_predictions {
     my ($self) = @_;
     my $gene;
@@ -481,7 +475,7 @@ sub _has_cds {
            $self->_readline() to retrieve input, and is able to strip off
            the traling description lines.
  Example :
- Returns : An array of two elements.
+ Returns : An array of two elements: fasta_id & sequence
 
 =cut
 

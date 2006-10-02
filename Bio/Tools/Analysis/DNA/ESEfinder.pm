@@ -137,14 +137,12 @@ use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use HTML::HeadParser;
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 use Bio::Seq::Meta::Array;
 use Bio::WebAgent;
 use strict;
 
-use vars qw(@ISA );
 #inherits directly from SimpleAnalysisBase
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 
 #global vars are now file-scoped lexicals
@@ -268,7 +266,7 @@ sub result {
             #parse line
             if ($line =~ /^Protein/) {
                 ($current_SR) = $line =~/:\s+(\S+)/;
-                $current_SR =~ s/\//_/; # remove unallowed charcters from hash
+                $current_SR =~ s{/}{_}; # remove unallowed charcters from hash
             }
             if ( $line =~/^\d+/ && $value ne 'all') {
                 push @sig_pdctns, [$current_SR, split /\s+/, $line] ;

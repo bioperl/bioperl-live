@@ -24,34 +24,34 @@ Bio::Restriction::IO - Handler for sequence variation IO Formats
 
 =head1 DESCRIPTION
 
-Bio::Restriction::IO is a handler module for the formats in the
-Restriction IO set (eg, Bio::Restriction::IO::XXX). It is the
+L<Bio::Restriction::IO> is a handler module for the formats in the
+Restriction IO set, e.g. C<Bio::Restriction::IO::xxx>. It is the
 officially sanctioned way of getting at the format objects, which most
 people should use.
 
 The structure, conventions and most of the code is inherited from
-Bio::SeqIO. The main difference is that instead of using methods
-next_seq, you drop '_seq' from the method name.
+L<Bio::SeqIO>. The main difference is that instead of using methods
+C<next_seq>, you drop C<_seq> from the method name.
 
-Also, instead of dealing only with individual Bio::Restriction::Enzyme
-objects, read() will slurp in all enzymes into a Collection (a
-Bio::Restriction::EnzymeCollection object).
+Also, instead of dealing only with individual L<Bio::Restriction::Enzyme>
+objects, C<read()> will slurp in all enzymes into a 
+L<Bio::Restriction::EnzymeCollection> object.
 
 For more details, see documentation in L<Bio::SeqIO>.
 
 =head1 TO DO
 
 At the moment, these can be use mainly to get a custom set if enzymes in
-'withrefm' or 'itype2' formats into Bio::Restriction::Enzyme or
-Bio::Restriction::EnzymeCollection objects.  Using 'bairoch' format is
+C<withrefm> or C<itype2> formats into L<Bio::Restriction::Enzyme> or
+L<Bio::Restriction::EnzymeCollection> objects.  Using C<bairoch> format is
 highly experimental and is not recommmended at this time.
 
-This class inherits from Bio::SeqIO for convenience sake, though this should
-inherit from Bio::Root::Root.  Get rid of Bio::SeqIO inheritance by
+This class inherits from L<Bio::SeqIO> for convenience sake, though this should
+inherit from L<Bio::Root::Root>.  Get rid of L<Bio::SeqIO> inheritance by
 copying relevant methods in.
 
-write() methods are currently not implemented for any format except 'base'.
-Using write() even with 'base' format is not recommended as it does not
+C<write()> methods are currently not implemented for any format except C<base>.
+Using C<write()> even with C<base> format is not recommended as it does not
 support multicut/multisite enzyme output.
 
 Should additional formats be supported (such as XML)?
@@ -101,9 +101,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::Restriction::IO;
 
 use strict;
-use vars qw(@ISA %FORMAT);
-use Bio::SeqIO;
-@ISA = 'Bio::SeqIO';
+use vars qw(%FORMAT);
+use base qw(Bio::SeqIO);
 
 %FORMAT = (
             'itype2'    => 'itype2',
@@ -179,17 +178,17 @@ END
 
 sub read {
    my ($self, $seq) = @_;
-   $self->throw("Not implemented");
+   $self->throw_not_implemented();
 }
 
 sub next {
    my ($self, $seq) = @_;
-   $self->throw("Not implemented");
+   $self->throw_not_implemented();
 }
 
 sub next_seq {
    my ($self, $seq) = @_;
-   $self->throw("Not implemented");
+   $self->throw_not_implemented();
 }
 
 =head2 write
@@ -198,7 +197,7 @@ sub next_seq {
  Usage   : $stream->write($seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Restriction::EnzymeCOllection object
+ Args    : Bio::Restriction::EnzymeCollection object
 
 =cut
 
@@ -229,8 +228,8 @@ sub write_seq {
 sub _guess_format {
    my $class = shift;
    return  unless $_ = shift;
-   return 'flat'     if /\.dat$/i;
-   return 'xml'     if /\.xml$/i;
+   return 'flat' if /\.dat$/i;
+   return 'xml'  if /\.xml$/i;
 }
 
 

@@ -66,19 +66,17 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Pseudowise;
-use vars qw(@ISA);
 use strict;
 use Symbol;
 
 use Bio::Root::Root;
-use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::GeneStructure;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 sub _initialize_state {
     my ($self,@args) = @_;

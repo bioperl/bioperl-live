@@ -74,19 +74,15 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Annotation::Collection;
 
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::AnnotationCollectionI;
-use Bio::AnnotationI;
-use Bio::Root::Root;
 use Bio::Annotation::TypeManager;
 use Bio::Annotation::SimpleValue;
 
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationCollectionI Bio::AnnotationI);
+use base qw(Bio::Root::Root Bio::AnnotationCollectionI Bio::AnnotationI);
 
 
 =head2 new

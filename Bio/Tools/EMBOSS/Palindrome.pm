@@ -65,12 +65,6 @@ email or the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -83,14 +77,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::EMBOSS::Palindrome;
-use vars qw(@ISA $DEFAULT_SOURCETAG);
+use vars qw($DEFAULT_SOURCETAG);
 use strict;
 
-use Bio::Root::IO;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Root::IO);
+use base qw(Bio::Root::IO);
 $DEFAULT_SOURCETAG = 'palindrome';
 
 =head2 new

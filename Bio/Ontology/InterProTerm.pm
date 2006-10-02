@@ -21,7 +21,7 @@
 
 =head1 NAME
 
-InterProTerm - Implementation of InterProI term interface
+Bio::Ontology::InterProTerm - Implementation of InterProI term interface
 
 =head1 SYNOPSIS
 
@@ -64,10 +64,6 @@ the web:
 
 Email dimitrov@gnf.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -80,15 +76,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::InterProTerm;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Ontology::Term;
 use Bio::Annotation::Reference;
 
 use constant INTERPRO_ID_DEFAULT => "IPR000000";
 
-@ISA = qw( Bio::Ontology::Term );
+use base qw(Bio::Ontology::Term);
 
 =head2 new
 

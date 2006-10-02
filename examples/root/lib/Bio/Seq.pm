@@ -444,22 +444,15 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Seq;
-use vars qw(@ISA);
 use strict;
 
 
 # Object preamble - inherits from Bio::Root::Object
 
-use Bio::Root::Root;
-use Bio::SeqI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
-use Bio::AnnotatableI;
-use Bio::FeatureHolderI;
 
-@ISA = qw(Bio::Root::Root Bio::SeqI
+use base qw(Bio::Root::Root Bio::SeqI
 	  Bio::IdentifiableI Bio::DescribableI
 	  Bio::AnnotatableI Bio::FeatureHolderI);
 

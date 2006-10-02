@@ -2,22 +2,22 @@
 
 =head1 NAME
 
-Bio::FeatureIO::gff - DESCRIPTION of Object
+Bio::FeatureIO::gff - read/write GFF feature files
 
 =head1 SYNOPSIS
 
   my $feature; #get a Bio::SeqFeature::Annotated somehow
-  my $featureOut = Bio::FeatureIO->new(-format => 'gff',
-                                       -version => 3,
-                                       -fh => \*STDOUT,
-                                       -validate_terms => 1, #boolean. validate ontology
-                                                             #terms online?  default 0 (false).
-                                      );
+  my $featureOut = Bio::FeatureIO->new(
+    -format => 'gff',
+    -version => 3,
+    -fh => \*STDOUT,
+    -validate_terms => 1, #boolean. validate ontology terms online?  default 0 (false).
+  );
   $featureOut->write_feature($feature);
 
 =head1 DESCRIPTION
 
- currently implemented:
+ Currently implemented:
 
  version         read?   write?
  ------------------------------
@@ -48,8 +48,6 @@ the web:
 =head1 AUTHOR
 
  Allen Day, <allenday@ucla.edu>
-
-Describe contact details here
 
 =head1 CONTRIBUTORS
 
@@ -135,7 +133,7 @@ sub next_feature {
     return $f;
   }
 
-  return undef if $self->fasta_mode();
+  return if $self->fasta_mode();
 
   # be graceful about empty lines or comments, and make sure we return undef
   # if the input is consumed

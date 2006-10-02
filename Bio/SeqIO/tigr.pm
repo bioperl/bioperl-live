@@ -59,10 +59,8 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 package Bio::SeqIO::tigr;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::Seq::RichSeq;
 use Bio::Species;
 use Bio::Annotation::Comment;
@@ -72,7 +70,7 @@ use Bio::Seq::RichSeq;
 use Data::Dumper;
 use Error qw/:try/;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize
 {
@@ -1341,3 +1339,5 @@ sub throw
 	my $string = "[$.]" . join('', @s);
 	$self->SUPER::throw($string);
 }
+
+1;

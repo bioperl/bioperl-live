@@ -110,11 +110,9 @@ use strict;
 
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Util::Rearrange;
-use Bio::DB::GFF::Segment;
 use Bio::RangeI;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Segment);
+use base qw(Bio::DB::GFF::Segment);
 
 use overload '""' => 'asString',
              'bool' => sub { overload::StrVal(shift) },

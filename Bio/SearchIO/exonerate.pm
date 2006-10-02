@@ -48,16 +48,16 @@ The GFF that comes from exonerate is still probably a better way to go
 if you are doing protein2genome or est2genome mapping.
 For example you can see this script:
 
-http://fungal.genome.duke.edu/~jes12/software/scripts/process_exonerate_gff3.pl
+http://fungal.genome.duke.edu/~jes12/software/scripts/process_exonerate_gff3.perl.txt
 
 If your report contains both CIGAR and VULGAR lines only the first one
 will processed for a given Query/Target pair.  If you preferentially
 want to use VULGAR or CIGAR add one of these options when initializing
 the SearchIO object.
 
-    -cigar  => 1 
+    -cigar  => 1
 OR
-    -vulgar => 1 
+    -vulgar => 1
 
 Or set them via these methods.
 
@@ -103,10 +103,9 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::exonerate;
 use strict;
-use vars qw(@ISA @STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
-use Bio::SearchIO;
+use vars qw(@STATES %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $MIN_INTRON);
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 %MODEMAP = ( 'ExonerateOutput' => 'result',
     'Hit'             => 'hit',
@@ -155,7 +154,7 @@ $MIN_INTRON=30; # This is the minimum intron size
  Args    : -min_intron => somewhat obselete option, how to determine if a
                           an indel is an intron or a local gap.  Use VULGAR
                           rather than CIGAR to avoid this heuristic,default 30.
-           -cigar       => 1   set this to 1 if you want to parse 
+           -cigar       => 1   set this to 1 if you want to parse
                                CIGAR exclusively.
            -vulgar      => 1   set this to 1 if you want to parse VULGAR
                                exclusively, setting both to 1 will revert
@@ -204,7 +203,7 @@ sub next_result{
    $self->start_document();
    my @hit_signifs;
    my $seentop;
-   my (@q_ex, @m_ex, @h_ex); ## gc addition   
+   my (@q_ex, @m_ex, @h_ex); ## gc addition
    while( defined($_ = $self->_readline) ) {
        # warn( "Reading $_");
        if( /^Query:\s+(\S+)\s*(.+)?/ ) {
@@ -214,10 +213,10 @@ sub next_result{
 	       return $self->end_document();
 	   }
 	   $seentop = 1;
-	   my ($nm,$desc) = ($1,$2);	   
+	   my ($nm,$desc) = ($1,$2);
 	   chomp($desc) if defined $desc;
 	   $self->{'_result_count'}++;
-	   $self->start_element({'Name' => 'ExonerateOutput'});	   
+	   $self->start_element({'Name' => 'ExonerateOutput'});
 	   $self->element({'Name' => 'ExonerateOutput_query-def',
 			   'Data' => $nm });
 	   $self->element({'Name' => 'ExonerateOutput_query-desc',
@@ -249,7 +248,7 @@ sub next_result{
 	   # Note from Ewan. This is ugly - copy and paste from
 	   # cigar line parsing. Should unify somehow...
 	   #
-	   if( ! $self->within_element('result') ) {	       
+	   if( ! $self->within_element('result') ) {
 	       $self->start_element({'Name' => 'ExonerateOutput'});
 	       $self->element({'Name' => 'ExonerateOutput_query-def',
 			       'Data' => $1 });
@@ -270,7 +269,7 @@ sub next_result{
 #			   'Data' => $qe});
 #	   $self->element({'Name' => 'Hit_len',
 #			   'Data' => $he});
-	
+
 	   ## gc note:
 	   ## add one because these values are zero-based
 	   ## this calculation was originally done lower in the code,
@@ -279,32 +278,32 @@ sub next_result{
 	   my ($qbegin,$qend) = ('query-from', 'query-to');
 
 	   if( $qstrand eq '-' ) {
-	       $qstrand = -1; $qe++;		       
-	   } else { 
-	       $qstrand = 1;  
+	       $qstrand = -1; $qe++;
+	   } else {
+	       $qstrand = 1;
 	       $qs++;
 	   }
 	   my ($hbegin,$hend) = ('hit-from', 'hit-to');
 
 	   if( $hstrand eq '-' ) {
-	       $hstrand = -1;	  
+	       $hstrand = -1;
 	       $he++;
-	   } else { 
-	       $hstrand = 1; 
-	       $hs++; 
+	   } else {
+	       $hstrand = 1;
+	       $hs++;
 	   }
 	   # okay let's do this right and generate a set of HSPs
-	   # from the cigar line/home/bio1/jes12/bin/exonerate  --model est2genome --bestn 1 t/data/exonerate_cdna.fa t/data/exonerate_genomic_rev.fa 
+	   # from the cigar line/home/bio1/jes12/bin/exonerate  --model est2genome --bestn 1 t/data/exonerate_cdna.fa t/data/exonerate_genomic_rev.fa
 
 	   my ($aln_len,$inserts,$deletes) = (0,0,0);
 	   my ($laststate,@events,$gaps) =( '' );
 	   while( @rest >= 3 ) {
 	       my ($state,$len1,$len2) = (shift @rest, shift @rest, shift @rest);
-	       # 
+	       #
 	       # HSPs are only the Match cases; otherwise we just
 	       # move the coordinates on by the correct amount
 	       #
-	       
+
 	       if( $state eq 'M' ) {
 		   if( $laststate eq 'G' ) {
 		       # merge gaps across Match states so the HSP
@@ -313,17 +312,17 @@ sub next_result{
 		       $events[-1]->{$hend}   = $hs + $len2*$hstrand - $hstrand;
 		       $events[-1]->{'gaps'} = $gaps;
 		   } else {
-		       push @events, 
+		       push @events,
 		       { 'score'     => $score,
 			 'align-len' => $len1,
-			 $qbegin => $qs, 
+			 $qbegin => $qs,
 			 $qend  => ($qs + $len1*$qstrand - $qstrand),
 			 $hbegin => $hs,
 			 $hend   => ($hs + $len2*$hstrand - $hstrand),
 		     };
 		   }
 		   $gaps = 0;
-	       } else {		   
+	       } else {
 		   $gaps = $len1 + $len2 if $state eq 'G';
 	       }
 	       $qs += $len1*$qstrand;
@@ -337,7 +336,7 @@ sub next_result{
 				   'Data' => $val});
 	       }
 	       $self->element({'Name' => 'Hsp_identity',
-			       'Data' => 0});	       
+			       'Data' => 0});
 	       $self->end_element({'Name' => 'Hsp'});
 	   }
 
@@ -348,7 +347,7 @@ sub next_result{
 	   $self->end_element({'Name' => 'Hit'});
 	   $self->end_element({'Name' => 'ExonerateOutput'});
 
-	   return $self->end_document();	
+	   return $self->end_document();
 
        } elsif(  s/^cigar:\s+(\S+)\s+          # query sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
@@ -359,7 +358,7 @@ sub next_result{
 	   next if( $self->vulgar || $self->{'_seenvulgar'});
 	   $self->{'_cigar'}++;
 
-	   if( ! $self->within_element('result') ) {	       
+	   if( ! $self->within_element('result') ) {
 	       $self->start_element({'Name' => 'ExonerateOutput'});
 	       $self->element({'Name' => 'ExonerateOutput_query-def',
 			       'Data' => $1 });
@@ -379,7 +378,7 @@ sub next_result{
 #			   'Data' => $qe});
 #	   $self->element({'Name' => 'Hit_len',
 #			   'Data' => $he});
-	
+
 	   my @rest = split;
 	   if( $qstrand eq '-' ) {
 	       $qstrand = -1;
@@ -393,7 +392,7 @@ sub next_result{
 	   } else { $hstrand = 1; }
 	   # okay let's do this right and generate a set of HSPs
 	   # from the cigar line
-	   
+
 	   ## gc note:
 	   ## add one because these values are zero-based
 	   ## this calculation was originally done lower in the code,
@@ -408,7 +407,7 @@ sub next_result{
 	       } elsif( $state eq 'D' ) {
 		   if( $len >= $MIN_INTRON ) {
 		       $self->start_element({'Name' => 'Hsp'});
-		       
+
 		       $self->element({'Name' => 'Hsp_score',
 				       'Data' => $score});
 		       $self->element({'Name' => 'Hsp_align-len',
@@ -416,7 +415,7 @@ sub next_result{
 		       $self->element({'Name' => 'Hsp_identity',
 				       'Data' => $aln_len -
 					   ($inserts + $deletes)});
-		
+
 		       # HSP ends where the other begins
 		       $self->element({'Name' => 'Hsp_query-from',
 				       'Data' => $qs});
@@ -427,14 +426,14 @@ sub next_result{
 		       $qs += $aln_len*$qstrand;
 		       $self->element({'Name' => 'Hsp_query-to',
 				       'Data' => $qs - ($qstrand*1)});
-		
+
 		       $hs += $deletes*$hstrand;
 		       $self->element({'Name' => 'Hsp_hit-from',
 				       'Data' => $hs});
 		       $hs += $aln_len*$hstrand;
 		       $self->element({'Name' => 'Hsp_hit-to',
 				       'Data' => $hs-($hstrand*1)});
-		
+
 		       $self->element({'Name' => 'Hsp_align-len',
 				       'Data' => $aln_len + $inserts
 					   + $deletes});
@@ -447,9 +446,9 @@ sub next_result{
 				       'Data' => $inserts});
 		       $self->element({'Name' => 'Hsp_hitgaps',
 				       'Data' => $deletes});
-		
+
 ## gc addition start
-		
+
 		       $self->element({'Name' => 'Hsp_qseq',
 				       'Data' => shift @q_ex,
 				   });
@@ -461,18 +460,18 @@ sub next_result{
 				   });
 ## gc addition end
 		       $self->end_element({'Name' => 'Hsp'});
-		       		
+
 		       $aln_len = $inserts = $deletes = 0;
 		   }
-		   $deletes+=$len;		
+		   $deletes+=$len;
 	       } else {
 		   $aln_len += $len;
 	       }
 	   }
 	   $self->start_element({'Name' => 'Hsp'});
-	
+
 ## gc addition start
-		
+
 	   $self->element({'Name' => 'Hsp_qseq',
 			   'Data' => shift @q_ex,
 		       });
@@ -486,7 +485,7 @@ sub next_result{
 
 	   $self->element({'Name' => 'Hsp_score',
 			   'Data' => $score});
-	
+
 	   $self->element({'Name' => 'Hsp_query-from',
 			   'Data' => $qs});
 
@@ -499,30 +498,30 @@ sub next_result{
 			   'Data' => $hs});
 	   $hs += $aln_len*$hstrand;
 	   $self->element({'Name' => 'Hsp_hit-to',
-			   'Data' => $hs -($hstrand*1)});	
+			   'Data' => $hs -($hstrand*1)});
 
 	   $self->element({'Name' => 'Hsp_align-len',
 			   'Data' => $aln_len});
-	
+
 	   $self->element({'Name' => 'Hsp_identity',
 			   'Data' => $aln_len - ($inserts + $deletes)});
 
 	   $self->element({'Name' => 'Hsp_gaps',
 			   'Data' => $inserts + $deletes});
-	
+
 	   $self->element({'Name' => 'Hsp_querygaps',
 			   'Data' => $inserts});
 	   $self->element({'Name' => 'Hsp_hitgaps',
-			   'Data' => $deletes});	   	
+			   'Data' => $deletes});
 	   $self->end_element({'Name' => 'Hsp'});
 
 	   $self->element({'Name' => 'Hit_score',
 			   'Data' => $score});
-	   
+
 	   $self->end_element({'Name' => 'Hit'});
 	   $self->end_element({'Name' => 'ExonerateOutput'});
 
-	   return $self->end_document();	
+	   return $self->end_document();
        } else {
 	   # skipping this line
        }

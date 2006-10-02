@@ -64,13 +64,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::HSP::HSPFactory;
-use vars qw(@ISA $DEFAULT_TYPE);
+use vars qw($DEFAULT_TYPE);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Factory::ObjectFactoryI;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::ObjectFactoryI );
+use base qw(Bio::Root::Root Bio::Factory::ObjectFactoryI);
 
 BEGIN { 
     $DEFAULT_TYPE = 'Bio::Search::HSP::GenericHSP'; 

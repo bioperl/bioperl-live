@@ -63,15 +63,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::fasta;
-use vars qw(@ISA $WIDTH @SEQ_ID_TYPES $DEFAULT_SEQ_ID_TYPE);
+use vars qw($WIDTH @SEQ_ID_TYPES $DEFAULT_SEQ_ID_TYPE);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 @SEQ_ID_TYPES = qw(accession accession.version display primary);
 $DEFAULT_SEQ_ID_TYPE = 'display';

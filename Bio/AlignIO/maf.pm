@@ -70,15 +70,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::maf;
-use vars qw(@ISA $seen_header);
+use vars qw($seen_header);
 use strict;
 
 use Bio::SimpleAlign;
-use Bio::AlignIO;
 
 $seen_header = 0;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 new
 

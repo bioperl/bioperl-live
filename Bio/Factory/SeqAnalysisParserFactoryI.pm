@@ -73,11 +73,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Factory::SeqAnalysisParserFactoryI;
 use strict;
 
-use Bio::Root::RootI;
 use Carp;
 
-use vars qw(@ISA );
-@ISA = qw(Bio::Root::RootI); 
+use base qw(Bio::Root::RootI);
 
 =head2 get_parser
 

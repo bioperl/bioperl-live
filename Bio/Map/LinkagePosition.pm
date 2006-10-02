@@ -18,7 +18,7 @@ Bio::Map::LinkagePosition - Create a Position for a Marker that will be placed
     use Bio::Map::Position;
     my $position = new Bio::Map::LinkagePosition(-positions => 1,
 						 -distance => 22.1 );
-    
+
 	# can get listing of positions
     my @positions = $position->each_position;
 
@@ -69,12 +69,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::LinkagePosition;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Map::OrderedPosition;
 
-@ISA = qw(Bio::Map::OrderedPosition);
+use base qw(Bio::Map::OrderedPosition);
 
 =head2 new
 

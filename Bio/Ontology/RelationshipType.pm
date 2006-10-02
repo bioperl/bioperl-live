@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-RelationshipType - a relationship type for an ontology
+Bio::Ontology::RelationshipType  - a relationship type for an ontology
 
 =head1 SYNOPSIS
 
@@ -81,9 +81,7 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Ontology::RelationshipType;
-use vars qw( @ISA );
 use strict;
-use Bio::Ontology::Term;
 
 
 use constant PART_OF    => "PART_OF";
@@ -93,7 +91,7 @@ use constant CONTAINS   => "CONTAINS";
 use constant FOUND_IN   => "FOUND_IN";
 
 
-@ISA = qw( Bio::Ontology::Term );
+use base qw(Bio::Ontology::Term);
 
 
 #

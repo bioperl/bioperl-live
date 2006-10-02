@@ -91,11 +91,9 @@ This software is provided "as is" without warranty of any kind.
 
 package Bio::Biblio::MedlineBook;
 use strict;
-use vars qw(@ISA);
 
-use Bio::Biblio::Book;
 
-@ISA = qw(Bio::Biblio::Book);
+use base qw(Bio::Biblio::Book);
 
 #
 # a closure with a list of allowed attribute names (these names

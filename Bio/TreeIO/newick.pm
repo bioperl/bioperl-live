@@ -50,12 +50,6 @@ web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -68,16 +62,15 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::newick;
-use vars qw(@ISA $DefaultBootstrapStyle);
+use vars qw($DefaultBootstrapStyle);
 use strict;
 
-use Bio::TreeIO;
 use Bio::Event::EventGeneratorI;
 
 #initialize some package variables, could use 'our' but fails in perl < 5.6
 
 $DefaultBootstrapStyle = 'traditional';
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 
 =head2 new

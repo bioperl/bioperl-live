@@ -71,7 +71,7 @@ in brackets are the pattern which will match
 
 =over 3
 
-=item  JukesCantor [jc|jukes|jukescantor|jukes-cantor]
+=item JukesCantor [jc|jukes|jukescantor|jukes-cantor]
 
 =item Uncorrected [jcuncor|uncorrected]
 
@@ -185,8 +185,6 @@ negative value indicates D_s E<gt> D_n.
 
 =back
 
-=head1 calc_average_KaKs
-
 The statistics returned by calc_average_KaKs are:
 
 =over 3
@@ -280,11 +278,8 @@ web:
 
 Email jason-AT-bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
 Richard Adams, richard.adams@ed.ac.uk
 
 =head1 APPENDIX
@@ -299,12 +294,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::DNAStatistics;
-use vars qw(@ISA %DNAChanges @Nucleotides %NucleotideIndexes
+use vars qw(%DNAChanges @Nucleotides %NucleotideIndexes
 	    $GapChars $SeqCount $DefaultGapPenalty %DistanceMethods
             $CODONS %synchanges $synsites $Precision $GCChhars);
 use strict;
 use Bio::Align::PairwiseStatistics;
-use Bio::Root::Root;
 use Bio::Matrix::PhylipDist;
 use Bio::Tools::IUPAC;
 
@@ -364,7 +358,7 @@ BEGIN {
 			 'jinnei|jin\-nei'       => 'JinNei');
 
 }
-@ISA = qw( Bio::Root::Root Bio::Align::StatisticsI );
+use base qw(Bio::Root::Root Bio::Align::StatisticsI);
 
 ## generate look up hashes for Nei_Gojobori methods##
 $CODONS = get_codons();
@@ -862,7 +856,7 @@ sub D_Tamura {
 sub D_F84 {
    my ($self,$aln,$gappenalty) = @_;
    return 0 unless $self->_check_arg($aln);
-   $self->throw("not implemented\n");
+   $self->throw_not_implemented();
    # ambiguities ignored at this point
    my (@seqs,@names,@values,%dist);
    my $seqct = 0;

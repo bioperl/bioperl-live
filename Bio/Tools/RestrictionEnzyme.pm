@@ -19,45 +19,33 @@ DEPRECATED. Please use the Bio::Restriction modules instead.
 
 =head1 SYNOPSIS
 
-=head2 Object Creation
+  use Bio::Tools::RestrictionEnzyme;
 
-    require Bio::Tools::RestrictionEnzyme;
+  ## Create a new object by name.
 
-    ## Create a new object by name.
+  $re1 = Bio::Tools::RestrictionEnzyme->new(-NAME =>'EcoRI');
 
-    $re1 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRI');
+  ## Create a new object using special syntax
+  ## which specifies the enzyme name, recognition site, and cut position.
+  ## Used for enzymes not known to this module.
 
-    ## Create a new object using special syntax
-    ## which specifies the enzyme name, recognition site, and cut position.
-    ## Used for enzymes not known to this module.
+  $re2 = Bio::Tools::RestrictionEnzyme->new(-NAME =>'EcoRV--GAT^ATC', 
+                                            -MAKE =>'custom');
 
-    $re2 = new Bio::Tools::RestrictionEnzyme(-NAME =>'EcoRV--GAT^ATC', 
-				  	     -MAKE =>'custom');
+  ## Get a list of the resulting fragments when a sequence is cut with
+  ## the given enzyme. The method expects a Bio::Seq object.
 
-    ## Get a list of the resulting fragments when a sequence is cut with
-    ## the given enzyme. The method expects a Bio::Seq object.
+  @fragments = $re2->cut_seq($seqobj);
 
-    @fragments = $re2->cut_seq($seqobj);
+  ## Get a list of names of all available restriction enzymes 
+  ## known to this module.
 
-    ## Get a list of names of all available restriction enzymes 
-    ## known to this module.
+  @all = $re->available_list();
 
-    @all = $re->available_list();
+  ## Get the names of restriction enzymes that have 6 bp 
+  ## recognition sequences.
 
-    ## Get the names of restriction enzymes that have 6 bp 
-    ## recognition sequences.
-
-    @sixcutters = $re->available_list(6);
-
-
-=head1 INSTALLATION
-
-This module is included with the central Bioperl distribution:
-
-   http://bio.perl.org/Core/Latest
-   ftp://bio.perl.org/pub/DIST
-
-Follow the installation instructions included in the README file.
+  @sixcutters = $re->available_list(6);
 
 =head1 DESCRIPTION
 
@@ -68,7 +56,7 @@ analysis of DNA sequences.
 =head2 Considerations
 
 This module is a precursor for a more full featured version that may do such
-things as download data from online databases such as REBase http://rebase.neb.com/ .
+things as download data from online databases such as REBase L<http://rebase.neb.com/>.
 Thus, there is currently no functionality for obtaining data regarding commercial
 availability of a restriction enzyme.
 
@@ -77,21 +65,18 @@ from a class such as Bio::Enzyme or Bio::Prot::Protein (neither of which now
 exist) so that more data about the enzyme and related information can be 
 easily obtained.
 
-This module is currently in use at 
-
- http://genome-www.stanford.edu/Sacch3D/analysis/
-
+This module is currently in use at L<http://genome-www.stanford.edu/Sacch3D/analysis/>.
 
 =head2 Digesting on Runs of N
 
 To digest a sequence on runs of N's in the sequence. Here's what you can do:
 
-    $re_n  = new Bio::Tools::RestrictionEnzyme(-name=>'N--NNNNN',
-                                               -make=>'custom');
+    $re_n  = Bio::Tools::RestrictionEnzyme->new(-name=>'N--NNNNN',
+                                                -make=>'custom');
 
 Specify the number of N's you want to match in the -name parameter. 
 So the above example will recognize and cut at runs of 5 Ns.
- If you wanted to cut at runs of 10 N's, you would use 
+If you wanted to cut at runs of 10 N's, you would use 
 
      -name => 'N--NNNNNNNNNN'
 
@@ -102,12 +87,12 @@ correct.
 
 =head1 EXAMPLES
 
-See the script examples/restriction.pl in the Bioperl distribution.
+See the script C<examples/restriction.pl> in the Bioperl distribution.
 
 =head1 DEPENDENCIES 
 
-Bio::Tools::RestrictionEnzyme.pm is a concrete class that inherits from 
-B<Bio::Root::Root> and uses by delegation B<Bio::PrimarySeq>.
+Bio::Tools::RestrictionEnzyme is a concrete class that inherits from 
+L<Bio::Root::Root> and uses by delegation L<Bio::PrimarySeq>.
 
 =head1 FEEDBACK
 
@@ -140,10 +125,8 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Bio::Root::Root>    - Base class.
-L<Bio::PrimarySeq>    - Lightweight sequence object.
-
-  http://bio.perl.org/  - Bioperl Project Homepage
+L<Bio::Root::Root>, 
+L<Bio::PrimarySeq>.
 
 =cut
 
@@ -169,17 +152,11 @@ for documentation purposes only.
 package Bio::Tools::RestrictionEnzyme;
 use strict;
 
-use Bio::Root::Root;
-use Exporter;
+use vars qw (@EXPORT_OK %EXPORT_TAGS @RE_available);
 
-use vars qw (@ISA @EXPORT_OK %EXPORT_TAGS $ID  @RE_available $Revision);
-
-@ISA         = qw(Bio::Root::Root Exporter);
+use base qw(Bio::Root::Root Exporter);
 @EXPORT_OK   = qw(@RE_available);
 %EXPORT_TAGS = ( std => [qw(@RE_available)] );
-
-$ID = 'Bio::Tools::RestrictionEnzyme';
-$Revision = '$Id$';  #'
 
 # Generated from REBASE version 208 (strider format), dated Aug 1 2002
 # using scripts/contributed/rebase2list.pl
@@ -732,7 +709,7 @@ my %RE = (
  Comments  : A RestrictionEnzyme object manages its recognition sequence
            : as a Bio::PrimarySeq object.
 
-See Also   : L<_make_custom>(), L<_make_standard>(), B<Bio::PrimarySeq.pm::_initialize()>
+See Also   : L<_make_custom>(), L<_make_standard>(), L<Bio::PrimarySeq.pm::_initialize()>
 
 =cut
 
@@ -740,9 +717,11 @@ See Also   : L<_make_custom>(), L<_make_standard>(), B<Bio::PrimarySeq.pm::_init
 sub new {
 #---------------
     my($class, @args) = @_;
-
     my $self = $class->SUPER::new(@args);
+    $self->warn("Use of Bio::Tools::RestrictionEnzyme is deprecated".
+                   "Use Bio::Restriction classes instead");
     my ($name,$make) = $self->_rearrange([qw(NAME MAKE)],@args);
+
     $name && $self->name($name);
     my %data;
     if(defined $make && $make eq 'custom') {
@@ -1029,11 +1008,11 @@ sub cut_seq {
 	my $revseq = $self->_expanded_string( $reSeq->revcom->seq() );
 	$seq .= '|'.uc($revseq);
     }
-    $self->debug(sprintf("$ID: site seq: %s\n\n", $seq));
-    $self->debug(sprintf("$ID: splitting %s\n\n",$reSeq->seq));
+    $self->debug(__PACKAGE__, ": site seq: $seq\n");
+    $self->debug(__PACKAGE__, ": splitting ", $reSeq->seq, "\n");
     @re_frags = split(/$seq/i, $seqObj->seq);
 
-    $self->debug("$ID: cut_seq, ".scalar @re_frags. " fragments.\n");
+    $self->debug(__PACKAGE__, ": cut_seq, ", scalar(@re_frags), " fragments.\n");
 
     ## Re-attach the split recognition site back to the frags
     ## since perl zapped them in the split() call.
@@ -1184,8 +1163,7 @@ sub is_available {
 sub available {
 #--------------
     my($self,$name) = @_;
-    print STDERR "\nDeprecated method: $ID:: available(); ".
-	"use is_available() instead.\n";
+    $self->warn('available() is deprecated; use is_available() instead');
     $self->is_available($name);
 }
 

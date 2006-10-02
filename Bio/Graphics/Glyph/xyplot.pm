@@ -1,11 +1,9 @@
 package Bio::Graphics::Glyph::xyplot;
 
 use strict;
-use Bio::Graphics::Glyph::minmax;
-use vars '@ISA';
 #use GD 'gdTinyFont';
 
-@ISA = 'Bio::Graphics::Glyph::minmax';
+use base qw(Bio::Graphics::Glyph::minmax);
 
 use constant DEFAULT_POINT_RADIUS=>1;
 

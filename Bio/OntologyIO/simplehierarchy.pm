@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-simplehierarchy - a base class parser for simple hierarchy-by-indentation
+Bio::OntologyIO::simplehierarchy - a base class parser for simple hierarchy-by-indentation
                   type formats
 
 =head1 SYNOPSIS
@@ -87,7 +87,6 @@ methods. Internal methods are usually preceded with a _
 
 package  Bio::OntologyIO::simplehierarchy;
 
-use vars qw( @ISA );
 use strict;
 
 use Data::Dumper;
@@ -96,13 +95,12 @@ use Bio::Root::IO;
 use Bio::Ontology::OBOEngine;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::TermFactory;
-use Bio::OntologyIO;
 
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
 
-@ISA = qw( Bio::OntologyIO );
+use base qw(Bio::OntologyIO);
 
 
 =head2 new
@@ -682,3 +680,5 @@ sub _virtual_root{
 
     return $self->{'_virtual_root'};
 }
+
+1;

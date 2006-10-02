@@ -17,14 +17,14 @@ Bio::Taxon - A node in a represented taxonomy
 =head1 SYNOPSIS
 
   use Bio::Taxon;
-  
+
   # Typically you will get a Taxon from a Bio::DB::Taxonomy object
   # but here is how you initialize one
   my $taxon = new Bio::Taxon(-name      => $name,
                              -id        => $id,
                              -rank      => $rank,
                              -division  => $div);
-  
+
   # Get one from a database
   my $dbh = new Bio::DB::Taxonomy(-source   => 'flatfile',
                                   -directory=> '/tmp',
@@ -37,9 +37,9 @@ Bio::Taxon - A node in a represented taxonomy
   print "rank is ", $human->rank, "\n"; # species
   print "scientific name is ", $human->scientific_name, "\n"; # Homo sapiens
   print "division is ", $human->division, "\n"; # Primates
-  
+
   my $mouse = $dbh->get_taxon(-name => 'Mus musculus');
-  
+
   # You can quickly make your own lineages with the list database
   my @ranks = qw(superkingdom class genus species);
   my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
@@ -49,35 +49,35 @@ Bio::Taxon - A node in a represented taxonomy
   my @names = $human->common_names; # @names is empty
   $human->common_names('woman');
   @names = $human->common_names; # @names contains woman
-  
+
   # You can switch to another database when you need more information
   my $entrez_dbh = new Bio::Db::Taxonomy(-source => 'entrez');
   $human->db_handle($entrez_dbh);
   @names = $human->common_names; # @names contains woman, human, man
-  
+
   # Since Bio::Taxon implements Bio::Tree::NodeI, we have access to those
   # methods (and can manually create our own taxa and taxonomy without the use
   # of any database)
   my $homo = $human->ancestor;
-  
+
   # Though be careful with each_Descendent - unless you add_Descendent()
   # yourself, you won't get an answer because unlike for ancestor(), Bio::Taxon
   # does not ask the database for the answer. You can ask the database yourself
   # using the same method:
   ($human) = $homo->db_handle->each_Descendent($homo);
-  
+
   # We can also take advantage of Bio::Tree::Tree* methods:
   # a) some methods are available with just an empty tree object
   use Bio::Tree::Tree;
   my $tree_functions = new Bio::Tree::Tree();
   my @lineage = $tree_functions->get_lineage_nodes($human);
   my $lca = $tree_functions->get_lca($human, $mouse);
-  
+
   # b) for other methods, create a tree using your Taxon object
   my $tree = new Bio::Tree::Tree(-node => $human);
   my @taxa = $tree->get_nodes;
   $homo = $tree->find_node(-rank => 'genus');
-  
+
   # Normally you can't get the lca of a list-database derived Taxon and an
   # entrez or flatfile-derived one because the two different databases might
   # have different roots and different numbers of ranks between the root and the
@@ -135,14 +135,11 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Taxon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::IdentifiableI;
-use Bio::Tree::Node;
 use Bio::DB::Taxonomy;
 
-@ISA = qw(Bio::Tree::Node Bio::IdentifiableI);
+use base qw(Bio::Tree::Node Bio::IdentifiableI);
 
 =head2 new
 
@@ -447,15 +444,15 @@ sub pub_date {
  Usage   : my $ancestor_taxon = $taxon->ancestor()
  Function: Retrieve the ancestor taxon. Normally the database is asked what the
            ancestor is.
-           
+
            If you manually set the ancestor (or you make a Bio::Tree::Tree with
            this object as an argument to new()), the database (if any) will not
            be used for the purposes of this method.
-           
+
            To restore normal database behaviour, call ancestor(undef) (which
            would remove this object from the tree), or request this taxon again
            as a new Taxon object from the database.
-           
+
  Returns : Bio::Taxon
  Args    : none
 
@@ -498,15 +495,15 @@ sub get_Parent_Node {
  Function: Get all the descendents for this Taxon (but not their descendents,
            ie. not a recursive fetchall). get_Children_Nodes() is a synonym of
            this method.
-           
+
            Note that this method never asks the database for the descendents;
            it will only return objects you have manually set with
            add_Descendent(), or where this was done for you by making a
            Bio::Tree::Tree with this object as an argument to new().
-           
+
            To get the database descendents use
            $taxon->db_handle->each_Descendent($taxon).
-           
+
  Returns : Array of Bio::Taxon objects
  Args    : optionally, when you have set your own descendents, the string
            "height", "creation", "alpha", "revalpha", or coderef to be used to
@@ -514,10 +511,7 @@ sub get_Parent_Node {
 
 =cut
 
-sub each_Descendent {
-    my $self = shift;
-    return $self->SUPER::each_Descendent(@_);
-}
+# implemented by Bio::Tree::Node
 
 =head2 get_Children_Nodes
 

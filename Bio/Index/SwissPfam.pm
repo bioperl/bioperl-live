@@ -86,13 +86,11 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Index::SwissPfam;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::Abstract;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::Abstract);
+use base qw(Bio::Index::Abstract);
 
 sub _version {
     return 0.1;
@@ -129,14 +127,14 @@ sub _index_file {
     $begin = 0;
     $end   = 0;
 
-    open SP, $file or $self->throw("Can't open file for read : $file");
+    open my $SP, '<', $file or $self->throw("Can't open file for read : $file");
 
     # Main indexing loop
-    while (<SP>) {
+    while (<$SP>) {
         if (/^>(\S+)\s+\|=*\|\s+(\S+)/) {
 	    $nid = $1;
 	    $nacc = $2;
-            my $new_begin = tell(SP) - length( $_ );
+            my $new_begin = tell($SP) - length( $_ );
             $end = $new_begin - 1;
 
 	    if( $id ) {
@@ -151,10 +149,10 @@ sub _index_file {
         }
     }
     # Don't forget to add the last record
-    $end = tell(SP);
+    $end = tell($SP);
     $self->add_record($id, $i, $begin, $end) if $id;
 
-    close SP;
+    close $SP;
     return 1;
 }
 

@@ -46,13 +46,11 @@ methods. Internal methods are usually preceded with a _
 #'
 package Bio::Tools::HMMER::Domain;
 
-use vars qw(@ISA);
-use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 use strict;
 
 
-@ISA = qw(Bio::SeqFeature::FeaturePair);
+use base qw(Bio::SeqFeature::FeaturePair);
 
 sub new { 
   my($class,@args) = @_;

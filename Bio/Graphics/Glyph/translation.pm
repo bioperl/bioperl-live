@@ -1,10 +1,9 @@
 package Bio::Graphics::Glyph::translation;
 
 use strict;
-use Bio::Graphics::Glyph::generic;
 use Bio::Graphics::Util qw(frame_and_offset);
-use vars qw(@ISA $VERSION);
-@ISA = qw(Bio::Graphics::Glyph::generic);
+use vars qw($VERSION);
+use base qw(Bio::Graphics::Glyph::generic);
 
 my %default_colors = qw(
 			frame0f  cornflowerblue

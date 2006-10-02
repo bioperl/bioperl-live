@@ -61,8 +61,8 @@ Email: mec@stowers-institute.org
 
 =head1 CONTRIBUTORS
 
-Modelled after Bio::SeqIO::fasta by Ewan Birney <birney@ebi.ac.uk> and
-Lincoln Stein <lstein@cshl.org>
+Modelled after Bio::SeqIO::fasta by Ewan Birney E<lt>birney@ebi.ac.ukE<gt> and
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>
 
 =head1 APPENDIX
 
@@ -74,17 +74,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::strider;
-use vars qw(@ISA);
 use strict;
 use warnings;
 
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Convert::Binary::C;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 my $c = new Convert::Binary::C (
 				ByteOrder => 'BigEndian',
@@ -190,6 +187,8 @@ sub write_seq {
     print $fh $headerdata, $seq->seq() || "" , $seq->desc || "";
   }
 }
+
+1;
 
 __DATA__
 

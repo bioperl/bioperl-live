@@ -120,16 +120,15 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Physical;
-use vars qw(@ISA $MAPCOUNT);
+use vars qw($MAPCOUNT);
 use strict;
 use POSIX;
 
-use Bio::Map::SimpleMap;
 use Bio::Map::Clone;
 use Bio::Map::Contig;
 use Bio::Map::FPCMarker;
 
-@ISA = qw(Bio::Map::SimpleMap);
+use base qw(Bio::Map::SimpleMap);
 BEGIN { $MAPCOUNT = 1; }
 
 =head1 Access Methods

@@ -40,7 +40,7 @@ position scoring matrix (or position weight matrix) and log-odds
   # the simple consensus character will be 'A', whilst for 0.5, 0.5, 0, 0 it
   # would be 'N'.
   my $consensus=$site->consensus;
-  
+
   # Get the IUPAC ambiguity code representation of the data in the matrix.
   # Because the frequencies may have been pseudo-count corrected, insignificant
   # frequences (below 0.05 by default) are ignored. So a position with
@@ -146,12 +146,9 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 package Bio::Matrix::PSM::SiteMatrix;
-use Bio::Matrix::PSM::SiteMatrixI;
-use Bio::Root::Root;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
+use base qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
 
 =head2 new
 
@@ -185,7 +182,7 @@ use strict;
                            NB: do not use correction when your input is
                            frequences!
             -accession_number => string, an accession number
-            
+
             Vectors can be strings of the frequencies where the frequencies are
             multiplied by 10 and rounded to the nearest whole number, and where
             'a' is used to denote the maximal frequency 10. There should be no
@@ -551,7 +548,7 @@ sub IUPAC {
            For rules see the implementation
  Returns : char, real number
  Args    : real numbers for frequencies of A,C,G,T (positional)
- 
+
            optionally, also supply a whole number (int) of 1 or higher to set
            the significance level when considering the frequencies. 1 (the
            default) means a 0.05 significance level: frequencies lower than

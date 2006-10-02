@@ -1,15 +1,18 @@
 
 =head1 NAME
 
-Bio::FeatureIO::interpro - DESCRIPTION of Object
+Bio::FeatureIO::interpro - read features from InterPro XML
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  my $in = Bio::FeatureIO(-format=>'interpro');
+  while (my $feat = $in->next_feature) {
+    # do something with the Bio::SeqFeatureI object
+  }
 
 =head1 DESCRIPTION
 
-Add description here
+See L<http://www.ebi.ac.uk/interpro/documentation.html>.
 
 =head1 FEEDBACK
 
@@ -33,12 +36,6 @@ the web:
 =head1 AUTHOR - Allen Day
 
 Email allenday@ucla.edu
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::line;
 # an arrow without the arrowheads
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub bottom {
   my $self = shift;

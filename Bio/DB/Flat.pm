@@ -70,12 +70,9 @@ methods are usually preceded with an "_" (underscore).
 # Let the code begin...
 package Bio::DB::Flat;
 
-use Bio::DB::RandomAccessI;
-use Bio::Root::Root;
 use Bio::Root::IO;
-use vars '@ISA';
 
-@ISA = qw(Bio::Root::Root Bio::DB::RandomAccessI);
+use base qw(Bio::Root::Root Bio::DB::RandomAccessI);
 
 use constant CONFIG_FILE_NAME => 'config.dat';
 
@@ -378,34 +375,34 @@ sub write_config {
   $self->write_flag or $self->throw("cannot write configuration file because write_flag is not set");
   my $path = $self->_config_path;
 
-  open (F,">$path") or $self->throw("open error on $path: $!");
+  open (my $F,">$path") or $self->throw("open error on $path: $!");
 
   my $index_type = $self->indexing_scheme;
-  print F "index\t$index_type\n";
+  print $F "index\t$index_type\n";
 
   my $format     = $self->file_format;
   my $alphabet   = $self->alphabet;
   my $alpha      = $alphabet ? "/$alphabet" : '';
-  print F "format\tURN:LSID:open-bio.org:${format}${alpha}\n";
+  print $F "format\tURN:LSID:open-bio.org:${format}${alpha}\n";
 
   my @filenos = $self->_filenos or $self->throw("cannot write config file because no flat files defined");
   for my $nf (@filenos) {
     my $path = $self->{flat_flat_file_path}{$nf};
     my $size = -s $path;
-    print F join("\t","fileid_$nf",$path,$size),"\n";
+    print $F join("\t","fileid_$nf",$path,$size),"\n";
   }
 
   # write primary namespace
   my $primary_ns = $self->primary_namespace
     or $self->throw('cannot write config file because no primary namespace defined');
 
-  print F join("\t",'primary_namespace',$primary_ns),"\n";
+  print $F join("\t",'primary_namespace',$primary_ns),"\n";
 
   # write secondary namespaces
   my @secondary = $self->secondary_namespaces;
-  print F join("\t",'secondary_namespaces',@secondary),"\n";
+  print $F join("\t",'secondary_namespaces',@secondary),"\n";
 
-  close F or $self->throw("close error on $path: $!");
+  close $F or $self->throw("close error on $path: $!");
 }
 
 sub files {
@@ -457,14 +454,14 @@ sub _read_config {
   my $path = $self->_config_path;
   return unless -e $path;
 
-  open (F,$path) or $self->throw("open error on $path: $!");
+  open (my $F,$path) or $self->throw("open error on $path: $!");
   my %config;
-  while (<F>) {
+  while (<$F>) {
     chomp;
     my ($tag,@values) = split "\t";
     $config{$tag} = \@values;
   }
-  CORE::close F or $self->throw("close error on $path: $!");
+  CORE::close $F or $self->throw("close error on $path: $!");
 
   $config{index}[0] =~ m~(flat/1|BerkeleyDB/1)~
     or $self->throw("invalid configuration file $path: no index line");

@@ -77,12 +77,9 @@ package Bio::Range;
 use strict;
 use Carp;
 use integer;
-use Bio::RangeI;
-use Bio::Root::Root;
 
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Root Bio::RangeI);
+use base qw(Bio::Root::Root Bio::RangeI);
 
 =head1 Constructors
 

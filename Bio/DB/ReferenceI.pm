@@ -80,7 +80,6 @@ preceded with a _
 
 package Bio::DB::ReferenceI;
 
-use vars qw(@ISA);
 use strict;
 
 =head2 get_Reference_by_id

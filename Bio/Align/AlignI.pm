@@ -81,12 +81,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::AlignI;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 Modifier methods
 

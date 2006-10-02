@@ -2,87 +2,64 @@
 ## Bioperl Test Harness Script for Modules
 ##
 # $Id$ 
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR);
+use vars qw($NUMTESTS $DEBUG);
 
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	$ERROR = 0;
-	if( $@ ) {
+	$NUMTESTS = 14;
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	
+	eval {require Test::More;};
+	if ($@) {
 		use lib 't';
 	}
-	use Test;
-
-	$NUMTESTS = 14;
-	plan tests => $NUMTESTS;
-
+	use Test::More;
+	
 	eval {
 		require IO::String; 
 		require LWP::UserAgent;
 	};
-	if( $@ ) {
-		warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
-		$ERROR = 1;
+	if ($@) {
+		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
 	}
-}
-
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Unable to run NetPhos tests (server down?)',1);
+	else {
+		plan tests => $NUMTESTS;
 	}
+	
+	use_ok('Bio::Tools::Analysis::Protein::NetPhos');
+	use_ok('Bio::PrimarySeq');
+	use_ok('Bio::WebAgent');
 }
-
-exit 0 if $ERROR == 1;
-
-use Data::Dumper;
-
-require Bio::Tools::Analysis::Protein::NetPhos;
-use Bio::PrimarySeq;
-require Bio::WebAgent;
-
-ok 1;
 
 my $verbose = 0;
 $verbose = 1 if $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
-if( $DEBUG ) {
-ok $tool->sleep;
-ok $tool->delay(1), 1;
-ok $tool->sleep;
-ok $tool->timeout(120); # LWP::UserAgent method
-ok $tool->url('http://a.b.c/'), 'http://a.b.c/';
-
-
-my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
-                               -seq=>'ABCDEFGHIJKLLKJFHSAKNDJFPSINCSJNDSKNSN');
-
-ok $tool = Bio::Tools::Analysis::Protein::NetPhos->new(-verbose =>$verbose);
-$tool->timeout(15);
-ok $tool->run ( {seq=>$seq, threshold=>0.9} );
-exit if $tool->status eq 'TERMINATED_BY_ERROR';
-ok my @res = $tool->result('Bio::SeqFeatureI');
-#new tests her in v 1.2
-ok my $raw = $tool->result('');
-ok my $parsed = $tool->result('parsed');
-ok($parsed->[0][1], '0.934');
-if (scalar @res > 0) {
-    ok 1;
-} else {
-    skip('No network access - could not connect to NetPhos server', 1);
-}
-} else {
-    for ( $Test::ntest..$NUMTESTS) {
-        skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
-    }
-
-
+SKIP: {
+	skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 10 unless $DEBUG;
+	ok $tool->sleep;
+	is $tool->delay(1), 1;
+	ok $tool->sleep;
+	ok $tool->timeout(120); # LWP::UserAgent method
+	is $tool->url('http://a.b.c/'), 'http://a.b.c/';
+	
+	
+	my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
+								   -seq=>'ABCDEFGHIJKLLKJFHSAKNDJFPSINCSJNDSKNSN');
+	
+	ok $tool = Bio::Tools::Analysis::Protein::NetPhos->new(-verbose =>$verbose);
+	$tool->timeout(15);
+	ok $tool->run ( {seq=>$seq, threshold=>0.9} );
+	if ($tool->status eq 'TERMINATED_BY_ERROR') {
+		skip "Running of the tool was terminated by an error, probably network/ NetPhos server error", 3;
+	}
+	my @res = $tool->result('Bio::SeqFeatureI');
+	unless (@res) {
+		skip "Didn't get any results from NetPhos server, probable network/server error", 3;
+	}
+	#new tests her in v 1.2
+	ok my $raw = $tool->result('');
+	ok my $parsed = $tool->result('parsed');
+	is $parsed->[0][1], '0.934';
 }

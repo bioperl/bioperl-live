@@ -12,11 +12,9 @@ See L<Bio::DB::GFF>
 
 # a simple mysql adaptor
 use strict;
-use Bio::DB::GFF::Adaptor::dbi;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi);
+use base qw(Bio::DB::GFF::Adaptor::dbi);
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 

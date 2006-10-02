@@ -113,17 +113,14 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Sim4::Results;
-use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
 use File::Basename;
 use Bio::Root::Root;
-use Bio::Tools::AnalysisResult;
 use Bio::Tools::Sim4::Exon;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 
 sub _initialize_state {

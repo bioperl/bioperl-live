@@ -136,17 +136,15 @@ methods. Internal methods are usually preceded with a _
 use strict;
 
 package Bio::Tools::Analysis::Protein::GOR4;
-use vars qw(@ISA );
 
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw(POST);
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 use Bio::Seq::Meta::Array;
 
 
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 use constant MIN_STRUC_LEN => 3;
 my $URL = 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_gor4.pl';

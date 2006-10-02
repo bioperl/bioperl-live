@@ -2,15 +2,18 @@
 
 =head1 NAME
 
-Bio::FeatureIO::bed - DESCRIPTION of Object
+Bio::FeatureIO::bed - write features from UCSC BED format
 
 =head1 SYNOPSIS
 
-Give standard usage here
+  my $out = Bio::FeatureIO(-format=>'bed');
+  for my $feat ($seq->get_seqFeatures) {
+    $out->write_feature($feat);
+  }
 
 =head1 DESCRIPTION
 
-http://www.genome.ucsc.edu/goldenPath/help/customTrack.html#BED
+See L<http://www.genome.ucsc.edu/goldenPath/help/customTrack.html#BED>.
 
 =head1 FEEDBACK
 
@@ -34,12 +37,6 @@ the web:
 =head1 AUTHOR - Allen Day
 
 Email allenday@ucla.edu
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 

@@ -60,6 +60,11 @@ Contig1	confirmed	CDS	2500	2800	.	+	0	Parent=tier0.2
 Contig1	confirmed	three_prime_UTR	2801	2900	.	+	.	Parent=tier0.2;ID=utr1
 Contig1	confirmed	three_prime_UTR	2910	3000	.	+	.	Parent=tier0.2;ID=utr1
 
+ctgA	est	EST_match	5410	5500	.	-	.	ID=Match2;Name=agt830.3;Target=agt830.3 505 595
+ctgA	est	EST_match	7000	7503	.	-	.	ID=Match2;Name=agt830.3;Target=agt830.3 1 504 
+ctgA	est	EST_match	1050	1500	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 1 451
+ctgA	est	EST_match	3000	3202	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 452 654
+
 # test out DNA loading
 >Contig1
 ttcttcgacactaagaaccatgccccatgtcacgacttcaccctcattgacgagcgttgt

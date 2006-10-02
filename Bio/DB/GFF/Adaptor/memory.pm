@@ -69,17 +69,15 @@ use strict;
 # Inherits from Bio::DB::GFF.
 
 
-use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Adaptor::memory::iterator;
 use File::Basename 'dirname';
 use Bio::DB::GFF::Adaptor::memory::feature_serializer qw(@hash2array_map);
 
-use vars qw(@ISA);
 
 use constant MAX_SEGMENT => 1_000_000_000;  # the largest a segment can get
 
-@ISA =  qw(Bio::DB::GFF);
+use base qw(Bio::DB::GFF);
 
 sub new {
   my $class = shift ;
@@ -583,7 +581,8 @@ sub classes {
   for my $feature (@{$self->{data}}) {
     $classes{$feature->{gclass}}++;
   }
-  return sort keys %classes;
+  my @classes = sort keys %classes;
+  return @classes;
 }
 
 # Internal method that performs a search on the features array, 

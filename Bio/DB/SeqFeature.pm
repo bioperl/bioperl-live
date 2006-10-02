@@ -66,8 +66,8 @@ This method creates and, if possible stores into a database, a new
 Bio::DB::SeqFeature::NormalizedFeature object using the specialized
 Bio::DB::SeqFeature class.
 
-The arguments are the same to Bio::SeqFeature::Generic->new() and
-Bio::Graphics::Feature->new(). The most important difference is the
+The arguments are the same to Bio::SeqFeature::Generic-E<gt>new() and
+Bio::Graphics::Feature-E<gt>new(). The most important difference is the
 B<-store> option, which if present creates the object in a
 Bio::DB::SeqFeature::Store database, and he B<-index> option, which
 controls whether the feature will be indexed for retrieval (default is
@@ -234,7 +234,7 @@ L<Bio::DB::SeqFeature::Segment>.
 If you use an unknown method that begins with a capital letter, then
 the feature autogenerates a call to get_SeqFeatures() using the
 lower-cased method name as the primary_tag. In other words
-$feature->Exon is equivalent to:
+$feature-E<gt>Exon is equivalent to:
 
  @subfeature s= $feature->get_SeqFeatures('exon')
 
@@ -290,11 +290,11 @@ region. The CIGAR gap string is not yet supported.
 
 =over 4
 
-=item $feature->as_string()
+=item $feature-E<gt>as_string()
 
 Internal method used to implement overloaded stringification.
 
-=item $boolean = $feature->type_match(@list_of_types)
+=item $boolean = $feature-E<gt>type_match(@list_of_types)
 
 Internal method that will return true if the feature's primary_tag and
 source_tag match any of the list of types (in primary_tag:source_tag
@@ -319,21 +319,13 @@ sub _add_segment {
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
-  my $min_start = $self->start ||  999_999_999_999;
-  my $max_stop  = $self->end   || -999_999_999_999;
-
-  for my $seg (@segments) {
-    $min_start     = $seg->start if $seg->start < $min_start;
-    $max_stop      = $seg->end   if $seg->end   > $max_stop;
-  }
-
-  # adjust our boundaries, etc.
-  $self->start($min_start) if $min_start < $self->start;
-  $self->end($max_stop)    if $max_stop  > $self->end;
-  $self->{ref}        ||= $segments[0]->seq_id;
-  $self->{strand}     ||= $segments[0]->strand;
-
   my $pos = "@{$self}{'start','end','ref','strand'}";
+
+  # fix boundaries
+  $self->_fix_boundaries(\@segments);
+
+  # freakish fixing of our non-standard Target attribute
+  $self->_fix_target(\@segments);
 
   # write our children out
   if ($normalized) {
@@ -354,6 +346,7 @@ sub get_SeqFeatures {
   my @types        = @_;
 
   my @inline_segs  = exists $self->{segments} ? @{$self->{segments}} : ();
+  @inline_segs     = grep {$_->type_match(@types)} @inline_segs if @types;
   my $store        = $self->object_store;
 
   my @db_segs;

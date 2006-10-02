@@ -33,14 +33,15 @@ Bio::AlignIO - Handler for AlignIO Formats
         $out->write_aln($aln);
     }
 
- # Or:
+    # OR
 
     use Bio::AlignIO;
 
     open MYIN,"testaln.fasta";
     $in  = Bio::AlignIO->newFh(-fh     => \*MYIN,
                                -format => 'fasta');
-    $out = Bio::AlignIO->newFh(-fh     =>  \*MYOUT,
+    open my $MYOUT, '>', 'testaln.pfam';
+    $out = Bio::AlignIO->newFh(-fh     =>  $MYOUT,
                                -format => 'pfam');
 
     # World's smallest Fasta<->pfam format converter:
@@ -48,11 +49,10 @@ Bio::AlignIO - Handler for AlignIO Formats
 
 =head1 DESCRIPTION
 
-Bio::AlignIO is a handler module for the formats in the AlignIO set
-(e.g. Bio::AlignIO::fasta). It is the officially sanctioned way of
-getting at the alignment objects. The resulting alignment is a
-Bio::Align::AlignI-compliant object. See L<Bio::Align::AlignI>
-for more information.
+L<Bio::AlignIO> is a handler module for the formats in the AlignIO set,
+for example, L<Bio::AlignIO::fasta>. It is the officially sanctioned way 
+of getting at the alignment objects. The resulting alignment is a
+L<Bio::Align::AlignI>-compliant object. 
 
 The idea is that you request an object for a particular format.
 All the objects have a notion of an internal file that is read
@@ -88,16 +88,16 @@ And:
 
     print $stream $aln; # when stream is in output mode
 
-AlignIO.pm is patterned on the module SeqIO.pm and shares most the
-SeqIO.pm features.  One significant difference is that
-AlignIO.pm usually handles IO for only a single alignment at a time
-(SeqIO.pm handles IO for multiple sequences in a single stream.)  The
-principal reason for this is that whereas simultaneously handling
+L<Bio::AlignIO> is patterned on the L<Bio::SeqIO> module and shares
+most of its features.  One significant difference is that
+L<Bio::AlignIO> usually handles IO for only a single alignment at a time,
+whereas L<Bio::SeqIO> handles IO for multiple sequences in a single stream.  
+The principal reason for this is that whereas simultaneously handling
 multiple sequences is a common requirement, simultaneous handling of
 multiple alignments is not. The only current exception is format
-"bl2seq" which parses results of the Blast bl2seq program and which
+C<bl2seq> which parses results of the BLAST C<bl2seq> program and which
 may produce several alignment pairs.  This set of alignment pairs can
-be read using multiple calls to next_aln.
+be read using multiple calls to L<next_aln()>.
 
 =head1 CONSTRUCTORS
 
@@ -108,9 +108,9 @@ be read using multiple calls to next_aln.
    $seqIO = Bio::AlignIO->new(-format => $format);
    $seqIO = Bio::AlignIO->new(-fh => \*STDOUT, -format => $format);
 
-The new() class method constructs a new Bio::AlignIO object.  The
-returned object can be used to retrieve or print alignment
-objects. new() accepts the following parameters:
+The L<new()> class method constructs a new L<Bio::AlignIO> object.  
+The returned object can be used to retrieve or print alignment
+objects. L<new()> accepts the following parameters:
 
 =over 4
 
@@ -161,16 +161,16 @@ Specify the format of the file.  Supported formats include:
    stockholm   stockholm format
 
 Currently only those formats which were implemented in L<Bio::SimpleAlign>
-have been incorporated in AlignIO.pm.  Specifically, mase, stockholm
-and prodom have only been implemented for input. See the specific module
-(e.g. L<Bio::AlignIO::meme>) for notes on supported versions.
+have been incorporated into L<Bio::AlignIO>.  Specifically, C<mase>, C<stockholm>
+and C<prodom> have only been implemented for input. See the specific module
+(e.g. L<Bio::AlignIO::prodom>) for notes on supported versions.
 
 If no format is specified and a filename is given, then the module
 will attempt to deduce it from the filename suffix.  If this is unsuccessful,
-Fasta format is assumed.
+C<fasta> format is assumed.
 
-The format name is case insensitive.  'FASTA', 'Fasta' and 'fasta' are
-all supported.
+The format name is case insensitive; C<FASTA>, C<Fasta> and C<fasta> are
+all treated equivalently.
 
 =back
 
@@ -180,10 +180,10 @@ all supported.
    # read from STDIN or use @ARGV:
    $fh = Bio::AlignIO->newFh(-format => $format);
 
-This constructor behaves like new(), but returns a tied filehandle
-rather than a Bio::AlignIO object.  You can read sequences from this
+This constructor behaves like L<new()>, but returns a tied filehandle
+rather than a L<Bio::AlignIO> object.  You can read sequences from this
 object using the familiar E<lt>E<gt> operator, and write to it using
-print(). The usual array and $_ semantics work.  For example, you can
+L<print()>. The usual array and $_ semantics work.  For example, you can
 read all sequence objects into an array like this:
 
   @sequences = <$fh>;
@@ -266,15 +266,12 @@ methods. Internal methods are usually preceded with a _
 package Bio::AlignIO;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
 use Bio::Seq;
 use Bio::LocatableSeq;
 use Bio::SimpleAlign;
-use Bio::Root::IO;
 use Bio::Tools::GuessSeqFormat;
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

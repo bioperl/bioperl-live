@@ -5,7 +5,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::Psm - handle combination of site matricies
+Bio::Matrix::PSM::ProtPsm - handle combination of site matricies
 
 =head1 SYNOPSIS
 
@@ -100,15 +100,10 @@ ProtMatrix, meme, transfac, psiblast, InstanceSite
 
 # Let the code begin...
 package Bio::Matrix::PSM::ProtPsm;
-use Bio::Matrix::PSM::ProtMatrix;
 use Bio::Matrix::PSM::InstanceSite;
-use Bio::Matrix::PSM::PsmI;
-use Bio::Annotation::Collection;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::ProtMatrix Bio::Matrix::PSM::PsmI 
-        Bio::Annotation::Collection);
+use base qw(Bio::Matrix::PSM::ProtMatrix Bio::Matrix::PSM::PsmI Bio::Annotation::Collection);
 
 @Bio::Matrix::PSM::Psm::HEADER = qw(e_val sites IC width);
 

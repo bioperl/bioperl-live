@@ -39,9 +39,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::LiveSeq::DNA;
 
 use strict;
-use vars qw(@ISA);
-use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
-@ISA=qw(Bio::LiveSeq::SeqI);
+use base qw(Bio::LiveSeq::SeqI);
 
 =head2 new
 

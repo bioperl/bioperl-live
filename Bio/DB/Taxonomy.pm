@@ -20,7 +20,7 @@ Bio::DB::Taxonomy - Access to a taxonomy database
   my $db = new Bio::DB::Taxonomy(-source => 'entrez');
   # use NCBI Entrez over HTTP
   my $taxonid = $db->get_taxonid('Homo sapiens');
-  
+
   # get a taxon
   my $taxon = $db->get_taxon(-taxonid => $taxonid);
 
@@ -51,8 +51,6 @@ the web:
 
 Email jason-at-bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Sendu Bala: bix@sendu.me.uk
@@ -67,12 +65,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy;
-use vars qw(@ISA $DefaultSource $TAXON_IIDS);
+use vars qw($DefaultSource $TAXON_IIDS);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 $DefaultSource = 'entrez';
 $TAXON_IIDS = {};

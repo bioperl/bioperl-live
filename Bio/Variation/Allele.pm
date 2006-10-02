@@ -74,15 +74,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Variation::Allele;
 
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheritance
 
-use Bio::PrimarySeq;
-use Bio::DBLinkContainerI;
 
-@ISA = qw( Bio::PrimarySeq Bio::DBLinkContainerI );
+use base qw(Bio::PrimarySeq Bio::DBLinkContainerI);
 
 sub new {
     my($class, @args) = @_;

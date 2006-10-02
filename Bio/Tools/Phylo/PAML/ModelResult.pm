@@ -66,12 +66,6 @@ email or the web:
 
 Email jason@open-bio.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -84,14 +78,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::PAML::ModelResult;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 
@@ -403,6 +395,7 @@ sub get_NEB_pos_selected_sites{
            $pvalue - float from 0->1 represent probability site is under selection according to this model
            $signif - significance (coded as either empty, '*', or '**'
            $postmean - post mean for w
+
 =cut
 
 sub add_NEB_pos_selected_site{
@@ -429,7 +422,6 @@ sub add_NEB_pos_selected_site{
  Returns : Array
  Args    : none
 
-
 =cut
 
 sub get_BEB_pos_selected_sites{
@@ -448,6 +440,7 @@ sub get_BEB_pos_selected_sites{
            $signif - significance (coded as either empty, '*', or '**'
            $postmean - post mean for w
            $SE       - Standard Error for w
+
 =cut
 
 sub add_BEB_pos_selected_site{

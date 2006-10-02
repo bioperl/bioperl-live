@@ -63,15 +63,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::BlastStatistics;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
-use Bio::Search::StatisticsI;
 
-@ISA = qw(Bio::Root::RootI Bio::Search::StatisticsI);
+use base qw(Bio::Root::RootI Bio::Search::StatisticsI);
 
 
 

@@ -63,10 +63,6 @@ email or the web:
 
 Email jason-at-bioperl-dot-org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -79,13 +75,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Simulation::GeneticDrift;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::PopGen::Population;
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 

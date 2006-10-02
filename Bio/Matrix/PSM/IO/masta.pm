@@ -65,12 +65,11 @@ Email skirov@utk.edu
 
 # Let the code begin...
 package Bio::Matrix::PSM::IO::masta;
-use Bio::Matrix::PSM::IO;
 use Bio::Matrix::PSM::SiteMatrix;
-use vars qw(@ISA @HEADER);
+use vars qw(@HEADER);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::IO Bio::Root::Root);
+use base qw(Bio::Matrix::PSM::IO Bio::Root::Root);
 
 
 

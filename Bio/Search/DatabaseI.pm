@@ -81,10 +81,8 @@ The rest of the documentation details each of the object methods.
 package Bio::Search::DatabaseI;
 
 use strict;
-use Bio::Root::RootI;
-use vars qw( @ISA );
 
-@ISA = qw( Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 
 =head2 name

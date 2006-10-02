@@ -73,12 +73,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tree::NodeNHX;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tree::Node;
 
-@ISA = qw(Bio::Tree::Node);
+use base qw(Bio::Tree::Node);
 
 =head2 new
 

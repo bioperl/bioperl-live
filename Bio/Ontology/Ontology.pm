@@ -85,10 +85,6 @@ the web:
 
 Email hlapp at gmx.net
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -101,17 +97,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::Ontology;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Ontology::OntologyI;
-use Bio::AnnotatableI;
 #use Bio::Ontology::SimpleOntologyEngine; # loaded dynamically now!
 
-@ISA = qw(Bio::Root::Root Bio::Ontology::OntologyI Bio::AnnotatableI);
+use base qw(Bio::Root::Root Bio::Ontology::OntologyI Bio::AnnotatableI);
 
 =head2 new
 
@@ -671,6 +663,23 @@ sub find_terms{
               } $self->engine->find_terms(@_);
 }
 
+=head2 find_identical_terms
+
+ Title   : find_identical_terms
+ Usage   : ($term) = $oe->find_identical_terms($term0);
+ Function: Find term instances where name or synonym
+           matches the query exactly
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_identical_terms{
+    my $self = shift;
+    return grep { $_->ontology->name eq $self->name;
+              } $self->engine->find_identical_terms(@_);
+}
 
 
 =head2 find_similar_terms
@@ -691,6 +700,23 @@ sub find_similar_terms{
               } $self->engine->find_similar_terms(@_);
 }
 
+=head2 find_identically_named_terms
+
+ Title   : find_identically_named_terms
+ Usage   : ($term) = $oe->find_identically_named_terms($term0);
+ Function: Find term instances where names match the query term
+           name exactly
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_identically_named_terms{
+    my $self = shift;
+    return grep { $_->ontology->name eq $self->name
+              } $self->engine->find_identically_named_terms(@_);
+}
 
 =head1 Factory for relationships and terms
 

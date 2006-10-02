@@ -18,12 +18,12 @@ Bio::DB::EUtilities::einfo - NCBI database information
 
 =head1 SYNOPSIS
 
-my $einfo = Bio::DB::EUtilities->new(
+  my $einfo = Bio::DB::EUtilities->new(
                                      -eutil    => 'einfo',
                                      -db       => 'pubmed'
                                       );
 
-print $einfo->get_response->content;
+  print $einfo->get_response->content;
 
 =head1 DESCRIPTION
 
@@ -65,7 +65,7 @@ is much appreciated.
 
   bioperl-l@lists.open-bio.org               - General discussion
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
-  
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to
@@ -91,17 +91,14 @@ preceded with a _
 package Bio::DB::EUtilities::einfo;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
-use vars qw(@ISA $EUTIL);
+use vars qw($EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    $EUTIL = 'einfo';
-}
+our $EUTIL = 'einfo';
 
 sub _initialize {
     my ($self, @args ) = @_;
@@ -130,7 +127,7 @@ sub parse_response {
     my $xs = XML::Simple->new();
     my $simple = $xs->XMLin($response->content,
                             forcearray => [qw(DbName Field Link)]);
-    $self->debug("Response dumper:\n".Dumper($simple));
+    #$self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
         my $error = $simple->{ERROR} ? $simple->{ERROR} : 'No data returned';

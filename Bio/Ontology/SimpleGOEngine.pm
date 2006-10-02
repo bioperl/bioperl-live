@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
+Bio::Ontology::SimpleGOEngine - a Ontology Engine for GO implementing OntologyEngineI
 
 =head1 SYNOPSIS
 
@@ -91,10 +91,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::Ontology::SimpleGOEngine;
 
 use strict;
-use vars qw( @ISA );
-use Bio::Ontology::OBOEngine;
 
-@ISA = qw( Bio::Ontology::OBOEngine );
+use base qw(Bio::Ontology::OBOEngine);
 
 
 # Internal methods

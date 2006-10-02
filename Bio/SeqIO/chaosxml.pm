@@ -45,13 +45,12 @@ See L<Bio::SeqIO::chaos> for a full description
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -74,16 +73,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::chaosxml;
-use Bio::SeqIO::chaos;
-use vars qw(@ISA);
 use strict;
 
 use Data::Stag::XMLWriter;
 
-@ISA = qw(Bio::SeqIO::chaos);
+use base qw(Bio::SeqIO::chaos);
 
 sub default_handler_class {
     return Data::Stag->getformathandler('xml');
-} 
+}
 
 1;

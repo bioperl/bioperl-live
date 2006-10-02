@@ -13,7 +13,7 @@
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-# 
+#
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -49,7 +49,7 @@ annotation. The semantics of certain attributes, if present, are
 pre-defined, e.g., accession number and sequence. Additional
 attributes may be added to the annotation bundle. See
 L<Bio::SeqIO::table> for a complete list of parameters and
-capabilities. 
+capabilities.
 
 You may also specify the worksheet from which to obtain the data, and
 after finishing one worksheet you may change the name to keep reading
@@ -62,13 +62,12 @@ Excel file.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -93,16 +92,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::excel;
-use vars qw(@ISA);
 use strict;
 
 use Bio::SeqIO;
-use Bio::SeqIO::table;
 use Spreadsheet::ParseExcel;
 #use Spreadsheet::ParseExcel::Workbook;
 
-@ISA = qw(Bio::SeqIO::table);
- 
+use base qw(Bio::SeqIO::table);
+
 =head2 new
 
  Title   : new
@@ -123,9 +120,9 @@ use Spreadsheet::ParseExcel;
 
 sub _initialize {
     my($self,@args) = @_;
-    
+
     # chained initialization
-    $self->SUPER::_initialize(@args); 
+    $self->SUPER::_initialize(@args);
 
     # our own parameters
     my ($worksheet) = $self->_rearrange([qw(WORKSHEET)], @args);
@@ -146,7 +143,7 @@ sub _initialize {
            order to start reading from a different worksheet (in the
            same file).
 
- Example : 
+ Example :
  Returns : value of worksheet (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -176,7 +173,7 @@ sub worksheet{
            other related objects.
 
  Example :
- Returns : 
+ Returns :
  Args    :
 
 
@@ -203,9 +200,9 @@ private unless you are a developer trying to modify this module.
  Title   : _worksheet
  Usage   : $obj->_worksheet($newval)
  Function: Get/set the worksheet object to be used for accessing cells.
- Example : 
+ Example :
  Returns : value of _worksheet (a Spreadsheet::ParseExcel::Worksheet object)
- Args    : on set, new value (a Spreadsheet::ParseExcel::Worksheet 
+ Args    : on set, new value (a Spreadsheet::ParseExcel::Worksheet
            object or undef, optional)
 
 
@@ -222,7 +219,7 @@ sub _worksheet{
 
  Title   : _next_record
  Usage   :
- Function: Navigates the underlying file to the next record. 
+ Function: Navigates the underlying file to the next record.
 
            We override this here in order to adapt navigation to data
            in an Excel worksheet.

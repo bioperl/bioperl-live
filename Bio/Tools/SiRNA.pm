@@ -36,7 +36,7 @@ SiRNA - Perl object for designing small inhibitory RNAs.
 
 Package for designing siRNA reagents.
 
-Input is a Bio::SeqI-compliant object (the target).
+Input is a L<Bio::SeqI>-compliant object (the target).
 
 Output is a list of Bio::SeqFeature::SiRNA::Pair objects, which are
 added to the feature table of the target sequence.  Each
@@ -82,7 +82,7 @@ None.
 =head1 SEE ALSO
 
 L<Bio::Tools::Run::Mdust>, L<Bio::SeqFeature::SiRNA::Pair>,
-L<Bio::SeqFeature::SiRNA::Oligo>, L<perl>.
+L<Bio::SeqFeature::SiRNA::Oligo>..
 
 =head1 FEEDBACK
 
@@ -107,10 +107,6 @@ the web:
 
 Donald Jackson (donald.jackson@bms.com)
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -128,12 +124,11 @@ use vars qw($AUTOLOAD);
 
 use Bio::Seq::RichSeq;
 use Bio::SeqFeature::Generic;
-use Bio::Root::Root;
 use Bio::SeqFeature::SiRNA::Oligo;
 use Bio::SeqFeature::SiRNA::Pair;
 
 
-our @ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 our %COMP = ( A => 'T',

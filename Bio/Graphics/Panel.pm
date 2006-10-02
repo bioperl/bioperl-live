@@ -15,6 +15,8 @@ use constant GRIDCOLOR    => 'lightcyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
 
+use base qw(Bio::Root::Root);
+
 my %COLORS;  # translation table for symbolic color names to RGB triple
 my $IMAGEMAP = 'bgmap00001';
 read_colors();
@@ -67,7 +69,7 @@ sub new {
      if defined $options{-start} && defined $options{-stop};
 
   # bring in the image generator class, since we will need it soon anyway
-  eval "require $image_class; 1" or die $@;
+  eval "require $image_class; 1" or $class->throw($@);
 
   return bless {
 		tracks => [],
@@ -471,7 +473,7 @@ sub gd {
 
   unless ($existing_gd) {
     my $image_class = $self->image_class;
-    eval "require $image_class; 1" or die $@;
+    eval "require $image_class; 1" or $self->throw($@);
   }
 
   my $height = $self->height;
@@ -990,12 +992,12 @@ sub create_web_image {
   my $path = $1;
   unless (-d $path) {
     require File::Path unless defined &File::Path::mkpath;
-    File::Path::mkpath($path,0,0777) or die "Couldn't create temporary image directory $path: $!";
+    File::Path::mkpath($path,0,0777) or $self->throw("Couldn't create temporary image directory $path: $!");
   }
 
   unless (defined &Digest::MD5::md5_hex) {
     eval "require Digest::MD5; 1"
-      or die "Sorry, but the image_and_map() method requires the Digest::MD5 module.";
+      or $self->throw("Sorry, but the image_and_map() method requires the Digest::MD5 module.");
   }
   my $data      = $self->png;
   my $signature = Digest::MD5::md5_hex($data);
@@ -1008,10 +1010,9 @@ sub create_web_image {
   my $url         = sprintf("%s/%s.%s",$tmpurl,$signature,$extension);
   my $imagefile   = sprintf("%s/%s.%s",$tmpdir,$signature,$extension);
 
-  open (F,">$imagefile") || die("Can't open image file $imagefile for writing: $!\n");
-  binmode(F);
-  print F $data;
-  close F;
+  open (my $F,">", $imagefile) || $self->throw("Can't open image file $imagefile for writing: $!\n");
+  binmode($F);
+  print $F $data;
 
   return $url;
 }
@@ -1903,9 +1904,9 @@ bottomright corners of the glyph, including any space allocated for
 labels. The track is the Bio::Graphics::Glyph object corresponding to
 the track that the feature is rendered inside.
 
-=item $boxes = $panel->E<gt>key_boxes
+=item $boxes = $panel-E<gt>key_boxes
 
-=item @boxes = $panel->E<gt>key_boxes
+=item @boxes = $panel-E<gt>key_boxes
 
 Returns the positions of the track keys as an arrayref or a list,
 depending on context. Each value in the list is an arrayref of format:
@@ -2474,11 +2475,17 @@ There are three ways to specify the link destination:
 
 =over 4
 
-=item 1. By configuring one or more tracks with a -link argument.
+=item 1.
 
-=item 2. By configuring the panel with a -link argument.
+By configuring one or more tracks with a -link argument.
 
-=item 3. By passing a -link argument in the call to image_and_map().
+=item 2.
+
+By configuring the panel with a -link argument.
+
+=item 3.
+
+By passing a -link argument in the call to image_and_map().
 
 =back
 

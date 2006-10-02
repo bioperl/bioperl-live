@@ -29,12 +29,12 @@ Use it via the L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
                                          -db         => 'pubmed',
                                          -term       => 'hutP',
                                          -usehistory => 'y');
-  
+
   $esearch->get_response; # parse the response, fetch a cookie
-  
+
   my $esummary = Bio::DB::EUtilities->new(-eutil        => 'esummary',
                                        -cookie       => $esearch->next_cookie);
-  
+
   print $esearch->get_response-content; # prints XML output
 
 =head1 DESCRIPTION
@@ -76,7 +76,7 @@ set to XML, but can be changed to ref when needed
 
 =item C<cookie>
 
-a Bio::DB::EUtilities::cookie object (see below)
+a Bio::DB::EUtilities::Cookie object (see below)
 
 =item C<cmd>
 
@@ -176,17 +176,12 @@ preceded with a _
 package Bio::DB::EUtilities::esummary;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 use XML::Simple;
 #use Data::Dumper;
-use vars qw(@ISA $EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    #set as default
-    $EUTIL = 'esummary';
-}
+our $EUTIL = 'esummary';
 
 sub _initialize {
     my ($self, @args ) = @_;
@@ -273,7 +268,7 @@ sub parse_response {
  Usage   : $db->get_response($content)
  Function: main method to retrieve data stream; parses out response for cookie
  Returns : HTTP::Response object
- Args    : optional : Bio::DB::EUtilities::cookie from a previous search
+ Args    : optional : Bio::DB::EUtilities::Cookie from a previous search
  Throws  : 'not a cookie' exception, response errors (via HTTP::Response)
 
 =cut

@@ -18,12 +18,12 @@ Bio::DB::EUtilities::egquery - counts for a global query of Entrez databases
 
 =head1 SYNOPSIS
 
-my $egquery = Bio::DB::EUtilities->new(
+    my $egquery = Bio::DB::EUtilities->new(
                                      -eutil    => 'egquery',
                                      -term     => 'dihydroorotase'
                                       );
 
-print $egquery->get_response->content;
+    print $egquery->get_response->content;
 
 =head1 DESCRIPTION
 
@@ -61,7 +61,7 @@ is much appreciated.
 
   bioperl-l@lists.open-bio.org               - General discussion
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
-  
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to
@@ -87,16 +87,12 @@ preceded with a _
 package Bio::DB::EUtilities::egquery;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 
-use vars qw(@ISA $EUTIL);
+use vars qw($EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    #set as default
-    $EUTIL = 'egquery';
-}
+our $EUTIL = 'egquery';
 
 sub _initialize {
     my ($self, @args ) = @_;

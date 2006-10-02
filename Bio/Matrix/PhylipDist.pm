@@ -93,11 +93,8 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Matrix::PhylipDist;
 use strict;
 
-use vars qw(@ISA);
-use Bio::Matrix::MatrixI;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root Bio::Matrix::MatrixI);
+use base qw(Bio::Root::Root Bio::Matrix::MatrixI);
 
 =head2 new
 

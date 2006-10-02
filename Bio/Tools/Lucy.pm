@@ -93,7 +93,7 @@ You do not have to make these modifications to use this module.
   }
 
   Get all the sequences as Bio::PrimarySeq objects (eg., for use with
-  Bio::Tools::Blast to perform BLAST).
+  Bio::Tools::Run::StandaloneBlast to perform BLAST).
 
   @seqObjs = $lucyObj->get_Seq_Objs();
 
@@ -154,13 +154,11 @@ and should not be called directly.
 
 package Bio::Tools::Lucy;
 
-use vars qw($AUTOLOAD @ISA @ATTR %OK_FIELD);
+use vars qw($AUTOLOAD @ATTR %OK_FIELD);
 use strict;
 use Bio::PrimarySeq;
-use Bio::Root::Root;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 @ATTR = qw(seqfile qualfile stderrfile infofile lucy_verbose fwd_desig rev_desig adv_stderr); 
 foreach my $attr (@ATTR) {
     $OK_FIELD{$attr}++
@@ -251,10 +249,10 @@ sub _parse {
 	my $file = $1;
 
 	print "Opening $self->{seqfile} for parsing...\n" if $self->{lucy_verbose};
-	open SEQ, "$self->{seqfile}" or $self->throw("Could not open sequence file: $self->{seqfile}");
+	open my $SEQ, $self->{seqfile} or $self->throw("Could not open sequence file: $self->{seqfile}");
 	my ($name, $line);
 	my $seq = "";
-	my @lines = <SEQ>;
+	my @lines = <$SEQ>;
 	while ($line = pop @lines) {
 		chomp $line;
 		if ($line =~ /^>(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {    
@@ -285,14 +283,14 @@ sub _parse {
 
 	# now parse quality values (check for presence of quality file first) 
 	if ($self->{qualfile}) {
-		open QUAL, "$self->{qualfile}" or $self->throw("Could not open quality file: $self->{qualfile}");
-		@lines = <QUAL>;
+		open my $QUAL, "$self->{qualfile}" or $self->throw("Could not open quality file: $self->{qualfile}");
+		@lines = <$QUAL>;
 	}
 	elsif (-e "$file.qual") {
 		print "You did not set qualfile, but I'm opening $file.qual\n" if $self->{lucy_verbose};
 	$self->qualfile("$file.qual");
-		open QUAL, "$file.qual" or $self->throw("Could not open quality file: $file.qual");
-		@lines = <QUAL>;
+		open my $QUAL, "$file.qual" or $self->throw("Could not open quality file: $file.qual");
+		@lines = <$QUAL>;
 	}
     else {
 		 print "I did not find a quality file.  You will not be able to use all of the accessor methods.\n" if $self->{lucy_verbose};
@@ -324,14 +322,14 @@ sub _parse {
 
 	# determine whether reads are full length
 	if ($self->{infofile}) {
-		open INFO, "$self->{infofile}" or $self->throw("Could not open info file: $self->{infofile}");
-		@lines = <INFO>;
+		open my $INFO, "$self->{infofile}" or $self->throw("Could not open info file: $self->{infofile}");
+		@lines = <$INFO>;
 	}
 	elsif (-e "$file.info") {
 		print "You did not set infofile, but I'm opening $file.info\n" if $self->{lucy_verbose};
 		$self->infofile("$file.info");
-		open INFO, "$file.info" or $self->throw("Could not open info file: $file.info");
-		@lines = <INFO>;
+		open my $INFO, "$file.info" or $self->throw("Could not open info file: $file.info");
+		@lines = <$INFO>;
 	}
 	else {
 		print "I did not find an info file.  You will not be able to use all of the accessor methods.\n" if $self->{lucy_verbose};
@@ -348,14 +346,14 @@ sub _parse {
 
 	# parse rejects (and presence of poly-A if Lucy has been modified)
 	if ($self->{stderrfile}) {
-		open STDERR_LUCY, "$self->{stderrfile}" or $self->throw("Could not open quality file: $self->{stderrfile}");
-		@lines = <STDERR_LUCY>;
+		open my $STDERR_LUCY, "$self->{stderrfile}" or $self->throw("Could not open quality file: $self->{stderrfile}");
+		@lines = <$STDERR_LUCY>;
 	}
 	elsif (-e "$file.stderr") {
 		print "You did not set stderrfile, but I'm opening $file.stderr\n" if $self->{lucy_verbose};
 		$self->stderrfile("$file.stderr");
-		open STDERR_LUCY, "$file.stderr" or $self->throw("Could not open quality file: $file.stderr");
-		@lines = <STDERR_LUCY>;
+		open my $STDERR_LUCY, "$file.stderr" or $self->throw("Could not open quality file: $file.stderr");
+		@lines = <$STDERR_LUCY>;
 	}
 	else {
 		print "I did not find a standard error file.  You will not be able to use all of the accessor methods.\n" if $self->{lucy_verbose};

@@ -8,7 +8,7 @@ use strict;
 use ExtUtils::MakeMaker;
 use Bio::Root::IO;
 use FindBin '$Bin';
-use constant TEST_COUNT => 43;
+use constant TEST_COUNT => 46;
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 					   'seqfeaturedb','test.gff3');
 
@@ -179,6 +179,14 @@ ok($i);
 my $count;
 while ($i->next_seq) { $count++ }
 ok($feature_count == $count);
+
+# regression test on bug in which get_SeqFeatures('type') did not filter inline segments
+@f = $db->get_features_by_name('agt830.3');
+ok(@f && !$f[0]->get_SeqFeatures('exon'));
+ok(@f && $f[0]->get_SeqFeatures('EST_match'));
+
+# regression test on bug in which the load_id disappeared
+ok(@f && $f[0]->load_id eq 'Match2');
 
 1;
 

@@ -94,8 +94,6 @@ web:
 
 Email birney@ebi.ac.uk
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -107,15 +105,13 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::AnnotationI;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 
 =head2 as_text

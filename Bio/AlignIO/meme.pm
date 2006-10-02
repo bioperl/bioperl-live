@@ -67,12 +67,10 @@ underscore.
 # Let the code begin...
 
 package Bio::AlignIO::meme;
-use vars qw(@ISA);
 use strict;
-use Bio::AlignIO;
 use Bio::LocatableSeq;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 # Constants
 my $MEME_VERS_ERR =
@@ -175,10 +173,7 @@ sub next_aln {
 
 sub write_aln {
    my ($self,@aln) = @_;
-
-   # Don't handle it yet.
-   $self->throw("AlignIO::meme::write_aln not implemented");
-   return 0;
+   $self->throw_not_implemented();
 }
 
 # ----------------------------------------

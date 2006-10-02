@@ -79,9 +79,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@cgt.mc.duke.edu
-
-Describe contact details here
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
@@ -95,15 +93,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Index::Blast;
-use vars qw(@ISA $VERSION);
+use vars qw($VERSION);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Index::Abstract;
 use Bio::Tools::BPlite;
 use IO::String;
 
-@ISA = qw(Bio::Index::Abstract Bio::Root::Root );
+use base qw(Bio::Index::Abstract Bio::Root::Root);
 
 BEGIN {
 	$VERSION = 0.1;
@@ -246,13 +242,13 @@ sub _index_file {
 		          # of the last found record.
 	  );
 
-	open(BLAST, "<$file") or $self->throw("cannot open file $file\n");
+	open(my $BLAST, '<', $file) or $self->throw("cannot open file $file\n");
 
 	my (@data, @records);
 	my $indexpoint = 0;
 	my $lastline = 0;
 
-	while(<BLAST> ) {	
+	while( <$BLAST> ) {	
 		if( /(T)?BLAST[PNX]/ ) {
 			if( @data ) { 
 				# if we have already read a report
@@ -269,7 +265,7 @@ sub _index_file {
 			@data = ();
 		}
 		push @data, $_;
-		$lastline = tell(BLAST);
+		$lastline = tell $BLAST;
 	}
 	# handle fencepost problem (end)
 	if( @data ) {

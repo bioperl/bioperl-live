@@ -61,14 +61,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::clustalw;
-use vars qw(@ISA $LINELENGTH $CLUSTALPRINTVERSION);
+use vars qw($LINELENGTH $CLUSTALPRINTVERSION);
 use strict;
 
-use Bio::AlignIO;
 
 $LINELENGTH          = 60;
 $CLUSTALPRINTVERSION = '1.81';
-@ISA                 = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 new
 

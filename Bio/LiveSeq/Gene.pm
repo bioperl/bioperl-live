@@ -38,7 +38,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::LiveSeq::Gene;
 use strict;
 use Carp;
-use vars qw(@ISA);
 use Bio::LiveSeq::Prim_Transcript; # needed to create maxtranscript obj
 
 =head2 new

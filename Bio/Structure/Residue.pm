@@ -55,13 +55,11 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Structure::Residue;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Structure::Chain;
 use Bio::Structure::Atom;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 =head2 new()

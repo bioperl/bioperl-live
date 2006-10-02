@@ -64,14 +64,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::UTR;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SeqFeature::Gene::Exon;
 
-@ISA = qw(Bio::SeqFeature::Gene::Exon);
+use base qw(Bio::SeqFeature::Gene::Exon);
 
 =head2 new
 

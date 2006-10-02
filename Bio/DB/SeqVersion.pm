@@ -18,7 +18,7 @@ versions
 =head1 SYNOPSIS
 
   use Bio::DB::SeqVersion;
- 
+
   my $query = Bio::DB::SeqVersion->new(-type => 'gi');
 
   my @all_gis = $query->get_all(2);
@@ -50,11 +50,7 @@ the web:
 
 =head1 AUTHOR - Brian Osborne
 
-Email osborne1@optonline.net
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email bosborne at alum.mit.edu
 
 =head1 APPENDIX
 
@@ -67,16 +63,14 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion;
 use strict;
-use vars qw(@ISA $MODVERSION $DEFAULTIDTYPE);
-use Bio::Root::HTTPget;
-use Bio::Root::Root;
+use vars qw($MODVERSION $DEFAULTIDTYPE);
 use Bio::Root::Version;
 # use Bio::DB::WebAgent;
 
 $DEFAULTIDTYPE = 'gi';
 $MODVERSION = $Bio::Root::Version::VERSION;
 
-@ISA = qw(Bio::Root::HTTPget Bio::Root::Root);
+use base qw(Bio::Root::HTTPget Bio::Root::Root);
 
 =head2 new()
 
@@ -84,7 +78,7 @@ $MODVERSION = $Bio::Root::Version::VERSION;
  Function: Create a Bio::DB::SeqVersion object 
  Returns : An instance of Bio::DB::SeqVersion
  Args    : -type      Identifier namespace, default is 'gi' 
-                      
+
 =cut
 
 sub new {

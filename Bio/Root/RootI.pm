@@ -40,7 +40,7 @@ Bio::Root::RootI - Abstract interface to root object code
   # Using throw_not_implemented() within a RootI-based interface module:
 
   package Foo;
-  @ISA = qw( Bio::Root::RootI );
+  use base qw(Bio::Root::RootI);
 
   sub foo {
       my $self = shift;
@@ -54,7 +54,7 @@ This is just a set of methods which do not assume B<anything> about the object
 they are on. The methods provide the ability to throw exceptions with nice
 stack traces.
 
-This is what should be inherited by all bioperl compliant interfaces, even
+This is what should be inherited by all Bioperl compliant interfaces, even
 if they are exotic XS/CORBA/Other perl systems.
 
 =head2 Using throw_not_implemented()
@@ -77,13 +77,13 @@ following:
 
 So, if an implementer of C<FooI> forgets to implement C<foo()>
 and a user of the implementation calls C<foo()>, a
-B<Bio::Exception::NotImplemented> exception will result.
+L<Bio::Exception::NotImplemented> exception will result.
 
 Unfortunately, failure to implement a method can only be determined at
 run time (i.e., you can't verify that an implementation is complete by
 running C<perl -wc> on it). So it should be standard practice for a test
 of an implementation to check each method and verify that it doesn't
-throw a B<Bio::Exception::NotImplemented>.
+throw a L<Bio::Exception::NotImplemented>.
 
 =head1 CONTACT
 
@@ -101,7 +101,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Root::RootI;
 
-use vars qw($DEBUG $ID $Revision $VERBOSITY);
+use vars qw($DEBUG $ID $VERBOSITY);
 use strict;
 use Carp 'confess','carp';
 
@@ -109,7 +109,6 @@ use Bio::Root::Version;
 
 BEGIN { 
     $ID        = 'Bio::Root::RootI';
-    $Revision  = '$Id$ ';
     $DEBUG     = 0;
     $VERBOSITY = 0;
 }
@@ -283,8 +282,8 @@ sub stack_trace{
  Purpose   : Rearranges named parameters to requested order.
  Example   : $self->_rearrange([qw(SEQUENCE ID DESC)],@param);
            : Where @param = (-sequence => $s,
-	   :	                -desc     => $d,
-	   :                    -id       => $i);
+	       :                 -desc     => $d,
+	       :                 -id       => $i);
  Returns   : @params - an array of parameters in the requested order.
            : The above example would return ($s, $i, $d).
            : Unspecified parameters will return undef. For example, if
@@ -297,7 +296,7 @@ sub stack_trace{
            :          or as an associative array with hyphenated tags
            :          (in which case the function sorts the values 
            :          according to @{$order} and returns that new array.)
-	   :	      The tags can be upper, lower, or mixed case
+	       :	      The tags can be upper, lower, or mixed case
            :          but they must start with a hyphen (at least the
            :          first one should be hyphenated.)
  Source    : This function was taken from CGI.pm, written by Dr. Lincoln
@@ -319,17 +318,17 @@ sub stack_trace{
            : indicate that named parameters are being used.
            : Therefore, the ('me', 'blue') list will be returned as-is.
            :
-	   : Note that Perl will confuse unquoted, hyphenated tags as 
+	       : Note that Perl will confuse unquoted, hyphenated tags as 
            : function calls if there is a function of the same name 
            : in the current namespace:
            :    -name => 'foo' is interpreted as -&name => 'foo'
-	   :
+	       :
            : For ultimate safety, put single quotes around the tag:
-	   :    ('-name'=>'me', '-color' =>'blue');
+	       : ('-name'=>'me', '-color' =>'blue');
            : This can be a bit cumbersome and I find not as readable
            : as using all uppercase, which is also fairly safe:
-	   :    (-NAME=>'me', -COLOR =>'blue');
-	   :
+	       : (-NAME=>'me', -COLOR =>'blue');
+	       :
            : Personal note (SAC): I have found all uppercase tags to
            : be more managable: it involves less single-quoting,
            : the key names stand out better, and there are no method naming 
@@ -338,7 +337,12 @@ sub stack_trace{
            : and lots of uppercase can be hard to read.
            :
            : Regardless of the style, it greatly helps to line
-	   : the parameters up vertically for long/complex lists.
+	       : the parameters up vertically for long/complex lists.
+           :
+           : Note that if @param is a single string that happens to start with
+           : a dash, it will be treated as a hash key and probably fail to
+           : match anything in the array_ref, so not be returned as normally
+           : happens when @param is a simple list and not an associative array.
 
 =cut
 

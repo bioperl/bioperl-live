@@ -30,27 +30,27 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
                                          -db         => 'pubmed',
                                          -term       => 'hutP',
                                          -usehistory => 'y');
-  
+
   $esearch->get_response; # parse the response, fetch a cookie
-  
+
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
                                        -db           => 'protein,taxonomy',
                                        -dbfrom       => 'pubmed',
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor');
-  
+
   # this retrieves the Bio::DB::EUtilities::ElinkData object
-  
+
   my ($linkset) = $elink->next_linkset;
   my @ids;
-  
+
   # step through IDs for each linked database in the ElinkData object
-  
+
   for my $db ($linkset->get_databases) {   
     @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
     # do something here
   }
-  
+
   # multiple ID groups (for one-to-one-correspondence of IDs)
 
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
@@ -66,7 +66,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
       # do something here
     }
   }
-  
+
   # to retrieve scores for a linkset
 
   while (my $linkset = $elink->next_linkset) {
@@ -80,9 +80,9 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
       }
     }
   }
-  
+
   # or just receive a hash containing ID-score key-value pairs
-  
+
   while (my $linkset = $elink->next_linkset) {
     my @score_dbs = $linkset->has_scores; 
     for my $db (@score_dbs) {
@@ -90,7 +90,7 @@ L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
       %scores = $linkset->get_score_hash;
     }
   }
-  
+
 =head1 DESCRIPTION
 
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
@@ -136,7 +136,7 @@ Below are a list of IDs which can be used with ELink:
 
 B<PMID> (pubmed), B<MIM number> (omim), B<GI number> (nucleotide, protein),
 B<Genome ID> (genome), B<Popset ID> (popset), B<SNP cluster ID> (snp),
-B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), <MMDB-ID> (structure),
+B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), B<MMDB-ID> (structure),
 B<PSSM-ID> (cdd), B<3D SDI> (domains), B<TAXID> (taxonomy), B<GEO ID> (geo)
 
 =item C<reldate>
@@ -258,7 +258,7 @@ on a user's computer when browsing the Web.  XML data returned by these
 EUtilities, when applicable, is parsed for the cookie information (the 'WebEnv'
 and 'query_key' tags to be specific)  The information along with other identifying
 data, such as the calling eutility, description of query, etc.) is stored as a
-L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object in an internal
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> object in an internal
 queue.  These can be retrieved one at a time by using the next_cookie method or
 all at once in an array using get_all_cookies.  Each cookie can then be 'fed',
 one at a time, to another EUtility object, thus enabling chained queries as
@@ -324,7 +324,7 @@ independently.  This is accomplished by setting the C<multi_id> flag to true,
 which indicates that the ID list will be evaluated as an array reference, with
 each ID group represented by another array reference or a single ID.  So, with
 C<multi_id> set to TRUE:
- 
+
   -id  => \@ids,  # evaluates each ID in the array independently
   ...
   -id  => [@ids], # same as above
@@ -340,12 +340,12 @@ It can get tricky:
 This enables one-to-one correspondence with the returned data, so that one
 can determine, per ID, what the matching ELink ID is.  The default is to
 return them all as a group (no one-to-one correspondence).  Using a small ID
-array, C<multi_id> set to TRUE, '-id => \@ids', and this loop:
+array, C<multi_id> set to TRUE, '-id =E<gt> \@ids', and this loop:
 
-while (my $linkset = $elink->next_linkset) {
+  while (my $linkset = $elink->next_linkset) {
     print "Query ID : ",join q(,), $linkset->query_id,"\n";
     print "\tTax ID : ",join q(,), $linkset->get_LinkIds_by_db('taxonomy'),"\n";
-}
+  }
 
 gets this result:
 
@@ -355,7 +355,7 @@ gets this result:
             Tax ID : 233413,
     Query ID : 31792573,
             Tax ID : 233413,
-  
+
 Setting C<multi_id> to FALSE or not setting, using all other conditions above,
 gets this result:
 
@@ -402,22 +402,18 @@ package Bio::DB::EUtilities::elink;
 use strict;
 use warnings;
 
-use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use Bio::DB::EUtilities::ElinkData;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
-use vars qw(@ISA $EUTIL $VERSION %CMD);
+use base qw(Bio::DB::EUtilities);
 
-@ISA = qw(Bio::DB::EUtilities);
-
-BEGIN {
-    #set as default
-    $EUTIL = 'elink';
-    $VERSION = '1';
+our $EUTIL = 'elink';
+our $VERSION = '1';
     # cmd parameter options; these haven't been mapped yet
-    %CMD = ('prlinks'   => 1,
+
+our %CMD = ('prlinks'   => 1,
             'llinks'    => 1,
             'llinkslib' => 1,
             'lcheck'    => 1,
@@ -426,7 +422,6 @@ BEGIN {
             'neighbor_history'  => 1,
             'acheck'    => 1,
            );
-}
 
 sub _initialize {
     my ($self, @args ) = @_;
@@ -489,7 +484,7 @@ sub parse_response {
     if (exists $simple->{ERROR}) {
         $self->throw("NCBI elink nonrecoverable error: ".$simple->{ERROR});
     }
-	$self->debug("Response dumper:\n".Dumper($simple));
+	#$self->debug("Response dumper:\n".Dumper($simple));
     my $cmd = $self->cmd ? $self->cmd : 'neighbor'; # set default cmd
     # process possible cookies first
     if (defined($cmd) && $cmd eq 'neighbor_history') {

@@ -25,7 +25,7 @@ you can do the following things with it:
 =head1 DESCRIPTION
 
 This module defines abstract methods that all subclasses must implement
-to be used for outputting results from B<Bio::Search::Result::ResultI>
+to be used for outputting results from L<Bio::Search::Result::ResultI>
 objects.
 
 =head1 AUTHOR
@@ -44,9 +44,8 @@ The rest of the documentation details each of the object methods.
 
 package Bio::SearchIO::SearchWriterI;
 
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 to_string
 

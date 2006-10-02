@@ -46,9 +46,8 @@ server
 
 This class is a wrapper around the Mitoprot web server which
 calculates the probability of a sequence containing a mitochondrial
-targetting peptide. See
-http://www.mips.biochem.mpg.de/cgi-bin/proj/medgen/mitofilter for more
-details.
+targetting peptide. See http://mips.gsf.de/cgi-bin/proj/medgen/mitofilter
+for more details.
 
 The results can be obtained in 3 formats:
 
@@ -125,16 +124,15 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Analysis::Protein::Mitoprot;
-use vars qw(@ISA  $FLOAT );
+use vars qw($FLOAT);
 use strict;
 
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw(GET);
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 $FLOAT = '[+-]?\d*\.\d*';
 
 my $URL = 'http://ihg.gsf.de/cgi-bin/paolo/mitofilter?';
@@ -260,7 +258,7 @@ sub result {
                          cleavage_site => $results{'cleavage_site'},
                         },
                 );
-            return @fts;        #return Bioseqfeature array 
+            return @fts;        #return Bioseqfeature array
         }
         ## convert parsed data into a meta array format
         else  {

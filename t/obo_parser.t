@@ -20,7 +20,7 @@ BEGIN {
 	    exit( 0 );
     }
 
-    plan tests => 40;
+    plan tests => 43;
 }
 
 
@@ -80,6 +80,14 @@ ok (scalar(@terms), 2);
 @terms = $ont->find_terms(-name => "substitution");
 $term =  $terms[0];
 ok ($term->name(), "substitution");
+
+# search using obo terms;
+@terms = $ont->find_identically_named_terms($term);
+ok scalar @terms, 1;
+@terms = $ont->find_identical_terms($term);
+ok scalar @terms, 1;
+@terms = $ont->find_similar_terms($term);
+ok scalar @terms, 7;
 
 @terms = $ont->get_ancestor_terms($term);
 ok (scalar(@terms), 6);

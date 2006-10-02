@@ -52,14 +52,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::msf;
-use vars qw(@ISA %valid_type);
+use vars qw(%valid_type);
 use strict;
 
-use Bio::AlignIO;
 use Bio::SeqIO::gcg; # for GCG_checksum()
 use Bio::SimpleAlign;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 BEGIN {
 	%valid_type = qw( dna N rna N protein P );
@@ -86,7 +85,7 @@ sub next_aln {
 	my $aln =  Bio::SimpleAlign->new(-source => 'gcg' );
 
 	while( $entry = $self->_readline) {
-		$entry =~ /\/\// && last; # move to alignment section
+		$entry =~ m{//} && last; # move to alignment section
 		$entry =~ /Name:\s+(\S+)/ && do { $name = $1;
 					  $hash{$name} = ""; # blank line
 					  push(@names,$name); # we need it ordered!
@@ -119,7 +118,7 @@ sub next_aln {
    # now got this as a name - sequence hash. Let's make some sequences!
 
    foreach $name ( @names ) {
-		if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+		if( $name =~ m{(\S+)/(\d+)-(\d+)} ) {
 			$seqname = $1;
 			$start = $2;
 			$end = $3;

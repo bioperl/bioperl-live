@@ -24,16 +24,15 @@ next_network() will be called only once per file.
 =cut
 
 package Bio::Graph::IO::dip;
-use vars qw(@ISA $FAC);
+use vars qw($FAC);
 
-use Bio::Graph::IO;
 use Bio::Graph::ProteinGraph;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
 use Bio::Graph::Edge;
 use strict;
-@ISA = qw(Bio::Graph::IO);
+use base qw(Bio::Graph::IO);
 
 BEGIN{
 	$FAC = Bio::Seq::SeqFactory->new(-type=>'Bio::Seq::RichSeq');

@@ -147,10 +147,9 @@ preceded with a _
 
 package Bio::DB::GenBank;
 use strict;
-use vars qw(@ISA %PARAMSTRING $DEFAULTFORMAT $DEFAULTMODE);
-use Bio::DB::NCBIHelper;
+use vars qw(%PARAMSTRING $DEFAULTFORMAT $DEFAULTMODE);
 
-@ISA = qw(Bio::DB::NCBIHelper);
+use base qw(Bio::DB::NCBIHelper);
 BEGIN {    
     $DEFAULTMODE   = 'single';
     $DEFAULTFORMAT = 'gbwithparts';

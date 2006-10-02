@@ -69,9 +69,8 @@ package Bio::Factory::HitFactoryI;
 use strict;
 use Bio::Factory::ObjectFactoryI;
 
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::RootI); 
+use base qw(Bio::Root::RootI);
 
 =head2 create_hit
 

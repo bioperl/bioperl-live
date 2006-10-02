@@ -52,7 +52,7 @@ Bio::Seq - Sequence object, with features
     # sequences may have a species
 
     if( defined $seq->species ) {
-	print "Sequence is from ",$species->binomial_name," [",$species->common_name,"]\n";
+	print "Sequence is from ",$species->binomial," [",$species->common_name,"]\n";
     }
 
     # annotation objects are Bio::AnnotationCollectionI's
@@ -444,25 +444,12 @@ methods. Internal methods are usually preceded with a "_".
 
 
 package Bio::Seq;
-use vars qw(@ISA);
 use strict;
 
-
-# Object preamble - inherits from Bio::Root::Object
-
-use Bio::Root::Root;
-use Bio::SeqI;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
-use Bio::AnnotatableI;
-use Bio::FeatureHolderI;
 
-
-@ISA = qw(Bio::Root::Root Bio::SeqI
-	  Bio::IdentifiableI Bio::DescribableI
-	  Bio::AnnotatableI Bio::FeatureHolderI);
+use base qw(Bio::Root::Root Bio::SeqI Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI Bio::FeatureHolderI);
 
 =head2 new
 

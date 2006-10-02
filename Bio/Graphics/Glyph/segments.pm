@@ -3,9 +3,6 @@ package Bio::Graphics::Glyph::segments;
 
 use strict;
 use Bio::Location::Simple;
-use Bio::Graphics::Glyph::generic;
-use Bio::Graphics::Glyph::segmented_keyglyph;
-use vars '@ISA';
 
 use constant INSERTION_CHARACTER => '!'; # what to draw to show an insertion
 use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
@@ -20,9 +17,7 @@ use constant SRC_END   => 2;
 use constant TGT_START => 3;
 use constant TGT_END   => 4;
 
-@ISA = qw( Bio::Graphics::Glyph::segmented_keyglyph
-	   Bio::Graphics::Glyph::generic
-	 );
+use base qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::generic);
 
 my %complement = (g=>'c',a=>'t',t=>'a',c=>'g',n=>'n',
 		  G=>'C',A=>'T',T=>'A',C=>'G',N=>'N');
@@ -61,10 +56,23 @@ sub draw_target {
   return $self->option('draw_target');
 }
 
+sub draw_protein_target {
+  my $self = shift;
+  return if $self->option('draw_protein');
+  return $self->option('draw_protein_target');
+  return $self->option('draw_target');
+}
+
 sub height {
   my $self = shift;
   my $height = $self->SUPER::height;
-  return $height unless $self->dna_fits && $self->draw_target; # || $self->option('draw_dna'));
+  return $height unless $self->draw_target || $self->draw_protein_target;
+  if ($self->draw_target) {
+    return $height unless $self->dna_fits;
+  }
+  if ($self->draw_protein_target) {
+    return $height unless $self->protein_fits;
+  }
   my $fontheight = $self->font->height;
   return $fontheight if $fontheight > $height;
 }
@@ -100,7 +108,7 @@ sub fontcolor {
 sub draw {
   my $self = shift;
 
-  my $draw_target = $self->draw_target;
+  my $draw_target         = $self->draw_target;
   return $self->SUPER::draw(@_) unless $draw_target;
   return $self->SUPER::draw(@_) unless $self->dna_fits;
 
@@ -122,11 +130,50 @@ sub draw {
     if $connector && $connector ne 'none' && $self->level == 0;
 
 }
+
+sub draw_component {
+  my $self = shift;
+  my ($gd,$l,$t) = @_;
+  $self->SUPER::draw_component(@_);
+  return unless $self->option('draw_protein_target') && $self->protein_fits;
+  my $hit      = eval {$self->feature->hit} or return;
+  my $protein  = uc eval {$hit->seq->seq} or return;
+  my ($left,$top,$right,$bottom) = $self->bounds($l,$t);
+
+  my $scale = $self->scale;
+  warn "scale = $scale";
+  my @letters = split '',$protein;
+  my $color = $self->fgcolor;
+  my $font  = $self->font;
+  my $fw    = $font->width;
+  my $strand = $self->feature->strand || 0;
+
+  my $panel_left           = $self->panel->left;
+  my $panel_right          = $self->panel->right;
+
+  my ($x1,$x2)                    = $self->map_no_trunc($self->feature->start,$self->feature->end);
+
+  if ($strand >= 0) {  # + strand features
+    for (0..@letters-1) {
+      next if $x1 < $panel_left or $x1 > $panel_right;
+      $gd->char($font,$x1+1,$top,$letters[$_],$color);
+    } continue {
+      $x1 += $scale * 3;
+    }
+  } else {             # - strand features
+    for (0..@letters-1) {
+      next if $x2 < $panel_left or $x2 > $panel_right;
+      $gd->char($font,$x2+1,$top,$letters[$_],$color);
+    } continue {
+      $x2 -= $scale * 3;
+    }
+  }
+}
+
 sub draw_multiple_alignment {
   my $self = shift;
   my $gd   = shift;
   my ($left,$top,$partno,$total_parts) = @_;
-
 
   my $flipped              = $self->flip;
   my $ragged_extra         = $self->option('ragged_start') 
@@ -146,15 +193,24 @@ sub draw_multiple_alignment {
   my $panel_right          = $self->panel->right;
   my $drew_sequence;
 
+  warn "TGT_START..TGT_END = $tgt_start..$tgt_end" if DEBUG;
+
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
   $top = $bt;
 
+  for my $p ($self->parts) {
+    my @bounds = $p->bounds($left,$top);
+    $self->filled_box($gd,@bounds,$self->bgcolor,$self->bgcolor);
+  }
+
   my @s                     = $self->_subfeat($feature);
-  # workaround for features in which top level featuare does not have a hit but
+
+  # FIX ME
+  # workaround for features in which top level feature does not have a hit but
   # subfeatures do. There is total breakage of encapsulation here because sometimes
   # a chado alignment places the aligned segment in the top-level feature, and sometimes
   # in the child feature.
-  if (!@s && $feature->isa('Bio::DB::Das::Chado::Segment::Feature')) {
+  unless (@s || $feature->isa('Bio::DB::GFF::Feature')) {
     @s = ($feature);
   }
 
@@ -167,6 +223,7 @@ sub draw_multiple_alignment {
     next unless $src_start <= $panel_end && $src_end >= $panel_start;
 
     my ($tgt_start,$tgt_end) = ($target->start,$target->end);
+
     unless (exists $strands{$target}) {
       my $strand = $feature->strand;
       if ($tgt_start > $tgt_end) { #correct for data problems
@@ -285,7 +342,7 @@ sub draw_multiple_alignment {
       }
     }
 
-    warn "Clipping gives [@$seg]\n"if DEBUG;
+    warn "Clipping gives [@$seg], tgt_start = $tgt_start\n" if DEBUG;
   }
 
   # relativize coordinates
@@ -299,6 +356,8 @@ sub draw_multiple_alignment {
     $seg->[SRC_END]   -= $abs_start - 1;
     $seg->[TGT_START] -= $tgt_start - 1;
     $seg->[TGT_END]   -= $tgt_start - 1;
+
+    warn $seg->[TGT_START],"..",$seg->[TGT_END] if DEBUG;
     if ($strand < 0) {
       ($seg->[TGT_START],$seg->[TGT_END]) = (length($tgt_dna)-$seg->[TGT_END]+1,length($tgt_dna)-$seg->[TGT_START]+1);
     }
@@ -315,8 +374,8 @@ sub draw_multiple_alignment {
   my $lineheight = $font->height;
   my $fontwidth  = $font->width;
 
-  my $pink = $self->factory->translate_color('lightpink');
-  my $grey  = $self->factory->translate_color('gray');
+  my $mismatch = $self->factory->translate_color($self->option('mismatch_color') || 'lightgrey');
+  my $grey     = $self->factory->translate_color('gray');
 
   my $base2pixel = 
     $self->flip ?
@@ -332,18 +391,18 @@ sub draw_multiple_alignment {
 
   my ($tgt_last_end,$src_last_end);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
-
     my $y = $top-1;
 
     for (my $i=0; $i<$seg->[SRC_END]-$seg->[SRC_START]+1; $i++) {
 
       my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
       my $tgt_base = $self->_subsequence($tgt_dna,$seg->[TGT_START]+$i,$seg->[TGT_START]+$i);
+      # warn $seg->[TGT_START]+$i,' ',$seg->[TGT_START]+$i;
       my $x = $base2pixel->($seg->[SRC_START],$i);
 
       next unless $tgt_base && $x >= $panel_left && $x <= $panel_right;
 
-      $self->filled_box($gd,$x,$y+3,$x+$fontwidth-1,$y+$lineheight-2,$pink,$pink) 
+      $self->filled_box($gd,$x-$pixels_per_base/2+2,$y+1,$x+$pixels_per_base/2+1,$y+$lineheight,$mismatch,$mismatch)
 	if $show_mismatch && $tgt_base && $src_base ne $tgt_base && $tgt_base !~ /[nN]/;
       $tgt_base = $complement{$tgt_base} if $true_target && $strand < 0;
       $gd->char($font,$x,$y,$tgt_base,$tgt_base =~ /[nN]/ ? $grey : $color);
@@ -359,25 +418,38 @@ sub draw_multiple_alignment {
 	my $gap_left  = $fontwidth + $base2pixel->($src_last_end,0);
 	my $gap_right = $base2pixel->($seg->[SRC_START],0);
 	($gap_left,$gap_right) = ($gap_right+$fontwidth,$gap_left-$fontwidth) if $self->flip;
-	warn "delta=$delta, gap_left=$gap_left, gap_right=$gap_right"  if DEBUG;
+	warn "delta=$delta, gap_left=$gap_left, gap_right=$gap_right" if DEBUG;
+
+	if ($delta == $src_delta) {
+	  $gap_left  += $pixels_per_base/2-2;
+	  $gap_right -= $pixels_per_base/2-2;
+	}
+
+	$self->filled_box($gd,$gap_left,$y+1,
+			      $gap_right-2,$y+$lineheight,$mismatch,$mismatch) if 
+				$show_mismatch && $gap_left >= $panel_left && $gap_right <= $panel_right;
+
 
 	my $gap_distance             = $gap_right - $gap_left + 1;
 	my $pixels_per_inserted_base = $gap_distance/($delta-1);
 
  	if ($pixels_per_inserted_base >= $fontwidth) {  # Squeeze the insertion in
  	  for (my $i = 0; $i<$delta-1; $i++) {
- 	    my $x = $gap_left + (1 + $pixels_per_inserted_base-$fontwidth)/2 + $pixels_per_inserted_base * $i;
+ 	    my $x = $gap_left + ($pixels_per_inserted_base-$fontwidth)/2 + $pixels_per_inserted_base * $i;
  	    my $bp = $self->_subsequence($tgt_dna,$tgt_last_end+$i+1,$tgt_last_end+$i+1);
- 	    $gd->char($font,$x,$y,$bp,$grey) unless $x < $panel_left;
+	    next if $x < $panel_left;
+ 	    $gd->char($font,$x,$y,$bp,$color);
  	  }
  	} else {  # doesn't fit, so stick in a blob
 	  $self->_draw_insertion_point($gd,($gap_left+$gap_right)/2,$y+3,$color);
  	}
-      } 
+      }
       # deal with gaps in the alignment
       elsif ( (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
 	for (my $i=0;$i<$delta-1;$i++) {
 	  my $x = $base2pixel->($src_last_end,$i+1);
+	  $self->filled_box($gd,$x-$pixels_per_base/2+2,$y,$x+$pixels_per_base/2+1,$y+$lineheight,$mismatch,$mismatch)
+	    if $show_mismatch;
 	  $gd->char($font,$x,$y,'-',$color);
 	}
 	
@@ -521,6 +593,11 @@ In addition, the following glyph-specific options are recognized:
                  magnification level allows.
                  See "Displaying Alignments".
 
+  -draw_protein_target  If true, draw the protein residues        0 (false)
+                 of the TARGET sequence when
+                 magnification level allows.
+                 See "Displaying Alignments".
+
   -ragged_extra When combined with -draw_target,      0 (false)
                 draw extra bases beyond the end
                 of the alignment. The value is
@@ -533,7 +610,10 @@ In addition, the following glyph-specific options are recognized:
 
   -show_mismatch When combined with -draw_target,     0 (false)
                  highlights mismatched bases in
-                 pink.  See "Displaying Alignments".
+                 the mismatch color.  
+                 See "Displaying Alignments".
+
+  -mismatch_color The mismatch color to use           'lightgrey'
 
   -true_target   Show the target DNA in its native    0 (false)
                  (plus strand) orientation, even if
@@ -557,7 +637,8 @@ to allow individual bases to be drawn. The -ragged_extra option will
 cause the alignment to be extended at the extreme ends by the
 indicated number of bases, and is useful for looking for polyAs and
 cloning sites at the ends of ESTs and cDNAs. -show_mismatch will cause
-mismatched bases to be highlighted in pink.
+mismatched bases to be highlighted in with the color indicated by
+-mismatch_color (default lightgray).
 
 At high magnifications, minus strand matches will automatically be
 shown as their reverse complement (so that the match has the same
@@ -601,6 +682,12 @@ a Perl-based version of the algorithm that is 10-100 times slower.
 The display of alignments can be tweaked using the -ragged_extra,
 -show_mismatch, -true_target, and -realign options.  See the options
 section for further details.
+
+There is also a B<-draw_protein_target> option, which is designed for
+protein to nucleotide alignments. It draws the target sequence every
+third base pair and is supposed to align correctly with the forward
+and reverse translation glyphs. This option is experimental at the
+moment, and may not work correctly, to use with care.
 
 =head1 BUGS
 

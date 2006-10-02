@@ -51,12 +51,6 @@ web:
 
 Email jason@bioperl.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -69,15 +63,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::tabtree;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::TreeIO;
 
 
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 =head2 new
 

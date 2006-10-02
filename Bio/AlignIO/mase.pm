@@ -53,12 +53,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::mase;
-use vars qw(@ISA);
 use strict;
 
-use Bio::AlignIO;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 
 =head2 next_aln
@@ -147,8 +145,7 @@ sub next_aln {
 
 sub write_aln {
     my ($self,@aln) = @_;
-
-    $self->throw("Sorry: mase-format output, not yet implemented! /n");
+    $self->throw_not_implemented();
 }
 
 1;

@@ -70,15 +70,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::SimpleOntologyEngine;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::Root;
 use Bio::Ontology::RelationshipFactory;
-use Bio::Ontology::OntologyEngineI;
 use Data::Dumper;
 
-@ISA = qw( Bio::Root::Root Bio::Ontology::OntologyEngineI );
+use base qw(Bio::Root::Root Bio::Ontology::OntologyEngineI);
 
 =head2 new
 

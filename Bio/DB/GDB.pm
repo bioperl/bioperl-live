@@ -71,14 +71,13 @@ preceded with a _
 
 package Bio::DB::GDB;
 use strict;
-use Bio::Root::Root;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use HTML::Parser;
 
-use vars qw(@ISA $BASEADDRESS %PARAMSTRING $MODVERSION);
+use vars qw($BASEADDRESS %PARAMSTRING $MODVERSION);
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 $MODVERSION = '0.01';
 $BASEADDRESS = 'http://www.gdb.org/gdb-bin/genera/genera/hgd/GenomicSegment';

@@ -49,16 +49,16 @@ The main method in the system is get_field(). This method relies on the
 existance of a private hash reference accessible to it with the method
 _fields(). That hash ref should have as keys all the sorts of data you will want
 to parse (eg. 'score'), and prior to parsing the values would be undefined. A
-user of your module can then call either $module->get_field('score') or
-$module->score and get_field will either return the answer from
-$self->_fields->{score} if it is defined, or call a method _discover_score()
+user of your module can then call either $module-E<gt>get_field('score') or
+$module-E<gt>score and get_field will either return the answer from
+$self-E<gt>_fields-E<gt>{score} if it is defined, or call a method _discover_score()
 first if not. So for the system to work you need to define a _discover_*()
 method for every field in the fields hash, and ensure that the method stores an
 answer in the fields hash.
 
 How you implement your _discover_* methods is up to you, though you should never
-call a _discover_* method directly yourself; always use ->get_field, since
-get_field will deal with calling dependant methods for you if a forced
+call a _discover_* method directly yourself; always use get_field(), since
+get_field() will deal with calling dependant methods for you if a forced
 sequenctial read is in progress due to piped input. You will almost certainly
 want to make use of the various chunk-related methods of this class (that are
 denoted private by the leading '_'; this means you can use them as the author of
@@ -70,7 +70,7 @@ argument as $/. The chunk knows about its line-endings, so if you want your
 end definition to include a new line, just always use "\n" and PullParserI will
 do any necessary conversion for you.
 
-If your input data is hierarchical (eg. report->many results->many hits->many
+If your input data is hierarchical (eg. report-E<gt>many results-E<gt>many hits-E<gt>many
 hsps), and you want an object at the leaf of the hierarchy to have access to
 information that is shared amongst all of them (is parsed in the root), you
 don't have to copy the data to each leaf object; simply by defining parent(),
@@ -119,13 +119,21 @@ Internal methods are usually preceded with a _
 
 package Bio::PullParserI;
 
-use vars qw(@ISA $AUTOLOAD);
+use vars qw($AUTOLOAD $FORCE_TEMP_FILE);
 use strict;
 
-use Bio::Root::RootI;
 use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
+
+BEGIN {
+    # chunk() needs perl 5.8 feature for modes other than temp_file, so will
+    # workaround by forcing temp_file mode in <5.8. Could also rewrite using
+    # IO::String, but don't want to.
+    if ($] < 5.008) {
+        $FORCE_TEMP_FILE = 1;
+    }
+}
 
 =head2 _fields
 
@@ -241,7 +249,7 @@ sub parent {
            -end   => int : the byte position to consider as the end (default
                            true end)
            -piped_behaviour => 'memory'|'temp_file'|'sequential_read'
-           
+
            The last option comes into effect when the first argument is
            something that cannot be seeked (eg. piped input filehandle).
             'memory'          means read all the piped input into a string
@@ -254,6 +262,8 @@ sub parent {
            'memory' is the fastest but uses the most memory. 'temp_file' and
            'sequential_read' can be slow, with 'temp_file' being the most memory
            efficient but requiring disc space. The default is 'sequential_read'.
+           Note that in versions of perl earlier than 5.8 only temp_file works
+           and will be used regardless of what value is supplied here.
 
 =cut
 
@@ -270,10 +280,16 @@ sub chunk {
                 $self->{_chunk} = new Bio::Root::IO(-file => $thing);
             }
             else {
-                # treat a string as a filehandle
-                my $fake_fh;
-                open($fake_fh, "+<", \$thing); # requires perl 5.8
-                $self->{_chunk} = new Bio::Root::IO(-fh => $fake_fh);
+                unless ($FORCE_TEMP_FILE) {
+                    # treat a string as a filehandle
+                    open(my $fake_fh, "+<", \$thing); # requires perl 5.8
+                    $self->{_chunk} = new Bio::Root::IO(-fh => $fake_fh);
+                }
+                else {
+                    my ($handle) = $self->{_chunk}->tempfile();
+                    print $handle $thing;
+                    $self->{_chunk} = new Bio::Root::IO(-fh => $handle);
+                }
             }
         }
         elsif ($thing->isa('Bio::Root::IO')) {
@@ -289,6 +305,7 @@ sub chunk {
                 $self->_rearrange([qw(PIPED_BEHAVIOUR START END)], @_);
         }
         $piped_behaviour ||= 'sequential_read';
+        $FORCE_TEMP_FILE && ($piped_behaviour = 'temp_file');
         $start ||= 0;
         $self->_chunk_true_start($start);
         $self->_chunk_true_end($end);
@@ -448,9 +465,9 @@ sub _line_ending {
  Usage   : $obj->_chunk_seek($pos);
  Function: seek() the chunk to the provided position in bytes, relative to the
            defined start of the chunk within its filehandle.
-           
+
            In _sequential() mode, this function does nothing.
-           
+
  Returns : n/a
  Args    : int
 
@@ -475,9 +492,9 @@ sub _chunk_seek {
  Usage   : my $pos = $obj->_chunk_tell;
  Function: Get the current tell() position within the chunk, relative to the
            defined start of the chunk within its filehandle.
-           
+
            In _sequential() mode, this function does nothing.
-           
+
  Returns : int
  Args    : none
 
@@ -555,9 +572,9 @@ sub _get_chunk_by_end {
  Function: Get the start and end of what would be a chunk of chunk() from the
            current position onward till the end of the line, as defined by the
            supplied argument.
-           
+
            In _sequential() mode, this function does nothing.
-           
+
  Returns : _chunk_tell values for start and end in 2 element list
  Args    : string (line ending - if you want the line ending to include a new
            line, always use \n)

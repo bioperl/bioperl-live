@@ -25,21 +25,21 @@ use Bio::DB::EUtilities;
                                          -db         => 'pubmed',
                                          -term       => 'hutP',
                                          -usehistory => 'y');
-  
+
   $esearch->get_response; # parse the response, fetch a cookie
-  
+
   my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
                                        -db           => 'protein',
                                        -dbfrom       => 'pubmed',
                                        -cookie       => $esearch->next_cookie,
                                        -cmd          => 'neighbor_history');
-  
+
   $elink->get_response; # parse the response, fetch the next cookie
-  
+
   my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
-  
+
   print $efetch->get_response->content;
 
 =head1 DESCRIPTION
@@ -92,7 +92,7 @@ the object method C<content>, like so:
                                         -cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
-  
+
   print $efetch->get_response->content;
 
 Based on this, if one wanted to retrieve sequences or other raw data
@@ -115,7 +115,7 @@ by these EUtilities, when applicable, is parsed for the cookie information
 (the 'WebEnv' and 'query_key' tags to be specific)  The information along
 with other identifying data, such as the calling eutility, description
 of query, etc.) is stored as a
-L<Bio::DB::EUtilities::cookie|Bio::DB::EUtilities::cookie> object
+L<Bio::DB::EUtilities::Cookie|Bio::DB::EUtilities::Cookie> object
 in an internal queue.  These can be retrieved one at a time by using
 the next_cookie method or all at once in an array using get_all_cookies.
 Each cookie can then be 'fed', one at a time, to another EUtility object,
@@ -176,20 +176,18 @@ preceded with a _
 package Bio::DB::EUtilities;
 use strict;
 
-use vars qw(@ISA $HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
+use vars qw($HOSTBASE %CGILOCATION $MAX_ENTRIES %DATABASE @PARAMS
             $DEFAULT_TOOL @COOKIE_PARAMS @METHODS);
-use Bio::DB::GenericWebDBI;
 use URI;
 #use Data::Dumper;
 
-@ISA = qw(Bio::DB::GenericWebDBI);
+use base qw(Bio::DB::GenericWebDBI);
 
-BEGIN {
-    $DEFAULT_TOOL = 'bioperl';
+our $DEFAULT_TOOL = 'bioperl';
     # default host base
-    $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
+our $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov';
     # map eutility to location
-    %CGILOCATION = (
+our %CGILOCATION = (
             'einfo'     => ['get'  => '/entrez/eutils/einfo.fcgi', 'xml'],
             'epost'     => ['post' => '/entrez/eutils/epost.fcgi', 'xml'],
             'efetch'    => ['get'  => '/entrez/eutils/efetch.fcgi', 'dbspec'],
@@ -199,7 +197,7 @@ BEGIN {
             'egquery'   => ['get'  => '/entrez/eutils/egquery.fcgi', 'xml']
              );
     # map database to return mode
-    %DATABASE = ('pubmed'           => 'xml',
+our %DATABASE = ('pubmed'           => 'xml',
                  'protein'          => 'text',
                  'nucleotide'       => 'text',
                  'nuccore'          => 'text',
@@ -234,12 +232,14 @@ BEGIN {
                  'unigene'          => 'xml',
                  'unists'           => 'xml',
                  );
-    @PARAMS = qw(rettype usehistory term field tool reldate mindate
-        maxdate datetype retstart retmax sort seq_start seq_stop strand
-        complexity report dbfrom cmd holding version linkname retmode);
-    @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
-        retstart retmax cmd linkname retmode);
-    @METHODS = qw(rettype usehistory term field tool reldate mindate
+
+    our @PARAMS = qw(rettype usehistory term field tool reldate mindate
+            maxdate datetype retstart retmax sort seq_start seq_stop strand
+            complexity report dbfrom cmd holding version linkname retmode);
+    our @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
+            retstart retmax cmd linkname retmode);
+BEGIN {
+    our @METHODS = qw(rettype usehistory term field tool reldate mindate
         maxdate datetype retstart retmax sort seq_start seq_stop strand
         complexity report dbfrom cmd holding version linkname);
     for my $method (@METHODS) {
@@ -286,6 +286,7 @@ sub _initialize {
     }
     $self->{'_cookieindex'} = 0;
     $self->{'_cookiecount'} = 0;
+    $self->{'_authentication'} = [];
 }
 
 =head2 add_cookie
@@ -440,13 +441,16 @@ sub parse_response {
 sub get_response {
     my $self = shift;
     $self->_sleep; # institute delay policy
-    my $response = $self->_submit_request;
-    if (!$response->is_success) {
-        $self->throw(ref($self)." Request Error:".$response->as_string);
+    my $request = $self->_submit_request;
+	if ($self->authentication) {
+        $request->proxy_authorization_basic($self->authentication)
+    }
+    if (!$request->is_success) {
+        $self->throw(ref($self)." Request Error:".$request->as_string);
     }
     $self->reset_cookies if !($self->keep_cookies);
-    $self->parse_response($response);  # grab cookies and what not
-    return $response;
+    $self->parse_response($request);  # grab cookies and what not
+    return $request;
 }
 
 # not implemented yet
@@ -597,10 +601,10 @@ sub _eutil   {
 # _submit_request
 
  #Title   : _submit_request
- #Usage   : my $url = $self->get_request
+ #Usage   : my $url = $self->_submit_request
  #Function: builds request object based on set parameters
  #Returns : HTTP::Request
- #Args    : optional : Bio::DB::EUtilities cookie
+ #Args    : None
 
 #
 # as the name implies....
@@ -647,7 +651,7 @@ sub _submit_request {
 # Usage   : my $url = $self->_get_params
 # Function: builds parameter list for web request
 # Returns : hash of parameter-value paris
-# Args    : optional : Bio::DB::EUtilities cookie
+# Args    : None
 
 # these get sorted out in a hash originally but end up in an array to
 # deal with multiple id parameters (hash values would kill that)

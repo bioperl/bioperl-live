@@ -23,7 +23,7 @@ of a PSIBLAST report
 
    use Bio::Tools::BPpsilite;
 
-   open FH, "t/psiblastreport.out";
+   open my $FH, "t/psiblastreport.out";
    $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
 
    # determine number of iterations executed by psiblast
@@ -89,12 +89,10 @@ This software is provided "as is" without warranty of any kind.
 package Bio::Tools::BPlite::Iteration;
 
 use strict;
-use vars qw(@ISA);
-use Bio::Root::Root; # root object to inherit from
 use Bio::Tools::BPlite; #
 use Bio::Tools::BPlite::Sbjct;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;

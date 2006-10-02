@@ -78,10 +78,6 @@ web:
 
 Email sac@bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -94,13 +90,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Iteration::GenericIteration;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Search::Iteration::IterationI;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Iteration::IterationI);
+use base qw(Bio::Root::Root Bio::Search::Iteration::IterationI);
 
 =head2 new
 
@@ -130,9 +123,10 @@ use Bio::Search::Iteration::IterationI;
            -oldhits_not_below => array reference to hits that were found in a
                         previous iteration above threshold that and are still above
                         the inclusion threshold threshold.
-           
+
            -hit_factory => Bio::Factory::ObjectFactoryI capable of making
                         Bio::Search::Hit::HitI objects
+
 =cut
 
 sub new {

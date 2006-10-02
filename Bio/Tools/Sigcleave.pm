@@ -180,10 +180,9 @@ preceded by an underscore ("_").
 
 package Bio::Tools::Sigcleave;
 
-use Bio::Root::Root;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 use strict;
 use vars qw ($ID %WeightTable_euc  %WeightTable_pro );
 $ID  = 'Bio::Tools::Sigcleave';

@@ -1,5 +1,4 @@
 # $Id$
-# $Id$
 #
 # BioPerl module for Bio::DB::EUtilities
 #
@@ -10,8 +9,8 @@
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
-# 
-# Interfaces with new GenericWebDBI interface 
+#
+# Interfaces with new GenericWebDBI interface
 
 =head1 NAME
 
@@ -47,7 +46,7 @@ Any feedback is welcome.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the 
+User feedback is an integral part of the
 evolution of this and other Bioperl modules. Send
 your comments and suggestions preferably to one
 of the Bioperl mailing lists. Your participation
@@ -64,7 +63,7 @@ Bug reports can be submitted via the web.
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Email cjfields at uiuc dot edu
 
@@ -81,12 +80,10 @@ preceded with a _
 package Bio::DB::GenericWebDBI;
 use strict;
 use warnings;
-use vars qw(@ISA $MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
+use vars qw($MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
          $DEFAULT_RETURN_FORMAT $LAST_INVOCATION_TIME);
-use LWP::UserAgent;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root LWP::UserAgent);
+use base qw(Bio::Root::Root LWP::UserAgent);
 
 BEGIN {
     $MODVERSION = '0.8';
@@ -95,7 +92,7 @@ BEGIN {
                 'pipeline'  => 1,
                 );
     $DEFAULT_RETRIEVAL_TYPE = 'pipeline';
-    $DEFAULT_RETURN_FORMAT = 'text';    
+    $DEFAULT_RETURN_FORMAT = 'text';
     $LAST_INVOCATION_TIME = 0;
 }
 
@@ -121,11 +118,11 @@ sub new {
 =head2 url_base_address
 
  Title   : url_base_address
- Usage   : my $address = $self->url_base_address or 
+ Usage   : my $address = $self->url_base_address or
            $self->url_base_address($address)
  Function: Get/Set the base URL for the Web Database
- Returns : Base URL for the Web Database 
- Args    : $address - URL for the WebDatabase 
+ Returns : Base URL for the Web Database
+ Args    : $address - URL for the WebDatabase
 
 =cut
 
@@ -138,7 +135,7 @@ sub url_base_address {
 =head2 proxy
 
  Title   : proxy
- Usage   : $httpproxy = $db->proxy('http')  or 
+ Usage   : $httpproxy = $db->proxy('http')  or
            $db->proxy(['http','ftp'], 'http://myproxy' )
  Function: Get/Set a proxy for use of proxy
  Returns : a string indicating the proxy
@@ -152,9 +149,9 @@ sub url_base_address {
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
     return undef if ( !defined $protocol || !defined $proxy );
-    $self->authentication($username, $password)     
+    $self->authentication($username, $password)
     if ($username && $password);
-    return $self->proxy($protocol,$proxy);
+    return $self->SUPER::proxy($protocol,$proxy);
 }
 
 =head2 authentication
@@ -162,7 +159,7 @@ sub proxy {
  Title   : authentication
  Usage   : $db->authentication($user,$pass)
  Function: Get/Set authentication credentials
- Returns : Array of user/pass 
+ Returns : Array of user/pass
  Args    : Array or user/pass
 
 =cut
@@ -180,8 +177,8 @@ sub authentication{
  Title   : db
  Usage   : $db->db
  Function: Get/Set database parameter
- Returns : string 
- Args    : optional string 
+ Returns : string
+ Args    : optional string
 
 =cut
 
@@ -222,7 +219,7 @@ sub id {
  Usage   : $agent->retmode($mode)
  Function: Get/Set return mode for query (text, xml, html, asn.1, etc)
  Returns : string for return mode
- Args    : optional string 
+ Args    : optional string
 
 =cut
 
@@ -240,7 +237,7 @@ sub retmode {
            the private method _get_params
  Returns : HTTP::Response object
  Args    : none
- 
+
  This is implemented by the derived class
 
 =cut

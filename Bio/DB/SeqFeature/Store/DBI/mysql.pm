@@ -10,8 +10,8 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
   use Bio::DB::SeqFeature::Store;
 
   # Open the sequence database
-  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
-                                                 -dsn     => 'dbi:mysql:test');
+  my $db = Bio::DB::SeqFeature::Store->new(-adaptor => 'DBI::mysql',
+                                          -dsn     => 'dbi:mysql:test');
 
   # get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
@@ -91,7 +91,7 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
 
 Bio::DB::SeqFeature::Store::mysql is the Mysql adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
-instead use Bio::DB::SeqFeature::Store->new() to do so.
+instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
@@ -103,7 +103,7 @@ permission. In order to use "fast" loading, the user account must have
 "file" privileges.
 
 To establish a connection to the database, call
-Bio::DB::SeqFeature::Store->new(-adaptor=>'DBI::mysql',@more_args). The
+Bio::DB::SeqFeature::Store-E<gt>new(-adaptor=E<gt>'DBI::mysql',@more_args). The
 additional arguments are as follows:
 
   Argument name       Description
@@ -854,7 +854,8 @@ END
     push @results,[$name,$value,$score];
   }
   $sth->finish;
-  return sort {$b->[2]<=>$a->[2]} @results;
+  @results = sort {$b->[2]<=>$a->[2]} @results;
+  return @results;
 }
 
 sub _match_sql {
@@ -1238,7 +1239,7 @@ sub _insert_sequence {
   my $id = $self->_locationid($seqid);
   my $seqtable = $self->_sequence_table;
   my $sth = $self->_prepare(<<END);
-INSERT INTO $seqtable (id,offset,sequence) VALUES (?,?,?)
+REPLACE INTO $seqtable (id,offset,sequence) VALUES (?,?,?)
 END
   $sth->execute($id,$offset,$seq) or $self->throw($sth->errstr);
 }

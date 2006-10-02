@@ -12,7 +12,7 @@
 
 Bio::Assembly::IO::phrap - driver to load phrap.out files.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Building an input stream
     use Bio::Assembly::IO;
@@ -140,16 +140,14 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::IO::phrap;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
 use Bio::LocatableSeq;
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Assembly::IO);
+use base qw(Bio::Assembly::IO);
 
 =head2 next_assembly
 
@@ -291,7 +289,7 @@ sub next_assembly {
     return $Assembly;
 }
 
-=head2 write_assembly
+=head2 write_assembly (NOT IMPLEMENTED)
 
     Title   : write_assembly
     Usage   : $ass_io->write_assembly($assembly)
@@ -303,8 +301,7 @@ sub next_assembly {
 
 sub write_assemebly {
     my $self = shift;
-
-    $self->throw("Writing phrap.out files is not implemented yet! Sorry...");
+    $self->throw_not_implemented();   
 }
 
 1;

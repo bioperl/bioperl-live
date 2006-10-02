@@ -81,11 +81,9 @@ preceded with a _
 
 package Bio::DB::QueryI;
 use strict;
-use Bio::Root::RootI;
 
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 new
 

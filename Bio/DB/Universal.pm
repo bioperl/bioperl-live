@@ -84,8 +84,6 @@ web:
 
 Email birney@ebi.ac.uk
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -98,20 +96,17 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::DB::Universal;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::DB::RandomAccessI;
 
 use Bio::DB::GenBank;
 use Bio::DB::SwissProt;
 use Bio::DB::EMBL;
 
 
-@ISA = qw(Bio::DB::RandomAccessI Bio::Root::Root);
+use base qw(Bio::DB::RandomAccessI Bio::Root::Root);
 # new() can be inherited from Bio::Root::Root
 
 sub new {
@@ -244,4 +239,4 @@ sub use_database{
    $self->{'db_hash'}->{$name} = $database;
 }
 
-
+1;

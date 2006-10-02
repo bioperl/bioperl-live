@@ -3,14 +3,14 @@
 # AUTHOR  : Ewan Birney <birney@ebi.ac.uk>
 # CREATED : Feb 16 1999
 # REVISION: $Id$
-#            
+#
 # Copyright (c) 1997-9 bioperl, Ewan Birney. All Rights Reserved.
-#           This module is free software; you can redistribute it and/or 
+#           This module is free software; you can redistribute it and/or
 #           modify it under the same terms as Perl itself.
 #
 # _History_
 #
-# Ewan Birney <birney@ebi.ac.uk> developed the SeqIO 
+# Ewan Birney <birney@ebi.ac.uk> developed the SeqIO
 # schema and the first prototype modules.
 #
 # This code is based on his Bio::SeqIO::Fasta module with
@@ -43,13 +43,12 @@ file databases.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -70,7 +69,7 @@ Bug reports can be submitted via the web:
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. 
+The rest of the documentation details each of the object methods.
 Internal methods are usually preceded with a _
 
 =cut
@@ -80,20 +79,18 @@ Internal methods are usually preceded with a _
 
 package Bio::SeqIO::raw;
 use strict;
-use vars qw(@ISA);
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
   my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);    
+  $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
-			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq'));      
+			      (-verbose => $self->verbose(),
+			       -type => 'Bio::Seq'));
   }
 }
 
@@ -136,7 +133,7 @@ sub next_seq{
 sub write_seq {
    my ($self,@seq) = @_;
    foreach my $seq (@seq) {
-       $self->throw("Must provide a valid Bio::PrimarySeqI object") 
+       $self->throw("Must provide a valid Bio::PrimarySeqI object")
 	   unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
      $self->_print($seq->seq, "\n") or return;
    }
@@ -162,12 +159,12 @@ sub write_qual {
      unless ($_->isa("Bio::Seq::Quality")){
         warn("You cannot write raw qualities without supplying a Bio::Seq::Quality object! You passed a ", ref($_), "\n");
         next;
-     } 
+     }
      @qual = @{$_->qual};
      if(scalar(@qual) == 0) {
 	    $qual[0] = "\n";
      }
-     
+
      $self->_print (join " ", @qual,"\n") or return;
 
    }

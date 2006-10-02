@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler
+Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler - parse an InterPro XML file and persist the resulting terms to a Biosql database
 
 =head1 SYNOPSIS
 
@@ -63,8 +63,6 @@ Interal methods are usually preceded with a _
 
 package Bio::OntologyIO::Handlers::InterPro_BioSQL_Handler;
 use strict;
-use vars qw(@ISA);
-use Bio::OntologyIO::Handlers::BaseSAXHandler;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::Term;
 use Bio::Ontology::TermFactory;
@@ -73,7 +71,7 @@ use Bio::Ontology::Relationship;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Reference;
 
-@ISA = qw(Bio::OntologyIO::Handlers::BaseSAXHandler);
+use base qw(Bio::OntologyIO::Handlers::BaseSAXHandler);
 
 my $is_a_rel;
 my $count=0;

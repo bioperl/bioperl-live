@@ -53,10 +53,6 @@ web:
 
 Email jason-at-bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -69,10 +65,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AlignIO::mega;
-use vars qw(@ISA $MEGANAMELEN %VALID_TYPES $LINELEN $BLOCKLEN);
+use vars qw($MEGANAMELEN %VALID_TYPES $LINELEN $BLOCKLEN);
 use strict;
 
-use Bio::AlignIO;
 use Bio::SimpleAlign;
 use Bio::LocatableSeq;
 
@@ -82,7 +77,7 @@ BEGIN {
   $BLOCKLEN = 10;
   %VALID_TYPES =  map {$_, 1} qw( dna rna protein standard);
 }
-@ISA = qw(Bio::AlignIO );
+use base qw(Bio::AlignIO);
 
 
 =head2 next_aln

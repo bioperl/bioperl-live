@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-OMIMparser - parser for the OMIM database
+Bio::Phenotype::OMIM::OMIMparser - parser for the OMIM database
 
 =head1 SYNOPSIS
 
@@ -166,11 +166,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Phenotype::OMIM::OMIMparser;
 
-use vars qw( @ISA );
 use strict;
 
 use Bio::Root::IO;
-use Bio::Root::Root;
 use Bio::Species;
 use Bio::Annotation::Reference;
 use Bio::Map::CytoPosition;
@@ -178,7 +176,7 @@ use Bio::Phenotype::OMIM::OMIMentry;
 use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
 use Bio::Phenotype::Correlate;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 use constant DEFAULT_STATE               => 0;
@@ -701,8 +699,8 @@ sub _create_allelic_variant {
          $symbol = $symbol_mut_line;
     }
     
-    if ( ! defined( $description ) ) { die( "undef desc" ); }
-    if ( ! defined( $mutation ) )   { die( "undef mutation" ); }
+    if ( ! defined( $description ) ) { $self->throw("undef desc"); }
+    if ( ! defined( $mutation ) )   { $self->throw("undef mutation"); }
   
     
     my $allelic_variant = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new();

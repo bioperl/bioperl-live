@@ -87,14 +87,13 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::FeaturePair;
-use vars qw(@ISA $AUTOLOAD);
+use vars qw($AUTOLOAD);
 use strict;
 
 use Bio::SeqFeatureI;
-use Bio::SeqFeature::Generic;
 use Bio::Factory::ObjectFactory;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 =head2 new
 

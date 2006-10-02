@@ -91,12 +91,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Sim4::Exon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::SimilarityPair;
 
-@ISA = qw(Bio::SeqFeature::SimilarityPair);
+use base qw(Bio::SeqFeature::SimilarityPair);
 
 sub new {
     my ($class,@args) = @_;

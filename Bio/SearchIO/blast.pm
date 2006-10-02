@@ -129,7 +129,7 @@ package Bio::SearchIO::blast;
 
 use Bio::SearchIO::IteratedSearchResultEventBuilder;
 use strict;
-use vars qw(@ISA %MAPPING %MODEMAP
+use vars qw(%MAPPING %MODEMAP
   $DEFAULT_BLAST_WRITER_CLASS
   $MAX_HSP_OVERLAP
   $DEFAULT_SIGNIF
@@ -137,9 +137,8 @@ use vars qw(@ISA %MAPPING %MODEMAP
   $DEFAULTREPORTTYPE
 );
 
-use Bio::SearchIO;
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 BEGIN {
 
@@ -602,6 +601,11 @@ sub next_result {
         elsif (/Sequences producing significant alignments:/) {
             $self->debug("blast.pm: Processing NCBI-BLAST descriptions\n");
             $flavor = 'ncbi';
+            
+            # PSI-BLAST parsing needs to be fixed to specifically look
+            # for old vs new per iteration, as sorting based on duplication
+            # leads to bugs, see bug 1986
+            
             # The next line is not necessarily whitespace in psiblast reports.
             # Also note that we must look for the end of this section by testing
             # for a line with a leading >. Blank lines occur with this section
@@ -726,6 +730,8 @@ sub next_result {
         	}
 			$self->_pushback($_);
         }
+        
+        # move inside of a hit
         elsif (/^>\s*(\S+)\s*(.*)?/) {
             chomp;
 
@@ -764,6 +770,8 @@ sub next_result {
             );
  
             # add hit significance (from the hit table)
+            # this is where Bug 1986 goes astray
+            
             my $v = shift @hit_signifs;
             if ( defined $v ) {
                 $self->element(
@@ -1077,7 +1085,7 @@ sub next_result {
                 ( $queryframe, $hitframe ) = ( $1, $2 );
                 $hitframe =~ s/\/\s*//g;
             }
-            elsif ( $reporttype eq 'TBLASTN' ) {
+            elsif ( $reporttype eq 'TBLASTN' || $reporttype eq 'PSITBLASTN') {
                 ( $hitframe, $queryframe ) = ( $1, 0 );
             }
             elsif ( $reporttype eq 'BLASTX' || $reporttype eq 'RPS-BLAST(BLASTP)') {
@@ -1755,13 +1763,12 @@ sub next_result {
                         );
                     }
                     elsif ( !/^\s+$/ ) {
-                        $self->debug( "unmatched stat $_");
+                        #$self->debug( "unmatched stat $_");
                     }
                 }
                 $last = $_;
             }
-        }
-        elsif ( $self->in_element('hsp') ) {
+        } elsif ( $self->in_element('hsp') ) {
             $self->debug("blast.pm: Processing HSP\n");
             # let's read 3 lines at a time;
             # bl2seq hackiness... Not sure I like
@@ -1773,9 +1780,9 @@ sub next_result {
             );
             my $len;
             for ( my $i = 0 ; defined($_) && $i < 3 ; $i++ ) {
-                $self->debug("$i: $_") if $v;
-                if ( ( $i == 0 && /^\s+$/ )
-                    || /^\s*Lambda/i )
+                # $self->debug("$i: $_") if $v;
+                if ( ( $i == 0 && /^\s+$/) || 
+		     /^\s*(?:Lambda|Minus|Plus|Score)/i )
                 {
                     $self->_pushback($_) if defined $_;
                     $self->end_element( { 'Name' => 'Hsp' } );
@@ -1785,6 +1792,7 @@ sub next_result {
                 if (/^((Query|Sbjct):?\s+(\-?\d+)\s*)(\S+)\s+(\-?\d+)/) {
                     my ( $full, $type, $start, $str, $end ) =
                       ( $1, $2, $3, $4, $5 );
+
                     if ( $str eq '-' ) {
                         $i = 3 if $type eq 'Sbjct';
                     }
@@ -1822,7 +1830,7 @@ sub next_result {
             );
         }
         else {
-            $self->debug("blast.pm: unrecognized line $_");
+            #$self->debug("blast.pm: unrecognized line $_");
         }
     }
 
@@ -1936,10 +1944,10 @@ sub start_element {
             $self->{'_handler_rc'} = $handler->$func( $data->{'Attributes'} );
         }
         else {
-            $self->debug( # changed 4/29/2006 to play nice with other event handlers
-                "Bio::SearchIO::InternalParserError ".
-                "\nCan't handle elements of type \'$type.\'"
-            );
+            #$self->debug( # changed 4/29/2006 to play nice with other event handlers
+            #    "Bio::SearchIO::InternalParserError ".
+            #    "\nCan't handle elements of type \'$type.\'"
+            #);
         }
         unshift @{ $self->{'_elements'} }, $type;
         if ( $type eq 'result' ) {
@@ -2051,7 +2059,7 @@ sub end_element {
         }
     }
     else {
-        $self->debug("blast.pm: unknown nm $nm, ignoring\n");
+        #$self->debug("blast.pm: unknown nm $nm, ignoring\n");
     }
     $self->{'_last_data'} = '';    # remove read data if we are at
                                    # end of an element
@@ -2180,7 +2188,7 @@ sub start_document {
 sub end_document {
     my ( $self, @args ) = @_;
 
-    $self->debug("blast.pm: end_document\n");
+    #$self->debug("blast.pm: end_document\n");
     return $self->{'_result'};
 }
 

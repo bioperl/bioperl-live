@@ -66,12 +66,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::stockholm;
-use vars qw(@ISA);
 use strict;
 
-use Bio::AlignIO;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 next_aln
 
@@ -115,7 +113,7 @@ sub next_aln {
 	# of several concatenated Stockholm-formatted files.  The following
 	# line makes it possible to parse it without this module trying to
 	# read the whole file into memory.  Andreas Kähäri 10/3/2003.
-	last if $entry =~ /^\/\//;
+	last if $entry =~ m{^//};
 
 	# Extra bonus:  Get the name of the alignment.
 	# Andreas Kähäri 10/3/2003.
@@ -138,7 +136,7 @@ sub next_aln {
 
     # ok... now we can make the sequences
     for my $name ( @c2name ) {
-	if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
+	if( $name =~ m{(\S+)/(\d+)-(\d+)} ) {
 	    $seqname = $1;
 	    $start = $2;
 	    $end = $3;
@@ -180,8 +178,7 @@ sub next_aln {
 
 sub write_aln {
     my ($self,@aln) = @_;
-
-    $self->throw("Sorry: stockholm-format output, not yet implemented! /n");
+    $self->throw_not_implemented();
 }
 
 1;

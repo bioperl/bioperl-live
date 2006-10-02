@@ -57,12 +57,11 @@ The rest of the documentation details each of the object methods. Internal metho
 #'
 package Bio::Factory::DriverFactory;
 use strict;
-use Bio::Root::Root;
 use Bio::Root::IO;
 
-use vars qw(@ISA %DRIVERS);
+use vars qw(%DRIVERS);
 
-@ISA = qw(Bio::Root::Root); 
+use base qw(Bio::Root::Root);
 
 BEGIN {
     %DRIVERS = ();

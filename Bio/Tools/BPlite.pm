@@ -173,15 +173,11 @@ This software is provided "as is" without warranty of any kind.
 package Bio::Tools::BPlite;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::Tools::BPlite::Sbjct; # we want to use Sbjct
-use Bio::SeqAnalysisParserI;
 use Symbol;
 
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
 # new comes from a RootI now
 
@@ -198,7 +194,8 @@ use Symbol;
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
-
+    $self->warn("Use of Bio::Tools::BPlite is deprecated".
+                   "Use Bio::SearchIO classes instead");
   # initialize IO
   $self->_initialize_io(@args);
 

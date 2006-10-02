@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::extending_arrow;
 
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::anchored_arrow;
-@ISA = 'Bio::Graphics::Glyph::anchored_arrow';
+use base qw(Bio::Graphics::Glyph::anchored_arrow);
 
 =head1 NAME
 
@@ -75,3 +73,5 @@ it under the same terms as Perl itself.  See DISCLAIMER.txt for
 disclaimers of warranty.
 
 =cut
+
+1;

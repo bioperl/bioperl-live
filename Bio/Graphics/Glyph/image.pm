@@ -41,7 +41,7 @@ sub get_image {
 		: $format eq 'image/gif'  ? GD::Image->newFromGifData($image)
 		: $format eq 'image/gd'   ? GD::Image->newFromGdData($image)
 		: $format eq 'image/gd2'  ? GD::Image->newFromGd2Data($image)
-		: die "This module cannot handle images of type $format";
+		: $self->throw("This module cannot handle images of type $format");
   return $gd;
 }
 
@@ -59,7 +59,7 @@ sub _guess_format {
 
 sub image_path {
   my $self = shift;
-  my $feature  = $self->feature  or die "no feature!";
+  my $feature  = $self->feature  or $self->throw("no feature!");
   my $dirname  = $self->image_dir;
   my $basename = $self->option('image');
 
@@ -85,13 +85,13 @@ sub image_data {
     if ($response->is_success) {
       return ($response->content_type,$response->content);
     } else {
-      die $response->status_line;
+      $self->throw($response->status_line);
     }
 
 
   } else {
     my $content_type = $self->_guess_format($path);
-    open F,$path or die "Can't open $path: $!";
+    open F,$path or $self->throw("Can't open $path: $!");
     binmode F;
     my $data;
     $data .= $_ while read(F,$_,1024);

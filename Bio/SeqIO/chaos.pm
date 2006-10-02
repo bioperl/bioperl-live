@@ -72,7 +72,7 @@ You can treat the resulting chaos-xml stream as stag XML objects;
                     });
     foreach my $feature (@features_in_range) {
       my $featureloc = $feature->get_featureloc;
-      printf "%s [%d->%d on %s]\n", 
+      printf "%s [%d->%d on %s]\n",
         $feature->sget_name,
         $featureloc->sget_nbeg,
         $featureloc->sget_end,
@@ -89,13 +89,12 @@ Downloadable from CPAN; see also http://stag.sourceforge.net
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -118,10 +117,8 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::SeqIO::chaos;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
@@ -134,19 +131,19 @@ use Bio::SeqFeature::Tools::FeatureNamer;
 use Bio::SeqFeature::Tools::IDHandler;
 use Data::Stag qw(:all);
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
-our $TM = 'Bio::SeqFeature::Tools::TypeMapper'; 
-our $FNAMER = 'Bio::SeqFeature::Tools::FeatureNamer'; 
-our $IDH = 'Bio::SeqFeature::Tools::IDHandler'; 
+our $TM = 'Bio::SeqFeature::Tools::TypeMapper';
+our $FNAMER = 'Bio::SeqFeature::Tools::FeatureNamer';
+our $IDH = 'Bio::SeqFeature::Tools::IDHandler';
 
 sub _initialize {
     my($self,@args) = @_;
-    
-    $self->SUPER::_initialize(@args); 
+
+    $self->SUPER::_initialize(@args);
     if( ! defined $self->sequence_factory ) {
 	$self->sequence_factory(new Bio::Seq::SeqFactory
-				(-verbose => $self->verbose(), 
+				(-verbose => $self->verbose(),
 				 -type => 'Bio::Seq::RichSeq'));
     }
     my $wclass = $self->default_handler_class;
@@ -192,14 +189,14 @@ sub end_of_data {
 
 sub default_handler_class {
     return Data::Stag->makehandler;
-} 
+}
 
 =head2 context_namespace
 
  Title   : context_namespace
  Usage   : $obj->context_namespace($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of context_namespace (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -229,7 +226,7 @@ sub next_seq {
     my ($self,@args) = @_;
     my $seq = $self->sequence_factory->create
 	(
-         #         '-verbose' =>$self->verbose(), 
+         #         '-verbose' =>$self->verbose(),
          #	 %params,
          #	 -seq => $seqc,
          #	 -annotation => $annotation,
@@ -258,11 +255,11 @@ sub handler {
 
 sub write_seq {
     my ($self,$seq) = @_;
-    
+
     if( !defined $seq ) {
 	$self->throw("Attempting to write with no seq!");
     }
-    
+
     if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
 	$self->warn(" $seq is not a SeqI compliant module. Attempting to dump, but may fail!");
     }
@@ -275,7 +272,7 @@ sub write_seq {
 
     my $seq_chaos_feature_id;
 
-    # different seq objects have different version accessors - 
+    # different seq objects have different version accessors -
     # weird but true
     my $version = $seq->can('seq_version') ? $seq->seq_version : $seq->version;
 
@@ -340,7 +337,7 @@ sub write_seq {
     }
 
     my $uname = $self->make_uniquename($self->genus_species, $accversion);
-    
+
     # data structure representing the core sequence for this record
     my $seqnode =
       Data::Stag->new(feature=>[
@@ -350,7 +347,7 @@ sub write_seq {
 				[uniquename=>$uname],
                                 [residues=>$seq->seq],
                                ]);
-    
+
     # soft properties
     my %prop = ();
 
@@ -362,14 +359,14 @@ sub write_seq {
     $prop{dates} = join("; ", $seq->get_dates) if $seq->can("get_dates");
 
     local($^W) = 0;   # supressing warnings about uninitialized fields.
-    
+
     # Reference lines
     my $count = 1;
     foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
         # TODO
     }
     # Comment lines
-    
+
     $seqnode->add_featureprop([[type=>'haplotype'],[value=>$haplotype]])
       if $haplotype;
     foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
@@ -395,9 +392,9 @@ sub write_seq {
 	$seqnode->add($_->name, $_->data)
 	  foreach ($snode->get_featureprop,
 		   $snode->get_feature_dbxref);
-	
+
     }
-    
+
 
     # throw the writer an event
     $w->ev(@$seqnode);
@@ -526,7 +523,7 @@ sub write_sf {
                     );
     }
     my $feature_id = $self->get_chaos_feature_id($sf);
-    
+
     delete $props{id} if $props{id};
     # do something with genbank stuff
     my $pid = $props{'protein_id'};
@@ -535,7 +532,7 @@ sub write_sf {
     if ($pid) {
 	push(@xrefs, "protein:$pid->[0]");
     }
-    
+
     my $org = $props{organism} ? $props{organism}->[0] : undef;
     if (!$org && $self->organismstr) {
         $org = $self->organismstr;
@@ -554,7 +551,7 @@ sub write_sf {
                  $name ? ([name=>$name]) : (),
                  [uniquename=>$uname],
                  [type=>$type],
-		 $tn ? ([residues=>$tn->[0]], 
+		 $tn ? ([residues=>$tn->[0]],
 			[seqlen=>length($tn->[0])],
 			#####[md5checksum=>md5checksum($tn->[0])],
 		       ) :(),
@@ -583,7 +580,7 @@ sub write_sf {
 	# almost all the time, all features are on same strand
 	my @sfs_on_main_strand = grep {$_->strand == $strand} @subsfs;
 	my @sfs_on_other_strand = grep {$_->strand != $strand} @subsfs;
-	
+
 	sort_by_strand($strand, \@sfs_on_main_strand);
 	sort_by_strand(0-$strand, \@sfs_on_other_strand);
 	@subsfs = (@sfs_on_main_strand, @sfs_on_other_strand);
@@ -591,7 +588,7 @@ sub write_sf {
 	foreach my $ssf (@subsfs) {
 	    my $ssfid = $self->write_sf($ssf, $sid);
 	    #my $rtype = 'part_of';
-            my $rtype = 
+            my $rtype =
               $TM->get_relationship_type_by_parent_child($sf,$ssf);
 	    if ($ssf->primary_tag eq 'CDS') {
 		$rtype = 'derives_from';
@@ -611,7 +608,7 @@ sub write_sf {
         foreach my $parent_id (@parent_ids) {
             my $ptype =
               $self->_type_by_id_h->{$parent_id} || 'unknown';
-            my $rtype = 
+            my $rtype =
               $TM->get_relationship_type_by_parent_child($ptype,$type);
 	    $w->ev(feature_relationship=>[
 					  [subject_id=>$feature_id],
@@ -667,7 +664,7 @@ sub get_chaos_feature_id {
                 $id = $IDH->generate_unique_persistent_id($ob);
             };
             if ($@) {
-                print STDERR $@;
+                $self->warn($@);
                 $id = "$ob"; # last resort - use memory pointer ref
                 # will not be persistent, but will be unique
             }
@@ -692,7 +689,7 @@ sub get_chaos_feature_id {
 sub bp2ib {
     my $self = shift;
     my $loc = shift;
-    my ($s, $e, $str) = 
+    my ($s, $e, $str) =
       ref($loc) eq "ARRAY" ? (@$loc) : ($loc->start, $loc->end, $loc->strand);
     $s--;
     if ($str < 0) {

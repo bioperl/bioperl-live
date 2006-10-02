@@ -1,5 +1,5 @@
 # $Id$
-# Bio::Tools::Alignment::Consed.pm
+# Bio::Tools::Alignment::Consed
 #
 # Cared for by Chad Matsalla
 #
@@ -33,10 +33,9 @@ Bio::Tools::Alignment::Consed - A module to work with objects from consed .ace f
 
 =head1 DESCRIPTION
 
-Bio::Tools::Alignment::Consed provides methods and objects to deal
-with the output from the Consed package of programs. Specifically,
-Bio::Tools::Alignment::Consed takes in the name of in .ace file and
-provides objects for the results.
+L<Bio::Tools::Alignment::Consed> provides methods and objects to deal
+with the output from the Consed software suite. Specifically,
+takes an C<.ace> file and provides objects for the results.
 
 A word about doublets: This module was written to accomodate a large
 EST sequencing operation. In this case, EST's were sequenced from the
@@ -51,16 +50,16 @@ clone chad1.
 
 Doublets are good!
 
-This module parses .ace and related files. A detailed list of methods
+This module parses C<.ace> and related files. A detailed list of methods
 can be found at the end of this document.
 
 I wrote a detailed rationale for design that may explain the reasons
 why some things were done the way they were done. That document is
 beyond the scope of this pod and can probably be found in the
 directory from which this module was 'made' or at
-http://www.dieselwurks.com/bioinformatics/consedpm_documentation.pdf
+L<http://www.dieselwurks.com/bioinformatics/consedpm_documentation.pdf>.
 
-Note that the pod in that document might be old but the original
+Note that the POD in that document might be old but the original
 rationale still stands.
 
 =head1 FEEDBACK
@@ -84,7 +83,7 @@ web:
 
 =head1 AUTHOR - Chad Matsalla
 
-chad-at-dieselwurks.com
+Email chad-at-dieselwurks.com
 
 =head1 APPENDIX
 
@@ -98,20 +97,16 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Alignment::Consed;
 
 use strict;
-use vars qw(@ISA $Contigs %DEFAULTS);
+
 use FileHandle;
 use Dumpvalue qw(dumpValue);
 use Bio::Tools::Alignment::Trim;
-use Bio::Root::Root;
-use Bio::Root::IO;
+use File::Spec;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
-
-BEGIN {
-    %DEFAULTS = ( 'f_designator' => 'f',
+our %DEFAULTS = ( 'f_designator' => 'f',
 		  'r_designator' => 'r');
-}
 
 =head2 new()
 
@@ -137,12 +132,17 @@ sub new {
     my $self = $class->SUPER::new(%args);
 
     $self->{'filename'} = $args{'-acefile'};
-	# this is special to UNIX and should probably use catfile
-    if (!($self->{'filename'} =~ /\//)) { 
-	$self->{'filename'} = "./".$self->{'filename'}; 
-    } 
-    $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;
-    $self->{'path'} = $1;
+
+    # this is special to UNIX and should probably use catfile : FIXME/TODO
+#    if (!($self->{'filename'} =~ m{/})) { 
+#	$self->{'filename'} = "./".$self->{'filename'}; 
+#    } 
+#    $self->{'filename'} =~ m/(.*\/)(.*)ace.*$/;
+#    $self->{'path'} = $1;
+
+    # this is more generic and should work on most systems   
+    (undef, $self->{'path'}, undef) = File::Spec->splitpath($self->{'filename'});
+
     $self->_initialize_io('-file'=>$self->{'filename'});
     $self->{'o_trim'} = new Bio::Tools::Alignment::Trim(-verbose => $self->verbose());
     $self->set_forward_designator($DEFAULTS{'f_designator'});
@@ -224,17 +224,17 @@ sub count_sequences_with_grep {
     # Tom Christiansen's 'tcgrep'
     # http://www.cpan.org/modules/by-authors/id/TOMC/scripts/tcgrep.gz
 
-    open(FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
+    open(my $FILE, $self->{'filename'}) or do { $self->warn("cannot open file ".$self->{'filename'}. " for grepping"); return}; 
     my $counter =0;
-    while(<FILE>) { $counter++ if(/^AF/); }
+    while(<$FILE>) { $counter++ if(/^AF/); }
 
-    close FILE;
-    opendir(SINGLETS,$self->{'path'});
-    foreach my $f ( readdir(SINGLETS) ) {
+    close $FILE;
+    opendir(my $SINGLETS,$self->{'path'});
+    foreach my $f ( readdir($SINGLETS) ) {
 	next unless ($f =~ /\.singlets$/); 
-	open(FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
-	while(<FILE>) { $counter++ if(/^>/) }
-	close FILE;
+	open(my $FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
+	while(<$FILE>) { $counter++ if(/^>/) }
+	close $FILE;
     }
     return $counter;
 }
@@ -271,7 +271,8 @@ in the Consed acefile they are simply Contig1, Contig2, ...
 
 sub get_contigs {
     my ($self,$contig) = @_;
-    return sort keys %{$self->{'contigs'}};
+    my @contigs = sort keys %{$self->{'contigs'}};
+    return @contigs;
 }
 
 =head2 get_class($contig_keyname)
@@ -370,14 +371,13 @@ sub freeze_hash {
         my %contigs = %{$self->{'contigs'}};
         my $frozen = freeze(%contigs);
         umask 0001;
-        open (FREEZE,">$filename") or do {
+        open (my $FREEZE,">$filename") or do {
             $self->warn( "Bio::Tools::Alignment::Consed could not ".
                          "freeze the contig hash because the file ".
                          "($filename) could not be opened: $!\n");
             return 1;
         };
-        print FREEZE $frozen;
-        close FREEZE;
+        print $FREEZE $frozen;
         return 0;
     }
 }
@@ -1833,13 +1833,5 @@ sub show_missing_sequence() {
 }
 
 
-# Autoload methods go after =cut, and are processed by the autosplit program.
-
 1;
-__END__
 
-=head1 SEE ALSO
-
-perl(1).
-
-=cut

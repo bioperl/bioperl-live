@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::transfac - PSM transfac parser
+Bio::Matrix::PSM::IO::transfac - PSM transfac parser
 
 =head1 SYNOPSIS
 
@@ -44,16 +44,13 @@ Email skirov@utk.edu
 # Let the code begin...
 package Bio::Matrix::PSM::IO::transfac;
 use Bio::Matrix::PSM::Psm;
-use Bio::Matrix::PSM::IO;
-use Bio::Matrix::PSM::PsmHeader;
 use Bio::Root::Root;
 use Bio::Annotation::Reference;
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
-use vars qw(@ISA);
 use strict;
 
-@ISA=qw(Bio::Matrix::PSM::PsmHeader  Bio::Matrix::PSM::IO);
+use base qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 
 =head2 new
 
@@ -78,7 +75,7 @@ sub new {
     do {
 	$line=$self->_readline;
 	chomp $line;
-	push @{$self->{unstructured}},$line if (length($line)>2); } until ($line =~ /^\/\//) || (!defined($line)); #Unstructured header
+	push @{$self->{unstructured}},$line if (length($line)>2); } until ($line =~ m{^//}) || (!defined($line)); #Unstructured header
     $self->_initialize;
     return $self;
 }
@@ -128,7 +125,7 @@ sub next_psm {
     my $ref=_parse_ref($self);
     push @refs,$ref
   }
-	last if ($line=~/^\/\//);
+	last if ($line=~m{^//});
     }
     # We have the frequencies, let's create a SiteMatrix object
     my %matrix = &_make_matrix($self,\@a,\@c,\@g,\@t,$id, $accn);

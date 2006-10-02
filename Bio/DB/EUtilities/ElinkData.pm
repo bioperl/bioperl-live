@@ -18,7 +18,11 @@ Bio::DB::EUtilities::ElinkData
 
 =head1 SYNOPSIS
 
+*** Give standard usage here
+
 =head1 DESCRIPTION
+
+*** Describe the object here
 
 =head1 FEEDBACK
 
@@ -32,7 +36,7 @@ is much appreciated.
 
   bioperl-l@lists.open-bio.org               - General discussion
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
-  
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to
@@ -59,11 +63,9 @@ package Bio::DB::EUtilities::ElinkData;
 use strict;
 use warnings;
 
-use Bio::Root::Root;
-use Data::Dumper;
-use vars '@ISA';
+#use Data::Dumper;
 
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;
@@ -130,7 +132,7 @@ sub _add_set {
                        'DbTo'     => $dbto,
                        'Id'       => \@ids,
                       };
-        $self->debug('Linkset:',Dumper($linkset));
+        #$self->debug('Linkset:',Dumper($linkset));
         push @{ $self->{'_linksetdb'}}, $linkset;
     }
     return 1; # good linkset

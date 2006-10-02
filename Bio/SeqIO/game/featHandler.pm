@@ -58,15 +58,14 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::game::featHandler;
 
-use Bio::SeqIO::game::gameSubs;
 use Bio::SeqFeature::Generic;
 use Bio::Location::Split;
 use Data::Dumper;
 use strict;
 
-use vars qw { @ISA };                                                                                
+use vars qw {};                                                                                
 
-@ISA = qw { Bio::SeqIO::game::gameSubs };
+use base qw(Bio::SeqIO::game::gameSubs);
 
 =head2 new
 

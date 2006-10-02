@@ -59,8 +59,6 @@ web:
 
 Email jason-at-bioperl.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Lincoln Stein, lstein-at-cshl.org
@@ -77,14 +75,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::PositionI;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::EntityI;
 use Bio::Map::PositionHandler;
-use Bio::RangeI;
 use Scalar::Util qw(looks_like_number);
 
-@ISA = qw(Bio::Map::EntityI Bio::RangeI);
+use base qw(Bio::Map::EntityI Bio::RangeI);
 
 =head2 EntityI methods
 
@@ -249,13 +244,13 @@ sub relative {
             returned by start() will be the same as the value you set start()
             to. When absolute is on, co-ordinates are converted to be relative
             to the start of the map.
-            
+
             So if relative() currently points to a Relative object describing
             "relative to another position which is 100 bp from the start of
             the map", this Position's start() had been set to 50 and absolute()
             returns 1, $position->start() will return 150. If absolute() returns
             0 in the same situation, $position->start() would return 50.
-            
+
   Returns : boolean (default 0)
   Args    : none to get, OR
             boolean to set
@@ -781,7 +776,10 @@ sub disconnected_ranges {
         }
     }
     
-    @outranges = sort { $a->sortable <=> $b->sortable } @outranges;
+    @outranges = map { $_->[1] }
+                 sort { $a->[0] <=> $b->[0] }
+                 map { [$_->sortable, $_] }
+                 @outranges;
     
     return @outranges;
 }

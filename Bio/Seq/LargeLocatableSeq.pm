@@ -70,12 +70,6 @@ the web:
 
 Email avilella-AT-gmail-DOT-com
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -87,14 +81,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Seq::LargeLocatableSeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD);
 use strict;
 
-use Bio::Seq::LargePrimarySeq;
-use Bio::LocatableSeq;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Seq::LargePrimarySeq Bio::LocatableSeq Bio::Root::IO);
+use base qw(Bio::Seq::LargePrimarySeq Bio::LocatableSeq Bio::Root::IO);
 
 
 =head2 new

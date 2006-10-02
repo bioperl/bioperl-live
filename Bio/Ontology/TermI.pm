@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-TermI - interface for ontology terms
+Bio::Ontology::TermI - interface for ontology terms
 
 =head1 SYNOPSIS
 
@@ -89,11 +88,9 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::TermI;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 
 

@@ -67,13 +67,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::MapI;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::EntityI;
-use Bio::AnnotatableI;
 use Bio::Map::PositionHandler;
 
-@ISA = qw(Bio::Map::EntityI Bio::AnnotatableI);
+use base qw(Bio::Map::EntityI Bio::AnnotatableI);
 
 =head2 EntityI methods
 
@@ -123,7 +120,12 @@ sub get_position_handler {
 sub get_positions {
     my ($self, $mappable) = @_;
 	my @positions = $self->get_position_handler->get_positions($mappable);
-	return sort { $a->sortable <=> $b->sortable } @positions;
+    # precompute sortable for effieciency and to avoid bugs
+    @positions = map { $_->[1] }
+                 sort { $a->[0] <=> $b->[0] }
+                 map { [$_->sortable, $_] }
+                 @positions;
+    return @positions;
 }
 
 =head2 each_position

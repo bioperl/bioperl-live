@@ -301,17 +301,13 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Root::IO;
-use Bio::Factory::SequenceStreamI;
 use Bio::Factory::FTLocationFactory;
 use Bio::Seq::SeqBuilder;
 use Bio::Tools::GuessSeqFormat;
 use Symbol();
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
 sub BEGIN {
     eval { require Bio::SeqIO::staden::read; };

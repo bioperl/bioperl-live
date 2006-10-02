@@ -69,8 +69,6 @@ web:
 
 Email birney@ebi.ac.uk
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -83,15 +81,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Seq::RichSeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::Seq;
-use Bio::Seq::RichSeqI;
 
-@ISA = qw(Bio::Seq Bio::Seq::RichSeqI);
+use base qw(Bio::Seq Bio::Seq::RichSeqI);
 
 
 =head2 new

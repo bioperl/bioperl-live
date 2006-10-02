@@ -85,11 +85,10 @@ This software is provided "as is" without warranty of any kind.
 
 package Bio::Biblio::BiblioBase;
 use strict;
-use vars qw(@ISA $AUTOLOAD);
+use vars qw($AUTOLOAD);
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # these methods should not be called here;
 # they should be implemented by a subclass

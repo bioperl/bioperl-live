@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-PhenotypeI - An interface for classes modeling phenotypes
+Bio::Phenotype::PhenotypeI - An interface for classes modeling phenotypes
 
 =head1 SYNOPSIS
 
@@ -112,9 +112,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Phenotype::PhenotypeI;
-use vars qw( @ISA );
-use Bio::Root::RootI;
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 
 

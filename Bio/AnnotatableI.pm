@@ -57,10 +57,6 @@ web:
  Hilmar Lapp E<lt>hlapp@gmx.netE<gt>
  Allen Day E<lt>allenday@ucla.eduE<gt>
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -73,10 +69,8 @@ Internal methods are usually preceded with a _
 
 
 package Bio::AnnotatableI;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::RootI;
 
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
@@ -105,7 +99,7 @@ our %tag2text = (
 
 );
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 annotation
 
@@ -138,7 +132,7 @@ B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
 
 =cut
 
-=head2 has_tag()
+=head2 has_tag
 
  Usage   : $count = $obj->has_tag($tag)
  Function: returns the number of annotations corresponding to $tag
@@ -146,7 +140,7 @@ B<DEPRECATED>: DO NOT USE THESE FOR FUTURE DEVELOPMENT.
  Args    : tag name
  Note    : DEPRECATED
 
-Use L</get_Annotations()> instead.
+Use L</get_Annotations> instead.
 
 =cut
 
@@ -158,7 +152,7 @@ sub has_tag {
   return scalar($self->annotation->get_Annotations($tag));
 }
 
-=head2 add_tag_value()
+=head2 add_tag_value
 
  Usage   : See add_Annotation
  Function:
@@ -190,7 +184,7 @@ sub add_tag_value {
 }
 
 
-=head2 get_Annotations()
+=head2 get_Annotations
 
  Usage   : my $parent   = $obj->get_Annotations('Parent');
            my @parents = $obj->get_Annotations('Parent');
@@ -228,7 +222,7 @@ sub get_Annotations {
     }
 }
 
-=head2 get_tag_values()
+=head2 get_tag_values
 
  Usage   : @annotations = $obj->get_tag_values($tag)
  Function: returns annotations corresponding to $tag
@@ -236,7 +230,7 @@ sub get_Annotations {
  Args    : tag name
  Note    : DEPRECATED
 
-This method is essentially L</get_Annotations()>, use it instead.
+This method is essentially L</get_Annotations>, use it instead.
 
 =cut
 
@@ -260,7 +254,7 @@ sub get_tag_values {
     return map { $_->$slot } $self->annotation->get_Annotations($tag);
 }
 
-=head2 get_tagset_values()
+=head2 get_tagset_values
 
  Usage   : @annotations = $obj->get_tagset_values($tag1,$tag2)
  Function: returns annotations corresponding to a list of tags.
@@ -288,7 +282,7 @@ sub get_tagset_values {
   return @r;
 }
 
-=head2 get_all_tags()
+=head2 get_all_tags
 
  Usage   : @tags = $obj->get_all_tags()
  Function: returns a list of annotation tag names.
@@ -309,7 +303,7 @@ sub get_all_tags {
   return $self->annotation->get_all_annotation_keys(@args);
 }
 
-=head2 remove_tag()
+=head2 remove_tag
 
  Usage   : See remove_Annotations().
  Function:

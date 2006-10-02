@@ -1,7 +1,6 @@
-#
 # $Id$
 #
-# BioPerl module for Bio::Index::Abstract
+# BioPerl module for Bio::Index::Swissprot
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -90,7 +89,7 @@ the web:
 
 =head1 AUTHOR - Ewan Birney
 
-Also lorenz@ist.org, osborne1@optonline.net
+Also lorenz@ist.org, bosborne at alum.mit.edu
 
 =head1 APPENDIX
 
@@ -103,13 +102,11 @@ Internal methods are usually preceded with a _
 
 package Bio::Index::Swissprot;
 
-use vars qw( @ISA);
-use strict qw(vars);
+use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 sub _type_stamp {
 	return '__Swissprot_FLAT__'; # What kind of index are we?
@@ -141,24 +138,24 @@ sub _index_file {
 
 	my $id_parser = $self->id_parser;
 
-	open SWISSPROT,$file or $self->throw("Can't read file: $file");
+	open my $SWISSPROT,'<',$file or $self->throw("Can't read file: $file");
     
-    my %done_ids;
-	while (<SWISSPROT>) {
+        my %done_ids;
+	while (<$SWISSPROT>) {
 		if (/^ID\s+\S+/) {
-			$begin = tell(SWISSPROT) - length( $_ );
+			$begin = tell($SWISSPROT) - length( $_ );
 		}
 		for my $id (&$id_parser($_)) {
-            next if exists $done_ids{$id};
-			$self->add_record($id, $i, $begin) if $id;
-            $done_ids{$id} = 1;
+                        next if exists $done_ids{$id};
+  			$self->add_record($id, $i, $begin) if $id;
+                        $done_ids{$id} = 1;
 		}
-        if (/\/\//) {
+        if (m{//}) {
             %done_ids = ();
         }
 	}
-	close SWISSPROT;
-	1;
+	close $SWISSPROT;
+	return 1;
 }
 
 =head2 id_parser
@@ -201,12 +198,10 @@ sub default_id_parser {
 	my $line = shift;
 	if ($line =~ /^ID\s*(\S+)/) {
 		return $1;
-	} elsif ($line =~ /^AC\s+([A-Z0-9]+)/) {
+	} 
+	elsif ($line =~ /^AC\s+([A-Z0-9]+)/) {
 		return $1;
 	}
-	#else {
-		#return;
-	#}
 }
 
 =head2 _file_format
@@ -221,8 +216,7 @@ sub default_id_parser {
 
 =cut
 
-sub _file_format{
-   my ($self,@args) = @_;
+sub _file_format {
    return 'swiss';
 }
 

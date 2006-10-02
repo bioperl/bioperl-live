@@ -67,20 +67,14 @@ with an underscore _.
 package Bio::Biblio::IO::medline2ref;
 
 use strict;
-use vars qw(@ISA $Revision);
 
-use Bio::Root::Root;
 use Bio::Biblio::MedlineJournal;
 use Bio::Biblio::MedlineBook;
 use Bio::Biblio::Provider;
 use Bio::Biblio::Person;
 use Bio::Biblio::Organisation;
 
-@ISA = qw(Bio::Root::Root);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
+use base qw(Bio::Root::Root);
 
 # -----------------------------------------------------------------------------
 sub new {

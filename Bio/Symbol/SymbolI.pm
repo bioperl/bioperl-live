@@ -58,10 +58,6 @@ web:
 
 Email jason@bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -75,9 +71,7 @@ Internal methods are usually preceded with a _
 
 package Bio::Symbol::SymbolI;
 use strict;
-use Bio::Root::RootI;
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 Bio::Symbol::SymbolI interface methods
 

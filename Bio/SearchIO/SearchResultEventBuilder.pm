@@ -63,14 +63,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::SearchResultEventBuilder;
-use vars qw(@ISA %KNOWNEVENTS);
+use vars qw(%KNOWNEVENTS);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SearchIO::EventHandlerI;
 use Bio::Factory::ObjectFactory;
 
-@ISA = qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
+use base qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
 
 =head2 new
 

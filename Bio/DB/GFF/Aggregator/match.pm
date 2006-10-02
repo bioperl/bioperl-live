@@ -32,10 +32,8 @@ Also see the "alignment" aggregator.
 package Bio::DB::GFF::Aggregator::match;
 
 use strict;
-use Bio::DB::GFF::Aggregator;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 =head2 method
 

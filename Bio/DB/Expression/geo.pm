@@ -1,31 +1,37 @@
 =head1 NAME
 
-Bio::DB::Expression::geo - DESCRIPTION of Class
+Bio::DB::Expression::geo - *** DESCRIPTION of Class
 
 =head1 SYNOPSIS
 
-Give standard usage here
+*** Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the object here
+*** Describe the object here
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to the
+Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
 =head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 
 Allen Day E<lt>allenday@ucla.eduE<gt>
-
-=head1 SEE ALSO
-
-
-=head1 COPYRIGHT AND LICENSE
-
-FIXME
 
 =head1 APPENDIX
 
@@ -55,25 +61,10 @@ use constant URL_SAMPLE => 'http://www.ncbi.nlm.nih.gov/projects/geo/query/acc.c
 
 =head2 _initialize()
 
-=over
-
-=item Usage
-
-  $obj->_initialize(%arg);
-
-=item Function
-
-Internal method to initialize a new Bio::DB::Expression::geo object
-
-=item Returns
-
-true on success
-
-=item Arguments
-
-Arguments passed to L</new()>
-
-=back
+ Usage   : $obj->_initialize(%arg);
+ Function: Internal method to initialize a new Bio::DB::Expression::geo object
+ Returns : true on success
+ Args    : Arguments passed to new()
 
 =cut
 
@@ -257,12 +248,6 @@ sub fill_dataset {
 
   $dataset->samples(\@samples);
 }
-
-
-
-
-
-
 
 #################################################
 

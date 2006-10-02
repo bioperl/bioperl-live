@@ -67,13 +67,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::MappableI;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::EntityI;
-use Bio::AnnotatableI;
 use Bio::Map::PositionHandler;
 
-@ISA = qw(Bio::Map::EntityI Bio::AnnotatableI);
+use base qw(Bio::Map::EntityI Bio::AnnotatableI);
 
 =head2 EntityI methods
 
@@ -132,14 +129,35 @@ sub add_position {
  Function: Get all the Positions of this Mappable (sorted).
  Returns : Array of L<Bio::Map::PositionI> objects
  Args    : none for all, OR
-           L<Bio::Map::MapI> object for positions on the given map
+           L<Bio::Map::MapI> object for positions on the given map, AND/OR some
+           other true value to avoid sorting
 
 =cut
 
 sub get_positions {
-    my ($self, $map) = @_;
+    my ($self, $thing, $no_sort) = @_;
+    my $map;
+    if (ref($thing) && $thing->isa('Bio::Map::MapI')) {
+        $map = $thing;
+    }
+    else {
+        $no_sort = $thing;
+    }
     my @positions = $self->get_position_handler->get_positions($map);
-	return sort { $a->sortable <=> $b->sortable } @positions;
+    return @positions if @positions == 1;
+    
+    unless ($no_sort) {
+        # don't do
+        # @positions = sort { $a->sortable <=> $b->sortable } @positions;
+        # directly since sortable() can result in the call of another sort
+        # routine and cause problems; pre-compute sortable values instead
+        # (which is also more efficient)
+        @positions = map { $_->[1] }
+                     sort { $a->[0] <=> $b->[0] }
+                     map  { [$_->sortable, $_] }
+                     @positions;
+    }
+    return @positions;
 }
 
 =head2 each_position

@@ -125,19 +125,17 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Collection;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 use Bio::DB::GFF::Util::Binning;
 use DB_File;
 use Bio::Location::Simple;
 use Bio::SeqFeature::Generic;
 use Storable qw(freeze thaw);
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 # This may need to get re-optimized for BDB usage as these

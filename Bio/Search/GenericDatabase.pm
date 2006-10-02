@@ -30,7 +30,7 @@ Bio::Search::GenericDatabase - Generic implementation of Bio::Search::DatabaseI
 
 =head1 DESCRIPTION
 
-This module provides a basic implementation of B<Bio::Search::DatabaseI>.
+This module provides a basic implementation of L<Bio::Search::DatabaseI>.
 See documentation in that module for more information.
 
 =head1 FEEDBACK
@@ -80,11 +80,8 @@ The rest of the documentation details each of the object methods.
 package Bio::Search::GenericDatabase;
 
 use strict;
-use Bio::Search::DatabaseI;
-use Bio::Root::Root;
-use vars qw( @ISA );
 
-@ISA = qw( Bio::Root::Root Bio::Search::DatabaseI);
+use base qw(Bio::Root::Root Bio::Search::DatabaseI);
 
 sub new {
     my ($class, @args) = @_; 

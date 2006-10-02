@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-Correlate - Representation of a correlating phenotype in a given species
+Bio::Phenotype::Correlate - Representation of a correlating phenotype in a given species
 
 =head1 SYNOPSIS
 
@@ -95,12 +94,10 @@ methods.
 # Let the code begin...
 
 package Bio::Phenotype::Correlate;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
 use Bio::Species;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 
 =head2 new

@@ -129,15 +129,13 @@ The rest of the documentation details each of the object methods.
 =cut
 
 package Bio::Tree::Compatible;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 use Set::Scalar;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 postorder_traversal
 

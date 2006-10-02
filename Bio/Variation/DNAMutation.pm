@@ -85,13 +85,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Variation::DNAMutation;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheritance
-use Bio::Variation::VariantI;
 
-@ISA = qw( Bio::Variation::VariantI );
+use base qw(Bio::Variation::VariantI);
 
 sub new {
     my($class,@args) = @_;
@@ -326,7 +324,7 @@ sub _point_type_label {
            'systematic name' of the mutation. Systematic name is
            specified in Antonorakis & MDI Nomenclature Working Group:
            Human Mutation 11:1-3, 1998. 
-           http://www.interscience.wiley.com/jpages/1059-7794/nomenclature.html
+           http://www3.interscience.wiley.com/cgi-bin/abstract/5001291/ABSTRACT
  Returns : string
 
 =cut

@@ -50,15 +50,12 @@ methods. Internal methods are usually preceded with a _
 # code begins...
 
 package Bio::Taxonomy::Taxon;
-use vars qw(@ISA $CREATIONORDER);
+use vars qw($CREATIONORDER);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object, Bio::Tree::NodeI, Bio::Species and Bio::Taxonomy
-use Bio::Root::Root;
-use Bio::Tree::NodeI;
 use Bio::Species;
 
-@ISA = qw(Bio::Root::Root Bio::Tree::NodeI);
+use base qw(Bio::Root::Root Bio::Tree::NodeI);
 
 BEGIN { 
     $CREATIONORDER = 0;
@@ -168,7 +165,8 @@ sub each_Descendent{
    $sortby ||= 'height';
 
    if (ref $sortby eq 'CODE') {
-       return sort $sortby values %{$self->{'_desc'}};
+       my @values = sort $sortby values %{$self->{'_desc'}};
+       return @values;
    } else  {
        if ($sortby eq 'height') {
 	   return map { $_->[0] }

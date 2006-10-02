@@ -77,8 +77,6 @@ web:
 
 Email golharam@umdnj.edu
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. 
@@ -91,12 +89,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Spidey::Exon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::SimilarityPair;
 
-@ISA = qw(Bio::SeqFeature::SimilarityPair);
+use base qw(Bio::SeqFeature::SimilarityPair);
 
 sub new {
     my ($class,@args) = @_;

@@ -12,18 +12,20 @@
 
 =head1 NAME
 
-Bio::Tools::Glimmer - A parser for GLIMMER gene predictions
+Bio::Tools::Glimmer - parser for GlimmerM/GlimmerHMM eukaryotic gene predictions
 
 =head1 SYNOPSIS
 
    use Bio::Tools::Glimmer;
+
    my $parser = new Bio::Tools::Glimmer(-file => $file);
-     # filehandle:
+   # filehandle:
    $parser = Bio::Tools::Glimmer->new( -fh  => \*INPUT );
 
    # parse the results
    # note: this class is-a Bio::Tools::AnalysisResult which implements
    # Bio::SeqAnalysisParserI, i.e., $glimmer->next_feature() is the same
+
    while(my $gene = $parser->next_prediction()) {
        # $gene is an instance of Bio::Tools::Prediction::Gene, which inherits
        # off Bio::SeqFeature::Gene::Transcript.
@@ -43,14 +45,22 @@ Bio::Tools::Glimmer - A parser for GLIMMER gene predictions
 
 =head1 DESCRIPTION
 
-This is a module for parsing Glimmer predictions (currently GlimmerM
-3.0 is all that has been tested).  It will create gene objects from
-the prediction report which can be attached to a sequence using
-Bioperl objects, or output as GFF suitable for loading into
-Bio::DB::GFF for use with Gbrowse.
+This is a module for parsing GlimmerM and GlimmerHMM predictions 
+It will create gene objects from the prediction report which can 
+be attached to a sequence using Bioperl objects, or output as GFF 
+suitable for loading into Bio::DB::GFF for use with Gbrowse.
 
-GlimmerM is open source and available at:
-  http://www.tigr.org/software/glimmerm/
+GlimmerM is open source and available at 
+L<http://www.tigr.org/software/glimmerm/>.
+
+GlimmerHMM is open source and available at
+L<http://www.cbcb.umd.edu/software/GlimmerHMM/>.
+
+=head1 BUGS
+
+This module does B<not> parse Glimmer2 or Glimmer3 bacterial gene
+prediction files. Details on their output formats can be found at
+L<http://www.cbcb.umd.edu/software/glimmer/>.
 
 =head1 FEEDBACK
 
@@ -75,11 +85,11 @@ email or the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Torsten Seemann
+
+Mark Johnson
 
 =head1 APPENDIX
 
@@ -93,14 +103,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Glimmer;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tools::AnalysisResult;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 sub _initialize_state {
     my($self,@args) = @_;
@@ -220,28 +228,25 @@ sub next_prediction {
 sub _parse_predictions {
     my ($self) = @_;
 
-    my ($gene,$seqname,$seqlen,$method,$version,$lastgenenum);
+    my ($gene,$seqname,$seqlen,$source,$lastgenenum);
     
     while(defined($_ = $self->_readline())) {
-	if( /^(Glimmer\S*)\s+\((.+)\)/ ) {
-	    $method = $1;
-	    $version = $2;
-	    $version =~ s/[\(\)]//g;
-	    $version =~ s/Version\s*//g;
-	    
+	if( /^(Glimmer\S*)\s+\(Version\s*(\S+)\)/ ) {
+	    $source = "$1_$2";
+	    next;
+	} elsif( /^(Glimmer\S*)$/ ) { # GlimmerHMM has no version
+	    $source = $1;
 	    next;
 	} elsif(/^Sequence name:\s+(.+)$/ ) {
 	    $seqname = $1;
-
 	    next;
 	} elsif( /^Sequence length:\s+(\S+)/ ) {
 	    $seqlen = $1;
 	    next;
-	} elsif( /^(Predicted genes)|(Gene)|\s+\#/ ||
-		 /^\s+$/ ) { 
+	} elsif( m/^(Predicted genes)|(Gene)|\s+\#/ || /^\s+$/ ) { 
 	    next;
 	    
-	} elsif( # glimmer 3.0 output
+	} elsif( # GlimmerM/HMM gene-exon prediction line
 		 /^\s+(\d+)\s+ # gene num
 		 (\d+)\s+      # exon num
 		 ([\+\-])\s+   # strand
@@ -251,14 +256,13 @@ sub _parse_predictions {
 		 /ox ) {
 	    my ($genenum,$exonnum,$strand,$type,$start,$end,$len) = 
 		( $1,$2,$3,$4,$5,$6,$7);
-	    if( ! $lastgenenum ||
-		$lastgenenum != $genenum) {		
-		$self->_add_prediction($gene) if( $gene );
+	    if( ! $lastgenenum || $lastgenenum != $genenum) {		
+		$self->_add_prediction($gene) if ( $gene );
 		$gene = Bio::Tools::Prediction::Gene->new
 		    (
 		     '-seq_id'      => $seqname,
 		     '-primary_tag' => "gene",
-		     '-source_tag'  => "$method\_$version",
+		     '-source_tag'  => $source,
 		     '-tag'         => { 'Group' => "GenePrediction$genenum"},
 		     );
 	    }
@@ -267,7 +271,7 @@ sub _parse_predictions {
 		 '-start'      => $start,
 		 '-end'        => $end,
 		 '-strand'     => $strand eq '-' ? '-1' : '1',
-		 '-source_tag' => "$method\_$version",
+		 '-source_tag' => $source,
 		 '-primary_tag'=> 'exon',
 		 '-tag'         => { 'Group' => "GenePrediction$genenum"},
 		 );

@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::weighted_arrow;
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 use Math::Trig;
 

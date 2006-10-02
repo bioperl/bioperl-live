@@ -71,17 +71,16 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::PopGen::IO::hapmap;
-use vars qw(@ISA $FieldDelim $AlleleDelim $NoHeader $StartingCol);
+use vars qw($FieldDelim $AlleleDelim $NoHeader $StartingCol);
 use strict;
 
 ($FieldDelim,$AlleleDelim,$NoHeader,$StartingCol) =( '\s+','',0,11);
 
-use Bio::PopGen::IO;
 use Bio::PopGen::Individual;
 use Bio::PopGen::Population;
 use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::PopGen::IO );
+use base qw(Bio::PopGen::IO);
 
 
 =head2 new
@@ -215,7 +214,7 @@ sub next_individual  {
 
 	my @alleles = split($self->flag('allele_delimiter'), $m);
 	if( @alleles != 2 ) { 
-	    warn("$m for $samp\n");
+	    $self->warn("$m for $samp\n");
 	} else { 
 	    $m = new Bio::PopGen::Genotype(-alleles      => \@alleles,
 					   -marker_name  => $markername,
@@ -270,7 +269,7 @@ sub write_individual {
     # data from hapmap is output, not input, so 
     # we don't need a method for writing and input file
 
-    $self->throw('writing to hapmap format is not implemented');
+    $self->throw_not_implemented();
 }
 
 =head2 write_population
@@ -289,7 +288,7 @@ See L<Bio::PopGen::PopulationI>
 
 sub write_population {
     my ($self,@inds) = @_;
-    $self->throw('writing to hapmap format is not implemented');
+    $self->throw_not_implemented();
 }
 
 

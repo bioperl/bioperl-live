@@ -95,13 +95,12 @@ FIXME, NOT IMPLEMENTED
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -124,10 +123,8 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::kegg;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
@@ -135,17 +132,17 @@ use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO);
- 
+use base qw(Bio::SeqIO);
+
 sub _initialize {
 	my($self,@args) = @_;
-    
-	$self->SUPER::_initialize(@args); 
+
+	$self->SUPER::_initialize(@args);
 	# hash for functions for decoding keys.
-	$self->{'_func_ftunit_hash'} = {}; 
+	$self->{'_func_ftunit_hash'} = {};
 	if( ! defined $self->sequence_factory ) {
 		$self->sequence_factory(new Bio::Seq::SeqFactory
-										(-verbose => $self->verbose(), 
+										(-verbose => $self->verbose(),
 										 -type => 'Bio::Seq::RichSeq'));
 	}
 }
@@ -193,9 +190,9 @@ sub next_seq {
 		$FIELDS{$key} = $chunk;
 	}
 
-	# changing to split method to get entry_ids that include 
+	# changing to split method to get entry_ids that include
 	# sequence version like Whatever.1
-	my(undef,$entry_id,$entry_seqtype,$entry_species) = 
+	my(undef,$entry_id,$entry_seqtype,$entry_species) =
 	  split(' ',$FIELDS{ENTRY});
 
 	my($name);
@@ -222,23 +219,23 @@ sub next_seq {
 
 	$annotation->add_Annotation('description',
 						Bio::Annotation::Comment->new(-text => $definition));
-	
+
 	$annotation->add_Annotation('aa_seq',
 						Bio::Annotation::Comment->new(-text => $aa_seq));
 
 	my($ortholog_db,$ortholog_id,$ortholog_desc);
 	if ($FIELDS{ORTHOLOG}) {
 		($ortholog_db,$ortholog_id,$ortholog_desc) = $FIELDS{ORTHOLOG}
-		  =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(.*?)$/; 
+		  =~ /^ORTHOLOG\s+(\S+):\s+(\S+)\s+(.*?)$/;
 
         $annotation->add_Annotation('dblink',Bio::Annotation::DBLink->new(
                      -database => $ortholog_db,
                      -primary_id => $ortholog_id,
                      -comment => $ortholog_desc) );
-  } 
+  }
 
   if($FIELDS{MOTIF}){
-     $FIELDS{MOTIF} =~ s/^MOTIF\s+//; 
+     $FIELDS{MOTIF} =~ s/^MOTIF\s+//;
      while($FIELDS{MOTIF} =~/\s*?(\S+):\s+(.+?)$/mg){
          my $db = $1;
          my $ids = $2;

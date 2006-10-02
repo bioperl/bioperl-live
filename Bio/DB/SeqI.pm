@@ -57,8 +57,6 @@ web:
 
 Email birney@ebi.ac.uk
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -70,13 +68,10 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::DB::SeqI;
-use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::DB::RandomAccessI;
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 
 =head1 Methods inherieted from Bio::DB::RandomAccessI
 

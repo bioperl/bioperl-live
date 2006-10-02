@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SearchIO::Writer::BSMLResultWriter - DESCRIPTION of Object
+Bio::SearchIO::Writer::BSMLResultWriter - BSML output writer
 
 =head1 SYNOPSIS
 
@@ -52,12 +52,6 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -70,15 +64,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::BSMLResultWriter;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SearchIO::SearchWriterI;
 use XML::Writer;
 use IO::String;
 
-@ISA = qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
+use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
 
 =head2 new

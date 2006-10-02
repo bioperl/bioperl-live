@@ -15,37 +15,26 @@ Bio::Search::HSP::PullHSPI - Bio::Search::HSP::HSPI interface for pull parsers.
 =head1 SYNOPSIS
 
 	# This is an interface and cannot be instantiated
-	
+
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
     my $in = new Bio::SearchIO(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
-	
+
     while (my $result = $in->next_result) {
 		while (my $hit = $result->next_hit) {
 			while (my $hsp = $hit->next_hsp) {
                 $r_type = $hsp->algorithm;
-                
                 $pvalue = $hsp->p();
-                
                 $evalue = $hsp->evalue();
-                
                 $frac_id = $hsp->frac_identical( ['query'|'hit'|'total'] );
-                
                 $frac_cons = $hsp->frac_conserved( ['query'|'hit'|'total'] );
-                
                 $gaps = $hsp->gaps( ['query'|'hit'|'total'] );
-                
                 $qseq = $hsp->query_string;
-                
                 $hseq = $hsp->hit_string;
-                
                 $homo_string = $hsp->homology_string;
-                
                 $len = $hsp->length( ['query'|'hit'|'total'] );
-                
                 $len = $hsp->length( ['query'|'hit'|'total'] );
-                
                 $rank = $hsp->rank;
             }
 
@@ -117,14 +106,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::HSP::PullHSPI;
-use vars qw(@ISA);
 
-use Bio::Search::HSP::HSPI;
-use Bio::PullParserI;
 
 use strict;
 
-@ISA = qw(Bio::Search::HSP::HSPI Bio::PullParserI);
+use base qw(Bio::Search::HSP::HSPI Bio::PullParserI);
 
 =head2 _setup
 

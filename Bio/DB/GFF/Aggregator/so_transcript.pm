@@ -36,10 +36,8 @@ only needed for backward compatibility.
 package Bio::DB::GFF::Aggregator::so_transcript;
 
 use strict;
-use Bio::DB::GFF::Aggregator;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 =head2 method
 

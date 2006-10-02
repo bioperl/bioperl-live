@@ -69,10 +69,8 @@ web:
 # Let the code begin...
 
 package Bio::LiveSeq::Mutator;
-use vars qw(@ISA);
 use strict;
 
-use vars qw(@ISA);
 use Bio::Variation::SeqDiff;
 use Bio::Variation::DNAMutation;
 use Bio::Variation::RNAChange;
@@ -83,9 +81,8 @@ use Bio::LiveSeq::Mutation;
 #use integer;
 # Object preamble - inheritance
 
-use Bio::Root::Root;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 sub new {
     my($class,@args) = @_;

@@ -48,7 +48,7 @@ called on instances of this (Bio::Biblio) module.
 
 The module complies (with some simplifications) with the specification
 described in the B<OpenBQS> project. Its home page is at
-I<http://www.ebi.ac.uk/~senger/openbqs>.
+L<http://www.ebi.ac.uk/~senger/openbqs>.
 
 The module also gives an access to a set of controlled vocabularies
 and their values. It allows to introspect bibliographic repositories
@@ -69,7 +69,7 @@ Here are some one-liners:
 
 =over
 
-=item B<Bio::Biblio>
+=item L<Bio::Biblio>
 
 This is the main class to be used by the end users. It
 loads a real implementation for a particular access protocol according
@@ -185,18 +185,9 @@ with an underscore _.
 
 
 package Bio::Biblio;
-use vars qw(@ISA $Revision);
 use strict;
 
-use Bio::Root::Root;
-use Bio::DB::BiblioI;
-
-@ISA = qw(Bio::Root::Root Bio::DB::BiblioI);
-
-
-BEGIN {
-    $Revision = q[$Id$];
-}
+use base qw(Bio::Root::Root Bio::DB::BiblioI);
 
 # -----------------------------------------------------------------------------
 

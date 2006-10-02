@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-obo - a parser for OBO flat-file format from Gene Ontology Consortium
+Bio::OntologyIO::obo - a parser for OBO flat-file format from Gene Ontology Consortium
 
 =head1 SYNOPSIS
 
@@ -82,7 +82,6 @@ methods. Internal methods are usually preceded with a _
 
 package  Bio::OntologyIO::obo;
 
-use vars qw( @ISA );
 use strict;
 
 use Bio::Root::IO;
@@ -90,7 +89,6 @@ use Bio::Ontology::OBOEngine;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::OntologyStore;
 use Bio::Ontology::TermFactory;
-use Bio::OntologyIO;
 use Bio::Annotation::Collection;
 use Data::Dumper;
 use Text::Balanced qw(extract_quotelike extract_bracketed);
@@ -98,7 +96,7 @@ use Text::Balanced qw(extract_quotelike extract_bracketed);
 use constant TRUE  => 1;
 use constant FALSE => 0;
 
-@ISA = qw( Bio::OntologyIO );
+use base qw(Bio::OntologyIO);
 
 =head2 new
 

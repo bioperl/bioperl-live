@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::saw_teeth;
 # DAS-compatible package to use for drawing a line of saw teeth
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::repeating_shape';
-use Bio::Graphics::Glyph::repeating_shape;
+use base qw(Bio::Graphics::Glyph::repeating_shape);
 
 sub draw_repeating_shape
 {

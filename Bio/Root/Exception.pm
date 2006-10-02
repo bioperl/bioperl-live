@@ -14,7 +14,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 
 =head1 SYNOPSIS
 
-=head2 Throwing exceptions using B<Error::throw()>:
+=head2 Throwing exceptions using L<Error::throw()>:
 
     use Bio::Root::Exception;
     use Error;
@@ -26,7 +26,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
     open (IN, $file) ||
 	    throw Bio::Root::FileOpenException ( "Can't open file $file for reading", $!);
 
-=head2 Throwing exceptions using B<Bio::Root::Root::throw()>:
+=head2 Throwing exceptions using L<Bio::Root::Root::throw()>:
 
      # Here we have an object that ISA Bio::Root::Root, so it inherits throw().
 
@@ -35,7 +35,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
                                -text => "Can't open file $file for reading",
                                -value => $!);
 
-=head2 Catching and handling exceptions using B<Error::try()>:
+=head2 Catching and handling exceptions using L<Error::try()>:
 
     use Bio::Root::Exception;
     use Error qw(:try);
@@ -76,7 +76,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 
 =head1 DESCRIPTION
 
-=head2 Exceptions defined in B<Bio::Root::Exception>
+=head2 Exceptions defined in L<Bio::Root::Exception>
 
 These are generic exceptions for typical problem situations that could arise
 in any module or script. 
@@ -133,8 +133,8 @@ from Bio::Root::Exception directly, or indirectly by inheriting from a
 Bio::Root::Exception subclass.
 
 The exceptions in Bio::Root::Exception are extensions of Graham Barr's
-B<Error.pm> module available from CPAN.  Despite this dependency, the
-Bio::Root::Exception module does not explicitly C<require Error>.
+L<Error> module available from CPAN.  Despite this dependency, the
+L<Bio::Root::Exception> module does not explicitly C<require Error>.
 This permits Bio::Root::Exception to be loaded even when
 Error.pm is not available.
 
@@ -143,7 +143,7 @@ Error.pm is not available.
 Error.pm is not part of the Bioperl distibution, and may not be
 present within  any given perl installation. So, when you want to 
 throw an exception in a Bioperl module, the safe way to throw it
-is to use B<Bio::Root::Root::throw()> which can use Error.pm 
+is to use L<Bio::Root::Root::throw()> which can use Error.pm 
 when it's available. See documentation in Bio::Root::Root for details.
 
 =head1 SEE ALSO
@@ -151,10 +151,10 @@ when it's available. See documentation in Bio::Root::Root for details.
 See the C<examples/exceptions> directory of the Bioperl distribution for 
 working demo code.
 
-B<Bio::Root::Root::throw()> for information about throwing 
-Bio::Root::Exception-based exceptions.
+L<Bio::Root::Root::throw()> for information about throwing 
+L<Bio::Root::Exception>-based exceptions.
 
-B<Error.pm> (available from CPAN, author: GBARR)
+L<Error> (available from CPAN, author: GBARR)
 
 Error.pm is helping to guide the design of exception handling in Perl 6. 
 See these RFC's: 
@@ -193,7 +193,7 @@ use strict;
 my $debug = $Error::Debug;  # Prevents the "used only once" warning.
 my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 
-=head2 B<Bio::Root::Exception>
+=head2 L<Bio::Root::Exception>
 
  Purpose : A generic base class for all BioPerl exceptions.
            By including a "catch Bio::Root::Exception" block, you
@@ -210,7 +210,7 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 
 =over 4
 
-=item B< new() >
+=item L< new() >
 
  Purpose : Guarantees that -value is set properly before
            calling Error::new().
@@ -339,7 +339,7 @@ sub _reformat_stacktrace {
     return join "\n", @new_stack;
 }
 
-=item B< stringify() >
+=item L<stringify()>
 
  Purpose : Overrides Error::stringify() to call pretty_format(). 
            This is called automatically when an exception object 
@@ -365,7 +365,7 @@ sub stringify {
 =head1 Subclasses of Bio::Root::Exception 
 
 
-=head2 B<Bio::Root::NotImplemented>
+=head2 L<Bio::Root::NotImplemented>
 
  Purpose : Indicates that a method has not been implemented.
  Example : throw Bio::Root::NotImplemented( 
@@ -378,7 +378,7 @@ sub stringify {
 @Bio::Root::NotImplemented::ISA = qw( Bio::Root::Exception );
 #---------------------------------------------------------
 
-=head2 B<Bio::Root::IOException>
+=head2 L<Bio::Root::IOException>
 
  Purpose : Indicates that some input/output-related trouble has occurred.
  Example : throw Bio::Root::IOException( 
@@ -392,7 +392,7 @@ sub stringify {
 #---------------------------------------------------------
 
 
-=head2 B<Bio::Root::FileOpenException>
+=head2 L<Bio::Root::FileOpenException>
 
  Purpose : Indicates that a file could not be opened.
  Example : throw Bio::Root::FileOpenException( 
@@ -406,7 +406,7 @@ sub stringify {
 #---------------------------------------------------------
 
 
-=head2 B<Bio::Root::SystemException>
+=head2 L<Bio::Root::SystemException>
 
  Purpose : Indicates that a system call failed.
  Example : unlink($file) or throw Bio::Root::SystemException( 
@@ -420,7 +420,7 @@ sub stringify {
 #---------------------------------------------------------
 
 
-=head2 B<Bio::Root::BadParameter>
+=head2 L<Bio::Root::BadParameter>
 
  Purpose : Indicates that one or more parameters supplied to a method 
            are invalid, unspecified, or conflicting.
@@ -435,7 +435,7 @@ sub stringify {
 #---------------------------------------------------------
 
 
-=head2 B<Bio::Root::OutOfRange>
+=head2 L<Bio::Root::OutOfRange>
 
  Purpose : Indicates that a specified (start,end) range or 
            an index to an array is outside the permitted range.
@@ -450,7 +450,7 @@ sub stringify {
 #---------------------------------------------------------
 
 
-=head2 B<Bio::Root::NoSuchThing>
+=head2 L<Bio::Root::NoSuchThing>
 
  Purpose : Indicates that a requested thing cannot be located 
            and therefore could possibly be bogus.

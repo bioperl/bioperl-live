@@ -2,9 +2,8 @@ package Bio::DB::GFF::Adaptor::dbi::caching_handle;
 
 use strict;
 use DBI;
-use Bio::Root::Root;
-use vars '$AUTOLOAD','@ISA';
-@ISA = qw(Bio::Root::Root);
+use vars '$AUTOLOAD';
+use base qw(Bio::Root::Root);
 
 =head1 NAME
 

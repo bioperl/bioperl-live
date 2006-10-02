@@ -36,7 +36,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -48,8 +48,6 @@ the bugs and their resolution.  Bug reports can be submitted via the web:
 =head1 AUTHOR - Ewan Birney
 
 Email birney@ebi.ac.uk
-
-Describe contact details here
 
 =head1 CONTRIBUTORS
 
@@ -67,7 +65,6 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqIO::FTHelper;
-use vars qw(@ISA);
 use strict;
 
 use Bio::SeqFeature::Generic;
@@ -76,18 +73,17 @@ use Bio::Location::Fuzzy;
 use Bio::Location::Split;
 
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my ($class, @args) = @_;
 
-    # no chained new because we make lots and lots of these. 
+    # no chained new because we make lots and lots of these.
     my $self = {};
     bless $self,$class;
     $self->{'_field'} = {};
-    return $self; 
+    return $self;
 }
 
 =head2 _generic_seqfeature
@@ -119,19 +115,19 @@ sub _generic_seqfeature {
     # parse location; this may cause an exception, in which case we gently
     # recover and ignore this feature
 
-    
+
     my $loc;
     eval {
 	$loc = $locfac->from_string($fth->loc);
     };
-    
+
     if(! $loc) {
 	  $fth->warn("exception while parsing location line [" . $fth->loc .
 		      "] in reading $source, ignoring feature " .
 		      $fth->key() . " (seqid=" . $seqid . "): " . $@);
 	  return;
     }
-    
+
     # set additional location attributes
     if($seqid && (! $loc->is_remote())) {
 	$loc->seq_id($seqid); # propagates if it is a split location
@@ -193,14 +189,14 @@ sub from_SeqFeature {
   # going into sub features
   #foreach my $sub ( $sf->sub_SeqFeature() ) {
   #my @subfth = &Bio::SeqIO::FTHelper::from_SeqFeature($sub);
-  #push(@ret, @subfth);    
+  #push(@ret, @subfth);
   #}
 
   $fth->loc($locstr);
   $fth->key($key);
   $fth->field->{'note'} = [];
   #$sf->source_tag && do { push(@{$fth->field->{'note'}},"source=" . $sf->source_tag ); };
-    
+
   ($sf->can('score') && $sf->score) && do { push(@{$fth->field->{'note'}},
                                                  "score=" . $sf->score ); };
   ($sf->can('frame') && $sf->frame) && do { push(@{$fth->field->{'note'}},

@@ -12,14 +12,11 @@ See L<Bio::DB::GFF>
 
 # a simple oracle adaptor
 use strict;
-use Bio::DB::GFF::Adaptor::dbi;
 #use Bio::DB::GFF::Adaptor::dbi::mysql;
 #use Bio::DB::GFF::Adaptor::dbi::mysqlopt;
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
-use vars qw(@ISA);
-#@ISA = qw(Bio::DB::GFF::Adaptor::dbi::mysqlopt);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi);
+use base qw(Bio::DB::GFF::Adaptor::dbi);
 
 use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
 use constant DEFAULT_CHUNK => 2000;

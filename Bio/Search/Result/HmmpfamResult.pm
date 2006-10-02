@@ -21,7 +21,7 @@ Bio::Search::Result::HmmpfamResult - A parser and result object for hmmpfam
     use Bio::SearchIO;
     my $in = new Bio::SearchIO(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
-	
+
     while (my $result = $in->next_result) {
 		print $result->query_name, " ", $result->algorithm, " ", $result->num_hits(), " hits\n";
     }
@@ -54,10 +54,6 @@ web:
 
 Email bix@sendu.me.uk
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -71,12 +67,9 @@ package Bio::Search::Result::HmmpfamResult;
 
 use strict;
 
-use vars qw(@ISA);
-use Bio::Root::Root;
-use Bio::Search::Result::PullResultI;
 use Bio::Search::Hit::HmmpfamHit;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Result::PullResultI);
+use base qw(Bio::Root::Root Bio::Search::Result::PullResultI);
 
 =head2 new
 
@@ -88,12 +81,13 @@ use Bio::Search::Hit::HmmpfamHit;
            -parent => Bio::PullParserI object (required if no -chunk)
            -parameters => hash ref of search parameters (key => value), optional
            -statistics => hash ref of search statistics (key => value), optional
-		   
+
 		   where the array ref provided to -chunk contains an IO object
            for a filehandle to something representing the raw data of the
            result, and $start and $end define the tell() position within the
            filehandle that the result data starts and ends (optional; defaults
            to start and end of the entire thing described by the filehandle)
+
 =cut
 
 sub new {

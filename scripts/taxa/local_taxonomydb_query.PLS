@@ -29,7 +29,10 @@ my $db = new Bio::DB::Taxonomy(-source    => 'flatfile',
 foreach my $sp ( @ARGV ) {
     my $node = $db->get_Taxonomy_Node(-name => $sp);
     if( defined $node ) {
-	print "classification is ", join(" ", $node->classification),"\n"; 
+	print "id is ", $node->id, "\n"; # 9606
+	print "rank is ", $node->rank, "\n"; # species
+	print "scientific name is ", $node->scientific_name, "\n"; # Homo sapiens
+	print "division is ", $node->division, "\n"; # Primates
     } else {
 	warn("no node found for query $sp");
     }

@@ -84,7 +84,7 @@ package Bio::LiveSeq::IO::BioPerl;
 
 use strict;
 use Carp qw(cluck croak carp);
-use vars qw(@ISA $DBEMBLLOADED);
+use vars qw($DBEMBLLOADED);
 use Bio::SeqIO; # for -file entry loading
 
 # Note, the following requires HTTP::Request. If the modules are not installed
@@ -94,9 +94,8 @@ eval {
     $DBEMBLLOADED = 1;
 };
 
-use Bio::LiveSeq::IO::Loader;
 
-@ISA=qw(Bio::LiveSeq::IO::Loader);
+use base qw(Bio::LiveSeq::IO::Loader);
 
 # This package can in the future host other databases loading subroutines.
 # e.g. ensembl2hash

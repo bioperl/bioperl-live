@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::Graph::SimpleGraph
+Bio::Graph::SimpleGraph - create and manipulate undirected graphs
 
 =head1 SYNOPSIS
 
@@ -509,11 +509,10 @@ The rest of the documentation describes the methods.
 =cut
 
 package Bio::Graph::SimpleGraph;
-use vars qw(@ISA @AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
-use Class::AutoClass;
+use vars qw(@AUTO_ATTRIBUTES @OTHER_ATTRIBUTES %SYNONYMS %DEFAULTS);
 use Bio::Graph::SimpleGraph::Traversal;
 use strict;
-@ISA = qw(Class::AutoClass); # AutoClass must be first!!
+use base qw(Class::AutoClass);
 @AUTO_ATTRIBUTES=qw(_nodes _edges _neighbors _dup_edges _is_connected _components);
 %SYNONYMS=();
 @OTHER_ATTRIBUTES=qw();

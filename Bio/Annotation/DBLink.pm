@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Annotation::DBLink - DESCRIPTION of Object
+Bio::Annotation::DBLink - untyped links between databases
 
 =head1 SYNOPSIS
 
@@ -54,16 +54,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Annotation::DBLink;
-use vars qw(@ISA);
 use strict;
 use overload '""' => sub { (($_[0]->database ? $_[0]->database . ':' : '' ) . ($_[0]->primary_id ? $_[0]->primary_id : '') . ($_[0]->version ? '.' . $_[0]->version : '')) || '' };
 use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
-use Bio::Root::Root;
-use Bio::AnnotationI;
-use Bio::IdentifiableI;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
+use base qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
 
 
 =head2 new

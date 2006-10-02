@@ -58,14 +58,11 @@ Bio::Tools::Prints - Parser for FingerPRINTScanII program
 =cut
 
 package Bio::Tools::Prints;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::SeqFeature::FeaturePair;
-use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 
 =head2 new

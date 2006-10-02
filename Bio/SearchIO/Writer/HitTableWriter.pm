@@ -176,10 +176,8 @@ L<Bio::SearchIO::Writer::ResultTableWriter>
 package Bio::SearchIO::Writer::HitTableWriter;
 
 use strict;
-use Bio::SearchIO::Writer::ResultTableWriter;
 
-use vars qw( @ISA );
-@ISA = qw( Bio::SearchIO::Writer::ResultTableWriter );
+use base qw(Bio::SearchIO::Writer::ResultTableWriter);
 
 
 # Array fields: column, object, method[/argument], printf format,

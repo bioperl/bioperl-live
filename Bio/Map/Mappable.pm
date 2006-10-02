@@ -75,13 +75,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Mappable;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::MappableI;
 use Bio::Map::Relative;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MappableI);
+use base qw(Bio::Root::Root Bio::Map::MappableI);
 
 =head2 new
 
@@ -89,13 +86,19 @@ use Bio::Map::Relative;
  Usage   : my $mappable = new Bio::Map::Mappable();
  Function: Builds a new Bio::Map::Mappable object
  Returns : Bio::Map::Mappable
- Args    : none
+ Args    : -name => string : name of the mappable element
+           -id   => string : id of the mappable element
 
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    
+    my ($name, $id) = $self->_rearrange([qw(NAME ID)], @args);
+    $self->name($name) if $name;
+    $self->id($id) if $id;
+    
     return $self;
 }
 
@@ -465,9 +468,13 @@ sub _compare {
         /less_than|greater_than/ && do {
             @mine > 0 or return;
             if ($method eq 'greater_than') {
-                my $map_start = new Bio::Map::Relative(-map => 0);
-                @mine = sort { $b->end($map_start) <=> $a->end($map_start) } @mine;
-                @yours = sort { $b->end($map_start) <=> $a->end($map_start) } @yours;
+                @mine =  map { $_->[1] }
+                         sort { $b->[0] <=> $a->[0] }
+                         map { [$_->end($_->absolute_relative), $_] }
+                         @mine;
+                @yours = map { $_->[1] }
+                         sort { $b->[0] <=> $a->[0] }
+                         map { [$_->end($_->absolute_relative), $_] } @yours;
             }
             my $test_pos = shift(@yours);
             
@@ -481,7 +488,10 @@ sub _compare {
             }
             
             if ($method eq 'greater_than') {
-                @ok = sort { $a->sortable <=> $b->sortable } @ok;
+                @ok = map { $_->[1] }
+                      sort { $a->[0] <=> $b->[0] }
+                      map { [$_->sortable, $_] }
+                      @ok;
             }
             
             last SWITCH;
@@ -518,7 +528,9 @@ sub _compare {
                     exists $mappables{$required} or next GROUPS;
                 }
                 
-                my @sorted = sort { $a->sortable <=> $b->sortable } @{$group};
+                my @sorted = map { $_->[1] }
+                             sort { $a->[0] <=> $b->[0] }
+                             map { [$_->sortable, $_] } @{$group};
                 push(@groups, \@sorted);
             }
             

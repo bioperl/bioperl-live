@@ -89,13 +89,11 @@ package Bio::Root::Storable;
 use strict;
 use Data::Dumper qw( Dumper );
 
-use vars qw(@ISA);
 
-use Bio::Root::Root;
 use Bio::Root::IO;
 
 use vars qw( $BINARY );
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 BEGIN{
   if( eval "require Storable" ){
@@ -480,10 +478,10 @@ sub retrieve{
     eval{ $stored_obj = $self->_thaw( $state_str ) };
     if( ! $@ ){ $success=1; last }
     my $package;
-    if( $@ =~ /Cannot restore overloading/i ){
-      my $postmatch = $'; #'
+    if( $@ =~ /Cannot restore overloading(.*)/i ){
+      my $postmatch = $1; #'
       if( $postmatch =~ /\(package +([\w\:]+)\)/ ) {
-	$package = $1;
+        $package = $1;
       }
     }
     if( $package ){

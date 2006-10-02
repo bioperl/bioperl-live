@@ -87,13 +87,11 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::Seq::PrimaryQual;
-use vars qw(@ISA %valid_type);
+use vars qw(%valid_type);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Seq::QualI;
 
-@ISA = qw(Bio::Root::Root Bio::Seq::QualI);
+use base qw(Bio::Root::Root Bio::Seq::QualI);
 
 
 =head2 new()

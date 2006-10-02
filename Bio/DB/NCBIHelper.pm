@@ -74,19 +74,16 @@ preceded with a _
 
 package Bio::DB::NCBIHelper;
 use strict;
-use vars qw(@ISA $HOSTBASE %CGILOCATION %FORMATMAP 
-	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION @ATTRIBUTES);
+use vars qw($HOSTBASE %CGILOCATION %FORMATMAP 	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION @ATTRIBUTES);
 
-use Bio::DB::WebDBSeqI;
 use Bio::DB::Query::GenBank;
 use HTTP::Request::Common;
 use URI;
 use Bio::Root::IO;
 use Bio::DB::RefSeq;
-use Bio::Root::Root;
 use URI::Escape qw(uri_unescape);
 
-@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 $VERSION = '0.8';
 
 BEGIN {

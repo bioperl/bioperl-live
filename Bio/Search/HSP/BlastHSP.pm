@@ -27,20 +27,20 @@ obtained in a single alignment section of a Blast report (known as a
 "High-scoring Segment Pair"). This is essentially a pairwise
 alignment with score information.
 
-BlastHSP objects are accessed via B<Bio::Search::Hit::BlastHit>
-objects after parsing a BLAST report using the B<Bio::SearchIO>
+BlastHSP objects are accessed via L<Bio::Search::Hit::BlastHit>
+objects after parsing a BLAST report using the L<Bio::SearchIO>
 system.
 
 The construction of BlastHSP objects is performed by
 Bio::Factory::BlastHitFactory in a process that is
-orchestrated by the Blast parser (B<Bio::SearchIO::psiblast>).
+orchestrated by the Blast parser (L<Bio::SearchIO::psiblast>).
 The resulting BlastHSPs are then accessed via
-B<Bio::Search::Hit::BlastHit>). Therefore, you do not need to
-use B<Bio::Search::HSP::BlastHSP>) directly. If you need to construct
+L<Bio::Search::Hit::BlastHit>). Therefore, you do not need to
+use L<Bio::Search::HSP::BlastHSP>) directly. If you need to construct
 BlastHSPs directly, see the new() function for details.
 
-For B<Bio::SearchIO> BLAST parsing usage examples, see the
-B<examples/search-blast> directory of the Bioperl distribution.
+For L<Bio::SearchIO> BLAST parsing usage examples, see the
+C<examples/search-blast> directory of the Bioperl distribution.
 
 =head2 Start and End coordinates
 
@@ -66,15 +66,15 @@ the BlastHSP.pm object is used.
 =head1 DEPENDENCIES
 
 Bio::Search::HSP::BlastHSP.pm is a concrete class that inherits from
-B<Bio::SeqFeature::SimilarityPair> and B<Bio::Search::HSP::HSPI>.
-B<Bio::Seq> and B<Bio::SimpleAlign> are employed for creating 
+L<Bio::SeqFeature::SimilarityPair> and L<Bio::Search::HSP::HSPI>.
+L<Bio::Seq> and L<Bio::SimpleAlign> are employed for creating
 sequence and alignment objects, respectively.
 
 =head2 Relationship to SimpleAlign.pm & Seq.pm
 
-BlastHSP.pm can provide the query or sbjct sequence as a B<Bio::Seq>
+BlastHSP.pm can provide the query or sbjct sequence as a L<Bio::Seq>
 object via the L<seq()|seq> method. The BlastHSP.pm object can also create a
-two-sequence B<Bio::SimpleAlign> alignment object using the the query
+two-sequence L<Bio::SimpleAlign> alignment object using the the query
 and sbjct sequences via the L<get_aln()|get_aln> method. Creation of alignment
 objects is not automatic when constructing the BlastHSP.pm object since
 this level of functionality is not always required and would generate
@@ -83,7 +83,7 @@ a lot of extra overhead when crunching many reports.
 
 =head1 FEEDBACK
 
-=head2 Mailing Lists 
+=head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules.  Send your comments and suggestions preferably to one
@@ -98,9 +98,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/     
+  http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR
 
 Steve Chervitz E<lt>sac-at-bioperl.orgE<gt>
 
@@ -116,14 +116,10 @@ colleagues at Affymetrix for useful feedback.
 
  Bio::Search::Hit::BlastHit.pm          - Blast hit object.
  Bio::Search::Result::BlastResult.pm    - Blast Result object.
- Bio::Seq.pm                            - Biosequence object  
+ Bio::Seq.pm                            - Biosequence object
 
 =head2 Links:
 
- http://bio.perl.org/Core/POD/Tools/Blast/BlastHit.pm.html
-
- http://bio.perl.org/Projects/modules.html  - Online module documentation
- http://bio.perl.org/Projects/Blast/        - Bioperl Blast Project     
  http://bio.perl.org/                       - Bioperl Project Homepage
 
 =head1 COPYRIGHT
@@ -151,18 +147,14 @@ Internal methods are usually preceded with a _
 package Bio::Search::HSP::BlastHSP;
 
 use strict;
-use Bio::SeqFeature::SimilarityPair;
 use Bio::SeqFeature::Similarity;
-use Bio::Search::HSP::HSPI; 
 
-use vars qw( @ISA $GAP_SYMBOL $Revision %STRAND_SYMBOL );
+use vars qw($GAP_SYMBOL %STRAND_SYMBOL);
 
-use overload 
+use overload
     '""' => \&to_string;
 
-$Revision = '$Id$';  #'
-
-@ISA = qw(Bio::SeqFeature::SimilarityPair Bio::Search::HSP::HSPI);
+use base qw(Bio::SeqFeature::SimilarityPair Bio::Search::HSP::HSPI);
 
 $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
 %STRAND_SYMBOL = ('Plus' => 1, 'Minus' => -1 );
@@ -171,16 +163,16 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
 =head2 new
 
  Usage     : $hsp = Bio::Search::HSP::BlastHSP->new( %named_params );
-           : Bio::Search::HSP::BlastHSP objects are constructed 
-           : automatically by Bio::SearchIO::BlastHitFactory, 
+           : Bio::Search::HSP::BlastHSP objects are constructed
+           : automatically by Bio::SearchIO::BlastHitFactory,
            : so there is no need for direct instantiation.
- Purpose   : Constructs a new BlastHSP object and Initializes key variables 
+ Purpose   : Constructs a new BlastHSP object and Initializes key variables
            : for the HSP.
  Returns   : A Bio::Search::HSP::BlastHSP object
  Argument  : Named parameters:
            : Parameter keys are case-insensitive.
-           :      -RAW_DATA  => array ref containing raw BLAST report data for 
-           :                    for a single HSP. This includes all lines 
+           :      -RAW_DATA  => array ref containing raw BLAST report data for
+           :                    for a single HSP. This includes all lines
            :                    of the HSP alignment from a traditional BLAST
                                 or PSI-BLAST (non-XML) report,
            :      -RANK         => integer (1..n).
@@ -188,7 +180,7 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            :      -QUERY_NAME   => string, id of query sequence
            :      -HIT_NAME     => string, id of hit sequence
            :
- Comments  : Having the raw data allows this object to do lazy parsing of 
+ Comments  : Having the raw data allows this object to do lazy parsing of
            : the raw HSP data (i.e., not parsed until needed).
            :
            : Note that there is a fair amount of basic parsing that is
@@ -197,7 +189,7 @@ $GAP_SYMBOL    = '-';          # Need a more general way to handle gap symbols.
            : This parsing code will likely be relocated and more initialization
            : parameters will be added to new().
            :
-See Also   : B<Bio::SeqFeature::SimilarityPair::new()>, B<Bio::SeqFeature::Similarity::new()>
+See Also   : L<Bio::SeqFeature::SimilarityPair::new()>, L<Bio::SeqFeature::Similarity::new()>
 
 =cut
 
@@ -212,15 +204,15 @@ sub new {
     my ($raw_data, $qname, $hname, $qlen, $hlen);
 
     ($self->{'_prog'}, $self->{'_rank'}, $raw_data,
-     $qname, $hname) = 
+     $qname, $hname) =
 	 $self->_rearrange([qw( PROGRAM
 				RANK
 				RAW_DATA
 				QUERY_NAME
 				HIT_NAME
 				)], @args );
-    
-    # _set_data() does a fair amount of parsing. 
+
+    # _set_data() does a fair amount of parsing.
     # This will likely change (see comment above.)
     $self->_set_data( @{$raw_data} );
     # Store the aligned query as sequence feature
@@ -230,21 +222,21 @@ sub new {
     my ($qf,$hf) = ($self->query->frame(),
 		    $self->hit->frame);
 
-    $self->query( Bio::SeqFeature::Similarity->new (-start   =>$qb, 
-						    -end     =>$qe, 
-						    -strand  =>$qs, 
+    $self->query( Bio::SeqFeature::Similarity->new (-start   =>$qb,
+						    -end     =>$qe,
+						    -strand  =>$qs,
 						    -bits    =>$self->bits,
-						    -score   =>$self->score, 
+						    -score   =>$self->score,
 						    -frame   =>$qf,
 						    -seq_id  => $qname,
 						    -source  =>$self->{'_prog'} ));
-    
-    $self->hit( Bio::SeqFeature::Similarity->new (-start   =>$hb, 
-						  -end     =>$he, 
-						  -strand  =>$hs, 
+
+    $self->hit( Bio::SeqFeature::Similarity->new (-start   =>$hb,
+						  -end     =>$he,
+						  -strand  =>$hs,
 						  -bits    =>$self->bits,
 						  -score   =>$self->score,
-                                                  -frame   =>$hf, 
+                                                  -frame   =>$hf,
 						  -seq_id  => $hname,
 						  -source  =>$self->{'_prog'} ));
 
@@ -258,16 +250,16 @@ sub new {
 }
 
 #sub DESTROY {
-#    my $self = shift; 
+#    my $self = shift;
 #    #print STDERR "--->DESTROYING $self\n";
 #}
 
 
-# Title   : _id_str; 
+# Title   : _id_str;
 # Purpose : Intended for internal use only to provide a string for use
-#           within exception messages to help users figure out which 
+#           within exception messages to help users figure out which
 #           query/hit caused the problem.
-# Returns : Short string with name of query and hit seq 
+# Returns : Short string with name of query and hit seq
 sub _id_str {
     my $self = shift;
     if( not defined $self->{'_id_str'}) {
@@ -287,11 +279,11 @@ sub _id_str {
  Title   : algorithm
  Usage   : $alg = $hsp->algorithm();
  Function: Gets the algorithm specification that was used to obtain the hsp
-           For BLAST, the algorithm denotes what type of sequence was aligned 
-           against what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated 
-           dna-prt, TBLASTN prt-translated dna, TBLASTX translated 
+           For BLAST, the algorithm denotes what type of sequence was aligned
+           against what (BLASTN: dna-dna, BLASTP prt-prt, BLASTX translated
+           dna-prt, TBLASTN prt-translated dna, TBLASTX translated
            dna-translated dna).
- Returns : a scalar string 
+ Returns : a scalar string
  Args    : none
 
 =cut
@@ -324,11 +316,11 @@ See Also   : L<p()|p>, L<expect()|expect>, L<Bio::Search::Hit::BlastHit::signif(
 =cut
 
 #-----------
-sub signif { 
+sub signif {
 #-----------
-    my $self = shift; 
+    my $self = shift;
     my $val ||= defined($self->{'_p'}) ? $self->{'_p'} : $self->{'_expect'};
-    $val; 
+    $val;
 }
 
 
@@ -386,7 +378,7 @@ sub pvalue { shift->p(@_); }
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
  Comments  : 'total' length is the full length of the alignment
-           : as reported in the denominators in the alignment section: 
+           : as reported in the denominators in the alignment section:
            : "Identical = 34/120 Positives = 67/120".
 
 See Also   : L<gaps()|gaps>
@@ -403,10 +395,10 @@ sub length {
     $seqType = 'sbjct' if $seqType eq 'hit';
 
     $seqType ne 'total' and $self->_set_seq_data() unless $self->{'_set_seq_data'};
-    
+
     ## Sensitive to member name format.
     $seqType = "_\L$seqType\E";
-    if( defined $data  ) { 
+    if( defined $data  ) {
 	$self->{$seqType.'Length'} = $data;
     }
     $self->{$seqType.'Length'};
@@ -425,7 +417,7 @@ sub length {
            : $qgaps           = $hsp->gaps('query');
  Returns   : scalar context: integer
            : array context without args: (int, int) = ('queryGaps', 'sbjctGaps')
- Argument  : seq_type: 'query' or 'hit' or 'sbjct' or 'total'  
+ Argument  : seq_type: 'query' or 'hit' or 'sbjct' or 'total'
            :  ('sbjct' is synonymous with 'hit')
            : (default = 'total', scalar context)
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
@@ -439,16 +431,16 @@ See Also   : L<length()|length>, L<matches()|matches>
 sub gaps {
 #---------
     my( $self, $seqType ) = @_;
-    
+
     $self->_set_seq_data() unless $self->{'_set_seq_data'};
 
     $seqType  ||= (wantarray ? 'list' : 'total');
     $seqType = 'sbjct' if $seqType eq 'hit';
-    
+
     if($seqType =~ /list|array/i) {
 	return (($self->{'_queryGaps'} || 0), ($self->{'_sbjctGaps'} || 0));
     }
-    
+
     if($seqType eq 'total') {
 	return ($self->{'_queryGaps'} + $self->{'_sbjctGaps'}) || 0;
     } else {
@@ -466,7 +458,7 @@ sub gaps {
  Example   : $frac_iden = $hsp_object->frac_identical('query');
  Returns   : Float (2-decimal precision, e.g., 0.75).
  Argument  : seq_type: 'query' or 'hit' or 'sbjct' or 'total'
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
            : default = 'total' (but see comments below).
  Throws    : n/a
  Comments  : Different versions of Blast report different values for the total
@@ -478,7 +470,7 @@ sub gaps {
            : Therefore, when called without an argument or an argument of 'total',
            : this method will report different values depending on the
            : version of BLAST used.
-           : 
+           :
            : To get the fraction identical among only the aligned residues,
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct' ('sbjct' is synonymous with 'hit').
@@ -517,7 +509,7 @@ sub frac_identical {
  Example   : $frac_cons = $hsp_object->frac_conserved('query');
  Returns   : Float (2-decimal precision, e.g., 0.75).
  Argument  : seq_type: 'query' or 'hit' or 'sbjct' or 'total'
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
            : default = 'total' (but see comments below).
  Throws    : n/a
  Comments  : Different versions of Blast report different values for the total
@@ -544,7 +536,7 @@ sub frac_conserved {
 # The value is calculated as opposed to storing it from the parsed results.
 # This saves storage and also permits flexibility in determining for which
 # sequence (query or sbjct) the figure is to be calculated.
- 
+
     my( $self, $seqType ) = @_;
     $seqType ||= 'total';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -595,7 +587,7 @@ sub hit_string{ shift->seq_str('hit'); }
  Title   : homology_string
  Usage   : my $homo_string = $hsp->homology_string;
  Function: Retrieves the homology sequence for this HSP as a string.
-         : The homology sequence is the string of symbols in between the 
+         : The homology sequence is the string of symbols in between the
          : query and hit sequences in the alignment indicating the degree
          : of conservation (e.g., identical, similar, not similar).
  Returns : string
@@ -675,7 +667,7 @@ sub to_string {
 #             sets the query sequence, sbjct sequence, and the "match" data
 #           : which consists of the symbols between the query and sbjct lines
 #           : in the alignment.
-# Argument  : Array (all lines for a single, complete HSP, from a raw, 
+# Argument  : Array (all lines for a single, complete HSP, from a raw,
 #             flat (i.e., non-XML) BLAST report)
 # Throws    : Propagates any exceptions from the methods called ("See Also")
 #
@@ -693,7 +685,7 @@ sub _set_data {
     my @matchList  = ();
     my $matchLine  = 0;   # Alternating boolean: when true, load 'match' data.
     my @linedat = ();
-    
+
     #print STDERR "BlastHSP: set_data()\n";
 
     my($line, $aln_row_len, $length_diff);
@@ -738,8 +730,8 @@ sub _set_data {
     }
     # Storing the query and sbjct lists in case they are needed later.
     # We could make this conditional to save memory.
-    $self->{'_queryList'} = \@queryList; 
-    $self->{'_sbjctList'} = \@sbjctList; 
+    $self->{'_queryList'} = \@queryList;
+    $self->{'_sbjctList'} = \@sbjctList;
 
     # Storing the match list in case it is needed later.
     $self->{'_matchList'} = \@matchList;
@@ -809,14 +801,14 @@ sub _set_score_stats {
     } else {
         my $id_str = $self->_id_str;
 	$self->throw(-class => 'Bio::Root::Exception',
-		     -text => "Can't parse score statistics: unrecognized format. ($id_str)", 
+		     -text => "Can't parse score statistics: unrecognized format. ($id_str)",
 		     -value => $data);
     }
-    $expect = "1$expect" if $expect =~ /^e/i;    
-    $p      = "1$p"      if defined $p and $p=~ /^e/i; 
+    $expect = "1$expect" if $expect =~ /^e/i;
+    $p      = "1$p"      if defined $p and $p=~ /^e/i;
 
     $self->{'_expect'} = $expect;
-    $self->{'_p'}      = $p || undef;    
+    $self->{'_p'}      = $p || undef;
     $self->significance( $p || $expect );
 }
 
@@ -853,22 +845,22 @@ sub _set_match_stats {
       $self->{'_numIdentical'} = $1;
       $self->{'_totalLength'}  = $2;
     }
-    
+
     if($data =~ m!Positives = (\d+)/(\d+)!) {
       # blast1 or 2 format
       $self->{'_numConserved'} = $1;
       $self->{'_totalLength'}  = $2;
     }
-    
-    if($data =~ m!Frame = ([\d+-]+)!) { 
-      $self->frame($1); 
+
+    if($data =~ m!Frame = ([\d+-]+)!) {
+      $self->frame($1);
     }
 
     # Strand data is not always present in this line.
     # _set_seq() will also set strand information.
-    if($data =~ m!Strand = (\w+) / (\w+)!) { 
-	$self->{'_queryStrand'} = $1; 
-	$self->{'_sbjctStrand'} = $2; 
+    if($data =~ m!Strand = (\w+) / (\w+)!) {
+	$self->{'_queryStrand'} = $1;
+	$self->{'_sbjctStrand'} = $2;
     }
 
 #    if($data =~ m!Gaps = (\d+)/(\d+)!) {
@@ -960,13 +952,13 @@ sub _set_seq {
         my $id_str = $self->_id_str;
 	$self->throw("Can't set sequence: missing data. Possibly unrecognized Blast format. ($id_str) $seqType");
    }
- 
+
     # Sensitive to member name changes.
     $seqType = "_\L$seqType\E";
     $self->{$seqType.'Start'} = $ranges[0];
     $self->{$seqType.'Stop'}  = $ranges[ $#ranges ];
     $self->{$seqType.'Seq'}   = \@sequence;
-	
+
     $self->{$seqType.'Length'} = abs($ranges[ $#ranges ] - $ranges[0]) + 1;
 
     # Adjust lengths for BLASTX, TBLASTN, TBLASTX sequences
@@ -987,7 +979,7 @@ sub _set_seq {
         # Normalize sequence endpoints so that start < end.
         # Reverse complement or 'minus strand' HSPs get flipped here.
         if($self->{$seqType.'Start'} > $self->{$seqType.'Stop'}) {
-            ($self->{$seqType.'Start'}, $self->{$seqType.'Stop'}) = 
+            ($self->{$seqType.'Start'}, $self->{$seqType.'Stop'}) =
                 ($self->{$seqType.'Stop'}, $self->{$seqType.'Start'});
             $self->{$seqType.'Strand'} = 'Minus';
         }
@@ -1032,7 +1024,7 @@ sub _set_residues {
     my %identicalList_sbjct = ();
     my %conservedList_query = ();
     my %conservedList_sbjct = ();
-    
+
     my $aref = $self->_set_match_seq() if not ref $self->{'_matchSeq'};
     $aref  ||= $self->{'_matchSeq'};
     my $seqString = join('', @$aref );
@@ -1057,11 +1049,11 @@ sub _set_residues {
     my ($mchar, $schar, $qchar);
     while( $mchar = chop($seqString) ) {
 	($qchar, $schar) = (chop($qseq), chop($sseq));
-	if( $mchar eq '+' ) { 
-	    $conservedList_query{ $resCount_query } = 1; 
-	    $conservedList_sbjct{ $resCount_sbjct } = 1; 
-	} elsif( $mchar ne ' ' ) { 
-	    $identicalList_query{ $resCount_query } = 1; 
+	if( $mchar eq '+' ) {
+	    $conservedList_query{ $resCount_query } = 1;
+	    $conservedList_sbjct{ $resCount_sbjct } = 1;
+	} elsif( $mchar ne ' ' ) {
+	    $identicalList_query{ $resCount_query } = 1;
 	    $identicalList_sbjct{ $resCount_sbjct } = 1;
 	}
 	$resCount_query-- if $qchar ne $GAP_SYMBOL;
@@ -1081,7 +1073,7 @@ sub _set_residues {
 #
 # Usage     : $hsp_obj->_set_match_seq()
 # Purpose   : Set the 'match' sequence for the current HSP (symbols in between
-#           : the query and sbjct lines.)				
+#           : the query and sbjct lines.)
 # Returns   : Array reference holding the match sequences lines.
 # Argument  : n/a
 # Throws    : Exception if the _matchList field is not set.
@@ -1102,7 +1094,7 @@ sub _set_match_seq {
         my $id_str = $self->_id_str;
         $self->throw("Can't set HSP match sequence: No data ($id_str)");
     }
-    
+
     my @data = @{$self->{'_matchList'}};
 
     my(@sequence);
@@ -1110,7 +1102,7 @@ sub _set_match_seq {
 	chomp($_);
 	## Remove leading spaces; (note: aln may begin with a space
 	## which is why we can't use s/^ +//).
-	s/^ {$self->{'_match_indent'}}//;   
+	s/^ {$self->{'_match_indent'}}//;
 	push @sequence, $_;
     }
     # Liberate some memory.
@@ -1149,16 +1141,16 @@ sub n { my $self = shift; $self->{'_n'} || ''; }
 =head2 matches
 
  Usage     : $hsp->matches([seq_type], [start], [stop]);
- Purpose   : Get the total number of identical and conservative matches 
+ Purpose   : Get the total number of identical and conservative matches
            : in the query or sbjct sequence for the given HSP. Optionally can
            : report data within a defined interval along the seq.
            : (Note: 'conservative' matches are called 'positives' in the
 	   : Blast report.)
  Example   : ($id,$cons) = $hsp_object->matches('hit');
            : ($id,$cons) = $hsp_object->matches('query',300,400);
- Returns   : 2-element array of integers 
+ Returns   : 2-element array of integers
  Argument  : (1) seq_type = 'query' or 'hit' or 'sbjct' (default = query)
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
            : (2) start = Starting coordinate (optional)
            : (3) stop  = Ending coordinate (optional)
  Throws    : Exception if the supplied coordinates are out of range.
@@ -1214,22 +1206,22 @@ sub matches {
 	    $seq = substr($self->seq_str('match'),
 			  int(($beg-$start)/3), int(($end-$beg+1)/3));
 	} else {
-	    $seq = substr($self->seq_str('match'), 
+	    $seq = substr($self->seq_str('match'),
 			  $beg-$start, ($end-$beg));
 	}
 	## ML: End of fix for  substr out of range error -----------------
 
-	
+
 	## ML: debugging code
 	## This is where we get our exception.  Try printing out the values going
 	## into this:
 	##
-#	 print STDERR 
-#	     qq(*------------MY EXCEPTION --------------------\nSeq: ") , 
+#	 print STDERR
+#	     qq(*------------MY EXCEPTION --------------------\nSeq: ") ,
 #	     $self->seq_str("$seqType"), qq("\n),$self->rank,",(  index:";
-#	 print STDERR  $beg-$start, ", len: ", $end-$beg," ), (HSPRealLen:", 
+#	 print STDERR  $beg-$start, ", len: ", $end-$beg," ), (HSPRealLen:",
 #	     CORE::length $self->seq_str("$seqType");
-#	 print STDERR ", HSPCalcLen: ", $stop - $start +1 ," ), 
+#	 print STDERR ", HSPCalcLen: ", $stop - $start +1 ," ),
 #	     ( beg: $beg, end: $end ), ( start: $start, stop: stop )\n";
 	 ## ML: END DEBUGGING CODE----------
 
@@ -1303,9 +1295,9 @@ sub num_conserved {
            : in the HSP alignment.
  Example   : ($query_beg, $query_end) = $hsp->range('query');
            : ($hit_beg, $hit_end) = $hsp->range('hit');
- Returns   : Two-element array of integers 
+ Returns   : Two-element array of integers
  Argument  : seq_type = string, 'query' or 'hit' or 'sbjct'  (default = 'query')
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
  Throws    : n/a
 
 See Also   : L<start()|start>, L<end()|end>
@@ -1333,7 +1325,7 @@ sub range {
  Usage     : $hsp->start( [seq_type] );
  Purpose   : Gets the start coordinate for the query, sbjct, or both sequences
            : in the HSP alignment.
-           : NOTE: Start will always be less than end. 
+           : NOTE: Start will always be less than end.
            : To determine strand, use $hsp->strand()
  Example   : $query_beg = $hsp->start('query');
            : $hit_beg = $hsp->start('hit');
@@ -1341,7 +1333,7 @@ sub range {
  Returns   : scalar context: integer
            : array context without args: list of two integers
  Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default= 'query')
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
@@ -1373,7 +1365,7 @@ sub start {
  Usage     : $hsp->end( [seq_type] );
  Purpose   : Gets the end coordinate for the query, sbjct, or both sequences
            : in the HSP alignment.
-           : NOTE: Start will always be less than end. 
+           : NOTE: Start will always be less than end.
            : To determine strand, use $hsp->strand()
  Example   : $query_end = $hsp->end('query');
            : $hit_end = $hsp->end('hit');
@@ -1381,7 +1373,7 @@ sub start {
  Returns   : scalar context: integer
            : array context without args: list of two integers
  Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default= 'query')
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
@@ -1422,14 +1414,14 @@ sub end {
            : for BLASTP reports, and the query of TBLASTN
            : as well as the hit if BLASTX reports.
            : In scalar context without arguments, returns queryStrand value.
-           : In array context without arguments, returns a two-element list 
+           : In array context without arguments, returns a two-element list
            :    of strings (queryStrand, sbjctStrand).
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Argument  : seq_type: 'query' or 'hit' or 'sbjct' or undef
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
  Throws    : n/a
 
-See Also   : B<_set_seq()>, B<_set_match_stats()>
+See Also   : L<_set_seq()>, L<_set_match_stats()>
 
 =cut
 
@@ -1468,7 +1460,7 @@ sub strand {
             $hstr = $STRAND_SYMBOL{$self->{'_sbjctStrand'}} if defined $self->{'_sbjctStrand'};
         }
         $qstr ||= 0;
-        $hstr ||= 0;  
+        $hstr ||= 0;
 	return ($qstr, $hstr);
     }
     local $^W = 0;
@@ -1483,25 +1475,25 @@ sub strand {
  Example   : $seqObj = $hsp->seq('query');
  Returns   : Object reference for a Bio::Seq.pm object.
  Argument  : seq_type = 'query' or 'hit' or 'sbjct' (default = 'query').
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
  Throws    : Propagates any exception that occurs during construction
            : of the Bio::Seq.pm object.
  Comments  : The sequence is returned in an array of strings corresponding
            : to the strings in the original format of the Blast alignment.
            : (i.e., same spacing).
 
-See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, B<Bio::Seq>
+See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<Bio::Seq>
 
 =cut
 
 #-------
 sub seq {
 #-------
-    my($self,$seqType) = @_; 
+    my($self,$seqType) = @_;
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
     my $str = $self->seq_str($seqType);
-	
+
     require Bio::Seq;
 
     new Bio::Seq (-ID   => $self->to_string,
@@ -1514,24 +1506,24 @@ sub seq {
 
  Usage     : $hsp->seq_str( seq_type );
  Purpose   : Get the full query, sbjct, or 'match' sequence as a string.
-           : The 'match' sequence is the string of symbols in between the 
+           : The 'match' sequence is the string of symbols in between the
            : query and sbjct sequences.
  Example   : $str = $hsp->seq_str('query');
  Returns   : String
  Argument  : seq_Type = 'query' or 'hit' or 'sbjct' or 'match'
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
  Throws    : Exception if the argument does not match an accepted seq_type.
  Comments  : Calls _set_seq_data() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, B<_set_match_seq()>
+See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, L<_set_match_seq()>
 
 =cut
 
 #------------
-sub seq_str {  
+sub seq_str {
 #------------
-    my($self,$seqType) = @_; 
+    my($self,$seqType) = @_;
 
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -1541,7 +1533,7 @@ sub seq_str {
     $self->_set_seq_data() unless $self->{'_set_seq_data'};
 
     if($seqType =~ /sbjct|query/) {
-	my $seq = join('',@{$self->{$seqType.'Seq'}}); 
+	my $seq = join('',@{$self->{$seqType.'Seq'}});
 	$seq =~ s/\s+//g;
 	return $seq;
 
@@ -1550,12 +1542,12 @@ sub seq_str {
 	my $aref = $self->_set_match_seq() unless ref $self->{'_matchSeq'};
 	$aref =  $self->{'_matchSeq'};
 
-	return join('',@$aref); 
+	return join('',@$aref);
 
     } else {
         my $id_str = $self->_id_str;
 	$self->throw(-class => 'Bio::Root::BadParameter',
-		     -text => "Invalid or undefined sequence type: $seqType ($id_str)\n" . 
+		     -text => "Invalid or undefined sequence type: $seqType ($id_str)\n" .
 		               "Valid types: query, sbjct, match",
 		     -value => $seqType);
     }
@@ -1564,27 +1556,27 @@ sub seq_str {
 =head2 seq_inds
 
  Usage     : $hsp->seq_inds( seq_type, class, collapse );
- Purpose   : Get a list of residue positions (indices) for all identical 
+ Purpose   : Get a list of residue positions (indices) for all identical
            : or conserved residues in the query or sbjct sequence.
  Example   : @s_ind = $hsp->seq_inds('query', 'identical');
            : @h_ind = $hsp->seq_inds('hit', 'conserved');
            : @h_ind = $hsp->seq_inds('hit', 'conserved', 1);
- Returns   : List of integers 
+ Returns   : List of integers
            : May include ranges if collapse is true.
  Argument  : seq_type  = 'query' or 'hit' or 'sbjct'  (default = query)
-           :  ('sbjct' is synonymous with 'hit') 
+           :  ('sbjct' is synonymous with 'hit')
            : class     = 'identical' or 'conserved' (default = identical)
            :              (can be shortened to 'id' or 'cons')
            :              (actually, anything not 'id' will evaluate to 'conserved').
            : collapse  = boolean, if true, consecutive positions are merged
-           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
-           :             collapses to "1-5 7 9-11". This is useful for 
+           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11"
+           :             collapses to "1-5 7 9-11". This is useful for
            :             consolidating long lists. Default = no collapse.
  Throws    : n/a.
  Comments  : Calls _set_residues() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq()|seq>, B<_set_residues()>, L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
+See Also   : L<seq()|seq>, L<_set_residues()>, L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
 
 =cut
 
@@ -1618,7 +1610,7 @@ sub seq_inds {
 =head2 get_aln
 
  Usage     : $hsp->get_aln()
- Purpose   : Get a Bio::SimpleAlign object constructed from the query + sbjct 
+ Purpose   : Get a Bio::SimpleAlign object constructed from the query + sbjct
            : sequences of the present HSP object.
  Example   : $aln_obj = $hsp->get_aln();
  Returns   : Object reference for a Bio::SimpleAlign.pm object.
@@ -1626,9 +1618,9 @@ sub seq_inds {
  Throws    : Propagates any exception ocurring during the construction of
            : the Bio::SimpleAlign object.
  Comments  : Requires Bio::SimpleAlign.
-           : The Bio::SimpleAlign object is constructed from the query + sbjct 
+           : The Bio::SimpleAlign object is constructed from the query + sbjct
            : sequence objects obtained by calling seq().
-           : Gap residues are included (see $GAP_SYMBOL). 
+           : Gap residues are included (see $GAP_SYMBOL).
 
 See Also   : L<seq()|seq>, L<Bio::SimpleAlign>
 
@@ -1650,12 +1642,12 @@ sub get_aln {
 					-id  => 'query_'.$qseq->display_id(),
 					-start => 1,
 					-end   => CORE::length($qseq)));
-		  
+
     $aln->add_seq(new Bio::LocatableSeq(-seq => $sseq->seq(),
 					-id  => 'hit_'.$sseq->display_id(),
 					-start => 1,
 					-end   => CORE::length($sseq)));
-		  
+
     return $aln;
 }
 
@@ -1668,21 +1660,21 @@ __END__
 
 =head2 Data Members
 
-Information about the various data members of this module is provided for those 
-wishing to modify or understand the code. Two things to bear in mind: 
+Information about the various data members of this module is provided for those
+wishing to modify or understand the code. Two things to bear in mind:
 
 =over 4
 
-=item 1 Do NOT rely on these in any code outside of this module. 
+=item 1 Do NOT rely on these in any code outside of this module.
 
 All data members are prefixed with an underscore to signify that they are private.
-Always use accessor methods. If the accessor doesn't exist or is inadequate, 
-create or modify an accessor (and let me know, too!). 
+Always use accessor methods. If the accessor doesn't exist or is inadequate,
+create or modify an accessor (and let me know, too!).
 
 =item 2 This documentation may be incomplete and out of date.
 
-It is easy for these data member descriptions to become obsolete as 
-this module is still evolving. Always double check this info and search 
+It is easy for these data member descriptions to become obsolete as
+this module is still evolving. Always double check this info and search
 for members not described here.
 
 =back
@@ -1702,8 +1694,8 @@ all or some of the following fields:
                      : Not defined in NCBI Blast2 with gaps.
                      : To obtain the number of HSPs, use Bio::Search::Hit::BlastHit::num_hsps().
  _expect             :
- _queryLength        : 
- _queryGaps          : 
+ _queryLength        :
+ _queryGaps          :
  _queryStart         :
  _queryStop          :
  _querySeq           :
@@ -1725,7 +1717,7 @@ all or some of the following fields:
                        the match symbols. _match_indent is 13 in this example:
                          Query:   285 QNSAPWGLARISHRERLNLGSFNKYLYDDDAG
                                       Q +APWGLARIS       G+ + Y YD+ AG
-                         ^^^^^^^^^^^^^ 
+                         ^^^^^^^^^^^^^
 
 
 =cut

@@ -127,7 +127,7 @@ web:
 
 package Bio::Tools::HMM;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 $VERSION = '0.10';
 

@@ -1,10 +1,12 @@
 package Bio::DB::GFF::Adaptor::dbi::pg_fts;
 
+# $Id$
+
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::dbi::pg-fts -- Database adaptor for a specific postgres schema with a TSearch2 implementation
+Bio::DB::GFF::Adaptor::dbi::pg_fts -- Database adaptor for a specific postgres schema with a TSearch2 implementation
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     #create new GFF database connection
     my $db      = Bio::DB::GFF->new( -adaptor => 'dbi::pg_fts',
@@ -116,7 +118,7 @@ in a GFF database.
 =head1 BUGS
 
 Please report bugs to the BioPerl and/or GBrowse mailing lists
-(L<bioperl-l@lists.open-bio.org> and L<gmod-gbrowse@lists.sourceforge.net>
+(L<mailto:bioperl-l@lists.open-bio.org> and L<mailto:gmod-gbrowse@lists.sourceforge.net>
 respectively).
 
 =head1 SEE ALSO
@@ -136,9 +138,7 @@ Scott Cain, cain@cshl.edu
 # a simple postgres adaptor
 use strict;
 use Bio::DB::GFF::Adaptor::dbi;
-use Bio::DB::GFF::Adaptor::dbi::pg;
-use vars qw(@ISA);
-@ISA = qw(Bio::DB::GFF::Adaptor::dbi::pg);
+use base qw(Bio::DB::GFF::Adaptor::dbi::pg);
 
 use constant FULLTEXTSEARCH => <<END;
 SELECT distinct gclass,gname,fattribute_value

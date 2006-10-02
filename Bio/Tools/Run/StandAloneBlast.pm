@@ -237,22 +237,23 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::StandAloneBlast;
 
-use vars qw($AUTOLOAD @ISA $PROGRAMDIR  $DATADIR $BLASTTYPE
+use vars qw($AUTOLOAD $PROGRAMDIR  $DATADIR $BLASTTYPE
 	    @BLASTALL_PARAMS @BLASTPGP_PARAMS @WUBLAST_PARAMS 
 		 @WUBLAST_SWITCH @RPSBLAST_PARAMS @BL2SEQ_PARAMS 
        @OTHER_PARAMS %OK_FIELD $DEFAULTREADMETHOD
 	    );
 		 
 use strict;
-use Bio::Root::Root;
+
 use Bio::Root::IO;
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::Tools::BPbl2seq;
 use Bio::Tools::BPpsilite;
 use Bio::SearchIO;
-use Bio::Tools::Run::WrapperBase;
-use Bio::Factory::ApplicationFactoryI;
+use File::Spec;
+
+use base qw(Bio::Root::Root Bio::Tools::Run::WrapperBase Bio::Factory::ApplicationFactoryI);
 
 BEGIN {
         @BLASTALL_PARAMS = qw(A B C D E F G I J K L M O P Q R S T U V W X Y Z a b d e f g i l m n o p q r s t v w y z);
@@ -307,9 +308,6 @@ BEGIN {
 	$DATADIR =  $ENV{'BLASTDATADIR'} || $ENV{'BLASTDB'} || '';
 }
 
-@ISA = qw(Bio::Root::Root 
-	  Bio::Tools::Run::WrapperBase 
-	  Bio::Factory::ApplicationFactoryI);
 
 =head1 BLAST parameters
 
@@ -346,7 +344,7 @@ program with the option "-" as in blastall -
   -B  Multiple alignment file for PSI-BLAST "jump start mode"  Optional
   -Q  Output File for PSI-BLAST Matrix in ASCII [File Out]  Optional
 
-=head2 rpsblast
+=head2 E<lt>rpsblastE<gt>
 
   -d  Database [String] default = (none - you must specify a database)
         The database specified must first be formatted with formatdb.
@@ -1042,7 +1040,7 @@ sub _setparams {
     }
 
     if ($self->quiet()) { 
-      $param_string .= '  2>/dev/null';
+      $param_string .= '  2> '.File::Spec->devnull;
     }
     if ($executable eq 'wublast') {
 	foreach my $attr (@WUBLAST_SWITCH) {

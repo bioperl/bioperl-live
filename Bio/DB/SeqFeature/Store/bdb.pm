@@ -1,6 +1,13 @@
 package Bio::DB::SeqFeature::Store::bdb;
 
 # $Id$
+
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::bdb - fetch and store objects from a BerkeleyDB
+
+=cut
+
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';

@@ -69,12 +69,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy::flatfile;
-use vars qw(@ISA $DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX 
-	    $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
+use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX 	    $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
 	    $NCBI_TAXONOMY_HOSTNAME $DEFAULT_PARENT_INDEX
 	    $NCBI_TAXONOMY_FILE @DIVISIONS);
 use strict;
-use Bio::DB::Taxonomy;
 use Bio::Taxon;
 use DB_File;
 
@@ -103,7 +101,7 @@ $DB_BTREE->{'flags'} = R_DUP; # allow duplicate values in DB_File BTREEs
                 [qw(VRT Vertebrates)],
                 [qw(ENV 'Environmental samples')]);
 
-@ISA = qw(Bio::DB::Taxonomy);
+use base qw(Bio::DB::Taxonomy);
 
 =head2 new
 
@@ -168,7 +166,7 @@ sub get_taxon {
     }
     
     $taxonid =~ /^\d+$/ || return;
-    my $node = $self->{'_nodes'}->[$taxonid];
+    my $node = $self->{'_nodes'}->[$taxonid] || return;
     length($node) || return;
     my ($taxid, undef, $rank, $code, $divid, $gen_code, $mito) = split(SEPARATOR,$node);
     last unless defined $taxid;

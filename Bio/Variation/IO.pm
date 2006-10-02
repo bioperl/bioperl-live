@@ -18,12 +18,13 @@ Bio::Variation::IO - Handler for sequence variation IO Formats
 
     use Bio::Variation::IO;
 
-    $in  = Bio::Variation::IO->new(-file => "inputfilename" , '-format' => 'flat');
-    $out = Bio::Variation::IO->new(-file => ">outputfilename" , '-format' => 'xml');
-    # note: we quote -format to keep older perl's from complaining.
+    $in  = Bio::Variation::IO->new(-file => "inputfilename" , 
+                                   -format => 'flat');
+    $out = Bio::Variation::IO->new(-file => ">outputfilename" ,
+                                   -format => 'xml');
 
     while ( my $seq = $in->next() ) {
-	$out->write($seq);
+	   $out->write($seq);
     }
 
   # or
@@ -32,16 +33,17 @@ Bio::Variation::IO - Handler for sequence variation IO Formats
 
     #input file format can be read from the file extension (dat|xml)
     $in  = Bio::Variation::IO->newFh(-file => "inputfilename");
-    $out = Bio::Variation::IO->newFh('-format' => 'xml');
+    $out = Bio::Variation::IO->newFh(-format => 'xml');
 
     # World's shortest flat<->xml format converter:
     print $out $_ while <$in>;
 
 =head1 DESCRIPTION
 
-Bio::Variation::IO is a handler module for the formats in the Variation IO set (eg,
-Bio::Variation::IO::flat). It is the officially sanctioned way of getting at
-the format objects, which most people should use.
+Bio::Variation::IO is a handler module for the formats in the 
+Variation IO set (eg, Bio::Variation::IO::flat). It is the officially 
+sanctioned way of getting at the format objects, which most people 
+should use.
 
 The structure, conventions and most of the code is inherited from
 L<Bio::SeqIO> module. The main difference is that instead of using
@@ -66,15 +68,16 @@ also
    $stream->type() # returns 'INPUT' or 'OUTPUT'
 
 As an added bonus, you can recover a filehandle that is tied to the
-SeqIO object, allowing you to use the standard E<lt>E<gt> and print operations
-to read and write sequence objects:
+SeqIO object, allowing you to use the standard E<lt>E<gt> and print 
+operations to read and write sequence objects:
 
     use Bio::Variation::IO;
 
-    $stream = Bio::Variation::IO->newFh(-format => 'flat'); # read from standard input
+    $stream = Bio::Variation::IO->newFh(-format => 'flat'); 
+    # read from standard input
 
     while ( $seq = <$stream> ) {
-	# do something with $seq
+	   # do something with $seq
     }
 
 and
@@ -86,13 +89,12 @@ This makes the simplest ever reformatter
     #!/usr/local/bin/perl
 
     $format1 = shift;
-    $format2 = shift || die "Usage: reformat format1 format2 < input > output";
+    $format2 = shift;
 
     use Bio::Variation::IO;
 
     $in  = Bio::Variation::IO->newFh(-format => $format1 );
     $out = Bio::Variation::IO->newFh(-format => $format2 );
-    #note: you might want to quote -format to keep older perl's from complaining.
 
     print $out $_ while <$in>;
 
@@ -224,11 +226,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Variation::IO;
 
 use strict;
-use vars '@ISA';
 
-use Bio::SeqIO;
 
-@ISA = 'Bio::SeqIO';
+use base qw(Bio::SeqIO);
 
 =head2 new
 

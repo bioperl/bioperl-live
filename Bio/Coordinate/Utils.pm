@@ -75,7 +75,6 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Coordinate::Utils;
-use vars qw(@ISA);
 
 use Bio::Location::Simple;
 use Bio::Coordinate::Pair;
@@ -83,7 +82,7 @@ use Bio::Coordinate::Collection;
 
 use strict;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 # new inherited from Root
 
 =head2 from_align

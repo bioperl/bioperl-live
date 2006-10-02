@@ -90,11 +90,10 @@ This software is provided "as is" without warranty of any kind.
 
 package Bio::Biblio::Provider;
 use strict;
-use vars qw(@ISA $AUTOLOAD);
+use vars qw($AUTOLOAD);
 
-use Bio::Biblio::BiblioBase;
 
-@ISA = qw(Bio::Biblio::BiblioBase);
+use base qw(Bio::Biblio::BiblioBase);
 
 #
 # a closure with a list of allowed attribute names (these names

@@ -25,7 +25,7 @@ user's environment.
                                        -retmax   => $retmax,
                                        -rettype  => 'fasta'
                                         );
-    
+
   print $efetch->get_response->content;
 
 =head1 DESCRIPTION
@@ -70,7 +70,7 @@ All other databases:
 
 B<PMID> (pubmed), B<MIM number> (omim), B<GI number> (nucleotide, protein),
 B<Genome ID> (genome), B<Popset ID> (popset), B<SNP cluster ID> (snp),
-B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), <MMDB-ID> (structure),
+B<UniSTS ID> (unists), B<UniGene cluster ID> (unigene), B<MMDB-ID> (structure),
 B<PSSM-ID> (cdd), B<3D SDI> (domains), B<TAXID> (taxonomy), B<GEO ID> (geo)
 
 =item C<mindate>, C<maxdate>
@@ -160,7 +160,7 @@ is much appreciated.
 
   bioperl-l@lists.open-bio.org               - General discussion
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
-  
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to
@@ -186,16 +186,12 @@ preceded with a _
 package Bio::DB::EUtilities::efetch;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
-use URI::Escape qw(uri_unescape);
 
-use vars qw(@ISA $EUTIL);
+use vars qw($EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    $EUTIL = 'efetch';
-}
+our $EUTIL = 'efetch';
 
 sub _initialize {
     my ($self, @args ) = @_;

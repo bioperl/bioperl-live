@@ -76,15 +76,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::EPCR;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SeqAnalysisParserI;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
 =head2 new
 

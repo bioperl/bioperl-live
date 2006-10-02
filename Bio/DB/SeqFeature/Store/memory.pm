@@ -72,7 +72,7 @@ Bio::DB::SeqFeature::Store::memory -- In-memory implementation of Bio::DB::SeqFe
 
 Bio::DB::SeqFeature::Store::memory is the in-memory adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
-instead use Bio::DB::SeqFeature::Store->new() to do so.
+instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
@@ -207,11 +207,11 @@ sub _add_SeqFeature {
   my $self = shift;
   my $parent   = shift;
   my @children = @_;
-  my $parent_id = (ref $parent ? $parent->primary_id : $parent)
-    or $self->throw("$parent should have a primary_id");
+  my $parent_id = (ref $parent ? $parent->primary_id : $parent);
+  defined $parent_id or $self->throw("$parent should have a primary_id");
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or die "no primary ID known for $child";
+    defined $child_id or $self->throw("no primary ID known for $child");
     $self->{_children}{$parent_id}{$child_id}++;
   }
 }
@@ -220,7 +220,8 @@ sub _fetch_SeqFeatures {
   my $self   = shift;
   my $parent = shift;
   my @types  = @_;
-  my $parent_id = $parent->primary_id or $self->throw("$parent should have a primary_id");
+  my $parent_id = $parent->primary_id;
+  defined $parent_id or $self->throw("$parent should have a primary_id");
   my @children_ids  = keys %{$self->{_children}{$parent_id}};
   my @children      = map {$self->fetch($_)} @children_ids;
 

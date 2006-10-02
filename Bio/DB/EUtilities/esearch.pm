@@ -20,7 +20,11 @@ You shouldn't use this class directly.
 
 =head1 SYNOPSIS
 
+*** Give standard usage here
+
 =head1 DESCRIPTION
+
+*** Describe the object here
 
 =head1 FEEDBACK
 
@@ -60,18 +64,15 @@ preceded with a _
 package Bio::DB::EUtilities::esearch;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
-use vars qw(@ISA $EUTIL);
+use vars qw($EUTIL);
 
-@ISA = qw(Bio::DB::EUtilities);
+use base qw(Bio::DB::EUtilities);
 
-BEGIN {
-    $EUTIL = 'esearch';
-}
+our $EUTIL = 'esearch';
 
 sub _initialize {
     my ($self, @args ) = @_;

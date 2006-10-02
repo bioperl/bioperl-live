@@ -134,11 +134,8 @@ L<Bio::SearchIO::Writer::HSPTableWriter>
 package Bio::SearchIO::Writer::ResultTableWriter;
 
 use strict;
-use Bio::Root::Root;
-use Bio::SearchIO::SearchWriterI;
 
-use vars qw( @ISA );
-@ISA = qw( Bio::Root::Root Bio::SearchIO::SearchWriterI );
+use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
 # Array fields: column, object, method[/argument], printf format, column label
 # Methods are defined in Bio::Search::Result::ResultI.

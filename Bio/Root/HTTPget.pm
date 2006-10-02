@@ -85,11 +85,9 @@ methods. Internal methods are usually preceded with a _
 package Bio::Root::HTTPget;
 
 use strict;
-use Bio::Root::Root;
 use IO::Socket qw(:DEFAULT :crlf);
-use vars '@ISA';
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 =head2 get
@@ -98,10 +96,11 @@ use vars '@ISA';
  Usage   : my $resp = get(-url => $url);
  Function: 
  Returns : string
- Args    : -url   => URL to HTTPGet
-           -proxy => proxy to use
-           -user  => username for proxy or authentication
-           -pass  => password for proxy or authentication
+ Args    : -url     => URL to HTTPGet
+           -proxy   => proxy to use
+           -user    => username for proxy or authentication
+           -pass    => password for proxy or authentication
+           -timeout => timeout
 
 =cut
 
@@ -110,7 +109,7 @@ sub get {
     if( ref($_[0]) ) {
 	$self = shift;
     }
-
+    
     my ($url,$proxy,$timeout,$auth_user,$auth_pass) = 
 	__PACKAGE__->_rearrange([qw(URL PROXY TIMEOUT USER PASS)],@_);
     my $dest  = $proxy || $url;
@@ -119,13 +118,16 @@ sub get {
 	= _http_parse_url($dest) or __PACKAGE__->throw("invalid URL $url");
     $auth_user ||= $user;
     $auth_pass ||= $pass;
-    if( $self ) { 
-	unless( $auth_user ) { 
-	    ($auth_user,$auth_pass) = $self->authentication;
-	}
-	unless( $proxy ) { $proxy = $self->proxy() }
+    if ($self) {
+        unless ($proxy) {
+            $proxy = $self->proxy;
+        }
+        unless ($auth_user) { 
+            ($auth_user, $auth_pass) = $self->authentication;
+        }
     }
     $path = $url if $proxy;
+    
     # set up the connection
     my $socket = _http_connect($host,$port) or __PACKAGE__->throw("can't connect: $@");
 
@@ -156,7 +158,7 @@ sub get {
     if ($stat_code == 302 || $stat_code == 301) { # redirect
 	my $location = $headers{Location} or 
             __PACKAGE__->throw("invalid redirect: no Location header");
-	return get($location,$proxy,$timeout); # recursive call
+	return get(-url => $location, -proxy => $proxy, -timeout => $timeout, -user => $auth_user, -pass => $auth_pass); # recursive call
     }
 
     elsif ($stat_code == 401) { # auth required
@@ -232,7 +234,7 @@ sub getFH {
   if ($stat_code == 302 || $stat_code == 301) {  # redirect
     my $location = $headers{Location} or 
         __PACKAGE__->throw("invalid redirect: no Location header");
-    return getFH($location,$proxy,$timeout);  # recursive call
+    return getFH(-url => $location, -proxy => $proxy, -timeout => $timeout, -user => $auth_user, -pass => $auth_pass);  # recursive call
   }
 
   elsif ($stat_code == 401) { # auth required
@@ -335,7 +337,8 @@ sub _encode_base64 {
  Title   : proxy
  Usage   : $httpproxy = $db->proxy('http')  or 
            $db->proxy(['http','ftp'], 'http://myproxy' )
- Function: Get/Set a proxy for use of proxy
+ Function: Get/Set a proxy for use of proxy. Defaults to environment variable
+           http_proxy if present.
  Returns : a string indicating the proxy
  Args    : $protocol : an array ref of the protocol(s) to set/get
            $proxyurl : url of the proxy to use for the specified protocol
@@ -347,7 +350,16 @@ sub _encode_base64 {
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
     $protocol ||= 'http';
-    return unless (  defined $protocol && defined $proxy );
+    unless ($proxy) {
+        if (defined $ENV{http_proxy}) {
+            $proxy = $ENV{http_proxy};
+            if ($proxy =~ /\@/) {
+                ($username, $password, $proxy) = $proxy =~ m{http://(\S+):(\S+)\@(\S+)};
+                $proxy = 'http://'.$proxy;
+            }
+        }
+    }
+    return unless (defined $proxy);
     $self->authentication($username, $password) 
 	if ($username && $password);
     return $self->{'_proxy'}->{$protocol} = $proxy;

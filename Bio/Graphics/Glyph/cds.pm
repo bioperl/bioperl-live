@@ -4,9 +4,8 @@ use strict;
 use Bio::Graphics::Glyph::segments;
 use Bio::Graphics::Util qw(frame_and_offset);
 use Bio::Tools::CodonTable;
-use Bio::Graphics::Glyph::translation;
-use vars qw(@ISA $VERSION);
-@ISA = qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
+use vars qw($VERSION);
+use base qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 
 my %default_colors = qw(
 			frame0f  cornflowerblue

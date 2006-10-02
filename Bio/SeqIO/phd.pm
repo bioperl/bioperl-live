@@ -32,7 +32,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -61,22 +61,20 @@ methods. Internal methods are usually preceded with a _
 # 'Let the code begin...
 
 package Bio::SeqIO::phd;
-use vars qw(@ISA);
 use strict;
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Dumpvalue();
 my $dumper = new Dumpvalue();
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
   my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);    
+  $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
-			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq::Quality'));      
+			      (-verbose => $self->verbose(),
+			       -type => 'Bio::Seq::Quality'));
   }
 }
 
@@ -128,7 +126,7 @@ sub next_seq {
 	if ($entry =~ /^BEGIN_CHROMAT:\s+(\S+)/) {
 	     # this is where I used to grab the ID
           if (!$id) {
-               $id = $1; 
+               $id = $1;
           }
           $entry = $self->_readline();
 	}
@@ -185,7 +183,7 @@ sub next_seq {
 	TRACE_ARRAY_MAX_INDEX: unknown
 	CHEM: unknown
 	DYE: unknown
-     IMPORTANT: This method does not write the trace index where this 
+     IMPORTANT: This method does not write the trace index where this
           call was made. All base calls are placed at index 1.
 
 
@@ -196,7 +194,7 @@ sub write_seq {
     my @phredstack;
     my ($label,$arg);
 
-    my ($swq, $swq2, $chromatfile, $abithumb, 
+    my ($swq, $swq2, $chromatfile, $abithumb,
 	$phredversion, $callmethod,
 	$qualitylevels,$time,
 	$trace_min_index,
@@ -225,22 +223,22 @@ sub write_seq {
     push @phredstack,("BEGIN_SEQUENCE $id","","BEGIN_COMMENT","");
 
     $chromatfile = 'undefined in write_phd' unless defined $chromatfile;
-    push @phredstack,"CHROMAT_FILE: $chromatfile"; 
+    push @phredstack,"CHROMAT_FILE: $chromatfile";
 
     $abithumb = 0 unless defined $abithumb;
-    push @phredstack,"ABI_THUMBPRINT: $abithumb"; 
+    push @phredstack,"ABI_THUMBPRINT: $abithumb";
 
     $phredversion = "0.980904.e" unless defined $phredversion;
-    push @phredstack,"PHRED_VERSION: $phredversion"; 
+    push @phredstack,"PHRED_VERSION: $phredversion";
 
     $callmethod = 'phred' unless defined $callmethod;
-    push @phredstack,"CALL_METHOD: $callmethod"; 
+    push @phredstack,"CALL_METHOD: $callmethod";
 
     $qualitylevels = 99 unless defined $qualitylevels;
-    push @phredstack,"QUALITY_LEVELS: $qualitylevels"; 
+    push @phredstack,"QUALITY_LEVELS: $qualitylevels";
 
     $time = localtime() unless defined $time;
-    push @phredstack,"TIME: $time"; 
+    push @phredstack,"TIME: $time";
 
     $trace_min_index = 0 unless defined $trace_min_index;
     push @phredstack,"TRACE_ARRAY_MIN_INDEX: $trace_min_index";

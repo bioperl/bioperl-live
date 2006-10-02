@@ -63,13 +63,7 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 
-=over
-
-=item *
-
-http://www.ebi.ac.uk/soaplab/Perl_Client.html
-
-=back
+L<http://www.ebi.ac.uk/soaplab/Perl_Client.html>.
 
 =head1 APPENDIX
 
@@ -85,15 +79,9 @@ message. You need to call them on a C<Bio::Tools::Run::Analysis> object instead.
 # Let the code begin...
 
 package Bio::AnalysisI;
-use vars qw(@ISA  $Revision);
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
+use base qw(Bio::Root::RootI);
 
 # -----------------------------------------------------------------------------
 
@@ -435,11 +423,8 @@ C<Bio::Tools::Run::Analysis::Job> object:
 
 =cut
 
-use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
-
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 # -----------------------------------------------------------------------------
 

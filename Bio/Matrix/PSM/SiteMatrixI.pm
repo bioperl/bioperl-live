@@ -2,70 +2,34 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::SiteMatrix - SiteMatrixI implementation, holds a
+Bio::Matrix::PSM::SiteMatrixI - SiteMatrixI implementation, holds a
 position scoring matrix (or position weight matrix) and log-odds
 
 =head1 SYNOPSIS
 
-  use Bio::Matrix::PSM::SiteMatrix;
-  # Create from memory by supplying probability matrix hash
-  # both as strings or arrays
-  # where the frequencies  $a,$c,$g and $t are supplied either as
-  # arrayref or string. Accordingly, lA, lC, lG and lT are the log
-  # odds (only as arrays, no checks done right now)
-  my ($a,$c,$g,$t,$score,$ic, $mid)=@_;
-  #or
-  my ($a,$c,$g,$t,$score,$ic,$mid)=('05a011','110550','400001',
-                                    '100104',0.001,19.2,'CRE1');
-  #Where a stands for all (this frequency=1), see explanation bellow
-  my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
-             -lA=>$la, -lC=>$lc,-lG=>$lg,-lT=>$l,
-             -IC=>$ic,-e_val=>$score, -id=>$mid);
-  my $site=new Bio::Matrix::PSM::SiteMatrix(%param);
-  #Or get it from a file:
-  use Bio::Matrix::PSM::IO;
-  my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
-  while (my $psm=$psmIO->next_psm) {
-    #Now we have a Bio::Matrix::PSM::Psm object,
-    # see Bio::Matrix::PSM::PsmI for details
-    #This is a Bio::Matrix::PSM::SiteMatrix object now
-    my $matrix=$psm->matrix;
-  }
-
-  # Get a simple consensus, where alphabet is {A,C,G,T,N},
-  # choosing the highest probability or N if prob is too low
-  my $consensus=$site->consensus;
-
-  #Getting/using regular expression
-  my $regexp=$site->regexp;
-  my $count=grep($regexp,$seq);
-  my $count=($seq=~ s/$regexp/$1/eg);
-  print "Motif $mid is present $count times in this sequence\n";
+  # You cannot use this module directly; see Bio::Matrix::PSM::SiteMatrix
+  # for an example implementation
 
 =head1 DESCRIPTION
 
-SiteMatrix is designed to provide some basic methods when working with
-position scoring (weight) matrices, such as transcription factor
-binding sites for example.  A DNA PSM consists of four vectors with
-frequencies {A,C,G,T). This is the minimum information you should
-provide to construct a PSM object. The vectors can be provided as
-strings with frequencies where the frequency is {0..a} and a=1. This
-is the way MEME compressed representation of a matrix and it is quite
-useful when working with relational DB.  If arrays are provided as an
-input (references to arrays actually) they can be any number, real or
-integer (frequency or count).
+SiteMatrix is designed to provide some basic methods when working with position
+scoring (weight) matrices, such as transcription factor binding sites for
+example. A DNA PSM consists of four vectors with frequencies {A,C,G,T}. This is
+the minimum information you should provide to construct a PSM object. The
+vectors can be provided as strings with frequenciesx10 rounded to an int, going
+from {0..a} and 'a' represents the maximum (10). This is like MEME's compressed
+representation of a matrix and it is quite useful when working with relational
+DB. If arrays are provided as an input (references to arrays actually) they can
+be any number, real or integer (frequency or count).
 
-When creating the object the constructor will check for positions that
-equal 0.  If such is found it will increase the count for all
-positions by one and recalculate the frequency.  Potential bug- if you
-are using frequencies and one of the positions is 0 it will change
-significantly.  However, you should never have frequency that equals
-0.
+When creating the object you can ask the constructor to make a simple pseudo
+count correction by adding a number (typically 1) to all positions (with the
+-correction option). After adding the number the frequencies will be
+calculated. Only use correction when you supply counts, not frequencies.
 
-Throws an exception if: You mix as an input array and string (for
-example A matrix is given as array, C - as string).  The position
-vector is (0,0,0,0).  One of the probability vectors is shorter than
-the rest.
+Throws an exception if: You mix as an input array and string (for example A
+matrix is given as array, C - as string). The position vector is (0,0,0,0). One
+of the probability vectors is shorter than the rest.
 
 Summary of the methods I use most frequently (details bellow):
 
@@ -137,62 +101,8 @@ Email skirov@utk.edu
 
 package Bio::Matrix::PSM::SiteMatrixI;
 
-use Bio::Root::RootI;
-use vars qw(@ISA);
 # use strict;
-@ISA=qw(Bio::Root::RootI);
-
-
-=head2 new
-
- Title   : new
- Usage   : my $site=new Bio::Matrix::PSM::SiteMatrix
-              (-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
-               -IC=>$ic,-e_val=>$score, -id=>$mid, model=>\%model);
-            or
-             my $site=new Bio::Matrix::PSM::SiteMatrix
-              (-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
-               -lA=>$la,-lC=>$lc,-lG=>$lg,-lT=>$lt,
-               -IC=>$ic,-e_val=>$score, -id=>$mid);
-               The difference is that you could supply either background model
-               or weights in order for your object to be both frequency matrix
-               and weight(scoring) matrix. See also calc_weight method.
- Function: Creates a new Bio::Matrix::PSM::SiteMatrix object from memory
- Throws  : If inconsistent data for all vectors (A,C,G and T) is provided,
-           if you mix input types (string vs array) or if a position freq is 0.
- Example :
- Returns : Bio::Matrix::PSM::SiteMatrix object
- Args    : hash
-
-
-=cut
-
-sub new {
-  my $self = shift;
-  $self->throw_not_implemented();
-}
-
-=head2 _initialize
-
- Title   : _initialize
- Usage   : my $site=$matrix->_initialize
-              (-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
-               -lA=>$la,-lC=>$lc,-lG=>$lg,-lT=>$lt,
-               -IC=>$ic,-e_val=>$score, -id=>$mid);
- Function: Initialize an empty Bio::Matrix::PSM::SiteMatrix object
- Throws  : If inconsistent data for all vectors (A,C,G and T) is provided,
-           if you mix input types (string vs array) or if a position freq is 0.
- Example :
- Returns : Bio::Matrix::PSM::SiteMatrix object
- Args    : hash
-
-
-=cut
-
-sub _initialize {
-  my $self = shift;
-  $self->throw_not_implemented();
-}
+use base qw(Bio::Root::RootI);
 
 =head2 calc_weight
 
@@ -275,12 +185,12 @@ sub e_val {
 =head2 consensus
 
  Title   : consensus
- Usage   :  my $strict=$matrix->consensus(8);
+ Usage   :
  Function: Returns the consensus
- Throws  : if supplied with thresold outisde 5..10 range
- Example :
  Returns : string
- Args    : (optional) threshold value 5 to 10
+ Args    : (optional) threshold value 1 to 10, default 5
+           '5' means the returned characters had a 50% or higher presence at
+           their position
 
 =cut
 

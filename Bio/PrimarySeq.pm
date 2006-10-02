@@ -110,18 +110,12 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw(@ISA $MATCHPATTERN);
+use vars qw($MATCHPATTERN);
 use strict;
 
 $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
 
-use Bio::Root::Root;
-use Bio::PrimarySeqI;
-use Bio::IdentifiableI;
-use Bio::DescribableI;
-
-@ISA = qw(Bio::Root::Root Bio::PrimarySeqI
-	  Bio::IdentifiableI Bio::DescribableI);
+use base qw(Bio::Root::Root Bio::PrimarySeqI Bio::IdentifiableI Bio::DescribableI);
 
 #
 # setup the allowed values for alphabet()
@@ -248,8 +242,6 @@ sub direct_seq_set {
  Returns : A scalar
  Args    : Optionally on set the new value (a string). An optional second
            argument presets the alphabet (otherwise it will be guessed).
-           Both parameters may also be given in named paramater style
-           with -seq and -alphabet being the names.
 
 =cut
 
@@ -378,8 +370,8 @@ sub subseq {
 	   return substr( $self->seq(), $start, ($end-$start));
        }
    } else {
-       $self->warn("Incorrect parameters to subseq - must be two integers ".
-		   "or a Bio::LocationI object not ($start,$end)");
+       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object");
+       return;
    }
 }
 

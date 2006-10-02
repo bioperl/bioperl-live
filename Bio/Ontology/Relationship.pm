@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-Relationship - a relationship for an ontology
+Bio::Ontology::Relationship - a relationship for an ontology
 
 =head1 SYNOPSIS
 
@@ -100,14 +100,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::Relationship;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Root;
 use Bio::Ontology::TermI;
-use Bio::Ontology::RelationshipI;
 
-@ISA = qw( Bio::Root::Root
-           Bio::Ontology::RelationshipI );
+use base qw(Bio::Root::Root Bio::Ontology::RelationshipI);
 
 
 

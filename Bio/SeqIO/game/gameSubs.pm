@@ -64,12 +64,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::game::gameSubs;
 use XML::Parser::PerlSAX;
-use Bio::Root::Root;
 use UNIVERSAL;
 use strict;
 
-use vars qw { @ISA };
-@ISA = qw { Bio::Root::Root };
+use vars qw {};
+use base qw(Bio::Root::Root);
 
 
 =head2 new

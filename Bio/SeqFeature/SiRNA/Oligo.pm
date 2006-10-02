@@ -35,16 +35,12 @@ Bio::SeqFeature::SiRNA::Oligo - Perl object for small inhibitory RNAs.
 =head1 DESCRIPTION
 
 Object methods for single SiRNA oligos - inherits
-Bio::SeqFeature::Generic.  DOES NOT include methods for designing
-SiRNAs -- see L<Bio::Tools::SiRNA> for that.
-
-=head2 EXPORT
-
-None by default.
+L<Bio::SeqFeature::Generic>.  Does B<not> include methods for designing
+SiRNAs - see L<Bio::Tools::SiRNA> for that.
 
 =head1 SEE ALSO
 
-L<Bio::Tools::SiRNA>, L<Bio::SeqFeature::SiRNA::Pair>, L<perl>.
+L<Bio::Tools::SiRNA>, L<Bio::SeqFeature::SiRNA::Pair>.
 
 =head1 FEEDBACK
 
@@ -69,10 +65,6 @@ the web:
 
 Donald Jackson (donald.jackson@bms.com)
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -86,9 +78,8 @@ require 5.005_62;
 use strict;
 use warnings;
 
-use Bio::SeqFeature::Generic;
 
-our @ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 our @ARGNAMES = qw(SEQ START END STRAND PRIMARY SOURCE_TAG SCORE TAG 
                    SEQ_ID ANNOTATION LOCATION);

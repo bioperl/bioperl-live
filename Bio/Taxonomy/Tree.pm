@@ -113,20 +113,16 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Taxonomy::Tree;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::Tree::TreeFunctionsI;
-use Bio::Tree::TreeI;
 use Bio::Taxonomy::Taxon;
 
 # Import rank information from Bio::Taxonomy.pm
 use vars qw(@RANK %RANK);
 
-@ISA = qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI);
+use base qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI);
 
 =head2 new
 

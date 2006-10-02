@@ -22,7 +22,8 @@
 
 =head1 NAME
 
-GraphAdaptor - Graph adaptor for Bio::Ontology::SimpleGOEngine
+Bio::Ontology::SimpleGOEngine::GraphAdaptor - Graph adaptor for
+Bio::Ontology::SimpleGOEngine
 
 =head1 SYNOPSIS
 
@@ -116,12 +117,10 @@ package Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 
 use Graph::Directed;
 
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Root;
 use Bio::Ontology::SimpleGOEngine::GraphAdaptor02;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 

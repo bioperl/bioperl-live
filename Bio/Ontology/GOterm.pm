@@ -23,7 +23,7 @@
 
 =head1 NAME
 
-GOterm - representation of GO terms 
+Bio::Ontology::GOterm - representation of GO terms 
 
 =head1 SYNOPSIS
 
@@ -92,15 +92,13 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::GOterm;
-use vars qw( @ISA );
 use strict;
-use Bio::Ontology::Term;
 
 use constant GOID_DEFAULT => "GO:0000000";
 use constant TRUE         => 1;
 use constant FALSE        => 0;
 
-@ISA = qw( Bio::Ontology::Term );
+use base qw(Bio::Ontology::Term);
 
 
 

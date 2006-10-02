@@ -186,10 +186,9 @@ web:
 
 package Bio::Tools::dpAlign;
 
-use Bio::Tools::AlignFactory;
 use Bio::SimpleAlign;
 
-@ISA = qw(Bio::Tools::AlignFactory);
+use base qw(Bio::Tools::AlignFactory);
 
 $VERSION = '0.70';
 

@@ -59,10 +59,6 @@ web:
 
 Email bix@sendu.me.uk
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -74,13 +70,10 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::hmmer_pull;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::SearchIO;
-use Bio::PullParserI;
 
-@ISA = qw(Bio::SearchIO Bio::PullParserI);
+use base qw(Bio::SearchIO Bio::PullParserI);
 
 =head2 new
 
@@ -96,7 +89,7 @@ use Bio::PullParserI;
                         as a score value cutoff for hits
            -hsps     => integer minimum number of hsps (domains) a hit must have
            -piped_behaviour => 'temp_file'|'memory'|'sequential_read'
-           
+
            -piped_behaviour defines what the parser should do if the input is
             an unseekable filehandle (eg. piped input), see
             Bio::PullParserI::chunk for details. Default is 'sequential_read'.
@@ -256,12 +249,12 @@ sub result_count {
  Usage   : $searchio->rewind;
  Function: Allow one to reset the Result iterator to the beginning, so that
            next_result() will subsequently return the first result and so on.
-           
+
            NB: result objects are not cached, so you will get new result objects
            each time you rewind. Also, note that result_count() counts the
            number of times you have called next_result(), so will not be able
            tell you how many results there were in the file if you use rewind().
-           
+
  Returns : n/a
  Args    : none
 

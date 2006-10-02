@@ -31,13 +31,12 @@ file databases.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -65,21 +64,19 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::gcg;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 sub _initialize {
   my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);    
+  $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(new Bio::Seq::SeqFactory
-			      (-verbose => $self->verbose(), 
-			       -type => 'Bio::Seq::RichSeq'));      
+			      (-verbose => $self->verbose(),
+			       -type => 'Bio::Seq::RichSeq'));
    }
 }
 
@@ -102,16 +99,16 @@ sub next_seq {
        ## Get the descriptive info (anything before the line with '..')
        unless( /\.\.$/ ) { $desc.= $_; }
        ## Pull ID, Checksum & Type from the line containing '..'
-       /\.\.$/ && do     { $line = $_; chomp; 
+       /\.\.$/ && do     { $line = $_; chomp;
                            if(/Check\:\s(\d+)\s/) { $chksum = $1; }
                            if(/Type:\s(\w)\s/)    { $type   = $1; }
-                           if(/(\S+)\s+Length/) 
+                           if(/(\S+)\s+Length/)
 			   { $id     = $1; }
 			   if(/Length:\s+(\d+)\s+(\S.+\S)\s+Type/ )
 			   { $len = $1; $date = $2;}
-                           last; 
+                           last;
                          }
-   }   
+   }
    return if ( !defined $_);
    chomp($desc);  # remove last "\n"
 
@@ -119,8 +116,8 @@ sub next_seq {
 
        ## This is where we grab the sequence info.
 
-       if( /\.\.$/ ) { 
-        $self->throw("Looks like start of another sequence. See documentation. "); 
+       if( /\.\.$/ ) {
+        $self->throw("Looks like start of another sequence. See documentation. ");
        }
 
        next if($_ eq "\n");       ## skip whitespace lines in formatted seq
@@ -130,7 +127,7 @@ sub next_seq {
    }
    ##If we parsed out a checksum, we might as well test it
 
-   if(defined $chksum) { 
+   if(defined $chksum) {
        unless(_validate_checksum($sequence,$chksum)) {
 	   $self->throw("Checksum failure on parsed sequence.");
        }
@@ -147,9 +144,9 @@ sub next_seq {
        if($type eq "P") { $type = "prot";    }
    }
 
-   return $self->sequence_factory->create(-seq  => $sequence, 
-					  -id   => $id, 
-					  -desc => $desc, 
+   return $self->sequence_factory->create(-seq  => $sequence,
+					  -id   => $id,
+					  -desc => $desc,
 					  -type => $type,
 					  -dates => [ $date ]
 					  );
@@ -169,21 +166,21 @@ sub next_seq {
 sub write_seq {
     my ($self,@seq) = @_;
     for my $seq (@seq) {
-	$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
+	$self->throw("Did not provide a valid Bio::PrimarySeqI object")
 	    unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 
         $self->warn("No whitespace allowed in GCG ID [". $seq->display_id. "]")
             if $seq->display_id =~ /\s/;
 
 	my $str         = $seq->seq;
-	my $comment     = $seq->desc || ''; 
+	my $comment     = $seq->desc || '';
 	my $id          = $seq->id;
 	my $type        = ( $seq->alphabet() =~ /[dr]na/i ) ? 'N' : 'P';
 	my $timestamp;
 
 	if( $seq->can('get_dates') ) {
 	    ($timestamp) = $seq->get_dates;
-	} else { 
+	} else {
 	    $timestamp = localtime(time);
 	}
 	my($sum,$offset,$len,$i,$j,$cnt,@out);
@@ -195,14 +192,14 @@ sub write_seq {
 	$sum = $self->GCG_checksum($seq);
 
 	#Output the sequence header info
-	push(@out,"$comment\n");                        
+	push(@out,"$comment\n");
 	push(@out,"$id  Length: $len  $timestamp  Type: $type  Check: $sum  ..\n\n");
 
 	#Format the sequence
 	$i = $#out + 1;
 	for($j = 0 ; $j < $len ; ) {
 	    if( $j % 50 == 0) {
-		$out[$i] = sprintf("%8d  ",($j+$offset)); #numbering 
+		$out[$i] = sprintf("%8d  ",($j+$offset)); #numbering
 	    }
 	    $out[$i] .= sprintf("%s",substr($str,$j,10));
 	    $j += 10;
@@ -210,7 +207,7 @@ sub write_seq {
 		$out[$i] .= " ";
 	    }elsif($j % 50 == 0 ) {
 		$out[$i++] .= "\n\n";
-	    }                           
+	    }
 	}
 	local($^W) = 0;
 	if($j % 50 != 0 ) {
@@ -231,7 +228,7 @@ sub write_seq {
  Function  : returns a gcg checksum for the sequence specified
 
              This method can also be called as a class method.
- Example   : 
+ Example   :
  Returns   : a GCG checksum string
  Argument  : a Bio::PrimarySeqI implementing object
 
@@ -245,7 +242,7 @@ sub GCG_checksum {
 
     my $seq = $seqobj->seq();
     $seq =~ tr/a-z/A-Z/;
-    
+
     foreach $char ( split(/[\.\-]*/, $seq)) {
 	$index++;
 	$checksum += ($index * (unpack("c",$char) || 0) );
@@ -280,7 +277,7 @@ sub _validate_checksum {
 
     #Generate the GCG Checksum value
 
-    for($i=0; $i<$len ;$i++) {             
+    for($i=0; $i<$len ;$i++) {
 	$cnt++;
 	$computed_sum += $cnt * ord(substr($seq,$i,1));
 	($cnt == 57) && ($cnt=0);

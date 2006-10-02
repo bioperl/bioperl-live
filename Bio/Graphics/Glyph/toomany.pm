@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::toomany;
 # DAS-compatible package to use for drawing a box
 
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 # draw the thing onto a canvas
 # this definitely gets overridden

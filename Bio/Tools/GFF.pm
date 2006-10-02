@@ -132,16 +132,14 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Tools::GFF;
 
-use vars qw(@ISA $HAS_HTML_ENTITIES);
+use vars qw($HAS_HTML_ENTITIES);
 use strict;
 
-use Bio::Root::IO;
-use Bio::SeqAnalysisParserI;
 use Bio::Seq::SeqFactory;
 use Bio::LocatableSeq;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
 =head2 new
 
@@ -359,7 +357,7 @@ sub next_feature {
             # all forward refs have been seen; TODO
         }
         next if($gff_string =~ /^\#/ || $gff_string =~ /^\s*$/ ||
-                $gff_string =~ /^\/\//);
+                $gff_string =~ m{^//});
 
         while ($gff_string =~ /^\>(.+)/) {
             # fasta can be in header or footer

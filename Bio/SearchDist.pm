@@ -98,10 +98,8 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SearchDist;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 
 BEGIN {
     eval {
@@ -115,7 +113,7 @@ print $@;
 }
 
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
   my($class,@args) = @_;

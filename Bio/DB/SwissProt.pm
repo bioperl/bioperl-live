@@ -97,13 +97,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SwissProt;
 use strict;
-use vars qw(@ISA $MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTSERVERTYPE);
+use vars qw($MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTSERVERTYPE);
 
 $MODVERSION = '0.8.1';
 use HTTP::Request::Common;
-use Bio::DB::WebDBSeqI;
 
-@ISA = qw(Bio::DB::WebDBSeqI);
+use base qw(Bio::DB::WebDBSeqI);
 
 # global vars
 $DEFAULTSERVERTYPE = 'ebi';

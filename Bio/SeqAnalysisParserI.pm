@@ -77,10 +77,8 @@ Internal methods are usually preceded with a _
 
 package Bio::SeqAnalysisParserI;
 use strict;
-use vars qw(@ISA);
-use Bio::Root::RootI;
 use Carp;
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 next_feature
 

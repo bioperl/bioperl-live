@@ -259,7 +259,7 @@ sub get_vocabulary_names {
 =cut
 
 sub contains {
-  return undef;
+  return;
 }
 
 =head2 get_entry_description
@@ -274,7 +274,7 @@ sub contains {
 =cut
 
 sub get_entry_description {
-  return undef;
+  return;
 }
 
 =head2 get_all_values
@@ -289,7 +289,7 @@ sub get_entry_description {
 =cut
 
 sub get_all_values {
-  return undef;
+  return;
 }
 
 =head2 get_all_entries
@@ -304,7 +304,7 @@ sub get_all_values {
 =cut
 
 sub get_all_entries {
-  return undef;
+  return;
 }
 
 =head1 Internal methods unrelated to Bio::DB::BiblioI
@@ -373,7 +373,7 @@ sub _process_pubmed_html {
   $page =~ m|<!---- Pager -- \(page header\) -- end ------>.+?<SPAN><a href="(.+?)" onClick="window.open|s;
 
   if( ! defined($1) ) {
-    return undef;
+    return;
   }
 
   $self->ua->follow_link( url => $1 );
@@ -407,7 +407,7 @@ sub guess_pdf_url {
   #http://www.sciencedirect.com/science?_ob=MImg&_imagekey=B6VPM-480CTTS-5-5&_cdi=6210&_user=4423&_orig=search&_coverDate=04%2F30%2F2003&_qd=1&_sk=999779997&view=c&wchp=dGLbVtz-zSkzV&md5=5b04979d84dab066be5cde52fd2affa7&ie=/sdarticle.pdf
   elsif( $url =~ m!^(.+?science\?_ob=)ArticleURL(.+?)$! ) {
     my $link = $self->ua->find_link( text_regex => qr/PDF \(.+?\)/s );
-    return undef unless $link;
+    return unless $link;
     return $link->url_abs();
   }
   #genome biology
@@ -424,7 +424,7 @@ sub guess_pdf_url {
   elsif( $url =~ m!^(.+?/cgi-bin)/abstract/(\d+?)/ABSTRACT$! ) {
     $self->ua->get( qq($1/fulltext/$2/PDFSTART) );
     my $link = $self->ua->find_link( url_regex => qr/fulltext/ );
-    return undef unless $link;
+    return unless $link;
     return $link->url_abs();
   }
   #nar, bioinformatics
@@ -442,7 +442,7 @@ sub guess_pdf_url {
   #http://www.plosbiology.org/archive/1545-7885/2/1/pdf/10.1371_journal.pbio.0020009-S.pdf
   elsif( $url =~ m!^http://[^.]+?\.plos! ) {
     my $link = $self->ua->find_link( text_regex => qr/^Screen/s );
-    return undef unless $link;
+    return unless $link;
     return $link->url_abs();
   }
   #bmc bioinformatics
@@ -455,15 +455,15 @@ sub guess_pdf_url {
 
 
 warn $url;
-  return undef;
+  return;
 }
 
 
 # sub _crawl {
 #   my( $self ) = @_;
 
-#   return undef if $self->depth() == $self->max_depth();
-#   return undef if $self->pdf();
+#   return if $self->depth() == $self->max_depth();
+#   return if $self->pdf();
 
 #   $self->depth( $self->depth + 1 );
 
@@ -480,7 +480,7 @@ warn $url;
 
 #   $self->depth( $self->depth - 1 );
 
-#   return undef;
+#   return;
 # }
 
 # sub _fetch_pdf {

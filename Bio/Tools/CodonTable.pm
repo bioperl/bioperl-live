@@ -172,17 +172,15 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::CodonTable;
-use vars qw(@ISA @NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA 
-	    $CODONGAP $GAP
+use vars qw(@NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA 	    $CODONGAP $GAP
 	    %IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
-use Bio::Root::Root;
 use Bio::Tools::IUPAC;
 use Bio::SeqUtils;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 
 # first set internal values for all translation tables

@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-Phenotype - A class for modeling phenotypes
+Bio::Phenotype::Phenotype - A class for modeling phenotypes
 
 =head1 SYNOPSIS
 
@@ -112,11 +112,8 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Phenotype::Phenotype;
-use vars qw( @ISA );
 use strict;
 
-use Bio::Root::Root;
-use Bio::Phenotype::PhenotypeI;
 use Bio::Species;
 use Bio::Variation::VariantI;
 use Bio::Annotation::DBLink;
@@ -127,8 +124,7 @@ use Bio::Map::CytoPosition;
 use Bio::Range;
 
 
-@ISA = qw( Bio::Root::Root
-           Bio::Phenotype::PhenotypeI );
+use base qw(Bio::Root::Root Bio::Phenotype::PhenotypeI);
 
 
 

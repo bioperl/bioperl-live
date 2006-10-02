@@ -91,7 +91,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tree::RandomFactory;
-use vars qw(@ISA $PRECISION_DIGITS $DefaultNodeType %Defaults);
+use vars qw($PRECISION_DIGITS $DefaultNodeType %Defaults);
 use strict;
 
 $PRECISION_DIGITS = 3; # Precision for the branchlength
@@ -101,12 +101,10 @@ $DefaultNodeType = 'Bio::Tree::Node';
 	     'DefaultTreeMethod' => 'yule',
 	     );
 
-use Bio::Factory::TreeFactoryI;
-use Bio::Root::Root;
 use Bio::Tools::RandomDistFunctions;
 use Bio::Tree::Tree;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::TreeFactoryI );
+use base qw(Bio::Root::Root Bio::Factory::TreeFactoryI);
 
 =head2 new
 

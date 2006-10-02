@@ -73,10 +73,6 @@ the web:
 Email jason-at-bioperl-dot-org
 Email matthew-dot-hahn-at-duke-dot-edu
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -89,18 +85,16 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Simulation::Coalescent;
-use vars qw(@ISA $PRECISION_DIGITS);
+use vars qw($PRECISION_DIGITS);
 use strict;
 
 $PRECISION_DIGITS = 3; # Precision for the branchlength
 
-use Bio::Factory::TreeFactoryI;
-use Bio::Root::Root;
 use Bio::Tree::AlleleNode;
 use Bio::PopGen::Genotype;
 use Bio::Tree::Tree;
 
-@ISA = qw(Bio::Root::Root Bio::Factory::TreeFactoryI );
+use base qw(Bio::Root::Root Bio::Factory::TreeFactoryI);
 
 
 =head2 new

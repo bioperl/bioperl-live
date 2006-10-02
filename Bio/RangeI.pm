@@ -45,8 +45,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                         - General discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -76,12 +76,10 @@ package Bio::RangeI;
 
 use strict;
 use Carp;
-use Bio::Root::RootI;
-use vars qw(@ISA);
 use integer;
-use vars qw( @ISA %STRAND_OPTIONS );
+use vars qw(%STRAND_OPTIONS);
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 BEGIN {
 # STRAND_OPTIONS contains the legal values for the strand-testing options
@@ -100,7 +98,7 @@ BEGIN {
 sub _strong {
     my ($r1, $r2) = @_;
     my ($s1, $s2) = ($r1->strand(), $r2->strand());
-    
+
     return 1 if $s1 != 0 && $s1 == $s2;
 }
 
@@ -209,16 +207,16 @@ end are not defined.
 
 sub overlaps {
 	my ($self, $other, $so) = @_;
-    
+
 	$self->throw("start is undefined") unless defined $self->start;
 	$self->throw("end is undefined") unless defined $self->end;
-	$self->throw("not a Bio::RangeI object") unless defined $other && 
+	$self->throw("not a Bio::RangeI object") unless defined $other &&
 	  $other->isa('Bio::RangeI');
 	$other->throw("start is undefined") unless defined $other->start;
 	$other->throw("end is undefined") unless defined $other->end;
-    
+
 	return
-	  ($self->_testStrand($other, $so) 
+	  ($self->_testStrand($other, $so)
 		and not (
 					($self->start() > $other->end() or
 					 $self->end() < $other->start()   )
@@ -229,7 +227,7 @@ sub overlaps {
 
   Title   : contains
   Usage   : if($r1->contains($r2) { do stuff }
-  Function: tests whether $r1 totally contains $r2 
+  Function: tests whether $r1 totally contains $r2
   Args    : arg #1 = a range to compare this one to (mandatory)
 	             alternatively, integer scalar to test
             arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
@@ -296,7 +294,7 @@ which new ranges could be built.
            my $containing_range = Bio::Range->intersection(\@ranges);
  Function: gives the range that is contained by all ranges
  Returns : undef if they do not overlap, or
-           the range that they do overlap (in the form of an object 
+           the range that they do overlap (in the form of an object
             like the calling one, OR a three element array)
  Args    : arg #1 = [REQUIRED] a range to compare this one to,
                     or an array ref of ranges
@@ -307,7 +305,7 @@ which new ranges could be built.
 sub intersection {
 	my ($self, $given, $so) = @_;
 	$self->throw("missing arg: you need to pass in another feature") unless $given;
-      
+
     my @ranges;
     if ($self eq "Bio::RangeI") {
 		$self = "Bio::Range";
@@ -318,7 +316,7 @@ sub intersection {
 	}
     ref($given) eq 'ARRAY' ? push(@ranges, @{$given}) : push(@ranges, $given);
     $self->throw("Need at least 2 ranges") unless @ranges >= 2;
-    
+
     my $intersect;
     while (@ranges > 0) {
         unless ($intersect) {
@@ -328,20 +326,20 @@ sub intersection {
             $self->throw("start is undefined") unless defined $intersect->start;
             $self->throw("end is undefined") unless defined $intersect->end;
         }
-        
+
         my $compare = shift(@ranges);
         $self->throw("Not an object: $compare") unless ref($compare);
         $self->throw("Not a Bio::RangeI object: $compare") unless $compare->isa('Bio::RangeI');
         $self->throw("start is undefined") unless defined $compare->start;
         $self->throw("end is undefined") unless defined $compare->end;
         return unless $compare->_testStrand($intersect, $so);
-        
+
         my @starts = sort {$a <=> $b} ($intersect->start(), $compare->start());
         my @ends   = sort {$a <=> $b} ($intersect->end(), $compare->end());
-        
+
         my $start = pop @starts; # larger of the 2 starts
         my $end = shift @ends;   # smaller of the 2 ends
-        
+
         my $intersect_strand;    # strand for the intersection
         if (defined($intersect->strand) && defined($compare->strand) && $intersect->strand == $compare->strand) {
             $intersect_strand = $compare->strand;
@@ -349,7 +347,7 @@ sub intersection {
         else {
             $intersect_strand = 0;
         }
-        
+
         if ($start > $end) {
             return;
         }
@@ -359,7 +357,7 @@ sub intersection {
                                     -strand => $intersect_strand);
         }
     }
-    
+
     if (wantarray()) {
         return ($intersect->start, $intersect->end, $intersect->strand);
     }
@@ -377,7 +375,7 @@ sub intersection {
     Function: finds the minimal Range that contains all of the Ranges
     Args    : a Range or list of Range objects
     Returns : the range containing all of the range
-              (in the form of an object like the calling one, OR 
+              (in the form of an object like the calling one, OR
               a three element array)
 
 =cut
@@ -421,7 +419,7 @@ sub union {
 	return unless $start or $end;
 	if( wantarray() ) {
 		return ( $start,$end,$union_strand);
-	} else { 
+	} else {
 		return $self->new('-start' => $start,
 								'-end' => $end,
 								'-strand' => $union_strand
@@ -436,8 +434,8 @@ sub union {
  Function: Provides actual amount of overlap between two different
            ranges
  Example :
- Returns : array of values containing the length unique to the calling 
-           range, the length common to both, and the length unique to 
+ Returns : array of values containing the length unique to the calling
+           range, the length common to both, and the length unique to
            the argument range
  Args    : a range
 
@@ -484,7 +482,7 @@ sub overlap_extent{
               is fully contained by at least one output range, and none of
               the output ranges overlap
     Args    : a list of ranges
-    Returns : a list of objects of the same type as the input 
+    Returns : a list of objects of the same type as the input
               (conforms to RangeI)
 
 =cut
@@ -539,7 +537,7 @@ sub disconnected_ranges {
                 my $merged_range =
                   $self->union(@intersecting_ranges);
 		push(@outranges, $merged_range);
-		     
+
 	    }
 	    else {
 		# exactly 1 intersecting range
@@ -548,7 +546,7 @@ sub disconnected_ranges {
 	}
 	else {
 	    # no intersections found - new range
-	    push(@outranges, 
+	    push(@outranges,
 		 $self->new('-start'=>$inrange->start,
 			    '-end'=>$inrange->end,
 			    '-strand'=>$inrange->strand,

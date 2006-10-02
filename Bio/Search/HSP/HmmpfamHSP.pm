@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::Search::HSP::HmmpfamHSP- A parser and HSP object for hmmpfam hsps
+Bio::Search::HSP::HmmpfamHSP - A parser and HSP object for hmmpfam hsps
 
 =head1 SYNOPSIS
 
@@ -20,13 +20,13 @@ Bio::Search::Search::HSP::HmmpfamHSP- A parser and HSP object for hmmpfam hsps
     use Bio::SearchIO;
     my $in = new Bio::SearchIO(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
-	
+
     while (my $result = $in->next_result) {
 		while (my $hit = $result->next_hit) {
 			print $hit->name, "\n";
 			print $hit->score, "\n";
 			print $hit->significance, "\n";
-			
+
 			while (my $hsp = $hit->next_hsp) {
 				# process HSPI objects
 			}
@@ -61,10 +61,6 @@ web:
 
 Email bix@sendu.me.uk
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -77,11 +73,7 @@ Internal methods are usually preceded with a _
 package Bio::Search::HSP::HmmpfamHSP;
 
 use strict;
-
-use vars qw(@ISA);
-use Bio::Search::HSP::PullHSPI;
-
-@ISA = qw(Bio::Search::HSP::PullHSPI);
+use base qw(Bio::Search::HSP::PullHSPI);
 
 =head2 new
 
@@ -93,12 +85,13 @@ use Bio::Search::HSP::PullHSPI;
            -parent => Bio::PullParserI object (required if no -chunk)
            -hsp_data => array ref with [rank query_start query_end hit_start
 										hit_end score evalue]
-           
+
            where the array ref provided to -chunk contains an IO object
            for a filehandle to something representing the raw data of the
            hsp, and $start and $end define the tell() position within the
            filehandle that the hsp data starts and ends (optional; defaults
            to start and end of the entire thing described by the filehandle)
+
 =cut
 
 sub new {

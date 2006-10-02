@@ -88,12 +88,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::DB::CUTG;
-use Bio::WebAgent;
 use Bio::CodonUsage::IO;
 use IO::String;
-use vars qw($URL @ISA $QUERY_KEYS);
+use vars qw($URL $QUERY_KEYS);
 
-@ISA = qw(Bio::WebAgent);
+use base qw(Bio::WebAgent);
 
 $QUERY_KEYS = { 
 				sp => 'full Latin species name',	
@@ -304,7 +303,4 @@ sub _db {
 	return $self->{'_db'};
 }
 
-
-
-	return 1;
-
+1;

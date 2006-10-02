@@ -1,5 +1,14 @@
 package Bio::Graphics::Glyph::ex;
 
+# $Id$
+# Non object-oriented utilities used here-and-there in Bio::Graphics modules
+
+=head1 NAME
+
+Bio::Graphics::Glyph::ex - the "ex", or "crossed box" glyph
+
+=cut
+
 use strict;
 use base 'Bio::Graphics::Glyph::generic';
 

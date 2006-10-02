@@ -12,7 +12,7 @@
 
 Bio::Assembly::Scaffold - Perl module to hold and manipulate sequence assembly data.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Module loading
     use Bio::Assembly::IO;
@@ -65,13 +65,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::Scaffold;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Assembly::ScaffoldI;
 use Bio::Annotation::Collection;
 
-@ISA = qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
+use base qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
 
 =head2 new ()
 

@@ -137,17 +137,15 @@ Richard Adams, Richard.Adams@ed.ac.uk,
 use strict;
 
 package Bio::Tools::Analysis::Protein::Sopma;
-use vars qw(@ISA );
 
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 use Bio::Seq::Meta::Array;
 
 
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 #extends array for 2struc.
 my $URL = 'http://npsa-pbil.ibcp.fr/cgi-bin/secpred_sopma.pl';

@@ -54,10 +54,6 @@ web:
 
 Email jason-at-bioperl-dot-org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -75,16 +71,14 @@ L<Bio::PopGen::Simulation::Coalescent> simulations.
 
 
 package Bio::Tree::AlleleNode;
-use vars qw(@ISA $UIDCOUNTER);
+use vars qw($UIDCOUNTER);
 use strict;
 BEGIN { $UIDCOUNTER = 1 }
 
-use Bio::Tree::Node;
-use Bio::PopGen::IndividualI;
 use Bio::PopGen::Individual;
 use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::Tree::Node Bio::PopGen::IndividualI );
+use base qw(Bio::Tree::Node Bio::PopGen::IndividualI);
 
 =head2 new
 

@@ -74,15 +74,13 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::RandomDistFunctions;
 require Exporter;
-use vars qw(@ISA %LOADED @EXPORT_OK); 
-use strict;
+use vars qw(%LOADED @EXPORT_OK); use strict;
 
 #use Math::BigFloat lib => 'GMP,Bit::Vector';
 #use Math::BigInt lib  => 'GMP,Bit::Vector';
 use POSIX;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 birth_distribution
 

@@ -1,12 +1,19 @@
 package Bio::Graphics::Glyph::arrow;
 # package to use for drawing an arrow
 
+# $Id$
+# Non object-oriented utilities used here-and-there in Bio::Graphics modules
+
+=head1 NAME
+
+Bio::Graphics::Glyph::arrow - the "arrow" glyph
+
+=cut
+
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::generic;
 use Bio::Coordinate::Pair;
 use Bio::Location::Simple;
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 my %UNITS = (p => 1e-12,
 	     n => 1e-9,

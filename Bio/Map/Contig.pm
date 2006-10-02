@@ -99,15 +99,14 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Contig;
-use vars qw(@ISA $MAPCOUNT);
+use vars qw($MAPCOUNT);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Map::SimpleMap;
 use Bio::Range;
 
-@ISA = qw(Bio::Map::SimpleMap);
+use base qw(Bio::Map::SimpleMap);
 BEGIN { $MAPCOUNT = 1; }
 
 =head2 new
@@ -340,7 +339,7 @@ sub each_cloneid {
  Function: retrieves all the marker ids in a map unordered
  Returns : list of strings (ids)
  Args    : none
- 
+
  *** This only supplies the ids set with the set_markers method ***
  *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 

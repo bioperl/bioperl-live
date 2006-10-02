@@ -70,14 +70,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Seq::LargePrimarySeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw($AUTOLOAD);
 use strict;
 
-use Bio::PrimarySeq;
-use Bio::Root::IO;
-use Bio::Seq::LargeSeqI;
 
-@ISA = qw(Bio::PrimarySeq Bio::Root::IO Bio::Seq::LargeSeqI);
+use base qw(Bio::PrimarySeq Bio::Root::IO Bio::Seq::LargeSeqI);
 
 sub new {
     my ($class, %params) = @_;

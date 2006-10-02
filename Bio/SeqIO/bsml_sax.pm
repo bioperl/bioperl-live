@@ -42,13 +42,12 @@ Bio::SeqIO::bsml_sax - BSML sequence input/output stream using SAX
 
 =head2 Mailing Lists
 
- User feedback is an integral part of the evolution of this and other
- Bioperl modules. Send your comments and suggestions preferably to one
- of the Bioperl mailing lists.  Your participation is much
- appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -65,21 +64,19 @@ Email jason-at-bioperl-dot-org
 =cut
 
 package Bio::SeqIO::bsml_sax;
-use vars qw(@ISA $Default_Source);
+use vars qw($Default_Source);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use XML::SAX;
-use XML::SAX::Base;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO XML::SAX::Base);
+use base qw(Bio::SeqIO XML::SAX::Base);
 
 $Default_Source = 'BSML';
 
@@ -89,7 +86,7 @@ sub _initialize {
     $self->{'_parser'} = XML::SAX::ParserFactory->parser('Handler' => $self);
     if( ! defined $self->sequence_factory ) {
 	$self->sequence_factory(new Bio::Seq::SeqFactory
-				(-verbose => $self->verbose(), 
+				(-verbose => $self->verbose(),
 				 -type => 'Bio::Seq::RichSeq'));
     }
     return;
@@ -105,14 +102,14 @@ sub _initialize {
  Usage   : my $bioSeqObj = $stream->next_seq
  Function: Retrieves the next sequence from a SeqIO::bsml stream.
  Returns : A reference to a Bio::Seq::RichSeq object
- Args    : 
+ Args    :
 
 =cut
 
-sub next_seq {    
+sub next_seq {
     my $self = shift;
-    if( @{$self->{'_seendata'}->{'_seqs'} || []} || 
-	eof($self->_fh)) { 
+    if( @{$self->{'_seendata'}->{'_seqs'} || []} ||
+	eof($self->_fh)) {
 	return shift @{$self->{'_seendata'}->{'_seqs'}};
     }
     $self->{'_parser'}->parse_file($self->_fh);
@@ -129,7 +126,7 @@ sub start_document {
     $self->SUPER::start_document($doc);
 }
 
-sub end_document { 
+sub end_document {
     my ($self,$doc) = @_;
     $self->SUPER::end_document($doc);
 }
@@ -139,24 +136,24 @@ sub start_element {
     my ($self,$ele) = @_;
     my $name = uc($ele->{'LocalName'});
     my $attr = $ele->{'Attributes'};
-    my $seqid = defined $self->{'_seendata'}->{'_seqs'}->[-1] ? 
+    my $seqid = defined $self->{'_seendata'}->{'_seqs'}->[-1] ?
 	$self->{'_seendata'}->{'_seqs'}->[-1]->display_id : undef;
     for my $k ( keys %$attr ) {
 	$attr->{uc $k} = $attr->{$k};
 	delete $attr->{$k};
     }
     if( $name eq 'BSML' ) {
-	
+
     } elsif( $name eq 'DEFINITIONS' ) {
     } elsif( $name eq 'SEQUENCES' ) {
-	
+
     } elsif( $name eq 'SEQUENCE' ) {
 	my ($id,$acc,$title,
 	    $desc,$length,$topology,
 	    $mol) =  map { $attr->{'{}'.$_}->{'Value'} } qw(ID IC-ACCKEY
 							    TITLE COMMENT
 							    LENGTH
-							    TOPOLOGY 
+							    TOPOLOGY
 							    MOLECULE);
 	push @{$self->{'_seendata'}->{'_seqs'}},
 	$self->sequence_factory->create
@@ -168,7 +165,7 @@ sub start_element {
 	     -is_circular         => ($topology =~ /^linear$/i) ? 0 : 1,
 	     -molecule            => $mol,
 	     );
-	
+
     } elsif( $name eq 'FEATURE-TABLES' ) {
     } elsif( $name eq 'ATTRIBUTE' ) {
 	my $curseq = $self->{'_seendata'}->{'_seqs'}->[-1];
@@ -182,7 +179,7 @@ sub start_element {
 	} elsif( $name eq 'organism-species') {
 	    my ($genus,$species,$subsp) = split(/\s+/,$content,3);
 	    $curseq->species(Bio::Species->new(-sub_species => $subsp,
-					       -classification => 
+					       -classification =>
 					       [$species,$genus]));
 	} elsif( $name eq 'organism-classification' ) {
 	    my (@class) =(split(/\s*;\s*/,$content),$curseq->species->species);
@@ -193,7 +190,7 @@ sub start_element {
 					      Bio::Annotation::DBLink->new
 						( -database  => $db,
 						  -primary_id=> $id));
-	} elsif( $name eq 'date-created' || 
+	} elsif( $name eq 'date-created' ||
 		 $name eq 'date-last-updated' ) {
 	    $curseq->add_date($content);
 	}
@@ -209,7 +206,7 @@ sub start_element {
 	      -primary_tag => $type,
 	      -tag => {'ID'    => $id,
 		   });
-	
+
     } elsif( $name eq 'QUALIFIER') {
 	my ($type,$value) =  map { $attr->{'{}'.$_}->{'Value'} } qw(VALUE-TYPE
 								    VALUE);
@@ -217,11 +214,11 @@ sub start_element {
 	$curfeat->add_tag_value($type,$value);
     } elsif( $name eq 'INTERVAL-LOC' ) {
 	my $curfeat = $self->{'_seendata'}->{'_feats'}->[-1];
-	my ($start,$end,$strand) = 
+	my ($start,$end,$strand) =
 	    map { $attr->{'{}'.$_}->{'Value'} } qw(STARTPOS
 						   ENDPOS
 						   COMPLEMENT);
-	
+
 	$curfeat->start($start);
 	$curfeat->end($end);
 	$curfeat->strand(-1) if($strand);
@@ -257,7 +254,7 @@ sub characters {
 	my $curseq = $self->{'_seendata'}->{'_seqs'}->[-1];
 	my $curfeat = $self->{'_seendata'}->{'_feats'}->[-1];
 	my $curannot = $self->{'_seendata'}->{'_annot'}->[-1];
-	my $name = $self->{'_state'}->[-1];	
+	my $name = $self->{'_state'}->[-1];
 	if( $name eq 'REFAUTHORS' ) {
 	    $curannot->authors($data->{'Data'});
 	} elsif( $name eq 'REFTITLE') {

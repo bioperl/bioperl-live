@@ -86,13 +86,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Gel;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 

@@ -64,9 +64,9 @@ Parser for the lintree output which looks like this
  24 and  22        0.013457       972
  24 and   7        0.025598      1000
 
-See http://shanghai.bio.psu.edu/lintree.html for access to the program
-and N Takezaki, A Rzhetsky, and M Nei, "Phylogenetic test of the
-molecular clock and linearized trees." Mol Biol Evol 12(5):823-33.
+See http://www.bio.psu.edu/People/Faculty/Nei/Lab/software.htm for access
+to the program and N Takezaki, A Rzhetsky, and M Nei, "Phylogenetic test
+of the molecular clock and linearized trees." Mol Biol Evol 12(5):823-33.
 
 =head1 FEEDBACK
 
@@ -109,12 +109,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::lintree;
-use vars qw(@ISA %Defaults);
+use vars qw(%Defaults);
 use strict;
 
-use Bio::TreeIO;
 
-@ISA = qw(Bio::TreeIO);
+use base qw(Bio::TreeIO);
 $Defaults{'NodeType'} = "Bio::Tree::Node";
 
 =head2 new

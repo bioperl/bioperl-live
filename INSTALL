@@ -1,552 +1,521 @@
 # $Id$
 
-o BIOPERL INSTALLATION
-o SYSTEM REQUIREMENTS
-o OPTIONAL
-o ADDITIONAL INSTALLATION INFORMATION
-o THE BIOPERL BUNDLE
-o INSTALLING BIOPERL THE EASY WAY USING CPAN
-o INSTALLING BIOPERL THE EASY WAY USING 'make'
-o WHERE ARE THE MAN PAGES?
-o EXTERNAL PROGRAMS
-o INSTALLING BIOPERL SCRIPTS
-o INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-o INSTALLING BIOPERL MODULES THE HARD WAY
-o USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-o THE TEST SYSTEM
-o BUILDING THE OPTIONAL bioperl-ext PACKAGE
-o DEPENDENCIES AND Bundle::BioPerl
+                          Installing Bioperl for Unix
 
+     *  BIOPERL INSTALLATION
+     *  SYSTEM REQUIREMENTS
+     *  OPTIONAL
+     *  ADDITIONAL INSTALLATION INFORMATION
+     *  THE BIOPERL BUNDLE
+     *  INSTALLING BIOPERL THE EASY WAY USING CPAN
+     *  INSTALLING BIOPERL THE EASY WAY USING GNU 'make'
+     *  WHERE ARE THE MAN PAGES?
+     *  EXTERNAL PROGRAMS
+          *  Environment Variables
+     *  INSTALLING BIOPERL SCRIPTS
+     *  INSTALLING BIOPERL IN A PERSONAL MODULE AREA
+     *  INSTALLING BIOPERL MODULES THE HARD WAY
+     *  USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
+     *  THE TEST SYSTEM
+     *  BUILDING THE OPTIONAL bioperl-ext PACKAGE
+          *  CONFIGURING for BSD and Solaris boxes
+          *  INSTALLATION
+     *  DEPENDENCIES AND Bundle::BioPerl
+     *  Notes
 
-o BIOPERL INSTALLATION
+BIOPERL INSTALLATION
 
-   Bioperl has been installed on many forms of Unix, Win9X/NT/2000/XP,
-   and on Mac OS (see the PLATFORMS file for more details). For
-   instructions on Unix and Mac OS read on, for installation on Windows 
-   please see the INSTALL.WIN file.
+Bioperl has been installed on many forms of Unix,
+Win9X/NT/2000/XP, and on Mac OS X (see the PLATFORMS file for more
+details). Following are instructions for installing Bioperl for
+Unix/Linux/Mac OS X; Windows installation instructions can be found
+in INSTALL.WIN. For installing Bioperl for Mac OS X using Fink, see:
 
+http://www.bioperl.org/wiki/Getting_BioPerl#Mac_OS_X_using_fink
 
-o SYSTEM REQUIREMENTS
+SYSTEM REQUIREMENTS
 
- - perl 5.005 or later*.
+    * Perl 5.6.1 or later; version 5.8 and greater are recommended.
 
- - External modules: Bioperl uses functionality provided in other
-   Perl modules.  Some of these are included in the standard perl
-   package but some need to be obtained from the CPAN site. The 
-   list of external modules is included at the bottom of
-   this INSTALL document.  
+    * External modules: Bioperl uses functionality provided in other
+      Perl modules. Some of these are included in the standard perl package
+      but some need to be obtained from the CPAN site. The list of external
+      modules is included at the bottom of this document.
 
-   The CPAN Bioperl Bundle (Bundle::BioPerl) makes installation 
-   of these external modules easy. Simply install the bundle 
-   using your CPAN shell and all necessary modules will be installed.
-   See THE BIOPERL BUNDLE, below.
+The CPAN Bioperl Bundle (Bundle::BioPerl) makes installation of these
+external modules easy. Simply install the bundle using your CPAN shell and
+all necessary modules will be installed. See THE BIOPERL BUNDLE,
+below.
 
- * Note that most modules will work with earlier versions of Perl. 
-   The only ones that will not are Bio::SimpleAlign.pm and 
-   the Bio::Index::* modules. If you don't need these modules
-   and you want to install bioperl using an earlier version of Perl,
-   edit the "require 5.005;" line in Makefile.PL as necessary.
+OPTIONAL
 
+   * ANSI C or GNU C compiler (gcc) for XS extensions (the
+     bioperl-ext package; see BUILDING THE OPTIONAL bioperl-ext
+     PACKAGE, below).
 
-o OPTIONAL
+ADDITIONAL INSTALLATION INFORMATION
 
- - ANSI C or Gnu C compiler for XS extensions (bioperl-ext package,
-   see BUILDING THE OPTIONAL bioperl-ext PACKAGE, below.
+   * Additional information on Bioperl and MAC OS:
+      * OS 9 - http://bioperl.org/Core/mac-bioperl.html
+      * OS X - http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+      * OS X - Installing using Fink (in Getting BioPerl)
 
+THE BIOPERL BUNDLE
 
-o ADDITIONAL INSTALLATION INFORMATION
+You typically need root privileges to install using CPAN. If you don't
+have these privileges please see INSTALLING BIOPERL IN A PERSONAL
+MODULE AREA for additional information.
 
- - Additional information on Bioperl and MAC OS: 
-   OS 9 - http://bioperl.org/Core/mac-bioperl.html
-   OS X - http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+Install Bundle::Bioperl using CPAN. One way:
 
+ >perl -MCPAN -e "install Bundle::BioPerl"
 
-o THE BIOPERL BUNDLE
+Another way:
 
-   You typically need root privileges to install using CPAN.
-   If you don't have these privileges please see INSTALLING BIOPERL 
-   IN A PERSONAL MODULE AREA for additional information.
+ >perl -MCPAN -e shell
+ cpan>install Bundle::BioPerl
 
-   Install the Bioperl Bundle using CPAN. One way:
 
-     >perl -MCPAN -e "install Bundle::BioPerl"
- 
-   Another way:
+INSTALLING BIOPERL THE EASY WAY USING CPAN
 
-     >perl -MCPAN -e shell
-     cpan>install Bundle::BioPerl
+You can use the CPAN shell to install Bioperl. For example:
 
+ >perl -MCPAN -e shell
 
-o INSTALLING BIOPERL THE EASY WAY USING CPAN
+Then find the name of the Bioperl version you want:
 
-   You can use the CPAN shell to install Bioperl. For example:
+ cpan>d /bioperl/
+ CPAN: Storable loaded ok
+ Going to read /home/bosborne/.cpan/Metadata
+ Database was generated on Tue, 24 Feb 2004 23:55:23 GMT
+ DistributionB/BI/BIRNEY/bioperl-1.2.tar.gz
+ DistributionB/BI/BIRNEY/bioperl-1.4.tar.gz
 
-     >perl -MCPAN -e shell
+Now install:
 
-   Then find the name of the Bioperl version you want:
+ cpan>install B/BI/BIRNEY/bioperl-1.4.tar.gz
 
-     cpan>d /bioperl/
-     CPAN: Storable loaded ok
-     Going to read /home/bosborne/.cpan/Metadata
-     Database was generated on Tue, 24 Feb 2004 23:55:23 GMT
-     Distribution    B/BI/BIRNEY/bioperl-1.2.tar.gz
-     Distribution    B/BI/BIRNEY/bioperl-1.4.tar.gz
+If you've installed everything perfectly and all the network connections
+are working then you may pass all the tests run in the 'make test' phase.
+It's also possible that you may fail some tests. Possible explanations:
+problems with local Perl installation, network problems, previously
+undetected bug in Bioperl, flawed test script, problems with CGI
+script used for sequence retrieval at public database, and so on. Remember
+that there are over 700 modules in Bioperl and the test suite is running
+more than 9000 individual tests, a few failed tests may not affect your
+usage of Bioperl.
 
-   Now install:
+If you decide that the failed tests will not affect how you intend to use
+Bioperl and you'd like to install anyway do:
 
-     cpan>install B/BI/BIRNEY/bioperl-1.4.tar.gz
+ cpan>force install B/BI/BIRNEY/bioperl-1.4.tar.gz
 
-   If you've installed everything perfectly and all the network
-   connections are working then you may pass all the tests run
-   in the 'make test' phase. It's also possible that you may 
-   fail some tests. Possible explanations: problems with local
-   Perl installation, network problems, previously undetected
-   bug in Bioperl, flawed test script, problems with CGI script
-   used for sequence retrieval at public database, and so on.
-   Remember that there are over 700 modules in Bioperl and the
-   test suite is running more than 9000 individual tests, a few
-   failed tests may not affect your usage of Bioperl.
-
-   If you decide that the failed tests will not affect how you
-   intend to use Bioperl and you'd like to install anyway do:
-
-     cpan>force install B/BI/BIRNEY/bioperl-1.4.tar.gz
-
-   This is what most experienced Bioperl users would do. However,
-   if you're concerned about a failed test and need assistance 
-   or advice then contact bioperl-l@bioperl.org. 
-
-
-o INSTALLING BIOPERL THE EASY WAY USING 'make'
-
-   The advantage of this approach is it's stepwise, so
-   it's easy to stop and analyze in case of any problem.
-
-   Download, then unpack the tar file. For example:
-
-     >gunzip bioperl-1.2.tar.gz
-     >tar xvf bioperl-1.2.tar
-     >cd bioperl-1.2
-
-   Now issue the make commands:
-
-     >perl Makefile.PL
-     >make            
-     >make test       
-
-   If you've installed everything perfectly and all the network
-   connections are working then you may pass all the tests run
-   in the 'make test' phase. It's also possible that you may 
-   fail some tests. Possible explanations: problems with local
-   Perl installation, network problems, previously undetected
-   bug in Bioperl, flawed test script, problems with CGI script
-   using for sequence retrieval at public database, and so on.
-   Remember that there are over 700 modules in Bioperl and the
-   test suite is running almost 9000 individual tests, a few
-   failed tests may not affect your usage of Bioperl.
-
-   If you decide that the failed tests will not affect how you
-   intend to use Bioperl and you'd like to install anyway do:
-
-     >make install    
- 
-   This is what most experienced Bioperl users would do. However,
-   if you're concerned about a failed test and need assistance 
-   or advice then contact bioperl-l@bioperl.org. 
-
-   To 'make install' you need write permission in the perl5/site_perl/ 
-   source area. Usually this will require you becoming root, so
-   you will want to talk to your systems manager if you don't have 
-   the necessary privileges.
-
-   It is also straightforward to install the package outside of the 
-   this standard Perl5 location. See
-   INSTALLING BIOPERL IN A PERSONAL MODULE AREA, below.
-
-
-o WHERE ARE THE MAN PAGES?
-
-   We had to disable the automatic creation of man pages because
-   this step was triggering a "line too long" error on some OSs due 
-   to shell constraints. If you'd like to try and create them comment out or
-   delete the MY::manifypods sub in Makefile.PL before you issue the
-   'perl Makefile.PL' step.
-
-
-o EXTERNAL PROGRAMS
-
-   Bioperl can interface with some external programs for executing
-   analyses.  These include clustalw and t_coffee for Multiple
-   Sequence Alignments (Bio::Tools::Run::Alignment::Clustalw and
-   Bio::Tools::Run::TCoffee) and blastall,blastpgp, & bl2seq for BLAST
-   analyses (Bio::Tools::Run::StandAloneBlast), and to all the
-   programs in the EMBOSS suite (Bio::Factory::EMBOSS).
-  
- - Environment Variables
-
-   Some modules which run external programs need certain environment
-   variables set.  If you do not have a local copy of the specific
-   executable you do not need to set these variables.  Additionally
-   the modules will attempt to locate the specific applications in
-   your runtime PATH variable. You may also need to set an environment
-   variable to tell BioPerl about your network configuration if your
-   site uses a firewall.
-
-   Setting environment variables on unix means adding lines like the
-   following to your shell *rc file.
-
-   For bash or sh:  
-
-     export BLASTDIR=/data1/blast
-   
-   For csh or tcsh: 
-
-     setenv BLASTDIR /data1/blast
-
-   Some environment variables include:
-
-     BLASTDIR
-	
-     Specifies where the NCBI blastall, blastpgp,
-     bl2seq, etc.. are located.  A 'data' directory
-     could also be present in this directory as well, you could put
-     your blastable databases here.
-
-     BLASTDATADIR or BLASTDB
-
-     If one does not want to locate the data dir
-     within the same dir as where the BLASTDIR variable
-     points, a BLASTDATADIR or BLASTDB variable can be set to 
-     point to a dir where BLAST database indexes are located.
-
-     BLASTMAT
-
-     The directory containing the substitution matrices
-     such as BLOSUM62.
-
-
-     CLUSTALDIR
-
-     The directory where the clustalw executable is located.
-  
-
-     TCOFFEEDIR
-
-     The directory where the t_coffee executable is located.
-
- 
-     HTTP_PROXY
-    
-     If you access the internet via a proxy server then you 
-     can tell the Bioperl modules which require network access
-     about this by using the HTTP_PROXY environment variable.  
-     The value set includes the proxy address and the port 
-     used (e.g. http://wwwcache.example.com:8080).
-
-
-o INSTALLING BIOPERL SCRIPTS
-
-   Bioperl comes with a set of production-quality scripts that are kept
-   in the scripts/ directory. You can install these scripts if you'd like,
-   simply answer the questions on 'make install'. The installation
-   directory is specified by the INSTALLSCRIPT variable in the Makefile,
-   the default location is /usr/bin. Installation will copy the scripts
-   to the specified directory, change the 'PLS' suffix to 'pl', and
-   prepend 'bp_' to all the script names if they aren't so named already.
-
-
-o INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-
-   If you lack permission to install perl modules into the
-   standard site_perl/ system area you can configure bioperl to
-   install itself anywhere you choose. Ideally this would
-   be a personal perl directory or standard place where you
-   plan to put all your 'local' or personal perl modules. 
-
-   Simply pass a parameter to perl as it builds your system
-   specific makefile.
+This is what most experienced Bioperl users would do. However, if you're
+concerned about a failed test and need assistance or advice then contact
+bioperl-l@bioperl.org.
+
+INSTALLING BIOPERL THE EASY WAY USING GNU 'make'
+
+The advantage of this approach is it's stepwise, so it's easy to stop and
+analyze in case of any problem.
+
+Download, then unpack the tar file. For example:
+
+ >gunzip bioperl-1.2.tar.gz
+ >tar xvf bioperl-1.2.tar
+ >cd bioperl-1.2
+
+Now issue the make commands:
+
+ >perl Makefile.PL
+ >make
+ >make test
+
+If you've installed everything perfectly and all the network connections
+are working then you may pass all the tests run in the 'make test' phase.
+It's also possible that you may fail some tests. Possible explanations:
+problems with local Perl installation, network problems, previously
+undetected bug in Bioperl, flawed test script, problems with CGI script
+using for sequence retrieval at public database, and so on. Remember that
+there are over 700 modules in Bioperl and the test suite is running almost
+9000 individual tests, a few failed tests may not affect your usage of
+Bioperl.
+
+If you decide that the failed tests will not affect how you intend to use
+Bioperl and you'd like to install anyway do:
+
+ >make install
+
+This is what most experienced Bioperl users would do. However, if you're
+concerned about a failed test and need assistance or advice then contact
+bioperl-l@bioperl.org.
+
+To 'make install' you need write permission in the perl5/site_perl/source
+area. Usually this will require you becoming root, so you will want to
+talk to your systems manager if you don't have the necessary privileges.
+
+It is also straightforward to install the package outside of the this
+standard Perl5 location. See INSTALLING BIOPERL IN A PERSONAL MODULE
+AREA, below.
+
+WHERE ARE THE MAN PAGES?
+
+We had to disable the automatic creation of man pages because this
+step was triggering a "line too long" error on some OSs due to shell
+constraints. If you'd like to try and create them comment out or delete
+the MY::manifypods subroutine in Makefile.PL before you issue the 'perl
+Makefile.PL' step.   
+
+EXTERNAL PROGRAMS
+
+Bioperl can interface with some external programs for executing analyses.
+These include clustalw and t_coffee for Multiple Sequence Alignment
+(Bio::Tools::Run::Alignment::Clustalw and
+Bio::Tools::Run::Alignment::TCoffee) and blastall, blastpgp, and
+bl2seq for BLAST analyses (Bio::Tools::Run::StandAloneBlast), and
+to all the programs in the EMBOSS suite (Bio::Factory::EMBOSS).
+
+    Environment Variables
+
+Some modules which run external programs need certain environment
+variables set. If you do not have a local copy of the specific executable
+you do not need to set these variables. Additionally the modules will
+attempt to locate the specific applications in your runtime PATH variable.
+You may also need to set an environment variable to tell BioPerl about
+your network configuration if your site uses a firewall.
+
+Setting environment variables on unix means adding lines like the
+following to your shell *rc file.
+
+   For bash or sh:
+
+ export BLASTDIR=/data1/blast
+
+   For csh or tcsh:
+
+ setenv BLASTDIR /data1/blast
+
+Some environment variables include:
+
++------------------------------------------------------------------------+
+| Env. Variable |                      Description                       |
+|---------------+--------------------------------------------------------|
+|               |Specifies where the NCBI blastall, blastpgp, bl2seq,    |
+|BLASTDIR       |etc.. are located. A 'data' directory could also be     |
+|               |present in this directory as well, you could put your   |
+|               |blastable databases here.                               |
+|---------------+--------------------------------------------------------|
+|               |If one does not want to locate the data dir within the  |
+|BLASTDATADIR or|same dir as where the BLASTDIR variable points, a       |
+|BLASTDB        |BLASTDATADIR or BLASTDB variable can be set to point to |
+|               |a dir where BLAST database indexes are located.         |
+|---------------+--------------------------------------------------------|
+|BLASTMAT       |The directory containing the substitution matrices such |
+|               |as BLOSUM62.                                            |
+|---------------+--------------------------------------------------------|
+|CLUSTALDIR     |The directory where the clustalw executable is located. |
+|---------------+--------------------------------------------------------|
+|TCOFFEEDIR     |The directory where the t_coffee executable is located. |
+|---------------+--------------------------------------------------------|
+|               |If you access the internet via a proxy server then you  |
+|               |can tell the Bioperl modules which require network      |
+|               |access about this by using the http_proxy environment   |
+|http_proxy     |variable. The value set includes the proxy address and  |
+|               |the port, with optional username/password for           |
+|               |authentication purposes                                 |
+|               |(e.g. http://USERNAME:PASSWORD@proxy.example.com:8080). |
++------------------------------------------------------------------------+
+
+INSTALLING BIOPERL SCRIPTS
+
+Bioperl comes with a set of production-quality scripts that are
+kept in the scripts/ directory. You can install these scripts if you'd
+like, simply answer the questions on 'make install'. The installation
+directory is specified by the INSTALLSCRIPT variable in the Makefile, the
+default location is /usr/bin. Installation will copy the scripts to the
+specified directory, change the 'PLS' suffix to 'pl', and prepend 'bp_' to
+all the script names if they aren't so named already.
+
+INSTALLING BIOPERL IN A PERSONAL MODULE AREA
+
+If you lack permission to install perl modules into the standard
+site_perl/ system area you can configure Bioperl to install itself
+anywhere you choose. Ideally this would be a personal perl directory or
+standard place where you plan to put all your 'local' or personal perl
+modules.
+
+Simply pass a parameter to perl as it builds your system specific
+makefile.
 
    Example:
 
-     >perl Makefile.PL  LIB=/home/users/dag/My_Local_Perl_Modules
-     >make
-     >make test
-     >make install
+ >perl Makefile.PL  LIB=/home/users/dag/My_Local_Perl_Modules
+ >make
+ >make test
+ >make install
 
-   This tells perl to install bioperl in the desired place, e.g.:
- 
-     /home/users/dag/My_Local_Perl_Modules/Bio/Seq.pm
+This tells perl to install bioperl in the desired place, e.g.:
 
-   Then in your Bioperl script you would write:
+   /home/users/dag/My_Local_Perl_Modules/Bio/Seq.pm
 
-     use lib "/home/users/dag/My_Local_Perl_Modules";
-     use Bio::Seq;
+Then in your Bioperl script you would write:
 
-   The man pages will probably be installed in $LIB/man. For more
-   information on these sorts of custom installs see the documentation
-   for ExtUtils::MakeMaker.
+ use lib "/home/users/dag/My_Local_Perl_Modules";
+ use Bio::Seq;
 
-   You can also use CPAN to install accessory modules in your
-   local directory. First enter the CPAN shell, then set the
-   arguments for the command "perl Makefile.PL", like this:
+The man pages will probably be installed in $LIB/man. For more information
+on these sorts of custom installs see the documentation for
+ExtUtils::MakeMaker.
 
-     >perl -e shell -MCPAN
-     cpan>o conf makepl_arg LIB=/home/users/dag/My_Local_Perl_Modules
+You can also use CPAN to install accessory modules in your local
+directory. First enter the CPAN shell, then set the arguments for the
+command "perl Makefile.PL", like this:
 
+ >perl -e shell -MCPAN
+ cpan>o conf makepl_arg LIB=/home/users/dag/My_Local_Perl_Modules
 
-o INSTALLING BIOPERL MODULES THE HARD WAY
+INSTALLING BIOPERL MODULES THE HARD WAY
 
-   As a last resort, you can simply copy all files in Bio/
-   to any directory in which you have write privileges. This is 
-   generally NOT recommended since some modules may require
-   special configuration (currently none do, but don't rely 
-   on this).
+As a last resort, you can simply copy all files in Bio/ to any directory
+in which you have write privileges. This is generally NOT recommended
+since some modules may require special configuration (currently none do,
+but don't rely on this).
 
-   You will need to set "use lib '/path/to/my/bioperl/modules';" 
-   in your perl scripts so that you can access these modules if
-   they are not installed in the standard site_perl/ location.
-   See above for an example.
+You will need to set "use lib '/path/to/my/bioperl/modules';" in your perl
+scripts so that you can access these modules if they are not installed in
+the standard site_perl/ location. See above for an example.
 
-   To get manpage documentation to work correctly you will have 
-   to configure man so that it looks in the proper directory. 
-   On most systems this will just involve adding an additional 
-   directory to your $MANPATH environment variable.
+To get manpage documentation to work correctly you will have to
+configure man so that it looks in the proper directory. On most systems
+this will just involve adding an additional directory to your $MANPATH
+environment variable.
 
-   The installation of the Compile directory can be similarly
-   redirected, but execute the make commands from the Compile/SW
-   directory.
+The installation of the Compile directory can be similarly redirected, but
+execute the make commands from the Compile/SW directory.
 
-   If all else fails or are unable to access the perl distribution
-   directories, ask your system administrator to place the files there 
-   for you. You can always execute perl scripts in the same directory 
-   as the location of the modules (Bio/ in the distribution) since perl 
-   always checks the current working directory when looking for modules.
+If all else fails or are unable to access the perl distribution
+directories, ask your system administrator to place the files there for
+you. You can always execute perl scripts in the same directory as the
+location of the modules (Bio/ in the distribution) since perl always
+checks the current working directory when looking for modules.
 
+USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
 
-o USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-
-   You can explicitly tell perl where to look for modules by using the
-   lib module which comes standard with perl.
+You can explicitly tell perl where to look for modules by using the
+Lib module which comes standard with perl.
 
    Example:
 
-       #!/usr/bin/perl
+ #!/usr/bin/perl
+ use lib "/home/users/dag/My_Local_Perl_Modules/";
+ use Bio::Seq;
+ #<...insert whizzy perl code here...>
 
-       use lib "/home/users/dag/My_Local_Perl_Modules/";
-       use Bio::Seq;
+Or, you can set the environmental variable PERL5LIB:
 
-       <...insert whizzy perl code here...>
+   csh or tcsh:
 
-   Or, you can set the environmental variable PERL5LIB:
+ setenv PERL5LIB /home/users/dag/My_Local_Perl_Modules/
 
-     csh or tcsh:
+   bash or sh:
 
-       setenv PERL5LIB /home/users/dag/My_Local_Perl_Modules/
-    
-     bash or sh:
+ export PERL5LIB=/home/users/dag/My_Local_Perl_Modules/
 
-      export PERL5LIB=/home/users/dag/My_Local_Perl_Modules/
+THE TEST SYSTEM
 
+The Bioperl test system is located in the t/ directory and is
+automatically run whenever you execute the 'make test' command.
+Alternatively if you want to investigate the behavior of a specific test
+such as the SeqIO test you would type:
 
-o THE TEST SYSTEM
+ >perl -I. -w t/SeqIO.t
 
-   The Bioperl test system is located in the t/ directory and is
-   automatically run whenever you execute the 'make test' command.
-   Alternatively if you want to investigate the behavior of a specific
-   test such as the SeqIO test you would type:
-    
-      >perl -I. -w t/SeqIO.t 
- 
-   The -I. tells Perl to use the current directory as the include path -
-   this makes sure you are testing the modules in this directory not
-   ones installed elsewhere in your PERL5LIB path.
-   The -w tells Perl to print all warnings.
+The -I. tells Perl to use the current directory as the include path - this
+makes sure you are testing the modules in this directory not ones
+installed elsewhere in your PERL5LIB path. The -w tells Perl to print all
+warnings.
 
-   If you are trying to learn how to use a module, often the test suite
-   is a good place to look.  All good extreme programmers try and write a
-   test BEFORE they write the module to insure that their module behaves
-   the way they expect.  You'll notice some 'ok' and 'skip' commands in
-   a test, this is part of the Perl test suite that signifies a passed
-   test with an 'ok N', where N is the test number.  Alternatively you can
-   tell Perl to skip tests.  This is useful when, for example, your test
-   detects that the network is not present and thus should skip, not
-   fail, any tests that require a network connection.
+If you are trying to learn how to use a module, often the test suite is a
+good place to look. All good extreme programmers try and write a test
+BEFORE they write the module to insure that their module behaves the way
+they expect. You'll notice some 'ok' and 'skip' commands in a test, this
+is part of the Perl test suite that signifies a passed test with an 'ok
+N', where N is the test number. Alternatively you can tell Perl to skip
+tests. This is useful when, for example, your test detects that the
+network is not present and thus should skip, not fail, any tests that
+require a network connection.
 
+BUILDING THE OPTIONAL bioperl-ext PACKAGE
 
-o BUILDING THE OPTIONAL bioperl-ext PACKAGE
+The bioperl-ext package contains C code and XS extensions for
+various alignment and trace file modules (Bio::Tools::pSW for DNA
+Smith-Waterman, Bio::Tools::dpAlign for protein Smith-Waterman,
+Bio::SearchDist for EVD fitting of extreme value,
+Bio::SeqIO::staden).
 
-   The bioperl-ext package contains C code and XS extensions for
-   various alignment and trace file modules (Bio::Tools::pSW for
-   DNA Smith-Waterman, Bio::Tools::dpAlign for protein Smith-Waterman,
-   Bio::SearchDist for EVD fitting of extreme value,
-   Bio::SeqIO::staden).
+This Installation works out-of-the box for all platforms except BSD
+and Solaris boxes. For other platforms skip this next paragraph.
 
-   This Installation works out-of-the box for all platforms except BSD
-   and Solaris boxes. For other platforms skip this next paragraph.
+    CONFIGURING for BSD and Solaris boxes
 
- - CONFIGURING for BSD and Solaris boxes
+You should add the line -fPIC to the CFLAGS line in
+Compile/SW/libs/makefile. This makes the compile generate position
+independent code, which is required for these architectures. In addition,
+on some Solaris boxes, the generated Makefile does not make the correct
+-fPIC/-fpic flags for the C compiler that is used. This requires manual
+editing of the generated Makefile to switch case. Try it out once, and if
+you get errors, try editing the -fpic line
 
-   You should add the line -fPIC to the CFLAGS line in
-   Compile/SW/libs/makefile.  This makes the compile generate position
-   independent code, which is required for these architectures. In
-   addition, on some Solaris boxes, the generated Makefile does not make
-   the correct -fPIC/-fpic flags for the C compiler that is used. This
-   requires manual editing of the generated Makefile to switch case. Try
-   it out once, and if you get errors, try editing the -fpic line
+    INSTALLATION
 
- - INSTALLATION
+Move to the directory bioperl-ext. This is available as a separate package
+released from ftp://bioperl.org/pub/bioperl/DIST. This is where the C
+code and XS extension for the bp_sw module is held and execute these
+commands: (possibly after making the change for BSD and Solaris, as
+detailed above)
 
-   Move to the directory bioperl-ext. This is available as a separate
-   package released from ftp://bioperl.org/pub/bioperl/DIST.  This is where the C
-   code and XS extension for the bp_sw module is held and execute these
-   commands: (possibly after making the change for *BSD and Solaris, as
-   detailed above)
+ perl Makefile.PL   # makes the system specific makefile
+ make          # builds all the libaries
+ make test     # runs a short test
+ make install  # installs the package correctly.
 
-     perl Makefile.PL   # makes the system specific makefile 
-                        # Solaris/BSD users might need to edit the Makefile
-     make               # builds all the libaries
-     make test          # runs a short test
-     make install       # installs the package correctly.
+This should install the compiled extension. The Bio::Tools::pSW
+module will work cleanly now.
 
-   This should install the compiled extension. The Bio::Tools::pSW module
-   will work cleanly now.
+DEPENDENCIES AND Bundle::BioPerl
 
+The following packages are used by Bioperl. Not all are required for
+Bioperl to operate properly, however some functionality will be missing
+without them. You can easily install all of these, except srsperl.pm,
+using the Bundle::BioPerl CPAN bundle.
 
-o DEPENDENCIES AND Bundle::BioPerl
+The DBD::mysql, DB_File and XML::Parser modules require other applications
+or databases: MySQL, Berkeley DB, and expat respectively.
 
-   The following packages are used by Bioperl.  Not all are required for
-   Bioperl to operate properly, however some functionality will be
-   missing without them.  You can easily install all of these, except
-   srsperl.pm, using the Bundle::BioPerl CPAN bundle.
++-----------------------------------------------------------------------------+
+|        Module        |    Where it is Used   |   Bio* Modules Affected      |
+|----------------------+-----------------------+------------------------------+
+|                      |GenPept                |                              |
+|HTTP::Request::Common |sequence retrieval,    |Bio::DB::*                    |
+|                      |remote http BLAST jobs |Bio::Tools::Run::RemoteBlast  |
+|----------------------+-----------------------+------------------------------|
+|                      |GenBank, GenPept       |                              |
+|LWP::UserAgent        |sequence retrieval,    |Bio::DB::*,                   |
+|                      |remote http BLAST jobs |Bio::Tools::Run::RemoteBlast  |
+|----------------------+-----------------------+------------------------------|
+|Ace [1]               |Access to AceDB        |Bio::DB::Ace                  |
+|                      |databases              |                              |
+|----------------------+-----------------------+------------------------------|
+|                      |                       |Bio::SeqIO, Bio::Variation::*,|
+|IO::String            |handle to read or      |Bio::DB::*, Bio::Index::Blast,|
+|                      |write to a string      |Bio::Tools::*, Bio::Biblio::IO|
+|                      |                       |Bio::Structure::IO            |
+|----------------------+-----------------------+------------------------------|
+|XML::Parser [2]       |Parsing of XML         |Bio::Biblio::IO::medlinexml   |
+|                      |documents              |                              |
+|----------------------+-----------------------+------------------------------|
+|XML::Writer           |Parsing + writing of   |Bio::SeqIO::game,             |
+|                      |XML documents          |Bio::Variation::*             |
+|----------------------+-----------------------+------------------------------|
+|XML::Parser::PerlSAX  |Parsing of XML         |Bio::SeqIO::game,             |
+|                      |documents              |Bio::Variation::*,            |
+|                      |                       |Bio::Biblio::IO::medlinexml   |
+|----------------------+-----------------------+------------------------------|
+|                      |Parsing of XML         |Bio::Variation::IO::xml,      |
+|XML::Twig             |documents              |Bio::DB::Biblio::eutils,      |
+|                      |                       |Bio::Graph::IO::psi_xml       |
+|----------------------+-----------------------+------------------------------|
+|File::Temp            |Temporary File         |Bio::DB::FileCache,           |
+|                      |creation               |Bio::DB::XEMBL                |
+|----------------------+-----------------------+------------------------------|
+|SOAP::Lite            |SOAP protocol,         |Bio::Biblio::*,               |
+|                      |XEMBL Services         |Bio::DB::XEMBLService         |
+|----------------------+-----------------------+------------------------------|
+|HTML::Parser          |HTML parsing of        |Bio::DB::GDB                  |
+|                      |GDB page               |                              |
+|----------------------+-----------------------+------------------------------|
+|                      |MySQL API for loading  |                              |
+|DBD::mysql [3]        |and querying of MySQL- |Bio::DB::GFF, bioperl-db      |
+|                      |based GFF feature      |bioperl-pipeline              |
+|                      |and BioSQL databases   |                              |
+|----------------------+-----------------------+------------------------------|
+|GD [4][5]             |GD graphical drawing   |Bio::Graphics                 |
+|                      |library                |                              |
+|----------------------+-----------------------+------------------------------|
+|Storable              |Persistent object      |Bio::DB::FileCache            |
+|                      |storage & retrieval    |                              |
+|----------------------+-----------------------+------------------------------|
+|Text::Shellwords      |Text parser            |Bio::Graphics::FeatureFile    |
+|----------------------+-----------------------+------------------------------|
+|XML::DOM              |XML parser             |Bio::SeqIO::bsml,             |
+|                      |                       |Bio::SeqIO::interpro          |
+|----------------------+-----------------------+------------------------------|
+|                      |Perl access to         |Bio::DB::Flat, Bio::DB::Fasta,|
+|DB_File [6]           |Berkeley DB            |Bio::SeqFeature::Collection,  |
+|                      |                       |Bio::Index::*                 |
+|----------------------+-----------------------+------------------------------|
+|Graph::Directed       |Generic graph data and |Bio::Ontology::               |
+|                      |algorithms             |     SimpleOntologyEngine     |
+|----------------------+-----------------------+------------------------------|
+|Data::Stag::          |Structured Tags,       |Bio::SeqIO::chadoitext [7]    |
+|    ITextWriter       |datastructures         |                              |
+|----------------------+-----------------------+------------------------------|
+|Data::Stag::          |Structured Tags,       |Bio::SeqIO::chadosxpr [7]     |
+|    SxprWriter        |datastructures         |                              |
+|----------------------+-----------------------+------------------------------|
+|Data::Stag::XMLWriter |Structured Tags,       |Bio::SeqIO::chadoxml          |
+|                      |datastructures         |                              |
+|----------------------+-----------------------+------------------------------|
+|Text::Wrap            |Very optional          |Bio::SearchIO::Writer::       |
+|                      |                       |      TextResultWriter        |
+|----------------------+-----------------------+------------------------------|
+|HTML::Entities        |Parse BLAST results in |Bio::SearchIO::blastxml       |
+|                      |XML                    |                              |
+|----------------------+-----------------------+------------------------------|
+|Class::AutoClass [8]  |Used to create objects |Bio::Graph::SimpleGraph*      |
+|----------------------+-----------------------+------------------------------|
+|Clone                 |Used to clone objects  |Bio::Graph::ProteinGraph      |
+|----------------------+-----------------------+------------------------------|
+|                      |                       |Bio::SeqIO::bsml_sax,         |
+|XML::SAX              |New style SAX parser   |Bio::SeqIO::tigrxml,          |
+|                      |                       |Bio::SearchIO::blastxml       |
+|----------------------+-----------------------+------------------------------|
+|XML::SAX::Base        |New style SAX parser   |Bio::SeqIO::tigrxml           |
+|----------------------+-----------------------+------------------------------|
+|XML::SAX::Writer      |                       |                              |
+|----------------------+-----------------------+------------------------------|
+|XML::SAX::ExpatXS     |New style SAX parser   |Bio::SearchIO::blastxml       |
+|[2][9]                |                       |                              |
+|----------------------+-----------------------+------------------------------|
+|XML::Simple [2]       |Simple XML parsing     |Bio::DB::EUtilities           |
+|----------------------+-----------------------+------------------------------|
+|Convert::Binary::C    |Parsing of DNA strider |Bio::SeqIO::strider           |
+|                      |documents              |                              |
+|----------------------+-----------------------+------------------------------|
+|Spreadsheet::         |Read Microsoft Excel   |Bio::SeqIO::excel             |
+|    ParseExcel        |files                  |                              |
+|----------------------+-----------------------+------------------------------|
+|Bio::ASN1::EntrezGene |Parses ASN1 format     |Bio::SeqIO::entrezgene,       |
+|                      |                       |Bio::DB::EntrezGene           |
++-----------------------------------------------------------------------------+
 
-   The DBD::mysql, DB_File and XML::Parser modules require other
-   applications or databases: MySQL, Berkeley DB, and expat respectively.
+Notes
 
-
- Module	                  Where it is Used
- ------------------------------------------------------------------
- HTTP::Request::Common    GenBank+GenPept sequence retrieval, 
-               	          remote http Blast jobs
-                                         Bio::DB::*
-                                         Bio::Tools::Run::RemoteBlast
-
- LWP::UserAgent           GenBank+GenPept sequence retrieval, 
-                          remote http Blast jobs
-                                         Bio::DB::*
-                                         Bio::Tools::Run::RemoteBlast
-
- AcePerl                  Access to ACeDB databases
-                                         Bio::DB::Ace
-
- Available at http://stein.cshl.org
- 
- IO::String               IO handle to read or write to a string
-                                         Bio::SeqIO
-                                         Bio::Variation::*
-                                         Bio::DB::*
-                                         Bio::Index::Blast
-                                         Bio::Tools::*
-                                         Bio::Biblio::IO
-                                         Bio::Structure::IO
-
- XML::Parser              Parsing of XML documents
-                                         Bio::Biblio::IO::medlinexml
-
- Requires expat from http://sourceforge.net/projects/expat/
-
- XML::Writer              Parsing + writing of XML documents
-               	                         Bio::SeqIO::game
-                                         Bio::Variation::*
-
- XML::Parser::PerlSAX     Parsing of XML documents
-                                         Bio::SeqIO::game
-                                         Bio::Variation::*
-                                         Bio::SearchIO::blastxml
-                                         Bio::Biblio::IO::medlinexml
-
- XML::Twig        	  Parsing of XML documents
-                                         Bio::Variation::IO::xml
-                                         Bio/DB/Biblio/eutils
-                                         Bio/Graph/IO/psi_xml
-
- File::Temp               Temporary File creation
-                                         Bio::DB::FileCache
-                                         Bio::DB::XEMBL
-
- SOAP::Lite               SOAP protocol, XEMBL Services
-                                         Bio::Biblio::*
-                                         Bio::DB::XEMBLService
-
- HTML::Parser             HTML parsing of GDB page
-                                         Bio::DB::GDB
-
- DBD::mysql               Mysql API for loading and querying of Mysql-based 
-                                         GFF feature and BioSQL databases
-                                         Bio::DB::GFF
-                                         bioperl-db external package
-                                         bioperl-pipeline external package
-
- Requires MySQL from www.mysql.org
-
- GD                       GD graphical drawing library
-                                         Bio::Graphics
-
- Requires GD library from www.boutell.com/gd
-
- Storable                 Persistent object storage & retrieval 
-                                         Bio::DB::FileCache
-
- Text::Shellwords         Text parser
-                                         Bio::Graphics::FeatureFile
-
- XML::DOM                 XML parser
-                                         Bio::SeqIO::bsml
-                                         Bio::SeqIO::interpro
-
- DB_File                  Perl access to Berkeley DB
-                                         Bio::DB::Flat
-                                         Bio::DB::Fasta
-                                         Bio::SeqFeature::Collection
-                                         Bio::Index::*
-
- Requires Berkeley DB, from Linux RPM or from www.sleepycat.com
-
- Graph::Directed          Generic graph data and algorithms
-                                         Bio::Ontology::OBOEngine
-
- Data::Stag::ITextWriter  Structured Tags datastructures
-                                         Bio::SeqIO::chadoitext
-
- Data::Stag::SxprWriter   Structured Tags datastructures
-                                         Bio::SeqIO::chadosxpr
-
- Data::Stag::XMLWriter    Structured Tags datastructures
-                                         Bio::SeqIO::chadoxml
- 
- Text::Wrap               Very optional
-                                         Bio::SearchIO::Writer::TextResultWriter
- 
- HTML::Entities           Parse BLAST results in XML
-                                         Bio::SearchIO::blastxml
-
- Class::AutoClass         Used to create objects
-                                         Bio::Graph::SimpleGraph*
-
- Requires Class::AutoClass v 1.01
-
- Clone                    Used to clone objects
-                                         Bio::Graph::ProteinGraph
-
- XML::SAX                 New style SAX parser
-                                         Bio::SeqIO::bsml_sax
- 
- XML::SAX::Base	          New style SAX parser
-                                         Bio::SeqIO::tigrxml
-
- XML::SAX::Writer
-
- Convert::Binary::C       Binary Data Conversion using C Types
-                                         Bio::SeqIO::strider
-
- Spreadsheet::ParseExcel  Read Microsoft Excel files
-                                         Bio::SeqIO::excel
+    1. Available at http://stein.cshl.org 
+    2. Requires expat, at http://sourceforge.net/projects/expat/
+    3. Requires MySQL, from http://www.mysql.org 
+    4. Requires GD library (libgd) from http://www.boutell.com/gd 
+    5. Installing the GD library - libgd - is somewhat non-trivial since
+       there are a number of dependencies to consider. Matias Giovannini has
+       posted an excellent walkthrough for Mac OS X 10.4. 
+    6. Requires Berkeley DB, from Linux RPM or from
+       http://www.sleepycat.com 
+    7. These modules may be present in older distributions but are considered
+       redundant; use Bio::SeqIO::chadoxml instead. 
+    8. Bio::Graph::SimpleGraph requires Class::AutoClass v. 1.01;
+       earlier versions give very different results. 
+    9. This module is optional but recommended for speeding up parsing over
+       the default XML::SAX::PurePerl. If installed, XML::SAX::Expat currently
+       does not work correctly due to DTD problems.
+       
+       

@@ -20,8 +20,8 @@ Bio::Tools::BPpsilite - Lightweight BLAST parser for (iterated) psiblast reports
 =head1 SYNOPSIS
 
   use Bio::Tools::BPpsilite;
-  open FH, "t/psiblastreport.out";
-  $report = Bio::Tools::BPpsilite->new(-fh=>\*FH);
+  open my $FH, "t/psiblastreport.out";
+  $report = Bio::Tools::BPpsilite->new(-fh=>$FH);
 
   # determine number of iterations executed by psiblast
   $total_iterations = $report->number_of_iterations;
@@ -142,19 +142,17 @@ This software is provided "as is" without warranty of any kind.
 package Bio::Tools::BPpsilite;
 
 use strict;
-use vars qw(@ISA);
 use Bio::Tools::BPlite::Iteration; #
 use Bio::Tools::BPlite::Sbjct; #   Debug code
-use Bio::Root::Root; # root interface to inherit from
-use Bio::Root::IO;
 use Bio::Tools::BPlite; 
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 sub new {
   my ($class, @args) = @_; 
   my $self = $class->SUPER::new(@args);
-  
+    $self->warn("Use of Bio::Tools::BPpsilite is deprecated".
+                   "Use Bio::SearchIO classes instead");
   # initialize IO
   $self->_initialize_io(@args);
   $self->{'_tempdir'} = $self->tempdir('CLEANUP' => 1);
@@ -319,40 +317,42 @@ sub _parseHeader {
 
 #'
 sub _preprocess {
-    my $self = shift;
-#	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
+	my $self = shift;
+	#	$self->throw(" PSIBLAST report preprocessing not implemented yet!");
 
-    my  $oldround = 0;
-    my ($currentline, $currentfile, $round);
+	my  $oldround = 0;
+	my ($currentline, $currentfile, $round);
 
-# open output file for data from iteration round #1
-    $round = 1;
-    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+	# open output file for data from iteration round #1
+	$round = 1;
+	$currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
 					  "iteration$round.tmp");
-    open (FILEHANDLE, ">$currentfile") || 
-	$self->throw("cannot open filehandle to write to file $currentfile");
+	open (my $FILEHANDLE, ">$currentfile") || 
+	  $self->throw("cannot open filehandle to write to file $currentfile");
 
-    while(defined ($currentline = $self->_readline()) ) {
-	if ($currentline =~ /^Results from round\s+(\d+)/) {
-	    if ($oldround) { close (FILEHANDLE) ;}
-	    $round = $1;
-	    $currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
-						  "iteration$round.tmp");
+	while(defined ($currentline = $self->_readline()) ) {
+		if ($currentline =~ /^Results from round\s+(\d+)/) {
+			if ($oldround) { 
+				close ($FILEHANDLE);
+			}
+			$round = $1;
+			$currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+															  "iteration$round.tmp");
 
-	    close FILEHANDLE;
-	    open (FILEHANDLE, ">$currentfile") || 
-		$self->throw("cannot open filehandle to write to file $currentfile");
-	    $oldround = $round;
-	}elsif ($currentline =~ /CONVERGED/){ # This is a fix for psiblast parsing with -m 6 /AE
-	    $round--;
+			close $FILEHANDLE;
+			open ($FILEHANDLE, ">$currentfile") || 
+			  $self->throw("cannot open filehandle to write to file $currentfile");
+			$oldround = $round;
+		} elsif ($currentline =~ /CONVERGED/){ 
+			# This is a fix for psiblast parsing with -m 6 /AE
+			$round--;
+		}
+		print $FILEHANDLE $currentline ;
 	}
-	print FILEHANDLE $currentline ;
-	
-    }
-    $self->{'TOTAL_ITERATION_NUMBER'}= $round;
-# It is necessary to close filehandle otherwise the whole
-# file will not be read later !!
-    close FILEHANDLE;
+	$self->{'TOTAL_ITERATION_NUMBER'}= $round;
+	# It is necessary to close filehandle otherwise the whole
+	# file will not be read later !!
+	close $FILEHANDLE;
 }
 
 1;

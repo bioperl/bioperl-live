@@ -57,14 +57,9 @@ my ($db,$seq,$seqio);
 # get a single seq
 
 $seq = $seqio = undef;
-eval { 
+eval {
 ok defined($db = new Bio::DB::XEMBL(-verbose=>$verbose)); 
-if( ! defined $seq ) {
-    skip('server may be down',1);
-    goto DONE;
-} else {
-    ok(defined($seq = $db->get_Seq_by_acc('J00522')));
-}
+ok(defined($seq = $db->get_Seq_by_acc('J00522')));
 ok( $seq->length, 408);
 ok(defined($seq = $db->get_Seq_by_acc('J02231')));
 ok $seq->id, 'BUM';
@@ -75,10 +70,10 @@ ok( defined($seq = $seqio->next_seq()));
 ok( $seq->length, 200);
 };
 if( $@ ) { 
-  DONE:
-    exit; 
+  skip('Skip server may be down',1);
+  exit(0);
 }
-exit;
+
 $seq = $seqio = undef;
 
 eval {

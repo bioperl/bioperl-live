@@ -91,19 +91,15 @@ with an underscore _.
 
 
 package Bio::DB::Biblio::biofetch;
-use vars qw(@ISA %HOSTS  %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
-	    $Revision $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
+use vars qw(%HOSTS %FORMATMAP  $DEFAULTFORMAT $DEFAULTRETRIEVAL_TYPE
+	    $DEFAULT_SERVICE $DEFAULT_NAMESPACE);
 use strict;
 
-use Bio::Biblio;
-use Bio::DB::DBFetch;
 use Bio::Biblio::IO;
 
-@ISA = qw( Bio::DB::DBFetch Bio::Biblio);
+use base qw(Bio::DB::DBFetch Bio::Biblio);
 
 BEGIN {
-
-    $Revision = q[$Id$];
 
     # you can add your own here theoretically.
     %HOSTS = (
@@ -213,8 +209,8 @@ sub get_seq_stream {
 		# this may get reset when requesting batch mode
 		($rformat,$ioformat) = $self->request_format();
 		if ( $self->verbose > 0 ) {
-			open(ERR, "<$tmpfile");
-			while(<ERR>) { $self->debug($_);}
+			open(my $ERR, "<", $tmpfile);
+			while(<$ERR>) { $self->debug($_);}
 		} 
 		$stream = new Bio::Biblio::IO('-format' => $ioformat,
 												'-file'   => $tmpfile);
@@ -258,7 +254,7 @@ sub get_seq_stream {
 
 sub postprocess_data {    
 	my ($self, %args) = @_;
-	my $data;
+	my ($data, $TMP);
 	my $type = uc $args{'type'};
 	my $location = $args{'location'};
 	if( !defined $type || $type eq '' || !defined $location) {
@@ -266,16 +262,14 @@ sub postprocess_data {
 	} elsif( $type eq 'STRING' ) {
 		$data = $$location; 
 	} elsif ( $type eq 'FILE' ) {
-		open(TMP, $location) or $self->throw("could not open file $location");
-		my @in = <TMP>;
-		close TMP;
+		open($TMP, "<", $location) or $self->throw("could not open file $location");
+		my @in = <$TMP>;
 		$data = join("", @in);
 	}
 
 	if( $type eq 'FILE'  ) {
-		open(TMP, ">$location") or $self->throw("could overwrite file $location");
-		print TMP $data;
-		close TMP;
+		open($TMP, ">", $location) or $self->throw("could overwrite file $location");
+		print $TMP $data;
 	} elsif ( $type eq 'STRING' ) {
 		${$args{'location'}} = $data;
 	}

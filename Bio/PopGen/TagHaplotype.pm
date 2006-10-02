@@ -68,14 +68,12 @@ Email pgf18872-at-gsk-dot-com
 # Let the code begin...
 
 package Bio::PopGen::TagHaplotype;
-use vars qw(@ISA);
 use strict;
 
 use Data::Dumper;
 use Storable qw(dclone);
-use Bio::Root::Root;
 
-@ISA =qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 my $USAGE = <<EOF
 Usage:

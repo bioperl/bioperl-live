@@ -45,8 +45,6 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email hlapp@gmx.net
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -57,16 +55,12 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::SeqFeature::Gene::Transcript;
-use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqFeature::Gene::TranscriptI;
-use Bio::SeqFeature::Generic;
 use Bio::PrimarySeq;
 
-@ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::TranscriptI);
+use base qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::TranscriptI);
 
 sub new {
     my ($caller, @args) = @_;

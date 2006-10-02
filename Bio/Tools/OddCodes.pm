@@ -93,13 +93,12 @@ Methods for DNA Sequences.  Waterman MS (ed.)  CRC Press, Boca Raton , FL.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.html - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -121,12 +120,10 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::OddCodes;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new
 {
@@ -139,7 +136,7 @@ sub new
 	# parameter not passed as named parameter?
 	$seqobj = $args[0];
     }
-    unless  ($seqobj->isa("Bio::PrimarySeqI")) 
+    unless  ($seqobj->isa("Bio::PrimarySeqI"))
     {
         $self->throw("Bio::Tools::OddCodes only works on PrimarySeqI objects");
     }
@@ -167,7 +164,7 @@ sub structural()
 	my $seqstring = &_pullseq($self);	# see _pullseq() below
 
 # now the real business
-	
+
 	$seqstring =~ tr/[ACGPSTWY]/1/;
 	$seqstring =~ tr/[RNDQEHK]/2/;
 	$seqstring =~ tr/[ILMFV]/3/;
@@ -198,7 +195,7 @@ sub functional()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[DE]/1/;
 	$seqstring =~ tr/[HKR]/2/;
 	$seqstring =~ tr/[AFILMPVW]/3/;
@@ -231,7 +228,7 @@ sub hydrophobic()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[AFILMPVW]/1/;
 	$seqstring =~ tr/[CDEGHKNQRSTY]/2/;
 	$seqstring =~ tr/1/I/;
@@ -248,7 +245,7 @@ sub hydrophobic()
  Usage   : $output = $oddcode_obj->Dayhoff();
  Function: turns amino acid sequence into 6-letter Dayhoff alphabet
  Example : a sequence ACDEFGH will become CADDGCE
-         : A (=C),   C (=AGPST), D (=DENQ), 
+         : A (=C),   C (=AGPST), D (=DENQ),
          : E (=HKR), F (=ILMV),  G (=FWY)
  Returns : Reference to the new sequence string
  Args    : none
@@ -261,7 +258,7 @@ sub Dayhoff()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[C]/1/;
 	$seqstring =~ tr/[AGPST]/2/;
 	$seqstring =~ tr/[DENQ]/3/;
@@ -286,7 +283,7 @@ sub Dayhoff()
  Usage   : $output = $oddcode_obj->Sneath();
  Function: turns amino acid sequence into 7-letter Sneath alphabet
  Example : a sequence ACDEFGH will become CEFFHCF
-         : A (=ILV), C (=AGP), D (=MNQ), E (=CST), 
+         : A (=ILV), C (=AGP), D (=MNQ), E (=CST),
          : F (=DE),  G (=KR),  H (=FHWY)
  Returns : Reference to the new sequence string
  Args    : none
@@ -299,7 +296,7 @@ sub Sneath()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[ILV]/1/;
 	$seqstring =~ tr/[AGP]/2/;
 	$seqstring =~ tr/[MNQ]/3/;
@@ -338,7 +335,7 @@ sub Stanfel()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[ACGILMPSTV]/1/;
 	$seqstring =~ tr/[DENQ]/2/;
 	$seqstring =~ tr/[FWY]/3/;
@@ -372,7 +369,7 @@ sub chemical()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[DE]/1/;
 	$seqstring =~ tr/[AGILV]/2/;
 	$seqstring =~ tr/[NQ]/3/;
@@ -413,7 +410,7 @@ sub charge()
 	my $seqstring = &_pullseq($self);
 
 # now the real business
-	
+
 	$seqstring =~ tr/[DE]/1/;
 	$seqstring =~ tr/[HKR]/2/;
 	$seqstring =~ tr/[ACFGILMNPQSTVWY]/3/;
@@ -434,7 +431,7 @@ sub _pullseq
 	my $self = $_[0];
 
 	my $seqobj =  $self->{'_seqref'};
-	
+
 	unless  ($seqobj->isa("Bio::PrimarySeqI"))
 	{
 		$self->throw("die, OddCodes works only on PrimarySeqI objects\n");

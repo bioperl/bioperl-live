@@ -71,13 +71,12 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Alignment::Trim;
 
-use Bio::Root::Root;
 use strict;
 use Dumpvalue;
 
-use vars qw(@ISA %DEFAULTS);
+use vars qw(%DEFAULTS);
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 BEGIN {
     %DEFAULTS = ( 'f_designator' => 'f',

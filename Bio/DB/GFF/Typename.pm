@@ -26,15 +26,12 @@ same type will share the same Bio::DB::GFF::Typename object.
 package Bio::DB::GFF::Typename;
 
 use strict;
-use Bio::Root::Root;
-use Bio::Das::FeatureTypeI;
 use overload 
   '""'     => 'asString',
   fallback => 1;
 
-use vars '@ISA';
 
-@ISA = qw(Bio::Root::Root Bio::Das::FeatureTypeI);
+use base qw(Bio::Root::Root Bio::Das::FeatureTypeI);
 
 # cut down on the number of equivalent objects we have to create
 my %OBJECT_CACHE;

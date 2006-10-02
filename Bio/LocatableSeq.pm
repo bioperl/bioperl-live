@@ -81,16 +81,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::LocatableSeq;
-use vars qw(@ISA);
 use strict;
 
-use Bio::PrimarySeq;
-use Bio::RangeI;
 use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
 
 
-@ISA = qw(Bio::PrimarySeq Bio::RangeI);
+use base qw(Bio::PrimarySeq Bio::RangeI);
 
 sub new {
     my ($class, @args) = @_;

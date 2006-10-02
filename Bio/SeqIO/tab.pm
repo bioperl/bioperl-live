@@ -63,13 +63,12 @@ Or chop up a huge file with sequences into smaller chunks with:
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
-to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -95,12 +94,10 @@ Internal methods are usually preceded with a _
 
 package Bio::SeqIO::tab;
 use strict;
-use vars qw(@ISA);
 
-use Bio::SeqIO;
 use Bio::Seq;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 =head2 next_seq
 
@@ -121,7 +118,7 @@ sub next_seq{
    my $nextline = $self->_readline();
    chomp($nextline) if defined $nextline;
    return unless defined $nextline;
-   if ($nextline =~ /^([^\t]*)\t(.*)/) { 
+   if ($nextline =~ /^([^\t]*)\t(.*)/) {
        my ($id, $seq)=($1, uc($2));
        $seq =~ s/\W//g;
        return  Bio::Seq->new(-display_id=> $id, -seq => $seq);
@@ -144,9 +141,9 @@ sub next_seq{
 sub write_seq {
    my ($self,@seq) = @_;
    foreach (@seq) {
-       if ($_->display_id() =~ /\t/) { 
+       if ($_->display_id() =~ /\t/) {
            $self->throw("display_id [".$_->display_id()."] contains TAB -- illegal in tab format");
-       } 
+       }
        $self->_print($_->display_id(), "\t",$_->seq, "\n") or return;
    }
    return 1;

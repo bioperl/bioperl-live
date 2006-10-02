@@ -74,13 +74,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Assembly::IO;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 
 use strict;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

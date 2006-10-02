@@ -35,7 +35,7 @@ Bio::DB::RandomAccessI in memory to a hard limit of sequences.
 
 =head1 CONTACT
 
-Ewan Birney <birney@ebi.ac.uk>
+Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 
 =head2 Reporting Bugs
 
@@ -57,15 +57,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::InMemoryCache;
 
-use Bio::DB::SeqI;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Seq;
 
-@ISA = qw(Bio::Root::Root Bio::DB::SeqI);
+use base qw(Bio::Root::Root Bio::DB::SeqI);
 
 sub new {
     my ($class,@args) = @_;

@@ -10,8 +10,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::tinyseq::tinyseqHandler - Perl extension for XML event
-handlers to support NCBI TinySeq XML parsint
+Bio::SeqIO::tinyseq::tinyseqHandler - XML event handlers to support NCBI TinySeq XML parsing
 
 =head1 SYNOPSIS
 
@@ -30,11 +29,7 @@ in the NCBI TinySeq XML format.  A TinySeq is a lightweight XML file
 of sequence information on one or more sequences, analgous to FASTA
 format.
 
-See http://www.ncbi.nih.gov/dtd/NCBI_TSeq.mod for the DTD.
-
-=head2 EXPORT
-
-None by default.
+See L<http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd> for the DTD.
 
 =head1 FEEDBACK
 
@@ -55,19 +50,13 @@ the web:
 
   http://bugzilla.open-bio.org/
 
-
 =head1 SEE ALSO
 
-L<Bio::SeqIO>, L<Bio::Seq>, L<perl>.
+L<Bio::SeqIO>, L<Bio::Seq>.
 
 =head1 AUTHOR
 
 Donald Jackson, E<lt>donald.jackson@bms.comE<gt>
-
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
@@ -81,13 +70,12 @@ package Bio::SeqIO::tinyseq::tinyseqHandler;
 use strict;
 use warnings;
 
-use Bio::Root::Root;
 
-use vars qw($VERSION %ATTMAP @ISA);
+use vars qw($VERSION %ATTMAP);
 
 $VERSION = '0.01';
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 # %ATTMAP defines correspondence between TSeq elements, PrimarySeq attributes
 # Format: element_name => { xml_attname => pseq_attname }
@@ -104,7 +92,7 @@ $VERSION = '0.01';
 
   Title		: new
   Usage		: $handler = Bio::SeqIO::tinyseq::tinyseqHandler->new()
-  Function	: instantiates a tinyseqHandler for use by 
+  Function	: instantiates a tinyseqHandler for use by
                   XML::Parser::PerlSAX
   Returns	: Bio::SeqIO::tinyseq::tinyseqHandler object
   Args		: NONE
@@ -162,7 +150,7 @@ sub start_document {
 
 sub end_document {
     my ($self) = @_;
-    return $self->{'_seqatts'}; 
+    return $self->{'_seqatts'};
 }
 
 =head2 start_element
@@ -250,7 +238,7 @@ sub TSeq {
 
 	while(my($element_att, $pseq_att) = each %$conversion) {
 	    $seqatts{$pseq_att} = $element->{$element_att};
-	}				 
+	}
     }
 
     push(@{ $self->{'_seqatts'} }, \%seqatts);

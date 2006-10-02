@@ -92,19 +92,15 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Annotation::OntologyTerm;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::AnnotationI;
-use Bio::Ontology::TermI;
 use Bio::Ontology::Term;
-use Bio::Root::Root;
 use overload '""' => sub { $_[0]->identifier || ''};
 use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
+use base qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
 
 =head2 new
 

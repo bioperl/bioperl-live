@@ -76,12 +76,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Factory::LocationFactoryI;
-use vars qw(@ISA);
 use strict;
 use Carp;
-use Bio::Root::RootI;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 from_string
 
@@ -105,3 +103,5 @@ sub from_string{
 
     $self->throw_not_implemented();
 }
+
+1;

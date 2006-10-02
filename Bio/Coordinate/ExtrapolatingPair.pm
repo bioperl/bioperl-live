@@ -89,15 +89,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Coordinate::ExtrapolatingPair;
-use vars qw(@ISA );
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 use Bio::Root::Root;
 use Bio::LocationI;
-use Bio::Coordinate::Pair;
 
-@ISA = qw(Bio::Coordinate::Pair);
+use base qw(Bio::Coordinate::Pair);
 
 
 sub new {

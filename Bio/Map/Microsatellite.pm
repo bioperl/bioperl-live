@@ -75,11 +75,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Microsatellite;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::Marker;
 
-@ISA = qw(Bio::Map::Marker);
+use base qw(Bio::Map::Marker);
 
 =head2 new
 
@@ -273,8 +271,7 @@ sub repeat_end_position {
 
 sub equals {
 	my ($self,@args) = @_;
-	$self->throw("equals is not yet implemented in ".
-		    ref($self)." yet. Check back real soon!");
+	$self->throw_not_implemented();
 }
 
 =head2 less_than
@@ -289,8 +286,7 @@ sub equals {
 
 sub less_than {
 	my ($self,@args) = @_;
-	$self->throw("less_then is not yet implemented in ".
-		    ref($self)." yet. Check back real soon!");
+        $self->throw_not_implemented();
 }
 
 =head2 greater_than
@@ -305,8 +301,7 @@ sub less_than {
 
 sub greater_than {
 	my ($self,@args) = @_;
-	$self->throw("greater_then is not yet implemented in ".
-		    ref($self)." yet. Check back real soon!");
+	$self->throw_not_implemented();
 }
 
 =head2 get_leading_flank

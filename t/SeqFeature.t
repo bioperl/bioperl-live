@@ -48,7 +48,6 @@ use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::SimilarityPair;
-use Bio::Tools::Blast;
 use Bio::SeqFeature::Computation;
 use Bio::SeqFeature::Annotated;
 use Bio::SeqFeature::Gene::Transcript;

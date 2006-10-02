@@ -77,14 +77,13 @@ Internal methods are usually preceded with a _
 package Bio::SearchIO::sim4;
 
 use strict;
-use vars qw(@ISA $DEFAULTFORMAT %ALIGN_TYPES
+use vars qw($DEFAULTFORMAT %ALIGN_TYPES
             %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS);
 
 use POSIX;
-use Bio::SearchIO;
 use Bio::SearchIO::SearchResultEventBuilder;
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 $DEFAULTFORMAT = 'SIM4';
 $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';

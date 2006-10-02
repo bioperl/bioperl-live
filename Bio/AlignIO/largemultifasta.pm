@@ -59,16 +59,12 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::largemultifasta;
-use vars qw(@ISA);
 use strict;
 
-use Bio::AlignIO;
-use Bio::SeqIO;
-use Bio::SimpleAlign;
 use Bio::Seq::LargeLocatableSeq;
 use Bio::Seq::SeqFactory;
 
-@ISA = qw(Bio::AlignIO Bio::SeqIO Bio::SimpleAlign);
+use base qw(Bio::AlignIO Bio::SeqIO Bio::SimpleAlign);
 
 
 sub _initialize {

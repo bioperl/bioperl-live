@@ -38,14 +38,14 @@ Do not use this module directly.  Use it via the L<Bio::AlignIO> class, as in:
 =head1 DESCRIPTION
 
 This object can create L<Bio::SimpleAlign> sequence alignment objects (of
-2 sequences) from bl2seq BLAST reports.
+two sequences) from C<bl2seq> BLAST reports.
 
-A nice feature of this module is that- in combination with
-StandAloneBlast.pm or remote blasting - it can be used to align 2
-sequences and make a SimpleAlign object from them which can then be
-manipulated using any SimpleAlign.pm methods, eg:
+A nice feature of this module is that - in combination with
+L<Bio::Tools::Run::StandAloneBlast.pm> or a remote BLAST - it can be used to
+align two sequences and make a L<Bio::SimpleAlign> object from them which
+can then be manipulated using any L<Bio::SimpleAlign> methods, eg:
 
-   #Get 2 sequences
+   # Get two sequences
    $str = Bio::SeqIO->new(-file=>'t/amino.fa' , '-format' => 'Fasta', );
    my $seq3 = $str->next_seq();
    my $seq4 = $str->next_seq();
@@ -83,7 +83,6 @@ web:
 
 Email: schattner@alum.mit.edu
 
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -94,14 +93,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::bl2seq;
-use vars qw(@ISA);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::AlignIO;
 use Bio::SearchIO;
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 =head2 new
 
@@ -130,15 +126,14 @@ sub new {
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream.
- Returns : L<Bio::Align::AlignI> object - returns 0 on end of file
-	    or on error
- Args    : NONE
+ Returns : L<Bio::Align::AlignI> object on success,
+           undef on error or end of file
+ Args    : none
 
 =cut
 
 sub next_aln {
     my $self = shift;
-    my ($start,$end,$name,$seqname,$seq,$seqchar,$strand);
     my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
     $self->{'bl2seqobj'} = $self->{'bl2seqobj'} ||
 	Bio::SearchIO->new(-fh => $self->_fh,
@@ -153,7 +148,9 @@ sub next_aln {
     my $hsp  = $hit->next_hsp;
     return unless defined $hsp;
     return $hsp->get_aln;
+
 # much easier above, eh?
+#     my ($start,$end,$name,$seqname,$seq,$seqchar,$strand);
 #     $seqchar = $hsp->query_string;
 #     $start   = $hsp->query->start;
 #     $end     = $hsp->query->end;
@@ -192,7 +189,7 @@ sub next_aln {
 }
 
 
-=head2 write_aln
+=head2 write_aln (NOT IMPLEMENTED)
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
@@ -205,8 +202,7 @@ sub next_aln {
 
 sub write_aln {
     my ($self,@aln) = @_;
-
-    $self->throw("Sorry: writing bl2seq output is not available! /n");
+    $self->throw_not_implemented();
 }
 
 =head2 report_type

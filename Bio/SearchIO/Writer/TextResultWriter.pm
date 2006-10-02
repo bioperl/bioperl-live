@@ -113,8 +113,7 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::TextResultWriter;
-use vars qw(@ISA $MaxNameLen $MaxDescLen $AlignmentLineWidth 
-	    $DescLineLen $TextWrapLoaded);
+use vars qw($MaxNameLen $MaxDescLen $AlignmentLineWidth 	    $DescLineLen $TextWrapLoaded);
 use strict;
 
 # Object preamble - inherits from Bio::Root::RootI
@@ -128,11 +127,9 @@ BEGIN {
     }
 }
 
-use Bio::Root::Root;
-use Bio::SearchIO::SearchWriterI;
 use POSIX;
 
-@ISA = qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
+use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
 =head2 new
 

@@ -37,9 +37,9 @@ without losing data, we keep them as strings. Feel free to post the
 list for a better solution, but in general this gets very messy very
 fast...
 
-=head1 CONTACT
+=head1 AUTHOR - Ewan Birney 
 
-Describe contact details here
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -51,15 +51,13 @@ The rest of the documentation details each of the object methods. Internal metho
 # Let the code begin...
 
 package Bio::Annotation::Reference;
-use vars qw(@ISA);
 use strict;
 use overload '""' => sub { $_[0]->title || ''};
 use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
-use Bio::Annotation::DBLink;
 use Bio::AnnotationI;
 
-@ISA = qw(Bio::Annotation::DBLink);
+use base qw(Bio::Annotation::DBLink);
 
 =head2 new
 

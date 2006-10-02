@@ -100,17 +100,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Spidey::Results;
-use vars qw(@ISA);
 use strict;
 
-# Object preamble - inherits from Bio::Root::Object
 
 use File::Basename;
 use Bio::Root::Root;
-use Bio::Tools::AnalysisResult;
 use Bio::Tools::Spidey::Exon;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 
 sub _initialize_state {

@@ -488,8 +488,6 @@ sub collapse_nums {
            : reconstitute parsable Blast reports from HTML-format versions
            : should be considered a temorary solution.
 
-See Also   : B<Bio::Search::Processor::BlastIO::new()>
-
 =cut
 
 #--------------------

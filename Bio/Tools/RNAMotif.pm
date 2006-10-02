@@ -80,25 +80,25 @@ screens based on the lowest score. So, to return the highest scoring values with
 20 bp (likely using an arbitrary scroing system in the SCORE section of a descriptor
 file), one could use:
 
-$list = $obj->clean_features(20); 
+  $list = $obj->clean_features(20); 
 
 ... and returning the lowest scoring structures within the same region (when the
 score is based on calculated free energies from efn2) can be accomplished
 by the following:
 
-$list = $obj->clean_features(-20);
+  $list = $obj->clean_features(-20);
 
 If you wanted the best feature in a sequence, you could set this to a large number,
 preferrably on that exceeds the bases in a sequence
 
-$list = $obj->clean_features(10000000);
+  $list = $obj->clean_features(10000000);
 
 Each seqfeature in the collection can then be acted upon:
 
-@sf = $list->get_all_features;
-for my $f (@sf) {
-  # do crazy things here
-}
+  @sf = $list->get_all_features;
+  for my $f (@sf) {
+    # do crazy things here
+  }
 
 At some point a more complicated feature object may be used to support
 this data rather than forcing most of the information into tag/value
@@ -139,17 +139,14 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::RNAMotif;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Collection;
 
-@ISA = qw(Bio::Tools::AnalysisResult );
+use base qw(Bio::Tools::AnalysisResult);
 
-use vars qw($MotifTag $SrcTag $DescTag);
-($MotifTag,$SrcTag,$DescTag) = qw(misc_binding RNAMotif rnamotif);
+our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding RNAMotif rnamotif);
 
 =head2 new
 

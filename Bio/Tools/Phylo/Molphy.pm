@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::Molphy - DESCRIPTION of Object
+Bio::Tools::Phylo::Molphy - parser for Molphy output
 
 =head1 SYNOPSIS
 
@@ -86,10 +86,6 @@ web:
 
 Email jason-at-bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -102,16 +98,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::Molphy;
-use vars qw(@ISA);
 use strict;
 
 use Bio::Tools::Phylo::Molphy::Result;
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Bio::TreeIO;
 use IO::String;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

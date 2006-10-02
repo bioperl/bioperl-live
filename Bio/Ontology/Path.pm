@@ -22,7 +22,7 @@
 
 =head1 NAME
 
-Path - a path for an ontology term graph
+Bio::Ontology::Path - a path for an ontology term graph
 
 =head1 SYNOPSIS
 
@@ -74,13 +74,9 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Ontology::Path;
-use vars qw( @ISA );
 use strict;
-use Bio::Ontology::PathI;
-use Bio::Ontology::Relationship;
 
-@ISA = qw( Bio::Ontology::Relationship
-           Bio::Ontology::PathI );
+use base qw(Bio::Ontology::Relationship Bio::Ontology::PathI);
 
 
 

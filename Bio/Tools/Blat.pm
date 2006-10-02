@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Tools::Blat
+Bio::Tools::Blat - parser for Blat program
 
 =head1 SYNOPSIS
 
@@ -54,14 +54,11 @@ Bio::Tools::Blat
 =cut
 
 package Bio::Tools::Blat;
-use vars qw(@ISA);
 use strict;
 use Bio::SeqFeature::Generic;
-use Bio::Root::Root;
 use Bio::SeqFeature::FeaturePair;
-use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

@@ -76,14 +76,13 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::phylip;
-use vars qw(@ISA $DEFAULTIDLENGTH $DEFAULTLINELEN $DEFAULTTAGLEN);
+use vars qw($DEFAULTIDLENGTH $DEFAULTLINELEN $DEFAULTTAGLEN);
 use strict;
 
 use Bio::SimpleAlign;
-use Bio::AlignIO;
 use POSIX; # for the rounding call
 
-@ISA = qw(Bio::AlignIO);
+use base qw(Bio::AlignIO);
 
 BEGIN {
     $DEFAULTIDLENGTH = 10;

@@ -81,16 +81,14 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::metafasta;
-use vars qw(@ISA $WIDTH);
+use vars qw($WIDTH);
 use strict;
-# Object preamble - inherits from Bio::Root::Object
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
 use Bio::Seq::Meta;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 BEGIN { $WIDTH = 60}
 

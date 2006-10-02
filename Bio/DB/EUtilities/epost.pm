@@ -24,7 +24,7 @@ retrieval and chained queries
                                           -id       => \@ids,
                                           -db       => 'protein',
                                           );
-    
+
     $epost->get_response;
 
 =head1 DESCRIPTION
@@ -32,7 +32,7 @@ retrieval and chained queries
 B<WARNING>: Please do B<NOT> spam the Entrez web server with multiple requests.
 
 The EUtility EPost is used to post a list of primary IDs to the NCBI EUtilities
-server for retrieval by L<EFetch:Bio::DB::EUtilities::efetch> or for using in
+server for retrieval by L<EFetch|Bio::DB::EUtilities::efetch> or for using in
 futher searches using L<ELink|Bio::DB::EUtilities::elink> or
 L<ESearch|Bio::DB::EUtilities::esearch>.  The data is posted using:
 
@@ -69,8 +69,8 @@ a list of primary ID's
 
 Below are a list of IDs which can be used with EPost:
 
-B<PMID> (pubmed), <MEDLINE UI> (NIH MedLine), B<MIM number> (omim),
-B<GI number> (nucleotide, protein), <MMDB-ID> (structure),B<TAXID> (taxonomy)
+B<PMID> (pubmed), B<MEDLINE UI> (NIH MedLine), B<MIM number> (omim),
+B<GI number> (nucleotide, protein), B<MMDB-ID> (structure), B<TAXID> (taxonomy)
 
 =back
 
@@ -86,7 +86,7 @@ is much appreciated.
 
   bioperl-l@lists.open-bio.org               - General discussion
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
-  
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to
@@ -112,20 +112,14 @@ preceded with a _
 package Bio::DB::EUtilities::epost;
 use strict;
 use warnings;
-use Bio::DB::EUtilities;
 use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
 #use Data::Dumper;
 
-use vars qw(@ISA $EUTIL $RETMODE);
+use base qw(Bio::DB::EUtilities);
 
-@ISA = qw(Bio::DB::EUtilities);
-
-BEGIN {
-    #set as default
-    $EUTIL = 'epost';
-    $RETMODE = 'xml';
-}
+our $EUTIL = 'epost';
+our $RETMODE = 'xml';
 
 sub _initialize {
     my ($self, @args) = @_;

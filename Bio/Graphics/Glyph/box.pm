@@ -2,9 +2,7 @@ package Bio::Graphics::Glyph::box;
 # DAS-compatible package to use for drawing a box
 
 use strict;
-use vars '@ISA';
-use Bio::Graphics::Glyph::generic;
-@ISA = 'Bio::Graphics::Glyph::generic';
+use base qw(Bio::Graphics::Glyph::generic);
 
 # treat like one big component
 sub draw {

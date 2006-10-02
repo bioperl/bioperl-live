@@ -71,11 +71,9 @@ Internal methods are usually preceded with a _
 
 package Bio::Factory::SequenceFactoryI;
 
-use vars qw(@ISA);
 use strict;
-use Bio::Factory::ObjectFactoryI;
 
-@ISA = qw(Bio::Factory::ObjectFactoryI);
+use base qw(Bio::Factory::ObjectFactoryI);
 
 =head2 create
 

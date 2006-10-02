@@ -98,15 +98,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Analysis::Protein::NetPhos;
-use vars qw(@ISA  $FLOAT );
+use vars qw($FLOAT);
 use strict;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw (POST);
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
     $FLOAT = '[+-]?\d*\.\d*';
     my $URL = 'http://www.cbs.dtu.dk/cgi-bin/nph-webface';

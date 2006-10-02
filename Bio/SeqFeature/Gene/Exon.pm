@@ -56,8 +56,6 @@ web:
 
 Email hlapp@gmx.net
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -70,13 +68,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::Exon;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::Gene::ExonI;
 
-@ISA = qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::ExonI);
+use base qw(Bio::SeqFeature::Generic Bio::SeqFeature::Gene::ExonI);
 
 #
 # A list of allowed exon types. See primary_tag().

@@ -43,6 +43,29 @@ Bio::FeatureIO - Handler for FeatureIO
 
 An I/O iterator subsystem for genomic sequence features.
 
+Bio::FeatureIO is a handler module for the formats in the FeatureIO set (eg,
+Bio::FeatureIO::GFF). It is the officially sanctioned way of getting at
+the format objects, which most people should use.
+
+The Bio::FeatureIO system can be thought of like biological file handles.
+They are attached to filehandles with smart formatting rules (eg,
+GFF format, or BED format) and 
+can either read or write feature objects (Bio::SeqFeature objects, or
+more correctly, Bio::FeatureHolderI implementing objects, of which 
+Bio::SeqFeature is one such object). If you want to know what to 
+do with a Bio::SeqFeatureI object, read L<Bio::SeqFeatureI>.
+
+The idea is that you request a stream object for a particular format.
+All the stream objects have a notion of an internal file that is read
+from or written to. A particular FeatureIO object instance is configured
+for either input or output. A specific example of a stream object is
+the Bio::FeatureIO::gff object.
+
+Each stream object has functions:
+
+  $stream->next_feature();
+  $stream->write_feature($feature);
+
 =head1 SUPPORTED FORMATS
 
  name                         module
@@ -51,33 +74,8 @@ An I/O iterator subsystem for genomic sequence features.
  GFF                          gff.pm
  GTF                          gtf.pm
  InterPro (IPRScan 4.0)  interpro.pm
+ PTT (NCBI protein table)     ptt.pm
 
-  #Bio::FeatureIO is a handler module for the formats in the FeatureIO set (eg,
-  #Bio::FeatureIO::GFF). It is the officially sanctioned way of getting at
-  #the format objects, which most people should use.
-  #
-  #The Bio::FeatureIO system can be thought of like biological file handles.
-  #They are attached to filehandles with smart formatting rules (eg,
-  #GFF format, or BED format) and 
-  #can either read or write feature objects (Bio::Feature objects, or
-  #more correctly, Bio::FeatureI implementing objects, of which Bio::Feature is
-  #one such object). If you want to know what to do with a Bio::FeatureI
-  #object, read L<Bio::SeqFeatureI>.
-  #
-  #The idea is that you request a stream object for a particular format.
-  #All the stream objects have a notion of an internal file that is read
-  #from or written to. A particular FeatureIO object instance is configured
-  #for either input or output. A specific example of a stream object is
-  #the Bio::FeatureIO::gff object.
-  #
-  #Each stream object has functions
-  #
-  #   $stream->next_feature();
-  #
-  #and
-  #
-  #   $stream->write_feature($feature);
-  #
 
 =head1 CONSTRUCTORS
 
@@ -233,13 +231,10 @@ methods. Internal methods are usually preceded with a _
 package Bio::FeatureIO;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Root::Root;
-use Bio::Root::IO;
 use Symbol();
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 
@@ -426,28 +421,13 @@ END
   return $ok;
 }
 
-=head2 seq()
+=head2 seq
 
-=over
-
-=item Usage
-
-  $obj->seq();        #get existing value
-
-  $obj->seq($newval); #set new value
-
-=item Function
-
-
-=item Returns
-
-value of seq (a Bio::SeqI)
-
-=item Arguments
-
-(optional) on set, a scalar
-
-=back
+ Title   : seq
+ Usage   : $obj->seq() OR $obj->seq($newSeq)
+ Example :
+ Returns : Bio::SeqI object
+ Args    : newSeq (optional)
 
 =cut
 
@@ -458,7 +438,6 @@ sub seq {
   $self->{'seq'} = $val if defined($val);
   return $self->{'seq'};
 }
-
 
 =head2 _filehandle
 
@@ -485,7 +464,7 @@ sub _filehandle {
  Example :
  Returns : guessed format of filename (lower case)
  Args    :
- Notes   : formats that _filehandle() will guess include FIXME...
+ Notes   : See "SUPPORTED FORMATS"
 
 =cut
 
@@ -495,13 +474,13 @@ sub _guess_format {
    return 'gff'     if /\.gff3?$/i;
    return 'gff'     if /\.gtf$/i;
    return 'bed'     if /\.bed$/i;
+   return 'ptt'     if /\.ptt$/i;
 
    return 'gff'; #the default
 }
 
 sub DESTROY {
     my $self = shift;
-
     $self->close();
 }
 

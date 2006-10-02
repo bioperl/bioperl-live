@@ -70,18 +70,17 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::IO::prettybase;
-use vars qw(@ISA $FieldDelim $Header);
+use vars qw($FieldDelim $Header);
 use strict;
 
 ($FieldDelim,$Header) =( '\t',0);
 
-use Bio::PopGen::IO;
 
 use Bio::PopGen::Individual;
 use Bio::PopGen::Population;
 use Bio::PopGen::Genotype;
 
-@ISA = qw(Bio::PopGen::IO );
+use base qw(Bio::PopGen::IO);
 
 =head2 new
 

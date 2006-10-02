@@ -12,7 +12,7 @@
 
 Bio::Assembly::ScaffoldI - Abstract Inteface of Sequence Assemblies
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # get a Bio::Assembly::ScaffoldI object somehow
 
@@ -62,13 +62,11 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::ScaffoldI;
 
 use strict;
-use vars qw(@ISA);
 use Carp;
-use Bio::Root::RootI;
 
 # Inheritance
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 #
 # Methods

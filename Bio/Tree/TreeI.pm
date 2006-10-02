@@ -71,11 +71,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tree::TreeI;
-use Bio::Tree::NodeI;
-use vars qw(@ISA);
 use strict;
 
-@ISA = qw(Bio::Tree::NodeI);
+use base qw(Bio::Tree::NodeI);
 
 =head2 get_nodes
 

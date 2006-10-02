@@ -19,10 +19,7 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 package TestObject;
 
 use strict;
-use vars qw(@ISA);
 
-use TestInterface;
-use Bio::Root::Root;
 
 # Define a special type of error "Bio::TestException" as a subclass of Error.
 # Note two things:
@@ -32,7 +29,7 @@ use Bio::Root::Root;
 #   4. If Error.pm isn't available this statement doesn't matter.
 @Bio::TestException::ISA = qw( Bio::Root::Exception );
 
-@ISA = qw( Bio::Root::Root TestInterface );
+use base qw(Bio::Root::Root TestInterface);
 
 
 # Note that we're not implementing foo(), so calling it

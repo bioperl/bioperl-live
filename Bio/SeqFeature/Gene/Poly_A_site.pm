@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::poly_A_site - DESCRIPTION of Object
+Bio::SeqFeature::Gene::Poly_A_site - poly A feature
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ Give standard usage here
 
 =head1 DESCRIPTION
 
-Describe the object here
+Inherits from L<Bio::SeqFeature::Gene::NC_Feature>.
 
 =head1 FEEDBACK
 
@@ -45,12 +45,6 @@ web:
 
 Email dblock@gene.pbi.nrc.ca
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -63,14 +57,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::Poly_A_site;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SeqFeature::Gene::NC_Feature;
 
-@ISA = qw(Bio::SeqFeature::Gene::NC_Feature);
+use base qw(Bio::SeqFeature::Gene::NC_Feature);
 
 sub new {
   my($class,@args) = @_;

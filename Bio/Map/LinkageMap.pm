@@ -77,11 +77,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::LinkageMap;
-use vars qw(@ISA);
 use strict;
-use Bio::Map::SimpleMap;
 
-@ISA = qw(Bio::Map::SimpleMap);
+use base qw(Bio::Map::SimpleMap);
 
 =head2 new
 

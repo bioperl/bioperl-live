@@ -84,11 +84,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::Factory::SeqAnalysisParserFactory;
 use strict;
 
-use Bio::Factory::SeqAnalysisParserFactoryI;
-use Bio::Factory::DriverFactory;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Factory::DriverFactory Bio::Factory::SeqAnalysisParserFactoryI);
+use base qw(Bio::Factory::DriverFactory Bio::Factory::SeqAnalysisParserFactoryI);
 
 BEGIN {
     Bio::Factory::DriverFactory->register_driver

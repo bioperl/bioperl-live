@@ -22,14 +22,12 @@ package Bio::DB::GFF::Adaptor::dbi;
 use strict;
 
 use DBI;
-use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Rearrange; # for rearrange()
 use Bio::DB::GFF::Util::Binning;
 use Bio::DB::GFF::Adaptor::dbi::iterator;
 use Bio::DB::GFF::Adaptor::dbi::caching_handle;
-use vars qw(@ISA);
 
-@ISA =  qw(Bio::DB::GFF);
+use base qw(Bio::DB::GFF);
 
 # constants for choosing
 

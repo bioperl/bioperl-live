@@ -40,17 +40,17 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.html - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.Bug reports can be submitted via the
-web: http://bugzila.open-bio.org/
+web: http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Ewan Birney
 
-Email birney-at-sanger.ac.uk
+Email birney-at-ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -64,13 +64,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::HMMER::Set;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::Tools::HMMER::Domain;
 
-@ISA = qw( Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 sub new {
     my($class,@args) = @_;
@@ -112,7 +110,7 @@ sub add_Domain{
 =head2 each_Domain
 
  Title   : each_Domain
- Usage   : foreach $domain ( $set->each_Domain() ) 
+ Usage   : foreach $domain ( $set->each_Domain() )
  Function: returns an array of domain objects in this set
  Returns : array
  Args    : none
@@ -130,8 +128,8 @@ sub each_Domain{
 
  Title   : name
  Usage   : $obj->name($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of name
  Args    : newvalue (optional)
 
@@ -151,8 +149,8 @@ sub name{
 
  Title   : desc
  Usage   : $obj->desc($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of desc
  Args    : newvalue (optional)
 
@@ -171,8 +169,8 @@ sub desc{
 
  Title   : accession
  Usage   : $obj->accession($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of accession
  Args    : newvalue (optional)
 
@@ -192,8 +190,8 @@ sub accession{
 
  Title   : bits
  Usage   : $obj->bits($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of bits
  Args    : newvalue (optional)
 
@@ -214,8 +212,8 @@ sub bits{
 
  Title   : evalue
  Usage   : $obj->evalue($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of evalue
  Args    : newvalue (optional)
 

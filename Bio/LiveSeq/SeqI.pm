@@ -77,12 +77,9 @@ Some note on the terminology/notation of method names:
 
 package Bio::LiveSeq::SeqI;
 use strict;
-use vars qw(@ISA);
-use Bio::LiveSeq::ChainI; # to inherit from it
 use Bio::Tools::CodonTable; # for the translate() function
-use Bio::PrimarySeqI;
 
-@ISA=qw(Bio::Root::Root Bio::LiveSeq::ChainI Bio::PrimarySeqI ); # inherit from ChainI
+use base qw(Bio::Root::Root Bio::LiveSeq::ChainI Bio::PrimarySeqI);
 
 =head2 seq
 

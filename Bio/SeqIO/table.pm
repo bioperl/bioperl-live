@@ -13,7 +13,7 @@
 # Refer to the Perl Artistic License (see the license accompanying this
 # software package, or see http://www.perl.com/language/misc/Artistic.html)
 # for the terms under which you may use, modify, and redistribute this module.
-# 
+#
 # THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -56,13 +56,12 @@ attributes may be added to the annotation bundle.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://www.bioperl.org/MailList.shtml  - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -87,17 +86,15 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::table;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::Species;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::SimpleValue;
 
-@ISA = qw(Bio::SeqIO);
- 
+use base qw(Bio::SeqIO);
+
 =head2 new
 
  Title   : new
@@ -154,7 +151,7 @@ use Bio::Annotation::SimpleValue;
                       ignored if -annotation is also supplied with a
                       valid value.
              -trim    flag determining whether or not all values should
-                      be trimmed of leading and trailing white space 
+                      be trimmed of leading and trailing white space
                       and double quotes
 
            Additional arguments may be used to e.g. set factories and
@@ -166,9 +163,9 @@ use Bio::Annotation::SimpleValue;
 
 sub _initialize {
     my($self,@args) = @_;
-    
+
     # chained initialization
-    $self->SUPER::_initialize(@args); 
+    $self->SUPER::_initialize(@args);
 
     # our own parameters
     my ($cmtchars,
@@ -194,9 +191,9 @@ sub _initialize {
                               ], @args);
 
     # store options and apply defaults
-    $self->comment_char(defined($cmtchars) ? $cmtchars : "#") 
+    $self->comment_char(defined($cmtchars) ? $cmtchars : "#")
         if (!defined($self->comment_char)) || defined($cmtchars);
-    $self->delimiter(defined($delim) ? $delim : "\t") 
+    $self->delimiter(defined($delim) ? $delim : "\t")
         if (!defined($self->delimiter)) || defined($delim);
     $self->header($header) if defined($header);
     $self->trim_values($trim) if defined($trim);
@@ -255,7 +252,7 @@ sub _initialize {
     # make sure we have a factory defined
     if(!defined($self->sequence_factory)) {
 	$self->sequence_factory(
-            Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), 
+            Bio::Seq::SeqFactory->new(-verbose => $self->verbose(),
                                       -type => 'Bio::Seq::RichSeq'));
     }
 }
@@ -281,7 +278,7 @@ sub next_seq {
         $line_ok = $self->_parse_header();
         $self->_header_skipped(1);
     }
-    
+
     # return if we reached end-of-file
     return unless $line_ok;
 
@@ -294,11 +291,11 @@ sub next_seq {
         for(my $i = 0; $i < scalar(@cols); $i++) {
             if ($cols[$i]) {
                 # trim off whitespace
-                $cols[$i] =~ s/^\s+//; 
-                $cols[$i] =~ s/\s+$//; 
+                $cols[$i] =~ s/^\s+//;
+                $cols[$i] =~ s/\s+$//;
                 # trim off double quotes
-                $cols[$i] =~ s/^"//; 
-                $cols[$i] =~ s/"$//; 
+                $cols[$i] =~ s/^"//;
+                $cols[$i] =~ s/"$//;
             }
         }
     }
@@ -343,9 +340,9 @@ sub next_seq {
 
  Title   : comment_char
  Usage   : $obj->comment_char($newval)
- Function: Get/set the leading character(s) designating a line as 
+ Function: Get/set the leading character(s) designating a line as
            a comment-line.
- Example : 
+ Example :
  Returns : value of comment_char (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -363,13 +360,13 @@ sub comment_char{
 
  Title   : header
  Usage   : $obj->header($newval)
- Function: Get/set the number of header lines to skip before the 
+ Function: Get/set the number of header lines to skip before the
            rows containing actual sequence records.
 
            If set to zero or undef, means that there is no header and
            therefore also no column headers.
 
- Example : 
+ Example :
  Returns : value of header (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -387,11 +384,11 @@ sub header{
 
  Title   : delimiter
  Usage   : $obj->delimiter($newval)
- Function: Get/set the column delimiter. This will in fact be 
-           treated as a regular expression. Consecutive occurrences 
+ Function: Get/set the column delimiter. This will in fact be
+           treated as a regular expression. Consecutive occurrences
            will not be collapsed to a single one.
 
- Example : 
+ Example :
  Returns : value of delimiter (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -409,14 +406,14 @@ sub delimiter{
 
  Title   : attribute_map
  Usage   : $obj->attribute_map($newval)
- Function: Get/set the map of sequence object initialization 
+ Function: Get/set the map of sequence object initialization
            attributes (keys) to one-based column index.
 
            Attributes will usually need to be prefixed by a dash, just
            as if they were passed to the new() method of the sequence
            class.
 
- Example : 
+ Example :
  Returns : value of attribute_map (a reference to a hash)
  Args    : on set, new value (a reference to a hash or undef, optional)
 
@@ -438,7 +435,7 @@ sub attribute_map{
             if ((!ref($attr_map->{$key})) && ($attr_map->{$key} =~ /^\d+$/)) {
                 $attr_map->{$key}--;
             }
-        }        
+        }
         $self->{'_attribute_map'} = $attr_map;
     }
     # there may not be a map
@@ -457,7 +454,7 @@ sub attribute_map{
 
  Title   : annotation_map
  Usage   : $obj->annotation_map($newval)
- Function: Get/set the mapping between one-based column indexes 
+ Function: Get/set the mapping between one-based column indexes
            (keys) and annotation tags (values).
 
            Note that the map returned by this method may change after
@@ -469,7 +466,7 @@ sub attribute_map{
            Note also that the map may reference columns that are used
            as well in the sequence attribute map.
 
- Example : 
+ Example :
  Returns : value of annotation_map (a reference to a hash)
  Args    : on set, new value (a reference to a hash or undef, optional)
 
@@ -492,7 +489,7 @@ sub annotation_map{
         foreach my $key (sort { $a <=> $b } keys(%$ann_map)) {
             $ann_map->{$key-1} = $ann_map->{$key};
             delete $ann_map->{$key};
-        }        
+        }
         $self->{'_annotation_map'} = $ann_map;
         # also make a note that we want to keep annotation
         $self->keep_annotation(1);
@@ -519,7 +516,7 @@ sub annotation_map{
            Additional columns are all those columns in the input file
            that aren't referenced in the attribute map.
 
- Example : 
+ Example :
  Returns : value of keep_annotation (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -545,7 +542,7 @@ sub keep_annotation{
            next_seq(), and obviously there must be a header line (or
            row) too giving the column labels.
 
- Example : 
+ Example :
  Returns : value of annotation_columns (a reference to an array)
  Args    : on set, new value (a reference to an array of undef, optional)
 
@@ -565,7 +562,7 @@ sub annotation_columns{
  Usage   : $obj->trim_values($newval)
  Function: Get/set whether or not to trim leading and trailing
            whitespace off all column values.
- Example : 
+ Example :
  Returns : value of trim_values (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -598,7 +595,7 @@ private unless you are a developer trying to modify this module.
            doing if you modify the returned value (or if you call this
            method in the first place).
 
- Example : 
+ Example :
  Returns : value of _attribute_map (a reference to a hash)
  Args    : none
 
@@ -622,7 +619,7 @@ sub _attribute_map{
            doing if you modify the returned value (or if you call this
            method in the first place).
 
- Example : 
+ Example :
  Returns : value of _annotation_map (a reference to a hash)
  Args    : none
 
@@ -639,9 +636,9 @@ sub _annotation_map{
 
  Title   : _header_skipped
  Usage   : $obj->_header_skipped($newval)
- Function: Get/set the flag whether the header was already 
+ Function: Get/set the flag whether the header was already
            read (and skipped) or not.
- Example : 
+ Example :
  Returns : value of _header_skipped (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -659,7 +656,7 @@ sub _header_skipped{
 
  Title   : _next_record
  Usage   :
- Function: Navigates the underlying file to the next record. 
+ Function: Navigates the underlying file to the next record.
 
            For row-based records in delimited text files, this will
            skip all empty lines and lines with a leading comment
@@ -685,7 +682,7 @@ sub _next_record{
     my $line = $self->_readline();
 
     # skip until not a comment and not an empty line
-    while (defined($line) 
+    while (defined($line)
            && (($cmtcc && ($line =~ /^\s*$cmtcc/))
                || ($line =~ /^\s*$/))) {
         $line = $self->_readline();
@@ -714,7 +711,7 @@ sub _next_record{
 
            This method is here is to serve as a hook for other formats
            that conceptually also represent tables but aren't
-           formatted as row-based text files. 
+           formatted as row-based text files.
 
            Note however that the only methods used to access file
            content or navigate the position are _get_row_values() and
@@ -784,7 +781,7 @@ sub _parse_header{
             }
         }
         $self->annotation_map($annmap);
-    }        
+    }
 
     # now read past the header
     my $header_lines = $self->header;

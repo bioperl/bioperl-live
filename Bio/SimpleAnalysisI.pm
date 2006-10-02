@@ -85,15 +85,9 @@ message.
 # Let the code begin...
 
 package Bio::SimpleAnalysisI;
-use vars qw(@ISA  $Revision);
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
-
-BEGIN {
-    $Revision = q[$Id$];
-}
+use base qw(Bio::Root::RootI);
 
 # -----------------------------------------------------------------------------
 

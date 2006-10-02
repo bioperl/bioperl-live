@@ -80,14 +80,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::XEMBL;
 use strict;
-use Bio::DB::RandomAccessI;
 use SOAP::Lite;
 # bsml parser appears broken...
 use Bio::SeqIO::bsml;
 use File::Temp 'tempfile';
-use vars qw(@ISA $MODVERSION);
+use vars qw($MODVERSION);
 
-@ISA = qw(Bio::DB::RandomAccessI);
+use base qw(Bio::DB::RandomAccessI);
 $MODVERSION = '0.2';
 
 use constant DEFAULT_ENDPOINT => 'http://www.ebi.ac.uk:80/cgi-bin/xembl/XEMBL-SOAP.pl';

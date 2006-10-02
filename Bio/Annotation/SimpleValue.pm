@@ -46,11 +46,9 @@ the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - bioperl
+=head1 AUTHOR  - Ewan Birney 
 
-Email bioperl-l@bioperl.org
-
-Describe contact details here
+Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
@@ -63,18 +61,15 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Annotation::SimpleValue;
-use vars qw(@ISA);
 use strict;
 use overload '""' => sub { $_[0]->value};
 use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::AnnotationI;
 #use Bio::Ontology::TermI;
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root Bio::AnnotationI);
+use base qw(Bio::Root::Root Bio::AnnotationI);
 
 =head2 new
 

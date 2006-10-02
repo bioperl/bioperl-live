@@ -67,13 +67,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::tRNAscanSE;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Tools::AnalysisResult );
+use base qw(Bio::Tools::AnalysisResult);
 
 use vars qw($GeneTag $SrcTag $ExonTag);
 ($GeneTag,$SrcTag,$ExonTag) = qw(tRNA_gene tRNAscan-SE tRNA_exon);

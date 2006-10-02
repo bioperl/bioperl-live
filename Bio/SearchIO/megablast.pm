@@ -79,12 +79,6 @@ web:
 
 Email jason-at-bioperl.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -98,10 +92,9 @@ Internal methods are usually preceded with a _
 
 package Bio::SearchIO::megablast;
 use strict;
-use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_BLAST_WRITER_CLASS);
-use Bio::SearchIO;
+use vars qw(%MAPPING %MODEMAP $DEFAULT_BLAST_WRITER_CLASS);
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 BEGIN {
     # mapping of MegaBlast terms to Bioperl hash keys
@@ -518,3 +511,5 @@ sub result_count {
 }
 
 sub report_count { shift->result_count }
+
+1;

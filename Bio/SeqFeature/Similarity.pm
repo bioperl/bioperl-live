@@ -53,8 +53,6 @@ web:
 
 Email hlapp@gmx.net or hilmar.lapp@pharma.novartis.com
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -67,12 +65,10 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Similarity;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::SeqFeature::Generic);
+use base qw(Bio::SeqFeature::Generic);
 
 sub new {
     my ( $caller, @args) = @_;

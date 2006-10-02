@@ -98,15 +98,13 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Variation::RNAChange;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheritance
 
-use Bio::Variation::VariantI;
 use Bio::Tools::CodonTable;
 
-@ISA = qw( Bio::Variation::VariantI );
+use base qw(Bio::Variation::VariantI);
 
 sub new {
     my($class,@args) = @_;

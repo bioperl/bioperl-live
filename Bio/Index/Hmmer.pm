@@ -104,15 +104,13 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Index::Hmmer;
-use vars qw(@ISA $VERSION);
+use vars qw($VERSION);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Index::Abstract;
 use Bio::SearchIO;
 use IO::String;
 
-@ISA = qw(Bio::Index::Abstract Bio::Root::Root );
+use base qw(Bio::Index::Abstract Bio::Root::Root);
 
 BEGIN {
 	$VERSION = 0.1;
@@ -182,7 +180,7 @@ sub fetch_report
 	# Then the data
 	while(<$fh>) {
 		push @data, $_ if defined;
-		last if /\/\//o;
+		last if m{//}o;
 	}
 
 	# Then join them and send
@@ -269,20 +267,22 @@ sub _index_file {
 	my($self, $file, $i) = @_;
 	my($begin);
 
-	open(HMMER, "<$file") or $self->throw("cannot open file $file\n");
+	open(my $HMMER, '<', $file) or $self->throw("cannot open file $file");
 
 	my $id;
 	my $indexpoint = 0;
 
-	while(<HMMER>) {
+	while(<$HMMER>) {
 		if( /Query sequence: ([^\s]+)/o ) {
-			$indexpoint = tell(HMMER);
+			$indexpoint = tell($HMMER);
 			foreach my $id ($self->id_parser()->($1)) {
 				print "id is $id, begin is $indexpoint\n" if $self->verbose() > 0;
 				$self->add_record($id, $i, $indexpoint);
 			}
 		}
 	}
+	close $HMMER;
+	return 1;
 }
 
 =head2 Bio::Index::Abstract methods

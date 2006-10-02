@@ -86,11 +86,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion::gi;
 use strict;
-use vars qw(@ISA $MODVERSION $CGIBASE $CGIARGS $ua);
-use Bio::DB::SeqVersion;
+use vars qw($MODVERSION $CGIBASE $CGIARGS $ua);
 use Bio::Root::Version;
 
-@ISA = qw(Bio::DB::SeqVersion);
+use base qw(Bio::DB::SeqVersion);
 
 $CGIBASE = 'http://www.ncbi.nlm.nih.gov';
 $CGIARGS = '/entrez/sutils/girevhist.cgi?val=';

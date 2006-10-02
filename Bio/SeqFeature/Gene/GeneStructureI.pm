@@ -12,12 +12,12 @@
 
 =head1 NAME
 
-Bio::SeqFeature::Gene::GeneStructure - A feature representing an arbitrarily
+Bio::SeqFeature::Gene::GeneStructureI - A feature representing an arbitrarily
            complex structure of a gene
 
 =head1 SYNOPSIS
 
-  #documentaion needed
+  #documentation needed
 
 =head1 DESCRIPTION
 
@@ -29,8 +29,7 @@ A feature representing a gene structure.
 
 User feedback is an integral part of the evolution of this
 and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+to one of the Bioperl mailing lists. Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
@@ -47,8 +46,6 @@ web:
 
 Email hlapp@gmx.net
 
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -61,13 +58,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SeqFeature::Gene::GeneStructureI;
-use vars qw(@ISA);
 use strict;
 
 use Carp;
-use Bio::SeqFeatureI;
 
-@ISA = qw(Bio::SeqFeatureI);
+use base qw(Bio::SeqFeatureI);
 
 =head2 transcripts
 

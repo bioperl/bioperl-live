@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::psiblast - PSM psiblast parser
+Bio::Matrix::PSM::IO::psiblast - PSM psiblast parser
 
 =head1 SYNOPSIS
 
@@ -45,13 +45,10 @@ Email tex@biosysadmin.com
 # Let the code begin...
 package Bio::Matrix::PSM::IO::psiblast;
 use Bio::Matrix::PSM::Psm;
-use Bio::Matrix::PSM::IO;
 use Bio::Matrix::PSM::ProtMatrix;
-use Bio::Matrix::PSM::PsmHeader;
-use vars qw(@ISA);
 use strict;
 
-@ISA = qw( Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO );
+use base qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 
 # define the order in which amino acids are listed in the psiblast matrix file
 our @ordered_alphabet = qw/A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V/;

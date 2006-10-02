@@ -70,12 +70,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Graphics::ConfiguratorI;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::RootI;
 use Carp;
 
-@ISA = qw( Bio::Root::RootI );
+use base qw(Bio::Root::RootI);
 
 =head2 get_sections
 

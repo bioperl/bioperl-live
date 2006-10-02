@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-interpro - DESCRIPTION of Object
+interpro - InterProScan XML input/output stream 
 
 =head1 SYNOPSIS
 
@@ -71,15 +71,13 @@ Internal methods are usually preceded with a _
 
 
 package interpro;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
 
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 
@@ -102,17 +100,15 @@ sub new {
 #
 
 package Bio::SeqIO::interpro;
-use vars qw(@ISA);
 use strict;
 
-use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use XML::DOM;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 my $idcounter = {};  # Used to generate unique id values
 my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed

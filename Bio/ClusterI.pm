@@ -16,14 +16,12 @@ Bio::ClusterI - Cluster Interface
 
 =head1 SYNOPSIS
 
-# see the implementations of this interface for details but
-# basically
+    # see the implementations of this interface for details
 
     my $cluster= $cluster->new(-description=>"POLYUBIQUITIN",
                                -members    =>[$seq1,$seq2]);
     my @members = $cluster->get_members();
     my @sub_members = $cluster->get_members(-species=>"homo sapiens");
-
 
 
 =head1 DESCRIPTION
@@ -55,11 +53,6 @@ web:
 
 Email shawnh@fugu-sg.org
 
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -71,12 +64,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::ClusterI;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 

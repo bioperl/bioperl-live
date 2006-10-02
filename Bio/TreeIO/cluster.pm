@@ -57,8 +57,6 @@ the web:
 
 Email Guillaume-dot-Rousse-at-inria-dot-fr
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Jason Stajich - jason-at-bioperl-dot-org
@@ -75,14 +73,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::cluster;
-use vars qw(@ISA);
 use strict;
 
-use Bio::TreeIO;
 use Bio::Event::EventGeneratorI;
 use IO::String;
 
-@ISA = qw(Bio::TreeIO);
+use base qw(Bio::TreeIO);
 
 =head2 new
 

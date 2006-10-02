@@ -62,12 +62,6 @@ web:
 
 Email jason-at-bioperl.org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -80,11 +74,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::ProteinStatistics;
-use vars qw(@ISA  %DistanceMethods $Precision $DefaultGapPenalty);
+use vars qw(%DistanceMethods $Precision $DefaultGapPenalty);
 use strict;
 
 use Bio::Align::PairwiseStatistics;
-use Bio::Root::Root;
 use Bio::Matrix::PhylipDist;
 
 %DistanceMethods = ('kimura|k' => 'Kimura',
@@ -92,7 +85,7 @@ use Bio::Matrix::PhylipDist;
 $Precision = 5;
 $DefaultGapPenalty = 0;
 
-@ISA = qw(Bio::Root::Root Bio::Align::StatisticsI);
+use base qw(Bio::Root::Root Bio::Align::StatisticsI);
 
 =head2 new
 

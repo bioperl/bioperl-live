@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::RepeatMasker
+Bio::Tools::RepeatMasker - a parser for RepeatMasker output
 
 =head1 SYNOPSIS
 
@@ -49,10 +49,6 @@ the web:
 
 Email shawnh@fugu-sg.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -65,14 +61,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::RepeatMasker;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 use Bio::SeqFeature::FeaturePair;
-use Bio::Root::IO;
 
-@ISA = qw(Bio::Root::Root Bio::Root::IO );
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 

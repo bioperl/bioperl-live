@@ -59,13 +59,11 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqFeature::Tools::IDHandler;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head2 new
 

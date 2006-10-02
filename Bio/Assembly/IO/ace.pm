@@ -12,7 +12,7 @@
 
 Bio::Assembly::IO::ace -  module to load phrap ACE files.
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     # Building an input stream
     use Bio::Assembly::IO;
@@ -89,9 +89,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::IO::ace;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
 use Bio::Assembly::Singlet;
@@ -104,7 +102,7 @@ use Dumpvalue();
 my $dumper = new Dumpvalue();
 $dumper->veryCompact(1);
 
-@ISA = qw(Bio::Assembly::IO);
+use base qw(Bio::Assembly::IO);
 
 =head1 Parser methods
 
@@ -432,8 +430,7 @@ sub next_assembly {
 
 sub write_assembly {
     my $self = shift;
-
-    $self->throw("Writing phrap ACE files is not implemented yet! Sorry...");
+    $self->throw_not_implemented();
 }
 
 

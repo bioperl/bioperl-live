@@ -42,11 +42,9 @@ package Bio::LiveSeq::Translation;
 
 use strict;
 #use Carp qw(croak carp cluck);
-use vars qw(@ISA);
 use Bio::LiveSeq::SeqI; # uses SeqI, inherits from it
 use Bio::PrimarySeq;
-use Bio::LiveSeq::Transcript;
-@ISA = qw(Bio::LiveSeq::Transcript);
+use base qw(Bio::LiveSeq::Transcript);
 
 
 =head2 new

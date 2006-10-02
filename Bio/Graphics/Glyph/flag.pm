@@ -1,9 +1,16 @@
 package Bio::Graphics::Glyph::flag;
 
+# $Id$
+# Non object-oriented utilities used here-and-there in Bio::Graphics modules
+
+=head1 NAME
+
+Bio::Graphics::Glyph::flag - the "flag" glyph
+
+=cut
+
 use strict;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::generic';
-use Bio::Graphics::Glyph::generic;
+use base qw(Bio::Graphics::Glyph::generic);
 
 sub default_text
 {

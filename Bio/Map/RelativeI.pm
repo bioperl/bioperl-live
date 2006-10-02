@@ -23,10 +23,10 @@ Bio::Map::RelativeI - Interface for describing what a Position's coordiantes are
 
 =head1 DESCRIPTION
 
-A Relative object is used to describe what the co-ordinates (->numerical(),
-->start(), ->end()) of a Position are relative to. By default they are
+A Relative object is used to describe what the co-ordinates (numerical(),
+start(), end()) of a Position are relative to. By default they are
 implicitly assumed to be relative to the start of the map the Position is on.
-But setting the ->relative() of a Position to one of these objects lets us
+But setting the relative() of a Position to one of these objects lets us
 define otherwise.
 
 =head1 FEEDBACK
@@ -62,11 +62,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::RelativeI;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::RootI;
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head2 absolute_conversion
 
@@ -91,10 +89,10 @@ sub absolute_conversion {
  Function: Get the type of thing we are relative to. The types correspond
            to a method name, so the value of what we are relative to can
            subsequently be found by $value = $relative->$type;
-           
+
            Note that type is set by the last method that was set, or during
            new().
-           
+
  Returns : the string 'map', 'element' or 'position', or undef
  Args    : none
 

@@ -111,8 +111,7 @@ and "polymorphism" into an aggregate named "mutant":
   use strict;
   use Bio::DB::GFF::Aggregator;
 
-  use vars '@ISA';
-  @ISA = 'Bio::DB::GFF::Aggregator';
+  use base qw(Bio::DB::GFF::Aggregator);
 
   sub method { 'mutant' }
 
@@ -142,9 +141,8 @@ package Bio::DB::GFF::Aggregator;
 use strict;
 use Bio::DB::GFF::Util::Rearrange;  # for rearrange()
 use Bio::DB::GFF::Feature;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 my $ALWAYS_TRUE   = sub { 1 };
 

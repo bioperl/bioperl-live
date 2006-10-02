@@ -1,7 +1,8 @@
+# $Id$
 
 =head1 NAME
 
-OBOterm - representation of OBO terms
+Bio::Ontology::OBOterm - representation of OBO terms
 
 =head1 SYNOPSIS
 
@@ -65,14 +66,12 @@ methods.
 # Let the code begin...
 
 package Bio::Ontology::OBOterm;
-use vars qw( @ISA );
 use strict;
-use Bio::Ontology::Term;
 
 use constant TRUE  => 1;
 use constant FALSE => 0;
 
-@ISA = qw( Bio::Ontology::Term );
+use base qw(Bio::Ontology::Term);
 
 =head2 new
 

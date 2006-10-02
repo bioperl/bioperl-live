@@ -86,13 +86,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::Clone;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::MappableI;
 use Bio::Map::Position;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MappableI);
+use base qw(Bio::Root::Root Bio::Map::MappableI);
 
 =head2 new
 
@@ -430,7 +427,7 @@ sub contigid {
  Function: retrieves all the elements in a map unordered
  Returns : list of strings (ids)
  Args    : none
- 
+
  *** This only supplies the ids set with the set_markers method ***
  *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 
@@ -448,7 +445,7 @@ sub each_markerid {
  Function: Set list of Marker ids (arrayref)
  Returns : None
  Args    : arrayref of strings (ids)
- 
+
  *** This only sets a list of ids ***
  *** It has nothing to do with actual Bio::Map::MarkerI objects ***
 

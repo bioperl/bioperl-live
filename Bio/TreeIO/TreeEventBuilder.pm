@@ -47,10 +47,6 @@ web:
 
 Email jason-at-bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -63,15 +59,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::TreeEventBuilder;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Event::EventHandlerI;
 use Bio::Tree::Tree;
 use Bio::Tree::Node;
 
-@ISA = qw(Bio::Root::Root Bio::Event::EventHandlerI);
+use base qw(Bio::Root::Root Bio::Event::EventHandlerI);
 
 =head2 new
 

@@ -62,17 +62,15 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Restriction::IO::base;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Restriction::IO;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::EnzymeCollection;
 use Bio::Restriction::Enzyme::MultiCut;
 use Bio::Restriction::Enzyme::MultiSite;
 use Data::Dumper;
 
-@ISA = qw(Bio::Restriction::IO);
+use base qw(Bio::Restriction::IO);
 
 my $offset; # class variable
 

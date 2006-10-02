@@ -66,7 +66,7 @@ Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/MailList.html - About the mailing lists
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -92,16 +92,9 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::AnalysisResult;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Root::IO;
-use Bio::SeqAnalysisParserI;
-use Bio::AnalysisResultI;
-
-@ISA = qw(Bio::Root::Root Bio::SeqAnalysisParserI 
-	Bio::AnalysisResultI Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::AnalysisResultI Bio::Root::IO);
 
 sub new {
     my ($class, @args) = @_;
@@ -176,7 +169,7 @@ sub _initialize_state {
 #   Title   : parse
 #   Usage   : $obj->parse(-input=>$inputobj, [ -params=>[@params] ],
 #  		       [ -method => $method ] )
-#   Function: Sets up parsing for feature retrieval from an analysis file, 
+#   Function: Sets up parsing for feature retrieval from an analysis file,
 #             or object.
 #
 #             This method was originally required by SeqAnalysisParserI, but
@@ -199,7 +192,7 @@ sub _initialize_state {
 sub parse {
     my ($self, @args) = @_;
 
-    my ($input, $params, $method) = 
+    my ($input, $params, $method) =
 	$self->_rearrange([qw(INPUT
 			      PARAMS
 			      METHOD
@@ -221,7 +214,7 @@ sub parse {
  Purpose   : Set/Get the name of the query used to generate the result, that
              is, the entity on which the analysis was performed. Will mostly
              be a sequence object (Bio::PrimarySeq compatible).
- Argument  : 
+ Argument  :
  Returns   : The object set before. Mostly a Bio::PrimarySeq compatible object.
 
 =cut
@@ -245,14 +238,14 @@ sub analysis_query {
              may be a collection of models or homologous sequences that were
              used, or undefined.
  Returns   : The object that was set before, or undef.
- Argument  : 
+ Argument  :
 
 =cut
 
 #---------------
-sub analysis_subject { 
+sub analysis_subject {
 #---------------
-    my ($self, $sbjct_obj) = @_; 
+    my ($self, $sbjct_obj) = @_;
     if($sbjct_obj) {
 	$self->{'_analysis_sbjct'} = $sbjct_obj;
     }
@@ -265,8 +258,8 @@ sub analysis_subject {
  Usage     : $result->analysis_date();
  Purpose   : Set/Get the date on which the analysis was performed.
  Returns   : String
- Argument  : 
- Comments  : 
+ Argument  :
+ Comments  :
 
 =cut
 
@@ -292,13 +285,13 @@ sub analysis_date {
 =cut
 
 #-------------
-sub analysis_method { 
+sub analysis_method {
 #-------------
-    my ($self, $method) = @_;  
+    my ($self, $method) = @_;
     if($method) {
 	$self->{'_analysis_prog'} = $method;
     }
-    return $self->{'_analysis_prog'}; 
+    return $self->{'_analysis_prog'};
 }
 
 =head2 analysis_method_version
@@ -314,11 +307,11 @@ sub analysis_method {
 #---------------------
 sub analysis_method_version {
 #---------------------
-    my ($self, $version) = @_; 
+    my ($self, $version) = @_;
     if($version) {
 	$self->{'_analysis_progVersion'} = $version;
     }
-    return $self->{'_analysis_progVersion'}; 
+    return $self->{'_analysis_progVersion'};
 }
 
 

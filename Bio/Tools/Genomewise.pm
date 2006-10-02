@@ -70,10 +70,9 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Tools::Genomewise;
-use vars qw(@ISA $Srctag);
+use vars qw($Srctag);
 use strict;
 
-use Bio::Tools::Genewise;
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::Gene::Exon;
@@ -81,7 +80,7 @@ use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::GeneStructure;
 
-@ISA = qw(Bio::Tools::Genewise);
+use base qw(Bio::Tools::Genewise);
 
 $Srctag = 'genomewise';
 
@@ -165,7 +164,7 @@ sub next_prediction {
     my $genes;
     while ($_ = $self->_readline) {
 	$self->debug( $_ ) if( $self->verbose > 0);
-	last if( /^\/\//);
+	last if m{^//};
 
 	if( /^Gene\s+\d+\s*$/ ) {
 	    $genes = new Bio::SeqFeature::Gene::GeneStructure

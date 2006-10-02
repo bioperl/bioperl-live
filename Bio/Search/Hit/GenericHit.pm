@@ -83,14 +83,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Hit::GenericHit;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Search::Hit::HitI;
-require Bio::Search::SearchUtils;
+use Bio::Search::SearchUtils;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Hit::HitI );
+use base qw(Bio::Root::Root Bio::Search::Hit::HitI);
 
 =head2 new
 

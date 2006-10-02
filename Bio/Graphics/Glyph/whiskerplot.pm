@@ -1,9 +1,7 @@
 package Bio::Graphics::Glyph::whiskerplot;
 
 use strict;
-use Bio::Graphics::Glyph::xyplot;
-use vars '@ISA';
-@ISA = 'Bio::Graphics::Glyph::xyplot';
+use base qw(Bio::Graphics::Glyph::xyplot);
 
 sub lookup_draw_method {
   my $self = shift;

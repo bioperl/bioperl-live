@@ -87,12 +87,11 @@ Internal methods are usually preceded with a _
 
 package Bio::SeqFeature::TypedSeqFeatureI;
 
-use vars qw(@ISA);
 use strict;
 use Carp;
 use Bio::Root::RootI;
 
-@ISA = qw( Bio::SeqFeatureI );
+use base qw(Bio::SeqFeatureI);
 
 
 =head2 ontology_term

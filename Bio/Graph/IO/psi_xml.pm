@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::Graph::IO::psi_xml
+Bio::Graph::IO::psi_xml - access and manipulate PSI XML graphs
 
 =head1 SYNOPSIS
 
@@ -21,24 +21,39 @@ Do not use this module directly, use Bio::Graph::IO, for example:
 PSI XML is a format to describe protein-protein interactions and 
 interaction networks. The following databases support PSI XML:
 
-BIND    L<http://www.bind.ca>
-DIP     L<http://dip.doe-mbi.ucla.edu/>
-HPRD    L<http://www.hprd.org>
-IntAct  L<http://www.ebi.ac.uk/intact>
-MINT    L<http://cbm.bio.uniroma2.it/mint/>
+=over 4
+
+=item BIND  
+
+L<http://www.bind.ca>
+
+=item DIP 
+
+L<http://dip.doe-mbi.ucla.edu/>
+
+=item HPRD    
+
+L<http://www.hprd.org>
+
+=item IntAct  
+
+L<http://www.ebi.ac.uk/intact>
+
+=item MINT    
+
+L<http://cbm.bio.uniroma2.it/mint/>
+
+=back 
+
+Notes on PSI XML from various databases can be found in the Bioperl Wiki
+at L<http://bioperl.org/wiki/Module:Bio::Graph::IO::psi_xml>
 
 Documentation for PSI XML can be found at L<http://psidev.sourceforge.net>.
-
-=head2 Notes
-
-See the Bio::Graph::IO::psi_xml page in the Bioperl Wiki 
-(L<http://bioperl.open-bio.org/wiki/Bio::Graph::IO::psi_xml>)
-for notes on PSI XML from various databases.
-
+ 
 =head1 METHODS
 
 The naming system is analagous to the SeqIO system, although usually
-next_network() will be called only once per file.
+L<next_network()> will be called only once per file.
 
 =cut
 
@@ -48,13 +63,11 @@ use XML::Twig;
 use Bio::Seq::SeqFactory;
 use Bio::Graph::ProteinGraph;
 use Bio::Graph::Edge;
-use Bio::Graph::IO;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Collection;
 use Bio::Species;
-use Bio::Root::Object;
-use vars qw(@ISA  %species $g $c $fac);
-@ISA = qw(Bio::Graph::IO Bio::Root::Object);
+use vars qw(%species $g $c $fac);
+use base qw(Bio::Graph::IO);
 
 BEGIN{
 	$fac  = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq::RichSeq');

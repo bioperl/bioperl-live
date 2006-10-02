@@ -62,15 +62,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Align::PairwiseStatistics;
-use vars qw(@ISA $GapChars);
+use vars qw($GapChars);
 use strict;
 
-use Bio::Align::StatisticsI;
-use Bio::Root::Root;
 
 BEGIN { $GapChars = '(\.|\-)'; }
 
-@ISA = qw(Bio::Root::Root Bio::Align::StatisticsI );
+use base qw(Bio::Root::Root Bio::Align::StatisticsI);
 
 =head2 number_of_comparable_bases
 

@@ -92,9 +92,7 @@ package Bio::Biblio::PubmedBookArticle;
 use strict;
 use vars qw(@ISA);
 
-use Bio::Biblio::PubmedArticle;
-use Bio::Biblio::MedlineBookArticle;
-@ISA = qw(Bio::Biblio::PubmedArticle Bio::Biblio::MedlineBookArticle);
+use base qw(Bio::Biblio::PubmedArticle Bio::Biblio::MedlineBookArticle);
 
 #
 # a closure with a list of allowed attribute names (these names

@@ -51,12 +51,6 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -68,9 +62,8 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::blasttable;
-use vars qw(@ISA %MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $DefaultProgramName);
+use vars qw(%MAPPING %MODEMAP $DEFAULT_WRITER_CLASS $DefaultProgramName);
 use strict;
-use Bio::SearchIO;
 use Bio::Search::Result::ResultFactory;
 use Bio::Search::Hit::HitFactory;
 use Bio::Search::HSP::HSPFactory;
@@ -124,7 +117,7 @@ $DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
 	     'Result_db-let'   => 'RESULT-database_letters',
 	     );
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 =head2 new
 

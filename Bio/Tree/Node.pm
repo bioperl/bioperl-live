@@ -70,13 +70,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tree::Node;
-use vars qw(@ISA $CREATIONORDER);
+use vars qw($CREATIONORDER);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Tree::NodeI;
 
-@ISA = qw(Bio::Root::Root Bio::Tree::NodeI);
+use base qw(Bio::Root::Root Bio::Tree::NodeI);
 
 BEGIN { 
     $CREATIONORDER = 0;
@@ -193,7 +191,8 @@ sub each_Descendent{
    # order can be based on branch length (and sub branchlength)   
    $sortby ||= 'none';
    if (ref $sortby eq 'CODE') {
-       return sort { $sortby->($a,$b) } values %{$self->{'_desc'}};
+       my @values = sort { $sortby->($a,$b) } values %{$self->{'_desc'}};
+       return @values;
    } elsif ($sortby eq 'height') {
        return map { $_->[0] }
        sort { $a->[1] <=> $b->[1] || 
@@ -648,7 +647,8 @@ sub remove_all_tags{
 
 sub get_all_tags{
    my ($self) = @_;
-   return sort keys %{$self->{'_tags'} || {}};
+   my @tags = sort keys %{$self->{'_tags'} || {}};
+   return @tags;
 }
 
 =head2 get_tag_values
@@ -685,12 +685,15 @@ sub has_tag {
 sub node_cleanup {
     my $self = shift;
     return unless defined $self;
+    
+    #*** below is wrong, cleanup doesn't actually occur. Will replace with:
+    # $self->remove_all_Descendents; once further fixes in place..
     if( defined $self->{'_desc'} &&
-	ref($self->{'_desc'}) =~ /ARRAY/i ) {
-	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-	    $node->ancestor(undef); # insure no circular references
-	    $node = undef;
-	}
+        ref($self->{'_desc'}) =~ /ARRAY/i ) {
+        while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
+            $node->ancestor(undef); # insure no circular references
+            $node = undef;
+        }
     }
     $self->{'_desc'} = {};
 }

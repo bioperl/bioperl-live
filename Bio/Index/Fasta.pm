@@ -114,13 +114,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Index::Fasta;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 #
 # Suggested fix by Michael G Schwern <schwern@pobox.com> to
@@ -171,20 +169,20 @@ sub _index_file {
 
 	my $id_parser = $self->id_parser;
 
-	open FASTA, $file or $self->throw("Can't open file for read : $file");
+	open my $FASTA, '<', $file or $self->throw("Can't open file for read : $file");
 
 	# Main indexing loop
-	while (<FASTA>) {
+	while (<$FASTA>) {
 		if (/^>/) {
 			# $begin is the position of the first character after the '>'
-			my $begin = tell(FASTA) - length( $_ ) + 1;
+			my $begin = tell($FASTA) - length( $_ ) + 1;
 
 			foreach my $id (&$id_parser($_)) {
 				$self->add_record($id, $i, $begin);
 			}
 		}
 	}
-	close FASTA;
+	close $FASTA;
 	return 1;
 }
 

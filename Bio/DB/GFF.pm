@@ -565,11 +565,8 @@ use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Aggregator;
-use Bio::DasI;
-use Bio::Root::Root;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root Bio::DasI);
+use base qw(Bio::Root::Root Bio::DasI);
 
 my %valid_range_types = (overlaps     => 1,
 			 contains     => 1,
@@ -1758,10 +1755,10 @@ sub load_gff {
                                                    && tied *$file_or_directory;
 
   my $tied_stdin = tied(*STDIN);
-  open SAVEIN,"<&STDIN" unless $tied_stdin;
+  open my $SAVEIN,"<&STDIN" unless $tied_stdin;
   local @ARGV = $self->setup_argv($file_or_directory,'gff','gff3') or return;  # to play tricks with reader
   my $result = $self->do_load_gff('ARGV');
-  open STDIN,"<&SAVEIN" unless $tied_stdin;  # restore STDIN
+  open STDIN,"<", $SAVEIN unless $tied_stdin;  # restore STDIN
   return $result;
 }
 
@@ -1822,10 +1819,10 @@ sub load_fasta {
                                                      && tied *$file_or_directory;
 
   my $tied = tied(*STDIN);
-  open SAVEIN,"<&STDIN" unless $tied;
+  open my $SAVEIN, "<&STDIN" unless $tied;
   local @ARGV = $self->setup_argv($file_or_directory,'fa','dna','fasta') or return;  # to play tricks with reader
   my $result = $self->load_sequence('ARGV');
-  open STDIN,"<&SAVEIN" unless $tied;  # restore STDIN
+  open STDIN,"<", $SAVEIN unless $tied;  # restore STDIN
   return $result;
 }
 
@@ -3638,9 +3635,7 @@ sub unescape {
 package Bio::DB::GFF::ID_Iterator;
 use strict;
 
-use Bio::Root::Root;
-use vars '@ISA';
-@ISA = 'Bio::Root::Root';
+use base qw(Bio::Root::Root);
 
 sub new {
   my $class            = shift;

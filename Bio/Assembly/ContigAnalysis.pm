@@ -68,11 +68,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Assembly::ContigAnalysis;
 
-use Bio::Root::Root;
 use strict;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head1 Object creator
 

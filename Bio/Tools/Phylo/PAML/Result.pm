@@ -109,10 +109,8 @@ email or the web:
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
-Email jason-at-bioperl .dot. org
-Email amackey-at-virginia-dot-edu
-
-Describe contact details here
+ Email jason-at-bioperl-dot-org
+ Email amackey-at-virginia-dot-edu
 
 =head1 CONTRIBUTORS
 
@@ -130,13 +128,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Phylo::PAML::Result;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::AnalysisResultI;
 
-@ISA = qw(Bio::Root::Root Bio::AnalysisResultI);
+use base qw(Bio::Root::Root Bio::AnalysisResultI);
 
 =head2 new
 

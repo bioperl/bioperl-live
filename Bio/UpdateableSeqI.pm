@@ -64,16 +64,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::UpdateableSeqI;
-use vars qw(@ISA);
 use strict;
 use Carp;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::SeqI;
 
 
-@ISA = qw(Bio::SeqI);
+use base qw(Bio::SeqI);
 
 
 =head2 delete_feature

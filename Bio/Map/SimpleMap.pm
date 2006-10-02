@@ -17,16 +17,16 @@ Bio::Map::SimpleMap - A MapI implementation handling the basics of a Map
 =head1 SYNOPSIS
 
     use Bio::Map::SimpleMap;
-    
+
     my $map = new Bio::Map::SimpleMap(-name => 'genethon',
 				      -type => 'Genetic',
 				      -units=> 'cM',
 				      -species => $human);
-    
+
     foreach my $marker ( @markers ) { # get a list of markers somewhere
 		$map->add_element($marker);
     }
-    
+
     foreach my $marker ($map->get_elements) {
         # do something with this Bio::Map::MappableI
     }
@@ -81,13 +81,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::SimpleMap;
-use vars qw(@ISA $MAPCOUNT);
+use vars qw($MAPCOUNT);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Map::MapI;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MapI);
+use base qw(Bio::Root::Root Bio::Map::MapI);
 BEGIN { $MAPCOUNT = 1; }
 
 =head2 new
@@ -251,9 +249,9 @@ sub unique_id {
  Usage   : $map->add_element($element)
  Function: Tell a Bio::Map::MappableI object its default Map is this one; same
            as calling $element->default_map($map).
-		   
+
 		   *** does not actually add the element to this map! ***
-		   
+
  Returns : none
  Args    : Bio::Map::MappableI object
  Status  : Deprecated, will be removed in next version
@@ -297,7 +295,10 @@ sub get_elements {
         }
     }
 	if ($only_1) {
-		return sort { ${[$a->get_positions($self)]}[0]->sortable <=> ${[$b->get_positions($self)]}[0]->sortable } @elements;
+		@elements = map { $_->[1] }
+                    sort { $a->[0] <=> $b->[0] }
+                    map { [${[$_->get_positions($self)]}[0]->sortable, $_] }
+                    @elements;
 	}
 	
 	return @elements;

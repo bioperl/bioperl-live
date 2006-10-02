@@ -78,19 +78,18 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqHound;
 use strict;
-use vars qw(@ISA $HOSTBASE $CGILOCATION );
+use vars qw($HOSTBASE $CGILOCATION $LOGFILENAME);
 
-use Bio::DB::WebDBSeqI;
 use Bio::Root::IO;
-use Bio::Root::Root;
 use Bio::SeqIO;
 use IO::String;
 use POSIX qw(strftime);
 
-@ISA = qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 BEGIN {    
     $HOSTBASE = 'http://seqhound.blueprint.org';
-    $CGILOCATION='/cgi-bin/seqrem?fnct=';
+    $CGILOCATION = '/cgi-bin/seqrem?fnct=';
+    $LOGFILENAME = 'shoundlog';
 }
 
 
@@ -521,56 +520,52 @@ sub postprocess_data
 	}
 
 	#set up verbosity level if need record in the log file
-	#$self->verbose(1);
-	open (LOG, ">>shoundlog") 
-	and print STDERR "Writing into the log file shoundlog\n" if $self->verbose > 0;
-	my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
-	if ($lcontent eq ""){
-		open (LOG, ">>shoundlog") 
-		and print LOG "$now		$funcname. No reply.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+	$self->verbose(1);
+        my $log_msg = "Writing into '$LOGFILENAME' log file.\n";
+
+        if ($self->verbose>0) {
+            my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
+            if ($lcontent eq "") {
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
+		print $LOG "$now		$funcname. No reply.\n";
 		return;
-	}
-	elsif ($lcontent =~ /HTTP::Request error/){
-		open (LOG, ">>shoundlog")
-		and print LOG "$now		$funcname. Http::Request error problem.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+            } elsif ($lcontent =~ /HTTP::Request error/) {
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
+		print $LOG "$now		$funcname. Http::Request error problem.\n";
 		return;
-	}
-	elsif ($lcontent =~ /SEQHOUND_ERROR/){
-		open (LOG, ">>shoundlog")
-		and print LOG "$now	$funcname error. SEQHOUND_ERROR found.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+            } elsif ($lcontent =~ /SEQHOUND_ERROR/) {
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
+		print $LOG "$now	$funcname error. SEQHOUND_ERROR found.\n";
 		return;
-	}
-	elsif ($lcontent =~ /SEQHOUND_NULL/){
-        	open (LOG, ">>shoundlog") 
-		and print LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n" if $self->verbose>0;
-		close (LOG) if $self->verbose>0;
+            } elsif ($lcontent =~ /SEQHOUND_NULL/) {
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
+		print $LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n";
 		return;
-      	}
-	else{
+            } else {
     		chomp $lcontent;
       		my @lines = split(/\n/, $lcontent, 2);
-     	 	if ($lines[1] =~ /^-1/){
-           		open (LOG, ">>shoundlog") 
-			and print LOG "$now	$funcname Value not found in the database. -1 found.\n" if $self->verbose>0;
-			close (LOG) if $self->verbose>0;
-           		return;
-		}
-        	elsif ($lines[1]  =~ /^0/){
-          		open (LOG, ">>shoundlog") 
-			and print LOG "$now	$funcname failed.\n" if $self->verbose>0;
-			close (LOG) if $self->verbose>0;
-	  		return;
-         	}
-         	else{
-           		$result = $lines[1];
+     	 	if ($lines[1] =~ /^-1/) {
+                    $self->debug($log_msg);
+		    open (my $LOG, '>>', $LOGFILENAME);
+                    print $LOG "$now	$funcname Value not found in the database. -1 found.\n";
+                    return;
+		} elsif ($lines[1]  =~ /^0/) {
+                    $self->debug($log_msg);
+  		    open (my $LOG, '>>', $LOGFILENAME);
+                    print $LOG "$now	$funcname failed.\n";
+                    return;
+         	} else {
+                    $result = $lines[1];
          	}
       		
-   	}
-   	close (LOG) if $self->verbose>0 ;
- 
+            }
+
+        }
+
 	#a list of functions in SeqHound which can wrap into Bio::seqIO object
 	if ($outtype eq 'Bio::SeqIO'){
 		my $buf = IO::String->new($result);

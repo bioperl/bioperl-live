@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::IdcollectionI - interface for objects with multiple identifiers
+Bio::IdCollectionI - interface for objects with multiple identifiers
 
 =head1 SYNOPSIS
 
@@ -54,12 +54,10 @@ Email lstein@cshl.org
 =cut
 
 package Bio::IdCollectionI;
-use vars qw(@ISA );
 use strict;
-use Bio::Root::RootI;
 
 
-@ISA = qw(Bio::Root::RootI);
+use base qw(Bio::Root::RootI);
 
 =head1 Implementation Specific Functions
 

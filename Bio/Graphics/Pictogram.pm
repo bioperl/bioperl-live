@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-Bio::Graphics::Pictogram 
+Bio::Graphics::Pictogram - generate SVG output of Pictogram display for consensus motifs
 
 =head1 SYNOPSIS
 
@@ -78,14 +78,10 @@ given position. It can also plot the information content at each
 position scaled by the background frequencies of each nucleotide.
 
 It requires the SVG-2.26 or later module by Ronan Oger available at
-http://www.cpan.org.
+http://www.cpan.org
 
 Recommended viewing of the SVG is the plugin available at Adobe:
 http://www.adobe.com/svg
-
-An example of this module may be found at:
-
-http://scooby.fugu-sg.org:9001/pictogram/index.html
 
 =head1 FEEDBACK
 
@@ -123,10 +119,8 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Graphics::Pictogram;
 use strict;
 use SVG 2.26;
-use Bio::Root::Root;
 use Bio::SeqIO;
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 use constant MAXBITS => 2;
 
@@ -167,7 +161,7 @@ sub new {
   $self->background($background);
   $self->plot_bits($bit) if $bit;
   $self->normalize($normalize) if $normalize;
-  
+
   return $self;
 }
 
@@ -175,8 +169,8 @@ sub new {
 
  Title   : make_svg
  Usage   : $picto->make_svg();
- Function: make the SVG object 
- Returns : L<SVG> 
+ Function: make the SVG object
+ Returns : L<SVG>
  Arguments: A fasta file or array ref of L<Bio::Seq> objects or a L<Bio::Matrix::PSM::SiteMatrixI>
 
 =cut
@@ -186,7 +180,7 @@ sub make_svg {
   my $fontsize = $self->fontsize;
   my $size = $fontsize * 0.75;
   my $width= $size;
-  my $height= $size+40; 
+  my $height= $size+40;
   my $color = $self->color;
 
   #starting x coordinate for pictogram
@@ -197,13 +191,13 @@ sub make_svg {
 
   my $bp = 1;
 
-  #input can be file or array ref of sequences 
+  #input can be file or array ref of sequences
   if(ref($input) eq 'ARRAY'){
     @pwm = @{$self->_make_pwm($input)};
-  }  
+  }
   elsif(ref($input) && $input->isa("Bio::Matrix::PSM::SiteMatrixI")){
     @pwm = $self->_make_pwm_from_site_matrix($input);
-  }  
+  }
   else {
     my $sio = Bio::SeqIO->new(-file=>$input,-format=>"fasta");
     my @seq;
@@ -213,15 +207,15 @@ sub make_svg {
     @pwm = @{$self->_make_pwm(\@seq)};
   }
 
-  
+
   my $svg = $self->svg_obj;
-  my $seq_length = scalar(@pwm + 1) * $width + $x + $x; 
+  my $seq_length = scalar(@pwm + 1) * $width + $x + $x;
   my $seq_grp;
 
   #scale the svg if length greater than svg width
   if($seq_length > $svg->{-document}->{'width'}){
     my $ratio = $svg->{-document}->{'width'}/($seq_length);
-    $seq_grp = $svg->group(transform=>"scale($ratio,1)"); 
+    $seq_grp = $svg->group(transform=>"scale($ratio,1)");
   }
   else {
     $seq_grp= $svg->group();
@@ -283,10 +277,10 @@ sub make_svg {
     $bp++;
     $x+=$width;
   }
-  
+
   #plot the tags
   $seq_grp->text(x=>int($width/2),y=>$bit_y,style=>{"font-size"=>'10','text-anchor'=>'middle','font-family'=>'Verdana','fill'=>'black'})->cdata("Bits:") if $self->plot_bits;
-  
+
  $seq_grp->text(x=>int($width/2),y=>$pos_y,style=>{"font-size"=>'10','text-anchor'=>'middle','font-family'=>'Verdana','fill'=>'black'})->cdata("Position:");
 
   #plot the base positions
@@ -295,7 +289,7 @@ sub make_svg {
     $seq_grp->text(x=>$x+int($width/2),y=>$pos_y,style=>{"font-size"=>'10','text-anchor'=>'left','font-family'=>'Verdana','fill'=>'black'})->cdata($nbr);
     $x+=$width;
   }
-    
+
 
 #  $seq_grp->transform("scale(2,2)");
 
@@ -309,7 +303,7 @@ sub _make_pwm_from_site_matrix{
   my $consensus = $matrix->consensus;
   foreach my $i(1..length($consensus)){
     my %base = $matrix->next_pos;
-    my $bits; 
+    my $bits;
     $bits+=($base{pA} * log2($base{pA}/$bgd->{'A'}));
     $bits+=($base{pC} * log2($base{pC}/$bgd->{'C'}));
     $bits+=($base{pG} * log2($base{pG}/$bgd->{'G'}));
@@ -318,7 +312,7 @@ sub _make_pwm_from_site_matrix{
   }
   return @pwm;
 }
-  
+
 sub _make_pwm {
   my ($self,$input) = @_;
   my $count = 1;
@@ -353,7 +347,7 @@ sub _make_pwm {
     # relative entropy (RelEnt) or Kullback-Liebler distance
     # relent = sum fk * log2(fk/gk) where fk is frequency of nucleotide k and
     # gk the background frequency of nucleotide k
-    
+
     my $bits;
     $bits+=(($hash{$pos}{'A'}||0) / $count) * log2((($hash{$pos}{'A'}||0)/$count) / ($bgd->{'A'}));
     $bits+=(($hash{$pos}{'C'}||0) / $count) * log2((($hash{$pos}{'C'}||0)/$count) / ($bgd->{'C'}));
@@ -364,7 +358,7 @@ sub _make_pwm {
     push @pwm,\@array;
   }
   return $self->pwm(\@pwm);
-}  
+}
 
 
 ###various get/sets
@@ -373,9 +367,9 @@ sub _make_pwm {
 
  Title   : fontsize
  Usage   : $picto->fontsize();
- Function: get/set for fontsize 
+ Function: get/set for fontsize
  Returns : int
- Arguments: int 
+ Arguments: int
 
 =cut
 
@@ -391,7 +385,7 @@ sub fontsize {
 
  Title   : color
  Usage   : $picto->color();
- Function: get/set for color 
+ Function: get/set for color
  Returns : a hash reference
  Arguments: a hash  reference
 
@@ -409,9 +403,9 @@ sub color {
 
  Title   : svg_obj
  Usage   : $picto->svg_obj();
- Function: get/set for svg_obj 
+ Function: get/set for svg_obj
  Returns : L<SVG>
- Arguments: L<SVG> 
+ Arguments: L<SVG>
 
 =cut
 
@@ -429,7 +423,7 @@ sub svg_obj {
  Usage   : $picto->plot_bits();
  Function: get/set for plot_bits to indicate whether to plot
            information content at each base position
- Returns :1/0 
+ Returns :1/0
  Arguments: 1/0
 
 =cut
@@ -466,8 +460,8 @@ sub normalize{
 
  Title   : background
  Usage   : $picto->background();
- Function: get/set for hash reference of nucleodtide bgd frequencies 
- Returns : hash reference 
+ Function: get/set for hash reference of nucleodtide bgd frequencies
+ Returns : hash reference
  Arguments: hash reference
 
 =cut
@@ -484,9 +478,9 @@ sub background {
 
  Title   : pwm
  Usage   : $picto->pwm();
- Function: get/set for pwm 
+ Function: get/set for pwm
  Returns : int
- Arguments: int 
+ Arguments: int
 
 =cut
 
@@ -504,6 +498,6 @@ sub log2 {
     return 0 if $val==0;
     return log($val)/log(2);
 }
-  
+
 
 1;

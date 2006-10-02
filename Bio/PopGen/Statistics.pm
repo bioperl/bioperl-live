@@ -132,11 +132,7 @@ the web:
 =head1 AUTHOR - Jason Stajich, Matthew Hahn
 
 Email jason-at-bioperl-dot-org
-Matt Hahn E<lt>matthew.hahn-at-duke.dukeE<gt>
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
+Email matthew-dot-hahn-at-duke-dot-edu
 
 =head1 APPENDIX
 
@@ -150,12 +146,10 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Statistics;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
 
-@ISA = qw(Bio::Root::Root );
+use base qw(Bio::Root::Root);
 
 =head2 new
 

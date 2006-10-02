@@ -38,10 +38,8 @@ package Bio::DB::GFF::Aggregator::alignment;
 
 use strict;
 
-use Bio::DB::GFF::Aggregator;
-use vars qw(@ISA);
 
-@ISA = qw(Bio::DB::GFF::Aggregator);
+use base qw(Bio::DB::GFF::Aggregator);
 
 =head2 aggregate
 

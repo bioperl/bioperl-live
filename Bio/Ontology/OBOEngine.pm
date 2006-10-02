@@ -3,10 +3,11 @@
 # BioPerl module for Bio::Ontology::OBOEngine
 #
 # POD documentation - main docs before the code
+
 =head1 NAME
 
-OBOEngine - An Ontology Engine for OBO style flat file format from the
-Gene Ontology Consortium
+Bio::Ontology::OBOEngine - An Ontology Engine for OBO style flat file
+format from the Gene Ontology Consortium
 
 =head1 SYNOPSIS
 
@@ -72,12 +73,9 @@ package Bio::Ontology::OBOEngine;
 
 use Bio::Ontology::SimpleGOEngine::GraphAdaptor;
 
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Root;
 use Bio::Ontology::RelationshipType;
 use Bio::Ontology::RelationshipFactory;
-use Bio::Ontology::OntologyEngineI;
 use Data::Dumper;
 
 use constant TRUE       => 1;
@@ -89,8 +87,7 @@ use constant TERM       => "TERM";
 use constant TYPE       => "TYPE";
 use constant ONTOLOGY   => "ONTOLOGY";
 
-@ISA = qw( Bio::Root::Root
-           Bio::Ontology::OntologyEngineI );
+use base qw(Bio::Root::Root Bio::Ontology::OntologyEngineI);
 
 
 
@@ -716,6 +713,64 @@ sub find_terms{
     return @terms;
 }
 
+
+=head2 find_identically_named_terms
+
+ Title   : find_identically_named_terms
+ Usage   : ($term) = $oe->find_identically_named_terms($term0);
+ Function: Find term instances where names match the query term
+           name exactly
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_identically_named_terms{
+    my ($self,$qterm) = @_;
+    $self->throw("Argument doesn't implement Bio::Ontology::TermI. " . "Bummer." )
+        unless defined $qterm and $qterm->isa("Bio::Ontology::TermI");
+
+    my %matching_terms;
+
+    foreach my $term ($self->get_all_terms) {
+        $matching_terms{$term->identifier} = $term and next
+            if $term->name eq $qterm->name;
+    }
+    return values %matching_terms;
+}
+
+
+=head2 find_identical_terms
+
+ Title   : find_identical_terms
+ Usage   : ($term) = $oe->find_identical_terms($term0);
+ Function: Find term instances where name or synonym
+           matches the query exactly
+ Example :
+ Returns : an array of zero or more Bio::Ontology::TermI objects
+ Args    : a Bio::Ontology::TermI object
+
+=cut
+
+sub find_identical_terms{
+    my ($self,$qterm) = @_;
+    $self->throw("Argument doesn't implement Bio::Ontology::TermI. " . "Bummer." )
+        unless defined $qterm and $qterm->isa("Bio::Ontology::TermI");
+
+    my %matching_terms;
+
+    foreach my $qstring ($qterm->name, $qterm->each_synonym) {
+        foreach my $term ($self->get_all_terms) {
+            foreach my $string ( $term->name, $term->each_synonym() ) {
+                $matching_terms{$term->identifier} = $term and next
+                    if $string eq $qstring;
+            }
+        }
+    }
+    return values %matching_terms;
+}
+
 =head2 find_similar_terms
 
  Title   : find_similar_terms
@@ -737,8 +792,6 @@ sub find_similar_terms{
 
     foreach my $qstring ($qterm->name, $qterm->each_synonym) {
         foreach my $term ($self->get_all_terms) {
-            #my $name = $term->name;
-            #push @passed_terms, $term and next if $name =~ /$qstring/ or $qstring =~ /$name/;
 
             foreach my $string ( $term->name, $term->each_synonym() ) {
                 $matching_terms{$term->identifier} = $term and next

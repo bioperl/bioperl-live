@@ -26,7 +26,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::locuslink - DESCRIPTION of Object
+Bio::SeqIO::locuslink - LocusLink input/output stream
 
 =head1 SYNOPSIS
 
@@ -43,7 +43,7 @@ will not work.
 
 The way the current implementation populates the object is rather a
 draft work than a finished work of art. Note that at this stage the
-locuslink entries cannot be round-tripped, because the parser loses
+LocusLink entries cannot be round-tripped, because the parser loses
 certain information. For instance, most of the alternative transcript
 descriptions are not retained. The parser also misses any element
 that deals with visual representation (e.g., 'button') except for the
@@ -74,8 +74,6 @@ the web:
 
 Email kching at gnf.org
 
-Describe contact details here
-
 =head1 CONTRIBUTORS
 
 Hilmar Lapp, hlapp at gmx.net
@@ -90,9 +88,7 @@ Internal methods are usually preceded with a _
 package Bio::SeqIO::locuslink;
 
 use strict;
-use vars qw(@ISA);
 
-use Bio::SeqIO;
 use Bio::Seq::SeqFactory;
 use Bio::Species;
 use Bio::Annotation::DBLink;
@@ -102,7 +98,7 @@ use Bio::Annotation::SimpleValue;
 use Bio::Annotation::OntologyTerm;
 use Bio::Annotation::Collection;
 
-@ISA = qw(Bio::SeqIO);
+use base qw(Bio::SeqIO);
 
 # list of all the field names in locuslink
 my @locuslink_keys = qw(

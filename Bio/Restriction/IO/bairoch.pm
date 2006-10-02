@@ -64,11 +64,9 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Restriction::IO::bairoch;
 
-use vars qw(@ISA %WITH_REFM_FIELD);
+use vars qw(%WITH_REFM_FIELD);
 use strict;
 
-#use Bio::Restriction::IO;
-use Bio::Restriction::IO::base;
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::Enzyme::MultiCut;
 use Bio::Restriction::Enzyme::MultiSite;
@@ -76,7 +74,7 @@ use Bio::Restriction::EnzymeCollection;
 
 use Data::Dumper;
 
-@ISA = qw(Bio::Restriction::IO::base);
+use base qw(Bio::Restriction::IO::base);
 
 
 sub new {
@@ -111,7 +109,7 @@ sub _initialize {
 sub read {
     my $self = shift;
 
-    my $renzs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+    my $renzs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
 
     local $/ = '//';
     while (defined(my $entry=$self->_readline()) ) {
@@ -135,12 +133,12 @@ sub read {
         my @sequences;
         if ($site =~ /\;/) {
             @sequences = split /\;/, $site;
-            print STDERR @sequences,"\n";
+            $self->debug(@sequences,"\n");
             $site=shift @sequences;
         }
         
         my ($seq, $cut)=split /,\s+/, $site;
-        print STDERR "SITE: |$site| GAVE: |$seq| and |$cut|\n";
+        $self->debug("SITE: |$site| GAVE: |$seq| and |$cut|\n");
         if ($seq eq '?') {
            $self->warn("$name: no site. Skipping") if $self->verbose > 1;
            next;
@@ -152,14 +150,14 @@ sub read {
         }
         my $re;
         if ($cut eq "?") {
-              $re = new Bio::Restriction::Enzyme(-name=>$name, -seq => $seq);
+              $re = Bio::Restriction::Enzyme->new(-name=>$name, -seq => $seq);
         }
         else {
                if ($cut !~ /^-?\d+$/) {
              $self->throw("Cut site from $name is weird: |$cut|\n");
                }
         
-               $re = new Bio::Restriction::Enzyme(-name=>$name,
+               $re = Bio::Restriction::Enzyme->new(-name=>$name,
                                                   -cut => $cut,
                                                   -seq => $seq
                                                   );

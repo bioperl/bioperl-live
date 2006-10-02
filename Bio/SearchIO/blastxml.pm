@@ -102,14 +102,13 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SearchIO::blastxml;
-use vars qw(@ISA $DTD %MAPPING %MODEMAP $DEBUG);
+use vars qw($DTD %MAPPING %MODEMAP $DEBUG);
 use strict;
 
 $DTD = 'ftp://ftp.ncbi.nlm.nih.gov/blast/documents/NCBI_BlastOutput.dtd';
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Root::Root;
-use Bio::SearchIO;
 use XML::SAX;
 use HTML::Entities;
 use IO::File;
@@ -188,7 +187,7 @@ BEGIN {
 }
 
 
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 =head2 new
 

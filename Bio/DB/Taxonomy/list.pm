@@ -23,7 +23,7 @@ that accepts lists of words to build a database
   my @ranks = qw(superkingdom class genus species);
   my $db = new Bio::DB::Taxonomy(-source => 'list', -names => \@names,
                                                     -ranks => \@ranks);
-  
+
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
   $db->add_lineage(-names => \@names, -ranks => \@ranks);
 
@@ -62,10 +62,6 @@ the web:
 
 Email bix@sendu.me.uk
 
-=head1 CONTRIBUTORS
-
-Describe contact details here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -76,12 +72,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy::list;
-use vars qw(@ISA);
 use strict;
-use Bio::DB::Taxonomy;
 use Bio::Taxon;
 
-@ISA = qw(Bio::DB::Taxonomy);
+use base qw(Bio::DB::Taxonomy);
 
 =head2 new
 

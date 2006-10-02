@@ -252,11 +252,11 @@ SKIP: {
 	my @db = sort qw(pubmed  protein  nucleotide  nuccore  nucgss  nucest  structure
 	genome  books  cancerchromosomes  cdd  domains  gene  genomeprj  gensat
 	geo  gds  homologene  journals  mesh  ncbisearch  nlmcatalog  omia  omim
-	pmc  popset  probe  pcassay  pccompound  pcsubstance  snp  taxonomy
+	pmc  popset  probe  pcassay  pccompound  pcsubstance  snp  taxonomy toolkit
 	unigene  unists);
 	
 	my @einfo_dbs = sort $eutil->einfo_dbs;
-	is_deeply(\@einfo_dbs, \@db, 'All EInfo databases');
+	cmp_ok(scalar(@einfo_dbs), '>=', scalar(@db), 'All EInfo databases');
 }
 
 # ELink - normal (single ID array) - single db - ElinkData tests

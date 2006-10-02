@@ -60,13 +60,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::GenericStatistics;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Search::StatisticsI;
 
-@ISA = qw(Bio::Root::Root Bio::Search::StatisticsI);
+use base qw(Bio::Root::Root Bio::Search::StatisticsI);
 
 sub new {
     my ($class, @args) = @_;

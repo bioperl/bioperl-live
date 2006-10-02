@@ -69,12 +69,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::SeqIO::game;
 
-use Bio::SeqIO;
 use Bio::SeqIO::game::gameHandler;
 use Bio::SeqIO::game::gameWriter;
 
-use vars qw{ @ISA };
-@ISA = qw { Bio::SeqIO };
+use base qw(Bio::SeqIO);
 
 sub _initialize {
     my ($self, @args) = @_;

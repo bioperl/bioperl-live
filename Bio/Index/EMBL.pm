@@ -91,13 +91,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Index::EMBL;
 
-use vars qw(@ISA);
 use strict;
 
-use Bio::Index::AbstractSeq;
 use Bio::Seq;
 
-@ISA = qw(Bio::Index::AbstractSeq);
+use base qw(Bio::Index::AbstractSeq);
 
 sub _type_stamp {
     return '__EMBL_FLAT__'; # What kind of index are we?
@@ -135,13 +133,13 @@ sub _index_file {
 
     $begin = 0;
 
-    open EMBL, $file or $self->throw("Can't open file for read : $file");
+    open my $EMBL, '<', $file or $self->throw("Can't open file for read : $file");
 
     # Main indexing loop
     $id = undef;
     @accs = ();
-    while (<EMBL>) {
-	if( /^\/\// ) {
+    while (<$EMBL>) {
+	if( m{^//} ) {
 	    if( ! defined $id ) {
 		$self->throw("Got to a end of entry line for an EMBL flat file with no parsed ID. Considering this a problem!");
 		next;
@@ -161,7 +159,7 @@ sub _index_file {
 	    $id = $1;
 	    # not sure if I like this. Assummes tell is in bytes.
 	    # we could tell before each line and save it.
-            $begin = tell(EMBL) - length( $_ );
+            $begin = tell($EMBL) - length( $_ );
 	
 	} elsif (/^AC\s+(.*)?/) {
             push @accs , split (/[; ]+/, $1);
@@ -170,7 +168,7 @@ sub _index_file {
 	}
     }
 
-    close EMBL;
+    close $EMBL;
     return 1;
 }
 

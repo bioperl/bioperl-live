@@ -52,14 +52,10 @@ transcribed by pol3:
 
     A[A,G]N17[C,T]
 
-=head2 EXPORT
-
-None.
-
 =head1 SEE ALSO
 
 L<Bio::Tools::SiRNA>, L<Bio::SeqFeature::SiRNA::Pair>,
-L<Bio::SeqFeature::SiRNA::Oligo>, L<perl>.
+L<Bio::SeqFeature::SiRNA::Oligo>.
 
 =head1 FEEDBACK
 
@@ -84,10 +80,6 @@ the web:
 
 Donald Jackson (donald.jackson@bms.com)
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -101,7 +93,7 @@ package Bio::Tools::SiRNA::Ruleset::tuschl;
 use 5.006;
 use strict;
 
-our @ISA = qw(Bio::Tools::SiRNA);
+use base qw(Bio::Tools::SiRNA);
 
 our %PATTERNS = ( 1 	=> '(AA.{19}TT)',
 		  2 	=> '(AA.{19}[ACG][ACG])',
@@ -169,8 +161,8 @@ sub _get_oligos {
 # 	my $targstart = $targregion->start;
 	my ($seq, $targstart) = $self->_get_targetregion();
 
-	while ( $seq =~ /$regex/gi ) {
-	    my $target = $1;
+	while ( $seq =~ /(.*?)$regex/gi ) {
+	    my $target = $2;
 
 	    # check for too many Gs (or Cs on the other strand)
 	    next if ( $target =~ /G{ $self->gstring,}/io );
@@ -178,7 +170,7 @@ sub _get_oligos {
 # 	skip Ns (for filtering)
 	    next if ( $target =~ /N/i);
 
-	    my $start = length($`) + $targstart;
+	    my $start = length($1) + $targstart;
 	    my $stop = $start + length($target) -1;
 
 	    my @gc = ( $target =~ /G|C/gi);

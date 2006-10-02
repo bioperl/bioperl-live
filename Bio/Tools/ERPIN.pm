@@ -24,7 +24,7 @@ Bio::Tools::ERPIN -  a parser for ERPIN output
   while( my $motif = $parser->next_prediction) {
     # do something here
   }
-  
+
 =head1 DESCRIPTION
 
 Parses raw ERPIN output.
@@ -92,16 +92,13 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Tools::ERPIN;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 
-@ISA = qw(Bio::Tools::AnalysisResult );
+use base qw(Bio::Tools::AnalysisResult);
 
-use vars qw($MotifTag $SrcTag $DescTag);
-($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);
+our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);
 
 =head2 new
 
@@ -307,6 +304,7 @@ sub next_prediction {
         # parse next hit
         elsif (/^(FW|RC)\s+\d+\s+(\d+)..(\d+)\s+(\d+.\d+)\s+(.*)/) {
             ($strand, $start, $end, $logodds, $score)=($1, $2, $3, $4, $5);
+            $score =~ s/^e/1e/i;
             chomp ($sequence = $self->_readline); # grab next line, which is the sequence hit
             my $gene = Bio::SeqFeature::Generic->new(-seq_id => $self->{_seqid},
                                                       -start  => $start,
@@ -330,9 +328,9 @@ sub next_prediction {
                                                     );
             return $gene;
         }
-        else {
-            $self->debug("unrecognized line: $_");
-        }
+        #else {
+        #    $self->debug("unrecognized line: $_");
+        #}
     }
 }
 

@@ -3,32 +3,40 @@
 # BioPerl module for Bio::Tools::Seg
 #
 # Copyright Balamurugan Kumarasamy
-#
-# You may distribute this module under the same terms as perl itself
-#
-# POD documentation - main docs before the code
+# Totally re-written, added docs and tests -- Torsten Seemann, Sep 2006
 #
 # Copyright 
-#
 # You may distribute this module under the same terms as perl itself
+#
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Tools::Seg - parse Seg output (filter low complexity protein sequence)
+Bio::Tools::Seg - parse C<seg> output 
 
 =head1 SYNOPSIS
 
   use Bio::Tools::Seg;
-  my $parser = new Bio::Tools::Seg(-fh =>$filehandle );
-  while( my $seg_feat = $parser->next_result ) {
-        # do something, e.g.
-        push @seg_feat, $seg_feat;
+  my $parser = Bio::Tools::Seg->(-file => 'seg.fasta');
+  while ( my $f = $parser->next_result ) {
+    if ($f->score < 1.5) {
+      print $f->location->to_FTstring, " is low complexity\n";
+    }
   }
 
 =head1 DESCRIPTION
 
-Parser for Seg output
+C<seg> identifies low-complexity regions on a protein sequence.
+It is usually part of the C<WU-BLAST> and C<InterProScan> packages.
+
+The L<Bio::Tools::Seg> module will only parse the "fasta" output 
+modes of C<seg>, i.e. C<seg -l> (low complexity regions only), 
+C<seg -h> (high complexity regions only), or C<seg -a> (both low 
+and high). 
+
+It creates a L<Bio::SeqFeature::Generic> for each FASTA-like entry 
+found in the input file. It is up to the user to appropriately filter 
+these using the feature's score.
 
 =head1 FEEDBACK
 
@@ -49,9 +57,13 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Bala
+=head1 AUTHOR - Torsten Seemann
 
-Email savikalpa@fugu-sg.org
+Email - torsten.seemann AT infotech.monash.edu.au
+
+=head1 CONTRIBUTOR - Bala
+
+Email - savikalpa@fugu-sg.org
 
 =head1 APPENDIX
 
@@ -61,19 +73,15 @@ Internal methods are usually preceded with a _
 =cut
 
 package Bio::Tools::Seg;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::SeqFeature::FeaturePair;
-use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
-@ISA = qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO);
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Seg();
+ Usage   : my $obj = Bio::Tools::Seg->new();
  Function: Builds a new Bio::Tools::Seg object
  Returns : Bio::Tools::Seg
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
@@ -83,10 +91,8 @@ use Bio::SeqFeature::Generic;
 
 sub new {
 	my($class,@args) = @_;
-
 	my $self = $class->SUPER::new(@args);
 	$self->_initialize_io(@args);
-
 	return $self;
 }
 
@@ -103,67 +109,26 @@ sub new {
 sub next_result {
 	my ($self) = @_;
 
-	my $line;
-	# parse
-	my $id;
-	while ($_=$self->_readline()) {
-		$line = $_;
-		chomp $line;
+	# For example in this line 
+	# test_prot(214-226) complexity=2.26 (12/2.20/2.50)
+	# $1 is test_prot  
+	# $2 is 214 
+	# $3 is 226 
+	# $4 is 2.26
 
-		next if /^$/;
-		if ($line =~ /^\>/) { #if it is a line starting with a ">"
-			$line =~ /^\>\s*?(\S+)?\s*?\((\d+)\-(\d+)\)\s*complexity=(\S+)/;
-			my $id = $1;
-			my $start = $2;
-			my $end = $3;
-			my $score = $4;
-
-#for example in this line test_prot(214-226) complexity=2.26 (12/2.20/2.50)
-#$1 is test_prot  $2 is 214 $3 is 226 and $4 is 2.26
-
-			my (%feature);
-			$feature{name} = $id;
-			$feature{score} = $score;
-			$feature{start} = $start;
-			$feature{end} = $end;
-			$feature{source} = "Seg";
-			$feature{primary} = 'low_complexity';
-			$feature{program} = "Seg";
-			$feature{logic_name} = 'low_complexity';
-			my $new_feat =  $self->_create_feature (\%feature);
-			return $new_feat;
+	while (my $line = $self->_readline) {
+		if ($line =~ /^\>\s*?(\S+)?\s*?\((\d+)\-(\d+)\)\s*complexity=(\S+)/) {
+			return Bio::SeqFeature::Generic->new(
+				-seq_id     => $1,
+				-start      => $2,
+				-end        => $3,
+				-score      => $4,
+				-source_tag => 'Seg',
+				-primary    => 'low_complexity'
+			);
 		}
-		next;
 	}
 }
 
 
-=head2 _create_feature 
-
- Title   : _create_feature
- Usage   : obj->_create_feature(\%feature)
- Function: Internal(not to be used directly)
- Returns : 
- Args    :
-
-=cut
-
-sub _create_feature {
-	my ($self, $feat) = @_;
-
-	# create feature object
-	my $feature = Bio::SeqFeature::Generic->new(-seq_id => $feat->{name},
-															  -start  => $feat->{start},
-															  -end    => $feat->{end},
-															  -score  => $feat->{score},
-															  -source => $feat->{source},
-															  -primary => $feat->{primary},
-															  -logic_name  => $feat->{logic_name}, 
-															 );
-
-	return $feature;
-}
-
 1;
-
-

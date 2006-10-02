@@ -70,19 +70,16 @@ Internal methods are usually preceded with a _
 
 
 package Bio::PopGen::Marker;
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::Root;
-use Bio::PopGen::MarkerI;
 
 use vars qw($UniqueCounter);
 
 $UniqueCounter = 0;
 
-@ISA = qw(Bio::Root::Root Bio::PopGen::MarkerI);
+use base qw(Bio::Root::Root Bio::PopGen::MarkerI);
 
 =head2 new
 

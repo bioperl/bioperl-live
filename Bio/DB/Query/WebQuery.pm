@@ -72,12 +72,9 @@ use strict;
 use URI;
 use LWP::UserAgent;
 use HTTP::Request::Common;
-use Bio::Root::Root;
-use Bio::DB::QueryI;
 
-use vars qw(@ISA);
 
-@ISA = qw(Bio::Root::Root Bio::DB::QueryI);
+use base qw(Bio::Root::Root Bio::DB::QueryI);
 
 =head2 new
 

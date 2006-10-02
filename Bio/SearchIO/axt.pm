@@ -70,13 +70,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::axt;
-use vars qw(@ISA %MODEMAP %MAPPING @STATES $GAPCHAR);
+use vars qw(%MODEMAP %MAPPING @STATES $GAPCHAR);
 use strict;
 
-use Bio::SearchIO;
 use Bio::Search::Result::ResultFactory;
 use Bio::Search::HSP::HSPFactory;
-@ISA = qw(Bio::SearchIO );
+use base qw(Bio::SearchIO);
 
 use POSIX;
 

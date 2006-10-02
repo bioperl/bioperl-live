@@ -144,15 +144,14 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Tools::Analysis::Protein::Scansite;
-use vars qw(@ISA  $FLOAT @STRINGENCY );
+use vars qw($FLOAT @STRINGENCY);
 use strict;
 use IO::String;
 use Bio::SeqIO;
 use HTTP::Request::Common qw(POST);
 use Bio::SeqFeature::Generic;
-use Bio::Tools::Analysis::SimpleAnalysisBase;
 
-@ISA = qw(Bio::Tools::Analysis::SimpleAnalysisBase);
+use base qw(Bio::Tools::Analysis::SimpleAnalysisBase);
 
 $FLOAT = '[+-]?\d*\.\d*';
 @STRINGENCY = qw(High Medium Low);

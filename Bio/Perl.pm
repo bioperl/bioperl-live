@@ -101,10 +101,9 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Perl;
-use vars qw(@ISA @EXPORT @EXPORT_OK $DBOKAY);
+use vars qw(@EXPORT @EXPORT_OK $DBOKAY);
 use strict;
 use Carp;
-use Exporter;
 
 use Bio::SeqIO;
 use Bio::Seq;
@@ -124,7 +123,7 @@ BEGIN {
     }
 }
 
-@ISA = qw(Exporter);
+use base qw(Exporter);
 
 @EXPORT = qw(read_sequence read_all_sequences write_sequence
 	     new_sequence get_sequence translate translate_as_string

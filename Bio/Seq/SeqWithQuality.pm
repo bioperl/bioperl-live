@@ -106,16 +106,12 @@ Internal methods are usually preceded with a _
 
 package Bio::Seq::SeqWithQuality;
 
-use vars qw(@ISA);
 
 use strict;
-use Bio::Root::Root;
-use Bio::Seq::QualI;
-use Bio::PrimarySeqI;
 use Bio::PrimarySeq;
 use Bio::Seq::PrimaryQual;
 
-@ISA = qw(Bio::Root::Root Bio::PrimarySeqI Bio::Seq::QualI);
+use base qw(Bio::Root::Root Bio::PrimarySeqI Bio::Seq::QualI);
 
 =head2 new()
 

@@ -124,11 +124,8 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Result::GenericResult;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Root::Root;
-use Bio::Search::Result::ResultI;
 use Bio::Search::GenericStatistics;
 use Bio::Tools::Run::GenericParameters;
 
@@ -136,7 +133,7 @@ use Bio::Tools::Run::GenericParameters;
 #use overload 
 #    '""' => \&to_string;
 
-@ISA = qw(Bio::Root::Root Bio::Search::Result::ResultI);
+use base qw(Bio::Root::Root Bio::Search::Result::ResultI);
 
 =head2 new
 

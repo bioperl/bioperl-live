@@ -54,7 +54,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $db->update($f) or $self->throw("Couldn't update!");
 
   # use the GFF3 loader to do a bulk write:
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store   => $db,
@@ -124,7 +124,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
 Bio::DB::SeqFeature::Store::berkeleydb is the Berkeleydb adaptor for
 Bio::DB::SeqFeature::Store. You will not create it directly, but
-instead use Bio::DB::SeqFeature::Store->new() to do so.
+instead use Bio::DB::SeqFeature::Store-E<gt>new() to do so.
 
 See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
@@ -249,7 +249,12 @@ sub init {
     $directory ||= "$autoindex/indexes";
   }
   $directory ||= $is_temporary ? File::Spec->tmpdir : '.';
-  $directory = tempdir(__PACKAGE__.'_XXXXXX',
+  # 
+  my $pacname = __PACKAGE__;
+  if ($^O =~ /mswin/i) {
+    $pacname =~ s/:+/_/g;
+  }
+  $directory = tempdir($pacname.'_XXXXXX',
 		       TMPDIR=>1,
 		       CLEANUP=>1,
 		       DIR=>$directory) if $is_temporary;
@@ -280,11 +285,11 @@ sub post_init {
 
   my $maxtime   = 0;
 
-  opendir (D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
+  opendir (my $D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
   my @reindex;
   my $fasta_files_present;
 
-  while (defined (my $node = readdir(D))) {
+  while (defined (my $node = readdir($D))) {
     next if $node =~ /^\./;
     my $path      = "$autodir/$node";
     next unless -f $path;
@@ -307,7 +312,7 @@ sub post_init {
     push @reindex,$path;
   }
 
-  close D;
+  close $D;
 
   my $timestamp_time  = _mtime($self->_mtime_path) || 0;
 
@@ -386,8 +391,8 @@ sub _open_databases {
             : $create ? "+>"
             : "<";
 
-  open (F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
-  $self->notes_db(\*F);
+  open (my $F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
+  $self->notes_db($F);
 }
 
 sub commit { # reindex fasta files
@@ -475,7 +480,7 @@ sub _add_SeqFeature {
   my $p = $self->parentage_db;
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or die "no primary ID known for $child";
+    defined $child_id or $self->throw("no primary ID known for $child");
     $p->{$parent_id} = $child_id;
   }
 }

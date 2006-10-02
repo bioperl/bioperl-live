@@ -53,12 +53,6 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -71,13 +65,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::TreeIO::pag;
-use vars qw(@ISA $TaxonNameLen);
+use vars qw($TaxonNameLen);
 use strict;
-use Bio::TreeIO;
 
 $TaxonNameLen = 10;
 
-@ISA = qw(Bio::TreeIO );
+use base qw(Bio::TreeIO);
 
 =head2 new
 
@@ -229,7 +222,7 @@ sub write_tree {
 
 sub next_tree{
    my ($self,@args) = @_;
-   $self->throw("parsing not implemented yet");
+   $self->throw_not_implemented();
 }
 
 

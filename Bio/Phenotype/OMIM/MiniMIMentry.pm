@@ -20,10 +20,9 @@
 
 # POD documentation - main docs before the code
 
-
 =head1 NAME
 
-MiniMIMentry - Representation of a Mini MIM entry
+Bio::Phenotype::OMIM::MiniMIMentry - Representation of a Mini MIM entry
 
 =head1 SYNOPSIS
 
@@ -85,14 +84,9 @@ methods.
 # Let the code begin...
 
 package Bio::Phenotype::OMIM::MiniMIMentry;
-use vars qw( @ISA );
 use strict;
-use Bio::Root::Object;
 
-@ISA = qw( Bio::Root::Root );
-
-
-
+use base qw(Bio::Root::Root);
 
 =head2 new
 

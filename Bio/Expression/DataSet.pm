@@ -45,12 +45,6 @@ the web:
 
 Email allenday@ucla.edu
 
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -86,25 +80,10 @@ sub new {
 
 =head2 _initialize()
 
-=over
-
-=item Usage
-
-  $obj->_initialize(%arg);
-
-=item Function
-
-Internal method to initialize a new Bio::Expression::Platform object
-
-=item Returns
-
-true on success
-
-=item Arguments
-
-Arguments passed to L</new()>
-
-=back
+ Usage   : $obj->_initialize(%arg);
+ Function: Internal method to initialize a new Bio::Expression::DataSet object
+ Returns : true on success
+ Args    : passed through to new()
 
 =cut
 

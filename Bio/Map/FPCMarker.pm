@@ -92,14 +92,11 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::FPCMarker;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::MappableI;
 use Bio::Map::Position;
 use Time::Local;
 
-@ISA = qw(Bio::Root::Root Bio::Map::MappableI);
+use base qw(Bio::Root::Root Bio::Map::MappableI);
 
 =head2 new
 
@@ -123,17 +120,18 @@ use Time::Local;
            Most people will not use this directly but get Markers
            through L<Bio::MapIO::fpc>
  Returns : L<Bio::Map::FPCMarker> object
- Args    :    -name => marker name string,
-	      -type    => type string,
-	      -global  => global position for marker,
-	      -frame   => boolean if marker is framework or placement,
-	      -group   => group number for marker,
-	      -subgroup=> subgroup number of marker,
-	      -anchor  => boolean if marker is anchored,
-	      -clones  => all the clone elements in map (hashref),
-	      -contigs => all the contig elements (hasref),
-	      -position => mapping of marker names to map position (hasref),
-          -remark => remarks, separated by newlines
+ Args    : -name     => marker name string,
+	       -type     => type string,
+	       -global   => global position for marker,
+	       -frame    => boolean if marker is framework or placement,
+	       -group    => group number for marker,
+	       -subgroup => subgroup number of marker,
+	       -anchor   => boolean if marker is anchored,
+	       -clones   => all the clone elements in map (hashref),
+	       -contigs  => all the contig elements (hasref),
+	       -position => mapping of marker names to map position (hasref),
+           -remark   => remarks, separated by newlines
+
 =cut
 
 sub new {
@@ -291,7 +289,7 @@ sub subgroup {
            the contig
  Args    : $ctg is necessary to look for the position of the marker
            in that contig.
-           
+
  *** This has nothing to do with an actual Bio::Map::PositionI object ***
 
 =cut
@@ -346,7 +344,7 @@ sub each_cloneid {
  Function: retrieves all the contig ids in a map unordered
  Returns : list of strings (ids)
  Args    : none
- 
+
  *** This only supplies the ids set with the set_contigs method ***
  *** It has nothing to do with actual Bio::Map::MapI objects ***
 

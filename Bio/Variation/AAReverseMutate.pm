@@ -82,7 +82,6 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Variation::AAReverseMutate;
 
-use vars qw(@ISA);
 use strict;
 
 # Object preamble - inheritance
@@ -90,7 +89,7 @@ use Bio::Tools::CodonTable;
 use Bio::Variation::RNAChange;
 use Bio::Variation::Allele;
 
-@ISA = qw( Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 sub new {
     my($class,@args) = @_;

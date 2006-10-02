@@ -224,10 +224,8 @@ package Bio::Tools::GuessSeqFormat;
 use strict;
 use warnings;
 
-use Bio::Root::Root;
 
-use vars qw(@ISA);
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 =head1 METHODS
 
@@ -562,7 +560,7 @@ sub _possibly_codata
     my ($line, $lineno) = (shift, shift);
     return (($lineno == 1 && $line =~ /^ENTRY/) ||
             ($lineno == 2 && $line =~ /^SEQUENCE/) ||
-            $line =~ /^(?:ENTRY|SEQUENCE|\/\/\/)/);
+            $line =~ m{^(?:ENTRY|SEQUENCE|///)});
 }
 
 =head2 _possibly_embl
@@ -619,8 +617,6 @@ sub _possibly_game
 =head2 _possibly_gcg
 
 From bioperl, Bio::SeqIO::gcg.
-Example at
-"http://bioweb.cgb.indiana.edu/seqanal/formats/examples.html#gcg".
 
 =cut
 
@@ -773,21 +769,18 @@ sub _possibly_mega
 
 From "http://www.ebi.ac.uk/help/formats.html".
 
-Contradiction at
-"http://bioweb.cgb.indiana.edu/seqanal/formats/examples.html#msf".
-
 =cut
 
 sub _possibly_msf
 {
     my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^\/\// ||
+    return ($line =~ m{^//} ||
             $line =~ /MSF:.*Type:.*Check:|Name:.*Len:/);
 }
 
 =head2 _possibly_phrap
 
-From "http://www.ccgb.umn.edu/biodata/docs/contigimage.html".
+From "http://biodata.ccgb.umn.edu/docs/contigimage.html".
 From "http://genetics.gene.cwru.edu/gene508/Lec6.htm".
 From bioperl test data ("*.ace.1" files).
 
@@ -823,7 +816,7 @@ From bioperl test data.
 sub _possibly_pfam
 {
     my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^\w+\/\d+-\d+\s+[A-IK-NP-Z.]+/i);
+    return ($line =~ m{^\w+/\d+-\d+\s+[A-IK-NP-Z.]+}i);
 }
 
 =head2 _possibly_phylip
@@ -884,9 +877,7 @@ sub _possibly_rsf
 
 =head2 _possibly_selex
 
-From
-"http://www-ccmr-nmr.bioc.cam.ac.uk/private/arcr1/hmmer-html/node35.html"
-and "http://www.ebc.ee/WWW/hmmer2-html/node27.html".
+From "http://www.ebc.ee/WWW/hmmer2-html/node27.html".
 
 Assuming precense of Selex file header.  Data exported by
 Bioperl on Pfam and Selex formats are identical, but Pfam file

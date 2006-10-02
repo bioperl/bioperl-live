@@ -19,31 +19,31 @@ Bio::Map::PositionHandler - A Position Handler Implementation
     # This is used by modules when they want to implement being a
     # Position or being something that has Positions (when they are
     # a L<Bio::Map::EntityI>)
-    
+
     # Make a PositionHandler that knows about you
     my $ph = new Bio::Map::PositionHandler($self);
-    
+
     # Register with it so that it handles your Position-related needs
     $ph->register;
-    
+
     # If you are a position, get/set the map you are on and the marker you are
     # for
     $ph->map($map);
     $ph->element($marker);
     my $map = $ph->map;
     my $marker = $ph->element;
-    
+
     # If you are a marker, add a new position to yourself
     $ph->add_positions($pos);
-    
+
     # And then get all your positions on a particular map
     foreach my $pos ($ph->get_positions($map)) {
         # do something with this Bio::Map::PositionI
     }
-    
+
     # Or find out what maps you exist on
     my @maps = $ph->get_other_entities;
-    
+
     # The same applies if you were a map
 
 =head1 DESCRIPTION
@@ -89,12 +89,9 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Map::PositionHandler;
-use vars qw(@ISA);
 use strict;
-use Bio::Root::Root;
-use Bio::Map::PositionHandlerI;
 
-@ISA = qw(Bio::Root::Root Bio::Map::PositionHandlerI);
+use base qw(Bio::Root::Root Bio::Map::PositionHandlerI);
 
 # globally accessible hash, via private instance methods
 my $RELATIONS = {};
@@ -110,7 +107,7 @@ my $RELATIONS = {};
  Function: Get a Bio::Map::PositionHandler that knows who you are.
  Returns : Bio::Map::PositionHandler object
  Args    : -self => Bio::Map::EntityI that is you
- 
+
 =cut
 
 sub new {
@@ -293,7 +290,7 @@ sub purge_positions {
     if ($thing) {
         $self->throw("Must supply an object") unless ref($thing);
         if ($thing->isa("Bio::Map::PositionI")) {
-            @pos_indices = ($thing);
+            @pos_indices = ($self->_get_other_index($thing));
         }
         else {
             my $entity_index = $self->_get_other_index($thing);
@@ -415,7 +412,6 @@ sub _pos_set {
 # disassociate position from one of its current entities
 sub _purge_pos_entity {
     my ($self, $pos_index, $entity_index, $kind) = @_;
-    
     delete $self->{_rel}->{has}->{$entity_index}->{$pos_index};
     delete $self->{_rel}->{$kind}->{$pos_index};
 }

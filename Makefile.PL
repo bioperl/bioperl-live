@@ -359,47 +359,51 @@ if( $error == 1 ) {
 
 Information:
 
-   Some perl modules are missing, listed above. The only
-   functionality that will be affected is also described above,
-   the rest of bioperl will work fine.
+   Some perl modules are missing, listed above and below. The only
+   functionality that will be affected is described above,
+   the rest of bioperl will work fine without them.
 
    The installation of these external packages is very simple. You
    can read more about bioperl external dependencies in the INSTALL
    file or at:
 
-   http://bioperl.org/Core/Latest/INSTALL
+   http://bioperl.org/wiki/Installing_BioPerl
 
    Enjoy the rest of bioperl, which you can use after going 'make install'
 
 QQ_ERROR_QQ
 }
 
+# generate hash for prerequisites
+# for use in WriteMakefile
+my %prereq;
+while (my ($key, $value) = each %packages) {
+  my ($ver,$desc,$expl,$module) = split( /\// , $str);
+  $prereq{$key} = $version;
+}
+
 WriteMakefile(
     NAME         => $NAME,
     DISTNAME     => $DISTNAME,
     VERSION_FROM => "Bio/Root/Version.pm",
-    'dist'       => { COMPRESS     => 'gzip -9f',
-                      SUFFIX       => '.gz',
-                      DIST_DEFAULT => 'all tardist',
-                    },
+    dist       => { COMPRESS     => 'gzip -9f',
+                    SUFFIX       => '.gz',
+                    DIST_DEFAULT => 'all tardist',
+                  },
     ($] ge '5.005') ? (
         'AUTHOR'   => 'Bioperl Team (bioperl-l@bioperl.org)',
         'ABSTRACT' => 'Bioinformatics Toolkit',
     ) : (),
-    'realclean' => { FILES => join(' ', @BACKUP_FILES) },
+    realclean   => { FILES => join(' ', @BACKUP_FILES) },
     DIR         => [  ], # directories with other Makefile.PL's in them
     EXE_FILES   => \@scripts_to_install,
     PL_FILES    => {'maintenance/symlink_scripts.PLS' => 'maintenance/symlink_scripts.pl' },
-    PREREQ_PM   => {
-        'IO::String'     => 0,
-        'File::Temp'     => 0,
-        'File::Spec'     => 0,
-        'HTML::Entities' => 0,
-        'DB_File'        => 0,
-        'IO::Scalar'     => 0,
-    },
+    PREREQ_PM   => \%prereq,
+    # Once 'nmake ppd' has been issued, the PPD needs to be modified for use with PPM4
+    # In addition, non-critical prereq's should be moved to a Bundle::BioPerl PPD
+    # A bit of a pain, but better to have all the prereq's in the same place initially
+    # TODO I'll (Nathan Haigh) added updated details to the wiki for doing this
 );
-
 
 sub MY::manifypods {
   my $self = shift;

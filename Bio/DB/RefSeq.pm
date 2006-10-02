@@ -101,12 +101,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::RefSeq;
 use strict;
-use vars qw(@ISA $MODVERSION %HOSTS  %FORMATMAP $DEFAULTFORMAT);
+use vars qw($MODVERSION %HOSTS %FORMATMAP $DEFAULTFORMAT);
 
 $MODVERSION = '0.1';
-use Bio::DB::DBFetch;
 
-@ISA = qw(Bio::DB::DBFetch);
+use base qw(Bio::DB::DBFetch);
 
 BEGIN {
     # you can add your own here theoretically.

@@ -3,7 +3,7 @@
 use strict;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-use constant NUMTESTS => 22;
+use constant NUMTESTS => 33;
 my $error;
 BEGIN {
   eval { require Test; };
@@ -179,3 +179,32 @@ while($s = $io->next_seq()){
   $scount++;
 }
 ok($scount == 1);
+
+################################################################################
+#
+# use FeatureIO::gff to read a PTT file.
+#
+$fcount = 0;
+
+my $ptt_in = Bio::FeatureIO->new(
+  -file => Bio::Root::IO->catfile('t','data','test.ptt'), 
+  -format => 'ptt',
+);
+ok($ptt_in);
+
+while (my $f = $ptt_in->next_feature) {
+  $fcount++;
+  if ($fcount==2) {
+    # 2491..3423  + 310 24217063  metF  LB002 - COG0685E  5,10-methylenetetrahydrofolate reductase
+    ok( $f->start == 2491 );
+    ok( $f->end == 3423 );
+    ok( $f->strand > 0 );
+    ok( ($f->get_tag_values('PID'))[0] eq '24217063' );
+    ok( ($f->get_tag_values('Gene'))[0] eq 'metF' );
+    ok( ($f->get_tag_values('Synonym'))[0] eq 'LB002' );
+    ok( not $f->has_tag('Code') );
+    ok( ($f->get_tag_values('COG'))[0] eq 'COG0685E' );
+    ok( ($f->get_tag_values('Product'))[0] eq '5,10-methylenetetrahydrofolate reductase' );   
+  }
+}
+ok($fcount == 367);

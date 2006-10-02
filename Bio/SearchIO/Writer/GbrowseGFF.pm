@@ -66,16 +66,14 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::Writer::GbrowseGFF;
-use Bio::SearchIO::SearchWriterI;
-use Bio::Root::RootI;
-use vars qw(@ISA %Defaults);
+use vars qw(%Defaults);
 use strict;
 
 $Defaults{'Prefix'}   = 'EST';
 $Defaults{'HSPTag'}   = 'HSP';
 $Defaults{'MatchTag'} = 'match';
 
-@ISA = qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
+use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 
 
 =head2 new

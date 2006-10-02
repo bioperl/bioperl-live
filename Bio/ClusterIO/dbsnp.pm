@@ -53,16 +53,15 @@ package Bio::ClusterIO::dbsnp;
 
 use strict;
 use Bio::Root::Root;
-use Bio::ClusterIO;
 use Bio::Variation::SNP;
 use XML::Parser::PerlSAX;
 use XML::Handler::Subs;
 use Data::Dumper;
 use IO::File;
 
-use vars qw(@ISA $DTD $DEBUG %MODEMAP %MAPPING);
+use vars qw($DTD $DEBUG %MODEMAP %MAPPING);
 $DTD = 'ftp://ftp.ncbi.nih.gov/snp/specs/NSE.dtd';
-@ISA = qw(Bio::ClusterIO);
+use base qw(Bio::ClusterIO);
 
 BEGIN {
   %MAPPING = (

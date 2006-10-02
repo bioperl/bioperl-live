@@ -19,14 +19,8 @@ L<Bio::Graphics::Feature> for full documentation.
 =cut
 
 use strict;
-use Bio::Root::Root;
-use Bio::SeqFeatureI;
-use Bio::SeqI;
-use Bio::LocationI;
-use Bio::RangeI;
 
-use vars '@ISA';
-@ISA  = qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::RangeI);
+use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::RangeI);
 
 *stop        = \&end;
 *info        = \&name;
@@ -523,9 +517,10 @@ sub introns {
 sub has_tag { exists shift->{attributes}{shift()} }
 
 sub escape {
+  my $self    = shift;
   my $toencode = shift;
-  $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!-])/uc sprintf("%%%02x",ord($1))/eg;
-  $toencode    =~ tr/ /+/;
+  $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!+-])/uc sprintf("%%%02x",ord($1))/eg;
+#  $toencode    =~ tr/ /+/;  # not needed in GFF3
   $toencode;
 }
 
@@ -548,19 +543,42 @@ sub format_attributes {
   my @result;
   for my $t (@tags) {
     my @values = $self->each_tag_value($t);
-    push @result,join '=',escape($t),escape($_) foreach @values;
+    push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
   }
   my $id   = $self->primary_id;
   my $name = $self->display_name;
-  push @result,"ID=".escape($id)                     if defined $id;
-  push @result,"Parent=".escape($parent->primary_id) if defined $parent;
-  push @result,"Name=".escape($name)                 if defined $name;
+  push @result,"ID=".$self->escape($id)                     if defined $id;
+  push @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
+  push @result,"Name=".$self->escape($name)                 if defined $name;
   return join ';',@result;
 }
 
 sub DESTROY { }
 
 1;
+
+=head2 clone
+
+ Title   : clone
+ Usage   : my $feature = $seqfeature->clone
+ Function: Create a deep copy of the feature
+ Returns : A copy of the feature
+ Args    : none
+
+=cut
+
+sub clone {
+  my $self  = shift;
+  my %clone  = %$self;
+  # overwrite attributes
+  my $clone = bless \%clone,CORE::ref($self);
+  $clone{attributes} = {};
+  for my $k (keys %{$self->{attributes}}) {
+    @{$clone{attributes}{$k}} = @{$self->{attributes}{$k}};
+  }
+  return $clone;
+}
+
 
 __END__
 

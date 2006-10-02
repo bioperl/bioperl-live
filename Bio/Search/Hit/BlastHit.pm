@@ -57,10 +57,6 @@ web:
 Email jason@bioperl.org
 Email sac@bioperl.org
 
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -73,13 +69,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Search::Hit::BlastHit;
-use vars qw(@ISA);
 use strict;
 
-use Bio::Search::Hit::GenericHit;
-require Bio::Search::SearchUtils;
+use Bio::Search::SearchUtils;
 
-@ISA = qw(Bio::Search::Hit::GenericHit);
+use base qw(Bio::Search::Hit::GenericHit);
 
 =head2 new
 

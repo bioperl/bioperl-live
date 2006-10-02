@@ -74,24 +74,14 @@ SimpleAlign object is a Bio::LocatableSeq.
 
 SimpleAlign expects the combination of name, start, and end for a
 given sequence to be unique in the alignment, and this is the key for the
-internal hashes (name, start, end are abbreviated 'nse' in the code).
+internal hashes (name, start, end are abbreviated C<nse> in the code).
 However, in some cases people do not want the name/start-end to be displayed:
 either multiple names in an alignment or names specific to the alignment
 (ROA1_HUMAN_1, ROA1_HUMAN_2 etc). These names are called
-'displayname', and generally is what is used to print out the
+C<displayname>, and generally is what is used to print out the
 alignment. They default to name/start-end.
 
 The SimpleAlign Module is derived from the Align module by Ewan Birney.
-
-=over 3
-
-=item Use Bio::Root::Object - done
-
-=item Use proper exceptions - done
-
-=item Use hashed constructor - not done!
-
-=back
 
 =head1 FEEDBACK
 
@@ -126,11 +116,11 @@ Allen Smith, allens-at-cpan.org,
 Jason Stajich, jason-at-bioperl.org,
 Anthony Underwood, aunderwood-at-phls.org.uk,
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
-Brian Osborne, osborne1 at optonline.net
+Brian Osborne, bosborne at alum.mit.edu
 
 =head1 SEE ALSO
 
-L<Bio::LocatableSeq.pm>
+L<Bio::LocatableSeq>
 
 =head1 APPENDIX
 
@@ -142,12 +132,10 @@ methods. Internal methods are usually preceded with a _
 # 'Let the code begin...
 
 package Bio::SimpleAlign;
-use vars qw(@ISA %CONSERVATION_GROUPS);
+use vars qw(%CONSERVATION_GROUPS);
 use strict;
 
-use Bio::Root::Root;
 use Bio::LocatableSeq;  # uses Seq's as list
-use Bio::Align::AlignI;
 
 use Bio::Seq;
 use Bio::SeqFeature::Generic;
@@ -184,7 +172,7 @@ BEGIN {
 					       HFY )],);
 }
 
-@ISA = qw(Bio::Root::Root Bio::Align::AlignI);
+use base qw(Bio::Root::Root Bio::Align::AlignI);
 
 =head2 new
 
@@ -941,17 +929,21 @@ sub slice {
 		my $slice_seq = $seq->subseq($start, $seq_end);
 		$new_seq->seq( $slice_seq );
 
-		# start
+		$slice_seq =~ s/\W//g;
+		
 		if ($start > 1) {
 			my $pre_start_seq = $seq->subseq(1, $start - 1);
 			$pre_start_seq =~ s/\W//g;
+			if (!defined($seq->strand)) {
+				$new_seq->start( $seq->start + CORE::length($pre_start_seq) );
+			} elsif ($seq->strand < 0){
+				$new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
+			} else {
 			$new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
+			}
 		} else {
 			$new_seq->start( $seq->start);
 		}
-
-		# end
-		$slice_seq =~ s/\W//g;
 		$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
 
 		if ($new_seq->start and $new_seq->end >= $new_seq->start) {

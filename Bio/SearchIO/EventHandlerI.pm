@@ -62,13 +62,11 @@ Internal methods are usually preceded with a _
 
 
 package Bio::SearchIO::EventHandlerI;
-use vars qw(@ISA);
 use strict;
 use Carp;
 
-use Bio::Event::EventHandlerI;
 
-@ISA = qw (Bio::Event::EventHandlerI);
+use base qw(Bio::Event::EventHandlerI);
 
 =head2 start_result
 
