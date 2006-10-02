@@ -78,7 +78,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqHound;
 use strict;
-use vars qw($HOSTBASE $CGILOCATION);
+use vars qw($HOSTBASE $CGILOCATION $LOGFILENAME);
 
 use Bio::Root::IO;
 use Bio::SeqIO;
@@ -88,7 +88,8 @@ use POSIX qw(strftime);
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 BEGIN {    
     $HOSTBASE = 'http://seqhound.blueprint.org';
-    $CGILOCATION='/cgi-bin/seqrem?fnct=';
+    $CGILOCATION = '/cgi-bin/seqrem?fnct=';
+    $LOGFILENAME = 'shoundlog';
 }
 
 
@@ -520,41 +521,41 @@ sub postprocess_data
 
 	#set up verbosity level if need record in the log file
 	$self->verbose(1);
-
+        my $log_msg = "Writing into '$LOGFILENAME' log file.\n";
 
         if ($self->verbose>0) {
             my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
             if ($lcontent eq "") {
-                print STDERR "Writing into the log file shoundlog\n";
-		open (my $LOG, ">>shoundlog");
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
 		print $LOG "$now		$funcname. No reply.\n";
 		return;
             } elsif ($lcontent =~ /HTTP::Request error/) {
-                print STDERR "Writing into the log file shoundlog\n";
-		open (my $LOG, ">>shoundlog");
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
 		print $LOG "$now		$funcname. Http::Request error problem.\n";
 		return;
             } elsif ($lcontent =~ /SEQHOUND_ERROR/) {
-                print STDERR "Writing into the log file shoundlog\n";
-		open (my $LOG, ">>shoundlog");
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
 		print $LOG "$now	$funcname error. SEQHOUND_ERROR found.\n";
 		return;
             } elsif ($lcontent =~ /SEQHOUND_NULL/) {
-                print STDERR "Writing into the log file shoundlog\n";
-        	open (my $LOG, ">>shoundlog");
+                $self->debug($log_msg);
+		open (my $LOG, '>>', $LOGFILENAME);
 		print $LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n";
 		return;
             } else {
     		chomp $lcontent;
       		my @lines = split(/\n/, $lcontent, 2);
      	 	if ($lines[1] =~ /^-1/) {
-                    print STDERR "Writing into the log file shoundlog\n";
-                    open (my $LOG, ">>shoundlog");
+                    $self->debug($log_msg);
+		    open (my $LOG, '>>', $LOGFILENAME);
                     print $LOG "$now	$funcname Value not found in the database. -1 found.\n";
                     return;
 		} elsif ($lines[1]  =~ /^0/) {
-                    print STDERR "Writing into the log file shoundlog\n";
-                    open (my $LOG, ">>shoundlog");
+                    $self->debug($log_msg);
+  		    open (my $LOG, '>>', $LOGFILENAME);
                     print $LOG "$now	$funcname failed.\n";
                     return;
          	} else {
