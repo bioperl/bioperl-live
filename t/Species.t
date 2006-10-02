@@ -2,12 +2,10 @@
 ## $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $error);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
 	$NUMTESTS = 20;
-	$error = 0;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -17,10 +15,6 @@ BEGIN {
 	use Test::More;
     
 	plan tests => $NUMTESTS;
-}
-
-if ($error ==  1) {
-    exit(0);
 }
 
 use_ok('Bio::Species');
