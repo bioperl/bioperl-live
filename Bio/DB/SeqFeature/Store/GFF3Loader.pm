@@ -67,7 +67,6 @@ use Carp 'croak';
 use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Store;
-use CGI::Util 'unescape';
 use File::Spec;
 use base 'Bio::Root::Root';
 
@@ -933,6 +932,21 @@ This method returns the current time in seconds, using Time::HiRes if available.
 sub time {
   return Time::HiRes::time() if Time::HiRes->can('time');
   return time();
+}
+
+=item escape
+
+ my $unescaped = GFF3Loader::unescape($escaped)
+
+This is an internal utility.  It is the same as CGI::Util::unescape,
+but don't change pluses into spaces and ignores unicode escapes.
+
+=cut
+
+sub unescape {
+  my $todecode = shift;
+  $todecode =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
+  return $todecode;
 }
 
 1;
