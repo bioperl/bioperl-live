@@ -99,6 +99,7 @@ use vars qw(%RemoteURLDefault
 # Object preamble - inherits from Bio::Root::RootI
 
 BEGIN {
+    $Revision = '$Id$';
     $DATE = localtime(time);
     %RemoteURLDefault = ( 
       'PROTEIN' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=protein&cmd=search&term=%s',			  
