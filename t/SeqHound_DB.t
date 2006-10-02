@@ -13,14 +13,6 @@ $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 my $error;
 
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	$error = 0;
-	if( $@ ) {
-		use lib 't';
-	}
 	use Test;
 
 	$NUMTESTS = 14;
@@ -39,13 +31,14 @@ END {
 	foreach ( $Test::ntest..$NUMTESTS) {
 		skip('Unable to run all of the SeqHound_DB tests',1);
 	}
+	unlink $Bio::DB::SeqHound::LOGFILENAME if -f $Bio::DB::SeqHound::LOGFILENAME;
 }
 
-if( $error ==  1 ) {
+if( $error ) {
     exit(0);
 }
 
-require Bio::DB::SeqHound;
+use Bio::DB::SeqHound;
 
 my $verbose = -1;
 
@@ -89,7 +82,7 @@ if ($@) {
 $seq = $seqio = undef;
 
 eval {
-    $db = new Bio::DB::SeqHound(-verbose => $verbose,
+    $db = Bio::DB::SeqHound->new(-verbose => $verbose,
 			    -retrievaltype => 'tempfile',
 			    -format => 'genbank'
 			    ); 
