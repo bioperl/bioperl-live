@@ -96,10 +96,11 @@ use base qw(Bio::Root::Root);
  Usage   : my $resp = get(-url => $url);
  Function: 
  Returns : string
- Args    : -url   => URL to HTTPGet
-           -proxy => proxy to use
-           -user  => username for proxy or authentication
-           -pass  => password for proxy or authentication
+ Args    : -url     => URL to HTTPGet
+           -proxy   => proxy to use
+           -user    => username for proxy or authentication
+           -pass    => password for proxy or authentication
+           -timeout => timeout
 
 =cut
 
@@ -108,7 +109,7 @@ sub get {
     if( ref($_[0]) ) {
 	$self = shift;
     }
-
+    
     my ($url,$proxy,$timeout,$auth_user,$auth_pass) = 
 	__PACKAGE__->_rearrange([qw(URL PROXY TIMEOUT USER PASS)],@_);
     my $dest  = $proxy || $url;
@@ -117,13 +118,16 @@ sub get {
 	= _http_parse_url($dest) or __PACKAGE__->throw("invalid URL $url");
     $auth_user ||= $user;
     $auth_pass ||= $pass;
-    if( $self ) { 
-	unless( $auth_user ) { 
-	    ($auth_user,$auth_pass) = $self->authentication;
-	}
-	unless( $proxy ) { $proxy = $self->proxy() }
+    if ($self) {
+        unless ($proxy) {
+            $proxy = $self->proxy;
+        }
+        unless ($auth_user) { 
+            ($auth_user, $auth_pass) = $self->authentication;
+        }
     }
     $path = $url if $proxy;
+    
     # set up the connection
     my $socket = _http_connect($host,$port) or __PACKAGE__->throw("can't connect: $@");
 
@@ -154,7 +158,7 @@ sub get {
     if ($stat_code == 302 || $stat_code == 301) { # redirect
 	my $location = $headers{Location} or 
             __PACKAGE__->throw("invalid redirect: no Location header");
-	return get($location,$proxy,$timeout); # recursive call
+	return get(-url => $location, -proxy => $proxy, -timeout => $timeout, -user => $auth_user, -pass => $auth_pass); # recursive call
     }
 
     elsif ($stat_code == 401) { # auth required
@@ -230,7 +234,7 @@ sub getFH {
   if ($stat_code == 302 || $stat_code == 301) {  # redirect
     my $location = $headers{Location} or 
         __PACKAGE__->throw("invalid redirect: no Location header");
-    return getFH($location,$proxy,$timeout);  # recursive call
+    return getFH(-url => $location, -proxy => $proxy, -timeout => $timeout, -user => $auth_user, -pass => $auth_pass);  # recursive call
   }
 
   elsif ($stat_code == 401) { # auth required
