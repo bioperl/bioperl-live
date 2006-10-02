@@ -8,10 +8,8 @@
 use strict;
 
 BEGIN {
-    my $NUMTESTS = 27;
     use Test;    
-    plan tests => $NUMTESTS;
-
+    plan tests => 27;
 }
 
 my $DEBUG = $ENV{BIOPERLDEBUG};
@@ -102,15 +100,17 @@ ok close(O);
 # <tests http retrieval>
 ##############################################
 
+my $TESTURL = 'http://www.google.com/index.html';
+
 #with LWP (if available)
 
 if ($DEBUG) {
   eval {
-    $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
+    $rio = Bio::Root::IO->new(-url=>$TESTURL);
   };
 
   if($@){
-    skip("couldn't get google.com, network down? $@",1);  
+    skip("couldn't get $TESTURL, network down? $@",1);  
   } else {
     ok(1);
   }
@@ -123,11 +123,11 @@ if ($DEBUG) {
   if($Bio::Root::IO::HAS_LWP == 1){
     $Bio::Root::IO::HAS_LWP = 0;
     eval {
-      $rio = Bio::Root::IO->new(-url=>'http://www.google.com/index.html');
+      $rio = Bio::Root::IO->new(-url=>$TESTURL);
     };
 
     if($@){
-      skip("couldn't get google.com, network down? $@",1);  
+      skip("couldn't get $TESTURL, network down? $@",1);  
     } else {
       ok(1);
     }
