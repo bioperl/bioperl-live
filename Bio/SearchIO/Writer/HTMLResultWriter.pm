@@ -9,13 +9,13 @@
 # You may distribute this module under the same terms as perl itself
 
 # Changes 2003-07-31 (jason)
-# Gary has cleaned up the code a lot to produce better looking
-# HTML
+# Gary has cleaned up the code a lot to produce better looking HTML
+
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Search::ResultI in HTML.
+Bio::SearchIO::Writer::HTMLResultWriter - write a Bio::Search::ResultI in HTML
 
 =head1 SYNOPSIS
 
@@ -52,7 +52,7 @@ Bio::SearchIO::Writer::HTMLResultWriter - Object to implement writing a Bio::Sea
 =head1 DESCRIPTION
 
 This object implements the SearchWriterI interface which will produce
-a set of HTML for a specific Bio::Search::Report::ReportI interface.
+a set of HTML for a specific L<Bio::Search::Report::ReportI interface>.
 
 See L<Bio::SearchIO::SearchWriterI> for more info on the filter method.
 
@@ -91,21 +91,19 @@ Internal methods are usually preceded with a _
 =cut
 
 
-
 package Bio::SearchIO::Writer::HTMLResultWriter;
+use strict;
 use vars qw(%RemoteURLDefault
             $MaxDescLen $DATE $AlignmentLineWidth $Revision);
-use strict;
-$Revision = '$Id$'; #'
 
 # Object preamble - inherits from Bio::Root::RootI
 
 BEGIN {
     $DATE = localtime(time);
-    %RemoteURLDefault = ( 'PROTEIN' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=protein&cmd=search&term=%s',			  
-			  'NUCLEOTIDE' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=nucleotide&cmd=search&term=%s'
-			  );
-
+    %RemoteURLDefault = ( 
+      'PROTEIN' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=protein&cmd=search&term=%s',			  
+      'NUCLEOTIDE' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=nucleotide&cmd=search&term=%s'
+    );
     $MaxDescLen = 60;
     $AlignmentLineWidth = 60;
 }
@@ -232,7 +230,7 @@ sub to_string {
         $dbtype     = 'PROTEIN';
 	$dbseqtype  = $type      = 'PROTEIN';
     } else { 
-	print STDERR "algorithm was ", $result->algorithm, " couldn't match\n";
+	$self->warn("algorithm was ", $result->algorithm, " couldn't match\n");
     }
     
     
