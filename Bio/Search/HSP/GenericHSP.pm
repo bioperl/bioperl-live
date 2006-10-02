@@ -181,7 +181,8 @@ sub new {
     }
 
     $self->{'_sequenceschanged'} = 1;
-
+    
+    $self->{_finished_new} = 1;
     return $self;
 }
 
@@ -836,6 +837,19 @@ sub query {
     return $self->SUPER::query(@_);
 }
 
+sub feature1 {
+    my $self = shift;
+    if (! $self->{_finished_new} || $self->{_making_qff}) {
+        return $self->{_sim1} if $self->{_sim1};
+        $self->{_sim1} = Bio::SeqFeature::Similarity->new();
+        return $self->{_sim1};
+    }
+    unless ($self->{_created_qff}) {
+        $self->_query_seq_feature;
+    }
+    return $self->SUPER::feature1(@_);
+}
+
 =head2 hit
 
  Title   : hit
@@ -852,6 +866,19 @@ sub hit {
         $self->_subject_seq_feature;
     }
     return $self->SUPER::hit(@_);
+}
+
+sub feature2 {
+    my $self = shift;
+    if (! $self->{_finished_new} || $self->{_making_sff}) {
+        return $self->{_sim2} if $self->{_sim2};
+        $self->{_sim2} = Bio::SeqFeature::Similarity->new();
+        return $self->{_sim2};
+    }
+    unless ($self->{_created_sff}) {
+        $self->_subject_seq_feature;
+    }
+    return $self->SUPER::feature2(@_);
 }
 
 =head2 significance
@@ -1229,6 +1256,7 @@ sub _pre_seq_feature {
 # make query seq feature
 sub _query_seq_feature {
     my $self = shift;
+    $self->{_making_qff} = 1;
     my $qs = $self->{QUERY_START};
     my $qe = $self->{QUERY_END};
     unless (defined $self->{_query_factor}) {
@@ -1262,19 +1290,19 @@ sub _query_seq_feature {
     # We could be more efficient by only storing this info once.
     # steve chervitz --- Sat Apr  5 00:55:07 2003
 
-    $self->SUPER::query( new  Bio::SeqFeature::Similarity
-                  ('-primary'  => $self->primary_tag,
-                   '-start'    => $qs,
-                   '-expect'   => $self->{EVALUE},
-                   '-bits'     => $self->{BITS},
-                   '-score'    => $self->{SCORE},
-                   '-end'      => $qe,
-                   '-strand'   => $strand,
-                   '-seq_id'   => $self->{QUERY_NAME},
-                   '-seqlength'=> $self->{QUERY_LENGTH},
-                   '-source'   => $self->{ALGORITHM},
-                   '-seqdesc'  => $self->{QUERY_DESC}
-                   ) );
+    my $sim1 = $self->{_sim1} || Bio::SeqFeature::Similarity->new();
+    $sim1->start($qs);
+    $sim1->end($qe);
+    $sim1->significance($self->{EVALUE});
+    $sim1->bits($self->{BITS});
+    $sim1->score($self->{SCORE});
+    $sim1->strand($strand);
+    $sim1->seq_id($self->{QUERY_NAME});
+    $sim1->seqlength($self->{QUERY_LENGTH});
+    $sim1->source_tag($self->{ALGORITHM});
+    $sim1->seqdesc($self->{QUERY_DESC});
+    
+    $self->SUPER::feature1($sim1);
 
     # to determine frame from something like FASTXY which doesn't
     # report the frame
@@ -1288,12 +1316,14 @@ sub _query_seq_feature {
     $self->{QUERY_FRAME} = $qframe;
 
     $self->{_created_qff} = 1;
+    $self->{_making_qff} = 0;
     $self->_pre_frame;
 }
 
 # make subject seq feature
 sub _subject_seq_feature {
     my $self = shift;
+    $self->{_making_sff} = 1;
     my $hs = $self->{HIT_START};
     my $he = $self->{HIT_END};
     unless (defined $self->{_hit_factor}) {
@@ -1322,19 +1352,18 @@ sub _subject_seq_feature {
         ($hs,$he) = ( $he,$hs); # reverse subject: start bigger than end
     }
 
-    $self->SUPER::hit( Bio::SeqFeature::Similarity->new
-                ('-start'     => $hs,
-                 '-end'       => $he,
-                 '-strand'    => $strand,
-                 '-expect'    => $self->{EVALUE},
-                 '-bits'      => $self->{BITS},
-                 '-score'     => $self->{SCORE},
-                 '-source'    => $self->{ALGORITHM},
-                 '-seq_id'    => $self->{HIT_NAME},
-                 '-seqlength' => $self->{HIT_LENGTH},
-                 '-primary'   => $self->primary_tag,
-                 '-seqdesc'   => $self->{HIT_DESC}
-                 ));
+    my $sim2 = $self->{_sim2} || Bio::SeqFeature::Similarity->new();
+    $sim2->start($hs);
+    $sim2->end($he);
+    $sim2->significance($self->{EVALUE});
+    $sim2->bits($self->{BITS});
+    $sim2->score($self->{SCORE});
+    $sim2->strand($strand);
+    $sim2->seq_id($self->{HIT_NAME});
+    $sim2->seqlength($self->{HIT_LENGTH});
+    $sim2->source_tag($self->{ALGORITHM});
+    $sim2->seqdesc($self->{HIT_DESC});
+    $self->SUPER::feature2($sim2);
 
     my $hframe = $self->{HIT_FRAME};
     if (defined $strand && ! defined $hframe && $hitfactor) {
@@ -1346,6 +1375,7 @@ sub _subject_seq_feature {
     $self->{HIT_FRAME} = $hframe;
 
     $self->{_created_sff} = 1;
+    $self->{_making_sff} = 0;
     $self->_pre_frame;
 }
 
