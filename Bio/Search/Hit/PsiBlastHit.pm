@@ -197,7 +197,7 @@ Internal methods are usually preceded with a _
 package Bio::Search::Hit::PsiBlastHit;
 
 use strict;
-require Bio::Search::BlastUtils;
+use Bio::Search::BlastUtils;
 use vars qw(%SUMMARY_OFFSET $Revision);
 
 use overload

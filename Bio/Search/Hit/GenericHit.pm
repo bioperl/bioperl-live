@@ -85,7 +85,7 @@ Internal methods are usually preceded with a _
 package Bio::Search::Hit::GenericHit;
 use strict;
 
-require Bio::Search::SearchUtils;
+use Bio::Search::SearchUtils;
 
 use base qw(Bio::Root::Root Bio::Search::Hit::HitI);
 
