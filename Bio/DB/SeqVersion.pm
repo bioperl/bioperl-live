@@ -63,12 +63,11 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion;
 use strict;
-use vars qw($MODVERSION $DEFAULTIDTYPE);
+use vars qw($DEFAULTIDTYPE);
 use Bio::Root::Version;
 # use Bio::DB::WebAgent;
 
 $DEFAULTIDTYPE = 'gi';
-$MODVERSION = $Bio::Root::Version::VERSION;
 
 use base qw(Bio::Root::HTTPget Bio::Root::Root);
 
