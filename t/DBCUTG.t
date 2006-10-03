@@ -9,7 +9,7 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 34;
+	$NUMTESTS = 35;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -34,9 +34,14 @@ BEGIN {
 	use_ok('Bio::CodonUsage::IO');
     use_ok('Bio::SeqIO');
     use_ok('Bio::Tools::SeqStats');
+	use_ok('Bio::Root::IO');
 }
 
-my $outfile = "t/data/cutg.out";
+END {
+	unlink(Bio::Root::IO->catfile("t","data","cutg.out"));
+}
+
+my $outfile = Bio::Root::IO->catfile("t","data","cutg.out");
 my $verbose = 1 if $DEBUG;
 
 # try reading from file
