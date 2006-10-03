@@ -589,7 +589,7 @@ sub make_index {
 			 }
 
 			 # index this file
-			 $self->warn("Indexing file $file");
+			 $self->debug("Indexing file $file");
 
 			 # this is supplied by the subclass and does the serious work
 			 $recs += $self->_index_file( $file, $i ); # Specific method for each type of index
