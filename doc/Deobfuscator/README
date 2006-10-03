@@ -103,6 +103,7 @@ DEPENDENCIES
 
 - version              Available from CPAN.
 - Class::Inspector     Available from CPAN.
+- Test::Pod            Available from CPAN.
 - BioPerl              Tested with v1.5.1, but other versions should work
                        too. Get the latest from http://www.bioperl.org.
 
