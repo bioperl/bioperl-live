@@ -9,8 +9,7 @@ Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
 
 =head1 SYNOPSIS
 
-  # any bioperl or bioperl compliant object is a RootI 
-  # compliant object
+  # Any Bioperl-compliant object is a RootI compliant object
 
   # Here's how to throw and catch an exception using the eval-based syntax.
 
@@ -28,41 +27,51 @@ Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
 
   # Alternatively, using the new typed exception syntax in the throw() call:
 
-    $obj->throw( -class => 'Bio::Root::BadParameter',
-                 -text  => "Can not open file $file",
-                 -value  => $file);
+  $obj->throw( -class => 'Bio::Root::BadParameter',
+               -text  => "Can not open file $file",
+               -value  => $file );
 
+  # Want to see debug() outputs for this object
+  
+  my $obj = Bio::Object->new(-verbose=>1);
+
+  my $obj = Bio::Object->new(%args);
+  $obj->verbose(2);
+
+  # Print debug messages which honour current verbosity setting
+  
+  $obj->debug("Boring output only to be seen if verbose > 0\n");
 
 =head1 DESCRIPTION
 
 This is a hashref-based implementation of the Bio::Root::RootI
-interface.  Most bioperl objects should inherit from this.
+interface.  Most Bioperl objects should inherit from this.
 
-See the documentation for Bio::Root::RootI for most of the methods
+See the documentation for L<Bio::Root::RootI> for most of the methods
 implemented by this module.  Only overridden methods are described
 here.
 
 =head2 Throwing Exceptions
 
-One of the functionalities that Bio::Root::RootI provides is the
-ability to throw() exceptions with pretty stack traces. Bio::Root::Root
+One of the functionalities that L<Bio::Root::RootI> provides is the
+ability to L<throw()> exceptions with pretty stack traces. Bio::Root::Root
 enhances this with the ability to use L<Error> (available from CPAN)
 if it has also been installed. 
 
-If Error.pm has been installed, throw() will use it. This causes an
+If L<Error> has been installed, L<throw()> will use it. This causes an
 Error.pm-derived object to be thrown. This can be caught within a
 C<catch{}> block, from wich you can extract useful bits of
-information. If Error.pm is not installed, it will use the 
+information. If L<Error> is not installed, it will use the 
 L<Bio::Root::RootI>-based exception throwing facilty.
 
 =head2 Typed Exception Syntax 
 
-The typed exception syntax of throw() has the advantage of plainly
+The typed exception syntax of L<throw()> has the advantage of plainly
 indicating the nature of the trouble, since the name of the class
 is included in the title of the exception output.
 
 To take advantage of this capability, you must specify arguments
-as named parameters in the throw() call. Here are the parameters:
+as named parameters in the L<throw()> call. Here are the parameters:
 
 =over 4
 
