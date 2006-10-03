@@ -14,7 +14,7 @@ use lib '..','.','./lib','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
-	$NUMTESTS = 453;
+	$NUMTESTS = 450;
 	$error = 0;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	# this seems to work for perl 5.6 and perl 5.8
@@ -144,6 +144,43 @@ SKIP: {
 	my $total = grep(m{^>.*$}, split "\n", $efetch->get_response->content);
 	is($total, 5, 'EPost to EFetch');
 }
+
+# ESummary
+
+#print STDERR "\n\nESUMMARY\n\n";
+#
+#SKIP: {
+#	$eutil = Bio::DB::EUtilities->new(
+#                                    -eutil      => 'esummary',
+#                                    -db         => 'protein',
+#                                    -id		    => \@ids,
+#                                      );
+#	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
+#	eval {$response = $eutil->get_response; };
+#	skip("ESummary HTTP error:$@", 2) if $@;
+#	isa_ok($response, 'HTTP::Response');
+#	while (my $ds = $eutil->next_docsum) {
+#		isa_ok($ds, 'Bio::DB::EUtilities::DocSum');
+#		
+#		# iterate using item names
+#		my @names = $ds->get_all_names();
+#		for my $name (@names) {
+#			my %data = $ds->get_item_by_name($name);
+#			is($data{Name}, '', 'DocSum Name');
+#			is($data{Type}, '', 'DocSum Type');
+#			is($data{Content}, '', 'DocSum Content');
+#		}
+#		
+#		# iterating through each item
+#		while ($ds->next_docsum_item) {
+#			is($ds->name(), '', 'DocSum Name');
+#			is($ds->type(), '', 'DocSum Type');
+#			is($ds->content(), '', 'DocSum Content');
+#		}
+#		
+#		#test rewind?
+#	}
+#}
 
 # ESearch, ESearch History
 
@@ -666,18 +703,6 @@ SKIP: {
 # returned XML yet
 
 SKIP: {
-	$eutil = Bio::DB::EUtilities->new(
-                                    -eutil      => 'esummary',
-                                    -db         => 'protein',
-                                    -id		    => \@ids,
-                                      );
-		  
-	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
-	eval {$response = $eutil->get_response; };
-	skip("ESummary HTTP error:$@", 2) if $@;
-	isa_ok($response, 'HTTP::Response');
-	like($response->content, qr(<eSummaryResult>), 'ESummary response');
-	
 	$eutil = Bio::DB::EUtilities->new(
                                     -eutil      => 'egquery',
                                     -term		=> $term,
