@@ -14,7 +14,7 @@ deob_detail.cgi - displays a web page of detailed information about a BioPerl me
 
 =head1 VERSION
 
-This document describes deob_detail.cgi version 0.0.2
+This document describes deob_detail.cgi version 0.0.3
 
 
 =head1 SYNOPSIS
@@ -70,7 +70,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
+  bioperl-l@bioperl.org                       - General discussion
   http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
 
 =head2 Reporting Bugs
@@ -79,7 +79,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  http://bugzilla.bioperl.org/
 
 
 =head1 SEE ALSO

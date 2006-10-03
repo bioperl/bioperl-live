@@ -1,0 +1,20 @@
+# Excluded Modules file for the BioPerl Deobfuscator
+#
+# Module to be excluded from indexing should be listed here as a path,
+# each on its own line.
+#
+# Blank lines and lines starting with '#' are ignored.
+# Module names are matched by a right-end-anchored regular expression
+# (i.e. /Module.pm$/ ), so the shortest unique path is probably best.
+# Example: Bio/Tools/pSW.pm
+#
+# $Id$
+#
+# The modules below are excluded because they require external dependencies
+# to compile (e.g. bioperl-ext), and Class::Inspector can't load modules it
+# can't compile.
+
+Bio/SearchDist.pm
+Bio/Tools/AlignFactory.pm
+Bio/Tools/dpAlign.pm
+Bio/Tools/pSW.pm

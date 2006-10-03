@@ -14,7 +14,7 @@ deob_interface.cgi - a WWW user interface to the BioPerl Deobfuscator
 
 =head1 VERSION
 
-This document describes deob_interface.cgi version 0.0.2
+This document describes deob_interface.cgi version 0.0.3
 
 
 =head1 SYNOPSIS
@@ -149,7 +149,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
+  bioperl-l@bioperl.org                       - General discussion
   http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
 
 =head2 Reporting Bugs
@@ -158,7 +158,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  http://bugzilla.bioperl.org/
 
 
 =head1 SEE ALSO
@@ -212,7 +212,7 @@ my $PERLMODULES         = 'package_list.txt';
 my $BerkeleyDB_packages = 'packages.db';
 my $BerkeleyDB_methods  = 'methods.db';
 my $help_path           = 'deob_help.html';
-my $deob_detail_path    = 'http://localhost/cgi-bin/deob_detail.cgi';
+my $deob_detail_path    = 'deob_detail.cgi';
 
 ## You shouldn't need to change anything below here ##
 
@@ -239,15 +239,15 @@ $sort_order = param('sort_order') ? param('sort_order') : 'by method';
 
 # define some styles
 my $style1
-    = qq{style="border-collapse:collapse;border:solid black 1px;font-family:verdana;font-size:10px;background-color:lightgrey"};
+    = qq{style="border-collapse:collapse;border:solid black 1px;font-family:verdana;font-size:10px;background-color:lightgrey;padding:3"};
 my $style2
-    = qq{style="border-collapse:collapse;border:solid black 1px;font-family:verdana;font-size:10px"};
+    = qq{style="border-collapse:collapse;border:solid black 1px;font-family:verdana;font-size:10px;padding:3"};
 my $style3
-    = qq{style="border-collapse:collapse;border:solid black 1px;font-family:verdana;font-size:14px"};
+    = qq{style="border-collapse:collapse;border:solid black 1px;font-family:verdana;font-size:14px;padding:3"};
 my $style4
-    = qq{style="border-collapse:collapse;border:0px;font-family:verdana;font-size:18px;font-weight:bold"};
-my $style5 = qq{style="font-family:verdana;font-size:14px"};
-my $style6 = qq{style="font-family:verdana;font-size:9px;font-style:italic"};
+    = qq{style="border-collapse:collapse;border:0px;font-family:verdana;font-size:18px;font-weight:bold;padding:3"};
+my $style5 = qq{style="font-family:verdana;font-size:14px;padding:3"};
+my $style6 = qq{style="font-family:verdana;font-size:9px;font-style:italic;padding:3"};
 
 # Open file containing all Bioperl package names
 open( MODS, $PERLMODULES )
@@ -290,7 +290,7 @@ print header;
 print <<CSHL;
 <html>
     <head>
-        <title>Deobfuscator</title>
+        <title>BioPerl Deobfuscator</title>
         <script language="JavaScript">
 
         function submitMe(packageName) {
@@ -318,7 +318,7 @@ print <<CSHL;
             <input type="hidden" name="module">
 			<input type="hidden" name="sort_order" value="$sort_order">
 
-            Enter a search string or Perl regex (examples: Bio::SeqIO, seq, fasta\$)
+            Search <b>class names</b> by string or Perl regex (examples: Bio::SeqIO, seq, fasta\$)
             <br>
             <input style="width:30em" type="text"   name="search_string" value="$pattern"></input>
             <input type="submit" name="Filter"></input></form>
@@ -421,7 +421,7 @@ SORT_CODE
 	# filter not yet implemented, so this 'if' should never be true
     elsif ($filter) {
         if ( !($pattern_found) ) {
-            print "No match to string found, please try again";
+            print qq{<b><p style="color:red">No match to string found, please try again</p></b>};
             h1('Welcome to the BioPerl Deobfuscator!'),;
         }
     }
@@ -534,7 +534,7 @@ CSHL
 
     foreach my $first (@$ref_sorted_array) {    #4
         $first =~ /^(.+)::/;
-        my $package_name = urlify_pkg($1);
+        my $package_name = Deobfuscator::urlify_pkg($1);
 
         # Get the return values part of the documentation
         my $return_methods_raw
@@ -575,19 +575,5 @@ CSHL
 EOP
 
 }    #1 End display subroutine
-
-sub urlify_pkg {
-    my ($pkg_name) = @_;
-    my $bioperl_doc_url = q{http://doc.bioperl.org/bioperl-live/};
-
-    my $pkg_as_path = $pkg_name;
-
-    # convert Bio::DB::RefSeq to Bio/DB/RefSeq
-    $pkg_as_path =~ s/::/\//g;
-    my $url  = $bioperl_doc_url . $pkg_as_path . '.html';
-    my $href = qq{<a href="$url">$pkg_name</a>};
-
-    return $href;
-}
 
 __END__

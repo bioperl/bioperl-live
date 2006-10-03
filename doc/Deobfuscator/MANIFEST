@@ -1,5 +1,6 @@
 Build.PL
 Changes
+excluded_modules.txt
 LICENSE
 MANIFEST
 META.yml # Will be created by "make dist"

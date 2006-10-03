@@ -14,7 +14,7 @@ deob_index.pl - extracts BioPerl documentation and indexes it in a database for 
 
 =head1 VERSION
 
-This document describes deob_index.pl version 0.0.2
+This document describes deob_index.pl version 0.0.3
 
 
 =head1 SYNOPSIS
@@ -214,14 +214,15 @@ deob_index.pl currently expects the sections of POD in a BioPerl module to
 be in a particular order, namely: NAME, SYNOPSIS, DESCRIPTION, CONSTRUCTORS,
 ... , APPENDIX. Those sections are expected to be marked with =head1 POD tags,
 and the documentation for each method is expected to be in =head2 sections
-in the APPENDIX.
+in the APPENDIX. The order of SYNOPSIS and DESCRIPTION can be flipped, but
+this behavior should not be taken as encouragement to do so.
 
 Most, but not all BioPerl modules conform to this standard. Those that do not
 will cause deob_index.pl to report them as errors. Although the consistency
 of this standard is desirable for end-users of the documentation, this code
 probably needs to be a little bit more flexible (patches welcome!).
 
-This software has only been tested on in a UNIX environment. 
+This software has only been tested in a UNIX environment. 
 
 
 =head1 FEEDBACK
@@ -232,7 +233,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to one
 of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
+  bioperl-l@bioperl.org                       - General discussion
   http://www.bioperl.org/wiki/Mailing_lists   - About the mailing lists
 
 =head2 Reporting Bugs
@@ -241,7 +242,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  http://bugzilla.bioperl.org/
 
 
 =head1 SEE ALSO
@@ -291,6 +292,12 @@ use warnings;
 use strict;
 use File::Find;
 use DB_File;
+use IO::File;
+use Getopt::Std;
+
+# GetOpt::Std-related settings
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+getopts('x:');
 
 my $DEBUG = 0;
 
@@ -298,7 +305,7 @@ my $usage = "
 deob_index.pl - extracts and parses BioPerl POD
 and stores the info in a database.
 
-USAGE: deob_index.pl <BioPerl lib dir> <output dir>
+USAGE: deob_index.pl [-x] <BioPerl lib dir> <output dir>
 
 where 
 
@@ -310,6 +317,9 @@ you'd like to index
 and
 
 <output dir> is the path where the output files should be placed
+
+OPTIONS:
+-x    excluded modules file (a module paths to skip; see POD for details)
 ";
 
 unless ( @ARGV == 2 ) { die $usage; }
@@ -319,12 +329,29 @@ my ( $source_dir, $dest_dir ) = @ARGV;
 # NOTE: we're allowing only one source directory, but File::Find supports
 # passing an array of dirs.
 
+# read in an optional list of modules to exclude from indexing
+# - this is aimed at modules with external dependencies that are often not
+# - present and thus will prevent deob_interface.cgi from loading them
+our $opt_x;
+my %exclude;
+if (defined $opt_x) {
+    my $exclude_fh = IO::File->new($opt_x, "r")
+        or die "couldn't open $opt_x\n";
+    while (<$exclude_fh>) {
+        chomp;
+        next if ( /^\#/ || /^\s*$/ ); # ignore comments and blank lines
+        $exclude{$_} = 1;
+    }
+    print STDERR "Found ", scalar keys %exclude, " modules to be excluded.\n";
+}
+
 
 # save a list of the BioPerl modules to a file
 my $list; # filehandle
 my $list_file = $dest_dir . "/package_list.txt";
 if ( -e $list_file) { unlink($list_file); }
 open $list, ">$list_file" or die "couldn't open $list_file:$!\n";
+my @list_holder; # hold all package names so we can sort them before writing.
 
 # record misbehaving BioPerl docs to a file
 my $log;    # filehandle
@@ -343,20 +370,31 @@ my $pkg_db = create_db($pkg_file) or die "couldn't create $pkg_file: $!\n";
 my %FLAG;
 
 # keep stats on our indexing
-my %stats;
+my %stats = ( 
+              'files'    => 0,
+              'pkg_name' => 0,
+              'desc'     => 0,
+              'synopsis' => 0,
+              'methods'  => 0,
+            );
 
 # wanted points to the subroutine which is run on each found file
 # ( in this program, that subroutine is &extract_pod )
 # no_chdir prevents find from chdir'ing into each subsequent directory
-my %FIND_OPTIONS = ( wanted => \&extract_pod, no_chdir => 1 );
+my %FIND_OPTIONS = ( wanted => \&extract_pod);#, no_chdir => 1 );
 
 # This is the important line - Find::File actually doing the
 # traversal of the directory tree.
 find( \%FIND_OPTIONS, $source_dir );
 
+# sort and write out package list
+foreach my $sorted_pkg (sort @list_holder) {
+    print $list $sorted_pkg, "\n";
+}
+
 # output stats
 print STDOUT "\nThis indexing run found:\n";
-print $log "\nThis indexing run foundd:\n";
+print $log "\nThis indexing run found:\n";
 foreach my $stat ( 'files', 'pkg_name', 'desc', 'synopsis', 'methods' ) {
     printf STDOUT "%5d %s\n", $stats{$stat}, $stat;
     printf $log "%5d %s\n", $stats{$stat}, $stat;
@@ -373,6 +411,16 @@ chmod($mode, $pkg_file, $meth_file, $list_file);
 ### Parsing subroutines ###
 sub extract_pod {
     my ($file) = $_;
+    my $long_file = $File::Find::name;
+    
+    # skip if it's on our exclude list
+    foreach my $one (keys %exclude) {
+        if ($File::Find::name =~ /$one$/) {
+            print STDERR "Excluding $file\n";
+            print $log "Excluding $file\n";
+            return;
+        }
+    }
 
     # skip unless it's a perl file that exists
     return unless ( $file =~ /\.PLS$/ ) or ( $file =~ /\.p[ml]$/ );
@@ -380,17 +428,22 @@ sub extract_pod {
 
     $stats{'files'}++;
 
-    open my $fh, $file or die "couldn't open $file:$!\n";
+    open my $fh, $File::Find::name or die "couldn't open $file:$!\n";
 
     # these have to be done in order
     my ( $pkg_name, $short_desc ) = get_pkg_name($fh);
-    my $synopsis     = get_synopsis($fh);
-    my $desc         = get_desc($fh);
+    my ($synopsis, $desc);
+    LOOP: while (my ($type, $section) = get_generic($fh) ) {
+        if    ($type eq 'synopsis')    { $synopsis = $section; }
+        elsif ($type eq 'description') { $desc     = $section; }
+        else { last LOOP; }
+    }
+
     my $constructors = get_constructors($fh);
     my $methods      = get_methods($fh);
 
     # record package name to our package list file
-    if ($pkg_name) { print $list $pkg_name, "\n"; }
+    if ($pkg_name) { push @list_holder, $pkg_name; }
 
     # store valid package data here
     my @pkg_data;
@@ -401,7 +454,7 @@ sub extract_pod {
         print $pkg_name, "\n" if $DEBUG == 1;
     }
     else {
-        print $log " PKG_NAME: $file\n";
+        print $log " PKG_NAME: $long_file\n";
     }
     if ($short_desc) {
         $stats{'short_desc'}++;
@@ -410,7 +463,7 @@ sub extract_pod {
     }
     else {
 		push @pkg_data, 'no short description available'; # store something
-        print $log "SHORT_DESC: $file\n";
+        print $log "SHORT_DESC: $long_file\n";
     }
     if ($synopsis) {
         $stats{'synopsis'}++;
@@ -419,7 +472,7 @@ sub extract_pod {
     }
     else {
 		push @pkg_data, 'no synopsis available'; # store something
-        print $log " SYNOPSIS: $file\n";
+        print $log " SYNOPSIS: $long_file\n";
     }
     if ($desc) {
         $stats{'desc'}++;
@@ -428,7 +481,7 @@ sub extract_pod {
     }
     else {
 		push @pkg_data, 'no description available'; # store something
-        print $log "     DESC: $file\n";
+        print $log "     DESC: $long_file\n";
     }
     if ($methods) {
         my $method_count = scalar keys %$methods;
@@ -440,7 +493,7 @@ sub extract_pod {
         }
     }
     else {
-        print $log "  METHODS: $file\n";
+        print $log "  METHODS: $long_file\n";
     }
 
     # prepare data for databases
@@ -458,8 +511,11 @@ sub slurp_until_next {
     my ($fh) = @_;
 
     my @lines;
+    my $prev_line = $_;
+
 
     LINE: while (<$fh>) {
+        next LINE if $_ eq $prev_line;
 
         # if it's a POD directive
         if (/^\=/) {
@@ -519,6 +575,43 @@ sub get_pkg_name {
     }
 }
 
+sub get_generic {
+    my ($fh) = @_;
+
+    my $section;
+
+    LINE: while (<$fh>) {
+        chomp;
+        print "**", $_, "\n" if $DEBUG == 2;
+
+        if ( $_ =~ /^\=head1\s+SYNOPSIS/ ) {
+            $section = slurp_until_next($fh);
+            if ($section) {
+                $FLAG{'synopsis'} = 1;
+                return ('synopsis', $section);
+            }
+            else { last LINE; }
+        }
+        elsif ( $_ =~ /^\=head1\s+DESCRIPTION/ ) {
+            $section = slurp_until_next($fh);
+            if ($section) {
+                $FLAG{'description'} = 1;
+                return ('description', $section);
+            }
+            else { last LINE; }
+        }
+
+        # if we hit the APPENDIX, time to stop
+        elsif (/^\=head1\s+APPENDIX/) {
+
+            # reset our position to the beginning of the line
+            # so it is seen by the next parser
+            seek $fh, -length($_)*2, 1;
+            last LINE;
+        }
+    }
+}
+
 sub get_synopsis {
     my ($fh) = @_;
 
@@ -552,6 +645,10 @@ sub get_desc {
     LINE: while (<$fh>) {
         chomp;
         print "**", $_, "\n" if $DEBUG == 2;
+
+        if ($_ =~ /^=head1\s+VERSION/ ) {
+            slurp_until_next($fh);
+        }
 
         if ( $_ =~ /^\=head1\s+DESCRIPTION/ ) {
             $desc = slurp_until_next($fh);

@@ -1,4 +1,4 @@
-Deobfuscator version 0.0.2
+Deobfuscator version 0.0.3
 
 The Deobfuscator was written to make it easier to determine the methods that
 are available from a given BioPerl module.
