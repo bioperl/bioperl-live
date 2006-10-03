@@ -5,16 +5,9 @@
 
 use strict;
 use vars qw($DEBUG $TESTCOUNT);
-$DEBUG = $ENV{'BIOPERLDEBUG'};
+$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN { 
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	if ( $@ ) {
-		use lib 't';
-	}
 	use Test;
 	$TESTCOUNT = 6;
 	plan tests => $TESTCOUNT;
@@ -26,6 +19,9 @@ ok 1;
 
 if ($DEBUG) {
 	my $query = Bio::DB::SeqVersion->new(-type => 'gi');
+
+        eval { $query->get_history('DODGY_ID_WHICH_SHOULD_FAIL') };
+        ok($@ =~ m/could not parse/i);
 
 	my $latest_gi = $query->get_recent(2);
 	ok($latest_gi,2);
@@ -43,7 +39,9 @@ if ($DEBUG) {
 	$query = Bio::DB::SeqVersion->new();
 	my $ref = $query->get_history(3245);
 	ok($ref->[0]->[0],578167);
-} else {
+        
+} 
+else {
 	for ( $Test::ntest..$TESTCOUNT) {
 		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test", 1);
         }
