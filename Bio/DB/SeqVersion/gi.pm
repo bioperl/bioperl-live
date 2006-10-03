@@ -86,7 +86,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion::gi;
 use strict;
-use vars qw($MODVERSION $CGIBASE $CGIARGS $ua);
+use vars qw($MODVERSION $CGIBASE $CGIARGS);
 use Bio::Root::Version;
 
 use base qw(Bio::DB::SeqVersion);
