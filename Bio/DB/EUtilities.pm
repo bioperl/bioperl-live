@@ -675,11 +675,14 @@ sub _get_params {
         my ($webenv, $qkey) = @{$cookie->cookie};
         $self->debug("WebEnv:$webenv\tQKey:$qkey\n");
         ($params{'WebEnv'}, $params{'query_key'}) = ($webenv, $qkey);
+        $params{'dbfrom'} = $cookie->database if $self->_eutil eq 'elink';
     }
     
     my $db = $self->db;
-    $params{'db'} = $db         ? $db               : 
-                    $cookie     ? $cookie->database :
+    
+    # elink cannot set the db from a cookie (it is actually dbfrom)
+    $params{'db'} = $db                                   ? $db               : 
+                    ($cookie && $self->_eutil ne 'elink') ? $cookie->database :
                     'nucleotide';
     # einfo db exception (db is optional)
     if (!$db && $self->_eutil eq 'einfo') {
