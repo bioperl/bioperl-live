@@ -39,12 +39,10 @@ BEGIN {
     use_ok('Bio::Seq');
 }
 
-my $verbose = $DEBUG;
-
 #######all these tests work with 1ary seq########
 my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
                                -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
-ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
+ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-seq => $seq);
 
 SKIP: {
 	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 9 unless $DEBUG;
