@@ -47,11 +47,11 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
 ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
 
 SKIP: {
-	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 9 unless $DEBUG;
+	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 10 unless $DEBUG;
 	eval {ok $tool->run;};
-	skip "Could not connect to ESEfinder server, skipping those tests", 9 if $@;
+	skip "Could not connect to ESEfinder server, skipping those tests", 10 if $@;
     ok my @res = $tool->result('Bio::SeqFeatureI');
-	ok @res > 0;
+    ok @res > 0;
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
     ok my $meta = $tool->result('all');
