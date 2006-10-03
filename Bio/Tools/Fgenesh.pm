@@ -275,7 +275,11 @@ sub _parse_predictions {
 	    }
 	    # split into fields
 	    chomp();
-	    my @flds = split(/\s+/, $line);
+	    my @flds = split(/\s+/, ' ' . $line); 
+	    ## NB - the above adds leading whitespace before the gene
+	    ## number in case there was none (as quick patch to code
+	    ## below which expects it but it is not present after 999
+	    ## predictions!) This allows >999 predictions to be parsed.
 
 	    # create the feature object depending on the type of signal
 	    my $predobj;
@@ -388,6 +392,7 @@ sub _parse_predictions {
 	    last;
 	};
     }
+
     $self->_predictions_parsed(1);
 }
 
