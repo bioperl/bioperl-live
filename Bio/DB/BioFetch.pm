@@ -374,7 +374,8 @@ sub db {
   if (@_) {
 
       my $db = lc shift;
-      $FORMATMAP{$db} or $self->throw("invalid db [$db], must be one of [".
+      my $base = $self->url_base_address;
+      $FORMATMAP{$db} or $self->throw("invalid db [$db] at [$base], must be one of [".
 				     join(' ',keys %FORMATMAP).  "]");
       $self->{_db} = $db;
   }
