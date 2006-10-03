@@ -71,6 +71,8 @@ use base qw(Bio::Root::Root);
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    $self->{'_itemindex'} = 0;
+    $self->{'_docdata'} = [];
     return $self;
 }
 
@@ -92,14 +94,75 @@ sub _add_data {
             $ds->_add_data($item->{Item});
             $content = $ds;
         }
-        push @{$self->{'_docdata'}}, [$name, $type, $content];
+        push @{$self->{'_docdata'}}, {'Name' => $name,
+                                      'Type' => $type,
+                                      'Content' => $content};
     }
+    return;
 }
 
 sub esummary_id {
     my $self = shift;
     return $self->{'_esum_id'} = shift if @_;
     return $self->{'_esum_id'};
+}
+
+sub get_all_names {
+    my $self = shift;
+    my @names = map {$_->{Name}} @{ $self->{'_docdata'} };
+    return @names;
+}
+
+sub next_docsum_item {
+    my $self = shift;
+    my $index = @#{ $self->{'_docdata'}};
+    if ($self->{'_itemindex'} < $index) {    
+        $self->{'_itemindex'}++;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+sub name {
+    my $self = shift;
+    if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
+        return $self->{'_docdata'}->[$self->{'_itemindex'}]->{Name};
+    } else {
+        return;
+    }
+}
+
+sub type {
+    my $self = shift;
+    if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
+        return $self->{'_docdata'}->[$self->{'_itemindex'}]->{Type};
+    } else {
+        return;
+    };
+}
+
+sub content {
+    my $self = shift;
+    if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
+        return $self->{'_docdata'}->[$self->{'_itemindex'}]->{Content};
+    } else {
+        return;
+    }
+}
+
+sub rewind_docsum_items{
+    my $self = shift;
+    $self->{'_itemindex'} = 0;
+    return;
+}
+
+sub get_item_by_name {
+    my ($self, $name) = @_;
+    $self->throw('Must supply name for get_data_by_name') if !$name;
+    my ($data) = grep {$_->{Name} eq $name} @{ $self->{'_docdata'} };
+    return %{ $data } if $data;
+    return;
 }
 
 1;

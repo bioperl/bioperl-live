@@ -300,7 +300,7 @@ sub rewind_linksets{
     $self->{'_docsumindex'} = 0;
 }
 
-sub _next_docsum {
+sub _next_docsum_index {
     my $self = shift;
     return $self->{'_docsumindex'}++;
 }
