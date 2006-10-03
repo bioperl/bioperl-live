@@ -93,7 +93,7 @@ sub new {
     @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
     my $type = $param{'-type'} || $DEFAULTIDTYPE;
 
-    $type = "\L$type";	# normalize capitalization to lower case
+    $type = lc($type);	# normalize capitalization to lower case
 
     return unless( $class->_load_seqversion_module($type) );
     return "Bio::DB::SeqVersion::$type"->new(@args);
