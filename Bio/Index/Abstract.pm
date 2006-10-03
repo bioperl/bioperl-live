@@ -581,8 +581,7 @@ sub make_index {
 
 				 # if it is the same size - fine. Otherwise die 
 				 if( -s $file == $size ) {
-					 warn "File $file already indexed. Skipping...\n" 
-						if $self->verbose >= 0;
+					 $self->warn("File $file already indexed. Skipping..."); 
 					 next FILE;
 				 } else {
 					 $self->throw("In index, $file has changed size ($size). Indicates that the index is out of date");
@@ -590,7 +589,7 @@ sub make_index {
 			 }
 
 			 # index this file
-			 warn "Indexing file $file\n" if( $self->verbose > 0);
+			 $self->warn("Indexing file $file");
 
 			 # this is supplied by the subclass and does the serious work
 			 $recs += $self->_index_file( $file, $i ); # Specific method for each type of index
