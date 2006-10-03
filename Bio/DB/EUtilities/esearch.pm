@@ -66,7 +66,7 @@ use strict;
 use warnings;
 use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
-#use Data::Dumper;
+use Data::Dumper;
 
 use vars qw($EUTIL);
 
@@ -118,8 +118,10 @@ sub parse_response {
     my $history = $self->usehistory;
     my $db = $self->db;
     my $xs = XML::Simple->new();
-    my $simple = $xs->XMLin($response->content);
-    #$self->debug("Response dumper:\n".Dumper($simple));
+    my $simple = $xs->XMLin($response->content,
+							forcearray => [qw(Id)]
+							);
+    $self->debug("Response dumper:\n".Dumper($simple));
     # check for major and minor errors and warnings
     if ($simple->{ERROR}) {
         $self->throw("NCBI esearch nonrecoverable error: ".$simple->{ERROR});
