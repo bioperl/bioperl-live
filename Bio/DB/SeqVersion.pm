@@ -84,7 +84,7 @@ use base qw(Bio::Root::HTTPget Bio::Root::Root);
 sub new {
   my($class,@args) = @_;
 
-  if( $class =~ /Bio::DB::SeqVersion::(\S+)/ ) {
+  if( $class =~ /Bio::DB::SeqVersion::\S+/ ) {
     my ($self) = $class->SUPER::new(@args);
     $self->_initialize(@args);
     return $self;
