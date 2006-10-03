@@ -18,11 +18,25 @@ Bio::DB::EUtilities::DocSum
 
 =head1 SYNOPSIS
 
-*** Give standard usage here
+# use only in conjunction with Bio::DB::EUtilities::esummary
+
+    my $esum = Bio::DB::EUtilities->new(-verbose => 1,
+                                        -eutil  => 'esummary',
+                                        -cookie => $esearch->next_cookie,
+                                        -retmax => 20
+                                         );
+    
+    $esum->get_response;
+    
+    # get docsum objects
+    while (my $docsum  = $esum->next_docsum) {
+        # do stuff here
+    }
 
 =head1 DESCRIPTION
 
-*** Describe the object here
+This is a remedial object that acts as a container for DocSum data.  It
+is in the very early stages of development, so don't prod it or it may die!
 
 =head1 FEEDBACK
 
@@ -101,17 +115,67 @@ sub _add_data {
     return;
 }
 
+=head2 esummary_id
+
+ Title   : esummary_id
+ Usage   : $id = $esum->esummary_id();
+ Function: get/set ID value for DocSum object
+ Returns : UID for DocSum object
+ Args    : OPTIONAL : UID to set docsum object 
+
+=cut
+
 sub esummary_id {
     my $self = shift;
     return $self->{'_esum_id'} = shift if @_;
     return $self->{'_esum_id'};
 }
 
+=head2 get_all_names
+
+ Title   : get_all_names
+ Usage   : @names = $esum->get_all_names;
+ Function: get array of DocSum item names
+ Returns : array of names for the items in DocSum object
+ Args    : none
+
+=cut
+
 sub get_all_names {
     my $self = shift;
     my @names = map {$_->{Name}} @{ $self->{'_docdata'} };
     return @names;
 }
+
+=head2 get_item_by_name
+
+ Title   : get_item_by_name
+ Usage   : %item = $esum->get_item_by_name($name);
+ Function: retrieve docsum item hash by item name
+           (retrieved via get_all_names())
+ Returns : hash containing all information for the DocSum item
+ Args    : REQUIRED: name of item to be retrieved
+
+=cut
+
+# the item should have a unique name, so a grep should work fine
+sub get_item_by_name {
+    my ($self, $name) = @_;
+    $self->throw('Must supply name for get_data_by_name') if !$name;
+    my ($data) = grep {$_->{Name} eq $name} @{ $self->{'_docdata'} };
+    return %{ $data } if $data;
+    return;
+}
+
+=head2 next_docsum_item
+
+ Title   : next_docsum_item
+ Usage   : while ($esum->next_docsum_item) {;
+ Function: set the index value for the next item in the DocSum list
+ Returns : none
+ Args    : none
+
+=cut
 
 sub next_docsum_item {
     my $self = shift;
@@ -124,6 +188,17 @@ sub next_docsum_item {
     }
 }
 
+=head2 name
+
+ Title   : name
+ Usage   : $name = $esum->name();
+ Function: get the name of the current DocSum item
+           (iterated via next_docsum_item) 
+ Returns : string
+ Args    : none
+
+=cut
+
 sub name {
     my $self = shift;
     if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
@@ -132,6 +207,17 @@ sub name {
         return;
     }
 }
+
+=head2 type
+
+ Title   : type
+ Usage   : $type = $esum->type();
+ Function: get the type of the current DocSum item
+           (iterated via next_docsum_item) 
+ Returns : string
+ Args    : none
+
+=cut
 
 sub type {
     my $self = shift;
@@ -142,6 +228,19 @@ sub type {
     };
 }
 
+=head2 content
+
+ Title   : content
+ Usage   : $content = $esum->content();
+ Function: get the type of the current DocSum item
+           (iterated via next_docsum_item) 
+ Returns : string or Bio::DB::EUtilities::DocSum object (dep. on type of content)
+           Most will be a string, but some item types include sublists
+           which are converted to DocSum objects themselves
+ Args    : none
+
+=cut
+
 sub content {
     my $self = shift;
     if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
@@ -151,17 +250,20 @@ sub content {
     }
 }
 
+=head2 rewind_docsum_items
+
+ Title   : rewind_docsum_items
+ Usage   : $esum->rewind_docsum_items();
+ Function: rewind the item index to the beginning
+           (iterated via next_docsum_item) 
+ Returns : none
+ Args    : none
+
+=cut
+
 sub rewind_docsum_items{
     my $self = shift;
     $self->{'_itemindex'} = 0;
-    return;
-}
-
-sub get_item_by_name {
-    my ($self, $name) = @_;
-    $self->throw('Must supply name for get_data_by_name') if !$name;
-    my ($data) = grep {$_->{Name} eq $name} @{ $self->{'_docdata'} };
-    return %{ $data } if $data;
     return;
 }
 
