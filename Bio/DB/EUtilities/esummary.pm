@@ -174,10 +174,11 @@ preceded with a _
 # Let the code begin...
 
 package Bio::DB::EUtilities::esummary;
+use Bio::DB::EUtilities::DocSum;
 use strict;
 use warnings;
 use XML::Simple;
-#use Data::Dumper;
+use Data::Dumper;
 
 use base qw(Bio::DB::EUtilities);
 
@@ -211,126 +212,99 @@ sub parse_response {
         $self->throw("Need HTTP::Response object");
     }
     my $xs = XML::Simple->new();
-    my $simple = $xs->XMLin($response->content);
+    my $simple = $xs->XMLin($response->content,
+                            forcearray => [qw(DocSum Item)]);
     #$self->debug("Response dumper:\n".Dumper($simple));
     # check for errors
     if ($simple->{ERROR}) {
         $self->throw("NCBI esummary nonrecoverable error: ".$simple->{ERROR});
-    }    
+    }
+    if (!exists $simple->{DocSum}) {
+        $self->warn('No returned docsums.');
+        return;
+    }
+    print STDERR "reference:",ref($simple->{DocSum}),"\n";
+    for my $data (@{ $simple->{DocSum} }) {
+        my $ds = Bio::DB::EUtilities::DocSum->new(-verbose => $self->verbose);
+        $ds->_add_data($data->{Item}) if exists $data->{Item};
+        $ds->esummary_id($data->{Id}) if exists $data->{Id}; 
+        $self->debug("DocSum Object:".Dumper($ds));
+        $self->add_docsum($ds);
+    }
 }
 
-=head2 Methods inherited from L<Bio::DB::EUtilities|Bio::DB::EUtilities>
+sub add_docsum {
+    my $self = shift;
+    if (@_) {
+        my $docsum = shift;
+        $self->throw("Expecting a Bio::DB::EUtilities::DocSum, got $docsum.")
+          unless $docsum->isa("Bio::DB::EUtilities::DocSum");
+        push @{ $self->{'_docsums'} }, $docsum;
+        $self->{'_docsum_ct'}++;
+    }
+}
 
-=head3 add_cookie
+sub next_docsum {
+    my $self = shift;
+    my $index = $self->_next_docsum_index;
+    return if ($index > scalar($self->{'_docsums'}));
+    return $self->{'_docsums'}->[$index] ;
+}
 
- Title   : cookie
- Usage   : $db->add_cookie($cookie)
- Function: adds an NCBI query cookie to the internal cookie queue
- Returns : none
- Args    : a Bio::DB::EUtilities::Cookie object
+=head2 get_all_linksets
 
-=cut
-
-=head3 next_cookie
-
- Title   : next_cookie
- Usage   : $cookie = $db->next_cookie
- Function: return a cookie from the internal cookie queue
- Returns : a Bio::DB::EUtilities::Cookie object
- Args    : none
-
-=cut
-
-=head3 reset_cookies
-
- Title   : reset_cookie
- Usage   : $db->reset_cookie
- Function: resets the internal cookie queue
- Returns : none
- Args    : none
+ Title   : get_all_linksets
+ Usage   : @ls = $elink->get_all_linksets;
+ Function: returns array of Bio::DB::EUtilities::ElinkData objects
+ Returns : array or array ref of Bio::DB::EUtilities::ElinkData objects
+           based on wantarray
+ Args    : None
 
 =cut
 
-=head3 get_all_cookies
+sub get_all_docsums {
+    my $self = shift;
+    return @{ $self->{'_docsums'} } if wantarray;
+    return $self->{'_docsums'};
+}
 
- Title   : get_all_cookies
- Usage   : @cookies = $db->get_all_cookies
- Function: retrieves all cookies from the internal cookie queue; this leaves
-           the cookies in the queue intact 
- Returns : none
- Args    : none
+=head2 reset_linksets
 
-=cut
-
-=head3 get_response
-
- Title   : get_response
- Usage   : $db->get_response($content)
- Function: main method to retrieve data stream; parses out response for cookie
- Returns : HTTP::Response object
- Args    : optional : Bio::DB::EUtilities::Cookie from a previous search
- Throws  : 'not a cookie' exception, response errors (via HTTP::Response)
+ Title   : reset_linksets
+ Usage   : $elink->reset_linksets;
+ Function: resets (empties) internal cache of Linkset objects
+ Returns : None
+ Args    : None
 
 =cut
 
-=head3 reset_parameters 
+sub reset_docsums{
+    my $self = shift;
+    $self->{'_docsums'} = [];
+    $self->rewind_docsums;
+    $self->{'_docsum_ct'} = 0;
+}
 
- Title   : reset_parameters
- Usage   : $db->reset_parameters(@args);
- Function: resets the parameters for a EUtility with args (in @args)
- Returns : none
- Args    : array of arguments (arg1 => value, arg2 => value)
+=head2 rewind_linksets
 
-B<Experimental method at this time>
-
-=cut
-
-=head3 count
-
- Title   : count
- Usage   : $count = $db->count;
- Function: return count of number of entries retrieved by query
- Returns : integer
- Args    : none
+ Title   : rewind_linksets
+ Usage   : $elink->rewind_linksets;
+ Function: resets linkset index to 0 (starts over)
+ Returns : None
+ Args    : None
 
 =cut
 
-=head3 get_db_ids
+sub rewind_linksets{
+    my $self = shift;
+    $self->{'_docsumindex'} = 0;
+}
 
- Title   : get_db_ids
- Usage   : $count = $elink->get_db_ids($db); # gets array ref of IDs
-           @count = $elink->get_db_ids($db); # gets array of IDs
-           %hash  = $elink->get_db_ids(); # hash of databases (keys) and array_refs(value)
- Function: returns an array or array ref if a database is the argument,
-           otherwise returns a hash of the database (keys) and id_refs (values)
- Returns : array or array ref of ids (arg=database) or hash of
-           database-array_refs (no args)
- Args    : database string;
+sub _next_docsum {
+    my $self = shift;
+    return $self->{'_docsumindex'}++;
+}
 
-=cut
-
-=head3 get_score
-
- Title   : get_score
- Usage   : $score = $db->get_score($id);
- Function: gets score for ID (if present)
- Returns : integer (score) 
- Args    : ID values
-
-=cut
-
-=head3 get_ids_by_score
-
- Title   : get_ids_by_score
- Usage   : @ids = $db->get_ids_by_score;  # returns IDs
-           @ids = $db->get_ids_by_score($score); # get IDs by score
- Function: returns ref of array of ids based on relevancy score from elink;
-           To return all ID's above a score, use the normal score value;
-           to return all ID's below a score, append the score with '-';
- Returns : ref of array of ID's; if array, an array of IDs
- Args    : integer (score value); returns all if no arg provided
-
-=cut
 
 1;
 __END__
