@@ -40,7 +40,7 @@ BEGIN {
 }
 
 #######all these tests work with 1ary seq########
-my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
+ok my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
                                -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
 ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-seq => $seq);
 
@@ -49,7 +49,7 @@ SKIP: {
 	eval {ok $tool->run;};
 	skip "Could not connect to ESEfinder server, skipping those tests", 9 if $@;
     ok my @res = $tool->result('Bio::SeqFeatureI');
-	ok @res > 0;
+    ok @res > 0;
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
     ok my $meta = $tool->result('all');
