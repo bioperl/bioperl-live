@@ -273,7 +273,7 @@ sub _get_url {
     $self->warn("Can't query website: $@");
     return;
   }
-  $self->debug( "resp is $response\n") if( $self->verbose > 0); 
+  $self->debug( "resp is $response\n"); 
 
   return $response;
 }

@@ -163,7 +163,7 @@ sub next_prediction {
 
     my $genes;
     while ($_ = $self->_readline) {
-	$self->debug( $_ ) if( $self->verbose > 0);
+	$self->debug( $_ );
 	last if m{^//};
 
 	if( /^Gene\s+\d+\s*$/ ) {
@@ -172,7 +172,7 @@ sub next_prediction {
 		 -seq_id => $self->_target_id, # if this had been specified
 		 );
 	    $_ = $self->_readline;
-	    $self->debug( $_ ) if( $self->verbose > 0);
+	    $self->debug( $_ );
 
 	    unless ( /^Gene\s+(\d+)\s+(\d+)\s*$/ ) {
 		$self->warn("Unparseable genomewise output");
@@ -186,7 +186,7 @@ sub next_prediction {
 		 );
 	    my $nbr = 1;
 	    while( $_ = $self->_readline ) {    
-		$self->debug( $_ ) if( $self->verbose > 0);
+		$self->debug( $_ );
 
 		unless( m/^\s+Exon\s+(\d+)\s+(\d+)\s+phase\s+(\d+)/ ){
 		    $self->_pushback($_);

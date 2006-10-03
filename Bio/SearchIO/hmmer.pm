@@ -725,7 +725,7 @@ sub next_result {
                         || ( $count != 1
                             && /^\s+RF\s+[x\s]+$/o )
                       );
-                    $self->debug("$count $_") if $verbose > 0;
+                    $self->debug("$count $_");
                     if ( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
                         if ( $self->in_element('hsp') ) {
                             $self->end_element( { 'Name' => 'Hsp' } );
@@ -1035,7 +1035,7 @@ sub next_result {
                 last;
             }
             else {
-                $self->debug($_) if $verbose > 0;
+                $self->debug($_);
             }
         }
         $last = $_;

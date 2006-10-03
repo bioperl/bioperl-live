@@ -209,7 +209,7 @@ sub _get_request {
     $self->warn("Can't query $url: $@");
     return;
   }
-  $self->debug("Response is $response\n") if ( $self->verbose > 0); 
+  $self->debug("Response is $response\n"); 
 
   $response;
 }

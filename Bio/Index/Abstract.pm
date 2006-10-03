@@ -700,7 +700,7 @@ sub _file_count {
 
 sub add_record {
 	my( $self, $id, @rec ) = @_;
-	$self->debug( "Adding key $id\n") if( $self->verbose > 0 );
+	$self->debug( "Adding key $id\n");
 	if( exists $self->db->{$id} ) {
 		$self->warn("overwriting a current value stored for $id\n");
 	}

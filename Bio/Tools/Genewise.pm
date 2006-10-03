@@ -218,7 +218,7 @@ sub _parse_genes {
 	local ($/) = "//";
 
 	while ( defined($_ = $self->_readline) ) {
-		$self->debug( $_ ) if( $self->verbose > 0);
+		$self->debug( $_ );
 		if( /Score\s+(\-?\d+(\.\d+)?)/ ) {
 	      $self->_score($1);# unless defined $self->_score;    
       } 

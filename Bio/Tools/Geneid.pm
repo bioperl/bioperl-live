@@ -132,7 +132,7 @@ sub next_prediction
 
     while (defined($_ = $self->_readline))
     {
-        $self->debug($_) if ($self->verbose > 0);
+        $self->debug($_);
 
         s/^\s+//;
         s/\s+$//;

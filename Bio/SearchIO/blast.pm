@@ -986,7 +986,7 @@ sub next_result {
             );
             $score = '' unless defined $score;    # deal with BLAT which
                                                   # has no score only bits
-            $self->debug("Got NCBI HSP score=$score, evalue $evalue\n") if $self->verbose > 0;
+            $self->debug("Got NCBI HSP score=$score, evalue $evalue\n");
         }
         elsif (
             $self->in_element('hsp')
