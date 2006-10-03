@@ -10,7 +10,7 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 15;
+	$NUMTESTS = 14;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -39,19 +39,17 @@ BEGIN {
     use_ok('Bio::Seq');
 }
 
-my $verbose = $DEBUG;
-
 #######all these tests work with 1ary seq########
 my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
                                -seq=>'atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt');
-ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-verbose =>$verbose, -seq => $seq);
+ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-seq => $seq);
 
 SKIP: {
-	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 10 unless $DEBUG;
-	eval {ok $tool->run;};
-	skip "Could not connect to ESEfinder server, skipping those tests", 10 if $@;
+	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 9 unless $DEBUG;
+	eval {$tool->run;};
+	skip "Could not connect to ESEfinder server, skipping those tests", 9 if $@;
     ok my @res = $tool->result('Bio::SeqFeatureI');
-    ok @res > 0;
+	ok @res > 0;
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
     ok my $meta = $tool->result('all');
