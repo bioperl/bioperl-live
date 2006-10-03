@@ -35,7 +35,7 @@ Use it via the L<Bio::DB::EUtilities|Bio::DB::EUtilities> class.
   my $esummary = Bio::DB::EUtilities->new(-eutil        => 'esummary',
                                        -cookie       => $esearch->next_cookie);
 
-  print $esearch->get_response-content; # prints XML output
+  print $esummary->get_response->content; # prints XML output
 
 =head1 DESCRIPTION
 
