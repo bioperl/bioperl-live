@@ -78,8 +78,6 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-#use Data::Dumper;
-
 use base qw(Bio::Root::Root);
 
 sub new {
@@ -118,7 +116,7 @@ sub _add_data {
 =head2 esummary_id
 
  Title   : esummary_id
- Usage   : $id = $esum->esummary_id();
+ Usage   : $id = $docsum->esummary_id();
  Function: get/set ID value for DocSum object
  Returns : UID for DocSum object
  Args    : OPTIONAL : UID to set docsum object 
@@ -134,7 +132,7 @@ sub esummary_id {
 =head2 get_all_names
 
  Title   : get_all_names
- Usage   : @names = $esum->get_all_names;
+ Usage   : @names = $docsum->get_all_names;
  Function: get array of DocSum item names
  Returns : array of names for the items in DocSum object
  Args    : none
@@ -150,7 +148,7 @@ sub get_all_names {
 =head2 get_item_by_name
 
  Title   : get_item_by_name
- Usage   : %item = $esum->get_item_by_name($name);
+ Usage   : %item = $docsum->get_item_by_name($name);
  Function: retrieve docsum item hash by item name
            (retrieved via get_all_names())
  Returns : hash containing all information for the DocSum item
@@ -167,10 +165,59 @@ sub get_item_by_name {
     return;
 }
 
+=head2 get_Type_by_name
+
+ Title   : get_Type_by_name
+ Usage   : $type = $docsum->get_Type_by_name($name);
+ Function: retrieve the type of information held by docsum item 
+           (retrieved via get_all_names())
+ Returns : string 
+ Args    : REQUIRED: name of item to be retrieved
+
+=cut
+
+sub get_Type_by_name {
+    my ($self, $name) = @_;
+    $self->throw('Must supply name for get_Type_by_name') if !$name;
+    my ($data) = grep {$_->{Name} eq $name} @{ $self->{'_docdata'} };
+    return $data->{Type} if exists $data->{Type};
+    return;
+}
+
+=head2 get_Content_by_name
+
+ Title   : get_Content_by_name
+ Usage   : $type = $docsum->get_Content_by_name($name);
+ Function: retrieve the Content held by docsum item
+           (retrieved via get_all_names())
+           
+           NOTE:  the content is normally a string; however, items
+           that have the Type 'List' will have more complex content
+           containing subitems, subnames, and subcontent;
+           these are represented by sub-DocSum objects.
+           
+           Unless you know that a particular DocSum item always
+           has a 'String' or 'Integer' Type, it might
+           be safe to preceed this method with calls to
+           get_Type_by_name() to verify their content type
+           
+ Returns : string or DocSum object reference
+ Args    : REQUIRED: name of item to be retrieved
+
+=cut
+
+sub get_Content_by_name {
+    my ($self, $name) = @_;
+    $self->throw('Must supply name for get_Content_by_name') if !$name;
+    my ($data) = grep {$_->{Name} eq $name} @{ $self->{'_docdata'} };
+    return $data->{Content} if exists $data->{Content};
+    return;
+}
+
 =head2 next_docsum_item
 
  Title   : next_docsum_item
- Usage   : while ($esum->next_docsum_item) {;
+ Usage   : while ($docsum->next_docsum_item) {;
  Function: set the index value for the next item in the DocSum list
  Returns : hash containing docsum item data (Name, Type, Content)
  Args    : none
@@ -190,7 +237,7 @@ sub next_docsum_item {
 =head2 rewind_docsum_items
 
  Title   : rewind_docsum_items
- Usage   : $esum->rewind_docsum_items();
+ Usage   : $docsum->rewind_docsum_items();
  Function: rewind the item index to the beginning
            (iterated via next_docsum_item) 
  Returns : none

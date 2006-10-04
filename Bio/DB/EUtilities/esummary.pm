@@ -115,7 +115,7 @@ use Bio::DB::EUtilities::DocSum;
 use strict;
 use warnings;
 use XML::Simple;
-use Data::Dumper;
+#use Data::Dumper;
 
 use base qw(Bio::DB::EUtilities);
 
@@ -129,6 +129,7 @@ sub _initialize {
 	my ($retstart, $retmax) =  $self->_rearrange([qw(RETSTART RETMAX)],@args);
     $retstart       && $self->retstart($retstart);
     $retmax         && $self->retmax($retmax);
+    $self->{'_docsums'} = [];
 }
 
 =head2 parse_response
@@ -164,7 +165,7 @@ sub parse_response {
         my $ds = Bio::DB::EUtilities::DocSum->new(-verbose => $self->verbose);
         $ds->_add_data($data->{Item}) if exists $data->{Item};
         $ds->esummary_id($data->{Id}) if exists $data->{Id}; 
-        $self->debug("DocSum Object:".Dumper($ds));
+        #$self->debug("DocSum Object:".Dumper($ds));
         $self->add_docsum($ds);
     }
 }
@@ -187,12 +188,12 @@ sub next_docsum {
     return $self->{'_docsums'}->[$index] ;
 }
 
-=head2 get_all_linksets
+=head2 get_all_docsums
 
- Title   : get_all_linksets
- Usage   : @ls = $elink->get_all_linksets;
- Function: returns array of Bio::DB::EUtilities::ElinkData objects
- Returns : array or array ref of Bio::DB::EUtilities::ElinkData objects
+ Title   : get_all_docsums
+ Usage   : @ds = $esum->get_all_docsums;
+ Function: returns array of Bio::DB::EUtilities::DocSum objects
+ Returns : array or array ref of Bio::DB::EUtilities::DocSum objects
            based on wantarray
  Args    : None
 
@@ -204,11 +205,11 @@ sub get_all_docsums {
     return $self->{'_docsums'};
 }
 
-=head2 reset_linksets
+=head2 reset_docsums
 
- Title   : reset_linksets
- Usage   : $elink->reset_linksets;
- Function: resets (empties) internal cache of Linkset objects
+ Title   : reset_docsums
+ Usage   : $esum->reset_docsums;
+ Function: resets (empties) internal cache of DocSum objects
  Returns : None
  Args    : None
 
@@ -221,17 +222,17 @@ sub reset_docsums{
     $self->{'_docsum_ct'} = 0;
 }
 
-=head2 rewind_linksets
+=head2 rewind_docsums
 
- Title   : rewind_linksets
- Usage   : $elink->rewind_linksets;
- Function: resets linkset index to 0 (starts over)
+ Title   : rewind_docsums
+ Usage   : $ds->rewind_docsums;
+ Function: resets docsum index to 0 (starts over)
  Returns : None
  Args    : None
 
 =cut
 
-sub rewind_linksets{
+sub rewind_docsums{
     my $self = shift;
     $self->{'_docsumindex'} = 0;
 }
