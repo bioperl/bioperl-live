@@ -55,86 +55,23 @@ all related ID's from each database (see method get_db_ids to retrieve these)
 
 =item C<id>
 
-a list of primary ID's (see below)
-
-=item C<reldate>
-
-limits results to the number of days preceding today's date
-
-=item C<mindate>, C<maxdate>
-
-limits results by dates (C<yyyy/mm/dd> format, or by year)
-
-=item C<term>
-
-limits results by Entrez query (only valid when C<cmd=neighbor> within a single
-database)
+a list of primary ID's
 
 =item C<retmode>
 
-set to XML, but can be changed to ref when needed
+set to XML by default
+
+=item C<retstart>
+
+Set the starting record
+
+=item C<retmax>
+
+Set maximum number of returned records
 
 =item C<cookie>
 
-a Bio::DB::EUtilities::Cookie object (see below)
-
-=item C<cmd>
-
-command values (see below)
-
-=item C<holding>
-
-list LinkOut URLs for specified holding provider; used with C<cmd=llinks>
-or C<cmd=llinkslib> (rarely used)
-
-=back
-
-=head2 Command Values
-
-Command values are set using the C<cmd> parameter.  
-
-=over 3
-
-=item C<prlinks>
-
-List the hyperlink to the primary LinkOut provider for multiple IDs and
-database. Each ID is processed separately.
-
-=item C<prlinks&retmode=ref>
-
-Create a hyperlink to the primary LinkOut provider for a single ID and database.
-
-=item C<llinks>
-
-List LinkOut URLs and Attributes, except PubMed libraries, for multiple IDs
-and database. Each ID is processed separately.
-
-=item C<llinkslib>
-
-List LinkOut URLs and Attributes for multiple IDs and database.  Each ID is
-processed separately.
-
-=item C<lcheck>
-
-Check for the existence (Y or N) of an external link in for multiple IDs and
-database.
-
-=item C<ncheck>
-
-Check for the existence of a neighbor link for each ID within a database,
-e.g., Related Articles in PubMed.
-
-=item C<neighbor>
-
-The default setting. Display neighbors and their scores within a database.
-
-=item C<neighbor_history>
-
-Create history (WebEnv & query_key) for use in other EUtilities.
-
-=item C<acheck>
-
-Lists Entrez databases links for multiple IDs from a single database.
+a Bio::DB::EUtilities::Cookie object
 
 =back
 
@@ -223,7 +160,6 @@ sub parse_response {
         $self->warn('No returned docsums.');
         return;
     }
-    print STDERR "reference:",ref($simple->{DocSum}),"\n";
     for my $data (@{ $simple->{DocSum} }) {
         my $ds = Bio::DB::EUtilities::DocSum->new(-verbose => $self->verbose);
         $ds->_add_data($data->{Item}) if exists $data->{Item};

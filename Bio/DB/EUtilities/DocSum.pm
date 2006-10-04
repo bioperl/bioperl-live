@@ -110,7 +110,7 @@ sub _add_data {
         }
         push @{$self->{'_docdata'}}, {'Name' => $name,
                                       'Type' => $type,
-                                      'Content' => $content};
+                                      'Content' => $content || ''};
     }
     return;
 }
@@ -172,79 +172,16 @@ sub get_item_by_name {
  Title   : next_docsum_item
  Usage   : while ($esum->next_docsum_item) {;
  Function: set the index value for the next item in the DocSum list
- Returns : none
+ Returns : hash containing docsum item data (Name, Type, Content)
  Args    : none
 
 =cut
 
 sub next_docsum_item {
     my $self = shift;
-    my $index = @#{ $self->{'_docdata'}};
-    if ($self->{'_itemindex'} < $index) {    
-        $self->{'_itemindex'}++;
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-=head2 name
-
- Title   : name
- Usage   : $name = $esum->name();
- Function: get the name of the current DocSum item
-           (iterated via next_docsum_item) 
- Returns : string
- Args    : none
-
-=cut
-
-sub name {
-    my $self = shift;
-    if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
-        return $self->{'_docdata'}->[$self->{'_itemindex'}]->{Name};
-    } else {
-        return;
-    }
-}
-
-=head2 type
-
- Title   : type
- Usage   : $type = $esum->type();
- Function: get the type of the current DocSum item
-           (iterated via next_docsum_item) 
- Returns : string
- Args    : none
-
-=cut
-
-sub type {
-    my $self = shift;
-    if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
-        return $self->{'_docdata'}->[$self->{'_itemindex'}]->{Type};
-    } else {
-        return;
-    };
-}
-
-=head2 content
-
- Title   : content
- Usage   : $content = $esum->content();
- Function: get the type of the current DocSum item
-           (iterated via next_docsum_item) 
- Returns : string or Bio::DB::EUtilities::DocSum object (dep. on type of content)
-           Most will be a string, but some item types include sublists
-           which are converted to DocSum objects themselves
- Args    : none
-
-=cut
-
-sub content {
-    my $self = shift;
-    if (exists $self->{'_docdata'}->[$self->{'_itemindex'}]) {
-        return $self->{'_docdata'}->[$self->{'_itemindex'}]->{Content};
+    my $index = $self->_next_item_index;
+    if (exists $self->{'_docdata'}->[$index]) {
+        return %{ $self->{'_docdata'}->[$index] };
     } else {
         return;
     }
@@ -265,6 +202,11 @@ sub rewind_docsum_items{
     my $self = shift;
     $self->{'_itemindex'} = 0;
     return;
+}
+
+sub _next_item_index{
+    my $self = shift;
+    return $self->{'_itemindex'}++;
 }
 
 1;
