@@ -14,7 +14,7 @@ use lib '..','.','./lib','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
-    $NUMTESTS = 675;
+    $NUMTESTS = 756;
     $error = 0;
     $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
     # this seems to work for perl 5.6 and perl 5.8
@@ -216,9 +216,13 @@ SKIP: {
 									 -id            => \@ids,
 									   );
 	isa_ok($eutil, 'Bio::DB::GenericWebDBI');
+	
 	eval {$response = $eutil->get_response; };
-	skip("ESummary HTTP error:$@", 2) if $@;
+	skip("ESummary HTTP error:$@", 20) if $@;
 	isa_ok($response, 'HTTP::Response');
+	
+	my @docs = $eutil->get_all_docsums();
+	is(scalar(@docs), 5, '$esum->get_all_docsums()');
 	while (my $ds = $eutil->next_docsum) {
 		isa_ok($ds, 'Bio::DB::EUtilities::DocSum');
 		
@@ -235,11 +239,15 @@ SKIP: {
 			is($data{Name}, $item->[0], 'get_all_names(),DocSum Name');
 			is($data{Type}, $item->[1], 'get_all_names(),DocSum Type');
 			is($data{Content}, $item->[2], 'get_all_names(),DocSum Content');
+			is($ds->get_Type_by_name($name), $item->[1],
+			   'get_all_names(),get_Type_by_name()');
+			is($ds->get_Content_by_name($name), $item->[2],
+			   'get_all_names(),get_Content_by_name()');
 		}
 
 		@items = @{ $docsum{$id} };
 		
-		# iterating through each item
+		# iterating through each item (only first 3)
 		my $ct = 0;
 		while (my %data = $ds->next_docsum_item()) {
 			my $item = shift @items;
@@ -253,13 +261,13 @@ SKIP: {
 		$ds->rewind_docsum_items;
 		
 		@items = @{ $docsum{$id} };
-		$ct = 0;
+		# just check the first one...
 		while (my %data = $ds->next_docsum_item) {
 			my $item = shift @items;
 			is($data{Name}, $item->[0], 'rewind_docsum_items(),DocSum Name');
 		    is($data{Type}, $item->[1], 'rewind_docsum_items(),DocSum Type');
 		    is($data{Content}, $item->[2], 'rewind_docsum_items(),DocSum Content');
-			last if $ct++ == 2;;
+			last;
 		}
 	}
 }
@@ -794,3 +802,4 @@ SKIP: {
     isa_ok($response, 'HTTP::Response');
     like($response->content, qr(<eGQueryResult>), 'EGQuery response');
 }
+
