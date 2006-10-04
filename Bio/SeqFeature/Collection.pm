@@ -22,8 +22,9 @@ range, that match a certain feature type, etc.
   use Bio::Location::Simple;
   use Bio::Tools::GFF;
   use Bio::Root::IO;
+  use File::Spec;
   # let's first input some features
-  my $gffio = Bio::Tools::GFF->new(-file => Bio::Root::IO->catfile
+  my $gffio = Bio::Tools::GFF->new(-file => File::Spec->catfile
   				 ("t","data","myco_sites.gff"),
   				 -gff_version => 2);
   my @features = ();

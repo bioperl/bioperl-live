@@ -70,7 +70,7 @@ methods are usually preceded with an "_" (underscore).
 # Let the code begin...
 package Bio::DB::Flat;
 
-use Bio::Root::IO;
+use File::Spec;
 
 use base qw(Bio::Root::Root Bio::DB::RandomAccessI);
 
@@ -147,7 +147,7 @@ sub new {
     unless -e $flat_directory;
   $self->throw("$flat_directory isn't a directory")
     unless -d _;
-  my $dbpath = Bio::Root::IO->catfile($flat_directory,$dbname);
+  my $dbpath = File::Spec->catfile($flat_directory,$dbname);
   unless (-d $dbpath) {
     $self->debug("creating db directory $dbpath\n");
     mkdir $dbpath,0777 or $self->throw("Can't create $dbpath: $!");
@@ -504,7 +504,7 @@ sub _config_path {
 sub _catfile {
   my $self = shift;
   my $component = shift;
-  Bio::Root::IO->catfile($self->directory,$self->dbname,$component);
+  File::Spec->catfile($self->directory,$self->dbname,$component);
 }
 
 sub _config_name { CONFIG_FILE_NAME }

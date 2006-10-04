@@ -506,7 +506,7 @@ sub program_path {
     push @path, $self->program_dir if $self->program_dir;
     push @path, $program_name .($^O =~ /mswin/i ?'.exe':'');
 
-    return Bio::Root::IO->catfile(@path);
+    return File::Spec->catfile(@path);
 }
 
 =head2 program_dir

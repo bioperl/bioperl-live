@@ -57,7 +57,7 @@ The rest of the documentation details each of the object methods. Internal metho
 #'
 package Bio::Factory::DriverFactory;
 use strict;
-use Bio::Root::IO;
+use File::Spec;
 
 use vars qw(%DRIVERS);
 
@@ -169,9 +169,7 @@ sub _load_module {
     return 1 if $main::{$module};
     $load = "$name.pm";
 
-    my $io = new Bio::Root::IO();
-    # catfile comes from IO
-    $load = $io->catfile((split(/::/,$load)));
+    $load = File::Spec->catfile((split(/::/,$load)));
     eval {
 	require $load;
     };

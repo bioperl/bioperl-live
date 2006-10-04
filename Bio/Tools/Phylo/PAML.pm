@@ -179,6 +179,7 @@ BEGIN {
 
 # other objects used:
 use IO::String;
+use File::Spec;
 use Bio::TreeIO;
 use Bio::Tools::Phylo::PAML::Result;
 use Bio::PrimarySeq;
@@ -1294,7 +1295,7 @@ sub _parse_rst {
   my ($self) = @_;
   return unless $self->{'_dir'} && -d $self->{'_dir'} && -r $self->{'_dir'};
 
-  my $rstfile = Bio::Root::IO->catfile($self->{'_dir'},$RSTFILENAME);
+  my $rstfile = File::Spec->catfile($self->{'_dir'},$RSTFILENAME);
   return unless -e $rstfile && ! -z $rstfile;
   
   my $rstio = Bio::Root::IO->new(-file => $rstfile);

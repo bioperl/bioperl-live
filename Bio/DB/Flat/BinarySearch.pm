@@ -201,6 +201,7 @@ use Fcntl qw(SEEK_END SEEK_CUR);
 sub systell{ sysseek($_[0], 0, SEEK_CUR) }
 sub syseof{ sysseek($_[0], 0, SEEK_END) }
 
+use File::Spec;
 use Bio::Root::RootI;
 use Bio::SeqIO;
 use Bio::Seq;
@@ -210,6 +211,7 @@ use base qw(Bio::DB::RandomAccessI);
 use constant CONFIG_FILE_NAME => 'config.dat';
 use constant HEADER_SIZE      => 4;
 use constant DEFAULT_FORMAT   => 'fasta';
+
 my @formats = ['FASTA','SWISSPROT','EMBL'];
 
 =head2 new
@@ -723,7 +725,7 @@ sub build_index {
 	$self->throw("Index directory [$rootdir] is not a directory. Cant' build indices");
     }
 
-    my $dbpath = Bio::Root::IO->catfile($rootdir,$self->dbname);
+    my $dbpath = File::Spec->catfile($rootdir,$self->dbname);
     if (! -d $dbpath) {
       warn "Creating directory $dbpath\n";
       mkdir $dbpath,0777 or $self->throw("Couldn't create $dbpath: $!");
@@ -1022,7 +1024,7 @@ sub new_secondary_filehandle {
 
     my $indexdir = $self->_config_path;
 
-    my $secindex = Bio::Root::IO->catfile($indexdir,"id_$name.index");
+    my $secindex = File::Spec->catfile($indexdir,"id_$name.index");
 
     open(my $fh,">", $secindex) || $self->throw($!);
     return $fh;
@@ -1358,7 +1360,7 @@ sub get_filehandle_by_fileid {
 sub primary_index_file {
     my ($self) = @_;
 
-    return Bio::Root::IO->catfile($self->_config_path,"key_" . $self->primary_namespace . ".key");
+    return File::Spec->catfile($self->_config_path,"key_" . $self->primary_namespace . ".key");
 }
 
 =head2 primary_index_filehandle
@@ -1479,13 +1481,13 @@ sub _config_path {
   my $self = shift;
   my $root = $self->index_directory;
   my $dbname = $self->dbname;
-  Bio::Root::IO->catfile($root,$dbname);
+  File::Spec->catfile($root,$dbname);
 }
 
 sub _config_file {
   my $self = shift;
   my $path = $self->_config_path;
-  Bio::Root::IO->catfile($path,CONFIG_FILE_NAME);
+  File::Spec->catfile($path,CONFIG_FILE_NAME);
 }
 
 =head2 record_size

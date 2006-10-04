@@ -20,8 +20,9 @@ Bio::Cluster::SequenceFamily - Sequence Family object
 
   use Bio::SeqIO;
   use Bio::Cluster::SequenceFamily;
+  use File::Spec;
 
-  my $file =  Bio::Root::IO->catfile('t','data','swiss.dat');
+  my $file =  File::Spec->catfile('t','data','swiss.dat');
   my $seqio= new Bio::SeqIO(-format => 'swiss',
                             -file => $file);
   my @mem;
@@ -93,7 +94,6 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Cluster::SequenceFamily;
 
 use strict;
-
 
 use base qw(Bio::Root::Root Bio::Cluster::FamilyI);
 

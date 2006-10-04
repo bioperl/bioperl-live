@@ -133,7 +133,7 @@ sub new {
 
     $self->{'filename'} = $args{'-acefile'};
 
-    # this is special to UNIX and should probably use catfile : FIXME/TODO
+    # this is special to UNIX and should probably use catfile : DONE!
 #    if (!($self->{'filename'} =~ m{/})) { 
 #	$self->{'filename'} = "./".$self->{'filename'}; 
 #    } 
@@ -232,7 +232,7 @@ sub count_sequences_with_grep {
     opendir(my $SINGLETS,$self->{'path'});
     foreach my $f ( readdir($SINGLETS) ) {
 	next unless ($f =~ /\.singlets$/); 
-	open(my $FILE, $self->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".$self->catfile($self->{'path'},$f)); next };
+	open(my $FILE, File::Spec->catfile($self->{'path'},$f)) or do{ $self->warn("cannot open file ".File::Spec->catfile($self->{'path'},$f)); next };
 	while(<$FILE>) { $counter++ if(/^>/) }
 	close $FILE;
     }

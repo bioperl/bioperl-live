@@ -142,6 +142,7 @@ This software is provided "as is" without warranty of any kind.
 package Bio::Tools::BPpsilite;
 
 use strict;
+use File::Spec;
 use Bio::Tools::BPlite::Iteration; #
 use Bio::Tools::BPlite::Sbjct; #   Debug code
 use Bio::Tools::BPlite; 
@@ -258,7 +259,7 @@ sub number_of_iterations {
 sub round {
   my $self = shift;
   my $iter_num = shift;
-  $self->_initialize_io(-file => Bio::Root::IO->catfile
+  $self->_initialize_io(-file => File::Spec->catfile
 			($self->{'_tempdir'},"iteration".$iter_num.".tmp"));
   if( ! $self->_fh ) {
       $self->throw("unable to re-open iteration file for round ".$iter_num);
@@ -325,7 +326,7 @@ sub _preprocess {
 
 	# open output file for data from iteration round #1
 	$round = 1;
-	$currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
+	$currentfile = File::Spec->catfile($self->{'_tempdir'}, 
 					  "iteration$round.tmp");
 	open (my $FILEHANDLE, ">$currentfile") || 
 	  $self->throw("cannot open filehandle to write to file $currentfile");
@@ -336,8 +337,7 @@ sub _preprocess {
 				close ($FILEHANDLE);
 			}
 			$round = $1;
-			$currentfile = Bio::Root::IO->catfile($self->{'_tempdir'}, 
-															  "iteration$round.tmp");
+			$currentfile = File::Spec->catfile($self->{'_tempdir'}, "iteration$round.tmp");
 
 			close $FILEHANDLE;
 			open ($FILEHANDLE, ">$currentfile") || 

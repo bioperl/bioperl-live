@@ -73,9 +73,10 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Root::IO;
-
 use base qw(Bio::Root::RootI);
+
+use File::Spec;
+use File::Path qw(); # don't import anything
 
 =head2 run
 
@@ -234,9 +235,9 @@ sub tempdir{
 sub cleanup{
    my ($self) = @_;
    $self->io->_io_cleanup();
-   if( defined $self->{'_tmpdir'} &&
-       -d $self->{'_tmpdir'} ) {
-       $self->io->rmtree($self->{'_tmpdir'});
+   if( defined $self->{'_tmpdir'} && -d $self->{'_tmpdir'} ) {
+       # $self->io->rmtree($self->{'_tmpdir'});
+       File::Path->rmtree( $self->{'_tmpdir'} );
    }
 }
 
@@ -326,7 +327,7 @@ sub program_path {
     push @path, $self->program_dir if $self->program_dir;
     push @path, $self->program_name.($^O =~ /mswin/i ?'.exe':'');
 
-    return Bio::Root::IO->catfile(@path);
+    return File::Spec->catfile(@path);
 }
 
 =head2 program_dir
