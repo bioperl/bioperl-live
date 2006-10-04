@@ -453,9 +453,21 @@ sub class {
   return defined($d) ? $d : 'Sequence';  # acedb is still haunting me - LS
 }
 
+# set GFF dumping version
+sub version {
+  my $self = shift;
+  my $d    = $self->{gff3_version} || 2;
+  $self->{gff3_version} = shift if @_;
+  $d;
+}
+
 sub gff_string {
   my $self    = shift;
   my $recurse = shift;
+
+  if ($self->version == 3) {
+    return $self->gff3_string(@_);
+  }
 
   my $name  = $self->name;
   my $class = $self->class;
