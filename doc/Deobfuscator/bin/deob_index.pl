@@ -294,6 +294,7 @@ use File::Find;
 use DB_File;
 use IO::File;
 use Getopt::Std;
+use File::Spec;
 
 # GetOpt::Std-related settings
 $Getopt::Std::STANDARD_HELP_VERSION = 1;
@@ -309,14 +310,13 @@ USAGE: deob_index.pl [-x] <BioPerl lib dir> <output dir>
 
 where 
 
-<BioPerl lib dir> is the full path of the BioPerl distribution
-you'd like to index
+<BioPerl lib dir> is the BioPerl distribution you'd like to index
 
     e.g. /export/share/lib/perl5/site_perl/5.8.7/Bio/
     
 and
 
-<output dir> is the path where the output files should be placed
+<output dir> is where the output files should be placed
 
 OPTIONS:
 -x    excluded modules file (a module paths to skip; see POD for details)
@@ -325,6 +325,16 @@ OPTIONS:
 unless ( @ARGV == 2 ) { die $usage; }
 
 my ( $source_dir, $dest_dir ) = @ARGV;
+
+# check source_dir for full path and repair if it's a relative path
+unless ( File::Spec->file_name_is_absolute( $source_dir ) ) {
+    $source_dir = File::Spec->rel2abs( $source_dir ) ;
+}
+
+# check dest_dir for full path and repair if it's a relative path
+unless ( File::Spec->file_name_is_absolute( $dest_dir ) ) {
+    $dest_dir = File::Spec->rel2abs( $dest_dir ) ;
+}
 
 # NOTE: we're allowing only one source directory, but File::Find supports
 # passing an array of dirs.
@@ -350,21 +360,21 @@ if (defined $opt_x) {
 my $list; # filehandle
 my $list_file = $dest_dir . "/package_list.txt";
 if ( -e $list_file) { unlink($list_file); }
-open $list, ">$list_file" or die "couldn't open $list_file:$!\n";
+open $list, ">$list_file" or die "deob_index.pl: couldn't open $list_file:$!\n";
 my @list_holder; # hold all package names so we can sort them before writing.
 
 # record misbehaving BioPerl docs to a file
 my $log;    # filehandle
 my $logfile = $dest_dir . "/deob_index.log";
-open $log, ">$logfile" or die "couldn't open $logfile:$!\n";
+open $log, ">$logfile" or die "deob_index.pl: couldn't open $logfile:$!\n";
 
 # create databases
 my $meth_file = $dest_dir . '/methods.db';
 if ( -e $meth_file ) { unlink($meth_file); }    # remove for production?
-my $meth_db = create_db($meth_file) or die "couldn't create $meth_file: $!\n";
+my $meth_db = create_db($meth_file) or die "deob_index.pl: couldn't create $meth_file: $!\n";
 my $pkg_file = $dest_dir . '/packages.db';
 if ( -e $pkg_file ) { unlink($pkg_file); }      # remove for production?
-my $pkg_db = create_db($pkg_file) or die "couldn't create $pkg_file: $!\n";
+my $pkg_db = create_db($pkg_file) or die "deob_index.pl: couldn't create $pkg_file: $!\n";
 
 # used to make sure we're parsing in the right order
 my %FLAG;
@@ -401,10 +411,10 @@ foreach my $stat ( 'files', 'pkg_name', 'desc', 'synopsis', 'methods' ) {
 }
 
 # close files and DBs
-untie $meth_db or die "couldn't close $meth_file: $!\n";
-untie $pkg_db  or die "couldn't close $pkg_file: $!\n";
-close $list    or die "couldn't close $list: $!\n";
-close $log     or die "couldn't close $log: $!\n";
+untie $meth_db or die "deob_index.pl: couldn't close $meth_file: $!\n";
+untie $pkg_db  or die "deob_index.pl: couldn't close $pkg_file: $!\n";
+close $list    or die "deob_index.pl: couldn't close $list: $!\n";
+close $log     or die "deob_index.pl: couldn't close $log: $!\n";
 my $mode = 0666;
 chmod($mode, $pkg_file, $meth_file, $list_file);
 
@@ -428,7 +438,7 @@ sub extract_pod {
 
     $stats{'files'}++;
 
-    open my $fh, $File::Find::name or die "couldn't open $file:$!\n";
+    open my $fh, $File::Find::name or die "deob_index.pl: couldn't open $file:$!\n";
 
     # these have to be done in order
     my ( $pkg_name, $short_desc ) = get_pkg_name($fh);
