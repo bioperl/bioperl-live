@@ -658,7 +658,10 @@ sub target {
   my @result;
   for my $t (@targets) {
     my ($seqid,$start,$end,$strand) = split /\s+/,$t;
-    $strand ||= +1;
+    $strand ||= '';
+    $strand = $strand eq '+' ? 1
+              : $strand eq '-' ? -1
+	      : 0;
     push @result,Bio::DB::SeqFeature::Segment->new($self->object_store,
 						   $seqid,
 						   $start,
