@@ -213,6 +213,7 @@ occupy only a single memory location upon restoration.
 
 
 use strict;
+use warnings;
 
 use base 'Bio::SeqFeature::CollectionI';
 use Carp 'croak';
@@ -2199,7 +2200,7 @@ sub freeze {
     $d->Deepcopy(1);
     $data = $d->Dump;
   } elsif ($serializer eq 'Storable') {
-    $data = Storable::freeze($obj);
+    $data = Storable::nfreeze($obj);
   }
 
   $obj->primary_id($id);       # restore to original state
