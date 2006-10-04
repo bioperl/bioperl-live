@@ -115,7 +115,7 @@ sub _initialize {
 sub next_tree {
     my ($self) = @_;
     if( ! $self->{_result} ){
-	$self->warn("Must have provided value 'result' and 'linkdist' and 'labels' when initializing a TreeIO::cluster object");
+	$self->warn("Must provide value 'result' and 'linkdist' and 'labels' when initializing a TreeIO::cluster object");
 	return;
     }
     $self->_eventHandler->start_document();

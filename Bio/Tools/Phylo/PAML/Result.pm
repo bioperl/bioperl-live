@@ -195,7 +195,7 @@ sub new {
   $self->reset_seqs;
   if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
-	  $self->warn("Must have provided a valid array reference to initialize trees");
+	  $self->warn("Must provide a valid array reference to initialize trees");
       } else { 
 	  foreach my $t ( @$trees ) {
 	      $self->add_tree($t);
@@ -206,14 +206,14 @@ sub new {
 
   if( $mlmat ) {
       if( ref($mlmat) !~ /ARRAY/i ) {
-	  $self->warn("Must have provided a valid array reference to initialize MLmatrix");
+	  $self->warn("Must provide a valid array reference to initialize MLmatrix");
       } else { 
 	  $self->set_MLmatrix($mlmat);
       }
   } 
   if( $seqs ) { 
       if( ref($seqs) !~ /ARRAY/i ) {
-	  $self->warn("Must have provided a valid array reference to initialize seqs");
+	  $self->warn("Must provide a valid array reference to initialize seqs");
       } else {
 	  foreach my $s ( @$seqs ) {
 	      $self->add_seq($s);
@@ -222,7 +222,7 @@ sub new {
   }
   if( $ngmatrix ) {
       if( ref($ngmatrix) !~ /ARRAY/i ) {
-	  $self->warn("Must have provided a valid array reference to initialize NGmatrix");
+	  $self->warn("Must provide a valid array reference to initialize NGmatrix");
       } else { 
 	  $self->set_NGmatrix($ngmatrix);
       }
@@ -231,13 +231,13 @@ sub new {
       if( ref($codonfreq) =~ /ARRAY/i ) {
 	  $self->set_CodonFreqs($codonfreq);
       } else { 
-	  $self->warn("Must have provided a valid array reference to initialize codonfreq");
+	  $self->warn("Must provide a valid array reference to initialize codonfreq");
       }
   }
 
   if( $codonpos ) {
       if( ref($codonpos) !~ /ARRAY/i ) {
-	  $self->warn("Must have provided a valid array reference to initialize codonpos");
+	  $self->warn("Must provide a valid array reference to initialize codonpos");
       } else { 
 	  $self->set_codon_pos_basefreq(@$codonpos);
       }
@@ -250,7 +250,7 @@ sub new {
       if( ref($patterns) =~ /HASH/i ) {
 	  $self->patterns($patterns);
       } else {
-	  $self->warn("Must have provided a valid array reference to initialize patterns");
+	  $self->warn("Must provide a valid array reference to initialize patterns");
       }
   }
 
@@ -259,7 +259,7 @@ sub new {
       if( ref($aafreq) =~ /HASH/i ) {
 	  $self->set_AAFreqs($aafreq);
       } else { 
-	  $self->warn("Must have provided a valid hash reference to initialize aafreq");
+	  $self->warn("Must provide a valid hash reference to initialize aafreq");
       }
   }
   if( $stats ) {
@@ -268,7 +268,7 @@ sub new {
 	      $self->add_stat($stat,$val);
 	  }
       } else { 
-	  $self->warn("Must have provided a valid hash reference initialize stats");
+	  $self->warn("Must provide a valid hash reference initialize stats");
       }
   }
   $self->set_AADistMatrix($aadistmat) if defined $aadistmat;
@@ -289,7 +289,7 @@ sub new {
       if( ref($ntfreqs) =~ /HASH/i ) {
 	  $self->set_NTFreqs($ntfreqs);
       } else { 
-	  $self->warn("Must have provided a valid hash reference to initialize ntfreq");
+	  $self->warn("Must provide a valid hash reference to initialize ntfreq");
       }
   }
 
@@ -302,7 +302,7 @@ sub new {
 
   if( $input_params ) {
       if(  ref($input_params) !~ /HASH/i ) {
-	  $self->warn("need a valid HASH object for input_params\n");
+	  $self->warn("Must provide a valid hash object for input_params\n");
       } else {
 	  while( my ($p,$v) = each %$input_params ) {
 	      $self->set_input_parameter($p,$v);

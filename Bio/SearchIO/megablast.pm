@@ -145,7 +145,7 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
     my ($fmt) = $self->_rearrange([qw(REPORT_FORMAT)], @args);
 
-    $self->throw("Must have provided a value for -report_format when initializing a megablast parser") unless defined $fmt ;
+    $self->throw("Must provide a value for -report_format when initializing a megablast parser") unless defined $fmt ;
     $self->report_format($fmt);
     return 1;
 }

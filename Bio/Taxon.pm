@@ -286,7 +286,7 @@ sub db_handle {
         my $db = shift;
         
         if (! ref($db) || ! $db->isa('Bio::DB::Taxonomy')) {
-            $self->throw("Must have provided a valid Bio::DB::Taxonomy object");
+            $self->throw("Must provide a valid Bio::DB::Taxonomy object to db_handle()");
         }
         if (!$self->{'db_handle'} || ($self->{'db_handle'} && $self->{'db_handle'} ne $db)) {
             my $new_self = $self->_get_similar_taxon_from_db($self, $db);

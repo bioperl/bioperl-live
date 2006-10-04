@@ -111,7 +111,7 @@ sub new {
   if( defined $name) {
       $self->name($name);
   } else { 
-      $self->throw("Must have provided a name when initializing a Marker");
+      $self->throw("Must provide a name when initializing a Marker");
   }
   defined $desc && $self->description($desc);
   defined $type && $self->type($type);

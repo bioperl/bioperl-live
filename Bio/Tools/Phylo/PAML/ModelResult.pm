@@ -142,7 +142,7 @@ sub new {
 						 @args);
   if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
-	  $self->warn("Must have provided a valid array reference to initialize trees");
+	  $self->warn("Must provide a valid array reference to initialize trees");
       } else { 
 	  foreach my $t ( @$trees ) {
 	      $self->add_tree($t);
@@ -152,11 +152,11 @@ sub new {
   $self->{'_treeiterator'} = 0;
   if( $pos_sites ) {
       if(ref($pos_sites) !~ /ARRAY/i ) { 
-	  $self->warn("Must have provided a valid array reference to initialize pos_sites");
+	  $self->warn("Must provide a valid array reference to initialize pos_sites");
       } else { 
 	  foreach my $s ( @$pos_sites ) {
 	      if( ref($s) !~ /ARRAY/i ) {
-		  $self->warn("need an array ref for each entry in the pos_sites object");
+		  $self->warn("Need an array reference for each entry in the pos_sites object");
 		  next;
 	      }
 	      $self->add_pos_selected_site(@$s);
@@ -165,7 +165,7 @@ sub new {
   }
   if( $beb_sites ) {
     if(ref($beb_sites) !~ /ARRAY/i ) { 
-	  $self->warn("Must have provided a valid array reference to initialize beb_sites");
+	  $self->warn("Must provide a valid array reference to initialize beb_sites");
       } else { 
 	  foreach my $s ( @$beb_sites ) {
 	      if( ref($s) !~ /ARRAY/i ) {
@@ -178,7 +178,7 @@ sub new {
   }
   if( $neb_sites ) {
     if(ref($neb_sites) !~ /ARRAY/i ) { 
-	  $self->warn("Must have provided a valid array reference to initialize neb_sites");
+	  $self->warn("Must provide a valid array reference to initialize neb_sites");
       } else { 
 	  foreach my $s ( @$neb_sites ) {
 	      if( ref($s) !~ /ARRAY/i ) {

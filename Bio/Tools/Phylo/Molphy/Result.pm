@@ -133,7 +133,7 @@ sub new {
 
   if( $trees ) {
       if(ref($trees) !~ /ARRAY/i ) { 
-	  $self->warn("Must have provided a valid array reference to initialize trees");
+	  $self->warn("Must provide a valid array reference to initialize trees");
       } else {
 	  foreach my $t ( @$trees ) {
 	      $self->add_tree($t);
