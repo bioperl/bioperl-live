@@ -2,12 +2,12 @@
 # $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $error);
+use vars qw($NUMTESTS $DEBUG);
+use File::Spec;
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
 	$NUMTESTS = 98;
-	$error = 0;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -22,20 +22,15 @@ BEGIN {
 	if ($@) {
 		plan skip_all => 'Requires XML::Twig; skipping...';
 	}
-    else {
+        else {
 		plan tests => $NUMTESTS;
 	}
 }
 
 END {
-    unlink("t/data/taxdump/nodes");
-    unlink("t/data/taxdump/parents");
-    unlink("t/data/taxdump/id2names");
-    unlink("t/data/taxdump/names2id");
-}
-
-if ($error ==  1) {
-    exit(0);
+    for my $filename (qw(nodes parents id2names names2id)) {
+	unlink File::Spec->catfile('t','data','taxdump', $filename);
+    }
 }
 
 use_ok('Bio::DB::Taxonomy');
@@ -44,16 +39,13 @@ use_ok('Bio::Tree::Tree');
 # we're actually testing Bio::Taxon and Bio::DB::Taxonomy::* here, not
 # Bio::Taxonomy
 
-my $db_entrez = new Bio::DB::Taxonomy(-source => 'entrez');
-ok $db_entrez;
+ok my $db_entrez = Bio::DB::Taxonomy->new(-source => 'entrez');
 
-my $dir = "t/data/taxdump";
-my $db_flatfile = new Bio::DB::Taxonomy(-source => 'flatfile',
-                               -directory => $dir,
-                               -nodesfile => Bio::Root::IO->catfile('t','data','taxdump','nodes.dmp'),
-                               -namesfile => Bio::Root::IO->catfile('t','data','taxdump','names.dmp'),
+ok my $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
+                               -directory => File::Spec->catdir ('t','data','taxdump'),
+                               -nodesfile => File::Spec->catfile('t','data','taxdump','nodes.dmp'),
+                               -namesfile => File::Spec->catfile('t','data','taxdump','names.dmp'),
                                -force => 1);
-ok $db_flatfile;
 
 my $n;
 foreach my $db ($db_entrez, $db_flatfile) {
@@ -107,11 +99,11 @@ foreach my $db ($db_entrez, $db_flatfile) {
         is $n2->scientific_name, 'Craniata';
         
         # briefly check we can use some Tree methods
-        my $tree = new Bio::Tree::Tree();
+        my $tree = Bio::Tree::Tree->new();
         is $tree->get_lca($n, $n2)->scientific_name, 'Craniata';
         
         # can we actually form a Tree and use other Tree methods?
-        ok $tree = new Bio::Tree::Tree(-node => $n);
+        ok $tree = Bio::Tree::Tree->new(-node => $n);
         is $tree->number_nodes, 30;
         is $tree->get_nodes, 30;
         is $tree->find_node(-rank => 'genus')->scientific_name, 'Homo';
@@ -144,7 +136,7 @@ foreach my $db ($db_entrez, $db_flatfile) {
 # Test the list database
 my @ranks = qw(superkingdom class genus species);
 my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-my $db_list = new Bio::DB::Taxonomy(-source => 'list', -names => \@h_lineage,
+my $db_list = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
                                                        -ranks => \@ranks);
 ok $db_list;
 
@@ -173,7 +165,7 @@ $h_list->db_handle($db_list);
 my $ancestors_ancestor = $h_list->ancestor->ancestor;
 is $ancestors_ancestor->scientific_name, 'Mammalia';
 
-my $tree = new Bio::Tree::Tree(-node => $h_list);
+my $tree = Bio::Tree::Tree->new(-node => $h_list);
 $h_list->db_handle($db_flatfile);
 $ancestors_ancestor = $h_list->ancestor->ancestor;
 is $ancestors_ancestor->scientific_name, 'Mammalia';
@@ -193,7 +185,7 @@ SKIP: {
     eval { $h_entrez = $db_entrez->get_taxon(-name => 'Homo sapiens');};
     skip "Unable to connect to entrez database; no network or server busy?", 5 if $@;
     
-    ok my $tree_functions = new Bio::Tree::Tree();
+    ok my $tree_functions = Bio::Tree::Tree->new();
     is $tree_functions->get_lca($h_flat, $h_entrez)->scientific_name, 'Homo';
     
     # even though the species taxa for Homo sapiens from list and flat databases
@@ -205,7 +197,7 @@ SKIP: {
 
     # but we can form a tree with the flat node then remove all the ranks we're
     # not interested in and try again
-    $tree = new Bio::Tree::Tree(-node => $h_flat);
+    $tree = Bio::Tree::Tree->new(-node => $h_flat);
     $tree->splice(-keep_rank => \@ranks);
     is $tree->get_lca($h_flat, $h_list)->scientific_name, 'Homo';
 }
@@ -223,7 +215,7 @@ for my $name ('Human', 'Hominidae') {
 		$tree->merge_lineage($node);
     }
     else {
-		ok $tree = new Bio::Tree::Tree(-node => $node);
+		ok $tree = Bio::Tree::Tree->new(-node => $node);
     }
   }
 }
