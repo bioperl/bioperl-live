@@ -1392,7 +1392,11 @@ sub serializer {
     my $serializer = shift;
     eval "require $serializer; 1" or croak $@;
     $self->setting(serializer=>$serializer);
-    $Storable::forgive_me =1 if $serializer eq 'Storable';
+    if ($serializer eq 'Storable') {
+      $Storable::forgive_me =1;
+      $Storable::Deparse = 1;
+      $Storable::Eval    = 1;
+    }
   }
   $d;
 }
