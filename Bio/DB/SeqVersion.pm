@@ -52,6 +52,10 @@ the web:
 
 Email bosborne at alum.mit.edu
 
+=head1 CONTRIBUTORS
+
+Torsten Seemann - torsten.seemann AT infotech.monash.edu.au
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -63,14 +67,12 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion;
 use strict;
-use vars qw($MODVERSION $DEFAULTIDTYPE);
-use Bio::Root::Version;
-# use Bio::DB::WebAgent;
 
-$DEFAULTIDTYPE = 'gi';
-$MODVERSION = $Bio::Root::Version::VERSION;
+use base qw(Bio::WebAgent Bio::Root::Root);
 
-use base qw(Bio::Root::HTTPget Bio::Root::Root);
+# Private class variable
+
+my $DEFAULTIDTYPE = 'gi'; # sub default_id_type()
 
 =head2 new()
 
@@ -84,19 +86,23 @@ use base qw(Bio::Root::HTTPget Bio::Root::Root);
 sub new {
   my($class,@args) = @_;
 
-  if( $class =~ /Bio::DB::SeqVersion::(\S+)/ ) {
+  if( $class =~ /Bio::DB::SeqVersion::\S+/ ) {
     my ($self) = $class->SUPER::new(@args);
     $self->_initialize(@args);
     return $self;
-  } else {
+  } 
+  else {
     my %param = @args;
     @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-    my $type = $param{'-type'} || $DEFAULTIDTYPE;
 
-    $type = "\L$type";	# normalize capitalization to lower case
+    # we delete '-type' so it doesn't get passed to the sub-class constructor
+    # note: delete() returns the value of the item deleted (undef if non-existent)
+    my $type = lc( delete($param{'-type'}) || $DEFAULTIDTYPE );
 
     return unless( $class->_load_seqversion_module($type) );
-    return "Bio::DB::SeqVersion::$type"->new(@args);
+    
+    # we pass %param here, not @args, as we have filtered out -type
+    return "Bio::DB::SeqVersion::$type"->new(%param);
   }
 }
 

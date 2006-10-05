@@ -75,6 +75,10 @@ web:
 
 Email E<lt> osborne at optonline dot net E<gt>
 
+=head1 CONTRIBUTORS
+
+Torsten Seemann - torsten.seemann AT infotech.monash.edu.au
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object
@@ -86,14 +90,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SeqVersion::gi;
 use strict;
-use vars qw($MODVERSION $CGIBASE $CGIARGS $ua);
-use Bio::Root::Version;
 
 use base qw(Bio::DB::SeqVersion);
 
-$CGIBASE = 'http://www.ncbi.nlm.nih.gov';
-$CGIARGS = '/entrez/sutils/girevhist.cgi?val=';
-$MODVERSION = $Bio::Root::Version::VERSION;
+# Private class variables
+
+my $CGIBASE = 'http://www.ncbi.nlm.nih.gov';
+my $CGIARGS = '/entrez/sutils/girevhist.cgi?val=';
 
 =head2 new
 
@@ -204,15 +207,13 @@ sub _get_request {
   $self->throw("Must specify a single id to query") if  (!$id || ref($id));
 
   my $url = $CGIBASE . $CGIARGS . $id;
-  my $response;
-  eval { $response = $self->get( $url ); };
-  if ( $@ ) {
-    $self->warn("Can't query $url: $@");
+  my $response = $self->get( $url );
+  if ( not $response->is_success ) {
+    $self->warn("Can't query $url: ".$response->status_line."\n");
     return;
   }
-  $self->debug("Response is $response\n") if ( $self->verbose > 0); 
-
-  $response;
+  $self->debug("Response is:\n",$response->content,"\n"); 
+  return $response->content;
 }
 
 =head2 _process_data
@@ -226,10 +227,11 @@ sub _get_request {
 =cut
 
 sub _process_data {
-    my ($self,$html) = @_;    
-    my @table = ();
+         my ($self,$html) = @_;    
+         my @table = ();
 	 my $count = 0;
-	 my ($table) = $html =~ /Revision \s+ history \s+ for \s+ .+ (<table.+)/sx;
+	 my ($table) = $html =~ /Revision \s+ history \s+ for \s+ .+? (<table.+)/sx;
+	 $self->throw("Could not parse 'Revision history' HTML table") if not defined $table;
 	 my (@rows) = $table =~ /<tr>(.+?)<\/tr>/g;
 	 shift @rows; # get rid of header
 	 for my $row (@rows) {
