@@ -87,8 +87,9 @@ preceded with a _
 package Bio::DB::EUtilities::egquery;
 use strict;
 use warnings;
-
-use vars qw($EUTIL);
+use Data::Dumper;
+use XML::Simple;
+use Bio::DB::EUtilities::QueryData;
 
 use base qw(Bio::DB::EUtilities);
 
@@ -101,6 +102,7 @@ sub _initialize {
     # set by default
     $self->_eutil($EUTIL);
     $term	        && $self->term($term);
+	$self->{'_qdata'} = '';
 }
 
 =head2 parse_response
@@ -114,9 +116,30 @@ sub _initialize {
 
 =cut
 
-# EGQuery doesn't have error checking, so this is NOOP for now
-
 sub parse_response {
+    my $self    = shift;
+    my $response = shift if @_;
+    if (!$response || !$response->isa("HTTP::Response")) {
+        $self->throw("Need HTTP::Response object");
+    }
+    my $xs = XML::Simple->new();
+    my $simple = $xs->XMLin($response->content);
+	# strangely, no error checking according to the DTD
+    #$self->debug("Response dumper:\n".Dumper($simple));
+	if (exists $simple->{eGQueryResult}->{ResultItem}) {
+		my $qd = Bio::DB::EUtilities::QueryData->new(-verbose => $self->verbose);
+		$qd->query_term($self->term);
+		$qd->_add_data($simple->{eGQueryResult}->{ResultItem});
+		$self->debug("Object",Dumper($qd));
+		$self->{'_qdata'} = $qd;
+	} else {
+		$self->throw('No Query Data returned');
+	}
+}
+
+sub egquery_data {
+	my $self = shift;
+	return $self->{'_qdata'};
 }
 
 1;

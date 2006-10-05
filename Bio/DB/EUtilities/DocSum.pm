@@ -35,8 +35,12 @@ Bio::DB::EUtilities::DocSum
 
 =head1 DESCRIPTION
 
-This is a remedial object that acts as a container for DocSum data.  It
-is in the very early stages of development, so don't prod it or it may die!
+This is a remedial object that acts as a container for DocSum data from
+Bio::DB::EUtilities::esummary.  It is in the very early stages of
+development, so don't too be offended if the API changes.  It is possible
+the various EUtilities container objects will be reorganized to have a
+more consistent API; however, note that, due to the differences in the
+actual data this may be next to impossible.
 
 =head1 FEEDBACK
 

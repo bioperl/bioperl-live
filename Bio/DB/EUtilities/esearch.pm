@@ -68,8 +68,6 @@ use Bio::DB::EUtilities::Cookie;
 use XML::Simple;
 #use Data::Dumper;
 
-use vars qw($EUTIL);
-
 use base qw(Bio::DB::EUtilities);
 
 our $EUTIL = 'esearch';
@@ -162,9 +160,9 @@ sub parse_response {
 
  Title   : esearch_count
  Usage   : $count = $db->esearch_count;
- Function: return count of number of entries retrieved by query
+ Function: get/set count of number of entries retrieved by query
  Returns : integer
- Args    : none
+ Args    : OPTIONAL: integer to set to
 
 =cut
 

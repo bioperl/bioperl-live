@@ -18,11 +18,32 @@ Bio::DB::EUtilities::ElinkData
 
 =head1 SYNOPSIS
 
-*** Give standard usage here
+  my $elink = Bio::DB::EUtilities->new(-eutil        => 'elink',
+                                       -db           => 'protein,taxonomy',
+                                       -dbfrom       => 'pubmed',
+                                       -cookie       => $esearch->next_cookie,
+                                       -cmd          => 'neighbor');
+
+  # this retrieves the Bio::DB::EUtilities::ElinkData object
+
+  my ($linkset) = $elink->next_linkset;
+  my @ids;
+
+  # step through IDs for each linked database in the ElinkData object
+
+  for my $db ($linkset->get_databases) {   
+    @ids = $linkset->get_LinkIds_by_db($db); #returns primary ID's
+    # do something here
+  }
+
 
 =head1 DESCRIPTION
 
-*** Describe the object here
+This is a remedial object that acts as a container for ELink data.  It
+is in the very early stages of development, so don't be too offended if the
+API changes.  It is possible the various EUtilities container objects will
+be reorganized to have a more consistent API; however, note that, due to
+the differences in the actual data this may be next to impossible.
 
 =head1 FEEDBACK
 
