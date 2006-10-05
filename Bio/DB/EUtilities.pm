@@ -660,6 +660,7 @@ sub _get_params {
     my $self = shift;
     my $cookie = $self->get_all_cookies ? $self->get_all_cookies : 0;
     my @final;  # final parameter list; this changes dep. on presence of cookie
+    my $eutil = $self->_eutil;
     my %params;
     @final =  ($cookie && $cookie->isa("Bio::DB::EUtilities::Cookie")) ?
               @COOKIE_PARAMS : @PARAMS;
@@ -675,21 +676,21 @@ sub _get_params {
         my ($webenv, $qkey) = @{$cookie->cookie};
         $self->debug("WebEnv:$webenv\tQKey:$qkey\n");
         ($params{'WebEnv'}, $params{'query_key'}) = ($webenv, $qkey);
-        $params{'dbfrom'} = $cookie->database if $self->_eutil eq 'elink';
+        $params{'dbfrom'} = $cookie->database if $eutil eq 'elink';
     }
     
     my $db = $self->db;
     
     # elink cannot set the db from a cookie (it is actually dbfrom)
     $params{'db'} = $db                                   ? $db               : 
-                    ($cookie && $self->_eutil ne 'elink') ? $cookie->database :
+                    ($cookie && $eutil ne 'elink') ? $cookie->database :
                     'nucleotide';
     # einfo db exception (db is optional)
-    if (!$db && $self->_eutil eq 'einfo') {
+    if (!$db && ($eutil eq 'einfo' || $eutil eq 'egquery')) {
         delete $params{'db'};
     }
     unless (exists $params{'retmode'}) { # set by user
-        my $format = $CGILOCATION{ $self->_eutil }[2];  # set by eutil 
+        my $format = $CGILOCATION{ $eutil }[2];  # set by eutil 
         if ($format eq 'dbspec') {  # database-specific
             $format = $DATABASE{$params{'db'}} ?
                       $DATABASE{$params{'db'}} : 'xml'; # have xml as a fallback

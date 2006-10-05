@@ -127,8 +127,8 @@ sub parse_response {
         $self->throw("NCBI esearch nonrecoverable error: ".$simple->{ERROR});
     }
     if ($simple->{ErrorList} || $simple->{WarningList}) {
-        my %errorlist = %{ $simple->{ErrorList} };
-        my %warninglist = %{ $simple->{WarningList} };
+        my %errorlist = %{ $simple->{ErrorList} } if $simple->{ErrorList};
+        my %warninglist = %{ $simple->{WarningList} } if $simple->{WarningList};
         my ($err_warn);
         for my $key (sort keys %errorlist) {
             $err_warn .= "Error : $key = $errorlist{$key}\n";
