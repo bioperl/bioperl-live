@@ -247,7 +247,6 @@ my $style3
 my $style4
     = qq{style="border-collapse:collapse;border:0px;font-family:verdana;font-size:18px;font-weight:bold;padding:3"};
 my $style5 = qq{style="font-family:verdana;font-size:14px;padding:3"};
-my $style6 = qq{style="font-family:verdana;font-size:9px;font-style:italic;padding:3"};
 
 # Open file containing all Bioperl package names
 open( MODS, $PERLMODULES )
@@ -285,6 +284,10 @@ if ( scalar @available_modules < 1 ) {
 }
 close MODS or die "Can't close list of Perl module names $PERLMODULES: $!";
 
+# grab BioPerl version string
+my $version_string = '__BioPerl_Version'; # specified in deob_index.pl
+my $BioPerl_version = $ref_BerkeleyDB_packages->{$version_string};
+
 print header;
 
 print <<CSHL;
@@ -306,6 +309,7 @@ print <<CSHL;
     <table width=100%>
     <tr>
         <td><p $style4>Welcome to the BioPerl Deobfuscator</p></td>
+        <td><p $style5>[ <font color="red">$BioPerl_version</font> ]</p></td>
         <td><p align=right><a href="$help_path">what is it?</a></p></td>
     </tr>
     </table>

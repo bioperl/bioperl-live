@@ -53,3 +53,9 @@ Revision history for Deobfuscator
     CHANGE: using short name now when traversing with File::Find to help
             identify excluded modules (deob_index.pl).
 
+Added since 0.0.3:
+        NEW: deob_index.pl can now accept relative paths for BioPerl lib dir
+             and output dir
+        NEW: -s <version_string> option now can be passed to deob_index.pl to
+             store a version string in packages.db which deob_interface.cgi
+             can read and show.

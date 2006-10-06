@@ -298,7 +298,7 @@ use File::Spec;
 
 # GetOpt::Std-related settings
 $Getopt::Std::STANDARD_HELP_VERSION = 1;
-getopts('x:');
+getopts('s:x:');
 
 my $DEBUG = 0;
 
@@ -319,6 +319,8 @@ and
 <output dir> is where the output files should be placed
 
 OPTIONS:
+-s    user-supplied string to declare BioPerl's version
+      (which will be displayed by deob_interface.cgi)
 -x    excluded modules file (a module paths to skip; see POD for details)
 ";
 
@@ -342,7 +344,7 @@ unless ( File::Spec->file_name_is_absolute( $dest_dir ) ) {
 # read in an optional list of modules to exclude from indexing
 # - this is aimed at modules with external dependencies that are often not
 # - present and thus will prevent deob_interface.cgi from loading them
-our $opt_x;
+our ($opt_s, $opt_x);
 my %exclude;
 if (defined $opt_x) {
     my $exclude_fh = IO::File->new($opt_x, "r")
@@ -379,6 +381,9 @@ my $pkg_db = create_db($pkg_file) or die "deob_index.pl: couldn't create $pkg_fi
 # used to make sure we're parsing in the right order
 my %FLAG;
 
+# store version string in packages.db
+$pkg_db->{'__BioPerl_Version'} = $opt_s ? $opt_s : 'unknown';
+
 # keep stats on our indexing
 my %stats = ( 
               'files'    => 0,
@@ -401,6 +406,8 @@ find( \%FIND_OPTIONS, $source_dir );
 foreach my $sorted_pkg (sort @list_holder) {
     print $list $sorted_pkg, "\n";
 }
+
+# store user-supplied BioPerl version number
 
 # output stats
 print STDOUT "\nThis indexing run found:\n";
