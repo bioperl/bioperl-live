@@ -97,7 +97,7 @@ sequences.
  Usage     : $myalign->add_seq($newseq);
  Function  : Adds another sequence to the alignment. *Does not* align
              it - just adds it to the hashes.
- Returns   : nothing
+ Returns   : None
  Argument  : a Bio::LocatableSeq object
              order (optional)
 
@@ -157,7 +157,7 @@ sub purge {
              Changes the order of the alignment to alphabetical on name 
              followed by numerical by number.
 
- Returns   : 
+ Returns   : an array
  Argument  : 
 
 =cut
@@ -335,7 +335,7 @@ alignment.
              so be careful about quoting meta characters (eg
              $ali->map_chars('.','-') wont do what you want)
 
- Returns   : 
+ Returns   : None
  Argument  : 'from' rexexp
              'to' string
 
@@ -517,7 +517,7 @@ These read only methods describe the MSE in various ways.
  Title     : consensus_string
  Usage     : $str = $ali->consensus_string($threshold_percent)
  Function  : Makes a strict consensus 
- Returns   : 
+ Returns   : consensus string
  Argument  : Optional threshold ranging from 0 to 100.
              The consensus residue has to appear at least threshold %
              of the sequences at a given location, otherwise a '?'
@@ -584,7 +584,7 @@ sub is_flush {
  Usage     : $len = $ali->length() 
  Function  : Returns the maximum length of the alignment.
              To be sure the alignment is a block, use is_flush
- Returns   : 
+ Returns   : integer
  Argument  : 
 
 =cut
@@ -649,7 +649,7 @@ sub no_sequences {
  Usage   : $id = $align->percentage_identity
  Function: The function calculates the percentage identity of the alignment
  Returns : The percentage identity of the alignment (as defined by the 
-						     implementation)
+	   implementation)
  Argument: None
 
 =cut
