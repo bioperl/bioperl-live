@@ -306,7 +306,7 @@ my $usage = "
 deob_index.pl - extracts and parses BioPerl POD
 and stores the info in a database.
 
-USAGE: deob_index.pl [-x] <BioPerl lib dir> <output dir>
+USAGE: deob_index.pl [-s bioperl-version] [-x exclude_file] <BioPerl lib dir> <output dir>
 
 where 
 
