@@ -234,11 +234,7 @@ sub draw_multiple_alignment {
     }
 
     # If the source and target length match, then we are home free
-    if ($s->length == $target->length || !$can_realign) {
-      push @segments,[$target,$src_start,$src_end,$tgt_start,$tgt_end];
-    }
-
-    else {  # unfortunately if this isn't the case, then we have to realign the segment a bit
+    if ($can_realign) {
       warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n" if DEBUG;
       my ($sdna,$tdna) = ($s->dna,$target->dna);
       my @result = $self->realign($sdna,$tdna);
@@ -253,6 +249,9 @@ sub draw_multiple_alignment {
 	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n"      if DEBUG;
 	push @segments,$a;
       }
+    }
+    else {
+      push @segments,[$target,$src_start,$src_end,$tgt_start,$tgt_end];
     }
   }
 
@@ -440,9 +439,9 @@ sub draw_multiple_alignment {
 	    next if $x < $panel_left;
  	    $gd->char($font,$x,$y,$bp,$color);
  	  }
- 	} else {  # doesn't fit, so stick in a blob
-	  $self->_draw_insertion_point($gd,($gap_left+$gap_right)/2,$y+3,$color);
- 	}
+	}
+	# stick in a blob
+	$self->_draw_insertion_point($gd,$gap_left,$gap_right,$y,$y+$lineheight,$mismatch) if $delta > 2;
       }
       # deal with gaps in the alignment
       elsif ( (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
@@ -503,22 +502,40 @@ sub _subfeat {
 
 # draw the classic "i-beam" icon to indicate that an insertion fits between
 # two bases
-sub _draw_insertion_point {
-  my $self = shift;
-  my ($gd,$x,$y,$color) = @_;
-  my $top    = $y;
-  $x--;
-  my $bottom = $y + $self->font->height - 4;
-  $gd->line($x,$top+2, $x,$bottom-2,$color);
-  $gd->setPixel($x+1,  $top+1,$color);
-  $gd->setPixel($x+$_, $top,$color) for (2..3);
-  $gd->setPixel($x-1,  $top+1,$color);
-  $gd->setPixel($x-$_, $top,$color) for (2..3);
+# sub _draw_insertion_point {
+#   my $self = shift;
+#   my ($gd,$x,$y,$color) = @_;
+#   my $top    = $y;
+#   $x--;
+#   my $bottom = $y + $self->font->height - 4;
+#   $gd->line($x,$top+2, $x,$bottom-2,$color);
+#   $gd->setPixel($x+1,  $top+1,$color);
+#   $gd->setPixel($x+$_, $top,$color) for (2..3);
+#   $gd->setPixel($x-1,  $top+1,$color);
+#   $gd->setPixel($x-$_, $top,$color) for (2..3);
 
-  $gd->setPixel($x+1,  $bottom-1,$color);
-  $gd->setPixel($x+$_, $bottom,  $color) for (2..3);
-  $gd->setPixel($x-1,  $bottom-1,$color);
-  $gd->setPixel($x-$_, $bottom,  $color) for (2..3);
+#   $gd->setPixel($x+1,  $bottom-1,$color);
+#   $gd->setPixel($x+$_, $bottom,  $color) for (2..3);
+#   $gd->setPixel($x-1,  $bottom-1,$color);
+#   $gd->setPixel($x-$_, $bottom,  $color) for (2..3);
+# }
+
+# don't like that -- try drawing carets
+sub _draw_insertion_point {
+   my $self = shift;
+   my ($gd,$left,$right,$top,$bottom,$color) = @_;
+
+   my $poly = GD::Polygon->new();
+   $poly->addPt($left-3,$top+1);
+   $poly->addPt($right+2,$top+1);
+   $poly->addPt(($left+$right)/2-1,$top+3);
+   $gd->filledPolygon($poly,$color);
+
+   $poly = GD::Polygon->new();
+   $poly->addPt($left-3,$bottom);
+   $poly->addPt($right+2,$bottom);
+   $poly->addPt(($left+$right)/2-1,$bottom-2);
+   $gd->filledPolygon($poly,$color);
 }
 
 1;
