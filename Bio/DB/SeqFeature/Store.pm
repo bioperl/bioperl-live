@@ -213,6 +213,7 @@ occupy only a single memory location upon restoration.
 
 
 use strict;
+use warnings;
 
 use base 'Bio::SeqFeature::CollectionI';
 use Carp 'croak';
@@ -1391,7 +1392,11 @@ sub serializer {
     my $serializer = shift;
     eval "require $serializer; 1" or croak $@;
     $self->setting(serializer=>$serializer);
-    $Storable::forgive_me =1 if $serializer eq 'Storable';
+    if ($serializer eq 'Storable') {
+      $Storable::forgive_me =1;
+      $Storable::Deparse = 1;
+      $Storable::Eval    = 1;
+    }
   }
   $d;
 }
@@ -2199,7 +2204,7 @@ sub freeze {
     $d->Deepcopy(1);
     $data = $d->Dump;
   } elsif ($serializer eq 'Storable') {
-    $data = Storable::freeze($obj);
+    $data = Storable::nfreeze($obj);
   }
 
   $obj->primary_id($id);       # restore to original state
