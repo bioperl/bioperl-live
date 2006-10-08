@@ -4,45 +4,45 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+use vars qw($DEBUG $NUMTESTS);
 
-BEGIN { 
-	use Test;
-	$TESTCOUNT = 6;
-	plan tests => $TESTCOUNT;
+BEGIN {
+  $NUMTESTS = 10;
+  $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
+  eval { require Test::More; };
+  if ($@) {
+    use lib 't';
+  }
+  use Test::More;
+  plan tests => $NUMTESTS;
 }
 
-use Bio::DB::SeqVersion;
+use_ok('Bio::DB::SeqVersion');
 
-ok 1;
+ok my $query = Bio::DB::SeqVersion->new(-type => 'gi');
 
-if ($DEBUG) {
-	my $query = Bio::DB::SeqVersion->new(-type => 'gi');
+SKIP: {
+	skip "Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test", 8 unless $DEBUG;
 
         eval { $query->get_history('DODGY_ID_WHICH_SHOULD_FAIL') };
-        ok($@ =~ m/could not parse/i);
+        like($@, qr/could not parse/i, 'throw on bad ID');
 
 	my $latest_gi = $query->get_recent(2);
-	ok($latest_gi,2);
+	is($latest_gi, 2, 'get_recent');
 
 	my @all_gis = $query->get_all(2);
-	ok(scalar @all_gis,8);
+	is(scalar @all_gis, 8, 'get_all');
 
 	$latest_gi = $query->get_recent('A00002');
-	ok($latest_gi,2);
+	is($latest_gi, 2, 'get_recent, string');
 
 	$latest_gi = $query->get_recent(27478738);
-	ok($latest_gi,42659163);
+	is($latest_gi, 42659163, 'get_recent, integer');
 
 	# check that default type is "gi"
-	$query = Bio::DB::SeqVersion->new();
-	my $ref = $query->get_history(3245);
-	ok($ref->[0]->[0],578167);
-        
+	ok $query = Bio::DB::SeqVersion->new();
+	ok my $ref = $query->get_history(3245);
+	is($ref->[0]->[0], 578167, 'get_history');
 } 
-else {
-	for ( $Test::ntest..$TESTCOUNT) {
-		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test", 1);
-        }
-}
+
