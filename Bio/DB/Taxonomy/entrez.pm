@@ -103,7 +103,8 @@ eval {
 if( $@ ) {
     $XMLTWIG = 0;
 }
-use base qw(Bio::DB::Taxonomy Bio::Root::HTTPget);
+
+use base qw(Bio::WebAgent Bio::DB::Taxonomy);
 
 $EntrezLocation = 'http://www.ncbi.nih.gov/entrez/eutils/';
 $EntrezGet      = 'esearch.fcgi';
@@ -135,6 +136,17 @@ $UrlParamSeparatorValue = '&';
                         default
 
 =cut
+
+sub new {
+	my ($class, @args) = @_;
+	
+	# need to initialise Bio::WebAgent...
+	my ($self) = $class->SUPER::new(@args);
+	
+	# ... as well as our normal Bio::DB::Taxonomy selves:
+	$self->_initialize(@args);
+	return $self;
+}
 
 sub _initialize {
   my($self) = shift;
@@ -214,13 +226,14 @@ sub get_taxon {
                 @ids = @{$DATA_CACHE->{gi_to_ids}->{$url}};
             }
             else {
-                my $response;
-                eval {
-                    $response = $self->get($url);
-                };
-                if( $@ ) {
-                    $self->throw("Can't query website: $@");
-                }
+                my $response = $self->get($url);
+				if ($response->is_success) {
+					$response = $response->content;
+				}
+				else {
+					$self->throw("Can't query website: ".$response->status_line);
+				}
+				
                 $self->debug("resp is $response\n");
                 my $twig = XML::Twig->new;
                 $twig->parse($response);
@@ -286,13 +299,13 @@ sub get_taxon {
         
         my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezFetch,$params);
         $self->debug("url is $url\n");
-        my $response;
-        eval {
-            $response = $self->get($url);
-        };
-        if( $@ ) {
-            $self->throw("Can't query website: $@");
-        }
+        my $response = $self->get($url);
+		if ($response->is_success) {
+			$response = $response->content;
+		}
+		else {
+			$self->throw("Can't query website: ".$response->status_line);
+		}
         $self->debug("resp is $response\n");
         
         my $twig = XML::Twig->new;
@@ -433,13 +446,13 @@ sub get_taxonids {
         $p{'term'} = $query;
         my $params = join($UrlParamSeparatorValue, map { "$_=".$p{$_} } keys %p);
         my $url = sprintf("%s%s?%s",$self->entrez_url,$EntrezGet,$params);
-        my $response;
-        eval {
-            $response = $self->get($url);
-        };
-        if( $@ ) {
-            $self->throw("Can't query website: $@");
-        }
+        my $response = $self->get($url);
+		if ($response->is_success) {
+			$response = $response->content;
+		}
+		else {
+			$self->throw("Can't query website: ".$response->status_line);
+		}
         $self->debug("response is $response\n");
         my $twig = XML::Twig->new;
         $twig->parse($response);
