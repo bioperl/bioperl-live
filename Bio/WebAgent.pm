@@ -102,8 +102,9 @@ sub new {
 	while( @_ ) {
 		my $key = shift;
 		$key =~ s/^-//;
+		my $value = shift;
 		$self->can($key) || next;
-		$self->$key(shift);
+		$self->$key($value);
 	}
 
 	return $self; # success - we hope!
