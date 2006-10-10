@@ -94,7 +94,7 @@ sub _initialize {
 sub next_seq {
     my ($self,@args) = @_;
     my ($entry,$done,$qual,$seq);
-    my ($id,@lines, @bases, @qualities) = ('');
+    my ($id,@lines, @bases, @qualities, @trace_indices) = ('');
     if (!($entry = $self->_readline)) { return; }
 	if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
           $id = $1;
@@ -141,15 +141,18 @@ sub next_seq {
 	if ($entry =~ /^END_SEQUENCE/) {
 	}
 	if (!$in_dna) { next;  }
-	$entry =~ /(\S+)\s+(\S+)/;
+	$entry =~ /(\S+)\s+(\S+)(?:\s+(\S+))?/;
 	push @bases,$1;
 	push @qualities,$2;
+    #Not sure that a trace index values are required for phd file
+    push(@trace_indices,$3) if defined $3;
 	push(@lines,$entry);
     }
      # $self->debug("csmCreating objects with id = $id\n");
     my $swq = $self->sequence_factory->create
 	(-seq        => join('',@bases),
 	 -qual       => \@qualities,
+     -trace      => \@trace_indices,
 	 -id         => $id,
 	 -primary_id => $id,
 	 -display_id => $id,
