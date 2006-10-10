@@ -389,7 +389,7 @@ sub move {
 sub option {
   my $self = shift;
   my $option_name = shift;
-  my @args = $option_name,@{$self}{qw(partno total_parts)};
+  my @args = ($option_name,@{$self}{qw(partno total_parts)});
   my $factory = $self->{factory} or return;
   return $factory->option($self,@args)
 }
@@ -749,7 +749,7 @@ sub draw {
   else {  # no part
     $self->draw_connectors($gd,$left,$top)
       if $connector && $connector ne 'none'; # && $self->{level} == 0;
-    $self->draw_component($gd,$left,$top) unless $self->feature_has_subparts;
+    $self->draw_component($gd,$left,$top,$partno,$total_parts) unless $self->feature_has_subparts;
   }
 
 }
@@ -822,6 +822,7 @@ sub _connector {
   my $bottom1  = $dy + $xb;
   my $top2     = $dy + $yt;
   my $bottom2  = $dy + $yb;
+
   # restore this comment if you don't like the group dash working
   # its way backwards.
   return if $right-$left < 1 && !$self->isa('Bio::Graphics::Glyph::group');
@@ -1107,8 +1108,8 @@ sub set_pen {
 
 sub draw_component {
   my $self = shift;
-  my $gd = shift;
-  my($x1,$y1,$x2,$y2) = $self->bounds(@_);
+  my ($gd,$left,$top,$partno,$total_parts) = @_;
+  my($x1,$y1,$x2,$y2) = $self->bounds($left,$top);
 
   # clipping
   my $panel = $self->panel;
