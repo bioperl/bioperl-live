@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-interpro - InterProScan XML input/output stream 
+Bio::SeqIO::interpro - InterProScan XML input/output stream 
 
 =head1 SYNOPSIS
 
@@ -25,12 +25,12 @@ interpro - InterProScan XML input/output stream
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::interpro will parse Interpro scan XML (version 1.2) and
-create Bio::SeqFeature::Generic objects based on the contents of the
+L<Bio::SeqIO::interpro> will parse Interpro scan XML (version 1.2) and
+create L<Bio::SeqFeature::Generic> objects based on the contents of the
 XML document.
 
-Bio::SeqIO::Interpro will also attach the annotation given in the XML
-file to the Bio::SeqFeature::Generic objects that it creates.
+L<Bio::SeqIO::interpro> will also attach the annotation given in the XML
+file to the L<Bio::SeqFeature::Generic> objects that it creates.
 
 =head1 FEEDBACK
 
