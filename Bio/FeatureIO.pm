@@ -32,7 +32,7 @@ Bio::FeatureIO - Handler for FeatureIO
 
   #write out features
   $out = Bio::FeatureIO->new(-file    => ">outputfilename" ,
-                             -format  => 'GFF3' ,
+                             -format  => 'GFF' ,
                              -version => 3);
 
   while ( my $feature = $in->next_feature() ) {
