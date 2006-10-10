@@ -25,7 +25,7 @@ interpro - InterProScan XML input/output stream
 
 =head1 DESCRIPTION
 
-Bio::SeqIO::interpro will parse interpro scan XML (version 1.2) and
+Bio::SeqIO::interpro will parse Interpro scan XML (version 1.2) and
 create Bio::SeqFeature::Generic objects based on the contents of the
 XML document.
 
@@ -66,64 +66,27 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
-
-package interpro;
-use strict;
-
-# Object preamble - inherits from Bio::Root::Root
-
-
-
-use base qw(Bio::Root::Root);
-
-=head2 new
-
- Title   : new
- Usage   : my $obj = new interpro();
- Function: Builds a new interpro object 
- Returns : an instance of interpro
- Args    :
-
-=cut
-
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-  return $self;
-}
-
-1;
-#
 
 package Bio::SeqIO::interpro;
 use strict;
-
 use Bio::SeqFeature::Generic;
 use XML::DOM;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
-
 use base qw(Bio::SeqIO);
 
 my $idcounter = {};  # Used to generate unique id values
 my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
                      # into a single line
 
-=head1 METHODS
-
-=cut
-
 =head2 next_seq
 
  Title   : next_seq
- Usage   : my $bioSeqObj = $stream->next_seq
+ Usage   : my $seqobj = $stream->next_seq
  Function: Retrieves the next sequence from a SeqIO::interpro stream.
- Returns : A reference to a Bio::Seq::RichSeq object
+ Returns : A Bio::Seq::RichSeq object
  Args    : 
 
 =cut
@@ -131,12 +94,11 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 sub next_seq {
 	my $self = shift;
 	my ($desc);
-	my $bioSeq = $self->sequence_factory->create(-verbose =>$self->verbose());
+	my $bioSeq = $self->_sequence_factory->create(-verbose =>$self->verbose());
 
 	my $zinc = "(\"zincins\")";
 	my $wing = "\"Winged helix\"";
 	my $finger = "\"zinc finger\"";
-
 
 	my $xml_fragment = undef;
 	while(my $line = $self->_readline()){
@@ -146,8 +108,8 @@ sub next_seq {
 		my $finishedline = $line;
 		my $wingwhere = index($line, $wing);
 
-		# the interpro XML is not fully formed, so we need to convert the extra double quotes
-		# and ampersands into the appropriate XML chracter codes
+		# the interpro XML is not fully formed, so we need to convert the 
+		# extra double quotes and ampersands into appropriate XML chracter codes
 		if($where > 0){
 			my @linearray = split /$zinc/, $line;
 			$finishedline = join "&quot;zincins&quot;", $linearray[0], $linearray[2];
@@ -167,9 +129,9 @@ sub next_seq {
 
 	return unless $xml_fragment =~ /<protein/;
 
-	$self->parse_xml($xml_fragment);
+	$self->_parse_xml($xml_fragment);
 
-	my $dom = $self->dom;
+	my $dom = $self->_dom;
 
 	my ($protein_node) = $dom->findnodes('/protein');
 	my @interproNodes = $protein_node->findnodes('/protein/interpro');
@@ -178,22 +140,19 @@ sub next_seq {
 		my $ipnlevel = join "", "/protein/interpro[", $interpn + 1, "]";
 		my @matchNodes = $protein_node->findnodes($ipnlevel);
 		for(my $match=0; $match<scalar(@matchNodes); $match++){
-			my $matlevel = join "", "/protein/interpro[", $interpn+1, "]/match[", $match+1, "]/location";
+			my $matlevel = join "", "/protein/interpro[", $interpn+1, "]/match[", 
+			  $match+1, "]/location";
 			my @locNodes = $protein_node->findnodes($matlevel);
 
-			# $self->warn(join '*', map { $_->getAttribute('score') } @locnodes);
-			
 			my @seqFeatures = map { Bio::SeqFeature::Generic->new(
-                               -start => $_->getAttribute('start'), 
-                               -end => $_->getAttribute('end'), 
-                               -score => $_->getAttribute('score'), 
-                               -source_tag => 'IPRscan',
-                               -primary_tag => 'region',
-										 # -source_tag => $interproNodes[$interpn]->getAttribute('id'), 
-                               -display_name => $interproNodes[$interpn]->getAttribute('name'),
-                               -seq_id => $protein_node->getAttribute('id'),
-                                ),
-									  } @locNodes;
+                  -start => $_->getAttribute('start'), 
+						-end => $_->getAttribute('end'), 
+                  -score => $_->getAttribute('score'), 
+                  -source_tag => 'IPRscan',
+                  -primary_tag => 'region',
+                  -display_name => $interproNodes[$interpn]->getAttribute('name'),
+                  -seq_id => $protein_node->getAttribute('id') ),
+					} @locNodes;
 			foreach my $seqFeature (@seqFeatures){
 				my $annotation1 = Bio::Annotation::DBLink->new;
 				$annotation1->database($matchNodes[$match]->getAttribute('dbname'));
@@ -224,6 +183,16 @@ sub next_seq {
 	return $bioSeq;
 }
 
+=head2 _initialize
+
+ Title   : _initialize
+ Usage   : 
+ Function: 
+ Returns :
+ Args    :
+
+=cut
+
 sub _initialize {
   my($self,@args) = @_;
 
@@ -234,9 +203,8 @@ sub _initialize {
   my %param = @args;  # From SeqIO.pm
   @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
-
   my $line = undef;
-  #fast forward to first <protein/> record.
+  # fast forward to first <protein/> record.
   while($line = $self->_readline()){
     if($line =~ /<protein/){
       $self->_pushback($line);
@@ -244,15 +212,25 @@ sub _initialize {
     }
   }
 
-  $self->xml_parser( XML::DOM::Parser->new() );
+  $self->_xml_parser( XML::DOM::Parser->new() );
 
-  $self->sequence_factory( new Bio::Seq::SeqFactory
+  $self->_sequence_factory( new Bio::Seq::SeqFactory
                            ( -verbose => $self->verbose(),
                              -type => 'Bio::Seq::RichSeq'))
-    if( ! defined $self->sequence_factory );
+    if ( ! defined $self->sequence_factory );
 }
 
-sub sequence_factory {
+=head2 _sequence_factory
+
+ Title   : _sequence_factory
+ Usage   : 
+ Function: 
+ Returns :
+ Args    :
+
+=cut
+
+sub _sequence_factory {
   my $self = shift;
   my $val = shift;
 
@@ -260,7 +238,17 @@ sub sequence_factory {
   return $self->{'sequence_factory'};
 }
 
-sub xml_parser {
+=head2 _xml_parser
+
+ Title   : _xml_parser
+ Usage   : 
+ Function: 
+ Returns :
+ Args    :
+
+=cut
+
+sub _xml_parser {
   my $self = shift;
   my $val = shift;
 
@@ -268,13 +256,33 @@ sub xml_parser {
   return $self->{'xml_parser'};
 }
 
-sub parse_xml {
+=head2 _parse_xml
+
+ Title   : _parse_xml
+ Usage   : 
+ Function: 
+ Returns :
+ Args    :
+
+=cut
+
+sub _parse_xml {
   my ($self,$xml) = @_;
-  $self->dom( $self->xml_parser->parse($xml) );
+  $self->_dom( $self->_xml_parser->parse($xml) );
   return 1;
 }
 
-sub dom {
+=head2 _dom
+
+ Title   : _dom
+ Usage   : 
+ Function: 
+ Returns :
+ Args    :
+
+=cut
+
+sub _dom {
   my $self = shift;
   my $val = shift;
 
@@ -282,5 +290,6 @@ sub dom {
   return $self->{'dom'};
 }
 
-
 1;
+
+__END__
