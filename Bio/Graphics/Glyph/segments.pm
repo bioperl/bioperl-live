@@ -4,7 +4,6 @@ package Bio::Graphics::Glyph::segments;
 use strict;
 use Bio::Location::Simple;
 
-use constant INSERTION_CHARACTER => '!'; # what to draw to show an insertion
 use constant RAGGED_START_FUZZ => 25;  # will show ragged ends of alignments
                                        # up to this many bp.
 
@@ -98,12 +97,13 @@ sub maxdepth {
   return 1;
 }
 
-sub fontcolor {
-  my $self = shift;
-  return $self->SUPER::fontcolor unless $self->draw_target;# || $self->option('draw_dna');
-  return $self->SUPER::fontcolor unless $self->dna_fits;
-  return $self->bgcolor;
-}
+# this was willfully confusing
+#sub fontcolor {
+#  my $self = shift;
+#  return $self->SUPER::fontcolor unless $self->draw_target;# || $self->option('draw_dna');
+#  return $self->SUPER::fontcolor unless $self->dna_fits;
+#  return $self->bgcolor;
+#}
 
 sub draw {
   my $self = shift;
@@ -233,7 +233,7 @@ sub draw_multiple_alignment {
       $strands{$target} = $strand;
     }
 
-    # If the source and target length match, then we are home free
+    # realign for internal gaps, if requested
     if ($can_realign) {
       warn   "Realigning [$target,$src_start,$src_end,$tgt_start,$tgt_end].\n" if DEBUG;
       my ($sdna,$tdna) = ($s->dna,$target->dna);
@@ -241,12 +241,17 @@ sub draw_multiple_alignment {
       foreach (@result) {
 	next unless $_->[1]+$src_start >= $abs_start && $_->[0]+$src_start <= $abs_end;
 	warn "=========> [$target,@$_]\n" if DEBUG;
+#	my $a = $strands{$target} >= 0
+#	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
+#	  : [$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]];
+#	my $a = [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start];
 	my $a = $strands{$target} >= 0
 	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
-	  : [$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]];
+	  : [$target,$src_end-$_->[1],$src_end-$_->[0],$_->[2]+$tgt_start,$_->[3]+$tgt_start];
 	warn "=========> [@$a]\n" if DEBUG;
+	warn "sdna = $_->[0] to $_->[1] aligns to tdna = $_->[2] to $_->[3]" if DEBUG;
 	warn substr($sdna,     $_->[0],$_->[1]-$_->[0]+1),"\n" if DEBUG;
-	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n"      if DEBUG;
+	warn substr($tdna,     $_->[2],$_->[3]-$_->[2]+1),"\n" if DEBUG;
 	push @segments,$a;
       }
     }
@@ -321,25 +326,28 @@ sub draw_multiple_alignment {
 
     # left clipping
     if ( (my $delta = $seg->[SRC_START] - $panel_start) < 0 ) {
-      warn "clip left $delta" if DEBUG;
+      warn "clip left delta = $delta" if DEBUG;
       $seg->[SRC_START] = $panel_start;
       if ($strand >= 0) {
 	$seg->[TGT_START] -= $delta;
       } else {
-	$seg->[TGT_END]  +=  $delta;
+#	$seg->[TGT_END]  +=  $delta;
       }
     }
 
     # right clipping
     if ( (my $delta = $panel_end - $seg->[SRC_END]) < 0) {
-      warn "clip right $delta" if DEBUG;
+      warn "clip right delta = $delta" if DEBUG;
       $seg->[SRC_END] = $panel_end;
       if ($strand >= 0) {
-	$seg->[TGT_END]   += $delta;
+#	$seg->[TGT_END]   += $delta;
       } else {
 	$seg->[TGT_START] -= $delta;
       }
     }
+
+    my $length = $seg->[SRC_END]-$seg->[SRC_START]+1;
+    $seg->[TGT_END] = $seg->[TGT_START]+$length-1;
 
     warn "Clipping gives [@$seg], tgt_start = $tgt_start\n" if DEBUG;
   }
@@ -356,7 +364,8 @@ sub draw_multiple_alignment {
     $seg->[TGT_START] -= $tgt_start - 1;
     $seg->[TGT_END]   -= $tgt_start - 1;
 
-    warn $seg->[TGT_START],"..",$seg->[TGT_END] if DEBUG;
+    warn "src segment = $seg->[SRC_START]", "..",$seg->[SRC_END] if DEBUG;
+    warn "tgt segment = $seg->[TGT_START]", "..",$seg->[TGT_END] if DEBUG;
     if ($strand < 0) {
       ($seg->[TGT_START],$seg->[TGT_END]) = (length($tgt_dna)-$seg->[TGT_END]+1,length($tgt_dna)-$seg->[TGT_START]+1);
     }
@@ -388,7 +397,7 @@ sub draw_multiple_alignment {
 	$fontwidth/2 + $left + ($abs_start + $src-$panel_start-1 + $tgt) * $pixels_per_base - 1;    
       };
 
-  my ($tgt_last_end,$src_last_end);
+  my ($tgt_last_end,$src_last_end,$leftmost,$rightmost);
   for my $seg (sort {$a->[SRC_START]<=>$b->[SRC_START]} @segments) {
     my $y = $top-1;
 
@@ -396,8 +405,10 @@ sub draw_multiple_alignment {
 
       my $src_base = $self->_subsequence($ref_dna,$seg->[SRC_START]+$i,$seg->[SRC_START]+$i);
       my $tgt_base = $self->_subsequence($tgt_dna,$seg->[TGT_START]+$i,$seg->[TGT_START]+$i);
-      # warn $seg->[TGT_START]+$i,' ',$seg->[TGT_START]+$i;
+#      warn $seg->[TGT_START]+$i,' ',$seg->[TGT_START]+$i if DEBUG;
       my $x = $base2pixel->($seg->[SRC_START],$i);
+      $leftmost = $x if !defined $leftmost  || $leftmost  > $x;
+      $rightmost= $x if !defined $rightmost || $rightmost < $x;
 
       next unless $tgt_base && $x >= $panel_left && $x <= $panel_right;
 
@@ -424,8 +435,10 @@ sub draw_multiple_alignment {
 	  $gap_right -= $pixels_per_base/2-2;
 	}
 
+	next if $gap_left <= $panel_left || $gap_right >= $panel_right;
+
 	$self->filled_box($gd,$gap_left,$y+1,
-			      $gap_right-2,$y+$lineheight,$mismatch,$mismatch) if 
+			      $gap_right-2,$y+$lineheight,$mismatch,$mismatch) if
 				$show_mismatch && $gap_left >= $panel_left && $gap_right <= $panel_right;
 
 
@@ -447,6 +460,7 @@ sub draw_multiple_alignment {
       elsif ( (my $delta = $seg->[SRC_START] - $src_last_end) > 1) {
 	for (my $i=0;$i<$delta-1;$i++) {
 	  my $x = $base2pixel->($src_last_end,$i+1);
+	  next if $x > $panel_right;
 	  $self->filled_box($gd,$x-$pixels_per_base/2+2,$y,$x+$pixels_per_base/2+1,$y+$lineheight,$mismatch,$mismatch)
 	    if $show_mismatch;
 	  $gd->char($font,$x,$y,'-',$color);
@@ -458,6 +472,16 @@ sub draw_multiple_alignment {
 
     $tgt_last_end  = $seg->[TGT_END];
     $src_last_end  = $seg->[SRC_END];
+  }
+
+  # additional fixup -- insert dashes at beginnings and ends of the segments, if they don't span the full
+  # alignment for some reason - THIS SHOULD NOT BE NECESSARY AND INDICATES THAT THIS WHOLE METHOD NEEDS
+  # TO BE REWRITTEN!
+  if (defined $leftmost && $leftmost-$bl > $pixels_per_base) {
+    $gd->char($font,$_,$top-1,'-',$color) for map {$bl+$_*$pixels_per_base} 0..($leftmost-$bl)/$pixels_per_base-1;
+  }
+  if (defined $rightmost && $br-$rightmost > $pixels_per_base) {
+    $gd->char($font,$_,$top-1,'-',$color) for map {$rightmost+$_*$pixels_per_base} (0..($br-$rightmost)/$pixels_per_base);
   }
 
   return $drew_sequence;
