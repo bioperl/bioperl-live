@@ -1380,8 +1380,7 @@ sub match_line {
 				# iterate through each of the aa in the col
 				# look to see which groups it is in
 				foreach my $c ( @colresidues ) {
-					foreach my $f ( grep /\Q$c/,
-										 @{$CONSERVATION_GROUPS{$type}} ) {
+					foreach my $f ( grep { index($_,$c) >= 0 } @{$CONSERVATION_GROUPS{$type}} ) {
 						push @{$groups{$f}},$c;
 					}
 				}

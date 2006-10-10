@@ -1017,7 +1017,8 @@ sub _read_swissprot_Species {
     $sci_name || return;
     
     #if the organism belongs to taxid 32644 then no Bio::Species object.
-    return if grep { /^\Q$sci_name$/ } @Unknown_names;
+#    return if grep { /^\Q$sci_name$/ } @Unknown_names;
+    return if grep { $_ eq $sci_name } @Unknown_names;
     
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words

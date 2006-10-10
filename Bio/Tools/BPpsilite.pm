@@ -31,7 +31,7 @@ Bio::Tools::BPpsilite - Lightweight BLAST parser for (iterated) psiblast reports
    $oldhitarray_ref = $last_iteration->oldhits;
    HIT: while($sbjct = $last_iteration->nextSbjct) {
   	  $id = $sbjct->name;
-  	  $is_old =  grep  /\Q$id\E/, @$oldhitarray_ref;
+  	  $is_old =  grep { $_ eq $id } @$oldhitarray_ref;
   	  if ($is_old ){next HIT;}
   #  do something with new hit...
   }

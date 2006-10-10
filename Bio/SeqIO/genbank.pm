@@ -1324,7 +1324,8 @@ sub _read_GenBank_Species {
 	# Don't make a species object if it's empty or "Unknown" or "None"
 	# return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
 	# Don't make a species object if it belongs to taxid 32644
-	my $unkn = grep { $_ =~ /^\Q$sl\E$/; } @unkn_names;
+#	my $unkn = grep { $_ =~ /^\Q$sl\E$/; } @unkn_names;
+	my $unkn = grep { $_ eq $sl } @unkn_names;
 	return unless ($species || $genus) and $unkn == 0;
 
 	# Bio::Species array needs array in Species -> Kingdom direction
