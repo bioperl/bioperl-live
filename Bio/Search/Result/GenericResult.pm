@@ -23,10 +23,10 @@ results.
     use Bio::SearchIO;
     my $io = new Bio::SearchIO(-format => 'blast',
                                 -file   => 't/data/HUMBETGLOA.tblastx');
-    while( my $result = $io->next_result) {
+    while( my $result = $io->next_result ) {
         # process all search results within the input stream
-        while( my $hit = $result->next_hits()) {  
-        # insert code here for hit processing
+        while( my $hit = $result->next_hit ) {  
+            # insert code here for hit processing
         }
     }
 
