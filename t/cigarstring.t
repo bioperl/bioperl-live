@@ -16,7 +16,7 @@ use Bio::SearchIO;
 
 my $searchio = new Bio::SearchIO(
 	 -format => 'blast',
-    -file => 't/data/blast.report'
+    -file => File::Spec->catfile(qw(t data blast.report))
 );
 
 my @hsps = ();

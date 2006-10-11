@@ -45,6 +45,7 @@ END {
 }
 
 use Bio::Perl;
+use File::Spec;
 
 ## End of black magic.
 ##
@@ -57,13 +58,13 @@ my ($seq_object,$filename,@seq_object_array);
 
 
 # will guess file format from extension
-$filename = 't/data/cysprot1.fa';
+$filename = File::Spec->catfile(qw(t data cysprot1.fa));
 ok ($seq_object = read_sequence($filename)); 
 # forces genbank format
-$filename = 't/data/AF165282.gb';
+$filename = File::Spec->catfile(qw(t data AF165282.gb));
 ok  ($seq_object = read_sequence($filename,'genbank')); 
 # reads an array of sequences
-$filename = 't/data/amino.fa';
+$filename = File::Spec->catfile(qw(t data amino.fa));
 ok (@seq_object_array = read_all_sequences($filename,'fasta'), 2); 
 $filename = 'Perltmp';
 ok write_sequence(">$filename",'genbank',$seq_object);

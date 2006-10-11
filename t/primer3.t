@@ -39,7 +39,7 @@ ok(1);
 
 my ($p3, $num, $primer);
 
-ok $p3 = Bio::Tools::Primer3->new(-file => "t/data/primer3_output.txt");
+ok $p3 = Bio::Tools::Primer3->new(-file => File::Spec->catfile(qw(t data primer3_output.txt)));
 ok $num = $p3->number_of_results;
 ok $num, 5, "Got $num";
 ok $num = $p3->all_results;

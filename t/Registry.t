@@ -6,6 +6,8 @@
 use strict;
 use vars qw($NUMTESTS $old_search_path $no_DB_File $no_LWP $DEBUG);
 
+use File::Spec;
+
 BEGIN {
 	$DEBUG = $ENV{BIOPERLDEBUG} || 0;
 	eval { require Test; };
@@ -35,7 +37,7 @@ require Bio::DB::Registry;
 use Bio::DB::Flat;
 use Bio::Root::IO;
 
-my $tmpdir = 't/tmp';
+my $tmpdir = File::Spec->catfile(qw(t tmp));
 mkdir($tmpdir,0777);
 ok (-d $tmpdir);
 
@@ -44,7 +46,7 @@ my $flat = Bio::DB::Flat->new(-directory  => $tmpdir,
 			      -format     => 'fasta',
 			      -index      => 'binarysearch',
                               -write_flag => 1 );
-my $entries = $flat->build_index("t/data/cysprot.fa");
+my $entries = $flat->build_index(File::Spec->catfile(qw(t data cysprot.fa)));
 ok $entries == 7;
 
 if ($no_DB_File){
@@ -58,7 +60,7 @@ if ($no_DB_File){
 				 -index      => 'bdb',
 				 -write_flag => 1 );
     ok defined($bdb);
-    $entries = $bdb->build_index("t/data/cysprot.fa");
+    $entries = $bdb->build_index(File::Spec->catfile(qw(t data cysprot.fa)));
     ok $entries == 7;
 }
 

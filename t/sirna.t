@@ -29,7 +29,7 @@ use Bio::SeqIO;
 # modules compile
 ok 1;
 
-my $input = Bio::SeqIO->new( -file 	=> 't/data/NM_002254.gb',
+my $input = Bio::SeqIO->new( -file 	=> File::Spec->catfile(qw(t data NM_002254.gb)),
 			     -format 	=> 'Genbank' );
 my $seq = $input->next_seq;
 

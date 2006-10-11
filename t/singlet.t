@@ -48,7 +48,7 @@ my $dumper = new Dumpvalue();
 $dumper->veryCompact(1);
 
 
-my $aio = Bio::Assembly::IO->new(-file=>"<t/data/consed_project/edit_dir/test_project.fasta.screen.ace.1",
+my $aio = Bio::Assembly::IO->new(-file=>File::Spec->catfile(qw(t data consed_project edit_dir test_project.fasta.screen.ace.1)),
                                 -format=>'ace');
 
 my $assembly = $aio->next_assembly();
