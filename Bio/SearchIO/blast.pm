@@ -615,7 +615,13 @@ sub next_result {
             }
           descline:
             while ( defined( $_ = $self->_readline() ) ) {
-                if (/^>/) {
+                if (/^>/ 
+                    || /^\s+Database:\s+?/
+                    || /^Parameters:/
+                    || /^\s+Subset/
+                    || /^\s*Lambda/
+                    || /^\s*Histogram/
+                    ) {
                     $self->_pushback($_); # Catch leading > (end of section)
                     last descline;
                 }
@@ -770,7 +776,7 @@ sub next_result {
             );
  
             # add hit significance (from the hit table)
-            # this is where Bug 1986 goes astray
+            # this is where Bug 1986 goes awry
             
             my $v = shift @hit_signifs;
             if ( defined $v ) {
