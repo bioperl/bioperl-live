@@ -474,7 +474,7 @@ sub parse_line {
   unshift @tokens,'' if /^\s+/;
 
   # close any open group
-  if (length $tokens[0] > 0 && $self->{group}) {
+  if ($self->{group} && $self->{grouptype} && $tokens[0] && length $tokens[0] > 0) {
     push @{$self->{features}{$self->{grouptype}}},$self->{group};
     undef $self->{group};
     undef $self->{grouptype};
