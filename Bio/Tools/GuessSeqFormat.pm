@@ -478,9 +478,6 @@ sub guess
             if ($fmt->{test}($line, $lineno)) {
                 ++$match;
                 $fmt_string = $fmt->{fmt_string};
-                # Debugging:
-                #FIXME#printf STDERR "%s: %s\n", $fmt_string, $line;
-                    #FIXME#if $self->verbose > 0;
             }
         }
 
