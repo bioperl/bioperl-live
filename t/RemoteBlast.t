@@ -22,7 +22,7 @@ BEGIN {
 	if( $@ ) {
 		print STDERR "IO::String,LWP,LWP::UserAgent not installed. This means cannot query remote webserver. Skipping tests.\n";
 		for( $Test::ntest..$NUMTESTS ) {
-			skip("IO::String or LWP::UserAgent not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+			skip("IO::String or LWP::UserAgent not installed. This means the Bio::Tools::Run::RemoteBlast is not usable. Skipping tests",1);
 		}
 		$error = 1; 
 	}
