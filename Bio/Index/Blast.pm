@@ -28,9 +28,9 @@ based on query accession(s)
 
     my $blast_report = $index->fetch_report($query);
     print "query is ", $blast_report->query, "\n";
-    while( my $result = $blast_report->next_result ) {
+    while ( my $result = $blast_report->next_result ) {
             print $result->algorithm, "\n";
-            while( my $hsp = $result->next_hit ) {
+            while ( my $hsp = $result->next_hit ) {
               print "\t name ", $hsp->name,
             }
             print "\n";
@@ -96,7 +96,6 @@ package Bio::Index::Blast;
 use vars qw($VERSION);
 use strict;
 
-use Bio::Tools::BPlite;
 use IO::String;
 
 use base qw(Bio::Index::Abstract Bio::Root::Root);
@@ -254,7 +253,7 @@ sub _index_file {
 				# if we have already read a report
 				# then store the data for this report 
 				# in the CURRENT index
-				$self->_process_report($indexpoint, $i,join("",@data));
+				$self->_process_report($indexpoint, $i, join("",@data));
 
 			} # handle fencepost problem (beginning) 
 	      # by skipping here when empty
@@ -283,12 +282,11 @@ sub _process_report {
 	my $id_parser = $self->id_parser;
 
 	my $datal = new IO::String($data);
-	my $report = new Bio::Tools::BPlite(-fh      => $datal,
-					-noclose => 1);
-
-	my $query = $report->query;
-	foreach my $id (&$id_parser($query)) {
-		print "id is $id, begin is $begin\n" if( $self->verbose > 0);
+	my $report = new Bio::SearchIO->new(-fh => $datal,
+												   -noclose => 1);
+	for (my $result = $report->next_result) {
+		my $id = $result->query_name;
+		print "id is $id, begin is $begin\n" if ( $self->verbose > 0);
 		$self->add_record($id, $i, $begin);
 	}
 }
@@ -355,7 +353,7 @@ sub _process_report {
            while( <$fh> ) {
               # do something
            }
-           will parse the entire file if you don't put in
+           will parse the entire file if you do not put in
            a last statement in, like
 
            while( <$fh> ) {
@@ -475,10 +473,5 @@ sub _process_report {
 
 
 =cut
-
-
-1;
-
-
 
 1;
