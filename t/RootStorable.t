@@ -26,6 +26,7 @@ use_ok('Bio::Root::Storable');
 
 foreach my $mode( "BINARY", "ASCII" ){
     if( $mode eq "ASCII" ){
+		no warnings;
         $Bio::Root::Storable::BINARY = 0;
     }
 
