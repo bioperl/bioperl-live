@@ -8,7 +8,8 @@ use vars qw($NUMTESTS $out_file);
 
 BEGIN {
 	$NUMTESTS = 2;
-	$out_file = "t/data/tmp-asciitree";
+	use File::Spec;
+	$out_file = File::Spec->catfile(qw(t data tmp-asciitree));
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback

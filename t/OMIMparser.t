@@ -18,12 +18,12 @@ BEGIN {
     plan tests => 173;
 }
 
+use File::Spec;
 use Bio::Phenotype::OMIM::OMIMparser;
 
 
-
-my $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => "./t/data/omim_genemap_test",
-                                                         -omimtext => "./t/data/omim_text_test" );
+my $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => File::Spec->catfile(qw(t data omim_genemap_test)),
+                                                         -omimtext => File::Spec->catfile(qw(t data omim_text_test)) );
 
 
 ok( $omim_parser->isa( "Bio::Phenotype::OMIM::OMIMparser" ) );

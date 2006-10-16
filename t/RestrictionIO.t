@@ -22,7 +22,7 @@ require Bio::Restriction::IO;
 use Bio::Root::IO;
 require Bio::Restriction::EnzymeCollection;
 
-my $tmpdir = "t/tmp";
+my $tmpdir = File::Spec->catfile(qw(t tmp));
 mkdir($tmpdir,0777);
 
 ok(1);
@@ -37,8 +37,7 @@ ok $renzs->each_enzyme, 532;
 ok my $e = $renzs->get_enzyme('AccI');
 ok $e->name, 'AccI';
 
-ok my $out = Bio::Restriction::IO->new(-format => 'base',
-													-file   => ">$tmpdir/r");
+ok my $out = Bio::Restriction::IO->new(-format => 'base', -file   => ">".File::Spec->catfile($tmpdir,"r"));
 #$out->write($renzs);
 #map {print $_->name, "\t", $_->site, "\t", $_->overhang, "\n"} $renzs->each_enzyme;
 

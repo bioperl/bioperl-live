@@ -23,7 +23,7 @@ ok(1);
 my ($seqio, $seq, $left, $right, $primed_seq, $left_test, $annseq, $amplicon, $returnedseq);
 
 
-$seqio=Bio::SeqIO->new(-file=>'t/data/primedseq.fa');
+$seqio=Bio::SeqIO->new(-file=>File::Spec->catfile(qw(t data primedseq.fa)));
 $seq=$seqio->next_seq;
 $left=Bio::SeqFeature::Primer->new(-seq=>'CTTTTCATTCTGACTGCAACG');
 $right=Bio::SeqFeature::Primer->new(-seq=>'GGTGGTGCTAATGCGT');

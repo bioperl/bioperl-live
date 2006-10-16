@@ -460,7 +460,7 @@ sub phase {
       $self->add_Annotation('phase', $term);
   }
 
-  $self->phase('.') unless ($self->get_Annotations('phase')); # make sure we always have something
+  $self->phase('.') unless (defined $self->get_Annotations('phase')); # make sure we always have something
   
   return $self->get_Annotations('phase');
 }

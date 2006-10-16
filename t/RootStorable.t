@@ -11,21 +11,22 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
 	use lib 't', '.';
     }
-    use Test;
-    plan tests => 34;
+    use Test::More;
+    plan tests => 35;
 
 }
 
 $| = 1;
 
-use Bio::Root::Storable;
+use_ok('Bio::Root::Storable');
 
 foreach my $mode( "BINARY", "ASCII" ){
     if( $mode eq "ASCII" ){
+		no warnings;
         $Bio::Root::Storable::BINARY = 0;
     }
 

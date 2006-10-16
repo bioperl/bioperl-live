@@ -429,7 +429,7 @@ sub expect {
 sub ua {
     my ($self, $value) = @_;    
     if( ! defined $self->{'_ua'} ) {
-	$self->{'_ua'} = LWP::UserAgent->new(env_proxy => 1);
+	$self->{'_ua'} = LWP::UserAgent->new(env_proxy => 1, parse_head => 0);
 	my $nm = ref($self);
 	$nm =~ s/::/_/g;
 	$self->{'_ua'}->agent("bioperl-$nm/$MODVERSION");
@@ -554,9 +554,7 @@ sub retrieve_blast {
     my %hdr = %RETRIEVALHEADER;
     $hdr{'RID'} = $rid;
     my $req = POST $url_base, [%hdr];
-    if( $self->verbose > 0 ) {
-        $self->warn("retrieve request is " . $req->as_string());
-    }
+    $self->debug("retrieve request is " . $req->as_string());
     my $response = $self->ua->request($req, $tempfile);
     if( $response->is_success ) {
     	if( $self->verbose > 0 ) {

@@ -10,8 +10,9 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 use lib '..','.','./blib/lib';
-use constant IMAGES => './t/data/biographics';
-use constant FILES  => './t/data/biographics';
+use File::Spec;
+use constant IMAGES => File::Spec->catfile(qw(t data biographics));
+use constant FILES => File::Spec->catfile(qw(t data biographics));
 use constant IMAGE_TESTS => 0;
 
 my $error;

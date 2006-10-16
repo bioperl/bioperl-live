@@ -27,9 +27,10 @@ if( $error == 1 ) {
 }
 
 use vars qw($FILE1 $FILE2 $FILE3);
+use File::Spec;
 $FILE1= 'testnewick.phylip';
 $FILE2= 'testlarge.phy';
-$FILE3= 't/testsvg.svg';
+$FILE3= File::Spec->catfile(qw(t testsvg.svg));
 
 END {
 	unlink $FILE1;

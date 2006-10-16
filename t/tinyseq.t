@@ -55,7 +55,7 @@ if( $error == 1 ) {
 use Bio::SeqIO;
 use Bio::Seq;
 
-my ($file) = 't/data/NM_002253.tseq';
+my $file = File::Spec->catfile(qw(t data NM_002253.tseq));
 my $outfile = 'tinyseqout.xml';
 
 my $instream = Bio::SeqIO->new( -file 		=> $file,

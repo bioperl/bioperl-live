@@ -74,7 +74,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
   @features = $db->get_features_by_alias('sma-3');
 
   # ...by type
-  @features = $db->get_features_by_name('gene');
+  @features = $db->get_features_by_type('gene');
 
   # ...by location
   @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);

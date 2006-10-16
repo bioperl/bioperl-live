@@ -25,26 +25,24 @@ BEGIN {
     }
     use Test;
     plan test => TEST_COUNT;
-    $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
 }
 
 sub bail ($;$);
 sub user_prompt ($;$);
 sub fail ($);
 use lib '.','..','./blib/lib';
-use lib "$ENV{HOME}/cvswork/bioperl-live/";
 use Bio::DB::GFF;
 use Bio::SeqIO;
 
-# chdir "$Bin/..";
+my $tests_file = Bio::Root::IO->catfile('t','do_biodbgff.tests');
 
-my $adaptor = -e 't/do_biodbgff.tests' ? 'dbi::mysql' : 'memory';
+my $adaptor = -e $tests_file ? 'dbi::mysql' : 'memory';
 $adaptor    = shift if @ARGV;
 my @args;
 
 if ($adaptor =~ /^dbi/) {
 
-  open T,"t/do_biodbgff.tests" or bail(TEST_COUNT,"Couldn't read configuration");
+  open T,$tests_file or bail(TEST_COUNT,"Couldn't read configuration: $tests_file");
   my $cfg = {};
   while (<T>) {
     chomp;

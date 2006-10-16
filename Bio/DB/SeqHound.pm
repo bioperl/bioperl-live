@@ -504,11 +504,10 @@ sub get_request {
 
 sub postprocess_data
 {
-    	my ($self, @args) = @_;
-    	my ($funcname, $lcontent, $outtype) = $self->_rearrange(
-			                [qw(FUNCNAME LCONTENT OUTTYPE)],
-					@args);
-    	my $result;
+    my ($self, @args) = @_;
+    my ($funcname, $lcontent, $outtype) = $self->_rearrange(
+                        [qw(FUNCNAME LCONTENT OUTTYPE)], @args);
+    my $result;
 	if (!defined $outtype){ 
 		$self->throw("please specify the output type, string, Bio::SeqIO etc");
 	}
@@ -520,51 +519,51 @@ sub postprocess_data
 	}
 
 	#set up verbosity level if need record in the log file
-	$self->verbose(1);
-        my $log_msg = "Writing into '$LOGFILENAME' log file.\n";
-
-        if ($self->verbose>0) {
-            my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
-            if ($lcontent eq "") {
-                $self->debug($log_msg);
-		open (my $LOG, '>>', $LOGFILENAME);
-		print $LOG "$now		$funcname. No reply.\n";
-		return;
-            } elsif ($lcontent =~ /HTTP::Request error/) {
-                $self->debug($log_msg);
-		open (my $LOG, '>>', $LOGFILENAME);
-		print $LOG "$now		$funcname. Http::Request error problem.\n";
-		return;
-            } elsif ($lcontent =~ /SEQHOUND_ERROR/) {
-                $self->debug($log_msg);
-		open (my $LOG, '>>', $LOGFILENAME);
-		print $LOG "$now	$funcname error. SEQHOUND_ERROR found.\n";
-		return;
-            } elsif ($lcontent =~ /SEQHOUND_NULL/) {
-                $self->debug($log_msg);
-		open (my $LOG, '>>', $LOGFILENAME);
-		print $LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n";
-		return;
-            } else {
-    		chomp $lcontent;
-      		my @lines = split(/\n/, $lcontent, 2);
-     	 	if ($lines[1] =~ /^-1/) {
-                    $self->debug($log_msg);
-		    open (my $LOG, '>>', $LOGFILENAME);
-                    print $LOG "$now	$funcname Value not found in the database. -1 found.\n";
-                    return;
-		} elsif ($lines[1]  =~ /^0/) {
-                    $self->debug($log_msg);
-  		    open (my $LOG, '>>', $LOGFILENAME);
-                    print $LOG "$now	$funcname failed.\n";
-                    return;
-         	} else {
-                    $result = $lines[1];
-         	}
-      		
-            }
-
+    my $log_msg = "Writing into '$LOGFILENAME' log file.\n";
+    my $now = strftime("%a %b %e %H:%M:%S %Y", localtime);
+    if ($lcontent eq "") {
+        $self->debug($log_msg);
+        open (my $LOG, '>>', $LOGFILENAME);
+        print $LOG "$now		$funcname. No reply.\n";
+        return;
+    }
+    elsif ($lcontent =~ /HTTP::Request error/) {
+        $self->debug($log_msg);
+        open (my $LOG, '>>', $LOGFILENAME);
+        print $LOG "$now		$funcname. Http::Request error problem.\n";
+        return;
+    }
+    elsif ($lcontent =~ /SEQHOUND_ERROR/) {
+        $self->debug($log_msg);
+        open (my $LOG, '>>', $LOGFILENAME);
+        print $LOG "$now	$funcname error. SEQHOUND_ERROR found.\n";
+        return;
+    }
+    elsif ($lcontent =~ /SEQHOUND_NULL/) {
+        $self->debug($log_msg);
+        open (my $LOG, '>>', $LOGFILENAME);
+        print $LOG "$now	$funcname Value not found in the database. SEQHOUND_NULL found.\n";
+        return;
+    }
+    else {
+        chomp $lcontent;
+        my @lines = split(/\n/, $lcontent, 2);
+        if ($lines[1] =~ /^-1/) {
+            $self->debug($log_msg);
+            open (my $LOG, '>>', $LOGFILENAME);
+            print $LOG "$now	$funcname Value not found in the database. -1 found.\n";
+            return;
         }
+        elsif ($lines[1]  =~ /^0/) {
+            $self->debug($log_msg);
+            open (my $LOG, '>>', $LOGFILENAME);
+            print $LOG "$now	$funcname failed.\n";
+            return;
+        }
+        else {
+            $result = $lines[1];
+        }
+    }
 
 	#a list of functions in SeqHound which can wrap into Bio::seqIO object
 	if ($outtype eq 'Bio::SeqIO'){

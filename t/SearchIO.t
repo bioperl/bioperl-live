@@ -471,7 +471,7 @@ while( $hit = $result->next_hit ) {
 ok @valid, 0;
 
 $searchio = new Bio::SearchIO(-format => 'fasta',
-				 -file   => 't/data/HUMBETGLOA.FASTA');
+				 -file   => File::Spec->catfile(qw(t data HUMBETGLOA.FASTA)) );
 $result = $searchio->next_result;
 ok($result->database_name, qr/dros_clones.2.5/);
 ok($result->database_letters, 112936249);
@@ -540,7 +540,7 @@ while( my $hit = $result->next_hit ) {
 ok @valid, 0;
 
 $searchio = new Bio::SearchIO(-format => 'fasta',
-				 -file   => 't/data/cysprot1.FASTA');
+				 -file   => File::Spec->catfile(qw(t data cysprot1.FASTA)));
 $result = $searchio->next_result;
 ok($result->database_name, qr/ecoli.aa/);
 ok($result->database_letters, 1358987);
@@ -607,7 +607,7 @@ ok @valid, 0;
 
 ok($result->hits, 8);
 $searchio = new Bio::SearchIO(-format => 'fasta',
-				 -file   => 't/data/cysprot_vs_gadfly.FASTA');
+				 -file   => File::Spec->catfile(qw(t data cysprot_vs_gadfly.FASTA)) );
 $result = $searchio->next_result;
 ok($result->database_name, qr/gadflypep2/);
 ok($result->database_letters, 7177762);
@@ -679,7 +679,7 @@ ok($result->hits, 21);
 
 # test on TFASTXY
 $searchio = new Bio::SearchIO(-format => 'fasta',
-			      -file   => 't/data/5X_1895.FASTXY');
+			      -file   => File::Spec->catfile(qw(t data 5X_1895.FASTXY)));
 $result = $searchio->next_result;
 ok($result->database_name, qr/yeast_nrpep.fasta/);
 ok($result->database_letters, 4215311);
@@ -1205,7 +1205,7 @@ unlink 'searchio.html';
 
 #test all the database accession number formats
 $searchio = new Bio::SearchIO(-format => 'blast',
-				 -file   => 't/data/testdbaccnums.out');
+				 -file   => File::Spec->catfile(qw(t data testdbaccnums.out)) );
 $result = $searchio->next_result;
 
 @valid = ( ['pir||T14789','T14789','T14789','CAB53709','AAH01726'],
