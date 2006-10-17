@@ -73,7 +73,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use base qw(Bio::Root::RootI);
+use base qw(Bio::Root::Root);
 
 use File::Spec;
 use File::Path qw(); # don't import anything
