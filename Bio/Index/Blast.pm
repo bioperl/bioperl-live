@@ -21,16 +21,16 @@ based on query accession(s)
     use Bio::Index::Blast;
     my ($indexfile,$file1,$file2,$query);
     my $index = new Bio::Index::Blast(-filename => $indexfile,
-				      -write_flag => 1);
+				                          -write_flag => 1);
     $index->make_index($file1,$file2);
 
     my $data = $index->get_stream($query);
 
     my $blast_report = $index->fetch_report($query);
     print "query is ", $blast_report->query, "\n";
-    while( my $result = $blast_report->next_result ) {
+    while ( my $result = $blast_report->next_result ) {
             print $result->algorithm, "\n";
-            while( my $hsp = $result->next_hit ) {
+            while ( my $hsp = $result->next_hit ) {
               print "\t name ", $hsp->name,
             }
             print "\n";
@@ -41,22 +41,6 @@ based on query accession(s)
 This object allows one to build an index on a blast file (or files)
 and provide quick access to the blast report for that accession.
 Note: for best results 'use strict'.
-
-The default key is the word after the "E<gt>" character (/^\s*(\S+)/).
-You can also set or customize the unique key used to retrieve by 
-writing your own function and calling the id_parser() method.
-For example:
-
-   $inx->id_parser(\&get_id);
-   # make the index
-   $inx->make_index($file_name);
-
-   # here is where the retrieval key is specified
-   sub get_id {
-      my $line = shift;
-      $line =~ /^>\s+([A-Z]+)/i;
-      $1;
-   }
 
 =head1 FEEDBACK
 
@@ -88,15 +72,12 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Index::Blast;
 use vars qw($VERSION);
 use strict;
 
-use Bio::Tools::BPlite;
 use IO::String;
 
 use base qw(Bio::Index::Abstract Bio::Root::Root);
@@ -156,64 +137,14 @@ sub new {
 =cut
 
 sub fetch_report{
-        my ($self,$id) = @_;
-        my $fh = $self->get_stream($id);
-        my $report = new Bio::SearchIO(-noclose => 1,
-                                       -format => 'blast',
-                                       -fh => $fh);
-        return $report->next_result;
+	my ($self,$id) = @_;
+	my $fh = $self->get_stream($id);
+	my $report = new Bio::SearchIO(-noclose => 1,
+											 -format => 'blast',
+											 -fh => $fh);
+	return $report->next_result;
 }
 
-
-# shamlessly stolen from Bio::Index::Fasta
-
-=head2 id_parser
-
-  Title   : id_parser
-  Usage   : $index->id_parser( CODE )
-  Function: Stores or returns the code used by record_id to
-            parse the ID for record from a string.  Useful
-            for (for instance) specifying a different
-            parser for different flavours of blast dbs. 
-            Returns \&default_id_parser (see below) if not
-            set. An entry will be added to
-            the index for each string in the list returned.
-  Example : $index->id_parser( \&my_id_parser )
-  Returns : ref to CODE if called without arguments
-  Args    : CODE
-
-=cut
-
-sub id_parser {
-    my( $self, $code ) = @_;
-
-    if ($code) {
-        $self->{'_id_parser'} = $code;
-    }
-    return $self->{'_id_parser'} || \&default_id_parser;
-}
-
-
-
-=head2 default_id_parser
-
-  Title   : default_id_parser
-  Usage   : $id = default_id_parser( $line )
-  Function: The default Blast Query ID parser for Bio::Index::Blast.pm
-            Returns $1 from applying the regexp /^\s*(\S+)/
-            to $line.
-  Returns : ID string
-  Args    : a line string
-
-=cut
-
-sub default_id_parser {
-	if ($_[0] =~ /^\s*(\S+)/) {
-		return $1;
-	} else {
-		return;
-	}
-}
 
 =head2 Require methods from Bio::Index::Abstract
 
@@ -254,10 +185,10 @@ sub _index_file {
 				# if we have already read a report
 				# then store the data for this report 
 				# in the CURRENT index
-				$self->_process_report($indexpoint, $i,join("",@data));
+				$self->_process_report($indexpoint, $i, join("",@data));
 
 			} # handle fencepost problem (beginning) 
-	      # by skipping here when empty
+	        # by skipping here when empty
 
 			# since we are at the beginning of a new report
 			# store this begin location for the next index	   
@@ -280,15 +211,14 @@ sub _process_report {
 		$self->warn("calling _process_report without a valid data string"); 
 		return ; 
 	}
-	my $id_parser = $self->id_parser;
+	# my $id_parser = $self->id_parser;
 
 	my $datal = new IO::String($data);
-	my $report = new Bio::Tools::BPlite(-fh      => $datal,
-					-noclose => 1);
-
-	my $query = $report->query;
-	foreach my $id (&$id_parser($query)) {
-		print "id is $id, begin is $begin\n" if( $self->verbose > 0);
+	my $report = new Bio::SearchIO->new(-fh => $datal,
+												   -noclose => 1);
+	for (my $result = $report->next_result) {
+		my $id = $result->query_name;
+		print "id is $id, begin is $begin\n" if ( $self->verbose > 0);
 		$self->add_record($id, $i, $begin);
 	}
 }
@@ -355,7 +285,7 @@ sub _process_report {
            while( <$fh> ) {
               # do something
            }
-           will parse the entire file if you don't put in
+           will parse the entire file if you do not put in
            a last statement in, like
 
            while( <$fh> ) {
@@ -475,10 +405,5 @@ sub _process_report {
 
 
 =cut
-
-
-1;
-
-
 
 1;
