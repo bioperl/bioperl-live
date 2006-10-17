@@ -390,7 +390,7 @@ sub length {
 =cut
 
 sub sortable {
-    my $self = shift;
+    my ($self, $given_map) = @_;
     my $answer = $self->numeric($self->absolute_relative);
     return $answer;
 }
