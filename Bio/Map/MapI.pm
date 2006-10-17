@@ -197,7 +197,7 @@ sub get_elements {
                                     input maps [default is 100 - note that this
                                     will effectively override all other options]
            -require_self => 1|0   : require that all output elements at least
-                                    be on the calling map [default is 0, has no
+                                    be on the calling map [default is 1, has no
                                     effect when the second usage form is used]
            -required => \@maps    : require that all output elements be on at
                                     least all the maps supplied here
@@ -219,7 +219,7 @@ sub common_elements {
     }
     $self->throw("Need at least 2 maps") unless @maps >= 2;
     
-    my %args = (-min_num => 1, -min_percent => 100, -require_self => 0, -required => undef, @extra_args);
+    my %args = (-min_num => 1, -min_percent => 100, -require_self => 1, -required => undef, @extra_args);
     my $min_num = $args{-min_num};
     if ($args{-min_percent}) {
         my $mn = @maps / 100 * $args{-min_percent};

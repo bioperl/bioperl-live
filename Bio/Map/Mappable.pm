@@ -77,6 +77,7 @@ Internal methods are usually preceded with a _
 package Bio::Map::Mappable;
 use strict;
 use Bio::Map::Relative;
+use Bio::Map::Position;
 
 use base qw(Bio::Root::Root Bio::Map::MappableI);
 
@@ -305,18 +306,28 @@ sub contains {
            -min_pos_num => int    : the minimum number of positions that must
                                     be in a group before it will be returned
                                     [default is 1]
-           -min_num => int        : the minimum number of different mappables
-                                    represented by the positions in a group
-                                    before it will be returned [default is 1]
-           -min_percent => number : as above, but the minimum percentage of
-                                    input mappables [default is 0]
-           -require_self => 1|0   : require that at least one of the calling
-                                    object's positions be in each group [default
-                                    is 1, has no effect when the second usage
-                                    form is used]
-           -required => \@mappbls : require that at least one position for each
-                                    mappable supplied in this array ref be in
-                                    each group
+           -min_mappables_num => int        : the minimum number of different
+                                              mappables represented by the
+                                              positions in a group before it
+                                              will be returned [default is 1]
+           -min_mappables_percent => number : as above, but the minimum
+                                              percentage of input mappables
+                                              [default is 0]
+           -min_map_num => int              : the minimum number of different
+                                              maps represented by the positions
+                                              in a group before it will be
+                                              returned [default is 1]
+           -min_map_percent => number       : as above, but the minimum
+                                              percentage of maps known by the
+                                              input mappables [default is 0]
+           -require_self => 1|0             : require that at least one of the
+                                              calling object's positions be in
+                                              each group [default is 1, has no
+                                              effect when the second usage form
+                                              is used]
+           -required => \@mappables         : require that at least one position
+                                              for each mappable supplied in this
+                                              array ref be in each group
 
 =cut
 
@@ -333,7 +344,8 @@ sub overlapping_groups {
  Function: Make the positions that are at the intersection of each group of
            overlapping positions, considering all the positions of the supplied
            mappables.
- Returns : array of L<Bio::Map::PositionI> objects
+ Returns : new Bio::Map::Mappable who's positions on maps are the calculated
+           disconnected unions
  Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
                     this one to, or an array ref of such objects (mandatory)
            arg #2 = optionally, one or more of the key => value pairs below
@@ -345,19 +357,30 @@ sub overlapping_groups {
            -min_pos_num => int    : the minimum number of positions that must
                                     be in a group before the intersection will
                                     be calculated and returned [default is 1]
-           -min_num => int        : the minimum number of different mappables
-                                    represented by the positions in a group
-                                    before the intersection will be calculated
-                                    and returned [default is 1]
-           -min_percent => number : as above, but the minimum percentage of
-                                    input mappables [default is 0]
-           -require_self => 1|0   : require that at least one of the calling
-                                    object's positions be in each group [default
-                                    is 1, has no effect when the second usage
-                                    form is used]
-           -required => \@mappbls : require that at least one position for each
-                                    mappable supplied in this array ref be in
-                                    each group
+           -min_mappables_num => int        : the minimum number of different
+                                              mappables represented by the
+                                              positions in a group before the
+                                              intersection will be calculated
+                                              and returned [default is 1]
+           -min_mappables_percent => number : as above, but the minimum
+                                              percentage of input mappables
+                                              [default is 0]
+           -min_map_num => int              : the minimum number of different
+                                              maps represented by the positions
+                                              in a group before the intersection
+                                              will be calculated and returned
+                                              [default is 1]
+           -min_map_percent => number       : as above, but the minimum
+                                              percentage of maps known by the
+                                              input mappables [default is 0]
+           -require_self => 1|0             : require that at least one of the
+                                              calling object's positions be in
+                                              each group [default is 1, has no
+                                              effect when the second usage form
+                                              is used]
+           -required => \@mappables         : require that at least one position
+                                              for each mappable supplied in this
+                                              array ref be in each group
 
 =cut
 
@@ -373,7 +396,8 @@ sub disconnected_intersections {
            my @positions = Bio::Map::Mappable->disconnected_unions(\@mappables);
  Function: Make the positions that are the union of each group of overlapping
            positions, considering all the positions of the supplied mappables.
- Returns : array of L<Bio::Map::PositionI> objects
+ Returns : new Bio::Map::Mappable who's positions on maps are the calculated
+           disconnected unions
  Args    : arg #1 = L<Bio::Map::MappableI> OR L<Bio::Map::PositionI> to  compare
                     this one to, or an array ref of such objects (mandatory)
            arg #2 = optionally, one or more of the key => value pairs below
@@ -385,19 +409,30 @@ sub disconnected_intersections {
            -min_pos_num => int    : the minimum number of positions that must
                                     be in a group before the union will be
                                     calculated and returned [default is 1]
-           -min_num => int        : the minimum number of different mappables
-                                    represented by the positions in a group
-                                    before the union will be calculated and
-                                    returned [default is 1]
-           -min_percent => number : as above, but the minimum percentage of
-                                    input mappables [default is 0]
-           -require_self => 1|0   : require that at least one of the calling
-                                    object's positions be in each group [default
-                                    is 0, has no effect when the second usage
-                                    form is used]
-           -required => \@mappbls : require that at least one position for each
-                                    mappable supplied in this array ref be in
-                                    each group
+           -min_mappables_num => int        : the minimum number of different
+                                              mappables represented by the
+                                              positions in a group before the
+                                              union will be calculated and
+                                              returned [default is 1]
+           -min_mappables_percent => number : as above, but the minimum
+                                              percentage of input mappables
+                                              [default is 0]
+           -min_map_num => int              : the minimum number of different
+                                              maps represented by the positions
+                                              in a group before the union will
+                                              be calculated and returned
+                                              [default is 1]
+           -min_map_percent => number       : as above, but the minimum
+                                              percentage of maps known by the
+                                              input mappables [default is 0]
+           -require_self => 1|0             : require that at least one of the
+                                              calling object's positions be in
+                                              each group [default is 1, has no
+                                              effect when the second usage form
+                                              is used]
+           -required => \@mappables         : require that at least one position
+                                              for each mappable supplied in this
+                                              array ref be in each group
 
 =cut
 
@@ -414,16 +449,31 @@ sub _compare {
     $self->throw("Wrong number of extra args (should be key => value pairs)") unless @extra_args % 2 == 0;
     my @compares = ref($input) eq 'ARRAY' ? @{$input} : ($input);
     
-    my %args = (-map => undef, -relative => undef, -min_pos_num => 1, -min_num => 1,
-                -min_percent => 0, -require_self => 0, -required => undef, @extra_args);
+    my %args = (-map => undef, -relative => undef, -min_pos_num => 1,
+                -min_mappables_num => 1, -min_mappables_percent => 0,
+                -min_map_num => 1, -min_map_percent => 0,
+                -require_self => 0, -required => undef, @extra_args);
     my $map = $args{-map};
     my $rel = $args{-relative};
     my $min_pos_num = $args{-min_pos_num};
-    my $min_num = $args{-min_num};
-    if ($args{-min_percent}) {
-        my $mn = (@compares + (ref($self) ? 1 : 0)) / 100 * $args{-min_percent};
-        if ($mn > $min_num) {
-            $min_num = $mn;
+    my $min_pables_num = $args{-min_mappables_num};
+    if ($args{-min_mappables_percent}) {
+        my $mn = (@compares + (ref($self) ? 1 : 0)) / 100 * $args{-min_mappables_percent};
+        if ($mn > $min_pables_num) {
+            $min_pables_num = $mn;
+        }
+    }
+    my $min_map_num = $args{-min_map_num};
+    if ($args{-min_map_percent}) {
+        my %known_maps;
+        foreach my $pable (@compares, ref($self) ? ($self) : ()) {
+            foreach my $known ($pable->known_maps) {
+                $known_maps{$known->unique_id} = 1;
+            }
+        }
+        my $mn = scalar(keys %known_maps) / 100 * $args{-min_map_percent};
+        if ($mn > $min_map_num) {
+            $min_map_num = $mn;
         }
     }
     my %required = map { $_ => 1 } $args{-required} ? @{$args{-required}} : ();
@@ -474,7 +524,8 @@ sub _compare {
                          @mine;
                 @yours = map { $_->[1] }
                          sort { $b->[0] <=> $a->[0] }
-                         map { [$_->end($_->absolute_relative), $_] } @yours;
+                         map { [$_->end($_->absolute_relative), $_] }
+                         @yours;
             }
             my $test_pos = shift(@yours);
             
@@ -499,30 +550,48 @@ sub _compare {
         /overlapping_groups|intersection|union/ && do {
             my @positions = (@mine, @yours);
             my $start_pos = shift(@positions);
-            my @disconnected_ranges = $start_pos->disconnected_ranges(\@positions, $rel);
-            @disconnected_ranges > 0 or return;
+            my $dr_able = $start_pos->disconnected_ranges(\@positions, $rel) || return;
+            my @disconnected_ranges = $dr_able->get_positions;
             
-            my @all_groups;
+            my %all_groups;
             for my $i (0..$#disconnected_ranges) {
                 my $range = $disconnected_ranges[$i];
                 foreach my $pos ($start_pos, @positions) {
                     if ($pos->overlaps($range, undef, $rel)) {
-                        push(@{$all_groups[$i]}, $pos);
+                        $all_groups{$range->toString}->{$pos} = $pos;
                     }
                 }
             }
             
+            # purge the temporary working (not $dr_able->purge_positions since
+            # that removes the element from each position, but leaves it on
+            # the map. *** need complete purge that removes position from
+            # memory...
+            foreach my $pos (@disconnected_ranges) {
+                my $map = $pos->map || next;
+                $map->purge_positions($pos);
+            }
+            
             my @groups;
-            GROUPS: foreach my $group (@all_groups) {
-                @{$group} >= $min_pos_num or next;
-                @{$group} >= $min_num or next;
+            GROUPS: foreach my $group (values %all_groups) {
+                my @group = values %{$group};
+                @group >= $min_pos_num or next;
+                @group >= $min_pables_num or next; # shortcut before having to work it out properly
+                @group >= $min_map_num or next; # shortcut before having to work it out properly
                 
                 my %mappables;
-                foreach my $pos (@{$group}) {
+                foreach my $pos (@group) {
                     my $mappable = $pos->element || next;
                     $mappables{$mappable} = 1;
                 }
-                keys %mappables >= $min_num or next;
+                keys %mappables >= $min_pables_num or next;
+                
+                my %maps;
+                foreach my $pos (@group) {
+                    my $map = $pos->map || next;
+                    $maps{$map->unique_id} = 1;
+                }
+                keys %maps >= $min_map_num or next;
                 
                 foreach my $required (@required) {
                     exists $mappables{$required} or next GROUPS;
@@ -530,7 +599,9 @@ sub _compare {
                 
                 my @sorted = map { $_->[1] }
                              sort { $a->[0] <=> $b->[0] }
-                             map { [$_->sortable, $_] } @{$group};
+                             map { [$_->sortable, $_] }
+                             @group;
+                
                 push(@groups, \@sorted);
             }
             
@@ -540,10 +611,25 @@ sub _compare {
             else {
                 foreach my $group (@groups) {
                     my $start_pos = shift(@{$group});
-                    my @rel_arg = $method eq 'intersection' ? (undef, $rel) : ($rel);
-                    my $result = $start_pos->$method($group, @rel_arg);
-                    push(@ok, $result);
+                    
+                    unless (@{$group}) {
+                        # we'll consider the 'intersection' or 'union' of just
+                        # one position as the position itself
+                        push(@ok, Bio::Map::Position->new(-map => $start_pos->map,
+                                                          -start => $start_pos->start,
+                                                          -end => $start_pos->end));
+                    }
+                    else {
+                        my @rel_arg = $method eq 'intersection' ? (undef, $rel) : ($rel);
+                        my $result = $start_pos->$method($group, @rel_arg) || next;
+                        push(@ok, $result->get_positions);
+                    }
                 }
+                
+                # assign all the positions to a result mappable
+                my $result = $self->new();
+                $result->add_position(@ok); # add_position can actually take a list
+                return $result;
             }
             
             last SWITCH;

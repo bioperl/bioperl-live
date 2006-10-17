@@ -240,9 +240,11 @@ my $pos;
         $pos1->absolute(0);
         
         # Try the other methods briefly
-        ok my $i = $pos1->intersection($pos2);
+        ok my $i = $pos1->intersection($pos2); # returns a mappable
+        ($i) = $i->get_positions; # but we're just interested in the first (and only) position of mappable
         ok $i->toString, '100..104';
         ok $i = $pos1->intersection($pos2, undef, $relative2);
+        ($i) = $i->get_positions;
         ok $i->toString, '-100..-96';
         ok $i->map, $map;
         ok $i->relative, $relative2;
@@ -250,8 +252,10 @@ my $pos;
         ok $i->toString, '100..104';
         
         ok my $u = $pos1->union($pos2);
+        ($u) = $u->get_positions;
         ok $u->toString, '95..109';
         ok $u = $pos1->union($pos2, $relative2);
+        ($u) = $u->get_positions;
         ok $u->toString, '-105..-91';
         ok $u->map, $map;
         ok $u->relative, $relative2;
@@ -325,21 +329,23 @@ my $pos;
         ok ${$groups[1]}[1], $pos5;
         ok ${$groups[1]}[2]->toString($gene_rel), $pos4->toString($gene_rel);
         ok ${$groups[1]}[3]->toString($gene_rel), $pos3->toString($gene_rel);
-        ok my @di = $factor->disconnected_intersections($predictions, -relative => $gene_rel, -min_num => 3);
+        ok my $di = $factor->disconnected_intersections($predictions, -relative => $gene_rel, -min_mappables_num => 3);
+        my @di = $di->get_positions;
         ok @di, 1;
         ok $di[0]->toString, '-25..-21';
-        ok my @du = $factor->disconnected_unions($predictions, -relative => $gene_rel, -min_num => 3);
+        ok my $du = $factor->disconnected_unions($predictions, -relative => $gene_rel, -min_mappables_num => 3);
+        my @du = $du->get_positions;
         ok @du, 1;
         ok $du[0]->toString, '-30..-16';
         
         # test the flags on overlapping_groups a bit more
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 2);
         ok @groups, 1;
-        @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_num => 2);
+        @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_mappables_num => 2);
         ok @groups, 1;
-        @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_num => 1, -min_percent => 50);
+        @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_mappables_num => 1, -min_mappables_percent => 50);
         ok @groups, 1;
-        @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_num => 1, -min_percent => 5);
+        @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_mappables_num => 1, -min_mappables_percent => 5);
         ok @groups, 2;
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -require_self => 1);
         ok @groups, 1;
@@ -350,4 +356,4 @@ my $pos;
         ok ! $human_prediction->overlaps($mouse_prediction);
         ok $human_prediction->overlaps($mouse_prediction, -relative => $gene_rel);
     }
-}   
+}

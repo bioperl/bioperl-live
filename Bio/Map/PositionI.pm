@@ -77,6 +77,7 @@ Internal methods are usually preceded with a _
 package Bio::Map::PositionI;
 use strict;
 use Bio::Map::PositionHandler;
+use Bio::Map::Mappable;
 use Scalar::Util qw(looks_like_number);
 
 use base qw(Bio::Map::EntityI Bio::RangeI);
@@ -492,14 +493,14 @@ sub contains {
  Title   : intersection
  Usage   : ($start, $stop, $strand) = $p1->intersection($p2)
            ($start, $stop, $strand) = Bio::Map::Position->intersection(\@positions);
-           my $containing_pos = $p1->intersection($p2);
-           my $containing_pos = Bio::Map::Position->intersection(\@positions);
+           $mappable = $p1->intersection($p2, undef, $relative);
+           $mappable = Bio::Map::Position->intersection(\@positions);
  Function: gives the range that is contained by all ranges
- Returns : undef if they do not overlap, or
-           the range that they do overlap in an object like the calling one
-           (with map transfered across from self or a position in the array ref
-           of positions supplied, as long as the map is shared by all inputs),
-           OR a three element array
+ Returns : undef if they do not overlap, OR
+           Bio::Map::Mappable object who's positions are the
+           cross-map-calculated intersection of the input positions on all the
+           maps that the input positions belong to, OR, in list context, a three
+           element array (start, end, strand)
  Args    : arg #1 = [REQUIRED] a Bio::RangeI (eg. a Bio::Map::Position) to
                     compare this one to, or an array ref of Bio::RangeI
            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
@@ -526,12 +527,13 @@ sub intersection {
     ref($given) eq 'ARRAY' ? push(@positions, @{$given}) : push(@positions, $given);
     $self->throw("Need at least 2 Positions") unless @positions >= 2;
     
-    my ($intersect, $i_start, $i_end, $c_start, $c_end, $map);
+    my ($intersect, $i_start, $i_end, $c_start, $c_end, %known_maps);
     while (@positions > 0) {
         unless ($intersect) {
             $intersect = shift(@positions);
             ($i_start, $i_end) = $self->_pre_rangei($intersect, $rel);
-            $map = $intersect->map;
+            my $map = $intersect->map;
+            $known_maps{$map->unique_id} = $map;
         }
         
         my $compare = shift(@positions);
@@ -539,11 +541,12 @@ sub intersection {
         return unless $compare->_testStrand($intersect, $so);
         if ($compare->isa('Bio::Map::PositionI')) {
             my $this_map = $compare->map;
-            $map ||= $this_map;
-            
-            if ($map ne $this_map) {
-                $map = 'notsame';
+            if ($this_map) {
+                $known_maps{$this_map->unique_id} = $this_map;
             }
+        }
+        else {
+            $self->throw("Only Bio::Map::PositionI objects are supported, not [$compare]");
         }
         
         my @starts = sort {$a <=> $b} ($i_start, $c_start);
@@ -570,15 +573,30 @@ sub intersection {
         }
     }
     
+    $intersect || return;
+    my ($start, $end, $strand) = ($intersect->start, $intersect->end, $intersect->strand);
+    
     if (wantarray()) {
-        return ($intersect->start, $intersect->end, $intersect->strand);
+        return ($start, $end, $strand);
     }
     else {
-        if ($map && $map ne 'notsame') {
-            $intersect->map($map);
+        my @intersects;
+        foreach my $known_map (values %known_maps) {
+            my $new_intersect = $intersect->new(-start => $start,
+                                                -end => $end,
+                                                -strand => $strand,
+                                                -map => $known_map);
+            $new_intersect->relative($rel) if $rel;
+            push(@intersects, $new_intersect);
         }
-        $intersect->relative($rel) if $rel;
-        return $intersect;
+        unless (@intersects) {
+            $intersect->relative($rel) if $rel;
+            @intersects = ($intersect);
+        }
+        
+        my $result = Bio::Map::Mappable->new();
+        $result->add_position(@intersects); # sneaky, add_position can take a list of positions
+        return $result;
     }
 }
 
@@ -587,17 +605,16 @@ sub intersection {
  Title   : union
  Usage   : ($start, $stop, $strand) = $p1->union($p2);
            ($start, $stop, $strand) = Bio::Map::Position->union(@positions);
-           my $newpos = $p1->union($p2);
-           my $newpos = Bio::Map::Position->union(@positions);
+           my $mappable = $p1->union($p2);
+           my $mappable = Bio::Map::Position->union(@positions);
  Function: finds the minimal position/range that contains all of the positions
- Returns : the position object containing all of the ranges in an object like
-           the calling one (with map transfered across from self or a position
-           in the array ref of positions supplied, as long as the map is shared
-           by all inputs), OR a three element array
- Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to, or a
-           list of Bio::RangeI
+ Returns : Bio::Map::Mappable object who's positions are the
+           cross-map-calculated union of the input positions on all the maps
+           that the input positions belong to, OR, in list context, a three
+           element array (start, end, strand)
+ Args    : a Bio::Map::PositionI to compare this one to, or a list of such
            OR
-           a single Bio::RangeI or array ref of Bio::RangeI AND a
+           a single Bio::Map::PositionI or array ref of such AND a
            Bio::Map::RelativeI to ask for the Position's union in terms of their
            relative position to the thing described by that Relative
 
@@ -633,7 +650,7 @@ sub union {
     }
     $self->throw("Need at least 2 Positions") unless @positions >= 2;
     
-    my (@starts, @ends, $map, $union_strand);
+    my (@starts, @ends, %known_maps, $union_strand);
     foreach my $compare (@positions) {
         # RangeI union allows start or end to be undefined; however _pre_rangei
         # will throw
@@ -641,11 +658,12 @@ sub union {
         
         if ($compare->isa('Bio::Map::PositionI')) {
             my $this_map = $compare->map;
-            $map ||= $this_map;
-            
-            if ($map ne $this_map) {
-                $map = 'notsame';
+            if ($this_map) {
+                $known_maps{$this_map->unique_id} = $this_map;
             }
+        }
+        else {
+            $self->throw("Only Bio::Map::PositionI objects are supported, not [$compare]");
         }
         
         if (! defined $union_strand) {
@@ -670,14 +688,25 @@ sub union {
 		return ($start, $end, $union_strand);
 	}
     else {
-		my $pos = $self->new(-start => $start,
-				    		 -end => $end,
-						     -strand => $union_strand);
-        if ($map && $map ne 'notsame') {
-            $pos->map($map);
+		my @unions;
+        foreach my $known_map (values %known_maps) {
+            my $new_union = $self->new(-start => $start,
+                                       -end => $end,
+                                       -strand => $union_strand,
+                                       -map => $known_map);
+            $new_union->relative($rel) if $rel;
+            push(@unions, $new_union);
         }
-        $pos->relative($rel) if $rel;
-        return $pos;
+        unless (@unions) {
+            @unions = ($self->new(-start => $start,
+				    		 -end => $end,
+						     -strand => $union_strand));
+            $unions[0]->relative($rel) if $rel;
+        }
+        
+        my $result = Bio::Map::Mappable->new();
+        $result->add_position(@unions); # sneaky, add_position can take a list of positions
+        return $result;
 	}
 }
 
@@ -701,14 +730,13 @@ sub union {
 
  Title   : disconnected_ranges
  Usage   : my @disc_ranges = Bio::Map::Position->disconnected_ranges(@ranges);
- Function: Finds the minimal set of ranges such that each input range is fully
-           contained by at least one output range, and none of the output ranges
-           overlap.
- Returns : array of Bio::Map::PositionI objects
- Args    : a Bio::RangeI (eg. a Bio::Map::Position) to compare this one to, or a
-           list of Bio::RangeI
+ Function: Creates the minimal set of positions such that each input position is
+           fully contained by at least one output position, and none of the
+           output positions overlap.
+ Returns : Bio::Map::Mappable with the calculated disconnected ranges
+ Args    : a Bio::Map::PositionI to compare this one to, or a list of such,
            OR
-           a single Bio::RangeI or array ref of Bio::RangeI AND a
+           a single Bio::Map::PositionI or array ref of such AND a
            Bio::Map::RelativeI to consider all Position's co-ordinates in terms
            of their relative position to the thing described by that Relative
 
@@ -739,13 +767,24 @@ sub disconnected_ranges {
         $rel = shift(@args);
     }
     foreach my $arg (@args) {
-        # avoid pushind undefined values into @positions
         push(@positions, $arg) if $arg;
     }
     $self->throw("Need at least 2 Positions") unless @positions >= 2;
     
-    my @outranges = ();
+    my %known_maps;
+    foreach my $pos (@positions) {
+        $pos->isa('Bio::Map::PositionI') || $self->throw("Must supply only Bio::Map::PositionI objects, not [$pos]");
+        my $map = $pos->map || next;
+        $known_maps{$map->unique_id} = $map;
+    }
+    my %prior_positions;
+    foreach my $map (values %known_maps) {
+        foreach my $pos ($map->get_positions) {
+            $prior_positions{$pos} = 1;
+        }
+    }
     
+    my @outranges = ();
     foreach my $inrange (@positions) {
         my @outranges_new = ();
         my @overlapping_ranges = ();
@@ -753,19 +792,20 @@ sub disconnected_ranges {
         for (my $i=0; $i<@outranges; $i++) {
             my $outrange = $outranges[$i];
             if ($inrange->overlaps($outrange, undef, $rel)) {
-                my $union = $inrange->union($outrange, $rel);
-                push(@overlapping_ranges, $union);
+                my $union_able = $inrange->union($outrange, $rel);
+                push(@overlapping_ranges, $union_able->get_positions);
             }
             else {
                 push(@outranges_new, $outrange);
             }
         }
+        
         @outranges = @outranges_new;
         
         if (@overlapping_ranges) {
             if (@overlapping_ranges > 1) {
-                my $merged_range = $self->union(@overlapping_ranges, $rel);
-                push(@outranges, $merged_range);
+                my $merged_range_able = shift(@overlapping_ranges)->union(\@overlapping_ranges, $rel);
+                push(@outranges, $merged_range_able->get_positions);
             }
             else {
                 push(@outranges, @overlapping_ranges);
@@ -776,12 +816,23 @@ sub disconnected_ranges {
         }
     }
     
-    @outranges = map { $_->[1] }
-                 sort { $a->[0] <=> $b->[0] }
-                 map { [$_->sortable, $_] }
-                 @outranges;
+    # purge positions that were created whilst calculating the answer, but
+    # aren't the final answer and weren't there previously
+    my %answers = map { $_ => 1 } @outranges;
+    foreach my $map (values %known_maps) {
+        foreach my $pos ($map->get_positions) {
+            if (! exists $prior_positions{$pos} && ! exists $answers{$pos}) {
+                $map->purge_positions($pos);
+            }
+        }
+    }
     
-    return @outranges;
+    @outranges || return;
+    
+    # assign the positions to a result mappable
+    my $result = Bio::Map::Mappable->new();
+    $result->add_position(@outranges); # sneaky, add_position can take a list of positions
+    return $result;
 }
 
 # get start & end suitable for rangeI methods, taking relative into account
@@ -795,14 +846,36 @@ sub _pre_rangei {
     
     my ($other_start, $other_end);
     if (ref($other)) {
+        if (ref($other) eq 'ARRAY') {
+            $self->throw("_pre_rangei got an array");
+        }
         $self->throw("This is [$other], not a Bio::RangeI object") unless defined $other && $other->isa('Bio::RangeI');
         
-        my $prior_abs2;
-        $other->isa('Bio::Map::PositionI') ? ($prior_abs2 = $other->absolute) : ($rel = undef);
-        $other->absolute(1) if (defined $prior_abs2 && ! $prior_abs2);
-        $other_start = $other->start($rel);
-        $other_end = $other->end($rel);
-        $other->absolute(0) if (defined $prior_abs2 && ! $prior_abs2);
+        if ($other->isa('Bio::Map::PositionI')) {
+            # to get the desired start/end we need the position to be on a map;
+            # if it isn't on one temporarily place it on self's map
+            # - this lets us have 'generic' positions that aren't on any map
+            # but have a relative defined and can thus be usefully compared to
+            # positions that /are/ on maps
+            my $other_map = $other->map;
+            unless ($other_map) {
+                my $self_map = $self->map || $self->throw("Trying to compare two positions but neither had been placed on a map");
+                $other->map($self_map);
+            }
+            
+            # want start and end positions relative to the supplied rel or map start
+            $rel ||= $other->absolute_relative;
+            $other_start = $other->start($rel);
+            $other_end = $other->end($rel);
+            
+            unless ($other_map) {
+                $self->map->purge_positions($other);
+            }
+        }
+        else {
+            $other_start = $other->start;
+            $other_end = $other->end;
+        }
     }
     else {
         $self->throw("not a number") unless looks_like_number($other);
