@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AbstractSeq
+# BioPerl module for Bio::Index::AbstractSeq
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -12,31 +12,31 @@
 
 =head1 NAME
 
-Bio::Index::AbstractSeq - Base class for AbstractSeq s 
+Bio::Index::AbstractSeq - base class for AbstractSeq
 
 =head1 SYNOPSIS
 
   # Make a new sequence file indexing package
 
   package MyShinyNewIndexer;
+
   use base qw(Bio::Index::AbstractSeq);
 
   # Now provide the necessary methods...
 
 =head1 DESCRIPTION
 
-Provides a common base class for multiple
-sequence files built using the
-Bio::Index::Abstract system, and provides a
-Bio::DB::SeqI interface.
+Provides a common base class for multiple sequence files built using 
+the Bio::Index::Abstract system, and provides a Bio::DB::SeqI 
+interface.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
+and other Bioperl modules. Send your comments and suggestions 
+preferably to one of the Bioperl mailing lists.
 Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
@@ -56,34 +56,32 @@ Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. 
+Internal methods are usually preceded with a _
 
 =head1 SEE ALSO
 
-Bio::Index::Abstract - Module which
-Bio::Index::AbstractSeq inherits off, which
-provides dbm indexing for flat files (which are
-not necessarily sequence files).
+L<Bio::Index::Abstract>, which provides dbm indexing for flat files of 
+any type, containing sequence or not. L<Bio::Index::AbstractSeq> inherits 
+from L<Bio::Index::Abstract>>
 
 =cut
 
 # Let's begin the code ...
-
 
 package Bio::Index::AbstractSeq;
 use strict;
 
 use Bio::SeqIO::MultiFile;
 
-
 use base qw(Bio::Index::Abstract Bio::DB::SeqI);
 
 sub new {
-    my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
+	my ($class, @args) = @_;
+	my $self = $class->SUPER::new(@args);
     
-    $self->{'_seqio_cache'} = [];
-    return $self;
+	$self->{'_seqio_cache'} = [];
+	return $self;
 }
 
 =head2 _file_format
@@ -96,7 +94,6 @@ sub new {
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -119,33 +116,31 @@ sub _file_format {
 =cut
 
 sub fetch {
-    my( $self, $id ) = @_;
-    my $db = $self->db();
-    my $seq;
+	my( $self, $id ) = @_;
+	my $db = $self->db();
+	my $seq;
 
-    if (my $rec = $db->{ $id }) {
-	my ($file, $begin) = $self->unpack_record( $rec );
+	if (my $rec = $db->{ $id }) {
+		my ($file, $begin) = $self->unpack_record( $rec );
         
-        # Get the (possibly cached) SeqIO object
-        my $seqio = $self->_get_SeqIO_object( $file );
-        my $fh = $seqio->_fh();
+		# Get the (possibly cached) SeqIO object
+		my $seqio = $self->_get_SeqIO_object( $file );
+		my $fh = $seqio->_fh();
 
-        # move to start of record
-	#$begin-- if( $^O =~ /mswin/i); # workaround for Win DB_File bug
-        seek($fh, $begin, 0);
+		# move to start of record
+		# $begin-- if( $^O =~ /mswin/i); # workaround for Win DB_File bug
+		seek($fh, $begin, 0);
 	
-	$seq = $seqio->next_seq();	
-    }
+		$seq = $seqio->next_seq();	
+	}
 
-    # we essentially assumme that the primary_id for the database
-    # is the display_id
-    if (ref($seq) &&
-        $seq->isa('Bio::PrimarySeqI') &&
-        $seq->primary_id =~ /^\D+$/)
-    {
-        $seq->primary_id( $seq->display_id() );
-    }
-    return $seq;
+	# we essentially assumme that the primary_id for the database
+	# is the display_id
+	if (ref($seq) && $seq->isa('Bio::PrimarySeqI') &&
+		 $seq->primary_id =~ /^\D+$/) {
+		$seq->primary_id( $seq->display_id() );
+	}
+	return $seq;
 }
 
 =head2 _get_SeqIO_object
