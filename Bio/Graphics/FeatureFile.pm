@@ -428,8 +428,11 @@ sub parse_line {
     return 1;
   }
 
-  # skip on blank lines and comments
-  return 1 if /^\s*[\#]/;
+  # remove comments (there may be data on the same line)
+  s/\s*\#.+$//;
+
+  # skip on blank lines
+  return 1 if /^\s*$/;
 
   # abort if we see a >FASTA line
   return 0 if /^>/;
