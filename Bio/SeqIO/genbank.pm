@@ -408,7 +408,8 @@ sub next_seq {
 					$comment =~ s/\n/ /g;
 					$comment =~ s/  +/ /g;
 					$annotation->add_Annotation('comment',
-						 Bio::Annotation::Comment->new(-text => $comment));
+						 Bio::Annotation::Comment->new(-text => $comment,
+									       -tagname => 'comment'));
 					$buffer = $_;
 	      } else {
 				while(defined($buffer = $self->_readline())) {
@@ -466,7 +467,7 @@ sub next_seq {
 						$annotation->add_Annotation
 						    ('dblink',
 						     Bio::Annotation::DBLink->new
-						     (-primary_id => $id . "." . $version,
+						     (-primary_id => $id,
 						      -version => $version,
 						      -database => $db,
 						      -tagname => 'dblink'));
@@ -521,7 +522,7 @@ sub next_seq {
 					$annotation->add_Annotation
 					    ('dblink',
 					     Bio::Annotation::DBLink->new
-					     (-primary_id => $id . "." . $version,
+					     (-primary_id => $id,
 					      -version => $version,
 					      -database => 'GenBank',
 					      -tagname => 'dblink'));
@@ -642,7 +643,8 @@ sub next_seq {
 				chomp;
 				if( $annotation && length($_) > 0 ) {
 					$annotation->add_Annotation('origin',
-					  Bio::Annotation::SimpleValue->new(-value => $_));
+					  Bio::Annotation::SimpleValue->new(-tagname => 'origin',
+									    -value => $_));
 				}
 				my $seqc = '';
 				while( defined($_ = $self->_readline) ) {
@@ -1149,7 +1151,7 @@ sub _read_GenBank_References{
 	   @pubmed = ();
 	   @medline = ();
 	   # create the new reference object
-	   $ref = Bio::Annotation::Reference->new();
+	   $ref = Bio::Annotation::Reference->new(-tagname => 'reference');
 	   # check whether start and end base is given
 	   if (/^REFERENCE\s+\d+\s+\([a-z]+ (\d+) to (\d+)\)/){
 	       $ref->start($1);
