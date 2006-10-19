@@ -18,7 +18,7 @@ BEGIN {
     }
 
     use Test;
-    plan tests => 179;
+    plan tests => 200;
 }
 
 if( $error == 1 ) {
@@ -308,6 +308,15 @@ ok($ann, 1);
 @date_check = qw(01-NOV-1997 01-NOV-1996 30-MAY-2006 );
 for my $date (@dates) {
     ok($date, shift @date_check);
+}
+
+my @idcheck = qw(Z66513 T22647 Cel.30446 Q06319 Q20772 F54D5.7 WBGene00010052
+		 F54D5.7 GO:0005515 IPR006089 IPR006091 IPR006090
+		 IPR006092 IPR009075 IPR009100 IPR013764 PF00441
+		 PF02770 PF02771 PS00072 PS00073);
+
+for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
+    ok($dblink->primary_id, shift @idcheck);
 }
 
 # TrEMBL/SwissProt sequence differentiation with namespace()
