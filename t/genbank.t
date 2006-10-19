@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 131;
+	plan tests => 135;
 }
 
 use Bio::SeqIO;
@@ -71,6 +71,10 @@ my $ac = $as->annotation;
 ok defined $ac;
 my @dblinks = $ac->get_Annotations('dblink');
 ok(scalar @dblinks,1);
+ok($dblinks[0]->database, 'GenBank');
+ok($dblinks[0]->primary_id, 'AB072353');
+ok($dblinks[0]->version, '1');
+ok("$dblinks[0]", 'GenBank:AB072353.1');
 
 # test for multi-line SOURCE
 $ast = Bio::SeqIO->new(-format => 'genbank',
