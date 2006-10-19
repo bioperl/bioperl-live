@@ -203,164 +203,164 @@ sub next_seq {
     	($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
 
     	if (defined($sv)) {
- 			$params{'-seq_version'} = $sv;
-			$params{'-version'} = $sv;
+	    $params{'-seq_version'} = $sv;
+	    $params{'-version'} = $sv;
     	}
 
     	if ($topology eq "circular") {
-    		$params{'-is_circular'} = 1;
+	    $params{'-is_circular'} = 1;
     	}
-
-   		if (defined $mol ) {
-			if ($mol =~ /DNA/) {
-				$alphabet='dna';
-			}
-			elsif ($mol =~ /RNA/) {
-				$alphabet='rna';
-			}
-			elsif ($mol =~ /AA/) {
-				$alphabet='protein';
-			}
-		}
+	
+	if (defined $mol ) {
+	    if ($mol =~ /DNA/) {
+		$alphabet='dna';
+	    }
+	    elsif ($mol =~ /RNA/) {
+		$alphabet='rna';
+	    }
+	    elsif ($mol =~ /AA/) {
+		$alphabet='protein';
+	    }
+	}
     }
     else {
-
+	
     	# Old style header (EMBL Release < 87, before June 2006)
     	($name, $mol, $div) = ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/);
-
-	   	if($mol) {
-			if ( $mol =~ /circular/ ) {
-				$params{'-is_circular'} = 1;
-				$mol =~  s|circular ||;
-			}
-			if (defined $mol ) {
-				if ($mol =~ /DNA/) {
-					$alphabet='dna';
-				}
-				elsif ($mol =~ /RNA/) {
-					$alphabet='rna';
-				}
-				elsif ($mol =~ /AA/) {
-					$alphabet='protein';
-				}
-			}
+	
+	if($mol) {
+	    if ( $mol =~ /circular/ ) {
+		$params{'-is_circular'} = 1;
+		$mol =~  s|circular ||;
+	    }
+	    if (defined $mol ) {
+		if ($mol =~ /DNA/) {
+		    $alphabet='dna';
 		}
+		elsif ($mol =~ /RNA/) {
+		    $alphabet='rna';
+		}
+		elsif ($mol =~ /AA/) {
+		    $alphabet='protein';
+		}
+	    }
+	}
     }
 
-   unless( defined $name && length($name) ) {
-		$name = "unknown_id";
-   }
+    unless( defined $name && length($name) ) {
+	$name = "unknown_id";
+    }
 
 	# $self->warn("not parsing upper annotation in EMBL file yet!");
    my $buffer = $line;
-   local $_;
-   BEFORE_FEATURE_TABLE :
-		 until( !defined $buffer ) {
-			 $_ = $buffer;
-			 # Exit at start of Feature table
-			 if( /^(F[HT]|SQ)/ ) {
-				 $self->_pushback($_) if( $1 eq 'SQ' );
-				 last;
-			 }
-			 # Description line(s)
-			 if (/^DE\s+(\S.*\S)/) {
-				 $desc .= $desc ? " $1" : $1;
-       }
+    local $_;
+    BEFORE_FEATURE_TABLE :
+	until( !defined $buffer ) {
+	    $_ = $buffer;
+	    # Exit at start of Feature table
+	    if( /^(F[HT]|SQ)/ ) {
+		$self->_pushback($_) if( $1 eq 'SQ' );
+		last;
+	    }
+	    # Description line(s)
+	    if (/^DE\s+(\S.*\S)/) {
+		$desc .= $desc ? " $1" : $1;
+	    }
 
-			 #accession number
-			 if( /^AC\s+(.*)?/ ) {
-				 my @accs = split(/[; ]+/, $1); # allow space in addition
-				 $params{'-accession_number'} = shift @accs
-					unless defined $params{'-accession_number'};
-				 push @{$params{'-secondary_accessions'}}, @accs;
-			 }
+	    #accession number
+	    if( /^AC\s+(.*)?/ ) {
+		my @accs = split(/[; ]+/, $1); # allow space in addition
+		$params{'-accession_number'} = shift @accs
+		    unless defined $params{'-accession_number'};
+		push @{$params{'-secondary_accessions'}}, @accs;
+	    }
 
-			 #version number
-			 if( /^SV\s+\S+\.(\d+);?/ ) {
-				 my $sv = $1;
-				 #$sv =~ s/\;//;
-				 $params{'-seq_version'} = $sv;
-				 $params{'-version'} = $sv;
-			 }
+	    #version number
+	    if( /^SV\s+\S+\.(\d+);?/ ) {
+		my $sv = $1;
+		#$sv =~ s/\;//;
+		$params{'-seq_version'} = $sv;
+		$params{'-version'} = $sv;
+	    }
 
-			 #date (NOTE: takes last date line)
-             if( /^DT\s+(.+)$/ ) {
-                 my $line = $1;
-                 my ($date, $version) = split(' ', $line, 2);
-                 $date =~ tr/,//d; # remove comma if new version
-                 if ($version =~ /\(Rel\. (\d+), Created\)/xms ) {
+	    #date (NOTE: takes last date line)
+	    if( /^DT\s+(.+)$/ ) {
+		my $line = $1;
+		my ($date, $version) = split(' ', $line, 2);
+		$date =~ tr/,//d; # remove comma if new version
+		if ($version =~ /\(Rel\. (\d+), Created\)/xms ) {
                     my $release = Bio::Annotation::SimpleValue->new(
-                                                -tagname    => 'creation_release',
-                                                -value      => $1
-                                                );
+								    -tagname    => 'creation_release',
+								    -value      => $1
+								    );
                     $annotation->add_Annotation($release);
-                 } elsif ($version =~ /\(Rel\. (\d+), Last updated, Version (\d+)\)/xms ) {
+		} elsif ($version =~ /\(Rel\. (\d+), Last updated, Version (\d+)\)/xms ) {
                     my $release = Bio::Annotation::SimpleValue->new(
-                            -tagname    => 'update_release',
-                            -value      => $1
-                            );
+								    -tagname    => 'update_release',
+								    -value      => $1
+								    );
                     $annotation->add_Annotation($release);
 
                     my $update = Bio::Annotation::SimpleValue->new(
-                            -tagname    => 'update_version',
-                            -value      => $2
-                            );
+								   -tagname    => 'update_version',
+								   -value      => $2
+								   );
                     $annotation->add_Annotation($update);
-                 }
-                 push @{$params{'-dates'}}, $date;
-             }
+		}
+		push @{$params{'-dates'}}, $date;
+	    }
 
-			 #keywords
-			 if( /^KW   (.*)\S*$/ ) {
-				 my @kw = split(/\s*\;\s*/,$1);
-				 push @{$params{'-keywords'}}, @kw;
-			 }
+	    #keywords
+	    if( /^KW   (.*)\S*$/ ) {
+		my @kw = split(/\s*\;\s*/,$1);
+		push @{$params{'-keywords'}}, @kw;
+	    }
 
-			 # Organism name and phylogenetic information
-			 elsif (/^O[SC]/) {
-                 # pass the accession number so we can give an informative throw message if necessary
-				 my $species = $self->_read_EMBL_Species(\$buffer, $params{'-accession_number'});
-				 $params{'-species'}= $species;
-			 }
+	    # Organism name and phylogenetic information
+	    elsif (/^O[SC]/) {
+		# pass the accession number so we can give an informative throw message if necessary
+		my $species = $self->_read_EMBL_Species(\$buffer, $params{'-accession_number'});
+		$params{'-species'}= $species;
+	    }
 
-			 # References
-			 elsif (/^R/) {
-				 my @refs = $self->_read_EMBL_References(\$buffer);
-				 foreach my $ref ( @refs ) {
-					 $annotation->add_Annotation('reference',$ref);
-				 }
-			 }
+	    # References
+	    elsif (/^R/) {
+		my @refs = $self->_read_EMBL_References(\$buffer);
+		foreach my $ref ( @refs ) {
+		    $annotation->add_Annotation('reference',$ref);
+		}
+	    }
 
-			 # DB Xrefs
-			 elsif (/^DR/) {
-				 my @links = $self->_read_EMBL_DBLink(\$buffer);
-				 foreach my $dblink ( @links ) {
-					 $annotation->add_Annotation('dblink',$dblink);
-				 }
-			 }
+	    # DB Xrefs
+	    elsif (/^DR/) {
+		my @links = $self->_read_EMBL_DBLink(\$buffer);
+		foreach my $dblink ( @links ) {
+		    $annotation->add_Annotation('dblink',$dblink);
+		}
+	    }
 
-			 # Comments
-			 elsif (/^CC\s+(.*)/) {
-				 $comment .= $1;
-				 $comment .= " ";
-				 while (defined ($_ = $self->_readline) ) {
-					 if (/^CC\s+(.*)/) {
-						 $comment .= $1;
-						 $comment .= " ";
-					 }
-					 else {
-						 last;
-					 }
-				 }
-				 my $commobj = Bio::Annotation::Comment->new();
-				 $commobj->text($comment);
-				 $annotation->add_Annotation('comment',$commobj);
-				 $comment = "";
-			 }
+	    # Comments
+	    elsif (/^CC\s+(.*)/) {
+		$comment .= $1;
+		$comment .= " ";
+		while (defined ($_ = $self->_readline) ) {
+		    if (/^CC\s+(.*)/) {
+			$comment .= $1;
+			$comment .= " ";
+		    }
+		    else {
+			last;
+		    }
+		}
+		my $commobj = Bio::Annotation::Comment->new();
+		$commobj->text($comment);
+		$annotation->add_Annotation('comment',$commobj);
+		$comment = "";
+	    }
 
-			 # Get next line.
-			 $buffer = $self->_readline;
-		 }
+	    # Get next line.
+	    $buffer = $self->_readline;
+	}
 
    while( defined ($_ = $self->_readline) ) {
 		/^FT\s{3}\w/ && last;
@@ -754,16 +754,17 @@ sub write_seq {
 
 			# DB Xref lines
 			if (my @db_xref = $seq->annotation->get_Annotations('dblink') ) {
-				foreach my $dr (@db_xref) {
-					my $db_name = $dr->database;
-					my $prim    = $dr->primary_id;
-					my $opt     = $dr->optional_id || '';
-					my $line = $opt ? "$db_name; $prim; $opt." : "$db_name; $prim.";
-					$self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80) || return; #'
-				}
-				$self->_print("XX\n") || return;
-			}
+			    for my $dr (@db_xref) {
+				my $db_name = $dr->database;
+				my $prim    = $dr->primary_id;
 
+				my $opt     = $dr->optional_id || '';
+				my $line = $opt ? "$db_name; $prim; $opt." : "$db_name; $prim.";
+				$self->_write_line_EMBL_regex("DR   ", "DR   ", $line, '\s+|$', 80) || return; #'
+			    }
+			    $self->_print("XX\n") || return;
+			}
+			
 			# Comment lines
 			foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
 				$self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80) || return; #'
@@ -1122,22 +1123,19 @@ sub _read_EMBL_DBLink {
 
     $_ = $$buffer;
     while (defined( $_ ||= $self->_readline )) {
+        if( /^DR   ([^\s;]+);\s*([^\s;]+);?\s*([^\s;]+)?\.$/) {
+	    my ($databse, $prim_id, $sec_id) = ($1,$2,$3);
+	    my $link = Bio::Annotation::DBLink->new(-database    => $databse,
+						    -primary_id  => $prim_id,
+						    -optional_id => $sec_id);
 
-        if (my($databse, $prim_id, $sec_id)
-                = /^DR   ([^\s;]+);\s*([^\s;]+);?\s*([^\s;]+)?\.$/) {
-            my $link = Bio::Annotation::DBLink->new();
-            $link->database   ( $databse );
-            $link->primary_id ( $prim_id );
-            $link->optional_id( $sec_id  ) if $sec_id;
             push(@db_link, $link);
-	}
-        else {
+	} else {
             last;
         }
-
-        $_ = undef; # Empty $_ to trigger read of next line
+        $_ = undef;	       # Empty $_ to trigger read of next line
     }
-
+    
     $$buffer = $_;
 
     return @db_link;
@@ -1184,7 +1182,7 @@ sub _read_FTHelper_EMBL {
         @qual,  # An arrray of lines making up the qualifiers
 	);
 
-    if ($$buffer =~ /^FT\s{3}(\S+)\s+(\S+)/) {
+    if ($$buffer =~ /^FT\s{3}(\S+)\s+(\S+)/ ) {
         $key = $1;
         $loc = $2;
         # Read all the lines up to the next feature
