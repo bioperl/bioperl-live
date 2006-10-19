@@ -268,20 +268,21 @@ sub next_seq {
        # /^DR\s+(\S+)\;\s+(\S+)\;\s+(\S+)[\;\.](.*)$/) {
        # new regexp from Andreas Kahari  bug #1584
        elsif (/^DR\s+(\S+)\;\s+(\S+)\;\s+([^;]+)[\;\.](.*)$/) {
-       my $dblinkobj =  Bio::Annotation::DBLink->new();
-       $dblinkobj->database($1);
-       $dblinkobj->primary_id($2);
-       $dblinkobj->optional_id($3);
-       my $comment = $4;
-       if(length($comment) > 0) {
-           # edit comment to get rid of leading space and trailing dot
-           if( $comment =~ /^\s*(\S+)\./ ) {
-           $dblinkobj->comment($1);
-           } else {
-           $dblinkobj->comment($comment);
-           }
-       }
-       $annotation->add_Annotation('dblink',$dblinkobj);
+
+	   my ($database,$primaryid,$optional,$comment) = ($1,$2,$3,$4);
+	   
+	   # drop leading and training spaces and trailing .
+	   $comment =~ s/\.\s*$//;
+	   $comment =~ s/^\s+//;
+	   
+	   my $dblinkobj =  Bio::Annotation::DBLink->new
+	       (-database    => $database,
+		-primary_id  => $primaryid,
+		-optional_id => $optional,
+		-comment     => $comment,
+	       );
+	   
+	   $annotation->add_Annotation('dblink',$dblinkobj);
        }
        #keywords
        elsif( /^KW\s+(.*)$/ ) {
@@ -375,6 +376,7 @@ sub next_seq {
 sub write_seq {
     my ($self,@seqs) = @_;
     foreach my $seq ( @seqs ) {
+
     $self->throw("Attempting to write with no seq!") unless defined $seq;
 
     if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
@@ -442,14 +444,14 @@ sub write_seq {
         $self->_print("AC   ",$seq->accession_number,";");
         if ($seq->can('get_secondary_accessions') ) {
             foreach my $sacc ($seq->get_secondary_accessions) {
-            $self->_print(" ",$sacc,";");
-            }
+		$self->_print(" ",$sacc,";");
+	    }
             $self->_print("\n");
         }
         else {
             $self->_print("\n");
         }
-        }
+    }
         # otherwise - cannot print <sigh>
     }
 
@@ -556,29 +558,31 @@ sub write_seq {
 
     foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
         foreach my $cline (split ("\n", $comment->text)) {
-        while (length $cline > 74) {
-            $self->_print("CC   ",(substr $cline,0,74),"\n");
-            $cline = substr $cline,74;
-        }
-        $self->_print("CC   ",$cline,"\n");
+	    while (length $cline > 74) {
+		$self->_print("CC   ",(substr $cline,0,74),"\n");
+		$cline = substr $cline,74;
+	    }
+	    $self->_print("CC   ",$cline,"\n");
         }
     }
 
     foreach my $dblink ( $seq->annotation->get_Annotations('dblink') ) 
     {
-        if (defined($dblink->comment)&&($dblink->comment)) {
-        $self->_print("DR   ",$dblink->database,"; ",$dblink->primary_id,"; ",
-                  $dblink->optional_id,"; ",$dblink->comment,".\n");
+	my ($primary_id) = $dblink->primary_id;
+	
+        if (defined($dblink->comment) && ($dblink->comment) ) {
+	    $self->_print("DR   ",$dblink->database,"; ",$primary_id,"; ",
+			  $dblink->optional_id,"; ",$dblink->comment,".\n");
         } elsif($dblink->optional_id) {
-        $self->_print("DR   ",$dblink->database,"; ",
-                  $dblink->primary_id,"; ",
-                  $dblink->optional_id,".\n");
+	    $self->_print("DR   ",$dblink->database,"; ",
+			  $primary_id,"; ",
+			  $dblink->optional_id,".\n");
         }
         else {
-        $self->_print("DR   ",$dblink->database,
-                  "; ",$dblink->primary_id,"; ","-.\n");
+	    $self->_print("DR   ",$dblink->database,
+			  "; ",$primary_id,"; ","-.\n");
         }
-    }   
+    }
 
     # if there, write the kw line
     {
@@ -1017,7 +1021,8 @@ sub _read_swissprot_Species {
     $sci_name || return;
     
     #if the organism belongs to taxid 32644 then no Bio::Species object.
-    return if grep { /^\Q$sci_name$/ } @Unknown_names;
+#    return if grep { /^\Q$sci_name$/ } @Unknown_names;
+    return if grep { $_ eq $sci_name } @Unknown_names;
     
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words
