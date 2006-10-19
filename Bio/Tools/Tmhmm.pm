@@ -87,9 +87,9 @@ use Bio::SeqFeature::Generic;
  Function: Builds a new Bio::Tools::Tmhmm object
  Returns : Bio::Tools::Tmhmm
  Args    : Either of the following as per L<Bio::Root::IO> interface
-             -fh => $filehandle 
+             -fh   => $filehandle 
              -file => $filename
-           
+
 =cut
 
 sub new {
