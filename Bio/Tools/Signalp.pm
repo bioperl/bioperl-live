@@ -63,9 +63,9 @@ web:
 
 Based on the EnsEMBL module
 Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally written
-by Marc Sohrmann (ms2@sanger.ac.uk). Written in BioPipe by Balamurugan
-Kumarasamy <savikalpa@fugu-sg.org>. Cared for by the Fugu Informatics
-team (fuguteam@fugu-sg.org)
+by Marc Sohrmann (ms2_AT_sanger.ac.uk). Written in BioPipe by
+Balamurugan Kumarasamy savikalpa_AT_fugu-sg.org. Cared for by the Fugu
+Informatics team (fuguteam_AT_fugu-sg.org)
 
 =head1 CONTRIBUTORS
 
