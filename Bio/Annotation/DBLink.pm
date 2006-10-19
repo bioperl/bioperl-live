@@ -114,7 +114,7 @@ sub new {
   $ns          && $self->namespace($ns); # this will override $database
   $auth        && $self->authority($auth);
   defined($v)  && $self->version($v);
-  defined($url)  && $self->version($url);
+  defined($url)  && $self->url($url);
 
   return $self;
 }
