@@ -378,7 +378,7 @@ QQ_ERROR_QQ
 # for use in WriteMakefile
 my %prereq;
 while (my ($key, $value) = each %packages) {
-  my ($ver,$desc,$expl,$module) = split( /\// , $str);
+  my ($version,$desc,$expl,$module) = split( /\// , $value);
   $prereq{$key} = $version;
 }
 
