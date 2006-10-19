@@ -221,452 +221,459 @@ sub _initialize {
 =cut
 
 sub next_seq {
-	my ($self,@args) = @_;
-	my $builder = $self->sequence_builder();
-	my $seq;
-	my %params;
+    my ($self,@args) = @_;
+    my $builder = $self->sequence_builder();
+    my $seq;
+    my %params;
 
- RECORDSTART:
-	while (1) {
-      my $buffer;
-      my (@acc, @features);
-      my ($display_id, $annotation);
-      my $species;
+  RECORDSTART:
+    while (1) {
+	my $buffer;
+	my (@acc, @features);
+	my ($display_id, $annotation);
+	my $species;
 
-      # initialize; we may come here because of starting over
-      @features = ();
-      $annotation = undef;
-      @acc = ();
-      $species = undef;
-      %params = (-verbose => $self->verbose); # reset hash
-      local($/) = "\n";
-      while(defined($buffer = $self->_readline())) {
-			last if index($buffer,'LOCUS       ') == 0;
-      }
-      return unless defined $buffer; # end of file
-      $buffer =~ /^LOCUS\s+(\S.*)$/o ||
-		  $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
+	# initialize; we may come here because of starting over
+	@features = ();
+	$annotation = undef;
+	@acc = ();
+	$species = undef;
+	%params = (-verbose => $self->verbose);	# reset hash
+	local($/) = "\n";
+	while(defined($buffer = $self->_readline())) {
+	    last if index($buffer,'LOCUS       ') == 0;
+	}
+	return unless defined $buffer; # end of file
+	$buffer =~ /^LOCUS\s+(\S.*)$/o ||
+	    $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
 
-      my @tokens = split(' ', $1);
+	my @tokens = split(' ', $1);
 
-      # this is important to have the id for display in e.g. FTHelper,
-      # otherwise you won't know which entry caused an error
-      $display_id = shift(@tokens);
-      $params{'-display_id'} = $display_id;
-      # may still be useful if we don't want the seq
-      $params{'-length'} = shift(@tokens);
-      # the alphabet of the entry
-      $params{'-alphabet'} = (lc(shift @tokens) eq 'bp') ? 'dna' : 'protein';
-      # for aa there is usually no 'molecule' (mRNA etc)
-      if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
-			$params{'-molecule'} = shift(@tokens);
-			my $circ = shift(@tokens);
-			if ($circ eq 'circular') {
-				$params{'-is_circular'} = 1;
-				$params{'-division'} = shift(@tokens);
-			} else {
+	# this is important to have the id for display in e.g. FTHelper,
+	# otherwise you won't know which entry caused an error
+	$display_id = shift(@tokens);
+	$params{'-display_id'} = $display_id;
+	# may still be useful if we don't want the seq
+	$params{'-length'} = shift(@tokens);
+	# the alphabet of the entry
+	$params{'-alphabet'} = (lc(shift @tokens) eq 'bp') ? 'dna' : 'protein';
+	# for aa there is usually no 'molecule' (mRNA etc)
+	if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
+	    $params{'-molecule'} = shift(@tokens);
+	    my $circ = shift(@tokens);
+	    if ($circ eq 'circular') {
+		$params{'-is_circular'} = 1;
+		$params{'-division'} = shift(@tokens);
+	    } else {
 				# 'linear' or 'circular' may actually be omitted altogether
-				$params{'-division'} =
-				  (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
-			}
-      } else {
-			$params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
-			$params{'-division'} = shift(@tokens);
-      }
-      my $date = join(' ', @tokens); # we lump together the rest
+		$params{'-division'} =
+		    (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+	    }
+	} else {
+	    $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
+	    $params{'-division'} = shift(@tokens);
+	}
+	my $date = join(' ', @tokens); # we lump together the rest
 
-      # this is per request bug #1513
-      # we can handle
-      # 9-10-2003
-      # 9-10-03
-      # 09-10-2003
-      # 09-10-03
-      if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
-	  if( length($date) < 11 ) {
-	      # improperly formatted date
-	      # But we'll be nice and fix it for them
-	      my ($d,$m,$y) = ($2,$3,$4);
-	      if( length($d) == 1 ) {
-		  $d = "0$d";
-	      }
-	      # guess the century here
-	      if( length($y) == 2 ) {
-		  if( $y > 60 ) { # arbitrarily guess that '60' means 1960
-		      $y = "19$y";
-		  } else {
-		      $y = "20$y";
-		  }
-		  $self->warn("Date was malformed, guessing the century for $date to be $y\n");
-	      }
-	      $params{'-dates'} = [join('-',$d,$m,$y)];
-	  } else {
-	      $params{'-dates'} = [$date];
-	  }
-      }
-      # set them all at once
-      $builder->add_slot_value(%params);
-      %params = ();
+	# this is per request bug #1513
+	# we can handle
+	# 9-10-2003
+	# 9-10-03
+	# 09-10-2003
+	# 09-10-03
+	if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
+	    if( length($date) < 11 ) {
+		# improperly formatted date
+		# But we'll be nice and fix it for them
+		my ($d,$m,$y) = ($2,$3,$4);
+		if( length($d) == 1 ) {
+		    $d = "0$d";
+		}
+		# guess the century here
+		if( length($y) == 2 ) {
+		    if( $y > 60 ) { # arbitrarily guess that '60' means 1960
+			$y = "19$y";
+		    } else {
+			$y = "20$y";
+		    }
+		    $self->warn("Date was malformed, guessing the century for $date to be $y\n");
+		}
+		$params{'-dates'} = [join('-',$d,$m,$y)];
+	    } else {
+		$params{'-dates'} = [$date];
+	    }
+	}
+	# set them all at once
+	$builder->add_slot_value(%params);
+	%params = ();
 
-      # parse the rest if desired, otherwise start over
-      if(! $builder->want_object()) {
-			$builder->make_object();
-			next RECORDSTART;
-      }
+	# parse the rest if desired, otherwise start over
+	if(! $builder->want_object()) {
+	    $builder->make_object();
+	    next RECORDSTART;
+	}
 
-      # set up annotation depending on what the builder wants
-      if($builder->want_slot('annotation')) {
-			$annotation = new Bio::Annotation::Collection;
-      }
-      $buffer = $self->_readline();
-      until( !defined ($buffer) ) {
-			$_ = $buffer;
-			# Description line(s)
-			if (/^DEFINITION\s+(\S.*\S)/) {
-				my @desc = ($1);
-				while ( defined($_ = $self->_readline) ) {
-					if( /^\s+(.*)/ ) { push (@desc, $1); next };
-					last;
-				}
-				$builder->add_slot_value(-desc => join(' ', @desc));
+	# set up annotation depending on what the builder wants
+	if($builder->want_slot('annotation')) {
+	    $annotation = new Bio::Annotation::Collection;
+	}
+	$buffer = $self->_readline();
+	until( !defined ($buffer) ) {
+	    $_ = $buffer;
+	    # Description line(s)
+	    if (/^DEFINITION\s+(\S.*\S)/) {
+		my @desc = ($1);
+		while ( defined($_ = $self->_readline) ) {
+		    if( /^\s+(.*)/ ) { push (@desc, $1); next };
+		    last;
+		}
+		$builder->add_slot_value(-desc => join(' ', @desc));
 				# we'll continue right here because DEFINITION always comes
 				# at the top of the entry
-				$buffer= $_;
-			}
-			# accession number (there can be multiple accessions)
-			if( /^ACCESSION\s+(\S.*\S)/ ) {
-				push(@acc, split(/\s+/,$1));
-				while( defined($_ = $self->_readline) ) {
-					/^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
-					last;
-				}
-				$buffer = $_;
-				next;
-			}
-			# PID
-			elsif( /^PID\s+(\S+)/ ) {
-				$params{'-pid'} = $1;
-			}
-			# Version number
-			elsif( /^VERSION\s+(.+)$/ ) {
-				my ($acc,$gi) = split(' ',$1);
-				if($acc =~ /^\w+\.(\d+)/) {
-					$params{'-version'} = $1;
-					$params{'-seq_version'} = $1;
-				}
-				if($gi && (index($gi,"GI:") == 0)) {
-					$params{'-primary_id'} = substr($gi,3);
-				}
-			}
-			# Keywords
-			elsif( /^KEYWORDS\s+(.*)/ ) {
-				my @kw = split(/\s*\;\s*/,$1);
-				while( defined($_ = $self->_readline) ) {
-					chomp;
-					/^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
-					last;
-				}
+		
+		$buffer= $_;
+	    }
+	    # accession number (there can be multiple accessions)
+	    if( /^ACCESSION\s+(\S.*\S)/ ) {
+		push(@acc, split(/\s+/,$1));
+		while( defined($_ = $self->_readline) ) {
+		    /^\s+(.*)/ && do { push (@acc, split(/\s+/,$1)); next };
+		    last;
+		}
+		$buffer = $_;
+		next;
+	    }
+	    # PID
+	    elsif( /^PID\s+(\S+)/ ) {
+		$params{'-pid'} = $1;
+	    }
+	    # Version number
+	    elsif( /^VERSION\s+(.+)$/ ) {
+		my ($acc,$gi) = split(' ',$1);
+		if($acc =~ /^\w+\.(\d+)/) {
+		    $params{'-version'} = $1;
+		    $params{'-seq_version'} = $1;
+		}
+		if($gi && (index($gi,"GI:") == 0)) {
+		    $params{'-primary_id'} = substr($gi,3);
+		}
+	    }
+	    # Keywords
+	    elsif( /^KEYWORDS\s+(.*)/ ) {
+		my @kw = split(/\s*\;\s*/,$1);
+		while( defined($_ = $self->_readline) ) {
+		    chomp;
+		    /^\s+(.*)/ && do { push (@kw, split(/\s*\;\s*/,$1)); next };
+		    last;
+		}
 
-				@kw && $kw[-1] =~ s/\.$//;
-				$params{'-keywords'} = \@kw;
-				$buffer = $_;
-				next;
-			}
-			# Organism name and phylogenetic information
-			elsif (/^SOURCE/) {
-				if($builder->want_slot('species')) {
-					$species = $self->_read_GenBank_Species(\$buffer);
-					$builder->add_slot_value(-species => $species);
-				} else {
-					while(defined($buffer = $self->_readline())) {
-						last if substr($buffer,0,1) ne ' ';
-					}
-				}
-				next;
-			}
-			# References
-			elsif (/^REFERENCE/) {
-				if($annotation) {
-					my @refs = $self->_read_GenBank_References(\$buffer);
-					foreach my $ref ( @refs ) {
-						$annotation->add_Annotation('reference',$ref);
-					}
-				} else {
-					while(defined($buffer = $self->_readline())) {
-						last if substr($buffer,0,1) ne ' ';
-					}
-				}
-				next;
-			}
-			# Comments
-			elsif (/^COMMENT\s+(.*)/) {
-				if($annotation) {
-					my $comment = $1;
-					while (defined($_ = $self->_readline)) {
-						last if (/^\S/);
-						$comment .= $_;
-					}
-					$comment =~ s/\n/ /g;
-					$comment =~ s/  +/ /g;
-					$annotation->add_Annotation('comment',
-						 Bio::Annotation::Comment->new(-text => $comment));
-					$buffer = $_;
-	      } else {
-				while(defined($buffer = $self->_readline())) {
-					last if substr($buffer,0,1) ne ' ';
-				}
-	      }
-				next;
-			}
-			# Corresponding Genbank nucleotide id, Genpept only
-			elsif( /^DBSOURCE\s+(.+)/ ) {
-			    if ($annotation) {
-				my $dbsource = $1;
-				while (defined($_ = $self->_readline)) {
-				    last if (/^\S/);
-				    $dbsource .= $_;
-				}
+		@kw && $kw[-1] =~ s/\.$//;
+		$params{'-keywords'} = \@kw;
+		$buffer = $_;
+		next;
+	    }
+	    # Organism name and phylogenetic information
+	    elsif (/^SOURCE/) {
+		if($builder->want_slot('species')) {
+		    $species = $self->_read_GenBank_Species(\$buffer);
+		    $builder->add_slot_value(-species => $species);
+		} else {
+		    while(defined($buffer = $self->_readline())) {
+			last if substr($buffer,0,1) ne ' ';
+		    }
+		}
+		next;
+	    }
+	    # References
+	    elsif (/^REFERENCE/) {
+		if($annotation) {
+		    my @refs = $self->_read_GenBank_References(\$buffer);
+		    foreach my $ref ( @refs ) {
+			$annotation->add_Annotation('reference',$ref);
+		    }
+		} else {
+		    while(defined($buffer = $self->_readline())) {
+			last if substr($buffer,0,1) ne ' ';
+		    }
+		}
+		next;
+	    }
+	    # Comments
+	    elsif (/^COMMENT\s+(.*)/) {
+		if($annotation) {
+		    my $comment = $1;
+		    while (defined($_ = $self->_readline)) {
+			last if (/^\S/);
+			$comment .= $_;
+		    }
+		    $comment =~ s/\n/ /g;
+		    $comment =~ s/  +/ /g;
+		    $annotation->add_Annotation
+			('comment',
+			 Bio::Annotation::Comment->new(-text => $comment,
+						       -tagname => 'comment'));
+		    $buffer = $_;
+		} else {
+		    while(defined($buffer = $self->_readline())) {
+			last if substr($buffer,0,1) ne ' ';
+		    }
+		}
+		next;
+	    }
+	    # Corresponding Genbank nucleotide id, Genpept only
+	    elsif( /^DBSOURCE\s+(.+)/ ) {
+		if ($annotation) {
+		    my $dbsource = $1;
+		    while (defined($_ = $self->_readline)) {
+			last if (/^\S/);
+			$dbsource .= $_;
+		    }
 				# deal with swissprot dbsources
-				if( $dbsource =~ s/swissprot:\s+locus\s+(\S+)\,.+\n// ) {
+		    if( $dbsource =~ s/swissprot:\s+locus\s+(\S+)\,.+\n// ) {
+			$annotation->add_Annotation
+			    ('dblink',
+			     Bio::Annotation::DBLink->new
+			     (-primary_id => $1,
+			      -database => 'swissprot',
+			      -tagname => 'dblink'));
+			if( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
+			    $annotation->add_Annotation
+				('swissprot_dates',
+				 Bio::Annotation::SimpleValue->new
+				 (-tagname => 'date_created',
+				  -value => $1));
+			}
+			while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g ) {
+			    $annotation->add_Annotation
+				('swissprot_dates',
+				 Bio::Annotation::SimpleValue->new
+				 (-tagname => 'date_updated',
+				  -value => $1));
+			}
+
+			$dbsource =~ s/\n/ /g;
+			if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
+			    # will use $i to determine even or odd
+			    # for swissprot the accessions are paired
+			    my $i = 0;
+			    for my $dbsrc ( split(/,\s+/,$1) ) {
+				if( $dbsrc =~ /(\S+)\.(\d+)/ ||
+				    $dbsrc =~ /(\S+)/ ) {
+				    my ($id,$version) = ($1,$2);
+				    $version ='' unless defined $version;
+				    my $db;
+				    if( $id =~ /^\d\S{3}/) {
+					$db = 'PDB';
+				    } else {
+					$db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
+				    }
 				    $annotation->add_Annotation
 					('dblink',
 					 Bio::Annotation::DBLink->new
-					 (-primary_id => $1,
-					  -database => 'swissprot',
+					 (-primary_id => $id,
+					  -version => $version,
+					  -database => $db,
 					  -tagname => 'dblink'));
-				    if( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
-					$annotation->add_Annotation
-					    ('swissprot_dates',
-					     Bio::Annotation::SimpleValue->new
-					     (-tagname => 'date_created',
-					      -value => $1));
-				    }
-				    while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g ) {
-					$annotation->add_Annotation
-					    ('swissprot_dates',
-					     Bio::Annotation::SimpleValue->new
-					     (-tagname => 'date_updated',
-					      -value => $1));
-				    }
-				    $dbsource =~ s/\n/ /g;
-				    if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
-					# will use $i to determine even or odd
-					# for swissprot the accessions are paired
-					my $i = 0;
-					for my $dbsrc ( split(/,\s+/,$1) ) {
-					    if( $dbsrc =~ /(\S+)\.(\d+)/ ||
-						$dbsrc =~ /(\S+)/ ) {
-						my ($id,$version) = ($1,$2);
-						$version ='' unless defined $version;
-						my $db;
-						if( $id =~ /^\d\S{3}/) {
-						    $db = 'PDB';
-						} else {
-						    $db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
-						}
-						$annotation->add_Annotation
-						    ('dblink',
-						     Bio::Annotation::DBLink->new
-						     (-primary_id => $id . "." . $version,
-						      -version => $version,
-						      -database => $db,
-						      -tagname => 'dblink'));
-					    }
-					}
-				    } elsif( $dbsource =~ s/\s+xrefs:\s+(.+)\s+xrefs/xrefs/i ) {
-					# download screwed up and ncbi didn't put acc in for gi numbers
-					my $i = 0;
-					for my $id ( split(/\,\s+/,$1) ) {
-					    my ($acc,$db);
-					    if( $id =~ /gi:\s+(\d+)/ ) {
-						$acc= $1;
-						$db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
-					    } elsif( $id =~ /pdb\s+accession\s+(\S+)/ ) {
-						$acc= $1;
-						$db = 'PDB';
-					    } else {
-						$acc= $id;
-						$db = '';
-					    }
-					    $annotation->add_Annotation
-						    ('dblink',
-						     Bio::Annotation::DBLink->new
-						     (-primary_id => $acc,
-						      -database => $db,
-						      -tagname => 'dblink'));
-					}
-				    } else {
-					$self->debug("Cannot match $dbsource\n");
-				    }
-				    if( $dbsource =~ s/xrefs\s+\(non\-sequence\s+databases\):\s+
-					((?:\S+,\s+)+\S+)//x ) {
-					for my $id ( split(/\,\s+/,$1) ) {
-					    my $db;
-					    # this is because GenBank dropped the spaces!!!
-					    # I'm sure we're not going to get this right
-					    if( $id =~ s/^(EchoBASE|IntAct|SWISS-2DPAGE|ECO2DBASE|ECOGENE|TIGRFAMs|TIGR|GO|InterPro|Pfam|PROSITE|SGD|GermOnline|HSSP|PhosSite)//i ) {
-						$db = $1;
-					    }
-					    $annotation->add_Annotation
-						('dblink',
-						 Bio::Annotation::DBLink->new
-						 (-primary_id => $id,
-						  -database => $db,
-						  -tagname => 'dblink'));
-					}
-				    }
 
-				} else {
-				    if( $dbsource =~ /(\S+)\.(\d+)/ ) {
-					my ($id,$version) = ($1,$2);
-					$annotation->add_Annotation
-					    ('dblink',
-					     Bio::Annotation::DBLink->new
-					     (-primary_id => $id . "." . $version,
-					      -version => $version,
-					      -database => 'GenBank',
-					      -tagname => 'dblink'));
-				    }
-				}
-
-				$buffer = $_;
-			    } else {
-				while(defined($buffer = $self->_readline())) {
-				    last if substr($buffer,0,1) ne ' ';
 				}
 			    }
-			    next;
+			} elsif( $dbsource =~ s/\s+xrefs:\s+(.+)\s+xrefs/xrefs/i ) {
+			    # download screwed up and ncbi didn't put acc in for gi numbers
+			    my $i = 0;
+			    for my $id ( split(/\,\s+/,$1) ) {
+				my ($acc,$db);
+				if( $id =~ /gi:\s+(\d+)/ ) {
+				    $acc= $1;
+				    $db = ($i++ % 2 ) ? 'GenPept' : 'GenBank';
+				} elsif( $id =~ /pdb\s+accession\s+(\S+)/ ) {
+				    $acc= $1;
+				    $db = 'PDB';
+				} else {
+				    $acc= $id;
+				    $db = '';
+				}
+
+				$annotation->add_Annotation
+				    ('dblink',
+				     Bio::Annotation::DBLink->new
+				     (-primary_id => $acc,
+				      -database => $db,
+				      -tagname => 'dblink'));
+			    }
+			} else {
+			    $self->debug("Cannot match $dbsource\n");
 			}
-			# Exit at start of Feature table, or start of sequence
-			last if( /^(FEATURES|ORIGIN)/ );
-			# Get next line and loop again
-			$buffer = $self->_readline;
-      }
-      return unless defined $buffer;
+			if( $dbsource =~ s/xrefs\s+\(non\-sequence\s+databases\):\s+
+			    ((?:\S+,\s+)+\S+)//x ) {
+			    for my $id ( split(/\,\s+/,$1) ) {
+				my $db;
+				# this is because GenBank dropped the spaces!!!
+				# I'm sure we're not going to get this right
+				if( $id =~ s/^(EchoBASE|IntAct|SWISS-2DPAGE|ECO2DBASE|ECOGENE|TIGRFAMs|TIGR|GO|InterPro|Pfam|PROSITE|SGD|GermOnline|HSSP|PhosSite)//i ) {
+				    $db = $1;
+				}
+				$annotation->add_Annotation
+				    ('dblink',
+				     Bio::Annotation::DBLink->new
+				     (-primary_id => $id,
+				      -database => $db,
+				      -tagname => 'dblink'));
+			    }
+			}
 
-      # add them all at once for efficiency
-      $builder->add_slot_value(-accession_number => shift(@acc),
-			       -secondary_accessions => \@acc,
-			       %params);
-      $builder->add_slot_value(-annotation => $annotation) if $annotation;
-      %params = (); # reset before possible re-use to avoid setting twice
+		    } else {
+			if( $dbsource =~ /(\S+)\.(\d+)/ ) {
+			    my ($id,$version) = ($1,$2);
+			    $annotation->add_Annotation
+				('dblink',
+				 Bio::Annotation::DBLink->new
+				 (-primary_id => $id,
+				  -version => $version,
+				  -database => 'GenBank',
+				  -tagname => 'dblink'));
+			}
+		    }
 
-      # start over if we don't want to continue with this entry
-      if(! $builder->want_object()) {
-			$builder->make_object();
-			next RECORDSTART;
-      }
-      # some "minimal" formats may not necessarily have a feature table
-      if($builder->want_slot('features') && defined($_) && /^FEATURES/o) {
-			# need to read the first line of the feature table
-			$buffer = $self->_readline;
-			# DO NOT read lines in the while condition -- this is done as a side
-			# effect in _read_FTHelper_GenBank!
-			while( defined($buffer) ) {
+		    $buffer = $_;
+		} else {
+		    while(defined($buffer = $self->_readline())) {
+			last if substr($buffer,0,1) ne ' ';
+		    }
+		}
+		next;
+	    }
+	    # Exit at start of Feature table, or start of sequence
+	    last if( /^(FEATURES|ORIGIN)/ );
+	    # Get next line and loop again
+	    $buffer = $self->_readline;
+	}
+	return unless defined $buffer;
+
+	# add them all at once for efficiency
+	$builder->add_slot_value(-accession_number => shift(@acc),
+				 -secondary_accessions => \@acc,
+				 %params);
+	$builder->add_slot_value(-annotation => $annotation) if $annotation;
+	%params = (); # reset before possible re-use to avoid setting twice
+
+	# start over if we don't want to continue with this entry
+	if(! $builder->want_object()) {
+	    $builder->make_object();
+	    next RECORDSTART;
+	}
+	# some "minimal" formats may not necessarily have a feature table
+	if($builder->want_slot('features') && defined($_) && /^FEATURES/o) {
+	    # need to read the first line of the feature table
+	    $buffer = $self->_readline;
+	    # DO NOT read lines in the while condition -- this is done as a side
+	    # effect in _read_FTHelper_GenBank!
+	    while( defined($buffer) ) {
 				# check immediately -- not at the end of the loop
 				# note: GenPept entries obviously do not have a BASE line
-				last if( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o);
+		last if( $buffer =~ /^BASE|ORIGIN|CONTIG|WGS/o);
 
 				# slurp in one feature at a time -- at return, the start of
 				# the next feature will have been read already, so we need
 				# to pass a reference, and the called method must set this
 				# to the last line read before returning
 
-				my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
+		my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
 
 				# fix suggested by James Diggans
 
-				if( !defined $ftunit ) {
-					# GRRRR. We have fallen over. Try to recover
-					$self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
-					unless( ($buffer =~ /^\s{5,5}\S+/o) or
-							  ($buffer =~ /^\S+/o)) {
-						$buffer = $self->_readline();
-					}
-					next; # back to reading FTHelpers
-				}
-
-				# process ftunit
-				my $feat =
-				  $ftunit->_generic_seqfeature($self->location_factory(),
-														 $display_id);
+		if( !defined $ftunit ) {
+		    # GRRRR. We have fallen over. Try to recover
+		    $self->warn("Unexpected error in feature table for ".$params{'-display_id'}." Skipping feature, attempting to recover");
+		    unless( ($buffer =~ /^\s{5,5}\S+/o) or
+			    ($buffer =~ /^\S+/o)) {
+			$buffer = $self->_readline();
+		    }
+		    next;	# back to reading FTHelpers
+		}
+		
+		# process ftunit
+		my $feat =
+		    $ftunit->_generic_seqfeature($self->location_factory(),
+						 $display_id);
 				# add taxon_id from source if available
-				if($species && ($feat->primary_tag eq 'source') &&
-					$feat->has_tag('db_xref') && (! $species->ncbi_taxid() ||
-                    ($species->ncbi_taxid && $species->ncbi_taxid =~ /^list/))) {
-					foreach my $tagval ($feat->get_tag_values('db_xref')) {
-						if(index($tagval,"taxon:") == 0) {
-							$species->ncbi_taxid(substr($tagval,6));
-							last;
-						}
-					}
-				}
+		if($species && ($feat->primary_tag eq 'source') &&
+		   $feat->has_tag('db_xref') && (! $species->ncbi_taxid() ||
+						 ($species->ncbi_taxid && $species->ncbi_taxid =~ /^list/))) {
+		    foreach my $tagval ($feat->get_tag_values('db_xref')) {
+			if(index($tagval,"taxon:") == 0) {
+			    $species->ncbi_taxid(substr($tagval,6));
+			    last;
+			}
+		    }
+		}
 				# add feature to list of features
-				push(@features, $feat);
-			}
-			$builder->add_slot_value(-features => \@features);
-			$_ = $buffer;
-      }
-      if( defined ($_) ) {
-	  if( /^CONTIG/o ) {
-	      my @contig;
-	      while($_ !~ m{^//}) { # end of file
-		  $_ =~ /^(?:CONTIG)?\s+(.*)/;
-		  $annotation->add_Annotation(
-					      Bio::Annotation::SimpleValue->new(-value   => $1,
-										-tagname => 'CONTIG'));
-		  $_ = $self->_readline;
-	      }
-	      $self->_pushback($_);
-	  } elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
-	      while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
-		  chomp;
-		  $annotation->add_Annotation(
-					      Bio::Annotation::SimpleValue->new(-value => $_,
-										-tagname => $1));
-		  $_ = $self->_readline;
-	      }
-	  } elsif(! m{^(ORIGIN|//)} ) { # advance to the sequence, if any
-	      while (defined( $_ = $self->_readline) ) {
-		  last if m{^(ORIGIN|//)};
-	      }
-	  }
-      }
-      if(! $builder->want_object()) {
-			$builder->make_object(); # implicit end-of-object
-			next RECORDSTART;
-      }
-      if($builder->want_slot('seq')) {
-			# the fact that we want a sequence does not necessarily mean that
-			# there also is a sequence ...
-			if(defined($_) && s/^ORIGIN\s+//) {
-				chomp;
-				if( $annotation && length($_) > 0 ) {
-					$annotation->add_Annotation('origin',
-					  Bio::Annotation::SimpleValue->new(-value => $_));
-				}
-				my $seqc = '';
-				while( defined($_ = $self->_readline) ) {
-					m{^//} && last;
-					$_ = uc($_);
-					s/[^A-Za-z]//g;
-					$seqc .= $_;
-				}
-				$self->debug("sequence length is ". length($seqc) ."\n");
-				$builder->add_slot_value(-seq => $seqc);
-			}
-      } elsif ( defined($_) && (substr($_,0,2) ne '//')) {
-			# advance to the end of the record
-			while( defined($_ = $self->_readline) ) {
-				last if substr($_,0,2) eq '//';
-			}
-      }
-      # Unlikely, but maybe the sequence is so weird that we don't want it
-      # anymore. We don't want to return undef if the stream's not exhausted
-      # yet.
-      $seq = $builder->make_object();
-      next RECORDSTART unless $seq;
-      last RECORDSTART;
-	} # end while RECORDSTART
+		push(@features, $feat);
+	    }
+	    $builder->add_slot_value(-features => \@features);
+	    $_ = $buffer;
+	}
+	if( defined ($_) ) {
+	    if( /^CONTIG/o ) {
+		my @contig;
+		while($_ !~ m{^//}) { # end of file
+		    $_ =~ /^(?:CONTIG)?\s+(.*)/;
+		    $annotation->add_Annotation(
+						Bio::Annotation::SimpleValue->new(-value   => $1,
+										  -tagname => 'CONTIG'));
+		    $_ = $self->_readline;
+		}
+		$self->_pushback($_);
+	    } elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines
+		while($_ =~ s/(^WGS|WGS_SCAFLD)\s+//){ # gulp lines
+		    chomp;
+		    $annotation->add_Annotation(
+						Bio::Annotation::SimpleValue->new(-value => $_,
+										  -tagname => $1));
+		    $_ = $self->_readline;
+		}
+	    } elsif(! m{^(ORIGIN|//)} ) { # advance to the sequence, if any
+		while (defined( $_ = $self->_readline) ) {
+		    last if m{^(ORIGIN|//)};
+		}
+	    }
+	}
+	if(! $builder->want_object()) {
+	    $builder->make_object(); # implicit end-of-object
+	    next RECORDSTART;
+	}
+	if($builder->want_slot('seq')) {
+	    # the fact that we want a sequence does not necessarily mean that
+	    # there also is a sequence ...
+	    if(defined($_) && s/^ORIGIN\s+//) {
+		chomp;
+		if( $annotation && length($_) > 0 ) {
+		    $annotation->add_Annotation('origin',
+						Bio::Annotation::SimpleValue->new(-tagname => 'origin',
+										  -value => $_));
+		}
+		my $seqc = '';
+		while( defined($_ = $self->_readline) ) {
+		    m{^//} && last;
+		    $_ = uc($_);
+		    s/[^A-Za-z]//g;
+		    $seqc .= $_;
+		}
+		$self->debug("sequence length is ". length($seqc) ."\n");
+		$builder->add_slot_value(-seq => $seqc);
+	    }
+	} elsif ( defined($_) && (substr($_,0,2) ne '//')) {
+	    # advance to the end of the record
+	    while( defined($_ = $self->_readline) ) {
+		last if substr($_,0,2) eq '//';
+	    }
+	}
+	# Unlikely, but maybe the sequence is so weird that we don't want it
+	# anymore. We don't want to return undef if the stream's not exhausted
+	# yet.
+	$seq = $builder->make_object();
+	next RECORDSTART unless $seq;
+	last RECORDSTART;
+    }				# end while RECORDSTART
 
     return $seq;
 }
@@ -799,19 +806,19 @@ sub write_seq {
 
 	# Organism lines
 	if (my $spec = $seq->species) {
-		my ($on, $sn, $cn) = ($spec->organelle,
-							  $spec->scientific_name,
-							  $spec->common_name);
+	    my ($on, $sn, $cn) = ($spec->organelle,
+				  $spec->scientific_name,
+				  $spec->common_name);
 
-        my $abname = $spec->name('abbreviated') ? # from genbank file
-		             $spec->name('abbreviated')->[0] : $sn;
-		my $sl = $on ? "$on "            : '';
-		$sl   .= $cn ? $abname." ($cn)." : "$abname.";
+	    my $abname = $spec->name('abbreviated') ? # from genbank file
+		$spec->name('abbreviated')->[0] : $sn;
+	    my $sl = $on ? "$on "            : '';
+	    $sl   .= $cn ? $abname." ($cn)." : "$abname.";
 
-        $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
+	    $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
-        my @classification = $spec->classification;
-        shift(@classification);
+	    my @classification = $spec->classification;
+	    shift(@classification);
 	    my $OC = join('; ', (reverse(@classification))) .'.';
 	    $self->_write_line_GenBank_regex(' 'x12,' 'x12,
 					     $OC,"\\s\+\|\$",80);
@@ -896,28 +903,28 @@ sub write_seq {
 	}
 
 	# deal with WGS; WGS_SCAFLD present only if WGS is also present
-    if($seq->annotation->get_Annotations('WGS')) {
-        foreach my $wgs
-        (map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD)) {
-            $self->_print(sprintf ("%-11s %s\n",$wgs->tagname,
-                       $wgs->value));
-        }
-        $self->_show_dna(0);
-    }
-    if($seq->annotation->get_Annotations('CONTIG')) {
-        my $ct = 0;
-        my $cline;
-        foreach my $contig ($seq->annotation->get_Annotations('CONTIG')) {
-            unless ($ct) {
-                $cline = $contig->tagname."      ".$contig->value."\n";
-            } else {
-                $cline = "            ".$contig->value."\n";
-            }
-            $self->_print($cline);
-            $ct++;
-        }
-        $self->_show_dna(0);
-    }
+	if($seq->annotation->get_Annotations('WGS')) {
+	    foreach my $wgs
+		(map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD)) {
+		    $self->_print(sprintf ("%-11s %s\n",$wgs->tagname,
+					   $wgs->value));
+		}
+	    $self->_show_dna(0);
+	}
+	if($seq->annotation->get_Annotations('CONTIG')) {
+	    my $ct = 0;
+	    my $cline;
+	    foreach my $contig ($seq->annotation->get_Annotations('CONTIG')) {
+		unless ($ct) {
+		    $cline = $contig->tagname."      ".$contig->value."\n";
+		} else {
+		    $cline = "            ".$contig->value."\n";
+		}
+		$self->_print($cline);
+		$ct++;
+	    }
+	    $self->_show_dna(0);
+	}
 	if( $seq->length == 0 ) { $self->_show_dna(0) }
 
 	if( $self->_show_dna() == 0 ) {
@@ -1002,37 +1009,38 @@ sub write_seq {
 =cut
 
 sub _print_GenBank_FTHelper {
-   my ($self,$fth) = @_;
 
-   if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
-       $fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
-   }
-   $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
-                 " "x21,
-                 $fth->loc,"\,\|\$",80);
-   foreach my $tag ( keys %{$fth->field} ) {
-       foreach my $value ( @{$fth->field->{$tag}} ) {
-	   $value =~ s/\"/\"\"/g;
-	   if ($value eq "_no_value") {
-	       $self->_write_line_GenBank_regex(" "x21,
-						" "x21,
-						"/$tag","\.\|\$",80);
-	   }
-           # there are almost 3x more quoted qualifier values and they
-           # are more common too so we take quoted ones first
-           elsif (!$FTQUAL_NO_QUOTE{$tag}) {
-              my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
-	      $self->_write_line_GenBank_regex(" "x21,
-					       " "x21,
-					       "/$tag=\"$value\"",$pat,80);
+    my ($self,$fth) = @_;
 
-           } else {
-              $self->_write_line_GenBank_regex(" "x21,
-					       " "x21,
-					       "/$tag=$value","\.\|\$",80);
-           }
-       }
-   }
+    if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
+	$fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
+    }
+    $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
+				     " "x21,
+				     $fth->loc,"\,\|\$",80);
+    foreach my $tag ( keys %{$fth->field} ) {
+	foreach my $value ( @{$fth->field->{$tag}} ) {
+	    $value =~ s/\"/\"\"/g;
+	    if ($value eq "_no_value") {
+		$self->_write_line_GenBank_regex(" "x21,
+						 " "x21,
+						 "/$tag","\.\|\$",80);
+	    }
+	    # there are almost 3x more quoted qualifier values and they
+	    # are more common too so we take quoted ones first
+	    elsif (!$FTQUAL_NO_QUOTE{$tag}) {
+		my ($pat) = ($value =~ /\s/ ? '\s|$' : '.|$');
+		$self->_write_line_GenBank_regex(" "x21,
+						 " "x21,
+						 "/$tag=\"$value\"",$pat,80);
+
+	    } else {
+		$self->_write_line_GenBank_regex(" "x21,
+						 " "x21,
+						 "/$tag=$value","\.\|\$",80);
+	    }
+	}
+    }
 
 }
 
@@ -1048,130 +1056,132 @@ sub _print_GenBank_FTHelper {
 
 =cut
 
-sub _read_GenBank_References{
-   my ($self,$buffer) = @_;
-   my (@refs);
-   my $ref;
+sub _read_GenBank_References {
+    my ($self,$buffer) = @_;
+    my (@refs);
+    my $ref;
 
-   # assumme things are starting with RN
+    # assumme things are starting with RN
 
-   if( $$buffer !~ /^REFERENCE/ ) {
-       warn("Not parsing line '$$buffer' which maybe important");
-   }
+    if( $$buffer !~ /^REFERENCE/ ) {
+	warn("Not parsing line '$$buffer' which maybe important");
+    }
 
-   $_ = $$buffer;
+    $_ = $$buffer;
 
-   my (@title,@loc,@authors,@consort,@com,@medline,@pubmed);
+    my (@title,@loc,@authors,@consort,@com,@medline,@pubmed);
 
-   REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
-       if (/^\s{2}AUTHORS\s+(.*)/o) {
-	   push (@authors, $1);
-	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{9,}(.*)/o && do { push (@authors, $1);next;};
-	       last;
-	   }
-	   $ref->authors(join(' ', @authors));
-       }
-       if (/^\s{2}CONSRTM\s+(.*)/o) {
-	   push (@consort, $1);
-	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{9,}(.*)/o && do { push (@consort, $1);next;};
-	       last;
-	   }
-	   $ref->consortium(join(' ', @consort));
-       }
-       if (/^\s{2}TITLE\s+(.*)/o)  {
-	   push (@title, $1);
-	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{9,}(.*)/o && do { push (@title, $1);
+  REFLOOP: while( defined($_) || defined($_ = $self->_readline) ) {
+      if (/^\s{2}AUTHORS\s+(.*)/o) {
+	  push (@authors, $1);
+	  while ( defined($_ = $self->_readline) ) {
+	      /^\s{9,}(.*)/o && do { push (@authors, $1);next;};
+	      last;
+	  }
+	  $ref->authors(join(' ', @authors));
+      }
+      if (/^\s{2}CONSRTM\s+(.*)/o) {
+	  push (@consort, $1);
+	  while ( defined($_ = $self->_readline) ) {
+	      /^\s{9,}(.*)/o && do { push (@consort, $1);next;};
+	      last;
+	  }
+	  $ref->consortium(join(' ', @consort));
+      }
+      if (/^\s{2}TITLE\s+(.*)/o)  {
+	  push (@title, $1);
+	  while ( defined($_ = $self->_readline) ) {
+	      /^\s{9,}(.*)/o && do { push (@title, $1);
 				     next;
 				 };
-	       last;
-	   }
-	   $ref->title(join(' ', @title));
-       }
-       if (/^\s{2}JOURNAL\s+(.*)/o) {
-	   push(@loc, $1);
-	   while ( defined($_ = $self->_readline) ) {
-	       # we only match when there are at least 4 spaces
-	       # there is probably a better way to match this
-	       # as it assumes that the describing tag is short enough
-	       /^\s{9,}(.*)/o && do { push(@loc, $1);
-				      next;
-				 };
-	       last;
-	   }
-	   $ref->location(join(' ', @loc));
-	   redo REFLOOP;
-       }
-       if (/^\s{2}REMARK\s+(.*)/o) {
-	   push (@com, $1);
-	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{9,}(.*)/o && do { push(@com, $1);
-				      next;
-				  };
-	       last;
-	   }
-	   $ref->comment(join(' ', @com));
-	   redo REFLOOP;
-       }
-       if( /^\s{2}MEDLINE\s+(.*)/ ) {
-	   push(@medline,$1);
-	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{9,}(.*)/ && do { push(@medline, $1);
+	      last;
+	  }
+	  $ref->title(join(' ', @title));
+      }
+      if (/^\s{2}JOURNAL\s+(.*)/o) {
+	  push(@loc, $1);
+	  while ( defined($_ = $self->_readline) ) {
+	      # we only match when there are at least 4 spaces
+	      # there is probably a better way to match this
+	      # as it assumes that the describing tag is short enough
+	      /^\s{9,}(.*)/o && do { push(@loc, $1);
 				     next;
 				 };
-	       last;
-	   }
-	   $ref->medline(join(' ', @medline));
-	   redo REFLOOP;
-       }
-       if( /^\s{3}PUBMED\s+(.*)/ ) {
-	   push(@pubmed,$1);
-	   while ( defined($_ = $self->_readline) ) {
-	       /^\s{9,}(.*)/ && do { push(@pubmed, $1);
+
+	      last;
+	  }
+	  $ref->location(join(' ', @loc));
+	  redo REFLOOP;
+      }
+      if (/^\s{2}REMARK\s+(.*)/o) {
+	  push (@com, $1);
+	  while ( defined($_ = $self->_readline) ) {
+	      /^\s{9,}(.*)/o && do { push(@com, $1);
 				     next;
 				 };
-	       last;
-	   }
-	   $ref->pubmed(join(' ', @pubmed));
-	   redo REFLOOP;
-       }
+	      
+	      last;
+	  }
+	  $ref->comment(join(' ', @com));
+	  redo REFLOOP;
+      }
+      if( /^\s{2}MEDLINE\s+(.*)/ ) {
+	  push(@medline,$1);
+	  while ( defined($_ = $self->_readline) ) {
+	      /^\s{9,}(.*)/ && do { push(@medline, $1);
+				    next;
+				};
+	      last;
+	  }
+	  $ref->medline(join(' ', @medline));
+	  redo REFLOOP;
+      }
+      if( /^\s{3}PUBMED\s+(.*)/ ) {
+	  push(@pubmed,$1);
+	  while ( defined($_ = $self->_readline) ) {
+	      /^\s{9,}(.*)/ && do { push(@pubmed, $1);
+				    next;
+				};
+	      last;
+	  }
+	  $ref->pubmed(join(' ', @pubmed));
+	  redo REFLOOP;
+      }
 
-       /^REFERENCE/o && do {
-	   # store current reference
-	   $self->_add_ref_to_array(\@refs,$ref) if $ref;
-	   # reset
-	   @authors = ();
-	   @title = ();
-	   @loc = ();
-	   @com = ();
-	   @pubmed = ();
-	   @medline = ();
-	   # create the new reference object
-	   $ref = Bio::Annotation::Reference->new();
-	   # check whether start and end base is given
-	   if (/^REFERENCE\s+\d+\s+\([a-z]+ (\d+) to (\d+)\)/){
-	       $ref->start($1);
-	       $ref->end($2);
-	   } elsif (/^REFERENCE\s+\d+\s+\((.*)\)/) {
-               $ref->gb_reference($1);
-           }
-       };
+      /^REFERENCE/o && do {
+	  # store current reference
+	  $self->_add_ref_to_array(\@refs,$ref) if $ref;
+	  # reset
+	  @authors = ();
+	  @title = ();
+	  @loc = ();
+	  @com = ();
+	  @pubmed = ();
+	  @medline = ();
+	  # create the new reference object
+	  $ref = Bio::Annotation::Reference->new(-tagname => 'reference');
+	  # check whether start and end base is given
+	  if (/^REFERENCE\s+\d+\s+\([a-z]+ (\d+) to (\d+)\)/){
+	      $ref->start($1);
+	      $ref->end($2);
+	  } elsif (/^REFERENCE\s+\d+\s+\((.*)\)/) {
+	      $ref->gb_reference($1);
+	  }
+      };
 
-       /^(FEATURES)|(COMMENT)/o && last;
+      /^(FEATURES)|(COMMENT)/o && last;
 
-       $_ = undef; # Empty $_ to trigger read of next line
-   }
+      $_ = undef;	       # Empty $_ to trigger read of next line
+  }
 
-   # store last reference
-   $self->_add_ref_to_array(\@refs,$ref) if $ref;
+    # store last reference
+    $self->_add_ref_to_array(\@refs,$ref) if $ref;
 
-   $$buffer = $_;
+    $$buffer = $_;
 
-   #print "\nnumber of references found: ", $#refs+1,"\n";
+    #print "\nnumber of references found: ", $#refs+1,"\n";
 
-   return @refs;
+    return @refs;
 }
 
 #
@@ -1224,7 +1234,7 @@ sub _add_ref_to_array {
 
            ORGANISM  Hepatitis delta virus
            $genus = undef (though this virus has a genus in its lineage, we
-                           can't know that without a database lookup)
+                           cannot know that without a database lookup)
            $species = Hepatitis delta virus
 
  Returns : A Bio::Species object
@@ -1233,39 +1243,39 @@ sub _add_ref_to_array {
 =cut
 
 sub _read_GenBank_Species {
-	my ($self, $buffer) = @_;
+    my ($self, $buffer) = @_;
 
-	my @unkn_names = ('other', 'unknown organism', 'not specified', 'not shown',
-							 'Unspecified', 'Unknown', 'None', 'unclassified',
-							 'unidentified organism', 'not supplied');
-	# dictionary of synonyms for taxid 32644
-	my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
-	# all above can be part of valid species name
+    my @unkn_names = ('other', 'unknown organism', 'not specified', 'not shown',
+		      'Unspecified', 'Unknown', 'None', 'unclassified',
+		      'unidentified organism', 'not supplied');
+    # dictionary of synonyms for taxid 32644
+    my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
+    # all above can be part of valid species name
 
-	$_ = $$buffer;
+    $_ = $$buffer;
 
-	my( $sub_species, $species, $genus, $sci_name, $common, $class_lines,
+    my( $sub_species, $species, $genus, $sci_name, $common, $class_lines,
         $source_flag, $abbr_name, $organelle, $sl );
-	# upon first entering the loop, we must not read a new line -- the SOURCE
-	# line is already in the buffer (HL 05/10/2000)
-	while (defined($_) || defined($_ = $self->_readline())) {
-		# de-HTMLify (links that may be encountered here don't contain
-		# escaped '>', so a simple-minded approach suffices)
-		s/<[^>]+>//g;
-		if ( /^SOURCE\s+(.*)/o ) {
-			$sl = $1;
-			$sl =~ s/\.$//; # remove trailing dot
-			$source_flag = 1;
-		} elsif ( /^\s{2}ORGANISM/o ) {
-			$source_flag = 0;
-			($sci_name) = $_ =~ /\w+\s+(.*)/o;
-		} elsif ($source_flag) {
-			$sl .= $_;
-			$sl =~ s/\n//g;
-			$sl =~ s/\s+/ /g;
-			$source_flag = 0;
-		} elsif ( /^\s+(.+)/o ) {
-			my $line = $1;
+    # upon first entering the loop, we must not read a new line -- the SOURCE
+    # line is already in the buffer (HL 05/10/2000)
+    while (defined($_) || defined($_ = $self->_readline())) {
+	# de-HTMLify (links that may be encountered here don't contain
+	# escaped '>', so a simple-minded approach suffices)
+	s/<[^>]+>//g;
+	if ( /^SOURCE\s+(.*)/o ) {
+	    $sl = $1;
+	    $sl =~ s/\.$//;	# remove trailing dot
+	    $source_flag = 1;
+	} elsif ( /^\s{2}ORGANISM/o ) {
+	    $source_flag = 0;
+	    ($sci_name) = $_ =~ /\w+\s+(.*)/o;
+	} elsif ($source_flag) {
+	    $sl .= $_;
+	    $sl =~ s/\n//g;
+	    $sl =~ s/\s+/ /g;
+	    $source_flag = 0;
+	} elsif ( /^\s+(.+)/o ) {
+	    my $line = $1;
             # if first line doesn't end in ; or ., it is part of a long
             # organism line
             if ($line !~ /[;\.]$/) {
@@ -1274,43 +1284,44 @@ sub _read_GenBank_Species {
             else {
                 $class_lines .= $line;
             }
-		} else {
-			last;
-		}
-
-		$_ = undef; # Empty $_ to trigger read of next line
+	} else {
+	    last;
 	}
-	$$buffer = $_;
+
+	$_ = undef;	       # Empty $_ to trigger read of next line
+    }
+    $$buffer = $_;
 
     # parse out organelle, common name, abbreviated name if present;
     # this should catch everything, but falls back to
     # entire SOURCE line just in case
     if ($sl =~ m{^
-                 (mitochondrion|chloroplast|plastid)?
-                 \s*(.*?)
-                 \s*(?: \( (.*?) \) )?\.?
-                 $}xms) {
+		     (mitochondrion|chloroplast|plastid)?
+		     \s*(.*?)
+		     \s*(?: \( (.*?) \) )?\.?
+		     $ 
+		 }xms ){ 
         ($organelle, $abbr_name, $common) = ($1, $2, $3); # optional
     } else {
-        $abbr_name = $sl; # nothing caught; this is a backup!
+        $abbr_name = $sl;	# nothing caught; this is a backup!
     }
 
     $sci_name || return;
 
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will
-	# still get matched, use map() to remove trailing/leading/intervening spaces
+    # still get matched, use map() to remove trailing/leading/intervening spaces
     my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
 
     # do we have a genus?
     my $possible_genus = $class[-1];
     $possible_genus .= "|$class[-2]" if $class[-2];
     if ($sci_name =~ /^($possible_genus)/) {
-        $genus = $1;
-        ($species) = $sci_name =~ /^$genus\s+(.+)/;
+	$genus = $1;
+	($species) = $sci_name =~ /^$genus\s+(.+)/;
     }
     else {
-        $species = $sci_name;
+	$species = $sci_name;
     }
 
     # is this organism of rank species or is it lower?
@@ -1318,31 +1329,32 @@ sub _read_GenBank_Species {
     # this is just so we abide by previous behaviour whilst not calling a
     # species a subspecies)
     if ($species =~ /subsp\.|var\./) {
-        ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
+	($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
     }
 
-	# Don't make a species object if it's empty or "Unknown" or "None"
-	# return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
-	# Don't make a species object if it belongs to taxid 32644
-	my $unkn = grep { $_ =~ /^\Q$sl\E$/; } @unkn_names;
-	return unless ($species || $genus) and $unkn == 0;
+    # Don't make a species object if it's empty or "Unknown" or "None"
+    # return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
+    # Don't make a species object if it belongs to taxid 32644
+#	my $unkn = grep { $_ =~ /^\Q$sl\E$/; } @unkn_names;
+    my $unkn = grep { $_ eq $sl } @unkn_names;
+    return unless ($species || $genus) and $unkn == 0;
 
-	# Bio::Species array needs array in Species -> Kingdom direction
-	push(@class, $sci_name);
-	@class = reverse @class;
+    # Bio::Species array needs array in Species -> Kingdom direction
+    push(@class, $sci_name);
+    @class = reverse @class;
 
-	my $make = Bio::Species->new();
+    my $make = Bio::Species->new();
     $make->scientific_name($sci_name);
-	$make->classification(@class) if @class > 0;
-	$make->common_name( $common ) if $common;
+    $make->classification(@class) if @class > 0;
+    $make->common_name( $common ) if $common;
     $make->name('abbreviated', $abbr_name) if $abbr_name;
     $make->organelle($organelle) if $organelle;
-	#$make->sub_species( $sub_species ) if $sub_species;
-	return $make;
+    #$make->sub_species( $sub_species ) if $sub_species;
+    return $make;
 }
 
 =head2 _read_FTHelper_GenBank
-
+    
  Title   : _read_FTHelper_GenBank
  Usage   : _read_FTHelper_GenBank($buffer)
  Function: reads the next FT key line
@@ -1353,127 +1365,129 @@ sub _read_GenBank_Species {
 =cut
 
 sub _read_FTHelper_GenBank {
-	my ($self,$buffer) = @_;
+    my ($self,$buffer) = @_;
 
-	my ($key,   # The key of the feature
-		 $loc    # The location line from the feature
-		);
-	my @qual = (); # An array of lines making up the qualifiers
+    my ($key,			# The key of the feature
+	$loc			# The location line from the feature
+	);
+    my @qual = ();	  # An array of lines making up the qualifiers
 
-	if ($$buffer =~ /^\s{5}(\S+)\s+(.+?)\s*$/o) {
-		$key = $1;
-		$loc = $2;
-		# Read all the lines up to the next feature
-		while ( defined($_ = $self->_readline) ) {
-			if (/^(\s+)(.+?)\s*$/o) {
-				# Lines inside features are preceded by 21 spaces
-				# A new feature is preceded by 5 spaces
-				if (length($1) > 6) {
-					# Add to qualifiers if we're in the qualifiers, or if it's
-					# the first qualifier
-					if (@qual || (index($2,'/') == 0)) {
-						push(@qual, $2);
-					}
-					# We're still in the location line, so append to location
-					else {
-						$loc .= $2;
-					}
-				} else {
-					# We've reached the start of the next feature
-					last;
-				}
-			} else {
-				# We're at the end of the feature table
-				last;
-			}
+    if ($$buffer =~ /^\s{5}(\S+)\s+(.+?)\s*$/o) {
+	$key = $1;
+	$loc = $2;
+	# Read all the lines up to the next feature
+	while ( defined($_ = $self->_readline) ) {
+	    if (/^(\s+)(.+?)\s*$/o) {
+		# Lines inside features are preceded by 21 spaces
+		# A new feature is preceded by 5 spaces
+		if (length($1) > 6) {
+		    # Add to qualifiers if we're in the qualifiers, or if it's
+		    # the first qualifier
+		    if (@qual || (index($2,'/') == 0)) {
+			push(@qual, $2);
+		    }
+		    # We're still in the location line, so append to location
+		    else {
+			$loc .= $2;
+		    }
+		} else {
+		    # We've reached the start of the next feature
+		    last;
 		}
-	} else {
-		# No feature key
-		$self->debug("no feature key!\n");
-		# change suggested by JDiggans to avoid infinite loop-
-		# see bugreport 1062.
-		# reset buffer to prevent infinite loop
-		$$buffer = $self->_readline();
-		return;
+	    } else {
+		# We're at the end of the feature table
+		last;
+	    }
 	}
+    } else {
+	# No feature key
+	$self->debug("no feature key!\n");
+	# change suggested by JDiggans to avoid infinite loop-
+	# see bugreport 1062.
+	# reset buffer to prevent infinite loop
+	$$buffer = $self->_readline();
+	return;
+    }
 
-	# Put the first line of the next feature into the buffer
-	$$buffer = $_;
+    # Put the first line of the next feature into the buffer
+    $$buffer = $_;
 
-	# Make the new FTHelper object
-	my $out = new Bio::SeqIO::FTHelper();
-	$out->verbose($self->verbose());
-	$out->key($key);
-	$out->loc($loc);
 
-	# Now parse and add any qualifiers.  (@qual is kept
-	# intact to provide informative error messages.)
- QUAL:
-	for (my $i = 0; $i < @qual; $i++) {
-		$_ = $qual[$i];
-		my( $qualifier, $value ) = (m{^/([^=]+)(?:=(.+))?})
-		  or $self->warn("cannot see new qualifier in feature $key: ".
-							  $qual[$i]);
-		$qualifier = '' unless( defined $qualifier);
-		if (defined $value) {
-			# Do we have a quoted value?
-			if (substr($value, 0, 1) eq '"') {
+    # Make the new FTHelper object
+    my $out = new Bio::SeqIO::FTHelper();
+    $out->verbose($self->verbose());
+    $out->key($key);
+    $out->loc($loc);
+
+    # Now parse and add any qualifiers.  (@qual is kept
+    # intact to provide informative error messages.)
+  QUAL:
+    for (my $i = 0; $i < @qual; $i++) {
+	$_ = $qual[$i];
+	my( $qualifier, $value ) = (m{^/([^=]+)(?:=(.+))?})
+	    or $self->warn("cannot see new qualifier in feature $key: ".
+			   $qual[$i]);
+	$qualifier = '' unless( defined $qualifier);
+	if (defined $value) {
+	    # Do we have a quoted value?
+	    if (substr($value, 0, 1) eq '"') {
 				# Keep adding to value until we find the trailing quote
 				# and the quotes are balanced
-				while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
-					if($i >= $#qual) {
-						$self->warn("Unbalanced quote in:\n" .
-										join("\n", @qual) .
-										"No further qualifiers will " .
-										"be added for this feature");
-						last QUAL;
-					}
-					$i++; # modifying a for-loop variable inside of the loop
-					# is not the best programming style ...
-					my $next = $qual[$i];
 
-					# add to value with a space unless the value appears
-					# to be a sequence (translation for example)
-					# if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
-					# changed to explicitly look for translation tag - cjf 06/8/29
-					if ($qualifier ne 'translation') {
-						$value .= " ";
-					}
-					$value .= $next;
-				}
+		while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
+		    if($i >= $#qual) {
+			$self->warn("Unbalanced quote in:\n" .
+				    join("\n", @qual) .
+				    "No further qualifiers will " .
+				    "be added for this feature");
+			last QUAL;
+		    }
+		    $i++; # modifying a for-loop variable inside of the loop
+		    # is not the best programming style ...
+		    my $next = $qual[$i];
+
+		    # add to value with a space unless the value appears
+		    # to be a sequence (translation for example)
+		    # if(($value.$next) =~ /[^A-Za-z\"\-]/o) {
+		    # changed to explicitly look for translation tag - cjf 06/8/29
+		    if ($qualifier ne 'translation') {
+			$value .= " ";
+		    }
+		    $value .= $next;
+		}
 				# Trim leading and trailing quotes
-				$value =~ s/^"|"$//g;
+		$value =~ s/^"|"$//g;
 				# Undouble internal quotes
-				$value =~ s/""/\"/g;
-			} elsif ( $value =~ /^\(/ ) { # values quoted by ()s
+		$value =~ s/""/\"/g;
+	    } elsif ( $value =~ /^\(/ ) { # values quoted by ()s
 				# Keep adding to value until we find the trailing bracket
 				# and the ()s are balanced
-				my $left = ($value =~ tr/\(/\(/); # count left parens
-				my $right = ($value =~ tr/\)/\)/); # count right parens
+		my $left = ($value =~ tr/\(/\(/); # count left parens
+		my $right = ($value =~ tr/\)/\)/); # count right parens
 
-				while( $left != $right ) { # was "$value !~ /\)$/ or $left != $right"
-					if( $i >= $#qual) {
-						$self->warn("Unbalanced parens in:\n".
-										join("\n", @qual).
-										"\nNo further qualifiers will ".
-										"be added for this feature");
-						last QUAL;
-					}
-					$i++;
-					my $next = $qual[$i];
-					$value .= $next;
-					$left += ($next =~ tr/\(/\(/);
-								 $right += ($next =~ tr/\)/\)/);
-							 }
-				}
-			} else {
-            $value = '_no_value';
-			}
-			# Store the qualifier
-			$out->field->{$qualifier} ||= [];
-			push(@{$out->field->{$qualifier}},$value);
+		while( $left != $right ) { # was "$value !~ /\)$/ or $left != $right"
+		    if( $i >= $#qual) {
+			$self->warn("Unbalanced parens in:\n".
+				    join("\n", @qual).
+				    "\nNo further qualifiers will ".
+				    "be added for this feature");
+			last QUAL;
+		    }
+		    $i++;
+		    my $next = $qual[$i];
+		    $value .= $next;
+		    $left += ($next =~ tr/\(/\(/);
+		    $right += ($next =~ tr/\)/\)/);
 		}
-	return $out;
+	    }
+	} else {
+	    $value = '_no_value';
+	}
+	# Store the qualifier
+	$out->field->{$qualifier} ||= [];
+	push(@{$out->field->{$qualifier}},$value);
+    }
+    return $out;
 }
 
 =head2 _write_line_GenBank
@@ -1485,24 +1499,23 @@ sub _read_FTHelper_GenBank {
  Returns :
  Args    :
 
-
 =cut
 
-sub _write_line_GenBank{
-   my ($self,$pre1,$pre2,$line,$length) = @_;
+sub _write_line_GenBank {
+    my ($self,$pre1,$pre2,$line,$length) = @_;
 
-   $length || $self->throw("Miscalled write_line_GenBank without length. Programming error!");
-   my $subl = $length - length $pre2;
-   my $linel = length $line;
-   my $i;
+    $length || $self->throw("Miscalled write_line_GenBank without length. Programming error!");
+    my $subl = $length - length $pre2;
+    my $linel = length $line;
+    my $i;
 
-   my $subr = substr($line,0,$length - length $pre1);
+    my $subr = substr($line,0,$length - length $pre1);
 
-   $self->_print("$pre1$subr\n");
-   for($i= ($length - length $pre1);$i < $linel;  $i += $subl) {
-       $subr = substr($line,$i,$subl);
-       $self->_print("$pre2$subr\n");
-   }
+    $self->_print("$pre1$subr\n");
+    for($i= ($length - length $pre1);$i < $linel;  $i += $subl) {
+	$subr = substr($line,$i,$subl);
+	$self->_print("$pre2$subr\n");
+    }
 
 }
 
@@ -1516,45 +1529,50 @@ sub _write_line_GenBank{
            text
  Example :
  Returns : nothing
- Args    : file handle, first header, second header, text-line, regex for line breaks, total line length
+ Args    : file handle, 
+           first header,  
+           second header, 
+           text-line, 
+           regex for line breaks, 
+           total line length
 
 
 =cut
 
 sub _write_line_GenBank_regex {
-   my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
+    my ($self,$pre1,$pre2,$line,$regex,$length) = @_;
 
-   #print STDOUT "Going to print with $line!\n";
+    #print STDOUT "Going to print with $line!\n";
 
-   $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
+    $length || $self->throw( "Miscalled write_line_GenBank without length. Programming error!");
 
-   my $subl = $length - (length $pre1) - 2;
-   my @lines = ();
+    my $subl = $length - (length $pre1) - 2;
+    my @lines = ();
 
-   CHUNK: while($line) {
-       foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
-	   if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {
-	       my $l = $1.$2;
-	       my $newl = $3;
-	       $line = substr($line,length($l));
-	       # be strict about not padding spaces according to
-	       # genbank format
-	       $l =~ s/\s+$//;
-	       push(@lines, $l);
-	       next CHUNK;
-	   }
-       }
-       # if we get here none of the patterns matched $subl or less chars
-       $self->warn("trouble dissecting \"$line\"\n     into chunks ".
-		   "of $subl chars or less - this tag won't print right");
-       # insert a space char to prevent infinite loops
-       $line = substr($line,0,$subl) . " " . substr($line,$subl);
-   }
-   my $s = shift @lines;
-   $self->_print("$pre1$s\n") if $s;
-   foreach my $s ( @lines ) {
-       $self->_print("$pre2$s\n");
-   }
+  CHUNK: while($line) {
+      foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
+	  if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {
+	      my $l = $1.$2;
+	      my $newl = $3;
+	      $line = substr($line,length($l));
+	      # be strict about not padding spaces according to
+	      # genbank format
+	      $l =~ s/\s+$//;
+	      push(@lines, $l);
+	      next CHUNK;
+	  }
+      }
+      # if we get here none of the patterns matched $subl or less chars
+      $self->warn("trouble dissecting \"$line\"\n     into chunks ".
+		  "of $subl chars or less - this tag won't print right");
+      # insert a space char to prevent infinite loops
+      $line = substr($line,0,$subl) . " " . substr($line,$subl);
+  }
+    my $s = shift @lines;
+    $self->_print("$pre1$s\n") if $s;
+    foreach my $s ( @lines ) {
+	$self->_print("$pre2$s\n");
+    }
 }
 
 =head2 _post_sort
@@ -1568,14 +1586,15 @@ sub _write_line_GenBank_regex {
 
 =cut
 
-sub _post_sort{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-       $obj->{'_post_sort'} = $value;
-   }
-   return $obj->{'_post_sort'};
+sub _post_sort {
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	$obj->{'_post_sort'} = $value;
+    }
+    return $obj->{'_post_sort'};
 }
 
+    
 =head2 _show_dna
 
  Title   : _show_dna
@@ -1587,12 +1606,12 @@ sub _post_sort{
 
 =cut
 
-sub _show_dna{
-   my ($obj,$value) = @_;
-   if( defined $value) {
-       $obj->{'_show_dna'} = $value;
-   }
-   return $obj->{'_show_dna'};
+sub _show_dna {
+    my ($obj,$value) = @_;
+    if( defined $value) {
+	$obj->{'_show_dna'} = $value;
+    }
+    return $obj->{'_show_dna'};
 }
 
 =head2 _id_generation_func
@@ -1606,14 +1625,15 @@ sub _show_dna{
 
 =cut
 
-sub _id_generation_func{
-   my ($obj,$value) = @_;
-   if( defined $value ) {
-       $obj->{'_id_generation_func'} = $value;
-   }
-   return $obj->{'_id_generation_func'};
+sub _id_generation_func {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->{'_id_generation_func'} = $value;
+    }
+    return $obj->{'_id_generation_func'};
 }
 
+    
 =head2 _ac_generation_func
 
  Title   : _ac_generation_func
@@ -1622,17 +1642,17 @@ sub _id_generation_func{
  Returns : value of _ac_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
-sub _ac_generation_func{
-   my ($obj,$value) = @_;
-   if( defined $value ) {
-       $obj->{'_ac_generation_func'} = $value;
-   }
-   return $obj->{'_ac_generation_func'};
+sub _ac_generation_func {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->{'_ac_generation_func'} = $value;
+    }
+    return $obj->{'_ac_generation_func'};
 }
 
+    
 =head2 _sv_generation_func
 
  Title   : _sv_generation_func
@@ -1644,15 +1664,15 @@ sub _ac_generation_func{
 
 =cut
 
-sub _sv_generation_func{
-   my ($obj,$value) = @_;
-   if( defined $value ) {
-      $obj->{'_sv_generation_func'} = $value;
+sub _sv_generation_func {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->{'_sv_generation_func'} = $value;
     }
     return $obj->{'_sv_generation_func'};
-
 }
 
+    
 =head2 _kw_generation_func
 
  Title   : _kw_generation_func
@@ -1661,13 +1681,13 @@ sub _sv_generation_func{
  Returns : value of _kw_generation_func
  Args    : newvalue (optional)
 
-
 =cut
 
-sub _kw_generation_func{
-   my ($obj,$value) = @_;
-   if( defined $value ) {
-      $obj->{'_kw_generation_func'} = $value;
+	
+sub _kw_generation_func {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+	$obj->{'_kw_generation_func'} = $value;
     }
     return $obj->{'_kw_generation_func'};
 }
