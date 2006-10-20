@@ -428,8 +428,8 @@ sub parse_line {
     return 1;
   }
 
-  # remove comments (there may be data on the same line)
-  s/\s*\#.+$//;
+  # remove comments (but rescue hex-code colors)
+  s/\s*\#.+$// unless /\s*\#[0-9A-Fa-f]{6}\b/;
 
   # skip on blank lines
   return 1 if /^\s*$/;
