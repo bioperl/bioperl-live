@@ -15,7 +15,7 @@ BEGIN {
 	# as a fallback
     eval { require Test::More; };
     if( $@ ) {
-        use lib Bio::Root::IO->catfile('t','lib');
+        use lib 't/lib';
     }
     use Test::More;
     plan tests => 9;

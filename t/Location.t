@@ -12,7 +12,7 @@ BEGIN {
     # as a fallback
     eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+		use lib 't/lib';
     }
     use Test::More;
     plan tests => 104;

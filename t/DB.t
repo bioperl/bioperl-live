@@ -15,7 +15,7 @@ BEGIN {
 	
 	eval {require Test::More;};
 	if ($@) {
-		use lib 't';
+		use lib 't/lib';
 	}
 	use Test::More;
 	

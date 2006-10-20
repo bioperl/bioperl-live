@@ -10,7 +10,6 @@ my $error;
 use vars qw($LASTXMLTEST); 
 use strict;
 use Dumpvalue();
-use Bio::Root::IO;
 my $dumper = new Dumpvalue();
 
 BEGIN {
@@ -19,14 +18,15 @@ BEGIN {
 	# as a fallback
 	eval { require Test::More; };
 	if( $@ ) {
-		use lib Bio::Root::IO->catfile('t','lib');
+		use lib 't/lib';
 	}
+	use Test::More;
+    
 	use vars qw($NTESTS);
 	$NTESTS = 1340;
 	$LASTXMLTEST = 67;
 	$error = 0;
 
-	use Test::More;
 	plan tests => $NTESTS; 
 }
 
