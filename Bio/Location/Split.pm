@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Location::SplitLocation
+# BioPerl module for Bio::Location::Split
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
@@ -38,7 +38,16 @@ which has multiple locations (start/end points)
 =head1 DESCRIPTION
 
 This implementation handles locations which span more than one
-start/end location, or and/or lie on different sequences.
+start/end location, or and/or lie on different sequences, and can
+work with split locations that depend on the specific order of the
+sublocations ('join') or don't have a specific order but represent
+a feature spanning discontiguous sublocations ('order', 'bond').
+
+Note that the order in which sublocations are added may be very important,
+depending on the specific split location type.  For instance, a 'join'
+must have the sublocations added in the order that one expects to
+join the sublocations, whereas all other types are sorted based on the
+sequence location.
 
 =head1 FEEDBACK
 
@@ -70,7 +79,6 @@ methods. Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Location::Split;
 
 # as defined by BSANE 0.03
@@ -79,7 +87,6 @@ our @CORBALOCATIONOPERATOR = ('NONE','JOIN', undef, 'ORDER');;
 use Bio::Root::Root;
 
 use base qw(Bio::Location::Atomic Bio::Location::SplitLocationI);
-
 
 sub new {
     my ($class, @args) = @_;
@@ -150,49 +157,93 @@ sub sub_Location {
     } 
     $order = 1 if($order > 1);
     $order = -1 if($order < -1);
-
     my @sublocs = defined $self->{'_sublocations'} ? @{$self->{'_sublocations'}} : ();
 
     # return the array if no ordering requested
     return @sublocs if( ($order == 0) || (! @sublocs) );
-    
+    	
     # sort those locations that are on the same sequence as the top (`master')
     # if the top seq is undefined, we take the first defined in a sublocation
     my $seqid = $self->seq_id();
     my $i = 0;
     while((! defined($seqid)) && ($i <= $#sublocs)) {
-	$seqid = $sublocs[$i++]->seq_id();
+		$seqid = $sublocs[$i++]->seq_id();
     }
     if((! $self->seq_id()) && $seqid) {
-	$self->warn("sorted sublocation array requested but ".
-		    "root location doesn't define seq_id ".
-		    "(at least one sublocation does!)");
+		$self->warn("sorted sublocation array requested but ".
+				"root location doesn't define seq_id ".
+				"(at least one sublocation does!)");
     }
     my @locs = ($seqid ?
 		grep { $_->seq_id() eq $seqid; } @sublocs :
 		@sublocs);
     if(@locs) {
-      if($order == 1) {
-	  # Schwartzian transforms for performance boost	  
-	  @locs = map { $_->[0] }
-	  sort { (defined $a && defined $b) ? 
-		     $a->[1] <=> $b->[1] : $a ? -1 : 1 }
-	  map { [$_, (defined $_->start ? $_->start : $_->end)] } @locs;;
-
-      } else { # $order == -1
-	@locs = map {$_->[0]}
-	        sort { 
-		    (defined $a && defined $b) ? 
-			$b->[1] <=> $a->[1] : $a ? -1 : 1 }
- 	        map { [$_, (defined $_->end ? $_->end : $_->start)] } @locs;
-      }
+		if($order == 1) {
+			# Schwartzian transforms for performance boost	  
+			@locs = map { $_->[0] }
+			sort {
+				(defined $a && defined $b) ? $a->[1] <=> $b->[1] : $a ? -1 : 1
+				}
+			map {
+				[$_, (defined $_->start ? $_->start : $_->end)]
+				} @locs;;
+		} else { # $order == -1
+			@locs = map { $_->[0]}
+			sort { 
+				(defined $a && defined $b) ? $b->[1] <=> $a->[1] :
+				$a                         ? -1                  : 1
+				}
+			map {
+				[$_, (defined $_->end ? $_->end : $_->start)]
+				} @locs;
+		}
     }
     # push the rest unsorted
     if($seqid) {
-	push(@locs, grep { $_->seq_id() ne $seqid; } @sublocs);
+		push(@locs, grep { $_->seq_id() ne $seqid; } @sublocs);
     }
     # done!
+
     return @locs;
+}
+
+=head2 sub_Location_by_order
+
+ Title   : sub_Location_by_order
+ Usage   : @sublocs = $splitloc->sub_Location_by_order();
+ Function: Returns the array of sublocations making up this compound (split)
+           location. Those sublocations referring to the same sequence as
+           the root split location will be sorted by the order they were added
+		   to the Split object.  This is necessary for joins, where the
+		   order of the sublocations is important regardless of their individual
+		   start and end positions
+
+ Returns : an array of Bio::LocationI implementing objects
+ Args    : Optionally 1, 0, or -1 for specifying a forward, no, or reverse
+           sort order
+
+=cut
+
+sub sub_Location_by_order {
+	my ($self, $order) = @_;
+    $order = 0 unless defined $order;
+    if( defined($order) && ($order !~ /^-?\d+$/) ) {
+		$self->throw("value $order passed in to sub_Location_by_order".
+					 " is $order, an invalid value");
+    } 
+    $order = 1 if($order > 1);
+    $order = -1 if($order < -1);
+    my @sublocs = defined $self->{'_sublocations'} ?
+					@{$self->{'_sublocations'}} :
+					();
+
+    # since join statements are designed to join together sequences in a
+	# particular order, regardless of position or whether they are remote,
+	# we simply return the sublocs in the order present in the split
+	# location based on the order argument
+	@sublocs = reverse @sublocs if ($order == -1);
+	
+    return @sublocs;
 }
 
 =head2 add_sub_Location
@@ -270,6 +321,24 @@ sub is_single_sequence {
     return 1;
 }
 
+=head2 guide_strand
+
+  Title   : guide_strand
+  Usage   : $str = $loc->guide_strand();
+  Function: Get/Set the guide strand.  Of use only if the split type is
+            a 'join' (this helps determine the order of sublocation
+			retrieval)
+  Returns : value of guide strand (1, -1, or undef)
+  Args    : new value (-1 or 1, optional)
+
+=cut
+
+sub guide_strand {
+	my $self = shift;
+	return $self->{'strand'} = shift if @_;
+	return $self->{'strand'};
+}
+
 =head1 LocationI methods
 
 =head2 strand
@@ -295,30 +364,30 @@ sub is_single_sequence {
 sub strand{
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'strand'} = $value;
-	# propagate to all sublocs
-	foreach my $loc ($self->sub_Location(0)) {
-	    $loc->strand($value);
-	}
+		$self->{'strand'} = $value;
+		# propagate to all sublocs
+		foreach my $loc ($self->sub_Location(0)) {
+			$loc->strand($value);
+		}
     } else {
-	my ($strand, $lstrand);
-	foreach my $loc ($self->sub_Location(0)) {
-	    # we give up upon any location that's remote or doesn't have
-	    # the strand specified, or has a differing one set than 
-	    # previously seen.
-	    # calling strand() is potentially expensive if the subloc is also
-	    # a split location, so we cache it
-	    $lstrand = $loc->strand();
-	    if((! $lstrand) ||
-	       ($strand && ($strand != $lstrand)) ||
-	       $loc->is_remote()) {
-		$strand = undef;
-		last;
-	    } elsif(! $strand) {
-		$strand = $lstrand;
-	    }
-	}
-	return $strand;
+		my ($strand, $lstrand);
+		foreach my $loc ($self->sub_Location(0)) {
+			# we give up upon any location that's remote or doesn't have
+			# the strand specified, or has a differing one set than 
+			# previously seen.
+			# calling strand() is potentially expensive if the subloc is also
+			# a split location, so we cache it
+			$lstrand = $loc->strand();
+			if((! $lstrand) ||
+			   ($strand && ($strand != $lstrand)) ||
+			   $loc->is_remote()) {
+			$strand = undef;
+			last;
+			} elsif(! $strand) {
+			$strand = $lstrand;
+			}
+		}
+		return $strand;
     }
 }
 
@@ -326,7 +395,8 @@ sub strand{
 
   Title   : flip_strand
   Usage   : $location->flip_strand();
-  Function: Flip-flop a strand to the opposite
+  Function: Flip-flop a strand to the opposite.  Also switch Split strand
+            from undef to -1 or -1 to undef
   Returns : None
   Args    : None
 
@@ -335,7 +405,11 @@ sub strand{
 sub flip_strand {
     my $self = shift;
     for my $loc ( $self->sub_Location(0) ) {
-	$loc->flip_strand;
+		$loc->flip_strand;
+		if ($loc->isa('Bio::Location::SplitLocationI')) {
+			my $gs = ($self->guide_strand == -1) ? undef : -1;
+			$self->guide_strand($gs);
+		}
     }
 }
 
@@ -567,18 +641,22 @@ sub seq_id {
 sub to_FTstring {
     my ($self) = @_;
     my @strs;
-    my $strand;
-	#print STDERR "Strand: $strand\n:";
-	# Note:
-	# join(complement(A..B),complement(C..D),complement(E..F)) is not the
-	# same as complement(join(A..B,C..D,E..F)).  The first would have locations
-	# in the order BADCFE, whereas the second would have the order FEDCBA.
-	# See bug 1953
-    if( ($strand = ($self->strand || 0)) < 0 ) {
+    my $order = 0;
+	my $strand = $self->strand() || 0;
+	my $stype = lc($self->splittype());
+    if( $strand < 0 ) {
+		my $guide = $self->guide_strand();
+		$order = ($guide && $guide == $strand) ? 1 : -1;
 		$self->flip_strand; # this will recursively set the strand
 							# to +1 for all the sub locations
     }
-    foreach my $loc ( $self->sub_Location()  ) {		
+	# If the split type is join, the order is important;
+	# otherwise it doesn't matter
+	my @locs = (lc($stype eq 'join')) ?
+	           $self->sub_Location_by_order($order) :
+			   $self->sub_Location();
+    foreach my $loc ( @locs ) {
+		$loc->verbose($self->verbose);
 		my $str = $loc->to_FTstring();
 		# we only append the remote seq_id if it hasn't been done already
 		# by the sub-location (which it should if it knows it's remote)

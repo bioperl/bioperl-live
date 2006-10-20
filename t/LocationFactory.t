@@ -12,7 +12,7 @@ BEGIN {
     # as a fallback
     eval { require Test::More; };
     if ( $@ ) {
-		 use lib 't';
+		use lib 't/lib';
     }
     use Test::More;
     plan tests => 275;
@@ -125,35 +125,41 @@ foreach my $locstr (keys %testcases) {
 }
 
 if ($^V gt v5.6.0) {
-	# bug #1674, #1765
-	# Join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))
-
-	my @expected = ( # intentionally testing same expected string twice
-						 # as I am providing two different encodings
-						 # that should mean the same thing
-						 'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
-						 'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
-						 # ditto
-						 'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
-						 'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
-						 # this is just seem once
-						 'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)'
-						);
+	# bug #1674, #1765, 2101
+	# EMBL-like 
+	# join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))
+	# GenBank-like
+	# join(20464..20694,21548..22763,complement(join(231520..231669,232596..232990,314652..314672)))
+	# Note that
+	# join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)
+	# is the same as
+	# join(1000..2000,3000..4000,5000..6000,7000..8000,9000..10000)
+	# But I don't want to bother with it at this point
+	my @expected = (# intentionally testing same expected string twice
+					# as I am providing two different encodings
+					# that should mean the same thing
+	'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
+	'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
+	# ditto
+	'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
+	'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
+	# this is just seen once
+	'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)'
+   );
 
 	for my $locstr (
-						 'join(11025..11049,join(complement(315036..315294),complement(251354..251412),complement(241499..241580),complement(239890..240081)))',
-						 'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
-						 'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
-						 'join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))',
-						 'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)' 
-						) {
+		'join(11025..11049,join(complement(239890..240081),complement(241499..241580),complement(251354..251412),complement(315036..315294)))',
+		'join(11025..11049,complement(join(315036..315294,251354..251412,241499..241580,239890..240081)))',
+		'join(20464..20694,21548..22763,complement(join(314652..314672,232596..232990,231520..231669)))',
+		'join(20464..20694,21548..22763,join(complement(231520..231669),complement(232596..232990),complement(314652..314672)))',
+		'join(1000..2000,join(3000..4000,join(5000..6000,7000..8000)),9000..10000)' 
+	   ) {
 		my $loc = $locfac->from_string($locstr);
 		my $ftstr = $loc->to_FTstring();
-		is($ftstr, shift @expected);
+		is($ftstr, shift @expected, $locstr);
 	}
 } else {
 	foreach (1..3) {
 		skip('nested matches in regex only supported in v5.6.1 and higher',1);
 	}
 }
-
