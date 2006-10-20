@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Location::SplitLocation
+# BioPerl module for Bio::Location::Split
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
