@@ -17,14 +17,6 @@ use ExtUtils::MakeMaker ;
 use File::Path 'rmtree';
 use Cwd;
 
-#*** update %packages
-
-# Basically this is a standard Makefile with a hash of
-# needed packages which are tested at the start
-#
-# If you want help with this Makefile get in touch with
-# the developers by sending a message to bioperl-l@bioperl.org.
-#
 # All Bioperl dependencies on external modules are defined here
 my %packages = (
   'Ace'                       => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
