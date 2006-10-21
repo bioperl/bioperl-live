@@ -359,7 +359,7 @@ END
 sub MY::postamble {
   my $path = catfile('maintenance', 'symlink_scripts.pl');
   $tline . "\n\n"
-         . "link_install ::\n\t\$(PERL) '".cwd().$path."' '\$(INSTALLSITEBIN)'\n\n";
+         . "link_install ::\n\t\$(PERL) '".cwd()."/".$path."' '\$(INSTALLSITEBIN)'\n\n";
 }
 
 package MY;
