@@ -22,7 +22,7 @@ use Cwd;
 my %packages = (
   'Ace'                       => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
   'Bio::ASN1::EntrezGene'     => '0.0/Entrez Gene Bioperl Parser/parsing entrezgene/Bio::SeqIO::entrezgene',
-  'Class::AutoClass'          => '0.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
+  'Class::AutoClass'          => '1.01/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
   'Clone'                     => '0.0/Recursively copy Perl datatypes/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3',
   'Convert::Binary::C'        => '0.0/Binary Data Conversion using C Types/strider functionality/Bio::SeqIO::strider',
   'Data::Stag::XMLWriter'     => '0.0/XML writer/writing choas xml files/Bio::SeqIO::chaosxml',
