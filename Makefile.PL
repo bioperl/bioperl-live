@@ -23,7 +23,8 @@ use Cwd;
 my %packages = (
   'Ace'                       => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
   'Bio::ASN1::EntrezGene'     => '0.0/Entrez Gene Bioperl Parser/parsing entrezgene/Bio::SeqIO::entrezgene',
-  'Class::AutoClass'          => '1.01/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
+  # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
+  'Class::AutoClass'          => '1.0/Protocol for object creation/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
   'Clone'                     => '0.0/Recursively copy Perl datatypes/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3',
   'Convert::Binary::C'        => '0.0/Binary Data Conversion using C Types/strider functionality/Bio::SeqIO::strider',
   'Data::Stag::XMLWriter'     => '0.0/XML writer/writing choas xml files/Bio::SeqIO::chaosxml',
@@ -102,15 +103,19 @@ while (my ($name, $value) = each %packages) {
   if (! eval "require $name;") {
     my @modules = split(',', $module);
     my $modules = join("\n * ", @modules);
-    print "External Module '$name' ($desc) is not installed on this computer.\n The following Bioperl modules need it for $expl:\n * $modules\n\n";
+    print "External Module '$name' ($desc) is not installed on this computer.\n The following Bioperl modules need it for $expl:\n * $modules\n";
     $error = 1;
+    
+    if (exists $exclude_from_prereqs{$name}) {
+      print "Additionally, it will not be considered a pre-requisite\n(and therefore will not be automatically installed by CPAN) because:\n $exclude_from_prereqs{$name}.\n\n";
+    }
+    else {
+      print "\n";
+    }
   }
   
   unless (exists $exclude_from_prereqs{$name}) {
     $prereq{$name} = $ver;
-  }
-  else {
-    print "External Module '$name' will not be considered a pre-requisite\n(and therefore will not be automatically installed) because:\n $exclude_from_prereqs{$name}.\n\n";
   }
 }
 if ($error == 1) {
