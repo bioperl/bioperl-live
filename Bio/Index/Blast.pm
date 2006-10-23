@@ -179,13 +179,13 @@ sub _index_file {
 	my $indexpoint = 0;
 	my $lastline = 0;
 
-	while( <$BLAST> ) {	
+	while( <$BLAST> ) {
 		if( /(T)?BLAST[PNX]/ ) {
 			if( @data ) { 
 				# if we have already read a report
 				# then store the data for this report 
 				# in the CURRENT index
-				$self->_process_report($indexpoint, $i, join("",@data));
+				$self->_process_report($indexpoint, $i, join('', @data));
 
 			} # handle fencepost problem (beginning) 
 	        # by skipping here when empty
@@ -195,12 +195,12 @@ sub _index_file {
 			$indexpoint = $lastline;
 			@data = ();
 		}
-		push @data, $_;
+		push(@data, $_) if $_;
 		$lastline = tell $BLAST;
 	}
 	# handle fencepost problem (end)
 	if( @data ) {
-		$self->_process_report($indexpoint,$i,join("",@data));
+		$self->_process_report($indexpoint, $i, join('', @data));
 	}
 }
 
