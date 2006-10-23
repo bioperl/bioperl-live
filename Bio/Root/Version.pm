@@ -86,7 +86,8 @@ package Bio::Root::Version;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = 1.5;
+$VERSION = 1.52_01;
+$VERSION = eval $VERSION;
 
 sub import {
     # try to handle multiple levels of inheritance:
