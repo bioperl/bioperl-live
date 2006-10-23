@@ -113,7 +113,7 @@ sub new {
 					       VARIANT
 					       CLASSIFICATION)], @args);
     
-    if (defined $classification && (ref($classification) eq "ARRAY") ) {
+    if (defined $classification && ref($classification) eq "ARRAY" && @{$classification}) {
         $self->classification(@$classification);
     }
     else {
