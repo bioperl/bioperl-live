@@ -13,11 +13,12 @@ use warnings;
 use Config;
 use IO::File;
 use File::Spec::Functions;
-use ExtUtils::MakeMaker ;
+use ExtUtils::MakeMaker;
 use File::Path 'rmtree';
 use Cwd;
 
 # All Bioperl dependencies on external modules are defined here
+# (these are all considered optional)
 my %packages = (
   'Ace'                       => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
   'Bio::ASN1::EntrezGene'     => '0.0/Entrez Gene Bioperl Parser/parsing entrezgene/Bio::SeqIO::entrezgene',
