@@ -4,7 +4,8 @@
 ##----------------------------------------------------
 
 #
-# Start with object preamble and setup
+# Start with object preamble and setup of variables that might need changing
+# in the future
 #
 
 require 5.006_001;
@@ -53,6 +54,14 @@ my %packages = (
   'XML::Writer'               => '0.4/Parsing and writing of XML documents/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
 );
 
+# We don't want CPAN, Bundle::BioPerl et al. to know about these for various
+# reasons (eg. because they would cause a circular dependency), so will exclude
+# them from PREREQ_PM later on
+my %exclude_from_prereqs = (
+  'Bio::ASN1::EntrezGene' => 'it would cause a circular dependency'
+);
+
+
 #
 # Main code
 #
@@ -96,7 +105,13 @@ while (my ($name, $value) = each %packages) {
     print "External Module '$name' ($desc) is not installed on this computer.\n The following Bioperl modules need it for $expl:\n * $modules\n\n";
     $error = 1;
   }
-  $prereq{$name} = $ver;
+  
+  unless (exists $exclude_from_prereqs{$name}) {
+    $prereq{$name} = $ver;
+  }
+  else {
+    print "External Module '$name' will not be considered a pre-requisite\n(and therefore will not be automatically installed) because:\n $exclude_from_prereqs{$name}.\n\n";
+  }
 }
 if ($error == 1) {
   print <<QQ_ERROR_QQ;
@@ -352,6 +367,7 @@ END
     print "I saw that you had no mysql DBI driver, so I didn't create corresponding tests\n";
   }
 }
+
 
 #
 # override MakeMaker methods
