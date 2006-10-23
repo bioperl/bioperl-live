@@ -340,11 +340,11 @@ sub throw{
        if( ref($args[0])) {
            if( $args[0]->isa('Error')) {
                my $class = ref $args[0];
-               throw $class ( @args );
+               $class->throw( @args );
            } else {
                my $text .= "\nWARNING: Attempt to throw a non-Error.pm object: " . ref$args[0];
                my $class = "Bio::Root::Exception";
-               throw $class ( '-text' => $text, '-value' => $args[0] ); 
+               $class->throw( '-text' => $text, '-value' => $args[0] ); 
            }
        } else {
            $class ||= "Bio::Root::Exception";
@@ -356,7 +356,7 @@ sub throw{
 	       $args{-object} = $self;
 	   }
 
-           throw $class ( scalar keys %args > 0 ? %args : @args ); # (%args || @args) puts %args in scalar context!
+           $class->throw( scalar keys %args > 0 ? %args : @args ); # (%args || @args) puts %args in scalar context!
        }
    }
    else {
