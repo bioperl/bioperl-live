@@ -5,7 +5,6 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use ExtUtils::MakeMaker;
 use Bio::Root::IO;
 use FindBin '$Bin';
 use constant TEST_COUNT => 46;
@@ -26,7 +25,6 @@ BEGIN {
 }
 
 use lib '.','..','./blib/lib';
-use lib "$ENV{HOME}/cvswork/bioperl-live/";
 use Bio::DB::SeqFeature::Store;
 use Bio::DB::SeqFeature::Store::GFF3Loader;
 
