@@ -84,9 +84,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Root::Version;
 use strict;
-use vars qw($VERSION);
 
-$VERSION = 1.52_01;
+our $VERSION = 1.52_01;
 $VERSION = eval $VERSION;
 
 sub import {
