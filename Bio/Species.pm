@@ -453,9 +453,11 @@ sub binomial {
     my $bi = "$genus $species";
     if (defined($full) && $full =~ /full/i) { 
         my $ssp = $self->sub_species;
-        $ssp =~ s/$bi\s+//;
-        $ssp =~ s/$species\s+//;
-        $bi .= " $ssp" if $ssp;
+        if ($ssp) {
+            $ssp =~ s/$bi\s+//;
+            $ssp =~ s/$species\s+//;
+            $bi .= " $ssp";
+        }
     }
     return $bi;
 }

@@ -152,6 +152,8 @@ use base qw(Bio::Tree::Node Bio::IdentifiableI);
            -name              => a string representing the taxon name
                                  (scientific name)
            -id                => human readable id - typically NCBI taxid
+           -ncbi_taxid        => same as -id, but explicitely say that it is an
+                                 NCBI taxid
            -rank              => node rank (one of 'species', 'genus', etc)
            -common_names      => array ref of all common names
            -division          => 'Primates', 'Rodents', etc
@@ -181,6 +183,7 @@ sub new {
         $id = $objid || $ncbitaxid;
     }
     defined $id && $self->id($id);
+    $self->{_ncbi_tax_id_provided} = 1 if $ncbitaxid;
     
     defined $rank && $self->rank($rank);
     defined $name && $self->node_name($name);
@@ -323,7 +326,7 @@ sub rank {
  Function: Get/Set id (NCBI Taxonomy ID in most cases); object_id() and
            ncbi_taxid() are synonyms of this method.
  Returns : id (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
+ Args    : none to get, OR scalar to set
 
 =cut
 
@@ -333,7 +336,32 @@ sub id {
 }
 
 *object_id = \&id;
-*ncbi_taxid = \&id;
+
+=head2 ncbi_taxid
+
+ Title   : ncbi_taxid
+ Usage   : $taxon->ncbi_taxid($newval)
+ Function: Get/Set the NCBI Taxonomy ID; This actually sets the id() but only
+           returns an id when ncbi_taxid has been explictely set with this
+           method.
+ Returns : id (a scalar)
+ Args    : none to get, OR scalar to set
+
+=cut
+
+sub ncbi_taxid {
+    my ($self, $id) = @_;
+    
+    if ($id) {
+        $self->{_ncbi_tax_id_provided} = 1;
+        return $self->SUPER::id($id);
+    }
+    
+    if ($self->{_ncbi_tax_id_provided}) {
+        return $self->SUPER::id;
+    }
+    return;
+}
 
 =head2 parent_id
 

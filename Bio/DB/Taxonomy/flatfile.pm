@@ -176,7 +176,7 @@ sub get_taxon {
     my $taxon = new Bio::Taxon(
                         -name         => $sci_name,
                         -common_names => [@common_names],
-                        -object_id    => $taxid,
+                        -ncbi_taxid   => $taxid, # since this is a real ncbi taxid, explicitly set it as one
                         -rank         => $rank,
                         -division     => $DIVISIONS[$divid]->[1],
                         -genetic_code => $gen_code,
