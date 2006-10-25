@@ -1140,11 +1140,11 @@ is($hit->name, 'PIR2:S44629');
 is($hit->length, 628);
 is($hit->accession, 'PIR2:S44629');
 
-TODO: {
+#TODO: {
 	#skip('Significance parsing and raw score parsing broken for GCG-BLAST Hits -- see HSP',2);
 	is($hit->significance, '2e-08' );
 	is($hit->raw_score, 57 );
-}
+#}
 
 $hsp = $hit->next_hsp;
 cmp_ok($hsp->evalue, '==', 2e-08);
