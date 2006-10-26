@@ -14,7 +14,7 @@ use lib '..','.','./lib','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
-    $NUMTESTS = 756;
+    $NUMTESTS = 781;
     $error = 0;
     $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
     # this seems to work for perl 5.6 and perl 5.8
@@ -62,7 +62,7 @@ my $term = 'dihydroorotase AND human';
 my ($eutil, $response);
 
 my %dbs = (taxonomy => 1,
-           nucleotide =>1,
+           nucleotide => 1,
            pubmed => 1);
 my %links = (protein_taxonomy => 1,
              protein_nucleotide => 1,
@@ -147,67 +147,72 @@ SKIP: {
 
 # ESummary
 
-my %docsum = (1621261=> [ ['Caption','String','CAB02640'],
-['Title','String','PROBABLE PYRIMIDINE OPERON REGULATORY PROTEIN PYRR '.
+my %docsum = (1621261=> { 'Caption' => ['String','CAB02640'],
+'Title' => ['String','PROBABLE PYRIMIDINE OPERON REGULATORY PROTEIN PYRR '.
  '[Mycobacterium tuberculosis H37Rv]'],
-['Extra','String','gi|1621261|emb|CAB02640.1|[1621261]'],
-['Gi','Integer','1621261'],
-['CreateDate','String','2003/11/21'],
-['UpdateDate','String','2005/04/17'],
-['Flags','Integer',''],
-['TaxId','Integer','83332'],
-['Status','String','live'],
-['ReplacedBy','String',''],
-['Comment','String',''], ],
-20807972 => [ ['Caption','String','NP_623143'],
-['Title','String','pyrimidine regulatory protein PyrR '.
+'Extra' => ['String','gi|1621261|emb|CAB02640.1|[1621261]'],
+'Gi' => ['Integer','1621261'],
+'CreateDate' => ['String','2003/11/21'],
+'UpdateDate' => ['String','2005/04/17'],
+'Flags' => ['Integer',''],
+'TaxId' => ['Integer','83332'],
+'Length' => ['Integer','193'],
+'Status' => ['String','live'],
+'ReplacedBy' => ['String',''],
+'Comment' => ['String',''], },
+20807972 => {'Caption' => ['String','NP_623143'],
+'Title' => ['String','pyrimidine regulatory protein PyrR '.
  '[Thermoanaerobacter tengcongensis MB4]'],
-['Extra','String','gi|20807972|ref|NP_623143.1|[20807972]'],
-['Gi','Integer','20807972'],
-['CreateDate','String','2002/05/09'],
-['UpdateDate','String','2005/12/03'],
-['Flags','Integer','512'],
-['TaxId','Integer','273068'],
-['Status','String','live'],
-['ReplacedBy','String',''],
-['Comment','String',''], ],
-68536103 => [ ['Caption','String','YP_250808'],
-['Title','String','putative pyrimidine operon regulatory protein '.
+'Extra' => ['String','gi|20807972|ref|NP_623143.1|[20807972]'],
+'Gi' => ['Integer','20807972'],
+'CreateDate' => ['String','2002/05/09'],
+'UpdateDate' => ['String','2005/12/03'],
+'Flags' => ['Integer','512'],
+'TaxId' => ['Integer','273068'],
+'Length' => ['Integer','178'],
+'Status' => ['String','live'],
+'ReplacedBy' => ['String',''],
+'Comment' => ['String',''], },
+68536103 => {'Caption' => ['String','YP_250808'],
+'Title' => ['String','putative pyrimidine operon regulatory protein '.
  '[Corynebacterium jeikeium K411]'],
-['Extra','String','gi|68536103|ref|YP_250808.1|[68536103]'],
-['Gi','Integer','68536103'],
-['CreateDate','String','2005/07/04'],
-['UpdateDate','String','2006/03/30'],
-['Flags','Integer','512'],
-['TaxId','Integer','306537'],
-['Status','String','live'],
-['ReplacedBy','String',''],
-['Comment','String',''], ],
-730439 => [ ['Caption','String','P41007'],
-['Title','String','PyrR bifunctional protein '.
+'Extra' => ['String','gi|68536103|ref|YP_250808.1|[68536103]'],
+'Gi' => ['Integer','68536103'],
+'CreateDate' => ['String','2005/07/04'],
+'UpdateDate' => ['String','2006/03/30'],
+'Flags' => ['Integer','512'],
+'TaxId' => ['Integer','306537'],
+'Length' => ['Integer','195'],
+'Status' => ['String','live'],
+'ReplacedBy' => ['String',''],
+'Comment' => ['String',''], },
+730439 => {'Caption' => ['String','P41007'],
+'Title' => ['String','PyrR bifunctional protein '.
  '[Includes: Pyrimidine operon regulatory protein; '.
  'Uracil phosphoribosyltransferase (UPRTase)]'],
-['Extra','String','gi|730439|sp|P41007|PYRR_BACCL[730439]'],
-['Gi','Integer','730439'],
-['CreateDate','String','1995/02/01'],
-['UpdateDate','String','2006/07/25'],
-['Flags','Integer',''],
-['TaxId','Integer','1394'],
-['Status','String','live'],
-['ReplacedBy','String',''],
-['Comment','String',''] ],
-89318838 => [ ['Caption','String','EAS10332'],
-['Title','String','Phosphoribosyltransferase '.
+'Extra' => ['String','gi|730439|sp|P41007|PYRR_BACCL[730439]'],
+'Gi' => ['Integer','730439'],
+'CreateDate' => ['String','1995/02/01'],
+'UpdateDate' => ['String','2006/07/25'],
+'Flags' => ['Integer',''],
+'TaxId' => ['Integer','1394'],
+'Length' => ['Integer','179'],
+'Status' => ['String','live'],
+'ReplacedBy' => ['String',''],
+'Comment' => ['String',''] },
+89318838 => { 'Caption' => ['String','EAS10332'],
+'Title' => ['String','Phosphoribosyltransferase '.
  '[Mycobacterium flavescens PYR-GCK]'],
-['Extra','String','gi|89318838|gb|EAS10332.1|[89318838]'],
-['Gi','Integer','89318838'],
-['CreateDate','String','2006/03/09'],
-['UpdateDate','String','2006/03/09'],
-['Flags','Integer',''],
-['TaxId','Integer','350054'],
-['Status','String','live'],
-['ReplacedBy','String',''],
-['Comment','String',''] ]);
+'Extra' => ['String','gi|89318838|gb|EAS10332.1|[89318838]'],
+'Gi' => ['Integer','89318838'],
+'CreateDate' => ['String','2006/03/09'],
+'UpdateDate' => ['String','2006/03/09'],
+'Flags' => ['Integer',''],
+'TaxId' => ['Integer','350054'],
+'Length' => ['Integer','193'],
+'Status' => ['String','live'],
+'ReplacedBy' => ['String',''],
+'Comment' => ['String',''] } );
 
 SKIP: {
 	$eutil = Bio::DB::EUtilities->new(
@@ -229,45 +234,27 @@ SKIP: {
 		my $id = $ds->esummary_id();
 		ok(exists($docsum{$id}), '$docsum->esummary_id()');
 		
-		my @items = @{ $docsum{$id} };
+		my %items = %{ $docsum{$id} };
 		
 		# iterate using item names
 		
 		for my $name ($ds->get_all_names()) {
-			my $item = shift @items;
 			my %data = $ds->get_item_by_name($name);
-			is($data{Name}, $item->[0], 'get_all_names(),DocSum Name');
-			is($data{Type}, $item->[1], 'get_all_names(),DocSum Type');
-			is($data{Content}, $item->[2], 'get_all_names(),DocSum Content');
-			is($ds->get_Type_by_name($name), $item->[1],
-			   'get_all_names(),get_Type_by_name()');
-			is($ds->get_Content_by_name($name), $item->[2],
-			   'get_all_names(),get_Content_by_name()');
-		}
-
-		@items = @{ $docsum{$id} };
-		
-		# iterating through each item (only first 3)
-		my $ct = 0;
-		while (my %data = $ds->next_docsum_item()) {
-			my $item = shift @items;
-			is($data{Name}, $item->[0], 'next_docsum_item(),DocSum Name');
-		    is($data{Type}, $item->[1], 'next_docsum_item(),DocSum Type');
-		    is($data{Content}, $item->[2], 'next_docsum_item(),DocSum Content');
-			last if $ct++ == 2;
-		}
-		
-		#test rewind
-		$ds->rewind_docsum_items;
-		
-		@items = @{ $docsum{$id} };
-		# just check the first one...
-		while (my %data = $ds->next_docsum_item) {
-			my $item = shift @items;
-			is($data{Name}, $item->[0], 'rewind_docsum_items(),DocSum Name');
-		    is($data{Type}, $item->[1], 'rewind_docsum_items(),DocSum Type');
-		    is($data{Content}, $item->[2], 'rewind_docsum_items(),DocSum Content');
-			last;
+            ok(exists $items{$name},'DocSum Name exists');
+			is($data{Name}, $name, 'get_item_by_name(),DocSum Name');
+			is($ds->get_Type_by_name($name), $items{$name}->[0],
+			   'get_Type_by_name()');
+			is($data{Type}, $items{$name}->[0], 'get_item_by_name(),DocSum Type');
+            # content too volatile to test each time, will rectify at some point
+            if ($name eq 'CreateDate' || $name eq 'UpdateDate') {
+                like($data{Content}, qr{\d{4}/\d{2}/\d{2}},'get_item_by_name(),DocSum Content-'.$name);
+                like($ds->get_Content_by_name($name), qr{\d{4}/\d{2}/\d{2}},
+                    'get_Content_by_name(),DocSum Content-'.$name);                
+            } else {
+                is($data{Content},$items{$name}->[1],'get_item_by_name(),DocSum Content-'.$name);
+                is($ds->get_Content_by_name($name), $items{$name}->[1],
+                    'get_Content_by_name(),DocSum Content-'.$name);
+            }
 		}
 	}
 }
