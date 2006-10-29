@@ -80,7 +80,8 @@ baseml, basemlg, codemlsites and yn00
   for my $node ($tree->get_nodes()) {
      # inspect the tree: the "t" (time) parameter is available via
      # $node->branch_length(); all other branch-specific parameters
-     # ("omega", "dN", etc.) are available via ($omega) = $node->get_tag_values('omega');
+     # ("omega", "dN", etc.) are available via 
+     # ($omega) = $node->get_tag_values('omega');
   }
 
   # get any general model parameters: kappa (the
@@ -88,11 +89,6 @@ baseml, basemlg, codemlsites and yn00
   # "p1", "w0", "w1", etc.), etc.
   my $params = $result->get_model_params();
   printf "M1 params: p0 = %g\tp1 = %g\n", $params->{p0}, $params->{p1};
-
-  # for NSsites models, obtain arrayrefs of posterior probabilities
-  # for membership in each class for every position; probabilities
-  # correspond to classes w0, w1, ... etc.
-  my @probs = $result->get_posteriors();
 
   # find, say, positively selected sites!
   if ($params->{w2} > 1) {
@@ -105,11 +101,9 @@ baseml, basemlg, codemlsites and yn00
     }
   } else { print "No positive selection found!\n"; }
 
-
   # parse AAML result files
   my $aamat = $result->get_AADistMatrix();
   my $aaMLmat = $result->get_AAMLDistMatrix();
-
 
 =head1 DESCRIPTION
 
@@ -117,6 +111,14 @@ This module is used to parse the output from the PAML programs codeml,
 baseml, basemlg, codemlsites and yn00.  You can use the
 Bio::Tools::Run::Phylo::PAML::* modules to actually run some of the
 PAML programs, but this module is only useful to parse the output.
+
+=head1 TO DO
+
+Implement get_posteriors(). For NSsites models, obtain arrayrefs of 
+posterior probabilities for membership in each class for every 
+position; probabilities correspond to classes w0, w1, ... etc.
+
+  my @probs = $result->get_posteriors();
 
 =head1 FEEDBACK
 
