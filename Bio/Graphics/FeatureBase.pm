@@ -453,9 +453,21 @@ sub class {
   return defined($d) ? $d : 'Sequence';  # acedb is still haunting me - LS
 }
 
+# set GFF dumping version
+sub version {
+  my $self = shift;
+  my $d    = $self->{gff3_version} || 2;
+  $self->{gff3_version} = shift if @_;
+  $d;
+}
+
 sub gff_string {
   my $self    = shift;
   my $recurse = shift;
+
+  if ($self->version == 3) {
+    return $self->gff3_string(@_);
+  }
 
   my $name  = $self->name;
   my $class = $self->class;
@@ -483,18 +495,36 @@ sub gff3_string {
   my $class = $self->class;
   my $group = $self->format_attributes($parent);
   my $strand = ('-','.','+')[$self->strand+1];
-  my $string;
-  $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
-                       $self->start||'.',$self->stop||'.',
-                       $self->score||'.',$strand||'.',$self->phase||'.',
-                       $group||'');
-  $string .= "\n";
+  my $parent = join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
+		    $self->start||'.',$self->stop||'.',
+		    $self->score||'.',$strand||'.',$self->phase||'.',
+		    $group||'');
+
+  # the "homogeneous" flag will be true if the parent and children are all of the same type,
+  # meaning that they can be collapsed into a set of children with all the same ID
+  my ($parent_type,$homogeneous);
+  $homogeneous = 1;
+  my @children;
   if ($recurse) {
     foreach ($self->sub_SeqFeature) {
-      $string .= $_->gff3_string(1,$self);
+      push @children,$_->gff3_string(1,$self);
+      $parent_type   ||= $self->type;
+      $homogeneous   &&= $_->type eq $parent_type && !defined $_->primary_id;
     }
   }
-  $string;
+
+  # if we get here we're dealing with a homogeneous set of Parent[child,child...]
+  # where parent and child all have the same type. In this case, we omit the Parent
+  # and give the children the same ID. This removes an extraneous level of parentage.
+
+  if (@children && $homogeneous) {
+    foreach (@children) { 
+      s/Parent=/ID=/g; 
+    } # replace Parent tag with ID
+    return join "\n",@children;
+  }
+
+  return join("\n",$parent,@children);
 }
 
 
