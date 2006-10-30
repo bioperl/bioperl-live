@@ -7,7 +7,7 @@
 use strict;
 use Bio::Root::IO;
 use FindBin '$Bin';
-use constant TEST_COUNT => 46;
+use constant TEST_COUNT => 52;
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 					   'seqfeaturedb','test.gff3');
 
@@ -185,6 +185,17 @@ ok(@f && $f[0]->get_SeqFeatures('EST_match'));
 
 # regression test on bug in which the load_id disappeared
 ok(@f && $f[0]->load_id eq 'Match2');
+
+# regress on proper handling of multiple ID features
+my ($alignment) = $db->get_features_by_name('agt830.5');
+ok($alignment);
+ok($alignment->target->start == 1 && $alignment->target->end == 654);
+ok($alignment->get_SeqFeatures == 2);
+my $gff3 = $alignment->gff3_string(1);
+my @lines = split "\n",$gff3;
+ok (@lines == 2);
+ok ("@lines" !~ /Parent=/s);
+ok ("@lines" =~ /ID=/s);
 
 1;
 
