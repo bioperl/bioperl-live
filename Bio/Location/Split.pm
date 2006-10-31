@@ -182,7 +182,8 @@ sub sub_Location {
 			# Schwartzian transforms for performance boost	  
 			@locs = map { $_->[0] }
 			sort {
-				(defined $a && defined $b) ? $a->[1] <=> $b->[1] : $a ? -1 : 1
+				(defined $a && defined $b) ? $a->[1] <=> $b->[1] :
+                $a                         ?  -1                 : 1
 				}
 			map {
 				[$_, (defined $_->start ? $_->start : $_->end)]
@@ -205,45 +206,6 @@ sub sub_Location {
     # done!
 
     return @locs;
-}
-
-=head2 sub_Location_by_order
-
- Title   : sub_Location_by_order
- Usage   : @sublocs = $splitloc->sub_Location_by_order();
- Function: Returns the array of sublocations making up this compound (split)
-           location. Those sublocations referring to the same sequence as
-           the root split location will be sorted by the order they were added
-		   to the Split object.  This is necessary for joins, where the
-		   order of the sublocations is important regardless of their individual
-		   start and end positions
-
- Returns : an array of Bio::LocationI implementing objects
- Args    : Optionally 1, 0, or -1 for specifying a forward, no, or reverse
-           sort order
-
-=cut
-
-sub sub_Location_by_order {
-	my ($self, $order) = @_;
-    $order = 0 unless defined $order;
-    if( defined($order) && ($order !~ /^-?\d+$/) ) {
-		$self->throw("value $order passed in to sub_Location_by_order".
-					 " is $order, an invalid value");
-    } 
-    $order = 1 if($order > 1);
-    $order = -1 if($order < -1);
-    my @sublocs = defined $self->{'_sublocations'} ?
-					@{$self->{'_sublocations'}} :
-					();
-
-    # since join statements are designed to join together sequences in a
-	# particular order, regardless of position or whether they are remote,
-	# we simply return the sublocs in the order present in the split
-	# location based on the order argument
-	@sublocs = reverse @sublocs if ($order == -1);
-	
-    return @sublocs;
 }
 
 =head2 add_sub_Location
@@ -408,7 +370,7 @@ sub flip_strand {
 		$loc->flip_strand;
 		if ($loc->isa('Bio::Location::SplitLocationI')) {
 			my $gs = ($self->guide_strand == -1) ? undef : -1;
-			$self->guide_strand($gs);
+			$loc->guide_strand($gs);
 		}
     }
 }
@@ -426,7 +388,8 @@ sub flip_strand {
 sub start {
     my ($self,$value) = @_;    
     if( defined $value ) {
-	$self->throw("Trying to set the starting point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the starting point of a split location, ".
+				 "that is not possible, try manipulating the sub Locations");
     }
     return $self->SUPER::start();
 }
@@ -444,7 +407,8 @@ sub start {
 sub end {
     my ($self,$value) = @_;    
     if( defined $value ) {
-	$self->throw("Trying to set the ending point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the ending point of a split location, ".
+				 "that is not possible, try manipulating the sub Locations");
     }
     return $self->SUPER::end();
 }
@@ -463,7 +427,8 @@ sub min_start {
     my ($self, $value) = @_;    
 
     if( defined $value ) {
-	$self->throw("Trying to set the minimum starting point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the minimum starting point of a split ".
+				 "location, that is not possible, try manipulating the sub Locations");
     }
     my @locs = $self->sub_Location(1);
     return $locs[0]->min_start() if @locs; 
@@ -484,7 +449,8 @@ sub max_start {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the maximum starting point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the maximum starting point of a split ".
+				 "location, that is not possible, try manipulating the sub Locations");
     }
     my @locs = $self->sub_Location(1);
     return $locs[0]->max_start() if @locs; 
@@ -506,7 +472,8 @@ sub start_pos_type {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the start_pos_type of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the start_pos_type of a split location, ".
+				 "that is not possible, try manipulating the sub Locations");
     }
     my @locs = $self->sub_Location();
     return ( @locs ) ? $locs[0]->start_pos_type() : undef;    
@@ -526,7 +493,8 @@ sub min_end {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the minimum end point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the minimum end point of a split location, ".
+				 "that is not possible, try manipulating the sub Locations");
     }
     # reverse sort locations by largest ending to smallest ending
     my @locs = $self->sub_Location(-1);
@@ -548,7 +516,8 @@ sub max_end {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set the maximum end point of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set the maximum end point of a split location, ".
+				 "that is not possible, try manipulating the sub Locations");
     }
     # reverse sort locations by largest ending to smallest ending
     my @locs = $self->sub_Location(-1);
@@ -571,7 +540,8 @@ sub end_pos_type {
     my ($self,$value) = @_;
 
     if( defined $value ) {
-	$self->throw("Trying to set end_pos_type of a split location, that is not possible, try manipulating the sub Locations");
+	$self->throw("Trying to set end_pos_type of a split location, ".
+				 "that is not possible, try manipulating the sub Locations");
     }
     my @locs = $self->sub_Location();
     return ( @locs ) ? $locs[0]->end_pos_type() : undef;    
@@ -641,20 +611,20 @@ sub seq_id {
 sub to_FTstring {
     my ($self) = @_;
     my @strs;
-    my $order = 0;
 	my $strand = $self->strand() || 0;
 	my $stype = lc($self->splittype());
+	my $guide = $self->guide_strand();
+
     if( $strand < 0 ) {
-		my $guide = $self->guide_strand();
-		$order = ($guide && $guide == $strand) ? 1 : -1;
 		$self->flip_strand; # this will recursively set the strand
 							# to +1 for all the sub locations
     }
 	# If the split type is join, the order is important;
-	# otherwise it doesn't matter
-	my @locs = (lc($stype eq 'join')) ?
-	           $self->sub_Location_by_order($order) :
-			   $self->sub_Location();
+	# otherwise must be 5'->3' regardless
+	
+	my @locs = ($stype eq 'join' && (!$guide && $strand == -1)) ?
+	           reverse $self->sub_Location() : $self->sub_Location() ;
+	
     foreach my $loc ( @locs ) {
 		$loc->verbose($self->verbose);
 		my $str = $loc->to_FTstring();
