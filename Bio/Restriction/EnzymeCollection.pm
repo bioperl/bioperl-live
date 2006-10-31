@@ -18,30 +18,43 @@ Bio::Restriction::EnzymeCollection - Set of restriction endonucleases
 
   use Bio::Restriction::EnzymeCollection;
 
-  # create a set with a default enzymes
-  my $collection = Bio::Restriction::EnzymeCollection;
+  # Create a collection with the default enzymes.
+  my $default_collection = Bio::Restriction::EnzymeCollection->new();
 
+  # Or create a collection from a REBASE 'withrefm' file obtained from
+  # ftp://ftp.neb.com/pub/rebase/. (See Bio::Restriction::IO for more
+  # information.)
+  my $rebase = Bio::Restriction::IO->new(
+      -file   => 'withrefm.610',
+      -format => 'withrefm' );
+  my $rebase_collection = $rebase->read();
 
-  print "No of enzymes: ", scalar $collection->each_enzyme, "\n";
+  # Or create an empty collection and set the enzymes later. See
+  # 'CUSTOM COLLECTIONS' below for more information.
+  my $empty_collection =
+    Bio::Restriction::EnzymeCollection->new( -empty => 1 );
 
-  # find something about a particular enzyme
-  my $enz=$collection->get_enzyme('EcoRI');
+  # Get an array of Bio::Restriction::Enzyme objects from the collection.
+  my @enzymes = $default_collection->each_enzyme();
 
-  # and we know about some special types of enzymes.
-  my $blunt_collection = $collection->blunt_enzymes; # enzymes without an overhang
+  # Get a Bio::Restriction::Enzyme object for a particular enzyme by name.
+  my $enz = $default_collection->get_enzyme( 'EcoRI' );
 
-  # see 'CUSTOM COLLECTIONS' below  for more options
+  # Get a Bio::Restriction::EnzymeCollection object containing the enzymes
+  # that have the equivalent of 6-bp recognition sequences.
+  my $six_cutters = $default_collection->cutters( 6 );
 
-  # the most common selection criteria is how many times the enzymes
-  # cuts. This can be estimated using the length and specificity of
-  # the recognition site
+  # Get a Bio::Restriction::EnzymeCollection object containing the enzymes
+  # that are rare cutters.
+  my $rare_cutters = $default_collection->cutters( -start => 6, -end => 8 );
 
-  # enzymes that have euivalent of  6bp recognition sequence
-  my $six_cutters=$collection->cutters(6);
+  # Get a Bio::Restriction::EnzymeCollection object that contains enzymes
+  # that generate blunt ends:
+  my $blunt_cutters = $default_collection->blunt_enzymes();
 
-  # all rare cutters
-  my $rare_cutters=$collection->cutters(-start=>6, -end=>8);
-
+  # See 'CUSTOM COLLECTIONS' below for an example of creating a
+  # Bio::Restriction::EnzymeCollection object with a specified subset of
+  # enzymes using methods provided by the Bio::RestrictionEnzyme class.
 
 =head1 DESCRIPTION
 
@@ -49,46 +62,36 @@ Bio::Restriction::EnzymeCollection represents a collection of
 restriction enzymes.
 
 If you create a new collection directly rather than from a REBASE
-format file using Bio::RestrictionIO, it will be populated by a
-default set of protype, typeII enzymes with site and cut information
+file using L<Bio::Restriction::IO>, it will be populated by a
+default set of enzymes with site and cut information
 only.
 
-Use Bio::Restriction::Analysis to figure out which enzymes are
+Use L<Bio::Restriction::Analysis> to figure out which enzymes are
 available and where they cut your sequence.
-
 
 =head1 CUSTOM COLLECTIONS
 
-Note, that the underlying Enzyme objects are much more rich and allow
-more complicated selections than the predefinend methods. The way to
-create a custom subset is as follows:
+Note that the underlying L<Bio::Restriction::Enzyme> objects have a rich
+variety of methods that allow more complicated selections than the methods
+that are defined by Bio::Restriction::EnzymeCollection.
 
-  my $initial_collection;
-  my $new_collection = Bio::Restriction::EnzymeCollection(-empty => 1);
-  foreach $enzyme ($initial_collection) {
-      # this selects only type II enzymes
-      $new_collection($enzyme) if $enzyme->type eq 'II';
-  }
+For example, the way to create a custom collection of Type II enzymes
+is as follows:
 
-=head1 COMMENTS
-
-I am trying to make this backwards compatible with
-Bio::Tools::RestrictionEnzyme. Undoubtedly some things will break, but
-we can fix things as we progress.....!
-
-I have added another comments section at the end of this POD that
-discusses a couple of areas I know are broken (at the moment)
+  my $complete_collection =
+      Bio::Restriction::EnzymeCollection->new();
+  my $type_ii_collection  =
+      Bio::Restriction::EnzymeCollection->new( -empty => 1 );
+  $type_ii_collection->enzymes(
+      grep { $_->type() eq 'II' } $complete_collection->each_enzyme() );
 
 =head1 SEE ALSO
 
 L<Bio::Restriction::IO> - read in enzymes from REBASE files
-(s
 
 L<Bio::Restriction::Analysis> - figure out what enzymes cut a sequence
-(start here)
 
-L<Bio::Restriction::Enzyme> - defining a single restriction enzyme
-
+L<Bio::Restriction::Enzyme> - define a single restriction enzyme
 
 =head1 FEEDBACK
 
