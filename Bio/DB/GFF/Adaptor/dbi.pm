@@ -2012,12 +2012,30 @@ sub contained_in_query {
   return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
 }
 
+# implement the _delete_fattribute_to_feature() method
+sub _delete_fattribute_to_feature {
+  my $self         = shift;
+  my @feature_ids  = @_;
+  my $dbh          = $self->features_db;
+  my $fields       = join ',',map{$dbh->quote($_)} @feature_ids;
+
+  my $query = "delete from fattribute_to_feature where fid in ($fields)";
+  warn "$query\n" if $self->debug;
+  my $result = $dbh->do($query);
+  defined $result or $self->throw($dbh->errstr);
+  $result;
+}
+
 # implement the _delete_features() method
 sub _delete_features {
   my $self = shift;
   my @feature_ids = @_;
   my $dbh          = $self->features_db;
   my $fields       = join ',',map{$dbh->quote($_)} @feature_ids;
+
+  # delete from fattribute_to_feature
+  $self->_delete_fattribute_to_feature(@feature_ids);
+
   my $query = "delete from fdata where fid in ($fields)";
   warn "$query\n" if $self->debug;
   my $result = $dbh->do($query);
@@ -2032,14 +2050,14 @@ sub _delete_groups {
   my $dbh          = $self->features_db;
   my $fields       = join ',',map{$dbh->quote($_)} @group_ids;
 
-  my $query = "delete from fdata  where gid in ($fields)";
+  foreach my $gid (@group_ids){
+      my @features = $self->get_feature_by_gid($gid);
+      $self->delete_features(@features);
+  }
+
+  my $query  = "delete from fgroup where gid in ($fields)";
   warn "$query\n" if $self->debug;
   my $result = $dbh->do($query);
-  defined $result or $self->throw($dbh->errstr);
-
-  $query  = "delete from fgroup where gid in ($fields)";
-  warn "$query\n" if $self->debug;
-  $result = $dbh->do($query);
   defined $result or $self->throw($dbh->errstr);
   $result;
 }
