@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 55;
+	plan tests => 56;
 }
 
 use Bio::Seq;
@@ -80,6 +80,15 @@ unlink("embl.out");
 $ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
 								("t","data","test.embl"),
 								-format => 'embl');
+
+
+# embl with no FH
+my $noFH = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
+								("t","data","no_FH.embl"),
+								-format => 'embl');
+ok(scalar($noFH->next_seq->get_SeqFeatures), 4);
+
+
 $seq = $ent->next_seq();
 ok($seq);
 ok(lc($seq->subseq(1,10)),'gatcagtaga');

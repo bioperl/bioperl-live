@@ -259,7 +259,7 @@ sub next_seq {
 	    $_ = $buffer;
 	    # Exit at start of Feature table
 	    if( /^(F[HT]|SQ)/ ) {
-		$self->_pushback($_) if( $1 eq 'SQ' );
+		$self->_pushback($_) if( $1 eq 'SQ' || $1 eq 'FT');
 		last;
 	    }
 	    # Description line(s)
