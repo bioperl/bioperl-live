@@ -224,6 +224,7 @@ sub next_seq {
 	}
     }
     else {
+	
     	# Old style header (EMBL Release < 87, before June 2006)
     	($name, $mol, $div) = ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/);
 	
@@ -249,16 +250,16 @@ sub next_seq {
     unless( defined $name && length($name) ) {
 	$name = "unknown_id";
     }
-    
-    # $self->warn("not parsing upper annotation in EMBL file yet!");
-    my $buffer = $line;
+
+	# $self->warn("not parsing upper annotation in EMBL file yet!");
+   my $buffer = $line;
     local $_;
     BEFORE_FEATURE_TABLE :
 	until( !defined $buffer ) {
 	    $_ = $buffer;
 	    # Exit at start of Feature table
 	    if( /^(F[HT]|SQ)/ ) {
-		$self->_pushback($_) if( $1 eq 'SQ' );
+		$self->_pushback($_) if( $1 eq 'SQ' || $1 eq 'FT');
 		last;
 	    }
 	    # Description line(s)
@@ -1134,7 +1135,7 @@ sub _read_EMBL_DBLink {
         }
         $_ = undef;	       # Empty $_ to trigger read of next line
     }
-
+    
     $$buffer = $_;
 
     return @db_link;
