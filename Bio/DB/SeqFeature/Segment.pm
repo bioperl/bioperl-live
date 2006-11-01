@@ -47,7 +47,8 @@ use strict;
 
 use base 'Bio::SeqFeature::CollectionI','Bio::RangeI';
 use Bio::DB::GFF::Util::Rearrange;
-use overload '""' => \&as_string;
+use overload '""' => \&as_string,
+  fallback => 1;
 
 =head1 PUBLIC METHODS
 

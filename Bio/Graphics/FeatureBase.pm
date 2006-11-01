@@ -495,7 +495,7 @@ sub gff3_string {
   my $class = $self->class;
   my $group = $self->format_attributes($parent);
   my $strand = ('-','.','+')[$self->strand+1];
-  my $parent = join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
+  my $p      = join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
 		    $self->start||'.',$self->stop||'.',
 		    $self->score||'.',$strand||'.',$self->phase||'.',
 		    $group||'');
@@ -524,7 +524,7 @@ sub gff3_string {
     return join "\n",@children;
   }
 
-  return join("\n",$parent,@children);
+  return join("\n",$p,@children);
 }
 
 

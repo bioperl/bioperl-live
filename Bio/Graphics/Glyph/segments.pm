@@ -239,19 +239,13 @@ sub draw_multiple_alignment {
       my ($sdna,$tdna) = ($s->dna,$target->dna);
       my @result = $self->realign($sdna,$tdna);
       foreach (@result) {
-	next unless $_->[1]+$src_start >= $abs_start && $_->[0]+$src_start <= $abs_end;
 	warn "=========> [$target,@$_]\n" if DEBUG;
-#	my $a = $strands{$target} >= 0
-#	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
-#	  : [$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]];
-#	my $a = [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start];
-	my $a = $strands{$target} >= 0
-	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
-	  : [$target,$src_end-$_->[1],$src_end-$_->[0],$_->[2]+$tgt_start,$_->[3]+$tgt_start];
+	my $a = $strands{$target} >= 0 ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
+	                               : [$target,$src_end-$_->[1],$src_end-$_->[0],$_->[2]+$tgt_start,$_->[3]+$tgt_start];
+	warn "[$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]]" if DEBUG;
 	warn "=========> [@$a]\n" if DEBUG;
-	warn "sdna = $_->[0] to $_->[1] aligns to tdna = $_->[2] to $_->[3]" if DEBUG;
 	warn substr($sdna,     $_->[0],$_->[1]-$_->[0]+1),"\n" if DEBUG;
-	warn substr($tdna,     $_->[2],$_->[3]-$_->[2]+1),"\n" if DEBUG;
+	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n"      if DEBUG;
 	push @segments,$a;
       }
     }
