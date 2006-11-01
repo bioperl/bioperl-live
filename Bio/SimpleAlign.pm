@@ -172,7 +172,7 @@ BEGIN {
 					       HFY )],);
 }
 
-use base qw(Bio::Root::Root Bio::Align::AlignI);
+use base qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI);
 
 =head2 new
 
@@ -2406,5 +2406,31 @@ sub source{
     return $self->{'_source'};
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $ann = $aln->annotation or 
+           $aln->annotation($ann)
+ Function: Gets or sets the annotation
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::AnnotationCollectionI object
+
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+        $obj->throw("object of class ".ref($value)." does not implement ".
+                "Bio::AnnotationCollectionI. Too bad.")
+            unless $value->isa("Bio::AnnotationCollectionI");
+        $obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+        $obj->{'_annotation'} = Bio::Annotation::Collection->new();
+    }
+    return $obj->{'_annotation'};
+}
 
 1;
