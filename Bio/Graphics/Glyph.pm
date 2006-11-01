@@ -123,6 +123,7 @@ sub feature_has_subparts {
   my $self = shift;
 
   return $self->{feature_has_subparts} = shift if @_;
+  return 0 if $self->maxdepth == 0;
 
   # $feature->compound is an artefact from aggregators. Sadly, an aggregated feature can miss
   # parts that are out of the query range - this is a horrible feature. Aggregated features have
