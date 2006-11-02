@@ -193,6 +193,11 @@ sub draw_multiple_alignment {
   my $panel_right          = $self->panel->right;
   my $drew_sequence;
 
+  if ($tgt_start > $tgt_end) { #correct for data problems
+    $strand    = -1;
+    ($tgt_start,$tgt_end) = ($tgt_end,$tgt_start);
+  }
+
   warn "TGT_START..TGT_END = $tgt_start..$tgt_end" if DEBUG;
 
   my ($bl,$bt,$br,$bb)     = $self->bounds($left,$top);
@@ -224,11 +229,13 @@ sub draw_multiple_alignment {
 
     my ($tgt_start,$tgt_end) = ($target->start,$target->end);
 
+    my $strand_bug;
     unless (exists $strands{$target}) {
       my $strand = $feature->strand;
       if ($tgt_start > $tgt_end) { #correct for data problems
 	$strand    = -1;
 	($tgt_start,$tgt_end) = ($tgt_end,$tgt_start);
+	$strand_bug++;
       }
       $strands{$target} = $strand;
     }
@@ -239,19 +246,13 @@ sub draw_multiple_alignment {
       my ($sdna,$tdna) = ($s->dna,$target->dna);
       my @result = $self->realign($sdna,$tdna);
       foreach (@result) {
-	next unless $_->[1]+$src_start >= $abs_start && $_->[0]+$src_start <= $abs_end;
 	warn "=========> [$target,@$_]\n" if DEBUG;
-#	my $a = $strands{$target} >= 0
-#	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
-#	  : [$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]];
-#	my $a = [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start];
-	my $a = $strands{$target} >= 0
-	  ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
-	  : [$target,$src_end-$_->[1],$src_end-$_->[0],$_->[2]+$tgt_start,$_->[3]+$tgt_start];
+	my $a = $strands{$target} >= 0 ? [$target,$_->[0]+$src_start,$_->[1]+$src_start,$_->[2]+$tgt_start,$_->[3]+$tgt_start]
+	                               : [$target,$src_end-$_->[1],$src_end-$_->[0],$_->[2]+$tgt_start,$_->[3]+$tgt_start];
+	warn "[$target,$_->[0]+$src_start,$_->[1]+$src_start,$tgt_end-$_->[3],$tgt_end-$_->[2]]" if DEBUG;
 	warn "=========> [@$a]\n" if DEBUG;
-	warn "sdna = $_->[0] to $_->[1] aligns to tdna = $_->[2] to $_->[3]" if DEBUG;
 	warn substr($sdna,     $_->[0],$_->[1]-$_->[0]+1),"\n" if DEBUG;
-	warn substr($tdna,     $_->[2],$_->[3]-$_->[2]+1),"\n" if DEBUG;
+	warn substr($tdna,$_->[2],$_->[3]-$_->[2]+1),"\n"      if DEBUG;
 	push @segments,$a;
       }
     }
@@ -330,8 +331,6 @@ sub draw_multiple_alignment {
       $seg->[SRC_START] = $panel_start;
       if ($strand >= 0) {
 	$seg->[TGT_START] -= $delta;
-      } else {
-#	$seg->[TGT_END]  +=  $delta;
       }
     }
 
@@ -339,9 +338,7 @@ sub draw_multiple_alignment {
     if ( (my $delta = $panel_end - $seg->[SRC_END]) < 0) {
       warn "clip right delta = $delta" if DEBUG;
       $seg->[SRC_END] = $panel_end;
-      if ($strand >= 0) {
-#	$seg->[TGT_END]   += $delta;
-      } else {
+      if ($strand < 0) {
 	$seg->[TGT_START] -= $delta;
       }
     }
@@ -351,6 +348,9 @@ sub draw_multiple_alignment {
 
     warn "Clipping gives [@$seg], tgt_start = $tgt_start\n" if DEBUG;
   }
+
+  # remove segments that got clipped out of existence
+  @segments = grep { $_->[SRC_START]<=$_->[SRC_END] } @segments;
 
   # relativize coordinates
   if ($strand < 0) {
