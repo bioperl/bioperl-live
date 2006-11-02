@@ -1278,6 +1278,34 @@ sub get_feature_by_gid {
 }
 *fetch_feature_by_gid = \&get_feature_by_gid;
 
+=head2 delete_fattribute_to_features
+
+ Title   : delete_fattribute_to_features
+ Usage   : $db->delete_fattribute_to_features(@ids_or_features)
+ Function: delete one or more fattribute_to_features
+ Returns : count of fattribute_to_features deleted
+ Args    : list of features or feature ids
+ Status  : public
+
+Pass this method a list of numeric feature ids or a set of features.  
+It will attempt to remove the fattribute_to_features rows of those features
+from the database and return a count of the rows removed.  
+
+NOTE: This method is also called delete_fattribute_to_feature().  Also see
+delete_groups() and delete_features().
+
+=cut
+
+*delete_fattribute_to_feature = \&delete_fattribute_to_features;
+
+sub delete_fattribute_to_features {
+  my $self = shift;
+  my @features_or_ids = @_;
+  my @ids = map {UNIVERSAL::isa($_,'Bio::DB::GFF::Feature') ? $_->id : $_} @features_or_ids;
+  return unless @ids;
+  $self->_delete_fattribute_to_features(@ids);
+}
+
 =head2 delete_features
 
  Title   : delete_features
@@ -3583,26 +3611,26 @@ sub _gff3_name_munging {
   }
 }
 
-=head2 _delete_features(), _delete_groups(),_delete()
+=head2 _delete_features(), _delete_groups(),_delete(),_delete_fattribute_to_features()
 
- Title   : _delete_features(), _delete_groups(),_delete()
+ Title   : _delete_features(), _delete_groups(),_delete(),_delete_fattribute_to_features()
  Usage   : $count = $db->_delete_features(@feature_ids)
            $count = $db->_delete_groups(@group_ids)
            $count = $db->_delete(\%delete_spec)
+           $count = $db->_delete_fattribute_to_features(@feature_ids)
  Function: low-level feature/group deleter
  Returns : count of groups removed
  Args    : list of feature or group ids removed
  Status  : for implementation by subclasses
 
-These methods need to be implemented in adaptors.  For
-_delete_features and _delete_groups, the arguments are a list of
-feature or group IDs to remove.  For _delete(), the argument is a
-hashref with the three keys 'segments', 'types' and 'force'.  The
-first contains an arrayref of Bio::DB::GFF::RelSegment objects to
-delete (all FEATURES within the segment are deleted).  The second
-contains an arrayref of [method,source] feature types to delete.  The
-two are ANDed together.  If 'force' has a true value, this forces the
-operation to continue even if it would delete all features.
+These methods need to be implemented in adaptors.  For _delete_features,
+_delete_groups and _delete_fattribute_to_features, the arguments are a list of
+feature or group IDs to remove.  For _delete(), the argument is a hashref with
+the three keys 'segments', 'types' and 'force'.  The first contains an arrayref
+of Bio::DB::GFF::RelSegment objects to delete (all FEATURES within the segment
+are deleted).  The second contains an arrayref of [method,source] feature types
+to delete.  The two are ANDed together.  If 'force' has a true value, this
+forces the operation to continue even if it would delete all features.
 
 =cut
 
@@ -3623,6 +3651,13 @@ sub _delete {
   my $delete_options = shift;
   $self->throw('_delete is not implemented in this adaptor');
 }
+
+sub _delete_fattribute_to_features {
+  my $self = shift;
+  my @feature_ids = @_;
+  $self->throw('_delete_fattribute_to_features is not implemented in this adaptor');
+}
+
 
 sub unescape {
   my $v = shift;
