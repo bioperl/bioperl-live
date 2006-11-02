@@ -17,7 +17,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 11;
+    plan tests => 15;
 }
 
 END {
@@ -85,9 +85,13 @@ ok (scalar(@indices) == 1106);
 # $dumper->dumpValue($v3);
 
 
-# my %header = %{$in_scf_v3->get_header()};
-# ok $header{bases}, 1106;
-# ok $header{samples},  14107;
+my %header = %{$in_scf_v3->get_header()};
+ok $header{bases}, 1106;
+ok $header{samples},  14107;
+
+my %comments = %{$in_scf_v3->get_comments()};
+ok $comments{'NAME'}, 'IIABP1D4373';
+ok $comments{'CONV'},  'phred version=0.990722.h';
 
 warn("Now testing the _writing_ of scfs\n") if $DEBUG;
 
