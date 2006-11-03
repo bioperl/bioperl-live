@@ -20,7 +20,7 @@ BEGIN {
     }
     use Test;
 
-    $NUMTESTS = 190;
+    $NUMTESTS = 192;
     plan tests => $NUMTESTS;
     eval { require IO::String; 
 	   require Bio::Tools::Phylo::PAML;}; 
@@ -263,11 +263,12 @@ my $class_m0 = $nssite_m0->dnds_site_classes;
 ok($class_m0->{q/p/}->[0],q/1.00000/);
 ok($class_m0->{q/w/}->[0],0.09213);
 
+ok($nssite_m0->model_num, "0");
 @trees= $nssite_m0->get_trees;
 ok (@trees , 1 ); 
 # model 0
 ok($trees[0]->score, -30.819156);
-
+ok($nssite_m1->model_num, "1");
 @trees= $nssite_m1->get_trees;
 ok($trees[0]->score, -30.819157);
 
