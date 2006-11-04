@@ -21,7 +21,7 @@ L<Bio::SeqIO> for more information.
 
 =head1 DESCRIPTION
 
-This object can transform .scf files to and from Bio::Seq::Quality
+This object can transform .scf files to and from Bio::Seq::SequenceTrace
 objects.  Mechanisms are present to retrieve trace data from scf
 files.
 
@@ -103,7 +103,8 @@ sub _initialize {
            one sequence in a given scf. So once the filehandle has been open
            and passed to SeqIO do not expect to run this function more then
            once on a given scf unless you embraced and extended the SCF
-  	        standard.
+  	   standard.  SCF comments are accessible through the Bio::SeqI
+           interface method annotation().
 
 =cut
 
@@ -220,11 +221,15 @@ sub next_seq {
 	$length = $creator->{header}->{comment_size};
 	$buffer = $self->read_from_buffer($fh,$buffer,$length);
 	$creator->{comments} = $self->_get_comments($buffer);
+        my @name_comments = grep {$_->tagname() eq 'NAME'}
+                          $creator->{comments}->get_Annotations('comment');
+        my $name_comment = $name_comments[0]->as_text();
+        $name_comment =~ s/^Comment:\s+//;
 
 	my $swq = Bio::Seq::Quality->new(
 												-seq =>   $creator->{'sequence'},
 												-qual =>	$creator->{'qualities'},
-												-id   =>	$creator->{'comments'}->{'NAME'}
+		-id   =>	$name_comment
 											  );
 	my $returner = Bio::Seq::SequenceTrace->new(
 										   -swq      =>   $swq,
@@ -238,6 +243,8 @@ sub next_seq {
 			                        -accuracy_c    => $creator->{'accuracies'}->{'c'},
                                  -peak_indices  => $creator->{'peak_indices'}
 															 );
+
+        $returner->annotation($creator->{'comments'}); # add SCF comments
 	return $returner;
 }
 
@@ -326,7 +333,7 @@ sub _get_v3_base_accuracies {
  Usage   : $self->_get_comments($buffer);
  Function: Gather the comments section from the scf and parse it into its
 	        components.
- Returns : Reference to a hash containing the comments.
+ Returns : a Bio::Annotation::Collection object
  Args    : The buffer. It is expected that the buffer contains a binary
 	        string for the comments section of an scf file according to
 	        the scf file specifications.
@@ -336,7 +343,7 @@ sub _get_v3_base_accuracies {
 
 sub _get_comments {
 	my ($self,$buffer) = @_;
-	my $comments;
+    my $comments = new Bio::Annotation::Collection();
 	my $size = length($buffer);
 	my $comments_retrieved = unpack "a$size",$buffer;
 	$comments_retrieved =~ s/\0//;
@@ -345,7 +352,12 @@ sub _get_comments {
 		foreach (@comments_split) {
 			/(\w+)=(.*)/;
 			if ($1 && $2) {
-				$comments->{$1} = $2;
+                my ($tagname, $text) = ($1, $2);
+                my $comment_obj = Bio::Annotation::Comment->new(
+                                     -text => $text,
+                                     -tagname => $tagname);
+
+                $comments->add_Annotation('comment', $comment_obj);
 			}
 		}
 	}
@@ -497,7 +509,7 @@ sub get_header {
  Title   : get_comments()
  Usage   : %comments = %{$obj->get_comments()};
  Function: Return the comments for this scf.
- Returns : A reference to a hash containing the comments for this scf.
+ Returns : A Bio::Annotation::Collection object
  Args    : None.
  Notes   :
 
