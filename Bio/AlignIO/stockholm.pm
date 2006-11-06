@@ -13,6 +13,7 @@
 # You may distribute this module under the same terms as perl itself
 # _history
 # September 5, 2000
+# November 6, 2006 - completely refactor read_aln(), add write_aln()
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -60,6 +61,8 @@ and alignment-based annotation
 This module is currently being refactored to incorporate Meta data for
 sequences and alignments.  Annotations are also now added for alignments.
 
+Note that sequence names in the alignment are cut off at 
+
 =head1 FEEDBACK
 
 =head2 Reporting Bugs
@@ -100,6 +103,8 @@ use Text::Wrap qw(wrap);
 use base qw(Bio::AlignIO);
 
 our $STKVERSION = 'STOCKHOLM 1.0';
+our $SEQNAMELENGTH = 30;
+our $INTERVEAVED = 80;
 
 # This maps the two-letter annotation key to a Annotation/parameter/tagname
 # combination.  Some data is stored using get/set methods ('Methods')  The rest 
@@ -202,12 +207,12 @@ our %WRITEMAP = (
 # GF lines => Bio::Annotation objects in a Bio::Annotation::Collection
 # GR lines => Meta data stored in Bio::Seq::Meta objects 
 
-#sub _initialize {
-#    my ( $self, @args ) = @_;
-#    $self->SUPER::_initialize(@args);
-#    my ( $build_anno ) = $self->_rearrange( [qw(BUILD_ANNO)], @args );
-#    $build_anno     && $self->build_annotation($build_anno);
-#}
+sub _initialize {
+    my ( $self, @args ) = @_;
+    $self->SUPER::_initialize(@args);
+    my ( $build_anno ) = $self->_rearrange( [qw(BUILD_ANNO)], @args );
+    $build_anno     && $self->build_annotation($build_anno);
+}
 
 =head2 next_aln
 
@@ -298,7 +303,7 @@ sub next_aln {
             #else {
             #    $self->debug("Missed data: $entry");
             #}
-        } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\w+)\s+(.+)} ) {
+        } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\w+)\s+([^\n]+)} ) {
             # meta strings per sequence
             ($name, $tag, $data) = ($1, $2, $3);
             $seq_meta{$name}->{$tag} .= $data;
@@ -341,6 +346,8 @@ sub next_aln {
         }
         $aln->add_seq($seq);
     }
+    
+    my $aln_meta;
     
     # Make the annotation collection...
     
@@ -418,7 +425,9 @@ sub write_aln {
     my $coll = $aln->annotation;
     my ($aln_ann, $seq_ann, $aln_meta, $seq_meta) =
        ('#=GF ', '#=GS ', '#=GC ', '#=GR' );
-    $self->_print("# $STKVERSION\n\n");
+    $self->_print("# $STKVERSION\n\n") or return;
+    
+    # annotations first
     
     for my $param (@WRITEORDER) {
         # no point in going through this if there is no annotation!
@@ -448,12 +457,12 @@ sub write_aln {
                             if $ann->$method;
                     }
                     #$self->_print("REFERENCE\n");
-                    $self->_print("$text\n") if $text;
+                    $self->_print("$text\n") or return if $text;
                 }
                 $rn++;
             } else {
                 my $text = wrap($aln_ann.$tag.' ', $aln_ann.$tag.' ', $ann);
-                $self->_print("$text\n");
+                $self->_print("$text\n") or return;
             }
         }
     }
@@ -464,18 +473,22 @@ sub write_aln {
     # meta data, etc.
     
     my ($namestr,$seq,$add);
-    my ($maxn);
-    $maxn = $aln->maxdisplayname_length();
- 
+    
+    # 
+    my $maxlen = $aln->maxdisplayname_length() + 10;
+    
     foreach $seq ( $aln->each_seq() ) {
         $namestr = $aln->displayname($seq->get_nse());
-        $add = $maxn - length($namestr) + 2;
-        $namestr .= " " x $add;
-        $self->_print (sprintf("%s  %s\n",$namestr,$seq->seq())) or return;
+        $self->_print(sprintf("%-*s  %s\n",$maxlen, $namestr, $seq->seq())) or return;
+        if ($seq->isa('Bio::Seq::MetaI')) {
+            for my $mname ($seq->meta_names) {
+                 $self->_print(sprintf("%-*s%5s  %s\n",$maxlen-5, $seq_meta.' '.$namestr, $mname, $seq->named_meta($mname))) or return;
+            }
+        }
     }
     $self->flush() if $self->_flush_on_write && defined $self->_fh;
     
-    $self->_print("//\n");
+    $self->_print("//\n") or return;
     return;
 }
 
