@@ -210,8 +210,6 @@ our %WRITEMAP = (
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    my ( $build_anno ) = $self->_rearrange( [qw(BUILD_ANNO)], @args );
-    $build_anno     && $self->build_annotation($build_anno);
 }
 
 =head2 next_aln
