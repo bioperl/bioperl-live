@@ -345,7 +345,13 @@ sub next_aln {
         $aln->add_seq($seq);
     }
     
-    my $aln_meta;
+    # add meta strings w/o sequence for consensus meta data
+    my $ameta = Bio::Seq::Meta->new();
+    for my $tag (sort keys %aln_meta) {
+        $ameta->named_meta($tag, $aln_meta{$tag});
+    }
+    
+    $aln->consensus_meta($ameta);
     
     # Make the annotation collection...
     
@@ -406,24 +412,24 @@ sub next_aln {
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
- Function: writes the $aln object into the stream in stockholm format  ###Not yet implemented!###
+ Function: writes the $aln object into the stream in stockholm format
  Returns : 1 for success and 0 for error
  Args    : L<Bio::Align::AlignI> object
-
 
 =cut
 
 sub write_aln {
     # enable array of SimpleAlign objects as well (see clustalw write_aln())
-    my ($self, $aln) = @_;
+    my ($self, @aln) = @_;
+    for my $aln (@aln) {
     $self->throw('Need Bio::Align::AlignI object')
           if (!$aln || !($aln->isa('Bio::Align::AlignI')));
 
-    my (@anns, @ann_objs);
+    my @anns;
     my $coll = $aln->annotation;
     my ($aln_ann, $seq_ann, $aln_meta, $seq_meta) =
        ('#=GF ', '#=GS ', '#=GC ', '#=GR' );
-    $self->_print("# $STKVERSION\n\n") or return;
+    $self->_print("# $STKVERSION\n\n") or return 0;
     
     # annotations first
     
@@ -443,10 +449,10 @@ sub write_aln {
         while (my $ann = shift @anns) {
             # using Text::Wrap::wrap() for word wrap
             # references
+            my $text;
             if ($tag eq 'RX') {
                 for my $rkey (qw(ref_comment ref_number ref_pubmed
                               ref_title ref_authors ref_location)) {
-                    my $text;
                     my ($newtag, $method) = split q(/), $WRITEMAP{$rkey};
                     if ($rkey eq 'ref_number') {
                         $text = wrap($aln_ann.$newtag.' ', $aln_ann.$newtag.' ', "[$rn]");
@@ -455,39 +461,54 @@ sub write_aln {
                             if $ann->$method;
                     }
                     #$self->_print("REFERENCE\n");
-                    $self->_print("$text\n") or return if $text;
+                    $self->_print("$text\n") or return 0 if $text;
                 }
                 $rn++;
-            } else {
-                my $text = wrap($aln_ann.$tag.' ', $aln_ann.$tag.' ', $ann);
-                $self->_print("$text\n") or return;
+            } elsif ($tag eq 'SQ') {
+                $text = wrap($aln_ann.$tag.' ', $aln_ann.$tag.' ', $aln->no_sequences);
+                $self->_print("$text\n") or return 0;            
+            } else{
+                $text = wrap($aln_ann.$tag.' ', $aln_ann.$tag.' ', $ann);
+                $self->_print("$text\n") or return 0;
             }
         }
     }
     
     # now the sequences...
     
-    # copied from pfam.pm for now; will modify to interleave sequences, print
-    # meta data, etc.
+    # modified (significantly) from AlignIO::pfam
     
     my ($namestr,$seq,$add);
     
-    # 
-    my $maxlen = $aln->maxdisplayname_length() + 10;
+    # pad extra for meta lines
+    my $maxlen = $aln->maxdisplayname_length()+5;
+    my $metalen = $aln->max_metaname_length() || 0;
     
-    foreach $seq ( $aln->each_seq() ) {
+    #$self->debug("Length: $metalen\n");
+    
+    for $seq ( $aln->each_seq() ) {
         $namestr = $aln->displayname($seq->get_nse());
-        $self->_print(sprintf("%-*s  %s\n",$maxlen, $namestr, $seq->seq())) or return;
+        $self->_print(sprintf("%-*s  %s\n",$maxlen+$metalen, $namestr, $seq->seq())) or return 0;
         if ($seq->isa('Bio::Seq::MetaI')) {
             for my $mname ($seq->meta_names) {
-                 $self->_print(sprintf("%-*s%5s  %s\n",$maxlen-5, $seq_meta.' '.$namestr, $mname, $seq->named_meta($mname))) or return;
+                 $self->_print(sprintf("%-*s%*s  %s\n",$maxlen, $seq_meta.' '.$namestr, $metalen,
+                                       $mname, $seq->named_meta($mname))) or return 0;
             }
         }
     }
+    # alignment consensus
+    my $ameta = $aln->consensus_meta;
+    if ($ameta) {
+        for my $mname ($ameta->meta_names) {
+            $self->_print(sprintf("%-*s%*s  %s\n",$maxlen, $aln_meta, $metalen,
+                                  $mname, $ameta->named_meta($mname))) or return 0; 
+        }
+    }
+    $self->_print("//\n") or return 0;
+    }
     $self->flush() if $self->_flush_on_write && defined $self->_fh;
     
-    $self->_print("//\n") or return;
-    return;
+    return 1;
 }
 
 1;

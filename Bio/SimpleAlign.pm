@@ -1946,6 +1946,28 @@ sub _consensus_iupac {
     return $char;
 }
 
+
+=head2 consensus_meta
+
+ Title     : consensus_meta
+ Usage     : $seqmeta = $ali->consensus_meta()
+ Function  : Returns a Bio::Seq::Meta object containing the consensus
+             strings derived from meta data analysis.
+ Returns   : Bio::Seq::Meta 
+ Argument  : Bio::Seq::Meta 
+ Throws    : non-MetaI object
+
+=cut
+
+sub consensus_meta {
+    my ($self, $meta) = @_;
+    if ($meta and !$meta->isa('Bio::Seq::MetaI')) {
+        $self->throw('Not a Bio::Seq::MetaI object');
+    }
+    return $self->{'_aln_meta'} = $meta if $meta;
+    return $self->{'_aln_meta'} 
+}
+
 =head2 is_flush
 
  Title     : is_flush
@@ -2058,6 +2080,47 @@ sub maxdisplayname_length {
 	if( $len > $maxname ) {
 	    $maxname = $len;
 	}
+    }
+
+    return $maxname;
+}
+
+=head2 max_metaname_length
+
+ Title     : max_metaname_length
+ Usage     : $ali->max_metaname_length()
+ Function  : Gets the maximum length of the meta name tags in the
+             alignment for the sequences and for the alignment.
+             Used in writing out various MSA formats.
+ Returns   : integer
+ Argument  : None
+
+=cut
+
+sub max_metaname_length {
+    my $self = shift;
+    my $maxname = (-1);
+    my ($seq,$len);
+
+    # check seq meta first
+    for $seq ( $self->each_seq() ) {
+        next if !$seq->isa('Bio::Seq::MetaI' || !$seq->meta_names);
+        for my $mtag ($seq->meta_names) {
+            $len = CORE::length $mtag;
+            if( $len > $maxname ) {
+                $maxname = $len;
+            }
+        }
+    }
+    
+    # alignment meta
+    for my $meta ($self->consensus_meta) {
+        for my $name ($meta->meta_names) {
+            $len = CORE::length $name;
+            if( $len > $maxname ) {
+                $maxname = $len;
+            }
+        }
     }
 
     return $maxname;
