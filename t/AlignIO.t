@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 168;
+	plan tests => 193;
 }
 use_ok('Bio::SimpleAlign');
 use_ok('Bio::AlignIO');
@@ -42,21 +42,54 @@ isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'QUERY/1-798');
 is($aln->no_sequences, 56);
 
-# STOCKHOLM (multiple concatenated files, as Pfam flatfile)
+# STOCKHOLM (multiple concatenated files)
+# Rfam
 $str  = new Bio::AlignIO (
-    '-file'	=> Bio::Root::IO->catfile("t","data","testaln.stockholm"),
+    '-file'	=> Bio::Root::IO->catfile("t","data","rfam_tests.stk"),
     '-format'	=> 'stockholm');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is($aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246');
+is($aln->get_seq_by_pos(1)->get_nse, 'Z11765.1/1-89');
+is($aln->accession, 'RF00006');
+is($aln->id, 'Vault');
+is($aln->description,'Vault RNA');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is($aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246');
+is($aln->get_seq_by_pos(1)->get_nse, 'L43844.1/2-149');
+is($aln->accession, 'RF00007');
+is($aln->id, 'U12');
+is($aln->description,'U12 minor spliceosomal RNA');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is($aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246');
+is($aln->get_seq_by_pos(1)->get_nse, 'AJ295015.1/58-1');
+is($aln->accession, 'RF00008');
+is($aln->id, 'Hammerhead_3');
+is($aln->description,'Hammerhead ribozyme (type III)');
 
+# Pfam
+$str  = new Bio::AlignIO (
+    '-file'	=> Bio::Root::IO->catfile("t","data","pfam_tests.stk"),
+    '-format'	=> 'stockholm');
+isa_ok($str,'Bio::AlignIO');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(1)->get_nse, 'RAD25_SCHPO/5-240');
+is($aln->accession, 'PF00244.9');
+is($aln->id, '14-3-3');
+is($aln->description,'14-3-3 protein');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(1)->get_nse, 'COMB_CLOAB/6-235');
+is($aln->accession, 'PF04029.4');
+is($aln->id, '2-ph_phosp');
+is($aln->description,'2-phosphosulpholactate phosphatase');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(1)->get_nse, 'Y278_HAEIN/174-219');
+is($aln->accession, 'PF03475.3');
+is($aln->id, '3-alpha');
+is($aln->description,'3-alpha domain');
 
 # PFAM
 $str = Bio::AlignIO->new(

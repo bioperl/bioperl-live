@@ -1610,6 +1610,46 @@ sub id {
     return $self->{'_id'};
 }
 
+=head2 accession
+
+ Title     : accession
+ Usage     : $myalign->accession("PF00244")
+ Function  : Gets/sets the accession field of the alignment
+ Returns   : An acc string
+ Argument  : An acc string (optional)
+
+=cut
+
+sub accession {
+    my ($self, $acc) = @_;
+
+    if (defined( $acc )) {
+	$self->{'_accession'} = $acc;
+    }
+
+    return $self->{'_accession'};
+}
+
+=head2 description
+
+ Title     : description
+ Usage     : $myalign->description("14-3-3 proteins")
+ Function  : Gets/sets the description field of the alignment
+ Returns   : An description string
+ Argument  : An description string (optional)
+
+=cut
+
+sub description {
+    my ($self, $name) = @_;
+
+    if (defined( $name )) {
+	$self->{'_description'} = $name;
+    }
+
+    return $self->{'_description'};
+}
+
 =head2 missing_char
 
  Title     : missing_char
