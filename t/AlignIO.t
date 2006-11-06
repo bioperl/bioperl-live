@@ -1,7 +1,7 @@
 # This is -*-Perl-*- code
 # $Id$
 use strict;
-
+use Data::Dumper;
 my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
 	eval { require Test::More; };
@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 193;
+	plan tests => 222;
 }
 use_ok('Bio::SimpleAlign');
 use_ok('Bio::AlignIO');
@@ -54,20 +54,58 @@ is($aln->get_seq_by_pos(1)->get_nse, 'Z11765.1/1-89');
 is($aln->accession, 'RF00006');
 is($aln->id, 'Vault');
 is($aln->description,'Vault RNA');
+# annotation
+my ($ann) = $aln->annotation->get_Annotations('alignment_comment');
+isa_ok($ann, 'Bio::Annotation::Comment');
+is($ann->text,'This family of RNAs are found as part of the enigmatic vault'.
+   ' ribonucleoprotein complex. The complex consists of a major vault protein'.
+   ' (MVP), two minor vault proteins (VPARP and TEP1), and several small '.
+   'untranslated RNA molecules. It has been suggested that the vault complex '.
+   'is involved in drug resistance. We have identified a putative novel vault '.
+   'RNA on chromosome 5 EMBL:AC005219.','Stockholm annotation');
+is($ann->tagname,'alignment_comment','Stockholm annotation');
+
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'L43844.1/2-149');
 is($aln->accession, 'RF00007');
 is($aln->id, 'U12');
 is($aln->description,'U12 minor spliceosomal RNA');
+my @anns = $aln->annotation->get_Annotations('reference');
+$ann = shift @anns;
+isa_ok($ann, 'Bio::Annotation::Reference', 'Stockholm annotation');
+$ann = shift @anns;
+is($ann->pubmed,'9149533', 'Stockholm annotation');
+is($ann->title,
+   'Pre-mRNA splicing: the discovery of a new spliceosome doubles the challenge.',
+   'Stockholm annotation');
+is($ann->authors,'Tarn WY, Steitz JA;', 'Stockholm annotation');
+is($ann->location,'Trends Biochem Sci 1997;22:132-137.', 'Stockholm annotation');
+# alignment meta data
+my $meta = $aln->consensus_meta;
+isa_ok($meta, 'Bio::Seq::MetaI');
+my ($name) = $meta->meta_names;
+is($name,'SS_cons', 'Rfam meta data');
+my $meta_str = $meta->named_meta($name);
+is($meta_str, '...<<<<<..........>>>>>........<<<<......<<<<......>>>>>>>>'.
+   '<<<<<.......>>>>>...........<<<<<<<...<<<<<<<.....>>>>>>>.>>>>>>>..<<<'.
+   '<<<<<<.........>>>>>>>>>...', 'Rfam meta data');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'AJ295015.1/58-1');
 is($aln->accession, 'RF00008');
 is($aln->id, 'Hammerhead_3');
 is($aln->description,'Hammerhead ribozyme (type III)');
+# alignment meta data
+$meta = $aln->consensus_meta;
+isa_ok($meta, 'Bio::Seq::MetaI');
+($name) = $meta->meta_names;
+is($name,'SS_cons', 'Rfam meta data');
+$meta_str = $meta->named_meta($name);
+is($meta_str, '.<<<<<<..<<<<<.........>>>>>.......<<<<.....................'.
+   '...........>>>>...>>>>>>.', 'Rfam meta data');
 
-# Pfam
+# STOCKHOLM (Pfam)
 $str  = new Bio::AlignIO (
     '-file'	=> Bio::Root::IO->catfile("t","data","pfam_tests.stk"),
     '-format'	=> 'stockholm');
@@ -78,6 +116,9 @@ is($aln->get_seq_by_pos(1)->get_nse, 'RAD25_SCHPO/5-240');
 is($aln->accession, 'PF00244.9');
 is($aln->id, '14-3-3');
 is($aln->description,'14-3-3 protein');
+($ann) = $aln->annotation->get_Annotations('gathering_threshold');
+isa_ok($ann, 'Bio::Annotation::SimpleValue');
+is($ann, '25.00 25.00; 25.00 25.00;', 'Pfam annotation');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'COMB_CLOAB/6-235');
@@ -90,8 +131,36 @@ is($aln->get_seq_by_pos(1)->get_nse, 'Y278_HAEIN/174-219');
 is($aln->accession, 'PF03475.3');
 is($aln->id, '3-alpha');
 is($aln->description,'3-alpha domain');
+# alignment meta data
+$meta = $aln->consensus_meta;
+isa_ok($meta, 'Bio::Seq::MetaI');
+my @names = $meta->meta_names;
+my %test_data = ('SA_cons'  => '6000320010013274....3372052026033.108303630350385563',
+                 'SS_cons'  => 'SCBHHHHHHHHHTSCC....CHHHHHHHHTSTT.CCHHHHHHHHHHHHHSSC',
+                 'seq_cons' => 'plTVtclsclhasc......stphLcphLshss.Lupsa+cohpK+lspshs',);
+is(scalar(@names), 3, 'Pfam aln meta data'); 
+for my $name (@names) {
+    ok(exists $test_data{$name}, 'Pfam aln meta data');
+    $meta_str = $meta->named_meta($name);
+    is($meta_str, $test_data{$name}, 'Pfam aln meta data');
+}
+# sequence meta data
+my ($seq) = $aln->each_seq_with_id('YIIM_ECOLI');
+isa_ok($seq, 'Bio::Seq::MetaI');
+is($seq->accession_number, 'P32157', 'Pfam seq accession check');
+@names = $seq->meta_names;
+%test_data = ('SA'  => '6000320010013274....3372052026033.108303630350385563',
+              'SS'  => 'SCBHHHHHHHHHTSCC....CHHHHHHHHTSTT.CCHHHHHHHHHHHHHSSC');
+is(scalar(@names), 2, 'Pfam Seq meta data');
+for my $seqname (@names) {
+    SKIP: {
+    skip(exists $test_data{$seqname}, 1, 'Pfam Seq meta data - working on this');
+    $meta_str = $meta->named_meta($seqname);
+    skip($meta_str, $test_data{$seqname}, 1, 'Pfam Seq meta data - working on this');
+    }
+}
 
-# PFAM
+# PFAM (no annotation)
 $str = Bio::AlignIO->new(
 	  '-file' => Bio::Root::IO->catfile("t","data","testaln.pfam"));
 isa_ok($str,'Bio::AlignIO');
@@ -103,15 +172,14 @@ $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t","data","testout.pfam"), 
 			    '-format' => 'pfam');
 $status = $strout->write_aln($aln);
-is($status, 1, " failed pfam output test");
-
+is($status, 1, " pfam output test");
 
 # MAF
 $str = Bio::AlignIO->new(
 	  '-file' => Bio::Root::IO->catfile("t","data","humor.maf"));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'NM_006987/1-5000', " failed maf input test";
+is $aln->get_seq_by_pos(1)->get_nse, 'NM_006987/1-5000', "maf input test";
 is $aln->get_seq_by_pos(1)->strand, '-';
 
 # MSF
@@ -119,13 +187,13 @@ $str = Bio::AlignIO->new(
     '-file' => Bio::Root::IO->catfile("t","data","testaln.msf"));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', " failed msf input test";
+is $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', "msf input test";
 
 $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t","data","testout.msf"), 
 			    '-format' => 'msf');
 $status = $strout->write_aln($aln);
-is $status, 1, "  failed msf output test";
+is $status, 1, "msf output test";
 
 
 # FASTA
@@ -135,23 +203,23 @@ $str = Bio::AlignIO->new(
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', 
-  " failed fasta input test ";
+  "fasta input test ";
 is ($aln->get_seq_by_pos(1)->description, 'DESCRIPTION HERE', 
-    " failed fasta input test for description");
+    "fasta input test for description");
 is ($aln->get_seq_by_pos(11)->display_id, 'AK_YEAST',
-    " failed fasta input test for id");
+    "fasta input test for id");
 
 is ($aln->get_seq_by_pos(2)->end, 318,
-    " failed fasta input test for end");
+    "fasta input test for end");
 
 is ($aln->get_seq_by_pos(11)->description, 'A COMMENT FOR YEAST', 
-    " failed fasta input test for description");
+    "fasta input test for description");
 
 $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t","data","testout.fasta"), 
 			      '-format' => 'fasta');
 $status = $strout->write_aln($aln);
-is $status, 1,"  failed fasta output test";
+is $status, 1,"fasta output test";
 
 my $in = Bio::AlignIO->newFh(
    '-file'  => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
@@ -161,11 +229,11 @@ my $out = Bio::AlignIO->newFh(
 				'-format' => 'pfam');
 while ( $aln = <$in>) {
     is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431',
-     "  failed filehandle input test  ";
+     "filehandle input test  ";
     $status = print $out $aln;
     last;
 }
-is $status, 1, "  failed filehandle output test";
+is $status, 1, "filehandle output test";
 
 
 # SELEX
@@ -174,13 +242,13 @@ $str = Bio::AlignIO->new(
 			   '-format' => 'selex');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', " failed selex format test ";
+is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', "selex format test ";
 
 $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t","data","testout.selex"), 
 			      '-format' => 'selex');
 $status = $strout->write_aln($aln);
-is $status, 1, "  failed selex output test";
+is $status, 1, "selex output test";
 
 
 # MASE
@@ -189,7 +257,7 @@ $str = Bio::AlignIO->new(
 			   '-format' => 'mase');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/1-318', " failed mase input test ";
+is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/1-318', "mase input test ";
 
 
 # PRODOM
@@ -198,7 +266,7 @@ $str = Bio::AlignIO->new(
 			   '-format' => 'prodom');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', " failed prodom input test ";
+is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "prodom input test ";
 
 
 # CLUSTAL
@@ -206,20 +274,25 @@ $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t","data","testout.clustal"), 
 			      '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
-is $status, 1, "  failed clustalw (.aln) output test";
+is $status, 1, "clustalw (.aln) output test";
 undef $strout;
 $str = Bio::AlignIO->new(
    '-file'=> Bio::Root::IO->catfile("t","data","testout.clustal"), 
 			   '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "  failed clustalw (.aln) input test";
+is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "clustalw (.aln) input test";
 my $io = Bio::AlignIO->new(
    -file => Bio::Root::IO->catfile("t","data","testaln.aln") );
 $aln = $io->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->consensus_string, 'MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEALAQILVPVLRGETMKIIFCGHHACELGEDRGTKGFVIDELKDVDEDRNGKVDVIEINCEHMDTHYRVLPNIAKLFDDCTGIGVPMHGGPTDEVTAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI', " failed clustalw consensus_string test";
-
+is $aln->consensus_string, "MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEA".
+"LAQILVPVLRGETMKIIFCGHHACELGEDRGTKGFVIDELKDVDEDRNGKVDVIEINCEHMDTHYRVLPNIAKLF".
+"DDCTGIGVPMHGGPTDEVTAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISND".
+"LKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRV".
+"AGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYI".
+"DLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI",
+"clustalw consensus_string test";
 
 # BL2SEQ
 $str = Bio::AlignIO->new(
@@ -229,8 +302,7 @@ $str = Bio::AlignIO->new(
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(2)->get_nse, 'ALEU_HORVU/60-360', 
-    "failed BLAST bl2seq format test";
-
+    "BLAST bl2seq format test";
 
 # PHYLIP interleaved
 $str = Bio::AlignIO->new(
@@ -245,17 +317,17 @@ $strout = Bio::AlignIO->new(
     '-file'  => ">".Bio::Root::IO->catfile("t","data","testout.phylip"),
     '-format' => 'phylip');
 $status = $strout->write_aln($aln);
-is $status, 1, "  failed phylip output test";
+is $status, 1, "phylip output test";
 
 
-# METAFASTA (tests 37-39)
-print STDERR "Better Metafasta tests needed\n" if $DEBUG;
+# METAFASTA
+#print STDERR "Better Metafasta tests needed\n" if $DEBUG;
 $io = Bio::AlignIO->new(-verbose => -1, 
    -file => Bio::Root::IO->catfile("t","data","testaln.metafasta"));
 $aln = $io->next_aln;
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->consensus_string,'CDEFHIJKLMNOPQRSTUVWXYZ', " failed consensus_string on metafasta";
-is $aln->symbol_chars,'23'," failed symbol_chars() using metafasta";
+is $aln->consensus_string,'CDEFHIJKLMNOPQRSTUVWXYZ', "consensus_string on metafasta";
+is $aln->symbol_chars,'23',"symbol_chars() using metafasta";
 
 # NEXUS
 $str = Bio::AlignIO->new(
@@ -269,7 +341,7 @@ $strout = Bio::AlignIO->new('-file'  => ">".
 			  Bio::Root::IO->catfile("t", "data", "testout.nexus"),
 			    '-format' => 'nexus', );
 $status = $strout->write_aln($aln);
-is $status, 1, "  failed nexus output test";
+is $status, 1, "nexus output test";
 
 $str = Bio::AlignIO->new(
    '-file' => Bio::Root::IO->catfile("t","data","Bird_Ovomucoids.nex"),
@@ -442,8 +514,12 @@ is($aln->get_seq_by_pos(1)->length, 238);
 is($aln->length,238);
 is($aln->get_seq_by_pos(1)->get_nse,'KV1K_HUMAN/1-108');
 is($aln->get_seq_by_pos(2)->get_nse,'IF1Y_HUMAN/1-143');
-is($aln->get_seq_by_pos(1)->seq(), 'DIQMTQSPSTLSVSVGDRVTITCEASQTVLSYLNWYQQKPGKAPKLLIYAASSLETGVPSRFSGQGSGTBFTFTISSVZPZBFATYYCQZYLDLPRTFGQGTKVDLKR'.'-'x130);
-is($aln->get_seq_by_pos(2)->seq(), ('-'x94).'PKNKGKGGK-NRRRGKNENESEKRELVFKEDGQEYAQVIKMLGNGRLEALCFDGVKRLCHIRGKLRKKVWINTSDIILVGLRDYQDNKADVILKYNADEARSLKAYGGLPEHAKINETDTFGPGDDDEIQFDDIGDDDEDIDDI');
+is($aln->get_seq_by_pos(1)->seq(), 'DIQMTQSPSTLSVSVGDRVTITCEASQTVLSYLNWYQQK'.
+   'PGKAPKLLIYAASSLETGVPSRFSGQGSGTBFTFTISSVZPZBFATYYCQZYLDLPRTFGQGTKVDLKR'.
+   '-'x130);
+is($aln->get_seq_by_pos(2)->seq(), ('-'x94).'PKNKGKGGK-NRRRGKNENESEKRELVFKE'.
+   'DGQEYAQVIKMLGNGRLEALCFDGVKRLCHIRGKLRKKVWINTSDIILVGLRDYQDNKADVILKYNADEAR'.
+   'SLKAYGGLPEHAKINETDTFGPGDDDEIQFDDIGDDDEDIDDI');
 is($aln->is_flush, 1);
 
 
@@ -462,7 +538,7 @@ $strout = new Bio::AlignIO('-format' => 'mega',
 	  '-file'   => ">" .Bio::Root::IO->catfile("t","data","testout.mega"));
 
 $status = $strout->write_aln($aln);
-is $status, 1, "  failed mega output test";
+is $status, 1, "mega output test";
 
 
 # EMBOSS needle
@@ -484,7 +560,11 @@ $strout = Bio::AlignIO->new('-file'  =>
 			    '-format' => 'phylip');
 $aln = $strout->next_aln($aln);
 isa_ok($aln,'Bio::Align::AlignI');
-is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAAAGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATTTGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGATACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTGGAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
+is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAA'.
+   'AGGTAGGGGGGCAACTAAAGGAAGCTCTATTAGATACAGGAGCAGATGATACAGTATTAGAAGACATGAATT'.
+   'TGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGA'.
+   'TACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTG'.
+   'GAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
 
 
 # LARGEMULTIFASTA
@@ -493,23 +573,23 @@ $str = Bio::AlignIO->new(
                          '-format' => 'largemultifasta');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'Human:/1-81', " failed fasta input test ";
+is $aln->get_seq_by_pos(1)->get_nse, 'Human:/1-81', "fasta input test ";
 is ($aln->get_seq_by_pos(1)->description,
     '72.0:1018606-3386002; 73.0:0-14850845; 74.0:0-83355922; SPECIAL_hsApr2003_3.0:0-414023;',
-    " failed fasta input test for description");
+    "fasta input test for description");
 is ($aln->get_seq_by_pos(3)->display_id, 'Rat:',
-    " failed fasta input test for id");
+    "fasta input test for id");
 
 is ($aln->get_seq_by_pos(3)->description,
     '72.0:1018606-3386002; 73.0:0-14850845; 74.0:0-83355922; SPECIAL_hsApr2003_3.0:0-414023;',
-    " failed fasta input test for description");
+    "fasta input test for description");
 
 $strout = Bio::AlignIO->new(
    '-file' => ">".Bio::Root::IO->catfile("t", "data",
                                        "testout.largemultifasta"),
                             '-format' => 'largemultifasta');
 $status = $strout->write_aln($aln);
-is $status, 1,"  failed fasta output test";
+is $status, 1,"fasta output test";
 
 
 # POA
@@ -538,7 +618,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 		 '-file'   => ">" . Bio::Root::IO->catfile("t", "data", "testout.po"),
 		 '-format' => 'po');
 	$status = $strout->write_aln($aln);
-	is $status, 1, " failed po output test";
+	is $status, 1, "po output test";
 
 	$str = new Bio::AlignIO(
 		 '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
