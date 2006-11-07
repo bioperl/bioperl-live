@@ -44,6 +44,7 @@ sub new {
   my $allcallbacks = $options{-all_callbacks} || 0;
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
   my $grid         = $options{-grid}       || 0;
+  my $extend_grid  = $options{-extend_grid}|| 0;
   my $flip         = $options{-flip}       || 0;
   my $empty_track_style   = $options{-empty_tracks} || 'key';
   my $autopad      = defined $options{-auto_pad} ? $options{-auto_pad} : 1;
@@ -82,6 +83,7 @@ sub new {
 		offset => $offset,
 		gridcolor => $gridcolor,
 		grid    => $grid,
+		extend_grid    => $extend_grid,
 		bgcolor => $bgcolor,
 		height => 0, # AUTO
 		spacing => $spacing,
@@ -132,7 +134,12 @@ sub pad_bottom {
   $self->{pad_bottom} = shift if @_;
   $g;
 }
-
+sub extend_grid {
+  my $self = shift;
+  my $g = $self->{extend_grid};
+  $self->{extend_grid} = shift if @_;
+  $g;
+}
 sub flip {
   my $self = shift;
   my $g = $self->{flip};
@@ -806,9 +813,9 @@ sub draw_grid {
     }
   }
   my $pl = $self->pad_left;
-  my $pt = $self->pad_top;
+  my $pt = $self->extend_grid ? 0 : $self->pad_top;
   my $pr = $self->right;
-  my $pb = $self->height - $self->pad_bottom;
+  my $pb = $self->extend_grid ? $self->height : $self->height - $self->pad_bottom;
   my $offset = $self->{offset}+$self->{length}+1;
   for my $tick (@positions) {
     my ($pos) = $self->map_pt($self->{flip} ? $offset - $tick
@@ -1531,6 +1538,9 @@ a set of tag/value pairs as follows:
                positions.
 
   -gridcolor   Color of the grid                     lightcyan
+
+  -extend_grid If true, extend the grid into the pad false
+               top and pad_bottom regions
 
   -background  An image or callback to use for the   none
                background of the image. Will be
