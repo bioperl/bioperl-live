@@ -103,8 +103,6 @@ use Text::Wrap qw(wrap);
 use base qw(Bio::AlignIO);
 
 our $STKVERSION = 'STOCKHOLM 1.0';
-our $SEQNAMELENGTH = 30;
-our $INTERVEAVED = 80;
 
 # This maps the two-letter annotation key to a Annotation/parameter/tagname
 # combination.  Some data is stored using get/set methods ('Methods')  The rest 
@@ -125,7 +123,7 @@ our %READMAP = (
             'SQ'   => 'SimpleValue/-value/num_sequences', 
             'PI'   => 'SimpleValue/-value/previous_ids', 
             'DC'   => 'Comment/-text/database_comment', 
-            'DR'   => 'SimpleValue/-value/database_reference',
+            'DR'   => 'DBLink/-value/database_reference',
             'CC'   => 'Comment/-text/alignment_comment',
             # Pfam-specific
             'AM'   => 'SimpleValue/-value/build_method', 
@@ -162,8 +160,10 @@ our @WRITEORDER = qw(accession
   seq_start_stop
   reference
   database_comment
+  custom
+  database_reference
   alignment_comment
-  num_sequences 
+  num_sequences
   );
 
 # This maps the tagname back to a tagname-annotation value combination.
@@ -184,7 +184,7 @@ our %WRITEMAP = (
             'num_sequences'         =>  'SQ/SimpleValue',
             'previous_ids'          =>  'PI/SimpleValue',
             'database_comment'      =>  'DC/SimpleValue',
-            'database_reference'    =>  'DR/SimpleValue',
+            'database_reference'    =>  'DR/DBLink',
             'reference'             =>  'RX/Reference',
             'ref_number'            =>  'RN/number',
             'ref_comment'           =>  'RC/comment',
@@ -198,18 +198,15 @@ our %WRITEMAP = (
             'pfam_family_accession' =>  'NE/SimpleValue',
             'seq_start_stop'        =>  'NL/SimpleValue',
             # Rfam-specific GF lines
-            'sec_structure_source'  =>  'SS/SimpleValue' 
+            'sec_structure_source'  =>  'SS/SimpleValue',
+            # custom
+            'custom'                =>  'XX/SimpleValue'
             );
-
-# Add mapping hash do deal with alignment annotations
-# GS lines => sequence data
-# GC lines are consensus-like, need new method for meta string to be stored in SimpleAlign
-# GF lines => Bio::Annotation objects in a Bio::Annotation::Collection
-# GR lines => Meta data stored in Bio::Seq::Meta objects 
 
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
+    # add arguments to handle build object, interleaved format
 }
 
 =head2 next_aln
@@ -257,7 +254,7 @@ sub next_aln {
         last if $line =~ m{^//};
         
         # GF/GS lines, by convention, should be at the top of the alignment
-        if ($line =~ m{^\#=GF\s+(\w{2})\s+([^\n]*)$}xms) {
+        if ($line =~ m{^\#=GF\s+(\S+?)\s+([^\n]*)$}xms) {
 
             # alignment annotation
             ($tag, $data) = ($1, $2);
@@ -279,14 +276,16 @@ sub next_aln {
                     #                            # build cmd    parameter     
                     $annotation{ 'build_command' }->[$bct]->{ $READMAP{$tag} } .= $data.' ';
                     
-                # Everything else (for now)    
+                # Everything else (for now)        
                 } else {
                     #       # param/-value/tagname 
                     $annotation{ $READMAP{$tag} } .= $data.' ';
                 }
 
             } else {
-                $self->debug("Unknown tag: $tag:\t$data");
+                # unknown or custom data treated with simplevalue objects 
+                #$self->debug("Unknown tag: $tag:\t$data\n");
+                $annotation{ 'custom' }->{ $tag } .= $data.' ';
             }
 
         } elsif( $line =~ m{^\#=GS\s+(\S+)\s+(\w{2})\s+(\S+)}xms ) {
@@ -297,15 +296,16 @@ sub next_aln {
             } elsif ($tag eq 'DE') {
                 $desc{$id} .= $data;
             }
-            # Does not catch other GS-based tags (DR, OS, OC, LO) yet
+            # Bio::Seq::Meta is not AnnotationI, so can't add seq-based
+            # Annotations yet; uncomment to see what is passed by
             #else {
             #    $self->debug("Missed data: $entry");
             #}
-        } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\w+)\s+([^\n]+)} ) {
+        } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\S+)\s+([^\n]+)} ) {
             # meta strings per sequence
             ($name, $tag, $data) = ($1, $2, $3);
             $seq_meta{$name}->{$tag} .= $data;
-        } elsif( $line =~ m{^\#=GC\s+(\S+)\s+(\S+)}xms ) {
+        } elsif( $line =~ m{^\#=GC\s+(\S+)\s+([^\n]+)}xms ) {
             # meta strings per alignment
             ($tag, $data) = ($1, $2);
             $aln_meta{$tag} .= $data;
@@ -316,7 +316,8 @@ sub next_aln {
             }
             $align{$name} .= $seq;
         } else {
-            $self->debug("Missed Data: $line");
+            # debugging to catch missed data; uncomment to turn on
+            #$self->debug("Missed Data: $line");
         }
     }
     
@@ -370,12 +371,19 @@ sub next_aln {
             } else {
                 my $factory = Bio::Annotation::AnnotationFactory->new(
                     -type => "Bio::Annotation::$atype");
-                my $ann = $factory->create_object(-tagname    => $tagname,
-                                                  $aparam  => $annotation{$tag});
-                $coll->add_Annotation($ann);
+                $coll->add_Annotation
+                ($tagname, $factory->create_object($aparam  => $annotation{$tag}));
             }
-        }
-        else {
+            
+        } elsif ($tag eq 'custom') {
+            my $factory = Bio::Annotation::AnnotationFactory->new(
+                        -type => "Bio::Annotation::SimpleValue");
+            for my $key (sort keys %{ $annotation{$tag} }) {
+                $coll->add_Annotation(
+                    $tag, $factory->create_object(-tagname => $key,
+                                                  -value => $annotation{$tag}->{$key}));
+            }
+        } else {
             my $data;
             my $atype = ($tag eq 'reference')       ? 'Reference'   :
                         ($tag eq 'build_command')   ? 'SimpleValue' :
@@ -391,15 +399,14 @@ sub next_aln {
                     $data->{$_} =~ s{\s+$}{}g;
                     $_ => $data->{$_};
                     } keys %{ $data };
-                my $ann = $factory->create_object(%clean_data);
-                $coll->add_Annotation($tag,$ann);
+                $coll->add_Annotation($tag, $factory->create_object(%clean_data));
                 $refct++;
             }
         }
     }
-    
+
     # add annotations
-    $aln->annotation($coll);    
+    $aln->annotation($coll); 
     
     #  If $end <= 0, we have either reached the end of
     #  file in <fh> or we have encountered some other error
@@ -439,6 +446,7 @@ sub write_aln {
         # alignment annotations
         my $ct = 1;
         $self->throw("Bad parameter: $param") if !exists $WRITEMAP{$param};
+        # get the data, act on it based on the tag
         my ($tag, $key) = split q(/), $WRITEMAP{$param};
         if ($key eq 'Method') {
             push @anns, $aln->$param;
@@ -446,31 +454,41 @@ sub write_aln {
             @anns = $coll->get_Annotations($param);
         }
         my $rn = 1;
+        ANNOTATIONS:
         while (my $ann = shift @anns) {
             # using Text::Wrap::wrap() for word wrap
-            # references
-            my $text;
+            my ($text, $alntag, $data);
             if ($tag eq 'RX') {
+                REFS:
                 for my $rkey (qw(ref_comment ref_number ref_pubmed
                               ref_title ref_authors ref_location)) {
                     my ($newtag, $method) = split q(/), $WRITEMAP{$rkey};
+                    $alntag = sprintf('%-10s',$aln_ann.$newtag);
                     if ($rkey eq 'ref_number') {
-                        $text = wrap($aln_ann.$newtag.' ', $aln_ann.$newtag.' ', "[$rn]");
+                        $data = "[$rn]";
                     } else {
-                        $text = wrap($aln_ann.$newtag.' ', $aln_ann.$newtag.' ', $ann->$method)
-                            if $ann->$method;
+                        $data = $ann->$method;
                     }
-                    #$self->_print("REFERENCE\n");
-                    $self->_print("$text\n") or return 0 if $text;
+                    next REFS unless $data;
+                    $text = wrap($alntag, $alntag, $data);
+                    $self->_print("$text\n") or return 0;
                 }
                 $rn++;
+                next ANNOTATIONS;
+            } elsif ($tag eq 'XX') { # custom
+                my $newtag = $ann->tagname;
+                $alntag = sprintf('%-10s',$aln_ann.$newtag);
+                $data = $ann;
             } elsif ($tag eq 'SQ') {
-                $text = wrap($aln_ann.$tag.' ', $aln_ann.$tag.' ', $aln->no_sequences);
-                $self->_print("$text\n") or return 0;            
+                # use the actual number, not the stored Annotation data
+                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                $data = $aln->no_sequences;
             } else{
-                $text = wrap($aln_ann.$tag.' ', $aln_ann.$tag.' ', $ann);
-                $self->_print("$text\n") or return 0;
+                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                $data = $ann;
             }
+            $text = wrap($alntag, $alntag, $data);
+            $self->_print("$text\n") or return 0;
         }
     }
     
@@ -481,7 +499,7 @@ sub write_aln {
     my ($namestr,$seq,$add);
     
     # pad extra for meta lines
-    my $maxlen = $aln->maxdisplayname_length()+5;
+    my $maxlen = $aln->maxdisplayname_length() + 5;
     my $metalen = $aln->max_metaname_length() || 0;
     
     #$self->debug("Length: $metalen\n");

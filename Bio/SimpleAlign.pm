@@ -2101,7 +2101,7 @@ sub max_metaname_length {
     my $self = shift;
     my $maxname = (-1);
     my ($seq,$len);
-
+    
     # check seq meta first
     for $seq ( $self->each_seq() ) {
         next if !$seq->isa('Bio::Seq::MetaI' || !$seq->meta_names);
@@ -2115,6 +2115,7 @@ sub max_metaname_length {
     
     # alignment meta
     for my $meta ($self->consensus_meta) {
+        next unless $meta;
         for my $name ($meta->meta_names) {
             $len = CORE::length $name;
             if( $len > $maxname ) {

@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 222;
+	plan tests => 221;
 }
 use_ok('Bio::SimpleAlign');
 use_ok('Bio::AlignIO');
@@ -26,7 +26,8 @@ END {
 	   Bio::Root::IO->catfile("t","data","testout.nexus"),
 	   Bio::Root::IO->catfile("t","data","testout.mega"),
 	   Bio::Root::IO->catfile("t","data","testout.po"),
-	   Bio::Root::IO->catfile("t","data","testout.largemultifasta")
+	   Bio::Root::IO->catfile("t","data","testout.largemultifasta"),
+       Bio::Root::IO->catfile("t","data","testout.stockholm")
 	  );
 }
 
@@ -47,6 +48,10 @@ is($aln->no_sequences, 56);
 $str  = new Bio::AlignIO (
     '-file'	=> Bio::Root::IO->catfile("t","data","rfam_tests.stk"),
     '-format'	=> 'stockholm');
+$strout = Bio::AlignIO->new('-file'  => ">".
+		  Bio::Root::IO->catfile("t", "data", "testout.stockholm"),
+		'-format' => 'stockholm', );
+
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -64,6 +69,10 @@ is($ann->text,'This family of RNAs are found as part of the enigmatic vault'.
    'is involved in drug resistance. We have identified a putative novel vault '.
    'RNA on chromosome 5 EMBL:AC005219.','Stockholm annotation');
 is($ann->tagname,'alignment_comment','Stockholm annotation');
+
+# test output
+$status = $strout->write_aln($aln);
+is $status, 1, "stockholm output test";
 
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -134,33 +143,26 @@ is($aln->description,'3-alpha domain');
 # alignment meta data
 $meta = $aln->consensus_meta;
 isa_ok($meta, 'Bio::Seq::MetaI');
-my @names = $meta->meta_names;
 my %test_data = ('SA_cons'  => '6000320010013274....3372052026033.108303630350385563',
                  'SS_cons'  => 'SCBHHHHHHHHHTSCC....CHHHHHHHHTSTT.CCHHHHHHHHHHHHHSSC',
                  'seq_cons' => 'plTVtclsclhasc......stphLcphLshss.Lupsa+cohpK+lspshs',);
-is(scalar(@names), 3, 'Pfam aln meta data'); 
-for my $name (@names) {
+for my $name ($meta->meta_names) {
     ok(exists $test_data{$name}, 'Pfam aln meta data');
     $meta_str = $meta->named_meta($name);
     is($meta_str, $test_data{$name}, 'Pfam aln meta data');
 }
+%test_data = ();
 # sequence meta data
-my ($seq) = $aln->each_seq_with_id('YIIM_ECOLI');
-isa_ok($seq, 'Bio::Seq::MetaI');
-is($seq->accession_number, 'P32157', 'Pfam seq accession check');
-@names = $seq->meta_names;
 %test_data = ('SA'  => '6000320010013274....3372052026033.108303630350385563',
               'SS'  => 'SCBHHHHHHHHHTSCC....CHHHHHHHHTSTT.CCHHHHHHHHHHHHHSSC');
-is(scalar(@names), 2, 'Pfam Seq meta data');
-for my $seqname (@names) {
-    SKIP: {
-    skip(exists $test_data{$seqname}, 1, 'Pfam Seq meta data - working on this');
-    $meta_str = $meta->named_meta($seqname);
-    skip($meta_str, $test_data{$seqname}, 1, 'Pfam Seq meta data - working on this');
+for my $seq ($aln->each_seq) {
+    for my $name ($seq->meta_names) {
+        ok(exists $test_data{$name}, 'Pfam seq meta data');
+        is($seq->named_meta($name), $test_data{$name}, 'Pfam seq meta data');
     }
 }
 
-# PFAM (no annotation)
+# PFAM format (no annotation)
 $str = Bio::AlignIO->new(
 	  '-file' => Bio::Root::IO->catfile("t","data","testaln.pfam"));
 isa_ok($str,'Bio::AlignIO');
