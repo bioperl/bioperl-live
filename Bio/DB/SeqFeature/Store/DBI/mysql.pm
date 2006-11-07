@@ -637,13 +637,13 @@ END
   while (my($frag,$offset) = $sth->fetchrow_array) {
     substr($frag,0,$start-$offset) = '' if defined $start && $start > $offset;
     $seq .= $frag;
-  }
+  }  
   substr($seq,$end-$start+1) = '' if defined $end && $end-$start+1 < length($seq);
   if ($reversed) {
     $seq = reverse $seq;
     $seq =~ tr/gatcGATC/ctagCTAG/;
   }
-
+  $sth->finish;
   $seq;
 }
 
@@ -661,7 +661,9 @@ sub _offset_boundary {
   my $sth = $self->_prepare($sql);
   my @args = $position =~ /^-?\d+$/ ? ($seqid,$position) : ($seqid);
   $sth->execute(@args) or $self->throw($sth->errstr);
-  return $sth->fetchall_arrayref->[0][0];
+  my $boundary = $sth->fetchall_arrayref->[0][0];
+  $sth->finish;
+  return $boundary;
 }
 
 
