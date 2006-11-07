@@ -142,6 +142,10 @@ sub _parse_predictions {
   while ($_ = $self->_readline) {
     chomp;
     my @array = split("\n",$_);
+    if ($#array == 5) {
+      # get rid of header
+      shift(@array); shift(@array);
+    }
     if($#array == 3){
         if($name){
             $name=~s/>//;
@@ -150,7 +154,7 @@ sub _parse_predictions {
         }
         $name    = shift @array;
         $seq     = $array[0];
-	$second  = $array[1];
+        $second  = $array[1];
         $third   = $array[2];
         next;
     }
