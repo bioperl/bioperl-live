@@ -84,6 +84,20 @@ baseml, basemlg, codemlsites and yn00
      # ($omega) = $node->get_tag_values('omega');
   }
 
+  # if you are using model based Codeml then trees are stored in each 
+  # modelresult object
+  for my $modelresult ( $result->get_NSSite_results ) {
+    # model M0, M1, etc
+    print "model is ", $modelresult->model_num, "\n";
+    my ($tree) = $modelresult->get_trees();
+    for my $node ($tree->get_nodes()) {
+     # inspect the tree: the "t" (time) parameter is available via
+     # $node->branch_length(); all other branch-specific parameters
+     # ("omega", "dN", etc.) are available via 
+     # ($omega) = $node->get_tag_values('omega');
+   }
+  }
+
   # get any general model parameters: kappa (the
   # transition/transversion ratio), NSsites model parameters ("p0",
   # "p1", "w0", "w1", etc.), etc.
@@ -209,7 +223,6 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   $self->_initialize_io(@args);
-
   my ($dir) = $self->_rearrange([qw(DIR)], @args);
   $self->{_dir} = $dir if defined $dir;
 
@@ -263,8 +276,8 @@ sub next_result {
 		# %data = $self->_parse_PairwiseAA;
 		# last;	    
 	    } elsif (m/^Model\s+(\d+)/ ||
-                     ((!$has_model_line && m/^TREE/) &&
-                     $seqtype eq 'CODONML')) {
+                     ((! $has_model_line && m/^TREE/) &&
+		      $seqtype eq 'CODONML')) {
 		$self->_pushback($_);
 		my $model = $self->_parse_NSsitesBatch;
 		push @{$data{'-NSsitesresults'}}, $model;
@@ -919,8 +932,8 @@ sub _parse_NSsitesBatch {
     while( defined($_ = $self->_readline) ) {
 	last if $done;
 	next if /^\s+$/;
-	
 	next unless( $okay || /^Model\s+\d+/ || /^TREE/);
+
 	if( /^Model\s+(\d+)/ ) {
 	    if( $okay ) {
 		# this only happens if $okay was already 1 and 
