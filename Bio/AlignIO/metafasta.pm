@@ -71,7 +71,6 @@ use Bio::SimpleAlign;
 use Bio::Seq::Meta;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SeqFastaSpeedFactory;
-use Bio::Seq::Meta;
 
 use base qw(Bio::AlignIO);
 

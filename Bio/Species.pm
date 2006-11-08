@@ -113,7 +113,7 @@ sub new {
 					       VARIANT
 					       CLASSIFICATION)], @args);
     
-    if (defined $classification && (ref($classification) eq "ARRAY") ) {
+    if (defined $classification && ref($classification) eq "ARRAY" && @{$classification}) {
         $self->classification(@$classification);
     }
     else {
@@ -453,9 +453,11 @@ sub binomial {
     my $bi = "$genus $species";
     if (defined($full) && $full =~ /full/i) { 
         my $ssp = $self->sub_species;
-        $ssp =~ s/$bi\s+//;
-        $ssp =~ s/$species\s+//;
-        $bi .= " $ssp" if $ssp;
+        if ($ssp) {
+            $ssp =~ s/$bi\s+//;
+            $ssp =~ s/$species\s+//;
+            $bi .= " $ssp";
+        }
     }
     return $bi;
 }

@@ -80,7 +80,22 @@ baseml, basemlg, codemlsites and yn00
   for my $node ($tree->get_nodes()) {
      # inspect the tree: the "t" (time) parameter is available via
      # $node->branch_length(); all other branch-specific parameters
-     # ("omega", "dN", etc.) are available via ($omega) = $node->get_tag_values('omega');
+     # ("omega", "dN", etc.) are available via 
+     # ($omega) = $node->get_tag_values('omega');
+  }
+
+  # if you are using model based Codeml then trees are stored in each 
+  # modelresult object
+  for my $modelresult ( $result->get_NSSite_results ) {
+    # model M0, M1, etc
+    print "model is ", $modelresult->model_num, "\n";
+    my ($tree) = $modelresult->get_trees();
+    for my $node ($tree->get_nodes()) {
+     # inspect the tree: the "t" (time) parameter is available via
+     # $node->branch_length(); all other branch-specific parameters
+     # ("omega", "dN", etc.) are available via 
+     # ($omega) = $node->get_tag_values('omega');
+   }
   }
 
   # get any general model parameters: kappa (the
@@ -88,11 +103,6 @@ baseml, basemlg, codemlsites and yn00
   # "p1", "w0", "w1", etc.), etc.
   my $params = $result->get_model_params();
   printf "M1 params: p0 = %g\tp1 = %g\n", $params->{p0}, $params->{p1};
-
-  # for NSsites models, obtain arrayrefs of posterior probabilities
-  # for membership in each class for every position; probabilities
-  # correspond to classes w0, w1, ... etc.
-  my @probs = $result->get_posteriors();
 
   # find, say, positively selected sites!
   if ($params->{w2} > 1) {
@@ -105,11 +115,9 @@ baseml, basemlg, codemlsites and yn00
     }
   } else { print "No positive selection found!\n"; }
 
-
   # parse AAML result files
   my $aamat = $result->get_AADistMatrix();
   my $aaMLmat = $result->get_AAMLDistMatrix();
-
 
 =head1 DESCRIPTION
 
@@ -117,6 +125,14 @@ This module is used to parse the output from the PAML programs codeml,
 baseml, basemlg, codemlsites and yn00.  You can use the
 Bio::Tools::Run::Phylo::PAML::* modules to actually run some of the
 PAML programs, but this module is only useful to parse the output.
+
+=head1 TO DO
+
+Implement get_posteriors(). For NSsites models, obtain arrayrefs of 
+posterior probabilities for membership in each class for every 
+position; probabilities correspond to classes w0, w1, ... etc.
+
+  my @probs = $result->get_posteriors();
 
 =head1 FEEDBACK
 
@@ -179,6 +195,7 @@ BEGIN {
 
 # other objects used:
 use IO::String;
+use File::Spec;
 use Bio::TreeIO;
 use Bio::Tools::Phylo::PAML::Result;
 use Bio::PrimarySeq;
@@ -206,7 +223,6 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   $self->_initialize_io(@args);
-
   my ($dir) = $self->_rearrange([qw(DIR)], @args);
   $self->{_dir} = $dir if defined $dir;
 
@@ -260,8 +276,8 @@ sub next_result {
 		# %data = $self->_parse_PairwiseAA;
 		# last;	    
 	    } elsif (m/^Model\s+(\d+)/ ||
-                     ((!$has_model_line && m/^TREE/) &&
-                     $seqtype eq 'CODONML')) {
+                     ((! $has_model_line && m/^TREE/) &&
+		      $seqtype eq 'CODONML')) {
 		$self->_pushback($_);
 		my $model = $self->_parse_NSsitesBatch;
 		push @{$data{'-NSsitesresults'}}, $model;
@@ -916,8 +932,8 @@ sub _parse_NSsitesBatch {
     while( defined($_ = $self->_readline) ) {
 	last if $done;
 	next if /^\s+$/;
-	
 	next unless( $okay || /^Model\s+\d+/ || /^TREE/);
+
 	if( /^Model\s+(\d+)/ ) {
 	    if( $okay ) {
 		# this only happens if $okay was already 1 and 
@@ -1294,7 +1310,7 @@ sub _parse_rst {
   my ($self) = @_;
   return unless $self->{'_dir'} && -d $self->{'_dir'} && -r $self->{'_dir'};
 
-  my $rstfile = Bio::Root::IO->catfile($self->{'_dir'},$RSTFILENAME);
+  my $rstfile = File::Spec->catfile($self->{'_dir'},$RSTFILENAME);
   return unless -e $rstfile && ! -z $rstfile;
   
   my $rstio = Bio::Root::IO->new(-file => $rstfile);

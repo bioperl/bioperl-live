@@ -277,7 +277,7 @@ sub get_taxon {
     
     my $taxon = new Bio::Taxon(
                         -name         => $sci_name,
-                        -object_id    => $taxonid,
+                        -object_id    => $taxonid, # since this is NOT a real ncbi taxid, set it as simply the object id
                         -rank         => $rank );
     # we can't use -dbh or the db_handle() method ourselves or we'll go
     # infinite on the merge attempt

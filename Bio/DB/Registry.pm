@@ -138,7 +138,7 @@ sub _load_registry {
 			my ($tag,$value) = split('=',$_);
 			$value =~ s/\s//g;
 			$tag =~ s/\s//g;
-			$hash->{$db}->{"\L$tag"} = lc $value;
+			$hash->{$db}->{"\L$tag"} = $value;
       }
    }
 

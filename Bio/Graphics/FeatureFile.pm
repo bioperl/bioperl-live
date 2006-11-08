@@ -428,8 +428,11 @@ sub parse_line {
     return 1;
   }
 
-  # skip on blank lines and comments
-  return 1 if /^\s*[\#]/;
+  # remove comments (but rescue hex-code colors)
+  s/\s*\#.+$// unless /\s*\#[0-9A-Fa-f]{6}\b/;
+
+  # skip on blank lines
+  return 1 if /^\s*$/;
 
   # abort if we see a >FASTA line
   return 0 if /^>/;

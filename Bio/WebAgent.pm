@@ -194,7 +194,7 @@ sub sleep {
    $LAST_INVOCATION_TIME ||=  0;
    if (time - $LAST_INVOCATION_TIME < $self->delay) {
       my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
-      $self->warn("sleeping for $delay seconds\n");
+      $self->debug("sleeping for $delay seconds\n");
       sleep $delay;
    }
    $LAST_INVOCATION_TIME = time;

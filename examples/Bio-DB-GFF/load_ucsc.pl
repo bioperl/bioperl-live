@@ -103,15 +103,9 @@ foreach my $filename (@ARGV){
     $filename =~ /zoom50_humMusL/          ? toGFF($line,$fho,['zoom50_humMusL',          '', 4, 1, 2, 3, 5, 6,-1]) :
     $filename =~ /humMusL/                 ? toGFF($line,$fho,['humMusL',                 '', 4, 1, 2, 3, 5, 6,-1]) :
 
-    $filename =~ /refGene/                 ? toGFF2($line,$fho,['refGene',                '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /genscan/                 ? toGFF2($line,$fho,['genscan',                '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /acembly/                 ? toGFF2($line,$fho,['acembly',                '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /ensGene/                 ? toGFF2($line,$fho,['ensGene',                '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /refFlat/                 ? toGFF2($line,$fho,['refFlat',                '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /sanger22pseudo/          ? toGFF2($line,$fho,['sanger22pseudo',         '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /sanger22/                ? toGFF2($line,$fho,['sanger22',               '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /softberryGene/           ? toGFF2($line,$fho,['softberryGene',          '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
-    $filename =~ /twinscan/                ? toGFF2($line,$fho,['twinscan',               '', 0, 1, 2,-1,-1, 3, 4, 5, 6, 8, 9]) :
+     $filename =~ /(refGene|genscan|acembly|ensGene|refFlat|sanger22pseudo|sanger22|softberryGene|twinscan)/ ?
+     toGFF2($line,$fho,
+	    [$1, -1, 0, 2, 3, -1, -1, 4, 5, 6, 7, 9, 10]) :
 
     0;
   }
@@ -135,7 +129,7 @@ sub toGFF2 {
 														 v_refmethod,
 														 v_txstart,
 														 v_txstop,
-														 u_refscore,
+														 v_refscore,
 														 v_refstrand,
 														 v_refphase,);
 	print $fho "\t";
@@ -149,7 +143,7 @@ sub toGFF2 {
 														 v_refmethod,
 														 v_cdsstart,
 														 v_cdsstop,
-														 u_refscore,
+														 v_refscore,
 														 v_refstrand,
 														 v_refphase,);
 	print $fho "\t";

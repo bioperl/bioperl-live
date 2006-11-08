@@ -229,7 +229,7 @@ sub _run {
             Content => [
                         fname => $tmpfile,
                        ];
-    my $ua2 = LWP::UserAgent->new(env_proxy => 1);
+    my $ua2 = Bio::WebAgent->new();
     my $content2 = $ua2->request($rq2);
     if( $content2->is_error  ) {
 	$self->throw(ref($self)." Request Error:\n".$content2->as_string);

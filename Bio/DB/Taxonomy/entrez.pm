@@ -609,6 +609,7 @@ sub _make_taxon {
     my $taxid;
     while (my ($method, $value) = each %{$data}) {
         if ($method eq 'id') {
+            $method = 'ncbi_taxid'; # since this is a real ncbi taxid, explicitly set it as one
             $taxid = $value;
         }
         $taxon->$method(ref($value) eq 'ARRAY' ? @{$value} : $value);

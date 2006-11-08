@@ -475,6 +475,7 @@ sub format_attributes {
     # these are hacks, which we don't want to appear in the file
     next if $t eq 'load_id';
     next if $t eq 'parent_id';
+    foreach (@values) { s/\s+$// } # get rid of trailing whitespace
 
     push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
   }
@@ -482,7 +483,7 @@ sub format_attributes {
   my $name = $self->display_name;
   push @result,"ID=".$self->escape($id)                     if defined $id;
   push @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
-  push @result,"Name=".$self->escape($name)                 if defined $name;
+  push @result,"Name=".$self->escape($name)                   if defined $name;
   return join ';',@result;
 }
 

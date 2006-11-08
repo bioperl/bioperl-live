@@ -8,71 +8,82 @@
 use strict;
 
 BEGIN {
-    use Test;    
-    plan tests => 27;
+    # to handle systems with no installed Test::More module
+    # we include the t dir (where a copy of Test/More.pm is located)
+    # as a fallback
+    eval { require Test::More; };
+    if( $@ ) {
+		use lib 't/lib';
+    }
+    use Test::More;
+    plan tests => 31;
 }
 
-my $DEBUG = $ENV{BIOPERLDEBUG};
+my $DEBUG = $ENV{BIOPERLDEBUG} || 0;
 $| = 1;
 
-use Bio::Root::IO;
+use_ok('Bio::Root::IO');
 
-my $obj = new Bio::Root::IO();
+my $obj = Bio::Root::IO->new();
 ok defined($obj) && $obj->isa('Bio::Root::IO');
 
+#############################################
+# tests for exceptions/debugging/verbosity
+#############################################
+
 eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'throw failed';
+like $@, qr/Testing throw/, 'throw()'; # 'throw failed';
 
 $obj->verbose(-1);
 eval { $obj->throw('Testing throw') };
-ok $@=~ /Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
+like $@, qr/Testing throw/, 'throw() verbose(-1)'; # 'verbose(-1) throw did not work properly' . $@;
 
 eval { $obj->warn('Testing warn') };
-ok !$@;
+ok !$@, 'warn()';
 
 $obj->verbose(1);
 eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
+like $@, qr/Testing throw/, 'throw() verbose(1)'; # 'verbose(1) throw did not work properly' . $@;
 
 my @stack = $obj->stack_trace();
-ok scalar @stack, 2;
+ok scalar @stack == 2, 'stack_trace()';
 
-my $verbobj = new Bio::Root::IO(-verbose=>1,-strict=>1);
-ok $verbobj->verbose(), 1;
+my $verbobj = Bio::Root::IO->new(-verbose=>1,-strict=>1);
+ok $verbobj->verbose() == 1, 'set verbosity to 1';
 
 ok $obj->verbose(-1);
 
 #############################################
-# <tests for handle read and write abilities>
+# tests for handle read and write abilities
 #############################################
+
+ok my $TESTINFILE = Bio::Root::IO->catfile(qw(t data test.waba));
+
 my($handle,$file) = $obj->tempfile;
-
-ok open(I,"t/data/test.waba");
-ok open(O,">$file");
-
-my $rio;
-my $wio;
+ok $handle;
+ok $file;
 
 #test with files
-ok $rio = Bio::Root::IO->new(-file=>"t/data/test.waba");
-ok $wio = Bio::Root::IO->new(-file=>">$file");
 
-ok $rio->mode eq 'r';
+ok my $rio = Bio::Root::IO->new(-file=>$TESTINFILE);
+ok $rio->mode eq 'r', 'filename, read';
 
-ok $wio->mode eq 'w';
+ok my $wio = Bio::Root::IO->new(-file=>">$file");
+ok $wio->mode eq 'w', 'filename, write';
 
-#test with handles
-ok $rio = Bio::Root::IO->new(-fh=>\*I);
-ok $wio = Bio::Root::IO->new(-fh=>\*O);
-ok $rio->mode eq 'r';
-ok $wio->mode eq 'w';
+# test with handles
+
+ok open(my $I, $TESTINFILE);
+ok open(my $O, '>', $file);
+
+ok $rio = Bio::Root::IO->new(-fh=>$I);
+ok $rio->mode eq 'r', 'handle, read';
+
+ok $wio = Bio::Root::IO->new(-fh=>$O);
+ok $wio->mode eq 'w', 'handle, write';
 
 ##############################################
-# </tests for handle read and write abilities>
-##############################################
-
-##############################################
-# <tests _pushback for multi-line buffering>
+# tests _pushback for multi-line buffering
 ##############################################
 
 my $line1 = $rio->_readline;
@@ -89,59 +100,27 @@ ok $line1 eq $line3;
 ok $line2 eq $line4;
 ok $line5 ne $line4;
 
-##############################################
-# </tests _pushback for multi-line buffering>
-##############################################
-
-ok close(I);
-ok close(O);
+ok close($I);
+ok close($O);
 
 ##############################################
-# <tests http retrieval>
+# tests http retrieval
 ##############################################
 
-my $TESTURL = 'http://www.google.com/index.html';
+SKIP: {
+  skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 2 unless $DEBUG;
 
-#with LWP (if available)
-
-if ($DEBUG) {
-  eval {
-    $rio = Bio::Root::IO->new(-url=>$TESTURL);
-  };
-
-  if($@){
-    skip("couldn't get $TESTURL, network down? $@",1);  
-  } else {
-    ok(1);
-  }
-}
-else {
-  skip("skipping -url test, enable BIOPERLDEBUG to test", 1);
-}
-
-if ($DEBUG) {
-  if($Bio::Root::IO::HAS_LWP == 1){
+  my $TESTURL = 'http://www.google.com/index.html';
+  
+  ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'default -url method';
+  
+  if ($Bio::Root::IO::HAS_LWP) {
     $Bio::Root::IO::HAS_LWP = 0;
-    eval {
-      $rio = Bio::Root::IO->new(-url=>$TESTURL);
-    };
-
-    if($@){
-      skip("couldn't get $TESTURL, network down? $@",1);  
-    } else {
-      ok(1);
-    }
-  } else {
-    skip("didn't have LWP, no reason to test w/o it.",1);
+    ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'non-LWP -url method';
+  } 
+  else {
+    ok 1, 'non-LWP -url method not needed as non-LWP was default';
   }
-}
-else {
-  skip("skipping LWP test - enable BIOPERLDEBUG to test", 1);
-}
-
-##############################################
-# </tests http retrieval>
-##############################################
-
-
+}  
+  
 1;

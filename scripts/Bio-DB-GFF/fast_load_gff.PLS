@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.30 2006-06-26 17:40:27 lstein Exp $
+# $Id: fast_load_gff.PLS,v 1.30.4.1 2006-11-08 17:25:55 sendu Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -367,8 +367,8 @@ while (<>) {
     $source       ||= '\N';
 
     my $fid     = $FID++;
-    my $gid     = $GROUPID{lc join('',$group_class,$group_name)} ||= $GID++;
-    my $ftypeid = $FTYPEID{lc join('',$source,$method)}          ||= $FTYPEID++;
+    my $gid     = $GROUPID{lc join($;,$group_class,$group_name)} ||= $GID++;
+    my $ftypeid = $FTYPEID{lc join($;,$source,$method)}          ||= $FTYPEID++;
 
     my $bin = bin($start,$stop,$db->min_bin);
     $FH{ FDATA()  }->print(    join("\t",$fid,$ref,$start,$stop,$bin,$ftypeid,$score,$strand,$phase,$gid,$target_start,$target_stop),"\n"   );

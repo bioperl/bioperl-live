@@ -330,7 +330,6 @@ sub next_seq {
 		$builder->add_slot_value(-desc => join(' ', @desc));
 				# we'll continue right here because DEFINITION always comes
 				# at the top of the entry
-		
 		$buffer= $_;
 	    }
 	    # accession number (there can be multiple accessions)
@@ -408,10 +407,9 @@ sub next_seq {
 		    }
 		    $comment =~ s/\n/ /g;
 		    $comment =~ s/  +/ /g;
-		    $annotation->add_Annotation
-			('comment',
-			 Bio::Annotation::Comment->new(-text => $comment,
-						       -tagname => 'comment'));
+		    $annotation->add_Annotation('comment',
+						Bio::Annotation::Comment->new(-text => $comment,
+									      -tagname => 'comment'));
 		    $buffer = $_;
 		} else {
 		    while(defined($buffer = $self->_readline())) {
@@ -450,7 +448,6 @@ sub next_seq {
 				 (-tagname => 'date_updated',
 				  -value => $1));
 			}
-
 			$dbsource =~ s/\n/ /g;
 			if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
 			    # will use $i to determine even or odd
@@ -474,7 +471,6 @@ sub next_seq {
 					  -version => $version,
 					  -database => $db,
 					  -tagname => 'dblink'));
-
 				}
 			    }
 			} elsif( $dbsource =~ s/\s+xrefs:\s+(.+)\s+xrefs/xrefs/i ) {
@@ -492,7 +488,6 @@ sub next_seq {
 				    $acc= $id;
 				    $db = '';
 				}
-
 				$annotation->add_Annotation
 				    ('dblink',
 				     Bio::Annotation::DBLink->new
@@ -590,8 +585,8 @@ sub next_seq {
 		    }
 		    next;	# back to reading FTHelpers
 		}
-		
-		# process ftunit
+
+				# process ftunit
 		my $feat =
 		    $ftunit->_generic_seqfeature($self->location_factory(),
 						 $display_id);
@@ -1009,7 +1004,6 @@ sub write_seq {
 =cut
 
 sub _print_GenBank_FTHelper {
-
     my ($self,$fth) = @_;
 
     if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
@@ -1107,7 +1101,6 @@ sub _read_GenBank_References {
 	      /^\s{9,}(.*)/o && do { push(@loc, $1);
 				     next;
 				 };
-
 	      last;
 	  }
 	  $ref->location(join(' ', @loc));
@@ -1119,7 +1112,6 @@ sub _read_GenBank_References {
 	      /^\s{9,}(.*)/o && do { push(@com, $1);
 				     next;
 				 };
-	      
 	      last;
 	  }
 	  $ref->comment(join(' ', @com));
@@ -1378,8 +1370,8 @@ sub _read_FTHelper_GenBank {
 	# Read all the lines up to the next feature
 	while ( defined($_ = $self->_readline) ) {
 	    if (/^(\s+)(.+?)\s*$/o) {
-		# Lines inside features are preceded by 21 spaces
-		# A new feature is preceded by 5 spaces
+				# Lines inside features are preceded by 21 spaces
+				# A new feature is preceded by 5 spaces
 		if (length($1) > 6) {
 		    # Add to qualifiers if we're in the qualifiers, or if it's
 		    # the first qualifier
@@ -1395,7 +1387,7 @@ sub _read_FTHelper_GenBank {
 		    last;
 		}
 	    } else {
-		# We're at the end of the feature table
+				# We're at the end of the feature table
 		last;
 	    }
 	}
@@ -1411,7 +1403,6 @@ sub _read_FTHelper_GenBank {
 
     # Put the first line of the next feature into the buffer
     $$buffer = $_;
-
 
     # Make the new FTHelper object
     my $out = new Bio::SeqIO::FTHelper();
@@ -1433,7 +1424,6 @@ sub _read_FTHelper_GenBank {
 	    if (substr($value, 0, 1) eq '"') {
 				# Keep adding to value until we find the trailing quote
 				# and the quotes are balanced
-
 		while ($value !~ /\"$/ or $value =~ tr/"/"/ % 2) {
 		    if($i >= $#qual) {
 			$self->warn("Unbalanced quote in:\n" .
@@ -1670,6 +1660,7 @@ sub _sv_generation_func {
 	$obj->{'_sv_generation_func'} = $value;
     }
     return $obj->{'_sv_generation_func'};
+
 }
 
     

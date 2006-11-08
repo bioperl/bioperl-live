@@ -576,28 +576,23 @@ sub intersection {
     $intersect || return;
     my ($start, $end, $strand) = ($intersect->start, $intersect->end, $intersect->strand);
     
-    if (wantarray()) {
-        return ($start, $end, $strand);
+    my @intersects;
+    foreach my $known_map (values %known_maps) {
+        my $new_intersect = $intersect->new(-start => $start,
+                                            -end => $end,
+                                            -strand => $strand,
+                                            -map => $known_map);
+        $new_intersect->relative($rel) if $rel;
+        push(@intersects, $new_intersect);
     }
-    else {
-        my @intersects;
-        foreach my $known_map (values %known_maps) {
-            my $new_intersect = $intersect->new(-start => $start,
-                                                -end => $end,
-                                                -strand => $strand,
-                                                -map => $known_map);
-            $new_intersect->relative($rel) if $rel;
-            push(@intersects, $new_intersect);
-        }
-        unless (@intersects) {
-            $intersect->relative($rel) if $rel;
-            @intersects = ($intersect);
-        }
-        
-        my $result = Bio::Map::Mappable->new();
-        $result->add_position(@intersects); # sneaky, add_position can take a list of positions
-        return $result;
+    unless (@intersects) {
+        $intersect->relative($rel) if $rel;
+        @intersects = ($intersect);
     }
+    
+    my $result = Bio::Map::Mappable->new();
+    $result->add_position(@intersects); # sneaky, add_position can take a list of positions
+    return $result;
 }
 
 =head2 union
@@ -645,7 +640,7 @@ sub union {
         $rel = shift(@args);
     }
     foreach my $arg (@args) {
-        # avoid pushind undefined values into @positions
+        # avoid pushing undefined values into @positions
         push(@positions, $arg) if $arg;
     }
     $self->throw("Need at least 2 Positions") unless @positions >= 2;
@@ -684,30 +679,25 @@ sub union {
 	my $start = shift @starts;
 	my $end = pop @ends;
     
-	if (wantarray()) {
-		return ($start, $end, $union_strand);
-	}
-    else {
-		my @unions;
-        foreach my $known_map (values %known_maps) {
-            my $new_union = $self->new(-start => $start,
-                                       -end => $end,
-                                       -strand => $union_strand,
-                                       -map => $known_map);
-            $new_union->relative($rel) if $rel;
-            push(@unions, $new_union);
-        }
-        unless (@unions) {
-            @unions = ($self->new(-start => $start,
-				    		 -end => $end,
-						     -strand => $union_strand));
-            $unions[0]->relative($rel) if $rel;
-        }
-        
-        my $result = Bio::Map::Mappable->new();
-        $result->add_position(@unions); # sneaky, add_position can take a list of positions
-        return $result;
-	}
+    my @unions;
+    foreach my $known_map (values %known_maps) {
+        my $new_union = $self->new(-start => $start,
+                                   -end => $end,
+                                   -strand => $union_strand,
+                                   -map => $known_map);
+        $new_union->relative($rel) if $rel;
+        push(@unions, $new_union);
+    }
+    unless (@unions) {
+        @unions = ($self->new(-start => $start,
+                         -end => $end,
+                         -strand => $union_strand));
+        $unions[0]->relative($rel) if $rel;
+    }
+    
+    my $result = Bio::Map::Mappable->new();
+    $result->add_position(@unions); # sneaky, add_position can take a list of positions
+    return $result;
 }
 
 =head2 overlap_extent
@@ -787,13 +777,17 @@ sub disconnected_ranges {
     my @outranges = ();
     foreach my $inrange (@positions) {
         my @outranges_new = ();
-        my @overlapping_ranges = ();
+        my %overlapping_ranges = ();
         
         for (my $i=0; $i<@outranges; $i++) {
             my $outrange = $outranges[$i];
             if ($inrange->overlaps($outrange, undef, $rel)) {
-                my $union_able = $inrange->union($outrange, $rel);
-                push(@overlapping_ranges, $union_able->get_positions);
+                my $union_able = $inrange->intersection($outrange, undef, $rel);
+                foreach my $pos ($union_able->get_positions) {
+                    $overlapping_ranges{$pos->toString} = $pos; # we flatten down to a result on a single map
+                                                                # to avoid creating 10s of thousands of positions during this process;
+                                                                # we then apply the final answer to all maps at the very end
+                }
             }
             else {
                 push(@outranges_new, $outrange);
@@ -802,13 +796,14 @@ sub disconnected_ranges {
         
         @outranges = @outranges_new;
         
-        if (@overlapping_ranges) {
-            if (@overlapping_ranges > 1) {
-                my $merged_range_able = shift(@overlapping_ranges)->union(\@overlapping_ranges, $rel);
+        my @overlappers = values %overlapping_ranges;
+        if (@overlappers) {
+            if (@overlappers > 1) {
+                my $merged_range_able = shift(@overlappers)->union(\@overlappers, $rel);
                 push(@outranges, $merged_range_able->get_positions);
             }
             else {
-                push(@outranges, @overlapping_ranges);
+                push(@outranges, @overlappers);
             }
         }
         else {
@@ -827,11 +822,35 @@ sub disconnected_ranges {
         }
     }
     
+    my %post_positions;
+    foreach my $map (values %known_maps) {
+        foreach my $pos ($map->get_positions) {
+            $post_positions{$pos} = 1;
+        }
+    }
+    
     @outranges || return;
+    
+    # make an outrange on all known maps
+    my @final_positions;
+    foreach my $map (values %known_maps) {
+        foreach my $pos (@outranges) {
+            if ($pos->map eq $map) {
+                push(@final_positions, $pos);
+            }
+            else {
+                push(@final_positions, $pos->new(-start => $pos->start,
+                                                 -end => $pos->end,
+                                                 -relative => $pos->relative,
+                                                 -map => $map));
+            }
+        }
+    }
     
     # assign the positions to a result mappable
     my $result = Bio::Map::Mappable->new();
-    $result->add_position(@outranges); # sneaky, add_position can take a list of positions
+    $result->add_position(@final_positions); # sneaky, add_position can take a list of positions
+    
     return $result;
 }
 

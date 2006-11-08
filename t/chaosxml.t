@@ -23,7 +23,7 @@ BEGIN {
 	};
 	if ( $@ ) {
 		$error = 1;
-		warn "Data::Stag::Writer not installed, cannot perform chaosxml tests\n";
+		warn "Data::Stag::XMLWriter not installed, cannot perform chaosxml tests\n";
    } 
 	use Test;
 	plan tests => $NUMTESTS;

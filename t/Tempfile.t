@@ -8,67 +8,84 @@
 use strict;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
+    # to handle systems with no installed Test::More module
+    # we include the t dir (where a copy of Test/More.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+		use lib 't/lib';
     }
-    use Test;    
-    plan tests => 8;
+    use Test::More tests => 18;
 }
 
-use Bio::Root::IO;
+use_ok('Bio::Root::IO');
 
-my $obj = new Bio::Root::IO(-verbose => 0);
+ok my $obj = Bio::Root::IO->new(-verbose => 0);
 
-ok defined($obj) && $obj->isa('Bio::Root::IO');
+isa_ok($obj, 'Bio::Root::IO');
 
-# doesn't work in perl 5.00405
-my ($tfh,$tfile,$tdir,$val);
+my $TEST_STRING = "Bioperl rocks!\n";
+
+my ($tfh,$tfile);
+
 eval {
     ($tfh,$tfile) = $obj->tempfile();
-    print $tfh ("test1"); 
+    print $tfh $TEST_STRING; 
     close($tfh);
-    open(IN, $tfile) or die("cannot open $tfile");    
-    $val = join("", <IN>) ;
-    close IN;
+    open(my $IN, $tfile) or die("cannot open $tfile");    
+    my $val = join("", <$IN>) ;
+    ok( $val eq $TEST_STRING );
+    close $IN;
     ok( -e $tfile );
-    undef $obj;
+    undef $obj; 
 };
+undef $obj;
 if( $@ ) {
     ok(0);
 } else { 
-    ok( ! -e $tfile );
+   ok( ! -e $tfile, 'auto UNLINK => 1' );
 }
 
-$obj = new Bio::Root::IO();
+$obj = Bio::Root::IO->new();
 
 eval {
-    ($tdir) = $obj->tempdir(CLEANUP=>1);
+    my $tdir = $obj->tempdir(CLEANUP=>1);
+    ok( -d $tdir );
     ($tfh, $tfile) = $obj->tempfile(dir => $tdir);
     close $tfh;
     ok( -e $tfile );
-    ok( -d $tdir );
-    undef $obj;
+    undef $obj; # see Bio::Root::IO::_io_cleanup
 };
 
 if( $@ ) { ok(0); } 
-else { ok( ! -e $tfile ); }
+else { ok( ! -e $tfile, 'tempfile deleted' ); }
 
 eval {
-    $obj = new Bio::Root::IO(-verbose => 0);
+    $obj = Bio::Root::IO->new(-verbose => 0);
     ($tfh, $tfile) = $obj->tempfile(UNLINK => 0);
     close $tfh;
-    ok( -e $tfile ,1, "tempfile ($tfile) does not exist when it should");   
-    undef $obj;
+    ok( -e $tfile );   
+    undef $obj; # see Bio::Root::IO::_io_cleanup
 };
 
 if( $@ ) { ok(0) }
-else { ok( -e $tfile) }
+else { ok( -e $tfile, 'UNLINK => 0') }
 
-unlink( $tfile);
+ok unlink( $tfile) == 1 ;
+
+
+ok $obj = Bio::Root::IO->new;
+
+# check suffix is applied
+my($fh1, $fn1) = $obj->tempfile(SUFFIX => '.bioperl');
+ok $fh1;
+like $fn1, qr/\.bioperl$/, 'tempfile suffix';
+ok close $fh1;
+
+# check single return value mode of File::Temp
+my $fh2 = $obj->tempfile;
+ok $fh2, 'tempfile() in scalar context';
+ok close $fh2;
 
 
 1;
