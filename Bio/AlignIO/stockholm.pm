@@ -286,7 +286,6 @@ sub next_aln {
                     $ref->{'-comment'} = $extra if $extra;
                     #                       # dblink       parameter list    
                     $annotation{ 'aln_dblink' }->[$lnkct] = $ref;
-                    #$self->debug(Dumper(%ref));
                     $lnkct++;
                     
                 # Everything else (single and multi line)
@@ -477,7 +476,6 @@ sub write_aln {
         ANNOTATIONS:
         while (my $ann = shift @anns) {
             # using Text::Wrap::wrap() for word wrap
-            #$self->debug(Dumper($ann)) if $ann->isa('Bio::Annotation::DBLink');
             my ($text, $alntag, $data);
             if ($tag eq 'RX') {
                 REFS:
@@ -505,7 +503,6 @@ sub write_aln {
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
                 $data = $aln->no_sequences;
             } else {
-                $self->debug(Dumper($ann)) if $tag eq 'DR';
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
                 $data = $ann;
             }
