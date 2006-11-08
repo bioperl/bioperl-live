@@ -122,9 +122,10 @@ our %READMAP = (
             'TP'   => 'SimpleValue/-value/entry_type', 
             'SQ'   => 'SimpleValue/-value/num_sequences', 
             'PI'   => 'SimpleValue/-value/previous_ids', 
-            'DC'   => 'Comment/-text/database_comment', 
-            'DR'   => 'DBLink/-value/database_reference',
+            'DC'   => 'Comment/-text/database_comment',
             'CC'   => 'Comment/-text/alignment_comment',
+            # DBLink, treated differently
+            'DR'   => 'DBLink/-value/aln_dblink',
             # Pfam-specific
             'AM'   => 'SimpleValue/-value/build_method', 
             'NE'   => 'SimpleValue/-value/pfam_family_accession',
@@ -161,7 +162,7 @@ our @WRITEORDER = qw(accession
   reference
   database_comment
   custom
-  database_reference
+  aln_dblink
   alignment_comment
   num_sequences
   );
@@ -184,7 +185,7 @@ our %WRITEMAP = (
             'num_sequences'         =>  'SQ/SimpleValue',
             'previous_ids'          =>  'PI/SimpleValue',
             'database_comment'      =>  'DC/SimpleValue',
-            'database_reference'    =>  'DR/DBLink',
+            'aln_dblink'            =>  'DR/DBLink',
             'reference'             =>  'RX/Reference',
             'ref_number'            =>  'RN/number',
             'ref_comment'           =>  'RC/comment',
@@ -225,8 +226,7 @@ sub next_aln {
 
     my ($start, $end, $id, $name, $seqname, $seq, $count, $tag, $data);
     my $seen_rc;
-    my $refct = 0;
-    my $bct = 0;
+    my ($refct, $bct, $lnkct) = (0,0,0);
     my @c2name;
     my (%align, %accession, %desc, %seq_meta, %aln_meta, %annotation);
 
@@ -260,7 +260,7 @@ sub next_aln {
             ($tag, $data) = ($1, $2);
             if (exists $READMAP{$tag}) {
 
-                # reference data
+                # reference data (multi line)
                 if (index($tag, 'R') == 0) {
                     # comments come before numbering, tricky
                     $refct++ if ( ($tag eq 'RN' && !$seen_rc) || $tag eq 'RC');
@@ -268,22 +268,35 @@ sub next_aln {
                     # Don't need
                     next READLINE if $tag eq 'RN';
                     #                           # of ref       parameter     
-                    $annotation{ 'reference' }->[$refct]->{ $READMAP{$tag} } .= $data.' ';
+                    $annotation{ 'reference' }->[$refct-1]->{ $READMAP{$tag} } .= $data.' ';
 
-                # Build commands 
+                # Build commands (single line)
                 } elsif ($tag eq 'BM') {
-                    $bct++;
                     #                            # build cmd    parameter     
-                    $annotation{ 'build_command' }->[$bct]->{ $READMAP{$tag} } .= $data.' ';
+                    $annotation{ 'build_command' }->[$bct]->{ $READMAP{$tag} } = $data;
+                    $bct++;
                     
-                # Everything else (for now)        
+                # DBLinks (single line)
+                } elsif ($tag eq 'DR') {
+                    my ($dbase, $uid, $extra) = split /\s*;\s*/ , $data, 3;
+                    
+                    my $ref;
+                    $ref->{'-database'} = $dbase;
+                    $ref->{'-primary_id'} = ($dbase eq 'URL') ? $uid : uc $uid;
+                    $ref->{'-comment'} = $extra if $extra;
+                    #                       # dblink       parameter list    
+                    $annotation{ 'aln_dblink' }->[$lnkct] = $ref;
+                    #$self->debug(Dumper(%ref));
+                    $lnkct++;
+                    
+                # Everything else (single and multi line)
                 } else {
                     #       # param/-value/tagname 
                     $annotation{ $READMAP{$tag} } .= $data.' ';
                 }
 
             } else {
-                # unknown or custom data treated with simplevalue objects 
+                # unknown or custom data treated with simplevalue objects
                 #$self->debug("Unknown tag: $tag:\t$data\n");
                 $annotation{ 'custom' }->{ $tag } .= $data.' ';
             }
@@ -322,6 +335,7 @@ sub next_aln {
     }
     
     # ok... now we can make the sequences
+    
     for my $name ( @c2name ) {
         if( $name =~ m{(\S+)/(\d+)-(\d+)}xms ) {
             ($seqname, $start, $end) = ($1, $2, $3);
@@ -383,27 +397,33 @@ sub next_aln {
                     $tag, $factory->create_object(-tagname => $key,
                                                   -value => $annotation{$tag}->{$key}));
             }
+        
+        # more complex annotations
+        
         } else {
-            my $data;
-            my $atype = ($tag eq 'reference')       ? 'Reference'   :
+            my $atype = #($tag eq 'custom')          ? 'SimpleValue'   :
+                        ($tag eq 'reference')       ? 'Reference'   :
+                        ($tag eq 'aln_dblink')      ? 'DBLink'   :
                         ($tag eq 'build_command')   ? 'SimpleValue' :
                         'BadValue'; # this will cause the factory to choke
             $self->throw("Bad tag value : $tag.") if $atype eq 'BadValue';
             my $factory = Bio::Annotation::AnnotationFactory->new(
                 -type => "Bio::Annotation::$atype");                
-            while(@{ $annotation{$tag} }) {
-                $data = shift @{ $annotation{$tag} };
+            while (my $data = shift @{ $annotation{$tag} }) {
                 next unless $data;
-                # remove trailing spaces
+                # remove trailing spaces for concatenated data
                 my %clean_data = map {
                     $data->{$_} =~ s{\s+$}{}g;
                     $_ => $data->{$_};
                     } keys %{ $data };
-                $coll->add_Annotation($tag, $factory->create_object(%clean_data));
+                my $ann = $factory->create_object(%clean_data);
+                $coll->add_Annotation($tag, $ann);
                 $refct++;
             }
         }
     }
+
+    #$self->debug(Dumper($coll));
 
     # add annotations
     $aln->annotation($coll); 
@@ -457,6 +477,7 @@ sub write_aln {
         ANNOTATIONS:
         while (my $ann = shift @anns) {
             # using Text::Wrap::wrap() for word wrap
+            #$self->debug(Dumper($ann)) if $ann->isa('Bio::Annotation::DBLink');
             my ($text, $alntag, $data);
             if ($tag eq 'RX') {
                 REFS:
@@ -483,7 +504,8 @@ sub write_aln {
                 # use the actual number, not the stored Annotation data
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
                 $data = $aln->no_sequences;
-            } else{
+            } else {
+                $self->debug(Dumper($ann)) if $tag eq 'DR';
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
                 $data = $ann;
             }
@@ -491,6 +513,8 @@ sub write_aln {
             $self->_print("$text\n") or return 0;
         }
     }
+    
+    $self->_print("\n");
     
     # now the sequences...
     
@@ -501,8 +525,6 @@ sub write_aln {
     # pad extra for meta lines
     my $maxlen = $aln->maxdisplayname_length() + 5;
     my $metalen = $aln->max_metaname_length() || 0;
-    
-    #$self->debug("Length: $metalen\n");
     
     for $seq ( $aln->each_seq() ) {
         $namestr = $aln->displayname($seq->get_nse());
