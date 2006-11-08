@@ -99,6 +99,7 @@ my $error = 0;
 print "\n*** Optional dependencies section ***\n";
 while (my ($name, $value) = each %packages) {
   my ($ver, $desc, $expl, $module) = split( /\// , $value);
+  no strict 'refs';
   if (! eval "require $name;" || ${$name.'::VERSION'} < $ver) {
     my @modules = split(',', $module);
     my $modules = join("\n * ", @modules);
