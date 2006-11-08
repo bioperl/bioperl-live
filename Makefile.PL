@@ -12,7 +12,6 @@ require 5.006_001;
 use strict;
 use warnings;
 use Config;
-use IO::File;
 use File::Spec::Functions;
 use ExtUtils::MakeMaker;
 use File::Path 'rmtree';
