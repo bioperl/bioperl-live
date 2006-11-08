@@ -121,14 +121,14 @@ sub next_seq {
        }
 
        next if($_ eq "\n");       ## skip whitespace lines in formatted seq
-       s/[^a-zA-Z]//g;            ## remove anything that is not alphabet char
+       s/[\d\s\t]//g;            ## remove anything that is not alphabet char: preserve anything that is not explicitly specified for removal (Stefan Kirov)
        # $_ = uc($_);               ## uppercase sequence: NO. Keep the case. HL
        $sequence .= $_;
    }
    ##If we parsed out a checksum, we might as well test it
 
    if(defined $chksum) {
-       unless(_validate_checksum($sequence,$chksum)) {
+       unless(_validate_checksum(uc($sequence),$chksum)) {
 	   $self->throw("Checksum failure on parsed sequence.");
        }
    }
