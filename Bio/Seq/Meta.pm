@@ -522,7 +522,7 @@ sub meta_length {
 =head2 named_meta_length
 
  Title   : named_meta_length()
- Usage   : $meeta_len  = $obj->named_meta_length($name);
+ Usage   : $meta_len  = $obj->named_meta_length($name);
  Function: return the number of elements in the named meta set
  Returns : integer
  Args    : -
