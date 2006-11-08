@@ -158,7 +158,7 @@ sub _initialize {
 
 sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $sptr,$seq_div,
        $date,$comment,@date_arr);
    my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
@@ -175,16 +175,24 @@ sub next_seq {
    # 9/6/06 Note: Swiss/TrEMBL sequences have no division acc. to UniProt
    # release notes; this is fixed to simplify the regex parsing
    # STANDARD (SwissProt) and PRELIMINARY (TrEMBL) added to namespace()
-   unless(  m/^ID\s+(\S+)\s+([^\s;]+);\s+[^\s;]+;/ox ) {
+   unless(  m{^
+                ID              \s+     #
+                (\S+)           \s+     #  $1  entryname
+                ([^\s;]+);      \s+     #  $2  DataClass
+                (?:PRT;)?       \s+     #  Molecule Type (optional)
+                [0-9]+[ ]AA     \.      #  Sequencelength (capture?)
+                $
+                }ox ) {
             # I couldn't find any new current UniProt sequences
             # that matched this format:
             # || m/^ID\s+(\S+)\s+(_([^\s_]+))? /ox ) { 
        $self->throw("swissprot stream with no ID. Not swissprot in my book");
    }
-   $name = $1;
-    $params{'-namespace'} = ($2 eq 'STANDARD')    ? 'Swiss-Prot' :
-                            ($2 eq 'PRELIMINARY') ? 'TrEMBL'     :
-                             $2;
+   ($name, $seq_div) = ($1, $2);
+    $params{'-namespace'} =
+      ($seq_div eq 'Reviewed'   || $seq_div eq 'STANDARD')     ? 'Swiss-Prot' :
+      ($seq_div eq 'Unreviewed' || $seq_div eq 'PRELIMINARY')  ? 'TrEMBL'     :
+       $seq_div;
     # we shouldn't be setting the division, but for now...
     my ($junk, $division) = split q(_), $name;
     $params{'-division'} = $division;
