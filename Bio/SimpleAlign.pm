@@ -172,7 +172,7 @@ BEGIN {
 					       HFY )],);
 }
 
-use base qw(Bio::Root::Root Bio::Align::AlignI);
+use base qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI);
 
 =head2 new
 
@@ -1380,8 +1380,7 @@ sub match_line {
 				# iterate through each of the aa in the col
 				# look to see which groups it is in
 				foreach my $c ( @colresidues ) {
-					foreach my $f ( grep /\Q$c/,
-										 @{$CONSERVATION_GROUPS{$type}} ) {
+					foreach my $f ( grep { index($_,$c) >= 0 } @{$CONSERVATION_GROUPS{$type}} ) {
 						push @{$groups{$f}},$c;
 					}
 				}
@@ -1609,6 +1608,46 @@ sub id {
     }
 
     return $self->{'_id'};
+}
+
+=head2 accession
+
+ Title     : accession
+ Usage     : $myalign->accession("PF00244")
+ Function  : Gets/sets the accession field of the alignment
+ Returns   : An acc string
+ Argument  : An acc string (optional)
+
+=cut
+
+sub accession {
+    my ($self, $acc) = @_;
+
+    if (defined( $acc )) {
+	$self->{'_accession'} = $acc;
+    }
+
+    return $self->{'_accession'};
+}
+
+=head2 description
+
+ Title     : description
+ Usage     : $myalign->description("14-3-3 proteins")
+ Function  : Gets/sets the description field of the alignment
+ Returns   : An description string
+ Argument  : An description string (optional)
+
+=cut
+
+sub description {
+    my ($self, $name) = @_;
+
+    if (defined( $name )) {
+	$self->{'_description'} = $name;
+    }
+
+    return $self->{'_description'};
 }
 
 =head2 missing_char
@@ -1907,6 +1946,28 @@ sub _consensus_iupac {
     return $char;
 }
 
+
+=head2 consensus_meta
+
+ Title     : consensus_meta
+ Usage     : $seqmeta = $ali->consensus_meta()
+ Function  : Returns a Bio::Seq::Meta object containing the consensus
+             strings derived from meta data analysis.
+ Returns   : Bio::Seq::Meta 
+ Argument  : Bio::Seq::Meta 
+ Throws    : non-MetaI object
+
+=cut
+
+sub consensus_meta {
+    my ($self, $meta) = @_;
+    if ($meta and !$meta->isa('Bio::Seq::MetaI')) {
+        $self->throw('Not a Bio::Seq::MetaI object');
+    }
+    return $self->{'_aln_meta'} = $meta if $meta;
+    return $self->{'_aln_meta'} 
+}
+
 =head2 is_flush
 
  Title     : is_flush
@@ -2019,6 +2080,48 @@ sub maxdisplayname_length {
 	if( $len > $maxname ) {
 	    $maxname = $len;
 	}
+    }
+
+    return $maxname;
+}
+
+=head2 max_metaname_length
+
+ Title     : max_metaname_length
+ Usage     : $ali->max_metaname_length()
+ Function  : Gets the maximum length of the meta name tags in the
+             alignment for the sequences and for the alignment.
+             Used in writing out various MSA formats.
+ Returns   : integer
+ Argument  : None
+
+=cut
+
+sub max_metaname_length {
+    my $self = shift;
+    my $maxname = (-1);
+    my ($seq,$len);
+    
+    # check seq meta first
+    for $seq ( $self->each_seq() ) {
+        next if !$seq->isa('Bio::Seq::MetaI' || !$seq->meta_names);
+        for my $mtag ($seq->meta_names) {
+            $len = CORE::length $mtag;
+            if( $len > $maxname ) {
+                $maxname = $len;
+            }
+        }
+    }
+    
+    # alignment meta
+    for my $meta ($self->consensus_meta) {
+        next unless $meta;
+        for my $name ($meta->meta_names) {
+            $len = CORE::length $name;
+            if( $len > $maxname ) {
+                $maxname = $len;
+            }
+        }
     }
 
     return $maxname;
@@ -2407,5 +2510,31 @@ sub source{
     return $self->{'_source'};
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $ann = $aln->annotation or 
+           $aln->annotation($ann)
+ Function: Gets or sets the annotation
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::AnnotationCollectionI object
+
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+        $obj->throw("object of class ".ref($value)." does not implement ".
+                "Bio::AnnotationCollectionI. Too bad.")
+            unless $value->isa("Bio::AnnotationCollectionI");
+        $obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+        $obj->{'_annotation'} = Bio::Annotation::Collection->new();
+    }
+    return $obj->{'_annotation'};
+}
 
 1;

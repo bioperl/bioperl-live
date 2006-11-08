@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::AlignIO::stockholm
 
-#   based on the Bio::SeqIO::stockholm module
+#   Based on the Bio::SeqIO::stockholm module
 #       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
 #
@@ -13,6 +13,7 @@
 # You may distribute this module under the same terms as perl itself
 # _history
 # September 5, 2000
+# November 6, 2006 - completely refactor read_aln(), add write_aln()
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -37,6 +38,31 @@ Bio::AlignIO::stockholm - stockholm sequence input/output stream
 This object can transform L<Bio::Align::AlignI> objects to and from
 stockholm flat file databases.
 
+Note that many Stockholm sequence files contain additional sequence-based
+and alignment-based annotation
+
+  GF Lines (alignment feature/annotation):
+  #=GF <featurename> <Generic per-file annotation, free text>
+  Placed above the alignment
+  
+  GC Lines (Alignment consensus)
+  #=GC <featurename> <Generic per-column annotation, exactly 1
+       character per column>
+  Placed below the alignment
+
+  GS Lines (Sequence annotations)
+  #=GS <seqname> <featurename> <Generic per-sequence annotation, free
+       text>
+
+  GR Lines (Sequence meta data)
+  #=GR <seqname> <featurename> <Generic per-sequence AND per-column
+       mark up, exactly 1 character per column>
+
+This module is currently being refactored to incorporate Meta data for
+sequences and alignments.  Annotations are also now added for alignments.
+
+Note that sequence names in the alignment are cut off at 
+
 =head1 FEEDBACK
 
 =head2 Reporting Bugs
@@ -47,13 +73,14 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHORS - Peter Schattner
+=head1 AUTHORS - Peter Schattner, Chris Fields
 
-Email: schattner@alum.mit.edu
+Email: schattner@alum.mit.edu, cjfields-at-uiuc-dot-edu
 
 =head1 CONTRIBUTORS
 
-Andreas Kahari, ak@ebi.ac.uk
+Chris Fields, cjfields-at-uiuc-dot-edu
+Andreas Kahari, ak-at-ebi.ac.uk
 Jason Stajich, jason-at-bioperl.org
 
 =head1 APPENDIX
@@ -68,8 +95,120 @@ methods. Internal methods are usually preceded with a _
 package Bio::AlignIO::stockholm;
 use strict;
 
+use Bio::Seq::Meta;
+use Bio::Annotation::AnnotationFactory;
+use Data::Dumper;
+use Text::Wrap qw(wrap);
 
 use base qw(Bio::AlignIO);
+
+our $STKVERSION = 'STOCKHOLM 1.0';
+
+# This maps the two-letter annotation key to a Annotation/parameter/tagname
+# combination.  Some data is stored using get/set methods ('Methods')  The rest 
+# is mapped to Annotation objects using the parameter for the parsed data
+# and the tagname for, well, the Annotation tagname.  A few are treated differently
+# based on the type of data stored (Reference data in particular).
+
+our %READMAP = (
+            'AC'   => 'Method/accession', 
+            'ID'   => 'Method/id', 
+            'DE'   => 'Method/description',
+            'AU'   => 'SimpleValue/-value/record_authors',
+            'SE'   => 'SimpleValue/-value/seed_source', 
+            'GA'   => 'SimpleValue/-value/gathering_threshold',
+            'NC'   => 'SimpleValue/-value/noise_cutoff', 
+            'TC'   => 'SimpleValue/-value/trusted_cutoff', 
+            'TP'   => 'SimpleValue/-value/entry_type', 
+            'SQ'   => 'SimpleValue/-value/num_sequences', 
+            'PI'   => 'SimpleValue/-value/previous_ids', 
+            'DC'   => 'Comment/-text/database_comment',
+            'CC'   => 'Comment/-text/alignment_comment',
+            # DBLink, treated differently
+            'DR'   => 'DBLink/-value/aln_dblink',
+            # Pfam-specific
+            'AM'   => 'SimpleValue/-value/build_method', 
+            'NE'   => 'SimpleValue/-value/pfam_family_accession',
+            'NL'   => 'SimpleValue/-value/sequence_start_stop',
+            # Rfam-specific GF lines
+            'SS'   => 'SimpleValue/-value/sec_structure_source',
+            # Reference objects mapped differently
+            'RN'   => '-number',  # reference number is dumped
+            'RC'   => '-comment',
+            'RM'   => '-pubmed', 
+            'RT'   => '-title', 
+            'RA'   => '-authors',
+            'RL'   => '-location',
+            # Build model mapped differently
+            'BM'   => '-value',            
+            );
+
+# this is the order that annotations are written
+our @WRITEORDER = qw(accession
+  id
+  description
+  previous_ids  
+  record_authors
+  seed_source
+  sec_structure_source
+  gathering_threshold
+  trusted_cutoff 
+  noise_cutoff
+  entry_type
+  build_command
+  build_method
+  pfam_family_accession
+  seq_start_stop
+  reference
+  database_comment
+  custom
+  aln_dblink
+  alignment_comment
+  num_sequences
+  );
+
+# This maps the tagname back to a tagname-annotation value combination.
+# Some data is stored using get/set methods ('Methods'), others
+# are mapped b/c of more complex annotation types.
+
+our %WRITEMAP = (
+            'accession'             =>  'AC/Method',
+            'id'                    =>  'ID/Method',
+            'description'           =>  'DE/Method',
+            'record_authors'        =>  'AU/SimpleValue',
+            'seed_source'           =>  'SE/SimpleValue',
+            'build_command'         =>  'BM/SimpleValue',
+            'gathering_threshold'   =>  'GA/SimpleValue',
+            'noise_cutoff'          =>  'NC/SimpleValue',
+            'trusted_cutoff'        =>  'TC/SimpleValue',
+            'entry_type'            =>  'TP/SimpleValue',
+            'num_sequences'         =>  'SQ/SimpleValue',
+            'previous_ids'          =>  'PI/SimpleValue',
+            'database_comment'      =>  'DC/SimpleValue',
+            'aln_dblink'            =>  'DR/DBLink',
+            'reference'             =>  'RX/Reference',
+            'ref_number'            =>  'RN/number',
+            'ref_comment'           =>  'RC/comment',
+            'ref_pubmed'            =>  'RM/pubmed',
+            'ref_title'             =>  'RT/title',
+            'ref_authors'           =>  'RA/authors',
+            'ref_location'          =>  'RL/location',
+            'alignment_comment'     =>  'CC/Comment',
+            #Pfam-specific 
+            'build_method'          =>  'AM/SimpleValue',
+            'pfam_family_accession' =>  'NE/SimpleValue',
+            'seq_start_stop'        =>  'NL/SimpleValue',
+            # Rfam-specific GF lines
+            'sec_structure_source'  =>  'SS/SimpleValue',
+            # custom
+            'custom'                =>  'XX/SimpleValue'
+            );
+
+sub _initialize {
+    my ( $self, @args ) = @_;
+    $self->SUPER::_initialize(@args);
+    # add arguments to handle build object, interleaved format
+}
 
 =head2 next_aln
 
@@ -83,10 +222,13 @@ use base qw(Bio::AlignIO);
 
 sub next_aln {
     my $self = shift;
-    my $entry;
+    my $line;
 
-    my ($start,$end,%align,$name,$seqname,$seq,$count,%desc,
-	%hash,@c2name, %accession);
+    my ($start, $end, $id, $name, $seqname, $seq, $count, $tag, $data);
+    my $seen_rc;
+    my ($refct, $bct, $lnkct) = (0,0,0);
+    my @c2name;
+    my (%align, %accession, %desc, %seq_meta, %aln_meta, %annotation);
 
     # in stockholm format, every non-blank line that does not start
     # with '#=' is an alignment segment; the '#=' lines are mark up lines.
@@ -94,72 +236,200 @@ sub next_aln {
     # lines, which give accession numbers for each segment
 
     my $aln =  Bio::SimpleAlign->new(-source => 'stockholm');
-
-    while( defined($entry = $self->_readline) ) {
-        next unless $entry =~ /\w+/;
-
-	if ($entry =~ /^#\s*STOCKHOLM\s+/) {
-	    last;
-	} else {
-	    $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM 1.0\"; Found \"$_\"");
-	}
+    while( defined($line = $self->_readline) ) {
+        next unless $line =~ /\w+/;
+        if ($line =~ /^#\s*STOCKHOLM\s+/) {
+            last;
+        } else {
+            $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM 1.0\"; Found \"$_\"");
+        }
     }
-#
-#    Next section is same as for selex format
-#
-    while( defined($entry = $self->_readline) ) {
-	# Double slash (//) signals end of file.  The flat Pfam-A data from
-	# ftp://ftp.sanger.ac.uk/pub/databases/Pfam/Pfam-A.full.gz consists
-	# of several concatenated Stockholm-formatted files.  The following
-	# line makes it possible to parse it without this module trying to
-	# read the whole file into memory.  Andreas Kähäri 10/3/2003.
-	last if $entry =~ m{^//};
+    
+    READLINE:
+    while( defined($line = $self->_readline) ) {
+        #skip empty lines
+        next if $line =~ /^\s+$/;
+        
+        # Double slash (//) signals end of file.
+        last if $line =~ m{^//};
+        
+        # GF/GS lines, by convention, should be at the top of the alignment
+        if ($line =~ m{^\#=GF\s+(\S+?)\s+([^\n]*)$}xms) {
 
-	# Extra bonus:  Get the name of the alignment.
-	# Andreas Kähäri 10/3/2003.
-	if ($entry =~ /^\#=GF\s+AC\s+(\S+)/) {
-	    $aln->id($1);
-	} elsif( $entry =~ /^\#=GS\s+(\S+)\s+AC\s+(\S+)/ ) {
-	    $accession{$1} = $2;
-	} elsif( $entry =~ /^\#=GS\s+(\S+)\s+DE\s+(.+)\s*$/ ) {
-	    $desc{$1} .= $2;
-	} elsif( $entry =~ /^([A-Za-z.\-\*]+)$/ ) {
-	    $align{$name} .= $1;
-	} elsif( $entry =~ /^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*/ ) {
-	    ($name,$seq) = ($1,$2);
-	    if( ! defined $align{$name}  ) {
-		push @c2name, $name;
-	    }
-	    $align{$name} .= $seq;
-	}
+            # alignment annotation
+            ($tag, $data) = ($1, $2);
+            if (exists $READMAP{$tag}) {
+
+                # reference data (multi line)
+                if (index($tag, 'R') == 0) {
+                    # comments come before numbering, tricky
+                    $refct++ if ( ($tag eq 'RN' && !$seen_rc) || $tag eq 'RC');
+                    $seen_rc = 1 if $tag eq 'RC';
+                    # Don't need
+                    next READLINE if $tag eq 'RN';
+                    #                           # of ref       parameter     
+                    $annotation{ 'reference' }->[$refct-1]->{ $READMAP{$tag} } .= $data.' ';
+
+                # Build commands (single line)
+                } elsif ($tag eq 'BM') {
+                    #                            # build cmd    parameter     
+                    $annotation{ 'build_command' }->[$bct]->{ $READMAP{$tag} } = $data;
+                    $bct++;
+                    
+                # DBLinks (single line)
+                } elsif ($tag eq 'DR') {
+                    my ($dbase, $uid, $extra) = split /\s*;\s*/ , $data, 3;
+                    
+                    my $ref;
+                    $ref->{'-database'} = $dbase;
+                    $ref->{'-primary_id'} = ($dbase eq 'URL') ? $uid : uc $uid;
+                    $ref->{'-comment'} = $extra if $extra;
+                    #                       # dblink       parameter list    
+                    $annotation{ 'aln_dblink' }->[$lnkct] = $ref;
+                    #$self->debug(Dumper(%ref));
+                    $lnkct++;
+                    
+                # Everything else (single and multi line)
+                } else {
+                    #       # param/-value/tagname 
+                    $annotation{ $READMAP{$tag} } .= $data.' ';
+                }
+
+            } else {
+                # unknown or custom data treated with simplevalue objects
+                #$self->debug("Unknown tag: $tag:\t$data\n");
+                $annotation{ 'custom' }->{ $tag } .= $data.' ';
+            }
+
+        } elsif( $line =~ m{^\#=GS\s+(\S+)\s+(\w{2})\s+(\S+)}xms ) {
+            # sequence annotation and data
+            ($id, $tag, $data) = ($1, $2, $3);
+            if ($tag eq 'AC') {
+                $accession{$id} .= $data;
+            } elsif ($tag eq 'DE') {
+                $desc{$id} .= $data;
+            }
+            # Bio::Seq::Meta is not AnnotationI, so can't add seq-based
+            # Annotations yet; uncomment to see what is passed by
+            #else {
+            #    $self->debug("Missed data: $entry");
+            #}
+        } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\S+)\s+([^\n]+)} ) {
+            # meta strings per sequence
+            ($name, $tag, $data) = ($1, $2, $3);
+            $seq_meta{$name}->{$tag} .= $data;
+        } elsif( $line =~ m{^\#=GC\s+(\S+)\s+([^\n]+)}xms ) {
+            # meta strings per alignment
+            ($tag, $data) = ($1, $2);
+            $aln_meta{$tag} .= $data;
+        } elsif( $line =~ m{^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*}xms ) {
+            ($name,$seq) = ($1,$2);
+            if( ! exists $align{$name}  ) {
+                push @c2name, $name;
+            }
+            $align{$name} .= $seq;
+        } else {
+            # debugging to catch missed data; uncomment to turn on
+            #$self->debug("Missed Data: $line");
+        }
     }
-
+    
     # ok... now we can make the sequences
+    
     for my $name ( @c2name ) {
-	if( $name =~ m{(\S+)/(\d+)-(\d+)} ) {
-	    $seqname = $1;
-	    $start = $2;
-	    $end = $3;
-	} else {
-	    $seqname=$name;
-	    $start = 1;
-	    $end = length($align{$name});
-	}
-	$seq = new Bio::LocatableSeq
-	    ('-seq'              => $align{$name},
-	     '-display_id'       => $seqname,
-	     '-start'            => $start,
-	     '-end'              => $end,
-	     '-description'      => $desc{$name},
-	     '-accession_number' => $accession{$name},
-	     );
+        if( $name =~ m{(\S+)/(\d+)-(\d+)}xms ) {
+            ($seqname, $start, $end) = ($1, $2, $3);
+        } else {
+            $seqname=$name;
+            $start = 1;
+            $end = length($align{$name});
+        }
+        $seq = Bio::Seq::Meta->new
+            ('-seq'              => $align{$name},
+             '-display_id'       => $seqname,
+             '-start'            => $start,
+             '-end'              => $end,
+             '-description'      => $desc{$name},
+             '-accession_number' => $accession{$name}
+             );
+        if (exists $seq_meta{$name}) {
+            for my $tag (sort keys %{ $seq_meta{$name} }) {
+                $seq->named_meta($tag, $seq_meta{$name}->{$tag});
+            }
+        }
+        $aln->add_seq($seq);
+    }
+    
+    # add meta strings w/o sequence for consensus meta data
+    my $ameta = Bio::Seq::Meta->new();
+    for my $tag (sort keys %aln_meta) {
+        $ameta->named_meta($tag, $aln_meta{$tag});
+    }
+    
+    $aln->consensus_meta($ameta);
+    
+    # Make the annotation collection...
+    
+    my $coll = Bio::Annotation::Collection->new();
 
-	$aln->add_seq($seq);
+    for my $tag (sort keys %annotation) {
+        
+        # most annotations
+        if (!ref($annotation{$tag})) {
+            my ($atype, $aparam, $tagname) = split q(/), $tag;
+            # remove trailing newline, convert internal newlines to spaces
+            $annotation{$tag} =~ s{\s+$}{}g;
+            # split the READTYPE map to determine Annotation type, parameters, etc.
+            if ($atype eq 'Method') {
+                $aln->$aparam($annotation{$tag});
+            } else {
+                my $factory = Bio::Annotation::AnnotationFactory->new(
+                    -type => "Bio::Annotation::$atype");
+                $coll->add_Annotation
+                ($tagname, $factory->create_object($aparam  => $annotation{$tag}));
+            }
+            
+        } elsif ($tag eq 'custom') {
+            my $factory = Bio::Annotation::AnnotationFactory->new(
+                        -type => "Bio::Annotation::SimpleValue");
+            for my $key (sort keys %{ $annotation{$tag} }) {
+                $coll->add_Annotation(
+                    $tag, $factory->create_object(-tagname => $key,
+                                                  -value => $annotation{$tag}->{$key}));
+            }
+        
+        # more complex annotations
+        
+        } else {
+            my $atype = #($tag eq 'custom')          ? 'SimpleValue'   :
+                        ($tag eq 'reference')       ? 'Reference'   :
+                        ($tag eq 'aln_dblink')      ? 'DBLink'   :
+                        ($tag eq 'build_command')   ? 'SimpleValue' :
+                        'BadValue'; # this will cause the factory to choke
+            $self->throw("Bad tag value : $tag.") if $atype eq 'BadValue';
+            my $factory = Bio::Annotation::AnnotationFactory->new(
+                -type => "Bio::Annotation::$atype");                
+            while (my $data = shift @{ $annotation{$tag} }) {
+                next unless $data;
+                # remove trailing spaces for concatenated data
+                my %clean_data = map {
+                    $data->{$_} =~ s{\s+$}{}g;
+                    $_ => $data->{$_};
+                    } keys %{ $data };
+                my $ann = $factory->create_object(%clean_data);
+                $coll->add_Annotation($tag, $ann);
+                $refct++;
+            }
+        }
     }
 
-#  If $end <= 0, we have either reached the end of
-#  file in <fh> or we have encountered some other error
-#
+    #$self->debug(Dumper($coll));
+
+    # add annotations
+    $aln->annotation($coll); 
+    
+    #  If $end <= 0, we have either reached the end of
+    #  file in <fh> or we have encountered some other error
     return if ($end <= 0);
     return $aln;
 }
@@ -169,16 +439,116 @@ sub next_aln {
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
- Function: writes the $aln object into the stream in stockholm format  ###Not yet implemented!###
+ Function: writes the $aln object into the stream in stockholm format
  Returns : 1 for success and 0 for error
  Args    : L<Bio::Align::AlignI> object
-
 
 =cut
 
 sub write_aln {
-    my ($self,@aln) = @_;
-    $self->throw_not_implemented();
+    # enable array of SimpleAlign objects as well (see clustalw write_aln())
+    my ($self, @aln) = @_;
+    for my $aln (@aln) {
+    $self->throw('Need Bio::Align::AlignI object')
+          if (!$aln || !($aln->isa('Bio::Align::AlignI')));
+
+    my @anns;
+    my $coll = $aln->annotation;
+    my ($aln_ann, $seq_ann, $aln_meta, $seq_meta) =
+       ('#=GF ', '#=GS ', '#=GC ', '#=GR' );
+    $self->_print("# $STKVERSION\n\n") or return 0;
+    
+    # annotations first
+    
+    for my $param (@WRITEORDER) {
+        # no point in going through this if there is no annotation!
+        last if !$coll;
+        # alignment annotations
+        my $ct = 1;
+        $self->throw("Bad parameter: $param") if !exists $WRITEMAP{$param};
+        # get the data, act on it based on the tag
+        my ($tag, $key) = split q(/), $WRITEMAP{$param};
+        if ($key eq 'Method') {
+            push @anns, $aln->$param;
+        } else {
+            @anns = $coll->get_Annotations($param);
+        }
+        my $rn = 1;
+        ANNOTATIONS:
+        while (my $ann = shift @anns) {
+            # using Text::Wrap::wrap() for word wrap
+            #$self->debug(Dumper($ann)) if $ann->isa('Bio::Annotation::DBLink');
+            my ($text, $alntag, $data);
+            if ($tag eq 'RX') {
+                REFS:
+                for my $rkey (qw(ref_comment ref_number ref_pubmed
+                              ref_title ref_authors ref_location)) {
+                    my ($newtag, $method) = split q(/), $WRITEMAP{$rkey};
+                    $alntag = sprintf('%-10s',$aln_ann.$newtag);
+                    if ($rkey eq 'ref_number') {
+                        $data = "[$rn]";
+                    } else {
+                        $data = $ann->$method;
+                    }
+                    next REFS unless $data;
+                    $text = wrap($alntag, $alntag, $data);
+                    $self->_print("$text\n") or return 0;
+                }
+                $rn++;
+                next ANNOTATIONS;
+            } elsif ($tag eq 'XX') { # custom
+                my $newtag = $ann->tagname;
+                $alntag = sprintf('%-10s',$aln_ann.$newtag);
+                $data = $ann;
+            } elsif ($tag eq 'SQ') {
+                # use the actual number, not the stored Annotation data
+                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                $data = $aln->no_sequences;
+            } else {
+                $self->debug(Dumper($ann)) if $tag eq 'DR';
+                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                $data = $ann;
+            }
+            $text = wrap($alntag, $alntag, $data);
+            $self->_print("$text\n") or return 0;
+        }
+    }
+    
+    $self->_print("\n");
+    
+    # now the sequences...
+    
+    # modified (significantly) from AlignIO::pfam
+    
+    my ($namestr,$seq,$add);
+    
+    # pad extra for meta lines
+    my $maxlen = $aln->maxdisplayname_length() + 5;
+    my $metalen = $aln->max_metaname_length() || 0;
+    
+    for $seq ( $aln->each_seq() ) {
+        $namestr = $aln->displayname($seq->get_nse());
+        $self->_print(sprintf("%-*s  %s\n",$maxlen+$metalen, $namestr, $seq->seq())) or return 0;
+        if ($seq->isa('Bio::Seq::MetaI')) {
+            for my $mname ($seq->meta_names) {
+                 $self->_print(sprintf("%-*s%*s  %s\n",$maxlen, $seq_meta.' '.$namestr, $metalen,
+                                       $mname, $seq->named_meta($mname))) or return 0;
+            }
+        }
+    }
+    # alignment consensus
+    my $ameta = $aln->consensus_meta;
+    if ($ameta) {
+        for my $mname ($ameta->meta_names) {
+            $self->_print(sprintf("%-*s%*s  %s\n",$maxlen, $aln_meta, $metalen,
+                                  $mname, $ameta->named_meta($mname))) or return 0; 
+        }
+    }
+    $self->_print("//\n") or return 0;
+    }
+    $self->flush() if $self->_flush_on_write && defined $self->_fh;
+    
+    return 1;
 }
 
 1;
