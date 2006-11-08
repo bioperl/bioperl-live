@@ -550,15 +550,21 @@ sub _compare {
         /overlapping_groups|intersection|union/ && do {
             my @positions = (@mine, @yours);
             my $start_pos = shift(@positions);
+            
             my $dr_able = $start_pos->disconnected_ranges(\@positions, $rel) || return;
             my @disconnected_ranges = $dr_able->get_positions;
             
             my %all_groups;
+            my %done_ranges;
             for my $i (0..$#disconnected_ranges) {
                 my $range = $disconnected_ranges[$i];
+                my $range_string = $range->toString;
+                next if $done_ranges{$range_string};
+                $done_ranges{$range_string} = 1;
+                
                 foreach my $pos ($start_pos, @positions) {
                     if ($pos->overlaps($range, undef, $rel)) {
-                        $all_groups{$range->toString}->{$pos} = $pos;
+                        $all_groups{$range_string}->{$pos} = $pos;
                     }
                 }
             }
@@ -628,7 +634,8 @@ sub _compare {
                 
                 # assign all the positions to a result mappable
                 my $result = $self->new();
-                $result->add_position(@ok); # add_position can actually take a list
+                $result->add_position(@ok) if @ok; # add_position can actually take a list
+                
                 return $result;
             }
             
