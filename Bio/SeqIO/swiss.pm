@@ -392,7 +392,6 @@ sub write_seq {
     my $i;
     my $str = $seq->seq;
 
-    my $mol;
     my $div;
     my $ns = ($seq->can('namespace')) && $seq->namespace();
     my $len = $seq->length();
@@ -403,17 +402,12 @@ sub write_seq {
     
     # namespace dictates database, takes precedent over division. Sorry!
     if (defined($ns)) {
-        $div = ($ns eq 'Swiss-Prot') ? 'STANDARD'    :
-               ($ns eq 'TrEMBL')     ? 'PRELIMINARY' :
+        $div = ($ns eq 'Swiss-Prot') ? 'Reviewed'    :
+               ($ns eq 'TrEMBL')     ? 'Unreviewed' :
                $ns;
     } else {
         $ns = 'Swiss-Prot';
         # division not reset; acts as fallback
-    }
-
-    # Um, why would this be anything else but PRT?  Just curious...
-    if( ! $seq->can('alphabet') || ! defined ($mol = $seq->alphabet) ) {
-        $mol = 'XXX';
     }
 
     $self->warn("No whitespace allowed in SWISS-PROT display id [". $seq->display_id. "]")
@@ -432,9 +426,9 @@ sub write_seq {
         # Hence, switch to display_id(); _every_ sequence is supposed to have
         # this. HL 2000/09/03
         # Changed to reflect ID line changes in UniProt
-        $mol =~ s/protein/PRT/;
-        $temp_line = sprintf ("%-12s%14s;%6s;%6d AA.",
-                  $seq->display_id(), $div, $mol, $len);
+        # Oct 2006 - removal of molecule type - see bug 2134 
+        $temp_line = sprintf ("%-24s%-12s%9d AA.",
+                  $seq->display_id(), $div.';', $len);
     }
 
     $self->_print( "ID   $temp_line\n");
