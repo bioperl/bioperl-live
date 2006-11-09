@@ -158,7 +158,7 @@ sub _initialize {
 
 sub next_seq {
    my ($self,@args) = @_;
-   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div,
+   my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $sptr,$seq_div,
        $date,$comment,@date_arr);
    my $genename = "";
    my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
@@ -175,16 +175,24 @@ sub next_seq {
    # 9/6/06 Note: Swiss/TrEMBL sequences have no division acc. to UniProt
    # release notes; this is fixed to simplify the regex parsing
    # STANDARD (SwissProt) and PRELIMINARY (TrEMBL) added to namespace()
-   unless(  m/^ID\s+(\S+)\s+([^\s;]+);\s+[^\s;]+;/ox ) {
+   unless(  m{^
+                ID              \s+     #
+                (\S+)           \s+     #  $1  entryname
+                ([^\s;]+);      \s+     #  $2  DataClass
+                (?:PRT;)?       \s+     #  Molecule Type (optional)
+                [0-9]+[ ]AA     \.      #  Sequencelength (capture?)
+                $
+                }ox ) {
             # I couldn't find any new current UniProt sequences
             # that matched this format:
             # || m/^ID\s+(\S+)\s+(_([^\s_]+))? /ox ) { 
        $self->throw("swissprot stream with no ID. Not swissprot in my book");
    }
-   $name = $1;
-    $params{'-namespace'} = ($2 eq 'STANDARD')    ? 'Swiss-Prot' :
-                            ($2 eq 'PRELIMINARY') ? 'TrEMBL'     :
-                             $2;
+   ($name, $seq_div) = ($1, $2);
+    $params{'-namespace'} =
+      ($seq_div eq 'Reviewed'   || $seq_div eq 'STANDARD')     ? 'Swiss-Prot' :
+      ($seq_div eq 'Unreviewed' || $seq_div eq 'PRELIMINARY')  ? 'TrEMBL'     :
+       $seq_div;
     # we shouldn't be setting the division, but for now...
     my ($junk, $division) = split q(_), $name;
     $params{'-division'} = $division;
@@ -268,9 +276,8 @@ sub next_seq {
        # /^DR\s+(\S+)\;\s+(\S+)\;\s+(\S+)[\;\.](.*)$/) {
        # new regexp from Andreas Kahari  bug #1584
        elsif (/^DR\s+(\S+)\;\s+(\S+)\;\s+([^;]+)[\;\.](.*)$/) {
-
 	   my ($database,$primaryid,$optional,$comment) = ($1,$2,$3,$4);
-	   
+
 	   # drop leading and training spaces and trailing .
 	   $comment =~ s/\.\s*$//;
 	   $comment =~ s/^\s+//;
@@ -376,7 +383,6 @@ sub next_seq {
 sub write_seq {
     my ($self,@seqs) = @_;
     foreach my $seq ( @seqs ) {
-
     $self->throw("Attempting to write with no seq!") unless defined $seq;
 
     if( ! ref $seq || ! $seq->isa('Bio::SeqI') ) {
@@ -444,14 +450,14 @@ sub write_seq {
         $self->_print("AC   ",$seq->accession_number,";");
         if ($seq->can('get_secondary_accessions') ) {
             foreach my $sacc ($seq->get_secondary_accessions) {
-		$self->_print(" ",$sacc,";");
-	    }
+            $self->_print(" ",$sacc,";");
+            }
             $self->_print("\n");
         }
         else {
             $self->_print("\n");
         }
-    }
+        }
         # otherwise - cannot print <sigh>
     }
 
