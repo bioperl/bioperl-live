@@ -1,9 +1,7 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.7 2006-07-05 15:53:50 lstein Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.8 2006-11-09 06:57:12 jason Exp $
 
 use strict;
-
-use lib '/home/lstein/projects/bioperl-live';
 
 use Getopt::Long;
 use File::Spec;
