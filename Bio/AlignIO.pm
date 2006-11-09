@@ -452,19 +452,21 @@ sub write_aln {
 sub _guess_format {
 my $class = shift;
    return unless $_ = shift;
-   return 'clustalw' if /\.aln$/i;
-   return 'emboss'   if /\.(water|needle)$/i;
-   return 'metafasta'if /\.metafasta$/;
-   return 'fasta'    if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
-   return 'maf'      if /\.maf/i;
-   return 'mega'     if /\.(meg|mega)$/i;
-   return 'meme'     if /\.meme$/i;
-   return 'msf'      if /\.(msf|pileup|gcg)$/i;
-   return 'nexus'    if /\.(nexus|nex)$/i;
-   return 'pfam'     if /\.(pfam|pfm)$/i;
-   return 'phylip'   if /\.(phylip|phlp|phyl|phy|ph)$/i;
-   return 'psi'      if /\.psi$/i;
-   return 'selex'    if /\.(selex|slx|selx|slex|sx)$/i;
+   return 'clustalw'    if /\.aln$/i;
+   return 'emboss'      if /\.(water|needle)$/i;
+   return 'metafasta'   if /\.metafasta$/;
+   return 'fasta'       if /\.(fasta|fast|seq|fa|fsa|nt|aa)$/i;
+   return 'maf'         if /\.maf/i;
+   return 'mega'        if /\.(meg|mega)$/i;
+   return 'meme'        if /\.meme$/i;
+   return 'msf'         if /\.(msf|pileup|gcg)$/i;
+   return 'nexus'       if /\.(nexus|nex)$/i;
+   return 'pfam'        if /\.(pfam|pfm)$/i;
+   return 'phylip'      if /\.(phylip|phlp|phyl|phy|ph)$/i;
+   return 'psi'         if /\.psi$/i;
+   return 'stockholm'   if /\.stk$/i;
+   return 'selex'       if /\.(selex|slx|selx|slex|sx)$/i;
+   return 'xmfa'        if /\.xmfa$/i;
 }
 
 sub DESTROY {

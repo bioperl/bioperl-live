@@ -85,15 +85,20 @@ sub next_aln {
     # alignments
     while (defined ($entry = $self->_readline) ) {
         chomp $entry;
-        last if ( $entry =~ m{=});
+        if ( index($entry, '=') == 0 ) {
+            if ($entry =~ m{score\s*=\s*(\d+)}) {
+                $aln->score($1);
+            }
+            last;
+        }
         if ( $entry =~ s{^>(.*)$}{} ) {
             $tempname  = $1;
             chomp($entry);
             $tempdesc = $entry;
             if ( defined $name ) {
                 # put away last name and sequence
-                if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})\s+(\S+)} ) {
-                    ($seqname, $start, $end) = ($4, $1, $2);
+                if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})\s+(\S+)\s*(.*)} ) {
+                    ($start, $end, $seqname, $extra) = ($1, $2, $4, $5);
                     $strand = ($3 eq '+')  ?  1  : 
                               ($3 eq '-')  ?  -1 :
                               0; 
@@ -104,7 +109,7 @@ sub next_aln {
                          -strand      => $strand,
                          -seq         => $seqchar,
                          -display_id  => $seqname,
-                         -description => $desc,
+                         -description => $extra,
                          -start       => $start,
                          -end         => $end,
                          );
@@ -126,8 +131,8 @@ sub next_aln {
     $seqchar="" if (!defined $seqchar);
 
     #  Put away last name and sequence
-    if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})\s+(\S+)} ) {
-        ($seqname, $start, $end) = ($4, $1, $2);
+    if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})\s+(\S+)\s*(.*)} ) {
+        ($start, $end, $seqname, $extra) = ($1, $2, $4, $5);
         $strand = ($3 eq '+')  ?  1  : 
                   ($3 eq '-')  ?  -1 :
                    0;
@@ -144,10 +149,11 @@ sub next_aln {
     # end of the file. Skip this is seqchar and seqname is null
     unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
         $seq = new Bio::LocatableSeq(-seq         => $seqchar,
-                                              -display_id  => $seqname,
-                                              -description => $desc,
-                                              -start       => $start,
-                                              -end         => $end,
+                                     -strand      => $strand,
+                                      -display_id  => $seqname,
+                                      -description => $extra,
+                                      -start       => $start,
+                                      -end         => $end,
                                              );
         $aln->add_seq($seq);
         $self->debug("Reading $seqname\n");
@@ -166,7 +172,7 @@ sub next_aln {
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
- Function: writes the $aln object into the stream in fasta format
+ Function: writes the $aln object into the stream in xmfa format
  Returns : 1 for success and 0 for error
  Args    : L<Bio::Align::AlignI> object
 
@@ -176,7 +182,45 @@ See L<Bio::Align::AlignI>
 
 sub write_aln {
     my ($self,@aln) = @_;
-    $self->throw_not_implemented();
+    my $width = $self->width;
+    my ($seq,$desc,$rseq,$name,$count,$length,$seqsub,$start,$end,$strand,$id);
+
+    foreach my $aln (@aln) {
+        if( ! $aln || ! $aln->isa('Bio::Align::AlignI')  ) { 
+            $self->warn("Must provide a Bio::Align::AlignI object when calling write_aln");
+            next;
+        }
+        #if( $self->force_displayname_flat ) {
+        #    $aln->set_displayname_flat(1);
+        #}
+        my $seqct = 1;
+        foreach $rseq ( $aln->each_seq() ) {
+            ($start, $end, $strand, $id) = ($rseq->start, $rseq->end, $rseq->strand,
+                                            $rseq->display_id);
+            $strand = ($strand == 1)  ? '+' :
+                      ($strand == -1) ? '-' :
+                      '';
+            $name = sprintf("%d:%d-%d %s %s",$seqct,$start,$end,$strand,$id);
+            $seq  = $rseq->seq();
+            $desc = $rseq->description || '';
+            $self->_print (">$name $desc\n") or return ;	
+            $count = 0;
+            $length = length($seq);
+            if(defined $seq && $length > 0) {
+            $seq =~ s/(.{1,$width})/$1\n/g;
+            } else {
+            $seq = "\n";
+            }
+            $self->_print($seq) || return 0;
+            $seqct++;
+        }
+        my $alndesc = '';
+        $alndesc = "score = ".$aln->score if ($aln->score);
+        $self->_print("= $alndesc\n") || return 0;
+        
+    }
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    return 1;
 }
 
 =head2 _get_len
