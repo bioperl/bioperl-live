@@ -47,12 +47,10 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::fasta;
-use vars qw($WIDTH);
 use strict;
 
-
 use base qw(Bio::AlignIO);
-$WIDTH = 60;
+our $WIDTH = 60;
 
 =head2 next_aln
 
