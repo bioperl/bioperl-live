@@ -27,7 +27,9 @@ END {
 	   Bio::Root::IO->catfile("t","data","testout.mega"),
 	   Bio::Root::IO->catfile("t","data","testout.po"),
 	   Bio::Root::IO->catfile("t","data","testout.largemultifasta"),
-       Bio::Root::IO->catfile("t","data","testout.stockholm")
+       Bio::Root::IO->catfile("t","data","testout.stockholm"),
+       Bio::Root::IO->catfile("t","data","testout.xmfa"),
+       Bio::Root::IO->catfile("t","data","testout2.stockholm")
 	  );
 }
 
@@ -703,8 +705,8 @@ $in = Bio::AlignIO->newFh(
    '-file'  => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
 			       '-format' => 'fasta');
 $out = Bio::AlignIO->newFh(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout2.pfam"), 
-				'-format' => 'pfam');
+   '-file' => ">".Bio::Root::IO->catfile("t","data","testout2.stockholm"), 
+				'-format' => 'stockholm');
 while ( $aln = <$in>) {
     is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431',
      "filehandle input test  ";
