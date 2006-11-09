@@ -1,0 +1,29 @@
+	
+	#A simple example with a small sample of DNA sequences
+
+[Profile]
+
+     	Title="Nucleotide diversity test"
+     	NbSamples=1
+     	GenotypicData=0
+     	DataType=DNA
+     	LocusSeparator=NONE
+     	CompDistMatrix=1
+	MissingData='?'
+
+[Data]
+
+     [[Samples]]
+	SampleName="Correct gene diversity=0.02047"
+	SampleSize=19
+	SampleData={
+		1 17 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+		2 1  AAAAAAAAAAAAAAAAAAGAAAAAAAAAAA
+		3 1  GGGGGAAAAAAAAAAAAAAAAAAAAAAAAA
+	}
+
+	#Nucleotide composition
+   	#C :  0.00%
+   	#T :  0.00%
+   	#A : 98.95%
+   	#G :  1.05%
