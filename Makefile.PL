@@ -346,11 +346,11 @@ sub setup_bioseqfeaturestore {
   if (eval "require DB_File;") {
     print "I see you have Berkeleydb installed. I will create the BDB tests for Bio::DB::SeqFeature::Store...\n";
     my $path = catfile('t', 'BioDBSeqFeature_BDB.t');
-    open F, ">$path";
-    print F <<END;
-system "perl $path0 -adaptor berkeleydb -create 1 -temp 1";
+    open my $F, ">$path";
+    print $F <<END;
+system 'perl $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
-    close F;
+    close $F;
     push(@should_be_cleaned, $path);
   }
   else {
@@ -361,11 +361,11 @@ END
     if (DBI->connect('dbi:mysql:test',undef,undef,{RaiseError=>0,PrintError=>0})) {
       warn "I see you have mysql running and have a connectable 'test' database. I will create the mysql tests for Bio::DB::SeqFeature::Store...\n";
       my $path = catfile('t', 'BioDBSeqFeature_mysql.t');
-      open F,">$path";
-      print F <<END;
-system "perl $path0 -adaptor DBI::mysql -create 1 -temp 1 -dsn test";
+      open my $F,">$path";
+      print $F <<END;
+system 'perl $path0 -adaptor DBI::mysql -create 1 -temp 1 -dsn test';
 END
-      close F;
+      close $F;
       push(@should_be_cleaned, $path);
     }
     else {
