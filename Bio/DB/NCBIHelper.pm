@@ -84,7 +84,6 @@ use Bio::DB::RefSeq;
 use URI::Escape qw(uri_unescape);
 
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
-$VERSION = '0.8';
 
 BEGIN {
     $MAX_ENTRIES = 19000;

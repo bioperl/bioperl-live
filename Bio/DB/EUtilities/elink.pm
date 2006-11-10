@@ -410,7 +410,7 @@ use XML::Simple;
 use base qw(Bio::DB::EUtilities);
 
 our $EUTIL = 'elink';
-our $VERSION = '1';
+our $DTDVERSION = '1';
     # cmd parameter options; these haven't been mapped yet
 
 our %CMD = ('prlinks'   => 1,
@@ -436,7 +436,7 @@ sub _initialize {
     # Note : retmode should be 'xml' for all elink queries except when cmd=prlinks
     $datetype ||= 'mdat';
     $self->datetype($datetype);
-    $version ||= $VERSION; # DTD to use, should leave alone
+    $version ||= $DTDVERSION; # DTD to use, should leave alone
     $self->version($version);
     # normal settings
     $term       && $self->term($term);
