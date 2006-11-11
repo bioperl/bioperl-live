@@ -70,8 +70,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : $alignio = new Bio::AlignIO(-format => 'nexus',
-													-file   => 'filename');
+ Usage   : $alignio = new Bio::AlignIO(-format => 'nexus', -file => 'filename');
  Function: returns a new Bio::AlignIO object to handle clustalw files
  Returns : Bio::AlignIO::clustalw object
  Args    : -verbose => verbosity setting (-1,0,1,2)
