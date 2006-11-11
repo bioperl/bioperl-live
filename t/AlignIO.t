@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 238;
+	plan tests => 257;
 }
 use_ok('Bio::SimpleAlign');
 use_ok('Bio::AlignIO');
@@ -35,7 +35,7 @@ END {
 
 my ($str,$aln,$strout,$status);
 
-#PSI format  
+# PSI format  
 $str  = new Bio::AlignIO (
     '-file'	=> Bio::Root::IO->catfile("t","data","testaln.psi"),
     '-format'	=> 'psi');
@@ -44,6 +44,37 @@ $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'QUERY/1-798');
 is($aln->no_sequences, 56);
+
+# ARP format
+$str  = Bio::AlignIO ->new(
+    '-file'	=> Bio::Root::IO->catfile("t","data","testaln.arp"),
+    '-format'	=> 'arp');
+isa_ok($str,'Bio::AlignIO');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(1)->get_nse, '01/1-399','ARP get_nse()');
+is($aln->no_sequences, 60,'ARP no_sequences()');
+is($aln->description, 'Mandenka', 'ARP description()');
+is($str->datatype, 'DNA', 'ARP SeqIO datatype()');
+$str  = Bio::AlignIO->new(
+    '-file'	=> Bio::Root::IO->catfile("t","data","testaln2.arp"),
+    '-format'	=> 'arp');
+isa_ok($str,'Bio::AlignIO');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(1)->get_nse, '000/1-29','ARP get_nse()');
+is($aln->no_sequences, 3,'ARP no_sequences()');
+is($aln->description, 'Population 1', 'ARP description()');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(2)->get_nse, '001/1-29','ARP get_nse()');
+is($aln->no_sequences, 8,'ARP no_sequences()');
+is($aln->description, 'Population 2', 'ARP description()');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is($aln->get_seq_by_pos(2)->get_nse, '024/1-29','ARP get_nse()');
+is($aln->no_sequences, 6,'ARP no_sequences()');
+is($aln->description, 'Population 3', 'ARP description()');
 
 # STOCKHOLM (multiple concatenated files)
 # Rfam
