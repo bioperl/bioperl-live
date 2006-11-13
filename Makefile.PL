@@ -369,7 +369,7 @@ END
       push(@should_be_cleaned, $path);
     }
     else {
-      print "I saw that you didn't have a connectatble 'test' database, so I didn't create corresponding tests\n";
+      print "I saw that you didn't have a connectable 'test' database, so I didn't create corresponding tests\n";
     }
   }
   else {
