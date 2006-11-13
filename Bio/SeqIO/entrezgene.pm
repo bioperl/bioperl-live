@@ -104,6 +104,7 @@ use Bio::Cluster::SequenceFamily;
 #use Bio::Ontology::Ontology; Relationships.... later
 use Bio::Ontology::Term;
 use Bio::Annotation::OntologyTerm;
+#use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 
@@ -193,8 +194,22 @@ sub next_seq {
             unshift @lineage,'unknown';
         }
     }
+    #print Dumper($xval->{source}{org});
+    my $ncbiid;
+    if (ref($xval->{source}{org}{db}) eq 'ARRAY') {
+	    foreach my $taxonomy (@{$xval->{source}{org}{db}}) {
+		if (lc($taxonomy->{db}) eq 'taxon') {
+			$ncbiid=$taxonomy->{tag}{id};
+		}
+		else {
+			push @alluncaptured,$taxonomy;
+		}
+		delete $xval->{source}{org}{db};
+	}
+     }
+	$ncbiid= $ncbiid||$xval->{source}{org}{db}{tag}{id};
      my $specie=new Bio::Species(-classification=>[@lineage],
-                                -ncbi_taxid=>$xval->{source}{org}{db}{tag}{id});
+                                -ncbi_taxid=>$ncbiid);
     $specie->common_name($xval->{source}{org}{common});
     if (exists($xval->{source}->{subtype}) && ($xval->{source}->{subtype})) {
         if (ref($xval->{source}->{subtype}) eq 'ARRAY') {
