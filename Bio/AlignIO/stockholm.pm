@@ -8,7 +8,7 @@
 #
 #       and the SimpleAlign.pm module of Ewan Birney
 #
-# Copyright Peter Schattner
+# Copyright Peter Schattner, Chris Fields
 #
 # You may distribute this module under the same terms as perl itself
 # _history
@@ -36,9 +36,12 @@ Bio::AlignIO::stockholm - stockholm sequence input/output stream
 =head1 DESCRIPTION
 
 This object can transform L<Bio::Align::AlignI> objects to and from
-stockholm flat file databases.
+stockholm flat file databases.  This has been completely refactored
+from the original stockholm parser to handle annotation data and now
+includes a write_aln() method for (almost) complete stockholm
+format output.
 
-Note that many Stockholm sequence files contain additional sequence-based
+Stockholm alignment records normally contain additional sequence-based
 and alignment-based annotation
 
   GF Lines (alignment feature/annotation):
@@ -58,10 +61,51 @@ and alignment-based annotation
   #=GR <seqname> <featurename> <Generic per-sequence AND per-column
        mark up, exactly 1 character per column>
 
-This module is currently being refactored to incorporate Meta data for
-sequences and alignments.  Annotations are also now added for alignments.
+Currently, sequence annotations (those designated with GS tags) are
+parsed only for accession numbers and descriptions.  It is intended that
+full parsing will be added at some point in the near future along with
+a builder option for optionally parsing alignment annotation and meta data.
 
-Note that sequence names in the alignment are cut off at 
+The following methods/tags are currently used for storing and writing
+the alignment annotation data.
+
+    Tag        SimpleAlign
+                 Method  
+    ----------------------------------------------------------------------
+     AC        accession  
+     ID        id  
+     DE        description
+    ----------------------------------------------------------------------
+    
+    Tag        Bio::Annotation   TagName                    Parameters
+               Class
+    ----------------------------------------------------------------------
+     AU        SimpleValue       record_authors             value
+     SE        SimpleValue       seed_source                value
+     GA        SimpleValue       gathering_threshold        value
+     NC        SimpleValue       noise_cutoff               value
+     TC        SimpleValue       trusted_cutoff             value
+     TP        SimpleValue       entry_type                 value
+     SQ        SimpleValue       num_sequences              value
+     PI        SimpleValue       previous_ids               value
+     DC        Comment           database_comment           comment
+     CC        Comment           alignment_comment          comment
+     DR        DBLink            aln_dblink                 database
+                                                            primary_id
+                                                            comment
+     AM        SimpleValue       build_method               value
+     NE        SimpleValue       pfam_family_accession      value
+     NL        SimpleValue       sequence_start_stop        value
+     SS        SimpleValue       sec_structure_source       value
+     BM        SimpleValue       build_model                value
+     RN        Reference         reference                  *
+     RC        Reference         reference                  comment
+     RM        Reference         reference                  pubmed
+     RT        Reference         reference                  title
+     RA        Reference         reference                  authors
+     RL        Reference         reference                  location
+    ----------------------------------------------------------------------
+  * RN is generated based on the number of Bio::Annotation::Reference objects
 
 =head1 FEEDBACK
 
@@ -73,13 +117,12 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHORS - Peter Schattner, Chris Fields
+=head1 AUTHORS - Chris Fields, Peter Schattner
 
-Email: schattner@alum.mit.edu, cjfields-at-uiuc-dot-edu
+Email: cjfields-at-uiuc-dot-edu, schattner@alum.mit.edu 
 
 =head1 CONTRIBUTORS
 
-Chris Fields, cjfields-at-uiuc-dot-edu
 Andreas Kahari, ak-at-ebi.ac.uk
 Jason Stajich, jason-at-bioperl.org
 
@@ -279,7 +322,6 @@ sub next_aln {
                 # DBLinks (single line)
                 } elsif ($tag eq 'DR') {
                     my ($dbase, $uid, $extra) = split /\s*;\s*/ , $data, 3;
-                    
                     my $ref;
                     $ref->{'-database'} = $dbase;
                     $ref->{'-primary_id'} = ($dbase eq 'URL') ? $uid : uc $uid;
