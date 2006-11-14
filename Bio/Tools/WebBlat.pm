@@ -51,7 +51,6 @@ Internal methods are usually preceded with a _
 package Bio::Tools::WebBlat;
 use strict;
 use base qw(Bio::Root::Root);
-our $VERSION = '0.01';
 
 use Bio::SearchIO;
 use Bio::SeqIO;

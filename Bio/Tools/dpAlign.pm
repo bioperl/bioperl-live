@@ -190,8 +190,6 @@ use Bio::SimpleAlign;
 
 use base qw(Bio::Tools::AlignFactory);
 
-$VERSION = '0.70';
-
 # Gotoh algorithm as defined in J. Mol. Biol. (1982) 162, 705-708
 # use constant DSW_GOTOH => 1;
 # Hirschberg's algorithm as defined in Myers & Miller in 

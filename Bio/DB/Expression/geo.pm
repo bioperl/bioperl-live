@@ -47,7 +47,6 @@ in alphabetical order for the most part.
 package Bio::DB::Expression::geo;
 use strict;
 use base qw(Bio::DB::Expression);
-our $VERSION = '0.01';
 
 use Bio::Expression::Contact;
 use Bio::Expression::DataSet;

@@ -4,7 +4,6 @@ package Bio::Graphics::Glyph::so_transcript;
 
 use strict;
 use base qw(Bio::Graphics::Glyph::processed_transcript);
-$VERSION = '1.0';
 
 1;
 

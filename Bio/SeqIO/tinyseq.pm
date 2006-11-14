@@ -77,12 +77,11 @@ use Bio::Species;
 use Bio::SeqIO::tinyseq::tinyseqHandler;
 use XML::Parser::PerlSAX;
 use XML::Writer;
+use Bio::Root::Version;
 
-use vars qw($VERSION);
+our $VERSION = ${Bio::Root::Version::VERSION};
 
 use base qw(Bio::SeqIO);
-
-$VERSION = '0.01';
 
 sub _initialize {
     my ($self, @args) = @_;

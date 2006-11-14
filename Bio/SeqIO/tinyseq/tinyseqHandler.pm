@@ -71,9 +71,7 @@ use strict;
 use warnings;
 
 
-use vars qw($VERSION %ATTMAP);
-
-$VERSION = '0.01';
+use vars qw(%ATTMAP);
 
 use base qw(Bio::Root::Root);
 
