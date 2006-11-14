@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: biofetch_genbank_proxy.PLS,v 1.4 2005-04-26 15:10:54 jason Exp $
+# $Id: biofetch_genbank_proxy.PLS,v 1.5 2006-11-14 15:00:37 sendu Exp $
 
 # dbfetch style caching proxy for GenBank
 use strict;
@@ -223,7 +223,7 @@ __END__
 
 =head1 NAME
 
-biofetch_genbank_proxy.PLS - Caching BioFetch-compatible web proxy for GenBank
+biofetch_genbank_proxy.pl - Caching BioFetch-compatible web proxy for GenBank
 
 =head1 SYNOPSIS
 
