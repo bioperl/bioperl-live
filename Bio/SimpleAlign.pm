@@ -250,7 +250,7 @@ sub add_seq {
     # will prune out the gap and missing/match chars
     # when actually asked for the symbol list in the
     # symbol_chars
-    map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
+    map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq) if $seq->seq;
 
     if( !defined $order ) {
 	$order = keys %{$self->{'_seq'}};
