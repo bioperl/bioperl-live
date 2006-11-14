@@ -89,11 +89,11 @@ SKIP: {
 	eval {$cdtable = $db->get_request(-sp =>'Pan troglodytes');};
 	skip "Could not connect to server, server/network problems? Skipping those tests", 5 if $@;
 	
-	# tests for Table.pm
-	is $cdtable->cds_count(), 617; # new value at CUD
-	is int($cdtable->aa_frequency('LEU')), 10;
+	# tests for Table.pm, the answers seem to change with time, so not specific
+	cmp_ok($cdtable->cds_count(), '>', 600);
+	cmp_ok(int($cdtable->aa_frequency('LEU')), '>', 1);
 	ok $cdtable->get_coding_gc('all');
-	is $cdtable->codon_rel_frequency('ttc'), "0.61"; 
+	cmp_ok($cdtable->codon_rel_frequency('ttc'), '<', 1); 
     
 	## now lets enter a non-existent species ans check handling..
 	## should default to human...
