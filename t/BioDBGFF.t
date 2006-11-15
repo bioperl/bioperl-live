@@ -5,7 +5,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use ExtUtils::MakeMaker;
+use Module::Build;
 use Bio::Root::IO;
 use FindBin '$Bin';
 use constant TEST_COUNT => 276;
@@ -34,21 +34,22 @@ use lib '.','..','./blib/lib';
 use Bio::DB::GFF;
 use Bio::SeqIO;
 
-my $tests_file = Bio::Root::IO->catfile('t','do_biodbgff.tests');
+my $build = Module::Build->current;
+my $test_dsn = $build->notes('test_dsn');
 
-my $adaptor = -e $tests_file ? 'dbi::mysql' : 'memory';
+my $adaptor = $test_dsn ? $test_dsn : 'memory';
 $adaptor    = shift if @ARGV;
+
 my @args;
-
 if ($adaptor =~ /^dbi/) {
-
-  open T,$tests_file or bail(TEST_COUNT,"Couldn't read configuration: $tests_file");
   my $cfg = {};
-  while (<T>) {
-    chomp;
-    my ($key,$value) = split "\t";
-    $cfg->{$key}     = $value;
-  }
+  $cfg->{dbd_driver} = $build->notes('dbd_driver');
+  $cfg->{test_db} = $build->notes('test_db');
+  $cfg->{test_host} = $build->notes('test_host');
+  $cfg->{test_user} = $build->notes('test_user');
+  $cfg->{test_pass} = $build->notes('test_pass');
+  $cfg->{test_dsn} = $build->notes('test_dsn');
+  
   $adaptor = "dbi::$cfg->{dbd_driver}" if $cfg->{dbd_driver};
   @args = ( '-adaptor'  => $adaptor,
 	    '-dsn'     => $cfg->{test_dsn},
