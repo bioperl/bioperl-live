@@ -271,7 +271,7 @@ sub prereq_failures {
         }
     }
     
-    return $out;
+    return keys %{$out} ? $out : return;
 }
 
 # overridden simply to not print the default answer if chosen by hitting return
