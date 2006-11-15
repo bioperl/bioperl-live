@@ -16,6 +16,7 @@ use File::Spec::Functions;
 use ExtUtils::MakeMaker;
 use File::Path 'rmtree';
 use Cwd;
+use IO::File;
 
 # All Bioperl dependencies on external modules are defined here
 # (these are all considered optional)
@@ -123,17 +124,17 @@ if ($error == 1) {
   print <<QQ_ERROR_QQ;
 Information:
 
-  Some perl modules are missing, listed above and below. The only
+  Some Perl modules are missing, listed above and below. The only
   functionality that will be affected is described above;
-  the rest of bioperl will work fine without them.
+  the rest of Bioperl will work fine without them.
 
   The installation of these external packages is very simple. You
-  can read more about bioperl external dependencies in the INSTALL
+  can read more about Bioperl external dependencies in the INSTALL
   file or at:
 
   http://bioperl.org/wiki/Installing_BioPerl
 
-  Enjoy the rest of bioperl, which you can use after going 'make install'
+  Enjoy the rest of Bioperl, which you can use after going 'make install'
 
 QQ_ERROR_QQ
 }
@@ -198,15 +199,15 @@ sub prompt_to_install {
   my $prefix = shift;
   my $f      = shift;
   my $prompt_mode = shift;
+  return 1 if $prompt_mode =~ /^a/i;  # all
   print "\n* Script Directory $f *\n";
   my $path = catfile($prefix, $f, 'TAG');
   if (-e $path && (my $g = IO::File->new($path))) {
     print while <$g>;
   }
-  return 1 if $prompt_mode =~ /^[aA]/;  # all
   my $result = prompt("Install scripts in $f? [y]es [n]o [q]uit",'n');
-  die if $result =~ /^[qQ]/;
-  return $result =~ /^[yY]/;
+  die if $result =~ /^q/i;
+  return $result =~ /^y/i;
 }
 
 sub install_contents {
@@ -249,7 +250,7 @@ sub prompt_for_biodbgff {
     print "\n*** Bio::DB::GFF Tests section *** \n";
     my $proceed = prompt("Do you want to run the BioDBGFF tests (requires a mysql, postgres or oracle database) y/n",'n');
     my $path = catfile('t', 'do_biodbgff.tests');
-    if ($proceed =~ /^[yY]/) {
+    if ($proceed =~ /^y/i) {
       my $cfg = {dbd_driver => 'mysql'};
       GFFQueryDb($cfg,{'prompt'=>1,'verbose'=>1});
       if (open T,">$path") {
