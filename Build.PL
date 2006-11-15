@@ -117,8 +117,6 @@ prompt_for_biodbgff();
 # Request that some scripts run post-installation
 $build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
 
-# need to generate optional_features: syntax in META.yml instead of recommends
-
 # Create the build script and exit
 $build->create_build_script;
 
