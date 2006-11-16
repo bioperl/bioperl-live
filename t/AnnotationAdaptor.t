@@ -10,21 +10,19 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) { 
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 19;
+    use Test::More;
+    plan tests => 22;
+	use_ok('Bio::SeqFeature::Generic');
+	use_ok('Bio::SeqFeature::AnnotationAdaptor');
+	use_ok('Bio::Annotation::DBLink');
+	use_ok('Bio::Annotation::Comment');
+	use_ok('Bio::Annotation::SimpleValue');
 }
 
-use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::AnnotationAdaptor;
-use Bio::Annotation::DBLink;
-use Bio::Annotation::Comment;
-use Bio::Annotation::SimpleValue;
-
-ok(1);
 
 my $feat = Bio::SeqFeature::Generic->new();
 $feat->add_tag_value("tag1", "value of tag1");
@@ -38,38 +36,36 @@ my $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
                                        );
 $feat->annotation->add_Annotation($link1);
 
-ok(1);
-
 my $anncoll = Bio::SeqFeature::AnnotationAdaptor->new(-feature => $feat);
 
-ok ($anncoll->get_num_of_annotations(), 4);
-ok (scalar($anncoll->get_all_annotation_keys()), 3);
+is($anncoll->get_num_of_annotations(), 4);
+is(scalar($anncoll->get_all_annotation_keys()), 3);
 
 my @anns = $anncoll->get_Annotations("tag1");
 my @vals = $feat->each_tag_value("tag1");
 
-ok (scalar(@anns), scalar(@vals));
+is (scalar(@anns), scalar(@vals));
 for(my $i = 0; $i < @anns; $i++) {
-  ok ($anns[$i]->value(), $vals[$i]);
+  is ($anns[$i]->value(), $vals[$i]);
 }
 
 @anns = $anncoll->get_Annotations("tag3");
 my @fanns = $feat->annotation->get_Annotations("tag3");
 @vals = $feat->each_tag_value("tag3");
 
-ok (scalar(@fanns), 1);
-ok (scalar(@anns), 1);
-ok (scalar(@vals), 1);
-ok ($anns[0]->primary_id(), $vals[0]);
+is (scalar(@fanns), 1);
+is (scalar(@anns), 1);
+is (scalar(@vals), 1);
+is ($anns[0]->primary_id(), $vals[0]);
 
-ok ($anns[0]->primary_id(), $fanns[0]->primary_id());
+is ($anns[0]->primary_id(), $fanns[0]->primary_id());
 
 my $comment = Bio::Annotation::Comment->new( '-text' => 'sometext');
 $anncoll->add_Annotation('comment', $comment);
 
 @fanns = $feat->annotation->get_Annotations("comment");
-ok (scalar(@fanns), 1);
-ok ($fanns[0]->text(), "sometext");
+is (scalar(@fanns), 1);
+is ($fanns[0]->text(), "sometext");
 
 my $tagval = Bio::Annotation::SimpleValue->new(-value => "boring value",
 					       -tagname => "tag2");
@@ -79,11 +75,11 @@ $anncoll->add_Annotation($tagval);
 @fanns = $feat->annotation->get_Annotations("tag3");
 @vals = $feat->each_tag_value("tag3");
 
-ok (scalar(@fanns), 1);
-ok (scalar(@anns), 1);
-ok (scalar(@vals), 1);
-ok ($anns[0]->primary_id(), $vals[0]);
+is (scalar(@fanns), 1);
+is (scalar(@anns), 1);
+is (scalar(@vals), 1);
+is ($anns[0]->primary_id(), $vals[0]);
 
-ok ($anncoll->get_num_of_annotations(), 6);
+is ($anncoll->get_num_of_annotations(), 6);
 
 

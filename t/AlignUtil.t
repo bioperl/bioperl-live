@@ -12,13 +12,17 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
 
-    use Test;
-    plan tests => 16; 
+    use Test::More;
+    plan tests => 20;
+	use_ok('Bio::Align::Utilities',qw(aa_to_dna_aln bootstrap_replicates) );
+	use_ok('Bio::AlignIO');
+	use_ok('Bio::Root::IO');
+	use_ok('Bio::SeqIO');
 }
 
 if( $error == 1 ) {
@@ -27,16 +31,11 @@ if( $error == 1 ) {
 
 my $debug = -1;
 
-use Bio::Align::Utilities qw(aa_to_dna_aln bootstrap_replicates);
-use Bio::AlignIO;
-use Bio::Root::IO;
-use Bio::SeqIO;
-
 my $in = new Bio::AlignIO(-format => 'clustalw',
 			  -file   => Bio::Root::IO->catfile
 			  ('t','data','pep-266.aln'));
 my $aln = $in->next_aln();
-ok($aln);
+isa_ok($aln, 'Bio::Align::AlignI');
 $in->close();
 
 my $seqin = new Bio::SeqIO(-format => 'fasta',
@@ -55,9 +54,9 @@ my @aa_seqs = $aln->each_seq;
 for my $cdsseq ( $cds_aln->each_seq ) {
     my $peptrans = $cdsseq->translate();
     my $aaseq = shift @aa_seqs;
-    ok($peptrans->seq(),$aaseq->seq());
+    is($peptrans->seq(),$aaseq->seq());
 }
 
 my $bootstraps = &bootstrap_replicates($aln,10);
 
-ok(scalar @$bootstraps, 10);
+is(scalar @$bootstraps, 10);

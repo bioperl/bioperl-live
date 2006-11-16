@@ -10,10 +10,10 @@ BEGIN {
 	}
 	use Test::More;
 	plan tests => 257;
+	use_ok('Bio::SimpleAlign');
+	use_ok('Bio::AlignIO');
+	use_ok('Bio::Root::IO');
 }
-use_ok('Bio::SimpleAlign');
-use_ok('Bio::AlignIO');
-use_ok('Bio::Root::IO');
 
 END {
     unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),

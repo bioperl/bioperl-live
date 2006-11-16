@@ -8,11 +8,11 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
     plan tests => 96;
 }
@@ -29,9 +29,9 @@ my $T = new Bio::Symbol::Symbol(-token => 'T' );
 
 my $rna = new Bio::Symbol::Alphabet( -symbols => [ $A, $U, $G, $T ] );
 				     
-ok($rna);
+isa_ok($rna, 'Bio::Symbol::Alphabet');
 my @symbols = $rna->symbols;
-ok(scalar @symbols, 4);
+is(scalar @symbols, 4);
 
 ok($rna->contains($A));
 ok($rna->contains($T));
@@ -40,17 +40,17 @@ ok($rna->contains($G));
 
 
 my $dna = new Bio::Symbol::DNAAlphabet();
-ok($dna->isa('Bio::Symbol::AlphabetI'));
+isa_ok($dna, 'Bio::Symbol::AlphabetI');
 my $count = 0;
 
 my @dnasymbols = sort qw( A B C D G H K M N R S T U V W X Y );
 foreach my $s ( sort { $a->name cmp $b->name } $dna->symbols ) {
-    ok($s->name, $dnasymbols[$count]);    
-    ok($s->token, $dnasymbols[$count++]);    
+    is($s->name, $dnasymbols[$count]);    
+    is($s->token, $dnasymbols[$count++]);    
 }
 
 my $prot = new Bio::Symbol::ProteinAlphabet();
-ok($prot->isa('Bio::Symbol::AlphabetI'));
+isa_ok($prot, 'Bio::Symbol::AlphabetI');
 
 my @protsymbols = sort qw( * A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);
 my %h = (
@@ -65,7 +65,7 @@ my %h = (
 my @protnms = sort { $h{$a} cmp $h{$b} } keys %h;
 $count = 0;
 foreach my $s ( sort { $a->token cmp $b->token } $prot->symbols ) {
-    ok($s->name, $protnms[$count]);
-    ok($s->token, $protsymbols[$count++]);    
+    is($s->name, $protnms[$count]);
+    is($s->token, $protsymbols[$count++]);    
 }
 

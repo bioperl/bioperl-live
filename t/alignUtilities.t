@@ -2,28 +2,27 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 9;
+use constant NUMTESTS => 13;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 
 	plan tests => NUMTESTS;
+	use_ok('Bio::Align::Utilities', qw(:all));
+	use_ok('Bio::SimpleAlign');
+	use_ok('Bio::PrimarySeq');
+	use_ok('Bio::LocatableSeq');
+	use_ok('Bio::AlignIO');
 }
 
 
-use Bio::Align::Utilities qw(:all);
-ok(1);
-use Bio::SimpleAlign;
-use Bio::PrimarySeq;
-use Bio::LocatableSeq;
 
-use Bio::AlignIO;
 
 
 # hand crafting the simple input data
@@ -46,18 +45,18 @@ if( $DEBUG ) {
   }
 #print Dumper $dna_aln;
 
-ok $dna_aln->length, 36;
-ok $dna_aln->no_residues, 99;
-ok $dna_aln->no_sequences, 3;
-ok $dna_aln->consensus_string(50), "atgctgat?gacgtacgc????cgctagcact?aga";
+is $dna_aln->length, 36;
+is $dna_aln->no_residues, 99;
+is $dna_aln->no_sequences, 3;
+is $dna_aln->consensus_string(50), "atgctgat?gacgtacgc????cgctagcact?aga";
 
 $dna_aln->verbose(-1);
 my $replicates;
 ok $replicates = &bootstrap_replicates($dna_aln,3);
 
-ok scalar @$replicates, 3;
+is scalar @$replicates, 3;
 my $repl_aln = pop @$replicates;
-ok $repl_aln->no_sequences, 3;
+is $repl_aln->no_sequences, 3;
 
 
 #use IO::String;
@@ -67,4 +66,4 @@ ok $repl_aln->no_sequences, 3;
 #
 #my $strout = Bio::AlignIO->new(-fh   => $out,'-format' => 'pfam');
 #$strout->write_aln($repl_aln);
-#ok $string, "";
+#is $string, "";

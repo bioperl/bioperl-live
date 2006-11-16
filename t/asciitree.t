@@ -7,26 +7,25 @@ use strict;
 use vars qw($NUMTESTS $out_file);
 
 BEGIN {
-	$NUMTESTS = 2;
+	$NUMTESTS = 3;
 	use File::Spec;
 	$out_file = File::Spec->catfile(qw(t data tmp-asciitree));
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	plan tests => $NUMTESTS;
+	use_ok('Bio::SeqIO::asciitree');
+	use_ok('Bio::Root::IO');
 }
 
-use Bio::SeqIO::asciitree;
-use Bio::Root::IO;
+
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
-
-ok(1);
 
 # asciitree is a write-only format
 my $in = Bio::SeqIO->new(-format => 'genbank',

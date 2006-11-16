@@ -12,24 +12,24 @@ BEGIN {
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
 
-	use Test;
-	plan tests => 7;
+	use Test::More;
+	plan tests => 8;
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Root::IO');
 }
 
 if( $error == 1 ) {
 	exit(0);
 }
 
-use Bio::SeqIO;
-use Bio::Root::IO;
+
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
 
 my $t_file = Bio::Root::IO->catfile("t","data","test.ace");
 my( $before );
@@ -49,14 +49,14 @@ while (my $a = $a_in->next_seq) {
 	push(@a_seq, $a);
 }
 
-ok @a_seq, 3, 'wrong number of sequence objects';
+is @a_seq, 3, 'number of sequence objects';
 
 my $esc_name = $a_seq[1]->display_id;
-ok( $esc_name , 'Name; 4% strewn with \ various / escaped characters',
-	 "bad unescaping of characters, $esc_name");
+is( $esc_name , 'Name; 4% strewn with \ various / escaped characters',
+	 "unescaping of characters, $esc_name");
 
-ok $a_seq[0]->alphabet, 'protein', 'alphabets incorrectly detected';
-ok $a_seq[1]->alphabet, 'dna', 'alphabets incorrectly detected';
+is $a_seq[0]->alphabet, 'protein', 'alphabets detected';
+is $a_seq[1]->alphabet, 'dna', 'alphabets detected';
 
 my $o_file = Bio::Root::IO->catfile("t","data","test.out.ace");
 my $a_out = Bio::SeqIO->new(-FILE => "> $o_file",
@@ -67,7 +67,7 @@ foreach my $a (@a_seq) {
 	$a_out->write_seq($a) or $a_out_ok = 0;
 }
 undef($a_out);  # Flush to disk
-ok $a_out_ok,1,'error writing sequence';
+is $a_out_ok,1,'writing sequence';
 
 my( $after );
 {
@@ -79,6 +79,6 @@ my( $after );
 }
 unlink($o_file);
 
-ok( ($before and $after and ($before eq $after)),1,
-	 'test output file differs from input');
+is( ($before and $after and ($before eq $after)),1,
+	 'test output');
 
