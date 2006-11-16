@@ -8,65 +8,53 @@
 use strict;
 use vars qw($error $NUMTESTS);
 BEGIN {
-  $NUMTESTS = 15;
-  $error = 0;
+	$NUMTESTS = 16;
+	$error = 0;
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if ( $@ ) {
-	use lib 't';
+		use lib 't\lib';
     }
-    # bsml_sax uses XML::SAX
-    eval {require XML::SAX;
-	  require XML::SAX::Writer;
-	  require XML::SAX::Base;
-	  1;
-      };
-    if ( $@ ) {
-	$error = 1;
-	warn "XML::SAX::Base or XML::SAX or XML::SAX::Writer not found - skipping bsml_sax tests\n";
-   } 
-    use Test;
+    use Test::More;
     plan tests => $NUMTESTS;
 }
 
-END { 
-   foreach ( $Test::ntest..$NUMTESTS) {
-      skip('Unable to run BSML_sax tests because XML::SAX is not installed',1);
-   }
+SKIP: {
+    # bsml_sax uses XML::SAX
+    eval {
+		use XML::SAX;
+		use XML::SAX::Writer;
+		use XML::SAX::Base;
+    };
+    skip "XML::SAX::Base or XML::SAX or XML::SAX::Writer not found".
+		" - skipping bsml_sax tests\n", 16 if $@;
+
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Root::IO');
+	
+	my $verbose = $ENV{'BIOPERLDEBUG'};
+	
+	my $str = Bio::SeqIO->new(-format => 'bsml_sax',
+				  -verbose => $verbose,
+				  -file => Bio::Root::IO->catfile
+				  (qw(t data U83300.bsml) ));
+	my $seq = $str->next_seq;
+	isa_ok($seq, 'Bio::Seq::RichSeqI');
+	my @refs = $seq->annotation->get_Annotations('reference');
+	is(@refs, 2);
+	is($seq->display_id,'MIVN83300');
+	is($seq->molecule ,'dna');
+	ok(! $seq->is_circular);
+	is($seq->get_dates,2);
+	is($seq->accession_number, 'U83300');
+	is($seq->seq_version,1);
+	my @feats = $seq->get_SeqFeatures;
+	is(@feats, 2);
+	is($feats[1]->start, 1);
+	is($feats[1]->end, 946);
+	is($feats[1]->get_tag_values('db_xref'), 3);
+	is($seq->annotation->get_Annotations('reference'),2);
+	is($seq->annotation->get_Annotations('dblink'),2);
 }
-
-
-if ( $error == 1 ) {
-  exit(0);
-}
-
-
-use Bio::SeqIO;
-use Bio::Root::IO;
-
-my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
-
-my $str = Bio::SeqIO->new(-format => 'bsml_sax',
-			  -verbose => $verbose,
-			  -file => Bio::Root::IO->catfile
-			  (qw(t data U83300.bsml) ));
-ok(my $seq = $str->next_seq);
-my @refs = $seq->annotation->get_Annotations('reference');
-ok(@refs, 2);
-ok($seq->display_id,'MIVN83300');
-ok($seq->molecule ,'dna');
-ok(! $seq->is_circular);
-ok($seq->get_dates,2);
-ok($seq->accession_number, 'U83300');
-ok($seq->seq_version,1);
-my @feats = $seq->get_SeqFeatures;
-ok(@feats, 2);
-ok($feats[1]->start, 1);
-ok($feats[1]->end, 946);
-ok($feats[1]->get_tag_values('db_xref'), 3);
-ok($seq->annotation->get_Annotations('reference'),2);
-ok($seq->annotation->get_Annotations('dblink'),2);
-
