@@ -240,9 +240,6 @@ anywhere you choose. Ideally this would be a personal perl directory or
 standard place where you plan to put all your 'local' or personal perl
 modules.
 
-Simply pass a parameter to perl as it builds your system specific
-makefile.
-
    Example:
 
  >perl Build.PL --install_base /home/users/dag
@@ -261,6 +258,17 @@ Then in your Bioperl script you would write:
 
 For more information on these sorts of custom installs see the documentation
 for Module::Build.
+
+If you are used to using something like:
+
+ >perl Makefile.PL PREFIX=/home/users/dag
+
+You can get similar behaviour by using this instead:
+
+ >perl Build.PL --prefix /home/users/dag
+
+For more information, see Module::Build::Cookbook documentation for
+Installing_in_the_same_location_as_ExtUtils::MakeMaker
 
 You can also use CPAN to install accessory modules in your local
 directory. First enter the CPAN shell, then set the arguments for the
