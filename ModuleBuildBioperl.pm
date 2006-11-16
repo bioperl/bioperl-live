@@ -709,7 +709,7 @@ sub dist_dir {
             $version =~ s/\.\d+$/_RC$rev/;
         }
         else {
-            $rev -= 100;
+            $rev -= 100 unless $dev;
             my $replace = $dev ? "_$rev" : ".$rev";
             $version =~ s/\.\d+$/$replace/;
         }
