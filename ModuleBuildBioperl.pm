@@ -13,6 +13,8 @@ use base Module::Build;
 use strict;
 use warnings;
 
+our $VERSION = 1.005002004;
+
 # our modules are in Bio, not lib
 sub find_pm_files {
     my $self = shift;
@@ -687,6 +689,37 @@ my \$build = $build_package->resume (
 
 \$build->dispatch;
 EOF
+}
+
+# nice directory names for dist-related actions
+sub dist_dir {
+    my ($self) = @_;
+    my $version = $self->dist_version;
+    $version =~ s/00(\d)/$1./g;
+    $version =~ s/\.$//;
+    
+    if (my ($minor, $rev) = $version =~ /\d\.(\d)\.\d\.(\d+)/) {
+        my $dev = ! $minor % 2 == 0;
+        
+        if ($rev == 100) {
+            my $replace = $dev ? "_$rev" : '';
+            $version =~ s/\.\d+$/$replace/;
+        }
+        elsif ($rev < 100) {
+            $version =~ s/\.\d+$/_RC$rev/;
+        }
+        else {
+            $rev -= 100;
+            my $replace = $dev ? "_$rev" : ".$rev";
+            $version =~ s/\.\d+$/$replace/;
+        }
+    }
+    
+    return "$self->{properties}{dist_name}-$version";
+}
+sub ppm_name {
+  my $self = shift;
+  return $self->dist_dir.'-ppm';
 }
 
 1;
