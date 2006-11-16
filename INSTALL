@@ -38,7 +38,7 @@ SYSTEM REQUIREMENTS
     * External modules: Bioperl uses functionality provided in other
       Perl modules. Some of these are included in the standard perl package
       but some need to be obtained from the CPAN site. The list of external
-      modules is included at the bottom of this document.
+      modules is included in the DEPENDENCIES file.
 
 The CPAN Bioperl Bundle (Bundle::BioPerl) makes installation of these
 external modules easy. Simply install the bundle using your CPAN shell and
@@ -158,11 +158,10 @@ AREA, below.
 
 WHERE ARE THE MAN PAGES?
 
-We had to disable the automatic creation of man pages because this
-step was triggering a "line too long" error on some OSs due to shell
-constraints. If you'd like to try and create them comment out or delete
-the MY::manifypods subroutine in Makefile.PL before you issue the 'perl
-Makefile.PL' step.   
+When using Makefile.PL, we had to disable the automatic creation of man
+pages because this step was triggering a "line too long" error on some
+OSs due to shell constraints. If you want man pages installed use the
+Build.PL installation process.
 
 EXTERNAL PROGRAMS
 
@@ -228,11 +227,11 @@ INSTALLING BIOPERL SCRIPTS
 
 Bioperl comes with a set of production-quality scripts that are
 kept in the scripts/ directory. You can install these scripts if you'd
-like, simply answer the questions on 'make install'. The installation
-directory is specified by the INSTALLSCRIPT variable in the Makefile, the
-default location is /usr/bin. Installation will copy the scripts to the
-specified directory, change the 'PLS' suffix to 'pl', and prepend 'bp_' to
-all the script names if they aren't so named already.
+like, simply answer the questions on 'perl Build.PL'.
+The installation directory can be specified by
+perl Build.PL
+./Build install --install_path script=/foo/scripts
+By default they install to /usr/bin or similar, depending on platform.
 
 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
 
@@ -247,23 +246,22 @@ makefile.
 
    Example:
 
- >perl Makefile.PL  LIB=/home/users/dag/My_Local_Perl_Modules
- >make
- >make test
- >make install
+ >perl Build.PL --install_base /home/users/dag
+ >./Build test
+ >./Build install
 
-This tells perl to install bioperl in the desired place, e.g.:
+This tells perl to install all the various parts of bioperl in the desired
+place, e.g. creating:
 
-   /home/users/dag/My_Local_Perl_Modules/Bio/Seq.pm
+   /home/users/dag/lib/perl5/Bio/Perl.pm
 
 Then in your Bioperl script you would write:
 
- use lib "/home/users/dag/My_Local_Perl_Modules";
- use Bio::Seq;
+ use lib "/home/users/dag/lib/perl5/";
+ use Bio::Perl;
 
-The man pages will probably be installed in $LIB/man. For more information
-on these sorts of custom installs see the documentation for
-ExtUtils::MakeMaker.
+For more information on these sorts of custom installs see the documentation
+for Module::Build.
 
 You can also use CPAN to install accessory modules in your local
 directory. First enter the CPAN shell, then set the arguments for the
@@ -305,7 +303,7 @@ Lib module which comes standard with perl.
    Example:
 
  #!/usr/bin/perl
- use lib "/home/users/dag/My_Local_Perl_Modules/";
+ use lib "/home/users/dag/lib/perl5/";
  use Bio::Seq;
  #<...insert whizzy perl code here...>
 
@@ -313,11 +311,11 @@ Or, you can set the environmental variable PERL5LIB:
 
    csh or tcsh:
 
- setenv PERL5LIB /home/users/dag/My_Local_Perl_Modules/
+ setenv PERL5LIB /home/users/dag/lib/perl5//
 
    bash or sh:
 
- export PERL5LIB=/home/users/dag/My_Local_Perl_Modules/
+ export PERL5LIB=/home/users/dag/lib/perl5//
 
 THE TEST SYSTEM
 

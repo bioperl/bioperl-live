@@ -70,10 +70,6 @@ o About the directory structure
 
 o Documentation
 
- The "meta" documentation can be found in the bioperl.pod file.
- This should be the starting point for you to read about what
- bioperl is, how to use it and who wrote it.
-
  The Bioperl Tutorial (http://www.bioperl.org/wiki/Bptutorial.pl) 
  contains useful information for new and existing Bioperl users.
  This file also contains a number of useful scripts that the 
@@ -86,6 +82,10 @@ o Documentation
  Remember that 'perldoc' is your friend. You can use it to read any
  file containing POD formatted documentation without needing any type
  of translator.
+ 
+ If you used the Build.PL installation, and depending on your platform,
+ you may have documentation installed as man pages, which can be
+ accessed in the usual way.
 
  There is also an online course written at the Pasteur Institute. See
  http://www.pasteur.fr/recherche/unites/sis/formation/bioperl.
@@ -108,7 +108,7 @@ o Releases
  platforms.  See the PLATFORMS file for more information on a specific
  platform.  All efforts are made to release a bug-free package,
  however most major bugs in a release will be documented in the BUGS
- file.  See the Changes file for a listing of what features have been
+ file. See the Changes file for a listing of what features have been
  added or what APIs have changed between releases.
 
  Bioperl now has a consistent numbering scheme to indicate stable 
@@ -248,7 +248,7 @@ o Upgrading from an older version
  new development efforts.  They are documented in the DEPRECATED file
  that is included in the release.  In addition some methods, or the
  Application Programming Interface (API), have changed or been
- removed.  You may find that scripts which worked with bioperl 1.0.2
+ removed.  You may find that scripts which worked with bioperl 1.4
  may give you warnings or may not work at all (although we have tried
  very hard to minimize this!).  Send an email to the list and we'll be
  happy to give you pointers.
