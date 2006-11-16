@@ -4,8 +4,7 @@
 # See http://search.cpan.org/~kwilliams/Module-Build/lib/Module/Build.pm
 
 # Uses a custom subclass of Module::Build called ModuleBuildBioperl that
-# doesn't get installed or indexed (is only available in the distribution
-# directory).
+# doesn't get installed
 
 # In the future developers may need to alter the requires and recommends and
 # possibly Network sections of ModuleBuildBioperl->new() below, but otherwise
