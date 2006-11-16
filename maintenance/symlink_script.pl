@@ -13,7 +13,7 @@ my %symlink_scripts = ('bp_bulk_load_gff.pl' => 'bp_pg_bulk_load_gff.pl');
 # well have just done a copy
 
 my $install_dir = $build->install_destination('script');
-print "install_dir is $install_dir\n";
+$build->log_info("Will try to install symlinks to $install_dir");
 my $orig_dir = $build->cwd;
 chdir($install_dir);
 
