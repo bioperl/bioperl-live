@@ -118,7 +118,7 @@ prompt_for_biodbgff();
 $build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
 
 # Add extra things to MANIFEST.SKIP
-$build->add_to_manifest_skip('bioperl.lisp');
+$build->add_to_manifest_skip('bioperl.lisp', 'Bio/Tools/WebBlat.pm');
 
 # Create the build script and exit
 $build->create_build_script;
