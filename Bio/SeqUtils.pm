@@ -43,6 +43,12 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     # the first sequence will be modified
     Bio::SeqUtils->cat(@seqs);
 
+    # truncate a sequence, retaining features and adjusting their
+    # coordinates if necessary
+    my $truncseq = Bio::SeqUtils->trunc_with_features($seq, 100, 200);
+
+    # reverse complement a sequence and its features
+    my $revcomseq = Bio::SeqUtils->revcom_with_features($seq);
 
 =head1 DESCRIPTION
 
@@ -72,6 +78,9 @@ The cat() method concatenates two or more sequences. The first sequence
 is modified by addition of the remaining sequences. All annotations and 
 sequence features will be transferred.
 
+The revcom_with_features() and trunc_with_features() methods are similar
+to the revcom() and trunc() methods from Bio::Seq, but also adjust any
+features associated with the sequence as appropriate.
 
 =head1 FEEDBACK
 
@@ -539,7 +548,7 @@ sub _coord_adjust {
 =head2 revcom_with_features
 
  Title   : revcom_with_features
- Usage   : $revcom=Bio::SeqUtils->trunc_with_features($seq, $start, $end);
+ Usage   : $revcom=Bio::SeqUtils->revcom_with_features($seq);
  Function: Like Bio::Seq::revcom, but keeps features (adjusting coordinates
            as appropriate.
  Returns : A new sequence object
