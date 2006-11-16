@@ -695,12 +695,15 @@ EOF
 sub dist_dir {
     my ($self) = @_;
     my $version = $self->dist_version;
+    if ($version =~ /^\d\.\d{6}\d$/) {
+        # 1.x.x.100 returned as 1.x.x.1
+        $version .= '00';
+    }
     $version =~ s/00(\d)/$1./g;
     $version =~ s/\.$//;
     
-    if (my ($minor, $rev) = $version =~ /\d\.(\d)\.\d\.(\d+)/) {
-        my $dev = ! $minor % 2 == 0;
-        
+    if (my ($minor, $rev) = $version =~ /^\d\.(\d)\.\d\.(\d+)$/) {
+        my $dev = ! ($minor % 2 == 0);
         if ($rev == 100) {
             my $replace = $dev ? "_$rev" : '';
             $version =~ s/\.\d+$/$replace/;
