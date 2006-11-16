@@ -119,15 +119,14 @@ analyze in case of any problem.
 
 Download, then unpack the tar file. For example:
 
- >gunzip bioperl-1.2.tar.gz
- >tar xvf bioperl-1.2.tar
- >cd bioperl-1.2
+ >gunzip bioperl-1.5.2.tar.gz
+ >tar xvf bioperl-1.5.2.tar
+ >cd bioperl-1.5.2
 
 Now issue the make commands:
 
- >perl Makefile.PL
- >make
- >make test
+ >perl Build.PL
+ >./Build test
 
 If you've installed everything perfectly and all the network connections
 are working then you may pass all the tests run in the 'make test' phase.
@@ -142,7 +141,7 @@ Bioperl.
 If you decide that the failed tests will not affect how you intend to use
 Bioperl and you'd like to install anyway do:
 
- >make install
+ >./Build install
 
 This is what most experienced Bioperl users would do. However, if you're
 concerned about a failed test and need assistance or advice then contact
