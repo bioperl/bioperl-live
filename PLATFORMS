@@ -1,18 +1,8 @@
-# $Id: PLATFORMS,v 1.25 2006-07-04 02:25:10 mauricio Exp $
+# $Id: PLATFORMS,v 1.26 2006-11-16 10:51:20 sendu Exp $
 
 Perl general comments:
 
-	o Perl must be 5.005 or higher. We tend to test on
-          5.6 Perl. Perl 5.8 definitely works, but might have
-          small errors
-
-	o Perl on Digital Unix, WindowsNT, and MacOS has been reported
-          to have problems with the Bio::DB::GDB on module (and
-          consequently the test GDB.t). This is due to different
-          versions of HTML::Parser.
-
-	o DB.t has intermittent time-out failures (which will most
-	  likely cause tests 3 and/or 27 to fail).
+	o Perl must be 5.6.1 or higher. We tend to test on > 5.8.
 
 	o Index.t will fail if you have an out-of-date DBM file
 	  installation or a bad DB_File installation
@@ -21,90 +11,38 @@ Perl general comments:
 Tested systems & OS Specific Comments or Warnings
 ==================================================
 
-Machine : RedHat Linux 7.2 i686
-Compiler: cc
-Perl    : 5.004-5.6.1
-Comments: XML::Writer tests fails (segfault), but do an install/force anyways
-	  and all will work.
-
-Machine : Linux i386
-Compiler: cc
-Perl    : 5.004-5.6.1
+Machine : Debian Linux 2.6.8-2-686-sm
+Perl    : 5.8.7
 Comments: none
 
-Machine : Digital Unix
-Compiler: cc
-Perl    : 5.004
-Comments: Failure on GDB.t, possibly due to LWP cissues
-
-Machine : OpenBSD 2.8 i386
-Compiler: cc
-Perl    : 5.6.0
+Machine : Gentoo Linux 2.6.16-r9 x86_64
+Perl    : 5.8.8
 Comments: none
 
-Machine : Solaris 2.8 UltraSparc
-Compiler: gcc
-Perl    : 5.6.0
+Machine : FreeBSD 6.2-PRERELEASE i386 and FreeBSD 5.5-STABLE i386
+Perl    : 5.8.8
 Comments: none
 
-Machine : FreeBSD 6.1 and FreeBSD 5.5 i386
-Compiler: gcc
-Perl    : 5.6.2_2-5.8.8
-Comments: none
-
-Machine : IRIX64 6.5 SGI
-Compiler: cc
-Perl    : 5.004_04
-Comments: Some warnings about <HANDLE> which can be safely
-	  ignored. Bio::DB::GenBank/GenPept cannot be used because
-	  IO::String cannot be installed on 5.004.  Bio::DB::GDB will
-	  not work on pre 5.005 versions of perl.
-
-          The makefile's should now work without shell modifications.
-          Let us know if that's an issue
-
-Machine : Win32, WinNT i386
-Compiler: --
-Perl    : ActiveState Perl 5.6, 5.5.1, 5.8
-Comments: Be sure that the module DB_File is installed and up-to-date 
-	  to allow Bio::Index modules to work properly. 
-	  Installing ppm's IO-stringy and IO-String and File-Temp are 
-	  necessary as well.
-  
+Machine : Win32, WinNT i386, Windows XP
+Perl    : ActiveState Perl 5.8.8.819
+Comments: Only ActiveState Perl >= 5.8 is known to work well, unlike other
+          platforms that can use perl 5.6.1.
+          Be sure that the module DB_File is installed and up-to-date 
+          to allow Bio::Index modules to work properly. 
+          Installing ppm's IO-stringy and IO-String and File-Temp are 
+	      necessary as well.
+          
           See INSTALL.WIN for more information
-	
-Machine : CygWin NT_5 v. 1.3.10,18 on Windows 2000 5.00
-Compiler: gcc
-Perl    : 5.6.1,5.8
-Comments: See INSTALL.WIN for more information
-	
+
 Machine : MacOS
-Compiler: --
 Perl    : MacPerl
 Comments: We don't recommend using Bioperl on MacOS 9 systems
 
-Machine : MacOS X
-Compiler: gcc
-Perl    : 5.6.0, 5.8.1, 5.8.4
+Machine : MacOS X 10.4.7 (Intel) and 10.4.8
+Perl    : 5.8.6
 Comments: Steve Cannon has made available Bioperl OS X installation
-	  directions and notes online at the following URL:
-	  http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
-
-Machine : HP-UX / PA-RISC 11.0
-Compiler: gcc
-Perl    : 5.6.1
-Comments: Tested by (dag@sonsorol.org) on a barebones 8-cpu system without the
-          various dependencies installed. All tests pass except those
-          skipped by the test harness due to missing external packages. Thanks
-          due to HP for providing the OBF with an Itanium workstation plus
-          internet access to other HP test platforms. Feedback from HP-UX users
-          is appreciated.
-
-Machine : HP-UX / Itanium ('ia64') 11.0
-Compiler: gcc
-Perl    : 5.6.1
-Comments: Tested by (dag@sonsorol.org) on a barebones 4-cpu system without the
-          various dependencies installed. 96% of the tests pass; OBF is 
-          working on getting 100% pass rate. Thanks due to HP for providing 
-          the OBF with an Itanium workstation plus internet access to other 
-          HP test platforms. Feedback from HP-UX users is appreciated.
+          directions and notes online at the following URL:
+	      http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+          Also see the Unix installation instructions at:
+          http://www.bioperl.org/wiki/Installing_Bioperl_for_Unix
+          Or install using CPAN.
