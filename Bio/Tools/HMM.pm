@@ -129,8 +129,6 @@ package Bio::Tools::HMM;
 
 use base qw(Bio::Root::Root);
 
-$VERSION = '0.10';
-
 BEGIN {
     eval {
         require Bio::Ext::HMM;

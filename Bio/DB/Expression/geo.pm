@@ -47,7 +47,6 @@ in alphabetical order for the most part.
 package Bio::DB::Expression::geo;
 use strict;
 use base qw(Bio::DB::Expression);
-our $VERSION = '0.01';
 
 use Bio::Expression::Contact;
 use Bio::Expression::DataSet;
@@ -273,7 +272,7 @@ sub _get_url {
     $self->warn("Can't query website: $@");
     return;
   }
-  $self->debug( "resp is $response\n") if( $self->verbose > 0); 
+  $self->debug( "resp is $response\n"); 
 
   return $response;
 }

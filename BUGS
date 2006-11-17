@@ -1,6 +1,18 @@
-# $Id: BUGS,v 1.6 2004-02-24 19:58:26 bosborne Exp $
+# $Id: BUGS,v 1.6.6.1 2006-11-17 09:32:43 sendu Exp $
 
-Known Bugs 
+Known Bugs
+
+Bugs are tracked at this URL:
+http://bugzilla.bioperl.org/
+
+
+Bioperl 1.5.2
+=============
+
+There are no known installation bugs in 1.5.2 per se, but issues with
+external programs may cause problems. See the following URL for details:
+http://www.bioperl.org/wiki/Release_1.5.2#Notes
+
 
 Bioperl 1.2
 ===========
@@ -12,6 +24,7 @@ Bioperl 1.2
 
 Bioperl 0.9.0 
 =============
+
  * Bio::Tools::Blast continues to cause problems for some people.  As
    it is not actively maintained there are a slew of reported bugs for 
    it that have not been fixed.  
@@ -32,6 +45,7 @@ Bioperl 0.9.0
    get_Stream_by_batch() also has intermittent errors which are being
    tracked down.
 
+
 Bioperl 0.7.2
 =============
 
@@ -45,8 +59,10 @@ Bioperl 0.7.2
    the bioperl list archives for information about potential
    workarounds and ongoing development effort to address these.
 
+
 Bioperl 0.7.1
 =============
+
  * Bio::Tools::BPlite does not parse and set frame properly for
    tblastx reports (Jitterbug bug # 978).
 
@@ -67,8 +83,10 @@ Bioperl 0.7.1
    main trunk code and must be obtained through CVS until the next
    major bioperl release.
 
+
 Bioperl 0.7
 ===========
+
  * Bio::Tools::BPlite doc error lists
    code synopsis code as 
      my $parser = new BPlite(\*FH);  

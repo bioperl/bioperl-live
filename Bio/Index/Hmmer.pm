@@ -104,21 +104,17 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Index::Hmmer;
-use vars qw($VERSION);
 use strict;
 
 use Bio::SearchIO;
 use IO::String;
+use Bio::Root::Version;
 
 use base qw(Bio::Index::Abstract Bio::Root::Root);
 
-BEGIN {
-	$VERSION = 0.1;
-}
-
 sub _version
 {
-	return $VERSION;
+	return ${Bio::Root::Version::VERSION};
 }
 
 =head2 new

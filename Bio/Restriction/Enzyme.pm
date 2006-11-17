@@ -439,7 +439,7 @@ sub site {
     if ( $site ) {
 
         $self->throw("Unrecognized characters in site: [$site]")
-            unless $site =~ /[ATGCMRWSYKVHDBN\^]+/i;
+            if $site =~ /[^ATGCMRWSYKVHDBN\^]/i;
         # we may have to redefine this if there is a ^ in the sequence
 
         # first, check and see if we have a cut site in the sequence
@@ -495,7 +495,7 @@ sub revcom_site {
     }
     if ($site) {
         $self->throw("Unrecognized characters in revcom site: [$site]")
-	    unless $site =~ /[ATGCMRWSYKVHDBN\^]+/i;
+            if $site =~ /[^ATGCMRWSYKVHDBN\^]/i;
 	
         # we may have to redefine this if there is a ^ in the sequence
 

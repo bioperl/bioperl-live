@@ -2,7 +2,6 @@ package Bio::Graphics::Glyph::translation;
 
 use strict;
 use Bio::Graphics::Util qw(frame_and_offset);
-use vars qw($VERSION);
 use base qw(Bio::Graphics::Glyph::generic);
 
 my %default_colors = qw(
@@ -13,8 +12,6 @@ my %default_colors = qw(
 			frame1r  red
 			frame2r  darkred
 		       );
-
-$VERSION = 1.00;
 
 # turn off description
 sub description { 0 }

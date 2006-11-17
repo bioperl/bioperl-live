@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
-#$Id: bioflat_index.PLS,v 1.5 2005-10-04 00:21:14 bosborne Exp $
+#$Id: bioflat_index.PLS,v 1.5.6.1 2006-11-17 09:32:42 sendu Exp $
 
 =head1 NAME
 
-bioflat_index.PLS - index sequence files using Bio::DB::Flat
+bioflat_index.pl - index sequence files using Bio::DB::Flat
 
 =head1 DESCRIPTION
 
@@ -13,7 +13,7 @@ bioflat_index.PLS - index sequence files using Bio::DB::Flat
 
 =head1 USAGE
 
- bioflat_index.PLS <options> file1 file2 file3...
+ bioflat_index.pl <options> file1 file2 file3...
 
  Options:
 

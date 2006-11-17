@@ -4,7 +4,6 @@ use strict;
 use Bio::Graphics::Glyph::segments;
 use Bio::Graphics::Util qw(frame_and_offset);
 use Bio::Tools::CodonTable;
-use vars qw($VERSION);
 use base qw(Bio::Graphics::Glyph::segmented_keyglyph Bio::Graphics::Glyph::translation);
 
 my %default_colors = qw(
@@ -20,8 +19,6 @@ my %swap_phase = ( 0  => 0,
 		   1  => 2,
 		   2  => 1,
 		   '' => 0);
-
-$VERSION = 1.00;
 
 sub connector   { 0 };
 sub description {

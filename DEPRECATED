@@ -32,3 +32,4 @@ Bio::Root::Object             1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Utilities          1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Vector             1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Xref               1.5.2    1.5.2  Bio::Root* redundant classes
+Bio::Tools::WebBlat           1.5.2    1.5.3  Requested that this not be maintained
