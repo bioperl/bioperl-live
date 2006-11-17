@@ -709,7 +709,8 @@ sub dist_dir {
             $version =~ s/\.\d+$/$replace/;
         }
         elsif ($rev < 100) {
-            $version =~ s/\.\d+$/_RC$rev/;
+            $rev = sprintf("%03d", $rev);
+            $version =~ s/\.\d+$/_$rev-RC/;
         }
         else {
             $rev -= 100 unless $dev;
