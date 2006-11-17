@@ -87,8 +87,7 @@ my $build = ModuleBuildBioperl->new(
 #                                                        options     => ['network'], # ModuleBuildBioperl unique requirement that --network was supplied
 #                                                        test        => \&ModuleBuildBioperl::test_internet
 #                                                     }
-                           },
-    create_makefile_pl  => 'passthrough'
+                           }
     
     #pm_files           => {}, # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
@@ -173,6 +172,8 @@ sub prompt_for_biodbgff {
                 }
             }
             
+            my $cfg = {};
+            
             my $driver;
             if (@driver_choices > 1) {
                 my ($default) = $driver_choices[0] =~ /\[(.)/;
@@ -190,40 +191,46 @@ sub prompt_for_biodbgff {
             elsif ($driver =~ /^[oO]/) {
                 $driver = 'Oracle';
             }
+            $cfg->{dbd_driver} = $driver;
             
-            my $test_db = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
-            my $test_host = $build->prompt("On which host is database $test_db running (hostname, ip address or host:port)", 'localhost');
-            my $test_user = $build->prompt("User name for connecting to database $test_db?", 'undef');
-            $test_user = undef if $test_user eq 'undef';
-            my $test_pass = $build->prompt("Password for connecting to database $test_db?", 'undef');
-            $test_pass = undef if $test_pass eq 'undef';
+            $cfg->{test_db} = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
+            $cfg->{test_host} = $build->prompt("On which host is database $cfg->{test_db} running (hostname, ip address or host:port)", 'localhost');
+            my $test_user = $build->prompt("User name for connecting to database $cfg->{test_db}?", 'undef');
+            $cfg->{test_user} = $test_user eq 'undef' ? undef : $test_user;
+            my $test_pass = $build->prompt("Password for connecting to database $cfg->{test_db}?", 'undef');
+            $cfg->{test_pass} = $test_pass eq 'undef' ? undef : $test_pass;
             
             my $use_host = 1;
-            if ($test_host eq 'undef' || $test_host eq 'localhost') {
+            if ($cfg->{test_host} eq 'undef' || $cfg->{test_host} eq 'localhost') {
                 $use_host = 0;
             }
             
             my $test_dsn;
             if ($driver eq 'Pg') {
-                $test_dsn = "dbi:$driver:dbname=$test_db";
+                $test_dsn = "dbi:$driver:dbname=$cfg->{test_db}";
             }
             else {
-                $test_dsn = "dbi:$driver:database=$test_db";
+                $test_dsn = "dbi:$driver:database=$cfg->{test_db}";
             }
             if ($use_host) {
-                $test_dsn .= ";host=$test_host";
+                $test_dsn .= ";host=$cfg->{test_host}";
+            }
+            $cfg->{test_dsn} = $test_dsn;
+            
+            my $path = File::Spec->catfile('t', 'do_biodbgff.tests');
+            if (open T,">$path") {
+                while (my ($key, $value) = each %$cfg) {
+                    print T $key, "\t", $value,"\n";
+                }
+                close T;
             }
             
-            $build->notes(dbd_driver => $driver);
-            $build->notes(test_db => $test_db);
-            $build->notes(test_host => $test_host);
-            $build->notes(test_user => $test_user);
-            $build->notes(test_pass => $test_pass);
-            $build->notes(test_dsn => $test_dsn);
+            $build->add_to_cleanup($path);
+            $build->add_to_manifest_skip($path);
             
             $build->log_info("  - will run the BioDBGFF tests with database driver '$driver' and these settings:\n",
-                            "    Database $test_db\n",
-                            "    Host     $test_host\n",
+                            "    Database $cfg->{test_db}\n",
+                            "    Host     $cfg->{test_host}\n",
                             "    DSN      $test_dsn\n",
                             "    User     $test_user\n",
                             "    Password $test_pass\n");
