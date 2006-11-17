@@ -5,88 +5,63 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+use vars qw($NUMTESTS $DEBUG);
+
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $ERROR = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-
-    $NUMTESTS = 13;
-    plan tests => $NUMTESTS;
-
-    eval {
-		 require IO::String;
-		 require LWP::UserAgent;
-    };
-    if( $@ ) {
-        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
-	$ERROR = 1;
-    }
-	#check this is available, set error flag if not.
-	eval {
-		require Bio::Seq::Meta::Array;
-		};
+	$NUMTESTS = 14;
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	
+	eval {require Test::More;};
 	if ($@) {
-		warn ("Bio::Seq::Meta::Array not installed - will skip tests using meta sequences");
-		$METAERROR = 1;
-		}
-}
-
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Unable to complete GOR4 tests',1);
+		use lib 't/lib';
 	}
+	use Test::More;
+	
+	eval {
+		require IO::String; 
+		require LWP::UserAgent;
+	};
+	if ($@) {
+		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
+	}
+	else {
+		plan tests => $NUMTESTS;
+	}
+	
+	use_ok("Data::Dumper");
+	use_ok("Bio::Seq");
+	use_ok("Bio::Tools::Analysis::Protein::GOR4");
 }
 
-exit 0 if $ERROR ==  1;
+#	eval {require Bio::Seq::Meta::Array;};
+#	"Bio::Seq::Meta::Array not installed - will skip tests using meta sequences"
 
-use Data::Dumper;
-
-use Bio::Seq;
-require Bio::Tools::Analysis::Protein::GOR4;
-
-ok 1;
-
-my $verbose = 0;
-$verbose = 1 if $DEBUG;
-
-ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
+my $verbose = $DEBUG;
 
 my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
-                        -display_id => 'test2',
-                       );
-ok $tool = Bio::Tools::Analysis::Protein::GOR4->new( -seq=>$seq->primary_seq,
-                                                   );
-if( $DEBUG ) {
-    ok $tool->run ();
-    exit if $tool->status eq 'TERMINATED_BY_ERROR';
+                        -display_id => 'test2');
+ok my $tool = Bio::Tools::Analysis::Protein::GOR4->new(-seq=>$seq->primary_seq);
+
+SKIP: {
+	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 10 unless $DEBUG;
+    ok $tool->run();
+	skip "Skipping tests since we got terminated by a server error", 9 if $tool->status eq 'TERMINATED_BY_ERROR';
     ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
-    ok ($parsed->[0]{'coil'}, '999');
+    is $parsed->[0]{'coil'}, '999';
     my @res = sort {$a->start <=> $b->start} $tool->result('Bio::SeqFeatureI');
     if (scalar @res > 0) {
-	ok 1;
-    } else {
-	skip('No network access - could not connect to GOR4 server', 1);
+		ok 1;
     }
-	ok $res[0]->start, 1;
-	ok $res[0]->end, 43;
+	else {
+		skip 'No results - could not connect to GOR4 server?', 6;
+    }
+	is $res[0]->start, 1;
+	is $res[0]->end, 43;
     ok my $meta = $tool->result('meta');
     
-    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	
-	ok ( $meta->named_submeta_text('GOR4_coil',1,2), '999 999');
-	ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
-    }
-} else {
-    for ( $Test::ntest..$NUMTESTS) {
-	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
-    }
+    eval {require Bio::Seq::Meta::Array;};
+	skip "Bio::Seq::Meta::Array not installed - will skip tests using meta sequences", 2 if $@;
+	is $meta->named_submeta_text('GOR4_coil',1,2), '999 999';
+	is $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS';
 }
