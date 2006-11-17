@@ -6,88 +6,63 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+use vars qw($NUMTESTS $DEBUG);
+
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    $ERROR = 0;
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-
-    $NUMTESTS = 13;
-    plan tests => $NUMTESTS;
-
-    eval {
-	require IO::String; 
-	require LWP::UserAgent;
-
-    };
-    if( $@ ) {
-        warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
-	$ERROR = 1;
-    }
-	#check this is available, set error flag if not.
-	eval {
-		require Bio::Seq::Meta::Array;
-		};
+	$NUMTESTS = 13;
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	
+	eval {require Test::More;};
 	if ($@) {
-		warn ("Bio::Seq::Meta::Array not installed - will skip tests using meta sequences");
-		$METAERROR = 1;
-		}
-}
-
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('unable to complete all of the HNN.t tests',1);
+		use lib 't/lib';
 	}
+	use Test::More;
+	
+	eval {
+		require IO::String; 
+		require LWP::UserAgent;
+	};
+	if ($@) {
+		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
+	}
+	else {
+		plan tests => $NUMTESTS;
+	}
+	
+	use_ok("Bio::Seq");
+	use_ok("Bio::Tools::Analysis::Protein::HNN");
 }
 
-exit 0 if $ERROR ==  1;
+#	eval {require Bio::Seq::Meta::Array;};
+#	"Bio::Seq::Meta::Array not installed - will skip tests using meta sequences"
 
-use Data::Dumper;
+my $verbose = $DEBUG;
 
-use Bio::PrimarySeq;
-use Bio::Seq;
-require Bio::Tools::Analysis::Protein::HNN;
+my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
+                        -display_id => 'test2');
+ok my $tool = Bio::Tools::Analysis::Protein::HNN->new(-seq=>$seq->primary_seq);
 
-ok 1;
-
-my $verbose = 0;
-$verbose = 1 if $DEBUG;
-
-ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
-
-my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
-                               -display_id => 'test2',
-                              );
-ok $tool = Bio::Tools::Analysis::Protein::HNN->new( -seq=>$seq,
-                                                  );
-if( $DEBUG ) {
-    ok $tool->run ();
-    exit if $tool->status eq 'TERMINATED_BY_ERROR';
-    ok my $raw    = $tool->result('');
+SKIP: {
+	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 10 unless $DEBUG;
+    ok $tool->run();
+	skip "Skipping tests since we got terminated by a server error", 9 if $tool->status eq 'TERMINATED_BY_ERROR';
+    ok my $raw = $tool->result('');
     ok my $parsed = $tool->result('parsed');
-    ok ($parsed->[0]{'coil'}, '1000');
-    my @res       = $tool->result('Bio::SeqFeatureI');
+    is $parsed->[0]{'coil'}, '1000';
+    my @res = $tool->result('Bio::SeqFeatureI');
     if (scalar @res > 0) {
-	ok 1;
-    } else {
-	skip('No network access - could not connect to HNN server', 1);
+		ok 1;
     }
+	else {
+		skip 'No results - could not connect to HNN server?', 6;
+    }
+    
     ok my $meta = $tool->result('meta');
     ok my $seqobj = Bio::Seq->new(-primary_seq => $meta, display_id=>"a");
     ok $seqobj->add_SeqFeature($tool->result('Bio::SeqFeatureI'));
-    if (!$METAERROR) { #if Bio::Seq::Meta::Array available
-	ok ( $meta->named_submeta_text('HNN_helix',1,2), '0 111');
-	ok ( $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
-    }
-} else { 
-    for ( $Test::ntest..$NUMTESTS) {
-	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
-    }
+    
+    eval {require Bio::Seq::Meta::Array;};
+	skip "Bio::Seq::Meta::Array not installed - will skip tests using meta sequences", 2 if $@;
+	is $meta->named_submeta_text('HNN_helix',1,2), '0 111';
+	is $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS';
 }

@@ -194,14 +194,13 @@ sub  _run {
     my $text = $self->request($request)->content;
     return unless $text;
     my ($next) = $text =~ /Prediction.*?=(.*?)>/;
-
-    my $out = "http://npsa-pbil.ibcp.fr/". "$next";
+    return unless $next;
+    my $out = "http://npsa-pbil.ibcp.fr/".$next;
     my $req2 = HTTP::Request->new(GET=>$out);
     my $resp2 = $self->request ($req2);
 	$self->status('COMPLETED') if $resp2 ne '';
     $self->{'_result'} = $resp2->content;
 	return $self;
-		
 }
 
 
