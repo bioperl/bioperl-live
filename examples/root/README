@@ -81,9 +81,7 @@ classes of exceptions. For more information about these types of
 exceptions, see perldoc Bio::Root::Exception.
 
 Error.pm is available through CPAN and I encourage Bioperl users and
-developers to install it and experiment with it. For your
-convenience, Error.pm has been included in the examples/root/lib
-directory. As always, for the latest version, check CPAN.
+developers to install it and experiment with it.
 
 
 Bio::Root::Exception.pm
