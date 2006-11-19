@@ -14,17 +14,34 @@ sub fgcolor {
   return $self->option('border') ? $self->SUPER::fgcolor : $self->{force_bgcolor};
 }
 
+sub color_subparts { shift->option('color_subparts') }
+
+sub bump {
+  my $self = shift;
+  return 0 if $self->color_subparts;
+  return $self->SUPER::bump;
+}
+
 sub draw {
   my $self = shift;
   my $val  = $self->feature->score;
 
   # we're going to force all our parts to share the same colors
-  # since the
+  # unless otherwise requested
   my @parts = $self->parts;
   @parts    = $self if !@parts && $self->level == 0;
-  my @rgb   = map {int($_)} HSVtoRGB(120*(1-$val),1,255);
-  my $color =  $self->panel->translate_color(@rgb);
-  $_->{force_bgcolor} = $color foreach @parts;
+  unless ($self->color_subparts) {
+    my @rgb   = map {int($_)} HSVtoRGB(120*(1-$val),1,255);
+    my $color =  $self->panel->translate_color(@rgb);
+    $_->{force_bgcolor} = $color foreach @parts;
+  } else {
+    foreach (@parts) {
+      my $val    = $_->feature->score;
+      my @rgb    = map {int($_)} HSVtoRGB(120*(1-$val),1,255);
+      my $color  =  $self->panel->translate_color(@rgb);
+      $_->{force_bgcolor} = $color;
+    }
+  }
 
   $self->SUPER::draw(@_);
 }
@@ -141,6 +158,14 @@ The following glyph-specific option is recognized:
   -border       Draw a fgcolor border around   0 (false)
                 the box
 
+  -color_subparts
+               Give each subpart a separate    0 (false)
+               color based on its score
+
+If the B<-color_subparts> option is true, then the glyph will
+individually coloriz each of its subparts. In addition, internal
+bumping of features will be turned off. This will produce an effect
+similar to graded_segments.
 
 =head1 BUGS
 

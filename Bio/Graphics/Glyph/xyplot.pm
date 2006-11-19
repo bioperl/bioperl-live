@@ -5,7 +5,7 @@ use strict;
 
 use base qw(Bio::Graphics::Glyph::minmax);
 
-use constant DEFAULT_POINT_RADIUS=>1;
+use constant DEFAULT_POINT_RADIUS=>4;
 
 my %SYMBOLS = (
 	       triangle => \&draw_triangle,
@@ -56,7 +56,6 @@ sub draw {
 
   my ($gd,$dx,$dy) = @_;
   my ($left,$top,$right,$bottom) = $self->calculate_boundaries($dx,$dy);
-
   my @parts = $self->parts;
 
   return $self->SUPER::draw(@_) unless @parts > 0;
@@ -76,9 +75,8 @@ sub draw {
   my $scale  = $max_score > $min_score ? $height/($max_score-$min_score)
                                        : 1;
 
-  my $x = $dx;
-  my $y = $dy + $self->pad_top;
-  $bottom = $y+$height;
+  my $x = $left;
+  my $y = $top + $self->pad_top;
 
   # position of "0" on the scale
   my $y_origin = $min_score <= 0 ? $bottom - (0 - $min_score) * $scale : $bottom;
@@ -101,6 +99,7 @@ sub draw {
 
   my $type        = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
   my $draw_method = $self->lookup_draw_method($type);
+  $self->throw("Invalid graph type '$type'") unless $draw_method;
   $self->$draw_method($gd,$x,$y,$y_origin);
 
   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy,$y_origin);
@@ -374,6 +373,7 @@ sub height {
 
 sub draw_triangle {
   my ($gd,$x,$y,$pr,$color) = @_;
+  $pr /= 2;
   my ($vx1,$vy1) = ($x-$pr,$y+$pr);
   my ($vx2,$vy2) = ($x,  $y-$pr);
   my ($vx3,$vy3) = ($x+$pr,$y+$pr);
@@ -383,6 +383,7 @@ sub draw_triangle {
 }
 sub draw_square {
   my ($gd,$x,$y,$pr,$color) = @_;
+  $pr /= 2;
   $gd->line($x-$pr,$y-$pr,$x+$pr,$y-$pr,$color);
   $gd->line($x+$pr,$y-$pr,$x+$pr,$y+$pr,$color);
   $gd->line($x+$pr,$y+$pr,$x-$pr,$y+$pr,$color);
@@ -535,8 +536,9 @@ glyph-specific options:
                 "triangle", "square", "disc",
                 "point", and "none".
 
-  -point_radius Radius of the symbol, in      1
-                pixels
+  -point_radius Radius of the symbol, in      4
+                pixels (does not apply
+                to "point")
 
   -scale        Position where the Y axis     none
                 scale is drawn if any.

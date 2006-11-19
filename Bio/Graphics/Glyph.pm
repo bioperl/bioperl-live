@@ -124,12 +124,7 @@ sub feature_has_subparts {
 
   return $self->{feature_has_subparts} = shift if @_;
   return 0 if $self->maxdepth == 0;
-
-  # $feature->compound is an artefact from aggregators. Sadly, an aggregated feature can miss
-  # parts that are out of the query range - this is a horrible feature. Aggregated features have
-  # a compound flag to hack around this.
-  my $feature = $self->feature;
-  $self->{feature_has_subparts} || ($feature->can('compound') && $feature->compound)
+  return $self->{feature_has_subparts};
 }
 
 sub feature { shift->{feature} }
@@ -1134,7 +1129,17 @@ sub no_subparts {
 
 sub maxdepth {
   my $self = shift;
-  return $self->option('maxdepth');
+
+  my $maxdepth =  $self->option('maxdepth');
+  return $maxdepth if defined $maxdepth;
+
+  # $feature->compound is an artefact from aggregators. Sadly, an aggregated feature can miss
+  # parts that are out of the query range - this is a horrible mis-feature. Aggregated features have
+  # a compound flag to hack around this.
+  my $feature = $self->feature;
+  return 1 if $feature->can('compound') && $feature->compound;
+
+  return;
 }
 
 sub exceeds_depth {
