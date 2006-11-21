@@ -1,4 +1,4 @@
-# $Id: INSTALL.WIN,v 1.23 2006-11-14 15:13:24 cjfields Exp $
+# $Id: INSTALL.WIN,v 1.24 2006-11-21 10:32:34 sendu Exp $
 
                          Installing Bioperl on Windows
 
@@ -79,12 +79,8 @@ Installation Guide
            6) In the search box type bioperl.
 
            7) Right click the latest version of Bioperl available and choose
-           install.
-
-                        7a) This package will be sufficient for the main
-                        functionality of Bioperl. However, if you require
-                        full functionality, you should also install the
-                        latest Bundle-BioPerl package.
+           install. (Note for users of previous Bioperl releases: you should
+           not have to use the Bundle-BioPerl package anymore.)
 
            8) Click the green arrow (Run marked actions) to complete the
            installation.

@@ -1,11 +1,12 @@
-# $Id: DEPENDENCIES,v 1.1 2006-11-14 15:13:24 cjfields Exp $
+# $Id: DEPENDENCIES,v 1.2 2006-11-21 10:32:34 sendu Exp $
 
 BioPerl Dependencies
 
 The following packages are used by Bioperl. Not all are required for
 Bioperl to operate properly, however some functionality will be missing
-without them. You can easily install all of these, except srsperl.pm,
-using the Bundle::BioPerl CPAN bundle.
+without them. You can easily install all of these by using CPAN to install
+Bioperl, or if you have installed Bioperl manually (from archive or CVS),
+by using the Bundle::BioPerl CPAN bundle.
 
 The DBD::mysql, DB_File and XML::Parser modules require other applications
 or databases: MySQL, Berkeley DB, and expat respectively.
