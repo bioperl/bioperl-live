@@ -23,7 +23,9 @@ my $build = ModuleBuildBioperl->new(
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'artistic',
     requires            => {
-                            'perl'                      => '5.6.1'
+                            'perl'                      => '5.6.1',
+                            'IO::String'                => 0,
+                            'DB_File'                   => 0
                            },
     build_requires      => {
                             'Test::More'                => 0
@@ -36,7 +38,6 @@ my $build = ModuleBuildBioperl->new(
                             'Clone'                     => '0/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
                             'Data::Stag::XMLWriter'     => '0/writing choas xml files/Bio::SeqIO::chaosxml',
-                            'DB_File'                   => '0/persistent database storage/Bio::DB::GFF::Adaptor::berkeleydb,Bio::SeqFeature::Collection,Bio::DB::Taxonomy::flatfile,Bio::DB::FileCache,Bio::DB::Flat::BDB,Bio::Index::Abstract',
                             'GD'                        => '1.3/rendering Sequences and Features/Bio::Graphics::Glyph*',
                             'GD::SVG'                   => '0/creating SVG images/Bio::Graphics::Panel',
                             # we specifically want Graph::Directed, but that has no VERSION
@@ -44,7 +45,6 @@ my $build = ModuleBuildBioperl->new(
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
                             'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB',
                             'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
-                            'IO::String'                => '0/a wide variety of functions/Bio::SeqIO::game::gameWriter,Bio::DB::*,Bio::Variation::IO::xml,Bio::Tools::*,Bio::Index::Blast,Bio::Index::Hmmer,Bio::TreeIO::cluster,Bio::TreeIO::nexus',
                             'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::WebBlat,Bio::WebAgent,Bio::Graphics::Glyph::image',
                             'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
                             'SOAP::Lite'                => '0/XEMBL Services and Bibliographic queries/Bio::DB::XEMBLService,Bio::DB::Biblio::soap',
