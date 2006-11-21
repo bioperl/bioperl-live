@@ -434,8 +434,8 @@ sub _parse_conditions {
     }
 }
 
-# when generating META.yml, instead of normal recommends format, we output
-# optional_features syntax
+# when generating META.yml, as well as normal recommends format, we output
+# optional_features syntax (which CPAN doesn't seem to understand yet)
 sub prepare_metadata {
     my ($self, $node, $keys) = @_;
     my $p = $self->{properties};
@@ -468,12 +468,12 @@ sub prepare_metadata {
                     $info->{description} = $why;
                     $info->{requires} = { $req => $ver };
                     $hash->{$used_by} = $info;
+                    $p->{$_}->{$req} = $ver;
                 }
                 $add_node->('optional_features', $hash);
             }
-            else {
-                $add_node->($_, $p->{$_});
-            }
+            
+            $add_node->($_, $p->{$_});
         }
     }
     
@@ -722,8 +722,43 @@ sub dist_dir {
     return "$self->{properties}{dist_name}-$version";
 }
 sub ppm_name {
-  my $self = shift;
-  return $self->dist_dir.'-ppm';
+    my $self = shift;
+    return $self->dist_dir.'-ppm';
+}
+
+# we make all archive formats we want, not just .tar.gz
+# we also auto-run manifest action, since we always want to re-create
+# MANIFEST and MANIFEST.SKIP just-in-time
+sub ACTION_dist {
+    my ($self) = @_;
+    
+    $self->depends_on('manifest');
+    $self->depends_on('distdir');
+    
+    my $dist_dir = $self->dist_dir;
+    
+    $self->make_zip($dist_dir);
+    $self->make_tarball($dist_dir);
+    $self->delete_filetree($dist_dir);
+}
+
+# makes zip file for windows users and bzip2 files as well
+sub make_zip {
+    my ($self, $dir, $file) = @_;
+    $file ||= $dir;
+    
+    $self->log_info("Creating $file.zip\n");
+    my $zip_flags = $self->verbose ? '-r' : '-rq';
+    $self->do_system($self->split_like_shell("zip"), $zip_flags, "$file.zip", $dir);
+    
+    $self->log_info("Creating $file.bz2\n");
+    require Archive::Tar;
+    # Archive::Tar versions >= 1.09 use the following to enable a compatibility
+    # hack so that the resulting archive is compatible with older clients.
+    $Archive::Tar::DO_NOT_USE_PREFIX = 0;
+    my $files = $self->rscan_dir($dir);
+    Archive::Tar->create_archive("$file.tar", 0, @$files);
+    $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
 }
 
 # we make all archive formats we want, not just .tar.gz
