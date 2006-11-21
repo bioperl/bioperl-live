@@ -761,39 +761,4 @@ sub make_zip {
     $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
 }
 
-# we make all archive formats we want, not just .tar.gz
-# we also auto-run manifest action, since we always want to re-create
-# MANIFEST and MANIFEST.SKIP just-in-time
-sub ACTION_dist {
-    my ($self) = @_;
-    
-    $self->depends_on('manifest');
-    $self->depends_on('distdir');
-    
-    my $dist_dir = $self->dist_dir;
-    
-    $self->make_zip($dist_dir);
-    $self->make_tarball($dist_dir);
-    $self->delete_filetree($dist_dir);
-}
-
-# makes zip file for windows users and bzip2 files as well
-sub make_zip {
-    my ($self, $dir, $file) = @_;
-    $file ||= $dir;
-    
-    $self->log_info("Creating $file.zip\n");
-    my $zip_flags = $self->verbose ? '-r' : '-rq';
-    $self->do_system($self->split_like_shell("zip"), $zip_flags, "$file.zip", $dir);
-    
-    $self->log_info("Creating $file.bz2\n");
-    require Archive::Tar;
-    # Archive::Tar versions >= 1.09 use the following to enable a compatibility
-    # hack so that the resulting archive is compatible with older clients.
-    $Archive::Tar::DO_NOT_USE_PREFIX = 0;
-    my $files = $self->rscan_dir($dir);
-    Archive::Tar->create_archive("$file.tar", 0, @$files);
-    $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
-}
-
 1;
