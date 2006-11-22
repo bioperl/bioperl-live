@@ -77,7 +77,7 @@ my $build = ModuleBuildBioperl->new(
                                                      },
                             BioDBSeqFeature_mysql => {
                                                         description => "MySQL tests for Bio::DB::SeqFeature::Store",
-                                                        requires    => { 'DBI' => 0 },
+                                                        requires    => { 'DBI' => 0, 'DBD::mysql' => 0 },
                                                         test        => \&test_db # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
                                                      },
 # The following code works, but since no tests in the test suite actually make use of this functionality, don't use it yet
@@ -159,6 +159,7 @@ END
 }
 
 sub prompt_for_biodbgff {
+    return if ( $^O =~ /mswin/i);
     $build->feature('BioDBGFF') || return;
     my @drivers = DBI->available_drivers;
     if (grep {/mysql|Pg|Oracle/i} @drivers) {
