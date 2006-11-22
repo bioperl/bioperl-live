@@ -9,7 +9,41 @@
 # cleanly override.
 
 package ModuleBuildBioperl;
-use base Module::Build;
+
+# we really need Module::Build to be installed
+BEGIN {
+    $being_installed = 0;
+    unless (eval "use Module::Build; 1") {
+        print "This package requires Module::Build to install itself.\n";
+        
+        require ExtUtils::MakeMaker;
+        my $yn = ExtUtils::MakeMaker::prompt('  Install Module::Build now from CPAN?', 'y');
+        
+        unless ($yn =~ /^y/i) {
+            die " *** Cannot install without Module::Build.  Exiting ...\n";
+        }
+        
+        require Cwd;
+        require File::Spec;
+        require File::Copy;
+        require CPAN;
+        
+        # Save this because CPAN will chdir all over the place.
+        my $cwd = Cwd::cwd();
+        
+        my $build_pl = File::Spec->catfile($cwd, "Build.PL");
+        
+        File::Copy::move($build_pl, $build_pl."hidden"); # avoid bizarre bug with Module::Build tests using the wrong Build.PL if it happens to be in PERL5LIB
+        CPAN::Shell->install('Module::Build');
+        File::Copy::move($build_pl."hidden", $build_pl);
+        CPAN::Shell->expand("Module", "Module::Build")->uptodate or die "Couldn't install Module::Build, giving up.\n";
+        
+        chdir $cwd or die "Cannot chdir() back to $cwd: $!";
+    }
+    
+    eval "use base Module::Build; 1" or die $@;
+}
+
 use strict;
 use warnings;
 
@@ -264,9 +298,6 @@ sub prereq_failures {
                     
                     $status->{message} .= "\n   (wanted for $why, used by $by_what)";
                     
-                    #*** if CPAN/Module::Build ever does anything useful with
-                    # optional_features data in META.yml, delete the next three
-                    # lines
                     my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
                     next if $installed eq 'ok';
                     $status->{message} = $installed unless $installed eq 'skip';
@@ -283,20 +314,32 @@ sub prereq_failures {
     return keys %{$out} ? $out : return;
 }
 
-# as of CPAN v1.8802 nothing useful is done with the 'recommends' data, so
-# when an optional module isn't installed, ask user if they want it.
-#*** this sub should be removed when CPAN/Module::Build improves
 sub install_optional {
     my ($self, $desired, $version, $msg) = @_;
     
     unless (defined $self->{ask_optional}) {
-        $self->{ask_optional} = $self->y_n("Do you want to be asked if you would like to install optional modules? y/n", 'n');
+        $self->{ask_optional} = $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
     }
-    return 'skip' if ! $self->{ask_optional};
+    return 'skip' if $self->{ask_optional} =~ /^n/i;
     
-    my $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
+    my $install;
+    if ($self->{ask_optional} =~ /^a/i) {
+        $self->log_info(" * $msg\n");
+        $install = 1;
+    }
+    else {
+        $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
+    }
     
     if ($install) {
+        # Here we use CPAN to actually install the desired module, the benefit
+        # being we continue even if installation fails, and that this works
+        # even when not using CPAN to install.
+        #
+        # The alternative would be to simply append the module to 'requires'
+        # and let CPAN deal with required modules in the normal way, but
+        # older CPANs don't do that (look only at META.yml), and we get
+        # total failure for something that was only optional
         require Cwd;
         require CPAN;
         
