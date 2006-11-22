@@ -264,7 +264,7 @@ sub prereq_failures {
                     
                     $status->{message} .= "\n   (wanted for $why, used by $by_what)";
                     
-                    #*** if CPAN ever does anything useful with
+                    #*** if CPAN/Module::Build ever does anything useful with
                     # optional_features data in META.yml, delete the next three
                     # lines
                     my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
@@ -285,7 +285,7 @@ sub prereq_failures {
 
 # as of CPAN v1.8802 nothing useful is done with the 'recommends' data, so
 # when an optional module isn't installed, ask user if they want it.
-#*** this sub should be removed when CPAN improves
+#*** this sub should be removed when CPAN/Module::Build improves
 sub install_optional {
     my ($self, $desired, $version, $msg) = @_;
     
@@ -300,17 +300,17 @@ sub install_optional {
         require Cwd;
         require CPAN;
         
-        # Save this 'cause CPAN will chdir all over the place.
+        # Save this because CPAN will chdir all over the place.
         my $cwd = Cwd::cwd();
         
         CPAN::Shell->install($desired);
         my $msg;
         if (CPAN::Shell->expand("Module", $desired)->uptodate) {
-            $self->log_info("\n*** (back in Bioperl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
+            $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
             $msg = 'ok';
         }
         else {
-            $self->log_info("\n*** (back in Bioperl Build.PL) ***\n");
+            $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n");
             $msg = "You chose to install $desired but it failed to install";
         }
         
