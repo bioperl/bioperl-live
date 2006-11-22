@@ -161,9 +161,9 @@ sub prompt_for_biodbgff {
     $build->feature('BioDBGFF') || return;
     my @drivers = DBI->available_drivers;
     if (grep {/mysql|Pg|Oracle/i} @drivers) {
-        my $proceed = $build->prompt("Do you want to run the BioDBGFF tests (uses a database)? y/n", 'n');
+        my $proceed = $build->y_n("Do you want to run the BioDBGFF tests (uses a database)? y/n", 'n');
         
-        if ($proceed =~ /^[yY]/) {
+        if ($proceed) {
             my @driver_choices;
             foreach my $poss ('mysql', 'Pg', 'Oracle') {
                 if (grep {/$poss/i} @drivers) {
@@ -192,11 +192,9 @@ sub prompt_for_biodbgff {
             }
             
             my $test_db = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
-            my $test_host = $build->prompt("On which host is database $test_db running (hostname, ip address or host:port)", 'localhost');
-            my $test_user = $build->prompt("User name for connecting to database $test_db?", 'undef');
-            $test_user = undef if $test_user eq 'undef';
-            my $test_pass = $build->prompt("Password for connecting to database $test_db?", 'undef');
-            $test_pass = undef if $test_pass eq 'undef';
+            my $test_host = $build->prompt("On which host is database '$test_db' running (hostname, ip address or host:port)", 'localhost');
+            my $test_user = $build->prompt("User name for connecting to database '$test_db'?", 'undef');
+            my $test_pass = $build->prompt("Password for connecting to database '$test_db'?", 'undef');
             
             my $use_host = 1;
             if ($test_host eq 'undef' || $test_host eq 'localhost') {
@@ -217,8 +215,8 @@ sub prompt_for_biodbgff {
             $build->notes(dbd_driver => $driver);
             $build->notes(test_db => $test_db);
             $build->notes(test_host => $test_host);
-            $build->notes(test_user => $test_user);
-            $build->notes(test_pass => $test_pass);
+            $build->notes(test_user => $test_user eq 'undef' ? undef : $test_user);
+            $build->notes(test_pass => $test_pass eq 'undef' ? undef : $test_pass);
             $build->notes(test_dsn => $test_dsn);
             
             $build->log_info("  - will run the BioDBGFF tests with database driver '$driver' and these settings:\n",
