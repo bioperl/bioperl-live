@@ -1,4 +1,4 @@
-#-*-Perl-*-
+##-*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 
 # Before `make install' is performed this script should be runnable with
@@ -24,7 +24,7 @@ BEGIN {
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
 }
 
-use lib '.','..','./blib/lib';
+use lib "$Bin/..","$Bin/../blib/lib";
 use Bio::DB::SeqFeature::Store;
 use Bio::DB::SeqFeature::Store::GFF3Loader;
 

@@ -95,7 +95,7 @@ my $build = ModuleBuildBioperl->new(
 
 # Handle auto features
 if ($build->feature('BioDBSeqFeature_BDB')) {
-    make_dbd_test();
+    make_bdb_test();
 }
 if ($build->feature('BioDBSeqFeature_mysql')) {
     make_dbi_test();
@@ -124,7 +124,7 @@ $build->create_build_script;
 exit;
 
 
-sub make_dbd_test {
+sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
     my $path = File::Spec->catfile('t', 'BioDBSeqFeature_BDB.t');
     open my $F, ">$path";

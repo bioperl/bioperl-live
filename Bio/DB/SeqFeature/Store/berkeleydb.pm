@@ -413,7 +413,8 @@ sub _close_databases {
   $self->index_db($_=>undef) foreach $self->_index_files;
 }
 
-sub _init_database { shift->init }
+# do nothing -- new() with -create=>1 will do the trick
+sub _init_database { }
 
 sub _delete_databases {
   my $self = shift;
