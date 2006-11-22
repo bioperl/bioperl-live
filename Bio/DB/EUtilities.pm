@@ -15,7 +15,7 @@
 =head1 NAME
 
 Bio::DB::EUtilities - interface for handling web queries and data
-retrieval from NCBI's Entrez Utilities.
+retrieval from Entrez Utilities at NCBI.
 
 =head1 SYNOPSIS
 
@@ -47,8 +47,8 @@ use Bio::DB::EUtilities;
 WARNING: Please do B<NOT> spam the Entrez web server with multiple requests.
 NCBI offers Batch Entrez for this purpose, now accessible here via epost!
 
-This is a test interface to NCBI's Entrez Utilities.  The main purpose of this
-is to enable access to all of NCBI's databases available through Entrez and
+This is a test interface to the Entrez Utilities at NCBI.  The main purpose of this
+is to enable access to all of the NCBI databases available through Entrez and
 allow for more complex queries.  It is likely that the API for this module as
 well as the documentation will change dramatically over time. So, novice users
 and neophytes beware!
@@ -88,8 +88,7 @@ get_response (which also parses for cookies and other information, see below).
 This method returns an HTTP::Response object.  The raw data is accessed by using
 the object method C<content>, like so:
 
-  my $efetch = Bio::DB::EUtilities->new(
-                                        -cookie       => $elink->next_cookie,
+  my $efetch = Bio::DB::EUtilities->new(-cookie       => $elink->next_cookie,
                                         -retmax       => 10,
                                         -rettype      => 'fasta');
 
@@ -109,8 +108,8 @@ objects.
 
 Some EUtilities (C<epost>, C<esearch>, or C<elink>) retain information on
 the NCBI server under certain settings.  This information can be retrieved by
-using a B<cookie>.  Here, the idea of the 'cookie' is similar to the '
-cookie' set on a user's computer when browsing the Web.  XML data returned
+using a B<cookie>.  Here, the idea of the 'cookie' is similar to the
+'cookie' set on a your computer when browsing the Web.  XML data returned
 by these EUtilities, when applicable, is parsed for the cookie information
 (the 'WebEnv' and 'query_key' tags to be specific)  The information along
 with other identifying data, such as the calling eutility, description
