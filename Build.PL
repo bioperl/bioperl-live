@@ -88,6 +88,7 @@ my $build = ModuleBuildBioperl->new(
 #                                                        test        => \&ModuleBuildBioperl::test_internet
 #                                                     }
                            },
+    dynamic_config      => 1,
     create_makefile_pl  => 'passthrough'
     
     #pm_files           => {}, # modules in Bio are treated as if they were in lib and auto-installed
@@ -227,7 +228,7 @@ sub prompt_for_biodbgff {
                             "    Password $test_pass\n");
         }
         else {
-            $build->log_info("  - will not run the BioDBGFF tests\n");
+            $build->log_info("  - will not run the BioDBGFF live database tests\n");
         }
         
         $build->log_info("\n");
