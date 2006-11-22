@@ -263,6 +263,13 @@ sub prereq_failures {
                                   : "$modname ($status->{have}) is installed, but we prefer to have $preferred_version");
                     
                     $status->{message} .= "\n   (wanted for $why, used by $by_what)";
+                    
+                    #*** if CPAN ever does anything useful with
+                    # optional_features data in META.yml, delete the next three
+                    # lines
+                    my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
+                    next if $installed eq 'ok';
+                    $status->{message} = $installed unless $installed eq 'skip';
                 }
                 else {
                     next if $status->{ok};
@@ -274,6 +281,46 @@ sub prereq_failures {
     }
     
     return keys %{$out} ? $out : return;
+}
+
+# as of CPAN v1.8802 nothing useful is done with the 'recommends' data, so
+# when an optional module isn't installed, ask user if they want it.
+#*** this sub should be removed when CPAN improves
+sub install_optional {
+    my ($self, $desired, $version, $msg) = @_;
+    
+    unless (defined $self->{ask_optional}) {
+        $self->{ask_optional} = $self->y_n("Do you want to be asked if you would like to install optional modules? y/n", 'n');
+    }
+    return 'skip' if ! $self->{ask_optional};
+    
+    my $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
+    
+    if ($install) {
+        require Cwd;
+        require CPAN;
+        
+        # Save this 'cause CPAN will chdir all over the place.
+        my $cwd = Cwd::cwd();
+        
+        CPAN::Shell->install($desired);
+        my $msg;
+        if (CPAN::Shell->expand("Module", $desired)->uptodate) {
+            $self->log_info("\n*** (back in Bioperl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
+            $msg = 'ok';
+        }
+        else {
+            $self->log_info("\n*** (back in Bioperl Build.PL) ***\n");
+            $msg = "You chose to install $desired but it failed to install";
+        }
+        
+        chdir $cwd or die "Cannot chdir() back to $cwd: $!";
+        return $msg;
+    }
+    else {
+        $self->log_info(" * You chose not to install $desired\n");
+        return 'ok';
+    }
 }
 
 # overridden simply to not print the default answer if chosen by hitting return
@@ -434,8 +481,10 @@ sub _parse_conditions {
     }
 }
 
-# when generating META.yml, as well as normal recommends format, we output
-# optional_features syntax (which CPAN doesn't seem to understand yet)
+# when generating META.yml, we output optional_features syntax (instead of
+# recommends syntax). Note that as of CPAN v1.8802 nothing useful is done
+# with this information, which is why we implement our own request to install
+# the optional modules in install_optional()
 sub prepare_metadata {
     my ($self, $node, $keys) = @_;
     my $p = $self->{properties};
@@ -468,12 +517,12 @@ sub prepare_metadata {
                     $info->{description} = $why;
                     $info->{requires} = { $req => $ver };
                     $hash->{$used_by} = $info;
-                    $p->{$_}->{$req} = $ver;
                 }
                 $add_node->('optional_features', $hash);
             }
-            
-            $add_node->($_, $p->{$_});
+            else {
+                $add_node->($_, $p->{$_});
+            }
         }
     }
     
