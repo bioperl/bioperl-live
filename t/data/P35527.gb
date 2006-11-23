@@ -1,0 +1,288 @@
+LOCUS       P35527                   623 aa            linear   PRI 19-SEP-2006
+DEFINITION  Keratin, type I cytoskeletal 9 (Cytokeratin-9) (CK-9) (Keratin-9)
+            (K9).
+ACCESSION   P35527
+VERSION     P35527  GI:81175178
+DBSOURCE    swissprot: locus K1C9_HUMAN, accession P35527;
+            class: standard.
+            extra accessions:O00109,Q14665
+            created: Jun 1, 1994.
+            sequence updated: Nov 8, 2005.
+            annotation updated: Sep 19, 2006.
+            xrefs: Z29074.1, CAA82315.1, S69510.1, AAC60619.1, X75015.1,
+            CAA52924.1, AB001594.1, BAA19418.1, I37984
+            xrefs (non-sequence databases): HSSP:P08670, IntAct:P35527,
+            Ensembl:ENSG00000171403, KEGG:hsa:3857, HGNC:6447, MIM:144200,
+            MIM:607606, ArrayExpress:P35527, GO:0005200, GO:0008544,
+            InterPro:IPR011000, InterPro:IPR001664, InterPro:IPR002957,
+            Pfam:PF00038, PRINTS:PR01248, PROSITE:PS00226
+KEYWORDS    Coiled coil; Direct protein sequencing; Disease mutation;
+            Intermediate filament; Keratin.
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+            Catarrhini; Hominidae; Homo.
+REFERENCE   1  (residues 1 to 623)
+  AUTHORS   Langbein,L., Heid,H.W., Moll,I. and Franke,W.W.
+  TITLE     Molecular characterization of the body site-specific human
+            epidermal cytokeratin 9: cDNA cloning, amino acid sequence, and
+            tissue specificity of gene expression
+  JOURNAL   Differentiation 55 (1), 57-71 (1993)
+   PUBMED   7507869
+  REMARK    NUCLEOTIDE SEQUENCE [MRNA], AND PARTIAL PROTEIN SEQUENCE.
+            TISSUE=Foot sole tissue
+            Erratum:[Differentiation. 1994 Jan;55(2):164. PMID: 7511549]
+REFERENCE   2  (residues 1 to 623)
+  AUTHORS   Reis,A., Hennies,H.-C., Langbein,L., Digweed,M., Mischke,D.,
+            Dreschler,M., Schroek,E., Royer-Pokora,B., Franke,W.W., Sperling,K.
+            and Kuester,W.
+  TITLE     Keratin 9 gene mutations in epidermolytic palmoplantar keratoderma
+            (EPPK)
+  JOURNAL   Nat. Genet. 6 (2), 174-179 (1994)
+   PUBMED   7512862
+  REMARK    NUCLEOTIDE SEQUENCE [GENOMIC DNA], AND VARIANTS EPPK LYS-161;
+            GLN-163 AND TRP-163.
+REFERENCE   3  (residues 1 to 623)
+  AUTHORS   Bienvenut,W.V.
+  JOURNAL   Unpublished
+  REMARK    PROTEIN SEQUENCE OF 14-29, AND MASS SPECTROMETRY.
+            TISSUE=Cervix carcinoma
+REFERENCE   4  (residues 1 to 623)
+  AUTHORS   Kobayashi,S., Tanaka,T., Matsuyoshi,N. and Imamura,S.
+  TITLE     Keratin 9 point mutation in the pedigree of epidermolytic
+            hereditary palmoplantar keratoderma perturbs keratin intermediate
+            filament network formation
+  JOURNAL   FEBS Lett. 386 (2-3), 149-155 (1996)
+   PUBMED   8647270
+  REMARK    NUCLEOTIDE SEQUENCE [MRNA] OF 147-372, AND VARIANT EPPK GLN-163.
+REFERENCE   5  (residues 1 to 623)
+  AUTHORS   Rosen,E.M., Meromsky,L., Romero,R., Setter,E. and Goldberg,I.
+  TITLE     Human placenta contains an epithelial scatter protein
+  JOURNAL   Biochem. Biophys. Res. Commun. 168 (3), 1082-1088 (1990)
+   PUBMED   2140676
+  REMARK    PROTEIN SEQUENCE OF 450-466.
+REFERENCE   6  (residues 1 to 623)
+  AUTHORS   Hennies,H.C., Zehender,D., Kunze,J., Kuster,W. and Reis,A.
+  TITLE     Keratin 9 gene mutational heterogeneity in patients with
+            epidermolytic palmoplantar keratoderma
+  JOURNAL   Hum. Genet. 93 (6), 649-654 (1994)
+   PUBMED   7516304
+  REMARK    VARIANTS EPPK VAL-157 AND PRO-172.
+REFERENCE   7  (residues 1 to 623)
+  AUTHORS   Bonifas,J.M., Matsumura,K., Chen,M.A., Berth-Jones,J.,
+            Hutchison,P.E., Zloczower,M., Fritsch,P.O. and Epstein,E.H. Jr.
+  TITLE     Mutations of keratin 9 in two families with palmoplantar
+            epidermolytic hyperkeratosis
+  JOURNAL   J. Invest. Dermatol. 103 (4), 474-477 (1994)
+   PUBMED   7523529
+  REMARK    VARIANT EPPK SER-161.
+REFERENCE   8  (residues 1 to 623)
+  AUTHORS   Torchard,D., Blanchet-Bardon,C., Serova,O., Langbein,L., Narod,S.,
+            Janin,N., Goguel,A.F., Bernheim,A., Franke,W.W., Lenoir,G.M. and
+            Feunteun,J.
+  TITLE     Epidermolytic palmoplantar keratoderma cosegregates with a keratin
+            9 mutation in a pedigree with breast and ovarian cancer
+  JOURNAL   Nat. Genet. 6 (1), 106-110 (1994)
+   PUBMED   7511021
+  REMARK    VARIANT EPPK TYR-161.
+REFERENCE   9  (residues 1 to 623)
+  AUTHORS   Rothnagel,J.A., Wojcik,S., Liefer,K.M., Dominey,A.M., Huber,M.,
+            Hohl,D. and Roop,D.R.
+  TITLE     Mutations in the 1A domain of keratin 9 in patients with
+            epidermolytic palmoplantar keratoderma
+  JOURNAL   J. Invest. Dermatol. 104 (3), 430-433 (1995)
+   PUBMED   7532199
+  REMARK    VARIANTS EPPK TRP-163 AND SER-168.
+REFERENCE   10 (residues 1 to 623)
+  AUTHORS   Endo,H., Hatamochi,A. and Shinkai,H.
+  TITLE     A novel mutation of a leucine residue in coil 1A of keratin 9 in
+            epidermolytic palmoplantar keratoderma
+  JOURNAL   J. Invest. Dermatol. 109 (1), 113-115 (1997)
+   PUBMED   9204965
+  REMARK    VARIANT EPPK VAL-160.
+REFERENCE   11 (residues 1 to 623)
+  AUTHORS   Covello,S.P., Irvine,A.D., McKenna,K.E., Munro,C.S., Nevin,N.C.,
+            Smith,F.J., Uitto,J. and McLean,W.H.
+  TITLE     Mutations in keratin K9 in kindreds with epidermolytic palmoplantar
+            keratoderma and epidemiology in Northern Ireland
+  JOURNAL   J. Invest. Dermatol. 111 (6), 1207-1209 (1998)
+   PUBMED   9856842
+  REMARK    VARIANTS EPPK THR-157; VAL-157 AND GLN-163.
+COMMENT     On Nov 8, 2005 this sequence version replaced gi:547748.
+            [FUNCTION] May serve an important special function either in the
+            mature palmar and plantar skin tissue or in the morphogenic program
+            of the formation of these tissues.
+            [SUBUNIT] Heterotetramer of two type I and two type II keratins.
+            [TISSUE SPECIFICITY] Expressed in the terminally differentiated
+            epidermis of palms and soles.
+            [DISEASE] Defects in KRT9 are a cause of epidermolytic palmoplantar
+            keratoderma (EPPK) [MIM:144200]; also abbreviated EHPPK. EPPK is an
+            autosomal dominant disease characterized by diffuse thickening of
+            the epidermis on the entire surface of palms and soles sharply
+            bordered with erythematous margins.
+            [MISCELLANEOUS] There are two types of cytoskeletal and
+            microfibrillar keratin, I (acidic) and II (neutral to basic) (40-55
+            and 56-70 kDa, respectively).
+            [SIMILARITY] Belongs to the intermediate filament family.
+            [CAUTION] Was originally (Ref.4) thought to be a 60 kDa chain of
+            placental scatter protein.
+            [WEB RESOURCE] NAME=Human Intermediate Filament Mutation Database;
+            URL='http://www.interfil.org'.
+            [WEB RESOURCE] NAME=GeneReviews;
+            URL='http://www.genetests.org/query?gene=KRT9'.
+FEATURES             Location/Qualifiers
+     source          1..623
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+     gene            1..623
+                     /gene="KRT9"
+     Protein         1..623
+                     /gene="KRT9"
+                     /product="Keratin, type I cytoskeletal 9"
+     Region          1..623
+                     /gene="KRT9"
+                     /region_name="Mature chain"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Keratin, type I cytoskeletal 9.
+                     /FTId=PRO_0000063640."
+     Region          1..152
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Head."
+     Region          12..13
+                     /gene="KRT9"
+                     /region_name="Conflict"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="SR -> T (in Ref. 1; AAC60619 and 2)."
+     Region          15..26
+                     /gene="KRT9"
+                     /region_name="Compositionally biased region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Poly-Gly."
+     Region          152..463
+                     /gene="KRT9"
+                     /region_name="Filament"
+                     /note="Intermediate filament protein; pfam00038"
+                     /db_xref="CDD:40140"
+     Region          153..461
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Rod."
+     Region          153..188
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Coil 1A."
+     Region          157
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="M -> T (in EPPK). /FTId=VAR_010499."
+     Region          157
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="M -> V (in EPPK). /FTId=VAR_010500."
+     Region          160
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="L -> V (in EPPK). /FTId=VAR_010501."
+     Region          161
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N -> K (in EPPK). /FTId=VAR_003822."
+     Region          161
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N -> S (in EPPK). /FTId=VAR_010502."
+     Region          161
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="N -> Y (in EPPK). /FTId=VAR_010503."
+     Region          163
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R -> Q (in EPPK). /FTId=VAR_003823."
+     Region          163
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R -> W (in EPPK). /FTId=VAR_003824."
+     Region          168
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="L -> S (in EPPK). /FTId=VAR_003825."
+     Region          172
+                     /gene="KRT9"
+                     /region_name="Variant"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Q -> P (in EPPK). /FTId=VAR_010504."
+     Region          189..207
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Linker 1."
+     Region          208..299
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Coil 1B."
+     Region          300..322
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Linker 12."
+     Region          323..461
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Coil 2."
+     Region          462..623
+                     /gene="KRT9"
+                     /region_name="Region of interest in the sequence"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Tail."
+ORIGIN      
+        1 mscrqfsssy lsrsgggggg glgsggsirs sysrfsssgg rggggrfsss sgygggssrv
+       61 cgrggggsfg ysygggsggg fsasslgggf gggsrgfgga sgggysssgg fgggfgggsg
+      121 ggfgggygsg fgglggfggg agggdggilt anekstmqel nsrlasyldk vqaleeannd
+      181 lenkiqdwyd kkgpaaiqkn yspyyntidd lkdqivdltv gnnktlldid ntrmtlddfr
+      241 ikfemeqnlr qgvdadingl rqvldnltme ksdlemqyet lqeelmalkk nhkeemsqlt
+      301 gqnsgdvnve invapgkdlt ktlndmrqey eqliaknrkd ienqyetqit qiehevsssg
+      361 qevqssakev tqlrhgvqel eielqsqlsk kaaleksled tknrycgqlq miqeqisnle
+      421 aqitdvrqei ecqnqeysll lsikmrleke ietyhnlleg gqedfessga gkiglggrgg
+      481 sggsygrgsr ggsggsyggg gsgggygggs gsrggsggsy gggsgsgggs gggygggsgg
+      541 ghsggsgggh sggsggnygg gsgsgggsgg gygggsgsrg gsggshgggs gfggesggsy
+      601 gggeeasgsg ggygggsgks shs
+//
+
