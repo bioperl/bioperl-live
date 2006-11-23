@@ -77,7 +77,7 @@ sub choose_scripts {
     while (my $thing = readdir($scripts_dir)) {
         next if $thing =~ /^\./;
         next if $thing eq 'CVS';
-        if ($thing =~ /PLS$/) {
+        if ($thing =~ /PLS$|pl$/) {
             $int_ok = 0;
             last;
         }
@@ -99,12 +99,12 @@ sub choose_scripts {
     elsif ($prompt =~ /^[iI]/) {
         $self->log_info("  - will install interactively:\n");
         
-        my $chosen_scripts = '';
+        my @chosen_scripts;
         foreach my $group_dir (@group_dirs) {
             my $group = File::Basename::basename($group_dir);
             print "    * group '$group' has:\n";
             
-            my @script_files = @{$self->rscan_dir($group_dir, qr/\.PLS$/)};
+            my @script_files = @{$self->rscan_dir($group_dir, qr/\.PLS$|\.pl$/)};
             foreach my $script_file (@script_files) {
                 my $script = File::Basename::basename($script_file);
                 print "      $script\n";
@@ -114,14 +114,15 @@ sub choose_scripts {
             die if $result =~ /^[qQ]/;
             if ($result =~ /^[yY]/) {
                 $self->log_info("      + will install group '$group'\n");
-                $chosen_scripts .= join("|", @script_files);
+                push(@chosen_scripts, @script_files);
             }
             else {
                 $self->log_info("      - will not install group '$group'\n");
             }
         }
         
-        $chosen_scripts ||= 'none';
+        my $chosen_scripts = @chosen_scripts ? join("|", @chosen_scripts) : 'none';
+        
         $self->notes(chosen_scripts => $chosen_scripts);
     }
     else {
@@ -144,7 +145,7 @@ sub script_files {
         return { map {$_, 1} split(/\|/, $chosen_scripts) } unless $chosen_scripts eq 'all';
     }
     
-    return $_ = { map {$_,1} @{$self->rscan_dir('scripts', qr/\.PLS$/)} };
+    return $_ = { map {$_,1} @{$self->rscan_dir('scripts', qr/\.PLS$|\.pl$/)} };
 }
 
 # process scripts normally, except that we change name from *.PLS to bp_*.pl
