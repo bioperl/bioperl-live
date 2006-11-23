@@ -522,7 +522,7 @@ sub find_dist_packages {
   
     # Stringify versions
     for (grep exists $_->{version}, values %prime) {
-        $_->{version} = $_->{version}->stringify;
+        $_->{version} = $_->{version}->stringify if ref($_->{version});
     }
   
     return \%prime;
