@@ -206,9 +206,9 @@ sub prompt_for_biodbgff {
         $cfg->{test_db} = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
         $cfg->{test_host} = $build->prompt("On which host is database $cfg->{test_db} running (hostname, ip address or host:port)", 'localhost');
         my $test_user = $build->prompt("User name for connecting to database $cfg->{test_db}?", 'undef');
-        $cfg->{test_user} = $test_user eq 'undef' ? undef : $test_user;
+        $cfg->{test_user} = $test_user eq 'undef' ? '' : $test_user;
         my $test_pass = $build->prompt("Password for connecting to database $cfg->{test_db}?", 'undef');
-        $cfg->{test_pass} = $test_pass eq 'undef' ? undef : $test_pass;
+        $cfg->{test_pass} = $test_pass eq 'undef' ? '' : $test_pass;
         
         my $use_host = 1;
         if ($cfg->{test_host} eq 'undef' || $cfg->{test_host} eq 'localhost') {
