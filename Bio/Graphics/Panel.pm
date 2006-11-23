@@ -2030,6 +2030,9 @@ some are shared by all glyphs:
                These options are used when creating imagemaps
                for display on the web.  See L</"Creating Imagemaps">.
 
+  -filter      Select which features to
+               display. Must be a CODE reference.
+
 B<Specifying colors:> Colors can be expressed in either of two ways:
 as symbolic names such as "cyan" and as HTML-style #RRGGBB triples.
 The symbolic names are the 140 colors defined in the Netscape/Internet
@@ -2216,6 +2219,11 @@ ordinarily move upward or downward without limit.  When many features
 collide, this can lead to excessively high images.  You can limit the
 number of levels that features will bump by providing a numeric
 B<bump_limit> option.
+
+The B<-filter> option, which must be a CODE reference, will be invoked
+once for each feature prior to rendering it. The coderef will receive
+the feature as its single option and should return true if the feature
+is to be shown and false otherwise.
 
 =head2 Options and Callbacks
 
