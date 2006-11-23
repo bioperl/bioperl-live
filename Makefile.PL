@@ -17,9 +17,29 @@ warn <<'WARN';
   perl Build.PL
   ./Build test
   ./Build install
+  
+  If you're seeing this message whilst installing with CPAN, consider
+  killing this installation and changing your CPAN configuration before
+  trying to install again:
+  
+  cpan> o conf init prefer_installer
+  Choose 'MB'.
+  cpan> o conf commit
+  cpan> q
+  
+  Otherwise, if you would like to install the optional dependencies,
+  install Bundle::BioPerl v2.1.8 or greater
+
 --!
 
 WARN
+
+for (1..5) {
+  local $| = 1;
+  print ". ";
+  sleep(1);
+}
+print "\n";
 
 #
 # Start with object preamble and setup of variables that might need changing
@@ -36,8 +56,13 @@ use File::Path 'rmtree';
 use Cwd;
 use IO::File;
 
-# All Bioperl dependencies on external modules are defined here
-# (these are all considered optional)
+# All required Bioperl dependencies on external modules are defined here
+my %prereq = (
+  'IO::String'                => 0,
+  'DB_File'                   => 0
+);
+
+# All optional Bioperl dependencies on external modules are defined here
 my %packages = (
   'Ace'                       => '0.0/Aceperl/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
   'Bio::ASN1::EntrezGene'     => '0.0/Entrez Gene Bioperl Parser/parsing entrezgene/Bio::SeqIO::entrezgene',
@@ -73,13 +98,6 @@ my %packages = (
   'XML::Writer'               => '0.4/Parsing and writing of XML documents/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
 );
 
-# We don't want CPAN, Bundle::BioPerl et al. to know about these for various
-# reasons (eg. because they would cause a circular dependency), so will exclude
-# them from PREREQ_PM later on
-my %exclude_from_prereqs = (
-  'Bio::ASN1::EntrezGene' => 'it would cause a circular dependency'
-);
-
 
 #
 # Main code
@@ -111,9 +129,7 @@ my @scripts_to_install = eval {get_scripts_to_install()};
 prompt_for_biodbgff();
 setup_bioseqfeaturestore();
 
-# notify about optional modules that haven't been installed, and generate hash
-# for prereqs needed later in WriteMakefile
-my %prereq;
+# notify about optional modules that haven't been installed
 my $error = 0;
 print "\n*** Optional dependencies section ***\n";
 while (my ($name, $value) = each %packages) {
@@ -123,26 +139,15 @@ while (my ($name, $value) = each %packages) {
   if (! eval "require $name;" ||  (${$name.'::VERSION'} || 0) < $ver) {
     my @modules = split(',', $module);
     my $modules = join("\n * ", @modules);
-    print "External Module '$name' >= $ver ($desc) is not installed on this computer.\n The following Bioperl modules need it for $expl:\n * $modules\n";
+    print "External Module '$name' >= $ver ($desc) is not installed on this computer.\n The following Bioperl modules need it for $expl:\n * $modules\n\n";
     $error = 1;
-    
-    if (exists $exclude_from_prereqs{$name}) {
-      print "Additionally, it will not be considered a pre-requisite\n(and therefore will not be automatically installed by CPAN) because:\n $exclude_from_prereqs{$name}.\n\n";
-    }
-    else {
-      print "\n";
-    }
-  }
-  
-  unless (exists $exclude_from_prereqs{$name}) {
-    $prereq{$name} = $ver;
   }
 }
 if ($error == 1) {
   print <<QQ_ERROR_QQ;
 Information:
 
-  Some Perl modules are missing, listed above and below. The only
+  Some Perl modules are missing, listed above. The only
   functionality that will be affected is described above;
   the rest of Bioperl will work fine without them.
 
@@ -157,7 +162,7 @@ Information:
 QQ_ERROR_QQ
 }
 else {
-	print "All dependencies are installed\n\n";
+  print "All dependencies are installed\n\n";
 }
 
 # write the makefile
