@@ -11,8 +11,9 @@
 # nothing else here is likely to need changing.
 
 use strict;
-use lib '.';
 use ModuleBuildBioperl;
+
+our @drivers;
 
 # Set up the ModuleBuildBioperl object
 my $build = ModuleBuildBioperl->new(
@@ -73,12 +74,14 @@ my $build = ModuleBuildBioperl->new(
                                                      },
                             BioDBGFF              => {
                                                         description => "BioDBGFF database tests (will need to answer questions before really enabling)",
-                                                        requires    => { 'DBI' => 0 }
+                                                        requires    => { 'DBI' => 0 },
+                                                        excludes_os => ['mswin'],
+                                                        test        => \&test_biodbgff # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
                                                      },
                             BioDBSeqFeature_mysql => {
                                                         description => "MySQL tests for Bio::DB::SeqFeature::Store",
                                                         requires    => { 'DBI' => 0, 'DBD::mysql' => 0 },
-                                                        test        => \&test_db # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
+                                                        test        => \&test_db
                                                      },
 # The following code works, but since no tests in the test suite actually make use of this functionality, don't use it yet
 #                            Network               => {
@@ -91,7 +94,7 @@ my $build = ModuleBuildBioperl->new(
     dynamic_config      => 1,
     create_makefile_pl  => 'passthrough'
     
-    #pm_files           => {}, # modules in Bio are treated as if they were in lib and auto-installed
+    #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
 );
 
@@ -112,7 +115,7 @@ if ($build->feature('BioDBSeqFeature_mysql')) {
 
 # Ask questions
 $build->choose_scripts;
-prompt_for_biodbgff();
+prompt_for_biodbgff() if $build->feature('BioDBGFF');
 
 # Request that some scripts run post-installation
 $build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
@@ -158,80 +161,84 @@ END
     $build->add_to_manifest_skip($path);
 }
 
+sub test_biodbgff {
+    eval {require DBI;};  # if not installed, this sub won't actually be called
+    @drivers = DBI->available_drivers;
+    unless (grep {/mysql|Pg|Oracle/i} @drivers) {
+        return "MySQL, Pg nor Oracle DBI drivers are installed";
+    }
+    return;
+}
+
 sub prompt_for_biodbgff {
-    return if ( $^O =~ /mswin/i);
-    $build->feature('BioDBGFF') || return;
-    my @drivers = DBI->available_drivers;
-    if (grep {/mysql|Pg|Oracle/i} @drivers) {
-        my $proceed = $build->y_n("Do you want to run the BioDBGFF tests (uses a database)? y/n", 'n');
+    my $proceed = $build->y_n("Do you want to run the BioDBGFF live database tests? y/n", 'n');
+    
+    if ($proceed) {
+        my @driver_choices;
+        foreach my $poss ('mysql', 'Pg', 'Oracle') {
+            if (grep {/$poss/i} @drivers) {
+                my $choice = $poss;
+                $choice =~ s/^(.)/[$1]/;
+                push(@driver_choices, $choice);
+            }
+        }
         
-        if ($proceed) {
-            my @driver_choices;
-            foreach my $poss ('mysql', 'Pg', 'Oracle') {
-                if (grep {/$poss/i} @drivers) {
-                    my $choice = $poss;
-                    $choice =~ s/^(.)/[$1]/;
-                    push(@driver_choices, $choice);
-                }
-            }
-            
-            my $driver;
-            if (@driver_choices > 1) {
-                my ($default) = $driver_choices[0] =~ /\[(.)/;
-                $driver = $build->prompt("Which database driver should be used? ".join(" ", @driver_choices), $default);
-            }
-            else {
-                ($driver) = $driver_choices[0] =~ /\[(.)/;
-            }
-            if ($driver =~ /^[mM]/) {
-                $driver = 'mysql';
-            }
-            elsif ($driver =~ /^[pP]/) {
-                $driver = 'Pg';
-            }
-            elsif ($driver =~ /^[oO]/) {
-                $driver = 'Oracle';
-            }
-            
-            my $test_db = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
-            my $test_host = $build->prompt("On which host is database '$test_db' running (hostname, ip address or host:port)", 'localhost');
-            my $test_user = $build->prompt("User name for connecting to database '$test_db'?", 'undef');
-            my $test_pass = $build->prompt("Password for connecting to database '$test_db'?", 'undef');
-            
-            my $use_host = 1;
-            if ($test_host eq 'undef' || $test_host eq 'localhost') {
-                $use_host = 0;
-            }
-            
-            my $test_dsn;
-            if ($driver eq 'Pg') {
-                $test_dsn = "dbi:$driver:dbname=$test_db";
-            }
-            else {
-                $test_dsn = "dbi:$driver:database=$test_db";
-            }
-            if ($use_host) {
-                $test_dsn .= ";host=$test_host";
-            }
-            
-            $build->notes(dbd_driver => $driver);
-            $build->notes(test_db => $test_db);
-            $build->notes(test_host => $test_host);
-            $build->notes(test_user => $test_user eq 'undef' ? undef : $test_user);
-            $build->notes(test_pass => $test_pass eq 'undef' ? undef : $test_pass);
-            $build->notes(test_dsn => $test_dsn);
-            
-            $build->log_info("  - will run the BioDBGFF tests with database driver '$driver' and these settings:\n",
-                            "    Database $test_db\n",
-                            "    Host     $test_host\n",
-                            "    DSN      $test_dsn\n",
-                            "    User     $test_user\n",
-                            "    Password $test_pass\n");
+        my $driver;
+        if (@driver_choices > 1) {
+            my ($default) = $driver_choices[0] =~ /\[(.)/;
+            $driver = $build->prompt("Which database driver should be used? ".join(" ", @driver_choices), $default);
         }
         else {
-            $build->log_info("  - will not run the BioDBGFF live database tests\n");
+            ($driver) = $driver_choices[0] =~ /\[(.)/;
+        }
+        if ($driver =~ /^[mM]/) {
+            $driver = 'mysql';
+        }
+        elsif ($driver =~ /^[pP]/) {
+            $driver = 'Pg';
+        }
+        elsif ($driver =~ /^[oO]/) {
+            $driver = 'Oracle';
         }
         
-        $build->log_info("\n");
+        my $test_db = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
+        my $test_host = $build->prompt("On which host is database '$test_db' running (hostname, ip address or host:port)", 'localhost');
+        my $test_user = $build->prompt("User name for connecting to database '$test_db'?", 'undef');
+        my $test_pass = $build->prompt("Password for connecting to database '$test_db'?", 'undef');
+        
+        my $use_host = 1;
+        if ($test_host eq 'undef' || $test_host eq 'localhost') {
+            $use_host = 0;
+        }
+        
+        my $test_dsn;
+        if ($driver eq 'Pg') {
+            $test_dsn = "dbi:$driver:dbname=$test_db";
+        }
+        else {
+            $test_dsn = "dbi:$driver:database=$test_db";
+        }
+        if ($use_host) {
+            $test_dsn .= ";host=$test_host";
+        }
+        
+        $build->notes(dbd_driver => $driver);
+        $build->notes(test_db => $test_db);
+        $build->notes(test_host => $test_host);
+        $build->notes(test_user => $test_user eq 'undef' ? undef : $test_user);
+        $build->notes(test_pass => $test_pass eq 'undef' ? undef : $test_pass);
+        $build->notes(test_dsn => $test_dsn);
+        
+        $build->log_info("  - will run the BioDBGFF tests with database driver '$driver' and these settings:\n",
+                        "    Database $test_db\n",
+                        "    Host     $test_host\n",
+                        "    DSN      $test_dsn\n",
+                        "    User     $test_user\n",
+                        "    Password $test_pass\n");
     }
+    else {
+        $build->log_info("  - will not run the BioDBGFF live database tests\n");
+    }
+    
+    $build->log_info("\n");
 }
