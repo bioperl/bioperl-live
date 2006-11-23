@@ -40,12 +40,6 @@ SYSTEM REQUIREMENTS
       but some need to be obtained from the CPAN site. The list of external
       modules is included in the DEPENDENCIES file.
 
-When not using CPAN to install Bioperl itself, the CPAN Bioperl Bundle
-(Bundle::BioPerl) makes installation of these external modules easy. Simply
-install the bundle using your CPAN shell and many optional modules will be
-installed. See THE BIOPERL BUNDLE, below. However, it is recommended you use
-CPAN to install Bioperl and not use Bundle::BioPerl.
-
 OPTIONAL
 
    * ANSI C or GNU C compiler (gcc) for XS extensions (the
@@ -61,32 +55,20 @@ ADDITIONAL INSTALLATION INFORMATION
 
 THE BIOPERL BUNDLE
 
-You do not need to install Bundle::BioPerl if you will install Bioperl
-using CPAN. This is for users manually installing Bioperl from archives
-or CVS, who also want an easy way to install the optional external
-modules that Bioperl makes use of.
-
-Bundle::BioPerl does *not* install Bioperl.
-
-You typically need root privileges to install using CPAN. If you don't
-have these privileges please see INSTALLING BIOPERL IN A PERSONAL
-MODULE AREA for additional information.
-
-Install Bundle::Bioperl using CPAN. One way:
-
- >perl -MCPAN -e "install Bundle::BioPerl"
-
-Another way:
-
- >perl -MCPAN -e shell
- cpan>install Bundle::BioPerl
-
+Users of previous versions of Bioperl may remember Bundle::BioPerl.
+You no longer need to install Bundle::BioPerl. Instead, the normal
+installation process will ask you if you'd like to install the
+optional external module dependencies that Bioperl has.
 
 INSTALLING BIOPERL THE EASY WAY USING CPAN
 
 You can use the CPAN shell to install Bioperl. For example:
 
  >perl -MCPAN -e shell
+ 
+Or you might have the cpan alias installed:
+
+ >cpan
 
 Then find the name of the Bioperl version you want:
 
@@ -103,7 +85,7 @@ Now install:
  cpan>install S/SE/SENDU/bioperl-1.5.2_100.tar.gz
 
 If you've installed everything perfectly and all the network connections
-are working then you may pass all the tests run in the 'make test' phase.
+are working then you may pass all the tests run in the './Build test' phase.
 It's also possible that you may fail some tests. Possible explanations:
 problems with local Perl installation, network problems, previously
 undetected bug in Bioperl, flawed test script, problems with CGI
@@ -132,13 +114,13 @@ Download, then unpack the tar file. For example:
  >tar xvf bioperl-1.5.2_100.tar
  >cd bioperl-1.5.2_100
 
-Now issue the make commands:
+Now issue the build commands:
 
  >perl Build.PL
  >./Build test
 
 If you've installed everything perfectly and all the network connections
-are working then you may pass all the tests run in the 'make test' phase.
+are working then you may pass all the tests run in the './Build test' phase.
 It's also possible that you may fail some tests. Possible explanations:
 problems with local Perl installation, network problems, previously
 undetected bug in Bioperl, flawed test script, problems with CGI script
@@ -148,7 +130,7 @@ than 12000 individual tests, a few failed tests may not affect your usage
 of Bioperl.
 
 If you decide that the failed tests will not affect how you intend to use
-Bioperl and you'd like to install anyway do:
+Bioperl and you'd like to install anyway, or if all tests were fine, do:
 
  >./Build install
 
@@ -237,7 +219,7 @@ INSTALLING BIOPERL SCRIPTS
 
 Bioperl comes with a set of production-quality scripts that are
 kept in the scripts/ directory. You can install these scripts if you'd
-like, simply answer the questions on 'perl Build.PL'.
+like, simply answer the questions during 'perl Build.PL'.
 The installation directory can be specified by
  perl Build.PL
  ./Build install --install_path script=/foo/scripts
@@ -281,12 +263,13 @@ You can get similar behaviour by using this instead:
 For more information, see Module::Build::Cookbook documentation for
 Installing_in_the_same_location_as_ExtUtils::MakeMaker
 
-You can also use CPAN to install accessory modules in your local
-directory. First enter the CPAN shell, then set the arguments for the
-command "perl Makefile.PL", like this:
+You can also use CPAN to install modules in your local directory. First
+enter the CPAN shell, then set the arguments for the commands
+"perl Makefile.PL" and "perl Build.PL", like this:
 
  >perl -e shell -MCPAN
  cpan>o conf makepl_arg LIB=/home/users/dag/My_Local_Perl_Modules
+ cpan>o conf mbuild_arg "--install_path lib=/home/users/dag/My_Local_Perl_Modules"
 
 INSTALLING BIOPERL MODULES THE HARD WAY
 
