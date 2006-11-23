@@ -265,11 +265,12 @@ Installing_in_the_same_location_as_ExtUtils::MakeMaker
 
 You can also use CPAN to install modules in your local directory. First
 enter the CPAN shell, then set the arguments for the commands
-"perl Makefile.PL" and "perl Build.PL", like this:
+"perl Makefile.PL" and "./Build install", like this:
 
  >perl -e shell -MCPAN
  cpan>o conf makepl_arg LIB=/home/users/dag/My_Local_Perl_Modules
- cpan>o conf mbuild_arg "--install_path lib=/home/users/dag/My_Local_Perl_Modules"
+ cpan>o conf mbuild_install_arg "--install_path lib=/home/users/dag/My_Local_Perl_Modules"
+ cpan>o conf commit
 
 INSTALLING BIOPERL MODULES THE HARD WAY
 
