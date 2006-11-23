@@ -51,6 +51,9 @@ use strict;
 use warnings;
 
 our $VERSION = 1.005002005;
+our @extra_types = qw(options test excludes_os);
+our $checking_types = "requires|conflicts|".join("|", @extra_types);
+
 
 # our modules are in Bio, not lib
 sub find_pm_files {
@@ -167,7 +170,7 @@ sub process_script_files {
     }
 }
 
-# extended to handle option and test checking
+# extended to handle extra checking types
 sub features {
     my $self = shift;
     my $ph = $self->{phash};
@@ -180,7 +183,7 @@ sub features {
         
         if (my $info = $ph->{auto_features}->access($key)) {
             my $failures = $self->prereq_failures($info);
-            my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts|options|test)$/, keys %$failures ) ? 1 : 0;
+            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
             return !$disabled;
         }
         
@@ -192,7 +195,7 @@ sub features {
     my %auto_features = $ph->{auto_features}->access();
     while (my ($name, $info) = each %auto_features) {
         my $failures = $self->prereq_failures($info);
-        my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts|options|test)$/, keys %$failures ) ? 1 : 0;
+        my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
         $features{$name} = $disabled ? 0 : 1;
     }
     %features = (%features, $ph->{features}->access());
@@ -201,8 +204,8 @@ sub features {
 }
 *feature = \&features;
 
-# overridden to fix a stupid bug in Module::Build and extended to handle option
-# checking and code test checking here
+# overridden to fix a stupid bug in Module::Build and extended to handle extra
+# checking types
 sub check_autofeatures {
     my ($self) = @_;
     my $features = $self->auto_features;
@@ -225,7 +228,7 @@ sub check_autofeatures {
         }
         
         if ( my $failures = $self->prereq_failures($info) ) {
-            my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts|options|test)$/, keys %$failures ) ? 1 : 0;
+            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
             $self->log_info( $disabled ? "disabled\n" : "enabled\n" );
             
             my $log_text;
@@ -247,12 +250,13 @@ sub check_autofeatures {
 }
 
 # extend to handle option checking (which takes an array ref) and code test
-# checking (which takes a code ref and must return a message only on failure).
+# checking (which takes a code ref and must return a message only on failure)
+# and excludes_os (which takes an array ref of regexps).
 # also handles more informative output of recommends section
 sub prereq_failures {
     my ($self, $info) = @_;
     
-    my @types = (@{ $self->prereq_action_types }, 'options', 'test');
+    my @types = (@{ $self->prereq_action_types }, @extra_types);
     $info ||= {map {$_, $self->$_()} @types};
     
     my $out = {};
@@ -277,6 +281,15 @@ sub prereq_failures {
             if (@not_ok > 0) {
                 $status->{message} = "Command line option(s) '@not_ok' not supplied";
                 $out->{$type}{'options'} = $status;
+            }
+        }
+        elsif ($type eq 'excludes_os') {
+            foreach my $os (@{$prereqs}) {
+                if ($^O =~ /$os/i) {
+                    $status->{message} = "This feature isn't supported under your OS ($os)";
+                    $out->{$type}{'excludes_os'} = $status;
+                    last;
+                }
             }
         }
         else {
