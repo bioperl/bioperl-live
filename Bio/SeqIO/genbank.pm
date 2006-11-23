@@ -504,7 +504,7 @@ sub next_seq {
 				my $db;
 				# this is because GenBank dropped the spaces!!!
 				# I'm sure we're not going to get this right
-				if( $id =~ s/^(EchoBASE|IntAct|SWISS-2DPAGE|ECO2DBASE|ECOGENE|TIGRFAMs|TIGR|GO|InterPro|Pfam|PROSITE|SGD|GermOnline|HSSP|PhosSite)//i ) {
+				if( $id =~ s/^(EchoBASE|IntAct|SWISS-2DPAGE|ECO2DBASE|ECOGENE|TIGRFAMs|TIGR|GO|InterPro|Pfam|PROSITE|SGD|GermOnline|HSSP|PhosSite)://i ) {
 				    $db = $1;
 				}
 				$annotation->add_Annotation
