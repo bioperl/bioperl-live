@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 235;
+	plan tests => 239;
 }
 
 use Bio::SeqIO;
