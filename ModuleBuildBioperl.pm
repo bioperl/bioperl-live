@@ -9,11 +9,51 @@
 # cleanly override.
 
 package ModuleBuildBioperl;
-use base Module::Build;
+
+BEGIN {
+    # we really need Module::Build to be installed
+    unless (eval "use Module::Build; 1") {
+        print "This package requires Module::Build to install itself.\n";
+        
+        require ExtUtils::MakeMaker;
+        my $yn = ExtUtils::MakeMaker::prompt('  Install Module::Build now from CPAN?', 'y');
+        
+        unless ($yn =~ /^y/i) {
+            die " *** Cannot install without Module::Build.  Exiting ...\n";
+        }
+        
+        require Cwd;
+        require File::Spec;
+        require File::Copy;
+        require CPAN;
+        
+        # Save this because CPAN will chdir all over the place.
+        my $cwd = Cwd::cwd();
+        
+        my $build_pl = File::Spec->catfile($cwd, "Build.PL");
+        
+        File::Copy::move($build_pl, $build_pl."hidden"); # avoid bizarre bug with Module::Build tests using the wrong Build.PL if it happens to be in PERL5LIB
+        CPAN::Shell->install('Module::Build');
+        File::Copy::move($build_pl."hidden", $build_pl);
+        CPAN::Shell->expand("Module", "Module::Build")->uptodate or die "Couldn't install Module::Build, giving up.\n";
+        
+        chdir $cwd or die "Cannot chdir() back to $cwd: $!";
+    }
+    
+    eval "use base Module::Build; 1" or die $@;
+    
+    # ensure we'll be able to reload this module later by adding its path to inc
+    use Cwd;
+    use lib Cwd::cwd();
+}
+
 use strict;
 use warnings;
 
-our $VERSION = 1.005002004;
+our $VERSION = 1.005002005;
+our @extra_types = qw(options test excludes_os);
+our $checking_types = "requires|conflicts|".join("|", @extra_types);
+
 
 # our modules are in Bio, not lib
 sub find_pm_files {
@@ -130,7 +170,7 @@ sub process_script_files {
     }
 }
 
-# extended to handle option and test checking
+# extended to handle extra checking types
 sub features {
     my $self = shift;
     my $ph = $self->{phash};
@@ -143,7 +183,7 @@ sub features {
         
         if (my $info = $ph->{auto_features}->access($key)) {
             my $failures = $self->prereq_failures($info);
-            my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts|options|test)$/, keys %$failures ) ? 1 : 0;
+            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
             return !$disabled;
         }
         
@@ -155,7 +195,7 @@ sub features {
     my %auto_features = $ph->{auto_features}->access();
     while (my ($name, $info) = each %auto_features) {
         my $failures = $self->prereq_failures($info);
-        my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts|options|test)$/, keys %$failures ) ? 1 : 0;
+        my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
         $features{$name} = $disabled ? 0 : 1;
     }
     %features = (%features, $ph->{features}->access());
@@ -164,8 +204,8 @@ sub features {
 }
 *feature = \&features;
 
-# overridden to fix a stupid bug in Module::Build and extended to handle option
-# checking and code test checking here
+# overridden to fix a stupid bug in Module::Build and extended to handle extra
+# checking types
 sub check_autofeatures {
     my ($self) = @_;
     my $features = $self->auto_features;
@@ -188,7 +228,7 @@ sub check_autofeatures {
         }
         
         if ( my $failures = $self->prereq_failures($info) ) {
-            my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts|options|test)$/, keys %$failures ) ? 1 : 0;
+            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
             $self->log_info( $disabled ? "disabled\n" : "enabled\n" );
             
             my $log_text;
@@ -210,12 +250,13 @@ sub check_autofeatures {
 }
 
 # extend to handle option checking (which takes an array ref) and code test
-# checking (which takes a code ref and must return a message only on failure).
+# checking (which takes a code ref and must return a message only on failure)
+# and excludes_os (which takes an array ref of regexps).
 # also handles more informative output of recommends section
 sub prereq_failures {
     my ($self, $info) = @_;
     
-    my @types = (@{ $self->prereq_action_types }, 'options', 'test');
+    my @types = (@{ $self->prereq_action_types }, @extra_types);
     $info ||= {map {$_, $self->$_()} @types};
     
     my $out = {};
@@ -242,6 +283,15 @@ sub prereq_failures {
                 $out->{$type}{'options'} = $status;
             }
         }
+        elsif ($type eq 'excludes_os') {
+            foreach my $os (@{$prereqs}) {
+                if ($^O =~ /$os/i) {
+                    $status->{message} = "This feature isn't supported under your OS ($os)";
+                    $out->{$type}{'excludes_os'} = $status;
+                    last;
+                }
+            }
+        }
         else {
             while ( my ($modname, $spec) = each %$prereqs ) {
                 $status = $self->check_installed_status($modname, $spec);
@@ -263,6 +313,10 @@ sub prereq_failures {
                                   : "$modname ($status->{have}) is installed, but we prefer to have $preferred_version");
                     
                     $status->{message} .= "\n   (wanted for $why, used by $by_what)";
+                    
+                    my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
+                    next if $installed eq 'ok';
+                    $status->{message} = $installed unless $installed eq 'skip';
                 }
                 else {
                     next if $status->{ok};
@@ -274,6 +328,60 @@ sub prereq_failures {
     }
     
     return keys %{$out} ? $out : return;
+}
+
+# install optional modules listed in 'recommends' arg to new that weren't
+# already installed. Should only be called by prereq_failures
+sub install_optional {
+    my ($self, $desired, $version, $msg) = @_;
+    
+    unless (defined $self->{ask_optional}) {
+        $self->{ask_optional} = $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
+    }
+    return 'skip' if $self->{ask_optional} =~ /^n/i;
+    
+    my $install;
+    if ($self->{ask_optional} =~ /^a/i) {
+        $self->log_info(" * $msg\n");
+        $install = 1;
+    }
+    else {
+        $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
+    }
+    
+    if ($install) {
+        # Here we use CPAN to actually install the desired module, the benefit
+        # being we continue even if installation fails, and that this works
+        # even when not using CPAN to install.
+        #
+        # The alternative would be to simply append the module to 'requires'
+        # and let CPAN deal with required modules in the normal way, but
+        # older CPANs don't do that (look only at META.yml), and we get
+        # total failure for something that was only optional
+        require Cwd;
+        require CPAN;
+        
+        # Save this because CPAN will chdir all over the place.
+        my $cwd = Cwd::cwd();
+        
+        CPAN::Shell->install($desired);
+        my $msg;
+        if (CPAN::Shell->expand("Module", $desired)->uptodate) {
+            $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
+            $msg = 'ok';
+        }
+        else {
+            $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n");
+            $msg = "You chose to install $desired but it failed to install";
+        }
+        
+        chdir $cwd or die "Cannot chdir() back to $cwd: $!";
+        return $msg;
+    }
+    else {
+        $self->log_info(" * You chose not to install $desired\n");
+        return 'ok';
+    }
 }
 
 # overridden simply to not print the default answer if chosen by hitting return
@@ -434,8 +542,10 @@ sub _parse_conditions {
     }
 }
 
-# when generating META.yml, as well as normal recommends format, we output
-# optional_features syntax (which CPAN doesn't seem to understand yet)
+# when generating META.yml, we output optional_features syntax (instead of
+# recommends syntax). Note that as of CPAN v1.8802 nothing useful is done
+# with this information, which is why we implement our own request to install
+# the optional modules in install_optional()
 sub prepare_metadata {
     my ($self, $node, $keys) = @_;
     my $p = $self->{properties};
@@ -468,12 +578,12 @@ sub prepare_metadata {
                     $info->{description} = $why;
                     $info->{requires} = { $req => $ver };
                     $hash->{$used_by} = $info;
-                    $p->{$_}->{$req} = $ver;
                 }
                 $add_node->('optional_features', $hash);
             }
-            
-            $add_node->($_, $p->{$_});
+            else {
+                $add_node->($_, $p->{$_});
+            }
         }
     }
     
@@ -607,90 +717,6 @@ sub test_internet {
     return;
 }
 
-# we seem to need to correct the produced build script so that it actually
-# loads this module on a resume (only added the "use lib '$q{base_dir}';" line)
-sub print_build_script {
-    my ($self, $fh) = @_;
-    my $build_package = $self->build_class;
-    my $closedata="";
-    my %q = map {$_, $self->$_()} qw(config_dir base_dir);
-    my $case_tolerant = 0+(File::Spec->can('case_tolerant') && File::Spec->case_tolerant);
-    $q{base_dir} = uc $q{base_dir} if $case_tolerant;
-    $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
-    $q{magic_numfile} = $self->config_file('magicnum');
-  
-    my @myINC = $self->_added_to_INC;
-    for (@myINC, values %q) {
-      $_ = File::Spec->canonpath( $_ );
-      s/([\\\'])/\\$1/g;
-    }
-  
-    my $quoted_INC = join ",\n", map "     '$_'", @myINC;
-    my $shebang = $self->_startperl;
-    my $magic_number = $self->magic_number;
-  
-    print $fh <<EOF;
-$shebang
-
-use strict;
-use Cwd;
-use File::Basename;
-use File::Spec;
-
-sub magic_number_matches {
-  return 0 unless -e '$q{magic_numfile}';
-  local *FH;
-  open FH, '$q{magic_numfile}' or return 0;
-  my \$filenum = <FH>;
-  close FH;
-  return \$filenum == $magic_number;
-}
-
-my \$progname;
-my \$orig_dir;
-BEGIN {
-  \$^W = 1;  # Use warnings
-  \$progname = basename(\$0);
-  \$orig_dir = Cwd::cwd();
-  my \$base_dir = '$q{base_dir}';
-  if (!magic_number_matches()) {
-    unless (chdir(\$base_dir)) {
-      die ("Couldn't chdir(\$base_dir), aborting\\n");
-    }
-    unless (magic_number_matches()) {
-      die ("Configuration seems to be out of date, please re-run 'perl Build.PL' again.\\n");
-    }
-  }
-  unshift \@INC,
-    (
-$quoted_INC
-    );
-}
-
-close(*DATA) unless eof(*DATA); # ensure no open handles to this script
-
-use lib '$q{base_dir}';
-use $build_package;
-
-# Some platforms have problems setting \$^X in shebang contexts, fix it up here
-\$^X = Module::Build->find_perl_interpreter;
-
-if (-e 'Build.PL' and not $build_package->up_to_date('Build.PL', \$progname)) {
-   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
-}
-
-# This should have just enough arguments to be able to bootstrap the rest.
-my \$build = $build_package->resume (
-  properties => {
-    config_dir => '$q{config_dir}',
-    orig_dir => \$orig_dir,
-  },
-);
-
-\$build->dispatch;
-EOF
-}
-
 # nice directory names for dist-related actions
 sub dist_dir {
     my ($self) = @_;
@@ -724,41 +750,6 @@ sub dist_dir {
 sub ppm_name {
     my $self = shift;
     return $self->dist_dir.'-ppm';
-}
-
-# we make all archive formats we want, not just .tar.gz
-# we also auto-run manifest action, since we always want to re-create
-# MANIFEST and MANIFEST.SKIP just-in-time
-sub ACTION_dist {
-    my ($self) = @_;
-    
-    $self->depends_on('manifest');
-    $self->depends_on('distdir');
-    
-    my $dist_dir = $self->dist_dir;
-    
-    $self->make_zip($dist_dir);
-    $self->make_tarball($dist_dir);
-    $self->delete_filetree($dist_dir);
-}
-
-# makes zip file for windows users and bzip2 files as well
-sub make_zip {
-    my ($self, $dir, $file) = @_;
-    $file ||= $dir;
-    
-    $self->log_info("Creating $file.zip\n");
-    my $zip_flags = $self->verbose ? '-r' : '-rq';
-    $self->do_system($self->split_like_shell("zip"), $zip_flags, "$file.zip", $dir);
-    
-    $self->log_info("Creating $file.bz2\n");
-    require Archive::Tar;
-    # Archive::Tar versions >= 1.09 use the following to enable a compatibility
-    # hack so that the resulting archive is compatible with older clients.
-    $Archive::Tar::DO_NOT_USE_PREFIX = 0;
-    my $files = $self->rscan_dir($dir);
-    Archive::Tar->create_archive("$file.tar", 0, @$files);
-    $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
 }
 
 # we make all archive formats we want, not just .tar.gz
