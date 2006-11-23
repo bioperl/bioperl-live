@@ -10,9 +10,8 @@
 
 package ModuleBuildBioperl;
 
-# we really need Module::Build to be installed
 BEGIN {
-    $being_installed = 0;
+    # we really need Module::Build to be installed
     unless (eval "use Module::Build; 1") {
         print "This package requires Module::Build to install itself.\n";
         
@@ -42,12 +41,16 @@ BEGIN {
     }
     
     eval "use base Module::Build; 1" or die $@;
+    
+    # ensure we'll be able to reload this module later by adding its path to inc
+    use Cwd;
+    use lib Cwd::cwd();
 }
 
 use strict;
 use warnings;
 
-our $VERSION = 1.005002004;
+our $VERSION = 1.005002005;
 
 # our modules are in Bio, not lib
 sub find_pm_files {
@@ -314,6 +317,8 @@ sub prereq_failures {
     return keys %{$out} ? $out : return;
 }
 
+# install optional modules listed in 'recommends' arg to new that weren't
+# already installed. Should only be called by prereq_failures
 sub install_optional {
     my ($self, $desired, $version, $msg) = @_;
     
@@ -697,90 +702,6 @@ sub test_internet {
         return "Could not connect to the internet (http://search.cpan.org/)";
     }
     return;
-}
-
-# we seem to need to correct the produced build script so that it actually
-# loads this module on a resume (only added the "use lib '$q{base_dir}';" line)
-sub print_build_script {
-    my ($self, $fh) = @_;
-    my $build_package = $self->build_class;
-    my $closedata="";
-    my %q = map {$_, $self->$_()} qw(config_dir base_dir);
-    my $case_tolerant = 0+(File::Spec->can('case_tolerant') && File::Spec->case_tolerant);
-    $q{base_dir} = uc $q{base_dir} if $case_tolerant;
-    $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
-    $q{magic_numfile} = $self->config_file('magicnum');
-  
-    my @myINC = $self->_added_to_INC;
-    for (@myINC, values %q) {
-      $_ = File::Spec->canonpath( $_ );
-      s/([\\\'])/\\$1/g;
-    }
-  
-    my $quoted_INC = join ",\n", map "     '$_'", @myINC;
-    my $shebang = $self->_startperl;
-    my $magic_number = $self->magic_number;
-  
-    print $fh <<EOF;
-$shebang
-
-use strict;
-use Cwd;
-use File::Basename;
-use File::Spec;
-
-sub magic_number_matches {
-  return 0 unless -e '$q{magic_numfile}';
-  local *FH;
-  open FH, '$q{magic_numfile}' or return 0;
-  my \$filenum = <FH>;
-  close FH;
-  return \$filenum == $magic_number;
-}
-
-my \$progname;
-my \$orig_dir;
-BEGIN {
-  \$^W = 1;  # Use warnings
-  \$progname = basename(\$0);
-  \$orig_dir = Cwd::cwd();
-  my \$base_dir = '$q{base_dir}';
-  if (!magic_number_matches()) {
-    unless (chdir(\$base_dir)) {
-      die ("Couldn't chdir(\$base_dir), aborting\\n");
-    }
-    unless (magic_number_matches()) {
-      die ("Configuration seems to be out of date, please re-run 'perl Build.PL' again.\\n");
-    }
-  }
-  unshift \@INC,
-    (
-$quoted_INC
-    );
-}
-
-close(*DATA) unless eof(*DATA); # ensure no open handles to this script
-
-use lib '$q{base_dir}';
-use $build_package;
-
-# Some platforms have problems setting \$^X in shebang contexts, fix it up here
-\$^X = Module::Build->find_perl_interpreter;
-
-if (-e 'Build.PL' and not $build_package->up_to_date('Build.PL', \$progname)) {
-   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
-}
-
-# This should have just enough arguments to be able to bootstrap the rest.
-my \$build = $build_package->resume (
-  properties => {
-    config_dir => '$q{config_dir}',
-    orig_dir => \$orig_dir,
-  },
-);
-
-\$build->dispatch;
-EOF
 }
 
 # nice directory names for dist-related actions
