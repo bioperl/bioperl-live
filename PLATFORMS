@@ -1,4 +1,4 @@
-# $Id: PLATFORMS,v 1.25.4.1 2006-11-17 09:32:43 sendu Exp $
+# $Id: PLATFORMS,v 1.25.4.2 2006-11-23 12:36:14 sendu Exp $
 
 Perl general comments:
 
@@ -46,3 +46,9 @@ Comments: Steve Cannon has made available Bioperl OS X installation
           Also see the Unix installation instructions at:
           http://www.bioperl.org/wiki/Installing_Bioperl_for_Unix
           Or install using CPAN.
+
+Machine : CentOS
+Perl    : n/a
+Comments: Module::Build, required for installation using Build.PL, may
+          have difficulty installing. You can force install it with
+          CPAN.

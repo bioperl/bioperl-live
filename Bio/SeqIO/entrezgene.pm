@@ -104,6 +104,7 @@ use Bio::Cluster::SequenceFamily;
 #use Bio::Ontology::Ontology; Relationships.... later
 use Bio::Ontology::Term;
 use Bio::Annotation::OntologyTerm;
+#use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 
@@ -193,8 +194,22 @@ sub next_seq {
             unshift @lineage,'unknown';
         }
     }
+    #print Dumper($xval->{source}{org});
+    my $ncbiid;
+    if (ref($xval->{source}{org}{db}) eq 'ARRAY') {
+	    foreach my $taxonomy (@{$xval->{source}{org}{db}}) {
+		if (lc($taxonomy->{db}) eq 'taxon') {
+			$ncbiid=$taxonomy->{tag}{id};
+		}
+		else {
+			push @alluncaptured,$taxonomy;
+		}
+		delete $xval->{source}{org}{db};
+	}
+     }
+	$ncbiid= $ncbiid||$xval->{source}{org}{db}{tag}{id};
      my $specie=new Bio::Species(-classification=>[@lineage],
-                                -ncbi_taxid=>$xval->{source}{org}{db}{tag}{id});
+                                -ncbi_taxid=>$ncbiid);
     $specie->common_name($xval->{source}{org}{common});
     if (exists($xval->{source}->{subtype}) && ($xval->{source}->{subtype})) {
         if (ref($xval->{source}->{subtype}) eq 'ARRAY') {
@@ -336,6 +351,10 @@ my (@uncaptured,@products);
 if (ref($products) eq 'ARRAY') { @products=@{$products}; }
 else {push @products,$products ;}
 foreach my $product (@products) {
+	if (ref($product) eq 'ARRAY') {
+		$self->_process_refseq($product,$ns);
+		next;
+	}
     if (($product->{seqs}->{whole}->{gi})||($product->{accession})){#Minimal data required
         my $cann=Bio::Annotation::Collection->new();
         $pid=$product->{accession};
@@ -377,7 +396,7 @@ foreach my $product (@products) {
     push @{$seqcollection{seq}},$nseq;
 }
 }
-return \@uncaptured,$pid;
+return \@uncaptured,$pid,$seqcollection{seq};
 }
 
 sub _process_links {
@@ -727,6 +746,16 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                     $self->_add_to_ann($product->{label},'RefSeq status');  last CLASS;
                    }
                    if ($heading =~ 'NCBI Reference Sequences') {#IN case NCBI changes slightly the spacing:-)
+		    unless (($product->{products})&&(exists($product->{comment}))) {
+			if (ref ($product->{comment}) eq 'ARRAY') {
+				foreach my $pc (@{$product->{comment}}) {
+					push @{$product->{products}},$pc->{products};
+				}
+			}
+			else {
+				$product->{products}=exists($product->{comments}->{products})?$product->{comments}->{products}:$product->{comment};
+			}
+		    }
                     my @uncaptured=$self->_process_refseq($product->{products},'refseq');
                     push @alluncaptured,@uncaptured; last CLASS;
                    }
