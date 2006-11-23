@@ -1,4 +1,4 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+	# -*-Perl-*- mode (to keep my emacs happy)
 # $Id$
 
 use strict;
@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 131;
+	plan tests => 235;
 }
 
 use Bio::SeqIO;
@@ -71,6 +71,10 @@ my $ac = $as->annotation;
 ok defined $ac;
 my @dblinks = $ac->get_Annotations('dblink');
 ok(scalar @dblinks,1);
+ok($dblinks[0]->database, 'GenBank');
+ok($dblinks[0]->primary_id, 'AB072353');
+ok($dblinks[0]->version, '1');
+ok("$dblinks[0]", 'GenBank:AB072353.1');
 
 # test for multi-line SOURCE
 $ast = Bio::SeqIO->new(-format => 'genbank',
@@ -451,3 +455,47 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
 # NB: there should probably be full testing on all lines to ensure that output
 # matches input.
 
+# 20061117: problem with *double* colon in some annotation-dblink values
+
+foreach my $in ('P35527.gb') {
+    my $infile =  Bio::Root::IO->catfile("t","data",$in);
+    $str = new Bio::SeqIO(-format =>'genbank',
+                         -verbose => $verbose,
+                         -file => $infile);
+    $seq = $str->next_seq;
+    my $ac      = $seq->annotation();      # Bio::AnnotationCollection
+    foreach my $key ($ac->get_all_annotation_keys() ) {
+        my @values = $ac->get_Annotations( $key);
+        foreach my $value (@values) {
+            if ($key eq 'dblink') {
+
+                ok (index($value,'::') < 0);   # this should never be true
+
+                ok ($value );   # check value is not empty
+
+                 #  print "  ann/", sprintf('%12s  ',$key), '>>>', $value , '<<<', "\n";
+                 #  print "        index double colon: ",index($value   ,'::'), "\n";
+
+                #  check db name:
+                my @parts = split(/:/,$value);
+                if ( $parts[0] =~ /^(?:
+                        #  not an exhaustive list of databases;
+                        #  just the db's referenced in P35527.gb:
+                        swissprot | GenBank | GenPept  | HSSP| IntAct | Ensembl | KEGG | HGNC | MIM | ArrayExpress
+                                    | GO      | InterPro | Pfam| PRINTS | PROSITE
+                                        )$/x )
+                {
+                        ok 1;
+                }
+                else {
+                        ok 0;
+                }
+
+                ok ( $parts[1] );
+            }
+            # elsif ($key eq 'reference') { }
+        }
+    }
+
+
+}
