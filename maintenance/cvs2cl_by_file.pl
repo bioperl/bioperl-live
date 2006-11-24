@@ -1167,13 +1167,60 @@ my $self = shift; my $class = ref $self;
         # (To save space, we zap %$authorhash after we've copied
         # everything out of it.)
         
+        # commit messages matching these will be ignored
+        # should probably read these in from a file since they
+        # will mostly change each release, but this is a quick hack!
+        my @skip = ("Updating mailing lists URL",
+                    "Updated bug reporting",
+                    "use base, return true",
+                    "Removed spurious ",
+                    "cleaning unnecessary ",
+                    "Updating emails",
+                    "Improved POD markup",
+                    "Fixed spaces",
+                    "I'll be using bioperl.org mail address",
+                    "Switched vanilla throw",
+                    "regexp madness",
+                    "minor edit",
+                    "pod",
+                    "pdoc",
+                    "email address",
+                    "typo",
+                    "be explicit",
+                    "using 'our'",
+                    "silly email",
+                    "regex clarity",
+                    "polishing",
+                    "Removed unused \"use vars",
+                    "return, not return undef",
+                    "lexically scoped file handles",
+                    "No setting of own \$VERSION",
+                    "do not return directly from sort",
+                    "have NAME match module",
+                    "Updating URLs");
+        
         my %changelog;
         while (my ($author,$timehash) = each %$authorhash) {
             foreach my $time (sort {$a <=> $b} (keys %$timehash)) {
                 next if ($Delta_Mode && (($time <= $Delta_StartTime) || ($time > $Delta_EndTime && $Delta_EndTime)));
                 
                 my $msghash = $timehash->{$time};
-                while (my ($msg, $qunklist) = each %$msghash) {
+                MSG: while (my ($msg, $qunklist) = each %$msghash) {
+                    foreach my $skip (@skip) {
+                        if ($msg =~ /$skip/i) {
+                            next MSG;
+                        }
+                    }
+                    if ($msg =~ /merge/i && $msg =~ /head/i) {
+                        next MSG;
+                    }
+                    
+                    if ($msg =~ /^bug|\Wbug/i) {
+                        $msg = "*** $msg ***";
+                    }
+                    
+                    $msg =~ s/\n/ /g;
+                    
                     foreach my $file (@{$qunklist->files}) {
                         $changelog{$file->filename}{$time} = $msg;
                     }
@@ -1213,7 +1260,7 @@ my $self = shift; my $class = ref $self;
                 #my (undef,$min,$hour,$mday,$mon,$year,$wday) = $UTC_Times ? gmtime($time) : localtime($time);
                 #$wday = $self->wday($wday);
                 my $date = $self->fdatetime($time);
-                print LOG_OUT "  $date : $msg";
+                print LOG_OUT "  $date : $msg\n";
             }
             print LOG_OUT "\n";
         }
