@@ -594,7 +594,7 @@ sub _handle_feature {
 
       # remove leading and trailing quotes from values
       $values =~ s/^["']//;
-      $values =~ s/["']$//;
+      $values =~ s/["']$//; #' terminate the quote for emacs
 
       my @values = map{uri_unescape($_)} split ',', $values;
 
