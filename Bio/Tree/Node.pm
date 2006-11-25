@@ -73,6 +73,7 @@ package Bio::Tree::Node;
 use vars qw($CREATIONORDER);
 use strict;
 
+use Scalar::Util qw(weaken isweak);
 
 use base qw(Bio::Root::Root Bio::Tree::NodeI);
 
@@ -160,7 +161,8 @@ sub add_Descendent{
    }
    
    $self->{_adding_descendent} = 1;
-   $node->ancestor($self) unless $node->{_setting_ancestor}; # avoid infinite recurse
+   # avoid infinite recurse
+   $node->ancestor($self) unless $node->{_setting_ancestor}; 
    $self->{_adding_descendent} = 0;
    
    if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
@@ -317,7 +319,7 @@ sub remove_all_Descendents{
 
 =cut
 
-# implemented in the interface 
+# get_all_Descendents implemented in the interface 
 
 =head2 ancestor
 
@@ -331,27 +333,30 @@ sub remove_all_Descendents{
 
 sub ancestor {
     my $self = shift;
-    
     if (@_) {
         my $new_ancestor = shift;
         
         # we can set ancestor to undef
         if ($new_ancestor) {
-            $self->throw("This is [$new_ancestor], not a Bio::Tree::NodeI") unless $new_ancestor->isa('Bio::Tree::NodeI');
+            $self->throw("This is [$new_ancestor], not a Bio::Tree::NodeI")
+		unless $new_ancestor->isa('Bio::Tree::NodeI');
         }
         
         my $old_ancestor = $self->{'_ancestor'} || '';
-        if (!$old_ancestor || ($old_ancestor && (!$new_ancestor || $new_ancestor ne $old_ancestor))) {
-            $old_ancestor->remove_Descendent($self) if $old_ancestor && ! $old_ancestor->{_removing_descendent};
-            
-            if ($new_ancestor && ! $new_ancestor->{_adding_descendent}) { # avoid infinite recurse
+        if (!$old_ancestor || 
+	    ($old_ancestor && ( !$new_ancestor || 
+			       $new_ancestor ne $old_ancestor)) ) {
+            if( $old_ancestor && ! $old_ancestor->{_removing_descendent}) {
+		$old_ancestor->remove_Descendent($self);
+	    }
+            if ($new_ancestor && 
+		! $new_ancestor->{_adding_descendent} ) { # avoid infinite recurse
                 $self->{_setting_ancestor} = 1;
                 $new_ancestor->add_Descendent($self, 1);
                 $self->{_setting_ancestor} = 0;
             }
         }
-        
-        $self->{'_ancestor'} = $new_ancestor;
+        weaken($self->{'_ancestor'} = $new_ancestor);
     }
     
     return $self->{'_ancestor'};
@@ -412,7 +417,7 @@ sub bootstrap {
 
 =cut
 
-sub description{
+sub description {
     my $self = shift;
     $self->{'_description'} = shift @_ if @_;
     return $self->{'_description'};
@@ -441,7 +446,7 @@ the raw string while L<id_output> to get the pre-escaped string.
 
 =cut
 
-sub id{
+sub id {
     my ($self, $value) = @_;
     if (defined $value) {
         #$self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
@@ -483,7 +488,7 @@ sub id{
 
 =cut
 
-sub internal_id{
+sub internal_id {
    return $_[0]->_creation_id;
 }
 
@@ -497,7 +502,7 @@ sub internal_id{
 
 =cut
 
-sub _creation_id{
+sub _creation_id {
     my $self = shift @_;
     $self->{'_creation_id'} = shift @_ if( @_);
     return $self->{'_creation_id'} || 0;

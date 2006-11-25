@@ -88,7 +88,7 @@ use strict;
 
 use Bio::DB::Taxonomy;
 use Bio::Tree::Tree;
-
+use Scalar::Util qw(weaken isweak);
 use base qw(Bio::Taxon);
 
 =head2 new
@@ -122,7 +122,7 @@ sub new {
         
         # some things want to freeze/thaw Bio::Species objects, but
         # _root_cleanup_methods contains a CODE ref, delete it.
-        delete $self->{tree}->{_root_cleanup_methods};
+        # delete $self->{tree}->{_root_cleanup_methods};
     }
     
     defined $org && $self->organelle($org);
@@ -180,19 +180,21 @@ sub classification {
         }
         
         $self->db_handle($db);
-        $self->{tree} = new Bio::Tree::Tree(-node => $self);
+
+        $self->{tree} = Bio::Tree::Tree->new(-node => $self);
         # some things want to freeze/thaw Bio::Species objects, but tree's
         # _root_cleanup_methods contains a CODE ref, delete it.
         #*** even if we don't delete the cleanup methods, we still get memory
         #    leak-like symtoms, and the actual cleanup causes a mass of
         #    warnings... needs investigation!
-        delete $self->{tree}->{_root_cleanup_methods};
+        # delete $self->{tree}->{_root_cleanup_methods};
     }
     
     @vals = ();
     foreach my $node ($self->{tree}->get_lineage_nodes($self), $self) {
         unshift(@vals, $node->scientific_name || next);
     }
+    weaken($self->{tree}->{'_rootnode'});
     return @vals;
 }
 
