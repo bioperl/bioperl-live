@@ -63,7 +63,7 @@ Internal methods are usually preceded with a _
 
 L<Bio::Index::Abstract>, which provides dbm indexing for flat files of 
 any type, containing sequence or not. L<Bio::Index::AbstractSeq> inherits 
-from L<Bio::Index::Abstract>>
+from L<Bio::Index::Abstract>
 
 =cut
 
