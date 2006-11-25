@@ -187,7 +187,7 @@ sub classification {
         #*** even if we don't delete the cleanup methods, we still get memory
         #    leak-like symtoms, and the actual cleanup causes a mass of
         #    warnings... needs investigation!
-        # delete $self->{tree}->{_root_cleanup_methods};
+        delete $self->{tree}->{_root_cleanup_methods};
     }
     
     @vals = ();
