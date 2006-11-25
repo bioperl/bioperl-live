@@ -263,10 +263,12 @@ sub next_seq {
        while (defined ($_ = $self->_readline) && /^CC\s{3}(.*)/ ) {
            $comment .= $1 . "\n";
        }
-       my $commobj = Bio::Annotation::Comment->new();
+
        # note: don't try to process comments here -- they may contain
            # structure. LP 07/30/2000
-       $commobj->text($comment);
+       
+       my $commobj = Bio::Annotation::Comment->new(-tagname => 'comment',
+						   -text    => $comment);
        $annotation->add_Annotation('comment',$commobj);
        $comment = "";
        $self->_pushback($_);
@@ -287,6 +289,7 @@ sub next_seq {
 		-primary_id  => $primaryid,
 		-optional_id => $optional,
 		-comment     => $comment,
+		-tagname     => 'dblink',
 	       );
 	   
 	   $annotation->add_Annotation('dblink',$dblinkobj);
@@ -880,16 +883,19 @@ sub _read_swissprot_References{
                    $au = $rg;
                }
                $title =~ s/;\s*$//g if defined($title);
-           push @refs, Bio::Annotation::Reference->new(-title   => $title,
-                               -start   => $b1,
-                               -end     => $b2,
-                               -authors => $au,
-                               -location=> $loc,
-                               -medline => $med,
-                               -pubmed  => $pubmed,
-                               -comment => $com,
-                               -rp      => $rp,
-                                                           -rg      => $rg);
+           push @refs, Bio::Annotation::Reference->new
+	       (-title   => $title,
+		-start   => $b1,
+		-end     => $b2,
+		-authors => $au,
+		-location=> $loc,
+		-medline => $med,
+		-pubmed  => $pubmed,
+		-comment => $com,
+		-rp      => $rp,
+		-rg      => $rg,
+		-tagname => 'reference',
+		);
                # reset state for the next reference
            $rp = '';
        }
