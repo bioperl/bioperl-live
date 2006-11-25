@@ -62,8 +62,8 @@ ok($as->length, 1198);
 ok($as->species->binomial(), 'Homo sapiens');
 
 my $ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
-									("t","data","test.embl"),
-									-format => 'embl');
+			   ("t","data","test.embl"),
+			   -format => 'embl');
 my $seq = $ent->next_seq();
 
 ok(defined $seq->seq(), 1,
@@ -71,45 +71,43 @@ ok(defined $seq->seq(), 1,
 ok(scalar $seq->annotation->get_Annotations('reference'), 3);
 
 my $out = Bio::SeqIO->new(-file=> ">embl.out",
-							  -format => 'embl');
+			  -format => 'embl');
 ok($out->write_seq($seq),1,
    'failure to write Embl format with ^ < and > locations');
 unlink("embl.out");
 
 # embl with no FT
 $ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
-								("t","data","test.embl"),
-								-format => 'embl');
-
-
-# embl with no FH
-my $noFH = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-								("t","data","no_FH.embl"),
-								-format => 'embl');
-ok(scalar($noFH->next_seq->get_SeqFeatures), 4);
-
-
+			("t","data","test.embl"),
+			-format => 'embl');
 $seq = $ent->next_seq();
+
 ok($seq);
 ok(lc($seq->subseq(1,10)),'gatcagtaga');
 ok($seq->length);
 
+# embl with no FH
+my $noFH = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
+			("t","data","no_FH.embl"),
+			-format => 'embl');
+ok(scalar($noFH->next_seq->get_SeqFeatures), 4);
+
 # bug 1571
 $ent = Bio::SeqIO->new(-format => 'embl',
-							  -file   => Bio::Root::IO->catfile
-							  (qw(t data test.embl2sq)));
+		       -file   => Bio::Root::IO->catfile
+		       (qw(t data test.embl2sq)));
 ok($ent->next_seq->length,4877);
 
 # embl repbase
 $ent = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-							  ("t","data","BEL16-LTR_AG.embl"), -format => 'embl');
+		       ("t","data","BEL16-LTR_AG.embl"), -format => 'embl');
 $seq = $ent->next_seq;
 ok($seq->display_id,'BEL16-LTR_AG');
 
 # test secondary accessions in EMBL (bug #1332)
 my $seqio = new Bio::SeqIO(-format => 'embl',
-									-file => Bio::Root::IO->catfile
-									( qw(t data ECAPAH02.embl)));
+			   -file => Bio::Root::IO->catfile
+			   ( qw(t data ECAPAH02.embl)));
 $seq = $seqio->next_seq;
 ok($seq->accession_number, 'D10483');
 ok($seq->seq_version, 2);
@@ -121,8 +119,8 @@ ok($accs[-1], 'X56742');
 # test Third Party Annotation entries in EMBL/Gb format 
 # to ensure compatability with parsers.
 my $str = new Bio::SeqIO(-format =>'embl',
-								 -file => Bio::Root::IO->catfile
-								 ( qw(t data BN000066-tpa.embl)));
+			 -file => Bio::Root::IO->catfile
+			 ( qw(t data BN000066-tpa.embl)));
 $seq = $str->next_seq;
 ok(defined $seq);
 ok($seq->accession_number, 'BN000066');
