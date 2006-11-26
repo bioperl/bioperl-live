@@ -517,16 +517,27 @@ sub next_seq {
 			}
 
 		    } else {
-			if( $dbsource =~ /(\S+)\.(\d+)/ ) {
-			    my ($id,$version) = ($1,$2);
-			    $annotation->add_Annotation
-				('dblink',
-				 Bio::Annotation::DBLink->new
-				 (-primary_id => $id,
-				  -version => $version,
-				  -database => 'GenBank',
-				  -tagname => 'dblink'));
-			}
+                if( $dbsource =~ /^(\S*?)\s*accession\s+(\S+)\.(\d+)/ ) {
+                    my ($db,$id,$version) = ($1,$2,$3);
+                    $annotation->add_Annotation
+                    ('dblink',
+                     Bio::Annotation::DBLink->new
+                     (-primary_id => $id,
+                      -version => $version,
+                      -database => $db || 'GenBank',
+                      -tagname => 'dblink'));
+                } elsif ( $dbsource =~ /(\S+)\.(\d+)/ ) {
+                    my ($id,$version) = ($1,$2);
+                    $annotation->add_Annotation
+                    ('dblink',
+                     Bio::Annotation::DBLink->new
+                     (-primary_id => $id,
+                      -version => $version,
+                      -database => 'GenBank',
+                      -tagname => 'dblink'));
+                } else {
+                    $self->warn("Unrecognized DBSOURCE data: $dbsource\n");
+                }
 		    }
 
 		    $buffer = $_;
@@ -653,7 +664,7 @@ sub next_seq {
 		    s/[^A-Za-z]//g;
 		    $seqc .= $_;
 		}
-		$self->debug("sequence length is ". length($seqc) ."\n");
+		#$self->debug("sequence length is ". length($seqc) ."\n");
 		$builder->add_slot_value(-seq => $seqc);
 	    }
 	} elsif ( defined($_) && (substr($_,0,2) ne '//')) {
@@ -776,7 +787,8 @@ sub write_seq {
 	# if there, write the DBSOURCE line
 	foreach my $ref ( $seq->annotation->get_Annotations('dblink') ) {
 	    # if ($ref->comment eq 'DBSOURCE') {
-	    $self->_print('DBSOURCE    accession ',
+        my $db = ($ref->database eq 'GenBank') ? '' : $ref->database;
+	    $self->_print("DBSOURCE    $db accession ",
 			  $ref->primary_id, "\n");
 	    # }
 	}
