@@ -284,7 +284,7 @@ sub next_aln {
         if ($line =~ /^#\s*STOCKHOLM\s+/) {
             last;
         } else {
-            $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM 1.0\"; Found \"$_\"");
+            $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM\"; Found \"$_\"");
         }
     }
     
@@ -412,7 +412,7 @@ sub next_aln {
     # Make the annotation collection...
     
     my $coll = Bio::Annotation::Collection->new();
-
+    my $factory = Bio::Annotation::AnnotationFactory->new();
     for my $tag (sort keys %annotation) {
         
         # most annotations
@@ -424,16 +424,15 @@ sub next_aln {
             if ($atype eq 'Method') {
                 $aln->$aparam($annotation{$tag});
             } else {
-                my $factory = Bio::Annotation::AnnotationFactory->new(
-                    -type => "Bio::Annotation::$atype");
+                $factory->type("Bio::Annotation::$atype");
                 $coll->add_Annotation
                 ($tagname, $factory->create_object($aparam  => $annotation{$tag}));
             }
             
         } elsif ($tag eq 'custom') {
-            my $factory = Bio::Annotation::AnnotationFactory->new(
-                        -type => "Bio::Annotation::SimpleValue");
+            
             for my $key (sort keys %{ $annotation{$tag} }) {
+                $factory->type("Bio::Annotation::SimpleValue");
                 $coll->add_Annotation(
                     $tag, $factory->create_object(-tagname => $key,
                                                   -value => $annotation{$tag}->{$key}));
@@ -448,8 +447,7 @@ sub next_aln {
                         ($tag eq 'build_command')   ? 'SimpleValue' :
                         'BadValue'; # this will cause the factory to choke
             $self->throw("Bad tag value : $tag.") if $atype eq 'BadValue';
-            my $factory = Bio::Annotation::AnnotationFactory->new(
-                -type => "Bio::Annotation::$atype");                
+            $factory->type("Bio::Annotation::$atype");                
             while (my $data = shift @{ $annotation{$tag} }) {
                 next unless $data;
                 # remove trailing spaces for concatenated data
