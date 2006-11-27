@@ -12,8 +12,8 @@ package ModuleBuildBioperl;
 
 BEGIN {
     # we really need Module::Build to be installed
-    unless (eval "use Module::Build; 1") {
-        print "This package requires Module::Build to install itself.\n";
+    unless (eval "use Module::Build 0.2805; 1") {
+        print "This package requires Module::Build v0.2805 or greater to install itself.\n";
         
         require ExtUtils::MakeMaker;
         my $yn = ExtUtils::MakeMaker::prompt('  Install Module::Build now from CPAN?', 'y');

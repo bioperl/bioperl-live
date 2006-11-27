@@ -12,13 +12,13 @@
 
 =head1 NAME
 
-Bio::TreeIO::cluster - A TreeIO driver module for parsing Algorithm::Cluster::treecluster output
+Bio::TreeIO::cluster - A TreeIO driver module for parsing Algorithm::Cluster::treecluster() output
 
 =head1 SYNOPSIS
 
   # do not use this module directly
   use Bio::TreeIO;
-  use Algorithm::Cluster::treecluster;
+  use Algorithm::Cluster;
   my ($result, $linkdist) = Algorithm::Cluster::treecluster(
     distances => $matrix
   );
@@ -32,7 +32,7 @@ Bio::TreeIO::cluster - A TreeIO driver module for parsing Algorithm::Cluster::tr
 
 =head1 DESCRIPTION
 
-This is a driver module for parsing Algorithm::Cluster::treecluster output.
+This is a driver module for parsing Algorithm::Cluster::treecluster() output.
 
 =head1 FEEDBACK
 
@@ -115,7 +115,7 @@ sub _initialize {
 sub next_tree {
     my ($self) = @_;
     if( ! $self->{_result} ){
-	$self->warn("Must have provided value 'result' and 'linkdist' and 'labels' when initializing a TreeIO::cluster object");
+	$self->warn("Must provide value 'result' and 'linkdist' and 'labels' when initializing a TreeIO::cluster object");
 	return;
     }
     $self->_eventHandler->start_document();
