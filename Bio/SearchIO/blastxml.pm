@@ -297,7 +297,7 @@ sub next_result {
     }
     my $result;
     my $starttime;
-    if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
+    #if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
 
     eval { 
 	$result = $self->{'_xmlparser'}->parse(%parser_args);
@@ -307,9 +307,9 @@ sub next_result {
 	$self->warn("error in parsing a report:\n $@");
 	$result = undef;
     }    
-    if( $DEBUG ) {
-	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
-    }
+    #if( $DEBUG ) {
+	#$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
+    #}
     # parsing magic here - but we call event handlers rather than 
     # instantiating things 
     return $result;
