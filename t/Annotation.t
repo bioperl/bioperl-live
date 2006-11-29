@@ -171,7 +171,7 @@ SKIP: {
 	eval {require Graph::Directed; 
 	  require Bio::Annotation::OntologyTerm; };
 	skip('Graph::Directed not installed cannot test'.
-		 ' Bio::Annotation::OntologyTerm module',5) if $@;
+		 ' Bio::Annotation::OntologyTerm module',6) if $@;
 	# OntologyTerm annotation
     my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
 						     -identifier => 'Ann:00001',
