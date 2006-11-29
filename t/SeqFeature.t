@@ -10,7 +10,8 @@
 
 use strict;
 use vars qw($NUMTESTS);
-my $skipdbtests ;
+my $skipdbtests;
+my $skip_all;
 BEGIN { 
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
@@ -30,10 +31,17 @@ BEGIN {
 		require Bio::DB::GenBank;
 	};
 	if( $@ ) {
-		print STDERR "IO::String or LWP::UserAgent or HTTP::Request not installed - skipping DB tests...\n";
+		print STDERR "IO::String, LWP::UserAgent or HTTP::Request not installed - skipping DB tests...\n";
 		$skipdbtests = 1;
 	} else {
 		$skipdbtests = 0;
+	}
+	eval {
+		require URI::Escape;
+	};
+	if( $@ ) {
+		print STDERR "URI::Escape not installed, so Bio::SeqFeature::Annotated not usable - skipping all tests...\n";
+		$skip_all = 1;
 	}
 }
 
@@ -43,13 +51,15 @@ END {
 	}
 }
 
+exit(0) if $skip_all;
+
 use Bio::Seq;
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 use Bio::SeqFeature::FeaturePair;
 use Bio::SeqFeature::SimilarityPair;
 use Bio::SeqFeature::Computation;
-use Bio::SeqFeature::Annotated;
+require Bio::SeqFeature::Annotated;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::SeqFeature::Gene::UTR;
 use Bio::SeqFeature::Gene::Exon;
