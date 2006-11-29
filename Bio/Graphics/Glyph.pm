@@ -666,7 +666,6 @@ sub layout {
   # find new height
   my $bottom = 0;
   foreach (@parts) {
-    warn $_->feature,": bottom = ",$_->bottom;
     $bottom = $_->bottom if $_->bottom > $bottom;
   }
   # return $self->{layout_height} = $self->pad_bottom + $self->pad_top + $bottom - $self->top  + 1;
