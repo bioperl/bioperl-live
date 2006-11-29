@@ -11,7 +11,7 @@ my $error;
 BEGIN {
     eval { require Test::More; };
     if( $@ ) {
-        use lib 't/lib','..';
+        use lib 't/lib';
     }
     use Test::More;
     $NUMTESTS = 173;

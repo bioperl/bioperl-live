@@ -7,7 +7,6 @@
 
 use strict;
 my $error;
-use lib '..','.','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $HAVEGRAPHDIRECTED $errmsg);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 

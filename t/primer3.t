@@ -12,7 +12,7 @@ use vars qw($NUMTESTS $DEBUG $ERROR $XML_ERROR);
 BEGIN {
     eval { require Test; };
     if( $@ ) {
-        use lib 't','..';
+        use lib 't';
     }
     use Test;
     $NUMTESTS  = 24;

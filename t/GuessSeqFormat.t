@@ -10,7 +10,7 @@ my $error;
 BEGIN {
    eval { require Test; };
    if( $@ ) {
-      use lib 't','..';
+      use lib 't';
    }
    use Test;
    $error = 0;

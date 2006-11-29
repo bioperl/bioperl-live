@@ -11,7 +11,7 @@ my $NUMTESTS;
 BEGIN {
     eval { require Test; };
     if( $@ ) {
-        use lib 't','..';
+        use lib 't';
     }
     use Test;
     $NUMTESTS = 14;

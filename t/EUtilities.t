@@ -10,7 +10,6 @@
 # this test suite
 
 use strict;
-use lib '..','.','./lib','./blib/lib';
 use vars qw($NUMTESTS $DEBUG $error);
 
 BEGIN { 
