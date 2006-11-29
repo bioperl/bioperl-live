@@ -18,43 +18,43 @@ BEGIN {
 		use lib 't\lib';
     }
     use Test::More;
-    plan tests => $NUMTESTS;
+	
+	eval {
+		require XML::SAX;
+		require XML::SAX::Writer;
+		require XML::SAX::Base;
+	};
+	if ($@) {
+		plan skip_all => 'XML::SAX::Base or XML::SAX or XML::SAX::Writer not found - skipping bsml_sax tests';
+	}
+	else {
+		plan tests => $NUMTESTS;
+	}
 }
 
-SKIP: {
-    # bsml_sax uses XML::SAX
-    eval {
-		use XML::SAX;
-		use XML::SAX::Writer;
-		use XML::SAX::Base;
-    };
-    skip "XML::SAX::Base or XML::SAX or XML::SAX::Writer not found".
-		" - skipping bsml_sax tests\n", 16 if $@;
+use_ok('Bio::SeqIO');
+use_ok('Bio::Root::IO');
 
-	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
-	
-	my $verbose = $ENV{'BIOPERLDEBUG'};
-	
-	my $str = Bio::SeqIO->new(-format => 'bsml_sax',
-				  -verbose => $verbose,
-				  -file => Bio::Root::IO->catfile
-				  (qw(t data U83300.bsml) ));
-	my $seq = $str->next_seq;
-	isa_ok($seq, 'Bio::Seq::RichSeqI');
-	my @refs = $seq->annotation->get_Annotations('reference');
-	is(@refs, 2);
-	is($seq->display_id,'MIVN83300');
-	is($seq->molecule ,'dna');
-	ok(! $seq->is_circular);
-	is($seq->get_dates,2);
-	is($seq->accession_number, 'U83300');
-	is($seq->seq_version,1);
-	my @feats = $seq->get_SeqFeatures;
-	is(@feats, 2);
-	is($feats[1]->start, 1);
-	is($feats[1]->end, 946);
-	is($feats[1]->get_tag_values('db_xref'), 3);
-	is($seq->annotation->get_Annotations('reference'),2);
-	is($seq->annotation->get_Annotations('dblink'),2);
-}
+my $verbose = $ENV{'BIOPERLDEBUG'};
+
+my $str = Bio::SeqIO->new(-format => 'bsml_sax',
+			  -verbose => $verbose,
+			  -file => Bio::Root::IO->catfile
+			  (qw(t data U83300.bsml) ));
+my $seq = $str->next_seq;
+isa_ok($seq, 'Bio::Seq::RichSeqI');
+my @refs = $seq->annotation->get_Annotations('reference');
+is(@refs, 2);
+is($seq->display_id,'MIVN83300');
+is($seq->molecule ,'dna');
+ok(! $seq->is_circular);
+is($seq->get_dates,2);
+is($seq->accession_number, 'U83300');
+is($seq->seq_version,1);
+my @feats = $seq->get_SeqFeatures;
+is(@feats, 2);
+is($feats[1]->start, 1);
+is($feats[1]->end, 946);
+is($feats[1]->get_tag_values('db_xref'), 3);
+is($seq->annotation->get_Annotations('reference'),2);
+is($seq->annotation->get_Annotations('dblink'),2);
