@@ -15,10 +15,19 @@ BEGIN {
     use lib 't/lib';
   }
   use Test::More;
-  plan tests => $NUMTESTS;
+  
+  eval {
+	require LWP::UserAgent;
+  };
+  if ($@) {
+	plan skip_all => 'LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
+  }
+  else {
+	plan tests => $NUMTESTS;
+  }
+  
+  use_ok('Bio::DB::SeqVersion');
 }
-
-use_ok('Bio::DB::SeqVersion');
 
 ok my $query = Bio::DB::SeqVersion->new(-type => 'gi');
 
