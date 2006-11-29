@@ -110,8 +110,8 @@ sub part_label_merge {
 
 sub maxdepth {
   my $self = shift;
-  my $md   = $self->SUPER::maxdepth;
-  return $md if defined $md;
+  my $maxdepth =  $self->option('maxdepth');
+  return $maxdepth if defined $maxdepth;
   return 0;
 }
 

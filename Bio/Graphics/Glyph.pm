@@ -189,15 +189,11 @@ sub add_feature {
   my $self       = shift;
   my $factory    = $self->factory;
 
-  my $filter     = $self->code_option('filter');
-  my $iscode     = $filter && ref($filter) eq 'CODE';
-
   for my $feature (@_) {
     if (ref $feature eq 'ARRAY') {
       $self->add_group(@$feature);
     } else {
       warn $factory if DEBUG;
-      next if $iscode && !$filter->($feature);
       push @{$self->{parts}},$factory->make_glyph(0,$feature);
     }
   }
@@ -668,6 +664,7 @@ sub layout {
   # find new height
   my $bottom = 0;
   foreach (@parts) {
+    warn $_->feature,": bottom = ",$_->bottom;
     $bottom = $_->bottom if $_->bottom > $bottom;
   }
   # return $self->{layout_height} = $self->pad_bottom + $self->pad_top + $bottom - $self->top  + 1;
@@ -1638,9 +1635,6 @@ glyph pages for more options.
                These options are used when creating imagemaps
                for display on the web.  See L<Bio::Graphics::Panel/"Creating Imagemaps">.
 
-  -filter      Select which features to
-               display. Must be a CODE reference.
-
 
 For glyphs that consist of multiple segments, the B<-connector> option
 controls what's drawn between the segments.  The default is undef (no
@@ -1745,11 +1739,6 @@ color name.  For example:
 The B<-no_subparts> option will prevent the glyph from searching its
 feature for subfeatures. This may enhance performance if you know in
 advance that none of your features contain subfeatures.
-
-The B<-filter> option, which must be a CODE reference, will be invoked
-once for each feature prior to rendering it. The coderef will receive
-the feature as its single option and should return true if the feature
-is to be shown and false otherwise.
 
 =head1 SUBCLASSING Bio::Graphics::Glyph
 
