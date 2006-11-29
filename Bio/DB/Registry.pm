@@ -112,7 +112,7 @@ sub _load_registry {
    my $self = shift;
 	eval { $HOME = (getpwuid($>))[7]; } unless $HOME;
 	if ($@) {
-		$self->warn("This Perl doesn't implement function getpwuid(), no $HOME");
+		$self->warn("This Perl doesn't implement function getpwuid(), no \$HOME");
 	}
 	my @ini_files = $self->_get_ini_files();
 
