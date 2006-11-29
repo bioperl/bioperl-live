@@ -10,14 +10,11 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
-my $error;
-
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     eval { require Test::More; };
-    $error = 0;
     if( $@ ) {
         use lib 't\lib';
     }
@@ -27,15 +24,11 @@ BEGIN {
     plan tests => $NUMTESTS;
 }
 
-if( $error ==  1 ) {
-    exit(0);
-}
-
 #syntax test
 
 SKIP: {
     eval { require DB_File };
-	skip("DB_File not installed",19) if $@;
+	skip("DB_File not installed", 22) if $@;
 
 	require_ok('Bio::Assembly::IO');
 	require_ok('Bio::Assembly::Scaffold');
