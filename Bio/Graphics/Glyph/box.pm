@@ -12,6 +12,13 @@ sub draw {
   $self->draw_description(@_) if $self->option('description');
 }
 
+sub maxdepth {
+  my $self = shift;
+  my $maxdepth =  $self->option('maxdepth');
+  return $maxdepth if defined $maxdepth;
+  return 0;
+}
+
 sub subseq {
   return ();
 }

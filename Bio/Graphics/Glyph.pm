@@ -124,6 +124,8 @@ sub feature_has_subparts {
 
   return $self->{feature_has_subparts} = shift if @_;
   return 0 if $self->maxdepth == 0;
+  my $feature = $self->feature;
+  return 1 if $feature->can('compound') && $feature->compound;
   return $self->{feature_has_subparts};
 }
 
@@ -1633,6 +1635,7 @@ glyph pages for more options.
   -link, -title, -target
                These options are used when creating imagemaps
                for display on the web.  See L<Bio::Graphics::Panel/"Creating Imagemaps">.
+
 
 For glyphs that consist of multiple segments, the B<-connector> option
 controls what's drawn between the segments.  The default is undef (no
