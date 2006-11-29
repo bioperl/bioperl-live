@@ -124,6 +124,8 @@ sub feature_has_subparts {
 
   return $self->{feature_has_subparts} = shift if @_;
   return 0 if $self->maxdepth == 0;
+  my $feature = $self->feature;
+  return 1 if $feature->can('compound') && $feature->compound;
   return $self->{feature_has_subparts};
 }
 

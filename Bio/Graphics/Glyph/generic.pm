@@ -112,7 +112,7 @@ sub maxdepth {
   my $self = shift;
   my $maxdepth =  $self->option('maxdepth');
   return $maxdepth if defined $maxdepth;
-  return 0;
+  return 1;
 }
 
 sub _label {
