@@ -54,6 +54,7 @@ my $build = ModuleBuildBioperl->new(
                             'SVG'                       => '2.26/SVG output/Bio::Graphics::Pictogram',
                             'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',
                             'Text::Shellwords'          => '0/test scripts/Bio::Graphics',
+                            'URI::Escape'               => '0/dealing with web resources/Bio::Tools::WebBlat,Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilities::Cookie,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated',
                             'XML::DOM::XPath'           => '0/parsing interpro features/Bio::FeatureIO::interpro',
                             'XML::Parser'               => '0/parsing xml/Bio::Biblio::IO::medlinexml',
                             'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp',
