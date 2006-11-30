@@ -164,7 +164,6 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::SeqIO::genbank;
-use vars qw(%FTQUAL_NO_QUOTE);
 use strict;
 
 use Bio::SeqIO::FTHelper;
@@ -178,7 +177,7 @@ use Bio::Annotation::DBLink;
 
 use base qw(Bio::SeqIO);
 
-%FTQUAL_NO_QUOTE=(
+our %FTQUAL_NO_QUOTE=(
 		  'anticodon'    => 1,
 		  'citation'     => 1,
 		  'codon'        => 1,
@@ -196,18 +195,39 @@ use base qw(Bio::SeqIO);
 		  'usedin'       => 1,
 		  );
 
-sub _initialize {
-	my($self,@args) = @_;
+our %DBSOURCE;
 
-	$self->SUPER::_initialize(@args);
-	# hash for functions for decoding keys.
-	$self->{'_func_ftunit_hash'} = {};
-	$self->_show_dna(1); # sets this to one by default. People can change it
-	if( ! defined $self->sequence_factory ) {
-		$self->sequence_factory(new Bio::Seq::SeqFactory
-										(-verbose => $self->verbose(),
-										 -type => 'Bio::Seq::RichSeq'));
-	}
+BEGIN {
+    for (qw(
+    EchoBASE     IntAct    SWISS-2DPAGE    ECO2DBASE    ECOGENE    TIGRFAMs
+    TIGR    GO    InterPro    Pfam    PROSITE    SGD    GermOnline
+    HSSP    PhosSite    Ensembl    RGD    AGD    ArrayExpress    KEGG
+    H-InvDB    HGNC    LinkHub    PANTHER    PRINTS    SMART    SMR
+    MGI    MIM    RZPD-ProtExp    ProDom    MEROPS    TRANSFAC    Reactome
+    UniGene    GlycoSuiteDB    PIRSF    HSC-2DPAGE    PHCI-2DPAGE
+    PMMA-2DPAGE    Siena-2DPAGE    Rat-heart-2DPAGE    Aarhus/Ghent-2DPAGE
+    Biocyc    MetaCyc    Biocyc:Metacyc    GenomeReviews    FlyBase
+    TMHOBP    COMPLUYEAST-2DPAGE    OGP    DictyBase    HAMAP
+    PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
+    PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
+    swissprot    GenBank    GenPept    REFSEQ    embl    PDB))
+    {
+        $DBSOURCE{$_} = 1;
+    }
+}
+
+sub _initialize {
+    my($self,@args) = @_;
+
+    $self->SUPER::_initialize(@args);
+    # hash for functions for decoding keys.
+    $self->{'_func_ftunit_hash'} = {};
+    $self->_show_dna(1); # sets this to one by default. People can change it
+    if( ! defined $self->sequence_factory ) {
+            $self->sequence_factory(new Bio::Seq::SeqFactory
+                                                                            (-verbose => $self->verbose(),
+                                                                             -type => 'Bio::Seq::RichSeq'));
+    }
 }
 
 =head2 next_seq
@@ -504,9 +524,14 @@ sub next_seq {
 				my $db;
 				# this is because GenBank dropped the spaces!!!
 				# I'm sure we're not going to get this right
-				if( $id =~ s/^(EchoBASE|IntAct|SWISS-2DPAGE|ECO2DBASE|ECOGENE|TIGRFAMs|TIGR|GO|InterPro|Pfam|PROSITE|SGD|GermOnline|HSSP|PhosSite)://i ) {
-				    $db = $1;
+				##if( $id =~ s/^://i ) {
+				##    $db = $1;
+				##}
+                                $db = substr($id,0,index($id,':'));
+                                if (! exists $DBSOURCE{ $db }) {
+                                      $db = '';   # do we want 'GenBank' here?
 				}
+                                $id = substr($id,index($id,':')+1);
 				$annotation->add_Annotation
 				    ('dblink',
 				     Bio::Annotation::DBLink->new
@@ -517,7 +542,7 @@ sub next_seq {
 			}
 
 		    } else {
-                if( $dbsource =~ /^(\S*?)\s*accession\s+(\S+)\.(\d+)/ ) {
+                if( $dbsource =~ /^(\S*?):?\s*accession\s+(\S+)\.(\d+)/ ) {
                     my ($db,$id,$version) = ($1,$2,$3);
                     $annotation->add_Annotation
                     ('dblink',
