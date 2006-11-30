@@ -12,6 +12,8 @@ exec perl -w -x $0 ${1+"$@"} # -*- mode: perl; perl-indent-level: 2; -*-
 # cvs2cl_by_file.pl --delta bioperl-release-1-5-1:bioperl-release-1-5-2
 # Generates a file called ChangeLog showing, per file, all the commit
 # messages since tag bioperl-release-1-5-1 up to tag bioperl-release-1-5-2
+# It generates in wikipedia format suitable for immediate pasting into the
+# a wiki page for the delta
 #
 # Sendu Bala <bix@sendu.me.uk>
 ###########################################################################
@@ -35,6 +37,7 @@ use Getopt::Long   qw( GetOptions );
 use Text::Wrap     qw( );
 use Time::Local    qw( timegm );
 use User::pwent    qw( getpwnam );
+use File::Spec;
 
 # The Plan:
 #
@@ -1197,7 +1200,25 @@ my $self = shift; my $class = ref $self;
                     "No setting of own \$VERSION",
                     "do not return directly from sort",
                     "have NAME match module",
-                    "Updating URLs");
+                    "Updating URLs",
+                    "Changing emails",
+                    "Updated doc",
+                    "No setting own version");
+        
+        # not interested in these files
+        my %files_to_skip = ( AUTHORS => 1,
+                              Changes => 1,
+                              'INSTALL.PROGRAMS' => 1,
+                              README => 1,
+                              BUGS => 1,
+                              INSTALL => 1,
+                              LICENSE => 1,
+                              DEPENDENCIES => 1,
+                              DEPRECATED => 1,
+                              'INSTALL.WIN' => 1,
+                              MANIFEST => 1,
+                              'MANIFEST.SKIP' => 1,
+                              PLATFORMS => 1);
         
         my %changelog;
         while (my ($author,$timehash) = each %$authorhash) {
@@ -1213,10 +1234,6 @@ my $self = shift; my $class = ref $self;
                     }
                     if ($msg =~ /merge/i && $msg =~ /head/i) {
                         next MSG;
-                    }
-                    
-                    if ($msg =~ /^bug|\Wbug/i) {
-                        $msg = "*** $msg ***";
                     }
                     
                     $msg =~ s/\n/ /g;
@@ -1248,19 +1265,35 @@ my $self = shift; my $class = ref $self;
         
         print LOG_OUT $ChangeLog_Header;
         
+        print LOG_OUT "These are detailed notes on changes made between $Delta_From and $Delta_To.\n\n";
+        
         my %tag_date_printed;
         
         $self->output_header(\*LOG_OUT);
         
         my @file_list = sort {$a cmp $b} (keys %changelog);
         foreach my $file (@file_list) {
-            print LOG_OUT "$file:\n";
+            # skip files we don't need to see changes for
+            next if exists $files_to_skip{$file};
+            next if $file =~ /^t\//;
+            
+            # convert module filenames to module name
+            my $module = $file;
+            if ($module =~ /^Bio/) {
+                $module = '<nowiki>'.join("::", File::Spec->splitdir($file)).'</nowiki>';
+                $module =~ s/\.pm//;
+            }
+            print LOG_OUT "; $module\n";
             foreach my $time (sort {$a <=> $b} keys %{$changelog{$file}}) {
                 my $msg = $changelog{$file}{$time};
-                #my (undef,$min,$hour,$mday,$mon,$year,$wday) = $UTC_Times ? gmtime($time) : localtime($time);
-                #$wday = $self->wday($wday);
-                my $date = $self->fdatetime($time);
-                print LOG_OUT "  $date : $msg\n";
+                
+                # uppercase first letter
+                $msg =~ s/^(\w)/\U$1/;
+                
+                # link bugs to bugzilla
+                $msg =~ s/bug.*(\d{4})/{{Bugzilla|$1}}/i;
+                
+                print LOG_OUT ": $msg\n";
             }
             print LOG_OUT "\n";
         }
