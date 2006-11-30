@@ -355,16 +355,21 @@ foreach my $product (@products) {
 		$self->_process_refseq($product,$ns);
 		next;
 	}
+	if ((exists($product->{products})&&(!exists($product->{accession})))) {
+		$self->_process_refseq($product->{products},$ns);
+		next;
+	}
     if (($product->{seqs}->{whole}->{gi})||($product->{accession})){#Minimal data required
         my $cann=Bio::Annotation::Collection->new();
         $pid=$product->{accession};
+	my $authority=exists($product->{type})?$product->{type}:$product->{heading};
         my $nseq = Bio::Seq->new(
                         -accession_number => $product->{seqs}->{whole}->{gi},
                         -display_id=>$product->{accession},
-                        -authority=> $product->{heading}, -namespace=>$ns
+                        -authority=> $authority, -namespace=>$ns
                    );
                    if ($product->{source}) {
-                    unless ($nseq->authority) {$nseq->authority($product->{source}->{src}->{db})};
+                    unless (($nseq->authority)&&(exists($product->{source}->{src}))&&(exists($product->{source}->{src}->{db}))) {$nseq->authority($product->{source}->{src}->{db})};
                     my ($uncapt,$allann)=_process_src($product->{source});
                     delete $product->{source};
                     push @uncaptured,$uncapt;
@@ -376,7 +381,7 @@ foreach my $product (@products) {
     delete $product->{accession};
     delete $product->{source};
     delete $product->{heading};
-    my ($uncapt,$ann,$cfeat)=$self->_process_comments($product->{comment});
+    my ($uncapt,$ann,$cfeat)=$self->_process_comments($product->{comment}) if (exists($product->{comment}));
     push @uncaptured,$uncapt;
     foreach my $feat (@{$cfeat}) {
         $nseq->add_SeqFeature($feat);
@@ -746,16 +751,17 @@ my $heading=$product->{heading} if (exists($product->{heading}));
                     $self->_add_to_ann($product->{label},'RefSeq status');  last CLASS;
                    }
                    if ($heading =~ 'NCBI Reference Sequences') {#IN case NCBI changes slightly the spacing:-)
-		    unless (($product->{products})&&(exists($product->{comment}))) {
-			if (ref ($product->{comment}) eq 'ARRAY') {
-				foreach my $pc (@{$product->{comment}}) {
-					push @{$product->{products}},$pc->{products};
-				}
-			}
-			else {
-				$product->{products}=exists($product->{comments}->{products})?$product->{comments}->{products}:$product->{comment};
-			}
-		    }
+		   if ((exists($product->{comment}))&&(!exists($product->{products}))) {$product->{products}=$product->{comment};}
+		    #unless (($product->{products})&&(exists($product->{comment}))) {
+			#if (ref ($product->{comment}) eq 'ARRAY') {
+			#	foreach my $pc (@{$product->{comment}}) {
+			#		push @{$product->{products}},$pc->{products};
+			#	}
+			#}
+			#else {
+			#	$product->{products}=exists($product->{comments}->{products})?$product->{comments}->{products}:$product->{comment};
+			#}
+		    #}
                     my @uncaptured=$self->_process_refseq($product->{products},'refseq');
                     push @alluncaptured,@uncaptured; last CLASS;
                    }
