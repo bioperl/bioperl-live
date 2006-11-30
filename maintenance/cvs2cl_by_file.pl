@@ -1203,7 +1203,8 @@ my $self = shift; my $class = ref $self;
                     "Updating URLs",
                     "Changing emails",
                     "Updated doc",
-                    "No setting own version");
+                    "No setting own version",
+                    "no log message");
         
         # not interested in these files
         my %files_to_skip = ( AUTHORS => 1,
@@ -2172,7 +2173,7 @@ sub read_file_path {
 
 sub read_symbolic_name {
   my ($self, $line) = @_;
-
+  
   # All tag names are listed with whitespace in front in cvs log
   # output; so if see non-whitespace, then we're done collecting.
   if ( /^\S/ ) {
@@ -2203,10 +2204,11 @@ sub read_symbolic_name {
     if ( $real_branch_rev ) {
       $self->{branch_names}->{$real_branch_rev} = $tag_name;
       $self->{branch_numbers}->{$tag_name} = $real_branch_rev;
-    } else {
-      # Else it's just a regular (non-branch) tag.
-      push @{$self->{symbolic_names}->{$tag_rev}}, $tag_name;
+      $tag_rev =~ s/^(\d+\.\d+).+/$1/;
     }
+    
+    # regardless if it is a name on a branch, store it as symbolic name so that tag deltas always work
+    push @{$self->{symbolic_names}->{$tag_rev}}, $tag_name;
   }
 
   $self->{collecting_symbolic_names} = 1;
