@@ -198,7 +198,7 @@ our %FTQUAL_NO_QUOTE=(
 our %DBSOURCE;
 
 BEGIN {
-    for (qw(
+    %DBSOURCE = map {$_ => 1} qw(
     EchoBASE     IntAct    SWISS-2DPAGE    ECO2DBASE    ECOGENE    TIGRFAMs
     TIGR    GO    InterPro    Pfam    PROSITE    SGD    GermOnline
     HSSP    PhosSite    Ensembl    RGD    AGD    ArrayExpress    KEGG
@@ -210,10 +210,7 @@ BEGIN {
     TMHOBP    COMPLUYEAST-2DPAGE    OGP    DictyBase    HAMAP
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
-    swissprot    GenBank    GenPept    REFSEQ    embl    PDB))
-    {
-        $DBSOURCE{$_} = 1;
-    }
+    swissprot    GenBank    GenPept    REFSEQ    embl    PDB);
 }
 
 sub _initialize {
