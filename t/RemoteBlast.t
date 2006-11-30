@@ -171,12 +171,19 @@ $remote_blast->submit_parameter('ENTREZ_QUERY',
 $remote_blastxml->retrieve_parameter('FORMAT_TYPE', 'XML');
 $inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
 
-if( $actually_submit == 0 ) {
+eval {require Bio::SearchIO::blastxml;};
+if ($@) {
+	foreach( $Test::ntest..$NUMTESTS) { 
+		skip('Skip blastxml tests probably because XML::SAX not installed',1);
+	}
+}
+elsif( $actually_submit == 0 ) {
 	print STDERR "Skipping submitting remote BLAST to avoid Time-out\n" if( $DEBUG );
 	foreach( $Test::ntest..$NUMTESTS) { 
 		skip('Skip to avoid timeout',1);
 	}
-} else {
+}
+else {
 	my $r = $remote_blastxml->submit_blast($inputfilename);
 	ok($r);
 	print STDERR "waiting..." if( $v > 0 );
