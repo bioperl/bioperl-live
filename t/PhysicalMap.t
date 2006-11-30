@@ -103,7 +103,7 @@ sub test_markers
         }
     }
     ok $nmrk, 15;
-    ok $nrem, 16;
+    ok $nrem, 17;
     ok scalar(keys %types), 2;
     ok $nanch, 9;
     ok $nfrm, 7;

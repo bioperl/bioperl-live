@@ -3312,6 +3312,7 @@ Modified_date 106 8 10 16 2
 
 Marker_STS : "J9"
 Remark "test"
+Remark "foo"
 Creation_date 106 8 10 13 45 
 Modified_date 106 8 10 15 29 
 
@@ -3352,7 +3353,7 @@ Chr_remark "" Pos  -1.000
 Ctg7 10/6/105 15:24 Ok  0 # High 965 Avg 947 Low 922 
 Chr_remark "" Pos  -1.000  
 Ctg8 10/6/105 15:24 Ok  0 # High 939 Avg 893 Low 641 
-Chr_remark "Chr3 [2 Fw1 Pm1]" Pos   1.150  
+Chr_remark "Chr3 {*   [2 Fw1 Pm1]}" Pos   1.150  
 Ctg9 10/6/105 15:24 Ok  0 # High 981 Avg 958 Low 939 
 Chr_remark "Chr1 [1 Fw1]" Pos   7.800  
 Ctg10 10/6/105 15:24 Ok  0 # High 983 Avg 959 Low 928 

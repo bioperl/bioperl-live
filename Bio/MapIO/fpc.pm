@@ -411,10 +411,10 @@ sub next_map{
         elsif ($line =~ /^Trace_remark\s+"(.+)"/) {
             $_contigs{$ctgname}{'trace_remark'} = $1;
         }
-        elsif ($grpabbr && $line =~ /^Chr_remark\s+"(\W|$grpabbr((\d+)|(\w+)|([.\w\d]+)))(\s*\[(.*)\])?"\s+(Pos\s+((\d.)+|NaN))(NOEDIT)?/)
+        elsif ($grpabbr && $line =~ /^Chr_remark\s+"(\W|$grpabbr((\d+)|(\w+)|([.\w\d]+)))\s*(\{(.*)\}|\[(.*)\])?"\s+(Pos\s+((\d.)+|NaN))(NOEDIT)?/)
         {
             my $grpmatch = $2;
-            my $pos = $9;
+            my $pos = $10;
             if ($pos eq "NaN") {
                 $pos = 0;
                 print "Warning: Nan encountered for Contig position \n";
