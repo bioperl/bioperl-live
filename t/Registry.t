@@ -12,7 +12,7 @@ BEGIN {
 	$DEBUG = $ENV{BIOPERLDEBUG} || 0;
 	eval { require Test; };
 	if( $@ ) {
-		use lib 't','..';
+		use lib 't';
 	}
 	use Test;
 	$no_DB_File = 0;

@@ -54,7 +54,8 @@ SKIP: {
 		# instantiated in the constructor
 		$searchio = new Bio::SearchIO ('-tempfile' => 1,
 			   '-format' => 'blastxml',
-			   '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'));
+			   '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'),
+			   '-verbose' => 2); # promote warn to throw so we can skip over problems
 		$result = $searchio->next_result;
 	};
 	if ($@ && $@ =~ m{Handler couldn't resolve external entity}) {

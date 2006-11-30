@@ -219,8 +219,9 @@ sub _initialize{
     $self->{'_xmlparser'} = XML::SAX::ParserFactory->parser(Handler => $self);
     my $local_parser = ref($self->{'_xmlparser'});
     if ($local_parser eq 'XML::SAX::Expat') {
-        $self->warn('XML::SAX::Expat not currently supported; '.
-                    'must have local copies of NCBI DTD docs!');
+        $self->throw('XML::SAX::Expat not supported as it is no '.
+                     'longer maintained.  Please use any other XML::SAX '.
+                     'backend (such as XML::SAX::ExpatXS or XML::LibXML)');
     }    
     $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
 }
@@ -297,7 +298,7 @@ sub next_result {
     }
     my $result;
     my $starttime;
-    if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
+    #if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
 
     eval { 
 	$result = $self->{'_xmlparser'}->parse(%parser_args);
@@ -307,9 +308,9 @@ sub next_result {
 	$self->warn("error in parsing a report:\n $@");
 	$result = undef;
     }    
-    if( $DEBUG ) {
-	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
-    }
+    #if( $DEBUG ) {
+	#$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
+    #}
     # parsing magic here - but we call event handlers rather than 
     # instantiating things 
     return $result;

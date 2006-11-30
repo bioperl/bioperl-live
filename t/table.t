@@ -2,7 +2,7 @@
 # $GNF: projects/gi/symgene/src/perl/seqproc/t/table.t,v 1.3 2006/01/19 04:20:36 hlapp Exp $
 
 use strict;
-use vars qw($DEBUG);
+use vars qw($DEBUG $ERROR);
 use constant NUMTESTS => 449;
 use constant NONEXCELTESTS => 337;
 
@@ -15,7 +15,23 @@ BEGIN {
         use lib 't';
     }
     use Test;
+	
+	# we seem to need IO::Scalar for this
+	eval {
+		require IO::Scalar;
+	};
+	if ($@) {
+		$ERROR = 1;
+	}
+	
     plan tests => NUMTESTS;
+}
+
+if ($ERROR) {
+	foreach (1..NUMTESTS) { 
+        skip ("IO::Scalar not installed, skipping all tests",1,1); 
+    }
+    exit(0);
 }
 
 use Bio::Tools::CodonTable;

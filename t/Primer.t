@@ -9,7 +9,7 @@ use constant NUMTESTS => 18;
 BEGIN {
     eval { require Test; };
     if( $@ ) {
-        use lib 't','..';
+        use lib 't';
     }
     use Test;
 
