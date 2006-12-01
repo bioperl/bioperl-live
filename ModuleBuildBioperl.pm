@@ -640,6 +640,17 @@ sub write_config {
     my $self = shift;
     $self->SUPER::write_config;
     $self->{phash}{$_}->write() foreach qw(manifest_skip post_install_scripts);
+    
+    # be even more certain we can reload ourselves during a resume by copying
+    # ourselves to _build\lib
+    my $filename = File::Spec->catfile($self->{properties}{config_dir}, 'lib', 'ModuleBuildBioperl.pm');
+    my $filedir  = File::Basename::dirname($filename);
+    
+    File::Path::mkpath($filedir);
+    warn "Can't create directory $filedir: $!" unless -d $filedir;
+    
+    File::Copy::copy('ModuleBuildBioperl.pm', $filename);
+    warn "Unable to copy 'ModuleBuildBioperl.pm' to '$filename'\n" unless -e $filename;
 }
 
 # add a file to the default MANIFEST.SKIP
