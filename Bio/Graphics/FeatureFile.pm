@@ -118,7 +118,7 @@ use strict;
 use Bio::Graphics::Feature;
 use Bio::DB::GFF::Util::Rearrange;
 use Carp 'cluck','carp','croak';
-use Bio::DB::GFF;
+# use Bio::DB::GFF; # not needed - load later
 use IO::File;
 use Text::ParseWords 'shellwords';
 
