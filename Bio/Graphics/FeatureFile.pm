@@ -118,7 +118,6 @@ use strict;
 use Bio::Graphics::Feature;
 use Bio::DB::GFF::Util::Rearrange;
 use Carp 'cluck','carp','croak';
-# use Bio::DB::GFF;
 use IO::File;
 use Text::ParseWords 'shellwords';
 
@@ -498,6 +497,7 @@ sub parse_line {
 
   # conventional GFF file, with check for numeric start/end
   if (@tokens >= 8 && $tokens[3]=~ /^-?\d+$/ && $tokens[4]=~ /^-?\d+$/) {
+    require Bio::DB::GFF unless Bio::DB::GFF->can('split_group');
     my ($r,$source,$method,$start,$stop,$scor,$s,$phase,@rest) = @tokens;
     # sanity checks
     my $group = join ' ',@rest;
