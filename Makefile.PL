@@ -19,13 +19,15 @@ warn <<'WARN';
   ./Build install
   
   If you're seeing this message whilst installing with CPAN, consider
-  killing this installation and changing your CPAN configuration before
+  stopping this installation and changing your CPAN configuration before
   trying to install again:
   
-  cpan> o conf init prefer_installer
-  Choose 'MB'.
-  cpan> o conf commit
-  cpan> q
+  cpan>install CPAN
+  cpan>reload CPAN
+  cpan>install Module::Build
+  cpan>o conf prefer_installer MB
+  cpan>o conf commit
+  cpan>q
   
   Otherwise, if you would like to install the optional dependencies,
   install Bundle::BioPerl v2.1.8 or greater
