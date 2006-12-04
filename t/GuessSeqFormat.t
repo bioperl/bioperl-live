@@ -14,10 +14,10 @@ BEGIN {
    }
    use Test;
    $error = 0;
-   # SeqIO::game needs XML::Writer
-   eval {require XML::Writer};
+   # SeqIO::game needs XML::Writer and XML::Parser::PerlSAX
+   eval {require XML::Writer; require XML::Parser::PerlSAX;};
    if ($@) {
-      print STDERR "XML::Writer not found, skipping game test\n";
+      print STDERR "XML::Writer or XML::Parser::PerlSAX not found, skipping game test\n";
       $error = 1;
    }
    $NUMTESTS = ($error == 1) ? 44 : 46;
