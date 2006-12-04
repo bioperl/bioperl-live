@@ -29,60 +29,68 @@ my $build = ModuleBuildBioperl->new(
                             'DB_File'                   => 0
                            },
     build_requires      => {
-                            'Test::More'                => 0
+                            'Test::More'                => 0,
+                            'Module::Build'             => 0.2805,
+                            'Test::Harness'             => 2.62,
+                            'CPAN'                      => 1.81
                            },
-    recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
-                            'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
-                            'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene',
+    recommends          => [ # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
+                             # also note this is an array of hash refs, as the order is important
+                            {'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'},
+                            {'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene'},
                             # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
-                            'Class::AutoClass'          => '1/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
-                            'Clone'                     => '0/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3',
-                            'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
-                            'Data::Stag::XMLWriter'     => '0/writing choas xml files/Bio::SeqIO::chaosxml',
-                            'GD'                        => '1.3/rendering Sequences and Features/Bio::Graphics::Glyph*',
-                            'GD::SVG'                   => '0/creating SVG images/Bio::Graphics::Panel',
+                            {'Class::AutoClass'          => '1/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph'},
+                            {'Clone'                     => '0/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3'},
+                            {'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider'},
+                            {'Data::Stag::XMLWriter'     => '0/writing choas xml files/Bio::SeqIO::chaosxml'},
+                            {'GD'                        => '1.3/rendering Sequences and Features/Bio::Graphics::Glyph*'},
+                            {'GD::SVG'                   => '0/creating SVG images/Bio::Graphics::Panel'},
                             # we specifically want Graph::Directed, but that has no VERSION
-                            'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::Ontology::SimpleGOEngine::GraphAdaptor',
-                            'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
-                            'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB',
-                            'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
-                            'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::WebBlat,Bio::WebAgent,Bio::Graphics::Glyph::image',
-                            'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
-                            'SOAP::Lite'                => '0/XEMBL Services and Bibliographic queries/Bio::DB::XEMBLService,Bio::DB::Biblio::soap',
-                            'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel',
-                            'Storable'                  => '0/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',
-                            'SVG'                       => '2.26/SVG output/Bio::Graphics::Pictogram',
-                            'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',
-                            'Text::Shellwords'          => '0/test scripts/Bio::Graphics',
-                            'URI::Escape'               => '0/dealing with web resources/Bio::Tools::WebBlat,Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilities::Cookie,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated',
-                            'XML::DOM::XPath'           => '0/parsing interpro features/Bio::FeatureIO::interpro',
-                            'XML::Parser'               => '0/parsing xml/Bio::Biblio::IO::medlinexml',
-                            'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp',
-                            'XML::SAX'                  => '0/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-                            'XML::SAX::Base'            => '0/parsing xml/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-                            'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
-                            'XML::Simple'               => '0/parsing xml/Bio::DB::EUtilities',
-                            'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils,Bio::Graph::IO::psi_xml',
-                            'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter'
-                           },
+                            {'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::Ontology::SimpleGOEngine::GraphAdaptor'},
+                            {'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml'},
+                            {'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB'},
+                            {'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'},
+                            {'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::WebBlat,Bio::WebAgent,Bio::Graphics::Glyph::image'},
+                            {'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible'},
+                            {'SOAP::Lite'                => '0/XEMBL Services and Bibliographic queries/Bio::DB::XEMBLService,Bio::DB::Biblio::soap'},
+                            {'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel'},
+                            {'Storable'                  => '0/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb'},
+                            {'SVG'                       => '2.26/SVG output/Bio::Graphics::Pictogram'},
+                            {'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph'},
+                            {'Text::Shellwords'          => '0/test scripts/Bio::Graphics'},
+                            {'URI::Escape'               => '0/dealing with web resources/Bio::Tools::WebBlat,Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilities::Cookie,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'},
+                            # this is actually just an undeclared req of XML::DOM::XPath, used by Bio::FeatureIO::interpro
+                            {'XML::XPath'                => '0/parsing xml/XML::DOM::XPath,Bio::FeatureIO::interpro'},
+                            {'XML::DOM::XPath'           => '0/parsing interpro features/Bio::FeatureIO::interpro'},
+                            {'XML::Parser'               => '0/parsing xml/Bio::Biblio::IO::medlinexml'},
+                            {'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp'},
+                            {'XML::SAX'                  => '0/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax'},
+                            {'XML::SAX::Base'            => '0/parsing xml/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax'},
+                            {'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml'},
+                            # this is actually just an undeclared req of XML::Simple, used by EUtilities
+                            {'XML::SAX::Expat'           => '0/parsing xml/XML::Simple,Bio::DB::EUtilities'},
+                            {'XML::Simple'               => '0/parsing xml/Bio::DB::EUtilities'},
+                            {'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils,Bio::Graph::IO::psi_xml'},
+                            {'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter'}
+                           ],
     get_options         => {
                             network => { } # not actually used by anything yet, but in the future say perl Build.PL --network
                            },
     auto_features       => {
                             BioDBSeqFeature_BDB   => {
-                                                        description => "BDB tests for Bio::DB::SeqFeature::Store",
-                                                        requires    => { 'DB_File' => 0 }
+                                                        description      => "BDB tests for Bio::DB::SeqFeature::Store",
+                                                        feature_requires => { 'DB_File' => 0 } # feature_requires is like requires, execpt that it doesn't trigger installation
                                                      },
                             BioDBGFF              => {
-                                                        description => "BioDBGFF database tests (will need to answer questions before really enabling)",
-                                                        requires    => { 'DBI' => 0 },
-                                                        excludes_os => ['mswin'],
-                                                        test        => \&test_biodbgff # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
+                                                        description      => "BioDBGFF database tests (will need to answer questions before really enabling)",
+                                                        feature_requires => { 'DBI' => 0 },
+                                                        excludes_os      => ['mswin'],
+                                                        test             => \&test_biodbgff # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
                                                      },
                             BioDBSeqFeature_mysql => {
-                                                        description => "MySQL tests for Bio::DB::SeqFeature::Store",
-                                                        requires    => { 'DBI' => 0, 'DBD::mysql' => 0 },
-                                                        test        => \&test_db
+                                                        description      => "MySQL tests for Bio::DB::SeqFeature::Store",
+                                                        feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
+                                                        test             => \&test_db
                                                      },
 # The following code works, but since no tests in the test suite actually make use of this functionality, don't use it yet
 #                            Network               => {
@@ -144,7 +152,7 @@ END
 
 sub test_db {
     eval {require DBI;};  # if not installed, this sub won't actually be called
-    unless (DBI->connect('dbi:mysql:test',undef,undef,{RaiseError=>0,PrintError=>0})) {
+    unless (eval {DBI->connect('dbi:mysql:test',undef,undef,{RaiseError=>0,PrintError=>0})}) {
         return "Could not connect to test database";
     }
     return;
