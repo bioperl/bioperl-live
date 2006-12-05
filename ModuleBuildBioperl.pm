@@ -428,7 +428,9 @@ sub install_optional {
 }
 
 # there's no official way to discover if being run by CPAN, and the method
-# here is hardly ideal since user could change their build_dir in CPAN config
+# here is hardly ideal since user could change their build_dir in CPAN config.
+# NB: Module::AutoInstall has more robust detection, and is promising in other
+# ways; could consider converting over to it in the future
 sub under_cpan {
     my $self = shift;
     
@@ -729,13 +731,22 @@ sub write_config {
     # maintain its order when retrieved (don't care about recommends now,
     # this is only relevant on a resume)
     my @required;
+    my $orig_requires = $self->{properties}->{requires};
     while (my ($key, $val) = each %{$self->{properties}->{requires}}) {
         push(@required, { $key => $val });
     }
     $self->{properties}->{requires} = \@required;
     
     $self->SUPER::write_config;
+    
+    # write extra things
     $self->{phash}{$_}->write() foreach qw(manifest_skip post_install_scripts);
+    
+    # re-write the prereqs file to keep future versions of CPAN happy
+    $self->{properties}->{requires} = $orig_requires;
+    my @items = @{ $self->prereq_action_types };
+    $self->_write_data('prereqs', { map { $_, $self->$_() } @items });
+    $self->{properties}->{requires} = \@required;
     
     # be even more certain we can reload ourselves during a resume by copying
     # ourselves to _build\lib
