@@ -428,10 +428,11 @@ sub _initialize {
 
 	# flush is initialized by the Root::IO init
 
-	my ($seqfact,$locfact,$objbuilder) =
+	my ($seqfact,$locfact,$objbuilder, $alphabet) =
 	  $self->_rearrange([qw(SEQFACTORY
 			      LOCFACTORY
-			      OBJBUILDER)
+			      OBJBUILDER
+                  ALPHABET)
 							  ], @args);
 
 	$locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose)
@@ -440,9 +441,14 @@ sub _initialize {
 	  unless $objbuilder;
 	$self->sequence_builder($objbuilder);
 	$self->location_factory($locfact);
+
 	# note that this should come last because it propagates the sequence
 	# factory to the sequence builder
 	$seqfact && $self->sequence_factory($seqfact);
+        
+    #bug 2160
+    $alphabet && $self->alphabet($alphabet);
+
 
 	# initialize the IO part
 	$self->_initialize_io(@args);
