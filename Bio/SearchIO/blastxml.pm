@@ -115,7 +115,7 @@ use IO::File;
 
 BEGIN {
     # uncomment only for testing; trying to get XML::SAX::Expat to play nice...
-    $XML::SAX::ParserPackage = 'XML::SAX::PurePerl';
+    #$XML::SAX::ParserPackage = 'XML::SAX::PurePerl';
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('BlastOutput' => 'result',
 		'Hit'         => 'hit',
