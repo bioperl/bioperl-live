@@ -161,11 +161,18 @@ sub classification {
         }
         
         # make sure the lineage contains us as first or second element
-        # (lineage may have subspeces, species, genus ...)
+        # (lineage may have subspecies, species, genus ...)
         my $name = $self->node_name;
-        if ($name && ($name ne $vals[0] && $name ne $vals[1]) &&
-			       $name ne "$vals[1] $vals[0]") {
-            $self->throw("The supplied lineage does not start near '$name'");
+        if ($name && ($name ne $vals[0] && $name ne $vals[1]) && $name ne "$vals[1] $vals[0]") {
+            if ($name =~ /^$vals[1] $vals[0]\s*(.+)/) {
+                # just assume the problem is someone tried to make a Bio::Species starting at subspecies
+                #*** no idea if this is appropriate! just a possible fix related to bug 2092
+                $self->sub_species($1);
+                $name = $self->node_name("$vals[1] $vals[0]");
+            }
+            else {
+                $self->throw("The supplied lineage does not start near '$name' (I was supplied '".join(" | ", @vals)."')");
+            }
         }
         
         # create a lineage for ourselves
@@ -194,7 +201,7 @@ sub classification {
     foreach my $node ($self->{tree}->get_lineage_nodes($self), $self) {
         unshift(@vals, $node->scientific_name || next);
     }
-    weaken($self->{tree}->{'_rootnode'});
+    weaken($self->{tree}->{'_rootnode'}) unless isweak($self->{tree}->{'_rootnode'});
     return @vals;
 }
 
