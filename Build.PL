@@ -37,6 +37,7 @@ my $build = ModuleBuildBioperl->new(
     recommends          => [ # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
                              # also note this is an array of hash refs, as the order is important
                             {'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'},
+                            # this won't actually install due to circular dep, but we have no way of doing a post-install
                             {'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene'},
                             # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
                             {'Class::AutoClass'          => '1/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph'},
@@ -59,16 +60,17 @@ my $build = ModuleBuildBioperl->new(
                             {'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph'},
                             {'Text::Shellwords'          => '0/test scripts/Bio::Graphics'},
                             {'URI::Escape'               => '0/dealing with web resources/Bio::Tools::WebBlat,Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilities::Cookie,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'},
-                            # this is actually just an undeclared req of XML::DOM::XPath, used by Bio::FeatureIO::interpro
+                            # this is actually just an undeclared req of XML::DOM::XPath v0.12, used by Bio::FeatureIO::interpro
+                            # should be able to remove this when v0.13 of XML::DOM::XPath is available
                             {'XML::XPath'                => '0/parsing xml/XML::DOM::XPath,Bio::FeatureIO::interpro'},
                             {'XML::DOM::XPath'           => '0/parsing interpro features/Bio::FeatureIO::interpro'},
                             {'XML::Parser'               => '0/parsing xml/Bio::Biblio::IO::medlinexml'},
                             {'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp'},
                             {'XML::SAX'                  => '0/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax'},
-                            {'XML::SAX::Base'            => '0/parsing xml/Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax'},
                             {'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml'},
-                            # this is actually just an undeclared req of XML::Simple, used by EUtilities
-                            {'XML::SAX::Expat'           => '0/parsing xml/XML::Simple,Bio::DB::EUtilities'},
+                            # this is just required by XML::Simple, since installation will fail if only XML::SAX::PurePerl is installed
+                            # should be able to remove this when XML::SAX is bug-fixed for this problem
+                            {'XML::SAX::ExpatXS'         => '0/parsing xml/XML::Simple,Bio::DB::EUtilities'},
                             {'XML::Simple'               => '0/parsing xml/Bio::DB::EUtilities'},
                             {'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils,Bio::Graph::IO::psi_xml'},
                             {'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter'}
