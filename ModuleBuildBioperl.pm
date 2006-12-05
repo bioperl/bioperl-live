@@ -885,6 +885,103 @@ sub ppm_name {
     return $self->dist_dir.'-ppm';
 }
 
+# generate complete ppd4 version file
+sub ACTION_ppd {
+    my $self = shift;
+    
+    my $file = $self->make_ppd(%{$self->{args}});
+    $self->add_to_cleanup($file);
+    $self->add_to_manifest_skip($file);
+}
+
+# add pod2htm temp files to MANIFEST.SKIP, generated during ppmdist most likely
+sub htmlify_pods {
+    my $self = shift;
+    $self->SUPER::htmlify_pods(@_);
+    $self->add_to_manifest_skip('pod2htm*');
+}
+
+# overridden from Module::Build::PPMMaker for ppd4 compatability
+sub make_ppd {
+    my ($self, %args) = @_;
+    
+    require Module::Build::PPMMaker;
+    my $mbp = Module::Build::PPMMaker->new();
+    
+    my %dist;
+    foreach my $info (qw(name author abstract version)) {
+        my $method = "dist_$info";
+        $dist{$info} = $self->$method() or die "Can't determine distribution's $info\n";
+    }
+    $dist{codebase} = $self->ppm_name.'.tar.gz';
+    $mbp->_simple_xml_escape($_) foreach $dist{abstract}, $dist{codebase}, @{$dist{author}};
+    
+    my (undef, undef, undef, $mday, $mon, $year) = localtime();
+    $year += 1900;
+    $mon++;
+    my $date = "$year-$mon-$mday";
+    
+    # header
+    my $ppd = <<"PPD";
+    <SOFTPKG NAME=\"$dist{name}\" VERSION=\"$dist{version}\" DATE=\"$date\">
+        <TITLE>$dist{name}</TITLE>
+        <ABSTRACT>$dist{abstract}</ABSTRACT>
+@{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
+        <PROVIDE NAME=\"$dist{name}::\" VERSION=\"$dist{version}\"/>
+PPD
+    
+    # provide section
+    foreach my $pm (@{$self->rscan_dir('Bio', qr/\.pm$/)}) {
+        # convert these filepaths to Module names
+        $pm =~ s/\//::/g;
+        $pm =~ s/\.pm//;
+        
+        $ppd .= sprintf(<<'EOF', $pm, $dist{version});
+        <PROVIDE NAME="%s" VERSION="%s"/>
+EOF
+    }
+    
+    # rest of header
+    $ppd .= <<"PPD";
+        <IMPLEMENTATION>
+            <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
+            <CODEBASE HREF=\"$dist{codebase}\"/>
+PPD
+    
+    # required section
+    # we do both requires and recommends to make installation on Windows as
+    # easy (mindless) as possible
+    for my $type ('requires', 'recommends') {
+        my $prereq = $self->$type;
+        while (my ($modname, $version) = each %$prereq) {
+            next if $modname eq 'perl';
+            ($version) = split("/", $version) if $version =~ /\//;
+            
+            # Module names must have at least one ::
+            unless ($modname =~ /::/) {
+                $modname .= '::';
+            }
+            
+            $ppd .= sprintf(<<'EOF', $modname, $version || '');
+            <REQUIRE NAME="%s" VERSION="%s"/>
+EOF
+        }
+    }
+    
+    # footer
+    $ppd .= <<'EOF';
+        </IMPLEMENTATION>
+    </SOFTPKG>
+EOF
+    
+    my $ppd_file = "$dist{name}.ppd";
+    my $fh = IO::File->new(">$ppd_file") or die "Cannot write to $ppd_file: $!";
+    print $fh $ppd;
+    close $fh;
+  
+    return $ppd_file;
+}
+
 # we make all archive formats we want, not just .tar.gz
 # we also auto-run manifest action, since we always want to re-create
 # MANIFEST and MANIFEST.SKIP just-in-time
