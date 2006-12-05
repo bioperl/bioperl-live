@@ -115,7 +115,7 @@ use IO::File;
 
 BEGIN {
     # uncomment only for testing; trying to get XML::SAX::Expat to play nice...
-    #$XML::SAX::ParserPackage = 'XML::SAX::Expat';
+    $XML::SAX::ParserPackage = 'XML::SAX::PurePerl';
     # mapping of NCBI Blast terms to Bioperl hash keys
     %MODEMAP = ('BlastOutput' => 'result',
 		'Hit'         => 'hit',
@@ -222,7 +222,13 @@ sub _initialize{
         $self->throw('XML::SAX::Expat not supported as it is no '.
                      'longer maintained.  Please use any other XML::SAX '.
                      'backend (such as XML::SAX::ExpatXS or XML::LibXML)');
-    }    
+    } elsif ($local_parser eq 'XML::SAX::PurePerl') {
+        $self->warn("XML::SAX::PurePerl installed as default XML::SAX parser.\n".
+                     "This works but has a small bug which breaks ".
+                     "with character encoding (Bug 2159). \n".
+                     "We recommend using a different ".
+                     "backend (such as XML::SAX::ExpatXS or XML::LibXML)");
+    }
     $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
 }
 
