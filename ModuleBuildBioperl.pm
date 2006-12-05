@@ -901,6 +901,31 @@ sub htmlify_pods {
     $self->add_to_manifest_skip('pod2htm*');
 }
 
+# don't copy across man3 docs since they're of little use under Windows and
+# have bad filenames
+sub ACTION_ppmdist {
+    my $self = shift;
+    my @types = $self->install_types(1);
+    $self->SUPER::ACTION_ppmdist(@_);
+    $self->install_types(0);
+}
+
+# when supplied a true value, pretends libdoc doesn't exist (preventing man3
+# installation for ppmdist). when supplied false, they exist again
+sub install_types {
+    my ($self, $no_libdoc) = @_;
+    $self->{no_libdoc} = $no_libdoc if defined $no_libdoc;
+    my @types = $self->SUPER::install_types;
+    if ($self->{no_libdoc}) {
+        my @altered_types;
+        foreach my $type (@types) {
+            push(@altered_types, $type) unless $type eq 'libdoc';
+        }
+        return @altered_types;
+    }
+    return @types;
+}
+
 # overridden from Module::Build::PPMMaker for ppd4 compatability
 sub make_ppd {
     my ($self, %args) = @_;
@@ -921,9 +946,12 @@ sub make_ppd {
     $mon++;
     my $date = "$year-$mon-$mday";
     
+    my $softpkg_version = $self->dist_dir;
+    $softpkg_version =~ s/^$self->{properties}{dist_name}-//;
+    
     # header
     my $ppd = <<"PPD";
-    <SOFTPKG NAME=\"$dist{name}\" VERSION=\"$dist{version}\" DATE=\"$date\">
+    <SOFTPKG NAME=\"$dist{name}\" VERSION=\"$softpkg_version\" DATE=\"$date\">
         <TITLE>$dist{name}</TITLE>
         <ABSTRACT>$dist{abstract}</ABSTRACT>
 @{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
