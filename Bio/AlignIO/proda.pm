@@ -136,7 +136,7 @@ sub next_aln {
     my %order;
     $self->{_lastline} = '';
     my ($first_block, $seen_block, $seen_header) = (0,0,0);
-    my @ids;
+    my @ids; my @ids_copy;
     while ( defined( $_ = $self->_readline ) ) {
         next if (/^\s+$/ && !$first_block);
         if (/^\s$/) {  # line contains no description
@@ -178,7 +178,9 @@ sub next_aln {
             next;
         }
 
-        my $seqname_with_coords = shift(@ids);
+        # we ended up the first block and now are on the second
+        @ids_copy = @ids unless(defined($ids_copy[0])); #FIXME - hacky
+        my $seqname_with_coords = shift(@ids_copy);
         if ($seqname_with_coords !~ /$seqname/) {
             {
                 $self->throw("header and body of the alignment dont match");
