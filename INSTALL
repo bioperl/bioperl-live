@@ -2,24 +2,28 @@
 
 Installing Bioperl for Unix
 
-    *  BIOPERL INSTALLATION
-    *  SYSTEM REQUIREMENTS
-    *  OPTIONAL
-    *  ADDITIONAL INSTALLATION INFORMATION
-    *  THE BIOPERL BUNDLE
-    *  INSTALLING BIOPERL THE EASY WAY USING CPAN
-    *  INSTALLING BIOPERL THE EASY WAY USING Build.PL
-    *  WHERE ARE THE MAN PAGES?
-    *  EXTERNAL PROGRAMS
-        *  Environment Variables
-    *  INSTALLING BIOPERL SCRIPTS
-    *  INSTALLING BIOPERL IN A PERSONAL MODULE AREA
-    *  INSTALLING BIOPERL MODULES THE HARD WAY
-    *  USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
-    *  THE TEST SYSTEM
-    *  BUILDING THE OPTIONAL bioperl-ext PACKAGE
-        *  CONFIGURING for BSD and Solaris boxes
-        *  INSTALLATION
+     * 1 BIOPERL INSTALLATION
+     * 2 SYSTEM REQUIREMENTS
+     * 3 OPTIONAL
+     * 4 ADDITIONAL INSTALLATION INFORMATION
+     * 5 THE BIOPERL BUNDLE
+     * 6 PRELIMINARY PREPARATION
+     * 7 INSTALLING BIOPERL THE EASY WAY USING CPAN
+     * 8 INSTALLING BIOPERL THE EASY WAY USING 'Build.PL'
+     * 9 WHERE ARE THE MAN PAGES?
+     * 10 EXTERNAL PROGRAMS
+
+          * 10.1 Environment Variables
+
+     * 11 INSTALLING BIOPERL SCRIPTS
+     * 12 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
+     * 13 INSTALLING BIOPERL MODULES THE HARD WAY
+     * 14 USING MODULES NOT INSTALLED IN THE STANDARD LOCATION
+     * 15 THE TEST SYSTEM
+     * 16 BUILDING THE OPTIONAL bioperl-ext PACKAGE
+
+          * 16.1 CONFIGURING for BSD and Solaris boxes
+          * 16.2 INSTALLATION
 
 BIOPERL INSTALLATION
 
@@ -51,6 +55,7 @@ ADDITIONAL INSTALLATION INFORMATION
    * Additional information on Bioperl and MAC OS:
       * OS 9 - http://bioperl.org/Core/mac-bioperl.html
       * OS X - http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
+            (outdated, but useful for libgd installation notes)
       * OS X - Installing using Fink (in Getting BioPerl)
 
 THE BIOPERL BUNDLE
@@ -59,6 +64,42 @@ Users of previous versions of Bioperl may remember Bundle::BioPerl.
 You no longer need to install Bundle::BioPerl. Instead, the normal
 installation process will ask you if you'd like to install the
 optional external module dependencies that Bioperl has.
+
+A full list of BioPerl dependencies can be found inf the DEPENDENCIES
+file included with this distribution.
+
+PRELIMINARY PREPARATION
+
+   This is optional, but regardless of your subsequent choice of installation
+   method, it will help to carry out the following steps. They will increase
+   the likelyhood of installation success (especially of optional
+   dependencies).
+
+     * Upgrade CPAN:
+
+ >perl -MCPAN -e shell
+ cpan>install Bundle::CPAN
+ cpan>q
+
+     * Install/upgrade Module::Build, and make it your preferred installer:
+
+ >cpan
+ cpan>install Module::Build
+ cpan>o conf prefer_installer MB
+ cpan>o conf commit
+ cpan>q
+
+     * Install the expat and libgd libraries by whatever method is
+       appropriate for your system. If you install libgd in a non-standard
+       location, that is fine: when installing the perl module that needs it
+       you will be asked where you installed it.
+
+     * If your expat library is installed in a non-standard location, tell
+       CPAN about it:
+
+ >cpan
+ cpan>o conf makepl_arg "EXPATLIBPATH=/non-standard/lib EXPATINCPATH=/non-standard/include"
+ cpan>o conf commit
 
 INSTALLING BIOPERL THE EASY WAY USING CPAN
 
@@ -220,9 +261,11 @@ INSTALLING BIOPERL SCRIPTS
 Bioperl comes with a set of production-quality scripts that are
 kept in the scripts/ directory. You can install these scripts if you'd
 like, simply answer the questions during 'perl Build.PL'.
-The installation directory can be specified by
+The installation directory can be specified by:
+
  perl Build.PL
  ./Build install --install_path script=/foo/scripts
+ 
 By default they install to /usr/bin or similar, depending on platform.
 
 INSTALLING BIOPERL IN A PERSONAL MODULE AREA
@@ -356,8 +399,11 @@ Smith-Waterman, Bio::Tools::dpAlign for protein Smith-Waterman,
 Bio::SearchDist for EVD fitting of extreme value,
 Bio::SeqIO::staden).
 
-This Installation works out-of-the box for all platforms except BSD
-and Solaris boxes. For other platforms skip this next paragraph.
+This Installation may work out-of-the box for most platforms except BSD
+and Solaris boxes. For other platforms skip this next paragraph.  Of note,
+the code for bioperl-ext has not been updated along with the rest of bioperl,
+so one may expect to see some issues.  If so, please report them to the
+BioPerl mailing list.
 
     CONFIGURING for BSD and Solaris boxes
 
