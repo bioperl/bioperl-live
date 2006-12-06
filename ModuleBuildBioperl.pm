@@ -1023,6 +1023,12 @@ PPD
                 $modname .= '::';
             }
             
+            # Bio::Root::Version number comes out as triplet number like 1.5.2;
+            # convert to our own version
+            if ($modname eq 'Bio::Root::Version') {
+                $version = $dist{version};
+            }
+            
             $ppd .= sprintf(<<'EOF', $modname, $version || '');
             <REQUIRE NAME="%s" VERSION="%s"/>
 EOF
