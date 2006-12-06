@@ -836,10 +836,15 @@ sub run_post_install_scripts {
     }
 }
 
-# for use with auto_features, which needs to require LWP::UserAgent as one of
+# for use with auto_features, which should require LWP::UserAgent as one of
 # its reqs
 sub test_internet {
-    eval {require LWP::UserAgent;}; # if not installed, this sub won't actually be called
+    eval {require LWP::UserAgent;};
+    if ($@) {
+        # ideally this won't happen because auto_feature already specified
+        # LWP::UserAgent, so this sub wouldn't get called if LWP not installed
+        return "LWP::UserAgent not installed";
+    }
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     $ua->env_proxy;
@@ -947,7 +952,19 @@ sub make_ppd {
     my $date = "$year-$mon-$mday";
     
     my $softpkg_version = $self->dist_dir;
-    $softpkg_version =~ s/^$self->{properties}{dist_name}-//;
+    $softpkg_version =~ s/^$dist{name}-//;
+    
+    # to avoid a ppm bug, instead of including the requires in the softpackage
+    # for the distribution we're making, we'll make a seperate Bundle::
+    # softpackage that contains all the requires, and require only the Bundle in
+    # the real softpackage
+    my ($bundle_name) = $dist{name} =~ /^.+-(.+)/;
+    $bundle_name ||= 'core';
+    $bundle_name =~ s/^(\w)/\U$1/;
+    my $bundle_dir = "Bundle-BioPerl-$bundle_name-$softpkg_version-ppm";
+    my $bundle_file = "$bundle_dir.tar.gz";
+    my $bundle_softpkg_name = "Bundle-BioPerl-$bundle_name";
+    $bundle_name = "Bundle::BioPerl::$bundle_name";
     
     # header
     my $ppd = <<"PPD";
@@ -969,11 +986,27 @@ PPD
 EOF
     }
     
-    # rest of header
+    # rest of softpkg
     $ppd .= <<"PPD";
         <IMPLEMENTATION>
             <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
             <CODEBASE HREF=\"$dist{codebase}\"/>
+            <REQUIRE NAME=\"$bundle_name\" VERSION=\"$dist{version}\"/>
+        </IMPLEMENTATION>
+    </SOFTPKG>
+PPD
+    
+    # now a new softpkg for the bundle
+    $ppd .= <<"PPD";
+    
+    <SOFTPKG NAME=\"$bundle_softpkg_name\" VERSION=\"$softpkg_version\" DATE=\"$date\">
+        <TITLE>$bundle_name</TITLE>
+        <ABSTRACT>Bundle of pre-requisites for $dist{name}</ABSTRACT>
+@{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
+        <PROVIDE NAME=\"$bundle_name\" VERSION=\"$dist{version}\"/>
+        <IMPLEMENTATION>
+            <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
+            <CODEBASE HREF=\"$bundle_file\"/>
 PPD
     
     # required section
@@ -1006,7 +1039,14 @@ EOF
     my $fh = IO::File->new(">$ppd_file") or die "Cannot write to $ppd_file: $!";
     print $fh $ppd;
     close $fh;
-  
+    
+    $self->delete_filetree($bundle_dir);
+    mkdir($bundle_dir) or die "Cannot create '$bundle_dir': $!";
+    $self->make_tarball($bundle_dir);
+    $self->delete_filetree($bundle_dir);
+    $self->add_to_cleanup($bundle_file);
+    $self->add_to_manifest_skip($bundle_file);
+    
     return $ppd_file;
 }
 
