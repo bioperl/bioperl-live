@@ -1,4 +1,4 @@
-# $Id: INSTALL.WIN,v 1.24 2006-11-21 10:32:34 sendu Exp $
+# $Id: INSTALL.WIN,v 1.25 2006-12-06 17:42:27 cjfields Exp $
 
                          Installing Bioperl on Windows
 
@@ -6,23 +6,28 @@
 
      * 1 Introduction
      * 2 Requirements
-     * 3 Installation Guide
-     * 4 Bioperl
-     * 5 Perl on Windows
-     * 6 Bioperl on Windows
-     * 7 Beyond the Core
+     * 3 Installation using the Perl Package Manager
+     
+          * 3.1 GUI Installation
+          * 3.2 Comand-line Installation
+          
+     * 4 Installation using CPAN or manual installation
+     * 5 Bioperl
+     * 6 Perl on Windows
+     * 7 Bioperl on Windows
+     * 8 Beyond the Core
 
-          * 7.1 Setting environment variables
-          * 7.2 Installing bioperl-db
+          * 8.1 Setting environment variables
+          * 8.2 Installing bioperl-db
 
-     * 8 Bioperl in Cygwin
-     * 9 bioperl-db in Cygwin
-     * 10 Cygwin tips
-     * 11 MySQL and DBD::mysql
-     * 12 Expat
-     * 13 Directory for temporary files
-     * 14 BLAST
-     * 15 Compiling C code
+     * 9 Bioperl in Cygwin
+     * 10 bioperl-db in Cygwin
+     * 11 Cygwin tips
+     * 12 MySQL and DBD::mysql
+     * 13 Expat
+     * 14 Directory for temporary files
+     * 15 BLAST
+     * 16 Compiling C code
 
 Introduction
 
@@ -39,8 +44,8 @@ Introduction
 
 Requirements
 
-           1) Only ActivePerl >= 5.8.8.819 is supported by the Bioperl team.
-           Earlier versions may work, but we do not support them.
+   Only ActivePerl >= 5.8.8.819 is supported by the Bioperl team. Earlier
+   versions may work, but we do not support them.
 
    One of the reason for this requirement is that ActivePerl >= 5.8.8.819 now
    use Perl Package Manager 4 (PPM4). PPM4 is now superior to earlier
@@ -49,43 +54,121 @@ Requirements
    PPM and also easier for you to do the install! Proceed with earlier
    versions at your own risk.
 
-Installation Guide
+   To install ActivePerl:
 
            1) Download the ActivePerl MSI from ActiveState
 
            2) Run the ActivePerl Installer (accepting all defaults is fine).
 
-           3) Start the Perl Package Manager GUI from the Start menu.
+Installation using the Perl Package Manager
 
-           4) Go to Edit >> Preferences and click the Repositories tab. Add a
+  GUI Installation
+
+           1) Start the Perl Package Manager GUI from the Start menu.
+
+           2) Go to Edit >> Preferences and click the Repositories tab. Add a
            new repository for each of the following:
 
                               Repositories to add
        +----------------------------------------------------------------+
        |           Name           |              Location               |
        |--------------------------+-------------------------------------|
-       |BioPerl-Release Candidates|    http://bioperl.org/DIST/RC       |
+       |BioPerl-Release Candidates|[37]http://bioperl.org/DIST/RC       |
        |--------------------------+-------------------------------------|
-       |BioPerl-Regular Releases  |    http://bioperl.org/DIST          |
+       |BioPerl-Regular Releases  |[38]http://bioperl.org/DIST          |
        |--------------------------+-------------------------------------|
-       |Kobes                     |    http://theoryx5.uwinnipeg.ca/ppms|
+       |Kobes                     |[39]http://theoryx5.uwinnipeg.ca/ppms|
        |--------------------------+-------------------------------------|
-       |Bribes                    |    http://www.Bribes.org/perl/ppm   |
+       |Bribes                    |[40]http://www.Bribes.org/perl/ppm   |
        +----------------------------------------------------------------+
 
 
-           5) Select View >> All Packages.
+           3) Select View >> All Packages.
 
-           6) In the search box type bioperl.
+           4) In the search box type bioperl.
 
-           7) Right click the latest version of Bioperl available and choose
-           install. (Note for users of previous Bioperl releases: you should
-           not have to use the Bundle-BioPerl package anymore.)
+           5) Right click the latest version of Bioperl available and choose
+           install.
 
-           8) Click the green arrow (Run marked actions) to complete the
+           5a) From bioperl 1.5.2 onward, all 'optional' pre-requisites will
+           be marked for installation. If you see that some of them complain
+           about needing a command-line installation (eg. XML::SAX::ExpatXS),
+           and you want those particular pre-requisites, stop now (skip step
+           6) and see the 'Command-line Installation' section.
+
+           6) Click the green arrow (Run marked actions) to complete the
            installation.
 
-           9) Go to the Bioperl Wiki and start reading documentation.
+  Comand-line Installation
+
+           1) Follow steps 1) and 2) from 'GUI Installation' above, if you
+           haven't done so already.
+
+           2) Open a cmd window by going to Start >> Run and typing 'cmd' and
+           pressing return.
+
+           3) Type the following into the cmd window:
+            
+             ppm-shell
+             search bioperl
+             install #
+
+            (where the number matches the bioperl version needed) You can use '-force'
+            to force install if needed.
+
+Installation using CPAN or manual installation
+
+   Installation using PPM is preferred since it is easier, but if you run
+   into problems, or a ppm isn't available for the version/package of bioperl
+   you want, or you want to choose which optional dependencies to install,
+   you can install manually by downloading the appropriate package or by
+   using CPAN. In fact both methods ultimately need nmake to be
+   installed, CPAN to be upgraded to >= v1.81, Module::Build to be installed
+   (>= v0.2805) and Test::Harness to be upgraded to >= v2.62:
+
+           1) Download nmake
+
+           2) Double-click to run it, which extracts 3 files. Move both
+           NMAKE.EXE and the NMAKE.ERR files to a place in your PATH; if set
+           up properly, you can move these to your Perl bin directory,
+           normally C:\Perl\bin.
+
+           1) Open a cmd window by going to Start >> Run and typing 'cmd'
+           into the box and pressing return.
+
+           2) Type 'cpan' to enter the CPAN shell.
+
+           3) At the cpan> prompt, type 'install CPAN' to upgrade to the
+           latest version.
+
+           4) Quit (by typing 'q') and reload cpan. You may be asked some
+           configuration questions; accepting defaults is fine.
+
+           5) At the cpan> prompt, type 'o conf prefer_installer MB' to tell
+           CPAN to prefer to use Build.PL scripts for installation. Type 'o
+           conf commit' to save that choice.
+
+           6) At the cpan> prompt, type 'install Module::Build'.
+
+           7) At the cpan> prompt, type 'install Test::Harness'.
+
+   You can now follow the unix instructions for installing using CPAN, or
+   install manually:
+
+           8) Download the .zip version of the package you want.
+
+           9) Extract the archive in the normal way.
+
+           10) In a cmd window 'cd' to the directory you extracted to. Eg. if
+           you extracted to directory 'Temp', 'cd Temp\bioperl-1.5.2_100'
+
+           11) Type 'perl Build.PL' and answer the questions appropriately.
+
+           12) Type 'perl Build test'. All the tests should pass, but if they
+           don't, let us know. Your usage of Bioperl may not be affected
+           by the failure, so you can choose to continue anyway.
+
+           13) Type 'perl Build install' to install Bioperl.
 
 Bioperl
 
@@ -151,9 +234,9 @@ Perl on Windows
    most common and easiest is to get the most recent build from
    ActiveState, a software company that provides free builds of Perl for
    Windows users. The current (October 2006) build is ActivePerl 5.8.8.819.
-   Bioperl also works on Perl 5.6.x but due to installation problems etc,
-   only ActivePerl 5.8.8.819 or later is supported. To install ActivePerl on
-   Windows:
+   Bioperl also works on Perl 5.6.x, but due to installation problems etc,
+   only ActivePerl 5.8.8.819 or later is supported for WinXP installation.
+   To install ActivePerl on Windows:
 
            1) Download the ActivePerl MSI from
            http://www.activestate.com/Products/ActivePerl/.
@@ -320,7 +403,7 @@ Beyond the Core
    regular bioperl 1.5.2 release PPM. We will post instructions at that
    time on using PPM to install bioperl-db.
 
-   to begin, follow instructions detailed in the Installation Guide for
+   To begin, follow instructions detailed in the Installation Guide for
    adding the three new repositories (Bioperl, Kobes and Bribes). Then
    install the following packages:
 
@@ -426,7 +509,8 @@ Beyond the Core
 Bioperl in Cygwin
 
    Cygwin is a Unix emulator and shell environment available free at
-   http://www.cygwin.com. Bioperl v. 1.* runs well within Cygwin. Some
+   http://www.cygwin.com. Bioperl v. 1.* supposedly runs well within Cygwin,
+   though the latest release has not been tested with Cygwin yet. Some
    users claim that installation of Bioperl is easier within Cygwin than
    within Windows, but these may be users with UNIX backgrounds. A note on
    Cygwin: it doesn't write to your Registry, it doesn't alter your system or
