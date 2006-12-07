@@ -4,7 +4,7 @@
 #
 
 use strict;
-use constant NUMTESTS => 32;
+use constant NUMTESTS => 33;
 BEGIN { 
 	eval { require Test; };
 	if ( $@ ) {
@@ -186,9 +186,7 @@ if (-e $amino_database) {
 	}
 }
 
-__END__
-
-
+# "dashed parameters"
 $factory = Bio::Tools::Run::StandAloneBlast->new(
 												  -verbose     => $verbose,
 												  -program     => 'blastn',
