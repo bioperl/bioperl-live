@@ -51,6 +51,7 @@ my $build = ModuleBuildBioperl->new(
                             'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB',
                             'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
                             'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::WebBlat,Bio::WebAgent,Bio::Graphics::Glyph::image',
+                            'PostScript::TextBlock'     => '0/EPS output/Bio::Tree::Draw::Cladogram',
                             'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
                             'SOAP::Lite'                => '0/XEMBL Services and Bibliographic queries/Bio::DB::XEMBLService,Bio::DB::Biblio::soap',
                             'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel',
