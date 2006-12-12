@@ -75,6 +75,8 @@ BEGIN {
 
 =cut
 
+#' for emacs
+
 sub new {
   my($class,@args) = @_;
 
@@ -112,7 +114,7 @@ sub new {
 =head2 add_Descendent
 
  Title   : add_Descendent
- Usage   : $taxon->add_Descendant($taxon);
+ Usage   : $taxon->add_Descendent($taxon);
  Function: Adds a descendent to a taxon
  Returns : number of current descendents for this taxon
  Args    : Bio::Taxonomy::Taxon

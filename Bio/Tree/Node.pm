@@ -138,7 +138,7 @@ sub new {
 =head2 add_Descendent
 
  Title   : add_Descendent
- Usage   : $node->add_Descendant($node);
+ Usage   : $node->add_Descendent($node);
  Function: Adds a descendent to a node
  Returns : number of current descendents for this node
  Args    : Bio::Node::NodeI
