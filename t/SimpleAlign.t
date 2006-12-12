@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 75;
+use constant NUMTESTS => 85;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -19,6 +19,9 @@ BEGIN {
 use_ok('Bio::SimpleAlign');
 use_ok('Bio::AlignIO');
 use_ok('Bio::Root::IO');
+use_ok('Bio::SeqFeature::Generic');
+use_ok('Bio::Location::Simple');
+use_ok('Bio::Location::Split');
 
 my ($str, $aln, @seqs, $seq);
 
@@ -302,5 +305,52 @@ SKIP:{
 	is($seq_negative->start,2,"bug 2099");
 	is($seq_negative->end,5,"bug 2099");
 }
+
+# test for Bio::SimpleAlign annotation method and 
+# Bio::FeatureHolder stuff
+
+$aln = Bio::SimpleAlign->new;
+for my $seqset ( [qw(one AGAGGAT)], [qw(two AGACGAT) ], [qw(three AGAGGTT)]) {
+    $aln->add_seq(Bio::LocatableSeq->new(-id => $seqset->[0],
+					 -seq => $seqset->[1]));
+}
+
+is $aln->no_sequences, 3, 'added 3 seqs';
+
+$aln->add_SeqFeature(Bio::SeqFeature::Generic->new(-start => 1,
+						   -end   => 1,
+						   -primary_tag => 'charLabel',
+						   ));
+$aln->add_SeqFeature(Bio::SeqFeature::Generic->new(-start => 3,
+						   -end   => 3,
+						   -primary_tag => 'charLabel',
+
+						   ));
+is($aln->feature_count, 2, 'first 2 features added');
+
+my $splitloc =Bio::Location::Split->new;
+$splitloc->add_sub_Location(Bio::Location::Simple->new(-start => 2,
+						       -end   => 3));
+
+$splitloc->add_sub_Location(Bio::Location::Simple->new(-start => 5,
+						       -end   => 6));
+						     
+$aln->add_SeqFeature(Bio::SeqFeature::Generic->new(-location =>$splitloc,
+						   -primary_tag => 'charLabel',
+						   ));
+
+is($aln->feature_count, 3, '3rd feature added');
+
+#get a slice as defined by the feature
+my $i = 0;
+my @slice_lens = qw(1 1 2 2);
+for my $feature ( $aln->get_SeqFeatures ) {
+    for my $loc ( $feature->location->each_Location ) {
+	my $fslice = $aln->slice($loc->start, $loc->end);
+	is($fslice->length, $slice_lens[$i++], "slice $i len");
+    }
+}
+
+# test for Binary/Morphological/Mixed data
 
 1;
