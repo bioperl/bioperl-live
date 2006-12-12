@@ -353,6 +353,9 @@ but can be validly overwritten by subclasses
                        in a circular sequence where a gene span starts
                        before the end of the sequence and ends after the
                        sequence start. Example : join(15685..16260,1..207)
+	    -phase     truncates the returned sequence based on the
+	               intron phase (0,1,2).
+	    
   Returns : A L<Bio::PrimarySeqI> object
 
 =cut
@@ -360,17 +363,24 @@ but can be validly overwritten by subclasses
 sub spliced_seq {
     my $self = shift;
 	my @args = @_;
-	my ($db,$nosort) = $self->_rearrange([qw(DB NOSORT)], @args);
+	my ($db, $nosort, $phase) =
+	   $self->_rearrange([qw(DB NOSORT PHASE)], @args);
 
 	# (added 7/7/06 to allow use old API (with warnings)
-	my $old_api = (!(grep {$_ =~ /(?:nosort|db)/} @args)) ? 1 : 0;
+	my $old_api = (!(grep {$_ =~ /(?:nosort|db|phase)/} @args)) ? 1 : 0;
 	if (@args && $old_api) {
 		$self->warn(q(API has changed; please use '-db' or '-nosort' ).
                      qq(for args. See POD for more details.));
 		$db = shift @args if @args;
 		$nosort = shift @args if @args;
+		$phase = shift @args if @args;
 	};
-
+	
+	if (defined($phase) && ($phase < 0 || $phase > 2)) {
+	    $self->warn("Phase must be 0,1, or 2.  Setting phase to 0...");
+	    $phase = 0;
+	}
+	
 	if( $db && ref($db) && ! $db->isa('Bio::DB::RandomAccessI') ) {
         $self->warn("Must pass in a valid Bio::DB::RandomAccessI object".
                     " for access to remote locations for spliced_seq");
@@ -381,9 +391,18 @@ sub spliced_seq {
     }
 
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
-	return $self->seq(); # nice and easy!
+        if ($phase) {
+	    $self->debug("Subseq start: ",$phase+1,"\tend: ",$self->end,"\n");
+	    my $seqstr = substr($self->seq->seq, $phase);
+	    my $out = Bio::Seq->new( -id => $self->entire_seq->display_id
+				. "_spliced_feat",
+			 -seq => $seqstr);
+	    return $out;
+	} else {
+	    return $self->seq(); # nice and easy!
+	}
     }
-
+    
     # redundant test, but the above ISA is probably not ideal.
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {
 	$self->throw("not atomic, not split, yikes, in trouble!");
@@ -495,6 +514,11 @@ sub spliced_seq {
 	    }
 	}
     }
+    
+    if (defined($phase)) {
+	$seqstr = substr($seqstr, $phase);
+    }
+    
     my $out = Bio::Seq->new( -id => $self->entire_seq->display_id
 			            . "_spliced_feat",
 			     -seq => $seqstr);

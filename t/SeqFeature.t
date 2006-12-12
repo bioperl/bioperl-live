@@ -21,7 +21,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	$NUMTESTS = 211;
+	$NUMTESTS = 223;
 	plan tests => $NUMTESTS;
 
 	eval { 
@@ -355,6 +355,13 @@ unless( $skipdbtests ) {
 		    'TAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
  ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRP'.
     'LQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
+ $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);
+ 
+ ok($cdsseq->subseq(1,60, 'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATC'.
+		    'TAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC'));
+ ok($cdsseq->translate->subseq(1,100), 'MQPYASVSGRCLSRPDALHVIPFGRP'.
+    'LQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
+
 } else {
     skip('Cannot test for remote loc with spliced_seq w/o LWP installed',1);
     skip('Cannot test for remote loc with spliced_seq w/o LWP installed',1);
@@ -380,7 +387,7 @@ unless ($skipdbtests ) {
 # trans-spliced 
 
 ok( $seqio = Bio::SeqIO->new(-format => 'genbank',
-									  -file   => 
+				-file   => 
 			    Bio::Root::IO->catfile(qw(t data NC_001284.gbk))));
 my $genome = $seqio->next_seq;
 
@@ -459,3 +466,31 @@ ok $sfa->display_name eq 'test.annot';
   ok $sfa3->get_Annotations('silly')->value,20;
   ok $sfa3->get_Annotations('new')->value,1;
 }
+
+# spliced_seq phase 
+my $seqin = Bio::SeqIO->new(-format => 'fasta',
+                            -file   =>
+                            Bio::Root::IO->catfile(qw(t data sbay_c127.fas)));
+
+my $seq = $seqin->next_seq;
+
+my $sf = Bio::SeqFeature::Generic->new(-verbose => -1,
+                                       -start => 263,
+                                       -end => 721,
+                                       -strand => 1,
+                                       -primary => 'splicedgene');
+
+$sf->attach_seq($seq);
+
+my %phase_check = (
+    'TTCAATGACT' => 'FNDFYSMGKS',
+    'TCAATGACTT' => 'SMTSIPWVNQ',
+    'GTTCAATGAC' => 'VQ*LLFHG*I',
+);
+
+for my $phase (-1..3) {
+    my $sfseq = $sf->spliced_seq(-phase => $phase);
+    ok exists $phase_check{$sfseq->subseq(1,10)};
+    ok $sfseq->translate->subseq(1,10), $phase_check{$sfseq->subseq(1,10)};
+}
+
