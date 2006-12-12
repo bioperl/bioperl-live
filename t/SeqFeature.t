@@ -392,9 +392,8 @@ my %phase_check = (
 for my $phase (-1..3) {
     my $sfseq = $sf->spliced_seq(-phase => $phase);
     ok exists $phase_check{$sfseq->subseq(1,10)};
-    ok $sfseq->translate->subseq(1,10), $phase_check{$sfseq->subseq(1,10)};
+    is ($sfseq->translate->subseq(1,10), $phase_check{$sfseq->subseq(1,10)}, 'phase check');
 }
-
 
 
 SKIP: {
