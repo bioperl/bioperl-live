@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.31 2006-10-17 17:22:34 scain Exp $
+# $Id: fast_load_gff.PLS,v 1.32 2006-12-13 17:17:41 scain Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -377,7 +377,7 @@ while (<>) {
 
     foreach (@$attributes) {
       my ($key,$value) = @$_;
-      my $attributeid = $ATTRIBUTEID{$key}   ||= $ATTRIBUTEID++;
+      my $attributeid = $ATTRIBUTEID{lc $key}   ||= $ATTRIBUTEID++;
       $FH{ FATTRIBUTE() }->print( join("\t",$attributeid,$key),"\n"                       ) unless $DONE{"fattribute$;$attributeid"}++;
       $FH{ FATTRIBUTE_TO_FEATURE() }->print( join("\t",$fid,$attributeid,$value),"\n");
     }
@@ -476,7 +476,7 @@ sub get_ids {
   my $sth = $dbh->prepare($sql) or die $dbh->errstr;
   $sth->execute or die $dbh->errstr;
   while (my($id,@cols) = $sth->fetchrow_array) {
-    my $key = join $;,@cols;
+    my $key = lc join $;,@cols;
     $idhash->{$key} = $id;
     $done->{$table,$id}++;
   }
