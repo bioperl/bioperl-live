@@ -161,6 +161,9 @@ sub _parse_predictions {
     $seq        .= $array[0];
     $third      .= $array[2];
   }
+  
+  $seq || return;
+  
   $name=~s/>//;
   my $feat = $self->_parse($name,$seq,$second,$third);
   $self->_add_feature($feat);
