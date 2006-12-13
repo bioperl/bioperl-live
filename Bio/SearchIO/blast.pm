@@ -1978,10 +1978,10 @@ sub start_element {
 
 =head2 end_element
 
- Title   : start_element
+ Title   : end_element
  Usage   : $eventgenerator->end_element
  Function: Handles an end element event
- Returns : none
+ Returns : hashref with an element's worth of data
  Args    : hashref with at least 2 keys 'Data' and 'Name'
 
 
