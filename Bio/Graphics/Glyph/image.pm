@@ -76,7 +76,7 @@ sub image_path {
 
 sub image_data {
   my $self = shift;
-  my $path = $self->image_path;
+  my $path = $self->image_path or return;
 
   if ($path =~ m!^\w+:/!) { # looks like a URL
     require LWP::UserAgent;

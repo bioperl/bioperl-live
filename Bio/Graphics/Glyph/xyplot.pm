@@ -4,8 +4,8 @@ use strict;
 #use GD 'gdTinyFont';
 
 use base qw(Bio::Graphics::Glyph::minmax);
-
 use constant DEFAULT_POINT_RADIUS=>4;
+our $VERSION = 1.5;
 
 my %SYMBOLS = (
 	       triangle => \&draw_triangle,
@@ -35,7 +35,12 @@ sub point_radius {
 }
 
 sub pad_top {
-  shift->Bio::Graphics::Glyph::generic::pad_top(@_);
+  my $self = shift;
+  my $pad = $self->Bio::Graphics::Glyph::generic::pad_top(@_);
+  if ($pad < ($self->font('gdTinyFont')->height+2)) {
+    $pad = $self->font('gdTinyFont')->height+2;  # extra room for the scale
+  }
+  $pad;
 }
 
 sub pad_bottom {
@@ -44,6 +49,12 @@ sub pad_bottom {
   if ($pad < ($self->font('gdTinyFont')->height)/4) {
     $pad = ($self->font('gdTinyFont')->height)/4;  # extra room for the scale
   }
+  $pad;
+}
+
+sub scalecolor {
+  my $self = shift;
+  my $color = $self->color('scale_color') || $self->fgcolor;
 }
 
 sub default_scale
@@ -74,7 +85,6 @@ sub draw {
   my $height = $self->height;
   my $scale  = $max_score > $min_score ? $height/($max_score-$min_score)
                                        : 1;
-
   my $x = $left;
   my $y = $top + $self->pad_top;
 
@@ -97,12 +107,16 @@ sub draw {
     $_->{_y_position}   = $self->score2position($s);
   }
 
-  my $type        = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
-  my $draw_method = $self->lookup_draw_method($type);
-  $self->throw("Invalid graph type '$type'") unless $draw_method;
-  $self->$draw_method($gd,$x,$y,$y_origin);
+  my $type           = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
+  my (@draw_methods) = $self->lookup_draw_method($type);
+  $self->throw("Invalid graph type '$type'") unless @draw_methods;
 
   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy,$y_origin);
+
+  for my $draw_method (@draw_methods) {
+    $self->$draw_method($gd,$dx,$dy,$y_origin);
+  }
+
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
 }
@@ -113,8 +127,10 @@ sub lookup_draw_method {
 
   return '_draw_histogram'            if $type eq 'histogram';
   return '_draw_boxes'                if $type eq 'boxes';
-  return '_draw_line'                 if $type eq 'line'   or $type eq 'linepoints';
-  return '_draw_points'               if $type eq 'points' or $type eq 'linepoints';
+  return qw(_draw_line _draw_points)  if $type eq 'linepoints';
+  return '_draw_line'                 if $type eq 'line';
+  return '_draw_points'               if $type eq 'points';
+  return;
 }
 
 sub score {
@@ -172,7 +188,7 @@ sub min10 {
 
 sub _draw_histogram {
   my $self = shift;
-  my ($gd,$left,$top) = @_;
+  my ($gd,$left,$top,$bottom) = @_;
 
   my @parts  = $self->parts;
   my $fgcolor = $self->fgcolor;
@@ -188,18 +204,18 @@ sub _draw_histogram {
     if ($x2 == $x3) {# connect vertically to next level
       $gd->line($x2,$part->{_y_position},$x2,$next->{_y_position},$fgcolor); 
     } else {
-      $gd->line($x2,$part->{_y_position},$x2,$y2,$fgcolor); # to bottom
-      $gd->line($x2,$y2,$x3,$y2,$fgcolor);                        # to right
-      $gd->line($x3,$y4,$x3,$next->{_y_position},$fgcolor);   # up
+      $gd->line($x2,$part->{_y_position},$x2,$bottom,$fgcolor); # to bottom
+      $gd->line($x2,$bottom,$x3,$bottom,$fgcolor);                        # to right
+      $gd->line($x3,$bottom,$x3,$next->{_y_position},$fgcolor);   # up
     }
   }
 
   # end points: from bottom to first
   my ($x1,$y1,$x2,$y2) = $parts[0]->calculate_boundaries($left,$top);
-  $gd->line($x1,$y2,$x1,$parts[0]->{_y_position},$fgcolor);
+  $gd->line($x1,$bottom,$x1,$parts[0]->{_y_position},$fgcolor);
   # from last to bottom
   my ($x3,$y3,$x4,$y4) = $parts[-1]->calculate_boundaries($left,$top);
-  $gd->line($x4,$parts[-1]->{_y_position},$x4,$y4,$fgcolor);
+  $gd->line($x4,$parts[-1]->{_y_position},$x4,$bottom,$fgcolor);
 
   # That's it.  Not too hard.
 }
@@ -236,8 +252,7 @@ sub _draw_boxes {
       $negcolor = $negative;
     }
 
-    # my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
-    my ($x1,$x2) = ($left+$part->{left},$left+$part->{left}+$part->{width}-1);
+    my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     if ($part->{_y_position} < $y_origin) {
       $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$fgcolor,$lw);
     } else {
@@ -258,12 +273,14 @@ sub _draw_line {
 
   # connect to center positions of each interval
   my $first_part = shift @parts;
+#  my ($x1,$x2) = ($first_part->{left},$first_part->{left}+$first_part->{width}-1);
   my ($x1,$y1,$x2,$y2) = $first_part->calculate_boundaries($left,$top);
   my $current_x = ($x1+$x2)/2;
   my $current_y = $first_part->{_y_position};
 
   for my $part (@parts) {
-    my ($x1,$x2) = ($left+$part->{left},$left+$part->{left}+$part->{width}-1);
+#    ($x1,$x2) = ($part->{left},$part->{left}+$part->{width}-1);
+    ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $next_x = ($x1+$x2)/2;
     my $next_y = $part->{_y_position};
     $gd->line($current_x,$current_y,$next_x,$next_y,$fgcolor);
@@ -276,9 +293,11 @@ sub _draw_points {
   my $self = shift;
   my ($gd,$left,$top) = @_;
   my $symbol_name = $self->option('point_symbol') || 'point';
+  my $filled      = $symbol_name =~ s/^filled_//;
   my $symbol_ref  = $SYMBOLS{$symbol_name};
 
   my @parts   = $self->parts;
+  my $fgcolor = $self->fgcolor;
   my $bgcolor = $self->bgcolor;
   my $pr      = $self->point_radius;
 
@@ -286,7 +305,8 @@ sub _draw_points {
   my $factory  = $self->factory;
 
   for my $part (@parts) {
-    my ($x1,$x2) = ($left+$part->{left},$left+$part->{left}+$part->{width}-1);
+#    my ($x1,$x2) = ($part->{left},$part->{left}+$part->{width}-1);
+    my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $x = ($x1+$x2)/2;
     my $y = $part->{_y_position};
 
@@ -294,10 +314,10 @@ sub _draw_points {
     if ($partcolor) {
       $color    = $factory->translate_color($factory->option($part,'part_color',0,0));
     } else {
-      $color    = $bgcolor;
+      $color    = $fgcolor;
     }
 
-    $symbol_ref->($gd,$x,$y,$pr,$color);
+    $symbol_ref->($gd,$x,$y,$pr,$color,$filled);
   }
 }
 
@@ -319,7 +339,7 @@ sub _draw_scale {
 
   my $side = $self->_determine_side();
 
-  my $fg    = $self->fgcolor;
+  my $fg    = $self->scalecolor;
   my $font  = $self->font('gdTinyFont');
 
   $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
@@ -372,26 +392,44 @@ sub height {
 }
 
 sub draw_triangle {
+  my ($gd,$x,$y,$pr,$color,$filled) = @_;
   my ($gd,$x,$y,$pr,$color) = @_;
   $pr /= 2;
   my ($vx1,$vy1) = ($x-$pr,$y+$pr);
   my ($vx2,$vy2) = ($x,  $y-$pr);
   my ($vx3,$vy3) = ($x+$pr,$y+$pr);
-  $gd->line($vx1,$vy1,$vx2,$vy2,$color);
-  $gd->line($vx2,$vy2,$vx3,$vy3,$color);
-  $gd->line($vx3,$vy3,$vx1,$vy1,$color);
+  my $poly = GD::Polygon->new;
+  $poly->addPt($vx1,$vy1,$vx2,$vy2);
+  $poly->addPt($vx2,$vy2,$vx3,$vy3);
+  $poly->addPt($vx3,$vy3,$vx1,$vy1);
+  if ($filled) {
+    $gd->filledPolygon($poly,$color);
+  } else {
+    $gd->polygon($poly,$color);
+  }
 }
+
 sub draw_square {
-  my ($gd,$x,$y,$pr,$color) = @_;
+  my ($gd,$x,$y,$pr,$color,$filled) = @_;
   $pr /= 2;
-  $gd->line($x-$pr,$y-$pr,$x+$pr,$y-$pr,$color);
-  $gd->line($x+$pr,$y-$pr,$x+$pr,$y+$pr,$color);
-  $gd->line($x+$pr,$y+$pr,$x-$pr,$y+$pr,$color);
-  $gd->line($x-$pr,$y+$pr,$x-$pr,$y-$pr,$color);
+  my $poly = GD::Polygon->new;
+  $poly->addPt($x-$pr,$y-$pr);
+  $poly->addPt($x+$pr,$y-$pr);
+  $poly->addPt($x+$pr,$y+$pr);
+  $poly->addPt($x-$pr,$y+$pr);
+  if ($filled) {
+    $gd->filledPolygon($poly,$color);
+  } else {
+    $gd->polygon($poly,$color);
+  }
 }
 sub draw_disc {
-  my ($gd,$x,$y,$pr,$color) = @_;
-  $gd->arc($x,$y,$pr,$pr,0,360,$color);
+  my ($gd,$x,$y,$pr,$color,$filled) = @_;
+  if ($filled) {
+    $gd->filledArc($x,$y,$pr,$pr,0,360,$color);
+  } else {
+    $gd->arc($x,$y,$pr,$pr,0,360,$color);
+  }
 }
 sub draw_point {
   my ($gd,$x,$y,$pr,$color) = @_;
@@ -503,6 +541,7 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -fillcolor    Synonym for -bgcolor
 
+
   -linewidth    Line width                     1
 
   -height       Height of glyph		       10
@@ -525,7 +564,7 @@ glyph-specific options:
                feature's "score" attribute
 
   -min_score   Minimum value of the           Calculated
-               feature's "score" attribute
+               feature's "score" attributes
 
   -graph_type  Type of graph to generate.     Histogram
                Options are: "histogram",
@@ -534,7 +573,10 @@ glyph-specific options:
 
   -point_symbol Symbol to use. Options are    none
                 "triangle", "square", "disc",
-                "point", and "none".
+                "filled_triangle",
+                "filled_square",
+                "filled_disc","point",
+                and "none".
 
   -point_radius Radius of the symbol, in      4
                 pixels (does not apply
@@ -555,6 +597,8 @@ glyph-specific options:
                bgcolor of each part (should
                be a callback). Supersedes
                -neg_color.
+
+  -scale_color Color of the scale             Same as fgcolor
 
   -clip        If min_score and/or max_score  false
                are manually specified, then
@@ -630,6 +674,9 @@ you could draw a simple scatter plot with this code:
     my $y = $part->{_y_position};
     $gd->setPixel($x,$y,$bgcolor);
  }
+
+lookup_draw_method() may return multiple method names if needed. Each
+will be called in turn.
 
 =item $y_position = $self-E<gt>score2position($score)
 
