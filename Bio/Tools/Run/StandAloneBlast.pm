@@ -139,7 +139,7 @@ the BLAST documentation.
   $blast_report = $factory->blastall($inputfilename);
 
 In addition, sequence input may be in the form of either a Bio::Seq
-object or or an array of Bio::Seq objects, e.g.:
+object or (a reference to) an array of Bio::Seq objects, e.g.:
 
   $input = Bio::Seq->new(-id => "test query",
                          -seq => "ACTACCCTTTAAATCAGTGGGGG");
@@ -543,7 +543,7 @@ sub program {
 	or 
 	      $seq_array_ref = \@seq_array;  
          # where @seq_array is an array of Bio::Seq objects
-	      $blast_report = $factory->blastall(\@seq_array);
+	      $blast_report = $factory->blastall($seq_array_ref);
  Returns : Reference to a Blast object or BPlite object 
            containing the blast report.
  Args    : Name of a file or Bio::Seq object or an array of 
