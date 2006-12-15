@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 85;
+use constant NUMTESTS => 88;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -350,6 +350,16 @@ for my $feature ( $aln->get_SeqFeatures ) {
 	is($fslice->length, $slice_lens[$i++], "slice $i len");
     }
 }
+
+# test set_displayname_safe & restore_displayname:
+$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
+                        "t","data","pep-266.aln"));
+$aln=$str->next_aln();
+is $aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1', 'initial display id ok';
+my ($new_aln, $ref)=$aln->set_displayname_safe();
+is $new_aln->get_seq_by_pos(3)->display_id, 'S000000003', 'safe display id ok';
+my $restored_aln=$new_aln->restore_displayname($ref);
+is $restored_aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1', 'restored display id ok';
 
 # test for Binary/Morphological/Mixed data
 

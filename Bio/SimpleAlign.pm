@@ -117,6 +117,7 @@ Jason Stajich, jason-at-bioperl.org,
 Anthony Underwood, aunderwood-at-phls.org.uk,
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 Brian Osborne, bosborne at alum.mit.edu
+Weigang Qiu, Weigang at ENECTR-HUNTER-CUNY-EDU
 
 =head1 SEE ALSO
 
@@ -2537,6 +2538,76 @@ sub annotation {
         $obj->{'_annotation'} = Bio::Annotation::Collection->new();
     }
     return $obj->{'_annotation'};
+}
+
+=head2 set_displayname_safe
+
+ Title     : set_displayname_safe
+ Usage     : ($new_aln, $ref_name)=$ali->set_displayname_safe()
+ Function  : Assign machine-generated serial names to sequences in input order.  
+             Designed to protect names during PHYLIP runs. Assign 10-char string 
+             in the form of "S000000001" to "S999999999". Restore the original
+             names using "restore_displayname".
+ Returns   : 1. a new $aln with system names;
+             2. a hash ref for restoring names
+ Argument  : none
+
+=cut
+
+sub set_displayname_safe {
+    my $self = shift;
+    my ($seq, %phylip_name);
+    my $ct=0;
+    my $new=new Bio::SimpleAlign();
+    foreach $seq ( $self->each_seq() ) {
+      $ct++;
+      my $pname="S". sprintf "%9s", $ct;
+      $pname =~ s/\s/0/g;
+      $phylip_name{$pname}=$seq->id();
+      my $new_seq= new Bio::LocatableSeq(-id=>$pname,
+					-seq=>$seq->seq(),
+					-start=>$seq->{_start},
+					-end=>$seq->{_end}
+					);
+      $new->add_seq($new_seq);
+#      my $nse = $seq->get_nse();
+#      $self->displayname($nse,$pname);
+    }
+
+    $self->debug("$ct seq names changed. Restore names by using restore_displayname.");
+#    use Data::Dumper;
+#    print STDERR Dumper($self->{_dis_name});
+    return ($new, \%phylip_name);
+}
+
+=head2 restore_displayname
+
+ Title     : restore_displayname
+ Usage     : $aln_name_restored=$ali->restore_displayname($hash_ref)
+ Function  : Restore original sequence names (after running
+             $ali->set_displayname_safe)
+ Returns   : a new $aln with names restored.
+ Argument  : a hash reference of names from "set_displayname_safe".
+
+=cut
+
+sub restore_displayname {
+    my $self = shift;
+    my $ref=shift;
+    my %name=%$ref;
+    my $new=new Bio::SimpleAlign();
+    foreach my $seq ( $self->each_seq() ) {
+      $self->throw("No sequence with name") unless defined $name{$seq->id()};
+      my $new_seq= new Bio::LocatableSeq(-id=>$name{$seq->id()},
+					-seq=>$seq->seq(),
+					-start=>$seq->{_start},
+					-end=>$seq->{_end}
+					);
+      $new->add_seq($new_seq);
+#      my $nse = $seq->get_nse();
+#      $self->displayname($nse,$pname);
+    }
+    return $new;
 }
 
 =head2 methods for Bio::FeatureHolder
