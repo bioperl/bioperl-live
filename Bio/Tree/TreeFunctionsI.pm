@@ -445,31 +445,26 @@ sub merge_lineage {
         $lineage_leaf = $thing;
     }
     
-    # get the lca of this node and every leaf of the main tree until we find
-    # the branch that isn't in the main tree yet
-    my ($main_tree_lca, $new_branch_base);
-    foreach my $leaf ($self->get_leaf_nodes) {
-        $main_tree_lca = $self->get_lca($lineage_leaf, $leaf) || ($self->warn("couldn't get the lca of nodes ".$lineage_leaf->id." and ".$leaf->id."!") && next);
+    # see if any node in the supplied lineage is in our tree - that will be
+    # our lca and we can merge at the node below
+    my @lineage = ($lineage_leaf, reverse($self->get_lineage_nodes($lineage_leaf)));
+    my $merged = 0;
+    for my $i (0..$#lineage) {
+        my $lca = $self->find_node(-internal_id => $lineage[$i]->internal_id) || next;
         
-        my $branch_lca = $lineage_tree->find_node(-internal_id => $main_tree_lca->internal_id);
-        ($new_branch_base) = $branch_lca->each_Descendent;
-        if ($new_branch_base) {
-            if ($self->find_node(-internal_id => $new_branch_base->internal_id)) {
-                # this branch is already in the main tree, try again
-                $new_branch_base = undef;
-                next;
-            }
-            else {
-                last;
-            }
-        }
-        else {
-            # the lca is the lineage leaf itself, nothing for us to merge
+        if ($i == 0) {
+            # the supplied thing to merge is already in the tree, nothing to do
             return;
         }
+        
+        # $i is the lca, so the previous node is new to the tree and should
+        # be merged on
+        $lca->add_Descendent($lineage[$i-1]);
+        $merged = 1;
+        last;
     }
-    $new_branch_base || ($self->warn("couldn't merge the lineage of ".$lineage_leaf->id." with the rest of the tree!\n") && return);
-    $main_tree_lca->add_Descendent($new_branch_base);
+    
+    $merged || ($self->warn("Couldn't merge the lineage of ".$lineage_leaf->id." with the rest of the tree!\n") && return);
 }
 
 =head2 contract_linear_paths
