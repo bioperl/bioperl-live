@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Align::Utilities
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
 #
@@ -66,7 +66,7 @@ web:
 
 =head1 AUTHOR - Jason Stajich
 
-Email jason@bioperl.org
+Email jason-at-bioperl-dot-org
 
 =head1 APPENDIX
 
