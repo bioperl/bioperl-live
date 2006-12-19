@@ -85,6 +85,9 @@ use strict;
 
 use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
+use vars qw($MATCHPATTERN);
+
+$MATCHPATTERN = '0-9A-Za-z\-\.\*\?=~';
 
 
 use base qw(Bio::PrimarySeq Bio::RangeI);
@@ -440,4 +443,40 @@ sub trunc {
     return $new;
 }
 
+=head2 validate_seq
+
+ Title   : validate_seq
+ Usage   : if(! $seq->validate_seq($seq_str) ) {
+                print "sequence $seq_str is not valid for an object of
+                alphabet ",$seq->alphabet, "\n";
+	   }
+ Function: Validates a given sequence string. A validating sequence string
+           must be accepted by seq(). A string that does not validate will
+           lead to an exception if passed to seq().
+
+           The implementation provided here does not take alphabet() into
+           account. Allowed are all letters (A-Z), numbers [0-9] 
+           and '-','.','*','?','=',and '~'.
+
+ Example :
+ Returns : 1 if the supplied sequence string is valid for the object, and
+           0 otherwise.
+ Args    : The sequence string to be validated.
+
+
+=cut
+
+sub validate_seq {
+	my ($self,$seqstr) = @_;
+	if( ! defined $seqstr ){ $seqstr = $self->seq(); }
+	return 0 unless( defined $seqstr);
+	
+	if((CORE::length($seqstr) > 0) &&
+	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
+	    $self->warn("seq doesn't validate, mismatch is " .
+			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+		return 0;
+	}
+	return 1;
+}
 1;
