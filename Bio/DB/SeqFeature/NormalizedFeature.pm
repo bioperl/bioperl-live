@@ -409,17 +409,24 @@ sub _add_segment {
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
   # fix boundaries
-  $self->_fix_boundaries(\@segments,$normalized);
+  $self->_fix_boundaries(\@segments);
 
   # freakish fixing of our non-standard Target attribute
   $self->_fix_target(\@segments);
+
+  for my $seg (@segments) {
+    my $id  = $normalized ? $seg->primary_id : $seg;
+    defined $id or $self->throw("No primary ID when there should be");
+    push @{$self->{segments}},$id;
+  };
 
   $self->update if $self->primary_id; # write us back to disk
 }
 
 sub _fix_boundaries {
-  my $self     = shift;
-  my ($segments,$normalized) = @_;
+  my $self       = shift;
+  my $segments   = shift;
+  my $normalized = shift;
 
   my $min_start = $self->start ||  999_999_999_999;
   my $max_stop  = $self->end   || -999_999_999_999;
@@ -427,9 +434,6 @@ sub _fix_boundaries {
   for my $seg (@$segments) {
     $min_start     = $seg->start if $seg->start < $min_start;
     $max_stop      = $seg->end   if $seg->end   > $max_stop;
-    my $id_or_seg  = $normalized ? $seg->primary_id : $seg;
-    defined $id_or_seg or $self->throw("No primary ID when there should be");
-    push @{$self->{segments}},$id_or_seg;
   }
 
   # adjust our boundaries, etc.
@@ -442,6 +446,7 @@ sub _fix_boundaries {
 sub _fix_target {
   my $self = shift;
   my $segs = shift;
+  my $normalized = shift;  # ignored for now
 
   # freakish fixing of our non-standard Target attribute
   if (my $t = ($self->attributes('Target'))[0]) {
@@ -495,10 +500,12 @@ sub _create_subfeatures {
   my $ref   = $self->seq_id;
   my $name  = $self->name;
   my $class = $self->class;
-  my $store = $self->object_store
-    or $self->throw("Feature must be associated with a Bio::DB::SeqFeature::Store database before attempting to add subfeatures");
+  my $store = $self->object_store;
+  if ($normalized) {
+    $store or $self->throw("Feature must be associated with a Bio::DB::SeqFeature::Store database before attempting to add subfeatures to a normalized object");
+  }
 
-  my $index_subfeatures_policy = $store->index_subfeatures;
+  my $index_subfeatures_policy = eval{$store->index_subfeatures};
 
   my @segments;
 

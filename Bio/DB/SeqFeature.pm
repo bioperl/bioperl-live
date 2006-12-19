@@ -314,15 +314,17 @@ sub _add_segment {
   my $normalized = shift;
 
   my $store      = $self->object_store;
+  my $store_parentage = eval{$store->can_store_parentage};
+
   return         $self->SUPER::_add_segment($normalized,@_)
-    unless $normalized && eval{$store->can_store_parentage};
+    unless $normalized && $store_parentage;
 
   my @segments   = $self->_create_subfeatures($normalized,@_);
 
-  my $pos = "@{$self}{'start','end','ref','strand'}";
+  my $pos = "@{$self}{'start','stop','ref','strand'}";
 
   # fix boundaries
-  $self->_fix_boundaries(\@segments);
+  $self->_fix_boundaries(\@segments,1);
 
   # freakish fixing of our non-standard Target attribute
   $self->_fix_target(\@segments);
@@ -335,7 +337,7 @@ sub _add_segment {
   }
 
   # write us back to disk
-  $self->update if $self->primary_id && $pos ne "@{$self}{'start','end','ref','strand'}"; 
+  $self->update if $self->primary_id && $pos ne "@{$self}{'start','stop','ref','strand'}"; 
 }
 
 # segments can be stored directly in the object (legacy behavior)
