@@ -245,6 +245,11 @@ sub write_tree{
    }
    my $nl = $self->newline_each_node;
    foreach my $tree( @trees ) {
+       
+       if( ! defined $tree || ref($tree) =~ /ARRAY/i ||
+	   ! $tree->isa('Bio::Tree::TreeI') ) {
+	   $self->throw("Calling write_tree with non Bio::Tree::TreeI object\n");
+       }
        my @data = _write_tree_Helper($tree->get_root_node,
 				     $bootstrap_style,
 				     $orderby,
