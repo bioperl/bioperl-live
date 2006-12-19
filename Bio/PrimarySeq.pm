@@ -115,7 +115,8 @@ use strict;
 
 $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
 
-use base qw(Bio::Root::Root Bio::PrimarySeqI Bio::IdentifiableI Bio::DescribableI);
+use base qw(Bio::Root::Root Bio::PrimarySeqI
+	    Bio::IdentifiableI Bio::DescribableI);
 
 #
 # setup the allowed values for alphabet()
