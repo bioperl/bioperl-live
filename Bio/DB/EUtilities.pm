@@ -497,7 +497,6 @@ sub get_ids {
             $self->throw(q(Multiple databases searched; must use a specific ).
                          q(database as an argument.) );
         }
-        
         my $count = $self->get_linkset_count;
         if ($count == 0) {
             $self->throw( q(No linksets!) );
@@ -577,7 +576,7 @@ sub get_entrezdbs {
 sub _add_db_ids {
     my ($self, $ids) = @_;
     $self->throw ("IDs must be an ARRAY reference") unless ref($ids) =~ m{ARRAY}i;
-    my @ids = @{ $ids}; # deep copy
+    my @ids = @{ $ids }; # deep copy
     $self->{'_db_ids'} = \@ids; 
 }
 

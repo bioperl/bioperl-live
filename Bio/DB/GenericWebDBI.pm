@@ -98,13 +98,12 @@ BEGIN {
 
 sub new {
     my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
+    my $self = $class->SUPER::new(@args, env_proxy => 1);
     my ($url_base, $retmode, $delay, $db) =
         $self->_rearrange([qw(URL_BASE RETMODE DELAY DB)],
         @args);
     # from LWP::UserAgent; set agent and env proxy
-    $self->agent(ref($self)."/$Bio::Root::Root::VERSION");
-    $self->env_proxy;
+    $self->agent(ref($self)."/$Bio::Root::Root::VERSION");;
     $db             && $self->db($db);
     # these will likely be overridden in base classes
     $retmode        && $self->retmode($retmode);
