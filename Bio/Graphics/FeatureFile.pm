@@ -427,8 +427,9 @@ sub parse_line {
     return 1;
   }
 
-  # remove comments (but rescue hex-code colors)
-  s/\s*\#.+$// unless /\s*\#[0-9A-Fa-f]{6}\b/;
+  # Remove comments but rescue anchors and hex-code colors.
+  # Comments must begin a line or be preceded by whitespace
+  s/(?:^|\s+)\#.+$//;
 
   # skip on blank lines
   return 1 if /^\s*$/;
