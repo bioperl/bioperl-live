@@ -1253,16 +1253,17 @@ sub uppercase {
             "1,60" or "5,10:12,58", where the numbers refer to conserved
             positions within the alignment. The keys of the hash are the
             NSEs (name/start/end) assigned to each sequence.
- Args     : none
+ Args     : threshold (optional, defaults to 100)
  Returns  : Hash of strings (cigar lines)
 
 =cut
 
 sub cigar_line {
 	my $self = shift;
+	my $thr=shift||100;
 	my %cigars;
 
-	my @consensus = split "",($self->consensus_string(100));
+	my @consensus = split "",($self->consensus_string($thr));
 	my $len = $self->length;
 	my $gapchar = $self->gap_char;
 
