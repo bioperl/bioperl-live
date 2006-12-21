@@ -45,6 +45,8 @@ my ($searchio, $result,$iter,$hit,$hsp);
 SKIP: {
 	eval {
 		require XML::SAX;
+		# may not be required anymore since char encoding is check in
+		# XML parser; checking on this - cjfields
 		require HTML::Entities;
 	};
 	skip("XML::SAX or HTML::Entities not loaded.  Skipping XML tests",68) if $@;
@@ -55,13 +57,14 @@ SKIP: {
 		$searchio = new Bio::SearchIO ('-tempfile' => 1,
 			   '-format' => 'blastxml',
 			   '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'),
-			   '-verbose' => 2); # promote warn to throw so we can skip over problems
+			   '-verbose' => -2);
+		# PurePerl works with these BLAST reports, so removed verbose promotion
 		$result = $searchio->next_result;
 	};
 	if ($@ && $@ =~ m{Handler couldn't resolve external entity}) {
 		skip("XML::SAX::Expat does not work with XML tests; skipping",68);
 	} elsif ($@) {
-		skip("Problem with XML::SAX setup: check ParserDetails.ini; skipping XML tests",68);
+		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",68);
 	}
     isa_ok($result, 'Bio::Search::Result::ResultI');    
     is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
