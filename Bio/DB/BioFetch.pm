@@ -508,7 +508,7 @@ sub _check_id {
     my ($self, $id) = @_;
 
     # NT contigs can not be retrieved
-    $self->throw("NT_ contigs are whole chromosome files which are not part of regular".
+    $self->throw("NT_ contigs are whole chromosome files which are not part of regular ".
 		 "database distributions. Go to ftp://ftp.ncbi.nih.gov/genomes/.") 
 	if $id =~ /NT_/;
 
