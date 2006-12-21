@@ -139,6 +139,12 @@ BEGIN {
 	    genbank   => 'genbank',
 	    namespace => 'genpep',
 	},
+        'unisave' => {
+            default   => 'swiss',
+            swissprot => 'swiss',
+            fasta     => 'fasta',
+            namespace => 'unisave',
+        }
     );
 }
 
