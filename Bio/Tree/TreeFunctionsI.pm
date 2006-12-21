@@ -505,6 +505,119 @@ sub contract_linear_paths {
     $self->splice(@remove) if @remove;
 }
 
+=head2 force_binary
+
+ Title   : force_binary
+ Usage   : force_binary()
+ Function: Forces the tree into a binary tree, splitting branches arbitrarily
+           and creating extra nodes as necessary, such that all nodes have
+           exactly two or zero descendants.
+ Returns : n/a
+ Args    : none
+
+ For example, if we are the tree $tree:
+
+ +---G
+ |
+ +---F
+ |
+ +---E
+ |
+ A
+ |
+ +---D
+ |
+ +---C
+ |
+ +---B
+
+ (A has 6 descendants B-G)
+
+ After calling $tree->force_binary(), $tree looks like:
+
+         +---X
+         |
+     +---X
+     |   |
+     |   +---X
+     |
+ +---X
+ |   |
+ |   |   +---G
+ |   |   |
+ |   +---X
+ |       |
+ |       +---F
+ A
+ |       +---E
+ |       |
+ |   +---X
+ |   |   |
+ |   |   +---D
+ |   |
+ +---X
+     |
+     |   +---C
+     |   |
+     +---X
+         |
+         +---B
+
+ (Where X are artificially created nodes with ids 'artificial_n', where n is
+ an integer making the id unique within the tree)
+
+=cut
+
+sub force_binary {
+    my $self = shift;
+    my $node = shift || $self->get_root_node;
+    
+    my @descs = $node->each_Descendent;
+    if (@descs > 2) {
+        $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
+                    " has more than two descendants\n(".
+                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id) : $node->id } @descs).
+                    ")\nWill do an arbitrary balanced split");
+        
+        my @working = @descs;
+        
+        # create an even set of artifical nodes on which to later hang the descs
+        my $half = @working / 2;
+        $half++ if $half > int($half);
+        $half = int($half);
+        my @artificials;
+        while ($half > 1) {
+            my @this_level;
+            foreach my $top_node (@artificials || $node) {
+                for (1..2) {
+                    my $art = $top_node->new(-id => "artificial_".++$self->{_art_num});
+                    $top_node->add_Descendent($art);
+                    push(@this_level, $art);
+                }
+            }
+            @artificials = @this_level;
+            $half--;
+        }
+        
+        # attach two descs to each artifical leaf
+        foreach my $art (@artificials) {
+            for (1..2) {
+                my $desc = shift(@working) || $node->new(-id => "artificial_".++$self->{_art_num});
+                $desc->ancestor($art);
+            }
+        }
+    }
+    elsif (@descs == 1) {
+        # ensure that all nodes have 2 descs
+        $node->add_Descendent($node->new(-id => "artificial_".++$self->{_art_num}));
+    }
+    
+    # recurse
+    foreach my $desc (@descs) {
+        $self->force_binary($desc);
+    }
+}
+
 =head2 distance
 
  Title   : distance
