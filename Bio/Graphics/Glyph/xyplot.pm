@@ -333,7 +333,8 @@ sub _draw_scale {
   my ($gd,$scale,$min,$max,$dx,$dy,$y_origin) = @_;
   my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($dx,$dy);
 
-  $y2 -= $self->pad_bottom - 1;
+  # this is wrong
+  #  $y2 -= $self->pad_bottom - 1;
 
   my $side = $self->_determine_side();
 
@@ -391,7 +392,6 @@ sub height {
 
 sub draw_triangle {
   my ($gd,$x,$y,$pr,$color,$filled) = @_;
-  my ($gd,$x,$y,$pr,$color) = @_;
   $pr /= 2;
   my ($vx1,$vy1) = ($x-$pr,$y+$pr);
   my ($vx2,$vy2) = ($x,  $y-$pr);

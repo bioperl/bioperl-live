@@ -4,8 +4,6 @@ use strict;
 use base 'Bio::Graphics::Glyph::xyplot';
 use Carp 'cluck';
 
-use constant TOP_SPACING => 12;
-
 sub width_needed {
   my $self = shift;
   my $column_width   = $self->column_width;
@@ -15,12 +13,12 @@ sub width_needed {
   return (@$columns-2) * $column_width + (@$columns-1)*$column_spacing + $scale_width;
 }
 
-
 sub pad_top {
   my $self    = shift;
   my $top  = $self->SUPER::pad_top;
-  return $top + TOP_SPACING + $self->delegate_height;
+  return $top + $self->top_spacing + $self->delegate_height;
 }
+
 sub pad_bottom {
   my $self = shift;
   my @labels  = $self->category_labels;
@@ -28,10 +26,12 @@ sub pad_bottom {
   return $self->font('gdTinyFont')->height;
 }
 
-sub column_width    { shift->option('column_width')     || 4  }
+sub column_width    { shift->option('column_width')     || 8  }
 sub column_spacing  { shift->option('column_spacing')   || 2  }
 sub delegate_height { shift->option('delegate_height')  || 8  }
 sub scale_width     { shift->option('scale_width')      || 20 }
+sub top_spacing     { shift->option('glyph_gap')        || 8 }
+
 
 sub pad_left {
   my $self = shift;
@@ -57,41 +57,43 @@ sub draw {
    my ($dx,$dy) = @_;
    my($x1,$y1,$x2,$y2) = $self->bounds($dx,$dy);
 
-   my $top = $y1 - $self->pad_top;
+#   my $top    = $y1 - $self->pad_top;
+   my $top    = $y1 - $self->delegate_height - $self->top_spacing;
    my $bottom = $y2;
-   $self->filled_box($gd,$x1,$top,$x2,$top+6);
 
-  my $width        = $self->width_needed;
-  my $graph_top    = $y1;
-  my $xmid         = ($x1+$x2) / 2;
-  my $graph_left   = $xmid - $width/2;
-  my $graph_right  = $xmid + $width/2;
-  my $fgcolor      = $self->fgcolor;
+   my $width        = $self->width_needed;
+   my $graph_top    = $y1;
+   my $xmid         = ($x1+$x2) / 2;
+   my $graph_left   = $xmid - $width/2;
+   my $graph_right  = $xmid + $width/2;
+   my $fgcolor      = $self->fgcolor;
 
-  if (TOP_SPACING > 0) {
-    $top += 6;
-    $gd->line($x1,$top+2,$x1,$top+4,$fgcolor);
-    $gd->line($x2,$top+2,$x2,$top+4,$fgcolor);
-    $gd->line($x1,$top+4,$graph_left,$y1-4,$fgcolor);
-    $gd->line($x2,$top+4,$graph_right,$y1-4,$fgcolor);
-    $gd->line($graph_left,$y1-4,$graph_left,$y1-2,$fgcolor);
-    $gd->line($graph_right,$y1-4,$graph_right,$y1-2,$fgcolor);
-  }
+   if ($self->top_spacing > 0) {
+     $self->filled_box($gd,$x1,$top,$x2,$top+6);
+     $top += 6;
+     $gd->line($x1,$top+2,$x1,$top+4,$fgcolor);
+     $gd->line($x2,$top+2,$x2,$top+4,$fgcolor);
+     $gd->line($x1,$top+4,$graph_left,$y1-4,$fgcolor);
+     $gd->line($x2,$top+4,$graph_right,$y1-4,$fgcolor);
+     $gd->line($graph_left,$y1-4,$graph_left,$y1-2,$fgcolor);
+     $gd->line($graph_right,$y1-4,$graph_right,$y1-2,$fgcolor);
+   }
 
    my $min_score = $self->option('min_score') || 0.0;
    my $max_score = $self->option('max_score') || 1.0;
-   my $height = $self->height;
+   my $height = $y2-$y1;
    my $scale  = $max_score > $min_score ? $height/($max_score-$min_score) : 1;
    my $y_origin = $min_score <= 0 ? $bottom - (0 - $min_score) * $scale : $bottom;
    $y_origin    = $top if $max_score < 0;
-   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx+$self->pad_left,$dy,$y_origin);
-   $self->draw_stackedplot($gd,$dx,$dy,$scale,$min_score,$max_score);
-#   $self->SUPER::draw($gd,$dx,$dy);
+#   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx+$self->pad_left,$dy,$y_origin);
+   $self->draw_stackedplot($gd,$graph_left,$graph_right,$y1,$y_origin,$scale,$min_score,$max_score);
+   $self->draw_label($gd,$dx,$dy)  if $self->option('label');
+   $self->draw_description($gd,@_) if $self->option('description');
 }
 
 sub draw_stackedplot {
   my $self = shift;
-  my ($gd,$left,$top,$scale,$min,$max) = @_;
+  my ($gd,$left,$right,$top,$bottom,$scale,$min,$max) = @_;
 
   my $fgcolor = $self->fgcolor;
   my $bgcolor = $self->bgcolor;
@@ -103,13 +105,11 @@ sub draw_stackedplot {
   my $fwidth    = $font->width;
   my $fontcolor = $self->fontcolor;
 
-  my ($x1,$y1,$x2,$y2) = $self->calculate_boundaries($left,$top);
-
   # data_series() returns 1 or more values to stack upwards
   # the totals of the values must be no greater than max_score
   if (my $values = $self->data_series) {
-    my $x_offset = -$self->pad_left;
-    $gd->line($x1+$x_offset,$y2,$x1+$self->pad_left,$y2,$fgcolor);
+    my $x_offset = 0;
+    $gd->line($left+$x_offset,$bottom,$right,$bottom,$fgcolor);
 
     for (my $cluster = 0; $cluster < @$values; $cluster++) {
       # this will give us a series of data series
@@ -117,18 +117,18 @@ sub draw_stackedplot {
       my $y_offset = 0;
       for (my $i = 0; $i < @$series; $i++) {
 	my $value = $series->[$i];
-	my $v      = $self->clip($value,$min,$max);	
+	my $v      = $self->clip($value,$min,$max);
 	my $color  = $colors[$i] || $bgcolor;
 
-	my $y      = $y2 - ($v-$min) * $scale;
-	my $box_bottom = $y2 - $y_offset;
-	my $box_top    = $y  - $y_offset;
-	$self->filled_box($gd,$x1+$x_offset,$box_top,$x1+$column_width+$x_offset,$box_bottom,$color);
+	my $y          = $bottom - ($v-$min) * $scale;
+	my $box_bottom = $bottom - $y_offset;
+	my $box_top    = $y      - $y_offset;
+	$self->filled_box($gd,$left+$x_offset,$box_top,$left+$column_width+$x_offset,$box_bottom,$color);
 	$y_offset += $box_bottom-$box_top;
       }
       if (@labels) {
-	my $x = $x1+$x_offset+($column_width-$fwidth*$labels[$cluster])/2-1;
-	$gd->string($font,$x,$y2,$labels[$cluster],$fontcolor);
+	my $x = $left+$x_offset+($column_width-$fwidth*$labels[$cluster])/2-1;
+	$gd->string($font,$x,$bottom,$labels[$cluster],$fontcolor);
       }
       $x_offset += $column_spacing+$column_width;
     }
@@ -189,7 +189,7 @@ sub data_series {
     if (ref $v && ref $v eq 'ARRAY') {  # already in right format
       push @values,$v;
     } else {
-      push @values,[split /[,\w]/,$v];
+      push @values,[split /[,\s]+/,$v];
     }
   }
   return \@values;
@@ -208,6 +208,51 @@ Bio::Graphics::Glyph::stackedplot - The stackedplot glyph
   See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.
 
 =head1 DESCRIPTION
+
+The stackedplot glyph can be used to draw quantitative feature data
+using a stacked column plot. It differs from the xyplot glyph in that
+the plot applies to a single top level feature, not a group of
+subfeatures. The data to be graphed is derived from an attribute
+called "data_series."
+
+The data to be graphed is represented as a list of arrays:
+
+ (
+ [1, 2, 8],
+ [6, 1, 1],
+ [10,8, 0],
+ [1, 1, 1],
+ )
+
+Each array is a column in the stacked plot. Its values become the
+subdivisions of the column. In this example, there are four columns,
+each of which has three subdivisions.
+
+You can add labels to the columns and change the colors of the
+subdivisions.
+
+To assign data to a feature, you can add a "series" tag:
+
+ $snp1    = Bio::SeqFeature::Generic ->new (-start     => 500,-end=>501,
+			                    -display_name =>'example',
+					    -tag=> { series => [
+ 							     [10,20,30],
+ 							     [30,30,0],
+ 							     [5,45,10],
+ 							     [5,45,10],
+ 							     [5,45,10],
+ 							     [50,0,50],
+ 							    ],
+						     }
+					       );
+
+Note that the series tag must consist of an array of arrays.
+
+Or, if you are using a gff2 or gff3 representation, you can load a
+database with data that looks like this:
+
+ chr3
+
 
 =head2 OPTIONS
 
