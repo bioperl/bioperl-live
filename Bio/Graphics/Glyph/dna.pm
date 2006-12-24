@@ -123,6 +123,7 @@ sub draw_gc_content {
     push @datapoints, 0.5 unless @datapoints;
 
     my $scale = $maxgc - $mingc;
+    $scale    = 1 unless $scale;
     foreach (my $i; $i < @datapoints; $i++)
       {
 	$datapoints[$i] = ($datapoints[$i] - $mingc) / $scale;

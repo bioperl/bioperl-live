@@ -1,7 +1,7 @@
 package Bio::Graphics::Glyph::stackedplot;
 
 use strict;
-use base 'Bio::Graphics::Glyph::xyplot';
+use base 'Bio::Graphics::Glyph::generic';
 use Carp 'cluck';
 
 sub width_needed {
