@@ -33,11 +33,13 @@ Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
 =head1 DESCRIPTION
 
 This object implements a NCBI Blast XML parser.  It requires XML::SAX; it is
-also recommended (for faster parsing) that XML::SAX::ExpatXS be installed and
-set as the default parser in ParserDetails.ini.  This file is located in the
+also recommended (for faster parsing) that XML::SAX::ExpatXS or XML::LibXML
+be installed.  Either 'XML::SAX::ExpatXS' or 'XML::LibXML::SAX::Parser' should
+be set as the default parser in ParserDetails.ini.  This file is located in the
 SAX subdirectory of XML in your local perl library (normally in the 'site'
-directory).  Currently, XML::SAX::Expat will NOT work as expected if set as
-default; you must have local copies of the NCBI DTDs if using XML::SAX::Expat.
+directory).
+
+Currently, XML::SAX::Expat will not work and will not be supported.
 
 There is one additional initialization flag from the SearchIO defaults-
 that is the -tempfile flag.  If specified as true, then the parser

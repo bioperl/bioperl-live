@@ -69,6 +69,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 package Bio::SearchIO::XML::BlastHandler;
 use Data::Dumper;
+use HTML::Entities;
 use base qw(Bio::Root::Root XML::SAX::Base);
 
 our %MODEMAP = (
@@ -80,6 +81,24 @@ our %MODEMAP = (
 # major post 2.2.12 BLAST XML changes
 # 1) moved XML Handler to it's own class
 # 2) reconfigure blastxml to deal with old and new BLAST XML output
+
+# new BLAST XML output only posts these tags once, so this needs to be carried
+# over for each Result object
+
+our %RESULTDATA = (
+                'BlastOutput_program'   => 'RESULT-algorithm_name',
+                'BlastOutput_version'   => 'RESULT-algorithm_version',
+                'BlastOutput_db'        => 'RESULT-database_name',
+                'BlastOutput_reference' => 'RESULT-program_reference',
+                'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
+                'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
+                'Parameters_include'   => { 'RESULT-parameters' => 'include'},
+                'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
+                'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
+                'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
+                'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
+                'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
+                );
 
 our %MAPPING = ( 
                 # HSP specific fields
@@ -124,19 +143,6 @@ our %MAPPING = (
                 'BlastOutput_query-def' => 'RESULT-query_description',
                 'BlastOutput_query-len' => 'RESULT-query_length',
                 'BlastOutput_query-ID'  => 'runid',
-
-                'BlastOutput_program'   => 'RESULT-algorithm_name',
-                'BlastOutput_version'   => 'RESULT-algorithm_version',
-                'BlastOutput_db'        => 'RESULT-database_name',
-                'BlastOutput_reference' => 'RESULT-program_reference',
-                'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
-                'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
-                'Parameters_include'   => { 'RESULT-parameters' => 'include'},
-                'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
-                'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
-                'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
-                'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
-                'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
                 
                 # if these tags are present, they will overwrite the
                 # above with more current data (i.e. multiquery hits)
@@ -196,7 +202,7 @@ sub end_document{
    my ($self,@args) = @_;
    
    # reset data carried throughout parse
-   $self->{'_header'} = undef;
+   $self->{'_resultdata'} = undef;
    
    # pass back ref to results queue; caller must reset handler results queue
    return $self->{'_result'};
@@ -244,6 +250,11 @@ sub end_element{
        $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
         $self->{'_type'} = uc $1; 
     }
+    if ($nm eq 'Iteration') {
+        map {
+            $self->{'_values'}->{$_} = $self->{'_resultdata'}->{$_};
+            } keys %{ $self->{'_resultdata'} };
+    }
     if( my $type = $MODEMAP{$nm} ) {
         if( $self->_eventHandler->will_handle($type) ) {
             my $func = sprintf("end_%s",lc $type);
@@ -257,6 +268,14 @@ sub end_element{
             $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
         } else {
             $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+        }
+    }
+    elsif( exists $RESULTDATA{$nm} ) { 
+        if ( ref($RESULTDATA{$nm}) =~ /hash/i ) {
+            my $key = (keys %{$RESULTDATA{$nm}})[0];
+            $self->{'_resultdata'}->{$key}->{$RESULTDATA{$nm}->{$key}} = $self->{'_last_data'};
+        } else {
+            $self->{'_resultdata'}->{$RESULTDATA{$nm}} = $self->{'_last_data'};
         }
     }
     elsif( exists $IGNOREDTAGS{$nm} ){

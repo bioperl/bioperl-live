@@ -23,7 +23,7 @@ BEGIN {
 	use Test::More;
     
 	use vars qw($NTESTS);
-	$NTESTS = 1340;
+	$NTESTS = 1401;
 	$LASTXMLTEST = 67;
 	$error = 0;
 
@@ -155,6 +155,84 @@ SKIP: {
     is($hit->description,'chr1:93161154-93162153');
     is($hit->accession,'3153');
     is($hit->length,'1000');
+    
+    # deal with new BLAST XML changes
+    $searchio = new Bio::SearchIO(-format => 'blastxml', 
+				  -file => Bio::Root::IO->catfile('t','data','newblast.xml'));
+
+    $result = $searchio->next_result;
+
+    is($result->database_name,'nr');
+    is($result->database_name,'nr');
+    is($result->database_letters,'1479795817');
+    is($result->database_entries,'4299737');
+    is($result->algorithm,'BLASTP');
+    is($result->algorithm_version,'BLASTP 2.2.15 [Oct-15-2006]');
+    
+    # some XML::SAX parsers (PurePerl, XML::SAX::LibXML) don't decode entities
+    # properly, not fixable using decode_entities()
+    like($result->algorithm_reference, qr{Nucleic Acids Res} ); 
+    is($result->available_parameters,4);
+    is($result->available_statistics,5);
+    is($result->query_name,'gi|15600734|ref|NP_254228.1|');
+    is($result->query_description,'dihydroorotase [Pseudomonas aeruginosa PAO1]');
+    is($result->query_accession,'NP_254228.1');
+    is($result->query_length,'445');
+    $hit = $result->next_hit;
+    is($hit->name,'gi|15600734|ref|NP_254228.1|');
+    is($hit->description,'gi|9951880|gb|AAG08926.1|AE004966_8 dihydroorotase [Pseudomonas aeruginosa PAO1]');
+    is($hit->accession,'NP_254228');
+    is($hit->length,'445');
+    $hsp = $hit->next_hsp;
+    is($hsp->query->seq_id, $result->query_name,'query name on HSP');
+    is($hsp->query->seqdesc, $result->query_description,'query desc on HSP');
+    is($hsp->hit->seq_id, $hit->name,'hitname');
+    is($hsp->hit->seqdesc, $hit->description,'hitdesc');
+    is($hsp->pvalue, undef);
+    is(sprintf("%g",$hsp->evalue), sprintf("%g",'0'));
+    is($hsp->score, 2251);
+    is($hsp->bits,871.692);
+    is($hsp->query->start, 1);
+    is($hsp->query->end,445);
+    is($hsp->hit->start, 1);
+    is($hsp->hit->end, 445);
+    is($hsp->query->frame,0);
+    is($hsp->hit->frame,0);
+    
+    $result = $searchio->next_result;
+
+    is($result->database_name,'nr'); 
+    is($result->database_letters,'1479795817'); 
+    is($result->database_entries,'4299737');
+    is($result->algorithm,'BLASTP');
+    is($result->algorithm_version,'BLASTP 2.2.15 [Oct-15-2006]'); 
+    like($result->algorithm_reference, qr{Nucleic Acids Res} );
+    is($result->available_parameters,4); 
+    is($result->available_statistics,5);
+    is($result->query_name,'gi|15598723|ref|NP_252217.1|');
+    is($result->query_description,'dihydroorotase [Pseudomonas aeruginosa PAO1]');
+    is($result->query_accession,'NP_252217.1');
+    is($result->query_length,'348');
+    $hit = $result->next_hit;
+    is($hit->name,'gi|15598723|ref|NP_252217.1|');
+    is($hit->description,'gi|3868712|gb|AAC73109.1| dihydroorotase [Pseudomonas aeruginosa]');
+    is($hit->accession,'NP_252217');
+    is($hit->length,'348');
+    $hsp = $hit->next_hsp;
+    is($hsp->query->seq_id, $result->query_name,'query name on HSP');
+    is($hsp->query->seqdesc, $result->query_description,'query desc on HSP');
+    is($hsp->hit->seq_id, $hit->name,'hitname');
+    is($hsp->hit->seqdesc, $hit->description,'hitdesc');
+    is($hsp->pvalue, undef);
+    is(sprintf("%g",$hsp->evalue), sprintf("%g",'0'));
+    is($hsp->score, 1780);
+    is($hsp->bits,690.263);
+    is($hsp->query->start, 1);
+    is($hsp->query->end,348);
+    is($hsp->hit->start, 1);
+    is($hsp->hit->end, 348);
+    is($hsp->query->frame,0);
+    is($hsp->hit->frame,0);
 }
 
 $searchio = new Bio::SearchIO ('-format' => 'blast',
