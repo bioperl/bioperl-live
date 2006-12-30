@@ -48,7 +48,7 @@ SKIP: {
         
         # require HTML::Entities
 	};
-	skip("XML::SAX or HTML::Entities not loaded.  Skipping XML tests",129) if $@;
+	skip("XML::SAX not loaded.  Skipping XML tests",129) if $@;
     eval {
 		# test with RPSBLAST data first
 		# this needs to be eval'd b/c the XML::SAX parser object is
