@@ -71,86 +71,114 @@ package Bio::SearchIO::XML::BlastHandler;
 use Data::Dumper;
 use base qw(Bio::Root::Root XML::SAX::Base);
 
-our %MODEMAP = ('BlastOutput' => 'result',
-		'Hit'         => 'hit',
-		'Hsp'         => 'hsp'
-		);
+our %MODEMAP = (
+                'Iteration'   => 'result',
+                'Hit'         => 'hit',
+                'Hsp'         => 'hsp'
+);
+
+# major post 2.2.12 BLAST XML changes
+# 1) moved XML Handler to it's own class
+# 2) reconfigure blastxml to deal with old and new BLAST XML output
+
+# Some tagged data prior to Iteration must be retained thoughout the entire parse,
+# then added back to $self->{'_values'} prior to end_result (from 'Iteration').
+# Ugly yes, but it works for now, until ExpatXS implements a parse_chunk() method
+
+our %HEADER = (  # Result-specific fields
+);
 
 our %MAPPING = ( 
-		 # HSP specific fields
-		 'Hsp_bit-score'  => 'HSP-bits',
-		 'Hsp_score'      => 'HSP-score',
-		 'Hsp_evalue'     => 'HSP-evalue',
-		 'Hsp_query-from' => 'HSP-query_start',
-		 'Hsp_query-to'   => 'HSP-query_end',
-		 'Hsp_hit-from'   => 'HSP-hit_start',
-		 'Hsp_hit-to'     => 'HSP-hit_end',
-		 'Hsp_positive'   => 'HSP-conserved',
-		 'Hsp_identity'   => 'HSP-identical',
-		 'Hsp_gaps'       => 'HSP-gaps',
-		 'Hsp_hitgaps'    => 'HSP-hit_gaps',
-		 'Hsp_querygaps'  => 'HSP-query_gaps',
-		 'Hsp_qseq'       => 'HSP-query_seq',
-		 'Hsp_hseq'       => 'HSP-hit_seq',
-		 'Hsp_midline'    => 'HSP-homology_seq',
-		 'Hsp_align-len'  => 'HSP-hsp_length',
-		 'Hsp_query-frame'=> 'HSP-query_frame',
-		 'Hsp_hit-frame'  => 'HSP-hit_frame',
+                # HSP specific fields
 
-		 # these are ignored for now
-		 'Hsp_num'          => 'HSP-order',
-		 'Hsp_pattern-from' => 'patternend',
-		 'Hsp_pattern-to'   => 'patternstart',
-		 'Hsp_density'      => 'hspdensity',
+                'Hsp_bit-score'  => 'HSP-bits',
+                'Hsp_score'      => 'HSP-score',
+                'Hsp_evalue'     => 'HSP-evalue',
+                'Hsp_query-from' => 'HSP-query_start',
+                'Hsp_query-to'   => 'HSP-query_end',
+                'Hsp_hit-from'   => 'HSP-hit_start',
+                'Hsp_hit-to'     => 'HSP-hit_end',
+                'Hsp_positive'   => 'HSP-conserved',
+                'Hsp_identity'   => 'HSP-identical',
+                'Hsp_gaps'       => 'HSP-gaps',
+                'Hsp_hitgaps'    => 'HSP-hit_gaps',
+                'Hsp_querygaps'  => 'HSP-query_gaps',
+                'Hsp_qseq'       => 'HSP-query_seq',
+                'Hsp_hseq'       => 'HSP-hit_seq',
+                'Hsp_midline'    => 'HSP-homology_seq',
+                'Hsp_align-len'  => 'HSP-hsp_length',
+                'Hsp_query-frame'=> 'HSP-query_frame',
+                'Hsp_hit-frame'  => 'HSP-hit_frame',
 
-		 # Hit specific fields
-		 'Hit_id'               => 'HIT-name',
-		 'Hit_len'              => 'HIT-length',
-		 'Hit_accession'        => 'HIT-accession',
-		 'Hit_def'              => 'HIT-description',
-		 'Hit_num'              => 'HIT-order',
-		 'Iteration_iter-num'   => 'HIT-iteration',
-		 'Iteration_stat'       => 'HIT-iteration_statistic',
-		 
-		 'BlastOutput_program'   => 'RESULT-algorithm_name',
-		 'BlastOutput_version'   => 'RESULT-algorithm_version',
-		 'BlastOutput_query-def' => 'RESULT-query_description',
-		 'BlastOutput_query-len' => 'RESULT-query_length',
-		 'BlastOutput_db'        => 'RESULT-database_name',
-		 'BlastOutput_reference' => 'RESULT-program_reference',
-		 'BlastOutput_query-ID'  => 'runid',
-		 
-		 'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
-		 'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
-		 'Parameters_include'   => { 'RESULT-parameters' => 'include'},
-		 'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
-		 'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
-		 'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
-		 'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
-		 'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
-		 'Statistics_db-num'    => 'RESULT-database_entries',
-		 'Statistics_db-len'    => 'RESULT-database_letters',
-		 'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
-		 'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
-		 'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
-		 'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
-		 'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
-		 );
+                # Hit specific fields
+                'Hit_id'               => 'HIT-name',
+                'Hit_len'              => 'HIT-length',
+                'Hit_accession'        => 'HIT-accession',
+                'Hit_def'              => 'HIT-description',
+                'Hit_num'              => 'HIT-order',
+                'Iteration_iter-num'   => 'HIT-iteration',
+                'Iteration_stat'       => 'HIT-iteration_statistic',
+                
+                # Result-specific fields
+                'Statistics_db-num'    => 'RESULT-database_entries',
+                'Statistics_db-len'    => 'RESULT-database_letters',
+                'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
+                'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
+                'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
+                'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
+                'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
+                
+                'BlastOutput_query-def' => 'RESULT-query_description',
+                'BlastOutput_query-len' => 'RESULT-query_length',
+                'BlastOutput_query-ID'  => 'runid',
 
-our %IGNOREDTAGS = map {$_ => 1}
-        qw(Iteration
-           Hit_hsps
-           Parameters
-           BlastOutput_param
-           Iteration_hits
-           Statistics
-           BlastOutput_iterations
-           Iteration_query-ID
-           Iteration_query-def
-           Iteration_query-len
-           );
+                'BlastOutput_program'   => 'RESULT-algorithm_name',
+                'BlastOutput_version'   => 'RESULT-algorithm_version',
+                'BlastOutput_db'        => 'RESULT-database_name',
+                'BlastOutput_reference' => 'RESULT-program_reference',
+                'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
+                'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
+                'Parameters_include'   => { 'RESULT-parameters' => 'include'},
+                'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
+                'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
+                'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
+                'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
+                'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
+                
+                # if these tags are present, they will overwrite the
+                # above with more current data (i.e. multiquery hits)
+                'Iteration_query-def'   => 'RESULT-query_description',
+                'Iteration_query-len'   => 'RESULT-query_length',       
+                'Iteration_query-ID'    => 'runid',
+               );
+
+# these XML tags are ignored for now
+our %IGNOREDTAGS = (
+                'Hsp_num'              => 1,#'HSP-order',
+                'Hsp_pattern-from'     => 1,#'patternend',
+                'Hsp_pattern-to'       => 1,#'patternstart',
+                'Hsp_density'          => 1,#'hspdensity',
+                'Iteration_message'    => 1,
+                'Hit_hsps'             => 1,
+                'BlastOutput_param'    => 1,
+                'Iteration_hits'       => 1,
+                'Statistics'           => 1,
+                'Parameters'           => 1,
+                'BlastOutput'          => 1,
+                'BlastOutput_iterations' => 1,     
+                   );
 
 =head2 SAX methods
+
+=cut
+
+=head2 parse
+
+ Title   : parse
+ Usage   : $parser->parse(%params);
+ Function: SAX method to indicate starting to parse a new document
+ Returns : Bio::Result::ResultI
+ Args    : parameters.  For full list see XML::SAX::Base::parse()
 
 =cut
 
@@ -161,7 +189,7 @@ our %IGNOREDTAGS = map {$_ => 1}
  Function: SAX method to indicate starting to parse a new document
  Returns : none
  Args    : none
- 
+
 =cut
 
 sub start_document{
@@ -183,6 +211,11 @@ sub start_document{
 
 sub end_document{
    my ($self,@args) = @_;
+   
+   # reset data carried throughout parse
+   $self->{'_header'} = undef;
+   
+   # pass back ref to results queue; caller must reset handler results queue
    return $self->{'_result'};
 }
 
@@ -199,17 +232,13 @@ sub end_document{
 sub start_element{
     my ($self,$data) = @_;
     # we currently don't care about attributes
-    my $nm = $data->{'Name'};    
+    my $nm = $data->{'Name'};
 
     if( my $type = $MODEMAP{$nm} ) {
-	if( $self->_eventHandler->will_handle($type) ) {
-	    my $func = sprintf("start_%s",lc $type);
-	    $self->_eventHandler->$func($data->{'Attributes'});
-	}						     
-    }
-
-    if($nm eq 'BlastOutput') {
-        $self->{'_values'} = {};
+        if( $self->_eventHandler->will_handle($type) ) {
+            my $func = sprintf("start_%s",lc $type);
+            $self->_eventHandler->$func($data->{'Attributes'});
+        }                                                    
     }
 }
 
@@ -230,30 +259,46 @@ sub end_element{
     my $rc;
     if($nm eq 'BlastOutput_program' &&
        $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
-	$self->{'_type'} = uc $1; 
+        $self->{'_type'} = uc $1; 
     }
-
     if( my $type = $MODEMAP{$nm} ) {
-	if( $self->_eventHandler->will_handle($type) ) {
-	    my $func = sprintf("end_%s",lc $type);
-	    $rc = $self->_eventHandler->$func($self->{'_type'},
-					      $self->{'_values'});
-	}
-    } elsif( $MAPPING{$nm} ) { 
-	if ( ref($MAPPING{$nm}) =~ /hash/i ) {
-	    my $key = (keys %{$MAPPING{$nm}})[0];
-	    $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
-	} else {
-	    $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
-	}
-    } elsif(exists $IGNOREDTAGS{$nm}){
-        # ignores these elements for now; no iteration parsing
-    } else { 	
+        if( $self->_eventHandler->will_handle($type) ) {
+            my $func = sprintf("end_%s",lc $type);
+            $rc = $self->_eventHandler->$func($self->{'_type'},
+                                              $self->{'_values'});
+        }
+    }
+    elsif( exists $MAPPING{$nm} ) { 
+        if ( ref($MAPPING{$nm}) =~ /hash/i ) {
+            my $key = (keys %{$MAPPING{$nm}})[0];
+            $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
+        } else {
+            $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+        }
+    }
+    elsif( exists $HEADER{$nm} ){
+        if ( ref($HEADER{$nm}) =~ /hash/i ) {
+            my $key = (keys %{$HEADER{$nm}})[0];
+            $self->{'_header'}->{$key}->{$HEADER{$nm}->{$key}} = $self->{'_last_data'};
+        } else {
+            $self->{'_header'}->{$HEADER{$nm}} = $self->{'_last_data'};
+        }
+    }
+    elsif( exists $IGNOREDTAGS{$nm} ){
+        # ignores these elements for now
+    }
+    else {      
         $self->debug("ignoring unrecognized element type $nm\n");
     }
     $self->{'_last_data'} = ''; # remove read data if we are at 
-				# end of an element
-    push @{ $self->{'_result'} }, $rc if( $nm eq 'BlastOutput' );
+                                # end of an element
+                                
+    # add to ResultI array
+    push @{ $self->{'_result'} }, $rc if( $nm eq 'Iteration' );
+    # reset values for each Result round
+    if ($nm eq 'Iteration') {
+        $self->{'_values'} = {};
+    }
 }
 
 =head2 characters
@@ -283,6 +328,5 @@ sub reset_results {
     my $self = shift;
     $self->{'_result'} = undef;
 }
-
 
 1;

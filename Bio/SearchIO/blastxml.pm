@@ -39,8 +39,8 @@ SAX subdirectory of XML in your local perl library (normally in the 'site'
 directory).  Currently, XML::SAX::Expat will NOT work as expected if set as
 default; you must have local copies of the NCBI DTDs if using XML::SAX::Expat.
 
-There is one additional initialization flag from the SearchIO defaults
-- that is the -tempfile flag.  If specified as true, then the parser
+There is one additional initialization flag from the SearchIO defaults-
+that is the -tempfile flag.  If specified as true, then the parser
 will write out each report to a temporary filehandle rather than
 holding the entire report as a string in memory.  The reason this is
 done in the first place is NCBI reports have an uncessary E<lt>?xml
@@ -56,13 +56,12 @@ In addition to parts of the Bio:: hierarchy, this module uses:
  XML::SAX
 
 It is also recommended that XML::SAX::ExpatXS be installed and made the default
-XML::SAX parser using , along with the
-Expat library () for faster parsing.  XML::SAX::Expat is not recommended; 
-XML::SAX::ExpatXS is considered the current replacement for XML::SAX:Expat
-and is actively being considered to replace XML::SAX::Expat.  XML::SAX::Expat
-will work, but only if you have local copies of the NCBI BLAST DTDs. This is
-due to issues with NCBI's BLAST XML format.  The DTDs and the web address to
-obtain them are:
+XML::SAX parser using , along with the Expat library () for faster parsing.
+XML::SAX::Expat is not recommended; XML::SAX::ExpatXS is considered the current
+replacement for XML::SAX:Expat and is actively being considered to replace
+XML::SAX::Expat. XML::SAX::Expat will work, but only if you have local copies of
+the NCBI BLAST DTDs. This is due to issues with NCBI's BLAST XML format. The
+DTDs and the web address to obtain them are:
 
   NCBI_BlastOutput.dtd	    
   NCBI_BlastOutput.mod.dtd
@@ -148,7 +147,8 @@ sub _initialize{
     # uncomment only for testing XML::SAX backend parsers
     #$XML::SAX::ParserPackage = 'XML::SAX::PurePerl';
     
-    # BlastHandler does the heavy lifting 
+    # BlastHandler does the heavy lifting
+    #my $xmlhandler = Bio::SearchIO::XML::BlastHandler->new(-verbose => $self->verbose);
     my $xmlhandler = Bio::SearchIO::XML::BlastHandler->new(-verbose => $self->verbose);
     
     # Pass the SearchIO eventhandler to the XML handler
@@ -300,12 +300,6 @@ sub use_tempfile{
 
 sub result_count {
     my $self = shift;
-    return $self->{'_result_count'};
-}
-
-sub no_preparse {
-    my $self = shift;
-    return $self->{'_result_count'} = shift if @_;
     return $self->{'_result_count'};
 }
 
