@@ -81,13 +81,6 @@ our %MODEMAP = (
 # 1) moved XML Handler to it's own class
 # 2) reconfigure blastxml to deal with old and new BLAST XML output
 
-# Some tagged data prior to Iteration must be retained thoughout the entire parse,
-# then added back to $self->{'_values'} prior to end_result (from 'Iteration').
-# Ugly yes, but it works for now, until ExpatXS implements a parse_chunk() method
-
-our %HEADER = (  # Result-specific fields
-);
-
 our %MAPPING = ( 
                 # HSP specific fields
 
@@ -169,16 +162,6 @@ our %IGNOREDTAGS = (
                    );
 
 =head2 SAX methods
-
-=cut
-
-=head2 parse
-
- Title   : parse
- Usage   : $parser->parse(%params);
- Function: SAX method to indicate starting to parse a new document
- Returns : Bio::Result::ResultI
- Args    : parameters.  For full list see XML::SAX::Base::parse()
 
 =cut
 
@@ -274,14 +257,6 @@ sub end_element{
             $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
         } else {
             $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
-        }
-    }
-    elsif( exists $HEADER{$nm} ){
-        if ( ref($HEADER{$nm}) =~ /hash/i ) {
-            my $key = (keys %{$HEADER{$nm}})[0];
-            $self->{'_header'}->{$key}->{$HEADER{$nm}->{$key}} = $self->{'_last_data'};
-        } else {
-            $self->{'_header'}->{$HEADER{$nm}} = $self->{'_last_data'};
         }
     }
     elsif( exists $IGNOREDTAGS{$nm} ){
