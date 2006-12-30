@@ -6,8 +6,6 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 my $error;
-
-use vars qw($LASTXMLTEST); 
 use strict;
 use Dumpvalue();
 my $dumper = new Dumpvalue();
@@ -24,7 +22,6 @@ BEGIN {
     
 	use vars qw($NTESTS);
 	$NTESTS = 1401;
-	$LASTXMLTEST = 67;
 	$error = 0;
 
 	plan tests => $NTESTS; 
@@ -45,11 +42,13 @@ my ($searchio, $result,$iter,$hit,$hsp);
 SKIP: {
 	eval {
 		require XML::SAX;
-		# may not be required anymore since char encoding is check in
-		# XML parser; checking on this - cjfields
-		require HTML::Entities;
+        
+		# XML encoding/decoding done within XML::SAX now, though some parsers
+        # do not work properly (XML::SAX::PurePerl, XML::LibXML::SAX)
+        
+        # require HTML::Entities
 	};
-	skip("XML::SAX or HTML::Entities not loaded.  Skipping XML tests",68) if $@;
+	skip("XML::SAX or HTML::Entities not loaded.  Skipping XML tests",129) if $@;
     eval {
 		# test with RPSBLAST data first
 		# this needs to be eval'd b/c the XML::SAX parser object is
