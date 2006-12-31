@@ -108,8 +108,8 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           M           Met            Methionine
           F           Phe            Phenylalanine
           P           Pro            Proline
-		  O           Pyl            Pyrrolysine (22nd amino acid)
-		  U           Sec            Selenocysteine (21st amino acid)
+	  O           Pyl            Pyrrolysine (22nd amino acid)
+	  U           Sec            Selenocysteine (21st amino acid)
           S           Ser            Serine
           T           Thr            Threonine
           W           Trp            Tryptophan
@@ -117,7 +117,7 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           V           Val            Valine
           B           Asx            Aspartic acid or Asparagine
           Z           Glx            Glutamine or Glutamic acid
-		  J           Xle            Isoleucine or Valine (mass spec ambiguity)
+	  J           Xle            Isoleucine or Valine (mass spec ambiguity)
           X           Xaa            Any or unknown amino acid
 
 
