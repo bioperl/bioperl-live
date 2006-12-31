@@ -1337,7 +1337,7 @@ sub _read_GenBank_Species {
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will
     # still get matched, use map() to remove trailing/leading/intervening spaces
-    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /(?<!subgen)[;\.]+/, $class_lines;
 
     # do we have a genus?
     my $possible_genus = $class[-1];
@@ -1354,7 +1354,7 @@ sub _read_GenBank_Species {
     # (we don't catch everything lower than species, but it doesn't matter -
     # this is just so we abide by previous behaviour whilst not calling a
     # species a subspecies)
-    if ($species =~ /subsp\.|var\./) {
+    if ($species && $species =~ /subsp\.|var\./) {
 	($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
     }
 
