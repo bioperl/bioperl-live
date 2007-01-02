@@ -264,7 +264,15 @@ changed by specifying the gc_window option, in which case, a
 sliding window calculation will be used.
 
 For this glyph to work, the feature must return a DNA sequence string
-in response to the dna() method.
+in response to the dna() method. For example, you can use a
+Bio::SeqFeature::Generic object with an attached Bio::PrimarySeq
+like this:
+    my $dna = Bio::PrimarySeq->new( -seq => 'A' x 1000 );
+    my $feature = Bio::SeqFeature::Generic->new( -start => 1, -end => 800 );
+    $feature->attach_seq($dna);
+    $panel->add_track( $feature, -glyph => 'dna' );
+
+A Bio::Graphics::Feature object may also be used.
 
 =head2 OPTIONS
 
