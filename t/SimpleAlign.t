@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 88;
+use constant NUMTESTS => 89;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -361,6 +361,16 @@ is $new_aln->get_seq_by_pos(3)->display_id, 'S000000003', 'safe display id ok';
 my $restored_aln=$new_aln->restore_displayname($ref);
 is $restored_aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1', 'restored display id ok';
 
+# test sort_by_list:
+$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
+                        "t","data","testaln.aln"));
+my $list_file=Bio::Root::IO->catfile("t", "data", "testaln.list");
+$aln=$str->next_aln();
+$new_aln=$aln->sort_by_list($list_file);
+$a=$new_aln->get_seq_by_pos(1)->display_id;
+is $a, 'BAB68554', 'sort by list ok';
+
 # test for Binary/Morphological/Mixed data
+
 
 1;
