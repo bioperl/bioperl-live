@@ -117,7 +117,7 @@ Jason Stajich, jason-at-bioperl.org,
 Anthony Underwood, aunderwood-at-phls.org.uk,
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 Brian Osborne, bosborne at alum.mit.edu
-Weigang Qiu, Weigang at ENECTR-HUNTER-CUNY-EDU
+Weigang Qiu, Weigang at GENECTR-HUNTER-CUNY-EDU
 
 =head1 SEE ALSO
 
@@ -446,6 +446,41 @@ sub sort_alphabetically {
     1;
 }
 
+=head2 sort_by_list
+
+ Title     : sort_by_list
+ Usage     : $aln_ordered=$aln->sort_by_list($list_file)
+ Function  : Arbitrarily order sequences in an alignment
+ Returns   : A new Bio::SimpleAlign object
+ Argument  : a file listing sequence names in intended order (one name per line)
+
+=cut
+
+sub sort_by_list {
+    my ($self, $list) = @_;
+    my (@seq, @ids, %order);
+
+    foreach my $seq ( $self->each_seq() ) {
+        push @seq, $seq;
+        push @ids, $seq->display_id;
+    }
+
+    my $ct=1;
+    open LIST, "$list" || $self->throw("can open file for reading: $list");
+    while (<LIST>) {
+      chomp;
+      my $name=$_;
+      $self->throw("Not found in alignment: $name") unless &_in_aln($name, \@ids);
+      $order{$name}=$ct++;
+    }
+
+# use the map-sort-map idiom:
+    my @sorted= map { $_->[1] } sort { $a->[0] <=> $b->[0] } map { [$order{$_->id()}, $_] } @seq;
+    my $aln = $self->new;
+    foreach (@sorted) { $aln->add_seq($_) }
+    return $aln;
+}
+
 =head2 set_new_reference
 
  Title     : set_new_reference
@@ -530,8 +565,9 @@ sub uniq_seq {
 	$str = &_convert_leading_ending_gaps($str, '-', '?');
 	my $new = new Bio::LocatableSeq(-id=>$seq->id(),
 					-seq=>$str,
-					-start=>1,
-					-end=>$len);
+					-start=>$seq->start,
+					-end=>$seq->end
+				       );
 	push @seq, $new;
     }
 
@@ -555,10 +591,14 @@ sub uniq_seq {
 	my $str2 = &_convert_leading_ending_gaps($str, '?', '-');
 # convert middle "?" back into "N" ("?" throws errors by SimpleAlign):
 	$str2 =~ s/\?/N/g if $str2 =~ /^[atcg\-\?]+$/i;
+	my $gap='-';
+	my $end=length($str2);
+	$end -= length($1) while $str2 =~ m/($gap+)/g;
 	my $new = new Bio::LocatableSeq(-id=>"ST".$order{$str},
 					-seq=>$str2,
 					-start=>1,
-					-end=>length($str));
+					-end=>$end
+				       );
 	$aln->add_seq($new);
 #	print STDERR "ST".$order{$str}, "\t=>";
 	foreach (@{$member{$str}}) {
