@@ -362,6 +362,24 @@ sub program_name {
     $self->throw_not_implemented();
 }
 
+=head2 quiet
+
+ Title   : quiet
+ Usage   : $factory->quiet(1);
+           if ($factory->quiet()) { ... }
+ Function: Get/set the quiet state. Can be used by wrappers to control if
+           program output is printed to the console or not.
+ Returns : boolean
+ Args    : none to get, boolean to set
+
+=cut
+
+sub quiet {
+    my $self = shift;
+    if (@_) { $self->{quiet} = shift }
+    return $self->{quiet} || 0;
+}
+
 sub DESTROY {
     my $self= shift;
     unless ( $self->save_tempfiles ) {
