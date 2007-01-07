@@ -354,8 +354,8 @@ sub flatten_Annotations{
 
 =head1 Bio::AnnotationI methods implementations
 
-   This is to allow nested annotation: you can a collection as an
-   annotation object to an annotation collection.
+   This is to allow nested annotation: you can use a collection as an
+   annotation object for an annotation collection.
 
 =cut
 
