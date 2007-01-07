@@ -48,17 +48,20 @@ of a query (the covariance model) and the hit (sequence searched).
 
 Model data is accessible via the following:
   
-  Data            SeqFeature::FeaturePair     Note
-  ------------------------------------------------------------------
-  start           $sf->start
-  end             $sf->end
-  score(bits)     $sf->score
-  strand          $sf->strand
-  seqid           $sf->seq_id
+  Data            SeqFeature::FeaturePair         Note
+  --------------------------------------------------------------------------
+  primary tag     $sf->primary_tag                Rfam ID (if passed to new())
+  start           $sf->start                      Based on CM length
+  end             $sf->end                        Based on CM length
+  score           $sf->score                      Bit score
+  strand          $sf->strand                     0 (CM does not have a strand)
+  seqid           $sf->seq_id                     Rfam ID (if passed to new())
+  display name    $sf->feature1->display_name     CM name (if passed to new())
+  source          $sf->feature1->source tag      'Infernal' followed by version
 
 Hit data is accessible via the following:
 
-  Data            SeqFeature::FeaturePair     Note
+  Data            SeqFeature::FeaturePair         Note
   ------------------------------------------------------------------
   start           $sf->hstart
   end             $sf->hend
@@ -67,6 +70,19 @@ Hit data is accessible via the following:
   seqid           $sf->hseqid
   Primary Tag     $sf->hprimary_tag
   Source Tag      $sf->hsource_tag
+
+primary_tag => $mt,
+
+                my $hf = Bio::SeqFeature::Generic->new( -primary_tag => $mt,
+                              -source_tag  => "$st $ver",
+                              -display_name => $dt || '',
+                              -score       => $score,
+                              -start       => $start,
+                              -end         => $end,
+                              -seq_id      => $qid,
+                              -strand      => $strand
+                            );
+
 
 Added FeaturePair tags are : 
 
@@ -145,9 +161,11 @@ our $DEFAULT_VERSION = '0.71';
            -cm        - covariance model used in analysis (may be same as rfam #)
            -minscore  - minimum score (simple screener, since Infernal generates
                         a ton of spurious hits)
+           -version   - Infernal program version
 =cut
 
-# yes, this is actually initialize, but the args need to be passed to new
+# yes, this is actually _initialize, but the args are passed to
+# the constructor.
 # see Bio::Tools::AnalysisResult for further details
 
 sub _initialize {
@@ -167,10 +185,8 @@ sub _initialize {
   $self->desc_tag(defined $desctag ? $desctag : $DescTag);
   $cm        && $self->covariance_model($cm);
   $rfam      && $self->rfam($rfam);
-  $ver ||= $DEFAULT_VERSION;
-  $self->program_version($ver);
-  $ms ||= $MINSCORE;
-  $self->minscore($ms);
+  $self->program_version(defined $ver ? $ver : $DEFAULT_VERSION);
+  $self->minscore(defined $ms ? $ms : $MINSCORE);
 }
 
 =head2 motif_tag
@@ -217,7 +233,6 @@ sub source_tag{
     return $self->{'source_tag'} = shift if @_;
     return $self->{'source_tag'};
 }
-
 
 =head2 desc_tag
 
