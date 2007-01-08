@@ -1340,8 +1340,8 @@ sub _read_GenBank_Species {
     my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /(?<!subgen)[;\.]+/, $class_lines;
 
     # do we have a genus?
-    my $possible_genus = $class[-1];
-    $possible_genus .= "|$class[-2]" if $class[-2];
+    my $possible_genus =  quotemeta($class[-1])
+       . ($class[-2] ? "|" . quotemeta($class[-2]) : '');
     if ($sci_name =~ /^($possible_genus)/) {
 	$genus = $1;
 	($species) = $sci_name =~ /^$genus\s+(.+)/;
