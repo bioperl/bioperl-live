@@ -2584,26 +2584,26 @@ sub annotation {
 =head2 set_displayname_safe
 
  Title     : set_displayname_safe
- Usage     : ($new_aln, $ref_name)=$ali->set_displayname_safe()
+ Usage     : ($new_aln, $ref_name)=$ali->set_displayname_safe(4)
  Function  : Assign machine-generated serial names to sequences in input order.  
              Designed to protect names during PHYLIP runs. Assign 10-char string 
              in the form of "S000000001" to "S999999999". Restore the original
              names using "restore_displayname".
  Returns   : 1. a new $aln with system names;
              2. a hash ref for restoring names
- Argument  : none
+ Argument  : Number for id length (default 10)
 
 =cut
 
 sub set_displayname_safe {
     my $self = shift;
+    my $idlength = shift || 10;
     my ($seq, %phylip_name);
     my $ct=0;
     my $new=new Bio::SimpleAlign();
     foreach $seq ( $self->each_seq() ) {
       $ct++;
-      my $pname="S". sprintf "%9s", $ct;
-      $pname =~ s/\s/0/g;
+      my $pname="S". sprintf "%0" . ($idlength-1) . "s", $ct;
       $phylip_name{$pname}=$seq->id();
       my $new_seq= new Bio::LocatableSeq(-id=>$pname,
 					-seq=>$seq->seq(),
@@ -2611,13 +2611,9 @@ sub set_displayname_safe {
 					-end=>$seq->{_end}
 					);
       $new->add_seq($new_seq);
-#      my $nse = $seq->get_nse();
-#      $self->displayname($nse,$pname);
     }
 
     $self->debug("$ct seq names changed. Restore names by using restore_displayname.");
-#    use Data::Dumper;
-#    print STDERR Dumper($self->{_dis_name});
     return ($new, \%phylip_name);
 }
 
@@ -2645,8 +2641,6 @@ sub restore_displayname {
 					-end=>$seq->{_end}
 					);
       $new->add_seq($new_seq);
-#      my $nse = $seq->get_nse();
-#      $self->displayname($nse,$pname);
     }
     return $new;
 }
