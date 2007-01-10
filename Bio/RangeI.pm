@@ -64,6 +64,7 @@ Email:  heikki-at-bioperl-dot-org
 
 Juha Muilu (muilu@ebi.ac.uk)
 Sendu Bala (bix@sendu.me.uk)
+Malcolm Cook (mec@stowers-institute.org)
 
 =head1 APPENDIX
 
@@ -556,5 +557,24 @@ sub disconnected_ranges {
     return @outranges;
 }
 
+=head2 offsetStranded
+
+    Title    : offsetStranded
+    Usage    : $rnge->ofsetStranded($fiveprime_offset, $threeprime_offset)
+    Function : destructively modifies RangeI implementing object to
+               offset its start and stop coordinates by values $fiveprime_offset and
+               $threeprime_offset (positive values being in the strand direction).
+    Args     : two integer offsets: $fiveprime_offset and $threeprime_offset
+    Returns  : $self, offset accordingly.
+
+=cut
+
+sub offsetStranded {
+  my ($self, $offset_fiveprime, $offset_threeprime) = @_;
+  my ($offset_start, $offset_end) = $self->strand() eq -1 ? (- $offset_threeprime, - $offset_fiveprime) : ($offset_fiveprime, $offset_threeprime);
+  $self->start($self->start + $offset_start);
+  $self->end($self->end + $offset_end);
+  return $self;
+};
 
 1;
