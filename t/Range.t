@@ -15,7 +15,7 @@ BEGIN {
 		use lib 't';
 	}
 	use Test;
-	plan tests => 40;
+	plan tests => 44;
 }
 
 use Bio::Range;
@@ -113,3 +113,11 @@ ok($r->strand, 0);
 # or if both strands are -1 then -1 should be returned
 $r = $range6->intersection($range4);
 ok($r->strand, -1);
+
+#test implemention of offsetStranded:
+$r = Bio::Range->new(-start => 30, -end => 40, -strand => -1);
+ok ($r->offsetStranded(-5,10)->toString, '(20, 45) strand=-1');
+ok ($r->offsetStranded(+5,-10)->toString, '(30, 40) strand=-1');
+$r->strand(1);
+ok ($r->offsetStranded(-5,10)->toString, '(25, 50) strand=1');
+ok ($r->offsetStranded(+5,-10)->toString, '(30, 40) strand=1');
