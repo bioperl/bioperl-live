@@ -2,9 +2,14 @@
 
 =head1 NAME
 
-Bio::FeatureIO::bed - write features from UCSC BED format
+Bio::FeatureIO::bed - read/write features from UCSC BED format
 
 =head1 SYNOPSIS
+
+  my $in = Bio::FeatureIO(-format => 'bed', -file => 'file.bed');
+  for my $feat ($in->next_feature) {
+    # do something with $feat (a Bio::SeqFeature::Annotated object)
+  }
 
   my $out = Bio::FeatureIO(-format=>'bed');
   for my $feat ($seq->get_seqFeatures) {
@@ -14,6 +19,9 @@ Bio::FeatureIO::bed - write features from UCSC BED format
 =head1 DESCRIPTION
 
 See L<http://www.genome.ucsc.edu/goldenPath/help/customTrack.html#BED>.
+
+Currently for read and write only the first 6 fields (chr, start, end, name,
+score, strand) are supported.
 
 =head1 FEEDBACK
 
@@ -38,6 +46,10 @@ the web:
 
 Email allenday@ucla.edu
 
+=head1 CONTRIBUTORS
+
+Sendu Bala, bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -54,12 +66,13 @@ package Bio::FeatureIO::bed;
 use strict;
 use base qw(Bio::FeatureIO);
 use Bio::SeqFeature::Annotated;
+use Bio::Annotation::SimpleValue;
 use Bio::OntologyIO;
 
 =head2 _initialize
 
  Title   : _initialize
- Function: initializes BED for reading/writing (currently write-only)
+ Function: initializes BED for reading/writing
  Args    : all optional:
            name          description
            ----------------------------------------------------------
@@ -89,8 +102,7 @@ sub _initialize {
                         $self->name,
                         $self->description,
                         $self->use_score ? 1 : 0
-                       )
-               );
+                       )."\n") if $self->mode eq 'w';
 }
 
 =head2 use_score
@@ -155,16 +167,17 @@ sub write_feature {
   my($self,$feature) = @_;
   $self->throw("only Bio::SeqFeature::Annotated objects are writeable") unless $feature->isa('Bio::SeqFeature::Annotated');
 
-  my $chrom       = $feature->seq_id || '';
-  my $chrom_start = $feature->start  || 0;
-  my $chrom_end   = $feature->end   || 0;
+  my $chrom       = $feature->seq_id    || '';
+  my $chrom_start = $feature->start     || 0; # output start is supposed to be 0-based
+  my $chrom_end   = ($feature->end + 1) || 1; # output end is supposed to not be part of the feature
 
   #try to make a reasonable name
   my $name        = undef;
-  if(my @v = ($feature->annotation->get_Annotations('Name'))){
+  my @v;
+  if (@v = ($feature->annotation->get_Annotations('Name'))){
     $name = $v[0];
     $self->warn("only using first of feature's multiple names: ".join ',', map {$_->value} @v) if scalar(@v) > 1;
-  } elsif(my @v = ($feature->annotation->get_Annotations('ID'))){
+  } elsif (@v = ($feature->annotation->get_Annotations('ID'))){
     $name = $v[0];
     $self->warn("only using first of feature's multiple IDs: ".join ',', map {$_->value} @v) if scalar(@v) > 1;
   } else {
@@ -180,12 +193,25 @@ sub write_feature {
   my $block_sizes = '';  #not implemented, used for sub features
   my $block_starts = ''; #not implemented, used for sub features
 
-  $self->_print(join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts)));
+  $self->_print(join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts))."\n");
   $self->write_feature($_) foreach $feature->get_SeqFeatures();
 }
 
 sub next_feature {
-  shift->throw_not_implemented();
+  my $self = shift;
+  my $line = $self->_readline || return;
+  
+  my ($seq_id, $start, $end, $name, $score, $strand) = split(/\s+/, $line);
+  
+  my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
+                                                -end    => --$end, # end is not part of the feature
+                                                -score  => $score,
+                                                -strand => $strand eq '+' ? 1 : -1);
+  $feature->seq_id->value($seq_id);
+  my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'Name', -value => $name);
+  $feature->annotation->add_Annotation($sv);
+  
+  return $feature;
 }
 
 1;
