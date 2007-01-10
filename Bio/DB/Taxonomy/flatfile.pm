@@ -206,7 +206,15 @@ sub get_taxon {
 
 sub get_taxonids {
     my ($self, $query) = @_;
-    my $ids = $self->{'_name2id'}->{lc($query)} || return;
+    my $ids = $self->{'_name2id'}->{lc($query)};
+    unless ($ids) {
+        if ($query =~ /_/) {
+            # try again converting underscores to spaces
+            $query =~ s/_/ /g;
+            $ids = $self->{'_name2id'}->{lc($query)};
+        }
+        $ids || return;
+    }
     my @ids = split(SEPARATOR, $ids);
     return wantarray() ? @ids : shift @ids;
 }
