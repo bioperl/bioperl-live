@@ -18,7 +18,7 @@ BEGIN {
 	use lib 't/lib';
     }
     use Test::More;
-    plan tests => ($NUMTESTS = 101);
+    plan tests => ($NUMTESTS = 108);
 	use_ok('Bio::Annotation::Collection');
 	use_ok('Bio::Annotation::DBLink');
 	use_ok('Bio::Annotation::Comment');
@@ -27,6 +27,7 @@ BEGIN {
 	use_ok('Bio::Annotation::Target');
 	use_ok('Bio::Annotation::AnnotationFactory');
 	use_ok('Bio::Annotation::StructuredValue');
+	use_ok('Bio::Annotation::Tree');
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SimpleAlign');
@@ -237,3 +238,36 @@ $factory = new Bio::Annotation::AnnotationFactory();
 ok(defined ($ann = $factory->create_object(-name => 'peroxisome',
 					  -tagname => 'cellular component')));
 like(ref $ann, qr(Bio::Annotation::OntologyTerm));
+
+# tree
+my $tree_filename = Bio::Root::IO->catfile("t","data","longnames.dnd");
+my $tree=Bio::TreeIO->new(-file=>$tree_filename)->next_tree();
+my $ann_tree = Bio::Annotation::Tree->new(
+					  -tagname => 'tree',
+					  -tree_obj   => $tree,
+					 );
+
+isa_ok($ann_tree, 'Bio::AnnotationI');
+$ann_tree->tree_id('test');
+is $ann_tree->tree_id(), 'test', "tree_id()";
+$ann_tree->tagname('tree'); 
+is $ann_tree->tagname(), 'tree', "tagname()";
+my $aln_filename = Bio::Root::IO->catfile("t","data","longnames.aln");
+use Bio::AlignIO;
+$aln = Bio::AlignIO->new(-file=>$aln_filename, -format=>'clustalw')->next_aln();
+isa_ok($aln, 'Bio::AnnotatableI');
+$ac = Bio::Annotation::Collection->new();
+$ac->add_Annotation('tree',$ann_tree);
+$aln->annotation($ac);
+foreach my $treeblock ( $aln->annotation->get_Annotations('tree') ) {
+    my $treeref=$treeblock->tree();
+    my @nodes = sort { defined $a->id && 
+		      defined $b->id &&
+			$a->id cmp $b->id } $treeref->get_nodes();
+    is $nodes[12]->id, '183.m01790', "add tree to AlignI";
+    my $str;
+    foreach my $seq ($aln->each_seq_with_id($nodes[12]->id)) { $str=$seq->subseq(1,20)}
+    is $str, "MDDKELEIPVEHSTAFGQLV", "get seq from node id";
+}
+
+
