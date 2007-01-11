@@ -2,28 +2,22 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;    
-    plan tests => 11;
+    eval {require Test::More;};
+	if ($@) {
+		use lib 't/lib';
+	}
+	use Test::More;
+	
+    plan tests => 23;
+	
+	use_ok('Bio::Root::Root');
 }
 
-
-use Bio::Root::Root;
-
-my $obj = new Bio::Root::Root();
-ok defined($obj) && $obj->isa('Bio::Root::RootI');
+ok my $obj = new Bio::Root::Root();
+isa_ok($obj, 'Bio::Root::RootI');
 
 eval { $obj->throw('Testing throw') };
 ok $@ =~ /Testing throw/;# 'throw failed';
@@ -69,15 +63,15 @@ ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
 #ok $val =~ /Testing warn/;# 'verbose(1) warn did not work properly' . $val;
 
 my @stack = $obj->stack_trace();
-ok scalar @stack, 2;
+is scalar @stack, 2;
 
 my $verbobj = new Bio::Root::Root(-verbose=>1,-strict=>1);
-ok $verbobj->verbose(), 1;
+is $verbobj->verbose(), 1;
 
 $Bio::Root::Root::DEBUG = 1;
 require Bio::Seq;
 my $seq = new Bio::Seq;
-ok($seq->verbose, 1);
+is $seq->verbose, 1;
 
 # test for bug #1343
 my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)], 
@@ -86,9 +80,80 @@ my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)],
 eval { $obj->throw_not_implemented() };
 ok $@ =~ /Bio::Root::NotImplemented/;
 
-ok(shift @vals, 'up the');
-ok(shift @vals, 'stairs');
+is shift @vals, 'up the';
+is shift @vals, 'stairs';
+
+# tests for _set_from_args
+{
+	no warnings 'redefine';
+	
+	# simplest form
+	local *Bio::Root::Root::new = sub {
+		my $class = shift;
+		my $self = {};
+		bless $self, ref($class) || $class;
+	
+		$self->_set_from_args(\@_);
+		
+		return $self;
+	};
+	
+	$obj = Bio::Root::Root->new(-verbose => 1, t1 => 1, '--Test-2' => 2);
+	ok ! $obj->can('t1'), 'arg not callable';
+	
+	# with method creation
+	local *Bio::Root::Root::new = sub {
+		my $class = shift;
+		my $self = {};
+		bless $self, ref($class) || $class;
+	
+		$self->_set_from_args(\@_, -create => 1);
+		
+		return $self;
+	};
+	
+	$obj = Bio::Root::Root->new(-verbose => 1, t3 => 1, '--Test-4' => 2);
+	ok $obj->can('t3'), 'arg callable since method was created';
+	ok $obj->can('test_4'), 'mal-formed arg callable since method was created with good name';
+	
+	# with method creation, but limited to certain methods
+	local *Bio::Root::Root::new = sub {
+		my $class = shift;
+		my $self = {};
+		bless $self, ref($class) || $class;
+	
+		$self->_set_from_args(\@_, -methods => ['verbose', 't5'], -create => 1);
+		
+		return $self;
+	};
+	
+	$obj = Bio::Root::Root->new(-verbose => 1, t5 => 1, '--Test-6' => 2);
+	ok $obj->can('t5'), 'arg callable since method was created';
+	ok ! $obj->can('test_6'), 'arg not in method list not created';
+	
+	# with synonyms
+	local *Bio::Root::Root::new = sub {
+		my $class = shift;
+		my $self = {};
+		bless $self, ref($class) || $class;
+		
+		my %args = @_;
+		
+		$self->_set_from_args(\%args, -methods => {(verbose => 'v',
+									         		test7 => 't7',
+													test_8 => 't8')},
+								      -create => 1);
+		
+		return $self;
+	};
+	
+	$obj = Bio::Root::Root->new(-verbose => 1, t7 => 1, '--Test-8' => 2);
+	is $obj->verbose, 1, 'verbose was set correctly';
+	is $obj->t7, 1, 'synonym was set correctly';
+	is $obj->test7, 1, 'real method of synonym was set correctly';
+	is $obj->test_8, 2, 'mal-formed arg correctly resolved to created method';
+	is $obj->t8, 2, 'synonym of set method was set correctly';
+}
 
 1;
-
 
