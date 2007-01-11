@@ -294,7 +294,7 @@ SKIP: {
     # test dbsource stuff
     # small chance this might change but hopefully not
     my @annot = $seq->annotation->get_Annotations('dblink');
-    is @annot, 31;	# changed 16-Aug-06
+    cmp_ok(scalar(@annot), '>', 31);	# changed 16-Aug-06
     is $annot[0]->database, 'swissprot';
     is $annot[0]->primary_id, '2AAA_YEAST';
     is (($seq->annotation->get_Annotations('swissprot_dates'))[0]->value, 'Jul 1, 1993');
