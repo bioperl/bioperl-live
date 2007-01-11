@@ -16,16 +16,16 @@ BEGIN {
     }
 
     use Test::More;
-	
-	eval {
-		require Bio::Tools::RNAMotif;
-	};
-	if ($@) {
-		plan skip_all => 'Bio::Tools::RNAMotif failed to load, DB_File probably not installed. This means that the module is not usable. Skipping tests';
-	}
-	else {
-		plan tests => 72;
-	}
+    
+    eval {
+        require Bio::Tools::RNAMotif;
+    };
+    if ($@) {
+        plan skip_all => 'Bio::Tools::RNAMotif failed to load, DB_File probably not installed. This means that the module is not usable. Skipping tests';
+    }
+    else {
+        plan tests => 72;
+    }
 }
 
 use Bio::Tools::ERPIN;
@@ -35,7 +35,7 @@ my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 ### RNAMotif.pm tests ###
 
 my $parser = new Bio::Tools::RNAMotif(
-		-verbose => $verbose,
+        -verbose => $verbose,
         -file => Bio::Root::IO->catfile('t','data','trna.strict.rnamotif'),
         -motiftag => 'tRNA_gene',
         -desctag => 'tRNA');
@@ -70,7 +70,7 @@ is($genes[4]->source_tag, 'RNAMotif','RNAMotif::source_tag()');
 @genes=();
 
 $parser = Bio::Tools::RNAMotif->new(
-			-verbose => $verbose,
+            -verbose => $verbose,
             -file => Bio::Root::IO->catfile('t','data','sprintf.rnamotif'),
             -motiftag => 'term',
             -desctag => 'stem_loop');
@@ -118,30 +118,92 @@ my @erpinstats = (
 );
 
 $parser = Bio::Tools::ERPIN->new(
-			-verbose => $verbose,
+            -verbose => $verbose,
             -file => Bio::Root::IO->catfile('t','data','testfile.erpin'),
             -motiftag => 'protein_bind',
-			-desctag =>  'pyrR_BL');
+            -desctag =>  'pyrR_BL');
 
 while( my $gene = $parser->next_prediction ) {
-	my @stats = @{ shift @erpinstats };
-	is($gene->display_name, 'pyrR_BL','ERPIN::display_name()');
-	is($gene->seq_id, shift @stats,'ERPIN::seq_id()');
-	is($gene->primary_tag, 'protein_bind','ERPIN::primary_tag()');
-	is($gene->start, shift @stats,'ERPIN::start()');
-	is($gene->end, shift @stats,'ERPIN::end()');
-	is($gene->strand, shift @stats,'ERPIN::strand()');
-	is($gene->get_Annotations('sequence'), shift @stats,
-	   "ERPIN::get_Annotations('sequence')");
-	is($gene->get_Annotations('descfile'), shift @stats,
-	   "ERPIN::get_Annotations('descfile')");
-	is($gene->get_Annotations('descline'), shift @stats,
-	   "ERPIN::get_Annotations('descline')");
-	is($gene->get_Annotations('secstructure'), shift @stats,
-	   "ERPIN::get_Annotations('secstructure')");
-	is($gene->score, shift @stats,'ERPIN::score()');
-	is($gene->source_tag, 'ERPIN','ERPIN::source_tag()');
+    my @stats = @{ shift @erpinstats };
+    is($gene->display_name, 'pyrR_BL','ERPIN::display_name()');
+    is($gene->seq_id, shift @stats,'ERPIN::seq_id()');
+    is($gene->primary_tag, 'protein_bind','ERPIN::primary_tag()');
+    is($gene->start, shift @stats,'ERPIN::start()');
+    is($gene->end, shift @stats,'ERPIN::end()');
+    is($gene->strand, shift @stats,'ERPIN::strand()');
+    is($gene->get_Annotations('sequence'), shift @stats,
+       "ERPIN::get_Annotations('sequence')");
+    is($gene->get_Annotations('descfile'), shift @stats,
+       "ERPIN::get_Annotations('descfile')");
+    is($gene->get_Annotations('descline'), shift @stats,
+       "ERPIN::get_Annotations('descline')");
+    is($gene->get_Annotations('secstructure'), shift @stats,
+       "ERPIN::get_Annotations('secstructure')");
+    is($gene->score, shift @stats,'ERPIN::score()');
+    is($gene->source_tag, 'ERPIN','ERPIN::source_tag()');
 }
 
 ### Infernal.pm tests ###
+
+# Infernal 0.70
+$parser = Bio::Tools::Infernal->new(
+            -verbose => $verbose,
+            -file => Bio::Root::IO->catfile('t','data','test2.infernal'),
+            -motiftag => 'protein_bind',
+            -desctag =>  'pyrR_BL',
+	    -cm => 'pyrR.cm',
+	    -rfam => 'RF01234',
+	    );
+
+while( my $gene = $parser->next_prediction ) {
+    my @stats = @{ shift @erpinstats };
+    is($gene->display_name, 'pyrR_BL','ERPIN::display_name()');
+    is($gene->seq_id, shift @stats,'ERPIN::seq_id()');
+    is($gene->primary_tag, 'protein_bind','ERPIN::primary_tag()');
+    is($gene->start, shift @stats,'ERPIN::start()');
+    is($gene->end, shift @stats,'ERPIN::end()');
+    is($gene->strand, shift @stats,'ERPIN::strand()');
+    is($gene->get_Annotations('sequence'), shift @stats,
+       "ERPIN::get_Annotations('sequence')");
+    is($gene->get_Annotations('descfile'), shift @stats,
+       "ERPIN::get_Annotations('descfile')");
+    is($gene->get_Annotations('descline'), shift @stats,
+       "ERPIN::get_Annotations('descline')");
+    is($gene->get_Annotations('secstructure'), shift @stats,
+       "ERPIN::get_Annotations('secstructure')");
+    is($gene->score, shift @stats,'ERPIN::score()');
+    is($gene->source_tag, 'ERPIN','ERPIN::source_tag()');
+}
+
+# Infernal 0.71
+
+$parser = Bio::Tools::Infernal->new(
+            -verbose => $verbose,
+            -file => Bio::Root::IO->catfile('t','data','test2.infernal'),
+            -motiftag => 'protein_bind',
+            -desctag =>  'pyrR_BL',
+	    -cm => 'pyrR.cm',
+	    -rfam => 'RF01234',
+	    );
+
+while( my $gene = $parser->next_prediction ) {
+    my @stats = @{ shift @erpinstats };
+    is($gene->display_name, 'pyrR_BL','ERPIN::display_name()');
+    is($gene->seq_id, shift @stats,'ERPIN::seq_id()');
+    is($gene->primary_tag, 'protein_bind','ERPIN::primary_tag()');
+    is($gene->start, shift @stats,'ERPIN::start()');
+    is($gene->end, shift @stats,'ERPIN::end()');
+    is($gene->strand, shift @stats,'ERPIN::strand()');
+    is($gene->get_Annotations('sequence'), shift @stats,
+       "ERPIN::get_Annotations('sequence')");
+    is($gene->get_Annotations('descfile'), shift @stats,
+       "ERPIN::get_Annotations('descfile')");
+    is($gene->get_Annotations('descline'), shift @stats,
+       "ERPIN::get_Annotations('descline')");
+    is($gene->get_Annotations('secstructure'), shift @stats,
+       "ERPIN::get_Annotations('secstructure')");
+    is($gene->score, shift @stats,'ERPIN::score()');
+    is($gene->source_tag, 'ERPIN','ERPIN::source_tag()');
+}
+
 ### FASTR.pm tests ###
