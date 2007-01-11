@@ -88,7 +88,7 @@ throw a L<Bio::Exception::NotImplemented>.
 =head1 CONTACT
 
 Functions originally from Steve Chervitz. Refactored by Ewan
-Birney. Re-refactored by Lincoln Stein.
+Birney. Re-refactored by Lincoln Stein. Added to by Sendu Bala.
 
 =head1 APPENDIX
 
@@ -361,6 +361,143 @@ sub _rearrange {
     return @param{@$order};
 }
 
+=head2 _set_from_args
+
+ Usage     : $object->_set_from_args(\%args, -methods => \@methods)
+ Purpose   : Takes a hash of user-supplied args whose keys match method names,
+           : and calls the method supplying it the corresponding value.
+ Example   : $self->_set_from_args(\%args, -methods => [qw(sequence id desc)]);
+           : Where %args = (-sequence    => $s,
+	       :                -description => $d,
+	       :                -ID          => $i);
+           :
+           : the above _set_from_args calls the following methods:
+           : $self->sequence($s);
+           : $self->id($i);
+           : ( $self->description($i) is not called because 'description' wasn't
+           :   one of the given methods )
+ Argument  : \%args | \@args : a hash ref or associative array ref of arguments
+           :                   where keys are any-case strings corresponding to
+           :                   method names but optionally prefixed  with
+           :                   hyphens, and values are the values the method
+           :                   should be supplied. If keys contain internal
+           :                   hyphens (eg. to separate multi-word args) they
+           :                   are converted to underscores, since method names
+           :                   cannot contain dashes.
+           : -methods => []  : (optional) only call methods with names in this
+           :                   array ref. Can instead supply a hash ref where
+           :                   keys are method names (of real existing methods
+           :                   unless -create is in effect) and values are array
+           :                   refs of synonyms to allow access to the method
+           :                   using synonyms. If there is only one synonym it
+           :                   can be supplied as a string instead of a single-
+           :                   element array ref
+           : -force => bool  : (optional, default 0) call methods that don't
+           :                   seem to exist, ie. let AUTOLOAD handle them
+           : -create => bool : (optional, default 0) when a method doesn't
+           :                   exist, create it as a simple getter/setter
+           :                   (combined with -methods it would create all the
+           :                   supplied methods that didn't exist, even if not
+           :                   mentioned in the supplied %args)
+ Comments  :
+           : The \%args argument will usually be the args received during new()
+           : from the user. The user is allowed to get the case wrong, include
+           : 0 or more than one hyphens as a prefix, and to include hyphens as
+           : multi-word arg separators: '--an-arg' => 1, -an_arg => 1 and
+           : An_Arg => 1 are all equivalent, calling an_arg(1). However, in
+           : documentation users should only be told to use the standard form
+           : -an_arg to avoid confusion. A possible exception to this is a
+           : wrapper module where '--an-arg' is what the user is used to
+           : supplying to the program being wrapped.
+           :
+           : Another issue with wrapper modules is that there may be an
+           : argument that has meaning both to Bioperl and to the program, eg.
+           : -verbose. The recommended way of dealing with this is to leave
+           : -verbose to set the Bioperl verbosity whilst requesting users use
+           : an invented -program_verbose (or similar) to set the program
+           : verbosity. This can be resolved back with
+           : Bio::Tools::Run::WrapperBase's _setparams() method and code along
+           : the lines of:
+           : my %methods = map { $_ => $_ } @LIST_OF_ALL_ALLOWED_PROGRAM_ARGS
+           : delete $methods{'verbose'};
+           : $methods{'program_verbose'} = 'verbose';
+           : my $param_string = $self->_setparams(-methods => \%methods);
+           : system("$exe $param_string");
+
+=cut
+
+sub _set_from_args {
+    my ($self, $args, @own_args) = @_;
+    $self->throw("a hash/array ref of arguments must be supplied") unless ref($args);
+    
+    my ($methods, $force, $create);
+    if (@own_args) {
+        ($methods, $force, $create) =
+            $self->_rearrange([qw(METHODS
+                                  FORCE
+                                  CREATE)], @own_args);
+    }
+    
+    my %method_names = ();
+    my %syns = ();
+    if ($methods) {
+        my @names;
+        if (ref($methods) eq 'HASH') {
+            @names = keys %{$methods};
+            %syns = %{$methods};
+        }
+        else {
+            @names = @{$methods};
+            %syns = map { $_ => $_ } @names;
+        }
+        %method_names = map { lc($_) => $_ } @names;
+    }
+    
+    # deal with hyphens
+    my %orig_args = ref($args) eq 'HASH' ? %{$args} : @{$args};
+    my %args;
+    while (my ($method, $value) = each %orig_args) {
+        $method =~ s/^-+//;
+        $method =~ s/-/_/g;
+        $args{$method} = $value;
+    }
+    
+    # create non-existing methods on request
+    if ($create) {
+        unless ($methods) {
+            %syns = map { $_ => lc($_) } keys %args;
+        }
+        
+        foreach my $method (keys %syns) {
+            $self->can($method) && next;
+            # create get/setter method
+            no strict 'refs';
+            *{ref($self).'::'.$method} = sub { my $self = shift;
+                                              if (@_) { $self->{'_'.$method} = shift }
+                                              return $self->{'_'.$method} || return; };
+        }
+    }
+    
+    # create synonyms of existing methods
+    while (my ($method, $syn_ref) = each %syns) {
+        my $method_ref = $self->can($method) || next;
+        
+        foreach my $syn (@{ ref($syn_ref) ? $syn_ref : [$syn_ref] }) {
+            next if $syn eq $method;
+            $method_names{lc($syn)} = $syn;
+            next if $self->can($syn);
+            no strict 'refs';
+            *{ref($self).'::'.$syn} = $method_ref;
+        }
+    }
+    
+    # set values for methods
+    while (my ($method, $value) = each %args) {
+        $method = $method_names{lc($method)} || ($methods ? next : $method);
+        $self->can($method) || next unless $force;
+        $self->$method($value);
+    }
+}
 
 #----------------'
 sub _rearrange_old {
