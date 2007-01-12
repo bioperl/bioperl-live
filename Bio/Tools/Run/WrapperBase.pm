@@ -57,6 +57,10 @@ web:
 
 Email jason-at-bioperl.org
 
+=head1 CONTRIBUTORS
+ 
+Sendu Bala, bix@sendu.me.uk
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -160,19 +164,22 @@ sub no_param_checks{
 
  Title   : save_tempfiles
  Usage   : $obj->save_tempfiles($newval)
- Function: 
- Returns : value of save_tempfiles
- Args    : newvalue (optional)
-
+ Function: Get/set the choice of if tempfiles in the temp dir (see tempdir())
+           are kept or cleaned up. Default is '0', ie. delete temp files.
+           NB:ÊThis must be set to the desired value PRIOR to first creating
+           a temp dir with tempdir().
+ Returns : boolean
+ Args    : none to get, boolean to set
 
 =cut
 
 sub save_tempfiles{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'save_tempfiles'} = $value;
+    my $self = shift;
+    if (@_) {
+        my $value = shift;
+        $self->{save_tempfiles} = $value ? 1 : 0;
     }
-    return $self->{'save_tempfiles'};
+    return $self->{save_tempfiles} || 0;
 }
 
 =head2 outfile_name
@@ -378,6 +385,77 @@ sub quiet {
     my $self = shift;
     if (@_) { $self->{quiet} = shift }
     return $self->{quiet} || 0;
+}
+
+=head2  _setparams()
+
+ Title   : _setparams
+ Usage   : $params = $self->_setparams(-params => [qw(window evalue_cutoff)])
+ Function: For internal use by wrapper modules to build parameter strings
+           suitable for sending to the program being wrapped. For each method
+           name supplied, calls the method and adds the method name (as modified
+           by optional things) along with its value (unless a switch) to the
+           parameter string
+ Example : $params = $self->_setparams(-params => [qw(window evalue_cutoff)],
+                                       -switches => [qw(simple large all)],
+                                       -double_dash => 1,
+                                       -underscore_to_dash => 1);
+           If window() and simple() had not been previously called, but
+           evalue_cutoff(0.5), large(1) and all(0) had been called, $params
+           would be ' --evalue-cutoff 0.5 --large'
+ Returns : parameter string
+ Args    : -params => [] or {}  # array ref of method names to call,
+                                  or hash ref where keys are method names and
+                                  values are how those names should be output
+                                  in the params string
+           -switches => [] or {}# as for -params, but no value is printed for
+                                  these methods
+           -join => string      # define how parameters and their values are
+                                  joined, default ' '. (eg. could be '=' for
+                                  param=value)
+           -lc => boolean       # lc() method names prior to output in string
+           -dash => boolean     # prefix all method names with a single dash
+           -double_dash => bool # prefix all method names with a double dash
+           -underscore_to_dash => boolean # convert all underscores in method
+                                            names to dashes
+
+=cut
+
+sub _setparams {
+    my ($self, @args) = @_;
+    
+    my ($params, $switches, $join, $lc, $d, $dd, $utd) =
+        $self->_rearrange([qw(PARAMS
+                              SWITCHES
+                              JOIN
+                              LC
+                              DASH
+                              DOUBLE_DASH
+                              UNDERSCORE_TO_DASH)], @args);
+    $self->throw('at least one of -params or -switches is required') unless ($params || $switches);
+    $self->throw("-dash and -double_dash are mutually exclusive") if ($d && $dd);
+    $join ||= ' ';
+    
+    my %params = ref($params) eq 'HASH' ? %{$params} : map { $_ => $_ } @{$params};
+    my %switches = ref($switches) eq 'HASH' ? %{$switches} : map { $_ => $_ } @{$switches};
+    
+    my $param_string = '';
+    for my $hash_ref (\%params, \%switches) {
+        while (my ($method, $method_out) = each %{$hash_ref}) {
+            my $value = $self->$method();
+            next unless (defined $value);
+            next if (exists $switches{$method} && ! $value);
+            
+            $method_out = lc($method_out) if $lc;
+            $method_out = '-'.$method_out if $d;
+            $method_out = '--'.$method_out if $dd;
+            $method_out =~ s/_/-/g if $utd;
+            
+            $param_string .= ' '.$method_out.(exists $switches{$method} ? '' : $join.$value);
+        }
+    }
+    
+    return $param_string;
 }
 
 sub DESTROY {
