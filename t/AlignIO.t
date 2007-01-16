@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 283;
+	plan tests => 285;
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
 	use_ok('Bio::Root::IO');
@@ -746,10 +746,9 @@ my %files = (
 	'testaln.prodom'    => 'prodom',
 	'testaln.aln'       => 'clustalw',
 	'testaln.metafasta' => 'metafasta',
-	#'testaln.nexus'     => 'nexus',
+	'testaln.nexus'     => 'nexus',
 	'testaln.po'        => 'po',
 	'testaln.xmfa'      => 'xmfa'
-
  );
 
 # input file handles

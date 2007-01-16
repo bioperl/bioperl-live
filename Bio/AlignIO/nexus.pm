@@ -144,7 +144,7 @@ sub next_aln {
 
     return unless $entry;
     $self->throw("Not a valid interleaved NEXUS file! [#NEXUS] not starting the file\n$entry")
-	unless $entry =~ /^#NEXUS/i;
+	unless ($entry && $entry =~ /^#NEXUS/i);
 
     # skip anything before either the taxa or data block
     # but read in the optional title in a comment
@@ -157,7 +157,7 @@ sub next_aln {
 
     # data and taxa blocks
     my $incomment;
-    while ($entry = $self->_readline) {
+    while (defined ($entry = $self->_readline)) {
 	local ($_) =  $entry;
 	next if s/\[[^\]]+\]//g; # remove comments
 	if( s/\[[^\]]+$// ) {
@@ -325,7 +325,8 @@ sub next_aln {
         $entry = $self->_readline;
     }
 
-    return $aln;
+    return $aln if $aln->no_sequences;
+	return;
 }
 
 sub _read_taxlabels {
