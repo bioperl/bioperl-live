@@ -474,7 +474,8 @@ sub merge_lineage {
  Function: Splices out all nodes in the tree that have an ancestor and only one
            descendent.
  Returns : n/a
- Args    : none
+ Args    : none for normal behaviour, true to dis-regard the ancestor requirment
+           and re-root the tree as necessary
 
  For example, if we are the tree $tree:
 
@@ -492,10 +493,19 @@ sub merge_lineage {
      |
      +---F
 
+ Instead, $tree->contract_linear_paths(1) would have given:
+
+ +---E
+ |
+ D
+ |
+ +---F
+
 =cut
 
 sub contract_linear_paths {
     my $self = shift;
+    my $reroot = shift;
     my @remove;
     foreach my $node ($self->get_nodes) {
         if ($node->ancestor && $node->each_Descendent == 1) {
@@ -503,6 +513,16 @@ sub contract_linear_paths {
         }
     }
     $self->splice(@remove) if @remove;
+    
+    if ($reroot) {
+        my $root = $self->get_root_node;
+        my @descs = $root->each_Descendent;
+        if (@descs == 1) {
+            my $new_root = shift(@descs);
+            $self->set_root_node($new_root);
+            $new_root->ancestor(undef);
+        }
+    }
 }
 
 =head2 force_binary
