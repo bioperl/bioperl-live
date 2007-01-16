@@ -9,7 +9,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 257;
+	plan tests => 283;
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
 	use_ok('Bio::Root::IO');
@@ -29,7 +29,8 @@ END {
 	   Bio::Root::IO->catfile("t","data","testout.largemultifasta"),
        Bio::Root::IO->catfile("t","data","testout.stockholm"),
        Bio::Root::IO->catfile("t","data","testout.xmfa"),
-       Bio::Root::IO->catfile("t","data","testout2.stockholm")
+       Bio::Root::IO->catfile("t","data","testout2.stockholm"),
+       Bio::Root::IO->catfile("t","data","testout2.aln")
 	  );
 }
 
@@ -732,16 +733,52 @@ $strout = Bio::AlignIO->new(
 $status = $strout->write_aln($aln);
 is $status, 1,"xmfa output test";
 
-$in = Bio::AlignIO->newFh(
-   '-file'  => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
-			       '-format' => 'fasta');
-$out = Bio::AlignIO->newFh(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout2.stockholm"), 
-				'-format' => 'stockholm');
-while ( $aln = <$in>) {
-    is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431',
-     "filehandle input test  ";
-    $status = print $out $aln;
-    last;
+my %files = (
+	'testaln.phylip' 	=> 'phylip',
+	'testaln.psi'	 	=> 'psi',
+	'testaln.arp'       => 'arp',
+	'rfam_tests.stk'    => 'stockholm',
+	'testaln.pfam'      => 'pfam',
+	'testaln.msf'       => 'msf',
+	'testaln.fasta'     => 'fasta',
+	'testaln.selex'     => 'selex',
+	'testaln.mase'      => 'mase',
+	'testaln.prodom'    => 'prodom',
+	'testaln.aln'       => 'clustalw',
+	'testaln.metafasta' => 'metafasta',
+	#'testaln.nexus'     => 'nexus',
+	'testaln.po'        => 'po',
+	'testaln.xmfa'      => 'xmfa'
+
+ );
+
+# input file handles
+
+while (my ($file, $format) = each %files) {
+	my $fhin = Bio::AlignIO->newFh(
+	   '-file'  => Bio::Root::IO->catfile("t","data",$file), 
+					   '-format' => $format);
+	my $fhout = Bio::AlignIO->newFh(
+	   '-file' => ">".Bio::Root::IO->catfile("t","data","testout2.aln"), 
+					'-format' => 'clustalw');
+	while ( $aln = <$fhin>) {
+		cmp_ok($aln->no_sequences, '>=', 2, "input filehandle method test : $format");
+        last;
+	}
 }
-is $status, 1, "filehandle output test";
+
+# output file handles
+
+for my $format (sort values %files) {
+	my $fhin = Bio::AlignIO->newFh(
+	   '-file' => Bio::Root::IO->catfile("t","data","testaln.aln"), 
+					'-format' => 'clustalw');
+	my $fhout = Bio::AlignIO->newFh(
+	   '-file'  => '>'.Bio::Root::IO->catfile("t","data", 'testout2.aln'), 
+					   '-format' => $format);
+	while ( $aln = <$fhin>) {
+        $status = print $out $aln;
+        last;
+    }
+    is $status, 1, "filehandle output test : $format";
+}
