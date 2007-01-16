@@ -1385,6 +1385,17 @@ GD::Image color index.
 This method returns a color to be used to flood-fill the entire glyph
 before drawing (currently used by the "track" glyph).
 
+=item ($left,$top,$right,$bottom) = $glyph-E<gt>bounds($dx,$dy)
+
+Given the topleft coordinates of the glyph, return the bounding box of
+its contents, exclusive of padding. This is typically called by the
+draw() and draw_component() methods to recover the position of the
+glyph.
+
+=item ($left,$top,$right,$bottom) = $glyph-E<gt>calculate_boundaries($dx,$dy)
+
+An alias for bounds(), used by some glyphs for compatibility with older versions of this module.
+
 =item $width = $glyph-E<gt>width([$newwidth])
 
 Return the width of the glyph, not including left or right padding.
