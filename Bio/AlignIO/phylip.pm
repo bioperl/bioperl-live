@@ -162,7 +162,7 @@ sub next_aln {
     my $aln =  Bio::SimpleAlign->new(-source => 'phylip');
     $entry = $self->_readline and
         ($seqcount, $residuecount) = $entry =~ /\s*(\d+)\s+(\d+)/;
-    return 0 unless $seqcount and $residuecount;
+    return unless $seqcount and $residuecount;
 
     # first alignment section
     my $idlen = $self->idlength;
@@ -232,7 +232,7 @@ sub next_aln {
 	    $self->throw("Not a valid interleaved PHYLIP file! [$count,$seqcount] ($entry)") if $count > $seqcount;
 	}
     }
-    return 0 if scalar @names < 1;
+    return if scalar @names < 1;
 
     # sequence creation
     $count = 0;
