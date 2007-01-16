@@ -119,7 +119,7 @@ sub next_aln {
     }
     # alignments only returned if they contain sequences
     return $aln if $aln->no_sequences;
-    return 0;
+    return;
 }
 
 =head2 write_aln

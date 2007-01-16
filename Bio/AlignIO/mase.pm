@@ -110,7 +110,7 @@ sub next_aln {
 	    $end = length($seq_residues);
 	}
 
-	$add = new Bio::LocatableSeq('-seq'=>$seq,
+	$add = Bio::LocatableSeq->new('-seq'=>$seq,
 			    '-id'=>$name,
 			    '-start'=>$start,
 			    '-end'=>$end,
@@ -127,7 +127,8 @@ sub next_aln {
 
    }
 
-   return $aln;
+   return $aln if $aln->no_sequences;
+   return;
 }
 
 
