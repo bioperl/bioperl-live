@@ -700,7 +700,9 @@ format) provided.
 sub as_string {
   my $self = shift;
   return overload::StrVal($self) unless $self->overloaded_names;
-  my $name   = $self->display_name || $self->load_id || "id=".$self->primary_id;
+  my $name   = $self->display_name || $self->load_id;
+  $name    ||= "id=".$self->primary_id if $self->primary_id;
+  $name    ||= "<unnamed>";
   my $method = $self->primary_tag;
   my $source= $self->source_tag;
   my $type  = $source ? "$method:$source" : $method;
