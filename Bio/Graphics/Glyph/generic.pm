@@ -313,8 +313,8 @@ sub draw_description {
   my $dy= $self->part_labels ? $self->font->height : 0;
   $gd->string($self->descfont,
 	      $x,
-#	      $self->bottom - $self->pad_bottom + $top + $dy,
-	      $self->bottom + $dy + $self->pad_bottom - $self->descfont->height + 2,
+	      $self->bottom - $self->pad_bottom + $top + $dy,
+#	      $self->bottom + $dy + $self->pad_bottom - $self->descfont->height + 2,
 	      $label,
 	      $self->font2color);
 }
