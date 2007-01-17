@@ -344,7 +344,7 @@ sub end_hit{
 
     # I hate special cases, but this is here because NCBI BLAST XML
     # doesn't play nice and is undergoing mutation -jason
-    if( $args{'-name'} =~ /BL_ORD_ID/ ) {
+    if(exists $args{'-name'} && $args{'-name'} =~ /BL_ORD_ID/ ) {
         ($args{'-name'}, $args{'-description'}) = split(/\s+/,$args{'-description'},2);
     }    
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || 
