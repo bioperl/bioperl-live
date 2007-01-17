@@ -17,8 +17,14 @@ Do not use this object directly, it is recommended to access it and use
 it through the I<Bio::Biblio> module:
 
   use Bio::Biblio;
-  my $biblio = new Bio::Biblio (-access => 'eutils');
-  $biblio->db('PMC'); #optional, default is PubMed.
+  use Bio::Biblio::IO;
+
+  my $biblio = new Bio::Biblio( -access => 'eutils' );
+  $biblio->find("10336996");
+  my $xml = $biblio->get_next;
+  my $io = Bio::Biblio::IO->new( -data => $xml, 
+                                 -format => 'medlinexml' );
+  my $article = $io->next_bibref();
 
 =head1 DESCRIPTION
 
