@@ -625,7 +625,7 @@ sub next_result {
                     $self->_pushback($_); # Catch leading > (end of section)
                     last descline;
                 }
-                elsif (/([\d\.\+\-eE]+)\s+([\d\.\+\-eE]+)(\s+\d+)?\s*$/) {
+                elsif (/(?<!cor)([\d\.\+\-eE]+)\s+([\d\.\+\-eE]+)(\s+\d+)?\s*$/) {
 
                     # the last match is for gapped BLAST output
                     # which will report the number of HSPs for the Hit
