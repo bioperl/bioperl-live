@@ -303,18 +303,35 @@ sub draw_label {
 		$self->fontcolor);
   }
 }
+
+# sub draw_description {
+#   my $self = shift;
+#   my ($gd,$left,$top,$partno,$total_parts) = @_;
+#   my $label = $self->description or return;
+#   my $x = $self->left + $left;
+#   $x   += $self->pad_left;  # offset to beginning of drawn part of feature
+#   $x = $self->panel->left + 1 if $x <= $self->panel->left;
+#   my $dy= $self->part_labels ? $self->font->height : 0;
+#   $gd->string($self->descfont,
+# 	      $x,
+# 	      $self->bottom - $self->pad_bottom + $top + $dy,
+# 	      $label,
+# 	      $self->font2color);
+# }
+
 sub draw_description {
   my $self = shift;
-  my ($gd,$left,$top,$partno,$total_parts) = @_;
+  my ($gd,$dx,$dy,$partno,$total_parts) = @_;
   my $label = $self->description or return;
-  my $x = $self->left + $left;
-  $x   += $self->pad_left;  # offset to beginning of drawn part of feature
-  $x = $self->panel->left + 1 if $x <= $self->panel->left;
-  my $dy= $self->part_labels ? $self->font->height : 0;
+  my ($left,$top,$right,$bottom) = $self->bounds($dx,$dy);
+  $left    -= $self->pad_left; # offset to beginning of drawn part of feature
+  $bottom  += $self->pad_bottom;
+  $bottom  -= $self->labelheight;
+  $bottom  -= $self->labelheight if $self->part_labels && $self->label_position eq 'top';
+
   $gd->string($self->descfont,
-	      $x,
-	      $self->bottom - $self->pad_bottom + $top + $dy,
-#	      $self->bottom + $dy + $self->pad_bottom - $self->descfont->height + 2,
+	      $left,
+	      $bottom,
 	      $label,
 	      $self->font2color);
 }
