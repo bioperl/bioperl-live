@@ -243,8 +243,8 @@ sub cleanup{
    my ($self) = @_;
    $self->io->_io_cleanup();
    if( defined $self->{'_tmpdir'} && -d $self->{'_tmpdir'} ) {
-       # $self->io->rmtree($self->{'_tmpdir'});
-       File::Path->rmtree( $self->{'_tmpdir'} );
+       #$self->io->rmtree($self->{'_tmpdir'}, $self->verbose());
+       File::Path::rmtree( $self->{'_tmpdir'}, $self->verbose());
    }
 }
 
@@ -262,7 +262,7 @@ sub cleanup{
 sub io{
    my ($self) = @_;
    unless( defined $self->{'io'} ) {
-       $self->{'io'} = new Bio::Root::IO(-verbose => $self->verbose());
+       $self->{'io'} = new Bio::Root::IO(-verbose => 1);
    }
     return $self->{'io'};
 }

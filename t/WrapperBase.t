@@ -11,7 +11,7 @@ BEGIN {
 	}
 	use Test::More;
 	
-	plan tests => 26;
+	plan tests => 27;
 	
 	use_ok('Bio::Tools::Run::WrapperBase');
 }
@@ -56,9 +56,9 @@ close($test);
 
 # can't get cleanup() to work! $tmpdir only gets deleted on script exit,
 # regardless of last value of save_tempfiles...
-#$obj->cleanup();
+$obj->cleanup();
 #(undef $obj doesn't work either)
-#ok ! -d $tmpdir, 'following cleanup() with save_tempfiles unset, tempdir was deleted';
+ok ! -d $tmpdir, 'following cleanup() with save_tempfiles unset, tempdir was deleted';
 
 # io
 my $io1 = $obj->io;
