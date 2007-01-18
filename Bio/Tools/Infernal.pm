@@ -71,22 +71,9 @@ Hit data is accessible via the following:
   Primary Tag     $sf->hprimary_tag
   Source Tag      $sf->hsource_tag
 
-primary_tag => $mt,
-
-                my $hf = Bio::SeqFeature::Generic->new( -primary_tag => $mt,
-                              -source_tag  => "$st $ver",
-                              -display_name => $dt || '',
-                              -score       => $score,
-                              -start       => $start,
-                              -end         => $end,
-                              -seq_id      => $qid,
-                              -strand      => $strand
-                            );
-
-
 Added FeaturePair tags are : 
 
-   structure    - entire description line (in case the regex used for
+   secstructure - entire description line (in case the regex used for
                   sequence ID doesn't adequately catch the name
    model        - name of the descriptor file (may include path to file)
    midline      - contains structural information from the descriptor
