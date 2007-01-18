@@ -47,6 +47,7 @@ foreach my $method (qw(error_string arguments no_param_checks save_tempfiles
 }
 
 # tempdir
+
 $obj->save_tempfiles(0);
 my $tmpdir = $obj->tempdir();
 ok -d $tmpdir, 'tempdir created a directory';
@@ -54,10 +55,9 @@ ok open(my $test, '>', File::Spec->catfile($tmpdir, 'test')), 'could create file
 print $test "test\n";
 close($test);
 
-# can't get cleanup() to work! $tmpdir only gets deleted on script exit,
-# regardless of last value of save_tempfiles...
+# cleanup
+
 $obj->cleanup();
-#(undef $obj doesn't work either)
 ok ! -d $tmpdir, 'following cleanup() with save_tempfiles unset, tempdir was deleted';
 
 # io
