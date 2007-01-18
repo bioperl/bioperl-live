@@ -436,6 +436,7 @@ sub next_result {
     my $gapped_stats = 0;    # for switching between gapped/ungapped
                              # lambda, K, H
     local $_ = "\n";   #consistency
+    PARSER:
     while ( defined( $_ = $self->_readline ) ) {
         next if (/^\s+$/);       # skip empty lines
         next if (/CPU time:/);
@@ -452,14 +453,7 @@ sub next_result {
             if ( $self->{'_seentop'} ) { 
                 # This handles multi-result input streams
                 $self->_pushback($_);
-                $self->in_element('hsp')
-                  && $self->end_element( { 'Name' => 'Hsp' } );
-                $self->in_element('hit')
-                  && $self->end_element( { 'Name' => 'Hit' } );
-                $self->within_element('iteration')
-                  && $self->end_element( { 'Name' => 'Iteration' } );
-                $self->end_element( { 'Name' => 'BlastOutput' } );
-                return $self->end_document();
+                last PARSER;
             }
             $self->_start_blastoutput;
             $reporttype = $1;
@@ -513,22 +507,7 @@ sub next_result {
             if ( defined $seenquery ) {
                 $self->_pushback($reportline) if $reportline;
                 $self->_pushback($_);
-                $self->in_element('hsp')
-                  && $self->end_element( { 'Name' => 'Hsp' } );
-                $self->in_element('hit')
-                  && $self->end_element( { 'Name' => 'Hit' } );
-                $self->within_element('iteration')
-                  && $self->end_element( { 'Name' => 'Iteration' } );
-                if ($bl2seq_fix) {
-                    $self->element(
-                        {
-                            'Name' => 'BlastOutput_program',
-                            'Data' => $reporttype
-                        }
-                    );
-                }
-                $self->end_element( { 'Name' => 'BlastOutput' } );
-                return $self->end_document();
+                last PARSER;
             }
             else {
                 if ( !defined $reporttype ) {
@@ -615,17 +594,8 @@ sub next_result {
             }
           descline:
             while ( defined( $_ = $self->_readline() ) ) {
-                if (/^>/ 
-                    || /^\s+Database:\s+?/
-                    || /^Parameters:/
-                    || /^\s+Subset/
-                    || /^\s*Lambda/
-                    || /^\s*Histogram/
-                    ) {
-                    $self->_pushback($_); # Catch leading > (end of section)
-                    last descline;
-                }
-                elsif (/(?<!cor)([\d\.\+\-eE]+)\s+([\d\.\+\-eE]+)(\s+\d+)?\s*$/) {
+                
+                if (/(?<!cor)([\d\.\+\-eE]+)\s+([\d\.\+\-eE]+)(\s+\d+)?\s*$/) {
 
                     # the last match is for gapped BLAST output
                     # which will report the number of HSPs for the Hit
@@ -657,9 +627,19 @@ sub next_result {
                             'Data' => 1
                         }
                     );
+                } elsif (/^>/ 
+                    || /^\s+Database:\s+?/
+                    || /^Parameters:/
+                    || /^\s+Subset/
+                    || /^\s*Lambda/
+                    || /^\s*Histogram/
+                    || /^Query=/
+                    ) {
+                    $self->_pushback($_); # Catch leading > (end of section)
+                    last descline;
                 }
-                @hit_signifs = sort {$a->[0] <=> $b->[0]} @hit_signifs;
             }
+            @hit_signifs = sort {$a->[0] <=> $b->[0]} @hit_signifs;
         }
         elsif (/Sequences producing High-scoring Segment Pairs:/) {
 
@@ -1140,48 +1120,7 @@ sub next_result {
 
             # This is for the case when we specify -b 0 (or B=0 for WU-BLAST)
             # and still want to construct minimal Hit objects
-            while ( my $v = shift @hit_signifs ) {
-                next unless defined $v;
-                $self->start_element( { 'Name' => 'Hit' } );
-                my $id   = $v->[2];
-                my $desc = $v->[3];
-                $self->element(
-                    {
-                        'Name' => 'Hit_id',
-                        'Data' => $id
-                    }
-                );
-                my ( $acc, $version ) = &_get_accession_version($id);
-                $self->element(
-                    {
-                        'Name' => 'Hit_accession',
-                        'Data' => $acc
-                    }
-                );
-
-                if ( defined $v ) {
-                    $self->element(
-                        {
-                            'Name' => 'Hit_signif',
-                            'Data' => $v->[0]
-                        }
-                    );
-                    $self->element(
-                        {
-                            'Name' => 'Hit_score',
-                            'Data' => $v->[1]
-                        }
-                    );
-                }
-                $self->element(
-                    {
-                        'Name' => 'Hit_def',
-                        'Data' => $desc
-                    }
-                );
-                $self->end_element( { 'Name' => 'Hit' } );
-            }
-
+            $self->_cleanup_hits(\@hit_signifs) if scalar(@hit_signifs);
             $self->within_element('iteration')
               && $self->end_element( { 'Name' => 'Iteration' } );
 
@@ -1215,24 +1154,7 @@ sub next_result {
                 elsif (/^Query=/) {
                     $self->_pushback($reportline) if $reportline;
                     $self->_pushback($_);
-
-                    # -- Superfluous I think, but adding nonetheless
-                    $self->in_element('hsp')
-                      && $self->end_element( { 'Name' => 'Hsp' } );
-                    $self->in_element('hit')
-                      && $self->end_element( { 'Name' => 'Hit' } );
-
-                    # --
-                    if ($bl2seq_fix) {
-                        $self->element(
-                            {
-                                'Name' => 'BlastOutput_program',
-                                'Data' => $reporttype
-                            }
-                        );
-                    }
-                    $self->end_element( { 'Name' => 'BlastOutput' } );
-                    return $self->end_document();
+                    last PARSER;
                 }
 
                 # here is where difference between wublast and ncbiblast
@@ -1846,6 +1768,8 @@ sub next_result {
           && $self->end_element( { 'Name' => 'Hsp' } );
         $self->within_element('hit')
           && $self->end_element( { 'Name' => 'Hit' } );
+        # cleanup extra hits
+        $self->_cleanup_hits(\@hit_signifs) if scalar(@hit_signifs);
         $self->within_element('iteration')
           && $self->end_element( { 'Name' => 'Iteration' } );
         if ($bl2seq_fix) {
@@ -2086,7 +2010,7 @@ sub end_element {
 
 sub element {
     my ( $self, $data ) = @_;
-    $self->start_element($data);
+    #$self->start_element($data);
     $self->characters($data);
     $self->end_element($data);
 }
@@ -2387,6 +2311,55 @@ sub _get_accession_version {
     }
     return ( $acc, $version );
 }
+
+# general private method used to make minimal hits from leftover
+# data in the hit table
+
+sub _cleanup_hits {
+    my ($self, $hits) = @_;
+    while ( my $v = shift @{ $hits }) {
+        next unless defined $v;
+        $self->start_element( { 'Name' => 'Hit' } );
+        my $id   = $v->[2];
+        my $desc = $v->[3];
+        $self->element(
+            {
+                'Name' => 'Hit_id',
+                'Data' => $id
+            }
+        );
+        my ( $acc, $version ) = &_get_accession_version($id);
+        $self->element(
+            {
+                'Name' => 'Hit_accession',
+                'Data' => $acc
+            }
+        );
+    
+        if ( defined $v ) {
+            $self->element(
+                {
+                    'Name' => 'Hit_signif',
+                    'Data' => $v->[0]
+                }
+            );
+            $self->element(
+                {
+                    'Name' => 'Hit_score',
+                    'Data' => $v->[1]
+                }
+            );
+        }
+        $self->element(
+            {
+                'Name' => 'Hit_def',
+                'Data' => $desc
+            }
+        );
+        $self->end_element( { 'Name' => 'Hit' } );
+    }
+}
+
 
 1;
 
