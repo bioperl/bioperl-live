@@ -24,11 +24,12 @@ BEGIN {
 		plan skip_all => 'Bio::Tools::RNAMotif failed to load, DB_File probably not installed. This means that the module is not usable. Skipping tests';
 	}
 	else {
-		plan tests => 72;
+		plan tests => 116;
 	}
 }
 
-use Bio::Tools::ERPIN;
+use_ok('Bio::Tools::ERPIN');
+use_ok('Bio::Tools::Infernal');
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -144,4 +145,101 @@ while( my $gene = $parser->next_prediction ) {
 }
 
 ### Infernal.pm tests ###
-### FASTR.pm tests ###
+
+my @stats = (
+['30260185','5181155','5181183',1,'CTTT.aacc--.CAACC.CCGTGA.GGTTG.a.GAAG',0,
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'1.68e-05'],
+['30260185','3709092','3709121',-1,'CTTT.taatt-.CAGTC.CTGTGA.GACCG.g.AAAG',0,
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'5.61e-05'],
+['30260185','3710524','3710553',-1,'TTTT.aaatg-.TAGTC.CTGTGA.GGCTG.c.CAAA',0,
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'1.31e-04'],
+['30260185','3711223','3711251',-1,'CTTT.aaca--.CAGCC.CCGTGA.GGTTG.a.GAAG',0,
+ 'gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome',
+ 0,'4.44e-06']
+);
+
+$parser = Bio::Tools::Infernal->new(
+            -file => Bio::Root::IO->catfile('t','data','test.infernal'),
+            -motiftag => 'misc_binding',
+            -desctag => 'Purine riboswitch',
+            -cm    => 'Purine',
+            -rfam  =>  'RF00167',
+            -minscore => 20);
+
+my $gene = $parser->next_prediction;
+# get query (model) data
+is($gene->display_name, 'Purine riboswitch','Infernal::display_name()');
+is($gene->seq_id, 'RF00167','Infernal::seq_id()');
+is($gene->primary_tag, 'misc_binding','Infernal::primary_tag()');
+is($gene->source_tag, 'Infernal 0.71','Infernal::source_tag()');
+is($gene->start, '1','Infernal::start()');
+is($gene->end, '102','Infernal::end()');
+is($gene->strand, '0','Infernal::strand()');
+is($gene->score, '78.40','Infernal::strand()');
+# get hit data
+$gene->invert;
+is($gene->display_name, 'Purine riboswitch','Infernal::display_name()');
+is($gene->seq_id, '2239287','Infernal::seq_id()');
+is($gene->primary_tag, 'misc_binding','Infernal::primary_tag()');
+is($gene->source_tag, 'Infernal 0.71','Infernal::source_tag()');
+is($gene->start, '15589','Infernal::start()');
+is($gene->end, '15691','Infernal::end()');
+is($gene->strand, '1','Infernal::strand()');
+is($gene->score, '78.40','Infernal::strand()');
+
+is($gene->get_Annotations('model'),
+   'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcG.aGuaAauauuaaauauuu',
+   "Infernal::get_Annotations('model')");
+is($gene->get_Annotations('midline'),
+   ' A+ A+A+ AAAA A   :CUC:UAUAAU: :GGGAAUAUGGCCC: :AGUUUCUACC:GGCAACCGUAAAUUGCC:GACUA:G AG: AA + ++  +++++',
+   "Infernal::get_Annotations('midline')");
+is($gene->get_Annotations('hit'),
+   'CAUGAAAUCAAAACACGACCUCAUAUAAUCUUGGGAAUAUGGCCCAUAAGUUUCUACCCGGCAACCGUAAAUUGCCGGACUAUGcAGGGAAGUGAUCGAUAAA',
+   "Infernal::get_Annotations('hit')");
+is($gene->get_Annotations('secstructure'),
+   ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,)))).))))::::::::::::::',
+   "Infernal::get_Annotations('secstructure')");
+is($gene->get_Annotations('seq_name'),
+   'gi|2239287|gb|U51115.1|BSU51115',
+   "Infernal::get_Annotations('seq_name')");
+
+$gene = $parser->next_prediction;
+# get query (model) data
+is($gene->display_name, 'Purine riboswitch','Infernal::display_name()');
+is($gene->seq_id, 'RF00167','Infernal::seq_id()');
+is($gene->primary_tag, 'misc_binding','Infernal::primary_tag()');
+is($gene->source_tag, 'Infernal 0.71','Infernal::source_tag()');
+is($gene->start, '1','Infernal::start()');
+is($gene->end, '102','Infernal::end()');
+is($gene->strand, '0','Infernal::strand()');
+is($gene->score, '81.29','Infernal::strand()');
+
+$gene->invert; # switch to get hit data
+is($gene->display_name, 'Purine riboswitch','Infernal::display_name()');
+is($gene->seq_id, '2239287','Infernal::seq_id()');
+is($gene->primary_tag, 'misc_binding','Infernal::primary_tag()');
+is($gene->source_tag, 'Infernal 0.71','Infernal::source_tag()');
+is($gene->start, '11655','Infernal::start()');
+is($gene->end, '11756','Infernal::end()');
+is($gene->strand, '1','Infernal::strand()');
+is($gene->score, '81.29','Infernal::strand()');
+
+is($gene->get_Annotations('model'),
+   'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',
+   "Infernal::get_Annotations('model')");
+is($gene->get_Annotations('midline'),
+   'A AAAU AAA+AA A+   : CGUAUAAU::CG:GAAUAUGGC:CG::AGU UCUACCA:GC ACCGUAAAU GC:UGACUACG :   AU+U +++  UUU',
+   "Infernal::get_Annotations('midline')");
+is($gene->get_Annotations('hit'),
+   'AGAAAUCAAAUAAGAUGAAUUCGUAUAAUCGCGGGAAUAUGGCUCGCAAGUCUCUACCAAGCUACCGUAAAUGGCUUGACUACGUAAACAUUUCUUUCGUUU',
+   "Infernal::get_Annotations('hit')");
+is($gene->get_Annotations('secstructure'),
+   ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::',
+   "Infernal::get_Annotations('secstructure')");
+is($gene->get_Annotations('seq_name'),
+   'gi|2239287|gb|U51115.1|BSU51115',
+   "Infernal::get_Annotations('seq_name')");
+
