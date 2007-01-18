@@ -262,7 +262,7 @@ sub cleanup{
 sub io{
    my ($self) = @_;
    unless( defined $self->{'io'} ) {
-       $self->{'io'} = new Bio::Root::IO(-verbose => 1);
+       $self->{'io'} = new Bio::Root::IO(-verbose => $self->verbose);
    }
     return $self->{'io'};
 }
