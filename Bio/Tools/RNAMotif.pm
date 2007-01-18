@@ -52,7 +52,7 @@ warning that sprintf() may have been used.
 Several values have also been added in the 'tag' hash.  These can be
 accessed using the following syntax:
 
-  my ($entry) = $feature->get_Annotations('Secstructure');
+  my ($entry) = $feature->get_Annotations('secstructure');
 
 Added tags are : 
 
