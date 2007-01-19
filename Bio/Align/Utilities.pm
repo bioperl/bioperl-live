@@ -89,7 +89,7 @@ require Exporter;
 use base qw(Exporter);
 
 @EXPORT = qw();
-@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates bracket_string);
+@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates bracket_strings);
 %EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
 BEGIN {
     use constant CODONSIZE => 3;
@@ -214,63 +214,75 @@ sub bootstrap_replicates {
    return \@alns;
 }
 
-=head2 bracket_string
+=head2 bracket_strings
 
- Title     : bracket_string
- Usage     : $str = $ali->bracket_string()
- Function  : creates a bracketed consensus-like string for an alignment.  This
-             string contains all residues (including gaps, ambiguities, etc.)
-             from all alignment sequences.  Where ambiguities are present in
-             a column, residues for each sequence are represented (in alignment
-             order) in order in brackets.
+ Title     : bracket_strings
+ Usage     : %bic = bracket_strings($aln, $seqid)
+ Function  : When supplied with a Bio::SimpleAlign and SeqID, returns a hash
+             containing seqids (keys) and strings in BIC format.  This is used
+             for allelic comparisons.  The reference sequence ID is compared
+             to all other alignment sequences (including itself).
              
-             Apparently this is called BCI format.
+             So for the following data
              
-             So, for these sequences:
-            
-             >seq1
+             >testseq
+             GGATCCATTGCTACT
+             >allele1
              GGATCCATTCCTACT
-             >seq2
+             >allele2
              GGAT--ATTCCTCCT
-            
-             You would get this string:
-            
-             GGAT[C/-][C/-]ATTCCT[A/C]CT
-              
-             Note that this will be very noisy with protein sequences or
-             alignments with lots of sequences.  Use with care!
              
- Returns   : string
- Argument  : none
+             the returned key-value pairs using:
+             
+             %bic = bracket_strings($aln, 'testseq')
+
+             testseq => GGATCCATTGCTACT
+             allele1 => GGATCCATT[G/C]CTACT
+             allele2 => GGAT[C/-][C/-]ATT[G/C]CT[A/C]CT
+             
+ Returns   : hash seqid/string pairs
+ Argument  : arg1: Bio::SimpleAlign object (required)
+             arg2: Single Reference Sequence ID (required)
+             arg3: Ref array of seqids to compare (optional)
 
 =cut
 
-sub bracket_string {
-    my $aln = shift;
-    my $out = "";
+sub bracket_strings {
+    my ($aln, $seqid, $ids) = @_;
+    croak("Bio::SimpleAlign required for comparison") if
+         (!defined($aln) || !($aln->isa('Bio::Align::AlignI')));
+    #croak("Sequence ID required for comparison") if (!defined($seqid));
+    my $refseq;
+    if ($seqid) {
+        ($refseq) = $aln->each_seq_with_id($seqid);
+    } else {
+        # fall back to first sequence in alignment
+        $refseq = $aln->get_seq_by_pos(1);
+    }
+    my @seqs;
+    if ($ids && ref($ids) eq 'ARRAY') {
+        @seqs = map {( $aln->each_seq_with_id($_) )} @$ids;
+    } else {
+        @seqs = $aln->each_seq();
+    }
+    my %strings;
     my $len = $aln->length-1;
-    # loop over the alignment columns
-    foreach my $count ( 0 .. $len ) {
-        $out .= _bracket_string($aln, $count);
+    # loop through each sequence
+    for my $seq (@seqs) {
+        my $out = '';
+        # loop over the alignment columns
+        for my $column ( 0 .. $len ) {
+            my $string;
+            my ($compres, $res) = (substr($refseq->seq, $column, 1),
+                                   substr($seq->seq, $column, 1) );
+            # Are there more than one residue/gap in the column?
+            $string = ($compres eq $res) ? $compres :
+                    "[$compres/$res]";
+            $out .= $string;
+        }
+        $strings{$seq->id} = $out;
     }
-    return $out;
-}
-
-sub _bracket_string {
-    my ($aln, $column) = @_;
-    my $string;
-    my %bic;
-    my @residues;
-    #what residues are in the sequences
-    foreach my $seq ( $aln->each_seq() ) {
-        my $res = substr($seq->seq, $column, 1);
-        push @residues, $res;
-        $bic{$res}++;
-    }
-    # Are there more than one residue/gap in the column?
-    $string = (scalar(keys %bic) > 1) ? '['.(join '/', @residues).']' :
-              shift @residues;
-    return $string;
+    return %strings;
 }
 
 1;

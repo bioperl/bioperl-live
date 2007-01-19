@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 13;
+use constant NUMTESTS => 35;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -19,11 +19,8 @@ BEGIN {
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
+	use_ok('Bio::Root::IO');
 }
-
-
-
-
 
 # hand crafting the simple input data
 use Data::Dumper;
@@ -58,6 +55,50 @@ is scalar @$replicates, 3;
 my $repl_aln = pop @$replicates;
 is $repl_aln->no_sequences, 3;
 
+my %testdata = (
+	'allele1' => 'GGATCCATT[G/C]CTACT',
+	'allele2' => 'GGAT[C/-][C/-]ATT[G/C]CT[A/C]CT',
+	'allele3' => 'G[G/C]ATCCATTGCTACT',
+	'allele4' => 'GGATCCATTGCTACT',
+	'allele5' => 'GGATCCATTGCTAC[T/A]',
+	'allele6' => 'GGATCCATTGCTA[C/G][T/A]',
+	'testseq' => 'GGATCCATTGCTACT'
+	);
+
+my $alnin = Bio::AlignIO->new(-format => 'fasta',
+							 -file   => Bio::Root::IO->catfile(
+                        "t","data","alleles.fas"));
+
+$dna_aln = $alnin->next_aln;
+
+# compare all to test seq
+my %bic = bracket_strings($dna_aln, 'allele2');
+
+is (scalar(keys %bic), 7);
+
+for my $key (sort keys %bic) {
+	ok(exists $testdata{$key});
+}
+
+# fall back to first seq as ref seq
+%bic = bracket_strings($dna_aln);
+
+is (scalar(keys %bic), 7);
+
+for my $key (sort keys %bic) {
+	ok(exists $testdata{$key});
+}
+
+# only compare these seqids to ref seq
+my @seqids = qw(allele1 allele2 allele4 allele6);
+
+%bic = bracket_strings($dna_aln, undef, \@seqids);
+
+is (scalar(keys %bic), 4);
+
+for my $key (sort keys %bic) {
+	ok(exists $testdata{$key});
+}
 
 #use IO::String;
 #use Bio::AlignIO;
