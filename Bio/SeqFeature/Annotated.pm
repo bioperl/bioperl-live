@@ -425,8 +425,22 @@ sub score {
       $self->add_Annotation('score', $term);
   }
 
-  $self->score('.') unless ($self->get_Annotations('score')); # make sure we always have something
-  
+  #$self->score('.') unless ($self->get_Annotations('score')); # make sure we always have something
+
+  # malcolm.cook@stowers-institute.org is not sure why we want to
+  # 'make sure we always have something', but, in any case, the above
+  # sets the score to '.' when there is an explicit $val passed of 0, which
+  # can't be correct, so, re-writing to test for 'defined' as is done
+  # elsewhere in this module...
+
+  $self->score('.') unless (defined($self->get_Annotations('score'))); # make sure we always have something
+
+  # ... though it could have been written as either of:
+
+  #$self->score('.') unless @{[$self->get_Annotations('score')]};# make sure we always have something
+  #$self->score('.') unless $self->has_tag('score'); # make sure we always have something (but has_tag is deprecated) 
+
+
   return $self->get_Annotations('score');
 }
 
