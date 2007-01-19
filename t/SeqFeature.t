@@ -9,7 +9,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use constant NUMTESTS => 233;
+use constant NUMTESTS => 236;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -456,4 +456,9 @@ SKIP: {
     is $sfa3->end,440;
     is $sfa3->get_Annotations('silly')->value,20;
     is $sfa3->get_Annotations('new')->value,1;
+    is $sfa3->score(), 12;
+    $sfa3->score(11);
+    is $sfa3->score(), 11;
+    $sfa3->score(0);		
+    is $sfa3->score(), 0;	# test that setting to 0 no longer is overriddent to set score to '.' (fixed in Bio::SeqFeature::Annotated version 1.3.7)
 }
