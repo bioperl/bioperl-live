@@ -5,7 +5,8 @@ use strict;
 
 use base qw(Bio::Graphics::Glyph::minmax);
 use constant DEFAULT_POINT_RADIUS=>4;
-our $VERSION = 1.5;
+use Bio::Root::Version;
+our $VERSION = ${Bio::Root::Version::VERSION};
 
 my %SYMBOLS = (
 	       triangle => \&draw_triangle,
