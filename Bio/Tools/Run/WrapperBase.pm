@@ -243,8 +243,9 @@ sub cleanup{
    my ($self) = @_;
    $self->io->_io_cleanup();
    if( defined $self->{'_tmpdir'} && -d $self->{'_tmpdir'} ) {
-       #$self->io->rmtree($self->{'_tmpdir'}, $self->verbose());
-       File::Path::rmtree( $self->{'_tmpdir'}, $self->verbose());
+      my $verbose = ($self->verbose == 1) ? 1 : 0;
+      #$self->io->rmtree($self->{'_tmpdir'}, $verbose);
+      File::Path::rmtree( $self->{'_tmpdir'}, $verbose);
    }
 }
 
