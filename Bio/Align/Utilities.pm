@@ -89,7 +89,7 @@ require Exporter;
 use base qw(Exporter);
 
 @EXPORT = qw();
-@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates);
+@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates bracket_string);
 %EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
 BEGIN {
     use constant CODONSIZE => 3;
@@ -212,6 +212,65 @@ sub bootstrap_replicates {
        push @alns, $newaln;
    }
    return \@alns;
+}
+
+=head2 bracket_string
+
+ Title     : bracket_string
+ Usage     : $str = $ali->bracket_string()
+ Function  : creates a bracketed consensus-like string for an alignment.  This
+             string contains all residues (including gaps, ambiguities, etc.)
+             from all alignment sequences.  Where ambiguities are present in
+             a column, residues for each sequence are represented (in alignment
+             order) in order in brackets.
+             
+             Apparently this is called BCI format.
+             
+             So, for these sequences:
+            
+             >seq1
+             GGATCCATTCCTACT
+             >seq2
+             GGAT--ATTCCTCCT
+            
+             You would get this string:
+            
+             GGAT[C/-][C/-]ATTCCT[A/C]CT
+              
+             Note that this will be very noisy with protein sequences or
+             alignments with lots of sequences.  Use with care!
+             
+ Returns   : string
+ Argument  : none
+
+=cut
+
+sub bracket_string {
+    my $aln = shift;
+    my $out = "";
+    my $len = $aln->length-1;
+    # loop over the alignment columns
+    foreach my $count ( 0 .. $len ) {
+        $out .= _bracket_string($aln, $count);
+    }
+    return $out;
+}
+
+sub _bracket_string {
+    my ($aln, $column) = @_;
+    my $string;
+    my %bic;
+    my @residues;
+    #what residues are in the sequences
+    foreach my $seq ( $aln->each_seq() ) {
+        my $res = substr($seq->seq, $column, 1);
+        push @residues, $res;
+        $bic{$res}++;
+    }
+    # Are there more than one residue/gap in the column?
+    $string = (scalar(keys %bic) > 1) ? '['.(join '/', @residues).']' :
+              shift @residues;
+    return $string;
 }
 
 1;
