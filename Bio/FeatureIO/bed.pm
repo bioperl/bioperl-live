@@ -68,6 +68,7 @@ use base qw(Bio::FeatureIO);
 use Bio::SeqFeature::Annotated;
 use Bio::Annotation::SimpleValue;
 use Bio::OntologyIO;
+use Scalar::Util qw(looks_like_number);
 
 =head2 _initialize
 
@@ -202,6 +203,11 @@ sub next_feature {
   my $line = $self->_readline || return;
   
   my ($seq_id, $start, $end, $name, $score, $strand) = split(/\s+/, $line);
+  
+  unless (looks_like_number($start) && looks_like_number($end)) {
+    # skip what is probably a header line
+    return $self->next_feature;
+  }
   
   my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
                                                 -end    => --$end, # end is not part of the feature
