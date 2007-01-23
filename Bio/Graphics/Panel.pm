@@ -12,6 +12,7 @@ use constant KEYCOLOR     => 'wheat';
 use constant KEYSTYLE     => 'bottom';
 use constant KEYALIGN     => 'left';
 use constant GRIDCOLOR    => 'lightcyan';
+use constant GRIDMAJORCOLOR    => 'cyan';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
 
@@ -43,6 +44,7 @@ sub new {
   my $keyalign = $options{-key_align} || KEYALIGN;
   my $allcallbacks = $options{-all_callbacks} || 0;
   my $gridcolor    = $options{-gridcolor} || GRIDCOLOR;
+  my $gridmajorcolor    = $options{-gridmajorcolor} || GRIDMAJORCOLOR;
   my $grid         = $options{-grid}       || 0;
   my $extend_grid  = $options{-extend_grid}|| 0;
   my $flip         = $options{-flip}       || 0;
@@ -82,6 +84,7 @@ sub new {
 		length => $length,
 		offset => $offset,
 		gridcolor => $gridcolor,
+		gridmajorcolor => $gridmajorcolor,
 		grid    => $grid,
 		extend_grid    => $extend_grid,
 		bgcolor => $bgcolor,
@@ -281,6 +284,8 @@ sub length {
 
 sub gridcolor {shift->{gridcolor}}
 
+sub gridmajorcolor {shift->{gridmajorcolor}}
+
 sub all_callbacks { shift->{all_callbacks} }
 
 sub add_track {
@@ -342,7 +347,7 @@ sub _do_add_track {
       my $feature = shift;
       return 'track' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'track' };
       return 'group' if eval { defined $feature->primary_tag && $feature->primary_tag  eq 'group' };
-      return $map->($feature);
+      return $map->($feature,'glyph',$self);
     }
    : ref($map) eq 'HASH' ? sub {
      my $feature = shift;
@@ -801,14 +806,16 @@ sub draw_grid {
   my $self = shift;
   my $gd = shift;
 
-  my $gridcolor = $self->translate_color($self->{gridcolor});
+  my $gridcolor      = $self->translate_color($self->{gridcolor});
+  my $gridmajorcolor = $self->translate_color($self->{gridmajorcolor});
   my @positions;
+  my ($major,$minor);
   if (ref $self->{grid} eq 'ARRAY') {
     @positions = @{$self->{grid}};
   } else {
-    my ($major,$minor) = $self->ticks;
+    ($major,$minor) = $self->ticks;
     my $first_tick = $minor * int($self->start/$minor);
-    for (my $i = $first_tick-1; $i <= $self->end+1; $i += $minor) {
+    for (my $i = $first_tick; $i <= $self->end+1; $i += $minor) {
       push @positions,$i;
     }
   }
@@ -820,8 +827,8 @@ sub draw_grid {
   for my $tick (@positions) {
     my ($pos) = $self->map_pt($self->{flip} ? $offset - $tick
                                             : $tick);
-
-    $gd->line($pl+$pos,$pt,$pl+$pos,$pb,$gridcolor);
+    my $color = (defined $major && $tick % $major == 0) ? $gridmajorcolor : $gridcolor;
+    $gd->line($pl+$pos,$pt,$pl+$pos,$pb,$color);
   }
 }
 
@@ -1539,6 +1546,8 @@ a set of tag/value pairs as follows:
 
   -gridcolor   Color of the grid                     lightcyan
 
+  -gridmajorcolor Color of grid major intervals      cyan
+
   -extend_grid If true, extend the grid into the pad false
                top and pad_bottom regions
 
@@ -1667,6 +1676,8 @@ Currently, the following glyphs are available:
 	      major and minor tickmarks, and can be oriented
 	      horizontally or vertically.
 
+  box         A filled rectangle, nondirectional. Subfeatures are ignored.
+
   cds         Draws CDS features, using the phase information to
               show the reading frame usage.  At high magnifications
               draws the protein translation.
@@ -1687,7 +1698,8 @@ Currently, the following glyphs are available:
               Similar to arrow, but a dotted line indicates when the
               feature extends beyond the end of the canvas.
 
-  generic     A filled rectangle, nondirectional.
+  generic     A filled rectangle, nondirectional. Subfeatures are shown
+              as rectangles that are not connected together.
 
   graded_segments
               Similar to segments, but the intensity of the color
@@ -1757,6 +1769,10 @@ will be used by default.  To get more information about a glyph, run
 perldoc on "Bio::Graphics::Glyph::glyphname", replacing "glyphname"
 with the name of the glyph you are interested in.
 
+The "box" glyph is optimized for single features with no
+subfeatures. If you are drawing such a feature, using "box" will be
+noticeably faster than "generic."
+
 The @options array is a list of name/value pairs that control the
 attributes of the track.  Some options are interpretered directly by
 the track.  Others are passed down to the individual glyphs (see
@@ -1782,16 +1798,17 @@ code reference.  In the case of a constant string, that string will be
 used as the class name for all generated glyphs.  If a hash reference
 is passed, then the feature's primary_tag() will be used as the key to
 the hash, and the value, if any, used to generate the glyph type.  If
-a code reference is passed, then this callback will be passed each
-feature in turn as its single argument.  The callback is expected to
-examine the feature and return a glyph name as its single result.
+a code reference is passed, then this callback will be passed
+arguments consisting of the feature and the panel object.  The
+callback is expected to examine the feature and return a glyph name as
+its single result.
 
 Example:
 
   $panel->add_track(\@exons,
-		    -glyph => sub { my $feature = shift;
+		    -glyph => sub { my ($feature,$panel) = @_;
                                     $feature->source_tag eq 'curated'
-                                          ? 'ellipse' : 'generic'; }
+                                          ? 'ellipse' : 'box'; }
                     );
 
 The B<-stylesheet> argument is used to pass a Bio::Das stylesheet
@@ -2263,6 +2280,16 @@ features:
 The callback should return a string indicating the desired value of
 the option.  To tell the panel to use the default value for this
 option, return the string "*default*".
+
+The callback for -grid is slightly different because at the time this
+option is needed there is no glyph defined. In this case, the callback
+will get two arguments: the feature and the panel object:
+
+ -glyph => sub {
+      my ($feature,$panel) = @_;
+      return 'gene' if $panel->length < 10_000;
+      return 'box';
+    }
 
 When you install a callback for a feature that contains subparts, the
 callback will be invoked first for the top-level feature, and then for

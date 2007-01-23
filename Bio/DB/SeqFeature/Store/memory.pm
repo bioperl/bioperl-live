@@ -288,8 +288,8 @@ sub _update_attribute_index {
   my $self = shift;
   my ($obj,$id) = @_;
 
-  for my $tag ($obj->all_tags) {
-    for my $value ($obj->each_tag_value($tag)) {
+  for my $tag ($obj->get_all_tags) {
+    for my $value ($obj->get_tag_values($tag)) {
       $self->{_index}{attribute}{lc $tag}{lc $value}{$id} = undef;
     }
   }

@@ -13,7 +13,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   # Open the feature database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
                                                  -dsn     => 'dbi:mysql:test',
-                                                 -write   => 1 );
+                                                 -create  => 1 );
 
   # get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
@@ -256,6 +256,8 @@ This class method creates a new database connection. The following
  -compress          Compresses features before storing them in database
                     using Compress::Zlib
 
+ -create            (Re)initialize the database.
+
 The B<-index_subfeatures> argument, if true, tells the module to
 create indexes for a feature and all its subfeatures (and its
 subfeatues' subfeatures). Indexing subfeatures means that you will be
@@ -280,6 +282,10 @@ The B<-compress> argument, if true, will cause the feature data to be
 compressed before storing it. This will make the database somewhat
 smaller at the cost of decreasing performance.
 
+The B<-create> argument, if true, will either initialize or
+reinitialize the database. It is needed the first time a database is
+used.
+
 The new() method of individual adaptors recognize additional
 arguments. The default DBI::mysql adaptor recognizes the following
 ones:
@@ -303,6 +309,7 @@ ones:
 		    L<Bio::DB::SeqFeature::Store::GFF3Loader> for a
 		    description of this. Default is the current
                     directory.
+ -write             Make the database writeable (implied by -create)
 
 =cut
 

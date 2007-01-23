@@ -1297,9 +1297,9 @@ sub _update_attribute_index {
   $self->_delete_index($attribute,$id);
 
   my $sth = $self->_prepare("INSERT INTO $attribute (id,attribute_id,attribute_value) VALUES (?,?,?)");
-  for my $tag ($obj->all_tags) {
+  for my $tag ($obj->get_all_tags) {
     my $tagid = $self->_attributeid($tag);
-    for my $value ($obj->each_tag_value($tag)) {
+    for my $value ($obj->get_tag_values($tag)) {
       $sth->execute($id,$tagid,$value) or $self->throw($sth->errstr);
     }
   }

@@ -578,8 +578,8 @@ sub _update_attribute_index {
   my $db = $self->index_db('attributes')
     or $self->throw("Couldn't find 'attributes' index file");
 
-  for my $tag ($obj->all_tags) {
-    for my $value ($obj->each_tag_value($tag)) {
+  for my $tag ($obj->get_all_tags) {
+    for my $value ($obj->get_tag_values($tag)) {
       my $key = "\L${tag}:${value}\E";
       $self->update_or_delete($delete,$db,$key,$id);
     }
