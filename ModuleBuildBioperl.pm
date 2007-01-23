@@ -43,7 +43,7 @@ BEGIN {
         chdir $cwd or die "Cannot chdir() back to $cwd: $!\n\n***\nInstallation will probably work fine if you now quit CPAN and try again.\n***\n\n";
     }
     
-    eval "use base qw(Module::Build Tie::Hash); 1" or die $@;
+    eval "use base Module::Build; 1" or die $@;
     
     # ensure we'll be able to reload this module later by adding its path to inc
     use Cwd;
@@ -53,7 +53,7 @@ BEGIN {
 use strict;
 use warnings;
 
-our $VERSION = 1.005002100;
+our $VERSION = 1.005002101;
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
@@ -427,19 +427,40 @@ sub install_optional {
     }
 }
 
-# there's no official way to discover if being run by CPAN, and the method
-# here is hardly ideal since user could change their build_dir in CPAN config.
-# NB: Module::AutoInstall has more robust detection, and is promising in other
-# ways; could consider converting over to it in the future
+# there's no official way to discover if being run by CPAN, we take an approach
+# similar to that of Module::AutoInstall
 sub under_cpan {
     my $self = shift;
     
     unless (defined $self->{under_cpan}) {
-        require Cwd;
-        my $cwd = Cwd::cwd();
-        if ($cwd =~ /cpan/i) {
+        ## modified from Module::AutoInstall
+        
+        # load cpan config
+        require CPAN;
+        if ($CPAN::HandleConfig::VERSION) {
+            # Newer versions of CPAN have a HandleConfig module
+            CPAN::HandleConfig->load;
+        }
+        else {
+            # Older versions had the load method in Config directly
+            CPAN::Config->load;
+        }
+        
+        # Find the CPAN lock-file
+        my $lock = File::Spec->catfile($CPAN::Config->{cpan_home}, '.lock');
+        if (-f $lock) {
+            # Module::AutoInstall now goes on to open the lock file and compare
+            # its pid to ours, but we're not in a situation where we expect
+            # the pids to match, so we take the windows approach for all OSes:
+            # find out if we're in cpan_home
+            my $cwd  = File::Spec->canonpath(Cwd::cwd());
+            my $cpan = File::Spec->canonpath($CPAN::Config->{cpan_home});
+            
+            $self->{under_cpan} = index($cwd, $cpan) > -1;
+        }
+        
+        if ($self->{under_cpan}) {
             $self->log_info("(I think I'm being run by CPAN, so will rely on CPAN to handle prerequisite installation)\n");
-            $self->{under_cpan} = 1;
         }
         else {
             $self->log_info("(I think you ran Build.PL directly, so will use CPAN to install prerequisites on demand)\n");
@@ -686,8 +707,7 @@ sub prepare_metadata {
     return $node;
 }
 
-# let us store extra things persistently in _build, and keep recommends and
-# requires hashes in insertion order
+# let us store extra things persistently in _build
 sub _construct {
     my $self = shift;
     $self = $self->SUPER::_construct(@_);
@@ -700,53 +720,14 @@ sub _construct {
         $ph->{$_}->restore if -e $file;
     }
     
-    my %tied;
-    tie %tied, "ModuleBuildBioperl";
-    if (ref($p->{recommends}) eq 'HASH') {
-        while (my ($key, $val) = each %{$p->{recommends}}) {
-            $tied{$key} = $val;
-        }
-    }
-    else {
-        foreach my $hash_ref (@{$p->{recommends}}) {
-            while (my ($key, $val) = each %{$hash_ref}) {
-                $tied{$key} = $val;
-            }
-        }
-    }
-    $self->{properties}->{recommends} = \%tied;
-    my %tied2;
-    tie %tied2, "ModuleBuildBioperl";
-    while (my ($key, $val) = each %{$p->{requires}}) {
-        $tied2{$key} = $val;
-    }
-    $self->{properties}->{requires} = \%tied2;
-    
     return $self;
 }
 sub write_config {
     my $self = shift;
-    
-    # turn $self->{properties}->{requires} into an array of hash refs to
-    # maintain its order when retrieved (don't care about recommends now,
-    # this is only relevant on a resume)
-    my @required;
-    my $orig_requires = $self->{properties}->{requires};
-    while (my ($key, $val) = each %{$self->{properties}->{requires}}) {
-        push(@required, { $key => $val });
-    }
-    $self->{properties}->{requires} = \@required;
-    
     $self->SUPER::write_config;
     
     # write extra things
     $self->{phash}{$_}->write() foreach qw(manifest_skip post_install_scripts);
-    
-    # re-write the prereqs file to keep future versions of CPAN happy
-    $self->{properties}->{requires} = $orig_requires;
-    my @items = @{ $self->prereq_action_types };
-    $self->_write_data('prereqs', { map { $_, $self->$_() } @items });
-    $self->{properties}->{requires} = \@required;
     
     # be even more certain we can reload ourselves during a resume by copying
     # ourselves to _build\lib
@@ -758,20 +739,6 @@ sub write_config {
     
     File::Copy::copy('ModuleBuildBioperl.pm', $filename);
     warn "Unable to copy 'ModuleBuildBioperl.pm' to '$filename'\n" unless -e $filename;
-}
-sub read_config {
-    my $self = shift;
-    $self->SUPER::read_config(@_);
-    
-    # restore the requires order into a tied hash from the stored array
-    my %tied;
-    tie %tied, "ModuleBuildBioperl";
-    foreach my $hash_ref (@{$self->{properties}->{requires}}) {
-        while (my ($key, $val) = each %{$hash_ref}) {
-            $tied{$key} = $val;
-        }
-    }
-    $self->{properties}->{requires} = \%tied;
 }
 
 # add a file to the default MANIFEST.SKIP
@@ -1023,6 +990,12 @@ PPD
                 $modname .= '::';
             }
             
+            # Bio::Root::Version number comes out as triplet number like 1.5.2;
+            # convert to our own version
+            if ($modname eq 'Bio::Root::Version') {
+                $version = $dist{version};
+            }
+            
             $ppd .= sprintf(<<'EOF', $modname, $version || '');
             <REQUIRE NAME="%s" VERSION="%s"/>
 EOF
@@ -1083,81 +1056,6 @@ sub make_zip {
     my $files = $self->rscan_dir($dir);
     Archive::Tar->create_archive("$file.tar", 0, @$files);
     $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
-}
-
-# 
-# Below is ripped straight from Tie::IxHash. We need ordered hashes for our
-# recommends and required hashes, needed to generate our pre-reqs.
-# This means we can't have Tie::IxHash as a pre-req!
-# We could include Tie::IxHash in t/lib or something, but this is simpler
-# and suffers fewer potential problems
-#
-# Again, code below written by Gurusamy Sarathy
-#
-
-sub TIEHASH {
-  my($c) = shift;
-  my($s) = [];
-  $s->[0] = {};   # hashkey index
-  $s->[1] = [];   # array of keys
-  $s->[2] = [];   # array of data
-  $s->[3] = 0;    # iter count
-
-  bless $s, $c;
-
-  $s->Push(@_) if @_;
-
-  return $s;
-}
-
-sub FETCH {
-  my($s, $k) = (shift, shift);
-  return exists( $s->[0]{$k} ) ? $s->[2][ $s->[0]{$k} ] : undef;
-}
-
-sub STORE {
-  my($s, $k, $v) = (shift, shift, shift);
-  
-  if (exists $s->[0]{$k}) {
-    my($i) = $s->[0]{$k};
-    $s->[1][$i] = $k;
-    $s->[2][$i] = $v;
-    $s->[0]{$k} = $i;
-  }
-  else {
-    push(@{$s->[1]}, $k);
-    push(@{$s->[2]}, $v);
-    $s->[0]{$k} = $#{$s->[1]};
-  }
-}
-
-sub DELETE {
-  my($s, $k) = (shift, shift);
-
-  if (exists $s->[0]{$k}) {
-    my($i) = $s->[0]{$k};
-    for ($i+1..$#{$s->[1]}) {    # reset higher elt indexes
-      $s->[0]{$s->[1][$_]}--;    # timeconsuming, is there is better way?
-    }
-    delete $s->[0]{$k};
-    splice @{$s->[1]}, $i, 1;
-    return (splice(@{$s->[2]}, $i, 1))[0];
-  }
-  return undef;
-}
-
-sub EXISTS {
-  exists $_[0]->[0]{ $_[1] };
-}
-
-sub FIRSTKEY {
-  $_[0][3] = 0;
-  &NEXTKEY;
-}
-
-sub NEXTKEY {
-  return $_[0][1][$_[0][3]++] if ($_[0][3] <= $#{$_[0][1]});
-  return undef;
 }
 
 1;
