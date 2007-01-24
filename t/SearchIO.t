@@ -61,9 +61,9 @@ SKIP: {
 		$result = $searchio->next_result;
 	};
 	if ($@ && $@ =~ m{Handler couldn't resolve external entity}) {
-		skip("XML::SAX::Expat does not work with XML tests; skipping",68);
+		skip("XML::SAX::Expat does not work with XML tests; skipping",129);
 	} elsif ($@) {
-		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",68);
+		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",129);
 	}
     isa_ok($result, 'Bio::Search::Result::ResultI');    
     is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
@@ -179,7 +179,7 @@ SKIP: {
     is($result->query_length,'445');
     $hit = $result->next_hit;
     is($hit->name,'gi|15600734|ref|NP_254228.1|');
-    is($hit->description,'gi|9951880|gb|AAG08926.1|AE004966_8 dihydroorotase [Pseudomonas aeruginosa PAO1]');
+    like($hit->description,qr(gi|9951880|gb|AAG08926.1|AE004966_8 dihydroorotase [Pseudomonas aeruginosa PAO1]));
     is($hit->accession,'NP_254228');
     is($hit->length,'445');
     $hsp = $hit->next_hsp;
@@ -214,7 +214,7 @@ SKIP: {
     is($result->query_length,'348');
     $hit = $result->next_hit;
     is($hit->name,'gi|15598723|ref|NP_252217.1|');
-    is($hit->description,'gi|3868712|gb|AAC73109.1| dihydroorotase [Pseudomonas aeruginosa]');
+    like($hit->description,qr(gi|3868712|gb|AAC73109.1| dihydroorotase [Pseudomonas aeruginosa]));
     is($hit->accession,'NP_252217');
     is($hit->length,'348');
     $hsp = $hit->next_hsp;
