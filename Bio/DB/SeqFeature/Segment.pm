@@ -212,7 +212,8 @@ sub features {
 
 This is identical to Bio::DB::SeqFeature::Store-E<gt>get_seq_stream()
 except that the location filter is always automatically applied so
-that the iterator you receive returns features that overlap the segment's region.
+that the iterator you receive returns features that overlap the
+segment's region.
 
 When called without any arguments this method will return an iterator
 object that will traverse all indexed features in the database that
@@ -231,6 +232,8 @@ $segment-E<gt>features().
 get_feature_stream() ican be used as a synonym for this method.
 
 =cut
+
+#'
 
 sub get_seq_stream {
   my $self = shift;
@@ -401,7 +404,12 @@ sub end     { shift->{end}    }
 sub seq_id  { shift->{seqid}  }
 sub strand  { shift->{strand} }
 sub ref     { shift->seq_id   }
-sub length  { my $self = shift; return $self->end-$self->start+1; }
+
+sub length  { 
+    my $self = shift; 
+    return abs($self->end - $self->start) +1;        
+}
+
 sub primary_tag  { 'region' }
 sub source_tag   { __PACKAGE__ }
 sub display_name { shift->as_string }
@@ -448,10 +456,16 @@ sub entire_seq {
 			      -seq => $self->store->fetch_sequence($self->seq_id),
 			      -id  => $self->seq_id);
 }
+
 sub location {
   my $self = shift;
-  require Bio::Location::Simple unless Bio::Location::Simple->can('new');
-  return Bio::Location::Simple->new(-start=>$self->start,-end=>$self->end);
+  require Bio::Location::Simple unless Bio::Location::Simple->can('new');  
+  my $loc = Bio::Location::Simple->new(-start  => $self->start,
+				    -end    => $self->end,
+				       -strand => $self->strand);
+  $loc->strand($self->strand);
+  warn("strand will be ", $self->strand, "\n") if $self->strand < 0;
+  return $loc;
 }
 sub primary_id   {
   my $self = shift;
