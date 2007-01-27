@@ -440,13 +440,13 @@ $self->debug("get COMPND $compnd\n");
 
 
    if (defined($buffer) && $buffer =~ /^(ATOM |MODEL |HETATM)/ ) {  # can you have an entry without ATOM ?
-	until( !defined ($buffer) ) {				 #  (yes : 1a7z )
+	while( defined ($buffer) ) {				 #  (yes : 1a7z )
 		   # read in one model at a time
 		   my $model = $self->_read_PDB_coordinate_section(\$buffer, $struc);
 		   # add this to $struc
 		   $struc->add_model($struc, $model);
 
-		   if ($buffer !~ /^MODEL /) { # if we get here we have multiple MODELs
+		   if ($buffer && $buffer !~ /^MODEL /) { # if we get here we have multiple MODELs
 			   last;
 		   }
 	}
