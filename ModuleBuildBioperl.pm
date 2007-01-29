@@ -375,7 +375,8 @@ sub install_prereq {
         
         CPAN::Shell->install($desired);
         my $msg;
-        if (CPAN::Shell->expand("Module", $desired)->uptodate) {
+        my $expanded = CPAN::Shell->expand("Module", $desired);
+        if ($expanded && $expanded->uptodate) {
             $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
             $msg = 'ok';
         }
