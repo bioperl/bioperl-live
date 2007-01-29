@@ -12,12 +12,15 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 17;
+    use Test::More;
+    plan tests => 33;
+	use_ok('Bio::SeqIO::scf');
+	use_ok('Bio::Seq::SequenceTrace');
+
 }
 
 END {
@@ -34,9 +37,6 @@ use Dumpvalue();
 my $dumper = new Dumpvalue();
 $dumper->veryCompact(1) if $DEBUG;
 
-use Bio::SeqIO::scf;
-use Bio::Seq::SequenceTrace;
-
 my $in_scf = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 									  ("t","data","chad100.scf"),
 									  -format => 'scf',
@@ -45,27 +45,27 @@ ok($in_scf);
 
 my $swq = $in_scf->next_seq();
 
-ok (ref($swq) eq "Bio::Seq::SequenceTrace");
+isa_ok($swq,"Bio::Seq::SequenceTrace");
 
-ok (length($swq->seq())>10);
+cmp_ok (length($swq->seq()), '>', 10);
 my $qualities = join(' ',@{$swq->qual()});
 
-ok (length($qualities)>10);
+cmp_ok (length($qualities), '>', 10);
 my $id = $swq->id();
-ok ($swq->id() eq "ML4942R");
+is ($swq->id(), "ML4942R");
 
 my $a_channel = $swq->trace("a");
-ok (scalar(@$a_channel) > 10);
+cmp_ok (scalar(@$a_channel), '>', 10);
 my $c_channel = $swq->trace("c");
-ok (length($c_channel) > 10);
+cmp_ok (scalar(@$c_channel), '>', 10);
 my $g_channel = $swq->trace("g");
-ok (length($g_channel) > 10);
+cmp_ok (scalar(@$g_channel), '>', 10);
 my $t_channel = $swq->trace("t");
-ok (length($t_channel) > 10);
+cmp_ok (scalar(@$t_channel), '>', 10);
 
 my $ref = $swq->peak_indices();
 my @indices = @$ref;
-ok (scalar(@indices), 761);
+is (scalar(@indices), 761);
 
 warn("Now checking version3...\n") if $DEBUG;
 my $in_scf_v3 = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
@@ -74,41 +74,90 @@ my $in_scf_v3 = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 										  -verbose => $verbose);
 
 my $v3 = $in_scf_v3->next_seq();
+isa_ok($v3, 'Bio::Seq::SequenceTrace');
 my $ind = $v3->peak_indices();
 my @ff = @$ind;
 
 @indices = @{$v3->peak_indices()};
-ok (scalar(@indices) == 1106);
+is (scalar(@indices), 1106);
 
 my %header = %{$in_scf_v3->get_header()};
-ok $header{bases}, 1106;
-ok $header{samples},  14107;
+is $header{bases}, 1106;
+is $header{samples},  14107;
 
-my $ac = $in_scf_v3->get_comments();
+# is the Bio::Seq::SequenceTrace AnnotatableI?
+my $ac = $v3->annotation();
 
-ok (ref($ac) eq "Bio::Annotation::Collection");
+isa_ok($ac,"Bio::Annotation::Collection");
 
 my @name_comments = grep {$_->tagname() eq 'NAME'} 
   $ac->get_Annotations('comment');
 
-ok $name_comments[0]->as_text(), 'Comment: IIABP1D4373';
+is $name_comments[0]->as_text(), 'Comment: IIABP1D4373';
+
+# also get comments this way...
+$ac = $in_scf_v3->get_comments();
+
+isa_ok($ac,"Bio::Annotation::Collection");
+
+@name_comments = grep {$_->tagname() eq 'NAME'} 
+  $ac->get_Annotations('comment');
+
+is $name_comments[0]->as_text(), 'Comment: IIABP1D4373';
 
 my @conv_comments = grep {$_->tagname() eq 'CONV'} 
   $ac->get_Annotations('comment');
 
-ok $conv_comments[0]->as_text(), 'Comment: phred version=0.990722.h';
+is $conv_comments[0]->as_text(), 'Comment: phred version=0.990722.h';
 
 # is the SequenceTrace object annotated?
 my $st_ac = $swq->annotation();
 
-ok (ref($st_ac) eq "Bio::Annotation::Collection");
+isa_ok ($st_ac, "Bio::Annotation::Collection");
 
-warn("Now testing the _writing_ of scfs\n") if $DEBUG;
+my @ann =   $st_ac->get_Annotations();
+
+is $ann[0]->tagname, 'SIGN';
+is $ann[2]->text, 'SRC3700';
+is $ann[5]->tagname, 'LANE';
+is $ann[5]->text, 89;
+is $ann[6]->text, 'phred version=0.980904.e';
+is $ann[8]->text, 'ABI 373A or 377';
 
 my $out_scf = Bio::SeqIO->new(-file => ">write_scf.scf",
 										-format => 'scf',
 										-verbose => $verbose);
+
+# Bug 2196 - commentless scf
+
+my $in = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
+							  qw(t data 13-pilE-F.scf),
+							  -format => 'scf',
+							  -verbose => $verbose);
+
+my $seq = $in->next_seq;
+
+ok ($seq);
+
+isa_ok($seq, 'Bio::Seq::SequenceTrace');
+
+$ac = $seq->annotation;
+
+isa_ok($ac, 'Bio::Annotation::Collection');
+
+@name_comments = grep {$_->tagname() eq 'NAME'} 
+  $ac->get_Annotations('comment');
+
+is $name_comments[0], undef;
+
+@conv_comments = grep {$_->tagname() eq 'CONV'} 
+  $ac->get_Annotations('comment');
+
+is $conv_comments[0], undef;
+
 exit;	# the new way
+
+warn("Now testing the _writing_ of scfs\n") if $DEBUG;
 
 $out_scf->write_seq(-target	=>	$v3,
 						  -MACH		=>	'CSM sequence-o-matic 5000',
@@ -151,8 +200,8 @@ $v3 = $in_scf_v3->next_seq();
 
 my $sub_v3 = $v3->sub_trace_object(5,50);
 
-warn("The subtrace object is this:\n") if $DEBUG;
-$dumper->dumpValue($sub_v3) if $DEBUG;
+#warn("The subtrace object is this:\n") if $DEBUG;
+#$dumper->dumpValue($sub_v3) if $DEBUG;
 
 $out_scf->write_seq(-target => $sub_v3 );
 
@@ -168,4 +217,4 @@ $out_scf = Bio::SeqIO->new(-file   => ">write_scf_version2.scf",
 $out_scf->write_seq( -target  => $v3,
                      -version => 2 );
 
-# now some version 2 things.
+# now some version 2 things...

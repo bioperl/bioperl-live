@@ -114,7 +114,8 @@ sub next_seq {
 	my ($seq, $seqc, $fh, $buffer, $offset, $length, $read_bytes, @read,
 		 %names);
 	# set up a filehandle to read in the scf
-	$fh = $self->_filehandle();
+	return if $self->{_readfile};
+	$fh = $self->_fh();
 	unless ($fh) {		# simulate the <> function
 		if ( !fileno(ARGV) or eof(ARGV) ) {
 			return unless my $ARGV = shift;
@@ -221,10 +222,13 @@ sub next_seq {
 	$length = $creator->{header}->{comment_size};
 	$buffer = $self->read_from_buffer($fh,$buffer,$length);
 	$creator->{comments} = $self->_get_comments($buffer);
-        my @name_comments = grep {$_->tagname() eq 'NAME'}
-                          $creator->{comments}->get_Annotations('comment');
-        my $name_comment = $name_comments[0]->as_text();
-        $name_comment =~ s/^Comment:\s+//;
+	my @name_comments = grep {$_->tagname() eq 'NAME'}
+				$creator->{comments}->get_Annotations('comment');
+	my $name_comment;
+	if (@name_comments){
+		 $name_comment = $name_comments[0]->as_text();
+		 $name_comment =~ s/^Comment:\s+//;
+	}
 
 	my $swq = Bio::Seq::Quality->new(
 												-seq =>   $creator->{'sequence'},
@@ -245,6 +249,7 @@ sub next_seq {
 															 );
 
         $returner->annotation($creator->{'comments'}); # add SCF comments
+	$self->{'_readfile'} = 1;
 	return $returner;
 }
 
