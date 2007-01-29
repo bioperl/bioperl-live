@@ -2553,34 +2553,6 @@ sub source{
     return $self->{'_source'};
 }
 
-
-=head2 annotation
-
- Title   : annotation
- Usage   : $ann = $aln->annotation or 
-           $aln->annotation($ann)
- Function: Gets or sets the annotation
- Returns : Bio::AnnotationCollectionI object
- Args    : None or Bio::AnnotationCollectionI object
-
-See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
-for more information
-
-=cut
-
-sub annotation {
-    my ($obj,$value) = @_;
-    if( defined $value ) {
-        $obj->throw("object of class ".ref($value)." does not implement ".
-                "Bio::AnnotationCollectionI. Too bad.")
-            unless $value->isa("Bio::AnnotationCollectionI");
-        $obj->{'_annotation'} = $value;
-    } elsif( ! defined $obj->{'_annotation'}) {
-        $obj->{'_annotation'} = Bio::Annotation::Collection->new();
-    }
-    return $obj->{'_annotation'};
-}
-
 =head2 set_displayname_safe
 
  Title     : set_displayname_safe
@@ -2643,6 +2615,40 @@ sub restore_displayname {
       $new->add_seq($new_seq);
     }
     return $new;
+}
+
+=head2 sort_by_start
+Title     : sort_by_start
+Usage     : $ali->sort_by_start
+Function  : Changes the order of the alignemnt to the start position of each
+            subalignment
+Returns   :
+Argument  :
+
+=cut
+
+sub sort_by_start {
+    my $self = shift;
+    my ($seq,$nse,@arr,%hash,$count);
+    foreach $seq ( $self->each_seq() ) {
+        $nse = $seq->get_nse;
+        $hash{$nse} = $seq;
+    }
+    $count = 0;
+    %{$self->{'_order'}} = (); # reset the hash;
+    foreach $nse ( sort _startend keys %hash) {
+        $self->{'_order'}->{$count} = $nse;
+        $count++;
+    }
+    1;
+}
+
+sub _startend
+{
+    my ($aname,$astart,$bname,$bstart);
+    ($aname,$astart) = split (/[\/]/,$a);
+    ($bname,$bstart) = split (/[\/]/,$b);
+    return $astart <=> $bstart;
 }
 
 =head2 methods for Bio::FeatureHolder
@@ -2784,6 +2790,38 @@ FeatureHolderI. I.e., in order to support filter arguments, just
 support them in get_SeqFeatures().
 
 =cut
+
+=head2 methods for Bio::AnnotatableI
+
+AnnotatableI implementation to support sequence alignments which
+contain annotation (NEXUS, Stockholm).
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $ann = $aln->annotation or 
+           $aln->annotation($ann)
+ Function: Gets or sets the annotation
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::AnnotationCollectionI object
+
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+        $obj->throw("object of class ".ref($value)." does not implement ".
+                "Bio::AnnotationCollectionI. Too bad.")
+            unless $value->isa("Bio::AnnotationCollectionI");
+        $obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+        $obj->{'_annotation'} = Bio::Annotation::Collection->new();
+    }
+    return $obj->{'_annotation'};
+}
 
 
 1;
