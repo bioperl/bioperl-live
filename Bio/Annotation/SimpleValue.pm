@@ -62,8 +62,12 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Annotation::SimpleValue;
 use strict;
-use overload '""' => sub { $_[0]->value};
-use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
+
+use overload
+  '""' => sub { $_[0]->value},
+  'eq' => sub { "$_[0]" eq "$_[1]" },
+  fallback => 1
+  ;
 
 # Object preamble - inherits from Bio::Root::Root
 
