@@ -112,8 +112,6 @@ use XML::SAX;
 use IO::File;
 use Bio::SearchIO::XML::BlastHandler;
 
-our $DTD = 'ftp://ftp.ncbi.nlm.nih.gov/blast/documents/NCBI_BlastOutput.dtd';
-
 our $DEBUG;
 
 # mapping of NCBI Blast terms to Bioperl hash keys
@@ -146,34 +144,32 @@ sub _initialize{
     my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
     defined $usetempfile && $self->use_tempfile($usetempfile);
     
-    # uncomment only for testing XML::SAX backend parsers
-    #$XML::SAX::ParserPackage = 'XML::SAX::PurePerl';
-    
     # BlastHandler does the heavy lifting
-    #my $xmlhandler = Bio::SearchIO::XML::BlastHandler->new(-verbose => $self->verbose);
     my $xmlhandler = Bio::SearchIO::XML::BlastHandler->new(-verbose => $self->verbose);
     
-    # Pass the SearchIO eventhandler to the XML handler
     # The XML handler does the heavy work, passes data to object handler
     $xmlhandler->_eventHandler($self->_eventHandler());
     
     # start up the parser factory
     my $parserfactory = XML::SAX::ParserFactory->parser(
         Handler => $xmlhandler);
+    $self->{'_xmlparser'} = $parserfactory;    
+    my $pclass = $self->saxparser;
     
-    if (ref($parserfactory) eq 'XML::SAX::Expat') {
-        $self->throw('XML::SAX::Expat not supported as it is no '.
-                     'longer maintained.  Please use any other XML::SAX '.
-                     'backend (such as XML::SAX::ExpatXS or XML::LibXML)');
-    } elsif (ref($parserfactory) eq 'XML::SAX::PurePerl' && $self->verbose > -1) {
-        $self->warn("XML::SAX::PurePerl installed as default XML::SAX parser.\n".
-                     "This works but has a small bug which breaks ".
-                     "with character encoding (Bug 2159). \n".
-                     "We recommend using a different ".
-                     "backend (such as XML::SAX::ExpatXS or XML::LibXML)");
+    $self->debug("Parser: $pclass\n");
+    
+    if (($pclass eq 'XML::SAX::PurePerl' ||
+        $pclass eq 'XML::SAX::Expat'    ||
+        $pclass eq 'XML::LibXML::SAX' )  &&
+        $self->verbose > -1) {
+        $self->warn("XML::SAX::PurePerl, XML::SAX::Expat, or ".
+                    "XML::LibXML::SAX set as default XML::SAX parser.\n".
+                    "This works but has a small bug which breaks ".
+                    "with character encoding (Bug 2159). \n".
+                    "We recommend using a different ".
+                    "backend (such as XML::SAX::ExpatXS or XML::LibXML)");
     }
     
-    $self->{'_xmlparser'} = $parserfactory;
     $self->{'_result_cache'} = [];
     eval {  require Time::HiRes };	
     if( $@ ) { $DEBUG = 0; }

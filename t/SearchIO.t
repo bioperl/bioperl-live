@@ -1,3 +1,4 @@
+
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
@@ -53,19 +54,20 @@ SKIP: {
 		# test with RPSBLAST data first
 		# this needs to be eval'd b/c the XML::SAX parser object is
 		# instantiated in the constructor
-		$searchio = new Bio::SearchIO ('-tempfile' => 1,
+		$searchio = Bio::SearchIO->new('-tempfile' => 1,
 			   '-format' => 'blastxml',
 			   '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'),
-			   '-verbose' => -2);
+			   '-verbose' => -1);
 		# PurePerl works with these BLAST reports, so removed verbose promotion
 		$result = $searchio->next_result;
+        die if !defined $result;
 	};
 	if ($@ && $@ =~ m{Handler couldn't resolve external entity}) {
 		skip("XML::SAX::Expat does not work with XML tests; skipping",129);
 	} elsif ($@) {
 		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",129);
 	}
-    isa_ok($result, 'Bio::Search::Result::ResultI');    
+    isa_ok($result, 'Bio::Search::Result::ResultI');
     is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
     is($result->query_name,'gi|1786182|gb|AAC73112.1|','query_name()');
     is($result->query_description, '(AE000111) thr operon leader peptide [Escherichia coli]');
@@ -125,7 +127,8 @@ SKIP: {
     is($results_left, 0);
 
 
-    $searchio = new Bio::SearchIO(-format => 'blastxml', 
+    $searchio = new Bio::SearchIO(-format => 'blastxml',
+								  -verbose => -1,
 				  -file => Bio::Root::IO->catfile('t','data','plague_yeast.bls.xml'));
 
     $result = $searchio->next_result;
@@ -139,7 +142,8 @@ SKIP: {
     $hit = $result->next_hit;
     ok(! $hit);
 
-    $searchio = new Bio::SearchIO(-format => 'blastxml', 
+    $searchio = new Bio::SearchIO(-format => 'blastxml',
+								  -verbose => -1,
 				  -file => Bio::Root::IO->catfile('t','data','mus.bls.xml'));
 
     $result = $searchio->next_result;
@@ -156,7 +160,8 @@ SKIP: {
     is($hit->length,'1000');
     
     # deal with new BLAST XML changes
-    $searchio = new Bio::SearchIO(-format => 'blastxml', 
+    $searchio = new Bio::SearchIO(-format => 'blastxml',
+								  -verbose => -1,
 				  -file => Bio::Root::IO->catfile('t','data','newblast.xml'));
 
     $result = $searchio->next_result;
