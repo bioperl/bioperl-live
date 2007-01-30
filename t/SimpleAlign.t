@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 89;
+use constant NUMTESTS => 95;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -372,5 +372,44 @@ is $a, 'BAB68554', 'sort by list ok';
 
 # test for Binary/Morphological/Mixed data
 
+
+# sort_by_start
+
+# test sort_by_list:
+
+my $s1 = new Bio::LocatableSeq (-id => 'AAA',
+                -seq => 'aawtat-tn-',
+                -start => 12,
+                -end => 19,
+                -alphabet => 'dna'
+                );
+my $s2 = new Bio::LocatableSeq (-id => 'BBB',
+                -seq => '-aaaat-tt-',
+                -start => 1,
+                -end => 7,
+                -alphabet => 'dna'
+                );
+my $s3 = new Bio::LocatableSeq (-id => 'BBB',
+                -seq => '-aaaat-tt-',
+                -start => 31,
+                -end => 37,
+                -alphabet => 'dna'
+                );
+$a = new Bio::SimpleAlign;
+$a->add_seq($s1);           
+$a->add_seq($s2);
+$a->add_seq($s3);
+
+@seqs = $a->each_seq;
+is($seqs[0]->start, 12);
+is($seqs[1]->start, 1);
+is($seqs[2]->start, 31);
+
+$a->sort_by_start;
+@seqs = $a->each_seq;
+
+is($seqs[0]->start, 1);
+is($seqs[1]->start, 12);
+is($seqs[2]->start, 31);
 
 1;
