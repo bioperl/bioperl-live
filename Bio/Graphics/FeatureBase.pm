@@ -563,12 +563,33 @@ sub all_tags {
   my $self = shift;
   return keys %{$self->{attributes}};
 }
+
+sub add_tag_value {
+  my $self = shift;
+  my ($tag_name,@tag_values) = @_;
+  push @{$self->{attributes}{$tag_name}},@tag_values;
+}
+
+sub remove_tag {
+  my $self = shift;
+  my $tag_name = shift;
+  delete $self->{attributes}{$tag_name};
+}
+
 sub each_tag_value {
   my $self = shift;
   my $tag  = shift;
   my $value = $self->{attributes}{$tag} or return;
   return CORE::ref $value ? @{$self->{attributes}{$tag}}
                           : $self->{attributes}{$tag};
+}
+
+sub get_Annotations {
+  my $self = shift;
+  my $tag  = shift;
+  my @values = $self->get_tag_values($tag);
+  return $values[0] if @values == 1;
+  return @values;
 }
 
 sub format_attributes {
