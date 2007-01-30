@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SeqIO::GenBank
+# BioPerl module for Bio::SeqIO::genbank
 #
 # Cared for by Bioperl project bioperl-l(at)bioperl.org
 #
@@ -174,31 +174,22 @@ use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
+use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 
-our %FTQUAL_NO_QUOTE=(
-		  'anticodon'    => 1,
-		  'citation'     => 1,
-		  'codon'        => 1,
-		  'codon_start'  => 1,
-		  'cons_splice'  => 1,
-		  'direction'    => 1,
-		  'evidence'     => 1,
-		  'label'        => 1,
-		  'mod_base'     => 1,
-		  'number'       => 1,
-		  'rpt_type'     => 1,
-		  'rpt_unit'     => 1,
-		  'transl_except'=> 1,
-		  'transl_table' => 1,
-		  'usedin'       => 1,
-		  );
+our %FTQUAL_NO_QUOTE = map {$_ => 1} qw(
+    anticodon           citation
+    codon               codon_start
+    cons_splice         direction
+    evidence            label
+    mod_base            number
+    rpt_type            rpt_unit
+    transl_except       transl_table
+    usedin
+    );
 
-our %DBSOURCE;
-
-BEGIN {
-    %DBSOURCE = map {$_ => 1} qw(
+our %DBSOURCE = map {$_ => 1} qw(
     EchoBASE     IntAct    SWISS-2DPAGE    ECO2DBASE    ECOGENE    TIGRFAMs
     TIGR    GO    InterPro    Pfam    PROSITE    SGD    GermOnline
     HSSP    PhosSite    Ensembl    RGD    AGD    ArrayExpress    KEGG
@@ -211,7 +202,6 @@ BEGIN {
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB);
-}
 
 sub _initialize {
     my($self,@args) = @_;
@@ -1278,45 +1268,33 @@ sub _read_GenBank_Species {
     my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
     # all above can be part of valid species name
 
-    $_ = $$buffer;
+    my $line = $$buffer;
 
     my( $sub_species, $species, $genus, $sci_name, $common, $class_lines,
         $source_flag, $abbr_name, $organelle, $sl );
+    my %source = map { $_ => 1 } qw(SOURCE ORGANISM CLASSIFICATION);
     # upon first entering the loop, we must not read a new line -- the SOURCE
     # line is already in the buffer (HL 05/10/2000)
-    while (defined($_) || defined($_ = $self->_readline())) {
-	# de-HTMLify (links that may be encountered here don't contain
-	# escaped '>', so a simple-minded approach suffices)
-	s/<[^>]+>//g;
-	if ( /^SOURCE\s+(.*)/o ) {
-	    $sl = $1;
-	    $sl =~ s/\.$//;	# remove trailing dot
-	    $source_flag = 1;
-	} elsif ( /^\s{2}ORGANISM/o ) {
-	    $source_flag = 0;
-	    ($sci_name) = $_ =~ /\w+\s+(.*)/o;
-	} elsif ($source_flag) {
-	    $sl .= $_;
-	    $sl =~ s/\n//g;
-	    $sl =~ s/\s+/ /g;
-	    $source_flag = 0;
-	} elsif ( /^\s+(.+)/o ) {
-	    my $line = $1;
-            # if first line doesn't end in ; or ., it is part of a long
-            # organism line
-            if ($line !~ /[;\.]$/) {
-                $sci_name .= ' '.$line;
-            }
-            else {
-                $class_lines .= $line;
-            }
-	} else {
-	    last;
-	}
-
-	$_ = undef;	       # Empty $_ to trigger read of next line
+    my ($ann, $tag, $data);
+    while (defined($line) || defined($line = $self->_readline())) {
+        # de-HTMLify (links that may be encountered here don't contain
+        # escaped '>', so a simple-minded approach suffices)
+        $line =~ s{<[^>]+>}{}g;
+        if ($line =~ m{^(?:\s{0,2})(\w+)\s+(.+)$}ox) {
+            ($tag, $data) = ($1, $2);
+        } else {
+            ($data = $line) =~ s{^\s+}{};
+            chomp $data;
+            $tag = 'CLASSIFICATION' if ($tag ne 'CLASSIFICATION' && $tag eq 'ORGANISM' &&  $line =~ m{[;\.]+});
+        }
+        last if ($tag && !exists $source{$tag});
+        (exists $ann->{$tag}) ? ($ann->{$tag} .= ' '.$data) : ($ann->{$tag} .= $data);
+        $line = undef;        
     }
-    $$buffer = $_;
+    
+    ($sl, $class_lines, $sci_name) = ($ann->{SOURCE}, $ann->{CLASSIFICATION}, $ann->{ORGANISM});
+    
+    $$buffer = $line;   
 
     # parse out organelle, common name, abbreviated name if present;
     # this should catch everything, but falls back to
