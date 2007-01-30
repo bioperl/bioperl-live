@@ -42,6 +42,8 @@ This is currently a write-only module.
     # -- chromosome arm X in the example below.
 
     $seqio->write_seq(-seq=>$seq,
+                      -genus   => 'Homo',
+                      -species => 'sapiens',
                       -seq_so_type=>'gene',
                       -src_feature=>'X',
                       -src_feat_type=>'chromosome_arm',
@@ -201,7 +203,6 @@ package Bio::SeqIO::chadoxml;
 use strict;
 use English;
 
-use lib $ENV{CodeBase};
 use XML::Writer;
 use IO::File;
 use IO::Handle;
@@ -360,7 +361,7 @@ EOUSAGE
 
 	my ($self,@args) = @_;
 
-	my ($seq, $seq_so_type, $srcfeature, $srcfeattype, $nounflatten, $isanalysis, $datasource) =
+	my ($seq, $seq_so_type, $srcfeature, $srcfeattype, $nounflatten, $isanalysis, $datasource, $genus, $species) =
 	   $self->_rearrange([qw(SEQ
 				 SEQ_SO_TYPE
 				 SRC_FEATURE
@@ -368,6 +369,8 @@ EOUSAGE
 				 NOUNFLATTEN
 				 IS_ANALYSIS
 				 DATA_SOURCE
+                                 GENUS
+                                 SPECIES
 				 )],
 			      @args);
 	#print "$seq_so_type, $srcfeature, $srcfeattype\n";
@@ -408,7 +411,8 @@ EOUSAGE
         my $div = undef;
 	my $hkey = undef;
 	undef(my @top_featureprops);
-	my $name = $seq->display_id;
+	my $name = $seq->display_id if $seq->can('display_id');
+        $name = $seq->display_name  if $seq->can('display_name');
 	undef(my @feature_cvterms);
 	undef(my %sthash);
 	undef(my %dvhash);
@@ -455,7 +459,7 @@ EOUSAGE
 
 	undef(my $gb_type);
 	if (!$seq->can('molecule') || ! defined ($gb_type = $seq->molecule()) ) {
-		$gb_type = $seq->alphabet || 'DNA';
+		$gb_type = $seq->can('alphabet') ? $seq->alphabet : 'DNA';
 	}
 	$gb_type = 'DNA' if $ftype eq 'dna';
 	$gb_type = 'RNA' if $ftype eq 'rna';
@@ -469,12 +473,17 @@ EOUSAGE
 
 	my %ftype_hash = ( "name" => $ftype, "cv_id" => {"name" => 'SO'});
 
-	my $spec = $seq->species();
-	if (!defined $spec) {
+        if ($species) {
+            %organism = ("genus"=>$genus, "species" => $species);
+        }
+        else {
+	    my $spec = $seq->species();
+	    if (!defined $spec) {
 		$self->throw("$seq does not know what organism it is from, which is required by chado. cannot proceed!\n");
-	} else {
+	    } else {
 		%organism = ("genus"=>$spec->genus(), "species" => $spec->species());
-	}
+	    }
+        }
 
         my $residues = $seq->seq || '';
 
@@ -508,7 +517,7 @@ EOUSAGE
 
 	if ($datasource =~ /GenBank/i) {
 		#sequence topology as feature_cvterm
-		if ($seq->is_circular) {
+		if ($seq->can('is_circular') && $seq->is_circular) {
 			%sthash = (
 				"cvterm_id"	=> {'name' => 'circular',
 						    'cv_id' => {
