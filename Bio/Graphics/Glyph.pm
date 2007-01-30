@@ -419,8 +419,15 @@ sub color {
   my $color = shift;
   my $index = $self->option($color);
   # turn into a color index
-  return $self->factory->translate_color($index) if defined $index;
+  return $self->translate_color($index) if defined $index;
   return 0;
+}
+
+sub translate_color {
+  my $self = shift;
+  my $color = shift;
+  # turn into a color index
+  return $self->factory->translate_color($color);
 }
 
 sub connector {
@@ -1412,7 +1419,6 @@ Returns the height of the glyph, not including the top or bottom
 padding.  This is calculated from the "height" option and cannot be
 changed.
 
-
 =item $font = $glyph-E<gt>font
 
 Return the font for the glyph.
@@ -1421,7 +1427,12 @@ Return the font for the glyph.
 
 Return the value of the indicated option.
 
-=item $index = $glyph-E<gt>color($color)
+=item $index = $glyph-E<gt>color($option_name)
+
+Given an option name that corresponds to a color (e.g. 'fgcolor') look
+up the option and translate it into a GD color index.
+
+=item $index = $glyph-E<gt>translate_color($color)
 
 Given a symbolic or #RRGGBB-form color name, returns its GD index.
 
@@ -1431,7 +1442,16 @@ The "level" is the nesting level of the glyph.
 Groups are level -1, top level glyphs are level 0,
 subparts (e.g. exons) are level 1 and so forth.
 
+=item @parts = $glyph-E<gt>parts
+
+For glyphs that can contain subparts (e.g. the segments glyph), this
+method will return the list of subglyphs it contains. Subglyphs are
+created automatically by the new() method and are created subject to
+the maximum recursion depth specified by the maxdepth() method and/or
+the -maxdepth option.
+
 =back
+
 
 Setting an option:
 

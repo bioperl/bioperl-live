@@ -443,7 +443,12 @@ sub to_FTstring {
   my $self = shift;
   my $low  = $self->min_start;
   my $high = $self->max_end;
-  return "$low..$high";
+  my $strand = $self->strand;
+  my $str = defined $strand && $strand<0 ? "complement($low..$high)" : "$low..$high";
+  if (my $id = $self->seq_id()) {
+    $str = $id . ":" . $str;
+  }
+  $str;
 }
 sub phase { shift->{phase} }
 sub class {
