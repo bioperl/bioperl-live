@@ -1,0 +1,65 @@
+LOCUS       AF305198                1744 bp    DNA     linear   BCT 18-DEC-2000
+DEFINITION  Virginia creeper phytoplasma 16S ribosomal RNA gene, partial
+            sequence; and tRNA-Ile gene, complete sequence.
+ACCESSION   AF305198
+VERSION     AF305198.1  GI:11878216
+KEYWORDS    .
+SOURCE      Virginia creeper phytoplasma
+  ORGANISM  Virginia creeper phytoplasma
+            Bacteria; Firmicutes; Mollicutes; Acholeplasmatales;
+            Acholeplasmataceae; Candidatus Phytoplasma; 16SrV (Elm yellows
+            group).
+REFERENCE   1  (bases 1 to 1744)
+  AUTHORS   Harrison,N.A., Griffiths,H.M., Carpio,M.L. and Richardson,P.A.
+  TITLE     Detection of an Elm yellows group (16SrV) phytoplasma associated
+            with Virginia creeper plants in southern Florida
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 1744)
+  AUTHORS   Griffiths,H.M., Harrison,N.A., Carpio,M.L. and Richardson,P.A.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (13-SEP-2000) Research and Education Center, University
+            of Florida, 3205 College Avenue, Fort Lauderdale, FL 33314-7799,
+            USA
+FEATURES             Location/Qualifiers
+     source          1..1744
+                     /organism="Virginia creeper phytoplasma"
+                     /mol_type="genomic DNA"
+                     /strain="VC-Fl"
+                     /db_xref="taxon:145578"
+     rRNA            <1..1491
+                     /product="16S ribosomal RNA"
+     tRNA            1599..1675
+                     /product="tRNA-Ile"
+ORIGIN      
+        1 gcctaataca tgcaagtcga acggagaccc ttcaaaaggt cttagtggcg aacgggtgag
+       61 taacacgtaa gtaacctacc tttaagacga ggataacaat cggaaacggt tgctaagact
+      121 ggataggaaa cagaaaggca tctttttgtt tttaaaagac cttcttcgga gggtatgctt
+      181 aaagaggggc ttgcgccaca ttagttagtt ggtgaggtaa aggcttacca agattatgat
+      241 gtgtagctgg actgagaggt tgaacagcca cattgggact gagacacggc ccaaactcct
+      301 acgggaggca gcagtaggga attttcggca atggaggaaa ctctgaccga gcgacgccgc
+      361 gtgaacgatg aagtatttcg gtatgtaaag ttcttttatt gaagaagaaa aaatagtgga
+      421 aaaactatct tgacgttatt caatgaataa gccccggcta actatgtgcc agcagccgcg
+      481 gtaagacata gggggcgagc gttatccgga attattgggc gtaaagggtg cgtaggcggt
+      541 tagataagtc tataatttaa tttcagtgct taacgctgtc ttgttataga aactgtcttg
+      601 actagagtga gatagaggca agcggaattc catgtgtagc ggtaaaatgt gtaaatatat
+      661 ggaggaacac cagaagcgta ggcggcttgc tgggtcttta ctgacgctga ggcacgaaag
+      721 cgtggggagc aaacaggatt agataccctg gtagtccacg ctgtaaacga tgagtactaa
+      781 gtgtcggggg taactcggta ctgaagttaa cacattaagt actccgcctg agtagtacgt
+      841 acgcaagtat gaaacttaaa ggaattgacg ggactccgca caagcggtgg atcatgttgt
+      901 ttaattcgaa gatacacgaa aaaccttacc aggtcttgac atactctgca aagctataga
+      961 aatatagtgg aggttatcag ggatacaggt ggtgcatggt tgtcgtcagt tcgtgtcgtg
+     1021 agatgttagg ttaagtccta aaacgaacgc aacccctgtc gctagttgcc agcacgtaat
+     1081 ggtggggact ttagcgagac tgccaattaa acattggagg aaggtgggga taacgtcaaa
+     1141 tcatcatgcc ccttatgatc tgggctacaa acgtgataca atggctatta caaagagtag
+     1201 ctgaaacgcg agtttttagc caatctcaaa aaggtagtct cagtacggat tgaagtctgc
+     1261 aactcgactt tatgaagctg gaatcgctag taatcgcgaa tcagcatgtc gcggtgaata
+     1321 cgttctcggg gtttgtacac accgcccgtc aaaccacgaa agttagcaat acccgaaagc
+     1381 agtggcttaa cttcgcaaga agagggagct gtctaaggta gggttgatga ttggggttaa
+     1441 gtcgtaacaa ggtatcctta ccggaaggtg aggatggatc acctcctttc taaggacata
+     1501 catataaaaa tcatcatctt cagttttgaa agacttaggt taaaatataa gtttttcttt
+     1561 ttataaaaaa aagtgtttct cttatataaa agaccaaagg gcctatagct cagttggtta
+     1621 gagcacacgc ctgataagcg tgaggtcggt ggttcgagtc cacttaggcc caccaatttt
+     1681 atatcaggaa aatatttact tcgaagaaag ttctttgaaa agtagataaa catgatttgc
+     1741 ttaa
+//
+
