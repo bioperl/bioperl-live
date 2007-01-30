@@ -174,7 +174,6 @@ use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
-use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 
