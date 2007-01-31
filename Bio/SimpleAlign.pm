@@ -2645,9 +2645,10 @@ sub sort_by_start {
 
 sub _startend
 {
-    my ($aname,$astart,$bname,$bstart);
-    ($aname,$astart) = split (/[\/]/,$a);
-    ($bname,$bstart) = split (/[\/]/,$b);
+    my ($aname,$arange) = split (/[\/]/,$a);
+    my ($bname,$brange) = split (/[\/]/,$b);
+    my ($astart,$aend) = split(/\-/,$arange);
+    my ($bstart,$bend) = split(/\-/,$brange);
     return $astart <=> $bstart;
 }
 
