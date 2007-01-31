@@ -1112,9 +1112,11 @@ sub _deleteid {
   my $self = shift;
   my $key  = shift;
   my $dbh = $self->dbh;
+  my $success = 0;
   for my $table ($self->all_tables) {
-    $dbh->do("DELETE FROM $table WHERE id=$key");
+    $success += $dbh->do("DELETE FROM $table WHERE id=$key");
   }
+  return $success;
 }
 
 sub _clearall {
