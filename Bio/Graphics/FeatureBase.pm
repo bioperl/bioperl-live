@@ -110,6 +110,9 @@ sub new {
     $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
   }
 
+  # is_circular is needed for Bio::PrimarySeqI compliance
+  $self->{i_circular} = $arg{-is_circular} || 0;
+
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
       && $self->{stop} < $self->{start}) {
@@ -224,6 +227,15 @@ sub length {
   my $self = shift;
   return $self->end - $self->start + 1;
 }
+
+#is_circular is needed for Bio::PrimarySeqI
+sub is_circular {
+  my $self = shift;
+  my $d = $self->{is_circular};
+  $self->{is_circular} = shift if @_;
+  $d;
+}
+
 
 sub seq {
   my $self = shift;

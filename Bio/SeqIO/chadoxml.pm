@@ -274,15 +274,17 @@ use base qw(Bio::SeqIO);
 
 sub _initialize {
 
-    my($self,@args) = @_;
+    my($self,%args) = @_;
 
-    $self->SUPER::_initialize(@args);
+    $self->SUPER::_initialize(%args);
     unless( defined $self->sequence_factory ) {
         $self->sequence_factory(new Bio::Seq::SeqFactory
                                 (-verbose => $self->verbose(),
                                  -type => 'Bio::Seq::RichSeq'));
     }
-
+    #optional arguments that can be passed in
+    $self->flybase_compat($args{'-flybase_compat'}) 
+        if defined $args{'-flybase_compat'};
 }
 
 =head2 write_seq
@@ -467,11 +469,21 @@ EOUSAGE
 	if (defined $seq_so_type) {
 		$ftype = $seq_so_type;
 	}
+        elsif ($seq->type) {
+                $ftype = ($seq->type =~ /(.*):/)
+                         ? $1
+                         : $seq->type;
+        }
 	else {
 		$ftype = $gb_type;
 	}
 
-	my %ftype_hash = ( "name" => $ftype, "cv_id" => {"name" => 'SO'});
+        #current standard for SO name in chado is 'sequence'
+        #should provide a argument to allow putting 'SO' to support flybase
+	my %ftype_hash = ( "name" => $ftype, 
+                           "cv_id" => {"name" => $self->flybase_compat
+                                                 ? 'SO'
+                                                 : 'sequence'});
 
         if ($species) {
             %organism = ("genus"=>$genus, "species" => $species);
@@ -485,7 +497,11 @@ EOUSAGE
 	    }
         }
 
-        my $residues = $seq->seq || '';
+        ###FIXME:need an arg to suppress residues printing
+        my $residues = $seq->seq->isa('Bio::PrimarySeq') 
+                       ? $seq->seq->seq 
+                       : $seq->seq;
+        $residues = '';
 
 	#set is_analysis flag for gene model features
 	undef(my $isanal);
@@ -1331,9 +1347,13 @@ sub _subfeat2featrelhash {
 	#subj-obj relationship type
 	undef(my $reltypename);
 	if ($sftype eq 'protein') {
-		$reltypename = 'producedby';
+		$reltypename = $self->flybase_compat
+                               ? 'producedby'
+                               : 'derives_from';
 	} else {
-		$reltypename = 'partof';
+		$reltypename = $self->flybase_compat
+                               ? 'partof'
+                               : 'part_of';
 	}
 
 	my %fr = (
@@ -1475,5 +1495,38 @@ sub _getSubmitAddr {
 	}
     }
 }
+
+=head2 flybase_compat
+
+=over
+
+=item Usage
+
+  $obj->flybase_compat()        #get existing value
+  $obj->flybase_compat($newval) #set new value
+
+=item Function
+
+Keep track of flybase compatablility flag
+
+=item Returns
+
+value of flybase_compat (a scalar)
+
+=item Arguments
+
+new value of flybase_compat (to set)
+
+=back
+
+=cut
+
+sub flybase_compat {
+    my $self = shift;
+    my $flybase_compat = shift if defined(@_);
+    return $self->{'flybase_compat'} = $flybase_compat if defined($flybase_compat);
+    return $self->{'flybase_compat'};
+}
+
 
 1;
