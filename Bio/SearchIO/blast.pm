@@ -592,6 +592,24 @@ sub next_result {
             if ( !$self->in_element('iteration') ) {
                 $self->_start_iteration;
             }
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_db-len',
+                    'Data' => $self->{'_blsdb_length'}
+                } 
+            ) if $self->{'_blsdb_length'};
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_db-let',
+                    'Data' => $self->{'_blsdb_letters'}
+                }
+            ) if $self->{'_blsdb_letters'};
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_db',
+                    'Data' => $self->{'_blsdb'}
+                }
+            ) if $self->{'_blsdb_letters'};
           descline:
             while ( defined( $_ = $self->_readline() ) ) {
                 
@@ -692,6 +710,10 @@ sub next_result {
                             'Data' => $l
                         }
                     );
+                    # cache for next round in cases with multiple queries
+                    $self->{'_blsdb'} = $db;
+                    $self->{'_blsdb_length'} = $s;
+                    $self->{'_blsdb_letters'} = $l;                    
                     last;
                 }
                 else {
@@ -2010,6 +2032,8 @@ sub end_element {
 
 sub element {
     my ( $self, $data ) = @_;
+    # Note that start element isn't needed for character data
+    # Not too SAX-y, though
     #$self->start_element($data);
     $self->characters($data);
     $self->end_element($data);
