@@ -111,7 +111,7 @@ sub new {
   }
 
   # is_circular is needed for Bio::PrimarySeqI compliance
-  $self->{i_circular} = $arg{-is_circular} || 0;
+  $self->{is_circular} = $arg{-is_circular} || 0;
 
   # fix start, stop
   if (defined $self->{stop} && defined $self->{start}
