@@ -289,6 +289,13 @@ sub _initialize {
     $self->flybase_compat($args{'-flybase_compat'}) 
         if defined $args{'-flybase_compat'};
 
+    if ($args{'-flybase_compat'}) {
+        $feattype_args2so{'CDS'} = 'protein';
+    }
+    else {
+        $feattype_args2so{'CDS'} = 'polypeptide';
+    }
+
     $self->suppress_residues($args{'-suppress_residues'})
         if defined $args{'-suppress_residues'};
 
@@ -519,7 +526,7 @@ EOUSAGE
 
 	#set is_analysis flag for gene model features
 	undef(my $isanal);
-	if ($ftype eq 'gene' || $ftype eq 'mRNA' || $ftype eq 'exon' || $ftype eq 'protein') {
+	if ($ftype eq 'gene' || $ftype eq 'mRNA' || $ftype eq 'exon' || $ftype eq 'protein' || $ftype eq 'polypeptide') {
 		$isanal = $isanalysis;
 		$isanal = 'false' if !defined $isanal;
 	}
@@ -1245,7 +1252,7 @@ sub _subfeat2featrelhash {
 
 	#set is_analysis flag for gene model features
 	undef(my $isanal);
-	if ($sftype eq 'gene' || $sftype eq 'mRNA' || $sftype eq 'exon' || $sftype eq 'protein') {
+	if ($sftype eq 'gene' || $sftype eq 'mRNA' || $sftype eq 'exon' || $sftype eq 'protein' || $sftype eq 'polypeptide') {
 		$isanal = $isanalysis;
 	}
 
@@ -1360,7 +1367,7 @@ sub _subfeat2featrelhash {
 
 	#subj-obj relationship type
 	undef(my $reltypename);
-	if ($sftype eq 'protein') {
+	if ($sftype eq 'protein' || $sftype eq 'polypeptide') {
 		$reltypename = $self->flybase_compat
                                ? 'producedby'
                                : 'derives_from';
