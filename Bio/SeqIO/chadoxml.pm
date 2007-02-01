@@ -32,7 +32,10 @@ http://gmod.cvs.sourceforge.net/gmod/schema/chado/dat/chado.dtd).
 This is currently a write-only module.
 
     $seqio = Bio::SeqIO->new(-file => '>outfile.xml',
-                             -format => 'chadoxml');
+                             -format => 'chadoxml'
+                             -suppress_residues => 1,
+                             -allow_residues => 'chromosome',
+                             );
 
     # we have a Bio::Seq object $seq which is a gene located on
     # chromosome arm 'X', to be written out to chadoxml
@@ -285,6 +288,12 @@ sub _initialize {
     #optional arguments that can be passed in
     $self->flybase_compat($args{'-flybase_compat'}) 
         if defined $args{'-flybase_compat'};
+
+    $self->suppress_residues($args{'-suppress_residues'})
+        if defined $args{'-suppress_residues'};
+
+    $self->allow_residues($args{'-allow_residues'})
+        if defined $args{'-allow_residues'};
 }
 
 =head2 write_seq
@@ -497,11 +506,16 @@ EOUSAGE
 	    }
         }
 
-        ###FIXME:need an arg to suppress residues printing
-        my $residues = $seq->seq->isa('Bio::PrimarySeq') 
-                       ? $seq->seq->seq 
-                       : $seq->seq;
-        $residues = '';
+        my $residues;
+        if (!$self->suppress_residues ||
+            ($self->suppress_residues && $self->allow_residues eq $ftype)) {
+            $residues = $seq->seq->isa('Bio::PrimarySeq') 
+                        ? $seq->seq->seq 
+                        : $seq->seq;
+        }
+        else {
+            $residues = '';
+        }
 
 	#set is_analysis flag for gene model features
 	undef(my $isanal);
@@ -1526,6 +1540,77 @@ sub flybase_compat {
     my $flybase_compat = shift if defined(@_);
     return $self->{'flybase_compat'} = $flybase_compat if defined($flybase_compat);
     return $self->{'flybase_compat'};
+}
+
+=head2 suppress_residues
+
+=over
+
+=item Usage
+
+  $obj->suppress_residues()        #get existing value
+  $obj->suppress_residues($newval) #set new value
+
+=item Function
+
+Keep track of the flag to suppress printing of residues in the chadoxml file.
+The default it to allow all residues to go into the file.
+
+=item Returns
+
+value of suppress_residues (a scalar)
+
+=item Arguments
+
+new value of suppress_residues (to set)
+
+=back
+
+=cut
+
+sub suppress_residues {
+    my $self = shift;
+    my $suppress_residues = shift if defined(@_);
+    return $self->{'suppress_residues'} = $suppress_residues if defined($suppress_residues);
+    return $self->{'suppress_residues'};
+}
+
+=head2 allow_residues
+
+=over
+
+=item Usage
+
+  $obj->allow_residues()        #get existing value
+  $obj->allow_residues($feature_type) #set new value
+
+=item Function
+
+Track the allow_residues type.  This can be used in conjunction with the
+suppress_residues flag to only allow residues from a specific feature type
+to be printed in the xml file, for example, only printing chromosome
+residues.  When suppress_residues is set to true, then only chromosome
+features would would go into the xml file.  If suppress_residues is not
+set, this function has no effect (since the default is to put all residues
+in the xml file).
+
+=item Returns
+
+value of allow_residues (a string that corresponds to a feature type)
+
+=item Arguments
+
+new value of allow_residues (to set)
+
+=back
+
+=cut
+
+sub allow_residues {
+    my $self = shift;
+    my $allow_residues = shift if defined(@_);
+    return $self->{'allow_residues'} = $allow_residues if defined($allow_residues);
+    return $self->{'allow_residues'};
 }
 
 
