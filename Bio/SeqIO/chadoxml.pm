@@ -286,21 +286,12 @@ sub _initialize {
                                  -type => 'Bio::Seq::RichSeq'));
     }
     #optional arguments that can be passed in
-    $self->flybase_compat($args{'-flybase_compat'}) 
-        if defined $args{'-flybase_compat'};
-
-    if ($args{'-flybase_compat'}) {
-        $feattype_args2so{'CDS'} = 'protein';
-    }
-    else {
-        $feattype_args2so{'CDS'} = 'polypeptide';
-    }
-
     $self->suppress_residues($args{'-suppress_residues'})
         if defined $args{'-suppress_residues'};
 
     $self->allow_residues($args{'-allow_residues'})
         if defined $args{'-allow_residues'};
+    return;
 }
 
 =head2 write_seq
@@ -494,12 +485,7 @@ EOUSAGE
 		$ftype = $gb_type;
 	}
 
-        #current standard for SO name in chado is 'sequence'
-        #should provide a argument to allow putting 'SO' to support flybase
-	my %ftype_hash = ( "name" => $ftype, 
-                           "cv_id" => {"name" => $self->flybase_compat
-                                                 ? 'SO'
-                                                 : 'sequence'});
+	my %ftype_hash = $self->return_ftype_hash($ftype);
 
         if ($species) {
             %organism = ("genus"=>$genus, "species" => $species);
@@ -946,7 +932,7 @@ EOUSAGE
 	if ($datasource =~ /GenBank/i) {
 		$tag_cv = 'GenBank feature qualifier';
 	} elsif ($datasource =~ /GFF/i) {
-		$tag_cv = 'GFF tag';
+		$tag_cv = 'feature_property';
 	} else {
 		$tag_cv = 'property type';
 	}
@@ -1367,15 +1353,7 @@ sub _subfeat2featrelhash {
 
 	#subj-obj relationship type
 	undef(my $reltypename);
-	if ($sftype eq 'protein' || $sftype eq 'polypeptide') {
-		$reltypename = $self->flybase_compat
-                               ? 'producedby'
-                               : 'derives_from';
-	} else {
-		$reltypename = $self->flybase_compat
-                               ? 'partof'
-                               : 'part_of';
-	}
+        $reltypename = return_reltypename($sftype);
 
 	my %fr = (
 		"subject_id"	=> \%sfhash,
@@ -1517,37 +1495,6 @@ sub _getSubmitAddr {
     }
 }
 
-=head2 flybase_compat
-
-=over
-
-=item Usage
-
-  $obj->flybase_compat()        #get existing value
-  $obj->flybase_compat($newval) #set new value
-
-=item Function
-
-Keep track of flybase compatablility flag
-
-=item Returns
-
-value of flybase_compat (a scalar)
-
-=item Arguments
-
-new value of flybase_compat (to set)
-
-=back
-
-=cut
-
-sub flybase_compat {
-    my $self = shift;
-    my $flybase_compat = shift if defined(@_);
-    return $self->{'flybase_compat'} = $flybase_compat if defined($flybase_compat);
-    return $self->{'flybase_compat'};
-}
 
 =head2 suppress_residues
 
@@ -1619,6 +1566,107 @@ sub allow_residues {
     return $self->{'allow_residues'} = $allow_residues if defined($allow_residues);
     return $self->{'allow_residues'};
 }
+
+=head2 return_ftype_hash
+
+=over
+
+=item Usage
+
+  $obj->return_ftype_hash()
+
+=item Function
+
+A simple hash where returning it has be factored out of the main
+code to allow subclasses to override it.
+
+=item Returns
+
+A hash that indicates what the name of the SO term is and what
+the name of the Sequence Ontology is in the cv table.
+
+=item Arguments
+
+The string that represents the SO term.
+
+=back
+
+=cut
+
+sub return_ftype_hash {
+    my $self  = shift;
+    my $ftype = shift;
+    my %ftype_hash = ( "name" => $ftype,
+                       "cv_id" => {"name" => 'sequence'});
+    return %ftype_hash;
+}
+
+=head2 return_reltypename
+
+=over
+
+=item Usage
+
+  $obj->return_reltypename()
+
+=item Function
+
+Return the appropriate relationship type name depending on the
+feature type (typically part_of, but derives_from for polypeptide).
+
+=item Returns
+
+A relationship type name.
+
+=item Arguments
+
+A SO type name.
+
+=back
+
+=cut
+
+sub return_reltypename {
+    my $self   = shift;
+    my $sftype = shift;
+
+    my $reltypename;
+    if ($sftype eq 'protein' || $sftype eq 'polypeptide') {
+        $reltypename = 'derives_from';
+    } else {
+        $reltypename = 'part_of';
+    }
+
+    return $reltypename;
+}
+
+=head2 next_seq
+
+=over
+
+=item Usage
+
+  $obj->next_seq()
+
+=item Function
+
+Not implemented--this is a write-only adapter.
+
+=item Returns
+
+=item Arguments
+
+=back
+
+=cut
+
+sub next_seq {
+    my ($self, %argv) = @_;
+
+    $self->throw('next_seq is not implemented; this is a write-only adapter.');
+
+}
+
 
 
 1;
