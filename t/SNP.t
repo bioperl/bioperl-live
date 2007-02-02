@@ -8,17 +8,14 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) { 
-	use lib 't';
+	use lib 't\lib';
     }
-    use Test;
-    plan tests => 13 }
-
-
-use Bio::Variation::SNP;
-
-ok(1);
+    use Test::More;
+    plan tests => 13;
+	use_ok('Bio::Variation::SNP');
+}
 
 my($a);
 
@@ -27,18 +24,18 @@ my($a);
 #
 
 ok $a = new Bio::Variation::SNP;
-ok $a->id('123'), 123;
+is $a->id('123'), 123;
 eval { $a->di('123'); };
 ok 1 if $@;
-ok $a->validated('by-cluster'), 'by-cluster';
+is $a->validated('by-cluster'), 'by-cluster';
 my @alleles = ('A', 'T');
-ok $a->validated(\@alleles), \@alleles;
-ok $a->desc('abc'), 'abc'; # Bio::Variation::Allele method
-ok $a->chromosome('X'), 'X'; # Bio::Variation::Allele method
+is $a->validated(\@alleles), \@alleles;
+is $a->desc('abc'), 'abc'; # Bio::Variation::Allele method
+is $a->chromosome('X'), 'X'; # Bio::Variation::Allele method
 ok my $s = $a->add_subsnp;
 ok $s->is_subsnp;
-ok $s->handle('HGBASE'), 'HGBASE';
+is $s->handle('HGBASE'), 'HGBASE';
 ok $a->add_subsnp;
-ok $a->each_subsnp, 2;
+is $a->each_subsnp, 2;
 
 

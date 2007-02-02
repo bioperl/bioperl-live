@@ -10,18 +10,17 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    plan tests => 36 }
+    plan tests => 37;
+	use_ok('Bio::Variation::DNAMutation');
+	use_ok('Bio::Variation::Allele');
+}
 
-use Bio::Variation::DNAMutation;
-use Bio::Variation::Allele;
-
-ok(1);
 
 ## End of black magic.
 ##
@@ -35,85 +34,85 @@ $obj = Bio::Variation::DNAMutation -> new;
 ok defined $obj;
 
 $obj->start(3);           
-ok $obj->start, 3;
+is $obj->start, 3;
 
 $obj->end(3); 
-ok $obj->end, 3;
+is $obj->end, 3;
 
 $obj->length(2);
-ok $obj->length, 2;
+is $obj->length, 2;
 
 $obj->strand('1');  
-ok $obj->strand, '1';
+is $obj->strand, '1';
 
-ok $obj->primary_tag, 'Variation';
+is $obj->primary_tag, 'Variation';
 
 $obj->source_tag('source');
-ok $obj->source_tag, 'source';
+is $obj->source_tag, 'source';
 
 $obj->frame(2);   
-ok $obj->frame,2;
+is $obj->frame,2;
 
 $obj->score(2);   
-ok $obj->score, 2;
+is $obj->score, 2;
 
 if( $obj->can('dna_mut') ) {
 #test gff string
     $obj->dna_mut('dna_mut'); 
-    ok( $obj->dna_mut,'dna_mut');
+    is( $obj->dna_mut,'dna_mut');
 }
 
 $a1 = Bio::Variation::Allele->new(-seq => 'c');
 $obj->allele_ori($a1);
  
-ok $obj->allele_ori->seq, 'c';
+is $obj->allele_ori->seq, 'c';
 
 $a2 = Bio::Variation::Allele->new('-seq' => 'g');
 $obj->allele_mut($a2);
 
-ok $obj->allele_mut->seq, 'g';
+is $obj->allele_mut->seq, 'g';
 
 $obj->upStreamSeq('agcacctcccggcgccagtttgctg'); 
-ok $obj->upStreamSeq, 'agcacctcccggcgccagtttgctg';
+is $obj->upStreamSeq, 'agcacctcccggcgccagtttgctg';
 
 $obj->dnStreamSeq('tgctgcagcagcagcagcagcagca'); 
-ok $obj->dnStreamSeq, 'tgctgcagcagcagcagcagcagca';
+is $obj->dnStreamSeq, 'tgctgcagcagcagcagcagcagca';
 
 
-ok $obj->label, 'point, transversion' ;
+is $obj->label, 'point, transversion' ;
 
 $obj->status('proven'); 
-ok $obj->status, 'proven';
+is $obj->status, 'proven';
 
 
 $obj->proof('experimental'); 
-ok $obj->proof, 'experimental';
+is $obj->proof, 'experimental';
 
 
-ok $obj->restriction_changes, '-BbvI, +BstXI, -Fnu4HI, -TseI';
+is $obj->restriction_changes, '-BbvI, +BstXI, -Fnu4HI, -TseI';
 
 $obj->region('region'); 
-ok $obj->region, 'region';
+is $obj->region, 'region';
 
 $obj->region_value('region_value'); 
-ok $obj->region_value, 'region_value';
+is $obj->region_value, 'region_value';
 
 $obj->region_dist(-5); 
-ok $obj->region_dist, -5;
+is $obj->region_dist, -5;
 
 $obj->numbering('coding'); 
-ok $obj->numbering, 'coding';
+is $obj->numbering, 'coding';
 
 ok not $obj->CpG;
 
 $obj->mut_number(2);
-ok $obj->mut_number, 2;
+is $obj->mut_number, 2;
 
 
 ok defined ($obj2 = Bio::Variation::DNAMutation -> new
 	    ('-mut_number' => 2));
 
-ok $obj2->mut_number, 2;
+is $obj2->mut_number, 2;
 
 
 $obj->isMutation(1); 
@@ -122,7 +121,7 @@ ok $obj->isMutation;
 $obj->add_Allele($a1);
 $obj->add_Allele($a2);
 
-ok scalar ($obj->each_Allele), 2;
+is scalar ($obj->each_Allele), 2;
 
 
 $obj = Bio::Variation::DNAMutation->new
@@ -136,11 +135,11 @@ $obj = Bio::Variation::DNAMutation->new
      '-mut_number'    => 2
      );
 
-ok $obj->start(), 23;
-ok $obj->end(), 24;
-ok $obj->length(), 2;
-ok $obj->upStreamSeq(), 'gt';
-ok $obj->dnStreamSeq(), 'at';
-ok $obj->proof(), 'experimental';
-ok $obj->mut_number(), 2;
+is $obj->start(), 23;
+is $obj->end(), 24;
+is $obj->length(), 2;
+is $obj->upStreamSeq(), 'gt';
+is $obj->dnStreamSeq(), 'at';
+is $obj->proof(), 'experimental';
+is $obj->mut_number(), 2;
 ok $obj->isMutation;

@@ -10,46 +10,44 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 42;
+    use Test::More;
+    plan tests => 44;
+	use_ok('Bio::Variation::SeqDiff');
+	use_ok('Bio::Variation::DNAMutation');
+	use_ok('Bio::Variation::Allele');
 }
 
-use Bio::Variation::SeqDiff;
-use Bio::Variation::DNAMutation;
-use Bio::Variation::Allele;
-
-ok 1;
 my ($obj, $mm, $aa, $dna, $m);
 
 ok $obj = Bio::Variation::SeqDiff -> new;
 
 ok $obj->id('id');
-ok $obj->id, 'id';
+is $obj->id, 'id';
 
 ok $obj->sysname('sysname');
-ok $obj->sysname, 'sysname';
+is $obj->sysname, 'sysname';
 
 $obj->trivname('trivname'); 
-ok $obj->trivname eq 'trivname';
+is $obj->trivname, 'trivname';
 
 ok $obj->chromosome('chr');
-ok $obj->chromosome, 'chr';
+is $obj->chromosome, 'chr';
 
 ok $obj->description('desc');
-ok $obj->description, 'desc';
+is $obj->description, 'desc';
 
 ok $obj->numbering('numbering');
-ok $obj->numbering, 'numbering';
+is $obj->numbering, 'numbering';
 
 ok $obj->offset(100);
-ok $obj->offset, 100;
+is $obj->offset, 100;
 #                  12345678901234567890
 ok $obj->dna_ori ('gctgctgatcgatcgtagctagctag');
-ok $obj->dna_ori, 'gctgctgatcgatcgtagctagctag';
+is $obj->dna_ori, 'gctgctgatcgatcgtagctagctag';
 
 # generate mutated DNA seq from the mutation
 ok $m = Bio::Variation::DNAMutation->new(-isMutation => 1, -start=>14, -end=>14);
@@ -66,37 +64,37 @@ $m2->allele_mut($b2);
 $obj->add_Variant($m2);
 
 #ok $obj->dna_mut('gctgctgatcggtcgtagctagctag');
-ok $obj->dna_mut, 'gctgctgatcgatggtaggtagctag';
+is $obj->dna_mut, 'gctgctgatcgatggtaggtagctag';
 
 ok $obj->rna_ori('gctgctgatcgatcgtagctagctag');
-ok $obj->rna_ori, 'gctgctgatcgatcgtagctagctag';
+is $obj->rna_ori, 'gctgctgatcgatcgtagctagctag';
 
 $obj->rna_mut('gctgctgatcgatcgtagctagctag'); 
-ok $obj->rna_mut, 'gctgctgatcgatcgtagctagctag';
+is $obj->rna_mut, 'gctgctgatcgatcgtagctagctag';
 
 ok $obj->aa_ori('MHYTRD');
-ok $obj->aa_ori, 'MHYTRD';
+is $obj->aa_ori, 'MHYTRD';
 
 ok $obj->aa_mut('MHGTRD');
-ok $obj->aa_mut, 'MHGTRD';
+is $obj->aa_mut, 'MHGTRD';
 
 foreach $mm ( $obj->each_Variant ) {
     $mm->primary_tag('a');
-    ok $mm->isa('Bio::Variation::VariantI');
+    isa_ok($mm,'Bio::Variation::VariantI');
 }
 
 
 ok $obj->gene_symbol('fos');
-ok $obj->gene_symbol, 'fos';
+is $obj->gene_symbol, 'fos';
 
 ok $obj->rna_offset(10);
-ok $obj->rna_offset == 10;
+is $obj->rna_offset, 10;
 
 ok $obj->rna_id('transcript#3');
-ok $obj->rna_id, 'transcript#3';
+is $obj->rna_id, 'transcript#3';
 
 ok $dna = $obj->seqobj('dna_ori');
-ok $dna->isa('Bio::PrimarySeq');
+isa_ok($dna,'Bio::PrimarySeq');
 
 $obj->aa_mut(''); 
 $aa = $obj->seqobj('aa_mut');
