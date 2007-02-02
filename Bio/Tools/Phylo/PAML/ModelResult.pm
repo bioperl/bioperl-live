@@ -20,7 +20,7 @@ Bio::Tools::Phylo::PAML::ModelResult - A container for NSSite Model Result from 
   use Bio::Tools::Phylo::PAML;
   my $paml = new Bio::Tools::Phylo::PAML(-file => 'mlc');
   my $result = $paml->next_result;
-  foreach my $model ( $result->get_model_results ) {
+  foreach my $model ( $result->get_NSSite_results ) {
     print $model->model_num, " ", $model->model_description, "\n";
     print $model->kappa, "\n";
     print $model->run_time, "\n";
