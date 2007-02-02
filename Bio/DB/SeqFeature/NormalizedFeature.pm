@@ -501,6 +501,8 @@ sub _create_subfeatures {
   my $name  = $self->name;
   my $class = $self->class;
   my $store = $self->object_store;
+  my $source = $self->source;
+
   if ($normalized) {
     $store or $self->throw("Feature must be associated with a Bio::DB::SeqFeature::Store database before attempting to add subfeatures to a normalized object");
   }
@@ -536,6 +538,7 @@ sub _create_subfeatures {
 				-type   => $type,
 			        -name   => $name,
 			        -class  => $class,
+				-source => $source,
 			       );
     }
 
@@ -550,6 +553,7 @@ sub _create_subfeatures {
 			 -primary_tag => $seg->primary_tag,
 			 -source_tag  => $seg->source,
 			 -score       => $score,
+			 -source => $source,
 			);
       for my $tag ($seg->get_all_tags) {
 	my @values = $seg->get_tag_values($tag);
