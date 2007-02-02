@@ -122,6 +122,9 @@ sub new {
 
   my @segments;
   if (my $s = $arg{-segments}) {
+    # NB: when $self ISA Bio::DB::SeqFeature the following invokes
+    # Bio::DB::SeqFeature::add_segment and not
+    # Bio::DB::SeqFeature::add_segment (as might be expected?)
     $self->add_segment(@$s);
   }
 
@@ -135,6 +138,7 @@ sub add_segment {
   my $ref   = $self->seq_id;
   my $name  = $self->name;
   my $class = $self->class;
+  my $source_tag = $self->source_tag;
 
   my $min_start = $self->start ||  999_999_999_999;
   my $max_stop  = $self->end   || -999_999_999_999;
@@ -151,13 +155,16 @@ sub add_segment {
 	($start,$stop) = ($stop,$start);
 	$strand = -1;
       }
+
       push @segments,$self->new(-start  => $start,
 				-stop   => $stop,
 				-strand => $strand,
 				-ref    => $ref,
 				-type   => $type,
 			        -name   => $name,
-			        -class  => $class);
+			        -class  => $class,
+			       -source_tag  => $source_tag,
+			       );
       $min_start = $start if $start < $min_start;
       $max_stop  = $stop  if $stop  > $max_stop;
 
