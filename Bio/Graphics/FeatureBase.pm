@@ -493,7 +493,7 @@ sub gff_string {
   my $string;
   $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
                        $self->start||'.',$self->stop||'.',
-                       $self->score||'.',$strand||'.',$self->phase||'.',
+		  defined($self->score) ? $self->score : '.',$strand||'.',$self->phase||'.',
                        $group||'');
   $string .= "\n";
   if ($recurse) {
@@ -514,7 +514,7 @@ sub gff3_string {
   my $strand = ('-','.','+')[$self->strand+1];
   my $p      = join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
 		    $self->start||'.',$self->stop||'.',
-		    $self->score||'.',$strand||'.',$self->phase||'.',
+		    defined($self->score) ? $self->score : '.',$strand||'.',$self->phase||'.',
 		    $group||'');
 
   # the "homogeneous" flag will be true if the parent and children are all of the same type,
