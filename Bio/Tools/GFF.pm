@@ -121,6 +121,7 @@ Email mrp-at-sanger.ac.uk
 Jason Stajich, jason-at-biperl-dot-org
 Chris Mungall, cjm-at-fruitfly-dot-org
 Steffen Grossmann [SG], grossman at molgen.mpg.de
+Malcolm Cook, mec-at-stowers-institute.org
 
 =head1 APPENDIX
 
@@ -1034,9 +1035,7 @@ sub _gff3_string {
 	    push @v, $value;
 	}
 	$tag= lcfirst($tag) unless ($tag 
-          =~ /
-     ^ID|Name|Alias|Parent|Gap|Target|Derives_from|Note|Dbxref|Ontology_term$
-             /);
+          =~ /^ID|Name|Alias|Parent|Gap|Target|Derives_from|Note|Dbxref|Ontology_term$/);
 
 	push @groups, "$tag=".join(",",@v);
     }
