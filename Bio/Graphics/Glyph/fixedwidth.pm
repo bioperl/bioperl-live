@@ -10,7 +10,7 @@ sub pad_left {
   my $pl     = $self->SUPER::pad_left;
   my $width  = $self->width;
   my $needed = $self->width_needed;
-  my $extra  = ($needed-$width)/2;
+  my $extra  = ($needed-$width)/2 + 1;
   if ($extra > $pl) {
     return $extra;
   } else {
@@ -24,10 +24,11 @@ sub pad_right {
   my $width  = $self->width;
   my $needed = $self->width_needed;
   my $extra  = ($needed-$width)/2;
-  if ($extra > $pr) {
+  $extra = 0 if $extra < 0;
+  if ($extra > 0 && $extra > $pr) {
     return $extra;
   } else {
-    return $pr;
+    return $pr-$extra;
   }
 }
 

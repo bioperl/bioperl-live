@@ -324,7 +324,6 @@ sub draw_description {
   my ($gd,$dx,$dy,$partno,$total_parts) = @_;
   my $label = $self->description or return;
   my ($left,$top,$right,$bottom) = $self->bounds($dx,$dy);
-  $left    -= $self->pad_left; # offset to beginning of drawn part of feature
   $bottom  += $self->pad_bottom;
   $bottom  -= $self->labelheight;
   $bottom  -= $self->labelheight if $self->part_labels && $self->label_position eq 'top';
