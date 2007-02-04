@@ -23,8 +23,6 @@ program (one of the programs in the RNAMotif suite). It currently parses only
 raw rnamotif output for RNAMotif versions 3.0 and above; older versions may work
 but will not be supported. rmfmt output will not be supported at this time.
 
-Insert parser-specific POD here!
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -62,13 +60,13 @@ use strict;
 
 use base qw(Bio::SearchIO);
 
-our %MODEMAP = (
+my %MODEMAP = (
 	    'Result'             => 'result',
 	    'Hit'                => 'hit',
 	    'Hsp'                => 'hsp'
 	    );
 
-our %MAPPING = ( 
+my %MAPPING = ( 
         # commented out tags have not been assigned
         
         'Hsp_score'        => 'HSP-score',
@@ -94,6 +92,7 @@ our %MAPPING = (
 
         'Hit_id'        => 'HIT-name',
         'Hit_accession' => 'HIT-accession',
+        'Hit_gi'        => 'HIT-ncbi_gi',
         'Hit_def'       => 'HIT-description',
         'Hit_score'     => 'HIT-score', # best HSP score
  
@@ -108,8 +107,8 @@ our %MAPPING = (
 
 # use structure_delimiters to set custom delimiters
 
-our @VALID_SYMBOLS = qw(5-prime 3-prime single-strand unknown);
-our %STRUCTURE_SYMBOLS = (
+my @VALID_SYMBOLS = qw(5-prime 3-prime single-strand unknown);
+my %STRUCTURE_SYMBOLS = (
                    '5-prime'        => '<',
                    '3-prime'        => '>',
                    'single-strand'  => '.',
@@ -117,7 +116,7 @@ our %STRUCTURE_SYMBOLS = (
                     # may add more for quartets, triplets
                   );
 
-our $DEFAULT_VERSION = '3.0.3';
+my $DEFAULT_VERSION = '3.0.3';
 
 =head2 new
 

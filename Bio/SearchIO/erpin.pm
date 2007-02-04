@@ -60,13 +60,13 @@ use strict;
 use Data::Dumper;
 use base qw(Bio::SearchIO);
 
-our %MODEMAP = (
+my %MODEMAP = (
 	    'Result'             => 'result',
 	    'Hit'                => 'hit',
 	    'Hsp'                => 'hsp'
 	    );
 
-our %MAPPING = ( 
+my %MAPPING = ( 
         'Hsp_bit-score'   => 'HSP-bits',
         'Hsp_score'       => 'HSP-score',
         'Hsp_evalue'      => 'HSP-evalue', # no evalues yet
@@ -120,9 +120,9 @@ our %MAPPING = (
         'Statistics_db-let'      => { 'RESULT-statistics' => 'dbletters' },
 	     );
 
-our $MINSCORE = 0;
-our $DEFAULT_VERSION = '4.2.5';
-our $DEFAULT_ALGORITHM = 'erpin';
+my $MINSCORE = 0;
+my $DEFAULT_VERSION = '4.2.5';
+my $DEFAULT_ALGORITHM = 'erpin';
 
 =head2 new
 
