@@ -163,7 +163,8 @@ sub classification {
         # make sure the lineage contains us as first or second element
         # (lineage may have subspecies, species, genus ...)
         my $name = $self->node_name;
-        if ($name && ($name !~ m{$vals[0]} && $name !~ m{$vals[1]}) && $name !~ m{$vals[1] $vals[0]}) {
+        my ($genus, $species) = (quotemeta($vals[1]), quotemeta($vals[0]));
+        if ($name && ($name !~ m{$species}i && $name !~ m{$genus}i) && $name !~ m{$vals[1] $vals[0]}i) {
             if ($name =~ /^$vals[1] $vals[0]\s*(.+)/) {
                 # just assume the problem is someone tried to make a Bio::Species starting at subspecies
                 #*** no idea if this is appropriate! just a possible fix related to bug 2092
@@ -339,8 +340,7 @@ sub species {
 		}
 		
 		$self->{_species} = $species;
-	}
-	
+    }
 	return $self->{_species};
 }
 
