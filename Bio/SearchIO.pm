@@ -408,6 +408,57 @@ END
   return $ok;
 }
 
+=head2 _get_seq_identifiers
+
+ Title   : _get_seq_identifiers
+ Usage   : my ($gi, $acc,$ver) = &_get_seq_identifiers($id)
+ Function: Private function to get the gi, accession, version data
+           for an ID (if it is in NCBI format)
+ Returns : 3-pule of gi, accession, version
+ Args    : ID string to process (NCBI format)
+
+
+=cut
+
+sub _get_seq_identifiers {
+    my $id = shift;
+
+    # handle case when this is accidently called as a class method
+    if ( ref($id) && $id->isa('Bio::SearchIO') ) {
+        $id = shift;
+    }
+    return unless defined $id;
+    my ($gi, $acc, $version );
+    if ( $id =~ /^gi\|(\d+)\|/ ) {
+        $gi = $1;
+    }
+    if ( $id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/ ) {
+        ( $acc, $version ) = split /\./, $2;
+    }
+    elsif ( $id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/ ) {
+        ( $acc, $version ) = split /\./, $3;
+    }
+    else {
+
+        #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+        #Database Name                     Identifier Syntax
+        #============================      ========================
+        #GenBank                           gb|accession|locus
+        #EMBL Data Library                 emb|accession|locus
+        #DDBJ, DNA Database of Japan       dbj|accession|locus
+        #NBRF PIR                          pir||entry
+        #Protein Research Foundation       prf||name
+        #SWISS-PROT                        sp|accession|entry name
+        #Brookhaven Protein Data Bank      pdb|entry|chain
+        #Patents                           pat|country|number
+        #GenInfo Backbone Id               bbs|number
+        #General database identifier           gnl|database|identifier
+        #NCBI Reference Sequence           ref|accession|locus
+        #Local Sequence identifier         lcl|identifier
+        $acc = $id;
+    }
+    return ($gi, $acc, $version );
+}
 
 =head2 _guess_format
 
