@@ -22,7 +22,7 @@ BEGIN {
 	use Test::More;
     
 	use vars qw($NTESTS);
-	$NTESTS = 1421;
+	$NTESTS = 1427;
 	$error = 0;
 
 	plan tests => $NTESTS; 
@@ -1944,7 +1944,7 @@ while( $hit = $result->next_hit ) {
 }
 is(@valid, 0);
 
-# Bug 2189, 2193
+# Bug 2189
 $searchio = new Bio::SearchIO(-format => 'blast',
 							  -file   => Bio::Root::IO->catfile
 							  (qw(t data blastp2215.blast)));
@@ -1973,6 +1973,21 @@ is(scalar(@hits), 10);
 is($hits[1]->accession,'ZP_00972546');
 is($hits[4]->significance, '0.0');
 is($hits[7]->score, 624);
+
+# Bug 2189
+$searchio = new Bio::SearchIO(-format => 'blast',
+							  -file   => Bio::Root::IO->catfile
+							  (qw(t data blastp2215.blast)));
+
+$result = $searchio->next_result;
+is($result->database_entries, 4460989);
+is($result->database_letters, 1533424333);
+is($result->algorithm, 'BLASTP');
+is($result->algorithm_version, '2.2.15 [Oct-15-2006]');
+is($result->query_name, 'gi|15608519|ref|NP_215895.1|');
+is($result->query_length, 193);
+@hits = $result->hits;
+
 
 # some utilities
 # a utility function for comparing result objects
