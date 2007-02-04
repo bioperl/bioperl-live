@@ -98,6 +98,7 @@ use base qw(Bio::Root::Root Bio::Search::Hit::HitI);
  Args    : -name         => Name of Hit (required)
            -description  => Description (optional)
            -accession    => Accession number (optional)
+           -ncbi_gi      => NCBI GI UID (optional)
            -length       => Length of the Hit (optional)
            -score        => Raw Score for the Hit (optional)
            -bits         => Bit Score for the Hit (optional)
@@ -117,7 +118,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$query_len,$desc, $acc, $locus, $length,
       $score,$algo,$signif,$bits,
-      $rank, $hsp_factory) = $self->_rearrange([qw(HSPS
+      $rank, $hsp_factory, $gi) = $self->_rearrange([qw(HSPS
                                      NAME 
                                      QUERY_LEN
                                      DESCRIPTION
@@ -126,7 +127,8 @@ sub new {
                                      LENGTH SCORE ALGORITHM 
                                      SIGNIFICANCE BITS
                                      RANK
-                                     HSP_FACTORY)], @args);
+                                     HSP_FACTORY
+                                     NCBI_GI)], @args);
   
   defined $query_len && $self->query_length($query_len);
 
@@ -146,6 +148,7 @@ sub new {
   defined $bits        && $self->bits($bits);
   defined $rank        && $self->rank($rank);
   defined $hsp_factory && $self->hsp_factory($hsp_factory);
+  defined $gi          && $self->ncbi_gi($gi);
 
   $self->{'_iterator'} = 0;
   if( defined $hsps  ) {
@@ -933,13 +936,13 @@ sub start {
         return $self->hsp->start($seqType);
     } else {
         &Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
-	if($seqType =~ /list|array/i) {
-	    return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
-	} else {
-	    ## Sensitive to member name changes.
-	    $seqType = "_\L$seqType\E";
-	    return $self->{$seqType.'Start'};
-	}
+        if ($seqType =~ /list|array/i) {
+            return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
+        } else {
+            ## Sensitive to member name changes.
+            $seqType = "_\L$seqType\E";
+            return $self->{$seqType.'Start'};
+        }
     }
 }
 
@@ -1616,5 +1619,25 @@ sub query_length {
     return $self->{'_query_length'};
 }
 
+=head2 ncbi_gi
+
+ Title   : ncbi_gi
+ Usage   : $acc = $hit->ncbi_gi();
+ Function: Retrieve the NCBI Unique ID (aka the GI #),
+           if available, for the hit
+ Returns : a scalar string (empty string if not set)
+ Args    : none
+
+=cut
+
+sub ncbi_gi {
+    my ($self,$value) = @_;
+    my $previous = $self->{'_ncbi_gi'};
+    if( defined $value || ! defined $previous ) { 
+        $value = $previous = '' unless defined $value;
+        $self->{'_ncbi_gi'} = $value;
+    } 
+        return $previous;
+}
 
 1;
