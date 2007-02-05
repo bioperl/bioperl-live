@@ -79,7 +79,7 @@ sub new {
     @subglyphs = map { $_->[0] }
           sort { $a->[1] <=> $b->[1] }
 	    map { [$_, $_->left ] }
-	      $factory->make_glyph($level+1,@visible_subfeatures);
+	      $self->make_subglyph($level+1,@visible_subfeatures);
     $self->{parts}   = \@subglyphs;
   }
 
@@ -107,6 +107,15 @@ sub new {
   $self->{point} = $arg{-point} ? $self->height : undef;
 
   return $self;
+}
+
+# override this if you want to make a particular type of glyph rather than have the
+# factory decide.
+sub make_subglyph {
+  my $self    = shift;
+  my $level   = shift;
+  my $factory = $self->{factory};
+  $factory->make_glyph($level,@_);
 }
 
 sub parts      {
@@ -1366,6 +1375,23 @@ as a group and can be configured as a set.
 When you are finished with a glyph, you can call its finished() method
 in order to break cycles that would otherwise cause memory leaks.
 finished() is typically only used by the Panel object.
+
+=item $subglyph = $glyph-E<gt>make_subglyph($level,@sub_features)
+
+This method is called to create subglyphs from a list of
+subfeatures. The $level indicates the current level of the glyph
+(top-level glyphs are level 0, subglyphs are level 1, etc).
+
+Ordinarily this method simply calls
+$self->factory->make_subglyph($level,@sub_features). Override it in
+subclasses to create subglyphs of a particular type. For example:
+
+ sub make_subglyph {
+    my $self = shift;
+    my $level = shift;
+    my $factory = $self->factory;
+    $factory->make_glyph($factory,'arrow',@_);
+ }
 
 =back
 

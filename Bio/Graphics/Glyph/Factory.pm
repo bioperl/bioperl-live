@@ -280,17 +280,17 @@ sub translate_color {
   $self->panel->translate_color($color_name);
 }
 
-=head2 glyph
+=head2 make_glyph
 
-  Title    : glyph
-  Usage    : @glyphs = $f->glyph($level,$feature1,$feature2...)
+  Title    : make_glyph
+  Usage    : @glyphs = $f->glyph($level,[$type,]$feature1,$feature2...)
   Function : transform features into glyphs.
   Returns  : a list of Bio::Graphics::Glyph objects
   Args     : a feature "level", followed by a list of FeatureI objects.
   Status   : Internal to Bio::Graphics
 
 The level is used to track the level of nesting of features that have
-subfeatures.
+subfeatures. The option $type argument can be used to force the glyph type
 
 =cut
 
@@ -298,12 +298,14 @@ subfeatures.
 sub make_glyph {
   my $self  = shift;
   my $level = shift;
+  my $forced_type  = shift unless ref($_[0]);
+
   my @result;
   my $panel = $self->panel;
-  my $flip   = $panel->flip;
+  my $flip  = $panel->flip;
 
   for my $f (@_) {
-    my $type = $self->feature_to_glyph($f);
+    my $type = $forced_type || $self->feature_to_glyph($f);
     my $glyphclass = 'Bio::Graphics::Glyph';
     $type ||= 'generic';
     $glyphclass .= "\:\:\L$type";
@@ -323,6 +325,7 @@ sub make_glyph {
   }
   return wantarray ? @result : $result[0];
 }
+
 
 =head2 feature_to_glyph
 
