@@ -30,8 +30,6 @@ Bio::Index::Fasta - Interface for indexing (multiple) fasta files
     use Bio::Index::Fasta;
     use strict;
 
-    $ENV{BIOPERL_INDEX} = "."; # find index in current directory
-
     my $Index_File_Name = shift;
     my $inx = Bio::Index::Fasta->new(-filename => $Index_File_Name);
     my $out = Bio::SeqIO->new(-format => 'Fasta',
