@@ -578,6 +578,7 @@ sub parse_line {
   # attribute handling
   if (defined $description && $description =~ /\w+=\S+/) { # attribute line
     my @attributes = split /;\s*/,$description;
+    undef $description;
     foreach (@attributes) {
       my ($name,$value) = split /=/,$_,2;
       Bio::Root::Root->throw(qq("$_" is not a valid attribute=value pair)) unless defined $value;
@@ -631,7 +632,7 @@ sub parse_line {
 sub _unescape {
   foreach (@_) {
     tr/+/ /;       # pluses become spaces
-    s/%([0-9a-fA-F]{2})/chr hex($1)/g;
+    s/%([0-9a-fA-F]{2})/chr hex($1)/eg;
   }
   @_;
 }

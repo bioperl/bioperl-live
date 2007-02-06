@@ -4,8 +4,9 @@ use strict;
 use base 'Bio::Graphics::Glyph::fixedwidth';
 use GD::Simple;
 use Carp 'cluck';
-#use Memoize;
-#memoize('scale_width');
+use Memoize;
+memoize('scale_width');
+memoize('width_needed');
 
 sub width_needed {
   my $self = shift;
@@ -24,12 +25,13 @@ sub width_needed {
 #}
 sub pad_right {
   my $self = shift;
-  my $pr     = $self->SUPER::pad_right;
-  my $needed = $self->width_needed;
-  $needed /= 2;
-  my $sw     = $self->scale_width + $self->column_width/2;
-  return $pr if $needed + $sw < $pr;
-  return $pr + $sw;
+  my $pr      = $self->SUPER::pad_right;
+  my $sw      = $self->scale_width + $self->column_width/2;
+  my $content_width = $self->width_needed;
+  my $total   = $sw + $content_width;
+  my $additional = $pr - $total;
+  return $pr if $pr > $additional;
+  return $additional;
 }
 
 sub scale_width {
@@ -204,9 +206,11 @@ sub draw_scale {
   my $dx     = 1;
   my $dy     = $simple->font->height/2;
 
-  $simple->moveTo($right,$bottom);
-  $simple->lineTo($right,$top);
+  # these drew a vertical scale line, which didn't look very nice
+#  $simple->moveTo($right,$bottom);
+#  $simple->lineTo($right,$top);
 
+  $simple->moveTo($right,$top);
   $simple->line(3);
   $simple->move($dx,$dy);
   $simple->string($max);
@@ -275,11 +279,29 @@ To assign data to a feature, you can add a "series" tag:
 
 Note that the series tag must consist of an array of arrays.
 
-Or, if you are using a gff2 or gff3 representation, you can load a
-database with data that looks like this:
+If you are using a gff3 representation, you can load a database with
+data that looks like this:
 
-I<to come>
+ chr1 test feature 1 1000 . . . series=10 20 30;series=30 30 0;series=5 45 10...
 
+If you are using a gff2 representation, you can load a database with
+data that looks like this:
+
+ chr1 test feature 1 1000 . . . series 10 20 30; series 30 30 0 series 5 45 10...
+
+Or you can pass a callback to the -series option:
+
+ $panel->add_track(\@data,
+		  -glyph     => 'stackedplot',
+                  -series       => sub {
+                                  my $feature = shift;
+                             return [
+			        [10,20,30],
+ 				[30,30,0],
+ 				[5,45,10],
+                            ]
+                          }
+		 );
 
 =head2 OPTIONS
 
@@ -315,10 +337,104 @@ xyplot glyph, as well as the following glyph-specific option:
   Option         Description                  Default
   ------         -----------                  -------
 
-I<to come>
+ -fixed_gap     Vertical distance between      8
+                the rectangle that shows
+                the start:end range of
+                the feature and the fixed
+                width stacked plot.
 
-=head1 EXAMPLES
+ -series_colors A list giving a series of     red,blue,green,orange,
+                color names for the data      brown,grey,black
+                series (the values inside
+                each stacked column).
 
+ -column_labels A list of labels to print     -none-
+                underneath each column.
+
+ -column_width  The width of each column.     8
+
+ -column_spacing Spacing between each         2
+                column.
+
+ -min_score     Minimum score for the         0.0
+                sum of the members of
+                each data series.
+
+ -max_score     Maximum score for the         1.0
+                sum of the members of each
+                data series.
+
+ -scale_font    Font to use for the scale.    gdTinyFont
+
+ -column_font   Font to use for the column    gdSmallFont
+                labels.
+
+ -draw_scale    Whether to draw a scale to    true
+                right of the columns.
+
+Note that -min_score and -max_score represent the minimum and maximum
+SUM of all the values in the data series. For example, if your largest
+column contains the series (10,20,30), then the -max_score is 60.
+
+=head1 EXAMPLE
+
+To understand how this glyph works, try running and modifying the following example:
+
+
+ #!/usr/bin/perl
+
+ use strict;
+ use warnings;
+
+ use Bio::Graphics;
+ use Bio::SeqFeature::Generic;
+
+ my $segment  = Bio::Graphics::Feature->new(-start=>1,-end=>700);
+
+ my $snp1     = Bio::SeqFeature::Generic ->new (-start     => 500,-end=>590,
+ 					        -display_name =>'fred',
+					        -tag=> { series => [
+ 								     [10,20,30],
+ 								     [30,30,0],
+ 								     [5,45,10],
+ 								     [5,45,10],
+ 								     [5,45,10],
+ 								     [50,0,50],
+ 								    ],
+						      },
+					        -source=>'A test',
+					        );
+
+ my $snp2     = Bio::SeqFeature::Generic->new(-start     => 300,
+					      -end       => 301,
+					      -display_name  => 'rs12345',
+					      -tag=> {
+						     series => [
+								     [30,20,10 ],
+								     [80,10,10 ],
+							       ],
+						    },
+					      -source=>'Another test',
+					    );
+
+ my $panel = Bio::Graphics::Panel->new(-segment=>$segment,-width=>800);
+
+ $panel->add_track($segment,-glyph=>'arrow',-double=>1,-tick=>2);
+ $panel->add_track([$snp1,$snp2],
+		   -height    => 50,
+		   -glyph     => 'stackedplot',
+		   -fixed_gap => 12,
+		   -series_colors    => [qw(red blue lavender)],
+		   -column_labels => [qw(a b c d e f g)],
+		   -min_score => 0,
+		   -max_score => 100,
+		   -column_width => 8,
+		   -column_font  => 'gdMediumBoldFont',
+		   -scale_font   => 'gdTinyFont',
+		   -label    => 1,
+		   -description=>1,
+		  );
+ print $panel->png;
 
 =back
 

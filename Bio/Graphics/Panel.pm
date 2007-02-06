@@ -1762,6 +1762,10 @@ Currently, the following glyphs are available:
 
   xyplot      Histograms and other graphs plotted against the genome.
 
+  stackedplot A column plot showing multiple data series across multiple categories.
+
+  ternary_plot Ternary (triangle) plots.
+
   whiskerplot Box and whisker plot for statistical data
 
 If the glyph name is omitted from add_track(), the "generic" glyph

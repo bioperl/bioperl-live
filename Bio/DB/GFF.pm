@@ -3569,7 +3569,7 @@ sub _split_gff3_group {
       }
       $id{$tag} = @names > 1 ? [\@names,\@classes] : [$names[0],$classes[0]];
     }
-    elsif ($tag eq 'ID') {
+    elsif ($tag eq 'ID' || $tag eq 'Name') {
       $id{$tag} = [$self->_gff3_name_munging(shift(@values),$dc)];
     }
     elsif ($tag eq 'Target') {

@@ -256,6 +256,7 @@ This will draw the outline of the fixed rectangle. The rectangle will
 contain two diagonal lines. Not very interesting, but an example,
 nonetheless.
 
+See the stackedplot glyph for a more interesting subclass.
 
 =head1 BUGS AND LIMITATIONS
 
