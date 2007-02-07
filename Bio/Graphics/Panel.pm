@@ -197,8 +197,9 @@ sub map_pt {
   my @result;
   foreach (@_) {
     my $val = $flip 
-      ? int (0.5 + $pr - ($length - ($_- 1)) * $scale)
-      : int (0.5 + ($_-$offset-1) * $scale);
+      ? $pr - ($length - ($_- 1)) * $scale
+	: ($_-$offset-1) * $scale;
+    $val = int($val + 0.5 * ($val<=>0));
     $val = -1 if $val < 0;
     $val = $pr+1 if $val > $pr;
     push @result,$val;
