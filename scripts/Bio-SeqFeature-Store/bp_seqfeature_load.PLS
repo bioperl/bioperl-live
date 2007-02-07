@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.8 2006-11-09 06:57:12 jason Exp $
+# $Id: bp_seqfeature_load.PLS,v 1.9 2007-02-07 15:40:48 lstein Exp $
 
 use strict;
 
@@ -24,7 +24,7 @@ GetOptions(
 	   'adaptor=s'   => \$ADAPTOR,
 	   'verbose!'    => \$VERBOSE,
 	   'fast'       => \$FAST,
-	   'T|temporary-directory' => \$TMP,
+	   'T|temporary-directory=s' => \$TMP,
 	   'create'      => \$CREATE,
 	   'user=s'      => \$USER,
 	   'password=s'  => \$PASS
