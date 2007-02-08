@@ -153,8 +153,8 @@ sub _initialize{
     # start up the parser factory
     my $parserfactory = XML::SAX::ParserFactory->parser(
         Handler => $xmlhandler);
-    $self->{'_xmlparser'} = $parserfactory;    
-    my $pclass = $self->saxparser;    
+    $self->{'_xmlparser'} = $parserfactory;
+    $self->saxparser(ref($parserfactory));    
     $self->{'_result_cache'} = [];
     eval {  require Time::HiRes };	
     if( $@ ) { $DEBUG = 0; }

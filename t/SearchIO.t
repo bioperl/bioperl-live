@@ -184,7 +184,10 @@ SKIP: {
     is($result->query_length,'445');
     $hit = $result->next_hit;
     is($hit->name,'gi|15600734|ref|NP_254228.1|');
-    like($hit->description,qr(gi|9951880|gb|AAG08926.1|AE004966_8 dihydroorotase [Pseudomonas aeruginosa PAO1]));
+    is($hit->description,'dihydroorotase [Pseudomonas aeruginosa PAO1] '.
+       '>gi|107104643|ref|ZP_01368561.1| hypothetical protein PaerPA_01005722 '.
+       '[Pseudomonas aeruginosa PACS2] >gi|9951880|gb|AAG08926.1|AE004966_8 '.
+       'dihydroorotase [Pseudomonas aeruginosa PAO1]');
     is($hit->accession,'NP_254228');
     is($hit->length,'445');
     $hsp = $hit->next_hsp;
@@ -219,7 +222,10 @@ SKIP: {
     is($result->query_length,'348');
     $hit = $result->next_hit;
     is($hit->name,'gi|15598723|ref|NP_252217.1|');
-    like($hit->description,qr(gi|3868712|gb|AAC73109.1| dihydroorotase [Pseudomonas aeruginosa]));
+    is($hit->description,'dihydroorotase [Pseudomonas aeruginosa PAO1] '.
+       '>gi|6226683|sp|P72170|PYRC_PSEAE Dihydroorotase (DHOase) '.
+       '>gi|9949676|gb|AAG06915.1|AE004773_4 dihydroorotase [Pseudomonas aeruginosa PAO1] '.
+       '>gi|3868712|gb|AAC73109.1| dihydroorotase [Pseudomonas aeruginosa]');
     is($hit->accession,'NP_252217');
     is($hit->length,'348');
     $hsp = $hit->next_hsp;
