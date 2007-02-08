@@ -68,8 +68,6 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 package Bio::SearchIO::XML::BlastHandler;
-use Data::Dumper;
-use HTML::Entities;
 use base qw(Bio::Root::Root XML::SAX::Base);
 
 our %MODEMAP = (
@@ -307,9 +305,9 @@ sub end_element{
 =cut
 
 sub characters{
-   my ($self,$data) = @_;   
+   my ($self,$data) = @_;
    return unless ( defined $data->{'Data'} && $data->{'Data'} !~ /^\s+$/ );
-   $self->{'_last_data'} = $data->{'Data'}; 
+   $self->{'_last_data'} .= $data->{'Data'};
 }
 
 sub _eventHandler {

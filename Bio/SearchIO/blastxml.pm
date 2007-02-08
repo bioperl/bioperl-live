@@ -154,22 +154,7 @@ sub _initialize{
     my $parserfactory = XML::SAX::ParserFactory->parser(
         Handler => $xmlhandler);
     $self->{'_xmlparser'} = $parserfactory;    
-    my $pclass = $self->saxparser;
-    
-    $self->debug("Parser: $pclass\n");
-    
-    if (($pclass eq 'XML::SAX::PurePerl' ||
-        $pclass eq 'XML::SAX::Expat'    ||
-        $pclass eq 'XML::LibXML::SAX' )  &&
-        $self->verbose > -1) {
-        $self->warn("XML::SAX::PurePerl, XML::SAX::Expat, or ".
-                    "XML::LibXML::SAX set as default XML::SAX parser.\n".
-                    "This works but has a small bug which breaks ".
-                    "with character encoding (Bug 2159). \n".
-                    "We recommend using a different ".
-                    "backend (such as XML::SAX::ExpatXS or XML::LibXML)");
-    }
-    
+    my $pclass = $self->saxparser;    
     $self->{'_result_cache'} = [];
     eval {  require Time::HiRes };	
     if( $@ ) { $DEBUG = 0; }
