@@ -1061,7 +1061,7 @@ sub create_web_map {
 
     my $a      = $alt    ? qq(title="$alt" alt="$alt") : '';
     my $t      = $target ? qq(target="$target")        : '';
-    $map .= qq(<area shape="rect" coords="$left,$top,$right,$bottom" href="$href" $a $t/>\n);
+    $map .= qq(<area shape="rect" coords="$left,$top,$right,$bottom" href="$href" $a $t/>\n) if $href;
   }
   $map .= "</map>\n";
   $map;
