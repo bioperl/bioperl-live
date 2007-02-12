@@ -78,6 +78,8 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
+use UNIVERSAL qw(isa);
+
 use base qw(Bio::Tree::TreeI);
 
 =head2 find_node
@@ -636,6 +638,102 @@ sub force_binary {
     foreach my $desc (@descs) {
         $self->force_binary($desc);
     }
+}
+
+=head2 simplify_to_leaves_string
+
+ Title   : simplify_to_leaves_string
+ Usage   : my $leaves_string = $tree->simplify_to_leaves_string()
+ Function: Creates a simple textual representation of the relationship between
+           leaves in self. It forces the tree to be binary, so the result may
+           not strictly correspond to the tree (if the tree wasn't binary), but
+           will be as close as possible. The tree object is not altered. Only
+           leaf node ids are output, in a newick-like format.
+ Returns : string
+ Args    : none
+
+=cut
+
+sub simplify_to_leaves_string {
+    my $self = shift;
+    
+    # Before contracting and forcing binary we need to clone self, but Clone.pm
+    # clone() seg faults and fails to make the clone, whilst Storable dclone
+    # needs $self->{_root_cleanup_methods} deleted (code ref) and seg faults at
+    # end of script. Let's make our own clone...
+    my $tree = $self->_clone;
+    
+    $tree->contract_linear_paths(1);
+    $tree->force_binary;
+    foreach my $node ($tree->get_nodes) {
+        my $id = $node->id;
+        $id = ($node->is_Leaf && $id !~ /^artificial/) ? $id : '';
+        $node->id($id);
+    }
+    
+    my %paired;
+    my @data = $self->_simplify_helper($tree->get_root_node, \%paired);
+    
+    return join(',', @data);
+}
+
+# safe tree clone that doesn't seg fault
+sub _clone {
+    my ($self, $parent, $parent_clone) = @_;
+    $parent ||= $self->get_root_node;
+    $parent_clone ||= $self->_clone_node($parent);
+    
+    foreach my $node ($parent->each_Descendent()) {
+        my $child = $self->_clone_node($node);
+        $child->ancestor($parent_clone);
+        $self->_clone($node, $child);
+    }
+    $parent->ancestor && return;
+    
+    my $tree = $self->new(-root => $parent_clone);
+    return $tree;
+}
+
+# safe node clone that doesn't seg fault, but deliberately loses ancestors and
+# descendents
+sub _clone_node {
+    my ($self, $node) = @_;
+    my $clone = $node->new;
+    
+    while (my ($key, $val) = each %{$node}) {
+        if ($key eq '_desc' || $key eq '_ancestor') {
+            next;
+        }
+        ${$clone}{$key} = $val;
+    }
+    
+    return $clone;
+}
+
+# tree string generator for simplify_to_leaves_string, based on
+# Bio::TreeIO::newick::_write_tree_Helper
+sub _simplify_helper {
+    my ($self, $node, $paired) = @_;
+    return () if (!defined $node);
+    
+    my @data = ();
+    foreach my $node ($node->each_Descendent()) {
+        push(@data, $self->_simplify_helper($node, $paired));
+    }
+    
+    my $id = $node->id_output || '';
+    if (@data) {
+        unless (exists ${$paired}{"@data"} || @data == 1)  {
+            $data[0] = "(" . $data[0];
+            $data[-1] .= ")";
+            ${$paired}{"@data"} = 1;
+        }
+    }
+    elsif ($id) {
+        push(@data, $id);
+    }
+    
+    return @data;
 }
 
 =head2 distance
