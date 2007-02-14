@@ -294,28 +294,35 @@ sub version{
 
 =cut
 
-sub executable{
-   my ($self, $exe,$warn) = @_;
-
-   if( defined $exe ) {
-     $self->{'_pathtoexe'} = $exe;
-   }
-   unless( defined $self->{'_pathtoexe'} ) {
-       my $prog_path = $self->program_path;
-       if( $prog_path && -e $prog_path && -x $prog_path ) {
-           $self->{'_pathtoexe'} = $prog_path;
-       } else {
-           my $exe;
-           if( ( $exe = $self->io->exists_exe($self->program_name) ) &&
-               -x $exe ) {
-               $self->{'_pathtoexe'} = $exe;
-           } else {
-               $self->warn("Cannot find executable for ".$self->program_name) if $warn;
-               $self->{'_pathtoexe'} = undef;
-           }
-       }
-   }
-   $self->{'_pathtoexe'};
+sub executable {
+    my ($self, $exe, $warn) = @_;
+ 
+    if( defined $exe ) {
+        $self->{'_pathtoexe'} = $exe;
+    }
+    unless( defined $self->{'_pathtoexe'} ) {
+        my $prog_path = $self->program_path;
+        
+        if ($prog_path) {
+            if (-e $prog_path && -x $prog_path) {
+                $self->{'_pathtoexe'} = $prog_path;
+            }
+            else {
+                $self->warn("executable not found in $prog_path, trying system path...") if $warn;
+            }
+        }
+        unless ($self->{_path_to_exe}) {
+            my $exe;
+            if (($exe = $self->io->exists_exe($self->program_name)) && -x $exe) {
+                $self->{'_pathtoexe'} = $exe;
+            }
+            else {
+                $self->warn("Cannot find executable for ".$self->program_name) if $warn;
+                $self->{'_pathtoexe'} = undef;
+            }
+        }
+    }
+    $self->{'_pathtoexe'};
 }
 
 =head2 program_path
