@@ -63,12 +63,8 @@ my $build = ModuleBuildBioperl->new(
                             'XML::DOM::XPath'           => '0.13/parsing interpro features/Bio::FeatureIO::interpro',
                             'XML::Parser'               => '0/parsing xml/Bio::Biblio::IO::medlinexml',
                             'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp',
-                            'XML::SAX'                  => '0/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
+                            'XML::SAX'                  => '0.15/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
                             'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
-                            # XML::Simple requires that XML::SAX::ExpatXS be installed prior to it if XML::SAX 0.14 (and therefore
-                            # XML::SAX::PurePerl) has been installed, as is likely here. We have a bundle that installs ExpatXS
-                            # and XML::Simple in that order to handle this problem
-                            'Bundle::BioPerl::XMLSimple' => '1/parsing xml/Bio::DB::EUtilities',
                             'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils,Bio::Graph::IO::psi_xml',
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter'
                            },
