@@ -311,7 +311,7 @@ sub executable {
                 $self->warn("executable not found in $prog_path, trying system path...") if $warn;
             }
         }
-        unless ($self->{_path_to_exe}) {
+        unless ($self->{'_pathtoexe'}) {
             my $exe;
             if (($exe = $self->io->exists_exe($self->program_name)) && -x $exe) {
                 $self->{'_pathtoexe'} = $exe;
