@@ -31,8 +31,6 @@ my $func;
 while ( $func = shift @funcs ) {
     $i++;
 
-    print "testing $func...\n";
-
     # test for presence of method
     if ( exists $Bio::RangeI::{$func} ) {
         ok(1);
