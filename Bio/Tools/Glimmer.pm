@@ -12,15 +12,21 @@
 
 =head1 NAME
 
-Bio::Tools::Glimmer - parser for GlimmerM/GlimmerHMM eukaryotic gene predictions
+Bio::Tools::Glimmer - parser for Glimmer 2.X/3.X prokaryotic and 
+GlimmerM/GlimmerHMM eukaryotic gene predictions
 
 =head1 SYNOPSIS
 
    use Bio::Tools::Glimmer;
 
+   # file
    my $parser = new Bio::Tools::Glimmer(-file => $file);
    # filehandle:
    $parser = Bio::Tools::Glimmer->new( -fh  => \*INPUT );
+   # provide a sequence identifier (Glimmer 2.X)
+   my $parser = Bio::Tools::Glimmer->new(-file => $file, -seqname => seqname);
+   # force format (override automatic detection)
+   my $parser = Bio::Tools::Glimmer->new(-file => $file, -format => 'GlimmerM');
 
    # parse the results
    # note: this class is-a Bio::Tools::AnalysisResult which implements
@@ -45,10 +51,13 @@ Bio::Tools::Glimmer - parser for GlimmerM/GlimmerHMM eukaryotic gene predictions
 
 =head1 DESCRIPTION
 
-This is a module for parsing GlimmerM and GlimmerHMM predictions 
+This is a module for parsing Glimmer, GlimmerM and GlimmerHMM predictions.  
 It will create gene objects from the prediction report which can 
 be attached to a sequence using Bioperl objects, or output as GFF 
 suitable for loading into Bio::DB::GFF for use with Gbrowse.
+
+Glimmer is open source and available at
+L<http://www.cbcb.umd.edu/software/glimmer/>.
 
 GlimmerM is open source and available at 
 L<http://www.tigr.org/software/glimmerm/>.
@@ -56,11 +65,13 @@ L<http://www.tigr.org/software/glimmerm/>.
 GlimmerHMM is open source and available at
 L<http://www.cbcb.umd.edu/software/GlimmerHMM/>.
 
-=head1 BUGS
+Note that Glimmer 2.X will only process the first
+sequence in a fasta file, and the prediction report does not contain any
+sort of sequence identifier
 
-This module does B<not> parse Glimmer2 or Glimmer3 bacterial gene
-prediction files. Details on their output formats can be found at
-L<http://www.cbcb.umd.edu/software/glimmer/>.
+Note that Glimmer 3.X produces two output files.  This module only parses
+the .predict file.
+
 
 =head1 FEEDBACK
 
@@ -127,7 +138,7 @@ sub _initialize_state {
  Usage   : my $obj = new Bio::Tools::Glimmer();
  Function: Builds a new Bio::Tools::Glimmer object 
  Returns : an instance of Bio::Tools::Glimmer
- Args    :
+ Args    : format ('Glimmer', 'GlimmerM', 'GlimmerHMM'), seqname
 
 
 =cut
@@ -136,6 +147,21 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
+
+  my ($format, $seqname) = $self->_rearrange([qw(FORMAT SEQNAME)], @args);
+
+  # override automagic format detection
+  if (defined($format) &&
+      (($format eq 'Glimmer')  ||
+       ($format eq 'GlimmerM') ||
+       ($format eq 'GlimmerHMM'))
+  ) {
+      $self->_format($format);
+  }
+  
+  # hardwire seq_id when creating gene and exon objects (Glimmer 2.X)
+  $self->_seqname($seqname) if defined($seqname);
+  
   return $self;
 }
 
@@ -208,7 +234,7 @@ sub next_prediction {
 
     # if the prediction section hasn't been parsed yet, we do this now
     $self->_parse_predictions() unless $self->_predictions_parsed();
-
+    
     # get next gene structure
     $gene = $self->_prediction();
     return $gene;
@@ -226,6 +252,68 @@ sub next_prediction {
 =cut
 
 sub _parse_predictions {
+
+    my ($self) = @_;
+
+    
+    my %method = (
+                  'Glimmer'    => '_parse_prokaryotic',
+                  'GlimmerM'   => '_parse_eukaryotic',
+                  'GlimmerHMM' => '_parse_eukaryotic',
+                  '_DEFAULT_'  => '_parse_eukaryotic',
+              );
+    
+    my $format = $self->_format();
+    
+    if (!$format) {
+        
+        while (my $line = $self->_readline()) {
+
+            if ( $line =~ /^Glimmer\S*\s+\(Version\s*\S+\)/ ) {
+                $format = 'GlimmerM';
+                $self->_pushback($line);
+                last;
+            }
+            elsif ( $line =~ /^Glimmer\S*$/ ) {
+                $format = 'GlimmerHMM';
+                $self->_pushback($line);
+                last;
+            }
+            elsif ($line =~ /^Putative Genes:$/) {
+                $format = 'Glimmer';
+                $self->_pushback($line);
+                last;
+            }
+            elsif ($line =~ /^>(\S+)/) {
+                $format = 'Glimmer';
+                $self->_pushback($line);
+                last;
+            }
+            
+        }
+        
+    }
+
+    my $method =
+        (exists($method{$format})) ? $method{$format} : $method{'_DEFAULT_'};
+
+    return $self->$method();
+    
+}
+
+
+=head2 _parse_eukaryotic
+
+ Title   : _parse_eukaryotic()
+ Usage   : $obj->_parse_eukaryotic()
+ Function: Parses the prediction section. Automatically called by
+           next_prediction() if not yet done.
+ Example :
+ Returns : 
+
+=cut
+
+sub _parse_eukaryotic {
     my ($self) = @_;
 
     my ($gene,$seqname,$seqlen,$source,$lastgenenum);
@@ -234,7 +322,7 @@ sub _parse_predictions {
 	if( /^(Glimmer\S*)\s+\(Version\s*(\S+)\)/ ) {
 	    $source = "$1_$2";
 	    next;
-	} elsif( /^(Glimmer\S*)$/ ) { # GlimmerHMM has no version
+	} elsif( /^(GlimmerHMM\S*)$/ ) { # GlimmerHMM has no version
 	    $source = $1;
 	    next;
 	} elsif(/^Sequence name:\s+(.+)$/ ) {
@@ -280,6 +368,93 @@ sub _parse_predictions {
 	}
     }
     $self->_add_prediction($gene) if( $gene );
+    $self->_predictions_parsed(1);
+}
+
+=head2 _parse_prokaryotic
+
+ Title   : _parse_prokaryotic()
+ Usage   : $obj->_parse_prokaryotic()
+ Function: Parses the prediction section. Automatically called by
+           next_prediction() if not yet done.
+ Example :
+ Returns : 
+
+=cut
+
+sub _parse_prokaryotic {
+    my ($self) = @_;
+
+    # default value, possibly overriden later
+    my $source = 'Glimmer';
+
+    # Glimmer 2.X does not provide a sequence identifer
+    # in the prediction report
+    my $seqname = $self->_seqname();
+    
+    while(defined($_ = $self->_readline())) {
+        # Glimmer 3.X does provide a sequence identifier -
+        # beware whitespace at the end (comes through from
+        # (the fasta file)
+        if ($_ =~ /^Putative Genes:$/) {
+            $source = 'Glimmer_2.X';
+            next;
+        }
+        # Glimmer 3.X sequence identifier
+        elsif ($_ =~ /^>(\S+)/) {
+            $seqname = $1;
+            $source = 'Glimmer_3.X';
+            next;
+        }        
+        elsif (
+               # Glimmer 2.X prediction 
+               (/^\s+(\d+)\s+      # gene num
+                (\d+)\s+(\d+)\s+   # start, end
+                \[([\+\-])\d{1}\s+ # strand
+                /ox ) ||
+               # Glimmer 3.X prediction
+               (/\w+(\d+)\s+       # orf (numeric portion)
+                (\d+)\s+(\d+)\s+   # start, end
+                ([\+\-])\d{1}\s+   # strand
+               /ox)) {
+	    my ($genenum,$start,$end,$strand) = 
+		( $1,$2,$3,$4 );
+
+            # Glimmer 2.X predictions do not include
+            # the stop codon - this might extend the
+            # prediction off either end of the sequence
+            if ($source eq 'Glimmer_2.X') {
+                if ($strand eq '-') {
+                    $end -= 3;
+                }
+                else {
+                    $end += 3;
+                }
+            }
+            
+            my $exon = new Bio::Tools::Prediction::Exon
+                ('-seq_id'     => $seqname,
+                 '-start'      => $start,
+                 '-end'        => $end,
+                 '-strand'     => $strand eq '-' ? '-1' : '1',
+                 '-source_tag' => $source,
+                 '-primary_tag'=> 'exon',
+                 '-tag'         => { 'Group' => "GenePrediction_$genenum"},
+             );
+            
+            my $gene = Bio::Tools::Prediction::Gene->new
+                (
+                 '-seq_id'      => $seqname,
+                 '-primary_tag' => "gene",
+                 '-source_tag'  => $source,
+                 '-tag'         => { 'Group' => "GenePrediction_$genenum"},
+             );
+            
+            $gene->add_exon($exon);
+            $self->_add_prediction($gene) 
+	}
+    }
+    
     $self->_predictions_parsed(1);
 }
 
@@ -339,5 +514,42 @@ sub _predictions_parsed {
     return $self->{'_preds_parsed'};
 }
 
+=head2 _seqname
+
+ Title   : _seqname
+ Usage   : $obj->_seqname($seqname)
+ Function: internal (for Glimmer 2.X)
+ Example :
+ Returns : String
+
+=cut
+
+sub _seqname {
+    my ($self, $val) = @_;
+
+    $self->{'_seqname'} = $val if $val;
+    if(! exists($self->{'_seqname'})) {
+	$self->{'_seqname'} = 'unknown';
+    }
+    return $self->{'_seqname'};
+}
+
+=head2 _format
+
+ Title   : _format
+ Usage   : $obj->_format($format)
+ Function: internal
+ Example :
+ Returns : String
+
+=cut
+
+sub _format {
+    my ($self, $val) = @_;
+
+    $self->{'_format'} = $val if $val;
+
+    return $self->{'_format'};
+}
 
 1;

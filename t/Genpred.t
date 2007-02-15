@@ -1,3 +1,4 @@
+use lib '/gscuser/mjohnson/bioperl-cvs/bioperl-live';
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
@@ -15,7 +16,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    plan tests => 79;
+    plan tests => 163;
 }
 
 use Bio::Tools::Genscan;
@@ -119,38 +120,38 @@ while($gmgene = $genemark->next_prediction()) {
 }
 
 # Glimmer testing (GlimmerM)
-my $glimmer = new Bio::Tools::Glimmer('-file' => Bio::Root::IO->catfile(qw(t data glimmer.out)));
-my $glimmergene = $glimmer->next_prediction;
+my $glimmer_m = new Bio::Tools::Glimmer('-file' => Bio::Root::IO->catfile(qw(t data GlimmerM.out)));
+my $gmgene = $glimmer_m->next_prediction;
 
-ok($glimmergene);
-ok($glimmergene->seq_id, 'BAC1Contig11');
-ok($glimmergene->source_tag, 'GlimmerM_3.0');
-ok($glimmergene->primary_tag, 'transcript');
-ok(($glimmergene->get_tag_values('Group'))[0], 'GenePrediction1');
-my @glim_exons = $glimmergene->exons;
-ok(scalar (@glim_exons), 5);
-ok($glim_exons[0]->start, 13907);
-ok($glim_exons[0]->end, 13985);
-ok($glim_exons[0]->strand, 1);
+ok($gmgene);
+ok($gmgene->seq_id, 'gi|23613028|ref|NC_004326.1|');
+ok($gmgene->source_tag, 'GlimmerM_3.0');
+ok($gmgene->primary_tag, 'transcript');
+ok(($gmgene->get_tag_values('Group'))[0], 'GenePrediction1');
+my @glim_exons = $gmgene->exons;
+ok(scalar (@glim_exons), 1);
+ok($glim_exons[0]->start, 461);
+ok($glim_exons[0]->end, 523);
+ok($glim_exons[0]->strand, -1);
 ok(($glim_exons[0]->get_tag_values('Group'))[0], 'GenePrediction1');
 
-@num_exons = (0,5,3, 1, 6, 3);
+@num_exons = (0,1,3,1,4,2,5,2,8,3,5);
 $i = 1;
-while($glimmergene = $glimmer->next_prediction()) {
+while($gmgene = $glimmer_m->next_prediction()) {
     $i++;
-    ok(($glimmergene->get_tag_values('Group'))[0],"GenePrediction$i");
-    @glim_exons = $glimmergene->exons();    
+    ok(($gmgene->get_tag_values('Group'))[0],"GenePrediction$i");
+    @glim_exons = $gmgene->exons();    
     ok scalar(@glim_exons), $num_exons[$i];
     if($i == 5) {
-	ok $glim_exons[1]->start, 30152;
-	ok $glim_exons[1]->end, 30235;
-	ok $glim_exons[1]->strand, -1;
+	ok $glim_exons[1]->start, 23910;
+	ok $glim_exons[1]->end, 23956;
+	ok $glim_exons[1]->strand, 1;
     }
 }
 
-# Glimmer testing (GlimmerM)
-my $ghmm = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data GlimmerHMM.out)));
-my $ghmmgene = $ghmm->next_prediction;
+# Glimmer testing (GlimmerHMM)
+my $glimmer_hmm = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data GlimmerHMM.out)));
+my $ghmmgene = $glimmer_hmm->next_prediction;
 
 ok($ghmmgene);
 ok($ghmmgene->seq_id, 'gi|23613028|ref|NC_004326.1|');
@@ -160,7 +161,7 @@ ok($ghmmgene->exons == 1);
 
 @num_exons = qw(0 1 2 4 2 2 1 1 1 2 2 2 10 4 1 1); # only first few tested
 $i = 1;
-while ($ghmmgene = $ghmm->next_prediction) {
+while ($ghmmgene = $glimmer_hmm->next_prediction) {
   $i++;
   my @ghmm_exons = $ghmmgene->exons;    
   ok(scalar(@ghmm_exons), $num_exons[$i]) if $i <= $#num_exons;
@@ -172,4 +173,53 @@ while ($ghmmgene = $ghmm->next_prediction) {
 }
 ok($i, 44);
 
+# Glimmer testing (Glimmer 2.X)
+my $glimmer_2 = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data Glimmer2.out)), '-seqname' => 'BCTDNA');
+my $g2gene = $glimmer_2->next_prediction;
 
+ok($g2gene);
+ok($g2gene->seq_id, 'BCTDNA');
+ok($g2gene->source_tag, 'Glimmer_2.X');
+ok($g2gene->primary_tag, 'transcript');
+ok($g2gene->exons == 1);
+ok($g2gene->start, 292);
+ok($g2gene->end, 1623);
+ok($g2gene->strand, 1);
+
+$i = 1;
+while ($g2gene = $glimmer_2->next_prediction) {
+    $i++;
+    ok($g2gene->exons == 1);
+    if ($i == 2) {
+        ok($g2gene->start, 2349);
+        ok($g2gene->end, 2230);
+        ok($g2gene->strand, -1);
+    }
+}
+ok($i, 25);
+
+
+# Glimmer testing (Glimmer 3.X)
+my $glimmer_3 = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data Glimmer3.predict)));
+my $g3gene = $glimmer_3->next_prediction;
+
+ok($g3gene);
+ok($g3gene->seq_id, 'BCTDNA');
+ok($g3gene->source_tag, 'Glimmer_3.X');
+ok($g3gene->primary_tag, 'transcript');
+ok($g3gene->exons == 1);
+ok($g3gene->start, 29263);
+ok($g3gene->end, 9);
+ok($g3gene->strand, 1);
+
+$i = 1;
+while ($g3gene = $glimmer_3->next_prediction) {
+    $i++;
+    ok($g3gene->exons == 1);
+    if ($i == 13) {
+        ok($g3gene->start, 14781);
+        ok($g3gene->end, 13804);
+        ok($g3gene->strand, -1);
+    }
+}
+ok($i, 27);
