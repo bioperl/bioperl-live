@@ -7,34 +7,85 @@
 
 use strict;
 use vars qw(@funcs);
+
 BEGIN {
+
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     eval { require Test; };
-    if( $@ ) {
-	use lib 't';
+    if ($@) {
+        use lib 't';
     }
     use Test;
-    @funcs = qw(start end length strand overlaps contains 
-		equals intersection union overlap_extent);
-    plan tests => 19;
+    @funcs = qw(start end length strand overlaps contains
+        equals intersection union overlap_extent disconnected_ranges
+        offsetStranded subtract);
+    plan tests => 37;
 }
 
 use Bio::RangeI;
 
 my $i = 1;
 my $func;
-while ($func = shift @funcs) {
+while ( $func = shift @funcs ) {
     $i++;
-  if(exists $Bio::RangeI::{$func}) {
-    ok(1);
-    next if $func eq 'union';
-    eval {
-      $Bio::RangeI::{$func}->();
-    };
-    ok( $@ );
-  } else {
-    ok(0);
-  }
+
+    print "testing $func...\n";
+
+    # test for presence of method
+    if ( exists $Bio::RangeI::{$func} ) {
+        ok(1);
+
+
+      # union get caught in an infinite loop w/o parameters; skip invoke test.
+        next if $func eq 'union';
+
+        # call to strand complains without a value; skip invoke test.
+        next if $func eq 'disconnected_ranges';
+
+        # test invocation of method
+        eval { $Bio::RangeI::{$func}->(); };
+        ok($@);
+    }
+    else {
+        ok(0);
+    }
 }
+
+### unit tests for subtract method ###
+# contributed by Stephen Montgomery (sm8 at sanger.ac.uk), who also
+# wrote the subtract method
+use Bio::SeqFeature::Generic;
+use Data::Dumper;
+
+my $feature1 =  new Bio::SeqFeature::Generic ( -start => 1, -end =>
+1000, -strand => 1);
+my $feature2 =  new Bio::SeqFeature::Generic ( -start => 100, -end =>
+900, -strand => -1);
+
+my $subtracted = $feature1->subtract($feature2);
+ok(defined($subtracted));
+ok(scalar(@$subtracted) == 2);
+foreach my $range (@$subtracted) {
+    ok($range->start == 1 || $range->start == 901);
+    ok($range->end == 99 || $range->end == 1000);
+}
+
+my $subtracted = $feature2->subtract($feature1);
+ok(!defined($subtracted));
+my $subtracted = $feature1->subtract($feature2, 'weak');
+ok(!defined($subtracted));
+my $subtracted = $feature1->subtract($feature2, 'strong');
+ok(!defined($subtracted));
+
+my $feature3 =  new Bio::SeqFeature::Generic ( -start => 500, -end =>
+1500, -strand => 1);
+my $subtracted = $feature1->subtract($feature3);
+ok(defined($subtracted));
+ok(scalar(@$subtracted) == 1);
+my $subtracted_i = @$subtracted[0];
+ok($subtracted_i->start == 1);
+ok($subtracted_i->end == 499);
+
+# end
