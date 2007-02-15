@@ -10,7 +10,7 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 113;
+	$NUMTESTS = 115;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -242,12 +242,17 @@ SKIP: {
     $gb = Bio::DB::GenBank->new();
     eval {$seqin = $gb->get_seq_stream(-uids => [4887706 ,431229, 147460], -mode => 'batch');};
     skip "Couldn't connect to complete GenBank batchmode epost/efetch tests. Skipping those tests", 7 if $@;
-    @result = ('M59757', 12611 ,'X76083', 3140, 'J01670', 1593);
+    my %result = ('M59757' => 12611 ,'X76083'=> 3140, 'J01670'=> 1593);
+	my $ct = 0;
     while ($seq = $seqin->next_seq) {
-        is $seq->accession, shift(@result);
-        is $seq->length, shift(@result);
+		$ct++;
+		my $acc = $seq->accession;
+        ok exists $result{ $acc };
+        is $seq->length, $result{ $acc };
+		delete $result{$acc};
     }
-    is @result, 0;
+	is $ct, 3;
+    is %result, 0;
 }
 
 $seq = $seqin = undef;
@@ -259,12 +264,17 @@ ok $gb = Bio::DB::GenPept->new();
 SKIP: {
     eval {$seqin = $gb->get_seq_stream(-uids => [2981015, 1621261, 195055], -mode => 'batch');};
     skip "Couldn't connect to complete GenPept tests. Skipping those tests", 7 if $@;
-    @result = ('AAC06201', 353, 'CAB02640', 193, 'AAD15290', 136);
+    my %result = ('AAC06201' => 353, 'CAB02640' => 193, 'AAD15290' => 136);
+    my $ct = 0;
     while ($seq = $seqin->next_seq) {
-        is $seq->accession, shift(@result);
-        is $seq->length, shift(@result);
+		$ct++;
+		my $acc = $seq->accession;
+        ok exists $result{ $acc };
+        is $seq->length, $result{ $acc };
+		delete $result{$acc};
     }
-    is @result, 0;
+	is $ct, 3;
+    is %result, 0;
 }
 
 $seq = $seqio = undef;
