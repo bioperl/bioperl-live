@@ -94,6 +94,8 @@ use constant DEFAULT_ENDPOINT => 'http://www.ebi.ac.uk:80/cgi-bin/xembl/XEMBL-SO
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);
+	$self->warn("The Bio::DB::XEMBL-related modules are deprecated as \n".
+				"the XEMBL services are no longer available.  \nUse Bio::DB::DBFetch instead.\n");
     my $endpoint = $self->_rearrange([qw(ENDPOINT)]);
     $endpoint ||= DEFAULT_ENDPOINT;
     $self->endpoint($endpoint);
