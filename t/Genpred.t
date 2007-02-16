@@ -1,4 +1,3 @@
-use lib '/gscuser/mjohnson/bioperl-cvs/bioperl-live';
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 ## $Id$
