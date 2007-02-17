@@ -54,7 +54,7 @@ isa_ok($result, 'Bio::Search::Result::ResultI');
 $algorithm = $result->algorithm;
 is($result->algorithm, 'CMSEARCH', "Result $algorithm");
 is($result->algorithm_reference, undef, "Result $algorithm reference");
-is($result->algorithm_version, 0.71, "Result $algorithm version");
+is($result->algorithm_version, 0.7, "Result $algorithm version");
 is($result->available_parameters, 0, "Result parameters");
 is($result->available_statistics, 0, "Result statistics");
 is($result->database_entries, '', "Result entries");

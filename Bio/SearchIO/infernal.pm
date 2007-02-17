@@ -227,11 +227,9 @@ sub next_result {
     PARSER:
     while ( defined( $line = $self->_readline ) ) {
         next if $line =~ m{^\s+$};
-        if ($line =~ m{^CPU\stime}xms ) {
-            if (index($line, 'band calc') > 0) {
-                $version = 0.71 ;
-            }
-        } elsif ($line =~ m{^sequence:\s+(\S+)} ){
+        # bypass this for now...
+        next if $line =~ m{^HMM\shit};
+        if ($line =~ m{^sequence:\s+(\S+)} ){
             if (!$self->within_element('result')) {
                 $seentop = 1;
                 $self->start_element({'Name' => 'Result'});
@@ -313,7 +311,7 @@ sub next_result {
                 next if $line =~ m{^\s*$}; # toss empty lines
                 chomp $line;
                 # exit loop if at end of file or upon next hit/HSP
-                if (!defined($line) || $line =~ m{^(sequence|hit|CPU)}) {
+                if (!defined($line) || $line =~ m{^\S+}) {
                     $self->_pushback($line);
                     last HSP;
                 }
