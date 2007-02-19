@@ -491,11 +491,15 @@ sub _from_gff2_string {
    # text-translated tab symbols but no "real" tabs, so splitting on
    # \t is safe, and $attribs gets the entire attributes field to be
    # parsed later
+   
+   # sendu: but the tag value pair can (should?) be separated by a tab. The
+   # 'no tabs' thing seems to apply only to the free text that is allowed for
+   # the value
 
    my ($seqname, $source, $primary, $start, 
        $end, $score, $strand, $frame, @attribs) = split(/\t+/, $string);
-   my $attribs = join '', @attribs;  # just in case the rule 
-                                     # against tab characters has been broken
+   my $attribs = join ' ', @attribs;
+   
    if ( !defined $frame ) {
        $feat->throw("[$string] does not look like GFF2 to me");
    }
@@ -530,7 +534,6 @@ sub _from_gff2_string {
    # run through each character one at a time and check it
    # NOTE: changed to foreach loop which is more efficient in perl
    # --jasons
-
    for my $a ( split //, $attribs ) { 
        # flag up on entering quoted text, down on leaving it
        if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 }
