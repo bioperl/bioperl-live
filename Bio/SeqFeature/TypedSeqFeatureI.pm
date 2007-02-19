@@ -1,6 +1,6 @@
-
+# $Id$
 #
-# BioPerl module for Bio::SeqFeature::OntologyTypedI
+# BioPerl module for Bio::SeqFeature::TypedSeqFeatureI
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
