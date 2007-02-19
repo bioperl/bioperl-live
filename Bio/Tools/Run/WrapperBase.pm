@@ -307,7 +307,7 @@ sub executable {
             if (-e $prog_path && -x $prog_path) {
                 $self->{'_pathtoexe'} = $prog_path;
             }
-            else {
+            elsif ($self->program_dir) {
                 $self->warn("executable not found in $prog_path, trying system path...") if $warn;
             }
         }
