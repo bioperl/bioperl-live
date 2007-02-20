@@ -205,7 +205,7 @@ sub name            {
   $self->{name} = shift if @_;
   $d;
 }
-sub seq_id          { shift->ref()         }
+sub seq_id          { shift->ref(@_)         }
 sub ref {
   my $self = shift;
   my $d = $self->{ref};
