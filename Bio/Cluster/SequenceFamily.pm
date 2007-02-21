@@ -394,14 +394,15 @@ sub cluster_score{
 sub add_members{
     my ($self,@mems) = @_;
 
-    my $mem = shift(@mems);
-    if(ref($mem) eq "ARRAY"){
-	push @{$self->{'_members'}},@{$mem};
-    } else {
-	push @{$self->{'_members'}},$mem;
+    if (@mems) {
+        my $mem = shift(@mems);
+        if(ref($mem) eq "ARRAY"){
+            push @{$self->{'_members'}},@{$mem};
+        } else {
+            push @{$self->{'_members'}},$mem;
+        }
+        push @{$self->{'_members'}}, @mems;
     }
-    push @{$self->{'_members'}}, @mems;
-
     return 1;
 }
 
