@@ -7,7 +7,7 @@
 
 =head1 NAME
 
-Bio::AlignIO::maf - Multipla Alignment Format sequence input stream
+Bio::AlignIO::maf - Multiple Alignment Format sequence input stream
 
 =head1 SYNOPSIS
 
@@ -44,7 +44,7 @@ multiple alignment file.
 Writing in MAF format is currently unimplemented.
 
 Spec of MAF format is here:
-  http://hgwdev-sugnet.cse.ucsc.edu/cgi-bin/hgGateway?org=human
+  http://genome.ucsc.edu/FAQ/FAQformat
 
 =head1 FEEDBACK
 
