@@ -16,7 +16,11 @@ sub _initialize {
 
     #default for standard chado is polypeptide
     $Bio::SeqIO::chadoxml::feattype_args2so{'CDS'} = 'protein';
+    $Bio::SeqIO::chadoxml::cv_name{'sequence'} = 'SO';
+    $Bio::SeqIO::chadoxml::cv_name{'relationship'} = 'relationship type';
+    $Bio::SeqIO::chadoxml::cv_name{'feature_property'} = 'property type';
 
+    return;
 } 
 
 
@@ -50,7 +54,7 @@ sub return_ftype_hash {
     my $self  = shift;
     my $ftype = shift;
     my %ftype_hash = ( "name" => $ftype,
-                       "cv_id" => {"name" => 'SO'});
+                       "cv_id" => {"name" => $Bio::SeqIO::chadoxml::cv_name{'sequence'} });
     return %ftype_hash;
 }
 
