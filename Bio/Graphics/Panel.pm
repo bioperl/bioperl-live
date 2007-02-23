@@ -12,7 +12,7 @@ use constant KEYCOLOR     => 'wheat';
 use constant KEYSTYLE     => 'bottom';
 use constant KEYALIGN     => 'left';
 use constant GRIDCOLOR    => 'lightcyan';
-use constant GRIDMAJORCOLOR    => 'cyan';
+use constant GRIDMAJORCOLOR    => 'lightgrey';
 use constant MISSING_TRACK_COLOR =>'gray';
 use constant EXTRA_RIGHT_PADDING => 30;
 
