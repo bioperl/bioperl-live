@@ -211,6 +211,7 @@ package Bio::SeqIO::chadoxml;
 use strict;
 use English;
 
+use Carp;
 use Data::Dumper;
 use XML::Writer;
 use IO::File;
@@ -236,6 +237,7 @@ my $chadotables = 'feature featureprop feature_relationship featureloc feature_c
 
 my %fkey = (
 	"cvterm.cv_id"			=> "cv",
+        "cvterm.dbxref_id"              => "dbxref",
 	"dbxref.db_id"			=> "db",
 	"feature.type_id" 		=> "cvterm",
 	"feature.organism_id" 		=> "organism",
@@ -244,6 +246,7 @@ my %fkey = (
 	"feature_pub.pub_id" 		=> "pub",
 	"feature_cvterm.cvterm_id"	=> "cvterm",
 	"feature_cvterm.pub_id"		=> "pub",
+        "feature_cvterm.feature_id"     => "feature",
 	"feature_dbxref.dbxref_id"	=> "dbxref",
 	"feature_relationship.object_id"	=> "feature",
 	"feature_relationship.subject_id"	=> "feature",
@@ -436,6 +439,7 @@ EOUSAGE
 	my $hkey = undef;
 	undef(my @top_featureprops);
         undef(my @featuresyns);
+        undef(my @top_featurecvterms);
 	my $name = $seq->display_id if $seq->can('display_id');
         $name = $seq->display_name  if $seq->can('display_name');
 	undef(my @feature_cvterms);
@@ -680,6 +684,9 @@ EOUSAGE
                     }
 
                     ###FIXME deal with Dbxref, Ontology_term,source, 
+                    if ($key eq 'Ontology_term') {
+                        @top_featurecvterms = $self->handle_Ontology_tag($seq,@top_featurecvterms);
+                    }
 
                     if ($key =~ /^[a-z]/) {
                         @top_featureprops 
@@ -1075,6 +1082,10 @@ EOUSAGE
 		$datahash{'feature_relationship'} = \@top_featrels;
 	}
 
+        if (@top_featurecvterms) {
+                $datahash{'feature_cvterm'} = \@top_featurecvterms;
+        }
+
 	if ($ftype eq 'mRNA' && %finaldatahash) {
 		$finaldatahash{'feature_relationship'} = {
 						'subject_id'	=> \%datahash,
@@ -1337,6 +1348,7 @@ sub _subfeat2featrelhash {
 	undef(my @sfdbxrefs);		#subfeature dbxrefs
 	undef(my @sub_featureprops);	#subfeature props
         undef(my @sub_featuresyns);     #subfeature synonyms
+        undef(my @sub_featurecvterms);  #subfeature cvterms
 	foreach my $tag ($feat->all_tags()) {
 		#feature_dbxref for features
 		if ($tag eq 'db_xref' or $tag eq 'dbxref' or $tag eq 'Dbxref')   {
@@ -1357,8 +1369,12 @@ sub _subfeat2featrelhash {
                 #Alias tags
                 } elsif ($tag eq 'Alias') {
                         @sub_featuresyns = $self->handle_Alias_tag($feat, @sub_featuresyns);
+                } elsif ($tag eq 'Ontology_term') {
+                        @sub_featurecvterms = $self->handle_Ontology_tag($feat, @sub_featurecvterms);
 		#featureprop for features, excluding GFF Name & Parent tags
 		} elsif ($tag ne 'gene' && $tag ne 'symbol' && $tag ne 'Name' && $tag ne 'Parent') {
+                        next if ($tag eq 'parent_id');
+                        next if ($tag eq 'load_id');
 			foreach my $val ($feat->each_tag_value($tag)) {
 				my %prophash = undef;
 				%prophash = (
@@ -1377,6 +1393,9 @@ sub _subfeat2featrelhash {
 	}
         if (@sub_featuresyns) {
                 $sfhash{'feature_synonym'} = \@sub_featuresyns;
+        }
+        if (@sub_featurecvterms) {
+                $sfhash{'feature_cvterm'} = \@sub_featurecvterms;
         }
 
 	undef(my @ssfeatrel);
@@ -1843,7 +1862,7 @@ sub handle_unreserved_tags {
 
 =item Function
 
-Convert Alias values to synonym hash tags
+Convert Alias values to synonym hash refs
 
 =item Returns
 
@@ -1871,6 +1890,56 @@ sub handle_Alias_tag {
                                  "synonym_sgml" => $Alias,
                       );
         push(@arr, {'synonym_id' => \%synhash});
+    }
+
+    return @arr;
+}
+
+=head2 handle_Ontology_tag 
+
+=over
+
+=item Usage
+
+  $obj->handle_Ontology_tag ()
+
+=item Function
+
+Convert Ontology_term values to ontology term hash refs
+
+=item Returns
+
+An array of ontology term hash refs
+
+=item Arguments
+
+The seq or seqFeature object and the ontology term array
+
+=back
+
+=cut
+
+sub handle_Ontology_tag  {
+    my $self = shift;
+    my $seq  = shift;
+    my @arr  = @_;
+
+    my @terms = $seq->attributes('Ontology_term');
+    for my $term (@terms) {
+        my $hashref;
+        if ($term =~ /(\S+):(\S+)/) {
+            my $db  = $1;
+            my $acc = $2;
+            $hashref = (
+                    'cvterm_id' => {
+                        'dbxref_id' => {
+                           'db_id' => { 'name' => $db },
+                           'accession' => $acc
+                                      },
+                                   },
+                       );
+        }
+        push(@arr, {cvterm_id => $hashref});
     }
 
     return @arr;
