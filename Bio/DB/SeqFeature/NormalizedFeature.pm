@@ -481,14 +481,17 @@ sub format_attributes {
     next if $t eq 'load_id';
     next if $t eq 'parent_id';
     foreach (@values) { s/\s+$// } # get rid of trailing whitespace
-
-    push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
+    # push @result,join '=',$self->escape($t),$self->escape($_) foreach @values; 
+    # NO! Multiple attributes of the same type are indicated by
+    # separating the values with the comma "," character - per
+    # http://www.sequenceontology.org/gff3.shtml.  Do it this way:
+    push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values);
   }
   my $id   = $self->primary_id;
   my $name = $self->display_name;
-  push @result,"ID=".$self->escape($id)                     if defined $id;
-  push @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
-  push @result,"Name=".$self->escape($name)                   if defined $name;
+  unshift @result,"ID=".$self->escape($id)                     if defined $id;
+  unshift @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
+  unshift @result,"Name=".$self->escape($name)                   if defined $name;
   return join ';',@result;
 }
 
