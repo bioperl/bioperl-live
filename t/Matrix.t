@@ -16,15 +16,16 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 68;
+    plan tests => 75;
 }
-
-#END {
-#}
 
 use Bio::Matrix::Generic;
 use Bio::Matrix::IO;
 use Bio::Root::IO;
+
+END {
+	unlink(Bio::Root::IO->catfile("t","data","nucmatrix.out"));
+}
 
 my $raw = [ [ 0, 10, 20],
 	    [ 2, 17,  4],
@@ -152,4 +153,30 @@ ok $diag[3], '0.00000';
 ok $diag[4], '0.00000';
 
 
+# test mlagan parsing
 
+$io = new Bio::Matrix::IO(-format => 'mlagan',
+						  -file   => Bio::Root::IO->catfile(qw(t data nucmatrix.txt)));
+
+my $mlag = $io->next_matrix;
+ok $mlag->get_entry('A', 'C'), -150;
+ok $mlag->get_entry('.', 'A'), 0;
+ok $mlag->gap_open, -300;
+ok $mlag->gap_continue, -25;
+
+# test output round-trip
+$mlag->entry('A', 'C', -149);
+$mlag->gap_open(-150);
+$mlag->gap_continue(-5);
+
+my $out = Bio::Root::IO->catfile(qw(t data nucmatrix.out));
+$io = new Bio::Matrix::IO(-format => 'mlagan',
+						  -file   => ">$out");
+$io->write_matrix($mlag);
+
+$io = new Bio::Matrix::IO(-format => 'mlagan',
+						  -file   => $out);
+$mlag = $io->next_matrix;
+ok $mlag->get_entry('A', 'C'), -149;
+ok $mlag->gap_open, -150;
+ok $mlag->gap_continue, -5;
