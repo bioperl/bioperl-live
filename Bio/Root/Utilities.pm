@@ -1,75 +1,7 @@
-#-----------------------------------------------------------------------------
-# PACKAGE : Bio::Root::Utilities.pm
-# PURPOSE : Provides general-purpose utilities of potential interest to any Perl script.
-# AUTHOR  : Steve Chervitz (sac@bioperl.org)
-# CREATED : Feb 1996
-# REVISION: $Id$
-# STATUS  : Alpha
-#
-# This module manages file compression and uncompression using gzip or
-# the UNIX compress programs (see the compress() and uncompress() methods).
-# Also, it can create filehandles from gzipped files. If you want to use a
-# different compression utility (such as zip, pkzip, stuffit, etc.) you
-# are on your own.
-#
-# If you manage to incorporate an alternate compression utility into this
-# module, please post a note to the bio.perl.org mailing list
-# bioperl-l@bioperl.org
-#
-# TODO    : Configure $GNU_PATH during installation.
-#           Improve documentation (POD).
-#           Make use of Date::Manip and/or Date::DateCalc as appropriate.
-#
-# MODIFICATIONS: See bottom of file.
-#
-# Copyright (c) 1996-2000 Steve Chervitz. All Rights Reserved.
-#          This module is free software; you can redistribute it and/or
-#          modify it under the same terms as Perl itself.
-#
-#-----------------------------------------------------------------------------
-
 package	Bio::Root::Utilities;
 use strict;
 
-BEGIN {
-    use vars qw($Loaded_POSIX $Loaded_IOScalar);
-    $Loaded_POSIX = 1;
-    unless( eval "require POSIX" ) {
-	$Loaded_POSIX = 0;
-    }
-}
-
-use Bio::Root::Global  qw(:data :std $TIMEOUT_SECS);
-use Bio::Root::Object  ();
-#use AutoLoader;
-#*AUTOLOAD = \&AutoLoader::AUTOLOAD;
-
-use vars qw(@EXPORT_OK %EXPORT_TAGS);
-use base qw(Bio::Root::Root Exporter);
-@EXPORT_OK   = qw($Util);
-%EXPORT_TAGS = ( obj => [qw($Util)],
-		 std => [qw($Util)],);
-
-use vars qw($ID $Util $GNU_PATH $DEFAULT_NEWLINE);
-
-$ID        = 'Bio::Root::Utilities';
-
-# $GNU_PATH points to the directory containing the gzip and gunzip
-# executables. It may be required for executing gzip/gunzip
-# in some situations (e.g., when $ENV{PATH} doesn't contain this dir.
-# Customize $GNU_PATH for your site if the compress() or
-# uncompress() functions are generating exceptions.
-$GNU_PATH  = '';
-#$GNU_PATH  = '/tools/gnu/bin/';
-
-$DEFAULT_NEWLINE = "\012";  # \n  (used if get_newline() fails for some reason)
-
-## Static UTIL object.
-$Util = {};
-bless $Util, $ID;
-$Util->{'_name'} = 'Static Utilities object';
-
-## POD Documentation:
+# $Id$
 
 =head1 NAME
 
@@ -79,53 +11,62 @@ Bio::Root::Utilities - General-purpose utility module
 
 =head2 Object Creation
 
+    # Using the supplied singleton object:
     use Bio::Root::Utilities qw(:obj);
+    $Util->some_method();
 
-There is no need to create a new Bio::Root::Utilities.pm object when
-the C<:obj> tag is used. This tag will import the static $Util
-object created by Bio::Root::Utilities.pm into your name space. This
-saves you from having to call C<new Bio::Root::Utilities>.
-
-You are free to not use the :obj tag and create the object as you
-like, but a Bio::Root::Utilities object is not configurable; any given
-script only needs a single copy.
+    # Create an object manually:
+    use Bio::Root::Utilities;
+    my $util = new Bio::Root::Utilities;
+    $util->some_method();
 
     $date_stamp = $Util->date_format('yyy-mm-dd');
 
     $clean = $Util->untaint($dirty);
 
+    $compressed = $Util->compress('/home/me/myfile.txt')
+
+    my ($mean, $stdev) = $Util->mean_stdev( @data );
+
+    $Util->authority("me@example.com");
     $Util->mail_authority("Something you should know about...");
 
-    ...and other methods. See below.
+    ...and a host of other methods. See below.
+
+=head1 DESCRIPTION
+
+Provides general-purpose utilities of potential interest to any Perl script.
+
+The C<:obj> tag is a convenience that imports a $Util symbol into your
+namespace representing a Bio::Root::Utilities object. This saves you
+from creating your own Bio::Root::Utilities object via
+C<Bio::Root::Utilities->new()> or from prefixing all method calls with
+C<Bio::Root::Utilities>, though feel free to do these things if desired.
+Since there should normally not be a need for a script to have more
+than one Bio::Root::Utilities object, this module thus comes with it's
+own singleton.
 
 =head1 INSTALLATION
 
 This module is included with the central Bioperl distribution:
 
-   http://bio.perl.org/Core/Latest
+   http://www.bioperl.org/wiki/Getting_BioPerl
    ftp://bio.perl.org/pub/DIST
 
 Follow the installation instructions included in the README file.
 
-=head1 DESCRIPTION
-
-Provides general-purpose utilities of potential interest to any Perl script.
-Scripts and modules are expected to use the static $Util object exported by
-this package with the C<:obj> tag.
-
 =head1 DEPENDENCIES
 
-L<Bio::Root::Utilities> inherits from L<Bio::Root::Object>.
-It also relies on the GNU gzip program for file compression/uncompression.
+Inherits from L<Bio::Root::Root>, and uses L<Bio::Root::IO> 
+and L<Bio::Root::Exception>.
+
+Relies on external executables for file compression/uncompression 
+and sending mail. No paths to these are hard coded but are located 
+as needed.
 
 =head1 SEE ALSO
 
-  Bio::Root::Object.pm       - Core object
-  Bio::Root::Global.pm       - Manages global variables/constants
-
-  http://bio.perl.org/                       - Bioperl Project Homepage
-
-  FileHandle.pm (included in the Perl distribution or CPAN).
+  http://bioperl.org  - Bioperl Project Homepage
 
 =head1 FEEDBACK
 
@@ -152,32 +93,19 @@ Steve Chervitz E<lt>sac@bioperl.orgE<gt>
 
 See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comments.
 
-=head1 VERSION
-
-Bio::Root::Utilities.pm, 0.042
 
 =head1 ACKNOWLEDGEMENTS
 
-This module was developed under the auspices of the Saccharomyces Genome
-Database:
-    http://genome-www.stanford.edu/Saccharomyces
+This module was originally developed under the auspices of the
+Saccharomyces Genome Database: http://genome-www.stanford.edu/Saccharomyces
 
 =head1 COPYRIGHT
 
-Copyright (c) 1997-98 Steve Chervitz. All Rights Reserved.
+Copyright (c) 1996-2007 Steve Chervitz. All Rights Reserved.
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
-
-#
-##
-###
-#### END of main POD documentation.
-###
-##
-#'
-
 
 =head1 APPENDIX
 
@@ -188,10 +116,58 @@ for documentation purposes only.
 
 =cut
 
+# Let the code begin...
 
-############################################################################
-##                 INSTANCE METHODS                                       ##
-############################################################################
+use Bio::Root::IO;
+use Bio::Root::Exception;
+
+use vars qw(@EXPORT_OK %EXPORT_TAGS);
+use base qw(Bio::Root::Root Exporter);
+@EXPORT_OK   = qw($Util);
+%EXPORT_TAGS = ( obj => [qw($Util)],
+		   std => [qw($Util)],);
+
+use vars qw($ID $Util $GNU_PATH $TIMEOUT_SECS 
+            @COMPRESSION_UTILS @UNCOMPRESSION_UTILS
+            $DEFAULT_NEWLINE $NEWLINE $AUTHORITY
+            @MONTHS @DAYS $BASE_YEAR $DEFAULT_CENTURY
+            );
+
+$ID = 'Bio::Root::Utilities';
+# Number of seconds to wait before timing out when reading input (taste_file())
+$TIMEOUT_SECS  = 30;
+$NEWLINE = $ENV{'NEWLINE'} || undef;
+$BASE_YEAR = 1900;  # perl's localtime() assumes this for it's year data.
+# TODO: update this every hundred years. Y2K-sensitive code.
+$DEFAULT_CENTURY = $BASE_YEAR + 100;
+@MONTHS = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+@DAYS   = qw(Sun Mon Tue Wed Thu Fri Sat);
+# Sets the preference for compression utilities to be used by compress().
+# The first executable in this list to be found in the current PATH will be used,
+# unless overridden in the call to that function. See docs for details.
+@COMPRESSION_UTILS = qw(gzip bzip2 zip compress);
+@UNCOMPRESSION_UTILS = qw(gunzip bunzip2 unzip uncompress);
+
+# Default person to receive feedback from users and possibly automatic error messages.
+$AUTHORITY = '';
+
+# Note: $GNU_PATH is now deprecated, shouldn't be needed since now this module
+# will automatically locate the compression utility in the current PATH.
+# Retaining $GNU_PATH for backward compatibility.
+#
+# $GNU_PATH points to the directory containing the gzip and gunzip
+# executables. It may be required for executing gzip/gunzip
+# in some situations (e.g., when $ENV{PATH} doesn't contain this dir.
+# Customize $GNU_PATH for your site if the compress() or
+# uncompress() functions are generating exceptions.
+$GNU_PATH  = '';
+#$GNU_PATH  = '/tools/gnu/bin/';
+
+$DEFAULT_NEWLINE = "\012";  # \n  (used if get_newline() fails for some reason)
+
+## Static UTIL object.
+$Util = new Bio::Root::Root;
+
 
 =head2 date_format
 
@@ -219,7 +195,8 @@ for documentation purposes only.
            :   'ymd'         = 96may3
            :   'md'          = may3
            :   'year'        = 1996
-           :   'hms'         = 23:01:59  # 'hms' can be tacked on to any of the above options
+           :   'hms'         = 23:01:59  # when not converting a format, 'hms' can be 
+           :                             # tacked on to any of the above options
            :                             # to add the time stamp: eg 'dmyhms'
            :   'full' | 'unix' = UNIX-style date: Tue May  5 22:00:00 1998
            :   'list'          = the contents of localtime(time) in an array.
@@ -235,15 +212,13 @@ for documentation purposes only.
            :           1997-12-01
            :           1997-Dec-01
  Throws    :
- Comments  : Relies on the $BASE_YEAR constant exported by Bio:Root::Global.pm.
-           :
-           : If you don't care about formatting or using backticks, you can
+ Comments  : If you don't care about formatting or using backticks, you can
            : always use: $date = `date`;
            :
            : For more features, use Date::Manip.pm, (which I should
            : probably switch to...)
 
-See Also   : L<file_date>(), L<month2num>()
+See Also   : L<file_date()|file_date>, L<month2num()|month2num>
 
 =cut
 
@@ -259,10 +234,11 @@ sub date_format {
     $option ||= 'yyyy-mm-dd';
 
     my ($month_txt, $day_txt, $month_num, $fullYear);
-    my (@date);
+    my ($converting, @date);
 
     # Load a supplied date for conversion:
     if(defined($date) && ($date =~ /[\D-]+/)) {
+        $converting = 1;
 	if( $date =~ m{/}) {
 	    ($mon,$mday,$year) = split(m{/}, $date);
 	} elsif($date =~ /(\d{4})-(\d{1,2})-(\d{1,2})/) {
@@ -273,17 +249,29 @@ sub date_format {
 	} else {
 	    print STDERR "\n*** Unsupported input date format: $date\n";
 	}
-	if(length($year) == 4) { $year = substr $year, 2; }
+	if(length($year) == 4) { 
+            $fullYear = $year;
+            $year = substr $year, 2; 
+        } else {
+            # Heuristics to guess what century was intended when a 2-digit year is given
+            # If number is over 50, assume it's for prev century; under 50 = default century.
+            # TODO: keep an eye on this Y2K-sensitive code
+            if ($year > 50) {
+                $fullYear = $DEFAULT_CENTURY + $year - 100;
+            } else {
+                $fullYear = $DEFAULT_CENTURY + $year;
+            }
+        }
 	$mon -= 1;
     } else {
 	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @date =
 	    localtime(($date ? $date : time()));
 	return @date if $option =~ /list/i;
+        $fullYear = $BASE_YEAR+$year;
     }
     $month_txt = $MONTHS[$mon];
     $day_txt   = $DAYS[$wday] if defined $wday;
     $month_num = $mon+1;
-    $fullYear = $BASE_YEAR+$year;
 
 #    print "sec: $sec, min: $min, hour: $hour, month: $mon, m-day: $mday, year: $year\nwday: $wday, yday: $yday, dst: $isdst";<STDIN>;
 
@@ -315,7 +303,7 @@ sub date_format {
 	print STDERR "\n*** Unrecognized date format request: $option\n";
     }
 
-    if( $option =~ /hms/i) {
+    if( $option =~ /hms/i and not $converting) {
 	$date .= " $hour:$min:$sec" if $date;
 	$date ||= "$hour:$min:$sec";
     }
@@ -372,152 +360,223 @@ sub num2month {
 =head2 compress
 
  Title     : compress
- Usage     : $Util->compress(filename, [tmp]);
- Purpose   : Compress a file to conserve disk space.
+ Usage     : $Util->compress(full-path-filename);
+           : $Util->compress(<named parameters>);
+ Purpose   : Compress a file.
  Example   : $Util->compress("/usr/people/me/data.txt");
- Returns   : String (name of compressed file, full path).
- Argument  : filename = String (name of file to be compressed, full path).
+           : $Util->compress(-file=>"/usr/people/me/data.txt",
+           :                 -tmp=>1,
+           :                 -outfile=>"/usr/people/share/data.txt.gz",
+           :                 -exe=>"/usr/local/bin/fancyzip");
+ Returns   : String containing full, absolute path to compressed file
+ Argument  : Named parameters (case-insensitive):
+           :   -FILE => String (name of file to be compressed, full path).
            :            If the supplied filename ends with '.gz' or '.Z',
            :            that extension will be removed before attempting to compress.
-           : tmp = boolean,
-           :    If true, (or if user is not the owner of the file)
-           :         the file is compressed to a tmp file
-           :    If false, file is clobbered with the compressed version.
- Throws    : Exception if file cannot be compressed
-           : If user is not owner of the file, generates a warning
-           :   and compresses to a tmp file.
-           :   To avoid this warning, use the -o file test operator
-           :   and call this function with a true second argument.
- Comments  : Attempts to compress using gzip (default compression level).
-           : If that fails, will attempt to use compress.
-           : In some situations, the full path to the gzip executable
-           : may be required. This can be specified with the $GNU_PATH
-           : package global variable. When installed, $GNU_PATH is an
-           : empty string.
+           : Optional:
+           :   -TMP  => boolean. If true, (or if user is not the owner of the file)
+           :            the file is compressed to a temp file. If false, file may be
+           :            clobbered with the compressed version (if using a utility like
+           :            gzip, which is the default)
+           :   -OUTFILE => String (name of the output compressed file, full path).
+           :   -EXE  => Name of executable for compression utility to use.
+           :            Will supercede those in @COMPRESSION_UTILS defined by 
+           :            this module. If the absolute path to the executable is not provided,
+           :            it will be searched in the PATH env variable.
+ Throws    : Exception if file cannot be compressed.
+           : If user is not owner of the file, generates a warning and compresses to
+           : a tmp file. To avoid this warning, use the -o file test operator 
+           : and call this function with -TMP=>1.
+ Comments  : Attempts to compress using utilities defined in the @COMPRESSION_UTILS 
+           : defined by this module, in the order defined. The first utility that is 
+           : found to be executable will be used. Any utility defined in optional -EXE param
+           : will be tested for executability first. 
+           : To minimize security risks, the -EXE parameter value is untained using
+           : the untaint() method of this module (in 'relaxed' mode to permit path separators).
 
-See Also   : L<uncompress>()
+See Also   : L<uncompress()|uncompress>
 
 =cut
 
 #------------'
 sub compress {
 #------------
-    my $self = shift;
-    my $fileName = shift;
-    my $tmp = shift || 0;
+    my ($self, @args) = @_;
+    # This method formerly didn't use named params and expected fileName, tmp
+    # in that order. This should be backward compatibile.
+    my ($fileName, $tmp, $outfile, $exe) = $self->_rearrange([qw(FILE TMP OUTFILE EXE)], @args);
+    my ($file, $get, $fmt);
 
-    if($fileName =~ /(\.gz|\.Z)$/) { $fileName =~ s/$1$//; };
-    $DEBUG && print STDERR "gzipping file $fileName";
+    # in case the supplied name already has a compressed extension
+    if($fileName =~ /(\.gz|\.Z|\.bz2|\.zip)$/) { $fileName =~ s/$1$//; };
+    $self->debug("compressing file $fileName");
 
-    my ($compressed, @args);
+    my @util_to_use = @COMPRESSION_UTILS;
 
-    if($tmp or not -o $fileName) {
-	if($Loaded_POSIX) {
-	    $compressed = POSIX::tmpnam;
-	} else {
-	    $compressed = _get_pseudo_tmpnam();
-	}
-	$compressed .= ".tmp.bioperl";
-	$compressed .= '.gz';
-	@args = ($GNU_PATH."gzip -f < $fileName > $compressed");
-	not $tmp and
-	    $self->warn("Not owner of file $fileName\nCompressing to tmp file $compressed.");
-	$tmp = 1;
-    } else {
-	$compressed = "$fileName.gz";
-	@args = ($GNU_PATH.'gzip', '-f', $fileName);
+    if (defined $exe){
+        $exe = $self->untaint($exe, 1);
+        unshift @util_to_use, $exe;
     }
 
-    if(system(@args) != 0) {
-	# gzip may not be present. Try compress.
-	$compressed = "$fileName.Z";
-	if($tmp) {
-	    @args = ("/usr/bin/compress -f < $fileName > $compressed");
-	} else {
-	    @args = ('/usr/bin/compress', '-f', $fileName);
-	}
-	system(@args) == 0 or
-	    $self->throw("Failed to gzip/compress file $fileName: $!",
-			 "Confirm current \$GNU_PATH: $GNU_PATH",
-			 "Edit \$GNU_PATH in Bio::Root::Utilities.pm if necessary.");
+    my @checked = @util_to_use;
+    while (not -x $exe and scalar(@util_to_use)) {
+        $exe = $self->find_exe(shift @util_to_use);
+    }
+
+    unless (-x $exe) {
+        $self->throw("Can't find compression utility. Looked for @checked");
+    }
+
+    my ($compressed, @cmd, $handle);
+
+    if(defined($outfile) or $tmp or not -o $fileName) {
+        if (defined $outfile) {
+            $compressed = $outfile;
+        } else {
+            # obtain a temporary file name (not using the handle)
+            # and insert some special text to flag it as a bioperl-based temp file
+            ($handle, $compressed) = Bio::Root::IO->tempfile();
+            $compressed .= '.tmp.bioperl';
+        }
+
+        if ($exe =~ /gzip|bzip2|compress/) {
+            @cmd = ("$exe -f < $fileName > $compressed");
+        } elsif ($exe eq 'zip') {
+            @cmd = ("$exe -r $fileName.zip $fileName");
+        }
+	not $tmp and
+	    $self->warn("Not owner of file $fileName. Compressing to temp file $compressed.");
+	$tmp = 1;
+    } else {
+        # Need to compute the compressed name based on exe since we're returning it.
+        $compressed = $fileName;
+        if ($exe =~ /gzip/) {
+            $compressed .= '.gz';
+        } elsif ($exe =~ /bzip2/) {
+            $compressed .= '.bz2';
+        } elsif ($exe =~ /zip/) {
+            $compressed .= '.zip';
+        } elsif ($exe =~ /compress/) {
+            $compressed .= '.Z';
+        }
+        if ($exe =~ /gzip|bzip2|compress/) {
+            @cmd = ($exe, '-f', $fileName);
+        } elsif ($exe eq 'zip') {
+            @cmd = ($exe, '-r', "$compressed", $fileName);
+        }
+    }
+
+    if(system(@cmd) != 0) {
+        $self->throw( -class => 'Bio::Root::SystemException',
+                      -text => "Failed to compress file $fileName using $exe: $!");
     }
 
     return $compressed;
 }
 
-
 =head2 uncompress
 
  Title     : uncompress
- Usage     : $Util->uncompress(filename, [tmp]);
+ Usage     : $Util->uncompress(full-path-filename);
+           : $Util->uncompress(<named parameters>);
  Purpose   : Uncompress a file.
- Example   : $Util->uncompress("/usr/people/me/data.txt.gz");
- Returns   : String (name of uncompressed file, full path).
- Argument  : filename = String (name of file to be uncompressed, full path).
-           :           If the supplied filename does not end with '.gz' or '.Z'
-           :           a '.gz' will be appended before attempting to uncompress.
-           : tmp = boolean,
-           :    If true, (or if user is not the owner of the file)
-           :         the file is uncompressed to a tmp file
-           :    If false, file is clobbered with the uncompressed version.
- Throws    : Exception if file cannot be uncompressed
-           : If user is not owner of the file, generates a warning
-           :   and uncompresses to a tmp file.
-           :   To avoid this warning, use the -o file test operator
-           :   and call this function with a true second argument.
- Comments  : Attempts to uncompress using gunzip.
-           : If that fails, will use uncompress.
-           : In some situations, the full path to the gzip executable
-           : may be required. This can be specified with the $GNU_PATH
-           : package global variable. When installed, $GNU_PATH is an
-           : empty string.
+ Example   : $Util->uncompress("/usr/people/me/data.txt");
+           : $Util->uncompress(-file=>"/usr/people/me/data.txt.gz",
+           :                   -tmp=>1,
+           :                   -outfile=>"/usr/people/share/data.txt",
+           :                   -exe=>"/usr/local/bin/fancyzip");
+ Returns   : String containing full, absolute path to uncompressed file
+ Argument  : Named parameters (case-insensitive):
+           :   -FILE => String (name of file to be uncompressed, full path).
+           :            If the supplied filename ends with '.gz' or '.Z',
+           :            that extension will be removed before attempting to uncompress.
+           : Optional:
+           :   -TMP  => boolean. If true, (or if user is not the owner of the file)
+           :            the file is uncompressed to a temp file. If false, file may be
+           :            clobbered with the uncompressed version (if using a utility like
+           :            gzip, which is the default)
+           :   -OUTFILE => String (name of the output uncompressed file, full path).
+           :   -EXE  => Name of executable for uncompression utility to use.
+           :            Will supercede those in @UNCOMPRESSION_UTILS defined by 
+           :            this module. If the absolute path to the executable is not provided,
+           :            it will be searched in the PATH env variable.
+ Throws    : Exception if file cannot be uncompressed.
+           : If user is not owner of the file, generates a warning and uncompresses to
+           : a tmp file. To avoid this warning, use the -o file test operator 
+           : and call this function with -TMP=>1.
+ Comments  : Attempts to uncompress using utilities defined in the @UNCOMPRESSION_UTILS 
+           : defined by this module, in the order defined. The first utility that is 
+           : found to be executable will be used. Any utility defined in optional -EXE param
+           : will be tested for executability first. 
+           : To minimize security risks, the -EXE parameter value is untained using
+           : the untaint() method of this module (in 'relaxed' mode to permit path separators).
 
-See Also   : L<compress>()
+See Also   : L<compress()|compress>
 
 =cut
 
-#---------------
+#------------'
 sub uncompress {
-#---------------
-    my $self = shift;
-    my $fileName = shift;
-    my $tmp = shift || 0;
+#------------
+    my ($self, @args) = @_;
+    # This method formerly didn't use named params and expected fileName, tmp
+    # in that order. This should be backward compatibile.
+    my ($fileName, $tmp, $outfile, $exe) = $self->_rearrange([qw(FILE TMP OUTFILE EXE)], @args);
+    my ($file, $get, $fmt);
 
-    if(not $fileName =~ /(\.gz|\.Z)$/) { $fileName .= '.gz'; }
-    $DEBUG && print STDERR "gunzipping file $fileName";
+    # in case the supplied name lacks a compressed extension
+    if(not $fileName =~ /(\.gz|\.Z|\.bz2|\.zip)$/) { $fileName .= $1; };
+    $self->debug("uncompressing file $fileName");
 
-    my($uncompressed, @args);
+    my @util_to_use = @UNCOMPRESSION_UTILS;
 
-    if($tmp or not -o $fileName) {
-	if($Loaded_POSIX) {
-	    $uncompressed = POSIX::tmpnam;
-	} else {
-	    $uncompressed = _get_pseudo_tmpnam();
-	}
-	$uncompressed .= ".tmp.bioperl";
-	@args = ($GNU_PATH."gunzip -f < $fileName > $uncompressed");
-	not $tmp and $self->verbose > 0 and
-	    $self->warn("Not owner of file $fileName\nUncompressing to tmp file $uncompressed.");
-	$tmp = 1;
-    } else {
-	@args = ($GNU_PATH.'gunzip', '-f', $fileName);
-	($uncompressed = $fileName) =~ s/(\.gz|\.Z)$//;
+    if (defined $exe){
+        $exe = $self->untaint($exe, 1);
+        unshift @util_to_use, $exe;
     }
 
-#    $ENV{'PATH'} = '/tools/gnu/bin';
+    while (not -x $exe and scalar(@util_to_use)) {
+        $exe = $self->find_exe(shift @util_to_use);
+    }
 
-    if(system(@args) != 0) {
-	# gunzip may not be present. Try uncompress.
-	($uncompressed = $fileName) =~ s/(\.gz|\.Z)$//;
-	if($tmp) {
-	    @args = ("/usr/bin/uncompress -f < $fileName > $uncompressed");
-	} else {
-	    @args = ('/usr/bin/uncompress', '-f', $fileName);
-	}
-	system(@args) == 0 or
-	    $self->throw("Failed to gunzip/uncompress file $fileName: $!",
-			 "Confirm current \$GNU_PATH: $GNU_PATH",
-			 "Edit \$GNU_PATH in Bio::Root::Utilities.pm if necessary.");
+    unless (-x $exe) {
+        $self->throw("Can't find compression utility. Looked for @util_to_use");
+    }
+
+    my ($uncompressed, @cmd, $handle);
+
+    $uncompressed = $fileName;
+    $uncompressed =~ s/\.\w+$//;
+
+    if(defined($outfile) or $tmp or not -o $fileName) {
+        if (defined $outfile) {
+            $uncompressed = $outfile;
+        } else {
+            # obtain a temporary file name (not using the handle)
+            ($handle, $uncompressed) = Bio::Root::IO->tempfile();
+            # insert some special text to flag it as a bioperl-based temp file
+            $uncompressed .= '.tmp.bioperl';
+        }
+
+        if ($exe =~ /gunzip|bunzip2|uncompress/) {
+            @cmd = ("$exe -f < $fileName > $uncompressed");
+        } elsif ($exe eq 'unzip') {
+            @cmd = ("$exe -p $fileName > $uncompressed");
+        }
+	not $tmp and
+	    $self->warn("Not owner of file $fileName. Uncompressing to temp file $uncompressed.");
+	$tmp = 1;
+    } else {
+        if ($exe =~ /gunzip|bunzip2|uncompress/) {
+            @cmd = ($exe, '-f', $fileName);
+        } elsif ($exe eq 'zip') {
+            @cmd = ($exe, $fileName);
+        }
+    }
+
+    if(system(@cmd) != 0) {
+        $self->throw( -class => 'Bio::Root::SystemException',
+                      -text => "Failed to uncompress file $fileName using $exe: $!");
     }
 
     return $uncompressed;
@@ -583,9 +642,11 @@ sub untaint {
     $relax ||= 0;
     my $untainted;
 
-    $DEBUG and print STDERR "\nUNTAINT: $value\n";
+    $self->debug("\nUNTAINT: $value\n");
 
-    defined $value || return;
+    unless (defined $value and $value ne '') {
+        return $value;
+    }
 
     if( $relax ) {
 	$value =~ /([-\w.\', ()\/=%:^<>*]+)/;
@@ -598,7 +659,7 @@ sub untaint {
 	$untainted = $1
     }
 
-    $DEBUG and print STDERR "UNTAINTED: $untainted\n";
+    $self->debug("UNTAINTED: $untainted\n");
 
     $untainted;
 }
@@ -745,6 +806,7 @@ sub delete {
     $self->throw("Failed to delete file $fileName: $!");
 }
 
+
 =head2 create_filehandle
 
  Usage     : $object->create_filehandle(<named parameters>);
@@ -754,8 +816,7 @@ sub delete {
  Argument  : Named parameters (case-insensitive):
            :  (all optional)
            :    -CLIENT  => object reference for the object submitting
-           :                the request. This facilitates use by
-           :                Bio::Root::IOManager::read(). Default = $Util.
+           :                the request. Default = $Util.
            :    -FILE    => string (full path to file) or a reference
            :                to a FileHandle object or typeglob. This is an
            :                optional parameter (if not defined, STDIN is used).
@@ -770,7 +831,7 @@ sub delete {
            : this method should probably have a -mode parameter to
            : specify ascii or binary.
 
-See Also :  L<get_newline>(), L<Bio::Root::IOManager::read>(),
+See Also :  L<get_newline()|get_newline>
 
 =cut
 
@@ -788,7 +849,6 @@ sub create_filehandle {
     }
 
     my $FH;
-
     my ($handle_ref);
 
     if($handle_ref = ref($file)) {
@@ -799,7 +859,8 @@ sub create_filehandle {
 	$FH = $file;
 	$client->{'_input_type'} = "Glob";
       } else {
-	$self->throw("Can't read from $file: Not a FileHandle or GLOB ref.");
+        $self->throw(-class=>'Bio::Root::IOException',
+                     -text =>"Can't read from $file: Not a FileHandle or GLOB ref.");
       }
       $self->verbose > 0 and printf STDERR "$ID: reading data from FileHandle\n";
 
@@ -809,13 +870,14 @@ sub create_filehandle {
       # Use gzip -cd to access compressed data.
       if( -B $file ) {
 	$client->{'_input_type'} .= " (compressed)";
-	$file = "${GNU_PATH}gzip -cd $file |"
+        my $gzip = $self->find_exe('gzip');
+	$file = "$gzip -cd $file |"
       }
 
       require FileHandle;
       $FH = new FileHandle;
-      open ($FH, $file) || $self->throw("Can't access data file: $file",
-					"$!");
+      open ($FH, $file) || $self->throw(-class=>'Bio::Root::FileOpenException',
+                                        -text =>"Can't access data file: $file: $!");
       $self->verbose > 0 and printf STDERR "$ID: reading data from file $file\n";
 
     } else {
@@ -839,7 +901,7 @@ sub create_filehandle {
  Returns   : Reference to a FileHandle object.
  Throws    : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
 
-See Also : L<taste_file>(), L<create_filehandle>()
+See Also : L<taste_file()|taste_file>, L<create_filehandle()|create_filehandle>
 
 =cut
 
@@ -897,7 +959,7 @@ sub get_newline {
            : Warning if cannot determine neewline char(s).
  Comments  : Based on code submitted by Vicki Brown (vlb@deltagen.com).
 
-See Also : L<get_newline>()
+See Also : L<get_newline()|get_newline>
 
 =cut
 
@@ -907,7 +969,6 @@ sub taste_file {
   my ($self, $FH) = @_;
   my $BUFSIZ = 256;   # Number of bytes read from the file handle.
   my ($buffer, $octal, $str, $irs, $i);
-  my $wait = $TIMEOUT_SECS;
 
   ref($FH) eq 'FileHandle' or $self->throw("Can't taste file: not a FileHandle ref");
 
@@ -927,13 +988,13 @@ sub taste_file {
   $SIG{ALRM} = sub { die "Timed out!"; };
   my $result;
   eval {
-    $alarm_available && alarm( $wait );
+    $alarm_available && alarm( $TIMEOUT_SECS );
     $result = read($FH, $buffer, $BUFSIZ); # read the $BUFSIZ characters of file
     $alarm_available && alarm(0);
   };
   if($@ =~ /Timed out!/) {
     $self->throw("Timed out while waiting for input.",
-		 "Timeout period = $wait seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Global.pm.");
+		 "Timeout period = $TIMEOUT_SECS seconds.\nFor longer time before timing out, edit \$TIMEOUT_SECS in Bio::Root::Utilities.pm.");
 
   } elsif(not $result) {
     my $err = $@;
@@ -996,7 +1057,7 @@ sub taste_file {
  Throws    : Exception if argument is not a file
            : Propogates any exceptions thrown by Bio::Root::Utilities::get_newline().
 
-See Also : L<get_newline>(),  L<taste_file>()
+See Also : L<get_newline()|get_newline>,  L<taste_file()|taste_file>
 
 =cut
 
@@ -1025,7 +1086,7 @@ sub file_flavor {
  Usage    : $Util->mail_authority( $message )
  Purpose  : Syntactic sugar to send email to $Bio::Root::Global::AUTHORITY
 
-See Also  : L<send_mail>()
+See Also  : L<send_mail()|send_mail>
 
 =cut
 
@@ -1034,8 +1095,29 @@ sub mail_authority {
     my( $self, $message ) = @_;
     my $script = $self->untaint($0,1);
 
-    send_mail( -TO=>$AUTHORITY, -SUBJ=>$script, -MSG=>$message);
+    my $email = $self->{'_auth_email'} || $AUTHORITY;
+    if (defined $email) {
+        $self->send_mail( -TO=>$AUTHORITY, -SUBJ=>$script, -MSG=>$message);
+    } else {
+        $self->throw("Can't email authority. No email defined.");
+    }
+}
 
+=head2 authority
+
+ Title    : authority
+ Usage    : $Util->authority('admin@example.com');
+ Purpose  : Set/get the email address that should be notified by mail_authority()
+
+See Also  : L<mail_authority()|mail_authority>
+
+=cut
+
+sub authority {
+
+    my( $self, $email ) = @_;
+    $self->{'_auth_email'} = $email if defined $email;
+    return $self->{'_auth_email'};
 }
 
 
@@ -1043,14 +1125,15 @@ sub mail_authority {
 
  Title    : send_mail
  Usage    : $Util->send_mail( named_parameters )
- Purpose  : Provides an interface to /usr/lib/sendmail
+ Purpose  : Provides an interface to mail or sendmail, if available
  Returns  : n/a
  Argument : Named parameters:  (case-insensitive)
           :  -TO   => e-mail address to send to
           :  -SUBJ => subject for message  (optional)
           :  -MSG  => message to be sent   (optional)
           :  -CC   => cc: e-mail address   (optional)
- Thows    : Exception if TO: address appears bad or is missing
+ Thows    : Exception if TO: address appears bad or is missing.
+          : Exception if mail cannot be sent.
  Comments : Based on  TomC's tip at:
           :   http://www.perl.com/CPAN/doc/FMTEYEWTK/safe_shellings
           :
@@ -1061,7 +1144,7 @@ sub mail_authority {
           :     -oi: prevents send_mail from ending the message if it
           :          finds a period at the start of a line.
 
-See Also  : L<mail_authority>()
+See Also  : L<mail_authority()|mail_authority>
 
 =cut
 
@@ -1075,22 +1158,83 @@ sub send_mail {
     $self->throw("Invalid or missing e-mail address: $recipient")
 	if not $recipient =~ /\S+\@\S+/;
 
-    $cc ||= ''; $subj ||= ''; $message ||= '';
+    $subj ||= 'empty subject'; $message ||= '';
 
-    open (SENDMAIL, "|/usr/lib/sendmail -oi -t") ||
-	$self->throw("Can't send mail: sendmail cannot fork: $!");
-
-print SENDMAIL <<QQ_EOF_QQ;
+    # Best to use mail rather than sendmail. Permissions on sendmail in
+    # linux distros have been significantly locked down in recent years,
+    # due to the perception that it is insecure.
+    my ($exe, $ccinfo);
+    if ($exe = $self->find_exe('mail')) {
+        if (defined $cc) {
+            $ccinfo = "-c $cc";
+        }
+        $self->debug("send_mail: $exe -s '$subj' $ccinfo $recipient\n");
+        open (MAIL, "| $exe -s '$subj' $ccinfo $recipient") ||
+            $self->throw("Can't send email: mail cannot fork: $!");
+        print MAIL <<QQ_EOFM_QQ;
+$message
+QQ_EOFM_QQ
+        $? and $self->warn("mail didn't exit nicely: $?");
+        close(MAIL);
+    } elsif ($exe = $self->find_exe('sendmail')) {
+        open (SENDMAIL, "| $exe -oi -t") ||
+            $self->throw("Can't send email: sendmail cannot fork: $!");
+        print SENDMAIL <<QQ_EOFSM_QQ;
 To: $recipient
 Subject: $subj
 Cc: $cc
 
 $message
 
-QQ_EOF_QQ
+QQ_EOFSM_QQ
+        $? and $self->warn("sendmail didn't exit nicely: $?");
 
-    close(SENDMAIL);
-    if ($?) { warn "sendmail didn't exit nicely: $?" }
+        close(SENDMAIL);
+    } else {
+        $self->throw("Can't find executable for mail or sendmail.");
+    }
+}
+
+
+=head2 find_exe
+
+ Title     : find_exe
+ Usage     : $Util->find_exe(name);
+ Purpose   : Locate an executable (for use in a system() call, e.g.))
+ Example   : $Util->find_exe("gzip");
+ Returns   : String containing executable that passes the -x test.
+             Returns undef if an executable of the supplied name cannot be found.
+ Argument  : Name of executable to be found.
+           : Can be a full path. If supplied name is not executable, an executable
+           : of that name will be searched in all directories in the currently
+           : defined PATH environment variable.
+ Throws    : No exceptions, but issues a warning if multiple paths are found
+           : for a given name. The first one is used.
+ Comments  : TODO: Confirm functionality on all bioperl-supported platforms.
+             May get tripped up by variation in path separator character used
+             for splitting ENV{PATH}.
+See Also   :
+
+=cut
+
+sub find_exe {
+    my ($self, $name) = @_;
+    my @bindirs = split (':', $ENV{'PATH'});
+    my $exe = $name;
+    unless (-x $exe) {
+        undef $exe;
+        my @exes;
+        foreach my $d (@bindirs) {
+            push(@exes, "$d/$name") if -x "$d/$name";
+        }
+        if (scalar @exes) {
+            $exe = $exes[0];
+            if (defined $exes[1]) {
+                $self->warn("find_exe: Multiple paths to '$name' found. Using first.");
+            }
+        }
+    }
+    return $exe;
 }
 
 
@@ -1183,55 +1327,10 @@ sub verify_version {
     }
 }
 
-# Purpose : Returns a string that can be used as a temporary file name.
-#           Based on localtime.
-#           This is used if POSIX is not available.
-
-sub _get_pseudo_tmpnam {
-
-    my $date = localtime(time());
-
-    my $tmpnam = 'tmpnam';
-
-    if( $date =~ /([\d:]+)\s+(\d+)\s*$/ ) {
-    	$tmpnam = $2. '_' . $1;
-    	$tmpnam =~ s/:/_/g;
-    }
-    return $tmpnam;
-}
-
 
 1;
+
+
 __END__
-
-MODIFICATION NOTES:
----------------------
-
-17 Feb 1999, sac:
-  * Using global $TIMEOUT_SECS in taste_file().
-
-13 Feb 1999, sac:
-  * Renamed get_newline_char() to get_newline() since it could be >1 char.
-
-3 Feb 1999, sac:
-  * Added three new methods: create_filehandle, get_newline_char, taste_file.
-    create_filehandle represents functionality that was formerly buried
-    within Bio::Root::IOManager::read().
-
-2 Dec 1998, sac:
-  * Removed autoloading code.
-  * Modified compress(), uncompress(), and delete() to properly
-    deal with file ownership issues.
-
-3 Jun 1998, sac:
-    * Improved file_date() to be less reliant on the output of ls.
-      (Note the word 'less'; it still relies on ls).
-
-5 Jul 1998, sac:
-    * compress() & uncompress() will write files to a temporary location
-      if the first attempt to compress/uncompress fails.
-      This allows users to access compressed files in directories in which they
-      lack write permission.
-
 
 
