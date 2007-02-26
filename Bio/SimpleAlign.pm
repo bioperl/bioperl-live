@@ -2618,13 +2618,14 @@ sub restore_displayname {
 }
 
 =head2 sort_by_start
-Title     : sort_by_start
-Usage     : $ali->sort_by_start
-Function  : Changes the order of the alignemnt to the start position of each
-            subalignment
-Returns   :
-Argument  :
-
+ 
+ Title     : sort_by_start
+ Usage     : $ali->sort_by_start
+ Function  : Changes the order of the alignemnt to the start position of each
+             subalignment    
+ Returns   :
+ Argument  :
+ 
 =cut
 
 sub sort_by_start {
@@ -2683,17 +2684,19 @@ sub _startend
              GGAT[C/-][C/-]ATT[C/C]CT[A/C]CT
  Returns   : BIC-formatted string
  Argument  : Required args
-                refseq    : string (seqid) of the reference sequence used
+                refseq    : string (ID) of the reference sequence used
                             as basis for comparison
-                alleles   : array ref of two strings, both seqids
+                allele1   : string (ID) of the first allele
+                allele2   : string (ID) of the second allele
              Optional args
                 delimiters: two symbol string of left and right delimiters.
                             Only the first two symbols are used
                             default = '[]'
-                seperator : string used as a separator.  Only the first
+                separator : string used as a separator.  Only the first
                             symbol is used
                             default = '/'
  Throws    : On no refseq/alleles, or invalid refseq/alleles.
+ 
 =cut
 
 sub bracket_string {
