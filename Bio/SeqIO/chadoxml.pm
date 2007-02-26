@@ -672,6 +672,7 @@ EOUSAGE
 		}
 	}
 
+        my @top_dbxrefs = ();
         #feature object from Bio::DB::SeqFeature::Store
         if ($seq->can('attributes')) {
                 my %attributes = $seq->attributes;
@@ -684,11 +685,15 @@ EOUSAGE
                     }
 
                     ###FIXME deal with Dbxref, Ontology_term,source, 
-                    if ($key eq 'Ontology_term') {
+                    elsif ($key eq 'Ontology_term') {
                         @top_featurecvterms = $self->handle_Ontology_tag($seq,@top_featurecvterms);
                     }
 
-                    if ($key =~ /^[a-z]/) {
+                    elsif ($key eq 'dbxref' or $key eq 'Dbxref') {
+                        @top_dbxrefs = $self->handle_dbxref($seq, $key, @top_dbxrefs);
+                    }
+
+                    elsif ($key =~ /^[a-z]/) {
                         @top_featureprops 
                              = $self->handle_unreserved_tags($seq,$key,@top_featureprops);
                     }
@@ -697,7 +702,6 @@ EOUSAGE
         $datahash{'feature_synonym'} = \@featuresyns;
 
 	#accession and version as feature_dbxref
-	my @top_dbxrefs = ();
 	if ($seq->can('accession_number') && defined $seq->accession_number && $seq->accession_number ne 'unknown') {
 	    my $db = $self->_guess_acc_db($seq, $seq->accession_number);
 	    my %acchash = (
@@ -1000,12 +1004,17 @@ EOUSAGE
 		if ($prim_tag eq 'source') {
 			foreach $tag ($feat->all_tags()) {
 				#db_xref
-				if ($tag eq 'db_xref' or $tag eq 'Dbxref')   {
+				if ($tag eq 'db_xref' 
+                                 or $tag eq 'Dbxref'
+                                 or $tag eq 'dbxref')   {
 					my @t1 = $feat->each_tag_value($tag);
 					foreach $temp (@t1) {
-					   $temp =~ /:/;
-					   my $db = $PREMATCH;
-					   my $xref = $POSTMATCH;
+					   $temp =~ /([^:]*?):(.*)/;
+                                           my $db = $1; 
+                                           my $xref = $2;
+                                           #PRE/POST very inefficent
+					   #my $db = $PREMATCH;
+					   #my $xref = $POSTMATCH;
 					   my %acchash = (
 						"db_id"		=> {'name' => $db},
 						"accession"	=> $xref,
@@ -1942,6 +1951,63 @@ sub handle_Ontology_tag  {
         push(@arr, {cvterm_id => $hashref});
     }
 
+    return @arr;
+}
+
+=head2 handle_dbxref
+
+=over
+
+=item Usage
+
+  $obj->handle_dbxref()
+
+=item Function
+
+Convert Dbxref values to dbxref hashref
+
+=item Returns
+
+An array of dbxref hashrefs
+
+=item Arguments
+
+A seq or seqFeature object and the dbxref array 
+
+=back
+
+=cut
+
+sub handle_dbxref {
+    my $self = shift;
+    my $seq  = shift;
+    my $tag  = shift;
+    my @arr  = @_;
+
+    my @terms = $seq->attributes($tag);
+    for my $term (@terms) {
+        my $hashref;
+        if ($term =~ /(\S+):(\S+)/) {
+            my $db = $1;
+            my $acc= $2;
+            my $version = 1;
+            if ($acc =~ /(\S+)\.(\S+)/) {
+                $acc = $1;
+                $version = $2;
+            }
+            $hashref = (
+                         'dbxref_id' => {
+                               'db_id' => { 'name' => $db },
+                               'accession' => $acc,
+                               'version'   => $version,
+                                        },
+                       );
+        }
+        else {
+            $self->throw("I don't know how to handle a dbxref like $term");
+        }
+        push(@arr, {'dbxref_id' => $hashref});
+    }
     return @arr;
 }
 
