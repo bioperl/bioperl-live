@@ -97,5 +97,36 @@ sub return_reltypename {
     return $reltypename;
 }
 
+=head2 write_seq
+
+=over
+
+=item Usage
+
+  $obj->write_seq()
+
+=item Function
+
+Overrides Bio::SeqIO::chadoxml's write_seq method just
+to add an internal close_chadoxml (mimics original use
+by FlyBase).
+
+=item Returns
+
+=item Arguments
+
+=back
+
+=cut
+
+sub write_seq {
+    my ($self, @argv) = @_;
+
+    $self->SUPER::write_seq(@argv);
+
+    $self->close_chadoxml;
+    return 1;
+}
+
 
 1;
