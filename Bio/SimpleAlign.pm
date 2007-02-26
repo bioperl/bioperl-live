@@ -2652,6 +2652,81 @@ sub _startend
     return $astart <=> $bstart;
 }
 
+=head2 bracket_string
+
+ Title     : bracket_string
+ Usage     : my @params = (refseq     => 'testseq',
+                           allele1    => 'allele1',
+                           allele2    => 'allele2',
+                           delimiters => '{}',
+                           separator  => '/');
+             $str = $aln->bracket_string(@params)
+              
+ Function :  When supplied with a list of parameters (see below), returns a
+             string in BIC format. This is used for allelic comparisons.
+             Briefly, if either allele contains a base change when compared to
+             the refseq, the base or gap for each allele is represented in
+             brackets in the order present in the 'alleles' parameter.
+             
+             For the following data:
+             
+             >testseq
+             GGATCCATTGCTACT
+             >allele1
+             GGATCCATTCCTACT
+             >allele2
+             GGAT--ATTCCTCCT
+             
+             the returned string with parameters 'refseq => testseq' and
+             'alleles => [qw(allele1 allele2)]' would be:
+             
+             GGAT[C/-][C/-]ATT[C/C]CT[A/C]CT
+ Returns   : BIC-formatted string
+ Argument  : Required args
+                refseq    : string (seqid) of the reference sequence used
+                            as basis for comparison
+                alleles   : array ref of two strings, both seqids
+             Optional args
+                delimiters: two symbol string of left and right delimiters.
+                            Only the first two symbols are used
+                            default = '[]'
+                seperator : string used as a separator.  Only the first
+                            symbol is used
+                            default = '/'
+ Throws    : On no refseq/alleles, or invalid refseq/alleles.
+=cut
+
+sub bracket_string {
+    my ($self, @args) = @_;
+    my ($ref, $a1, $a2, $delim, $sep) =
+        $self->_rearrange([qw(refseq allele1 allele2 delimiters separator)], @args);
+    $self->throw('Missing refseq/allele1/allele2') if (!$a1 || !$a2 || !$ref);
+    my ($ld, $rd);
+    ($ld, $rd) = split('', $delim, 2) if $delim;
+    $ld ||= '[';
+    $rd ||= ']';
+    $sep ||= '/';
+    my ($refseq, $allele1, $allele2) =
+        map {( $self->each_seq_with_id($_) )} ($ref, $a1, $a2);
+    if (!$refseq || !$allele1 || !$allele2) {
+        $self->throw("One of your refseq/allele IDs is invalid!");
+    }
+    my $len = $self->length-1;
+    my $bic = '';
+    # loop over the alignment columns
+    for my $column ( 0 .. $len ) {
+        my $string;
+        my ($compres, $res1, $res2) =
+            map{substr($_->seq, $column, 1)} ($refseq, $allele1, $allele2);
+        # are any of the allele symbols different from the refseq?
+        $string = ($compres eq $res1 && $compres eq $res2) ? $compres :
+                $ld.$res1.$sep.$res2.$rd;
+        $bic .= $string;
+    }
+    return $bic;
+}
+
+
 =head2 methods for Bio::FeatureHolder
 
 FeatureHolder implementation to support labeled character sets like one
