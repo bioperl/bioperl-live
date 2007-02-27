@@ -63,9 +63,9 @@ use base qw(Bio::Annotation::DBLink);
 
  Title   : new
  Usage   : $ref = Bio::Annotation::Reference->new( -title => 'title line',
-						   -authors => 'author line',
-						   -location => 'location line',
-						   -medline => 9988812);
+                           -authors => 'author line',
+                           -location => 'location line',
+                           -medline => 9988812);
  Function:
  Example :
  Returns : a new Bio::Annotation::Reference object
@@ -81,29 +81,31 @@ sub new{
     my $self = $class->SUPER::new(@args);
 
     my ($start,$end,$authors,$consortium,$location,$title,$medline,
-	$pubmed,$rp,$rg) =
-	$self->_rearrange([qw(START
-			      END
-			      AUTHORS
-				  CONSORTIUM
-			      LOCATION
-			      TITLE
-			      MEDLINE
-				  PUBMED
-				  RP
-				  RG
-			      )],@args);
+    $pubmed,$rp,$rg,$doi) =
+    $self->_rearrange([qw(START
+                  END
+                  AUTHORS
+                  CONSORTIUM
+                  LOCATION
+                  TITLE
+                  MEDLINE
+                  PUBMED
+                  RP
+                  RG
+				  DOI
+                  )],@args);
 
     defined $start    && $self->start($start);
     defined $end      && $self->end($end);
     defined $authors  && $self->authors($authors);
-	defined $consortium  && $self->consortium($consortium);
+    defined $consortium  && $self->consortium($consortium);
     defined $location && $self->location($location);
     defined $title    && $self->title($title);
     defined $medline  && $self->medline($medline);
     defined $pubmed   && $self->pubmed($pubmed);
     defined $rp       && $self->rp($rp);
     defined $rg       && $self->rg($rg);
+	defined $doi      && $self->doi($doi);
     return $self;
 }
 
@@ -145,24 +147,24 @@ sub as_text{
 =cut
 
 sub hash_tree{
-	my ($self) = @_;
+    my ($self) = @_;
 
-	my $h = {};
-	$h->{'title'}   = $self->title;
-	$h->{'authors'} = $self->authors;
-	$h->{'location'} = $self->location;
-	if (defined $self->start) {
-		$h->{'start'}   = $self->start;
-	}
-	if (defined $self->end) {
-		$h->{'end'} = $self->end;
-	}
-	$h->{'medline'} = $self->medline;
-	if (defined $self->pubmed) {
-		$h->{'pubmed'} = $self->pubmed;
-	}
+    my $h = {};
+    $h->{'title'}   = $self->title;
+    $h->{'authors'} = $self->authors;
+    $h->{'location'} = $self->location;
+    if (defined $self->start) {
+        $h->{'start'}   = $self->start;
+    }
+    if (defined $self->end) {
+        $h->{'end'} = $self->end;
+    }
+    $h->{'medline'} = $self->medline;
+    if (defined $self->pubmed) {
+        $h->{'pubmed'} = $self->pubmed;
+    }
 
-	return $h;
+    return $h;
 }
 
 =head2 tagname
@@ -204,7 +206,7 @@ sub hash_tree{
 sub start {
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'start'} = $value;
+    $self->{'start'} = $value;
     }
     return $self->{'start'};
 
@@ -225,7 +227,7 @@ sub start {
 sub end {
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'end'} = $value;
+    $self->{'end'} = $value;
     }
     return $self->{'end'};
 }
@@ -351,7 +353,7 @@ sub title{
 sub medline{
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'medline'} = $value;
+    $self->{'medline'} = $value;
     }
     return $self->{'medline'};
 }
@@ -372,7 +374,7 @@ sub medline{
 sub pubmed {
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'pubmed'} = $value;
+    $self->{'pubmed'} = $value;
     }
     return $self->{'pubmed'};
 }
@@ -382,8 +384,8 @@ sub pubmed {
  Title   : database
  Usage   :
  Function: Overrides DBLink database to be hard coded to 'MEDLINE' (or 'PUBMED'
-		   if only pubmed id has been supplied), unless the database has been
-		   set explicitely before.
+           if only pubmed id has been supplied), unless the database has been
+           set explicitely before.
  Example :
  Returns :
  Args    :
@@ -392,12 +394,12 @@ sub pubmed {
 =cut
 
 sub database{
-	my ($self, @args) = @_;
-	my $default = 'MEDLINE';
-	if (! defined $self->medline && defined $self->pubmed) {
-		$default = 'PUBMED';
-	}
-	return $self->SUPER::database(@args) || $default;
+    my ($self, @args) = @_;
+    my $default = 'MEDLINE';
+    if (! defined $self->medline && defined $self->pubmed) {
+        $default = 'PUBMED';
+    }
+    return $self->SUPER::database(@args) || $default;
 }
 
 =head2 primary_id
@@ -414,14 +416,14 @@ sub database{
 =cut
 
 sub primary_id{
-	my ($self, @args) = @_;
-	if (@args) {
-		$self->medline(@args);
-	}
-	if (! defined $self->medline && defined $self->pubmed) {
-		return $self->pubmed;
-	}
-	return $self->medline;
+    my ($self, @args) = @_;
+    if (@args) {
+        $self->medline(@args);
+    }
+    if (! defined $self->medline && defined $self->pubmed) {
+        return $self->pubmed;
+    }
+    return $self->medline;
 }
 
 =head2 optional_id
@@ -489,8 +491,8 @@ sub editors {
  Title   : encoded_ref
  Usage   : $self->encoded_ref($newval)
  Function: Gives the encoded_ref line. No attempt is made to parse the encoded_ref line
- 	(this is added for reading PDB records (REFN record), where this contains
-	 ISBN/ISSN/ASTM code)
+    (this is added for reading PDB records (REFN record), where this contains
+     ISBN/ISSN/ASTM code)
  Example :
  Returns : value of encoded_ref
  Args    : newvalue (optional)
@@ -504,6 +506,30 @@ sub encoded_ref {
       $self->{'encoded_ref'} = $value;
    }
    return $self->{'encoded_ref'};
+}
+
+=head2 doi
+
+ Title   : doi
+ Usage   : $self->doi($newval)
+ Function: Gives the DOI (Digital Object Identifier) from the International
+           DOI Foundation (http://www.doi.org/), which can be used to resolve
+		   URL links for the full-text documents using:
+		   
+		   http://dx.doi.org/<doi>
+		   
+ Example :
+ Returns : value of doi
+ Args    : newvalue (optional)
+
+=cut
+
+sub doi {
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'doi'} = $value;
+    }
+    return $self->{'doi'};
 }
 
 =head2 consortium
@@ -524,7 +550,6 @@ sub consortium{
       $self->{'consortium'} = $value;
     }
     return $self->{'consortium'};
-
 }
 
 =head2 gb_reference
@@ -533,10 +558,10 @@ sub consortium{
  Usage   : $obj->gb_reference($newval)
  Function: Gives the generic GenBank REFERENCE line. This is GenBank-specific.
            If set, this includes everything on the reference line except
-	   the REFERENCE tag and the reference count.  This is mainly a
-	   fallback for the few instances when REFERENCE lines have unusual
-	   additional information such as split sequence locations, feature
-	   references, etc.  See Bug 2020 in Bugzilla for more information.
+		   the REFERENCE tag and the reference count.  This is mainly a
+		   fallback for the few instances when REFERENCE lines have unusual
+		   additional information such as split sequence locations, feature
+		   references, etc.  See Bug 2020 in Bugzilla for more information.
  Example :
  Returns : value of gb_reference (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
