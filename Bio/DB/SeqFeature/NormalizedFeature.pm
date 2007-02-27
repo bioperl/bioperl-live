@@ -476,16 +476,16 @@ sub format_attributes {
   my @result;
   for my $t (@tags) {
     my @values = $self->each_tag_value($t);
-    @values = grep {$_ ne $load_id && $_ ne $target} @values if $t eq 'Alias';
+
+    # This line prevents Alias from showing up if it matches the load id, but this is not good
+    # @values = grep {$_ ne $load_id && $_ ne $target} @values if $t eq 'Alias';
+
     # these are hacks, which we don't want to appear in the file
     next if $t eq 'load_id';
     next if $t eq 'parent_id';
+
     foreach (@values) { s/\s+$// } # get rid of trailing whitespace
-    # push @result,join '=',$self->escape($t),$self->escape($_) foreach @values; 
-    # NO! Multiple attributes of the same type are indicated by
-    # separating the values with the comma "," character - per
-    # http://www.sequenceontology.org/gff3.shtml.  Do it this way:
-    push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values);
+    push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
   my $id   = $self->primary_id;
   my $name = $self->display_name;

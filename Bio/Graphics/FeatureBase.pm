@@ -498,10 +498,14 @@ sub gff_string {
   my $group = "$class $name" if $name;
   my $strand = ('-','.','+')[$self->strand+1];
   my $string;
-  $string .= join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
-                       $self->start||'.',$self->stop||'.',
-		  defined($self->score) ? $self->score : '.',$strand||'.',$self->phase||'.',
-                       $group||'');
+  $string .= join("\t",
+		  $self->ref||'.',$self->source||'.',$self->method||'.',
+		  $self->start||'.',$self->stop||'.',
+		  defined($self->score) ? $self->score : '.',
+		  $strand||'.',
+		  defined($self->phase) ? $self->phase : '.',
+		  $group||''
+		 );
   $string .= "\n";
   if ($recurse) {
     foreach ($self->sub_SeqFeature) {
@@ -519,9 +523,12 @@ sub gff3_string {
   my $class = $self->class;
   my $group = $self->format_attributes($parent);
   my $strand = ('-','.','+')[$self->strand+1];
-  my $p      = join("\t",$self->ref||'.',$self->source||'.',$self->method||'.',
+  my $p      = join("\t",
+		    $self->ref||'.',$self->source||'.',$self->method||'.',
 		    $self->start||'.',$self->stop||'.',
-		    defined($self->score) ? $self->score : '.',$strand||'.',$self->phase||'.',
+		    defined($self->score) ? $self->score : '.',
+		    $strand||'.',
+		    defined($self->phase) ? $self->phase : '.',
 		    $group||'');
 
   # the "homogeneous" flag will be true if the parent and children are all of the same type,
@@ -612,18 +619,13 @@ sub get_Annotations {
 }
 
 sub format_attributes {
-  die;
   my $self   = shift;
   my $parent = shift;
   my @tags = $self->all_tags;
   my @result;
   for my $t (@tags) {
     my @values = $self->each_tag_value($t);
-    #push @result,join '=',$self->escape($t),$self->escape($_) foreach @values;
-    # NO! Multiple attributes of the same type are indicated by
-    # separating the values with the comma "," character - per
-    # http://www.sequenceontology.org/gff3.shtml.  Do it this way:
-    push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values);
+    push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
   my $id   = $self->primary_id;
   my $name = $self->display_name;
