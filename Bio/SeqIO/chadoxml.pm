@@ -261,6 +261,7 @@ my %fkey = (
 	"pubprop.type_id"		=> "cvterm",
         "feature_synonym.feature_id"    => "feature",
         "feature_synonym.synonym_id"    => "synonym",
+        "feature_synonym.pub_id"        => "pub",
         "synonym.type_id"               => "cvterm",
 );
 
@@ -474,11 +475,17 @@ EOUSAGE
 
 	local($^W) = 0; # supressing warnings about uninitialized fields.
 
+        if (!$name && $seq->can('attributes') ) {
+            ($name) = $seq->attributes('Alias'); 
+        }
+
 	if ($seq->can('accession_number') && defined $seq->accession_number && $seq->accession_number ne 'unknown') {
 		$uniquename = $seq->accession_number;
 	} elsif ($seq->can('accession') && defined $seq->accession && $seq->accession ne 'unknown') {
 		$uniquename = $seq->accession;
-	} else {
+	} elsif ($seq->can('attributes')) {
+                ($uniquename) = $seq->attributes('load_id');
+        } else {
 		$uniquename = $name;
 	}
         my $len = $seq->length();
@@ -544,7 +551,7 @@ EOUSAGE
 		"residues"	=> $residues,
 		"type_id"	=> \%ftype_hash,
 		"organism_id"	=> \%organism,
-		"is_analysis"	=> $isanal,
+		"is_analysis"	=> $isanal || 'false',
 		);
 
 	#if $srcfeature is not given, use the Bio::Seq object itself as the srcfeature for featureloc's
@@ -700,6 +707,10 @@ EOUSAGE
                 }
         }
         $datahash{'feature_synonym'} = \@featuresyns;
+
+        if ($seq->can('source')) {
+                @top_dbxrefs = $self->handle_source($seq,@top_dbxrefs);
+        }
 
 	#accession and version as feature_dbxref
 	if ($seq->can('accession_number') && defined $seq->accession_number && $seq->accession_number ne 'unknown') {
@@ -1039,21 +1050,32 @@ EOUSAGE
 				}
 			}
 
+                        if ($feat->can('source')) {
+                            my $source = $feat->source();
+                            @top_dbxrefs = $self->handle_source($feat, @top_dbxrefs);
+                        }
+
 			#featureloc for the top-level feature
 			my $fmin = undef;
 			my $fmax = undef;
 			my $strand = undef;
+                        my $phase = undef;
 			my %fl = undef;
 
 			$fmin = $feat->start - 1;
 			$fmax = $feat->end;
 			$strand = $feat->strand;
 
+                        if ($feat->can('phase')) {
+                            $phase = $feat->phase;
+                        }
+
 			%fl = (
 				"srcfeature_id"	=> \%srcfhash,
 				"fmin"		=> $fmin,
 				"fmax"		=> $fmax,
 				"strand"	=> $strand,
+                                "phase"         => $phase,
 				);
 
 			$datahash{'featureloc'} = \%fl;
@@ -1307,7 +1329,7 @@ sub _subfeat2featrelhash {
 		"uniquename"		=> $sfunique,
 		"organism_id"		=> \%organism,
 		"type_id"		=> { 'name' => $sftype, 'cv_id' => { 'name' => $cv_name{'sequence'} }},
-		"is_analysis"           => $isanal,
+		"is_analysis"           => $isanal || 'false',
 		);
 
 	#make a copy of %sfhash for passing to this method when recursively called
@@ -1324,9 +1346,14 @@ sub _subfeat2featrelhash {
 	undef(my $is_sfmin_partial);
 	undef(my $is_sfmax_partial);
 	undef(my $sfstrand);
+        undef(my $sfphase);
 	$sfmin = $feat->start - 1;
 	$sfmax = $feat->end;
 	$sfstrand = $feat->strand();
+
+        if ($feat->can('phase')) {
+            $sfphase = $feat->phase;
+        }
 
 	#if the gene feature in an mRNA record, cannot use its coordinates, omit featureloc
 	if ($seqtype eq 'mRNA' && $sftype eq 'gene') {
@@ -1343,10 +1370,11 @@ sub _subfeat2featrelhash {
 		my %sfl = (
 			"srcfeature_id"	=> \%srcf,
 			"fmin"		=> $sfmin,
-			"is_fmin_partial" => $is_sfmin_partial || '',
+			"is_fmin_partial" => $is_sfmin_partial || 'false',
 			"fmax"		=> $sfmax,
-			"is_fmax_partial" => $is_sfmax_partial || '',
+			"is_fmax_partial" => $is_sfmax_partial || 'false',
 			"strand"	=> $sfstrand,
+                        "phase"         => $sfphase,
 			);
 
 		$sfhash{'featureloc'} = \%sfl;
@@ -1394,6 +1422,11 @@ sub _subfeat2featrelhash {
 			}
 		}
 	}
+
+        if ($feat->can('source')) {
+                @sfdbxrefs = $self->handle_source($feat,@sfdbxrefs);
+        }
+
 	if (@sub_featureprops) {
 		$sfhash{'featureprop'} = \@sub_featureprops;
 	}
@@ -1898,7 +1931,15 @@ sub handle_Alias_tag {
                                  "name"         => $Alias,
                                  "synonym_sgml" => $Alias,
                       );
-        push(@arr, {'synonym_id' => \%synhash});
+        push(@arr, {'synonym_id' => \%synhash,
+                    'pub_id'     => {'uniquename' => 'null',
+                                     'type_id'    => { 'name' => 'null',
+                                                       'cv_id' => {
+                                                            'name' => 'null', 
+                                                                  },
+                                                     },
+                                    },
+                   });
     }
 
     return @arr;
@@ -2010,6 +2051,44 @@ sub handle_dbxref {
     }
     return @arr;
 }
+
+=head2 handle_source
+
+=over
+
+=item Usage
+
+  $obj->handle_source()
+
+=item Function
+
+=item Returns
+
+=item Arguments
+
+=back
+
+=cut
+
+sub handle_source {
+    my $self = shift;
+    my $seq  = shift;
+    my @arr  = @_;
+
+    my $source = $seq->source();
+    return @arr unless $source;
+
+    my $hashref = (
+               'dbxref_id' => {
+                       'db_id' => {'name' => 'GFF_source'},
+                       'accession' => $source,
+                              }
+                  );
+
+    push(@arr, {'dbxref_id' => $hashref});
+    return @arr;
+}
+
 
 
 1;
