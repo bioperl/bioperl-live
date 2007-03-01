@@ -411,6 +411,14 @@ EOUSAGE
 	   ## FIXME $self->warn(" $seq is not a RichSeqI compliant module. Attempting to dump, but may fail!");
 	}
 
+        # try to get the srcfeature from the seqFeature object
+        # for this to work, the user has to pass in the srcfeature type
+        if (!$srcfeature) {
+            if ($seq->can('seq_id')) {
+                $srcfeature=$seq->seq_id if ($seq->seq_id ne $seq->display_name);
+            }    
+        }
+
 	#$srcfeature, when provided, should contain at least one alphabetical letter
 	if (defined $srcfeature)
 	{
@@ -553,6 +561,32 @@ EOUSAGE
 		"organism_id"	=> \%organism,
 		"is_analysis"	=> $isanal || 'false',
 		);
+
+        if (defined $srcfeature) {
+                %srcfhash = $self->_srcf_hash($srcfeature,
+                                              $srcfeattype,
+                                              \%organism);
+              
+                my ($phase,$strand);
+                if ($seq->can('phase')) {
+                    $phase = $seq->phase;
+                } 
+
+                if ($seq->can('strand')) {
+                    $strand = $seq->strand;
+                }
+                my %fl = (
+                                "srcfeature_id" => \%srcfhash,
+                                "fmin"          => $seq->start - 1,
+                                "fmax"          => $seq->end,
+                                "strand"        => $strand,
+                                "phase"         => $phase,
+                                );
+
+                $datahash{'featureloc'} = \%fl;
+ 
+        }
+
 
 	#if $srcfeature is not given, use the Bio::Seq object itself as the srcfeature for featureloc's
 	if (!defined $srcfeature) {
@@ -971,11 +1005,9 @@ EOUSAGE
 
 	##construct srcfeature hash for use in featureloc
 	if (defined $srcfeature) {
-		%srcfhash = ('uniquename' 	=> $srcfeature,
-				'organism_id'   => \%organism,
-				'type_id' 	=> {'name' => $srcfeattype, 'cv_id' => {'name' => $cv_name{'sequence'} }},
-			);
-
+                %srcfhash = $self->_srcf_hash($srcfeature, 
+                                              $srcfeattype, 
+                                              \%organism);
 	#	my %fr = (
 	#		"object_id"	=> \%srcfhash,
 	#		"type_id"	=> { 'name' => 'partof', 'cv_id' => { 'name' => 'relationship type'}},
@@ -2089,6 +2121,46 @@ sub handle_source {
     return @arr;
 }
 
+=head2 _srcf_hash
+
+=over
+
+=item Usage
+
+  $obj->_srcf_hash()
+
+=item Function
+
+Creates the srcfeature hash for use in featureloc hashes
+
+=item Returns
+
+The srcfeature hash
+
+=item Arguments
+
+The srcfeature name, the srcfeature type and a reference to the
+organism hash.
+
+=back
+
+=cut
+
+sub _srcf_hash {
+    my $self = shift;
+    my $srcf = shift;
+    my $stype= shift;
+    my $orgref = shift;
+
+    my %hash = ('uniquename'    => $srcf,
+                'organism_id'   => $orgref,
+                'type_id'       => {'name' => $stype, 
+                                    'cv_id' =>
+                                       {'name' => $cv_name{'sequence'} }},
+               );
+
+    return %hash;
+}
 
 
 1;
