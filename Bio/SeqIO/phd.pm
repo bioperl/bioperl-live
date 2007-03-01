@@ -144,15 +144,15 @@ sub next_seq {
 	$entry =~ /(\S+)\s+(\S+)(?:\s+(\S+))?/;
 	push @bases,$1;
 	push @qualities,$2;
-    #Not sure that a trace index values are required for phd file
-    push(@trace_indices,$3) if defined $3;
+	# Trace index values are required for phd file
+	push(@trace_indices,$3) if defined $3;
 	push(@lines,$entry);
     }
      # $self->debug("csmCreating objects with id = $id\n");
     my $swq = $self->sequence_factory->create
 	(-seq        => join('',@bases),
 	 -qual       => \@qualities,
-     -trace      => \@trace_indices,
+	 -trace      => \@trace_indices,
 	 -id         => $id,
 	 -primary_id => $id,
 	 -display_id => $id,
@@ -264,9 +264,10 @@ sub write_seq {
 	$self->throw("Can't create the phd because the sequence and the quality in the Quality object are of different lengths.");
     }
     for (my $curr = 1; $curr<=$length; $curr++) {
-	$self->_print (uc($swq->baseat($curr))." ".
-		       $swq->qualat($curr)." 10".
-               "\n");
+	$self->_print (sprintf("%s %s %s\n",
+			       uc($swq->baseat($curr)),
+			       $swq->qualat($curr),
+			       $swq->trace_index_at($curr)));
     }
     $self->_print ("END_DNA\n\nEND_SEQUENCE\n");
 
