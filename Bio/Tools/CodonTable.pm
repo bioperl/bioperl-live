@@ -12,13 +12,13 @@
 
 =head1 NAME
 
-Bio::Tools::CodonTable - Bioperl codon table object
+Bio::Tools::CodonTable - Codon table object
 
 =head1 SYNOPSIS
 
   # This is a read-only class for all known codon tables.  The IDs are
   # the ones used by nucleotide sequence databases.  All common IUPAC
-  # ambiguity codes for DNA, RNA and animo acids are recognized.
+  # ambiguity codes for DNA, RNA and amino acids are recognized.
 
   # to use
   use Bio::Tools::CodonTable;
