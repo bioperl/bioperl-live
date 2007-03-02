@@ -22,7 +22,7 @@ BEGIN {
 	use Test::More;
     
 	use vars qw($NTESTS);
-	$NTESTS = 1427;
+	$NTESTS = 1428;
 	$error = 0;
 
 	plan tests => $NTESTS; 
@@ -1029,6 +1029,13 @@ while (my $result = $searchio->next_result) {
     is($hit->frac_identical, shift @expected);
 }
 is(@expected, 0);
+
+# And even more: frac_aligned_hit should never be over 1!
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems.blast'));
+$result = $searchio->next_result;
+$hit = $result->next_hit;
+ok $hit->frac_aligned_hit, 0.97;
 
 #WU-TBlastN test
 
