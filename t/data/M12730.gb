@@ -1,0 +1,115 @@
+LOCUS       PNECG                   2355 bp    DNA     circular BCT 21-APR-1996
+DEFINITION  Plasmid pNE131 (from S.epidermidis), complete genome.
+ACCESSION   M12730
+VERSION     M12730.1  GI:150829
+KEYWORDS    MLS antibiotics resistance; complete genome;
+            macrolide-lincosamide-streptogramin B resistance; plasmid;
+            replication and maintenance protein.
+SOURCE      Plasmid pNE131
+  ORGANISM  Plasmid pNE131
+            other sequences; plasmids; Plasmid.
+REFERENCE   1  (bases 696 to 1586)
+  AUTHORS   Lampson,B.C. and Parisi,J.T.
+  TITLE     Naturally occurring Staphylococcus epidermidis plasmid expressing
+            constitutive macrolide-lincosamide-streptogramin B resistance
+            contains a deleted attenuator
+  JOURNAL   J. Bacteriol. 166 (2), 479-483 (1986)
+   PUBMED   3084450
+REFERENCE   2  (bases 1 to 2355)
+  AUTHORS   Lampson,B.C. and Parisi,J.T.
+  TITLE     Nucleotide sequence of the constitutive
+            macrolide-lincosamide-streptogramin B resistance plasmid pNE131
+            from Staphylococcus epidermidis and homologies with Staphylococcus
+            aureus plasmids pE194 and pSN2
+  JOURNAL   J. Bacteriol. 167 (3), 888-892 (1986)
+   PUBMED   3091582
+COMMENT     Original source text: Plasmid pNE131 (clone: pNE131.) DNA. Draft
+            entry and clean copy sequence for [2] kindly provided by
+            J.T.Parisi, 04-AUG-1986. Ribosome binding sites are located at
+            positions 754-759, 769-773, and 1944-1948; a -35 region at
+            1889-1899, and -10 regions at 733-738, and 1927-1932.
+FEATURES             Location/Qualifiers
+     source          1..2355
+                     /db_xref="taxon:2608"
+                     /mol_type="genomic DNA"
+                     /clone="pNE131."
+                     /specific_host="Staphylococcus epidermidis"
+                     /plasmid="Plasmid pNE131"
+                     /organism="Plasmid pNE131"
+     CDS             join(1959..2355,1..92)
+                     /db_xref="GI:150830"
+                     /codon_start=1
+                     /protein_id="AAA98295.1"
+                     /translation="MKERYGTVYKGSQRLIDEESGEVIEVDKLYRKQTSGNFVKAYIV
+                     QLISMLDMIGGKKLKIVNYILDNVHLSNNTMIATTREIAKATGTSLQTVITTLKILEE
+                     GNIIKRKTGVLMLNPELLMRGDDQKQKYLLLEFGNFEQEANEKQENALYLIIILSRTS
+                     IT"
+                     /product="replication and maintenance protein"
+                     /transl_table=11
+     gene            706..1550
+                     /gene="ermM"
+     -35_signal      706..715
+                     /gene="ermM"
+     -10_signal      733..738
+                     /gene="ermM"
+     mRNA            746..1550
+                     /gene="ermM"
+     CDS             780..1514
+                     /protein_id="AAA98296.1"
+                     /gene="ermM"
+                     /transl_table=11
+                     /db_xref="GI:150831"
+                     /codon_start=1
+                     /product="macrolide-lincosamide-streptogramin
+                     B-resistance protein"
+                     /translation="MNEKNIKHSQNFITSKHNIDKIMTNIRLNEHDNIFEIGSGKGHF
+                     TLELVQRCNFVTAIEIDHKLCKTTENKLVDHDNFQVLNKDILQFKFPKNQSYKIFGNI
+                     PYNISTDIIRKIVFDSIADEIYLIVEYGFAKRLLNTKRSFALFLMAEVDISILSMVPR
+                     EYFHPKPKVNSSLIRLNRKKSRISHKDKQKYNYFVMKWVNKEYKKIFTKNQFNNSLKH
+                     AGIDDLNNISFEQFLSLFNSYKLFNK"
+     terminator      1513..1546
+                     /gene="ermM"
+                     /note="putative"
+BASE COUNT      911 a    359 c    371 g    714 t
+ORIGIN      1 bp upstream of TaqI site.
+        1 tcgaatttgg gaactttgag caagaggcaa atgaaaaaca agaaaatgca ctttatctga
+       61 ttattattct ttcaaggact agtataacat aaatcgtcta caaatagaca aaaaacctgc
+      121 acgcttaatg tagatcaaaa gcttaacgca aatgaaatag attgacctcc caataacacc
+      181 acgttagtta ttgggagtca atctatgaaa tgcgattaag ctttttctaa ttcacataag
+      241 cgtgcaggtt taaagtacat aaaaaatata atgaaaaaaa gcatcattat actaacgtta
+      301 taccaacatt atactaattg cttattccaa tttcctattg gttggaacca acaggcgtta
+      361 gtgtgttgtt gagttggtac tttcatggga ttaatcccat gaaaccccca accaactcgc
+      421 caaagctttg gctaacacac acgccattcc aaccaatagt tttctcggca ttaaagccat
+      481 gctctgacgc ttaaatgcac taatgcctta aaaaaacatt aaagtctaac acactagact
+      541 tattttcatt cgtaattaag tcgttaaacc gtgtgctcta cgaccaaaag tataaaacct
+      601 ttaagaactt tcttttttct tgtaaaaaaa gaaactagat aaatctctca tatcttttat
+      661 tcaataatcg catcagattg cagtataaat ttaacgatca ctcatcatgt tcatatttat
+      721 cagagctcgt gctataatta tactaatttt ataaggagga aaaaataaag agggttataa
+      781 tgaacgagaa aaatataaaa cacagtcaaa actttattac ttcaaaacat aatatagata
+      841 aaataatgac aaatataaga ttaaatgaac atgataatat ctttgaaatc ggctcaggaa
+      901 aagggcattt tacccttgaa ttagtacaga ggtgtaattt cgtaactgcc attgaaatag
+      961 accataaatt atgcaaaact acagaaaata aacttgttga tcacgataat ttccaagttt
+     1021 taaacaagga tatattgcag tttaaatttc ctaaaaacca atcctataaa atatttggta
+     1081 atatacctta taacataagt acggatataa tacgcaaaat tgtttttgat agtatagctg
+     1141 atgagattta tttaatcgtg gaatacgggt ttgctaaaag attattaaat acaaaacgct
+     1201 cattcgcatt atttttaatg gcagaagttg atatttctat attaagtatg gttccaagag
+     1261 aatattttca tcctaaacct aaagtgaata gctcacttat cagattaaat agaaaaaaat
+     1321 caagaatatc acacaaagat aaacagaagt ataattattt cgttatgaaa tgggttaaca
+     1381 aagaatacaa gaaaatattt acaaaaaatc aatttaacaa ttccttaaaa catgcaggaa
+     1441 ttgacgattt aaacaatatt agctttgaac aattcttatc tcttttcaat agctataaat
+     1501 tatttaataa gtaagttaag ggatgcataa actgcatcct taacttgttt ttcgtgtacc
+     1561 tattttttgt gaatcgatta tgtcttttgc gcattcactt cttttctata taaatatgag
+     1621 cgacagataa gcgtcggaaa agcagcaaaa agtttccttt ttgctgttgg agcatggggg
+     1681 ttcagggggt gcagtatctg acgtcaatgc cgagcgaaag cgagccgaag ggtagcattt
+     1741 acgttagata accccctgat atgctccgac gctttatata gaaaagaaga ttcaactagg
+     1801 taaaatctta atataggttg agatgataag gtttataagg aatttgtttg ttctaatttt
+     1861 tcactcattt tgttctaatt tcttttaaca aatgttcttt tttttttaga acagttatga
+     1921 tatagttaga atagtttaaa ataaggagtg agaaaaagat gaaagaaaga tatggaacag
+     1981 tctataaagg ctctcagagg ctcatagacg aagaaagtgg agaagtcata gaggtagaca
+     2041 agttataccg taaacaaacg tctggtaact tcgtaaaggc atatatagtg caattaataa
+     2101 gtatgttaga tatgattggc ggaaaaaaac ttaaaatcgt taactatatc ctagataatg
+     2161 tccacttaag taacaataca atgatagcta caacaagaga aatagcaaaa gctacaggaa
+     2221 caagtctaca aacagtaata acaacactta aaatcttaga agaaggaaat attataaaaa
+     2281 gaaaaactgg agtattaatg ttaaaccctg aactactaat gagaggcgac gaccaaaaac
+     2341 aaaaatacct cttac
+//

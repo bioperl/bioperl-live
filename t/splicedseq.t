@@ -5,27 +5,18 @@ use vars qw($DEBUG $TESTCOUNT);
 my $error;
 
 BEGIN {     
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    $TESTCOUNT = 9;
-    plan tests => $TESTCOUNT;
-    $error = 0;
+    use Test::More;
+    plan tests => 15;
+	use_ok('Bio::Seq');
+	use_ok('Bio::SeqIO');
 };
 
-if( $error ==  1 ) {
-    exit(0);
-}
-
-
-use Bio::Seq;
-use Bio::SeqIO;
-
-
-my $str = Bio::SeqIO->new( '-file'=> Bio::Root::IO->catfile("t","data",
-							    "U58726.gb"), 
+my $str = Bio::SeqIO->new(
+			'-file'=> Bio::Root::IO->catfile("t","data", "U58726.gb"), 
 			'-format' => 'GenBank');
 ok $str;
 my $seq;
@@ -41,26 +32,31 @@ foreach my $ft ( grep { $_->primary_tag eq 'CDS'}
 	my $t = $ft->spliced_seq(-nosort => 1);
 	my $pepseq = $t->translate()->seq();
 	chop($pepseq);# chop is to remove stop codon
-	ok($translation,$pepseq); 
-    }	
+	is($translation,$pepseq); 
+	}
 }
 
-eval { require Bio::DB::GenBank };
-if( $@ ) {
-    print STDERR "Skipping remote location tests\n";
-    for( $Test::ntest..$TESTCOUNT ) {
-	skip("Not possible to test remote locations without DB access",1);
+my $stream = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
+                                       ("t","data","M12730.gb"),
+                              -format => 'genbank');
+# Jump down to M12730 which lists CDS join(1959..2355,1..92)
+while ($seq->accession ne "M12730") {
+    $seq = $stream->next_seq;
+}
+ok(my @features = $seq->get_SeqFeatures(), "get_SeqFeatures()");
+my $feat;
+foreach my $feat2 ( @features ) {
+    next unless ($feat2->primary_tag eq "CDS");
+    my @db_xrefs = $feat2->annotation->get_Annotations("db_xref");
+    if (grep { $_ eq "GI:150830" } @db_xrefs) {
+       $feat = $feat2;
+       last;
     }
-    exit(0);
-} else { 
-	
-#my $db = Bio::DB::GenBank->new();
-#
-#foreach my $ft ( $seq->top_SeqFeatures ) {
-#	my $t = $ft->spliced_seq();
-#	print "Got ",$t->seq,"\n";
-#}
-
 }
-
-
+my ($protein_seq) = $feat->annotation->get_Annotations("translation");
+like($protein_seq, qr(^MKERYGTVYKGSQRLIDE.*ANEKQENALYLIIILSRTSIT$),
+	 "protein sequence");
+my ($nucleotide_seq) = $feat->spliced_seq(-nosort => 1)->seq;
+like($nucleotide_seq, qr(^ATGAAAGAAAGATATGGA.*TCAAGGACTAGTATAACATAA$),
+	 "nucleotide sequence - correct CDS range");
+is(length($nucleotide_seq), 489, "nucleotide length");
