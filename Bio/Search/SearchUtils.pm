@@ -504,6 +504,12 @@ sub _adjust_contigs {
                     
                     ${$contigs_ref}[$u] = undef;
                 }
+                elsif ($u_start >= $i_start && $u_stop <= $i_stop) {
+                    # nested, drop this contig
+                    #*** ideally we might do some magic to keep the stats of the
+                    #    better hsp...
+                    ${$contigs_ref}[$u] = undef;
+                }
             }
         }
         
