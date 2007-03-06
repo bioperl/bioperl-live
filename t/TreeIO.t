@@ -5,25 +5,20 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-my $error = 0;
 use vars qw($NUMTESTS);
 use strict;
 BEGIN {
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
 
-	use Test;
-	$NUMTESTS = 60;
+	use Test::More;
+	$NUMTESTS = 64;
 	plan tests => $NUMTESTS;
-}
-
-if( $error == 1 ) {
-    exit(0);
 }
 
 use vars qw($FILE1 $FILE2 $FILE3);
@@ -37,6 +32,7 @@ END {
 	unlink $FILE2;
 	unlink $FILE3;
 }
+
 use Bio::TreeIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
@@ -48,21 +44,21 @@ my $treeio = new Bio::TreeIO(-verbose => $verbose,
 
 ok($treeio);
 my $tree = $treeio->next_tree;
-ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+isa_ok($tree, 'Bio::Tree::TreeI');
 
 my @nodes = $tree->get_nodes;
-ok(@nodes, 6);
+is(@nodes, 6);
 my ($rat) = $tree->find_node('CATL_RAT');
 ok($rat);
-ok($rat->branch_length, '0.12788');
+is($rat->branch_length, '0.12788');
 # move the id to the bootstap
- ok($rat->ancestor->bootstrap($rat->ancestor->id), '95');
+ is($rat->ancestor->bootstrap($rat->ancestor->id), '95');
  $rat->ancestor->id('');
 # maybe this can be auto-detected, but then can't distinguish
 # between internal node labels and bootstraps...
-ok($rat->ancestor->bootstrap, '95');
-ok($rat->ancestor->branch_length, '0.18794');
-ok($rat->ancestor->id, '');
+is($rat->ancestor->bootstrap, '95');
+is($rat->ancestor->branch_length, '0.18794');
+is($rat->ancestor->id, '');
 
 if($verbose ) {
 	foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
@@ -89,10 +85,10 @@ $treeio = new Bio::TreeIO(-verbose => $verbose,
 ok($treeio);
 $tree = $treeio->next_tree;
 
-ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+isa_ok($tree,'Bio::Tree::TreeI');
 
 @nodes = $tree->get_nodes;
-ok(@nodes, 52);
+is(@nodes, 52);
 
 if( $verbose ) { 
 	foreach my $node ( @nodes ) {
@@ -107,7 +103,7 @@ if( $verbose ) {
 	}
 }
 
-ok($tree->total_branch_length, 7.12148);
+is($tree->total_branch_length, 7.12148);
 $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -format => 'newick', 
 			  -file   => ">$FILE2");
@@ -119,7 +115,7 @@ $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -file    => Bio::Root::IO->catfile('t','data','hs_fugu.newick'));
 $tree = $treeio->next_tree();
 @nodes = $tree->get_nodes();
-ok(@nodes, 5);
+is(@nodes, 5);
 # no relable order for the bottom nodes because they have no branchlen
 my @vals = qw(SINFRUP0000006110);
 my $saw = 0;
@@ -130,7 +126,7 @@ foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
 	}
 	last if $saw;
 }
-ok($saw, 1, "Did not see $vals[0] as expected\n");
+is($saw, 1, "Saw $vals[0] as expected");
 if( $verbose ) {
 	foreach my $node ( @nodes ) {
 		print "\t", $node->id, "\n";
@@ -153,30 +149,28 @@ $treeio = new Bio::TreeIO(-verbose => $verbose,
 			  -file   => Bio::Root::IO->catfile('t','data', 
 							    'test.nhx'));
 
-if( eval "require SVG::Graph; 1;" ) {
+SKIP: {
+    eval { require SVG::Graph; 1;};
+	skip("skipping SVG::Graph output, SVG::Graph not installed",2) if $@;
 	my $treeout3 = new Bio::TreeIO(-format => 'svggraph',
 											 -file => ">$FILE3");
 	ok($treeout3);
 	eval {$treeout3->write_tree($tree);};
 	ok (-e $FILE3);
-} else {
-    for ( 1..2 ) {
-	skip("skipping SVG::Graph output, SVG::Graph not installed",2);
-    }
 }
 
 ok($treeio);
 $tree = $treeio->next_tree;
 
-ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+isa_ok($tree, 'Bio::Tree::TreeI');
 
 @nodes = $tree->get_nodes;
-ok(@nodes, 13, scalar @nodes);
+is(@nodes, 13, "Total Nodes");
 
 my $adhy = $tree->find_node('ADHY');
-ok($adhy->branch_length, 0.1);
-ok(($adhy->get_tag_values('S'))[0], 'nematode');
-ok(($adhy->get_tag_values('E'))[0], '1.1.1.1');
+is($adhy->branch_length, 0.1);
+is(($adhy->get_tag_values('S'))[0], 'nematode');
+is(($adhy->get_tag_values('E'))[0], '1.1.1.1');
 
 # try lintree parsing
 $treeio = new Bio::TreeIO(-format => 'lintree',
@@ -186,18 +180,18 @@ $treeio = new Bio::TreeIO(-format => 'lintree',
 my (@leaves, $node);
 while( $tree = $treeio->next_tree ) {
 
-	ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+	isa_ok($tree, 'Bio::Tree::TreeI');
 
 	@nodes = $tree->get_nodes;
 
 	@leaves = $tree->get_leaf_nodes;
-	ok(@leaves, 13);
-	ok(@nodes, 25);
+	is(@leaves, 13);
+	is(@nodes, 25);
 	($node) = $tree->find_node(-id => '18');
 	ok($node);
-	ok($node->id, '18');
-	ok($node->branch_length, '0.030579');
-	ok($node->bootstrap, 998);
+	is($node->id, '18');
+	is($node->branch_length, '0.030579');
+	is($node->bootstrap, 998);
 }
 
 $treeio = new Bio::TreeIO(-format => 'lintree',
@@ -206,20 +200,20 @@ $treeio = new Bio::TreeIO(-format => 'lintree',
 
 $tree = $treeio->next_tree;
 
-ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+isa_ok($tree, 'Bio::Tree::TreeI');
 
 @nodes = $tree->get_nodes;
 @leaves = $tree->get_leaf_nodes;
-ok(@leaves, 13);
-ok(@nodes, 25);
+is(@leaves, 13);
+is(@nodes, 25);
 ($node) = $tree->find_node('18');
-ok($node->id, '18');
-ok($node->branch_length, '0.028117');
+is($node->id, '18');
+is($node->branch_length, '0.028117');
 
 ($node) = $tree->find_node(-id => 'C-vittat');
-ok($node->id, 'C-vittat');
-ok($node->branch_length, '0.087619');
-ok($node->ancestor->id, '14');
+is($node->id, 'C-vittat');
+is($node->branch_length, '0.087619');
+is($node->ancestor->id, '14');
 
 $treeio = new Bio::TreeIO(-format => 'lintree',
 			  -file   => Bio::Root::IO->catfile
@@ -227,22 +221,22 @@ $treeio = new Bio::TreeIO(-format => 'lintree',
 
 $tree = $treeio->next_tree;
 
-ok(ref($tree) && $tree->isa('Bio::Tree::TreeI'));
+isa_ok($tree, 'Bio::Tree::TreeI');
 
 @nodes = $tree->get_nodes;
 @leaves = $tree->get_leaf_nodes;
-ok(@leaves, 13, scalar @leaves);
+is(@leaves, 13, "Leaf nodes");
 
-ok(@nodes, 25, scalar @nodes);
+is(@nodes, 25, "All nodes");
 ($node) = $tree->find_node('18');
-ok($node->id, '18');
+is($node->id, '18');
 
-ok($node->branch_length, '0.029044');
+is($node->branch_length, '0.029044');
 
 ($node) = $tree->find_node(-id => 'C-vittat');
-ok($node->id, 'C-vittat');
-ok($node->branch_length, '0.097855');
-ok($node->ancestor->id, '14');
+is($node->id, 'C-vittat');
+is($node->branch_length, '0.097855');
+is($node->ancestor->id, '14');
 
 if( eval "require IO::String; 1;" ) {
 # test nexus tree parsing
@@ -252,10 +246,10 @@ if( eval "require IO::String; 1;" ) {
     
     $tree = $treeio->next_tree;
     ok($tree);
-    ok($tree->id, 'PAUP_1');
-    ok($tree->get_leaf_nodes, 6);
+    is($tree->id, 'PAUP_1');
+    is($tree->get_leaf_nodes, 6);
     ($node) = $tree->find_node(-id => 'Spombe');
-    ok($node->branch_length,0.221404);
+    is($node->branch_length,0.221404);
     
 # test nexus MrBayes tree parsing
     $treeio = Bio::TreeIO->new(-format => 'nexus',
@@ -264,8 +258,8 @@ if( eval "require IO::String; 1;" ) {
     
     $tree = $treeio->next_tree;
     ok($tree);
-    ok($tree->id, 'rep.1');
-    ok($tree->get_leaf_nodes, 54);
+    is($tree->id, 'rep.1');
+    is($tree->get_leaf_nodes, 54);
     ($node) = $tree->find_node(-id => 'd.madeirensis');
     ok($node->branch_length,0.039223);
 } else{
@@ -292,7 +286,25 @@ $treeio = Bio::TreeIO->new(-format => 'newick',
 			   (qw(t data puzzle.tre)));
 $tree = $treeio->next_tree;
 ok($tree);
-ok($tree->score, '-2673.059726');
-							     
+is($tree->score, '-2673.059726');
+
+# bug #2221
+# process no-newlined tree
+$treeio = Bio::TreeIO->new(-format => 'nexus',
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data commas.nex) ));
+
+$tree = $treeio->next_tree;
+
+my @nodeids = ('Allium drummondii, USA', 'Allium drummondii, Russia','A.cyaneum');
+
+SKIP: {
+	skip("Tests not passing yet (bad patch), skipping for now...",4);
+	ok($tree);
+	for my $node ($tree->get_leaf_nodes) {
+		is($node->id, shift @nodeids);		
+	}
+}
+					     
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
