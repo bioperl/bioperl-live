@@ -56,9 +56,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::TreeIO::nexus;
 use strict;
@@ -78,16 +76,19 @@ use base qw(Bio::TreeIO);
 
 =cut
 
-sub _initialize { 
+sub _initialize {
     my $self = shift;
     $self->SUPER::_initialize(@_);
-    my ($hdr,$trans) = $self->_rearrange([qw(HEADER
-					     TRANSLATE)],
-					 @_);
-    $self->header(defined $hdr ? $hdr : 1 );
-    $self->translate_node(defined $trans ? $trans : 1);
+    my ( $hdr, $trans ) = $self->_rearrange(
+        [
+            qw(HEADER
+              TRANSLATE)
+        ],
+        @_
+    );
+    $self->header( defined $hdr           ? $hdr   : 1 );
+    $self->translate_node( defined $trans ? $trans : 1 );
 }
-
 
 =head2 next_tree
 
@@ -102,86 +103,93 @@ sub _initialize {
 
 sub next_tree {
     my ($self) = @_;
-    unless ( $self->{'_parsed'} ) { 
-	$self->_parse;
+    unless ( $self->{'_parsed'} ) {
+        $self->_parse;
     }
-    return $self->{'_trees'}->[$self->{'_treeiter'}++];
+    return $self->{'_trees'}->[ $self->{'_treeiter'}++ ];
 }
 
-sub rewind { 
+sub rewind {
     shift->{'_treeiter'} = 0;
 }
 
 sub _parse {
-   my ($self) = @_;
+    my ($self) = @_;
 
-   $self->{'_parsed'} = 1;
-   $self->{'_treeiter'} = 0;
+    $self->{'_parsed'}   = 1;
+    $self->{'_treeiter'} = 0;
 
-   while( defined ( $_ = $self->_readline ) ) {
-       next if /^\s+$/;
-       last;
-   }
-   return unless( defined $_ );
-   
-   unless( /^\#NEXUS/i ) {
-       $self->warn("File does not start with #NEXUS"); #'
-	   return;
-   }
+    while ( defined( $_ = $self->_readline ) ) {
+        next if /^\s+$/;
+        last;
+    }
+    return unless ( defined $_ );
 
-   my $line;
-   my %translate;
-   while( defined ( $_ = $self->_readline ) ) {
-     $line .= $_;     
-   }
-   $line =~ s/\n/ /g;   
-   my @sections = split(/#NEXUS/i, $line);
-   for my $s ( @sections ) {
-     if( $self->verbose > 0 ) {
-       while( $s =~ s/(\[[^\]]+\])// ) {
-	 $self->debug("removing comment $1\n");
-       }
-     } else {
-       $s =~ s/(\[[^\]]+\])//g;
-     }
-     if( $s =~ /begin trees;(.+)(end;)?/i ) {
-       my $trees = $1;
-       if( $trees =~ s/\s+translate\s+([^;]+);//i )  {
-	 my $trans = $1;
-	 for my $n ( split(/\s*,\s*/,$trans) ) {
-	   my ($id,$tag) = split(/\s+/,$n);
-	   $translate{$id} = $tag;
-	 }
-       } else {
-	 $self->debug("no translate in: $trees\n");
-       }
-       while( $trees =~ /\s+tree\s+(\S+)\s*\=
-			 \s*(?:\[\S+\])?\s*([^\;]+;)\s*/igx) {
-	 my ($tree_name,$tree_str) = ($1,$2);
-	 
-	 # MrBayes does not print colons for node label
-	 # $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
-	 my $buf = new IO::String($tree_str);	   
-	 my $treeio = new Bio::TreeIO(-format => 'newick',
-				      -fh     => $buf);
-	 my $tree = $treeio->next_tree;
-	 foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
-	   my $id = $node->id;
-	   my $lookup = $translate{$id};
-	   $node->id($lookup || $id);
-	 }
-	 $tree->id($tree_name) if defined $tree_name;
-	 push @{$self->{'_trees'}},$tree;
-       }       
-     } else {
-       $self->debug("begin_trees failed: $s\n");
-     }
-   }
-   if( ! @sections ) {     
-     $self->debug("warn no sections: $line\n");
-   }
+    unless (/^\#NEXUS/i) {
+        $self->warn("File does not start with #NEXUS");    #'
+        return;
+    }
+
+    my $line;
+    my %translate;
+    while ( defined( $_ = $self->_readline ) ) {
+        $line .= $_;
+    }
+    $line =~ s/\n/ /g;
+    my @sections = split( /#NEXUS/i, $line );
+    for my $s (@sections) {
+        if ( $self->verbose > 0 ) {
+            while ( $s =~ s/(\[[^\]]+\])// ) {
+                $self->debug("removing comment $1\n");
+            }
+        }
+        else {
+            $s =~ s/(\[[^\]]+\])//g;
+        }
+        if ( $s =~ /begin trees;(.+)(end;)?/i ) {
+            my $trees = $1;
+            if ( $trees =~ s/\s+translate\s+([^;]+);//i ) {
+                my $trans = $1;
+                for my $n ( split( /\s*,\s*/, $trans ) ) {
+                    my ( $id, $tag ) = split( /\s+/, $n );
+                    $translate{$id} = $tag;
+                }
+            }
+            else {
+                $self->debug("no translate in: $trees\n");
+            }
+            while (
+                $trees =~ /\s+tree\s+(\S+)\s*\=
+             \s*(?:\[\S+\])?\s*([^\;]+;)\s*/igx
+              )
+            {
+                my ( $tree_name, $tree_str ) = ( $1, $2 );
+
+                # MrBayes does not print colons for node label
+                # $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
+                my $buf    = new IO::String($tree_str);
+                my $treeio = new Bio::TreeIO(
+                    -format => 'newick',
+                    -fh     => $buf
+                );
+                my $tree = $treeio->next_tree;
+                foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
+                    my $id     = $node->id;
+                    my $lookup = $translate{$id};
+                    $node->id( $lookup || $id );
+                }
+                $tree->id($tree_name) if defined $tree_name;
+                push @{ $self->{'_trees'} }, $tree;
+            }
+        }
+        else {
+            $self->debug("begin_trees failed: $s\n");
+        }
+    }
+    if ( !@sections ) {
+        $self->debug("warn no sections: $line\n");
+    }
 }
-
 
 =head2 write_tree
 
@@ -194,84 +202,103 @@ sub _parse {
 
 =cut
 
-sub write_tree{
-   my ($self,@trees) = @_;
-   if ( $self->header ) {
-       $self->_print("#NEXUS\n\n");
-   }
-   my $translate = $self->translate_node;
-   my $time = localtime();
-   $self->_print(sprintf("Begin trees; [Treefile created %s]\n",$time));
+sub write_tree {
+    my ( $self, @trees ) = @_;
+    if ( $self->header ) {
+        $self->_print("#NEXUS\n\n");
+    }
+    my $translate = $self->translate_node;
+    my $time      = localtime();
+    $self->_print( sprintf( "Begin trees; [Treefile created %s]\n", $time ) );
 
-   my ($first,$nodecter,%node2num) = (0,1);
-   foreach my $tree ( @trees ) {
-       
-       if( $first == 0 && 
-	   $translate ) { 
-	   $self->_print("\tTranslate\n");
-	   $self->_print(join(",\n",
-			      map { $node2num{$_->id} = $nodecter;
-				  sprintf("\t\t%d %s",$nodecter++,$_->id) }
-			      grep { $_->is_Leaf } $tree->get_nodes),
-			 "\n;\n");
-       }
-       my @data = _write_tree_Helper($tree->get_root_node,\%node2num);
-       if($data[-1] !~ /\)$/ ) {
-	   $data[0] = "(".$data[0];
-	   $data[-1] .= ")";
-       }
-       # by default all trees in bioperl are currently rooted
-       # something we'll try and fix one day....
-       $self->_print(sprintf("\t tree %s = [&%s] %s;\n",
-			     ($tree->id || 
-			      sprintf("Bioperl_%d",$first+1)),
-			     ( $tree->get_root_node ) ? 'R' : 'U',
-			     join(',', @data)));
-       $first++;
-   }
-   $self->_print("End;\n");
-   $self->flush if $self->_flush_on_write && defined $self->_fh;
-   return;
+    my ( $first, $nodecter, %node2num ) = ( 0, 1 );
+    foreach my $tree (@trees) {
+
+        if (   $first == 0
+            && $translate )
+        {
+            $self->_print("\tTranslate\n");
+            $self->_print(
+                join(
+                    ",\n",
+                    map {
+                        $node2num{ $_->id } = $nodecter;
+                        sprintf( "\t\t%d %s", $nodecter++, $_->id )
+                      }
+                      grep { $_->is_Leaf } $tree->get_nodes
+                ),
+                "\n;\n"
+            );
+        }
+        my @data = _write_tree_Helper( $tree->get_root_node, \%node2num );
+        if ( $data[-1] !~ /\)$/ ) {
+            $data[0] = "(" . $data[0];
+            $data[-1] .= ")";
+        }
+
+        # by default all trees in bioperl are currently rooted
+        # something we'll try and fix one day....
+        $self->_print(
+            sprintf(
+                "\t tree %s = [&%s] %s;\n",
+                ( $tree->id || sprintf( "Bioperl_%d", $first + 1 ) ),
+                ( $tree->get_root_node ) ? 'R' : 'U',
+                join( ',', @data )
+            )
+        );
+        $first++;
+    }
+    $self->_print("End;\n");
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    return;
 }
 
 sub _write_tree_Helper {
-    my ($node,$node2num) = @_;
-    return () if (!defined $node);
+    my ( $node, $node2num ) = @_;
+    return () if ( !defined $node );
     my @data;
-    
-    foreach my $n ( $node->each_Descendent() ) {
-	push @data, _write_tree_Helper($n,$node2num);
-    }
-    if( @data > 1 ) {
-	$data[0] = "(" . $data[0];
-	$data[-1] .= ")";
-	# let's explicitly write out the bootstrap if we've got it
-	my $b;
-	
-	my $bl = $node->branch_length;
-	if( ! defined $bl ) {
-	} elsif($bl =~ /\#/ ) { 
-	 $data[-1] .= $bl;
-	} else { 
-	 $data[-1] .= ":$bl";
-	}
-	if( defined ($b = $node->bootstrap) ) {	    
-	    $data[-1] .= sprintf("[%s]",$b);
-	} elsif( defined ($b = $node->id) ) {
-	    $b = $node2num->{$b} if( $node2num->{$b} ); # translate node2num
-	    $data[-1] .= sprintf("[%s]",$b);
-	}
 
-    } else {
-	if( defined $node->id || defined $node->branch_length ) { 
-	    my $id= defined $node->id ? $node->id : '';
-	    if( length($id) && $node2num->{$id} ) {
-		$id = $node2num->{$id};		
-	    }
-	    push @data, sprintf("%s%s",$id,
-				defined $node->branch_length ? ":" .
-				$node->branch_length : '');
-	}
+    foreach my $n ( $node->each_Descendent() ) {
+        push @data, _write_tree_Helper( $n, $node2num );
+    }
+    if ( @data > 1 ) {
+        $data[0] = "(" . $data[0];
+        $data[-1] .= ")";
+
+        # let's explicitly write out the bootstrap if we've got it
+        my $b;
+
+        my $bl = $node->branch_length;
+        if ( !defined $bl ) {
+        }
+        elsif ( $bl =~ /\#/ ) {
+            $data[-1] .= $bl;
+        }
+        else {
+            $data[-1] .= ":$bl";
+        }
+        if ( defined( $b = $node->bootstrap ) ) {
+            $data[-1] .= sprintf( "[%s]", $b );
+        }
+        elsif ( defined( $b = $node->id ) ) {
+            $b = $node2num->{$b} if ( $node2num->{$b} );    # translate node2num
+            $data[-1] .= sprintf( "[%s]", $b );
+        }
+
+    }
+    else {
+        if ( defined $node->id || defined $node->branch_length ) {
+            my $id = defined $node->id ? $node->id : '';
+            if ( length($id) && $node2num->{$id} ) {
+                $id = $node2num->{$id};
+            }
+            push @data,
+              sprintf( "%s%s",
+                $id,
+                defined $node->branch_length
+                ? ":" . $node->branch_length
+                : '' );
+        }
     }
     return @data;
 }
@@ -288,7 +315,7 @@ sub _write_tree_Helper {
 
 =cut
 
-sub header{
+sub header {
     my $self = shift;
 
     return $self->{'header'} = shift if @_;
@@ -307,7 +334,7 @@ sub header{
 
 =cut
 
-sub translate_node{
+sub translate_node {
     my $self = shift;
 
     return $self->{'translate_node'} = shift if @_;
