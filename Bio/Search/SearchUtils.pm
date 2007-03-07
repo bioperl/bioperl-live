@@ -451,8 +451,8 @@ sub _adjust_contigs {
                     # extending before $i_start
                     my ($ids, $cons) = (0, 0);
                     my $use_start = $i_start;
-                    foreach my $hsp (sort { $b->end <=> $a->end } @{${$contigs_ref}[$u]->{hsps}}) {
-                        my $hsp_start = $hsp->start;
+                    foreach my $hsp (sort { $b->end($seqType) <=> $a->end($seqType) } @{${$contigs_ref}[$u]->{hsps}}) {
+                        my $hsp_start = $hsp->start($seqType);
                         $hsp_start < $use_start || next;
                         
                         my ($these_ids, $these_cons);
@@ -480,8 +480,8 @@ sub _adjust_contigs {
                     # extending beyond $i_stop
                     my ($ids, $cons) = (0, 0);
                     my $use_stop = $i_stop;
-                    foreach my $hsp (sort { $a->start <=> $b->start } @{${$contigs_ref}[$u]->{hsps}}) {
-                        my $hsp_end = $hsp->end;
+                    foreach my $hsp (sort { $a->start($seqType) <=> $b->start($seqType) } @{${$contigs_ref}[$u]->{hsps}}) {
+                        my $hsp_end = $hsp->end($seqType);
                         $hsp_end > $use_stop || next;
                         
                         my ($these_ids, $these_cons);
