@@ -22,7 +22,7 @@ BEGIN {
 	use Test::More;
     
 	use vars qw($NTESTS);
-	$NTESTS = 1428;
+	$NTESTS = 1430;
 	$error = 0;
 
 	plan tests => $NTESTS; 
@@ -1030,12 +1030,20 @@ while (my $result = $searchio->next_result) {
 }
 is(@expected, 0);
 
-# And even more: frac_aligned_hit should never be over 1!
+# And even more: frac_aligned_query should never be over 1!
 $searchio = new Bio::SearchIO('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems.blast'));
+			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems2.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
-ok $hit->frac_aligned_hit, 0.97;
+is $hit->frac_aligned_query, 0.97;
+
+# Also, start and end should be sane
+$searchio = new Bio::SearchIO('-format' => 'blast',
+			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems3.blast'));
+$result = $searchio->next_result;
+$hit = $result->next_hit;
+is $hit->start('sbjct'), 207;
+is $hit->end('sbjct'), 1051;
 
 #WU-TBlastN test
 
