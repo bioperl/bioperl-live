@@ -1262,7 +1262,7 @@ Same as L<frac_aligned_hit()|frac_aligned_hit>
 
 =cut
 
-*frac_aligned_sbjct = \&fract_aligned_hit;
+*frac_aligned_sbjct = \&frac_aligned_hit;
 
 =head2 num_unaligned_sbjct
 
