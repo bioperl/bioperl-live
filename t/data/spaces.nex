@@ -8,3 +8,22 @@ BEGIN TREES;
    ;
    TREE onion = [&R] ((1,2),3);
 END;
+
+#NEXUS
+BEGIN TREES;
+
+   TRANSLATE
+   1   'Allium drummondii, USA',
+   2   'Allium drummondii, Russia',
+   3    A.cyaneum
+   ;
+   TREE onion = [&R] ((1,2),3);
+END;
+
+#NEXUS
+BEGIN TREES;
+
+   TRANSLATE 1   'Allium drummondii, Russia', 2   'Allium drummondii, USA', 3    A.cyaneum ;
+   TREE onion = [&R] ((1,2),3);
+END;
+

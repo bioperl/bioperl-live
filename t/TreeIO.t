@@ -17,7 +17,7 @@ BEGIN {
 	}
 
 	use Test::More;
-	$NUMTESTS = 68;
+	$NUMTESTS = 72;
 	plan tests => $NUMTESTS;
 }
 
@@ -301,31 +301,37 @@ $tree = $treeio->next_tree;
 
 my @nodeids = ("'Allium drummondii'", "'Allium cernuum'",'A.cyaneum');
 
-SKIP: {
-	#skip("Tests not passing yet (bad patch), skipping for now...",4);
-	ok($tree);
-	for my $node ($tree->get_leaf_nodes) {
-		is($node->id, shift @nodeids);		
-	}
+
+
+ok($tree);
+for my $node ($tree->get_leaf_nodes) {
+	is($node->id, shift @nodeids);		
 }
 
 # bug #2221
 # process tree with names containing quoted commas
-$treeio = Bio::TreeIO->new(-format => 'nexus',
-						   -verbose => $verbose,
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data commas.nex) ));
 
 $tree = $treeio->next_tree;
 
 @nodeids = ("'Allium drummondii, USA'", "'Allium drummondii, Russia'",'A.cyaneum');
 
-SKIP: {
-	ok($tree);
-	for my $node ($tree->get_leaf_nodes) {
-		is($node->id, shift @nodeids);		
-	}
+ok($tree);
+for my $node ($tree->get_leaf_nodes) {
+	is($node->id, shift @nodeids);		
 }
+
+# bug #2221
+# process tree with names containing quoted commas on one line
+
+$tree = $treeio->next_tree;
+
+@nodeids = ("'Allium drummondii, Russia'", "'Allium drummondii, USA'",'A.cyaneum');
+
+ok($tree);
+for my $node ($tree->get_leaf_nodes) {
+	is($node->id, shift @nodeids);		
+}
+
 					     
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
