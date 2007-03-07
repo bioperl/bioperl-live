@@ -272,6 +272,7 @@ if( eval "require IO::String; 1;" ) {
 # bug #1854
 # process no-newlined tree
 $treeio = Bio::TreeIO->new(-format => 'nexus',
+						   -verbose => $verbose,
 			   -file   => Bio::Root::IO->catfile
 			   (qw(t data tree_nonewline.nexus) ));
 
@@ -317,10 +318,9 @@ $treeio = Bio::TreeIO->new(-format => 'nexus',
 
 $tree = $treeio->next_tree;
 
-@nodeids = ('Allium drummondii, USA', 'Allium drummondii, Russia','A.cyaneum');
+@nodeids = ("'Allium drummondii, USA'", "'Allium drummondii, Russia'",'A.cyaneum');
 
 SKIP: {
-	skip("Tests not passing yet (bad patch), skipping for now...",4);
 	ok($tree);
 	for my $node ($tree->get_leaf_nodes) {
 		is($node->id, shift @nodeids);		

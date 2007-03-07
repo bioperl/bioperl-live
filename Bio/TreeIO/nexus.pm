@@ -135,7 +135,6 @@ sub _parse {
     while ( defined( $_ = $self->_readline ) ) {
         $line .= $_;
     }
-    $line =~ s/\n/ /g;
     my @sections = split( /#NEXUS/i, $line );
     for my $s (@sections) {
         if ( $self->verbose > 0 ) {
@@ -146,21 +145,31 @@ sub _parse {
         else {
             $s =~ s/(\[[^\]]+\])//g;
         }
-        if ( $s =~ /begin trees;(.+)(end;)?/i ) {
+        
+        if ( $s =~ /begin trees;(.+)(end;)?/si ) {
             my $trees = $1;
             if ( $trees =~ s/\s+translate\s+([^;]+);//i ) {
-                my $trans = $1;
-                for my $n ( split( /\s*,\s*/, $trans ) ) {
+                my @trans;
+                my $tr = $1;
+                if ($tr =~ m{\n}) {
+                    @trans = split m{\n}, $tr;
+                }
+                # for translates on one line
+                else {
+                    @trans = split m{,}, $tr;
+                }
+                for my $n ( @trans ) {
                     if ($n  =~ /^\s*(\S+)\s+(.+)$/) {
                         my ($id,$tag) = ($1,$2);
-                        $tag =~ s/\s+$//;  # remove the extra spaces of the last taxon
+                        $tag =~ s/[\s,]+$//;  # remove the extra spaces of the last taxon
                         $translate{$id} = $tag;
-                    }
+                    }                    
                 }
             }
             else {
                 $self->debug("no translate in: $trees\n");
             }
+            $trees =~ s{\n}{ }g;
             while (
                 $trees =~ /\s+tree\s+\*?\s*(\S+)\s*\=
              \s*(?:\[\S+\])?\s*([^\;]+;)\s*/igx
