@@ -26,7 +26,8 @@ my $build = ModuleBuildBioperl->new(
     requires            => {
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,
-                            'DB_File'                   => 0
+                            'DB_File'                   => 0,
+                            'Scalar::Util'              => 1.19 # not in Perl 5.6.1, arrived in core in 5.7.3
                            },
     build_requires      => {
                             'Test::More'                => 0,
