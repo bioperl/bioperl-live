@@ -131,12 +131,12 @@ sub _parse {
     }
 
     my $line;
-    my %translate;
     while ( defined( $_ = $self->_readline ) ) {
         $line .= $_;
     }
     my @sections = split( /#NEXUS/i, $line );
     for my $s (@sections) {
+        my %translate;        
         if ( $self->verbose > 0 ) {
             while ( $s =~ s/(\[[^\]]+\])// ) {
                 $self->debug("removing comment $1\n");
@@ -151,12 +151,15 @@ sub _parse {
             if ( $trees =~ s/\s+translate\s+([^;]+);//i ) {
                 my @trans;
                 my $tr = $1;
+                # normal multiline translates
                 if ($tr =~ m{\n}) {
                     @trans = split m{\n}, $tr;
                 }
                 # for translates on one line
                 else {
-                    @trans = split m{,}, $tr;
+                    while ($tr =~ m{\s*([^,]+?'(?:[^']+)'),?}gc || $tr =~ m{\s*([^,]+)}gc) {
+                        push @trans, $1;
+                    }
                 }
                 for my $n ( @trans ) {
                     if ($n  =~ /^\s*(\S+)\s+(.+)$/) {
