@@ -10,7 +10,7 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 115;
+	$NUMTESTS = 116;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -203,6 +203,11 @@ SKIP: {
 }
 
 $seq = $seqio = undef;
+
+# and yet again, for bug 2133
+$query = Bio::DB::Query::GenBank->new('-query'  => 'AF303112',
+                                      '-ids' => [qw(J00522 AF303112 2981014)]);
+is $query->query, 'J00522,AF303112,2981014';
 
 # test contig retrieval
 ok $gb = new Bio::DB::GenBank('-delay'  => 0, '-format' => 'gbwithparts');

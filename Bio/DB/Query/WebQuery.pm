@@ -105,8 +105,10 @@ sub new {
   my ($query,$ids,$verbose) = $self->_rearrange(['QUERY','IDS','VERBOSE'],@_);
   $self->throw('must provide one of the the -query or -ids arguments')
     unless defined($query) || defined($ids);
-  $query ||= join ',',ref($ids) ? @$ids : $ids;
-  $query && $self->query($query);
+  if ($ids) {
+    $query = join ',',ref($ids) ? @$ids : $ids;
+  }
+  $self->query($query);
   $verbose && $self->verbose($verbose);
 
   my $ua = new LWP::UserAgent(env_proxy => 1);
