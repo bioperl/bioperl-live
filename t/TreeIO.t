@@ -17,7 +17,7 @@ BEGIN {
 	}
 
 	use Test::More;
-	$NUMTESTS = 64;
+	$NUMTESTS = 68;
 	plan tests => $NUMTESTS;
 }
 
@@ -241,6 +241,7 @@ is($node->ancestor->id, '14');
 if( eval "require IO::String; 1;" ) {
 # test nexus tree parsing
     $treeio = Bio::TreeIO->new(-format => 'nexus',
+							   -verbose => $verbose,
 			       -file   => Bio::Root::IO->catfile
 			       (qw(t data urease.tre.nexus) ));
     
@@ -261,7 +262,7 @@ if( eval "require IO::String; 1;" ) {
     is($tree->id, 'rep.1');
     is($tree->get_leaf_nodes, 54);
     ($node) = $tree->find_node(-id => 'd.madeirensis');
-    ok($node->branch_length,0.039223);
+    is($node->branch_length,0.039223);
 } else{
     for ( 1..8 ) {
 	skip("skipping nexus tree parsing, IO::String not installed",1);
@@ -288,15 +289,35 @@ $tree = $treeio->next_tree;
 ok($tree);
 is($tree->score, '-2673.059726');
 
-# bug #2221
-# process no-newlined tree
+# bug #2205
+# process trees with node IDs containing spaces
 $treeio = Bio::TreeIO->new(-format => 'nexus',
+						   -verbose => $verbose,
+			   -file   => Bio::Root::IO->catfile
+			   (qw(t data spaces.nex) ));
+
+$tree = $treeio->next_tree;
+
+my @nodeids = ("'Allium drummondii'", "'Allium cernuum'",'A.cyaneum');
+
+SKIP: {
+	#skip("Tests not passing yet (bad patch), skipping for now...",4);
+	ok($tree);
+	for my $node ($tree->get_leaf_nodes) {
+		is($node->id, shift @nodeids);		
+	}
+}
+
+# bug #2221
+# process tree with names containing quoted commas
+$treeio = Bio::TreeIO->new(-format => 'nexus',
+						   -verbose => $verbose,
 			   -file   => Bio::Root::IO->catfile
 			   (qw(t data commas.nex) ));
 
 $tree = $treeio->next_tree;
 
-my @nodeids = ('Allium drummondii, USA', 'Allium drummondii, Russia','A.cyaneum');
+@nodeids = ('Allium drummondii, USA', 'Allium drummondii, Russia','A.cyaneum');
 
 SKIP: {
 	skip("Tests not passing yet (bad patch), skipping for now...",4);

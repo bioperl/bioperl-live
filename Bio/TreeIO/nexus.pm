@@ -151,15 +151,18 @@ sub _parse {
             if ( $trees =~ s/\s+translate\s+([^;]+);//i ) {
                 my $trans = $1;
                 for my $n ( split( /\s*,\s*/, $trans ) ) {
-                    my ( $id, $tag ) = split( /\s+/, $n );
-                    $translate{$id} = $tag;
+                    if ($n  =~ /^\s*(\S+)\s+(.+)$/) {
+                        my ($id,$tag) = ($1,$2);
+                        $tag =~ s/\s+$//;  # remove the extra spaces of the last taxon
+                        $translate{$id} = $tag;
+                    }
                 }
             }
             else {
                 $self->debug("no translate in: $trees\n");
             }
             while (
-                $trees =~ /\s+tree\s+(\S+)\s*\=
+                $trees =~ /\s+tree\s+\*?\s*(\S+)\s*\=
              \s*(?:\[\S+\])?\s*([^\;]+;)\s*/igx
               )
             {
