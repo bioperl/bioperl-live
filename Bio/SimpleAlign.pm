@@ -2656,11 +2656,11 @@ sub _startend
 =head2 bracket_string
 
  Title     : bracket_string
- Usage     : my @params = (refseq     => 'testseq',
-                           allele1    => 'allele1',
-                           allele2    => 'allele2',
-                           delimiters => '{}',
-                           separator  => '/');
+ Usage     : my @params = (-refseq     => 'testseq',
+                           -allele1    => 'allele1',
+                           -allele2    => 'allele2',
+                           -delimiters => '{}',
+                           -separator  => '/');
              $str = $aln->bracket_string(@params)
               
  Function :  When supplied with a list of parameters (see below), returns a
