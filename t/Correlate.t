@@ -10,16 +10,15 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 15;
+    use Test::More;
+    plan tests => 17;
+    use_ok('Bio::Phenotype::Correlate');
+    use_ok('Bio::Species');
 }
-
-use Bio::Phenotype::Correlate;
-use Bio::Species;
 
 my $mouse = Bio::Species->new();
   
@@ -31,27 +30,27 @@ my $co = Bio::Phenotype::Correlate->new( -name        => "4(Tas1r3)",
                                          -type        => "homolog",
                                          -comment     => "type=homolog is putative" );
 
-ok( $co->isa( "Bio::Phenotype::Correlate" ) );
+isa_ok($co, "Bio::Phenotype::Correlate" );
 
 ok( $co->to_string() );
 
-ok( $co->name(), "4(Tas1r3)" );
-ok( $co->description(), "mouse correlate of human phenotype MIM 605865" );
-ok( $co->species()->binomial(), "Mus musculus" );
-ok( $co->type(), "homolog" );
-ok( $co->comment(), "type=homolog is putative" );
+is( $co->name(), "4(Tas1r3)" );
+is( $co->description(), "mouse correlate of human phenotype MIM 605865" );
+is( $co->species()->binomial(), "Mus musculus" );
+is( $co->type(), "homolog" );
+is( $co->comment(), "type=homolog is putative" );
 
 $co->init();
 
-ok( $co->name(), "" );
-ok( $co->description(), "" );
-ok( $co->type(), "" );
-ok( $co->comment(), "" );
+is( $co->name(), "" );
+is( $co->description(), "" );
+is( $co->type(), "" );
+is( $co->comment(), "" );
 
-ok( $co->name( "A" ), "A" );
-ok( $co->description( "B" ), "B" );
-ok( $co->type( "C" ), "C" );
-ok( $co->comment( "D" ), "D" );
+is( $co->name( "A" ), "A" );
+is( $co->description( "B" ), "B" );
+is( $co->type( "C" ), "C" );
+is( $co->comment( "D" ), "D" );
 
 
 

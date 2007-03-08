@@ -10,19 +10,15 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
     plan tests => 7;
+	use_ok('Bio::Coordinate::Graph');
 }
-
-
-use Bio::Coordinate::Graph;
-
-ok(1);
 
 ok my $graph = new Bio::Coordinate::Graph;
 
@@ -44,18 +40,18 @@ ok $graph->hash_of_arrays($dag);
 
 my $a = 1;
 my $b = 6;
-ok my @a = $graph->shortest_path($a, $b), 3;
+is my @a = $graph->shortest_path($a, $b), 3;
 #print join (", ", @a), "\n";
 
 $a = 7;
 $b = 8;
-ok @a = $graph->shortest_path($a, $b), 1;
+is @a = $graph->shortest_path($a, $b), 1;
 
 
 $a = 8;
 $b = 9;
-ok @a = $graph->shortest_path($a, $b), 2;
+is @a = $graph->shortest_path($a, $b), 2;
 $b = 2;
-ok @a = $graph->shortest_path($a, $b), 3;
+is @a = $graph->shortest_path($a, $b), 3;
 
 
