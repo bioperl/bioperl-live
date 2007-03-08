@@ -615,6 +615,13 @@ sub descriptor {
     return $self->{'_descriptor'};
 }
 
+=head2 model
+
+ Title   : model
+ Usage   : Alias for descriptor()
+ 
+=cut
+
 sub model { shift->descriptor(@_) }
 
 =head2 database
