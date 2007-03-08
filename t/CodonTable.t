@@ -11,15 +11,15 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    plan tests => 51;
+    plan tests => 52;
+	use_ok('Bio::Tools::CodonTable');
 }
-use Bio::Tools::CodonTable;
 use vars qw($DEBUG);
 ok(1);
 
@@ -27,26 +27,26 @@ ok(1);
 $DEBUG = 0;
 my $myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
 ok defined $myCodonTable;
-ok $myCodonTable->isa('Bio::Tools::CodonTable');
+isa_ok $myCodonTable, 'Bio::Tools::CodonTable';
 
 # defaults to ID 1 "Standard"
 $myCodonTable = Bio::Tools::CodonTable->new();
-ok $myCodonTable->id(), 1;
+is $myCodonTable->id(), 1;
 
 # change codon table
 $myCodonTable->id(10);
-ok $myCodonTable->id, 10;
-ok $myCodonTable->name(), 'Euplotid Nuclear';
+is $myCodonTable->id, 10;
+is $myCodonTable->name(), 'Euplotid Nuclear';
 
 # enumerate tables as object method
 my $table = $myCodonTable->tables();
-ok (keys %{$table} >= 17); # currently 17 known tables
-ok $table->{11}, q{"Bacterial"};
+cmp_ok (keys %{$table}, '>=', 17); # currently 17 known tables
+is $table->{11}, q{"Bacterial"};
 
 # enumerate tables as class method
 $table = Bio::Tools::CodonTable->tables;
-ok (values %{$table} >= 17); # currently 17 known tables
-ok $table->{23}, 'Thraustochytrium Mitochondrial';
+cmp_ok (values %{$table}, '>=', 17); # currently 17 known tables
+is $table->{23}, 'Thraustochytrium Mitochondrial';
 
 # translate codons
 $myCodonTable->id(1);
@@ -56,7 +56,7 @@ eval {
 };
 ok ($@ =~ /EX/) ;
 
-ok $myCodonTable->translate(''), '';
+is $myCodonTable->translate(''), '';
 
 my @ii  = qw(ACT acu ATN gt ytr sar);
 my @res = qw(T   T   X   V  L   Z  );
@@ -69,11 +69,11 @@ for my $i (0..$#ii) {
     }
 }
 ok ($test);
-ok $myCodonTable->translate('ag'), '';
-ok $myCodonTable->translate('jj'), '';
-ok $myCodonTable->translate('jjg'), 'X';
-ok $myCodonTable->translate('gt'), 'V'; 
-ok $myCodonTable->translate('g'), '';
+is $myCodonTable->translate('ag'), '';
+is $myCodonTable->translate('jj'), '';
+is $myCodonTable->translate('jjg'), 'X';
+is $myCodonTable->translate('gt'), 'V'; 
+is $myCodonTable->translate('g'), '';
 
 # a more comprehensive test on ambiguous codes
 my $seq = <<SEQ;
@@ -107,10 +107,10 @@ ok $test;
 
 # reverse translate amino acids 
 
-ok $myCodonTable->revtranslate('U'), 0;
-ok $myCodonTable->revtranslate('O'), 0;
-ok $myCodonTable->revtranslate('J'), 9;
-ok $myCodonTable->revtranslate('I'), 3;
+is $myCodonTable->revtranslate('U'), 0;
+is $myCodonTable->revtranslate('O'), 0;
+is $myCodonTable->revtranslate('J'), 9;
+is $myCodonTable->revtranslate('I'), 3;
 
 @ii = qw(A l ACN Thr sER ter Glx);
 @res = (
@@ -143,21 +143,21 @@ ok $test;
 $myCodonTable->id(1);
 
 ok $myCodonTable->is_start_codon('ATG');  
-ok $myCodonTable->is_start_codon('GGH'), 0;
+is $myCodonTable->is_start_codon('GGH'), 0;
 ok $myCodonTable->is_start_codon('HTG');
-ok $myCodonTable->is_start_codon('CCC'), 0;
+is $myCodonTable->is_start_codon('CCC'), 0;
 
 ok $myCodonTable->is_ter_codon('UAG');
 ok $myCodonTable->is_ter_codon('TaG');
 ok $myCodonTable->is_ter_codon('TaR');
 ok $myCodonTable->is_ter_codon('tRa');
-ok $myCodonTable->is_ter_codon('ttA'), 0;
+is $myCodonTable->is_ter_codon('ttA'), 0;
 
 ok $myCodonTable->is_unknown_codon('jAG');
 ok $myCodonTable->is_unknown_codon('jg');
-ok $myCodonTable->is_unknown_codon('UAG'), 0;
+is $myCodonTable->is_unknown_codon('UAG'), 0;
 
-ok $myCodonTable->translate_strict('ATG'), 'M';
+is $myCodonTable->translate_strict('ATG'), 'M';
 
 
 
@@ -172,25 +172,25 @@ my @custom_table =
     );
 
 ok my $custct = $myCodonTable->add_table(@custom_table);
-ok $custct, 24;
-ok $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKNTTTT';
+is $custct, 24;
+is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKNTTTT';
 ok $myCodonTable->id($custct);
-ok $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKXXTTT';
+is $myCodonTable->translate('atgaaraayacmacracwacka'), 'MKXXTTT';
 
 # test doing this via Bio::PrimarySeq object
 
 use Bio::PrimarySeq;
 ok $seq = Bio::PrimarySeq->new(-seq=>'atgaaraayacmacracwacka', -alphabet=>'dna');
-ok $seq->translate()->seq, 'MKNTTTT';
-ok $seq->translate(undef, undef, undef, undef, undef, undef, $myCodonTable)->seq, 'MKXXTTT';
+is $seq->translate()->seq, 'MKNTTTT';
+is $seq->translate(undef, undef, undef, undef, undef, undef, $myCodonTable)->seq, 'MKXXTTT';
 
 # test gapped translated
 
 ok $seq = Bio::PrimarySeq->new(-seq      => 'atg---aar------aay',
 			                   -alphabet => 'dna');
-ok $seq->translate->seq, 'M-K--N';
+is $seq->translate->seq, 'M-K--N';
 
 ok $seq = Bio::PrimarySeq->new(-seq=>'ASDFGHKL');
-ok $myCodonTable->reverse_translate_all($seq), 'GCBWSNGAYTTYGGVCAYAARYTN';
+is $myCodonTable->reverse_translate_all($seq), 'GCBWSNGAYTTYGGVCAYAARYTN';
 ok $seq = Bio::PrimarySeq->new(-seq=>'ASXFHKL');
-ok $myCodonTable->reverse_translate_all($seq), 'GCBWSNNNNTTYCAYAARYTN';
+is $myCodonTable->reverse_translate_all($seq), 'GCBWSNNNNTTYCAYAARYTN';

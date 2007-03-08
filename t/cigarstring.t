@@ -5,14 +5,13 @@
 use strict;
 
 BEGIN {
-    use lib 't';
-    use Test;
-    plan tests => 3;
+    use lib 't/lib';
+    use Test::More;
+    plan tests => 4;
+	use_ok('Bio::SearchIO');
 }
 
 # END { }
-
-use Bio::SearchIO;
 
 my $searchio = new Bio::SearchIO(
 	 -format => 'blast',
@@ -30,10 +29,10 @@ while(my $result = $searchio->next_result){
 
 my $first_hsp = shift @hsps;
 my $first_hsp_cigar_string = '504M'; 
-ok $first_hsp->cigar_string, $first_hsp_cigar_string;
-ok $first_hsp->cigar_string, $first_hsp_cigar_string; # fetch from hash
+is $first_hsp->cigar_string, $first_hsp_cigar_string;
+is $first_hsp->cigar_string, $first_hsp_cigar_string; # fetch from hash
 
 my $second_hsp = $hsps[0];
 my $second_hsp_cigar_string = '29M18I22M11I20MD33M4I22M3I25M5I21MI33MD14M';
-ok $second_hsp->cigar_string, $second_hsp_cigar_string;
+is $second_hsp->cigar_string, $second_hsp_cigar_string;
 
