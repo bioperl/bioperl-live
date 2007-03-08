@@ -245,7 +245,7 @@ sub new {
    return $self;
 }
 
-=head2 _calculate_consensus
+=head2 alphabet
 
  Title    : Returns an array (or array reference if desired) to the alphabet 
  Usage    :
@@ -266,6 +266,7 @@ sub alphabet {
       return @{$self->{_alphabet}};
    }
 }
+
 =head2 _calculate_consensus
 
  Title    : _calculate_consensus
