@@ -521,6 +521,13 @@ sub asString {
   return "$label:$start,$stop";
 }
 
+=head2 name
+
+ Title   : name
+ Usage   : Alias for asString()
+
+=cut
+
 sub name { shift->asString }
 
 =head2 absolute
