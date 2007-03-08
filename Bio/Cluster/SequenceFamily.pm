@@ -430,6 +430,14 @@ sub remove_members{
 *flush_members = \&remove_members;
 *add_member = \&add_members;
 
+=head2 members
+
+ Title   : members
+ Usage   : $members = $fam->members([$seq1,$seq1]);
+ Function: Deprecated. Use add_members() or get_members() instead
+ 
+=cut
+		 
 sub members{
     my $self = shift;
     if(@_) {
