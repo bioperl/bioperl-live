@@ -54,17 +54,16 @@ package Bio::ClusterIO::dbsnp;
 use strict;
 use Bio::Root::Root;
 use Bio::Variation::SNP;
-use XML::Parser::PerlSAX;
-use XML::Handler::Subs;
+use XML::SAX;
 use Data::Dumper;
 use IO::File;
+use Time::HiRes qw(tv_interval gettimeofday);
 
-use vars qw($DTD $DEBUG %MODEMAP %MAPPING);
-$DTD = 'ftp://ftp.ncbi.nih.gov/snp/specs/NSE.dtd';
 use base qw(Bio::ClusterIO);
 
-BEGIN {
-  %MAPPING = (
+our $DEBUG = 0;
+
+our %MAPPING = (
 #the ones commented out i haven't written methods for yet... -Allen
 			  'Rs_rsId'               => 'id',
 #			  'Rs_taxId'                   => 'tax_id',
@@ -142,15 +141,18 @@ BEGIN {
 			  #...
 			  #there are lots more, but i don't need them at the moment... -Allen
 			  );
-}
 
 sub _initialize{
    my ($self,@args) = @_;
    $self->SUPER::_initialize(@args);
    my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
    defined $usetempfile && $self->use_tempfile($usetempfile);
-   $self->{'_xmlparser'} = new XML::Parser::PerlSAX();
-   $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
+    
+  # start up the parser factory
+  my $parserfactory = XML::SAX::ParserFactory->parser(
+	  Handler => $self);
+  $self->{'_xmlparser'} = $parserfactory;
+  $DEBUG = 1 if( ! defined $DEBUG && $self->verbose > 0);
 }
 
 =head2 next_cluster
@@ -167,6 +169,10 @@ sub _initialize{
 ###
 #Adapted from Jason's blastxml.pm
 ###
+
+# you shouldn't have to preparse this; the XML is well-formed and refers
+# accurately to a remote DTD/schema
+
 sub next_cluster {
   my $self = shift;
   my $data = '';
@@ -180,9 +186,9 @@ sub next_cluster {
   my $start = 1;
   while( defined( $_ = $self->_readline ) ){
 	#skip to beginning of refSNP entry
-	if($_ !~ m!<Rs>! && $start){
+	if($_ !~ m{<Rs[^>]*>} && $start){
 	  next;
-	} elsif($_ =~ m!<Rs>! && $start){
+	} elsif($_ =~ m{<Rs[^>]*>} && $start){
 	  $start = 0;
 	} 
 
@@ -194,7 +200,7 @@ sub next_cluster {
 	}
 
 	#and stop at the end of the refSNP entry
-	last if $_ =~ m!</Rs>!;
+	last if $_ =~ m{</Rs>};
   }
 
   #if we didn't find a start tag
@@ -282,18 +288,20 @@ sub end_document{
 sub start_element{
   my ($self,$data) = @_;
   my $nm = $data->{'Name'};
-  my $at = $data->{'Attributes'};
-
+  my $at = $data->{'Attributes'}->{'{}value'};
+  
+  #$self->debug(Dumper($at)) if $nm = ;
+  
   if($nm eq 'Ss'){
 	$self->refsnp->add_subsnp;
 	return;
   }
+  
   if(my $type = $MAPPING{$nm}){
 	if(ref $type eq 'HASH'){
 	  #okay, this is nasty.  what can you do?
 	  $self->{will_handle}   = (keys %$type)[0];
-	  my $valkey             = (values %$type)[0];
-	  $self->{last_data}     = $at->{$valkey};
+	  $self->{last_data}     = $at->{Value};
 	} else {
 	  $self->{will_handle} = $type;
 	  $self->{last_data} = undef;
