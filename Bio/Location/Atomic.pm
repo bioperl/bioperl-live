@@ -473,18 +473,22 @@ sub coordinate_policy {
 	    $self->{'_coordpolicy'} : $coord_policy);
 }
 
+=head2 trunc
 
-# comments, not function added by jason 
-#
-# trunc is untested, and as of now unannounced method for truncating a
-# location.  This is to eventually be part of the procedure to
-# truncate a sequence with annotatioin and properly remap the location
-# of all the features contained within the truncated segment.
+  Title   : trunc
+	Usage   : $trunc_location = $location->trunc($start, $end, $relative_ori);
+	Function: To truncate a location and keep annotations and features
+	          within the truncated segment intact.
 
-# presumably this might do things a little differently for the case 
-# where the truncation splits the location in half
-# 
-# in short- you probably don't want to use  this method.
+						This might do things differently where the truncation
+						splits the location in half.
+	CAVEAT  : As yet, this is an untested and unannounced method. Use
+	          with caution!
+	Returns : A L<Bio::Location::Atomic> object.
+	Args    : The start and end position for the trunction, and the relative
+	          orientation.
+	
+=cut
 
 sub trunc {
   my ($self,$start,$end,$relative_ori) = @_;
