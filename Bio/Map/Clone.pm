@@ -368,9 +368,9 @@ sub fpc_remark {
     return $self->{'_fpcremark'};
 }
 
-=head2 band
+=head2 bands
 
- Title   : band
+ Title   : bands
  Usage   : @clonebands = $cloneobj->bands();
  Function: Get/set the bands for this clone
  Returns : liat representing the band of this clone, if 
