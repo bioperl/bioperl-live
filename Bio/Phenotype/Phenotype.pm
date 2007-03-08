@@ -792,9 +792,9 @@ sub each_DBLink {
 }
 
 
-=head2 add_DBLink
+=head2 add_DBLinks
 
- Title   : add_DBLink
+ Title   : add_DBLinks
  Usage   : $obj->add_DBLinks( @dbls );
            or
            $obj->add_DBLinks( $dbl );                  

@@ -1658,10 +1658,10 @@ sub length {
     $self->throw_not_implemented();
 }
 
-=head2 maxdisplayname_length
+=head2 maxdname_length
 
- Title     : maxdisplayname_length
- Usage     : $contig->maxdisplayname_length()
+ Title     : maxname_length
+ Usage     : $contig->maxname_length()
  Function  :
 
              Gets the maximum length of the displayname in the

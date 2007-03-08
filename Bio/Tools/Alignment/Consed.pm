@@ -152,10 +152,10 @@ sub new {
     return $self;
 }
 
-=head2 verbose()
+=head2 set_verbose()
 
- Title   : verbose()
- Usage   : $o_consed->verbose(1);
+ Title   : set_verbose()
+ Usage   : $o_consed->set_verbose(1);
  Function: Set the verbosity level for debugging messages. On instantiation
 	   of the Bio::Tools::Alignment::Consed object the verbosity level
            is set to 0 (quiet).

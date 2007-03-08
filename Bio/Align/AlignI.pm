@@ -594,10 +594,10 @@ sub length {
     $self->throw_not_implemented();
 }
 
-=head2 maxdisplayname_length
+=head2 maxname_length
 
- Title     : maxdisplayname_length
- Usage     : $ali->maxdisplayname_length()
+ Title     : maxname_length
+ Usage     : $ali->maxname_length()
  Function  : 
 
              Gets the maximum length of the displayname in the

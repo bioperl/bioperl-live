@@ -368,10 +368,10 @@ sub get_trees{
    return @{$self->{'_trees'} || []};
 }
 
-=head2 rewind_tree
+=head2 rewind_tree_iterator
 
  Title   : rewind_tree_iterator
- Usage   : $result->rewind_tree()
+ Usage   : $result->rewind_tree_iterator()
  Function: Rewinds the tree iterator so that next_tree can be 
            called again from the beginning
  Returns : none
