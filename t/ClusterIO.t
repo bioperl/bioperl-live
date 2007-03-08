@@ -15,54 +15,45 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
     use vars qw($NTESTS);
-    $NTESTS = 10;
-    $LASTXMLTEST = 8;
-    $error = 0;
+    $NTESTS = 13;
 
-    use Test;
+    use Test::More;
     plan tests => $NTESTS; 
+	use_ok('Bio::ClusterIO');
+	use_ok('Bio::Root::IO');
+	use_ok('Bio::Cluster::ClusterFactory');
+}
 
+SKIP: {
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
-	$SKIPXML = 1;
-	print STDERR "XML::Parser::PerlSAX not loaded. This means ClusterIO::dbsnp test cannot be executed. Skipping\n";
-	foreach ( $Test::ntest..$LASTXMLTEST ) {
-	    skip('No XML::Parser::PerlSAX loaded',1);
+		skip("XML::Parser::PerlSAX not loaded.  This means ".
+			 "ClusterIO::dbsnp test cannot be executed.",8);
 	}
-    }
-}
-
-if( $error == 1 ) {
-    exit(0);
-}
-
-use Bio::ClusterIO;
-use Bio::Root::IO;
-use Bio::Cluster::ClusterFactory;
-
-my ($clusterio, $result,$hit,$hsp);
-if( ! $SKIPXML ) {
+	my ($clusterio, $result,$hit,$hsp);
 	$clusterio = new Bio::ClusterIO ('-tempfile' => 0,
 					'-format' => 'dbsnp',
 					'-file'   => Bio::Root::IO->catfile('t','data','LittleChrY.dbsnp.xml'));
     
 	$result = $clusterio->next_cluster;
-	ok($result);    
-	ok($result->observed eq 'C/T');
-	ok($result->type eq 'notwithdrawn');
+	ok($result);
+	is($result->observed, 'C/T');
+	is($result->type, 'notwithdrawn');
 	ok($result->seq_5);
 	ok($result->seq_3);
 	my @ss = $result->each_subsnp;
-	ok scalar @ss,  5;
-	ok($ss[0]->handle eq 'CGAP-GAI');
-	ok($ss[1]->handle eq 'LEE');
-#	ok($result->heterozygous == 0.208738461136818);
-#	ok($result->heterozygous_SE == 0.0260274689436777);
+	is scalar @ss,  5;
+	is($ss[0]->handle, 'CGAP-GAI');
+	is($ss[1]->handle, 'LEE');
+	
+	# don't know if these were ever meant to work... cjf 3/7/07
+	#is($result->heterozygous, 0.208738461136818);
+	#is($result->heterozygous_SE, 0.0260274689436777);
 }
 
 ###################################
@@ -72,6 +63,6 @@ if( ! $SKIPXML ) {
 my $fact = Bio::Cluster::ClusterFactory->new();
 # auto-recognize implementation class
 my $clu = $fact->create_object(-display_id => 'Hs.2');
-ok $clu->isa("Bio::Cluster::UniGeneI");
+isa_ok($clu, "Bio::Cluster::UniGeneI");
 $clu = $fact->create_object(-namespace => "UNIGENE");
-ok $clu->isa("Bio::Cluster::UniGeneI");
+isa_ok($clu, "Bio::Cluster::UniGeneI");
