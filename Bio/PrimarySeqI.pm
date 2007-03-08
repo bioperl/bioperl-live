@@ -300,6 +300,13 @@ sub alphabet{
     $self->throw_not_implemented();
 }
 
+=head2 moltype
+
+ Title   : moltype
+ Usage   : Deprecated. Use alphabet() instead.
+
+=cut
+
 sub moltype{
    my ($self,@args) = @_;
 
