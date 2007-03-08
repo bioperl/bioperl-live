@@ -21,84 +21,80 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    $NUMTESTS = 14 + (IMAGE_TESTS ? 3 : 0);
+    $NUMTESTS = 16 + (IMAGE_TESTS ? 3 : 0);
     plan tests => $NUMTESTS;
-
-    eval {
-        require GD;
-	require Text::Shellwords;
-    };
-    if( $@ ) {
-	print STDERR "GD or Text::Shellwords modules are not installed. This means that Bio::Graphics module is unusable. Skipping tests.\n";
-      $error = 1;
-    }
-
-    require Bio::Graphics::FeatureFile;
-    require Bio::Graphics;
-}
-
-END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Bio::Graphics tests',1);
-    }
+    
+    require_ok('Bio::Graphics::FeatureFile');
+    require_ok('Bio::Graphics');
 }
 
 exit 0 if $error;
 
-my $verbose = -1;
-my $write   = 0;
-
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
-
-my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
-
-# parse command line arguments
-while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
-  my $arg = $1;
-  if ($arg eq 'write') {
-    warn "Writing regression test images into ",IMAGES,".........\n";
-    $write++;
-  }
-  shift;
+SKIP: {
+    eval {
+        require GD;
+        require Text::Shellwords;
+    };
+    if( $@ ) {
+        skip("GD or Text::Shellwords modules are not installed. ".
+        "This means that Bio::Graphics module is unusable. ".
+        "Skipping tests.",$NUMTESTS-2);
+    }
+    my $verbose = -1;
+    my $write   = 0;
+    
+    ## End of black magic.
+    ##
+    ## Insert additional test code below but remember to change
+    ## the print "1..x\n" in the BEGIN block to reflect the
+    ## total number of tests that will be run. 
+    
+    my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
+    
+    # parse command line arguments
+    while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
+      my $arg = $1;
+      if ($arg eq 'write') {
+        warn "Writing regression test images into ",IMAGES,".........\n";
+        $write++;
+      }
+      shift;
+    }
+    
+    
+    foreach (@images) {
+      if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
+    }
+    
+    my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;
+    ok defined $data;
+    is $data->render, 5;
+    is $data->setting(general=>'pixels'), 750;
+    is $data->setting('general'), 4;
+    is $data->setting, 6;
+    is $data->glyph('EST'), 'segments';
+    
+    my %style = $data->style('EST');
+    is $style{-connector}, 'solid';
+    is $style{-height}, 5;
+    is $style{-bgcolor}, 'yellow';
+    
+    is $data->configured_types, 5;
+    is @{$data->features('EST')}, 5;
+    
+    my $thing = $data->features('EST');
+    
+    my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH')};
+    ok $feature;
+    is $feature->desc, "Pfam";
+    is $feature->score, 20;
 }
-
-
-foreach (@images) {
-  if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
-}
-
-my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;
-ok defined $data;
-ok $data->render == 5;
-ok $data->setting(general=>'pixels') == 750;
-ok $data->setting('general') == 4;
-ok $data->setting == 6;
-ok $data->glyph('EST') eq 'segments';
-
-my %style = $data->style('EST');
-ok $style{-connector} eq 'solid';
-ok $style{-height} == 5;
-ok $style{-bgcolor} eq 'yellow';
-
-ok $data->configured_types == 5;
-ok @{$data->features('EST')} == 5;
-
-my $thing = $data->features('EST');
-
-my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH')};
-ok $feature;
-ok $feature->desc eq "Pfam";
-ok $feature->score == 20;
 
 sub do_write {
   my $test = shift;

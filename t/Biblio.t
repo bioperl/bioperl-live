@@ -15,13 +15,14 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     $error = 0;
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 24;
+    use Test::More;
+    plan tests => 27;
+    use_ok('Bio::Root::IO');
 }
 
 my $testnum;
@@ -33,99 +34,95 @@ my $verbose = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-my $serror = 0; my $serror2 = 0;
-my $ferror = 0; my $ferror2 = 0;
-my $xerror = 0;
+map {$_ = 0} my ($serror, $serror2, $ferror, $ferror2, $xerror);
 
 my $format = ($ENV{'TEST_DETAILS'} ? '%-25s' : '');
 
 unless (eval "require SOAP::Lite; 1;") {
-    print STDERR "SOAP::Lite not installed. Skipping some tests.\n";
-    $serror = 1;
+    $serror = "SOAP::Lite not installed. Skipping some tests.";
 }
 
 unless (eval "require IO::String; 1;") {
-    print STDERR "IO::String not installed. Skipping some tests.\n";
-    $serror2 = 1;
+    $serror2 = "IO::String not installed. Skipping some tests.";
 }
 
 unless (eval "require XML::Parser; 1;") {
-    print STDERR "XML::Parser not installed. Skipping some tests.\n";
-    $xerror = 1;
+    $xerror = "XML::Parser not installed. Skipping some tests.";
 }
 
-use Bio::Root::IO;
+# these are always present in CVS; commenting out irrelevant bits
 my $testfile = Bio::Root::IO->catfile ('t','data','stress_test_medline.xml');
-unless (-e $testfile) {
-    print STDERR "Cannot find testing data '$testfile'. Skipping some tests.\n";
-    $ferror = 1;
-}
+#unless (-e $testfile) {
+#    print STDERR "Cannot find testing data '$testfile'. Skipping some tests.\n";
+#    $ferror = 1;
+#}
 my $testfile2 = Bio::Root::IO->catfile ('t','data','stress_test_pubmed.xml');
-unless (-e $testfile2) {
-    print STDERR "Cannot find testing data '$testfile2'. Skipping some tests.\n";
-    $ferror2 = 1;
-}
-
+#unless (-e $testfile2) {
+#    print STDERR "Cannot find testing data '$testfile2'. Skipping some tests.\n";
+#    $ferror2 = 1;
+#}
 
 # check 'use ...'
-eval { require Bio::Biblio };
-print sprintf ($format, 'use Bio::Biblio'); ok (%Bio::Biblio::);
-print $@ if $@;
+require_ok('Bio::Biblio');
+print sprintf ($format, 'use Bio::Biblio');
+# I'm puzzled about the reasoning for the following test... cjf 3/7/2007
+ok (%Bio::Biblio::);
 
 # check 'new...'
-my $biblio;
-eval { $biblio = new Bio::Biblio (-location => 'http://localhost:4567'); };
-print sprintf ($format, "new Bio::Biblio "); skip ($serror, defined $biblio);
-#print $@ if $@;
-
+my $biblio = new Bio::Biblio (-location => 'http://localhost:4567');
+print sprintf ($format, "new Bio::Biblio ");
+SKIP: {
+    skip($serror,1) if $serror;
+    ok (defined $biblio);
+}
 
 # check 'use ...IO...'
-eval { require Bio::Biblio::IO };
-print sprintf ($format, "use Bio::Biblio::IO "); ok (%Bio::Biblio::IO::);
+require_ok('Bio::Biblio::IO');
+print sprintf ($format, "use Bio::Biblio::IO ");
+# I'm puzzled about the reasoning for the following test... cjf
+ok (%Bio::Biblio::IO::);
 
 my $io;
 
 # check MEDLINE XML parser
 print sprintf ($format, "new Bio::Biblio::IO (1)");
-skip ($ferror || $xerror,
-      defined (eval { $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+SKIP:{
+    skip($ferror || $xerror,4) if $ferror || $xerror;
+    ok defined ($io = new Bio::Biblio::IO ('-format' => 'medlinexml',
 						 '-file'   => $testfile,
-						 '-result' => 'raw') }));
-print $@ if $@;
-
-print "Reading and parsing MEDLINE XML file...\n";
-print sprintf ($format, "    citation 1 "); skip ($ferror || $xerror, eval { $io->next_bibref->{'medlineID'} }, 'Text1');
-print sprintf ($format, "    citation 2 "); skip ($ferror || $xerror, eval { $io->next_bibref->{'medlineID'} }, 'Text248');
-print sprintf ($format, "    citation 3 "); skip ($ferror || $xerror, eval { $io->next_bibref->{'medlineID'} }, 'Text495');
-
-print "Getting citations using callback...\n";
-my (@ids) = ('Text1', 'Text248', 'Text495');
-my $callback_used = 'no';
-if ($ferror || $xerror) {
-    foreach my $i (1..3) {
-	print sprintf ($format, "    citation $i "); skip (1,1);
-    }
-} else {
+						 '-result' => 'raw'));
+    print $@ if $@;    
+    print "Reading and parsing MEDLINE XML file...\n";
+    print sprintf ($format, "    citation 1 ");
+    is ($io->next_bibref->{'medlineID'}, 'Text1');
+    print sprintf ($format, "    citation 2 ");
+    is ($io->next_bibref->{'medlineID'}, 'Text248');
+    print sprintf ($format, "    citation 3 ");
+    is ($io->next_bibref->{'medlineID'}, 'Text495');
+    print "Getting citations using callback...\n";
+    my (@ids) = ('Text1', 'Text248', 'Text495');
+    my $callback_used = 'no';
     $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
-			       '-file'     => $testfile,
+                   '-file'     => $testfile,
 #			       '-result'   => 'medline2ref',  # this is default
-			       '-callback' => \&callback);
-}
-print sprintf ($format, "    calling callback "); skip ($ferror || $xerror, $callback_used, 'yes');
+                   '-callback' => \&callback);
+    
+    print sprintf ($format, "    calling callback ");
+    is ( $callback_used, 'yes');
 
-sub callback {
-    my $citation = shift;
-    $callback_used = 'yes';
-    print sprintf ($format, '    citation ' . (@ids+0) . ' '); skip ($ferror, $citation->{'_identifier'}, shift @ids);
-}
+    sub callback {
+        my $citation = shift;
+        $callback_used = 'yes';
+        print sprintf ($format, '    citation ' . (@ids+0) . ' ');
+        is ($citation->{'_identifier'}, shift @ids);
+    }
 
-print "Reading and parsing XML string...\n";
-if ($xerror) {
-    print sprintf ($format, "    citation 1 "); skip (1, 1);
-    print sprintf ($format, "    citation 2 "); skip (1, 1);
-} else {
-    $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
-			       '-data'     => <<XMLDATA,
+    print "Reading and parsing XML string...\n";
+    if ($xerror) {
+        skip($xerror,2);
+    } else {
+        $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
+                       '-data'     => <<XMLDATA,
 <MedlineCitationSet>
 <MedlineCitation>
 <MedlineID>12345678</MedlineID>
@@ -139,17 +136,18 @@ if ($xerror) {
 XMLDATA
 			       '-result'   => 'medline2ref',
 			       );
-    print sprintf ($format, "    citation 1 "); ok ($io->next_bibref->{'_identifier'}, '12345678');
-    print sprintf ($format, "    citation 2 "); ok ($io->next_bibref->{'_identifier'}, 'abcdefgh');
-}
-
-print "Reading and parsing XML string handle...\n";
-#use IO::String;
-if ($xerror || $serror2) {
-    print sprintf ($format, "    citation 1 "); skip (1,1);
-    print sprintf ($format, "    citation 2 "); skip (1,1);
-} else {
-    my $data = <<XMLDATA;
+        print sprintf ($format, "    citation 1 ");
+        is ($io->next_bibref->{'_identifier'}, '12345678');
+        print sprintf ($format, "    citation 2 ");
+        is ($io->next_bibref->{'_identifier'}, 'abcdefgh');
+    }
+    
+    print "Reading and parsing XML string handle...\n";
+    #use IO::String;
+    if ($xerror || $serror2) {
+        skip ($xerror || $serror2, 2);
+    } else {
+        my $data = <<XMLDATA;
 <MedlineCitationSet>
 <MedlineCitation>
 <MedlineID>87654321</MedlineID>
@@ -161,45 +159,52 @@ if ($xerror || $serror2) {
 </MedlineCitation>
 </MedlineCitationSet>
 XMLDATA
-
-    $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
-			       '-fh'     => IO::String->new ($data),
-			       );
-    print sprintf ($format, "    citation 1 "); ok (eval { $io->next_bibref->identifier }, '87654321');
-    print sprintf ($format, "    citation 2 "); ok (eval { $io->next_bibref->identifier }, 'hgfedcba');
-}
-
-# check PUBMED XML parser
-print sprintf ($format, "new Bio::Biblio::IO (2)");
-skip ($ferror2 || $xerror,
-      defined (eval { $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
-						 '-file'   => $testfile2,
-						 '-result' => 'pubmed2ref') }));
-print "Reading and parsing PUBMED XML file...\n";
-if ($xerror) {
-    foreach my $i (1..4) {
-	print sprintf ($format, "    citation $i "); skip (1,"Can't read citation from PUBMED XML");
+    
+        $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+                       '-fh'     => IO::String->new ($data),
+                       );
+        print sprintf ($format, "    citation 1 ");
+        is (eval { $io->next_bibref->identifier }, '87654321');
+        print sprintf ($format, "    citation 2 ");
+        is (eval { $io->next_bibref->identifier }, 'hgfedcba');
     }
-} else {
-    print sprintf ($format, "    citation 1 "); skip ($ferror2, eval { $io->next_bibref->identifier }, '11223344');
-    print sprintf ($format, "    citation 2 "); skip ($ferror2, eval { $io->next_bibref->identifier }, '21583752');
-    print sprintf ($format, "    citation 3 "); skip ($ferror2, eval { $io->next_bibref->identifier }, '21465135');
-    print sprintf ($format, "    citation 4 "); skip ($ferror2, eval { $io->next_bibref->identifier }, '21138228');
+    
+    # check PUBMED XML parser
+    print sprintf ($format, "new Bio::Biblio::IO (2)");
+    skip ($ferror2 || $xerror, 1) if $ferror2 || $xerror;
+    ok defined (eval { $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+                             '-file'   => $testfile2,
+                             '-result' => 'pubmed2ref') });
+    print "Reading and parsing PUBMED XML file...\n";
+    if ($xerror) {
+        skip ("Can't read citation from PUBMED XML, $xerror", 4);
+    } else {
+        print sprintf ($format, "    citation 1 ");
+        is ($io->next_bibref->identifier, '11223344');
+        print sprintf ($format, "    citation 2 ");
+        is ($io->next_bibref->identifier, '21583752');
+        print sprintf ($format, "    citation 3 ");
+        is ($io->next_bibref->identifier, '21465135');
+        print sprintf ($format, "    citation 4 ");
+        is ($io->next_bibref->identifier, '21138228');
+    }
+    
+    # test for FH
+    my $fh;
+    my @expvals = qw(11223344 21583752 21465135 21138228);
+    print "Testing FH\n";
+    eval { 
+        $fh = Bio::Biblio::IO->newFh('-format' => 'pubmedxml',
+                      '-file'   => $testfile2,
+                      '-result' => 'pubmed2ref');
+        while(<$fh>) {
+            is($_->identifier,shift @expvals);
+        }
+    };
+    if( $@) {
+        skip("unable to use pubmedxml",4);
+    }
+
 }
 
-# test for FH
-my $fh;
-my @expvals = qw(11223344 21583752 21465135 21138228);
-print "Testing FH\n";
-eval { 
-    $fh = Bio::Biblio::IO->newFh('-format' => 'pubmedxml',
-				  '-file'   => $testfile2,
-				  '-result' => 'pubmed2ref');
-    while(<$fh>) {
-	ok($_->identifier,shift @expvals);
-    }
-};
-if( $@) {
-    foreach ( 1..4 ) { skip(1,"unable to use pubmedxml"); }
-}
 __END__
