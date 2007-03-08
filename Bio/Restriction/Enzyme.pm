@@ -570,10 +570,6 @@ sequence. The following diagram numbers the phosphodiester bonds
 
 =cut
 
-sub cuts_after {
-    shift->cut(@_);
-}
-
 sub cut {
      my ($self, $value) = @_;
      if (defined $value) {
@@ -595,7 +591,17 @@ sub cut {
      return $self->{'_cut'} || 0;
 }
 
+=head cuts_after
 
+ Title     : cuts_after
+ Usage     : Alias for cut()
+
+=cut
+
+sub cuts_after {
+	shift->cut(@_);
+}
+		
 
 =head2 complementary_cut
 
