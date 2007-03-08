@@ -695,6 +695,16 @@ sub algorithm_reference{
     return $self->{'algorithm_reference'};
 }
 
+=head2 program_reference
+
+ Title   : program_reference
+ Usage   : $obj->program_reference()
+ Function:
+ Returns : string containing literature reference for the algorithm
+ Args    : 
+ Comments: Deprecated - use algorithm_reference() instead.
+ 
+=cut
 
 sub program_reference { shift->algorithm_reference(@_); }
 
