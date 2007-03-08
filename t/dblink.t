@@ -16,12 +16,11 @@ BEGIN {
     use vars qw($NTESTS);
     $NTESTS = 134;
     plan tests => $NTESTS; 
+    use_ok('Bio::Annotation::DBLink');
+    use_ok('Bio::SeqIO::genbank');
+    use_ok('Bio::SeqIO::swiss');
+    use_ok('Bio::Root::IO');
 }
-
-use_ok('Bio::Annotation::DBLink');
-use_ok('Bio::SeqIO::genbank');
-use_ok('Bio::SeqIO::swiss');
-use_ok('Bio::Root::IO');
 
 my @genbank_files = qw/BK000016-tpa.gbk ay116458.gb ay149291.gb NC_006346.gb ay007676.gb dq519393.gb P35527.gb/;
 
