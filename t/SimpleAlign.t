@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 95;
+use constant NUMTESTS => 109;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -411,5 +411,54 @@ $a->sort_by_start;
 is($seqs[0]->start, 1);
 is($seqs[1]->start, 12);
 is($seqs[2]->start, 31);
+
+my %testdata = (
+	'allele1' => 'GGATCCATT[C/C]CTACT',
+	'allele2' => 'GGAT[C/-][C/-]ATT[C/C]CT[A/C]CT',
+	'allele3' => 'G[G/C]ATCCATT[C/G]CTACT',
+	'allele4' => 'GGATCCATT[C/G]CTACT',
+	'allele5' => 'GGATCCATT[C/G]CTAC[T/A]',
+	'allele6' => 'GGATCCATT[C/G]CTA[C/G][T/A]',
+	'testseq' => 'GGATCCATT[C/G]CTACT'
+	);
+
+my $alnin = Bio::AlignIO->new(-format => 'fasta',
+							 -file   => Bio::Root::IO->catfile(
+                        "t","data","alleles.fas"));
+
+$aln = $alnin->next_aln;
+
+my $ct = 0;
+# compare all to test seq
+
+for my $ls (sort keys %testdata) {
+    $ct++;
+    my $str = $aln->bracket_string(-refseq     => 'testseq',
+                           -allele1    => 'allele1',
+                           -allele2    => $ls,
+                           );
+    is($str, $testdata{$ls}, "BIC:$str");
+}
+
+%testdata = (
+	'allele1' => 'GGATCCATT{C.C}CTACT',
+	'allele2' => 'GGAT{C.-}{C.-}ATT{C.C}CT{A.C}CT',
+	'allele3' => 'G{G.C}ATCCATT{C.G}CTACT',
+	'allele4' => 'GGATCCATT{C.G}CTACT',
+	'allele5' => 'GGATCCATT{C.G}CTAC{T.A}',
+	'allele6' => 'GGATCCATT{C.G}CTA{C.G}{T.A}',
+	'testseq' => 'GGATCCATT{C.G}CTACT'
+	);
+
+for my $ls (sort keys %testdata) {
+    $ct++;
+    my $str = $aln->bracket_string(-refseq     => 'testseq',
+                           -allele1    => 'allele1',
+                           -allele2    => $ls,
+                           -delimiters => '{}',
+                           -separator => '.'
+                           );
+    is($str, $testdata{$ls},"BIC:$str");
+}
 
 1;
