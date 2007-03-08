@@ -674,9 +674,6 @@ get_feature_by_name().
 
 =cut
 
-# backward compatibility for gbrowse
-sub get_feature_by_name { shift->get_features_by_name(@_) }
-
 ###
 # get_feature_by_name() return 0 or more features using a name lookup
 # uses the Bio::DB::GFF API
@@ -696,6 +693,21 @@ sub get_features_by_name {
 
   $self->_features(-name=>$name,-class=>$class,-aliases=>$allow_alias,-type=>$types);
 }
+
+=head2 get_feature_by_name
+
+ Title   : get_feature_by_name
+ Usage   : @features = $db->get_feature_by_name($name)
+ Function: looks up features by their display_name
+ Returns : a list of matching features
+ Args    : the desired name
+ Status  : Use get_features_by_name instead.
+
+This method is provided for backward compatibility with gbrowse.
+
+= cut
+
+sub get_feature_by_name { shift->get_features_by_name(@_) }
 
 =head2 get_features_by_alias
 
