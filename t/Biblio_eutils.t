@@ -14,36 +14,17 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     $error = 0;
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
     
-    plan tests => ($NUMTESTS = 5);
-    eval { require IO::String; };
-    if( $@ ) {
-	warn( "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n") if $DEBUG;
-    	$msg .= 'IO::String not installed. ';
-	$error = 1;
-    } 
-    eval { require LWP::Simple; };
-    if( $@ ) {
-	warn( "LWP::Simple not installed. This means the Bio::DB::* modules are not usable. Skipping tests.\n") if $DEBUG;
-	$msg .= 'LWP::Simple not installed. ';
-	$error = 1; 
-    }
-}
+    plan tests => ($NUMTESTS = 6);
 
-exit(0) if $error;
-
-END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip($msg,1);
-    }
+	use_ok('Bio::Biblio');
 }
-use Bio::Biblio;
 
 ## End of black magic.
 ##
@@ -55,18 +36,29 @@ my $db;
 
 my $verbose =  $DEBUG || 0;
 
-eval { 
-    ok ($db = new Bio::Biblio (-access => 'eutils',
-			       -verbose=>$verbose));
-    ok(defined($db->find('"Day A"[AU] AND ("Database Management Systems"[MH] OR "Databases, Genetic"[MH] OR "Software"[MH] OR "Software Design"[MH])')));
-};
-
-if ($@) {
-    warn "Warning: Couldn't connect to Eutils server!\n$@\n" if $DEBUG;
-    $msg = 'No network access - could not connect to PubMed Eutils';
-    exit(0);
-}
-
-while(my $xml = $db->get_next) {
-    ok(1);
+SKIP: {
+	eval { require IO::String; };
+	if( $@ ) {
+	skip( "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.",5);
+	} 
+	eval { require LWP::Simple; };
+	if( $@ ) {
+	skip( "LWP::Simple not installed. This means the Bio::DB::* modules are not usable. Skipping tests.",5);
+	}
+	
+	eval { 
+		ok ($db = new Bio::Biblio (-access => 'eutils',
+					   -verbose=>$verbose));
+		ok(defined($db->find('"Day A"[AU] AND ("Database Management Systems"[MH] OR "Databases, Genetic"[MH] OR "Software"[MH] OR "Software Design"[MH])')));
+	};
+	
+	if ($@) {
+		skip("Warning: Couldn't connect to Eutils server!\n$@\n",1);
+	}
+	
+	# these aren't exactly the most stringent of tests...
+	
+	while(my $xml = $db->get_next) {
+		ok(1);
+	}
 }
