@@ -1,25 +1,24 @@
 #!/usr/bin/perl -w
-
-#$Id: genbank2gff3.PLS,v 1.9 2005-07-15 16:54:01 matsallac Exp $;
+#$Id: genbank2gff3.PLS,v 1.10 2007-03-11 15:13:44 bosborne Exp $;
 
 =pod
 
 =head1 NAME 
 
-bp_genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
+genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
 
 =head1 SYNOPSIS
 
-  bp_gbrowse_genbank2gff3.pl [options] filename(s)
+  genbank2gff3.pl [options] filename(s)
 
   # process a directory containing GenBank flatfiles
-  perl gbrowse_genbank2gff3.pl --dir path_to_files --zip
+  perl genbank2gff3.pl --dir path_to_files --zip
 
   # process a single file, ignore explicit exons and introns
-  perl bp_genbank2gff3.pl --filter exon --filter intron file.gbk.gz
+  perl genbank2gff3.pl --filter exon --filter intron file.gbk.gz
 
   # process a list of files 
-  perl bp_genbank2gff3.pl *gbk.gz
+  perl genbank2gff3.pl *gbk.gz
 
 
     Options:
@@ -83,9 +82,6 @@ Copyright (c) 2004 Cold Spring Harbor Laboratory.
 
 use strict;
 
-use lib "$ENV{HOME}/bioperl-live";
-# chad put this here to enable situations when this script is tested
-# against bioperl compiled into blib along with other programs using blib
 BEGIN {
 	unshift(@INC,'blib/lib');
 };
