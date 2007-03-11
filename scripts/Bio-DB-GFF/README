@@ -1,35 +1,4 @@
-These are utilities that go with the Bio::DB::GFF module.
-
-examples/Bio-DB-GFF/load_gff.PLS:
-
-Slow but foolproof GFF table to database loader.
-
-examples/Bio-DB-GFF/bulk_load_gff.PLS:      
-
-Fast loader, but wipes database clean each time.
-
-examples/Bio-DB-GFF/fast_load_gff.PLS:
-
-EXPERIMENTAL incremental loader that is as fast as bulk loader, but only works on Unix platforms.
-
-scripts/Bio-DB-GFF/generate_histogram.PLS: 
-
-Generate histogram of sequence features, for use with generic genome browser.
-
-scripts/Bio-DB-GFF/process_gadfly.PLS:     
-
-Tweak GadFly GFF files for loading (drosophila).
-
-scripts/Bio-DB-GFF/process_wormbase.PLS:   
-
-Tweak WormBase GFF files for loading (elegans).
-
-scripts/Bio-DB-GFF/process_sgd.PLS:        
-
-Turn SGD feature dumps into GFF files for loading (saccharomyces).
-
-scripts/Bio-DB-GFF/process_ncbi_human.PLS: 
-
-Turn NCBI feature dumps into GFF files for loading (human).
-
+These are scripts that go with the Bio::DB::GFF module, a basic
+seqfeature database.  Install these scripts if you wish to use the
+LDAS distributed annotation server or the Generic Genome Browser.
 
