@@ -2,7 +2,7 @@
 
 use lib '.';
 
-# $Id: bp_genbank2gff.PLS,v 1.14 2004-05-05 13:37:12 scain Exp $
+# $Id: genbank2gff.PLS,v 1.1 2007-03-11 15:19:21 bosborne Exp $
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;
