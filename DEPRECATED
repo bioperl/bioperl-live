@@ -25,6 +25,7 @@ Bio::Taxonomy::FactoryI       1.5.1    1.7    Redundant, no implementors
 Bio::Search::Processor        1.5.1    1.7    Superseded by Bio::SearchIO
 Bio::Factory::ResultFactoryI  1.5.2    1.6    Superseded by Bio::Factory::ObjectFactory
 Bio::Factory::HitFactoryI     1.5.2    1.6    Superseded by Bio::Factory::ObjectFactory
+Bio::Graph	1.5.2	1.6	Superseded by bioperl-network
 Bio::Root::Err                1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Global             1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::IOManager          1.5.2    1.5.2  Bio::Root* redundant classes
