@@ -151,15 +151,9 @@ sub _parse {
             if ( $trees =~ s/\s+translate\s+([^;]+);//i ) {
                 my @trans;
                 my $tr = $1;
-                # normal multiline translates
-                if ($tr =~ m{\n}) {
-                    @trans = split m{\n}, $tr;
-                }
-                # for translates on one line
-                else {
-                    while ($tr =~ m{\s*([^,]+?'(?:[^']+)'),?}gc || $tr =~ m{\s*([^,]+)}gc) {
-                        push @trans, $1;
-                    }
+
+                while ($tr =~ m{\s*([^,\s]+?\s+(?:'[^']+'|[^'\s]+)),?}gc) {
+	            push @trans, $1;
                 }
                 for my $n ( @trans ) {
                     if ($n  =~ /^\s*(\S+)\s+(.+)$/) {
