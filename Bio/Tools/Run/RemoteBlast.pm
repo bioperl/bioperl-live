@@ -514,14 +514,14 @@ sub submit_blast {
 	    foreach ( @subdata ) {
 			if( /$RIDLINE/ ) {
 		    	$count++;
-		    	print STDERR $_ if( $self->verbose > 0);
-		    	$self->add_rid($1);		
+		    	$self->debug("RID: $1\n");
+		    	$self->add_rid($1);
 		    	last;
 			}	
 	    }
 	    if( $count == 0 ) {
-		$self->warn("req was ". $request->as_string() . "\n");
-		$self->warn(join('', @subdata));
+            $self->warn("req was ". $request->as_string() . "\n");
+            $self->warn(join('', @subdata));
 	    }    	
 	    $tcount += $count;
 	} else {
@@ -558,10 +558,11 @@ sub retrieve_blast {
     my $response = $self->ua->request($req, $tempfile);
     if( $response->is_success ) {
     	if( $self->verbose > 0 ) {
-	    #print content of reply if verbose > 1
+            #print content of reply if verbose > 1
             open(my $TMP, $tempfile) or $self->throw("cannot open $tempfile");
             while(<$TMP>) { print $_; }
-    	}   
+            
+    	}
         ## if proper reply 
         open(my $TMP, $tempfile) || $self->throw("Error opening $tempfile");
         my $waiting = 1;
@@ -585,6 +586,7 @@ sub retrieve_blast {
                         close($TMP);
                         open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
                         $self->warn(join("", <$ERR>));
+                        close $ERR;
                         return -1;
                     } elsif( $1 eq 'READY' ) {
                         $waiting = 0;
@@ -594,15 +596,17 @@ sub retrieve_blast {
                         last;
                     }
                 }
+            } elsif( /^(?:#\s)?[\w-]*?BLAST\w+/ ) {
+                $waiting = 0;
+                last;
             }
+            
         }
         close($TMP);
         if( ! $waiting ) {
             my $blastobj;
             my $mthd = $self->readmethod;
-            if( $mthd =~ /BPlite/i ) {
-                $blastobj = new Bio::Tools::BPlite(-file => $tempfile);
-            } elsif( $mthd =~ /blasttable/i ) {
+            if( $mthd =~ /blasttable/i ) {
             # pre-process
             my ($fh2,$tempfile2) = $self->tempfile();
             open(my $TMP,$tempfile) || $self->throw($!);
@@ -640,8 +644,8 @@ sub retrieve_blast {
         }
 	
     } else {
-	$self->warn($response->error_as_HTML);
-	return -1;
+        $self->warn($response->error_as_HTML);
+        return -1;
     }
 }
 
