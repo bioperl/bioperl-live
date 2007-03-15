@@ -1,12 +1,23 @@
-# Bio::Tools::Signalp test script
+# This is -*-Perl-*- code
+## Bioperl Test Harness Script for Modules
+##
+# $Id: Signalp2.t,v 1.1 cjfields 2007/03/14 
+# Before `make install' is performed this script should be runnable with
+# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use Test;
-
-BEGIN {	plan tests => 7 }
-
-use Bio::Tools::Signalp;
-use File::Spec;
+use Data::Dumper;
+my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+BEGIN {
+	eval { require Test::More; };
+	if( $@ ) {
+		use lib 't/lib';
+	}
+	use Test::More;
+	plan tests => 9;
+    use_ok('Bio::Tools::Signalp');
+    use_ok('Bio::Root::IO');
+}
 
 # global setting
 
@@ -26,9 +37,9 @@ ok $parser = Bio::Tools::Signalp->new(-file=>$infile, -verbose=>$verbose);
 while ( my $feat = $parser->next_result ) {
   push @feat, $feat;
 }
-ok @feat == 0;
-ok $parser->_seqname, 'my_fasta_id';
-ok $parser->_fact1,   'NO';
+is @feat, 0;
+is $parser->_seqname, 'my_fasta_id';
+is $parser->_fact1,   'NO';
 
 # positive example with "YES" features
 
