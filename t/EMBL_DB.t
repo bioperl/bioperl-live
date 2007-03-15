@@ -8,108 +8,79 @@
 
 use strict;
 use vars qw($NUMTESTS $DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $error;
 
 BEGIN { 
     # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
+    # we include the t/lib dir (where a copy of Test::More is located)
     # as a fallback
-    eval { require Test; };
-    $error = 0;
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-
-    $NUMTESTS = 15;
-    plan tests => $NUMTESTS;
+    use Test::More;
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+    $NUMTESTS = 16;
     eval { require IO::String;
-			  require HTTP::Request::Common;   };
+			require HTTP::Request::Common;   };
     if( $@ ) {
-	for( $Test::ntest..$NUMTESTS ) {
-	    skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests",1);
+	    plan skip_all => "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests";
 	}
-       $error = 1; 
-    }
+    elsif (!$DEBUG) {
+		plan skip_all => 'Skipping all tests since they require network access, set BIOPERLDEBUG=1 to test';
+	}
+	else {
+		plan tests => $NUMTESTS;
+	}
 }
 
-END { 
-    foreach ( $Test::ntest..$NUMTESTS) {
-	skip('unable to run all of the Biblio_biofetch tests',1);
-    }
-}
-
-if( $error ==  1 ) {
-    exit(0);
-}
-
-require Bio::DB::EMBL;
+require_ok('Bio::DB::EMBL');
 
 my $verbose = 0;
 
 ## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
 
 my ($db,$seq,$seqio);
 # get a single seq
 
 $seq = $seqio = undef;
 
-eval { 
+SKIP: { 
     ok defined($db = new Bio::DB::EMBL(-verbose=>$verbose)); 
     ok(defined($seq = $db->get_Seq_by_acc('J00522')));
-    ok( $seq->length, 408); 
+    is( $seq->length, 408); 
     ok defined ($db->request_format('fasta'));
-    ok(defined($seq = $db->get_Seq_by_acc('J02231')));
-    ok( $seq->id, 'embl|J02231|J02231');
-    ok( $seq->length, 200); 
+	
+    eval {ok(defined($seq = $db->get_Seq_by_acc('J02231')))};
+	skip('could not connect to embl',2) if $@;
+    is( $seq->id, 'embl|J02231|J02231');
+    is( $seq->length, 200); 
     ok( defined($db = new Bio::DB::EMBL(-verbose=>$verbose, 
 					-retrievaltype => 'tempfile')));
-    ok(defined($seqio = $db->get_Stream_by_id(['BUM'])));
+    eval {ok(defined($seqio = $db->get_Stream_by_id(['BUM'])))};
+	skip('could not connect to embl',2) if $@;
     undef $db; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
-    ok( $seq->length, 200);
+    is( $seq->length, 200);
 };
-
-if ($@) {
-    if( $DEBUG ) {
-	warn "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n$@";
-    }
-    foreach ( $Test::ntest..$NUMTESTS) { 
-	 skip('could not connect to embl',1);
-     }
-    exit(0);
-}
 
 $seq = $seqio = undef;
 
-eval {
+SKIP: {
     $db = new Bio::DB::EMBL(-verbose => $verbose,
 			    -retrievaltype => 'tempfile',
 			    -format => 'fasta'
 			    ); 
-    ok( defined($seqio = $db->get_Stream_by_acc(['J00522 AF303112 J02231'])));
+    eval{ok( defined($seqio = $db->get_Stream_by_acc(['J00522 AF303112 J02231'])))};
+	skip('could not connect to embl',3) if $@;
     my %seqs;
     # don't assume anything about the order of the sequences
     while ( my $s = $seqio->next_seq ) {
-	my ($type,$x,$name) = split(/\|/,$s->display_id);
-	$seqs{$x} = $s->length;
+		my ($type,$x,$name) = split(/\|/,$s->display_id);
+		$seqs{$x} = $s->length;
     }
-    ok($seqs{'J00522'},408);
-    ok($seqs{'AF303112'},1611);
-    ok($seqs{'J02231'},200);
+    is($seqs{'J00522'},408);
+    is($seqs{'AF303112'},1611);
+    is($seqs{'J02231'},200);
 };
-
-if ($@) {
-    if( $DEBUG ) {
-	warn "Batch access test failed.\nError: $@\n";
-    }
-    foreach ( $Test::ntest..$NUMTESTS ) { skip('no network access',1); }
-}
-
-

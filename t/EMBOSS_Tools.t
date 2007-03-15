@@ -11,37 +11,35 @@ BEGIN {
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
     $error = 0; 
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 12;
+    use Test::More;
+    plan tests => 13;
+	use_ok('Bio::Tools::EMBOSS::Palindrome');
+	use_ok('Bio::Tools::GFF');
 }
-
-use Bio::Tools::EMBOSS::Palindrome;
-use Bio::Tools::GFF;
-ok(1);
 
 my $parser = new Bio::Tools::EMBOSS::Palindrome
     (-file => Bio::Root::IO->catfile(qw( t data humts1.pal)));
 
 my $seq = $parser->next_seq;
 ok($seq);
-ok($seq->display_id, 'HUMTS1');
-ok($seq->length, 18596);
+is($seq->display_id, 'HUMTS1');
+is($seq->length, 18596);
 my @features = $seq->get_SeqFeatures();
-ok(scalar @features, 23);
+is(scalar @features, 23);
 
-ok($features[0]->feature1->start, 126);
-ok($features[0]->feature1->end, 142);
-ok($features[0]->feature1->strand, 1);
-ok($features[0]->feature1->seq_id, 'HUMTS1');
+is($features[0]->feature1->start, 126);
+is($features[0]->feature1->end, 142);
+is($features[0]->feature1->strand, 1);
+is($features[0]->feature1->seq_id, 'HUMTS1');
 
 
-ok($features[0]->feature2->start, 201);
-ok($features[0]->feature2->end, 217);
-ok($features[0]->feature2->strand, -1);
+is($features[0]->feature2->start, 201);
+is($features[0]->feature2->end, 217);
+is($features[0]->feature2->strand, -1);
 
 if( $DEBUG ) {
     my $out = new Bio::Tools::GFF(-gff_version => 2);

@@ -10,20 +10,19 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
+    use Test::More;
     use vars qw($NUMTESTS $DEBUG);
-    $NUMTESTS = 25;
-    $DEBUG   = 1;
-    plan test => $NUMTESTS;
+    $NUMTESTS = 28;
+    $DEBUG   = $ENV{'BIOPERLDEBUG'} || 0;
+    plan tests => $NUMTESTS;
+    use_ok('Bio::Tools::EPCR');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Root::IO');
 }
-
-use Bio::Tools::EPCR;
-use Bio::SeqIO;
-use Bio::Root::IO;
 
 my $seqio = new Bio::SeqIO('-format' => 'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
 
@@ -39,9 +38,8 @@ while( defined(my $feature = $epcr->next_feature) ) {
     $seq->add_SeqFeature($feature);
     $strand{$feature->strand} ++;
 }
-ok ($strand{1},  3 , 'expected 3 forward strand ePCR hits');
-ok ($strand{-1}, 3 , 'expected 3 reverse strand ePCR hits');
-
+is ($strand{1},  3, 'got 3 forward strand ePCR hits');
+is ($strand{-1}, 3, 'got 3 reverse strand ePCR hits');
 
 if( $DEBUG ) {
     $seqio = new Bio::SeqIO('-format' => 'genbank' );

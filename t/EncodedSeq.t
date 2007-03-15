@@ -3,24 +3,22 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 37;
+use constant NUMTESTS => 40;
 
 BEGIN {     
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
     
     plan tests => NUMTESTS;
+	use_ok('Bio::Seq::EncodedSeq');
+	use_ok('Bio::SimpleAlign');
+	use_ok('Bio::AlignIO');
+	use_ok('Bio::Root::IO');
 }
-use Bio::Seq::EncodedSeq;
 
-
-ok(1);
-use Bio::SimpleAlign;
-use Bio::AlignIO;
-use Bio::Root::IO;
 
 my ($str, $aln, $seq, $loc);
 
@@ -30,12 +28,12 @@ ok $seq = new Bio::Seq::EncodedSeq(
 			     -end => 6,
 			     -strand => 1
 			     );
-ok $seq->alphabet, 'dna';
-ok $seq->start, 1;
-ok $seq->end, 6;
-ok $seq->strand, 1;
-ok $seq->no_gaps, 1;
-ok $seq->column_from_residue_number(4), 9;
+is $seq->alphabet, 'dna';
+is $seq->start, 1;
+is $seq->end, 6;
+is $seq->strand, 1;
+is $seq->no_gaps, 1;
+is $seq->column_from_residue_number(4), 9;
 
 # this should fail
 eval {
@@ -44,19 +42,19 @@ eval {
 ok $@;
 
 ok $loc = $seq->location_from_column(4);
-ok $loc->isa('Bio::Location::Simple');
-ok $loc->to_FTstring, "2";
+isa_ok $loc, 'Bio::Location::Simple';
+is $loc->to_FTstring, "2";
 
 ok $loc = $seq->location_from_column(6);
-ok $loc->isa('Bio::Location::Simple');
-ok $loc->start, 3;
-ok $loc->location_type, 'IN-BETWEEN';
-ok $loc->to_FTstring, '3^4';
+isa_ok $loc,'Bio::Location::Simple';
+is $loc->start, 3;
+is $loc->location_type, 'IN-BETWEEN';
+is $loc->to_FTstring, '3^4';
 
-ok $loc = $seq->location_from_column(2), undef;
+is $loc = $seq->location_from_column(2), undef;
 
-ok $seq->encoding, "GGCCCGGGCCCGG";
-ok $seq->encoding(-explicit => 1), "GGCDEGGGCDEGG";
+is $seq->encoding, "GGCCCGGGCCCGG";
+is $seq->encoding(-explicit => 1), "GGCDEGGGCDEGG";
 
 ok $seq = new Bio::Seq::EncodedSeq(
 			     -seq => 'atcgta',
@@ -64,20 +62,20 @@ ok $seq = new Bio::Seq::EncodedSeq(
 			     -end => 15,
 			     -strand => -1,
 			     );
-ok $seq->encoding('CCGGG'), 'CCGGGCCCC';
-ok $seq->seq, 'atcg---ta';
-ok $seq->column_from_residue_number(14), 2;
-ok $seq->encoding('3C2GCG'), 'CCCGGCGCC';
-ok $seq->seq, 'at-c--gta';
-ok $seq->no_gaps, 2;
-ok $seq->location_from_column(2)->to_FTstring, 14;
-ok $seq->location_from_column(5)->to_FTstring, "12^13";
-ok $seq->encoding("B", Bio::Location::Simple->new(-start => 10, -end => 11,
+is $seq->encoding('CCGGG'), 'CCGGGCCCC';
+is $seq->seq, 'atcg---ta';
+is $seq->column_from_residue_number(14), 2;
+is $seq->encoding('3C2GCG'), 'CCCGGCGCC';
+is $seq->seq, 'at-c--gta';
+is $seq->no_gaps, 2;
+is $seq->location_from_column(2)->to_FTstring, 14;
+is $seq->location_from_column(5)->to_FTstring, "12^13";
+is $seq->encoding("B", Bio::Location::Simple->new(-start => 10, -end => 11,
 						  -location_type => 'IN-BETWEEN')), 'B';
-ok $seq->seq, 'at-c--gt-a';
-ok $seq->encoding, 'CBCCGGCGCC';
-ok $seq->cds(-nogaps => 1)->seq, 'tacgat';
-ok $seq->translate->seq, 'YD';
+is $seq->seq, 'at-c--gt-a';
+is $seq->encoding, 'CBCCGGCGCC';
+is $seq->cds(-nogaps => 1)->seq, 'tacgat';
+is $seq->translate->seq, 'YD';
 ok $seq = $seq->trunc(4,10); # kinda testing LocatableSeq's new trunc() here as well.
-ok $seq->seq, 'c--gt-a';
-ok $seq->encoding, 'CBCCGGC';
+is $seq->seq, 'c--gt-a';
+is $seq->encoding, 'CBCCGGC';

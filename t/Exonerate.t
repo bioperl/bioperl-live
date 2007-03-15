@@ -14,26 +14,20 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
     use vars qw($NTESTS);
-    $NTESTS = 45;
+    $NTESTS = 49;
     $error = 0;
-
-    use Test;
-    plan tests => $NTESTS; 
+    use Test::More;
+    plan tests => $NTESTS;
+	use_ok('Bio::SearchIO');
+	use_ok('Bio::Root::IO');
+	use_ok('Bio::SearchIO::Writer::HitTableWriter');
+	use_ok('Bio::SearchIO::Writer::HTMLResultWriter');
 }
-
-if( $error == 1 ) {
-    exit(0);
-}
-
-use Bio::SearchIO;
-use Bio::Root::IO;
-use Bio::SearchIO::Writer::HitTableWriter;
-use Bio::SearchIO::Writer::HTMLResultWriter;
 
 ok(1);
 my ($searchio, $result,$hit,$hsp);
@@ -64,21 +58,32 @@ my @data = ( [qw(ln27 416 Contig124 939
 		 
 		 )] );
 
+
+my $val;
+
 while( my $r = $searchio->next_result ) {
     my $d = shift @data;
-    ok($r->query_name, shift @$d);
-    skip( 'no query length available in default output',
-	  $r->query_length, shift @$d);
+    is($r->query_name, shift @$d);
+	SKIP: {
+		$val = shift @$d;
+		skip('no query length available in default output',1);
+	    is($r->query_length, $val);
+		   };
+    
     my $h = $r->next_hit;
-    ok($h->name, shift @$d);
-    skip( 'no hit length available in default output',$h->length, shift @$d);
+    is($h->name, shift @$d);
+	SKIP: {
+		$val = shift @$d;
+		skip( 'no hit length available in default output',1);
+	    is($h->length, $val);
+		   };
     while( my $hsp = $h->next_hsp ) {
-	ok($hsp->query->start, shift @$d);
-	ok($hsp->query->end, shift @$d);
-	ok($hsp->query->strand, shift @$d);
+	is($hsp->query->start, shift @$d);
+	is($hsp->query->end, shift @$d);
+	is($hsp->query->strand, shift @$d);
 	
-	ok($hsp->hit->start, shift @$d);
-	ok($hsp->hit->end, shift @$d);
-	ok($hsp->hit->strand, shift @$d);
+	is($hsp->hit->start, shift @$d);
+	is($hsp->hit->end, shift @$d);
+	is($hsp->hit->strand, shift @$d);
     }
 }
