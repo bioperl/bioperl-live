@@ -6,21 +6,20 @@
 use strict;
 use vars qw($NUMTESTS);
 BEGIN {
-	$NUMTESTS = 6;
+	$NUMTESTS = 8;
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
 	#
-	use Test;
+	use Test::More;
 	plan tests => $NUMTESTS;
+	use_ok('Bio::SeqIO::fasta');
+	use_ok('Bio::Root::IO');
 }
-
-use Bio::SeqIO::fasta;
-use Bio::Root::IO;
 
 # There are many other tests of fasta I/O in t/, this
 # is a dedicated script that could be further customized
@@ -34,7 +33,7 @@ my $io = Bio::SeqIO->new(-format => '',
 								 (qw(t data test.fasta) ));
 
 ok(my $seq = $io->next_seq);
-ok($seq->length, 358);
-ok($seq->display_id,'roa1_drome');
-ok($seq->desc,'Rea guano receptor type III >> 0.1');
-ok($seq->alphabet,'protein');
+is($seq->length, 358);
+is($seq->display_id,'roa1_drome');
+is($seq->desc,'Rea guano receptor type III >> 0.1');
+is($seq->alphabet,'protein');

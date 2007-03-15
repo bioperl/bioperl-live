@@ -3,37 +3,26 @@
 use strict;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-use constant NUMTESTS => 33;
+use constant NUMTESTS => 34;
 my $error;
 BEGIN {
-  eval { require Test; };
+  eval { require Test::More; };
   if( $@ ) {
-	  use lib 't';
+	  use lib 't/lib';
   }
   $error = 0;
-  use Test;
-  plan tests => NUMTESTS;
-  unless( eval "require Graph; require Bio::FeatureIO; 1;" ) {
-	  warn("Graph not installed.  Bio::FeatureIO is not installed.\n");
-	  $error = 1;
-	  for ( 1..NUMTESTS ) {
-		  skip("Graph is not installed. Bio::FeatureIO::gff cannot be run",1);
-	  }
+  use Test::More;
+  eval {require Graph;};
+  if ($@) {
+	plan skip_all => "Graph is not installed. Bio::FeatureIO::gff cannot be run";
+  } else {
+	plan tests => NUMTESTS;
   }
+  require_ok('Bio::FeatureIO');
+  use_ok('Bio::Root::IO');
 }
 
-if( $error ==  1 ) {
-	exit(0);
-}
-END {
-	foreach ( $Test::ntest..NUMTESTS) {
-		skip('Cannot complete FeatureIO tests',1);
-	}
-}
-
-use Bio::Root::IO;
 use Data::Dumper;
-ok(1);
 
 my $io;
 my $f;
@@ -55,13 +44,13 @@ while($f = $io->next_feature()){
 warn $f;
   $fcount++;
 }
-ok($fcount == 0);
+is($fcount, 0);
 
 #then try to read sequences again.  should get seqs now
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 1);
+is($scount,  1);
 
 ################################################################################
 #
@@ -76,19 +65,19 @@ ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','known
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 0);
+is($scount,0);
 
 #then read features
 while($f = $io->next_feature()){
   $fcount++;
 }
-ok($fcount == 15);
+is($fcount, 15);
 
 #then try to read sequences again.  should still be undef
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 0);
+is($scount,0);
 
 ################################################################################
 #
@@ -103,19 +92,19 @@ ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','hybri
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 0);
+is($scount , 0);
 
 #then read features
 while($f = $io->next_feature()){
   $fcount++;
 }
-ok($fcount == 6);
+is($fcount , 6);
 
 #then try to read sequences again.
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 1);
+is($scount , 1);
 
 ################################################################################
 #
@@ -130,13 +119,13 @@ ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','hybri
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 0);
+is($scount , 0);
 
 #then read features
 while($f = $io->next_feature()){
   $fcount++;
 }
-ok($fcount == 6);
+is($fcount , 6);
 
 ################################################################################
 #
@@ -151,7 +140,7 @@ ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','direc
 while($f = $io->next_feature()){
   $fcount++;
 }
-ok($fcount == 1); #sequence-region
+is($fcount , 1); #sequence-region
 
 ################################################################################
 #
@@ -166,19 +155,19 @@ ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','hybri
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 0);
+is($scount , 0);
 
 #read feature groups
 $f = $io->next_feature_group();
-ok($f == 1);
+is($f , 1);
 $f = $io->next_feature_group();
-ok($f == 0);
+is($f , 0);
 
 #then try to read sequences again.
 while($s = $io->next_seq()){
   $scount++;
 }
-ok($scount == 1);
+is($scount , 1);
 
 ################################################################################
 #
@@ -196,15 +185,15 @@ while (my $f = $ptt_in->next_feature) {
   $fcount++;
   if ($fcount==2) {
     # 2491..3423  + 310 24217063  metF  LB002 - COG0685E  5,10-methylenetetrahydrofolate reductase
-    ok( $f->start == 2491 );
-    ok( $f->end == 3423 );
-    ok( $f->strand > 0 );
-    ok( ($f->get_tag_values('PID'))[0] eq '24217063' );
-    ok( ($f->get_tag_values('Gene'))[0] eq 'metF' );
-    ok( ($f->get_tag_values('Synonym'))[0] eq 'LB002' );
-    ok( not $f->has_tag('Code') );
-    ok( ($f->get_tag_values('COG'))[0] eq 'COG0685E' );
-    ok( ($f->get_tag_values('Product'))[0] eq '5,10-methylenetetrahydrofolate reductase' );   
+    is( $f->start , 2491 );
+    is( $f->end , 3423 );
+    cmp_ok( $f->strand, '>', 0 );
+    is( ($f->get_tag_values('PID'))[0],'24217063' );
+    is( ($f->get_tag_values('Gene'))[0], 'metF' );
+    is( ($f->get_tag_values('Synonym'))[0], 'LB002' );
+    ok( ! $f->has_tag('Code') );
+    is( ($f->get_tag_values('COG'))[0],'COG0685E' );
+    is( ($f->get_tag_values('Product'))[0], '5,10-methylenetetrahydrofolate reductase' );   
   }
 }
-ok($fcount == 367);
+is($fcount , 367);
