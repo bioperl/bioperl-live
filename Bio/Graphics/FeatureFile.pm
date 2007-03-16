@@ -474,13 +474,11 @@ sub parse_line {
 
   # parse data lines
   my @tokens = shellwords($_);
-  unshift @tokens,'' if /^\s+/;
+  # unshift @tokens,'' if /^\s+/;
 
   # close any open group
   if ($self->{group} && $self->{grouptype} && $tokens[0] && length $tokens[0] > 0) {
-    push @{$self->{features}{$self->{grouptype}}},$self->{group};
-    undef $self->{group};
-    undef $self->{grouptype};
+    $self->_closegroup;
   }
 
   if (@tokens < 3) {      # short line; assume a group identifier
@@ -627,6 +625,13 @@ sub parse_line {
   }
 
   return 1;
+}
+
+sub _closegroup {
+  my $self = shift;
+  push @{$self->{features}{$self->{grouptype}}},$self->{group};
+  undef $self->{group};
+  undef $self->{grouptype};
 }
 
 sub _unescape {
@@ -1233,6 +1238,7 @@ sub init_parse {
 
 sub finish_parse {
   my $s = shift;
+  $s->_closegroup;
   $s->evaluate_coderefs if $s->safe;
   $s->{seenit} = {};
   delete $s->{gff_version};
