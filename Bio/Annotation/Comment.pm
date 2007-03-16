@@ -67,11 +67,11 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  my ($text,$tag) = $self->_rearrange([qw(TEXT TAGNAME)], @args);
+  my ($text,$tag, $type) = $self->_rearrange([qw(TEXT TAGNAME TYPE)], @args);
 
   defined $text && $self->text($text);
   defined $tag && $self->tagname($tag);
-
+  defined $type && $self->type($type);
   return $self;
 }
 
@@ -173,6 +173,27 @@ sub text{
 
 }
 
+=head2 type
 
+ Title   : type
+ Usage   : $value = $self->type($newval)
+ Function: get/set for the comment type field.  The comment type
+           is normally found as a subfield within comment sections
+           in some files, such as SwissProt
+ Example : 
+ Returns : value of text
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub type {
+   my ($self,$type) = @_;
+   if( defined $type) {
+      $self->{'type'} = $type;
+    }
+    return $self->{'type'};
+
+}
 
 1;
