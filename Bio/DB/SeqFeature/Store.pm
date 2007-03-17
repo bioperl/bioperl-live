@@ -705,7 +705,7 @@ sub get_features_by_name {
 
 This method is provided for backward compatibility with gbrowse.
 
-= cut
+=cut
 
 sub get_feature_by_name { shift->get_features_by_name(@_) }
 
