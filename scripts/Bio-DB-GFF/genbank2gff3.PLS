@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#$Id: genbank2gff3.PLS,v 1.10 2007-03-11 15:13:44 bosborne Exp $;
+#$Id: genbank2gff3.PLS,v 1.11 2007-03-19 16:42:05 bosborne Exp $;
 
 =pod
 
@@ -34,6 +34,7 @@ genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
                        output file for each input file)
         --ethresh -e  error threshold for unflattener
                       set this high (>2) to ignore all unflattener errors
+        --typesource -t  SO sequence type for source (e.g. chromosome; region)
         --help    -h  display this message
 
 
@@ -58,7 +59,7 @@ GFF and Fasta files for each genbank record.
 
 =head2 Notes
 
-=head3 Note1:
+=head3 'split' and 'nolump' produce many files
 
 In cases where the input files contain many GenBank records (for
 example, the chromosome files for the mouse genome build), a very
@@ -67,9 +68,9 @@ large number of output files will be produced if the 'split' or
 use the --long_list option in bp_bulk_load_gff.pl or
 bp_fast_load_gff.pl to load the gff and/ or fasta files.
 
-=head3 Note2:
+=head3 Designed for RefSeq
 
-This script is designed for refseq genomic sequence entries.  It may
+This script is designed for RefSeq genomic sequence entries.  It may
 work for third party annotations but this has not been tested.
 
 =head1 AUTHOR 
@@ -96,7 +97,7 @@ use Bio::Tools::GFF;
 use Getopt::Long;
 
 use vars qw/$split @filter $zip $outdir $help $ethresh
-            $file @files $dir $summary $nolump
+            $file @files $dir $summary $nolump $source_type
             $gene_id $rna_id $tnum %method %id %seen/;
 
 $| = 1;
@@ -109,6 +110,7 @@ GetOptions( 'd|dir:s'   => \$dir,
 	    'x|filter:s'=> \@filter,
 	    'y|split'   => \$split,
             "ethresh|e=s"=>\$ethresh,
+            't|typesource=s' => \$source_type,
             'n|nolump'  => \$nolump);
 
 my $lump = 1 unless $nolump || $split;
@@ -222,7 +224,8 @@ for my $file ( @files ) {
         unflatten_seq($seq);
 
         # construct a GFF header
-        print $out &gff_header($seq_name, $end);
+        # add: get source_type from attributes of source feature? chromosome=X tag
+        print $out &gff_header($seq_name, $end, $source_type);
 
 	# Note that we use our own get_all_SeqFeatures function 
         # to rescue cloned exons
@@ -267,7 +270,8 @@ for my $file ( @files ) {
 	    print $fa_out ">$seq_name\n$dna";
 	}
 	else {
-	    print $out ">$seq_name\n$dna";
+		print $out "##FASTA\n"; # GFF3 spec
+		print $out ">$seq_name\n$dna";
 	}
 
 	if ( $zip && !$lump ) {
@@ -350,13 +354,14 @@ sub generic_features {
 }
 
 sub gff_header {
-    my ($name, $end) = @_;
+    my ($name, $end, $source_type) = @_;
+    $source_type ||= "region";
     
     return <<END;
 ##gff-version 3
-##sequence-region $name 1 $end
-##source bp_genbank2gff3.pl
-$name\tGenBank\tregion\t1\t$end\t.\t.\t.\tID=$name
+# sequence-region $name 1 $end
+# source bp_genbank2gff3.pl
+$name\tGenBank\t$source_type\t1\t$end\t.\t.\t.\tID=$name
 END
 }
 
