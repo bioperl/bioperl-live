@@ -629,7 +629,7 @@ sub parse_line {
 
 sub _closegroup {
   my $self = shift;
-  push @{$self->{features}{$self->{grouptype}}},$self->{group};
+  push @{$self->{features}{$self->{grouptype}}},$self->{group} if $self->{group};
   undef $self->{group};
   undef $self->{grouptype};
 }
