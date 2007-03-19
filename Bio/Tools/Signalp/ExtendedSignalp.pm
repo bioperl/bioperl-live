@@ -1,4 +1,4 @@
-# Parser module for Signalp Bio::Tools::Signalp::ExtendedSignalP
+# Parser module for Signalp Bio::Tools::Signalp::ExtendedSignalp
 #
 # 
 # Based on the EnsEMBL module
@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Tools::Signalp::ExtendedSignalP
+Bio::Tools::Signalp::ExtendedSignalp
 
 =head1 SYNOPSIS
 
@@ -151,12 +151,13 @@ sub _filterok {
 
     #We hope everything will be fine ;)
     my $bool = 1;
-
+    
     #If the user did not give any filter, we keep eveything
     return $bool unless keys %{$self->{_factors}};
-
-    #If only one of the factors parsed is equal to NO based on the user factors cutoff
-    #Then the filter is not ok.
+    
+    #If only one of the factors parsed is equal to NO based 
+    #on the user factors cutoff
+    # Then the filter is not ok.
     foreach my $fact (keys %{$self->factors()}){
 	if($hash->{$fact} eq 'NO'){
 	    $bool = 0;
@@ -230,32 +231,30 @@ sub _parse {
 
     my($self) = @_;
 
-    my $idseen = 0;
+    my ($id,$idseen) = (0,0);
     my $feature = undef;
-
+    
     while (my $line = $self->_readline()) {
-
 	chomp $line;
+
 	if($line =~ /^>(\S+)/){
+	    $self->seqname($id = $1);
 	    $idseen = 1;
 	    next;
-	}
-
-	if($line =~ /^SignalP-NN result:/){
+	} elsif($line =~ /^SignalP-NN result:/){
 	    $self->_pushback($line);
-	    $feature = $self->_parse_nn_result($feature);
-	}
-	elsif($line =~ /^SignalP-HMM result:/){
+	    $feature = $self->_parse_nn_result($feature);	    
+	} elsif($line =~ /^SignalP-HMM result:/){
 	    $self->_pushback($line);
 	    $feature = $self->_parse_hmm_result($feature);
-	}
-
+	} 
 	if($idseen && $feature){
 	    my $new_feature = $self->create_feature($feature);
 	    push @{$self->{_features}}, $new_feature if $new_feature;
 	    $idseen = 0;
 	    $feature = { };
-	}
+	} 
+	    
     }
 
 }
@@ -289,7 +288,6 @@ sub _parse_nn_result {
     #       D     1-36    0.033   0.43   NO
 
     while(my $line = $self->_readline()){
-
 	if($line =~ /^SignalP-NN result:/){
 	    $ok = 1;
 	    next;
@@ -299,7 +297,8 @@ sub _parse_nn_result {
 
 	if ($line=~/^\>(\S+)\s+length\s+=\s+(\d+)/) {
 	    $id = $1;
-	    $self->seqname($id);
+
+	    # $self->seqname($id);
 	    %facts = ();
 	    $feature->{length} = $2;
 	    next;
@@ -333,7 +332,8 @@ sub _parse_nn_result {
 	    next;
 	}
 	#If we don't have this line it means that all the factors cutoff are equal to 'NO'
-	elsif ($line =~ /Most likely cleavage site between pos\.\s+(\d+)/ || $end) {
+	elsif ($line =~ /Most likely cleavage site between pos\.\s+(\d+)/ || 
+	       $end) {
 
 	    if($self->_filterok(\%facts)){
 
@@ -346,12 +346,11 @@ sub _parse_nn_result {
 		$feature->{logic_name} = 'signal_peptide';
 
 	    }else{
-		print STDERR "FILTERS NOT OK FOR ",$self->seqname(), "\n" if DEBUG;
+		$self->warn( "FILTERS NOT OK FOR ".$self->seqname(). "\n") if DEBUG;
 	    }
 	    return $feature;
 	}
     }
-
     return;
 }
 
@@ -391,9 +390,9 @@ sub _parse_hmm_result {
 
         if($line =~ /Prediction: (.+)$/){
             $feature_hash->{hmmPrediction} = $1;
-        }elsif($line =~ /Signal peptide probability: ([0-9\.]+)/){
+        } elsif($line =~ /Signal peptide probability: ([0-9\.]+)/){
             $feature_hash->{peptideProb} = $1;
-        }elsif($line =~ /Signal anchor probability: ([0-9\.]+)/){
+        } elsif($line =~ /Signal anchor probability: ([0-9\.]+)/){
             $feature_hash->{anchorProb} = $1;
             last;
         }
@@ -420,18 +419,19 @@ sub create_feature {
     unless($feat->{name}){# && $feat->{start} && $feat->{end}){
 	return;
     }
-
+    
     # create feature object
-    my $feature = Bio::SeqFeature::Generic->new(
-						-seq_id      => $feat->{name},
-						-start       => $feat->{start} || '',
-						-end         => $feat->{end}   || '',
-						-score       => $feat->{score},
-						-source      => $feat->{source},
-						-primary     => $feat->{primary},
-						-logic_name  => $feat->{logic_name},
-					       );
-
+    my $feature = Bio::SeqFeature::Generic->new
+	(
+	 -seq_id      => $feat->{name},
+	 -start       => $feat->{start} || '',
+	 -end         => $feat->{end}   || '',
+	 -score       => $feat->{score},
+	 -source      => $feat->{source},
+	 -primary     => $feat->{primary},
+	 -logic_name  => $feat->{logic_name},
+	 );
+    
     $feature->score($feat->{peptideProb});
     $feature->add_tag_value('peptideProb', $feat->{peptideProb});
     $feature->add_tag_value('anchorProb', $feat->{anchorProb});
