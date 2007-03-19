@@ -106,6 +106,30 @@ use Bio::Seq;
 
 use base qw(Bio::Tools::AnalysisResult);
 
+=head2 new
+
+ Title   : new
+ Usage   : my $obj = new Bio::Tools::Genemark();
+ Function: Builds a new Bio::Tools::Genemark object
+ Returns : an instance of Bio::Tools::Genemark
+ Args    : seqname
+
+
+=cut
+
+sub new {
+  my($class,@args) = @_;
+
+  my $self = $class->SUPER::new(@args);
+
+  my ($seqname) = $self->_rearrange([qw(SEQNAME)], @args);
+
+  # hardwire seq_id when creating gene and exon objects
+  $self->_seqname($seqname) if defined($seqname);
+
+  return $self;
+}
+
 sub _initialize_state {
     my ($self,@args) = @_;
 
@@ -221,6 +245,10 @@ sub _parse_predictions {
     my $exontype;
     my $current_gene_no = -1;
 
+    # The prediction report does not contain a sequence identifier
+    # (at least the prokaryotic version doesn't)
+    my $seqname = $self->_seqname();
+    
     while(defined($_ = $self->_readline())) {
 
 	if( (/^\s*(\d+)\s+(\d+)/) || (/^\s*(\d+)\s+[\+\-]/)) {
@@ -268,7 +296,8 @@ sub _parse_predictions {
 	    $predobj->add_tag_value('exon_no',"$signalnr") if ($signalnr);
 
     	    $predobj->is_coding(1);
-		
+
+            $predobj->seq_id($seqname) if (defined($seqname) && ($seqname ne 'unknown'));
 		
 	    # frame calculation as in the genscan module
 	    # is to be implemented...
@@ -288,6 +317,7 @@ sub _parse_predictions {
 		     '-source' => $prediction_source);
                 $self->_add_prediction($gene);		
 		$current_gene_no = $prednr;
+                $gene->seq_id($seqname) if (defined($seqname) && ($seqname ne 'unknown'));
 	    }
 	
 	    # Add the exon to the gene
@@ -506,6 +536,26 @@ sub _read_fasta_seq {
     }
     $seq =~ s/\s//g; # Remove whitespace
     return ($id, $seq);
+}
+
+=head2 _seqname
+
+ Title   : _seqname
+ Usage   : $obj->_seqname($seqname)
+ Function: internal
+ Example :
+ Returns : String
+
+=cut
+
+sub _seqname {
+    my ($self, $val) = @_;
+
+    $self->{'_seqname'} = $val if $val;
+    if(! exists($self->{'_seqname'})) {
+        $self->{'_seqname'} = 'unknown';
+    }
+    return $self->{'_seqname'};
 }
 
 1;
