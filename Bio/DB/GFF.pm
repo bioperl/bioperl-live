@@ -78,8 +78,8 @@ The following operations are supported by this module:
     offsets
 
 The data model used by Bio::DB::GFF is compatible with the GFF flat
-file format (http://www.sanger.ac.uk/software/GFF).  The module can
-load a set of GFF files into the database, and serves objects that
+file format (L<http://www.sequenceontology.org/gff3.shtml>). The module 
+can load a set of GFF files into the database, and serves objects that
 have methods corresponding to GFF fields.
 
 The objects returned by Bio::DB::GFF are compatible with the
