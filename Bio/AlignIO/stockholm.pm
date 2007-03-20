@@ -267,7 +267,8 @@ sub next_aln {
     my $self = shift;
     my $line;
 
-    my ($start, $end, $id, $name, $seqname, $seq, $count, $tag, $data);
+    my ($id, $name, $seqname, $seq, $count, $tag, $data);
+    my $start = my $end = 0;
     my $seen_rc;
     my ($refct, $bct, $lnkct) = (0,0,0);
     my @c2name;
@@ -280,11 +281,13 @@ sub next_aln {
 
     my $aln =  Bio::SimpleAlign->new(-source => 'stockholm');
     while( defined($line = $self->_readline) ) {
-        next unless $line =~ /\w+/;
+        next if $line =~ /^\s*$/;
         if ($line =~ /^#\s*STOCKHOLM\s+/) {
             last;
         } else {
-            $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM\"; Found \"$_\"");
+            $line = $self->_readline;
+            # commented this out since some programs have headers with extra output
+            # $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM\"; Found \"$line\"");
         }
     }
     
@@ -461,8 +464,6 @@ sub next_aln {
             }
         }
     }
-
-    #$self->debug(Dumper($coll));
 
     # add annotations
     $aln->annotation($coll); 
