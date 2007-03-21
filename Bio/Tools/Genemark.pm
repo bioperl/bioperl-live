@@ -103,6 +103,7 @@ use Bio::Root::Root;
 use Bio::Tools::Prediction::Gene;
 use Bio::Tools::Prediction::Exon;
 use Bio::Seq;
+use Bio::Factory::FTLocationFactory;
 
 use base qw(Bio::Tools::AnalysisResult);
 
@@ -285,10 +286,16 @@ sub _parse_predictions {
 		$exontag = $flds[3];
 	    }
 
-	    #store the data in the exon object
+            # instatiate a location object via
+            # Bio::Factory::FTLocationFactory (to handle
+            # inexact coordinates)
+            my $location_string = join('..', $start, $end);
+            my $location_factory = Bio::Factory::FTLocationFactory->new();
+            my $location_obj = $location_factory->from_string($location_string);
+            $predobj->location($location_obj);
+
+            #store the data in the exon object
             $predobj->source_tag($prediction_source);
-	    $predobj->start($start);		
-	    $predobj->end($end);
 	    $predobj->strand($orientation);
 
 	    $predobj->primary_tag($exontags{$exontag} . "Exon");

@@ -15,7 +15,7 @@ BEGIN {
 	use lib 't/lib';
     }
     use Test::More;
-    plan tests => 169;
+    plan tests => 187;
     use_ok('Bio::Tools::Genscan');
     use_ok('Bio::Tools::Genemark');
     use_ok('Bio::Tools::Glimmer');
@@ -95,7 +95,7 @@ my $gene = $mzef->next_prediction();
 
 is($gene->exons, 23);
 
-# Genemark testing:
+# Genemark testing
 my $genemark = Bio::Tools::Genemark->new('-file' => Bio::Root::IO->catfile(qw(t data genemark.out)));
 
 my $gmgene = $genemark->next_prediction();
@@ -117,6 +117,34 @@ while($gmgene = $genemark->next_prediction()) {
 	is $gmend, 23061;
     }
 }
+
+# Genemark testing (prokaryotic gene fragment)
+my $genemark = Bio::Tools::Genemark->new('-file'    => Bio::Root::IO->catfile(qw(t data genemark-fragment.out)),
+                                         '-seqname' => 'AAVN02000021.1');
+
+my $gmgene = $genemark->next_prediction();
+is $gmgene->seq_id(), 'AAVN02000021.1';
+is $gmgene->start(), 2;
+is $gmgene->end(), 214;
+is $gmgene->strand(), '1';
+my ($gmexon) = $gmgene->exons();
+isa_ok $gmexon->location(), 'Bio::Location::Fuzzy';
+is $gmexon->location->start_pos_type(), 'BEFORE';
+is $gmexon->location->max_start(), 2;
+is $gmexon->location->end_pos_type(), 'EXACT';
+is $gmexon->location->end(), 214;
+
+$gmgene = $genemark->next_prediction();
+is $gmgene->seq_id(), 'AAVN02000021.1';
+is $gmgene->start, 459;
+is $gmgene->end, 596;
+is $gmgene->strand(), '1';
+($gmexon) = $gmgene->exons();
+isa_ok $gmexon->location, 'Bio::Location::Fuzzy';
+is $gmexon->location->start_pos_type(), 'EXACT';
+is $gmexon->location->start(), 459;
+is $gmexon->location->end_pos_type(), 'AFTER';
+is $gmexon->location->min_end(), 596;
 
 # Glimmer testing (GlimmerM)
 my $glimmer_m = new Bio::Tools::Glimmer('-file' => Bio::Root::IO->catfile(qw(t data GlimmerM.out)));
