@@ -133,7 +133,19 @@ sub next_result {
               if ($fact2 eq 'YES' and $self->_fact1 eq 'YES') {
                   
                   my $line = $self->_readline();
-		  my $end;
+                  
+                  ###########################################
+                  # modification to suit new SignalP output
+                  ###########################################
+					chomp $line;
+					#print STDERR "********** <$line>\n";
+					if ($line =~ /\s+D\s+.*/) {
+				  		$line = $self->_readline();
+					}
+					#print STDERR "********** <$line>\n";
+		  			my $end;
+		  		  ###########################################
+		  
               
                   if ($line =~ /Most likely cleavage site between pos\.\s+(\d+)/) {
                       my $end = $1;
