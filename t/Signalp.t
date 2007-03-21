@@ -14,7 +14,7 @@ BEGIN {
 		use lib 't/lib';
 	}
 	use Test::More;
-	plan tests => 9;
+	plan tests => 12;
     use_ok('Bio::Tools::Signalp');
     use_ok('Bio::Root::IO');
 }
@@ -53,10 +53,10 @@ ok $parser = Bio::Tools::Signalp->new(-file=>$infile, -verbose=>$verbose);
 #  FIXME / TODO / BUG / *** 
 # 
 
-#while ( my $feat = $parser->next_result ) {
-#  push @feat, $feat;
-#}
-#ok @feat == 1;
-#ok $parser->_seqname, 'my_fasta_id';
-#ok $parser->_fact1,   'YES';
+while ( my $feat = $parser->next_result ) {
+  push @feat, $feat;
+}
+is @feat , 1;
+is $parser->_seqname, 'my_fasta_id';
+is $parser->_fact1,   'YES';
 
