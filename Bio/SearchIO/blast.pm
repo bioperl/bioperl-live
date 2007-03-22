@@ -592,6 +592,8 @@ sub next_result {
             if ( !$self->in_element('iteration') ) {
                 $self->_start_iteration;
             }
+            # these elements are dropped with some multiquery reports; add
+            # back here
             $self->element(
                 {
                     'Name' => 'BlastOutput_db-len',
@@ -613,7 +615,7 @@ sub next_result {
           descline:
             while ( defined( $_ = $self->_readline() ) ) {
                 
-                if (/(?<!cor)([\d\.\+\-eE]+)\s+([\d\.\+\-eE]+)(\s+\d+)?\s*$/) {
+                if (/(?<!cor)(\d[\d\.\+\-eE]+)\s+((?:\d|e)[\d\.\+\-eE]+)(\s+\d+)?\s*$/xms) {
 
                     # the last match is for gapped BLAST output
                     # which will report the number of HSPs for the Hit
@@ -769,19 +771,28 @@ sub next_result {
                     'Data' => $id
                 }
             );
-            my ( $acc, $version ) = &_get_accession_version($id);
+            my ($gi, $acc, $version ) = $self->_get_seq_identifiers($id);
             $self->element(
                 {
                     'Name' => 'Hit_accession',
                     'Data' => $acc
                 }
             );
- 
+            $self->element(
+                {
+                    'Name' => 'Hit_gi',
+                    'Data' => $gi
+                }
+            ) if $gi; 
             # add hit significance (from the hit table)
             # this is where Bug 1986 goes awry
             
             my $v = shift @hit_signifs;
+                    
             if ( defined $v ) {
+                # should perform a sanity check here,
+                # but that breaks some report parsing.  Needs investigation
+                
                 $self->element(
                     {
                         'Name' => 'Hit_signif',
