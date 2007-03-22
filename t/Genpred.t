@@ -48,34 +48,34 @@ while(my $gene = $genscan->next_prediction()) {
     if($pred_num == 1) {
 	$fea = ($gene->exons())[0];
 	is $fea->strand(), -1, 
-	     "strand mismatch (".$fea->strand()." instead of -1)";
+	     "strand match (".$fea->strand()."  and -1)";
 	$fea = ($gene->poly_A_site());
 	is $fea->score(), 1.05, 
-             "score mismatch (".$fea->score()." instead of 1.05)";
+             "score match (".$fea->score()." and 1.05)";
     }
     if($pred_num == 2) {
 	$fea = ($gene->exons("Initial"))[0];
 	is $fea->strand(), 1, 
-	"strand mismatch (".$fea->strand()." instead of 1)";
+	"strand match (".$fea->strand()." and 1)";
 	is $fea->score(), 4.46, 
-             "score mismatch (".$fea->score()." instead of 4.46)";
+             "score match (".$fea->score()." and 4.46)";
     }
     if($pred_num == 3) {
 	my @exons = $gene->exons("Initial");
 	is scalar(@exons), 0, 
-	     "initial exons (".scalar(@exons)." instead of 0)";
+	     "initial exons ".scalar(@exons);
 	$fea = ($gene->exons())[0];
 	is $fea->score(),  1.74, 
-             "score mismatch (".$fea->score()." instead of 1.74)";
+             "score match ".$fea->score();
     }
     if($seq) {
 	$prtseq = $gene->predicted_protein()->seq();
         $cds = $gene->cds();
-	ok($cds) || print STDERR "# no CDS for prediction $pred_num; protein: $prtseq\n";
+	ok($cds);
 	$tr_cds = $cds->translate()->seq();
 	$tr_cds =~ s/\*$//;
 	is( lc($prtseq), lc($tr_cds),
-	    "predicted and extracted protein seqs don't match");
+	    "predicted and extracted protein seqs match");
     }
 }
 
@@ -119,11 +119,11 @@ while($gmgene = $genemark->next_prediction()) {
 }
 
 # Genemark testing (prokaryotic gene fragment)
-my $genemark = Bio::Tools::Genemark->new('-file'    => Bio::Root::IO->catfile(qw(t data genemark-fragment.out)),
+$genemark = Bio::Tools::Genemark->new('-file'    => Bio::Root::IO->catfile(qw(t data genemark-fragment.out)),
                                          '-seqname' => 'AAVN02000021.1');
 
-my $gmgene = $genemark->next_prediction();
-is $gmgene->seq_id(), 'AAVN02000021.1';
+$gmgene = $genemark->next_prediction();
+is $gmgene->seq_id(), 'AAVN02000021.1','Genemark tests';
 is $gmgene->start(), 2;
 is $gmgene->end(), 214;
 is $gmgene->strand(), '1';
@@ -184,7 +184,7 @@ ok($ghmmgene);
 is($ghmmgene->seq_id, 'gi|23613028|ref|NC_004326.1|');
 is($ghmmgene->source_tag, 'GlimmerHMM');
 is($ghmmgene->primary_tag, 'transcript');
-ok($ghmmgene->exons, 1);
+is($ghmmgene->exons, 1);
 
 @num_exons = qw(0 1 2 4 2 2 1 1 1 2 2 2 10 4 1 1); # only first few tested
 $i = 1;
