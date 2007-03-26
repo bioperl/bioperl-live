@@ -139,24 +139,26 @@ my $DEFAULT_VERSION = '3.0.3';
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    my ($model, $database, $maxcutoff, $mincutoff, $seqdistance,
+    my ($version, $model, $database, $maxcutoff, $mincutoff, $seqdistance,
         $accession, $symbols) =
-       $self->_rearrange([qw(MODEL DATABASE HSP_MAXSCORE 
+       $self->_rearrange([qw(VERSION MODEL DATABASE HSP_MAXSCORE 
                           HSP_MINSCORE SEQ_DISTANCE QUERY_ACC SYMBOLS)],@args);
     my $handler = $self->_eventHandler;
     $handler->register_factory(
         'result',
         Bio::Factory::ObjectFactory->new(
             -type      => 'Bio::Search::Result::GenericResult',
-            -interface => 'Bio::Search::Result::ResultI'
+            -interface => 'Bio::Search::Result::ResultI',
+            -verbose => $self->verbose
         )
     );
 
     $handler->register_factory(
         'hit',
         Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::Hit::GenericHit',
-            -interface => 'Bio::Search::Hit::HitI'
+            -type      => 'Bio::Search::Hit::ModelHit',
+            -interface => 'Bio::Search::Hit::HitI',
+            -verbose => $self->verbose
         )
     );
 
@@ -164,12 +166,15 @@ sub _initialize {
         'hsp',
         Bio::Factory::ObjectFactory->new(
             -type      => 'Bio::Search::HSP::ModelHSP',
-            -interface => 'Bio::Search::HSP::HSPI'
+            -interface => 'Bio::Search::HSP::HSPI',
+            -verbose => $self->verbose
         )
     );
     $model      && $self->model($model);
     $database   && $self->database($database);
     $accession  && $self->query_accession($accession);
+    $version ||= $DEFAULT_VERSION;
+    $self->algorithm_version($version);
     $self->throw("Cannot define both a minimal and maximal cutoff")
            if (defined($mincutoff) && defined($maxcutoff));
     defined($mincutoff)   && $self->hsp_minscore($mincutoff);
@@ -203,6 +208,7 @@ sub next_result {
     # HSP building options
     my $hsp_min = $self->hsp_minscore;
     my $hsp_max = $self->hsp_maxscore;
+    my $version = $self->algorithm_version;
     my $laststart;
     
     my $verbose = $self->verbose;    # cache for speed?
@@ -224,7 +230,7 @@ sub next_result {
                                );
                 $self->element(
                                {'Name' => 'RNAMotif_version',
-                                'Data' => '3.0.3'}
+                                'Data' => $version}
                                );
                 $self->element(
                                {'Name' => 'RNAMotif_query-acc',
@@ -618,8 +624,13 @@ sub descriptor {
 =head2 model
 
  Title   : model
- Usage   : Alias for descriptor()
- 
+ Usage   : my $model = $parser->model();
+ Function: Get/Set model; Infernal currently does not output
+           the model name (Rfam ID)
+ Returns : String (name of model)
+ Args    : [optional] String (name of model)
+ Note    : this is a synonym for descriptor()
+
 =cut
 
 sub model { shift->descriptor(@_) }
@@ -645,8 +656,8 @@ sub database {
 
  Title   : query_accession
  Usage   : my $acc = $parser->query_accession();
- Function: Get/Set query (model) accession; Infernal currently does not output
-           the accession number (Rfam accession #)
+ Function: Get/Set query (model) accession; RNAMotif currently does not output
+           the accession number
  Returns : String (accession)
  Args    : [optional] String (accession)
 
@@ -656,6 +667,22 @@ sub query_accession {
     my $self = shift;
     return $self->{'_query_accession'} = shift if @_;
     return $self->{'_query_accession'};
+}
+
+=head2 algorithm_version
+
+ Title   : algorithm_version
+ Usage   : my $ver = $parser->algorithm_version();
+ Function: Get/Set algorithm version (not defined in RNAMotif output)
+ Returns : String (accession)
+ Args    : [optional] String (accession)
+
+=cut
+
+sub algorithm_version {
+    my $self = shift;
+    return $self->{'_algorithm'} = shift if @_;
+    return $self->{'_algorithm'};
 }
 
 =head2 hsp_minscore
