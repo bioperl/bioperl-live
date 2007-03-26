@@ -87,16 +87,12 @@ our %MAPPING = (
         'Hsp_structure'   => 'HSP-meta',
         'Hsp_align-len'   => 'HSP-hsp_length',
         
-        # not supported yet
-        'Hsp_positive'    => 'HSP-conserved',
-        'Hsp_identity'    => 'HSP-identical',
-
         'Hit_id'        => 'HIT-name',
         'Hit_len'       => 'HIT-length',
         'Hit_gi'        => 'HIT-ncbi_gi',
         'Hit_accession' => 'HIT-accession',
         'Hit_def'       => 'HIT-description',
-        'Hit_signif'    => 'HIT-significance', # none yet
+        'Hit_signif'    => 'HIT-significance', # no evalues yet
         'Hit_score'     => 'HIT-score', # best HSP bit score
         'Hit_bits'      => 'HIT-bits', # best HSP bit score
  
@@ -170,7 +166,7 @@ sub _initialize {
     $handler->register_factory(
         'hit',
         Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::Hit::GenericHit',
+            -type      => 'Bio::Search::Hit::ModelHit',
             -interface => 'Bio::Search::Hit::HitI',
             -verbose   => $self->verbose
         )
@@ -501,6 +497,40 @@ sub element {
     # simple data calls (%MAPPING) do not need start_element
     $self->characters($data);
     $self->end_element($data);
+}
+
+
+sub element_hash {
+    my ( $self, $data ) = @_;
+    my $nm   = $data->{'Name'};
+    my $type = $MODEMAP{$nm};
+    my $rc;
+
+    if ($type) {
+        if ( $self->_eventHandler->will_handle($type) ) {
+            my $func = sprintf( "end_%s", lc $type );
+            $rc = $self->_eventHandler->$func( $self->{'_reporttype'},
+                $self->{'_values'} );
+        }
+        my $lastelem = shift @{ $self->{'_elements'} };
+    }
+    elsif ( $MAPPING{$nm} ) {
+        if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
+            my $key = ( keys %{ $MAPPING{$nm} } )[0];
+            $self->{'_values'}->{$key}->{ $MAPPING{$nm}->{$key} } =
+              $self->{'_last_data'};
+        }
+        else {
+            $self->{'_values'}->{ $MAPPING{$nm} } = $self->{'_last_data'};
+        }
+    }
+    else {
+        $self->debug("unknown nm $nm, ignoring\n");
+    }
+    $self->{'_last_data'} = '';    # remove read data if we are at
+                                   # end of an element
+    $self->{'_result'} = $rc if ( defined $type && $type eq 'result' );
+    return $rc;
 }
 
 =head2 characters

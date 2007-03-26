@@ -157,7 +157,7 @@ sub _initialize {
     $handler->register_factory(
         'hit',
         Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::Hit::GenericHit',
+            -type      => 'Bio::Search::Hit::ModelHit',
             -interface => 'Bio::Search::Hit::HitI',
             -verbose   => $self->verbose()
         )
@@ -175,7 +175,7 @@ sub _initialize {
     $cutoff ||= $MINSCORE;
     $self->hsp_minscore($cutoff);
     $version ||= $DEFAULT_VERSION;
-    $self->erpin_version($version);
+    $self->algorithm_version($version);
 }
 
 =head2 next_result
@@ -194,9 +194,8 @@ sub next_result {
     local $/ = "\n";
     local $_;
     my $accession = $self->query_accession;
-    #my ($version, $maxscore);
     my $minscore = $self->hsp_minscore;
-    my $version = $self->erpin_version;
+    my $version = $self->algorithm_version;
     my $verbose = $self->verbose;    # cache for speed?
     $self->start_document();
     my ($lasthit, $lastscore, $lastlen, $lasteval);
@@ -379,7 +378,6 @@ sub next_result {
  Function: Handles a start element event
  Returns : none
  Args    : hashref with at least 2 keys 'Data' and 'Name'
-
 
 =cut
 
@@ -606,20 +604,20 @@ sub hsp_minscore {
     return $self->{'_hsp_minscore'};
 }
 
-=head2 erpin_version
+=head2 algorithm_version
 
- Title   : erpin_version
- Usage   : my $ver = $parser->erpin_version();
- Function: Get/Set ERPIN version
- Returns : ERPIN version
- Args    : [optional] ERPIN version
- 
+ Title   : algorithm_version
+ Usage   : my $ver = $parser->algorithm_version();
+ Function: Get/Set algorithm version (not defined in RNAMotif output)
+ Returns : String (accession)
+ Args    : [optional] String (accession)
+
 =cut
 
-sub erpin_version {
+sub algorithm_version {
     my $self = shift;
-    return $self->{'_erpin_version'} = shift if @_;
-    return $self->{'_erpin_version'};
+    return $self->{'_algorithm'} = shift if @_;
+    return $self->{'_algorithm'};
 }
 
 1;
