@@ -83,7 +83,7 @@ use URI::Escape;
 use base qw(Bio::FeatureIO);
 
 use constant DEFAULT_VERSION => 3;
-my $RESERVED_TAGS   = "ID|Name|Alias|Parent|Target|Gap|Derives_from|Note|Dbxref|Ontology_term|Index";
+my $RESERVED_TAGS   = "ID|Name|Alias|Parent|Target|Gap|Derives_from|Note|Dbxref|dbxref|Ontology_term|Index";
 
 sub _initialize {
   my($self,%arg) = @_;
@@ -610,8 +610,8 @@ sub _handle_feature {
   }
 
   #Handle Dbxref attributes
-  if($attr{Dbxref}){
-    foreach my $value (@{ $attr{Dbxref} }){
+  if($attr{Dbxref} or $attr{dbxref}){
+    foreach my $value (@{ $attr{Dbxref} }, @{ $attr{dbxref} }){
       my $a = Bio::Annotation::DBLink->new();
       my($db,$accession) = $value =~ /^(.+?):(.+)$/;
 
@@ -732,6 +732,7 @@ sub _handle_feature {
 
   my @non_reserved_tags = grep {/^[a-z]/} keys %attr;
   foreach my $non_reserved_tag (@non_reserved_tags) {
+    next if ($non_reserved_tag eq 'dbxref');
     foreach my $value (@{ $attr{$non_reserved_tag} }){
       $feat = $self->_handle_non_reserved_tag($feat,$non_reserved_tag,$value);
     }
