@@ -224,22 +224,12 @@ sub next_result {
                     last PARSER;
                 }
                 $self->start_element({'Name' => 'Result'});
-                $self->element(
-                               {'Name' => 'RNAMotif_program',
-                                'Data' => 'rnamotif'}
-                               );
-                $self->element(
-                               {'Name' => 'RNAMotif_version',
-                                'Data' => $version}
-                               );
-                $self->element(
-                               {'Name' => 'RNAMotif_query-acc',
-                                'Data' => $accession} 
-                               ) if $accession;
-                $self->element(
-                               {'Name' => 'RNAMotif_db',
-                                'Data' => $db} 
-                               ) if $db;                
+                $self->element_hash({
+                    'RNAMotif_program'      => 'rnamotif',
+                    'RNAMotif_version'      => $version,
+                    'RNAMotif_query-acc'    => $accession,
+                    'RNAMotif_db'           => $db
+                    });                
                 $seentop = 1;
                 #$self->debug("Start result\n");
             } elsif (index($line,'#RM descr') == 0) {
@@ -274,22 +264,12 @@ sub next_result {
             }
             my ($gi, $acc, $ver) = $self->_get_seq_identifiers($hitid);
             
-            $self->element(
-               {'Name' => 'Hit_id',
-                'Data' => $hitid}
-              );
-            $self->element(
-               {'Name' => 'Hit_gi',
-                'Data' => $gi}
-              ) if $gi;
-            $self->element(
-               {'Name' => 'Hit_accession',
-                'Data' => $ver ? "$acc.$ver" :
-                          $acc ? $acc : $hitid}
-              );
-            $self->element(
-               {'Name' => 'Hit_def',
-                'Data' => $hitdesc}
+            $self->element_hash({
+                'Hit_id'        => $hitid,
+                'Hit_gi'        => $gi,
+                'Hit_accession' => $ver ? "$acc.$ver" :
+                                    $acc ? $acc : $hitid,
+                'Hit_def'       => $hitdesc}
               );
             $lastid = $hitid;
         } elsif ($line =~ m{^(\S+)\s+(.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s(.*)$}xm) {
@@ -300,7 +280,6 @@ sub next_result {
             unless ($hitid eq $hspid) {
                 $self->throw("IDs do not match!");
             }
-            
             # check score for possible sprintf data, mark as such, cache result
             if (!defined($sprintf)) {
                 if ($score =~ m{[^0-9.-]+}gxms) {
@@ -328,9 +307,6 @@ sub next_result {
                     } elsif ($hsp_max && $score < $hsp_max) {
                         $lastscore = $score if !$lastscore || $score < $lastscore;
                     } 
-                    #$self->debug(
-                    #sprintf("HSPMIN: %-5s HSPMAX: %-5s SCORE: %-5s LASTSCORE %-5s\n",
-                    #        $hsp_min || 'undef', $hsp_max || 'undef',$score, $lastscore) );
                 }
             }
             
@@ -347,43 +323,18 @@ sub next_result {
                 my ($rna, $meta) = $self->_motif2meta($seq, $descriptor);
                 
                 $self->start_element({'Name' => 'Hsp'});
-                $self->element(
-                        {'Name' => 'Hsp_hseq',
-                         'Data' => $rna}
-                       );
-                $self->element(
-                        {'Name' => 'Hsp_query-from',
-                         'Data' => 1}
-                       );
                 my $rnalen = $rna =~ tr{ATGCatgc}{ATGCatgc};
-                $self->element(
-                        {'Name' => 'Hsp_query-to',
-                         'Data' => length($rna)}
-                       );                
-                $self->element(
-                        {'Name' => 'Hsp_hit-from',
-                         'Data' => $start}
-                       );
-                $self->element(
-                        {'Name' => 'Hsp_hit-to',
-                         'Data' => $end}
-                       );
-                $self->element(
-                        {'Name' => 'Hsp_structure',
-                         'Data' => $meta}
-                       );
-                $self->element(
-                        {'Name' => 'Hsp_align-len',
-                         'Data' => length($rna)}
-                       ); # this should include possible gaps
-                $self->element(
-                        {'Name' => 'Hsp_score',
-                         'Data' => $score}
-                       ) unless $sprintf;
-                $self->element(
-                        {'Name' => 'Hsp_custom-data',
-                         'Data' => $score}
-                       ) if $sprintf;
+                $self->element_hash({
+                        'Hsp_hseq'          => $rna,
+                        'Hsp_query-from'    => 1,
+                        'Hsp_query-to'      =>length($rna),
+                        'Hsp_hit-from'      => $start,
+                        'Hsp_hit-to'        => $end,
+                        'Hsp_structure'     => $meta,
+                        'Hsp_align-len'     => length($rna),
+                        'Hsp_score'         => $sprintf ? undef : $score,
+                        'Hsp_custom-data'   => $sprintf ? $score : undef,
+                        });
                 $self->end_element({'Name' => 'Hsp'});
                 $oktobuild = 0 if (!$sprintf);
             }
@@ -494,6 +445,38 @@ sub element {
     # simple data calls (%MAPPING) do not need start_element
     $self->characters($data);
     $self->end_element($data);
+}
+
+
+=head2 element_hash
+
+ Title   : element
+ Usage   : $eventhandler->element_hash({'Hsp_hit-from' => $start,
+                                        'Hsp_hit-to'   => $end,
+                                        'Hsp_score'    => $lastscore});
+ Function: Convenience method that takes multiple simple data elements and
+           maps to appropriate parameters
+ Returns : none
+ Args    : Hash ref with the mapped key (in %MAPPING) and value
+
+=cut
+
+sub element_hash {
+    my ($self, $data) = @_;
+    $self->throw("Must provide data hash ref") if !$data || !ref($data);
+    for my $nm (sort keys %{$data}) {
+        next if !$data->{$nm} || $data->{$nm} =~ m{^\s*$}o;
+        if ( $MAPPING{$nm} ) {
+            if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
+                my $key = ( keys %{ $MAPPING{$nm} } )[0];
+                $self->{'_values'}->{$key}->{ $MAPPING{$nm}->{$key} } =
+                  $data->{$nm};
+            }
+            else {
+                $self->{'_values'}->{ $MAPPING{$nm} } = $data->{$nm};
+            }
+        }
+    }
 }
 
 =head2 characters

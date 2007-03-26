@@ -209,22 +209,12 @@ sub next_result {
                 last PARSER;
             }
             $self->start_element({'Name' => 'Result'});
-            $self->element(
-               {'Name' => 'ERPIN_query-def',
-                'Data' => $1}
-              );
-            $self->element(
-               {'Name' => 'ERPIN_program',
-                'Data' => 'erpin'}
-              );
-            $self->element(
-               {'Name' => 'ERPIN_version',
-                'Data' => $version}
-              );
-            $self->element(
-               {'Name' => 'ERPIN_query-acc',
-                'Data' => $accession}
-              ) if $accession;
+            $self->element_hash( {
+                'ERPIN_query-def'   => $1,
+                'ERPIN_program'     =>'erpin',
+                'ERPIN_version'     => $version,
+                'ERPIN_query-acc'   => $accession,
+                });
             $seentop = 1;
             # parse rest of header here
             HEADER:
@@ -242,8 +232,8 @@ sub next_result {
                        );
                 } elsif ($line =~ m{^Cutoff:\s+(\S+)}xmso) {
                     $self->element(
-                                   {'Name' => 'Parameters_cutoff',
-                                    'Data' => $1}
+                        {'Name' => 'Parameters_cutoff',
+                         'Data' => $1}
                                   );
                 } elsif ($line =~ m{^Database:\s+"(.*)"}xmso) {
                     $self->element(
@@ -251,13 +241,9 @@ sub next_result {
                          'Data' => $1}
                        );
                 } elsif ($line =~ m{^\s+(\d+)\snucleotides\sto\sbe\sprocessed\sin\s(\d+)\ssequences}xmso) {
-                    $self->element(
-                        {'Name' => 'ERPIN_db-len',
-                         'Data' => $2}
-                       );
-                    $self->element(
-                        {'Name' => 'ERPIN_db-let',
-                         'Data' => $1}
+                    $self->element_hash(
+                        {'ERPIN_db-len' => $2,
+                         'ERPIN_db-let' => $1}
                        );
                 } elsif ($line =~ m{^E-value\sat\scutoff\s\S+\sfor\s\S+\sdouble\sstrand\sdata:\s+(\S+)}xmso) {
                     $self->element(
@@ -278,41 +264,23 @@ sub next_result {
             # prior to starting a new hit
             if (!$lasthit || $id ne $lasthit) {
                 if ($self->within_element('hit') ) {
-                    $self->element(
-                                   {'Name' => 'Hit_signif',
-                                    'Data' => $lasteval}
-                                  );
-                    $self->element(
-                                   {'Name' => 'Hit_score',
-                                    'Data' => $lastscore}
-                                  );
-                    $self->element(
-                                   {'Name' => 'Hit_bits',
-                                    'Data' => $lastscore}
-                                  );
+                    $self->element_hash({
+                        'Hit_signif' => $lasteval,
+                        'Hit_score'  => $lastscore,
+                        'Hit_bits'   => $lastscore
+                        });
                     $self->end_element({'Name' => 'Hit'});
                 }                
                 $self->start_element({'Name' => 'Hit'});
                 my ($gi, $acc, $ver) = $self->_get_seq_identifiers($id);
             
-                #$self->debug(sprintf("GI: %-10s Acc-Ver: $acc.$ver\n",$gi,$acc,$ver));
-                $self->element(
-                   {'Name' => 'Hit_id',
-                    'Data' => $id}
-                  );
-                $self->element(
-                   {'Name' => 'Hit_gi',
-                    'Data' => $gi}
-                  ) if $gi;
-                $self->element(
-                   {'Name' => 'Hit_accession',
-                    'Data' => $ver ? "$acc.$ver" :
-                              $acc ? $acc : $id}
-                  );
-                $self->element(
-                   {'Name' => 'Hit_def',
-                    'Data' => $desc}
-                  );
+                $self->element_hash({
+                    'Hit_id'        => $id,
+                    'Hit_gi'        => $gi,
+                    'Hit_accession' => $ver ? "$acc.$ver" :
+                                        $acc ? $acc : $id,
+                    'Hit_def'       => $desc
+                    });
             }
             $lasthit = $id;
         } elsif ( (index($line, 'FW') == 0) || (index($line, 'RC') == 0)) {
@@ -322,26 +290,19 @@ sub next_result {
                 
                 my ($start, $end) = split m{\.\.}, $pos, 2;
                 ($start, $end) = ($end, $start) if ($str eq 'RC');
-                $self->element({'Name' => 'Hsp_hit-from',
-                                'Data' => $start});
-                $self->element({'Name' => 'Hsp_hit-to',
-                                'Data' => $end});
-                $self->element({'Name' => 'Hsp_score',
-                                'Data' => $score});
-                $self->element({'Name' => 'Hsp_bit-score',
-                                'Data' => $score});
-                $self->element({'Name' => 'Hsp_evalue',
-                                'Data' => $eval});
                 $line = $self->_readline;
                 chomp $line;
-                $self->element({'Name' => 'Hsp_query-from',
-                                'Data' => 1});
-                $self->element({'Name' => 'Hsp_query-to',
-                                'Data' => length($line)});
-                $self->element({'Name' => 'Hsp_align-len',
-                                'Data' => length($line)});
-                $self->element({'Name' => 'Hsp_hseq',
-                                'Data' => $line});
+                $self->element_hash({
+                    'Hsp_hit-from'     => $start,
+                    'Hsp_hit-to'       => $end,
+                    'Hsp_score'        => $score,
+                    'Hsp_bit-score'    => $score,
+                    'Hsp_evalue'       => $eval,
+                    'Hsp_query-from'   => 1,
+                    'Hsp_query-to'     => length($line),
+                    'Hsp_align-len'    => length($line),
+                    'Hsp_hseq'         =>$line
+                    });
                 $self->end_element({'Name' => 'Hsp'});
                 $lastscore = $score if (!$lastscore || $lastscore < $score);
                 $lasteval = $eval if (!$lasteval || $lasteval > $eval);
@@ -352,18 +313,11 @@ sub next_result {
     }
     if ($seentop) {
         if ($self->within_element('hit')) {
-            $self->element(
-                            {'Name' => 'Hit_signif',
-                             'Data' => $lasteval}
-                           );
-            $self->element(
-                            {'Name' => 'Hit_score',
-                             'Data' => $lastscore}
-                           );
-            $self->element(
-                            {'Name' => 'Hit_bits',
-                             'Data' => $lastscore}
-                           );
+            $self->element_hash({
+                    'Hit_signif'    => $lasteval,
+                    'Hit_score'     => $lastscore,
+                    'Hit_bits'      => $lastscore
+                    });
             $self->end_element({'Name' => 'Hit'}); 
         }
         $self->end_element({'Name' => 'Result'});
@@ -462,6 +416,37 @@ sub element {
     # simple data calls (%MAPPING) do not need start_element
     $self->characters($data);
     $self->end_element($data);
+}
+
+=head2 element_hash
+
+ Title   : element
+ Usage   : $eventhandler->element_hash({'Hsp_hit-from' => $start,
+                                        'Hsp_hit-to'   => $end,
+                                        'Hsp_score'    => $lastscore});
+ Function: Convenience method that takes multiple simple data elements and
+           maps to appropriate parameters
+ Returns : none
+ Args    : Hash ref with the mapped key (in %MAPPING) and value
+
+=cut
+
+sub element_hash {
+    my ($self, $data) = @_;
+    $self->throw("Must provide data hash ref") if !$data || !ref($data);
+    for my $nm (sort keys %{$data}) {
+        next if $data->{$nm} =~ m{^\s*$}o;
+        if ( $MAPPING{$nm} ) {
+            if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
+                my $key = ( keys %{ $MAPPING{$nm} } )[0];
+                $self->{'_values'}->{$key}->{ $MAPPING{$nm}->{$key} } =
+                  $data->{$nm};
+            }
+            else {
+                $self->{'_values'}->{ $MAPPING{$nm} } = $data->{$nm};
+            }
+        }
+    }
 }
 
 =head2 characters

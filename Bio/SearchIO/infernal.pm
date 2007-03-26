@@ -229,36 +229,17 @@ sub next_result {
             if (!$self->within_element('result')) {
                 $seentop = 1;
                 $self->start_element({'Name' => 'Result'});
-                $self->element(
-                               {'Name' => 'Infernal_program',
-                                'Data' => $algorithm}
-                               );
-                $self->element(
-                               {'Name' => 'Infernal_query-def',
-                                'Data' => $model}
-                               ) if $model;
-                $self->element(
-                               {'Name' => 'Infernal_query-acc',
-                                'Data' => $accession}
-                               ) if $accession;
-                $self->element(
-                               {'Name' => 'Infernal_querydesc',
-                                'Data' => $description}
-                               ) if $description;
-                $self->element(
-                               {'Name' => 'Infernal_db',
-                                'Data' => $db}
-                               ) if $db;
+                $self->element_hash({
+                        'Infernal_program'   => $algorithm,
+                        'Infernal_query-def' => $model,
+                        'Infernal_query-acc' => $accession,
+                        'Infernal_querydesc' => $description,
+                        'Infernal_db'        => $db
+                    });
             }
             if ($self->in_element('hit')) {
-                $self->element(
-                           {'Name' => 'Hit_score',
-                            'Data' => $maxscore}
-                           );
-                $self->element(
-                           {'Name' => 'Hit_bits',
-                            'Data' => $maxscore}
-                           );
+                $self->element_hash({'Hit_score' => $maxscore,
+                                     'Hit_bits'  => $maxscore});
                 $maxscore = undef;
                 $self->end_element({'Name' => 'Hit'});
             }            
@@ -270,19 +251,12 @@ sub next_result {
                 if (!$self->within_element('hit')) {
                     my ($gi, $acc, $ver) = $self->_get_seq_identifiers($lasthit);
                     $self->start_element({'Name' => 'Hit'});
-                    $self->element(
-                                   {'Name' => 'Hit_id',
-                                    'Data' => $lasthit}
-                                   );
-                    $self->element(
-                                   {'Name' => 'Hit_accession',
-                                    'Data' => $ver ? "$acc.$ver" :
-                                            $acc ? $acc : $lasthit}
-                                   );
-                    $self->element(
-                                   {'Name' => 'Hit_gi',
-                                    'Data' => $gi}
-                                   ) if $gi;
+                    $self->element_hash({
+                        'Hit_id'           => $lasthit,
+                        'Hit_accession'    => $ver ? "$acc.$ver" :
+                                               $acc ? $acc : $lasthit,
+                        'Hit_gi'           => $gi
+                        });
                 }
                 # necessary as infernal 0.71 has repeated hit line
                 if (!$self->in_element('hsp')) {
@@ -329,53 +303,20 @@ sub next_result {
                 
                 my $metastr;
                 # Ugh...these should be passed in a hash
-                
-                $self->element({
-                            'Name' => 'Hsp_qseq',
-                            'Data' => $hsp->{'query'} 
-                            });
-                $self->element({
-                            'Name' => 'Hsp_hseq',
-                            'Data' => $hsp->{'hit'}
-                            });
-                $self->element({
-                            'Name' => 'Hsp_midline',
-                            'Data' => $hsp->{'midline'}
-                            });
                 $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
                             ($hsp->{'meta'});
-                $self->element({
-                            'Name' => 'Hsp_structure',
-                            'Data' => $metastr
-                            });
-                $self->element({
-                            'Name' => 'Hsp_query-from',
-                            'Data' => 1
-                            });
-                $self->element({
-                            'Name' => 'Infernal_query-len',
-                            'Data' => $strlen
-                            });
-                $self->element({
-                            'Name' => 'Hsp_query-to',
-                            'Data' => $strlen
-                            });
-                $self->element({
-                            'Name' => 'Hsp_hit-from',
-                            'Data' => $laststart
-                            });            
-                $self->element({
-                            'Name' => 'Hsp_hit-to',
-                            'Data' => $lastend
-                            });
-                $self->element({
-                            'Name' => 'Hsp_score',
-                            'Data' => $lastscore
-                            });
-                # bitscore = score
-                $self->element({
-                            'Name' => 'Hsp_bit-score',
-                            'Data' => $lastscore
+                $self->element_hash(
+                               {'Hsp_qseq'      => $hsp->{'query'},
+                                'Hsp_hseq'      => $hsp->{'hit'},
+                                'Hsp_midline'   => $hsp->{'midline'},
+                                'Hsp_structure' => $metastr,
+                                'Hsp_query-from' => 1,
+                                'Infernal_query-len' => $strlen,
+                                'Hsp_query-to'   => $strlen,
+                                'Hsp_hit-from'  => $laststart,
+                                'Hsp_hit-to'    => $lastend,
+                                'Hsp_score'     => $lastscore,
+                                'Hsp_bit-score' => $lastscore
                             });
                 $self->end_element({'Name' => 'Hsp'});
             }
@@ -386,14 +327,8 @@ sub next_result {
                              'Data' => $version}
                             );
                 if ($self->in_element('hit')) {
-                    $self->element(
-                               {'Name' => 'Hit_score',
-                                'Data' => $maxscore}
-                               );
-                    $self->element(
-                                {'Name' => 'Hit_bits',
-                                 'Data' => $maxscore}
-                                );
+                    $self->element_hash({'Hit_score'    => $maxscore,
+                                         'Hit_bits'     => $maxscore});
                     $self->end_element({'Name' => 'Hit'});
                 }
                 last PARSER;
@@ -489,7 +424,6 @@ sub end_element {
  Returns : none
  Args    : Hash ref with the keys 'Name' and 'Data'
 
-
 =cut
 
 sub element {
@@ -499,38 +433,35 @@ sub element {
     $self->end_element($data);
 }
 
+=head2 element_hash
+
+ Title   : element
+ Usage   : $eventhandler->element_hash({'Hsp_hit-from' => $start,
+                                        'Hsp_hit-to'   => $end,
+                                        'Hsp_score'    => $lastscore});
+ Function: Convenience method that takes multiple simple data elements and
+           maps to appropriate parameters
+ Returns : none
+ Args    : Hash ref with the mapped key (in %MAPPING) and value
+
+=cut
 
 sub element_hash {
-    my ( $self, $data ) = @_;
-    my $nm   = $data->{'Name'};
-    my $type = $MODEMAP{$nm};
-    my $rc;
-
-    if ($type) {
-        if ( $self->_eventHandler->will_handle($type) ) {
-            my $func = sprintf( "end_%s", lc $type );
-            $rc = $self->_eventHandler->$func( $self->{'_reporttype'},
-                $self->{'_values'} );
-        }
-        my $lastelem = shift @{ $self->{'_elements'} };
-    }
-    elsif ( $MAPPING{$nm} ) {
-        if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
-            my $key = ( keys %{ $MAPPING{$nm} } )[0];
-            $self->{'_values'}->{$key}->{ $MAPPING{$nm}->{$key} } =
-              $self->{'_last_data'};
-        }
-        else {
-            $self->{'_values'}->{ $MAPPING{$nm} } = $self->{'_last_data'};
+    my ($self, $data) = @_;
+    $self->throw("Must provide data hash ref") if !$data || !ref($data);
+    for my $nm (sort keys %{$data}) {
+        next if $data->{$nm} =~ m{^\s*$}o;
+        if ( $MAPPING{$nm} ) {
+            if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
+                my $key = ( keys %{ $MAPPING{$nm} } )[0];
+                $self->{'_values'}->{$key}->{ $MAPPING{$nm}->{$key} } =
+                  $data->{$nm};
+            }
+            else {
+                $self->{'_values'}->{ $MAPPING{$nm} } = $data->{$nm};
+            }
         }
     }
-    else {
-        $self->debug("unknown nm $nm, ignoring\n");
-    }
-    $self->{'_last_data'} = '';    # remove read data if we are at
-                                   # end of an element
-    $self->{'_result'} = $rc if ( defined $type && $type eq 'result' );
-    return $rc;
 }
 
 =head2 characters
