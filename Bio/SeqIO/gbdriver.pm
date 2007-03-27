@@ -262,16 +262,17 @@ sub next_seq {
                 }
                 
                 # using handlers directly, slightly faster
-                my $method = (exists $handlers->{ $seqdata->{NAME} }) ?
-                        ($handlers->{$seqdata->{NAME}}) :
-                    (exists $handlers->{'_DEFAULT_'}) ?
-                        ($handlers->{'_DEFAULT_'}) :
-                    undef;
-                ($method) ? ($hobj->$method($seqdata) ) :
-                        $self->debug("No handler defined for ",$seqdata->{NAME},"\n");
+                #my $method = (exists $handlers->{ $seqdata->{NAME} }) ?
+                #        ($handlers->{$seqdata->{NAME}}) :
+                #    (exists $handlers->{'_DEFAULT_'}) ?
+                #        ($handlers->{'_DEFAULT_'}) :
+                #    undef;
+                #($method) ? ($hobj->$method($seqdata) ) :
+                #        $self->debug("No handler defined for ",$seqdata->{NAME},"\n");
 
                 # using handler methods in the Handler object, more centralized
-                #$hobj->data_handler($seqdata);
+                #$self->debug(Dumper($seqdata));
+                $hobj->data_handler($seqdata);
 
                 # bail here on //
                 last PARSER if $endrec;
