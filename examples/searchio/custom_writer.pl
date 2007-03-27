@@ -39,8 +39,7 @@ use lib '../../';
 use Bio::Root::Root;
 use Bio::SearchIO::SearchWriterI;
 
-use vars qw( @ISA );
-@ISA = qw( Bio::Root::Root Bio::SearchIO::SearchWriterI );
+use base qw( Bio::Root::Root Bio::SearchIO::SearchWriterI );
 
 sub to_string {
     my ($self, $result, @args) = @_;

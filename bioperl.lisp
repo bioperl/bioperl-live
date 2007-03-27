@@ -1,5 +1,5 @@
 ;;
-;; $Id: bioperl.lisp,v 1.30 2006-07-04 22:23:12 mauricio Exp $
+;; $Id: bioperl.lisp,v 1.31 2007-03-27 12:43:27 heikki Exp $
 ;;
 ;; Perl mode set up
 
@@ -19,7 +19,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.30 2006-07-04 22:23:12 mauricio Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.31 2007-03-27 12:43:27 heikki Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -34,11 +34,10 @@
   (insert "=head1 APPENDIX\n\nThe rest of the documentation details each of the object methods.\nInternal methods are usually preceded with a _\n\n=cut\n\n")
   (insert "\n# Let the code begin...\n\n")
   (insert "\npackage " perl-object-name ";\n")
-  (insert "use vars qw(@ISA);\n")
   (insert "use strict;\n")
   (insert "\n# Object preamble - inherits from Bio::Root::Root\n")
   (insert "\nuse Bio::Root::Root;\n\n")
-  (insert "\n@ISA = qw(Bio::Root::Root );\n\n")
+  (insert "\nuse base qw(Bio::Root::Root );\n\n")
   (insert "=head2 new\n\n Title   : new\n Usage   : my $obj = new "
 	  perl-object-name "();\n Function: Builds a new "
 	  perl-object-name " object \n Returns : an instance of "
@@ -66,9 +65,8 @@
   (insert "=head1 APPENDIX\n\nThe rest of the documentation details each of the object methods.\nInternal methods are usually preceded with a _\n\n=cut\n\n")
   (insert "\n# Let the code begin...\n\n")
   (insert "\npackage " perl-object-name ";\n")
-  (insert "use vars qw(@ISA);\n")
   (insert "use strict;\n\nuse Bio::Root::RootI;\n\n")
-  (insert "@ISA = qw( Bio::Root::RootI );")
+  (insert "use base qw( Bio::Root::RootI );")
   (insert "\n\n1;")
   )
 

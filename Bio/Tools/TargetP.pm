@@ -95,13 +95,12 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Tools::TargetP;
-use vars qw(@ISA);
 use strict;
 use Bio::Tools::AnalysisResult;
 use Bio::SeqFeature::Generic;
 use Data::Dumper;
 
-@ISA = qw(Bio::Tools::AnalysisResult);
+use base qw(Bio::Tools::AnalysisResult);
 
 
 #Definition of 'Loc' field according to http://www.cbs.dtu.dk/services/TargetP/output.php

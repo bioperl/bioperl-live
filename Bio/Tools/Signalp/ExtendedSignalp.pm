@@ -70,7 +70,6 @@ web:
 =cut
 
 package Bio::Tools::Signalp::ExtendedSignalp;
-use vars qw(@ISA);
 use strict;
 
 use constant DEBUG => 0;
@@ -78,7 +77,7 @@ use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::SeqFeature::Generic;
 use Bio::Tools::Signalp;
-@ISA = qw(Bio::Root::Root Bio::Root::IO Bio::Tools::Signalp);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::Tools::Signalp);
 
 #Supported factors
 my $FACTS = {
