@@ -771,10 +771,16 @@ sub _handle_non_reserved_tag {
   #  do something different
   # else { do what is below
 
-  my $a = Bio::Annotation::SimpleValue->new();
-  $a->value($value);
+  my $a;
+  if ($tag eq 'comment') {
+    $a = Bio::Annotation::Comment->new();
+  }
+  else {
+    $a = Bio::Annotation::SimpleValue->new();
+  }
+  $a->value($value); 
   $feat->add_Annotation($tag,$a);
-
+  
   return $feat;
 }
 
