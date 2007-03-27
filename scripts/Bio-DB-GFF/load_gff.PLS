@@ -11,7 +11,9 @@ bp_load_gff.pl - Load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % bp_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
+  % bp_load_gff.pl -d testdb -u user -p pw
+     --dsn 'dbi:mysql:database=dmel_r5_1;host=myhost;port=myport'
+        dna1.fa dna2.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 
@@ -85,16 +87,16 @@ disclaimers of warranty.
 my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE,$QUIET);
 
 GetOptions ('dsn:s'       => \$DSN,
-	    'adaptor:s'   => \$ADAPTOR,
-	    'u|user:s'      => \$USER,
-	    'p|password:s'  => \$PASSWORD,
+				'adaptor:s'   => \$ADAPTOR,
+				'u|user:s'    => \$USER,
+				'p|password:s' => \$PASSWORD,
             'fasta:s'     => \$FASTA,
             'upgrade'     => \$UPGRADE,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
-	    'group:s'     => \$GROUP_TAG,
-	    'gff3_munge'    => \$MUNGE,
-	    'quiet'       => \$QUIET,
-	    create        => \$CREATE) or (system('pod2text',$0), exit -1);
+	         'group:s'     => \$GROUP_TAG,
+	         'gff3_munge'    => \$MUNGE,
+	         'quiet'       => \$QUIET,
+	         create        => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
