@@ -173,6 +173,21 @@ sub text{
 
 }
 
+=head2 value
+
+ Title   : value
+ Usage   : $value = $self->value($newval)
+ Function: Alias of the 'text' method
+ Example :
+ Returns : value of text
+ Args    : newvalue (optional)
+
+
+=cut
+
+
+*value = \&text;
+
 =head2 type
 
  Title   : type
