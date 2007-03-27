@@ -107,7 +107,7 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Chris Fields
 
 Email cjfields at uiuc dot edu
 
