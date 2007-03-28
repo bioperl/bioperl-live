@@ -57,7 +57,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
+  bioperl-l@bioperl.org                         - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
@@ -142,16 +142,18 @@ sub typemap{
  Returns : 
  Args    :
 
+ dgg: added -undefined => "region" option to produce all valid SO mappings.
 
 =cut
 
 sub map_types{
    my ($self,@args) = @_;
 
-   my($sf, $seq, $type_map) =
+   my($sf, $seq, $type_map, $undefmap) =
      $self->_rearrange([qw(FEATURE
                            SEQ
 			   TYPE_MAP
+			   UNDEFINED
                           )],
                           @args);
    if (!$sf && !$seq) {
@@ -163,7 +165,7 @@ sub map_types{
        $seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
        @sfs = $seq->get_all_SeqFeatures;
    }
-   $type_map = $type_map || $self->type_map;
+   $type_map = $type_map || $self->typemap; # dgg: was type_map;
    foreach my $sf (@sfs) {
 
        $sf->isa("Bio::SeqFeatureI") || $self->throw("$sf NOT A SeqFeatureI");
@@ -180,6 +182,9 @@ sub map_types{
 		   $self->throw('must be scalar or CODE ref');
 	       }
 	   }
+	   elsif ($undefmap && $mtype eq 'undefined') { # dgg
+	      $mtype= $undefmap;
+	      }
 	   $sf->primary_tag($mtype);
        }
    }
@@ -205,98 +210,114 @@ Taken from
 
 L<http://song.sourceforge.net/FT_SO_map.txt>
 
+dgg: separated out FT_SO_map for caller changes. Update with:
+
+  open(FTSO,"curl -s http://sequenceontology.org/mappings/FT_SO_map.txt|");
+  while(<FTSO>){
+    chomp; ($ft,$so,$sid,$ftdef,$sodef)= split"\t";
+    print "     '$ft' => '$so',\n" if($ft && $so && $ftdef);             
+  }
+
 =cut
+
+sub FT_SO_map  {
+  # $self= shift;
+  # note : some of the FT_SO mappings are commented out and overriden...
+  return {
+     "FT term" => "SO term",
+     "-" => "located_sequence_feature",
+     "-10_signal" => "minus_10_signal",
+     "-35_signal" => "minus_35_signal",
+     "3'UTR" => "three_prime_UTR",
+     "3'clip" => "three_prime_clip",
+     "5'UTR" => "five_prime_UTR",
+     "5'clip" => "five_prime_clip",
+     "CAAT_signal" => "CAAT_signal",
+     "CDS" => "CDS",
+     "C_region" => "undefined",
+     "D-loop" => "D_loop",
+     "D_segment" => "D_gene",
+     "GC_signal" => "GC_rich_region",
+     "J_segment" => "undefined",
+     "LTR" => "long_terminal_repeat",
+     "N_region" => "undefined",
+     "RBS" => "ribosome_entry_site",
+     "STS" => "STS",
+     "S_region" => "undefined",
+     "TATA_signal" => "TATA_box",
+     "V_region" => "undefined",
+     "V_segment" => "undefined",
+     "attenuator" => "attenuator",
+     "conflict" => "undefined",
+     "enhancer" => "enhancer",
+     "exon" => "exon",
+     "gap" => "gap",
+     "gene" => "gene",
+     "iDNA" => "iDNA",
+     "intron" => "intron",
+     "mRNA" => "mRNA",
+     "mat_peptide" => "mature_peptide",
+#                     "misc_RNA" => "transcript",
+     "misc_binding" => "binding_site",
+     "misc_difference" => "sequence_difference",
+     "misc_feature" => "region",
+     "misc_recomb" => "recombination_feature",
+     "misc_signal" => "regulatory_region",
+     "misc_structure" => "sequence_secondary_structure",
+     "modified_base" => "modified_base_site",
+     "old_sequence" => "undefined",
+     "operon" => "operon",
+     "oriT" => "origin_of_transfer",
+     "polyA_signal" => "polyA_signal_sequence",
+     "polyA_site" => "polyA_site",
+     "precursor_RNA" => "primary_transcript",
+     "prim_transcript" => "primary_transcript",
+     "primer_bind" => "primer_binding_site",
+     "promoter" => "promoter",
+     "protein_bind" => "protein_binding_site",
+     "rRNA" => "rRNA",
+     "repeat_region" => "repeat_region",
+     "repeat_unit" => "repeat_unit",
+     "satellite" => "satellite_DNA",
+     "scRNA" => "scRNA",
+     "sig_peptide" => "signal_peptide",
+     "snRNA" => "snRNA",
+     "snoRNA" => "snoRNA",
+#                     "source" => "databank_entry",
+     "stem_loop" => "stem_loop",
+     "tRNA" => "tRNA",
+     "terminator" => "terminator",
+     "transit_peptide" => "transit_peptide",
+     "unsure" => "undefined",
+     "variation" => "sequence_variant",
+
+      "pseudomRNA" => "pseudogenic_transcript", ## has parent = pseudogene ; dgg
+      "pseudotranscript" => "pseudogenic_transcript", ## from Unflattener misc_RNA ; dgg
+      "pseudoexon" => "pseudogenic_exon",
+      "pseudomisc_feature" => "pseudogenic_region",
+      "pseudointron" => "pseudogenic_region",
+      
+      ## "undefined" => "region",
+
+      # this is the most generic form for RNAs;
+      # we always represent the processed form of
+      # the transcript
+      misc_RNA=>'processed_transcript',
+      
+      # not sure about this one...
+      source=>'contig',
+      
+      rep_origin=>'origin_of_replication',
+      
+      Protein=>'protein',
+      };
+}
 
 sub map_types_to_SO{
    my ($self,@args) = @_;
 
-   # note : some of the FT_SO mappings are commented out and overriden...
-   push(@args,
-	(-type_map=>{
-
-                     "FT term" => "SO term",
-                     "-" => "located_sequence_feature",
-                     "-10_signal" => "minus_10_signal",
-                     "-35_signal" => "minus_35_signal",
-                     "3'UTR" => "three_prime_UTR",
-                     "3'clip" => "three_prime_clip",
-                     "5'UTR" => "five_prime_UTR",
-                     "5'clip" => "five_prime_clip",
-                     "CAAT_signal" => "CAAT_signal",
-                     "CDS" => "CDS",
-                     "C_region" => "undefined",
-                     "D-loop" => "D_loop",
-                     "D_segment" => "D_gene",
-                     "GC_signal" => "GC_rich_region",
-                     "J_segment" => "undefined",
-                     "LTR" => "long_terminal_repeat",
-                     "N_region" => "undefined",
-                     "RBS" => "ribosome_entry_site",
-                     "STS" => "STS",
-                     "S_region" => "undefined",
-                     "TATA_signal" => "TATA_box",
-                     "V_region" => "undefined",
-                     "V_segment" => "undefined",
-                     "attenuator" => "attenuator",
-                     "conflict" => "undefined",
-                     "enhancer" => "enhancer",
-                     "exon" => "exon",
-                     "gap" => "gap",
-                     "gene" => "gene",
-                     "iDNA" => "iDNA",
-                     "intron" => "intron",
-                     "mRNA" => "mRNA",
-                     "mat_peptide" => "mature_peptide",
-#                     "misc_RNA" => "transcript",
-                     "misc_binding" => "binding_site",
-                     "misc_difference" => "sequence_difference",
-                     "misc_feature" => "region",
-                     "misc_recomb" => "recombination_feature",
-                     "misc_signal" => "regulatory_region",
-                     "misc_structure" => "sequence_secondary_structure",
-                     "modified_base" => "modified_base_site",
-                     "old_sequence" => "undefined",
-                     "operon" => "operon",
-                     "oriT" => "origin_of_transfer",
-                     "polyA_signal" => "polyA_signal_sequence",
-                     "polyA_site" => "polyA_site",
-                     "precursor_RNA" => "primary_transcript",
-                     "prim_transcript" => "primary_transcript",
-                     "primer_bind" => "primer_binding_site",
-                     "promoter" => "promoter",
-                     "protein_bind" => "protein_binding_site",
-                     "rRNA" => "rRNA",
-                     "repeat_region" => "repeat_region",
-                     "repeat_unit" => "repeat_unit",
-                     "satellite" => "satellite_DNA",
-                     "scRNA" => "scRNA",
-                     "sig_peptide" => "signal_peptide",
-                     "snRNA" => "snRNA",
-                     "snoRNA" => "snoRNA",
-#                     "source" => "databank_entry",
-                     "stem_loop" => "stem_loop",
-                     "tRNA" => "tRNA",
-                     "terminator" => "terminator",
-                     "transit_peptide" => "transit_peptide",
-                     "unsure" => "undefined",
-                     "variation" => "sequence_variant",
-
-		     # this is the most generic form for RNAs;
-		     # we always represent the processed form of
-		     # the transcript
-		     misc_RNA=>'processed_transcript',
-
-		     # not sure about this one...
-		     source=>'contig',
-
-		     rep_origin=>'origin_of_replication',
-
-
-                     Protein=>'protein',
-		     
-		    }));
+   push(@args, (-type_map=> $self->FT_SO_map() ) );
    return $self->map_types(@args);
-
 }
 
 =head2 get_relationship_type_by_parent_child

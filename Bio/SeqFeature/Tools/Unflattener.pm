@@ -583,7 +583,7 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to the
 Bioperl mailing lists  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
+  bioperl-l@bioperl.org                         - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Reporting Bugs
@@ -645,14 +645,16 @@ sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my($seq, $group_tag) =
+    my($seq, $group_tag, $trust_grouptag) =
 	$self->_rearrange([qw(SEQ
                               GROUP_TAG
+                              TRUST_GROUPTAG
 			     )],
                           @args);
 
     $seq  && $self->seq($seq);
     $group_tag  && $self->group_tag($group_tag);
+    # $self->{'trust_grouptag'}= $trust_grouptag if($trust_grouptag); #dgg suggestion
     return $self; # success - we hope!
 }
 
@@ -1148,7 +1150,14 @@ sub unflatten_seq{
 	 grep {$_->has_tag("gene")} @flat_seq_features;
        my @sfs_with_product_tag =
 	 grep {$_->has_tag("product")} @flat_seq_features;
+	 
+#        if ($group_tag && $self->{'trust_grouptag'}) { # dgg suggestion
+# 
+#         }
+#        elsif
        if (@sfs_with_locus_tag) {
+        # dgg note: would like to -use_magic with -group_tag = 'gene' for ensembl genomes
+        # where ensembl gene FT have both /locus_tag and /gene, but mRNA, CDS have /gene only
 	   if ($group_tag && $group_tag ne 'locus_tag') {
 	       $self->throw("You have explicitly set group_tag to be '$group_tag'\n".
 			    "However, I detect that some features use /locus_tag\n".
@@ -1284,7 +1293,8 @@ sub unflatten_seq{
            my $type = $sf->primary_tag;
            # SO type is typically the same as the normal
            # type but preceeded by "pseudo"
-           if ($type eq 'misc_RNA') {
+           if ($type eq 'misc_RNA' || $type eq 'mRNA') { 
+            # dgg: see TypeMapper; both pseudo mRNA,misc_RNA should be pseudogenic_transcript
                $sf->primary_tag("pseudotranscript");
            }
            else {
