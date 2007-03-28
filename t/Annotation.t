@@ -139,8 +139,8 @@ is ($ann->value(-joins => [" AND "]), "val1 AND val2");
 $ann->add_value([-1,-1], "val3", "val4");
 $ann->add_value([-1,-1], "val5", "val6");
 $ann->add_value([-1,-1], "val7");
-ok ($ann->value(-joins => [" AND "]), "val1 AND val2 AND (val3 AND val4) AND (val5 AND val6) AND val7");
-ok ($ann->value(-joins => [" AND ", " OR "]), "val1 AND val2 AND (val3 OR val4) AND (val5 OR val6) AND val7");
+is ($ann->value(-joins => [" AND "]), "val1 AND val2 AND (val3 AND val4) AND (val5 AND val6) AND val7");
+is ($ann->value(-joins => [" AND ", " OR "]), "val1 AND val2 AND (val3 OR val4) AND (val5 OR val6) AND val7");
 
 $n = 1;
 foreach ($ann->get_all_values()) {
