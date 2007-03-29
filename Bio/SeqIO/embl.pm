@@ -1034,7 +1034,7 @@ sub _read_EMBL_Species {
     }
 
     $$buffer = $_;
-
+    $sci_name =~ s{\.$}{};
     $sci_name || return;
 
     # Convert data in classification lines into classification array.
@@ -1092,7 +1092,6 @@ sub _read_EMBL_Species {
             $self->throw("$acc seems to have an invalid species classification.");
         }
     }
-
     my $make = Bio::Species->new();
     $make->scientific_name($sci_name);
     $make->classification(@class);
