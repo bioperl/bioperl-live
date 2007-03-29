@@ -67,7 +67,7 @@ Internal methods are usually preceded with a _
 package Bio::DB::Taxonomy;
 use vars qw($DefaultSource $TAXON_IIDS);
 use strict;
-
+use Bio::Tree::Tree;
 
 use base qw(Bio::Root::Root);
 
@@ -175,7 +175,7 @@ sub get_tree {
                 $tree->merge_lineage($node);
             }
             else {
-                $tree = new Bio::Tree::Tree(-verbose => $self->verbose, -node => $node);
+                $tree = Bio::Tree::Tree->new(-verbose => $self->verbose, -node => $node);
             }
         }
         else {
