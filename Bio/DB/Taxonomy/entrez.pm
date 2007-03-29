@@ -417,7 +417,12 @@ sub get_taxonids {
                 my $parent_node = $self->ancestor($node) || next ID;
                 my $parent_sci_name = $parent_node->scientific_name || next ID;
                 my @parent_common_names = $parent_node->common_names;
-                
+                unless (@parent_common_names) {
+					# ensure we're not using a minimal-info cached version
+					$parent_node = $self->get_taxon(-taxonid => $parent_node->id, -full => 1);
+					@parent_common_names = $parent_node->common_names;
+				}
+				
                 foreach my $name ($parent_sci_name, @parent_common_names) {
                     if (lc($name) eq $desired_parent_name) {
                         return wantarray() ? ($start_id) : $start_id;
