@@ -965,6 +965,7 @@ sub _read_swissprot_Species {
 
     my( $sub_species, $species, $genus, $common, $variant, $ncbi_taxid, $sci_name, $class_lines, $descr );
     my $osline = "";
+    my $do_genus_check = 1;
     while ( defined $_ ) {
         last unless /^O[SCGX]/;
         # believe it or not, but OS may come multiple times -- at this time
@@ -973,7 +974,22 @@ sub _read_swissprot_Species {
             $osline .= " " if $osline;
             $osline .= $1;
             if($osline =~ s/(,|, and|\.)$//) {
-                ($sci_name, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
+                # OS lines are usually like
+                # Homo sapiens (human)
+                # where we have $sci_name followed by $descr (common name) in
+                # brackets, but we can also have
+                # Venerupis (Ruditapes) philippinarum
+                # where we have brackets but they don't indicate a $descr
+                if ($osline =~ /[^\(\)]+\(.+\)[^\(\)]+$/) {
+                    #*** Danger! no idea if this will pick up some syntaxes for
+                    #    common names as well)
+                    $sci_name = $osline;
+                    $descr = '';
+                    $do_genus_check = 0;
+                }
+                else {
+                    ($sci_name, $descr) = $osline =~ /(\S[^\(]+)(.*)/;
+                }
                 $sci_name =~ s/\s+$//;
                 
                 while($descr =~ /\(([^\)]+)\)/g) {
@@ -1026,8 +1042,7 @@ sub _read_swissprot_Species {
     
     $sci_name || return;
     
-    #if the organism belongs to taxid 32644 then no Bio::Species object.
-#    return if grep { /^\Q$sci_name$/ } @Unknown_names;
+    # if the organism belongs to taxid 32644 then no Bio::Species object.
     return if grep { $_ eq $sci_name } @Unknown_names;
     
     # Convert data in classification lines into classification array.
@@ -1043,7 +1058,7 @@ sub _read_swissprot_Species {
         $genus = join(" ", @virusnames);
         $sub_species = $descr;
     }
-    else {
+    elsif ($do_genus_check) {
         # do we have a genus?
         my $possible_genus = $class[-1];
         $possible_genus .= "|$class[-2]" if $class[-2];
