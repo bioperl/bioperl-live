@@ -242,7 +242,6 @@ sub _parse_predictions {
 		    '_na_' => '');
     my $exontag;
     my $gene;
-    my $seqname;
     my $exontype;
     my $current_gene_no = -1;
 

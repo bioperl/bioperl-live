@@ -70,16 +70,16 @@ foreach my $range (@$subtracted) {
     ok($range->end == 99 || $range->end == 1000);
 }
 
-my $subtracted = $feature2->subtract($feature1);
+$subtracted = $feature2->subtract($feature1);
 ok(!defined($subtracted));
-my $subtracted = $feature1->subtract($feature2, 'weak');
+$subtracted = $feature1->subtract($feature2, 'weak');
 ok(!defined($subtracted));
-my $subtracted = $feature1->subtract($feature2, 'strong');
+$subtracted = $feature1->subtract($feature2, 'strong');
 ok(!defined($subtracted));
 
 my $feature3 =  new Bio::SeqFeature::Generic ( -start => 500, -end =>
 1500, -strand => 1);
-my $subtracted = $feature1->subtract($feature3);
+$subtracted = $feature1->subtract($feature3);
 ok(defined($subtracted));
 ok(scalar(@$subtracted) == 1);
 my $subtracted_i = @$subtracted[0];

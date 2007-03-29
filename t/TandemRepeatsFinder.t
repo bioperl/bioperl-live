@@ -26,7 +26,7 @@ ok( !defined($feat), "empty results file correctly returns no results" );
 
 
 # now check some results
-my $trf =
+$trf =
    new Bio::Tools::TandemRepeatsFinder( -file =>
       Bio::Root::IO->catfile( "t", "data", "tandem_repeats_finder.dat" )
   );
@@ -98,34 +98,34 @@ is ( $feat2->score(),       58,                       "score for first result co
 # test tag values
 # all of the data other than start, end, score, and seq_id 
 # is stored in tags
-my ($seqence_description) = $feat2->get_tag_values( 'sequence_description' );
+($seqence_description) = $feat2->get_tag_values( 'sequence_description' );
 is ( $seqence_description, "|Masked Chromosomal Sequence| on chromosome: M", "sequence description correctly parsed.");
 
-my ($parameters) = $feat2->get_tag_values( 'run_parameters' );
+($parameters) = $feat2->get_tag_values( 'run_parameters' );
 is_deeply ( $parameters, $expected_run_parameters ,"correctly reatained all run parameters for second feature");
-my ($period_size) = $feat2->get_tag_values( 'period_size' );
+($period_size) = $feat2->get_tag_values( 'period_size' );
 is ( $period_size, 9 ,"correctly parsed period_size for second result");
-my ($copy_number) = $feat2->get_tag_values( 'copy_number' );
+($copy_number) = $feat2->get_tag_values( 'copy_number' );
 is ( $copy_number, "3.2" ,"correctly parsed copy_number for second result");
-my ($consensus_size) = $feat2->get_tag_values( 'consensus_size' );
+($consensus_size) = $feat2->get_tag_values( 'consensus_size' );
 is ( $consensus_size, 9 ,"correctly parsed consensus_size for second result");
-my ($percent_matches) = $feat2->get_tag_values( 'percent_matches' );
+($percent_matches) = $feat2->get_tag_values( 'percent_matches' );
 is ( $percent_matches, 100 ,"correctly parsed percent_matches for second result");
-my ($percent_indels) = $feat2->get_tag_values( 'percent_indels' );
+($percent_indels) = $feat2->get_tag_values( 'percent_indels' );
 is ( $percent_indels, 0 ,"correctly parsed percent_indels for second result");
-my ($percent_a) = $feat2->get_tag_values( 'percent_a' );
+($percent_a) = $feat2->get_tag_values( 'percent_a' );
 is ( $percent_a, 44 ,"correctly parsed percent_a for second result");
-my ($percent_c) = $feat2->get_tag_values( 'percent_c' );
+($percent_c) = $feat2->get_tag_values( 'percent_c' );
 is ( $percent_c, 0 ,"correctly parsed percent_c for second result");
-my ($percent_g) = $feat2->get_tag_values( 'percent_g' );
+($percent_g) = $feat2->get_tag_values( 'percent_g' );
 is ( $percent_g, 10 ,"correctly parsed percent_g for second result");
-my ($percent_t) = $feat2->get_tag_values( 'percent_t' );
+($percent_t) = $feat2->get_tag_values( 'percent_t' );
 is ( $percent_t, 44 ,"correctly parsed percent_t for second result");
-my ($entropy) = $feat2->get_tag_values( 'entropy' );
+($entropy) = $feat2->get_tag_values( 'entropy' );
 is ( $entropy, "1.38", "correctly parsed entropy for second result");
-my ($repeat_sequence) = $feat2->get_tag_values( 'repeat_sequence' );
+($repeat_sequence) = $feat2->get_tag_values( 'repeat_sequence' );
 is ( $repeat_sequence, "TATATAGTATATATAGTATATATAGTATA", "correctly parsed repeat_sequence for second result");
-my ($consensus_sequence) = $feat2->get_tag_values( 'consensus_sequence' );
+($consensus_sequence) = $feat2->get_tag_values( 'consensus_sequence' );
 is ( $consensus_sequence, "TATATAGTA", "correctly parsed consensus_sequence for second result");
 
 # now, check the full results again for last result (on a different sequence).
@@ -141,34 +141,34 @@ is ( $feat3->score(),       62,                       "score for first result co
 # test tag values
 # all of the data other than start, end, score, and seq_id 
 # is stored in tags
-my ($seqence_description) = $feat3->get_tag_values( 'sequence_description' );
+($seqence_description) = $feat3->get_tag_values( 'sequence_description' );
 is ( $seqence_description, "|Masked Chromosomal Sequence| on chromosome: 2F", "sequence description correctly parsed.");
 
-my ($parameters) = $feat3->get_tag_values( 'run_parameters' );
+($parameters) = $feat3->get_tag_values( 'run_parameters' );
 is_deeply ( $parameters, $expected_run_parameters ,"correctly reatained all run parameters for third feature");
-my ($period_size) = $feat3->get_tag_values( 'period_size' );
+($period_size) = $feat3->get_tag_values( 'period_size' );
 is ( $period_size, 1 ,"correctly parsed period_size for third result");
-my ($copy_number) = $feat3->get_tag_values( 'copy_number' );
+($copy_number) = $feat3->get_tag_values( 'copy_number' );
 is ( $copy_number, "31.0" ,"correctly parsed copy_number for third result");
-my ($consensus_size) = $feat3->get_tag_values( 'consensus_size' );
+($consensus_size) = $feat3->get_tag_values( 'consensus_size' );
 is ( $consensus_size, 1 ,"correctly parsed consensus_size for third result");
-my ($percent_matches) = $feat3->get_tag_values( 'percent_matches' );
+($percent_matches) = $feat3->get_tag_values( 'percent_matches' );
 is ( $percent_matches, 100 ,"correctly parsed percent_matches for third result");
-my ($percent_indels) = $feat3->get_tag_values( 'percent_indels' );
+($percent_indels) = $feat3->get_tag_values( 'percent_indels' );
 is ( $percent_indels, 0 ,"correctly parsed percent_indels for third result");
-my ($percent_a) = $feat3->get_tag_values( 'percent_a' );
+($percent_a) = $feat3->get_tag_values( 'percent_a' );
 is ( $percent_a, 0 ,"correctly parsed percent_a for third result");
-my ($percent_c) = $feat3->get_tag_values( 'percent_c' );
+($percent_c) = $feat3->get_tag_values( 'percent_c' );
 is ( $percent_c, 0 ,"correctly parsed percent_c for third result");
-my ($percent_g) = $feat3->get_tag_values( 'percent_g' );
+($percent_g) = $feat3->get_tag_values( 'percent_g' );
 is ( $percent_g, 0 ,"correctly parsed percent_g for third result");
-my ($percent_t) = $feat3->get_tag_values( 'percent_t' );
+($percent_t) = $feat3->get_tag_values( 'percent_t' );
 is ( $percent_t, 100 ,"correctly parsed percent_t for third result");
-my ($entropy) = $feat3->get_tag_values( 'entropy' );
+($entropy) = $feat3->get_tag_values( 'entropy' );
 is ( $entropy, "0.00", "correctly parsed entropy for third result");
-my ($repeat_sequence) = $feat3->get_tag_values( 'repeat_sequence' );
+($repeat_sequence) = $feat3->get_tag_values( 'repeat_sequence' );
 is ( $repeat_sequence, "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT", "correctly parsed repeat_sequence for third result");
-my ($consensus_sequence) = $feat3->get_tag_values( 'consensus_sequence' );
+($consensus_sequence) = $feat3->get_tag_values( 'consensus_sequence' );
 is ( $consensus_sequence, "T", "correctly parsed consensus_sequence for third result");
 
 my $empty_feat = $trf->next_result();
