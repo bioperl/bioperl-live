@@ -974,16 +974,17 @@ sub _read_swissprot_Species {
             $osline .= " " if $osline;
             $osline .= $1;
             if($osline =~ s/(,|, and|\.)$//) {
-                # OS lines are usually like
+                # OS lines are usually like:
                 # Homo sapiens (human)
                 # where we have $sci_name followed by $descr (common name) in
-                # brackets, but we can also have
+                # brackets, but we can also have:
                 # Venerupis (Ruditapes) philippinarum
                 # where we have brackets but they don't indicate a $descr
                 if ($osline =~ /[^\(\)]+\(.+\)[^\(\)]+$/) {
                     #*** Danger! no idea if this will pick up some syntaxes for
                     #    common names as well)
                     $sci_name = $osline;
+                    $sci_name =~ s/\.$//;
                     $descr = '';
                     $do_genus_check = 0;
                 }
