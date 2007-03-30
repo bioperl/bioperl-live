@@ -50,10 +50,8 @@ SKIP: {
 	
 	ok(1, 'Text BLAST');
 	
-	if( $actually_submit == 0 ) {
-		print STDERR "Skipping submitting remote BLAST to avoid Time-out\n" if( $DEBUG );
-		skip('Skip to avoid timeout',1);
-	} else {
+	SKIP: {
+		skip( 'Text BLAST to avoid timeout', 4 ) if $actually_submit == 0;
 		my $r = $remote_blast->submit_blast($inputfilename);
 		ok($r);
 		print STDERR "waiting..." if( $v > 0 );
