@@ -418,7 +418,7 @@ sub purge {
 
  Title     : sort_alphabetically
  Usage     : $ali->sort_alphabetically
- Function  : Changes the order of the alignemnt to alphabetical on name
+ Function  : Changes the order of the alignment to alphabetical on name
              followed by numerical by number.
  Returns   :
  Argument  :
@@ -2621,7 +2621,7 @@ sub restore_displayname {
  
  Title     : sort_by_start
  Usage     : $ali->sort_by_start
- Function  : Changes the order of the alignemnt to the start position of each
+ Function  : Changes the order of the alignment to the start position of each
              subalignment    
  Returns   :
  Argument  :
