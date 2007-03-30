@@ -450,7 +450,7 @@ sub element_hash {
     my ($self, $data) = @_;
     $self->throw("Must provide data hash ref") if !$data || !ref($data);
     for my $nm (sort keys %{$data}) {
-        next if $data->{$nm} =~ m{^\s*$}o;
+        next if $data->{$nm} && $data->{$nm} =~ m{^\s*$}o;
         if ( $MAPPING{$nm} ) {
             if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
                 my $key = ( keys %{ $MAPPING{$nm} } )[0];
