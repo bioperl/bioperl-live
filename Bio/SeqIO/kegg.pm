@@ -295,4 +295,15 @@ sub next_seq {
   return $seq;
 }
 
+=head2 write_seq
+
+ Title   : write_seq
+ Note    : write_seq() is not implemented for KEGG format output.
+ 
+=cut
+
+sub write_seq {
+    shift->throw("write_seq() not implemented for KEGG format output.");
+}
+
 1;
