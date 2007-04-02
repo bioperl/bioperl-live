@@ -1995,20 +1995,19 @@ is($hits[1]->accession,'ZP_00972546');
 is($hits[4]->significance, '0.0');
 is($hits[7]->score, 624);
 
-# Bug 2189
-$searchio = new Bio::SearchIO(-format => 'blast',
+# Bug 2246
+$searchio = Bio::SearchIO->new(-format => 'blast',
+                               -verbose => -1,
 							  -file   => Bio::Root::IO->catfile
-							  (qw(t data blastp2215.blast)));
-
+							  (qw(t data bug2246.blast)));
 $result = $searchio->next_result;
-is($result->database_entries, 4460989);
-is($result->database_letters, 1533424333);
-is($result->algorithm, 'BLASTP');
-is($result->algorithm_version, '2.2.15 [Oct-15-2006]');
-is($result->query_name, 'gi|15608519|ref|NP_215895.1|');
-is($result->query_length, 193);
-@hits = $result->hits;
-
+$hit = $result->next_hit;
+is $hit->name, 'UniRef50_Q9X0H5';
+is $hit->length, 0;
+is $hit->accession, 'UniRef50_Q9X0H5';
+is $hit->description, 'Cluster: Histidyl-tRNA synthetase; n=4; Thermoto...';
+is $hit->raw_score, 23;
+is $hit->significance, 650;
 
 # some utilities
 # a utility function for comparing result objects
