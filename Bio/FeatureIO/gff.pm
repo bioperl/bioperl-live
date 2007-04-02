@@ -492,6 +492,11 @@ sub _handle_directive {
     $self->{group_not_done} = 0;
   }
 
+  elsif($directive eq 'organism') {
+    my $organism = $arg[0];
+    $self->organism($organism);
+  }
+
   else {
     $self->throw("don't know what do do with directive: '##".$directive."'");
   }
@@ -783,6 +788,20 @@ sub _handle_non_reserved_tag {
   
   return $feat;
 }
+
+=head1 organims
+
+Gets/sets the organims from the organism directive
+
+=cut
+
+sub organism {
+    my $self = shift;
+    my $organism = shift if defined(@_);
+    return $self->{'organism'} = $organism if defined($organism);
+    return $self->{'organism'};
+}
+
 
 =head1 _write_feature_1()
 
