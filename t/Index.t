@@ -7,7 +7,7 @@ BEGIN {
    eval { require Test; };
    use vars qw($NUMTESTS);
    $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
-   $NUMTESTS = 50;
+   $NUMTESTS = 56;
    if ( $@ ) {
       use lib 't';
    }
@@ -59,10 +59,13 @@ $ind->make_index(Bio::Root::IO->catfile($dir,"t","data","seqs.fas"));
 ok ( -e "Wibbl" || -e "Wibbl.pag" );
 my $seq = $ind->fetch('HSEARLOBE');
 ok($seq->length,321);
+ok($seq->primary_id(),'HSEARLOBE');
 $seq = $ind->fetch('HSMETOO');
 ok($seq->length,134);
+ok($seq->primary_id(),'HSMETOO');
 $seq = $ind->fetch('MMWHISK');
 ok($seq->length,62);
+ok($seq->primary_id(),'MMWHISK');
 $seq = $ind->fetch('gi|238775|bbs|65126');
 ok($seq->length,70);
 
@@ -87,10 +90,13 @@ ok ( -e "multifa_qual_index" );
 ok ( defined($seq) && $seq->isa('Bio::SeqI'));
 $seq = $ind->fetch('HSEARLOBE');
 ok($seq->length,321);
+ok($seq->primary_id(),'HSEARLOBE');
 $seq = $ind->fetch('HSMETOO');
 ok($seq->length,134);
+ok($seq->primary_id(),'HSMETOO');
 $seq = $ind->fetch('MMWHISK');
 ok($seq->length,62);
+ok($seq->primary_id(),'MMWHISK');
 $seq = $ind->fetch('NONEXISTENT_SEQ');
 ok(! defined $seq);
 
