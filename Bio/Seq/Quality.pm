@@ -158,7 +158,7 @@ use strict;
 
 #use overload '""' => \&to_string;
 
-use base qw(Bio::LocatableSeq Bio::Seq::Meta::Array);
+use base qw(Bio::Seq::Meta::Array);
 
 
 BEGIN {

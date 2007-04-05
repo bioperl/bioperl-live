@@ -14,7 +14,7 @@ BEGIN {
         use lib 't';
     }
     use Test;
-    plan tests => 48;
+    plan tests => 52;
 }
 
 my $DEBUG = $ENV{'BIOPERLDEBUG'};
@@ -260,4 +260,16 @@ ok join (' ', @{$seq->named_submeta('trace', 2, 3)}), '5 10';
 ok $seq->named_submeta_text('trace', 2, 3), '5 10';
 ok join (' ', @{$seq->named_submeta('trace', 2, 3, "9 9")}), '9 9';
 ok $seq->named_submeta_text('trace', 2, 3, "8 8"), '8 8';
+
+
+ok $seq = Bio::Seq::Quality->new(
+    -seq => "ATGGGGGTGGTGGTACCCTATGGGGGTGGTGGTACCCT",
+    -qual => "10 59 12 75 63 76 84 36 42 10 35 97 81 50 81 53 93 13 38 10 59 12 75 63 76 84 36 42 10 35 97 81 50 81 53 93 13 38",
+    -trace_indices => "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38"
+);
+
+my $rev;
+ok $rev = $seq->revcom;
+ok $rev->seq eq 'AGGGTACCACCACCCCCATAGGGTACCACCACCCCCAT';
+ok $rev->qual_text eq "38 13 93 53 81 50 81 97 35 10 42 36 84 76 63 75 12 59 10 38 13 93 53 81 50 81 97 35 10 42 36 84 76 63 75 12 59 10";
 
