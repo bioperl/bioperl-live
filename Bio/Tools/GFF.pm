@@ -964,134 +964,144 @@ sub _gff25_string {
 =cut
 
 sub _gff3_string {
-    my ($gff, $origfeat) = @_;
-    my $feat;
-    if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
-	$feat = $origfeat->feature2;
-    } else {
-	$feat = $origfeat;
-    }
+	my ($gff, $origfeat) = @_;
+	my $feat;
+	if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
+		$feat = $origfeat->feature2;
+	} else {
+		$feat = $origfeat;
+	}
 
-    my $ID = $gff->_incrementGFF3ID();
+	my $ID = $gff->_incrementGFF3ID();
 
-    my ($score,$frame,$name,$strand);
+	my ($score,$frame,$name,$strand);
 
-    if( $feat->can('score') ) {
-	$score = $feat->score();
-    }
-    $score = '.' unless defined $score;
+	if( $feat->can('score') ) {
+		$score = $feat->score();
+	}
+	$score = '.' unless defined $score;
 
-    if( $feat->can('frame') ) {
-	$frame = $feat->frame();
-    }
-    $frame = '.' unless defined $frame;
+	if( $feat->can('frame') ) {
+		$frame = $feat->frame();
+	}
+	$frame = '.' unless defined $frame;
 
-    $strand = $feat->strand();
+	$strand = $feat->strand();
 
-    if(! $strand) {
-	$strand = ".";
-    } elsif( $strand == 1 ) {
-	$strand = '+';
-    } elsif ( $feat->strand == -1 ) {
-	$strand = '-';
-    }
+	if(! $strand) {
+		$strand = ".";
+	} elsif( $strand == 1 ) {
+		$strand = '+';
+	} elsif ( $feat->strand == -1 ) {
+		$strand = '-';
+	}
 
-    if( $feat->can('seqname') ) {
-	$name = $feat->seq_id();
-	$name ||= 'SEQ';
-    } else {
-	$name = 'SEQ';
-    }
+	if( $feat->can('seqname') ) {
+		$name = $feat->seq_id();
+		$name ||= 'SEQ';
+	} else {
+		$name = 'SEQ';
+	}
 
-    my @groups;
+	my @groups;
 
-    # force leading ID and Parent tags
-    my @all_tags =  grep { !/ID/ && !/Parent/ } $feat->all_tags;
-    unshift @all_tags, 'Parent' if $feat->has_tag('Parent');
-    unshift @all_tags, 'ID' if $feat->has_tag('ID');
+	# force leading ID and Parent tags
+	my @all_tags =  grep { !/ID/ && !/Parent/ } $feat->all_tags;
+	unshift @all_tags, 'Parent' if $feat->has_tag('Parent');
+	unshift @all_tags, 'ID' if $feat->has_tag('ID');
 
-    for my $tag ( @all_tags ) {
-        next if $tag eq 'Target';
-	my $valuestr;	# a string which will hold one or more values 
-                        # for this tag, with quoted free text and 
-                        # space-separated individual values.
-	my @v;
-	for my $value ( $feat->each_tag_value($tag) ) {	    
-	    if(  defined $value && length($value) ) { 
-		#$value =~ tr/ /+/;  #spaces are allowed now
-
-		if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
-		    $value =~ s/\t/\\t/g;	# substitute tab and newline 
-                                                # characters
-		    $value =~ s/\n/\\n/g;	# to their UNIX equivalents
-
-# Unescaped quotes are not allowed in GFF3
-#		    $value = '"' . $value . '"';
+	for my $tag ( @all_tags ) {
+		# next if $tag eq 'Target';
+      if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){  
+			# simple Target,start,stop
+			my($target_id, $b,$e,$strand)= $feat->get_tag_values($tag); 
+			($b,$e)= ($e,$b) if(defined $strand && $strand<0);
+			$target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
+			push @groups, sprintf("Target=%s %d %d", $target_id,$b,$e);
+			next;
 		}
-		$value =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
-	    } else {
-		# if it is completely empty, 
-		# then just make empty double 
-		# quotes
-		$value = '""';
-	    }
-	    push @v, $value;
+	
+		my $valuestr;	
+		# a string which will hold one or more values 
+		# for this tag, with quoted free text and 
+		# space-separated individual values.
+		my @v;
+		for my $value ( $feat->each_tag_value($tag) ) {	    
+			if(  defined $value && length($value) ) { 
+				#$value =~ tr/ /+/;  #spaces are allowed now
+
+				if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
+					$value =~ s/\t/\\t/g;	# substitute tab and newline 
+					# characters
+					$value =~ s/\n/\\n/g;	# to their UNIX equivalents
+
+					# Unescaped quotes are not allowed in GFF3
+					#		    $value = '"' . $value . '"';
+				}
+				$value =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
+			} else {
+				# if it is completely empty, 
+				# then just make empty double 
+				# quotes
+				$value = '""';
+			}
+			push @v, $value;
+		}
+		$tag= lcfirst($tag) unless ($tag 
+		=~ /^ID|Name|Alias|Parent|Gap|Target|Derives_from|Note|Dbxref|Ontology_term$/);
+
+		push @groups, "$tag=".join(",",@v);
 	}
-	$tag= lcfirst($tag) unless ($tag 
-          =~ /^ID|Name|Alias|Parent|Gap|Target|Derives_from|Note|Dbxref|Ontology_term$/);
+	# Add Target information for Feature Pairs
+	if( $feat->has_tag('Target') && 
+		 ! $feat->has_tag('Group') &&
+		 $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
 
-	push @groups, "$tag=".join(",",@v);
-    }
-# Add Target information for Feature Pairs
-    if( $feat->has_tag('Target') && 
-	! $feat->has_tag('Group') &&
-	$origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
-
-        my $target_id = $origfeat->feature1->seq_id;
-        $target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
+		my $target_id = $origfeat->feature1->seq_id;
+		$target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
      
-	push @groups, sprintf("Target=%s %d %d", 
-			      $target_id,
-			      ( $origfeat->feature1->strand < 0 ? 
-				( $origfeat->feature1->end,
-				  $origfeat->feature1->start) :
-				( $origfeat->feature1->start,
-				  $origfeat->feature1->end) 
-			      ));
-    }
-    
-# unshift @groups, "ID=autogenerated$ID" unless ($feat->has_tag('ID'));
-    
-    my $gff_string = "";
-    if ($feat->location->isa("Bio::Location::SplitLocationI")) {
-	my @locs = $feat->location->each_Location;
-	foreach my $loc (@locs) {
-	    $gff_string .= join("\t",
-				$name,
-				$feat->source_tag() || '.',
-				$feat->primary_tag(),
-				$loc->start(),
-				$loc->end(),
-				$score,
-				$strand,
-				$frame,
-				join(';', @groups)) . "\n";
+		push @groups, sprintf("Target=%s %d %d", 
+									 $target_id,
+									 ( $origfeat->feature1->strand < 0 ? 
+										( $origfeat->feature1->end,
+										  $origfeat->feature1->start) :
+										( $origfeat->feature1->start,
+										  $origfeat->feature1->end) 
+									 ));
 	}
-	chop $gff_string;
+    
+	# unshift @groups, "ID=autogenerated$ID" unless ($feat->has_tag('ID'));
+    
+	my $gff_string = "";
+	if ($feat->location->isa("Bio::Location::SplitLocationI")) {
+		my @locs = $feat->location->each_Location;
+		foreach my $loc (@locs) {
+			$gff_string .= join("\t",
+									  $name,
+									  $feat->source_tag() || '.',
+									  $feat->primary_tag(),
+									  $loc->start(),
+									  $loc->end(),
+									  $score,
+									  $strand,
+									  $frame,
+									  join(';', @groups)) . "\n";
+		}
+		chop $gff_string;
+		return $gff_string;
+	} else {
+		$gff_string = join("\t",
+								 $name,
+								 $feat->source_tag() || '.',
+								 $feat->primary_tag(),
+								 $feat->start(),
+								 $feat->end(),
+								 $score,
+								 $strand,
+								 $frame, 
+								 join(';', @groups));
+	}
 	return $gff_string;
-    } else {
-	$gff_string = join("\t",
-			   $name,
-			   $feat->source_tag() || '.',
-			   $feat->primary_tag(),
-			   $feat->start(),
-			   $feat->end(),
-			   $score,
-			   $strand,
-			   $frame, 
-			   join(';', @groups));
-    }
-    return $gff_string;
 }
 
 =head2 gff_version
