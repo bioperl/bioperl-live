@@ -507,7 +507,7 @@ sub _finish_bulk_update {
     my $path = $self->dump_path($table);
     $fh->close;
     my $qualified_table = $self->_qualify($table);
-    $dbh->do("LOAD DATA INFILE '$path' REPLACE INTO TABLE $qualified_table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
+    $dbh->do("LOAD DATA LOCAL INFILE '$path' REPLACE INTO TABLE $qualified_table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
     unlink $path;
   }
@@ -1423,7 +1423,7 @@ sub _prepare {
   my $self = shift;
   my $query = shift;
   my $dbh   = $self->dbh;
-  my $sth   = $dbh->prepare_cached($query) or $self->throw($dbh->errstr);
+  my $sth   = $dbh->prepare_cached($query, {}, 3) or $self->throw($dbh->errstr);
   $sth;
 }
 
