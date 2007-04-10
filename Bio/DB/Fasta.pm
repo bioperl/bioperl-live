@@ -75,6 +75,8 @@ different line lengths are allowed in the same file.  However, within
 a sequence entry, all lines must be the same length except for the
 last.
 
+An error will be thrown if this is not the case.
+
 The module uses /^E<gt>(\S+)/ to extract the primary ID of each sequence 
 from the Fasta header.  During indexing, you may pass a callback routine to
 modify this primary ID.  For example, you may wish to extract a
@@ -420,6 +422,7 @@ use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
 use constant DNA     => 1;
 use constant RNA     => 2;
 use constant PROTEIN => 3;
+use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want 
 
 # Bio::DB-like object
 # providing fast random access to a directory of FASTA files
@@ -733,49 +736,60 @@ sub calculate_offsets {
   binmode $fh;
   warn "indexing $file\n" if $self->{debug};
   my ($offset,$id,$linelength,$type,$firstline,$count,$termination_length,$seq_lines,$last_line,%offsets);
+  my ($l3_len,$l2_len,$l_len)=(0,0,0);
+
   while (<$fh>) {		# don't try this at home
-    $termination_length ||= /\r\n$/ ? 2 : 1;  # account for crlf-terminated Windows files
-    if (/^>(\S+)/) {
-      print STDERR "indexed $count sequences...\n" 
-	if $self->{debug} && (++$count%1000) == 0;
-      my $pos = tell($fh);
-      if ($id) {
-	my $seqlength    = $pos - $offset - length($_);
-	$seqlength      -= $termination_length * $seq_lines;
-	$offsets->{$id}  = &{$self->{packmeth}}($offset,$seqlength,
-					$linelength,$firstline,
-					$type,$base);
-      }
-      $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-      ($offset,$firstline,$linelength) = ($pos,length($_),0);
-      $self->_check_linelength($linelength);
-      $seq_lines = 0;
-    } else {
-      $linelength ||= length($_);
-      $type       ||= $self->_type($_);
-      $seq_lines++;
-    }
-    $last_line = $_;
+	  $termination_length ||= /\r\n$/ ? 2 : 1;  # account for crlf-terminated Windows files
+	  if (/^>(\S+)/) {
+		  print STDERR "indexed $count sequences...\n" 
+			 if $self->{debug} && (++$count%1000) == 0;
+		  my $pos = tell($fh);
+		  if ($id) {
+			  my $seqlength    = $pos - $offset - length($_);
+			  $seqlength      -= $termination_length * $seq_lines;
+			  $offsets->{$id}  = &{$self->{packmeth}}($offset,$seqlength,
+																	$linelength,$firstline,
+																	$type,$base);
+		  }
+		  $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+		  ($offset,$firstline,$linelength) = ($pos,length($_),0);
+		  $self->_check_linelength($linelength);
+        ($l3_len,$l2_len,$l_len)=(0,0,0);
+		  $seq_lines = 0;
+	  } else {
+        $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
+        if (DIE_ON_MISSMATCHED_LINES &&
+			  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
+           my $fap= substr($_,0,20)."..";
+           $self->throw("Each line of the fasta entry must be the same length except the last.
+    Line above #$. '$fap' is $l2_len != $l3_len chars.");
+        }
+
+		  $linelength ||= length($_);
+		  $type       ||= $self->_type($_);
+		  $seq_lines++;
+	  }
+	  $last_line = $_;
   }
 
   $self->_check_linelength($linelength);
   # deal with last entry
   if ($id) {
-    my $pos = tell($fh);
-    my $seqlength   = $pos - $offset;
-
-    if ($linelength == 0) { # yet another pesky empty chr_random.fa file
-      $seqlength = 0;
-    } else {
-      if ($last_line !~ /\s$/) {
-        $seq_lines--;
-      }
-      $seqlength -= $termination_length * $seq_lines;
-    };
-    $offsets->{$id} = &{$self->{packmeth}}($offset,$seqlength,
-				   $linelength,$firstline,
-				   $type,$base);
-}
+	  my $pos = tell($fh);
+	  my $seqlength   = $pos - $offset;
+	  
+	  if ($linelength == 0) { # yet another pesky empty chr_random.fa file
+		  $seqlength = 0;
+	  } else {
+		  if ($last_line !~ /\s$/) {
+			  $seq_lines--;
+		  }
+		  $seqlength -= $termination_length * $seq_lines;
+	  };
+	  $offsets->{$id} = &{$self->{packmeth}}($offset,$seqlength,
+														  $linelength,$firstline,
+														  $type,$base);
+  }
   $offsets->{__termination_length} = $termination_length;
   return \%offsets;
 }
