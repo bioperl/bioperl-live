@@ -10,17 +10,15 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan test => 2;
+    use Test::More;
+    plan tests => 4;
+	use_ok('Bio::Tools::IUPAC');
+	use_ok('Bio::Seq');
 }
-
-#use Bio::Tools::SeqAnal; # deprecated, don't use any more
-use Bio::Tools::IUPAC;
-use Bio::Seq;
 
 # test IUPAC
 
@@ -28,7 +26,7 @@ my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR',
 			    -alphabet => 'dna'); 
 
 my $stream  = new Bio::Tools::IUPAC('-seq' => $ambiseq);
-ok $stream->count(), 4;
+is $stream->count(), 4;
 
 my $b = 1; 
 while (my $uniqueseq = $stream->next_seq()) {

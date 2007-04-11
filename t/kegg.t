@@ -4,17 +4,14 @@
 use strict;
 
 BEGIN {
-	eval { require Test; };
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	plan tests => 13;
+	use_ok('Bio::SeqIO');
 }
-
-use Bio::SeqIO;
-
-ok(1);
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -25,25 +22,25 @@ my $io = Bio::SeqIO->new(-format => 'kegg',
 ok($io);
 my $kegg = $io->next_seq();
 ok($kegg);
-ok($kegg->accession, '10768');
-ok($kegg->display_id, 'AHCYL1');
-ok($kegg->alphabet, 'dna');
-ok($kegg->seq,'atgtcgatgcctgacgcgatgccgctgcccggggtcggggaggagctgaagcaggccaaggagatcgaggacgccgagaagtactccttcatggccaccgtcaccaaggcgcccaagaagcaaatccagtttgctgatgacatgcaggagttcaccaaattccccaccaaaactggccgaagatctttgtctcgctcgatctcacagtcctccactgacagctacagttcagctgcatcctacacagatagctctgatgatgaggtttctccccgagagaagcagcaaaccaactccaagggcagcagcaatttctgtgtgaagaacatcaagcaggcagaatttggacgccgggagattgagattgcagagcaagacatgtctgctctgatttcactcaggaaacgtgctcagggggagaagcccttggctggtgctaaaatagtgggctgtacacacatcacagcccagacagcggtgttgattgagacactctgtgccctgggggctcagtgccgctggtctgcttgtaacatctactcaactcagaatgaagtagctgcagcactggctgaggctggagttgcagtgttcgcttggaagggcgagtcagaagatgacttctggtggtgtattgaccgctgtgtgaacatggatgggtggcaggccaacatgatcctggatgatgggggagacttaacccactgggtttataagaagtatccaaacgtgtttaagaagatccgaggcattgtggaagagagcgtgactggtgttcacaggctgtatcagctctccaaagctgggaagctctgtgttccggccatgaacgtcaatgattctgttaccaaacagaagtttgataacttgtactgctgccgagaatccattttggatggcctgaagaggaccacagatgtgatgtttggtgggaaacaagtggtggtgtgtggctatggtgaggtaggcaagggctgctgtgctgctctcaaagctcttggagcaattgtctacattaccgaaatcgaccccatctgtgctctgcaggcctgcatggatgggttcagggtggtaaagctaaatgaagtcatccggcaagtcgatgtcgtaataacttgcacaggaaataagaatgtagtgacacgggagcacttggatcgcatgaaaaacagttgtatcgtatgcaatatgggccactccaacacagaaatcgatgtgaccagcctccgcactccggagctgacgtgggagcgagtacgttctcaggtggaccatgtcatctggccagatggcaaacgagttgtcctcctggcagagggtcgtctactcaatttgagctgctccacagttcccacctttgttctgtccatcacagccacaacacaggctttggcactgatagaactctataatgcacccgaggggcgatacaagcaggatgtgtacttgcttcctaagaaaatggatgaatacgttgccagcttgcatctgccatcatttgatgcccaccttacagagctgacagatgaccaagcaaaatatctgggactcaacaaaaatgggccattcaaacctaattattacagatactaa');
+is($kegg->accession, '10768');
+is($kegg->display_id, 'AHCYL1');
+is($kegg->alphabet, 'dna');
+is($kegg->seq,'atgtcgatgcctgacgcgatgccgctgcccggggtcggggaggagctgaagcaggccaaggagatcgaggacgccgagaagtactccttcatggccaccgtcaccaaggcgcccaagaagcaaatccagtttgctgatgacatgcaggagttcaccaaattccccaccaaaactggccgaagatctttgtctcgctcgatctcacagtcctccactgacagctacagttcagctgcatcctacacagatagctctgatgatgaggtttctccccgagagaagcagcaaaccaactccaagggcagcagcaatttctgtgtgaagaacatcaagcaggcagaatttggacgccgggagattgagattgcagagcaagacatgtctgctctgatttcactcaggaaacgtgctcagggggagaagcccttggctggtgctaaaatagtgggctgtacacacatcacagcccagacagcggtgttgattgagacactctgtgccctgggggctcagtgccgctggtctgcttgtaacatctactcaactcagaatgaagtagctgcagcactggctgaggctggagttgcagtgttcgcttggaagggcgagtcagaagatgacttctggtggtgtattgaccgctgtgtgaacatggatgggtggcaggccaacatgatcctggatgatgggggagacttaacccactgggtttataagaagtatccaaacgtgtttaagaagatccgaggcattgtggaagagagcgtgactggtgttcacaggctgtatcagctctccaaagctgggaagctctgtgttccggccatgaacgtcaatgattctgttaccaaacagaagtttgataacttgtactgctgccgagaatccattttggatggcctgaagaggaccacagatgtgatgtttggtgggaaacaagtggtggtgtgtggctatggtgaggtaggcaagggctgctgtgctgctctcaaagctcttggagcaattgtctacattaccgaaatcgaccccatctgtgctctgcaggcctgcatggatgggttcagggtggtaaagctaaatgaagtcatccggcaagtcgatgtcgtaataacttgcacaggaaataagaatgtagtgacacgggagcacttggatcgcatgaaaaacagttgtatcgtatgcaatatgggccactccaacacagaaatcgatgtgaccagcctccgcactccggagctgacgtgggagcgagtacgttctcaggtggaccatgtcatctggccagatggcaaacgagttgtcctcctggcagagggtcgtctactcaatttgagctgctccacagttcccacctttgttctgtccatcacagccacaacacaggctttggcactgatagaactctataatgcacccgaggggcgatacaagcaggatgtgtacttgcttcctaagaaaatggatgaatacgttgccagcttgcatctgccatcatttgatgcccaccttacagagctgacagatgaccaagcaaaatatctgggactcaacaaaaatgggccattcaaacctaattattacagatactaa');
 ok($kegg->translate->seq);
 
-ok(($kegg->annotation->get_Annotations('description'))[0]->text,
+is(($kegg->annotation->get_Annotations('description'))[0]->text,
    'S-adenosylhomocysteine hydrolase-like 1 [EC:3.3.1.1]');
 
-ok(($kegg->annotation->get_Annotations('pathway'))[0]->text,
+is(($kegg->annotation->get_Annotations('pathway'))[0]->text,
    'Metabolism; Amino Acid Metabolism; Methionine metabolism');
 
-ok( (grep {$_->database eq 'KO'}
+is( (grep {$_->database eq 'KO'}
      $kegg->annotation->get_Annotations('dblink'))[0]->comment, 
     'adenosylhomocysteinase' );
 
-ok( (grep {$_->database eq 'PATH'} 
+is( (grep {$_->database eq 'PATH'} 
      $kegg->annotation->get_Annotations('dblink'))[0]->primary_id,
     'hsa00271' );
 
-ok( ($kegg->annotation->get_Annotations('aa_seq'))[0]->text,
+is( ($kegg->annotation->get_Annotations('aa_seq'))[0]->text,
 'MSMPDAMPLPGVGEELKQAKEIEDAEKYSFMATVTKAPKKQIQFADDMQEFTKFPTKTGRRSLSRSISQSSTDSYSSAASYTDSSDDEVSPREKQQTNSKGSSNFCVKNIKQAEFGRREIEIAEQDMSALISLRKRAQGEKPLAGAKIVGCTHITAQTAVLIETLCALGAQCRWSACNIYSTQNEVAAALAEAGVAVFAWKGESEDDFWWCIDRCVNMDGWQANMILDDGGDLTHWVYKKYPNVFKKIRGIVEESVTGVHRLYQLSKAGKLCVPAMNVNDSVTKQKFDNLYCCRESILDGLKRTTDVMFGGKQVVVCGYGEVGKGCCAALKALGAIVYITEIDPICALQACMDGFRVVKLNEVIRQVDVVITCTGNKNVVTREHLDRMKNSCIVCNMGHSNTEIDVTSLRTPELTWERVRSQVDHVIWPDGKRVVLLAEGRLLNLSCSTVPTFVLSITATTQALALIELYNAPEGRYKQDVYLLPKKMDEYVASLHLPSFDAHLTELTDDQAKYLGLNKNGPFKPNYYRY');
