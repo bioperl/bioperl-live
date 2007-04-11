@@ -10,59 +10,49 @@
 #
 #####
 
-
 use strict;
-#require 'dumpvar.pl';
 
 BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    
+    eval { 
+	    require Test::More ; 
+	} ;
+
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib' ;
     }
-    use Test;
-    plan tests => 7;
+    
+    use Test::More tests => 8 ;
+
 }
-my $DEBUG = $ENV{'BIOPERLDEBUG'};
 
-print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n") if($DEBUG);
-use Bio::Tools::Alignment::Consed;
-use Bio::Root::IO;
-ok(1);
+my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0 ;
 
-print("Checking if the Bio::Tools::Alignment::Trim module could be used...\n") if $DEBUG;
-use Bio::Tools::Alignment::Trim;
+use_ok('Bio::Tools::Alignment::Consed', 'Bio::Tools::Alignment::Consed can be used');
+use_ok('Bio::Root::IO', 'Bio::Root::IO can be used');
+use_ok('Bio::Tools::Alignment::Trim', 'Bio::Tools::Alignment::Trim can be used');
 
-ok(1);
-
-	# scope some variables
+# scope some variables
 my($o_consed,@singlets,@singletons,@pairs,@doublets,@multiplets,$invoker);
 
-	# instantiate a new object
-
+# instantiate a new object
 $o_consed = Bio::Tools::Alignment::Consed->new(	-acefile	=>Bio::Root::IO->catfile("t","data","consed_project","edit_dir","test_project.fasta.screen.ace.1"));
-print("Checking if a new CSM::Consed object was created...\n") if( $DEBUG);
-ok defined $o_consed;
+ok ( $o_consed && defined $o_consed, 'create new CSM::Consed object' ) ;
 
-	# set the verbosity to a valid value (0)
+# set the verbosity to a valid value (0)
 my $verbosity = $o_consed->set_verbose(0);
 
-	#
-print("Checking if the new object is a reference to a Bio::Tools::Alignment::Consed object...\n") if($DEBUG);
-	# test 3
-ok ref($o_consed),'Bio::Tools::Alignment::Consed';
+# test 3
+isa_ok($o_consed,'Bio::Tools::Alignment::Consed', 'creating new Bio::Tools::Alignment::Consed object') ;
 
-print("Checking if singlets can be successfully set...\n") if ($DEBUG);
-	# test 4
+# test 4
 $invoker = $o_consed->set_singlets("verbosely");
-ok $invoker != 1;
+ok ( $invoker != 1, 'singlets can be successfully set' ) ;
 
-print("Checking if singlets quality can be set...\n") if ($DEBUG);
-ok !($o_consed->set_singlet_quality());
-
-print("Checking if singlet and singleton qualities can be set...\n") if( $DEBUG);
-ok !($o_consed->set_trim_points_singlets_and_singletons());
+ok ( ! $o_consed->set_singlet_quality(), 'singlet quality can be set' );
+ok ( ! $o_consed->set_trim_points_singlets_and_singletons(), 'singleton/singlet qualities can be set' );
 
 

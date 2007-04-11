@@ -5,24 +5,28 @@
 
 use strict;
 use vars qw($NUMTESTS);
+
 BEGIN {
-	$NUMTESTS = 7;
+
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
+	
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
-	plan tests => $NUMTESTS;
+    
+    $NUMTESTS = 8 ;
+	use Test::More ;
+	plan tests => $NUMTESTS ;
+	
 }
 
-use Bio::SeqIO;
-use Bio::Root::IO;
+use_ok ('Bio::SeqIO', 'Bio::SeqIO can be used') ;
+use_ok('Bio::Root::IO', 'Bio::Root::IO can be used') ;
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
 
 my $io = Bio::SeqIO->new(-format => 'tab',
 								 -verbose => $verbose,
@@ -30,7 +34,7 @@ my $io = Bio::SeqIO->new(-format => 'tab',
 								 (qw(t data test.tab) ));
 
 while (my $seq = $io->next_seq) {
-	ok defined $seq;
-	ok($seq->length, 358);
-	ok($seq->display_id =~ /^roa\d_drome$/);
+	ok ( $seq && defined $seq, 'seq is defined' ) ;
+	is ( $seq->length, 358, 'check seq length'  ) ;
+	like ($seq->display_id, qr/^roa\d_drome$/, 'check matching' );
 }
